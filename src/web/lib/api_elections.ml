@@ -24,14 +24,84 @@ open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_api.Serializable_j
 open Web_serializable_builtin_t
+open Web_serializable_t
 open Api_generic
 
-let dispatch_election _token endpoint method_ _body _uuid raw =
+let with_administrator token metadata f =
+  let@ token = Option.unwrap unauthorized token in
+  match lookup_token token, metadata.e_owner with
+  | Some a, Some o when Accounts.check_account a o -> f a
+  | _ -> unauthorized
+
+let get_election_status uuid =
+  let* s = Web_persist.get_election_state uuid in
+  let* d = Web_persist.get_election_dates uuid in
+  let status_state =
+    match s with
+    | `EncryptedTally _ -> `EncryptedTally
+    | (`Open | `Closed | `Shuffling | `Tallied | `Archived) as x -> x
+  in
+  Lwt.return {
+      status_state;
+      status_auto_open_date = Option.map unixfloat_of_datetime d.e_auto_open;
+      status_auto_close_date = Option.map unixfloat_of_datetime d.e_auto_close;
+    }
+
+let set_election_state uuid state =
+  let* allowed =
+    let* state = Web_persist.get_election_state uuid in
+    match state with
+    | `Open | `Closed -> Lwt.return_true
+    | _ -> Lwt.return_false
+  in
+  if allowed then (
+    let* () =
+      Web_persist.set_election_state uuid
+        (state : [`Open | `Closed] :> Web_serializable_t.election_state)
+    in
+    let* dates = Web_persist.get_election_dates uuid in
+    let* () =
+      Web_persist.set_election_dates uuid
+        {dates with e_auto_open = None; e_auto_close = None}
+    in
+    Lwt.return_true
+  ) else (
+    Lwt.return_false
+  )
+
+let open_election uuid = set_election_state uuid `Open
+let close_election uuid = set_election_state uuid `Closed
+
+let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
      begin
        match method_ with
        | `GET -> Lwt.return (200, raw)
+       | _ -> method_not_allowed
+     end
+  | ["status"] ->
+     begin
+       match method_ with
+       | `GET ->
+          let* x = get_election_status uuid in
+          Lwt.return (200, string_of_election_status x)
+       | _ -> method_not_allowed
+     end
+  | ["admin"] ->
+     begin
+       let@ _ = with_administrator token metadata in
+       match method_ with
+       | `POST ->
+          begin
+            let@ request = body.run admin_request_of_string in
+            let* b =
+              match request with
+              | `Open -> open_election uuid
+              | `Close -> close_election uuid
+            in
+            if b then ok else forbidden
+          end
        | _ -> method_not_allowed
      end
   | _ -> not_found
@@ -63,4 +133,5 @@ let dispatch token endpoint method_ body =
      let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
      let* raw = Web_persist.get_raw_election uuid in
      let@ raw = Option.unwrap not_found raw in
-     dispatch_election token endpoint method_ body uuid raw
+     let* metadata = Web_persist.get_election_metadata uuid in
+     dispatch_election token endpoint method_ body uuid raw metadata

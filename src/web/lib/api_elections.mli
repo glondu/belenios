@@ -19,7 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Serializable_builtin_t
 open Api_generic
+
+val open_election : uuid -> bool Lwt.t
+val close_election : uuid -> bool Lwt.t
 
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->

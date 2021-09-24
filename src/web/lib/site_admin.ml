@@ -1318,22 +1318,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let election_set_state state uuid () =
     let@ _ = with_metadata_check_owner uuid in
-    let* allowed =
-      let* state = Web_persist.get_election_state uuid in
-      match state with
-      | `Open | `Closed -> return_true
-      | _ -> return_false
-    in
-    if allowed then (
-      let state = if state then `Open else `Closed in
-      let* () = Web_persist.set_election_state uuid state in
-      let* dates = Web_persist.get_election_dates uuid in
-      let* () =
-        Web_persist.set_election_dates uuid
-          {dates with e_auto_open = None; e_auto_close = None}
-      in
-      redir_preapply election_admin uuid ()
-    ) else forbidden ()
+    let set = Api_elections.(if state then open_election else close_election) in
+    let* b = set uuid in
+    if b then redir_preapply election_admin uuid () else forbidden ()
 
   let () = Any.register ~service:election_open (election_set_state true)
   let () = Any.register ~service:election_close (election_set_state false)

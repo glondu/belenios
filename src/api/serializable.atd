@@ -118,3 +118,23 @@ type status_request =
   [ SetDownloaded
   | ValidateElection
   ]
+
+type state =
+  [ Open
+  | Closed
+  | Shuffling
+  | EncryptedTally
+  | Tallied
+  | Archived
+  ]
+
+type election_status = {
+   state : state;
+   ?auto_open_date : float option;
+   ?auto_close_date : float option;
+} <ocaml field_prefix="status_">
+
+type admin_request =
+  [ Open
+  | Close
+  ]
