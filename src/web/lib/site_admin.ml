@@ -1383,11 +1383,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         match auto_dates with
         | Ok (e_auto_open, e_auto_close) ->
-           let* dates = Web_persist.get_election_dates uuid in
-           let* () =
-             Web_persist.set_election_dates uuid
-               {dates with e_auto_open; e_auto_close}
+           let open Belenios_api.Serializable_t in
+           let dates =
+             {
+               auto_date_open = Option.map unixfloat_of_datetime e_auto_open;
+               auto_date_close = Option.map unixfloat_of_datetime e_auto_close;
+             }
            in
+           let* () = Api_elections.set_election_auto_dates uuid dates in
            redir_preapply election_admin uuid ()
         | Error msg ->
            let service = preapply ~service:election_admin uuid in

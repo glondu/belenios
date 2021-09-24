@@ -134,7 +134,13 @@ type election_status = {
    ?auto_close_date : float option;
 } <ocaml field_prefix="status_">
 
+type election_auto_dates = {
+    ?open : float option;
+    ?close : float option;
+} <ocaml field_prefix="auto_date_">
+
 type admin_request =
   [ Open
   | Close
+  | SetAutomaticDates of election_auto_dates
   ]

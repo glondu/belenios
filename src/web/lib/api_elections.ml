@@ -72,6 +72,12 @@ let set_election_state uuid state =
 let open_election uuid = set_election_state uuid `Open
 let close_election uuid = set_election_state uuid `Closed
 
+let set_election_auto_dates uuid d =
+  let e_auto_open = Option.map datetime_of_unixfloat d.auto_date_open in
+  let e_auto_close = Option.map datetime_of_unixfloat d.auto_date_close in
+  let* dates = Web_persist.get_election_dates uuid in
+  Web_persist.set_election_dates uuid {dates with e_auto_open; e_auto_close}
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -95,12 +101,18 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
        | `POST ->
           begin
             let@ request = body.run admin_request_of_string in
-            let* b =
-              match request with
-              | `Open -> open_election uuid
-              | `Close -> close_election uuid
-            in
-            if b then ok else forbidden
+            match request with
+            | (`Open | `Close) as x ->
+               let doit =
+                 match x with
+                 | `Open -> open_election
+                 | `Close -> close_election
+               in
+               let* b = doit uuid in
+               if b then ok else forbidden
+            | `SetAutomaticDates d ->
+               let* () = set_election_auto_dates uuid d in
+               ok
           end
        | _ -> method_not_allowed
      end

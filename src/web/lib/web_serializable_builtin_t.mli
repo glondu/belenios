@@ -26,6 +26,7 @@ val raw_datetime_of_string : string -> datetime
 val datetime_compare : datetime -> datetime -> int
 val format_datetime : ?fmt:string -> datetime -> string
 val unixfloat_of_datetime : datetime -> float
+val datetime_of_unixfloat : float -> datetime
 
 type period
 val day : int -> period

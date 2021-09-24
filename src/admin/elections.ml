@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Js_of_ocaml
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common.Tool_js_html
@@ -48,8 +49,40 @@ let rec show main uuid =
        node @@ b
     | _ -> txt ""
   in
+  let auto_dates =
+    let make_input d =
+      let r = input [] in
+      let () =
+        match d with
+        | None -> ()
+        | Some x -> r##.value := Js.string (string_of_float x)
+      in
+      r
+    in
+    let auto_open = make_input status.status_auto_open_date in
+    let auto_close = make_input status.status_auto_close_date in
+    let set_button =
+      let@ () = button "Set automatic dates" in
+      let get x =
+        let x = Js.to_string x##.value in
+        if x = "" then None else Some (float_of_string x)
+      in
+      let dates =
+        {
+          auto_date_open = get auto_open;
+          auto_date_close = get auto_close;
+        }
+      in
+      let request = `SetAutomaticDates dates in
+      let* x = post_with_token (string_of_admin_request request) "elections/%s/admin" uuid in
+      let@ () = show_in main in
+      generic_proceed x (fun () -> show main uuid)
+    in
+    [node auto_open; node auto_close; node set_button]
+  in
   Lwt.return [
       node @@ div [txt "Raw election: "; txt raw_election];
       node @@ div [txt "Status: "; txt @@ string_of_election_status status];
       node @@ div [button_switch];
+      node @@ div auto_dates;
     ]

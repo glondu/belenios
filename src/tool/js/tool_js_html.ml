@@ -42,3 +42,4 @@ let li = createNode Dom_html.createLi
 let a = createNode Dom_html.createA
 let textarea = createNode Dom_html.createTextarea
 let button = createNode Dom_html.createButton
+let input = createNode Dom_html.createInput
