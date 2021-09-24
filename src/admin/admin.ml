@@ -209,12 +209,6 @@ let rec show_root main =
       node @@ create;
     ]
 
-let show_election main uuid =
-  let@ () = show_in main in
-  let* x = get (fun x -> x) "elections/%s" uuid in
-  let@ raw_election = with_ok "election" x in
-  Lwt.return @@ [txt raw_election]
-
 let show hash main =
   let show_root () =
     context := `None;
@@ -224,7 +218,7 @@ let show hash main =
   | `Error -> context := `None; show_error main
   | `Root -> show_root ()
   | `Draft (uuid, tab) -> Drafts.show show_root main uuid tab context
-  | `Election uuid -> context := `None; show_election main uuid
+  | `Election uuid -> context := `None; Elections.show main uuid
   | `Credentials (uuid, _) -> context := `None; Credentials.show main uuid
 
 let onhashchange () =
