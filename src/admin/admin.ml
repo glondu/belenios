@@ -87,53 +87,35 @@ let rec show_root main =
   let@ () = show_in main in
   let* configuration, configuration_opt =
     let* x = get configuration_of_string "configuration" in
-    match x with
-    | Error error ->
-       error
-       |> string_of_error
-       |> (fun x -> Printf.sprintf "An error occurred while retrieving configuration: %s" x)
-       |> (fun x -> Lwt.return (div [txt x], None))
-    | Ok c ->
-       Lwt.return (div [txt (string_of_configuration c)], Some c)
+    let@ c = with_ok_opt "configuration" x in
+    Lwt.return [txt (string_of_configuration c)]
   in
   let* account, account_opt =
     let* x = get api_account_of_string "account" in
-    match x with
-    | Error error ->
-       error
-       |> string_of_error
-       |> (fun x -> Printf.sprintf "An error occurred while retrieving account: %s" x)
-       |> (fun x -> Lwt.return (div [txt x], None))
-    | Ok account ->
-       let t = textarea ~rows:2 () in
-       t##.value := Js.string (string_of_api_account account);
-       let b =
-         let@ () = button "Save changes" in
-         let* x = put_with_token (Js.to_string t##.value) "account" in
-         let@ () = show_in main in
-         let msg =
-           match x.code with
-           | 200 -> "Changes successfully applied!"
-           | code -> Printf.sprintf "Error %d: %s" code x.content
-         in
-         let b = button "Proceed" (fun () -> show_root main) in
-         Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
-       in
-       Lwt.return (div [node @@ div [node t]; node @@ div [node b]], Some account)
+    let@ account = with_ok_opt "account" x in
+    let t = textarea ~rows:2 () in
+    t##.value := Js.string (string_of_api_account account);
+    let b =
+      let@ () = button "Save changes" in
+      let* x = put_with_token (Js.to_string t##.value) "account" in
+      let@ () = show_in main in
+      let msg =
+        match x.code with
+        | 200 -> "Changes successfully applied!"
+        | code -> Printf.sprintf "Error %d: %s" code x.content
+      in
+      let b = button "Proceed" (fun () -> show_root main) in
+      Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+    in
+    Lwt.return [node @@ div [node t]; node @@ div [node b]]
   in
   let* drafts =
     let* x = get summary_list_of_string "drafts" in
-    match x with
-    | Error error ->
-       error
-       |> string_of_error
-       |> (fun x -> Printf.sprintf "An error occurred while retrieving drafts: %s" x)
-       |> (fun x -> Lwt.return @@ div [txt x])
-    | Ok drafts ->
-       drafts
-       |> List.sort (fun a b -> compare a.summary_date b.summary_date)
-       |> List.map (fun x -> node @@ li [node @@ draft_a x])
-       |> (fun xs -> Lwt.return @@ ul xs)
+    let@ drafts = with_ok "drafts" x in
+    drafts
+    |> List.sort (fun a b -> compare a.summary_date b.summary_date)
+    |> List.map (fun x -> node @@ li [node @@ draft_a x])
+    |> (fun xs -> Lwt.return [node @@ ul xs])
   in
   let* validated, tallied, archived =
     let* x = get summary_list_of_string "elections" in
@@ -143,14 +125,14 @@ let rec show_root main =
          Printf.sprintf "An error occurred while retrieving elections: %s"
            (string_of_error e)
        in
-       let x () = div [txt msg] in
+       let x () = [txt msg] in
        Lwt.return (x (), x (), x ())
     | Ok elections ->
        let make kind =
          List.filter (fun x -> x.summary_kind = Some kind) elections
          |> List.sort (fun a b -> compare a.summary_date b.summary_date)
          |> List.map (fun x -> node @@ li [node @@ election_a x])
-         |> ul
+         |> (fun xs -> [node @@ ul xs])
        in
        Lwt.return (make `Validated, make `Tallied, make `Archived)
   in
@@ -212,17 +194,17 @@ let rec show_root main =
   in
   Lwt.return [
       node @@ h1 [txt "Server configuration"];
-      node @@ configuration;
+      node @@ div configuration;
       node @@ h1 [txt "My account"];
-      node @@ account;
+      node @@ div account;
       node @@ h1 [txt @@ s_ "Elections being prepared"];
-      node @@ drafts;
+      node @@ div drafts;
       node @@ h1 [txt @@ s_ "Elections you can administer"];
-      node @@ validated;
+      node @@ div validated;
       node @@ h1 [txt @@ s_ "Tallied elections"];
-      node @@ tallied;
+      node @@ div tallied;
       node @@ h1 [txt @@ s_ "Archived elections"];
-      node @@ archived;
+      node @@ div archived;
       node @@ h1 [txt "Create new draft"];
       node @@ create;
     ]
@@ -230,12 +212,8 @@ let rec show_root main =
 let show_election main uuid =
   let@ () = show_in main in
   let* x = get (fun x -> x) "elections/%s" uuid in
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error: %s" (string_of_error e) in
-     Lwt.return @@ [txt msg]
-  | Ok raw_election ->
-     Lwt.return @@ [txt raw_election]
+  let@ raw_election = with_ok "election" x in
+  Lwt.return @@ [txt raw_election]
 
 let show hash main =
   let show_root () =

@@ -28,23 +28,6 @@ open Tool_js_common
 open Tool_js_html
 open Common
 
-let generic_proceed x handler =
-  let msg =
-    let open Js_of_ocaml_lwt.XmlHttpRequest in
-    match x.code with
-    | 200 -> "Success"
-    | code -> Printf.sprintf "Error %d: %s" code x.content
-  in
-  let b = button "Proceed" handler in
-  Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
-
-let with_ok what x f =
-  match x with
-  | Error e ->
-     let msg = Printf.sprintf "Error while retrieving %s: %s" what (string_of_error e) in
-     Lwt.return [txt msg]
-  | Ok x -> f x
-
 let show_draft_main show_root show_all uuid draft container =
   let@ () = show_in container in
   let t = textarea () in

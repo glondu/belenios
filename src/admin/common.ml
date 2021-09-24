@@ -115,3 +115,29 @@ let wrap of_string x =
      let@ x = Option.unwrap bad_result (Option.wrap of_string x.content) in
      Lwt.return @@ Ok x
   | code -> Lwt.return @@ Error (`BadStatus (code, x.content))
+
+let generic_proceed x handler =
+  let msg =
+    let open Js_of_ocaml_lwt.XmlHttpRequest in
+    match x.code with
+    | 200 -> "Success"
+    | code -> Printf.sprintf "Error %d: %s" code x.content
+  in
+  let b = button "Proceed" handler in
+  Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+
+let with_ok what x f =
+  match x with
+  | Error e ->
+     let msg = Printf.sprintf "Error while retrieving %s: %s" what (string_of_error e) in
+     Lwt.return [txt msg]
+  | Ok x -> f x
+
+let with_ok_opt what x f =
+  match x with
+  | Error e ->
+     let msg = Printf.sprintf "Error while retrieving %s: %s" what (string_of_error e) in
+     Lwt.return ([txt msg], None)
+  | Ok x ->
+     let* y = f x in
+     Lwt.return (y, Some x)
