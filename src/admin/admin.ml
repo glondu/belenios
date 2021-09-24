@@ -239,9 +239,8 @@ let onload () =
       let hash = parse_hash () in
       let* b =
         match hash with
-        | `Root | `Draft _ -> get_api_token ()
+        | `Root | `Draft _ | `Election _ -> get_api_token ()
         | `Credentials (_, token) -> api_token := token; Lwt.return_true
-        | `Election _ -> Lwt.return_true
         | `Error -> Lwt.return_true
       in
       if b then (

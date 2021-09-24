@@ -21,11 +21,35 @@
 
 open Lwt.Syntax
 open Belenios_core.Common
+open Belenios_api.Serializable_j
 open Belenios_tool_js_common.Tool_js_html
 open Common
 
-let show main uuid =
+let rec show main uuid =
   let@ () = show_in main in
   let* x = get (fun x -> x) "elections/%s" uuid in
   let@ raw_election = with_ok "election" x in
-  Lwt.return @@ [txt raw_election]
+  let* x = get election_status_of_string "elections/%s/status" uuid in
+  let@ status = with_ok "status" x in
+  let button_switch =
+    match status.status_state with
+    | (`Open | `Closed) as x ->
+       let label, request =
+         match x with
+         | `Open -> "Close election", `Close
+         | `Closed -> "Open election", `Open
+       in
+       let b =
+         let@ () = button label in
+         let* x = post_with_token (string_of_admin_request request) "elections/%s/admin" uuid in
+         let@ () = show_in main in
+         generic_proceed x (fun () -> show main uuid)
+       in
+       node @@ b
+    | _ -> txt ""
+  in
+  Lwt.return [
+      node @@ div [txt "Raw election: "; txt raw_election];
+      node @@ div [txt "Status: "; txt @@ string_of_election_status status];
+      node @@ div [button_switch];
+    ]
