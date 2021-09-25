@@ -50,16 +50,16 @@ let api_of_draft se =
   let draft_questions =
     {
       se.se_questions with
-      t_credential_authority = Some (Option.get se.se_metadata.e_cred_authority "");
-      t_administrator = Some (Option.get se.se_administrator "");
+      t_credential_authority = Some (Option.value se.se_metadata.e_cred_authority ~default:"");
+      t_administrator = Some (Option.value se.se_administrator ~default:"");
     }
   in
   {
-    draft_version = Option.get se.se_version 0;
+    draft_version = Option.value se.se_version ~default:0;
     draft_questions;
-    draft_languages = Option.get se.se_metadata.e_languages [];
+    draft_languages = Option.value se.se_metadata.e_languages ~default:[];
     draft_contact = se.se_metadata.e_contact;
-    draft_booth = Option.get se.se_metadata.e_booth_version 1;
+    draft_booth = Option.value se.se_metadata.e_booth_version ~default:1;
     draft_authentication = get_authentication se;
     draft_group = se.se_group;
   }
@@ -68,7 +68,7 @@ let assert_ msg b f =
   if b then f () else raise (Error msg)
 
 let draft_of_api se d =
-  let version = Option.get se.se_version 0 in
+  let version = Option.value se.se_version ~default:0 in
   let () =
     if d.draft_version <> version then
       raise (Error "cannot change version")
@@ -226,7 +226,7 @@ let put_draft_voters uuid se voters =
             | Some _ -> shape
             | None -> Some ((login <> None), (weight <> None))
           in
-          let login = String.lowercase_ascii (Option.get login address) in
+          let login = String.lowercase_ascii (Option.value login ~default:address) in
           let* voters =
             if SSet.mem login voters then (
               Lwt.fail @@ Error (Printf.sprintf "duplicate login in %s" sv_id)
@@ -234,7 +234,7 @@ let put_draft_voters uuid se voters =
               Lwt.return (SSet.add login voters)
             )
           in
-          let weight = Option.get weight Weight.one in
+          let weight = Option.value weight ~default:Weight.one in
           Lwt.return (Weight.(total_weight + weight), shape, voters)
         )
       ) (Weight.zero, None, SSet.empty) se_voters
@@ -322,7 +322,7 @@ let generate_credentials_on_server send uuid se =
           weight <> None
         ) se.se_voters
     in
-    let version = Option.get se.se_version 0 in
+    let version = Option.value se.se_version ~default:0 in
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module CMap = Map.Make (G) in
     let module CD = Belenios_core.Credential.MakeDerive (G) in
@@ -364,7 +364,7 @@ let exn_of_generate_credentials_on_server_error = function
 
 let submit_public_credentials uuid se credentials =
   let () = if se.se_voters = [] then raise (Error "No voters") in
-  let version = Option.get se.se_version 0 in
+  let version = Option.value se.se_version ~default:0 in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let weights =
     List.fold_left
@@ -402,7 +402,7 @@ let get_draft_trustees se =
          else
            Some {
                trustee_address = t.st_id;
-               trustee_name = Option.get t.st_name "";
+               trustee_name = Option.value t.st_name ~default:"";
                trustee_token = Some t.st_token;
                trustee_state = Some (if t.st_public_key = "" then 0 else 1);
              }
@@ -412,9 +412,9 @@ let get_draft_trustees se =
        (fun t ->
          {
            trustee_address = t.stt_id;
-           trustee_name = Option.get t.stt_name "";
+           trustee_name = Option.value t.stt_name ~default:"";
            trustee_token = Some t.stt_token;
-           trustee_state = Some (Option.get t.stt_step 0);
+           trustee_state = Some (Option.value t.stt_step ~default:0);
          }
        ) ts
 
@@ -428,9 +428,9 @@ let ensure_none label x =
 
 let generate_server_trustee se =
   let st_id = "server" and st_token = "" in
-  let version = Option.get se.se_version 0 in
+  let version = Option.value se.se_version ~default:0 in
   let module G = (val Group.of_string ~version se.se_group) in
-  let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+  let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
   let module K = Trustees.MakeSimple (G) (LwtRandom) in
   let* private_key = K.generate () in
   let* public_key = K.prove private_key in
@@ -537,7 +537,7 @@ let set_threshold uuid se threshold =
 let get_draft_trustees_mode se =
   match se.se_threshold_trustees with
   | None -> `Basic
-  | Some _ -> `Threshold (Option.get se.se_threshold 0)
+  | Some _ -> `Threshold (Option.value se.se_threshold ~default:0)
 
 let put_draft_trustees_mode uuid se mode =
   match get_draft_trustees_mode se, mode with
@@ -613,7 +613,7 @@ let dump_passwords uuid db =
 
 let validate_election account uuid se =
   let* s = get_draft_status uuid se in
-  let version = Option.get se.se_version 0 in
+  let version = Option.value se.se_version ~default:0 in
   let uuid_s = raw_string_of_uuid uuid in
   (* convenience tests *)
   let () =
@@ -738,7 +738,7 @@ let validate_election account uuid se =
   let template = se.se_questions in
   let params =
     {
-      e_version = Option.get se.se_version 0;
+      e_version = Option.value se.se_version ~default:0;
       e_description = template.t_description;
       e_name = template.t_name;
       e_questions = template.t_questions;

@@ -640,7 +640,7 @@ module Make
                            a ~service:election_draft_confirm [txt (s_ "Create election")] uuid;
                          ] in
     let form_destroy =
-      let t = Option.get se.se_creation_date default_creation_date in
+      let t = Option.value se.se_creation_date ~default:default_creation_date in
       let t = datetime_add t (day days_to_delete) in
       post_form
         ~service:election_draft_destroy
@@ -1448,7 +1448,7 @@ module Make
         ~a:[a_style "display:none;"]
         [
           div [txt "Version:"];
-          div [raw_textarea "version" (Option.get se.se_version 0 |> string_of_int)];
+          div [raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int)];
           div [txt "UUID:"];
           div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
           div [txt "Group parameters:"];
@@ -1545,7 +1545,7 @@ module Make
         [
           div [
               txt "Version:";
-              raw_textarea "version" (string_of_int (Option.get se.se_version 0));
+              raw_textarea "version" (string_of_int (Option.value se.se_version ~default:0));
             ];
           div [
               txt "Group parameters:";
@@ -1617,7 +1617,7 @@ module Make
       div ~a:[a_style "display:none;"] [
           div [
               txt "Version: ";
-              raw_textarea "version" (Option.get se.se_version 0 |> string_of_int);
+              raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int);
             ];
           div [
               txt "Step: ";
@@ -2431,7 +2431,7 @@ module Make
     let* dates = Web_persist.get_election_dates uuid in
     let* archive_date = match state with
       | `Tallied ->
-         let t = Option.get dates.e_tally default_tally_date in
+         let t = Option.value dates.e_tally ~default:default_tally_date in
          let t = datetime_add t (day days_to_archive) in
          return @@
            div [
@@ -2451,13 +2451,13 @@ module Make
     in
     let* deletion_date = match state with
       | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-         let t = Option.get dates.e_finalization default_validation_date in
+         let t = Option.value dates.e_finalization ~default:default_validation_date in
          return @@ datetime_add t (day days_to_delete)
       | `Tallied ->
-         let t = Option.get dates.e_tally default_tally_date in
+         let t = Option.value dates.e_tally ~default:default_tally_date in
          return @@ datetime_add t (day (days_to_archive + days_to_delete))
       | `Archived ->
-         let t = Option.get dates.e_archive default_archive_date in
+         let t = Option.value dates.e_archive ~default:default_archive_date in
          return @@ datetime_add t (day days_to_delete)
     in
     let div_delete =

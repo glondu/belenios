@@ -115,10 +115,6 @@ end
 module Option = struct
   include Option
 
-  let get x default_value = match x with
-    | None -> default_value
-    | Some x -> x
-
   let wrap f x =
     try Some (f x) with _ -> None
 

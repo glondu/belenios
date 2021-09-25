@@ -52,7 +52,6 @@ end
 
 module Option : sig
   include module type of Option
-  val get : 'a option -> 'a -> 'a
   val wrap : ('a -> 'b) -> 'a -> 'b option
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
 end

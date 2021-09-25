@@ -697,11 +697,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_preview
       (fun (uuid, ()) () ->
         let@ se = with_draft_election_ro uuid in
-        let version = Option.get se.se_version 0 in
+        let version = Option.value se.se_version ~default:0 in
         let group = se.se_group in
         let module G = (val Group.of_string ~version group : GROUP) in
         let params = {
-            e_version = Option.get se.se_version 0;
+            e_version = Option.value se.se_version ~default:0;
             e_description = se.se_questions.t_description;
             e_name = se.se_questions.t_name;
             e_questions = se.se_questions.t_questions;
@@ -1029,9 +1029,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                         let title = s_ "Error" in
                         return_some (title, msg, 400)
                       else
-                        let version = Option.get se.se_version 0 in
+                        let version = Option.value se.se_version ~default:0 in
                         let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                        let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+                        let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
                         let pk = trustee_public_key_of_string G.read public_key in
                         let module K = Trustees.MakeCombinator (G) in
                         if not (K.check [`Single pk]) then
@@ -1168,9 +1168,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | None -> Lwt.fail (TrusteeImportError (s_ "Could not retrieve trustees from selected election!"))
             | Some names ->
                let* trustees = Web_persist.get_trustees from in
-               let version = Option.get se.se_version 0 in
+               let version = Option.value se.se_version ~default:0 in
                let module G = (val Group.of_string ~version se.se_group : GROUP) in
-               let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+               let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
                let module K = Trustees.MakeCombinator (G) in
                let trustees = trustees_of_string G.read trustees in
                if not (K.check trustees) then
@@ -2042,9 +2042,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                        | Some y -> y
                      ) ts
                  in
-                 let version = Option.get se.se_version 0 in
+                 let version = Option.value se.se_version ~default:0 in
                  let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                 let module Trustees = (val Trustees.get_by_version (Option.get se.se_version 0)) in
+                 let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
                  let module P = Trustees.MakePKI (G) (LwtRandom) in
                  let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
                  let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
@@ -2381,7 +2381,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     match election with
     | None -> return_none
     | Some se ->
-       let t = Option.get se.se_creation_date default_creation_date in
+       let t = Option.value se.se_creation_date ~default:default_creation_date in
        let next_t = datetime_add t (day days_to_delete) in
        return_some (`Destroy, uuid, next_t)
 
@@ -2395,15 +2395,15 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
        let* dates = Web_persist.get_election_dates uuid in
        match state with
        | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-          let t = Option.get dates.e_finalization default_validation_date in
+          let t = Option.value dates.e_finalization ~default:default_validation_date in
           let next_t = datetime_add t (day days_to_delete) in
           return_some (`Delete, uuid, next_t)
        | `Tallied ->
-          let t = Option.get dates.e_tally default_tally_date in
+          let t = Option.value dates.e_tally ~default:default_tally_date in
           let next_t = datetime_add t (day days_to_archive) in
           return_some (`Archive, uuid, next_t)
        | `Archived ->
-          let t = Option.get dates.e_archive default_archive_date in
+          let t = Option.value dates.e_archive ~default:default_archive_date in
           let next_t = datetime_add t (day days_to_delete) in
           return_some (`Delete, uuid, next_t)
 

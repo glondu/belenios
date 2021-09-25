@@ -75,7 +75,7 @@ let regexps =
 let parse_hash () =
   let x = Js.to_string Dom_html.window##.location##.hash in
   let r = List.find_map (fun (r, f) -> Option.map f @@ Regexp.string_match r x 0) regexps in
-  Option.get r `Error
+  Option.value r ~default:`Error
 
 let show_error main =
   main##.innerHTML := Js.string "Error";

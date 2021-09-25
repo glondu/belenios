@@ -409,7 +409,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div [
           Printf.ksprintf txt
             (f_ "This election is administered by %s.")
-            (Option.get params.e_administrator "N/A");
+            (Option.value params.e_administrator ~default:"N/A");
         ]
     in
     let div_voters =
@@ -448,7 +448,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       ul ~a:[a_id id] (
           List.map
             (fun x ->
-              let name = Option.get x.tc_name "N/A" in
+              let name = Option.value x.tc_name ~default:"N/A" in
               li [Printf.ksprintf txt "%s (%s)" name x.tc_checksum]
             ) xs
         )
@@ -466,7 +466,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       ul ~a:[a_class [className]] (
           List.map
             (fun x ->
-              let name = Option.get x.ttc_name "N/A" in
+              let name = Option.value x.ttc_name ~default:"N/A" in
               li [
                   Printf.ksprintf txt "%s (%s) [%s]"
                     name x.ttc_verification_key x.ttc_pki_key
@@ -493,7 +493,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div [
           Printf.ksprintf txt
             (f_ "Credentials were generated and sent by %s and have fingerprint %s.")
-            (Option.get params.e_credential_authority "N/A")
+            (Option.value params.e_credential_authority ~default:"N/A")
             checksums.ec_public_credentials;
         ]
     in
