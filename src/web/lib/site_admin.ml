@@ -1343,7 +1343,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let parse_datetime_from_post l x =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    try datetime_of_string ("\"" ^ x ^ ".000000\"") with
+    try raw_datetime_of_string x with
     | _ -> Printf.ksprintf failwith (f_ "%s is not a valid date!") x
 
   let () =

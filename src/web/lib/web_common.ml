@@ -81,6 +81,7 @@ let explain_error l e =
   | CastError `WrongWeight -> s_ "your credential has a bad weight"
 
 let decompose_seconds s =
+  let s = float_of_int s in
   let h = int_of_float (s /. 3600.) in
   let s = s -. float_of_int h *. 3600. in
   let m = int_of_float (s /. 60.) in

@@ -30,10 +30,10 @@ val datetime_of_unixfloat : float -> datetime
 
 type period
 val day : int -> period
-val second : float -> period
+val second : int -> period
 val datetime_add : datetime -> period -> datetime
 val datetime_sub : datetime -> datetime -> period
-val ymds : period -> int * int * int * float
+val ymds : period -> int * int * int * int
 
 type 'a user_or_id =
   [ `Id of int

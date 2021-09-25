@@ -52,7 +52,7 @@ module Make (I : SENDER) () = struct
   let generate ~address =
     let codes_ = filter_codes_by_time !codes in
     let* code = generate_numeric () in
-    let expiration_time = datetime_add (now ()) (second 900.) in
+    let expiration_time = datetime_add (now ()) (second 900) in
     codes := SMap.add address {code; expiration_time} codes_;
     I.send ~address ~code
 
