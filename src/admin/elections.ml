@@ -55,7 +55,9 @@ let rec show main uuid =
       let () =
         match d with
         | None -> ()
-        | Some x -> r##.value := Js.string (string_of_float x)
+        | Some x ->
+           let x = new%js Js.date_fromTimeValue (x *. 1000.) in
+           r##.value := x##toISOString
       in
       r
     in
@@ -64,8 +66,8 @@ let rec show main uuid =
     let set_button =
       let@ () = button "Set automatic dates" in
       let get x =
-        let x = Js.to_string x##.value in
-        if x = "" then None else Some (float_of_string x)
+        let y = Js.to_string x##.value in
+        if y = "" then None else Some (Js.date##parse x##.value /. 1000.)
       in
       let dates =
         {
