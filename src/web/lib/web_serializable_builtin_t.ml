@@ -51,7 +51,7 @@ let format_datetime ?(fmt = datetime_format) (a, _) =
   CalendarLib.Printer.Precise_Fcalendar.sprint fmt a
 
 let unixfloat_of_datetime (a, _) =
-  CalendarLib.Fcalendar.Precise.to_unixfloat a
+  CalendarLib.Fcalendar.Precise.to_unixfloat a |> Float.round
 
 let datetime_of_unixfloat t =
   CalendarLib.Fcalendar.Precise.from_unixfloat t, None
