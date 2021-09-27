@@ -1771,68 +1771,26 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_tally_release
       handle_election_tally_release
 
-  module type ELECTION_LWT = ELECTION_OPS with type 'a m = 'a Lwt.t
-
-  let perform_server_side_decryption uuid e metadata tally =
-    let module W = (val e : Site_common_sig.ELECTION_LWT) in
-    let tally = encrypted_tally_of_string W.G.read tally in
-    let decrypt i =
-      let* x = Web_persist.get_private_key uuid in
-      match x with
-      | Some sk ->
-         let* pd = W.E.compute_factor tally sk in
-         let pd = string_of_partial_decryption W.G.write pd in
-         Web_persist.set_partial_decryptions uuid [i, pd]
-      | None ->
-         Printf.ksprintf failwith
-           "missing private key for server in election %s"
-           (raw_string_of_uuid uuid)
-    in
-    let trustees =
-      match metadata.e_trustees with
-      | None -> ["server"]
-      | Some ts -> ts
-    in
-    trustees
-    |> List.mapi (fun i t -> i, t)
-    |> Lwt_list.exists_s
-         (fun (i, t) ->
-           if t = "server" then (
-             let* () = decrypt (i + 1) in
-             return_false
-           ) else return_true
-         )
-
-  let transition_to_encrypted_tally uuid e metadata tally =
-    let* () =
-      Web_persist.set_election_state uuid (`EncryptedTally (0, 0, ""))
-    in
-    let* b = perform_server_side_decryption uuid e metadata tally in
-    if b then
-      redir_preapply election_admin uuid ()
-    else
-      handle_election_tally_release uuid ()
+  let handle_api_elections_return uuid metadata = function
+    | false -> forbidden ()
+    | true ->
+       let* state = Web_persist.get_election_state uuid in
+       match state with
+       | `EncryptedTally _ ->
+          let trustees = Option.value metadata.e_trustees ~default:[] in
+          if List.exists (fun x -> x <> "server") trustees then
+            redir_preapply election_admin uuid ()
+          else
+            handle_election_tally_release uuid ()
+       | _ -> redir_preapply election_admin uuid ()
 
   let () =
     Any.register ~service:election_compute_encrypted_tally
       (fun uuid () ->
-        let@ () = render_tally_early_error_as_forbidden in
         let@ metadata = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let module W = (val election) in
-        let* () =
-          let* state = Web_persist.get_election_state uuid in
-          match state with
-          | `Closed -> return ()
-          | _ -> Lwt.fail TallyEarlyError
-        in
-        let* tally = Web_persist.compute_encrypted_tally election in
-        if Election.has_nh_questions W.election then (
-          let* () = Web_persist.set_election_state uuid `Shuffling in
-          redir_preapply election_admin uuid ()
-        ) else (
-          transition_to_encrypted_tally uuid election metadata tally
-        )
+        let* x = Api_elections.compute_encrypted_tally election metadata in
+        handle_api_elections_return uuid metadata x
       )
 
   let () =
@@ -1935,22 +1893,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:election_decrypt (fun uuid () ->
-        let@ () = render_tally_early_error_as_forbidden in
         let@ metadata = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* () =
-          let* state = Web_persist.get_election_state uuid in
-          match state with
-          | `Shuffling -> return ()
-          | _ -> Lwt.fail TallyEarlyError
-        in
-        let* tally =
-          let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
-          match x with
-          | Some x -> return x
-          | None -> Lwt.fail (Failure "election_decrypt handler: compute_encrypted_tally_after_shuffling")
-        in
-        transition_to_encrypted_tally uuid election metadata tally
+        let* x = Api_elections.finish_shuffling election metadata in
+        handle_api_elections_return uuid metadata x
       )
 
   let () =

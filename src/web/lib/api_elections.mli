@@ -20,12 +20,18 @@
 (**************************************************************************)
 
 open Belenios_api.Serializable_t
+open Web_serializable_t
 open Api_generic
 
 val open_election : uuid -> bool Lwt.t
 val close_election : uuid -> bool Lwt.t
 
 val set_election_auto_dates : uuid -> election_auto_dates -> unit Lwt.t
+
+val compute_encrypted_tally :
+  (module Site_common_sig.ELECTION_LWT) -> metadata -> bool Lwt.t
+val finish_shuffling :
+  (module Site_common_sig.ELECTION_LWT) -> metadata -> bool Lwt.t
 
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->

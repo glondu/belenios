@@ -143,4 +143,6 @@ type admin_request =
   [ Open
   | Close
   | SetAutomaticDates of election_auto_dates
+  | ComputeEncryptedTally
+  | FinishShuffling
   ]

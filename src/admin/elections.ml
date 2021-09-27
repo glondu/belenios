@@ -32,22 +32,19 @@ let rec show main uuid =
   let@ raw_election = with_ok "election" x in
   let* x = get election_status_of_string "elections/%s" uuid in
   let@ status = with_ok "status" x in
-  let button_switch =
-    match status.status_state with
-    | (`Open | `Closed) as x ->
-       let label, request =
-         match x with
-         | `Open -> "Close election", `Close
-         | `Closed -> "Open election", `Open
-       in
-       let b =
-         let@ () = button label in
-         let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
-         let@ () = show_in main in
-         generic_proceed x (fun () -> show main uuid)
-       in
-       node @@ b
-    | _ -> txt ""
+  let make label request =
+    let@ () = button label in
+    let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+    let@ () = show_in main in
+    generic_proceed x (fun () -> show main uuid)
+  in
+  let buttons =
+    [
+      node @@ make "Open election" `Open;
+      node @@ make "Close election" `Close;
+      node @@ make "Compute encrypted tally" `ComputeEncryptedTally;
+      node @@ make "Finish shuffling" `FinishShuffling;
+    ]
   in
   let auto_dates =
     let make_input d =
@@ -85,6 +82,6 @@ let rec show main uuid =
   Lwt.return [
       node @@ div [txt "Raw election: "; txt raw_election];
       node @@ div [txt "Status: "; txt @@ string_of_election_status status];
-      node @@ div [button_switch];
+      node @@ div buttons;
       node @@ div auto_dates;
     ]

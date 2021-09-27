@@ -22,9 +22,11 @@
 open Lwt.Syntax
 open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
+open Belenios_core.Serializable_j
 open Belenios_api.Serializable_j
 open Web_serializable_builtin_t
 open Web_serializable_t
+open Web_common
 open Api_generic
 
 let with_administrator token metadata f =
@@ -78,6 +80,65 @@ let set_election_auto_dates uuid d =
   let* dates = Web_persist.get_election_dates uuid in
   Web_persist.set_election_dates uuid {dates with e_auto_open; e_auto_close}
 
+let perform_server_side_decryption election metadata tally =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let tally = encrypted_tally_of_string W.G.read tally in
+  let decrypt i =
+    let* x = Web_persist.get_private_key uuid in
+    match x with
+    | Some sk ->
+       let* pd = W.E.compute_factor tally sk in
+       let pd = string_of_partial_decryption W.G.write pd in
+       Web_persist.set_partial_decryptions uuid [i, pd]
+    | None ->
+       Lwt.fail (Error "missing server private key")
+  in
+  Option.value metadata.e_trustees ~default:["server"]
+  |> List.mapi (fun i t -> i, t)
+  |> Lwt_list.iter_s
+       (fun (i, t) ->
+         if t = "server" then decrypt (i + 1) else Lwt.return_unit
+       )
+
+let transition_to_encrypted_tally election metadata tally =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let* () = perform_server_side_decryption election metadata tally in
+  Web_persist.set_election_state uuid @@ `EncryptedTally (0, 0, "")
+
+let compute_encrypted_tally election metadata =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let* state = Web_persist.get_election_state uuid in
+  match state with
+  | `Closed ->
+     let* tally = Web_persist.compute_encrypted_tally election in
+     if Belenios.Election.has_nh_questions W.election then (
+       let* () = Web_persist.set_election_state uuid `Shuffling in
+       Lwt.return_true
+     ) else (
+       let* () = transition_to_encrypted_tally election metadata tally in
+       Lwt.return_true
+     )
+  | _ -> Lwt.return_false
+
+let finish_shuffling election metadata =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let* state = Web_persist.get_election_state uuid in
+  match state with
+  | `Shuffling ->
+     begin
+       let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
+       match x with
+       | None -> Lwt.fail (Error "compute_encrypted_tally_after_shuffling")
+       | Some tally ->
+          let* () = transition_to_encrypted_tally election metadata tally in
+          Lwt.return_true
+     end
+  | _ -> Lwt.return_false
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -102,6 +163,15 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
             | `SetAutomaticDates d ->
                let* () = set_election_auto_dates uuid d in
                ok
+            | (`ComputeEncryptedTally | `FinishShuffling) as x ->
+               let doit =
+                 match x with
+                 | `ComputeEncryptedTally -> compute_encrypted_tally
+                 | `FinishShuffling -> finish_shuffling
+               in
+               let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+               let* b = doit (module W) metadata in
+               if b then ok else forbidden
           end
        | _ -> method_not_allowed
      end
