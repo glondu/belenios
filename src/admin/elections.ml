@@ -28,9 +28,9 @@ open Common
 
 let rec show main uuid =
   let@ () = show_in main in
-  let* x = get (fun x -> x) "elections/%s" uuid in
+  let* x = get (fun x -> x) "elections/%s/election" uuid in
   let@ raw_election = with_ok "election" x in
-  let* x = get election_status_of_string "elections/%s/status" uuid in
+  let* x = get election_status_of_string "elections/%s" uuid in
   let@ status = with_ok "status" x in
   let button_switch =
     match status.status_state with
@@ -42,7 +42,7 @@ let rec show main uuid =
        in
        let b =
          let@ () = button label in
-         let* x = post_with_token (string_of_admin_request request) "elections/%s/admin" uuid in
+         let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
          let@ () = show_in main in
          generic_proceed x (fun () -> show main uuid)
        in
@@ -76,7 +76,7 @@ let rec show main uuid =
         }
       in
       let request = `SetAutomaticDates dates in
-      let* x = post_with_token (string_of_admin_request request) "elections/%s/admin" uuid in
+      let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in

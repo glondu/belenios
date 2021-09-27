@@ -83,23 +83,12 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
   | [] ->
      begin
        match method_ with
-       | `GET -> Lwt.return (200, raw)
-       | _ -> method_not_allowed
-     end
-  | ["status"] ->
-     begin
-       match method_ with
        | `GET ->
           let* x = get_election_status uuid in
           Lwt.return (200, string_of_election_status x)
-       | _ -> method_not_allowed
-     end
-  | ["admin"] ->
-     begin
-       let@ _ = with_administrator token metadata in
-       match method_ with
        | `POST ->
           begin
+            let@ _ = with_administrator token metadata in
             let@ request = body.run admin_request_of_string in
             match request with
             | (`Open | `Close) as x ->
@@ -114,6 +103,12 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                let* () = set_election_auto_dates uuid d in
                ok
           end
+       | _ -> method_not_allowed
+     end
+  | ["election"] ->
+     begin
+       match method_ with
+       | `GET -> Lwt.return (200, raw)
        | _ -> method_not_allowed
      end
   | _ -> not_found

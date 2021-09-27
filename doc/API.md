@@ -84,12 +84,9 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 ## `elections/$UUID`
 
-* `GET`: unit -> json (anybody)
-
-## `elections/$UUID/status`
-
 * `GET`: unit -> election_status (anybody)
+* `POST`: admin_request -> unit (administrator)
 
-## `elections/$UUID/admin` (administrator)
+## `elections/$UUID/election` (anybody)
 
-* `POST`: admin_request -> unit
+* `GET`: unit -> json
