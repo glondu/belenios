@@ -44,6 +44,7 @@ let rec show main uuid =
       node @@ make "Close election" `Close;
       node @@ make "Compute encrypted tally" `ComputeEncryptedTally;
       node @@ make "Finish shuffling" `FinishShuffling;
+      node @@ make "Release tally" `ReleaseTally;
     ]
   in
   let auto_dates =

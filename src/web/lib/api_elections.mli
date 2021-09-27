@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Signatures
 open Belenios_api.Serializable_t
 open Web_serializable_t
 open Api_generic
@@ -32,6 +33,9 @@ val compute_encrypted_tally :
   (module Site_common_sig.ELECTION_LWT) -> metadata -> bool Lwt.t
 val finish_shuffling :
   (module Site_common_sig.ELECTION_LWT) -> metadata -> bool Lwt.t
+val release_tally :
+  (module Site_common_sig.ELECTION_LWT) ->
+  (unit, [`Forbidden | `CombinationError of combination_error]) Stdlib.result Lwt.t
 
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->

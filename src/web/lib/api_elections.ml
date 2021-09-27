@@ -29,6 +29,8 @@ open Web_serializable_t
 open Web_common
 open Api_generic
 
+let ( / ) = Filename.concat
+
 let with_administrator token metadata f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token, metadata.e_owner with
@@ -139,6 +141,73 @@ let finish_shuffling election metadata =
      end
   | _ -> Lwt.return_false
 
+let release_tally election =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let uuid_s = raw_string_of_uuid uuid in
+  let@ () = fun cont ->
+    let* state = Web_persist.get_election_state uuid in
+    match state with
+    | `EncryptedTally _ -> cont ()
+    | _ -> Lwt.return @@ Stdlib.Error `Forbidden
+  in
+  let* ntallied =
+    let* hashes = Web_persist.get_ballot_hashes uuid in
+    let weights = List.map snd hashes in
+    let open Weight in
+    Lwt.return @@ List.fold_left ( + ) zero weights
+  in
+  let@ et = fun cont ->
+    let* x = read_file ~uuid (string_of_election_file ESETally) in
+    match x with
+    | Some [et] ->
+       begin
+         match Option.wrap (encrypted_tally_of_string W.G.read) et with
+         | None -> Lwt.fail (Error "release_tally: encrypted_tally_of_string")
+         | Some x -> cont x
+       end
+    | _ -> Lwt.fail (Error "release_tally")
+  in
+  let open Belenios_core.Serializable_j in
+  let* trustees = Web_persist.get_trustees uuid in
+  let trustees = trustees_of_string W.G.read trustees in
+  let* pds = Web_persist.get_partial_decryptions uuid in
+  let pds = List.map snd pds in
+  let pds = List.map (partial_decryption_of_string W.G.read) pds in
+  let* shuffles, shufflers =
+    let* x = Web_persist.get_shuffles uuid in
+    match x with
+    | None -> Lwt.return (None, None)
+    | Some s ->
+       let s = List.map (shuffle_of_string W.G.read) s in
+       let* x = Web_persist.get_shuffle_hashes uuid in
+       match x with
+       | None -> Lwt.return (Some s, None)
+       | Some x ->
+          let x =
+            x
+            |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_name])
+            |> List.flatten
+          in
+          assert (List.length s = List.length x);
+          Lwt.return (Some s, Some x)
+  in
+  match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
+  | Ok result ->
+     let* () =
+       let result = string_of_election_result W.G.write W.write_result result in
+       write_file ~uuid (string_of_election_file ESResult) [result]
+     in
+     let* () = Web_persist.remove_audit_cache uuid in
+     let* () = Web_persist.set_election_state uuid `Tallied in
+     let* dates = Web_persist.get_election_dates uuid in
+     let* () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
+     let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
+     let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
+     let* () = Web_persist.clear_shuffle_token uuid in
+     Lwt.return @@ Ok ()
+  | Error e -> Lwt.return @@ Stdlib.Error (`CombinationError e)
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -173,6 +242,21 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
                let* b = doit (module W) metadata in
                if b then ok else forbidden
+            | `ReleaseTally ->
+               begin
+                 let@ () = handle_generic_error in
+                 let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+                 let* b = release_tally (module W) in
+                 match b with
+                 | Ok () -> ok
+                 | Error `Forbidden -> forbidden
+                 | Error (`CombinationError e) ->
+                    let msg =
+                      Printf.sprintf "combination error: %s"
+                        (Belenios.Trustees.string_of_combination_error e)
+                    in
+                    Lwt.fail @@ Error msg
+               end
           end
        | _ -> method_not_allowed
      end

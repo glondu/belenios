@@ -1702,64 +1702,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let@ _ = with_metadata_check_owner uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let uuid_s = raw_string_of_uuid uuid in
     let@ election = with_election uuid in
-    let module W = (val election) in
-    let* () =
-      let* state = Web_persist.get_election_state uuid in
-      match state with
-      | `EncryptedTally _ -> return_unit
-      | _ -> Lwt.fail TallyEarlyError
-    in
-    let* ntallied =
-      let* hashes = Web_persist.get_ballot_hashes uuid in
-      let weights = List.map snd hashes in
-      let open Weight in
-      Lwt_list.fold_left_s (fun x y -> return (x + y)) zero weights
-    in
-    let* et =
-      !Web_config.spool_dir / uuid_s / string_of_election_file ESETally |>
-        Lwt_io.chars_of_file |> Lwt_stream.to_string >>=
-        wrap1 (encrypted_tally_of_string W.G.read)
-    in
-    let* trustees = Web_persist.get_trustees uuid in
-    let trustees = trustees_of_string W.G.read trustees in
-    let* pds = Web_persist.get_partial_decryptions uuid in
-    let pds = List.map snd pds in
-    let pds = List.map (partial_decryption_of_string W.G.read) pds in
-    let* shuffles, shufflers =
-      let* x = Web_persist.get_shuffles uuid in
-      match x with
-      | None -> return (None, None)
-      | Some s ->
-         let s = List.map (shuffle_of_string W.G.read) s in
-         let* x = Web_persist.get_shuffle_hashes uuid in
-         match x with
-         | None -> return (Some s, None)
-         | Some x ->
-            let x =
-              x
-              |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_name])
-              |> List.flatten
-            in
-            assert (List.length s = List.length x);
-            return (Some s, Some x)
-    in
-    match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
-    | Ok result ->
-       let* () =
-         let result = string_of_election_result W.G.write W.write_result result in
-         write_file ~uuid (string_of_election_file ESResult) [result]
-       in
-       let* () = Web_persist.remove_audit_cache uuid in
-       let* () = Web_persist.set_election_state uuid `Tallied in
-       let* dates = Web_persist.get_election_dates uuid in
-       let* () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
-       let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
-       let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
-       let* () = Web_persist.clear_shuffle_token uuid in
-       redir_preapply election_home (uuid, ()) ()
-    | Error e ->
+    let* x = Api_elections.release_tally election in
+    match x with
+    | Ok () -> redir_preapply election_home (uuid, ()) ()
+    | Error `Forbidden -> forbidden ()
+    | Error (`CombinationError e) ->
        let msg =
          Printf.sprintf
            (f_ "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job.")

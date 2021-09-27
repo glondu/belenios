@@ -145,4 +145,5 @@ type admin_request =
   | SetAutomaticDates of election_auto_dates
   | ComputeEncryptedTally
   | FinishShuffling
+  | ReleaseTally
   ]
