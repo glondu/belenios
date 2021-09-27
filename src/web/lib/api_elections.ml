@@ -164,6 +164,7 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                let* () = set_election_auto_dates uuid d in
                ok
             | (`ComputeEncryptedTally | `FinishShuffling) as x ->
+               let@ () = handle_generic_error in
                let doit =
                  match x with
                  | `ComputeEncryptedTally -> compute_encrypted_tally
