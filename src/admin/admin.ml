@@ -113,7 +113,7 @@ let rec show_root main =
     let* x = get summary_list_of_string "drafts" in
     let@ drafts = with_ok "drafts" x in
     drafts
-    |> List.sort (fun a b -> compare a.summary_date b.summary_date)
+    |> List.sort (fun a b -> compare b.summary_date a.summary_date)
     |> List.map (fun x -> node @@ li [node @@ draft_a x])
     |> (fun xs -> Lwt.return [node @@ ul xs])
   in
@@ -130,7 +130,7 @@ let rec show_root main =
     | Ok elections ->
        let make kind =
          List.filter (fun x -> x.summary_kind = Some kind) elections
-         |> List.sort (fun a b -> compare a.summary_date b.summary_date)
+         |> List.sort (fun a b -> compare b.summary_date a.summary_date)
          |> List.map (fun x -> node @@ li [node @@ election_a x])
          |> (fun xs -> [node @@ ul xs])
        in
