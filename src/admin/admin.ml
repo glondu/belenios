@@ -210,14 +210,10 @@ let rec show_root main =
     ]
 
 let show hash main =
-  let show_root () =
-    context := `None;
-    show_root main
-  in
   match hash with
   | `Error -> context := `None; show_error main
-  | `Root -> show_root ()
-  | `Draft (uuid, tab) -> Drafts.show show_root main uuid tab context
+  | `Root -> context := `None; show_root main
+  | `Draft (uuid, tab) -> Drafts.show main uuid tab context
   | `Election uuid -> context := `None; Elections.show main uuid
   | `Credentials (uuid, _) -> context := `None; Credentials.show main uuid
 

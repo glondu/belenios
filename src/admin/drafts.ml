@@ -28,7 +28,7 @@ open Tool_js_common
 open Tool_js_html
 open Common
 
-let show_draft_main show_root show_all uuid draft container =
+let show_draft_main show_all uuid draft container =
   let@ () = show_in container in
   let t = textarea () in
   t##.value := Js.string (string_of_draft draft);
@@ -43,7 +43,9 @@ let show_draft_main show_root show_all uuid draft container =
     if confirm "Are you sure?" then (
       let* x = delete_with_token "drafts/%s" uuid in
       let@ () = show_in container in
-      generic_proceed x show_root
+      let@ () = generic_proceed x in
+      Dom_html.window##.location##.hash := Js.string "";
+      Lwt.return_unit
     ) else (
       Lwt.return_unit
     )
@@ -208,7 +210,7 @@ let suffix_and_label_of_draft_tab = function
   | `Trustees -> "/trustees", "Trustees"
   | `Status -> "/status", "Status"
 
-let show_draft show_root show_all uuid draft title container tab =
+let show_draft show_all uuid draft title container tab =
   container##.innerHTML := Js.string "Loading...";
   let _, label = suffix_and_label_of_draft_tab tab in
   let* () =
@@ -216,7 +218,7 @@ let show_draft show_root show_all uuid draft title container tab =
     Lwt.return [txt label]
   in
   match tab with
-  | `Draft -> show_draft_main show_root show_all uuid draft container
+  | `Draft -> show_draft_main show_all uuid draft container
   | `Voters -> show_draft_voters uuid draft container
   | `Passwords -> show_draft_passwords uuid container
   | `Credentials -> show_draft_credentials uuid container
@@ -228,7 +230,7 @@ let a_draft_tab uuid tab =
   let href = Printf.sprintf "#drafts/%s%s" uuid suffix in
   a ~href label
 
-let show show_root main uuid tab context =
+let show main uuid tab context =
   let rec show_all () =
     let* x = get draft_of_string "drafts/%s" uuid in
     match x with
@@ -266,9 +268,9 @@ let show show_root main uuid tab context =
            ]
        in
        context := `Draft (draft, title, container);
-       show_draft show_root show_all uuid draft title container tab
+       show_draft show_all uuid draft title container tab
   in
   match !context with
   | `Draft (draft, title, container) ->
-     show_draft show_root show_all uuid draft title container tab
+     show_draft show_all uuid draft title container tab
   | _ -> show_all ()
