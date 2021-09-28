@@ -96,8 +96,12 @@ let rec show main uuid =
     [node auto_open; node auto_close; node set_button]
   in
   Lwt.return [
-      node @@ div [txt "Raw election: "; txt raw_election];
-      node @@ div [txt "Status: "; txt @@ string_of_election_status status];
+      node @@ div [node @@ a ~href:"#" "Home"];
+      node @@ h1 [txt "Raw election"];
+      node @@ div [txt raw_election];
+      node @@ h1 [txt "Status"];
+      node @@ div [txt @@ string_of_election_status status];
+      node @@ h1 [txt "Actions"];
       node @@ div buttons;
       node @@ div auto_dates;
     ]
