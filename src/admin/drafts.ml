@@ -192,7 +192,13 @@ let rec show_draft_status uuid container =
     let@ () = button label in
     let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
     let@ () = show_in container in
-    generic_proceed x (fun () -> show_draft_status uuid container)
+    let@ () = generic_proceed x in
+    match r with
+    | `ValidateElection ->
+       let new_hash = Printf.sprintf "#elections/%s" uuid in
+       Dom_html.window##.location##.hash := Js.string new_hash;
+       Lwt.return_unit
+    | _ -> show_draft_status uuid container
   in
   let buttons =
     div [
