@@ -25,7 +25,7 @@ open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_api.Serializable_j
 open Web_serializable_builtin_t
-open Web_serializable_t
+open Web_serializable_j
 open Web_common
 open Api_generic
 
@@ -208,6 +208,118 @@ let release_tally election =
      Lwt.return @@ Ok ()
   | Error e -> Lwt.return @@ Stdlib.Error (`CombinationError e)
 
+let delete_sensitive_data uuid =
+  let uuid_s = raw_string_of_uuid uuid in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "state.json") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "partial_decryptions.json") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "extended_records.jsons") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "credential_mappings.jsons") in
+  let* () = rmdir (!Web_config.spool_dir / uuid_s / "ballots") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "ballots_index.json") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_key.json") in
+  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_keys.jsons") in
+  Lwt.return_unit
+
+let archive_election uuid =
+  let* () = delete_sensitive_data uuid in
+  let* dates = Web_persist.get_election_dates uuid in
+  Web_persist.set_election_dates uuid {dates with e_archive = Some (now ())}
+
+let delete_election election metadata =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let uuid_s = raw_string_of_uuid uuid in
+  let* () = delete_sensitive_data uuid in
+  let de_template =
+    {
+      t_description = "";
+      t_name = W.election.e_name;
+      t_questions = Array.map Belenios_core.Question.erase_question W.election.e_questions;
+      t_administrator = None;
+      t_credential_authority = None;
+    }
+  in
+  let de_owner = Option.value metadata.e_owner ~default:(`Id 0) in
+  let* dates = Web_persist.get_election_dates uuid in
+  let de_date =
+    match dates.e_tally with
+    | Some x -> x
+    | None ->
+       match dates.e_finalization with
+       | Some x -> x
+       | None ->
+          match dates.e_creation with
+          | Some x -> x
+          | None -> default_validation_date
+  in
+  let de_authentication_method = match metadata.e_auth_config with
+    | Some [{auth_system = "cas"; auth_config; _}] ->
+       let server = List.assoc "server" auth_config in
+       `CAS server
+    | Some [{auth_system = "password"; _}] -> `Password
+    | _ -> `Unknown
+  in
+  let de_credential_method = match metadata.e_cred_authority with
+    | Some "server" -> `Automatic
+    | _ -> `Manual
+  in
+  let* de_trustees =
+    let open Belenios_core.Serializable_j in
+    let* trustees = Web_persist.get_trustees uuid in
+    trustees_of_string Yojson.Safe.read_json trustees
+    |> List.map
+         (function
+          | `Single _ -> `Single
+          | `Pedersen t -> `Pedersen (t.t_threshold, Array.length t.t_verification_keys)
+         )
+    |> Lwt.return
+  in
+  let* voters = Web_persist.get_voters uuid in
+  let* ballots = Web_persist.get_ballot_hashes uuid in
+  let* result = Web_persist.get_election_result uuid in
+  let de = {
+      de_uuid = uuid;
+      de_template;
+      de_owner;
+      de_nb_voters = (match voters with None -> 0 | Some x -> List.length x);
+      de_nb_ballots = List.length ballots;
+      de_date;
+      de_tallied = result <> None;
+      de_authentication_method;
+      de_credential_method;
+      de_trustees;
+      de_server_is_trustee = metadata.e_server_is_trustee = Some true;
+    }
+  in
+  let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
+  let files_to_delete = [
+      "election.json";
+      "ballots.jsons";
+      "dates.json";
+      "encrypted_tally.json";
+      "metadata.json";
+      "passwords.csv";
+      "public_creds.txt";
+      "trustees.json";
+      "records";
+      "result.json";
+      "hide_result";
+      "shuffle_token";
+      "shuffles.jsons";
+      "voters.txt";
+      "archive.zip";
+      "audit_cache.json";
+    ]
+  in
+  let* () =
+    Lwt_list.iter_p
+      (fun x ->
+        cleanup_file (!Web_config.spool_dir / uuid_s / x)
+      ) files_to_delete
+  in
+  Web_persist.clear_elections_by_owner_cache ()
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -257,7 +369,17 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                     in
                     Lwt.fail @@ Error msg
                end
+            | `Archive ->
+               let@ () = handle_generic_error in
+               let* () = archive_election uuid in
+               ok
           end
+       | `DELETE ->
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_generic_error in
+          let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+          let* () = delete_election (module W) metadata in
+          ok
        | _ -> method_not_allowed
      end
   | ["election"] ->

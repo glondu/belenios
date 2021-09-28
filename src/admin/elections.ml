@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_core.Common
 open Belenios_api.Serializable_j
+open Belenios_tool_js_common.Tool_js_common
 open Belenios_tool_js_common.Tool_js_html
 open Common
 
@@ -38,6 +39,18 @@ let rec show main uuid =
     let@ () = show_in main in
     generic_proceed x (fun () -> show main uuid)
   in
+  let button_delete =
+    let@ () = button "Delete election" in
+    if confirm "Are you sure?" then (
+      let* x = delete_with_token "elections/%s" uuid in
+      let@ () = show_in main in
+      let@ () = generic_proceed x in
+      Dom_html.window##.location##.hash := Js.string "";
+      Lwt.return_unit
+    ) else (
+      Lwt.return_unit
+    )
+  in
   let buttons =
     [
       node @@ make "Open election" `Open;
@@ -45,6 +58,8 @@ let rec show main uuid =
       node @@ make "Compute encrypted tally" `ComputeEncryptedTally;
       node @@ make "Finish shuffling" `FinishShuffling;
       node @@ make "Release tally" `ReleaseTally;
+      node @@ make "Archive election" `Archive;
+      node @@ button_delete;
     ]
   in
   let auto_dates =

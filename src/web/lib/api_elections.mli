@@ -37,6 +37,10 @@ val release_tally :
   (module Site_common_sig.ELECTION_LWT) ->
   (unit, [`Forbidden | `CombinationError of combination_error]) Stdlib.result Lwt.t
 
+val archive_election : uuid -> unit Lwt.t
+val delete_election :
+  (module Site_common_sig.ELECTION_LWT) -> metadata -> unit Lwt.t
+
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
   body -> result Lwt.t

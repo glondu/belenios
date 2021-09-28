@@ -50,120 +50,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
-  let delete_sensitive_data uuid =
-    let uuid_s = raw_string_of_uuid uuid in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "state.json") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "partial_decryptions.json") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "extended_records.jsons") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "credential_mappings.jsons") in
-    let* () = rmdir (!Web_config.spool_dir / uuid_s / "ballots") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "ballots_index.json") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_key.json") in
-    let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_keys.jsons") in
-    return_unit
-
-  let archive_election uuid =
-    let* () = delete_sensitive_data uuid in
-    let* dates = Web_persist.get_election_dates uuid in
-    Web_persist.set_election_dates uuid {dates with e_archive = Some (now ())}
-
   let delete_election uuid =
-    let uuid_s = raw_string_of_uuid uuid in
-    let* () = delete_sensitive_data uuid in
     let* election = find_election uuid in
     match election with
     | None -> return_unit
     | Some election ->
-       let open (val election) in
        let* metadata = Web_persist.get_election_metadata uuid in
-       let de_template = {
-           t_description = "";
-           t_name = election.e_name;
-           t_questions = Array.map Question.erase_question election.e_questions;
-           t_administrator = None;
-           t_credential_authority = None;
-         }
-       in
-       let de_owner = match metadata.e_owner with
-         | None -> Printf.ksprintf failwith "election %s has no owner" uuid_s
-         | Some x -> x
-       in
-       let* dates = Web_persist.get_election_dates uuid in
-       let de_date =
-         match dates.e_tally with
-         | Some x -> x
-         | None ->
-            match dates.e_finalization with
-            | Some x -> x
-            | None ->
-               match dates.e_creation with
-               | Some x -> x
-               | None -> default_validation_date
-       in
-       let de_authentication_method = match metadata.e_auth_config with
-         | Some [{auth_system = "cas"; auth_config; _}] ->
-            let server = List.assoc "server" auth_config in
-            `CAS server
-         | Some [{auth_system = "password"; _}] -> `Password
-         | _ -> `Unknown
-       in
-       let de_credential_method = match metadata.e_cred_authority with
-         | Some "server" -> `Automatic
-         | _ -> `Manual
-       in
-       let* de_trustees =
-         let* trustees = Web_persist.get_trustees uuid in
-         trustees_of_string Yojson.Safe.read_json trustees
-         |> List.map
-              (function
-               | `Single _ -> `Single
-               | `Pedersen t -> `Pedersen (t.t_threshold, Array.length t.t_verification_keys)
-              )
-         |> return
-       in
-       let* voters = Web_persist.get_voters uuid in
-       let* ballots = Web_persist.get_ballot_hashes uuid in
-       let* result = Web_persist.get_election_result uuid in
-       let de = {
-           de_uuid = uuid;
-           de_template;
-           de_owner;
-           de_nb_voters = (match voters with None -> 0 | Some x -> List.length x);
-           de_nb_ballots = List.length ballots;
-           de_date;
-           de_tallied = result <> None;
-           de_authentication_method;
-           de_credential_method;
-           de_trustees;
-           de_server_is_trustee = metadata.e_server_is_trustee = Some true;
-         }
-       in
-       let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
-       let files_to_delete = [
-           "election.json";
-           "ballots.jsons";
-           "dates.json";
-           "encrypted_tally.json";
-           "metadata.json";
-           "passwords.csv";
-           "public_creds.txt";
-           "trustees.json";
-           "records";
-           "result.json";
-           "hide_result";
-           "shuffle_token";
-           "shuffles.jsons";
-           "voters.txt";
-           "archive.zip";
-           "audit_cache.json";
-         ]
-       in
-       let* () = Lwt_list.iter_p (fun x ->
-                     cleanup_file (!Web_config.spool_dir / uuid_s / x)
-                   ) files_to_delete
-       in
-       Web_persist.clear_elections_by_owner_cache ()
+       Api_elections.delete_election election metadata
 
   let () = Any.register ~service:home
              (fun () () -> Redirection.send (Redirection admin))
@@ -2326,7 +2219,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let action, comment = match action with
       | `Destroy -> Api_drafts.delete_draft, "destroyed"
       | `Delete -> delete_election, "deleted"
-      | `Archive -> archive_election, "archived"
+      | `Archive -> Api_elections.archive_election, "archived"
     in
     if datetime_compare now next_t > 0 then (
       let* () = action uuid in

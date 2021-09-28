@@ -146,4 +146,5 @@ type admin_request =
   | ComputeEncryptedTally
   | FinishShuffling
   | ReleaseTally
+  | Archive
   ]

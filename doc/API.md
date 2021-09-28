@@ -86,6 +86,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> election_status (anybody)
 * `POST`: admin_request -> unit (administrator)
+* `DELETE`: unit -> unit (administrator)
 
 ## `elections/$UUID/election` (anybody)
 
