@@ -266,7 +266,7 @@ let show main uuid tab context =
              ]
          in
          Lwt.return [
-             node @@ div [node @@ a ~href:"#" "All drafts"];
+             node @@ div [node @@ a ~href:"#" "Home"];
              node @@ h1 [txt draft.draft_questions.t_name];
              node @@ tabs;
              node @@ title;
