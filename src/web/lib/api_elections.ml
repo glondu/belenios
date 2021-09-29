@@ -64,12 +64,14 @@ let get_election_status uuid =
        let t = Option.value d.e_archive ~default:default_archive_date in
        unixfloat_of_datetime @@ datetime_add t (day days_to_delete)
   in
+  let* postpone = Web_persist.get_election_result_hidden uuid in
   Lwt.return {
       status_state;
       status_auto_open_date = Option.map unixfloat_of_datetime d.e_auto_open;
       status_auto_close_date = Option.map unixfloat_of_datetime d.e_auto_close;
       status_auto_archive_date;
       status_auto_delete_date;
+      status_postpone_date = Option.map unixfloat_of_datetime postpone;
     }
 
 let set_election_state uuid state =
