@@ -20,8 +20,8 @@
 (**************************************************************************)
 
 open Belenios_core.Signatures
-open Belenios_api.Serializable_t
 open Web_serializable_t
+open Belenios_api.Serializable_t
 open Api_generic
 
 val get_election_status : uuid -> election_status Lwt.t
@@ -47,6 +47,8 @@ val regenpwd :
   (module Site_common_sig.ELECTION_LWT) -> metadata -> string -> bool Lwt.t
 
 val set_postpone_date : uuid -> float option -> bool Lwt.t
+
+val get_partial_decryptions : uuid -> metadata -> partial_decryptions Lwt.t
 
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->

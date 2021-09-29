@@ -46,7 +46,7 @@ module type S = sig
   val election_draft_import_trustees : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module Site_common_sig.ELECTION_LWT) -> Web_serializable_j.metadata -> election_status -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module Site_common_sig.ELECTION_LWT) -> Web_serializable_j.metadata -> election_status -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val pretty_records : (module Site_common_sig.ELECTION_LWT) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

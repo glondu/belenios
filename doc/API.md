@@ -99,3 +99,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `elections/$UUID/records` (administrator)
 
 * `GET`: unit -> voter_list
+
+## `elections/$UUID/partial-decryptions`
+
+* `GET`: unit -> partial_decryptions (administrator)

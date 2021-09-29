@@ -23,9 +23,9 @@ open Lwt.Syntax
 open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
-open Belenios_api.Serializable_j
 open Web_serializable_builtin_t
 open Web_serializable_j
+open Belenios_api.Serializable_j
 open Web_common
 open Api_generic
 
@@ -123,6 +123,74 @@ let perform_server_side_decryption election metadata tally =
        (fun (i, t) ->
          if t = "server" then decrypt (i + 1) else Lwt.return_unit
        )
+
+let get_partial_decryptions uuid metadata =
+  let@ () = fun cont ->
+    let* state = Web_persist.get_election_state uuid in
+    match state with
+    | `EncryptedTally _ -> cont ()
+    | _ -> Lwt.fail @@ Error "not in state EncryptedTally"
+  in
+  let open Belenios_core.Serializable_j in
+  let* pds = Web_persist.get_partial_decryptions uuid in
+  let* trustees = Web_persist.get_trustees uuid in
+  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  let threshold, npks =
+    let rec loop trustees threshold npks =
+      match trustees with
+      | [] -> threshold, npks
+      | `Single _ :: ts -> loop ts threshold (npks + 1)
+      | `Pedersen t :: ts ->
+         match threshold with
+         | Some _ -> raise @@ Error "unsupported: two Pedersen"
+         | None -> loop ts (Some t.t_threshold) (npks + Array.length t.t_verification_keys)
+    in
+    loop trustees None 0
+  in
+  let trustees =
+    let rec loop i ts =
+      if i <= npks then
+        match ts with
+        | t :: ts -> (Some t, i) :: loop (i + 1) ts
+        | [] -> (None, i) :: loop (i + 1) ts
+      else []
+    in
+    match metadata.e_trustees with
+    | None -> loop 1 []
+    | Some ts -> loop 1 ts
+  in
+  let rec seq i j = if i >= j then [] else i :: seq (i + 1) j in
+  let* trustee_tokens =
+    match threshold with
+    | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
+    | Some _ ->
+       let* x = Web_persist.get_decryption_tokens uuid in
+       match x with
+       | Some x -> Lwt.return x
+       | None ->
+          match metadata.e_trustees with
+          | None -> failwith "missing trustees in get_tokens_decrypt"
+          | Some ts ->
+             let* ts = Lwt_list.map_s (fun _ -> generate_token ()) ts in
+             let* () = Web_persist.set_decryption_tokens uuid ts in
+             Lwt.return ts
+  in
+  Lwt.return {
+      partial_decryptions_trustees =
+        begin
+          List.combine trustees trustee_tokens
+          |> List.map
+               (fun ((name, id), token) ->
+                 {
+                   trustee_pd_address = Option.value name ~default:"";
+                   trustee_pd_token = token;
+                   trustee_pd_done = List.mem_assoc id pds;
+                 }
+               )
+        end;
+      partial_decryptions_threshold = threshold;
+    }
+
 
 let transition_to_encrypted_tally election metadata tally =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
@@ -506,6 +574,16 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
           let* x = read_file ~uuid (string_of_election_file ESRecords) in
           let x = Option.value x ~default:[] in
           Lwt.return (200, string_of_voter_list x)
+       | _ -> method_not_allowed
+     end
+  | ["partial-decryptions"] ->
+     begin
+       match method_ with
+       | `GET ->
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_generic_error in
+          let* x = get_partial_decryptions uuid metadata in
+          Lwt.return (200, string_of_partial_decryptions x)
        | _ -> method_not_allowed
      end
   | _ -> not_found

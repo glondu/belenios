@@ -1139,20 +1139,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server has failed for election %s!") (raw_string_of_uuid uuid)))
          ) else return_unit
        in
-       let get_tokens_decrypt () =
-         (* this function is called only when there is a Pedersen trustee *)
-         let* x = Web_persist.get_decryption_tokens uuid in
-         match x with
-         | Some x -> return x
-         | None ->
-            match metadata.e_trustees with
-            | None -> failwith "missing trustees in get_tokens_decrypt"
-            | Some ts ->
-               let* ts = Lwt_list.map_s (fun _ -> generate_token ()) ts in
-               let* () = Web_persist.set_decryption_tokens uuid ts in
-               return ts
-       in
-       Pages_admin.election_admin ?shuffle_token ?tally_token election metadata status get_tokens_decrypt () >>= Html.send
+       Pages_admin.election_admin ?shuffle_token ?tally_token election metadata status () >>= Html.send
     | Some _ ->
        let msg = s_ "You are not allowed to administer this election!" in
        Pages_common.generic_page ~title:(s_ "Forbidden") msg ()

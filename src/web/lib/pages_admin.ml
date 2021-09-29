@@ -2006,7 +2006,7 @@ module Make
       mutable ws_hash : string option;
     }
 
-  let election_admin ?shuffle_token ?tally_token election metadata status get_tokens_decrypt () =
+  let election_admin ?shuffle_token ?tally_token election metadata status () =
     let langs = get_languages metadata.e_languages in
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -2251,106 +2251,68 @@ module Make
                ]
            )
       | `EncryptedTally ->
-         let* pds = Web_persist.get_partial_decryptions uuid in
-         let* trustees = Web_persist.get_trustees uuid in
-         let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-         let threshold, npks =
-           let rec loop trustees threshold npks =
-             match trustees with
-             | [] -> threshold, npks
-             | `Single _ :: ts -> loop ts threshold (npks + 1)
-             | `Pedersen t :: ts ->
-                match threshold with
-                | Some _ -> failwith "Unsupported: two Pedersen"
-                | None -> loop ts (Some t.t_threshold) (npks + Array.length t.t_verification_keys)
-           in
-           loop trustees None 0
-         in
+         let* p = Api_elections.get_partial_decryptions uuid metadata in
          let threshold_or_not =
-           match threshold with
+           match p.partial_decryptions_threshold with
            | None -> txt ""
            | Some x -> txt (" " ^ Printf.sprintf (f_ "At least %d trustee(s) must act.") x)
          in
-         let trustees =
-           let rec loop i ts =
-             if i <= npks then
-               match ts with
-               | t :: ts -> (Some t, i) :: (loop (i+1) ts)
-               | [] -> (None, i) :: (loop (i+1) ts)
-             else []
-           in
-           match metadata.e_trustees with
-           | None -> loop 1 []
-           | Some ts -> loop 1 ts
-         in
-         let rec seq i j = if i >= j then [] else i :: (seq (i+1) j) in
-         let* trustee_tokens =
-           match threshold with
-           | None -> return (List.map string_of_int (seq 1 (npks+1)))
-           | Some _ -> get_tokens_decrypt ()
-         in
-         let trustees = List.combine trustees trustee_tokens in
          let* trustees =
-           Lwt_list.map_s
-             (fun ((name, trustee_id), token) ->
-               let this_line =
-                 match tally_token with
-                 | Some x when x = token -> true
-                 | _ -> false
-               in
-               let service = election_tally_trustees in
-               let x = (uuid, token) in
-               let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
-                                             ~absolute:true ~service x
-               in
-               let link_content, dest = match name with
-                 | None -> uri, !Web_config.server_mail
-                 | Some name -> name, name
-               in
-               let* mail, link =
-                 if link_content = "server" then (
-                   return (txt (s_ "(server)"), txt (s_ "(server)"))
-                 ) else (
-                   let* subject, body = Mails_admin.mail_trustee_tally langs uri in
-                   let mail = a_mailto ~dest ~subject ~body (s_ "E-mail") in
-                   let link =
-                     if this_line then
-                       a ~service:election_admin [txt (s_ "Hide link")] uuid
-                     else
-                       a ~service [txt (s_ "Link")] x
-                   in
-                   return (mail, link)
-                 )
-               in
-               let first_line =
-                 tr [
-                     td [txt link_content];
-                     td [mail];
-                     td [link];
-                     td [
-                         txt (if List.mem_assoc trustee_id pds then (s_ "Yes") else (s_ "No"))
-                       ];
-                   ]
-               in
-               let second_line =
-                 if this_line then
-                   [
-                     tr
-                       [
-                         td ~a:[a_colspan 4]
-                           [
-                             txt (s_ "The link that must be sent to trustee ");
-                             txt link_content;
-                             txt (s_ " is:");
-                             br ();
-                             txt uri;
-                           ]
-                       ]
-                   ]
-                 else []
-               in
-               return (first_line :: second_line)
-             ) trustees
+           p.partial_decryptions_trustees
+           |> Lwt_list.map_s
+                (fun t ->
+                  let this_line =
+                    match tally_token with
+                    | Some x when x = t.trustee_pd_token -> true
+                    | _ -> false
+                  in
+                  let service = election_tally_trustees in
+                  let x = (uuid, t.trustee_pd_token) in
+                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri ~absolute:true ~service x in
+                  let* mail, link =
+                    if t.trustee_pd_address = "server" then (
+                      return (txt (s_ "(server)"), txt (s_ "(server)"))
+                    ) else (
+                      let* subject, body = Mails_admin.mail_trustee_tally langs uri in
+                      let mail = a_mailto ~dest:t.trustee_pd_address ~subject ~body (s_ "E-mail") in
+                      let link =
+                        if this_line then
+                          a ~service:election_admin [txt (s_ "Hide link")] uuid
+                        else
+                          a ~service [txt (s_ "Link")] x
+                      in
+                      return (mail, link)
+                    )
+                  in
+                  let first_line =
+                    tr [
+                        td [txt t.trustee_pd_address];
+                        td [mail];
+                        td [link];
+                        td [
+                            txt (if t.trustee_pd_done then s_ "Yes" else s_ "No");
+                          ];
+                      ]
+                  in
+                  let second_line =
+                    if this_line then
+                      [
+                        tr
+                          [
+                            td ~a:[a_colspan 4]
+                              [
+                                txt (s_ "The link that must be sent to trustee ");
+                                txt t.trustee_pd_address;
+                                txt (s_ " is:");
+                                br ();
+                                txt uri;
+                              ]
+                          ]
+                      ]
+                    else []
+                  in
+                  return (first_line :: second_line)
+                )
          in
          let release_form =
            post_form

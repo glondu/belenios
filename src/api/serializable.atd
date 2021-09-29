@@ -152,3 +152,14 @@ type admin_request =
   | RegeneratePassword of string
   | SetPostponeDate of float nullable
   ]
+
+type trustee_pd = {
+    address : string;
+    token : string;
+    done : bool;
+} <ocaml field_prefix="trustee_pd_">
+
+type partial_decryptions = {
+    trustees : trustee_pd list;
+    ?threshold : int option;
+} <ocaml field_prefix="partial_decryptions_">

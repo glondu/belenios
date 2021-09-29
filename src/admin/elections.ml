@@ -126,6 +126,13 @@ let rec show main uuid =
   in
   let* voters = make "voters" in
   let* records = make "records" in
+  let* pds =
+    let* x = get partial_decryptions_of_string "elections/%s/partial-decryptions" uuid in
+    let@ x = with_ok "partial-decryptions" x in
+    let t = textarea () in
+    t##.value := Js.string @@ string_of_partial_decryptions x;
+    Lwt.return [node t]
+  in
   Lwt.return [
       node @@ div [node @@ a ~href:"#" "Home"];
       node @@ h1 [txt "Raw election"];
@@ -141,4 +148,6 @@ let rec show main uuid =
       node @@ div voters;
       node @@ h1 [txt "Records"];
       node @@ div records;
+      node @@ h1 [txt "Partial decryptions"];
+      node @@ div pds;
     ]
