@@ -388,6 +388,28 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
        | `GET -> Lwt.return (200, raw)
        | _ -> method_not_allowed
      end
+  | ["voters"] ->
+     begin
+       let@ _ = with_administrator token metadata in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let* x = read_file ~uuid (string_of_election_file ESVoters) in
+          let x = Option.value x ~default:[] in
+          Lwt.return (200, string_of_voter_list x)
+       | _ -> method_not_allowed
+     end
+  | ["records"] ->
+     begin
+       let@ _ = with_administrator token metadata in
+       match method_ with
+       | `GET ->
+          let@ () = handle_generic_error in
+          let* x = read_file ~uuid (string_of_election_file ESRecords) in
+          let x = Option.value x ~default:[] in
+          Lwt.return (200, string_of_voter_list x)
+       | _ -> method_not_allowed
+     end
   | _ -> not_found
 
 let dispatch token endpoint method_ body =

@@ -95,6 +95,15 @@ let rec show main uuid =
     in
     [node auto_open; node auto_close; node set_button]
   in
+  let make what =
+    let* x = get voter_list_of_string "elections/%s/%s" uuid what in
+    let@ voters = with_ok what x in
+    let t = textarea () in
+    t##.value := Js.string @@ string_of_voter_list voters;
+    Lwt.return [node t]
+  in
+  let* voters = make "voters" in
+  let* records = make "records" in
   Lwt.return [
       node @@ div [node @@ a ~href:"#" "Home"];
       node @@ h1 [txt "Raw election"];
@@ -104,4 +113,8 @@ let rec show main uuid =
       node @@ h1 [txt "Actions"];
       node @@ div buttons;
       node @@ div auto_dates;
+      node @@ h1 [txt "Voters"];
+      node @@ div voters;
+      node @@ h1 [txt "Records"];
+      node @@ div records;
     ]
