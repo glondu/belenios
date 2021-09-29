@@ -26,6 +26,7 @@ open Belenios_core
 open Serializable_builtin_t
 open Serializable_j
 open Common
+open Belenios_api.Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
@@ -2005,7 +2006,7 @@ module Make
       mutable ws_hash : string option;
     }
 
-  let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
+  let election_admin ?shuffle_token ?tally_token election metadata status get_tokens_decrypt () =
     let langs = get_languages metadata.e_languages in
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -2013,11 +2014,9 @@ module Make
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
-      let open Web_persist in
-      let* dates = get_election_dates uuid in
       let format = function
         | None -> ""
-        | Some x -> String.sub (string_of_datetime x) 1 19
+        | Some x -> format_datetime @@ datetime_of_unixfloat x
       in
       return @@ post_form ~service:election_auto_post
                   (fun (lopen, lclose) ->
@@ -2027,19 +2026,19 @@ module Make
                           b [txt (s_ "Note:")];
                           txt " ";
                           txt (s_ "times are in UTC. Now is ");
-                          txt (format (Some (now ())));
+                          txt (format_datetime @@ now ());
                           txt ".";
                         ];
                       div ~a:[a_style "margin-left: 3em;"] [
                           div [
                               txt (s_ "Automatically open the election at:");
                               txt " ";
-                              input ~name:lopen ~input_type:`Text ~value:(format dates.e_auto_open) string;
+                              input ~name:lopen ~input_type:`Text ~value:(format status.status_auto_open_date) string;
                             ];
                           div [
                               txt (s_ "Automatically close the election at:");
                               txt " ";
-                              input ~name:lclose ~input_type:`Text ~value:(format dates.e_auto_close) string;
+                              input ~name:lclose ~input_type:`Text ~value:(format status.status_auto_close_date) string;
                             ];
                           div [
                               txt (s_ "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date.");
@@ -2076,7 +2075,7 @@ module Make
         ]) uuid
     in
     let* state_div =
-      match state with
+      match status.status_state with
       | `Open ->
          let* auto_form = auto_form () in
          return @@ div [
@@ -2251,7 +2250,7 @@ module Make
                  proceed;
                ]
            )
-      | `EncryptedTally _ ->
+      | `EncryptedTally ->
          let* pds = Web_persist.get_partial_decryptions uuid in
          let* trustees = Web_persist.get_trustees uuid in
          let trustees = trustees_of_string Yojson.Safe.read_json trustees in
@@ -2428,20 +2427,18 @@ module Make
                          ] (uuid, ());
                      ]
     in
-    let* dates = Web_persist.get_election_dates uuid in
-    let* archive_date = match state with
-      | `Tallied ->
-         let t = Option.value dates.e_tally ~default:default_tally_date in
-         let t = datetime_add t (day days_to_archive) in
-         return @@
-           div [
-               txt (s_ "This election will be automatically archived after ");
-               txt (format_datetime t);
-               txt ".";
-             ]
-      | _ -> return @@ txt ""
+    let archive_date =
+      match status.status_auto_archive_date with
+      | None -> txt ""
+      | Some t ->
+         div [
+             txt (s_ "This election will be automatically archived after ");
+             txt (format_datetime @@ datetime_of_unixfloat t);
+             txt ".";
+           ]
     in
-    let div_archive = match state with
+    let div_archive =
+      match status.status_state with
       | `Archived -> txt ""
       | _ -> div [
                  br ();
@@ -2449,26 +2446,19 @@ module Make
                  archive_date;
                ]
     in
-    let* deletion_date = match state with
-      | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-         let t = Option.value dates.e_finalization ~default:default_validation_date in
-         return @@ datetime_add t (day days_to_delete)
-      | `Tallied ->
-         let t = Option.value dates.e_tally ~default:default_tally_date in
-         return @@ datetime_add t (day (days_to_archive + days_to_delete))
-      | `Archived ->
-         let t = Option.value dates.e_archive ~default:default_archive_date in
-         return @@ datetime_add t (day days_to_delete)
+    let delete_date =
+      let t = status.status_auto_delete_date in
+      div [
+          txt (s_ "This election will be automatically deleted after ");
+          txt (format_datetime @@ datetime_of_unixfloat t);
+          txt ".";
+        ]
     in
     let div_delete =
       div [
           br ();
           hr ();
-          div [
-              txt (s_ "This election will be automatically deleted after ");
-              txt (format_datetime deletion_date);
-              txt ".";
-            ];
+          delete_date;
           post_form ~service:election_delete (fun () ->
               [
                 input ~input_type:`Submit ~value:(s_ "Delete election") string;
@@ -2483,7 +2473,7 @@ module Make
       | _ -> false
     in
     let div_regenpwd =
-      if password && (match state with `Open | `Closed -> true | _ -> false) then
+      if password && (match status.status_state with `Open | `Closed -> true | _ -> false) then
         div [
             a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt (s_ "Regenerate and e-mail a password")] uuid;
           ]

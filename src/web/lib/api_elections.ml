@@ -45,10 +45,31 @@ let get_election_status uuid =
     | `EncryptedTally _ -> `EncryptedTally
     | (`Open | `Closed | `Shuffling | `Tallied | `Archived) as x -> x
   in
+  let status_auto_archive_date =
+    match status_state with
+    | `Tallied ->
+       let t = Option.value d.e_tally ~default:default_tally_date in
+       Some (unixfloat_of_datetime @@ datetime_add t (day days_to_archive))
+    | _ -> None
+  in
+  let status_auto_delete_date =
+    match status_state with
+    | `Open | `Closed | `Shuffling | `EncryptedTally ->
+       let t = Option.value d.e_finalization ~default:default_validation_date in
+       unixfloat_of_datetime @@ datetime_add t (day days_to_delete)
+    | `Tallied ->
+       let t = Option.value d.e_tally ~default:default_tally_date in
+       unixfloat_of_datetime @@ datetime_add t (day (days_to_archive + days_to_delete))
+    | `Archived ->
+       let t = Option.value d.e_archive ~default:default_archive_date in
+       unixfloat_of_datetime @@ datetime_add t (day days_to_delete)
+  in
   Lwt.return {
       status_state;
       status_auto_open_date = Option.map unixfloat_of_datetime d.e_auto_open;
       status_auto_close_date = Option.map unixfloat_of_datetime d.e_auto_close;
+      status_auto_archive_date;
+      status_auto_delete_date;
     }
 
 let set_election_state uuid state =

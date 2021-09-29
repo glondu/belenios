@@ -130,8 +130,10 @@ type state =
 
 type election_status = {
    state : state;
+   auto_delete_date : float;
    ?auto_open_date : float option;
    ?auto_close_date : float option;
+   ?auto_archive_date : float option;
 } <ocaml field_prefix="status_">
 
 type election_auto_dates = {

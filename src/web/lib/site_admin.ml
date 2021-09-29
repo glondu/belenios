@@ -1155,10 +1155,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* site_user = Eliom_reference.get Web_state.site_user in
     match site_user with
     | Some x when (match metadata.e_owner with None -> false | Some o -> Accounts.check x o) ->
-       let* state = Web_persist.get_election_state uuid in
+       let* status = Api_elections.get_election_status uuid in
        let module W = (val election) in
        let* pending_server_shuffle =
-         match state with
+         match status.status_state with
          | `Shuffling ->
             if Election.has_nh_questions W.election then
               let* x = Web_persist.get_shuffles uuid in
@@ -1197,7 +1197,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                let* () = Web_persist.set_decryption_tokens uuid ts in
                return ts
        in
-       Pages_admin.election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () >>= Html.send
+       Pages_admin.election_admin ?shuffle_token ?tally_token election metadata status get_tokens_decrypt () >>= Html.send
     | Some _ ->
        let msg = s_ "You are not allowed to administer this election!" in
        Pages_common.generic_page ~title:(s_ "Forbidden") msg ()

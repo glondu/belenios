@@ -24,6 +24,8 @@ open Belenios_api.Serializable_t
 open Web_serializable_t
 open Api_generic
 
+val get_election_status : uuid -> election_status Lwt.t
+
 val open_election : uuid -> bool Lwt.t
 val close_election : uuid -> bool Lwt.t
 
