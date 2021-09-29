@@ -1173,21 +1173,18 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () = Any.register ~service:election_open (election_set_state true)
   let () = Any.register ~service:election_close (election_set_state false)
 
-  let election_set_result_hidden f uuid x =
+  let election_set_result_hidden uuid date =
     let@ _ = with_metadata_check_owner uuid in
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    Lwt.catch
-      (fun () ->
-        let* () = Web_persist.set_election_result_hidden uuid (f l x) in
-        redir_preapply election_admin uuid ()
-      )
-      (function
-       | Failure msg ->
-          let service = preapply ~service:election_admin uuid in
-          Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
-       | e -> Lwt.fail e
-      )
+    let* b = Api_elections.set_postpone_date uuid date in
+    if b then (
+      redir_preapply election_admin uuid ()
+    ) else (
+      let* l = get_preferred_gettext () in
+      let open (val l) in
+      let service = preapply ~service:election_admin uuid in
+      let msg = Printf.sprintf (f_ "The date must be less than %d days in the future!") days_to_publish_result in
+      Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+    )
 
   let parse_datetime_from_post l x =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -1196,23 +1193,24 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:election_hide_result
-      (election_set_result_hidden
-         (fun l x ->
-           let open (val l : Belenios_ui.I18n.GETTEXT) in
-           let t = parse_datetime_from_post l x in
-           let max = datetime_add (now ()) (day days_to_publish_result) in
-           if datetime_compare t max > 0 then
-             Printf.ksprintf failwith
-               (f_ "The date must be less than %d days in the future!")
-               days_to_publish_result
-           else
-             Some t
-         )
+      (fun uuid date ->
+        let@ date = fun cont ->
+          match Option.wrap raw_datetime_of_string date with
+          | None ->
+             let* l = get_preferred_gettext () in
+             let open (val l) in
+             let service = preapply ~service:election_admin uuid in
+             let msg = Printf.sprintf (f_ "%s is not a valid date!") date in
+             Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
+          | Some t ->
+             cont @@ unixfloat_of_datetime t
+        in
+        election_set_result_hidden uuid (Some date)
       )
 
   let () =
     Any.register ~service:election_show_result
-      (election_set_result_hidden (fun _ () -> None))
+      (fun uuid () -> election_set_result_hidden uuid None)
 
   let () =
     Any.register ~service:election_auto_post

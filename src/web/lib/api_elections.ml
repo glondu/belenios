@@ -394,6 +394,21 @@ let regenpwd election metadata user =
      Lwt.return_true
   | _ -> Lwt.return_false
 
+let set_postpone_date uuid date =
+  let@ date = fun cont ->
+    match date with
+    | None -> cont None
+    | Some t ->
+       let t = datetime_of_unixfloat t in
+       let max = datetime_add (now ()) (day days_to_publish_result) in
+       if datetime_compare t max > 0 then
+         Lwt.return_false
+       else
+         cont (Some t)
+  in
+  let* () = Web_persist.set_election_result_hidden uuid date in
+  Lwt.return_true
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -452,6 +467,10 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
                let* b = regenpwd (module W) metadata user in
                if b then ok else not_found
+            | `SetPostponeDate date ->
+               let@ () = handle_generic_error in
+               let* b = set_postpone_date uuid date in
+               if b then ok else bad_request
           end
        | `DELETE ->
           let@ _ = with_administrator token metadata in

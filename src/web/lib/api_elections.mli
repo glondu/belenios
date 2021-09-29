@@ -46,6 +46,8 @@ val delete_election :
 val regenpwd :
   (module Site_common_sig.ELECTION_LWT) -> metadata -> string -> bool Lwt.t
 
+val set_postpone_date : uuid -> float option -> bool Lwt.t
+
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
   body -> result Lwt.t

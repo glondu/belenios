@@ -150,4 +150,5 @@ type admin_request =
   | ReleaseTally
   | Archive
   | RegeneratePassword of string
+  | SetPostponeDate of float nullable
   ]

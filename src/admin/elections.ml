@@ -62,6 +62,10 @@ let rec show main uuid =
       node @@ button_delete;
     ]
   in
+  let get_date x =
+    let y = Js.to_string x##.value in
+    if y = "" then None else Some (Js.date##parse x##.value /. 1000.)
+  in
   let auto_dates =
     let make_input d =
       let r = input [] in
@@ -78,14 +82,10 @@ let rec show main uuid =
     let auto_close = make_input status.status_auto_close_date in
     let set_button =
       let@ () = button "Set automatic dates" in
-      let get x =
-        let y = Js.to_string x##.value in
-        if y = "" then None else Some (Js.date##parse x##.value /. 1000.)
-      in
       let dates =
         {
-          auto_date_open = get auto_open;
-          auto_date_close = get auto_close;
+          auto_date_open = get_date auto_open;
+          auto_date_close = get_date auto_close;
         }
       in
       let request = `SetAutomaticDates dates in
@@ -100,6 +100,17 @@ let rec show main uuid =
     let set_button =
       let@ () = button "Regenerate a password" in
       let request = `RegeneratePassword (Js.to_string i##.value) in
+      let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+      let@ () = show_in main in
+      generic_proceed x (fun () -> show main uuid)
+    in
+    [node i; node set_button]
+  in
+  let postpone =
+    let i = input [] in
+    let set_button =
+      let@ () = button "Set postpone date" in
+      let request = `SetPostponeDate (get_date i) in
       let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
@@ -125,6 +136,7 @@ let rec show main uuid =
       node @@ div buttons;
       node @@ div auto_dates;
       node @@ div regenpwd;
+      node @@ div postpone;
       node @@ h1 [txt "Voters"];
       node @@ div voters;
       node @@ h1 [txt "Records"];
