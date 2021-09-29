@@ -492,37 +492,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         Pages_admin.regenpwd uuid () >>= Html.send)
 
-  let find_user_id uuid user =
-    let uuid_s = raw_string_of_uuid uuid in
-    let db = Lwt_io.lines_of_file (!Web_config.spool_dir / uuid_s / "voters.txt") in
-    let* db = Lwt_stream.to_list db in
-    let rec loop = function
-      | [] -> None
-      | id :: xs ->
-         let _, login, _ = split_identity id in
-         if login = user then Some id else loop xs
-    in
-    let show_weight =
-      List.exists
-        (fun x ->
-          let _, _, weight = split_identity_opt x in
-          weight <> None
-        ) db
-    in
-    return (loop db, show_weight)
-
-  let load_password_db uuid =
-    let uuid_s = raw_string_of_uuid uuid in
-    let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
-    Lwt_preemptive.detach Csv.load db
-
-  let rec replace_password username ((salt, hashed) as p) = function
-    | [] -> []
-    | ((username' :: _ :: _ :: rest) as x) :: xs ->
-       if username = username' then (username :: salt :: hashed :: rest) :: xs
-       else x :: (replace_password username p xs)
-    | x :: xs -> x :: (replace_password username p xs)
-
   let () =
     Any.register ~service:election_regenpwd_post
       (fun uuid user ->
@@ -530,31 +499,17 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* l = get_preferred_gettext () in
         let open (val l) in
         let@ election = with_election uuid in
-        let open (val election) in
-        let title = election.e_name in
-        let url = Eliom_uri.make_string_uri
-                    ~absolute:true ~service:election_home
-                    (uuid, ()) |> rewrite_prefix
-        in
         let service = preapply ~service:election_admin uuid in
-        let* x = find_user_id uuid user in
-        match x with
-        | Some id, show_weight ->
-           let langs = get_languages metadata.e_languages in
-           let* db = load_password_db uuid in
-           let* x =
-             Mails_voter.generate_password metadata langs title uuid
-               url id show_weight
-           in
-           let db = replace_password user x db in
-           let* () = Api_drafts.dump_passwords uuid db in
-           Pages_common.generic_page ~title:(s_ "Success") ~service
-             (Printf.sprintf (f_ "A new password has been mailed to %s.") id) ()
-           >>= Html.send
-        | None, _ ->
-           Pages_common.generic_page ~title:(s_ "Error") ~service
-             (Printf.sprintf (f_ "%s is not a registered user for this election.") user) ()
-           >>= Html.send
+        let* b = Api_elections.regenpwd election metadata user in
+        if b then (
+          Pages_common.generic_page ~title:(s_ "Success") ~service
+            (Printf.sprintf (f_ "A new password has been mailed to %s.") user) ()
+          >>= Html.send
+        ) else (
+          Pages_common.generic_page ~title:(s_ "Error") ~service
+            (Printf.sprintf (f_ "%s is not a registered user for this election.") user) ()
+          >>= Html.send
+        )
       )
 
   let () =

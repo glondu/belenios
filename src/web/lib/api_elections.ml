@@ -341,6 +341,59 @@ let delete_election election metadata =
   in
   Web_persist.clear_elections_by_owner_cache ()
 
+let find_user_id uuid user =
+  let uuid_s = raw_string_of_uuid uuid in
+  let db = Lwt_io.lines_of_file (!Web_config.spool_dir / uuid_s / "voters.txt") in
+  let* db = Lwt_stream.to_list db in
+  let rec loop = function
+    | [] -> None
+    | id :: xs ->
+       let _, login, _ = split_identity id in
+       if String.lowercase_ascii login = user then Some id else loop xs
+  in
+  let show_weight =
+    List.exists
+      (fun x ->
+        let _, _, weight = split_identity_opt x in
+        weight <> None
+      ) db
+  in
+  Lwt.return (loop db, show_weight)
+
+let load_password_db uuid =
+  let uuid_s = raw_string_of_uuid uuid in
+  let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
+  Lwt_preemptive.detach Csv.load db
+
+let rec replace_password username ((salt, hashed) as p) = function
+  | [] -> []
+  | ((username' :: _ :: _ :: rest) as x) :: xs ->
+     if username = String.lowercase_ascii username' then
+       (username' :: salt :: hashed :: rest) :: xs
+     else
+       x :: (replace_password username p xs)
+  | x :: xs -> x :: (replace_password username p xs)
+
+let regenpwd election metadata user =
+  let user = String.lowercase_ascii user in
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let title = W.election.e_name in
+  let url = get_election_home_url uuid in
+  let* x = find_user_id uuid user in
+  match x with
+  | Some id, show_weight ->
+     let langs = get_languages metadata.e_languages in
+     let* db = load_password_db uuid in
+     let* x =
+       Mails_voter.generate_password metadata langs title uuid
+       url id show_weight
+     in
+     let db = replace_password user x db in
+     let* () = Api_drafts.dump_passwords uuid db in
+     Lwt.return_true
+  | _ -> Lwt.return_false
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -394,6 +447,11 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                let@ () = handle_generic_error in
                let* () = archive_election uuid in
                ok
+            | `RegeneratePassword user ->
+               let@ () = handle_generic_error in
+               let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+               let* b = regenpwd (module W) metadata user in
+               if b then ok else not_found
           end
        | `DELETE ->
           let@ _ = with_administrator token metadata in

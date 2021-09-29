@@ -43,6 +43,9 @@ val archive_election : uuid -> unit Lwt.t
 val delete_election :
   (module Site_common_sig.ELECTION_LWT) -> metadata -> unit Lwt.t
 
+val regenpwd :
+  (module Site_common_sig.ELECTION_LWT) -> metadata -> string -> bool Lwt.t
+
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
   body -> result Lwt.t

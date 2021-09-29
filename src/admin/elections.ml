@@ -95,6 +95,17 @@ let rec show main uuid =
     in
     [node auto_open; node auto_close; node set_button]
   in
+  let regenpwd =
+    let i = input [] in
+    let set_button =
+      let@ () = button "Regenerate a password" in
+      let request = `RegeneratePassword (Js.to_string i##.value) in
+      let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+      let@ () = show_in main in
+      generic_proceed x (fun () -> show main uuid)
+    in
+    [node i; node set_button]
+  in
   let make what =
     let* x = get voter_list_of_string "elections/%s/%s" uuid what in
     let@ voters = with_ok what x in
@@ -113,6 +124,7 @@ let rec show main uuid =
       node @@ h1 [txt "Actions"];
       node @@ div buttons;
       node @@ div auto_dates;
+      node @@ div regenpwd;
       node @@ h1 [txt "Voters"];
       node @@ div voters;
       node @@ h1 [txt "Records"];

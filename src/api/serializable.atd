@@ -149,4 +149,5 @@ type admin_request =
   | FinishShuffling
   | ReleaseTally
   | Archive
+  | RegeneratePassword of string
   ]
