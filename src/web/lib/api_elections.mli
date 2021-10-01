@@ -46,6 +46,8 @@ val delete_election :
 val regenpwd :
   (module Site_common_sig.ELECTION_LWT) -> metadata -> string -> bool Lwt.t
 
+val get_records : uuid -> records Lwt.t
+
 val set_postpone_date : uuid -> float option -> bool Lwt.t
 
 val get_partial_decryptions : uuid -> metadata -> partial_decryptions Lwt.t

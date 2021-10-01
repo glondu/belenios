@@ -125,7 +125,7 @@ let rec show main uuid =
     Lwt.return [node t]
   in
   let* voters = make voter_list_of_string string_of_voter_list "voters" in
-  let* records = make voter_list_of_string string_of_voter_list "records" in
+  let* records = make records_of_string string_of_records "records" in
   let* pds = make partial_decryptions_of_string string_of_partial_decryptions "partial-decryptions" in
   let* shuffles = make shuffles_of_string string_of_shuffles "shuffles" in
   let shuffle =

@@ -548,6 +548,20 @@ let select_shuffler uuid metadata trustee =
   let* _ = Web_persist.gen_shuffle_token uuid trustee name in
   Lwt.return_unit
 
+let split_voting_record =
+  let rex = Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
+  fun x ->
+  let s = Pcre.exec ~rex x in
+  {
+    vr_date = unixfloat_of_datetime @@ raw_datetime_of_string @@ Pcre.get_substring s 1;
+    vr_username = Pcre.get_substring s 3;
+  }
+
+let get_records uuid =
+  let* x = read_file ~uuid (string_of_election_file ESRecords) in
+  let x = Option.value x ~default:[] in
+  Lwt.return @@ List.map split_voting_record x
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -642,9 +656,8 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let* x = read_file ~uuid (string_of_election_file ESRecords) in
-          let x = Option.value x ~default:[] in
-          Lwt.return (200, string_of_voter_list x)
+          let* x = get_records uuid in
+          Lwt.return (200, string_of_records x)
        | _ -> method_not_allowed
      end
   | ["partial-decryptions"] ->

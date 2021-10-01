@@ -2456,9 +2456,15 @@ module Make
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Records" in
     let nrecords = List.length records in
-    let records = List.map (fun (date, voter) ->
-                      tr [td [txt date]; td [txt voter]]
-                    ) records in
+    let records =
+      List.map
+        (fun {vr_date; vr_username} ->
+          tr [
+              td [txt @@ format_datetime @@ datetime_of_unixfloat vr_date];
+              td [txt vr_username]
+            ]
+        ) records
+    in
     let* voters = Web_persist.get_voters uuid in
     let nvoters =
       match voters with

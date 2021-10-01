@@ -1278,26 +1278,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let () =
-    let rex = Pcre.regexp "\"(.*)\\..*\" \".*:(.*)\"" in
     Any.register ~service:election_pretty_records
       (fun (uuid, ()) () ->
         let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* records =
-          let* file = read_file ~uuid (string_of_election_file ESRecords) in
-          match file with
-          | Some rs ->
-             return (
-                 List.rev_map (fun r ->
-                     let s = Pcre.exec ~rex r in
-                     let date = Pcre.get_substring s 1 in
-                     let voter = Pcre.get_substring s 2 in
-                     (date, voter)
-                   ) rs
-               )
-          | None -> return []
-        in
-        Pages_admin.pretty_records election (List.rev records) () >>= Html.send
+        let* records = Api_elections.get_records uuid in
+        Pages_admin.pretty_records election records () >>= Html.send
       )
 
   let () =

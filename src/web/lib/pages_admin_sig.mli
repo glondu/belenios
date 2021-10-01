@@ -48,7 +48,7 @@ module type S = sig
 
   val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module Site_common_sig.ELECTION_LWT) -> Web_serializable_j.metadata -> election_status -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val pretty_records : (module Site_common_sig.ELECTION_LWT) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val pretty_records : (module Site_common_sig.ELECTION_LWT) -> records -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val election_shuffler_skip_confirm : uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val shuffle : (module Site_common_sig.ELECTION_LWT) -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

@@ -147,6 +147,13 @@ type election_auto_dates = {
     ?close : float option;
 } <ocaml field_prefix="auto_date_">
 
+type voting_record = {
+    date : float;
+    username : string;
+} <ocaml field_prefix="vr_">
+
+type records = voting_record list
+
 type admin_request =
   [ Open
   | Close
