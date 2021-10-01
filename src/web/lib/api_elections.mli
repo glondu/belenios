@@ -49,6 +49,7 @@ val regenpwd :
 val set_postpone_date : uuid -> float option -> bool Lwt.t
 
 val get_partial_decryptions : uuid -> metadata -> partial_decryptions Lwt.t
+val get_shuffles : uuid -> metadata -> shuffles Lwt.t
 
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->

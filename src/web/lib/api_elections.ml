@@ -479,6 +479,36 @@ let set_postpone_date uuid date =
   let* () = Web_persist.set_election_result_hidden uuid date in
   Lwt.return_true
 
+let get_shuffles uuid metadata =
+  let@ () = fun cont ->
+    let* state = Web_persist.get_election_state uuid in
+    match state with
+    | `Shuffling -> cont ()
+    | _ -> Lwt.fail @@ Error "not in state Shuffling"
+  in
+  let* hashes = Web_persist.get_shuffle_hashes uuid in
+  let hashes = Option.value hashes ~default:[] in
+  let* token = Web_persist.get_shuffle_token uuid in
+  Lwt.return {
+      shuffles_shufflers =
+        begin
+          (match metadata.e_trustees with None -> ["server"] | Some ts -> ts)
+          |> List.map
+               (fun t ->
+                 {
+                   shuffler_address = t;
+                   shuffler_fingerprint =
+                     hashes
+                     |> List.find_opt (fun x -> x.sh_trustee = t)
+                     |> Option.map (fun x -> x.sh_hash);
+                   shuffler_token =
+                     Option.bind token
+                       (fun x -> if x.tk_trustee = t then Some x.tk_token else None);
+                 }
+               )
+        end;
+    }
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -586,6 +616,16 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
           let@ () = handle_generic_error in
           let* x = get_partial_decryptions uuid metadata in
           Lwt.return (200, string_of_partial_decryptions x)
+       | _ -> method_not_allowed
+     end
+  | ["shuffles"] ->
+     begin
+       match method_ with
+       | `GET ->
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_generic_error in
+          let* x = get_shuffles uuid metadata in
+          Lwt.return (200, string_of_shuffles x)
        | _ -> method_not_allowed
      end
   | _ -> not_found

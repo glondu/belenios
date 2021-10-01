@@ -164,3 +164,13 @@ type partial_decryptions = {
     trustees : trustee_pd list;
     ?threshold : int option;
 } <ocaml field_prefix="partial_decryptions_">
+
+type shuffler = {
+    address : string;
+    ?token : string option;
+    ?fingerprint : string option;
+} <ocaml field_prefix="shuffler_">
+
+type shuffles = {
+    shufflers : shuffler list;
+} <ocaml field_prefix="shuffles_">

@@ -2000,12 +2000,6 @@ module Make
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  type web_shuffler = {
-      ws_trustee : string;
-      mutable ws_select : string option;
-      mutable ws_hash : string option;
-    }
-
   let election_admin ?shuffle_token ?tally_token election metadata status () =
     let langs = get_languages metadata.e_languages in
     let* l = get_preferred_gettext () in
@@ -2103,37 +2097,9 @@ module Make
                          ]) uuid;
                      ]
       | `Shuffling ->
-         let shufflers =
-           match metadata.e_trustees with
-           | None -> [{ws_trustee = "server"; ws_select = None; ws_hash = None}]
-           | Some ts ->
-              List.map
-                (fun ws_trustee ->
-                  {ws_trustee; ws_select = None; ws_hash = None}
-                ) ts
-         in
-         let* () =
-           let* x = Web_persist.get_shuffle_hashes uuid in
-           match x with
-           | None -> failwith "shuffle fingerprints are missing"
-           | Some hashes ->
-              List.iter
-                (fun x ->
-                  match List.find_opt (fun y -> y.ws_trustee = x.sh_trustee) shufflers with
-                  | Some y -> y.ws_hash <- Some x.sh_hash
-                  | None -> ()
-                ) hashes;
-              return_unit
-         in
-         let* select_disabled =
-           let* x = Web_persist.get_shuffle_token uuid in
-           match x with
-           | None -> return_false
-           | Some t ->
-              match List.find_opt (fun x -> x.ws_trustee = t.tk_trustee) shufflers with
-              | Some y -> y.ws_select <- Some t.tk_token; return_true
-              | None -> return_false
-         in
+         let* shuffles = Api_elections.get_shuffles uuid metadata in
+         let shufflers = shuffles.shuffles_shufflers in
+         let select_disabled = List.exists (fun x -> x.shuffler_token <> None) shufflers in
          let* table_contents =
            Lwt_list.map_s
              (fun x ->
@@ -2144,22 +2110,22 @@ module Make
                        let a = if disabled then [a_disabled ()] else [] in
                        [
                          input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
-                         input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                         input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                          input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                        ]
                      ) ()
                  in
-                 match x.ws_hash with
+                 match x.shuffler_fingerprint with
                  | None -> mk_skip false, txt "", false
                  | Some h -> mk_skip true, txt (if h = "" then s_ "(skipped)" else h), true
                in
                let this_line =
                  match shuffle_token with
-                 | Some y when x.ws_select = Some y -> true
+                 | Some y when x.shuffler_token = Some y -> true
                  | _ -> false
                in
                let* cell =
-                 match x.ws_select with
+                 match x.shuffler_token with
                  | Some token ->
                     let uri =
                       rewrite_prefix @@
@@ -2169,7 +2135,7 @@ module Make
                     let* subject, body = Mails_admin.mail_shuffle langs uri in
                     return @@ div
                                 [
-                                  a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
+                                  a_mailto ~dest:x.shuffler_address ~subject ~body (s_ "Mail");
                                   txt " | ";
                                   if this_line then
                                     a ~service:election_admin [txt (s_ "Hide link")] uuid
@@ -2182,7 +2148,7 @@ module Make
                                   let a = if select_disabled || done_ then [a_disabled ()] else [] in
                                   [
                                     input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
-                                    input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                                    input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                                     input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                                   ]
                                 ) ()
@@ -2190,7 +2156,7 @@ module Make
                let first_line =
                  tr
                    [
-                     td [txt x.ws_trustee];
+                     td [txt x.shuffler_address];
                      td [cell];
                      td [if done_ then txt (s_ "Yes") else txt (s_ "No")];
                      td [skip];
@@ -2198,7 +2164,7 @@ module Make
                    ]
                in
                let second_line =
-                 match this_line, x.ws_select with
+                 match this_line, x.shuffler_token with
                  | true, Some token ->
                     [
                       tr
@@ -2206,7 +2172,7 @@ module Make
                           td ~a:[a_colspan 5]
                             [
                               txt (s_ "The link that must be sent to trustee ");
-                              txt x.ws_trustee;
+                              txt x.shuffler_address;
                               txt (s_ " is:");
                               br ();
                               Eliom_uri.make_string_uri ~absolute:true
@@ -2221,7 +2187,7 @@ module Make
              ) shufflers
          in
          let proceed =
-           if List.for_all (fun x -> x.ws_hash <> None) shufflers then
+           if List.for_all (fun x -> x.shuffler_fingerprint <> None) shufflers then
              post_form ~service:election_decrypt
                (fun () ->
                  [
