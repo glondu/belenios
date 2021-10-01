@@ -85,10 +85,15 @@ type voter_list = string list
 
 type credential_list = string list
 
+type private_credential = {
+    voter : string;
+    credential : string;
+} <ocaml field_prefix="pc_">
+
 type credentials = {
     ?token : string option;
     ?public : credential_list option;
-    ?private : string list option;
+    ?private : private_credential list option;
 } <ocaml field_prefix="credentials_">
 
 type trustee = {

@@ -280,6 +280,11 @@ let post_draft_passwords generate uuid se voters =
   in
   Web_persist.set_draft_election uuid se
 
+let split_private_credential x =
+  match String.split_on_char ' ' x with
+  | [pc_voter; pc_credential] -> Some {pc_voter; pc_credential}
+  | _ -> None
+
 let get_draft_credentials who uuid se =
   let credentials_token =
     if se.se_metadata.e_cred_authority = Some "server" then
@@ -290,7 +295,10 @@ let get_draft_credentials who uuid se =
   let* credentials_public = read_file ~uuid "public_creds.txt" in
   let* credentials_private =
     match who with
-    | `Administrator _ -> read_file ~uuid "private_creds.txt"
+    | `Administrator _ ->
+       let* x = read_file ~uuid "private_creds.txt" in
+       Option.map (List.filter_map split_private_credential) x
+       |> Lwt.return
     | `CredentialAuthority -> Lwt.return_none
   in
   Lwt.return {credentials_token; credentials_public; credentials_private}
