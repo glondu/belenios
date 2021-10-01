@@ -24,6 +24,7 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
 open Belenios_core
+open Common
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Serializable_j
@@ -47,6 +48,28 @@ let tkeygen () =
   set_content "public_key_fp" hash;
   set_download "private_key" "application/json" "private_key.json" priv;
   set_element_display "submit_form" "inline";
+  let downloaded = ref false in
+  let () =
+    match Dom_html.getElementById_coerce "private_key" Dom_html.CoerceTo.a with
+    | None -> ()
+    | Some x -> x##.onclick := Dom_html.handler (fun _ -> downloaded := true; Js._true)
+  in
+  let () =
+    let ( let& ) = Js.Opt.iter in
+    let handler =
+      let@ _ = Dom_html.handler in
+      if not !downloaded then (
+        alert @@ s_ "The private key must be downloaded first!";
+        Js._false
+      ) else Js._true
+    in
+    let xs = document##getElementsByTagName (Js.string "form") in
+    for i = 0 to xs##.length - 1 do
+      let& x = xs##item i in
+      let& x = Dom_html.CoerceTo.form x in
+      x##.onsubmit := handler
+    done
+  in
   Lwt.return_unit
 
 let fill_interactivity () =
