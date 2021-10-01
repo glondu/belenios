@@ -174,3 +174,8 @@ type shuffler = {
 type shuffles = {
     shufflers : shuffler list;
 } <ocaml field_prefix="shuffles_">
+
+type shuffler_request =
+  [ Skip
+  | Select
+  ]

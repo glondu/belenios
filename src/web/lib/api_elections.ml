@@ -509,6 +509,45 @@ let get_shuffles uuid metadata =
         end;
     }
 
+let extract_names trustees =
+  let open Belenios_core.Serializable_t in
+  trustees
+  |> List.map
+       (function
+        | `Pedersen x ->
+           x.t_verification_keys
+           |> Array.to_list
+           |> List.map (fun x -> x.trustee_name)
+        | `Single x -> [x.trustee_name]
+       )
+  |> List.flatten
+
+let get_trustee_names uuid =
+  let open Belenios_core.Serializable_j in
+  let* trustees = Web_persist.get_trustees uuid in
+  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  Lwt.return (extract_names trustees)
+
+let get_trustee_name uuid metadata trustee =
+  match metadata.e_trustees with
+  | None -> Lwt.return_none
+  | Some xs ->
+     let* names = get_trustee_names uuid in
+     Lwt.return (List.assoc trustee (List.combine xs names))
+
+let skip_shuffler uuid metadata trustee =
+  let* sh_name = get_trustee_name uuid metadata trustee in
+  let* () = Web_persist.clear_shuffle_token uuid in
+  let sh = {sh_trustee = trustee; sh_hash = ""; sh_name} in
+  let* () = Web_persist.add_shuffle_hash uuid sh in
+  Lwt.return_unit
+
+let select_shuffler uuid metadata trustee =
+  let* name = get_trustee_name uuid metadata trustee in
+  let* () = Web_persist.clear_shuffle_token uuid in
+  let* _ = Web_persist.gen_shuffle_token uuid trustee name in
+  Lwt.return_unit
+
 let dispatch_election token endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -626,6 +665,20 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
           let@ () = handle_generic_error in
           let* x = get_shuffles uuid metadata in
           Lwt.return (200, string_of_shuffles x)
+       | _ -> method_not_allowed
+     end
+  | ["shuffles"; shuffler] ->
+     begin
+       match method_ with
+       | `POST ->
+          begin
+            let@ _ = with_administrator token metadata in
+            let@ request = body.run shuffler_request_of_string in
+            let@ () = handle_generic_error in
+            match request with
+            | `Skip -> let* () = skip_shuffler uuid metadata shuffler in ok
+            | `Select -> let* () = select_shuffler uuid metadata shuffler in ok
+          end
        | _ -> method_not_allowed
      end
   | _ -> not_found

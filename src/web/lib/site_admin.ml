@@ -1620,37 +1620,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         | _ -> forbidden ()
       )
 
-  let extract_names trustees =
-    trustees
-    |> List.map
-         (function
-          | `Pedersen x ->
-             x.t_verification_keys
-             |> Array.to_list
-             |> List.map (fun x -> x.trustee_name)
-          | `Single x -> [x.trustee_name]
-         )
-    |> List.flatten
-
-  let get_trustee_names uuid =
-    let* trustees = Web_persist.get_trustees uuid in
-    let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-    return (extract_names trustees)
-
-  let get_trustee_name uuid metadata trustee =
-    match metadata.e_trustees with
-    | None -> return_none
-    | Some xs ->
-       let* names = get_trustee_names uuid in
-       return (List.assoc trustee (List.combine xs names))
-
   let () =
     Any.register ~service:election_shuffler_select
       (fun () (uuid, trustee) ->
         let@ metadata = with_metadata_check_owner uuid in
-        let* name = get_trustee_name uuid metadata trustee in
-        let* () = Web_persist.clear_shuffle_token uuid in
-        let* _ = Web_persist.gen_shuffle_token uuid trustee name in
+        let* () = Api_elections.select_shuffler uuid metadata trustee in
         redir_preapply election_admin uuid ()
       )
 
@@ -1665,10 +1639,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_shuffler_skip
       (fun () (uuid, trustee) ->
         let@ metadata = with_metadata_check_owner uuid in
-        let* sh_name = get_trustee_name uuid metadata trustee in
-        let* () = Web_persist.clear_shuffle_token uuid in
-        let sh = {sh_trustee = trustee; sh_hash = ""; sh_name} in
-        let* () = Web_persist.add_shuffle_hash uuid sh in
+        let* () = Api_elections.skip_shuffler uuid metadata trustee in
         redir_preapply election_admin uuid ()
       )
 

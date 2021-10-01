@@ -128,6 +128,17 @@ let rec show main uuid =
   let* records = make voter_list_of_string string_of_voter_list "records" in
   let* pds = make partial_decryptions_of_string string_of_partial_decryptions "partial-decryptions" in
   let* shuffles = make shuffles_of_string string_of_shuffles "shuffles" in
+  let shuffle =
+    let i = input [] in
+    let make label request =
+      let@ () = button label in
+      let encoded = i##.value |> Js.encodeURIComponent |> Js.to_string in
+      let* x = post_with_token (string_of_shuffler_request request) "elections/%s/shuffles/%s" uuid encoded in
+      let@ () = show_in main in
+      generic_proceed x (fun () -> show main uuid)
+    in
+    [node @@ i; node @@ make "Skip" `Skip; node @@ make "Select" `Select]
+  in
   Lwt.return [
       node @@ div [node @@ a ~href:"#" "Home"];
       node @@ h1 [txt "Raw election"];
@@ -145,6 +156,7 @@ let rec show main uuid =
       node @@ div records;
       node @@ h1 [txt "Shuffles"];
       node @@ div shuffles;
+      node @@ div shuffle;
       node @@ h1 [txt "Partial decryptions"];
       node @@ div pds;
     ]

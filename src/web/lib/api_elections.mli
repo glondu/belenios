@@ -51,6 +51,9 @@ val set_postpone_date : uuid -> float option -> bool Lwt.t
 val get_partial_decryptions : uuid -> metadata -> partial_decryptions Lwt.t
 val get_shuffles : uuid -> metadata -> shuffles Lwt.t
 
+val skip_shuffler : uuid -> metadata -> string -> unit Lwt.t
+val select_shuffler : uuid -> metadata -> string -> unit Lwt.t
+
 val dispatch :
   string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
   body -> result Lwt.t

@@ -104,6 +104,10 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> shuffles
 
+## `elections/$UUID/shuffles/$ADDRESS` (administrator)
+
+* `POST`: shuffler_request -> unit
+
 ## `elections/$UUID/partial-decryptions`
 
 * `GET`: unit -> partial_decryptions (administrator)
