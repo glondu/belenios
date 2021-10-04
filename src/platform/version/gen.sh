@@ -2,17 +2,14 @@
 
 set -e
 
-ROOT=../../../../..
-VERSION="$(head -n1 $ROOT/VERSION)"
-SPEC="$(cat $ROOT/doc/spec_version.tex)"
-
-if [ -d $ROOT/.git ] && command -v git >/dev/null; then
-    BUILD=${BUILD:-$(git describe)}
-else
-    DATE=${SOURCE_DATE_EPOCH:-$(date +%s)}
-    DATE=$(date -u -d @$DATE +%Y%m%d)
-    BUILD=${BUILD:-$DATE}
+if [ ! -f "$1" ]; then
+    echo "Could not find VERSION!"
+    exit 2
 fi
+
+VERSION="$(head -n1 "$1")"
+SPEC="$(cat "$2")"
+BUILD="$(./get_build.sh)"
 
 if [ -n "$BELENIOS_DEBUG" ]; then
     DEBUG=true
