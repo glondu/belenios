@@ -111,7 +111,7 @@ let get_configuration () =
   {
     belenios_version = Belenios_platform.Belenios_version.version;
     belenios_build = Belenios_platform.Belenios_version.build;
-    spec_version;
+    spec_version = Belenios_platform.Belenios_version.spec;
     api_version = 1;
     supported_crypto_versions;
     supported_booth_versions;

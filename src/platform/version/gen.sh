@@ -4,6 +4,7 @@ set -e
 
 ROOT=../../../../..
 VERSION="$(head -n1 $ROOT/VERSION)"
+SPEC="$(cat $ROOT/doc/spec_version.tex)"
 
 if [ -d $ROOT/.git ] && command -v git >/dev/null; then
     BUILD=${BUILD:-$(git describe)}
@@ -21,4 +22,5 @@ fi
 
 echo "let version = \"$VERSION\""
 echo "let build = \"$BUILD\""
+echo "let spec = \"$SPEC\""
 echo "let debug = $DEBUG"
