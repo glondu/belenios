@@ -185,3 +185,5 @@ val days_to_publish_result : int
 
 val max_election_name_size : int
 val max_total_weight : int
+
+val supported_booth_versions : int list

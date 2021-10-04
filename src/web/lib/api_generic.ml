@@ -111,8 +111,10 @@ let get_configuration () =
   {
     belenios_version = Belenios_platform.Belenios_version.version;
     belenios_build = Belenios_platform.Belenios_version.build;
+    spec_version;
     api_version = 1;
-    default_crypto_version = Belenios_core.Common.default_version;
+    supported_crypto_versions;
+    supported_booth_versions;
     authentications =
       begin
         List.map

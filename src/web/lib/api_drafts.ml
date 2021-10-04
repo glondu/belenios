@@ -73,7 +73,7 @@ let draft_of_api se d =
     if d.draft_version <> version then
       raise (Error "cannot change version")
   in
-  let@ () = assert_ "invalid booth version" (1 <= d.draft_booth && d.draft_booth <= 2) in
+  let@ () = assert_ "invalid booth version" (List.mem d.draft_booth supported_booth_versions) in
   let@ () = assert_ "there must be at least one language" (List.length d.draft_languages >= 1) in
   let e_cred_authority = d.draft_questions.t_credential_authority in
   let () =
@@ -163,7 +163,7 @@ let post_drafts account draft =
   in
   let se =
     {
-      se_version = Some default_version;
+      se_version = Some (List.hd supported_crypto_versions);
       se_owner = owner;
       se_group = !Web_config.default_group;
       se_voters = [];

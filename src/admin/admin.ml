@@ -140,7 +140,7 @@ let rec show_root main =
     match configuration_opt, account_opt with
     | Some c, Some a ->
        Some {
-           draft_version = c.default_crypto_version;
+           draft_version = List.hd c.supported_crypto_versions;
            draft_questions =
              {
                t_description = "";
@@ -151,7 +151,7 @@ let rec show_root main =
              };
            draft_languages = ["en"; "fr"];
            draft_contact = Some (Printf.sprintf "%s <%s>" a.api_account_name a.api_account_address);
-           draft_booth = 1;
+           draft_booth = List.hd c.supported_booth_versions;
            draft_authentication =
              begin
                match c.authentications with

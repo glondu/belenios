@@ -96,4 +96,5 @@ end
 val split_on_br : string -> string list
 val split_lines : string -> string list
 
-val default_version : int
+val spec_version : string
+val supported_crypto_versions : int list
