@@ -572,31 +572,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         >>= Html.send
       )
 
-  let merge_voters a b f =
-    let weights =
-      List.fold_left
-        (fun accu sv ->
-          let _, login, weight = split_identity sv.sv_id in
-          let login = PString.lowercase_ascii login in
-          SMap.add login weight accu
-        ) SMap.empty a
-    in
-    let weights, res =
-      List.fold_left
-        (fun (weights, accu) sv_id ->
-          let _, login, weight = split_identity sv_id in
-          let login = PString.lowercase_ascii login in
-          if SMap.mem login weights then
-            (weights, accu)
-          else (
-            SMap.add login weight weights,
-            {sv_id; sv_password = f sv_id} :: accu
-          )
-        ) (weights, List.rev a) b
-    in
-    List.rev res,
-    Weight.(SMap.fold (fun _ x y -> x + y) weights zero)
-
   let bool_of_opt = function
     | None -> false
     | Some _ -> true
@@ -637,7 +612,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | None -> ()
           in
           let voters, total_weight =
-            merge_voters se.se_voters voters (fun _ -> None)
+            Api_drafts.merge_voters se.se_voters voters (fun _ -> None)
           in
           let () =
             let expanded = Weight.expand ~total:total_weight total_weight in
@@ -943,52 +918,33 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:election_draft_import_post
-      (fun uuid from ->
-        let from = uuid_of_raw_string from in
-        let@ se = with_draft_election uuid in
+      (fun uuid from_s ->
+        let from = uuid_of_raw_string from_s in
+        let@ se = with_draft_election ~save:false uuid in
         let@ _ = with_metadata_check_owner from in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let from_s = raw_string_of_uuid from in
-        let* voters = Web_persist.get_voters from in
-        let* passwords = Web_persist.get_passwords from in
-        let get_password =
-          match passwords with
-          | None -> fun _ -> None
-          | Some p -> fun sv_id ->
-                      let _, login, _ = split_identity sv_id in
-                      SMap.find_opt login p
-        in
-        match voters with
-        | Some voters ->
-           if se.se_public_creds_received then
-             forbidden ()
-           else (
-             let voters, total_weight =
-               merge_voters se.se_voters voters get_password
-             in
-             let expanded = Weight.expand ~total:total_weight total_weight in
-             if Z.compare expanded Weight.max_expanded_weight <= 0 then (
-               se.se_voters <- voters;
-               redir_preapply election_draft_voters uuid ()
-             ) else (
-               Pages_common.generic_page ~title:(s_ "Error")
-                 ~service:(preapply ~service:election_draft_voters uuid)
-                 (Printf.sprintf
-                    (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
-                    Weight.(to_string total_weight)
-                    (Z.to_string Weight.max_expanded_weight)
-                 ) ()
-               >>= Html.send
-             )
-           )
-        | None ->
+        let* x = Api_drafts.import_voters uuid se from in
+        match x with
+        | Ok () -> redir_preapply election_draft_voters uuid ()
+        | Error `Forbidden -> forbidden ()
+        | Error `NotFound ->
            Pages_common.generic_page ~title:(s_ "Error")
              ~service:(preapply ~service:election_draft_voters uuid)
              (Printf.sprintf
                 (f_ "Could not retrieve voter list from election %s")
                 from_s)
-             () >>= Html.send
+             ()
+           >>= Html.send
+        | Error (`TotalWeightTooBig total_weight) ->
+           Pages_common.generic_page ~title:(s_ "Error")
+             ~service:(preapply ~service:election_draft_voters uuid)
+             (Printf.sprintf
+                (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
+                Weight.(to_string total_weight)
+                (Z.to_string Weight.max_expanded_weight)
+             ) ()
+           >>= Html.send
       )
 
   let () =

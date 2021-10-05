@@ -835,9 +835,82 @@ let validate_election account uuid se =
   let* dates = Web_persist.get_election_dates uuid in
   Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}
 
+let merge_voters a b f =
+  let weights =
+    List.fold_left
+      (fun accu sv ->
+        let _, login, weight = split_identity sv.sv_id in
+        let login = String.lowercase_ascii login in
+        SMap.add login weight accu
+      ) SMap.empty a
+  in
+  let weights, res =
+    List.fold_left
+      (fun (weights, accu) sv_id ->
+        let _, login, weight = split_identity sv_id in
+        let login = String.lowercase_ascii login in
+        if SMap.mem login weights then
+          (weights, accu)
+        else (
+          SMap.add login weight weights,
+          {sv_id; sv_password = f sv_id} :: accu
+        )
+      ) (weights, List.rev a) b
+  in
+  List.rev res,
+  Weight.(SMap.fold (fun _ x y -> x + y) weights zero)
+
+let import_voters uuid se from =
+  let* voters = Web_persist.get_voters from in
+  let* passwords = Web_persist.get_passwords from in
+  let get_password =
+    match passwords with
+    | None -> fun _ -> None
+    | Some p ->
+       fun sv_id ->
+       let _, login, _ = split_identity sv_id in
+       SMap.find_opt (String.lowercase_ascii login) p
+  in
+  match voters with
+  | Some voters ->
+     if se.se_public_creds_received then (
+       Lwt.return @@ Stdlib.Error `Forbidden
+     ) else (
+       let voters, total_weight = merge_voters se.se_voters voters get_password in
+       let expanded = Weight.expand ~total:total_weight total_weight in
+       if Z.compare expanded Weight.max_expanded_weight <= 0 then (
+         se.se_voters <- voters;
+         let* () = Web_persist.set_draft_election uuid se in
+         Lwt.return @@ Ok ()
+       ) else (
+         Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
+       )
+     )
+  | None -> Lwt.return @@ Stdlib.Error `NotFound
+
+let check_owner account uuid cont =
+  let* metadata = Web_persist.get_election_metadata uuid in
+  match metadata.e_owner with
+  | Some o when Accounts.check_account account o -> cont metadata
+  | _ -> unauthorized
+
 let post_draft_status account uuid se = function
-  | `SetDownloaded -> set_downloaded uuid
-  | `ValidateElection -> validate_election account uuid se
+  | `SetDownloaded ->
+     let* () = set_downloaded uuid in
+     ok
+  | `ValidateElection ->
+     let* () = validate_election account uuid se in
+     ok
+  | `ImportVoters from ->
+     begin
+       let@ _ = check_owner account from in
+       let* x = import_voters uuid se from in
+       match x with
+       | Ok () -> ok
+       | Stdlib.Error `Forbidden -> forbidden
+       | Stdlib.Error `NotFound -> not_found
+       | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
+     end
 
 let dispatch_draft token endpoint method_ body uuid se =
   match endpoint with
@@ -998,8 +1071,7 @@ let dispatch_draft token endpoint method_ body uuid se =
        | `POST ->
           let@ x = body.run status_request_of_string in
           let@ () = handle_generic_error in
-          let* () = post_draft_status account uuid se x in
-          ok
+          post_draft_status account uuid se x
        | _ -> method_not_allowed
      end
   | _ -> not_found

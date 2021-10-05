@@ -124,6 +124,7 @@ type status = {
 type status_request =
   [ SetDownloaded
   | ValidateElection
+  | ImportVoters of uuid
   ]
 
 type state =

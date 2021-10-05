@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common
@@ -68,7 +69,18 @@ let rec show_draft_voters uuid draft container =
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
   in
-  Lwt.return [node @@ div [node @@ t]; node @@ div [node b]]
+  let import =
+    let i = input [] in
+    let b =
+      let@ () = button "Import voters" in
+      let r = `ImportVoters (uuid_of_raw_string (Js.to_string i##.value)) in
+      let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+      let@ () = show_in container in
+      generic_proceed x (fun () -> show_draft_voters uuid draft container)
+    in
+    div [node i; node b]
+  in
+  Lwt.return [node @@ div [node @@ t]; node @@ div [node b]; node import]
 
 let rec show_draft_passwords uuid container =
   let@ () = show_in container in
