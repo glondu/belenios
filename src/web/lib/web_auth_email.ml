@@ -91,7 +91,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
                 | [] -> return_none
                 | v :: vs ->
                    let address, login, _ = split_identity v in
-                   if name = login then return_some address else loop vs
+                   if String.lowercase_ascii name = String.lowercase_ascii login then return_some address else loop vs
               in
               loop voters
          in

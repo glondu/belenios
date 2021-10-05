@@ -946,6 +946,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid from ->
         let from = uuid_of_raw_string from in
         let@ se = with_draft_election uuid in
+        let@ _ = with_metadata_check_owner from in
         let* l = get_preferred_gettext () in
         let open (val l) in
         let from_s = raw_string_of_uuid from in
@@ -1007,6 +1008,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid from ->
         let from = uuid_of_raw_string from in
         let@ se = with_draft_election uuid in
+        let@ _ = with_metadata_check_owner from in
         let* l = get_preferred_gettext () in
         let open (val l) in
         let* metadata = Web_persist.get_election_metadata from in
