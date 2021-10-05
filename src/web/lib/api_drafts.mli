@@ -85,6 +85,13 @@ val import_voters :
   uuid -> draft_election -> uuid ->
   (unit, [ `Forbidden | `NotFound | `TotalWeightTooBig of weight ]) Stdlib.result Lwt.t
 
+val import_trustees :
+  uuid -> draft_election ->
+  uuid -> metadata ->
+  ([> `Basic | `Threshold ],
+   [> `Inconsistent | `Invalid | `MissingPrivateKeys | `None | `Unsupported ])
+    Stdlib.result Lwt.t
+
 open Api_generic
 
 val dispatch :

@@ -888,6 +888,91 @@ let import_voters uuid se from =
      )
   | None -> Lwt.return @@ Stdlib.Error `NotFound
 
+let import_trustees uuid se from metadata =
+  let open Belenios_core.Serializable_j in
+  match metadata.e_trustees with
+  | None -> Lwt.return @@ Stdlib.Error `None
+  | Some names ->
+     let* trustees = Web_persist.get_trustees from in
+     let version = Option.value se.se_version ~default:0 in
+     let module G = (val Group.of_string ~version se.se_group : GROUP) in
+     let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
+     let module K = Trustees.MakeCombinator (G) in
+     let trustees = trustees_of_string G.read trustees in
+     if not (K.check trustees) then
+       Lwt.return @@ Stdlib.Error `Invalid
+     else
+       let import_pedersen t names =
+         let* privs = Web_persist.get_private_keys from in
+         let* x =
+           match privs with
+           | Some privs ->
+              let rec loop ts pubs privs accu =
+                match ts, pubs, privs with
+                | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
+                   let stt_name = vo_public_key.trustee_name in
+                   let* stt_token = generate_token () in
+                   let stt_voutput = {vo_public_key; vo_private_key} in
+                   let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
+                   let stt = {
+                       stt_id; stt_token; stt_voutput;
+                       stt_step = Some 7; stt_cert = None;
+                       stt_polynomial = None; stt_vinput = None;
+                       stt_name;
+                     } in
+                   loop ts pubs privs (stt :: accu)
+                | [], [], [] -> Lwt.return @@ Ok (List.rev accu)
+                | _, _, _ -> Lwt.return @@ Stdlib.Error `Inconsistent
+              in loop names (Array.to_list t.t_verification_keys) privs []
+           | None -> Lwt.return @@ Stdlib.Error `MissingPrivateKeys
+         in
+         match x with
+         | Ok se_threshold_trustees ->
+            se.se_threshold <- Some t.t_threshold;
+            se.se_threshold_trustees <- Some se_threshold_trustees;
+            se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
+            let* () = Web_persist.set_draft_election uuid se in
+            Lwt.return @@ Ok `Threshold
+         | Stdlib.Error _ as x -> Lwt.return x
+       in
+       match trustees with
+       | [`Pedersen t] ->
+          import_pedersen t names
+       | [`Single x; `Pedersen t] when x.trustee_name = Some "server" ->
+          import_pedersen t (List.tl names)
+       | ts ->
+          let@ ts = fun cont ->
+            try
+              ts
+              |> List.map (function `Single x -> x | `Pedersen _ -> raise Exit)
+              |> cont
+            with
+            | Exit -> Lwt.return @@ Stdlib.Error `Unsupported
+          in
+          let* ts =
+            let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+            List.combine names ts
+            |> Lwt_list.map_p
+                 (fun (st_id, public_key) ->
+                   let* st_token, st_private_key, st_public_key =
+                     if st_id = "server" then (
+                       let* private_key = KG.generate () in
+                       let* public_key = KG.prove private_key in
+                       let public_key = string_of_trustee_public_key G.write public_key in
+                       Lwt.return ("", Some private_key, public_key)
+                     ) else (
+                       let* st_token = generate_token () in
+                       let public_key = string_of_trustee_public_key G.write public_key in
+                       Lwt.return (st_token, None, public_key)
+                     )
+                   in
+                   let st_name = public_key.trustee_name in
+                   Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name})
+          in
+          se.se_public_keys <- ts;
+          let* () = Web_persist.set_draft_election uuid se in
+          Lwt.return @@ Ok `Basic
+
 let check_owner account uuid cont =
   let* metadata = Web_persist.get_election_metadata uuid in
   match metadata.e_owner with
@@ -910,6 +995,23 @@ let post_draft_status account uuid se = function
        | Stdlib.Error `Forbidden -> forbidden
        | Stdlib.Error `NotFound -> not_found
        | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
+     end
+  | `ImportTrustees from ->
+     begin
+       let@ metadata = check_owner account from in
+       let* x = import_trustees uuid se from metadata in
+       match x with
+       | Ok _ -> ok
+       | Stdlib.Error e ->
+          let msg =
+            match e with
+            | `None -> "none"
+            | `Invalid -> "invalid"
+            | `Inconsistent -> "inconsistent"
+            | `MissingPrivateKeys -> "missing private keys"
+            | `Unsupported -> "unsupported"
+          in
+          Lwt.fail (Error msg)
      end
 
 let dispatch_draft token endpoint method_ body uuid se =

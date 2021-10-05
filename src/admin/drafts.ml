@@ -186,12 +186,24 @@ let rec show_draft_trustees uuid container =
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
+  let import =
+    let i = input [] in
+    let b =
+      let@ () = button "Import trustees" in
+      let r = `ImportTrustees (uuid_of_raw_string (Js.to_string i##.value)) in
+      let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+      let@ () = show_in container in
+      generic_proceed x (fun () -> show_draft_trustees uuid container)
+    in
+    div [node i; node b]
+  in
   Lwt.return [
       node @@ mode;
       node @@ mode_set;
       node @@ div [node all_trustees];
       node @@ div [node t2];
       node @@ div [node b];
+      node @@ import;
     ]
 
 let rec show_draft_status uuid container =
