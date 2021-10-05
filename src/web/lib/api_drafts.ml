@@ -34,6 +34,22 @@ open Api_generic
 
 let ( / ) = Filename.concat
 
+let with_administrator token se f =
+  let@ token = Option.unwrap unauthorized token in
+  match lookup_token token with
+  | Some a when Accounts.check_account a se.se_owner -> f a
+  | _ -> not_found
+
+let with_administrator_or_credential_authority token se f =
+  let@ token = Option.unwrap unauthorized token in
+  if token = se.se_public_creds then (
+    f `CredentialAuthority
+  ) else (
+    match lookup_token token with
+    | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+    | _ -> not_found
+  )
+
 let get_authentication se =
   match se.se_metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] -> `Password

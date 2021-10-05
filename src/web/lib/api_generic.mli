@@ -44,14 +44,6 @@ val method_not_allowed : result Lwt.t
 val handle_generic_error :
   (unit -> result Lwt.t) -> result Lwt.t
 
-val with_administrator :
-  string option -> draft_election -> (account -> result Lwt.t) -> result Lwt.t
-
-val with_administrator_or_credential_authority :
-  string option -> draft_election ->
-  ([ `Administrator of account | `CredentialAuthority ] -> result Lwt.t) ->
-  result Lwt.t
-
 val get_configuration : unit -> configuration
 
 val get_account : account -> api_account
