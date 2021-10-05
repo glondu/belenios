@@ -74,7 +74,7 @@ let rec show_draft_voters uuid draft container =
     let b =
       let@ () = button "Import voters" in
       let r = `ImportVoters (uuid_of_raw_string (Js.to_string i##.value)) in
-      let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+      let* x = post_with_token (string_of_draft_request r) "drafts/%s" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
     in
@@ -191,7 +191,7 @@ let rec show_draft_trustees uuid container =
     let b =
       let@ () = button "Import trustees" in
       let r = `ImportTrustees (uuid_of_raw_string (Js.to_string i##.value)) in
-      let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+      let* x = post_with_token (string_of_draft_request r) "drafts/%s" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
@@ -214,7 +214,7 @@ let rec show_draft_status uuid container =
   t##.value := Js.string (string_of_status status);
   let b label r =
     let@ () = button label in
-    let* x = post_with_token (string_of_status_request r) "drafts/%s/status" uuid in
+    let* x = post_with_token (string_of_draft_request r) "drafts/%s" uuid in
     let@ () = show_in container in
     let@ () = generic_proceed x in
     match r, x.code with

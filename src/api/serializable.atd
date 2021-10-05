@@ -121,7 +121,7 @@ type status = {
     nh_and_weights_compatible : bool;
 } <ocaml field_prefix="status_">
 
-type status_request =
+type draft_request =
   [ SetDownloaded
   | ValidateElection
   | ImportVoters of uuid

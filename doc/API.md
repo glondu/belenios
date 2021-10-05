@@ -38,16 +38,17 @@ types. They refer to types defined in `src/api/serializable.atd`.
 * `GET`: unit -> summary_list
 * `POST`: draft -> uuid
 
-## `drafts/$UUID` (administrator or credential authority)
+## `drafts/$UUID`
 
-* `GET`: unit -> draft
-* `PUT`: draft -> unit
-* `DELETE`: unit -> unit
+* `GET`: unit -> draft (administrator or credential authority)
+* `PUT`: draft -> unit (administrator)
+* `POST`: draft_request -> unit (administrator)
+* `DELETE`: unit -> unit (administrator)
 
-## `drafts/$UUID/voters` (administrator or credential authority)
+## `drafts/$UUID/voters`
 
-* `GET`: unit -> voter_list
-* `PUT`: voter_list -> unit
+* `GET`: unit -> voter_list (administrator or credential authority)
+* `PUT`: voter_list -> unit (administrator)
 
 ## `drafts/$UUID/passwords` (administrator)
 
@@ -76,7 +77,6 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `drafts/$UUID/status` (administrator)
 
 * `GET`: unit -> status
-* `POST`: status_request -> unit
 
 ## `elections` (administrator)
 

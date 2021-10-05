@@ -1037,6 +1037,10 @@ let dispatch_draft token endpoint method_ body uuid se =
               Lwt.return_unit
           in
           ok
+       | `POST, `Administrator account ->
+          let@ x = body.run draft_request_of_string in
+          let@ () = handle_generic_error in
+          post_draft_status account uuid se x
        | `DELETE, `Administrator _ ->
           let@ () = handle_generic_error in
           let* () = delete_draft uuid in
@@ -1164,16 +1168,12 @@ let dispatch_draft token endpoint method_ body uuid se =
      end
   | ["status"] ->
      begin
-       let@ account = with_administrator token se in
+       let@ _ = with_administrator token se in
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
           let* x = get_draft_status uuid se in
           Lwt.return (200, string_of_status x)
-       | `POST ->
-          let@ x = body.run status_request_of_string in
-          let@ () = handle_generic_error in
-          post_draft_status account uuid se x
        | _ -> method_not_allowed
      end
   | _ -> not_found
