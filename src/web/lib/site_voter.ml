@@ -166,7 +166,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       let rec loop = function
         | x :: xs ->
            let email, login, weight = split_identity x in
-           if login = user.user_name then return (email, login, weight) else loop xs
+           if PString.lowercase_ascii login = PString.lowercase_ascii user.user_name then return (email, login, weight) else loop xs
         | [] -> fail UnauthorizedVoter
       in loop voters
     in
