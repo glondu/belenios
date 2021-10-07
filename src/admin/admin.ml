@@ -29,8 +29,6 @@ open Tool_js_common
 open Tool_js_html
 open Common
 
-let ( let& ) = Js.Opt.bind
-
 let context = ref `None
 
 let draft_a x =
@@ -218,40 +216,29 @@ let show hash main =
   | `Credentials (uuid, _) -> context := `None; Credentials.show main uuid
 
 let onhashchange () =
-  let& main = document##getElementById (Js.string "main") in
-  Lwt.async (fun () -> show (parse_hash ()) main);
-  Js.Opt.return ()
+  show (parse_hash ()) document##.body
 
 let onload () =
-  let& main = document##getElementById (Js.string "main") in
-  Lwt.async
-    (fun () ->
-      let lang =
-        Js.Optdef.case Dom_html.window##.navigator##.language
-          (fun () -> "en") Js.to_string
-      in
-      let* g = I18n.get ~component:"admin" ~lang in
-      gettext := g;
-      let hash = parse_hash () in
-      let* b =
-        match hash with
-        | `Root | `Draft _ | `Election _ -> get_api_token ()
-        | `Credentials (_, token) -> api_token := token; Lwt.return_true
-        | `Error -> Lwt.return_true
-      in
-      if b then (
-        show hash main
-      ) else (
-        alert "Unable to retrieve API token. Please log in again.";
-        Lwt.return_unit
-      )
-    );
-  Js.Opt.return ()
+  let lang =
+    Js.Optdef.case Dom_html.window##.navigator##.language
+      (fun () -> "en") Js.to_string
+  in
+  let* g = I18n.get ~component:"admin" ~lang in
+  gettext := g;
+  let hash = parse_hash () in
+  let* b =
+    match hash with
+    | `Root | `Draft _ | `Election _ -> get_api_token ()
+    | `Credentials (_, token) -> api_token := token; Lwt.return_true
+    | `Error -> Lwt.return_true
+  in
+  if b then (
+    show hash document##.body
+  ) else (
+    alert "Unable to retrieve API token. Please log in again.";
+    Lwt.return_unit
+  )
 
-let belenios =
-  object%js
-    method onload = onload ()
-    method onhashchange = onhashchange ()
-  end
-
-let () = Js.export "BeleniosAdmin" belenios
+let () =
+  Dom_html.window##.onload := lwt_handler onload;
+  Dom_html.window##.onhashchange := lwt_handler onhashchange
