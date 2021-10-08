@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2021-09-02 07:18+0000\n"
+"PO-Revision-Date: 2021-10-01 09:34+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.8.1-dev\n"
+"X-Generator: Weblate 4.9-dev\n"
 
 #: src/web/lib/pages_common.ml:381
 msgid " (if you forgot it, for example)."
@@ -159,7 +159,7 @@ msgstr ""
 
 #: src/web/lib/pages_common.ml:150 src/web/lib/pages_common.ml:80
 msgid "Administer elections"
-msgstr "Zarządzaj głosowaniem"
+msgstr "Zarządzaj głosowaniami"
 
 #: src/web/lib/pages_common.ml:152 src/web/lib/pages_common.ml:82
 msgid "Administer this election"
