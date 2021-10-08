@@ -77,7 +77,7 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
         - VERSION
   image: glondu/beleniosbase-tests:20210709-1
   variables:
-    PREPARED_DATABASE_VERSION: v0.01
+    PREPARED_DATABASE_VERSION: v0.02.20211008
   script:
     # Initialize environment
     - source ~/env.sh
