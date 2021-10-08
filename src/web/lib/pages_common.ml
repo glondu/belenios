@@ -458,7 +458,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
   let email_email ~address ~code =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open Mail_formatter in
+    let open Belenios_ui.Mail_formatter in
     let b = create () in
     add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
     add_newline b; add_newline b;
@@ -483,7 +483,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     img ~src ~alt:"CAPTCHA" ()
 
   let format_captcha_error l e =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     match e with
     | None -> txt ""
     | Some x ->

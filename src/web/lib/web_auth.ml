@@ -91,7 +91,8 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
                         let* () = Accounts.update_account x in
                         return x
                    in
-                   Eliom_reference.set Web_state.site_user (Some (user, account))
+                   let* token = Api_generic.new_token account in
+                   Eliom_reference.set Web_state.site_user (Some (user, account, token))
                 | Some uuid -> Eliom_reference.set Web_state.election_user (Some (uuid, user))
               in
               get_cont `Login kind ()
@@ -136,7 +137,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
       | None ->
          let* x = Eliom_reference.get Web_state.site_user in
          (match x with
-          | Some (a, _) -> return_some a
+          | Some (a, _, _) -> return_some a
           | None -> return_none
          )
       | Some uuid -> Web_state.get_election_user uuid
@@ -213,6 +214,12 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
                Eliom_registration.Html.send
 
   let logout_handler cont =
+    let* () =
+      let* x = Eliom_reference.get Web_state.site_user in
+      match x with
+      | None -> Lwt.return_unit
+      | Some (_, _, token) -> let () = Api_generic.invalidate_token token in Lwt.return_unit
+    in
     let* () = Eliom_reference.unset Web_state.site_user in
     get_cont `Logout (`Site cont) ()
 

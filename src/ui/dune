@@ -1,0 +1,5 @@
+(library
+ (name belenios_ui)
+ (public_name belenios-server.ui)
+ (libraries lwt belenios)
+ (modules_without_implementation i18n mails_admin_sig))

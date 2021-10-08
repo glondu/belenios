@@ -67,7 +67,7 @@ exception BeleniosWebError of error
 let fail e = Lwt.fail (BeleniosWebError e)
 
 let explain_error l e =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   match e with
   | ElectionClosed -> s_ "the election is closed"
   | UnauthorizedVoter -> s_ "you are not allowed to vote"
@@ -81,6 +81,7 @@ let explain_error l e =
   | CastError `WrongWeight -> s_ "your credential has a bad weight"
 
 let decompose_seconds s =
+  let s = float_of_int s in
   let h = int_of_float (s /. 3600.) in
   let s = s -. float_of_int h *. 3600. in
   let m = int_of_float (s /. 60.) in
@@ -88,7 +89,7 @@ let decompose_seconds s =
   (h, m, int_of_float s)
 
 let format_period l x =
-  let open (val l : Web_i18n_sig.GETTEXT) in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
   let y, m, d, s = ymds x in
   let y = if y = 0 then "" else string_of_int y ^ (s_ " year(s)") in
   let m = if m = 0 then "" else string_of_int m ^ (s_ " month(s)") in
@@ -145,6 +146,10 @@ let set_rewrite_prefix ~src ~dst =
       dst ^ String.sub x nsrc (n-nsrc)
     else x
   in rewrite_fun := f
+
+let get_election_home_url_ref = ref (fun _ -> failwith "get_election_home_url not initialized")
+let set_get_election_home_url f = get_election_home_url_ref := f
+let get_election_home_url uuid = !get_election_home_url_ref uuid
 
 type election_file =
   | ESRaw
@@ -369,6 +374,16 @@ let extract_email =
     | None -> None
   )
 
+(* see http://www.regular-expressions.info/email.html *)
+let identity_rex = Pcre.regexp
+                     ~flags:[`CASELESS]
+                     "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]*(,[1-9][0-9]*)?)?$"
+
+let is_identity x =
+  match pcre_exec_opt ~rex:identity_rex x with
+  | Some _ -> true
+  | None -> false
+
 let file_exists x =
   Lwt.catch
     (fun () ->
@@ -479,3 +494,5 @@ let days_to_publish_result = 7
 
 let max_election_name_size = 80
 let max_total_weight = 100_000
+
+let supported_booth_versions = [1; 2]

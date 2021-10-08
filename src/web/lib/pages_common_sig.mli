@@ -120,7 +120,7 @@ module type S = sig
 
   val signup_captcha_img : string -> [> Html_types.img ] Eliom_content.Html.elt
   val format_captcha_error :
-    (module Web_i18n_sig.GETTEXT) -> Web_common.captcha_error option ->
+    (module Belenios_ui.I18n.GETTEXT) -> Web_common.captcha_error option ->
     [> `Div | `PCDATA ] Eliom_content.Html.elt
 
   val login_email_captcha :

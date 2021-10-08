@@ -39,6 +39,10 @@ let return_unit =
 let alert s =
   Dom_html.window##alert (Js.string s)
 
+let confirm s =
+  Dom_html.window##confirm (Js.string s)
+  |> Js.to_bool
+
 let prompt s =
   let x = Dom_html.window##prompt (Js.string s) (Js.string "") in
   Js.Opt.to_option (Js.Opt.map x Js.to_string)

@@ -1,0 +1,197 @@
+(**************************************************************************)
+(*                                BELENIOS                                *)
+(*                                                                        *)
+(*  Copyright © 2012-2021 Inria                                           *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU Affero General Public License as        *)
+(*  published by the Free Software Foundation, either version 3 of the    *)
+(*  License, or (at your option) any later version, with the additional   *)
+(*  exemption that compiling, linking, and/or using OpenSSL is allowed.   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful, but   *)
+(*  WITHOUT ANY WARRANTY; without even the implied warranty of            *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *)
+(*  Affero General Public License for more details.                       *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU Affero General Public      *)
+(*  License along with this program.  If not, see                         *)
+(*  <http://www.gnu.org/licenses/>.                                       *)
+(**************************************************************************)
+
+<doc text="API-specific serializable datatypes">
+
+type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type template <ocaml predef from="Belenios_core.Serializable"> = abstract
+
+type configured_authentication = {
+    instance : string;
+    system : string;
+} <ocaml field_prefix="configured_">
+
+type authentication_system =
+  [ Password
+  | CAS
+  | Configured of configured_authentication
+  ]
+
+type configuration = {
+    belenios_version : string;
+    belenios_build : string;
+    spec_version : string;
+    api_version : int;
+    supported_crypto_versions : int list;
+    supported_booth_versions : int list;
+    authentications : authentication_system list;
+    default_group : string;
+    default_nh_group : string;
+}
+
+type api_account = {
+    name : string;
+    address : string;
+} <ocaml field_prefix="api_account_">
+
+type authentication =
+  [ Password
+  | CAS of string
+  | Configured of string
+  ]
+
+type draft = {
+    version : int;
+    questions : template;
+    languages : string list;
+    ?contact : string option;
+    booth : int;
+    authentication : authentication;
+    group : string;
+} <ocaml field_prefix="draft_">
+
+type kind =
+  [ Validated
+  | Tallied
+  | Archived
+  ]
+
+type summary = {
+    uuid : uuid;
+    name : string;
+    date : float;
+    ?kind : kind option;
+} <ocaml field_prefix="summary_">
+
+type summary_list = summary list
+
+type voter_list = string list
+
+type credential_list = string list
+
+type private_credential = {
+    voter : string;
+    credential : string;
+} <ocaml field_prefix="pc_">
+
+type credentials = {
+    ?token : string option;
+    ?public : credential_list option;
+    ?private : private_credential list option;
+} <ocaml field_prefix="credentials_">
+
+type trustee = {
+    address : string;
+    name : string;
+    ?token : string option;
+    ?state : int option;
+} <ocaml field_prefix="trustee_">
+
+type trustees = trustee list
+
+type trustees_mode =
+  [ Basic
+  | Threshold of int
+  ]
+
+type status = {
+    num_voters : int;
+    ?passwords_ready : bool option;
+    credentials_ready : bool;
+    ?private_credentials_downloaded : bool option;
+    trustees_ready : bool;
+    nh_and_weights_compatible : bool;
+} <ocaml field_prefix="status_">
+
+type draft_request =
+  [ SetDownloaded
+  | ValidateElection
+  | ImportVoters of uuid
+  | ImportTrustees of uuid
+  ]
+
+type state =
+  [ Open
+  | Closed
+  | Shuffling
+  | EncryptedTally
+  | Tallied
+  | Archived
+  ]
+
+type election_status = {
+   state : state;
+   auto_delete_date : float;
+   ?auto_archive_date : float option;
+   ?auto_open_date : float option;
+   ?auto_close_date : float option;
+   ?postpone_date : float option;
+} <ocaml field_prefix="status_">
+
+type election_auto_dates = {
+    ?open : float option;
+    ?close : float option;
+} <ocaml field_prefix="auto_date_">
+
+type voting_record = {
+    date : float;
+    username : string;
+} <ocaml field_prefix="vr_">
+
+type records = voting_record list
+
+type admin_request =
+  [ Open
+  | Close
+  | SetAutomaticDates of election_auto_dates
+  | ComputeEncryptedTally
+  | FinishShuffling
+  | ReleaseTally
+  | Archive
+  | RegeneratePassword of string
+  | SetPostponeDate of float nullable
+  ]
+
+type trustee_pd = {
+    address : string;
+    token : string;
+    done : bool;
+} <ocaml field_prefix="trustee_pd_">
+
+type partial_decryptions = {
+    trustees : trustee_pd list;
+    ?threshold : int option;
+} <ocaml field_prefix="partial_decryptions_">
+
+type shuffler = {
+    address : string;
+    ?token : string option;
+    ?fingerprint : string option;
+} <ocaml field_prefix="shuffler_">
+
+type shuffles = {
+    shufflers : shuffler list;
+} <ocaml field_prefix="shuffles_">
+
+type shuffler_request =
+  [ Skip
+  | Select
+  ]

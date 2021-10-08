@@ -1,4 +1,10 @@
 (rule
  (target belenios_version.ml)
- (deps ../../../VERSION (env_var BELENIOS_DEBUG))
- (action (with-stdout-to %{target} (run ./gen.sh))))
+ (deps
+  get_build.sh
+  gen.sh
+  (:version ../../../VERSION)
+  (:spec_version ../../../doc/spec_version.tex)
+  (env_var BELENIOS_DEBUG)
+  (env_var BELENIOS_BUILD))
+ (action (with-stdout-to %{target} (run ./gen.sh %{version} %{spec_version}))))

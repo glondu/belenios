@@ -37,9 +37,9 @@ exception BeleniosWebError of error
 
 val fail : error -> 'a Lwt.t
 
-val explain_error : (module Web_i18n_sig.GETTEXT) -> error -> string
+val explain_error : (module Belenios_ui.I18n.GETTEXT) -> error -> string
 
-val format_period : (module Web_i18n_sig.GETTEXT) -> period -> string
+val format_period : (module Belenios_ui.I18n.GETTEXT) -> period -> string
 
 val open_security_log : string -> unit Lwt.t
 (** Set the path to the security logger. *)
@@ -51,6 +51,9 @@ val fail_http : Cohttp.Code.status -> 'a Lwt.t
 
 val rewrite_prefix : string -> string
 val set_rewrite_prefix : src:string -> dst:string -> unit
+
+val set_get_election_home_url : (uuid -> string) -> unit
+val get_election_home_url : uuid -> string
 
 type election_file =
   | ESRaw
@@ -144,6 +147,8 @@ val pcre_exec_opt : rex:Pcre.regexp -> string -> Pcre.substrings option
 val is_email : string -> bool
 val extract_email : string -> string option
 
+val is_identity : string -> bool
+
 val file_exists : string -> bool Lwt.t
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
@@ -180,3 +185,5 @@ val days_to_publish_result : int
 
 val max_election_name_size : int
 val max_total_weight : int
+
+val supported_booth_versions : int list

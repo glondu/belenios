@@ -1,7 +1,7 @@
 (library
  (name belenios_tool_js_common)
- (modules tool_js_common tool_js_i18n)
- (libraries js_of_ocaml js_of_ocaml-lwt belenios-platform belenios)
+ (modules tool_js_common tool_js_html tool_js_i18n)
+ (libraries js_of_ocaml js_of_ocaml-lwt belenios-platform belenios belenios_ui)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (install

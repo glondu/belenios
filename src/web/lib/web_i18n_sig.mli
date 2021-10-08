@@ -19,19 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type GETTEXT = sig
-  val lang : string
-  val s_ : string -> string
-  val f_ : ('a, 'b, 'c, 'c, 'c, 'd) format6 -> ('a, 'b, 'c, 'c, 'c, 'd) format6
-  val sn_ : string -> string -> int -> string
-  val fn_ :
-    ('a, 'b, 'c, 'c, 'c, 'd) format6 ->
-    ('a, 'b, 'c, 'c, 'c, 'd) format6 ->
-    int ->
-    ('a, 'b, 'c, 'c, 'c, 'd) format6
-end
-
 module type S = sig
-  val get_lang_gettext : string -> string -> (module GETTEXT) Lwt.t
-  val get_preferred_gettext : string -> (module GETTEXT) Lwt.t
+  val get_preferred_gettext : string -> (module Belenios_ui.I18n.GETTEXT) Lwt.t
 end

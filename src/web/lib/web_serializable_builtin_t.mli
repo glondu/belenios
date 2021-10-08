@@ -25,13 +25,15 @@ val raw_string_of_datetime : datetime -> string
 val raw_datetime_of_string : string -> datetime
 val datetime_compare : datetime -> datetime -> int
 val format_datetime : ?fmt:string -> datetime -> string
+val unixfloat_of_datetime : datetime -> float
+val datetime_of_unixfloat : float -> datetime
 
 type period
 val day : int -> period
-val second : float -> period
+val second : int -> period
 val datetime_add : datetime -> period -> datetime
 val datetime_sub : datetime -> datetime -> period
-val ymds : period -> int * int * int * float
+val ymds : period -> int * int * int * int
 
 type 'a user_or_id =
   [ `Id of int

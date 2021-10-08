@@ -235,20 +235,20 @@ let build_elections_by_owner_cache () =
                              let* state = get_election_state ~update:false uuid in
                              match state with
                              | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-                                let date = Option.get dates.e_finalization default_validation_date in
+                                let date = Option.value dates.e_finalization ~default:default_validation_date in
                                 return (`Validated, date)
                              | `Tallied ->
-                                let date = Option.get dates.e_tally default_tally_date in
+                                let date = Option.value dates.e_tally ~default:default_tally_date in
                                 return (`Tallied, date)
                              | `Archived ->
-                                let date = Option.get dates.e_archive default_archive_date in
+                                let date = Option.value dates.e_archive ~default:default_archive_date in
                                 return (`Archived, date)
                            in
                            let election = Election.of_string election in
                            return @@ umap_add id (kind, uuid, date, election.e_name) accu
                    )
                 | Some se ->
-                   let date = Option.get se.se_creation_date default_creation_date in
+                   let date = Option.value se.se_creation_date ~default:default_creation_date in
                    let* id = get_id se.se_owner in
                    return @@ umap_add id (`Draft, uuid, date, se.se_questions.t_name) accu
               )

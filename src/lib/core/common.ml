@@ -86,6 +86,13 @@ module String = struct
   let startswith x s =
     let xn = String.length x and sn = String.length s in
     xn >= sn && String.sub x 0 sn = s
+
+  let drop_prefix ~prefix x =
+    let prefixn = length prefix and n = length x in
+    if n >= prefixn && sub x 0 prefixn = prefix then
+      Some (sub x prefixn (n - prefixn))
+    else
+      None
 end
 
 module List = struct
@@ -108,9 +115,13 @@ end
 module Option = struct
   include Option
 
-  let get x default_value = match x with
-    | None -> default_value
-    | Some x -> x
+  let wrap f x =
+    try Some (f x) with _ -> None
+
+  let unwrap default x f =
+    match x with
+    | None -> default
+    | Some x -> f x
 end
 
 module Shape = struct
@@ -311,4 +322,20 @@ let split_on_br s =
   in
   loop 0 0 []
 
-let default_version = 1
+let split_lines str =
+  let n = String.length str in
+  let find i c =
+    match String.index_from_opt str i c with
+    | None -> n
+    | Some j -> j
+  in
+  let rec loop accu i =
+    if i < n then (
+      let j = min (find i '\n') (find i '\r') in
+      let line = String.sub str i (j-i) in
+      let accu = if line = "" then accu else line :: accu in
+      loop accu (j + 1)
+    ) else List.rev accu
+  in loop [] 0
+
+let supported_crypto_versions = [1; 0]

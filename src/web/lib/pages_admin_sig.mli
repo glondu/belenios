@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_api.Serializable_t
 open Web_serializable_t
 open Web_common
 
@@ -45,9 +46,9 @@ module type S = sig
   val election_draft_import_trustees : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module Site_common_sig.ELECTION_LWT) -> Web_serializable_j.metadata -> election_state -> (unit -> string list Lwt.t) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_admin : ?shuffle_token:string -> ?tally_token:string -> (module Site_common_sig.ELECTION_LWT) -> Web_serializable_j.metadata -> election_status -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val pretty_records : (module Site_common_sig.ELECTION_LWT) -> (string * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val pretty_records : (module Site_common_sig.ELECTION_LWT) -> records -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val election_shuffler_skip_confirm : uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val shuffle : (module Site_common_sig.ELECTION_LWT) -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

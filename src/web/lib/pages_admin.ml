@@ -26,18 +26,23 @@ open Belenios_core
 open Serializable_builtin_t
 open Serializable_j
 open Common
+open Belenios_api.Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
-module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) = struct
+module Make
+         (Web_state : Web_state_sig.S)
+         (Web_i18n : Web_i18n_sig.S)
+         (Web_services : Web_services_sig.S)
+         (Pages_common : Pages_common_sig.S)
+         (Mails_admin : Belenios_ui.Mails_admin_sig.S)
+  = struct
 
   open Web_services
   open Pages_common
-
-  let ( / ) = Filename.concat
 
   let admin_background = " background: #FF9999;"
 
@@ -81,7 +86,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let logout () = Eliom_service.preapply ~service:logout cont in
     let body =
       match user with
-      | Some (_, account) ->
+      | Some (_, account, _) ->
          [
            div [
                txt (s_ "Logged in as");
@@ -365,7 +370,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     base ~title ~login_box ~content ()
 
   let preview_booth l uuid metadata =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let hash =
       Netencoding.Url.mk_url_encoded_parameters
         [
@@ -636,7 +641,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                            a ~service:election_draft_confirm [txt (s_ "Create election")] uuid;
                          ] in
     let form_destroy =
-      let t = Option.get se.se_creation_date default_creation_date in
+      let t = Option.value se.se_creation_date ~default:default_creation_date in
       let t = datetime_add t (day days_to_delete) in
       post_form
         ~service:election_draft_destroy
@@ -680,112 +685,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let mail_trustee_generation_basic_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "You will find below the link to generate your private decryption key, used to tally the election.");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Here are the instructions:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "Click on the link.");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "Click on \"Generate a new key pair\".");
-    add_newline b; add_string b "3. ";
-    add_sentence b (s_ "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled.");
-    add_newline b; add_string b "4. ";
-    add_sentence b (s_ "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server.");
-    add_newline b; add_string b "5. ";
-    add_sentence b (s_ "Click on \"Submit\" to send your verification key.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
-    add_sentence b (s_ "We suggest two options:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "you may store the key on a USB stick and store it in a safe;");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "or you may simply print it and store it in a safe.");
-    add_newline b;
-    add_sentence b (s_ "Of course, more cryptographic solutions are welcome as well.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you for your help,");
-    add_newline b;
-    contents b
-
-  let mail_trustee_generation_basic langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to generate the decryption key" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_trustee_generation_basic_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
-  let mail_trustee_generation_threshold_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "You will find below the link to generate your private decryption key, used to tally the election.");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Follow the instructions.");
-    add_sentence b (s_ "There will be 3 steps.");
-    add_sentence b (s_ "All trustees must have completed one step before you can proceed to the next one.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Don't forget to save:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "the fingerprint of your public key;");
-    add_sentence b (s_ "the fingerprint of your verification key.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Once the election is open, you must check that the fingerprints of your two keys are present in the set of keys published by the server.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed).");
-    add_sentence b (s_ "We suggest two options:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "you may store the key on a USB stick and store it in a safe;");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "or you may simply print it and store it in a safe.");
-    add_newline b;
-    add_sentence b (s_ "Of course, more cryptographic solutions are welcome as well.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you for your help,");
-    add_newline b;
-    contents b
-
-  let mail_trustee_generation_threshold langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to generate the decryption key" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_trustee_generation_threshold_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
-  let rec lwt_list_mapi f i = function
-    | [] -> return []
-    | x :: xs ->
-       let* y = f i x in
-       let* ys = lwt_list_mapi f (i + 1) xs in
-       return (y :: ys)
-
   let election_draft_trustees ?token uuid se () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -811,7 +710,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ~service:election_draft_trustee_del
         (fun name ->
           [
-            input ~input_type:`Hidden ~name ~value int;
+            input ~input_type:`Hidden ~name ~value string;
             input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]) uuid
     in
@@ -820,8 +719,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | [] -> return (txt "")
       | ts ->
          let* ts =
-           lwt_list_mapi
-             (fun i t ->
+           Lwt_list.map_s
+             (fun t ->
                let this_line =
                  match token with
                  | Some x when x = t.st_token -> true
@@ -834,7 +733,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                        rewrite_prefix
                          (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
                      in
-                     let* subject, body = mail_trustee_generation_basic langs uri in
+                     let* subject, body = Mails_admin.mail_trustee_generation_basic langs uri in
                      let mail_cell = a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail") in
                      let link_cell =
                        if this_line then
@@ -867,7 +766,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                      td [
                          txt (if t.st_public_key = "" then s_ "No" else s_ "Yes");
                        ];
-                     td [if t.st_id = "server" then txt (s_ "(cannot be removed)") else mk_form_trustee_del i];
+                     td [if t.st_id = "server" then txt (s_ "(cannot be removed)") else mk_form_trustee_del t.st_id];
                    ]
                in
                let second_line =
@@ -890,7 +789,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  else []
                in
                return (first_line :: second_line)
-             ) 0 ts
+             ) ts
          in
          return @@ table (
                        tr [
@@ -976,7 +875,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ~service:election_draft_threshold_trustee_del
         (fun name ->
           [
-            input ~input_type:`Hidden ~name ~value int;
+            input ~input_type:`Hidden ~name ~value string;
             input ~input_type:`Submit ~value:(s_ "Remove") string;
         ]) uuid
     in
@@ -985,8 +884,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | None -> return (txt "")
       | Some ts ->
          let* ts =
-           lwt_list_mapi
-             (fun i t ->
+           Lwt_list.map_s
+             (fun t ->
                let this_line =
                  match token with
                  | Some x when x = t.stt_token -> true
@@ -1009,7 +908,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                            @@ Eliom_uri.make_string_uri
                                 ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
                  in
-                 let* subject, body = mail_trustee_generation_threshold langs uri in
+                 let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
                  return (a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail"))
                in
                let first_line =
@@ -1033,7 +932,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                        td [
                            txt state;
                          ];
-                     ] @ (if show_add_remove then [td [mk_form_trustee_del i]] else [])
+                     ] @ (if show_add_remove then [td [mk_form_trustee_del t.stt_id]] else [])
                    )
                in
                let second_line =
@@ -1057,7 +956,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  else []
                in
                return (first_line :: second_line)
-             ) 0 ts
+             ) ts
          in
          return @@ div [
                        table (
@@ -1153,44 +1052,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let mail_credential_authority l url =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear credential authority,"); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "You will find below the link to generate the voters' credentials, one for each voter."); add_newline b;
-    add_newline b;
-    add_string b "  "; add_string b url; add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Here are the instructions:"); add_newline b;
-    add_sentence b (s_ "1. Click on the link."); add_newline b;
-    add_sentence b (s_ "2. Click on \"Generate\"."); add_newline b;
-    add_sentence b (s_ "3. Download the private credentials (creds.txt) and save the file to a secure location."); add_newline b;
-    add_sentence b (s_ "You will use it to send credentials to voters."); add_newline b;
-    add_sentence b (s_ "4. Download the list of voters (voters.txt)."); add_newline b;
-    add_sentence b (s_ "This list must be the one approved by the election commission."); add_newline b;
-    add_sentence b (s_ "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"); add_newline b;
-    add_sentence b (s_ "Once the election is open, you must check that they match with what is published by the server."); add_newline b;
-    add_sentence b (s_ "6. Click on \"Submit the public credentials\"."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."); add_newline b;
-    add_sentence b (s_ "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"); add_newline b;
-    add_string b "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"; add_newline b;
-    add_sentence b (s_ "The page also contains instructions for checking the voting record, after the tally."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "You may need to resend credentials to voters who have lost them."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."); add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Thank you for your help,"); add_newline b;
-    add_newline b;
-    add_string b "-- "; add_newline b;
-    add_sentence b (s_ "The election administrator");
-    let body = contents b in
-    let subject = s_ "Credential authority link" in
-    subject, body
-
   let election_draft_credential_authority uuid se () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -1228,7 +1089,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         back;
         public_name_form;
         div [
-            let subject, body = mail_credential_authority l url in
+            let subject, body = Mails_admin.mail_credential_authority l url in
             a_mailto ~subject ~body (s_ "Send instructions to the credential authority");
           ];
         div [
@@ -1588,7 +1449,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ~a:[a_style "display:none;"]
         [
           div [txt "Version:"];
-          div [raw_textarea "version" (Option.get se.se_version 0 |> string_of_int)];
+          div [raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int)];
           div [txt "UUID:"];
           div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
           div [txt "Group parameters:"];
@@ -1685,7 +1546,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         [
           div [
               txt "Version:";
-              raw_textarea "version" (string_of_int (Option.get se.se_version 0));
+              raw_textarea "version" (string_of_int (Option.value se.se_version ~default:0));
             ];
           div [
               txt "Group parameters:";
@@ -1757,7 +1618,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div ~a:[a_style "display:none;"] [
           div [
               txt "Version: ";
-              raw_textarea "version" (Option.get se.se_version 0 |> string_of_int);
+              raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int);
             ];
           div [
               txt "Step: ";
@@ -1887,7 +1748,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     base ~title ~content ()
 
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
-    let open (val l : Web_i18n_sig.GETTEXT) in
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
     let format_election (from_uuid, name) =
       let from_uuid = raw_string_of_uuid from_uuid in
       let form = post_form ~service
@@ -1951,6 +1812,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let notok x = span ~a:[a_style "color: red;"] [txt x] in
     let ok x = txt x in
     let title = s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Validate creation" in
+    let* s = Api_drafts.get_draft_status uuid se in
     let ready = true in
     let ready, name =
       if se.se_questions.t_name = default_name then
@@ -1977,75 +1839,48 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ready, ok "OK"
     in
     let ready, voters =
-      let b = not (se.se_voters = []) in
-      ready && b,
-      (if b then ok else notok) (Printf.sprintf (f_ "%d voter(s)") (List.length se.se_voters))
+      match s.status_num_voters with
+      | 0 -> false, notok "Missing"
+      | n -> ready, ok (Printf.sprintf (f_ "%d voter(s)") n)
     in
     let ready, passwords =
-      match se.se_metadata.e_auth_config with
-      | Some [{auth_system = "password"; _}] ->
-         if List.for_all (fun v -> v.sv_password <> None) se.se_voters then ready, ok "OK"
-         else false, notok (s_ "Missing")
-      | _ -> ready, ok (s_ "Not applicable")
+      match s.status_passwords_ready with
+      | Some true -> ready, ok "OK"
+      | Some false -> false, notok (s_ "Missing")
+      | None -> ready, ok (s_ "Not applicable")
     in
     let ready, credential_authority =
       match se.se_metadata.e_cred_authority with
       | None -> false, notok (s_ "Missing")
       | Some _ -> ready, ok "OK"
     in
-    let cred_auth_is_server = se.se_metadata.e_cred_authority = Some "server" in
     let ready, credentials =
-      if se.se_public_creds_received then
-        ready, ok (if cred_auth_is_server then s_ "Sent" else s_ "Received")
-      else false, notok (s_ "Missing")
-    in
-    let* private_creds_downloaded =
-      file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded")
+      match s.status_credentials_ready with
+      | true -> ready, ok "OK"
+      | false -> false, notok (s_ "Missing")
     in
     let private_creds =
-      if cred_auth_is_server && not private_creds_downloaded then
-        span
-          [
-            notok (s_ "Not downloaded.");
-            txt " ";
-            txt (s_ "Please ");
-            a ~service:election_draft_credentials_get [txt (s_ "download")] uuid;
-            txt (s_ " and save them securely.");
-          ]
-      else
-        ok "OK"
+      match s.status_private_credentials_downloaded with
+      | Some true -> ok "OK"
+      | Some false ->
+         span [
+             notok (s_ "Not downloaded.");
+             txt " ";
+             txt (s_ "Please ");
+             a ~service:election_draft_credentials_get [txt (s_ "download")] uuid;
+             txt (s_ " and save them securely.");
+           ]
+      | None -> ok (s_ "Not applicable")
     in
     let ready, trustees =
-      match se.se_threshold_trustees with
-      | None -> if List.for_all (fun {st_public_key; _} ->
-                       st_public_key <> ""
-                     ) se.se_public_keys then ready, ok "OK" else false, notok (s_ "Missing")
-      | Some _ ->
-         if se.se_threshold_parameters <> None &&
-              match se.se_threshold_trustees with
-              | None -> false
-              | Some ts ->
-                 List.for_all (fun {stt_step; _} -> stt_step = Some 7) ts
-         then ready, ok "OK"
-         else false, notok (s_ "Missing")
+      match s.status_trustees_ready with
+      | true -> ready, ok "OK"
+      | false -> false, notok (s_ "Missing")
     in
     let ready, nh_and_weights =
-      let has_weights =
-        List.exists
-          (fun x ->
-            let _, _, weight = split_identity_opt x.sv_id in
-            weight <> None
-          ) se.se_voters
-      in
-      let has_nh =
-        Array.exists
-          (function
-           | Question.NonHomomorphic _ -> true
-           | _ -> false
-          ) se.se_questions.t_questions
-      in
-      match has_weights, has_nh with
-      | true, true ->
+      match s.status_nh_and_weights_compatible with
+      | true -> ready, []
+      | false ->
          false,
          [
            tr [
@@ -2053,7 +1888,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                td [notok (s_ "Alternative questions cannot be combined with weights.")];
              ]
          ]
-      | _, _ -> ready, []
     in
     let div_trustee_warning =
       match se.se_threshold_trustees, se.se_public_keys with
@@ -2166,88 +2000,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let mail_trustee_tally_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "The election is now closed.");
-    add_sentence b (s_ "Here is the link to proceed to tally:");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Instructions:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "Follow the link.");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\".");
-    add_newline b; add_string b "3. ";
-    add_sentence b (s_ "The second box is now filled with crypto material. Please press the button \"Submit\".");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you again for your help,");
-    add_newline b;
-    contents b
-
-  let mail_trustee_tally langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to tally the election" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_trustee_tally_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
-  let mail_shuffle_body l link =
-    let open (val l : Web_i18n_sig.GETTEXT) in
-    let open Mail_formatter in
-    let b = create () in
-    add_sentence b (s_ "Dear trustee,");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Below you will find the link to shuffle encrypted ballots.");
-    add_newline b; add_newline b;
-    add_string b "  "; add_string b link;
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Instructions:");
-    add_newline b; add_string b "1. ";
-    add_sentence b (s_ "Follow the link.");
-    add_newline b; add_string b "2. ";
-    add_sentence b (s_ "Click on \"Compute shuffle\".");
-    add_newline b; add_string b "3. ";
-    add_sentence b (s_ "The fingerprint of your shuffle will appear. Save it.");
-    add_newline b; add_string b "4. ";
-    add_sentence b (s_ "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page.");
-    add_newline b; add_newline b;
-    add_sentence b (s_ "Thank you for your help,");
-    add_newline b;
-    contents b
-
-  let mail_shuffle langs link =
-    let* l = Web_i18n.get_lang_gettext "admin" (List.hd langs) in
-    let open (val l) in
-    let subject = s_ "Link to shuffle encrypted ballots" in
-    let* bodies =
-      Lwt_list.map_s (fun lang ->
-          let* l = Web_i18n.get_lang_gettext "admin" lang in
-          return (mail_shuffle_body l link)
-        ) langs
-    in
-    let body = String.concat "\n\n----------\n\n" bodies in
-    let body = body ^ "\n\n-- \n" ^ s_ "The election administrator" in
-    return (subject, body)
-
-  type web_shuffler = {
-      ws_trustee : string;
-      mutable ws_select : string option;
-      mutable ws_hash : string option;
-    }
-
-  let election_admin ?shuffle_token ?tally_token election metadata state get_tokens_decrypt () =
+  let election_admin ?shuffle_token ?tally_token election metadata status () =
     let langs = get_languages metadata.e_languages in
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -2255,11 +2008,9 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
-      let open Web_persist in
-      let* dates = get_election_dates uuid in
       let format = function
         | None -> ""
-        | Some x -> String.sub (string_of_datetime x) 1 19
+        | Some x -> format_datetime @@ datetime_of_unixfloat x
       in
       return @@ post_form ~service:election_auto_post
                   (fun (lopen, lclose) ->
@@ -2269,19 +2020,19 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                           b [txt (s_ "Note:")];
                           txt " ";
                           txt (s_ "times are in UTC. Now is ");
-                          txt (format (Some (now ())));
+                          txt (format_datetime @@ now ());
                           txt ".";
                         ];
                       div ~a:[a_style "margin-left: 3em;"] [
                           div [
                               txt (s_ "Automatically open the election at:");
                               txt " ";
-                              input ~name:lopen ~input_type:`Text ~value:(format dates.e_auto_open) string;
+                              input ~name:lopen ~input_type:`Text ~value:(format status.status_auto_open_date) string;
                             ];
                           div [
                               txt (s_ "Automatically close the election at:");
                               txt " ";
-                              input ~name:lclose ~input_type:`Text ~value:(format dates.e_auto_close) string;
+                              input ~name:lclose ~input_type:`Text ~value:(format status.status_auto_close_date) string;
                             ];
                           div [
                               txt (s_ "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date.");
@@ -2318,7 +2069,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ]) uuid
     in
     let* state_div =
-      match state with
+      match status.status_state with
       | `Open ->
          let* auto_form = auto_form () in
          return @@ div [
@@ -2346,37 +2097,9 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                          ]) uuid;
                      ]
       | `Shuffling ->
-         let shufflers =
-           match metadata.e_trustees with
-           | None -> [{ws_trustee = "server"; ws_select = None; ws_hash = None}]
-           | Some ts ->
-              List.map
-                (fun ws_trustee ->
-                  {ws_trustee; ws_select = None; ws_hash = None}
-                ) ts
-         in
-         let* () =
-           let* x = Web_persist.get_shuffle_hashes uuid in
-           match x with
-           | None -> failwith "shuffle fingerprints are missing"
-           | Some hashes ->
-              List.iter
-                (fun x ->
-                  match List.find_opt (fun y -> y.ws_trustee = x.sh_trustee) shufflers with
-                  | Some y -> y.ws_hash <- Some x.sh_hash
-                  | None -> ()
-                ) hashes;
-              return_unit
-         in
-         let* select_disabled =
-           let* x = Web_persist.get_shuffle_token uuid in
-           match x with
-           | None -> return_false
-           | Some t ->
-              match List.find_opt (fun x -> x.ws_trustee = t.tk_trustee) shufflers with
-              | Some y -> y.ws_select <- Some t.tk_token; return_true
-              | None -> return_false
-         in
+         let* shuffles = Api_elections.get_shuffles uuid metadata in
+         let shufflers = shuffles.shuffles_shufflers in
+         let select_disabled = List.exists (fun x -> x.shuffler_token <> None) shufflers in
          let* table_contents =
            Lwt_list.map_s
              (fun x ->
@@ -2387,32 +2110,32 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                        let a = if disabled then [a_disabled ()] else [] in
                        [
                          input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
-                         input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                         input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                          input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                        ]
                      ) ()
                  in
-                 match x.ws_hash with
+                 match x.shuffler_fingerprint with
                  | None -> mk_skip false, txt "", false
                  | Some h -> mk_skip true, txt (if h = "" then s_ "(skipped)" else h), true
                in
                let this_line =
                  match shuffle_token with
-                 | Some y when x.ws_select = Some y -> true
+                 | Some y when x.shuffler_token = Some y -> true
                  | _ -> false
                in
                let* cell =
-                 match x.ws_select with
+                 match x.shuffler_token with
                  | Some token ->
                     let uri =
                       rewrite_prefix @@
                         Eliom_uri.make_string_uri
                           ~absolute:true ~service:election_shuffle_link (uuid, token)
                     in
-                    let* subject, body = mail_shuffle langs uri in
+                    let* subject, body = Mails_admin.mail_shuffle langs uri in
                     return @@ div
                                 [
-                                  a_mailto ~dest:x.ws_trustee ~subject ~body (s_ "Mail");
+                                  a_mailto ~dest:x.shuffler_address ~subject ~body (s_ "Mail");
                                   txt " | ";
                                   if this_line then
                                     a ~service:election_admin [txt (s_ "Hide link")] uuid
@@ -2425,7 +2148,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                                   let a = if select_disabled || done_ then [a_disabled ()] else [] in
                                   [
                                     input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
-                                    input ~input_type:`Hidden ~name:ntrustee ~value:x.ws_trustee string;
+                                    input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                                     input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                                   ]
                                 ) ()
@@ -2433,7 +2156,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                let first_line =
                  tr
                    [
-                     td [txt x.ws_trustee];
+                     td [txt x.shuffler_address];
                      td [cell];
                      td [if done_ then txt (s_ "Yes") else txt (s_ "No")];
                      td [skip];
@@ -2441,7 +2164,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                    ]
                in
                let second_line =
-                 match this_line, x.ws_select with
+                 match this_line, x.shuffler_token with
                  | true, Some token ->
                     [
                       tr
@@ -2449,7 +2172,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                           td ~a:[a_colspan 5]
                             [
                               txt (s_ "The link that must be sent to trustee ");
-                              txt x.ws_trustee;
+                              txt x.shuffler_address;
                               txt (s_ " is:");
                               br ();
                               Eliom_uri.make_string_uri ~absolute:true
@@ -2464,7 +2187,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
              ) shufflers
          in
          let proceed =
-           if List.for_all (fun x -> x.ws_hash <> None) shufflers then
+           if List.for_all (fun x -> x.shuffler_fingerprint <> None) shufflers then
              post_form ~service:election_decrypt
                (fun () ->
                  [
@@ -2493,107 +2216,69 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  proceed;
                ]
            )
-      | `EncryptedTally _ ->
-         let* pds = Web_persist.get_partial_decryptions uuid in
-         let* trustees = Web_persist.get_trustees uuid in
-         let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-         let threshold, npks =
-           let rec loop trustees threshold npks =
-             match trustees with
-             | [] -> threshold, npks
-             | `Single _ :: ts -> loop ts threshold (npks + 1)
-             | `Pedersen t :: ts ->
-                match threshold with
-                | Some _ -> failwith "Unsupported: two Pedersen"
-                | None -> loop ts (Some t.t_threshold) (npks + Array.length t.t_verification_keys)
-           in
-           loop trustees None 0
-         in
+      | `EncryptedTally ->
+         let* p = Api_elections.get_partial_decryptions uuid metadata in
          let threshold_or_not =
-           match threshold with
+           match p.partial_decryptions_threshold with
            | None -> txt ""
            | Some x -> txt (" " ^ Printf.sprintf (f_ "At least %d trustee(s) must act.") x)
          in
-         let trustees =
-           let rec loop i ts =
-             if i <= npks then
-               match ts with
-               | t :: ts -> (Some t, i) :: (loop (i+1) ts)
-               | [] -> (None, i) :: (loop (i+1) ts)
-             else []
-           in
-           match metadata.e_trustees with
-           | None -> loop 1 []
-           | Some ts -> loop 1 ts
-         in
-         let rec seq i j = if i >= j then [] else i :: (seq (i+1) j) in
-         let* trustee_tokens =
-           match threshold with
-           | None -> return (List.map string_of_int (seq 1 (npks+1)))
-           | Some _ -> get_tokens_decrypt ()
-         in
-         let trustees = List.combine trustees trustee_tokens in
          let* trustees =
-           Lwt_list.map_s
-             (fun ((name, trustee_id), token) ->
-               let this_line =
-                 match tally_token with
-                 | Some x when x = token -> true
-                 | _ -> false
-               in
-               let service = election_tally_trustees in
-               let x = (uuid, token) in
-               let uri = rewrite_prefix @@ Eliom_uri.make_string_uri
-                                             ~absolute:true ~service x
-               in
-               let link_content, dest = match name with
-                 | None -> uri, !Web_config.server_mail
-                 | Some name -> name, name
-               in
-               let* mail, link =
-                 if link_content = "server" then (
-                   return (txt (s_ "(server)"), txt (s_ "(server)"))
-                 ) else (
-                   let* subject, body = mail_trustee_tally langs uri in
-                   let mail = a_mailto ~dest ~subject ~body (s_ "E-mail") in
-                   let link =
-                     if this_line then
-                       a ~service:election_admin [txt (s_ "Hide link")] uuid
-                     else
-                       a ~service [txt (s_ "Link")] x
-                   in
-                   return (mail, link)
-                 )
-               in
-               let first_line =
-                 tr [
-                     td [txt link_content];
-                     td [mail];
-                     td [link];
-                     td [
-                         txt (if List.mem_assoc trustee_id pds then (s_ "Yes") else (s_ "No"))
-                       ];
-                   ]
-               in
-               let second_line =
-                 if this_line then
-                   [
-                     tr
-                       [
-                         td ~a:[a_colspan 4]
-                           [
-                             txt (s_ "The link that must be sent to trustee ");
-                             txt link_content;
-                             txt (s_ " is:");
-                             br ();
-                             txt uri;
-                           ]
-                       ]
-                   ]
-                 else []
-               in
-               return (first_line :: second_line)
-             ) trustees
+           p.partial_decryptions_trustees
+           |> Lwt_list.map_s
+                (fun t ->
+                  let this_line =
+                    match tally_token with
+                    | Some x when x = t.trustee_pd_token -> true
+                    | _ -> false
+                  in
+                  let service = election_tally_trustees in
+                  let x = (uuid, t.trustee_pd_token) in
+                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri ~absolute:true ~service x in
+                  let* mail, link =
+                    if t.trustee_pd_address = "server" then (
+                      return (txt (s_ "(server)"), txt (s_ "(server)"))
+                    ) else (
+                      let* subject, body = Mails_admin.mail_trustee_tally langs uri in
+                      let mail = a_mailto ~dest:t.trustee_pd_address ~subject ~body (s_ "E-mail") in
+                      let link =
+                        if this_line then
+                          a ~service:election_admin [txt (s_ "Hide link")] uuid
+                        else
+                          a ~service [txt (s_ "Link")] x
+                      in
+                      return (mail, link)
+                    )
+                  in
+                  let first_line =
+                    tr [
+                        td [txt t.trustee_pd_address];
+                        td [mail];
+                        td [link];
+                        td [
+                            txt (if t.trustee_pd_done then s_ "Yes" else s_ "No");
+                          ];
+                      ]
+                  in
+                  let second_line =
+                    if this_line then
+                      [
+                        tr
+                          [
+                            td ~a:[a_colspan 4]
+                              [
+                                txt (s_ "The link that must be sent to trustee ");
+                                txt t.trustee_pd_address;
+                                txt (s_ " is:");
+                                br ();
+                                txt uri;
+                              ]
+                          ]
+                      ]
+                    else []
+                  in
+                  return (first_line :: second_line)
+                )
          in
          let release_form =
            post_form
@@ -2670,20 +2355,18 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                          ] (uuid, ());
                      ]
     in
-    let* dates = Web_persist.get_election_dates uuid in
-    let* archive_date = match state with
-      | `Tallied ->
-         let t = Option.get dates.e_tally default_tally_date in
-         let t = datetime_add t (day days_to_archive) in
-         return @@
-           div [
-               txt (s_ "This election will be automatically archived after ");
-               txt (format_datetime t);
-               txt ".";
-             ]
-      | _ -> return @@ txt ""
+    let archive_date =
+      match status.status_auto_archive_date with
+      | None -> txt ""
+      | Some t ->
+         div [
+             txt (s_ "This election will be automatically archived after ");
+             txt (format_datetime @@ datetime_of_unixfloat t);
+             txt ".";
+           ]
     in
-    let div_archive = match state with
+    let div_archive =
+      match status.status_state with
       | `Archived -> txt ""
       | _ -> div [
                  br ();
@@ -2691,26 +2374,19 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                  archive_date;
                ]
     in
-    let* deletion_date = match state with
-      | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-         let t = Option.get dates.e_finalization default_validation_date in
-         return @@ datetime_add t (day days_to_delete)
-      | `Tallied ->
-         let t = Option.get dates.e_tally default_tally_date in
-         return @@ datetime_add t (day (days_to_archive + days_to_delete))
-      | `Archived ->
-         let t = Option.get dates.e_archive default_archive_date in
-         return @@ datetime_add t (day days_to_delete)
+    let delete_date =
+      let t = status.status_auto_delete_date in
+      div [
+          txt (s_ "This election will be automatically deleted after ");
+          txt (format_datetime @@ datetime_of_unixfloat t);
+          txt ".";
+        ]
     in
     let div_delete =
       div [
           br ();
           hr ();
-          div [
-              txt (s_ "This election will be automatically deleted after ");
-              txt (format_datetime deletion_date);
-              txt ".";
-            ];
+          delete_date;
           post_form ~service:election_delete (fun () ->
               [
                 input ~input_type:`Submit ~value:(s_ "Delete election") string;
@@ -2725,7 +2401,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | _ -> false
     in
     let div_regenpwd =
-      if password && (match state with `Open | `Closed -> true | _ -> false) then
+      if password && (match status.status_state with `Open | `Closed -> true | _ -> false) then
         div [
             a ~a:[a_id "election_regenpwd"] ~service:election_regenpwd [txt (s_ "Regenerate and e-mail a password")] uuid;
           ]
@@ -2780,9 +2456,15 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Records" in
     let nrecords = List.length records in
-    let records = List.map (fun (date, voter) ->
-                      tr [td [txt date]; td [txt voter]]
-                    ) records in
+    let records =
+      List.map
+        (fun {vr_date; vr_username} ->
+          tr [
+              td [txt @@ format_datetime @@ datetime_of_unixfloat vr_date];
+              td [txt vr_username]
+            ]
+        ) records
+    in
     let* voters = Web_persist.get_voters uuid in
     let nvoters =
       match voters with
@@ -3311,8 +2993,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
 end
 
 let mail_confirmation_link l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;
@@ -3333,8 +3015,8 @@ let mail_confirmation_link l address code =
   subject, body
 
 let mail_changepw_link l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;
@@ -3355,8 +3037,8 @@ let mail_changepw_link l address code =
   subject, body
 
 let mail_set_email l address code =
-  let open (val l : Web_i18n_sig.GETTEXT) in
-  let open Mail_formatter in
+  let open (val l : Belenios_ui.I18n.GETTEXT) in
+  let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
   add_newline b; add_newline b;

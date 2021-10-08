@@ -1,3 +1,4 @@
+src/ui/mails_admin.ml
 src/web/lib/pages_admin.ml
 src/web/lib/site_admin.ml
 src/tool/js/tool_js_questions.ml
@@ -6,3 +7,8 @@ src/tool/js/tool_js_tkeygen.ml
 src/tool/js/tool_js_ttkeygen.ml
 src/tool/js/tool_js_shuffle.ml
 src/tool/js/tool_js_pd.ml
+src/admin/admin.ml
+src/admin/common.ml
+src/admin/credentials.ml
+src/admin/drafts.ml
+src/admin/elections.ml

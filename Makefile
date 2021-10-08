@@ -1,4 +1,7 @@
+BELENIOS_BUILD := $(shell ./src/platform/version/get_build.sh)
 DUNE_DEBUG_ARGS := --build-dir=_build-debug
+
+export BELENIOS_BUILD
 
 minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool

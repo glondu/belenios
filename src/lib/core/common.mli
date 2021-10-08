@@ -41,6 +41,7 @@ end
 module String : sig
   include module type of String
   val startswith : string -> string -> bool
+  val drop_prefix : prefix:string -> string -> string option
 end
 
 module List : sig
@@ -51,7 +52,8 @@ end
 
 module Option : sig
   include module type of Option
-  val get : 'a option -> 'a -> 'a
+  val wrap : ('a -> 'b) -> 'a -> 'b option
+  val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
 end
 
 module Shape : sig
@@ -92,5 +94,6 @@ module BabyStepGiantStep (G : GROUP) : sig
 end
 
 val split_on_br : string -> string list
+val split_lines : string -> string list
 
-val default_version : int
+val supported_crypto_versions : int list

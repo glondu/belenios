@@ -54,11 +54,21 @@ let account_of_filename filename =
   | Some [x] -> Lwt.return (try Some (account_of_string x) with _ -> None)
   | _ -> Lwt.return_none
 
+let get_account_by_id id =
+  account_of_filename (Printf.sprintf "%d.json" id)
+
+let update_hooks = ref []
+
+let add_update_hook f = update_hooks := f :: !update_hooks
+
 let update_account account =
-  let@ () = Lwt_mutex.with_lock account_mutex in
-  write_file
-    (!Web_config.accounts_dir / Printf.sprintf "%d.json" account.account_id)
-    [string_of_account account]
+  let* () =
+    let@ () = Lwt_mutex.with_lock account_mutex in
+    write_file
+      (!Web_config.accounts_dir / Printf.sprintf "%d.json" account.account_id)
+      [string_of_account account]
+  in
+  Lwt_list.iter_s (fun f -> f account) !update_hooks
 
 let drop_after_at x =
   match String.index_opt x '@' with
@@ -75,7 +85,7 @@ let create_account ~email user =
     | _ -> Lwt.return 1
   in
   let rec find_free_id n =
-    let* x = account_of_filename (Printf.sprintf "%d.json" n) in
+    let* x = get_account_by_id n in
     match x with
     | None -> Lwt.return n
     | Some _ -> find_free_id (n + 1)
@@ -128,9 +138,7 @@ let get_account user =
        Lwt.return x
   in
   let& id = UMap.find_opt user cache in
-  let* account = account_of_filename (Printf.sprintf "%d.json" id) in
-  let& account = account in
-  Lwt.return_some account
+  get_account_by_id id
 
 type capability =
   | Sudo
@@ -143,6 +151,10 @@ let has_capability cap account =
   | None -> false
   | Some i -> i land (mask_of_capability cap) <> 0
 
-let check (u, a) = function
+let check (u, a, _) = function
   | `Id i -> a.account_id = i
   | `User u' -> u = u'
+
+let check_account a = function
+  | `Id i -> a.account_id = i
+  | `User u -> List.mem u a.account_authentications

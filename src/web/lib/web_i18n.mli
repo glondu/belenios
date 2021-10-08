@@ -19,4 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+include Belenios_ui.I18n.S
+
 module Make (Web_state : Web_state_sig.S) : Web_i18n_sig.S
