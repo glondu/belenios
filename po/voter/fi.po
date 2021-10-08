@@ -43,7 +43,7 @@ msgstr " äänestyslippua on vastaanotettu ja "
 msgid " ballot(s) have been accepted."
 msgstr " äänestyslippua on vastaanotettu."
 
-#: src/web/lib/web_common.ml:95
+#: src/web/lib/web_common.ml:96
 msgid " day(s)"
 msgstr " päivä(ä)"
 
@@ -63,7 +63,7 @@ msgstr " on vastaanotettu, muttei vielä tallennettu. "
 msgid " have been tallied."
 msgstr " on laskettu."
 
-#: src/web/lib/web_common.ml:97
+#: src/web/lib/web_common.ml:98
 msgid " hour(s)"
 msgstr " tunti(a)"
 
@@ -75,19 +75,19 @@ msgstr ""
 msgid " is rejected, because "
 msgstr " ei hyväksytty, koska "
 
-#: src/web/lib/web_common.ml:98
+#: src/web/lib/web_common.ml:99
 msgid " minute(s)"
 msgstr " minuutti(a)"
 
-#: src/web/lib/web_common.ml:94
+#: src/web/lib/web_common.ml:95
 msgid " month(s)"
 msgstr " kuukautta"
 
-#: src/web/lib/web_common.ml:99
+#: src/web/lib/web_common.ml:100
 msgid " second(s)"
 msgstr " sekunti(a)"
 
-#: src/web/lib/web_common.ml:93
+#: src/web/lib/web_common.ml:94
 msgid " year(s)"
 msgstr " vuotta"
 
@@ -282,7 +282,7 @@ msgstr "Jatka"
 msgid "Cookies are blocked"
 msgstr "Evästeet on estetty"
 
-#: src/web/lib/pages_voter.ml:1360
+#: src/web/lib/mails_voter.ml:111
 msgid "Credential:"
 msgstr "Tunniste:"
 
@@ -290,7 +290,7 @@ msgstr "Tunniste:"
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr "Tunnisteet on luotu, ne lähetti %s sormenjäljellä %s."
 
-#: src/web/lib/pages_voter.ml:1396 src/web/lib/pages_common.ml:463
+#: src/web/lib/pages_common.ml:463 src/web/lib/mails_voter.ml:171
 msgid "Dear %s,"
 msgstr "Hyvä %s,"
 
@@ -320,10 +320,10 @@ msgstr "Äänestyspalvelin"
 msgid "Encrypting…"
 msgstr "Salataan…"
 
-#: src/web/lib/site_voter.ml:354 src/web/lib/site_voter.ml:329
+#: src/web/lib/site_voter.ml:359 src/web/lib/site_voter.ml:334
+#. src/web/lib/site_voter.ml:286
 #. src/web/lib/site_voter.ml:281
 #. src/web/lib/site_voter.ml:276
-#. src/web/lib/site_voter.ml:271
 msgid "Error"
 msgstr "Virhe"
 
@@ -335,7 +335,7 @@ msgstr "Oletettu sormenjälki:"
 msgid "FAIL!"
 msgstr "VIRHE!"
 
-#: src/web/lib/site_common.ml:110
+#: src/web/lib/site_common.ml:116
 msgid "Forbidden"
 msgstr ""
 
@@ -405,7 +405,7 @@ msgstr "Syötä tunnisteesi "
 msgid "Invalid credential!"
 msgstr "Virheellinen tunniste!"
 
-#: src/web/lib/site_voter.ml:282
+#: src/web/lib/site_voter.ml:287
 msgid "Invalid index for question."
 msgstr "Virheellinen järjestysluku kysymykselle."
 
@@ -482,7 +482,7 @@ msgstr "Jos äänestät tyhjää, et voi valita muita vaihtoehtoja"
 msgid "Not found"
 msgstr "Ei löytynyt"
 
-#: src/web/lib/pages_voter.ml:1302
+#: src/web/lib/mails_voter.ml:53
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 
@@ -510,19 +510,19 @@ msgstr ""
 msgid "Number of seats:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1365 src/web/lib/pages_voter.ml:1310
+#: src/web/lib/mails_voter.ml:116 src/web/lib/mails_voter.ml:61
 msgid "Number of votes:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1371 src/web/lib/pages_voter.ml:1316
+#: src/web/lib/mails_voter.ml:122 src/web/lib/mails_voter.ml:67
 msgid "Only the last vote counts."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1368 src/web/lib/pages_voter.ml:1313
+#: src/web/lib/mails_voter.ml:119 src/web/lib/mails_voter.ml:64
 msgid "Page of the election:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1306 src/web/lib/pages_common.ml:400
+#: src/web/lib/pages_common.ml:400 src/web/lib/mails_voter.ml:57
 msgid "Password:"
 msgstr ""
 
@@ -538,7 +538,7 @@ msgstr ""
 msgid "Please enter your credential:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1298
+#: src/web/lib/mails_voter.ml:49
 msgid "Please find below your login and password for the election"
 msgstr ""
 
@@ -594,7 +594,7 @@ msgstr ""
 msgid "Restart"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1421
+#: src/web/lib/mails_voter.ml:196
 msgid "Results will be published on the election page"
 msgstr ""
 
@@ -713,11 +713,11 @@ msgstr ""
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 
-#: src/web/lib/site_voter.ml:330
+#: src/web/lib/site_voter.ml:335
 msgid "The number of grades is invalid."
 msgstr ""
 
-#: src/web/lib/site_voter.ml:355
+#: src/web/lib/site_voter.ml:360
 msgid "The number of seats is invalid."
 msgstr ""
 
@@ -729,7 +729,7 @@ msgstr ""
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
 
-#: src/web/lib/site_voter.ml:272
+#: src/web/lib/site_voter.ml:277
 msgid "The result of this election is not available."
 msgstr ""
 
@@ -777,11 +777,11 @@ msgstr ""
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 
-#: src/web/lib/site_voter.ml:277
+#: src/web/lib/site_voter.ml:282
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1413
+#: src/web/lib/mails_voter.ml:188
 msgid "This vote replaces any previous vote."
 msgstr ""
 
@@ -789,11 +789,11 @@ msgstr ""
 msgid "Tie:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1356
+#: src/web/lib/mails_voter.ml:107
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1289
+#: src/web/lib/mails_voter.ml:40
 msgid "To get more information, please contact:"
 msgstr ""
 
@@ -809,9 +809,9 @@ msgstr ""
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1362 src/web/lib/pages_voter.ml:1305
-#. src/web/lib/pages_common.ml:387
-#. src/web/lib/pages_common.ml:342
+#: src/web/lib/pages_common.ml:387 src/web/lib/pages_common.ml:342
+#. src/web/lib/mails_voter.ml:113
+#. src/web/lib/mails_voter.ml:56
 msgid "Username:"
 msgstr ""
 
@@ -843,15 +843,15 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1370 src/web/lib/pages_voter.ml:1315
+#: src/web/lib/mails_voter.ml:121 src/web/lib/mails_voter.ml:66
 msgid "You are allowed to vote several times."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1349
+#: src/web/lib/mails_voter.ml:100
 msgid "You are listed as a voter for the election"
 msgstr ""
 
-#: src/web/lib/site_common.ml:109
+#: src/web/lib/site_common.ml:115
 msgid "You are not allowed to access this page!"
 msgstr ""
 
@@ -871,7 +871,7 @@ msgstr ""
 msgid "You can check its presence in the "
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1417
+#: src/web/lib/mails_voter.ml:192
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
@@ -887,11 +887,11 @@ msgstr ""
 msgid "You must select at most %d answer(s)"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1354
+#: src/web/lib/mails_voter.ml:105
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1353
+#: src/web/lib/mails_voter.ml:104
 msgid "You will find below your credential."
 msgstr ""
 
@@ -907,7 +907,7 @@ msgstr ""
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1388
+#: src/web/lib/mails_voter.ml:139
 msgid "Your credential for election %s"
 msgstr ""
 
@@ -915,11 +915,11 @@ msgstr ""
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1340
+#: src/web/lib/mails_voter.ml:91
 msgid "Your password for election %s"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1408
+#: src/web/lib/mails_voter.ml:183
 msgid "Your smart ballot tracker is"
 msgstr ""
 
@@ -928,7 +928,7 @@ msgstr ""
 msgid "Your smart ballot tracker is "
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1398
+#: src/web/lib/mails_voter.ml:173
 msgid "Your vote for election"
 msgstr ""
 
@@ -940,8 +940,8 @@ msgstr ""
 msgid "Your vote was not recorded!"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1405 src/web/lib/pages_voter.ml:849
-#. src/web/lib/pages_voter.ml:720
+#: src/web/lib/pages_voter.ml:849 src/web/lib/pages_voter.ml:720
+#. src/web/lib/mails_voter.ml:180
 msgid "Your weight is %s."
 msgstr ""
 
@@ -965,7 +965,7 @@ msgstr ""
 msgid "create an account"
 msgstr ""
 
-#: src/web/lib/pages_voter.ml:1402
+#: src/web/lib/mails_voter.ml:177
 msgid "has been recorded."
 msgstr ""
 
