@@ -29,7 +29,6 @@ build_and_test_with_debian_image:
     # Install the same Opam packages that opam-bootstrap.sh installs
     - git -C /home/opam/opam-repository pull origin master
     - opam update
-    - ./fixup-magic-mime.sh
     - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
     - make build-debug-tool

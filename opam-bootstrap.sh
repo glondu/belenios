@@ -15,6 +15,17 @@ if [ -e "$BELENIOS_SYSROOT" ]; then
 fi
 
 mkdir -p "$BELENIOS_SYSROOT"
+cd "$BELENIOS_SYSROOT"
+
+echo
+echo "=-=-= Cloning OPAM repository =-=-="
+echo
+mkdir opam-repository
+cd opam-repository
+git init
+git remote add origin https://github.com/ocaml/opam-repository.git
+git fetch --depth=1 origin 0eacced026c361688fa6e472a7e3b3f571389f6c:opam
+git checkout opam
 
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
 
@@ -42,16 +53,15 @@ if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
     mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
     cd "$BELENIOS_SYSROOT/bootstrap/src"
-    wget https://github.com/ocaml/opam/releases/download/2.0.8/opam-full-2.0.8.tar.gz
-    wget https://github.com/mirage/ocaml-magic-mime/releases/download/v1.1.3/magic-mime-v1.1.3.tbz
+    wget https://github.com/ocaml/opam/releases/download/2.1.0/opam-full-2.1.0.tar.gz
 
     if which sha256sum >/dev/null; then
         sha256sum --check <<EOF
-7b9d29233d9633ef50ba766df2e39112b15cd05c1c6fedf80bcb548debcdd9bd  opam-full-2.0.8.tar.gz
-7fb36ce619ca479ac44ef923c3bf19eda4c98a4428dbf7f3f7c714b516d212f7  magic-mime-v1.1.3.tbz
+6102131a9b65536b713efba7f5498acb3802ae15fec3171cc2c98427cfc3926f  opam-full-2.1.0.tar.gz
 EOF
     else
         echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
+        exit 2
     fi
 
     export PATH="$BELENIOS_SYSROOT/bootstrap/bin:$PATH"
@@ -60,8 +70,8 @@ EOF
     echo "=-=-= Compilation and installation of OPAM =-=-="
     echo
     cd "$BELENIOS_SYSROOT/bootstrap/src"
-    tar -xzf opam-full-2.0.8.tar.gz
-    cd opam-full-2.0.8
+    tar -xzf opam-full-2.1.0.tar.gz
+    cd opam-full-2.1.0
     make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
     make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 
@@ -84,28 +94,14 @@ ln -sf $BELENIOS_SYSROOT/env.sh $BELENIOS_SRC/env.sh
 echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
-cd "$BELENIOS_SYSROOT"
-git clone https://github.com/ocaml/opam-repository.git
-cd opam-repository
-git reset --hard 94a137c4585c442147ef4dd0f8c8c7756ebcdec8
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
 opam switch create 4.11.2
 eval $(opam env)
 
-# FIXME: temporary, until one of:
-#   https://github.com/ocsigen/ocsigenserver/issues/201
-#   https://github.com/mirage/ocaml-magic-mime/issues/21
-# is fixed
-cd "$BELENIOS_SYSROOT/bootstrap/src"
-tar -xf magic-mime-v1.1.3.tbz
-cd magic-mime-v1.1.3
-sed -i 's@application/javascript.*@application/javascript\tjs mjs@' mime.types
-opam pin --yes magic-mime $PWD
-
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv eliom=8.4.8 gettext-camomile ocamlnet
+opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv eliom=8.8.0 gettext-camomile ocamlnet
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
