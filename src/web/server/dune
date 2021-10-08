@@ -2,6 +2,7 @@
  (name server)
  (public_name belenios-server)
  (package belenios-server)
+ (flags -linkall)
  (libraries
   ocsigenserver
   ocsigenserver.ext.ocsipersist-sqlite
