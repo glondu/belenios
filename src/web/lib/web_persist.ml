@@ -335,53 +335,6 @@ let get_trustees uuid =
      in
      Lwt.fail (Failure msg)
 
-let get_public_keys uuid =
-  read_file ~uuid "public_keys.jsons"
-
-let get_threshold uuid =
-  let* file = read_file ~uuid "threshold.json" in
-  match file with
-  | Some [x] -> return_some x
-  | _ -> return_none
-
-let get_trustees_legacy uuid =
-  let* x = get_threshold uuid in
-  match x with
-  | Some x ->
-     x
-     |> threshold_parameters_of_string Yojson.Safe.read_json
-     |> (fun x -> [`Pedersen x])
-     |> string_of_trustees Yojson.Safe.write_json
-     |> return_some
-  | None ->
-     let* x = get_public_keys uuid in
-     match x with
-     | Some x ->
-        x
-        |> List.map (web_trustee_public_key_of_string Yojson.Safe.read_json)
-        |> List.map (fun x -> `Single (unwebize_trustee_public_key x))
-        |> string_of_trustees Yojson.Safe.write_json
-        |> return_some
-     | None -> return_none
-
-let convert_trustees () =
-  Lwt_unix.files_of_directory !Web_config.spool_dir
-  |> Lwt_stream.to_list
-  >>= Lwt_list.iter_s
-        (fun x ->
-          if x = "." || x = ".." then
-            return_unit
-          else
-            let uuid = uuid_of_raw_string x in
-            let* legacy = get_trustees_legacy uuid in
-            match legacy with
-            | None -> return_unit
-            | Some trustees ->
-               let* () = write_file ~uuid "trustees.json" [trustees] in
-               let* () = cleanup_file (!Web_config.spool_dir / x / "threshold.json") in
-               cleanup_file (!Web_config.spool_dir / x / "public_keys.jsons")
-        )
-
 module StringMap = Map.Make (String)
 
 module CredWeightsCacheTypes = struct

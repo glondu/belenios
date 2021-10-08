@@ -192,7 +192,6 @@ module Make () = struct
   let () = Web_config.site_auth_config := List.rev !auth_instances
   let () = Web_config.exported_auth_config := List.rev !auth_instances_export
   let () = Web_config.domain := domain
-  let () = Lwt_main.run (Web_persist.convert_trustees ())
 
   module X : Pages_sig.S = struct
     module Mails_admin = Belenios_ui.Mails_admin.Make (Web_i18n)

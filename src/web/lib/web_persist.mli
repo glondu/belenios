@@ -61,7 +61,6 @@ val get_passwords : uuid -> (string * string) SMap.t option Lwt.t
 val get_private_key : uuid -> number option Lwt.t
 val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
-val convert_trustees : unit -> unit Lwt.t
 
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
