@@ -1766,7 +1766,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              return (
                  List.fold_left (fun accu v ->
                      let _, login, _ = split_identity v in
-                     SSet.add login accu
+                     SSet.add (PString.lowercase_ascii login) accu
                    ) SSet.empty vs
                )
           | None -> return SSet.empty
@@ -1779,7 +1779,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                  List.fold_left (fun accu r ->
                      let s = Pcre.exec ~rex r in
                      let v = Pcre.get_substring s 1 in
-                     SSet.remove v accu
+                     SSet.remove (PString.lowercase_ascii v) accu
                    ) voters rs
                )
           | None -> return voters
