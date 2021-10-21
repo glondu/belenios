@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-10-09 16:03+0000\n"
-"Last-Translator: J. Lavoie <j.lavoie@net-c.ca>\n"
+"PO-Revision-Date: 2021-10-21 09:15+0000\n"
+"Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
 "Language: fr\n"
@@ -568,7 +568,7 @@ msgstr "Créer un compte"
 
 #: src/web/lib/pages_admin.ml:1985 src/web/lib/pages_admin.ml:641
 msgid "Create election"
-msgstr "Créer une élection"
+msgstr "Créer l'élection"
 
 #: src/web/lib/pages_admin.ml:253
 msgid "Create new election"
