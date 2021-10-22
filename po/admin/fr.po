@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 1.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2021-10-21 09:15+0000\n"
+"PO-Revision-Date: 2021-10-22 14:46+0000\n"
 "Last-Translator: Véronique Cortier <veronique.cortier@loria.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
@@ -1873,7 +1873,7 @@ msgstr "Cette élection sera automatiquement supprimée après le "
 #: src/web/lib/pages_admin.ml:412
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
 msgstr ""
-"Il s'agit d'une liste des langues, séparées par des virgules, qui seront "
+"Il s'agit d'une liste des langues, séparées par des espaces, qui seront "
 "utilisées dans les courriels envoyés par le serveur."
 
 #: src/web/lib/site_admin.ml:535
