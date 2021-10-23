@@ -8,19 +8,22 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-08 08:07+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-10-24 13:41+0000\n"
+"Last-Translator: noreddine belhadj cheikh <noreddine.belhadjcheikh@gmail.com>"
+"\n"
+"Language-Team: Arabic <https://hosted.weblate.org/projects/belenios/voter/ar/"
+">\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 4.9-dev\n"
 
 #: src/web/lib/pages_common.ml:381
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (إذا نسيته ، على سبيل المثال)."
 
 #: src/web/lib/pages_voter.ml:865
 msgid " A confirmation e-mail has been sent to you."
@@ -28,7 +31,7 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:639
 msgid " and "
-msgstr ""
+msgstr " و "
 
 #: src/web/lib/pages_voter.ml:864
 msgid " anytime during the election."
@@ -52,7 +55,7 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:160
 msgid " for more information."
-msgstr ""
+msgstr " للمزيد من المعلومات."
 
 #: src/web/lib/pages_voter.ml:854
 msgid " has been accepted."
@@ -60,7 +63,7 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:733
 msgid " has been received, but not recorded yet. "
-msgstr ""
+msgstr " تم استلامه ولكن لم يتم تسجيله بعد. "
 
 #: src/web/lib/pages_voter.ml:941
 msgid " have been tallied."
@@ -72,11 +75,12 @@ msgstr ""
 
 #: src/web/lib/pages_common.ml:513
 msgid " in the following box: "
-msgstr ""
+msgstr " في الخانة التالية: "
 
 #: src/web/lib/pages_voter.ml:868
+#, fuzzy
 msgid " is rejected, because "
-msgstr ""
+msgstr " مرفوض لأن "
 
 #: src/web/lib/web_common.ml:99
 msgid " minute(s)"
@@ -96,7 +100,7 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:992
 msgid "!"
-msgstr ""
+msgstr "!"
 
 #: src/web/lib/pages_voter.ml:129 src/web/lib/pages_voter.ml:103
 msgid "%d blank ballot(s)"
@@ -124,11 +128,11 @@ msgstr ""
 
 #: src/web/lib/pages_common.ml:379
 msgid ", or "
-msgstr ""
+msgstr "، أو "
 
 #: src/web/lib/pages_voter.ml:1133
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
-msgstr ""
+msgstr "1 هي أعلى درجة ، 2 هي ثاني أعلى درجة ، إلخ."
 
 #: src/web/lib/pages_voter.ml:154
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
@@ -160,7 +164,7 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:331
 msgid "Advanced mode"
-msgstr ""
+msgstr "وضع متقدم"
 
 #: src/web/lib/pages_voter.ml:461
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
@@ -171,7 +175,7 @@ msgstr ""
 #. src/web/lib/pages_voter.ml:674
 #: src/web/lib/pages_voter.ml:1017 src/web/lib/pages_voter.ml:810
 msgid "Answer to questions"
-msgstr ""
+msgstr "أجب على الأسئلة"
 
 #: src/web/lib/pages_voter.ml:1135
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
@@ -179,7 +183,7 @@ msgstr ""
 
 #: src/tool/js/tool_js_booth.ml:255
 msgid "At least one of the answers is invalid!"
-msgstr ""
+msgstr "هناك على الأقل إجابة من الإجابات غير صالحة!"
 
 #: src/web/lib/pages_voter.ml:55
 msgid "Audit data: "
@@ -233,12 +237,12 @@ msgstr ""
 
 #: src/web/lib/pages_common.ml:472
 msgid "Best regards,"
-msgstr ""
+msgstr "أطيب التحيات،"
 
 #. src/web/lib/pages_voter.ml:178
 #: src/tool/js/tool_js_booth.ml:160 src/tool/js/tool_js_booth.ml:86
 msgid "Blank vote"
-msgstr ""
+msgstr "تصويت فارغ"
 
 #: src/web/lib/pages_voter.ml:399
 msgid "By using this site, you accept our "
@@ -246,7 +250,7 @@ msgstr ""
 
 #: src/tool/js/tool_js_fingerprint.ml:84
 msgid "Compare"
-msgstr ""
+msgstr "قارن"
 
 #: src/tool/js/tool_js_fingerprint.ml:68
 msgid "Compute fingerprint"
