@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-08 08:07+0000\n"
-"PO-Revision-Date: 2021-10-24 13:41+0000\n"
+"PO-Revision-Date: 2021-10-25 12:52+0000\n"
 "Last-Translator: noreddine belhadj cheikh <noreddine.belhadjcheikh@gmail.com>"
 "\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/belenios/voter/ar/"
@@ -27,7 +27,7 @@ msgstr " (إذا نسيته ، على سبيل المثال)."
 
 #: src/web/lib/pages_voter.ml:865
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " تم إرسال بريد تأكيد إليك."
 
 #: src/web/lib/pages_voter.ml:639
 msgid " and "
@@ -35,7 +35,7 @@ msgstr " و "
 
 #: src/web/lib/pages_voter.ml:864
 msgid " anytime during the election."
-msgstr ""
+msgstr " في أي وقت أثناء الانتخاب."
 
 #: src/web/lib/pages_voter.ml:929
 msgid " ballot(s) have been accepted so far."
@@ -59,7 +59,7 @@ msgstr " للمزيد من المعلومات."
 
 #: src/web/lib/pages_voter.ml:854
 msgid " has been accepted."
-msgstr ""
+msgstr " تم قبوله."
 
 #: src/web/lib/pages_voter.ml:733
 msgid " has been received, but not recorded yet. "
@@ -67,7 +67,7 @@ msgstr " تم استلامه ولكن لم يتم تسجيله بعد. "
 
 #: src/web/lib/pages_voter.ml:941
 msgid " have been tallied."
-msgstr ""
+msgstr " تم فرزها."
 
 #: src/web/lib/web_common.ml:98
 msgid " hour(s)"
@@ -144,7 +144,7 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:402
 msgid "Accept"
-msgstr ""
+msgstr "قبول"
 
 #: src/web/lib/pages_voter.ml:904
 msgid "Accepted ballots"
@@ -152,15 +152,15 @@ msgstr ""
 
 #: src/web/lib/pages_voter.ml:111
 msgid "According to Majority Judgment, the ranking is:"
-msgstr ""
+msgstr "حسب حكم الأغلبية ، الترتيب هو:"
 
 #: src/web/lib/pages_common.ml:150 src/web/lib/pages_common.ml:80
 msgid "Administer elections"
-msgstr ""
+msgstr "إدارة الانتخابات"
 
 #: src/web/lib/pages_common.ml:152 src/web/lib/pages_common.ml:82
 msgid "Administer this election"
-msgstr ""
+msgstr "إدارة هذه الانتخابات"
 
 #: src/web/lib/pages_voter.ml:331
 msgid "Advanced mode"
@@ -179,7 +179,7 @@ msgstr "أجب على الأسئلة"
 
 #: src/web/lib/pages_voter.ml:1135
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
-msgstr ""
+msgstr "من باب التيسير ، يتم دائمًا تفسير 0 على أنه أدنى درجة."
 
 #: src/tool/js/tool_js_booth.ml:255
 msgid "At least one of the answers is invalid!"
