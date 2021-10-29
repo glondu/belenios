@@ -3,7 +3,6 @@
 *.blg
 *.dvi
 *.install
-.merlin
 _build
 _build-debug
 _releases
