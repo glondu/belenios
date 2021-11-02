@@ -112,6 +112,8 @@ module Make () = struct
                      auth_instances_export := `Export i :: !auth_instances_export
                   | Element ("domain", ["name", name], []) ->
                      domain := Some name
+                  | Element ("deny-revote", [], []) ->
+                     Web_config.deny_revote := true
                   | Element (tag, _, _) ->
                      Printf.ksprintf failwith
                        "invalid configuration for tag %s in belenios"

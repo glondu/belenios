@@ -782,14 +782,18 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
   match x with
   | Error _ as x -> return x
   | Ok (credential, _, old) ->
-     let* hash, revote =
+     let@ hash, revote = fun cont ->
        match old with
        | None ->
           let* h = add_ballot election rawballot in
-          return (h, false)
+          cont (h, false)
        | Some hash ->
-          let* h = replace_ballot election ~hash ~rawballot in
-          return (h, true)
+          if !Web_config.deny_revote then (
+            return @@ Error `RevoteNotAllowed
+          ) else (
+            let* h = replace_ballot election ~hash ~rawballot in
+            cont (h, true)
+          )
      in
      let* () = add_credential_mapping uuid credential (Some hash) in
      let* () = add_extended_record uuid user (date, credential) in

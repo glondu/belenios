@@ -41,3 +41,4 @@ val uuid_length : int option ref
 val default_group : string ref
 val nh_group : string ref
 val domain : string ref
+val deny_revote : bool ref
