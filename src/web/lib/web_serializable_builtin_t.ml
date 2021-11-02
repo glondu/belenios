@@ -61,6 +61,6 @@ let datetime_sub = Calendar.Precise.sub
 let ymds = Calendar.Precise.Period.ymds
 
 type 'a user_or_id =
-  [ `Id of int
+  [ `Id of int list
   | `User of 'a
   ]

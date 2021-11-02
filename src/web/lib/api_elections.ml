@@ -331,7 +331,7 @@ let delete_election election metadata =
       t_credential_authority = None;
     }
   in
-  let de_owner = Option.value metadata.e_owner ~default:(`Id 0) in
+  let de_owner = Option.value metadata.e_owner ~default:(`Id []) in
   let* dates = Web_persist.get_election_dates uuid in
   let de_date =
     match dates.e_tally with

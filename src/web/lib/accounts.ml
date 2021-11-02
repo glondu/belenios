@@ -152,9 +152,9 @@ let has_capability cap account =
   | Some i -> i land (mask_of_capability cap) <> 0
 
 let check (u, a, _) = function
-  | `Id i -> a.account_id = i
+  | `Id i -> List.mem a.account_id i
   | `User u' -> u = u'
 
 let check_account a = function
-  | `Id i -> a.account_id = i
+  | `Id i -> List.mem a.account_id i
   | `User u -> List.mem u a.account_authentications

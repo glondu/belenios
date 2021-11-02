@@ -153,7 +153,7 @@ let generate_uuid () =
   Lwt.return (uuid_of_raw_string token)
 
 let post_drafts account draft =
-  let owner = `Id account.account_id in
+  let owner = `Id [account.account_id] in
   let* uuid = generate_uuid () in
   let* token = generate_token () in
   let se_metadata =
@@ -751,12 +751,17 @@ let validate_election account uuid se =
     | `KEY _ | `KEYS _ -> Some true
     | `None -> None
   in
+  let e_owner =
+    match se.se_owner with
+    | `Id _ as x -> Some x
+    | `User _ -> Some (`Id [account.account_id])
+  in
   let metadata =
     {
       se.se_metadata with
       e_trustees = Some trustee_names;
       e_server_is_trustee;
-      e_owner = Some (`Id account.account_id);
+      e_owner;
     }
   in
   let template = se.se_questions in

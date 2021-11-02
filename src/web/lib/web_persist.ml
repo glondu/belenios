@@ -204,7 +204,7 @@ let get_id = function
      let* x = Accounts.get_account u in
      match x with
      | None -> Lwt.fail Exit
-     | Some a -> return a.account_id
+     | Some a -> return [a.account_id]
 
 let build_elections_by_owner_cache () =
   Lwt_unix.files_of_directory !Web_config.spool_dir
@@ -245,12 +245,14 @@ let build_elections_by_owner_cache () =
                                 return (`Archived, date)
                            in
                            let election = Election.of_string election in
-                           return @@ umap_add id (kind, uuid, date, election.e_name) accu
+                           let item = kind, uuid, date, election.e_name in
+                           return @@ List.fold_left (fun accu id -> umap_add id item accu) accu id
                    )
                 | Some se ->
                    let date = Option.value se.se_creation_date ~default:default_creation_date in
                    let* id = get_id se.se_owner in
-                   return @@ umap_add id (`Draft, uuid, date, se.se_questions.t_name) accu
+                   let item = `Draft, uuid, date, se.se_questions.t_name in
+                   return @@ List.fold_left (fun accu id -> umap_add id item accu) accu id
               )
               (function
                | Lwt.Canceled ->
