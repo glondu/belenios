@@ -87,3 +87,11 @@ button {
     margin-top: 1em;
     margin-bottom: 1em;
 }
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}

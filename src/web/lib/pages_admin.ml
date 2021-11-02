@@ -1248,12 +1248,25 @@ module Make
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title = Printf.sprintf (f_ "Voters for election %s") se.se_questions.t_name in
+    let tooltip =
+        div ~a:[a_class ["tooltip"]; a_style "position:relative;display:inline-block;"] [
+            div ~a:[a_style "display:inline-block;width:3ex;line-height:3ex;text-align:center;border-radius:1.5ex;background-color:black;color:white;"] [ txt "?" ];
+            div ~a:[a_class ["tooltiptext"]; a_style "position:absolute;left:3ex;line-height:2.5ex;border:1px solid black;font-size:90%;display:inline-block;width:400px;padding:3px;background-color:#eee;"] [
+                txt (s_ "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes).");
+            ]
+        ]
+    in
     let form =
+      let placeholder =
+        "bart.simpson@example.com              # " ^ s_ "typical use"
+        ^ "\nalbert.einstein@example.com,albert_e  # " ^ s_ "when a login is needed, e.g. CAS"
+        ^ "\nasterix.legaulois@example.com,,2      # " ^ s_ "when some voters have several votes"
+      in
       post_form
         ~service:election_draft_voters_add
         (fun name ->
           [
-            div [textarea ~a:[a_rows 20; a_cols 50] ~name ()];
+            div [textarea ~a:[a_style "vertical-align:top"; a_placeholder placeholder; a_rows 20; a_cols 80] ~name (); tooltip ];
             div [input ~input_type:`Submit ~value:(s_ "Add") string]])
         uuid
     in
@@ -1343,19 +1356,24 @@ module Make
                 br ();
                 b [txt (s_ "Warning:")];
                 txt " ";
-                txt (s_ "you have to make sure that these email addresses are valid. You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote.");
-                br ();
-                b [txt (s_ "Warning:")];
-                txt " ";
                 txt (s_ "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins.");
               ];
             form;
-            div [
-                b [txt (s_ "Note:")];
-                txt " ";
-                txt (s_ "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes).");
-              ];
           ]
+    in
+    let warning =
+      div [
+          div ~a:[a_style "text-align:center;font-size:120%;"]
+            [
+              b [txt (s_ "Warning:")];
+              txt " ";
+              txt (s_ "you have to make sure that the email addresses are valid.");
+            ];
+          div ~a:[a_style "text-align:center;font-style:italic;width:80%;margin-left:auto;margin-right:auto;"]
+            [
+              txt (s_ "You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote.");
+            ]
+        ]
     in
     let div_import = div [
                          a ~service:election_draft_import
@@ -1366,6 +1384,7 @@ module Make
         back;
         div_import;
         br ();
+        warning;
         voters;
         div_add;
       ] in
