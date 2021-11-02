@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -78,7 +74,6 @@ msgid " in the following box: "
 msgstr " في الخانة التالية: "
 
 #: src/web/lib/pages_voter.ml:868
-#, fuzzy
 msgid " is rejected, because "
 msgstr " مرفوض لأن "
 
@@ -170,10 +165,10 @@ msgstr "وضع متقدم"
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 
+#: src/web/lib/pages_voter.ml:1017 src/web/lib/pages_voter.ml:810
 #. src/web/lib/pages_voter.ml:808
 #. src/web/lib/pages_voter.ml:676
 #. src/web/lib/pages_voter.ml:674
-#: src/web/lib/pages_voter.ml:1017 src/web/lib/pages_voter.ml:810
 msgid "Answer to questions"
 msgstr "أجب على الأسئلة"
 
@@ -189,13 +184,13 @@ msgstr "هناك على الأقل إجابة من الإجابات غير صا�
 msgid "Audit data: "
 msgstr ""
 
+#: src/web/lib/pages_voter.ml:1021 src/web/lib/pages_voter.ml:828
 #. src/web/lib/pages_voter.ml:826
 #. src/web/lib/pages_voter.ml:694
 #. src/web/lib/pages_voter.ml:692
 #. src/web/lib/pages_common.ml:454
 #. src/web/lib/pages_common.ml:408
 #. src/web/lib/pages_common.ml:359
-#: src/web/lib/pages_voter.ml:1021 src/web/lib/pages_voter.ml:828
 msgid "Authenticate"
 msgstr ""
 
@@ -239,8 +234,8 @@ msgstr ""
 msgid "Best regards,"
 msgstr "أطيب التحيات،"
 
-#. src/web/lib/pages_voter.ml:178
 #: src/tool/js/tool_js_booth.ml:160 src/tool/js/tool_js_booth.ml:86
+#. src/web/lib/pages_voter.ml:178
 msgid "Blank vote"
 msgstr "تصويت فارغ"
 
@@ -264,15 +259,15 @@ msgstr ""
 msgid "Condorcet-Schulze method"
 msgstr ""
 
+#: src/web/lib/pages_voter.ml:1023 src/web/lib/pages_voter.ml:837
 #. src/web/lib/pages_voter.ml:835
 #. src/web/lib/pages_voter.ml:703
 #. src/web/lib/pages_voter.ml:701
-#: src/web/lib/pages_voter.ml:1023 src/web/lib/pages_voter.ml:837
 msgid "Confirm"
 msgstr ""
 
-#. src/web/lib/pages_voter.ml:1003
 #: src/web/lib/pages_voter.ml:1181 src/web/lib/pages_voter.ml:1124
+#. src/web/lib/pages_voter.ml:1003
 msgid "Continue"
 msgstr ""
 
@@ -296,8 +291,8 @@ msgstr ""
 msgid "Done"
 msgstr ""
 
-#. src/web/lib/pages_common.ml:343
 #: src/web/lib/pages_common.ml:504 src/web/lib/pages_common.ml:388
+#. src/web/lib/pages_common.ml:343
 msgid "E-mail address:"
 msgstr ""
 
@@ -309,8 +304,8 @@ msgstr ""
 msgid "Election fingerprint: "
 msgstr ""
 
-#. src/web/lib/pages_common.ml:110
 #: src/web/lib/pages_voter.ml:1068 src/web/lib/pages_common.ml:178
+#. src/web/lib/pages_common.ml:110
 msgid "Election server"
 msgstr ""
 
@@ -318,10 +313,10 @@ msgstr ""
 msgid "Encrypting…"
 msgstr ""
 
+#: src/web/lib/site_voter.ml:359 src/web/lib/site_voter.ml:334
 #. src/web/lib/site_voter.ml:286
 #. src/web/lib/site_voter.ml:281
 #. src/web/lib/site_voter.ml:276
-#: src/web/lib/site_voter.ml:359 src/web/lib/site_voter.ml:334
 msgid "Error"
 msgstr ""
 
@@ -341,9 +336,9 @@ msgstr ""
 msgid "Get the source code"
 msgstr ""
 
+#: src/web/lib/pages_voter.ml:922 src/web/lib/pages_voter.ml:885
 #. src/web/lib/pages_voter.ml:782
 #. src/web/lib/pages_voter.ml:752
-#: src/web/lib/pages_voter.ml:922 src/web/lib/pages_voter.ml:885
 msgid "Go back to election"
 msgstr ""
 
@@ -379,10 +374,10 @@ msgstr ""
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
+#: src/web/lib/pages_voter.ml:1015 src/web/lib/pages_voter.ml:801
 #. src/web/lib/pages_voter.ml:799
 #. src/web/lib/pages_voter.ml:667
 #. src/web/lib/pages_voter.ml:665
-#: src/web/lib/pages_voter.ml:1015 src/web/lib/pages_voter.ml:801
 msgid "Input credential"
 msgstr ""
 
@@ -422,9 +417,9 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
+#: src/web/lib/pages_common.ml:453 src/web/lib/pages_common.ml:407
 #. src/web/lib/pages_common.ml:358
 #. src/web/lib/pages_common.ml:335
-#: src/web/lib/pages_common.ml:453 src/web/lib/pages_common.ml:407
 msgid "Log in"
 msgstr ""
 
@@ -584,10 +579,10 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr ""
 
+#: src/web/lib/pages_voter.ml:1019 src/web/lib/pages_voter.ml:819
 #. src/web/lib/pages_voter.ml:817
 #. src/web/lib/pages_voter.ml:685
 #. src/web/lib/pages_voter.ml:683
-#: src/web/lib/pages_voter.ml:1019 src/web/lib/pages_voter.ml:819
 msgid "Review and encrypt"
 msgstr ""
 
@@ -795,9 +790,9 @@ msgstr ""
 msgid "Use the following code:"
 msgstr ""
 
+#: src/web/lib/pages_common.ml:387 src/web/lib/pages_common.ml:342
 #. src/web/lib/mails_voter.ml:113
 #. src/web/lib/mails_voter.ml:56
-#: src/web/lib/pages_common.ml:387 src/web/lib/pages_common.ml:342
 msgid "Username:"
 msgstr ""
 
@@ -909,8 +904,8 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr ""
 
-#. src/web/lib/pages_voter.ml:734
 #: src/web/lib/pages_voter.ml:995 src/web/lib/pages_voter.ml:857
+#. src/web/lib/pages_voter.ml:734
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -926,8 +921,8 @@ msgstr ""
 msgid "Your vote was not recorded!"
 msgstr ""
 
-#. src/web/lib/mails_voter.ml:180
 #: src/web/lib/pages_voter.ml:849 src/web/lib/pages_voter.ml:720
+#. src/web/lib/mails_voter.ml:180
 msgid "Your weight is %s."
 msgstr ""
 
@@ -955,8 +950,8 @@ msgstr ""
 msgid "has been recorded."
 msgstr ""
 
-#. src/web/lib/pages_voter.ml:1140
 #: src/tool/js/tool_js_booth.ml:370 src/web/lib/pages_voter.ml:1193
+#. src/web/lib/pages_voter.ml:1140
 msgid "here"
 msgstr ""
 
@@ -1035,3 +1030,4 @@ msgstr ""
 #: src/web/lib/web_common.ml:77
 msgid "your credential is invalid"
 msgstr ""
+

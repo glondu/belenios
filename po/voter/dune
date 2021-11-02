@@ -1,81 +1,11 @@
 (rule
- (target en.mo)
- (deps en.po)
+ (target ar.mo)
+ (deps ar.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target en.json)
- (deps en.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target fr.mo)
- (deps fr.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target fr.json)
- (deps fr.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target de.mo)
- (deps de.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target de.json)
- (deps de.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target it.mo)
- (deps it.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target it.json)
- (deps it.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target ro.mo)
- (deps ro.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target ro.json)
- (deps ro.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target nb.mo)
- (deps nb.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target nb.json)
- (deps nb.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target es.mo)
- (deps es.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target es.json)
- (deps es.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target uk.mo)
- (deps uk.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target uk.json)
- (deps uk.mo)
+ (target ar.json)
+ (deps ar.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
@@ -89,23 +19,13 @@
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
- (target oc.mo)
- (deps oc.po)
+ (target de.mo)
+ (deps de.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target oc.json)
- (deps oc.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
-
-(rule
- (target pt_BR.mo)
- (deps pt_BR.po)
- (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
-
-(rule
- (target pt_BR.json)
- (deps pt_BR.mo)
+ (target de.json)
+ (deps de.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
@@ -119,23 +39,23 @@
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
- (target nl.mo)
- (deps nl.po)
+ (target en.mo)
+ (deps en.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target nl.json)
- (deps nl.mo)
+ (target en.json)
+ (deps en.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
- (target sk.mo)
- (deps sk.po)
+ (target es.mo)
+ (deps es.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
- (target sk.json)
- (deps sk.mo)
+ (target es.json)
+ (deps es.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
@@ -149,6 +69,56 @@
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
 (rule
+ (target fr.mo)
+ (deps fr.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target fr.json)
+ (deps fr.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target it.mo)
+ (deps it.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target it.json)
+ (deps it.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target nb.mo)
+ (deps nb.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target nb.json)
+ (deps nb.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target nl.mo)
+ (deps nl.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target nl.json)
+ (deps nl.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target oc.mo)
+ (deps oc.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target oc.json)
+ (deps oc.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target pl.mo)
  (deps pl.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
@@ -158,39 +128,81 @@
  (deps pl.mo)
  (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
 
+(rule
+ (target pt_BR.mo)
+ (deps pt_BR.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target pt_BR.json)
+ (deps pt_BR.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target ro.mo)
+ (deps ro.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target ro.json)
+ (deps ro.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target sk.mo)
+ (deps sk.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target sk.json)
+ (deps sk.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target uk.mo)
+ (deps uk.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target uk.json)
+ (deps uk.mo)
+ (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+
 (install
  (package belenios-server)
  (section share)
  (files
-  (en.mo as locales/voter/en.mo)
-  (en.json as locales/voter/en.json)
-  (fr.mo as locales/voter/fr.mo)
-  (fr.json as locales/voter/fr.json)
-  (de.mo as locales/voter/de.mo)
-  (de.json as locales/voter/de.json)
-  (it.mo as locales/voter/it.mo)
-  (it.json as locales/voter/it.json)
-  (ro.mo as locales/voter/ro.mo)
-  (ro.json as locales/voter/ro.json)
-  (nb.mo as locales/voter/nb.mo)
-  (nb.json as locales/voter/nb.json)
-  (es.mo as locales/voter/es.mo)
-  (es.json as locales/voter/es.json)
-  (uk.mo as locales/voter/uk.mo)
-  (uk.json as locales/voter/uk.json)
+  (ar.mo as locales/voter/ar.mo)
+  (ar.json as locales/voter/ar.json)
   (cs.mo as locales/voter/cs.mo)
   (cs.json as locales/voter/cs.json)
-  (oc.mo as locales/voter/oc.mo)
-  (oc.json as locales/voter/oc.json)
-  (pt_BR.mo as locales/voter/pt_BR.mo)
-  (pt_BR.json as locales/voter/pt_BR.json)
+  (de.mo as locales/voter/de.mo)
+  (de.json as locales/voter/de.json)
   (el.mo as locales/voter/el.mo)
   (el.json as locales/voter/el.json)
-  (nl.mo as locales/voter/nl.mo)
-  (nl.json as locales/voter/nl.json)
-  (sk.mo as locales/voter/sk.mo)
-  (sk.json as locales/voter/sk.json)
+  (en.mo as locales/voter/en.mo)
+  (en.json as locales/voter/en.json)
+  (es.mo as locales/voter/es.mo)
+  (es.json as locales/voter/es.json)
   (fi.mo as locales/voter/fi.mo)
   (fi.json as locales/voter/fi.json)
+  (fr.mo as locales/voter/fr.mo)
+  (fr.json as locales/voter/fr.json)
+  (it.mo as locales/voter/it.mo)
+  (it.json as locales/voter/it.json)
+  (nb.mo as locales/voter/nb.mo)
+  (nb.json as locales/voter/nb.json)
+  (nl.mo as locales/voter/nl.mo)
+  (nl.json as locales/voter/nl.json)
+  (oc.mo as locales/voter/oc.mo)
+  (oc.json as locales/voter/oc.json)
   (pl.mo as locales/voter/pl.mo)
-  (pl.json as locales/voter/pl.json)))
+  (pl.json as locales/voter/pl.json)
+  (pt_BR.mo as locales/voter/pt_BR.mo)
+  (pt_BR.json as locales/voter/pt_BR.json)
+  (ro.mo as locales/voter/ro.mo)
+  (ro.json as locales/voter/ro.json)
+  (sk.mo as locales/voter/sk.mo)
+  (sk.json as locales/voter/sk.json)
+  (uk.mo as locales/voter/uk.mo)
+  (uk.json as locales/voter/uk.json)))
