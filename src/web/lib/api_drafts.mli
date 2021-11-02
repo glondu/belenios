@@ -79,11 +79,11 @@ val validate_election : account -> uuid -> draft_election -> unit Lwt.t
 
 val merge_voters :
   draft_voter list -> string list ->
-  (string -> (string * string) option) -> draft_voter list * weight
+  (string -> (string * string) option) -> (draft_voter list * weight, string) Stdlib.result
 
 val import_voters :
   uuid -> draft_election -> uuid ->
-  (unit, [ `Forbidden | `NotFound | `TotalWeightTooBig of weight ]) Stdlib.result Lwt.t
+  (unit, [ `Forbidden | `NotFound | `TotalWeightTooBig of weight | `Duplicate of string ]) Stdlib.result Lwt.t
 
 val import_trustees :
   uuid -> draft_election ->

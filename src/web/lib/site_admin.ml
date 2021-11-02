@@ -611,43 +611,44 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                Printf.ksprintf failwith (f_ "%S is not a valid identity") bad
             | None -> ()
           in
-          let voters, total_weight =
-            Api_drafts.merge_voters se.se_voters voters (fun _ -> None)
-          in
-          let () =
-            let expanded = Weight.expand ~total:total_weight total_weight in
-            if Z.compare expanded Weight.max_expanded_weight > 0 then
-              Printf.ksprintf failwith
-                (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
-                Weight.(to_string total_weight)
-                (Z.to_string Weight.max_expanded_weight)
-          in
-          if not (check_consistency voters) then
-            failwith
-              (s_ "The voter list is not consistent (a login or a weight is missing).");
-          let uses_password_auth =
-            match se.se_metadata.e_auth_config with
-            | Some configs ->
-               List.exists
-                 (fun {auth_system; _} -> auth_system = "password")
-                 configs
-            | None -> false
-          in
-          let cred_auth_is_server =
-            se.se_metadata.e_cred_authority = Some "server"
-          in
-          if
-            (uses_password_auth || cred_auth_is_server)
-            && List.length voters > !Web_config.maxmailsatonce
-          then
-            Lwt.fail
-              (Failure
-                 (Printf.sprintf (f_ "There are too many voters (max is %d)")
-                    !Web_config.maxmailsatonce))
-          else (
-            se.se_voters <- voters;
-            redir_preapply election_draft_voters uuid ()
-          )
+          match Api_drafts.merge_voters se.se_voters voters (fun _ -> None) with
+          | Error x ->
+             Printf.ksprintf failwith (f_ "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins.") x
+          | Ok (voters, total_weight) ->
+             let () =
+               let expanded = Weight.expand ~total:total_weight total_weight in
+               if Z.compare expanded Weight.max_expanded_weight > 0 then
+                 Printf.ksprintf failwith
+                   (f_ "The total weight (%s) cannot be handled. Its expanded value must be less than %s.")
+                   Weight.(to_string total_weight)
+                   (Z.to_string Weight.max_expanded_weight)
+             in
+             if not (check_consistency voters) then
+               failwith
+                 (s_ "The voter list is not consistent (a login or a weight is missing).");
+             let uses_password_auth =
+               match se.se_metadata.e_auth_config with
+               | Some configs ->
+                  List.exists
+                    (fun {auth_system; _} -> auth_system = "password")
+                    configs
+               | None -> false
+             in
+             let cred_auth_is_server =
+               se.se_metadata.e_cred_authority = Some "server"
+             in
+             if
+               (uses_password_auth || cred_auth_is_server)
+               && List.length voters > !Web_config.maxmailsatonce
+             then
+               Lwt.fail
+                 (Failure
+                    (Printf.sprintf (f_ "There are too many voters (max is %d)")
+                       !Web_config.maxmailsatonce))
+             else (
+               se.se_voters <- voters;
+               redir_preapply election_draft_voters uuid ()
+             )
         )
       )
 
@@ -944,6 +945,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 Weight.(to_string total_weight)
                 (Z.to_string Weight.max_expanded_weight)
              ) ()
+           >>= Html.send
+        | Error (`Duplicate x) ->
+           Pages_common.generic_page ~title:(s_ "Error")
+             ~service:(preapply ~service:election_draft_voters uuid)
+             (Printf.sprintf (f_ "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins.") x) ()
            >>= Html.send
       )
 

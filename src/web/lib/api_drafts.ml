@@ -844,21 +844,17 @@ let merge_voters a b f =
         SMap.add login weight accu
       ) SMap.empty a
   in
-  let weights, res =
-    List.fold_left
-      (fun (weights, accu) sv_id ->
-        let _, login, weight = split_identity sv_id in
-        let login = String.lowercase_ascii login in
-        if SMap.mem login weights then
-          (weights, accu)
-        else (
-          SMap.add login weight weights,
-          {sv_id; sv_password = f sv_id} :: accu
-        )
-      ) (weights, List.rev a) b
+  let rec loop weights accu = function
+    | [] -> Ok (List.rev accu, Weight.(SMap.fold (fun _ x y -> x + y) weights zero))
+    | sv_id :: xs ->
+       let _, login, weight = split_identity sv_id in
+       let login = String.lowercase_ascii login in
+       if SMap.mem login weights then
+         Stdlib.Error sv_id
+       else
+         loop (SMap.add login weight weights) ({sv_id; sv_password = f sv_id} :: accu) xs
   in
-  List.rev res,
-  Weight.(SMap.fold (fun _ x y -> x + y) weights zero)
+  loop weights (List.rev a) b
 
 let import_voters uuid se from =
   let* voters = Web_persist.get_voters from in
@@ -876,15 +872,17 @@ let import_voters uuid se from =
      if se.se_public_creds_received then (
        Lwt.return @@ Stdlib.Error `Forbidden
      ) else (
-       let voters, total_weight = merge_voters se.se_voters voters get_password in
-       let expanded = Weight.expand ~total:total_weight total_weight in
-       if Z.compare expanded Weight.max_expanded_weight <= 0 then (
-         se.se_voters <- voters;
-         let* () = Web_persist.set_draft_election uuid se in
-         Lwt.return @@ Ok ()
-       ) else (
-         Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
-       )
+       match merge_voters se.se_voters voters get_password with
+       | Ok (voters, total_weight) ->
+          let expanded = Weight.expand ~total:total_weight total_weight in
+          if Z.compare expanded Weight.max_expanded_weight <= 0 then (
+            se.se_voters <- voters;
+            let* () = Web_persist.set_draft_election uuid se in
+            Lwt.return @@ Ok ()
+          ) else (
+            Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
+          )
+       | Error x -> Lwt.return @@ Stdlib.Error (`Duplicate x)
      )
   | None -> Lwt.return @@ Stdlib.Error `NotFound
 
@@ -995,6 +993,7 @@ let post_draft_status account uuid se = function
        | Stdlib.Error `Forbidden -> forbidden
        | Stdlib.Error `NotFound -> not_found
        | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
+       | Stdlib.Error (`Duplicate x) -> Lwt.fail (Error ("duplicate: " ^ x))
      end
   | `ImportTrustees from ->
      begin

@@ -1353,10 +1353,6 @@ module Make
                 txt " (max ";
                 txt (string_of_int maxvoters);
                 txt ").";
-                br ();
-                b [txt (s_ "Warning:")];
-                txt " ";
-                txt (s_ "Duplicate identities are not allowed and are automatically merged. If two voters have the same email address, use different logins.");
               ];
             form;
           ]
