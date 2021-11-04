@@ -6,7 +6,7 @@
 (rule
  (target ar.json)
  (deps ar.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target cs.mo)
@@ -16,7 +16,7 @@
 (rule
  (target cs.json)
  (deps cs.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target de.mo)
@@ -26,7 +26,7 @@
 (rule
  (target de.json)
  (deps de.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target el.mo)
@@ -36,7 +36,7 @@
 (rule
  (target el.json)
  (deps el.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target en.mo)
@@ -46,7 +46,7 @@
 (rule
  (target en.json)
  (deps en.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target es.mo)
@@ -56,7 +56,7 @@
 (rule
  (target es.json)
  (deps es.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target fi.mo)
@@ -66,7 +66,7 @@
 (rule
  (target fi.json)
  (deps fi.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target fr.mo)
@@ -76,7 +76,7 @@
 (rule
  (target fr.json)
  (deps fr.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target it.mo)
@@ -86,7 +86,7 @@
 (rule
  (target it.json)
  (deps it.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target nb.mo)
@@ -96,7 +96,7 @@
 (rule
  (target nb.json)
  (deps nb.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target nl.mo)
@@ -106,7 +106,7 @@
 (rule
  (target nl.json)
  (deps nl.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target oc.mo)
@@ -116,7 +116,7 @@
 (rule
  (target oc.json)
  (deps oc.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target pl.mo)
@@ -126,7 +126,7 @@
 (rule
  (target pl.json)
  (deps pl.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target pt_BR.mo)
@@ -136,7 +136,7 @@
 (rule
  (target pt_BR.json)
  (deps pt_BR.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target ro.mo)
@@ -146,7 +146,7 @@
 (rule
  (target ro.json)
  (deps ro.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target sk.mo)
@@ -156,7 +156,7 @@
 (rule
  (target sk.json)
  (deps sk.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target uk.mo)
@@ -166,7 +166,7 @@
 (rule
  (target uk.json)
  (deps uk.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (install
  (package belenios-server)

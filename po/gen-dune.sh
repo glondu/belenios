@@ -16,7 +16,7 @@ for LANG in $LANGS; do
     echo "(rule
  (target $LANG.json)
  (deps $LANG.mo)
- (action (with-stdout-to %{target} (run ../../src/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 "
 done
 
