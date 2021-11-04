@@ -1,6 +1,13 @@
 Belenios compilation instructions
 =================================
 
+Read this document if you want to deploy your own instance of
+Belenios. To get help or share your experience, please use in priority
+the [public
+mailing-list](https://sympa.inria.fr/sympa/info/belenios-discuss). To
+give feedback on deploying an instance, you can also [mail
+us](mailto:contact@belenios.org).
+
 Using containers
 ----------------
 
