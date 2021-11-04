@@ -1,0 +1,14 @@
+{
+    "alert_invalid_credential": "Falsche Wählernummer!",
+    "breadcrumb_input_credential": "Wählernummer eingeben",
+    "breadcrumb_answer_to_questions": "Fragen beantworten",
+    "breadcrumb_review_and_encrypt": "Überprüfen und verschlüsseln",
+    "breadcrumb_authenticate": "Authentifizieren",
+    "breadcrumb_confirm": "Bestätigen",
+    "blank_vote": "Ungültige Stimme",
+    "ask_for_credential": "Bitte geben Sie Ihre Wählernummer ein:",
+    "next_button_label": "Weiter",
+    "election_server": "Wahlserver",
+    "ask_to_wait_during_ballot_encryption": "Bitte warten, Ihr Stimmzettel wird verschlüsselt…",
+    "previous_button_label": "Zurück"
+}

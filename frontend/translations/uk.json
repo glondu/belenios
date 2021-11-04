@@ -1,0 +1,14 @@
+{
+    "alert_invalid_credential": "Недійсне посвідчення!",
+    "breadcrumb_input_credential": "Ввід посвідчення",
+    "breadcrumb_answer_to_questions": "Відровісти на запитання",
+    "breadcrumb_review_and_encrypt": "Переглянути та зашифрувати",
+    "breadcrumb_authenticate": "Аутентифікувати",
+    "breadcrumb_confirm": "Підтвердити",
+    "blank_vote": "Протестний голос",
+    "ask_for_credential": "Будь ласка, введіть своє посвідчення:",
+    "next_button_label": "Далі",
+    "election_server": "Сервер виборів",
+    "ask_to_wait_during_ballot_encryption": "Зачекайте, будь ласка, поки ваш бюлетень зашифровується…",
+    "previous_button_label": "Попередній"
+}

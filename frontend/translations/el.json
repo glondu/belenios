@@ -1,0 +1,14 @@
+{
+    "alert_invalid_credential": "Λανθασμένο διαπιστευτήριο!",
+    "breadcrumb_input_credential": "Εισάγετε διαπιστευτήριο",
+    "breadcrumb_answer_to_questions": "Απαντήστε στις ερωτήσεις",
+    "breadcrumb_review_and_encrypt": "Ανασκόπηση και κρυπτογράφηση",
+    "breadcrumb_authenticate": "Αυθεντικοποίηση",
+    "breadcrumb_confirm": "Επιβεβαίωση",
+    "blank_vote": "Λευκή ψήφος",
+    "ask_for_credential": "Παρακαλούμε εισάγετε το διαπιστευτήριό σας:",
+    "next_button_label": "Επόμενο",
+    "election_server": "Διακομιστής ψηφοφορίας",
+    "ask_to_wait_during_ballot_encryption": "Παρακαλούμε περιμένετε όσο το ψηφοδέλτιό σας κρυπτογραφείται…",
+    "previous_button_label": "Προηγούμενο"
+}

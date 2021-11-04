@@ -1,0 +1,14 @@
+{
+    "alert_invalid_credential": "Codice di voto non valido!",
+    "breadcrumb_input_credential": "Inserire il codice di voto",
+    "breadcrumb_answer_to_questions": "Risposta alle domande",
+    "breadcrumb_review_and_encrypt": "Riepilogo e cifratura",
+    "breadcrumb_authenticate": "Autenticazione",
+    "breadcrumb_confirm": "Conferma",
+    "blank_vote": "Scheda bianca",
+    "ask_for_credential": "Si prega di inserire il codice di voto:",
+    "next_button_label": "Seguente",
+    "election_server": "Server delle elezioni",
+    "ask_to_wait_during_ballot_encryption": "Si prega di pazientare, la cifratura della sua scheda elettorale è in corso…",
+    "previous_button_label": "Precedente"
+}

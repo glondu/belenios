@@ -24,5 +24,7 @@
     "breadcrumb_answer_to_questions": "Svar på spørsmål",
     "alert_question_constraint_no_blank_and_other": "Du kan ikke velge blank stemme og et annet svar.",
     "alert_invalid_credential": "Ugyldig identitetsdetalj.",
-    "question_x": "Spørsmål {{count}}"
+    "question_x": "Spørsmål {{count}}",
+    "breadcrumb_input_credential": "Skriv inn identitetsdetalj",
+    "ask_for_credential": "Skriv inn din identitetsdetalj:"
 }

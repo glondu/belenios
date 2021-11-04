@@ -1,0 +1,10 @@
+{
+    "alert_invalid_credential": "Virheellinen tunniste!",
+    "breadcrumb_input_credential": "Syötä tunniste",
+    "breadcrumb_answer_to_questions": "Vastaus kysymyksiin",
+    "breadcrumb_authenticate": "Tunnistus",
+    "breadcrumb_confirm": "Vahvista",
+    "blank_vote": "Tyhjä ääni",
+    "next_button_label": "Seuraava",
+    "election_server": "Äänestyspalvelin"
+}
