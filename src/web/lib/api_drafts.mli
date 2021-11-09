@@ -22,8 +22,8 @@
 open Belenios_api.Serializable_t
 open Web_serializable_t
 
-val api_of_draft : draft_election -> draft
-val draft_of_api : draft_election -> draft -> draft_election
+val api_of_draft : draft_election -> draft Lwt.t
+val draft_of_api : account -> draft_election -> draft -> draft_election
 
 val delete_draft : uuid -> unit Lwt.t
 val post_drafts : account -> draft -> uuid Lwt.t

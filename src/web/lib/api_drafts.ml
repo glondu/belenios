@@ -70,8 +70,18 @@ let api_of_draft se =
       t_administrator = Some (Option.value se.se_administrator ~default:"");
     }
   in
-  {
+  let* draft_owners =
+    match se.se_owner with
+    | `Id i -> Lwt.return i
+    | `User u ->
+       let* x = Accounts.get_account u in
+       match x with
+       | None -> Lwt.return []
+       | Some a -> Lwt.return [a.account_id]
+  in
+  Lwt.return {
     draft_version = Option.value se.se_version ~default:0;
+    draft_owners;
     draft_questions;
     draft_languages = Option.value se.se_metadata.e_languages ~default:[];
     draft_contact = se.se_metadata.e_contact;
@@ -83,7 +93,7 @@ let api_of_draft se =
 let assert_ msg b f =
   if b then f () else raise (Error msg)
 
-let draft_of_api se d =
+let draft_of_api a se d =
   let version = Option.value se.se_version ~default:0 in
   let () =
     if d.draft_version <> version then
@@ -91,6 +101,7 @@ let draft_of_api se d =
   in
   let@ () = assert_ "invalid booth version" (List.mem d.draft_booth supported_booth_versions) in
   let@ () = assert_ "there must be at least one language" (List.length d.draft_languages >= 1) in
+  let@ () = assert_ "you must be in owners" (List.mem a.account_id d.draft_owners) in
   let e_cred_authority = d.draft_questions.t_credential_authority in
   let () =
     let old = se.se_metadata.e_cred_authority in
@@ -138,6 +149,7 @@ let draft_of_api se d =
   {
     se with
     se_metadata;
+    se_owner = `Id d.draft_owners;
     se_questions = d.draft_questions;
     se_administrator = d.draft_questions.t_administrator;
     se_group;
@@ -196,7 +208,7 @@ let post_drafts account draft =
       se_administrator = None;
     }
   in
-  let se = draft_of_api se draft in
+  let se = draft_of_api account se draft in
   let* () = Lwt_unix.mkdir (!Web_config.spool_dir / raw_string_of_uuid uuid) 0o700 in
   let* () = Web_persist.set_draft_election uuid se in
   let* () = Web_persist.clear_elections_by_owner_cache () in
@@ -1026,13 +1038,16 @@ let dispatch_draft token endpoint method_ body uuid se =
        match method_, who with
        | `GET, _ ->
           let@ () = handle_generic_error in
-          let x = api_of_draft se in
+          let* x = api_of_draft se in
           Lwt.return (200, string_of_draft x)
-       | `PUT, `Administrator _ ->
+       | `PUT, `Administrator account ->
           let@ draft = body.run draft_of_string in
           let@ () = handle_generic_error in
-          let update_cache = draft.draft_questions.t_name <> se.se_questions.t_name in
-          let se = draft_of_api se draft in
+          let update_cache =
+            draft.draft_questions.t_name <> se.se_questions.t_name
+            || se.se_owner <> `Id draft.draft_owners
+          in
+          let se = draft_of_api account se draft in
           let* () = Web_persist.set_draft_election uuid se in
           let* () =
             if update_cache then

@@ -139,6 +139,7 @@ let rec show_root main =
     | Some c, Some a ->
        Some {
            draft_version = List.hd c.supported_crypto_versions;
+           draft_owners = [a.api_account_id];
            draft_questions =
              {
                t_description = "";

@@ -61,6 +61,7 @@ type authentication =
 
 type draft = {
     version : int;
+    owners : int list;
     questions : template;
     languages : string list;
     ?contact : string option;
