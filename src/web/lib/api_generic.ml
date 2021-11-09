@@ -118,6 +118,7 @@ let get_configuration () =
 
 let get_account a =
   {
+    api_account_id = a.account_id;
     api_account_name = a.account_name;
     api_account_address = a.account_email;
   }
@@ -125,5 +126,7 @@ let get_account a =
 let put_account a b =
   if b.api_account_address <> a.account_email then
     raise (Error "cannot change address");
+  if b.api_account_id <> a.account_id then
+    raise (Error "cannot change id");
   let a = {a with account_name = b.api_account_name} in
   Accounts.update_account a

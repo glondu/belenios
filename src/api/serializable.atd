@@ -48,6 +48,7 @@ type configuration = {
 }
 
 type api_account = {
+    id : int;
     name : string;
     address : string;
 } <ocaml field_prefix="api_account_">
