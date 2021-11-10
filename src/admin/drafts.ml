@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Belenios_platform.Platform
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
@@ -32,10 +33,12 @@ open Common
 let show_draft_main show_all uuid draft container =
   let@ () = show_in container in
   let t = textarea () in
-  t##.value := Js.string (string_of_draft draft);
+  let draft_str = string_of_draft draft in
+  t##.value := Js.string draft_str;
   let button_save =
+    let ifmatch = sha256_b64 draft_str in
     let@ () = button "Save changes" in
-    let* x = put_with_token (Js.to_string t##.value) "drafts/%s" uuid in
+    let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s" uuid in
     let@ () = show_in container in
     generic_proceed x show_all
   in
@@ -62,10 +65,12 @@ let rec show_draft_voters uuid draft container =
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
   let@ voters = with_ok "voters" x in
   let t = textarea () in
-  t##.value := Js.string (string_of_voter_list voters);
+  let voters_str = string_of_voter_list voters in
+  t##.value := Js.string voters_str;
   let b =
+    let ifmatch = sha256_b64 voters_str in
     let@ () = button "Save changes" in
-    let* x = put_with_token (Js.to_string t##.value) "drafts/%s/voters" uuid in
+    let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s/voters" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
   in
@@ -138,25 +143,26 @@ let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* x = get trustees_of_string "drafts/%s/trustees" uuid in
   let@ trustees = with_ok "trustees" x in
-  let* mode =
+  let* mode, mode_str =
     let* x = get trustees_mode_of_string "drafts/%s/trustees-mode" uuid in
     match x with
-    | Error e -> Lwt.return @@ Printf.sprintf "error (%s)" (string_of_error e)
-    | Ok `Basic -> Lwt.return "basic"
-    | Ok (`Threshold threshold) ->
+    | Error e -> Lwt.return (Printf.sprintf "error (%s)" (string_of_error e), "")
+    | Ok (`Basic as x) -> Lwt.return ("basic", string_of_trustees_mode x)
+    | Ok (`Threshold threshold as x) ->
        let threshold =
          match threshold with
          | 0 -> "not set"
          | i -> Printf.sprintf "%d out of %d" i (List.length trustees)
        in
-       Lwt.return @@ Printf.sprintf "threshold (%s)" threshold
+       Lwt.return (Printf.sprintf "threshold (%s)" threshold, string_of_trustees_mode x)
   in
   let mode = div [txt "Mode:"; txt " "; txt mode] in
   let mode_set =
     let t = textarea ~rows:1 ~cols:60 () in
     let b =
+      let ifmatch = sha256_b64 mode_str in
       let@ () = button "Set mode" in
-      let* x = put_with_token (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
+      let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in

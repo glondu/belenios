@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Belenios_platform.Platform
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
@@ -92,10 +93,12 @@ let rec show_root main =
     let* x = get api_account_of_string "account" in
     let@ account = with_ok_opt "account" x in
     let t = textarea ~rows:2 () in
-    t##.value := Js.string (string_of_api_account account);
+    let account_str = string_of_api_account account in
+    t##.value := Js.string account_str;
     let b =
+      let ifmatch = sha256_b64 account_str in
       let@ () = button "Save changes" in
-      let* x = put_with_token (Js.to_string t##.value) "account" in
+      let* x = put_with_token ~ifmatch (Js.to_string t##.value) "account" in
       let@ () = show_in main in
       let msg =
         match x.code with

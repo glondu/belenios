@@ -76,9 +76,13 @@ let delete_with_token url =
   let headers = ["Authorization", "Bearer " ^ !api_token] in
   Printf.ksprintf (fun x -> perform_raw_url ~headers ~override_method:`DELETE (api_root ^ x)) url
 
-let put_with_token x url =
+let put_with_token ~ifmatch x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ !api_token] in
+  let headers = [
+      "Authorization", "Bearer " ^ !api_token;
+      "If-Match", ifmatch;
+    ]
+  in
   let contents = `String x in
   Printf.ksprintf (fun x -> perform_raw_url ~headers ~contents ~override_method:`PUT (api_root ^ x)) url
 
