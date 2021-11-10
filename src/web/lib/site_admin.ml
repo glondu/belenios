@@ -259,7 +259,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           | Some "manual" -> return `Manual
           | _ -> fail_http `Bad_request
         in
-        let* auth = match auth with
+        let* auth_parsed =
+          match auth with
           | Some "password" -> return `Password
           | Some "cas" ->
              (match cas_server with
@@ -274,10 +275,17 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              ) else fail_http `Bad_request
           | _ -> fail_http `Bad_request
         in
-        match auth with
+        let has_cas_server =
+          match cas_server with
+          | None | Some "" -> false
+          | Some _ -> true
+        in
+        match auth_parsed with
         | `CAS cas_server when not (is_http_url cas_server) ->
            Pages_common.generic_page ~title:(s_ "Error") (s_ "Bad CAS server!") () >>= Html.send
-        | _ -> create_new_election a credmgmt auth
+        | _ when has_cas_server && auth <> Some "cas" ->
+           Pages_common.generic_page ~title:(s_ "Error") (s_ "Non-empty CAS server, but CAS authentication not selected!") () >>= Html.send
+        | _ -> create_new_election a credmgmt auth_parsed
       )
 
   let with_draft_election_ro uuid f =
