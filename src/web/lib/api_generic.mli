@@ -41,6 +41,10 @@ val forbidden : result Lwt.t
 val not_found  : result Lwt.t
 val method_not_allowed : result Lwt.t
 
+val handle_ifmatch :
+  string option -> (unit -> string Lwt.t) ->
+  (unit -> result Lwt.t) -> result Lwt.t
+
 val handle_generic_error :
   (unit -> result Lwt.t) -> result Lwt.t
 

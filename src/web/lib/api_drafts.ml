@@ -1030,17 +1030,22 @@ let post_draft_status account uuid se = function
           Lwt.fail (Error msg)
      end
 
-let dispatch_draft token endpoint method_ body uuid se =
+let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   match endpoint with
   | [] ->
      begin
        let@ who = with_administrator_or_credential_authority token se in
+       let get () =
+         let* x = api_of_draft se in
+         Lwt.return @@ string_of_draft x
+       in
        match method_, who with
        | `GET, _ ->
           let@ () = handle_generic_error in
-          let* x = api_of_draft se in
-          Lwt.return (200, string_of_draft x)
+          let* x = get () in
+          Lwt.return (200, x)
        | `PUT, `Administrator account ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ draft = body.run draft_of_string in
           let@ () = handle_generic_error in
           let update_cache =
@@ -1069,12 +1074,17 @@ let dispatch_draft token endpoint method_ body uuid se =
   | ["voters"] ->
      begin
        let@ who = with_administrator_or_credential_authority token se in
+       let get () =
+         let x = get_draft_voters se in
+         Lwt.return @@ string_of_voter_list x
+       in
        match method_, who with
        | `GET, _ ->
           let@ () = handle_generic_error in
-          let x = get_draft_voters se in
-          Lwt.return (200, string_of_voter_list x)
+          let* x = get () in
+          Lwt.return (200, x)
        | `PUT, `Administrator _ ->
+          let@ () = handle_ifmatch ifmatch get in
           if se.se_public_creds_received then (
             forbidden
           ) else (
@@ -1148,12 +1158,17 @@ let dispatch_draft token endpoint method_ body uuid se =
   | ["trustees-mode"] ->
      begin
        let@ _ = with_administrator token se in
+       let get () =
+         let x = get_draft_trustees_mode se in
+         Lwt.return @@ string_of_trustees_mode x
+       in
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let x = get_draft_trustees_mode se in
-          Lwt.return (200, string_of_trustees_mode x)
+          let* x = get () in
+          Lwt.return (200, x)
        | `PUT ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ mode = body.run trustees_mode_of_string in
           let@ () = handle_generic_error in
           let* () = put_draft_trustees_mode uuid se mode in
@@ -1197,7 +1212,7 @@ let dispatch_draft token endpoint method_ body uuid se =
      end
   | _ -> not_found
 
-let dispatch token endpoint method_ body =
+let dispatch ~token ~ifmatch endpoint method_ body =
   match endpoint with
   | [] ->
      begin
@@ -1229,4 +1244,4 @@ let dispatch token endpoint method_ body =
      let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
      let* se = Web_persist.get_draft_election uuid in
      let@ se = Option.unwrap not_found se in
-     dispatch_draft token endpoint method_ body uuid se
+     dispatch_draft ~token ~ifmatch endpoint method_ body uuid se

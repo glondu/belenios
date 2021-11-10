@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios_platform.Platform
 open Web_serializable_t
 open Belenios_core.Common
 open Belenios_api.Serializable_t
@@ -76,6 +77,17 @@ let unauthorized = Lwt.return (401, "\"Unauthorized\"")
 let forbidden = Lwt.return (403, "\"Forbidden\"")
 let not_found = Lwt.return (404, "\"Not Found\"")
 let method_not_allowed = Lwt.return (405, "\"Method Not Allowed\"")
+let precondition_failed = Lwt.return (412, "\"Precondition Failed\"")
+
+let handle_ifmatch ifmatch current cont =
+  match ifmatch with
+  | None -> cont ()
+  | Some x ->
+     let* current = current () in
+     if sha256_b64 current = x then
+       cont ()
+     else
+       precondition_failed
 
 let handle_generic_error f =
   Lwt.catch f

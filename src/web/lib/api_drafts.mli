@@ -95,5 +95,5 @@ val import_trustees :
 open Api_generic
 
 val dispatch :
-  string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
+  token:string option -> ifmatch:string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
   body -> result Lwt.t

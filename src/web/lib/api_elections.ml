@@ -696,7 +696,7 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
      end
   | _ -> not_found
 
-let dispatch token endpoint method_ body =
+let dispatch ~token ~ifmatch:_ endpoint method_ body =
   match endpoint with
   | [] ->
      begin

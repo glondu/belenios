@@ -30,11 +30,12 @@ let ( let& ) = Option.bind
 module Make () = struct
 
   let dispatch endpoint method_ _params body =
+    let sp = Eliom_common.get_sp () in
     let token =
-      let sp = Eliom_common.get_sp () in
       let& x = Ocsigen_request.header sp.Eliom_common.sp_request.request_info (Ocsigen_header.Name.of_string "Authorization") in
       String.drop_prefix ~prefix:"Bearer " x
     in
+    let ifmatch = Ocsigen_request.header sp.Eliom_common.sp_request.request_info (Ocsigen_header.Name.of_string "If-Match") in
     let body =
       {
         run =
@@ -59,19 +60,24 @@ module Make () = struct
          begin
            let@ token = Option.unwrap unauthorized token in
            let@ account = Option.unwrap unauthorized (lookup_token token) in
+           let get () =
+             let x = Api_generic.get_account account in
+             Lwt.return @@ string_of_api_account x
+           in
            match method_ with
            | `GET ->
-              let x = Api_generic.get_account account in
-              Lwt.return (200, string_of_api_account x)
+              let* x = get () in
+              Lwt.return (200, x)
            | `PUT ->
+              let@ () = handle_ifmatch ifmatch get in
               let@ x = body.run api_account_of_string in
               let@ () = handle_generic_error in
               let* () = Api_generic.put_account account x in
               ok
            | _ -> method_not_allowed
          end
-      | "drafts" :: endpoint -> Api_drafts.dispatch token endpoint method_ body
-      | "elections" :: endpoint -> Api_elections.dispatch token endpoint method_ body
+      | "drafts" :: endpoint -> Api_drafts.dispatch ~token ~ifmatch endpoint method_ body
+      | "elections" :: endpoint -> Api_elections.dispatch ~token ~ifmatch endpoint method_ body
       | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")
