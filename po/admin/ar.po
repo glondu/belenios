@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-08 08:07+0000\n"
-"PO-Revision-Date: 2021-11-03 14:37+0000\n"
+"PO-Revision-Date: 2021-11-12 13:52+0000\n"
 "Last-Translator: noreddine belhadj cheikh <noreddine.belhadjcheikh@gmail.com>"
 "\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/belenios/admin/ar/"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 4.9-dev\n"
+"X-Generator: Weblate 4.9.1-dev\n"
 
 #: src/web/lib/pages_admin.ml:2067
 msgid " You may re-open the election when it is closed."
@@ -149,11 +149,11 @@ msgstr "(أو "
 #. src/web/lib/pages_admin.ml:750
 #: src/web/lib/pages_admin.ml:2255 src/web/lib/pages_admin.ml:2255
 msgid "(server)"
-msgstr ""
+msgstr "(الخادم)"
 
 #: src/web/lib/pages_admin.ml:2135
 msgid "(skipped)"
-msgstr ""
+msgstr "(تم تخطيه)"
 
 #: src/web/lib/pages_admin.ml:1000
 msgid "(the threshold must be smaller than the number of trustees)"
