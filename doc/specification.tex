@@ -174,24 +174,26 @@ consists of:
 \label{election-setup}
 
 \begin{enumerate}
-\item $\mathcal{A}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
+\item $\mathcal{A}$ starts the preparation of an election, providing
+  in particular the questions and a list of voter
+\item $\mathcal{S}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
   sends it to $\mathcal{C}$
 \item $\mathcal{C}$ generates \hyperref[credentials]{credentials}
   $c_1,\dots,c_n$ and computes
   \[L=\shuffle((\public(c_1),w_1),\dots,(\public(c_n),w_n))\]
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
 \item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
- \item $\mathcal{C}$ sends $L$ to $\mathcal{A}$
- \item $\mathcal{A}$ checks that the multiset of weights in $L$ is the
+ \item $\mathcal{C}$ sends $L$ to $\mathcal{S}$
+ \item $\mathcal{S}$ checks that the multiset of weights in $L$ is the
    same as $\{w_1,\dots,w_n\}$
- \item $\mathcal{A}$ defines the shape of the
+ \item $\mathcal{S}$ defines the shape of the
    \hyperref[trustees]{$\texttt{trustees}$} structure that will be
-   used in the election;
- \item $\mathcal{A}$ and $\mathcal{T}_1,\dotsc,\mathcal{T}_m$ run key
+   used in the election depending on $\mathcal{A}$'s instructions;
+ \item $\mathcal{S}$ and $\mathcal{T}_1,\dotsc,\mathcal{T}_m$ run key
    establishment protocols (see \ref{process-filling-trustees}) as
      needed to fill in the $\texttt{trustees}$ structure;
-\item $\mathcal{A}$ creates the \hyperref[elections]{$\election$} $E$
-\item $\mathcal{A}$ loads $E$ and $L$ into $\mathcal{S}$ and starts it
+\item $\mathcal{S}$ creates the \hyperref[elections]{$\election$} $E$
+\item $\mathcal{S}$ loads $E$ and $L$ % into $\mathcal{S}$ and starts it
 \item $\mathcal{C}$ checks that the list of public credentials $L$
   is exactly the one that appears on the election data of the election of
   {$\uuid$} $u$.
@@ -207,7 +209,7 @@ The \hyperref[trustees]{\texttt{trustees}} structure consists of
 \texttt{"Single"} or \texttt{"Pedersen"} items. For each of these
 items, one or several trustees run the corresponding protocol below to
 produce a sub-key $y_\tau$. Once all protocols have been run,
-$\mathcal{A}$ synthesizes the global election public key $y$ from the
+$\mathcal{S}$ synthesizes the global election public key $y$ from the
 sub-keys computed in each protocol by multiplying them:
 \[
   y=\prod_\tau y_\tau
@@ -219,8 +221,8 @@ This protocol involves a single trustee $\mathcal{T}$, whose presence
 will be required to compute the tally.
 \begin{enumerate}
 \item $\mathcal{T}$ generates a \hyperref[trustee-keys]{$\tpk$}
-  $\gamma$ and sends it to $\mathcal{A}$
-\item $\mathcal{A}$ checks $\gamma$
+  $\gamma$ and sends it to $\mathcal{S}$
+\item $\mathcal{S}$ checks $\gamma$
 \end{enumerate}
 Later, when the election is open:
 \begin{enumerate}
@@ -240,28 +242,28 @@ $t+1$ of them will be needed to compute the tally.
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
   \item $\mathcal{T}_z$ generates a \hyperref[certificates]{$\cert$} $\gamma_z$
-    and sends it to $\mathcal{A}$
-  \item $\mathcal{A}$ checks $\gamma_z$
+    and sends it to $\mathcal{S}$
+  \item $\mathcal{S}$ checks $\gamma_z$
   \end{enumerate}
-\item $\mathcal{A}$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_\mu$
+\item $\mathcal{S}$ assembles $\Gamma=\gamma_1,\dotsc,\gamma_\mu$
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
-  \item $\mathcal{A}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
+  \item $\mathcal{S}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
-    sends it to $\mathcal{A}$
-  \item $\mathcal{A}$ checks $P_z$
+    sends it to $\mathcal{S}$
+  \item $\mathcal{S}$ checks $P_z$
   \end{enumerate}
-\item for $z\in[1\dots \mu]$, $\mathcal{A}$ computes a
+\item for $z\in[1\dots \mu]$, $\mathcal{S}$ computes a
   \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
-  \item $\mathcal{A}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
-  \item $\mathcal{A}$ sends $\textsf{vi}_z$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
+  \item $\mathcal{S}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
+  \item $\mathcal{S}$ sends $\textsf{vi}_z$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
-    sends it to $\mathcal{A}$
-  \item $\mathcal{A}$ checks $\textsf{vo}_z$
+    sends it to $\mathcal{S}$
+  \item $\mathcal{S}$ checks $\textsf{vo}_z$
   \end{enumerate}
-\item $\mathcal{A}$ extracts encrypted decryption keys $K_1,\dots,K_\mu$ and
+\item $\mathcal{S}$ extracts encrypted decryption keys $K_1,\dots,K_\mu$ and
   \hyperref[threshold-params]{threshold parameters}
 \end{enumerate}
 Later, when the election is open:
@@ -315,9 +317,9 @@ voters), credentials can be recovered:
 \subsection{Tally}
 
 \begin{enumerate}
-\item $\mathcal{A}$ stops $\mathcal{S}$ and computes the initial
+\item $\mathcal{A}$ stops $\mathcal{S}$ and  $\mathcal{S}$ computes the initial
   \hyperref[tally]{$\etally$} $\Pi_0$
-\item $\mathcal{A}$ extracts the non-homomorphic ciphertexts from the
+\item $\mathcal{S}$ extracts the non-homomorphic ciphertexts from the
   encrypted tally (see
   section~\ref{shuffles}):
   \[\tilde\Pi_0=\textsf{nh\_ciphertexts}(\Pi_0)\]
@@ -325,26 +327,26 @@ voters), credentials can be recovered:
   $\tilde\Pi_0\neq []$,
  then for $z\in[1\dots m]$:
   \begin{enumerate}
-  \item $\mathcal{A}$ sends $\tilde\Pi_{z-1}$ to $\mathcal{T}_z$
+  \item $\mathcal{S}$ sends $\tilde\Pi_{z-1}$ to $\mathcal{T}_z$
   \item $\mathcal{T}_z$ runs the shuffle algorithm, producing a
     \hyperref[shuffles]{$\texttt{shuffle}$} $\sigma_z$ and sends it to
-    $\mathcal{A}$
-  \item $\mathcal{A}$ verifies $\sigma_z$ and extracts
+    $\mathcal{S}$
+  \item $\mathcal{S}$ verifies $\sigma_z$ and extracts
     $\tilde\Pi_z=\textsf{ciphertexts}(\sigma_z)$
   \end{enumerate}
-\item $\mathcal{A}$ merges shuffled non-homomorphic ciphertexts with
+\item $\mathcal{S}$ merges shuffled non-homomorphic ciphertexts with
   homomorphic ciphertexts, i.e. builds $\Pi$ such
   that:\[\tilde\Pi_m=\textsf{nh\_ciphertexts}(\Pi)\]
 \item for $z\in[1\dots m]$ (or, if in threshold mode, a subset of it
   of size at least $t+1$),
   \begin{enumerate}
-  \item $\mathcal{A}$ sends $\Pi$ (and $K_z$ if in threshold mode) to
+  \item $\mathcal{S}$ sends $\Pi$ (and $K_z$ if in threshold mode) to
     $\mathcal{T}_z$
   \item $\mathcal{T}_z$ generates a \hyperref[tally]{$\pdecryption$} $\delta_z$
-    and sends it to $\mathcal{A}$
-  \item $\mathcal{A}$ verifies $\delta_z$
+    and sends it to $\mathcal{S}$
+  \item $\mathcal{S}$ verifies $\delta_z$
   \end{enumerate}
-\item $\mathcal{A}$ combines all the partial decryptions, computes and publishes
+\item $\mathcal{S}$ combines all the partial decryptions, computes and publishes
   the election \hyperref[election-result]{\result}
 \item $\mathcal{T}_z$ checks that $\delta_z$ and $\sigma_z$ appears in
   {\result}
@@ -508,7 +510,7 @@ Belenios uses a custom public key infrastructure. During the key
 establishment protocol, each trustee starts by generating a secret
 seed (at random), then derives from it encryption and decryption keys,
 as well as signing and verification keys. These four keys are then
-used to exchange messages between trustees by using $\mathcal{A}$ as a proxy.
+used to exchange messages between trustees by using $\mathcal{S}$ as a proxy.
 
 The secret seed $s$ is a 22-character string, where characters are
 taken from the set:
