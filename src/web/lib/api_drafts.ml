@@ -1062,10 +1062,12 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           in
           ok
        | `POST, `Administrator account ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ x = body.run draft_request_of_string in
           let@ () = handle_generic_error in
           post_draft_status account uuid se x
        | `DELETE, `Administrator _ ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ () = handle_generic_error in
           let* () = delete_draft uuid in
           ok
@@ -1098,12 +1100,17 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   | ["passwords"] ->
      begin
        let@ _ = with_administrator token se in
+       let get () =
+         let x = get_draft_passwords se in
+         Lwt.return @@ string_of_voter_list x
+       in
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let x = get_draft_passwords se in
-          Lwt.return (200, string_of_voter_list x)
+          let* x = get () in
+          Lwt.return (200, x)
        | `POST ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ voters = body.run voter_list_of_string in
           let@ () = handle_generic_error in
           let generate =
@@ -1127,12 +1134,17 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   | ["credentials"] ->
      begin
        let@ who = with_administrator_or_credential_authority token se in
+       let get () =
+         let* x = get_draft_credentials who uuid se in
+         Lwt.return @@ string_of_credentials x
+       in
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let* x = get_draft_credentials who uuid se in
-          Lwt.return (200, string_of_credentials x)
+          let* x = get () in
+          Lwt.return (200, x)
        | `POST ->
+          let@ () = handle_ifmatch ifmatch get in
           if se.se_public_creds_received then (
             forbidden
           ) else (
@@ -1178,12 +1190,17 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   | ["trustees"] ->
      begin
        let@ _ = with_administrator token se in
+       let get () =
+         let x = get_draft_trustees se in
+         Lwt.return @@ string_of_trustees x
+       in
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let x = get_draft_trustees se in
-          Lwt.return (200, string_of_trustees x)
+          let* x = get () in
+          Lwt.return (200, x)
        | `POST ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ trustee = body.run trustee_of_string in
           let@ () = handle_generic_error in
           let* () = post_draft_trustees uuid se trustee in
@@ -1218,22 +1235,28 @@ let dispatch ~token ~ifmatch endpoint method_ body =
      begin
        let@ token = Option.unwrap unauthorized token in
        let@ account = Option.unwrap unauthorized (lookup_token token) in
+       let get () =
+         let* elections = Web_persist.get_elections_by_owner account.account_id in
+         let elections =
+           List.fold_left
+             (fun accu (kind, summary_uuid, date, summary_name) ->
+               let summary_date = unixfloat_of_datetime date in
+               let summary_kind = None in
+               if kind = `Draft then
+                 {summary_uuid; summary_name; summary_date; summary_kind} :: accu
+               else
+                 accu
+             ) [] elections
+         in
+         Lwt.return @@ string_of_summary_list elections
+       in
        match method_ with
        | `GET ->
-          let* elections = Web_persist.get_elections_by_owner account.account_id in
-          let elections =
-            List.fold_left
-              (fun accu (kind, summary_uuid, date, summary_name) ->
-                let summary_date = unixfloat_of_datetime date in
-                let summary_kind = None in
-                if kind = `Draft then
-                  {summary_uuid; summary_name; summary_date; summary_kind} :: accu
-                else
-                  accu
-              ) [] elections
-          in
-          Lwt.return (200, string_of_summary_list elections)
+          let@ () = handle_generic_error in
+          let* x = get () in
+          Lwt.return (200, x)
        | `POST ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ draft = body.run draft_of_string in
           let@ () = handle_generic_error in
           let* uuid = post_drafts account draft in

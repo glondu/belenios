@@ -562,16 +562,22 @@ let get_records uuid =
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
-let dispatch_election token endpoint method_ body uuid raw metadata =
+let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
      begin
+       let get () =
+         let* x = get_election_status uuid in
+         Lwt.return @@ string_of_election_status x
+       in
        match method_ with
        | `GET ->
-          let* x = get_election_status uuid in
-          Lwt.return (200, string_of_election_status x)
+          let@ () = handle_generic_error in
+          let* x = get () in
+          Lwt.return (200, x)
        | `POST ->
           begin
+            let@ () = handle_ifmatch ifmatch get in
             let@ _ = with_administrator token metadata in
             let@ request = body.run admin_request_of_string in
             match request with
@@ -626,6 +632,7 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
                if b then ok else bad_request
           end
        | `DELETE ->
+          let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
@@ -696,7 +703,7 @@ let dispatch_election token endpoint method_ body uuid raw metadata =
      end
   | _ -> not_found
 
-let dispatch ~token ~ifmatch:_ endpoint method_ body =
+let dispatch ~token ~ifmatch endpoint method_ body =
   match endpoint with
   | [] ->
      begin
@@ -724,4 +731,4 @@ let dispatch ~token ~ifmatch:_ endpoint method_ body =
      let* raw = Web_persist.get_raw_election uuid in
      let@ raw = Option.unwrap not_found raw in
      let* metadata = Web_persist.get_election_metadata uuid in
-     dispatch_election token endpoint method_ body uuid raw metadata
+     dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata

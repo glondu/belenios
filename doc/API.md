@@ -19,10 +19,11 @@ invalid.
 The root of the API is at `/api/`. All endpoints below are relative to
 this root.
 
-`PUT` requests support the `If-Match` header: if present, it must be
-the SHA256-Base64Compact of what would be returned by a `GET` request
-on the same endpoint. This is typically used to avoid silent
-conflicts.
+`PUT`, `POST` and `DELETE` requests support the `If-Match` header: if
+present, it must be the SHA256-Base64Compact of what would be returned
+by a `GET` request (if supported) on the same endpoint. This is
+typically used to avoid silent conflicts. An HTTP error 412
+(Precondition Failed) is returned when there is no match.
 
 # Endpoints
 
