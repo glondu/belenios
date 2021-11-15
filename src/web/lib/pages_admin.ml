@@ -2023,6 +2023,7 @@ module Make
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
+      let* d = Api_elections.get_election_automatic_dates uuid in
       let format = function
         | None -> ""
         | Some x -> format_datetime @@ datetime_of_unixfloat x
@@ -2042,12 +2043,12 @@ module Make
                           div [
                               txt (s_ "Automatically open the election at:");
                               txt " ";
-                              input ~name:lopen ~input_type:`Text ~value:(format status.status_auto_open_date) string;
+                              input ~name:lopen ~input_type:`Text ~value:(format d.auto_date_open) string;
                             ];
                           div [
                               txt (s_ "Automatically close the election at:");
                               txt " ";
-                              input ~name:lclose ~input_type:`Text ~value:(format status.status_auto_close_date) string;
+                              input ~name:lclose ~input_type:`Text ~value:(format d.auto_date_close) string;
                             ];
                           div [
                               txt (s_ "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date.");

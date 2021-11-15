@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Belenios_platform.Platform
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common.Tool_js_common
@@ -66,7 +67,10 @@ let rec show main uuid =
     let y = Js.to_string x##.value in
     if y = "" then None else Some (Js.date##parse x##.value /. 1000.)
   in
-  let auto_dates =
+  let* auto_dates =
+    let* x = get election_auto_dates_of_string "elections/%s/automatic-dates" uuid in
+    let@ dates = with_ok "automatic-dates" x in
+    let ifmatch = sha256_b64 (string_of_election_auto_dates dates) in
     let make_input d =
       let r = input [] in
       let () =
@@ -78,8 +82,8 @@ let rec show main uuid =
       in
       r
     in
-    let auto_open = make_input status.status_auto_open_date in
-    let auto_close = make_input status.status_auto_close_date in
+    let auto_open = make_input dates.auto_date_open in
+    let auto_close = make_input dates.auto_date_close in
     let set_button =
       let@ () = button "Set automatic dates" in
       let dates =
@@ -88,12 +92,11 @@ let rec show main uuid =
           auto_date_close = get_date auto_close;
         }
       in
-      let request = `SetAutomaticDates dates in
-      let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+      let* x = put_with_token ~ifmatch (string_of_election_auto_dates dates) "elections/%s/automatic-dates" uuid in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    [node auto_open; node auto_close; node set_button]
+    Lwt.return [node auto_open; node auto_close; node set_button]
   in
   let regenpwd =
     let i = input [] in

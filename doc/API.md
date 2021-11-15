@@ -99,6 +99,11 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> json
 
+## `elections/$UUID/automatic-dates`
+
+* `GET`: unit -> election_auto_dates
+* `PUT`: election_auto_dates -> unit (administrator)
+
 ## `elections/$UUID/voters` (administrator)
 
 * `GET`: unit -> voter_list

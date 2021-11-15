@@ -67,11 +67,17 @@ let get_election_status uuid =
   let* postpone = Web_persist.get_election_result_hidden uuid in
   Lwt.return {
       status_state;
-      status_auto_open_date = Option.map unixfloat_of_datetime d.e_auto_open;
-      status_auto_close_date = Option.map unixfloat_of_datetime d.e_auto_close;
       status_auto_archive_date;
       status_auto_delete_date;
       status_postpone_date = Option.map unixfloat_of_datetime postpone;
+    }
+
+let get_election_automatic_dates uuid =
+  let* d = Web_persist.get_election_dates uuid in
+  Lwt.return
+    {
+      auto_date_open = Option.map unixfloat_of_datetime d.e_auto_open;
+      auto_date_close = Option.map unixfloat_of_datetime d.e_auto_close;
     }
 
 let set_election_state uuid state =
@@ -586,9 +592,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                in
                let* b = doit uuid in
                if b then ok else forbidden
-            | `SetAutomaticDates d ->
-               let* () = set_election_auto_dates uuid d in
-               ok
             | (`ComputeEncryptedTally | `FinishShuffling) as x ->
                let@ () = handle_generic_error in
                let doit =
@@ -641,6 +644,23 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
      begin
        match method_ with
        | `GET -> Lwt.return (200, raw)
+       | _ -> method_not_allowed
+     end
+  | ["automatic-dates"] ->
+     begin
+       let get () =
+         let* x = get_election_automatic_dates uuid in
+         Lwt.return @@ string_of_election_auto_dates x
+       in
+       match method_ with
+       | `GET -> handle_get get
+       | `PUT ->
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_ifmatch ifmatch get in
+          let@ d = body.run election_auto_dates_of_string in
+          let@ () = handle_generic_error in
+          let* () = set_election_auto_dates uuid d in
+          ok
        | _ -> method_not_allowed
      end
   | ["voters"] ->
