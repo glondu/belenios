@@ -48,6 +48,9 @@ val handle_ifmatch :
 val handle_generic_error :
   (unit -> result Lwt.t) -> result Lwt.t
 
+val handle_get :
+  (unit -> string Lwt.t) -> result Lwt.t
+
 val get_configuration : unit -> configuration
 
 val get_account : account -> api_account

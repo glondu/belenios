@@ -103,6 +103,11 @@ let handle_generic_error f =
      | _ -> bad_request
     )
 
+let handle_get get =
+  let@ () = handle_generic_error in
+  let* x = get () in
+  Lwt.return (200, x)
+
 let get_configuration () =
   {
     belenios_version = Belenios_platform.Belenios_version.version;

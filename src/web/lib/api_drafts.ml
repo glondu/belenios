@@ -1040,10 +1040,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
          Lwt.return @@ string_of_draft x
        in
        match method_, who with
-       | `GET, _ ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET, _ -> handle_get get
        | `PUT, `Administrator account ->
           let@ () = handle_ifmatch ifmatch get in
           let@ draft = body.run draft_of_string in
@@ -1081,10 +1078,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
          Lwt.return @@ string_of_voter_list x
        in
        match method_, who with
-       | `GET, _ ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET, _ -> handle_get get
        | `PUT, `Administrator _ ->
           let@ () = handle_ifmatch ifmatch get in
           if se.se_public_creds_received then (
@@ -1105,10 +1099,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
          Lwt.return @@ string_of_voter_list x
        in
        match method_ with
-       | `GET ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET -> handle_get get
        | `POST ->
           let@ () = handle_ifmatch ifmatch get in
           let@ voters = body.run voter_list_of_string in
@@ -1139,10 +1130,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
          Lwt.return @@ string_of_credentials x
        in
        match method_ with
-       | `GET ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET -> handle_get get
        | `POST ->
           let@ () = handle_ifmatch ifmatch get in
           if se.se_public_creds_received then (
@@ -1175,10 +1163,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
          Lwt.return @@ string_of_trustees_mode x
        in
        match method_ with
-       | `GET ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET -> handle_get get
        | `PUT ->
           let@ () = handle_ifmatch ifmatch get in
           let@ mode = body.run trustees_mode_of_string in
@@ -1195,10 +1180,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
          Lwt.return @@ string_of_trustees x
        in
        match method_ with
-       | `GET ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET -> handle_get get
        | `POST ->
           let@ () = handle_ifmatch ifmatch get in
           let@ trustee = body.run trustee_of_string in
@@ -1251,10 +1233,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
          Lwt.return @@ string_of_summary_list elections
        in
        match method_ with
-       | `GET ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET -> handle_get get
        | `POST ->
           let@ () = handle_ifmatch ifmatch get in
           let@ draft = body.run draft_of_string in

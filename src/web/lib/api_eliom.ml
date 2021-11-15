@@ -65,9 +65,7 @@ module Make () = struct
              Lwt.return @@ string_of_api_account x
            in
            match method_ with
-           | `GET ->
-              let* x = get () in
-              Lwt.return (200, x)
+           | `GET -> handle_get get
            | `PUT ->
               let@ () = handle_ifmatch ifmatch get in
               let@ x = body.run api_account_of_string in

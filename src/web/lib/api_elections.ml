@@ -571,10 +571,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
          Lwt.return @@ string_of_election_status x
        in
        match method_ with
-       | `GET ->
-          let@ () = handle_generic_error in
-          let* x = get () in
-          Lwt.return (200, x)
+       | `GET -> handle_get get
        | `POST ->
           begin
             let@ () = handle_ifmatch ifmatch get in
