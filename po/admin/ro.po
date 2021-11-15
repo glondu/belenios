@@ -95,7 +95,7 @@ msgstr " alegatori inregistrati"
 msgid " your contribution to decryption."
 msgstr " contributia dvoastra la descifrare."
 
-#: src/web/lib/site_admin.ml:611
+#: src/web/lib/site_admin.ml:620
 msgid "%S is not a valid identity"
 msgstr "%S nu este o identitate valabila"
 
@@ -103,15 +103,15 @@ msgstr "%S nu este o identitate valabila"
 msgid "%d voter(s)"
 msgstr "%d votant(i)"
 
-#: src/web/lib/site_admin.ml:510
+#: src/web/lib/site_admin.ml:519
 msgid "%s is not a registered user for this election."
 msgstr "%s nu este un utilizator inregistrat pentru aceasta alegere."
 
-#: src/web/lib/site_admin.ml:1079 src/web/lib/site_admin.ml:1068
+#: src/web/lib/site_admin.ml:1088 src/web/lib/site_admin.ml:1077
 msgid "%s is not a valid date!"
 msgstr "%s nu este o data valida !"
 
-#: src/web/lib/site_admin.ml:708
+#: src/web/lib/site_admin.ml:717
 msgid "%s is not a valid e-mail address!"
 msgstr "%s nu este o adresa email valida !"
 
@@ -215,11 +215,11 @@ msgstr ""
 msgid "6. Click on \"Submit the public credentials\"."
 msgstr ""
 
-#: src/web/lib/site_admin.ml:506
+#: src/web/lib/site_admin.ml:515
 msgid "A new password has been mailed to %s."
 msgstr "O noua parola a fost trimisa prin email la %s."
 
-#: src/web/lib/site_admin.ml:852
+#: src/web/lib/site_admin.ml:861
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr ""
 "O cheie publica exista deja, cheia pe care tocmai ati descarcat-o a fost "
@@ -229,7 +229,7 @@ msgstr ""
 msgid "Accept"
 msgstr "Accepta"
 
-#: src/web/lib/site_admin.ml:1847 src/web/lib/site_admin.ml:1725
+#: src/web/lib/site_admin.ml:1856 src/web/lib/site_admin.ml:1734
 msgid "Account creation"
 msgstr "Creare de cont"
 
@@ -237,7 +237,7 @@ msgstr "Creare de cont"
 msgid "Account management"
 msgstr ""
 
-#: src/web/lib/site_admin.ml:1907
+#: src/web/lib/site_admin.ml:1916
 msgid "Account not found"
 msgstr ""
 
@@ -300,11 +300,11 @@ msgstr ""
 msgid "An election with the same UUID already exists."
 msgstr "O alegere cu acelasi UUID exista deja."
 
-#: src/web/lib/site_admin.ml:1490
+#: src/web/lib/site_admin.ml:1499
 msgid "An error occurred while applying the shuffle."
 msgstr "O eroare a aparut in etapa de amestecare a buletinelor de vot."
 
-#: src/web/lib/site_admin.ml:1421
+#: src/web/lib/site_admin.ml:1430
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "O eroare a aparut pe durata calcularii rezultatului (%s). Cel mai probabil, "
@@ -318,7 +318,7 @@ msgstr ""
 msgid "Answer: "
 msgstr "Raspuns: "
 
-#: src/admin/admin.ml:204 src/web/lib/pages_admin.ml:1802
+#: src/admin/admin.ml:208 src/web/lib/pages_admin.ml:1802
 #. src/web/lib/pages_admin.ml:242
 msgid "Archived elections"
 msgstr "Alegeri arhivate"
@@ -357,7 +357,7 @@ msgstr "Schema de autentificare: dummy"
 msgid "Authentication scheme: password"
 msgstr "Schema de autentificare: parola"
 
-#: src/web/lib/site_admin.ml:1028
+#: src/web/lib/site_admin.ml:1037
 msgid "Automatic shuffle by server has failed for election %s!"
 msgstr "Amestecarea automata de catre server a esuat pentru alegerea %s !"
 
@@ -381,7 +381,7 @@ msgstr "In asteptarea autoritatilor de descifrare…"
 msgid "Back to election preparation page"
 msgstr "Inapoi la pagina de pregatire a alegerilor"
 
-#: src/web/lib/site_admin.ml:278
+#: src/web/lib/site_admin.ml:285
 msgid "Bad CAS server!"
 msgstr "Server CAS deficitar !"
 
@@ -433,13 +433,13 @@ msgstr ""
 msgid "Cancel"
 msgstr "Anulare"
 
-#: src/web/lib/site_admin.ml:785
+#: src/web/lib/site_admin.ml:794
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 "Trimiterea codurilor de vot nu a putut fi efectuata, sunt prea multi votanti "
 "(numarul maxim este %d)"
 
-#: src/web/lib/site_admin.ml:451
+#: src/web/lib/site_admin.ml:460
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr ""
 "Nu s-au putut trimite parolele, sunt prea multi votanti (numarul maxim este "
@@ -449,7 +449,7 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "Schimba datele fixate in mod automat"
 
-#: src/web/lib/site_admin.ml:1872 src/web/lib/site_admin.ml:1766
+#: src/web/lib/site_admin.ml:1881 src/web/lib/site_admin.ml:1775
 #. src/web/lib/pages_admin.ml:2874
 #. src/web/lib/pages_admin.ml:2751
 msgid "Change password"
@@ -531,13 +531,13 @@ msgstr "Contact:"
 msgid "Contact?"
 msgstr "Contact ?"
 
-#: src/web/lib/site_admin.ml:982
+#: src/web/lib/site_admin.ml:991
 msgid "Could not retrieve trustees from selected election!"
 msgstr ""
 "E imposibil de a afla care sunt autoritatile de descifrare ale alegerii "
 "selectionate !"
 
-#: src/web/lib/site_admin.ml:936
+#: src/web/lib/site_admin.ml:945
 msgid "Could not retrieve voter list from election %s"
 msgstr "E imposibil de a obtine lista de alegatori plecand de la alegerea %s"
 
@@ -581,7 +581,7 @@ msgstr "Cod de vot pentru alegerea %s"
 msgid "Credentials have already been generated!"
 msgstr "Codurile de vot au fost deja generate !"
 
-#: src/web/lib/site_admin.ml:779
+#: src/web/lib/site_admin.ml:788
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr ""
 "Codurile de vot au fost generate si trimise prin email ! Trebuie sa pastrati "
@@ -604,7 +604,7 @@ msgstr "Coduri de vot ?"
 msgid "Current list of ballots:"
 msgstr "Lista curenta a buletinelor de vot:"
 
-#: src/web/lib/site_admin.ml:1493
+#: src/web/lib/site_admin.ml:1502
 msgid "Data is invalid! (%s)"
 msgstr "Data este invalida ! (%s)"
 
@@ -690,7 +690,7 @@ msgstr ""
 "cum trebuie, altfel nu va fi posibil sa numarati voturile iar alegerea va fi "
 "anulata."
 
-#: src/web/lib/site_admin.ml:952 src/web/lib/site_admin.ml:616
+#: src/web/lib/site_admin.ml:961 src/web/lib/site_admin.ml:625
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
 
@@ -731,16 +731,16 @@ msgstr "Pagina principala a alegerii"
 msgid "Election server"
 msgstr "Serverul alegerii"
 
-#: src/admin/admin.ml:198 src/web/lib/pages_admin.ml:233
+#: src/admin/admin.ml:202 src/web/lib/pages_admin.ml:233
 msgid "Elections being prepared"
 msgstr "Alegeri in curs de pregatire"
 
-#: src/admin/admin.ml:200 src/web/lib/pages_admin.ml:1798
+#: src/admin/admin.ml:204 src/web/lib/pages_admin.ml:1798
 #. src/web/lib/pages_admin.ml:236
 msgid "Elections you can administer"
 msgstr "Alegeri pe care le puteti administra"
 
-#: src/web/lib/site_admin.ml:985
+#: src/web/lib/site_admin.ml:994
 msgid "Encrypted decryption keys are missing!"
 msgstr "Lipsesc cheile de descifrare cifrate !"
 
@@ -766,31 +766,32 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Introduceti cheia privata:"
 
-#: src/web/lib/site_admin.ml:1545 src/web/lib/site_admin.ml:1541
-#. src/web/lib/site_admin.ml:1493
-#. src/web/lib/site_admin.ml:1490
-#. src/web/lib/site_admin.ml:1424
-#. src/web/lib/site_admin.ml:1403
-#. src/web/lib/site_admin.ml:1326
-#. src/web/lib/site_admin.ml:1290
-#. src/web/lib/site_admin.ml:1119
-#. src/web/lib/site_admin.ml:1080
-#. src/web/lib/site_admin.ml:1062
-#. src/web/lib/site_admin.ml:988
+#: src/web/lib/site_admin.ml:1554 src/web/lib/site_admin.ml:1550
+#. src/web/lib/site_admin.ml:1502
+#. src/web/lib/site_admin.ml:1499
+#. src/web/lib/site_admin.ml:1433
+#. src/web/lib/site_admin.ml:1412
+#. src/web/lib/site_admin.ml:1335
+#. src/web/lib/site_admin.ml:1299
+#. src/web/lib/site_admin.ml:1128
+#. src/web/lib/site_admin.ml:1089
+#. src/web/lib/site_admin.ml:1071
+#. src/web/lib/site_admin.ml:997
+#. src/web/lib/site_admin.ml:959
 #. src/web/lib/site_admin.ml:950
-#. src/web/lib/site_admin.ml:941
-#. src/web/lib/site_admin.ml:933
-#. src/web/lib/site_admin.ml:863
-#. src/web/lib/site_admin.ml:853
-#. src/web/lib/site_admin.ml:826
-#. src/web/lib/site_admin.ml:710
-#. src/web/lib/site_admin.ml:509
-#. src/web/lib/site_admin.ml:436
-#. src/web/lib/site_admin.ml:396
-#. src/web/lib/site_admin.ml:379
-#. src/web/lib/site_admin.ml:366
-#. src/web/lib/site_admin.ml:341
-#. src/web/lib/site_admin.ml:278
+#. src/web/lib/site_admin.ml:942
+#. src/web/lib/site_admin.ml:872
+#. src/web/lib/site_admin.ml:862
+#. src/web/lib/site_admin.ml:835
+#. src/web/lib/site_admin.ml:719
+#. src/web/lib/site_admin.ml:518
+#. src/web/lib/site_admin.ml:445
+#. src/web/lib/site_admin.ml:405
+#. src/web/lib/site_admin.ml:388
+#. src/web/lib/site_admin.ml:375
+#. src/web/lib/site_admin.ml:350
+#. src/web/lib/site_admin.ml:287
+#. src/web/lib/site_admin.ml:285
 #. src/web/lib/site_admin.ml:180
 #. src/web/lib/site_admin.ml:111
 msgid "Error"
@@ -846,8 +847,8 @@ msgstr ""
 "Pentru alegeri adevarate, cheia trebuie sa fie impartita intre autoritatile "
 "de descifrare independente."
 
-#: src/web/lib/site_admin.ml:1339 src/web/lib/site_admin.ml:1336
-#. src/web/lib/site_admin.ml:1034
+#: src/web/lib/site_admin.ml:1348 src/web/lib/site_admin.ml:1345
+#. src/web/lib/site_admin.ml:1043
 msgid "Forbidden"
 msgstr "Interzis"
 
@@ -924,7 +925,7 @@ msgstr "Importarea autoritatilor de descifrare de la o alegere existenta"
 msgid "Import voters from another election"
 msgstr "Importarea alegatorilor de la o alegere existenta"
 
-#: src/web/lib/site_admin.ml:983
+#: src/web/lib/site_admin.ml:992
 msgid "Imported trustees are invalid for this election!"
 msgstr ""
 "Autoritatile de descifrare importate nu sunt valide pentru aceasta alegere !"
@@ -941,7 +942,7 @@ msgstr ""
 "Alegatorii importati au aceeasi parola ca pentru alegerea initiala, astfel "
 "ca nici un nou email nu va fi trimis."
 
-#: src/web/lib/site_admin.ml:984
+#: src/web/lib/site_admin.ml:993
 msgid "Inconsistency in imported election!"
 msgstr "Alegerea importata este inconsistenta !"
 
@@ -978,11 +979,11 @@ msgstr "Numar maxim de optiuni invalid"
 msgid "Invalid minimum number of choices"
 msgstr "Numar minim de optiuni invalid"
 
-#: src/web/lib/site_admin.ml:862
+#: src/web/lib/site_admin.ml:871
 msgid "Invalid public key!"
 msgstr "Cheie publica invalida !"
 
-#: src/web/lib/site_admin.ml:358
+#: src/web/lib/site_admin.ml:367
 msgid "Invalid public name for credential authority!"
 msgstr "Nume public invalid pentru autoritatea de descifrare !"
 
@@ -1135,7 +1136,7 @@ msgstr "Nu"
 msgid "No contact was set!"
 msgstr "Nici un contact nu a fost mentionat!"
 
-#: src/web/lib/site_admin.ml:397
+#: src/web/lib/site_admin.ml:406
 msgid "No such language: %s"
 msgstr "Limba necunoscuta:%s"
 
@@ -1145,13 +1146,17 @@ msgstr ""
 "Nici o autoritate de descifrare nu a fost data. Asta inseamna ca serverul va "
 "gestiona el insusi cheia alegerii."
 
-#: src/web/lib/site_admin.ml:783 src/web/lib/pages_admin.ml:1329
+#: src/web/lib/site_admin.ml:792 src/web/lib/pages_admin.ml:1329
 msgid "No voters"
 msgstr "Nici un alegator"
 
 #: src/web/lib/pages_admin.ml:2496
 msgid "Nobody voted!"
 msgstr "Nimeni nu a votat !"
+
+#: src/web/lib/site_admin.ml:287
+msgid "Non-empty CAS server, but CAS authentication not selected!"
+msgstr ""
 
 #: src/web/lib/pages_admin.ml:1888 src/web/lib/pages_admin.ml:1865
 msgid "Not applicable"
@@ -1272,7 +1277,7 @@ msgstr "Descifrare partiala #%d"
 msgid "Password sent?"
 msgstr "Parola a fost trimisa ?"
 
-#: src/web/lib/site_admin.ml:481
+#: src/web/lib/site_admin.ml:490
 msgid "Passwords have been generated and mailed!"
 msgstr "Parolele au fost generate si trimise prin email!"
 
@@ -1292,7 +1297,7 @@ msgstr "Informatii despre procesarea datelor personale"
 msgid "Please "
 msgstr "Va rugam "
 
-#: src/web/lib/site_admin.ml:1539
+#: src/web/lib/site_admin.ml:1548
 msgid "Please add some trustees first!"
 msgstr "Va rugam sa adaugati mai intai cateva autoritati de descifrare !"
 
@@ -1589,16 +1594,16 @@ msgstr "Trimite cheia publica"
 msgid "Submit your public key using the button below."
 msgstr "Trimite cheia publica folosind butonul de mai jos."
 
-#: src/web/lib/site_admin.ml:1488 src/web/lib/site_admin.ml:1398
-#. src/web/lib/site_admin.ml:870
-#. src/web/lib/site_admin.ml:778
-#. src/web/lib/site_admin.ml:505
-#. src/web/lib/site_admin.ml:480
-#. src/web/lib/site_admin.ml:364
+#: src/web/lib/site_admin.ml:1497 src/web/lib/site_admin.ml:1407
+#. src/web/lib/site_admin.ml:879
+#. src/web/lib/site_admin.ml:787
+#. src/web/lib/site_admin.ml:514
+#. src/web/lib/site_admin.ml:489
+#. src/web/lib/site_admin.ml:373
 msgid "Success"
 msgstr "Succes"
 
-#: src/admin/admin.ml:202 src/web/lib/pages_admin.ml:1800
+#: src/admin/admin.ml:206 src/web/lib/pages_admin.ml:1800
 #. src/web/lib/pages_admin.ml:239
 msgid "Tallied elections"
 msgstr "Alegeri la care s-au numarat voturile"
@@ -1620,11 +1625,11 @@ msgstr "- "
 msgid "The account creation "
 msgstr "Crearea contului "
 
-#: src/web/lib/site_admin.ml:1847
+#: src/web/lib/site_admin.ml:1856
 msgid "The account has been created."
 msgstr "Contul a fost creat."
 
-#: src/web/lib/site_admin.ml:787
+#: src/web/lib/site_admin.ml:796
 msgid "The authority is not the server"
 msgstr ""
 
@@ -1636,11 +1641,11 @@ msgstr "Schimbarea "
 msgid "The creation failed."
 msgstr "Crearea a esuat."
 
-#: src/web/lib/site_admin.ml:781
+#: src/web/lib/site_admin.ml:790
 msgid "The credentials were already sent"
 msgstr ""
 
-#: src/web/lib/site_admin.ml:1061
+#: src/web/lib/site_admin.ml:1070
 msgid "The date must be less than %d days in the future!"
 msgstr "Data nu trebuie sa fie la mai mult de %d zile in viitor !"
 
@@ -1650,7 +1655,7 @@ msgstr "Data nu trebuie sa fie la mai mult de %d zile in viitor !"
 msgid "The election administrator"
 msgstr "Administratorul alegerii"
 
-#: src/web/lib/site_admin.ml:1338
+#: src/web/lib/site_admin.ml:1347
 msgid "The election has already been tallied."
 msgstr "Voturile au fost numarate pentru aceasta alegere."
 
@@ -1658,11 +1663,11 @@ msgstr "Voturile au fost numarate pentru aceasta alegere."
 msgid "The election is closed. No one can vote."
 msgstr "Alegerea s-a terminat. Nimeni nu mai poate vota."
 
-#: src/web/lib/site_admin.ml:1291
+#: src/web/lib/site_admin.ml:1300
 msgid "The election is not archived!"
 msgstr "Alegerea nu a fost arhivata !"
 
-#: src/web/lib/site_admin.ml:1335
+#: src/web/lib/site_admin.ml:1344
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr ""
 "Voturile nu pot acum sa fie numarate pentru aceasta alegere. Va rugam sa "
@@ -1676,11 +1681,11 @@ msgstr "Alegerea este acum terminata."
 msgid "The election is open. Voters can vote."
 msgstr "Alegerea este in curs de desfasurare. Alegatorii pot vota."
 
-#: src/web/lib/site_admin.ml:771 src/web/lib/site_admin.ml:453
+#: src/web/lib/site_admin.ml:780 src/web/lib/site_admin.ml:462
 msgid "The election name has not been edited!"
 msgstr "Numele alegerii nu a fost modificat !"
 
-#: src/web/lib/site_admin.ml:433
+#: src/web/lib/site_admin.ml:442
 msgid "The election name must be %d characters or less!"
 msgstr "Numele alegerii trebuie sa aiba %d caractere sau mai putin !"
 
@@ -1720,11 +1725,11 @@ msgstr "Link-ul catre alegere va fi :"
 msgid "The page also contains instructions for checking the voting record, after the tally."
 msgstr ""
 
-#: src/web/lib/site_admin.ml:1404
+#: src/web/lib/site_admin.ml:1413
 msgid "The partial decryption didn't pass validation!"
 msgstr "Descifrare partiala nu a trecut etapa de validare !"
 
-#: src/web/lib/site_admin.ml:1872
+#: src/web/lib/site_admin.ml:1881
 msgid "The password has been changed."
 msgstr "Parola a fost schimbara."
 
@@ -1736,7 +1741,7 @@ msgstr ""
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr ""
 
-#: src/web/lib/site_admin.ml:363
+#: src/web/lib/site_admin.ml:372
 msgid "The public name of the credential authority has been set successfully!"
 msgstr "Numele public al autoritatii de descifrare a fost definit cu succes !"
 
@@ -1746,17 +1751,17 @@ msgstr ""
 "A doua cutie este acum plina cu material criptografic. Va rugam sa apasati "
 "pe butonul \"Trimite\"."
 
-#: src/web/lib/site_admin.ml:1488
+#: src/web/lib/site_admin.ml:1497
 msgid "The shuffle has been successfully applied!"
 msgstr "Etapa de amestecare s-a aplicat cu succes !"
 
-#: src/web/lib/site_admin.ml:1543
+#: src/web/lib/site_admin.ml:1552
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
 "Pragul trebuie sa fie pozitiv si mai mic decat numarul de autoritati de "
 "descifrare!"
 
-#: src/web/lib/site_admin.ml:944 src/web/lib/site_admin.ml:622
+#: src/web/lib/site_admin.ml:953 src/web/lib/site_admin.ml:631
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 
@@ -1764,11 +1769,11 @@ msgstr ""
 msgid "The voter has to choose between "
 msgstr "Alegatorul trebuie sa aleaga intre "
 
-#: src/web/lib/site_admin.ml:628
+#: src/web/lib/site_admin.ml:637
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr ""
 
-#: src/web/lib/site_admin.ml:646
+#: src/web/lib/site_admin.ml:655
 msgid "There are too many voters (max is %d)"
 msgstr "Sunt prea multi alegatori (numarul maximal este %d)"
 
@@ -1796,7 +1801,7 @@ msgstr ""
 msgid "There will be 3 steps."
 msgstr "Vor fi 3 etape."
 
-#: src/web/lib/site_admin.ml:1906
+#: src/web/lib/site_admin.ml:1915
 msgid "This account does not exist"
 msgstr ""
 
@@ -1834,7 +1839,7 @@ msgstr ""
 "E vorba de o lista de limbi, separate prin virgule, care vor fi utilizate in "
 "email-urile trimise de catre server."
 
-#: src/web/lib/site_admin.ml:535
+#: src/web/lib/site_admin.ml:544
 msgid "This kind of change is not allowed now!"
 msgstr "Acest fel de schimbare nu este permis acum!"
 
@@ -1922,7 +1927,7 @@ msgstr "Autoritatile de descifrare ?"
 msgid "Type the password again: "
 msgstr "Introduceti parola din nou: "
 
-#: src/web/lib/site_admin.ml:986
+#: src/web/lib/site_admin.ml:995
 msgid "Unsupported trustees!"
 msgstr "Autoritati de descifrare care nu beneficiaza de suport !"
 
@@ -2017,7 +2022,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Da"
 
-#: src/web/lib/site_admin.ml:1033
+#: src/web/lib/site_admin.ml:1042
 msgid "You are not allowed to administer this election!"
 msgstr "Nu aveti voie sa administrati aceasta alegere !"
 
@@ -2029,15 +2034,15 @@ msgstr "Puteti de asemenea accesa "
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/lib/site_admin.ml:1767
+#: src/web/lib/site_admin.ml:1776
 msgid "You cannot change your password now. Please try later."
 msgstr "Nu puteti schimba parola acum. Incercati mai tarziu."
 
-#: src/web/lib/site_admin.ml:1726
+#: src/web/lib/site_admin.ml:1735
 msgid "You cannot create an account now. Please try later."
 msgstr "Nu puteti crea contul acum. Incercati mai tarziu."
 
-#: src/web/lib/site_admin.ml:354
+#: src/web/lib/site_admin.ml:363
 msgid "You cannot set the credential authority for this election!"
 msgstr ""
 "Nu puteti defini autoritatea de generare de coduri de vot pentru aceasta "
@@ -2074,7 +2079,7 @@ msgstr ""
 "Trebuie sa inregistrati aceasta amprenta si sa verificati ca nu apare pe "
 "pagina cu rezultatele alegerii."
 
-#: src/web/lib/site_admin.ml:380
+#: src/web/lib/site_admin.ml:389
 msgid "You must select at least one language!"
 msgstr "Trebuie sa alegeti cel putin o limba !"
 
@@ -2136,19 +2141,19 @@ msgstr ""
 "cand alegerea va incepe. Va fi nevoie de cheia privata pentru a decripta "
 "rezultatele alegerii."
 
-#: src/web/lib/site_admin.ml:869
+#: src/web/lib/site_admin.ml:878
 msgid "Your key has been received and checked!"
 msgstr "S-a primit si verificat cheia dvoastra !"
 
-#: src/web/lib/site_admin.ml:1327
+#: src/web/lib/site_admin.ml:1336
 msgid "Your partial decryption has already been received and checked!"
 msgstr "Descifrarea dvoastra partiala a fost deja primita si verificata !"
 
-#: src/web/lib/site_admin.ml:1399
+#: src/web/lib/site_admin.ml:1408
 msgid "Your partial decryption has been received and checked!"
 msgstr "Descifrarea dvoastra partiala a fost primita si verificata !"
 
-#: src/web/lib/site_admin.ml:825
+#: src/web/lib/site_admin.ml:834
 msgid "Your public key has already been received!"
 msgstr "Cheia dvoastra publica a fost deja primita !"
 
