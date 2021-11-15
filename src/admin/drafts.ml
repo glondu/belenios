@@ -78,8 +78,8 @@ let rec show_draft_voters uuid draft container =
     let i = input [] in
     let b =
       let@ () = button "Import voters" in
-      let r = `ImportVoters (uuid_of_raw_string (Js.to_string i##.value)) in
-      let* x = post_with_token (string_of_draft_request r) "drafts/%s" uuid in
+      let r = `Import (uuid_of_raw_string (Js.to_string i##.value)) in
+      let* x = post_with_token (string_of_voters_request r) "drafts/%s/voters" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
     in

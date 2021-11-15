@@ -126,12 +126,15 @@ type status = {
 type draft_request =
   [ SetDownloaded
   | ValidateElection
-  | ImportVoters of uuid
   ]
 
 type trustees_request =
   [ Add of trustee
   | Import of uuid
+  ]
+
+type voters_request =
+  [ Import of uuid
   ]
 
 type state =

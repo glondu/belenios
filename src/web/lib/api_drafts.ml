@@ -1001,17 +1001,6 @@ let post_draft_status account uuid se = function
   | `ValidateElection ->
      let* () = validate_election account uuid se in
      ok
-  | `ImportVoters from ->
-     begin
-       let@ _ = check_owner account from in
-       let* x = import_voters uuid se from in
-       match x with
-       | Ok () -> ok
-       | Stdlib.Error `Forbidden -> forbidden
-       | Stdlib.Error `NotFound -> not_found
-       | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
-       | Stdlib.Error (`Duplicate x) -> Lwt.fail (Error ("duplicate: " ^ x))
-     end
 
 let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   match endpoint with
@@ -1072,6 +1061,22 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             let* () = put_draft_voters uuid se voters in
             ok
           )
+       | `POST, `Administrator account ->
+          let@ () = handle_ifmatch ifmatch get in
+          let@ request = body.run voters_request_of_string in
+          let@ () = handle_generic_error in
+          begin
+            match request with
+            | `Import from ->
+               let@ _ = check_owner account from in
+               let* x = import_voters uuid se from in
+               match x with
+               | Ok () -> ok
+               | Stdlib.Error `Forbidden -> forbidden
+               | Stdlib.Error `NotFound -> not_found
+               | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
+               | Stdlib.Error (`Duplicate x) -> Lwt.fail (Error ("duplicate: " ^ x))
+          end
        | _ -> method_not_allowed
      end
   | ["passwords"] ->

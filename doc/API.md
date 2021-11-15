@@ -55,6 +55,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> voter_list (administrator or credential authority)
 * `PUT`: voter_list -> unit (administrator)
+* `POST`: voters_request -> unit (administrator)
 
 ## `drafts/$UUID/passwords` (administrator)
 
