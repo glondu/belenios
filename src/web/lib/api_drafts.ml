@@ -1012,23 +1012,6 @@ let post_draft_status account uuid se = function
        | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
        | Stdlib.Error (`Duplicate x) -> Lwt.fail (Error ("duplicate: " ^ x))
      end
-  | `ImportTrustees from ->
-     begin
-       let@ metadata = check_owner account from in
-       let* x = import_trustees uuid se from metadata in
-       match x with
-       | Ok _ -> ok
-       | Stdlib.Error e ->
-          let msg =
-            match e with
-            | `None -> "none"
-            | `Invalid -> "invalid"
-            | `Inconsistent -> "inconsistent"
-            | `MissingPrivateKeys -> "missing private keys"
-            | `Unsupported -> "unsupported"
-          in
-          Lwt.fail (Error msg)
-     end
 
 let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   match endpoint with
@@ -1174,7 +1157,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
      end
   | ["trustees"] ->
      begin
-       let@ _ = with_administrator token se in
+       let@ account = with_administrator token se in
        let get () =
          let x = get_draft_trustees se in
          Lwt.return @@ string_of_trustees x
@@ -1183,10 +1166,29 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
        | `GET -> handle_get get
        | `POST ->
           let@ () = handle_ifmatch ifmatch get in
-          let@ trustee = body.run trustee_of_string in
+          let@ request = body.run trustees_request_of_string in
           let@ () = handle_generic_error in
-          let* () = post_draft_trustees uuid se trustee in
-          ok
+          begin
+            match request with
+            | `Add trustee ->
+               let* () = post_draft_trustees uuid se trustee in
+               ok
+            | `Import from ->
+               let@ metadata = check_owner account from in
+               let* x = import_trustees uuid se from metadata in
+               match x with
+               | Ok _ -> ok
+               | Stdlib.Error e ->
+                  let msg =
+                    match e with
+                    | `None -> "none"
+                    | `Invalid -> "invalid"
+                    | `Inconsistent -> "inconsistent"
+                    | `MissingPrivateKeys -> "missing private keys"
+                    | `Unsupported -> "unsupported"
+                  in
+                  Lwt.fail (Error msg)
+          end
        | _ -> method_not_allowed
      end
   | ["trustees"; trustee] ->

@@ -127,7 +127,11 @@ type draft_request =
   [ SetDownloaded
   | ValidateElection
   | ImportVoters of uuid
-  | ImportTrustees of uuid
+  ]
+
+type trustees_request =
+  [ Add of trustee
+  | Import of uuid
   ]
 
 type state =

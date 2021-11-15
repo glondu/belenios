@@ -74,7 +74,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `drafts/$UUID/trustees` (administrator)
 
 * `GET`: unit -> trustees
-* `POST`: trustee -> unit
+* `POST`: trustees_request -> unit
 
 ## `drafts/$UUID/trustees/$ADDRESS` (administrator)
 
