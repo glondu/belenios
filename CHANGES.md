@@ -1,3 +1,25 @@
+dev
+===
+
+ * Specification:
+   + Clarify the fact that some actions are done by the server and not
+     the administrator
+ * Web server:
+   + Fix a deadlock issue with automatic open/close
+   + Fix various case sensitivity issues in logins
+   + Ensure the private key has been downloaded when submitting the
+     public key
+   + Check owner of source election when importing voters or trustees
+   + New experimental REST API for administrative operations
+     - Experimental single-page application for administrators using
+       this API
+   + Remove support for old-style (pre-1.11) trustees
+   + Reduce static information on the admin voter page
+   + Add a configuration option to deny revotes
+   + Add possibility of multiple owners for an election
+   + Issue an error when CAS has not been selected, but a server was
+     given
+
 1.17 (2021-09-07)
 =================
 
