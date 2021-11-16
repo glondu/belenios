@@ -40,19 +40,71 @@ module Make (Web_auth : Web_auth_sig.S) = struct
       ~service:(preapply ~service:login_cas (state, None))
       () |> rewrite_prefix
 
-  let parse_cas_validation info =
+  let extract tag xs =
+    let rec loop = function
+      | [] -> None
+      | x :: xs ->
+         match x with
+         | Xml.Element (tag', _, children) when tag = tag' -> Some children
+         | _ -> loop xs
+    in
+    loop xs
+
+  let extract_pcdata = function
+    | [Xml.PCData x] -> Some x
+    | _ -> None
+
+  let parse_cas_validation_v2 info =
+    let ( >>= ) = Option.bind and ( let* ) = Option.bind in
+    try
+      let* info =
+        Some [Xml.parse_string info]
+        >>= extract "cas:serviceResponse"
+        >>= extract "cas:authenticationSuccess"
+      in
+      let* user =
+        extract "cas:user" info
+        >>= extract_pcdata
+      in
+      let mail =
+        extract "cas:attributes" info
+        >>= extract "cas:mail"
+        >>= extract_pcdata
+      in
+      let mail = match mail with Some x -> x | None -> "" in
+      Some (user, mail)
+    with _ -> None
+
+  let get_cas_validation_v2 server ~state ticket =
+    let url =
+      let cas_validate = Eliom_service.extern
+                           ~prefix:server
+                           ~path:["serviceValidate"]
+                           ~meth:(Eliom_service.Get Eliom_parameter.(string "service" ** string "ticket"))
+                           ()
+      in
+      let service = preapply ~service:cas_validate (cas_self ~state, ticket) in
+      Eliom_uri.make_string_uri ~absolute:true ~service ()
+    in
+    let* r, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
+    if Cohttp.(Code.code_of_status (Response.status r)) = 200 then (
+      let* info = Cohttp_lwt.Body.to_string body in
+      return @@ parse_cas_validation_v2 info
+    ) else return_none
+
+  let parse_cas_validation_v1 info =
     match next_lf info 0 with
     | Some i ->
        (match String.sub info 0 i with
         | "yes" -> `Yes
                      (match next_lf info (i+1) with
-                      | Some j -> Some (String.sub info (i+1) (j-i-1))
+                      | Some j -> Some (String.sub info (i+1) (j-i-1), "")
                       | None -> None)
         | "no" -> `No
         | _ -> `Error `Parsing)
     | None -> `Error `Parsing
 
-  let get_cas_validation server ~state ticket =
+  let get_cas_validation_v1 server ~state ticket =
     let url =
       let cas_validate = Eliom_service.extern
                            ~prefix:server
@@ -65,7 +117,13 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     in
     let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* info = Cohttp_lwt.Body.to_string body in
-    return (parse_cas_validation info)
+    return (parse_cas_validation_v1 info)
+
+  let get_cas_validation server ~state ticket =
+    let* v2 = get_cas_validation_v2 server ~state ticket in
+    match v2 with
+    | None -> get_cas_validation_v1 server ~state ticket
+    | Some _ -> return @@ `Yes v2
 
   let cas_login_handler _ _ a ~state =
     match List.assoc_opt "server" a.Web_serializable_t.auth_config with
@@ -92,7 +150,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
           | Some x, Some server ->
              let* r = get_cas_validation server ~state x in
              (match r with
-              | `Yes (Some name) -> cont (Some (name, ""))
+              | `Yes (Some name_and_email) -> cont (Some name_and_email)
               | `No -> cont None
               | `Yes None | `Error _ -> fail_http `Bad_gateway
              )
