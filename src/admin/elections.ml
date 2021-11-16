@@ -44,7 +44,7 @@ let rec show main uuid =
   let button_delete =
     let@ () = button "Delete election" in
     if confirm "Are you sure?" then (
-      let* x = delete_with_token "elections/%s" uuid in
+      let* x = delete_with_token ?ifmatch "elections/%s" uuid in
       let@ () = show_in main in
       let@ () = generic_proceed x in
       Dom_html.window##.location##.hash := Js.string "";

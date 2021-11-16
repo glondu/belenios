@@ -72,9 +72,14 @@ let get_api_token () =
     Lwt.return_false
   )
 
-let delete_with_token url =
+let delete_with_token ?ifmatch url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ !api_token] in
+  let ifmatch =
+    match ifmatch with
+    | Some x -> ["If-Match", x]
+    | None -> []
+  in
+  let headers = ("Authorization", "Bearer " ^ !api_token) :: ifmatch in
   Printf.ksprintf (fun x -> perform_raw_url ~headers ~override_method:`DELETE (api_root ^ x)) url
 
 let put_with_token ~ifmatch x url =
