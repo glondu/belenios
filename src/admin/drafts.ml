@@ -67,8 +67,8 @@ let rec show_draft_voters uuid draft container =
   let t = textarea () in
   let voters_str = string_of_voter_list voters in
   t##.value := Js.string voters_str;
+  let ifmatch = sha256_b64 voters_str in
   let b =
-    let ifmatch = sha256_b64 voters_str in
     let@ () = button "Save changes" in
     let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s/voters" uuid in
     let@ () = show_in container in
@@ -79,7 +79,7 @@ let rec show_draft_voters uuid draft container =
     let b =
       let@ () = button "Import voters" in
       let r = `Import (uuid_of_raw_string (Js.to_string i##.value)) in
-      let* x = post_with_token (string_of_voters_request r) "drafts/%s/voters" uuid in
+      let* x = post_with_token ~ifmatch (string_of_voters_request r) "drafts/%s/voters" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
     in
@@ -92,6 +92,7 @@ let rec show_draft_passwords uuid container =
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
   let@ voters = with_ok "voters" x in
   let* x = get voter_list_of_string "drafts/%s/passwords" uuid in
+  let ifmatch = compute_ifmatch string_of_voter_list x in
   let@ x = with_ok "passwords" x in
   let missing =
     let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
@@ -103,7 +104,7 @@ let rec show_draft_passwords uuid container =
   t2##.value := Js.string (string_of_voter_list missing);
   let b =
     let@ () = button "Generate and send passwords" in
-    let* x = post_with_token (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
+    let* x = post_with_token ?ifmatch (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_passwords uuid container)
   in
@@ -112,13 +113,14 @@ let rec show_draft_passwords uuid container =
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
   let* x = get credentials_of_string "drafts/%s/credentials" uuid in
+  let ifmatch = compute_ifmatch string_of_credentials x in
   let@ x = with_ok "credentials" x in
   match x.credentials_public, x.credentials_token with
   | None, None ->
      let b =
        let@ () = button "Generate on server" in
        let op = string_of_credential_list [] in
-       let* x = post_with_token op "drafts/%s/credentials" uuid in
+       let* x = post_with_token ?ifmatch op "drafts/%s/credentials" uuid in
        let@ () = show_in container in
        generic_proceed x (fun () -> show_draft_credentials uuid container)
      in
@@ -142,6 +144,7 @@ let rec show_draft_credentials uuid container =
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* x = get trustees_of_string "drafts/%s/trustees" uuid in
+  let ifmatch = compute_ifmatch string_of_trustees x in
   let@ trustees = with_ok "trustees" x in
   let* mode, mode_str =
     let* x = get trustees_mode_of_string "drafts/%s/trustees-mode" uuid in
@@ -189,7 +192,7 @@ let rec show_draft_trustees uuid container =
   let b =
     let@ () = button "Add trustee" in
     let r = `Add (trustee_of_string (Js.to_string t2##.value)) in
-    let* x = post_with_token (string_of_trustees_request r) "drafts/%s/trustees" uuid in
+    let* x = post_with_token ?ifmatch (string_of_trustees_request r) "drafts/%s/trustees" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
@@ -198,7 +201,7 @@ let rec show_draft_trustees uuid container =
     let b =
       let@ () = button "Import trustees" in
       let r = `Import (uuid_of_raw_string (Js.to_string i##.value)) in
-      let* x = post_with_token (string_of_trustees_request r) "drafts/%s/trustees" uuid in
+      let* x = post_with_token ?ifmatch (string_of_trustees_request r) "drafts/%s/trustees" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in

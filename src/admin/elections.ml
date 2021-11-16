@@ -33,10 +33,11 @@ let rec show main uuid =
   let* x = get (fun x -> x) "elections/%s/election" uuid in
   let@ raw_election = with_ok "election" x in
   let* x = get election_status_of_string "elections/%s" uuid in
+  let ifmatch = compute_ifmatch string_of_election_status x in
   let@ status = with_ok "status" x in
   let make label request =
     let@ () = button label in
-    let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+    let* x = post_with_token ?ifmatch (string_of_admin_request request) "elections/%s" uuid in
     let@ () = show_in main in
     generic_proceed x (fun () -> show main uuid)
   in
@@ -103,7 +104,7 @@ let rec show main uuid =
     let set_button =
       let@ () = button "Regenerate a password" in
       let request = `RegeneratePassword (Js.to_string i##.value) in
-      let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+      let* x = post_with_token ?ifmatch (string_of_admin_request request) "elections/%s" uuid in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
@@ -114,7 +115,7 @@ let rec show main uuid =
     let set_button =
       let@ () = button "Set postpone date" in
       let request = `SetPostponeDate (get_date i) in
-      let* x = post_with_token (string_of_admin_request request) "elections/%s" uuid in
+      let* x = post_with_token ?ifmatch (string_of_admin_request request) "elections/%s" uuid in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in

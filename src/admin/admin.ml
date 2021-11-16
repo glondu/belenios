@@ -110,8 +110,9 @@ let rec show_root main =
     in
     Lwt.return [node @@ div [node t]; node @@ div [node b]]
   in
+  let* x = get summary_list_of_string "drafts" in
+  let ifmatch = compute_ifmatch string_of_summary_list x in
   let* drafts =
-    let* x = get summary_list_of_string "drafts" in
     let@ drafts = with_ok "drafts" x in
     drafts
     |> List.sort (fun a b -> compare b.summary_date a.summary_date)
@@ -174,7 +175,7 @@ let rec show_root main =
     in
     let b =
       let@ () = button "Create new draft" in
-      let* x = post_with_token (Js.to_string t##.value) "drafts" |> wrap uuid_of_string in
+      let* x = post_with_token ?ifmatch (Js.to_string t##.value) "drafts" |> wrap uuid_of_string in
       match x with
       | Ok uuid ->
          Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ raw_string_of_uuid uuid);

@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Belenios_platform.Platform
 open Belenios_core.Common
 open Belenios_tool_js_common
 open Tool_js_html
@@ -86,9 +87,14 @@ let put_with_token ~ifmatch x url =
   let contents = `String x in
   Printf.ksprintf (fun x -> perform_raw_url ~headers ~contents ~override_method:`PUT (api_root ^ x)) url
 
-let post_with_token x url =
+let post_with_token ?ifmatch x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ !api_token] in
+  let ifmatch =
+    match ifmatch with
+    | Some x -> ["If-Match", x]
+    | None -> []
+  in
+  let headers = ("Authorization", "Bearer " ^ !api_token) :: ifmatch in
   let contents = `String x in
   Printf.ksprintf (fun x -> perform_raw_url ~headers ~contents ~override_method:`POST (api_root ^ x)) url
 
@@ -145,3 +151,8 @@ let with_ok_opt what x f =
   | Ok x ->
      let* y = f x in
      Lwt.return (y, Some x)
+
+let compute_ifmatch to_string x =
+  match x with
+  | Error _ -> None
+  | Ok x -> Some (x |> to_string |> sha256_b64)
