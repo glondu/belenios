@@ -427,7 +427,7 @@ let createBoothSelector booth_version =
   Dom.appendChild line2 i1;
   let line3 = Dom_html.createDiv document in
   Dom.appendChild container line3;
-  let r2, i2 = createRadioItem name (booth_version = 2) (s_ "new interface (more elegant, still under test)") in
+  let r2, i2 = createRadioItem name (booth_version = 2) (s_ "new interface") in
   Dom.appendChild line3 i2;
   let get () = if Js.to_bool r2##.checked then 2 else 1 in
   let set = function

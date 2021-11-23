@@ -224,7 +224,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         draft_questions;
         draft_languages = ["en"; "fr"];
         draft_contact = Some (Printf.sprintf "%s <%s>" account.account_name account.account_email);
-        draft_booth = 1;
+        draft_booth = 2;
         draft_authentication;
         draft_group = !Web_config.default_group;
       }
