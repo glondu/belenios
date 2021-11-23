@@ -2272,7 +2272,7 @@ msgstr "plus d'information"
 
 #: src/tool/js/tool_js_questions.ml:430
 msgid "new interface"
-msgstr ""
+msgstr "nouvelle interface"
 
 #: src/web/lib/pages_admin.ml:2837
 msgid "of an unknown reason"

@@ -2218,7 +2218,7 @@ msgstr "více informací"
 
 #: src/tool/js/tool_js_questions.ml:430
 msgid "new interface"
-msgstr ""
+msgstr "nové rozhraní"
 
 #: src/web/lib/pages_admin.ml:2837
 msgid "of an unknown reason"
