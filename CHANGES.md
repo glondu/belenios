@@ -19,6 +19,8 @@ dev
    + Add possibility of multiple owners for an election
    + Issue an error when CAS has not been selected, but a server was
      given
+   + Add support for CAS Protocol 2.0
+   + Use new booth by default
 
 1.17 (2021-09-07)
 =================
