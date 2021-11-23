@@ -334,10 +334,24 @@ let send_email kind ~recipient ~subject ~body =
   in loop 2
 
 let available_languages = [
-    "en"; "fr"; "de"; "ro"; "it";
-    "nb"; "es"; "uk"; "cs"; "oc";
-    "pt_BR"; "el"; "nl"; "sk"; "fi";
-    "pl"; "ar"; "ms";
+    "ar";
+    "cs";
+    "de";
+    "el";
+    "en";
+    "es";
+    "fi";
+    "fr";
+    "it";
+    "ms";
+    "nb";
+    "nl";
+    "oc";
+    "pl";
+    "pt_BR";
+    "ro";
+    "sk";
+    "uk";
   ]
 
 let get_languages xs =
