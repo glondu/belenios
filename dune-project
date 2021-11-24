@@ -1,6 +1,6 @@
 (lang dune 2.7)
 (name belenios)
-(version 1.17)
+(version 1.18)
 
 (generate_opam_files true)
 

@@ -1,5 +1,5 @@
-dev
-===
+1.18 (2021-11-24)
+=================
 
  * Specification:
    + Clarify the fact that some actions are done by the server and not
