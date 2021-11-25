@@ -52,6 +52,15 @@ def is_test(elec_path):
         return True
     return False
 
+# wrapper around strptime, because 2 formats can exist (change between
+# 1.17 and 1.18)
+def parse_date(s):
+    try:
+        d = datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError:
+        d = datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+    return d
+
 def is_old(elec_path):
     dates = os.path.join(elec_path, "dates.json")
     assert os.path.exists(dates)
@@ -62,13 +71,13 @@ def is_old(elec_path):
     now = datetime.datetime.now()
     if 'tally' in data:
         tallied = data['tally']
-        tt = datetime.datetime.strptime(tallied, "%Y-%m-%d %H:%M:%S.%f")
+        tt = parse_date(tallied)
         age = now-tt
         if age > datetime.timedelta(days=MAX_TALLIED_AGE):
             return True
     else: # not tallied, but finalized for a long time ?
         finalized = data['finalization']
-        tt = datetime.datetime.strptime(finalized, "%Y-%m-%d %H:%M:%S.%f")
+        tt = parse_date(finalized)
         age = now-tt
         if age > datetime.timedelta(days=MAX_FINALIZED_AGE):
             return True
