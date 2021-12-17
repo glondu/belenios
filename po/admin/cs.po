@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2021-09-09 06:56+0000\n"
+"PO-Revision-Date: 2021-11-25 09:52+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/admin/cs/>"
 "\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.8.1-dev\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/web/lib/pages_admin.ml:2068
 msgid " You may re-open the election when it is closed."
@@ -63,9 +62,9 @@ msgstr " v následujícím poli: "
 msgid " instead of "
 msgstr " namísto "
 
-#: src/web/lib/pages_admin.ml:2288 src/web/lib/pages_admin.ml:2192
 #. src/web/lib/pages_admin.ml:947
 #. src/web/lib/pages_admin.ml:781
+#: src/web/lib/pages_admin.ml:2288 src/web/lib/pages_admin.ml:2192
 msgid " is:"
 msgstr " , je:"
 
@@ -145,8 +144,8 @@ msgstr "(nedostupno)"
 msgid "(or "
 msgstr "(nebo "
 
-#: src/web/lib/pages_admin.ml:2256 src/web/lib/pages_admin.ml:2256
 #. src/web/lib/pages_admin.ml:750
+#: src/web/lib/pages_admin.ml:2256 src/web/lib/pages_admin.ml:2256
 msgid "(server)"
 msgstr "(server)"
 
@@ -244,8 +243,8 @@ msgstr "Účet nenalezen"
 msgid "Account settings"
 msgstr "Nastavení účtu"
 
-#: src/web/lib/pages_admin.ml:1270 src/web/lib/pages_admin.ml:868
 #. src/web/lib/pages_admin.ml:704
+#: src/web/lib/pages_admin.ml:1270 src/web/lib/pages_admin.ml:868
 msgid "Add"
 msgstr "Přidat"
 
@@ -322,8 +321,8 @@ msgstr ""
 msgid "Answer: "
 msgstr "Odpověď: "
 
-#: src/admin/admin.ml:209 src/web/lib/pages_admin.ml:1802
 #. src/web/lib/pages_admin.ml:242
+#: src/admin/admin.ml:209 src/web/lib/pages_admin.ml:1802
 msgid "Archived elections"
 msgstr "Archivované volby"
 
@@ -387,8 +386,8 @@ msgstr "Zpět na stránku přípravy volby"
 msgid "Bad CAS server!"
 msgstr "Špatný CAS server!"
 
-#: src/web/lib/pages_admin.ml:3072 src/web/lib/pages_admin.ml:3050
 #. src/web/lib/pages_admin.ml:3028
+#: src/web/lib/pages_admin.ml:3072 src/web/lib/pages_admin.ml:3050
 msgid "Belenios Server"
 msgstr "Server Belenios"
 
@@ -408,8 +407,8 @@ msgstr "Změna hesla na serveru Belenios"
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr "Odkaz na zamíchání zašifrovaných volebních lístků naleznete níže."
 
-#: src/web/lib/pages_admin.ml:3068 src/web/lib/pages_admin.ml:3046
 #. src/web/lib/pages_admin.ml:3024
+#: src/web/lib/pages_admin.ml:3068 src/web/lib/pages_admin.ml:3046
 msgid "Best regards,"
 msgstr "S pozdravem,"
 
@@ -450,9 +449,9 @@ msgstr "Nelze rozeslat hesla, je zadáno příliš mnoho voličů (maximum je %d
 msgid "Change automatic dates"
 msgstr "Změnit automatická datumy"
 
-#: src/web/lib/site_admin.ml:1881 src/web/lib/site_admin.ml:1775
 #. src/web/lib/pages_admin.ml:2875
 #. src/web/lib/pages_admin.ml:2752
+#: src/web/lib/site_admin.ml:1881 src/web/lib/site_admin.ml:1775
 msgid "Change password"
 msgstr "Změnit heslo"
 
@@ -615,8 +614,8 @@ msgstr "Data:"
 msgid "Date/Time (UTC)"
 msgstr "Datum/Čas (UTC)"
 
-#: src/web/lib/pages_admin.ml:3059 src/web/lib/pages_admin.ml:3037
 #. src/web/lib/pages_admin.ml:3015
+#: src/web/lib/pages_admin.ml:3059 src/web/lib/pages_admin.ml:3037
 msgid "Dear %s,"
 msgstr "Milý/Milá %s,"
 
@@ -624,8 +623,8 @@ msgstr "Milý/Milá %s,"
 msgid "Dear credential authority,"
 msgstr "Milý vydavateli či milá vydavatelko přístupových kódů,"
 
-#: src/ui/mails_admin.ml:207 src/ui/mails_admin.ml:170 src/ui/mails_admin.ml:120
 #. src/ui/mails_admin.ml:71
+#: src/ui/mails_admin.ml:207 src/ui/mails_admin.ml:170 src/ui/mails_admin.ml:120
 msgid "Dear trustee,"
 msgstr "Milý garante či milá garantko,"
 
@@ -657,8 +656,8 @@ msgstr "Zničit volbu"
 msgid "Don't forget to save:"
 msgstr "Nezapomeň si uložit:"
 
-#: src/web/lib/pages_admin.ml:2325 src/web/lib/pages_admin.ml:2226
 #. src/web/lib/pages_admin.ml:800
+#: src/web/lib/pages_admin.ml:2325 src/web/lib/pages_admin.ml:2226
 msgid "Done?"
 msgstr "Hotovo?"
 
@@ -691,16 +690,18 @@ msgstr ""
 #: src/web/lib/site_admin.ml:961 src/web/lib/site_admin.ml:625
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
+"Zdvojený volič: %s. Toto není povoleno. Pokud dva voliči sdílí stejnou e-"
+"mailovou adresu, musí použít rozdílné přihlašovací údaje."
 
-#: src/web/lib/pages_admin.ml:2323 src/web/lib/pages_admin.ml:2259
 #. src/web/lib/pages_admin.ml:912
 #. src/web/lib/pages_admin.ml:798
 #. src/web/lib/pages_admin.ml:737
+#: src/web/lib/pages_admin.ml:2323 src/web/lib/pages_admin.ml:2259
 msgid "E-mail"
 msgstr "E-mail"
 
-#: src/web/lib/pages_admin.ml:2975 src/web/lib/pages_admin.ml:2730
 #. src/web/lib/pages_admin.ml:2701
+#: src/web/lib/pages_admin.ml:2975 src/web/lib/pages_admin.ml:2730
 msgid "E-mail address:"
 msgstr "E-mailová adresa:"
 
@@ -716,8 +717,8 @@ msgstr "Editovat otázky"
 msgid "Edit voters"
 msgstr "Editovat voliče"
 
-#: src/web/lib/pages_admin.ml:1829 src/web/lib/pages_admin.ml:1819
 #. src/web/lib/pages_admin.ml:1811
+#: src/web/lib/pages_admin.ml:1829 src/web/lib/pages_admin.ml:1819
 msgid "Election "
 msgstr "Volba "
 
@@ -733,8 +734,8 @@ msgstr "Volební server"
 msgid "Elections being prepared"
 msgstr "Rozpracované volby"
 
-#: src/admin/admin.ml:205 src/web/lib/pages_admin.ml:1798
 #. src/web/lib/pages_admin.ml:236
+#: src/admin/admin.ml:205 src/web/lib/pages_admin.ml:1798
 msgid "Elections you can administer"
 msgstr "Volby, které můžeš administrovat"
 
@@ -764,7 +765,6 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Zadej svůj soukromý klíč:"
 
-#: src/web/lib/site_admin.ml:1554 src/web/lib/site_admin.ml:1550
 #. src/web/lib/site_admin.ml:1502
 #. src/web/lib/site_admin.ml:1499
 #. src/web/lib/site_admin.ml:1433
@@ -792,6 +792,7 @@ msgstr "Zadej svůj soukromý klíč:"
 #. src/web/lib/site_admin.ml:285
 #. src/web/lib/site_admin.ml:180
 #. src/web/lib/site_admin.ml:111
+#: src/web/lib/site_admin.ml:1554 src/web/lib/site_admin.ml:1550
 msgid "Error"
 msgstr "Chyba"
 
@@ -845,8 +846,8 @@ msgstr ""
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr "Pro netestovací volby je nutné, aby klíč sdíleli nezávislí garanti."
 
-#: src/web/lib/site_admin.ml:1348 src/web/lib/site_admin.ml:1345
 #. src/web/lib/site_admin.ml:1043
+#: src/web/lib/site_admin.ml:1348 src/web/lib/site_admin.ml:1345
 msgid "Forbidden"
 msgstr "Zapovězeno"
 
@@ -874,10 +875,10 @@ msgstr "Vytvořit soukromý klíč"
 msgid "Generate your contribution to decryption"
 msgstr "Vytvořit můj příspěvek k dešifrování"
 
-#: src/web/lib/pages_admin.ml:2008 src/web/lib/pages_admin.ml:1344
 #. src/web/lib/pages_admin.ml:1236
 #. src/web/lib/pages_admin.ml:1045
 #. src/web/lib/pages_admin.ml:840
+#: src/web/lib/pages_admin.ml:2008 src/web/lib/pages_admin.ml:1344
 msgid "Go back to election draft"
 msgstr "Zpět na rozpracovanou volbu"
 
@@ -889,9 +890,9 @@ msgstr "Zde jsou pokyny:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Zde je odkaz, na kterém musíš přispět k vyhodnocení volby:"
 
-#: src/web/lib/pages_admin.ml:2262 src/web/lib/pages_admin.ml:2157
 #. src/web/lib/pages_admin.ml:928
 #. src/web/lib/pages_admin.ml:740
+#: src/web/lib/pages_admin.ml:2262 src/web/lib/pages_admin.ml:2157
 msgid "Hide link"
 msgstr "Skrýt odkaz"
 
@@ -953,12 +954,12 @@ msgstr "Vložit"
 msgid "Instructions"
 msgstr "Pokyny"
 
-#: src/web/lib/pages_admin.ml:2636 src/web/lib/pages_admin.ml:1703
 #. src/web/lib/pages_admin.ml:1671
 #. src/web/lib/pages_admin.ml:1536
 #. src/web/lib/pages_admin.ml:1416
 #. src/ui/mails_admin.ml:213
 #. src/ui/mails_admin.ml:177
+#: src/web/lib/pages_admin.ml:2636 src/web/lib/pages_admin.ml:1703
 msgid "Instructions:"
 msgstr "Pokyny:"
 
@@ -1002,12 +1003,12 @@ msgstr ""
 "volební rozhraní nepříliš uživatelsky přívětivé: volič musí před každou "
 "otázku napsat celé číslo."
 
-#: src/web/lib/pages_admin.ml:2324 src/web/lib/pages_admin.ml:2264
 #. src/web/lib/pages_admin.ml:2159
 #. src/web/lib/pages_admin.ml:968
 #. src/web/lib/pages_admin.ml:930
 #. src/web/lib/pages_admin.ml:799
 #. src/web/lib/pages_admin.ml:742
+#: src/web/lib/pages_admin.ml:2324 src/web/lib/pages_admin.ml:2264
 msgid "Link"
 msgstr "Odkaz"
 
@@ -1065,10 +1066,10 @@ msgstr ""
 "Minimální počet možností musí být menší nebo rovný maximálnímu počtu "
 "možností!"
 
-#: src/web/lib/pages_admin.ml:1893 src/web/lib/pages_admin.ml:1875
 #. src/web/lib/pages_admin.ml:1869
 #. src/web/lib/pages_admin.ml:1864
 #. src/web/lib/pages_admin.ml:1846
+#: src/web/lib/pages_admin.ml:1893 src/web/lib/pages_admin.ml:1875
 msgid "Missing"
 msgstr "Chybějící"
 
@@ -1124,10 +1125,10 @@ msgstr "Jméno:"
 msgid "Name?"
 msgstr "Jméno?"
 
-#: src/web/lib/pages_admin.ml:2275 src/web/lib/pages_admin.ml:2177
 #. src/web/lib/pages_admin.ml:1920
 #. src/web/lib/pages_admin.ml:1308
 #. src/web/lib/pages_admin.ml:767
+#: src/web/lib/pages_admin.ml:2275 src/web/lib/pages_admin.ml:2177
 msgid "No"
 msgstr "Ne"
 
@@ -1155,7 +1156,7 @@ msgstr "Nikdo ještě nevolil!"
 
 #: src/web/lib/site_admin.ml:287
 msgid "Non-empty CAS server, but CAS authentication not selected!"
-msgstr ""
+msgstr "CAS server není prázdný, ale přihlašování pomocí CAS není vybráno!"
 
 #: src/web/lib/pages_admin.ml:1888 src/web/lib/pages_admin.ml:1865
 msgid "Not applicable"
@@ -1165,8 +1166,8 @@ msgstr "Nepřipadá v úvahu"
 msgid "Not downloaded."
 msgstr "Není staženo."
 
-#: src/web/lib/pages_admin.ml:1852 src/web/lib/pages_admin.ml:1840
 #. src/web/lib/pages_admin.ml:1834
+#: src/web/lib/pages_admin.ml:1852 src/web/lib/pages_admin.ml:1840
 msgid "Not edited"
 msgstr "Není editováno"
 
@@ -1184,8 +1185,8 @@ msgstr ""
 msgid "Note that:"
 msgstr "Je třeba si uvědomit následující:"
 
-#: src/web/lib/pages_admin.ml:2036 src/web/lib/pages_admin.ml:1795
 #. src/web/lib/pages_admin.ml:1446
+#: src/web/lib/pages_admin.ml:2036 src/web/lib/pages_admin.ml:1795
 msgid "Note:"
 msgstr "Pozor:"
 
@@ -1369,10 +1370,10 @@ msgstr "Náhled"
 msgid "Private credentials?"
 msgstr "Soukromé přístupové kódy?"
 
-#: src/web/lib/pages_admin.ml:2952 src/web/lib/pages_admin.ml:2929
 #. src/web/lib/pages_admin.ml:2905
 #. src/web/lib/pages_admin.ml:1711
 #. src/web/lib/pages_admin.ml:361
+#: src/web/lib/pages_admin.ml:2952 src/web/lib/pages_admin.ml:2929
 msgid "Proceed"
 msgstr "Pokračovat"
 
@@ -1460,13 +1461,13 @@ msgid "Remember to store you private key securely."
 msgstr ""
 "Bezpečně si ulož svůj soukromý klíč, bez něj nebude možné volbu vyhodnotit."
 
-#: src/tool/js/tool_js_questions.ml:241 src/tool/js/tool_js_questions.ml:151
 #. src/web/lib/pages_admin.ml:1338
 #. src/web/lib/pages_admin.ml:1279
 #. src/web/lib/pages_admin.ml:970
 #. src/web/lib/pages_admin.ml:879
 #. src/web/lib/pages_admin.ml:801
 #. src/web/lib/pages_admin.ml:714
+#: src/tool/js/tool_js_questions.ml:241 src/tool/js/tool_js_questions.ml:151
 msgid "Remove"
 msgstr "Odstranit"
 
@@ -1478,11 +1479,11 @@ msgstr "Odstranit vše"
 msgid "Reset threshold"
 msgstr "Zresetovat minimální počet aktivních garantů"
 
-#: src/tool/js/tool_js_questions.ml:497 src/web/lib/pages_admin.ml:1184
 #. src/web/lib/pages_admin.ml:510
 #. src/web/lib/pages_admin.ml:480
 #. src/web/lib/pages_admin.ml:451
 #. src/web/lib/pages_admin.ml:415
+#: src/tool/js/tool_js_questions.ml:497 src/web/lib/pages_admin.ml:1184
 msgid "Save changes"
 msgstr "Uložit změny"
 
@@ -1560,7 +1561,6 @@ msgstr "Krok %d/3"
 msgid "Step 0/3"
 msgstr "Krok 0/3"
 
-#: src/web/lib/pages_admin.ml:3001 src/web/lib/pages_admin.ml:2869
 #. src/web/lib/pages_admin.ml:2819
 #. src/web/lib/pages_admin.ml:2767
 #. src/web/lib/pages_admin.ml:2745
@@ -1571,6 +1571,7 @@ msgstr "Krok 0/3"
 #. src/web/lib/pages_admin.ml:1720
 #. src/web/lib/pages_admin.ml:1688
 #. src/web/lib/pages_admin.ml:1459
+#: src/web/lib/pages_admin.ml:3001 src/web/lib/pages_admin.ml:2869
 msgid "Submit"
 msgstr "Zadat"
 
@@ -1598,17 +1599,17 @@ msgstr "Zadat veřejný klíč"
 msgid "Submit your public key using the button below."
 msgstr "Zadej svůj veřejný klíč pomocí tlačítka níže."
 
-#: src/web/lib/site_admin.ml:1497 src/web/lib/site_admin.ml:1407
 #. src/web/lib/site_admin.ml:879
 #. src/web/lib/site_admin.ml:787
 #. src/web/lib/site_admin.ml:514
 #. src/web/lib/site_admin.ml:489
 #. src/web/lib/site_admin.ml:373
+#: src/web/lib/site_admin.ml:1497 src/web/lib/site_admin.ml:1407
 msgid "Success"
 msgstr "Úspěch"
 
-#: src/admin/admin.ml:207 src/web/lib/pages_admin.ml:1800
 #. src/web/lib/pages_admin.ml:239
+#: src/admin/admin.ml:207 src/web/lib/pages_admin.ml:1800
 msgid "Tallied elections"
 msgstr "Vyhodnocené volby"
 
@@ -1616,8 +1617,8 @@ msgstr "Vyhodnocené volby"
 msgid "Thank you again for your help,"
 msgstr "Opět děkujeme za tvou pomoc,"
 
-#: src/ui/mails_admin.ml:223 src/ui/mails_admin.ml:148 src/ui/mails_admin.ml:98
 #. src/ui/mails_admin.ml:59
+#: src/ui/mails_admin.ml:223 src/ui/mails_admin.ml:148 src/ui/mails_admin.ml:98
 msgid "Thank you for your help,"
 msgstr "Děkujeme za tvou pomoc,"
 
@@ -1635,7 +1636,7 @@ msgstr "Účet byl vytvořen."
 
 #: src/web/lib/site_admin.ml:796
 msgid "The authority is not the server"
-msgstr ""
+msgstr "Vydavatelem není server"
 
 #: src/web/lib/pages_admin.ml:2840
 msgid "The change "
@@ -1647,15 +1648,15 @@ msgstr "Vytvoření selhalo."
 
 #: src/web/lib/site_admin.ml:790
 msgid "The credentials were already sent"
-msgstr ""
+msgstr "Přístupové kódy již byly rozeslány"
 
 #: src/web/lib/site_admin.ml:1070
 msgid "The date must be less than %d days in the future!"
 msgstr "Datum musí být méně než %d v budoucnosti!"
 
-#: src/ui/mails_admin.ml:238 src/ui/mails_admin.ml:200 src/ui/mails_admin.ml:163
 #. src/ui/mails_admin.ml:113
 #. src/ui/mails_admin.ml:62
+#: src/ui/mails_admin.ml:238 src/ui/mails_admin.ml:200 src/ui/mails_admin.ml:163
 msgid "The election administrator"
 msgstr "Administrátor volby"
 
@@ -1711,14 +1712,14 @@ msgstr "Zobrazí se jedinečný otisk tvého zamíchání. Ulož si jej."
 msgid "The given maximum is greater than the number of choices!"
 msgstr "Zadané maximum je vyšší než počet voleb!"
 
-#: src/web/lib/pages_admin.ml:2286 src/web/lib/pages_admin.ml:2190
 #. src/web/lib/pages_admin.ml:945
 #. src/web/lib/pages_admin.ml:779
+#: src/web/lib/pages_admin.ml:2286 src/web/lib/pages_admin.ml:2190
 msgid "The link that must be sent to trustee "
 msgstr "Odkaz, který musí být poslán garantovi "
 
-#: src/web/lib/pages_admin.ml:1604 src/web/lib/pages_admin.ml:1515
 #. src/web/lib/pages_admin.ml:1399
+#: src/web/lib/pages_admin.ml:1604 src/web/lib/pages_admin.ml:1515
 msgid "The link to the election will be:"
 msgstr "Odkaz na volbu bude:"
 
@@ -1738,7 +1739,7 @@ msgstr "Heslo bylo změněno."
 
 #: src/tool/js/tool_js_tkeygen.ml:62
 msgid "The private key must be downloaded first!"
-msgstr ""
+msgstr "Nejprve musí být stažen soukromý klíč!"
 
 #: src/web/lib/site_admin.ml:202
 msgid "The provided code is incorrect. Please go back and try again."
@@ -1903,9 +1904,9 @@ msgstr "Pokud chceš používat tyto stránky, musíš souhlasit s našimi "
 msgid "Too short"
 msgstr "Příliš krátké"
 
-#: src/web/lib/pages_admin.ml:2322 src/web/lib/pages_admin.ml:2224
 #. src/web/lib/pages_admin.ml:965
 #. src/web/lib/pages_admin.ml:796
+#: src/web/lib/pages_admin.ml:2322 src/web/lib/pages_admin.ml:2224
 msgid "Trustee"
 msgstr "Garant"
 
@@ -1951,8 +1952,8 @@ msgstr "Uživatelské jméno"
 msgid "Username:"
 msgstr "Uživatelské jméno:"
 
-#: src/web/lib/pages_admin.ml:1999 src/web/lib/pages_admin.ml:1829
 #. src/web/lib/pages_admin.ml:640
+#: src/web/lib/pages_admin.ml:1999 src/web/lib/pages_admin.ml:1829
 msgid "Validate creation"
 msgstr "Potvrď vytvoření volby"
 
@@ -1988,8 +1989,8 @@ msgstr ""
 "Čeká se na ostatní garanty… Obnov stránku, abys viděl(a), zda se něco "
 "změnilo."
 
-#: src/web/lib/pages_admin.ml:1922 src/web/lib/pages_admin.ml:1911
 #. src/web/lib/pages_admin.ml:1364
+#: src/web/lib/pages_admin.ml:1922 src/web/lib/pages_admin.ml:1911
 msgid "Warning:"
 msgstr "Varování:"
 
@@ -2001,8 +2002,8 @@ msgstr "Varování: tento krok je nezvratný."
 msgid "Warning: This action is irreversible; the election will be definitively closed."
 msgstr "Varování: tento krok je nezvratný; volba bude definitivně ukončena."
 
-#: src/web/lib/pages_admin.ml:3066 src/web/lib/pages_admin.ml:3044
 #. src/web/lib/pages_admin.ml:3022
+#: src/web/lib/pages_admin.ml:3066 src/web/lib/pages_admin.ml:3044
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Varování: tento kód je platný po dobu 15 minut a kódy, které na tuto adresu "
@@ -2022,10 +2023,10 @@ msgstr ""
 "Ověř ihned po zveřejnění výsledku voleb, že jedinečný otisk tvého zamíchání "
 "je zobrazen na stánce s výsledky."
 
-#: src/web/lib/pages_admin.ml:2275 src/web/lib/pages_admin.ml:2177
 #. src/web/lib/pages_admin.ml:1926
 #. src/web/lib/pages_admin.ml:1307
 #. src/web/lib/pages_admin.ml:767
+#: src/web/lib/pages_admin.ml:2275 src/web/lib/pages_admin.ml:2177
 msgid "Yes"
 msgstr "Ano"
 
@@ -2088,10 +2089,10 @@ msgstr ""
 msgid "You must select at least one language!"
 msgstr "Musíte vybrat aspoň jeden jazyk!"
 
-#: src/web/lib/pages_admin.ml:1791 src/web/lib/pages_admin.ml:222
 #. src/web/lib/pages_admin.ml:217
 #. src/web/lib/pages_admin.ml:212
 #. src/web/lib/pages_admin.ml:207
+#: src/web/lib/pages_admin.ml:1791 src/web/lib/pages_admin.ml:222
 msgid "You own no such elections!"
 msgstr "Nevlastníte žádné takové volby!"
 
@@ -2128,6 +2129,8 @@ msgstr "Použijete jej na rozeslání přístupových kódů voličům."
 #: src/web/lib/pages_admin.ml:1370
 msgid "You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
+"Po vytvoření přístupových údajů již nebude možné změnit e-mailové adresy. "
+"Voliči s neplatnými e-mailovými adresami nebudou moci volit."
 
 #: src/web/lib/pages_admin.ml:2935 src/web/lib/pages_admin.ml:2911
 msgid "Your e-mail address"
@@ -2348,15 +2351,15 @@ msgstr "časy jsou v UTC. Nyní je "
 
 #: src/web/lib/pages_admin.ml:1261
 msgid "typical use"
-msgstr ""
+msgstr "obvyklé použití"
 
 #: src/web/lib/pages_admin.ml:1262
 msgid "when a login is needed, e.g. CAS"
-msgstr ""
+msgstr "když je potřeba přihlašovací jméno, například CAS"
 
 #: src/web/lib/pages_admin.ml:1263
 msgid "when some voters have several votes"
-msgstr ""
+msgstr "když někteří voliči mají více hlasů"
 
 #: src/web/lib/pages_admin.ml:1144
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
@@ -2366,7 +2369,7 @@ msgstr ""
 
 #: src/web/lib/pages_admin.ml:1366
 msgid "you have to make sure that the email addresses are valid."
-msgstr ""
+msgstr "musíš se ujistit, že e-mailové adresy jsou platné."
 
 #: src/ui/mails_admin.ml:142 src/ui/mails_admin.ml:92
 msgid "you may store the key on a USB stick and store it in a safe;"
@@ -2377,4 +2380,3 @@ msgid "your private key. Make sure you SAVE IT properly otherwise you will not b
 msgstr ""
 "svůj soukromý klíč. Ujisti se, že jsi ho správně ULOŽIL(A), protože bez něj "
 "nebudeš moci příspět k vyhodnocení volby a ta možná bude muset být zrušena;"
-
