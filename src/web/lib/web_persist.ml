@@ -337,11 +337,9 @@ let get_trustees uuid =
      in
      Lwt.fail (Failure msg)
 
-module StringMap = Map.Make (String)
-
 module CredWeightsCacheTypes = struct
   type key = uuid
-  type value = Weight.t StringMap.t
+  type value = Weight.t SMap.t
 end
 
 module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
@@ -354,10 +352,10 @@ let raw_get_credential_weights uuid =
      |> List.map extract_weight
      |> List.fold_left
           (fun accu (x, w) ->
-            StringMap.add x w accu
-          ) StringMap.empty
+            SMap.add x w accu
+          ) SMap.empty
      |> return
-  | None -> return StringMap.empty
+  | None -> return SMap.empty
 
 let credential_weights_cache =
   new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
@@ -366,7 +364,7 @@ let get_credential_weight uuid cred =
   Lwt.catch
     (fun () ->
       let* xs = credential_weights_cache#find uuid in
-      return @@ StringMap.find cred xs
+      return @@ SMap.find cred xs
     )
     (fun _ ->
       Lwt.fail
@@ -396,7 +394,7 @@ let get_ballot_weight election ballot =
 
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = (string * Weight.t) StringMap.t
+  type value = (string * Weight.t) SMap.t
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -404,7 +402,7 @@ module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 let raw_get_ballots_archived uuid =
   let* x = get_raw_election uuid in
   match x with
-  | None -> return StringMap.empty
+  | None -> return SMap.empty
   | Some x ->
      let module W = Election.Make (struct let raw_election = x end) (LwtRandom) () in
      let* file = read_file ~uuid "ballots.jsons" in
@@ -413,9 +411,9 @@ let raw_get_ballots_archived uuid =
         Lwt_list.fold_left_s (fun accu b ->
             let hash = sha256_b64 b in
             let* weight = get_ballot_weight (module W) b in
-            return (StringMap.add hash (b, weight) accu)
-          ) StringMap.empty bs
-     | None -> return StringMap.empty
+            return (SMap.add hash (b, weight) accu)
+          ) SMap.empty bs
+     | None -> return SMap.empty
 
 let archived_ballots_cache =
   new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
@@ -453,7 +451,7 @@ let get_ballot_hashes uuid =
   match state with
   | `Archived ->
      let* ballots = archived_ballots_cache#find uuid in
-     StringMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
+     SMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
   | _ -> get_ballots_index uuid
 
 let get_ballot_by_hash uuid hash =
@@ -461,7 +459,7 @@ let get_ballot_by_hash uuid hash =
   match state with
   | `Archived ->
      let* ballots = archived_ballots_cache#find uuid in
-     (match StringMap.find_opt hash ballots with
+     (match SMap.find_opt hash ballots with
       | Some (b, _) -> return_some b
       | None -> return_none
      )
@@ -655,7 +653,7 @@ let append_to_shuffles election shuffle =
 
 module ExtendedRecordsCacheTypes = struct
   type key = uuid
-  type value = (datetime * string) StringMap.t
+  type value = (datetime * string) SMap.t
 end
 
 module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
@@ -667,13 +665,13 @@ let raw_get_extended_records uuid =
      let xs = List.map extended_record_of_string xs in
      return (
          List.fold_left (fun accu r ->
-             StringMap.add r.r_username (r.r_date, r.r_credential) accu
-           ) StringMap.empty xs
+             SMap.add r.r_username (r.r_date, r.r_credential) accu
+           ) SMap.empty xs
        )
-  | None -> return StringMap.empty
+  | None -> return SMap.empty
 
 let dump_extended_records uuid rs =
-  let rs = StringMap.bindings rs in
+  let rs = SMap.bindings rs in
   let extended_records =
     List.map (fun (r_username, (r_date, r_credential)) ->
         string_of_extended_record {r_username; r_date; r_credential}
@@ -692,21 +690,21 @@ let extended_records_cache =
 
 let find_extended_record uuid username =
   let* rs = extended_records_cache#find uuid in
-  return (StringMap.find_opt username rs)
+  return (SMap.find_opt username rs)
 
 let add_extended_record uuid username r =
   let* rs = extended_records_cache#find uuid in
-  let rs = StringMap.add username r rs in
+  let rs = SMap.add username r rs in
   extended_records_cache#add uuid rs;
   dump_extended_records uuid rs
 
 let has_voted uuid user =
   let* rs = extended_records_cache#find uuid in
-  return @@ StringMap.mem (string_of_user user) rs
+  return @@ SMap.mem (string_of_user user) rs
 
 module CredMappingsCacheTypes = struct
   type key = uuid
-  type value = string option StringMap.t
+  type value = string option SMap.t
 end
 
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
@@ -718,13 +716,13 @@ let raw_get_credential_mappings uuid =
      let xs = List.map credential_mapping_of_string xs in
      return (
          List.fold_left (fun accu x ->
-             StringMap.add x.c_credential x.c_ballot accu
-           ) StringMap.empty xs
+             SMap.add x.c_credential x.c_ballot accu
+           ) SMap.empty xs
        )
-  | None -> return StringMap.empty
+  | None -> return SMap.empty
 
 let dump_credential_mappings uuid xs =
-  let xs = StringMap.bindings xs in
+  let xs = SMap.bindings xs in
   let mappings =
     List.map (fun (c_credential, c_ballot) ->
         string_of_credential_mapping {c_credential; c_ballot}
@@ -740,22 +738,22 @@ let init_credential_mapping uuid xs =
     List.fold_left
       (fun accu x ->
         let x, _ = extract_weight x in
-        if StringMap.mem x accu then
+        if SMap.mem x accu then
           failwith "trying to add duplicate credential"
         else
-          StringMap.add x None accu
-      ) StringMap.empty xs
+          SMap.add x None accu
+      ) SMap.empty xs
   in
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
 let find_credential_mapping uuid cred =
   let* xs = credential_mappings_cache#find uuid in
-  return @@ StringMap.find_opt cred xs
+  return @@ SMap.find_opt cred xs
 
 let add_credential_mapping uuid cred mapping =
   let* xs = credential_mappings_cache#find uuid in
-  let xs = StringMap.add cred mapping xs in
+  let xs = SMap.add cred mapping xs in
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
