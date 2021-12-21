@@ -4,4 +4,4 @@
  (implements belenios_platform)
  (libraries js_of_ocaml)
  (preprocess (pps js_of_ocaml-ppx)))
-(copy_files ../version/belenios_version.ml)
+(copy_files ../version/version.ml)

@@ -48,7 +48,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       Eliom_service.static_dir_with_params
         ~get_params:(Eliom_parameter.string "version") ()
     in
-    make_uri ~service (["static"; x], Belenios_version.build)
+    make_uri ~service (["static"; x], Version.build)
 
   let belenios_url = Eliom_service.extern
                        ~prefix:"https://www.belenios.org"
@@ -127,7 +127,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                                    footer;
                                    txt (s_ "Powered by ");
                                    a ~service:belenios_url [txt "Belenios"] ();
-                                   Belenios_version.(
+                                   Version.(
                                      Printf.ksprintf txt " %s (%s). " version build
                                    );
                                    a ~service:source_code [txt (s_ "Get the source code")] ();
@@ -198,7 +198,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                                    footer;
                                    txt (s_ "Powered by ");
                                    a ~service:belenios_url [txt "Belenios"] ();
-                                   Belenios_version.(
+                                   Version.(
                                      Printf.ksprintf txt " %s (%s). " version build
                                    );
                                    a ~service:source_code [txt (s_ "Get the source code")] ();

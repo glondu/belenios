@@ -1,5 +1,5 @@
 (rule
- (target belenios_version.ml)
+ (target version.ml)
  (deps
   get_build.sh
   gen.sh
