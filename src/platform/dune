@@ -1,4 +1,6 @@
 (library
  (name belenios_platform)
  (public_name belenios-platform)
- (virtual_modules version platform))
+ (virtual_modules platform))
+
+(copy_files version/version.ml)

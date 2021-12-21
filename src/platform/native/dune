@@ -3,4 +3,3 @@
  (public_name belenios-platform-native)
  (implements belenios_platform)
  (libraries cryptokit))
-(copy_files ../version/version.ml)
