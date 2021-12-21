@@ -35,8 +35,6 @@ open Web_common
 
 let ( / ) = Filename.concat
 
-module UMap = Map.Make (struct type t = int let compare = compare end)
-
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()
 
@@ -192,11 +190,11 @@ type election_kind =
 
 let umap_add user x map =
   let xs =
-    match UMap.find_opt user map with
+    match IMap.find_opt user map with
     | None -> []
     | Some xs -> xs
   in
-  UMap.add user (x :: xs) map
+  IMap.add user (x :: xs) map
 
 let get_id = function
   | `Id i -> return i
@@ -262,7 +260,7 @@ let build_elections_by_owner_cache () =
                   Lwt.fail Lwt.Canceled
                | _ -> return accu)
           )
-        ) UMap.empty
+        ) IMap.empty
 
 let build_elections_by_owner_cache () =
   let start = Unix.gettimeofday () in
@@ -294,7 +292,7 @@ let get_elections_by_owner user =
        elections_by_owner_cache := Some x;
        return x
   in
-  match UMap.find_opt user cache with
+  match IMap.find_opt user cache with
   | None -> return []
   | Some xs -> return xs
 

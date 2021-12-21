@@ -79,6 +79,8 @@ val compare_b64 : string -> string -> int
 module SSet : Set.S with type elt = string
 module SMap : Map.S with type key = string
 
+module IMap : Map.S with type key = int
+
 val bytes_to_sample : Z.t -> int
 val check_modulo : Z.t -> Z.t -> bool
 

@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Serializable_t
+open Common
 
 (** Transform a ballot in belenios format (e.g. [4,1,2,5,3]) into a
    list of choices (represented as their index in the vector) in
@@ -51,17 +52,15 @@ let process ballot =
   in
   if check 0 then Some preference_list else None
 
-module IntMap = Map.Make (struct type t = int let compare = compare end)
-
 (** Here, [choices] is a map from choices to ballots that has them as
    first choice. This function updates [choices] with a new ballot: it
    assigns the ballot to its first choice, and makes sure all other
    choices also exist in [choices]. *)
 let assign choices ((_, ballot) as b) =
   let prepend ballots choices x =
-    match IntMap.find_opt x choices with
-    | None -> IntMap.add x ballots choices
-    | Some bs -> IntMap.add x (List.rev_append ballots bs) choices
+    match IMap.find_opt x choices with
+    | None -> IMap.add x ballots choices
+    | Some bs -> IMap.add x (List.rev_append ballots bs) choices
   in
   match ballot with
   | [] -> choices
@@ -88,11 +87,11 @@ let transfer coef i scores =
    (Win|Lose|TieWin|TieLose) that occured during the process. *)
 let rec run quota ballots events nseats =
   if nseats > 0 then (
-    let choices = List.fold_left assign IntMap.empty ballots in
-    if IntMap.cardinal choices <= nseats then (
+    let choices = List.fold_left assign IMap.empty ballots in
+    if IMap.cardinal choices <= nseats then (
       (* there is not enough choices: they all win *)
       choices
-      |> IntMap.bindings
+      |> IMap.bindings
       |> List.map fst
       |> (fun x -> `Win x :: events)
       |> List.rev
@@ -101,11 +100,11 @@ let rec run quota ballots events nseats =
         (* for each choice, compute the sum of scores of its assigned
            ballots *)
         choices
-        |> IntMap.map
+        |> IMap.map
              (fun bs ->
                bs, List.fold_left (fun accu (w, _) -> accu +. w) 0. bs
              )
-        |> IntMap.bindings
+        |> IMap.bindings
         |> List.sort
              (* we sort the choices, with greater total score first,
                 then in question order (this is our "arbitrary" tie

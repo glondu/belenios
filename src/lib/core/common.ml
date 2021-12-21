@@ -209,6 +209,8 @@ let compare_b64 a b =
 module SSet = Set.Make(String)
 module SMap = Map.Make(String)
 
+module IMap = Map.Make(Int)
+
 (** Direct random monad *)
 
 let bytes_to_sample q =
