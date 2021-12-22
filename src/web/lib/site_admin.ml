@@ -230,7 +230,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       }
     in
     let* uuid = Api_drafts.post_drafts account draft in
-    redir_preapply election_draft uuid ()
+    match uuid with
+    | Some uuid -> redir_preapply election_draft uuid ()
+    | None ->
+       let* l = get_preferred_gettext () in
+       let open (val l) in
+       Pages_common.generic_page ~title:(s_ "Error")
+         (s_ "Creating new elections is forbidden on this server!") ()
+       >>= Html.send
 
   let () =
     Any.register ~service:election_draft_pre

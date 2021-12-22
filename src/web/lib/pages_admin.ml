@@ -222,13 +222,22 @@ module Make
          | [] -> p [txt (s_ "You own no such elections!")]
          | _ -> ul @@ List.map format_election archived
        in
+       let prepare_new_election =
+         if !Web_config.deny_newelection then (
+           div [
+               txt (s_ "New elections are not allowed on this server.");
+             ]
+         ) else (
+           div [
+               a ~a:[a_id "prepare_new_election"] ~service:election_draft_pre [
+                   txt (s_ "Prepare a new election");
+                 ] ();
+             ]
+         )
+       in
        let content = [
            div [
-               div [
-                   a ~a:[a_id "prepare_new_election"] ~service:election_draft_pre [
-                       txt (s_ "Prepare a new election");
-                     ] ();
-                 ];
+               prepare_new_election;
                div [br ()];
                h2 [txt (s_ "Elections being prepared")];
                draft;

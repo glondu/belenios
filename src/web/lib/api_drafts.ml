@@ -165,6 +165,12 @@ let generate_uuid () =
   Lwt.return (uuid_of_raw_string token)
 
 let post_drafts account draft =
+  let@ () = fun cont ->
+    if !Web_config.deny_newelection then
+      Lwt.return_none
+    else
+      Lwt.(cont () >>= return_some)
+  in
   let owner = `Id [account.account_id] in
   let* uuid = generate_uuid () in
   let* token = generate_token () in
@@ -1246,7 +1252,11 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           let@ draft = body.run draft_of_string in
           let@ () = handle_generic_error in
           let* uuid = post_drafts account draft in
-          Lwt.return (200, string_of_uuid uuid)
+          begin
+            match uuid with
+            | Some uuid -> Lwt.return (200, string_of_uuid uuid)
+            | None -> forbidden
+          end
        | _ -> method_not_allowed
      end
   | uuid :: endpoint ->

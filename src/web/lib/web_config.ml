@@ -39,3 +39,4 @@ let default_group = ref ""
 let nh_group = ref ""
 let domain = ref ""
 let deny_revote = ref false
+let deny_newelection = ref false

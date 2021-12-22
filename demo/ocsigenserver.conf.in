@@ -79,6 +79,7 @@
         <admin-home file="_VARDIR_/admin-home.html"/>
         <warning file="_VARDIR_/warning.html"/>
         <footer file="_VARDIR_/footer.html"/>
+        <!-- <deny-newelection/> -->
         <!--
             Uncomment the following line to disable revoting. Note that
             the ability to revote is important as a (light) measure

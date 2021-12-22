@@ -114,6 +114,8 @@ module Make () = struct
                      domain := Some name
                   | Element ("deny-revote", [], []) ->
                      Web_config.deny_revote := true
+                  | Element ("deny-newelection", [], []) ->
+                     Web_config.deny_newelection := true
                   | Element (tag, _, _) ->
                      Printf.ksprintf failwith
                        "invalid configuration for tag %s in belenios"
