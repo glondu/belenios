@@ -1,1 +1,22 @@
-{}
+{
+    "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "Prašome pasirinkti kandidato {{candidate}}  balą.",
+    "breadcrumb_input_credential": "Įveskite kredencialus",
+    "breadcrumb_answer_to_questions": "Atsakykite į klausimus",
+    "breadcrumb_review_and_encrypt": "Peržiūrėti ir užšifruoti",
+    "breadcrumb_authenticate": "Autentifikuoti",
+    "breadcrumb_confirm": "Patvirtinti",
+    "breadcrumb_step_x": "Žingsnis {{count}}",
+    "blank_vote": "Tuščias balsas",
+    "ask_for_credential": "Prašome įvesti savo kredencialus:",
+    "next_button_label": "Kitas",
+    "majority_judgment_grade_select": "Pasirinkite variantą",
+    "page_title": "Belenios  balsavimo kabina",
+    "alert_question_constraint_no_blank_and_other": "Jūs negalite palikti tuščio balso ir kito atsakymo.",
+    "alert_invalid_credential": "Neteisingi kredencialai!",
+    "alert_question_constraint_no_less_than_min_0": "Ties šiuo klausimu turi būti pažymėtas ne mažiau nei {{count}} atsakymas.",
+    "alert_question_constraint_no_less_than_min_1": "Mažiausias šio klausimo atsakymų skaičius gali būti {{count}} .",
+    "alert_question_constraint_no_less_than_min_2": "",
+    "alert_question_constraint_no_more_than_max_0": "Maksimalus atsakymų į klausimą skaičius yra {{count}}.",
+    "alert_question_constraint_no_more_than_max_1": "Maksimalus atsakymų į klausimą skaičius yra {{count}}.",
+    "alert_question_constraint_no_more_than_max_2": "Maksimalus atsakymų į klausimą skaičius yra {{count}}."
+}
