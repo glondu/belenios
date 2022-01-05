@@ -18,5 +18,6 @@
     "alert_question_constraint_no_less_than_min_2": "",
     "alert_question_constraint_no_more_than_max_0": "Maksimalus atsakymų į klausimą skaičius yra {{count}}.",
     "alert_question_constraint_no_more_than_max_1": "Maksimalus atsakymų į klausimą skaičius yra {{count}}.",
-    "alert_question_constraint_no_more_than_max_2": "Maksimalus atsakymų į klausimą skaičius yra {{count}}."
+    "alert_question_constraint_no_more_than_max_2": "Maksimalus atsakymų į klausimą skaičius yra {{count}}.",
+    "ask_election_uuid_to_load": "Įkelkite rinkimus šiame serveryje, nurodydami jo UUID:"
 }
