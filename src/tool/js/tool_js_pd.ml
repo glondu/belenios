@@ -138,13 +138,13 @@ let fill_interactivity () =
     let$ e = Dom_html.CoerceTo.input e in
     e##.onchange := Dom_html.handler (wrap load_private_key_file)
   in
-  match List.assoc_opt "uuid" (get_params ()) with
+  match get_uuid () with
   | None -> Lwt.return_unit
   | Some uuid ->
      let open Js_of_ocaml_lwt.XmlHttpRequest in
-     let* e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
+     let* e = get ("../../../elections/" ^ uuid ^ "/encrypted_tally.json") in
      encrypted_tally := Some (String.trim e.content);
-     let* e = get ("../elections/" ^ uuid ^ "/election.json") in
+     let* e = get ("../../../elections/" ^ uuid ^ "/election.json") in
      election := Some (String.trim e.content);
      Lwt.return (compute_hash ())
 

@@ -88,10 +88,14 @@ let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Tool_js_i18n.auto_init "admin" in
-      let uuid = List.assoc "uuid" (get_params ()) in
+      let@ uuid = fun cont ->
+        match get_uuid () with
+        | None -> Lwt.return_unit
+        | Some uuid -> cont uuid
+      in
       let open Js_of_ocaml_lwt.XmlHttpRequest in
-      let* election = get ("../elections/" ^ uuid ^ "/election.json") in
-      let* ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
+      let* election = get ("../../../elections/" ^ uuid ^ "/election.json") in
+      let* ciphertexts = get ("../../../election/nh-ciphertexts?uuid=" ^ uuid) in
       set_textarea "current_ballots" ciphertexts.content;
       let full_shuffle = shuffle (String.trim election.content) ciphertexts.content in
       match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
