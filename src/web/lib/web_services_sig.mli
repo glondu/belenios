@@ -202,7 +202,7 @@ module type S = sig
   val election_draft_credentials :
     (Web_serializable_t.uuid * string, unit, Eliom_service.get,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.reg, [ `WithoutSuffix ],
+     Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
@@ -248,7 +248,7 @@ module type S = sig
   val election_draft_trustee :
     (Web_serializable_t.uuid * string, unit, Eliom_service.get,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.reg, [ `WithoutSuffix ],
+     Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
@@ -271,7 +271,7 @@ module type S = sig
   val election_draft_threshold_trustee :
     (Web_serializable_t.uuid * string, unit, Eliom_service.get,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.reg, [ `WithoutSuffix ],
+     Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
@@ -580,7 +580,7 @@ module type S = sig
   val election_shuffle_link :
     (Web_serializable_t.uuid * string, unit, Eliom_service.get,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.reg, [ `WithoutSuffix ],
+     Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
@@ -624,7 +624,7 @@ module type S = sig
   val election_tally_trustees :
     (Web_serializable_t.uuid * string, unit, Eliom_service.get,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
-     Eliom_service.reg, [ `WithoutSuffix ],
+     Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
