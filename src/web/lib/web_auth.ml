@@ -23,6 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Eliom_service
 open Belenios_core.Serializable_builtin_t
+open Belenios_core.Common
 open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
@@ -73,6 +74,15 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
        if auth_system = a.auth_system && st = state then
          let cont = function
            | Some (name, email) ->
+              let@ () = fun cont ->
+                match List.assoc_opt "allowlist" a.auth_config with
+                | None -> cont ()
+                | Some f ->
+                   let* allowlist = Lwt_io.lines_of_file f |> Lwt_stream.to_list in
+                   if List.mem name allowlist then
+                     cont ()
+                   else restart_login ()
+              in
               let* () = Eliom_reference.unset auth_env in
               let user = { user_domain = a.auth_instance; user_name = name } in
               let* () =

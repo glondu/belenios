@@ -63,7 +63,7 @@
         <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
-        <auth name="demo"><dummy/></auth> <!-- DEMO -->
+        <auth name="demo"><dummy allowlist="demo/dummy_logins.txt"/></auth> <!-- DEMO -->
         <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
         <auth name="public"><password db="_VARDIR_/password_db.csv" allowsignups="true"/></auth>
         <auth name="email"><email/></auth> <!-- DEMO -->
