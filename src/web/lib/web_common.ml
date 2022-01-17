@@ -343,6 +343,7 @@ let available_languages = [
     "fi";
     "fr";
     "it";
+    "lt";
     "ms";
     "nb";
     "nl";
