@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_tyxml
 open Belenios_platform.Platform
 open Belenios_core.Signatures
 open Belenios_core.Serializable_builtin_t
@@ -28,7 +29,7 @@ open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common
 open Tool_js_common
-open Tool_js_html
+open Tyxml_js.Html5
 open Common
 
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
@@ -44,8 +45,8 @@ let show main uuid =
          uuid (string_of_error e)
      in
      Lwt.return [
-         node @@ h1 [txt "Error"];
-         node @@ div [txt msg];
+         h1 [txt "Error"];
+         div [txt msg];
        ]
   | Ok draft ->
      let* voters =
@@ -68,7 +69,7 @@ let show main uuid =
               "The voter list has %d voter(s) and its fingerprint is %s."
               (List.length xs) fingerprint
           in
-          let container = div [] in
+          let container = div [] |> Tyxml_js.To_dom.of_div in
           let b =
             let@ () = button "Generate credentials" in
             let uuid_ = uuid_of_raw_string uuid in
@@ -106,9 +107,8 @@ let show main uuid =
                    )
             in
             let op = string_of_credential_list public_creds in
-            let t = textarea () in
-            t##.value := Js.string (String.concat "\n" private_creds ^ "\n");
-            let button_container = div [] in
+            let t, _ = textarea (String.concat "\n" private_creds ^ "\n") in
+            let button_container = div [] |> Tyxml_js.To_dom.of_div in
             let b =
               let@ () = button "Send public credentials to server" in
               let* x = post_with_token op "drafts/%s/credentials" uuid in
@@ -120,21 +120,21 @@ let show main uuid =
               in
               Lwt.return [txt msg]
             in
-            Dom.appendChild button_container b;
+            Dom.appendChild button_container (Tyxml_js.To_dom.of_button b);
             let@ () = show_in container in
             Lwt.return [
-                node @@ div [node @@ t];
-                node @@ button_container;
+                div [t];
+                Tyxml_js.Of_dom.of_div button_container;
               ]
           in
-          Dom.appendChild container b;
+          Dom.appendChild container (Tyxml_js.To_dom.of_button b);
           Lwt.return
           @@ div [
-                 node @@ div [txt fingerprint];
-                 node @@ container;
+                 div [txt fingerprint];
+                 Tyxml_js.Of_dom.of_div container;
                ]
      in
      Lwt.return [
-         node @@ h1 [txt (Printf.sprintf "Credentials for %s" draft.draft_questions.t_name)];
-         node @@ voters;
+         h1 [txt (Printf.sprintf "Credentials for %s" draft.draft_questions.t_name)];
+         voters;
        ]

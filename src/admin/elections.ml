@@ -21,11 +21,12 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_tyxml
 open Belenios_platform.Platform
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common.Tool_js_common
-open Belenios_tool_js_common.Tool_js_html
+open Tyxml_js.Html5
 open Common
 
 let rec show main uuid =
@@ -55,33 +56,32 @@ let rec show main uuid =
   in
   let buttons =
     [
-      node @@ make "Open election" `Open;
-      node @@ make "Close election" `Close;
-      node @@ make "Compute encrypted tally" `ComputeEncryptedTally;
-      node @@ make "Finish shuffling" `FinishShuffling;
-      node @@ make "Release tally" `ReleaseTally;
-      node @@ make "Archive election" `Archive;
-      node @@ button_delete;
+      make "Open election" `Open;
+      make "Close election" `Close;
+      make "Compute encrypted tally" `ComputeEncryptedTally;
+      make "Finish shuffling" `FinishShuffling;
+      make "Release tally" `ReleaseTally;
+      make "Archive election" `Archive;
+      button_delete;
     ]
   in
-  let get_date x =
-    let y = Js.to_string x##.value in
-    if y = "" then None else Some (Js.date##parse x##.value /. 1000.)
+  let get_date (_, get) =
+    let y = get () in
+    if y = "" then None else Some (Js.date##parse (Js.string y) /. 1000.)
   in
   let* auto_dates =
     let* x = get election_auto_dates_of_string "elections/%s/automatic-dates" uuid in
     let@ dates = with_ok "automatic-dates" x in
     let ifmatch = sha256_b64 (string_of_election_auto_dates dates) in
     let make_input d =
-      let r = input [] in
-      let () =
+      let value =
         match d with
-        | None -> ()
+        | None -> ""
         | Some x ->
            let x = new%js Js.date_fromTimeValue (x *. 1000.) in
-           r##.value := x##toISOString
+           Js.to_string x##toISOString
       in
-      r
+      input value
     in
     let auto_open = make_input dates.auto_date_open in
     let auto_close = make_input dates.auto_date_close in
@@ -97,21 +97,21 @@ let rec show main uuid =
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    Lwt.return [node auto_open; node auto_close; node set_button]
+    Lwt.return [fst auto_open; fst auto_close; set_button]
   in
   let regenpwd =
-    let i = input [] in
+    let i, iget = input "" in
     let set_button =
       let@ () = button "Regenerate a password" in
-      let request = `RegeneratePassword (Js.to_string i##.value) in
+      let request = `RegeneratePassword (iget ()) in
       let* x = post_with_token ?ifmatch (string_of_admin_request request) "elections/%s" uuid in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    [node i; node set_button]
+    [i; set_button]
   in
   let postpone =
-    let i = input [] in
+    let i = input "" in
     let set_button =
       let@ () = button "Set postpone date" in
       let request = `SetPostponeDate (get_date i) in
@@ -119,48 +119,47 @@ let rec show main uuid =
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    [node i; node set_button]
+    [fst i; set_button]
   in
   let make of_string to_string what =
     let* x = get of_string "elections/%s/%s" uuid what in
     let@ voters = with_ok what x in
-    let t = textarea () in
-    t##.value := Js.string @@ to_string voters;
-    Lwt.return [node t]
+    let t, _ = textarea (to_string voters) in
+    Lwt.return [t]
   in
   let* voters = make voter_list_of_string string_of_voter_list "voters" in
   let* records = make records_of_string string_of_records "records" in
   let* pds = make partial_decryptions_of_string string_of_partial_decryptions "partial-decryptions" in
   let* shuffles = make shuffles_of_string string_of_shuffles "shuffles" in
   let shuffle =
-    let i = input [] in
+    let i, iget = input "" in
     let make label request =
       let@ () = button label in
-      let encoded = i##.value |> Js.encodeURIComponent |> Js.to_string in
+      let encoded = iget () |> Js.string |> Js.encodeURIComponent |> Js.to_string in
       let* x = post_with_token (string_of_shuffler_request request) "elections/%s/shuffles/%s" uuid encoded in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    [node @@ i; node @@ make "Skip" `Skip; node @@ make "Select" `Select]
+    [i; make "Skip" `Skip; make "Select" `Select]
   in
   Lwt.return [
-      node @@ div [node @@ a ~href:"#" "Home"];
-      node @@ h1 [txt "Raw election"];
-      node @@ div [txt raw_election];
-      node @@ h1 [txt "Status"];
-      node @@ div [txt @@ string_of_election_status status];
-      node @@ h1 [txt "Actions"];
-      node @@ div buttons;
-      node @@ div auto_dates;
-      node @@ div regenpwd;
-      node @@ div postpone;
-      node @@ h1 [txt "Voters"];
-      node @@ div voters;
-      node @@ h1 [txt "Records"];
-      node @@ div records;
-      node @@ h1 [txt "Shuffles"];
-      node @@ div shuffles;
-      node @@ div shuffle;
-      node @@ h1 [txt "Partial decryptions"];
-      node @@ div pds;
+      div [a ~href:"#" "Home"];
+      h1 [txt "Raw election"];
+      div [txt raw_election];
+      h1 [txt "Status"];
+      div [txt @@ string_of_election_status status];
+      h1 [txt "Actions"];
+      div buttons;
+      div auto_dates;
+      div regenpwd;
+      div postpone;
+      h1 [txt "Voters"];
+      div voters;
+      h1 [txt "Records"];
+      div records;
+      h1 [txt "Shuffles"];
+      div shuffles;
+      div shuffle;
+      h1 [txt "Partial decryptions"];
+      div pds;
     ]

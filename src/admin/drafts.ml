@@ -21,24 +21,24 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_tyxml
 open Belenios_platform.Platform
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common
 open Tool_js_common
-open Tool_js_html
+open Tyxml_js.Html5
 open Common
 
 let show_draft_main show_all uuid draft container =
   let@ () = show_in container in
-  let t = textarea () in
   let draft_str = string_of_draft draft in
-  t##.value := Js.string draft_str;
+  let t, tget = textarea draft_str in
   let ifmatch = sha256_b64 draft_str in
   let button_save =
     let@ () = button "Save changes" in
-    let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s" uuid in
+    let* x = put_with_token ~ifmatch (tget ()) "drafts/%s" uuid in
     let@ () = show_in container in
     generic_proceed x show_all
   in
@@ -55,37 +55,36 @@ let show_draft_main show_all uuid draft container =
     )
   in
   Lwt.return [
-      node @@ div [node @@ t];
-      node @@ div [node button_save];
-      node @@ div [node button_delete];
+      div [t];
+      div [button_save];
+      div [button_delete];
     ]
 
 let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
   let@ voters = with_ok "voters" x in
-  let t = textarea () in
   let voters_str = string_of_voter_list voters in
-  t##.value := Js.string voters_str;
+  let t, tget = textarea voters_str in
   let ifmatch = sha256_b64 voters_str in
   let b =
     let@ () = button "Save changes" in
-    let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s/voters" uuid in
+    let* x = put_with_token ~ifmatch (tget ()) "drafts/%s/voters" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
   in
   let import =
-    let i = input [] in
+    let i, iget = input "" in
     let b =
       let@ () = button "Import voters" in
-      let r = `Import (uuid_of_raw_string (Js.to_string i##.value)) in
+      let r = `Import (uuid_of_raw_string (iget ())) in
       let* x = post_with_token ~ifmatch (string_of_voters_request r) "drafts/%s/voters" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
     in
-    div [node i; node b]
+    div [i; b]
   in
-  Lwt.return [node @@ div [node @@ t]; node @@ div [node b]; node import]
+  Lwt.return [div [t]; div [b]; import]
 
 let rec show_draft_passwords uuid container =
   let@ () = show_in container in
@@ -98,17 +97,15 @@ let rec show_draft_passwords uuid container =
     let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
     List.filter (fun v -> not @@ SSet.mem v x) voters
   in
-  let t1 = textarea () in
-  t1##.value := Js.string (string_of_voter_list x);
-  let t2 = textarea () in
-  t2##.value := Js.string (string_of_voter_list missing);
+  let t1, _ = textarea (string_of_voter_list x) in
+  let t2, t2get = textarea (string_of_voter_list missing) in
   let b =
     let@ () = button "Generate and send passwords" in
-    let* x = post_with_token ?ifmatch (Js.to_string t2##.value) "drafts/%s/passwords" uuid in
+    let* x = post_with_token ?ifmatch (t2get ()) "drafts/%s/passwords" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_passwords uuid container)
   in
-  Lwt.return [node @@ div [node @@ t1]; node @@ div [node @@ t2]; node @@ div [node b]]
+  Lwt.return [div [t1]; div [t2]; div [b]]
 
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
@@ -124,22 +121,21 @@ let rec show_draft_credentials uuid container =
        let@ () = show_in container in
        generic_proceed x (fun () -> show_draft_credentials uuid container)
      in
-     Lwt.return [node @@ b]
+     Lwt.return [b]
   | None, Some token ->
      let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
      let module X = Belenios_ui.Mails_admin.Make (I18n) in
      let subject, body = X.mail_credential_authority !gettext link in
      Lwt.return [
-         node @@ a_mailto ~recipient:"" ~subject ~body "Send an e-mail to the credential authority";
+         a_mailto ~recipient:"" ~subject ~body "Send an e-mail to the credential authority";
          txt " ";
          txt "or send the following link manually:";
          txt " ";
          txt link;
        ]
   | Some _, _ ->
-     let t = textarea () in
-     t##.value := Js.string (string_of_credentials x);
-     Lwt.return [node @@ t]
+     let t, _ = textarea (string_of_credentials x) in
+     Lwt.return [t]
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
@@ -161,15 +157,15 @@ let rec show_draft_trustees uuid container =
   in
   let mode = div [txt "Mode:"; txt " "; txt mode] in
   let mode_set =
-    let t = textarea ~rows:1 ~cols:60 () in
+    let t, tget = textarea ~rows:1 ~cols:60 "" in
     let b =
       let ifmatch = sha256_b64 mode_str in
       let@ () = button "Set mode" in
-      let* x = put_with_token ~ifmatch (Js.to_string t##.value) "drafts/%s/trustees-mode" uuid in
+      let* x = put_with_token ~ifmatch (tget ()) "drafts/%s/trustees-mode" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
-    div [node t; txt " "; node b]
+    div [t; txt " "; b]
   in
   let all_trustees =
     List.map
@@ -182,46 +178,45 @@ let rec show_draft_trustees uuid container =
             let@ () = show_in container in
             generic_proceed x (fun () -> show_draft_trustees uuid container)
           in
-          [txt (string_of_trustee t); txt " "; node @@ b]
+          [txt (string_of_trustee t); txt " "; b]
         in
-        node @@ li content
+        li content
       ) trustees
   in
   let all_trustees = ul all_trustees in
-  let t2 = textarea () in
+  let t2, t2get = textarea "" in
   let b =
     let@ () = button "Add trustee" in
-    let r = `Add (trustee_of_string (Js.to_string t2##.value)) in
+    let r = `Add (trustee_of_string (t2get ())) in
     let* x = post_with_token ?ifmatch (string_of_trustees_request r) "drafts/%s/trustees" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
   let import =
-    let i = input [] in
+    let i, iget = input "" in
     let b =
       let@ () = button "Import trustees" in
-      let r = `Import (uuid_of_raw_string (Js.to_string i##.value)) in
+      let r = `Import (uuid_of_raw_string (iget ())) in
       let* x = post_with_token ?ifmatch (string_of_trustees_request r) "drafts/%s/trustees" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
-    div [node i; node b]
+    div [i; b]
   in
   Lwt.return [
-      node @@ mode;
-      node @@ mode_set;
-      node @@ div [node all_trustees];
-      node @@ div [node t2];
-      node @@ div [node b];
-      node @@ import;
+      mode;
+      mode_set;
+      div [all_trustees];
+      div [t2];
+      div [b];
+      import;
     ]
 
 let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = get status_of_string "drafts/%s/status" uuid in
   let@ status = with_ok "status" x in
-  let t = textarea () in
-  t##.value := Js.string (string_of_status status);
+  let t, _ = textarea (string_of_status status) in
   let b label r =
     let@ () = button label in
     let* x = post_with_token (string_of_draft_request r) "drafts/%s" uuid in
@@ -236,11 +231,11 @@ let rec show_draft_status uuid container =
   in
   let buttons =
     div [
-        node @@ b "Set downloaded" `SetDownloaded;
-        node @@ b "Validate election" `ValidateElection;
+        b "Set downloaded" `SetDownloaded;
+        b "Validate election" `ValidateElection;
       ]
   in
-  Lwt.return [node @@ div [node t]; node buttons]
+  Lwt.return [div [t]; buttons]
 
 let suffix_and_label_of_draft_tab = function
   | `Draft -> "", "Draft"
@@ -281,8 +276,8 @@ let show main uuid tab context =
            uuid (string_of_error e)
        in
        Lwt.return [
-           node @@ h1 [txt "Error"];
-           node @@ div [txt msg];
+           h1 [txt "Error"];
+           div [txt msg];
          ]
     | Ok draft ->
        let title = h2 [] in
@@ -291,22 +286,24 @@ let show main uuid tab context =
          let@ () = show_in main in
          let tabs =
            ul [
-               node @@ li [node @@ a_draft_tab uuid `Draft];
-               node @@ li [node @@ a_draft_tab uuid `Voters];
-               node @@ li [node @@ a_draft_tab uuid `Passwords];
-               node @@ li [node @@ a_draft_tab uuid `Credentials];
-               node @@ li [node @@ a_draft_tab uuid `Trustees];
-               node @@ li [node @@ a_draft_tab uuid `Status];
+               li [a_draft_tab uuid `Draft];
+               li [a_draft_tab uuid `Voters];
+               li [a_draft_tab uuid `Passwords];
+               li [a_draft_tab uuid `Credentials];
+               li [a_draft_tab uuid `Trustees];
+               li [a_draft_tab uuid `Status];
              ]
          in
          Lwt.return [
-             node @@ div [node @@ a ~href:"#" "Home"];
-             node @@ h1 [txt draft.draft_questions.t_name];
-             node @@ tabs;
-             node @@ title;
-             node @@ container;
+             div [a ~href:"#" "Home"];
+             h1 [txt draft.draft_questions.t_name];
+             tabs;
+             title;
+             container;
            ]
        in
+       let title = Tyxml_js.To_dom.of_h2 title in
+       let container = Tyxml_js.To_dom.of_div container in
        context := `Draft (draft, title, container);
        show_draft show_all uuid draft title container tab
   in

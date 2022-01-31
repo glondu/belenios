@@ -21,13 +21,14 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_tyxml
 open Belenios_platform.Platform
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_tool_js_common
 open Tool_js_common
-open Tool_js_html
+open Tyxml_js.Html5
 open Common
 
 let context = ref `None
@@ -92,13 +93,12 @@ let rec show_root main =
   let* account, account_opt =
     let* x = get api_account_of_string "account" in
     let@ account = with_ok_opt "account" x in
-    let t = textarea ~rows:2 () in
     let account_str = string_of_api_account account in
-    t##.value := Js.string account_str;
+    let t, tget = textarea ~rows:2 account_str in
     let b =
       let ifmatch = sha256_b64 account_str in
       let@ () = button "Save changes" in
-      let* x = put_with_token ~ifmatch (Js.to_string t##.value) "account" in
+      let* x = put_with_token ~ifmatch (tget ()) "account" in
       let@ () = show_in main in
       let msg =
         match x.code with
@@ -106,9 +106,9 @@ let rec show_root main =
         | code -> Printf.sprintf "Error %d: %s" code x.content
       in
       let b = button "Proceed" (fun () -> show_root main) in
-      Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+      Lwt.return [div [txt msg]; div [b]]
     in
-    Lwt.return [node @@ div [node t]; node @@ div [node b]]
+    Lwt.return [div [t]; div [b]]
   in
   let* x = get summary_list_of_string "drafts" in
   let ifmatch = compute_ifmatch string_of_summary_list x in
@@ -116,8 +116,8 @@ let rec show_root main =
     let@ drafts = with_ok "drafts" x in
     drafts
     |> List.sort (fun a b -> compare b.summary_date a.summary_date)
-    |> List.map (fun x -> node @@ li [node @@ draft_a x])
-    |> (fun xs -> Lwt.return [node @@ ul xs])
+    |> List.map (fun x -> li [draft_a x])
+    |> (fun xs -> Lwt.return [ul xs])
   in
   let* validated, tallied, archived =
     let* x = get summary_list_of_string "elections" in
@@ -133,8 +133,8 @@ let rec show_root main =
        let make kind =
          List.filter (fun x -> x.summary_kind = Some kind) elections
          |> List.sort (fun a b -> compare b.summary_date a.summary_date)
-         |> List.map (fun x -> node @@ li [node @@ election_a x])
-         |> (fun xs -> [node @@ ul xs])
+         |> List.map (fun x -> li [election_a x])
+         |> (fun xs -> [ul xs])
        in
        Lwt.return (make `Validated, make `Tallied, make `Archived)
   in
@@ -167,15 +167,15 @@ let rec show_root main =
     | _ -> None
   in
   let create =
-    let t = textarea () in
-    let () =
+    let value =
       match template with
-      | None -> ()
-      | Some x -> t##.value := Js.string (string_of_draft x)
+      | None -> ""
+      | Some x -> string_of_draft x
     in
+    let t, tget = textarea value in
     let b =
       let@ () = button "Create new draft" in
-      let* x = post_with_token ?ifmatch (Js.to_string t##.value) "drafts" |> wrap uuid_of_string in
+      let* x = post_with_token ?ifmatch (tget ()) "drafts" |> wrap uuid_of_string in
       match x with
       | Ok uuid ->
          Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ raw_string_of_uuid uuid);
@@ -188,28 +188,28 @@ let rec show_root main =
              (string_of_error e)
          in
          let b = button "Proceed" (fun () -> show_root main) in
-         Lwt.return [node @@ div [msg]; node @@ div [node @@ b]]
+         Lwt.return [div [msg]; div [b]]
     in
     div [
-        node @@ div [node @@ t];
-        node @@ div [node @@ b];
+        div [t];
+        div [b];
       ]
   in
   Lwt.return [
-      node @@ h1 [txt "Server configuration"];
-      node @@ div configuration;
-      node @@ h1 [txt "My account"];
-      node @@ div account;
-      node @@ h1 [txt @@ s_ "Elections being prepared"];
-      node @@ div drafts;
-      node @@ h1 [txt @@ s_ "Elections you can administer"];
-      node @@ div validated;
-      node @@ h1 [txt @@ s_ "Tallied elections"];
-      node @@ div tallied;
-      node @@ h1 [txt @@ s_ "Archived elections"];
-      node @@ div archived;
-      node @@ h1 [txt "Create new draft"];
-      node @@ create;
+      h1 [txt "Server configuration"];
+      div configuration;
+      h1 [txt "My account"];
+      div account;
+      h1 [txt @@ s_ "Elections being prepared"];
+      div drafts;
+      h1 [txt @@ s_ "Elections you can administer"];
+      div validated;
+      h1 [txt @@ s_ "Tallied elections"];
+      div tallied;
+      h1 [txt @@ s_ "Archived elections"];
+      div archived;
+      h1 [txt "Create new draft"];
+      create;
     ]
 
 let show hash main =

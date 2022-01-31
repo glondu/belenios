@@ -21,10 +21,10 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_tyxml
 open Belenios_platform.Platform
 open Belenios_core.Common
-open Belenios_tool_js_common
-open Tool_js_html
+open Tyxml_js.Html5
 
 let gettext = ref I18n.default
 
@@ -33,25 +33,35 @@ let lwt_handler f =
 
 let show_in container f =
   let* content = f () in
+  let content = List.map Tyxml_js.To_dom.of_node content in
   container##.innerHTML := Js.string "";
   List.iter (Dom.appendChild container) content;
   Lwt.return_unit
 
-let textarea ?(cols = 80) ?(rows = 10) () =
-  let r = textarea [] in
+let textarea ?(cols = 80) ?(rows = 10) value =
+  let elt = textarea (txt value) in
+  let r = Tyxml_js.To_dom.of_textarea elt in
   r##.cols := cols;
   r##.rows := rows;
-  r
+  elt, (fun () -> Js.to_string r##.value)
+
+let input value =
+  let elt = input () in
+  let r = Tyxml_js.To_dom.of_input elt in
+  r##.value := Js.string value;
+  elt, (fun () -> Js.to_string r##.value)
 
 let button label handler =
-  let r = button [txt label] in
+  let elt = button [txt label] in
+  let r = Tyxml_js.To_dom.of_button elt in
   r##.onclick := lwt_handler handler;
-  r
+  elt
 
 let a ~href label =
-  let r = a [txt label] in
+  let elt = a [txt label] in
+  let r = Tyxml_js.To_dom.of_a elt in
   r##.href := Js.string href;
-  r
+  elt
 
 let a_mailto ~recipient ~subject ~body label =
   let params = Url.encode_arguments ["subject", subject; "body", body] in
@@ -139,7 +149,7 @@ let generic_proceed x handler =
     | code -> Printf.sprintf "Error %d: %s" code x.content
   in
   let b = button "Proceed" handler in
-  Lwt.return [node @@ div [txt msg]; node @@ div [node @@ b]]
+  Lwt.return [div [txt msg]; div [b]]
 
 let with_ok what x f =
   match x with
