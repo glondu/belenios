@@ -346,7 +346,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   let check_factor c y f =
     let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     Shape.forall3 (fun {alpha; _} f {challenge; response} ->
-        G.check alpha
+        G.check f
         && check_modulo q challenge
         && check_modulo q response
         && let commitments =
