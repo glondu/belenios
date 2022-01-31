@@ -25,14 +25,6 @@ module type S = sig
     ?target:string -> string -> string ->
     [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
-  val make_button :
-    service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
-             [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)
-      Eliom_service.t ->
-    ?hash:string ->
-    ?style:string ->
-    disabled:bool -> string -> [> `Button] Eliom_content.Html.elt
-
   val make_a_with_hash :
     service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
              [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)

@@ -241,22 +241,6 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                     ];
                 ]
 
-  let make_button ~service ?hash ?style ~disabled contents =
-    let uri = Eliom_uri.make_string_uri ~service () in
-    let uri = match hash with
-      | None -> uri
-      | Some x -> uri ^ "#" ^ x
-    in
-    let style =
-      match style with
-      | None -> ""
-      | Some x -> Printf.sprintf " style=\"%s\"" x
-    in
-    Printf.ksprintf Unsafe.data (* FIXME: unsafe *)
-      "<button onclick=\"location.href='%s';\"%s%s>%s</button>"
-      uri style (if disabled then " disabled" else "")
-      contents
-
   let make_a_with_hash ~service ?hash ?style contents =
     let uri = Eliom_uri.make_string_uri ~service () in
     let uri = match hash with

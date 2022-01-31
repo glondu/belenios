@@ -2561,7 +2561,7 @@ module Make
             raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
             txt " ";
             let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
-            make_button ~service ~disabled:false (s_ "Download as a file");
+            a ~service [txt (s_ "Download as a file")] ();
           ];
         div ~a:[a_id "estimation"] [
             txt (s_ "Estimating computation time…");
