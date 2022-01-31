@@ -15,6 +15,7 @@
   tool_js_shuffle.js
   tool_js_fingerprint.js
   admin.js
+  home.js
   belenios_jslib.js)
  (section share)
  (package belenios-server))
@@ -72,4 +73,9 @@
 (rule
  (target belenios_jslib.js)
  (deps ../jslib/belenios_jslib.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target home.js)
+ (deps ../web-clients/election-home/home.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))

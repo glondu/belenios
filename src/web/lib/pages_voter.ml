@@ -316,15 +316,24 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* footer = audit_footer election in
     let go_to_the_booth =
       let disabled = match state with
-        | `Open -> false
-        | _ -> true
+        | `Open -> []
+        | _ -> [a_disabled ()]
       in
       let Booth election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
+      let button =
+        let uri = Eliom_uri.make_string_uri ~service:(election_vote ()) () in
+        let a =
+          a_id "start"
+          :: a_user_data "uri" uri
+          :: a_user_data "uuid" (raw_string_of_uuid uuid)
+          :: a_user_data "lang" lang
+          :: a_style "font-size:35px;"
+          :: disabled
+        in
+        Eliom_content.Html.F.button ~a [txt (s_ "Start")]
+      in
       div ~a:[a_style "text-align:center;"] [
-          div [
-              let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid; "lang", lang] in
-              make_button ~service:(election_vote ()) ~hash ~style:"font-size:35px;" ~disabled (s_ "Start");
-            ];
+          div [button];
           div [
               a
                 ~service:(Eliom_service.preapply ~service:election_cast uuid)
@@ -537,6 +546,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ballots_link;
         br ();
         div_audit;
+        script ~a:[a_src (static "home.js")] (txt "");
       ] in
     let* lang_box = lang_box (ContSiteElection uuid) in
     responsive_base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
