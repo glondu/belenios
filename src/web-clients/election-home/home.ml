@@ -37,10 +37,22 @@ let start_handler start _ =
   Dom_html.window##.location##.href := Js.string href;
   Js._false
 
+let lang_handler _ =
+  Option.iter (fun x ->
+      x##submit
+    ) (Dom_html.getElementById_coerce "lang_form" Dom_html.CoerceTo.form);
+  Js._false
+
 let onload _ =
   Option.iter (fun start ->
       start##.onclick := Dom_html.handler (start_handler start)
     ) (Dom_html.getElementById_coerce "start" Dom_html.CoerceTo.button);
+  Option.iter (fun x ->
+      x##.style##.display := Js.string "none"
+    ) (Dom_html.getElementById_coerce "lang_submit" Dom_html.CoerceTo.input);
+  Option.iter (fun x ->
+      x##.onchange := Dom_html.handler lang_handler
+    ) (Dom_html.getElementById_coerce "lang_select" Dom_html.CoerceTo.select);
   Js._true
 
 let () =
