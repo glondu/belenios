@@ -500,7 +500,7 @@ def log_in_as_administrator(browser, from_a_login_page=False):
 
 
 def election_home_find_start_button(browser):
-    return wait_for_element_exists_and_attribute_contains_expected_text(browser, "#main button", "onclick", "location.href='", settings.EXPLICIT_WAIT_TIMEOUT)
+    return wait_for_element_exists(browser, "#start", settings.EXPLICIT_WAIT_TIMEOUT)
 
 
 def log_out(browser, election_id=None):
