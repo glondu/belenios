@@ -467,8 +467,6 @@ The election administrator.\
         # She clicks on "en" language
         select = Select(wait_for_element_exists(browser, ".lang_box select", settings.EXPLICIT_WAIT_TIMEOUT))
         select.select_by_visible_text("en")
-        submit = wait_for_element_exists(browser, ".lang_box input[type=submit]", settings.EXPLICIT_WAIT_TIMEOUT)
-        submit.click()
 
         wait_a_bit()
 
@@ -630,8 +628,6 @@ The election administrator.\
         # She clicks on "en" language
         select = Select(wait_for_element_exists(browser, ".lang_box select", settings.EXPLICIT_WAIT_TIMEOUT))
         select.select_by_visible_text("en")
-        submit = wait_for_element_exists(browser, ".lang_box input[type=submit]", settings.EXPLICIT_WAIT_TIMEOUT)
-        submit.click()
 
         wait_a_bit()
 
