@@ -13,7 +13,7 @@
  (name tool_js_booth)
  (modes js)
  (modules tool_js_booth)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -21,7 +21,7 @@
  (name tool_js_credgen)
  (modes js)
  (modules tool_js_credgen)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -29,7 +29,7 @@
  (name tool_js_tkeygen)
  (modes js)
  (modules tool_js_tkeygen)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -37,7 +37,7 @@
  (name tool_js_ttkeygen)
  (modes js)
  (modules tool_js_ttkeygen)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -45,7 +45,7 @@
  (name tool_js_pd)
  (modes js)
  (modules tool_js_pd)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -53,7 +53,7 @@
  (name tool_js_questions)
  (modes js)
  (modules tool_js_questions)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -61,7 +61,7 @@
  (name tool_js_shuffle)
  (modes js)
  (modules tool_js_shuffle)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -69,7 +69,7 @@
  (name tool_js_fingerprint)
  (modes js)
  (modules tool_js_fingerprint)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
@@ -77,6 +77,6 @@
  (name tool_js)
  (modes js)
  (modules tool_js)
- (js_of_ocaml (javascript_files ../../../ext/sjcl/sjcl.js ../../../ext/jsbn/BigIntCompatFull.js))
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))

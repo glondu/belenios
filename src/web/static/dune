@@ -22,60 +22,60 @@
 
 (rule
  (target tool_js.js)
- (deps ../tool/js/tool_js.bc.js)
+ (deps ../clients/tool/tool_js.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_booth.js)
- (deps ../tool/js/tool_js_booth.bc.js)
+ (deps ../clients/tool/tool_js_booth.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_credgen.js)
- (deps ../tool/js/tool_js_credgen.bc.js)
+ (deps ../clients/tool/tool_js_credgen.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_questions.js)
- (deps ../tool/js/tool_js_questions.bc.js)
+ (deps ../clients/tool/tool_js_questions.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_tkeygen.js)
- (deps ../tool/js/tool_js_tkeygen.bc.js)
+ (deps ../clients/tool/tool_js_tkeygen.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_ttkeygen.js)
- (deps ../tool/js/tool_js_ttkeygen.bc.js)
+ (deps ../clients/tool/tool_js_ttkeygen.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_pd.js)
- (deps ../tool/js/tool_js_pd.bc.js)
+ (deps ../clients/tool/tool_js_pd.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_shuffle.js)
- (deps ../tool/js/tool_js_shuffle.bc.js)
+ (deps ../clients/tool/tool_js_shuffle.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target tool_js_fingerprint.js)
- (deps ../tool/js/tool_js_fingerprint.bc.js)
+ (deps ../clients/tool/tool_js_fingerprint.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target admin.js)
- (deps ../admin/admin.bc.js)
+ (deps ../clients/basic/admin.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target belenios_jslib.js)
- (deps ../jslib/belenios_jslib.bc.js)
+ (deps ../clients/jslib/belenios_jslib.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
  (target home.js)
- (deps ../web-clients/election-home/home.bc.js)
+ (deps ../clients/election-home/home.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
