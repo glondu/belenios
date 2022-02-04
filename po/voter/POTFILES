@@ -1,8 +1,8 @@
-src/web/lib/web_common.ml
-src/web/lib/mails_voter.ml
-src/web/lib/pages_common.ml
-src/web/lib/pages_voter.ml
-src/web/lib/site_common.ml
-src/web/lib/site_voter.ml
-src/tool/js/tool_js_booth.ml
-src/tool/js/tool_js_fingerprint.ml
+src/web/server/common/web_common.ml
+src/web/server/common/mails_voter.ml
+src/web/server/common/pages_common.ml
+src/web/server/common/pages_voter.ml
+src/web/server/common/site_common.ml
+src/web/server/common/site_voter.ml
+src/web/clients/tool/tool_js_booth.ml
+src/web/clients/tool/tool_js_fingerprint.ml
