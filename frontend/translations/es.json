@@ -49,6 +49,6 @@
     "review_ballot_for_questions": "Tu voto todavía no está en la urna, y tiene el siguiente contenido:",
     "review_ballot_for_questions_plural": "Tu voto todavía no está en la urna, y tiene las siguientes respuestas a las {{count}} preguntas:",
     "question_x": "Pregunta {{count}}",
-    "ask_to_select_between_x_and_y_answers": "$t(ask_to_select_between_x, {\"count\": {{min}} }) y {{count}} pregunta",
-    "ask_to_select_between_x_and_y_answers_plural": "$t(ask_to_select_between_x, {\"count\": {{min}} }) y {{count}} preguntas"
+    "ask_to_select_between_x_and_y_answers": "$t(ask_to_select_between_x, {\"count\": {{min}} }) y {{count}} pregunta.",
+    "ask_to_select_between_x_and_y_answers_plural": "$t(ask_to_select_between_x, {\"count\": {{min}} }) y {{count}} preguntas."
 }
