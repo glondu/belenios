@@ -21,17 +21,34 @@
 
 open Js_of_ocaml
 
+let drop_leading_hash x =
+  if x <> "" && x.[0] = '#' then
+    String.sub x 1 (String.length x - 1)
+  else x
+
 let start_handler start _ =
+  let hash =
+    Dom_html.window##.location##.hash
+    |> Js.to_string
+    |> drop_leading_hash
+    |> Url.decode_arguments
+  in
+  let params =
+    match List.assoc_opt "c" hash with
+    | None -> []
+    | Some c -> ["credential", c]
+  in
   let get id =
     let attribute = Printf.ksprintf Js.string "data-%s" id in
     Js.Opt.case (start##getAttribute attribute)
       (fun () -> raise Not_found)
       (fun x -> Js.to_string x)
   in
-  let params = [
-      "uuid", get "uuid";
-      "lang", get "lang";
-    ] |> Url.encode_arguments
+  let params =
+    ("uuid", get "uuid")
+    :: ("lang", get "lang")
+    :: params
+    |> Url.encode_arguments
   in
   let href = Printf.sprintf "%s#%s" (get "uri") params in
   Dom_html.window##.location##.href := Js.string href;

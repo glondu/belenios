@@ -82,12 +82,12 @@ function GenericPage({title=null, subTitle=null, children}){
   );
 }
 
-function TranslatableVoteApp({uuid=null, t}){
-  const [currentStep, setCurrentStep] = React.useState(1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
+function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
+  const [currentStep, setCurrentStep] = React.useState(votingCredential ? 2 : 1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
   const [electionObject, setElectionObject] = React.useState(undefined);
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
-  const [credential, setCredential] = React.useState(null);
+  const [credential, setCredential] = React.useState(votingCredential);
   const [electionLoadingStatus, setElectionLoadingStatus] = React.useState(0); // 0: not yet loaded. 1: loaded with success. 2: loaded with error.
   const [electionLoadingErrorMessage, setElectionLoadingErrorMessage] = React.useState(null);
   const [uncryptedBallotBeforeReview, setUncryptedBallotBeforeReview] = React.useState(null);
@@ -292,7 +292,7 @@ function TranslatableVoteApp({uuid=null, t}){
 
 const VoteApp = ReactI18next.withTranslation()(TranslatableVoteApp);
 
-const afterI18nInitialized = (uuid, lang) => {
+const afterI18nInitialized = (uuid, lang, credential) => {
   return function(){
     document.title = i18next.t("page_title");
     document.querySelector("html").setAttribute("lang", 
@@ -302,6 +302,7 @@ i18next.languages[0] || "en");
       e(
         VoteApp,
         {
+          votingCredential: credential,
           uuid: uuid
         }
       ),
@@ -314,9 +315,10 @@ function main() {
   const hash_parameters = getHashParametersFromURL();
   const lang = hash_parameters['lang'];
   const uuid = hash_parameters['uuid'];
+  const credential = hash_parameters['credential'];
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";
-  i18n_init(lang, afterI18nInitialized(uuid, lang));
+  i18n_init(lang, afterI18nInitialized(uuid, lang, credential));
 }
 
 main();

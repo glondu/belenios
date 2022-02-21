@@ -364,6 +364,15 @@ let appendQuestionNavigation question_div sk params qs =
       );
   Dom.appendChild question_div btns
 
+let proceedWithCredential params intro_div qs cred =
+  intro_div##.style##.display := Js.string "none";
+  set_element_display "question_div" "block";
+  Dom_html.window##.onbeforeunload :=
+    Dom_html.handler (fun _ -> Js._false);
+  progress_step 2;
+  let$ e = document##getElementById (Js.string "question_div") in
+  appendQuestionNavigation e cred params qs
+
 let createStartButton params intro_div qs =
   let b = Dom_html.createButton document in
   b##.style##.fontSize := Js.string "20px";
@@ -372,15 +381,7 @@ let createStartButton params intro_div qs =
     (match prompt (s_ "Please enter your credential:") with
      | Some cred ->
         (match Credential.parse cred with
-         | `Valid ->
-            intro_div##.style##.display := Js.string "none";
-            set_element_display "question_div" "block";
-            Dom_html.window##.onbeforeunload := Dom_html.handler (fun _ ->
-                                                    Js._false
-                                                  );
-            progress_step 2;
-            let$ e = document##getElementById (Js.string "question_div") in
-            appendQuestionNavigation e cred params qs
+         | `Valid -> proceedWithCredential params intro_div qs cred
          | `Invalid ->
             alert (s_ "Invalid credential!")
          | `MaybePassword ->
@@ -393,7 +394,7 @@ let createStartButton params intro_div qs =
   Dom.appendChild b t;
   b
 
-let loadElection () =
+let loadElection credential () =
   set_element_display "election_loader" "none";
   set_element_display "wait_div" "none";
   set_element_display "booth_div" "block";
@@ -412,9 +413,13 @@ let loadElection () =
   set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
   set_content "election_fingerprint" P.fingerprint;
   let$ e = document##getElementById (Js.string "intro") in
-  let b = createStartButton (module P) e params.e_questions in
-  let$ e = document##getElementById (Js.string "input_code") in
-  Dom.appendChild e b
+  match credential with
+  | None ->
+     let b = createStartButton (module P) e params.e_questions in
+     let$ e = document##getElementById (Js.string "input_code") in
+     Dom.appendChild e b
+  | Some credential ->
+     proceedWithCredential (module P) e params.e_questions credential
 
 let get_prefix str =
   let n = String.length str in
@@ -427,7 +432,7 @@ let get_params x =
   else
     Url.decode_arguments (String.sub x 1 (n-1))
 
-let load_uuid uuid =
+let load_uuid uuid credential =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let* raw =
     let* x = Printf.ksprintf get "elections/%s/election.json" uuid in
@@ -437,22 +442,22 @@ let load_uuid uuid =
     ) else Lwt.return x.content
   in
   set_textarea "election_params" raw;
-  run_handler loadElection ();
+  run_handler (loadElection credential) ();
   Lwt.return_unit
 
-let load_uuid_handler lang =
+let load_uuid_handler lang credential =
   match get_textarea_opt "uuid" with
   | Some uuid ->
      let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
      Dom_html.window##.location##.hash := Js.string encoded;
-     load_uuid uuid
+     load_uuid uuid credential
   | None -> Lwt.return_unit
 
-let load_params_handler () =
+let load_params_handler credential =
   set_element_display "div_ballot" "block";
   set_element_display "div_submit" "none";
   set_element_display "div_submit_manually" "block";
-  run_handler loadElection ();
+  run_handler (loadElection credential) ();
   Lwt.return_unit
 
 let () =
@@ -464,19 +469,20 @@ let () =
         | Some x -> x
         | None -> "en"
       in
+      let credential = List.assoc_opt "credential" params in
       let* () = Tool_js_i18n.init "static" "voter" lang in
       let () =
         let$ e = document##getElementById (Js.string "load_uuid") in
         Lwt_js_events.async (fun () ->
             let* _ = Lwt_js_events.click e in
-            load_uuid_handler lang
+            load_uuid_handler lang credential
           )
       in
       let () =
         let$ e = document##getElementById (Js.string "load_params") in
         Lwt_js_events.async (fun () ->
             let* _ = Lwt_js_events.click e in
-            load_params_handler ()
+            load_params_handler credential
           )
       in
       match List.assoc_opt "uuid" params with
@@ -484,5 +490,5 @@ let () =
          set_element_display "wait_div" "none";
          set_element_display "election_loader" "block";
          Lwt.return_unit
-      | Some uuid -> load_uuid uuid
+      | Some uuid -> load_uuid uuid credential
     )
