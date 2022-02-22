@@ -340,6 +340,7 @@ let available_languages = [
     "el";
     "en";
     "es";
+    "es_419";
     "fi";
     "fr";
     "it";
