@@ -1,3 +1,14 @@
+dev
+===
+
+ * Web server:
+   + Add a configuration option to deny new elections
+   + Avoid & in links sent via mailto (GitHub issue #37)
+   + Add support for allowlist in auth config (GitHub issue #47)
+   + Add possibility to pass credential in hash (GitHub issue #49)
+ * Translations:
+   + Add Lithuanian
+
 1.18 (2021-11-24)
 =================
 
