@@ -137,8 +137,8 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     - source venv/bin/activate
     # Install pip packages
     - pip install -r requirements.txt
-    # Execute fuzz testing of the main login form
-    - LOGIN_MODE=local python ./tests/selenium/test_fuzz_login.py
+    # # Execute fuzz testing of the main login form
+    # - LOGIN_MODE=local python ./tests/selenium/test_fuzz_login.py
     # # Execute fuzz testing of the "Advanced mode" voting process
     # - python ./tests/selenium/test_fuzz_vote.py
     # Execute clicker monkey testing
