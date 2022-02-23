@@ -27,7 +27,7 @@ cd /
 
 echo "Debootstrapping..."
 
-debootstrap --merged-usr --variant=minbase --include=systemd,dbus buster "$DIR/rootfs"
+debootstrap --merged-usr --variant=minbase --include=systemd,dbus bullseye "$DIR/rootfs"
 echo 'APT::Install-Recommends "false";' >> "$DIR/rootfs/etc/apt/apt.conf"
 
 ln -sfT /usr/lib/systemd/resolv.conf "$DIR/rootfs/etc/resolv.conf"
