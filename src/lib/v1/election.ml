@@ -208,7 +208,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
 
   module CastBallot (B : BBOX_OPS with type 'a m := 'a m) = struct
 
-    let check_credential ?user ?weight ~credential =
+    let check_credential ?user ?weight credential =
       let* x = B.get_credential_record credential in
       match x with
       | None -> M.return (Error `InvalidCredential)
@@ -243,7 +243,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
            M.return (Error `NonCanonical)
          ) else (
            let credential = G.to_string ballot.credential in
-           let* x = check_credential ?user ?weight ~credential in
+           let* x = check_credential ?user ?weight credential in
            match x with
            | Error _ as e -> M.return e
            | Ok old ->

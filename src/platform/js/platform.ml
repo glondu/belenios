@@ -21,7 +21,7 @@
 
 open Js_of_ocaml
 
-let belenios = Js.Unsafe.variable "belenios"
+let belenios = Js.Unsafe.pure_js_expr "belenios"
 
 let debug x = Firebug.console##log (Js.string x)
 
