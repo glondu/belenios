@@ -14,13 +14,13 @@ import base64
 import json
 
 # Example :
-#   ./monitor_elections.py --uuid aTGmQNj1SXA5JG --url https://belenios.loria.fr/beta/ --wdir /tmp/wdir --checkhash yes
+#   ./monitor_elections.py --uuid aTGmQNj1SXA5JG --url https://belenios.loria.fr/ --wdir /tmp/wdir --checkhash yes --hashref $HOME/hashref --outputref  $HOME/hashref --sighashref https://belenios.loria.fr/monitoring-reference/reference.json.gpg --keyring $HOME/.gnupg/pubring.gpg
 
 
-# External dependencies:
+# External dependencies (must be in path):
 # - belenios-tool
 # - git
-# - check_hash.py  (from the belenios source dist, in contrib/)
+# - (optional) gpg
 
 
 # TODO:
@@ -398,7 +398,7 @@ def check_index_html(data):
                 x.getAttribute('id') == 'shuffles'
                 ][0].getElementsByTagName("li"):
             s = shuf.firstChild.data
-            # reuse same pattern as for trustees
+            pat = re.compile(r'(^.*) \(([\w+/]*)\)$')
             mat = pat.match(s)
             hashs2.append(mat.group(2))
         if (not hashs == hashs2):
@@ -432,6 +432,37 @@ def commit(wdir, uuid, msg):
     logme("Successfully added a commit for {}".format(uuid))
     return True
 
+
+##################################
+## Helper functions for monitoring static files
+
+def hash_votefile(link, lang):
+    try:
+        head = { 'Accept-Language' : lang }
+        req = urllib.request.Request(link, headers=head)
+        resp = urllib.request.urlopen(req)
+        data = resp.read()
+    except:
+        print("Failed to download vote.html in lang {}.  Aborting".format(lang))
+        sys.exit(1)
+    m = hashlib.sha256()
+    m.update(data)
+    h = m.hexdigest()
+    return h
+
+def hash_file(link):
+    try:
+        resp = urllib.request.urlopen(link)
+        data = resp.read()
+    except:
+        print("Failed to download {}. Aborting".format(link))
+        sys.exit(1)
+    m = hashlib.sha256()
+    m.update(data)
+    h = m.hexdigest()
+    return h
+
+
 #############################################
 
 # Parsing a bool is not a built-in of argparse :-(
@@ -447,37 +478,52 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 parser = argparse.ArgumentParser(description="monitor Belenios elections")
-group = parser.add_mutually_exclusive_group(required=True)
+parser.add_argument("--url", required=True, help="prefix url (without trailing /elections )")
+# arguments if one wants to monitor specific elections:
+group = parser.add_mutually_exclusive_group()
 group.add_argument("--uuidfile", help="file containing uuid's of election to monitor")
 group.add_argument("--uuid", help="uuid of an election to monitor")
-parser.add_argument("--url", required=True, help="prefix url (without trailing /elections )")
-parser.add_argument("--wdir", required=True, help="work dir where logs are kept")
+parser.add_argument("--wdir", help="work dir where logs are kept")
+# arguments if one wants to monitor the files served by the server:
 parser.add_argument("--checkhash", type=str2bool, nargs='?',
                         const=True, default=True, metavar="yes|no",
                         help="also check static files on the server")
-parser.add_argument("--hashref", help="reference file for hash, as used by check_hash.py")
+parser.add_argument("--hashref", help="reference file for hash of static files")
+parser.add_argument("--outputref", help="new reference file in case it changed on the server")
+parser.add_argument("--sighashref", help="url where to find a gpg signature for the reference file");
+parser.add_argument("--keyring", help="keyring to check the signature");
+# other arguments
 parser.add_argument("--logfile", help="file to write the non-error logs")
 
 args = parser.parse_args()
+
+########### Check arguments
 
 # Set logfile; check permissions
 if args.logfile:
     log_file = open(args.logfile, "a")
 
+### args for monitoring specific elections
+
 # Build list of uuids
+uuids = [ ]
 if args.uuid:
     uuids = [ args.uuid ]
-else:
-    assert (args.uuidfile)
-    uuids = [ ]
+elif args.uuidfile:
     with open(args.uuidfile, "r") as file:
         for line in file:
             uuids.append(line.rstrip())
 
-# check that wdir exists and is r/w
-if not os.path.isdir(args.wdir) or not os.access(args.wdir, os.W_OK | os.R_OK):
-    print("The wdir {} should read/write accessible".format(args.wdir))
-    sys.exit(1)
+# check that wdir exists and is r/w (if uuids given)
+if uuids:
+    if not args.wdir:
+        print("--wdir is mandatory for monitoring elections")
+        sys.exit(1)
+    if not os.path.isdir(args.wdir) or not os.access(args.wdir, os.W_OK | os.R_OK):
+        print("The wdir {} should read/write accessible".format(args.wdir))
+        sys.exit(1)
+
+### args for monitoring static files
 
 # check that a ref file is given if checkhash is set
 if args.checkhash == True:
@@ -485,7 +531,72 @@ if args.checkhash == True:
         print("If --checkhash is set, a --hashref file should be given")
         sys.exit(1)
 
-logme("[{}] Starting monitoring elections.".format(datetime.datetime.now()))
+# check that a keyring is given if a signature url is set
+if args.sighashref:
+    if not args.keyring or not args.checkhash:
+        print("If --sighashref is given, --checkhash must be set and a --keyring file should be given")
+        sys.exit(1)
+
+
+########### Monitor static files
+
+if args.checkhash == True:
+    logme("[{}] Starting monitoring static files.".format(datetime.datetime.now()))
+
+    # Compare hashref and what is served by the server
+    url = args.url.strip("/")
+    hashfile_changed = False
+    with open(args.hashref) as f:
+        reference = json.load(f)
+    new_reference = {}
+    for f, descr in reference.items():
+        if type(descr) == dict:
+            new_reference[f] = {}
+            for lang, descr in descr.items():
+                h = hash_votefile(url + f, lang)
+                new_reference[f][lang] = h
+                if h != descr:
+                    hashfile_changed = True
+                    print("Different hash of {} in {}: got {} but expected {}".format(f, lang, h, descr))
+        else:
+            h = hash_file(url + f)
+            new_reference[f] = h
+            if h != descr:
+                hashfile_changed = True
+                print("Different hash of static file {}: got {} but expected {}".format(f, h, descr))
+        
+    if hashfile_changed:
+        logme("Hash of static files have changed")
+    else:
+        logme("Successfully checked hash of static files")
+
+    if hashfile_changed and args.outputref:
+        print("Writing new reference file")
+        with open(args.outputref, mode="w") as f:
+            json.dump(new_reference, f)
+
+    # If we can check signature, do it
+    if args.sighashref:
+        resp = urllib.request.urlopen(args.sighashref)
+        sig = resp.read()
+        gpgrun = subprocess.run(["gpg", "--keyring", args.keyring, "--decrypt"],
+                input=sig,
+                capture_output=True)
+        if gpgrun.returncode != 0:
+            print("GPG signature verification failed")
+            print(gpgrun.stderr)
+            sys.exit(1)
+        else:
+            signed_ref = json.loads(gpgrun.stdout)
+            if signed_ref != new_reference:
+                print("Signed reference does not correspond to downloaded files")
+                sys.exit(1)
+        logme("Successfully checked signature of hash of static files")
+
+########### Monitor elections
+
+if uuids:
+    logme("[{}] Starting monitoring elections.".format(datetime.datetime.now()))
 
 for uuid in uuids:
     logme("Start monitoring election {}".format(uuid))
@@ -523,17 +634,5 @@ for uuid in uuids:
             status.msg.decode()))
     commit(args.wdir, uuid, status.msg)
     
-# check hash of js files. They do not depend on a particular election, so
-# we dot it only once
-
-if args.checkhash == True:
-    hh = subprocess.run(["check_hash.py", "--url", args.url, "--reference", args.hashref ],
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    if hh.returncode != 0:
-        print(hh.stdout.decode())
-        sys.exit(1)
-    else:
-        logme("Successfully checked hash of static files")
-
 if args.logfile:
     log_file.close()
