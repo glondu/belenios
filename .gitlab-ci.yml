@@ -5,7 +5,7 @@ stages:
 build_and_test_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by Dockerfile_base_environment
-  image: glondu/beleniosbase:20211008-1
+  image: glondu/beleniosbase:20220223-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -22,7 +22,7 @@ build_and_test_with_preinstalled_image:
 
 build_and_test_with_debian_image:
   stage: test
-  image: ocaml/opam:debian-10-ocaml-4.11
+  image: ocaml/opam:debian-11-ocaml-4.13
   script:
     # Install required packages
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm rsync
@@ -44,7 +44,7 @@ build_and_test_with_debian_image:
 build_and_run_automated_test_scenarios_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by Dockerfile_test_scenario_environment
-  image: glondu/beleniosbase-tests:20211008-1
+  image: glondu/beleniosbase-tests:20220223-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -75,7 +75,7 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
   rules:
     - changes:
         - VERSION
-  image: glondu/beleniosbase-tests:20211008-1
+  image: glondu/beleniosbase-tests:20220223-1
   variables:
     PREPARED_DATABASE_VERSION: v0.02.20211008
   script:
@@ -111,7 +111,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
   rules:
     - changes:
         - VERSION
-  image: glondu/beleniosbase-tests:20211008-1
+  image: glondu/beleniosbase-tests:20220223-1
   variables:
     WAIT_TIME_BETWEEN_EACH_STEP: "0.02"
     USE_HEADLESS_BROWSER: "1"
@@ -137,8 +137,8 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     - source venv/bin/activate
     # Install pip packages
     - pip install -r requirements.txt
-    # Execute fuzz testing of the main login form
-    - LOGIN_MODE=local python ./tests/selenium/test_fuzz_login.py
+    # # Execute fuzz testing of the main login form
+    # - LOGIN_MODE=local python ./tests/selenium/test_fuzz_login.py
     # # Execute fuzz testing of the "Advanced mode" voting process
     # - python ./tests/selenium/test_fuzz_vote.py
     # Execute clicker monkey testing

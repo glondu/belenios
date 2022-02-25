@@ -24,7 +24,7 @@ mkdir opam-repository
 cd opam-repository
 git init
 git remote add origin https://github.com/ocaml/opam-repository.git
-git fetch --depth=1 origin 0eacced026c361688fa6e472a7e3b3f571389f6c:opam
+git fetch --depth=1 origin f6f7fd51b089601fb1e25a5a6aa020510423d25e:opam
 git checkout opam
 
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
@@ -53,11 +53,11 @@ if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
     mkdir -p "$BELENIOS_SYSROOT/bootstrap/src"
 
     cd "$BELENIOS_SYSROOT/bootstrap/src"
-    wget https://github.com/ocaml/opam/releases/download/2.1.0/opam-full-2.1.0.tar.gz
+    wget https://github.com/ocaml/opam/releases/download/2.1.2/opam-full-2.1.2.tar.gz
 
     if which sha256sum >/dev/null; then
         sha256sum --check <<EOF
-6102131a9b65536b713efba7f5498acb3802ae15fec3171cc2c98427cfc3926f  opam-full-2.1.0.tar.gz
+de1e3efffd5942e0101ef83dcdead548cc65a93e13986aecb4a264a059457ede  opam-full-2.1.2.tar.gz
 EOF
     else
         echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
@@ -70,8 +70,8 @@ EOF
     echo "=-=-= Compilation and installation of OPAM =-=-="
     echo
     cd "$BELENIOS_SYSROOT/bootstrap/src"
-    tar -xzf opam-full-2.1.0.tar.gz
-    cd opam-full-2.1.0
+    tar -xzf opam-full-2.1.2.tar.gz
+    cd opam-full-2.1.2
     make cold CONFIGURE_ARGS="--prefix $BELENIOS_SYSROOT/bootstrap"
     make cold-install LIBINSTALL_DIR="$BELENIOS_SYSROOT/bootstrap/lib/ocaml"
 
@@ -95,13 +95,13 @@ echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
-opam switch create 4.11.2
+opam switch create 4.13.1 ocaml-base-compiler.4.13.1
 eval $(opam env)
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv eliom=8.8.0 gettext-camomile ocamlnet
+opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite eliom gettext-camomile ocamlnet
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

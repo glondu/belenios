@@ -27,7 +27,7 @@ cd /
 
 echo "Debootstrapping..."
 
-debootstrap --merged-usr --variant=minbase --include=systemd,dbus buster "$DIR/rootfs"
+debootstrap --merged-usr --variant=minbase --include=systemd,dbus bullseye "$DIR/rootfs"
 echo 'APT::Install-Recommends "false";' >> "$DIR/rootfs/etc/apt/apt.conf"
 
 ln -sfT /usr/lib/systemd/resolv.conf "$DIR/rootfs/etc/resolv.conf"
@@ -56,7 +56,7 @@ chroot "$DIR/rootfs" useradd belenios
 
 echo "Setting up runtime files from opam root..."
 
-cp -a --parents home/belenios/.belenios/opam/4.11.2/lib/findlib.conf "$DIR/rootfs"
+cp -a --parents home/belenios/.belenios/opam/4.13.1/lib/findlib.conf "$DIR/rootfs"
 
 echo "Copying needed runtime files from belenios source tree..."
 

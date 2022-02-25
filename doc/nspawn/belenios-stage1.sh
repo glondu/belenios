@@ -19,7 +19,7 @@ fi
 
 echo "Debootstrapping..."
 
-debootstrap --merged-usr --variant=buildd buster "$DIR"
+debootstrap --merged-usr --variant=buildd bullseye "$DIR"
 echo 'APT::Install-Recommends "false";' >> "$DIR/etc/apt/apt.conf"
 
 cp "$SRC/belenios-stage2.sh" "$DIR"
