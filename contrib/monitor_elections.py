@@ -174,7 +174,7 @@ def check_hash_ballots(data):
         list_hash2.append(h)
         if has_weight:
             jsn = json.loads(l)
-            cred = jsn['signature']['public_key']
+            cred = jsn['credential']
             pat = re.compile(cred + r',(\d+)')
             m=pat.search(data['public_creds.txt'].decode())
             if m:
