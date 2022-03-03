@@ -52,7 +52,7 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
 
                     # She clicks on "en" language
                     select = Select(wait_for_element_exists(browser, ".lang_box select", settings.EXPLICIT_WAIT_TIMEOUT))
-                    select.select_by_visible_text("en")
+                    select.select_by_value("en")
                     submit = wait_for_element_exists(browser, ".lang_box input[type=submit]", settings.EXPLICIT_WAIT_TIMEOUT)
                     submit.click()
 

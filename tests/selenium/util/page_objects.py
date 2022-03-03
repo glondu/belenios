@@ -39,7 +39,7 @@ class ElectionHomePage(VerifiablePage):
 
     def click_on_language_link(self, language_link_label):
         select = Select(wait_for_element_exists(self.browser, ".lang_box select", self.timeout))
-        select.select_by_visible_text(language_link_label)
+        select.select_by_value(language_link_label)
 
 
     def click_on_start_button(self):

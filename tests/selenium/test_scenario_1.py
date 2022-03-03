@@ -54,7 +54,7 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
         # She clicks on "en" language
         select = Select(wait_for_element_exists(browser, ".lang_box select", settings.EXPLICIT_WAIT_TIMEOUT))
-        select.select_by_visible_text("en")
+        select.select_by_value("en")
 
         wait_a_bit()
 

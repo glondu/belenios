@@ -217,7 +217,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
   let lang_box cont =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let langs = List.map (fun l -> Option ([], l, None, l = lang)) available_languages in
+    let langs = List.map (fun l -> Option ([], l, Some (txt l), l = lang)) available_languages in
     let form =
       get_form ~a:[a_id "lang_form"] ~service:set_language
         (fun (nlang, ncont) ->
