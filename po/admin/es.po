@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2022-02-18 18:56+0000\n"
+"PO-Revision-Date: 2022-02-25 18:55+0000\n"
 "Last-Translator: Marco M <marcomillo@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.11.1-dev\n"
 
 #: src/web/server/common/pages_admin.ml:2077
 msgid " You may re-open the election when it is closed."
@@ -214,12 +214,12 @@ msgstr ""
 
 #: src/web/common/mails_admin.ml:44
 msgid "4. Download the list of voters (voters.txt)."
-msgstr "4. Descargue la lista de votantes (voters.txt)."
+msgstr "4. Descargue la lista de electores (voters.txt)."
 
 #: src/web/common/mails_admin.ml:46
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
-"5. Guarde dos huellas digitales: la huella digital de los votantes y la "
+"5. Guarde dos huellas digitales: la huella digital de los electores y la "
 "huella digital de las credenciales públicas"
 
 #: src/web/common/mails_admin.ml:48
@@ -286,7 +286,7 @@ msgstr ""
 
 #: src/web/clients/tool/tool_js_questions.ml:381
 msgid "Alternative (voters assign a number to each candidate)"
-msgstr "Alternativa (los votantes asignan un número a cada candidato)"
+msgstr "Alternativa (los electores asignan un número a cada candidato)"
 
 #: src/web/server/common/pages_admin.ml:1912
 msgid "Alternative questions cannot be combined with weights."
@@ -331,7 +331,7 @@ msgstr ""
 ",nombre_de_usuario, peso\" o \"correo,, peso\" donde \"correo\" es una "
 "dirección de correo electrónico, \"nombre_de_usuario\" el nombre de usuario "
 "asociado para autenticación, y \"peso\" es el número de votos del votante ("
-"en caso de que los votantes no tengan el mismo número de votos)."
+"en caso de que los electores no tengan el mismo número de votos)."
 
 #: src/web/clients/tool/tool_js_questions.ml:144
 msgid "Answer: "
@@ -344,7 +344,8 @@ msgstr "Elecciones archivadas"
 
 #: src/web/server/common/pages_admin.ml:2557
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
-msgstr "Como fedatario, su primera función es mezclar las boletas codificadas."
+msgstr ""
+"Como fedatario, su primera función es mezclar las papeletas encriptadas."
 
 #: src/web/server/common/pages_admin.ml:2249
 msgid "At least %d trustee(s) must act."
@@ -423,7 +424,7 @@ msgstr "Cambio de contraseña de Belenios"
 #: src/web/common/mails_admin.ml:209
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr ""
-"A continuación encontrará el enlace para mezclar las boletas encriptadas."
+"A continuación encontrará el enlace para mezclar las papeletas encriptadas."
 
 #. src/web/server/common/pages_admin.ml:3055
 #. src/web/server/common/pages_admin.ml:3033
@@ -458,14 +459,14 @@ msgstr "Cancelar"
 #: src/web/server/common/site_admin.ml:801
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
-"No se pudieron enviar las credenciales, hay demasiados votantes (el máximo "
+"No se pudieron enviar las credenciales, hay demasiados electores (el máximo "
 "es %d)"
 
 #: src/web/server/common/site_admin.ml:467
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr ""
-"No se pudieron enviar las contraseñas, hay demasiados votantes (el máximo es "
-"%d)"
+"No se pudieron enviar las contraseñas, hay demasiados electores (el máximo "
+"es %d)"
 
 #: src/web/server/common/pages_admin.ml:2067
 msgid "Change automatic dates"
@@ -560,7 +561,7 @@ msgstr "¡No se pudieron recuperar los fedatarios para la elección seleccionada
 
 #: src/web/server/common/site_admin.ml:952
 msgid "Could not retrieve voter list from election %s"
-msgstr "No se pudo recuperar la lista de votantes para la elección %s"
+msgstr "No se pudo recuperar la lista de electores para la elección %s"
 
 #: src/web/clients/tool/tool_js_questions.ml:279
 msgid "Counting method specification"
@@ -631,7 +632,7 @@ msgstr "¿Acreditación?"
 
 #: src/web/server/common/pages_admin.ml:2559
 msgid "Current list of ballots:"
-msgstr "Listado actual de boletas:"
+msgstr "Listado actual de votos:"
 
 #: src/web/server/common/site_admin.ml:1509
 msgid "Data is invalid! (%s)"
@@ -730,7 +731,7 @@ msgstr ""
 #: src/web/server/common/site_admin.ml:968
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
-"Votante duplicado: %s. Esto no se permite. Si dos votantes poseen la misma "
+"Votante duplicado: %s. Esto no se permite. Si dos electores poseen la misma "
 "dirección, use nombres de usuario diferentes."
 
 #. src/web/server/common/pages_admin.ml:2268
@@ -757,7 +758,7 @@ msgstr "Editar las preguntas"
 
 #: src/web/server/common/pages_admin.ml:580
 msgid "Edit voters"
-msgstr "Editar la lista de votantes"
+msgstr "Editar la lista de electores"
 
 #. src/web/server/common/pages_admin.ml:1828
 #. src/web/server/common/pages_admin.ml:1820
@@ -885,7 +886,7 @@ msgstr "Siga el enlace."
 #: src/web/server/common/pages_admin.ml:344
 msgid "For a better control of eligibility, voters will be authenticated by two factors: credentials and passwords"
 msgstr ""
-"Para un mejor control de la elegibilidad, los votantes serán autenticados "
+"Para un mejor control de la elegibilidad, los electores serán autenticados "
 "por dos factores: credenciales y contraseñas"
 
 #: src/web/server/common/pages_admin.ml:595
@@ -962,7 +963,7 @@ msgstr "Caracter ilegal: %c"
 
 #: src/web/server/common/pages_admin.ml:2967
 msgid "Impersonate a user"
-msgstr "Anonimizar a un usuario"
+msgstr "Suplantar a un usuario"
 
 #: src/web/server/common/pages_admin.ml:1792
 msgid "Import from this election"
@@ -976,7 +977,7 @@ msgstr "Importar fedatarios desde otra elección"
 #. src/web/server/common/pages_admin.ml:1385
 #: src/web/server/common/pages_admin.ml:1820
 msgid "Import voters from another election"
-msgstr "Importar listado de votantes desde otra elección"
+msgstr "Importar listado de electores desde otra elección"
 
 #: src/web/server/common/site_admin.ml:999
 msgid "Imported trustees are invalid for this election!"
@@ -991,7 +992,7 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:1821
 msgid "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
 msgstr ""
-"Los votantes importados tendrán la misma contraseña que en la elección "
+"Los electores importados tendrán la misma contraseña que en la elección "
 "original y no se les reenviará un correo electrónico nuevo."
 
 #: src/web/server/common/site_admin.ml:1000
@@ -1077,7 +1078,7 @@ msgstr "Enlace para generar la clave de descifrado"
 
 #: src/web/common/mails_admin.ml:230
 msgid "Link to shuffle encrypted ballots"
-msgstr "Enlace para mezclar los votos encriptados"
+msgstr "Enlace para mezclar las papeletas encriptadas"
 
 #: src/web/common/mails_admin.ml:192
 msgid "Link to tally the election"
@@ -1085,7 +1086,7 @@ msgstr "Enlace para el escrutinio de la elección"
 
 #: src/web/server/common/pages_admin.ml:1488
 msgid "List of voters:"
-msgstr "Listado de votantes:"
+msgstr "Listado de electores:"
 
 #: src/web/server/common/pages_admin.ml:2571
 msgid "Loading…"
@@ -1214,7 +1215,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:1338
 #: src/web/server/common/site_admin.ml:799
 msgid "No voters"
-msgstr "No hay votantes"
+msgstr "No hay electores"
 
 #: src/web/server/common/pages_admin.ml:2506
 msgid "Nobody voted!"
@@ -1342,7 +1343,7 @@ msgid "Our platform currently supports Condorcet, STV and majority judgment, but
 msgstr ""
 "Nuestra plataforma admite actualmente Condorcet, STV y el juicio por "
 "mayoría, pero también puede aplicar su propio método en el resultado sin "
-"procesar (lista mezclada de boletas)."
+"procesar (lista mezclada de votos)."
 
 #: src/web/server/common/pages_admin.ml:2610
 msgid "Partial decryption #%d"
@@ -1396,7 +1397,7 @@ msgstr "Por favor, introduzca el código aquí:"
 #: src/web/server/common/pages_admin.ml:1361
 msgid "Please enter the identities of voters to add, one per line"
 msgstr ""
-"Por favor introduzca, una por linea, las identificaciones de los votantes a "
+"Por favor introduzca, una por linea, las identificaciones de los electores a "
 "agregar"
 
 #: src/web/server/common/pages_admin.ml:2771
@@ -1610,11 +1611,11 @@ msgstr "Mezclar"
 
 #: src/web/server/common/pages_admin.ml:2581
 msgid "Shuffled list of ballots:"
-msgstr "Lista de boletas mezcladas:"
+msgstr "Lista de votos mezclados:"
 
 #: src/web/server/common/pages_admin.ml:2229
 msgid "Shuffling of ballots"
-msgstr "Mezcla de boletas"
+msgstr "Mezcla de papeletas"
 
 #: src/web/server/common/pages_admin.ml:2139
 msgid "Skip"
@@ -1705,7 +1706,7 @@ msgstr "Gracias de nuevo por su ayuda,"
 #. src/web/common/mails_admin.ml:59
 #: src/web/common/mails_admin.ml:223 src/web/common/mails_admin.ml:148
 msgid "Thank you for your help,"
-msgstr "Gracias por tu ayuda,"
+msgstr "Gracias por su ayuda,"
 
 #: src/web/server/common/pages_admin.ml:2320
 msgid "The "
@@ -1805,7 +1806,7 @@ msgstr "¡El máximo ingresado es mayor que el número de opciones!"
 #. src/web/server/common/pages_admin.ml:788
 #: src/web/server/common/pages_admin.ml:2295
 msgid "The link that must be sent to trustee "
-msgstr "El enlace que se debe enviar al fedatario "
+msgstr "El enlace que debe enviarse al fedatario "
 
 #. src/web/server/common/pages_admin.ml:1524
 #. src/web/server/common/pages_admin.ml:1408
@@ -1870,12 +1871,12 @@ msgstr "El/la votante tiene que elegir entre "
 #: src/web/server/common/site_admin.ml:644
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr ""
-"La lista de votantes no es consistente (falta un nombre de usuario o un "
+"La lista de electores no es consistente (falta un nombre de usuario o un "
 "peso)."
 
 #: src/web/server/common/site_admin.ml:662
 msgid "There are too many voters (max is %d)"
-msgstr "Hay demasiados votantes (el máximo es %d)"
+msgstr "Hay demasiados electores (el máximo es %d)"
 
 #: src/web/server/common/pages_admin.ml:3048
 msgid "There has been a request to change the password of your account on our Belenios server."
@@ -1889,7 +1890,7 @@ msgstr "No hay ninguna dirección de correo electrónico asociada a su cuenta."
 
 #: src/web/server/common/pages_admin.ml:1042
 msgid "There is one link per trustee. Send a link to each trustee."
-msgstr "Hay un enlace por fedatario. Envíe un enlace a cada fedatario."
+msgstr "Existe un enlace por fedatario. Envíe un enlace a cada fedatario."
 
 #: src/web/server/common/pages_admin.ml:825
 msgid "There is one link per trustee. Send each trustee the respective link."
@@ -1912,7 +1913,8 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:516
 msgid "This contact will be added to emails sent to the voters."
 msgstr ""
-"Este contacto se agregará a los correos electrónicos enviados a los votantes."
+"Este contacto se agregará a los correos electrónicos enviados a los "
+"electores."
 
 #: src/web/server/common/site_admin.ml:179
 msgid "This e-mail address is invalid!"
@@ -1982,7 +1984,7 @@ msgstr "Para confirmar esto, utilice el siguiente código:"
 #: src/web/server/common/pages_admin.ml:837
 msgid "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 msgstr ""
-"Para configurar la clave de la elección debe nominar fedatarios. Cada "
+"Para configurar la clave de la elección, debe nominar fedatarios. Cada "
 "fedatario creará una clave secreta."
 
 #: src/web/server/common/pages_admin.ml:839
@@ -2064,7 +2066,7 @@ msgstr "Plataforma de votación online verificable"
 
 #: src/web/server/common/pages_admin.ml:2440
 msgid "Voter list"
-msgstr "Lista de votantes"
+msgstr "Lista de electores"
 
 #: src/web/server/common/pages_admin.ml:1259
 msgid "Voters for election %s"
@@ -2116,7 +2118,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:633
 msgid "Warning: this will freeze the voter list!"
-msgstr "Advertencia: ¡esto congelará la lista de votantes!"
+msgstr "Advertencia: ¡esto congelará la lista de electores!"
 
 #: src/web/common/mails_admin.ml:140 src/web/common/mails_admin.ml:90
 msgid "We suggest two options:"
@@ -2163,7 +2165,7 @@ msgstr "¡No puede establecer la autoridad de credenciales para esta elección!"
 #: src/web/common/mails_admin.ml:55
 msgid "You may need to resend credentials to voters who have lost them."
 msgstr ""
-"Es posible que deba volver a enviar las acreditaciones a los votantes que "
+"Es posible que deba volver a enviar las acreditaciones a los electores que "
 "las perdieron."
 
 #: src/web/server/common/pages_admin.ml:2353
@@ -2187,7 +2189,7 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:1207
 msgid "You may wish voters to rank candidates or give each candidate a score."
 msgstr ""
-"Es posible que desee que los votantes clasifiquen a los candidatos o le den "
+"Es posible que desee que los electores clasifiquen a los candidatos o le den "
 "una puntuación a cada candidato."
 
 #: src/web/server/common/pages_admin.ml:2592
@@ -2212,7 +2214,7 @@ msgstr "¡No eres dueño de tales elecciones!"
 msgid "You will find below the link to generate the voters' credentials, one for each voter."
 msgstr ""
 "A continuación, encontrará el enlace para generar las acreditaciones de los "
-"votantes, una para cada votante."
+"electores, una para cada votante."
 
 #: src/web/common/mails_admin.ml:122 src/web/common/mails_admin.ml:73
 msgid "You will find below the link to generate your private decryption key, used to tally the election."
@@ -2236,11 +2238,14 @@ msgstr "Lo usará para descifrar el resultado final."
 
 #: src/web/server/common/pages_admin.ml:1432 src/web/common/mails_admin.ml:43
 msgid "You will use it to send credentials to voters."
-msgstr "Lo usará para enviar acreditaciones a los votantes."
+msgstr "Lo usará para enviar acreditaciones a los electores."
 
 #: src/web/server/common/pages_admin.ml:1379
 msgid "You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
+"No podrá modificar las direcciones de email una vez que las credenciales "
+"hayan sido creadas. Los electores con direcciones email incorrectas no "
+"podrán votar."
 
 #. src/web/server/common/pages_admin.ml:2920
 #: src/web/server/common/pages_admin.ml:2944
@@ -2287,7 +2292,7 @@ msgstr "Su nombre de usuario es: "
 
 #: src/web/clients/tool/tool_js_questions.ml:426
 msgid "classic"
-msgstr "clásico"
+msgstr "Clásico"
 
 #: src/web/server/common/pages_admin.ml:128
 msgid "contact us"
@@ -2332,7 +2337,7 @@ msgstr "más información"
 
 #: src/web/clients/tool/tool_js_questions.ml:430
 msgid "new interface"
-msgstr "nueva interfaz"
+msgstr "Nueva interfaz"
 
 #: src/web/server/common/pages_admin.ml:2846
 msgid "of an unknown reason"
@@ -2366,23 +2371,23 @@ msgstr "datos sin procesar"
 
 #: src/web/server/common/pages_admin.ml:363
 msgid "sent by a third party chosen by you (safe mode)"
-msgstr "enviado por un tercero elegido por usted (modo seguro)"
+msgstr "enviadas por un tercero elegido por usted (modo seguro)"
 
 #: src/web/server/common/pages_admin.ml:324
 msgid "sent by email when voting (a short password, renewed for each vote)"
 msgstr ""
-"enviado por correo electrónico cuando se vota (una contraseña corta, "
+"enviadas por correo electrónico cuando se vota (una contraseña corta, "
 "renovada para cada voto)"
 
 #: src/web/server/common/pages_admin.ml:356
 msgid "sent by our server (easier mode but offers less security)"
 msgstr ""
-"enviado por nuestro servidor (modo más fácil pero ofrece menos seguridad)"
+"enviadas por nuestro servidor (modo más fácil pero ofrece menos seguridad)"
 
 #: src/web/server/common/pages_admin.ml:301
 msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
-"enviado por adelantado por correo electrónico (útil para elecciones "
+"enviadas por adelantado por correo electrónico (útil para elecciones "
 "múltiples)"
 
 #: src/web/server/common/pages_admin.ml:1457
@@ -2412,7 +2417,7 @@ msgstr "la huella digital de su clave de verificación."
 
 #: src/web/server/common/pages_admin.ml:1436
 msgid "the list of voters"
-msgstr "la lista de votantes"
+msgstr "la lista de electores"
 
 #: src/web/server/common/pages_admin.ml:2844
 msgid "the new password is too weak (%s)"
@@ -2425,8 +2430,8 @@ msgstr "la nueva contraseña empieza o acaba con un espacio"
 #: src/web/server/common/pages_admin.ml:1135
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:"
 msgstr ""
-"el número de votantes es correcto y la huella digital de la lista de "
-"votantes coincide con lo que se ha guardado, por ejemplo con el siguiente "
+"el número de electores es correcto y la huella digital de la lista de "
+"electores coincide con lo que se ha guardado, por ejemplo con el siguiente "
 "comando:"
 
 #: src/web/server/common/pages_admin.ml:2794
@@ -2454,7 +2459,7 @@ msgstr "el nombre de usuario no es válido"
 msgid "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote."
 msgstr ""
 "la interfaz de votación dependerá del método de escrutinio seleccionado. En "
-"algunos casos, debe explicar a los votantes (por ejemplo, en el campo de la "
+"algunos casos, debe explicar a los electores (por ejemplo, en el campo de la "
 "pregunta) cómo se supone que deben expresar su voto."
 
 #: src/web/server/common/pages_admin.ml:2792
@@ -2475,11 +2480,11 @@ msgstr "uso típico"
 
 #: src/web/server/common/pages_admin.ml:1271
 msgid "when a login is needed, e.g. CAS"
-msgstr ""
+msgstr "cuando el inicio de sesión sea necesario, por ejemplo CAS"
 
 #: src/web/server/common/pages_admin.ml:1272
 msgid "when some voters have several votes"
-msgstr "cuando algunos votantes poseen varios votos"
+msgstr "cuando algunos electores poseen varios votos"
 
 #: src/web/server/common/pages_admin.ml:1153
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
