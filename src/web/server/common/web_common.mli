@@ -137,7 +137,6 @@ type mail_kind =
 
 val send_email : mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
 
-val available_languages : string list
 val get_languages : string list option -> string list
 val string_of_languages : string list option -> string
 val languages_of_string : string -> string list

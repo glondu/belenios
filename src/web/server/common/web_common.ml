@@ -333,29 +333,6 @@ let send_email kind ~recipient ~subject ~body =
       )
   in loop 2
 
-let available_languages = [
-    "ar";
-    "cs";
-    "de";
-    "el";
-    "en";
-    "es";
-    "es_419";
-    "fi";
-    "fr";
-    "it";
-    "lt";
-    "ms";
-    "nb";
-    "nl";
-    "oc";
-    "pl";
-    "pt_BR";
-    "ro";
-    "sk";
-    "uk";
-  ]
-
 let get_languages xs =
   match xs with
   | None -> ["en"]
