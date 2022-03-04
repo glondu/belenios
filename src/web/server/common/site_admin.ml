@@ -395,7 +395,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            Pages_common.generic_page ~title:(s_ "Error") ~service
              (s_ "You must select at least one language!") () >>= Html.send
         | _ :: _ ->
-           let available_languages = List.map fst (Belenios_ui.Languages.available l) in
+           let available_languages = List.map fst Belenios_ui.Languages.available in
            let unavailable =
              List.filter (fun x ->
                  not (List.mem x available_languages)

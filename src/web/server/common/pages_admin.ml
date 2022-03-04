@@ -402,7 +402,7 @@ module Make
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title = Printf.sprintf (f_ "Preparation of election %s") se.se_questions.t_name in
-    let available_languages = List.map fst (Belenios_ui.Languages.available l) in
+    let available_languages = List.map fst Belenios_ui.Languages.available in
     let form_languages =
       post_form ~service:election_draft_languages
         (fun languages ->

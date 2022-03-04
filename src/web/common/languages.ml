@@ -19,27 +19,26 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let available l =
-  let open (val l : I18n.GETTEXT) in
+let available =
   [
-    "ar", s_ "Arabic";
-    "cs", s_ "Czech";
-    "de", s_ "German";
-    "el", s_ "Greek";
-    "en", s_ "English";
-    "es", s_ "Spanish";
-    "es_419", s_ "Spanish (Latin America)";
-    "fi", s_ "Finnish";
-    "fr", s_ "French";
-    "it", s_ "Italian";
-    "lt", s_ "Lithuanian";
-    "ms", s_ "Malay";
-    "nb", s_ "Norwegian Bokmål";
-    "nl", s_ "Dutch";
-    "oc", s_ "Occitan";
-    "pl", s_ "Polish";
-    "pt_BR", s_ "Portuguese (Brazil)";
-    "ro", s_ "Romanian";
-    "sk", s_ "Slovak";
-    "uk", s_ "Ukrainian";
+    "ar", "العربية";
+    "cs", "Čeština";
+    "de", "Deutsch";
+    "el", "Ελληνικά";
+    "en", "English";
+    "es", "Español";
+    "es_419", "Español (Latinoamérica)";
+    "fi", "Suomi";
+    "fr", "Français";
+    "it", "Italiano";
+    "lt", "Lietuvių";
+    "ms", "Bahasa Melayu";
+    "nb", "Norsk (Bokmål)";
+    "nl", "Nederlands";
+    "oc", "Occitan";
+    "pl", "Polski";
+    "pt_BR", "Português (Brasil)";
+    "ro", "Română";
+    "sk", "Slovenčina";
+    "uk", "Українська";
   ]

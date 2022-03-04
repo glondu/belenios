@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val available : (module I18n.GETTEXT) -> (string * string) list
+val available : (string * string) list
