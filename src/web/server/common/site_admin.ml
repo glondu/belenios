@@ -483,10 +483,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             match id.sv_password with
             | Some _ when not force -> return_unit
             | None | Some _ ->
-               let* x =
-                 Mails_voter.generate_password se.se_metadata langs title uuid
+               let* email, x =
+                 Mails_voter.generate_password_email se.se_metadata langs title uuid
                    id.sv_id show_weight
                in
+               let* () = Mails_voter.send_bulk_email email in
                return (id.sv_password <- Some x)
           ) voters
       in
@@ -784,7 +785,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         if se.se_questions.t_name = default_name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else (
-          let send = Mails_voter.send_mail_credential uuid se in
+          let send ~recipient ~login ~weight ~cred =
+            let* email =
+              Mails_voter.generate_credential_email uuid se
+                ~recipient ~login ~weight ~credential:cred
+            in
+            Mails_voter.send_bulk_email email
+          in
           let* x = Api_drafts.generate_credentials_on_server send uuid se in
           match x with
           | Ok () ->

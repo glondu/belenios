@@ -218,3 +218,33 @@ type account = {
     ?consent : datetime option;
     ?capabilities : int option;
 } <ocaml field_prefix="account_">
+
+(** {1 Bulk emails} *)
+
+type password_email = {
+    recipient : string;
+    uuid : uuid;
+    title : string;
+    login : string;
+    password : string;
+    ?weight : weight option;
+    ?contact : string option;
+    langs : string list;
+  }
+
+type credential_email = {
+    recipient : string;
+    uuid : uuid;
+    title : string;
+    login : string;
+    credential : string;
+    ?weight : weight option;
+    ?contact : string option;
+    langs : string list;
+    has_passwords : bool;
+  }
+
+type bulk_email =
+  [ Password of password_email
+  | Credential of credential_email
+  ]

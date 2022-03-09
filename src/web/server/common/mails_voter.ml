@@ -28,9 +28,9 @@ open Common
 open Web_serializable_j
 open Web_common
 
-let contact_footer l metadata =
+let contact_footer l contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  match metadata.e_contact with
+  match contact with
   | None -> fun _ -> ()
   | Some x ->
      fun b ->
@@ -42,7 +42,7 @@ let contact_footer l metadata =
      add_string b "  ";
      add_string b x
 
-let mail_password l title login password weight url metadata =
+let mail_password l title login password weight url contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -65,13 +65,29 @@ let mail_password l title login password weight url metadata =
   add_newline b;
   add_sentence b (s_ "You are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
-  contact_footer l metadata b;
+  contact_footer l contact b;
   contents b
+
+let format_password_email (x : password_email) =
+  let url = get_election_home_url x.uuid in
+  let* bodies =
+    Lwt_list.map_s (fun lang ->
+        let* l = Web_i18n.get ~component:"voter" ~lang in
+        return (mail_password l x.title x.login x.password x.weight url x.contact)
+      ) x.langs
+  in
+  let body = String.concat "\n\n----------\n\n" bodies in
+  let body = body ^ "\n\n-- \nBelenios" in
+  let* subject =
+    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd x.langs) in
+    let open (val l) in
+    Printf.kprintf return (f_ "Your password for election %s") x.title
+  in
+  Lwt.return (subject, body)
 
 open Belenios_platform.Platform
 
-let generate_password metadata langs title uuid id show_weight =
-  let url = get_election_home_url uuid in
+let generate_password_email metadata langs title uuid id show_weight =
   let recipient, login, weight = split_identity id in
   let weight = if show_weight then Some weight else None in
   let* salt = generate_token () in
@@ -80,19 +96,18 @@ let generate_password metadata langs title uuid id show_weight =
     return (format_password x)
   in
   let hashed = sha256_hex (salt ^ password) in
-  let* bodies = Lwt_list.map_s (fun lang ->
-                    let* l = Web_i18n.get ~component:"voter" ~lang in
-                    return (mail_password l title login password weight url metadata)
-                  ) langs in
-  let body = String.concat "\n\n----------\n\n" bodies in
-  let body = body ^ "\n\n-- \nBelenios" in
-  let* subject =
-    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd langs) in
-    let open (val l) in
-    Printf.kprintf return (f_ "Your password for election %s") title
+  let x : password_email = {
+      uuid;
+      title;
+      login;
+      password;
+      weight;
+      contact = metadata.e_contact;
+      langs;
+      recipient;
+    }
   in
-  let* () = send_email (MailPassword uuid) ~recipient ~subject ~body in
-  return (salt, hashed)
+  return (`Password x, (salt, hashed))
 
 let mail_credential l has_passwords title ~login cred weight url metadata =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -124,26 +139,26 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   contact_footer l metadata b;
   contents b
 
-let generate_mail_credential langs has_passwords title ~login cred weight url metadata =
+let format_credential_email (x : credential_email) =
+  let url = get_election_home_url x.uuid in
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
-        return (mail_credential l has_passwords title ~login cred weight url metadata)
-      ) langs
+        return (mail_credential l x.has_passwords x.title ~login:x.login x.credential x.weight url x.contact)
+      ) x.langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \nBelenios" in
   let* subject =
-    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd langs) in
+    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd x.langs) in
     let open (val l) in
-    Printf.ksprintf return (f_ "Your credential for election %s") title
+    Printf.ksprintf return (f_ "Your credential for election %s") x.title
   in
   return (subject, body)
 
-let send_mail_credential uuid se =
+let generate_credential_email uuid se =
   let title = se.se_questions.t_name in
-  let url = get_election_home_url uuid in
   let show_weight =
     List.exists
       (fun v ->
@@ -157,15 +172,31 @@ let send_mail_credential uuid se =
     | _ -> false
   in
   let langs = get_languages se.se_metadata.e_languages in
-  fun ~recipient ~login ~weight ~cred ->
+  fun ~recipient ~login ~weight ~credential ->
   let oweight = if show_weight then Some weight else None in
-  let* subject, body =
-    generate_mail_credential langs has_passwords
-      title ~login cred oweight url se.se_metadata
+  let x : credential_email = {
+      uuid;
+      title;
+      login;
+      credential;
+      weight = oweight;
+      contact = se.se_metadata.e_contact;
+      langs;
+      has_passwords;
+      recipient;
+    }
   in
-  send_email (MailCredential uuid) ~recipient ~subject ~body
+  Lwt.return @@ `Credential x
 
-let mail_confirmation l user title weight hash revote url1 url2 metadata =
+let send_bulk_email = function
+  | `Password x ->
+     let* subject, body = format_password_email x in
+     send_email (MailPassword x.uuid) ~recipient:x.recipient ~subject ~body
+  | `Credential x ->
+     let* subject, body = format_credential_email x in
+     send_email (MailCredential x.uuid) ~recipient:x.recipient ~subject ~body
+
+let mail_confirmation l user title weight hash revote url1 url2 contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -197,7 +228,7 @@ let mail_confirmation l user title weight hash revote url1 url2 metadata =
   add_sentence b (s_ "Results will be published on the election page");
   add_newline b;
   add_string b "  "; add_string b url2;
-  contact_footer l metadata b;
+  contact_footer l contact b;
   add_newline b;
   add_newline b;
   add_string b "-- "; add_newline b;

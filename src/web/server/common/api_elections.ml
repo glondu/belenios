@@ -460,10 +460,11 @@ let regenpwd election metadata user =
   | Some id, show_weight ->
      let langs = get_languages metadata.e_languages in
      let* db = load_password_db uuid in
-     let* x =
-       Mails_voter.generate_password metadata langs title uuid
+     let* email, x =
+       Mails_voter.generate_password_email metadata langs title uuid
        id show_weight
      in
+     let* () = Mails_voter.send_bulk_email email in
      let db = replace_password user x db in
      let* () = Api_drafts.dump_passwords uuid db in
      Lwt.return_true

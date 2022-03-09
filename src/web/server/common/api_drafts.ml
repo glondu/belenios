@@ -1109,7 +1109,11 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                 ) se.se_voters
             in
             fun metadata id ->
-            Mails_voter.generate_password metadata langs title uuid id show_weight
+            let* email, x =
+              Mails_voter.generate_password_email metadata langs title uuid id show_weight
+            in
+            let* () = Mails_voter.send_bulk_email email in
+            Lwt.return x
           in
           let* () = post_draft_passwords generate uuid se voters in
           ok
@@ -1134,7 +1138,13 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             | `Administrator _, [] ->
                begin
                  let@ () = handle_generic_error in
-                 let send = Mails_voter.send_mail_credential uuid se in
+                 let send ~recipient ~login ~weight ~cred =
+                   let* email =
+                     Mails_voter.generate_credential_email uuid se
+                       ~recipient ~login ~weight ~credential:cred
+                   in
+                   Mails_voter.send_bulk_email email
+                 in
                  let* x = generate_credentials_on_server send uuid se in
                  match x with
                  | Ok () -> ok

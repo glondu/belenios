@@ -150,7 +150,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
     let* l = get_preferred_gettext () in
     let open (val l) in
     let subject = Printf.sprintf (f_ "Your vote for election %s") title in
-    let body = Mails_voter.mail_confirmation l user title weight hash revote url1 url2 metadata in
+    let body = Mails_voter.mail_confirmation l user title weight hash revote url1 url2 metadata.e_contact in
     Lwt.catch
       (fun () ->
         let* () = send_email (MailConfirmation uuid) ~recipient ~subject ~body in
