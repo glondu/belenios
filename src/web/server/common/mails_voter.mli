@@ -37,6 +37,9 @@ val generate_credential_email :
 
 val send_bulk_email : bulk_email -> unit Lwt.t
 
+val submit_bulk_emails : bulk_email list -> unit Lwt.t
+val process_bulk_emails : unit -> unit Lwt.t
+
 val mail_confirmation :
   (module Belenios_ui.I18n.GETTEXT) ->
   string ->

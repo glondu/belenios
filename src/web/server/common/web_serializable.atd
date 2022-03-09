@@ -248,3 +248,12 @@ type bulk_email =
   [ Password of password_email
   | Credential of credential_email
   ]
+
+type bulk_emails = bulk_email list <ocaml repr="array">
+
+type bulk_mode = [ Primary | Secondary ]
+
+type bulk_processed = {
+    mode : bulk_mode;
+    processed : int;
+  }
