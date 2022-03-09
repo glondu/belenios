@@ -70,7 +70,8 @@ let mail_password l title login password weight url metadata =
 
 open Belenios_platform.Platform
 
-let generate_password metadata langs title uuid url id show_weight =
+let generate_password metadata langs title uuid id show_weight =
+  let url = get_election_home_url uuid in
   let recipient, login, weight = split_identity id in
   let weight = if show_weight then Some weight else None in
   let* salt = generate_token () in

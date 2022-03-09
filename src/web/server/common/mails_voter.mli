@@ -24,7 +24,7 @@ val generate_password :
   string list ->
   string ->
   Web_serializable_t.uuid ->
-  string -> string -> bool -> (string * string) Lwt.t
+  string -> bool -> (string * string) Lwt.t
 
 val send_mail_credential :
   Web_serializable_t.uuid ->

@@ -1100,7 +1100,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           let@ () = handle_generic_error in
           let generate =
             let title = se.se_questions.t_name in
-            let url = get_election_home_url uuid in
             let langs = get_languages se.se_metadata.e_languages in
             let show_weight =
               List.exists
@@ -1110,7 +1109,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                 ) se.se_voters
             in
             fun metadata id ->
-            Mails_voter.generate_password metadata langs title uuid url id show_weight
+            Mails_voter.generate_password metadata langs title uuid id show_weight
           in
           let* () = post_draft_passwords generate uuid se voters in
           ok

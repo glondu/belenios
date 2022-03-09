@@ -470,9 +470,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       Lwt.fail (Failure (s_ "The election name has not been edited!"))
     else
       let title = se.se_questions.t_name in
-      let url = Eliom_uri.make_string_uri ~absolute:true ~service:election_home
-                  (uuid, ()) |> rewrite_prefix
-      in
       let langs = get_languages se.se_metadata.e_languages in
       let show_weight =
         List.exists
@@ -488,7 +485,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | None | Some _ ->
                let* x =
                  Mails_voter.generate_password se.se_metadata langs title uuid
-                   url id.sv_id show_weight
+                   id.sv_id show_weight
                in
                return (id.sv_password <- Some x)
           ) voters

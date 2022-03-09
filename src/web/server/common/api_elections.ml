@@ -455,7 +455,6 @@ let regenpwd election metadata user =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   let title = W.election.e_name in
-  let url = get_election_home_url uuid in
   let* x = find_user_id uuid user in
   match x with
   | Some id, show_weight ->
@@ -463,7 +462,7 @@ let regenpwd election metadata user =
      let* db = load_password_db uuid in
      let* x =
        Mails_voter.generate_password metadata langs title uuid
-       url id show_weight
+       id show_weight
      in
      let db = replace_password user x db in
      let* () = Api_drafts.dump_passwords uuid db in
