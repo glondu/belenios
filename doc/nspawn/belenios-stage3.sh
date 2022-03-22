@@ -46,11 +46,7 @@ EOF
 echo "Installing Debian prerequisites..."
 
 chroot "$DIR/rootfs" sh -c "apt-get update -qq && apt-get upgrade -qq"
-chroot "$DIR/rootfs" sh -c "debconf-set-selections" <<EOF
-dma dma/mailname string belenios
-dma dma/relayhost string localhost
-EOF
-chroot "$DIR/rootfs" sh -c "apt-get install -qq netbase libgmp-dev libpcre3-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime dma logrotate"
+chroot "$DIR/rootfs" sh -c "apt-get install -qq netbase libgmp-dev libpcre3-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime msmtp-mta logrotate"
 chroot "$DIR/rootfs" sh -c "apt-get clean"
 chroot "$DIR/rootfs" useradd belenios
 
@@ -63,6 +59,13 @@ echo "Copying needed runtime files from belenios source tree..."
 cp -a --parents home/belenios/belenios/_run  home/belenios/opam-env.sh "$DIR/rootfs"
 
 echo "Creating remaining runtime files and directories..."
+
+cat > "$DIR/rootfs/etc/msmtprc" <<EOF
+account default
+host localhost
+from %U@belenios
+syslog LOG_MAIL
+EOF
 
 cat > "$DIR/rootfs/etc/logrotate.d/belenios" <<EOF
 /var/belenios/log/*.log {
