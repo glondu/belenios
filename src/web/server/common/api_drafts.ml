@@ -304,15 +304,16 @@ let post_draft_passwords generate uuid se voters =
         | Some v -> v
       ) voters
   in
-  let* () =
-    Lwt_list.iter_s
-      (fun v ->
-        let* x = generate se.se_metadata v.sv_id in
+  let* jobs =
+    Lwt_list.fold_left_s
+      (fun jobs v ->
+        let* job, x = generate se.se_metadata v.sv_id in
         v.sv_password <- Some x;
-        Lwt.return_unit
-      ) voters
+        Lwt.return (job :: jobs)
+      ) [] voters
   in
-  Web_persist.set_draft_election uuid se
+  let* () = Web_persist.set_draft_election uuid se in
+  Lwt.return jobs
 
 let split_private_credential x =
   match String.split_on_char ' ' x with
@@ -368,17 +369,17 @@ let generate_credentials_on_server send uuid se =
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module CMap = Map.Make (G) in
     let module CD = Belenios_core.Credential.MakeDerive (G) in
-    let* public_creds, private_creds =
-      Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
+    let* public_creds, private_creds, jobs =
+      Lwt_list.fold_left_s (fun (public_creds, private_creds, jobs) v ->
           let recipient, login, weight = split_identity v.sv_id in
-          let* cred = CG.generate () in
+          let* credential = CG.generate () in
           let pub_cred =
-            let x = CD.derive uuid cred in
+            let x = CD.derive uuid credential in
             G.(g **~ x)
           in
-          let* () = send ~recipient ~login ~weight ~cred in
-          Lwt.return (CMap.add pub_cred weight public_creds, (v.sv_id, cred) :: private_creds)
-        ) (CMap.empty, []) se.se_voters
+          let* job = send ~recipient ~login ~weight ~credential in
+          Lwt.return (CMap.add pub_cred weight public_creds, (v.sv_id, credential) :: private_creds, job :: jobs)
+        ) (CMap.empty, [], []) se.se_voters
     in
     let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
     let* () = write_file ~uuid "private_creds.txt" private_creds in
@@ -395,7 +396,7 @@ let generate_credentials_on_server send uuid se =
     let* () = write_file ~uuid "public_creds.txt" public_creds in
     se.se_public_creds_received <- true;
     let* () = Web_persist.set_draft_election uuid se in
-    Lwt.return (Ok ())
+    Lwt.return (Ok jobs)
   )
 
 let exn_of_generate_credentials_on_server_error = function
@@ -1109,13 +1110,10 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                 ) se.se_voters
             in
             fun metadata id ->
-            let* email, x =
-              Mails_voter.generate_password_email metadata langs title uuid id show_weight
-            in
-            let* () = Mails_voter.send_bulk_email email in
-            Lwt.return x
+            Mails_voter.generate_password_email metadata langs title uuid id show_weight
           in
-          let* () = post_draft_passwords generate uuid se voters in
+          let* jobs = post_draft_passwords generate uuid se voters in
+          let* () = Lwt_list.iter_s Mails_voter.send_bulk_email jobs in
           ok
        | _ -> method_not_allowed
      end
@@ -1138,16 +1136,12 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             | `Administrator _, [] ->
                begin
                  let@ () = handle_generic_error in
-                 let send ~recipient ~login ~weight ~cred =
-                   let* email =
-                     Mails_voter.generate_credential_email uuid se
-                       ~recipient ~login ~weight ~credential:cred
-                   in
-                   Mails_voter.send_bulk_email email
-                 in
+                 let send = Mails_voter.generate_credential_email uuid se in
                  let* x = generate_credentials_on_server send uuid se in
                  match x with
-                 | Ok () -> ok
+                 | Ok jobs ->
+                    let* () = Lwt_list.iter_s Mails_voter.send_bulk_email jobs in
+                    ok
                  | Error e -> Lwt.fail @@ exn_of_generate_credentials_on_server_error e
                end
             | `CredentialAuthority, credentials ->

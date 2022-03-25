@@ -33,8 +33,8 @@ val put_draft_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
 val get_draft_passwords : draft_election -> voter_list
 val post_draft_passwords :
-  (Web_serializable_t.metadata -> string -> (string * string) Lwt.t) ->
-  uuid -> draft_election -> voter_list -> unit Lwt.t
+  (Web_serializable_t.metadata -> string -> ('a * (string * string)) Lwt.t) ->
+  uuid -> draft_election -> voter_list -> 'a list Lwt.t
 
 val get_draft_credentials :
   [`Administrator of account | `CredentialAuthority] ->
@@ -48,9 +48,9 @@ type generate_credentials_on_server_error =
   ]
 
 val generate_credentials_on_server :
-  (recipient:string -> login:string -> weight:weight -> cred:string -> unit Lwt.t) ->
+  (recipient:string -> login:string -> weight:weight -> credential:string -> 'a Lwt.t) ->
   uuid -> draft_election ->
-  (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
+  ('a list, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn

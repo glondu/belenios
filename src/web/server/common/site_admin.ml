@@ -785,16 +785,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         if se.se_questions.t_name = default_name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else (
-          let send ~recipient ~login ~weight ~cred =
-            let* email =
-              Mails_voter.generate_credential_email uuid se
-                ~recipient ~login ~weight ~credential:cred
-            in
-            Mails_voter.send_bulk_email email
-          in
+          let send = Mails_voter.generate_credential_email uuid se in
           let* x = Api_drafts.generate_credentials_on_server send uuid se in
           match x with
-          | Ok () ->
+          | Ok jobs ->
+             let* () = Lwt_list.iter_s Mails_voter.send_bulk_email jobs in
              let service = preapply ~service:election_draft uuid in
              Pages_common.generic_page ~title:(s_ "Success") ~service
                (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
