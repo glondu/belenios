@@ -1113,7 +1113,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             Mails_voter.generate_password_email metadata langs title uuid id show_weight
           in
           let* jobs = post_draft_passwords generate uuid se voters in
-          let* () = Lwt_list.iter_s Mails_voter.send_bulk_email jobs in
+          let* () = Mails_voter.submit_bulk_emails jobs in
+          Lwt.async Mails_voter.process_bulk_emails;
           ok
        | _ -> method_not_allowed
      end
@@ -1140,7 +1141,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                  let* x = generate_credentials_on_server send uuid se in
                  match x with
                  | Ok jobs ->
-                    let* () = Lwt_list.iter_s Mails_voter.send_bulk_email jobs in
+                    let* () = Mails_voter.submit_bulk_emails jobs in
+                    Lwt.async Mails_voter.process_bulk_emails;
                     ok
                  | Error e -> Lwt.fail @@ exn_of_generate_credentials_on_server_error e
                end

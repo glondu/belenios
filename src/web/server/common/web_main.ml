@@ -230,6 +230,7 @@ module Make () = struct
   module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
 
   let () = Lwt.async Site_admin.data_policy_loop
+  let () = Lwt.async Mails_voter.process_bulk_emails
 
 end
 

@@ -789,7 +789,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           let* x = Api_drafts.generate_credentials_on_server send uuid se in
           match x with
           | Ok jobs ->
-             let* () = Lwt_list.iter_s Mails_voter.send_bulk_email jobs in
+             let* () = Mails_voter.submit_bulk_emails jobs in
+             Lwt.async Mails_voter.process_bulk_emails;
              let service = preapply ~service:election_draft uuid in
              Pages_common.generic_page ~title:(s_ "Success") ~service
                (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
