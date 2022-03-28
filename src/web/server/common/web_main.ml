@@ -30,6 +30,7 @@ module Make () = struct
 
   (** Parse configuration from <eliom> *)
 
+  let prefix = ref None
   let locales_dir = ref None
   let spool_dir = ref None
   let accounts_dir = ref None
@@ -47,6 +48,8 @@ module Make () = struct
       List.iter @@ function
                   | PCData x ->
                      Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios" x
+                  | Element ("prefix", ["value", x], []) ->
+                     prefix := Some x
                   | Element ("maxrequestbodysizeinmemory", ["value", m], []) ->
                      Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
                   | Element ("log", ["file", file], []) ->
@@ -120,6 +123,11 @@ module Make () = struct
                      Printf.ksprintf failwith
                        "invalid configuration for tag %s in belenios"
                        tag
+
+  let () =
+    match !prefix with
+    | None -> failwith "missing <prefix> in configuration"
+    | Some x -> Web_config.prefix := x
 
   let () =
     match !gdpr_uri with

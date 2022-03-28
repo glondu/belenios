@@ -43,6 +43,7 @@
         <static dir="_SHAREDIR_" cache="0"/>
       </site>
       <eliom name="belenios">
+        <prefix value="http://localhost"/>
         <!-- Domain name used in Message-ID -->
         <domain name="belenios.example.org"/>
         <!--

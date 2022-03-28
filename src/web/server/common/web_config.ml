@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+let prefix = ref ""
 let site_auth_config = ref []
 let exported_auth_config = ref []
 let locales_dir = ref "."
