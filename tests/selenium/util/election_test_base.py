@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
+import time
 import unittest
 import random
 import re
@@ -113,7 +114,8 @@ class BeleniosElectionTestBase(unittest.TestCase):
         generate_on_server_button_element = wait_for_element_exists(browser, generate_on_server_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         generate_on_server_button_element.click()
 
-        wait_a_bit()
+        # Wait for emails to be delivered
+        time.sleep(10)
 
         # (Server sends emails to voters.) She checks that server does not show any error that would happen when trying to send these emails (this can happen if sendmail is not configured)
         confirmation_sentence_expected_text = "Credentials have been generated and mailed!"
@@ -199,7 +201,8 @@ pris en compte.
         generate_and_mail_missing_passwords_button_element = wait_for_element_exists(browser, build_css_selector_to_find_buttons_in_page_content_by_value(generate_and_mail_missing_passwords_button_label), settings.EXPLICIT_WAIT_TIMEOUT)
         generate_and_mail_missing_passwords_button_element.click()
 
-        wait_a_bit()
+        # Wait for emails to be delivered
+        time.sleep(10)
 
         # She checks that the page contains expected confirmation text, instead of an error (TODO: explain in which case an error can happen, and check that it does not show)
         confirmation_sentence_expected_text = "Passwords have been generated and mailed!"
