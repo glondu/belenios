@@ -50,6 +50,19 @@ let with_administrator_or_credential_authority token se f =
     | _ -> not_found
   )
 
+let with_administrator_or_credential_authority_or_trustee token se f =
+  let@ token = Option.unwrap unauthorized token in
+  if token = se.se_public_creds then (
+    f `CredentialAuthority
+  ) else (
+    match List.find_opt (fun x -> x.st_token = token) se.se_public_keys with
+    | Some x -> f (`Trustee x)
+    | None ->
+       match lookup_token token with
+       | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+       | _ -> not_found
+  )
+
 let get_authentication se =
   match se.se_metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] -> `Password
@@ -1013,7 +1026,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   match endpoint with
   | [] ->
      begin
-       let@ who = with_administrator_or_credential_authority token se in
+       let@ who = with_administrator_or_credential_authority_or_trustee token se in
        let get () =
          let* x = api_of_draft se in
          Lwt.return @@ string_of_draft x
