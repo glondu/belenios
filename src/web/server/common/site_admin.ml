@@ -842,9 +842,16 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 let msg = s_ "Your public key has already been received!" in
                 let title = s_ "Error" in
                 Pages_common.generic_page ~title msg () >>= Html.send ~code:403
-              else
-                Pages_admin.election_draft_trustee token uuid se () >>= Html.send
+              else (
+                Printf.sprintf "%s/draft/trustee.html#%s-%s"
+                  !Web_config.prefix (raw_string_of_uuid uuid) token
+                |> String_redirection.send
+              )
       )
+
+  let () =
+    Html.register ~service:election_draft_trustee_static
+      (fun () () -> Pages_admin.election_draft_trustee_static ())
 
   let () =
     Any.register ~service:election_draft_trustee_post

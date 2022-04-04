@@ -1513,22 +1513,18 @@ module Make
       ) in
     base ~title ~content ()
 
-  let election_draft_trustee token uuid se () =
+  let election_draft_trustee_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
+    let title = s_ "Trustee key generation" in
     let div_link =
-      let url = Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-      in
       div [
           txt (s_ "The link to the election will be:");
-          ul [li [txt url]];
+          ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
     let form =
-      let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
-      let value = trustee.st_public_key in
+      let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
       let service = Eliom_service.preapply ~service:election_draft_trustee_post (uuid, token) in
       post_form
         ~service
@@ -1536,7 +1532,7 @@ module Make
           [
             div ~a:[a_id "submit_form"; a_style "display:none;"] [
                 div [txt (s_ "Public key:")];
-                div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
+                div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ()];
                 div [
                     txt (s_ "Fingerprint of the verification key:");
                     txt " ";
@@ -1565,20 +1561,6 @@ module Make
           ]
         ) ()
     in
-    let group =
-      div
-        ~a:[a_style "display:none;"]
-        [
-          div [
-              txt "Version:";
-              raw_textarea "version" (string_of_int (Option.value se.se_version ~default:0));
-            ];
-          div [
-              txt "Group parameters:";
-              raw_textarea "group" se.se_group
-            ];
-        ]
-    in
     let interactivity =
       div
         ~a:[a_id "interactivity"]
@@ -1588,7 +1570,6 @@ module Make
     in
     let content = [
         div_link;
-        group;
         interactivity;
         form;
       ] in

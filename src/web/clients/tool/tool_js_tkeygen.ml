@@ -31,11 +31,20 @@ open Serializable_j
 open Tool_js_common
 open Tool_tkeygen
 open Tool_js_i18n.Gettext
+open Belenios_api.Serializable_j
 
-let tkeygen () =
+let get token of_string url =
+  let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let headers = ["Authorization", "Bearer " ^ token] in
+  let* x = perform_raw_url ~headers url in
+  match x.code with
+  | 200 -> Lwt.return @@ Option.wrap of_string x.content
+  | _ -> Lwt.return_none
+
+let tkeygen draft =
   let module P : PARAMS = struct
-    let group = get_textarea "group"
-    let version = get_textarea "version" |> int_of_string
+    let group = draft.draft_group
+    let version = draft.draft_version
   end in
   let module X = Make (P) (LwtJsRandom) () in
   let open X in
@@ -72,21 +81,71 @@ let tkeygen () =
   in
   Lwt.return_unit
 
+let extract_uuid_and_token x =
+  let n = String.length x in
+  let i = if n > 1 && x.[0] = '#' then 1 else 0 in
+  match String.index_opt x '-' with
+  | Some j ->
+     let uuid = String.sub x i (j - i) in
+     let token = String.sub x (j + 1) (n - j - 1) in
+     Some (uuid, token)
+  | None -> None
+
+let build_election_url href uuid =
+  let base =
+    match String.split_on_char '/' href |> List.rev with
+    | _ :: _ :: base -> String.concat "/" (List.rev base)
+    | _ -> href
+  in
+  Printf.sprintf "%s/elections/%s/" base uuid
+
+let ( let& ) x f =
+  Js.Opt.case x (fun () -> Lwt.return_unit) f
+
+let set_form_target uuid token =
+  let action =
+    ["uuid", uuid; "token", token]
+    |> Url.encode_arguments
+    |> (fun x -> Printf.sprintf "submit-trustee?%s" x)
+  in
+  let& form = document##querySelector (Js.string "form") in
+  let& form = Dom_html.CoerceTo.form form in
+  form##.action := Js.string action;
+  Lwt.return_unit
+
+let fail msg =
+  set_content "election_url" msg;
+  Lwt.return_unit
+
 let fill_interactivity () =
-  let$ e = document##getElementById (Js.string "interactivity") in
-  let b = Dom_html.createButton document in
-  let t = document##createTextNode (Js.string (s_ "Generate a key")) in
-  Lwt_js_events.async (fun () ->
-      let* _ = Lwt_js_events.click b in
-      tkeygen ()
-    );
-  Dom.appendChild b t;
-  Dom.appendChild e b
+  let& e = document##getElementById (Js.string "interactivity") in
+  let hash = Dom_html.window##.location##.hash |> Js.to_string in
+  match extract_uuid_and_token hash with
+  | Some (uuid, token) ->
+     let href = Dom_html.window##.location##.href |> Js.to_string in
+     set_content "election_url" (build_election_url href uuid);
+     let* () = set_form_target uuid token in
+     begin
+       let url = Printf.sprintf "../../api/drafts/%s" uuid in
+       let* x = get token draft_of_string url in
+       match x with
+       | Some draft ->
+          let b = Dom_html.createButton document in
+          let t = document##createTextNode (Js.string (s_ "Generate a key")) in
+          Lwt_js_events.async (fun () ->
+              let* _ = Lwt_js_events.click b in
+              tkeygen draft
+            );
+          Dom.appendChild b t;
+          Dom.appendChild e b;
+          Lwt.return_unit
+       | None -> fail "(token error)"
+     end
+  | None -> fail "(uuid error)"
 
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Tool_js_i18n.auto_init "admin" in
-      fill_interactivity ();
-      Lwt.return_unit
+      fill_interactivity ()
     )

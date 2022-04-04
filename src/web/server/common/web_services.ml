@@ -62,6 +62,7 @@ module Make () = struct
 
   let election_draft_trustees = create ~path:(Path ["draft"; "trustees"]) ~meth:(Get (uuid "uuid")) ()
   let election_draft_trustee = create ~path:(Path ["draft"; "trustee"]) ~meth:(Get (suffix uuid_and_token)) ()
+  let election_draft_trustee_static = create ~path:(Path ["draft"; "trustee.html"]) ~meth:(Get unit) ()
   let election_draft_trustee_post = create ~csrf_safe:true ~path:(Path ["draft"; "submit-trustee"]) ~meth:(Post (uuid_and_token, string "public_key")) ()
 
   let election_draft_threshold_trustees = create ~path:(Path ["draft"; "threshold-trustees"]) ~meth:(Get (uuid "uuid")) ()
