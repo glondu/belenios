@@ -381,6 +381,11 @@ The election administrator.\
             browser = self.browser
             browser.get(link_for_this_trustee)
 
+            # He waits for the "Generate a key" button
+            generate_button_css_selector = "#interactivity button"
+            generate_button_expected_label = "Generate a key"
+            generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
+
             # He checks that the page content shows the same election URL as the one the administrator saw
             election_url_css_selector = "#main ul li"
             election_url_element = wait_for_element_exists_and_has_non_empty_content(browser, election_url_css_selector)
@@ -388,9 +393,6 @@ The election administrator.\
             assert election_url_content == self.election_page_url
 
             # He clicks on the "Generate a key" button
-            generate_button_css_selector = "#interactivity button"
-            generate_button_expected_label = "Generate a key"
-            generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
             generate_button_element.click()
 
             # He clicks on the "private key" and "public key" links, to download the private key and the public key (files are respectively saved by default as `private_key.json` and `public_key.json`, but we decide to save them as a unique file name)
