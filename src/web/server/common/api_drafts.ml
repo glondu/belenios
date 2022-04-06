@@ -55,12 +55,24 @@ let with_administrator_or_credential_authority_or_trustee token se f =
   if token = se.se_public_creds then (
     f `CredentialAuthority
   ) else (
-    match List.find_opt (fun x -> x.st_token = token) se.se_public_keys with
-    | Some x -> f (`Trustee x)
-    | None ->
-       match lookup_token token with
-       | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
-       | _ -> not_found
+    let@ () = fun cont ->
+      match se.se_threshold_trustees with
+      | None ->
+         begin
+           match List.find_opt (fun x -> x.st_token = token) se.se_public_keys with
+           | Some _ -> f `Trustee
+           | None -> cont ()
+         end
+      | Some trustees ->
+         begin
+           match List.find_opt (fun x -> x.stt_token = token) trustees with
+           | Some _ -> f `Trustee
+           | None -> cont ()
+         end
+    in
+    match lookup_token token with
+    | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+    | _ -> not_found
   )
 
 let get_authentication se =
