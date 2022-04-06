@@ -23,12 +23,14 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
 open Belenios_core
+open Common
 open Belenios
 open Belenios_tool_js_common
 open Serializable_j
 open Signatures
 open Tool_js_common
 open Tool_js_i18n.Gettext
+open Belenios_api.Serializable_j
 
 let set_step i =
   let$ e = document##getElementById (Js.string "current_step") in
@@ -44,9 +46,9 @@ let set_explain str =
   Dom.appendChild e t;
   Dom.appendChild e (Dom_html.createBr document)
 
-let gen_cert e _ =
-  let version = get_textarea "version" |> int_of_string in
-  let group = get_textarea "group" in
+let gen_cert draft e _ =
+  let version = draft.draft_version in
+  let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (LwtJsRandom) in
@@ -65,28 +67,33 @@ let gen_cert e _ =
     );
   Js._false
 
-let proceed step =
-  let version = get_textarea "version" |> int_of_string in
-  let group = get_textarea "group" in
+let proceed draft pedersen =
+  let version = draft.draft_version in
+  let group = draft.draft_group in
   let$ e = document##getElementById (Js.string "compute_private_key") in
   let$ e = Dom_html.CoerceTo.input e in
   let key = Js.to_string e##.value in
-  let certs = certs_of_string (get_textarea "certs") in
-  let threshold = int_of_string (get_textarea "threshold") in
+  let certs = {certs = pedersen.pedersen_certs} in
+  let threshold = pedersen.pedersen_threshold in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (LwtJsRandom) in
   let module C = Trustees.MakeChannels (G) (LwtJsRandom) (P) in
   let module T = Trustees.MakePedersen (G) (LwtJsRandom) (P) (C) in
   Lwt.async (fun () ->
-      match step with
+      match pedersen.pedersen_step with
       | 3 ->
          let* polynomial = T.step3 certs key threshold in
          set_textarea "compute_data" (string_of_polynomial polynomial);
          Lwt.return_unit
       | 5 ->
-         let vinput = get_textarea "vinput" in
-         let vinput = vinput_of_string vinput in
+         let@ vinput = fun cont ->
+           match pedersen.pedersen_vinput with
+           | Some x -> cont x
+           | None ->
+              alert "Unexpected state! (missing vinput)";
+              Lwt.return_unit
+         in
          let* voutput = T.step5 certs key vinput in
          set_textarea "compute_data" (string_of_voutput G.write voutput);
          Lwt.return_unit
@@ -95,9 +102,55 @@ let proceed step =
          Lwt.return_unit
     )
 
+let ( let& ) x f =
+  Js.Opt.case x (fun () -> Lwt.return_unit) f
+
+let set_form_target id target uuid token =
+  let action =
+    ["uuid", uuid; "token", token]
+    |> Url.encode_arguments
+    |> (fun x -> Printf.sprintf "%s?%s" target x)
+  in
+  let& form = document##getElementById (Js.string id) in
+  let& form = Dom_html.CoerceTo.form form in
+  form##.action := Js.string action;
+  Lwt.return_unit
+
+let fail msg =
+  set_content "election_url" msg;
+  Lwt.return_unit
+
 let fill_interactivity () =
-  let$ e = document##getElementById (Js.string "interactivity") in
-  let step = int_of_string (get_textarea "step") in
+  let& e = document##getElementById (Js.string "interactivity") in
+  let@ uuid, token = fun cont ->
+    let hash = Dom_html.window##.location##.hash |> Js.to_string in
+    match extract_uuid_and_token hash with
+    | Some (uuid, token) -> cont (uuid, token)
+    | None -> fail "(uuid error)"
+  in
+  let* () = set_form_target "data_form" "submit-threshold-trustee" uuid token in
+  let* () = set_form_target "data_form_compute" "submit-threshold-trustee" uuid token in
+  let href = Dom_html.window##.location##.href |> Js.to_string in
+  set_content "election_url" (build_election_url href uuid);
+  let@ draft = fun cont ->
+    let url = Printf.sprintf "../../api/drafts/%s" uuid in
+    let* x = get token draft_of_string url in
+    match x with
+    | Some x -> cont x
+    | None -> fail "(token error)"
+  in
+  let@ pedersen = fun cont ->
+    let url = Printf.sprintf "../../api/drafts/%s/trustees-pedersen" uuid in
+    let* x = get token (pedersen_of_string Yojson.Safe.read_json) url in
+    match x with
+    | Some x -> cont x
+    | None -> fail "(pedersen error)"
+  in
+  let step = pedersen.pedersen_step in
+  let@ () = fun cont ->
+    cont ();
+    Lwt.return_unit
+  in
   match step with
   | 0 ->
      set_element_display "data_form" "none";
@@ -111,7 +164,11 @@ let fill_interactivity () =
   | 6 | 7 ->
      set_step 3;
      set_element_display "data_form" "none";
-     let voutput = voutput_of_string Yojson.Safe.read_json (get_textarea "voutput") in
+     let@ voutput = fun cont ->
+       match pedersen.pedersen_voutput with
+       | Some x -> cont x
+       | None -> alert "Unexpected state! (missing voutput)"
+     in
      let pk = Yojson.Safe.to_string voutput.vo_public_key.trustee_public_key in
      let fp = Platform.sha256_b64 pk in
      let msg = Printf.sprintf (f_ "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result.") fp in
@@ -122,7 +179,7 @@ let fill_interactivity () =
      set_step 1;
      let b = Dom_html.createButton document in
      let t = document##createTextNode (Js.string (s_ "Generate private key")) in
-     b##.onclick := Dom_html.handler (gen_cert e);
+     b##.onclick := Dom_html.handler (gen_cert draft e);
      Dom.appendChild b t;
      Dom.appendChild e b
   | 3 | 5 ->
@@ -135,7 +192,7 @@ let fill_interactivity () =
      set_explain explain;
      set_element_display "compute_form" "block";
      let$ e = document##getElementById (Js.string "compute_button") in
-     e##.onclick := Dom_html.handler (fun _ -> proceed step; Js._false)
+     e##.onclick := Dom_html.handler (fun _ -> proceed draft pedersen; Js._false)
   | _ ->
      alert "Unexpected state!"
 
@@ -143,6 +200,5 @@ let () =
   Lwt.async (fun () ->
       let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
       let* () = Tool_js_i18n.auto_init "admin" in
-      fill_interactivity ();
-      Lwt.return_unit
+      fill_interactivity ()
     )

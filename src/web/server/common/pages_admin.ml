@@ -1575,10 +1575,10 @@ module Make
       ] in
     base ~title ~content ()
 
-  let election_draft_threshold_trustee token uuid se () =
+  let election_draft_threshold_trustee_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
+    let title = s_ "Trustee key generation" in
     let header =
       div ~a:[a_style "text-align:center;"] [
           h2 [txt (s_ "Collaborative key generation")];
@@ -1588,70 +1588,12 @@ module Make
         ]
     in
     let div_link =
-      let url = Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-      in
       div [
           txt (s_ "The link to the election will be:");
-          ul [li [txt url]];
+          ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
-    let* trustee =
-      match se.se_threshold_trustees with
-      | None -> fail_http `Not_found
-      | Some ts ->
-         match List.find_opt (fun x -> x.stt_token = token) ts with
-         | Some x -> return x
-         | None -> fail_http `Not_found
-    in
-    let* certs =
-      match se.se_threshold_trustees with
-      | None -> fail_http `Not_found
-      | Some ts ->
-         let certs = List.fold_left (fun accu x ->
-                         match x.stt_cert with
-                         | None -> accu
-                         | Some c -> c :: accu
-                       ) [] ts |> List.rev |> Array.of_list
-         in return {certs}
-    in
-    let threshold =
-      match se.se_threshold with
-      | None -> 0
-      | Some t -> t
-    in
-    let inputs =
-      div ~a:[a_style "display:none;"] [
-          div [
-              txt "Version: ";
-              raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int);
-            ];
-          div [
-              txt "Step: ";
-              raw_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
-            ];
-          div [
-              txt "Group parameters: ";
-              raw_textarea "group" se.se_group;
-            ];
-          div [
-              txt "Certificates: ";
-              raw_textarea "certs" (string_of_certs certs);
-            ];
-          div [
-              txt "Threshold: ";
-              raw_textarea "threshold" (string_of_int threshold);
-            ];
-          div [
-              txt "Vinput: ";
-              raw_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
-            ];
-          div [
-              txt "Voutput: ";
-              raw_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
-            ];
-        ]
-    in
+    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form =
       post_form
         ~service:election_draft_threshold_trustee_post
@@ -1705,6 +1647,7 @@ module Make
               li [
                   txt (s_ "Submit data using the following button:");
                   post_form
+                    ~a:[a_id "data_form_compute"]
                     ~service:election_draft_threshold_trustee_post
                     (fun data ->
                       [
@@ -1744,7 +1687,6 @@ module Make
         div_link;
         br ();
         div ~a:[a_id "explain"] [];
-        inputs;
         interactivity;
         form;
         form_compute;

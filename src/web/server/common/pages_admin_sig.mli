@@ -41,7 +41,7 @@ module type S = sig
   val election_draft_trustees : ?token:string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_threshold_trustees : ?token:string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_trustee_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val election_draft_threshold_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_draft_threshold_trustee_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_import : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_import_trustees : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

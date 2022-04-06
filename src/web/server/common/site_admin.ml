@@ -1595,8 +1595,15 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* election = Web_persist.get_draft_election uuid in
         match election with
         | None -> fail_http `Not_found
-        | Some se -> Pages_admin.election_draft_threshold_trustee token uuid se () >>= Html.send
+        | Some _ ->
+           Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
+             !Web_config.prefix (raw_string_of_uuid uuid) token
+           |> String_redirection.send
       )
+
+  let () =
+    Html.register ~service:election_draft_threshold_trustee_static
+      (fun () () -> Pages_admin.election_draft_threshold_trustee_static ())
 
   let wrap_handler_without_site_user f =
     without_site_user () (fun () -> wrap_handler f)
