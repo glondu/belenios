@@ -24,6 +24,10 @@
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type cert <ocaml predef from="Belenios_core.Serializable"> = abstract
+type vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
+
 type configured_authentication = {
     instance : string;
     system : string;
@@ -69,6 +73,14 @@ type draft = {
     authentication : authentication;
     group : string;
 } <ocaml field_prefix="draft_">
+
+type 'a pedersen = {
+    threshold : int;
+    step : int;
+    certs : cert list <ocaml repr="array">;
+    ?vinput : vinput option;
+    ?voutput : 'a voutput option;
+} <ocaml field_prefix="pedersen_">
 
 type kind =
   [ Validated

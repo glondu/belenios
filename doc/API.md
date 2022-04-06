@@ -72,6 +72,10 @@ types. They refer to types defined in `src/api/serializable.atd`.
 * `GET`: unit -> trustees_mode
 * `PUT`: trustees_mode -> unit
 
+## `drafts/$UUID/trustees-pedersen` (trustee)
+
+* `GET`: unit -> pedersen
+
 ## `drafts/$UUID/trustees` (administrator)
 
 * `GET`: unit -> trustees
