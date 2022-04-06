@@ -33,14 +33,6 @@ open Tool_tkeygen
 open Tool_js_i18n.Gettext
 open Belenios_api.Serializable_j
 
-let get token of_string url =
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ token] in
-  let* x = perform_raw_url ~headers url in
-  match x.code with
-  | 200 -> Lwt.return @@ Option.wrap of_string x.content
-  | _ -> Lwt.return_none
-
 let tkeygen draft =
   let module P : PARAMS = struct
     let group = draft.draft_group
@@ -80,24 +72,6 @@ let tkeygen draft =
     done
   in
   Lwt.return_unit
-
-let extract_uuid_and_token x =
-  let n = String.length x in
-  let i = if n > 1 && x.[0] = '#' then 1 else 0 in
-  match String.index_opt x '-' with
-  | Some j ->
-     let uuid = String.sub x i (j - i) in
-     let token = String.sub x (j + 1) (n - j - 1) in
-     Some (uuid, token)
-  | None -> None
-
-let build_election_url href uuid =
-  let base =
-    match String.split_on_char '/' href |> List.rev with
-    | _ :: _ :: base -> String.concat "/" (List.rev base)
-    | _ -> href
-  in
-  Printf.sprintf "%s/elections/%s/" base uuid
 
 let ( let& ) x f =
   Js.Opt.case x (fun () -> Lwt.return_unit) f
