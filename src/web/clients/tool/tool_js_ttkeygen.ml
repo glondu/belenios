@@ -105,17 +105,6 @@ let proceed draft pedersen =
 let ( let& ) x f =
   Js.Opt.case x (fun () -> Lwt.return_unit) f
 
-let set_form_target id target uuid token =
-  let action =
-    ["uuid", uuid; "token", token]
-    |> Url.encode_arguments
-    |> (fun x -> Printf.sprintf "%s?%s" target x)
-  in
-  let& form = document##getElementById (Js.string id) in
-  let& form = Dom_html.CoerceTo.form form in
-  form##.action := Js.string action;
-  Lwt.return_unit
-
 let fail msg =
   set_content "election_url" msg;
   Lwt.return_unit
