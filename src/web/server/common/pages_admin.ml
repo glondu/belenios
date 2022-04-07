@@ -2525,30 +2525,10 @@ module Make
     in
     base ~title ~content ~uuid ()
 
-  let tally_trustees election trustee_id token () =
+  let tally_trustees_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
-    let uuid = election.e_uuid in
-    let title =
-      election.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id
-    in
-    let* encrypted_private_key =
-      let* x = Web_persist.get_private_keys uuid in
-      match x with
-      | None -> return_none
-      | Some keys ->
-         (* there is one Pedersen trustee *)
-         let* trustees = Web_persist.get_trustees uuid in
-         let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-         let rec loop i ts =
-           match ts with
-           | [] -> return_none (* an error, actually *)
-           | `Single _ :: ts -> loop (i - 1) ts
-           | `Pedersen _ :: _ -> return_some (List.nth keys i)
-         in
-         loop (trustee_id - 1) trustees
-    in
+    let title = s_ "Partial decryption" in
     let content = [
         p [txt (s_ "It is now time to compute your partial decryption factors.")];
         p [
@@ -2556,14 +2536,6 @@ module Make
             b [span ~a:[a_id "hash"] []];
             txt "."
           ];
-        (
-          match encrypted_private_key with
-          | None -> txt ""
-          | Some epk ->
-             div ~a:[a_style "display:none;"] [
-                 raw_textarea "encrypted_private_key" epk
-               ];
-        );
         hr ();
         div [
             b [txt (s_ "Instructions:")];
@@ -2598,7 +2570,9 @@ module Make
                   ];
                 li [
                     div ~a:[a_id "pd_done"] [
+                        let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
                         post_form
+                          ~a:[a_id "pd_form"]
                           ~service:election_tally_trustees_post
                           (fun pd ->
                             [
@@ -2621,7 +2595,7 @@ module Make
           ];
         script_with_lang ~lang "tool_js_pd.js";
       ] in
-    base ~title ~content ~uuid ()
+    base ~title ~content ()
 
   let signup_captcha ~service error challenge email =
     let* l = get_preferred_gettext () in

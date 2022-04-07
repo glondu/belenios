@@ -1338,7 +1338,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let@ election = with_election uuid in
         let* state = Web_persist.get_election_state uuid in
         match state with
         | `EncryptedTally _ ->
@@ -1351,7 +1350,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    (s_ "Your partial decryption has already been received and checked!")
                    () >>= Html.send
                ) else (
-                 Pages_admin.tally_trustees election trustee_id token () >>= Html.send
+                 Printf.sprintf "%s/election/trustees.html#%s-%s"
+                   !Web_config.prefix (raw_string_of_uuid uuid) token
+                 |> String_redirection.send
                )
             | None -> forbidden ()
            )
@@ -1362,6 +1363,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            let msg = s_ "The election has already been tallied." in
            Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
       )
+
+  let () =
+    Html.register ~service:election_tally_trustees_static
+      (fun () () -> Pages_admin.tally_trustees_static ())
 
   exception TallyEarlyError
 

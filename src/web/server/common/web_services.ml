@@ -139,6 +139,7 @@ module Make () = struct
   let election_shuffler_skip = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, uuid "uuid" ** string "trustee")) ()
   let election_decrypt = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
   let election_tally_trustees = create ~path:(Path ["election"; "trustees"]) ~meth:(Get (suffix uuid_and_token)) ()
+  let election_tally_trustees_static = create ~path:(Path ["election"; "trustees.html"]) ~meth:(Get unit) ()
   let election_tally_trustees_post = create ~csrf_safe:true ~path:(Path ["election"; "submit-partial-decryption"]) ~meth:(Post (uuid_and_token, string "partial_decryption")) ()
   let election_tally_release = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 
