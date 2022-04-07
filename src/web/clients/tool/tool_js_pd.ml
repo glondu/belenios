@@ -140,7 +140,7 @@ let fill_interactivity () =
        alert "Unable to extract UUID and token from URL";
        Lwt.return_unit
   in
-  let* () = set_form_target "pd_form" "submit-partial-decryption" uuid token in
+  set_form_target "pd_form" "submit-partial-decryption" uuid token;
   let@ tally_trustee = fun cont ->
     let url = Printf.sprintf "../../api/elections/%s/tally-trustee" uuid in
     let* x = get token tally_trustee_of_string url in

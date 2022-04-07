@@ -76,17 +76,6 @@ let tkeygen draft =
 let ( let& ) x f =
   Js.Opt.case x (fun () -> Lwt.return_unit) f
 
-let set_form_target uuid token =
-  let action =
-    ["uuid", uuid; "token", token]
-    |> Url.encode_arguments
-    |> (fun x -> Printf.sprintf "submit-trustee?%s" x)
-  in
-  let& form = document##querySelector (Js.string "form") in
-  let& form = Dom_html.CoerceTo.form form in
-  form##.action := Js.string action;
-  Lwt.return_unit
-
 let fail msg =
   set_content "election_url" msg;
   Lwt.return_unit
@@ -98,7 +87,7 @@ let fill_interactivity () =
   | Some (uuid, token) ->
      let href = Dom_html.window##.location##.href |> Js.to_string in
      set_content "election_url" (build_election_url href uuid);
-     let* () = set_form_target uuid token in
+     set_form_target "data_form" "submit-trustee" uuid token;
      begin
        let url = Printf.sprintf "../../api/drafts/%s" uuid in
        let* x = get token draft_of_string url in

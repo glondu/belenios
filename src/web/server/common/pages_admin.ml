@@ -1527,6 +1527,7 @@ module Make
       let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
       let service = Eliom_service.preapply ~service:election_draft_trustee_post (uuid, token) in
       post_form
+        ~a:[a_id "data_form"]
         ~service
         (fun name ->
           [

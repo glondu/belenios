@@ -117,8 +117,8 @@ let fill_interactivity () =
     | Some (uuid, token) -> cont (uuid, token)
     | None -> fail "(uuid error)"
   in
-  let* () = set_form_target "data_form" "submit-threshold-trustee" uuid token in
-  let* () = set_form_target "data_form_compute" "submit-threshold-trustee" uuid token in
+  set_form_target "data_form" "submit-threshold-trustee" uuid token;
+  set_form_target "data_form_compute" "submit-threshold-trustee" uuid token;
   let href = Dom_html.window##.location##.href |> Js.to_string in
   set_content "election_url" (build_election_url href uuid);
   let@ draft = fun cont ->
