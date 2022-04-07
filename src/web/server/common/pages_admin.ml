@@ -21,7 +21,6 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_platform
 open Belenios_core
 open Serializable_builtin_t
 open Serializable_j
@@ -1397,19 +1396,28 @@ module Make
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_credentials token uuid se () =
+  let election_draft_credentials_already_generated () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf "Credentials for election %s" se.se_questions.t_name in
+    let title = s_ "Credential generation" in
+    let content =
+      [
+        div [txt (s_ "Credentials have already been generated!")];
+      ]
+    in
+    base ~title ~content ()
+
+  let election_draft_credentials_static () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let title = s_ "Credential generation" in
     let div_link =
-      let url = Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-      in
       div [
           txt (s_ "The link to the election will be:");
-          ul [li [txt url]];
+          ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
+    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form_textarea =
       post_form ~a:[a_id "submit_form"; a_style "display:none;"]
         ~service:election_draft_credentials_post
@@ -1459,7 +1467,7 @@ module Make
         ]
     in
     let form_file =
-      post_form
+      post_form ~a:[a_id "submit_form_file"]
         ~service:election_draft_credentials_post_file
         (fun name ->
           [div
@@ -1469,26 +1477,12 @@ module Make
               div [input ~input_type:`Submit ~value:(s_ "Submit") string]]])
         (uuid, token)
     in
-    let group =
-      div
-        ~a:[a_style "display:none;"]
-        [
-          div [txt "Version:"];
-          div [raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int)];
-          div [txt "UUID:"];
-          div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
-          div [txt "Group parameters:"];
-          div [raw_textarea "group" se.se_group];
-        ]
-    in
     let voters =
-      let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
-      let value = value ^ "\n" in
-      let hash = Platform.sha256_b64 value in
+      let hash = span ~a:[a_id "voters_hash"] [] in
       div [
           div [txt (s_ "List of voters:")];
-          div [raw_textarea ~rows:5 ~cols:40 "voters" value];
-          div [txt (s_ "Fingerprint of voters:"); txt " "; txt hash];
+          div [raw_textarea ~rows:5 ~cols:40 "voters" ""];
+          div [txt (s_ "Fingerprint of voters:"); txt " "; hash];
         ]
     in
     let interactivity =
@@ -1498,19 +1492,14 @@ module Make
           script_with_lang ~lang "tool_js_credgen.js";
         ]
     in
-    let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
+    let div_textarea = div [voters; interactivity; form_textarea; disclaimer] in
     let content =
-      if se.se_public_creds_received then (
-        [
-          div [txt (s_ "Credentials have already been generated!")];
-        ]
-      ) else (
-        [
-          div_link;
-          div_textarea;
-          form_file;
-        ]
-      ) in
+      [
+        div_link;
+        div_textarea;
+        form_file;
+      ]
+    in
     base ~title ~content ()
 
   let election_draft_trustee_static () =

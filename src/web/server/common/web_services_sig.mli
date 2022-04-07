@@ -207,6 +207,13 @@ module type S = sig
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
+  val election_draft_credentials_static :
+    (unit, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     unit, unit,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
   val election_draft_credentials_post :
     (Web_serializable_t.uuid * string, string, Eliom_service.post,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,

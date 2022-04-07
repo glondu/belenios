@@ -745,8 +745,20 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* election = Web_persist.get_draft_election uuid in
         match election with
         | None -> fail_http `Not_found
-        | Some se -> Pages_admin.election_draft_credentials token uuid se () >>= Html.send
+        | Some se ->
+           if se.se_public_creds_received then (
+             Pages_admin.election_draft_credentials_already_generated ()
+             >>= Html.send
+           ) else (
+             Printf.sprintf "%s/draft/credentials.html#%s-%s"
+               !Web_config.prefix (raw_string_of_uuid uuid) token
+             |> String_redirection.send
+           )
       )
+
+  let () =
+    Html.register ~service:election_draft_credentials_static
+      (fun () () -> Pages_admin.election_draft_credentials_static ())
 
   let handle_credentials_post uuid token creds =
     let* election = Web_persist.get_draft_election uuid in

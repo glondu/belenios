@@ -55,6 +55,7 @@ module Make () = struct
   let election_draft_credential_authority = create ~path:(Path ["draft"; "credential-authority"]) ~meth:(Get (uuid "uuid")) ()
   let election_draft_set_credential_authority = create_attached_post ~csrf_safe:true ~fallback:election_draft_credential_authority ~post_params:(string "name") ()
   let election_draft_credentials = create ~path:(Path ["draft"; "credentials"]) ~meth:(Get (suffix uuid_and_token)) ()
+  let election_draft_credentials_static = create ~path:(Path ["draft"; "credentials.html"]) ~meth:(Get unit) ()
   let election_draft_credentials_post = create ~csrf_safe:true ~path:(Path ["draft"; "submit-credentials"]) ~meth:(Post (uuid_and_token, string "public_creds")) ()
   let election_draft_credentials_post_file = create ~csrf_safe:true ~path:(Path ["draft"; "submit-credentials-file"]) ~meth:(Post (uuid_and_token, file "public_creds")) ()
   let election_draft_credentials_server = create_attached_post ~csrf_safe:true ~fallback:election_draft ~post_params:unit ()

@@ -23,13 +23,15 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_platform
+open Belenios_core.Common
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Tool_js_common
 open Tool_credgen
 open Tool_js_i18n.Gettext
+open Belenios_api.Serializable_j
 
-let generate () =
+let generate uuid draft =
   let raw = get_textarea "voters" in
   let ids =
     let rec loop i accu =
@@ -45,9 +47,9 @@ let generate () =
     in loop (String.length raw - 2) []
   in
   let module P : PARAMS = struct
-    let version = get_textarea "version" |> int_of_string
-    let uuid = get_textarea "uuid"
-    let group = get_textarea "group"
+    let version = draft.draft_version
+    let uuid = uuid
+    let group = draft.draft_group
   end in
   let module X = Make (P) (LwtJsRandom) () in
   let* privs, pubs = X.generate ids in
@@ -65,23 +67,63 @@ let generate () =
   set_element_display "submit_form" "inline";
   Lwt.return_unit
 
+let ( let& ) x f =
+  Js.Opt.case x (fun () -> Lwt.return_unit) f
+
 let fill_interactivity () =
-  let$ e = document##getElementById (Js.string "interactivity") in
+  let@ uuid, token = fun cont ->
+    let hash = Dom_html.window##.location##.hash |> Js.to_string in
+    match extract_uuid_and_token hash with
+    | Some (uuid, token) -> cont (uuid, token)
+    | None ->
+       alert "Unable to extract UUID and token from URL";
+       Lwt.return_unit
+  in
+  set_form_target "submit_form" "submit-credentials" uuid token;
+  set_form_target "submit_form_file" "submit-credentials-file" uuid token;
+  let href = Dom_html.window##.location##.href |> Js.to_string in
+  set_content "election_url" (build_election_url href uuid);
+  let@ draft = fun cont ->
+    let url = Printf.sprintf "../../api/drafts/%s" uuid in
+    let* x = get token draft_of_string url in
+    match x with
+    | Some x -> cont x
+    | None ->
+       alert "Unable to get draft";
+       Lwt.return_unit
+  in
+  let@ voters = fun cont ->
+    let url = Printf.sprintf "../../api/drafts/%s/voters" uuid in
+    let* x = get token voter_list_of_string url in
+    match x with
+    | Some x -> cont x
+    | None ->
+       alert "Unable to get voters";
+       Lwt.return_unit
+  in
+  let raw =
+    let b = Buffer.create 1024 in
+    List.iter (fun x -> Printf.bprintf b "%s\n" x) voters;
+    Buffer.contents b
+  in
+  set_textarea "voters" raw;
+  set_content "voters_hash" (Platform.sha256_b64 raw);
+  let& e = document##getElementById (Js.string "interactivity") in
   let x = Dom_html.createDiv document in
   Dom.appendChild e x;
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string (s_ "Generate")) in
   Lwt_js_events.async (fun () ->
       let* _ = Lwt_js_events.click b in
-      generate ()
+      generate uuid draft
     );
   Dom.appendChild b t;
-  Dom.appendChild x b
+  Dom.appendChild x b;
+  Lwt.return_unit
 
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Tool_js_i18n.auto_init "admin" in
-      fill_interactivity ();
-      Lwt.return_unit
+      fill_interactivity ()
     )

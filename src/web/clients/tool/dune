@@ -22,7 +22,7 @@
  (modes js)
  (modules tool_js_credgen)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_tool_js_common)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
