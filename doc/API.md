@@ -116,6 +116,10 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> records
 
+## `elections/$UUID/tally-trustee` (trustee)
+
+* `GET`: unit -> tally_trustee
+
 ## `elections/$UUID/shuffles` (administrator)
 
 * `GET`: unit -> shuffles

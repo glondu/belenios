@@ -199,6 +199,10 @@ type partial_decryptions = {
     ?threshold : int option;
 } <ocaml field_prefix="partial_decryptions_">
 
+type tally_trustee = {
+    ?private_key : string option;
+} <ocaml field_prefix="tally_trustee_">
+
 type shuffler = {
     address : string;
     ?token : string option;
