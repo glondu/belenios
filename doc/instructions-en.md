@@ -109,7 +109,27 @@ are present on this page, each time associated to her name:
 Instructions for the credential authority
 -----------------------------------------
 
-During the setup of the election, it is expected that the credential
+The main role of the credential authority is to generate and transmit
+a private credential to each voter.
+
+**Setup.**
+During the setup of the election, the credential authority first
+obtains a private url that allows her to retrieve the voter list
+`voters.txt`.
+The credential authority must verify with
+  the committee in charge of the election that this list is correct,
+  as well as the weight of each voter in case of a weighted vote;
+
+Then the authority has two options to generate the credentials:
+- either click on `todo` on her browser.
+- or use `belenios-tool` with the following command:
+
+`todo`
+
+This later option should be prefered for more security, in particular
+is there is no auditor in charge of monitoring the election.
+
+During this step, it is expected that the credential
 authority saves:
 
 - the list of the private credentials: the `creds.txt` file. **This file
@@ -118,9 +138,7 @@ authority saves:
   ballot stuffing. It will also allow to send again the credential to a
   voter who has lost it;
 - the `url` of the election;
-- the voter list `voters.txt`. The credential authority must verify with
-  the committee in charge of the election that this list is correct,
-  as well as the weight of each voter in case of a weighted vote;
+- the voter list `voters.txt`. 
 - the fingerprint of the voter list: `fingerprint of voters`;
 - the `fingerprint of the public credentials`.
 
@@ -129,12 +147,13 @@ voters. She must include the `url` of the election in the message that
 she sends (by email, by postal mail). For sending the credentials by
 email, it is possible to use the `contrib/send_credentials.py ` program
 included in the Belenios sources (see the auditor section below for how
-to get the sources). After editing this program according to your
-settings you can run it :
+to get the sources). After editing this program according to the appropriate
+settings, she can run it :
 
         contrib/send_credentials.py
 
 
+**Voting phase.**
 As soon as the election is open, and at the end of the election, it is
 expected that the credential authority:
 
@@ -151,7 +170,7 @@ expected that the credential authority:
   send him again his private credential if he lost it.
 
 
-At the end of the election, in order to validate the records, it is
+**After the tally.** At the end of the election, in order to validate the records, it is
 expected that the credential authority :
 
 - verifies that the voting records given by the administrator corresponds
