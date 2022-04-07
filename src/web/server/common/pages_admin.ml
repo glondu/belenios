@@ -1500,7 +1500,7 @@ module Make
         form_file;
       ]
     in
-    base ~title ~content ()
+    base ~title ~content ~static:true ()
 
   let election_draft_trustee_static () =
     let* l = get_preferred_gettext () in
@@ -1563,7 +1563,7 @@ module Make
         interactivity;
         form;
       ] in
-    base ~title ~content ()
+    base ~title ~content ~static:true ()
 
   let election_draft_threshold_trustee_static () =
     let* l = get_preferred_gettext () in
@@ -1683,7 +1683,7 @@ module Make
         div_instructions;
       ]
     in
-    base ~title ~content ()
+    base ~title ~content ~static:true ()
 
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -2585,7 +2585,7 @@ module Make
           ];
         script_with_lang ~lang "tool_js_pd.js";
       ] in
-    base ~title ~content ()
+    base ~title ~content ~static:true ()
 
   let signup_captcha ~service error challenge email =
     let* l = get_preferred_gettext () in

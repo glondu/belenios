@@ -60,6 +60,7 @@ module type S = sig
     ?footer:[< Html_types.div_content_fun > `A `Div `PCDATA ]
       Eliom_content.Html.elt ->
     ?uuid:Web_serializable_t.uuid ->
+    ?static:bool ->
     unit -> [> Html_types.html ] Eliom_content.Html.elt Lwt.t
 
   val responsive_base :
