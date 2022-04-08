@@ -129,7 +129,7 @@ Then the authority has two options to generate the credentials:
     one alternative question);
   - run the command:
 
-    belenios-tool credgen --file voters.txt --group <(echo $GROUP) --uuid $UUID`
+        belenios-tool credgen --file voters.txt --group <(echo $GROUP) --uuid $UUID
 
     It will generate two files, `$TIMESTAMP.privcreds` and
     `$TIMESTAMP.pubcreds`;
@@ -161,7 +161,7 @@ included in the Belenios sources (see the auditor section below for how
 to get the sources). After editing this program according to the appropriate
 settings, she can run it :
 
-        contrib/send_credentials.py
+    contrib/send_credentials.py
 
 
 **Voting phase.**
@@ -379,11 +379,11 @@ algorithm as the one used in Belenios. We provide here possible
 solutions with command lines. We use the file `voters.txt` as example
 but of course you may replace it by any other file.
 
-        sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
+    sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
 
-  (or `shasum -a256` instead of `sha256sum` for example on MacOS)
+(or `shasum -a256` instead of `sha256sum` for example on MacOS)
 
-        cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
+    cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
 You may also use
 [the online tool](https://belenios.loria.fr/compute-fingerprint)
