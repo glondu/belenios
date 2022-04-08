@@ -106,5 +106,10 @@
     "/static/tool_js_shuffle.js"        : null,
     "/static/tool_js_tkeygen.js"        : null,
     "/static/tool_js_ttkeygen.js"       : null,
+    "/draft/credentials.html"           : {},
+    "/draft/trustee.html"               : {},
+    "/draft/threshold-trustee.html"     : {},
+    "/election/trustees.html"           : {},
+    "/election/shuffle.html"            : {},
     "/vote.html" : {}
 }
