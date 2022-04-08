@@ -52,7 +52,7 @@ module type S = sig
   val pretty_records : (module Site_common_sig.ELECTION_LWT) -> records -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val election_shuffler_skip_confirm : uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val shuffle : (module Site_common_sig.ELECTION_LWT) -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val shuffle_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val tally_trustees_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

@@ -84,18 +84,33 @@ let shuffle election ciphertexts =
   Lwt.async bench_shuffle;
   full_shuffle
 
+let set_nh_ciphertexts_link uuid =
+  let href =
+    ["uuid", uuid]
+    |> Url.encode_arguments
+    |> (fun x -> Printf.sprintf "nh-ciphertexts?%s" x)
+  in
+  let$ a = document##getElementById (Js.string "nh_ciphertexts_link") in
+  let$ a = Dom_html.CoerceTo.a a in
+  a##.href := Js.string href
+
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Tool_js_i18n.auto_init "admin" in
-      let@ uuid = fun cont ->
-        match get_uuid () with
-        | None -> Lwt.return_unit
-        | Some uuid -> cont uuid
+      let@ uuid, token = fun cont ->
+        let hash = Dom_html.window##.location##.hash |> Js.to_string in
+        match extract_uuid_and_token hash with
+        | Some (uuid, token) -> cont (uuid, token)
+        | None ->
+           alert "Unable to extract UUID and token from URL";
+           Lwt.return_unit
       in
+      set_form_target "submit_form" "submit-shuffle" uuid token;
+      set_nh_ciphertexts_link uuid;
       let open Js_of_ocaml_lwt.XmlHttpRequest in
-      let* election = get ("../../../elections/" ^ uuid ^ "/election.json") in
-      let* ciphertexts = get ("../../../election/nh-ciphertexts?uuid=" ^ uuid) in
+      let* election = get ("../elections/" ^ uuid ^ "/election.json") in
+      let* ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
       set_textarea "current_ballots" ciphertexts.content;
       let full_shuffle = shuffle (String.trim election.content) ciphertexts.content in
       match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with

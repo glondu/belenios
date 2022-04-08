@@ -2461,12 +2461,11 @@ module Make
     in
     base ~title ~content ()
 
-  let shuffle election token =
+  let shuffle_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
-    let uuid = election.e_uuid in
-    let title = election.e_name ^ " — " ^ s_ "Shuffle" in
+    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let title = s_ "Shuffle" in
     let content = [
         div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
         div [
@@ -2475,7 +2474,7 @@ module Make
             raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
             txt " ";
             let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
-            a ~service [txt (s_ "Download as a file")] ();
+            a ~a:[a_id "nh_ciphertexts_link"] ~service [txt (s_ "Download as a file")] ();
           ];
         div ~a:[a_id "estimation"] [
             txt (s_ "Estimating computation time…");
@@ -2513,7 +2512,7 @@ module Make
         script_with_lang ~lang "tool_js_shuffle.js";
       ]
     in
-    base ~title ~content ~uuid ()
+    base ~title ~content ~static:true ()
 
   let tally_trustees_static () =
     let* l = get_preferred_gettext () in

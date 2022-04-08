@@ -134,6 +134,7 @@ module Make () = struct
   let election_compute_encrypted_tally = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
   let election_nh_ciphertexts = create ~path:(Path ["election"; "nh-ciphertexts"]) ~meth:(Get (uuid "uuid")) ()
   let election_shuffle_link = create ~path:(Path ["election"; "shuffle"]) ~meth:(Get (suffix uuid_and_token)) ()
+  let election_shuffle_link_static = create ~path:(Path ["election"; "shuffle.html"]) ~meth:(Get unit) ()
   let election_shuffle_post = create ~path:(Path ["election"; "submit-shuffle"]) ~meth:(Post (uuid_and_token, string "shuffle")) ()
   let election_shuffler_select = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, uuid "uuid" ** string "trustee")) ()
   let election_shuffler_skip_confirm = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, uuid "uuid" ** string "trustee")) ()

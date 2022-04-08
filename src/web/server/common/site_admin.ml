@@ -1502,10 +1502,15 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* expected_token = Web_persist.get_shuffle_token uuid in
         match expected_token with
         | Some x when token = x.tk_token ->
-           let@ election = with_election uuid in
-           Pages_admin.shuffle election token >>= Html.send
+           Printf.sprintf "%s/election/shuffle.html#%s-%s"
+             !Web_config.prefix (raw_string_of_uuid uuid) token
+           |> String_redirection.send
         | _ -> forbidden ()
       )
+
+  let () =
+    Html.register ~service:election_shuffle_link_static
+      (fun () () -> Pages_admin.shuffle_static ())
 
   let () =
     Any.register ~service:election_shuffle_post
