@@ -112,33 +112,44 @@ Instructions for the credential authority
 The main role of the credential authority is to generate and transmit
 a private credential to each voter.
 
-**Setup.**
-During the setup of the election, the credential authority first
-obtains a private url that allows her to retrieve the voter list
-`voters.txt`.
-The credential authority must verify with
-  the committee in charge of the election that this list is correct,
-  as well as the weight of each voter in case of a weighted vote;
+**Setup.** During the setup of the election, the credential authority
+first obtains a private url that allows her to retrieve the voter list
+`voters.txt`.  The credential authority must verify with the committee
+in charge of the election that this list is correct, as well as the
+weight of each voter in case of a weighted vote;
 
 Then the authority has two options to generate the credentials:
-- either click on `todo` on her browser.
-- or use `belenios-tool` with the following command:
+- either click on `Generate` on her browser;
+- or:
+  - copy the voter list to a file, e.g. `voter.txt`;
+  - let `$UUID` be the identifier of the election (the last component
+    in the given election URL);
+  - let `$GROUP` be either `BELENIOS-2048` (if there are no
+    alternative questions) or `RFC-3526-2048` (if there is at least
+    one alternative question);
+  - run the command:
 
-`todo`
+    belenios-tool credgen --file voters.txt --group <(echo $GROUP) --uuid $UUID`
 
-This later option should be prefered for more security, in particular
-is there is no auditor in charge of monitoring the election.
+    It will generate two files, `$TIMESTAMP.privcreds` and
+    `$TIMESTAMP.pubcreds`;
+  - upload the `.pubcreds` file with the `Submit by file` form;
+  - [compute the fingerprint](#hash) of the `.pubcreds` file and save
+    it as `fingerprint of the public credentials`;
+  - keep the `.privcreds` file and save it as `creds.txt`.
 
-During this step, it is expected that the credential
-authority saves:
+The second option should be preferred for more security, in particular
+if there is no auditor in charge of monitoring the server.
 
-- the list of the private credentials: the `creds.txt` file. **This file
-  must be saved in a secure place** (encrypted container, USB stick
-  stored in a closed place, etc) because it is a protection against
-  ballot stuffing. It will also allow to send again the credential to a
-  voter who has lost it;
+During this step, it is expected that the credential authority saves:
+
+- the list of the private credentials: the `creds.txt` file. **This
+  file must be saved in a secure place** (encrypted container, USB
+  stick stored in a closed place, etc) because it is a protection
+  against ballot stuffing. It will also allow the credential authority
+  to send again the credential to a voter who has lost it;
 - the `url` of the election;
-- the voter list `voters.txt`. 
+- the voter list `voters.txt`;
 - the fingerprint of the voter list: `fingerprint of voters`;
 - the `fingerprint of the public credentials`.
 
