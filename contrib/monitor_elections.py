@@ -220,7 +220,7 @@ def check_index_html(data):
 
     # credential fingerprint vs public_creds.txt
     m = hashlib.sha256()
-    m.update(data['public_creds.txt']) 
+    m.update(data['public_creds.txt'])
     h = base64.b64encode(m.digest()).decode().strip('=')
     node = [ x.firstChild for x in dom.getElementsByTagName("div")
             if x.firstChild != None and
@@ -233,7 +233,7 @@ def check_index_html(data):
         fail = True
     else:
         logme("  cred fingerprint ok")
-    
+
     # if weights, check the total/min/max vs content of public_creds.txt
     node = [ x.firstChild for x in dom.getElementsByTagName("div")
             if x.firstChild != None and
@@ -344,7 +344,7 @@ def check_index_html(data):
             names2.append(mat.group(1))
             pks2.append(mat.group(2))
             certs2.append(mat.group(3))
-    
+
     if ((not names == names2) or (not pks == pks2) or (not certs == certs2)):
         msg = msg + "Error: Wrong trustees fingerprint of election {}\n".format(uuid).encode()
         fail = True
@@ -382,7 +382,7 @@ def check_index_html(data):
         shuf_array = []
         for line in data['shuffles.jsons'].decode().splitlines():
             shuf_array.append(json.loads(line))
-    
+
     # shuffles fingerprint vs result.json or shuffles.jsons (if present)
     if shuf_array != None:
         hashs = []
@@ -564,7 +564,7 @@ if args.checkhash == True:
             if h != descr:
                 hashfile_changed = True
                 print("Different hash of static file {}: got {} but expected {}".format(f, h, descr))
-        
+
     if hashfile_changed:
         logme("Hash of static files have changed")
     else:
@@ -628,11 +628,11 @@ for uuid in uuids:
             with open(p, "wb") as file:
                 file.write(data['hash_voterlist'])
 
-    # commit 
+    # commit
     if status.msg != b'':
         Elogme("Commit log for election {} is {}".format(uuid,
             status.msg.decode()))
     commit(args.wdir, uuid, status.msg)
-    
+
 if args.logfile:
     log_file.close()
