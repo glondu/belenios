@@ -462,6 +462,19 @@ def hash_file(link):
     h = m.hexdigest()
     return h
 
+def read_linguas(linguas):
+    with open(linguas, "r") as fp:
+        return set(fp.readlines())
+
+def get_all_available_languages():
+    admin = read_linguas("po/admin/LINGUAS")
+    voter = read_linguas("po/voter/LINGUAS")
+    result = [str(x).strip() for x in admin.union(voter)]
+    result.sort()
+    return result
+
+# Will be populated if needed
+langs = []
 
 #############################################
 
@@ -552,6 +565,11 @@ if args.checkhash == True:
     for f, descr in reference.items():
         if type(descr) == dict:
             new_reference[f] = {}
+            if len(descr) == 0:
+                if len(langs) == 0:
+                    langs = get_all_available_languages ()
+                for lang in langs:
+                    descr[lang] = None
             for lang, descr in descr.items():
                 h = hash_votefile(url + f, lang)
                 new_reference[f][lang] = h
