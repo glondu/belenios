@@ -1435,14 +1435,14 @@ module Make
                   ol [
                       li [
                           txt (s_ "Download ");
-                          a ~service:home ~a:[a_id "creds"] [txt (s_ "private credentials")] ();
+                          raw_a ~service:home ~a:[a_id "creds"] [txt (s_ "private credentials")] ();
                           txt (s_ " and save the file to a secure location.");
                           br ();
                           txt (s_ "You will use it to send credentials to voters.");
                         ];
                       li [
                           txt (s_ "Download ");
-                          a ~service:home ~a:[a_id "voters_txt"] [txt (s_ "the list of voters")] ();
+                          raw_a ~service:home ~a:[a_id "voters_txt"] [txt (s_ "the list of voters")] ();
                           txt ".";
                           br ();
                           txt (s_ "This list must be the one approved by the election commission.");
@@ -1533,7 +1533,7 @@ module Make
                     ol [
                         li [
                             txt (s_ "Download your ");
-                            a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
+                            raw_a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
                             txt (s_ " and save it to a secure location.");
                             br ();
                             txt (s_ "You will use it to decrypt the final result.");
@@ -1595,7 +1595,7 @@ module Make
                 ol [
                     li [
                         txt (s_ "Download your ");
-                        a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
+                        raw_a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
                         txt (s_ " and save it to a secure location.");
                         br ();
                         txt (s_ "You will use it in the next steps and to decrypt the final result.");
@@ -2474,7 +2474,7 @@ module Make
             raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
             txt " ";
             let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
-            a ~a:[a_id "nh_ciphertexts_link"] ~service [txt (s_ "Download as a file")] ();
+            raw_a ~a:[a_id "nh_ciphertexts_link"] ~service [txt (s_ "Download as a file")] ();
           ];
         div ~a:[a_id "estimation"] [
             txt (s_ "Estimating computation time…");

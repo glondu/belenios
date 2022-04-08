@@ -43,6 +43,10 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       ~a:(a_href (uri_of_string (fun () -> uri)) :: attributes)
       [txt text]
 
+  let raw_a ~service ?(a = []) contents x =
+    let href = uri_of_string (fun () -> Eliom_uri.make_string_uri ~service x) in
+    Eliom_content.Html.F.Raw.a ~a:(a_href href :: a) contents
+
   let static x =
     let service =
       Eliom_service.static_dir_with_params
@@ -77,9 +81,9 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     let administer =
       match uuid with
       | None ->
-         a ~service:admin [txt (s_ "Administer elections")] ()
+         raw_a ~service:admin [txt (s_ "Administer elections")] ()
       | Some uuid ->
-         a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
+         raw_a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
     in
     let login_box = match login_box with
       | None ->
@@ -107,7 +111,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                            div ~a:[a_id "header"] [
                                div [
                                    div ~a:[a_style "float: left; padding: 10px;"] [
-                                       a ~service:home [
+                                       raw_a ~service:home [
                                            img ~alt:(s_ "Election server") ~a:[a_height 70]
                                              ~src:(static "logo.png") ();
                                          ] ();
@@ -127,11 +131,11 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                                div ~a:[a_id "bottom"] [
                                    footer;
                                    txt (s_ "Powered by ");
-                                   a ~service:belenios_url [txt "Belenios"] ();
+                                   raw_a ~service:belenios_url [txt "Belenios"] ();
                                    Version.(
                                      Printf.ksprintf txt " %s (%s). " version build
                                    );
-                                   a ~service:source_code [txt (s_ "Get the source code")] ();
+                                   raw_a ~service:source_code [txt (s_ "Get the source code")] ();
                                    txt ". ";
                                    direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
                                    txt ". ";
