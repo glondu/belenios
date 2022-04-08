@@ -132,18 +132,6 @@ let run_handler handler () =
      let msg = "Unexpected error: " ^ Printexc.to_string e in
      alert msg
 
-let get_params () =
-  let x = Js.to_string Dom_html.window##.location##.search in
-  let n = String.length x in
-  if n < 1 || x.[0] <> '?' then []
-  else Url.decode_arguments (String.sub x 1 (n-1))
-
-let get_uuid () =
-  let x = Js.to_string Dom_html.window##.location##.href in
-  match List.rev (String.split_on_char '/' x) with
-  | _token :: uuid :: _ -> Some uuid
-  | _ -> None
-
 module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
   type 'a t = 'a Lwt.t
   let yield = Lwt_js.yield
