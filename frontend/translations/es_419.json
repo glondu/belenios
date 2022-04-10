@@ -43,7 +43,7 @@
     "ask_to_save_your_smart_ballot_tracker": "Por favor, guárdalo para revisar después que tu voto haya sido tomado en cuenta.",
     "copy_to_clipboard_label": "Cpòar",
     "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} }) de {{number_of_questions}}",
-    "ask_to_select_between_x": "Por favor, selecciona entre {{count}}",
+    "ask_to_select_between_x": "Por favor selecciona entre {{count}}",
     "ask_to_select_between_x_plural": "Por favor, selecciona entre {{count}}",
     "previous_button_label": "Anterior",
     "review_ballot_for_questions": "Tu voto todavía no está en la urna, y tiene el siguiente contenido:",
