@@ -1,13 +1,23 @@
 dev
 ===
 
+ * Update OCaml stack to 4.13.1 and base containers on Debian 11
  * Web server:
    + Add a configuration option to deny new elections
    + Avoid & in links sent via mailto (GitHub issue #37)
    + Add support for allowlist in auth config (GitHub issue #47)
    + Add possibility to pass credential in hash (GitHub issue #49)
+   + Show pretty names in language selection boxes
+   + Make bulk email (credentials and passwords) sending asynchronous
+     and resumable
+   + Make pages served to credential authority and trustees constant,
+     and add them to monitoring
+ * Monitoring:
+   + More generic handling of translated pages and translation files
+   + Various fixes
+ * Update instructions
  * Translations:
-   + Add Lithuanian
+   + Add Lithuanian, Spanish (Latin America)
 
 1.18 (2021-11-24)
 =================
