@@ -547,7 +547,29 @@ if args.checkhash == True:
     url = args.url.strip("/")
     hashfile_changed = False
     with open(args.hashref) as f:
-        reference = json.load(f)
+        tmp_reference = json.load(f)
+    reference = {}
+    for f, descr in tmp_reference.items():
+        if f == "/static/locales/admin/*.json":
+            langs = [x[0:-3] for x in os.listdir("po/admin") if x[-3:] == ".po"]
+            langs.sort()
+            for x in langs:
+                reference["/static/locales/admin/{}.json".format(x)] = None
+        elif f == "/static/locales/voter/*.json":
+            langs = [x[0:-3] for x in os.listdir("po/voter") if x[-3:] == ".po"]
+            langs.sort()
+            for x in langs:
+                reference["/static/locales/voter/{}.json".format(x)] = None
+        elif f == "/static/frontend/translations/*.json":
+            langs = [x for x in os.listdir("frontend/translations") if x[-5:] == ".json"]
+            langs.sort()
+            for x in langs:
+                reference["/static/frontend/translations/{}".format(x)] = None
+        elif "*" in f:
+            print("Wildcard not supported in {}".format(f))
+            sys.exit(1)
+        else:
+            reference[f] = descr
     new_reference = {}
     for f, descr in reference.items():
         if type(descr) == dict:
