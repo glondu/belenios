@@ -21,7 +21,6 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_platform
 open Belenios_core
 open Serializable_builtin_t
 open Serializable_j
@@ -1397,19 +1396,28 @@ module Make
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_credentials token uuid se () =
+  let election_draft_credentials_already_generated () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf "Credentials for election %s" se.se_questions.t_name in
+    let title = s_ "Credential generation" in
+    let content =
+      [
+        div [txt (s_ "Credentials have already been generated!")];
+      ]
+    in
+    base ~title ~content ()
+
+  let election_draft_credentials_static () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let title = s_ "Credential generation" in
     let div_link =
-      let url = Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-      in
       div [
           txt (s_ "The link to the election will be:");
-          ul [li [txt url]];
+          ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
+    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form_textarea =
       post_form ~a:[a_id "submit_form"; a_style "display:none;"]
         ~service:election_draft_credentials_post
@@ -1427,14 +1435,14 @@ module Make
                   ol [
                       li [
                           txt (s_ "Download ");
-                          a ~service:home ~a:[a_id "creds"] [txt (s_ "private credentials")] ();
+                          raw_a ~service:home ~a:[a_id "creds"] [txt (s_ "private credentials")] ();
                           txt (s_ " and save the file to a secure location.");
                           br ();
                           txt (s_ "You will use it to send credentials to voters.");
                         ];
                       li [
                           txt (s_ "Download ");
-                          a ~service:home ~a:[a_id "voters_txt"] [txt (s_ "the list of voters")] ();
+                          raw_a ~service:home ~a:[a_id "voters_txt"] [txt (s_ "the list of voters")] ();
                           txt ".";
                           br ();
                           txt (s_ "This list must be the one approved by the election commission.");
@@ -1459,7 +1467,7 @@ module Make
         ]
     in
     let form_file =
-      post_form
+      post_form ~a:[a_id "submit_form_file"]
         ~service:election_draft_credentials_post_file
         (fun name ->
           [div
@@ -1469,26 +1477,12 @@ module Make
               div [input ~input_type:`Submit ~value:(s_ "Submit") string]]])
         (uuid, token)
     in
-    let group =
-      div
-        ~a:[a_style "display:none;"]
-        [
-          div [txt "Version:"];
-          div [raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int)];
-          div [txt "UUID:"];
-          div [raw_textarea "uuid" (raw_string_of_uuid uuid)];
-          div [txt "Group parameters:"];
-          div [raw_textarea "group" se.se_group];
-        ]
-    in
     let voters =
-      let value = String.concat "\n" (List.map (fun x -> x.sv_id) se.se_voters) in
-      let value = value ^ "\n" in
-      let hash = Platform.sha256_b64 value in
+      let hash = span ~a:[a_id "voters_hash"] [] in
       div [
           div [txt (s_ "List of voters:")];
-          div [raw_textarea ~rows:5 ~cols:40 "voters" value];
-          div [txt (s_ "Fingerprint of voters:"); txt " "; txt hash];
+          div [raw_textarea ~rows:5 ~cols:40 "voters" ""];
+          div [txt (s_ "Fingerprint of voters:"); txt " "; hash];
         ]
     in
     let interactivity =
@@ -1498,45 +1492,37 @@ module Make
           script_with_lang ~lang "tool_js_credgen.js";
         ]
     in
-    let div_textarea = div [group; voters; interactivity; form_textarea; disclaimer] in
+    let div_textarea = div [voters; interactivity; form_textarea; disclaimer] in
     let content =
-      if se.se_public_creds_received then (
-        [
-          div [txt (s_ "Credentials have already been generated!")];
-        ]
-      ) else (
-        [
-          div_link;
-          div_textarea;
-          form_file;
-        ]
-      ) in
-    base ~title ~content ()
+      [
+        div_link;
+        div_textarea;
+        form_file;
+      ]
+    in
+    base ~title ~content ~static:true ()
 
-  let election_draft_trustee token uuid se () =
+  let election_draft_trustee_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
+    let title = s_ "Trustee key generation" in
     let div_link =
-      let url = Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-      in
       div [
           txt (s_ "The link to the election will be:");
-          ul [li [txt url]];
+          ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
     let form =
-      let trustee = List.find (fun x -> x.st_token = token) se.se_public_keys in
-      let value = trustee.st_public_key in
+      let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
       let service = Eliom_service.preapply ~service:election_draft_trustee_post (uuid, token) in
       post_form
+        ~a:[a_id "data_form"]
         ~service
         (fun name ->
           [
             div ~a:[a_id "submit_form"; a_style "display:none;"] [
                 div [txt (s_ "Public key:")];
-                div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ~value ()];
+                div [textarea ~a:[a_rows 5; a_cols 40; a_id "pk"] ~name ()];
                 div [
                     txt (s_ "Fingerprint of the verification key:");
                     txt " ";
@@ -1547,7 +1533,7 @@ module Make
                     ol [
                         li [
                             txt (s_ "Download your ");
-                            a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
+                            raw_a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
                             txt (s_ " and save it to a secure location.");
                             br ();
                             txt (s_ "You will use it to decrypt the final result.");
@@ -1565,20 +1551,6 @@ module Make
           ]
         ) ()
     in
-    let group =
-      div
-        ~a:[a_style "display:none;"]
-        [
-          div [
-              txt "Version:";
-              raw_textarea "version" (string_of_int (Option.value se.se_version ~default:0));
-            ];
-          div [
-              txt "Group parameters:";
-              raw_textarea "group" se.se_group
-            ];
-        ]
-    in
     let interactivity =
       div
         ~a:[a_id "interactivity"]
@@ -1588,16 +1560,15 @@ module Make
     in
     let content = [
         div_link;
-        group;
         interactivity;
         form;
       ] in
-    base ~title ~content ()
+    base ~title ~content ~static:true ()
 
-  let election_draft_threshold_trustee token uuid se () =
+  let election_draft_threshold_trustee_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf (f_ "Trustee for election %s") se.se_questions.t_name in
+    let title = s_ "Trustee key generation" in
     let header =
       div ~a:[a_style "text-align:center;"] [
           h2 [txt (s_ "Collaborative key generation")];
@@ -1607,70 +1578,12 @@ module Make
         ]
     in
     let div_link =
-      let url = Eliom_uri.make_string_uri ~absolute:true
-                  ~service:election_home (uuid, ()) |> rewrite_prefix
-      in
       div [
           txt (s_ "The link to the election will be:");
-          ul [li [txt url]];
+          ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
-    let* trustee =
-      match se.se_threshold_trustees with
-      | None -> fail_http `Not_found
-      | Some ts ->
-         match List.find_opt (fun x -> x.stt_token = token) ts with
-         | Some x -> return x
-         | None -> fail_http `Not_found
-    in
-    let* certs =
-      match se.se_threshold_trustees with
-      | None -> fail_http `Not_found
-      | Some ts ->
-         let certs = List.fold_left (fun accu x ->
-                         match x.stt_cert with
-                         | None -> accu
-                         | Some c -> c :: accu
-                       ) [] ts |> List.rev |> Array.of_list
-         in return {certs}
-    in
-    let threshold =
-      match se.se_threshold with
-      | None -> 0
-      | Some t -> t
-    in
-    let inputs =
-      div ~a:[a_style "display:none;"] [
-          div [
-              txt "Version: ";
-              raw_textarea "version" (Option.value se.se_version ~default:0 |> string_of_int);
-            ];
-          div [
-              txt "Step: ";
-              raw_textarea "step" (match trustee.stt_step with None -> "0" | Some x -> string_of_int x);
-            ];
-          div [
-              txt "Group parameters: ";
-              raw_textarea "group" se.se_group;
-            ];
-          div [
-              txt "Certificates: ";
-              raw_textarea "certs" (string_of_certs certs);
-            ];
-          div [
-              txt "Threshold: ";
-              raw_textarea "threshold" (string_of_int threshold);
-            ];
-          div [
-              txt "Vinput: ";
-              raw_textarea "vinput" (match trustee.stt_vinput with None -> "" | Some x -> string_of_vinput x);
-            ];
-          div [
-              txt "Voutput: ";
-              raw_textarea "voutput" (match trustee.stt_voutput with None -> "" | Some x -> x);
-            ];
-        ]
-    in
+    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form =
       post_form
         ~service:election_draft_threshold_trustee_post
@@ -1682,7 +1595,7 @@ module Make
                 ol [
                     li [
                         txt (s_ "Download your ");
-                        a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
+                        raw_a ~service:home ~a:[a_id "private_key"] [txt (s_ "private key")] ();
                         txt (s_ " and save it to a secure location.");
                         br ();
                         txt (s_ "You will use it in the next steps and to decrypt the final result.");
@@ -1724,6 +1637,7 @@ module Make
               li [
                   txt (s_ "Submit data using the following button:");
                   post_form
+                    ~a:[a_id "data_form_compute"]
                     ~service:election_draft_threshold_trustee_post
                     (fun data ->
                       [
@@ -1763,14 +1677,13 @@ module Make
         div_link;
         br ();
         div ~a:[a_id "explain"] [];
-        inputs;
         interactivity;
         form;
         form_compute;
         div_instructions;
       ]
     in
-    base ~title ~content ()
+    base ~title ~content ~static:true ()
 
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -2548,12 +2461,11 @@ module Make
     in
     base ~title ~content ()
 
-  let shuffle election token =
+  let shuffle_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
-    let uuid = election.e_uuid in
-    let title = election.e_name ^ " — " ^ s_ "Shuffle" in
+    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let title = s_ "Shuffle" in
     let content = [
         div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
         div [
@@ -2562,7 +2474,7 @@ module Make
             raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
             txt " ";
             let service = Eliom_service.preapply ~service:election_nh_ciphertexts uuid in
-            a ~service [txt (s_ "Download as a file")] ();
+            raw_a ~a:[a_id "nh_ciphertexts_link"] ~service [txt (s_ "Download as a file")] ();
           ];
         div ~a:[a_id "estimation"] [
             txt (s_ "Estimating computation time…");
@@ -2600,32 +2512,12 @@ module Make
         script_with_lang ~lang "tool_js_shuffle.js";
       ]
     in
-    base ~title ~content ~uuid ()
+    base ~title ~content ~static:true ()
 
-  let tally_trustees election trustee_id token () =
+  let tally_trustees_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
-    let uuid = election.e_uuid in
-    let title =
-      election.e_name ^ " — " ^ Printf.sprintf (f_ "Partial decryption #%d") trustee_id
-    in
-    let* encrypted_private_key =
-      let* x = Web_persist.get_private_keys uuid in
-      match x with
-      | None -> return_none
-      | Some keys ->
-         (* there is one Pedersen trustee *)
-         let* trustees = Web_persist.get_trustees uuid in
-         let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-         let rec loop i ts =
-           match ts with
-           | [] -> return_none (* an error, actually *)
-           | `Single _ :: ts -> loop (i - 1) ts
-           | `Pedersen _ :: _ -> return_some (List.nth keys i)
-         in
-         loop (trustee_id - 1) trustees
-    in
+    let title = s_ "Partial decryption" in
     let content = [
         p [txt (s_ "It is now time to compute your partial decryption factors.")];
         p [
@@ -2633,14 +2525,6 @@ module Make
             b [span ~a:[a_id "hash"] []];
             txt "."
           ];
-        (
-          match encrypted_private_key with
-          | None -> txt ""
-          | Some epk ->
-             div ~a:[a_style "display:none;"] [
-                 raw_textarea "encrypted_private_key" epk
-               ];
-        );
         hr ();
         div [
             b [txt (s_ "Instructions:")];
@@ -2675,7 +2559,9 @@ module Make
                   ];
                 li [
                     div ~a:[a_id "pd_done"] [
+                        let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
                         post_form
+                          ~a:[a_id "pd_form"]
                           ~service:election_tally_trustees_post
                           (fun pd ->
                             [
@@ -2698,7 +2584,7 @@ module Make
           ];
         script_with_lang ~lang "tool_js_pd.js";
       ] in
-    base ~title ~content ~uuid ()
+    base ~title ~content ~static:true ()
 
   let signup_captcha ~service error challenge email =
     let* l = get_preferred_gettext () in

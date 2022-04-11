@@ -207,6 +207,13 @@ module type S = sig
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
+  val election_draft_credentials_static :
+    (unit, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     unit, unit,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
   val election_draft_credentials_post :
     (Web_serializable_t.uuid * string, string, Eliom_service.post,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
@@ -253,6 +260,13 @@ module type S = sig
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
+  val election_draft_trustee_static :
+    (unit, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     unit, unit,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
   val election_draft_trustee_post :
     (Web_serializable_t.uuid * string, string, Eliom_service.post,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
@@ -274,6 +288,13 @@ module type S = sig
      Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
+  val election_draft_threshold_trustee_static :
+    (unit, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     unit, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
   val election_draft_threshold_trustee_post :
@@ -585,6 +606,13 @@ module type S = sig
        [ `One of string ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
+  val election_shuffle_link_static :
+    (unit, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     unit, unit,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
   val election_shuffle_post :
     (Web_serializable_t.uuid * string, string, Eliom_service.post,
      Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
@@ -627,6 +655,13 @@ module type S = sig
      Eliom_service.reg, [ `WithSuffix ],
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, unit,
+     Eliom_service.non_ocaml)
+      Eliom_service.t
+  val election_tally_trustees_static :
+    (unit, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     unit, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
   val election_tally_trustees_post :

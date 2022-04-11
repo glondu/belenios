@@ -5,7 +5,7 @@ from os.path import abspath, dirname, join
 from enum import Enum, unique
 
 SERVER_EXECUTABLE_FILE_PATH_RELATIVE_TO_GIT_REPOSITORY = "demo/run-server.sh"
-SERVER_URL = "http://localhost:8001"
+SERVER_URL = "http://127.0.0.1:8001"
 START_SERVER = False
 ELECTION_ID = None
 DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY = "_run/spool"

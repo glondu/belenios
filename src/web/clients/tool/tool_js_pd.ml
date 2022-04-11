@@ -31,6 +31,7 @@ open Serializable_j
 open Common
 open Tool_js_common
 open Tool_js_i18n.Gettext
+open Belenios_api.Serializable_j
 
 let election = ref None
 let encrypted_tally = ref None
@@ -70,7 +71,7 @@ let basic_check_private_key s =
     else failwith (s_ "Must end with a double quote")
   in leading 0
 
-let compute_partial_decryption _ =
+let compute_partial_decryption tally_trustee _ =
   let& e = Js.Opt.option !election in
   let module P = Election.Make (struct let raw_election = e end) (LwtJsRandom) () in
   let& e = Js.Opt.option !encrypted_tally in
@@ -79,7 +80,7 @@ let compute_partial_decryption _ =
   let& e = Dom_html.CoerceTo.input e in
   let pk_str = Js.to_string e##.value in
   let private_key =
-    match get_textarea_opt "encrypted_private_key" with
+    match tally_trustee.tally_trustee_private_key with
     | Some epk ->
        let module Trustees = (val Trustees.get_by_version P.election.e_version) in
        let module PKI = Trustees.MakePKI (P.G) (LwtJsRandom) in
@@ -127,26 +128,44 @@ let load_private_key_file _ =
   reader##readAsText (file);
   return_unit
 
+let ( let& ) x f =
+  Js.Opt.case x (fun () -> Lwt.return_unit) f
+
 let fill_interactivity () =
+  let@ uuid, token = fun cont ->
+    let hash = Dom_html.window##.location##.hash |> Js.to_string in
+    match extract_uuid_and_token hash with
+    | Some (uuid, token) -> cont (uuid, token)
+    | None ->
+       alert "Unable to extract UUID and token from URL";
+       Lwt.return_unit
+  in
+  set_form_target "pd_form" "submit-partial-decryption" uuid token;
+  let@ tally_trustee = fun cont ->
+    let url = Printf.sprintf "../../api/elections/%s/tally-trustee" uuid in
+    let* x = get token tally_trustee_of_string url in
+    match x with
+    | Some x -> cont x
+    | None ->
+       alert "Error while retrieving tally-trustee";
+       Lwt.return_unit
+  in
   let () =
     let$ e = document##getElementById (Js.string "compute") in
     let$ e = Dom_html.CoerceTo.button e in
-    e##.onclick := Dom_html.handler (wrap compute_partial_decryption)
+    e##.onclick := Dom_html.handler (wrap (compute_partial_decryption tally_trustee))
   in
   let () =
     let$ e = document##getElementById (Js.string "private_key_file") in
     let$ e = Dom_html.CoerceTo.input e in
     e##.onchange := Dom_html.handler (wrap load_private_key_file)
   in
-  match get_uuid () with
-  | None -> Lwt.return_unit
-  | Some uuid ->
-     let open Js_of_ocaml_lwt.XmlHttpRequest in
-     let* e = get ("../../../elections/" ^ uuid ^ "/encrypted_tally.json") in
-     encrypted_tally := Some (String.trim e.content);
-     let* e = get ("../../../elections/" ^ uuid ^ "/election.json") in
-     election := Some (String.trim e.content);
-     Lwt.return (compute_hash ())
+  let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let* e = get ("../elections/" ^ uuid ^ "/encrypted_tally.json") in
+  encrypted_tally := Some (String.trim e.content);
+  let* e = get ("../elections/" ^ uuid ^ "/election.json") in
+  election := Some (String.trim e.content);
+  Lwt.return (compute_hash ())
 
 let () =
   Lwt.async (fun () ->

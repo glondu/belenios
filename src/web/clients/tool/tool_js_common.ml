@@ -132,18 +132,6 @@ let run_handler handler () =
      let msg = "Unexpected error: " ^ Printexc.to_string e in
      alert msg
 
-let get_params () =
-  let x = Js.to_string Dom_html.window##.location##.search in
-  let n = String.length x in
-  if n < 1 || x.[0] <> '?' then []
-  else Url.decode_arguments (String.sub x 1 (n-1))
-
-let get_uuid () =
-  let x = Js.to_string Dom_html.window##.location##.href in
-  match List.rev (String.split_on_char '/' x) with
-  | _token :: uuid :: _ -> Some uuid
-  | _ -> None
-
 module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
   type 'a t = 'a Lwt.t
   let yield = Lwt_js.yield
@@ -159,3 +147,39 @@ module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
     let r = random_string (Lazy.force prng) size in
     Lwt.return Z.(of_bits r mod q)
 end
+
+let get token of_string url =
+  let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let headers = ["Authorization", "Bearer " ^ token] in
+  let* x = perform_raw_url ~headers url in
+  match x.code with
+  | 200 -> Lwt.return @@ Option.wrap of_string x.content
+  | _ -> Lwt.return_none
+
+let extract_uuid_and_token x =
+  let n = String.length x in
+  let i = if n > 1 && x.[0] = '#' then 1 else 0 in
+  match String.index_opt x '-' with
+  | Some j ->
+     let uuid = String.sub x i (j - i) in
+     let token = String.sub x (j + 1) (n - j - 1) in
+     Some (uuid, token)
+  | None -> None
+
+let build_election_url href uuid =
+  let base =
+    match String.split_on_char '/' href |> List.rev with
+    | _ :: _ :: base -> String.concat "/" (List.rev base)
+    | _ -> href
+  in
+  Printf.sprintf "%s/elections/%s/" base uuid
+
+let set_form_target id target uuid token =
+  let action =
+    ["uuid", uuid; "token", token]
+    |> Url.encode_arguments
+    |> (fun x -> Printf.sprintf "%s?%s" target x)
+  in
+  let$ form = document##getElementById (Js.string id) in
+  let$ form = Dom_html.CoerceTo.form form in
+  form##.action := Js.string action

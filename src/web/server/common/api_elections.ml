@@ -37,6 +37,43 @@ let with_administrator token metadata f =
   | Some a, Some o when Accounts.check_account a o -> f a
   | _ -> unauthorized
 
+let find_trustee_id uuid token =
+  let* x = Web_persist.get_decryption_tokens uuid in
+  match x with
+  | None -> Lwt.return (int_of_string_opt token)
+  | Some tokens ->
+     let rec find i = function
+       | [] -> None
+       | t :: ts -> if t = token then Some i else find (i+1) ts
+     in
+     Lwt.return (find 1 tokens)
+
+let find_trustee_private_key uuid trustee_id =
+  let* x = Web_persist.get_private_keys uuid in
+  match x with
+  | None -> Lwt.return_none
+  | Some keys ->
+     (* there is one Pedersen trustee *)
+     let* trustees = Web_persist.get_trustees uuid in
+     let open Belenios_core.Serializable_j in
+     let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+     let rec loop i ts =
+       match ts with
+       | [] -> Lwt.return_none (* an error, actually *)
+       | `Single _ :: ts -> loop (i - 1) ts
+       | `Pedersen _ :: _ -> Lwt.return_some (List.nth keys i)
+     in
+     loop (trustee_id - 1) trustees
+
+let with_tally_trustee token uuid f =
+  let@ token = Option.unwrap unauthorized token in
+  let* x = find_trustee_id uuid token in
+  match x with
+  | Some trustee_id ->
+     let* tally_trustee_private_key = find_trustee_private_key uuid trustee_id in
+     f {tally_trustee_private_key}
+  | None -> unauthorized
+
 let get_election_status uuid =
   let* s = Web_persist.get_election_state uuid in
   let* d = Web_persist.get_election_dates uuid in
@@ -692,6 +729,15 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ () = handle_generic_error in
           let* x = get_partial_decryptions uuid metadata in
           Lwt.return (200, string_of_partial_decryptions x)
+       | _ -> method_not_allowed
+     end
+  | ["tally-trustee"] ->
+     begin
+       match method_ with
+       | `GET ->
+          let@ x = with_tally_trustee token uuid in
+          let@ () = handle_generic_error in
+          Lwt.return (200, string_of_tally_trustee x)
        | _ -> method_not_allowed
      end
   | ["shuffles"] ->

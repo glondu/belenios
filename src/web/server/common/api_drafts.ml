@@ -50,6 +50,40 @@ let with_administrator_or_credential_authority token se f =
     | _ -> not_found
   )
 
+let with_administrator_or_credential_authority_or_trustee token se f =
+  let@ token = Option.unwrap unauthorized token in
+  if token = se.se_public_creds then (
+    f `CredentialAuthority
+  ) else (
+    let@ () = fun cont ->
+      match se.se_threshold_trustees with
+      | None ->
+         begin
+           match List.find_opt (fun x -> x.st_token = token) se.se_public_keys with
+           | Some _ -> f `Trustee
+           | None -> cont ()
+         end
+      | Some trustees ->
+         begin
+           match List.find_opt (fun x -> x.stt_token = token) trustees with
+           | Some _ -> f `Trustee
+           | None -> cont ()
+         end
+    in
+    match lookup_token token with
+    | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+    | _ -> not_found
+  )
+
+let with_threshold_trustee token se f =
+  let@ token = Option.unwrap unauthorized token in
+  match se.se_threshold_trustees with
+  | None -> not_found
+  | Some trustees ->
+     match List.find_opt (fun x -> x.stt_token = token) trustees with
+     | Some x -> f (x, trustees)
+     | None -> not_found
+
 let get_authentication se =
   match se.se_metadata.e_auth_config with
   | Some [{auth_system = "password"; _}] -> `Password
@@ -1013,7 +1047,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   match endpoint with
   | [] ->
      begin
-       let@ who = with_administrator_or_credential_authority token se in
+       let@ who = with_administrator_or_credential_authority_or_trustee token se in
        let get () =
          let* x = api_of_draft se in
          Lwt.return @@ string_of_draft x
@@ -1169,6 +1203,33 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           let@ () = handle_generic_error in
           let* () = put_draft_trustees_mode uuid se mode in
           ok
+       | _ -> method_not_allowed
+     end
+  | ["trustees-pedersen"] ->
+     begin
+       let@ trustee, trustees = with_threshold_trustee token se in
+       let get () =
+         let pedersen_certs =
+           List.fold_left (fun accu x ->
+               match x.stt_cert with
+               | None -> accu
+               | Some c -> c :: accu
+             ) [] trustees
+           |> List.rev |> Array.of_list
+         in
+         let r =
+           {
+             pedersen_threshold = Option.value ~default:0 se.se_threshold;
+             pedersen_step = Option.value ~default:0 trustee.stt_step;
+             pedersen_certs;
+             pedersen_vinput = trustee.stt_vinput;
+             pedersen_voutput = Option.map (voutput_of_string Yojson.Safe.read_json) trustee.stt_voutput;
+           }
+         in
+         Lwt.return @@ string_of_pedersen Yojson.Safe.write_json r
+       in
+       match method_ with
+       | `GET -> handle_get get
        | _ -> method_not_allowed
      end
   | ["trustees"] ->

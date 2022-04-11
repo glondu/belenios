@@ -25,6 +25,14 @@ module type S = sig
     ?target:string -> string -> string ->
     [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
+  val raw_a :
+    service:('a, unit, Eliom_service.get, 'b, 'c, 'd, 'e,
+             [< `WithSuffix | `WithoutSuffix ], 'f, unit, 'g)
+      Eliom_service.t ->
+    ?a:[< Html_types.a_attrib > `Href ] Eliom_content.Html.attrib list ->
+    'h Eliom_content.Html.elt list ->
+    'a -> [> 'h Html_types.a ] Eliom_content.Html.elt
+
   val make_a_with_hash :
     service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
              [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)
@@ -60,6 +68,7 @@ module type S = sig
     ?footer:[< Html_types.div_content_fun > `A `Div `PCDATA ]
       Eliom_content.Html.elt ->
     ?uuid:Web_serializable_t.uuid ->
+    ?static:bool ->
     unit -> [> Html_types.html ] Eliom_content.Html.elt Lwt.t
 
   val responsive_base :

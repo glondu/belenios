@@ -37,11 +37,12 @@ module type S = sig
   val election_draft_questions : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_credential_authority : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_credentials_done : draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val election_draft_credentials : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_draft_credentials_already_generated : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_draft_credentials_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_trustees : ?token:string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_threshold_trustees : ?token:string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val election_draft_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val election_draft_threshold_trustee : string -> uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_draft_trustee_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val election_draft_threshold_trustee_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_import : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_import_trustees : uuid -> draft_election -> (uuid * string) list * (uuid * string) list * (uuid * string) list -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val election_draft_confirm : uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
@@ -51,9 +52,9 @@ module type S = sig
   val pretty_records : (module Site_common_sig.ELECTION_LWT) -> records -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val election_shuffler_skip_confirm : uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val shuffle : (module Site_common_sig.ELECTION_LWT) -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val shuffle_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val tally_trustees : (module Site_common_sig.ELECTION_LWT) -> int -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val tally_trustees_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val signup_captcha : service:string -> captcha_error option -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val signup_changepw : service:string -> captcha_error option -> string -> string -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

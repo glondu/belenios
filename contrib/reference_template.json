@@ -78,22 +78,10 @@
     "/static/tool_js_shuffle.js"        : null,
     "/static/tool_js_tkeygen.js"        : null,
     "/static/tool_js_ttkeygen.js"       : null,
-    "/vote.html" : {
-        "cs"    : null,
-        "de"    : null,
-        "el"    : null,
-        "en"    : null,
-        "es"    : null,
-        "fi"    : null,
-        "fr"    : null,
-        "it"    : null,
-        "nb"    : null,
-        "nl"    : null,
-        "oc"    : null,
-        "pl"    : null,
-        "pt_BR" : null,
-        "ro"    : null,
-        "sk"    : null,
-        "uk"    : null
-    }
+    "/draft/credentials.html"           : {},
+    "/draft/trustee.html"               : {},
+    "/draft/threshold-trustee.html"     : {},
+    "/election/trustees.html"           : {},
+    "/election/shuffle.html"            : {},
+    "/vote.html" : {}
 }

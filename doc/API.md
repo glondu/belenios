@@ -46,7 +46,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 ## `drafts/$UUID`
 
-* `GET`: unit -> draft (administrator or credential authority)
+* `GET`: unit -> draft (administrator or credential authority or trustee)
 * `PUT`: draft -> unit (administrator)
 * `POST`: draft_request -> unit (administrator)
 * `DELETE`: unit -> unit (administrator)
@@ -71,6 +71,10 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 * `GET`: unit -> trustees_mode
 * `PUT`: trustees_mode -> unit
+
+## `drafts/$UUID/trustees-pedersen` (trustee)
+
+* `GET`: unit -> pedersen
 
 ## `drafts/$UUID/trustees` (administrator)
 
@@ -111,6 +115,10 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `elections/$UUID/records` (administrator)
 
 * `GET`: unit -> records
+
+## `elections/$UUID/tally-trustee` (trustee)
+
+* `GET`: unit -> tally_trustee
 
 ## `elections/$UUID/shuffles` (administrator)
 

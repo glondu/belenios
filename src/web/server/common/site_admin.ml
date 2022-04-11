@@ -745,8 +745,20 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* election = Web_persist.get_draft_election uuid in
         match election with
         | None -> fail_http `Not_found
-        | Some se -> Pages_admin.election_draft_credentials token uuid se () >>= Html.send
+        | Some se ->
+           if se.se_public_creds_received then (
+             Pages_admin.election_draft_credentials_already_generated ()
+             >>= Html.send
+           ) else (
+             Printf.sprintf "%s/draft/credentials.html#%s-%s"
+               !Web_config.prefix (raw_string_of_uuid uuid) token
+             |> String_redirection.send
+           )
       )
+
+  let () =
+    Html.register ~service:election_draft_credentials_static
+      (fun () () -> Pages_admin.election_draft_credentials_static ())
 
   let handle_credentials_post uuid token creds =
     let* election = Web_persist.get_draft_election uuid in
@@ -842,9 +854,16 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 let msg = s_ "Your public key has already been received!" in
                 let title = s_ "Error" in
                 Pages_common.generic_page ~title msg () >>= Html.send ~code:403
-              else
-                Pages_admin.election_draft_trustee token uuid se () >>= Html.send
+              else (
+                Printf.sprintf "%s/draft/trustee.html#%s-%s"
+                  !Web_config.prefix (raw_string_of_uuid uuid) token
+                |> String_redirection.send
+              )
       )
+
+  let () =
+    Html.register ~service:election_draft_trustee_static
+      (fun () () -> Pages_admin.election_draft_trustee_static ())
 
   let () =
     Any.register ~service:election_draft_trustee_post
@@ -1331,7 +1350,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let@ election = with_election uuid in
         let* state = Web_persist.get_election_state uuid in
         match state with
         | `EncryptedTally _ ->
@@ -1344,7 +1362,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    (s_ "Your partial decryption has already been received and checked!")
                    () >>= Html.send
                ) else (
-                 Pages_admin.tally_trustees election trustee_id token () >>= Html.send
+                 Printf.sprintf "%s/election/trustees.html#%s-%s"
+                   !Web_config.prefix (raw_string_of_uuid uuid) token
+                 |> String_redirection.send
                )
             | None -> forbidden ()
            )
@@ -1355,6 +1375,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            let msg = s_ "The election has already been tallied." in
            Pages_common.generic_page ~title:(s_ "Forbidden") msg () >>= Html.send ~code:403
       )
+
+  let () =
+    Html.register ~service:election_tally_trustees_static
+      (fun () () -> Pages_admin.tally_trustees_static ())
 
   exception TallyEarlyError
 
@@ -1478,10 +1502,15 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* expected_token = Web_persist.get_shuffle_token uuid in
         match expected_token with
         | Some x when token = x.tk_token ->
-           let@ election = with_election uuid in
-           Pages_admin.shuffle election token >>= Html.send
+           Printf.sprintf "%s/election/shuffle.html#%s-%s"
+             !Web_config.prefix (raw_string_of_uuid uuid) token
+           |> String_redirection.send
         | _ -> forbidden ()
       )
+
+  let () =
+    Html.register ~service:election_shuffle_link_static
+      (fun () () -> Pages_admin.shuffle_static ())
 
   let () =
     Any.register ~service:election_shuffle_post
@@ -1588,8 +1617,15 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* election = Web_persist.get_draft_election uuid in
         match election with
         | None -> fail_http `Not_found
-        | Some se -> Pages_admin.election_draft_threshold_trustee token uuid se () >>= Html.send
+        | Some _ ->
+           Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
+             !Web_config.prefix (raw_string_of_uuid uuid) token
+           |> String_redirection.send
       )
+
+  let () =
+    Html.register ~service:election_draft_threshold_trustee_static
+      (fun () () -> Pages_admin.election_draft_threshold_trustee_static ())
 
   let wrap_handler_without_site_user f =
     without_site_user () (fun () -> wrap_handler f)
