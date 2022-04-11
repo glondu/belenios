@@ -52,7 +52,15 @@ voter can follow the auditor instructions below.
 Instructions for the trustees
 -----------------------------
 
-During the setup of the election, it is expected that the trustee saves:
+During the setup of the election, each trustee is invited to generate
+a decryption key by following a link sent by the election
+administrator. The trustee must follow the link, and make sure the URL
+of the resulting page has one of the following forms:
+
+- `PREFIX/draft/trustee.html#UUID-TOKEN`, or
+- `PREFIX/draft/threshold-trustee.html#UUID-TOKEN` (in threshold mode)
+
+Moreover, it is expected that the trustee saves:
 
 - her decryption key (or PKI key, in threshold mode) (file `
   private_key.json` or `private_key.txt`). **This key must be saved in a
@@ -78,6 +86,8 @@ voting (ordering of the candidates, giving them a grade), the tally
 starts by a shuffle phase. For this it is expected from the trustee that
 she
 
+- checks that the URL of the page has the following form:
+  `PREFIX/election/shuffle.html#UUID-TOKEN`
 - saves the fingerprint of the ballot box after her shuffle: `fingerprint
   of your shuffle`;
 - checks immediately thereafter that this fingerprint is present on the
@@ -86,6 +96,8 @@ she
 In all cases, the tally then proceeds with a phase where the trustee uses
 her private key to decrypt the result. It is expected that the trustee:
 
+- checks that the URL of the page has the following form:
+  `PREFIX/election/trustees.html#UUID-TOKEN`
 - checks (only for alternative voting) the fingerprint of her shuffle
   `fingerprint of your shuffle` as saved in the previous step is present
   on the page of the election, aside her name. If this is not the case,
@@ -113,10 +125,14 @@ The main role of the credential authority is to generate and transmit
 a private credential to each voter.
 
 **Setup.** During the setup of the election, the credential authority
-first obtains a private url that allows her to retrieve the voter list
-`voters.txt`.  The credential authority must verify with the committee
-in charge of the election that this list is correct, as well as the
-weight of each voter in case of a weighted vote;
+first obtains a private link. She must follow the link, and make sure
+the URL of the resulting page has the following form:
+`PREFIX/draft/credentials.html#UUID-TOKEN`.
+
+On this page, there is the voter list. The credential authority must
+verify with the committee in charge of the election that this list is
+correct, as well as the weight of each voter in case of a weighted
+vote;
 
 Then the authority has two options to generate the credentials:
 - either click on `Generate` on her browser;
