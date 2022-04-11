@@ -26,5 +26,12 @@
     "alert_invalid_credential": "Ugyldig identitetsdetalj.",
     "question_x": "Spørsmål {{count}}",
     "breadcrumb_input_credential": "Skriv inn identitetsdetalj",
-    "ask_for_credential": "Skriv inn din identitetsdetalj:"
+    "ask_for_credential": "Skriv inn din identitetsdetalj:",
+    "preferential_voting_drag_candidate": "Flytt denne kandidaten",
+    "ask_to_select_between_x_and_y_answers": "$t(ask_to_select_between_x, {\"count\": {{min}} }) og {{count}} svar.",
+    "ask_to_select_between_x_and_y_answers_plural": "$t(ask_to_select_between_x, {\"count\": {{min}} }) og {{count}} svar.",
+    "ask_to_select_x_answers": "Velg {{count}} svar.",
+    "ask_to_select_x_answers_plural": "Velg {{count}} svar.",
+    "election_fingerprint_is_x": "Valgsfingeravtrykk: {{fingerprint}}",
+    "ask_election_uuid_to_load": "Last inn en avstemming på denne tjeneren ved å angi dens UUID:"
 }
