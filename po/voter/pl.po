@@ -16,7 +16,7 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 4.9-dev\n"
 
-#: src/web/server/common/pages_common.ml:365
+#: src/web/server/common/pages_common.ml:370
 msgid " (if you forgot it, for example)."
 msgstr " (jeśli, na przykład o nim zapomnisz)."
 
@@ -70,7 +70,7 @@ msgstr " zostało uwzględnionych w wyniku głosowania."
 msgid " hour(s)"
 msgstr " godz."
 
-#: src/web/server/common/pages_common.ml:497
+#: src/web/server/common/pages_common.ml:502
 msgid " in the following box: "
 msgstr " w poniższym polu: "
 
@@ -128,7 +128,7 @@ msgstr "%d ważnych kart do głosowania"
 msgid "(nothing)"
 msgstr "(nic)"
 
-#: src/web/server/common/pages_common.ml:363
+#: src/web/server/common/pages_common.ml:368
 msgid ", or "
 msgstr ", albo "
 
@@ -162,13 +162,13 @@ msgid "According to Majority Judgment, the ranking is:"
 msgstr ""
 "Wynik głosowania zgodnie z systemem Sądu Większościowego (Laraki/Baliński):"
 
-#: src/web/server/common/pages_common.ml:150
-#. src/web/server/common/pages_common.ml:80
+#: src/web/server/common/pages_common.ml:155
+#. src/web/server/common/pages_common.ml:84
 msgid "Administer elections"
 msgstr "Zarządzaj głosowaniami"
 
-#: src/web/server/common/pages_common.ml:152
-#. src/web/server/common/pages_common.ml:82
+#: src/web/server/common/pages_common.ml:157
+#. src/web/server/common/pages_common.ml:86
 msgid "Administer this election"
 msgstr "Zarządzaj tym głosowaniem"
 
@@ -207,21 +207,21 @@ msgstr "Dane audytu: "
 #. src/web/server/common/pages_voter.ml:836
 #. src/web/server/common/pages_voter.ml:704
 #. src/web/server/common/pages_voter.ml:702
-#. src/web/server/common/pages_common.ml:438
-#. src/web/server/common/pages_common.ml:392
-#. src/web/server/common/pages_common.ml:343
+#. src/web/server/common/pages_common.ml:443
+#. src/web/server/common/pages_common.ml:397
+#. src/web/server/common/pages_common.ml:348
 msgid "Authenticate"
 msgstr "Uwierzytelnij"
 
-#: src/web/server/common/pages_common.ml:301
+#: src/web/server/common/pages_common.ml:306
 msgid "Authenticate with %s"
 msgstr "Uwierzytelnij się przy pomocy %s"
 
-#: src/web/server/common/pages_common.ml:403
+#: src/web/server/common/pages_common.ml:408
 msgid "Authentication failed"
 msgstr "Uwierzytelnienie nie powiodło się"
 
-#: src/web/server/common/pages_common.ml:406
+#: src/web/server/common/pages_common.ml:411
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Uwierzytelnienie nie powiodło się, najpewniej z powodu błędnej nazwy "
@@ -231,11 +231,11 @@ msgstr ""
 msgid "Available methods on this server:"
 msgstr "Metody dostępne na tym serwerze:"
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:481
 msgid "Bad e-mail address!"
 msgstr "Błędny adres e-mail!"
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:480
 msgid "Bad security code!"
 msgstr "Błędny kod bezpieczeństwa!"
 
@@ -244,15 +244,15 @@ msgstr "Błędny kod bezpieczeństwa!"
 msgid "Belenios Booth"
 msgstr "Wirtualna kabina do głosowania Belenios"
 
-#: src/web/server/common/pages_common.ml:460
+#: src/web/server/common/pages_common.ml:465
 msgid "Belenios Server"
 msgstr "Serwer Belenios"
 
-#: src/web/server/common/pages_common.ml:462
+#: src/web/server/common/pages_common.ml:467
 msgid "Belenios authentication"
 msgstr "Uwierzytelnienie w Belenios"
 
-#: src/web/server/common/pages_common.ml:456
+#: src/web/server/common/pages_common.ml:461
 msgid "Best regards,"
 msgstr "Z pozdrowieniami"
 
@@ -300,7 +300,7 @@ msgstr "Dalej"
 msgid "Cookies are blocked"
 msgstr "Ciasteczka są zablokowane"
 
-#: src/web/server/common/mails_voter.ml:111
+#: src/web/server/common/mails_voter.ml:127
 msgid "Credential:"
 msgstr "Twój kod głosowania:"
 
@@ -310,8 +310,8 @@ msgstr ""
 "Kody głosowania zostały utworzone i wysłane przez %s. Cyfrowy odcisk (hasz) "
 "publicznych części kodów głosowania to %s."
 
-#: src/web/server/common/pages_common.ml:447
-#. src/web/server/common/mails_voter.ml:171
+#: src/web/server/common/pages_common.ml:452
+#. src/web/server/common/mails_voter.ml:359
 msgid "Dear %s,"
 msgstr "Dzień dobry %s,"
 
@@ -319,9 +319,9 @@ msgstr "Dzień dobry %s,"
 msgid "Done"
 msgstr "Gotowe"
 
-#: src/web/server/common/pages_common.ml:488
-#. src/web/server/common/pages_common.ml:372
-#. src/web/server/common/pages_common.ml:327
+#: src/web/server/common/pages_common.ml:493
+#. src/web/server/common/pages_common.ml:377
+#. src/web/server/common/pages_common.ml:332
 msgid "E-mail address:"
 msgstr "Adres e-mail:"
 
@@ -335,8 +335,8 @@ msgid "Election fingerprint: "
 msgstr "Cyfrowy odcisk (hasz) głosowania: "
 
 #: src/web/server/common/pages_voter.ml:1078
-#. src/web/server/common/pages_common.ml:178
-#. src/web/server/common/pages_common.ml:110
+#. src/web/server/common/pages_common.ml:183
+#. src/web/server/common/pages_common.ml:115
 msgid "Election server"
 msgstr "Serwer głosowania"
 
@@ -360,12 +360,12 @@ msgstr "Spodziewany cyfrowy odcisk (hasz):"
 msgid "FAIL!"
 msgstr "BŁĄD!"
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:110
 msgid "Forbidden"
 msgstr "Zabronione"
 
-#: src/web/server/common/pages_common.ml:204
-#. src/web/server/common/pages_common.ml:133
+#: src/web/server/common/pages_common.ml:209
+#. src/web/server/common/pages_common.ml:138
 msgid "Get the source code"
 msgstr "Pobierz kod źródłowy"
 
@@ -434,7 +434,7 @@ msgstr "Wprowadź kod głosowania"
 msgid "Input your credential "
 msgstr "Wprowadź swój kod głosowania "
 
-#: src/web/clients/tool/tool_js_booth.ml:385
+#: src/web/clients/tool/tool_js_booth.ml:386
 msgid "Invalid credential!"
 msgstr "Błędny kod głosowania!"
 
@@ -460,7 +460,7 @@ msgstr "Otworzy się za "
 msgid "JSON result"
 msgstr "wynik JSON"
 
-#: src/web/server/common/pages_common.ml:226
+#: src/web/server/common/pages_common.ml:231
 msgid "Language:"
 msgstr "Język:"
 
@@ -468,14 +468,14 @@ msgstr "Język:"
 msgid "Loading…"
 msgstr "Ładowanie…"
 
-#: src/web/server/common/pages_common.ml:437
-#. src/web/server/common/pages_common.ml:391
-#. src/web/server/common/pages_common.ml:342
-#. src/web/server/common/pages_common.ml:319
+#: src/web/server/common/pages_common.ml:442
+#. src/web/server/common/pages_common.ml:396
+#. src/web/server/common/pages_common.ml:347
+#. src/web/server/common/pages_common.ml:324
 msgid "Log in"
 msgstr "Zaloguj się"
 
-#: src/web/server/common/pages_common.ml:300
+#: src/web/server/common/pages_common.ml:305
 msgid "Log in with %s"
 msgstr "Zaloguj się przy pomocy %s"
 
@@ -556,37 +556,37 @@ msgstr "Liczba rang:"
 msgid "Number of seats:"
 msgstr "Liczba mandatów do obsadzenia:"
 
-#: src/web/server/common/mails_voter.ml:116
+#: src/web/server/common/mails_voter.ml:132
 #. src/web/server/common/mails_voter.ml:61
 msgid "Number of votes:"
 msgstr "Liczba głosów (waga głosu):"
 
-#: src/web/server/common/mails_voter.ml:122
+#: src/web/server/common/mails_voter.ml:138
 #. src/web/server/common/mails_voter.ml:67
 msgid "Only the last vote counts."
 msgstr ""
 "Uwaga: tylko ostatni głos się liczy i zostanie uwzględniony przy ustaleniu "
 "wyniku głosowania."
 
-#: src/web/server/common/mails_voter.ml:119
+#: src/web/server/common/mails_voter.ml:135
 #. src/web/server/common/mails_voter.ml:64
 msgid "Page of the election:"
 msgstr "Strona głosowania:"
 
-#: src/web/server/common/pages_common.ml:384
+#: src/web/server/common/pages_common.ml:389
 #. src/web/server/common/mails_voter.ml:57
 msgid "Password:"
 msgstr "Hasło:"
 
-#: src/web/server/common/pages_common.ml:495
+#: src/web/server/common/pages_common.ml:500
 msgid "Please enter "
 msgstr "Wprowadź "
 
-#: src/web/server/common/pages_common.ml:424
+#: src/web/server/common/pages_common.ml:429
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Wprowadź kod weryfikacyjny, który otrzymałeś na Twój adres e-mail:"
 
-#: src/web/clients/tool/tool_js_booth.ml:372
+#: src/web/clients/tool/tool_js_booth.ml:381
 msgid "Please enter your credential:"
 msgstr "Wprowadź kod głosowania:"
 
@@ -598,7 +598,7 @@ msgstr "Oto Twój login i hasło do głosowania"
 msgid "Please log in to confirm your vote."
 msgstr "Zaloguj się aby potwierdzić oddanie głosu."
 
-#: src/web/server/common/pages_common.ml:316
+#: src/web/server/common/pages_common.ml:321
 msgid "Please log in:"
 msgstr "Zaloguj się:"
 
@@ -626,8 +626,8 @@ msgstr "Poczekaj chwilę. Twoja karta do głosowania jest właśnie szyfrowana�
 msgid "Please wait… "
 msgstr "Poczekaj chwilę... "
 
-#: src/web/server/common/pages_common.ml:199
-#. src/web/server/common/pages_common.ml:128
+#: src/web/server/common/pages_common.ml:204
+#. src/web/server/common/pages_common.ml:133
 msgid "Powered by "
 msgstr "System oparty na "
 
@@ -635,12 +635,12 @@ msgstr "System oparty na "
 msgid "Previous"
 msgstr "Wstecz"
 
-#: src/web/server/common/pages_common.ml:206
-#. src/web/server/common/pages_common.ml:135
+#: src/web/server/common/pages_common.ml:211
+#. src/web/server/common/pages_common.ml:140
 msgid "Privacy policy"
 msgstr "Polityka prywatności"
 
-#: src/web/server/common/pages_common.ml:274
+#: src/web/server/common/pages_common.ml:279
 msgid "Proceed"
 msgstr "Kontynuuj"
 
@@ -652,7 +652,7 @@ msgstr "Nieprzetworzone dane"
 msgid "Restart"
 msgstr "Rozpocznij od nowa"
 
-#: src/web/server/common/mails_voter.ml:196
+#: src/web/server/common/mails_voter.ml:384
 msgid "Results will be published on the election page"
 msgstr "Wyniki zostaną wyświetlone na stronie głosowania"
 
@@ -681,7 +681,7 @@ msgstr "Pokaż oddane karty do głosowania"
 msgid "Select between %d and %d answer(s)"
 msgstr "Zaznacz od %d do %d pola (pól)"
 
-#: src/web/server/common/pages_common.ml:229
+#: src/web/server/common/pages_common.ml:234
 msgid "Set"
 msgstr "Ustaw"
 
@@ -742,8 +742,8 @@ msgstr "Krok 4"
 msgid "Step 5"
 msgstr "Krok 5"
 
-#: src/web/server/common/pages_common.ml:501
-#. src/web/server/common/pages_common.ml:429
+#: src/web/server/common/pages_common.ml:506
+#. src/web/server/common/pages_common.ml:434
 msgid "Submit"
 msgstr "Prześlij"
 
@@ -859,7 +859,7 @@ msgstr "Głosowanie zakończyło się."
 msgid "This election uses weights!"
 msgstr "Uwaga; w tym głosowaniu stosowane są wagi głosów!"
 
-#: src/web/clients/tool/tool_js_booth.ml:387
+#: src/web/clients/tool/tool_js_booth.ml:388
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 "To wygląda jak hasło logowania... Sprawdź. Być może pomyliły Ci się "
@@ -871,7 +871,7 @@ msgstr ""
 "To pytanie jest homomorficzne, ta metoda nie może być zastosowana do "
 "ustalenia wyniku."
 
-#: src/web/server/common/mails_voter.ml:188
+#: src/web/server/common/mails_voter.ml:376
 msgid "This vote replaces any previous vote."
 msgstr "Ten głos zastępuje wszystkie wcześniejsze głosy."
 
@@ -880,7 +880,7 @@ msgstr "Ten głos zastępuje wszystkie wcześniejsze głosy."
 msgid "Tie:"
 msgstr "Remis:"
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:123
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "Do oddania głosu, będzie również potrzebne hasło, wysłane na Twój adres e-"
@@ -899,13 +899,13 @@ msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 "Mężowie (osoby) zaufania potasowali oddane karty do głosowania jak następuje:"
 
-#: src/web/server/common/pages_common.ml:450
+#: src/web/server/common/pages_common.ml:455
 msgid "Use the following code:"
 msgstr "Użyj kodu:"
 
-#: src/web/server/common/pages_common.ml:371
-#. src/web/server/common/pages_common.ml:326
-#. src/web/server/common/mails_voter.ml:113
+#: src/web/server/common/pages_common.ml:376
+#. src/web/server/common/pages_common.ml:331
+#. src/web/server/common/mails_voter.ml:129
 #. src/web/server/common/mails_voter.ml:56
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
@@ -926,7 +926,7 @@ msgstr ""
 "głosowania (zbyt wysoka punktacja, albo niewłaściwe uszeregowanie) zostaną "
 "odrzucone na końcu głosowania."
 
-#: src/web/server/common/pages_common.ml:454
+#: src/web/server/common/pages_common.ml:459
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Uwaga: Ten kod jest ważny przez 15 minut. Wcześniej wysłane kody przesłane "
@@ -944,28 +944,28 @@ msgstr ""
 "kandydata (opcję) na karcie do głosowania, przy czym współczynnik ten jest "
 "proporcjonalny do \"nadwyżki\" głosów."
 
-#: src/web/server/common/pages_common.ml:239
+#: src/web/server/common/pages_common.ml:244
 msgid "Wish to help with translations?"
 msgstr "Chcesz pomóc w tłumaczeniach?"
 
-#: src/web/server/common/mails_voter.ml:121
+#: src/web/server/common/mails_voter.ml:137
 #. src/web/server/common/mails_voter.ml:66
 msgid "You are allowed to vote several times."
 msgstr "Możesz zagłosować wiele razy, ale tylko ostatni głos się liczy."
 
-#: src/web/server/common/mails_voter.ml:100
+#: src/web/server/common/mails_voter.ml:116
 msgid "You are listed as a voter for the election"
 msgstr "Jesteś na liście uprawnionych do głosowania w poniższym głosowaniu:"
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:109
 msgid "You are not allowed to access this page!"
 msgstr "Nie masz dostępu do tej strony!"
 
-#: src/web/server/common/pages_common.ml:408
+#: src/web/server/common/pages_common.ml:413
 msgid "You can "
 msgstr "Możesz "
 
-#: src/web/server/common/pages_common.ml:361
+#: src/web/server/common/pages_common.ml:366
 msgid "You can also "
 msgstr "Możesz również "
 
@@ -978,14 +978,14 @@ msgid "You can check its presence in the "
 msgstr ""
 "Możesz w każdym momencie sprawdzić, czy Twoja karta do głosowania jest w "
 
-#: src/web/server/common/mails_voter.ml:192
+#: src/web/server/common/mails_voter.ml:380
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Przy pomocy tego numeru możesz sprawdzić, czy Twoja karta do głosowania "
 "została uwzględniona i znajduje się w elektronicznej urnie do głosowania. "
 "Urna jest dostępna tutaj"
 
-#: src/web/server/common/pages_common.ml:512
+#: src/web/server/common/pages_common.ml:517
 msgid "You cannot log in now. Please try later."
 msgstr "Nie możesz się teraz zalogować. Proszę spróbuj później."
 
@@ -997,13 +997,13 @@ msgstr "Musisz zaznaczyć przynajmniej %d pole (pól)"
 msgid "You must select at most %d answer(s)"
 msgstr "Możesz zaznaczyć maksymalnie %d pole (pól)"
 
-#: src/web/server/common/mails_voter.ml:105
+#: src/web/server/common/mails_voter.ml:121
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
 "Poprosimy Cię o wprowadzenie tego kodu zanim wejdziesz do wirtualnej kabiny "
 "do głosowania."
 
-#: src/web/server/common/mails_voter.ml:104
+#: src/web/server/common/mails_voter.ml:120
 msgid "You will find below your credential."
 msgstr "Poniżej znajdziesz Twój kod głosowania."
 
@@ -1022,21 +1022,21 @@ msgstr ""
 "Twoja przeglądarka blokuje ciasteczka. Zmień ustawienia i zezwól na "
 "przyjmowanie ciasteczek."
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:156
 msgid "Your credential for election %s"
 msgstr "Twój kod głosowania %s"
 
-#: src/web/server/common/pages_common.ml:449
+#: src/web/server/common/pages_common.ml:454
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Twój adres e-mail wykorzystano do uwierzytelnienia się na naszym serwerze "
 "Belenios."
 
-#: src/web/server/common/mails_voter.ml:91
+#: src/web/server/common/mails_voter.ml:84
 msgid "Your password for election %s"
 msgstr "Twoje hasło logowania do głosowania %s"
 
-#: src/web/server/common/mails_voter.ml:183
+#: src/web/server/common/mails_voter.ml:371
 msgid "Your smart ballot tracker is"
 msgstr "Nr Twojej karty do głosowania to"
 
@@ -1046,7 +1046,7 @@ msgstr "Nr Twojej karty do głosowania to"
 msgid "Your smart ballot tracker is "
 msgstr "Numer Twojej karty do głosowania to "
 
-#: src/web/server/common/mails_voter.ml:173
+#: src/web/server/common/mails_voter.ml:361
 msgid "Your vote for election"
 msgstr "Twój głos w głosowaniu"
 
@@ -1060,7 +1060,7 @@ msgstr "Twój głos nie został zarejestrowany!"
 
 #: src/web/server/common/pages_voter.ml:859
 #. src/web/server/common/pages_voter.ml:730
-#. src/web/server/common/mails_voter.ml:180
+#. src/web/server/common/mails_voter.ml:368
 msgid "Your weight is %s."
 msgstr "Waga Twojego głosu wynosi %s."
 
@@ -1076,19 +1076,19 @@ msgstr "karty do głosowania"
 msgid "but not cast yet"
 msgstr "ale głos nie został jeszcze oddany"
 
-#: src/web/server/common/pages_common.ml:364
+#: src/web/server/common/pages_common.ml:369
 msgid "change your password"
 msgstr "zmienić swoje hasło"
 
-#: src/web/server/common/pages_common.ml:362
+#: src/web/server/common/pages_common.ml:367
 msgid "create an account"
 msgstr "utworzyć konto"
 
-#: src/web/server/common/mails_voter.ml:177
+#: src/web/server/common/mails_voter.ml:365
 msgid "has been recorded."
 msgstr "został zarejestrowany."
 
-#: src/web/clients/tool/tool_js_booth.ml:370
+#: src/web/clients/tool/tool_js_booth.ml:379
 #. src/web/server/common/pages_voter.ml:1203
 #. src/web/server/common/pages_voter.ml:1150
 msgid "here"
@@ -1134,7 +1134,7 @@ msgstr "Głosowanie zakończyło się"
 msgid "trustees"
 msgstr "mężowie (osoby) zaufania"
 
-#: src/web/server/common/pages_common.ml:409
+#: src/web/server/common/pages_common.ml:414
 msgid "try to log in again"
 msgstr "spróbuj zalogować się jeszcze raz"
 
