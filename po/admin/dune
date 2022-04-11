@@ -59,6 +59,16 @@
  (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
+ (target es_419.mo)
+ (deps es_419.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target es_419.json)
+ (deps es_419.mo)
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target fr.mo)
  (deps fr.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
@@ -164,6 +174,8 @@
   (en.json as locales/admin/en.json)
   (es.mo as locales/admin/es.mo)
   (es.json as locales/admin/es.json)
+  (es_419.mo as locales/admin/es_419.mo)
+  (es_419.json as locales/admin/es_419.json)
   (fr.mo as locales/admin/fr.mo)
   (fr.json as locales/admin/fr.json)
   (it.mo as locales/admin/it.mo)
