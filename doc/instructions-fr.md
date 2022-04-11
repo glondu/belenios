@@ -55,8 +55,16 @@ de l'auditeur.
 Instructions pour les autorités de déchiffrement
 ------------------------------------------
 
-Pendant la préparation de l'élection, il est attendu que l'autorité de
-déchiffrement sauvegarde :
+Pendant la préparation de l'élection, chaque autorité de déchiffrement
+est invitée à générer une clé de déchiffrement en suivant un lien
+envoyé par l'administrateur de l'élection. L'autorité doit suivre le
+lien, et s'assurer que l'URL de la page qu'elle obtient a une des
+formes suivantes:
+
+- `PREFIXE/draft/trustee.html#UUID-JETON`, ou
+- `PREFIXE/draft/threshold-trustee.html#UUID-JETON` (dans le mode à seuil)
+
+De plus, il est attendu que l'autorité de déchiffrement sauvegarde :
 
 - sa clé de déchiffrement (ou clé privée de PKI, en mode threshold)
   (fichier `private_key.json` ou `private_key.txt`). **Cette clé doit
@@ -78,12 +86,13 @@ l'élection, à côté de son nom;
 
 
 Après la fermeture de l'élection, l'autorité de déchiffrement
-participe au dépouillement. Dans le cas d'une élection de
-  type vote alternatif (classement des candidats, ou attribution d'une
-  note), le dépouillement commence par une phase de mélange.
-  Pour cette étape, il  est attendu que l'autorité de
-  déchiffrement :
+participe au dépouillement. Dans le cas d'une élection de type vote
+alternatif (classement des candidats, ou attribution d'une note), le
+dépouillement commence par une phase de mélange.  Pour cette étape, il
+est attendu que l'autorité de déchiffrement :
 
+- vérifie que l'URL de la page a la forme suivante:
+  `PREFIXE/election/shuffle.html#UUID-JETON`
 - sauvegarde l'empreinte de l'urne mélangée : `empreinte de votre mélange`;
 - et vérifie immédiatement sa présence sur la page d'accueil de
 l'élection  (pour s'assurer que son
@@ -92,8 +101,10 @@ l'élection  (pour s'assurer que son
 Dans tous les cas, le dépouillement comporte ensuite une étape où
 l'autorité de déchiffrement utilise sa clé privée pour procéder à
 l'ouverture de l'urne. Il est attendu que l'autorité de
-  déchiffrement :
+déchiffrement :
 
+- vérifie que l'URL de la page a la forme suivante:
+  `PREFIXE/election/trustees.html#UUID-JETON`
 - vérifie que  (seulement dans le mode vote alternatif) l'empreinte de l'urne mélangée à l'étape
   précédente  : `empreinte de votre mélange` apparait sur la page d'accueil de l'élection, à côté du nom
   de l'autorité. La clé de déchiffrement ne doit pas être entrée si ce
@@ -118,36 +129,74 @@ page, à chaque fois associées à son nom :
 Instructions pour l'autorité de génération de codes de vote
 ----------------------------------------------------
 
-Pendant la préparation de l'élection, il est attendu que l'autorité de
-de génération des codes de vote sauvegarde :
+Le rôle principal de l'autorité de génération des codes de vote est de
+générer et d'envoyer un code de vote à chaque électeur.
+
+**Préparation.** Pendant la préparation de l'élection, l'autorité
+reçoit un lien privé de la part de l'administrateur de
+l'élection. Elle doit suivre ce lien, et s'assurer que l'URL de la
+page qu'elle obtient a la forme suivante:
+`PREFIXE/draft/credentials.html#UUID-JETON`.
+
+Sur cette page se trouve la liste des électeurs. L'autorité doit
+vérifier avec le comité en charge de l'élection que cette liste est
+correcte, ainsi que les poids de chaque électeur en cas de vote à
+poids;
+
+L'autorité a alors deux options pour générer les codes de vote:
+- soit cliquer sur `Générer` dans son navigateur ;
+- soit :
+  - copier la liste électorale dans un fichier `voters.txt` ;
+  - nommer `$UUID` l'identifiant de l'élection (le dernier composant de
+    l'URL de l'élection, donnée par la page) ;
+  - nommer `$GROUP` soit `BELENIOS-2048` (s'il n'y a pas de question
+    alternative), soit `RFC-3526-2048` (s'il y a au moins une question
+    alternative) ;
+  - exécuter la commande :
+
+        belenios-tool credgen --file voters.txt --group <(echo $GROUP) --uuid $UUID
+
+    Elle génère deux fichiers, `$TIMESTAMP.privcreds` et
+    `$TIMESTAMP.pubcreds` ;
+  - soumettre le fichier `.pubcreds` avec le formulaire `Soumettre via
+    un fichier` ;
+  - [calculer l'empreinte](#hash) du fichier `.pubcreds` et la
+    sauvegarder en tant qu'`empreinte des codes de vote publics` ;
+  - sauvegarder le fichier `.privcreds` en tant que `creds.txt`.
+
+La seconde option devrait être préférée pour plus de sécurité, en
+particulier s'il n'y a pas d'auditeur en charge de surveiller le
+serveur.
+
+Pendant cette étape, il est attendu que l'autorité de de génération
+des codes de vote sauvegarde :
 
 - la liste des codes de vote privés : fichier `creds.txt`. **Cette
-  liste doit conservée dans un lieu sûr** (container chiffré, clé USB placée
-  dans un endroit fermé, etc) car elle protège contre le bourrage
-  d'urne. Elle permet également le renvoi de code de vote en cas de
-  perte par l'électeur;
-- l'`url` de l'élection;
-- la liste électorale `voters.txt`. L'autorité de génération
-  de codes de vote doit vérifier
-  auprès de la commission électorale que cette liste électorale est
-  correcte, ainsi que le nombre de voix attribuées à chaque électeur
-  dans le cas d'un vote pondéré;
-- l'empreinte de la liste électorale : `Empreinte de la liste électorale`;
-- l'empreinte de la liste des codes de vote publics : `Empreinte de la partie publique des codes de vote`.
+  liste doit conservée dans un lieu sûr** (container chiffré, clé USB
+  placée dans un endroit fermé, etc) car elle protège contre le
+  bourrage d'urne. Elle permet également le renvoi de code de vote en
+  cas de perte par l'électeur;
+- l'`url` de l'élection ;
+- la liste électorale `voters.txt` ;
+- l'empreinte de la liste électorale : `Empreinte de la liste
+  électorale` ;
+- l'empreinte de la liste des codes de vote publics : `Empreinte de la
+  partie publique des codes de vote`.
 
 L'autorité de génération de codes de vote a en charge l'envoi des
 codes de vote à chaque électeur. Elle précise alors l'`url` de
 l'élection dans le courrier ou mail accompagnant cet envoi. Pour
 envoyer les codes de vote, il est possible d'utiliser le programme
-  `contrib/send_credentials.py ` fourni dans les sources de Belenios (voir
-  section auditeur pour obtenir les sources) en l'éditant au préalable
-  pour le paramétrer correctement.
+`contrib/send_credentials.py ` fourni dans les sources de Belenios
+(voir section auditeur pour obtenir les sources) en l'éditant au
+préalable pour le paramétrer correctement.
 
-	contrib/send_credentials.py 
+	contrib/send_credentials.py
 
 
-Dès que l'élection est ouverte ainsi qu'à la fin de l'élection,  il est attendu que l'autorité de
-génération de codes de vote :
+**Phase de vote.** Dès que l'élection est ouverte ainsi qu'à la fin de
+l'élection, il est attendu que l'autorité de génération de codes de
+vote :
 
 - vérifie que le nombre d'électeurs correspond à la liste électorale
   reçue, ainsi que le nombre total de voix dans le cadre d'un vote
@@ -162,8 +211,9 @@ enregistrée correspond à celle affichée à côté de son nom.
 la demande d'un électeur, lui renvoyer son code de vote privé s'il
 l'a perdu.
 
-À la fin de l'élection et à des fins de validation,  il est attendu que l'autorité de
-génération de codes de vote :
+**Après le dépouillement.** À la fin de l'élection et à des fins de
+validation, il est attendu que l'autorité de génération de codes de
+vote :
 
 - vérifie que la liste d'émargement donnée par l'administrateur
   correspond à la liste des bulletins dans l'urne. Cette vérification
@@ -191,7 +241,7 @@ qu'elle ouverte et vérifie que :
 
 - le nombre d'électeurs affiché correspond à la liste électorale;
 
-- la valeur `Empreinte de la liste électorale` affichée correspond 
+- la valeur `Empreinte de la liste électorale` affichée correspond
   à l'empreinte de la liste électorale `voters.txt` fournie
   (par le système informatique ou l'administrateur de l'élection). Le
   calcul de l'empreinte peut être fait avec l'une des commandes
@@ -269,7 +319,7 @@ exécute toutes les vérifications nécessaires :
   compilation des sources de Belenios. Le programme
   `contrib/check_hash.py` fourni dans les sources fait ceci
   automatiquement:
-      
+
       contrib/check_hash.py --url https://url/to/server
 
   Notons que l'url est celle du serveur et non celle de l'élection ; par
@@ -366,14 +416,13 @@ ici plusieurs solutions pour calculer cette empreinte en ligne de
 commande. Nous utilisons le fichier `voters.txt` en exemple mais vous
 pouvez bien sûr le remplacer par un autre fichier.
 
-        sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
+    sha256sum voters.txt | xxd -p -r | base64 | tr -d "="
 
-  (ou bien `shasum -a256` au lieu de `sha256sum` par exemple sur
-  MacOS)
+(ou bien `shasum -a256` au lieu de `sha256sum` par exemple sur MacOS)
 
 ou encore :
 
-        cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
+    cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
 Vous pouvez également utiliser [l'outil en ligne](https://belenios.loria.fr/compute-fingerprint) mis à disposition par
 Belenios.
