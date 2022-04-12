@@ -502,7 +502,6 @@ let regenpwd election metadata user =
        id show_weight
      in
      let* () = Mails_voter.submit_bulk_emails [email] in
-     Lwt.async Mails_voter.process_bulk_emails;
      let db = replace_password user x db in
      let* () = Api_drafts.dump_passwords uuid db in
      Lwt.return_true

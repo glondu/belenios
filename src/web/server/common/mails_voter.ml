@@ -349,8 +349,12 @@ module Ocsipersist_bulk = struct
 
 end
 
-let submit_bulk_emails = Ocsipersist_bulk.submit
 let process_bulk_emails = Ocsipersist_bulk.process
+
+let submit_bulk_emails jobs =
+  let* () = Ocsipersist_bulk.submit jobs in
+  Lwt.async process_bulk_emails;
+  Lwt.return_unit
 
 let mail_confirmation l user title weight hash revote url1 url2 contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in

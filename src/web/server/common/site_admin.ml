@@ -492,7 +492,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           ) [] voters
       in
       let* () = Mails_voter.submit_bulk_emails jobs in
-      Lwt.async Mails_voter.process_bulk_emails;
       let service = preapply ~service:election_draft uuid in
       Pages_common.generic_page ~title:(s_ "Success") ~service
         (s_ "Passwords have been generated and mailed!") () >>= Html.send
@@ -804,7 +803,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           match x with
           | Ok jobs ->
              let* () = Mails_voter.submit_bulk_emails jobs in
-             Lwt.async Mails_voter.process_bulk_emails;
              let service = preapply ~service:election_draft uuid in
              Pages_common.generic_page ~title:(s_ "Success") ~service
                (s_ "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential.") () >>= Html.send
