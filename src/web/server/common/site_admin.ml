@@ -478,19 +478,21 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             weight <> None
           ) voters
       in
-      let* () =
-        Lwt_list.iter_s (fun id ->
+      let* jobs =
+        Lwt_list.fold_left_s (fun jobs id ->
             match id.sv_password with
-            | Some _ when not force -> return_unit
+            | Some _ when not force -> Lwt.return jobs
             | None | Some _ ->
                let* email, x =
                  Mails_voter.generate_password_email se.se_metadata langs title uuid
                    id.sv_id show_weight
                in
-               let* () = Mails_voter.send_bulk_email email in
-               return (id.sv_password <- Some x)
-          ) voters
+               id.sv_password <- Some x;
+               Lwt.return (email :: jobs)
+          ) [] voters
       in
+      let* () = Mails_voter.submit_bulk_emails jobs in
+      Lwt.async Mails_voter.process_bulk_emails;
       let service = preapply ~service:election_draft uuid in
       Pages_common.generic_page ~title:(s_ "Success") ~service
         (s_ "Passwords have been generated and mailed!") () >>= Html.send
