@@ -201,8 +201,8 @@ module Bulk_processor = struct
   type t = {
       mutable locked : bool;
       mutable queue : bulk_emails option;
-      mutable submitters : unit Lwt.u Queue.t;
-      mutable processors : unit Lwt.u Queue.t;
+      submitters : unit Lwt.u Queue.t;
+      processors : unit Lwt.u Queue.t;
     }
 
   let create () = {
