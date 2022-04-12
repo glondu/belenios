@@ -35,8 +35,6 @@ val generate_credential_email :
   login:string ->
   weight:Web_serializable_t.weight -> credential:string -> bulk_email Lwt.t
 
-val send_bulk_email : bulk_email -> unit Lwt.t
-
 val submit_bulk_emails : bulk_email list -> unit Lwt.t
 val process_bulk_emails : unit -> unit Lwt.t
 
