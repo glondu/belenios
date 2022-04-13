@@ -1057,7 +1057,7 @@ msgstr "créer un compte"
 
 #: src/web/server/common/mails_voter.ml:365
 msgid "has been recorded."
-msgstr "a été enregistré."
+msgstr "a été enregistré avec succès."
 
 #: src/web/clients/tool/tool_js_booth.ml:379
 #. src/web/server/common/pages_voter.ml:1203
