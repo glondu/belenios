@@ -608,7 +608,7 @@ msgstr "Autorité de codes de vote ?"
 #. src/web/server/common/pages_admin.ml:1402
 #: src/web/server/common/pages_admin.ml:1413
 msgid "Credential generation"
-msgstr "Génération de codes de vote"
+msgstr "Génération des codes de vote"
 
 #: src/web/server/common/pages_admin.ml:641
 msgid "Credential management"
@@ -2034,7 +2034,7 @@ msgstr "Autorité de déchiffrement"
 #. src/web/server/common/pages_admin.ml:1508
 #: src/web/server/common/pages_admin.ml:1571
 msgid "Trustee key generation"
-msgstr "Génération de clé de confiance"
+msgstr "Génération de clé de déchiffrement"
 
 #. src/web/server/common/pages_admin.ml:706
 #: src/web/server/common/pages_admin.ml:870
