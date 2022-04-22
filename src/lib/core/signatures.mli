@@ -215,8 +215,8 @@ module type PKI = sig
   val derive_dk : string -> private_key
   val sign : private_key -> string -> signed_msg m
   val verify : public_key -> signed_msg -> bool
-  val encrypt : public_key -> string -> string m
-  val decrypt : private_key -> string -> string
+  val encrypt : public_key -> string -> public_key encrypted_msg m
+  val decrypt : private_key -> public_key encrypted_msg -> string
   val make_cert : sk:private_key -> dk:private_key -> cert m
   val verify_cert : cert -> bool
 end
@@ -225,8 +225,8 @@ module type CHANNELS = sig
   type 'a m
   type private_key
   type public_key
-  val send : private_key -> public_key -> string -> string m
-  val recv : private_key -> public_key -> string -> string
+  val send : private_key -> public_key -> string -> public_key encrypted_msg m
+  val recv : private_key -> public_key -> public_key encrypted_msg -> string
 end
 
 module type PEDERSEN = sig

@@ -87,7 +87,7 @@ let compute_partial_decryption tally_trustee _ =
        let module C = Trustees.MakeChannels (P.G) (LwtJsRandom) (PKI) in
        let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in
        let vk = P.G.(g **~ sk) in
-       let epk = C.recv dk vk epk in
+       let epk = C.recv dk vk (encrypted_msg_of_string P.G.read epk) in
        (partial_decryption_key_of_string epk).pdk_decryption_key
     | None ->
        basic_check_private_key pk_str;

@@ -290,7 +290,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   let tdecrypt key pdk =
     let sk = P.derive_sk key and dk = P.derive_dk key in
     let vk = G.(g **~ sk) in
-    let pdk = C.recv dk vk pdk in
+    let pdk = C.recv dk vk (encrypted_msg_of_string G.read pdk) in
     let pdk = (partial_decryption_key_of_string pdk).pdk_decryption_key in
     let pvk = G.(g **~ pdk) in
     (match trustees with

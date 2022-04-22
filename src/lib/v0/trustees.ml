@@ -262,13 +262,11 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
             let key = sha256_hex ("key|" ^ G.to_string key) in
             let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
             let y_data = Platform.encrypt ~key ~iv ~plaintext in
-            let msg = {y_alpha; y_beta; y_data} in
-            M.return (string_of_encrypted_msg G.write msg)
+            M.return {y_alpha; y_beta; y_data}
           )
       )
 
-  let decrypt x msg =
-    let {y_alpha; y_beta; y_data} = encrypted_msg_of_string G.read msg in
+  let decrypt x {y_alpha; y_beta; y_data} =
     let key = sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x))) in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
     Platform.decrypt ~key ~iv ~ciphertext:y_data
@@ -379,7 +377,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       else M.return ()
     in
     let* () = fill_polynomial 0 in
-    let* p_polynomial = C.send sk ek (string_of_raw_polynomial {polynomial}) in
+    let* p_polynomial =
+      let* x = C.send sk ek (string_of_raw_polynomial {polynomial}) in
+      M.return @@ string_of_encrypted_msg G.write x
+    in
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
     let coefexps = string_of_raw_coefexps G.write {coefexps} in
     let* p_coefexps = P.sign sk coefexps in
@@ -389,7 +390,7 @@ module MakePedersen (G : GROUP) (M : RANDOM)
         let secret = eval_poly polynomial (Z.of_int (j+1)) in
         let secret = string_of_secret {secret} in
         let* x = C.send sk certs.(j).cert_encryption secret in
-        p_secrets.(j) <- x;
+        p_secrets.(j) <- string_of_encrypted_msg G.write x;
         fill_secrets (j+1)
       else M.return ()
     in
@@ -434,13 +435,21 @@ module MakePedersen (G : GROUP) (M : RANDOM)
       | None -> raise (PedersenFailure "could not find my certificate")
       | Some i -> Z.of_int i
     in
-    let {polynomial} = C.recv dk vk vinput.vi_polynomial |> raw_polynomial_of_string in
+    let {polynomial} =
+      vinput.vi_polynomial
+      |> encrypted_msg_of_string G.read
+      |> C.recv dk vk
+      |> raw_polynomial_of_string
+    in
     let threshold = Array.length polynomial in
     assert (n = Array.length vinput.vi_secrets);
     let secrets =
       Array.init n (fun i ->
-          let x = C.recv dk certs.(i).cert_verification vinput.vi_secrets.(i) in
-          (secret_of_string x).secret
+          vinput.vi_secrets.(i)
+          |> encrypted_msg_of_string G.read
+          |> C.recv dk certs.(i).cert_verification
+          |> secret_of_string
+          |> (fun x -> x.secret)
         )
     in
     assert (n = Array.length vinput.vi_coefexps);
@@ -468,7 +477,8 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     let pdk_decryption_key = Array.fold_left Z.(+) Z.zero secrets in
     let pdk = string_of_partial_decryption_key {pdk_decryption_key} in
     M.bind (K.prove pdk_decryption_key) (fun vo_public_key ->
-        M.bind (C.send sk ek pdk) (fun vo_private_key ->
+        M.bind (C.send sk ek pdk) (fun private_key ->
+            let vo_private_key = string_of_encrypted_msg G.write private_key in
             M.return { vo_public_key; vo_private_key }
           )
       )
