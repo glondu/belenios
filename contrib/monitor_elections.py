@@ -466,9 +466,9 @@ def read_linguas(linguas):
     with open(linguas, "r") as fp:
         return set(fp.readlines())
 
-def get_all_available_languages():
-    admin = read_linguas("po/admin/LINGUAS")
-    voter = read_linguas("po/voter/LINGUAS")
+def get_all_available_languages(belenios_srcpath):
+    admin = read_linguas(belenios_srcpath + "/po/admin/LINGUAS")
+    voter = read_linguas(belenios_srcpath + "po/voter/LINGUAS")
     result = [str(x).strip() for x in admin.union(voter)]
     result.sort()
     return result
@@ -505,6 +505,7 @@ parser.add_argument("--hashref", help="reference file for hash of static files")
 parser.add_argument("--outputref", help="new reference file in case it changed on the server")
 parser.add_argument("--sighashref", help="url where to find a gpg signature for the reference file");
 parser.add_argument("--keyring", help="keyring to check the signature");
+parser.add_argument("--beleniospath", default=".", help="path to Belenios sources")
 # other arguments
 parser.add_argument("--logfile", help="file to write the non-error logs")
 
@@ -564,17 +565,17 @@ if args.checkhash == True:
     reference = {}
     for f, descr in tmp_reference.items():
         if f == "/static/locales/admin/*.json":
-            langs = [x[0:-3] for x in os.listdir("po/admin") if x[-3:] == ".po"]
+            langs = [x[0:-3] for x in os.listdir(args.beleniospath + "/po/admin") if x[-3:] == ".po"]
             langs.sort()
             for x in langs:
                 reference["/static/locales/admin/{}.json".format(x)] = None
         elif f == "/static/locales/voter/*.json":
-            langs = [x[0:-3] for x in os.listdir("po/voter") if x[-3:] == ".po"]
+            langs = [x[0:-3] for x in os.listdir(args.beleniospath + "/po/voter") if x[-3:] == ".po"]
             langs.sort()
             for x in langs:
                 reference["/static/locales/voter/{}.json".format(x)] = None
         elif f == "/static/frontend/translations/*.json":
-            langs = [x for x in os.listdir("frontend/translations") if x[-5:] == ".json"]
+            langs = [x for x in os.listdir(args.beleniospath + "/frontend/translations") if x[-5:] == ".json"]
             langs.sort()
             for x in langs:
                 reference["/static/frontend/translations/{}".format(x)] = None
@@ -589,7 +590,7 @@ if args.checkhash == True:
             new_reference[f] = {}
             if len(descr) == 0:
                 if len(langs) == 0:
-                    langs = get_all_available_languages ()
+                    langs = get_all_available_languages(args.beleniospath)
                 for lang in langs:
                     descr[lang] = None
             for lang, descr in descr.items():
