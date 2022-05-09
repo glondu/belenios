@@ -24,7 +24,7 @@ import json
 
 
 # TODO:
-# - add options --belenios-tool-path and --check-hash-path
+# - add options --belenios-tool-path 
 # - find a way to test that failure are detected
 # - do a git gc from time to time or at the end (how?)
 
@@ -73,10 +73,12 @@ def check_or_create_dir(wdir, uuid):
 
 # List of audit files.
 # When no ballot have been cast yet, ballots.jsons does not exist.
-# We also put here a fake filename, for the hash of the voterlist.
+# We also put here a fake filename, for the hash of the voterlist
+# and for the list of all ballot hashs.
 audit_files=['election.json', 'public_creds.txt', 'trustees.json',
         'ballots', 'index.html']
-optional_audit_files=['ballots.jsons','result.json','shuffles.jsons','hash_voterlist']
+optional_audit_files=['ballots.jsons','result.json','shuffles.jsons',
+        'hash_voterlist','all_ballot_hashs']
 
 def download_audit_data(url, uuid):
     link = url + '/elections/' + uuid
@@ -105,6 +107,29 @@ def download_audit_data(url, uuid):
     status = Status(fail, msg.encode())
     return status, data
 
+def get_new_ballots(old_ballotsfile, new_ballotsfile):
+    old = set()
+    if os.path.exists(old_ballotsfile):
+        with open(old_ballotsfile, "r") as f:
+            ll = f.read()
+        for l in ll.splitlines():
+            m = hashlib.sha256()
+            m.update(l.encode())
+            h = base64.b64encode(m.digest()).decode().strip('=')
+            old.add(h)
+    ll = ""
+    if os.path.exists(new_ballotsfile):
+        with open(new_ballotsfile, "r") as f:
+            ll = f.read()
+    result = b""
+    for l in ll.splitlines():
+        m = hashlib.sha256()
+        m.update(l.encode())
+        h = base64.b64encode(m.digest()).decode().strip('=')
+        if not h in old:
+            result = result + h.encode() + b"\n"
+    return result
+
 # This write data to the directory in order to run verify and
 # verify-diff.
 # At first, this goes to a 'new' subdirectory, and once verify-diff has
@@ -129,6 +154,7 @@ def write_and_verify_new_data(wdir, uuid, data):
 
     # if not the first time, run belenios-tool verify-diff
     msg = b""
+    new_ballots = b""
     if os.path.exists(os.path.join(p, "fresh")):
         os.remove(os.path.join(p, "fresh"))
     else:
@@ -141,6 +167,9 @@ def write_and_verify_new_data(wdir, uuid, data):
         if re.search(b"W:", verdiff.stdout) != None:
             msg = verdiff.stdout
         logme("Successfully diff-verified new data of {}".format(uuid))
+    new_ballots=get_new_ballots(os.path.join(p, "ballots.jsons"),
+            os.path.join(pnew, "ballots.jsons"))
+    data['new_ballots'] = new_ballots
 
     # move new files to main subdirectory
     for f in audit_files + optional_audit_files:
@@ -432,6 +461,26 @@ def commit(wdir, uuid, msg):
     logme("Successfully added a commit for {}".format(uuid))
     return True
 
+## When a new ballot arrives, check that it was not seen earlier.
+## This could be some kind of replay attack (possible only if the voter
+## revotes).
+def check_noreplay(uuid, path_to_all_ballot_hashs, new_hashs):
+    fail = False
+    msg = b""
+    with open(path_to_all_ballot_hashs, "r") as file:
+        ll = file.read()
+        list_hashs = ll.splitlines()
+    for h in new_hashs.decode().splitlines():
+        if h in list_hashs:
+            fail = True
+            msg = msg + "Error: The new ballot {} is a replay in election {}!\n".format(h, uuid).encode()
+    with open(path_to_all_ballot_hashs, "a") as file:
+        for h in new_hashs.decode().splitlines():
+            file.write(h + "\n")
+    if not fail:
+        logme("Successfully checked for a ballot replay of {}".format(uuid))
+    return Status(fail, msg)
+
 
 ##################################
 ## Helper functions for monitoring static files
@@ -668,6 +717,19 @@ for uuid in uuids:
         else:
             with open(p, "wb") as file:
                 file.write(data['hash_voterlist'])
+        
+        # create the all_ballot_hashs file, or update it from the new
+        # ballot files. Check that an old ballot was not replayed.
+        # Note: the list of new ballot hashs is created earlier, during 
+        # write_and_verify_new_data(), because it must compare the old
+        # and new ballot box.
+        p = os.path.join(args.wdir, uuid, 'all_ballot_hashs')
+        if os.path.exists(p):
+            stat = check_noreplay(uuid, p, data['new_ballots'])
+            status.merge(stat)
+        else:
+            with open(p, "wb") as file:
+                file.write(data['new_ballots'])
 
     # commit
     if status.msg != b'':
