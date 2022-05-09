@@ -1789,7 +1789,7 @@ module Make
     in
     let ready, credential_authority =
       match se.se_metadata.e_cred_authority with
-      | None -> false, notok (s_ "Missing")
+      | None | Some "" -> false, notok (s_ "Missing")
       | Some _ -> ready, ok "OK"
     in
     let ready, credentials =
