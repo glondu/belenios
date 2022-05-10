@@ -14,6 +14,7 @@ dev
      and add them to monitoring
  * Monitoring:
    + More generic handling of translated pages and translation files
+   + Check that old ballots are not replayed
    + Various fixes
  * Update instructions
  * Translations:
