@@ -1,5 +1,5 @@
-dev
-===
+1.19 (2022-05-10)
+=================
 
  * Update OCaml stack to 4.13.1 and base containers on Debian 11
  * Web server:
