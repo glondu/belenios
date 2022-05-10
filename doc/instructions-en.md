@@ -15,8 +15,19 @@ to decrypt).
 
 But the nice security properties hold only if everyone performs all the
 verifications that they are supposed to do. This document lists in
-detail, for each role in the election (voter, administrator, etc) what
+detail, for each role in the election (voter, administrator, etc.) what
 must be done at each step.
+
+A key notion in the following instructions is the `url` where a
+participant will connect. We will use the notion of `PREFIX` and of
+`UUID`, where `PREFIX` gives the `url` of the Belenios server
+handling the election, and `UUID` identifies the election we are talking
+about among the possibly many elections which are run on this server.
+Typically, if the main page of the election is of the form
+
+    https://vote.belenios.org/elections/8GVH85AoSyweXG/
+
+then `PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
 
 Instructions for the voter
 --------------------------
@@ -29,7 +40,9 @@ email to the voter when he has completed the voting procedure.
 In order to check that his ballot is indeed taken into account, the voter
 must check that his `smart ballot tracker` is present in the ballot box
 by visiting the link `See accepted ballots` on the main page of the
-election. The voter must also vehemently protest if he receives a
+election. For even more security, the voter can perform this check
+with another device, possibly from a different location.
+The voter must also vehemently protest if he receives a
 confirmation email that contains a `smart ballot tracker` that is
 different from the one that was printed on the screen during the voting
 phase. Somebody probably managed to add a ballot in his name. This can
@@ -45,7 +58,7 @@ box.
 A voter can also verify the whole voting process. Instead of checking only
 the presence of his ballot in the ballot box, he can verify the validity
 of all the ballots, he can monitor the ballot box to check that no ballot
-disappears (except in case of revote), and finally check that the claim
+disappears (except in case of revote), and finally check that the claimed
 result corresponds to the ballots in the ballot box. For all of this, the
 voter can follow the auditor instructions below.
 
@@ -55,15 +68,17 @@ Instructions for the trustees
 During the setup of the election, each trustee is invited to generate
 a decryption key by following a link sent by the election
 administrator. The trustee must follow the link, and make sure the URL
-of the resulting page has one of the following forms:
+of the resulting page has one of the following forms (where PREFIX and
+UUID are as defined above, and TOKEN is a random-looking character
+string):
 
 - `PREFIX/draft/trustee.html#UUID-TOKEN`, or
 - `PREFIX/draft/threshold-trustee.html#UUID-TOKEN` (in threshold mode)
 
 Moreover, it is expected that the trustee saves:
 
-- her decryption key (or PKI key, in threshold mode) (file `
-  private_key.json` or `private_key.txt`). **This key must be saved in a
+- her decryption key (or PKI key, in threshold mode) (file
+  `private_key.json` or `private_key.txt`). **This key must be saved in a
   secure place** (encrypted container, USB stick stored in a closed place,
   etc) because it protects the secret of the votes (in combination with
   the decryption keys of the other trustees);
@@ -75,19 +90,19 @@ Moreover, it is expected that the trustee saves:
 
 As soon as the election is ready, it is expected that the trustee checks:
 
-- that her `verification key` is present on the election page, aside her
+- that her `verification key` is present on the election page, next to her
   name;
 - (in threshold mode) that her PKI `public key` is present on the
-  election page, aside her name.
+  election page, next to her name.
 
 After the closing of the election, the trustee participates to the
 computation of the tally. In the case of an election with alternative
 voting (ordering of the candidates, giving them a grade), the tally
-starts by a shuffle phase. For this it is expected from the trustee that
-she
+starts by a shuffle phase. For this, it is expected from the trustee that
+she:
 
 - checks that the URL of the page has the following form:
-  `PREFIX/election/shuffle.html#UUID-TOKEN`
+  `PREFIX/election/shuffle.html#UUID-TOKEN`;
 - saves the fingerprint of the ballot box after her shuffle: `fingerprint
   of your shuffle`;
 - checks immediately thereafter that this fingerprint is present on the
@@ -97,11 +112,11 @@ In all cases, the tally then proceeds with a phase where the trustee uses
 her private key to decrypt the result. It is expected that the trustee:
 
 - checks that the URL of the page has the following form:
-  `PREFIX/election/trustees.html#UUID-TOKEN`
+  `PREFIX/election/trustees.html#UUID-TOKEN`;
 - checks (only for alternative voting) the fingerprint of her shuffle
   `fingerprint of your shuffle` as saved in the previous step is present
-  on the page of the election, aside her name. If this is not the case,
-  the private key must not be used.
+  on the page of the election, next to her name. If this is not the case,
+  the private key must not be used;
 - saves the fingerprint of the ballot box to be decrypted: `fingerprint
   of the encrypted tally`.
 
@@ -139,7 +154,7 @@ Then the authority has two options to generate the credentials:
 - or:
   - copy the voter list to a file, e.g. `voter.txt`;
   - let `$UUID` be the identifier of the election (the last component
-    in the given election URL);
+    in the given election URL, see at the top of this document);
   - let `$GROUP` be either `BELENIOS-2048` (if there are no
     alternative questions) or `RFC-3526-2048` (if there is at least
     one alternative question);
@@ -172,10 +187,10 @@ During this step, it is expected that the credential authority saves:
 The credential authority is in charge of sending the credentials to the
 voters. She must include the `url` of the election in the message that
 she sends (by email, by postal mail). For sending the credentials by
-email, it is possible to use the `contrib/send_credentials.py ` program
+email, it is possible to use the `contrib/send_credentials.py` script
 included in the Belenios sources (see the auditor section below for how
 to get the sources). After editing this program according to the appropriate
-settings, she can run it :
+settings, she can run it:
 
     contrib/send_credentials.py
 
@@ -188,10 +203,10 @@ expected that the credential authority:
   during the setup, as well as the total weight of the election in
   case of a weighted vote, and that the fingerprint of the voter list corresponds
   to the fingerprint saved before, for instance using one of the
-  commands suggested [here](#hash).
+  commands suggested [here](#hash);
 
 - verifies that the fingerprint of the list of the public credentials
-  corresponds to the one displayed close to his name.
+  corresponds to the one displayed close to his name;
 
 - during the election, the credential authority can, when a voter asks,
   send him again his private credential if he lost it.
@@ -206,6 +221,9 @@ expected that the credential authority :
 
         belenios-tool compute-voters --privcreds /path/to/creds.txt --url https://url/to/election
 
+  (where `https://url/to/election` is of the form
+  `PREFIX/elections/UUID`, as explained at the top of this document).
+
   The list output by this command must coincide with the one given by the
   administrator (maybe in a different order).
 
@@ -217,7 +235,7 @@ credential authority:
   a voter and his (encrypted) ballot. This link could compromise the vote
   secrecy in the long term, for instance if the encryption keys become
   too small for the computing power in the future (or if a quantum
-  computer becomes available...)
+  computer becomes available...).
 
 
 Instructions for the committee in charge of the election
@@ -231,10 +249,10 @@ once it is open and checks that:
 - the value `voter list fingerprint` published corresponds to the one
   that is given (by the system or by the administrator of the election).
   This fingerprint can be computed using one of the
-  commands suggested [here](#hash).
+  commands suggested [here](#hash);
 
 - the voter list `voters.txt` corresponds to the legitimate voters,
-  with the right weight in case of a weighted vote.
+  with the right weight in case of a weighted vote;
 
 - the list of questions and possible answers correspond to what is
   expected. These questions and answers are also in the `election.json`
@@ -247,107 +265,147 @@ instance).
 
 
 Instructions for the auditor
-----------------------------
+-------------------------
 
-Anyone who knows the `url` of the election can be an auditor. The
-security of Belenios relies on the fact that the verifications described
-below are performed by at least one honest person. In order to do these
-tests, the auditor must use some software. We describe here how to run the
-verifications using `belenios-tool` the sources of which are available
-from [Gitlab Inria](https://gitlab.inria.fr/belenios/belenios) and that
-can be installed under Linux Debian/Ubuntu using `sudo apt install
-belenios-tool`.
+Anyone who knows the `url` of the election can be an auditor.
+The `url` of an election is of the form
+`PREFIX/elections/UUID/`, where, for instance,
+`PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
+
+An auditor will ensure in particular that:
+
+- the election data (public keys, public credentials, etc) are
+consistent and do not change over time;
+
+- the ballot box, that contains the encrypted votes, evolves
+  consistently: no ballot is removed unless it is replaced by a ballot
+  with the same credential (this corresponds to a revote);
+
+- the ballot box only contains well-formed ballots (with valid
+  zero-knowledge proofs, and valid credentials);
+
+- the integrity of active files (HTML, Javascript, etc.) used by the
+  voters, the trustees and the credential authority is preserved;
+
+- the result of the election corresponds to the encrypted ballots,
+  thanks to the zero-knowledge proofs of correct decryption produced
+  by the decryption trustees.
+
+The security of Belenios relies on the fact that the verifications described
+below are performed by at least one honest person.
 
 Note: these verifications are also run automatically by our servers for
 the elections that are setup with a maximum security level (external
 credential authority and at least two external trustees).
 
-During and after the election, the auditor has access to the following
-files (from the page of the election):
+**Setup.**
+In order to do these
+tests, the auditor must use some software. We describe here how to run the
+verifications using `belenios-tool`, the sources of which are available
+from [Gitlab Inria](https://gitlab.inria.fr/belenios/belenios) and
+that can be installed under Linux Debian/Ubuntu using
+`sudo apt install belenios-tool`.
+Then the auditor must create a directory `workdir`
+where the election audit information will be stored as they are
+downloaded, in the form of a `git` repository.
 
- * `election.json`: parameters of the election;
- * `trustees.json`: verification keys of the trustees, and their PKI
- public keys in threshold mode;
- * `public_creds.txt`: public parts of the credentials;
- * `ballots.jsons`: ballots that have been accepted for inclusion in the
-   ballot box.
+In order to check that the HTML/Javascript codes used by voters,
+decryption trustees, and credential authorities are
+not modified by a corrupted server, the auditor needs to find out the
+"right" code for each of these programs. She will then make sure the server
+delivers these files uncorrupted. First, a template must be
+prepared: we just copy it from the Belenios sources:
 
-During the election, it is expected that the auditor:
+    cp path/to/sources/belenios/contrib/reference_template.json workdir/hashref
 
-- verifies that the printed number of voters is correct and that the
-  fingerprint of the voter list is correct (if she has access to this
-  information). See the instructions for the election committee.
+Then, there are several solutions to ensure that the files served by the
+server are valid, while monitoring the election identified by UUID:
 
-- verifies that the file of public parts of the credentials
-  `public_creds.txt` corresponds to the fingerprint of the public
-  credentials displayed on the election main page, for example using
-  one of the commands suggested [here](#hash).
+- either the auditor simply trusts the files downloaded the first time
+  and checks that they do not vary over time
+  ([TOFU](https://en.wikipedia.org/wiki/Trust_on_first_use)
+  principle).  Then the monitoring command is as follows:
 
-- verifies that the number of voters is equal to the number of  public
-  credentials in `public_creds.txt`.
+        ./monitor_elections.py --url PREFIX --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --uuid UUID
 
-- verifies the consistency of the ballot box. By copying the 4 files
-  listed above in a directory `/path/to/election`, the following command
-  runs all the required verifications:
+  Each time the files change (including at the first run), this will
+  print a warning message.
 
-        belenios-tool verify --dir /path/to/election
+- or the auditor fetches the sources, recompile the code, start a local
+  server, uses the previous command to fill-in the `workdir/hashref`
+  file with trusted values, and copy it to use it as a reference for
+  monitoring the real election that is run on an external server. The
+  command is then the same as above.
 
-- verifies that the ballot box evolves in a way that is in accordance
-  with the protocol : no ballot must disappear unless it is replaced by
-  another ballot coming from the same credential (case of voter who re-votes).
-  For this, download again the 4 files in a new directory
-  `/path/to/election/new` and run the command:
+- or the auditor trusts a well-identified person who published a
+  gpg-signed version of the reference file. In that case additional
+  arguments must be passed to the monitoring tool: the url of this signed
+  version and a gpg keyring containing the public key of the person, as a
+  trusted one. In the case of our voting platform, such a file is
+  provided by the main developer of Belenios, Stéphane Glondu. We give
+  the corresponding command-line, to be adapted for another server or
+  another trusted person:
 
-        belenios-tool verify-diff --dir1 /path/to/election --dir2 /path/to/election/new
+        ./monitor_elections.py --url https://vote.belenios.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.belenios.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
 
-- verifies that the page given to the voters and the associated resources
-  (images, css, Javascript files) do not change. The Javascript programs
-  must correspond to the one obtained after compiling Belenios sources.
-  The program `contrib/check_hash.py` given in the sources does this
-  automatically:
-
-        contrib/check_hash.py --url https://url/to/server
-
-  Note that the url is the one of the server and not the one of the
-  election; for instance `--url https://belenios.loria.fr`.
-
-After the election, the auditor has also access to the `result.json`
-file. It is expected that the auditor:
-
-- run again both verifications mentioned above to verify the consistency
-  of the final ballot box and the consistency with the last saved ballot
-  box.
-- verify that the result mentioned in the `result.json` file corresponds
-  to the result published on the page of the election. In fact, this
-  verification must be done manually.
-- verify that the fingerprints that are present in these files correspond
-  to what is published on the election page as read by the voters and the
-  other participants.
-
-For this last point and all the other tasks (except for the manual
-verification of the claimed result), a software tool is distributed with
-the Belenios sources. It requires that `belenios-tool` is compiled and
-installed properly. Then the auditor must create a directory `workdir`
-where the election audit information will be stored as long as they are
-downloaded, in the form of a `git` repository. During the audit phase,
-the following command must be frequently run:
-
-        contrib/monitor_elections.py --uuid <uuid_of_the_election> --url https://url/to/server --wdir <workdir>
-
-and it will download the current audit data, verify them, and compare
-them with the previous one.
-
+In all cases, the auditor will regularly execute a monitoring command
+that we call `monitor_elections`.
 It is possible to redirect the messages with the `--logfile` option. Then
 only abnormal behaviours are reported on `stdout/stderr`, which makes it
 possible to run the command from a `crontab` and to be warned in case of
 problem.
 
+**Voting phase.**
+During the election, it is expected that the auditor:
+
+ - in case the auditor has access to the voter list `voters.txt`
+   (requested to the committee in charge of the election), verifies that
+   the number of voters displayed on the main page of the election
+   corresponds to the voter list, as well as the total weight of the
+   election in case of a weighted vote, and that the fingerprint of
+   the voter list corresponds to the fingerprint saved before, for
+   instance using one of the commands suggested [here](#hash);
+
+ - if the auditor has not access to the voter list, verifies that the
+   number of voters and total weight of the election displayed on the
+   main page of the election correspond to the official data;
+
+ - frequently runs `monitor_elections`. Ideally, this should be done
+   at non guessable points of time, from various IP adresses that
+   reflect the diversity of voters and trustees. The goal is that a
+   corrupted server cannot guess when the request comes from an
+   auditor or a genuine voter / trustee. Here are a few guidelines for
+   a motivated auditor in order to look like a genuine user:
+   * as already said, the requests to the server should be done
+     frequently but not at a regular, predictable rate;
+   * not only various IP adresses should be used but also with various
+     device configuration information (browser type and version,
+     operating system, active plugins, time zone, language, screen
+     resolution, etc) from a large pool of typical device
+     configurations used in reality by humans;
+   * IP adresses should reflect the various locations and service
+     providers of the population of voters;
+   * the order in which the files are requested to the server should
+     follow the order of typical visits of voters and trustees, with
+     plausible (non predictible) delays between each request of files.
+
+   Note that the script provided in `belenios-tool` does not offer support for this.
+
+
+**After the tally.** After the election, it is expected that the auditor:
+
+- runs again  `monitor_elections`. The election page now contains a
+  `result.json` file and this command will check the cryptographic
+  proofs associated to the result of the election;
+- verifies that the result mentioned in the `result.json` file corresponds
+  to the result published on the page of the election. This
+  verification must be done manually.
 
 Note: If the `belenios-tool` command-line tool is used, the trust in
 the audit verifications partly relies on the trust in this tool. It is
 possible to write independent verification software following Belenios
-specification available [here](https://www.belenios.org/specification.pdf).
-
+specification available
+[here](https://www.belenios.org/specification.pdf).
 
 Instructions for the administrator of the election
 --------------------------------------------------
@@ -364,15 +422,15 @@ The important points for the administrator are the following:
 - to obtain the voter list, as a list of valid email addresses, one
   address by voter. In case of a weighted vote, voters may be assigned
   a different weight. This list must be validated by the electoral
-  committee.
+  committee;
 - to check and check again these email addresses before starting the
   election (and even before the sending of the credentials in automatic
   mode). Once the setup of the election is finished, it is not possible
   to modify them and there is no alert in case a message could not be
-  sent.
+  sent;
 - to verify that all the participants use the same `url` for the
-  election.
-- If the administrator did not commission someone as a credential authority,
+  election;
+- if the administrator did not commission someone as a credential authority,
   she must download the list of private credentials (`Download private
   credentials`) in order to be able to send again the credential to a
   voter who has lost it. For better security, though, it is preferred to
@@ -382,7 +440,7 @@ For getting the best security level, the administrator must have:
 
 - a person (the credential authority) in charge of generating the
   credentials and sending them to the voters (the server can do this
-  itself, but this opens the possibility of a ballot stuffing attack).
+  itself, but this opens the possibility of a ballot stuffing attack);
 - several trustees in charge of protecting vote secrecy: in order to decrypt
   the individual ballots it is then required to attack all of them (or at
   least a proportion of them, in threshold mode).
@@ -402,5 +460,5 @@ but of course you may replace it by any other file.
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
 You may also use
-[the online tool](https://belenios.loria.fr/compute-fingerprint)
+[the online tool](https://vote.belenios.org/compute-fingerprint)
 supported by Belenios.

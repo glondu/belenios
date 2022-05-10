@@ -17,6 +17,16 @@ Encore faut-il que chacun procède aux vérifications prévues par le
 système de vote. Ce document détaille, pour chaque rôle d'une élection
 (votant, administrateur, etc.), ce qui doit être fait à chaque étape.
 
+Une notion-clé dans les instructions qui suivent est l'`url` à laquelle
+un participant se connecte. Nous utiliserons la notion de `PREFIXE` et de
+`UUID`, où `PREFIXE` donne l'`url` du serveur Belenios qui héberge
+l'élection, et `UUID` identifie l'élection dont on parle, parmi les
+autres élections qui sont gérées sur ce serveur. Typiquement, si la page
+principale de l'élection est de la forme
+
+    https://vote.belenios.org/elections/8GVH85AoSyweXG/
+
+alors `PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
 
 Instructions pour l'électeur
 -------------------------
@@ -59,7 +69,8 @@ Pendant la préparation de l'élection, chaque autorité de déchiffrement
 est invitée à générer une clé de déchiffrement en suivant un lien
 envoyé par l'administrateur de l'élection. L'autorité doit suivre le
 lien, et s'assurer que l'URL de la page qu'elle obtient a une des
-formes suivantes:
+formes suivantes (où PREFIXE et UUID sont comme définis ci-dessus, et
+JETON est une chaîne de caractères d'apparence aléatoire) :
 
 - `PREFIXE/draft/trustee.html#UUID-JETON`, ou
 - `PREFIXE/draft/threshold-trustee.html#UUID-JETON` (dans le mode à seuil)
@@ -95,8 +106,7 @@ est attendu que l'autorité de déchiffrement :
   `PREFIXE/election/shuffle.html#UUID-JETON`
 - sauvegarde l'empreinte de l'urne mélangée : `empreinte de votre mélange`;
 - et vérifie immédiatement sa présence sur la page d'accueil de
-l'élection  (pour s'assurer que son
-  mélange n'a pas été ignoré).
+  l'élection  (pour s'assurer que son mélange n'a pas été ignoré).
 
 Dans tous les cas, le dépouillement comporte ensuite une étape où
 l'autorité de déchiffrement utilise sa clé privée pour procéder à
@@ -105,10 +115,11 @@ déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
   `PREFIXE/election/trustees.html#UUID-JETON`
-- vérifie que  (seulement dans le mode vote alternatif) l'empreinte de l'urne mélangée à l'étape
-  précédente  : `empreinte de votre mélange` apparait sur la page d'accueil de l'élection, à côté du nom
-  de l'autorité. La clé de déchiffrement ne doit pas être entrée si ce
-  n'est pas le cas.
+- vérifie que  (seulement dans le mode vote alternatif) l'empreinte de
+  l'urne mélangée à l'étape précédente : `empreinte de votre mélange`
+  apparait sur la page d'accueil de l'élection, à côté du nom de
+  l'autorité. La clé de déchiffrement ne doit pas être entrée si ce n'est
+  pas le cas.
 - sauvegarde l'empreinte de l'urne à déchiffrer : `empreinte du
   résultat chiffré`.
 
@@ -120,8 +131,7 @@ page, à chaque fois associées à son nom :
 - (en mode threshold) sa clé publique de PKI `clé publique`;
 - sa clé de vérification `clé de vérification`;
 - (en mode vote alternatif) l'empreinte de son mélange;
-- l'empreinte de l'urne à déchiffrer : `empreinte du
-  résultat chiffré`
+- l'empreinte de l'urne à déchiffrer : `empreinte du résultat chiffré`
   (pour vérifier que sa clé de déchiffrement n'a pas été utilisée pour
   déchiffrer une autre donnée).
 
@@ -135,13 +145,13 @@ générer et d'envoyer un code de vote à chaque électeur.
 **Préparation.** Pendant la préparation de l'élection, l'autorité
 reçoit un lien privé de la part de l'administrateur de
 l'élection. Elle doit suivre ce lien, et s'assurer que l'URL de la
-page qu'elle obtient a la forme suivante:
+page qu'elle obtient a la forme suivante :
 `PREFIXE/draft/credentials.html#UUID-JETON`.
 
 Sur cette page se trouve la liste des électeurs. L'autorité doit
 vérifier avec le comité en charge de l'élection que cette liste est
 correcte, ainsi que les poids de chaque électeur en cas de vote à
-poids;
+poids ;
 
 L'autorité a alors deux options pour générer les codes de vote:
 - soit cliquer sur `Générer` dans son navigateur ;
@@ -264,100 +274,147 @@ informatiques par exemple).
 Instructions pour l'auditeur
 -------------------------
 
-Tout le monde connaissant l'`url` de l'élection peut être auditeur. La sécurité de Belenios repose sur
-le fait que les vérifications décrites ci-dessous sont effectuées par
-au moins une personne de confiance. Pour effectuer ces tests, des
+Tout le monde connaissant l'`url` de l'élection peut être auditeur.
+L'`url` d'une élection est de la forme
+`PREFIXE/elections/UUID/`, où, par exemple,
+`PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
+
+Un auditeur va, en particulier, assurer que :
+
+- les données de l'élection (les clés publiques, la liste des codes de
+  vote publics, etc) sont cohérentes et ne changent pas au cours du
+  temps ;
+
+- l'urne, qui contient les votes chiffrés, évolue de manière cohérente :
+  aucun bulletin n'est retiré à moins que ça soit un bulletin avec le
+  même code de vote (cela correspond à un revote) ;
+
+- l'urne ne contient que des bulletins bien formés (avec des preuves
+  zero-knowledge valides, et un code de vote valide) ;
+
+- l'intégrité des fichiers actifs (HTML, Javascript, etc.) utilisés par
+  les électeurs et les autorités est préservée ;
+
+- le résultat de l'élection correspond aux bulletins chiffrés, grâce aux
+  preuves zero-knowledge de bon déchiffrement produites par les autorités
+  de déchiffrement.
+
+La sécurité de Belenios s'appuie sur le fait que les vérifications
+décrites ci-dessous sont effectuées par au moins une personne honnête.
+
+Note: ces vérifications sont aussi effectuées automatiquement par nos
+serveurs pour les élections qui sont mises en place avec un niveau de
+sécurité maximal (autorité de code de vote externe et au moins deux
+autorités de déchiffrement externes).
+
+**Préparation**
+Pour effectuer ces tests, des
 logiciels sont nécessaires. Nous décrivons ici comment exécuter les
 vérifications en utilisant `belenios-tool` dont les sources sont
 disponibles à partir du [Gitlab Inria](https://gitlab.inria.fr/belenios/belenios) et qui est installable sous Linux Debian/Ubuntu avec `sudo apt install belenios-tool`.
+Ensuite, l'auditeur doit se créer un dossier de travail `workdir` où les
+données d'audit de l'élection seront sauvegardées au fur et à mesure des
+téléchargements, sous la forme d'un dépôt `git`.
 
-Note : ces vérifications sont effectuées de façon automatique par nos
-serveurs pour les élections mises en place avec un niveau de sécurité
-maximal (générateur de code tiers et au moins deux autorités de
-déchiffrement extérieures).
+Afin de vérifier que les codes HTML/Javascript utilisés par les
+électeurs, les autorités de déchiffrement et l'autorité de code de vote,
+ne sont pas modifiés par un serveur corrompu, l'auditeur doit trouver le
+"bon" code de tous ces programmes. Il doit ensuite s'assurer que le
+serveur fournit ces fichiers de manière fidèle. Tout d'abord, un fichier
+de référence doit être créé. Pour cela, on copie celui des sources de
+Belenios :
 
-Pendant et après l'élection, l'auditeur a accès aux fichiers suivants (depuis
-la page d'accueil de l'élection) :
+    cp path/to/sources/belenios/contrib/reference_template.json workdir/hashref
 
- * `election.json`: paramètres de l'élection;
- * `trustees.json`: clés de vérification des autorités de
-   déchiffrement ainsi que leurs clés publiques en mode threshold;
- * `public_creds.txt`: parties publiques des codes de vote;
- * `ballots.jsons`: bulletins acceptés.
+Ensuite, il y a plusieurs solutions pour assurer que les fichiers servis
+par le serveur sont valides, lorsque l'on audite l'élection identifiée
+par UUID :
 
-Pendant l'élection, il est attendu que l'auditeur :
+- soit l'auditeur fait simplement confiance aux fichiers téléchargés la
+  première fois et vérifie qu'ils ne varient pas au cours du temps (principe
+  TOFU](https://en.wikipedia.org/wiki/Trust_on_first_use)). Alors la
+  commande d'audit est la suivante :
 
-- vérifie que le nombre d'électeurs affiché est conforme et que l'empreinte de la liste
-électorale correspond à la liste électorale (s'il a
-accès à ces informations). Cf instructions pour la commission
-électorale.
+        ./monitor_elections.py --url PREFIX --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --uuid UUID
 
-- vérifie que le nombre d'électeurs est égal au nombre de codes de
-vote publics dans `public_creds.txt`.
+  Chaque fois qu'un fichier change (y compris lors de la première
+  exécution), cela va afficher un message d'alerte.
 
-- vérifie que le fichier des parties publiques des codes de vote
-  `public_creds.txt` correspond à l'empreinte des codes de vote
-  affichée sur la page d'accueil, par exemple en utilisant l'une des commandes suggérées [ici](#hash).
+- soit l'auditeur récupère les sources, recompile le code, démarre un
+  serveur local, et utilise la commande précédente pour remplir le
+  fichier `workdir/hashref` avec des données de confiance. Puis il peut
+  copier ce fichier comme référence pour l'audit de la vraie élection qui
+  est hébergée sur le serveur externe. La commande est alors la même que
+  ci-dessus.
 
-- vérifie la cohérence de l'urne. En copiant les 4 fichiers listés
-ci-dessus dans un répertoire `/path/to/election`, la commande suivante
-exécute toutes les vérifications nécessaires :
+- soit l'auditeur fait confiance à une personne bien identifiée qui a
+  publié une version signée avec gpg du fichier de référence. Dans ce
+  cas, des arguments supplémentaires doivent être passés au programme
+  d'audit : l'url de cette version signée, ainsi qu'un trousseau de clé
+  gpg contenant la clé publique de la personne, en tant que clé de
+  confiance. Dans le cas de notre plateforme de vote, un tel fichier est
+  fourni par le développeur principal de Belenios, Stéphane Glondu. Nous
+  donnons la ligne de commande correspondante, devant être adaptée pour
+  un autre serveur ou une autre personne de confiance :
 
-      belenios-tool verify --dir /path/to/election
+        ./monitor_elections.py --url https://vote.belenios.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.belenios.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
 
-- vérifie que l'urne évolue de façon cohérente : aucun bulletin ne
-  disparait à moins qu'il soit remplacé par un bulletin provenant du
-  même code de vote (cas de revote d'un électeur). Pour cela, télécharger
-  de nouveau les fichiers dans un autre répertoire `/path/to/election/new`
-  et lancer la commande :
-
-      belenios-tool verify-diff --dir1 /path/to/election --dir2 /path/to/election/new
-
-- vérifie que la page web servie aux électeurs pour voter ainsi que
-  ses ressources (images, style css, code JavaScript) ne change pas.
-  Le code doit correspondre à celui obtenu après
-  compilation des sources de Belenios. Le programme
-  `contrib/check_hash.py` fourni dans les sources fait ceci
-  automatiquement:
-
-      contrib/check_hash.py --url https://url/to/server
-
-  Notons que l'url est celle du serveur et non celle de l'élection ; par
-  exemple `--url https://belenios.loria.fr`.
-
-Après l'élection, l'auditeur a également accès au fichier
-`result.json`. Il est attendu que  l'auditeur :
-
-- exécute à nouveau les deux vérifications expliquées ci-dessus pour
-  s'assurer de la cohérence de l'urne finale et de sa cohérence
-  vis-à-vis du dernier enregistrement de l'urne par l'auditeur.
-- vérifie que le résultat indiqué dans le fichier `result.json`
-  correspond au résultat affiché sur la page d'accueil de l'élection.
-  Actuellement, cette vérification doit être faite manuellement.
-- vérifie que les données de contrôle publiées dans ces fichiers
-  correspondent à ce qui est affiché sur la page d'accueil de
-  l'élection et lu par les électeurs et les autres acteurs de
-  l'élection.
-
-Pour ce dernier point ainsi que toutes les autres tâches de l'auditeur
-(sauf la vérification du résultat affichée),
-un outil est fourni dans les sources de Belenios. Cet outil suppose que
-`belenios-tool` soit compilé et installé. Ensuite, l'auditeur doit créer
-un dossier `workdir` où seront stockées les informations d'audit d'une
-élection au fur et à mesure des téléchargements sous forme d'un dépôt
-`git`. Pendant toute la phase d'audit, il faut lancer régulièrement la
-commande :
-
-      contrib/monitor_elections.py --uuid <uuid_de_l_election> --url https://url/to/server --wdir <workdir>
-
-ce qui télécharge les données, les vérifie, et les compare avec les
-données précédemment téléchargées.
-
+Dans tous les cas, l'auditeur va régulièrement exécuter une commande
+d'audit que nous appellerons `monitor_elections`.
 Il est possible de rediriger les messages avec l'option `--logfile`.
-Alors, seules les anomalies seront rapportées sur `stdout/stderr`, ce qui
-permet de lancer la commande depuis un `crontab` et d'être alerté en cas
-de problème.
+Alors, seuls les comportements anormaux seront rapportés sur
+`stdout/stderr`, ce qui rend possible d'exécuter la commande depuis une
+`crontab` et d'être alerté en cas de problème.
 
+**Phase de vote.**
+Pendant l'élection, il est attendu de l'auditeur :
+
+- dans le cas où l'auditeur a accès à la liste électorale `voters.txt`
+  (ce qui est le cas de la commission électorale), qu'il vérifie que le
+  nombre de votants affiché sur la page principale de l'élection
+  correspond à la liste électorale, ainsi que le poids total de
+  l'élection, s'il s'agit d'une élection à poids, et que l'empreinte de
+  la liste électorale correspond à celle qui a été sauvegardée
+  auparavant, par exemple en utilisant une des commandes suggérées
+  [ici](#hash) ;
+
+- si l'auditeur n'a pas accès à la liste électorale, qu'il vérifie que le
+  nombre d'électeurs et le poids total de l'élection affichée sur la page
+  principale de l'élection correspondent aux données officielles.
+
+- qu'il exécute fréquemment `monitor_elections`. Idéalement, cela doit
+  être effectué à des moments non-prédictible dans le temps, à partir
+  d'adresses IP variées reflétant la diversité des électeurs et des
+  autorités. Le but est qu'un serveur corrompu ne puisse pas deviner si
+  les requêtes viennent d'un auditeur ou d'un votant ou d'une autorité.
+  Voici quelques recommandations pour qu'un auditeur puisse se faire
+  passer pour un utilisateur :
+  * comme déjà mentionné, les requêtes au serveur doivent être
+    fréquentes, mais pas à intervalle régulier ou prédictible ;
+  * non seulement les adresses IP doivent varier, mais également les
+    informations de configuration du navigateur (type de navigateur et
+    version, système, extensions actives, fuseau horaire, langue,
+    résolution de l'écran, etc), à partir d'un grand nombre de
+    configurations réellement utilisées par des humains ;
+  * les adresses IP doivent refléter les lieux variés et les fournisseurs
+    d'accès de la population des électeurs ;
+  * l'ordre dans lequel les fichiers sont demandés au serveur doit
+    refléter l'ordre d'une visite typique des électeurs et des autorités,
+    avec un délai plausible (mais non-prédictible) entre chaque requête.
+
+  Notons que le script fourni par `belenios-tool` n'offre pas de support
+  pour tout ceci.
+
+**Après l'élection.**
+Après l'élection, il est attendu de l'auditeur :
+
+- qu'il exécute de nouveau `monitor_elections`. La page de l'élection
+  contient désormais un fichier `result.json` et cette commande va
+  vérifier les preuves cryptographiques associées au résultat de
+  l'élection ;
+- qu'il vérifie que le résultat mentionné dans le fichier `result.json`
+  correspond au résultat publié sur la page principale de l'élection.
+  Cette vérification doit être effectuée manuellement.
 
 Note : Si l'outil en ligne de commande `belenios-tool` est utilisé, la
 confiance dans les tests effectués repose en partie dans la confiance
