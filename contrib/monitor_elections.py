@@ -517,7 +517,7 @@ def read_linguas(linguas):
 
 def get_all_available_languages(belenios_srcpath):
     admin = read_linguas(belenios_srcpath + "/po/admin/LINGUAS")
-    voter = read_linguas(belenios_srcpath + "po/voter/LINGUAS")
+    voter = read_linguas(belenios_srcpath + "/po/voter/LINGUAS")
     result = [str(x).strip() for x in admin.union(voter)]
     result.sort()
     return result
