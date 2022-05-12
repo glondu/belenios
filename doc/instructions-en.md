@@ -150,6 +150,7 @@ correct, as well as the weight of each voter in case of a weighted
 vote;
 
 Then the authority has two options to generate the credentials:
+
 - either click on `Generate` on her browser;
 - or:
   - copy the voter list to a file, e.g. `voter.txt`;

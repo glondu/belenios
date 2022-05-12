@@ -154,6 +154,7 @@ correcte, ainsi que les poids de chaque électeur en cas de vote à
 poids ;
 
 L'autorité a alors deux options pour générer les codes de vote:
+
 - soit cliquer sur `Générer` dans son navigateur ;
 - soit :
   - copier la liste électorale dans un fichier `voters.txt` ;
