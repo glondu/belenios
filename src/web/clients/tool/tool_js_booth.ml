@@ -380,6 +380,7 @@ let createStartButton params intro_div qs =
   b##.onclick := Dom_html.handler (fun _ ->
     (match prompt (s_ "Please enter your credential:") with
      | Some cred ->
+        let cred = String.trim cred in
         (match Credential.parse cred with
          | `Valid -> proceedWithCredential params intro_div qs cred
          | `Invalid ->

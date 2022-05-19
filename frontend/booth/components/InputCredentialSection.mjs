@@ -4,7 +4,7 @@ import { NiceTextInput } from "./NiceInput.mjs";
 function TranslatableInputCredentialSection({ onSubmit=null, t }){
   const credentialId = "credential";
   const onClick = () => {
-    const result = document.getElementById(credentialId).value;
+    const result = document.getElementById(credentialId).value.trim();
     if (result && onSubmit){
       return onSubmit(result);
     }
