@@ -77,6 +77,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
   module Otp = Otp.Make (Sender) ()
 
   let handle_email_post ~state name ok =
+    let name = String.trim name in
     let* address, site_or_election =
       let* uuid = Eliom_reference.get uuid_ref in
       match uuid with
@@ -127,6 +128,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_login_post
       (fun () code ->
+        let code = String.trim code in
         let* x = Eliom_reference.get env in
         match x with
         | Some (state, name, address) ->
