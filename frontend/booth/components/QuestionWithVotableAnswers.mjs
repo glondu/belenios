@@ -83,7 +83,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       {
         className: `${bemBlockName}__question-title`
       },
-      question
+      txt_br(question)
     ),
     e(
       "p",

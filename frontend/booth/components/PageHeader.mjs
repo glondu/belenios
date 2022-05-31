@@ -33,7 +33,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
           className: "page-header__titles__election-name",
           id: "election_name",
         },
-        title
+        txt_br(title)
       ),
       e(
         "p",
@@ -41,7 +41,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
           className: "page-header__titles__election-description",
           id: "election_description"
         },
-        subTitle
+        txt_br(subTitle)
       )
     ),
     e(

@@ -40,7 +40,7 @@ function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchU
         {
           'className': 'candidate-info'
         },
-        candidateInfo
+        txt_br(candidateInfo)
       )
     )
   );

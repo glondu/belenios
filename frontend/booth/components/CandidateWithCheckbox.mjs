@@ -39,7 +39,7 @@ function CandidateWithCheckbox({ name, id, checked, candidateInfo, dispatchUpdat
         {
           'className': 'candidate-info'
         },
-        candidateInfo
+        txt_br(candidateInfo)
       )
     )
   );
