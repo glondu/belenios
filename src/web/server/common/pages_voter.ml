@@ -84,10 +84,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         (fun l ->
           li [match l with
               | [] -> failwith "anomaly in Pages_voter.majority_judgment"
-              | [x] -> txt x
+              | [x] -> span (txt_br x)
               | l -> div [
                          txt (s_ "Tie:");
-                         ul (List.map (fun x -> li [txt x]) l);
+                         ul (List.map (fun x -> li (txt_br x)) l);
                        ]
             ]
         ) explicit_winners
@@ -140,10 +140,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         (fun l ->
           li [match l with
               | [] -> failwith "anomaly in Web_templates.schulze"
-              | [x] -> txt x
+              | [x] -> span (txt_br x)
               | l -> div [
                          txt (s_ "Tie:");
-                         ul (List.map (fun x -> li [txt x]) l);
+                         ul (List.map (fun x -> li (txt_br x)) l);
                        ]
             ]
         ) explicit_winners
@@ -180,7 +180,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
        in
        let answers =
          List.mapi (fun j x ->
-             tr [td [txt x]; td [txt @@ Weight.to_string r.(j)]]
+             tr [td (txt_br x); td [txt @@ Weight.to_string r.(j)]]
            ) answers
        in
        let answers =
@@ -192,7 +192,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             | _ -> table (y :: ys)
        in
        li ~a:[a_class ["result_question_item"]] [
-           div ~a:[a_class ["result_question"]] [txt x.q_question];
+           div ~a:[a_class ["result_question"]] (txt_br x.q_question);
            answers;
          ]
     | Question.NonHomomorphic (q, extra), RNonHomomorphic ballots ->
@@ -231,7 +231,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          ) else txt ""
        in
        li ~a:[a_class ["result_question_item"]] [
-           div ~a:[a_class ["result_question"]] [txt q.q_question];
+           div ~a:[a_class ["result_question"]] (txt_br q.q_question);
            applied_counting_method;
            div [
                txt (s_ "The raw results can be viewed in the ");
@@ -549,7 +549,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         script ~a:[a_src (static "home.js")] (txt "");
       ] in
     let* lang_box = lang_box (ContSiteElection uuid) in
-    responsive_base ~lang_box ~title:params.e_name ~content ~footer ~uuid ()
+    let title = br_truncate params.e_name in
+    responsive_base ~lang_box ~title ~content ~footer ~uuid ()
 
   let cast_raw election () =
     let* l = get_preferred_gettext () in
@@ -630,7 +631,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         form_upload;
       ] in
     let* footer = audit_footer election in
-    responsive_base ~title:params.e_name ~content ~uuid ~footer ()
+    let title = br_truncate params.e_name in
+    responsive_base ~title ~content ~uuid ~footer ()
 
   let cast_confirmation election hash () =
     let* l = get_preferred_gettext () in
@@ -739,7 +741,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         progress_responsive;
         p [
             txt (s_ "Your ballot for ");
-            em [txt name];
+            em (txt_br name);
             txt (s_ " has been received, but not recorded yet. ");
             txt (s_ "Your smart ballot tracker is ");
             b ~a:[a_id "ballot_tracker"] [
@@ -764,13 +766,13 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             txt ".";
           ];
       ] in
-    responsive_base ~title:name ~content ~uuid ()
+    responsive_base ~title:(br_truncate name) ~content ~uuid ()
 
   let lost_ballot election () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION_LWT) in
-    let title = election.e_name in
+    let title = br_truncate election.e_name in
     let uuid = election.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
@@ -887,7 +889,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           ];
         p ([
               txt (s_ "Your ballot for ");
-              em [txt name];
+              em (txt_br name);
             ] @ result);
         p
           [a
@@ -895,7 +897,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
              [txt (s_ "Go back to election")]
              (uuid, ())];
       ] in
-    responsive_base ~title:name ~content ~uuid ()
+    responsive_base ~title:(br_truncate name) ~content ~uuid ()
 
   let pretty_ballots election =
     let* l = get_preferred_gettext () in
@@ -911,7 +913,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | Some x when not Weight.(is_int x audit_cache.cache_num_voters) -> true
       | _ -> false
     in
-    let title = election.e_name ^ " — " ^ s_ "Accepted ballots" in
+    let title = br_truncate election.e_name ^ " — " ^ s_ "Accepted ballots" in
     let nballots = ref 0 in
     let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
     let ballots =

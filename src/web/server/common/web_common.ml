@@ -422,6 +422,21 @@ let rmdir dir =
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
 
+let txt_br x =
+  let open Eliom_content.Html.F in
+  let rec loop accu = function
+    | [] -> List.rev accu
+    | [x] -> List.rev (txt x :: accu)
+    | x :: xs -> loop (br () :: txt x :: accu) xs
+  in
+  loop [] (split_on_br x)
+
+let br_truncate x =
+  match split_on_br x with
+  | [] -> ""
+  | [x] -> x
+  | x :: _ -> x ^ "..."
+
 let webize_trustee_public_key pk =
   {
     web_trustee_pok = pk.trustee_pok;
