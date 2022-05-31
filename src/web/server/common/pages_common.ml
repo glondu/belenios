@@ -146,7 +146,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                          ]]
       ]))
 
-  let responsive_base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
+  let responsive_base ~title ?full_title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let administer =
@@ -168,6 +168,11 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     in
     let* warning = read_snippet ~lang !Web_config.warning_file in
     let* extra_footer = read_snippet ~lang !Web_config.footer_file in
+    let full_title =
+      match full_title with
+      | None -> [txt title]
+      | Some x -> txt_br x
+    in
     Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
                   (head (Eliom_content.Html.F.title (txt title)) [
                        meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();
@@ -185,7 +190,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                                          ] ();
                                      ];
                                    div ~a:[a_class ["page-header__titles"]] [
-                                       h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] [txt title];
+                                       h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] full_title;
                                        p ~a:[a_class ["page-header__titles__election-description"]; a_id "election_description"] [txt ""]; (* no description provided? *)
                                      ];
                                    div ~a:[a_class ["page-header__right"]] [

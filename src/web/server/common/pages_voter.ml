@@ -550,7 +550,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       ] in
     let* lang_box = lang_box (ContSiteElection uuid) in
     let title = br_truncate params.e_name in
-    responsive_base ~lang_box ~title ~content ~footer ~uuid ()
+    let full_title = params.e_name in
+    responsive_base ~lang_box ~full_title ~title ~content ~footer ~uuid ()
 
   let cast_raw election () =
     let* l = get_preferred_gettext () in
@@ -632,7 +633,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       ] in
     let* footer = audit_footer election in
     let title = br_truncate params.e_name in
-    responsive_base ~title ~content ~uuid ~footer ()
+    let full_title = params.e_name in
+    responsive_base ~full_title ~title ~content ~uuid ~footer ()
 
   let cast_confirmation election hash () =
     let* l = get_preferred_gettext () in
@@ -766,13 +768,16 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             txt ".";
           ];
       ] in
-    responsive_base ~title:(br_truncate name) ~content ~uuid ()
+    let title = br_truncate name in
+    let full_title = name in
+    responsive_base ~full_title ~title ~content ~uuid ()
 
   let lost_ballot election () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION_LWT) in
     let title = br_truncate election.e_name in
+    let full_title = election.e_name in
     let uuid = election.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
@@ -796,7 +801,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           ];
       ]
     in
-    responsive_base ~title ~content ~uuid ()
+    responsive_base ~full_title ~title ~content ~uuid ()
 
   let cast_confirmed election ~result () =
     let* l = get_preferred_gettext () in
@@ -897,7 +902,9 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
              [txt (s_ "Go back to election")]
              (uuid, ())];
       ] in
-    responsive_base ~title:(br_truncate name) ~content ~uuid ()
+    let title = br_truncate name in
+    let full_title = name in
+    responsive_base ~full_title ~title ~content ~uuid ()
 
   let pretty_ballots election =
     let* l = get_preferred_gettext () in

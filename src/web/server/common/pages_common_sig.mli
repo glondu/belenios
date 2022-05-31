@@ -73,6 +73,7 @@ module type S = sig
 
   val responsive_base :
     title:string ->
+    ?full_title:string ->
     ?login_box:[< Html_types.div_content_fun > `Div `H1 ]
       Eliom_content.Html.elt ->
     ?lang_box:[< Html_types.div_content_fun > `Div ]
