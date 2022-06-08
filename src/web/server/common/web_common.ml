@@ -190,7 +190,7 @@ let uuid x =
   Eliom_parameter.user_type ~of_string:Uuid.wrap ~to_string:Uuid.unwrap x
 
 type site_cont_path = ContSiteHome | ContSiteAdmin | ContSiteElection of uuid
-type site_cont_admin = Classic | Basic
+type site_cont_admin = Classic | Basic | New
 type site_cont = { path : site_cont_path; admin : site_cont_admin }
 
 let default_admin path = { path; admin = Classic }
@@ -200,6 +200,7 @@ let site_cont_of_string x =
   let path, admin =
     match String.split_on_char '@' x with
     | [ path; "basic" ] -> (path, Basic)
+    | [ path; "new" ] -> (path, New)
     | [ path ] -> (path, Classic)
     | _ -> fail ()
   in
@@ -219,7 +220,9 @@ let string_of_site_cont x =
     | ContSiteAdmin -> "admin"
     | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
   in
-  let admin = match x.admin with Classic -> "" | Basic -> "@basic" in
+  let admin =
+    match x.admin with Classic -> "" | Basic -> "@basic" | New -> "@new"
+  in
   path ^ admin
 
 let site_cont x =

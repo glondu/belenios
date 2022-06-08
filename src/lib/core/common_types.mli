@@ -32,6 +32,7 @@ module Uuid : sig
   type t
 
   val min_length : int
+  val dummy : t
   val wrap : string -> t
   val unwrap : t -> string
 end

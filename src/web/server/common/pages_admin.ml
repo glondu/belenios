@@ -249,6 +249,15 @@ struct
           | [] -> p [ txt (s_ "You own no such elections!") ]
           | _ -> ul @@ List.map format_election archived
         in
+        let try_new_ui =
+          div
+            ~a:[ a_class [ "hybrid_box" ] ]
+            [
+              txt (s_ "There is a new experimental administration interface.");
+              txt " ";
+              a ~service:(admin_new ()) [ txt (s_ "Try it.") ] ();
+            ]
+        in
         let prepare_new_election =
           if !Web_config.deny_newelection then
             div [ txt (s_ "New elections are not allowed on this server.") ]
@@ -266,6 +275,7 @@ struct
           [
             div
               [
+                try_new_ui;
                 prepare_new_election;
                 div [ br () ];
                 h2 [ txt (s_ "Elections being prepared") ];

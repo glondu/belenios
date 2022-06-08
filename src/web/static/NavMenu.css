@@ -1,0 +1,34 @@
+.nav-menu {
+    display: flex;
+    flex-direction: row;
+    background-color: #666;
+    color: white;
+    justify-content: space-between;
+}
+
+.nav-menu__item, .nav-menu__item-blank {
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-left-style: solid;
+    border-right-style: solid;
+    border-top-style: solid;
+    border-width: 2px;
+}
+
+.nav-menu__item:hover {
+    background-color: #aaa;
+}
+
+.nav-menu__item-blank {
+    flex-grow: 1;
+}
+
+#avatar {
+    height: 1.8ex;
+}
+
+#nav_username {
+    display: inline-block;
+    margin-right: 5px;
+}

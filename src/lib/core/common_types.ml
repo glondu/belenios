@@ -52,6 +52,7 @@ module Uuid = struct
     else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
   let unwrap x = x
+  let dummy = wrap (String.make min_length '1')
 end
 
 module Hash = struct

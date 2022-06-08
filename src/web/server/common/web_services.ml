@@ -33,6 +33,11 @@ module Make () = struct
       ~service:(Eliom_service.static_dir ())
       [ "static"; "admin_basic.html" ]
 
+  let admin_new () =
+    Eliom_service.preapply
+      ~service:(Eliom_service.static_dir ())
+      [ "static"; "admin.html" ]
+
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true
       ~meth:(Post (unit, privacy_cont "cont"))

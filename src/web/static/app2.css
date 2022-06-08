@@ -1,0 +1,113 @@
+.page-body {
+    display:flex;
+}
+
+.page {
+  max-width: 900px;
+}
+
+.emph {
+    font-style: italic;
+}
+
+#popup {
+    display:none;
+}
+
+#popup-background-filter {
+    position:fixed;
+    z-index: 100;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+    background-color:rgba(0,0,0,0.4);
+    z-index:99;
+}
+
+#popup-content {
+    border: 3px solid black;
+    border-radius: 5px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    z-index:100;
+    background-color:white;
+    padding: 10px;
+}
+
+#prev_lk {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#prev_lk a {
+    border: 1px solid black;
+    border-radius: 2px;
+    background-color: #ddd;
+    padding: 3px;
+}
+
+.txt_with_a a {
+    border-bottom: 1.5px dashed #222;
+}
+
+#import_block {
+    margin-top: 20px;
+}
+
+#import_block h4 {
+    margin-bottom: 5px;
+}
+
+#import_block ul, #import_block li {
+    margin-top: 5px;
+}
+
+#inpcont {
+    width: 20em;
+}
+
+#add_trustee_popup button, #add_trustee_popup div {
+    margin: 5px;
+}
+
+#trustee_proc_but, #validate_but {
+    text-align: center;
+    margin-top: 20px;
+}
+#trustee_proc_but button, #validate_but button {
+    font-size: 110%;
+}
+#warning {
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#avail_lang {
+    margin-top: 20px;
+}
+
+#avail_lang > div {
+    font-weight: bold;
+}
+
+#avail_lang > table {
+    margin-top: 3px;
+}
+
+#choose_lang > div {
+    margin-top: 5px;
+}
+
+#choose_lang label {
+    font-weight: bold;
+}
+
+#cred_gen_serv, #cred_auth_name, #cred_link {
+    margin-left: 30px;
+}
+

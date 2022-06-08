@@ -1,0 +1,112 @@
+.main-zone a {
+    text-decoration: none;
+}
+.main-zone a:link, .main-zone a:visited {
+    color: black;
+}
+
+.main-menu {
+    flex: 1;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-bottom: 10px;
+    border-right: 1px solid black;
+}
+
+.main-menu > div:first-child {
+    margin-top: 20px;
+}
+
+.main-menu__item, .main-menu__item-menutitle {
+    height: 15px;
+    font-size: 80%;
+    margin-top:5px;
+    margin-bottom:5px;
+    padding-left:20px;
+}
+
+.main-menu__item:hover {
+    background-color: #eee;
+}
+
+.active, .active:hover {
+    background-color: rgb(255,160,120);
+}
+
+.main-menu__item-menutitle {
+    background-color: #ddd;
+    font-size: 90%;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-top: 20px;
+}
+
+.main-menu__item-separator {
+    width: 100%;
+    border-top: 1px solid #ddd;
+}
+
+.main-menu__ddone, .main-menu__done, .main-menu__todo, .main-menu__doing, .main-menu__wip {
+    height: 0px;
+    position: relative;
+    top: 3px;
+    display: block;
+}
+
+.main-menu__ddone::before {
+    font-size: 90%;
+    color: gray;
+    content: '\2714';
+}
+
+.main-menu__done::before {
+    font-size: 90%;
+    color: green;
+    content: '\2714';
+}
+
+.main-menu__doing::before {
+    font-size: 90%;
+    color: blue;
+/*    content: '\2014'; */
+}
+
+.main-menu__wip::before {
+    font-size: 90%;
+    color: orange;
+    content: '\2B58';
+}
+
+.main-menu__todo::before {
+    font-size: 90%;
+    color: red;
+    content: '\2718';
+}
+
+.positioned {
+    position: relative;
+}
+
+.main-menu__item-active {
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'><path d='M 0 0 L 10 5 0 10 Z' fill='rgb(255,160,120)' stroke-width='0'/></svg>");
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 15px;
+    width: 15px;
+    right: -15px;
+    display: block;
+    position: absolute;
+}
+
+.unavailable {
+    color: #666;
+    font-style: italic;
+    background-color: #eee;
+}
+
+.main-menu__button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+

@@ -1,12 +1,13 @@
 (install
- (files placeholder.png)
+ (files placeholder.png app2.css NavMenu.css MainMenu.css MainZone.css
+   avatar.png)
  (section share)
  (package belenios-server))
 
 (install
  (files tool_js.js tool_js_credgen.js tool_js_questions.js tool_js_tkeygen.js
    tool_js_ttkeygen.js tool_js_pd.js tool_js_shuffle.js
-   tool_js_fingerprint.js admin_basic.js home.js checkpriv.js
+   tool_js_fingerprint.js admin_basic.js admin.js home.js checkpriv.js
    belenios_worker.js belenios_jslib.js)
  (section share)
  (package belenios-server))
@@ -78,6 +79,14 @@
 (rule
  (target admin_basic.js)
  (deps ../clients/basic/admin_basic.bc.js)
+ (action
+  (with-stdout-to
+   %{target}
+   (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target admin.js)
+ (deps ../clients/admin/admin.bc.js)
  (action
   (with-stdout-to
    %{target}

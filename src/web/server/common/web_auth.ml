@@ -56,7 +56,8 @@ struct
       | `Site { path = ContSiteAdmin; admin = admin_ui } -> (
           match admin_ui with
           | Classic -> `R (Redirection admin)
-          | Basic -> `R (Redirection (admin_basic ())))
+          | Basic -> `R (Redirection (admin_basic ()))
+          | New -> `R (Redirection (admin_new ())))
       | `Site { path = ContSiteElection uuid; admin = admin_ui } -> (
           match login_or_logout with
           | `Login -> (
@@ -69,7 +70,14 @@ struct
                       ~absolute:true ()
                     |> rewrite_prefix
                   in
-                  `S (Printf.sprintf "%s#elections/%s" base (Uuid.unwrap uuid)))
+                  `S (Printf.sprintf "%s#elections/%s" base (Uuid.unwrap uuid))
+              | New ->
+                  let base =
+                    Eliom_uri.make_string_uri ~service:(admin_new ())
+                      ~absolute:true ()
+                    |> rewrite_prefix
+                  in
+                  `S (Printf.sprintf "%s#%s" base (Uuid.unwrap uuid)))
           | `Logout ->
               `R (Redirection (preapply ~service:election_home (uuid, ()))))
     in
