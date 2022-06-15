@@ -149,6 +149,7 @@ val is_identity : string -> bool
 
 val file_exists : string -> bool Lwt.t
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
+val read_file_single_line : ?uuid:uuid -> string -> string option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 
 val cleanup_file : string -> unit Lwt.t

@@ -399,6 +399,12 @@ let read_file ?uuid x =
     )
     (fun _ -> Lwt.return_none)
 
+let read_file_single_line ?uuid filename =
+  let* x = read_file ?uuid filename in
+  match x with
+  | Some [x] -> return_some x
+  | _ -> return_none
+
 let write_file ?uuid x lines =
   let fname = get_fname uuid x in
   let fname_new = fname ^ ".new" in
