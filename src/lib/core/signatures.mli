@@ -185,7 +185,7 @@ module type ELECTION_OPS = sig
   (** {2 Result} *)
 
   type result_type
-  type result = (elt, result_type) Serializable_t.election_result
+  type result = (result_type, elt encrypted_tally, elt partial_decryption, elt shuffle) Serializable_t.election_result
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 

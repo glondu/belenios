@@ -267,7 +267,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
              let* result = Web_persist.get_election_result uuid in
              match result with
              | Some result ->
-                let result = election_result_of_string G.read read_result result in
+                let result =
+                  election_result_of_string
+                    read_result (read_encrypted_tally G.read)
+                    (read_partial_decryption G.read) (read_shuffle G.read)
+                    result
+                in
                 (match (result.result :> raw_result).(question) with
                  | RNonHomomorphic ballots -> continuation ballots
                  | _ -> failwith "handle_method"

@@ -329,7 +329,12 @@ let release_tally election =
   match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
   | Ok result ->
      let* () =
-       let result = string_of_election_result W.G.write W.write_result result in
+       let result =
+         string_of_election_result
+           W.write_result (write_encrypted_tally W.G.write)
+           (write_partial_decryption W.G.write) (write_shuffle W.G.write)
+           result
+       in
        write_file ~uuid (string_of_election_file ESResult) [result]
      in
      let* () = Web_persist.remove_audit_cache uuid in

@@ -1237,7 +1237,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             match result with
             | None -> fail_http `Not_found
             | Some result ->
-               let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
+               let result =
+                 election_result_of_string
+                   Yojson.Safe.read_json Yojson.Safe.read_json
+                   Yojson.Safe.read_json Yojson.Safe.read_json
+                   result
+               in
                match result.result with
                | `List xs ->
                   (match List.nth_opt xs index with

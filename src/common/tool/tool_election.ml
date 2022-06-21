@@ -198,7 +198,11 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   let result =
     lazy (
         Lazy.force result_as_string
-        |> Option.map (election_result_of_string G.read read_result)
+        |> Option.map (
+               election_result_of_string
+                 read_result (read_encrypted_tally G.read)
+                 (read_partial_decryption G.read) (read_shuffle G.read)
+             )
       )
 
   let shuffles_as_text =
@@ -320,7 +324,12 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
        (match E.compute_result ?shuffles nballots tally factors trustees with
         | Ok result ->
            assert (E.check_result trustees result);
-           M.return (string_of_election_result G.write write_result result)
+           M.return (
+               string_of_election_result
+                 write_result (write_encrypted_tally G.write)
+                 (write_partial_decryption G.write) (write_shuffle G.write)
+                 result
+             )
         | Error e -> failwith (PTrustees.string_of_combination_error e)
        )
     | None -> failwith "missing trustees"

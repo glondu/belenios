@@ -343,7 +343,13 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     in
     let* middle =
       let* result = Web_persist.get_election_result uuid in
-      let result = Option.map (election_result_of_string W.G.read W.read_result) result in
+      let result =
+        Option.map (
+            election_result_of_string
+              W.read_result (read_encrypted_tally W.G.read)
+              (read_partial_decryption W.G.read) (read_shuffle W.G.read)
+          ) result
+      in
       let* hidden = Web_persist.get_election_result_hidden uuid in
       let* is_admin =
         let* metadata = Web_persist.get_election_metadata uuid in
@@ -913,7 +919,13 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = election.e_uuid in
     let* hashes = Web_persist.get_ballot_hashes uuid in
     let* result = Web_persist.get_election_result uuid in
-    let result = Option.map (election_result_of_string G.read read_result) result in
+    let result =
+      Option.map (
+          election_result_of_string
+            read_result (read_encrypted_tally G.read)
+            (read_partial_decryption G.read) (read_shuffle G.read)
+        ) result
+    in
     let* audit_cache = Web_persist.get_audit_cache uuid in
     let show_weights =
       match audit_cache.cache_total_weight with

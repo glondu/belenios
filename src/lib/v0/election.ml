@@ -355,7 +355,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       ) c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result
-  type result = (elt, result_type) Serializable_t.election_result
+  type result = (result_type, elt encrypted_tally, elt partial_decryption, elt shuffle) Serializable_t.election_result
 
   module Combinator = Trustees.MakeCombinator (G)
 

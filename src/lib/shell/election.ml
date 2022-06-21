@@ -233,7 +233,12 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        let shuffles = List.map (shuffle_of_string Yojson.Safe.read_json) shuffles in
        combine (Some shuffles) shufflers, None
     | `Result result ->
-       let result = election_result_of_string Yojson.Safe.read_json Yojson.Safe.read_json result in
+       let result =
+         election_result_of_string
+           Yojson.Safe.read_json (read_encrypted_tally Yojson.Safe.read_json)
+           Yojson.Safe.read_json (read_shuffle Yojson.Safe.read_json)
+           result
+       in
        let tally = string_of_encrypted_tally Yojson.Safe.write_json result.encrypted_tally in
        combine result.shuffles result.shufflers, Some (sha256_b64 tally)
   in
