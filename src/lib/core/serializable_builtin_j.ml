@@ -47,6 +47,12 @@ let write_uuid = make_write raw_string_of_uuid
 
 let read_uuid = make_read "read_uuid" uuid_of_raw_string
 
+(** {1 Serializers for type hash} *)
+
+let write_hash = make_write Hash.to_hex
+
+let read_hash = make_read "read_hash" Hash.of_hex
+
 (** {1 Serializers for type shape} *)
 
 let rec write_shape write buf = function

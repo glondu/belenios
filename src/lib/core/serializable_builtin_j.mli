@@ -32,6 +32,11 @@ val read_number : number reader
 val write_uuid : uuid writer
 val read_uuid : uuid reader
 
+(** {1 Serializers for type hash} *)
+
+val write_hash : hash writer
+val read_hash : hash reader
+
 (** {1 Serializers for type shape} *)
 
 val write_shape : 'a writer -> 'a shape writer

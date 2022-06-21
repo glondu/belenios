@@ -31,6 +31,20 @@ val min_uuid_length : int
 val uuid_of_raw_string : string -> uuid
 val raw_string_of_uuid : uuid -> string
 
+module Hash : sig
+  type t
+
+  val of_hex : string -> t
+  val to_hex : t -> string
+
+  val to_b64 : t -> string
+  val of_b64 : string -> t
+
+  val hash_string : string -> t
+end
+
+type hash = Hash.t
+
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array

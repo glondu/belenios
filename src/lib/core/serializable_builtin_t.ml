@@ -46,6 +46,37 @@ let uuid_of_raw_string x =
 
 let raw_string_of_uuid x = x
 
+module Hash = struct
+  type t = string
+
+  let check x =
+    String.length x = 64
+    && String.for_all
+         (function
+          | '0'..'9' | 'a'..'f' -> true
+          | _ -> false) x
+
+  let of_hex x =
+    if check x then x
+    else Printf.ksprintf invalid_arg "%S is not a valid hex-encoded hash" x
+
+  let to_hex x = x
+
+  let of_b64 x =
+    match Base64.decode ~pad:true (x ^ "=") with
+    | Ok x when String.length x = 32 -> let `Hex x = Hex.of_string x in x
+    | _ -> Printf.ksprintf invalid_arg "%S is not a valid b64-encoded hash" x
+
+  let to_b64 x =
+    match Base64.encode ~pad:false (Hex.to_string (`Hex x)) with
+    | Ok x -> x
+    | _ -> assert false
+
+  let hash_string = sha256_hex
+end
+
+type hash = Hash.t
+
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
