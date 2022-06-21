@@ -35,7 +35,7 @@ val get_election_dates : uuid -> election_dates Lwt.t
 val set_election_dates : uuid -> election_dates -> unit Lwt.t
 
 val get_partial_decryptions : uuid -> partial_decryptions Lwt.t
-val set_partial_decryptions : uuid -> partial_decryptions -> unit Lwt.t
+val add_partial_decryption : uuid -> int * string -> unit Lwt.t
 
 val get_decryption_tokens : uuid -> decryption_tokens option Lwt.t
 val set_decryption_tokens : uuid -> decryption_tokens -> unit Lwt.t

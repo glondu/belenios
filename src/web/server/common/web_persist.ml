@@ -114,6 +114,10 @@ let get_election_state ?(update = true) uuid =
 let get_partial_decryptions uuid = Spool.get_default ~default:[] ~uuid Spool.partial_decryptions
 let set_partial_decryptions uuid = Spool.set ~uuid Spool.partial_decryptions
 
+let add_partial_decryption uuid pd =
+  let* pds = get_partial_decryptions uuid in
+  set_partial_decryptions uuid (pd :: pds)
+
 let get_decryption_tokens uuid = Spool.get ~uuid Spool.decryption_tokens
 let set_decryption_tokens uuid = Spool.set ~uuid Spool.decryption_tokens
 

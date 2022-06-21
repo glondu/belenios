@@ -1434,8 +1434,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
         let et = encrypted_tally_of_string W.G.read et in
         if W.E.check_factor et pk pd then (
-          let pds = (trustee_id, partial_decryption) :: pds in
-          let* () = Web_persist.set_partial_decryptions uuid pds in
+          let pd = trustee_id, partial_decryption in
+          let* () = Web_persist.add_partial_decryption uuid pd in
           Pages_common.generic_page ~title:(s_ "Success")
             (s_ "Your partial decryption has been received and checked!") () >>=
             Html.send

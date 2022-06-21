@@ -158,7 +158,7 @@ let perform_server_side_decryption election metadata tally =
     | Some sk ->
        let* pd = W.E.compute_factor tally sk in
        let pd = string_of_partial_decryption W.G.write pd in
-       Web_persist.set_partial_decryptions uuid [i, pd]
+       Web_persist.add_partial_decryption uuid (i, pd)
     | None ->
        Lwt.fail (Error "missing server private key")
   in
