@@ -280,8 +280,7 @@ let get_trustees uuid =
     match x with None -> cont () | Some x -> return x
   in
   let msg =
-    Printf.sprintf "missing %s for election %s"
-      Spool.trustees.filename
+    Printf.sprintf "missing trustees for election %s"
       (raw_string_of_uuid uuid)
   in
   Lwt.fail (Failure msg)
@@ -496,7 +495,7 @@ let get_shuffles uuid =
   let* election = get_raw_election uuid in
   match election with
   | None -> return_none
-  | Some _ -> Spool.get_raw_list ~uuid Spool.shuffles.filename
+  | Some _ -> Spool.get_raw_list ~uuid Spool.shuffles
 
 let get_shuffle_hashes uuid =
   let* x =
@@ -703,7 +702,7 @@ let compute_audit_cache uuid =
        let* x = Spool.get_raw_list ~uuid Spool.voters in
        match x with
        | Some x -> return x
-       | None -> Printf.ksprintf failwith "%s is missing" Spool.voters
+       | None -> failwith "voters are missing"
      in
      let total_weight, min_weight, max_weight =
        let open Weight in
@@ -754,10 +753,10 @@ let compute_audit_cache uuid =
      in
      let* trustees = get_trustees uuid in
      let* credentials =
-       let* x = Spool.get_raw_list ~uuid Spool.public_creds.filename in
+       let* x = Spool.get_raw_list ~uuid Spool.public_creds in
        match x with
        | Some x -> return x
-       | None -> Printf.ksprintf failwith "%s is missing" Spool.public_creds.filename
+       | None -> failwith "public credentials are missing"
      in
      let public_credentials = String.concat "\n" credentials ^ "\n" in
      let cache_checksums =

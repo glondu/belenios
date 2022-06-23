@@ -28,7 +28,7 @@ open Web_common
 
 let ( / ) = Filename.concat
 
-type 'a file =
+type 'a t =
   {
     of_string : string -> 'a;
     to_string : 'a -> string;
@@ -51,7 +51,7 @@ let get_default ~default ~uuid file =
   Lwt.return @@ Option.value ~default x
 
 let get_raw_list ~uuid filename =
-  read_file ~uuid filename
+  read_file ~uuid filename.filename
 
 let get_fold_s ~uuid file f accu =
   let* x = read_file ~uuid file.filename in
@@ -139,7 +139,7 @@ let private_key =
     filename = "private_key.json";
   }
 
-let private_keys = "private_keys.jsons"
+let private_keys = raw "private_keys.jsons"
 
 let trustees = raw "trustees.json"
 
@@ -223,4 +223,4 @@ let audit_cache =
     filename = "audit_cache.json";
   }
 
-let voters = "voters.txt"
+let voters = raw "voters.txt"
