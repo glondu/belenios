@@ -35,6 +35,8 @@ type 'a t =
     filename : string;
   }
 
+type 'a list = 'a t
+
 let raw filename =
   {
     of_string = Fun.id;
