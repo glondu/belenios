@@ -346,8 +346,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       let result =
         Option.map (
             election_result_of_string
-              W.read_result (read_encrypted_tally W.G.read)
-              (read_partial_decryption W.G.read) (read_shuffle W.G.read)
+              W.read_result Yojson.Safe.read_json
+              Yojson.Safe.read_json Yojson.Safe.read_json
           ) result
       in
       let* hidden = Web_persist.get_election_result_hidden uuid in
@@ -922,8 +922,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let result =
       Option.map (
           election_result_of_string
-            read_result (read_encrypted_tally G.read)
-            (read_partial_decryption G.read) (read_shuffle G.read)
+            read_result Yojson.Safe.read_json
+            Yojson.Safe.read_json Yojson.Safe.read_json
         ) result
     in
     let* audit_cache = Web_persist.get_audit_cache uuid in

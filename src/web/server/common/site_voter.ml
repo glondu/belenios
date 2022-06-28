@@ -269,8 +269,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
              | Some result ->
                 let result =
                   election_result_of_string
-                    read_result (read_encrypted_tally G.read)
-                    (read_partial_decryption G.read) (read_shuffle G.read)
+                    read_result Yojson.Safe.read_json
+                    Yojson.Safe.read_json Yojson.Safe.read_json
                     result
                 in
                 (match (result.result :> raw_result).(question) with
