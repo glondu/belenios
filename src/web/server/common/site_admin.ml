@@ -1438,7 +1438,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let et = !Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file ESETally in
         let* et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
         let et = encrypted_tally_of_string W.G.read et in
-        if W.E.check_factor et pk pd then (
+        if string_of_partial_decryption W.G.write pd = partial_decryption && W.E.check_factor et pk pd then (
           let pd = trustee_id, partial_decryption in
           let* () = Web_persist.add_partial_decryption uuid pd in
           Pages_common.generic_page ~title:(s_ "Success")
