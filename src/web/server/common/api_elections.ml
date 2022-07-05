@@ -29,8 +29,6 @@ open Belenios_api.Serializable_j
 open Web_common
 open Api_generic
 
-let ( / ) = Filename.concat
-
 let with_administrator token metadata f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token, metadata.e_owner with
@@ -278,7 +276,6 @@ let finish_shuffling election metadata =
 let release_tally election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-  let uuid_s = raw_string_of_uuid uuid in
   let@ () = fun cont ->
     let* state = Web_persist.get_election_state uuid in
     match state with
@@ -341,23 +338,22 @@ let release_tally election =
      let* () = Web_persist.set_election_state uuid `Tallied in
      let* dates = Web_persist.get_election_dates uuid in
      let* () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
-     let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
-     let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "shuffles.jsons") in
+     let* () = cleanup_file (uuid /// "decryption_tokens.json") in
+     let* () = cleanup_file (uuid /// "shuffles.jsons") in
      let* () = Web_persist.clear_shuffle_token uuid in
      Lwt.return @@ Ok ()
   | Error e -> Lwt.return @@ Stdlib.Error (`CombinationError e)
 
 let delete_sensitive_data uuid =
-  let uuid_s = raw_string_of_uuid uuid in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "state.json") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "decryption_tokens.json") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "partial_decryptions.json") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "extended_records.jsons") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "credential_mappings.jsons") in
-  let* () = rmdir (!Web_config.spool_dir / uuid_s / "ballots") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "ballots_index.json") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_key.json") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_keys.jsons") in
+  let* () = cleanup_file (uuid /// "state.json") in
+  let* () = cleanup_file (uuid /// "decryption_tokens.json") in
+  let* () = cleanup_file (uuid /// "partial_decryptions.json") in
+  let* () = cleanup_file (uuid /// "extended_records.jsons") in
+  let* () = cleanup_file (uuid /// "credential_mappings.jsons") in
+  let* () = rmdir (uuid /// "ballots") in
+  let* () = cleanup_file (uuid /// "ballots_index.json") in
+  let* () = cleanup_file (uuid /// "private_key.json") in
+  let* () = cleanup_file (uuid /// "private_keys.jsons") in
   Lwt.return_unit
 
 let archive_election uuid =
@@ -368,7 +364,6 @@ let archive_election uuid =
 let delete_election election metadata =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-  let uuid_s = raw_string_of_uuid uuid in
   let* () = delete_sensitive_data uuid in
   let de_template =
     {
@@ -454,14 +449,13 @@ let delete_election election metadata =
   let* () =
     Lwt_list.iter_p
       (fun x ->
-        cleanup_file (!Web_config.spool_dir / uuid_s / x)
+        cleanup_file (uuid /// x)
       ) files_to_delete
   in
   Web_persist.clear_elections_by_owner_cache ()
 
 let find_user_id uuid user =
-  let uuid_s = raw_string_of_uuid uuid in
-  let db = Lwt_io.lines_of_file (!Web_config.spool_dir / uuid_s / "voters.txt") in
+  let db = Lwt_io.lines_of_file (uuid /// "voters.txt") in
   let* db = Lwt_stream.to_list db in
   let rec loop = function
     | [] -> None
@@ -479,8 +473,7 @@ let find_user_id uuid user =
   Lwt.return (loop db, show_weight)
 
 let load_password_db uuid =
-  let uuid_s = raw_string_of_uuid uuid in
-  let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
+  let db = uuid /// "passwords.csv" in
   Lwt_preemptive.detach Csv.load db
 
 let rec replace_password username ((salt, hashed) as p) = function

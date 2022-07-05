@@ -24,6 +24,7 @@ open Platform
 open Signatures_core
 
 let ( let@ ) f x = f x
+let ( // ) = Filename.concat
 
 module Array = struct
   include Array

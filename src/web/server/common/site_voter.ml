@@ -43,8 +43,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
   open Eliom_service
   open Eliom_registration
 
-  let ( / ) = Filename.concat
-
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
   (* Make sure this module is loaded after Site_admin *)
@@ -395,7 +393,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
     in
     if allowed then (
       let content_type = content_type_of_file f in
-      File.send ~content_type (!Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file f)
+      File.send ~content_type (uuid /// string_of_election_file f)
     ) else forbidden ()
 
   let () =

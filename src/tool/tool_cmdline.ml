@@ -65,12 +65,10 @@ let load_from_file of_string filename =
     Some (lines_of_file filename |> List.rev_map of_string)
   ) else None
 
-let ( / ) = Filename.concat
-
 let download dir url file =
   let url = if url.[String.length url - 1] = '/' then url else url ^ "/" in
   Printf.eprintf "I: downloading %s...\n%!" file;
-  let target = dir / file in
+  let target = dir // file in
   let command =
     Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
   in
@@ -79,7 +77,7 @@ let download dir url file =
 
 let rm_rf dir =
   let files = Sys.readdir dir in
-  Array.iter (fun f -> Unix.unlink (dir / f)) files;
+  Array.iter (fun f -> Unix.unlink (dir // f)) files;
   Unix.rmdir dir
 
 exception Cmdline_error of string
@@ -333,28 +331,28 @@ module Election : CMDLINER_MODULE = struct
     let get_public_creds () =
       let file = "public_creds.txt" in
       Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir / file)) with _ -> None
+      try Some (lines_of_file (X.dir // file)) with _ -> None
 
     let get_trustees () =
       let file = "trustees.json" in
       Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (string_of_file (X.dir / file)) with _ -> None
+      try Some (string_of_file (X.dir // file)) with _ -> None
 
     let get_ballots () =
       let file = "ballots.jsons" in
       Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir / file)) with _ -> None
+      try Some (lines_of_file (X.dir // file)) with _ -> None
 
     let get_shuffles () =
       let file = "shuffles.jsons" in
-      if Sys.file_exists (X.dir / file) then (
+      if Sys.file_exists (X.dir // file) then (
         Printf.eprintf "I: loading %s...\n%!" file;
-        try Some (lines_of_file (X.dir / file))
+        try Some (lines_of_file (X.dir // file))
         with _ -> None
       ) else None
 
     let get_result () =
-      load_from_file (fun x -> x) (X.dir/"result.json") |> function
+      load_from_file (fun x -> x) (X.dir // "result.json") |> function
       | None -> None
       | Some [r] -> Some r
       | _ -> failwith "invalid result"
@@ -391,7 +389,7 @@ module Election : CMDLINER_MODULE = struct
     let module P : PARAMS = struct
         include MakeGetters (struct let dir = dir end)
         let raw_election =
-          let fname = dir/"election.json" in
+          let fname = dir // "election.json" in
           load_from_file (fun x -> x) fname |>
             function
             | Some [e] -> e
@@ -426,13 +424,13 @@ module Election : CMDLINER_MODULE = struct
     | `Verify -> X.verify ()
     | `Validate ->
        let factors =
-         let fname = dir/"partial_decryptions.jsons" in
+         let fname = dir // "partial_decryptions.jsons" in
          match load_from_file (fun x -> x) fname with
          | Some factors -> factors
          | None -> failwith "cannot load partial decryptions"
        in
        let result = X.validate factors in
-       let oc = open_out (dir/"result.json") in
+       let oc = open_out (dir // "result.json") in
        output_string oc result;
        output_char oc '\n';
        close_out oc
@@ -630,7 +628,7 @@ module Credgen : CMDLINER_MODULE = struct
          |> List.map (fun (id, priv) -> id ^ " " ^ priv)
        in
        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
-       let base = dir / timestamp in
+       let base = dir // timestamp in
        save params_priv base privs;
        save params_pub base pubs
 
@@ -666,10 +664,10 @@ module Mktrustees : CMDLINER_MODULE = struct
   let main dir =
     let@ () = wrap_main in
     let get_public_keys () =
-      Some (lines_of_file (dir / "public_keys.jsons"))
+      Some (lines_of_file (dir // "public_keys.jsons"))
     in
     let get_threshold () =
-      let fn = dir / "threshold.json" in
+      let fn = dir // "threshold.json" in
       if Sys.file_exists fn then Some (string_of_file fn) else None
     in
     let get_trustees () =
@@ -694,7 +692,7 @@ module Mktrustees : CMDLINER_MODULE = struct
       | trustees -> string_of_trustees Yojson.Safe.write_json trustees
     in
     let trustees = get_trustees () in
-    let oc = open_out (dir / "trustees.json") in
+    let oc = open_out (dir // "trustees.json") in
     output_string oc trustees;
     output_char oc '\n';
     close_out oc
@@ -723,7 +721,7 @@ module Mkelection : CMDLINER_MODULE = struct
         let uuid = get_mandatory_opt "--uuid" uuid
         let template = get_mandatory_opt "--template" template |> string_of_file
         let get_trustees () =
-          let fn = dir / "trustees.json" in
+          let fn = dir // "trustees.json" in
           if Sys.file_exists fn then
             string_of_file fn
           else
@@ -731,7 +729,7 @@ module Mkelection : CMDLINER_MODULE = struct
       end in
     let module R = (val make (module P : PARAMS) : S) in
     let params = R.mkelection () in
-    let oc = open_out (dir / "election.json") in
+    let oc = open_out (dir // "election.json") in
     output_string oc params;
     output_char oc '\n';
     close_out oc

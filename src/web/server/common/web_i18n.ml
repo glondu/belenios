@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios_core.Common
 
 let default_lang = "en"
 let devel_lang = "en_devel"
@@ -50,12 +51,10 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) : Belen
   let f_ str = Scanf.format_from_string (T.translate u true (string_of_format str) None) str
 end
 
-let ( / ) = Filename.concat
-
 let build_gettext_input component lang =
   (module struct
      let lang = lang
-     let mo_file = !Web_config.locales_dir / component / (lang ^ ".mo")
+     let mo_file = !Web_config.locales_dir // component // (lang ^ ".mo")
    end : LANG)
 
 let default_gettext component =

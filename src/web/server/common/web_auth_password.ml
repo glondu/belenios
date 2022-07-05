@@ -22,8 +22,6 @@
 open Lwt
 open Lwt.Syntax
 open Belenios_platform
-open Belenios_core
-open Serializable_builtin_t
 open Web_serializable_j
 open Platform
 open Web_common
@@ -34,8 +32,6 @@ let does_allow_signups c =
   | None -> false
 
 module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
-
-  let ( / ) = Filename.concat
 
   let check_password_with_file db name_or_email password =
     let name_or_email = String.trim name_or_email |> String.lowercase_ascii in
@@ -91,8 +87,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
                  | _ -> failwith "invalid configuration for admin site"
                end
             | Some uuid ->
-               let uuid_s = raw_string_of_uuid uuid in
-               let db = !Web_config.spool_dir / uuid_s / "passwords.csv" in
+               let db = uuid /// "passwords.csv" in
                check_password_with_file db name password
           in
           cont ok

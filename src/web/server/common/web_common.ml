@@ -30,6 +30,9 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
+let ( !! ) x = !Web_config.spool_dir // x
+let ( /// ) uuid x = !!(raw_string_of_uuid uuid // x)
+
 module LwtRandom = struct
 
   type 'a t = 'a Lwt.t
@@ -387,9 +390,7 @@ let file_exists x =
 let get_fname uuid x =
   match uuid with
   | None -> x
-  | Some uuid ->
-     let ( / ) = Filename.concat in
-     !Web_config.spool_dir / raw_string_of_uuid uuid / x
+  | Some uuid -> uuid /// x
 
 let read_file ?uuid x =
   Lwt.catch

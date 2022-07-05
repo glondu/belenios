@@ -20,13 +20,10 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Web_serializable_j
 open Web_common
-
-let ( / ) = Filename.concat
 
 type 'a t =
   {
@@ -76,7 +73,7 @@ let set_list ~uuid file xs =
   write_file ~uuid file.filename @@ List.map file.to_string xs
 
 let del ~uuid file =
-  let filename = !Web_config.spool_dir / raw_string_of_uuid uuid / file.filename in
+  let filename = uuid /// file.filename in
   Lwt.catch
     (fun () -> Lwt_unix.unlink filename)
     (fun _ -> Lwt.return_unit)

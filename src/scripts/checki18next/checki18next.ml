@@ -106,7 +106,7 @@ let spec =
 let () =
   Arg.parse spec (fun _ -> assert false) "Check i18next translation files."
 
-let ( / ) = Filename.concat
+let ( // ) = Filename.concat
 
 let () =
   if !make_reference_ref then (
@@ -118,7 +118,7 @@ let () =
     let translations =
       files_of_dir !dir
       |> List.filter (fun x -> x <> "." && x <> "..")
-      |> List.map (fun x -> Yojson.Safe.from_file (!dir / x))
+      |> List.map (fun x -> Yojson.Safe.from_file (!dir // x))
     in
     List.iter (check reference) translations
 )

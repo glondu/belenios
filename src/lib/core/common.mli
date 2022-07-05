@@ -24,6 +24,7 @@ open Platform
 open Signatures_core
 
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b
+val ( // ) : string -> string -> string
 
 module Array : sig
   include module type of Array

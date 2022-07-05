@@ -41,8 +41,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   open Web_services
   open Site_common
 
-  let ( / ) = Filename.concat
-
   module PString = String
 
   open Eliom_service
@@ -822,8 +820,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         let@ _ = with_draft_election_ro uuid in
         let* () = Api_drafts.set_downloaded uuid in
-        File.send ~content_type:"text/plain"
-          (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.txt")
+        File.send ~content_type:"text/plain" (uuid /// "private_creds.txt")
       )
 
   let () =
@@ -1271,14 +1268,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           let temp_dir = Filename.temp_file "belenios" "archive" in
           Sys.remove temp_dir;
           Unix.mkdir temp_dir 0o700;
-          Unix.mkdir (temp_dir / "public") 0o755;
-          Unix.mkdir (temp_dir / "restricted") 0o700;
+          Unix.mkdir (temp_dir // "public") 0o755;
+          Unix.mkdir (temp_dir // "restricted") 0o700;
           temp_dir
         ) ()
     in
     let* () =
       Lwt_list.iter_p (fun x ->
-          try_copy_file (!Web_config.spool_dir / uuid_s / x) (temp_dir / "public" / x)
+          try_copy_file (uuid /// x) (temp_dir // "public" // x)
         ) [
           "election.json";
           "trustees.json";
@@ -1289,7 +1286,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     in
     let* () =
       Lwt_list.iter_p (fun x ->
-          try_copy_file (!Web_config.spool_dir / uuid_s / x) (temp_dir / "restricted" / x)
+          try_copy_file (uuid /// x) (temp_dir // "restricted" // x)
         ) [
           "voters.txt";
           "records";
@@ -1302,9 +1299,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* r = Lwt_process.exec command in
     match r with
     | Unix.WEXITED 0 ->
-       let fname = !Web_config.spool_dir / uuid_s / "archive.zip" in
+       let fname = uuid /// "archive.zip" in
        let fname_new = fname ^ ".new" in
-       let* () = copy_file (temp_dir / "archive.zip") fname_new in
+       let* () = copy_file (temp_dir // "archive.zip") fname_new in
        let* () = Lwt_unix.rename fname_new fname in
        rmdir temp_dir
     | _ ->
@@ -1321,8 +1318,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let open (val l) in
         let* state = Web_persist.get_election_state uuid in
         if state = `Archived then (
-          let uuid_s = raw_string_of_uuid uuid in
-          let archive_name = !Web_config.spool_dir / uuid_s / "archive.zip" in
+          let archive_name = uuid /// "archive.zip" in
           let* b = file_exists archive_name in
           let* () = if not b then make_archive uuid else return_unit in
           File.send ~content_type:"application/zip" archive_name
@@ -1435,7 +1431,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         let pk = pks.(trustee_id-1).trustee_public_key in
         let pd = partial_decryption_of_string W.G.read partial_decryption in
-        let et = !Web_config.spool_dir / raw_string_of_uuid uuid / string_of_election_file ESETally in
+        let et = uuid /// string_of_election_file ESETally in
         let* et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
         let et = encrypted_tally_of_string W.G.read et in
         if string_of_partial_decryption W.G.write pd = partial_decryption && W.E.check_factor et pk pd then (

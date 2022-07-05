@@ -26,8 +26,6 @@ open Web_serializable_builtin_t
 open Web_common
 open Web_serializable_j
 
-let ( / ) = Filename.concat
-
 let ( let& ) x f =
   match x with
   | None -> Lwt.return_none
@@ -49,7 +47,7 @@ let clear_account_cache () =
 let account_of_filename filename =
   let& id = Filename.chop_suffix_opt ~suffix:".json" filename in
   let& _ = int_of_string_opt id in
-  let* contents = read_file (!Web_config.accounts_dir / filename) in
+  let* contents = read_file (!Web_config.accounts_dir // filename) in
   match contents with
   | Some [x] -> Lwt.return (try Some (account_of_string x) with _ -> None)
   | _ -> Lwt.return_none
@@ -65,7 +63,7 @@ let update_account account =
   let* () =
     let@ () = Lwt_mutex.with_lock account_mutex in
     write_file
-      (!Web_config.accounts_dir / Printf.sprintf "%d.json" account.account_id)
+      (!Web_config.accounts_dir // Printf.sprintf "%d.json" account.account_id)
       [string_of_account account]
   in
   Lwt_list.iter_s (fun f -> f account) !update_hooks
@@ -78,7 +76,7 @@ let drop_after_at x =
 let create_account ~email user =
   let@ () = Lwt_mutex.with_lock counter_mutex in
   let* counter =
-    let* x = read_file (!Web_config.accounts_dir / "counter") in
+    let* x = read_file (!Web_config.accounts_dir // "counter") in
     match x with
     | Some [x] ->
        Lwt.return (match int_of_string_opt x with None -> 1 | Some x -> x)
@@ -108,7 +106,7 @@ let create_account ~email user =
     }
   in
   let* () = update_account account in
-  let* () = write_file (!Web_config.accounts_dir / "counter") [string_of_int (account_id + 1)] in
+  let* () = write_file (!Web_config.accounts_dir // "counter") [string_of_int (account_id + 1)] in
   let* () = clear_account_cache () in
   Lwt.return account
 

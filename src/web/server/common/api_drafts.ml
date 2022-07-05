@@ -32,8 +32,6 @@ open Web_serializable_j
 open Web_common
 open Api_generic
 
-let ( / ) = Filename.concat
-
 let with_administrator token se f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token with
@@ -190,7 +188,7 @@ let draft_of_api a se d =
   }
 
 let delete_draft uuid =
-  let* () = rmdir (!Web_config.spool_dir / raw_string_of_uuid uuid) in
+  let* () = rmdir !!(raw_string_of_uuid uuid) in
   Web_persist.clear_elections_by_owner_cache ()
 
 let generate_uuid () =
@@ -249,7 +247,7 @@ let post_drafts account draft =
     }
   in
   let se = draft_of_api account se draft in
-  let* () = Lwt_unix.mkdir (!Web_config.spool_dir / raw_string_of_uuid uuid) 0o700 in
+  let* () = Lwt_unix.mkdir !!(raw_string_of_uuid uuid) 0o700 in
   let* () = Web_persist.set_draft_election uuid se in
   let* () = Web_persist.clear_elections_by_owner_cache () in
   Lwt.return uuid
@@ -638,7 +636,7 @@ let put_draft_trustees_mode uuid se mode =
 let get_draft_status uuid se =
   let* status_private_credentials_downloaded =
     if se.se_metadata.e_cred_authority = Some "server" then (
-      let* b = file_exists (!Web_config.spool_dir / raw_string_of_uuid uuid / "private_creds.downloaded") in
+      let* b = file_exists (uuid /// "private_creds.downloaded") in
       Lwt.return_some b
     ) else Lwt.return_none
   in
@@ -834,11 +832,11 @@ let validate_election account uuid se =
     Election.make_raw_election params ~group:se.se_group ~public_key
   in
   (* write election files to disk *)
-  let dir = !Web_config.spool_dir / uuid_s in
+  let dir = !!uuid_s in
   let create_file fname what xs =
     Lwt_io.with_file
       ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
-      ~perm:0o600 ~mode:Lwt_io.Output (dir / fname)
+      ~perm:0o600 ~mode:Lwt_io.Output (dir // fname)
       (fun oc ->
         Lwt_list.iter_s
           (fun v ->
@@ -853,7 +851,7 @@ let validate_election account uuid se =
   let* () = create_file "ballots.jsons" (fun x -> x) [] in
   (* initialize credentials *)
   let* () =
-    let fname = !Web_config.spool_dir / uuid_s / "public_creds.txt" in
+    let fname = uuid /// "public_creds.txt" in
     let* file = read_file fname in
     match file with
     | Some xs -> Web_persist.init_credential_mapping uuid xs
@@ -869,10 +867,10 @@ let validate_election account uuid se =
        create_file "private_keys.jsons" (fun x -> x) y
   in
   (* clean up draft *)
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "draft.json") in
+  let* () = cleanup_file (uuid /// "draft.json") in
   (* clean up private credentials, if any *)
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.txt") in
-  let* () = cleanup_file (!Web_config.spool_dir / uuid_s / "private_creds.downloaded") in
+  let* () = cleanup_file (uuid /// "private_creds.txt") in
+  let* () = cleanup_file (uuid /// "private_creds.downloaded") in
   (* write passwords *)
   let* () =
     match metadata.e_auth_config with

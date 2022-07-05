@@ -25,6 +25,9 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_t
 
+val ( !! ) : string -> string
+val ( /// ) : uuid -> string -> string
+
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
 

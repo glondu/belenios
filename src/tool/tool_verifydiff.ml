@@ -47,8 +47,6 @@ let load_from_file of_string filename =
     Some (lines_of_file filename |> List.rev_map of_string)
   ) else None
 
-let ( / ) = Filename.concat
-
 type verifydiff_error =
   | ElectionMismatch
   | MissingTrustees
@@ -89,15 +87,15 @@ let () =
       | _ -> None)
 
 let load_trustees dir =
-  match string_of_file_opt (dir / "trustees.json") with
+  match string_of_file_opt (dir // "trustees.json") with
   | Some t -> t
   | None -> raise (VerifydiffError MissingTrustees)
 
 let verifydiff dir1 dir2 =
   (* the elections must be the same *)
-  let election = string_of_file (dir1 / "election.json") in
+  let election = string_of_file (dir1 // "election.json") in
   let () =
-    let election2 = string_of_file (dir2 / "election.json") in
+    let election2 = string_of_file (dir2 // "election.json") in
     if election2 <> election then raise (VerifydiffError ElectionMismatch)
   in
   (* the trustees must be the same *)
@@ -125,7 +123,7 @@ let verifydiff dir1 dir2 =
     G.of_string cred, w
   in
   let creds dir =
-    match load_from_file parse (dir / "public_creds.txt") with
+    match load_from_file parse (dir // "public_creds.txt") with
     | None -> raise (VerifydiffError MissingCredentials)
     | Some creds ->
        if not (List.for_all (fun (x, _) -> G.check x) creds) then
@@ -169,7 +167,7 @@ let verifydiff dir1 dir2 =
   let module CastBallot = E.CastBallot (BboxOps) in
   (* load first ballots.jsons *)
   let nballots1 =
-    match load_from_file (fun x -> x) (dir1 / "ballots.jsons") with
+    match load_from_file (fun x -> x) (dir1 // "ballots.jsons") with
     | None -> 0
     | Some ballots ->
        List.iter
@@ -193,7 +191,7 @@ let verifydiff dir1 dir2 =
   in
   (* load second ballots.jsons *)
   let nballots2 =
-    match load_from_file (fun x -> x) (dir2 / "ballots.jsons") with
+    match load_from_file (fun x -> x) (dir2 // "ballots.jsons") with
     | None -> 0
     | Some ballots ->
        let replaced_ballots = ref 0 in

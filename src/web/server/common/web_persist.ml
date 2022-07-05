@@ -33,8 +33,6 @@ open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
-let ( / ) = Filename.concat
-
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()
 
@@ -256,7 +254,7 @@ let get_voters uuid = Spool.get_raw_list ~uuid Spool.voters
 
 let get_passwords uuid =
   let csv =
-    try Some (Csv.load (!Web_config.spool_dir / raw_string_of_uuid uuid / "passwords.csv"))
+    try Some (Csv.load (uuid /// "passwords.csv"))
     with _ -> None
   in
   match csv with
@@ -361,8 +359,7 @@ let get_ballots_index uuid =
   let* x = Spool.get ~uuid Spool.ballots_index in
   match x with
   | None ->
-     let uuid_s = raw_string_of_uuid uuid in
-     let dir = !Web_config.spool_dir / uuid_s / "ballots" in
+     let dir = uuid /// "ballots" in
      Lwt.catch
        (fun () ->
          let* ballots = Lwt_unix.files_of_directory dir |> Lwt_stream.to_list in
@@ -401,16 +398,16 @@ let get_ballot_by_hash uuid hash =
       | Some (b, _) -> return_some b
       | None -> return_none
      )
-  | _ -> read_file_single_line ~uuid ("ballots" / urlize hash)
+  | _ -> read_file_single_line ~uuid ("ballots" // urlize hash)
 
 let load_ballots uuid =
-  let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let ballots_dir = uuid /// "ballots" in
   let* b = Lwt_unix.file_exists ballots_dir in
   if b then (
     let ballots = Lwt_unix.files_of_directory ballots_dir in
     let* ballots = Lwt_stream.to_list ballots in
     Lwt_list.filter_map_s (fun x ->
-        read_file_single_line (ballots_dir / x)
+        read_file_single_line (ballots_dir // x)
       ) ballots
   ) else return []
 
@@ -432,17 +429,17 @@ let add_ballot election ballot =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   let hash = sha256_b64 ballot in
-  let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
+  let ballots_dir = uuid /// "ballots" in
   let* () = Lwt.catch (fun () -> Lwt_unix.mkdir ballots_dir 0o755) (fun _ -> return_unit) in
-  let* () = write_file (ballots_dir / urlize hash) [ballot] in
+  let* () = write_file (ballots_dir // urlize hash) [ballot] in
   let* () = dump_ballots election in
   return hash
 
 let remove_ballot election hash =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-  let ballots_dir = !Web_config.spool_dir / raw_string_of_uuid uuid / "ballots" in
-  Lwt.catch (fun () -> Lwt_unix.unlink (ballots_dir / urlize hash)) (fun _ -> return_unit)
+  let ballots_dir = uuid /// "ballots" in
+  Lwt.catch (fun () -> Lwt_unix.unlink (ballots_dir // urlize hash)) (fun _ -> return_unit)
 
 let replace_ballot election ~hash ~rawballot =
   let* () = remove_ballot election hash in
