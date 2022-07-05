@@ -27,27 +27,20 @@ val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 
 module Array : sig
   include module type of Array
-  val exists : ('a -> bool) -> 'a array -> bool
-  val forall : ('a -> bool) -> 'a array -> bool
-  val forall2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
-  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
-  val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
+  val for_all3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
   val map3 : ('a -> 'b -> 'c -> 'd) ->
              'a array -> 'b array -> 'c array -> 'd array
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
-  val split : ('a * 'b) array -> 'a array * 'b array
 end
 
 module String : sig
   include module type of String
-  val startswith : string -> string -> bool
   val drop_prefix : prefix:string -> string -> string option
 end
 
 module List : sig
   include module type of List
   val join : 'a -> 'a list -> 'a list
-  val filter_map : ('a -> 'b option) -> 'a list -> 'b list
 end
 
 module Option : sig

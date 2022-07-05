@@ -85,16 +85,16 @@ module MakeCombinator (G : GROUP) = struct
           Z.(challenge =% G.hash zkp [| commitment |])
 
   let check_pedersen t =
-    Array.forall V.verify_cert t.t_certs &&
+    Array.for_all V.verify_cert t.t_certs &&
       let certs = Array.map (fun x -> cert_keys_of_string G.read x.s_message) t.t_certs in
-      Array.forall2 (fun cert x ->
+      Array.for_all2 (fun cert x ->
           V.verify cert.cert_verification x
         ) certs t.t_coefexps &&
         let coefexps = Array.map (fun x -> (raw_coefexps_of_string G.read x.s_message).coefexps) t.t_coefexps in
-        Array.forall check_single t.t_verification_keys &&
+        Array.for_all check_single t.t_verification_keys &&
           let computed_vks = V.compute_verification_keys coefexps in
           t.t_threshold = Array.length coefexps.(0) &&
-            Array.forall2 G.(fun vk computed_vk ->
+            Array.for_all2 G.(fun vk computed_vk ->
             vk.trustee_public_key =~ computed_vk
             ) t.t_verification_keys computed_vks
 

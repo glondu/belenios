@@ -271,7 +271,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   let decrypt privkey =
     let sk = number_of_string privkey in
     let pk = G.(g **~ sk) in
-    if Array.forall (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
+    if Array.for_all (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
       print_msg "W: your key is not present in trustees.jsons";
     );
     (match Lazy.force shuffles_hash with

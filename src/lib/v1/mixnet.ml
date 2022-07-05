@@ -227,18 +227,18 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       let t, s, cc, cc_hat = proof in
       let t1, t2, t3, (t41, t42), tt_hat = t in
       let s1, s2, s3, s4, ss_hat, ss' = s in
-      Array.forall G.check [| t1; t2; t3; t41; t42 |] &&
-        Array.forall (check_modulo G.q) [| s1; s2; s3; s4 |] &&
+      Array.for_all G.check [| t1; t2; t3; t41; t42 |] &&
+        Array.for_all (check_modulo G.q) [| s1; s2; s3; s4 |] &&
           n = Array.length cc &&
             n = Array.length cc_hat &&
               n = Array.length tt_hat &&
                 n = Array.length ss_hat &&
                   n = Array.length ss' &&
-                    Array.forall G.check cc &&
-                      Array.forall G.check cc_hat &&
-                        Array.forall G.check tt_hat &&
-                          Array.forall (check_modulo G.q) ss_hat &&
-                            Array.forall (check_modulo G.q) ss' &&
+                    Array.for_all G.check cc &&
+                      Array.for_all G.check cc_hat &&
+                        Array.for_all G.check tt_hat &&
+                          Array.for_all (check_modulo G.q) ss_hat &&
+                            Array.for_all (check_modulo G.q) ss' &&
                               let hh = Array.init n get_generator_indep in
                               let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
                               let uu = get_nizkp_challenges n ("shuffle-challenges|" ^ W.fingerprint ^ "|" ^ str1) in
@@ -267,6 +267,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
                                   G.compare t3 t3' = 0 &&
                                     G.compare t41 t41' = 0 &&
                                       G.compare t42 t42' = 0 &&
-                                        Array.forall2 (fun t t' -> G.compare t t' = 0) tt_hat tt'_hat
+                                        Array.for_all2 (fun t t' -> G.compare t t' = 0) tt_hat tt'_hat
 
 end

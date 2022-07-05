@@ -28,29 +28,7 @@ let ( let@ ) f x = f x
 module Array = struct
   include Array
 
-  let exists f a =
-    let n = Array.length a in
-    (let rec check i =
-       if i >= 0 then f a.(i) || check (pred i)
-       else false
-     in check (pred n))
-
-  let forall f a =
-    let n = Array.length a in
-    (let rec check i =
-       if i >= 0 then f a.(i) && check (pred i)
-       else true
-     in check (pred n))
-
-  let forall2 f a b =
-    let n = Array.length a in
-    n = Array.length b &&
-      (let rec check i =
-         if i >= 0 then f a.(i) b.(i) && check (pred i)
-         else true
-       in check (pred n))
-
-  let forall3 f a b c =
+  let for_all3 f a b c =
     let n = Array.length a in
     n = Array.length b &&
       n = Array.length c &&
@@ -58,9 +36,6 @@ module Array = struct
            if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
            else true
          in check (pred n))
-
-  let map2 f a b =
-    Array.mapi (fun i ai -> f ai b.(i)) a
 
   let map3 f a b c =
     Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
@@ -74,18 +49,10 @@ module Array = struct
         | Some _ as x -> x
       else None
     in loop 0
-
-  let split a =
-    Array.map fst a, Array.map snd a
-
 end
 
 module String = struct
   include String
-
-  let startswith x s =
-    let xn = String.length x and sn = String.length s in
-    xn >= sn && String.sub x 0 sn = s
 
   let drop_prefix ~prefix x =
     let prefixn = length prefix and n = length x in
@@ -102,14 +69,6 @@ module List = struct
     | [] -> []
     | [x] -> [x]
     | x :: xs -> x :: sep :: join sep xs
-
-  let rec filter_map f = function
-    | [] -> []
-    | x :: xs ->
-       let ys = filter_map f xs in
-       match f x with
-       | None -> ys
-       | Some y -> y :: ys
 end
 
 module Option = struct
@@ -163,18 +122,18 @@ module Shape = struct
 
   let rec forall p = function
     | SAtomic x -> p x
-    | SArray x -> Array.forall (forall p) x
+    | SArray x -> Array.for_all (forall p) x
 
   let rec forall2 p x y =
     match x, y with
     | SAtomic x, SAtomic y -> p x y
-    | SArray x, SArray y -> Array.forall2 (forall2 p) x y
+    | SArray x, SArray y -> Array.for_all2 (forall2 p) x y
     | _, _ -> invalid_arg "Shape.forall2"
 
   let rec forall3 p x y z =
     match x, y, z with
     | SAtomic x, SAtomic y, SAtomic z -> p x y z
-    | SArray x, SArray y, SArray z -> Array.forall3 (forall3 p) x y z
+    | SArray x, SArray y, SArray z -> Array.for_all3 (forall3 p) x y z
     | _, _, _ -> invalid_arg "Shape.forall3"
 
 end

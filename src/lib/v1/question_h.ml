@@ -402,7 +402,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let verify_answer q ~public_key:y ~prefix:zkp a =
     let n = Array.length a.choices in
     n = Array.length a.individual_proofs &&
-      Array.forall2 (eg_disj_verify y d01 zkp) a.individual_proofs a.choices &&
+      Array.for_all2 (eg_disj_verify y d01 zkp) a.individual_proofs a.choices &&
         let zkp = zkp ^ "|" ^ stringify_choices a.choices in
         match q.q_blank, a.blank_proof with
         | Some true, Some blank_proof ->
@@ -454,7 +454,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let check_result ~num_tallied _ x r =
     match r with
     | RHomomorphic r ->
-       Array.forall2
+       Array.for_all2
          (fun x r ->
            let r = Weight.expand ~total:num_tallied r in
            let g' = if Z.compare r Z.zero = 0 then G.one else g **~ r in

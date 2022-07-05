@@ -1714,7 +1714,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    | _ -> failwith "Unknown step"
                  in
                  let* () =
-                   if Array.forall (fun x -> x.stt_step = Some 2) ts then (
+                   if Array.for_all (fun x -> x.stt_step = Some 2) ts then (
                      (try
                         K.step2 (get_certs ());
                         Array.iter (fun x -> x.stt_step <- Some 3) ts;
@@ -1724,7 +1724,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    ) else return_unit
                  in
                  let* () =
-                   if Array.forall (fun x -> x.stt_step = Some 4) ts then (
+                   if Array.for_all (fun x -> x.stt_step = Some 4) ts then (
                      (try
                         let certs = get_certs () in
                         let polynomials = get_polynomials () in
@@ -1739,7 +1739,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    ) else return_unit
                  in
                  let* () =
-                   if Array.forall (fun x -> x.stt_step = Some 6) ts then (
+                   if Array.for_all (fun x -> x.stt_step = Some 6) ts then (
                      (try
                         let certs = get_certs () in
                         let polynomials = get_polynomials () in

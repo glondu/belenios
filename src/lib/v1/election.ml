@@ -204,7 +204,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
               Z.(challenge =% G.hash prefix [|commitment|])
         | None -> false
        )
-    && Array.forall2 (verify_answer W.public_key zkp) election.e_questions answers
+    && Array.for_all2 (verify_answer W.public_key zkp) election.e_questions answers
 
   module CastBallot (B : BBOX_OPS with type 'a m := 'a m) = struct
 
@@ -311,7 +311,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     loop (Array.length cc - 1) []
 
   let check_shuffle cc s =
-    Array.forall3 (Mix.check_shuffle_proof W.public_key) cc s.shuffle_ciphertexts s.shuffle_proofs
+    Array.for_all3 (Mix.check_shuffle_proof W.public_key) cc s.shuffle_ciphertexts s.shuffle_proofs
 
   type factor = elt partial_decryption
 
@@ -396,7 +396,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
          in
          match results with
          | SArray xs ->
-            Array.forall3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
+            Array.for_all3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
          | _ -> false
 end
 
