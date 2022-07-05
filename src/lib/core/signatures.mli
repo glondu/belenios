@@ -160,7 +160,7 @@ module type ELECTION_OPS = sig
 
   (** {2 Tally} *)
 
-  val process_ballots : weighted_ballot array -> elt encrypted_tally
+  val process_ballots : weighted_ballot list -> elt encrypted_tally
 
   val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
   val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally

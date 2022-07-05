@@ -71,7 +71,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
           if not Weight.(is_int w 1) then (
             invalid_arg "Question_nh.process_ciphertexts"
           ) else e
-        ) es
+        ) (Array.of_list es)
     in
     Array.fast_sort compare_ciphertexts es;
     SArray es

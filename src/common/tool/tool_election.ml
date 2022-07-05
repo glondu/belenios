@@ -173,7 +173,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
 
   let ballots =
     let rec loop accu = function
-      | [] -> M.return (Array.of_list accu)
+      | [] -> M.return accu
       | b :: bs ->
          let* x = cast b in
          loop (x :: accu) bs
@@ -183,12 +183,12 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   let raw_encrypted_tally =
     lazy (
         match Lazy.force ballots with
-        | None -> M.return (E.process_ballots [||], Weight.zero)
+        | None -> M.return (E.process_ballots [], Weight.zero)
         | Some x ->
            let* ballots = x in
            let total_weight =
              let open Weight in
-             Array.fold_left (fun accu (w, _) -> accu + w) zero ballots
+             List.fold_left (fun accu (w, _) -> accu + w) zero ballots
            in
            M.return (E.process_ballots ballots, total_weight)
       )

@@ -260,7 +260,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     SArray (
         Array.mapi (fun i q ->
             Q.process_ciphertexts q
-              (Array.map
+              (List.map
                  (fun (w, b) ->
                    w, Q.extract_ciphertexts q b.answers.(i)
                  ) bs

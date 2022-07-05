@@ -430,10 +430,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
     in
     let total =
       let open Weight in
-      Array.fold_left (fun a (w, _) -> a + w) zero es
+      List.fold_left (fun a (w, _) -> a + w) zero es
     in
-    let es = Array.map (fun (w, b) -> power b (Weight.expand ~total w)) es in
-    Array.fold_left (Shape.map2 eg_combine) neutral es
+    let es = List.map (fun (w, b) -> power b (Weight.expand ~total w)) es in
+    List.fold_left (Shape.map2 eg_combine) neutral es
 
   let compute_result ~num_tallied:total =
     let num_tallied = Weight.expand ~total total in

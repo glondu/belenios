@@ -460,7 +460,7 @@ let compute_encrypted_tally election =
         return (weight, ballot)
       ) ballots
   in
-  let tally = W.E.process_ballots (Array.of_list ballots) in
+  let tally = W.E.process_ballots ballots in
   let* () = Spool.set ~uuid (Spool.encrypted_tally (module W.G)) tally in
   return @@ string_of_encrypted_tally W.G.write tally
 
