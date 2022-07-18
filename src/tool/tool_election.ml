@@ -20,15 +20,15 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Belenios_core
 open Belenios
 open Platform
-open Serializable_builtin_t
-open Serializable_j
-open Signatures
+open Belenios_core.Serializable_builtin_t
+open Belenios_core.Serializable_j
+open Belenios_core.Signatures
+open Belenios_core.Common
 open Common
 
-module type PARAMS = sig
+module type FILES = sig
   val raw_election : string
   val get_trustees : unit -> string option
   val get_public_creds : unit -> string list option
@@ -36,6 +36,10 @@ module type PARAMS = sig
   val get_shuffles : unit -> string list option
   val get_result : unit -> string option
   val print_msg : string -> unit
+end
+
+module type PARAMS = sig
+  val dir : string
 end
 
 module type S = sig
@@ -51,11 +55,53 @@ module type S = sig
 end
 
 module PTrustees = Trustees
+module M = Random
 
-module Make (P : PARAMS) (M : RANDOM) () = struct
+module MakeGetters (X : PARAMS) : FILES = struct
+  let raw_election =
+    let fname = X.dir // "election.json" in
+    load_from_file (fun x -> x) fname |>
+      function
+      | Some [e] -> e
+      | None -> failcmd "could not read %s" fname
+      | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
 
-  include P
-  include Election.Make (P) (M) ()
+  let get_public_creds () =
+    let file = "public_creds.txt" in
+    Printf.eprintf "I: loading %s...\n%!" file;
+    try Some (lines_of_file (X.dir // file)) with _ -> None
+
+  let get_trustees () =
+    let file = "trustees.json" in
+    Printf.eprintf "I: loading %s...\n%!" file;
+    try Some (string_of_file (X.dir // file)) with _ -> None
+
+  let get_ballots () =
+    let file = "ballots.jsons" in
+    Printf.eprintf "I: loading %s...\n%!" file;
+    try Some (lines_of_file (X.dir // file)) with _ -> None
+
+  let get_shuffles () =
+    let file = "shuffles.jsons" in
+    if Sys.file_exists (X.dir // file) then (
+      Printf.eprintf "I: loading %s...\n%!" file;
+      try Some (lines_of_file (X.dir // file))
+      with _ -> None
+    ) else None
+
+  let get_result () =
+    load_from_file (fun x -> x) (X.dir // "result.json") |> function
+    | None -> None
+    | Some [r] -> Some r
+    | _ -> failwith "invalid result"
+
+  let print_msg = prerr_endline
+end
+
+module Make (P : PARAMS) () = struct
+
+  include MakeGetters (P)
+  include Election.Make (struct let raw_election = raw_election end) (M) ()
   module Trustees = (val Trustees.get_by_version election.e_version)
   let ( let* ) = M.bind
 
@@ -105,7 +151,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
 
   (* Load ballots, if present *)
 
-  module PPC = Credential.MakeParsePublicCredential (G)
+  module PPC = Belenios_core.Credential.MakeParsePublicCredential (G)
 
   let public_creds =
     lazy (
@@ -261,7 +307,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       match privcred with
       | None -> failwith "missing private credential"
       | Some cred ->
-         let module CD = Credential.MakeDerive (G) in
+         let module CD = Belenios_core.Credential.MakeDerive (G) in
          CD.derive election.e_uuid cred
     in
     let* b = E.create_ballot ~sk ballot in
@@ -399,7 +445,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
     | Some i -> String.sub line 0 i, String.sub line (i + 1) (String.length line - i - 1)
 
   let compute_voters privcreds =
-    let module D = Credential.MakeDerive (G) in
+    let module D = Belenios_core.Credential.MakeDerive (G) in
     let map =
       List.fold_left
         (fun accu line ->

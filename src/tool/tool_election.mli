@@ -1,11 +1,5 @@
 module type PARAMS = sig
-  val raw_election : string
-  val get_trustees : unit -> string option
-  val get_public_creds : unit -> string list option
-  val get_ballots : unit -> string list option
-  val get_shuffles : unit -> string list option
-  val get_result : unit -> string option
-  val print_msg : string -> unit
+  val dir : string
 end
 
 module type S = sig
@@ -20,4 +14,4 @@ module type S = sig
   val compute_voters : string list -> string list
 end
 
-module Make (P : PARAMS) (R : Belenios_core.Signatures.RANDOM) () : S with type 'a m := 'a R.t
+module Make (P : PARAMS) () : S with type 'a m := 'a

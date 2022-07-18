@@ -19,24 +19,15 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
 open Belenios
-open Signatures
+open Belenios_core.Signatures
 open Belenios_platform
 open Belenios_tool_common
-open Serializable_j
+open Belenios_core.Serializable_j
 open Platform
+open Belenios_core.Common
 open Common
 open Cmdliner
-
-let lines_of_file fname =
-  let ic = open_in fname in
-  let rec loop accu =
-    match input_line ic with
-    | line -> loop (line :: accu)
-    | exception End_of_file -> close_in ic; List.rev accu
-  in
-  loop []
 
 let lines_of_stdin () =
   let rec loop accu =
@@ -56,15 +47,6 @@ let chars_of_stdin () =
   loop ();
   Buffer.contents buf
 
-let string_of_file f =
-  lines_of_file f |> String.concat "\n"
-
-let load_from_file of_string filename =
-  if Sys.file_exists filename then (
-    Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    Some (lines_of_file filename |> List.rev_map of_string)
-  ) else None
-
 let download dir url file =
   let url = if url.[String.length url - 1] = '/' then url else url ^ "/" in
   Printf.eprintf "I: downloading %s...\n%!" file;
@@ -79,10 +61,6 @@ let rm_rf dir =
   let files = Sys.readdir dir in
   Array.iter (fun f -> Unix.unlink (dir // f)) files;
   Unix.rmdir dir
-
-exception Cmdline_error of string
-
-let failcmd fmt = Printf.ksprintf (fun x -> raise (Cmdline_error x)) fmt
 
 let common_man = [
   `S "MORE INFORMATION";
@@ -326,41 +304,6 @@ end
 module Election : CMDLINER_MODULE = struct
   open Tool_election
 
-  module MakeGetters (X : sig val dir : string end) = struct
-
-    let get_public_creds () =
-      let file = "public_creds.txt" in
-      Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir // file)) with _ -> None
-
-    let get_trustees () =
-      let file = "trustees.json" in
-      Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (string_of_file (X.dir // file)) with _ -> None
-
-    let get_ballots () =
-      let file = "ballots.jsons" in
-      Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir // file)) with _ -> None
-
-    let get_shuffles () =
-      let file = "shuffles.jsons" in
-      if Sys.file_exists (X.dir // file) then (
-        Printf.eprintf "I: loading %s...\n%!" file;
-        try Some (lines_of_file (X.dir // file))
-        with _ -> None
-      ) else None
-
-    let get_result () =
-      load_from_file (fun x -> x) (X.dir // "result.json") |> function
-      | None -> None
-      | Some [r] -> Some r
-      | _ -> failwith "invalid result"
-
-    let print_msg = prerr_endline
-
-  end
-
   let main url dir action =
     let@ () = wrap_main in
     let dir, cleanup = match url, dir with
@@ -386,17 +329,7 @@ module Election : CMDLINER_MODULE = struct
               ) then
            Printf.eprintf "W: some errors occurred while downloading\n%!";
     in
-    let module P : PARAMS = struct
-        include MakeGetters (struct let dir = dir end)
-        let raw_election =
-          let fname = dir // "election.json" in
-          load_from_file (fun x -> x) fname |>
-            function
-            | Some [e] -> e
-            | None -> failcmd "could not read %s" fname
-            | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
-      end in
-    let module X = Make (P) (Random) () in
+    let module X = Make (struct let dir = dir end) () in
     begin match action with
     | `Vote (privcred, ballot) ->
        let ballot =
@@ -800,7 +733,7 @@ module Methods : CMDLINER_MODULE = struct
         | Some b -> b
       in
       ballots
-      |> Schulze.compute ~nchoices ~blank_allowed
+      |> Belenios_core.Schulze.compute ~nchoices ~blank_allowed
       |> string_of_schulze_result
       |> print_endline
 
@@ -826,7 +759,7 @@ module Methods : CMDLINER_MODULE = struct
         | Some b -> b
       in
       ballots
-      |> Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
+      |> Belenios_core.Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
       |> string_of_mj_result
       |> print_endline
 
@@ -839,7 +772,7 @@ module Methods : CMDLINER_MODULE = struct
     in
     chars_of_stdin ()
     |> stv_raw_ballots_of_string
-    |> Stv.compute ~nseats
+    |> Belenios_core.Stv.compute ~nseats
     |> string_of_stv_result
     |> print_endline
 
