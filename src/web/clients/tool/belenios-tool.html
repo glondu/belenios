@@ -108,48 +108,5 @@
         </div>
       </div>
     </div>
-    <div id="election">
-      <h2>Election management</h2>
-      <div>
-        <h3>Election parameters</h3>
-        <textarea id="election_params" rows="1" cols="80"></textarea>
-      </div>
-      <div>
-        <h3>Trustee public keys</h3>
-        <textarea id="election_pks" rows="1" cols="80"></textarea>
-      </div>
-      <div>
-        <h3>Public credentials</h3>
-        <textarea id="election_pubcreds" rows="1" cols="80"></textarea>
-      </div>
-      <div>
-        <h3>Ballot creation</h3>
-        Secret credential:
-        <div><textarea id="election_privcred" rows="1" cols="80"></textarea></div>
-        Plaintext choices:
-        <div><textarea id="election_choices" rows="1" cols="80"></textarea></div>
-        <button id="do_encrypt">Create encrypted ballot</button>
-        <div><textarea id="election_ballot" rows="1" cols="80" readonly="readonly"></textarea></div>
-      </div>
-      <div>
-        <h3>Ballots</h3>
-        <textarea id="election_ballots" rows="1" cols="80"></textarea>
-      </div>
-      <div>
-        <h3>Partial decryption</h3>
-        Private key:
-        <div><textarea id="election_privkey" rows="1" cols="80"></textarea></div>
-        <button id="do_decrypt">Perform partial decryption</button>
-        <div><textarea id="election_pd" rows="1" cols="80" readonly="readonly"></textarea></div>
-      </div>
-      <div>
-        <h3>Election result</h3>
-        Partial decryptions:
-        <div><textarea id="election_factors" rows="1" cols="80"></textarea></div>
-        <div><button id="do_validate" rows="1" cols="80">Validate</textarea></div>
-        <div><textarea id="election_result" rows="1" cols="80"></textarea></div>
-        <div><button id="do_verify">Verify</button></div>
-      </div>
-    </div>
   </body>
 </html>

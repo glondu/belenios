@@ -203,108 +203,6 @@ module Mkelection = struct
   ]
 end
 
-module ToolElection = struct
-  open Tool_election
-
-  module Getters = struct
-
-    let get_public_keys () =
-      let pks = get_textarea "election_pks" |> split_lines in
-      if pks = [] then None else Some pks
-
-    let get_trustees () =
-      get_public_keys ()
-      |> Option.map
-           (fun x ->
-             x
-             |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
-             |> List.map (fun x -> `Single x)
-             |> string_of_trustees Yojson.Safe.write_json
-           )
-
-    let get_public_creds () =
-      let raw = get_textarea "election_pubcreds" |> split_lines in
-      match raw with
-      | [] -> None
-      | _ -> Some raw
-
-    let get_ballots () =
-      let raw = get_textarea "election_ballots" |> split_lines in
-      match raw with
-      | [] -> None
-      | _ -> Some raw
-
-    let get_result () =
-      let raw = get_textarea "election_result" |> split_lines in
-      match raw with
-      | [] -> None
-      | [r] -> Some r
-      | _ -> invalid_arg "invalid result"
-
-    let get_shuffles () =
-      None
-
-    let print_msg x = alert x
-  end
-
-  let get_election () =
-    let raw = get_textarea "election_params" in
-    match split_lines raw with
-    | [e] -> e
-    | _ -> invalid_arg "invalid election parameters"
-
-
-  let create_ballot () =
-    let module P : PARAMS = struct
-      let raw_election = get_election ()
-      include Getters
-    end in
-    let choices = get_textarea "election_choices" |> plaintext_of_string in
-    let privcred = get_textarea "election_privcred" in
-    let module X = Make (P) (LwtJsRandom) () in
-    let* ballot = X.vote (Some privcred) choices in
-    set_textarea "election_ballot" ballot;
-    Lwt.return_unit
-
-  let verify () =
-    let module P : PARAMS = struct
-      let raw_election = get_election ()
-      include Getters
-    end in
-    let module X = Make (P) (LwtJsRandom) () in
-    X.verify ()
-
-  let decrypt () =
-    let module P : PARAMS = struct
-      let raw_election = get_election ()
-      include Getters
-    end in
-    let module X = Make (P) (LwtJsRandom) () in
-    let privkey = get_textarea "election_privkey" in
-    let* pd = X.decrypt privkey in
-    set_textarea "election_pd" pd;
-    Lwt.return_unit
-
-  let validate () =
-    let module P : PARAMS = struct
-      let raw_election = get_election ()
-      include Getters
-    end in
-    let module X = Make (P) (LwtJsRandom) () in
-    let factors = get_textarea "election_factors" |> split_lines in
-    let* result = X.validate factors in
-    set_textarea "election_result" result;
-    Lwt.return_unit
-
-  let cmds = [
-    "do_encrypt", create_ballot;
-    "do_verify", verify;
-    "do_decrypt", decrypt;
-    "do_validate", validate;
-  ]
-
-end
-
 let new_uuid () =
   let open (Common.MakeGenerateToken (LwtJsRandom)) in
   let* uuid = generate_token () in
@@ -316,8 +214,7 @@ let cmds =
   Tests.cmds @
   Tkeygen.cmds @
   Credgen.cmds @
-  Mkelection.cmds @
-  ToolElection.cmds
+  Mkelection.cmds
 
 let () =
   Lwt.async (fun () ->
