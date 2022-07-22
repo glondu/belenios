@@ -31,27 +31,50 @@ alors `PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
 Instructions pour l'électeur
 -------------------------
 
-Lorsque l'électeur vote en ligne, son ordinateur chiffre ses choix (à
+Avant le début de l'élection, l'électeur reçoit un mail avec son `code
+de vote` et l'`url` de l'élection. La page de l'élection affiche
+l'heure d'ouverture lorsqu'elle n'est pas encore ouverte.
+
+Pendant l'élection, l'électeur peut se rendre sur la page de
+l'élection et voter de la manière suivante :
+
+- l'électeur saisit son `code de vote`
+- il a alors accès aux questions de l'élection et sélectionne ses
+candidats
+- l'ordinateur chiffre  ses choix (à
 l'aide d'un programme JavaScript) et affiche à l'électeur un `numéro
 de suivi`, qui est une empreinte du bulletin. Ce `numéro de suivi` est
 également envoyé par mail lorsque l'électeur a fini de voter.
+- une fois que l'électeur a vérifié ses choix, il est invité à
+  s'authentifier en saisissant son adresse mail. Il reçoit alors un
+  mot de passe éphémère à son adresse, qu'il saisit dans l'interface de
+  vote. D'autres moyens d'authentification sont possibles (par exemple
+  un envoi préalable d'un mot de passe suivant les élections).
+- note : un électeur peut voter à nouveau. Seul le *dernier* vote est pris
+en compte.
 
-Pour s'assurer que son bulletin de vote est bien pris en compte,
-l'électeur doit s'assurer que son `numéro de suivi` apparait bien dans
-l'urne en consultant la page `voir les bulletins acceptés` sur la page
-d'accueil de l'élection. L'électeur doit également protester vivement
+Un tutoriel vidéo est disponible <a
+href="https://youtu.be/wuTOuVM4KB4">en ligne</a>.
+
+Le système de vote Belenios est *vérifiable*.
+
+- l'électeur peut 
+s'assurer que son bulletin de vote est bien pris en compte,
+en vérifiant que son `numéro de suivi` apparait bien dans
+l'urne, en consultant la page `voir les bulletins acceptés` sur la page
+d'accueil de l'élection. Il doit protester si ce n'est pas le cas.
+Si l'électeur vote plusieurs fois, seul son dernier `numéro de suivi` apparait.
+
+- l'électeur doit également protester vivement
 s'il reçoit un mail de confirmation sans avoir voté ou s'il reçoit un
 mail de confirmation avec un `numéro de suivi` différent de celui
 affiché à l'écran pendant la phase de vote. Quelqu'un a
 probablement réussi à ajouter un bulletin en son nom. Cela peut être par exemple
 l'indice d'une attaque par un administrateur système ayant accès au mail de
-l'électeur si le login et mot de passe ainsi que le code de vote sont
+l'électeur si le mot de passe et le code de vote sont
 envoyés sur la même adresse.
 
-Note : un électeur peut voter à nouveau. Seul le *dernier* vote est pris
-en compte. L'électeur doit s'assurer que le dernier `numéro de suivi`
-reçu est bien dans l'urne. Les numéros de suivi précédents sont
-supprimés.
+
 
 Un électeur peut également vérifier l'intégralité du processus du
 vote. C'est à dire qu'au lieu de simplement vérifier la présence de
@@ -125,13 +148,16 @@ déchiffrement :
 
 Une fois le dépouillement terminé, les résultats sont proclamés sur la
 page d'accueil de l'élection. Il est attendu que l'autorité de
-déchiffrement vérifie que les données suivantes apparaissent sur la
+déchiffrement :
+
+- **détruise** sa clé de déchiffrement
+- vérifie que les données suivantes apparaissent sur la
 page, à chaque fois associées à son nom :
 
-- (en mode threshold) sa clé publique de PKI `clé publique`;
-- sa clé de vérification `clé de vérification`;
-- (en mode vote alternatif) l'empreinte de son mélange;
-- l'empreinte de l'urne à déchiffrer : `empreinte du résultat chiffré`
+	- (en mode threshold) sa clé publique de PKI `clé publique`;
+	- sa clé de vérification `clé de vérification`;
+	- (en mode vote alternatif) l'empreinte de son mélange;
+	- l'empreinte de l'urne à déchiffrer : `empreinte du résultat chiffré`
   (pour vérifier que sa clé de déchiffrement n'a pas été utilisée pour
   déchiffrer une autre donnée).
 

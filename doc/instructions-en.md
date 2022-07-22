@@ -32,17 +32,38 @@ then `PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
 Instructions for the voter
 --------------------------
 
-When a voter wants to vote online, his computer encrypts his choices
+Before the election starts, the voter receives an email that contains
+his private `credential` and the `url` of the election. The election
+page displays the opening time when it is not yet open.
+
+During the election, a voter can visit the election page and vote as
+follows:
+
+- he enters his private `credential`
+- he can then see the questions and select his candidates
+- his computer encrypts his choices
 (with a Javascript program) and prints a `smart ballot tracker` which is
 a fingerprint of the ballot. This `smart ballot tracker` is also sent by
 email to the voter when he has completed the voting procedure.
+- once the voter has reviewed his choices, he has to authenticate
+  himself by first entering his email address. He then receives a
+  one-time password by email, that should be entered into the voting
+  interface. Other authentication means may be used (for example, a
+  password may be sent before the start of the election).
+- note: a voter may vote again. Only the *last* vote will count.
 
-In order to check that his ballot is indeed taken into account, the voter
-must check that his `smart ballot tracker` is present in the ballot box
-by visiting the link `See accepted ballots` on the main page of the
-election. For even more security, the voter can perform this check
+The Belenios system is *verifiable*.
+
+- a voter may check that his ballot is indeed taken into account, by 
+looking for his `smart ballot tracker` on the ballot box,
+visiting the link `See accepted ballots` on the main page of the
+election. He must complain if this is not the case.
+For even more security, the voter can perform this check
 with another device, possibly from a different location.
-The voter must also vehemently protest if he receives a
+If a voter votes several times, only the last smart ballot tracker
+appears on the ballot box.
+
+- The voter must also vehemently protest if he receives a
 confirmation email that contains a `smart ballot tracker` that is
 different from the one that was printed on the screen during the voting
 phase. Somebody probably managed to add a ballot in his name. This can
@@ -50,10 +71,7 @@ for instance be a hint of an attack by a system administrator who has
 access to the mailbox of the voter, in the case where both the login /
 password and the credential are sent to the same address.
 
-Note: a voter can vote several times. Only the *last* vote is taken into
-account. The voter must check that the last `smart ballot tracker` is in
-the ballot box. The previous smart ballot trackers are removed from the
-box.
+
 
 A voter can also verify the whole voting process. Instead of checking only
 the presence of his ballot in the ballot box, he can verify the validity
@@ -122,7 +140,10 @@ her private key to decrypt the result. It is expected that the trustee:
 
 
 Once the tally is finished, the results are published on the page of the
-election. It is expected that the trustee checks that the following data
+election. It is expected that the trustee:
+
+- **destroys** her decryption key;
+- checks that the following data
 are present on this page, each time associated to her name:
 
 - (in threshold mode) her PKI `public key`;
