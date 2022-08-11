@@ -7,7 +7,7 @@ authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
   "dune" {>= "2.7"}
-  "cryptokit" {>= "1.14"}
+  "cryptokit" {>= "1.17"}
   "odoc" {with-doc}
 ]
 build: [

@@ -7,8 +7,8 @@ authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
   "dune" {>= "2.7"}
-  "yojson" {>= "1.7.0"}
-  "atdgen" {>= "2.2.1"}
+  "yojson" {>= "2.0.2"}
+  "atdgen" {>= "2.10.0"}
   "belenios-platform" {= version}
   "odoc" {with-doc}
 ]

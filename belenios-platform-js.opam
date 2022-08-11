@@ -7,8 +7,8 @@ authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
   "dune" {>= "2.7"}
-  "js_of_ocaml" {>= "3.7.0"}
-  "js_of_ocaml-ppx" {>= "3.7.0"}
+  "js_of_ocaml" {>= "4.0.0"}
+  "js_of_ocaml-ppx" {>= "4.0.0"}
   "odoc" {with-doc}
 ]
 build: [

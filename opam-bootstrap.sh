@@ -24,7 +24,7 @@ mkdir opam-repository
 cd opam-repository
 git init
 git remote add origin https://github.com/ocaml/opam-repository.git
-git fetch --depth=1 origin f6f7fd51b089601fb1e25a5a6aa020510423d25e:opam
+git fetch --depth=1 origin 735310787e98e3a0a9d6d25dc80aa248892e0c4e:opam
 git checkout opam
 
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
@@ -101,7 +101,7 @@ eval $(opam env)
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite eliom gettext-camomile ocamlnet
+opam install --yes base64 hex dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite eliom gettext-camomile ocamlnet
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

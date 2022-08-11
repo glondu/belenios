@@ -12,14 +12,14 @@
  (name belenios-platform-native)
  (synopsis "Native implementation of the Belenios platform")
  (depends
-  (cryptokit (>= 1.14))))
+  (cryptokit (>= 1.17))))
 
 (package
  (name belenios-platform-js)
  (synopsis "JavaScript implementation of the Belenios platform")
  (depends
-  (js_of_ocaml (>= 3.7.0))
-  (js_of_ocaml-ppx (>= 3.7.0))))
+  (js_of_ocaml (>= 4.0.0))
+  (js_of_ocaml-ppx (>= 4.0.0))))
 
 (package
  (name belenios-platform)
@@ -29,15 +29,15 @@
  (name belenios-lib)
  (synopsis "Belenios library")
  (depends
-  (yojson (>= 1.7.0))
-  (atdgen (>= 2.2.1))
+  (yojson (>= 2.0.2))
+  (atdgen (>= 2.10.0))
   (belenios-platform (= :version))))
 
 (package
  (name belenios-tool)
  (synopsis "Belenios command-line tool")
  (depends
-  (cmdliner (>= 1.0.4))
+  (cmdliner (>= 1.1.0))
   (belenios-platform-native (= :version))
   (belenios-lib (= :version))))
 
@@ -47,10 +47,10 @@
  (depends
   (belenios-platform-native (= :version))
   (belenios-lib (= :version))
-  (lwt (>= 5.3.0))
+  (lwt (>= 5.6.1))
   (calendar (>= 2.04))
   (csv (>= 2.4))
-  (eliom (>= 8.4.8))
+  (eliom (>= 10.0.0))
   (ocamlnet (>= 4.1.9-1))))
 
 (package
