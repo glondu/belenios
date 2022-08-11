@@ -73,11 +73,17 @@ let pbkdf2_generic toBits ~iterations ~salt x =
 
 let pbkdf2_utf8 = pbkdf2_generic (fun x -> x)
 
+let aes_raw ~key ~data =
+  begin[@alert "-crypto"] (* OK for a single block *)
+    let open Cryptokit in
+    transform_string (Cipher.(aes ~mode:ECB key Encrypt)) data
+  end
+
 let aes_hex ~key ~data =
   let open Cryptokit in
   let key = transform_string (Hexa.decode ()) key in
   let data = transform_string (Hexa.decode ()) data in
-  let output = transform_string (Cipher.(aes ~mode:ECB key Encrypt)) data in
+  let output = aes_raw ~key ~data in
   transform_string (Hexa.encode ()) output
 
 let read_i32 str i =
@@ -179,7 +185,7 @@ let encrypt ~key ~iv ~plaintext =
   let open Cryptokit in
   let key = transform_string (Hexa.decode ()) key in
   let iv = transform_string (Hexa.decode ()) iv in
-  let prf x = transform_string (Cipher.(aes ~mode:ECB key Encrypt)) x in
+  let prf data = aes_raw ~key ~data in
   let ciphertext = ccm_encrypt prf plaintext iv "" 64 in
   transform_string (Hexa.encode ()) ciphertext
 
@@ -188,7 +194,7 @@ let decrypt ~key ~iv ~ciphertext =
   let key = transform_string (Hexa.decode ()) key in
   let iv = transform_string (Hexa.decode ()) iv in
   let ciphertext = transform_string (Hexa.decode ()) ciphertext in
-  let prf x = transform_string (Cipher.(aes ~mode:ECB key Encrypt)) x in
+  let prf data = aes_raw ~key ~data in
   let plaintext = ccm_decrypt prf ciphertext iv "" 64 in
   plaintext
 
