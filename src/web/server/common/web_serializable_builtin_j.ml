@@ -25,9 +25,9 @@ open Web_serializable_builtin_t
 (** {1 Serializers for type datetime} *)
 
 let write_datetime buf n =
-  Bi_outbuf.add_char buf '"';
-  Bi_outbuf.add_string buf (raw_string_of_datetime n);
-  Bi_outbuf.add_char buf '"'
+  Buffer.add_char buf '"';
+  Buffer.add_string buf (raw_string_of_datetime n);
+  Buffer.add_char buf '"'
 
 let datetime_of_json = function
   | `String s -> raw_datetime_of_string s

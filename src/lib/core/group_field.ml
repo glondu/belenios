@@ -113,9 +113,9 @@ let make description ff_params =
         | _ -> invalid_arg "Group_field.read: a string was expected"
 
       let write buf x =
-        Bi_outbuf.add_char buf '"';
-        Bi_outbuf.add_string buf (Z.to_string x);
-        Bi_outbuf.add_char buf '"'
+        Buffer.add_char buf '"';
+        Buffer.add_string buf (Z.to_string x);
+        Buffer.add_char buf '"'
 
       let hash prefix xs =
         let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in

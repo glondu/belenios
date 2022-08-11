@@ -25,7 +25,7 @@ open Platform
 (** Helpers for interacting with atd stuff *)
 
 type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
-type 'a writer = Bi_outbuf.t -> 'a -> unit
+type 'a writer = Buffer.t -> 'a -> unit
 
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig

@@ -26,9 +26,9 @@ open Serializable_builtin_t
 (** {1 Helpers for interacting with atd-generated stuff} *)
 
 let make_write to_string buf x =
-  Bi_outbuf.add_char buf '"';
-  Bi_outbuf.add_string buf (to_string x);
-  Bi_outbuf.add_char buf '"'
+  Buffer.add_char buf '"';
+  Buffer.add_string buf (to_string x);
+  Buffer.add_char buf '"'
 
 let make_read name of_string state buf =
   match Yojson.Safe.from_lexbuf ~stream:true state buf with

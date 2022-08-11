@@ -29,7 +29,7 @@ open Serializable_t
 (** Helpers for interacting with atd stuff *)
 
 type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
-type 'a writer = Bi_outbuf.t -> 'a -> unit
+type 'a writer = Buffer.t -> 'a -> unit
 
 module type GROUP = Signatures_core.GROUP
 module type MONAD = Signatures_core.MONAD

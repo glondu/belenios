@@ -25,8 +25,8 @@ type question =
   | Homomorphic of Question_h_t.question
   | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
-val read_question : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question
-val write_question : Bi_outbuf.t -> question -> unit
+val read_question : question reader
+val write_question : question writer
 
 type counting_method =
   [ `None

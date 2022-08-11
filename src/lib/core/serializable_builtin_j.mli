@@ -19,29 +19,30 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Signatures_core
 open Serializable_builtin_t
 
 (** {1 Serializers for type number} *)
 
-val write_number : Bi_outbuf.t -> number -> unit
-val read_number : Yojson.Safe.lexer_state -> Lexing.lexbuf -> number
+val write_number : number writer
+val read_number : number reader
 
 (** {1 Serializers for type uuid} *)
 
-val write_uuid : Bi_outbuf.t -> uuid -> unit
-val read_uuid : Yojson.Safe.lexer_state -> Lexing.lexbuf -> uuid
+val write_uuid : uuid writer
+val read_uuid : uuid reader
 
 (** {1 Serializers for type shape} *)
 
-val write_shape : (Bi_outbuf.t -> 'a -> unit) -> Bi_outbuf.t -> 'a shape -> unit
-val read_shape : (Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a) -> Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a shape
+val write_shape : 'a writer -> 'a shape writer
+val read_shape : 'a reader -> 'a shape reader
 
 (** {1 Serializers for type weight} *)
 
-val write_weight : Bi_outbuf.t -> weight -> unit
-val read_weight : Yojson.Safe.lexer_state -> Lexing.lexbuf -> weight
+val write_weight : weight writer
+val read_weight : weight reader
 
 (** {1 Serializers for type question_result} *)
 
-val write_question_result : Bi_outbuf.t -> question_result -> unit
-val read_question_result : Yojson.Safe.lexer_state -> Lexing.lexbuf -> question_result
+val write_question_result : question_result writer
+val read_question_result : question_result reader
