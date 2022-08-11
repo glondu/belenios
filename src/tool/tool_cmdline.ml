@@ -107,8 +107,8 @@ module Shasum : CMDLINER_MODULE = struct
 end
 
 let group_t =
-  let doc = "Take group parameters from file $(docv)." in
-  Arg.(value & opt (some file) None & info ["group"] ~docv:"GROUP" ~doc)
+  let doc = "Use group $(docv)." in
+  Arg.(value & opt (some string) None & info ["group"] ~docv:"GROUP" ~doc)
 
 let version_t =
   let doc = "Use protocol version $(docv)." in
@@ -140,7 +140,7 @@ module Tkeygen : CMDLINER_MODULE = struct
   let main group version =
     let@ () = wrap_main in
     let module P = struct
-        let group = get_mandatory_opt "--group" group |> string_of_file
+        let group = get_mandatory_opt "--group" group
         let version = version
       end in
     let module R = Make (P) (Random) () in
@@ -189,7 +189,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
       | None -> Printf.ksprintf failwith "%s does not exist" polynomials
       | Some l -> Array.of_list (List.rev l)
     in
-    let group = get_mandatory_opt "--group" group |> string_of_file in
+    let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module P = Trustees.MakePKI (G) (Random) in
@@ -536,7 +536,7 @@ module Credgen : CMDLINER_MODULE = struct
     let@ () = wrap_main in
     let module P = struct
         let version = version
-        let group = get_mandatory_opt "--group" group |> string_of_file
+        let group = get_mandatory_opt "--group" group
         let uuid = get_mandatory_opt "--uuid" uuid
       end in
     let module R = Make (P) (Random) () in
@@ -650,7 +650,7 @@ module Mkelection : CMDLINER_MODULE = struct
     let@ () = wrap_main in
     let module P = struct
         let version = version
-        let group = get_mandatory_opt "--group" group |> string_of_file
+        let group = get_mandatory_opt "--group" group
         let uuid = get_mandatory_opt "--uuid" uuid
         let template = get_mandatory_opt "--template" template |> string_of_file
         let get_trustees () =
