@@ -7,8 +7,13 @@
     "breadcrumb_confirm": "Conferma",
     "blank_vote": "Scheda bianca",
     "ask_for_credential": "Si prega di inserire il codice di voto:",
-    "next_button_label": "Seguente",
+    "next_button_label": "Successivo",
     "election_server": "Server delle elezioni",
-    "ask_to_wait_during_ballot_encryption": "Si prega di pazientare, la cifratura della sua scheda elettorale è in corso…",
-    "previous_button_label": "Precedente"
+    "ask_to_wait_during_ballot_encryption": "Si prega di attendere, la cifratura della sua scheda elettorale è in corso…",
+    "previous_button_label": "Precedente",
+    "breadcrumb_step_x": "Passo {{count}}",
+    "ask_to_select_x_answers": "Si prega di selezionare {{count}} risposta.",
+    "ask_to_select_x_answers_plural": "Si prega di selezionare {{count}} risposte.",
+    "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto è stato conteggiato.",
+    "majority_judgment_grade_select": "Si prega di selezionare un'opzione"
 }
