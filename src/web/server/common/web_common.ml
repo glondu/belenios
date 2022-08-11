@@ -486,7 +486,7 @@ let default_questions =
       q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
       q_blank = None;
       q_min = 1;
-      q_max = 2;
+      q_max = 1;
       q_question = "Question 1?";
     }
   in

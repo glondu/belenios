@@ -657,6 +657,11 @@ def administrator_edits_election_questions(browser, nh_question=False):
         nhtally_css_selector = ".nonhomomorphic_tally"
         nhtally_checkbox_element = browser.find_element_by_css_selector(nhtally_css_selector)
         nhtally_checkbox_element.click()
+    else:
+        # She sets max to 2
+        max_input = browser.find_element_by_css_selector(".question_max")
+        max_input.send_keys(Keys.BACKSPACE)
+        max_input.send_keys("2")
 
     # She removes answer 3
     candidate_to_remove = 3

@@ -40,7 +40,7 @@ let default_question_h =
     {
       q_question = "Question?";
       q_min = 1;
-      q_max = 2;
+      q_max = 1;
       q_blank = None;
       q_answers;
     }
