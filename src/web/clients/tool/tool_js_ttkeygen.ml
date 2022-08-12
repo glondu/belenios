@@ -117,6 +117,7 @@ let fill_interactivity () =
     | Some (uuid, token) -> cont (uuid, token)
     | None -> fail "(uuid error)"
   in
+  let@ () = redirect_if_admin "threshold-trustee" uuid token in
   set_form_target "data_form" "submit-threshold-trustee" uuid token;
   set_form_target "data_form_compute" "submit-threshold-trustee" uuid token;
   let href = Dom_html.window##.location##.href |> Js.to_string in

@@ -735,20 +735,20 @@ module Make
                  | Some x when x = t.st_token -> true
                  | _ -> false
                in
+               let uri =
+                 Printf.sprintf "%s/draft/trustee.html#%s-%s"
+                   !Web_config.prefix (raw_string_of_uuid uuid) t.st_token
+               in
                let* mail_cell, link_cell =
                  if t.st_token <> "" then (
                    if t.st_public_key = "" then (
-                     let uri =
-                       rewrite_prefix
-                         (Eliom_uri.make_string_uri ~absolute:true ~service:election_draft_trustee (uuid, t.st_token))
-                     in
                      let* subject, body = Mails_admin.mail_trustee_generation_basic langs uri in
                      let mail_cell = a_mailto ~dest:t.st_id ~subject ~body (s_ "E-mail") in
                      let link_cell =
                        if this_line then
                          a ~service:election_draft_trustees [txt (s_ "Hide link")] uuid
                        else
-                         a ~service:election_draft_trustee [txt (s_ "Link")] (uuid, t.st_token);
+                         Raw.a ~a:[a_href (uri_of_string (fun () -> uri))] [txt (s_ "Link")]
                      in
                      return (mail_cell, link_cell)
                    ) else (
@@ -789,9 +789,7 @@ module Make
                              txt t.st_id;
                              txt (s_ " is:");
                              br ();
-                             Eliom_uri.make_string_uri ~absolute:true
-                               ~service:election_draft_trustee (uuid, t.st_token)
-                             |> rewrite_prefix |> txt
+                             txt uri;
                            ]
                        ]
                    ]
@@ -912,11 +910,11 @@ module Make
                  | Some 7 -> "done"
                  | _ -> "unknown"
                in
+               let uri =
+                 Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
+                   !Web_config.prefix (raw_string_of_uuid uuid) t.stt_token
+               in
                let* mail_cell =
-                 let uri = rewrite_prefix
-                           @@ Eliom_uri.make_string_uri
-                                ~absolute:true ~service:election_draft_threshold_trustee (uuid, t.stt_token)
-                 in
                  let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
                  return (a_mailto ~dest:t.stt_id ~subject ~body (s_ "E-mail"))
                in
@@ -936,7 +934,7 @@ module Make
                            if this_line then
                              a ~service:election_draft_threshold_trustees [txt (s_ "Hide link")] uuid
                            else
-                             a ~service:election_draft_threshold_trustee [txt (s_ "Link")] (uuid, t.stt_token)
+                             Raw.a ~a:[a_href (uri_of_string (fun () -> uri))] [txt (s_ "Link")]
                          ];
                        td [
                            txt state;
@@ -955,10 +953,7 @@ module Make
                              txt t.stt_id;
                              txt (s_ " is:");
                              br ();
-                             Eliom_uri.make_string_uri ~absolute:true
-                               ~service:election_draft_threshold_trustee
-                               (uuid, t.stt_token)
-                             |> rewrite_prefix |> txt
+                             txt uri;
                            ]
                        ]
                    ]
@@ -1088,11 +1083,8 @@ module Make
         ]
     in
     let url =
-      rewrite_prefix
-      @@ Eliom_uri.make_string_uri
-           ~absolute:true
-           ~service:election_draft_credentials
-           (uuid, se.se_public_creds)
+      Printf.sprintf "%s/draft/credentials.html#%s-%s"
+        !Web_config.prefix (raw_string_of_uuid uuid) se.se_public_creds
     in
     let content = [
         back;
@@ -1106,10 +1098,12 @@ module Make
           ];
         ul [
             li [
-                a
-                  ~a:[a_id "credential_authority_link"]
-                  ~service:election_draft_credentials
-                  [txt url] (uuid, se.se_public_creds);
+                Raw.a
+                  ~a:[
+                    a_id "credential_authority_link";
+                    a_href (uri_of_string (fun () -> url))
+                  ]
+                  [txt url];
               ];
           ];
         div [
@@ -1494,13 +1488,13 @@ module Make
     in
     let div_textarea = div [voters; interactivity; form_textarea; disclaimer] in
     let content =
-      [
+      div ~a:[a_id "initially_hidden_content"; a_style "display: none;"] [
         div_link;
         div_textarea;
         form_file;
       ]
     in
-    base ~title ~content ~static:true ()
+    base ~title ~content:[content] ~static:true ()
 
   let election_draft_trustee_static () =
     let* l = get_preferred_gettext () in
@@ -1558,12 +1552,14 @@ module Make
           script_with_lang ~lang "tool_js_tkeygen.js";
         ]
     in
-    let content = [
+    let content =
+      div ~a:[a_id "initially_hidden_content"; a_style "display: none;"] [
         div_link;
         interactivity;
         form;
-      ] in
-    base ~title ~content ~static:true ()
+      ]
+    in
+    base ~title ~content:[content] ~static:true ()
 
   let election_draft_threshold_trustee_static () =
     let* l = get_preferred_gettext () in
@@ -1672,7 +1668,8 @@ module Make
             ];
         ]
     in
-    let content = [
+    let content =
+      div ~a:[a_id "initially_hidden_content"; a_style "display: none;"] [
         header;
         div_link;
         br ();
@@ -1683,7 +1680,7 @@ module Make
         div_instructions;
       ]
     in
-    base ~title ~content ~static:true ()
+    base ~title ~content:[content] ~static:true ()
 
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
     let open (val l : Belenios_ui.I18n.GETTEXT) in

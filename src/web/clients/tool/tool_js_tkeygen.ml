@@ -85,6 +85,7 @@ let fill_interactivity () =
   let hash = Dom_html.window##.location##.hash |> Js.to_string in
   match extract_uuid_and_token hash with
   | Some (uuid, token) ->
+     let@ () = redirect_if_admin "trustee" uuid token in
      let href = Dom_html.window##.location##.href |> Js.to_string in
      set_content "election_url" (build_election_url href uuid);
      set_form_target "data_form" "submit-trustee" uuid token;

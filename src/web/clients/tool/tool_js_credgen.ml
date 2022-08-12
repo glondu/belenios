@@ -79,6 +79,7 @@ let fill_interactivity () =
        alert "Unable to extract UUID and token from URL";
        Lwt.return_unit
   in
+  let@ () = redirect_if_admin "credentials" uuid token in
   set_form_target "submit_form" "submit-credentials" uuid token;
   set_form_target "submit_form_file" "submit-credentials-file" uuid token;
   let href = Dom_html.window##.location##.href |> Js.to_string in
