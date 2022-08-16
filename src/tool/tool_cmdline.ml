@@ -83,7 +83,7 @@ let wrap_main f =
   | exception e -> `Error (false, Printexc.to_string e)
 
 module type CMDLINER_MODULE = sig
-  val cmds : (unit Cmdliner.Term.t * Cmdliner.Cmd.info) list
+  val cmds : unit Cmd.t list
 end
 
 module Shasum : CMDLINER_MODULE = struct
@@ -100,8 +100,8 @@ module Shasum : CMDLINER_MODULE = struct
         `P "but does not need each individual command to be available.";
       ] @ common_man
     in
-    Term.(ret (const main $ const ())),
-    Cmd.info "sha256-b64" ~doc ~man
+    Cmd.v (Cmd.info "sha256-b64" ~doc ~man)
+      Term.(ret (const main $ const ()))
 
   let cmds = [sha256_b64_cmd]
 
@@ -167,8 +167,8 @@ module Tkeygen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a trustee to generate a share of an election key. Such a share consists of a private key and a public key with a certificate. Generated files are stored in the current directory with a name that starts with $(i,ID), where $(i,ID) is a short fingerprint of the public key. The private key is stored in $(i,ID.privkey) and must be secured by the trustee. The public key is stored in $(i,ID.pubkey) and must be sent to the election administrator.";
     ] @ common_man in
-    Term.(ret (const main $ group_t $ version_t)),
-    Cmd.info "trustee-keygen" ~doc ~man
+    Cmd.v (Cmd.info "trustee-keygen" ~doc ~man)
+      Term.(ret (const main $ group_t $ version_t))
 
   let cmds = [tkeygen_cmd]
 
@@ -295,8 +295,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
         `S "DESCRIPTION";
         `P "This command is run by trustees and the administrator to generate an election key with threshold decryption.";
       ] @ common_man in
-    Term.(ret (const main $ group_t $ version_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t)),
-    Cmd.info "threshold-trustee-keygen" ~doc ~man
+    Cmd.v (Cmd.info "threshold-trustee-keygen" ~doc ~man)
+      Term.(ret (const main $ group_t $ version_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t))
 
   let cmds = [ttkeygen_cmd]
 
@@ -414,8 +414,8 @@ module Election : CMDLINER_MODULE = struct
       let b = get_mandatory_opt "--ballot" b in
       main u d (`Vote (p, b))
     ) in
-    Term.(ret (main $ url_t $ optdir_t $ privcred_t $ ballot_t)),
-    Cmd.info "vote" ~doc ~man
+    Cmd.v (Cmd.info "vote" ~doc ~man)
+      Term.(ret (main $ url_t $ optdir_t $ privcred_t $ ballot_t))
 
   let verify_cmd =
     let doc = "verify election data" in
@@ -423,8 +423,8 @@ module Election : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command performs all possible verifications.";
     ] @ common_man in
-    Term.(ret (const main $ url_t $ optdir_t $ const `Verify)),
-    Cmd.info "verify" ~doc ~man
+    Cmd.v (Cmd.info "verify" ~doc ~man)
+      Term.(ret (const main $ url_t $ optdir_t $ const `Verify))
 
   let decrypt_man = [
       `S "DESCRIPTION";
@@ -437,8 +437,8 @@ module Election : CMDLINER_MODULE = struct
       let p = get_mandatory_opt "--privkey" p in
       main u d (`Decrypt p)
     ) in
-    Term.(ret (main $ url_t $ optdir_t $ privkey_t)),
-    Cmd.info "decrypt" ~doc ~man:decrypt_man
+    Cmd.v (Cmd.info "decrypt" ~doc ~man:decrypt_man)
+      Term.(ret (main $ url_t $ optdir_t $ privkey_t))
 
   let tdecrypt_cmd =
     let doc = "perform partial decryption (threshold version)" in
@@ -448,8 +448,8 @@ module Election : CMDLINER_MODULE = struct
                    main u d (`TDecrypt (k, pdk))
                  )
     in
-    Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t)),
-    Cmd.info "threshold-decrypt" ~doc ~man:decrypt_man
+    Cmd.v (Cmd.info "threshold-decrypt" ~doc ~man:decrypt_man)
+      Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t))
 
   let validate_cmd =
     let doc = "validates an election" in
@@ -458,8 +458,8 @@ module Election : CMDLINER_MODULE = struct
       `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
       `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
     ] @ common_man in
-    Term.(ret (const main $ url_t $ optdir_t $ const `Validate)),
-    Cmd.info "validate" ~doc ~man
+    Cmd.v (Cmd.info "validate" ~doc ~man)
+      Term.(ret (const main $ url_t $ optdir_t $ const `Validate))
 
   let shuffle_cmd =
     let doc = "shuffle ciphertexts" in
@@ -468,8 +468,8 @@ module Election : CMDLINER_MODULE = struct
         `P "This command shuffles non-homomorphic ciphertexts and prints on standard output the shuffle proof and the shuffled ciphertexts.";
       ] @ common_man
     in
-    Term.(ret (const main $ url_t $ optdir_t $ const `Shuffle)),
-    Cmd.info "shuffle" ~doc ~man
+    Cmd.v (Cmd.info "shuffle" ~doc ~man)
+      Term.(ret (const main $ url_t $ optdir_t $ const `Shuffle))
 
   let checksums_cmd =
     let doc = "compute checksums" in
@@ -478,8 +478,8 @@ module Election : CMDLINER_MODULE = struct
         `P "This command computes checksums needed to audit an election.";
       ] @ common_man
     in
-    Term.(ret (const main $ url_t $ optdir_t $ const `Checksums)),
-    Cmd.info "checksums" ~doc ~man
+    Cmd.v (Cmd.info "checksums" ~doc ~man)
+      Term.(ret (const main $ url_t $ optdir_t $ const `Checksums))
 
   let compute_voters_cmd =
     let doc = "compute actual voters" in
@@ -498,8 +498,8 @@ module Election : CMDLINER_MODULE = struct
           main u d (`ComputeVoters privcreds)
         )
     in
-    Term.(ret (main $ url_t $ optdir_t $ privcreds_t)),
-    Cmd.info "compute-voters" ~doc ~man
+    Cmd.v (Cmd.info "compute-voters" ~doc ~man)
+      Term.(ret (main $ url_t $ optdir_t $ privcreds_t))
 
   let cmds =
     [
@@ -587,8 +587,8 @@ module Credgen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a credential authority to generate credentials for a specific election. The generated private credentials are stored in $(i,T.privcreds), where $(i,T) is a timestamp. $(i,T.privcreds) contains one credential per line. Each voter must be sent a credential, and $(i,T.privcreds) must be destroyed after dispatching is done. The associated public keys are stored in $(i,T.pubcreds) and must be sent to the election administrator.";
     ] @ common_man in
-    Term.(ret (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t)),
-    Cmd.info "credgen" ~doc ~man
+    Cmd.v (Cmd.info "credgen" ~doc ~man)
+      Term.(ret (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t))
 
   let cmds = [credgen_cmd]
 
@@ -637,8 +637,8 @@ module Mktrustees : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads $(i,public_keys.jsons) and $(i,threshold.json) (if any). It then generates an $(i,trustees.json) file.";
     ] @ common_man in
-    Term.(ret (const main $ dir_t)),
-    Cmd.info "mktrustees" ~doc ~man
+    Cmd.v (Cmd.info "mktrustees" ~doc ~man)
+      Term.(ret (const main $ dir_t))
 
   let cmds = [mktrustees_cmd]
 
@@ -678,8 +678,8 @@ module Mkelection : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads and checks $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then computes the global election public key and generates an $(i,election.json) file.";
     ] @ common_man in
-    Term.(ret (const main $ dir_t $ group_t $ version_t $ uuid_t $ template_t)),
-    Cmd.info "mkelection" ~doc ~man
+    Cmd.v (Cmd.info "mkelection" ~doc ~man)
+      Term.(ret (const main $ dir_t $ group_t $ version_t $ uuid_t $ template_t))
 
   let cmds = [mkelection_cmd]
 
@@ -708,8 +708,8 @@ module Verifydiff : CMDLINER_MODULE = struct
         `S "DESCRIPTION";
         `P "This command is run by an auditor on two directories $(i,DIR1) and $(i,DIR2). It checks that $(i,DIR2) is a valid update of $(i,DIR1).";
       ] @ common_man in
-    Term.(ret (const main $ dir1_t $ dir2_t)),
-    Cmd.info "verify-diff" ~doc ~man
+    Cmd.v (Cmd.info "verify-diff" ~doc ~man)
+      Term.(ret (const main $ dir1_t $ dir2_t))
 
   let cmds = [verifydiff_cmd]
 
@@ -800,8 +800,8 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as Condorcet rankings on $(i,N) choices. It then computes the result according to the Schulze method and prints it on standard output.";
       ] @ common_man
     in
-    Term.(ret (const schulze $ nchoices_t $ blank_allowed_t)),
-    Cmd.info "method-schulze" ~doc ~man
+    Cmd.v (Cmd.info "method-schulze" ~doc ~man)
+      Term.(ret (const schulze $ nchoices_t $ blank_allowed_t))
 
   let mj_cmd =
     let doc = "compute Majority Judgment result" in
@@ -810,8 +810,8 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as grades (ranging from 1 (best) to $(i,G) (worst)) given to $(i,N) choices. It then computes the result according to the Majority Judgment method and prints it on standard output.";
       ] @ common_man
     in
-    Term.(ret (const mj $ nchoices_t $ ngrades_t $ blank_allowed_t)),
-    Cmd.info "method-majority-judgment" ~doc ~man
+    Cmd.v (Cmd.info "method-majority-judgment" ~doc ~man)
+      Term.(ret (const mj $ nchoices_t $ ngrades_t $ blank_allowed_t))
 
   let stv_cmd =
     let doc = "compute Single Transferable Vote result" in
@@ -820,8 +820,8 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as rankings of choices (ranging from 1 (best) to $(i,X) (worst)). It then computes the result according to the Single Transferable Vote method and prints it on standard output.";
       ] @ common_man
     in
-    Term.(ret (const stv $ nseats_t)),
-    Cmd.info "method-stv" ~doc ~man
+    Cmd.v (Cmd.info "method-stv" ~doc ~man)
+      Term.(ret (const stv $ nseats_t))
 
   let cmds = [schulze_cmd; mj_cmd; stv_cmd]
 
@@ -846,8 +846,8 @@ module GenerateToken : CMDLINER_MODULE = struct
         `P "This command generates a random token suitable for an election identifier.";
       ] @ common_man
     in
-    Term.(ret (const main $ length_t)),
-    Cmd.info "generate-token" ~doc ~man
+    Cmd.v (Cmd.info "generate-token" ~doc ~man)
+      Term.(ret (const main $ length_t))
 
   let cmds = [generate_token_cmd]
 
@@ -879,7 +879,7 @@ let default_cmd =
 
 let root_cmd =
   let default, i = default_cmd in
-  Cmd.(group ~default i (List.map (fun (t, i) -> v i t) cmds))
+  Cmd.(group ~default i cmds)
 
 let () =
   exit (Cmd.eval root_cmd)
