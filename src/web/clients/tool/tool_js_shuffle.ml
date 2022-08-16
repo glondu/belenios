@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
-open Belenios_platform
+open Belenios_core.Serializable_builtin_t
 open Belenios_core
 open Belenios
 open Belenios_tool_js_common
@@ -122,7 +122,7 @@ let () =
          let* shuffle = full_shuffle () in
          set_textarea "shuffle" shuffle;
          set_element_display "wait_div" "none";
-         set_content "hash" (Platform.sha256_b64 shuffle);
+         set_content "hash" (sha256_b64 shuffle);
          set_element_display "hash_div" "block";
          Lwt.return_unit
     )

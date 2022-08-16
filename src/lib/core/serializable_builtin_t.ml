@@ -75,6 +75,8 @@ module Hash = struct
   let hash_string = sha256_hex
 end
 
+let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
+
 type hash = Hash.t
 
 type 'a shape = 'a Shape.t =

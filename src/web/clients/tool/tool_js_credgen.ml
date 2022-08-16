@@ -22,8 +22,8 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
-open Belenios_platform
 open Belenios_core.Common
+open Belenios_core.Serializable_builtin_t
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Tool_js_common
@@ -59,7 +59,7 @@ let generate uuid draft =
   in
   let text_pks = (pubs |> String.concat "\n") ^ "\n" in
   set_textarea "pks" text_pks;
-  let hash = Platform.sha256_b64 text_pks in
+  let hash = sha256_b64 text_pks in
   set_content "public_creds_fp" hash;
   let text_creds = (privs |> String.concat "\n") ^ "\n" in
   set_download "creds" "text/plain" "creds.txt" text_creds;
@@ -108,7 +108,7 @@ let fill_interactivity () =
     Buffer.contents b
   in
   set_textarea "voters" raw;
-  set_content "voters_hash" (Platform.sha256_b64 raw);
+  set_content "voters_hash" (sha256_b64 raw);
   let& e = document##getElementById (Js.string "interactivity") in
   let x = Dom_html.createDiv document in
   Dom.appendChild e x;

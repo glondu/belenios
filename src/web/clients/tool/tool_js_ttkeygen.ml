@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_platform
+open Belenios_core.Serializable_builtin_t
 open Belenios_core
 open Common
 open Belenios
@@ -59,7 +59,7 @@ let gen_cert draft e _ =
       clear_content e;
       set_download "private_key" "text/plain" "private_key.txt" key;
       set_element_display "key_helper" "block";
-      let fp = Platform.sha256_b64 cert.s_message in
+      let fp = sha256_b64 cert.s_message in
       let cert = string_of_cert cert in
       set_content "pki_fp" fp;
       set_textarea "data" cert;
@@ -160,7 +160,7 @@ let fill_interactivity () =
        | None -> alert "Unexpected state! (missing voutput)"
      in
      let pk = Yojson.Safe.to_string voutput.vo_public_key.trustee_public_key in
-     let fp = Platform.sha256_b64 pk in
+     let fp = sha256_b64 pk in
      let msg = Printf.sprintf (f_ "Your job in the key establishment protocol is done! The fingerprint of your verification key is %s. Check that it is published by the server when the election is open. Your private key will be needed to decrypt the election result.") fp in
      let t = document##createTextNode (Js.string msg) in
      Dom.appendChild e t;

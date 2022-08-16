@@ -98,7 +98,6 @@ module Sjcl = struct
 
   let hex = sjcl##.codec##.hex
   let utf8String = sjcl##.codec##.utf8String
-  let base64 = sjcl##.codec##.base64
   let sha256 = sjcl##.hash##.sha256
   let aes = sjcl##.cipher##.aes
   let ccm = sjcl##.mode##.ccm
@@ -121,12 +120,6 @@ let sha256 x =
 
 let sha256_hex x =
   hex_fromBits (sha256 x)
-
-let sha256_b64 x =
-  let raw = Sjcl.base64##fromBits (sha256 x) |> Js.to_string in
-  match String.index_opt raw '=' with
-  | Some i -> String.sub raw 0 i
-  | None -> raw
 
 let pbkdf2_generic toBits ~iterations ~salt x =
   let salt = toBits salt in

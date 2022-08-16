@@ -23,6 +23,7 @@ open Belenios
 open Belenios_core.Signatures
 open Belenios_platform
 open Belenios_tool_common
+open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Platform
 open Belenios_core.Common

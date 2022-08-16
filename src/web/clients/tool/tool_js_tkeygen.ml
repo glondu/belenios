@@ -22,9 +22,9 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
-open Belenios_platform
 open Belenios_core
 open Common
+open Belenios_core.Serializable_builtin_t
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Serializable_j
@@ -43,7 +43,7 @@ let tkeygen draft =
   let* {id=_; priv; pub} = trustee_keygen () in
   let hash =
     let pub = trustee_public_key_of_string Yojson.Safe.read_json pub in
-    Platform.sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)
+    sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)
   in
   set_textarea "pk" pub;
   set_content "public_key_fp" hash;

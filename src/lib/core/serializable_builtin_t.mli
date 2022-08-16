@@ -43,6 +43,8 @@ module Hash : sig
   val hash_string : string -> t
 end
 
+val sha256_b64 : string -> string
+
 type hash = Hash.t
 
 type 'a shape = 'a Shape.t =

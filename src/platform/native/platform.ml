@@ -26,11 +26,6 @@ let sha256_hex x = Cryptokit.(x |>
   transform_string (Hexa.encode ())
 )
 
-let sha256_b64 x = Cryptokit.(x |>
-  hash_string (Hash.sha256 ()) |>
-  transform_string (Base64.encode_compact ())
-)
-
 let int_msb i =
   let result = Bytes.create 4 in
   Bytes.set result 0 (char_of_int (i lsr 24));

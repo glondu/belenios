@@ -21,10 +21,8 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_platform
 open Belenios_core
 open Belenios
-open Platform
 open Serializable_builtin_t
 open Serializable_j
 open Common

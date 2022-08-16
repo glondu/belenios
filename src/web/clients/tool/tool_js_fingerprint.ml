@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_platform
+open Belenios_core.Serializable_builtin_t
 open Belenios_tool_js_common
 open Tool_js_common
 open Tool_js_i18n.Gettext
@@ -30,7 +30,7 @@ let computed_fingerprint = ref ""
 
 let compute_handler input output _ =
   let input = Js.to_string input##.value in
-  computed_fingerprint := Platform.sha256_b64 input;
+  computed_fingerprint := sha256_b64 input;
   clear_content output;
   Dom.appendChild output (document##createTextNode (Js.string (s_ "Computed fingerprint:")));
   Dom.appendChild output (document##createTextNode (Js.string " "));
