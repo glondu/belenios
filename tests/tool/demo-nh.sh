@@ -161,7 +161,7 @@ cat > schulze.reference <<EOF
 EOF
 
 if command -v jq > /dev/null; then
-    if diff -u schulze.reference <(jq --compact-output '.result[2]' < result.json | belenios-tool method-schulze --blank-allowed true); then
+    if diff -u schulze.reference <(jq --compact-output '.result[2]' < result.json | belenios-tool method schulze --blank-allowed true); then
         echo "Schulze output is identical!"
     else
         echo "Differences in Schulze output!"

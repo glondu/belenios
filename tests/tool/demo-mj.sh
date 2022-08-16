@@ -203,7 +203,7 @@ cat > mj.reference <<EOF
 EOF
 
 if command -v jq > /dev/null; then
-    if diff -u mj.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method-majority-judgment --ngrades 5 --blank-allowed true); then
+    if diff -u mj.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method majority-judgment --ngrades 5 --blank-allowed true); then
         echo "Majority Judgment output is identical!"
     else
         echo "Differences in Majority Judgment output!"

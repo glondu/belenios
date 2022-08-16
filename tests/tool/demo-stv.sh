@@ -151,7 +151,7 @@ cat > result.reference <<EOF
 EOF
 
 if command -v jq > /dev/null; then
-    if diff -u result.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method-stv --nseats 2); then
+    if diff -u result.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method stv --nseats 2); then
         echo "STV output is identical!"
     else
         echo "Differences in STV output!"

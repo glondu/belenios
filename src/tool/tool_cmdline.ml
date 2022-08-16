@@ -800,7 +800,7 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as Condorcet rankings on $(i,N) choices. It then computes the result according to the Schulze method and prints it on standard output.";
       ] @ common_man
     in
-    Cmd.v (Cmd.info "method-schulze" ~doc ~man)
+    Cmd.v (Cmd.info "schulze" ~doc ~man)
       Term.(ret (const schulze $ nchoices_t $ blank_allowed_t))
 
   let mj_cmd =
@@ -810,7 +810,7 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as grades (ranging from 1 (best) to $(i,G) (worst)) given to $(i,N) choices. It then computes the result according to the Majority Judgment method and prints it on standard output.";
       ] @ common_man
     in
-    Cmd.v (Cmd.info "method-majority-judgment" ~doc ~man)
+    Cmd.v (Cmd.info "majority-judgment" ~doc ~man)
       Term.(ret (const mj $ nchoices_t $ ngrades_t $ blank_allowed_t))
 
   let stv_cmd =
@@ -820,10 +820,16 @@ module Methods : CMDLINER_MODULE = struct
         `P "This command reads on standard input JSON-formatted ballots and interprets them as rankings of choices (ranging from 1 (best) to $(i,X) (worst)). It then computes the result according to the Single Transferable Vote method and prints it on standard output.";
       ] @ common_man
     in
-    Cmd.v (Cmd.info "method-stv" ~doc ~man)
+    Cmd.v (Cmd.info "stv" ~doc ~man)
       Term.(ret (const stv $ nseats_t))
 
-  let cmds = [schulze_cmd; mj_cmd; stv_cmd]
+  let method_cmd =
+    let doc = "compute result with specific counting methods" in
+    let man = common_man in
+    let info = Cmd.info "method" ~doc ~man in
+    Cmd.group info [schulze_cmd; mj_cmd; stv_cmd]
+
+  let cmds = [method_cmd]
 
 end
 
