@@ -18,7 +18,7 @@ header () {
 
 header "Setup election"
 
-UUID=`belenios-tool generate-token`
+UUID=`belenios-tool setup generate-token`
 echo "UUID of the election is $UUID"
 
 DIR=$BELENIOS/tests/tool/data/$UUID
@@ -30,13 +30,13 @@ uuid="--uuid $UUID"
 group="--group BELENIOS-2048"
 
 # Generate credentials
-belenios-tool credgen $uuid $group --count 5
+belenios-tool setup credgen $uuid $group --count 5
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
 ttkeygen () {
-    belenios-tool threshold-trustee-keygen $group "$@"
+    belenios-tool setup threshold-trustee-keygen $group "$@"
 }
 ttkeygen --step 1
 ttkeygen --step 1
@@ -54,15 +54,15 @@ done
 cat *.voutput | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
 
 # Generate mandatory (server) key
-belenios-tool trustee-keygen $group
+belenios-tool setup trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
-belenios-tool mktrustees
+belenios-tool setup mktrustees
 rm threshold.json
 
 # Generate election parameters
-belenios-tool mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
+belenios-tool setup mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
 
 header "Simulate votes"
 

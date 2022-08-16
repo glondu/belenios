@@ -18,7 +18,7 @@ header () {
 
 header "Setup election"
 
-UUID=`belenios-tool generate-token`
+UUID=`belenios-tool setup generate-token`
 echo "UUID of the election is $UUID"
 
 DIR=$BELENIOS/tests/tool/data/$UUID
@@ -30,22 +30,22 @@ uuid="--uuid $UUID"
 group="--group RFC-3526-2048"
 
 # Generate credentials
-belenios-tool credgen $uuid $group --count 60
+belenios-tool setup credgen $uuid $group --count 60
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
-belenios-tool trustee-keygen $group
-belenios-tool trustee-keygen $group
-belenios-tool trustee-keygen $group
+belenios-tool setup trustee-keygen $group
+belenios-tool setup trustee-keygen $group
+belenios-tool setup trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
-belenios-tool mktrustees
+belenios-tool setup mktrustees
 rm public_keys.jsons
 
 # Generate election parameters
-belenios-tool mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions-nh.json
+belenios-tool setup mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions-nh.json
 
 header "Simulate votes"
 

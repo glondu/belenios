@@ -859,19 +859,35 @@ module GenerateToken : CMDLINER_MODULE = struct
 
 end
 
+module Setup : CMDLINER_MODULE = struct
+  let cmd =
+    let doc = "election setup commands" in
+    let man = common_man in
+    let info = Cmd.info "setup" ~doc ~man in
+    let cmds =
+      List.flatten
+        [
+          Tkeygen.cmds;
+          Ttkeygen.cmds;
+          Credgen.cmds;
+          Mktrustees.cmds;
+          Mkelection.cmds;
+          GenerateToken.cmds;
+        ]
+    in
+    Cmd.group info cmds
+
+  let cmds = [cmd]
+end
+
 let cmds =
   List.flatten
     [
       Shasum.cmds;
-      Tkeygen.cmds;
-      Ttkeygen.cmds;
+      Setup.cmds;
       Election.cmds;
-      Credgen.cmds;
-      Mktrustees.cmds;
-      Mkelection.cmds;
       Verifydiff.cmds;
       Methods.cmds;
-      GenerateToken.cmds;
     ]
 
 let default_cmd =
