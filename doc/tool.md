@@ -38,7 +38,7 @@ If you put these files in a directory `/path/to/election`, the following
 command will perform all possible verifications, depending on existing
 files:
 
-    belenios-tool verify --dir /path/to/election
+    belenios-tool election verify --dir /path/to/election
 
 For example, during the election, you can check if some candidate
 ballot is acceptable by putting it alone in `ballots.jsons`, and
@@ -53,7 +53,7 @@ your choices in a file `/path/to/choices.json` (as an array of arrays
 of 0/1 in JSON format), the following command will output a raw ballot
 that can be sent to the administrator of the election:
 
-    belenios-tool vote --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
+    belenios-tool election vote --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
 
 In the case where the election is administered with the web interface,
 a raw ballot prepared with the command-line tool can be uploaded directly
@@ -65,7 +65,7 @@ Administrator's guide
 
 ### Setup a new election
 
- 1. Generate an UUID with the `belenios-tool generate-token`
+ 1. Generate an UUID with the `belenios-tool setup generate-token`
     command. Let it be `$UUID`.
  2. Go to an empty directory. In the following, we denote by `$DIR`
     the full path to this directory and by `$BELENIOS` the full path
@@ -76,8 +76,8 @@ Administrator's guide
  5. Ask each trustee to generate a keypair. Concatenate all trustee
     public keys into a `$DIR/public_keys.jsons` file.
  6. Edit `$BELENIOS/tests/tool/templates/questions.json`.
- 7. Go to `$DIR` and run: `belenios-tool mktrustees`.
- 8. Go to `$DIR` and run: `belenios-tool mkelection --uuid $UUID
+ 7. Go to `$DIR` and run: `belenios-tool setup mktrustees`.
+ 8. Go to `$DIR` and run: `belenios-tool setup mkelection --uuid $UUID
     --group $BELENIOS/files/groups/default.json --template
     $BELENIOS/tests/tool/templates/questions.json`. It should generate
     `election.json`.
@@ -89,7 +89,7 @@ The contents of `$DIR` must be public.
 
 For each received ballot, append it to `ballots.jsons` and run:
 
-    belenios-tool verify --dir $DIR
+    belenios-tool election verify --dir $DIR
 
 If no error is reported, publish the new `ballots.jsons`; otherwise,
 the new ballot is incorrect and you must revert `ballots.jsons` to its
@@ -106,7 +106,7 @@ several authentication mechanisms.
     `trustees.json`, `public_creds.txt` and `ballots.jsons`.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`.
- 3. Run `belenios-tool validate`.  It will create
+ 3. Run `belenios-tool election validate`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.
@@ -123,7 +123,7 @@ Credential authority's guide
 If you have a list of identities in a file `F` with `N` lines, one
 identity per line, run:
 
-    belenios-tool credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --file F
+    belenios-tool setup credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --file F
 
 where `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` is the UUID of the
 election given by the administrator. It will generate three files with
@@ -152,7 +152,7 @@ Trustee's guide
 
 To generate a keypair, run:
 
-    belenios-tool trustee-keygen
+    belenios-tool setup trustee-keygen
 
 It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the
@@ -165,7 +165,7 @@ your public key is present in the published `trustees.json`.
 To compute your decryption share, set `/path/to/election` up as
 described in the _Voter's guide_ section above, and run:
 
-    belenios-tool decrypt --dir /path/to/election --privkey /path/to/privkey > partial_decryption.json
+    belenios-tool election decrypt --dir /path/to/election --privkey /path/to/privkey > partial_decryption.json
 
 and send `partial_decryption.json` to the election administrator.
 

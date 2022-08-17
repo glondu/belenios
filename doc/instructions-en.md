@@ -161,7 +161,7 @@ Then the authority has two options to generate the credentials:
     one alternative question);
   - run the command:
 
-        belenios-tool credgen --file voters.txt --group <(echo $GROUP) --uuid $UUID
+        belenios-tool setup credgen --file voters.txt --group <(echo $GROUP) --uuid $UUID
 
     It will generate two files, `$TIMESTAMP.privcreds` and
     `$TIMESTAMP.pubcreds`;
@@ -220,7 +220,7 @@ expected that the credential authority :
   to the ballots in the ballot box. This verification can be done with
   the command:
 
-        belenios-tool compute-voters --privcreds /path/to/creds.txt --url https://url/to/election
+        belenios-tool election compute-voters --privcreds /path/to/creds.txt --url https://url/to/election
 
   (where `https://url/to/election` is of the form
   `PREFIX/elections/UUID`, as explained at the top of this document).
