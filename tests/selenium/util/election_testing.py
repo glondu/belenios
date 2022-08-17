@@ -324,7 +324,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_qu
     """
     Use local CLI belenios-tool to generate a number of credentials corresponding to the number of voters. Example:
     ```
-    ./_run/tool-debug/bin/belenios-tool credgen --uuid dmGuNVL1meanZt --group ./files/groups/default.json --count 5
+    ./_run/tool-debug/bin/belenios-tool setup credgen --uuid dmGuNVL1meanZt --group ./files/groups/default.json --count 5
     5 private credentials with ids saved to ./1579802689.privcreds
     5 public credentials saved to ./1579802689.pubcreds
     5 hashed public credentials with ids saved to ./1579802689.hashcreds
@@ -340,7 +340,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_qu
     else:
         group_base_path = "files/groups/default.json"
     crypto_group_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, group_base_path)
-    command = [belenios_tool_path, "credgen", "--uuid", election_id, "--group", crypto_group_path, "--count", str(number_of_voters)]
+    command = [belenios_tool_path, "setup", "credgen", "--uuid", election_id, "--group", crypto_group_path, "--count", str(number_of_voters)]
     running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     process_timeout = 15 * number_of_voters # seconds
     credential_file_id = None
