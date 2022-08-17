@@ -155,7 +155,7 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    belenios-tool vote --privcred <(echo "$cred") --ballot <(echo "$vote")
+    belenios-tool election vote --privcred <(echo "$cred") --ballot <(echo "$vote")
     echo "Voter $id voted" >&2
     echo >&2
 done > ballots.tmp
@@ -163,38 +163,38 @@ mv ballots.tmp ballots.jsons
 
 header "Perform verification"
 
-belenios-tool verify
+belenios-tool election verify
 
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
 cp election.json public_creds.txt trustees.json "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
-belenios-tool verify-diff --dir1="$tdir" --dir2=.
+belenios-tool election verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
 header "Shuffle ciphertexts"
 
-belenios-tool shuffle > shuffles.jsons
+belenios-tool election shuffle > shuffles.jsons
 echo >&2
-belenios-tool shuffle >> shuffles.jsons
+belenios-tool election shuffle >> shuffles.jsons
 
 header "Perform decryption"
 
 for u in *.privkey; do
-    belenios-tool decrypt --privkey $u
+    belenios-tool election decrypt --privkey $u
     echo >&2
 done > partial_decryptions.tmp
 mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool validate
+belenios-tool election validate
 rm -f shuffles.jsons
 
 header "Perform final verification"
 
-belenios-tool verify
+belenios-tool election verify
 
 header "Apply Majority Judgment method"
 

@@ -65,7 +65,7 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    BALLOT="$(belenios-tool vote --privcred <(echo "$cred") --ballot <(echo "$vote"))"
+    BALLOT="$(belenios-tool election vote --privcred <(echo "$cred") --ballot <(echo "$vote"))"
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT"
     echo "Voter $id voted with $HASH" >&2
@@ -75,31 +75,31 @@ mv ballots.tmp ballots.jsons
 
 header "Perform verification"
 
-belenios-tool verify
+belenios-tool election verify
 
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
 cp election.json public_creds.txt trustees.json "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
-belenios-tool verify-diff --dir1="$tdir" --dir2=.
+belenios-tool election verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
 header "Perform decryption"
 
 for u in *.privkey; do
-    belenios-tool decrypt --privkey $u
+    belenios-tool election decrypt --privkey $u
     echo >&2
 done > partial_decryptions.tmp
 mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool validate
+belenios-tool election validate
 
 header "Perform final verification"
 
-belenios-tool verify
+belenios-tool election verify
 
 header "Check result"
 

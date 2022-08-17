@@ -302,7 +302,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
 
 end
 
-module Election : CMDLINER_MODULE = struct
+module ElectionManagement : CMDLINER_MODULE = struct
   open Tool_election
 
   let main url dir action =
@@ -880,13 +880,29 @@ module Setup : CMDLINER_MODULE = struct
   let cmds = [cmd]
 end
 
+module Election : CMDLINER_MODULE = struct
+  let cmd =
+    let doc = "election management commands" in
+    let man = common_man in
+    let info = Cmd.info "election" ~doc ~man in
+    let cmds =
+      List.flatten
+        [
+          ElectionManagement.cmds;
+          Verifydiff.cmds;
+        ]
+    in
+    Cmd.group info cmds
+
+  let cmds = [cmd]
+end
+
 let cmds =
   List.flatten
     [
       Shasum.cmds;
       Setup.cmds;
       Election.cmds;
-      Verifydiff.cmds;
       Methods.cmds;
     ]
 

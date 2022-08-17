@@ -301,9 +301,9 @@ def verify_election_consistency(election_id, snapshot_folder=None):
 
     election_folder = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, settings.DATABASE_FOLDER_PATH_RELATIVE_TO_GIT_REPOSITORY, election_id)
     verification_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
-    command = [verification_tool_path, "verify"]
+    command = [verification_tool_path, "election", "verify"]
     if snapshot_folder:
-        command = [verification_tool_path, "verify-diff", "--dir1=" + snapshot_folder, "--dir2=" + election_folder]
+        command = [verification_tool_path, "election", "verify-diff", "--dir1=" + snapshot_folder, "--dir2=" + election_folder]
     running_process = subprocess.Popen(command, cwd=election_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     process_timeout = 15 # seconds
     try:
@@ -391,7 +391,7 @@ def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_
 
         # Execute belenios-tool to generate a vote ballot for voter
         voter_crypted_ballot_file = "voter_row_" + str(i) + "_crypted_ballot.json"
-        command = [belenios_tool_path, "vote", "--url", vote_page_url, "--privcred", voter_credential_file, "--ballot", voter_uncrypted_ballot_file, ">", voter_crypted_ballot_file]
+        command = [belenios_tool_path, "election", "vote", "--url", vote_page_url, "--privcred", voter_credential_file, "--ballot", voter_uncrypted_ballot_file, ">", voter_crypted_ballot_file]
         running_process = subprocess.Popen(" ".join(command), cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
         process_timeout = 120 # seconds
         try:

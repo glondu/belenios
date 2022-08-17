@@ -144,25 +144,25 @@ def write_and_verify_new_data(wdir, uuid, data):
                 newf.write(data[f])
 
     # run belenios-tool verify on it
-    ver = subprocess.run(["belenios-tool", "verify", "--dir={}".format(pnew)],
+    ver = subprocess.run(["belenios-tool", "election", "verify", "--dir={}".format(pnew)],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if ver.returncode != 0:
-        msg="Error: belenios-tool verify failed on newly downloaded data from election {}, with output {}\n".format(uuid, ver.stdout).encode()
+        msg="Error: belenios-tool election verify failed on newly downloaded data from election {}, with output {}\n".format(uuid, ver.stdout).encode()
         return Status(True, msg)
     else:
         logme("Successfully verified new data of {}".format(uuid))
 
-    # if not the first time, run belenios-tool verify-diff
+    # if not the first time, run belenios-tool election verify-diff
     msg = b""
     new_ballots = b""
     if os.path.exists(os.path.join(p, "fresh")):
         os.remove(os.path.join(p, "fresh"))
     else:
-        verdiff = subprocess.run(["belenios-tool", "verify-diff",
+        verdiff = subprocess.run(["belenios-tool", "election", "verify-diff",
             "--dir1={}".format(p), "--dir2={}".format(pnew)],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if verdiff.returncode != 0:
-            msg="Error: belenios-tool verify-diff failed on newly downloaded data from election {}, with output {}".format(uuid, verdiff.stdout).encode()
+            msg="Error: belenios-tool election verify-diff failed on newly downloaded data from election {}, with output {}".format(uuid, verdiff.stdout).encode()
             return Status(True, msg)
         if re.search(b"W:", verdiff.stdout) != None:
             msg = verdiff.stdout
