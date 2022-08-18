@@ -123,9 +123,9 @@ Credential authority's guide
 If you have a list of identities in a file `F` with `N` lines, one
 identity per line, run:
 
-    belenios-tool setup credgen --uuid XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX --file F
+    belenios-tool setup credgen --uuid XXXXXXXXXXXXXX --file F
 
-where `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX` is the UUID of the
+where `XXXXXXXXXXXXXX` is the UUID of the
 election given by the administrator. It will generate three files with
 `N` lines:
 
