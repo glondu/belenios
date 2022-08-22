@@ -36,7 +36,7 @@ mv *.privcreds private_creds.txt
 
 # Generate trustee keys
 ttkeygen () {
-    belenios-tool setup threshold-trustee-keygen $group "$@"
+    belenios-tool setup generate-trustee-key-threshold $group "$@"
 }
 ttkeygen --step 1
 ttkeygen --step 1

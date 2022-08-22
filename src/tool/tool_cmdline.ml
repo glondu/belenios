@@ -295,7 +295,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         `S "DESCRIPTION";
         `P "This command is run by trustees and the administrator to generate an election key with threshold decryption.";
       ] @ common_man in
-    Cmd.v (Cmd.info "threshold-trustee-keygen" ~doc ~man)
+    Cmd.v (Cmd.info "generate-trustee-key-threshold" ~doc ~man)
       Term.(ret (const main $ group_t $ version_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t))
 
   let cmds = [ttkeygen_cmd]
