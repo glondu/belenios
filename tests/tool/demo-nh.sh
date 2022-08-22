@@ -30,7 +30,7 @@ uuid="--uuid $UUID"
 group="--group RFC-3526-2048"
 
 # Generate credentials
-belenios-tool setup credgen $uuid $group --count 60
+belenios-tool setup generate-credentials $uuid $group --count 60
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 

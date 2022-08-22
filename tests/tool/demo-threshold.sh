@@ -30,7 +30,7 @@ uuid="--uuid $UUID"
 group="--group BELENIOS-2048"
 
 # Generate credentials
-belenios-tool setup credgen $uuid $group --count 5
+belenios-tool setup generate-credentials $uuid $group --count 5
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 

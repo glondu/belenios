@@ -37,7 +37,7 @@ voter3@example.com,voter3,3000000000
 voter4@example.com,voter4,4000000000
 voter5@example.com,voter5,90000000000
 EOF
-belenios-tool setup credgen $uuid $group --file voters.txt
+belenios-tool setup generate-credentials $uuid $group --file voters.txt
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 

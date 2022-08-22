@@ -587,7 +587,7 @@ module Credgen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a credential authority to generate credentials for a specific election. The generated private credentials are stored in $(i,T.privcreds), where $(i,T) is a timestamp. $(i,T.privcreds) contains one credential per line. Each voter must be sent a credential, and $(i,T.privcreds) must be destroyed after dispatching is done. The associated public keys are stored in $(i,T.pubcreds) and must be sent to the election administrator.";
     ] @ common_man in
-    Cmd.v (Cmd.info "credgen" ~doc ~man)
+    Cmd.v (Cmd.info "generate-credentials" ~doc ~man)
       Term.(ret (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t))
 
   let cmds = [credgen_cmd]
