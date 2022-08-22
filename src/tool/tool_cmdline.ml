@@ -414,7 +414,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
       let b = get_mandatory_opt "--ballot" b in
       main u d (`Vote (p, b))
     ) in
-    Cmd.v (Cmd.info "vote" ~doc ~man)
+    Cmd.v (Cmd.info "generate-ballot" ~doc ~man)
       Term.(ret (main $ url_t $ optdir_t $ privcred_t $ ballot_t))
 
   let verify_cmd =
