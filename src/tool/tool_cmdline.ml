@@ -637,7 +637,7 @@ module Mktrustees : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads $(i,public_keys.jsons) and $(i,threshold.json) (if any). It then generates an $(i,trustees.json) file.";
     ] @ common_man in
-    Cmd.v (Cmd.info "mktrustees" ~doc ~man)
+    Cmd.v (Cmd.info "make-trustees" ~doc ~man)
       Term.(ret (const main $ dir_t))
 
   let cmds = [mktrustees_cmd]
@@ -678,7 +678,7 @@ module Mkelection : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads and checks $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then computes the global election public key and generates an $(i,election.json) file.";
     ] @ common_man in
-    Cmd.v (Cmd.info "mkelection" ~doc ~man)
+    Cmd.v (Cmd.info "make-election" ~doc ~man)
       Term.(ret (const main $ dir_t $ group_t $ version_t $ uuid_t $ template_t))
 
   let cmds = [mkelection_cmd]

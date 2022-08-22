@@ -48,11 +48,11 @@ belenios-tool setup trustee-keygen $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
-belenios-tool setup mktrustees
+belenios-tool setup make-trustees
 rm public_keys.jsons
 
 # Generate election parameters
-belenios-tool setup mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
+belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
 
 header "Simulate votes"
 

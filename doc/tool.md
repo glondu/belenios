@@ -76,8 +76,8 @@ Administrator's guide
  5. Ask each trustee to generate a keypair. Concatenate all trustee
     public keys into a `$DIR/public_keys.jsons` file.
  6. Edit `$BELENIOS/tests/tool/templates/questions.json`.
- 7. Go to `$DIR` and run: `belenios-tool setup mktrustees`.
- 8. Go to `$DIR` and run: `belenios-tool setup mkelection --uuid $UUID
+ 7. Go to `$DIR` and run: `belenios-tool setup make-trustees`.
+ 8. Go to `$DIR` and run: `belenios-tool setup make-election --uuid $UUID
     --group $BELENIOS/files/groups/default.json --template
     $BELENIOS/tests/tool/templates/questions.json`. It should generate
     `election.json`.
