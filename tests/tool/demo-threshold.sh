@@ -96,7 +96,7 @@ rm -rf "$tdir"
 header "Perform decryption (threshold)"
 
 for u in *.key; do
-    belenios-tool election threshold-decrypt --key $u --decryption-key ${u%.key}.dkey
+    belenios-tool election decrypt-threshold --key $u --decryption-key ${u%.key}.dkey
     echo >&2
 done > partial_decryptions.tmp
 head -n2 partial_decryptions.tmp > partial_decryptions.jsons

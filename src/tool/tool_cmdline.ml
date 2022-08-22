@@ -448,7 +448,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
                    main u d (`TDecrypt (k, pdk))
                  )
     in
-    Cmd.v (Cmd.info "threshold-decrypt" ~doc ~man:decrypt_man)
+    Cmd.v (Cmd.info "decrypt-threshold" ~doc ~man:decrypt_man)
       Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t))
 
   let validate_cmd =
