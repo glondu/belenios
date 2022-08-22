@@ -458,7 +458,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
       `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
       `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
     ] @ common_man in
-    Cmd.v (Cmd.info "validate" ~doc ~man)
+    Cmd.v (Cmd.info "compute-result" ~doc ~man)
       Term.(ret (const main $ url_t $ optdir_t $ const `Validate))
 
   let shuffle_cmd =

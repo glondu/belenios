@@ -147,7 +147,7 @@ mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool election validate
+belenios-tool election compute-result
 rm -f shuffles.jsons
 
 header "Perform final verification"

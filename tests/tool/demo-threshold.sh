@@ -110,7 +110,7 @@ done >> partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool election validate
+belenios-tool election compute-result
 
 header "Perform final verification"
 

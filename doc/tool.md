@@ -106,7 +106,7 @@ several authentication mechanisms.
     `trustees.json`, `public_creds.txt` and `ballots.jsons`.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`.
- 3. Run `belenios-tool election validate`.  It will create
+ 3. Run `belenios-tool election compute-result`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.
