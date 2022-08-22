@@ -167,7 +167,7 @@ module Tkeygen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a trustee to generate a share of an election key. Such a share consists of a private key and a public key with a certificate. Generated files are stored in the current directory with a name that starts with $(i,ID), where $(i,ID) is a short fingerprint of the public key. The private key is stored in $(i,ID.privkey) and must be secured by the trustee. The public key is stored in $(i,ID.pubkey) and must be sent to the election administrator.";
     ] @ common_man in
-    Cmd.v (Cmd.info "trustee-keygen" ~doc ~man)
+    Cmd.v (Cmd.info "generate-trustee-key" ~doc ~man)
       Term.(ret (const main $ group_t $ version_t))
 
   let cmds = [tkeygen_cmd]

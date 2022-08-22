@@ -42,9 +42,9 @@ mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
-belenios-tool setup trustee-keygen $group
-belenios-tool setup trustee-keygen $group
-belenios-tool setup trustee-keygen $group
+belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters

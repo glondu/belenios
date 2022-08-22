@@ -152,7 +152,7 @@ Trustee's guide
 
 To generate a keypair, run:
 
-    belenios-tool setup trustee-keygen
+    belenios-tool setup generate-trustee-key
 
 It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the

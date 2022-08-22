@@ -54,7 +54,7 @@ done
 cat *.voutput | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
 
 # Generate mandatory (server) key
-belenios-tool setup trustee-keygen $group
+belenios-tool setup generate-trustee-key $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
