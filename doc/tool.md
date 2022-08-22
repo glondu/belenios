@@ -53,7 +53,7 @@ your choices in a file `/path/to/choices.json` (as an array of arrays
 of 0/1 in JSON format), the following command will output a raw ballot
 that can be sent to the administrator of the election:
 
-    belenios-tool election vote --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
+    belenios-tool election generate-ballot --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
 
 In the case where the election is administered with the web interface,
 a raw ballot prepared with the command-line tool can be uploaded directly
@@ -76,8 +76,8 @@ Administrator's guide
  5. Ask each trustee to generate a keypair. Concatenate all trustee
     public keys into a `$DIR/public_keys.jsons` file.
  6. Edit `$BELENIOS/tests/tool/templates/questions.json`.
- 7. Go to `$DIR` and run: `belenios-tool setup mktrustees`.
- 8. Go to `$DIR` and run: `belenios-tool setup mkelection --uuid $UUID
+ 7. Go to `$DIR` and run: `belenios-tool setup make-trustees`.
+ 8. Go to `$DIR` and run: `belenios-tool setup make-election --uuid $UUID
     --group $BELENIOS/files/groups/default.json --template
     $BELENIOS/tests/tool/templates/questions.json`. It should generate
     `election.json`.
@@ -106,7 +106,7 @@ several authentication mechanisms.
     `trustees.json`, `public_creds.txt` and `ballots.jsons`.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`.
- 3. Run `belenios-tool election validate`.  It will create
+ 3. Run `belenios-tool election compute-result`.  It will create
     `result.json`. Publish this file, along with the files listed in
     the first step above. The whole set will enable universal
     verifiability.
@@ -123,7 +123,7 @@ Credential authority's guide
 If you have a list of identities in a file `F` with `N` lines, one
 identity per line, run:
 
-    belenios-tool setup credgen --uuid XXXXXXXXXXXXXX --file F
+    belenios-tool setup generate-credentials --uuid XXXXXXXXXXXXXX --file F
 
 where `XXXXXXXXXXXXXX` is the UUID of the
 election given by the administrator. It will generate three files with
@@ -152,7 +152,7 @@ Trustee's guide
 
 To generate a keypair, run:
 
-    belenios-tool setup trustee-keygen
+    belenios-tool setup generate-trustee-key
 
 It will generate two files, `XXXXXXXX.public` and `XXXXXXXX.private`,
 containing respectively the public and the private key. Send the

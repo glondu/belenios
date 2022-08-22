@@ -30,22 +30,22 @@ uuid="--uuid $UUID"
 group="--group RFC-3526-2048"
 
 # Generate credentials
-belenios-tool setup credgen $uuid $group --count 102
+belenios-tool setup generate-credentials $uuid $group --count 102
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
-belenios-tool setup trustee-keygen $group
-belenios-tool setup trustee-keygen $group
-belenios-tool setup trustee-keygen $group
+belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
-belenios-tool setup mktrustees
+belenios-tool setup make-trustees
 rm public_keys.jsons
 
 # Generate election parameters
-belenios-tool setup mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions-mj.json
+belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/templates/questions-mj.json
 
 header "Simulate votes"
 
@@ -155,7 +155,7 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    belenios-tool election vote --privcred <(echo "$cred") --ballot <(echo "$vote")
+    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote")
     echo "Voter $id voted" >&2
     echo >&2
 done > ballots.tmp
@@ -189,7 +189,7 @@ mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool election validate
+belenios-tool election compute-result
 rm -f shuffles.jsons
 
 header "Perform final verification"

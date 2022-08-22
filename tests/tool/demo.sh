@@ -37,22 +37,22 @@ voter3@example.com,voter3,3000000000
 voter4@example.com,voter4,4000000000
 voter5@example.com,voter5,90000000000
 EOF
-belenios-tool setup credgen $uuid $group --file voters.txt
+belenios-tool setup generate-credentials $uuid $group --file voters.txt
 mv *.pubcreds public_creds.txt
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
-belenios-tool setup trustee-keygen $group
-belenios-tool setup trustee-keygen $group
-belenios-tool setup trustee-keygen $group
+belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
-belenios-tool setup mktrustees
+belenios-tool setup make-trustees
 rm public_keys.jsons
 
 # Generate election parameters
-belenios-tool setup mkelection $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
+belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
 
 header "Simulate votes"
 
@@ -65,7 +65,7 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    BALLOT="$(belenios-tool election vote --privcred <(echo "$cred") --ballot <(echo "$vote"))"
+    BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote"))"
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT"
     echo "Voter $id voted with $HASH" >&2
@@ -95,7 +95,7 @@ mv partial_decryptions.tmp partial_decryptions.jsons
 
 header "Finalize tally"
 
-belenios-tool election validate
+belenios-tool election compute-result
 
 header "Perform final verification"
 

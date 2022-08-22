@@ -167,7 +167,7 @@ module Tkeygen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a trustee to generate a share of an election key. Such a share consists of a private key and a public key with a certificate. Generated files are stored in the current directory with a name that starts with $(i,ID), where $(i,ID) is a short fingerprint of the public key. The private key is stored in $(i,ID.privkey) and must be secured by the trustee. The public key is stored in $(i,ID.pubkey) and must be sent to the election administrator.";
     ] @ common_man in
-    Cmd.v (Cmd.info "trustee-keygen" ~doc ~man)
+    Cmd.v (Cmd.info "generate-trustee-key" ~doc ~man)
       Term.(ret (const main $ group_t $ version_t))
 
   let cmds = [tkeygen_cmd]
@@ -295,7 +295,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         `S "DESCRIPTION";
         `P "This command is run by trustees and the administrator to generate an election key with threshold decryption.";
       ] @ common_man in
-    Cmd.v (Cmd.info "threshold-trustee-keygen" ~doc ~man)
+    Cmd.v (Cmd.info "generate-trustee-key-threshold" ~doc ~man)
       Term.(ret (const main $ group_t $ version_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t))
 
   let cmds = [ttkeygen_cmd]
@@ -414,7 +414,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
       let b = get_mandatory_opt "--ballot" b in
       main u d (`Vote (p, b))
     ) in
-    Cmd.v (Cmd.info "vote" ~doc ~man)
+    Cmd.v (Cmd.info "generate-ballot" ~doc ~man)
       Term.(ret (main $ url_t $ optdir_t $ privcred_t $ ballot_t))
 
   let verify_cmd =
@@ -448,7 +448,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
                    main u d (`TDecrypt (k, pdk))
                  )
     in
-    Cmd.v (Cmd.info "threshold-decrypt" ~doc ~man:decrypt_man)
+    Cmd.v (Cmd.info "decrypt-threshold" ~doc ~man:decrypt_man)
       Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t))
 
   let validate_cmd =
@@ -458,7 +458,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
       `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
       `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
     ] @ common_man in
-    Cmd.v (Cmd.info "validate" ~doc ~man)
+    Cmd.v (Cmd.info "compute-result" ~doc ~man)
       Term.(ret (const main $ url_t $ optdir_t $ const `Validate))
 
   let shuffle_cmd =
@@ -478,7 +478,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
         `P "This command computes checksums needed to audit an election.";
       ] @ common_man
     in
-    Cmd.v (Cmd.info "checksums" ~doc ~man)
+    Cmd.v (Cmd.info "compute-checksums" ~doc ~man)
       Term.(ret (const main $ url_t $ optdir_t $ const `Checksums))
 
   let compute_voters_cmd =
@@ -587,7 +587,7 @@ module Credgen : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command is run by a credential authority to generate credentials for a specific election. The generated private credentials are stored in $(i,T.privcreds), where $(i,T) is a timestamp. $(i,T.privcreds) contains one credential per line. Each voter must be sent a credential, and $(i,T.privcreds) must be destroyed after dispatching is done. The associated public keys are stored in $(i,T.pubcreds) and must be sent to the election administrator.";
     ] @ common_man in
-    Cmd.v (Cmd.info "credgen" ~doc ~man)
+    Cmd.v (Cmd.info "generate-credentials" ~doc ~man)
       Term.(ret (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t))
 
   let cmds = [credgen_cmd]
@@ -637,7 +637,7 @@ module Mktrustees : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads $(i,public_keys.jsons) and $(i,threshold.json) (if any). It then generates an $(i,trustees.json) file.";
     ] @ common_man in
-    Cmd.v (Cmd.info "mktrustees" ~doc ~man)
+    Cmd.v (Cmd.info "make-trustees" ~doc ~man)
       Term.(ret (const main $ dir_t))
 
   let cmds = [mktrustees_cmd]
@@ -678,7 +678,7 @@ module Mkelection : CMDLINER_MODULE = struct
       `S "DESCRIPTION";
       `P "This command reads and checks $(i,public_keys.jsons) (or $(i,threshold.json) if it exists). It then computes the global election public key and generates an $(i,election.json) file.";
     ] @ common_man in
-    Cmd.v (Cmd.info "mkelection" ~doc ~man)
+    Cmd.v (Cmd.info "make-election" ~doc ~man)
       Term.(ret (const main $ dir_t $ group_t $ version_t $ uuid_t $ template_t))
 
   let cmds = [mkelection_cmd]
