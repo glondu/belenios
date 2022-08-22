@@ -478,7 +478,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
         `P "This command computes checksums needed to audit an election.";
       ] @ common_man
     in
-    Cmd.v (Cmd.info "checksums" ~doc ~man)
+    Cmd.v (Cmd.info "compute-checksums" ~doc ~man)
       Term.(ret (const main $ url_t $ optdir_t $ const `Checksums))
 
   let compute_voters_cmd =
