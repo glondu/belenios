@@ -12,6 +12,7 @@ import re
 import hashlib
 import base64
 import json
+import random
 
 # Example :
 #   ./monitor_elections.py --uuid aTGmQNj1SXA5JG --url https://belenios.loria.fr/ --wdir /tmp/wdir --checkhash yes --hashref $HOME/hashref --outputref  $HOME/hashref --sighashref https://belenios.loria.fr/monitoring-reference/reference.json.gpg --keyring $HOME/.gnupg/pubring.gpg
@@ -80,13 +81,18 @@ audit_files=['election.json', 'public_creds.txt', 'trustees.json',
 optional_audit_files=['ballots.jsons','result.json','shuffles.jsons',
         'hash_voterlist','all_ballot_hashs']
 
+def shuffle(l):
+    result = [x for x in l]
+    random.shuffle(result)
+    return result
+
 def download_audit_data(url, uuid):
     link = url + '/elections/' + uuid
     data = dict()
     status = Status(False, b"")
     fail = False
     msg = ""
-    for f in audit_files:
+    for f in shuffle(audit_files):
         try:
             if f == 'index.html':
                 l = link + '/'
@@ -97,7 +103,7 @@ def download_audit_data(url, uuid):
         except urllib.error.URLError as e:
             fail = True
             msg = msg + "Download {} failed with ret code \"{}\" for election {}\n".format(f, e, uuid)
-    for f in optional_audit_files:
+    for f in shuffle(optional_audit_files):
         try:
             resp = urllib.request.urlopen(link + '/' + f)
             data[f]=resp.read()
@@ -492,7 +498,7 @@ def hash_votefile(link, lang):
         resp = urllib.request.urlopen(req)
         data = resp.read()
     except:
-        print("Failed to download vote.html in lang {}.  Aborting".format(lang))
+        print("Failed to download {} in lang {}.  Aborting".format(link, lang))
         sys.exit(1)
     m = hashlib.sha256()
     m.update(data)
@@ -634,7 +640,7 @@ if args.checkhash == True:
         else:
             reference[f] = descr
     new_reference = {}
-    for f, descr in reference.items():
+    for f, descr in shuffle(reference.items()):
         if type(descr) == dict:
             new_reference[f] = {}
             if len(descr) == 0:
@@ -642,7 +648,7 @@ if args.checkhash == True:
                     langs = get_all_available_languages(args.beleniospath)
                 for lang in langs:
                     descr[lang] = None
-            for lang, descr in descr.items():
+            for lang, descr in shuffle(descr.items()):
                 h = hash_votefile(url + f, lang)
                 new_reference[f][lang] = h
                 if h != descr:
@@ -663,7 +669,7 @@ if args.checkhash == True:
     if hashfile_changed and args.outputref:
         print("Writing new reference file")
         with open(args.outputref, mode="w") as f:
-            json.dump(new_reference, f)
+            json.dump(new_reference, f, sort_keys=True)
 
     # If we can check signature, do it
     if args.sighashref:
