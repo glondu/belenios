@@ -412,17 +412,29 @@ let delete_election election metadata =
   let* voters = Web_persist.get_voters uuid in
   let* ballots = Web_persist.get_ballot_hashes uuid in
   let* result = Web_persist.get_election_result uuid in
+  let de_nb_voters, de_has_weights =
+    match voters with
+    | None -> 0, false
+    | Some voters ->
+       List.length voters,
+       List.exists
+         (fun x ->
+           let _, _, weight = split_identity_opt x in
+           weight <> None
+         ) voters
+  in
   let de = {
       de_uuid = uuid;
       de_template;
       de_owner;
-      de_nb_voters = (match voters with None -> 0 | Some x -> List.length x);
+      de_nb_voters;
       de_nb_ballots = List.length ballots;
       de_date;
       de_tallied = result <> None;
       de_authentication_method;
       de_credential_method;
       de_trustees;
+      de_has_weights;
     }
   in
   let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in

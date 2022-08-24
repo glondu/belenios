@@ -184,6 +184,7 @@ type deleted_election = {
   authentication_method : authentication_method;
   credential_method : credential_method;
   trustees : deleted_trustee list;
+  has_weights : bool;
 } <ocaml field_prefix="de_">
 
 (** {1 OpenID Connect-related types} *)
