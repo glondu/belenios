@@ -126,7 +126,6 @@ let empty_metadata = {
     e_trustees = None;
     e_languages = None;
     e_contact = None;
-    e_server_is_trustee = None;
     e_booth_version = None;
   }
 

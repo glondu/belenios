@@ -55,7 +55,6 @@ type metadata = {
   ?trustees : string list option;
   ?languages : string list option;
   ?contact : string option;
-  ?server_is_trustee : bool option;
   ?booth_version : int option;
 } <ocaml field_prefix="e_">
 
@@ -185,7 +184,6 @@ type deleted_election = {
   authentication_method : authentication_method;
   credential_method : credential_method;
   trustees : deleted_trustee list;
-  server_is_trustee : bool;
 } <ocaml field_prefix="de_">
 
 (** {1 OpenID Connect-related types} *)

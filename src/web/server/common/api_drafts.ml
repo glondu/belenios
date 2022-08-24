@@ -214,7 +214,6 @@ let post_drafts account draft =
       e_trustees = None;
       e_languages = None;
       e_contact = None;
-      e_server_is_trustee = None;
       e_booth_version = None;
     }
   in
@@ -747,9 +746,8 @@ let validate_election account uuid se =
                 ) [] se.se_public_keys
             in
             let private_key = match private_key with
-              | [] -> `None
               | [x] -> `KEY x
-              | _ -> raise (Error "multiple private keys")
+              | _ -> raise (Error "not a single private key")
             in
             Lwt.return
               begin
@@ -798,10 +796,6 @@ let validate_election account uuid se =
   in
   let y = K.combine_keys trustees in
   (* election parameters *)
-  let e_server_is_trustee = match private_keys with
-    | `KEY _ | `KEYS _ -> Some true
-    | `None -> None
-  in
   let e_owner =
     match se.se_owner with
     | `Id _ as x -> Some x
@@ -811,7 +805,6 @@ let validate_election account uuid se =
     {
       se.se_metadata with
       e_trustees = Some trustee_names;
-      e_server_is_trustee;
       e_owner;
     }
   in
@@ -860,7 +853,6 @@ let validate_election account uuid se =
   (* create file with private keys, if any *)
   let* () =
     match private_keys with
-    | `None -> Lwt.return_unit
     | `KEY x -> create_file "private_key.json" string_of_number [x]
     | `KEYS (x, y) ->
        let* () = create_file "private_key.json" string_of_number [x] in

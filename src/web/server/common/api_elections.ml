@@ -423,7 +423,6 @@ let delete_election election metadata =
       de_authentication_method;
       de_credential_method;
       de_trustees;
-      de_server_is_trustee = metadata.e_server_is_trustee = Some true;
     }
   in
   let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
