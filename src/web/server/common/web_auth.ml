@@ -230,7 +230,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
       | None -> Lwt.return_unit
       | Some (_, _, token) -> let () = Api_generic.invalidate_token token in Lwt.return_unit
     in
-    let* () = Eliom_reference.unset Web_state.site_user in
+    let* () = Web_state.discard () in
     get_cont `Logout (`Site cont) ()
 
   let () = Eliom_registration.Any.register ~service:site_login

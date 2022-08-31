@@ -38,7 +38,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
   module Captcha_throttle = Lwt_throttle.Make (HashedInt)
   let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
-  let scope = Eliom_common.default_session_scope
+  let scope = `Session (Eliom_common.create_scope_hierarchy "belenios-auth-email")
 
   let uuid_ref = Eliom_reference.eref ~scope None
   let env = Eliom_reference.eref ~scope None
@@ -136,7 +136,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
                  fun _ _ cont ->
                  let* ok =
                    if Otp.check ~address ~code then (
-                     let* () = Eliom_reference.unset env in
+                     let* () = Eliom_state.discard ~scope () in
                      return_some (name, address)
                    ) else return_none
                  in
