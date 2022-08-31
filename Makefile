@@ -46,6 +46,7 @@ clean:
 	dune clean $(DUNE_DEBUG_ARGS)
 	$(MAKE) -C po clean
 	$(MAKE) -C tests/tool clean
+	rm -f geckodriver.log
 
 .PHONY: doc
 doc:
