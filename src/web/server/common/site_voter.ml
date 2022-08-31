@@ -56,11 +56,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
     Any.register ~service:election_home
       (fun (uuid, ()) () ->
         let@ election = with_election uuid in
-        let* () = Eliom_reference.unset Web_state.ballot in
         let* x = Eliom_reference.get Web_state.cast_confirmed in
+        let* () = Web_state.discard () in
         (match x with
          | Some result ->
-            let* () = Eliom_reference.unset Web_state.cast_confirmed in
             Pages_voter.cast_confirmed election ~result () >>= Html.send
          | None ->
             let* state = Web_persist.get_election_state uuid in

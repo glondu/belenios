@@ -192,7 +192,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            if SetEmailOtp.check ~address ~code then (
              let a = {a with account_email = address} in
              let* () = Accounts.update_account a in
-             let* () = Eliom_reference.unset Web_state.set_email_env in
+             let* () = Web_state.discard () in
              Redirection.send (Redirection admin)
            ) else (
              let* l = get_preferred_gettext () in
@@ -1895,8 +1895,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              match x with
              | Ok () ->
                 let* () = Web_signup.remove_link email in
-                let* () = Eliom_reference.unset Web_state.signup_address in
-                let* () = Eliom_reference.unset Web_state.signup_env in
+                let* () = Web_state.discard () in
                 let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
                 Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "The account has been created.") ()
                 >>= Html.send
@@ -1920,8 +1919,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              match x with
              | Ok () ->
                 let* () = Web_signup.remove_link address in
-                let* () = Eliom_reference.unset Web_state.signup_address in
-                let* () = Eliom_reference.unset Web_state.signup_env in
+                let* () = Web_state.discard () in
                 let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
                 Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "The password has been changed.") ()
                 >>= Html.send

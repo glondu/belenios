@@ -27,7 +27,7 @@ open Web_common
 
 module Make (Web_auth : Web_auth_sig.S) = struct
 
-  let scope = Eliom_common.default_session_scope
+  let scope = `Session (Eliom_common.create_scope_hierarchy "belenios-auth-oidc")
 
   let oidc_config = Eliom_reference.eref ~scope None
 
@@ -126,7 +126,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
                   | None -> failwith "oidc handler was invoked without discovered configuration"
                   | Some x -> return x
                 in
-                let* () = Eliom_reference.unset oidc_config in
+                let* () = Eliom_state.discard ~scope () in
                 let* name = oidc_get_name ocfg client_id client_secret code in
                 cont name
              | _, _ -> fail_http `Service_unavailable

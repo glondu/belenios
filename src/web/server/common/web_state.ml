@@ -24,12 +24,13 @@ open Lwt.Syntax
 
 module Make () = struct
 
-  let scope = Eliom_common.default_session_scope
+  let default_scope = Eliom_common.default_session_scope
+  let belenios_scope = `Session (Eliom_common.create_scope_hierarchy "belenios")
 
-  let show_cookie_disclaimer = Eliom_reference.eref ~scope true
+  let show_cookie_disclaimer = Eliom_reference.eref ~scope:default_scope true
 
-  let site_user = Eliom_reference.eref ~scope None
-  let election_user = Eliom_reference.eref ~scope None
+  let site_user = Eliom_reference.eref ~scope:belenios_scope None
+  let election_user = Eliom_reference.eref ~scope:belenios_scope None
 
   let get_election_user uuid =
     let* user = Eliom_reference.get election_user in
@@ -37,18 +38,20 @@ module Make () = struct
     | Some (u, x) when u = uuid -> return_some x
     | _ -> return_none
 
-  let ballot = Eliom_reference.eref ~scope None
-  let cast_confirmed = Eliom_reference.eref ~scope None
+  let ballot = Eliom_reference.eref ~scope:belenios_scope None
+  let cast_confirmed = Eliom_reference.eref ~scope:belenios_scope None
 
-  let language = Eliom_reference.eref ~scope None
+  let language = Eliom_reference.eref ~scope:default_scope None
 
   type link_kind =
     [ `CreateAccount
     | `ChangePassword of string
     ]
 
-  let signup_address = Eliom_reference.eref ~scope None
-  let signup_env = Eliom_reference.eref ~scope None
+  let signup_address = Eliom_reference.eref ~scope:belenios_scope None
+  let signup_env = Eliom_reference.eref ~scope:belenios_scope None
 
-  let set_email_env = Eliom_reference.eref ~scope None
+  let set_email_env = Eliom_reference.eref ~scope:belenios_scope None
+
+  let discard () = Eliom_state.discard ~scope:belenios_scope ()
 end
