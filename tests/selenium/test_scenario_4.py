@@ -202,7 +202,7 @@ The election administrator.\
             if trustee_email_address not in self.downloaded_files_paths_per_trustee:
                 self.downloaded_files_paths_per_trustee[trustee_email_address] = dict()
             for idx2, link_css_id in enumerate(link_css_ids):
-                link_target_filename = str(uuid4())
+                link_target_filename = str(uuid4()) + ".txt"
                 set_element_attribute(browser, link_css_id, 'download', link_target_filename)
                 link_expected_label = link_expected_labels[idx2]
                 link_element = wait_for_an_element_with_partial_link_text_exists(browser, link_expected_label)
