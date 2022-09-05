@@ -229,6 +229,13 @@ module Make () = struct
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
 
+  let check_spool_version () =
+    let* x = read_file !!"version" in
+    match x with
+    | Some ["1"] -> Lwt.return_unit
+    | _ -> Lwt.fail (Failure "unknown spool version")
+
+  let () = Lwt_main.run @@ check_spool_version ()
   let () = Lwt.async Site_admin.data_policy_loop
   let () = Lwt.async Mails_voter.process_bulk_emails
 

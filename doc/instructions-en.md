@@ -277,8 +277,8 @@ once it is open and checks that:
   with the right weight in case of a weighted vote;
 
 - the list of questions and possible answers correspond to what is
-  expected. These questions and answers are also in the `election.json`
-  file that can be obtained by clicking on `parameters` in the footer of
+  expected. These questions and answers are also in the `$UUID.bel`
+  file that can be obtained by clicking on `public data` in the footer of
   the election page.
 
 Ideally, the election committee also performs the tasks of an auditor or

@@ -41,9 +41,13 @@ mkdir -p \
       $BELENIOS_VARDIR/log \
       $BELENIOS_VARDIR/lib \
       $BELENIOS_VARDIR/upload \
-      $BELENIOS_VARDIR/spool \
       $BELENIOS_VARDIR/accounts \
       $BELENIOS_RUNDIR
+
+if ! [ -d $BELENIOS_VARDIR/spool ]; then
+    mkdir $BELENIOS_VARDIR/spool
+    echo 1 > $BELENIOS_VARDIR/spool/version
+fi
 
 touch $BELENIOS_VARDIR/password_db.csv
 

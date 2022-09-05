@@ -358,18 +358,20 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       ) c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result
-  type result = (result_type, elt encrypted_tally, elt partial_decryption, elt shuffle) Serializable_t.election_result
+  type result = result_type Serializable_t.election_result
 
   module Combinator = Trustees.MakeCombinator (G)
 
-  let compute_result ?shuffles ?shufflers num_tallied encrypted_tally partial_decryptions trustees =
-    let check = check_factor encrypted_tally in
+  let compute_result encrypted_tally partial_decryptions trustees =
+    let num_tallied = encrypted_tally.sized_total_weight in
+    let et = encrypted_tally.sized_encrypted_tally in
+    let check = check_factor et in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Ok factors ->
        let results =
          Shape.map2 (fun {beta; _} f ->
              beta / f
-           ) encrypted_tally factors
+           ) et factors
        in
        let raw_result =
          match results with
@@ -379,11 +381,12 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
             Array.map2 (Q.compute_result ~num_tallied) election.e_questions xs
        in
        let result = W.cast_result raw_result in
-       Ok {num_tallied; encrypted_tally; shuffles; shufflers; partial_decryptions; result}
+       Ok {result}
     | Error e -> Error e
 
-  let check_result trustees r =
-    let {num_tallied; encrypted_tally; partial_decryptions; result; _} = r in
+  let check_result encrypted_tally partial_decryptions trustees {result} =
+    let num_tallied = encrypted_tally.sized_total_weight in
+    let encrypted_tally = encrypted_tally.sized_encrypted_tally in
     check_ciphertext encrypted_tally &&
       let check = check_factor encrypted_tally in
       match Combinator.combine_factors trustees check partial_decryptions with

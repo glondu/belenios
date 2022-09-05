@@ -159,38 +159,34 @@ let get_election_home_url uuid =
   Printf.sprintf "%s/elections/%s/" !Web_config.prefix (raw_string_of_uuid uuid)
 
 type election_file =
+  | ESArchive of uuid
   | ESRaw
   | ESTrustees
-  | ESCreds
-  | ESBallots
   | ESVoters
   | ESRecords
   | ESETally
   | ESResult
-  | ESShuffles
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
   | "trustees.json" -> ESTrustees
-  | "public_creds.json" -> ESCreds
-  | "ballots.jsons" -> ESBallots
   | "records" -> ESRecords
   | "voters.txt" -> ESVoters
   | "encrypted_tally.json" -> ESETally
   | "result.json" -> ESResult
-  | "shuffles.jsons" -> ESShuffles
-  | x -> invalid_arg ("election_dir_item: " ^ x)
+  | x ->
+     match Filename.chop_suffix_opt ~suffix:".bel" x with
+     | Some uuid_s -> ESArchive (uuid_of_raw_string uuid_s)
+     | None -> invalid_arg ("election_dir_item: " ^ x)
 
 let string_of_election_file = function
+  | ESArchive x -> raw_string_of_uuid x ^ ".bel"
   | ESRaw -> "election.json"
   | ESTrustees -> "trustees.json"
-  | ESCreds -> "public_creds.json"
-  | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"
   | ESETally -> "encrypted_tally.json"
   | ESResult -> "result.json"
-  | ESShuffles -> "shuffles.jsons"
 
 let election_file x =
   Eliom_parameter.user_type

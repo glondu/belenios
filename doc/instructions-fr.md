@@ -289,9 +289,9 @@ qu'elle ouverte et vérifie que :
 
 - la liste des questions et des réponses correspond bien à ce qui a
   été déterminé pour ce scrutin. Les questions et les réponses
-  associées apparaissent dans le fichier `election.json`. Ce fichier peut
-  être obtenu en cliquant sur
-  `paramètres` dans le bandeau en bas de la page d'accueil de l'élection.
+  associées apparaissent dans le fichier `$UUID.bel`. Ce fichier peut
+  être obtenu en cliquant sur `données publiques`
+  dans le bandeau en bas de la page d'accueil de l'élection.
 
 Idéalement, la commission électorale accomplit également le travail de
 l'auditeur ou mandate une personne pour le faire (des services

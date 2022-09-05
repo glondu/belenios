@@ -47,6 +47,10 @@ rm public_keys.jsons
 # Generate election parameters
 belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/templates/questions-stv.json
 
+# Initialize events
+belenios-tool archive init
+rm -f election.json trustees.json public_creds.json
+
 header "Simulate votes"
 
 cat > votes.txt <<EOF
@@ -103,42 +107,40 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote")
+    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote") | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted" >&2
     echo >&2
-done > ballots.tmp
-mv ballots.tmp ballots.jsons
+done
 
 header "Perform verification"
 
 belenios-tool election verify
 
-header "Simulate and verify update"
+header "End voting phase"
 
-tdir="$(mktemp -d)"
-cp election.json public_creds.json trustees.json "$tdir"
-head -n3 ballots.jsons > "$tdir/ballots.jsons"
-belenios-tool election verify-diff --dir1="$tdir" --dir2=.
-rm -rf "$tdir"
+belenios-tool archive add-event --type=EndBallots < /dev/null
+belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
+belenios-tool election verify
 
 header "Shuffle ciphertexts"
 
-belenios-tool election shuffle > shuffles.jsons
+belenios-tool election shuffle --trustee-id=1 | belenios-tool archive add-event --type=Shuffle
 echo >&2
-belenios-tool election shuffle >> shuffles.jsons
+belenios-tool election shuffle --trustee-id=2 | belenios-tool archive add-event --type=Shuffle
+belenios-tool archive add-event --type=EndShuffles < /dev/null
 
 header "Perform decryption"
 
+trustee_id=1
 for u in *.privkey; do
-    belenios-tool election decrypt --privkey $u
+    belenios-tool election decrypt --privkey $u --trustee-id $trustee_id | belenios-tool archive add-event --type=PartialDecryption
     echo >&2
-done > partial_decryptions.tmp
-mv partial_decryptions.tmp partial_decryptions.jsons
+    : $((trustee_id++))
+done
 
 header "Finalize tally"
 
-belenios-tool election compute-result
-rm -f shuffles.jsons
+belenios-tool election compute-result | belenios-tool archive add-event --type=Result
 
 header "Perform final verification"
 
@@ -150,8 +152,9 @@ cat > result.reference <<EOF
 {"ballots":[[0,1,2,3,4],[0,1,2,4,3],[0,2,1,3,4],[0,2,1,3,4],[0,2,3,1,4],[0,2,3,4,1],[0,3,4,2,1],[1,0,2,4,3],[1,2,0,4,3],[1,2,3,4,0],[1,2,4,0,3],[1,3,2,4,0],[1,3,2,4,0],[1,3,4,0,2],[1,4,0,3,2],[1,4,2,0,3],[1,4,3,2,0],[2,0,4,3,1],[2,1,4,0,3],[2,3,4,1,0],[2,4,0,3,1],[2,4,1,0,3],[2,4,3,1,0],[3,0,1,4,2],[3,0,2,4,1],[3,0,4,1,2],[3,2,0,1,4],[3,2,0,4,1],[3,2,0,4,1],[3,2,1,4,0],[3,2,4,1,0],[3,2,4,1,0],[3,4,1,2,0],[3,4,2,1,0],[3,4,2,1,0],[4,0,1,3,2],[4,0,3,1,2],[4,0,3,2,1],[4,0,3,2,1],[4,1,0,3,2],[4,1,0,3,2],[4,1,3,0,2],[4,2,0,3,1],[4,2,0,3,1],[4,2,1,3,0],[4,2,1,3,0],[4,2,3,1,0],[4,3,1,0,2],[4,3,1,0,2],[4,3,2,1,0]],"invalid":[],"events":[["Lose",2],["Win",[4]],["Lose",0],["Win",[3]]],"winners":[4,3]}
 EOF
 
+RESULT=$(tar -tf $UUID.bel | tail -n2 | head -n1)
 if command -v jq > /dev/null; then
-    if diff -u result.reference <(jq --compact-output '.result[0]' < result.json | belenios-tool method stv --nseats 2); then
+    if diff -u result.reference <(tar -xOf $UUID.bel $RESULT | jq --compact-output '.result[0]' | belenios-tool method stv --nseats 2); then
         echo "STV output is identical!"
     else
         echo "Differences in STV output!"
@@ -165,7 +168,7 @@ echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo
 echo "The simulated election was successful! Its result can be seen in"
-echo "  $DIR/result.json"
+echo "  $DIR"
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo

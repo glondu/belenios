@@ -20,20 +20,8 @@
 (**************************************************************************)
 
 type verifydiff_error =
-  | ElectionMismatch
-  | MissingTrustees
-  | InvalidTrustees
-  | PublicKeyMismatch
-  | TrusteesMismatch
-  | MissingCredentials
-  | InvalidCredential
-  | CredentialsMismatch
-  | InvalidBallot of string
-  | DuplicateBallot
-  | BallotSignedByInvalidKey
-  | DecreasingBallots
-  | CredentialsHaveChanged
-  | InvalidRevote of string
+  | NotPrefix
+  | ErrorInFirst
 
 exception VerifydiffError of verifydiff_error
 

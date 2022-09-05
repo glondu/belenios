@@ -262,12 +262,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
              let* result = Web_persist.get_election_result uuid in
              match result with
              | Some result ->
-                let result =
-                  election_result_of_string
-                    read_result Yojson.Safe.read_json
-                    Yojson.Safe.read_json Yojson.Safe.read_json
-                    result
-                in
+                let result = election_result_of_string read_result result in
                 (match (result.result :> raw_result).(question) with
                  | RNonHomomorphic ballots -> continuation ballots
                  | _ -> failwith "handle_method"
@@ -366,13 +361,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
   let content_type_of_file = function
     | ESRaw -> "application/json; charset=utf-8"
     | ESTrustees | ESETally | ESResult -> "application/json"
-    | ESBallots | ESShuffles -> "text/plain" (* should be "application/json-seq", but we don't use RS *)
-    | ESCreds | ESRecords | ESVoters -> "text/plain"
+    | ESArchive _ -> "application/x-belenios"
+    | ESRecords | ESVoters -> "text/plain"
 
   let handle_pseudo_file uuid f site_user =
     let* confidential =
       match f with
-      | ESRaw | ESTrustees | ESBallots | ESETally | ESCreds | ESShuffles -> return false
+      | ESRaw | ESTrustees | ESETally | ESArchive _ -> return false
       | ESRecords | ESVoters -> return true
       | ESResult ->
          let* hidden = Web_persist.get_election_result_hidden uuid in
@@ -390,7 +385,46 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
     in
     if allowed then (
       let content_type = content_type_of_file f in
-      File.send ~content_type (uuid /// string_of_election_file f)
+      match f with
+      | ESRaw ->
+         begin
+           let* x = Web_persist.get_raw_election uuid in
+           match x with
+           | Some x ->
+              let* x = String.send (x, content_type) in
+              return @@ cast_unknown_content_kind x
+           | None -> fail_http `Not_found
+         end
+      | ESETally ->
+         begin
+           let@ election = with_election uuid in
+           let* x = Web_persist.get_latest_encrypted_tally election in
+           match x with
+           | Some x ->
+              let* x = String.send (x, content_type) in
+              return @@ cast_unknown_content_kind x
+           | None -> fail_http `Not_found
+         end
+      | ESTrustees ->
+         begin
+           Lwt.catch
+             (fun () ->
+               let* x = Web_persist.get_trustees uuid in
+               let* x = String.send (x, content_type) in
+               return @@ cast_unknown_content_kind x
+             ) (fun _ -> fail_http `Not_found)
+         end
+      | ESResult ->
+         begin
+           let* x = Web_persist.get_election_result uuid in
+           match x with
+           | Some x ->
+              let* x = String.send (x, content_type) in
+              return @@ cast_unknown_content_kind x
+           | None -> fail_http `Not_found
+         end
+      | _ ->
+         File.send ~content_type (uuid /// string_of_election_file f)
     ) else forbidden ()
 
   let () =

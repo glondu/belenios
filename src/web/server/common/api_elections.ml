@@ -144,27 +144,6 @@ let set_election_auto_dates uuid d =
   let* dates = Web_persist.get_election_dates uuid in
   Web_persist.set_election_dates uuid {dates with e_auto_open; e_auto_close}
 
-let perform_server_side_decryption election metadata tally =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
-  let uuid = W.election.e_uuid in
-  let tally = encrypted_tally_of_string W.G.read tally in
-  let decrypt i =
-    let* x = Web_persist.get_private_key uuid in
-    match x with
-    | Some sk ->
-       let* pd = W.E.compute_factor tally sk in
-       let pd = string_of_partial_decryption W.G.write pd in
-       Web_persist.add_partial_decryption uuid (i, pd)
-    | None ->
-       Lwt.fail (Error "missing server private key")
-  in
-  Option.value metadata.e_trustees ~default:["server"]
-  |> List.mapi (fun i t -> i, t)
-  |> Lwt_list.iter_s
-       (fun (i, t) ->
-         if t = "server" then decrypt (i + 1) else Lwt.return_unit
-       )
-
 let get_partial_decryptions uuid metadata =
   let@ () = fun cont ->
     let* state = Web_persist.get_election_state uuid in
@@ -225,7 +204,7 @@ let get_partial_decryptions uuid metadata =
                  {
                    trustee_pd_address = Option.value name ~default:"";
                    trustee_pd_token = token;
-                   trustee_pd_done = List.mem_assoc id pds;
+                   trustee_pd_done = List.exists (fun x -> x.owned_owner = id) pds;
                  }
                )
         end;
@@ -233,114 +212,36 @@ let get_partial_decryptions uuid metadata =
     }
 
 
-let transition_to_encrypted_tally election metadata tally =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
-  let uuid = W.election.e_uuid in
-  let* () = perform_server_side_decryption election metadata tally in
+let transition_to_encrypted_tally uuid =
   Web_persist.set_election_state uuid @@ `EncryptedTally (0, 0, "")
 
-let compute_encrypted_tally election metadata =
+let compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   let* state = Web_persist.get_election_state uuid in
   match state with
   | `Closed ->
-     let* tally = Web_persist.compute_encrypted_tally election in
+     let* () = Web_persist.compute_encrypted_tally election in
      if Belenios.Election.has_nh_questions W.election then (
        let* () = Web_persist.set_election_state uuid `Shuffling in
        Lwt.return_true
      ) else (
-       let* () = transition_to_encrypted_tally election metadata tally in
+       let* () = transition_to_encrypted_tally uuid in
        Lwt.return_true
      )
   | _ -> Lwt.return_false
 
-let finish_shuffling election metadata =
+let finish_shuffling election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   let* state = Web_persist.get_election_state uuid in
   match state with
   | `Shuffling ->
-     begin
-       let* x = Web_persist.compute_encrypted_tally_after_shuffling election in
-       match x with
-       | None -> Lwt.fail (Error "compute_encrypted_tally_after_shuffling")
-       | Some tally ->
-          let* () = transition_to_encrypted_tally election metadata tally in
-          Lwt.return_true
-     end
+     let* () = Web_events.append ~uuid [Event (`EndShuffles, None)] in
+     let* () = Spool.del ~uuid Spool.skipped_shufflers in
+     let* () = transition_to_encrypted_tally uuid in
+     Lwt.return_true
   | _ -> Lwt.return_false
-
-let release_tally election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
-  let uuid = W.election.e_uuid in
-  let@ () = fun cont ->
-    let* state = Web_persist.get_election_state uuid in
-    match state with
-    | `EncryptedTally _ -> cont ()
-    | _ -> Lwt.return @@ Stdlib.Error `Forbidden
-  in
-  let* ntallied =
-    let* hashes = Web_persist.get_ballot_hashes uuid in
-    let weights = List.map snd hashes in
-    let open Weight in
-    Lwt.return @@ List.fold_left ( + ) zero weights
-  in
-  let@ et = fun cont ->
-    let* x = read_file ~uuid (string_of_election_file ESETally) in
-    match x with
-    | Some [et] ->
-       begin
-         match Option.wrap (encrypted_tally_of_string W.G.read) et with
-         | None -> Lwt.fail (Error "release_tally: encrypted_tally_of_string")
-         | Some x -> cont x
-       end
-    | _ -> Lwt.fail (Error "release_tally")
-  in
-  let open Belenios_core.Serializable_j in
-  let* trustees = Web_persist.get_trustees uuid in
-  let trustees = trustees_of_string W.G.read trustees in
-  let* pds = Web_persist.get_partial_decryptions uuid in
-  let pds = List.map snd pds in
-  let pds = List.map (partial_decryption_of_string W.G.read) pds in
-  let* shuffles, shufflers =
-    let* x = Web_persist.get_shuffles uuid in
-    match x with
-    | None -> Lwt.return (None, None)
-    | Some s ->
-       let s = List.map (shuffle_of_string W.G.read) s in
-       let* x = Web_persist.get_shuffle_hashes uuid in
-       match x with
-       | None -> Lwt.return (Some s, None)
-       | Some x ->
-          let x =
-            x
-            |> List.map (fun x -> if x.sh_hash = "" then [] else [x.sh_name])
-            |> List.flatten
-          in
-          assert (List.length s = List.length x);
-          Lwt.return (Some s, Some x)
-  in
-  match W.E.compute_result ?shuffles ?shufflers ntallied et pds trustees with
-  | Ok result ->
-     let* () =
-       let result =
-         string_of_election_result
-           W.write_result (write_encrypted_tally W.G.write)
-           (write_partial_decryption W.G.write) (write_shuffle W.G.write)
-           result
-       in
-       write_file ~uuid (string_of_election_file ESResult) [result]
-     in
-     let* () = Web_persist.remove_audit_cache uuid in
-     let* () = Web_persist.set_election_state uuid `Tallied in
-     let* dates = Web_persist.get_election_dates uuid in
-     let* () = Web_persist.set_election_dates uuid {dates with e_tally = Some (now ())} in
-     let* () = cleanup_file (uuid /// "decryption_tokens.json") in
-     let* () = cleanup_file (uuid /// "shuffles.jsons") in
-     let* () = Web_persist.clear_shuffle_token uuid in
-     Lwt.return @@ Ok ()
-  | Error e -> Lwt.return @@ Stdlib.Error (`CombinationError e)
 
 let delete_sensitive_data uuid =
   let* () = cleanup_file (uuid /// "state.json") in
@@ -437,22 +338,17 @@ let delete_election election metadata =
   in
   let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
   let files_to_delete = [
-      "election.json";
-      "ballots.jsons";
+      raw_string_of_uuid uuid ^ ".bel";
       "dates.json";
-      "encrypted_tally.json";
       "metadata.json";
       "passwords.csv";
-      "public_creds.json";
-      "trustees.json";
       "records";
-      "result.json";
       "hide_result";
       "shuffle_token";
-      "shuffles.jsons";
       "voters.txt";
       "archive.zip";
       "audit_cache.json";
+      Spool.filename Spool.skipped_shufflers;
     ]
   in
   let* () =
@@ -536,21 +432,29 @@ let get_shuffles uuid metadata =
     | `Shuffling -> cont ()
     | _ -> Lwt.fail @@ Error "not in state Shuffling"
   in
-  let* hashes = Web_persist.get_shuffle_hashes uuid in
-  let hashes = Option.value hashes ~default:[] in
+  let* shuffles = Web_persist.get_shuffles uuid in
+  let shuffles = Option.value shuffles ~default:[] in
+  let* skipped = Spool.get ~uuid Spool.skipped_shufflers in
+  let skipped = Option.value skipped ~default:[] in
   let* token = Web_persist.get_shuffle_token uuid in
   Lwt.return {
       shuffles_shufflers =
         begin
           (match metadata.e_trustees with None -> ["server"] | Some ts -> ts)
-          |> List.map
-               (fun t ->
+          |> List.mapi
+               (fun i t ->
+                 let trustee_id = i + 1 in
                  {
                    shuffler_address = t;
                    shuffler_fingerprint =
-                     hashes
-                     |> List.find_opt (fun x -> x.sh_trustee = t)
-                     |> Option.map (fun x -> x.sh_hash);
+                     List.find_map
+                       (fun (_, o, _) ->
+                         if o.owned_owner = trustee_id then
+                           Some (Hash.to_b64 o.owned_payload)
+                         else if List.mem t skipped then
+                           Some ""
+                         else None
+                       ) shuffles;
                    shuffler_token =
                      Option.bind token
                        (fun x -> if x.tk_trustee = t then Some x.tk_token else None);
@@ -571,6 +475,7 @@ let extract_names trustees =
         | `Single x -> [x.trustee_name]
        )
   |> List.flatten
+  |> List.mapi (fun i x -> i + 1, x)
 
 let get_trustee_names uuid =
   let open Belenios_core.Serializable_j in
@@ -579,21 +484,32 @@ let get_trustee_names uuid =
   Lwt.return (extract_names trustees)
 
 let get_trustee_name uuid metadata trustee =
-  let&* xs = metadata.e_trustees in
-  let* names = get_trustee_names uuid in
-  Lwt.return (List.assoc trustee (List.combine xs names))
+  match metadata.e_trustees with
+  | None -> Lwt.return (1, None)
+  | Some xs ->
+     let* names = get_trustee_names uuid in
+     Lwt.return (List.assoc trustee (List.combine xs names))
 
-let skip_shuffler uuid metadata trustee =
-  let* sh_name = get_trustee_name uuid metadata trustee in
-  let* () = Web_persist.clear_shuffle_token uuid in
-  let sh = {sh_trustee = trustee; sh_hash = ""; sh_name} in
-  let* () = Web_persist.add_shuffle_hash uuid sh in
-  Lwt.return_unit
+let skip_shuffler uuid trustee =
+  let* x = Web_persist.get_shuffle_token uuid in
+  let* () =
+    match x with
+    | Some x when x.tk_trustee = trustee ->
+       Web_persist.clear_shuffle_token uuid
+    | None -> Lwt.return_unit
+    | _ -> Lwt.fail @@ Error "trustee is not currently selected"
+  in
+  let* x = Spool.get ~uuid Spool.skipped_shufflers in
+  let x = Option.value x ~default:[] in
+  if List.mem trustee x then
+    Lwt.fail @@ Error "trustee already skipped"
+  else
+    Spool.set ~uuid Spool.skipped_shufflers (trustee :: x)
 
 let select_shuffler uuid metadata trustee =
-  let* name = get_trustee_name uuid metadata trustee in
+  let* trustee_id, name = get_trustee_name uuid metadata trustee in
   let* () = Web_persist.clear_shuffle_token uuid in
-  let* _ = Web_persist.gen_shuffle_token uuid trustee name in
+  let* _ = Web_persist.gen_shuffle_token uuid trustee trustee_id name in
   Lwt.return_unit
 
 let split_voting_record =
@@ -642,23 +558,12 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                  | `FinishShuffling -> finish_shuffling
                in
                let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
-               let* b = doit (module W) metadata in
+               let* b = doit (module W) in
                if b then ok else forbidden
             | `ReleaseTally ->
-               begin
-                 let@ () = handle_generic_error in
-                 let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
-                 let* b = release_tally (module W) in
-                 match b with
-                 | Ok () -> ok
-                 | Error `Forbidden -> forbidden
-                 | Error (`CombinationError e) ->
-                    let msg =
-                      Printf.sprintf "combination error: %s"
-                        (Belenios.Trustees.string_of_combination_error e)
-                    in
-                    Lwt.fail @@ Error msg
-               end
+               let@ () = handle_generic_error in
+               let* () = Web_persist.release_tally uuid in
+               ok
             | `Archive ->
                let@ () = handle_generic_error in
                let* () = archive_election uuid in
@@ -764,7 +669,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
             let@ request = body.run shuffler_request_of_string in
             let@ () = handle_generic_error in
             match request with
-            | `Skip -> let* () = skip_shuffler uuid metadata shuffler in ok
+            | `Skip -> let* () = skip_shuffler uuid shuffler in ok
             | `Select -> let* () = select_shuffler uuid metadata shuffler in ok
           end
        | _ -> method_not_allowed

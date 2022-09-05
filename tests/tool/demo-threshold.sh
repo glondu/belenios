@@ -64,6 +64,10 @@ rm threshold.json
 # Generate election parameters
 belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
 
+# Initialize events
+belenios-tool archive init
+rm -f election.json trustees.json public_creds.json
+
 header "Simulate votes"
 
 cat > votes.txt <<EOF
@@ -75,42 +79,52 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote")
+    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote") | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted" >&2
     echo >&2
-done > ballots.tmp
-mv ballots.tmp ballots.jsons
+done
 
 header "Perform verification"
 
 belenios-tool election verify
 
-header "Simulate and verify update"
+header "Simulate revotes and verify diff"
 
 tdir="$(mktemp -d)"
-cp election.json trustees.json public_creds.json "$tdir"
-head -n3 ballots.jsons > "$tdir/ballots.jsons"
+cp $UUID.bel "$tdir"
+paste <(head -n 3 private_creds.txt) <(head -n 3 votes.txt) | while read id cred vote; do
+    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote") | belenios-tool archive add-event --type=Ballot
+    echo "Voter $id voted" >&2
+    echo >&2
+done
 belenios-tool election verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
+header "End voting phase"
+
+belenios-tool archive add-event --type=EndBallots < /dev/null
+belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
+belenios-tool election verify
+
 header "Perform decryption (threshold)"
 
+trustee_id=2
 for u in *.key; do
-    belenios-tool election decrypt-threshold --key $u --decryption-key ${u%.key}.dkey
+    belenios-tool election decrypt-threshold --key $u --decryption-key ${u%.key}.dkey --trustee-id $trustee_id | belenios-tool archive add-event --type=PartialDecryption
     echo >&2
-done > partial_decryptions.tmp
-head -n2 partial_decryptions.tmp > partial_decryptions.jsons
+    : $((trustee_id++))
+done
 
 header "Perform decryption (mandatory)"
 
 for u in *.privkey; do
-    belenios-tool election decrypt --privkey $u
+    belenios-tool election decrypt --privkey $u --trustee-id 1 | belenios-tool archive add-event --type=PartialDecryption
     echo >&2
-done >> partial_decryptions.jsons
+done
 
 header "Finalize tally"
 
-belenios-tool election compute-result
+belenios-tool election compute-result | belenios-tool archive add-event --type=Result
 
 header "Perform final verification"
 
@@ -120,7 +134,7 @@ echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo
 echo "The simulated election was successful! Its result can be seen in"
-echo "  $DIR/result.json"
+echo "  $DIR"
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo

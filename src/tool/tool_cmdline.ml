@@ -30,6 +30,10 @@ open Belenios_core.Common
 open Common
 open Cmdliner
 
+let print_endline2 (a, b) =
+  print_endline a;
+  print_endline b
+
 let lines_of_stdin () =
   let rec loop accu =
     match input_line stdin with
@@ -48,15 +52,25 @@ let chars_of_stdin () =
   loop ();
   Buffer.contents buf
 
-let download dir url file =
-  let url = if url.[String.length url - 1] = '/' then url else url ^ "/" in
-  Printf.eprintf "I: downloading %s...\n%!" file;
+let download dir url =
+  let url, file =
+    match String.split_on_char '/' url |> List.rev with
+    | "" :: uuid :: _ -> url, uuid ^ ".bel"
+    | last :: rest ->
+       begin
+         match Filename.chop_suffix_opt ~suffix:".bel" last with
+         | None -> url ^ "/", last ^ ".bel"
+         | Some uuid -> String.concat "/" (List.rev ("" :: rest)), uuid ^ ".bel"
+       end
+    | _ -> failwith "bad url"
+  in
+  Printf.eprintf "I: downloading %s%s...\n%!" url file;
   let target = dir // file in
   let command =
     Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
   in
   let r = Sys.command command in
-  if r <> 0 then (Sys.remove target; false) else true
+  if r <> 0 then (Sys.remove target; None) else Some file
 
 let rm_rf dir =
   let files = Sys.readdir dir in
@@ -298,20 +312,15 @@ module ElectionManagement : CMDLINER_MODULE = struct
       | _, Some d -> d, false
     in
     Printf.eprintf "I: using directory %s\n%!" dir;
-    let () =
+    let file =
       match url with
-      | None -> ()
+      | None -> find_bel_in_dir dir
       | Some u ->
-         if not (
-                download dir u "election.json" &&
-                  download dir u "trustees.json" &&
-                    download dir u "public_creds.json" &&
-                      (download dir u "ballots.jsons" || true) &&
-                        (download dir u "result.json" || download dir u "shuffles.jsons" || true)
-              ) then
-           Printf.eprintf "W: some errors occurred while downloading\n%!";
+         match download dir u with
+         | Some x -> x
+         | None -> failwith "error while downloading"
     in
-    let module X = Make (struct let dir = dir end) () in
+    let module X = Make (struct let file = dir // file end) () in
     begin match action with
     | `Vote (privcred, ballot) ->
        let ballot =
@@ -324,40 +333,29 @@ module ElectionManagement : CMDLINER_MODULE = struct
          | _ -> failwith "invalid credential"
        in
        print_endline (X.vote (Some privcred) ballot)
-    | `Decrypt privkey ->
-       X.verify ();
+    | `Decrypt (i, privkey) ->
        let privkey =
          match load_from_file (fun x -> x) privkey with
          | Some [privkey] -> privkey
          | _ -> failwith "invalid private key"
        in
-       print_endline (X.decrypt privkey)
-    | `TDecrypt (key, pdk) ->
+       print_endline2 (X.decrypt i privkey)
+    | `TDecrypt (i, key, pdk) ->
        let key = string_of_file key in
        let pdk = string_of_file pdk in
-       print_endline (X.tdecrypt key pdk)
+       print_endline2 (X.tdecrypt i key pdk)
     | `Verify -> X.verify ()
-    | `Validate ->
-       let factors =
-         let fname = dir // "partial_decryptions.jsons" in
-         match load_from_file (fun x -> x) fname with
-         | Some factors -> factors
-         | None -> failwith "cannot load partial decryptions"
-       in
-       let result = X.validate factors in
-       let oc = open_out (dir // "result.json") in
-       output_string oc result;
-       output_char oc '\n';
-       close_out oc
-    | `Shuffle ->
-       let s = X.shuffle_ciphertexts () in
-       print_endline s
+    | `ComputeResult -> print_endline (X.compute_result ())
+    | `Shuffle trustee_id ->
+       print_endline2 (X.shuffle_ciphertexts trustee_id)
     | `Checksums ->
        X.checksums () |> print_endline
     | `ComputeVoters privcreds ->
        X.compute_voters privcreds |> List.iter print_endline
     | `ComputeBallotSummary ->
        X.compute_ballot_summary () |> print_endline
+    | `ComputeEncryptedTally ->
+       print_endline2 (X.compute_encrypted_tally ())
     end;
     if cleanup then rm_rf dir
 
@@ -385,6 +383,11 @@ module ElectionManagement : CMDLINER_MODULE = struct
     let doc = "Read private credentials from file $(docv)." in
     let the_info = Arg.info ["privcreds"] ~docv:"PRIVCREDS" ~doc in
     Arg.(value & opt (some file) None the_info)
+
+  let trustee_id_t =
+    let doc = "Trustee identifier (an integer)." in
+    let the_info = Arg.info ["trustee-id"] ~docv:"TRUSTEE-ID" ~doc in
+    Arg.(value & opt (some int) None the_info)
 
   let vote_cmd =
     let doc = "create a ballot" in
@@ -416,33 +419,34 @@ module ElectionManagement : CMDLINER_MODULE = struct
 
   let decrypt_cmd =
     let doc = "perform partial decryption" in
-    let main = Term.const (fun u d p ->
+    let main = Term.const (fun u d i p ->
+      let i = get_mandatory_opt "--trustee-id" i in
       let p = get_mandatory_opt "--privkey" p in
-      main u d (`Decrypt p)
+      main u d (`Decrypt (i, p))
     ) in
     Cmd.v (Cmd.info "decrypt" ~doc ~man:decrypt_man)
-      Term.(ret (main $ url_t $ optdir_t $ privkey_t))
+      Term.(ret (main $ url_t $ optdir_t $ trustee_id_t $ privkey_t))
 
   let tdecrypt_cmd =
     let doc = "perform partial decryption (threshold version)" in
-    let main = Term.const (fun u d k pdk ->
+    let main = Term.const (fun u d i k pdk ->
+                   let i = get_mandatory_opt "--trustee-id" i in
                    let k = get_mandatory_opt "--key" k in
                    let pdk = get_mandatory_opt "--decryption-key" pdk in
-                   main u d (`TDecrypt (k, pdk))
+                   main u d (`TDecrypt (i, k, pdk))
                  )
     in
     Cmd.v (Cmd.info "decrypt-threshold" ~doc ~man:decrypt_man)
-      Term.(ret (main $ url_t $ optdir_t $ key_t $ pdk_t))
+      Term.(ret (main $ url_t $ optdir_t $ trustee_id_t $ key_t $ pdk_t))
 
-  let validate_cmd =
-    let doc = "validates an election" in
+  let compute_result_cmd =
+    let doc = "computes the result of an election" in
     let man = [
       `S "DESCRIPTION";
-      `P "This command reads partial decryptions done by trustees from file $(i,partial_decryptions.jsons), checks them, combines them into the final tally and prints the result to standard output.";
-      `P "The result structure contains partial decryptions itself, so $(i,partial_decryptions.jsons) can be discarded afterwards.";
+      `P "This command computes the result of an election. It assumes all necessary partial decryptions have been done, checks them, combines them into the final tally and prints the result to standard output.";
     ] @ common_man in
     Cmd.v (Cmd.info "compute-result" ~doc ~man)
-      Term.(ret (const main $ url_t $ optdir_t $ const `Validate))
+      Term.(ret (const main $ url_t $ optdir_t $ const `ComputeResult))
 
   let shuffle_cmd =
     let doc = "shuffle ciphertexts" in
@@ -451,8 +455,13 @@ module ElectionManagement : CMDLINER_MODULE = struct
         `P "This command shuffles non-homomorphic ciphertexts and prints on standard output the shuffle proof and the shuffled ciphertexts.";
       ] @ common_man
     in
+    let main = Term.const (fun u d i ->
+                   let i = get_mandatory_opt "--trustee-id" i in
+                   main u d (`Shuffle i)
+                 )
+    in
     Cmd.v (Cmd.info "shuffle" ~doc ~man)
-      Term.(ret (const main $ url_t $ optdir_t $ const `Shuffle))
+      Term.(ret (main $ url_t $ optdir_t $ trustee_id_t))
 
   let checksums_cmd =
     let doc = "compute checksums" in
@@ -494,17 +503,29 @@ module ElectionManagement : CMDLINER_MODULE = struct
     Cmd.v (Cmd.info "compute-ballot-summary" ~doc ~man)
       Term.(ret (const main $ url_t $ optdir_t $ const `ComputeBallotSummary))
 
+  let compute_encrypted_tally_cmd =
+    let doc = "compute encrypted tally" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command computes the encrypted tally of the election.";
+      ] @ common_man
+    in
+    let main = Term.const (fun u d -> main u d `ComputeEncryptedTally) in
+    Cmd.v (Cmd.info "compute-encrypted-tally" ~doc ~man)
+      Term.(ret (main $ url_t $ optdir_t))
+
   let cmds =
     [
       vote_cmd;
       verify_cmd;
       decrypt_cmd;
       tdecrypt_cmd;
-      validate_cmd;
+      compute_result_cmd;
       shuffle_cmd;
       checksums_cmd;
       compute_voters_cmd;
       compute_ballot_summary_cmd;
+      compute_encrypted_tally_cmd;
     ]
 
 end
@@ -718,6 +739,84 @@ module Verifydiff : CMDLINER_MODULE = struct
 
 end
 
+module Events : CMDLINER_MODULE = struct
+
+  let init dir election trustees public_creds =
+    let@ () = wrap_main in
+    let election = string_of_file election in
+    let trustees = string_of_file trustees in
+    let public_creds = string_of_file public_creds in
+    let file =
+      let election = Election.of_string election in
+      dir // raw_string_of_uuid election.e_uuid ^ ".bel"
+    in
+    ignore (Tool_events.init ~file ~election ~trustees ~public_creds)
+
+  let add_event dir event_typ =
+    let@ () = wrap_main in
+    let file = dir // find_bel_in_dir dir in
+    let index = Tool_events.get_index ~file in
+    let event_typ =
+      get_mandatory_opt "--type" event_typ
+      |> Printf.sprintf "%S"
+      |> event_type_of_string
+    in
+    let payloads = lines_of_stdin () in
+    let payload =
+      match List.rev payloads with
+      | x :: _ -> Some (Hash.hash_string x)
+      | _ -> None
+    in
+    let open Tool_events in
+    List.map (fun x -> Data x) payloads @ [Event (event_typ, payload)]
+    |> append index
+
+  let election_t =
+    let doc = "Read election parameters from file $(docv)." in
+    Arg.(value & opt file "election.json" & info ["election"] ~docv:"ELECTION" ~doc)
+
+  let trustees_t =
+    let doc = "Read trustees from file $(docv)." in
+    Arg.(value & opt file "trustees.json" & info ["trustees"] ~docv:"TRUSTEES" ~doc)
+
+  let public_creds_t =
+    let doc = "Read public credentials from file $(docv)." in
+    Arg.(value & opt file "public_creds.json" & info ["public-creds"] ~docv:"PUBLIC-CREDS" ~doc)
+
+  let event_typ_t =
+    let doc = "Type of event." in
+    Arg.(value & opt (some string) None & info ["type"] ~docv:"TYPE" ~doc)
+
+  let init_cmd =
+    let doc = "initialize events" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command creates $(i,UUID.bel) from election setup files.";
+      ] @ common_man
+    in
+    Cmd.v (Cmd.info "init" ~doc ~man)
+      Term.(ret (const init $ dir_t $ election_t $ trustees_t $ public_creds_t))
+
+  let add_event_cmd =
+    let doc = "add an event" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command adds a new event to $(i,UUID.bel). If stdin is non-empty, each of its lines is added to $(i,UUID.bel) prior to the event, and the last line is added as payload of the event.";
+      ] @ common_man
+    in
+    Cmd.v (Cmd.info "add-event" ~doc ~man)
+      Term.(ret (const add_event $ dir_t $ event_typ_t))
+
+  let events_cmd =
+    let doc = "manage archives" in
+    let man = common_man in
+    let info = Cmd.info "archive" ~doc ~man in
+    Cmd.group info ([init_cmd; add_event_cmd] @ Tool_mkarchive.cmds)
+
+  let cmds = [events_cmd]
+
+end
+
 module Methods : CMDLINER_MODULE = struct
 
   let schulze nchoices blank_allowed =
@@ -906,6 +1005,7 @@ let cmds =
       Shasum.cmds;
       Setup.cmds;
       Election.cmds;
+      Events.cmds;
       Methods.cmds;
     ]
 

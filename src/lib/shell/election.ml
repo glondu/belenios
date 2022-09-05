@@ -160,8 +160,7 @@ end
 
 (** Computing checksums *)
 
-let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials =
-  let ec_election = Hash.hash_string election in
+let compute_checksums ~election ~trustees ~public_credentials ~shuffles ~encrypted_tally =
   let ec_public_credentials =
     Hash.hash_string (string_of_public_credentials public_credentials)
   in
@@ -226,47 +225,41 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
          )
     |> List.flatten
   in
-  let combine shuffles shufflers =
-    match shuffles, shufflers with
-    | Some shuffles, Some shufflers ->
-       List.combine shuffles shufflers
-       |> List.map
-            (fun (shuffle, shuffler) ->
-              let shuffle = Yojson.Safe.to_string shuffle in
-              let tc_checksum = Hash.hash_string shuffle in
-              {tc_checksum; tc_name = shuffler}
-            )
-       |> (fun x -> Some x)
-    | Some shuffles, None ->
-       shuffles
-       |> List.map
-            (fun shuffle ->
-              let shuffle = Yojson.Safe.to_string shuffle in
-              let tc_checksum = Hash.hash_string shuffle in
-              {tc_checksum; tc_name = None}
-            )
-       |> (fun x -> Some x)
-    | None, None -> None
-    | _, _ -> failwith "ill-formed result"
+  let find_trustee_name_by_id =
+    let names =
+      trustees
+      |> List.map
+           (function
+            | `Single k -> [k.trustee_name]
+            | `Pedersen t ->
+               Array.to_list t.t_verification_keys
+               |> List.map (fun x -> x.trustee_name)
+           )
+      |> List.flatten
+      |> Array.of_list
+    in
+    fun id ->
+    if 0 < id && id <= Array.length names then names.(id - 1) else None
   in
-  let ec_shuffles, ec_encrypted_tally =
-    match result_or_shuffles with
-    | `Nothing -> None, None
-    | `Shuffles (shuffles, shufflers) ->
-       let shuffles = List.map Yojson.Safe.from_string shuffles in
-       combine (Some shuffles) shufflers, None
-    | `Result result ->
-       let result =
-         election_result_of_string
-           Yojson.Safe.read_json Yojson.Safe.read_json
-           Yojson.Safe.read_json Yojson.Safe.read_json
-           result
-       in
-       let tally = Yojson.Safe.to_string result.encrypted_tally in
-       combine result.shuffles result.shufflers, Some (Hash.hash_string tally)
+  let process_shuffles shuffles =
+    List.map
+      (fun x ->
+        {
+          tc_checksum = x.owned_payload;
+          tc_name = find_trustee_name_by_id x.owned_owner;
+        }
+      ) shuffles
+  in
+  let ec_shuffles =
+    let& shuffles in
+    Some (process_shuffles shuffles)
   in
   {
-    ec_election; ec_trustees; ec_trustees_threshold;
-    ec_public_credentials; ec_shuffles; ec_encrypted_tally;
+    ec_election = election;
+    ec_trustees;
+    ec_trustees_threshold;
+    ec_public_credentials;
+    ec_shuffles;
+    ec_encrypted_tally = encrypted_tally;
     ec_num_voters; ec_weights;
   }

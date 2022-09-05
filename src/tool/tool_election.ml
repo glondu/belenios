@@ -27,72 +27,101 @@ open Belenios_core.Common
 open Common
 
 module type FILES = sig
+  val fsck : unit -> unit
+  val setup_data : setup_data
   val raw_election : string
   val get_trustees : unit -> string option
   val get_public_creds : unit -> string list option
   val get_ballots : unit -> string list option
-  val get_shuffles : unit -> string list option
+  val get_shuffles : unit -> (hash * hash owned * string) list option
+  val get_pds : unit -> (hash * hash owned * string) list option
   val get_result : unit -> string option
   val print_msg : string -> unit
 end
 
 module type PARAMS = sig
-  val dir : string
+  val file : string
 end
 
 module type S = sig
   type 'a m
   val vote : string option -> int array array -> string m
-  val decrypt : string -> string m
-  val tdecrypt : string -> string -> string m
-  val validate : string list -> string m
+  val decrypt : int -> string -> (string * string) m
+  val tdecrypt : int -> string -> string -> (string * string) m
+  val compute_result : unit -> string m
   val verify : unit -> unit m
-  val shuffle_ciphertexts : unit -> string m
+  val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
   val compute_voters : string list -> string list
   val compute_ballot_summary : unit -> string
+  val compute_encrypted_tally : unit -> string * string
 end
 
 module PTrustees = Trustees
 module M = Random
 
 module MakeGetters (X : PARAMS) : FILES = struct
+  let index = Tool_events.get_index ~file:X.file
+  let roots = Tool_events.get_roots index
+  let get_data x = Tool_events.get_data index x
+  let fsck () = Tool_events.fsck index
+
+  let setup_data =
+    match roots.roots_setup_data with
+    | None -> failcmd "setup data are missing"
+    | Some x ->
+       match get_data x with
+       | None -> failcmd "could not get setup data"
+       | Some x -> setup_data_of_string x
+
   let raw_election =
-    let fname = X.dir // "election.json" in
-    load_from_file (fun x -> x) fname |>
-      function
-      | Some [e] -> e
-      | None -> failcmd "could not read %s" fname
-      | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
+    match get_data setup_data.setup_election with
+    | None -> failcmd "could not get election"
+    | Some x -> x
 
   let get_public_creds () =
-    let file = "public_creds.json" in
-    Printf.eprintf "I: loading %s...\n%!" file;
-    try Some (string_of_file (X.dir // file) |> public_credentials_of_string) with _ -> None
+    get_data setup_data.setup_credentials
+    |> Option.map public_credentials_of_string
 
   let get_trustees () =
-    let file = "trustees.json" in
-    Printf.eprintf "I: loading %s...\n%!" file;
-    try Some (string_of_file (X.dir // file)) with _ -> None
+    get_data setup_data.setup_trustees
 
   let get_ballots () =
-    let file = "ballots.jsons" in
-    Printf.eprintf "I: loading %s...\n%!" file;
-    try Some (lines_of_file (X.dir // file)) with _ -> None
+    match roots.roots_last_ballot_event with
+    | None -> Some []
+    | Some x -> Some (Tool_events.fold_on_event_payloads index `Ballot x (fun x accu -> x :: accu) [])
 
   let get_shuffles () =
-    let file = "shuffles.jsons" in
-    if Sys.file_exists (X.dir // file) then (
-      Printf.eprintf "I: loading %s...\n%!" file;
-      try Some (lines_of_file (X.dir // file))
-      with _ -> None
-    ) else None
+    let& x = roots.roots_last_shuffle_event in
+    Tool_events.fold_on_event_payload_hashes index `Shuffle x
+      (fun x accu ->
+        match get_data x with
+        | None -> failwith "could not get shuffle"
+        | Some y ->
+           let owned = owned_of_string read_hash y in
+           match get_data owned.owned_payload with
+           | None -> failwith "could not get shuffle payload"
+           | Some z -> (x, owned, z) :: accu
+      ) []
+    |> (fun x -> Some x)
+
+  let get_pds () =
+    let& x = roots.roots_last_pd_event in
+    Tool_events.fold_on_event_payload_hashes index `PartialDecryption x
+      (fun x accu ->
+        match get_data x with
+        | None -> failwith "could not get partial decryption"
+        | Some y ->
+           let owned = owned_of_string read_hash y in
+           match get_data owned.owned_payload with
+           | None -> failwith "could not get partial decryption payload"
+           | Some z -> (x, owned, z) :: accu
+      ) []
+    |> (fun x -> Some x)
 
   let get_result () =
-    let& r = load_from_file (fun x -> x) (X.dir // "result.json") in
-    match r with
-    | [r] -> Some r
-    | _ -> failwith "invalid result"
+    let& x = roots.roots_result in
+    get_data x
 
   let print_msg = prerr_endline
 end
@@ -190,17 +219,26 @@ module Make (P : PARAMS) () = struct
        let ballot_id = sha256_b64 rawballot in
        let module X =
          struct
-           type user
+           type user = string
            let get_credential_record c =
              match SMap.find_opt c creds with
              | None -> M.return None
              | Some (cr_weight, old) -> M.return (Some {cr_ballot = !old; cr_weight})
-           let get_user_record _ =
-             M.return None
+           let get_user_record user =
+             match SMap.find_opt user creds with
+             | None -> M.return None
+             | Some (_, old) when !old = None -> M.return None
+             | _ -> M.return (Some user)
          end
        in
        let module B = E.CastBallot (X) in
-       let* x = B.cast rawballot in
+       let user =
+         let b = ballot_of_string rawballot in
+         match get_credential b with
+         | None -> failwith "credential is missing in ballot"
+         | Some credential -> G.to_string credential
+       in
+       let* x = B.cast ~user rawballot in
        match x with
        | Error e ->
           Printf.ksprintf failwith "error while casting ballot %s: %s"
@@ -212,15 +250,8 @@ module Make (P : PARAMS) () = struct
                ballot_id
           | Some (w, used) ->
              assert (!used = old);
-             let () =
-               match old with
-               | None -> used := Some ballot_id
-               | Some _ ->
-                  Printf.ksprintf failwith
-                    "credential of ballot %s used multiple times"
-                    ballot_id
-             in
-             M.return (hash, (w, ballot))
+             used := Some ballot_id;
+             M.return (hash, (credential, w, ballot))
 
   let ballots =
     let rec loop accu = function
@@ -234,14 +265,44 @@ module Make (P : PARAMS) () = struct
   let raw_encrypted_tally =
     lazy (
         match Lazy.force ballots with
-        | None -> M.return (E.process_ballots [], Weight.zero)
+        | None ->
+           let encrypted_tally = E.process_ballots [] in
+           M.return
+             (
+               encrypted_tally,
+               {
+                 sized_num_tallied = 0;
+                 sized_total_weight = Weight.zero;
+                 sized_encrypted_tally =
+                   Hash.hash_string
+                     (string_of_encrypted_tally G.write encrypted_tally);
+               }
+             )
         | Some ballots ->
            let* ballots in
-           let total_weight =
-             let open Weight in
-             List.fold_left (fun accu (_, (w, _)) -> accu + w) zero ballots
+           let ballots =
+             List.fold_left
+               (fun accu (_, (credential, w, ballot)) ->
+                 SMap.add credential (w, ballot) accu
+               ) SMap.empty (List.rev ballots)
            in
-           M.return (E.process_ballots (List.map snd ballots), total_weight)
+           let ballots = SMap.fold (fun _ x accu -> x :: accu) ballots [] in
+           let sized_total_weight =
+             let open Weight in
+             List.fold_left (fun accu (w, _) -> accu + w) zero ballots
+           in
+           let encrypted_tally = E.process_ballots ballots in
+           M.return
+             (
+               encrypted_tally,
+               {
+                 sized_num_tallied = List.length ballots;
+                 sized_total_weight;
+                 sized_encrypted_tally =
+                   Hash.hash_string
+                     (string_of_encrypted_tally G.write encrypted_tally);
+               }
+             )
       )
 
   let result_as_string = lazy (get_result ())
@@ -249,22 +310,16 @@ module Make (P : PARAMS) () = struct
   let result =
     lazy (
         Lazy.force result_as_string
-        |> Option.map (
-               election_result_of_string
-                 read_result (read_encrypted_tally G.read)
-                 (read_partial_decryption G.read) (read_shuffle G.read)
-             )
+        |> Option.map (election_result_of_string read_result)
       )
 
+  let lazy_shuffles = lazy (get_shuffles ())
+
   let shuffles_as_text =
-    lazy (
-        match Lazy.force result, get_shuffles () with
-        | Some _, Some _ -> failwith "both shuffles.jsons and result.json exist"
-        | None, None -> None
-        | Some result, None ->
-           result.shuffles
-           |> Option.map (List.map (string_of_shuffle G.write))
-        | None, (Some _ as s) -> s
+    lazy
+      (
+        Lazy.force lazy_shuffles
+        |> Option.map (List.map (fun (_, _, x) -> x))
       )
 
   let shuffles =
@@ -319,7 +374,7 @@ module Make (P : PARAMS) () = struct
     assert (E.check_ballot b);
     M.return (string_of_ballot b)
 
-  let decrypt privkey =
+  let decrypt owned_owner privkey =
     let sk = number_of_string privkey in
     let pk = G.(g **~ sk) in
     if Array.for_all (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
@@ -340,9 +395,16 @@ module Make (P : PARAMS) () = struct
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
-    M.return (string_of_partial_decryption G.write factor)
+    let pd = string_of_partial_decryption G.write factor in
+    let opd =
+      {
+        owned_owner;
+        owned_payload = Hash.hash_string pd;
+      }
+    in
+    M.return (pd, string_of_owned write_hash opd)
 
-  let tdecrypt key pdk =
+  let tdecrypt owned_owner key pdk =
     let sk = P.derive_sk key and dk = P.derive_dk key in
     let vk = G.(g **~ sk) in
     let pdk = C.recv dk vk (encrypted_msg_of_string G.read pdk) in
@@ -364,28 +426,38 @@ module Make (P : PARAMS) () = struct
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally pdk in
     assert (E.check_factor tally pvk factor);
-    M.return (string_of_partial_decryption G.write factor)
+    let pd = string_of_partial_decryption G.write factor in
+    let opd =
+      {
+        owned_owner;
+        owned_payload = Hash.hash_string pd;
+      }
+    in
+    M.return (pd, string_of_owned write_hash opd)
 
-  let validate factors =
-    let factors = List.map (partial_decryption_of_string G.read) factors in
-    let* tally, nballots = Lazy.force encrypted_tally in
-    let shuffles = Lazy.force shuffles in
+  let pds = lazy (get_pds ())
+
+  let compute_result () =
+    let pds =
+      match Lazy.force pds with
+      | None -> failwith "missing partial decryptions"
+      | Some x -> x
+    in
+    let fill of_string (_, owned, x) = {owned with owned_payload = of_string x} in
+    let factors = List.map (fill (partial_decryption_of_string G.read)) pds in
+    let* tally, sized = Lazy.force encrypted_tally in
+    let sized = {sized with sized_encrypted_tally = tally} in
     match trustees with
     | Some trustees ->
-       (match E.compute_result ?shuffles nballots tally factors trustees with
-        | Ok result ->
-           assert (E.check_result trustees result);
-           M.return (
-               string_of_election_result
-                 write_result (write_encrypted_tally G.write)
-                 (write_partial_decryption G.write) (write_shuffle G.write)
-                 result
-             )
-        | Error e -> failwith (PTrustees.string_of_combination_error e)
-       )
+       begin
+         match E.compute_result sized factors trustees with
+         | Ok result -> M.return (string_of_election_result write_result result)
+         | Error e -> failwith (PTrustees.string_of_combination_error e)
+       end
     | None -> failwith "missing trustees"
 
   let verify () =
+    let () = fsck () in
     (match trustees with
      | Some trustees ->
         assert (K.check trustees);
@@ -398,33 +470,44 @@ module Make (P : PARAMS) () = struct
       | None -> print_msg "W: no ballots to check"; M.return ()
     in
     let* () =
-      match Lazy.force result, trustees with
-      | Some result, Some trustees ->
-         let* et = Lazy.force encrypted_tally in
-         assert (fst et = result.encrypted_tally);
-         assert (E.check_result trustees result);
+      match Lazy.force result, trustees, Lazy.force pds with
+      | None, _, _ -> print_msg "W: no result to check"; M.return ()
+      | _, None, _ -> failwith "missing trustees"
+      | _, _, None -> failwith "no partial decryptions"
+      | Some result, Some trustees, Some pds ->
+         let fill of_string (_, owned, x) = {owned with owned_payload = of_string x} in
+         let factors = List.map (fill (partial_decryption_of_string G.read)) pds in
+         let* tally, sized = Lazy.force encrypted_tally in
+         let sized = {sized with sized_encrypted_tally = tally} in
+         if not (E.check_result sized factors trustees result) then
+           failwith "check_result failed";
          M.return ()
-      | Some _, None -> failwith "missing trustees"
-      | None, _ -> print_msg "W: no result to check"; M.return ()
     in
     print_msg "I: all checks passed";
     M.return ()
 
-  let shuffle_ciphertexts () =
+  let shuffle_ciphertexts owned_owner =
     let* cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
-    let* s = E.shuffle_ciphertexts cc in
-    M.return (string_of_shuffle G.write s)
+    let* shuffle = E.shuffle_ciphertexts cc in
+    let shuffle_s = string_of_shuffle G.write shuffle in
+    let owned =
+      {
+        owned_owner;
+        owned_payload = Hash.hash_string shuffle_s;
+      }
+    in
+    M.return (shuffle_s, string_of_owned write_hash owned)
 
   let checksums () =
-    let election = raw_election in
-    let result_or_shuffles =
-      match Lazy.force result_as_string with
-      | Some r -> `Result r
-      | None ->
-         match Lazy.force shuffles_as_text with
-         | None -> `Nothing
-         | Some shuffles -> `Shuffles (shuffles, None)
+    let election = setup_data.setup_election in
+    let shuffles =
+      let& x = Lazy.force lazy_shuffles in
+      Some (List.map (fun (_, x, _) -> x) x)
+    in
+    let encrypted_tally =
+      let _, x = Lazy.force encrypted_tally in
+      Some x.sized_encrypted_tally
     in
     let trustees =
       match trustees_as_string with
@@ -436,7 +519,7 @@ module Make (P : PARAMS) () = struct
       | None -> failwith "missing credentials"
       | Some x -> x
     in
-    Election.compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
+    Election.compute_checksums ~election ~shuffles ~encrypted_tally ~trustees ~public_credentials
     |> string_of_election_checksums
 
   let split line =
@@ -466,6 +549,7 @@ module Make (P : PARAMS) () = struct
               | Some id -> id :: accu
          ) creds []
 
+
   let compute_ballot_summary () =
     let has_weights =
       match Lazy.force public_creds_weights with
@@ -474,7 +558,7 @@ module Make (P : PARAMS) () = struct
     in
     Option.value ~default:[] (Lazy.force ballots)
     |> List.rev_map
-         (fun (bs_hash, (w, _)) ->
+         (fun (bs_hash, (_, w, _)) ->
            let bs_weight =
              if has_weights then (
                Some w
@@ -486,5 +570,10 @@ module Make (P : PARAMS) () = struct
            {bs_hash; bs_weight}
          )
     |> string_of_ballot_summary
+
+  let compute_encrypted_tally () =
+    let et, sized = Lazy.force raw_encrypted_tally in
+    string_of_encrypted_tally G.write et,
+    string_of_sized_encrypted_tally write_hash sized
 
 end

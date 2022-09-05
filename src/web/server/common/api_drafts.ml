@@ -850,20 +850,42 @@ let validate_election account uuid se =
             Lwt_io.write oc "\n") xs)
   in
   let open Belenios_core.Serializable_j in
-  let* () = create_file "trustees.json" (string_of_trustees G.write) [trustees] in
   let* () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
   let* () = create_file "metadata.json" string_of_metadata [metadata] in
-  let* () = create_file "election.json" (fun x -> x) [raw_election] in
-  let* () = create_file "ballots.jsons" (fun x -> x) [] in
   (* initialize credentials *)
-  let* () =
+  let* public_creds, public_creds_file =
     let fname = uuid /// "public_creds.json" in
     let* file = read_file_single_line fname in
     match file with
     | Some x ->
-       public_credentials_of_string x
-       |> Web_persist.init_credential_mapping uuid
-    | None -> Lwt.return_unit
+       let x = public_credentials_of_string x in
+       let* () = Web_persist.init_credential_mapping uuid x in
+       Lwt.return (x, fname)
+    | None -> Lwt.fail @@ Failure "no public credentials"
+  in
+  (* initialize events *)
+  let* () =
+    let raw_trustees = string_of_trustees G.write trustees in
+    let raw_public_creds = string_of_public_credentials public_creds in
+    let setup_election = Hash.hash_string raw_election in
+    let setup_trustees = Hash.hash_string raw_trustees in
+    let setup_credentials = Hash.hash_string raw_public_creds in
+    let setup_data =
+      {
+        setup_election;
+        setup_trustees;
+        setup_credentials;
+      }
+    in
+    let setup_data_s = string_of_setup_data setup_data in
+    Web_events.append ~lock:false ~uuid
+      [
+        Data raw_election;
+        Data raw_trustees;
+        Data raw_public_creds;
+        Data setup_data_s;
+        Event (`Setup, Some (Hash.hash_string setup_data_s));
+      ]
   in
   (* create file with private keys, if any *)
   let* () =
@@ -875,6 +897,7 @@ let validate_election account uuid se =
   in
   (* clean up draft *)
   let* () = cleanup_file (uuid /// "draft.json") in
+  let* () = cleanup_file public_creds_file in
   (* clean up private credentials, if any *)
   let* () = cleanup_file (uuid /// "private_creds.txt") in
   let* () = cleanup_file (uuid /// "private_creds.downloaded") in

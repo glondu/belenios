@@ -19,52 +19,68 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let lines_of_file fname =
-  let ic = open_in fname in
-  let rec loop accu =
-    match input_line ic with
-    | line -> loop (line :: accu)
-    | exception End_of_file -> close_in ic; List.rev accu
-  in
-  loop []
+open Serializable_t
+open Signatures
 
-let string_of_file f =
-  lines_of_file f |> String.concat "\n"
+type data_or_event = Data | Event of event
 
-let load_from_file of_string filename =
-  if Sys.file_exists filename then (
-    Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    Some (lines_of_file filename |> List.rev_map of_string)
-  ) else None
+type record =
+  {
+    typ : data_or_event;
+    hash : hash;
+    location : location;
+  }
 
-let find_bel_in_dir dir =
-  match
-    Sys.readdir dir
-    |> Array.to_list
-    |> List.filter (fun x -> Filename.check_suffix x ".bel")
-  with
-  | [file] -> file
-  | _ -> Printf.ksprintf failwith "directory %s must contain a single .bel file" dir
+val block_size : int
 
-exception Cmdline_error of string
-
-let failcmd fmt = Printf.ksprintf (fun x -> raise (Cmdline_error x)) fmt
-
-let wrap_main f =
-  match f () with
-  | () -> `Ok ()
-  | exception Cmdline_error e -> `Error (true, e)
-  | exception Failure e -> `Error (false, e)
-  | exception e -> `Error (false, Printexc.to_string e)
-
-let common_man = [
-  `S "MORE INFORMATION";
-  `P "This command is part of the Belenios command-line tool.";
-  `P "To get more help on a specific subcommand, run:";
-  `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
-  `P "See $(i,https://www.belenios.org/).";
-]
-
-module type CMDLINER_MODULE = sig
-  val cmds : unit Cmdliner.Cmd.t list
+module type IO_READER = sig
+  include MONAD
+  type file
+  val get_pos : file -> int64 t
+  val set_pos : file -> int64 -> unit t
+  val read_block : file -> bytes -> unit t
 end
+
+module type ARCHIVE_READER = sig
+  type 'a m
+  type archive
+  val read_header : archive -> archive_header m
+  val read_record : archive -> record m
+end
+
+module MakeReader (M : IO_READER) : ARCHIVE_READER
+       with type 'a m := 'a M.t and type archive = M.file
+
+module type IO_WRITER = sig
+  include MONAD
+  type file
+  val get_pos : file -> int64 t
+  val write_block : file -> bytes -> unit t
+end
+
+module type ARCHIVE_WRITER = sig
+  type 'a m
+  type archive
+  val write_header : archive -> archive_header -> unit m
+  val write_record : archive -> timestamp:int64 -> data_or_event -> string -> record m
+end
+
+module MakeWriter (M : IO_WRITER) : ARCHIVE_WRITER
+       with type 'a m := 'a M.t and type archive = M.file
+
+module type IO_ARCHIVER = sig
+  include MONAD
+  val get_hash : hash -> string option t
+end
+
+module type ARCHIVER = sig
+  type 'a m
+  type archive
+  val write_archive : archive -> archive_header -> event -> unit m
+end
+
+module MakeArchiver
+         (M : IO_ARCHIVER)
+         (W : ARCHIVE_WRITER with type 'a m := 'a M.t)
+       : ARCHIVER
+       with type 'a m := 'a M.t and type archive := W.archive

@@ -2216,15 +2216,61 @@ module Make
                   return (first_line :: second_line)
                 )
          in
-         let release_form =
-           post_form
-             ~service:election_tally_release
-             (fun () ->
-               [input
-                  ~input_type:`Submit
-                  ~value:(s_ "Compute the result")
-                  string
-             ]) uuid
+         let* release_form =
+           let* hidden = Web_persist.get_election_result_hidden uuid in
+           match hidden with
+           | Some t ->
+              let scheduled =
+                div [
+                    Printf.sprintf
+                      (f_ "The result is scheduled to be published after %s.")
+                      (raw_string_of_datetime t)
+                    |> txt
+                  ]
+              in
+              post_form ~service:election_show_result
+                (fun () ->
+                  [
+                    scheduled;
+                    input ~input_type:`Submit ~value:(s_ "Publish the result as soon as possible") string;
+                  ]
+                ) uuid
+              |> return
+           | None ->
+              let postpone_form =
+                post_form ~service:election_hide_result
+                  (fun date ->
+                    [
+                      div [
+                          Printf.ksprintf txt (f_ "You may postpone the publication of the election result up to %d days in the future.") days_to_publish_result;
+                        ];
+                      div [
+                          input ~input_type:`Submit ~value:(s_ "Postpone publication until") string;
+                          txt " ";
+                          input ~name:date ~input_type:`Text string;
+                        ];
+                      div [
+                          txt (s_ "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is ");
+                          txt (String.sub (string_of_datetime (now ())) 1 19);
+                          txt ".";
+                        ];
+                    ]
+                  ) uuid
+              in
+              let release_form =
+                post_form ~service:election_tally_release
+                  (fun () ->
+                    [
+                      div [
+                          txt @@ s_ "You may force the computation of the result now, if the required number of trustees have done their job, by clicking on the following button.";
+                          txt " ";
+                          txt @@ s_ "Note: no more partial decryptions will be allowed.";
+                        ];
+                      div [input ~input_type:`Submit ~value:(s_ "Compute the result") string];
+                    ]
+                  ) uuid
+              in
+              div [postpone_form; hr (); release_form] |> return
          in
          return @@ div [
                        div [
@@ -2248,39 +2294,8 @@ module Make
                        release_form;
                      ]
       | `Tallied ->
-         let* hidden = Web_persist.get_election_result_hidden uuid in
-         let form_toggle =
-           match hidden with
-           | Some _ ->
-              post_form ~service:election_show_result
-                (fun () ->
-                  [input ~input_type:`Submit ~value:(s_ "Publish the result now") string]
-                ) uuid
-           | None ->
-              post_form ~service:election_hide_result
-                (fun date ->
-                  [
-                    div [
-                        Printf.ksprintf txt (f_ "You may postpone the publication of the election result up to %d days in the future.") days_to_publish_result;
-                      ];
-                    div [
-                        input ~input_type:`Submit ~value:(s_ "Postpone publication until") string;
-                        txt " ";
-                        input ~name:date ~input_type:`Text string;
-                      ];
-                    div [
-                        txt (s_ "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is ");
-                        txt (String.sub (string_of_datetime (now ())) 1 19);
-                        txt ".";
-                      ];
-                  ]
-                ) uuid
-         in
          return @@ div [
                        div [txt (s_ "This election has been tallied.")];
-                       br ();
-                       hr ();
-                       form_toggle;
                      ]
       | `Archived ->
          return @@ div [
