@@ -25,6 +25,7 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_t
 
+val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val ( !! ) : string -> string
 val ( /// ) : uuid -> string -> string
 

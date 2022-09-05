@@ -30,6 +30,11 @@ open Serializable_t
 open Web_serializable_builtin_t
 open Web_serializable_j
 
+let ( let&* ) x f =
+  match x with
+  | None -> Lwt.return_none
+  | Some x -> f x
+
 let ( !! ) x = !Web_config.spool_dir // x
 let ( /// ) uuid x = !!(raw_string_of_uuid uuid // x)
 

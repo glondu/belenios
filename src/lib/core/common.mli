@@ -24,6 +24,7 @@ open Platform
 open Signatures_core
 
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b
+val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
 
 module Array : sig
