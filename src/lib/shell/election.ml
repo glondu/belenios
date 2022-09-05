@@ -161,10 +161,10 @@ end
 (** Computing checksums *)
 
 let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials =
-  let ec_election = sha256_b64 election in
-  let ec_public_credentials = sha256_b64 public_credentials in
+  let ec_election = Hash.hash_string election in
+  let ec_public_credentials = Hash.hash_string public_credentials in
   let tc_of_tpk k =
-    let tc_checksum = sha256_b64 (Yojson.Safe.to_string k.trustee_public_key) in
+    let tc_checksum = Hash.hash_string (Yojson.Safe.to_string k.trustee_public_key) in
     let tc_name = k.trustee_name in
     {tc_checksum; tc_name}
   in
@@ -190,9 +190,9 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
                     (fun (key, cert) ->
                       {
                         ttc_name = key.trustee_name;
-                        ttc_pki_key = sha256_b64 cert.s_message;
+                        ttc_pki_key = Hash.hash_string cert.s_message;
                         ttc_verification_key =
-                          sha256_b64 (Yojson.Safe.to_string key.trustee_public_key);
+                          Hash.hash_string (Yojson.Safe.to_string key.trustee_public_key);
                       }
                     )
              in
@@ -208,7 +208,7 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        |> List.map
             (fun (shuffle, shuffler) ->
               let shuffle = Yojson.Safe.to_string shuffle in
-              let tc_checksum = sha256_b64 shuffle in
+              let tc_checksum = Hash.hash_string shuffle in
               {tc_checksum; tc_name = shuffler}
             )
        |> (fun x -> Some x)
@@ -217,7 +217,7 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        |> List.map
             (fun shuffle ->
               let shuffle = Yojson.Safe.to_string shuffle in
-              let tc_checksum = sha256_b64 shuffle in
+              let tc_checksum = Hash.hash_string shuffle in
               {tc_checksum; tc_name = None}
             )
        |> (fun x -> Some x)
@@ -238,7 +238,7 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
            result
        in
        let tally = Yojson.Safe.to_string result.encrypted_tally in
-       combine result.shuffles result.shufflers, Some (sha256_b64 tally)
+       combine result.shuffles result.shufflers, Some (Hash.hash_string tally)
   in
   {
     ec_election; ec_pki = None; ec_trustees; ec_trustees_threshold;

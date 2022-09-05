@@ -431,7 +431,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div [
           Printf.ksprintf txt
             (f_ "The voter list has %d voter(s) and fingerprint %s.")
-            cache.cache_num_voters cache.cache_voters_hash;
+            cache.cache_num_voters (Hash.to_b64 cache.cache_voters_hash);
         ]
     in
     let show_weights =
@@ -464,7 +464,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           List.map
             (fun x ->
               let name = Option.value x.tc_name ~default:"N/A" in
-              li [Printf.ksprintf txt "%s (%s)" name x.tc_checksum]
+              li [Printf.ksprintf txt "%s (%s)" name (Hash.to_b64 x.tc_checksum)]
             ) xs
         )
     in
@@ -484,7 +484,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
               let name = Option.value x.ttc_name ~default:"N/A" in
               li [
                   Printf.ksprintf txt "%s (%s) [%s]"
-                    name x.ttc_verification_key x.ttc_pki_key
+                    name (Hash.to_b64 x.ttc_verification_key) (Hash.to_b64 x.ttc_pki_key)
                 ]
             ) xs
         )
@@ -509,7 +509,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           Printf.ksprintf txt
             (f_ "Credentials were generated and sent by %s and have fingerprint %s.")
             (Option.value params.e_credential_authority ~default:"N/A")
-            checksums.ec_public_credentials;
+            (Hash.to_b64 checksums.ec_public_credentials);
         ]
     in
     let div_shuffles =
@@ -528,7 +528,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          div [
              Printf.ksprintf txt
                (f_ "The fingerprint of the encrypted tally is %s.")
-               x
+               (Hash.to_b64 x)
            ]
     in
     let div_audit =

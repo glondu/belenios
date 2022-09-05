@@ -719,7 +719,7 @@ let compute_audit_cache uuid =
          None, None, None
        )
      in
-     let cache_voters_hash = sha256_b64 (String.concat "\n" voters ^ "\n") in
+     let cache_voters_hash = Hash.hash_string (String.concat "\n" voters ^ "\n") in
      let* result_or_shuffles =
        let* raw_election_result = get_election_result uuid in
        match raw_election_result with

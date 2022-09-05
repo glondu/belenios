@@ -26,6 +26,7 @@
 type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type weight <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type hash <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
 type proof <ocaml predef from="Belenios_core.Serializable"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -103,7 +104,7 @@ type audit_cache = {
   ?total_weight : weight option;
   ?min_weight : weight option;
   ?max_weight : weight option;
-  voters_hash : string;
+  voters_hash : hash;
   checksums : election_checksums;
   ?threshold : int option;
 } <ocaml field_prefix="cache_">

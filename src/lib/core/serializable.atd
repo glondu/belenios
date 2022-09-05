@@ -27,6 +27,7 @@ type number <ocaml predef from="Serializable_builtin"> = abstract
 type weight <ocaml predef from="Serializable_builtin"> = abstract
 type question_result <ocaml predef from="Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Serializable_builtin"> = abstract
+type hash <ocaml predef from="Serializable_builtin"> = abstract
 type 'a shape <ocaml predef from="Serializable_builtin"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
 type proof <ocaml predef from="Serializable_core"> = abstract
@@ -121,13 +122,13 @@ type ('result, 'et, 'pd, 'sh) election_result = {
 (** {2 Election report} *)
 
 type trustee_checksum = {
-  checksum : string;
+  checksum : hash;
   ?name : string option;
 } <ocaml field_prefix="tc_">
 
 type trustee_threshold_checksum = {
-  pki_key : string;
-  verification_key : string;
+  pki_key : hash;
+  verification_key : hash;
   ?name : string option
 } <ocaml field_prefix="ttc_">
 
@@ -137,13 +138,13 @@ type trustee_threshold_set = {
 } <ocaml field_prefix="ts_">
 
 type election_checksums = {
-  election : string;
+  election : hash;
   ?pki : trustee_checksum list option;
   trustees : trustee_checksum list;
   ?trustees_threshold : trustee_threshold_set list option;
-  public_credentials : string;
+  public_credentials : hash;
   ?shuffles : trustee_checksum list option;
-  ?encrypted_tally : string option;
+  ?encrypted_tally : hash option;
 } <ocaml field_prefix="ec_">
 
 (** {2 PKI support} *)
