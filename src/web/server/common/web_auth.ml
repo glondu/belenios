@@ -146,10 +146,8 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
     let* user = match uuid with
       | None ->
          let* x = Eliom_reference.get Web_state.site_user in
-         (match x with
-          | Some (a, _, _) -> return_some a
-          | None -> return_none
-         )
+         let&* a, _, _ = x in
+         return_some a
       | Some uuid -> Web_state.get_election_user uuid
     in
     match user, uuid with

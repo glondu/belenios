@@ -26,11 +26,6 @@ open Web_serializable_builtin_t
 open Web_common
 open Web_serializable_j
 
-let ( let& ) x f =
-  match x with
-  | None -> Lwt.return_none
-  | Some x -> f x
-
 module UMap = Map.Make (struct type t = user let compare = compare end)
 
 let cache = ref None
@@ -45,8 +40,8 @@ let clear_account_cache () =
   Lwt.return_unit
 
 let account_of_filename filename =
-  let& id = Filename.chop_suffix_opt ~suffix:".json" filename in
-  let& _ = int_of_string_opt id in
+  let&* id = Filename.chop_suffix_opt ~suffix:".json" filename in
+  let&* _ = int_of_string_opt id in
   let* contents = read_file (!Web_config.accounts_dir // filename) in
   match contents with
   | Some [x] -> Lwt.return (try Some (account_of_string x) with _ -> None)
@@ -135,7 +130,7 @@ let get_account user =
        cache := Some x;
        Lwt.return x
   in
-  let& id = UMap.find_opt user cache in
+  let&* id = UMap.find_opt user cache in
   get_account_by_id id
 
 type capability =

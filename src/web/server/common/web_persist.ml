@@ -51,7 +51,7 @@ let set_election_result_hidden uuid hidden =
 
 let get_election_result_hidden uuid =
   let* t = Spool.get ~uuid Spool.hide_result in
-  let@ t = fun cont -> match t with None -> return_none | Some t -> cont t in
+  let&* t = t in
   if datetime_compare (now ()) t < 0 then
     return_some t
   else
@@ -254,16 +254,14 @@ let get_passwords uuid =
     try Some (Csv.load (uuid /// "passwords.csv"))
     with _ -> None
   in
-  match csv with
-  | None -> return_none
-  | Some csv ->
-     let res = List.fold_left (fun accu line ->
-                   match line with
-                   | [login; salt; hash] ->
-                      SMap.add login (salt, hash) accu
-                   | _ -> accu
-                 ) SMap.empty csv in
-     return_some res
+  let&* csv = csv in
+  let res = List.fold_left (fun accu line ->
+                match line with
+                | [login; salt; hash] ->
+                   SMap.add login (salt, hash) accu
+                | _ -> accu
+              ) SMap.empty csv in
+  return_some res
 
 let get_private_key uuid = Spool.get ~uuid Spool.private_key
 
@@ -391,10 +389,8 @@ let get_ballot_by_hash uuid hash =
   match state with
   | `Archived ->
      let* ballots = archived_ballots_cache#find uuid in
-     (match SMap.find_opt hash ballots with
-      | Some (b, _) -> return_some b
-      | None -> return_none
-     )
+     let&* b, _ =  SMap.find_opt hash ballots in
+     return_some b
   | _ -> read_file_single_line ~uuid ("ballots" // urlize hash)
 
 let load_ballots uuid =
@@ -487,9 +483,8 @@ let get_nh_ciphertexts election =
 
 let get_shuffles uuid =
   let* election = get_raw_election uuid in
-  match election with
-  | None -> return_none
-  | Some _ -> Spool.get_raw_list ~uuid Spool.shuffles
+  let&* _ = election in
+  Spool.get_raw_list ~uuid Spool.shuffles
 
 let get_shuffle_hashes uuid =
   let* x =
@@ -645,16 +640,13 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
       type user = string
       let get_user_record user =
         let* x = find_extended_record uuid user in
-        match x with
-        | None -> return_none
-        | Some (_, old_credential) -> return_some old_credential
+        let&* _, old_credential = x in
+        return_some old_credential
       let get_credential_record credential =
         let* x = find_credential_mapping uuid credential in
-        match x with
-        | None -> return_none
-        | Some cr_ballot ->
-           let* cr_weight = get_credential_weight uuid credential in
-           return_some {cr_ballot; cr_weight}
+        let&* cr_ballot = x in
+        let* cr_weight = get_credential_weight uuid credential in
+        return_some {cr_ballot; cr_weight}
     end
   in
   let module B = W.E.CastBallot (X) in

@@ -102,15 +102,12 @@ let proceed draft pedersen =
          Lwt.return_unit
     )
 
-let ( let& ) x f =
-  Js.Opt.case x (fun () -> Lwt.return_unit) f
-
 let fail msg =
   set_content "election_url" msg;
   Lwt.return_unit
 
 let fill_interactivity () =
-  let& e = document##getElementById (Js.string "interactivity") in
+  let&&* e = document##getElementById (Js.string "interactivity") in
   let@ uuid, token = fun cont ->
     let hash = Dom_html.window##.location##.hash |> Js.to_string in
     match extract_uuid_and_token hash with

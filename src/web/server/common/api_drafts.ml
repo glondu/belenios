@@ -870,9 +870,8 @@ let validate_election account uuid se =
        let db =
          List.filter_map (fun v ->
              let _, login, _ = split_identity v.sv_id in
-             match v.sv_password with
-             | Some (salt, hashed) -> Some [login; salt; hashed]
-             | None -> None
+             let& salt, hashed = v.sv_password in
+             Some [login; salt; hashed]
            ) se.se_voters
        in
        if db <> [] then dump_passwords uuid db else Lwt.return_unit

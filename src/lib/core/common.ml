@@ -251,18 +251,16 @@ module BabyStepGiantStep (G : GROUP) = struct
     let rec lookup i gamma =
       if i < m then (
         let r =
-          match Hashtbl.find_opt table (G.hash_to_int gamma) with
-          | Some jj ->
-             let rec find = function
-               | [] -> None
-               | j :: jj ->
-                  let r = Z.((of_int i * of_int m + of_int j) mod G.q) in
-                  if G.(alpha **~ r =~ beta) then
-                    Some r
-                  else find jj
-             in
-             find jj
-          | None -> None
+          let& jj = Hashtbl.find_opt table (G.hash_to_int gamma) in
+          let rec find = function
+            | [] -> None
+            | j :: jj ->
+               let r = Z.((of_int i * of_int m + of_int j) mod G.q) in
+               if G.(alpha **~ r =~ beta) then
+                 Some r
+               else find jj
+          in
+          find jj
         in
         match r with
         | Some r -> Some r

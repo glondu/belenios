@@ -69,9 +69,8 @@ let send_changepw_link l ~service ~address ~username =
 
 let confirm_link address =
   links := filter_links_by_time !links;
-  match SMap.find_opt address !links with
-  | None -> Lwt.return_none
-  | Some x -> Lwt.return_some (x.code, x.service, x.kind)
+  let&* x = SMap.find_opt address !links in
+  Lwt.return_some (x.code, x.service, x.kind)
 
 let remove_link address =
   links := filter_links_by_time !links;

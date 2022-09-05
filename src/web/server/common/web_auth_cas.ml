@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
+open Belenios_core.Common
 open Web_common
 
 module Make (Web_auth : Web_auth_sig.S) = struct
@@ -96,10 +97,12 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     match next_lf info 0 with
     | Some i ->
        (match String.sub info 0 i with
-        | "yes" -> `Yes
-                     (match next_lf info (i+1) with
-                      | Some j -> Some (String.sub info (i+1) (j-i-1), "")
-                      | None -> None)
+        | "yes" ->
+           let x =
+             let& j = next_lf info (i + 1) in
+             Some (String.sub info (i + 1) (j - i - 1), "")
+           in
+           `Yes x
         | "no" -> `No
         | _ -> `Error `Parsing)
     | None -> `Error `Parsing

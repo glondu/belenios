@@ -48,20 +48,18 @@ let find_trustee_id uuid token =
 
 let find_trustee_private_key uuid trustee_id =
   let* x = Web_persist.get_private_keys uuid in
-  match x with
-  | None -> Lwt.return_none
-  | Some keys ->
-     (* there is one Pedersen trustee *)
-     let* trustees = Web_persist.get_trustees uuid in
-     let open Belenios_core.Serializable_j in
-     let trustees = trustees_of_string Yojson.Safe.read_json trustees in
-     let rec loop i ts =
-       match ts with
-       | [] -> Lwt.return_none (* an error, actually *)
-       | `Single _ :: ts -> loop (i - 1) ts
-       | `Pedersen _ :: _ -> Lwt.return_some (List.nth keys i)
-     in
-     loop (trustee_id - 1) trustees
+  let&* keys = x in
+  (* there is one Pedersen trustee *)
+  let* trustees = Web_persist.get_trustees uuid in
+  let open Belenios_core.Serializable_j in
+  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  let rec loop i ts =
+    match ts with
+    | [] -> Lwt.return_none (* an error, actually *)
+    | `Single _ :: ts -> loop (i - 1) ts
+    | `Pedersen _ :: _ -> Lwt.return_some (List.nth keys i)
+  in
+  loop (trustee_id - 1) trustees
 
 let with_tally_trustee token uuid f =
   let@ token = Option.unwrap unauthorized token in
@@ -581,11 +579,9 @@ let get_trustee_names uuid =
   Lwt.return (extract_names trustees)
 
 let get_trustee_name uuid metadata trustee =
-  match metadata.e_trustees with
-  | None -> Lwt.return_none
-  | Some xs ->
-     let* names = get_trustee_names uuid in
-     Lwt.return (List.assoc trustee (List.combine xs names))
+  let&* xs = metadata.e_trustees in
+  let* names = get_trustee_names uuid in
+  Lwt.return (List.assoc trustee (List.combine xs names))
 
 let skip_shuffler uuid metadata trustee =
   let* sh_name = get_trustee_name uuid metadata trustee in

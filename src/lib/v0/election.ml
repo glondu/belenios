@@ -94,9 +94,8 @@ module Parse (R : RAW_ELECTION) () = struct
   let string_of_ballot x = string_of_ballot G.write x
   let ballot_of_string x = ballot_of_string G.read x
   let get_credential x =
-    match x.signature with
-    | None -> None
-    | Some s -> Some s.s_public_key
+    let& s = x.signature in
+    Some s.s_public_key
 
 end
 

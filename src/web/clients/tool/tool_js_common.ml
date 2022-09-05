@@ -29,9 +29,15 @@ open Common
 
 let document = Dom_html.document
 
-let ( let& ) = Js.Opt.bind
-
+let ( let&& ) = Js.Opt.bind
+let ( let&&* ) x f = Js.Opt.case x (fun () -> Lwt.return_unit) f
 let ( let$ ) = Js.Opt.iter
+let ( let&$ ) x f = Option.iter f x
+
+let ( let&|&& ) x f =
+  match x with
+  | None -> Js.null
+  | Some x -> f x
 
 let return_unit =
   Js.some ()
@@ -87,8 +93,8 @@ let set_download id mime fn x =
 
 let get_content x =
   Js.Opt.get (
-      let& e = document##getElementById (Js.string x) in
-      let& x = e##.textContent in
+      let&& e = document##getElementById (Js.string x) in
+      let&& x = e##.textContent in
       Js.some (Js.to_string x)
     ) (fun () -> x)
 
@@ -159,12 +165,10 @@ let get token of_string url =
 let extract_uuid_and_token x =
   let n = String.length x in
   let i = if n > 1 && x.[0] = '#' then 1 else 0 in
-  match String.index_opt x '-' with
-  | Some j ->
-     let uuid = String.sub x i (j - i) in
-     let token = String.sub x (j + 1) (n - j - 1) in
-     Some (uuid, token)
-  | None -> None
+  let& j = String.index_opt x '-' in
+  let uuid = String.sub x i (j - i) in
+  let token = String.sub x (j + 1) (n - j - 1) in
+  Some (uuid, token)
 
 let build_election_url href uuid =
   let base =

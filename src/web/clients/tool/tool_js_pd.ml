@@ -71,12 +71,12 @@ let basic_check_private_key s =
   in leading 0
 
 let compute_partial_decryption tally_trustee _ =
-  let& e = Js.Opt.option !election in
+  let&|&& e = !election in
   let module P = Election.Make (struct let raw_election = e end) (LwtJsRandom) () in
-  let& e = Js.Opt.option !encrypted_tally in
+  let&|&& e = !encrypted_tally in
   let encrypted_tally = encrypted_tally_of_string P.G.read e in
-  let& e = document##getElementById (Js.string "private_key") in
-  let& e = Dom_html.CoerceTo.input e in
+  let&& e = document##getElementById (Js.string "private_key") in
+  let&& e = Dom_html.CoerceTo.input e in
   let pk_str = Js.to_string e##.value in
   let private_key =
     match tally_trustee.tally_trustee_private_key with
@@ -103,17 +103,17 @@ let compute_partial_decryption tally_trustee _ =
   return_unit
 
 let compute_hash () =
-  let$ e = Js.Opt.option !encrypted_tally in
+  let&$ e = !encrypted_tally in
   let hash = sha256_b64 e in
   let$ e = document##getElementById (Js.string "hash") in
   let t = document##createTextNode (Js.string hash) in
   Dom.appendChild e t
 
 let load_private_key_file _ =
-  let& e = document##getElementById (Js.string "private_key_file") in
-  let& e = Dom_html.CoerceTo.input e in
-  let& e = Js.Opt.option (Js.Optdef.to_option (e##.files)) in
-  let& file = e##item (0) in
+  let&& e = document##getElementById (Js.string "private_key_file") in
+  let&& e = Dom_html.CoerceTo.input e in
+  let&& e = Js.Opt.option (Js.Optdef.to_option (e##.files)) in
+  let&& file = e##item (0) in
   let reader = new%js File.fileReader in
   reader##.onload :=
     Dom.handler (fun _ ->
@@ -126,9 +126,6 @@ let load_private_key_file _ =
       );
   reader##readAsText (file);
   return_unit
-
-let ( let& ) x f =
-  Js.Opt.case x (fun () -> Lwt.return_unit) f
 
 let fill_interactivity () =
   let@ uuid, token = fun cont ->

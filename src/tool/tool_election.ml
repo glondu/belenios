@@ -88,9 +88,9 @@ module MakeGetters (X : PARAMS) : FILES = struct
     ) else None
 
   let get_result () =
-    load_from_file (fun x -> x) (X.dir // "result.json") |> function
-    | None -> None
-    | Some [r] -> Some r
+    let& r = load_from_file (fun x -> x) (X.dir // "result.json") in
+    match r with
+    | [r] -> Some r
     | _ -> failwith "invalid result"
 
   let print_msg = prerr_endline

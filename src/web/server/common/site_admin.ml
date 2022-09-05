@@ -878,31 +878,29 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 match election with
                 | None -> fail_http `Not_found
                 | Some se ->
-                   match List.find_opt (fun x -> token = x.st_token) se.se_public_keys with
-                   | None -> return_none
-                   | Some t ->
-                      if t.st_public_key <> "" then
-                        let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
-                        let title = s_ "Error" in
-                        return_some (title, msg, 400)
-                      else
-                        let version = Option.value se.se_version ~default:0 in
-                        let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                        let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
-                        let pk = trustee_public_key_of_string G.read public_key in
-                        let module K = Trustees.MakeCombinator (G) in
-                        if not (K.check [`Single pk]) then
-                          let msg = s_ "Invalid public key!" in
-                          let title = s_ "Error" in
-                          return_some (title, msg, 400)
-                        else (
-                          (* we keep pk as a string because of G.t *)
-                          t.st_public_key <- public_key;
-                          let* () = Web_persist.set_draft_election uuid se in
-                          let msg = s_ "Your key has been received and checked!" in
-                          let title = s_ "Success" in
-                          return_some (title, msg, 200)
-                        )
+                   let&* t = List.find_opt (fun x -> token = x.st_token) se.se_public_keys in
+                   if t.st_public_key <> "" then
+                     let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
+                     let title = s_ "Error" in
+                     return_some (title, msg, 400)
+                   else
+                     let version = Option.value se.se_version ~default:0 in
+                     let module G = (val Group.of_string ~version se.se_group : GROUP) in
+                     let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
+                     let pk = trustee_public_key_of_string G.read public_key in
+                     let module K = Trustees.MakeCombinator (G) in
+                     if not (K.check [`Single pk]) then
+                       let msg = s_ "Invalid public key!" in
+                       let title = s_ "Error" in
+                       return_some (title, msg, 400)
+                     else (
+                       (* we keep pk as a string because of G.t *)
+                       t.st_public_key <- public_key;
+                       let* () = Web_persist.set_draft_election uuid se in
+                       let msg = s_ "Your key has been received and checked!" in
+                       let title = s_ "Success" in
+                       return_some (title, msg, 200)
+                     )
               )
           in
           match x with
@@ -2003,34 +2001,30 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let extract_automatic_data_draft uuid_s =
     let uuid = uuid_of_raw_string uuid_s in
     let* election = Web_persist.get_draft_election uuid in
-    match election with
-    | None -> return_none
-    | Some se ->
-       let t = Option.value se.se_creation_date ~default:default_creation_date in
-       let next_t = datetime_add t (day days_to_delete) in
-       return_some (`Destroy, uuid, next_t)
+    let&* se = election in
+    let t = Option.value se.se_creation_date ~default:default_creation_date in
+    let next_t = datetime_add t (day days_to_delete) in
+    return_some (`Destroy, uuid, next_t)
 
   let extract_automatic_data_validated uuid_s =
     let uuid = uuid_of_raw_string uuid_s in
     let* election = Web_persist.get_raw_election uuid in
-    match election with
-    | None -> return_none
-    | Some _ ->
-       let* state = Web_persist.get_election_state uuid in
-       let* dates = Web_persist.get_election_dates uuid in
-       match state with
-       | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
-          let t = Option.value dates.e_finalization ~default:default_validation_date in
-          let next_t = datetime_add t (day days_to_delete) in
-          return_some (`Delete, uuid, next_t)
-       | `Tallied ->
-          let t = Option.value dates.e_tally ~default:default_tally_date in
-          let next_t = datetime_add t (day days_to_archive) in
-          return_some (`Archive, uuid, next_t)
-       | `Archived ->
-          let t = Option.value dates.e_archive ~default:default_archive_date in
-          let next_t = datetime_add t (day days_to_delete) in
-          return_some (`Delete, uuid, next_t)
+    let&* _ = election in
+    let* state = Web_persist.get_election_state uuid in
+    let* dates = Web_persist.get_election_dates uuid in
+    match state with
+    | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
+       let t = Option.value dates.e_finalization ~default:default_validation_date in
+       let next_t = datetime_add t (day days_to_delete) in
+       return_some (`Delete, uuid, next_t)
+    | `Tallied ->
+       let t = Option.value dates.e_tally ~default:default_tally_date in
+       let next_t = datetime_add t (day days_to_archive) in
+       return_some (`Archive, uuid, next_t)
+    | `Archived ->
+       let t = Option.value dates.e_archive ~default:default_archive_date in
+       let next_t = datetime_add t (day days_to_delete) in
+       return_some (`Delete, uuid, next_t)
 
   let try_extract extract x =
     Lwt.catch

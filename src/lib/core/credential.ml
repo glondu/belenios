@@ -68,9 +68,8 @@ end
 let check_raw x =
   let rec loop i accu =
     if i < token_length then
-      match String.index_opt digits x.[i] with
-      | Some digit -> loop (i+1) Z.(n58 * accu + of_int digit)
-      | None -> None
+      let& digit = String.index_opt digits x.[i] in
+      loop (i+1) Z.(n58 * accu + of_int digit)
     else Some accu
   in
   match loop 0 Z.zero, String.index_opt digits x.[token_length] with

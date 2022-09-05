@@ -369,9 +369,8 @@ let extract_email =
   if is_email x then
     Some x
   else (
-    match pcre_exec_opt ~rex x with
-    | Some s -> Some (Pcre.get_substring s 1)
-    | None -> None
+    let& s = pcre_exec_opt ~rex x in
+    Some (Pcre.get_substring s 1)
   )
 
 (* see http://www.regular-expressions.info/email.html *)

@@ -56,7 +56,6 @@ let tkeygen draft =
     | Some x -> x##.onclick := Dom_html.handler (fun _ -> downloaded := true; Js._true)
   in
   let () =
-    let ( let& ) = Js.Opt.iter in
     let handler =
       let@ _ = Dom_html.handler in
       if not !downloaded then (
@@ -66,22 +65,19 @@ let tkeygen draft =
     in
     let xs = document##getElementsByTagName (Js.string "form") in
     for i = 0 to xs##.length - 1 do
-      let& x = xs##item i in
-      let& x = Dom_html.CoerceTo.form x in
+      let$ x = xs##item i in
+      let$ x = Dom_html.CoerceTo.form x in
       x##.onsubmit := handler
     done
   in
   Lwt.return_unit
-
-let ( let& ) x f =
-  Js.Opt.case x (fun () -> Lwt.return_unit) f
 
 let fail msg =
   set_content "election_url" msg;
   Lwt.return_unit
 
 let fill_interactivity () =
-  let& e = document##getElementById (Js.string "interactivity") in
+  let&&* e = document##getElementById (Js.string "interactivity") in
   let hash = Dom_html.window##.location##.hash |> Js.to_string in
   match extract_uuid_and_token hash with
   | Some (uuid, token) ->

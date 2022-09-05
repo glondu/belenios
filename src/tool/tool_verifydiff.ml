@@ -151,16 +151,12 @@ let verifydiff dir1 dir2 =
     struct
       type user = string
       let get_credential_record cred =
-        match SMap.find_opt cred creds1 with
-        | None -> None
-        | Some (id, cr_weight) -> Some {cr_weight; cr_ballot = !id}
+        let& id, cr_weight = SMap.find_opt cred creds1 in
+        Some {cr_weight; cr_ballot = !id}
       let get_user_record user =
-        match SMap.find_opt user creds1 with
-        | None -> None
-        | Some (id, _) ->
-           match !id with
-           | None -> None
-           | Some _ -> Some user
+        let& id, _ = SMap.find_opt user creds1 in
+        let& _ = !id in
+        Some user
     end
   in
   let module CastBallot = E.CastBallot (BboxOps) in

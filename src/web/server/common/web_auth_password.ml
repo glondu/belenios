@@ -183,16 +183,14 @@ let change_password user ~password =
 let lookup_account ~service ~username ~email =
   let username = String.trim username |> String.lowercase_ascii in
   let email = email |> String.lowercase_ascii in
-  match get_password_db_fname service with
-  | None -> return_none
-  | Some db ->
-     let* db = Lwt_preemptive.detach Csv.load db in
-     match
-       List.find_opt (function
-           | u :: _ :: _ :: _ when String.lowercase_ascii u = username -> true
-           | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = email -> true
-           | _ -> false
-         ) db
-     with
-     | Some (u :: _ :: _ :: e :: _) when is_email e -> return_some (u, e)
-     | _ -> return_none
+  let&* db = get_password_db_fname service in
+  let* db = Lwt_preemptive.detach Csv.load db in
+  match
+    List.find_opt (function
+        | u :: _ :: _ :: _ when String.lowercase_ascii u = username -> true
+        | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = email -> true
+        | _ -> false
+      ) db
+  with
+  | Some (u :: _ :: _ :: e :: _) when is_email e -> return_some (u, e)
+  | _ -> return_none

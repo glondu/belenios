@@ -67,9 +67,6 @@ let generate uuid draft =
   set_element_display "submit_form" "inline";
   Lwt.return_unit
 
-let ( let& ) x f =
-  Js.Opt.case x (fun () -> Lwt.return_unit) f
-
 let fill_interactivity () =
   let@ uuid, token = fun cont ->
     let hash = Dom_html.window##.location##.hash |> Js.to_string in
@@ -109,7 +106,7 @@ let fill_interactivity () =
   in
   set_textarea "voters" raw;
   set_content "voters_hash" (sha256_b64 raw);
-  let& e = document##getElementById (Js.string "interactivity") in
+  let&&* e = document##getElementById (Js.string "interactivity") in
   let x = Dom_html.createDiv document in
   Dom.appendChild e x;
   let b = Dom_html.createButton document in

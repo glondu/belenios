@@ -54,11 +54,9 @@ let get_raw_list ~uuid filename =
 
 let get_fold_s ~uuid file f accu =
   let* x = read_file ~uuid file.filename in
-  match x with
-  | None -> Lwt.return_none
-  | Some xs ->
-     let* x = Lwt_list.fold_left_s (fun accu x -> f (file.of_string x) accu) accu xs in
-     Lwt.return_some x
+  let&* xs = x in
+  let* x = Lwt_list.fold_left_s (fun accu x -> f (file.of_string x) accu) accu xs in
+  Lwt.return_some x
 
 let get_fold_s_default ~uuid file f accu =
   let* x = read_file ~uuid file.filename in
