@@ -85,7 +85,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
       | Some uuid ->
          let* voters = Web_persist.get_voters uuid in
          let* address =
-           let&* voters = voters in
+           let&* voters in
            let rec loop = function
              | [] -> return_none
              | v :: vs ->

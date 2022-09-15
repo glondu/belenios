@@ -43,7 +43,7 @@ let raw filename =
 
 let get ~uuid file =
   let* x = read_file_single_line ~uuid file.filename in
-  let&* x = x in
+  let&* x in
   try Lwt.return_some (file.of_string x)
   with _ -> Lwt.return_none
 
@@ -55,8 +55,8 @@ let get_raw_list ~uuid filename =
   read_file ~uuid filename.filename
 
 let get_fold_s ~uuid file f accu =
-  let* x = read_file ~uuid file.filename in
-  let&* xs = x in
+  let* xs = read_file ~uuid file.filename in
+  let&* xs in
   let* x = Lwt_list.fold_left_s (fun accu x -> f (file.of_string x) accu) accu xs in
   Lwt.return_some x
 

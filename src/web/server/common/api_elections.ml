@@ -47,8 +47,8 @@ let find_trustee_id uuid token =
      Lwt.return (find 1 tokens)
 
 let find_trustee_private_key uuid trustee_id =
-  let* x = Web_persist.get_private_keys uuid in
-  let&* keys = x in
+  let* keys = Web_persist.get_private_keys uuid in
+  let&* keys in
   (* there is one Pedersen trustee *)
   let* trustees = Web_persist.get_trustees uuid in
   let open Belenios_core.Serializable_j in

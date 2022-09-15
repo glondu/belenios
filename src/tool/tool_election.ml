@@ -228,8 +228,8 @@ module Make (P : PARAMS) () = struct
     lazy (
         match Lazy.force ballots with
         | None -> M.return (E.process_ballots [], Weight.zero)
-        | Some x ->
-           let* ballots = x in
+        | Some ballots ->
+           let* ballots in
            let total_weight =
              let open Weight in
              List.fold_left (fun accu (w, _) -> accu + w) zero ballots

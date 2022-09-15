@@ -51,7 +51,7 @@ let set_election_result_hidden uuid hidden =
 
 let get_election_result_hidden uuid =
   let* t = Spool.get ~uuid Spool.hide_result in
-  let&* t = t in
+  let&* t in
   if datetime_compare (now ()) t < 0 then
     return_some t
   else
@@ -254,7 +254,7 @@ let get_passwords uuid =
     try Some (Csv.load (uuid /// "passwords.csv"))
     with _ -> None
   in
-  let&* csv = csv in
+  let&* csv in
   let res = List.fold_left (fun accu line ->
                 match line with
                 | [login; salt; hash] ->
@@ -643,8 +643,8 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
         let&* _, old_credential = x in
         return_some old_credential
       let get_credential_record credential =
-        let* x = find_credential_mapping uuid credential in
-        let&* cr_ballot = x in
+        let* cr_ballot = find_credential_mapping uuid credential in
+        let&* cr_ballot in
         let* cr_weight = get_credential_weight uuid credential in
         return_some {cr_ballot; cr_weight}
     end

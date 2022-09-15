@@ -321,7 +321,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     Shape.forall (fun {alpha; beta} -> G.check alpha && G.check beta) c
 
   let rec swaps = function
-    | SAtomic x -> let* x = x in M.return (SAtomic x)
+    | SAtomic x -> let* x in M.return (SAtomic x)
     | SArray x ->
        let rec loop i accu =
          if i >= 0

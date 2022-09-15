@@ -134,7 +134,7 @@ let string_of_error = function
 
 let wrap of_string x =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = x in
+  let* x in
   match x.code with
   | 200 ->
      let@ x = Option.unwrap bad_result (Option.wrap of_string x.content) in

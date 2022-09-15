@@ -2000,8 +2000,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let extract_automatic_data_draft uuid_s =
     let uuid = uuid_of_raw_string uuid_s in
-    let* election = Web_persist.get_draft_election uuid in
-    let&* se = election in
+    let* se = Web_persist.get_draft_election uuid in
+    let&* se in
     let t = Option.value se.se_creation_date ~default:default_creation_date in
     let next_t = datetime_add t (day days_to_delete) in
     return_some (`Destroy, uuid, next_t)
