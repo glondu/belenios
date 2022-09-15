@@ -43,7 +43,9 @@ let raw filename =
 
 let get ~uuid file =
   let* x = read_file_single_line ~uuid file.filename in
-  Lwt.return @@ Option.map file.of_string x
+  let&* x = x in
+  try Lwt.return_some (file.of_string x)
+  with _ -> Lwt.return_none
 
 let get_default ~default ~uuid file =
   let* x = get ~uuid file in
