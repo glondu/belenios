@@ -1,3 +1,22 @@
+dev
+===
+
+ * Web server:
+   + Reduce lifetime of auth-related cookies
+   + More trimming of various codes that are subject to copy-paste errors
+   + Handle `<br>` in election metadata in more places
+   + Ensure partial decryptions are in canonical form
+   + Set max to 1 in default homomorphic question
+   + Change format of links sent to credential authority and trustees
+   + Limit the number of trials in OTPs
+ * Command-line tool:
+   + Big overhaul: many commands have been renamed and grouped by topic
+   + `--group` now takes directly the group description
+ * Monitoring:
+   + Randomize order of HTTP requests in monitor_elections.py
+ * Container:
+   + Ensure /tmp is big enough when building container
+
 1.19 (2022-05-10)
 =================
 
