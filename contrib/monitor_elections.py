@@ -58,6 +58,8 @@ def Elogme(str):
     logme(str)
     print("Log: {}".format(str), file=sys.stderr)
 
+def b64_of_hex(s):
+    return base64.b64encode(bytes.fromhex(s)).decode().strip("=")
 
 # If it does not exist, create a fresh directory for an election
 # and initialize the git.
@@ -177,6 +179,14 @@ def write_and_verify_new_data(wdir, uuid, data):
             os.path.join(pnew, "ballots.jsons"))
     data['new_ballots'] = new_ballots
 
+    # compute checksums
+    checksums = subprocess.run(["belenios-tool", "election", "compute-checksums", "--dir={}".format(pnew)],
+                               stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    if checksums.returncode != 0:
+        msg = "Error: belenios-tool election compute-checksums failed on newly downloaded data form election {}, with output {}".format(uuid, checksums.stdout).encode()
+        return Status(True, msg)
+    data["checksums"] = checksums.stdout
+
     # move new files to main subdirectory
     for f in audit_files + optional_audit_files:
         if data[f] != b'':
@@ -242,10 +252,11 @@ def check_index_html(data):
 
     logme("Checking index.html of {} ...".format(uuid))
 
+    # load checksums computed by belenios-tool
+    checksums = json.loads(data["checksums"])
+
     # fingerprint of the election vs election.json
-    m = hashlib.sha256()
-    m.update(data['election.json'][0:-1]) # remove trailing \n
-    h = base64.b64encode(m.digest()).decode().strip('=')
+    h = b64_of_hex(checksums["election"])
     h2 = dom.getElementsByTagName("code")[0].firstChild.data
     if (not h == h2):
         msg = "Error: Wrong fingerprint of election {}\n".format(uuid).encode()
@@ -254,9 +265,7 @@ def check_index_html(data):
         logme("  election fingerprint ok")
 
     # credential fingerprint vs public_creds.txt
-    m = hashlib.sha256()
-    m.update(data['public_creds.txt'])
-    h = base64.b64encode(m.digest()).decode().strip('=')
+    h = b64_of_hex(checksums["public_credentials"])
     node = [ x.firstChild for x in dom.getElementsByTagName("div")
             if x.firstChild != None and
             x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
@@ -270,38 +279,30 @@ def check_index_html(data):
         logme("  cred fingerprint ok")
 
     # if weights, check the total/min/max vs content of public_creds.txt
-    node = [ x.firstChild for x in dom.getElementsByTagName("div")
-            if x.firstChild != None and
-            x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
-            re.search("The total weight is",x.firstChild.data) != None ]
-    if (len(node) == 1):
-        fail_weights = False
-        pat = re.compile(r'The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
-        mat = pat.match(node[0].data)
-        w_tot = int(mat.group(1))
-        w_min = int(mat.group(2))
-        w_max = int(mat.group(3))
-        c_tot = 0
-        c_min = 10000000000
-        c_max = 0
-        for l in data['public_creds.txt'].splitlines():
-            wt = l.decode().split(',')
-            if len(wt) == 2:
-                x = int(l.decode().split(',')[1])
-            else: # if absent, default weight is 1.
-                assert len(wt) == 1;
-                x = 1
-            c_tot += x
-            if (x < c_min):
-                c_min = x
-            if (x > c_max):
-                c_max = x
-        if (c_tot != w_tot) or (c_min != w_min) or (c_max != w_max):
-            msg = msg + "Error: Wrong stats of weights in election {}\n".format(uuid).encode()
-            logme(" " + str(c_tot) + " " + str(c_min) + " " + str(c_max))
-            fail = True
+    if "weights" in checksums:
+        weights = checksums["weights"]
+        node = [ x.firstChild for x in dom.getElementsByTagName("div")
+                 if x.firstChild != None and
+                 x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
+                 re.search("The total weight is",x.firstChild.data) != None ]
+        if len(node) == 1:
+            pat = re.compile(r'The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
+            mat = pat.match(node[0].data)
+            w_tot = int(mat.group(1))
+            w_min = int(mat.group(2))
+            w_max = int(mat.group(3))
+            c_tot = int(weights["total"])
+            c_min = int(weights["min"])
+            c_max = int(weights["max"])
+            if (c_tot != w_tot) or (c_min != w_min) or (c_max != w_max):
+                msg = msg + "Error: Wrong stats of weights in election {}\n".format(uuid).encode()
+                logme(" " + str(c_tot) + " " + str(c_min) + " " + str(c_max))
+                fail = True
+            else:
+                logme("  stats of weights ok")
         else:
-            logme("  stats of weights ok")
+            msg += "Error: missing weights in election {}\n".format(uuid).encode()
+            fail = True
 
     # check that the printed number of voters is consistent with number
     # of credentials
@@ -314,7 +315,7 @@ def check_index_html(data):
     mat = pat.match(node[0].data)
     nb_voters = int(mat.group(1))
     data['hash_voterlist'] = mat.group(2).encode() # for further checks
-    nb_creds = data['public_creds.txt'].decode().count('\n')
+    nb_creds = checksums["num_voters"]
     if (nb_voters != nb_creds):
         msg = msg + "Error: Number of voters different from number of credentials for election {}\n".format(uuid).encode()
         logme(" " + str(nb_voters) + " " + str(nb_creds))
@@ -322,39 +323,28 @@ def check_index_html(data):
     else:
         logme("  number of voters ok")
 
-    def hash_pub_key(s):
-        m = hashlib.sha256()
-        m.update(b'\"')
-        m.update(s.encode())
-        m.update(b'\"')
-        return base64.b64encode(m.digest()).decode().strip('=')
-
     # trustees fingerprint vs trustees.json
     jsn = json.loads(data['trustees.json'])
     names = []
     pks = []
     certs = []
 
-    for trustee in jsn:
-        if trustee[0] == 'Single':
-            if 'name' in trustee[1]:
-                names.append(trustee[1]['name'])
+    for trustee in checksums["trustees"]:
+        if "name" in trustee:
+            names.append(trustee["name"])
+        else:
+            names.append("N/A")
+        pks.append(b64_of_hex(trustee["checksum"]))
+        certs.append(None)
+
+    for tset in checksums["trustees_threshold"]:
+        for trustee in tset["trustees"]:
+            if "name" in trustee:
+                names.append(trustee["name"])
             else:
                 names.append("N/A")
-            pks.append(hash_pub_key(trustee[1]['public_key']))
-            certs.append(None)
-        else:
-            assert trustee[0] == 'Pedersen'
-            for tru in trustee[1]['verification_keys']:
-                if 'name' in tru:
-                    names.append(tru['name'])
-                else:
-                    names.append("N/A")
-                pks.append(hash_pub_key(tru['public_key']))
-            for tru in trustee[1]['certs']:
-                m = hashlib.sha256()
-                m.update(tru['message'].encode())
-                certs.append(base64.b64encode(m.digest()).decode().strip('='))
+            pks.append(b64_of_hex(trustee["verification_key"]))
+            certs.append(b64_of_hex(trustee["pki_key"]))
 
     names2 = []
     pks2 = []
@@ -386,48 +376,26 @@ def check_index_html(data):
     else:
         logme("  trustees fingerprints ok")
 
-    # encrypted tally vs result.json (if present)
-    # (and extract shuffles if present)
-    shuf_array = None
-    if data['result.json'] != b'':
-        jsn = json.loads(data['result.json'])
-        if 'encrypted_tally' in jsn:
-            s = jsn['encrypted_tally']
-            # convert to a string as Belenios use it for hashing
-            ss = json.JSONEncoder().encode(s).replace(' ', '')
-            m = hashlib.sha256()
-            m.update(ss.encode())
-            h = base64.b64encode(m.digest()).decode().strip('=')
-            node = [ x.firstChild for x in dom.getElementsByTagName("div") if
-                    x.firstChild != None and x.firstChild.nodeType ==
-                    xml.dom.minidom.Node.TEXT_NODE and
-                    re.search("The fingerprint of the encrypted tally",
-                        x.firstChild.data) != None ]
-            assert len(node) == 1
-            h2 = node[0].data.split(' ')[-1].strip('.')
-            if (not h == h2):
-                msg = msg + "Error: Wrong encrypted tally fingerprint of election {}\n".format(uuid).encode()
-                fail = True
-            else:
-                logme("  encrypted tally fingerprint ok")
-        if 'shuffles' in jsn:
-            shuf_array=jsn['shuffles']
-    elif data['shuffles.jsons'] != b'':
-        # not exactly the same as in result.json: one json per line...
-        shuf_array = []
-        for line in data['shuffles.jsons'].decode().splitlines():
-            shuf_array.append(json.loads(line))
+    # check consistency of encrypted tally
+    if "encrypted_tally" in checksums:
+        h = b64_of_hex(checksums['encrypted_tally'])
+        node = [ x.firstChild for x in dom.getElementsByTagName("div") if
+                 x.firstChild != None and x.firstChild.nodeType ==
+                 xml.dom.minidom.Node.TEXT_NODE and
+                 re.search("The fingerprint of the encrypted tally",
+                           x.firstChild.data) != None ]
+        assert len(node) == 1
+        h2 = node[0].data.split(' ')[-1].strip('.')
+        if (not h == h2):
+            msg = msg + "Error: Wrong encrypted tally fingerprint of election {}\n".format(uuid).encode()
+            fail = True
+        else:
+            logme("  encrypted tally fingerprint ok")
 
-    # shuffles fingerprint vs result.json or shuffles.jsons (if present)
-    if shuf_array != None:
-        hashs = []
+    # check consistency of shuffles
+    if "shuffles" in checksums:
+        hashs = [b64_of_hex(x["checksum"]) for x in checksums["shuffles"]]
         hashs2 = []
-        for s in shuf_array:
-            # convert to a string as Belenios use it for hashing
-            ss = json.JSONEncoder().encode(s).replace(' ', '')
-            m = hashlib.sha256()
-            m.update(ss.encode())
-            hashs.append(base64.b64encode(m.digest()).decode().strip('='))
         # in index.html, the shuffles are in the ul with id 'shuffles'
         for shuf in [ x for x in dom.getElementsByTagName("ul") if
                 x.getAttribute('id') == 'shuffles'
