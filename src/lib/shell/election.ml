@@ -225,7 +225,6 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
              [{ ts_trustees; ts_threshold = p.t_threshold }]
          )
     |> List.flatten
-    |> (fun x -> Some x)
   in
   let combine shuffles shufflers =
     match shuffles, shufflers with

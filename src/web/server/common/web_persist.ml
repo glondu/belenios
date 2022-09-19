@@ -728,8 +728,8 @@ let compute_audit_cache uuid =
 let get_audit_cache uuid =
   let* cache = Spool.get ~uuid Spool.audit_cache in
   match cache with
-  | Some x when x.cache_checksums.ec_trustees_threshold <> None -> return x
-  | _ ->
+  | Some x -> return x
+  | None ->
      let* cache = compute_audit_cache uuid in
      let* () = Spool.set ~uuid Spool.audit_cache cache in
      return cache

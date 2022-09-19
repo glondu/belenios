@@ -488,18 +488,15 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         )
     in
     let divs_trustees_threshold =
-      match checksums.ec_trustees_threshold with
-      | None -> []
-      | Some l ->
-         List.map
-           (fun x ->
-             div [
-                 Printf.ksprintf txt
-                   (f_ "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:")
-                   x.ts_threshold (List.length x.ts_trustees);
-                 format_ttc "trustees_threshold" x.ts_trustees;
-               ]
-           ) l
+      List.map
+        (fun x ->
+          div [
+              Printf.ksprintf txt
+                (f_ "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:")
+                x.ts_threshold (List.length x.ts_trustees);
+              format_ttc "trustees_threshold" x.ts_trustees;
+            ]
+        ) checksums.ec_trustees_threshold
     in
     let div_trustees = div (div_trustees_mandatory :: divs_trustees_threshold) in
     let div_credentials =

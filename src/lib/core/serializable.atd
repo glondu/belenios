@@ -146,7 +146,7 @@ type weight_checksums = {
 type election_checksums = {
   election : hash;
   trustees : trustee_checksum list;
-  ?trustees_threshold : trustee_threshold_set list option;
+  trustees_threshold : trustee_threshold_set list;
   num_voters : int;
   ?weights : weight_checksums option;
   public_credentials : hash;
