@@ -267,7 +267,7 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
        combine result.shuffles result.shufflers, Some (Hash.hash_string tally)
   in
   {
-    ec_election; ec_pki = None; ec_trustees; ec_trustees_threshold;
+    ec_election; ec_trustees; ec_trustees_threshold;
     ec_public_credentials; ec_shuffles; ec_encrypted_tally;
     ec_num_voters; ec_weights;
   }
