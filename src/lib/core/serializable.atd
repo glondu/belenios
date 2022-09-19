@@ -137,11 +137,19 @@ type trustee_threshold_set = {
   threshold : int;
 } <ocaml field_prefix="ts_">
 
+type weight_checksums = {
+  total : weight;
+  min : weight;
+  max : weight;
+} <ocaml field_prefix="w_">
+
 type election_checksums = {
   election : hash;
   ?pki : trustee_checksum list option;
   trustees : trustee_checksum list;
   ?trustees_threshold : trustee_threshold_set list option;
+  num_voters : int;
+  ?weights : weight_checksums option;
   public_credentials : hash;
   ?shuffles : trustee_checksum list option;
   ?encrypted_tally : hash option;

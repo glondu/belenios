@@ -431,14 +431,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div [
           Printf.ksprintf txt
             (f_ "The voter list has %d voter(s) and fingerprint %s.")
-            cache.cache_num_voters (Hash.to_b64 cache.cache_voters_hash);
+            cache.cache_checksums.ec_num_voters (Hash.to_b64 cache.cache_voters_hash);
         ]
     in
-    let show_weights =
-      match cache.cache_total_weight with
-      | Some x when not Weight.(is_int x cache.cache_num_voters) -> true
-      | _ -> false
-    in
+    let show_weights = cache.cache_checksums.ec_weights <> None in
     let div_show_weights =
       if show_weights then
         div [
@@ -450,12 +446,14 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       else txt ""
     in
     let div_total_weight =
-      match cache.cache_total_weight, cache.cache_min_weight, cache.cache_max_weight with
-      | Some w, Some min, Some max ->
+      match cache.cache_checksums.ec_weights with
+      | Some {w_total; w_min; w_max} ->
          div [
              Printf.ksprintf txt
                (f_ "The total weight is %s (min: %s, max: %s).")
-               (Weight.to_string w) (Weight.to_string min) (Weight.to_string max);
+               (Weight.to_string w_total)
+               (Weight.to_string w_min)
+               (Weight.to_string w_max);
            ]
       | _ -> txt ""
     in
@@ -728,8 +726,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                                 ] in
     let* div_weight =
       let* audit_cache = Web_persist.get_audit_cache uuid in
-      match audit_cache.cache_total_weight with
-      | Some x when not Weight.(is_int x audit_cache.cache_num_voters) ->
+      match audit_cache.cache_checksums.ec_weights with
+      | Some _ ->
          let* ballot = Eliom_reference.get Web_state.ballot in
          (match ballot with
           | Some ballot ->
@@ -927,11 +925,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ) result
     in
     let* audit_cache = Web_persist.get_audit_cache uuid in
-    let show_weights =
-      match audit_cache.cache_total_weight with
-      | Some x when not Weight.(is_int x audit_cache.cache_num_voters) -> true
-      | _ -> false
-    in
+    let show_weights = audit_cache.cache_checksums.ec_weights <> None in
     let title = br_truncate election.e_name ^ " — " ^ s_ "Accepted ballots" in
     let nballots = ref 0 in
     let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in

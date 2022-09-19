@@ -151,9 +151,11 @@ module Make (P : PARAMS) () = struct
 
   module PPC = Belenios_core.Credential.MakeParsePublicCredential (G)
 
+  let raw_public_creds = lazy (get_public_creds ())
+
   let public_creds =
     lazy (
-        get_public_creds ()
+        Lazy.force raw_public_creds
         |> Option.map
              (List.fold_left
                 (fun accu x ->
@@ -425,14 +427,9 @@ module Make (P : PARAMS) () = struct
       | Some x -> x
     in
     let public_credentials =
-      match Lazy.force public_creds with
-      | None -> failwith "missing public credentials"
-      | Some public_creds ->
-         public_creds
-         |> SMap.bindings
-         |> List.map fst
-         |> List.map (fun x -> x ^ "\n")
-         |> String.concat ""
+      match Lazy.force raw_public_creds with
+      | None -> failwith "missing credentials"
+      | Some x -> x
     in
     Election.compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
     |> string_of_election_checksums

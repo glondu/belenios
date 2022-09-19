@@ -690,35 +690,6 @@ let compute_audit_cache uuid =
        | Some x -> return x
        | None -> failwith "voters are missing"
      in
-     let total_weight, min_weight, max_weight =
-       let open Weight in
-       let min a b =
-         match a with
-         | None -> Some b
-         | Some a -> Some (min a b)
-       and max a b =
-         match a with
-         | None -> Some b
-         | Some a -> Some (max a b)
-       in
-       match
-         List.fold_left
-           (fun (tw, minw, maxw) voter ->
-             let _, _, weight = split_identity voter in
-             tw + weight, min minw weight, max maxw weight
-           ) (zero, None, None) voters
-       with
-       | tw, Some minw, Some maxw -> tw, minw, maxw
-       | _ -> failwith "no voters"
-     in
-     let cache_num_voters = List.length voters in
-     let cache_total_weight, cache_min_weight, cache_max_weight =
-       if not Weight.(is_int total_weight cache_num_voters) then (
-         Some total_weight, Some min_weight, Some max_weight
-       ) else (
-         None, None, None
-       )
-     in
      let cache_voters_hash = Hash.hash_string (String.concat "\n" voters ^ "\n") in
      let* result_or_shuffles =
        let* raw_election_result = get_election_result uuid in
@@ -738,22 +709,17 @@ let compute_audit_cache uuid =
                 return (`Shuffles (shuffles, Some shufflers))
      in
      let* trustees = get_trustees uuid in
-     let* credentials =
+     let* public_credentials =
        let* x = Spool.get_raw_list ~uuid Spool.public_creds in
        match x with
        | Some x -> return x
        | None -> failwith "public credentials are missing"
      in
-     let public_credentials = String.concat "\n" credentials ^ "\n" in
      let cache_checksums =
        Election.compute_checksums ~election result_or_shuffles
          ~trustees ~public_credentials
      in
      return {
-         cache_num_voters;
-         cache_total_weight;
-         cache_min_weight;
-         cache_max_weight;
          cache_voters_hash;
          cache_checksums;
          cache_threshold = None;

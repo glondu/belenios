@@ -100,10 +100,6 @@ type 'a web_trustee_public_key = {
 } <ocaml field_prefix="web_trustee_">
 
 type audit_cache = {
-  num_voters : int;
-  ?total_weight : weight option;
-  ?min_weight : weight option;
-  ?max_weight : weight option;
   voters_hash : hash;
   checksums : election_checksums;
   ?threshold : int option;

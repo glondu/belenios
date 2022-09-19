@@ -40,5 +40,5 @@ val compute_checksums :
   [`Nothing
   | `Shuffles of string list * string option list option
   | `Result of string] ->
-  trustees:string -> public_credentials:string ->
+  trustees:string -> public_credentials:string list ->
   Serializable_t.election_checksums

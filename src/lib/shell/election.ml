@@ -162,7 +162,33 @@ end
 
 let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials =
   let ec_election = Hash.hash_string election in
-  let ec_public_credentials = Hash.hash_string public_credentials in
+  let ec_public_credentials =
+    Hash.hash_string (String.concat "\n" public_credentials ^ "\n")
+  in
+  let ec_num_voters = List.length public_credentials in
+  let ec_weights =
+    let w_total, min, max =
+      List.fold_left
+        (fun (total, min, max) cred ->
+          match String.index cred ',' with
+          | exception Not_found -> Weight.(total + one), min, max
+          | i ->
+             let n = String.length cred in
+             let w = Weight.of_string (String.sub cred (i + 1) (n - i - 1)) in
+             let total = Weight.(total + w) in
+             let min = match min with None -> Some w | Some w' -> Some (Weight.min w w') in
+             let max = match max with None -> Some w | Some w' -> Some (Weight.max w w') in
+             total, min, max
+        ) (Weight.zero, None, None) public_credentials
+    in
+    if Weight.is_int w_total ec_num_voters then (
+      None
+    ) else (
+      match min, max with
+      | Some w_min, Some w_max -> Some {w_total; w_min; w_max}
+      | _ -> failwith "inconsistent weights in credentials"
+    )
+  in
   let tc_of_tpk k =
     let tc_checksum = Hash.hash_string (Yojson.Safe.to_string k.trustee_public_key) in
     let tc_name = k.trustee_name in
@@ -242,5 +268,6 @@ let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials
   in
   {
     ec_election; ec_pki = None; ec_trustees; ec_trustees_threshold;
-    ec_public_credentials; ec_shuffles; ec_encrypted_tally
+    ec_public_credentials; ec_shuffles; ec_encrypted_tally;
+    ec_num_voters; ec_weights;
   }
