@@ -28,8 +28,7 @@ build_and_test_with_debian_image:
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm rsync
     # Install the same Opam packages that opam-bootstrap.sh installs
     - git -C /home/opam/opam-repository remote set-url origin https://github.com/ocaml/opam-repository.git
-    - git -C /home/opam/opam-repository fetch origin
-    - git -C /home/opam/opam-repository reset --hard f6f7fd51b089601fb1e25a5a6aa020510423d25e
+    - git -C /home/opam/opam-repository pull origin master
     - opam update
     - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
