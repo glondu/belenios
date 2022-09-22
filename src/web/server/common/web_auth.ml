@@ -40,7 +40,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
         ((string * string) option -> 'a Lwt.t) -> 'a Lwt.t
     }
 
-  let scope = Eliom_common.default_session_scope
+  let scope = `Session (Eliom_common.create_scope_hierarchy "belenios-auth")
 
   let auth_env = Eliom_reference.eref ~scope None
 
@@ -83,7 +83,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
                      cont ()
                    else restart_login ()
               in
-              let* () = Eliom_reference.unset auth_env in
+              let* () = Eliom_state.discard ~scope () in
               let user = { user_domain = a.auth_instance; user_name = name } in
               let* () =
                 match uuid with
