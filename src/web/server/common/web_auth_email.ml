@@ -100,8 +100,8 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
     match ok, address with
     | true, Some address ->
        let* () = Otp.generate ~address in
-       let* () = Eliom_reference.unset uuid_ref in
        let* () = Eliom_reference.set env (Some (state, name, address)) in
+       let* () = Eliom_reference.unset uuid_ref in
        Pages_common.email_login site_or_election >>= Eliom_registration.Html.send
     | _ ->
        run_post_login_handler ~state
