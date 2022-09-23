@@ -1136,7 +1136,7 @@ module Make
                       ];
                     li [
                         txt (s_ "the fingerprint of public credentials matches what has been saved, for example with the following command:");
-                        pre [txt "sha256sum public_creds.txt | xxd -p -r | base64 | tr -d \"=\""];
+                        pre [txt "sha256sum public_creds.json | xxd -p -r | base64 | tr -d \"=\""];
                         txt (s_ "(or ");
                         code [txt "shasum -a256"];
                         txt (s_ " instead of ");

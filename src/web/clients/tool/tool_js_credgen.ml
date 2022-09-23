@@ -24,6 +24,7 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
+open Belenios_core.Serializable_j
 open Belenios_tool_common
 open Belenios_tool_js_common
 open Tool_js_common
@@ -57,7 +58,7 @@ let generate uuid draft =
     List.combine ids privs
     |> List.map (fun (id, priv) -> id ^ " " ^ priv)
   in
-  let text_pks = (pubs |> String.concat "\n") ^ "\n" in
+  let text_pks = string_of_public_credentials pubs in
   set_textarea "pks" text_pks;
   let hash = sha256_b64 text_pks in
   set_content "public_creds_fp" hash;

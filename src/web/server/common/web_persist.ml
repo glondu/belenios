@@ -286,11 +286,16 @@ end
 module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
 
 let raw_get_credential_weights uuid =
-  Spool.get_fold_s_default ~uuid Spool.public_creds
-    (fun x accu ->
-      let x, w = extract_weight x in
-      return @@ SMap.add x w accu
-    ) SMap.empty
+  let* x = Spool.get ~uuid Spool.public_creds in
+  match x with
+  | None -> assert false
+  | Some x ->
+     List.fold_left
+       (fun accu x ->
+         let x, w = extract_weight x in
+         SMap.add x w accu
+       ) SMap.empty x
+     |> Lwt.return
 
 let credential_weights_cache =
   new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
@@ -710,7 +715,7 @@ let compute_audit_cache uuid =
      in
      let* trustees = get_trustees uuid in
      let* public_credentials =
-       let* x = Spool.get_raw_list ~uuid Spool.public_creds in
+       let* x = Spool.get ~uuid Spool.public_creds in
        match x with
        | Some x -> return x
        | None -> failwith "public credentials are missing"

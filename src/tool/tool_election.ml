@@ -66,9 +66,9 @@ module MakeGetters (X : PARAMS) : FILES = struct
       | _ -> Printf.ksprintf failwith "invalid election file: %s" fname
 
   let get_public_creds () =
-    let file = "public_creds.txt" in
+    let file = "public_creds.json" in
     Printf.eprintf "I: loading %s...\n%!" file;
-    try Some (lines_of_file (X.dir // file)) with _ -> None
+    try Some (string_of_file (X.dir // file) |> public_credentials_of_string) with _ -> None
 
   let get_trustees () =
     let file = "trustees.json" in

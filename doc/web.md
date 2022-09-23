@@ -75,7 +75,7 @@ During the election, the following files are published:
 
  * `election.json`: election parameters
  * `trustees.json`: trustees' public keys
- * `public_creds.txt`: the public keys associated to valid credentials
+ * `public_creds.json`: the public keys associated to valid credentials
  * `ballots.jsons`: accepted ballots
 
 They are accessible from the bottom of the election page. Together,

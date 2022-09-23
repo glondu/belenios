@@ -116,21 +116,25 @@ let verifydiff dir1 dir2 =
     if not G.(public_key =~ y) then
       raise (VerifydiffError PublicKeyMismatch)
   in
-  (* load both public_creds.txt and check that their contents is valid *)
+  (* load both public_creds.json and check that their contents is valid *)
   let parse x =
     let cred, w = extract_weight x in
     G.of_string cred, w
   in
   let creds dir =
-    match load_from_file parse (dir // "public_creds.txt") with
-    | None -> raise (VerifydiffError MissingCredentials)
-    | Some creds ->
-       if not (List.for_all (fun (x, _) -> G.check x) creds) then
-         raise (VerifydiffError InvalidCredential);
-       List.fold_left (fun accu (x, w) -> SMap.add (G.to_string x) (ref None, w) accu) SMap.empty creds
+    let creds =
+      try
+        string_of_file (dir // "public_creds.json")
+        |> public_credentials_of_string
+        |> List.map parse
+      with _ -> raise (VerifydiffError MissingCredentials)
+    in
+    if not (List.for_all (fun (x, _) -> G.check x) creds) then
+      raise (VerifydiffError InvalidCredential);
+    List.fold_left (fun accu (x, w) -> SMap.add (G.to_string x) (ref None, w) accu) SMap.empty creds
   in
   let creds1 = creds dir1 and creds2 = creds dir2 in
-  (* both public_creds.txt have the same cardinal *)
+  (* both public_creds.json have the same cardinal *)
   let () =
     if SMap.cardinal creds1 <> SMap.cardinal creds2 then
       raise (VerifydiffError CredentialsMismatch)

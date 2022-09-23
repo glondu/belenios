@@ -172,7 +172,7 @@ type election_file =
 let election_file_of_string = function
   | "election.json" -> ESRaw
   | "trustees.json" -> ESTrustees
-  | "public_creds.txt" -> ESCreds
+  | "public_creds.json" -> ESCreds
   | "ballots.jsons" -> ESBallots
   | "records" -> ESRecords
   | "voters.txt" -> ESVoters
@@ -184,7 +184,7 @@ let election_file_of_string = function
 let string_of_election_file = function
   | ESRaw -> "election.json"
   | ESTrustees -> "trustees.json"
-  | ESCreds -> "public_creds.txt"
+  | ESCreds -> "public_creds.json"
   | ESBallots -> "ballots.jsons"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"

@@ -27,7 +27,7 @@ During an election, you should have access to the following files:
 
  * `election.json`: election parameters
  * `trustees.json`: trustees' public keys
- * `public_creds.txt`: the public keys associated to valid credentials
+ * `public_creds.json`: the public keys associated to valid credentials
  * `ballots.jsons`: accepted ballots
 
 Note that the last one is dynamic, and evolve during the election. At
@@ -72,7 +72,7 @@ Administrator's guide
     to the Belenios source tree.
  4. Ask the credential authority to generate credentials. Note that
     `$UUID` is needed for that. Save the file with public
-    credentials into `$DIR/public_creds.txt`.
+    credentials into `$DIR/public_creds.json`.
  5. Ask each trustee to generate a keypair. Concatenate all trustee
     public keys into a `$DIR/public_keys.jsons` file.
  6. Edit `$BELENIOS/tests/tool/templates/questions.json`.
@@ -103,7 +103,7 @@ several authentication mechanisms.
 ### Tallying the election
 
  1. Go to the election directory, which must contain `election.json`,
-    `trustees.json`, `public_creds.txt` and `ballots.jsons`.
+    `trustees.json`, `public_creds.json` and `ballots.jsons`.
  2. Concatenate the `partial_decryption.json` received from each
     trustee into a `partial_decryptions.jsons`.
  3. Run `belenios-tool election compute-result`.  It will create
@@ -126,20 +126,15 @@ identity per line, run:
     belenios-tool setup generate-credentials --uuid XXXXXXXXXXXXXX --file F
 
 where `XXXXXXXXXXXXXX` is the UUID of the
-election given by the administrator. It will generate three files with
-`N` lines:
+election given by the administrator. It will generate two files:
 
  * `T.privcreds`: each line of this file contains an identity and a
    private credential. Send each voter the associated credential. Keep
    this file secret, and secure if you want to be able to re-send a
    credential later (e.g. if a voter lost or did not receive it).
- * `T.pubcreds`: each line of this file contains a public credential.
+ * `T.pubcreds`: this JSON file contains `N` public credentials.
    Send the whole file to the election administrator; it will be the
-   `public_creds.txt` for the election (and you must check that);
- * `T.hashcreds`: each line of this file contains, for each id in
-   `T.privcreds`, the hash of the corresponding public key. At the
-   moment, this file has no practical purpose (but this might change in
-   the future). Destroy it.
+   `public_creds.json` of the election (and you must check that);
 
 You can optionally add a `--dir` option to specify the directory where
 these files will be written.

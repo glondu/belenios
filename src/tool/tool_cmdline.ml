@@ -305,7 +305,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
          if not (
                 download dir u "election.json" &&
                   download dir u "trustees.json" &&
-                    download dir u "public_creds.txt" &&
+                    download dir u "public_creds.json" &&
                       (download dir u "ballots.jsons" || true) &&
                         (download dir u "result.json" || download dir u "shuffles.jsons" || true)
               ) then
@@ -515,17 +515,26 @@ module Credgen : CMDLINER_MODULE = struct
   let params_priv = "private credentials with ids", ".privcreds", 0o400
   let params_pub = "public credentials", ".pubcreds", 0o444
 
-  let save (info, ext, perm) basename things =
+  let save (info, ext, perm) basename f =
     let fname = basename ^ ext in
     let oc = open_out_gen [Open_wronly; Open_creat; Open_excl] perm fname in
-    let count = ref 0 in
-    List.iter (fun x ->
-      incr count;
-      output_string oc x;
-      output_string oc "\n";
-    ) things;
+    let count = f oc in
     close_out oc;
-    Printf.printf "%d %s saved to %s\n%!" !count info fname
+    Printf.printf "%d %s saved to %s\n%!" count info fname
+
+  let as_lines things oc =
+    let count = ref 0 in
+    List.iter
+      (fun x ->
+        incr count;
+        output_string oc x;
+        output_string oc "\n";
+      ) things;
+    !count
+
+  let as_public_credentials things oc =
+    output_string oc (string_of_public_credentials things);
+    List.length things
 
   let main version group dir uuid count file derive =
     let@ () = wrap_main in
@@ -557,8 +566,8 @@ module Credgen : CMDLINER_MODULE = struct
        in
        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
        let base = dir // timestamp in
-       save params_priv base privs;
-       save params_pub base pubs
+       save params_priv base (as_lines privs);
+       save params_pub base (as_public_credentials pubs)
 
   let count_t =
     let doc = "Generate $(docv) credentials." in

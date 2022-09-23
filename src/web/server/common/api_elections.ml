@@ -443,7 +443,7 @@ let delete_election election metadata =
       "encrypted_tally.json";
       "metadata.json";
       "passwords.csv";
-      "public_creds.txt";
+      "public_creds.json";
       "trustees.json";
       "records";
       "result.json";

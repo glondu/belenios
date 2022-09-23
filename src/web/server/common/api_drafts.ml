@@ -358,7 +358,11 @@ let get_draft_credentials who uuid se =
     else
       Some se.se_public_creds
   in
-  let* credentials_public = read_file ~uuid "public_creds.txt" in
+  let* credentials_public =
+    let* x = read_file_single_line ~uuid "public_creds.json" in
+    let&* x in
+    Lwt.return_some (public_credentials_of_string x)
+  in
   let* credentials_private =
     match who with
     | `Administrator _ ->
@@ -424,7 +428,8 @@ let generate_credentials_on_server send uuid se =
              else cred
            )
     in
-    let* () = write_file ~uuid "public_creds.txt" public_creds in
+    let public_creds = string_of_public_credentials public_creds in
+    let* () = write_file ~uuid "public_creds.json" [public_creds] in
     se.se_public_creds_received <- true;
     let* () = Web_persist.set_draft_election uuid se in
     Lwt.return (Ok jobs)
@@ -462,7 +467,8 @@ let submit_public_credentials uuid se credentials =
     |> List.sort Weight.compare
   in
   if weights <> expected_weights then raise (Error "discrepancy in weights");
-  let* () = write_file ~uuid "public_creds.txt" credentials in
+  let credentials = string_of_public_credentials credentials in
+  let* () = write_file ~uuid "public_creds.json" [credentials] in
   se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se
 
@@ -851,10 +857,12 @@ let validate_election account uuid se =
   let* () = create_file "ballots.jsons" (fun x -> x) [] in
   (* initialize credentials *)
   let* () =
-    let fname = uuid /// "public_creds.txt" in
-    let* file = read_file fname in
+    let fname = uuid /// "public_creds.json" in
+    let* file = read_file_single_line fname in
     match file with
-    | Some xs -> Web_persist.init_credential_mapping uuid xs
+    | Some x ->
+       public_credentials_of_string x
+       |> Web_persist.init_credential_mapping uuid
     | None -> Lwt.return_unit
   in
   (* create file with private keys, if any *)

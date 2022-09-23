@@ -47,7 +47,7 @@ val metadata : metadata t
 val private_key : number t
 val private_keys : string list
 val trustees : string t
-val public_creds : string list
+val public_creds : public_credentials t
 val ballots : string list
 val ballots_index : Yojson.Safe.t t
 val encrypted_tally : (module GROUP with type t = 'a) -> 'a encrypted_tally t

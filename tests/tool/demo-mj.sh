@@ -31,7 +31,7 @@ group="--group RFC-3526-2048"
 
 # Generate credentials
 belenios-tool setup generate-credentials $uuid $group --count 102
-mv *.pubcreds public_creds.txt
+mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
@@ -168,7 +168,7 @@ belenios-tool election verify
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
-cp election.json public_creds.txt trustees.json "$tdir"
+cp election.json public_creds.json trustees.json "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool election verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"

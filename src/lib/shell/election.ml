@@ -163,7 +163,7 @@ end
 let compute_checksums ~election result_or_shuffles ~trustees ~public_credentials =
   let ec_election = Hash.hash_string election in
   let ec_public_credentials =
-    Hash.hash_string (String.concat "\n" public_credentials ^ "\n")
+    Hash.hash_string (string_of_public_credentials public_credentials)
   in
   let ec_num_voters = List.length public_credentials in
   let ec_weights =

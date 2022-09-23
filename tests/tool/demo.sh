@@ -38,7 +38,7 @@ voter4@example.com,voter4,4000000000
 voter5@example.com,voter5,90000000000
 EOF
 belenios-tool setup generate-credentials $uuid $group --file voters.txt
-mv *.pubcreds public_creds.txt
+mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
@@ -80,7 +80,7 @@ belenios-tool election verify
 header "Simulate and verify update"
 
 tdir="$(mktemp -d)"
-cp election.json public_creds.txt trustees.json "$tdir"
+cp election.json public_creds.json trustees.json "$tdir"
 head -n3 ballots.jsons > "$tdir/ballots.jsons"
 belenios-tool election verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"

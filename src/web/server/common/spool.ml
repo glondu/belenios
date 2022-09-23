@@ -144,9 +144,9 @@ let trustees = raw "trustees.json"
 
 let public_creds =
   {
-    of_string = Fun.id;
-    to_string = Fun.id;
-    filename = "public_creds.txt";
+    of_string = public_credentials_of_string;
+    to_string = string_of_public_credentials;
+    filename = "public_creds.json";
   }
 
 let ballots =

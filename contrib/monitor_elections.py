@@ -78,7 +78,7 @@ def check_or_create_dir(wdir, uuid):
 # When no ballot have been cast yet, ballots.jsons does not exist.
 # We also put here a fake filename, for the hash of the voterlist
 # and for the list of all ballot hashs.
-audit_files=['election.json', 'public_creds.txt', 'trustees.json',
+audit_files=['election.json', 'public_creds.json', 'trustees.json',
         'ballots', 'index.html']
 optional_audit_files=['ballots.jsons','result.json','shuffles.jsons',
         'hash_voterlist','all_ballot_hashs']
