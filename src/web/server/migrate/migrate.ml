@@ -1,0 +1,384 @@
+(**************************************************************************)
+(*                                BELENIOS                                *)
+(*                                                                        *)
+(*  Copyright © 2012-2022 Inria                                           *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU Affero General Public License as        *)
+(*  published by the Free Software Foundation, either version 3 of the    *)
+(*  License, or (at your option) any later version, with the additional   *)
+(*  exemption that compiling, linking, and/or using OpenSSL is allowed.   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful, but   *)
+(*  WITHOUT ANY WARRANTY; without even the implied warranty of            *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *)
+(*  Affero General Public License for more details.                       *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU Affero General Public      *)
+(*  License along with this program.  If not, see                         *)
+(*  <http://www.gnu.org/licenses/>.                                       *)
+(**************************************************************************)
+
+open Lwt.Syntax
+open Belenios_core.Serializable_builtin_t
+open Belenios_core.Serializable_j
+open Belenios_core.Common
+open Belenios_server
+open Web_common
+open Serializable_j
+
+let base = Filename.dirname Sys.executable_name
+let belenios_tool = base // "belenios-tool"
+
+let log fmt = Printf.ksprintf (fun x -> Lwt_io.write_line Lwt_io.stdout x) fmt
+let elog fmt = Printf.ksprintf (fun x -> Lwt_io.write_line Lwt_io.stderr x) fmt
+
+let migrate_election_to_v1 uuid accu =
+  let uuid_s = raw_string_of_uuid uuid in
+  let* migration = read_file ~uuid "migration" in
+  match migration with
+  | None ->
+     begin
+       let@ election = fun cont ->
+         let* x = read_file_single_line ~uuid "election.json" in
+         match x with
+         | Some x -> cont x
+         | None -> Lwt.return accu
+       in
+       let* () = log "  Migrating %s..." uuid_s in
+       let* () = write_file ~uuid "migration" ["0"] in
+       let* trustees =
+         let* x = read_file_single_line ~uuid "trustees.json" in
+         match x with
+         | None -> assert false
+         | Some x -> Lwt.return x
+       in
+       let* public_creds =
+         let* x = read_file ~uuid "public_creds.txt" in
+         match x with
+         | None -> assert false
+         | Some x -> Lwt.return x
+       in
+       let* metadata = Web_persist.get_election_metadata uuid in
+       let* () = log "    Cleaning up event files..." in
+       let* () = cleanup_file (uuid /// uuid_s ^ ".bel") in
+       let* () = Spool.del ~uuid Spool.last_event in
+       let* () = log "    Populating election setup..." in
+       let* () =
+         let public_creds_s = string_of_public_credentials public_creds in
+         let setup_election = Hash.hash_string election in
+         let setup_trustees = Hash.hash_string trustees in
+         let setup_credentials = Hash.hash_string public_creds_s in
+         let setup_data = {setup_election; setup_trustees; setup_credentials} in
+         let setup_data_s = string_of_setup_data setup_data in
+         Web_events.append ~uuid
+           [
+             Data election;
+             Data trustees;
+             Data public_creds_s;
+             Data setup_data_s;
+             Event (`Setup, Some (Hash.hash_string setup_data_s));
+           ]
+       in
+       let module R = struct let raw_election = election end in
+       let module E = Belenios.Election.Make (R) (LwtRandom) () in
+       let weights =
+         let module PPC = Belenios_core.Credential.MakeParsePublicCredential (E.G) in
+         List.fold_left
+           (fun accu x ->
+             match PPC.parse_public_credential x with
+             | Some (w, y) -> SMap.add (E.G.to_string y) w accu
+             | None -> assert false
+           ) SMap.empty public_creds
+       in
+       let* () = log "    Populating ballots..." in
+       let* ballots =
+         let* x = read_file ~uuid "ballots.jsons" in
+         match x with
+         | None -> Lwt.return []
+         | Some ballots ->
+            Lwt_list.map_s
+              (fun x ->
+                let* () =
+                  Web_events.append ~uuid
+                    [
+                      Data x;
+                      Event (`Ballot, Some (Hash.hash_string x));
+                    ]
+                in
+                let b = E.ballot_of_string x in
+                match E.get_credential b with
+                | None -> assert false
+                | Some c ->
+                   match SMap.find_opt (E.G.to_string c) weights with
+                   | None -> assert false
+                   | Some w -> Lwt.return (w, b)
+              ) ballots
+       in
+       let* () = log "    Finalizing election..." in
+       let et = E.E.process_ballots ballots in
+       let et_s = string_of_encrypted_tally E.G.write et in
+       let et_h = Hash.hash_string et_s in
+       let sized =
+         {
+           sized_num_tallied = List.length ballots;
+           sized_total_weight =
+             List.fold_left (fun accu (w, _) -> Weight.(accu + w))
+               Weight.zero ballots;
+           sized_encrypted_tally = et_h;
+         }
+       in
+       let sized_s = string_of_sized_encrypted_tally write_hash sized in
+       let sized_h = Hash.hash_string sized_s in
+       let et_ops =
+         [
+           Web_events.Event (`EndBallots, None);
+           Data et_s;
+           Data sized_s;
+           Event (`EncryptedTally, Some sized_h);
+         ]
+       in
+       let* state = Web_persist.get_election_state uuid in
+       let* () =
+         let populate_shuffles () =
+           let* () = Web_events.append ~uuid et_ops in
+           let* skipped_shufflers, actual_shufflers =
+             let* x = read_file ~uuid "shuffle_hashes.jsons" in
+             Option.value ~default:[] x
+             |> List.partition_map
+                  (fun x ->
+                    let x = shuffle_hash_of_string x in
+                    if x.sh_hash = "" then Left x.sh_trustee else Right x
+                  )
+             |> Lwt.return
+           in
+           let* () = Spool.set ~uuid Spool.skipped_shufflers skipped_shufflers in
+           let* shuffles = read_file ~uuid "shuffles.jsons" in
+           let shuffles = Option.value ~default:[] shuffles in
+           let trustees =
+             metadata.e_trustees
+             |> Option.value ~default:["server"]
+             |> List.mapi (fun i x -> x, i + 1)
+           in
+           Lwt_list.iter_s
+             (fun (x, shuffle_s) ->
+               let owned_owner = List.assoc x.sh_trustee trustees in
+               let owned_payload = Hash.hash_string shuffle_s in
+               assert (x.sh_hash = Hash.to_b64 owned_payload);
+               let owned_s =
+                 {owned_owner; owned_payload}
+                 |> string_of_owned write_hash
+               in
+               Web_events.append ~uuid
+                 [
+                   Data shuffle_s;
+                   Data owned_s;
+                   Event (`Shuffle, Some (Hash.hash_string owned_s));
+                 ]
+             ) (List.combine actual_shufflers shuffles)
+         in
+         match state with
+         | `Open | `Closed -> Lwt.return_unit
+         | `Shuffling -> populate_shuffles ()
+         | `EncryptedTally _ ->
+            let* () = populate_shuffles () in
+            let* () =
+              let open Belenios.Election in
+              if has_nh_questions (of_string election) then
+                Web_events.append ~uuid [Event (`EndShuffles, None)]
+              else
+                Lwt.return_unit
+            in
+            let* x = read_file_single_line ~uuid "partial_decryptions.json" in
+            let x = Option.value ~default:[] (Option.map old_partial_decryptions_of_string x) in
+            Lwt_list.iter_s
+              (fun (owned_owner, pd) ->
+                let opd =
+                  {
+                    owned_owner;
+                    owned_payload = Hash.hash_string pd;
+                  }
+                  |> string_of_owned write_hash
+                in
+                Web_events.append ~uuid
+                  [
+                    Data pd;
+                    Data opd;
+                    Event (`PartialDecryption, Some (Hash.hash_string opd));
+                  ]
+              ) x
+         | `Tallied | `Archived ->
+            let* () = Web_events.append ~uuid et_ops in
+            let* result =
+              let* x = read_file_single_line ~uuid "result.json" in
+              match x with
+              | None -> assert false
+              | Some x ->
+                 x
+                 |> old_election_result_of_string
+                      Yojson.Safe.read_json (read_encrypted_tally E.G.read)
+                      (read_partial_decryption E.G.read) (read_shuffle E.G.read)
+                 |> Lwt.return
+            in
+            let flattened_trustees =
+              trustees_of_string E.G.read trustees
+              |> List.map
+                   (function
+                    | `Single x -> [x]
+                    | `Pedersen p -> Array.to_list p.t_verification_keys
+                   )
+              |> List.flatten
+              |> List.mapi (fun i x -> i + 1, x)
+            in
+            let* last_et =
+              let find_owner name =
+                List.find_map
+                  (fun (i, x) ->
+                    if x.trustee_name = name then
+                      Some i
+                    else None
+                  ) flattened_trustees
+                |> Option.get
+              in
+              match result.shuffles, result.shufflers with
+              | None, None -> Lwt.return et
+              | Some shuffles, Some shufflers ->
+                 let et =
+                   let last_shuffle = List.hd (List.rev shuffles) in
+                   let nh = last_shuffle.shuffle_ciphertexts in
+                   E.E.merge_nh_ciphertexts nh et
+                 in
+                 let* () =
+                   Lwt_list.iter_s
+                     (fun (x, name) ->
+                       let owned_owner = find_owner name in
+                       let shuffle_s = string_of_shuffle E.G.write x in
+                       let owned_payload = Hash.hash_string shuffle_s in
+                       let owned = {owned_owner; owned_payload} in
+                       let owned_s = string_of_owned write_hash owned in
+                       let owned_h = Hash.hash_string owned_s in
+                       Web_events.append ~uuid
+                         [
+                           Data shuffle_s;
+                           Data owned_s;
+                           Event (`Shuffle, Some owned_h);
+                         ]
+                     ) (List.combine shuffles shufflers)
+                 in
+                 let* () = Web_events.append ~uuid [Event (`EndShuffles, None)] in
+                 Lwt.return et
+              | _ -> assert false
+            in
+            let* () =
+              let find_owner pd =
+                List.find_map
+                  (fun (i, x) ->
+                    if E.E.check_factor last_et x.trustee_public_key pd then
+                      Some i
+                    else None
+                  ) flattened_trustees
+                |> Option.get
+              in
+              Lwt_list.iter_s
+                (fun x ->
+                  let owned_owner = find_owner x in
+                  let pd_s = string_of_partial_decryption E.G.write x in
+                  let owned_payload = Hash.hash_string pd_s in
+                  let owned = {owned_owner; owned_payload} in
+                  let owned_s = string_of_owned write_hash owned in
+                  let owned_h = Hash.hash_string owned_s in
+                  Web_events.append ~uuid
+                    [
+                      Data pd_s;
+                      Data owned_s;
+                      Event (`PartialDecryption, Some owned_h);
+                    ]
+                ) result.partial_decryptions
+            in
+            let payload =
+              {result = result.result}
+              |> string_of_election_result Yojson.Safe.write_json
+            in
+            Web_events.append ~uuid
+              [
+                Data payload;
+                Event (`Result, Some (Hash.hash_string payload));
+              ]
+       in
+       let* () =
+         Lwt_list.iter_s (fun x -> cleanup_file (uuid /// x))
+           [
+             "election.json"; "trustees.json"; "public_creds.txt";
+             "ballots.jsons"; "encrypted_tally.json";
+             "shuffle_hashes.jsons";
+             "shuffles.jsons"; "partial_decryptions.json";
+             "result.json"; "audit_cache.json";
+           ]
+       in
+       let* () = rmdir (uuid /// "ballots") in
+       let* () =
+         let* () = log "    Verifying resulting directory..." in
+         let* r = Lwt_process.exec (belenios_tool, [|belenios_tool; "election"; "verify"; "--dir"; !!uuid_s|]) in
+         if r = WEXITED 0 then (
+           Lwt.return_unit
+         ) else (
+           let msg = Printf.sprintf "converted directory for %s does not pass verification" uuid_s in
+           Lwt.fail (Failure msg)
+         )
+       in
+       let* () = write_file ~uuid "migration" ["1"] in
+       Lwt.return @@ uuid :: accu
+     end
+  | _ ->
+     let msg = Printf.sprintf "partially migrated spool (%s)" uuid_s in
+     Lwt.fail (Failure msg)
+
+let migrate_spool_to_v1 () =
+  let version_file = !!"version" in
+  let* version = read_file version_file in
+  match version with
+  | Some ["1"] -> Lwt.return 0
+  | None ->
+     let* files =
+       Lwt_unix.files_of_directory !Web_config.spool_dir
+       |> Lwt_stream.to_list
+     in
+     let* processed =
+       Lwt_list.fold_left_s
+         (fun accu uuid_s ->
+           let@ () = fun cont ->
+             if uuid_s = "." || uuid_s = ".." then Lwt.return accu else cont ()
+           in
+           let uuid = uuid_of_raw_string uuid_s in
+           migrate_election_to_v1 uuid accu
+         ) [] files
+     in
+     let* () = write_file version_file ["tmp"] in
+     let* () =
+       Lwt_list.iter_s
+         (fun uuid ->
+           let file = uuid /// "migration" in
+           Lwt.catch
+             (fun () -> Lwt_unix.unlink file)
+             (fun _ -> Lwt.return_unit)
+         ) processed
+     in
+     let* () = write_file version_file ["1"] in
+     Lwt.return 0
+  | _ ->
+     let* () = elog "Unsupported version!" in
+     Lwt.return 1
+
+let () =
+  if Array.length Sys.argv <> 2 then (
+    Printf.eprintf "Usage: belenios-migrate <spool>\n%!";
+    exit 1
+  ) else (
+    let spool = Sys.argv.(1) in
+    Web_config.spool_dir := spool;
+    Printf.printf "Will use %s\n%!" belenios_tool;
+    Printf.printf "Migrating %s...\n%!" spool;
+    let r = Lwt_main.run (migrate_spool_to_v1 ()) in
+    Printf.printf "Done.\n%!";
+    exit r
+  )
