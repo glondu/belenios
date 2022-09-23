@@ -63,28 +63,9 @@ let rm_rf dir =
   Array.iter (fun f -> Unix.unlink (dir // f)) files;
   Unix.rmdir dir
 
-let common_man = [
-  `S "MORE INFORMATION";
-  `P "This command is part of the Belenios command-line tool.";
-  `P "To get more help on a specific subcommand, run:";
-  `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
-  `P "See $(i,https://www.belenios.org/).";
-]
-
 let get_mandatory_opt name = function
   | Some x -> x
   | None -> failcmd "%s is mandatory" name
-
-let wrap_main f =
-  match f () with
-  | () -> `Ok ()
-  | exception Cmdline_error e -> `Error (true, e)
-  | exception Failure e -> `Error (false, e)
-  | exception e -> `Error (false, Printexc.to_string e)
-
-module type CMDLINER_MODULE = sig
-  val cmds : unit Cmd.t list
-end
 
 module Shasum : CMDLINER_MODULE = struct
 
