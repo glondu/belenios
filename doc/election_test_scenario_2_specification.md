@@ -60,7 +60,7 @@ Verifications all along the process is done using command line tools `belenios-t
     - Cecily, the Credential Authority, receives the email sent by Alice, and opens the link in it
     - She remembers what the link to the election will be, so that she will be able to send it to voters by email with their private credential
     - She clicks on the "Generate" button
-    - She clicks on the "private credentials" and "public credentials" links and downloads these files. (Files are by default downloaded using filenames `creds.txt` and `public_creds.txt` respectively)
+    - She clicks on the "private credentials" link and downloads this file. (File is by default downloaded using filename `creds.txt`)
     - She clicks on the "Submit public credentials" button
     - She checks that redirected page shows correct confirmation sentence
     - She closes the window

@@ -264,7 +264,7 @@ def check_index_html(data):
     else:
         logme("  election fingerprint ok")
 
-    # credential fingerprint vs public_creds.txt
+    # credential fingerprint
     h = b64_of_hex(checksums["public_credentials"])
     node = [ x.firstChild for x in dom.getElementsByTagName("div")
             if x.firstChild != None and
@@ -278,7 +278,7 @@ def check_index_html(data):
     else:
         logme("  cred fingerprint ok")
 
-    # if weights, check the total/min/max vs content of public_creds.txt
+    # if weights, check the total/min/max
     if "weights" in checksums:
         weights = checksums["weights"]
         node = [ x.firstChild for x in dom.getElementsByTagName("div")

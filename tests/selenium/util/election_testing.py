@@ -420,7 +420,7 @@ def create_election_data_snapshot(election_id):
     else:
         raise Exception("Could not extract absolute path from output of mktemp:", out)
 
-    # Remark: If this command is run before any vote is cast, files `public_creds.txt` and `ballots.jsons` do not exist yet
+    # Remark: If this command is run before any vote is cast, file `ballots.jsons` does not exist yet
     subprocess.run(["cp", "election.json", "public_creds.txt", "trustees.json", "ballots.jsons", temporary_folder_absolute_path], cwd=election_folder) # TODO: Execute a command that works on other OS, like `shutil.copy()`
 
     return temporary_folder_absolute_path

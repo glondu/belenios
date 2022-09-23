@@ -216,7 +216,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
 
         wait_for_elements_exist_and_are_visible(browser, "#creds")
 
-        # She clicks on the "private credentials" and "public credentials" links and downloads these files. Files are by default downloaded to /tmp using filenames `creds.txt` and `public_creds.txt` respectively, but we choose to name them using an unique identifier instead.
+        # She clicks on the "private credentials" link and downloads this file. File is by default downloaded to /tmp using filename `creds.txt`, but we choose to name it using an unique identifier instead.
         link_css_ids = ["creds"]
         file_labels = ["private credentials"]
         link_css_selectors = ["#" + el for el in link_css_ids]
