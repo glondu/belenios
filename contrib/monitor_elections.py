@@ -266,10 +266,7 @@ def check_index_html(data):
 
     # credential fingerprint
     h = b64_of_hex(checksums["public_credentials"])
-    node = [ x.firstChild for x in dom.getElementsByTagName("div")
-            if x.firstChild != None and
-            x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
-            re.search("Credentials were generated",x.firstChild.data) != None ]
+    node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "credentials" ]
     assert len(node) == 1
     h2 = node[0].data.split(' ')[-1].strip('.')
     if (not h == h2):
@@ -281,10 +278,7 @@ def check_index_html(data):
     # if weights, check the total/min/max
     if "weights" in checksums:
         weights = checksums["weights"]
-        node = [ x.firstChild for x in dom.getElementsByTagName("div")
-                 if x.firstChild != None and
-                 x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
-                 re.search("The total weight is",x.firstChild.data) != None ]
+        node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "weights" ]
         if len(node) == 1:
             pat = re.compile(r'The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
             mat = pat.match(node[0].data)
@@ -306,10 +300,7 @@ def check_index_html(data):
 
     # check that the printed number of voters is consistent with number
     # of credentials
-    node = [ x.firstChild for x in dom.getElementsByTagName("div")
-            if x.firstChild != None and
-            x.firstChild.nodeType == xml.dom.minidom.Node.TEXT_NODE and
-            re.search("The voter list has",x.firstChild.data) != None ]
+    node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "voters" ]
     assert len(node) == 1
     pat = re.compile(r'The voter list has (\d+) voter\(s\) and fingerprint ([\w/+]+).')
     mat = pat.match(node[0].data)
@@ -379,11 +370,7 @@ def check_index_html(data):
     # check consistency of encrypted tally
     if "encrypted_tally" in checksums:
         h = b64_of_hex(checksums['encrypted_tally'])
-        node = [ x.firstChild for x in dom.getElementsByTagName("div") if
-                 x.firstChild != None and x.firstChild.nodeType ==
-                 xml.dom.minidom.Node.TEXT_NODE and
-                 re.search("The fingerprint of the encrypted tally",
-                           x.firstChild.data) != None ]
+        node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "encrypted_tally" ]
         assert len(node) == 1
         h2 = node[0].data.split(' ')[-1].strip('.')
         if (not h == h2):

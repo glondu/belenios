@@ -428,7 +428,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ]
     in
     let div_voters =
-      div [
+      div ~a:[a_id "voters"] [
           Printf.ksprintf txt
             (f_ "The voter list has %d voter(s) and fingerprint %s.")
             cache.cache_checksums.ec_num_voters (Hash.to_b64 cache.cache_voters_hash);
@@ -448,7 +448,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let div_total_weight =
       match cache.cache_checksums.ec_weights with
       | Some {w_total; w_min; w_max} ->
-         div [
+         div ~a:[a_id "weights"] [
              Printf.ksprintf txt
                (f_ "The total weight is %s (min: %s, max: %s).")
                (Weight.to_string w_total)
@@ -500,7 +500,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     in
     let div_trustees = div (div_trustees_mandatory :: divs_trustees_threshold) in
     let div_credentials =
-      div [
+      div ~a:[a_id "credentials"] [
           Printf.ksprintf txt
             (f_ "Credentials were generated and sent by %s and have fingerprint %s.")
             (Option.value params.e_credential_authority ~default:"N/A")
@@ -520,7 +520,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       match checksums.ec_encrypted_tally with
       | None -> txt ""
       | Some x ->
-         div [
+         div ~a:[a_id "encrypted_tally"] [
              Printf.ksprintf txt
                (f_ "The fingerprint of the encrypted tally is %s.")
                (Hash.to_b64 x)
