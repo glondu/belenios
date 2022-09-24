@@ -105,4 +105,4 @@ for uuid in uuids:
     if is_old(elec_path):
         verb_print("Election {} is old".format(uuid))
         continue
-    print(uuid)    
+    print(uuid)

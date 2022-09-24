@@ -1,4 +1,4 @@
-Scenario 1: Simple vote, in "fully automated" mode 
+Scenario 1: Simple vote, in "fully automated" mode
 =================================
 
 ## Introduction and parameters
@@ -25,7 +25,7 @@ Examples of parameters sizes: `N` and `K` would be between 6 (quick test) and 10
 Verifications all along the process is done using command line tools `belenios-tool election verify` and `belenios-tool election verify-diff`:
 
     - `belenios-tool election verify` does a static verification (it verifies that vote data at current time is coherent)
-    - `belenios-tool election verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process) 
+    - `belenios-tool election verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process)
 
 ## Detailed steps of the Test Scenario 1 process
 

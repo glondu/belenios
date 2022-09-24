@@ -30,7 +30,7 @@ function TranslatableAllQuestionsWithPagination(props){
 
   // Definition of state for current question index
   const [current_question_index, set_current_question_index] = React.useState(props.current_question_index);
-  
+
   // Definition of state for current alerts for all questions
   const initialAlertsForAllQuestions = props.electionObject.questions.map((question, question_index) => {
     return {};
@@ -204,7 +204,7 @@ function TranslatableAllQuestionsWithPagination(props){
     });
     return vote_of_voter_per_question;
   };
-  
+
   const scrollToTopOfPage = () => {
     window.scrollTo(0, 0);
   };
@@ -338,7 +338,7 @@ function TranslatableAllQuestionsWithPagination(props){
     let complementaryProps = {};
     const identifierPrefix = `question_${question_index}_`;
     const visible = current_question_index === question_index ? true : false;
-    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){      
+    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
       // Receive from backend the number of available grades, their labels and their ordering (index 0 is the best grade, and appreciation gets worse as index increases)
       if (question.availableGrades && question.availableGrades.length > 1){
         complementaryProps.availableGrades = question.availableGrades;

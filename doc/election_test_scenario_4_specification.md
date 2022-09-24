@@ -29,7 +29,7 @@ Examples of parameters sizes: `N` and `K` would be between 6 (quick test) and 10
 Verifications all along the process is done using command line tools `belenios-tool election verify` and `belenios-tool election verify-diff`:
 
     - `belenios-tool election verify` does a static verification (it verifies that vote data at current time is coherent)
-    - `belenios-tool election verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process) 
+    - `belenios-tool election verify-diff` does a dynamic verification (it verifies that current state of vote data is a possible/legitimate evolution of a vote data snapshot that has been saved during a previous step of the process)
 
 ## Detailed steps of the Test Scenario 4 process
 
@@ -187,4 +187,3 @@ Verifications all along the process is done using command line tools `belenios-t
         - For each available answer in the question, she checks that the total number of votes in favor of Answer X displayed in result page is the same as the sum of votes for Answer X in all votes of voters who voted that have been randomly generated in advance
         - She checks that each ballot content corresponds to content that of this vote that has been randomly generated in advance
 - Verify election consistency (using command line tool `belenios_tool verify`)
-

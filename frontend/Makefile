@@ -1,6 +1,6 @@
 ifeq "$(BELENIOS_DEBUG)" "1"
     JAVASCRIPT_MODE := development
-    JAVASCRIPT_EXTENSION := 
+    JAVASCRIPT_EXTENSION :=
     VOTE_PAGE := vote_development.html
 else
     JAVASCRIPT_MODE := production

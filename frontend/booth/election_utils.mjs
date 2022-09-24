@@ -27,7 +27,7 @@ const detectQuestionType = (question) => {
       }
     }
     else {
-      throw basicErrorText; 
+      throw basicErrorText;
     }
   }
 }
@@ -69,7 +69,7 @@ class Election {
         return new ElectionQuestion(questionData);
       }
     );
-  } 
+  }
 }
 
 export { QuestionTypeEnum, detectQuestionType, ElectionQuestion, Election };

@@ -192,4 +192,3 @@ const PreferentialVotingColumn = ({ column, label, otherColumns, candidates, onC
 }
 
 export default PreferentialVotingColumn;
-

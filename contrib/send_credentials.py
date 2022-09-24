@@ -91,4 +91,3 @@ with open(CODE_FILE) as cf:
         s.send_message(msg)
         time.sleep(0.2) # short delay; might need more for very large election
     s.quit()
-

@@ -26,7 +26,7 @@ const PreferenceLevelCreatorButton = ({onClick, disabled, t}) => {
     )
   );
 };
-      
+
 class PreferentialVotingApp extends React.Component {
   constructor(props) {
     super(props);
@@ -88,7 +88,7 @@ class PreferentialVotingApp extends React.Component {
       };
       changedColumns[newDestinationColumn.id] = newDestinationColumn;
     }
-    
+
     const newState = {
       ...this.state,
       columns: {

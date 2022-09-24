@@ -25,7 +25,7 @@ import random
 
 
 # TODO:
-# - add options --belenios-tool-path 
+# - add options --belenios-tool-path
 # - find a way to test that failure are detected
 # - do a git gc from time to time or at the end (how?)
 
@@ -691,10 +691,10 @@ for uuid in uuids:
         else:
             with open(p, "wb") as file:
                 file.write(data['hash_voterlist'])
-        
+
         # create the all_ballot_hashs file, or update it from the new
         # ballot files. Check that an old ballot was not replayed.
-        # Note: the list of new ballot hashs is created earlier, during 
+        # Note: the list of new ballot hashs is created earlier, during
         # write_and_verify_new_data(), because it must compare the old
         # and new ballot box.
         p = os.path.join(args.wdir, uuid, 'all_ballot_hashs')

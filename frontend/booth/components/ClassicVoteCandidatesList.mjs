@@ -43,7 +43,7 @@ function TranslatableClassicVoteCandidatesList({ type, candidates, identifierPre
     };
     const additionalProps = type == "checkbox" ? {
       name: identifier
-    } : { 
+    } : {
       name: identifierPrefix,
       value: `choice_${candidateIndex}` // or maybe a candidate id provided in data input, or slugification of candidate name?
     };

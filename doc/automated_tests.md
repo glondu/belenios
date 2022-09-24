@@ -15,7 +15,7 @@ These automated tests start the Belenios demo server (`demo/run-server.sh`), wit
 
 Note: For example, during election creation procedure, a step sends emails to voters. If at this moment, a `sendmail` binary is not properly installed and configured (or replaced by a mock), the web page displays the following error message: `Netchannels.Command_failure(WEXITED 126)`
 
-When these automated tests start running, and when they end, they clean up Belenios database: Belenios database consists in directories and files under the `_run/spool` directory, for each election. So these are deleted during test setup. Belenios demo server stores initial admin users logins and passwords in `demo/password_db.csv`. This file is not deleted during test setup, and its contents are used to log in the adminstrator during the test and have this administrator create an election. 
+When these automated tests start running, and when they end, they clean up Belenios database: Belenios database consists in directories and files under the `_run/spool` directory, for each election. So these are deleted during test setup. Belenios demo server stores initial admin users logins and passwords in `demo/password_db.csv`. This file is not deleted during test setup, and its contents are used to log in the adminstrator during the test and have this administrator create an election.
 
 Automated tests can be executed manually, or via Continuous Integration. Next sub-sections explain how to execute them in each of these 2 contexts.
 
@@ -128,7 +128,7 @@ Several tests have a same general behaviour in common, which depends on the valu
 You can execute test `test_fuzz_login.py` the following way:
 
 ```
-START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/selenium/test_fuzz_login.py 
+START_SERVER=1 LOGIN_MODE="local" USE_HEADLESS_BROWSER=0 WAIT_TIME_BETWEEN_EACH_STEP=0.02 python ./tests/selenium/test_fuzz_login.py
 ```
 
 ### Fuzz testing of the "Advanced mode" voting process
@@ -158,7 +158,7 @@ SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/your/repository/_build/src/static/m
 WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@mailinator.com VOTER_PASSWORD=LLP3269TVNDMF6 python ./tests/selenium/test_fuzz_vote.py
 ```
 
-### Clicker Monkey testing 
+### Clicker Monkey testing
 
 There are 2 tests in `test_clicker_monkey.py`:
 

@@ -780,7 +780,7 @@ if __name__ == "__main__":
     console_log("ADMINISTRATOR_EMAIL_ADDRESS:", settings.ADMINISTRATOR_EMAIL_ADDRESS)
     console_log("CREDENTIAL_AUTHORITY_EMAIL_ADDRESS:", settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
     console_log("TRUSTEES_EMAIL_ADDRESSES:", settings.TRUSTEES_EMAIL_ADDRESSES)
-    
+
     console_log("BOOTH_VERSION:", settings.BOOTH_VERSION)
 
     unittest.main()

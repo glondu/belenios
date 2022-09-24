@@ -181,7 +181,7 @@ Here is the procedure to create such a Docker image and publish it on Docker Hub
 
 
 ```
-$ sha256sum ./opam-bootstrap.sh 
+$ sha256sum ./opam-bootstrap.sh
 efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb  ./opam-bootstrap.sh
 $ docker container run -ti ocaml/opam2:debian-9 /bin/bash
 $ sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
@@ -200,15 +200,15 @@ $ docker push <hub-user>/<repo-name>:<tag>
 # Exemple : docker push swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb
 # Lorsque ce n'est pas la première fois qu'on envoie l'image, le résultat de cette commande est :
 # The push refers to repository [docker.io/swergas/beleniosbase]
-# e496191c6f91: Pushed 
-# 932b4034c234: Layer already exists 
-# aa956106affb: Layer already exists 
-# 7fc2f0c53c72: Layer already exists 
-# 555b3e37ead3: Layer already exists 
-# b9190cafe4f2: Layer already exists 
-# 0e6751af6de3: Layer already exists 
-# d04afccd7138: Layer already exists 
-# b28ef0b6fef8: Layer already exists 
+# e496191c6f91: Pushed
+# 932b4034c234: Layer already exists
+# aa956106affb: Layer already exists
+# 7fc2f0c53c72: Layer already exists
+# 555b3e37ead3: Layer already exists
+# b9190cafe4f2: Layer already exists
+# 0e6751af6de3: Layer already exists
+# d04afccd7138: Layer already exists
+# b28ef0b6fef8: Layer already exists
 # efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb: digest: sha256:f508797f44a37314b96120f46537fcf426995490f6f4f318db2e2662b45cb860 size: 2221
 ```
 
@@ -275,12 +275,3 @@ We [noticed](https://github.com/glondu/belenios/pull/2#issuecomment-423271172) t
 | swergas/-checksum-              | no                | 11 min 25 sec   |
 | ocaml/opam2:debian-9-ocaml-4.06 | yes               | 13 min 13 sec   |
 | swergas/-checksum-              | yes               | 05 min 33 sec   |
-
-
-
-
-
-
-
-
-

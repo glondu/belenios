@@ -20,7 +20,7 @@ The `frontend/booth/vote.html` page is autonomous as it can be accessed without 
 
 So you need to execute an HTTP server to display this `vote.html` page. You can run any HTTP server using the `frontend` folder as root, but a shortcut command using Python3's default HTTP server is provided in `package.json`, so with your terminal located in the `frontend` folder, simply execute the following command:
 
-`npm start` 
+`npm start`
 
 Then you can point your browser at http://localhost:8000/booth/vote.html
 

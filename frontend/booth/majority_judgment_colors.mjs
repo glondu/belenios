@@ -8,7 +8,7 @@ const gradeIndexToCssColor = (gradesHslColorScale, availableGradesLength, gradeI
   const ratio = gradeIndex / (availableGradesLength-1);
   const hsl = lerpInArray(gradesHslColorScale, ratio);
   return hslToCssColor(hsl[0], hsl[1], hsl[2]);
-}; 
+};
 
 /*
 #b02800: Reject / À rejeter / hsl(14, 100%, 35%)
