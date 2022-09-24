@@ -202,7 +202,7 @@ envoyer les codes de vote, il est possible d'utiliser le programme
 (voir section auditeur pour obtenir les sources) en l'éditant au
 préalable pour le paramétrer correctement.
 
-	contrib/send_credentials.py
+    contrib/send_credentials.py
 
 
 **Phase de vote.** Dès que l'élection est ouverte ainsi qu'à la fin de
