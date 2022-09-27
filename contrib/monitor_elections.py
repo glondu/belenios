@@ -369,13 +369,14 @@ def check_index_html(data):
     if "encrypted_tally" in checksums:
         h = b64_of_hex(checksums['encrypted_tally'])
         node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "encrypted_tally" ]
-        assert len(node) == 1
-        h2 = node[0].data.split(' ')[-1].strip('.')
-        if (not h == h2):
-            msg = msg + "Error: Wrong encrypted tally fingerprint of election {}\n".format(uuid).encode()
-            fail = True
-        else:
-            logme("  encrypted tally fingerprint ok")
+        assert len(node) <= 1
+        if len(node) == 1:
+            h2 = node[0].data.split(' ')[-1].strip('.')
+            if (not h == h2):
+                msg = msg + "Error: Wrong encrypted tally fingerprint of election {}\n".format(uuid).encode()
+                fail = True
+            else:
+                logme("  encrypted tally fingerprint ok")
 
     # check consistency of shuffles
     if "shuffles" in checksums:
