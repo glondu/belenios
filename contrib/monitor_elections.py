@@ -314,7 +314,6 @@ def check_index_html(data):
         logme("  number of voters ok")
 
     # trustees fingerprint vs trustees.json
-    jsn = json.loads(data['trustees.json'])
     names = []
     pks = []
     certs = []
