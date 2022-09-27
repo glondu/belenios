@@ -50,6 +50,7 @@ module type S = sig
   val shuffle_ciphertexts : unit -> string m
   val checksums : unit -> string
   val compute_voters : string list -> string list
+  val compute_ballot_summary : unit -> string
 end
 
 module PTrustees = Trustees
@@ -153,18 +154,21 @@ module Make (P : PARAMS) () = struct
 
   let raw_public_creds = lazy (get_public_creds ())
 
-  let public_creds =
+  let public_creds_weights =
     lazy (
         Lazy.force raw_public_creds
         |> Option.map
              (List.fold_left
-                (fun accu x ->
+                (fun (has_weights, accu) x ->
+                  let has_weights = has_weights || (String.index_opt x ',' <> None) in
                   match PPC.parse_public_credential x with
-                  | Some (w, y) -> SMap.add (G.to_string y) (w, ref None) accu
+                  | Some (w, y) -> has_weights, SMap.add (G.to_string y) (w, ref None) accu
                   | None -> Printf.ksprintf failwith "%s is not a valid public credential" x;
-                ) SMap.empty
+                ) (false, SMap.empty)
              )
       )
+
+  let public_creds = lazy (Lazy.force public_creds_weights |> Option.map snd)
 
   let rawballots = lazy (get_ballots ())
 
@@ -179,6 +183,7 @@ module Make (P : PARAMS) () = struct
     | `RevoteNotAllowed -> "revote not allowed"
 
   let cast rawballot =
+    let hash = Hash.hash_string rawballot in
     match Lazy.force public_creds with
     | None -> failwith "missing public credentials"
     | Some creds ->
@@ -215,7 +220,7 @@ module Make (P : PARAMS) () = struct
                     "credential of ballot %s used multiple times"
                     ballot_id
              in
-             M.return (w, ballot)
+             M.return (hash, (w, ballot))
 
   let ballots =
     let rec loop accu = function
@@ -234,9 +239,9 @@ module Make (P : PARAMS) () = struct
            let* ballots in
            let total_weight =
              let open Weight in
-             List.fold_left (fun accu (w, _) -> accu + w) zero ballots
+             List.fold_left (fun accu (_, (w, _)) -> accu + w) zero ballots
            in
-           M.return (E.process_ballots ballots, total_weight)
+           M.return (E.process_ballots (List.map snd ballots), total_weight)
       )
 
   let result_as_string = lazy (get_result ())
@@ -460,5 +465,26 @@ module Make (P : PARAMS) () = struct
               | None -> Printf.ksprintf failwith "Unknown public key in ballot %s" h
               | Some id -> id :: accu
          ) creds []
+
+  let compute_ballot_summary () =
+    let has_weights =
+      match Lazy.force public_creds_weights with
+      | None -> false
+      | Some (b, _) -> b
+    in
+    Option.value ~default:[] (Lazy.force ballots)
+    |> List.rev_map
+         (fun (bs_hash, (w, _)) ->
+           let bs_weight =
+             if has_weights then (
+               Some w
+             ) else (
+               assert (Weight.is_int w 1);
+               None
+             )
+           in
+           {bs_hash; bs_weight}
+         )
+    |> string_of_ballot_summary
 
 end

@@ -356,6 +356,8 @@ module ElectionManagement : CMDLINER_MODULE = struct
        X.checksums () |> print_endline
     | `ComputeVoters privcreds ->
        X.compute_voters privcreds |> List.iter print_endline
+    | `ComputeBallotSummary ->
+       X.compute_ballot_summary () |> print_endline
     end;
     if cleanup then rm_rf dir
 
@@ -482,6 +484,16 @@ module ElectionManagement : CMDLINER_MODULE = struct
     Cmd.v (Cmd.info "compute-voters" ~doc ~man)
       Term.(ret (main $ url_t $ optdir_t $ privcreds_t))
 
+  let compute_ballot_summary_cmd =
+    let doc = "compute ballot summary" in
+    let man = [
+        `S "DESCRIPTION";
+        `P "This command compute the hash (also known as smart ballot tracker) and weight of all ballots.";
+      ] @ common_man
+    in
+    Cmd.v (Cmd.info "compute-ballot-summary" ~doc ~man)
+      Term.(ret (const main $ url_t $ optdir_t $ const `ComputeBallotSummary))
+
   let cmds =
     [
       vote_cmd;
@@ -492,6 +504,7 @@ module ElectionManagement : CMDLINER_MODULE = struct
       shuffle_cmd;
       checksums_cmd;
       compute_voters_cmd;
+      compute_ballot_summary_cmd;
     ]
 
 end

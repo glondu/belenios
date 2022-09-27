@@ -12,6 +12,7 @@ module type S = sig
   val shuffle_ciphertexts : unit -> string m
   val checksums : unit -> string
   val compute_voters : string list -> string list
+  val compute_ballot_summary : unit -> string
 end
 
 module Make (P : PARAMS) () : S with type 'a m := 'a

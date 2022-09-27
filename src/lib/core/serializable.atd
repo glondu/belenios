@@ -154,6 +154,13 @@ type election_checksums = {
   ?encrypted_tally : hash option;
 } <ocaml field_prefix="ec_">
 
+type ballot_summary_item = {
+  hash : hash;
+  ?weight : weight option;
+} <ocaml field_prefix="bs_">
+
+type ballot_summary = ballot_summary_item list
+
 (** {2 PKI support} *)
 
 type signed_msg = {
