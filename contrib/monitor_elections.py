@@ -116,24 +116,10 @@ def download_audit_data(url, uuid):
     return status, data
 
 def get_new_ballots(old_ballotsfile, new_ballotsfile):
-    old = set()
-    if os.path.exists(old_ballotsfile):
-        with open(old_ballotsfile, "r") as f:
-            ll = f.read()
-        for l in ll.splitlines():
-            m = hashlib.sha256()
-            m.update(l.encode())
-            h = base64.b64encode(m.digest()).decode().strip('=')
-            old.add(h)
-    ll = ""
-    if os.path.exists(new_ballotsfile):
-        with open(new_ballotsfile, "r") as f:
-            ll = f.read()
+    old = set([b64_of_hex(x["hash"]) for x in json.loads(old_ballotsfile)])
     result = b""
-    for l in ll.splitlines():
-        m = hashlib.sha256()
-        m.update(l.encode())
-        h = base64.b64encode(m.digest()).decode().strip('=')
+    for x in json.loads(new_ballotsfile):
+        h = b64_of_hex(x["hash"])
         if not h in old:
             result = result + h.encode() + b"\n"
     return result
@@ -163,7 +149,8 @@ def write_and_verify_new_data(wdir, uuid, data):
     # if not the first time, run belenios-tool election verify-diff
     msg = b""
     new_ballots = b""
-    if os.path.exists(os.path.join(p, "fresh")):
+    fresh = os.path.exists(os.path.join(p, "fresh"))
+    if fresh:
         os.remove(os.path.join(p, "fresh"))
     else:
         verdiff = subprocess.run(["belenios-tool", "election", "verify-diff",
@@ -175,9 +162,30 @@ def write_and_verify_new_data(wdir, uuid, data):
         if re.search(b"W:", verdiff.stdout) != None:
             msg = verdiff.stdout
         logme("Successfully diff-verified new data of {}".format(uuid))
-    new_ballots=get_new_ballots(os.path.join(p, "ballots.jsons"),
-            os.path.join(pnew, "ballots.jsons"))
+
+    # ballots of old data
+    if fresh:
+        ballot_summary1 = "[]"
+    else:
+        ballot_summary1 = subprocess.run(["belenios-tool", "election", "compute-ballot-summary", "--dir={}".format(p)],
+                                         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if ballot_summary1.returncode != 0:
+            msg = "Error: compute-ballot-summary on old data failed for election {}".format(uuid).encode()
+            return Status(True, msg)
+        ballot_summary1 = ballot_summary1.stdout
+
+    # ballots of new data
+    ballot_summary2 = subprocess.run(["belenios-tool", "election", "compute-ballot-summary", "--dir={}".format(pnew)],
+                                     stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    if ballot_summary2.returncode != 0:
+        msg = "Error: compute-ballot-summary on new data failed for election {}".format(uuid).encode()
+        return Status(True, msg)
+    ballot_summary2 = ballot_summary2.stdout
+
+    # compute new ballots
+    new_ballots = get_new_ballots(ballot_summary1, ballot_summary2)
     data['new_ballots'] = new_ballots
+    data['ballot_summary'] = ballot_summary2
 
     # compute checksums
     checksums = subprocess.run(["belenios-tool", "election", "compute-checksums", "--dir={}".format(pnew)],
@@ -212,20 +220,11 @@ def check_hash_ballots(data):
 
     list_hash2 = []
     list_weights2 = []
-    for l in data['ballots.jsons'].splitlines():
-        m = hashlib.sha256()
-        m.update(l)
-        h = base64.b64encode(m.digest()).decode().strip('=')
+    for x in json.loads(data['ballot_summary']):
+        h = b64_of_hex(x["hash"])
         list_hash2.append(h)
         if has_weight:
-            jsn = json.loads(l)
-            cred = jsn['credential']
-            pat = re.compile(cred + r',(\d+)')
-            m=pat.search(data['public_creds.txt'].decode())
-            if m:
-                list_weights2.append(m.group(1))
-            else: # if absent, default weight is 1
-                list_weights2.append('1')
+            list_weights2.append(str(x["weight"]))
     if has_weight:
         list_hash = [ (list_hash[i],list_weights[i]) for i in range(len(list_hash)) ]
         list_hash2 = [ (list_hash2[i],list_weights2[i]) for i in range(len(list_hash2)) ]
