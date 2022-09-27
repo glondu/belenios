@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import re
+import tarfile
 import json
 import datetime
 
@@ -37,13 +38,14 @@ def is_secure(elec_path):
             return True
     return False
 
-def is_test(elec_path):
-    elec = os.path.join(elec_path, "election.json")
+def is_test(elec_path, uuid):
+    bel = uuid + ".bel"
+    elec = os.path.join(elec_path, bel)
     if not os.path.exists(elec):
-        print("Can not read election.json in " + elec_path)
+        print("Can not read " + bel + " in " + elec_path)
         assert False
-    with open(elec,"r") as file:
-        data = json.load(file)
+    with tarfile.open(elec) as file:
+        data = json.load(file.extractfile(file.getmembers()[1]))
     if re.search("test", data['name'], re.IGNORECASE) != None:
         return True
     voters = os.path.join(elec_path, "voters.txt")
@@ -96,7 +98,7 @@ for uuid in uuids:
     if is_draft_or_deleted(elec_path):
         verb_print("Election {} is deleted or not yet finalized".format(uuid))
         continue
-    if is_test(elec_path):
+    if is_test(elec_path, uuid):
         verb_print("Election {} is probably a test election".format(uuid))
         continue
     if not is_secure(elec_path):
