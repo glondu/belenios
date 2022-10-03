@@ -17,6 +17,7 @@
 \newcommand{\G}{\mathbbm{G}}
 \newcommand{\Z}{\mathbbm{Z}}
 \newcommand{\N}{\mathbbm{N}}
+\newcommand{\hash}{\mathbbm{H}}
 \newcommand{\I}{\mathbbm{I}}
 \newcommand{\B}{\mathbbm{B}}
 
@@ -155,8 +156,9 @@ group element.
     weight $w_i$ equal to 1 by default
 %\item $\mathcal{M}_1,\dots,\mathcal{M}_p$: shufflers (if using non-homomorphic questions)
 \item $\mathcal{S}$: voting server \\
-  The voting server maintains the public data $D$ that
-consists of:
+  The voting server maintains the public data $D$ (see~\ref{public-data}) that
+consists of a sequence of data and events, and is structured as a
+hash chain. It contains in particular:
   \begin{itemize}
   \item the election data $E$
   \item the structure $PK$ that contains the verification keys of the
@@ -165,6 +167,8 @@ consists of:
   \item the list $B$ of accepted ballots
   \item the result of the election {\result} (once the election is tallied)
   \end{itemize}
+  The voting server also produces a list $PB$ of pretty ballots, that
+  is a list of hashes of ballots (the last ballot of each voter).
 \end{itemize}
 
 \section{Processes}
@@ -279,7 +283,8 @@ trustee as specified in section~\ref{polynomials}.
 
 \begin{enumerate}
 \item $\mathcal{V}$ gets $E$
-\item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$ and submits it to $\mathcal{S}$
+\item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$, she
+  computes the hash $h$ of $b$, called tracking number, and submits $b$ to $\mathcal{S}$
 \item $\mathcal{S}$ processes $b$:
   \begin{enumerate}
   \item let $C$ be the public credential used in $b$ (its
@@ -294,9 +299,9 @@ trustee as specified in section~\ref{polynomials}.
   \item $\mathcal{S}$ adds $b$ to $B$ (or replaces the old ballot in
     case of revote)
   \end{enumerate}
-\item at any time (even after tally), $\mathcal{V}$ may check that $b$
-  appears in the list of accepted ballots $B$ and the weight of her
-  ballot as it appears in $B$ is equal to her weight
+\item at any time (even after tally), $\mathcal{V}$ may check that $h$
+  appears in the list of pretty ballots $PB$ and the weight of her
+  ballot as it appears in $PB$ is equal to her weight
 \end{enumerate}
 
 
@@ -365,48 +370,48 @@ disappears.
 At any time, an auditor can retrieve the public board and check its consistency. She should
 always record at least the last audited board. Then:
 \begin{enumerate}
-\item she retrieves the election data $D = (E,PK,L,B,r)$ where $B$ is the list of ballots;
+\item she gets the public data $D$ and retrieves the list $L$ of
+  public credentials;
   \begin{itemize}
   \item she records $D$;
-  \item for $b\in B$, she checks that the proofs of $b$ are valid and that
+  \item for each ballot $b$ in $D$, she checks that the proofs of $b$ are valid and that
   the signature of $b$ is valid and corresponds to one of the keys in
   $L$; she also checks that the weights correspond;
-  \item she checks that any two ballots in $B$ correspond to distinct keys (of
-    $L$);
+\item she computes $\hat{B}=\textsf{last}(B)$, the list of ballots
+  obtained from $B$ by removing all ballots that have the same
+  credential except the last one (only the last vote is kept for each
+  voter, see section~\ref{tallied-ballots}). She checks that the list
+  of hashed ballots in $\hat{B}$ corresponds to the pretty ballots
+  $PB$;
+  \item she checks that $D$ is correctly chained, that is, each event correctly
+    refers to the hash of its parent's event.
   \end{itemize}
-\item she retrieves the previously recorded election data $D' = (E',PK',L',B',r')$ (if it
-  exists);
-  \begin{itemize}
-  \item for $b\in B'$, she checks that
-    \begin{itemize}
-    \item $b\in B$
-    \item or $\exists b'\in B$ such that $b$ and $b'$ correspond to
-      the same key in $L$. This corresponds to the case where a voter
-      has revoted;
-    \end{itemize}
-    \item she checks that all the other data is unchanged: $E=E'$, $PK=PK'$, $L=L'$,
-      and $r=r'$ (actually the result is empty at this step).
-\end{itemize}
+\item she retrieves the previously recorded election data $D'$ (if it
+  exists) and gets the hash $h$ of the last event in $D'$.
+She checks that $h$ appears as the hash of a parent of an event in
+$D$.
+This ensures that nothing has been removed from $D'$.
 \end{enumerate}
 
 There is no tool support on the web interface for these checks,
-instead the command line tool \texttt{verify-diff} can be used.
+instead the command line tools \texttt{verify} and \texttt{verify-diff} can be used.
 
 \subsubsection{After the tally}
-The auditor retrieves the election data $D$ and in
-  particular the list $B$ of ballots and the
-  \hyperref[election-result]{\result} $r$. Then:
+The auditor retrieves the public data $D$ and in particular the list
+$B$ of ballots, the list $\Sigma$ of \hyperref[shuffles]{shuffles} (if
+any), the list $\Delta$ of \hyperref[partial-decryptions]{partial
+  decryptions} and the \hyperref[election-result]{\result} $r$. Then:
 
   \begin{enumerate}
-  \item she checks consistency of $B$, that is, performs all
+   \item she checks consistency of $B$, that is, performs all
     the checks described at step 1 of section~\ref{sec:audit-voting};
   \item she checks that $B$ corresponds to the board
       monitored so far, thus performs all
     the checks described at step 2 of section~\ref{sec:audit-voting};
-  \item she checks that the proofs of the result $r$ are valid
-    w.r.t. $B$.
-She checks in particular the proofs of correct decryption and the
-proofs of correct shuffling (when shufllers have been used).
+    \item she computes $\hat{B}=\textsf{last}(B)$, that is, she keeps
+      only the last ballots (see section~\ref{tallied-ballots});
+ \item she checks that the proofs in $\Sigma$ and $\Delta$, and the result $r$, are valid
+    w.r.t. $\hat{B}$.
 \end{enumerate}
 To ease verification of the trustees and the credential authorities,
 it is possible to display the hash of their public data (e.g. the
@@ -441,6 +446,8 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
 \item $\B$: boolean, encoded as a JSON boolean
 \item $\N$, $\Z_q$, $\G$: big integer, written in base 10 and encoded as a
   JSON string
+\item $\hash$: hash (typically SHA256), written in hexadecimal and
+  encoded as a JSON string
 \end{itemize}
 
 \subsection{Common structures}
@@ -460,6 +467,103 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
       \betalabel&:&\G
     \end{array}
   \right\}
+\end{gather*}
+
+\subsection{Public data}
+\label{public-data}
+
+During an election, all public data are published in a dynamic
+file. This file can be used to perform verifications and
+monitoring. It is actually an old-style tar archive and evolves in an
+append-only fashion. It stops evolving when the election is tallied.
+
+The archive starts with a \texttt{BELENIOS} file containing a JSON
+structure that acts as a header for the whole archive. It contains a
+version number and the timestamp of the beginning of the election.  It
+is then followed by JSON files of two kinds: data (whose names end in
+\texttt{.data.json}) and events (whose names end in
+\texttt{.event.json}). The file names start with the SHA256 hash of
+their contents, encoded in hexadecimal.
+
+\begin{gather*}
+  \texttt{header}=\left\{
+    \begin{array}{rcl}
+      \textsf{version}&:&\I\\
+      \textsf{timestamp}&:&\I
+    \end{array}
+  \right\}
+  \qquad
+  \texttt{event}=\left\{
+    \begin{array}{rcl}
+      ?\textsf{parent}&:&\hash\\
+      \textsf{height}&:&\I\\
+      \textsf{type}&:&\texttt{event\_type}\\
+      ?\textsf{payload}&:&\hash
+    \end{array}
+  \right\}\\
+  \texttt{event\_type}=
+  \begin{array}{l}
+    \texttt{"Setup"}\\
+    \mid\texttt{"Ballot"}
+    \mid\texttt{"EndBallots"}\\
+    \mid\texttt{"EncryptedTally"}\\
+    \mid\texttt{"Shuffle"}
+    \mid\texttt{"EndShuffles"}\\
+    \mid\texttt{"PartialDecryption"}
+    \mid\texttt{"Result"}
+  \end{array}
+\end{gather*}
+
+An \texttt{event} structure is appended at each important step of the
+election (e.g. when somebody votes). This structure refers to its
+predecessor (except for the first one) through its \textsf{parent}
+field, and can refer to a payload by its hash. Its \textsf{height}
+field is an integer, set to 0 in the first event, and incremented in
+each new event. Typically, the payload will precede the \texttt{event}
+structure in the archive, and can itself refer to other payloads that
+precede. The type of the payload depends on the \textsf{type} field of
+the \texttt{event} structure.
+
+The typical sequence of data and events occurring in an archive is
+described in the following table:
+
+\begin{gather*}
+\begin{array}{|c|c|c|}
+  \hline
+  \text{Data}&\text{Event}&\text{Defined in section}\\
+  \hline
+  \texttt{election}&&\ref{elections}\\
+  \texttt{trustees}&&\ref{trustees}\\
+  \texttt{public\_credentials}&&\ref{credentials}\\
+  \texttt{setup\_data}&&\ref{elections}\\
+  &\texttt{Setup}& \\
+  \hline
+  \texttt{ballot}&&\ref{ballots}\\
+  &\texttt{Ballot}&\\
+  \vdots&\vdots&\\
+  \hline
+  &\texttt{EndBallots}&\\
+  \hline
+  \texttt{encrypted\_tally}&&\ref{tally}\\
+  \texttt{sized\_encrypted\_tally}&&\ref{tally}\\
+  &\texttt{EncryptedTally}&\\
+  \hline
+  \texttt{shuffle}&&\ref{shuffles}\\
+  \texttt{owned\_shuffle}&&\ref{shuffles}\\
+  &\texttt{Shuffle}&\\
+  \vdots&\vdots&\\
+  \hline
+  &\texttt{EndShuffles}&\\
+  \hline
+  \texttt{partial\_decryption}&&\ref{partial-decryptions}\\
+  \texttt{owned\_partial\_decryption}&&\ref{partial-decryptions}\\
+  &\texttt{PartialDecryption}&\\
+  \vdots&\vdots&\\
+  \hline
+  \texttt{result}&&\ref{election-result}\\
+  &\texttt{Result}&\\
+  \hline
+\end{array}
 \end{gather*}
 
 \subsection{Verification keys}
@@ -861,6 +965,18 @@ and an output size of 1 block, which is interpreted as a big-endian
 256-bit number and then reduced modulo $q$ to form $s$.  From this
 secret exponent, a public key $\public(c)=g^s$ is computed.
 
+\[\texttt{public\_credentials}=\jstring^\ast\]
+
+Public credentials, sent to the server by the credential authority,
+and published as part of public data, are a list of strings, each one
+being:
+\begin{itemize}
+\item either a public credential by itself (if weights are not being
+  used),
+\item or a public credential, followed by a comma and the weight (if
+  weights are being used).
+\end{itemize}
+
 \subsection{Questions}
 \label{questions}
 
@@ -984,7 +1100,7 @@ section~\ref{default-group}, using the following structures:
     \end{array}
   \right\}
 \end{gather*}
-The election public key, which is denoted by $y$ thoughout this
+The election public key, which is denoted by $y$ throughout this
 document, is computed during the setup phase, and stored in the
 $\textsf{public\_key}$ member. The \texttt{embedding} structure is
 required when the election includes a non-homomorphic question; its
@@ -993,13 +1109,25 @@ meaning will be explained in section~\ref{nh-answers}.
 During an election, the following data need to be public in order to
 verify the setup phase and to validate ballots:
 \begin{itemize}
-\item the serialization of the $\election$ structure described above;
+\item the $\election$ structure described above;
 \item the $\texttt{trustees}$ structure described in
   section~\ref{trustees};
-\item the set $L$ of public credentials.
+\item the \texttt{public\_credentials} structure described in
+  section~\ref{credentials}.
 \end{itemize}
+These three structures are referred to by the following structure, used
+as payload of the \texttt{Setup} event in public data.
+\begin{gather*}
+  \texttt{setup\_data}=\left\{
+    \begin{array}{rcl}
+      \textsf{election}&:&\hash\\
+      \textsf{trustees}&:&\hash\\
+      \textsf{credentials}&:&\hash
+    \end{array}
+  \right\}
+\end{gather*}
 
-Additionnally, we will denote throughout this document by $\varphi$
+Additionally, we will denote throughout this document by $\varphi$
 the fingerprint of the election, as explained in
 section~\ref{ballots}.
 
@@ -1078,7 +1206,7 @@ When a blank vote is allowed, and there are $n$ choices, the answer is
 modeled as a vector $(m_0,m_1,\dotsc,m_n)$, when $m_0$ is whether this
 is a blank vote or not, and $m_i$ (for $i>0$) is whether choice $i$
 has been selected. Each $m_i$ is encrypted and proven equal to $0$ or
-$1$ as above. Let $m_\Sigma=m_1+\dotsb+m_n$. The additionnal proofs
+$1$ as above. Let $m_\Sigma=m_1+\dotsb+m_n$. The additional proofs
 are as follows:
 \begin{itemize}
 \item $\bproof$ proves that $m_0=0\lor m_\Sigma=0$;
@@ -1193,7 +1321,7 @@ Note that $\alpha_\Sigma$, $\beta_\Sigma$ and $r_\Sigma$ can be easily
 computed from the encryptions of $m_1,\dotsc,m_n$ and their associated
 secrets.
 
-Additionnally, let $M_1,\dotsc,M_k$ be the sequence
+Additionally, let $M_1,\dotsc,M_k$ be the sequence
 $\minlabel,\dots,\maxlabel$ ($k=\maxlabel-\minlabel+1$).
 
 \subsubsection{Non-blank votes ($m_0=0$)}
@@ -1399,9 +1527,28 @@ The same hashing function is used on the serialization of the whole
 $\ballot$ structure to produce a so-called \emph{smart ballot
   tracker}.
 
-The weight of a ballot $B$, denoted by $\textsf{weight}(B)$, is the
-weight associated to $\textsf{credential}(B)$ in the list of public
+The weight of a ballot $b$, denoted by $\textsf{weight}(b)$, is the
+weight associated to $\textsf{credential}(b)$ in the list of public
 credentials $L$.
+
+Ballots are appended to public data as payloads of \texttt{Ballot}
+events. The end of ballots is marked by an \texttt{EndBallots} event
+without payload.
+
+\paragraph{Tallied ballots}
+\label{tallied-ballots}
+The list of tallied ballots $\hat B$ can be computed from the list of
+all accepted ballots $B$ with the $\textsf{last}$ function
+($\hat B=\textsf{last}(B)$), defined as follows:
+\begin{itemize}
+\item initialize $\hat B$ with the empty list
+\item for $b\in B$:
+  \begin{itemize}
+  \item if there is a ballot in $\hat B$ with the same credential as
+    $b$, remove it
+  \item add $b$ to $\hat B$
+  \end{itemize}
+\end{itemize}
 
 \subsection{Encrypted tally}
 \label{tally}
@@ -1411,34 +1558,46 @@ credentials $L$.
   \qquad
   \texttt{ciphertexts\_nh}=\ciphertext^\ast
   \\
-  \etally=(\texttt{ciphertexts\_h}\mid\texttt{ciphertexts\_nh})^\ast
+  \etally=(\texttt{ciphertexts\_h}\mid\texttt{ciphertexts\_nh})^\ast\\
+  \texttt{sized\_encrypted\_tally}=\left\{
+    \begin{array}{rcl}
+      \textsf{num\_tallied}&:&\I\\
+      \textsf{total\_weight}&:&\I\\
+      \textsf{encrypted\_tally}&:&\hash
+    \end{array}
+  \right\}
 \end{gather*}
 A so-called \emph{encrypted tally} is constructed out of the accepted
-ballots $B_1,\dots,B_n$.  It is an array $[C_1,\dots,C_m]$ where $m$
-is the number of questions. Each element $C_i$ is itself an array of
-ciphertexts that is built differently depending on the type of the
-question:
+ballots $\hat B=\textsf{last}(B)=b_1,\dots,b_n$ (see section~\ref{tallied-ballots}).
+It is an array $[C_1,\dots,C_m]$ where $m$ is the number of
+questions. Each element $C_i$ is itself an array of ciphertexts that
+is built differently depending on the type of the question:
 \begin{itemize}
 \item for homomorphic questions, each element of $C_i$
   ($\texttt{ciphertexts\_h}$) is the pointwise product of the $i$-th
   ciphertext of all the ballots, raised to the power of its weight:
   \[
-    C_{i,j}=\prod_{k}\choices(\answers(B_k)_i)_j^{\textsf{weight}(B_k)}
+    C_{i,j}=\prod_{k}\choices(\answers(b_k)_i)_j^{\textsf{weight}(b_k)}
   \]
   where the product of two ciphertexts $(\alpha_1,\beta_1)$ and
   $(\alpha_2,\beta_2)$ is $(\alpha_1\alpha_2,\beta_1\beta_2)$;
 \item for non-homomorphic questions, $C_i$ is directly made from the
   list of ciphertexts corresponding to the question:
   \[
-    C_{i,k}=\choices(\answers(B_k)_i)
+    C_{i,k}=\choices(\answers(b_k)_i)
   \]
-  In this case, it is an error if $\textsf{weight}(B_k)\neq 1$.
+  In this case, it is an error if $\textsf{weight}(b_k)\neq 1$.
 \end{itemize}
 In the end, in both cases, the encrypted tally is isomorphic to an
 array of arrays of ciphertexts:
 \[
 \etally\approx\ciphertext^\ast{}^\ast
 \]
+
+The \texttt{sized\_encrypted\_tally} structure contains the number of
+ballots taken into account, their total weight, and a reference to the
+$\etally$ structure. It is used as the payload of the
+\texttt{EncryptedTally} event.
 
 \subsection{Shuffles}
 \label{shuffles}
@@ -1501,7 +1660,19 @@ the same as in CHVote and are given in
 section~\ref{shuffle-algorithms}. Typically, several shuffles will be
 computed sequentially by different persons.
 
+\begin{gather*}
+  \texttt{owned\_shuffle}=\left\{
+    \begin{array}{rcl}
+      \textsf{owner}&:&\I\\
+      \textsf{payload}&:&\hash
+    \end{array}
+  \right\}
+\end{gather*}
+The \texttt{owned\_shuffle} structure links a shuffle with the trustee
+that did it and is used as payload of \texttt{Shuffle} events.
+
 \subsection{Partial decryptions}
+\label{partial-decryptions}
 
 \newcommand{\dfactors}{\textsf{decryption\_factors}}
 \newcommand{\dproofs}{\textsf{decryption\_proofs}}
@@ -1552,6 +1723,18 @@ B&=&{\alphalabel(a'_{i,j})^\response}\times{\dfactors_{i,j}^\challenge}
 \item check that $\Hash_\decrypt(\pklabel(k),A,B)=\challenge$
 \end{enumerate}
 
+\begin{gather*}
+  \texttt{owned\_partial\_decryption}=\left\{
+    \begin{array}{rcl}
+      \textsf{owner}&:&\I\\
+      \textsf{payload}&:&\hash
+    \end{array}
+  \right\}
+\end{gather*}
+The \texttt{owned\_partial\_decryption} structure links a partial
+decryption with the trustee that did it and is used as payload of
+\texttt{PartialDecryption} events.
+
 \subsection{Election result}
 \label{election-result}
 
@@ -1563,15 +1746,10 @@ B&=&{\alphalabel(a'_{i,j})^\response}\times{\dfactors_{i,j}^\challenge}
 \begin{gather*}
   \result=\left\{
     \begin{array}{rcl}
-      \ntallied&:&\I\\
-      \etallylabel&:&\etally\\
-      \textsf{?shuffles}&:&\texttt{shuffle}^\ast\\
-      \pdlabel&:&\pdecryption^\ast\\
       \resultlabel&:&(\I^\ast\mid\I^\ast{}^\ast)^\ast
     \end{array}
   \right\}
 \end{gather*}
-The $\etallylabel$ field is set to the encrypted tally $a'$.
 
 The decryption factors are combined for each ciphertext to build
 synthetic ones $F_{i,j}$. The way this combination is done depends on
@@ -1616,20 +1794,6 @@ as follows:
   \]
   where $j$ represents a ballot, and $\textsf{group\_decode}$ is the
   inverse of $\textsf{group\_encode}$ from section~\ref{nh-answers}.
-\end{itemize}
-If the election has non-homomorphic questions, the $\textsf{shuffles}$
-field is set to the computed $\texttt{shuffle}$ structures; otherwise,
-it is absent.
-
-After the election, the following data needs to be public in order to
-verify the tally:
-\begin{itemize}
-\item the $\election$ structure;
-\item all the $\tpk$s, or the $\texttt{threshold\_parameters}$, that
-  were generated during the \hyperref[election-setup]{setup phase};
-\item the set of public credentials;
-\item the set of ballots;
-\item the $\result$ structure described above.
 \end{itemize}
 
 \section{Group parameters}
