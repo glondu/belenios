@@ -83,7 +83,8 @@ To deploy an instance named `main`:
  * copy there `rootfs.squashfs`
  * create a `belenios` sub-directory belonging to user 1000 and
    group 1000
- * create there an `ocsigenserver.conf.in` file (you can take the one
+ * create there sub-directories `etc` and `var`
+ * create `etc/ocsigenserver.conf.in` file (you can take the one
    in Belenios sources as example)
 
 Beware, the `belenios` directory and its contents must belong to user

@@ -60,6 +60,8 @@ cp -a --parents home/belenios/belenios/_run  home/belenios/opam-env.sh "$DIR/roo
 
 echo "Creating remaining runtime files and directories..."
 
+mkdir "$DIR/rootfs/etc/belenios"
+
 cat > "$DIR/rootfs/etc/msmtprc" <<EOF
 account default
 host localhost
@@ -85,7 +87,7 @@ EOF
 
 cat > "$DIR/rootfs/home/belenios/belenios-env.sh" <<EOF
 . /home/belenios/opam-env.sh
-BELENIOS_CONFIG=/var/belenios/ocsigenserver.conf.in
+BELENIOS_CONFIG=/etc/belenios/ocsigenserver.conf.in
 BELENIOS_VARDIR=/var/belenios
 BELENIOS_RUNDIR=/tmp/belenios
 BELENIOS_BINDIR=/home/belenios/belenios/_run/usr/bin
