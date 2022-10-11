@@ -16,6 +16,7 @@ dev
    + Randomize order of HTTP requests in monitor_elections.py
  * Container:
    + Ensure /tmp is big enough when building container
+   + Make the configuration read-only from inside the container
 
 1.19 (2022-05-10)
 =================

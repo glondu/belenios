@@ -1,3 +1,16 @@
+dev
+===
+
+ * If you use the scripts in `doc/nspawn`, you must:
+   + update `belenios-nspawn` in your deployment environment
+   + in the `/srv/belenios-containers/$NAME` directory:
+     - `mv belenios belenios-var`
+     - `mkdir -p belenios/etc`
+     - `chown -R 1000:1000 belenios`
+     - `mv belenios-var belenios/var`
+     - `mv belenios/var/ocsigenserver.conf.in belenios/etc`
+     - move other relevant files from `belenios/var` to `belenios/etc`
+
 1.17
 ====
 
