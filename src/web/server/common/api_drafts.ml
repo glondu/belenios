@@ -620,7 +620,14 @@ let put_draft_trustees_mode uuid se mode =
      let se = {se with se_public_keys = []; se_threshold_trustees = None} in
      Web_persist.set_draft_election uuid se
   | `Basic, `Threshold 0 ->
-     let se = {se with se_public_keys = []; se_threshold_trustees = Some []} in
+     let se =
+       {
+         se with
+         se_public_keys = [];
+         se_threshold_trustees = Some [];
+         se_threshold = None;
+       }
+     in
      Web_persist.set_draft_election uuid se
   | `Threshold _, `Threshold threshold ->
      begin
