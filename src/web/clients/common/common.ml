@@ -154,10 +154,13 @@ module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
     Lwt.return Z.(of_bits r mod q)
 end
 
-let get token of_string url =
+let get ?token of_string url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ token] in
-  let* x = perform_raw_url ~headers url in
+  let headers =
+    let& token in
+    Some ["Authorization", "Bearer " ^ token]
+  in
+  let* x = perform_raw_url ?headers url in
   match x.code with
   | 200 -> Lwt.return @@ Option.wrap of_string x.content
   | _ -> Lwt.return_none

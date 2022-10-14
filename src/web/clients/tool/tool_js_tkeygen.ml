@@ -87,7 +87,7 @@ let fill_interactivity () =
      set_form_target "data_form" "submit-trustee" uuid token;
      begin
        let url = Printf.sprintf "../../api/drafts/%s" uuid in
-       let* x = get token draft_of_string url in
+       let* x = get draft_of_string url in
        match x with
        | Some draft ->
           let b = Dom_html.createButton document in

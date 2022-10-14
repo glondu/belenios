@@ -83,7 +83,7 @@ let fill_interactivity () =
   set_content "election_url" (build_election_url href uuid);
   let@ draft = fun cont ->
     let url = Printf.sprintf "../../api/drafts/%s" uuid in
-    let* x = get token draft_of_string url in
+    let* x = get draft_of_string url in
     match x with
     | Some x -> cont x
     | None ->
@@ -92,7 +92,7 @@ let fill_interactivity () =
   in
   let@ voters = fun cont ->
     let url = Printf.sprintf "../../api/drafts/%s/voters" uuid in
-    let* x = get token voter_list_of_string url in
+    let* x = get ~token voter_list_of_string url in
     match x with
     | Some x -> cont x
     | None ->

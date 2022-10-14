@@ -46,7 +46,7 @@ types. They refer to types defined in `src/api/serializable.atd`.
 
 ## `drafts/$UUID`
 
-* `GET`: unit -> draft (administrator or credential authority or trustee)
+* `GET`: unit -> draft (anybody)
 * `PUT`: draft -> unit (administrator)
 * `POST`: draft_request -> unit (administrator)
 * `DELETE`: unit -> unit (administrator)
