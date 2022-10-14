@@ -1,3 +1,4 @@
+src/web/common/pages_common.ml
 src/web/common/mails_admin.ml
 src/web/server/common/pages_admin.ml
 src/web/server/common/site_admin.ml
@@ -12,3 +13,4 @@ src/web/clients/basic/common.ml
 src/web/clients/basic/credentials.ml
 src/web/clients/basic/drafts.ml
 src/web/clients/basic/elections.ml
+src/web/clients/checkpriv/checkpriv.ml
