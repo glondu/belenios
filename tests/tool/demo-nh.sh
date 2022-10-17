@@ -157,7 +157,7 @@ belenios-tool election verify
 header "Apply Schulze method"
 
 cat > schulze.reference <<EOF
-{"valid":60,"blank":0,"raw":[[0,33,25],[27,0,42],[35,18,0]],"strongest":[[0,6,6],[10,0,24],[10,6,0]],"winners":[[1],[2],[0]]}
+{"valid":60,"blank":0,"raw":[[0,33,25],[27,0,42],[35,18,0]],"beatpaths":[[[33,27],[33,27],[33,27]],[[35,25],[33,27],[42,18]],[[35,25],[33,27],[33,27]]],"winners":[[1],[2],[0]]}
 EOF
 
 if command -v jq > /dev/null; then

@@ -245,12 +245,13 @@ type 'a trustees = 'a trustee_kind list
 
 type condorcet_ballots = int list <ocaml repr="array"> list <ocaml repr="array">
 type condorcet_matrix = int list <ocaml repr="array"> list <ocaml repr="array">
+type condorcet_beatpaths = (int * int) list <ocaml repr="array"> list <ocaml repr="array">
 
 type schulze_result = {
   valid : int;
   ?blank : int option;
   raw : condorcet_matrix;
-  strongest : condorcet_matrix;
+  beatpaths : condorcet_beatpaths;
   winners : int list list;
 } <ocaml field_prefix="schulze_">
 
