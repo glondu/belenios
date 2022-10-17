@@ -1,6 +1,9 @@
 dev
 ===
 
+ * The implementation of Condorcet-Schulze method was incorrect. It
+   has been replaced with an adaptation of CIVS's `beatpath2`
+   algorithm.
  * Web server:
    + Reduce lifetime of auth-related cookies
    + More trimming of various codes that are subject to copy-paste errors
