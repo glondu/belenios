@@ -77,13 +77,14 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
         - VERSION
   image: glondu/beleniosbase-tests:20220811-1
   variables:
-    PREPARED_DATABASE_VERSION: v0.02.20211008
+    PREPARED_DATABASE_VERSION: v0.03.20221019
   script:
     # Initialize environment
     - source ~/env.sh
     # Import prepared database
-    - mkdir -p _run/spool
-    - wget https://gitlab.inria.fr/belenios/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/* _run/spool && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
+    - mkdir -p _run
+    - rm -rf _run/{accounts,spool}
+    - wget https://gitlab.inria.fr/belenios/belenios-prepared-database/-/archive/$PREPARED_DATABASE_VERSION/belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && tar -zxf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz && mv belenios-prepared-database-$PREPARED_DATABASE_VERSION/{accounts,spool} _run && rm -rf belenios-prepared-database-$PREPARED_DATABASE_VERSION.tar.gz belenios-prepared-database-$PREPARED_DATABASE_VERSION
     # Compile belenios
     - make build-debug-tool
     - make build-release-server
