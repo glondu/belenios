@@ -33,6 +33,26 @@ let belenios_tool = base // "belenios-tool"
 let log fmt = Printf.ksprintf (fun x -> Lwt_io.write_line Lwt_io.stdout x) fmt
 let elog fmt = Printf.ksprintf (fun x -> Lwt_io.write_line Lwt_io.stderr x) fmt
 
+let is_election_with_old_crypto uuid =
+  let uuid_s = raw_string_of_uuid uuid in
+  let@ version = fun cont ->
+    let* x = read_file_single_line ~uuid "election.json" in
+    match x with
+    | Some raw_election -> cont @@ Belenios.Election.get_version raw_election
+    | None ->
+       let* x = Spool.get ~uuid Spool.draft in
+       match x with
+       | Some draft -> cont @@ Option.value ~default:0 draft.se_version
+       | None ->
+          let* x = read_file_single_line ~uuid "deleted.json" in
+          match x with
+          | Some _ -> Lwt.return_false
+          | None ->
+             let* () = elog "Unknown status for election %s" uuid_s in
+             Lwt.return_false
+  in
+  Lwt.return (version < 1)
+
 let migrate_election_to_v1 uuid accu =
   let uuid_s = raw_string_of_uuid uuid in
   let* migration = read_file ~uuid "migration" in
@@ -333,25 +353,38 @@ let migrate_election_to_v1 uuid accu =
      let msg = Printf.sprintf "partially migrated spool (%s)" uuid_s in
      Lwt.fail (Failure msg)
 
-let migrate_spool_to_v1 () =
+module UuidSet = Set.Make (struct type t = uuid let compare = compare end)
+
+let get_uuids () =
+  let* files =
+    Lwt_unix.files_of_directory !Web_config.spool_dir
+    |> Lwt_stream.to_list
+  in
+  let* uuids =
+    Lwt_list.fold_left_s
+      (fun accu uuid_s ->
+        let@ () = fun cont ->
+          if uuid_s = "." || uuid_s = ".." then Lwt.return accu else cont ()
+        in
+        match uuid_of_raw_string uuid_s with
+        | exception _ ->
+           let* () = elog "%s is not a valid UUID; ignored" uuid_s in
+           Lwt.return accu
+        | uuid -> Lwt.return @@ UuidSet.add uuid accu
+      ) UuidSet.empty files
+  in
+  Lwt.return @@ UuidSet.elements uuids
+
+let migrate_spool_to_v1 uuids =
   let version_file = !!"version" in
   let* version = read_file version_file in
   match version with
   | Some ["1"] -> Lwt.return 0
   | None ->
-     let* files =
-       Lwt_unix.files_of_directory !Web_config.spool_dir
-       |> Lwt_stream.to_list
-     in
      let* processed =
        Lwt_list.fold_left_s
-         (fun accu uuid_s ->
-           let@ () = fun cont ->
-             if uuid_s = "." || uuid_s = ".." then Lwt.return accu else cont ()
-           in
-           let uuid = uuid_of_raw_string uuid_s in
-           migrate_election_to_v1 uuid accu
-         ) [] files
+         (fun accu uuid -> migrate_election_to_v1 uuid accu)
+         [] uuids
      in
      let* () = write_file version_file ["tmp"] in
      let* () =
@@ -378,7 +411,20 @@ let () =
     Web_config.spool_dir := spool;
     Printf.printf "Will use %s\n%!" belenios_tool;
     Printf.printf "Migrating %s...\n%!" spool;
-    let r = Lwt_main.run (migrate_spool_to_v1 ()) in
+    let r =
+      Lwt_main.run
+        begin
+          let* uuids = get_uuids () in
+          let* old_elections = Lwt_list.filter_s is_election_with_old_crypto uuids in
+          match old_elections with
+          | [] -> migrate_spool_to_v1 uuids
+          | _ ->
+             let* () = elog "The following elections use old crypto:" in
+             let* () = Lwt_list.iter_s (fun x -> elog "  %s" (raw_string_of_uuid x)) old_elections in
+             let* () = elog "Please delete them before migrating the spool." in
+             Lwt.return 2
+        end
+    in
     Printf.printf "Done.\n%!";
     exit r
   )

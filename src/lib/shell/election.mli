@@ -25,6 +25,7 @@ open Belenios_core
 open Signatures
 open Serializable_t
 
+val get_version : string -> int
 val of_string : string -> params
 
 val election_uuid_of_string_ballot : string -> uuid
