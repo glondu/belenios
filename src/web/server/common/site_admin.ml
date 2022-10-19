@@ -1340,7 +1340,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let open (val l) in
         let* state = Web_persist.get_election_state uuid in
         match state with
-        | `EncryptedTally _ ->
+        | `EncryptedTally ->
            let* x = find_trustee_id uuid token in
            (match x with
             | Some trustee_id ->
@@ -1385,7 +1385,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let* () =
           let* state = Web_persist.get_election_state uuid in
           match state with
-          | `EncryptedTally _ -> return ()
+          | `EncryptedTally -> return ()
           | _ -> Lwt.fail TallyEarlyError
         in
         let* trustee_id =
@@ -1992,7 +1992,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* state = Web_persist.get_election_state uuid in
     let* dates = Web_persist.get_election_dates uuid in
     match state with
-    | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
+    | `Open | `Closed | `Shuffling | `EncryptedTally ->
        let t = Option.value dates.e_finalization ~default:default_validation_date in
        let next_t = datetime_add t (day days_to_delete) in
        return_some (`Delete, uuid, next_t)

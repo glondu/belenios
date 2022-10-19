@@ -26,6 +26,7 @@ open Belenios_core.Common
 open Belenios_server
 open Web_common
 open Serializable_j
+open Web_serializable_j
 
 let base = Filename.dirname Sys.executable_name
 let belenios_tool = base // "belenios-tool"
@@ -158,7 +159,21 @@ let migrate_election_to_v1 uuid accu =
            Event (`EncryptedTally, Some sized_h);
          ]
        in
-       let* state = Web_persist.get_election_state uuid in
+       let* state =
+         let* x = read_file_single_line ~uuid Spool.(filename state) in
+         match x with
+         | None -> Lwt.return `Archived
+         | Some x ->
+            match election_state_of_string x with
+            | x -> Lwt.return x
+            | exception _ ->
+               match old_election_state_of_string x with
+               | `EncryptedTally _ ->
+                  let x = `EncryptedTally in
+                  let* () = Spool.set ~uuid Spool.state x in
+                  Lwt.return x
+               | (`Archived | `Closed | `Open | `Shuffling | `Tallied) as x -> Lwt.return x
+       in
        let* () =
          let populate_shuffles () =
            let* () = Web_events.append ~uuid et_ops in
@@ -200,7 +215,7 @@ let migrate_election_to_v1 uuid accu =
          match state with
          | `Open | `Closed -> Lwt.return_unit
          | `Shuffling -> populate_shuffles ()
-         | `EncryptedTally _ ->
+         | `EncryptedTally ->
             let* () = populate_shuffles () in
             let* () =
               let open Belenios.Election in

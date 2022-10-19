@@ -84,7 +84,7 @@ type election_state =
   [ Open
   | Closed
   | Shuffling
-  | EncryptedTally of (int * int * string)
+  | EncryptedTally
   | Tallied
   | Archived
   ]

@@ -39,3 +39,12 @@ type ('result, 'et, 'pd, 'sh) old_election_result = {
   partial_decryptions : 'pd list;
   result : 'result;
 }
+
+type old_election_state =
+  [ Open
+  | Closed
+  | Shuffling
+  | EncryptedTally of (int * int * string)
+  | Tallied
+  | Archived
+  ]

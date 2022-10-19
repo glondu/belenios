@@ -427,7 +427,7 @@ let get_election_state ?(update = true) ?(ignore_errors = true) uuid =
   in
   let@ () = fun cont ->
     match state with
-    | `EncryptedTally _ when update ->
+    | `EncryptedTally when update ->
        begin
          let* hidden = get_election_result_hidden uuid in
          match hidden with
@@ -461,7 +461,7 @@ let get_election_state ?(update = true) ?(ignore_errors = true) uuid =
 let release_tally uuid =
   let* state = get_election_state uuid in
   match state with
-  | `EncryptedTally _ ->
+  | `EncryptedTally ->
      let* b = internal_release_tally ~force:true uuid in
      assert b;
      set_election_state uuid `Tallied
@@ -536,7 +536,7 @@ let build_elections_by_owner_cache () =
                            let* kind, date =
                              let* state = get_election_state ~update:false uuid in
                              match state with
-                             | `Open | `Closed | `Shuffling | `EncryptedTally _ ->
+                             | `Open | `Closed | `Shuffling | `EncryptedTally ->
                                 let date = Option.value dates.e_finalization ~default:default_validation_date in
                                 return (`Validated, date)
                              | `Tallied ->

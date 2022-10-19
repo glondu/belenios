@@ -284,7 +284,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            txt " ";
            b [txt (s_ "The election is closed and being tallied.")];
          ]
-      | `EncryptedTally _ ->
+      | `EncryptedTally ->
          [
            txt " ";
            b [txt (s_ "The election is closed and being tallied.")];

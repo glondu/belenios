@@ -71,13 +71,8 @@ let with_tally_trustee token uuid f =
   | None -> unauthorized
 
 let get_election_status uuid =
-  let* s = Web_persist.get_election_state uuid in
+  let* status_state = Web_persist.get_election_state uuid in
   let* d = Web_persist.get_election_dates uuid in
-  let status_state =
-    match s with
-    | `EncryptedTally _ -> `EncryptedTally
-    | (`Open | `Closed | `Shuffling | `Tallied | `Archived) as x -> x
-  in
   let status_auto_archive_date =
     match status_state with
     | `Tallied ->
@@ -148,7 +143,7 @@ let get_partial_decryptions uuid metadata =
   let@ () = fun cont ->
     let* state = Web_persist.get_election_state uuid in
     match state with
-    | `EncryptedTally _ -> cont ()
+    | `EncryptedTally -> cont ()
     | _ -> Lwt.fail @@ Error "not in state EncryptedTally"
   in
   let open Belenios_core.Serializable_j in
@@ -213,7 +208,7 @@ let get_partial_decryptions uuid metadata =
 
 
 let transition_to_encrypted_tally uuid =
-  Web_persist.set_election_state uuid @@ `EncryptedTally (0, 0, "")
+  Web_persist.set_election_state uuid `EncryptedTally
 
 let compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
