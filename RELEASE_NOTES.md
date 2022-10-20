@@ -1,5 +1,5 @@
-dev
-===
+1.20
+====
 
  * If you use the scripts in `doc/nspawn`, you must:
    + update `belenios-nspawn` in your deployment environment

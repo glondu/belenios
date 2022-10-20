@@ -1,5 +1,5 @@
-dev
-===
+1.20 (2022-10-20)
+=================
 
  * The implementation of Condorcet-Schulze method was incorrect. It
    has been replaced with an adaptation of CIVS's `beatpath2`
