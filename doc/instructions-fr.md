@@ -191,7 +191,7 @@ L'autorité a alors deux options pour générer les codes de vote:
     alternative) ;
   - exécuter la commande :
 
-        belenios-tool setup generate-credentials --file voters.txt --group <(echo $GROUP) --uuid $UUID
+        belenios-tool setup generate-credentials --file voters.txt --group $GROUP --uuid $UUID
 
     Elle génère deux fichiers, `$TIMESTAMP.privcreds` et
     `$TIMESTAMP.pubcreds` ;

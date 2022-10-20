@@ -182,7 +182,7 @@ Then the authority has two options to generate the credentials:
     one alternative question);
   - run the command:
 
-        belenios-tool setup generate-credentials --file voters.txt --group <(echo $GROUP) --uuid $UUID
+        belenios-tool setup generate-credentials --file voters.txt --group $GROUP --uuid $UUID
 
     It will generate two files, `$TIMESTAMP.privcreds` and
     `$TIMESTAMP.pubcreds`;
