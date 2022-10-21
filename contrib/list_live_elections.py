@@ -33,7 +33,7 @@ def is_secure(elec_path):
     if 'cred_authority' in data and data['cred_authority'] != 'server':
         return True
     if 'trustees' in data:
-        if len(data['trustees']) > 1 or (not data['server_is_trustee']):
+        if len(data['trustees']) > 1:
             return True
     return False
 
