@@ -82,6 +82,20 @@ let migrate_draft_to_v1 uuid accu =
      let draft = old_draft_election_of_string draft in
      let* () = log "  Migrating draft %s..." uuid_s in
      let* () = write_file ~uuid "migration" ["0"] in
+     let se_trustees =
+       match draft.se_threshold_trustees with
+       | None -> `Basic {dbp_trustees = draft.se_public_keys}
+       | Some ts ->
+          let dtp =
+            {
+              dtp_threshold = draft.se_threshold;
+              dtp_trustees = ts;
+              dtp_parameters = draft.se_threshold_parameters;
+              dtp_error = draft.se_threshold_error;
+            }
+          in
+          `Threshold dtp
+     in
      let new_draft =
        {
          Belenios_server.Web_serializable_t.se_version =
@@ -95,14 +109,10 @@ let migrate_draft_to_v1 uuid accu =
          se_group = draft.se_group;
          se_voters = draft.se_voters;
          se_questions = draft.se_questions;
-         se_public_keys = draft.se_public_keys;
+         se_trustees;
          se_metadata = convert_metadata_to_v1 draft.se_metadata;
          se_public_creds = draft.se_public_creds;
          se_public_creds_received = draft.se_public_creds_received;
-         se_threshold = draft.se_threshold;
-         se_threshold_trustees = draft.se_threshold_trustees;
-         se_threshold_parameters = draft.se_threshold_parameters;
-         se_threshold_error = draft.se_threshold_error;
          se_creation_date = draft.se_creation_date;
          se_administrator = draft.se_administrator;
        }

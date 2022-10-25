@@ -129,20 +129,32 @@ type draft_threshold_trustee = {
   ?name : string option;
 } <ocaml field_prefix="stt_">
 
+type draft_basic_params = {
+  trustees <ocaml mutable> : draft_trustee list;
+} <ocaml field_prefix="dbp_">
+
+type draft_threshold_params = {
+  ?threshold <ocaml mutable> : int option;
+  trustees <ocaml mutable> : draft_threshold_trustee list;
+  ?parameters <ocaml mutable> : string option;
+  ?error <ocaml mutable> : string option;
+} <ocaml field_prefix="dtp_">
+
+type draft_trustees =
+  [ Basic of draft_basic_params
+  | Threshold of draft_threshold_params
+  ]
+
 type draft_election = {
   version : int;
   owners : int list;
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : template;
-  public_keys <ocaml mutable> : draft_trustee list;
+  trustees <ocaml mutable> : draft_trustees;
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
-  ?threshold <ocaml mutable> : int option;
-  ?threshold_trustees <ocaml mutable> : draft_threshold_trustee list option;
-  ?threshold_parameters <ocaml mutable> : string option;
-  ?threshold_error <ocaml mutable> : string option;
   ?creation_date : datetime option;
   ?administrator <ocaml mutable> : string option;
 } <ocaml field_prefix="se_">

@@ -724,9 +724,10 @@ module Make
         ]) uuid
     in
     let langs = get_languages se.se_metadata.e_languages in
-    let* trustees = match se.se_public_keys with
-      | [] -> return (txt "")
-      | ts ->
+    let* trustees =
+      match se.se_trustees with
+      | `Basic x when x.dbp_trustees <> [] ->
+         let ts = x.dbp_trustees in
          let* ts =
            Lwt_list.map_s
              (fun t ->
@@ -808,6 +809,7 @@ module Make
                            th [txt (s_ "Remove")];
                          ] :: (List.flatten ts)
                      )
+      | _ -> return (txt "")
     in
     let import_link = div [
                           a ~service:Web_services.election_draft_import_trustees
@@ -815,19 +817,20 @@ module Make
                         ]
     in
     let div_trustees =
-      if se.se_threshold_trustees = None then
-        div [
-            trustees;
-            (if se.se_public_keys <> [] then
-               div [
-                   txt (s_ "There is one link per trustee. Send each trustee the respective link.");
-                   br ();
-                   br ();
-                 ]
-             else txt "");
-            form_trustees_add;
-          ]
-      else txt ""
+      match se.se_trustees with
+      | `Basic x ->
+         div [
+             trustees;
+             (if x.dbp_trustees <> [] then
+                div [
+                    txt (s_ "There is one link per trustee. Send each trustee the respective link.");
+                    br ();
+                    br ();
+                  ]
+              else txt "");
+             form_trustees_add;
+           ]
+      | `Threshold _ -> txt ""
     in
     let div_content =
       div [
@@ -858,7 +861,18 @@ module Make
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title = Printf.sprintf (f_ "Trustees for election %s") se.se_questions.t_name in
-    let show_add_remove = se.se_threshold = None in
+    let dtp =
+      match se.se_trustees with
+      | `Basic _ ->
+         {
+           dtp_threshold = None;
+           dtp_trustees = [];
+           dtp_parameters = None;
+           dtp_error = None;
+         }
+      | `Threshold x -> x
+    in
+    let show_add_remove = dtp.dtp_threshold = None in
     let form_trustees_add =
       if show_add_remove then
         post_form
@@ -887,9 +901,10 @@ module Make
         ]) uuid
     in
     let langs = get_languages se.se_metadata.e_languages in
-    let* trustees = match se.se_threshold_trustees with
-      | None -> return (txt "")
-      | Some ts ->
+    let* trustees =
+      match dtp.dtp_trustees with
+      | [] -> return (txt "")
+      | ts ->
          let* ts =
            Lwt_list.map_s
              (fun t ->
@@ -988,10 +1003,10 @@ module Make
                      ]
     in
     let form_threshold, form_reset =
-      match se.se_threshold_trustees with
-      | None -> txt "", txt ""
-      | Some ts ->
-         match se.se_threshold with
+      match dtp.dtp_trustees with
+      | [] -> txt "", txt ""
+      | ts ->
+         match dtp.dtp_threshold with
          | None ->
             post_form ~service:election_draft_threshold_set
               (fun name ->
@@ -1021,7 +1036,7 @@ module Make
               ) uuid
     in
     let maybe_error =
-      match se.se_threshold_error with
+      match dtp.dtp_error with
       | None -> txt ""
       | Some e -> div [b [txt "Error: "]; txt e; br (); br ()]
     in
@@ -1032,7 +1047,7 @@ module Make
           form_threshold;
           br ();
           trustees;
-          (if se.se_threshold_trustees <> None then
+          (if dtp.dtp_trustees <> [] then
              div [
                  txt (s_ "There is one link per trustee. Send a link to each trustee.");
                  br ();
@@ -1825,14 +1840,14 @@ module Make
          ]
     in
     let div_trustee_warning =
-      match se.se_threshold_trustees, se.se_public_keys with
-      | None, [] ->
+      match se.se_trustees with
+      | `Basic x when x.dbp_trustees = [] ->
          div [
              b [txt (s_ "Warning:")];
              txt " ";
              txt (s_ "No trustees were set. This means the server will manage the election key by itself.");
            ]
-      | _, _ -> txt ""
+      | _ -> txt ""
     in
     let contact, div_contact_warning =
       match se.se_metadata.e_contact with

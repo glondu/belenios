@@ -54,16 +54,16 @@ let with_administrator_or_credential_authority_or_trustee token se f =
     f `CredentialAuthority
   ) else (
     let@ () = fun cont ->
-      match se.se_threshold_trustees with
-      | None ->
+      match se.se_trustees with
+      | `Basic x ->
          begin
-           match List.find_opt (fun x -> x.st_token = token) se.se_public_keys with
+           match List.find_opt (fun x -> x.st_token = token) x.dbp_trustees with
            | Some _ -> f `Trustee
            | None -> cont ()
          end
-      | Some trustees ->
+      | `Threshold x ->
          begin
-           match List.find_opt (fun x -> x.stt_token = token) trustees with
+           match List.find_opt (fun x -> x.stt_token = token) x.dtp_trustees with
            | Some _ -> f `Trustee
            | None -> cont ()
          end
@@ -75,11 +75,11 @@ let with_administrator_or_credential_authority_or_trustee token se f =
 
 let with_threshold_trustee token se f =
   let@ token = Option.unwrap unauthorized token in
-  match se.se_threshold_trustees with
-  | None -> not_found
-  | Some trustees ->
-     match List.find_opt (fun x -> x.stt_token = token) trustees with
-     | Some x -> f (x, trustees)
+  match se.se_trustees with
+  | `Basic _ -> not_found
+  | `Threshold t ->
+     match List.find_opt (fun x -> x.stt_token = token) t.dtp_trustees with
+     | Some x -> f (x, t)
      | None -> not_found
 
 let get_authentication se =
@@ -224,14 +224,10 @@ let post_drafts account draft =
       se_group = !Web_config.default_group;
       se_voters = [];
       se_questions;
-      se_public_keys = [];
+      se_trustees = `Basic {dbp_trustees = []};
       se_metadata;
       se_public_creds = token;
       se_public_creds_received = false;
-      se_threshold = None;
-      se_threshold_trustees = None;
-      se_threshold_parameters = None;
-      se_threshold_error = None;
       se_creation_date = Some (now ());
       se_administrator = None;
     }
@@ -464,8 +460,8 @@ let submit_public_credentials uuid se credentials =
   Web_persist.set_draft_election uuid se
 
 let get_draft_trustees se =
-  match se.se_threshold_trustees with
-  | None ->
+  match se.se_trustees with
+  | `Basic x ->
      List.filter_map
        (fun t ->
          if t.st_id = "server" then
@@ -477,8 +473,8 @@ let get_draft_trustees se =
                trustee_token = Some t.st_token;
                trustee_state = Some (if t.st_public_key = "" then 0 else 1);
              }
-       ) se.se_public_keys
-  | Some ts ->
+       ) x.dbp_trustees
+  | `Threshold x ->
      List.map
        (fun t ->
          {
@@ -487,7 +483,7 @@ let get_draft_trustees se =
            trustee_token = Some t.stt_token;
            trustee_state = Some (Option.value t.stt_step ~default:0);
          }
-       ) ts
+       ) x.dtp_trustees
 
 let check_address address =
   if not @@ is_email address then
@@ -514,10 +510,10 @@ let post_draft_trustees uuid se t =
   let () = check_address t.trustee_address in
   let () = ensure_none "token" t.trustee_token in
   let () = ensure_none "state" t.trustee_state in
-  match se.se_threshold_trustees with
-  | None ->
+  match se.se_trustees with
+  | `Basic x ->
      let* ts =
-       let ts = se.se_public_keys in
+       let ts = x.dbp_trustees in
        if List.exists (fun x -> x.st_id = "server") ts then
          Lwt.return ts
        else
@@ -538,10 +534,10 @@ let post_draft_trustees uuid se t =
          st_token;
        }
      in
-     let se_public_keys = ts @ [t] in
-     let se = {se with se_public_keys} in
+     x.dbp_trustees <- ts @ [t];
      Web_persist.set_draft_election uuid se
-  | Some ts ->
+  | `Threshold x ->
+     let ts = x.dtp_trustees in
      let () =
        if List.exists (fun x -> x.stt_id = t.trustee_address) ts then
          raise (Error "address already used")
@@ -556,8 +552,7 @@ let post_draft_trustees uuid se t =
          stt_vinput = None; stt_voutput = None;
        }
      in
-     let se_threshold_trustees = Some (ts @ [t]) in
-     let se = {se with se_threshold_trustees} in
+     x.dtp_trustees <- ts @ [t];
      Web_persist.set_draft_election uuid se
 
 let rec filter_out_first f = function
@@ -571,34 +566,42 @@ let rec filter_out_first f = function
      )
 
 let delete_draft_trustee uuid se trustee =
-  match se.se_threshold_trustees with
-  | None ->
-     let touched, ts = filter_out_first (fun x -> x.st_id = trustee) se.se_public_keys in
+  match se.se_trustees with
+  | `Basic x ->
+     let ts = x.dbp_trustees in
+     let touched, ts = filter_out_first (fun x -> x.st_id = trustee) ts in
      if touched then (
-       let* () = Web_persist.set_draft_election uuid {se with se_public_keys = ts} in
+       x.dbp_trustees <- ts;
+       let* () = Web_persist.set_draft_election uuid se in
        Lwt.return_true
      ) else (
        Lwt.return_false
      )
-  | Some ts ->
+  | `Threshold x ->
+     let ts = x.dtp_trustees in
      let touched, ts = filter_out_first (fun x -> x.stt_id = trustee) ts in
      if touched then (
-       let* () = Web_persist.set_draft_election uuid {se with se_threshold_trustees = Some ts} in
+       x.dtp_trustees <- ts;
+       let* () = Web_persist.set_draft_election uuid se in
        Lwt.return_true
      ) else (
        Lwt.return_false
      )
 
 let set_threshold uuid se threshold =
-  match se.se_threshold_trustees with
-  | None | Some [] -> Lwt.return @@ Stdlib.Error `NoTrustees
-  | Some ts ->
+  match se.se_trustees with
+  | `Basic _ ->
+     Lwt.return @@ Stdlib.Error `NoTrustees
+  | `Threshold x when x.dtp_trustees = [] ->
+     Lwt.return @@ Stdlib.Error `NoTrustees
+  | `Threshold x ->
+     let ts = x.dtp_trustees in
      let maybe_threshold, step =
        if threshold = 0 then None, None else Some threshold, Some 1
      in
      if 0 <= threshold && threshold < List.length ts then (
        List.iter (fun t -> t.stt_step <- step) ts;
-       se.se_threshold <- maybe_threshold;
+       x.dtp_threshold <- maybe_threshold;
        let* () = Web_persist.set_draft_election uuid se in
        Lwt.return @@ Ok ()
      ) else (
@@ -606,25 +609,26 @@ let set_threshold uuid se threshold =
      )
 
 let get_draft_trustees_mode se =
-  match se.se_threshold_trustees with
-  | None -> `Basic
-  | Some _ -> `Threshold (Option.value se.se_threshold ~default:0)
+  match se.se_trustees with
+  | `Basic _ -> `Basic
+  | `Threshold x -> `Threshold (Option.value x.dtp_threshold ~default:0)
 
 let put_draft_trustees_mode uuid se mode =
   match get_draft_trustees_mode se, mode with
   | a, b when a = b -> Lwt.return_unit
   | _, `Basic ->
-     let se = {se with se_public_keys = []; se_threshold_trustees = None} in
+     se.se_trustees <- `Basic {dbp_trustees = []};
      Web_persist.set_draft_election uuid se
   | `Basic, `Threshold 0 ->
-     let se =
+     let dtp =
        {
-         se with
-         se_public_keys = [];
-         se_threshold_trustees = Some [];
-         se_threshold = None;
+         dtp_threshold = None;
+         dtp_trustees = [];
+         dtp_parameters = None;
+         dtp_error = None;
        }
      in
+     se.se_trustees <- `Threshold dtp;
      Web_persist.set_draft_election uuid se
   | `Threshold _, `Threshold threshold ->
      begin
@@ -656,11 +660,11 @@ let get_draft_status uuid se =
       status_private_credentials_downloaded;
       status_trustees_ready =
         begin
-          match se.se_threshold_trustees with
-          | None ->
-             List.for_all (fun t -> t.st_public_key <> "") se.se_public_keys
-          | Some ts ->
-             List.for_all (fun t -> t.stt_step = Some 7) ts
+          match se.se_trustees with
+          | `Basic x ->
+             List.for_all (fun t -> t.st_public_key <> "") x.dbp_trustees
+          | `Threshold x ->
+             List.for_all (fun t -> t.stt_step = Some 7) x.dtp_trustees
         end;
       status_nh_and_weights_compatible =
         begin
@@ -732,10 +736,11 @@ let validate_election uuid se =
   let module K = Trustees.MakeCombinator (G) in
   let module KG = Trustees.MakeSimple (G) (LwtRandom) in
   let* trustee_names, trustees, private_keys =
-    match se.se_threshold_trustees with
-    | None ->
+    match se.se_trustees with
+    | `Basic x ->
+       let ts = x.dbp_trustees in
        let* trustee_names, trustees, private_key =
-         match se.se_public_keys with
+         match ts with
          | [] ->
             let* private_key = KG.generate () in
             let* public_key = KG.prove private_key in
@@ -747,7 +752,7 @@ let validate_election uuid se =
                   match st_private_key with
                   | Some x -> x :: accu
                   | None -> accu
-                ) [] se.se_public_keys
+                ) [] ts
             in
             let private_key = match private_key with
               | [x] -> `KEY x
@@ -755,19 +760,20 @@ let validate_election uuid se =
             in
             Lwt.return
               begin
-                (List.map (fun {st_id; _} -> st_id) se.se_public_keys),
+                (List.map (fun {st_id; _} -> st_id) ts),
                 (List.map
                    (fun {st_public_key; st_name; _} ->
                      let pk = trustee_public_key_of_string G.read st_public_key in
                      let pk = { pk with trustee_name = st_name } in
                      `Single pk
-                   ) se.se_public_keys),
+                   ) ts),
                 private_key
               end
        in
        Lwt.return (trustee_names, trustees, private_key)
-    | Some ts ->
-       match se.se_threshold_parameters with
+    | `Threshold x ->
+       let ts = x.dtp_trustees in
+       match x.dtp_parameters with
        | None -> raise (Error "key establishment not finished")
        | Some tp ->
           let tp = threshold_parameters_of_string G.read tp in
@@ -997,9 +1003,15 @@ let import_trustees uuid se from metadata =
          in
          match x with
          | Ok se_threshold_trustees ->
-            se.se_threshold <- Some t.t_threshold;
-            se.se_threshold_trustees <- Some se_threshold_trustees;
-            se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write t);
+            let dtp =
+              {
+                dtp_threshold = Some t.t_threshold;
+                dtp_trustees = se_threshold_trustees;
+                dtp_parameters = Some (string_of_threshold_parameters G.write t);
+                dtp_error = None;
+              }
+            in
+            se.se_trustees <- `Threshold dtp;
             let* () = Web_persist.set_draft_election uuid se in
             Lwt.return @@ Ok `Threshold
          | Stdlib.Error _ as x -> Lwt.return x
@@ -1038,7 +1050,7 @@ let import_trustees uuid se from metadata =
                    let st_name = public_key.trustee_name in
                    Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name})
           in
-          se.se_public_keys <- ts;
+          se.se_trustees <- `Basic {dbp_trustees = ts};
           let* () = Web_persist.set_draft_election uuid se in
           Lwt.return @@ Ok `Basic
 
@@ -1219,19 +1231,19 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
      end
   | ["trustees-pedersen"] ->
      begin
-       let@ trustee, trustees = with_threshold_trustee token se in
+       let@ trustee, dtp = with_threshold_trustee token se in
        let get () =
          let pedersen_certs =
            List.fold_left (fun accu x ->
                match x.stt_cert with
                | None -> accu
                | Some c -> c :: accu
-             ) [] trustees
+             ) [] dtp.dtp_trustees
            |> List.rev |> Array.of_list
          in
          let r =
            {
-             pedersen_threshold = Option.value ~default:0 se.se_threshold;
+             pedersen_threshold = Option.value ~default:0 dtp.dtp_threshold;
              pedersen_step = Option.value ~default:0 trustee.stt_step;
              pedersen_certs;
              pedersen_vinput = trustee.stt_vinput;

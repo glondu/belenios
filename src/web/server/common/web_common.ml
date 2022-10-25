@@ -468,11 +468,9 @@ let get_suitable_group_kind {t_questions; _} =
 
 let is_group_fixed se =
   se.se_public_creds_received
-  || se.se_public_keys <> []
-  || (match se.se_threshold_trustees with
-      | Some l -> l <> []
-      | None -> false
-     )
+  || match se.se_trustees with
+     | `Basic x -> x.dbp_trustees <> []
+     | `Threshold x -> x.dtp_trustees <> []
 
 let get_booth_index = function
   | None -> 0

@@ -312,9 +312,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_trustees
       (fun uuid () ->
         let@ se = with_draft_election_ro uuid in
-        match se.se_threshold_trustees with
-        | None -> Pages_admin.election_draft_trustees uuid se () >>= Html.send
-        | Some _ -> redir_preapply election_draft_threshold_trustees uuid ()
+        match se.se_trustees with
+        | `Basic _ -> Pages_admin.election_draft_trustees uuid se () >>= Html.send
+        | `Threshold _ -> redir_preapply election_draft_threshold_trustees uuid ()
       )
 
   let () =
@@ -699,9 +699,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let ensure_trustees_mode uuid se mode =
-    match se.se_threshold_trustees, mode with
-    | None, `Basic | Some _, `Threshold _ -> Lwt.return se
-    | Some _, `Basic | None, `Threshold _ ->
+    match se.se_trustees, mode with
+    | `Basic _, `Basic | `Threshold _, `Threshold _ -> Lwt.return se
+    | `Threshold _, `Basic | `Basic _, `Threshold _ ->
        let* () = Api_drafts.put_draft_trustees_mode uuid se mode in
        let* x = Web_persist.get_draft_election uuid in
        match x with
@@ -844,7 +844,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         match election with
         | None -> fail_http `Not_found
         | Some se ->
-           match List.find_opt (fun t -> t.st_token = token) se.se_public_keys with
+           let ts =
+             match se.se_trustees with
+             | `Basic x -> x.dbp_trustees
+             | `Threshold _ -> []
+           in
+           match List.find_opt (fun t -> t.st_token = token) ts with
            | None -> forbidden ()
            | Some t ->
               if t.st_public_key <> "" then
@@ -878,7 +883,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 match election with
                 | None -> fail_http `Not_found
                 | Some se ->
-                   let&* t = List.find_opt (fun x -> token = x.st_token) se.se_public_keys in
+                   let ts =
+                     match se.se_trustees with
+                     | `Basic x -> x.dbp_trustees
+                     | `Threshold _ -> []
+                   in
+                   let&* t = List.find_opt (fun x -> token = x.st_token) ts in
                    if t.st_public_key <> "" then
                      let msg = s_ "A public key already existed, the key you've just uploaded has been ignored!" in
                      let title = s_ "Error" in
@@ -1621,11 +1631,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               match election with
               | None -> fail_http `Not_found
               | Some se ->
-                 let ts =
-                   match se.se_threshold_trustees with
-                   | None -> failwith "No threshold trustees"
-                   | Some xs -> Array.of_list xs
+                 let dtp =
+                   match se.se_trustees with
+                   | `Basic _ -> failwith "No threshold trustees"
+                   | `Threshold x -> x
                  in
+                 let ts = Array.of_list dtp.dtp_trustees in
                  let i, t =
                    match Array.findi (fun i x ->
                              if token = x.stt_token then Some (i, x) else None
@@ -1694,7 +1705,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                         K.step2 (get_certs ());
                         Array.iter (fun x -> x.stt_step <- Some 3) ts;
                       with e ->
-                        se.se_threshold_error <- Some (Printexc.to_string e)
+                        dtp.dtp_error <- Some (Printexc.to_string e)
                      ); return_unit
                    ) else return_unit
                  in
@@ -1709,7 +1720,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                         done;
                         Array.iter (fun x -> x.stt_step <- Some 5) ts
                       with e ->
-                        se.se_threshold_error <- Some (Printexc.to_string e)
+                        dtp.dtp_error <- Some (Printexc.to_string e)
                      ); return_unit
                    ) else return_unit
                  in
@@ -1724,10 +1735,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                                            | Some y -> voutput_of_string G.read y
                                          ) ts in
                         let p = K.step6 certs polynomials voutputs in
-                        se.se_threshold_parameters <- Some (string_of_threshold_parameters G.write p);
+                        dtp.dtp_parameters <- Some (string_of_threshold_parameters G.write p);
                         Array.iter (fun x -> x.stt_step <- Some 7) ts
                       with e ->
-                        se.se_threshold_error <- Some (Printexc.to_string e)
+                        dtp.dtp_error <- Some (Printexc.to_string e)
                      ); return_unit
                    ) else return_unit
                  in
