@@ -33,5 +33,4 @@ type capability =
 
 val has_capability : capability -> account -> bool
 
-val check : user * account * string -> user user_or_id -> bool
-val check_account : account -> user user_or_id -> bool
+val check : account -> int list -> bool

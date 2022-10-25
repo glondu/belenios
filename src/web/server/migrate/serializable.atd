@@ -20,6 +20,14 @@
 (**************************************************************************)
 
 type weight <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type datetime <ocaml predef from="Belenios_server.Web_serializable_builtin"> = abstract
+type user <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type auth_config <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type draft_voter <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type template <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type draft_trustee <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type draft_threshold_trustee <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type 'a user_or_id <ocaml predef from="Serializable_builtin"> = abstract
 
 type shuffler = string nullable
 
@@ -48,3 +56,31 @@ type old_election_state =
   | Tallied
   | Archived
   ]
+
+type old_metadata = {
+  ?owner: user user_or_id option;
+  ?auth_config: auth_config list option;
+  ?cred_authority : string option;
+  ?trustees : string list option;
+  ?languages : string list option;
+  ?contact : string option;
+  ?booth_version : int option;
+} <ocaml field_prefix="e_">
+
+type old_draft_election = {
+  ?version : int option;
+  owner : user user_or_id;
+  group <ocaml mutable> : string;
+  voters <ocaml mutable> : draft_voter list;
+  questions <ocaml mutable> : template;
+  public_keys <ocaml mutable> : draft_trustee list;
+  metadata <ocaml mutable> : old_metadata;
+  public_creds : string;
+  public_creds_received <ocaml mutable> : bool;
+  ?threshold <ocaml mutable> : int option;
+  ?threshold_trustees <ocaml mutable> : draft_threshold_trustee list option;
+  ?threshold_parameters <ocaml mutable> : string option;
+  ?threshold_error <ocaml mutable> : string option;
+  ?creation_date : datetime option;
+  ?administrator <ocaml mutable> : string option;
+} <ocaml field_prefix="se_">

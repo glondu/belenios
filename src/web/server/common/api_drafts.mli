@@ -75,7 +75,7 @@ val get_draft_status : uuid -> draft_election -> status Lwt.t
 val set_downloaded : uuid -> unit Lwt.t
 
 val dump_passwords : uuid -> string list list -> unit Lwt.t
-val validate_election : account -> uuid -> draft_election -> unit Lwt.t
+val validate_election : uuid -> draft_election -> unit Lwt.t
 
 val merge_voters :
   draft_voter list -> string list ->

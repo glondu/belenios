@@ -92,9 +92,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let with_metadata_check_owner uuid f =
     let* user = Eliom_reference.get Web_state.site_user in
     let* metadata = Web_persist.get_election_metadata uuid in
-    match user, metadata.e_owner with
-    | Some x, Some y when Accounts.check x y -> f metadata
-    | _, _ -> forbidden ()
+    match user with
+    | Some (_, a, _) when Accounts.check a metadata.e_owners -> f metadata
+    | _ -> forbidden ()
 
   let without_site_user ?fallback () f =
     let* l = get_preferred_gettext () in
@@ -294,11 +294,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let with_draft_election_ro uuid f =
-    let@ u = with_site_user in
+    let@ _, a, _ = with_site_user in
     let* election = Web_persist.get_draft_election uuid in
     match election with
     | None -> fail_http `Not_found
-    | Some se -> if Accounts.check u se.se_owner then f se else forbidden ()
+    | Some se -> if Accounts.check a se.se_owners then f se else forbidden ()
 
   let () =
     Any.register ~service:election_draft
@@ -334,7 +334,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let with_draft_election ?(save = true) uuid f =
-    let@ u = with_site_user in
+    let@ _, a, _ = with_site_user in
     let* l = get_preferred_gettext () in
     let open (val l) in
     let@ () = Web_election_mutex.with_lock uuid in
@@ -342,7 +342,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     match election with
     | None -> fail_http `Not_found
     | Some se ->
-       if Accounts.check u se.se_owner then (
+       if Accounts.check a se.se_owners then (
          Lwt.catch
            (fun () ->
              let* r = f se in
@@ -559,11 +559,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_preview
       (fun (uuid, ()) () ->
         let@ se = with_draft_election_ro uuid in
-        let version = Option.value se.se_version ~default:0 in
+        let version = se.se_version in
         let group = se.se_group in
         let module G = (val Group.of_string ~version group : GROUP) in
         let params = {
-            e_version = Option.value se.se_version ~default:0;
+            e_version = version;
             e_description = se.se_questions.t_description;
             e_name = se.se_questions.t_name;
             e_questions = se.se_questions.t_questions;
@@ -830,12 +830,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let open (val l) in
         let@ () =
           without_site_user
-            ~fallback:(fun u ->
+            ~fallback:(fun (_, a, _) ->
               let* election = Web_persist.get_draft_election uuid in
               match election with
               | None -> fail_http `Not_found
               | Some se ->
-                 if Accounts.check u se.se_owner then (
+                 if Accounts.check a se.se_owners then (
                    Pages_admin.election_draft_trustees ~token uuid se () >>= Html.send
                  ) else forbidden ()
             ) ()
@@ -884,9 +884,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                      let title = s_ "Error" in
                      return_some (title, msg, 400)
                    else
-                     let version = Option.value se.se_version ~default:0 in
+                     let version = se.se_version in
                      let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                     let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
+                     let module Trustees = (val Trustees.get_by_version version) in
                      let pk = trustee_public_key_of_string G.read public_key in
                      let module K = Trustees.MakeCombinator (G) in
                      if not (K.check [`Single pk]) then
@@ -922,8 +922,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let@ se = with_draft_election ~save:false uuid in
         Lwt.catch
           (fun () ->
-            let* () = Api_drafts.validate_election account uuid se in
-            redir_preapply election_admin uuid ()
+            if Accounts.check account se.se_owners then (
+              let* () = Api_drafts.validate_election uuid se in
+              redir_preapply election_admin uuid ()
+            ) else Lwt.fail (Failure "Forbidden")
           )
           (fun e ->
             Pages_admin.new_election_failure (`Exception e) () >>= Html.send
@@ -1029,7 +1031,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* metadata = Web_persist.get_election_metadata uuid in
     let* site_user = Eliom_reference.get Web_state.site_user in
     match site_user with
-    | Some x when (match metadata.e_owner with None -> false | Some o -> Accounts.check x o) ->
+    | Some (_, a, _) when Accounts.check a metadata.e_owners ->
        let* status = Api_elections.get_election_status uuid in
        let module W = (val election) in
        let* pending_server_shuffle =
@@ -1221,7 +1223,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
               let* metadata = Web_persist.get_election_metadata uuid in
               let* site_user = Eliom_reference.get Web_state.site_user in
               match site_user with
-              | Some x when (match metadata.e_owner with None -> false | Some o -> Accounts.check x o) -> return_true
+              | Some (_, a, _) when Accounts.check a metadata.e_owners -> return_true
               | _ -> return_false
             ) else return_true
           in
@@ -1582,12 +1584,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun (uuid, token) () ->
         let@ () =
           without_site_user
-            ~fallback:(fun u ->
+            ~fallback:(fun (_, a, _) ->
               let* election = Web_persist.get_draft_election uuid in
               match election with
               | None -> fail_http `Not_found
               | Some se ->
-                 if Accounts.check u se.se_owner then (
+                 if Accounts.check a se.se_owners then (
                    Pages_admin.election_draft_threshold_trustees ~token uuid se () >>= Html.send
                  ) else forbidden ()
             ) ()
@@ -1646,9 +1648,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                        | Some y -> y
                      ) ts
                  in
-                 let version = Option.value se.se_version ~default:0 in
+                 let version = se.se_version in
                  let module G = (val Group.of_string ~version se.se_group : GROUP) in
-                 let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
+                 let module Trustees = (val Trustees.get_by_version version) in
                  let module P = Trustees.MakePKI (G) (LwtRandom) in
                  let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
                  let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in

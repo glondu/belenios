@@ -35,7 +35,7 @@ open Api_generic
 let with_administrator token se f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token with
-  | Some a when Accounts.check_account a se.se_owner -> f a
+  | Some a when Accounts.check a se.se_owners -> f a
   | _ -> not_found
 
 let with_administrator_or_credential_authority token se f =
@@ -44,7 +44,7 @@ let with_administrator_or_credential_authority token se f =
     f `CredentialAuthority
   ) else (
     match lookup_token token with
-    | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+    | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
     | _ -> not_found
   )
 
@@ -69,7 +69,7 @@ let with_administrator_or_credential_authority_or_trustee token se f =
          end
     in
     match lookup_token token with
-    | Some a when Accounts.check_account a se.se_owner -> f (`Administrator a)
+    | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
     | _ -> not_found
   )
 
@@ -102,18 +102,9 @@ let api_of_draft se =
       t_administrator = Some (Option.value se.se_administrator ~default:"");
     }
   in
-  let* draft_owners =
-    match se.se_owner with
-    | `Id i -> Lwt.return i
-    | `User u ->
-       let* x = Accounts.get_account u in
-       match x with
-       | None -> Lwt.return []
-       | Some a -> Lwt.return [a.account_id]
-  in
   Lwt.return {
-    draft_version = Option.value se.se_version ~default:0;
-    draft_owners;
+    draft_version = se.se_version;
+    draft_owners = se.se_owners;
     draft_questions;
     draft_languages = Option.value se.se_metadata.e_languages ~default:[];
     draft_contact = se.se_metadata.e_contact;
@@ -126,7 +117,7 @@ let assert_ msg b f =
   if b then f () else raise (Error msg)
 
 let draft_of_api a se d =
-  let version = Option.value se.se_version ~default:0 in
+  let version = se.se_version in
   let () =
     if d.draft_version <> version then
       raise (Error "cannot change version")
@@ -181,7 +172,7 @@ let draft_of_api a se d =
   {
     se with
     se_metadata;
-    se_owner = `Id d.draft_owners;
+    se_owners = d.draft_owners;
     se_questions = d.draft_questions;
     se_administrator = d.draft_questions.t_administrator;
     se_group;
@@ -203,12 +194,12 @@ let post_drafts account draft =
     else
       Lwt.(cont () >>= return_some)
   in
-  let owner = `Id [account.account_id] in
+  let owners = [account.account_id] in
   let* uuid = generate_uuid () in
   let* token = generate_token () in
   let se_metadata =
     {
-      e_owner = Some owner;
+      e_owners = owners;
       e_auth_config = None;
       e_cred_authority = None;
       e_trustees = None;
@@ -228,8 +219,8 @@ let post_drafts account draft =
   in
   let se =
     {
-      se_version = Some (List.hd supported_crypto_versions);
-      se_owner = owner;
+      se_version = List.hd supported_crypto_versions;
+      se_owners = owners;
       se_group = !Web_config.default_group;
       se_voters = [];
       se_questions;
@@ -400,7 +391,7 @@ let generate_credentials_on_server send uuid se =
           weight <> None
         ) se.se_voters
     in
-    let version = Option.value se.se_version ~default:0 in
+    let version = se.se_version in
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module CMap = Map.Make (G) in
     let module CD = Belenios_core.Credential.MakeDerive (G) in
@@ -443,7 +434,7 @@ let exn_of_generate_credentials_on_server_error = function
 
 let submit_public_credentials uuid se credentials =
   let () = if se.se_voters = [] then raise (Error "No voters") in
-  let version = Option.value se.se_version ~default:0 in
+  let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let weights =
     List.fold_left
@@ -508,9 +499,9 @@ let ensure_none label x =
 
 let generate_server_trustee se =
   let st_id = "server" and st_token = "" in
-  let version = Option.value se.se_version ~default:0 in
+  let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group) in
-  let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
+  let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) (LwtRandom) in
   let* private_key = K.generate () in
   let* public_key = K.prove private_key in
@@ -698,9 +689,9 @@ let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db |>
     write_file ~uuid "passwords.csv"
 
-let validate_election account uuid se =
+let validate_election uuid se =
   let* s = get_draft_status uuid se in
-  let version = Option.value se.se_version ~default:0 in
+  let version = se.se_version in
   let uuid_s = raw_string_of_uuid uuid in
   (* convenience tests *)
   let () =
@@ -809,22 +800,17 @@ let validate_election account uuid se =
   in
   let y = K.combine_keys trustees in
   (* election parameters *)
-  let e_owner =
-    match se.se_owner with
-    | `Id _ as x -> Some x
-    | `User _ -> Some (`Id [account.account_id])
-  in
   let metadata =
     {
       se.se_metadata with
       e_trustees = Some trustee_names;
-      e_owner;
+      e_owners = se.se_owners;
     }
   in
   let template = se.se_questions in
   let params =
     {
-      e_version = Option.value se.se_version ~default:0;
+      e_version = se.se_version;
       e_description = template.t_description;
       e_name = template.t_name;
       e_questions = template.t_questions;
@@ -977,9 +963,9 @@ let import_trustees uuid se from metadata =
   | None -> Lwt.return @@ Stdlib.Error `None
   | Some names ->
      let* trustees = Web_persist.get_trustees from in
-     let version = Option.value se.se_version ~default:0 in
+     let version = se.se_version in
      let module G = (val Group.of_string ~version se.se_group : GROUP) in
-     let module Trustees = (val Trustees.get_by_version (Option.value se.se_version ~default:0)) in
+     let module Trustees = (val Trustees.get_by_version version) in
      let module K = Trustees.MakeCombinator (G) in
      let trustees = trustees_of_string G.read trustees in
      if not (K.check trustees) then
@@ -1058,16 +1044,17 @@ let import_trustees uuid se from metadata =
 
 let check_owner account uuid cont =
   let* metadata = Web_persist.get_election_metadata uuid in
-  match metadata.e_owner with
-  | Some o when Accounts.check_account account o -> cont metadata
-  | _ -> unauthorized
+  if Accounts.check account metadata.e_owners then
+    cont metadata
+  else
+    unauthorized
 
-let post_draft_status account uuid se = function
+let post_draft_status uuid se = function
   | `SetDownloaded ->
      let* () = set_downloaded uuid in
      ok
   | `ValidateElection ->
-     let* () = validate_election account uuid se in
+     let* () = validate_election uuid se in
      ok
 
 let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
@@ -1087,7 +1074,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           let@ () = handle_generic_error in
           let update_cache =
             draft.draft_questions.t_name <> se.se_questions.t_name
-            || se.se_owner <> `Id draft.draft_owners
+            || se.se_owners <> draft.draft_owners
           in
           let se = draft_of_api account se draft in
           let* () = Web_persist.set_draft_election uuid se in
@@ -1098,11 +1085,11 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
               Lwt.return_unit
           in
           ok
-       | `POST, `Administrator account ->
+       | `POST, `Administrator _ ->
           let@ () = handle_ifmatch ifmatch get in
           let@ x = body.run draft_request_of_string in
           let@ () = handle_generic_error in
-          post_draft_status account uuid se x
+          post_draft_status uuid se x
        | `DELETE, `Administrator _ ->
           let@ () = handle_ifmatch ifmatch get in
           let@ () = handle_generic_error in

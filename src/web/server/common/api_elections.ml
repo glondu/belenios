@@ -31,8 +31,8 @@ open Api_generic
 
 let with_administrator token metadata f =
   let@ token = Option.unwrap unauthorized token in
-  match lookup_token token, metadata.e_owner with
-  | Some a, Some o when Accounts.check_account a o -> f a
+  match lookup_token token with
+  | Some a when Accounts.check a metadata.e_owners -> f a
   | _ -> unauthorized
 
 let find_trustee_id uuid token =
@@ -268,7 +268,7 @@ let delete_election election metadata =
       t_credential_authority = None;
     }
   in
-  let de_owner = Option.value metadata.e_owner ~default:(`Id []) in
+  let de_owners = metadata.e_owners in
   let* dates = Web_persist.get_election_dates uuid in
   let de_date =
     match dates.e_tally with
@@ -320,7 +320,7 @@ let delete_election election metadata =
   let de = {
       de_uuid = uuid;
       de_template;
-      de_owner;
+      de_owners;
       de_nb_voters;
       de_nb_ballots = List.length ballots;
       de_date;

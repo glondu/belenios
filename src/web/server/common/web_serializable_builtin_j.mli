@@ -26,8 +26,3 @@ open Web_serializable_builtin_t
 
 val write_datetime : datetime writer
 val read_datetime : datetime reader
-
-(** {1 Serializers for type user_or_id} *)
-
-val write_user_or_id : 'a writer -> 'a user_or_id writer
-val read_user_or_id : 'a reader -> 'a user_or_id reader

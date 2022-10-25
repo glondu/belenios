@@ -344,8 +344,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       let* is_admin =
         let* metadata = Web_persist.get_election_metadata uuid in
         let* site_user = Eliom_reference.get Web_state.site_user in
-        match site_user, metadata.e_owner with
-        | Some x, Some y -> return @@ Accounts.check x y
+        match site_user with
+        | Some (_, a, _) -> return @@ Accounts.check a metadata.e_owners
         | _ -> return_false
       in
       match result with

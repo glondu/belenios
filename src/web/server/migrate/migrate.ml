@@ -41,9 +41,11 @@ let is_election_with_old_crypto uuid =
     match x with
     | Some raw_election -> cont @@ Belenios.Election.get_version raw_election
     | None ->
-       let* x = Spool.get ~uuid Spool.draft in
+       let* x = read_file_single_line ~uuid Spool.(filename draft) in
        match x with
-       | Some draft -> cont @@ Option.value ~default:0 draft.se_version
+       | Some draft ->
+          let draft = old_draft_election_of_string draft in
+          cont @@ Option.value ~default:0 draft.se_version
        | None ->
           let* x = read_file_single_line ~uuid "deleted.json" in
           match x with
@@ -53,6 +55,61 @@ let is_election_with_old_crypto uuid =
              Lwt.return_false
   in
   Lwt.return (version < 1)
+
+let convert_metadata_to_v1 (metadata : old_metadata) =
+  {
+    Belenios_server.Web_serializable_t.e_owners =
+      begin
+        match metadata.e_owner with
+        | None -> []
+        | Some (`Id x) -> x
+        | Some (`User _) -> []
+      end;
+    e_auth_config = metadata.e_auth_config;
+    e_cred_authority = metadata.e_cred_authority;
+    e_trustees = metadata.e_trustees;
+    e_languages = metadata.e_languages;
+    e_contact = metadata.e_contact;
+    e_booth_version = metadata.e_booth_version;
+  }
+
+let migrate_draft_to_v1 uuid accu =
+  let uuid_s = raw_string_of_uuid uuid in
+  let* draft = read_file_single_line ~uuid Spool.(filename draft) in
+  match draft with
+  | None -> Lwt.return accu
+  | Some draft ->
+     let draft = old_draft_election_of_string draft in
+     let* () = log "  Migrating draft %s..." uuid_s in
+     let* () = write_file ~uuid "migration" ["0"] in
+     let new_draft =
+       {
+         Belenios_server.Web_serializable_t.se_version =
+           Option.value ~default:0 draft.se_version;
+         se_owners =
+           begin
+             match draft.se_owner with
+             | `Id x -> x
+             | `User _ -> []
+           end;
+         se_group = draft.se_group;
+         se_voters = draft.se_voters;
+         se_questions = draft.se_questions;
+         se_public_keys = draft.se_public_keys;
+         se_metadata = convert_metadata_to_v1 draft.se_metadata;
+         se_public_creds = draft.se_public_creds;
+         se_public_creds_received = draft.se_public_creds_received;
+         se_threshold = draft.se_threshold;
+         se_threshold_trustees = draft.se_threshold_trustees;
+         se_threshold_parameters = draft.se_threshold_parameters;
+         se_threshold_error = draft.se_threshold_error;
+         se_creation_date = draft.se_creation_date;
+         se_administrator = draft.se_administrator;
+       }
+     in
+     let* () = Spool.set ~uuid Spool.draft new_draft in
+     let* () = write_file ~uuid "migration" ["1"] in
+     Lwt.return @@ uuid :: accu
 
 let migrate_election_to_v1 uuid accu =
   let uuid_s = raw_string_of_uuid uuid in
@@ -64,7 +121,7 @@ let migrate_election_to_v1 uuid accu =
          let* x = read_file_single_line ~uuid "election.json" in
          match x with
          | Some x -> cont x
-         | None -> Lwt.return accu
+         | None -> migrate_draft_to_v1 uuid accu
        in
        let* () = log "  Migrating %s..." uuid_s in
        let* () = write_file ~uuid "migration" ["0"] in
@@ -80,7 +137,16 @@ let migrate_election_to_v1 uuid accu =
          | None -> assert false
          | Some x -> Lwt.return x
        in
-       let* metadata = Web_persist.get_election_metadata uuid in
+       let* metadata =
+         let* x = read_file_single_line ~uuid Spool.(filename metadata) in
+         match x with
+         | None -> Lwt.return Web_persist.empty_metadata
+         | Some x ->
+            let old_ = old_metadata_of_string x in
+            let new_ = convert_metadata_to_v1 old_ in
+            let* () = Spool.set ~uuid Spool.metadata new_ in
+            Lwt.return new_
+       in
        let* () = log "    Cleaning up event files..." in
        let* () = cleanup_file (uuid /// uuid_s ^ ".bel") in
        let* () = Spool.del ~uuid Spool.last_event in

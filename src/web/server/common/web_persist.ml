@@ -248,7 +248,7 @@ let get_private_key uuid = Spool.get ~uuid Spool.private_key
 let get_private_keys uuid = Spool.get_raw_list ~uuid Spool.private_keys
 
 let empty_metadata = {
-    e_owner = None;
+    e_owners = [];
     e_auth_config = None;
     e_cred_authority = None;
     e_trustees = None;
@@ -500,14 +500,6 @@ let umap_add user x map =
   in
   IMap.add user (x :: xs) map
 
-let get_id = function
-  | `Id i -> return i
-  | `User u ->
-     let* x = Accounts.get_account u in
-     match x with
-     | None -> Lwt.fail Exit
-     | Some a -> return [a.account_id]
-
 let build_elections_by_owner_cache () =
   Lwt_unix.files_of_directory !Web_config.spool_dir
   |> Lwt_stream.to_list
@@ -524,37 +516,34 @@ let build_elections_by_owner_cache () =
                 | None ->
                    (
                      let* metadata = get_election_metadata uuid in
-                     match metadata.e_owner with
+                     let ids = metadata.e_owners in
+                     let* election = get_raw_election uuid in
+                     match election with
                      | None -> return accu
-                     | Some o ->
-                        let* id = get_id o in
-                        let* election = get_raw_election uuid in
-                        match election with
-                        | None -> return accu
-                        | Some election ->
-                           let* dates = get_election_dates uuid in
-                           let* kind, date =
-                             let* state = get_election_state ~update:false uuid in
-                             match state with
-                             | `Open | `Closed | `Shuffling | `EncryptedTally ->
-                                let date = Option.value dates.e_finalization ~default:default_validation_date in
-                                return (`Validated, date)
-                             | `Tallied ->
-                                let date = Option.value dates.e_tally ~default:default_tally_date in
-                                return (`Tallied, date)
-                             | `Archived ->
-                                let date = Option.value dates.e_archive ~default:default_archive_date in
-                                return (`Archived, date)
-                           in
-                           let election = Election.of_string election in
-                           let item = kind, uuid, date, election.e_name in
-                           return @@ List.fold_left (fun accu id -> umap_add id item accu) accu id
+                     | Some election ->
+                        let* dates = get_election_dates uuid in
+                        let* kind, date =
+                          let* state = get_election_state ~update:false uuid in
+                          match state with
+                          | `Open | `Closed | `Shuffling | `EncryptedTally ->
+                             let date = Option.value dates.e_finalization ~default:default_validation_date in
+                             return (`Validated, date)
+                          | `Tallied ->
+                             let date = Option.value dates.e_tally ~default:default_tally_date in
+                             return (`Tallied, date)
+                          | `Archived ->
+                             let date = Option.value dates.e_archive ~default:default_archive_date in
+                             return (`Archived, date)
+                        in
+                        let election = Election.of_string election in
+                        let item = kind, uuid, date, election.e_name in
+                        return @@ List.fold_left (fun accu id -> umap_add id item accu) accu ids
                    )
                 | Some se ->
                    let date = Option.value se.se_creation_date ~default:default_creation_date in
-                   let* id = get_id se.se_owner in
+                   let ids = se.se_owners in
                    let item = `Draft, uuid, date, se.se_questions.t_name in
-                   return @@ List.fold_left (fun accu id -> umap_add id item accu) accu id
+                   return @@ List.fold_left (fun accu id -> umap_add id item accu) accu ids
               )
               (function
                | Lwt.Canceled ->
