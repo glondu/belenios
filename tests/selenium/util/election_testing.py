@@ -24,7 +24,7 @@ def random_email_addresses_generator(size=20):
 
 
 def random_email_address_generator():
-    return random_generator() + "@mailinator.com"
+    return random_generator() + "@example.org"
 
 
 def random_generator(size=20, chars=string.ascii_lowercase + string.digits):
@@ -145,14 +145,14 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_m
         Content-type: text/plain; charset="UTF-8"
         Content-transfer-encoding: quoted-printable
         From: Belenios public server <noreply@example.org>
-        To: "A6QKLFSL0TTJ05XE2LHD@mailinator.com"
-         <A6QKLFSL0TTJ05XE2LHD@mailinator.com>
+        To: "A6QKLFSL0TTJ05XE2LHD@example.org"
+         <A6QKLFSL0TTJ05XE2LHD@example.org>
         Subject: Your vote for election My test election for Scenario 1
         MIME-Version: 1.0
         X-Mailer: OcamlNet (ocamlnet.sourceforge.net)
         Date: Fri, 09 Nov 2018 21:40:39 +0100
 
-        Dear A6QKLFSL0TTJ05XE2LHD=40mailinator.com,
+        Dear A6QKLFSL0TTJ05XE2LHD=40example.org,
 
         Your vote for election
 

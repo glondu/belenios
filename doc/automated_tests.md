@@ -155,7 +155,7 @@ SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/path/to/your/repository/_build/src/static/m
 - Use an already existing election. For this, you provide the election ID as well as a username and password for a voter who has been already invited.
 
 ```
-WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@mailinator.com VOTER_PASSWORD=LLP3269TVNDMF6 python ./tests/selenium/test_fuzz_vote.py
+WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 START_SERVER=0 ELECTION_ID=4qjJRMg4b26ax5 VOTER_USERNAME=nrmt1fl7z05zaqnn0luo@example.org VOTER_PASSWORD=LLP3269TVNDMF6 python ./tests/selenium/test_fuzz_vote.py
 ```
 
 ### Clicker Monkey testing
@@ -180,7 +180,7 @@ This whole test verifies that a user who has a very random behaviour, but who re
 You can execute it the following way:
 
 ```
-ELECTION_ID=Vq7erXgTVs983H VOTER_USERNAME=3gzyo249nqgpjhx1puae@mailinator.com VOTER_PASSWORD=dtx96KfMEuHqxd VOTER_CREDENTIAL=cbsopJ6QxpeLAyh START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/home/quentin/prog/gitlab.inria.fr/belenios-forks/belenios-swergas/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/selenium/test_smart_monkey.py
+ELECTION_ID=Vq7erXgTVs983H VOTER_USERNAME=3gzyo249nqgpjhx1puae@example.org VOTER_PASSWORD=dtx96KfMEuHqxd VOTER_CREDENTIAL=cbsopJ6QxpeLAyh START_SERVER=0 CLEAN_UP_POLICY=DO_NOTHING SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH=/home/quentin/prog/gitlab.inria.fr/belenios-forks/belenios-swergas/_build/src/static/mail.txt WAIT_TIME_BETWEEN_EACH_STEP=0.02 USE_HEADLESS_BROWSER=0 python ./tests/selenium/test_smart_monkey.py
 ```
 
 ### Test Scenario 2 with a mix of normal voters and Smart Monkeys

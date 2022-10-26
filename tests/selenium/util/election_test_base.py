@@ -130,8 +130,8 @@ class BeleniosElectionTestBase(unittest.TestCase):
 Content-type: text/plain; charset="UTF-8"
 Content-transfer-encoding: quoted-printable
 From: Belenios public server <noreply@example.org>
-To: "820E7G83JBY0F4Z3DY2Y@mailinator.com"
- <820E7G83JBY0F4Z3DY2Y@mailinator.com>
+To: "820E7G83JBY0F4Z3DY2Y@example.org"
+ <820E7G83JBY0F4Z3DY2Y@example.org>
 Subject: Your credential for election My test election for Scenario 1
 MIME-Version: 1.0
 X-Mailer: OcamlNet (ocamlnet.sourceforge.net)
@@ -265,7 +265,7 @@ pris en compte.
 
             wait_a_bit()
 
-            # She checks that the page shows a confirmation message similar to "A new password has been mailed to RMR4MY4XV5GUDNOR6XNH@mailinator.com"
+            # She checks that the page shows a confirmation message similar to "A new password has been mailed to RMR4MY4XV5GUDNOR6XNH@example.org"
             confirmation_sentence_expected_text = "A new password has been mailed to"
             confirmation_sentence_css_selector = "#main p"
             wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)

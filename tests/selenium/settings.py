@@ -51,9 +51,9 @@ CLEAN_UP_POLICY = CLEAN_UP_POLICIES.REMOVE_DATABASE
 
 # These variables are used by Scenario 2 only
 BROWSER_DOWNLOAD_FOLDER = "/tmp"
-ADMINISTRATOR_EMAIL_ADDRESS = "alice_aka_election_administrator@mailinator.com"
-CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = "cecily_aka_election_credential_authority@mailinator.com"
+ADMINISTRATOR_EMAIL_ADDRESS = "alice_aka_election_administrator@example.org"
+CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = "cecily_aka_election_credential_authority@example.org"
 NUMBER_OF_TRUSTEES = 5
-TRUSTEES_EMAIL_ADDRESSES = ["tom_aka_trustee_1@mailinator.com", "taylor_aka_trustee_2@mailinator.com", "tania_aka_trustee_3@mailinator.com", "tiffany_aka_trustee_4@mailinator.com", "theresa_aka_trustee_5@mailinator.com"]
+TRUSTEES_EMAIL_ADDRESSES = ["tom_aka_trustee_1@example.org", "taylor_aka_trustee_2@example.org", "tania_aka_trustee_3@example.org", "tiffany_aka_trustee_4@example.org", "theresa_aka_trustee_5@example.org"]
 TRUSTEES_THRESHOLD_VALUE = 3
 BOOTH_VERSION = BOOTH_VERSIONS.CLASSIC_BOOTH
