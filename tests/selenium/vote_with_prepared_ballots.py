@@ -53,8 +53,6 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
                     # She clicks on "en" language
                     select = Select(wait_for_element_exists(browser, ".lang_box select", settings.EXPLICIT_WAIT_TIMEOUT))
                     select.select_by_value("en")
-                    submit = wait_for_element_exists(browser, ".lang_box input[type=submit]", settings.EXPLICIT_WAIT_TIMEOUT)
-                    submit.click()
 
                     wait_a_bit()
 
@@ -113,7 +111,7 @@ class BeleniosVoteWithPreparedBallots(BeleniosTestElectionScenario2Base):
                             all_ballots_element = wait_for_an_element_with_link_text_exists(browser, all_ballots_link_expected_label, timeout)
 
                             current_step_css_selector = ".current_step"
-                            current_step_expected_content = "Step 6/6: Thank you for voting!"
+                            current_step_expected_content = "Thank you for voting!"
                             wait_for_element_exists_and_contains_expected_text(browser, current_step_css_selector, current_step_expected_content, timeout)
 
                             return all_ballots_element
