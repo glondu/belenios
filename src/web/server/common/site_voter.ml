@@ -26,7 +26,6 @@ open Belenios
 open Serializable_builtin_t
 open Serializable_j
 open Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
@@ -152,44 +151,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
         Lwt.return true)
       (fun _ -> Lwt.return false)
 
-  let cast_ballot election ~rawballot ~user =
-    let module W = (val election : Site_common_sig.ELECTION_LWT) in
-    let uuid = W.election.e_uuid in
-    let* voters = read_file ~uuid "voters.txt" in
-    let voters = match voters with Some xs -> xs | None -> [] in
-    let* email, login, weight =
-      let rec loop = function
-        | x :: xs ->
-           let email, login, weight = split_identity x in
-           if PString.lowercase_ascii login = PString.lowercase_ascii user.user_name then return (email, login, weight) else loop xs
-        | [] -> fail UnauthorizedVoter
-      in loop voters
-    in
-    let show_weight =
-      List.exists
-        (fun x ->
-          let _, _, weight = split_identity_opt x in
-          weight <> None
-        ) voters
-    in
-    let oweight = if show_weight then Some weight else None in
-    let user = string_of_user user in
-    let* state = Web_persist.get_election_state uuid in
-    let voting_open = state = `Open in
-    let* () = if not voting_open then fail ElectionClosed else return_unit in
-    let* r = Web_persist.cast_ballot election ~rawballot ~user ~weight (now ()) in
-    match r with
-    | Ok (hash, revote) ->
-       let* success = send_confirmation_email uuid revote login email oweight hash in
-       let () =
-         if revote then
-           Printf.ksprintf Ocsigen_messages.accesslog
-             "Someone revoted in election %s" (raw_string_of_uuid uuid)
-       in
-       return (hash, weight, success)
-    | Error e ->
-       fail (CastError e)
-
   let () =
     Any.register ~service:election_cast_fallback
       (fun uuid () ->
@@ -219,7 +180,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
               let* result =
                 Lwt.catch
                   (fun () ->
-                    let* hash = cast_ballot election ~rawballot ~user in
+                    let* hash = Api_elections.cast_ballot send_confirmation_email election ~rawballot ~user in
                     return (Ok hash)
                   )
                   (function

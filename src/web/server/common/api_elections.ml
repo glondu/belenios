@@ -521,6 +521,47 @@ let get_records uuid =
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
+let cast_ballot send_confirmation election ~rawballot ~user =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let* voters = read_file ~uuid "voters.txt" in
+  let voters = match voters with Some xs -> xs | None -> [] in
+  let* email, login, weight =
+    let rec loop = function
+      | x :: xs ->
+         let email, login, weight = split_identity x in
+         if String.lowercase_ascii login = String.lowercase_ascii user.user_name then Lwt.return (email, login, weight) else loop xs
+      | [] -> fail UnauthorizedVoter
+    in loop voters
+  in
+  let show_weight =
+    List.exists
+      (fun x ->
+        let _, _, weight = split_identity_opt x in
+        weight <> None
+      ) voters
+  in
+  let oweight = if show_weight then Some weight else None in
+  let user = string_of_user user in
+  let* state = Web_persist.get_election_state uuid in
+  let voting_open = state = `Open in
+  let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
+  let* r = Web_persist.cast_ballot election ~rawballot ~user ~weight (now ()) in
+  match r with
+  | Ok (hash, revote) ->
+     let* success = send_confirmation uuid revote login email oweight hash in
+     let () =
+       if revote then
+         Printf.ksprintf Ocsigen_messages.accesslog
+           "Someone revoted in election %s" (raw_string_of_uuid uuid)
+     in
+     Lwt.return (hash, weight, success)
+  | Error e ->
+     fail (CastError e)
+
+let direct_voter_auth =
+  ref (fun _ _ -> assert false) (* initialized in Web_main *)
+
 let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
   match endpoint with
   | [] ->
@@ -666,6 +707,34 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
             match request with
             | `Skip -> let* () = skip_shuffler uuid shuffler in ok
             | `Select -> let* () = select_shuffler uuid metadata shuffler in ok
+          end
+       | _ -> method_not_allowed
+     end
+  | ["ballots"] ->
+     begin
+       match method_ with
+       | `POST ->
+          begin
+            let@ token = Option.unwrap unauthorized token in
+            let@ user = fun cont ->
+              Lwt.catch
+                (fun () ->
+                  let json =
+                    match Base64.decode token with
+                    | Ok x -> Yojson.Safe.from_string x
+                    | Error (`Msg x) -> failwith x
+                  in
+                  let* x = !direct_voter_auth uuid json in
+                  cont x
+                )
+                (fun _ -> unauthorized)
+            in
+            let@ rawballot = body.run Fun.id in
+            let@ () = handle_generic_error in
+            let send_confirmation _ _ _ _ _ _ = Lwt.return_true in
+            let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+            let* _ = cast_ballot send_confirmation (module W) ~rawballot ~user in
+            ok
           end
        | _ -> method_not_allowed
      end

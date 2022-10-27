@@ -56,3 +56,10 @@ val select_shuffler : uuid -> metadata -> string -> unit Lwt.t
 val dispatch :
   token:string option -> ifmatch:string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
   body -> result Lwt.t
+
+val direct_voter_auth : (uuid -> Yojson.Safe.t -> user Lwt.t) ref
+
+val cast_ballot :
+  (uuid -> bool -> string -> string -> weight option -> string -> bool Lwt.t) ->
+  (module Site_common_sig.ELECTION_LWT) -> rawballot:string -> user:user ->
+  (string * weight * bool) Lwt.t

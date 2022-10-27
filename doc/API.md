@@ -131,3 +131,13 @@ types. They refer to types defined in `src/api/serializable.atd`.
 ## `elections/$UUID/partial-decryptions`
 
 * `GET`: unit -> partial_decryptions (administrator)
+
+## `elections/$UUID/ballots`
+
+Experimental!
+
+Voters using this endpoint must use a Base64-encoded JSON structure as
+API token. The structure depends on the authentication mode (only
+dummy and password are supported at the moment).
+
+* `POST`: ballot -> unit (voter)
