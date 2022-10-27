@@ -25,10 +25,13 @@ type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result
   | Redirection : 'a Eliom_registration.redirection -> result
 
-module type S = sig
+module type AUTH_SYSTEM = sig
+  val pre_login_handler : [`Username | `Address] -> state:string -> result Lwt.t
+end
 
-  type pre_login_handler =
-    uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
+type auth_system = uuid option -> auth_config -> (module AUTH_SYSTEM)
+
+module type S = sig
 
   type post_login_handler =
     {
@@ -37,8 +40,8 @@ module type S = sig
         ((string * string) option -> 'a Lwt.t) -> 'a Lwt.t
     }
 
-  val register_pre_login_handler :
-    auth_system:string -> pre_login_handler ->
+  val register :
+    auth_system:string -> auth_system ->
     state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
 
   val get_site_login_handler : string -> result Lwt.t

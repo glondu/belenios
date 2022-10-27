@@ -128,21 +128,27 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     | None -> get_cas_validation_v1 server ~state ticket
     | Some _ -> return @@ `Yes v2
 
-  let cas_login_handler _ _ a ~state =
-    match List.assoc_opt "server" a.Web_serializable_t.auth_config with
-    | Some server ->
-       let cas_login = Eliom_service.extern
-                         ~prefix:server
-                         ~path:["login"]
-                         ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
-                         ()
-       in
-       let service = preapply ~service:cas_login (cas_self ~state) in
-       return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
-    | _ -> failwith "cas_login_handler invoked with bad config"
+  let auth_system _ a =
+    let module X =
+      struct
+        let pre_login_handler _ ~state =
+          match List.assoc_opt "server" a.Web_serializable_t.auth_config with
+          | Some server ->
+             let cas_login = Eliom_service.extern
+                               ~prefix:server
+                               ~path:["login"]
+                               ~meth:(Eliom_service.Get Eliom_parameter.(string "service"))
+                               ()
+             in
+             let service = preapply ~service:cas_login (cas_self ~state) in
+             return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
+          | _ -> failwith "cas_login_handler invoked with bad config"
+      end
+    in
+    (module X : Web_auth_sig.AUTH_SYSTEM)
 
   let run_post_login_handler =
-    Web_auth.register_pre_login_handler ~auth_system:"cas" cas_login_handler
+    Web_auth.register ~auth_system:"cas" auth_system
 
   let cas_handler (state, ticket) () =
     run_post_login_handler ~state

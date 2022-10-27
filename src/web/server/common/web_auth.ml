@@ -112,20 +112,19 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
        else
          restart_login ()
 
-  type pre_login_handler =
-    uuid option -> [`Username | `Address] -> auth_config -> state:string -> result Lwt.t
-
-  let pre_login_handlers = ref []
+  let auth_systems = ref ([] : (string * auth_system) list)
 
   let get_pre_login_handler uuid username_or_address kind a =
     let* state = generate_token () in
     let* () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
-    match List.assoc_opt a.auth_system !pre_login_handlers with
-    | Some handler -> handler uuid username_or_address a ~state
+    match List.assoc_opt a.auth_system !auth_systems with
+    | Some auth_system ->
+       let module X = (val auth_system uuid a) in
+       X.pre_login_handler username_or_address ~state
     | None -> fail_http `Not_found
 
-  let register_pre_login_handler ~auth_system handler =
-    pre_login_handlers := (auth_system, handler) :: !pre_login_handlers;
+  let register ~auth_system handler =
+    auth_systems := (auth_system, handler) :: !auth_systems;
     run_post_login_handler ~auth_system
 
   let rec find_auth_instance x = function

@@ -43,30 +43,36 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
   let uuid_ref = Eliom_reference.eref ~scope None
   let env = Eliom_reference.eref ~scope None
 
-  let pre_login_handler uuid username_or_address {auth_config; _} ~state =
-    let* () = Eliom_reference.set uuid_ref uuid in
-    let site_or_election =
-      match uuid with
-      | None -> `Site
-      | Some _ -> `Election
+  let auth_system uuid {auth_config; _} =
+    let module X =
+      struct
+        let pre_login_handler username_or_address ~state =
+          let* () = Eliom_reference.set uuid_ref uuid in
+          let site_or_election =
+            match uuid with
+            | None -> `Site
+            | Some _ -> `Election
+          in
+          match List.assoc_opt "use_captcha" auth_config with
+          | Some "true" ->
+             let* b = Captcha_throttle.wait captcha_throttle 0 in
+             if b then (
+               let* challenge = Web_captcha.create_captcha () in
+               let* fragment = Pages_common.login_email_captcha ~state None challenge "" in
+               return @@ Web_auth_sig.Html fragment
+             ) else (
+               let* fragment = Pages_common.login_email_not_now () in
+               return @@ Web_auth_sig.Html fragment
+             )
+          | _ ->
+             let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
+             return @@ Web_auth_sig.Html fragment
+      end
     in
-    match List.assoc_opt "use_captcha" auth_config with
-    | Some "true" ->
-       let* b = Captcha_throttle.wait captcha_throttle 0 in
-       if b then (
-         let* challenge = Web_captcha.create_captcha () in
-         let* fragment = Pages_common.login_email_captcha ~state None challenge "" in
-         return @@ Web_auth_sig.Html fragment
-       ) else (
-         let* fragment = Pages_common.login_email_not_now () in
-         return @@ Web_auth_sig.Html fragment
-       )
-    | _ ->
-       let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
-       return @@ Web_auth_sig.Html fragment
+    (module X : Web_auth_sig.AUTH_SYSTEM)
 
   let run_post_login_handler =
-    Web_auth.register_pre_login_handler ~auth_system:"email" pre_login_handler
+    Web_auth.register ~auth_system:"email" auth_system
 
   module Sender = struct
     let send ~address ~code =

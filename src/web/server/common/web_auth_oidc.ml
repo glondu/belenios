@@ -86,27 +86,33 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     let i = String.rindex url '/' in
     String.sub url 0 i, [String.sub url (i+1) (n-i-1)]
 
-  let oidc_login_handler _ _ a ~state =
+  let auth_system _ a =
     let get x = List.assoc_opt x a.auth_config in
-    match get "server", get "client_id" with
-    | Some server, Some client_id ->
-       let* ocfg = get_oidc_configuration server in
-       let* () = Eliom_reference.set oidc_config (Some ocfg) in
-       let prefix, path = split_prefix_path ocfg.authorization_endpoint in
-       let auth_endpoint = Eliom_service.extern ~prefix ~path
-                             ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **
-                                                                         string "response_type" ** string "client_id" **
-                                                                           string "scope" ** string "state" ** string "prompt"))
-                             ()
-       in
-       let service = preapply ~service:auth_endpoint
-                       (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
-       in
-       return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
-    | _ -> failwith "oidc_login_handler invoked with bad config"
+    let module X =
+      struct
+        let pre_login_handler _ ~state =
+          match get "server", get "client_id" with
+          | Some server, Some client_id ->
+             let* ocfg = get_oidc_configuration server in
+             let* () = Eliom_reference.set oidc_config (Some ocfg) in
+             let prefix, path = split_prefix_path ocfg.authorization_endpoint in
+             let auth_endpoint = Eliom_service.extern ~prefix ~path
+                                   ~meth:(Eliom_service.Get Eliom_parameter.(string "redirect_uri" **
+                                                                               string "response_type" ** string "client_id" **
+                                                                                 string "scope" ** string "state" ** string "prompt"))
+                                   ()
+             in
+             let service = preapply ~service:auth_endpoint
+                             (Lazy.force oidc_self, ("code", (client_id, ("openid email", (state, "consent")))))
+             in
+             return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
+          | _ -> failwith "oidc_login_handler invoked with bad config"
+      end
+    in
+    (module X : Web_auth_sig.AUTH_SYSTEM)
 
   let run_post_login_handler =
-    Web_auth.register_pre_login_handler ~auth_system:"oidc" oidc_login_handler
+    Web_auth.register ~auth_system:"oidc" auth_system
 
   let oidc_handler params () =
     let code = List.assoc_opt "code" params in

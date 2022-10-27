@@ -24,17 +24,23 @@ open Lwt
 
 module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
 
+  let auth_system uuid _ =
+    let module X =
+      struct
+        let pre_login_handler username_or_address ~state =
+          let site_or_election =
+            match uuid with
+            | None -> `Site
+            | Some _ -> `Election
+          in
+          let* page = Pages_common.login_dummy site_or_election username_or_address ~state in
+          return @@ Web_auth_sig.Html page
+      end
+    in
+    (module X : Web_auth_sig.AUTH_SYSTEM)
+
   let run_post_login_handler =
-    Web_auth.register_pre_login_handler ~auth_system:"dummy"
-      (fun uuid username_or_address _ ~state ->
-        let site_or_election =
-          match uuid with
-          | None -> `Site
-          | Some _ -> `Election
-        in
-        let* page = Pages_common.login_dummy site_or_election username_or_address ~state in
-        return @@ Web_auth_sig.Html page
-      )
+    Web_auth.register ~auth_system:"dummy" auth_system
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.dummy_post

@@ -60,18 +60,24 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
          return_none
     | _ -> return_none
 
+  let auth_system uuid { auth_config; auth_instance = service; _ } =
+    let module X =
+      struct
+        let pre_login_handler username_or_address ~state =
+          let allowsignups = does_allow_signups auth_config in
+          let site_or_election =
+            match uuid with
+            | None -> `Site
+            | Some _ -> `Election
+          in
+          Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
+          >>= (fun x -> return @@ Web_auth_sig.Html x)
+      end
+    in
+    (module X : Web_auth_sig.AUTH_SYSTEM)
+
   let run_post_login_handler =
-    Web_auth.register_pre_login_handler ~auth_system:"password"
-      (fun uuid username_or_address { auth_config; auth_instance = service; _ } ~state ->
-        let allowsignups = does_allow_signups auth_config in
-        let site_or_election =
-          match uuid with
-          | None -> `Site
-          | Some _ -> `Election
-        in
-        Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
-        >>= (fun x -> return @@ Web_auth_sig.Html x)
-      )
+    Web_auth.register ~auth_system:"password" auth_system
 
   let password_handler () (state, (name, password)) =
     run_post_login_handler ~state
