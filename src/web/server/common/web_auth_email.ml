@@ -67,6 +67,9 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
           | _ ->
              let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
              return @@ Web_auth_sig.Html fragment
+
+        let direct _ =
+          failwith "direct authentication not implemented for email"
       end
     in
     (module X : Web_auth_sig.AUTH_SYSTEM)

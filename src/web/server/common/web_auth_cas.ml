@@ -143,6 +143,9 @@ module Make (Web_auth : Web_auth_sig.S) = struct
              let service = preapply ~service:cas_login (cas_self ~state) in
              return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
           | _ -> failwith "cas_login_handler invoked with bad config"
+
+        let direct _ =
+          failwith "direct authentication not implemented for CAS"
       end
     in
     (module X : Web_auth_sig.AUTH_SYSTEM)

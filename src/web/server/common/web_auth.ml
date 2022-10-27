@@ -132,6 +132,30 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
     | { auth_instance = i; _ } as y :: _ when i = x -> Some y
     | _ :: xs -> find_auth_instance x xs
 
+  let get_election_auth_configs uuid =
+    let* metadata = Web_persist.get_election_metadata uuid in
+    match metadata.e_auth_config with
+    | None -> return []
+    | Some x ->
+       x
+       |> List.map
+            (function
+             | {auth_system = "import"; auth_instance = name; _} ->
+                (match
+                   List.find_opt
+                     (function
+                      | `Export x -> x.auth_instance = name
+                      | _ -> false
+                     ) !Web_config.exported_auth_config
+                 with
+                 | Some (`Export x) -> [x]
+                 | _ -> []
+                )
+             | x -> [x]
+            )
+       |> List.flatten
+       |> return
+
   let login_handler service kind =
     let uuid = match kind with
       | `Site _ -> None
@@ -156,30 +180,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
          match uuid with
          | None -> return (!Web_config.site_auth_config, `Site, `Username)
          | Some uuid ->
-            let* metadata = Web_persist.get_election_metadata uuid in
-            let* c =
-              match metadata.e_auth_config with
-              | None -> return []
-              | Some x ->
-                 x
-                 |> List.map
-                      (function
-                       | {auth_system = "import"; auth_instance = name; _} ->
-                          (match
-                             List.find_opt
-                               (function
-                                | `Export x -> x.auth_instance = name
-                                | _ -> false
-                               ) !Web_config.exported_auth_config
-                           with
-                           | Some (`Export x) -> [x]
-                           | _ -> []
-                          )
-                       | x -> [x]
-                      )
-                 |> List.flatten
-                 |> return
-            in
+            let* c = get_election_auth_configs uuid in
             let* username_or_address =
               let* voters = Web_persist.get_voters uuid in
               match voters with
@@ -244,4 +245,31 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
     | None -> return @@ Html (Eliom_content.Html.F.div [])
     | Some a -> get_pre_login_handler None `Username (`Site ContSiteAdmin) a
 
+  let direct_voter_auth uuid x =
+    let fail () = failwith "invalid direct auth" in
+    let* c =
+      let* cs = get_election_auth_configs uuid in
+      match cs with
+      | [c] -> Lwt.return c
+      | _ ->
+         match x with
+         | `Assoc x ->
+            begin
+              match List.assoc_opt "service" x with
+              | Some (`String service) ->
+                 begin
+                   match find_auth_instance service cs with
+                   | Some c -> Lwt.return c
+                   | None -> fail ()
+                 end
+              | _ -> fail ()
+            end
+         | _ -> fail ()
+    in
+    match List.assoc_opt c.auth_system !auth_systems with
+    | Some auth_system ->
+       let module X = (val auth_system (Some uuid) c) in
+       let* user_name = X.direct x in
+       Lwt.return {user_name; user_domain = c.auth_instance}
+    | None -> fail ()
 end

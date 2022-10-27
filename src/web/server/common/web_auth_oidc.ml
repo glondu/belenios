@@ -107,6 +107,9 @@ module Make (Web_auth : Web_auth_sig.S) = struct
              in
              return @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
           | _ -> failwith "oidc_login_handler invoked with bad config"
+
+        let direct _ =
+          failwith "direct authentication not implemented for OpenID Connect"
       end
     in
     (module X : Web_auth_sig.AUTH_SYSTEM)

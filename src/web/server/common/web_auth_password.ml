@@ -60,18 +60,48 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
          return_none
     | _ -> return_none
 
-  let auth_system uuid { auth_config; auth_instance = service; _ } =
+  let check uuid a name password =
+    match uuid with
+    | None ->
+       begin
+         match List.assoc_opt "db" a.auth_config with
+         | Some db -> check_password_with_file db name password
+         | _ -> failwith "invalid configuration for admin site"
+       end
+    | Some uuid ->
+       let db = uuid /// "passwords.csv" in
+       check_password_with_file db name password
+
+  let auth_system uuid a =
     let module X =
       struct
         let pre_login_handler username_or_address ~state =
-          let allowsignups = does_allow_signups auth_config in
+          let allowsignups = does_allow_signups a.auth_config in
           let site_or_election =
             match uuid with
             | None -> `Site
             | Some _ -> `Election
           in
+          let service = a.auth_instance in
           Pages_common.login_password site_or_election username_or_address ~service ~allowsignups ~state
           >>= (fun x -> return @@ Web_auth_sig.Html x)
+
+        let direct x =
+          let fail () = failwith "invalid direct password authentication" in
+          match x with
+          | `Assoc x ->
+             begin
+               match List.assoc_opt "username" x, List.assoc_opt "password" x with
+               | Some (`String username), Some (`String password) ->
+                  begin
+                    let* x = check uuid a username password in
+                    match x with
+                    | Some (username, _) -> Lwt.return username
+                    | None -> fail ()
+                  end
+               | _ -> fail ()
+             end
+          | _ -> fail ()
       end
     in
     (module X : Web_auth_sig.AUTH_SYSTEM)
@@ -84,18 +114,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
       {
         Web_auth.post_login_handler =
           fun uuid a cont ->
-          let* ok =
-            match uuid with
-            | None ->
-               begin
-                 match List.assoc_opt "db" a.auth_config with
-                 | Some db -> check_password_with_file db name password
-                 | _ -> failwith "invalid configuration for admin site"
-               end
-            | Some uuid ->
-               let db = uuid /// "passwords.csv" in
-               check_password_with_file db name password
-          in
+          let* ok = check uuid a name password in
           cont ok
       }
 
