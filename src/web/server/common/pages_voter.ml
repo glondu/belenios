@@ -59,12 +59,8 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                           txt ", ";
                           a ~service:(file uuid ESTrustees) [txt (s_ "trustees")] ();
                           txt ", ";
-                          a ~service:(file uuid ESCreds) [
-                              txt (s_ "public credentials")
-                            ] ();
-                          txt ", ";
-                          a ~service:(file uuid ESBallots) [
-                              txt (s_ "ballots")
+                          a ~service:(file uuid (ESArchive uuid)) [
+                              txt (s_ "public data")
                             ] ();
                           txt ".";
                         ];
@@ -343,13 +339,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     in
     let* middle =
       let* result = Web_persist.get_election_result uuid in
-      let result =
-        Option.map (
-            election_result_of_string
-              W.read_result Yojson.Safe.read_json
-              Yojson.Safe.read_json Yojson.Safe.read_json
-          ) result
-      in
+      let result = Option.map (election_result_of_string W.read_result) result in
       let* hidden = Web_persist.get_election_result_hidden uuid in
       let* is_admin =
         let* metadata = Web_persist.get_election_metadata uuid in
@@ -360,14 +350,20 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       in
       match result with
       | Some r when hidden = None || is_admin ->
-         let* hashes = Web_persist.get_ballot_hashes uuid in
-         let nballots = List.length hashes in
+         let* nballots, total_weight =
+           let* x = Web_persist.get_sized_encrypted_tally uuid in
+           match x with
+           | None -> assert false
+           | Some x ->
+              let x = sized_encrypted_tally_of_string read_hash x in
+              Lwt.return (x.sized_num_tallied, x.sized_total_weight)
+         in
          let div_total_weight =
-           if not Weight.(is_int r.num_tallied nballots) then (
+           if not Weight.(is_int total_weight nballots) then (
              div [
                  txt (s_ "Total weight of accepted ballots:");
                  txt " ";
-                 txt (Weight.to_string r.num_tallied);
+                 txt (Weight.to_string total_weight);
                ]
            ) else (
              txt ""
@@ -913,14 +909,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let open (val election : Site_common_sig.ELECTION_LWT) in
     let uuid = election.e_uuid in
     let* hashes = Web_persist.get_ballot_hashes uuid in
-    let* result = Web_persist.get_election_result uuid in
-    let result =
-      Option.map (
-          election_result_of_string
-            read_result Yojson.Safe.read_json
-            Yojson.Safe.read_json Yojson.Safe.read_json
-        ) result
-    in
     let* audit_cache = Web_persist.get_audit_cache uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
     let title = br_truncate election.e_name ^ " — " ^ s_ "Accepted ballots" in
@@ -944,24 +932,31 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            [txt (s_ "Go back to election")]
            (uuid, ())]
     in
-    let number = match !nballots, result with
-      | n, None ->
+    let* number =
+      let n = !nballots in
+      let* x = Web_persist.get_sized_encrypted_tally uuid in
+      let x = Option.map (sized_encrypted_tally_of_string read_hash) x in
+      match x with
+      | None ->
          div [
              txt (string_of_int n);
              txt (s_ " ballot(s) have been accepted so far.");
            ]
-      | n, Some r when Weight.(is_int r.num_tallied n) ->
+         |> Lwt.return
+      | Some x when x.sized_num_tallied = n ->
          div [
              txt (string_of_int n);
              txt (s_ " ballot(s) have been accepted.");
            ]
-      | n, Some r -> (* should not happen *)
+         |> Lwt.return
+      | Some x -> (* should not happen *)
          div [
              txt (string_of_int n);
              txt (s_ " ballot(s) have been accepted, and ");
-             txt (Weight.to_string r.num_tallied);
+             txt (string_of_int x.sized_num_tallied);
              txt (s_ " have been tallied.");
            ]
+         |> Lwt.return
     in
     let content = [
         number;

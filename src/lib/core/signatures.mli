@@ -64,7 +64,7 @@ end
 type combination_error =
   | MissingPartialDecryption
   | NotEnoughPartialDecryptions
-  | UnusedPartialDecryption
+  | InvalidPartialDecryption
 
 module type RAW_ELECTION = sig
   val raw_election : string
@@ -185,19 +185,20 @@ module type ELECTION_OPS = sig
   (** {2 Result} *)
 
   type result_type
-  type result = (result_type, elt encrypted_tally, elt partial_decryption, elt shuffle) Serializable_t.election_result
+  type result = result_type Serializable_t.election_result
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
   val compute_result :
-    ?shuffles:elt shuffle list -> ?shufflers:shuffler list ->
-    Weight.t -> elt Serializable_t.ciphertext shape -> factor list -> elt trustees ->
+    elt encrypted_tally sized_encrypted_tally -> factor owned list -> elt trustees ->
     (result, combination_error) Stdlib.result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
-  val check_result : elt trustees -> result -> bool
+  val check_result :
+    elt encrypted_tally sized_encrypted_tally -> factor owned list -> elt trustees ->
+    result -> bool
 end
 
 module type ELECTION = sig

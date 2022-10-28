@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
 open Web_serializable_t
 open Belenios_api.Serializable_t
 open Api_generic
@@ -33,12 +32,9 @@ val close_election : uuid -> bool Lwt.t
 val set_election_auto_dates : uuid -> election_auto_dates -> unit Lwt.t
 
 val compute_encrypted_tally :
-  (module Site_common_sig.ELECTION_LWT) -> metadata -> bool Lwt.t
+  (module Site_common_sig.ELECTION_LWT) -> bool Lwt.t
 val finish_shuffling :
-  (module Site_common_sig.ELECTION_LWT) -> metadata -> bool Lwt.t
-val release_tally :
-  (module Site_common_sig.ELECTION_LWT) ->
-  (unit, [`Forbidden | `CombinationError of combination_error]) Stdlib.result Lwt.t
+  (module Site_common_sig.ELECTION_LWT) -> bool Lwt.t
 
 val archive_election : uuid -> unit Lwt.t
 val delete_election :
@@ -54,7 +50,7 @@ val set_postpone_date : uuid -> float option -> bool Lwt.t
 val get_partial_decryptions : uuid -> metadata -> partial_decryptions Lwt.t
 val get_shuffles : uuid -> metadata -> shuffles Lwt.t
 
-val skip_shuffler : uuid -> metadata -> string -> unit Lwt.t
+val skip_shuffler : uuid -> string -> unit Lwt.t
 val select_shuffler : uuid -> metadata -> string -> unit Lwt.t
 
 val dispatch :

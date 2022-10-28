@@ -69,6 +69,8 @@ type params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
+type public_credentials = string list
+
 type template = {
   description : string;
   name : string;
@@ -87,6 +89,12 @@ type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
 
 type 'a encrypted_tally = 'a ciphertext shape
 
+type 'a sized_encrypted_tally = {
+  num_tallied : int;
+  total_weight : weight;
+  encrypted_tally : 'a;
+} <ocaml field_prefix="sized_">
+
 (** {2 Mixnets} *)
 
 type 'a nh_ciphertexts = 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">
@@ -104,18 +112,11 @@ type 'a shuffle = {
   proofs : 'a shuffle_proofs;
 } <ocaml field_prefix="shuffle_">
 
-type shuffler = string nullable
-
 (** {2 Election result} *)
 
 type raw_result = question_result list <ocaml repr="array">
 
-type ('result, 'et, 'pd, 'sh) election_result = {
-  num_tallied : weight;
-  encrypted_tally : 'et;
-  ?shuffles : 'sh list option;
-  ?shufflers : shuffler list option;
-  partial_decryptions : 'pd list;
+type 'result election_result = {
   result : 'result;
 }
 
@@ -287,3 +288,59 @@ type stv_result = {
   events : stv_events;
   winners : int list;
 } <ocaml field_prefix="stv_">
+
+(** {2 Event-related types} *)
+
+type location = {
+  offset : int <ocaml repr="int64">;
+  length : int <ocaml repr="int64">;
+} <ocaml field_prefix="location_">
+
+type archive_header = {
+  version : int;
+  timestamp : int <ocaml repr="int64">;
+}
+
+type event_type =
+  [ Setup
+  | Ballot
+  | EndBallots
+  | EncryptedTally
+  | Shuffle
+  | EndShuffles
+  | PartialDecryption
+  | Result
+  ]
+
+type setup_data = {
+  election : hash;
+  trustees : hash;
+  credentials : hash;
+} <ocaml field_prefix="setup_">
+
+type event = {
+  ?parent : hash option;
+  height : int;
+  typ <json name="type"> : event_type;
+  ?payload : hash option;
+} <ocaml field_prefix="event_">
+
+type last_event = {
+  height : int;
+  hash : hash;
+  pos : int <ocaml repr="int64">;
+} <ocaml field_prefix="last_">
+
+type roots = {
+  ?setup_data : hash option;
+  ?last_ballot_event : hash option;
+  ?encrypted_tally : hash option;
+  ?last_shuffle_event : hash option;
+  ?last_pd_event : hash option;
+  ?result : hash option;
+} <ocaml field_prefix="roots_">
+
+type 'a owned = {
+  owner : int;
+  payload : 'a;
+} <ocaml field_prefix="owned_">

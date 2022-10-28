@@ -19,52 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let lines_of_file fname =
-  let ic = open_in fname in
-  let rec loop accu =
-    match input_line ic with
-    | line -> loop (line :: accu)
-    | exception End_of_file -> close_in ic; List.rev accu
-  in
-  loop []
+open Signatures
+open Serializable_t
 
-let string_of_file f =
-  lines_of_file f |> String.concat "\n"
-
-let load_from_file of_string filename =
-  if Sys.file_exists filename then (
-    Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    Some (lines_of_file filename |> List.rev_map of_string)
-  ) else None
-
-let find_bel_in_dir dir =
-  match
-    Sys.readdir dir
-    |> Array.to_list
-    |> List.filter (fun x -> Filename.check_suffix x ".bel")
-  with
-  | [file] -> file
-  | _ -> Printf.ksprintf failwith "directory %s must contain a single .bel file" dir
-
-exception Cmdline_error of string
-
-let failcmd fmt = Printf.ksprintf (fun x -> raise (Cmdline_error x)) fmt
-
-let wrap_main f =
-  match f () with
-  | () -> `Ok ()
-  | exception Cmdline_error e -> `Error (true, e)
-  | exception Failure e -> `Error (false, e)
-  | exception e -> `Error (false, Printexc.to_string e)
-
-let common_man = [
-  `S "MORE INFORMATION";
-  `P "This command is part of the Belenios command-line tool.";
-  `P "To get more help on a specific subcommand, run:";
-  `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
-  `P "See $(i,https://www.belenios.org/).";
-]
-
-module type CMDLINER_MODULE = sig
-  val cmds : unit Cmdliner.Cmd.t list
-end
+val compute_synthetic_factors :
+  'a trustee_kind list ->
+  ('a -> 'a partial_decryption -> bool) ->
+  'a partial_decryption owned list ->
+  ((int * 'a partial_decryption) list -> 'a shape) ->
+  ('a shape list, combination_error) result

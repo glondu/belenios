@@ -42,7 +42,7 @@ def belenios_fence_filter(initial_page_url, href_value):
     # - points to a downloadable element which works correctly for sure or which we don't want to test (for example because it would be tested too often or would take too much resources to download)
     # - is the election creation page (if monkey accesses the administration panel by logging in using the "demo" mode)
     # - is the election edition page (if monkey accesses the administration panel by logging in using the "demo" mode)
-    forbidden_urls = ["belenios.tar.gz", "election.json", "trustees.json", "ballot.json", "ballots.jsons", "/draft/new", "/draft/election?uuid="]
+    forbidden_urls = ["belenios.tar.gz", ".bel", "/draft/new", "/draft/election?uuid="]
     for url in forbidden_urls:
         if url in target_url:
             return False

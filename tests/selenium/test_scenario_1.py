@@ -84,7 +84,11 @@ class BeleniosTestElectionScenario1(BeleniosElectionTestBase):
 
         wait_a_bit()
 
-        # FIXME: If no voter has cast their vote, it shows a "Internal Server Error" "Error 500" page
+        # She clicks on "Election home"
+        election_home_element = wait_for_an_element_with_link_text_exists(browser, "Election home", settings.EXPLICIT_WAIT_TIMEOUT)
+        election_home_element.click()
+
+        wait_a_bit()
 
         self.administrator_verifies_vote_results()
 

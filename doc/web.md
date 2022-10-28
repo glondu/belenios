@@ -71,17 +71,14 @@ archived election. Be careful, this operation is not revertible.
 
 ### Auditing an election
 
-During the election, the following files are published:
+During the election, the following file is published:
 
- * `election.json`: election parameters
- * `trustees.json`: trustees' public keys
- * `public_creds.txt`: the public keys associated to valid credentials
- * `ballots.jsons`: accepted ballots
+ * `$UUID.bel`: election public data
 
-They are accessible from the bottom of the election page. Together,
-they enable anyone to audit the election. At the end of the election,
-an additional `result.json` file is published with the result and
-other cryptographic proofs that everything went well.
+It evolves in an append-only fashion while the election is open, and
+stays constant once the election is tallied.  It is accessible from
+the bottom of the election page. It enables anyone to audit the
+election.
 
 Please refer to the auditor's guide in the documentation of the
 command-line tool for more information.

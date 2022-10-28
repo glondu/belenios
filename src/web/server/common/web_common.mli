@@ -59,15 +59,13 @@ val set_rewrite_prefix : src:string -> dst:string -> unit
 val get_election_home_url : uuid -> string
 
 type election_file =
+  | ESArchive of uuid
   | ESRaw
   | ESTrustees
-  | ESCreds
-  | ESBallots
   | ESVoters
   | ESRecords
   | ESETally
   | ESResult
-  | ESShuffles
 
 val election_file_of_string : string -> election_file
 val string_of_election_file : election_file -> string

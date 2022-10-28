@@ -36,9 +36,6 @@ val make_raw_election : params -> group:string -> public_key:string -> string
 module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION with type 'a m = 'a M.t
 
 val compute_checksums :
-  election:string ->
-  [`Nothing
-  | `Shuffles of string list * string option list option
-  | `Result of string] ->
-  trustees:string -> public_credentials:string list ->
-  Serializable_t.election_checksums
+  election:hash -> trustees:string -> public_credentials:string list ->
+  shuffles:hash owned list option -> encrypted_tally:hash option ->
+  election_checksums

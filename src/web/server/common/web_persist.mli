@@ -28,13 +28,15 @@ open Web_serializable_t
 val get_draft_election : uuid -> draft_election option Lwt.t
 val set_draft_election : uuid -> draft_election -> unit Lwt.t
 
-val get_election_state : ?update:bool -> uuid -> election_state Lwt.t
+val release_tally : uuid -> unit Lwt.t
+
+val get_election_state : ?update:bool -> ?ignore_errors:bool -> uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
 val get_election_dates : uuid -> election_dates Lwt.t
 val set_election_dates : uuid -> election_dates -> unit Lwt.t
 
-val get_partial_decryptions : uuid -> partial_decryptions Lwt.t
+val get_partial_decryptions : uuid -> string owned list Lwt.t
 val add_partial_decryption : uuid -> int * string -> unit Lwt.t
 
 val get_decryption_tokens : uuid -> decryption_tokens option Lwt.t
@@ -66,20 +68,19 @@ val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_ballot_weight : (module Site_common_sig.ELECTION_LWT) -> string -> Weight.t Lwt.t
 
-val compute_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> string Lwt.t
+val compute_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> unit Lwt.t
 
-val get_shuffles : uuid -> string list option Lwt.t
-val get_shuffle_hashes : uuid -> shuffle_hash list option Lwt.t
-val add_shuffle_hash : uuid -> shuffle_hash -> unit Lwt.t
-val compute_encrypted_tally_after_shuffling : (module Site_common_sig.ELECTION_LWT) -> string option Lwt.t
+val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
+val get_sized_encrypted_tally : uuid -> string option Lwt.t
+val get_latest_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> string option Lwt.t
 
 val get_shuffle_token : uuid -> shuffle_token option Lwt.t
-val gen_shuffle_token : uuid -> string -> shuffler -> shuffle_token Lwt.t
+val gen_shuffle_token : uuid -> string -> int -> string option -> shuffle_token Lwt.t
 val clear_shuffle_token : uuid -> unit Lwt.t
 
 val get_nh_ciphertexts : (module Site_common_sig.ELECTION_LWT) -> string Lwt.t
 
-val append_to_shuffles : (module Site_common_sig.ELECTION_LWT) -> string -> string option Lwt.t
+val append_to_shuffles : (module Site_common_sig.ELECTION_LWT) -> int -> string -> string option Lwt.t
 
 val has_voted : uuid -> user -> bool Lwt.t
 

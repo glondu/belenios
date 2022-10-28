@@ -67,8 +67,6 @@ module MakeVerificator (G : GROUP) = struct
 
 end
 
-exception CombinationError of combination_error
-
 module MakeCombinator (G : GROUP) = struct
 
   module V = MakeVerificator (G)
@@ -125,69 +123,27 @@ module MakeCombinator (G : GROUP) = struct
         else Z.(accu * (of_int k) * invert (of_int kj) G.q mod G.q)
       ) Z.one indexes
 
-  let combine_factors_exc trustees check partial_decryptions =
+  let combine_factors trustees check partial_decryptions =
     (* neutral factor *)
     let dummy =
       match partial_decryptions with
-      | x :: _ -> Shape.map (fun _ -> G.one) x.decryption_factors
+      | x :: _ -> Shape.map (fun _ -> G.one) x.owned_payload.decryption_factors
       | [] -> failwith "no partial decryptions"
     in
-    let partial_decryptions =
-      List.map (fun x -> x, ref true) partial_decryptions
-    in
-    let check t (x, unchecked) =
-      if !unchecked then (
-        let r = check t x in
-        if r then unchecked := false;
-        r
-      ) else false
-    in
     (* compute synthetic factor for each trustee_kind *)
-    let factors =
-      List.map
-        (function
-         | `Single t ->
-            (match List.find_opt (check t.trustee_public_key) partial_decryptions with
-             | None -> raise (CombinationError MissingPartialDecryption)
-             | Some (pd, _) -> pd.decryption_factors
-            )
-         | `Pedersen p ->
-            let rec take n accu xs =
-              if n > 0 then
-                match xs with
-                | [] -> raise (CombinationError NotEnoughPartialDecryptions)
-                | x :: xs -> take (n-1) (x :: accu) xs
-              else accu
-            in
-            let pds_with_ids =
-              Array.to_list p.t_verification_keys
-              |> List.map (fun t -> List.find_opt (check t.trustee_public_key) partial_decryptions)
-              |> List.mapi
-                   (fun i x ->
-                     match x with
-                     | Some (x, _) -> [i+1, x]
-                     | None -> []
-                   )
-              |> List.flatten
-              |> take p.t_threshold []
-            in
-            let indexes = List.map fst pds_with_ids in
-            List.fold_left
-              (fun a (j, b) ->
-                let l = lagrange indexes j in
-                Shape.map2 G.(fun x y -> x *~ y **~ l) a b.decryption_factors
-              ) dummy pds_with_ids
-        ) trustees
+    let fold pds_with_ids =
+      let indexes = List.map fst pds_with_ids in
+      List.fold_left
+        (fun a (j, b) ->
+          let l = lagrange indexes j in
+          Shape.map2 G.(fun x y -> x *~ y **~ l) a b.decryption_factors
+        ) dummy pds_with_ids
     in
-    (* check that all partial decryptions have been used *)
-    if List.exists (fun (_, x) -> !x) partial_decryptions then
-      raise (CombinationError UnusedPartialDecryption);
+    let r = Util.compute_synthetic_factors trustees check partial_decryptions fold in
     (* combine all factors into one *)
-    List.fold_left (fun a b -> Shape.map2 G.( *~ ) a b) dummy factors
-
-  let combine_factors trustees check partial_decryptions =
-    try Ok (combine_factors_exc trustees check partial_decryptions)
-    with CombinationError e -> Error e
+    match r with
+    | Ok factors -> Ok (List.fold_left (fun a b -> Shape.map2 G.( *~ ) a b) dummy factors)
+    | Error _ as x -> x
 
 end
 

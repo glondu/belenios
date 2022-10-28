@@ -19,12 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
 open Belenios_core.Serializable_t
 open Web_serializable_t
 
 type 'a t
 type 'a list
+
+val filename : 'a t -> string
 
 val get : uuid:uuid -> 'a t -> 'a option Lwt.t
 val get_default : default:'a -> uuid:uuid -> 'a t -> 'a Lwt.t
@@ -36,26 +37,21 @@ val set_list : uuid:uuid -> 'a list -> 'a List.t -> unit Lwt.t
 val del : uuid:uuid -> 'a t -> unit Lwt.t
 
 val draft : draft_election t
-val result : string t
 val hide_result : datetime t
 val dates : election_dates t
 val state : election_state t
-val partial_decryptions : partial_decryptions t
 val decryption_tokens : decryption_tokens t
-val election : string t
 val metadata : metadata t
 val private_key : number t
 val private_keys : string list
-val trustees : string t
-val public_creds : string list
-val ballots : string list
 val ballots_index : Yojson.Safe.t t
-val encrypted_tally : (module GROUP with type t = 'a) -> 'a encrypted_tally t
+val skipped_shufflers : skipped_shufflers t
 val shuffle_token : shuffle_token t
-val shuffle_hashes : shuffle_hash list
-val shuffles : string list
 val extended_records : extended_record list
 val records : string list
 val credential_mappings : credential_mapping list
 val audit_cache : audit_cache t
 val voters : string list
+val chain_filename : uuid -> string
+val chain : uuid -> string t
+val last_event : last_event t

@@ -23,26 +23,15 @@ Auditor's guide
 Note that anyone can be an auditor. Everyone who plays a specific role
 in an election should start by auditing the election data.
 
-During an election, you should have access to the following files:
+During an election, you should have access to a file `$UUID.bel`.
 
- * `election.json`: election parameters
- * `trustees.json`: trustees' public keys
- * `public_creds.txt`: the public keys associated to valid credentials
- * `ballots.jsons`: accepted ballots
+Note that the file is dynamic, and evolves (in an append-only fashion)
+during the election. It stops evolving once the election is tallied.
 
-Note that the last one is dynamic, and evolve during the election. At
-the end of the election, it is frozen and a `result.json` file will be
-published.
-
-If you put these files in a directory `/path/to/election`, the following
-command will perform all possible verifications, depending on existing
-files:
+If you put this file in a directory `/path/to/election`, the following
+command will perform all possible verifications:
 
     belenios-tool election verify --dir /path/to/election
-
-For example, during the election, you can check if some candidate
-ballot is acceptable by putting it alone in `ballots.jsons`, and
-running the command above.
 
 
 Voter's guide
@@ -63,56 +52,9 @@ via the web interface.
 Administrator's guide
 ---------------------
 
-### Setup a new election
-
- 1. Generate an UUID with the `belenios-tool setup generate-token`
-    command. Let it be `$UUID`.
- 2. Go to an empty directory. In the following, we denote by `$DIR`
-    the full path to this directory and by `$BELENIOS` the full path
-    to the Belenios source tree.
- 4. Ask the credential authority to generate credentials. Note that
-    `$UUID` is needed for that. Save the file with public
-    credentials into `$DIR/public_creds.txt`.
- 5. Ask each trustee to generate a keypair. Concatenate all trustee
-    public keys into a `$DIR/public_keys.jsons` file.
- 6. Edit `$BELENIOS/tests/tool/templates/questions.json`.
- 7. Go to `$DIR` and run: `belenios-tool setup make-trustees`.
- 8. Go to `$DIR` and run: `belenios-tool setup make-election --uuid $UUID
-    --group $BELENIOS/files/groups/default.json --template
-    $BELENIOS/tests/tool/templates/questions.json`. It should generate
-    `election.json`.
- 9. Create an empty `ballots.jsons` file in `$DIR`.
-
-### Running the election
-
-The contents of `$DIR` must be public.
-
-For each received ballot, append it to `ballots.jsons` and run:
-
-    belenios-tool election verify --dir $DIR
-
-If no error is reported, publish the new `ballots.jsons`; otherwise,
-the new ballot is incorrect and you must revert `ballots.jsons` to its
-previous state.
-
-Note that each ballot must be authenticated in order to prevent the
-credential authority from stuffing the ballot box. This issue is not
-addressed by the command-line tool, but the web server provides
-several authentication mechanisms.
-
-### Tallying the election
-
- 1. Go to the election directory, which must contain `election.json`,
-    `trustees.json`, `public_creds.txt` and `ballots.jsons`.
- 2. Concatenate the `partial_decryption.json` received from each
-    trustee into a `partial_decryptions.jsons`.
- 3. Run `belenios-tool election compute-result`.  It will create
-    `result.json`. Publish this file, along with the files listed in
-    the first step above. The whole set will enable universal
-    verifiability.
-
-Note: `partial_decryptions.jsons` is a temporary file whose contents
-is embedded in `result.json`, so it can be discarded.
+The command-line tool allows one to execute all cryptographic
+operations needed to run a full election. This is illustrated in the
+shell scripts in [../tests/tool](../tests/tool).
 
 
 Credential authority's guide
@@ -126,20 +68,15 @@ identity per line, run:
     belenios-tool setup generate-credentials --uuid XXXXXXXXXXXXXX --file F
 
 where `XXXXXXXXXXXXXX` is the UUID of the
-election given by the administrator. It will generate three files with
-`N` lines:
+election given by the administrator. It will generate two files:
 
  * `T.privcreds`: each line of this file contains an identity and a
    private credential. Send each voter the associated credential. Keep
    this file secret, and secure if you want to be able to re-send a
    credential later (e.g. if a voter lost or did not receive it).
- * `T.pubcreds`: each line of this file contains a public credential.
+ * `T.pubcreds`: this JSON file contains `N` public credentials.
    Send the whole file to the election administrator; it will be the
-   `public_creds.txt` for the election (and you must check that);
- * `T.hashcreds`: each line of this file contains, for each id in
-   `T.privcreds`, the hash of the corresponding public key. At the
-   moment, this file has no practical purpose (but this might change in
-   the future). Destroy it.
+   `public_creds.json` of the election (and you must check that);
 
 You can optionally add a `--dir` option to specify the directory where
 these files will be written.

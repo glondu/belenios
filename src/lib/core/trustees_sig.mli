@@ -79,7 +79,7 @@ module type S = sig
     val combine_factors :
       G.t trustees ->
       (G.t -> G.t partial_decryption -> bool) ->
-      G.t partial_decryption list -> (G.t shape, combination_error) result
+      G.t partial_decryption owned list -> (G.t shape, combination_error) result
                                                                     (** Compute synthetic decryption factors. *)
 
   end

@@ -38,7 +38,7 @@ voter4@example.com,voter4,4000000000
 voter5@example.com,voter5,90000000000
 EOF
 belenios-tool setup generate-credentials $uuid $group --file voters.txt
-mv *.pubcreds public_creds.txt
+mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.txt
 
 # Generate trustee keys
@@ -54,6 +54,10 @@ rm public_keys.jsons
 # Generate election parameters
 belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/templates/questions.json
 
+# Initialize events
+belenios-tool archive init
+rm -f election.json trustees.json public_creds.json
+
 header "Simulate votes"
 
 cat > votes.txt <<EOF
@@ -67,35 +71,47 @@ EOF
 paste private_creds.txt votes.txt | while read id cred vote; do
     BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote"))"
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
-    echo "$BALLOT"
+    echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted with $HASH" >&2
     echo >&2
-done > ballots.tmp
-mv ballots.tmp ballots.jsons
+done
 
 header "Perform verification"
 
 belenios-tool election verify
 
-header "Simulate and verify update"
+header "Simulate revotes and verify diff"
 
 tdir="$(mktemp -d)"
-cp election.json public_creds.txt trustees.json "$tdir"
-head -n3 ballots.jsons > "$tdir/ballots.jsons"
+cp $UUID.bel "$tdir"
+paste <(head -n 3 private_creds.txt) <(head -n 3 votes.txt) | while read id cred vote; do
+    BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote"))"
+    HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
+    echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
+    echo "Voter $id voted with $HASH" >&2
+    echo >&2
+done
 belenios-tool election verify-diff --dir1="$tdir" --dir2=.
 rm -rf "$tdir"
 
+header "End voting phase"
+
+belenios-tool archive add-event --type=EndBallots < /dev/null
+belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
+belenios-tool election verify
+
 header "Perform decryption"
 
+trustee_id=1
 for u in *.privkey; do
-    belenios-tool election decrypt --privkey $u
+    belenios-tool election decrypt --privkey $u --trustee-id $trustee_id | belenios-tool archive add-event --type=PartialDecryption
     echo >&2
-done > partial_decryptions.tmp
-mv partial_decryptions.tmp partial_decryptions.jsons
+    : $((trustee_id++))
+done
 
 header "Finalize tally"
 
-belenios-tool election compute-result
+belenios-tool election compute-result | belenios-tool archive add-event --type=Result
 
 header "Perform final verification"
 
@@ -107,8 +123,9 @@ cat > result.reference <<EOF
 [["7000000000","3000000000"],["5000000000","92000000000","3000000000"]]
 EOF
 
+RESULT=$(tar -tf $UUID.bel | tail -n2 | head -n1)
 if command -v jq > /dev/null; then
-    if diff -u result.reference <(jq --compact-output '.result' < result.json); then
+    if diff -u result.reference <(tar -xOf $UUID.bel $RESULT | jq --compact-output '.result'); then
         echo "Result is correct!"
     else
         echo "Result is incorrect!"
@@ -122,7 +139,7 @@ echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo
 echo "The simulated election was successful! Its result can be seen in"
-echo "  $DIR/result.json"
+echo "  $DIR"
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 echo

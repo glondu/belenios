@@ -20,8 +20,8 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
-open Belenios_core.Signatures
 open Web_serializable_j
 open Web_common
 
@@ -33,6 +33,8 @@ type 'a t =
   }
 
 type 'a list = 'a t
+
+let filename x = x.filename
 
 let raw filename =
   {
@@ -85,8 +87,6 @@ let draft =
     filename = "draft.json";
   }
 
-let result = raw "result.json"
-
 let hide_result =
   {
     of_string = datetime_of_string;
@@ -108,21 +108,12 @@ let state =
     filename = "state.json";
   }
 
-let partial_decryptions =
-  {
-    of_string = partial_decryptions_of_string;
-    to_string = string_of_partial_decryptions;
-    filename = "partial_decryptions.json";
-}
-
 let decryption_tokens =
   {
     of_string = decryption_tokens_of_string;
     to_string = string_of_decryption_tokens;
     filename = "decryption_tokens.json";
   }
-
-let election = raw "election.json"
 
 let metadata =
   {
@@ -140,22 +131,6 @@ let private_key =
 
 let private_keys = raw "private_keys.jsons"
 
-let trustees = raw "trustees.json"
-
-let public_creds =
-  {
-    of_string = Fun.id;
-    to_string = Fun.id;
-    filename = "public_creds.txt";
-  }
-
-let ballots =
-  {
-    of_string = Fun.id;
-    to_string = Fun.id;
-    filename = "ballots.jsons";
-  }
-
 let ballots_index =
   {
     of_string = Yojson.Safe.from_string;
@@ -163,14 +138,11 @@ let ballots_index =
     filename = "ballots_index.json";
   }
 
-let encrypted_tally_filename = string_of_election_file ESETally
-
-let encrypted_tally (type a) group =
-  let module G = (val group : GROUP with type t = a) in
+let skipped_shufflers =
   {
-    of_string = encrypted_tally_of_string G.read;
-    to_string = string_of_encrypted_tally G.write;
-    filename = encrypted_tally_filename;
+    of_string = skipped_shufflers_of_string;
+    to_string = string_of_skipped_shufflers;
+    filename = "skipped_shufflers.json";
   }
 
 let shuffle_token =
@@ -178,20 +150,6 @@ let shuffle_token =
     of_string = shuffle_token_of_string;
     to_string = string_of_shuffle_token;
     filename = "shuffle_token.json";
-  }
-
-let shuffle_hashes =
-  {
-    of_string = shuffle_hash_of_string;
-    to_string = string_of_shuffle_hash;
-    filename = "shuffle_hashes.jsons";
-  }
-
-let shuffles =
-  {
-    of_string = Fun.id;
-    to_string = Fun.id;
-    filename = "shuffles.jsons";
   }
 
 let extended_records =
@@ -223,3 +181,13 @@ let audit_cache =
   }
 
 let voters = raw "voters.txt"
+
+let chain_filename uuid = raw_string_of_uuid uuid ^ ".bel"
+let chain uuid = raw (chain_filename uuid)
+
+let last_event =
+  {
+    of_string = last_event_of_string;
+    to_string = string_of_last_event;
+    filename = "last_event.json";
+  }

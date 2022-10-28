@@ -29,4 +29,4 @@ open Belenios_core.Signatures
 let string_of_combination_error = function
   | MissingPartialDecryption -> "a partial decryption is missing"
   | NotEnoughPartialDecryptions -> "not enough partial decryptions"
-  | UnusedPartialDecryption -> "unused partial decryption"
+  | InvalidPartialDecryption -> "invalid partial decryption"

@@ -13,6 +13,7 @@ import hashlib
 import base64
 import json
 import random
+import tarfile
 
 # Example :
 #   ./monitor_elections.py --uuid aTGmQNj1SXA5JG --url https://belenios.loria.fr/ --wdir /tmp/wdir --checkhash yes --hashref $HOME/hashref --outputref  $HOME/hashref --sighashref https://belenios.loria.fr/monitoring-reference/reference.json.gpg --keyring $HOME/.gnupg/pubring.gpg
@@ -78,10 +79,8 @@ def check_or_create_dir(wdir, uuid):
 # When no ballot have been cast yet, ballots.jsons does not exist.
 # We also put here a fake filename, for the hash of the voterlist
 # and for the list of all ballot hashs.
-audit_files=['election.json', 'public_creds.txt', 'trustees.json',
-        'ballots', 'index.html']
-optional_audit_files=['ballots.jsons','result.json','shuffles.jsons',
-        'hash_voterlist','all_ballot_hashs']
+audit_files=['election.json', 'ballots', 'index.html', 'election.bel']
+optional_audit_files=['hash_voterlist','all_ballot_hashs']
 
 def shuffle(l):
     result = [x for x in l]
@@ -98,6 +97,8 @@ def download_audit_data(url, uuid):
         try:
             if f == 'index.html':
                 l = link + '/'
+            elif f == 'election.bel':
+                l = link + '/' + uuid + '.bel'
             else:
                 l = link + '/' + f
             resp = urllib.request.urlopen(l)
@@ -105,12 +106,8 @@ def download_audit_data(url, uuid):
         except urllib.error.URLError as e:
             fail = True
             msg = msg + "Download {} failed with ret code \"{}\" for election {}\n".format(f, e, uuid)
-    for f in shuffle(optional_audit_files):
-        try:
-            resp = urllib.request.urlopen(link + '/' + f)
-            data[f]=resp.read()
-        except:
-            data[f]=b''
+    for f in optional_audit_files:
+        data[f]=b''
 
     status = Status(fail, msg.encode())
     return status, data
@@ -146,6 +143,8 @@ def write_and_verify_new_data(wdir, uuid, data):
     else:
         logme("Successfully verified new data of {}".format(uuid))
 
+    archive_filename = os.path.join(p, "election.bel")
+
     # if not the first time, run belenios-tool election verify-diff
     msg = b""
     new_ballots = b""
@@ -153,6 +152,13 @@ def write_and_verify_new_data(wdir, uuid, data):
     if fresh:
         os.remove(os.path.join(p, "fresh"))
     else:
+        archive_maker = subprocess.run(["belenios-tool", "archive", "make", "--dir={}".format(p)],
+                                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        if archive_maker.returncode != 0:
+            msg = "Error: belenios-tool archive make failed on old data from election {}".format(uuid).encode()
+            return Status(True, msg)
+        with open(archive_filename, "wb") as f:
+            f.write(archive_maker.stdout)
         verdiff = subprocess.run(["belenios-tool", "election", "verify-diff",
             "--dir1={}".format(p), "--dir2={}".format(pnew)],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -199,6 +205,19 @@ def write_and_verify_new_data(wdir, uuid, data):
     for f in audit_files + optional_audit_files:
         if data[f] != b'':
             os.rename(os.path.join(pnew, f), os.path.join(p, f))
+
+    # extract new archive
+    with tarfile.open(archive_filename) as bel:
+        members = bel.getmembers()
+        data["members"] = [x.name for x in members]
+        if bel.extractfile(members[1]).read() != data["election.json"]:
+            msg = "Error: election.json of election {} differs from its archive".format(uuid).encode()
+            return Status(True, msg)
+        os.remove(os.path.join(p, "election.json"))
+        for m in members:
+            bel.extract(m, path=p)
+    os.remove(archive_filename)
+
     return Status(False, msg)
 
 # Verify that the hash of the ballots shown on the ballot-box web page
@@ -401,15 +420,22 @@ def check_index_html(data):
     return Status(fail, msg)
 
 
+def commit_file(eldir, f, uuid):
+    gitadd = subprocess.run(["git", "-C", eldir, "add", f])
+    if gitadd.returncode != 0:
+        Elogme("Failed git add {} for election {}".format(f, uuid))
+        return False
+    return True
+
 def commit(wdir, uuid, msg):
     eldir = os.path.join(wdir, uuid)
     for f in audit_files + optional_audit_files:
-        if f in data.keys() and data[f] != b'':
-            gitadd = subprocess.run(["git",
-                "-C", eldir, "add", f])
-            if gitadd.returncode != 0:
-                Elogme("Failed git add {} for election {}".format(f, uuid))
+        if not f.startswith("election.") and f in data.keys() and data[f] != b'':
+            if not commit_file(eldir, f, uuid):
                 return False
+    for f in data["members"]:
+        if not commit_file(eldir, f, uuid):
+            return False
 
     gitci = subprocess.run(["git",
         "-C", eldir,

@@ -1,0 +1,22 @@
+(executable
+ (name migrate)
+ (public_name belenios-migrate)
+ (package belenios-server)
+ (libraries
+  ocsigenserver
+  ocsipersist.sqlite
+  ocsigenserver.ext.redirectmod
+  ocsigenserver.ext.staticmod
+  eliom
+  belenios-platform-native
+  belenios-server))
+
+(rule
+ (targets serializable_t.ml serializable_t.mli)
+ (deps serializable.atd)
+ (action (run atdgen -t %{deps})))
+
+(rule
+ (targets serializable_j.ml serializable_j.mli)
+ (deps serializable.atd)
+ (action (run atdgen -j -j-std %{deps})))

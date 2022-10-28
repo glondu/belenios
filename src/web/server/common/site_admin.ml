@@ -767,7 +767,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
        if se.se_public_creds <> token then forbidden () else
          if se.se_public_creds_received then forbidden () else
            let* creds = Lwt_stream.to_string creds in
-           let creds = split_lines creds in
+           let creds = public_credentials_of_string creds in
            let* () = Api_drafts.submit_public_credentials uuid se creds in
            Pages_admin.election_draft_credentials_done se () >>= Html.send
 
@@ -1049,11 +1049,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            let cc = nh_ciphertexts_of_string W.G.read cc in
            let* shuffle = W.E.shuffle_ciphertexts cc in
            let shuffle = string_of_shuffle W.G.write shuffle in
-           let* x = Web_persist.append_to_shuffles election shuffle in
+           let* x = Web_persist.append_to_shuffles election 1 shuffle in
            match x with
-           | Some h ->
-              let sh = {sh_trustee = "server"; sh_hash = h; sh_name = Some "server"} in
-              let* () = Web_persist.add_shuffle_hash uuid sh in
+           | Some _ ->
               Web_persist.remove_audit_cache uuid
            | None ->
               Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server has failed for election %s!") (raw_string_of_uuid uuid)))
@@ -1232,12 +1230,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             match result with
             | None -> fail_http `Not_found
             | Some result ->
-               let result =
-                 election_result_of_string
-                   Yojson.Safe.read_json Yojson.Safe.read_json
-                   Yojson.Safe.read_json Yojson.Safe.read_json
-                   result
-               in
+               let result = election_result_of_string Yojson.Safe.read_json result in
                match result.result with
                | `List xs ->
                   (match List.nth_opt xs index with
@@ -1275,11 +1268,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       Lwt_list.iter_p (fun x ->
           try_copy_file (uuid /// x) (temp_dir // "public" // x)
         ) [
-          "election.json";
-          "trustees.json";
-          "public_creds.txt";
-          "ballots.jsons";
-          "result.json";
+          raw_string_of_uuid uuid ^ ".bel";
         ]
     in
     let* () =
@@ -1356,7 +1345,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            (match x with
             | Some trustee_id ->
                let* pds = Web_persist.get_partial_decryptions uuid in
-               if List.mem_assoc trustee_id pds then (
+               if List.exists (fun x -> x.owned_owner = trustee_id) pds then (
                  Pages_common.generic_page ~title:(s_ "Error")
                    (s_ "Your partial decryption has already been received and checked!")
                    () >>= Html.send
@@ -1407,7 +1396,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         let* pds = Web_persist.get_partial_decryptions uuid in
         let* () =
-          if List.mem_assoc trustee_id pds then Lwt.fail TallyEarlyError else return ()
+          if List.exists (fun x -> x.owned_owner = trustee_id) pds then
+            Lwt.fail TallyEarlyError
+          else return ()
         in
         let* () =
           if trustee_id > 0 then return () else fail_http `Not_found
@@ -1429,9 +1420,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         in
         let pk = pks.(trustee_id-1).trustee_public_key in
         let pd = partial_decryption_of_string W.G.read partial_decryption in
-        let et = uuid /// string_of_election_file ESETally in
-        let* et = Lwt_io.chars_of_file et |> Lwt_stream.to_string in
-        let et = encrypted_tally_of_string W.G.read et in
+        let* et =
+          let* x = Web_persist.get_latest_encrypted_tally election in
+          match x with
+          | None -> assert false
+          | Some x -> Lwt.return @@ encrypted_tally_of_string W.G.read x
+        in
         if string_of_partial_decryption W.G.write pd = partial_decryption && W.E.check_factor et pk pd then (
           let pd = trustee_id, partial_decryption in
           let* () = Web_persist.add_partial_decryption uuid pd in
@@ -1446,47 +1440,34 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       ))
 
   let handle_election_tally_release uuid () =
-    let@ () = render_tally_early_error_as_forbidden in
     let@ _ = with_metadata_check_owner uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let@ election = with_election uuid in
-    let* x = Api_elections.release_tally election in
-    match x with
-    | Ok () -> redir_preapply election_home (uuid, ()) ()
-    | Error `Forbidden -> forbidden ()
-    | Error (`CombinationError e) ->
-       let msg =
-         Printf.sprintf
-           (f_ "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job.")
-           (Trustees.string_of_combination_error e)
-       in
-       Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
+    Lwt.catch
+      (fun () ->
+        let* () = Web_persist.release_tally uuid in
+        redir_preapply election_home (uuid, ()) ()
+      )
+      (fun e ->
+        let msg =
+          Printf.sprintf
+            (f_ "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job.")
+            (Printexc.to_string e)
+        in
+        Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
+      )
 
   let () =
     Any.register ~service:election_tally_release
       handle_election_tally_release
 
-  let handle_api_elections_return uuid metadata = function
-    | false -> forbidden ()
-    | true ->
-       let* state = Web_persist.get_election_state uuid in
-       match state with
-       | `EncryptedTally _ ->
-          let trustees = Option.value metadata.e_trustees ~default:[] in
-          if List.exists (fun x -> x <> "server") trustees then
-            redir_preapply election_admin uuid ()
-          else
-            handle_election_tally_release uuid ()
-       | _ -> redir_preapply election_admin uuid ()
-
   let () =
     Any.register ~service:election_compute_encrypted_tally
       (fun uuid () ->
-        let@ metadata = with_metadata_check_owner uuid in
+        let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* x = Api_elections.compute_encrypted_tally election metadata in
-        handle_api_elections_return uuid metadata x
+        let* _ = Api_elections.compute_encrypted_tally election in
+        redir_preapply election_admin uuid ()
       )
 
   let () =
@@ -1523,12 +1504,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         | Some x when token = x.tk_token ->
            Lwt.catch
              (fun () ->
-               let* y = Web_persist.append_to_shuffles election shuffle in
+               let* y = Web_persist.append_to_shuffles election x.tk_trustee_id shuffle in
                match y with
-               | Some h ->
+               | Some _ ->
                   let* () = Web_persist.clear_shuffle_token uuid in
-                  let sh = {sh_trustee = x.tk_trustee; sh_hash = h; sh_name = x.tk_name} in
-                  let* () = Web_persist.add_shuffle_hash uuid sh in
                   let* () = Web_persist.remove_audit_cache uuid in
                   Pages_common.generic_page ~title:(s_ "Success") (s_ "The shuffle has been successfully applied!") () >>= Html.send
                | None ->
@@ -1558,17 +1537,17 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_shuffler_skip
       (fun () (uuid, trustee) ->
-        let@ metadata = with_metadata_check_owner uuid in
-        let* () = Api_elections.skip_shuffler uuid metadata trustee in
+        let@ _ = with_metadata_check_owner uuid in
+        let* () = Api_elections.skip_shuffler uuid trustee in
         redir_preapply election_admin uuid ()
       )
 
   let () =
     Any.register ~service:election_decrypt (fun uuid () ->
-        let@ metadata = with_metadata_check_owner uuid in
+        let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* x = Api_elections.finish_shuffling election metadata in
-        handle_api_elections_return uuid metadata x
+        let* _ = Api_elections.finish_shuffling election in
+        redir_preapply election_admin uuid ()
       )
 
   let () =
