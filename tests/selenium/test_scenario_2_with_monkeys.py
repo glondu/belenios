@@ -4,8 +4,7 @@ import unittest
 import random
 import os
 import sys
-from distutils.util import strtobool
-from util.election_testing import verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
+from util.election_testing import strtobool, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters
 from util.execution import console_log, ConsoleLogDuration
 from test_scenario_2 import initialize_browser_for_scenario_2
 from test_fuzz_vote import BeleniosTestElectionWithCreationBase

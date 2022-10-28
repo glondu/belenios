@@ -6,10 +6,9 @@ import os
 import sys
 import json
 from hypothesis import given, HealthCheck, strategies as st, settings as hypothesis_settings
-from distutils.util import strtobool
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_does_not_contain_expected_text
-from util.election_testing import console_log, remove_database_folder, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, election_id_to_election_home_page_url, remove_election_from_database
+from util.election_testing import strtobool, console_log, remove_database_folder, initialize_server, wait_a_bit, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, election_id_to_election_home_page_url, remove_election_from_database
 from util.execution import try_several_times
 from util.page_objects import ElectionHomePage, VoterLoginPage
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser

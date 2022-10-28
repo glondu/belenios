@@ -4,9 +4,8 @@ import unittest
 import os
 import csv
 from selenium.webdriver.support.select import Select
-from distutils.util import strtobool
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_link_text_exists, wait_for_element_exists_and_has_non_empty_content, verify_all_elements_have_attribute_value
-from util.election_testing import console_log, wait_a_bit
+from util.election_testing import strtobool, console_log, wait_a_bit
 from util.execution import ConsoleLogDuration, try_several_times
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings

@@ -16,6 +16,14 @@ from util.execution import console_log
 import settings
 
 
+def strtobool(s):
+    if s in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    if s in ("n", "no", "f", "false", "off", "0"):
+        return False
+    raise ValueError("cannot interpret {} as a boolean".format(s))
+
+
 def random_email_addresses_generator(size=20):
     res = []
     for x in range(size):

@@ -5,9 +5,8 @@ import random
 import os
 import sys
 import time
-from distutils.util import strtobool
 
-from util.election_testing import election_id_to_election_home_page_url
+from util.election_testing import strtobool, election_id_to_election_home_page_url
 from util.page_objects import BallotBoxPage
 from util.state_machine import ElectionHomePageState, NormalVoteStep6PageState
 from util.monkeys import SmartMonkeyWithMemoryAndKnownStateMachine

@@ -4,10 +4,9 @@ import unittest
 import random
 import os
 import sys
-from distutils.util import strtobool
 from urllib.parse import urljoin, urlsplit
 
-from util.election_testing import wait_a_bit
+from util.election_testing import strtobool, wait_a_bit
 from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage
 from util.monkeys import SeleniumClickerMonkey, SeleniumFormFillerMonkey
 from util.execution import console_log
