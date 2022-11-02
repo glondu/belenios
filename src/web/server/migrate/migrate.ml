@@ -424,6 +424,7 @@ let migrate_election_to_v1 uuid accu =
              "shuffle_hashes.jsons";
              "shuffles.jsons"; "partial_decryptions.json";
              "result.json"; "audit_cache.json";
+             "ballots_index.json";
            ]
        in
        let* () = rmdir (uuid /// "ballots") in

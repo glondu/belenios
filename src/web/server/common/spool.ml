@@ -131,13 +131,6 @@ let private_key =
 
 let private_keys = raw "private_keys.jsons"
 
-let ballots_index =
-  {
-    of_string = Yojson.Safe.from_string;
-    to_string = Yojson.Safe.to_string;
-    filename = "ballots_index.json";
-  }
-
 let skipped_shufflers =
   {
     of_string = skipped_shufflers_of_string;

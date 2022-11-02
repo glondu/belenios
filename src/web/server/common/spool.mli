@@ -44,7 +44,6 @@ val decryption_tokens : decryption_tokens t
 val metadata : metadata t
 val private_key : number t
 val private_keys : string list
-val ballots_index : Yojson.Safe.t t
 val skipped_shufflers : skipped_shufflers t
 val shuffle_token : shuffle_token t
 val extended_records : extended_record list

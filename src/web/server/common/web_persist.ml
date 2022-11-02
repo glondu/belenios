@@ -701,7 +701,7 @@ let fold_on_ballots_weeded uuid f accu =
   in
   Lwt.return accu
 
-let raw_get_ballots_archived uuid =
+let raw_get_ballots uuid =
   let* x = get_raw_election uuid in
   match x with
   | None -> return SMap.empty
@@ -714,34 +714,12 @@ let raw_get_ballots_archived uuid =
          return (SMap.add hash (b, weight) accu)
        ) SMap.empty
 
-let archived_ballots_cache =
-  new BallotsCache.cache raw_get_ballots_archived ~timer:3600. 10
-
-let get_ballots_index uuid =
-  let* x = Spool.get ~uuid Spool.ballots_index in
-  match x with
-  | None ->
-     let* x = raw_get_ballots_archived uuid in
-     SMap.fold (fun hash (_, weight) accu -> (hash, weight) :: accu) x []
-     |> Lwt.return
-  | Some index ->
-     let index =
-       match index with
-       | `Assoc index ->
-          List.map
-            (fun (hash, weight) -> hash, weight_of_json weight)
-            index
-       | _ -> failwith "anomaly in get_ballots_index (assoc expected)"
-     in
-     return index
+let ballots_cache =
+  new BallotsCache.cache raw_get_ballots ~timer:3600. 10
 
 let get_ballot_hashes uuid =
-  let* state = get_election_state uuid in
-  match state with
-  | `Archived ->
-     let* ballots = archived_ballots_cache#find uuid in
-     SMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
-  | _ -> get_ballots_index uuid
+  let* ballots = ballots_cache#find uuid in
+  SMap.bindings ballots |> List.map (fun (h, (_, w)) -> h, w) |> return
 
 let get_ballot_by_hash uuid hash =
   Lwt.catch
@@ -749,22 +727,6 @@ let get_ballot_by_hash uuid hash =
       let hash = Hash.of_b64 hash in
       Web_events.get_data ~uuid hash
     ) (fun _ -> Lwt.return_none)
-
-let load_ballots uuid =
-  fold_on_ballots_weeded uuid (fun b accu -> Lwt.return @@ b :: accu) []
-
-let dump_ballots_index election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
-  let uuid = W.election.e_uuid in
-  let* ballots = load_ballots uuid in
-  let* index =
-    Lwt_list.map_s
-      (fun b ->
-        let* w = get_ballot_weight election b in
-        return (sha256_b64 b, `Intlit (Weight.to_string w))
-      ) ballots
-  in
-  Spool.set ~uuid Spool.ballots_index (`Assoc index)
 
 let add_ballot election last ballot =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
@@ -777,7 +739,7 @@ let add_ballot election last ballot =
         Event (`Ballot, Some (Hash.hash_string ballot));
       ]
   in
-  let* () = dump_ballots_index election in
+  let () = ballots_cache#remove uuid in
   return hash
 
 let compute_encrypted_tally election =
