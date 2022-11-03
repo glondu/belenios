@@ -344,3 +344,39 @@ type 'a owned = {
   owner : int;
   payload : 'a;
 } <ocaml field_prefix="owned_">
+
+(** {2 Sealing} *)
+
+type sealing_config = (string * string list) list <json repr="object">
+
+type file_kind =
+  [ REG
+  | DIR
+  | CHR
+  | BLK
+  | LNK
+  | FIFO
+  | SOCK
+  ]
+
+type 'a file_contents =
+  [ REG of hash
+  | DIR of (string * 'a) list <json repr="object">
+  | LNK of string
+  ]
+
+type stats = {
+  ?dev : int option;
+  ?ino : int option;
+  ?kind : file_kind option;
+  ?perm : int option;
+  ?nlink : int option;
+  ?uid : int option;
+  ?gid : int option;
+  ?rdev : int option;
+  ?size : int <ocaml repr="int64"> option;
+  ?atime : float option;
+  ?mtime : float option;
+  ?ctime : float option;
+  ?contents : stats file_contents option;
+} <ocaml field_prefix="st_">

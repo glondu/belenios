@@ -1007,6 +1007,7 @@ let cmds =
       Election.cmds;
       Events.cmds;
       Methods.cmds;
+      Sealing.cmds;
     ]
 
 let default_cmd =

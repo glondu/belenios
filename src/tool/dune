@@ -2,4 +2,4 @@
  (name tool_cmdline)
  (public_name belenios-tool)
  (package belenios-tool)
- (libraries cmdliner belenios-platform-native belenios belenios_tool_common))
+ (libraries str cmdliner belenios-platform-native belenios belenios_tool_common))
