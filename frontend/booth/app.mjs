@@ -238,17 +238,13 @@ function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
               setSmartBallotTracker(null);
               setCurrentStep(3);
               const encryptBallotSuccessCallback = (ballot, tracker) => {
-                console.log("Raw encrypted ballot:", JSON.parse(ballot));
-                console.log("Smart ballot tracker:", tracker);
                 setCryptedBallotBeforeReview(ballot);
                 setSmartBallotTracker(tracker);
               };
               const encryptBallotErrorCallback = (error) => {
                 alert("Error: " + error);
               };
-              console.log("Going to start encryption of ballot very soon.");
               setTimeout(function(){
-                console.log("Starting encryption of ballot...");
                 belenios.encryptBallot(
                   electionData, credential, voterSelectedAnswersAsUncryptedBallot,
                   encryptBallotSuccessCallback, encryptBallotErrorCallback

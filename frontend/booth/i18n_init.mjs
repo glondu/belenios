@@ -9,7 +9,7 @@ function i18n_init(language_code="en", onInitialized=null, onLanguageChanged=nul
     .init(
       {
         lng: language_code,
-        debug: true,
+        debug: false,
         supportedLngs: ["ar", "cs", "de", "el", "en", "es", "es_419", "fi", "fr", "it", "lt", "nb", "oc", "pl", "pt_BR", "ro", "uk"],
         fallbackLng: { // In order to not download the fallback language translation file when it won't be needed, languages in which the application is fully translated should have an empty array for their key here
           "fr": [],
