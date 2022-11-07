@@ -19,27 +19,27 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (pokud jste ho snad zapomněli)."
 
-#: src/web/server/common/pages_voter.ml:879
+#: src/web/server/common/pages_voter.ml:757
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Potvrzovací e-mail ti byl odeslán."
 
-#: src/web/server/common/pages_voter.ml:650
-msgid " and "
-msgstr " a "
-
-#: src/web/server/common/pages_voter.ml:878
+#: src/web/server/common/pages_voter.ml:756
 msgid " anytime during the election."
 msgstr " kdykoli během volby."
 
-#: src/web/server/common/pages_voter.ml:943
+#: src/web/server/common/pages_voter.ml:743
+msgid " as user "
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:821
 msgid " ballot(s) have been accepted so far."
 msgstr " - počet volebních lístků, které byly doposud přijmuty."
 
-#: src/web/server/common/pages_voter.ml:955
+#: src/web/server/common/pages_voter.ml:833
 msgid " ballot(s) have been accepted, and "
 msgstr " počet volebních lístků, které byly přijmuty, a "
 
-#: src/web/server/common/pages_voter.ml:949
+#: src/web/server/common/pages_voter.ml:827
 msgid " ballot(s) have been accepted."
 msgstr " volebních lístků bylo akceptováno."
 
@@ -51,15 +51,11 @@ msgstr " den/dny/dnů"
 msgid " for more information."
 msgstr " pro více informací."
 
-#: src/web/server/common/pages_voter.ml:868
+#: src/web/server/common/pages_voter.ml:745
 msgid " has been accepted."
 msgstr " byl akceptován."
 
-#: src/web/server/common/pages_voter.ml:744
-msgid " has been received, but not recorded yet. "
-msgstr " byl obdržen, ale zatím nezaznamenán. "
-
-#: src/web/server/common/pages_voter.ml:957
+#: src/web/server/common/pages_voter.ml:835
 msgid " have been tallied."
 msgstr " se vyhodnotila."
 
@@ -71,7 +67,7 @@ msgstr " hodina/y"
 msgid " in the following box: "
 msgstr " v následujícím poli: "
 
-#: src/web/server/common/pages_voter.ml:882
+#: src/web/server/common/pages_voter.ml:760
 msgid " is rejected, because "
 msgstr " je odmítnut, protože "
 
@@ -91,7 +87,7 @@ msgstr " sekund"
 msgid " year(s)"
 msgstr " let"
 
-#: src/web/server/common/pages_voter.ml:1009
+#: src/web/server/common/pages_voter.ml:887
 msgid "!"
 msgstr "!"
 
@@ -100,7 +96,7 @@ msgstr "!"
 msgid "%d blank ballot(s)"
 msgstr "počet prázdných hlasovacích lístků: %d"
 
-#: src/web/server/common/pages_voter.ml:1246
+#: src/web/server/common/pages_voter.ml:1124
 #. src/web/server/common/pages_voter.ml:103
 msgid "%d invalid ballot(s)"
 msgstr "neplatné lístky: %d"
@@ -129,7 +125,7 @@ msgstr "(nic)"
 msgid ", or "
 msgstr ", nebo "
 
-#: src/web/server/common/pages_voter.ml:1150
+#: src/web/server/common/pages_voter.ml:1028
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
 msgstr "1 označuje nejlepší známku, 2 druhou nejlepší známku atd."
 
@@ -139,7 +135,7 @@ msgstr ""
 "Vítěz podle Condorcetovy metody je takový kandidát, který je upřednostněn "
 "před všemi dalšími kandidáty."
 
-#: src/web/server/common/pages_voter.ml:1252
+#: src/web/server/common/pages_voter.ml:1130
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Hlasovací lístek je neplatný, pokud dva kandidáti byli označeni stejným "
@@ -149,7 +145,7 @@ msgstr ""
 msgid "Accept"
 msgstr "Přijmout"
 
-#: src/web/server/common/pages_voter.ml:914
+#: src/web/server/common/pages_voter.ml:792
 msgid "Accepted ballots"
 msgstr "Akceptované volební lístky"
 
@@ -177,15 +173,13 @@ msgstr ""
 "Všichni tito garanti (jejich ověřovací klíče) jsou potřeba pro dešifrování "
 "výsledku:"
 
-#: src/web/server/common/pages_voter.ml:1034
-#. src/web/server/common/pages_voter.ml:824
-#. src/web/server/common/pages_voter.ml:822
-#. src/web/server/common/pages_voter.ml:687
-#. src/web/server/common/pages_voter.ml:685
+#: src/web/server/common/pages_voter.ml:912
+#. src/web/server/common/pages_voter.ml:653
+#. src/web/server/common/pages_voter.ml:651
 msgid "Answer to questions"
 msgstr "Odpovědět na otázky"
 
-#: src/web/server/common/pages_voter.ml:1152
+#: src/web/server/common/pages_voter.ml:1030
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Pro jednoduchost je 0 vždy chápána jako nejnižší známka."
 
@@ -197,11 +191,9 @@ msgstr "Nejméně jedna z odpovědí není platná!"
 msgid "Audit data: "
 msgstr "Audit dat: "
 
-#: src/web/server/common/pages_voter.ml:1038
-#. src/web/server/common/pages_voter.ml:842
-#. src/web/server/common/pages_voter.ml:840
-#. src/web/server/common/pages_voter.ml:705
-#. src/web/server/common/pages_voter.ml:703
+#: src/web/server/common/pages_voter.ml:916
+#. src/web/server/common/pages_voter.ml:671
+#. src/web/server/common/pages_voter.ml:669
 #. src/web/server/common/pages_common.ml:448
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:353
@@ -234,8 +226,8 @@ msgstr "Špatná e-mailová adresa!"
 msgid "Bad security code!"
 msgstr "Špatný bezpečnostní kód!"
 
-#: src/web/server/common/pages_voter.ml:983
-#. src/web/server/common/pages_voter.ml:971
+#: src/web/server/common/pages_voter.ml:861
+#. src/web/server/common/pages_voter.ml:849
 msgid "Belenios Booth"
 msgstr "Hlasování Belenios"
 
@@ -273,25 +265,23 @@ msgstr "Spočítat jedinečný otisk"
 msgid "Computed fingerprint:"
 msgstr "Vypočítaný jedinečný otisk:"
 
-#: src/web/server/common/pages_voter.ml:1125
+#: src/web/server/common/pages_voter.ml:1003
 msgid "Condorcet-Schulze method"
 msgstr "Schulzova Condorcetova metoda"
 
-#: src/web/server/common/pages_voter.ml:1040
-#. src/web/server/common/pages_voter.ml:851
-#. src/web/server/common/pages_voter.ml:849
-#. src/web/server/common/pages_voter.ml:714
-#. src/web/server/common/pages_voter.ml:712
+#: src/web/server/common/pages_voter.ml:918
+#. src/web/server/common/pages_voter.ml:680
+#. src/web/server/common/pages_voter.ml:678
 msgid "Confirm"
 msgstr "Potvrdit"
 
-#: src/web/server/common/pages_voter.ml:1198
-#. src/web/server/common/pages_voter.ml:1141
-#. src/web/server/common/pages_voter.ml:1020
+#: src/web/server/common/pages_voter.ml:1076
+#. src/web/server/common/pages_voter.ml:1019
+#. src/web/server/common/pages_voter.ml:898
 msgid "Continue"
 msgstr "Pokračovat"
 
-#: src/web/server/common/site_voter.ml:110
+#: src/web/server/common/site_voter.ml:109
 msgid "Cookies are blocked"
 msgstr "Cookies jsou zablokovány"
 
@@ -308,7 +298,7 @@ msgstr "Přístupové kódy vygeneroval a zaslal %s a jejich jedinečný otisk j
 msgid "Dear %s,"
 msgstr "Milý/Milá %s,"
 
-#: src/web/server/common/pages_voter.ml:1042
+#: src/web/server/common/pages_voter.ml:920
 msgid "Done"
 msgstr "Hotovo"
 
@@ -318,30 +308,30 @@ msgstr "Hotovo"
 msgid "E-mail address:"
 msgstr "E-mailová adresa:"
 
-#: src/web/server/common/pages_voter.ml:1102
+#: src/web/server/common/pages_voter.ml:980
 msgid "Election UUID: "
 msgstr "Číslo UUID volby: "
 
-#: src/web/server/common/pages_voter.ml:1106
+#: src/web/server/common/pages_voter.ml:984
 #. src/web/server/common/pages_voter.ml:51
 msgid "Election fingerprint: "
 msgstr "Jedinečný otisk volby: "
 
-#: src/web/server/common/pages_voter.ml:1085
+#: src/web/server/common/pages_voter.ml:963
 #. src/web/server/common/pages_common.ml:188
 #. src/web/server/common/pages_common.ml:115
 msgid "Election server"
 msgstr "Volební server"
 
-#: src/web/server/common/pages_voter.ml:1072
+#: src/web/server/common/pages_voter.ml:950
 msgid "Encrypting…"
 msgstr "Zašifrovávám…"
 
-#: src/web/server/common/site_voter.ml:354
-#. src/web/server/common/site_voter.ml:329
-#. src/web/server/common/site_voter.ml:281
-#. src/web/server/common/site_voter.ml:276
-#. src/web/server/common/site_voter.ml:271
+#: src/web/server/common/site_voter.ml:304
+#. src/web/server/common/site_voter.ml:279
+#. src/web/server/common/site_voter.ml:231
+#. src/web/server/common/site_voter.ml:226
+#. src/web/server/common/site_voter.ml:221
 msgid "Error"
 msgstr "Chyba"
 
@@ -349,7 +339,7 @@ msgstr "Chyba"
 msgid "Expected fingerprint:"
 msgstr "Očekávaný jedinečný otisk:"
 
-#: src/web/server/common/pages_voter.ml:885
+#: src/web/server/common/pages_voter.ml:763
 msgid "FAIL!"
 msgstr "CHYBA!"
 
@@ -362,20 +352,11 @@ msgstr "Zapovězeno"
 msgid "Get the source code"
 msgstr "Získat zdrojový kód"
 
-#: src/web/server/common/pages_voter.ml:932
-#. src/web/server/common/pages_voter.ml:899
-#. src/web/server/common/pages_voter.ml:796
-#. src/web/server/common/pages_voter.ml:763
+#: src/web/server/common/pages_voter.ml:810
+#. src/web/server/common/pages_voter.ml:777
+#. src/web/server/common/pages_voter.ml:711
 msgid "Go back to election"
 msgstr "Vrátit se k vyplňování hlasovacího lístku"
-
-#: src/web/server/common/pages_voter.ml:648
-msgid "I am "
-msgstr "Já jsem "
-
-#: src/web/server/common/pages_voter.ml:653
-msgid "I cast my vote"
-msgstr "odevzdávám svůj volební lístek"
 
 #: src/web/clients/tool/tool_js_booth.ml:231
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
@@ -389,34 +370,32 @@ msgstr ""
 "Pokud jste byli požádáni seřadit kandidáty (Condorcetova metoda, STV, …), "
 "použijte 1 pro vaši první volbu, 2 pro druhou atd."
 
-#: src/web/server/common/pages_voter.ml:790
+#: src/web/server/common/pages_voter.ml:705
 msgid "If you want to vote, you must "
 msgstr "Pokud chceš hlasovat, musíš "
 
-#: src/web/server/common/pages_voter.ml:1276
+#: src/web/server/common/pages_voter.ml:1154
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "V naší implementaci se v případě, že několik kandidátů má stejný počet hlasů "
 "v okamžiku, kdy mají být zvoleni nebo vyřazeni, řídíme pořadím, v jakém byli "
 "kandidáti uvedeni ve vyhlášení volby."
 
-#: src/web/server/common/pages_voter.ml:1148
+#: src/web/server/common/pages_voter.ml:1026
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr "V kontextu medoty většinového úsudku hlas oznámkuje každého kandidáta."
 
-#: src/web/server/common/pages_voter.ml:1205
+#: src/web/server/common/pages_voter.ml:1083
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr "V případě STV voliči řadí kandidáty dle svých preferencí."
 
-#: src/web/server/common/pages_voter.ml:1032
-#. src/web/server/common/pages_voter.ml:815
-#. src/web/server/common/pages_voter.ml:813
-#. src/web/server/common/pages_voter.ml:678
-#. src/web/server/common/pages_voter.ml:676
+#: src/web/server/common/pages_voter.ml:910
+#. src/web/server/common/pages_voter.ml:644
+#. src/web/server/common/pages_voter.ml:642
 msgid "Input credential"
 msgstr "Vložit přístupový kód"
 
-#: src/web/server/common/pages_voter.ml:1051
+#: src/web/server/common/pages_voter.ml:929
 msgid "Input your credential "
 msgstr "Vlož svůj přístupový kód "
 
@@ -424,7 +403,7 @@ msgstr "Vlož svůj přístupový kód "
 msgid "Invalid credential!"
 msgstr "Neplatný přístupový kód!"
 
-#: src/web/server/common/site_voter.ml:282
+#: src/web/server/common/site_voter.ml:232
 msgid "Invalid index for question."
 msgstr "Neplatný index otázky."
 
@@ -450,7 +429,7 @@ msgstr "Výsledky ve formátu JSON"
 msgid "Language:"
 msgstr "Jazyk:"
 
-#: src/web/server/common/pages_voter.ml:978
+#: src/web/server/common/pages_voter.ml:856
 msgid "Loading…"
 msgstr "Nahrávám…"
 
@@ -465,7 +444,7 @@ msgstr "Přihlásit se"
 msgid "Log in with %s"
 msgstr "Přihlásit se pomocí %s"
 
-#: src/web/server/common/pages_voter.ml:1280
+#: src/web/server/common/pages_voter.ml:1158
 msgid "Look at the raw events for more details."
 msgstr "Podívej se na neupravený záznam událostí pro více podrobností."
 
@@ -473,24 +452,24 @@ msgstr "Podívej se na neupravený záznam událostí pro více podrobností."
 msgid "Majority Judgment"
 msgstr "Většinové posouzení – Majority Judgment"
 
-#: src/web/server/common/pages_voter.ml:1182
-#. src/web/server/common/pages_voter.ml:1132
+#: src/web/server/common/pages_voter.ml:1060
+#. src/web/server/common/pages_voter.ml:1010
 msgid "Majority Judgment method"
 msgstr "Metoda většinového posouzení – Majority Judgment"
 
-#: src/web/server/common/pages_voter.ml:1274
+#: src/web/server/common/pages_voter.ml:1152
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Existuje mnoho variant systému STV, které se liší například způsobem, jak "
 "rozhodnout pat."
 
-#: src/web/server/common/pages_voter.ml:1212
+#: src/web/server/common/pages_voter.ml:1090
 msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
 "Existuje mnoho variant systému STV, a to, které jsme vybrali, popisujeme v "
 
-#: src/web/server/common/pages_voter.ml:1209
-#. src/web/server/common/pages_voter.ml:1156
+#: src/web/server/common/pages_voter.ml:1087
+#. src/web/server/common/pages_voter.ml:1034
 msgid "More information can be found "
 msgstr "Více informací nalezneš "
 
@@ -511,14 +490,6 @@ msgid "Note that you also need a credential, sent in a separate email, to start 
 msgstr ""
 "Provolbu potřebuješ také přístupový údaj, který se zasílá dalším e-mailem."
 
-#: src/web/server/common/pages_voter.ml:668
-msgid "Note: You have already voted. Your vote will be replaced."
-msgstr "Již jsi hlasoval/a. Tvůj původní hlasovací lístek bude nahrazen novým."
-
-#: src/web/server/common/pages_voter.ml:754
-msgid "Note: your ballot is encrypted and nobody can see its contents."
-msgstr "Tvůj volební lístek je zašifrován a nikdo nemůže vidět jeho obsah."
-
 #: src/web/clients/tool/tool_js_booth.ml:226
 msgid "Notes:"
 msgstr "Poznámky:"
@@ -527,11 +498,11 @@ msgstr "Poznámky:"
 msgid "Number of accepted ballots: "
 msgstr "Počet odevzdaných lístků: "
 
-#: src/web/server/common/pages_voter.ml:1138
+#: src/web/server/common/pages_voter.ml:1016
 msgid "Number of grades:"
 msgstr "Počet známek:"
 
-#: src/web/server/common/pages_voter.ml:1195
+#: src/web/server/common/pages_voter.ml:1073
 msgid "Number of seats:"
 msgstr "Počet křesel:"
 
@@ -572,10 +543,6 @@ msgstr "Prosím zadejte svůj přístupový kód:"
 msgid "Please find below your login and password for the election"
 msgstr "Níže jsou tvoje přihlašovací jméno a heslo k volbě"
 
-#: src/web/server/common/pages_voter.ml:659
-msgid "Please log in to confirm your vote."
-msgstr "Prosím přihlaste se pro potvrzení vaší volby."
-
 #: src/web/server/common/pages_common.ml:326
 msgid "Please log in:"
 msgstr "Prosím přihlaste se:"
@@ -586,23 +553,23 @@ msgstr ""
 "Prosím vlož data, ze kterých chceš spočítat jedinečný otisk, do textového "
 "pole níže:"
 
-#: src/web/server/common/pages_voter.ml:1166
+#: src/web/server/common/pages_voter.ml:1044
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
 "Zadejte prosím počet známek pro zobrazení výsledku voleb dle metody "
 "většinového úsudku."
 
-#: src/web/server/common/pages_voter.ml:1220
+#: src/web/server/common/pages_voter.ml:1098
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
 msgstr ""
 "Prosím uveď počet křesel, pokud chceš zobrazit výsledek voleb dle metody "
 "jednoho přenosného hlasu (STV)."
 
-#: src/web/server/common/pages_voter.ml:1071
+#: src/web/server/common/pages_voter.ml:949
 msgid "Please wait while your ballot is being encrypted…"
 msgstr "Prosím čekej, tvůj volební lístek je šifrován…"
 
-#: src/web/server/common/pages_voter.ml:977
+#: src/web/server/common/pages_voter.ml:855
 msgid "Please wait… "
 msgstr "Prosím čekejte... "
 
@@ -624,11 +591,11 @@ msgstr "Pravidla ochrany soukromí"
 msgid "Proceed"
 msgstr "Pokračovat"
 
-#: src/web/server/common/pages_voter.ml:1260
+#: src/web/server/common/pages_voter.ml:1138
 msgid "Raw events"
 msgstr "Nezpracovaný záznam události"
 
-#: src/web/server/common/pages_voter.ml:1075
+#: src/web/server/common/pages_voter.ml:953
 msgid "Restart"
 msgstr "Restart"
 
@@ -636,15 +603,13 @@ msgstr "Restart"
 msgid "Results will be published on the election page"
 msgstr "Výsledky budou zveřejněny na stránce volby"
 
-#: src/web/server/common/pages_voter.ml:1036
-#. src/web/server/common/pages_voter.ml:833
-#. src/web/server/common/pages_voter.ml:831
-#. src/web/server/common/pages_voter.ml:696
-#. src/web/server/common/pages_voter.ml:694
+#: src/web/server/common/pages_voter.ml:914
+#. src/web/server/common/pages_voter.ml:662
+#. src/web/server/common/pages_voter.ml:660
 msgid "Review and encrypt"
 msgstr "Ověřit a zašifrovat"
 
-#: src/web/server/common/pages_voter.ml:1016
+#: src/web/server/common/pages_voter.ml:894
 msgid "Save it to check that it is taken into account later."
 msgstr "Ulož si jej pro kontrolu, že tvůj hlas byl akceptován."
 
@@ -670,8 +635,8 @@ msgstr ""
 msgid "Single Transferable Vote"
 msgstr "Jeden přenosný hlas"
 
-#: src/web/server/common/pages_voter.ml:1236
-#. src/web/server/common/pages_voter.ml:1189
+#: src/web/server/common/pages_voter.ml:1114
+#. src/web/server/common/pages_voter.ml:1067
 msgid "Single Transferable Vote method"
 msgstr "metoda jednoho přenosného hlasu"
 
@@ -679,40 +644,35 @@ msgstr "metoda jednoho přenosného hlasu"
 msgid "Start"
 msgstr "Start"
 
-#: src/web/server/common/pages_voter.ml:816
-#. src/web/server/common/pages_voter.ml:679
+#: src/web/server/common/pages_voter.ml:645
 msgid "Step 1"
 msgstr "Krok 1"
 
-#: src/web/server/common/pages_voter.ml:1047
+#: src/web/server/common/pages_voter.ml:925
 msgid "Step 1/6: Input credential"
 msgstr "Krok 1 ze 6: Vložit přístupový kód"
 
-#: src/web/server/common/pages_voter.ml:825
-#. src/web/server/common/pages_voter.ml:688
+#: src/web/server/common/pages_voter.ml:654
 msgid "Step 2"
 msgstr "Krok 2"
 
-#: src/web/server/common/pages_voter.ml:1057
+#: src/web/server/common/pages_voter.ml:935
 msgid "Step 2/6: Answer to questions"
 msgstr "Krok 2 ze 6: Odpovědět na otázky"
 
-#: src/web/server/common/pages_voter.ml:834
-#. src/web/server/common/pages_voter.ml:697
+#: src/web/server/common/pages_voter.ml:663
 msgid "Step 3"
 msgstr "Krok 3"
 
-#: src/web/server/common/pages_voter.ml:1062
+#: src/web/server/common/pages_voter.ml:940
 msgid "Step 3/6: Review and encrypt"
 msgstr "Krok 3 ze 6: Ověřit a zašifrovat"
 
-#: src/web/server/common/pages_voter.ml:843
-#. src/web/server/common/pages_voter.ml:706
+#: src/web/server/common/pages_voter.ml:672
 msgid "Step 4"
 msgstr "Krok 4"
 
-#: src/web/server/common/pages_voter.ml:852
-#. src/web/server/common/pages_voter.ml:715
+#: src/web/server/common/pages_voter.ml:681
 msgid "Step 5"
 msgstr "Krok 5"
 
@@ -721,13 +681,13 @@ msgstr "Krok 5"
 msgid "Submit"
 msgstr "Zadat"
 
-#: src/web/server/common/pages_voter.ml:1278
+#: src/web/server/common/pages_voter.ml:1156
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Takoví kandidát jsou označeni jako „vítězové patu“ pokud jsou zvoleni a „"
 "poražení z patu“, pokud prohrají."
 
-#: src/web/server/common/pages_voter.ml:880
+#: src/web/server/common/pages_voter.ml:758
 msgid "Thank you for voting!"
 msgstr "Díky za tvůj hlas!"
 
@@ -735,7 +695,7 @@ msgstr "Díky za tvůj hlas!"
 msgid "The Schulze winners are:"
 msgstr "Vítězové Schulze jsou:"
 
-#: src/web/server/common/pages_voter.ml:1287
+#: src/web/server/common/pages_voter.ml:1165
 msgid "The Single Transferable Vote winners are:"
 msgstr "Vítězi volby jedním přenosným hlasem jsou:"
 
@@ -760,17 +720,17 @@ msgstr "Jedinečné otisky se neshodují!"
 msgid "The fingerprints match!"
 msgstr "Jedinečné otisky se shodují!"
 
-#: src/web/server/common/pages_voter.ml:1164
+#: src/web/server/common/pages_voter.ml:1042
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 "Počet různých známek (výborně, chvalitebně, dobře, atd.), běžně v rozmezí od "
 "5 do 7."
 
-#: src/web/server/common/site_voter.ml:330
+#: src/web/server/common/site_voter.ml:280
 msgid "The number of grades is invalid."
 msgstr "Počet známek je neplatný."
 
-#: src/web/server/common/site_voter.ml:355
+#: src/web/server/common/site_voter.ml:305
 msgid "The number of seats is invalid."
 msgstr "Počet křesel je neplatný."
 
@@ -784,7 +744,7 @@ msgstr ""
 "Výsledek této volby není v tuto chvíli veřejně dostupný. Bude zpřístupněn po "
 "tomto datumu: %s."
 
-#: src/web/server/common/site_voter.ml:272
+#: src/web/server/common/site_voter.ml:222
 msgid "The result of this election is not available."
 msgstr "Výsledek této volby není dostupný."
 
@@ -798,13 +758,13 @@ msgstr ""
 "Seznam voličů obsahuje tento počet voličů: %d. Jedinečný otisk seznamu "
 "voličů je: %s."
 
-#: src/web/server/common/pages_voter.ml:1154
+#: src/web/server/common/pages_voter.ml:1032
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
 "Vítězem je kandidát s nejvyšším mediánem (nebo s druhým nejvyšším mediánem, "
 "pokud došlo k patu atd.)."
 
-#: src/web/server/common/pages_voter.ml:1272
+#: src/web/server/common/pages_voter.ml:1150
 msgid "There has been at least one tie."
 msgstr "Došlo alespoň k jednomu patu."
 
@@ -832,12 +792,16 @@ msgstr "Tato volba je v tuto chvíli uzavřena."
 msgid "This election uses weights!"
 msgstr "Tato volba používá váhy!"
 
+#: src/web/server/common/pages_voter.ml:730
+msgid "This is a revote."
+msgstr ""
+
 #: src/web/clients/tool/tool_js_booth.ml:387
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 "Tohle vypadá jako heslo. Možná jsi ho zkopíroval(a) ze špatného e-mailu?"
 
-#: src/web/server/common/site_voter.ml:277
+#: src/web/server/common/site_voter.ml:227
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr "Otázka je homomorfní, tuto metodu na výsledek nelze uplatnit."
 
@@ -883,7 +847,7 @@ msgstr "Uživatelské jméno:"
 msgid "Value must be an integer between 0 and 255."
 msgstr "Hodnota musí být celé číslo mezi 0 a 255."
 
-#: src/web/server/common/pages_voter.ml:785
+#: src/web/server/common/pages_voter.ml:700
 msgid "Warning:"
 msgstr "Varování:"
 
@@ -904,7 +868,7 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Využívme zde Schulzeho metodu a voliče odkazujeme na "
 
-#: src/web/server/common/pages_voter.ml:1207
+#: src/web/server/common/pages_voter.ml:1085
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 "Když kandidát získá dostatek hlasů na zvolení, jeho hlasy jsou přeneseny k "
@@ -940,7 +904,7 @@ msgstr "Můžeš si také "
 msgid "You can also download the "
 msgstr "Můžeš si také stáhnout "
 
-#: src/web/server/common/pages_voter.ml:876
+#: src/web/server/common/pages_voter.ml:754
 msgid "You can check its presence in the "
 msgstr "Můžeš zkontrolovat jeho přítomnost ve "
 
@@ -971,16 +935,15 @@ msgstr ""
 msgid "You will find below your credential."
 msgstr "Svůj přístupový kód nalezneš níže."
 
-#: src/web/server/common/pages_voter.ml:893
-#. src/web/server/common/pages_voter.ml:742
+#: src/web/server/common/pages_voter.ml:771
 msgid "Your ballot for "
 msgstr "Váš volební lístek pro "
 
-#: src/web/server/common/pages_voter.ml:1007
+#: src/web/server/common/pages_voter.ml:885
 msgid "Your ballot has been encrypted, "
 msgstr "Tvůj volební lístek byl zašifrován, "
 
-#: src/web/server/common/site_voter.ml:110
+#: src/web/server/common/site_voter.ml:109
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr ""
 "Vypadá to, že vás prohlížeč blokuje cookies. Prosím povolte je, bez nich "
@@ -1004,9 +967,8 @@ msgstr "Tvé heslo pro volbu %s"
 msgid "Your smart ballot tracker is"
 msgstr "Tvůj kód pro kontrolu chytré volby je"
 
-#: src/web/server/common/pages_voter.ml:1012
-#. src/web/server/common/pages_voter.ml:871
-#. src/web/server/common/pages_voter.ml:745
+#: src/web/server/common/pages_voter.ml:890
+#. src/web/server/common/pages_voter.ml:749
 msgid "Your smart ballot tracker is "
 msgstr "Tvůj kód pro kontrolu chytré volby je "
 
@@ -1014,25 +976,24 @@ msgstr "Tvůj kód pro kontrolu chytré volby je "
 msgid "Your vote for election"
 msgstr "Tvůj hlasovací lístek pro volbu"
 
-#: src/web/server/common/site_voter.ml:147
+#: src/web/server/common/site_voter.ml:146
 msgid "Your vote for election %s"
 msgstr "Tvůj hlasovací lístek pro volbu %s"
 
-#: src/web/server/common/pages_voter.ml:787
+#: src/web/server/common/pages_voter.ml:702
 msgid "Your vote was not recorded!"
 msgstr "Tvůj hlasovací lístek nebyl zaznamenán!"
 
-#: src/web/server/common/pages_voter.ml:863
-#. src/web/server/common/pages_voter.ml:731
+#: src/web/server/common/pages_voter.ml:738
 #. src/web/server/common/mails_voter.ml:372
 msgid "Your weight is %s."
 msgstr "Tvá váha je %s."
 
-#: src/web/server/common/pages_voter.ml:877
+#: src/web/server/common/pages_voter.ml:755
 msgid "ballot box"
 msgstr "volební urně"
 
-#: src/web/server/common/pages_voter.ml:1008
+#: src/web/server/common/pages_voter.ml:886
 msgid "but not cast yet"
 msgstr "ale nebyl ještě vložen do volební urny"
 
@@ -1049,12 +1010,12 @@ msgid "has been recorded."
 msgstr "byl uložen."
 
 #: src/web/clients/tool/tool_js_booth.ml:377
-#. src/web/server/common/pages_voter.ml:1210
-#. src/web/server/common/pages_voter.ml:1157
+#. src/web/server/common/pages_voter.ml:1088
+#. src/web/server/common/pages_voter.ml:1035
 msgid "here"
 msgstr "zde"
 
-#: src/web/server/common/pages_voter.ml:1213
+#: src/web/server/common/pages_voter.ml:1091
 msgid "our code of STV"
 msgstr "našem kodexu STV"
 
@@ -1078,7 +1039,7 @@ msgstr "výsledek s kryptografickými důkazy"
 msgid "some proofs failed verification"
 msgstr "některé důkazy neprošly verifikací"
 
-#: src/web/server/common/pages_voter.ml:791
+#: src/web/server/common/pages_voter.ml:706
 msgid "start from the beginning"
 msgstr "začít od začátku"
 
