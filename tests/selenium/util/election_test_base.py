@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, printable_page_source
 from util.election_testing import random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.execution import console_log
-from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage, ResponsiveBoothStep1Page, ResponsiveBoothStep2Page, ResponsiveBoothStep3Page
+from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep6Page, BallotBoxPage, ResponsiveBoothStep1Page, ResponsiveBoothStep2Page, ResponsiveBoothStep3Page
 import settings
 
 
@@ -457,15 +457,6 @@ pris en compte.
 
         # He types his voter username and password, and submits the form
         login_page.log_in(voter["username"], voter["password"])
-
-        wait_a_bit()
-
-        # He verifies that he is now on step 5 and that page content is correct (page contains 'has been received, but not recorded yet'; page contains a ballot tracker which is the same as the one he noted; page contains voter's username)
-        step_5_page = NormalVoteStep5Page(browser, timeout)
-        step_5_page.verify_page(smart_ballot_tracker_value, voter["username"])
-
-        # He clicks on the "I cast my vote" button
-        step_5_page.click_on_i_cast_my_vote_button()
 
         wait_a_bit()
 

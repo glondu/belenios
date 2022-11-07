@@ -521,19 +521,12 @@ module type S = sig
      Eliom_service.non_ext, Eliom_service.reg, [ `WithoutSuffix ], unit,
      unit, Eliom_service.non_ocaml)
       Eliom_service.t
-  val election_cast_fallback :
-    (Web_serializable_t.uuid, unit, Eliom_service.get, Eliom_service.att,
-     Eliom_service.non_co, Eliom_service.non_ext, Eliom_service.reg,
-     [ `WithoutSuffix ],
-     [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name, unit,
-     Eliom_service.non_ocaml)
-      Eliom_service.t
   val election_cast_confirm :
-    (Web_serializable_t.uuid, unit, Eliom_service.post, Eliom_service.att,
-     Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
-     [ `WithoutSuffix ],
-     [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name, unit,
-     Eliom_service.non_ocaml)
+    (Web_serializable_t.uuid, unit, Eliom_service.get,
+     Eliom_service.att, Eliom_service.non_co, Eliom_service.non_ext,
+     Eliom_service.reg, [ `WithoutSuffix ],
+     [ `One of Web_serializable_t.uuid ]
+       Eliom_parameter.param_name, unit, Eliom_service.non_ocaml)
       Eliom_service.t
   val election_pretty_ballots :
     (Web_serializable_t.uuid * unit, unit, Eliom_service.get,

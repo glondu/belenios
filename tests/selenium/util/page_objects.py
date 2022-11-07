@@ -411,37 +411,6 @@ class ServerHomePage(VerifiablePage):
             button_elements[0].click()
 
 
-class NormalVoteStep5Page(NormalVoteGenericStepWithBallotTrackerPage, ClickableLogoPage):
-    expected_step_content = "Confirm"
-    current_step_css_selector = ResponsiveFrontendSelectors.current_step_css_selector
-
-
-    def verify_page_body(self, expected_ballot_tracker, expected_username):
-        step_5_parent_css_selector = "#main"
-        step_5_expected_success_content = "has been received, but not recorded yet"
-        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_5_parent_css_selector, step_5_expected_success_content, self.timeout)
-        self.verify_smart_ballot_tracker_value()
-        ballot_tracker_value = self.get_smart_ballot_tracker_value()
-        assert ballot_tracker_value == expected_ballot_tracker
-
-        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, step_5_parent_css_selector, expected_username, self.timeout)
-
-
-    def verify_page(self, expected_ballot_tracker, expected_username):
-        NormalVoteGenericStepWithBallotTrackerPage.verify_page(self)
-        self.verify_page_body(expected_ballot_tracker, expected_username)
-
-
-    def click_on_i_cast_my_vote_button(self):
-        i_cast_my_vote_button_label = "I cast my vote"
-        i_cast_my_vote_button_element = wait_for_an_element_exists_and_is_visible_and_attribute_contains_expected_text(self.browser, "input[type=submit]", "value", i_cast_my_vote_button_label, self.timeout)
-        i_cast_my_vote_button_element.click()
-
-
-    def click_on_go_back_to_election_link(self):
-        self.click_on_link_with_expected_label("Go back to election")
-
-
 class NormalVoteStep6Page(NormalVoteGenericStepWithBallotTrackerPage):
     expected_step_content = "Thank you for voting!"
 

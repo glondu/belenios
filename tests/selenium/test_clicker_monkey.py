@@ -7,7 +7,7 @@ import sys
 from urllib.parse import urljoin, urlsplit
 
 from util.election_testing import strtobool, wait_a_bit
-from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage
+from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep6Page, BallotBoxPage
 from util.monkeys import SeleniumClickerMonkey, SeleniumFormFillerMonkey
 from util.execution import console_log
 from test_fuzz_vote import BeleniosTestElectionWithCreationBase
@@ -157,22 +157,6 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionWithCreationBase):
 
         console_log("## Filling log in form and submitting it")
         login_page.log_in(settings.VOTER_USERNAME, settings.VOTER_PASSWORD)
-
-        console_log("## Verify that we are on step 5 and that page content is correct (page contains 'has been received, but not recorded yet'; page contains a ballot tracker which is the same as the one we noted; page contains voter's username)")
-        step_5_page = NormalVoteStep5Page(browser, timeout)
-        step_5_page.verify_page(step_3_smart_ballot_tracker_value, settings.VOTER_USERNAME)
-
-        # Here:
-        # We can click on the Belenios logo on the top-left of the screen
-        # We can click on a link in the footer
-        # We can click on the "I cast my vote" button
-        # We can click on the "Go back to election" link
-        # We can go back. This goes back to the Login page which immediately redirects to this same step 5 page.
-
-        console_log("Click on the 'I cast my vote' button")
-        step_5_page.click_on_i_cast_my_vote_button()
-
-        wait_a_bit()
 
         console_log("## Verify that we are on step 6 and that page content is correct (page contains 'has been accepted'; page contains a ballot tracker which is the same as the one we noted)")
         step_6_page = NormalVoteStep6Page(browser, timeout)

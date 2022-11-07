@@ -28,7 +28,6 @@ module type S = sig
 
   val election_home : (module Site_common_sig.ELECTION_LWT) -> election_state -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val cast_raw : (module Site_common_sig.ELECTION_LWT) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val cast_confirmation : (module Site_common_sig.ELECTION_LWT) -> string -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val lost_ballot : (module Site_common_sig.ELECTION_LWT) -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val cast_confirmed : (module Site_common_sig.ELECTION_LWT) -> result:(user * string * bool * Weight.t * bool, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val pretty_ballots : (module Site_common_sig.ELECTION_LWT) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

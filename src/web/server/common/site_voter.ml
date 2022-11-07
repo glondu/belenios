@@ -152,17 +152,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       (fun _ -> Lwt.return false)
 
   let () =
-    Any.register ~service:election_cast_fallback
-      (fun uuid () ->
-        let@ election = with_election uuid in
-        let* ballot = Eliom_reference.get Web_state.ballot in
-        (match ballot with
-         | Some b -> Pages_voter.cast_confirmation election (sha256_b64 b) () >>= Html.send
-         | None -> Pages_voter.lost_ballot election () >>= Html.send
-        )
-      )
-
-  let () =
     Any.register ~service:election_cast_confirm
       (fun uuid () ->
         let@ election = with_election uuid in

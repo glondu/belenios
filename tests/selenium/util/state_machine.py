@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 from util.monkeys import SeleniumFormFillerMonkey, StateForSmartMonkey
-from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep5Page, NormalVoteStep6Page, BallotBoxPage, UnauthorizedPage, ServerHomePage, AdvancedModeVotePage, LoginFailedPage
+from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep6Page, BallotBoxPage, UnauthorizedPage, ServerHomePage, AdvancedModeVotePage, LoginFailedPage
 from util.execution import console_log
 
 
@@ -165,7 +165,7 @@ class NormalVoteLoginPageState(StateForSmartMonkey):
             self.page.click_on_login_button()
             if self.form_is_filled_with_correct_data:
                 in_memory["voter_has_logged_in"] = True
-                return NormalVoteStep5PageState(self.browser, self.timeout, NormalVoteLoginPageState)
+                return NormalVoteStep6PageState(self.browser, self.timeout, NormalVoteLoginPageState)
             else:
                 return LoginFailedPageState(self.browser, self.timeout, NormalVoteLoginPageState)
 
@@ -177,38 +177,6 @@ class NormalVoteLoginPageState(StateForSmartMonkey):
             fill_form_with_wrong_data,
             fill_form_with_correct_data,
             click_on_login_button,
-            click_on_logo_image,
-        ]
-
-
-class NormalVoteStep5PageState(StateForSmartMonkey):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.page = NormalVoteStep5Page(self.browser, self.timeout)
-
-
-    def verify_page(self, in_memory):
-        console_log("NormalVoteStep5PageState::verify_page()")
-        return self.page.verify_page(in_memory["voter_temporary_smart_ballot_tracker"], in_memory["voter_username"])
-
-
-    def get_all_possible_actions(self):
-        def click_on_i_cast_my_vote_button(in_memory=None):
-            self.page.click_on_i_cast_my_vote_button()
-            in_memory["voter_validated_smart_ballot_tracker"] = in_memory["voter_temporary_smart_ballot_tracker"]
-            return NormalVoteStep6PageState(self.browser, self.timeout)
-
-        def click_on_go_back_to_election_link(in_memory=None):
-            self.page.click_on_go_back_to_election_link()
-            return ElectionHomePageState(self.browser, self.timeout, NormalVoteStep5PageState)
-
-        def click_on_logo_image(in_memory=None):
-            self.page.click_on_logo_image()
-            return ServerHomePageState(self.browser, self.timeout, NormalVoteStep5PageState)
-
-        return [
-            click_on_i_cast_my_vote_button,
-            click_on_go_back_to_election_link,
             click_on_logo_image,
         ]
 

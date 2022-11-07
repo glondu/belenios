@@ -47,7 +47,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
   let get_cont login_or_logout x =
     let open Eliom_registration in
     let redir = match x with
-      | `Election uuid -> Redirection (preapply ~service:election_cast_fallback uuid)
+      | `Election uuid -> Redirection (preapply ~service:election_cast_confirm uuid)
       | `Site ContSiteHome -> Redirection home
       | `Site ContSiteAdmin -> Redirection admin
       | `Site (ContSiteElection uuid) ->
