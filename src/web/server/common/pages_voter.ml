@@ -633,6 +633,57 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let full_title = params.e_name in
     responsive_base ~full_title ~title ~content ~uuid ~footer ()
 
+  let progress_responsive_step5 l =
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
+    div ~a:[a_class ["breadcrumb"]; a_style "padding-top: 0;"] [
+        div ~a:[a_class ["breadcrumb__step-separator"]] [];
+        div ~a:[a_class ["breadcrumb__step"]] [
+            span ~a:[a_class ["breadcrumb__step__title"]] [
+                txt (s_ "Input credential");
+              ];
+            span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Input credential")] [
+                txt (s_ "Step 1");
+              ];
+          ];
+        div ~a:[a_class ["breadcrumb__step-separator"]] [];
+        div ~a:[a_class ["breadcrumb__step"]] [
+            span ~a:[a_class ["breadcrumb__step__title"]] [
+                txt (s_ "Answer to questions");
+              ];
+            span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Answer to questions")] [
+                txt (s_ "Step 2");
+              ];
+          ];
+        div ~a:[a_class ["breadcrumb__step-separator"]] [];
+        div ~a:[a_class ["breadcrumb__step"]] [
+            span ~a:[a_class ["breadcrumb__step__title"]] [
+                txt (s_ "Review and encrypt");
+              ];
+            span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Review and encrypt")] [
+                txt (s_ "Step 3");
+              ];
+          ];
+        div ~a:[a_class ["breadcrumb__step-separator"]] [];
+        div ~a:[a_class ["breadcrumb__step"]] [
+            span ~a:[a_class ["breadcrumb__step__title"]] [
+                txt (s_ "Authenticate");
+              ];
+            span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Authenticate")] [
+                txt (s_ "Step 4");
+              ];
+          ];
+        div ~a:[a_class ["breadcrumb__step-separator"]] [];
+        div ~a:[a_class ["breadcrumb__step breadcrumb__step--current"]] [
+            span ~a:[a_class ["breadcrumb__step__title"]] [
+                txt (s_ "Confirm");
+              ];
+            span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Confirm")] [
+                txt (s_ "Step 5");
+              ];
+          ];
+        div ~a:[a_class ["breadcrumb__step-separator"]] [];
+      ]
+
   let cast_confirmation election hash () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -669,54 +720,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          else
            return @@ txt ""
     in
-    let progress_responsive = div ~a:[a_class ["breadcrumb"]; a_style "padding-top: 0;"] [
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Input credential");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Input credential")] [
-                                          txt (s_ "Step 1");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Answer to questions");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Answer to questions")] [
-                                          txt (s_ "Step 2");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Review and encrypt");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Review and encrypt")] [
-                                          txt (s_ "Step 3");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Authenticate");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Authenticate")] [
-                                          txt (s_ "Step 4");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step breadcrumb__step--current"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Confirm");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Confirm")] [
-                                          txt (s_ "Step 5");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                ] in
     let* div_weight =
       let* audit_cache = Web_persist.get_audit_cache uuid in
       match audit_cache.cache_checksums.ec_weights with
@@ -737,7 +740,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | _ -> return @@ txt ""
     in
     let content = [
-        progress_responsive;
+        progress_responsive_step5 l;
         p [
             txt (s_ "Your ballot for ");
             em (txt_br name);
@@ -806,54 +809,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let open (val election : Site_common_sig.ELECTION_LWT) in
     let uuid = election.e_uuid in
     let name = election.e_name in
-    let progress_responsive = div ~a:[a_class ["breadcrumb"]; a_style "padding-top: 0;"] [
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Input credential");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Input credential")] [
-                                          txt (s_ "Step 1");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Answer to questions");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Answer to questions")] [
-                                          txt (s_ "Step 2");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Review and encrypt");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Review and encrypt")] [
-                                          txt (s_ "Step 3");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Authenticate");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Authenticate")] [
-                                          txt (s_ "Step 4");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                  div ~a:[a_class ["breadcrumb__step breadcrumb__step--current"]] [
-                                      span ~a:[a_class ["breadcrumb__step__title"]] [
-                                          txt (s_ "Confirm");
-                                        ];
-                                      span ~a:[a_class ["breadcrumb__step__short-title"]; a_title (s_ "Confirm")] [
-                                          txt (s_ "Step 5");
-                                        ];
-                                    ];
-                                  div ~a:[a_class ["breadcrumb__step-separator"]] [];
-                                ] in
     let result, step_title =
       match result with
       | Ok (hash, weight, email) ->
@@ -885,7 +840,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          ], s_ "FAIL!"
     in
     let content = [
-        progress_responsive;
+        progress_responsive_step5 l;
         div ~a:[a_class ["current_step"]] [
             txt step_title;
           ];
