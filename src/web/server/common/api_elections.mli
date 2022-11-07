@@ -62,4 +62,4 @@ val direct_voter_auth : (uuid -> Yojson.Safe.t -> user Lwt.t) ref
 val cast_ballot :
   (uuid -> bool -> string -> string -> weight option -> string -> bool Lwt.t) ->
   (module Site_common_sig.ELECTION_LWT) -> rawballot:string -> user:user ->
-  (string * weight * bool) Lwt.t
+  (user * string * bool * weight * bool) Lwt.t

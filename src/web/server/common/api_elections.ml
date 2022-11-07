@@ -542,11 +542,11 @@ let cast_ballot send_confirmation election ~rawballot ~user =
       ) voters
   in
   let oweight = if show_weight then Some weight else None in
-  let user = string_of_user user in
+  let user_s = string_of_user user in
   let* state = Web_persist.get_election_state uuid in
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
-  let* r = Web_persist.cast_ballot election ~rawballot ~user ~weight (now ()) in
+  let* r = Web_persist.cast_ballot election ~rawballot ~user:user_s ~weight (now ()) in
   match r with
   | Ok (hash, revote) ->
      let* success = send_confirmation uuid revote login email oweight hash in
@@ -555,7 +555,7 @@ let cast_ballot send_confirmation election ~rawballot ~user =
          Printf.ksprintf Ocsigen_messages.accesslog
            "Someone revoted in election %s" (raw_string_of_uuid uuid)
      in
-     Lwt.return (hash, weight, success)
+     Lwt.return (user, hash, revote, weight, success)
   | Error e ->
      fail (CastError e)
 

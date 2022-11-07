@@ -811,7 +811,15 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let name = election.e_name in
     let result, step_title =
       match result with
-      | Ok (hash, weight, email) ->
+      | Ok (user, hash, revote, weight, email) ->
+         let this_is_a_revote =
+           if revote then (
+             span [
+                 txt @@ s_ "This is a revote.";
+                 txt " ";
+               ]
+           ) else txt ""
+         in
          let your_weight_is =
            if not Weight.(is_int weight 1) then
              span [
@@ -820,8 +828,11 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                ]
            else txt ""
          in
-         [txt (s_ " has been accepted.");
+         [txt (s_ " as user ");
+          em [txt user.user_name];
+          txt (s_ " has been accepted.");
           txt " ";
+          this_is_a_revote;
           your_weight_is;
           txt (s_ "Your smart ballot tracker is ");
           b ~a:[a_id "ballot_tracker"] [
