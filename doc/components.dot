@@ -1,0 +1,31 @@
+digraph components {
+    Belenios_platform [label="Belenios_platform\n(src/platform)"];
+    Belenios_core [label="Belenios_core\n(src/lib/core)"];
+    Belenios_v0 [label="Belenios_v0\n(src/lib/v0)"];
+    Belenios_v1 [label="Belenios_v1\n(src/lib/v1)"];
+    Belenios [label="Belenios\n(src/lib/shell)"];
+    Belenios_api [label="Belenios_api\n(src/common/api)"];
+    Belenios_tool_common [label="Belenios_tool_common\n(src/common/tool)"];
+    "belenios-server" [label="belenios-server\n(src/web/server)"];
+    "belenios-tool" [label="belenios-tool\n(src/tool)"];
+    "belenios_jslib.js" [label="belenios_jslib.js\n(src/web/clients/jslib)"];
+    "tool_js_*.js" [label="tool_js_*.js\n(src/web/clients/tool)"];
+    "admin.html" [label="admin.html\n(src/web/clients/basic)"];
+    "new booth" [label="new booth\n(frontend)"];
+    Belenios_core -> Belenios_platform;
+    Belenios -> Belenios_v0;
+    Belenios -> Belenios_v1;
+    Belenios_v0 -> Belenios_core;
+    Belenios_v1 -> Belenios_core;
+    Belenios_tool_common -> Belenios;
+    Belenios_api -> Belenios;
+    "belenios-tool" -> Belenios_tool_common;
+    "admin.html" -> Belenios_api;
+    "tool_js_*.js" -> Belenios_tool_common;
+    "belenios_jslib.js" -> Belenios;
+    "belenios-server" -> Belenios_api;
+    "new booth" -> "belenios_jslib.js";
+    "belenios-server" -> "tool_js_*.js" [style=dashed];
+    "belenios-server" -> "admin.html" [style=dashed];
+    "belenios-server" -> "new booth" [style=dashed];
+}
