@@ -580,15 +580,11 @@ module Credgen : CMDLINER_MODULE = struct
     | `Derive c ->
        print_endline (R.derive c)
     | `Generate ids ->
-       let privs, pubs = R.generate ids in
-       let privs =
-         List.combine ids privs
-         |> List.map (fun (id, priv) -> id ^ " " ^ priv)
-       in
+       let c = R.generate ids in
        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
        let base = dir // timestamp in
-       save params_priv base (as_lines privs);
-       save params_pub base (as_public_credentials pubs)
+       save params_priv base (as_lines c.priv);
+       save params_pub base (as_public_credentials c.public_with_ids)
 
   let count_t =
     let doc = "Generate $(docv) credentials." in
@@ -745,7 +741,12 @@ module Events : CMDLINER_MODULE = struct
     let@ () = wrap_main in
     let election = string_of_file election in
     let trustees = string_of_file trustees in
-    let public_creds = string_of_file public_creds in
+    let public_creds =
+      string_of_file public_creds
+      |> public_credentials_of_string
+      |> List.map strip_cred
+      |> string_of_public_credentials
+    in
     let file =
       let election = Election.of_string election in
       dir // raw_string_of_uuid election.e_uuid ^ ".bel"

@@ -244,6 +244,7 @@ let delete_sensitive_data uuid =
   let* () = cleanup_file (uuid /// "partial_decryptions.json") in
   let* () = cleanup_file (uuid /// "extended_records.jsons") in
   let* () = cleanup_file (uuid /// "credential_mappings.jsons") in
+  let* () = cleanup_file (uuid /// "public_creds.json") in
   let* () = rmdir (uuid /// "ballots") in
   let* () = cleanup_file (uuid /// "ballots_index.json") in
   let* () = cleanup_file (uuid /// "private_key.json") in

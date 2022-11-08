@@ -415,28 +415,47 @@ let submit_public_credentials uuid se credentials =
   let () = if se.se_voters = [] then raise (Error "No voters") in
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
-  let weights =
-    List.fold_left
-      (fun (i, weights) x ->
-        try
-          let x, w = extract_weight x in
-          let x = G.of_string x in
-          if not (G.check x) then raise Exit;
-          i + 1, w :: weights
-        with _ ->
-          raise (Error (Printf.sprintf "invalid credential at index %d" i))
-      ) (0, []) credentials
-    |> (fun (_, weights) -> List.sort Weight.compare weights)
-  in
-  let expected_weights =
+  let usernames =
     List.fold_left
       (fun accu {sv_id; _} ->
-        let _, _, weight = split_identity sv_id in
-        weight :: accu
-      ) [] se.se_voters
-    |> List.sort Weight.compare
+        let _, username, weight = split_identity sv_id in
+        if SMap.mem username accu then (
+          raise (Error (Printf.sprintf "duplicate username %s" username))
+        ) else (
+          SMap.add username (weight, ref false) accu
+        )
+      ) SMap.empty se.se_voters
   in
-  if weights <> expected_weights then raise (Error "discrepancy in weights");
+  let _ =
+    List.fold_left
+      (fun i x ->
+        let invalid fmt =
+          Printf.ksprintf
+            (fun x ->
+              raise (Error (Printf.sprintf "invalid %s at index %d" x i))
+            ) fmt
+        in
+        let cred, weight, username =
+          match String.split_on_char ',' x with
+          | [c; ""; u] -> G.of_string c, Weight.one, u
+          | [c; w; u] -> G.of_string c, Weight.of_string w, u
+          | _ -> invalid "record"
+        in
+        let () =
+          match SMap.find_opt username usernames with
+          | None -> invalid "username %s" username
+          | Some (w, used) ->
+             if !used then
+               invalid "duplicate username %s" username
+             else if Weight.compare w weight <> 0 then
+               invalid "differing weight"
+             else if not (G.check cred) then
+               invalid "public credential"
+             else used := true
+        in
+        i + 1
+      ) 0 credentials
+  in
   let credentials = string_of_public_credentials credentials in
   let* () = write_file ~uuid "public_creds.json" [credentials] in
   se.se_public_creds_received <- true;
@@ -864,14 +883,14 @@ let validate_election uuid se =
   let* () = create_file "voters.txt" (fun x -> x.sv_id) se.se_voters in
   let* () = create_file "metadata.json" string_of_metadata [metadata] in
   (* initialize credentials *)
-  let* public_creds, public_creds_file =
+  let* public_creds =
     let fname = uuid /// "public_creds.json" in
     let* file = read_file_single_line fname in
     match file with
     | Some x ->
-       let x = public_credentials_of_string x in
+       let x = public_credentials_of_string x |> List.map strip_cred in
        let* () = Web_persist.init_credential_mapping uuid x in
-       Lwt.return (x, fname)
+       Lwt.return x
     | None -> Lwt.fail @@ Failure "no public credentials"
   in
   (* initialize events *)
@@ -908,7 +927,6 @@ let validate_election uuid se =
   in
   (* clean up draft *)
   let* () = cleanup_file (uuid /// "draft.json") in
-  let* () = cleanup_file public_creds_file in
   (* clean up private credentials, if any *)
   let* () = cleanup_file (uuid /// "private_creds.txt") in
   let* () = cleanup_file (uuid /// "private_creds.downloaded") in

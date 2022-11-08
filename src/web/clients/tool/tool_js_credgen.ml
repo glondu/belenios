@@ -51,16 +51,11 @@ let generate uuid draft =
     let group = draft.draft_group
   end in
   let module X = Make (P) (LwtJsRandom) () in
-  let* privs, pubs = X.generate ids in
-  let privs =
-    List.combine ids privs
-    |> List.map (fun (id, priv) -> id ^ " " ^ priv)
-  in
-  let text_pks = string_of_public_credentials pubs in
-  set_textarea "pks" text_pks;
-  let hash = sha256_b64 text_pks in
+  let* c = X.generate ids in
+  set_textarea "pks" (string_of_public_credentials c.public_with_ids);
+  let hash = sha256_b64 (string_of_public_credentials c.public) in
   set_content "public_creds_fp" hash;
-  let text_creds = (privs |> String.concat "\n") ^ "\n" in
+  let text_creds = (c.priv |> String.concat "\n") ^ "\n" in
   set_download "creds" "text/plain" "creds.txt" text_creds;
   set_download "voters_txt" "text/plain" "voters.txt" raw;
   set_element_display "submit_form" "inline";

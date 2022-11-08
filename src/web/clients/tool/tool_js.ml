@@ -151,15 +151,11 @@ module Credgen = struct
       let group = get_textarea "election_group"
     end in
     let module X = Make (P) (LwtJsRandom) () in
-    let* privs, pubs = X.generate ids in
-    let privs =
-      List.combine ids privs
-      |> List.map (fun (id, priv) -> id ^ " " ^ priv)
-    in
+    let* c = X.generate ids in
     set_textarea "credgen_generated_creds"
-      (privs |> String.concat "\n");
+      (c.priv |> String.concat "\n");
     set_textarea "credgen_generated_pks"
-      (pubs |> String.concat "\n");
+      (c.public_with_ids |> String.concat "\n");
     Lwt.return_unit
 
   let generate_n () =

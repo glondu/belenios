@@ -92,5 +92,6 @@ end
 
 val split_on_br : string -> string list
 val split_lines : string -> string list
+val strip_cred : string -> string
 
 val supported_crypto_versions : int list

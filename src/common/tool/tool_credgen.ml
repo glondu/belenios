@@ -30,10 +30,17 @@ module type PARAMS = sig
   val group : string
 end
 
+type credentials =
+  {
+    priv : string list;
+    public : string list;
+    public_with_ids : string list;
+  }
+
 module type S = sig
   type 'a m
   val derive : string -> string
-  val generate : string list -> (string list * string list) m
+  val generate : string list -> credentials m
 end
 
 module Make (P : PARAMS) (M : RANDOM) () = struct
@@ -69,7 +76,8 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
     let* privs, pubs =
       monadic_fold_left
         (fun (privs, pubs) id ->
-          let _, _, weight = split_identity_opt id in
+          let address, username, weight = split_identity_opt id in
+          let username = Option.value ~default:address username in
           let weight =
             match weight with
             | None -> Weight.one
@@ -77,16 +85,27 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
           in
           let* priv = CG.generate () in
           M.return (
-              priv :: privs,
-              CredSet.add (derive_in_group priv) weight pubs
+              (id ^ " " ^ priv) :: privs,
+              CredSet.add (derive_in_group priv) (weight, username) pubs
             )
         ) ([], CredSet.empty) ids
     in
-    let serialize (e, w) =
+    let serialize (e, (w, id)) =
+      G.to_string e
+      ^ (if !implicit_weights then "," else Printf.sprintf ",%s" (Weight.to_string w))
+      ^ Printf.sprintf ",%s" id
+    in
+    let serialize_public (e, (w, _)) =
       G.to_string e
       ^ (if !implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
     in
-    M.return (List.rev privs, (CredSet.bindings pubs |> List.map serialize))
+    let bindings = CredSet.bindings pubs in
+    M.return
+      {
+        priv = List.rev privs;
+        public = List.map serialize_public bindings;
+        public_with_ids = List.map serialize bindings;
+      }
 
 end
 

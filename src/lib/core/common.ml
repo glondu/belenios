@@ -299,4 +299,11 @@ let split_lines str =
     ) else List.rev accu
   in loop [] 0
 
+let strip_cred x =
+  match String.split_on_char ',' x with
+  | [_] | [_; _] -> x
+  | [x; ""; _] -> x
+  | [x; y; _] -> Printf.sprintf "%s,%s" x y
+  | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
+
 let supported_crypto_versions = [1]
