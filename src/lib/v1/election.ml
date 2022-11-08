@@ -224,6 +224,12 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
              | None -> M.return None
              | Some user -> B.get_user_record user
            in
+           let@ () = fun cont ->
+             match cr.cr_username, Option.map B.get_username user with
+             | Some x, Some y when x = y -> cont ()
+             | None, _ -> cont ()
+             | _ -> M.return (Error `WrongCredential)
+           in
            match user_record, cr.cr_ballot with
            | None, (None as x) -> M.return (Ok x)
            | None, Some _ -> M.return (Error `UsedCredential)

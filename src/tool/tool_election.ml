@@ -223,12 +223,13 @@ module Make (P : PARAMS) () = struct
            let get_credential_record c =
              match SMap.find_opt c creds with
              | None -> M.return None
-             | Some (cr_weight, old) -> M.return (Some {cr_ballot = !old; cr_weight})
+             | Some (cr_weight, old) -> M.return (Some {cr_ballot = !old; cr_weight; cr_username = Some c})
            let get_user_record user =
              match SMap.find_opt user creds with
              | None -> M.return None
              | Some (_, old) when !old = None -> M.return None
              | _ -> M.return (Some user)
+           let get_username user = user
          end
        in
        let module B = E.CastBallot (X) in

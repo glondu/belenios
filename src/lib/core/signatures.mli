@@ -86,6 +86,7 @@ type ballot_id = string
 type credential_record = {
     cr_ballot : ballot_id option;
     cr_weight : weight;
+    cr_username : string option;
 }
 
 module type BBOX_OPS = sig
@@ -98,6 +99,9 @@ module type BBOX_OPS = sig
   (** Returns the credential used in previous ballot of given user, if
      any. *)
   val get_user_record : user -> string option m
+
+  (** Extracts the username from a user. *)
+  val get_username : user -> string
 end
 
 module type BBOX = sig

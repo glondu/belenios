@@ -605,12 +605,18 @@ let get_passwords uuid =
               ) SMap.empty csv in
   return_some res
 
-module CredWeightsCacheTypes = struct
+type cred_cache =
+  {
+    weight : Weight.t;
+    username : string option;
+  }
+
+module CredCacheTypes = struct
   type key = uuid
-  type value = Weight.t SMap.t
+  type value = cred_cache SMap.t
 end
 
-module CredWeightsCache = Ocsigen_cache.Make (CredWeightsCacheTypes)
+module CredCache = Ocsigen_cache.Make (CredCacheTypes)
 
 let get_public_creds uuid =
   let* x = get_from_setup_data uuid (fun x -> x.setup_credentials) in
@@ -618,33 +624,55 @@ let get_public_creds uuid =
   | None -> assert false
   | Some x -> return @@ public_credentials_of_string x
 
-let raw_get_credential_weights uuid =
-  let* x = get_public_creds uuid in
-  List.fold_left
-    (fun accu x ->
-      let x, w = extract_weight x in
-      SMap.add x w accu
-    ) SMap.empty x
-  |> return
+let raw_get_credential_cache uuid =
+  let* x = read_file_single_line ~uuid "public_creds.json" in
+  match x with
+  | None ->
+     let* x = get_public_creds uuid in
+     List.fold_left
+       (fun accu x ->
+         let x, weight = extract_weight x in
+         SMap.add x {weight; username = None} accu
+       ) SMap.empty x
+     |> return
+  | Some x ->
+     let x = public_credentials_of_string x in
+     List.fold_left
+       (fun accu x ->
+         let cred, weight, username =
+           match String.split_on_char ',' x with
+           | [x] -> x, Weight.one, None
+           | [x; y] -> x, Weight.of_string y, None
+           | [x; ""; z] -> x, Weight.one, Some z
+           | [x; y; z] -> x, Weight.of_string y, Some z
+           | _ -> assert false
+         in
+         SMap.add cred {weight; username} accu
+       ) SMap.empty x
+     |> return
 
-let credential_weights_cache =
-  new CredWeightsCache.cache raw_get_credential_weights ~timer:3600. 10
+let credential_cache =
+  new CredCache.cache raw_get_credential_cache ~timer:3600. 10
 
-let get_credential_weight uuid cred =
+let get_credential_cache uuid cred =
   Lwt.catch
     (fun () ->
-      let* xs = credential_weights_cache#find uuid in
+      let* xs = credential_cache#find uuid in
       return @@ SMap.find cred xs
     )
     (fun _ ->
       Lwt.fail
         (Failure
            (Printf.sprintf
-              "could not find weight of %s/%s"
+              "could not find credential record of %s/%s"
               (raw_string_of_uuid uuid) cred
            )
         )
     )
+
+let get_credential_weight uuid cred =
+  let* x = get_credential_cache uuid cred in
+  Lwt.return x.weight
 
 let get_ballot_weight election ballot =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
@@ -938,6 +966,10 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
   let module X =
     struct
       type user = string
+      let get_username user =
+        match String.index_opt user ':' with
+        | None -> user
+        | Some i -> String.sub user (i + 1) (String.length user - i - 1)
       let get_user_record user =
         let* x = find_extended_record uuid user in
         let&* _, old_credential = x in
@@ -945,8 +977,8 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
       let get_credential_record credential =
         let* cr_ballot = find_credential_mapping uuid credential in
         let&* cr_ballot in
-        let* cr_weight = get_credential_weight uuid credential in
-        return_some {cr_ballot; cr_weight}
+        let* c = get_credential_cache uuid credential in
+        return_some {cr_ballot; cr_weight = c.weight; cr_username = c.username}
     end
   in
   let module B = W.E.CastBallot (X) in
