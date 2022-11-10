@@ -380,7 +380,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                        div [
                            txt (s_ "You can also download the ");
                            a ~service:election_dir
-                             [txt (s_ "result with cryptographic proofs")]
+                             [txt (s_ "raw result")]
                              (uuid, ESResult);
                            txt ".";
                          ];
