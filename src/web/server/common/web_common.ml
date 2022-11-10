@@ -161,7 +161,6 @@ let get_election_home_url uuid =
 type election_file =
   | ESArchive of uuid
   | ESRaw
-  | ESTrustees
   | ESVoters
   | ESRecords
   | ESETally
@@ -169,7 +168,6 @@ type election_file =
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
-  | "trustees.json" -> ESTrustees
   | "records" -> ESRecords
   | "voters.txt" -> ESVoters
   | "encrypted_tally.json" -> ESETally
@@ -182,7 +180,6 @@ let election_file_of_string = function
 let string_of_election_file = function
   | ESArchive x -> raw_string_of_uuid x ^ ".bel"
   | ESRaw -> "election.json"
-  | ESTrustees -> "trustees.json"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"
   | ESETally -> "encrypted_tally.json"

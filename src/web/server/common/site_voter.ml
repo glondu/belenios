@@ -310,14 +310,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
 
   let content_type_of_file = function
     | ESRaw -> "application/json; charset=utf-8"
-    | ESTrustees | ESETally | ESResult -> "application/json"
+    | ESETally | ESResult -> "application/json"
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
   let handle_pseudo_file uuid f site_user =
     let* confidential =
       match f with
-      | ESRaw | ESTrustees | ESETally | ESArchive _ -> return false
+      | ESRaw | ESETally | ESArchive _ -> return false
       | ESRecords | ESVoters -> return true
       | ESResult ->
          let* hidden = Web_persist.get_election_result_hidden uuid in
@@ -354,15 +354,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
            | None -> fail_http `Not_found
-         end
-      | ESTrustees ->
-         begin
-           Lwt.catch
-             (fun () ->
-               let* x = Web_persist.get_trustees uuid in
-               let* x = String.send (x, content_type) in
-               return @@ cast_unknown_content_kind x
-             ) (fun _ -> fail_http `Not_found)
          end
       | ESResult ->
          begin

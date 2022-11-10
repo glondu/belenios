@@ -57,8 +57,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
                               txt (s_ "parameters")
                             ] ();
                           txt ", ";
-                          a ~service:(file uuid ESTrustees) [txt (s_ "trustees")] ();
-                          txt ", ";
                           a ~service:(file uuid (ESArchive uuid)) [
                               txt (s_ "public data")
                             ] ();

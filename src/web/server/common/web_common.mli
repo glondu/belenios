@@ -61,7 +61,6 @@ val get_election_home_url : uuid -> string
 type election_file =
   | ESArchive of uuid
   | ESRaw
-  | ESTrustees
   | ESVoters
   | ESRecords
   | ESETally
