@@ -34,6 +34,7 @@ module Make () = struct
   let logout = create ~path:(Path ["logout"]) ~meth:(Get (site_cont "cont")) ()
 
   let source_code = create ~path:(Path ["belenios.tar.gz"]) ~meth:(Get unit) ()
+  let sealing = create ~path:(Path ["SEALING"]) ~meth:(Get unit) ()
 
   let election_draft_new = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** opt (string "cas_server")) ()
   let election_draft_pre = create ~path:(Path ["draft"; "new"]) ~meth:(Get unit) ()

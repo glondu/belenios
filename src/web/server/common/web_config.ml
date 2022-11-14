@@ -34,6 +34,7 @@ let warning_file = ref None
 let footer_file = ref None
 let admin_home = ref None
 let source_file = ref "belenios.tar.gz"
+let sealing = ref None
 let maxmailsatonce = ref 1000
 let uuid_length = ref None
 let default_group = ref ""

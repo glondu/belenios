@@ -121,6 +121,18 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         return cont
       )
 
+  let () =
+    Any.register ~service:sealing
+      (fun () () ->
+        let* site_user = Eliom_reference.get Web_state.site_user in
+        match site_user with
+        | None -> forbidden ()
+        | Some _ ->
+           match !Web_config.sealing with
+           | Some (file, content_type) -> File.send ~content_type file
+           | None -> fail_http `Not_found
+      )
+
   let () = Html.register ~service:admin
              (fun () () ->
                let* site_user = Eliom_reference.get Web_state.site_user in

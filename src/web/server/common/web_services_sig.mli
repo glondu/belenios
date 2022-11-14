@@ -62,6 +62,11 @@ module type S = sig
      Eliom_service.non_ext, Eliom_service.reg, [ `WithoutSuffix ], unit,
      unit, Eliom_service.non_ocaml)
       Eliom_service.t
+  val sealing :
+    (unit, unit, Eliom_service.get, Eliom_service.att, Eliom_service.non_co,
+     Eliom_service.non_ext, Eliom_service.reg, [ `WithoutSuffix ], unit,
+     unit, Eliom_service.non_ocaml)
+      Eliom_service.t
   val election_draft_new :
     (unit, string option * (string option * string option), Eliom_service.post,
      Eliom_service.att, Eliom_service.co, Eliom_service.non_ext,
