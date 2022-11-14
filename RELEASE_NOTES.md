@@ -1,3 +1,15 @@
+dev
+===
+
+ * The spool format has changed in an incompatible way. A migration
+   tool, `belenios-migrate`, is provided to convert from the 1.20
+   format. To update an existing instance:
+   + stop the instance
+   + make a backup of the spool directory
+   + run `belenios-migrate` with the path to the spool directory
+     (make sure permissions are correct)
+   + perform the rest of the update as usual
+
 1.20
 ====
 

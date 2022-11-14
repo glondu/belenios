@@ -1,3 +1,15 @@
+dev
+===
+
+ * Change the format of public data of running elections
+ * Web server:
+   + Add a spool migration tool
+   + Add a direct cast API (experimental)
+   + Remove a confirmation step in the voting process
+   + Add a SEALING service, GET-able by logged in administrators
+ * Command-line tool:
+   + Add a system integrity (sealing) measurement command
+
 1.20 (2022-10-20)
 =================
 
