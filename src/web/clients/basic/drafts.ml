@@ -25,8 +25,7 @@ open Js_of_ocaml_tyxml
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
-open Belenios_tool_js_common
-open Tool_js_common
+open Belenios_js.Common
 open Tyxml_js.Html5
 open Common
 

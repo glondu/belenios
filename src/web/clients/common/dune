@@ -1,0 +1,4 @@
+(library
+ (name belenios_js)
+ (libraries js_of_ocaml js_of_ocaml-lwt belenios-platform belenios belenios_ui)
+ (preprocess (pps js_of_ocaml-ppx)))

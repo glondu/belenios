@@ -27,7 +27,7 @@ open Belenios_core
 open Belenios
 open Signatures
 open Serializable_j
-open Belenios_tool_js_common.Tool_js_common
+open Belenios_js.Common
 
 let computeFingerprint = sha256_b64
 

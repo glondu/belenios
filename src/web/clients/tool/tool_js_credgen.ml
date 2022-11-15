@@ -26,10 +26,9 @@ open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_tool_common
-open Belenios_tool_js_common
-open Tool_js_common
+open Belenios_js.Common
 open Tool_credgen
-open Tool_js_i18n.Gettext
+open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let generate uuid draft =
@@ -123,6 +122,6 @@ let fill_interactivity () =
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
-      let* () = Tool_js_i18n.auto_init "admin" in
+      let* () = Belenios_js.I18n.auto_init "admin" in
       fill_interactivity ()
     )

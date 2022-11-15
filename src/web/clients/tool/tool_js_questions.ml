@@ -22,10 +22,9 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_core
-open Belenios_tool_js_common
 open Serializable_j
-open Tool_js_common
-open Tool_js_i18n.Gettext
+open Belenios_js.Common
+open Belenios_js.I18n.Gettext
 
 let return = Js.Opt.return
 let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
@@ -558,7 +557,7 @@ let fill_interactivity () =
 let () =
   Lwt.async (fun () ->
       let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
-      let* () = Tool_js_i18n.auto_init "admin" in
+      let* () = Belenios_js.I18n.auto_init "admin" in
       ignore (fill_interactivity ());
       Lwt.return_unit
     )

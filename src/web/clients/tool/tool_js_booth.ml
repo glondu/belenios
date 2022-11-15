@@ -24,13 +24,12 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_core
 open Belenios
-open Belenios_tool_js_common
 open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
-open Tool_js_common
-open Tool_js_i18n.Gettext
+open Belenios_js.Common
+open Belenios_js.I18n.Gettext
 
 module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
 
@@ -469,7 +468,7 @@ let () =
         | None -> "en"
       in
       let credential = List.assoc_opt "credential" params in
-      let* () = Tool_js_i18n.init "static" "voter" lang in
+      let* () = Belenios_js.I18n.init "static" "voter" lang in
       let () =
         let$ e = document##getElementById (Js.string "load_uuid") in
         Lwt_js_events.async (fun () ->

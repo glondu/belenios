@@ -26,11 +26,10 @@ open Belenios_core
 open Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_tool_common
-open Belenios_tool_js_common
 open Serializable_j
-open Tool_js_common
+open Belenios_js.Common
 open Tool_tkeygen
-open Tool_js_i18n.Gettext
+open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let tkeygen draft =
@@ -106,6 +105,6 @@ let fill_interactivity () =
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
-      let* () = Tool_js_i18n.auto_init "admin" in
+      let* () = Belenios_js.I18n.auto_init "admin" in
       fill_interactivity ()
     )

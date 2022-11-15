@@ -25,11 +25,10 @@ open Js_of_ocaml_lwt
 open Belenios_core.Serializable_builtin_t
 open Belenios_core
 open Belenios
-open Belenios_tool_js_common
 open Serializable_j
 open Common
-open Tool_js_common
-open Tool_js_i18n.Gettext
+open Belenios_js.Common
+open Belenios_js.I18n.Gettext
 
 let eta = ref 0
 
@@ -97,7 +96,7 @@ let set_nh_ciphertexts_link uuid =
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
-      let* () = Tool_js_i18n.auto_init "admin" in
+      let* () = Belenios_js.I18n.auto_init "admin" in
       let@ uuid, token = fun cont ->
         let hash = Dom_html.window##.location##.hash |> Js.to_string in
         match extract_uuid_and_token hash with

@@ -25,10 +25,9 @@ open Belenios_platform
 open Belenios_core
 open Common
 open Belenios_tool_common
-open Belenios_tool_js_common
 open Platform
 open Serializable_j
-open Tool_js_common
+open Belenios_js.Common
 
 let install_handler (id, handler) =
   let f _ =

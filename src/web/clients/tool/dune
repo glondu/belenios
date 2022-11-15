@@ -1,9 +1,3 @@
-(library
- (name belenios_tool_js_common)
- (modules tool_js_common tool_js_i18n)
- (libraries js_of_ocaml js_of_ocaml-lwt belenios-platform belenios belenios_ui)
- (preprocess (pps js_of_ocaml-ppx)))
-
 (install
  (files belenios-tool.html)
  (section share)
@@ -14,7 +8,7 @@
  (modes js)
  (modules tool_js_booth)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -22,7 +16,7 @@
  (modes js)
  (modules tool_js_credgen)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -30,7 +24,7 @@
  (modes js)
  (modules tool_js_tkeygen)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -38,7 +32,7 @@
  (modes js)
  (modules tool_js_ttkeygen)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -46,7 +40,7 @@
  (modes js)
  (modules tool_js_pd)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -54,7 +48,7 @@
  (modes js)
  (modules tool_js_questions)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -62,7 +56,7 @@
  (modes js)
  (modules tool_js_shuffle)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -70,7 +64,7 @@
  (modes js)
  (modules tool_js_fingerprint)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))
 
 (executable
@@ -78,5 +72,5 @@
  (modes js)
  (modules tool_js)
  (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_tool_js_common)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_js)
  (preprocess (pps js_of_ocaml-ppx)))

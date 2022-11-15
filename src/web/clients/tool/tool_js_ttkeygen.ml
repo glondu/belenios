@@ -25,11 +25,10 @@ open Belenios_core.Serializable_builtin_t
 open Belenios_core
 open Common
 open Belenios
-open Belenios_tool_js_common
 open Serializable_j
 open Signatures
-open Tool_js_common
-open Tool_js_i18n.Gettext
+open Belenios_js.Common
+open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let set_step i =
@@ -186,6 +185,6 @@ let fill_interactivity () =
 let () =
   Lwt.async (fun () ->
       let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
-      let* () = Tool_js_i18n.auto_init "admin" in
+      let* () = Belenios_js.I18n.auto_init "admin" in
       fill_interactivity ()
     )
