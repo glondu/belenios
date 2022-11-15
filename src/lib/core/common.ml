@@ -299,4 +299,4 @@ let split_lines str =
     ) else List.rev accu
   in loop [] 0
 
-let supported_crypto_versions = [1; 0]
+let supported_crypto_versions = [1]

@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 let get_by_version = function
-  | 0 -> (module Belenios_v0.Trustees : Belenios_core.Trustees_sig.S)
   | 1 -> (module Belenios_v1.Trustees : Belenios_core.Trustees_sig.S)
   | _ -> failwith "Trustees.get_by_version: unsupported version"
 

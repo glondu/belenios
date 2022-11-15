@@ -38,7 +38,6 @@ let get_version x =
 
 let of_string x =
   match get_version x with
-  | 0 -> Belenios_v0.Election.of_string x
   | 1 -> Belenios_v1.Election.of_string x
   | n -> Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
@@ -55,7 +54,6 @@ let election_uuid_of_string_ballot x =
 
 let make_raw_election params ~group ~public_key =
   match params.e_version with
-  | 0 -> Belenios_v0.Election.to_string params ~group ~public_key
   | 1 -> Belenios_v1.Election.to_string params ~group ~public_key
   | n ->
      Printf.ksprintf invalid_arg
@@ -150,7 +148,6 @@ module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
 
   let x =
     match get_version R.raw_election with
-    | 0 -> (module Belenios_v0.Election.Make : MAKER)
     | 1 -> (module Belenios_v1.Election.Make : MAKER)
     | n -> Printf.ksprintf failwith "Election.Make: unsupported version: %d" n
 

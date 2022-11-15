@@ -1,4 +1,4 @@
 (library
  (name belenios)
  (public_name belenios-lib)
- (libraries yojson atdgen belenios_platform belenios_core belenios_v0 belenios_v1))
+ (libraries yojson atdgen belenios_platform belenios_core belenios_v1))
