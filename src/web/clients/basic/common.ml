@@ -26,8 +26,6 @@ open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Tyxml_js.Html5
 
-let gettext = ref I18n.default
-
 let lwt_handler f =
   Dom_html.handler (fun _ -> Lwt.async f; Js._true)
 

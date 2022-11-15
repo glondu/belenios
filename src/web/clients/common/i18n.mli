@@ -19,6 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val default : (module Belenios_ui.I18n.GETTEXT)
+val gettext : (module Belenios_ui.I18n.GETTEXT) ref
 
 include Belenios_ui.I18n.S
+
+val init : dir:string -> component:string -> lang:string -> unit Lwt.t
+val auto_init : string -> unit Lwt.t

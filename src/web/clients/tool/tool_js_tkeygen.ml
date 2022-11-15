@@ -29,10 +29,10 @@ open Belenios_tool_common
 open Serializable_j
 open Belenios_js.Common
 open Tool_tkeygen
-open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let tkeygen draft =
+  let open (val !Belenios_js.I18n.gettext) in
   let module P : PARAMS = struct
     let group = draft.draft_group
     let version = draft.draft_version
@@ -76,6 +76,7 @@ let fail msg =
   Lwt.return_unit
 
 let fill_interactivity () =
+  let open (val !Belenios_js.I18n.gettext) in
   let&&* e = document##getElementById (Js.string "interactivity") in
   let hash = Dom_html.window##.location##.hash |> Js.to_string in
   match extract_uuid_and_token hash with

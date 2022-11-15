@@ -23,11 +23,11 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_core.Serializable_builtin_t
 open Belenios_js.Common
-open Belenios_js.I18n.Gettext
 
 let computed_fingerprint = ref ""
 
 let compute_handler input output _ =
+  let open (val !Belenios_js.I18n.gettext) in
   let input = Js.to_string input##.value in
   computed_fingerprint := sha256_b64 input;
   clear_content output;
@@ -37,6 +37,7 @@ let compute_handler input output _ =
   Js._true
 
 let compare_handler input output _ =
+  let open (val !Belenios_js.I18n.gettext) in
   let input = Js.to_string input##.value in
   if input <> "" then (
     let result =
@@ -51,6 +52,7 @@ let compare_handler input output _ =
   Js._true
 
 let fill_interactivity () =
+  let open (val !Belenios_js.I18n.gettext) in
   let$ container = document##getElementById (Js.string "interactivity") in
   let result_div = Dom_html.createDiv document in
   let intro_div = Dom_html.createDiv document in

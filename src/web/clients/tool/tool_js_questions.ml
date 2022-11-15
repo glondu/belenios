@@ -24,7 +24,6 @@ open Js_of_ocaml
 open Belenios_core
 open Serializable_j
 open Belenios_js.Common
-open Belenios_js.I18n.Gettext
 
 let return = Js.Opt.return
 let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
@@ -70,6 +69,7 @@ let extractAnswer a =
   return (Js.to_string (x##.value))
 
 let extractQuestion q =
+  let open (val !Belenios_js.I18n.gettext) in
   let&& x = Dom_html.CoerceTo.input q in
   let q_question = Js.to_string (x##.value) in
   let&& p1 = q##.parentNode in
@@ -140,6 +140,7 @@ let extractTemplate () =
 (* Injecting the OCaml structure into the DOM *)
 
 let rec createAnswer a =
+  let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question_answer_item";
   let t = document##createTextNode (Js.string (s_ "Answer: ")) in
@@ -175,6 +176,7 @@ let rec createAnswer a =
   container
 
 let createHomomorphicQuestionPropDiv min max blank =
+  let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let x = Dom_html.createDiv document in
   let t = document##createTextNode (Js.string (s_ "The voter has to choose between ")) in
@@ -219,6 +221,7 @@ let deleteQuestion q =
   return ()
 
 let rec createQuestion booth_set q =
+  let open (val !Belenios_js.I18n.gettext) in
   let question, answers, props, extra =
     match q with
     | Question.Homomorphic q ->
@@ -417,6 +420,7 @@ let createRadioItem name checked label =
   radio, container
 
 let createBoothSelector booth_version =
+  let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let line1 = Dom_html.createDiv document in
   Dom.appendChild container line1;
@@ -438,6 +442,7 @@ let createBoothSelector booth_version =
   get, set, container
 
 let createTemplate (booth_get, booth_set, booth_select) template =
+  let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   (* name *)
   let x = Dom_html.createDiv document in

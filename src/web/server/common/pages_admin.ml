@@ -1177,7 +1177,7 @@ module Make
     div [
         Printf.ksprintf Unsafe.data
           "<script>var belenios_lang = %S; var belenios_dir = %S;</script>"
-          lang dir;
+          lang (dir ^ "/");
         script ~a:[a_src file] (txt "");
       ]
 

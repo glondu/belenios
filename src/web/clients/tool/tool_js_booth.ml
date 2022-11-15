@@ -29,7 +29,6 @@ open Serializable_j
 open Signatures
 open Common
 open Belenios_js.Common
-open Belenios_js.I18n.Gettext
 
 module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
 
@@ -65,6 +64,7 @@ type questionWidget =
   }
 
 let createHomomorphicQuestionWidget q =
+  let open (val !Belenios_js.I18n.gettext) in
   let div = Dom_html.createDiv document in
   let open Question_h_t in
   let () =
@@ -177,6 +177,7 @@ let createHomomorphicQuestionWidget q =
   {div; extract_answers}
 
 let createNonHomomorphicQuestionWidget q =
+  let open (val !Belenios_js.I18n.gettext) in
   let div = Dom_html.createDiv document in
   let open Question_nh_t in
   let () =
@@ -302,6 +303,7 @@ let arrayMapOptionGet xs =
   | Exit -> None
 
 let appendQuestionNavigation question_div sk params qs =
+  let open (val !Belenios_js.I18n.gettext) in
   let qs = Array.map createQuestionWidget qs in
   let n = Array.length qs in
   let answers = Array.make n None in
@@ -371,6 +373,7 @@ let proceedWithCredential params intro_div qs cred =
   appendQuestionNavigation e cred params qs
 
 let createStartButton params intro_div qs =
+  let open (val !Belenios_js.I18n.gettext) in
   let b = Dom_html.createButton document in
   b##.style##.fontSize := Js.string "20px";
   let t = document##createTextNode (Js.string (s_ "here")) in
@@ -468,7 +471,7 @@ let () =
         | None -> "en"
       in
       let credential = List.assoc_opt "credential" params in
-      let* () = Belenios_js.I18n.init "static" "voter" lang in
+      let* () = Belenios_js.I18n.init ~dir:"static/" ~component:"voter" ~lang in
       let () =
         let$ e = document##getElementById (Js.string "load_uuid") in
         Lwt_js_events.async (fun () ->

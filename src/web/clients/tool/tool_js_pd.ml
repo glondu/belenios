@@ -28,7 +28,6 @@ open Belenios
 open Serializable_j
 open Common
 open Belenios_js.Common
-open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let election = ref None
@@ -47,6 +46,7 @@ let wrap f x =
   ); Js._false
 
 let basic_check_private_key s =
+  let open (val !Belenios_js.I18n.gettext) in
   let n = String.length s in
   let rec leading i =
     if i < n then
@@ -70,6 +70,7 @@ let basic_check_private_key s =
   in leading 0
 
 let compute_partial_decryption tally_trustee _ =
+  let open (val !Belenios_js.I18n.gettext) in
   let&|&& e = !election in
   let module P = Election.Make (struct let raw_election = e end) (LwtJsRandom) () in
   let&|&& e = !encrypted_tally in

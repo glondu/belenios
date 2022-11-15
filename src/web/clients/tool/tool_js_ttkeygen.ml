@@ -28,10 +28,10 @@ open Belenios
 open Serializable_j
 open Signatures
 open Belenios_js.Common
-open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let set_step i =
+  let open (val !Belenios_js.I18n.gettext) in
   let$ e = document##getElementById (Js.string "current_step") in
   clear_content e;
   let t = Printf.sprintf (f_ "Step %d/3") i in
@@ -106,6 +106,7 @@ let fail msg =
   Lwt.return_unit
 
 let fill_interactivity () =
+  let open (val !Belenios_js.I18n.gettext) in
   let&&* e = document##getElementById (Js.string "interactivity") in
   let@ uuid, token = fun cont ->
     let hash = Dom_html.window##.location##.hash |> Js.to_string in

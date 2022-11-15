@@ -28,7 +28,6 @@ open Belenios_core.Serializable_j
 open Belenios_tool_common
 open Belenios_js.Common
 open Tool_credgen
-open Belenios_js.I18n.Gettext
 open Belenios_api.Serializable_j
 
 let generate uuid draft =
@@ -68,6 +67,7 @@ let generate uuid draft =
   Lwt.return_unit
 
 let fill_interactivity () =
+  let open (val !Belenios_js.I18n.gettext) in
   let@ uuid, token = fun cont ->
     let hash = Dom_html.window##.location##.hash |> Js.to_string in
     match extract_uuid_and_token hash with

@@ -122,8 +122,8 @@ let rec show_draft_credentials uuid container =
      Lwt.return [b]
   | None, Some token ->
      let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
-     let module X = Belenios_ui.Mails_admin.Make (I18n) in
-     let subject, body = X.mail_credential_authority !gettext link in
+     let module X = Belenios_ui.Mails_admin.Make (Belenios_js.I18n) in
+     let subject, body = X.mail_credential_authority !Belenios_js.I18n.gettext link in
      Lwt.return [
          a_mailto ~recipient:"" ~subject ~body "Send an e-mail to the credential authority";
          txt " ";

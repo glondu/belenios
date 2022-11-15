@@ -80,7 +80,7 @@ let show_error main =
   Lwt.return_unit
 
 let rec show_root main =
-  let open (val !gettext) in
+  let open (val !Belenios_js.I18n.gettext) in
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
   let* configuration, configuration_opt =
@@ -226,8 +226,7 @@ let onload () =
     Js.Optdef.case Dom_html.window##.navigator##.language
       (fun () -> "en") Js.to_string
   in
-  let* g = I18n.get ~component:"admin" ~lang in
-  gettext := g;
+  let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
   let hash = parse_hash () in
   let* b =
     match hash with
