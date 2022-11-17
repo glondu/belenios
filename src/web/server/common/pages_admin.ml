@@ -69,7 +69,7 @@ module Make
           ) ();
       ]
     in
-    responsive_base ~title ~content ()
+    base ~title ~content ()
 
   let login_box ?cont () =
     let* l = get_preferred_gettext () in

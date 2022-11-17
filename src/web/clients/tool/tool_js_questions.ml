@@ -123,8 +123,8 @@ let extractQuestion q =
     )
 
 let extractTemplate () =
-  let t_name = get_input "election_name" in
-  let t_description = get_textarea "election_description" in
+  let t_name = get_input "q_election_name" in
+  let t_description = get_textarea "q_election_description" in
   let questions = document##querySelectorAll (Js.string ".question_question") in
   let t_questions =
     Array.init
@@ -450,7 +450,7 @@ let createTemplate (booth_get, booth_set, booth_select) template =
   let t = document##createTextNode (Js.string (s_ "Name of the election: ")) in
   Dom.appendChild x t;
   let h_name = Dom_html.createInput document in
-  h_name##.id := Js.string "election_name";
+  h_name##.id := Js.string "q_election_name";
   h_name##.value := Js.string template.t_name;
   Dom.appendChild x h_name;
   Dom.appendChild container x;
@@ -463,7 +463,7 @@ let createTemplate (booth_get, booth_set, booth_select) template =
   Dom.appendChild x y;
   let y = Dom_html.createDiv document in
   let h_description = Dom_html.createTextarea document in
-  h_description##.id := Js.string "election_description";
+  h_description##.id := Js.string "q_election_description";
   h_description##.value := Js.string template.t_description;
   h_description##.cols := 80;
   Dom.appendChild y h_description;

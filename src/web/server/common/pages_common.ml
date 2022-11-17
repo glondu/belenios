@@ -75,78 +75,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
        | None -> return default
        | Some x -> return @@ Unsafe.data (String.concat "\n" x)
 
-  let base ~title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let administer =
-      match uuid with
-      | None ->
-         raw_a ~service:admin [txt (s_ "Administer elections")] ()
-      | Some uuid ->
-         raw_a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
-    in
-    let login_box = match login_box with
-      | None ->
-         div ~a:[a_style "float: right; padding: 10px;"] [
-             img ~a:[a_height 70] ~alt:""
-               ~src:(static "placeholder.png") ();
-           ]
-      | Some x -> x
-    in
-    let lang_box =
-      match lang_box with
-      | None -> txt ""
-      | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
-    in
-    let maybe_static x = if static_page then Lwt.return @@ txt "" else read_snippet ~lang x in
-    let* warning = maybe_static !Web_config.warning_file in
-    let* extra_footer = maybe_static !Web_config.footer_file in
-    Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
-                  (head (Eliom_content.Html.F.title (txt title)) [
-                       script (txt "window.onbeforeunload = function () {};");
-                       link ~rel:[`Stylesheet] ~href:(static "site.css") ();
-                  ])
-                  (body [
-                       div ~a:[a_id "wrapper"] [
-                           div ~a:[a_id "header"] [
-                               div [
-                                   div ~a:[a_style "float: left; padding: 10px;"] [
-                                       raw_a ~service:home [
-                                           img ~alt:(s_ "Election server") ~a:[a_height 70]
-                                             ~src:(static "logo.png") ();
-                                         ] ();
-                                     ];
-                                   login_box;
-                                   h1 ~a:[a_style "text-align: center; padding: 20px;"] [txt title];
-                                   div ~a:[a_style "clear: both;"] [];
-                                 ];
-                             ];
-                           warning;
-                           div ~a:[a_id "main"]
-                             [
-                               lang_box;
-                               div content;
-                             ];
-                           div ~a:[a_id "footer"; a_style "text-align: center;" ] [
-                               div ~a:[a_id "bottom"] [
-                                   footer;
-                                   txt (s_ "Powered by ");
-                                   raw_a ~service:belenios_url [txt "Belenios"] ();
-                                   Version.(
-                                     Printf.ksprintf txt " %s (%s). " version build
-                                   );
-                                   raw_a ~service:source_code [txt (s_ "Get the source code")] ();
-                                   txt ". ";
-                                   direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
-                                   txt ". ";
-                                   administer;
-                                   txt ".";
-                                   extra_footer;
-                                 ]
-                         ]]
-      ]))
-
-  let responsive_base ~title ?full_title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
+  let base ~title ?full_title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let administer =
@@ -289,7 +218,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
         p [txt message];
         proceed;
       ] in
-    responsive_base ~title ~content ()
+    base ~title ~content ()
 
   let raw_textarea ?rows ?cols id contents =
     let id = [a_id id] in
@@ -327,7 +256,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                  [txt (s_ "Please log in:"); txt " ["] @ auth_systems @ [txt "]"]
           )]
       ] in
-    responsive_base ~title:(s_ "Log in") ~content ()
+    base ~title:(s_ "Log in") ~content ()
 
   let login_generic site_or_election username_or_address ~service ~state =
     let* l = get_preferred_gettext () in
@@ -422,7 +351,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
           ];
       ]
     in
-    responsive_base ~title ~content ()
+    base ~title ~content ()
 
   let email_login site_or_election =
     let* l = get_preferred_gettext () in

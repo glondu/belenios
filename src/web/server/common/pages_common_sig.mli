@@ -59,20 +59,6 @@ module type S = sig
 
   val base :
     title:string ->
-    ?login_box:[< Html_types.div_content_fun > `Div `H1 ]
-      Eliom_content.Html.elt ->
-    ?lang_box:[< Html_types.div_content_fun > `Div ]
-      Eliom_content.Html.elt ->
-    content:[< Html_types.div_content_fun ] Eliom_content.Html.elt
-      list ->
-    ?footer:[< Html_types.div_content_fun > `A `Div `PCDATA ]
-      Eliom_content.Html.elt ->
-    ?uuid:Web_serializable_t.uuid ->
-    ?static:bool ->
-    unit -> [> Html_types.html ] Eliom_content.Html.elt Lwt.t
-
-  val responsive_base :
-    title:string ->
     ?full_title:string ->
     ?login_box:[< Html_types.div_content_fun > `Div `H1 ]
       Eliom_content.Html.elt ->

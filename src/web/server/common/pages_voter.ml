@@ -546,7 +546,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* lang_box = lang_box (ContSiteElection uuid) in
     let title = br_truncate params.e_name in
     let full_title = params.e_name in
-    responsive_base ~lang_box ~full_title ~title ~content ~footer ~uuid ()
+    base ~lang_box ~full_title ~title ~content ~footer ~uuid ()
 
   let cast_raw election () =
     let* l = get_preferred_gettext () in
@@ -629,7 +629,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* footer = audit_footer election in
     let title = br_truncate params.e_name in
     let full_title = params.e_name in
-    responsive_base ~full_title ~title ~content ~uuid ~footer ()
+    base ~full_title ~title ~content ~uuid ~footer ()
 
   let progress_responsive_step5 l =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -711,7 +711,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           ];
       ]
     in
-    responsive_base ~full_title ~title ~content ~uuid ()
+    base ~full_title ~title ~content ~uuid ()
 
   let cast_confirmed election ~result () =
     let* l = get_preferred_gettext () in
@@ -777,7 +777,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       ] in
     let title = br_truncate name in
     let full_title = name in
-    responsive_base ~full_title ~title ~content ~uuid ()
+    base ~full_title ~title ~content ~uuid ()
 
   let pretty_ballots election =
     let* l = get_preferred_gettext () in
@@ -839,7 +839,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         ul ballots;
         links;
       ] in
-    responsive_base ~title ~content ~uuid ()
+    base ~title ~content ~uuid ()
 
   let booth () =
     let* l = get_preferred_gettext () in
@@ -1000,7 +1000,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let open (val l) in
     let title = s_ "Condorcet-Schulze method" in
     let content = schulze_content l q r in
-    responsive_base ~title ~content ()
+    base ~title ~content ()
 
   let majority_judgment_select uuid question =
     let* l = get_preferred_gettext () in
@@ -1050,7 +1050,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         form;
       ]
     in
-    responsive_base ~title ~content ()
+    base ~title ~content ()
 
   let majority_judgment q r =
     let* l = get_preferred_gettext () in
@@ -1168,6 +1168,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         div [invalid];
       ]
     in
-    responsive_base ~title ~content ()
+    base ~title ~content ()
 
 end
