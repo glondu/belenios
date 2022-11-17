@@ -146,15 +146,15 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                          ]]
       ]))
 
-  let responsive_base ~title ?full_title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid () =
+  let responsive_base ~title ?full_title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let administer =
       match uuid with
       | None ->
-         a ~service:admin [txt (s_ "Administer elections")] ()
+         raw_a ~service:admin [txt (s_ "Administer elections")] ()
       | Some uuid ->
-         a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
+         raw_a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
     in
     let login_box = match login_box with
       | None ->
@@ -166,8 +166,9 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       | None -> div []
       | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
     in
-    let* warning = read_snippet ~lang !Web_config.warning_file in
-    let* extra_footer = read_snippet ~lang !Web_config.footer_file in
+    let maybe_static x = if static_page then Lwt.return @@ txt "" else read_snippet ~lang x in
+    let* warning = maybe_static !Web_config.warning_file in
+    let* extra_footer = maybe_static !Web_config.footer_file in
     let full_title =
       match full_title with
       | None -> [txt title]
@@ -184,7 +185,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                            div ~a:[a_class ["page"]] [
                                div ~a:[a_id "header"; a_class ["page-header"]] [
                                    div ~a:[a_class ["page-header__logo"]] [
-                                       a ~service:home [
+                                       raw_a ~service:home [
                                            img ~a:[a_class ["page-header__logo__image"]] ~alt:(s_ "Election server")
                                              ~src:(static "logo.png") ();
                                          ] ();
@@ -207,11 +208,11 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                                div ~a:[a_class ["page-footer"]] [
                                    footer;
                                    txt (s_ "Powered by ");
-                                   a ~service:belenios_url [txt "Belenios"] ();
+                                   raw_a ~service:belenios_url [txt "Belenios"] ();
                                    Version.(
                                      Printf.ksprintf txt " %s (%s). " version build
                                    );
-                                   a ~service:source_code [txt (s_ "Get the source code")] ();
+                                   raw_a ~service:source_code [txt (s_ "Get the source code")] ();
                                    txt ". ";
                                    direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
                                    txt ". ";
