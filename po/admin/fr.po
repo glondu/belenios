@@ -1949,7 +1949,7 @@ msgstr "Ce contact sera ajouté dans les courriels envoyés aux électeurs."
 
 #: src/web/server/common/site_admin.ml:177
 msgid "This e-mail address is invalid!"
-msgstr "Cette adressel courriel est inalide !"
+msgstr "Cette adresse courriel est invalide !"
 
 #: src/web/server/common/pages_admin.ml:2313
 msgid "This election has been tallied."
