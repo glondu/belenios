@@ -22,7 +22,9 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
+open Belenios_core.Signatures
 open Belenios_core.Serializable_builtin_t
+open Belenios_core.Serializable_core_j
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Belenios_js.Common
@@ -135,35 +137,46 @@ let rec show_draft_credentials uuid container =
      let t, _ = textarea (string_of_credentials x) in
      Lwt.return [t]
 
+type trustee_with_writer =
+  TWW : 'a trustee list * 'a writer -> trustee_with_writer
+
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* x = get trustees_of_string "drafts/%s/trustees" uuid in
   let ifmatch = compute_ifmatch string_of_trustees x in
   let@ trustees = with_ok "trustees" x in
-  let* mode, mode_str =
-    let* x = get trustees_mode_of_string "drafts/%s/trustees-mode" uuid in
-    match x with
-    | Error e -> Lwt.return (Printf.sprintf "error (%s)" (string_of_error e), "")
-    | Ok (`Basic as x) -> Lwt.return ("basic", string_of_trustees_mode x)
-    | Ok (`Threshold threshold as x) ->
+  let mode =
+    match trustees with
+    | `Basic _ -> "basic"
+    | `Threshold t ->
        let threshold =
-         match threshold with
-         | 0 -> "not set"
-         | i -> Printf.sprintf "%d out of %d" i (List.length trustees)
+         match t.tt_threshold with
+         | None -> "not set"
+         | Some i -> Printf.sprintf "%d out of %d" i (List.length t.tt_trustees)
        in
-       Lwt.return (Printf.sprintf "threshold (%s)" threshold, string_of_trustees_mode x)
+       Printf.sprintf "threshold (%s)" threshold
   in
   let mode = div [txt "Mode:"; txt " "; txt mode] in
   let mode_set =
     let t, tget = textarea ~rows:1 ~cols:60 "" in
     let b =
-      let ifmatch = sha256_b64 mode_str in
       let@ () = button "Set mode" in
-      let* x = put_with_token ~ifmatch (tget ()) "drafts/%s/trustees-mode" uuid in
+      let@ request = fun cont ->
+        match Yojson.Safe.from_string (tget ()) with
+        | `String "Basic" -> cont `SetBasic
+        | `List [`String "Threshold"; `Int i] -> cont (`SetThreshold i)
+        | _ -> alert "Unrecognized mode"; Lwt.return_unit
+      in
+      let* x = post_with_token ?ifmatch (string_of_trustees_request request) "drafts/%s/trustees" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
     div [t; txt " "; b]
+  in
+  let TWW (trustees, write) =
+    match trustees with
+    | `Basic x -> TWW (x.bt_trustees, write_trustee_public_key Yojson.Safe.write_json)
+    | `Threshold x -> TWW (x.tt_trustees, write_cert)
   in
   let all_trustees =
     List.map
@@ -176,7 +189,7 @@ let rec show_draft_trustees uuid container =
             let@ () = show_in container in
             generic_proceed x (fun () -> show_draft_trustees uuid container)
           in
-          [txt (string_of_trustee t); txt " "; b]
+          [txt (string_of_unboxed (write_trustee write) t); txt " "; b]
         in
         li content
       ) trustees
@@ -185,7 +198,7 @@ let rec show_draft_trustees uuid container =
   let t2, t2get = textarea "" in
   let b =
     let@ () = button "Add trustee" in
-    let r = `Add (trustee_of_string (t2get ())) in
+    let r = `Add (trustee_of_string Yojson.Safe.read_json (t2get ())) in
     let* x = post_with_token ?ifmatch (string_of_trustees_request r) "drafts/%s/trustees" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)

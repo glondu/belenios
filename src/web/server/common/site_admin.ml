@@ -727,7 +727,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     if is_email trustee_address then (
       let* se = ensure_trustees_mode uuid se mode in
       let open Belenios_api.Serializable_t in
-      let trustee = {trustee_address; trustee_name; trustee_token = None; trustee_state = None} in
+      let trustee = {trustee_address; trustee_name; trustee_token = None; trustee_state = None; trustee_key = None} in
       let* () = Api_drafts.post_draft_trustees uuid se trustee in
       redir_preapply election_draft_trustees uuid ()
     ) else (

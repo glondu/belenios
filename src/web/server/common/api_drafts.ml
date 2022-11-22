@@ -462,28 +462,47 @@ let submit_public_credentials uuid se credentials =
 let get_draft_trustees se =
   match se.se_trustees with
   | `Basic x ->
-     List.filter_map
-       (fun t ->
-         if t.st_id = "server" then
-           None
-         else
-           Some {
-               trustee_address = t.st_id;
-               trustee_name = Option.value t.st_name ~default:"";
-               trustee_token = Some t.st_token;
-               trustee_state = Some (if t.st_public_key = "" then 0 else 1);
-             }
-       ) x.dbp_trustees
+     let bt_trustees =
+       List.filter_map
+         (fun t ->
+           if t.st_id = "server" then (
+             None
+           ) else (
+             let trustee_state, trustee_key =
+               if t.st_public_key = "" then
+                 Some 0, None
+               else
+                 Some 1, Some (trustee_public_key_of_string Yojson.Safe.read_json t.st_public_key)
+             in
+             Some {
+                 trustee_address = t.st_id;
+                 trustee_name = Option.value t.st_name ~default:"";
+                 trustee_token = Some t.st_token;
+                 trustee_state;
+                 trustee_key;
+               }
+           )
+         ) x.dbp_trustees
+     in
+     `Basic {bt_trustees}
   | `Threshold x ->
-     List.map
-       (fun t ->
-         {
-           trustee_address = t.stt_id;
-           trustee_name = Option.value t.stt_name ~default:"";
-           trustee_token = Some t.stt_token;
-           trustee_state = Some (Option.value t.stt_step ~default:0);
-         }
-       ) x.dtp_trustees
+     let tt_trustees =
+       List.map
+         (fun t ->
+           {
+             trustee_address = t.stt_id;
+             trustee_name = Option.value t.stt_name ~default:"";
+             trustee_token = Some t.stt_token;
+             trustee_state = Some (Option.value t.stt_step ~default:0);
+             trustee_key = t.stt_cert;
+           }
+         ) x.dtp_trustees
+     in
+     `Threshold
+       {
+         tt_threshold = x.dtp_threshold;
+         tt_trustees;
+       }
 
 let check_address address =
   if not @@ is_email address then
@@ -510,6 +529,7 @@ let post_draft_trustees uuid se t =
   let () = check_address t.trustee_address in
   let () = ensure_none "token" t.trustee_token in
   let () = ensure_none "state" t.trustee_state in
+  let () = ensure_none "key" t.trustee_key in
   match se.se_trustees with
   | `Basic x ->
      let* ts =
@@ -1212,23 +1232,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           )
        | _ -> method_not_allowed
      end
-  | ["trustees-mode"] ->
-     begin
-       let@ _ = with_administrator token se in
-       let get () =
-         let x = get_draft_trustees_mode se in
-         Lwt.return @@ string_of_trustees_mode x
-       in
-       match method_ with
-       | `GET -> handle_get get
-       | `PUT ->
-          let@ () = handle_ifmatch ifmatch get in
-          let@ mode = body.run trustees_mode_of_string in
-          let@ () = handle_generic_error in
-          let* () = put_draft_trustees_mode uuid se mode in
-          ok
-       | _ -> method_not_allowed
-     end
   | ["trustees-pedersen"] ->
      begin
        let@ trustee, dtp = with_threshold_trustee token se in
@@ -1273,6 +1276,12 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             match request with
             | `Add trustee ->
                let* () = post_draft_trustees uuid se trustee in
+               ok
+            | `SetBasic ->
+               let* () = put_draft_trustees_mode uuid se `Basic in
+               ok
+            | `SetThreshold t ->
+               let* () = put_draft_trustees_mode uuid se (`Threshold t) in
                ok
             | `Import from ->
                let@ metadata = check_owner account from in
