@@ -3,7 +3,10 @@ dev
 
  * The spool format has changed in an incompatible way. A migration
    tool, `belenios-migrate`, is provided to convert from the 1.20
-   format. To update an existing instance:
+   format. It expects a matching `belenios-tool` in the same
+   directory, and an `OCAMLFIND_CONF` environment variable set to the
+   path of a `findlib.conf` file (that can be copied as is from the
+   OPAM directory). To update an existing instance:
    + stop the instance
    + make a backup of the spool directory
    + run `belenios-migrate` with the path to the spool directory
