@@ -73,6 +73,14 @@ let with_administrator_or_credential_authority_or_trustee token se f =
     | _ -> not_found
   )
 
+let with_administrator_or_nobody token se f =
+  match token with
+  | None -> f `Nobody
+  | Some token ->
+     match lookup_token token with
+     | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
+     | _ -> not_found
+
 let with_threshold_trustee token se f =
   let@ token = Option.unwrap unauthorized token in
   match se.se_trustees with
@@ -459,7 +467,7 @@ let submit_public_credentials uuid se credentials =
   se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se
 
-let get_draft_trustees se =
+let get_draft_trustees ~is_admin se =
   match se.se_trustees with
   | `Basic x ->
      let bt_trustees =
@@ -474,10 +482,16 @@ let get_draft_trustees se =
                else
                  Some 1, Some (trustee_public_key_of_string Yojson.Safe.read_json t.st_public_key)
              in
+             let trustee_address, trustee_token, trustee_state =
+               if is_admin then
+                 Some t.st_id, Some t.st_token, trustee_state
+               else
+                 None, None, None
+             in
              Some {
-                 trustee_address = t.st_id;
+                 trustee_address;
                  trustee_name = Option.value t.st_name ~default:"";
-                 trustee_token = Some t.st_token;
+                 trustee_token;
                  trustee_state;
                  trustee_key;
                }
@@ -489,11 +503,17 @@ let get_draft_trustees se =
      let tt_trustees =
        List.map
          (fun t ->
+           let trustee_address, trustee_token, trustee_state =
+             if is_admin then
+               Some t.stt_id, Some t.stt_token, Some (Option.value t.stt_step ~default:0)
+             else
+               None, None, None
+           in
            {
-             trustee_address = t.stt_id;
+             trustee_address;
              trustee_name = Option.value t.stt_name ~default:"";
-             trustee_token = Some t.stt_token;
-             trustee_state = Some (Option.value t.stt_step ~default:0);
+             trustee_token;
+             trustee_state;
              trustee_key = t.stt_cert;
            }
          ) x.dtp_trustees
@@ -526,7 +546,11 @@ let generate_server_trustee se =
   Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name}
 
 let post_draft_trustees uuid se t =
-  let () = check_address t.trustee_address in
+  let address =
+    match t.trustee_address with
+    | Some x -> check_address x; x
+    | None -> raise (Error "missing address")
+  in
   let () = ensure_none "token" t.trustee_token in
   let () = ensure_none "state" t.trustee_state in
   let () = ensure_none "key" t.trustee_key in
@@ -541,13 +565,13 @@ let post_draft_trustees uuid se t =
          Lwt.return (ts @ [server])
      in
      let () =
-       if List.exists (fun x -> x.st_id = t.trustee_address) ts then
+       if List.exists (fun x -> x.st_id = address) ts then
          raise (Error "address already used")
      in
      let* st_token = generate_token () in
      let t =
        {
-         st_id = t.trustee_address;
+         st_id = address;
          st_name = Some t.trustee_name;
          st_public_key = "";
          st_private_key = None;
@@ -559,13 +583,13 @@ let post_draft_trustees uuid se t =
   | `Threshold x ->
      let ts = x.dtp_trustees in
      let () =
-       if List.exists (fun x -> x.stt_id = t.trustee_address) ts then
+       if List.exists (fun x -> x.stt_id = address) ts then
          raise (Error "address already used")
      in
      let* stt_token = generate_token () in
      let t =
        {
-         stt_id = t.trustee_address;
+         stt_id = address;
          stt_name = Some t.trustee_name;
          stt_token; stt_step = None;
          stt_cert = None; stt_polynomial = None;
@@ -1261,15 +1285,16 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
      end
   | ["trustees"] ->
      begin
-       let@ account = with_administrator token se in
-       let get () =
-         let x = get_draft_trustees se in
+       let@ who = with_administrator_or_nobody token se in
+       let get is_admin () =
+         let x = get_draft_trustees ~is_admin se in
          Lwt.return @@ string_of_trustees x
        in
-       match method_ with
-       | `GET -> handle_get get
-       | `POST ->
-          let@ () = handle_ifmatch ifmatch get in
+       match method_, who with
+       | `GET, `Nobody -> handle_get (get false)
+       | `GET, `Administrator _ -> handle_get (get true)
+       | `POST, `Administrator account ->
+          let@ () = handle_ifmatch ifmatch (get true) in
           let@ request = body.run trustees_request_of_string in
           let@ () = handle_generic_error in
           begin

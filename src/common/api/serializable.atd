@@ -115,7 +115,7 @@ type credentials = {
 } <ocaml field_prefix="credentials_">
 
 type 'a trustee = {
-    address : string;
+    ?address : string option;
     name : string;
     ?token : string option;
     ?state : int option;

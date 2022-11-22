@@ -181,7 +181,12 @@ let rec show_draft_trustees uuid container =
   let all_trustees =
     List.map
       (fun t ->
-        let encoded_trustee = t.trustee_address |> Js.string |> Js.encodeURIComponent |> Js.to_string in
+        let encoded_trustee =
+          Option.value ~default:"@" t.trustee_address
+          |> Js.string
+          |> Js.encodeURIComponent
+          |> Js.to_string
+        in
         let content =
           let b =
             let@ () = button "Delete" in
