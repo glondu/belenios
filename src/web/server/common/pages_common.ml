@@ -47,12 +47,19 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     let href = uri_of_string (fun () -> Eliom_uri.make_string_uri ~service x) in
     Eliom_content.Html.F.Raw.a ~a:(a_href href :: a) contents
 
+  let absolute_uri_of_service ~service x =
+    Eliom_uri.make_string_uri ~absolute:true ~service x
+    |> rewrite_prefix
+    |> Eliom_content.Xml.uri_of_string
+
   let static x =
     let service =
       Eliom_service.static_dir_with_params
         ~get_params:(Eliom_parameter.string "version") ()
     in
-    make_uri ~service (["static"; x], Version.build)
+    Eliom_uri.make_string_uri ~absolute:true ~service (["static"; x], Version.build)
+    |> rewrite_prefix
+    |> Eliom_content.Xml.uri_of_string
 
   let belenios_url = Eliom_service.extern
                        ~prefix:"https://www.belenios.org"
@@ -74,6 +81,22 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
        match file with
        | None -> return default
        | Some x -> return @@ Unsafe.data (String.concat "\n" x)
+
+  module UiBase = struct
+    module Xml = Eliom_content.Xml
+    module Svg = Eliom_content.Svg.F.Raw
+    module Html = Eliom_content.Html.F.Raw
+
+    module Uris = struct
+      let home = absolute_uri_of_service ~service:home ()
+      let logo = static "logo.png"
+      let belenios = absolute_uri_of_service ~service:belenios_url ()
+      let source_code = absolute_uri_of_service ~service:source_code ()
+      let privacy_policy = Xml.uri_of_string !Web_config.gdpr_uri
+    end
+  end
+
+  module Ui = Belenios_ui.Pages_common.Make(UiBase)
 
   let base ~title ?full_title ?(login_box = txt "") ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
     let* l = get_preferred_gettext () in
@@ -98,55 +121,14 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       | None -> [txt title]
       | Some x -> txt_br x
     in
-    Lwt.return (html ~a:[a_dir `Ltr; a_xml_lang lang]
-                  (head (Eliom_content.Html.F.title (txt title)) [
-                       meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();
-                       script (txt "window.onbeforeunload = function () {};");
-                       link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
-                  ])
-                  (body [
-                       div ~a:[a_id "vote-app"] [
-                           div ~a:[a_class ["page"]] [
-                               div ~a:[a_id "header"; a_class ["page-header"]] [
-                                   div ~a:[a_class ["page-header__logo"]] [
-                                       raw_a ~service:home [
-                                           img ~a:[a_class ["page-header__logo__image"]] ~alt:(s_ "Election server")
-                                             ~src:(static "logo.png") ();
-                                         ] ();
-                                     ];
-                                   div ~a:[a_class ["page-header__titles"]] [
-                                       h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] full_title;
-                                       p ~a:[a_class ["page-header__titles__election-description"]; a_id "election_description"] [txt ""]; (* no description provided? *)
-                                     ];
-                                   div ~a:[a_class ["page-header__right"]] [
-                                       login_box;
-                                     ];
-                                 ];
-                               div ~a:[a_class ["page-body"]] [
-                                   warning;
-                                   div ~a:[a_id "main"] [
-                                       lang_box;
-                                       div content;
-                                     ]
-                                 ];
-                               div ~a:[a_class ["page-footer"]] [
-                                   footer;
-                                   txt (s_ "Powered by ");
-                                   raw_a ~service:belenios_url [txt "Belenios"] ();
-                                   Version.(
-                                     Printf.ksprintf txt " %s (%s). " version build
-                                   );
-                                   raw_a ~service:source_code [txt (s_ "Get the source code")] ();
-                                   txt ". ";
-                                   direct_a !Web_config.gdpr_uri (s_ "Privacy policy");
-                                   txt ". ";
-                                   administer;
-                                   txt ".";
-                                   extra_footer;
-                                 ];
-                             ];
-                         ];
-                  ])
+    Lwt.return
+      (html ~a:[a_dir `Ltr; a_xml_lang lang]
+         (head (Eliom_content.Html.F.title (txt title)) [
+              meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();
+              script (txt "window.onbeforeunload = function () {};");
+              link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
+         ])
+         (body (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content ~footer ~administer ~extra_footer ()))
       )
 
   let lang_box cont =
