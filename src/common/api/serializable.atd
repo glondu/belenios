@@ -42,6 +42,7 @@ type authentication_system =
   ]
 
 type configuration = {
+    privacy_policy : string;
     belenios_version : string;
     belenios_build : string;
     spec_version : string;

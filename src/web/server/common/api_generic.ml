@@ -110,6 +110,7 @@ let handle_get get =
 
 let get_configuration () =
   {
+    privacy_policy = !Web_config.gdpr_uri;
     belenios_version = Belenios_platform.Version.version;
     belenios_build = Belenios_platform.Version.build;
     spec_version = Belenios_platform.Version.spec;
