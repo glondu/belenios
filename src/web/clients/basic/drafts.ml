@@ -27,8 +27,8 @@ open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_core_j
 open Belenios_core.Common
 open Belenios_api.Serializable_j
-open Belenios_js.Common
 open Tyxml_js.Html5
+open Belenios_js.Common
 open Common
 
 let show_draft_main show_all uuid draft container =

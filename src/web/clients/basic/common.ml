@@ -25,16 +25,7 @@ open Js_of_ocaml_tyxml
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Tyxml_js.Html5
-
-let lwt_handler f =
-  Dom_html.handler (fun _ -> Lwt.async f; Js._true)
-
-let show_in container f =
-  let* content = f () in
-  let content = List.map Tyxml_js.To_dom.of_node content in
-  container##.innerHTML := Js.string "";
-  List.iter (Dom.appendChild container) content;
-  Lwt.return_unit
+open Belenios_js.Common
 
 let textarea ?(cols = 80) ?(rows = 10) value =
   let elt = textarea (txt value) in
@@ -42,18 +33,6 @@ let textarea ?(cols = 80) ?(rows = 10) value =
   r##.cols := cols;
   r##.rows := rows;
   elt, (fun () -> Js.to_string r##.value)
-
-let input value =
-  let elt = input () in
-  let r = Tyxml_js.To_dom.of_input elt in
-  r##.value := Js.string value;
-  elt, (fun () -> Js.to_string r##.value)
-
-let button label handler =
-  let elt = button [txt label] in
-  let r = Tyxml_js.To_dom.of_button elt in
-  r##.onclick := lwt_handler handler;
-  elt
 
 let a ~href label =
   let elt = a [txt label] in

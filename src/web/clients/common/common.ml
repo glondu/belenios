@@ -22,6 +22,7 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
+open Js_of_ocaml_tyxml
 open Belenios_platform
 open Belenios_core
 open Platform
@@ -202,3 +203,27 @@ let redirect_if_admin target uuid token cont =
     set_element_display "initially_hidden_content" "block";
     cont ()
   )
+
+let lwt_handler f =
+  Dom_html.handler (fun _ -> Lwt.async f; Js._true)
+
+let show_in container f =
+  let* content = f () in
+  let content = List.map Tyxml_js.To_dom.of_node content in
+  container##.innerHTML := Js.string "";
+  List.iter (Dom.appendChild container) content;
+  Lwt.return_unit
+
+let input value =
+  let open Tyxml_js.Html in
+  let elt = input () in
+  let r = Tyxml_js.To_dom.of_input elt in
+  r##.value := Js.string value;
+  elt, (fun () -> Js.to_string r##.value)
+
+let button l handler =
+  let open Tyxml_js.Html in
+  let elt = button [txt l] in
+  let r = Tyxml_js.To_dom.of_button elt in
+  r##.onclick := lwt_handler handler;
+  elt

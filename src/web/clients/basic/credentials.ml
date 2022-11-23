@@ -26,8 +26,8 @@ open Belenios_core.Signatures
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
-open Belenios_js.Common
 open Tyxml_js.Html5
+open Belenios_js.Common
 open Common
 
 module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
