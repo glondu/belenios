@@ -219,16 +219,14 @@ let show_in container f =
   List.iter (Dom.appendChild container) content;
   Lwt.return_unit
 
-let input value =
-  let open Tyxml_js.Html in
-  let elt = input () in
+let input ?a value =
+  let elt = Tyxml_js.Html.input ?a () in
   let r = Tyxml_js.To_dom.of_input elt in
   r##.value := Js.string value;
   elt, (fun () -> Js.to_string r##.value)
 
-let button l handler =
-  let open Tyxml_js.Html in
-  let elt = button [txt l] in
+let button ?a label handler =
+  let elt = Tyxml_js.Html.button ?a [Tyxml_js.Html.txt label] in
   let r = Tyxml_js.To_dom.of_button elt in
   r##.onclick := lwt_handler handler;
   elt
