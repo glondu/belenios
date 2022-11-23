@@ -75,7 +75,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
        | None -> return default
        | Some x -> return @@ Unsafe.data (String.concat "\n" x)
 
-  let base ~title ?full_title ?login_box ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
+  let base ~title ?full_title ?(login_box = txt "") ?lang_box ~content ?(footer = txt "") ?uuid ?static:(static_page = false) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let administer =
@@ -85,14 +85,9 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       | Some uuid ->
          raw_a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
     in
-    let login_box = match login_box with
-      | None ->
-         div []
-      | Some x -> x
-    in
     let lang_box =
       match lang_box with
-      | None -> div []
+      | None -> txt ""
       | Some x -> div [x; div ~a:[a_style "clear: both;"] []]
     in
     let maybe_static x = if static_page then Lwt.return @@ txt "" else read_snippet ~lang x in

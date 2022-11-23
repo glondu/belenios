@@ -60,7 +60,7 @@ module type S = sig
   val base :
     title:string ->
     ?full_title:string ->
-    ?login_box:[< Html_types.div_content_fun > `Div `H1 ]
+    ?login_box:[< Html_types.div_content_fun > `Div `PCDATA ]
       Eliom_content.Html.elt ->
     ?lang_box:[< Html_types.div_content_fun > `Div ]
       Eliom_content.Html.elt ->
