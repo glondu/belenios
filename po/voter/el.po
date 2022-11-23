@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.11.1-dev\n"
 
-#: src/web/server/common/pages_common.ml:375
+#: src/web/server/common/pages_common.ml:282
 msgid " (if you forgot it, for example)."
 msgstr " (εάν το ξεχάσατε, για παράδειγμα)."
 
@@ -63,7 +63,7 @@ msgstr " έχουν καταμετρηθεί."
 msgid " hour(s)"
 msgstr " ώρα(-ες)"
 
-#: src/web/server/common/pages_common.ml:507
+#: src/web/server/common/pages_common.ml:414
 msgid " in the following box: "
 msgstr " στο ακόλουθο πεδίο: "
 
@@ -117,11 +117,11 @@ msgstr ""
 msgid "%d valid ballot(s)"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:166
+#: src/web/clients/tool/tool_js_booth.ml:165
 msgid "(nothing)"
 msgstr "(τίποτα)"
 
-#: src/web/server/common/pages_common.ml:373
+#: src/web/server/common/pages_common.ml:280
 msgid ", or "
 msgstr ", ή "
 
@@ -153,13 +153,11 @@ msgstr "Αποδεκτές ψήφοι"
 msgid "According to Majority Judgment, the ranking is:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:155
-#. src/web/server/common/pages_common.ml:84
+#: src/web/server/common/pages_common.ml:107
 msgid "Administer elections"
 msgstr "Διαχειριστείτε ψηφοφορίες"
 
-#: src/web/server/common/pages_common.ml:157
-#. src/web/server/common/pages_common.ml:86
+#: src/web/server/common/pages_common.ml:109
 msgid "Administer this election"
 msgstr "Διαχειριστείτε αυτή την ψηφοφορία"
 
@@ -194,21 +192,21 @@ msgstr "Έλεγχος δεδομένων: "
 #: src/web/server/common/pages_voter.ml:914
 #. src/web/server/common/pages_voter.ml:669
 #. src/web/server/common/pages_voter.ml:667
-#. src/web/server/common/pages_common.ml:448
-#. src/web/server/common/pages_common.ml:402
-#. src/web/server/common/pages_common.ml:353
+#. src/web/server/common/pages_common.ml:355
+#. src/web/server/common/pages_common.ml:309
+#. src/web/server/common/pages_common.ml:260
 msgid "Authenticate"
 msgstr "Αυθεντικοποίηση"
 
-#: src/web/server/common/pages_common.ml:311
+#: src/web/server/common/pages_common.ml:218
 msgid "Authenticate with %s"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:413
+#: src/web/server/common/pages_common.ml:320
 msgid "Authentication failed"
 msgstr "Αυθεντικοποίηση απέτυχε"
 
-#: src/web/server/common/pages_common.ml:416
+#: src/web/server/common/pages_common.ml:323
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Η αυθεντικοποίηση απέτυχε, πιθανά λόγω λανθασμένου ονόματος χρήστη ή "
@@ -218,11 +216,11 @@ msgstr ""
 msgid "Available methods on this server:"
 msgstr "Διαθέσιμες μέθοδοι στον διακομιστή:"
 
-#: src/web/server/common/pages_common.ml:486
+#: src/web/server/common/pages_common.ml:393
 msgid "Bad e-mail address!"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:485
+#: src/web/server/common/pages_common.ml:392
 msgid "Bad security code!"
 msgstr ""
 
@@ -231,20 +229,20 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Παραβάν ψηφοφορίας Belenios"
 
-#: src/web/server/common/pages_common.ml:470
+#: src/web/server/common/pages_common.ml:377
 msgid "Belenios Server"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:472
+#: src/web/server/common/pages_common.ml:379
 msgid "Belenios authentication"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:466
+#: src/web/server/common/pages_common.ml:373
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:158
-#. src/web/clients/tool/tool_js_booth.ml:84
+#: src/web/clients/tool/tool_js_booth.ml:157
+#. src/web/clients/tool/tool_js_booth.ml:83
 #. src/web/server/common/pages_voter.ml:172
 msgid "Blank vote"
 msgstr "Λευκή ψήφος"
@@ -253,15 +251,15 @@ msgstr "Λευκή ψήφος"
 msgid "By using this site, you accept our "
 msgstr "Με την χρήση αυτής της σελίδας, δέχεστε την "
 
-#: src/web/clients/tool/tool_js_fingerprint.ml:84
+#: src/web/clients/tool/tool_js_fingerprint.ml:85
 msgid "Compare"
 msgstr "Σύγκριση"
 
-#: src/web/clients/tool/tool_js_fingerprint.ml:68
+#: src/web/clients/tool/tool_js_fingerprint.ml:69
 msgid "Compute fingerprint"
 msgstr "Υπολογισμός αποτυπώματος"
 
-#: src/web/clients/tool/tool_js_fingerprint.ml:35
+#: src/web/clients/tool/tool_js_fingerprint.ml:34
 msgid "Computed fingerprint:"
 msgstr "Υπολογισμένο αποτύπωμα:"
 
@@ -295,7 +293,7 @@ msgstr ""
 "Τα διαπιστευτήρια δημιουργήθηκαν και εστάλησαν από τον %s και έχουν "
 "δακτυλικό αποτύπωμα %s."
 
-#: src/web/server/common/pages_common.ml:457
+#: src/web/server/common/pages_common.ml:364
 #. src/web/server/common/mails_voter.ml:363
 msgid "Dear %s,"
 msgstr "Αγαπητέ/ή %s,"
@@ -304,9 +302,9 @@ msgstr "Αγαπητέ/ή %s,"
 msgid "Done"
 msgstr "Ολοκλήρωση"
 
-#: src/web/server/common/pages_common.ml:498
-#. src/web/server/common/pages_common.ml:382
-#. src/web/server/common/pages_common.ml:337
+#: src/web/server/common/pages_common.ml:405
+#. src/web/server/common/pages_common.ml:289
+#. src/web/server/common/pages_common.ml:244
 msgid "E-mail address:"
 msgstr ""
 
@@ -319,9 +317,7 @@ msgstr "UUID Ψηφοφορίας: "
 msgid "Election fingerprint: "
 msgstr "Δακτυλικό αποτύπωμα ψηφοφορίας: "
 
-#: src/web/server/common/pages_voter.ml:961
-#. src/web/server/common/pages_common.ml:188
-#. src/web/server/common/pages_common.ml:115
+#: src/web/server/common/pages_voter.ml:961 src/web/common/pages_common.ml:51
 msgid "Election server"
 msgstr "Διακομιστής ψηφοφορίας"
 
@@ -337,7 +333,7 @@ msgstr "Κρυπτογραφώντας…"
 msgid "Error"
 msgstr "Σφάλμα"
 
-#: src/web/clients/tool/tool_js_fingerprint.ml:75
+#: src/web/clients/tool/tool_js_fingerprint.ml:76
 msgid "Expected fingerprint:"
 msgstr "Αναμενόμενο αποτύπωμα:"
 
@@ -349,8 +345,7 @@ msgstr "ΑΠΟΤΥΧΙΑ!"
 msgid "Forbidden"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:214
-#. src/web/server/common/pages_common.ml:138
+#: src/web/common/pages_common.ml:77
 msgid "Get the source code"
 msgstr "Κατεβάστε τον πηγαίο κώδικα"
 
@@ -403,7 +398,7 @@ msgstr "Εισάγετε διαπιστευτήριο"
 msgid "Input your credential "
 msgstr "Εισάγετε το διαπιστευτήριό σας "
 
-#: src/web/clients/tool/tool_js_booth.ml:385
+#: src/web/clients/tool/tool_js_booth.ml:387
 msgid "Invalid credential!"
 msgstr "Λανθασμένο διαπιστευτήριο!"
 
@@ -427,7 +422,7 @@ msgstr "Θα ανοίξει σε "
 msgid "JSON result"
 msgstr "Αποτέλεσμα JSON"
 
-#: src/web/server/common/pages_common.ml:236
+#: src/web/server/common/pages_common.ml:143
 msgid "Language:"
 msgstr "Γλώσσα:"
 
@@ -435,14 +430,14 @@ msgstr "Γλώσσα:"
 msgid "Loading…"
 msgstr "Φόρτωση…"
 
-#: src/web/server/common/pages_common.ml:447
-#. src/web/server/common/pages_common.ml:401
-#. src/web/server/common/pages_common.ml:352
-#. src/web/server/common/pages_common.ml:329
+#: src/web/server/common/pages_common.ml:354
+#. src/web/server/common/pages_common.ml:308
+#. src/web/server/common/pages_common.ml:259
+#. src/web/server/common/pages_common.ml:236
 msgid "Log in"
 msgstr "Είσοδος"
 
-#: src/web/server/common/pages_common.ml:310
+#: src/web/server/common/pages_common.ml:217
 msgid "Log in with %s"
 msgstr "Είσοδος με %s"
 
@@ -475,11 +470,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr "Περισσότερες πληροφορίες μπορούν να βρεθούν "
 
-#: src/web/clients/tool/tool_js_booth.ml:315
+#: src/web/clients/tool/tool_js_booth.ml:316
 msgid "Next"
 msgstr "Επόμενο"
 
-#: src/web/clients/tool/tool_js_booth.ml:138
+#: src/web/clients/tool/tool_js_booth.ml:137
 msgid "No other choices are allowed when voting blank"
 msgstr "Δεν επιτρέπονται άλλες επιλογές όταν ψηφίζετε λευκό"
 
@@ -522,20 +517,20 @@ msgstr "Μόνο η τελευταία ψήφος μετράει."
 msgid "Page of the election:"
 msgstr "Σελίδα ψηφοφορίας:"
 
-#: src/web/server/common/pages_common.ml:394
+#: src/web/server/common/pages_common.ml:301
 #. src/web/server/common/mails_voter.ml:57
 msgid "Password:"
 msgstr "Κωδικός:"
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:412
 msgid "Please enter "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:434
+#: src/web/server/common/pages_common.ml:341
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:379
+#: src/web/clients/tool/tool_js_booth.ml:381
 msgid "Please enter your credential:"
 msgstr "Παρακαλούμε εισάγετε το διαπιστευτήριό σας:"
 
@@ -543,11 +538,11 @@ msgstr "Παρακαλούμε εισάγετε το διαπιστευτήρι�
 msgid "Please find below your login and password for the election"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:326
+#: src/web/server/common/pages_common.ml:233
 msgid "Please log in:"
 msgstr "Παρακαλούμε κάντε είσοδο:"
 
-#: src/web/clients/tool/tool_js_fingerprint.ml:58
+#: src/web/clients/tool/tool_js_fingerprint.ml:59
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
 "Παρακαλούμε επικολλήστε τα δεδομένα για τα οποία θέλετε να υπολογίσετε το "
@@ -573,21 +568,19 @@ msgstr "Παρακαλούμε περιμένετε όσο το ψηφοδέλτ
 msgid "Please wait… "
 msgstr "Παρακαλώ περιμένετε... "
 
-#: src/web/server/common/pages_common.ml:209
-#. src/web/server/common/pages_common.ml:133
+#: src/web/common/pages_common.ml:72
 msgid "Powered by "
 msgstr "Βασισμένο στο "
 
-#: src/web/clients/tool/tool_js_booth.ml:314
+#: src/web/clients/tool/tool_js_booth.ml:315
 msgid "Previous"
 msgstr "Προηγούμενο"
 
-#: src/web/server/common/pages_common.ml:216
-#. src/web/server/common/pages_common.ml:140
+#: src/web/common/pages_common.ml:79
 msgid "Privacy policy"
 msgstr "Πολιτική Ιδιωτικότητας"
 
-#: src/web/server/common/pages_common.ml:284
+#: src/web/server/common/pages_common.ml:191
 msgid "Proceed"
 msgstr "Προχωρήστε"
 
@@ -617,11 +610,11 @@ msgstr "Κρατήστε το για να ελέγξετε ότι έχει λη�
 msgid "See accepted ballots"
 msgstr "Δείτε τα αποδεκτά ψηφοδέλτια"
 
-#: src/web/clients/tool/tool_js_booth.ml:78
+#: src/web/clients/tool/tool_js_booth.ml:77
 msgid "Select between %d and %d answer(s)"
 msgstr "Επιλέξτε μεταξύ %d και %d απάντησης/απαντήσεων"
 
-#: src/web/server/common/pages_common.ml:239
+#: src/web/server/common/pages_common.ml:146
 msgid "Set"
 msgstr "Ορισμός"
 
@@ -676,8 +669,8 @@ msgstr ""
 msgid "Step 5"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:511
-#. src/web/server/common/pages_common.ml:439
+#: src/web/server/common/pages_common.ml:418
+#. src/web/server/common/pages_common.ml:346
 msgid "Submit"
 msgstr ""
 
@@ -796,7 +789,7 @@ msgstr "Η ψηφοφορία χρησιμοποιεί βάρη!"
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:387
+#: src/web/clients/tool/tool_js_booth.ml:389
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr "Αυτό μοιάζει με κωδικός πρόσβασης, μήπως κοιτάξατε στο λάθος e-mail;"
 
@@ -833,12 +826,12 @@ msgstr "Συνολική βαρύτητα αποδεκτών ψήφων:"
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Η επιτροπή ανακάτεψε τα ψηφοδέλτια με την εξής σειρά:"
 
-#: src/web/server/common/pages_common.ml:460
+#: src/web/server/common/pages_common.ml:367
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:381
-#. src/web/server/common/pages_common.ml:336
+#: src/web/server/common/pages_common.ml:288
+#. src/web/server/common/pages_common.ml:243
 #. src/web/server/common/mails_voter.ml:129
 #. src/web/server/common/mails_voter.ml:56
 msgid "Username:"
@@ -860,7 +853,7 @@ msgstr ""
 "βαθμολόγηση ή επιλογές λανθασμένα καταταγμένες) θα απορριφθούν στο τέλος της "
 "ψηφοφορίας."
 
-#: src/web/server/common/pages_common.ml:464
+#: src/web/server/common/pages_common.ml:371
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
@@ -876,7 +869,7 @@ msgstr ""
 "μεταφέρονται στον επόμενο υποψήφιο στο ψηφοδέλτιο, με έναν συντελεστή "
 "ανάλογο των επιπλέον ψήφων."
 
-#: src/web/server/common/pages_common.ml:249
+#: src/web/server/common/pages_common.ml:156
 msgid "Wish to help with translations?"
 msgstr "Θέλετε να βοηθήσετε με τις μεταφράσεις;"
 
@@ -893,11 +886,11 @@ msgstr "Είστε δηλωμένος ώς ψηφοφόρος για αυτή τ
 msgid "You are not allowed to access this page!"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:418
+#: src/web/server/common/pages_common.ml:325
 msgid "You can "
 msgstr "Μπορείτε να "
 
-#: src/web/server/common/pages_common.ml:371
+#: src/web/server/common/pages_common.ml:278
 msgid "You can also "
 msgstr "Μπορείτε επίσης να "
 
@@ -913,15 +906,15 @@ msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στη
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην κάλπη, προσβάσιμη στο"
 
-#: src/web/server/common/pages_common.ml:522
+#: src/web/server/common/pages_common.ml:429
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:125
+#: src/web/clients/tool/tool_js_booth.ml:124
 msgid "You must select at least %d answer(s)"
 msgstr "Πρέπει να επιλέξετε τουλάχιστον %d απαντήσεις"
 
-#: src/web/clients/tool/tool_js_booth.ml:128
+#: src/web/clients/tool/tool_js_booth.ml:127
 msgid "You must select at most %d answer(s)"
 msgstr "Πρέπει να επιλέξετε το μέγιστο %d απαντήσεις"
 
@@ -950,7 +943,7 @@ msgstr "Ο browser σας μπλοκάρει τα cookies. Παρακαλούμ�
 msgid "Your credential for election %s"
 msgstr "Το διαπιστευτήριό σας για την ψηφοφορία %s"
 
-#: src/web/server/common/pages_common.ml:459
+#: src/web/server/common/pages_common.ml:366
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
@@ -992,11 +985,11 @@ msgstr "κάλπη"
 msgid "but not cast yet"
 msgstr "αλλά δεν έχει μπει στην κάλπη ακόμα"
 
-#: src/web/server/common/pages_common.ml:374
+#: src/web/server/common/pages_common.ml:281
 msgid "change your password"
 msgstr "αλλάξτε των κωδικό σας"
 
-#: src/web/server/common/pages_common.ml:372
+#: src/web/server/common/pages_common.ml:279
 msgid "create an account"
 msgstr "δημιουργήσετε έναν λογαριασμό"
 
@@ -1004,7 +997,7 @@ msgstr "δημιουργήσετε έναν λογαριασμό"
 msgid "has been recorded."
 msgstr "έχει καταγραφεί."
 
-#: src/web/clients/tool/tool_js_booth.ml:377
+#: src/web/clients/tool/tool_js_booth.ml:379
 #. src/web/server/common/pages_voter.ml:1086
 #. src/web/server/common/pages_voter.ml:1033
 msgid "here"
@@ -1046,7 +1039,7 @@ msgstr "η σελίδα της Wikipedia"
 msgid "the election is closed"
 msgstr "η ψηφοφορία έχει ολοκληρωθεί"
 
-#: src/web/server/common/pages_common.ml:419
+#: src/web/server/common/pages_common.ml:326
 msgid "try to log in again"
 msgstr "Δοκιμάστε να συνδεθείτε ξανά"
 
