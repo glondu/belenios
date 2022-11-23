@@ -94,7 +94,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
       let* challenge = M.random q in
       let* response = M.random q in
       proofs.(i) <- {challenge; response};
-      commitments.(2*i) <- g **~ response *~ alpha **~ challenge;
+      commitments.(2*i) <- g **~ Z.((response + r * challenge) mod q);
       let* () = M.yield () in
       commitments.(2*i+1) <- y **~ response *~ (beta *~ d.(i)) **~ challenge;
       let* () = M.yield () in
@@ -152,7 +152,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
         (* proof of m0 = 0 \/ mS = 0 (first is true) *)
         let* challenge1 = M.random q in
         let* response1 = M.random q in
-        let commitmentA1 = g **~ response1 *~ cS.alpha **~ challenge1 in
+        let commitmentA1 = g **~ Z.((response1 + rS * challenge1) mod q) in
         let* () = M.yield () in
         let commitmentB1 = y **~ response1 *~ cS.beta **~ challenge1 in
         let* w = M.random q in
@@ -176,7 +176,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
         let overall_proof = Array.make (max-min+2) proof0 in
         let commitments = Array.make (2*(max-min+2)) g in
         let total_challenges = ref challenge0 in
-        commitments.(0) <- g **~ response0 *~ c0.alpha **~ challenge0;
+        commitments.(0) <- g **~ Z.((response0 + r0 * challenge0) mod q);
         let* () = M.yield () in
         commitments.(1) <- y **~ response0 *~ (c0.beta / g) **~ challenge0;
         let* () = M.yield () in
@@ -190,7 +190,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
               let nbeta = cS.beta / g' in
               let j = 2*i in
               overall_proof.(i) <- {challenge; response};
-              commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
+              commitments.(j) <- g **~ Z.((response + rS * challenge) mod q);
               let* () = M.yield () in
               commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
               let* () = M.yield () in
@@ -219,7 +219,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
         assert (mS = 0);
         let* challenge0 = M.random q in
         let* response0 = M.random q in
-        let commitmentA0 = g **~ response0 *~ c0.alpha **~ challenge0 in
+        let commitmentA0 = g **~ Z.((response0 + r0 * challenge0) mod q) in
         let* () = M.yield () in
         let commitmentB0 = y **~ response0 *~ c0.beta **~ challenge0 in
         let* w = M.random q in
@@ -249,7 +249,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
             let nbeta = cS.beta / g' in
             let j = 2*i in
             overall_proof.(i) <- {challenge; response};
-            commitments.(j) <- g **~ response *~ cS.alpha **~ challenge;
+            commitments.(j) <- g **~ Z.((response + rS * challenge) mod q);
             let* () = M.yield () in
             commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
             let* () = M.yield () in
