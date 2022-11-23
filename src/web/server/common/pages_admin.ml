@@ -277,12 +277,6 @@ module Make
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title = s_ "Prepare a new election" in
-    let cred_info = Eliom_service.extern
-                      ~prefix:"https://www.belenios.org"
-                      ~path:["setup.html"]
-                      ~meth:(Eliom_service.Get Eliom_parameter.unit)
-                      ()
-    in
     let form =
       post_form ~service:election_draft_new
         (fun (credmgmt, (auth, cas_server)) ->
@@ -342,7 +336,7 @@ module Make
             div [
                 txt (s_ "For a better control of eligibility, voters will be authenticated by two factors: credentials and passwords");
                 txt " (";
-                a ~service:cred_info [txt (s_ "more info")] ();
+                direct_a Belenios_ui.Links.setup (s_ "more info");
                 txt ").";
               ];
             ol [
@@ -1227,7 +1221,7 @@ module Make
                 [
                   txt (s_ "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote.");
                   txt " ";
-                  direct_a "https://www.belenios.org/mixnet.html" (s_ "More information.");
+                  direct_a Belenios_ui.Links.mixnet (s_ "More information.");
                 ];
             ];
           div

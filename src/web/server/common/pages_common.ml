@@ -61,12 +61,6 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     |> rewrite_prefix
     |> Eliom_content.Xml.uri_of_string
 
-  let belenios_url = Eliom_service.extern
-                       ~prefix:"https://www.belenios.org"
-                       ~path:[]
-                       ~meth:(Eliom_service.Get Eliom_parameter.unit)
-                       ()
-
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
   let read_snippet ?(default = txt "") ~lang file = match file with
@@ -90,7 +84,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     module Uris = struct
       let home = absolute_uri_of_service ~service:home ()
       let logo = static "logo.png"
-      let belenios = absolute_uri_of_service ~service:belenios_url ()
+      let belenios = Eliom_content.Xml.uri_of_string Belenios_ui.Links.belenios
       let source_code = absolute_uri_of_service ~service:source_code ()
       let privacy_policy = Xml.uri_of_string !Web_config.gdpr_uri
     end
@@ -153,7 +147,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
                   div ~a:[a_style "font-size: 80%; font-style: italic; text-align: right;"]
                     [
                       txt "(";
-                      direct_a "https://www.belenios.org/translation.html" (s_ "Wish to help with translations?");
+                      direct_a Belenios_ui.Links.translation (s_ "Wish to help with translations?");
                       txt ")";
                     ];
                 ]

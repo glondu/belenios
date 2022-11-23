@@ -49,7 +49,7 @@ module Make (I : I18n.S) = struct
     add_newline b;
     add_sentence b (s_ "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."); add_newline b;
     add_sentence b (s_ "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"); add_newline b;
-    add_string b "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"; add_newline b;
+    add_string b Links.cred_instructions; add_newline b;
     add_sentence b (s_ "The page also contains instructions for checking the voting record, after the tally."); add_newline b;
     add_newline b;
     add_sentence b (s_ "You may need to resend credentials to voters who have lost them."); add_newline b;

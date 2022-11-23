@@ -341,7 +341,7 @@ let rec createQuestion booth_set q =
   Dom.appendChild div_extra3 (document##createTextNode (Js.string " "));
   let more_info = Dom_html.createA document in
   Dom.appendChild div_extra3 more_info;
-  more_info##.href := Js.string "https://www.belenios.org/mixnet.html";
+  more_info##.href := Js.string Belenios_ui.Links.mixnet;
   Dom.appendChild more_info (document##createTextNode (Js.string (s_ "More information.")));
   (* selector *)
   let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
