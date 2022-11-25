@@ -1135,22 +1135,10 @@ module Make
                 txt (s_ "Once the election is open, check that:");
                 ol [
                     li [
-                        txt (s_ "the number of voters is correct, and the fingerprint of the voter list matches what has been saved, for example with the following command:");
-                        pre [txt "sha256sum voters.txt | xxd -p -r | base64 | tr -d \"=\""];
-                        txt (s_ "(or ");
-                        code [txt "shasum -a256"];
-                        txt (s_ " instead of ");
-                        code [txt "sha256sum"];
-                        txt ");"
+                        txt (s_ "the number of voters is correct, and the fingerprint of the voter list matches what has been saved;");
                       ];
                     li [
-                        txt (s_ "the fingerprint of public credentials matches what has been saved, for example with the following command:");
-                        pre [txt "sha256sum public_creds.json | xxd -p -r | base64 | tr -d \"=\""];
-                        txt (s_ "(or ");
-                        code [txt "shasum -a256"];
-                        txt (s_ " instead of ");
-                        code [txt "sha256sum"];
-                        txt ");"
+                        txt (s_ "the fingerprint of public credentials matches what has been saved;");
                       ];
                     li [
                         txt (s_ "you can send the private credential back to its rightful owner in case it gets lost.")
