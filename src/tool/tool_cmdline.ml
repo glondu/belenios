@@ -584,7 +584,9 @@ module Credgen : CMDLINER_MODULE = struct
        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
        let base = dir // timestamp in
        save params_priv base (as_lines c.priv);
-       save params_pub base (as_public_credentials c.public_with_ids)
+       save params_pub base (as_public_credentials c.public_with_ids);
+       let h = sha256_b64 (string_of_public_credentials c.public) in
+       Printf.printf "The fingerprint of public credentials is %s\n%!" h
 
   let count_t =
     let doc = "Generate $(docv) credentials." in

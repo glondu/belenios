@@ -185,10 +185,8 @@ Then the authority has two options to generate the credentials:
         belenios-tool setup generate-credentials --file voters.txt --group $GROUP --uuid $UUID
 
     It will generate two files, `$TIMESTAMP.privcreds` and
-    `$TIMESTAMP.pubcreds`;
+    `$TIMESTAMP.pubcreds`, and output the `fingerprint of public credentials`;
   - upload the `.pubcreds` file with the `Submit by file` form;
-  - [compute the fingerprint](#hash) of the `.pubcreds` file and save
-    it as `fingerprint of the public credentials`;
   - keep the `.privcreds` file and save it as `creds.txt`.
 
 The second option should be preferred for more security, in particular

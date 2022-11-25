@@ -30,7 +30,7 @@ uuid="--uuid $UUID"
 group="--group RFC-3526-2048"
 
 # Generate credentials
-belenios-tool setup generate-credentials $uuid $group --count 102
+belenios-tool setup generate-credentials $uuid $group --count 102 | tee generate-credentials.out
 mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.txt
 
@@ -50,6 +50,15 @@ belenios-tool setup make-election $uuid $group --template $BELENIOS/tests/tool/t
 # Initialize events
 belenios-tool archive init
 rm -f election.json trustees.json public_creds.json
+
+# Check public credential fingerprint
+EXPECTED_PUBLIC_CREDENTIAL_FINGERPRINT="$(tail -n1 generate-credentials.out| awk '{print $(NF)}')"
+ACTUAL_PUBLIC_CREDENTIAL_FINGERPRINT="$(tar -xOf $UUID.bel $(tar -tf $UUID.bel | head -n4 | tail -n1) | belenios-tool sha256-b64)"
+if [ "$EXPECTED_PUBLIC_CREDENTIAL_FINGERPRINT" != "$ACTUAL_PUBLIC_CREDENTIAL_FINGERPRINT" ]; then
+    echo "Discrepancy in public credential fingerprint"
+    exit 2
+fi
+rm -f generate-credentials.out
 
 header "Simulate votes"
 

@@ -194,11 +194,9 @@ L'autorité a alors deux options pour générer les codes de vote:
         belenios-tool setup generate-credentials --file voters.txt --group $GROUP --uuid $UUID
 
     Elle génère deux fichiers, `$TIMESTAMP.privcreds` et
-    `$TIMESTAMP.pubcreds` ;
+    `$TIMESTAMP.pubcreds`, et l'`empreinte des codes de vote publics` ;
   - soumettre le fichier `.pubcreds` avec le formulaire `Soumettre via
     un fichier` ;
-  - [calculer l'empreinte](#hash) du fichier `.pubcreds` et la
-    sauvegarder en tant qu'`empreinte des codes de vote publics` ;
   - sauvegarder le fichier `.privcreds` en tant que `creds.txt`.
 
 La seconde option devrait être préférée pour plus de sécurité, en
