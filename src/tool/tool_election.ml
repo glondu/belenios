@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
+module B = Belenios
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
@@ -57,7 +57,6 @@ module type S = sig
   val compute_encrypted_tally : unit -> string * string
 end
 
-module PTrustees = Trustees
 module M = Random
 
 module MakeGetters (X : PARAMS) : FILES = struct
@@ -129,8 +128,8 @@ end
 module Make (P : PARAMS) () = struct
 
   include MakeGetters (P)
-  include Election.Make (struct let raw_election = raw_election end) (M) ()
-  module Trustees = (val Trustees.get_by_version election.e_version)
+  include B.Election.Make (struct let raw_election = raw_election end) (M) ()
+  module Trustees = (val B.Trustees.get_by_version election.e_version)
   let ( let* ) = M.bind
 
   module P = Trustees.MakePKI (G) (M)
@@ -383,7 +382,7 @@ module Make (P : PARAMS) () = struct
     );
     (match Lazy.force shuffles_hash with
      | None | Some [] ->
-        if Election.has_nh_questions election then
+        if B.Election.has_nh_questions election then
           failwith "the election has non-homomorphic questions and no shuffles were found";
      | Some shuffles ->
         shuffles
@@ -391,7 +390,7 @@ module Make (P : PARAMS) () = struct
              (fun s ->
                Printf.ksprintf print_msg "I: shuffle %s has been applied" s)
     );
-    if Election.has_nh_questions election then
+    if B.Election.has_nh_questions election then
       print_msg "W: you should check that your shuffle appears in the list of applied shuffles";
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally sk in
@@ -453,7 +452,7 @@ module Make (P : PARAMS) () = struct
        begin
          match E.compute_result sized factors trustees with
          | Ok result -> M.return (string_of_election_result write_result result)
-         | Error e -> failwith (PTrustees.string_of_combination_error e)
+         | Error e -> failwith (B.Trustees.string_of_combination_error e)
        end
     | None -> failwith "missing trustees"
 
@@ -520,7 +519,7 @@ module Make (P : PARAMS) () = struct
       | None -> failwith "missing credentials"
       | Some x -> x
     in
-    Election.compute_checksums ~election ~shuffles ~encrypted_tally ~trustees ~public_credentials
+    B.Election.compute_checksums ~election ~shuffles ~encrypted_tally ~trustees ~public_credentials
     |> string_of_election_checksums
 
   let split line =
