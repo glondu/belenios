@@ -32,7 +32,7 @@ module Shasum : CMDLINER_MODULE = struct
   let main () =
     wrap_main (fun () -> chars_of_stdin () |> sha256_b64 |> print_endline)
 
-  let sha256_b64_cmd =
+  let cmd =
     let doc = "compute SHA256 of standard input and encode it in Base64Compact" in
     let man = [
         `S "DESCRIPTION";
@@ -44,11 +44,9 @@ module Shasum : CMDLINER_MODULE = struct
     Cmd.v (Cmd.info "sha256-b64" ~doc ~man)
       Term.(ret (const main $ const ()))
 
-  let cmds = [sha256_b64_cmd]
-
 end
 
-module ElectionManagement : CMDLINER_MODULE = struct
+module ElectionManagement = struct
   open Tool_election
 
   let main url dir action =
@@ -298,7 +296,7 @@ module Verifydiff : CMDLINER_MODULE = struct
     let doc = "Second directory to compare." in
     Arg.(value & opt (some dir) None & info ["dir2"] ~docv:"DIR2" ~doc)
 
-  let verifydiff_cmd =
+  let cmd =
     let doc = "verify an election directory update" in
     let man = [
         `S "DESCRIPTION";
@@ -306,8 +304,6 @@ module Verifydiff : CMDLINER_MODULE = struct
       ] @ common_man in
     Cmd.v (Cmd.info "verify-diff" ~doc ~man)
       Term.(ret (const main $ dir1_t $ dir2_t))
-
-  let cmds = [verifydiff_cmd]
 
 end
 
@@ -384,13 +380,11 @@ module Events : CMDLINER_MODULE = struct
     Cmd.v (Cmd.info "add-event" ~doc ~man)
       Term.(ret (const add_event $ dir_t $ event_typ_t))
 
-  let events_cmd =
+  let cmd =
     let doc = "manage archives" in
     let man = common_man in
     let info = Cmd.info "archive" ~doc ~man in
-    Cmd.group info ([init_cmd; add_event_cmd] @ Tool_mkarchive.cmds)
-
-  let cmds = [events_cmd]
+    Cmd.group info [init_cmd; add_event_cmd; Tool_mkarchive.cmd]
 
 end
 
@@ -502,13 +496,11 @@ module Methods : CMDLINER_MODULE = struct
     Cmd.v (Cmd.info "stv" ~doc ~man)
       Term.(ret (const stv $ nseats_t))
 
-  let method_cmd =
+  let cmd =
     let doc = "compute result with specific counting methods" in
     let man = common_man in
     let info = Cmd.info "method" ~doc ~man in
     Cmd.group info [schulze_cmd; mj_cmd; stv_cmd]
-
-  let cmds = [method_cmd]
 
 end
 
@@ -517,28 +509,19 @@ module Election : CMDLINER_MODULE = struct
     let doc = "election management commands" in
     let man = common_man in
     let info = Cmd.info "election" ~doc ~man in
-    let cmds =
-      List.flatten
-        [
-          ElectionManagement.cmds;
-          Verifydiff.cmds;
-        ]
-    in
+    let cmds = Verifydiff.cmd :: ElectionManagement.cmds in
     Cmd.group info cmds
-
-  let cmds = [cmd]
 end
 
 let cmds =
-  List.flatten
-    [
-      Shasum.cmds;
-      Setup.cmds;
-      Election.cmds;
-      Events.cmds;
-      Methods.cmds;
-      Sealing.cmds;
-    ]
+  [
+    Shasum.cmd;
+    Setup.cmd;
+    Election.cmd;
+    Events.cmd;
+    Methods.cmd;
+    Sealing.cmd;
+  ]
 
 let default_cmd =
   let open Version in

@@ -67,7 +67,7 @@ module Tkeygen : CMDLINER_MODULE = struct
     save pubkey;
     save privkey
 
-  let tkeygen_cmd =
+  let cmd =
     let doc = "generate a trustee key" in
     let man = [
       `S "DESCRIPTION";
@@ -75,8 +75,6 @@ module Tkeygen : CMDLINER_MODULE = struct
     ] @ common_man in
     Cmd.v (Cmd.info "generate-trustee-key" ~doc ~man)
       Term.(ret (const main $ group_t $ version_t))
-
-  let cmds = [tkeygen_cmd]
 
 end
 
@@ -195,7 +193,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let the_info = Arg.info ["polynomials"] ~docv:"POLYNOMIALS" ~doc in
     Arg.(value & opt (some file) None the_info)
 
-  let ttkeygen_cmd =
+  let cmd =
     let doc = "generate a trustee key usable with threshold decryption" in
     let man = [
         `S "DESCRIPTION";
@@ -203,8 +201,6 @@ module Ttkeygen : CMDLINER_MODULE = struct
       ] @ common_man in
     Cmd.v (Cmd.info "generate-trustee-key-threshold" ~doc ~man)
       Term.(ret (const main $ group_t $ version_t $ step_t $ cert_t $ threshold_t $ key_t $ polynomials_t))
-
-  let cmds = [ttkeygen_cmd]
 
 end
 
@@ -281,7 +277,7 @@ module Credgen : CMDLINER_MODULE = struct
     let the_info = Arg.info ["derive"] ~docv:"PRIVATE_CRED" ~doc in
     Arg.(value & opt (some string) None the_info)
 
-  let credgen_cmd =
+  let cmd =
     let doc = "generate credentials" in
     let man = [
       `S "DESCRIPTION";
@@ -289,8 +285,6 @@ module Credgen : CMDLINER_MODULE = struct
     ] @ common_man in
     Cmd.v (Cmd.info "generate-credentials" ~doc ~man)
       Term.(ret (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t $ derive_t))
-
-  let cmds = [credgen_cmd]
 
 end
 
@@ -331,7 +325,7 @@ module Mktrustees : CMDLINER_MODULE = struct
     output_char oc '\n';
     close_out oc
 
-  let mktrustees_cmd =
+  let cmd =
     let doc = "create a trustee parameter file" in
     let man = [
       `S "DESCRIPTION";
@@ -339,8 +333,6 @@ module Mktrustees : CMDLINER_MODULE = struct
     ] @ common_man in
     Cmd.v (Cmd.info "make-trustees" ~doc ~man)
       Term.(ret (const main $ dir_t))
-
-  let cmds = [mktrustees_cmd]
 
 end
 
@@ -372,7 +364,7 @@ module Mkelection : CMDLINER_MODULE = struct
     let doc = "Read election template from file $(docv)." in
     Arg.(value & opt (some file) None & info ["template"] ~docv:"TEMPLATE" ~doc)
 
-  let mkelection_cmd =
+  let cmd =
     let doc = "create an election public parameter file" in
     let man = [
       `S "DESCRIPTION";
@@ -380,8 +372,6 @@ module Mkelection : CMDLINER_MODULE = struct
     ] @ common_man in
     Cmd.v (Cmd.info "make-election" ~doc ~man)
       Term.(ret (const main $ dir_t $ group_t $ version_t $ uuid_t $ template_t))
-
-  let cmds = [mkelection_cmd]
 
 end
 
@@ -397,7 +387,7 @@ module GenerateToken : CMDLINER_MODULE = struct
     let doc = "Token length." in
     Arg.(value & opt int 14 & info ["length"] ~docv:"L" ~doc)
 
-  let generate_token_cmd =
+  let cmd =
     let doc = "generate a token" in
     let man = [
         `S "DESCRIPTION";
@@ -407,8 +397,6 @@ module GenerateToken : CMDLINER_MODULE = struct
     Cmd.v (Cmd.info "generate-token" ~doc ~man)
       Term.(ret (const main $ length_t))
 
-  let cmds = [generate_token_cmd]
-
 end
 
 let cmd =
@@ -416,16 +404,13 @@ let cmd =
   let man = common_man in
   let info = Cmd.info "setup" ~doc ~man in
   let cmds =
-    List.flatten
-      [
-        Tkeygen.cmds;
-        Ttkeygen.cmds;
-        Credgen.cmds;
-        Mktrustees.cmds;
-        Mkelection.cmds;
-        GenerateToken.cmds;
-      ]
+    [
+      Tkeygen.cmd;
+      Ttkeygen.cmd;
+      Credgen.cmd;
+      Mktrustees.cmd;
+      Mkelection.cmd;
+      GenerateToken.cmd;
+    ]
   in
   Cmd.group info cmds
-
-let cmds = [cmd]

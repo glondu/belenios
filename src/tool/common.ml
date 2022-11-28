@@ -121,7 +121,7 @@ let common_man = [
 open Cmdliner
 
 module type CMDLINER_MODULE = sig
-  val cmds : unit Cmd.t list
+  val cmd : unit Cmd.t
 end
 
 let dir_t, optdir_t =

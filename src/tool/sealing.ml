@@ -130,5 +130,3 @@ let cmd =
   in
   Cmd.v (Cmd.info "measure" ~doc ~man)
     Term.(ret (const main $ full_t $ cfg_t $ path_t))
-
-let cmds = [cmd]

@@ -92,5 +92,3 @@ let cmd =
   in
   Cmd.v (Cmd.info "make" ~doc ~man)
     Term.(ret (const main $ dir_t))
-
-let cmds = [cmd]
