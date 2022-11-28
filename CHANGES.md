@@ -2,11 +2,17 @@ dev
 ===
 
  * Change the format of public data of running elections
+ * Drop crypto v0
+ * Optimize some exponentiations
+ * In credential generation, generate also a mapping from public
+   credentials to usernames, to be sent to the voting server
  * Web server:
    + Add a spool migration tool
    + Add a direct cast API (experimental)
    + Remove a confirmation step in the voting process
    + Add a SEALING service, GET-able by logged in administrators
+   + Unify the style of all server-generated pages
+   + Changes in API related to drafts and trustees
  * Command-line tool:
    + Add a system integrity (sealing) measurement command
 
