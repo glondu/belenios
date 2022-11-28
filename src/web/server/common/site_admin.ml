@@ -786,7 +786,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     | Some se ->
        if se.se_public_creds <> token then forbidden () else
          if se.se_public_creds_received then forbidden () else
-           let* creds = Lwt_stream.to_string creds in
            let creds = public_credentials_of_string creds in
            let* () = Api_drafts.submit_public_credentials uuid se creds in
            Pages_admin.election_draft_credentials_done se () >>= Html.send
@@ -795,16 +794,17 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_credentials_post
       (fun (uuid, token) creds ->
         let@ () = without_site_user () in
-        let s = Lwt_stream.of_string creds in
-        wrap_handler (fun () -> handle_credentials_post uuid token s)
+        wrap_handler (fun () -> handle_credentials_post uuid token creds)
       )
 
   let () =
     Any.register ~service:election_draft_credentials_post_file
       (fun (uuid, token) creds ->
         let@ () = without_site_user () in
-        let s = Lwt_io.chars_of_file creds.Ocsigen_extensions.tmp_filename in
-        wrap_handler (fun () -> handle_credentials_post uuid token s)
+        let fname = creds.Ocsigen_extensions.tmp_filename in
+        let* creds = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
+        let* () = Lwt_unix.unlink fname in
+        wrap_handler (fun () -> handle_credentials_post uuid token creds)
       )
 
   let () =

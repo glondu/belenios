@@ -91,10 +91,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
   let () =
     Any.register ~service:election_submit_ballot_file
       (fun () ballot ->
-        let* ballot =
-          let fname = ballot.Ocsigen_extensions.tmp_filename in
-          Lwt_stream.to_string (Lwt_io.chars_of_file fname)
-        in
+        let fname = ballot.Ocsigen_extensions.tmp_filename in
+        let* ballot = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
+        let* () = Lwt_unix.unlink fname in
         submit_ballot ballot
       )
 
