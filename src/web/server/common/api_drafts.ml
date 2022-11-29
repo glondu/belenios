@@ -428,7 +428,7 @@ let submit_public_credentials uuid se credentials =
   in
   let _ =
     List.fold_left
-      (fun i x ->
+      (fun (i, accu) x ->
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
@@ -441,6 +441,7 @@ let submit_public_credentials uuid se credentials =
           | [c; w; u] -> G.of_string c, Weight.of_string w, u
           | _ -> invalid "record"
         in
+        let cred_s = G.to_string cred in
         let () =
           match SMap.find_opt username usernames with
           | None -> invalid "username %s" username
@@ -449,12 +450,14 @@ let submit_public_credentials uuid se credentials =
                invalid "duplicate username %s" username
              else if Weight.compare w weight <> 0 then
                invalid "differing weight"
+             else if SSet.mem cred_s accu then
+               invalid "duplicate credential"
              else if not (G.check cred) then
                invalid "public credential"
              else used := true
         in
-        i + 1
-      ) 0 credentials
+        i + 1, SSet.add cred_s accu
+      ) (0, SSet.empty) credentials
   in
   let credentials = string_of_public_credentials credentials in
   let* () = write_file ~uuid "public_creds.json" [credentials] in

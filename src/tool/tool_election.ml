@@ -190,7 +190,12 @@ module Make (P : PARAMS) () = struct
                 (fun (has_weights, accu) x ->
                   let has_weights = has_weights || (String.index_opt x ',' <> None) in
                   match PPC.parse_public_credential x with
-                  | Some (w, y) -> has_weights, SMap.add (G.to_string y) (w, ref None) accu
+                  | Some (w, y) ->
+                     let y = G.to_string y in
+                     if SMap.mem y accu then
+                       Printf.ksprintf failwith "duplicate credential: %s" y
+                     else
+                       has_weights, SMap.add y (w, ref None) accu
                   | None -> Printf.ksprintf failwith "%s is not a valid public credential" x;
                 ) (false, SMap.empty)
              )
