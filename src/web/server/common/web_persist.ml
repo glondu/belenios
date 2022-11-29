@@ -555,26 +555,6 @@ let build_elections_by_owner_cache () =
           )
         ) IMap.empty
 
-let build_elections_by_owner_cache () =
-  let start = Unix.gettimeofday () in
-  let () = Ocsigen_messages.accesslog "Building elections_by_owner_cache..." in
-  Lwt.catch
-    (fun () ->
-      let@ () = Lwt_unix.with_timeout 10. in
-      let* result = build_elections_by_owner_cache () in
-      let duration = Unix.gettimeofday () -. start in
-      let msg = Printf.sprintf "Built elections_by_owner_cache in %.3g seconds" duration in
-      let () = Ocsigen_messages.accesslog msg in
-      return result
-    )
-    (function
-     | Lwt_unix.Timeout ->
-        let msg = "Building elections_by_owner_cache timed out" in
-        let () = Ocsigen_messages.accesslog msg in
-        Lwt.fail (Failure msg)
-     | e -> Lwt.fail e
-    )
-
 let get_elections_by_owner user =
   let* cache =
     match !elections_by_owner_cache with
