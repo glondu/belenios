@@ -179,17 +179,17 @@ hash chain. It contains in particular:
 
 \begin{enumerate}
 \item $\mathcal{A}$ starts the preparation of an election, providing
-  in particular the questions and a list of voter
+  in particular the questions and the list of voters
 \item $\mathcal{S}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
   sends it to $\mathcal{C}$
 \item $\mathcal{C}$ generates \hyperref[credentials]{credentials}
   $c_1,\dots,c_n$ and computes
-  \[L=\shuffle((\public(c_1),w_1),\dots,(\public(c_n),w_n))\]
+  \[L=\shuffle((\public(c_1),w_1,\mathcal{V}_1),\dots,(\public(c_n),w_n,\mathcal{V}_n))\]
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
 \item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
  \item $\mathcal{C}$ sends $L$ to $\mathcal{S}$
- \item $\mathcal{S}$ checks that the multiset of weights in $L$ is the
-   same as $\{w_1,\dots,w_n\}$
+ \item $\mathcal{S}$ checks that the $\mathcal{V}_i$ and the $w_i$ in
+   $L$ are correct, and that all public credentials are distinct
  \item $\mathcal{S}$ defines the shape of the
    \hyperref[trustees]{$\texttt{trustees}$} structure that will be
    used in the election depending on $\mathcal{A}$'s instructions;
@@ -289,10 +289,7 @@ trustee as specified in section~\ref{polynomials}.
   \begin{enumerate}
   \item let $C$ be the public credential used in $b$ (its
     $\textsf{credential}$ field)
-  \item $\mathcal{S}$ checks that the weight of $C$ and the weight of
-    $\mathcal{V}$ agree
-  \item $\mathcal{S}$ checks that $C\in L$ and $C$ has not been used
-    in a ballot cast by another voter
+  \item $\mathcal{S}$ checks that $(C,w_i,\mathcal{V})\in L$
   \item (revote case) if $\mathcal{V}$ has already voted,
     $\mathcal{S}$ checks that it was with $C$
   \item $\mathcal{S}$ checks all zero-knowledge proofs of $b$
