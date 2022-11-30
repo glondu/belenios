@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,7 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type 'a user_or_id =
+open Belenios_server.Web_serializable_j
+
+type t =
   [ `Id of int list
-  | `User of 'a
+  | `User of user
   ]
+
+let wrap_int_list xs =
+  List.map (function `Int i -> i | _ -> invalid_arg "User_or_id.wrap") xs
+
+let wrap = function
+  | `Int i -> `Id [i]
+  | `List xs -> `Id (wrap_int_list xs)
+  | `Assoc _ as x -> `User (user_of_string (Yojson.Safe.to_string x))
+  | _ -> invalid_arg "User_or_id.wrap"
+
+let unwrap = function
+  | `Id i -> `List (List.map (fun i -> `Int i) i)
+  | `User u -> Yojson.Safe.from_string (string_of_user u)

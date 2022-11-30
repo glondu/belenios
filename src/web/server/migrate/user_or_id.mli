@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,20 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
-open Belenios_core.Serializable_core_j
+open Belenios_server.Web_serializable_t
 
-(** {1 Serializers for type user_or_id} *)
+type t =
+  [ `Id of int list
+  | `User of user
+  ]
 
-let write_user_or_id write_user buf = function
-  | `Id i -> write_int_list buf i
-  | `User u -> write_user buf u
-
-let user_or_id_of_json read_user = function
-  | `Int i -> `Id [i]
-  | `List _ as x -> `Id (int_list_of_string (Yojson.Safe.to_string x))
-  | `Assoc _ as x -> `User (Json.from_string read_user (Yojson.Safe.to_string x))
-  | _ -> invalid_arg "user_or_id_of_json"
-
-let read_user_or_id read_user state buf =
-  user_or_id_of_json read_user (Yojson.Safe.from_lexbuf ~stream:true state buf)
+val wrap : Yojson.Safe.t -> t
+val unwrap : t -> Yojson.Safe.t
