@@ -25,7 +25,6 @@ open Belenios_core
 open Serializable_builtin_t
 open Serializable_j
 open Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
@@ -245,17 +244,17 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = params.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let* dates = Web_persist.get_election_dates uuid in
-    let now = now () in
+    let now = Datetime.now () in
     let state_ =
       match state with
       | `Closed ->
          let it_will_open =
            match dates.e_auto_open with
-           | Some t when datetime_compare now t < 0 ->
+           | Some t when Datetime.compare now t < 0 ->
               span [
                   txt " ";
                   txt (s_ "It will open in ");
-                  txt (format_period l (datetime_sub t now));
+                  txt (format_period l (Period.sub t now));
                   txt ".";
                 ]
            | _ -> txt ""
@@ -268,10 +267,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | `Open ->
          let it_will_close =
            match dates.e_auto_close with
-           | Some t when datetime_compare now t < 0 ->
+           | Some t when Datetime.compare now t < 0 ->
               span [
                   txt (s_ "The election will close in ");
-                  txt (format_period l (datetime_sub t now));
+                  txt (format_period l (Period.sub t now));
                   txt ".";
                 ]
            | _ -> txt ""
@@ -395,7 +394,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            div [
                Printf.ksprintf txt
                  (f_ "The result of this election is currently not publicly available. It will be in %s.")
-                 (format_period l (datetime_sub t now));
+                 (format_period l (Period.sub t now));
              ]
       | None -> return go_to_the_booth
     in

@@ -26,7 +26,6 @@ open Serializable_builtin_t
 open Serializable_j
 open Common
 open Belenios_api.Serializable_t
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
@@ -645,7 +644,7 @@ module Make
                          ] in
     let form_destroy =
       let t = Option.value se.se_creation_date ~default:default_creation_date in
-      let t = datetime_add t (day days_to_delete) in
+      let t = Period.add t (Period.day days_to_delete) in
       post_form
         ~service:election_draft_destroy
         (fun () ->
@@ -654,7 +653,7 @@ module Make
                 h2 [txt (s_ "Destroy election")];
                 div [
                     txt (s_ "Note: this election will be automatically destroyed after ");
-                    txt (format_datetime t);
+                    txt (Datetime.format t);
                     txt ".";
                   ];
                 input ~input_type:`Submit ~value:(s_ "Destroy election") string;
@@ -1943,7 +1942,7 @@ module Make
       let* d = Api_elections.get_election_automatic_dates uuid in
       let format = function
         | None -> ""
-        | Some x -> format_datetime @@ datetime_of_unixfloat x
+        | Some x -> Datetime.format @@ Datetime.from_unixfloat x
       in
       return @@ post_form ~service:election_auto_post
                   (fun (lopen, lclose) ->
@@ -1953,7 +1952,7 @@ module Make
                           b [txt (s_ "Note:")];
                           txt " ";
                           txt (s_ "times are in UTC. Now is ");
-                          txt (format_datetime @@ now ());
+                          txt (Datetime.format @@ Datetime.now ());
                           txt ".";
                         ];
                       div ~a:[a_style "margin-left: 3em;"] [
@@ -2221,7 +2220,7 @@ module Make
                 div [
                     Printf.sprintf
                       (f_ "The result is scheduled to be published after %s.")
-                      (raw_string_of_datetime t)
+                      (Datetime.unwrap t)
                     |> txt
                   ]
               in
@@ -2248,7 +2247,7 @@ module Make
                         ];
                       div [
                           txt (s_ "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is ");
-                          txt (String.sub (string_of_datetime (now ())) 1 19);
+                          txt (String.sub (string_of_datetime (Datetime.now ())) 1 19);
                           txt ".";
                         ];
                     ]
@@ -2309,7 +2308,7 @@ module Make
       | Some t ->
          div [
              txt (s_ "This election will be automatically archived after ");
-             txt (format_datetime @@ datetime_of_unixfloat t);
+             txt (Datetime.format @@ Datetime.from_unixfloat t);
              txt ".";
            ]
     in
@@ -2326,7 +2325,7 @@ module Make
       let t = status.status_auto_delete_date in
       div [
           txt (s_ "This election will be automatically deleted after ");
-          txt (format_datetime @@ datetime_of_unixfloat t);
+          txt (Datetime.format @@ Datetime.from_unixfloat t);
           txt ".";
         ]
     in
@@ -2408,7 +2407,7 @@ module Make
       List.map
         (fun {vr_date; vr_username} ->
           tr [
-              td [txt @@ format_datetime @@ datetime_of_unixfloat vr_date];
+              td [txt @@ Datetime.format @@ Datetime.from_unixfloat vr_date];
               td [txt vr_username]
             ]
         ) records
@@ -2899,7 +2898,7 @@ module Make
                   txt (
                       match account.account_consent with
                       | None -> s_ "(none)"
-                      | Some t -> format_datetime t
+                      | Some t -> Datetime.format t
                     );
                 ];
               div [

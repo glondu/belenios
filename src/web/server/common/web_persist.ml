@@ -27,7 +27,6 @@ open Belenios
 open Serializable_builtin_t
 open Serializable_j
 open Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
@@ -104,7 +103,7 @@ let set_election_result_hidden uuid hidden =
 let get_election_result_hidden uuid =
   let* t = Spool.get ~uuid Spool.hide_result in
   let&* t in
-  if datetime_compare (now ()) t < 0 then
+  if Datetime.compare (Datetime.now ()) t < 0 then
     return_some t
   else
     let* () = set_election_result_hidden uuid None in
@@ -407,7 +406,7 @@ let internal_release_tally ~force uuid =
      let* () = remove_audit_cache uuid in
      let* () = set_election_state uuid `Tallied in
      let* dates = get_election_dates uuid in
-     let* () = set_election_dates uuid {dates with e_tally = Some (now ())} in
+     let* () = set_election_dates uuid {dates with e_tally = Some (Datetime.now ())} in
      let* () = cleanup_file (uuid /// "decryption_tokens.json") in
      let* () = cleanup_file (uuid /// "shuffles.jsons") in
      let* () = clear_shuffle_token uuid in
@@ -419,11 +418,11 @@ let get_election_state ?(update = true) ?(ignore_errors = true) uuid =
   let@ state = fun cont ->
     match x with Some x -> cont x | None -> return `Archived
   in
-  let now = now () in
+  let now = Datetime.now () in
   let* dates = get_election_dates uuid in
   let past = function
     | None -> false
-    | Some t -> datetime_compare t now < 0
+    | Some t -> Datetime.compare t now < 0
   in
   let@ () = fun cont ->
     match state with

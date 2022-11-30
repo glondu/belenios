@@ -24,7 +24,6 @@ open Web_serializable_t
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_t
-open Web_serializable_builtin_t
 open Web_common
 
 let ( let& ) = Option.bind
@@ -38,13 +37,13 @@ let tokens = ref SMap.empty
 
 let new_token account =
   let* token = generate_token ~length:22 () in
-  let expiration = datetime_add (now ()) (day 1) in
+  let expiration = Period.add (Datetime.now ()) (Period.day 1) in
   tokens := SMap.add token {expiration; account} !tokens;
   Lwt.return token
 
 let filter tokens =
-  let now = now () in
-  SMap.filter (fun _ {expiration; _} -> datetime_compare now expiration < 0) tokens
+  let now = Datetime.now () in
+  SMap.filter (fun _ {expiration; _} -> Datetime.compare now expiration < 0) tokens
 
 let lookup_token token =
   tokens := filter !tokens;

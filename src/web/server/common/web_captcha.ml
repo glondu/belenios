@@ -23,22 +23,21 @@ open Lwt.Syntax
 open Belenios_core.Serializable_builtin_t
 open Belenios_core
 open Common
-open Web_serializable_builtin_t
 open Web_common
 
 type captcha = {
     content_type : string;
     contents : string;
     response : string;
-    c_expiration_time : datetime;
+    c_expiration_time : Datetime.t;
   }
 
 let captchas = ref SMap.empty
 
 let filter_captchas_by_time table =
-  let now = now () in
+  let now = Datetime.now () in
   SMap.filter (fun _ {c_expiration_time; _} ->
-      datetime_compare now c_expiration_time <= 0
+      Datetime.compare now c_expiration_time <= 0
     ) table
 
 let format_content_type = function
@@ -58,7 +57,7 @@ let create_captcha () =
        String.concat "\n" contents |> transform_string (Base64.decode ())
      in
      let challenge = sha256_b64 contents in
-     let c_expiration_time = datetime_add (now ()) (second 300) in
+     let c_expiration_time = Period.add (Datetime.now ()) (Period.second 300) in
      let x = { content_type; contents; response; c_expiration_time } in
      captchas := SMap.add challenge x !captchas;
      Lwt.return challenge

@@ -29,7 +29,6 @@ open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
@@ -70,7 +69,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let tallied = filter `Tallied in
     let archived = filter `Archived in
     let sort l =
-      List.sort (fun (_, x, _) (_, y, _) -> datetime_compare x y) l |>
+      List.sort (fun (_, x, _) (_, y, _) -> Datetime.compare x y) l |>
         List.map (fun (x, _, y) -> x, y)
     in
     return (sort draft, sort elections, sort tallied, sort archived)
@@ -147,7 +146,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                        if b then (
                          return_true
                        ) else (
-                         let account_consent = Some (now ()) in
+                         let account_consent = Some (Datetime.now ()) in
                          let a = {a with account_consent} in
                          let* () = Accounts.update_account {a with account_consent} in
                          return_false
@@ -1125,14 +1124,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let parse_datetime_from_post l x =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    try raw_datetime_of_string x with
+    try Datetime.wrap x with
     | _ -> Printf.ksprintf failwith (f_ "%s is not a valid date!") x
 
   let () =
     Any.register ~service:election_hide_result
       (fun uuid date ->
         let@ date = fun cont ->
-          match Option.wrap raw_datetime_of_string date with
+          match Option.wrap Datetime.wrap date with
           | None ->
              let* l = get_preferred_gettext () in
              let open (val l) in
@@ -1140,7 +1139,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              let msg = Printf.sprintf (f_ "%s is not a valid date!") date in
              Pages_common.generic_page ~title:(s_ "Error") ~service msg () >>= Html.send
           | Some t ->
-             cont @@ unixfloat_of_datetime t
+             cont @@ Datetime.to_unixfloat t
         in
         election_set_result_hidden uuid (Some date)
       )
@@ -1169,8 +1168,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            let open Belenios_api.Serializable_t in
            let dates =
              {
-               auto_date_open = Option.map unixfloat_of_datetime e_auto_open;
-               auto_date_close = Option.map unixfloat_of_datetime e_auto_close;
+               auto_date_open = Option.map Datetime.to_unixfloat e_auto_open;
+               auto_date_close = Option.map Datetime.to_unixfloat e_auto_close;
              }
            in
            let* () = Api_elections.set_election_auto_dates uuid dates in
@@ -2015,7 +2014,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let* se = Web_persist.get_draft_election uuid in
     let&* se in
     let t = Option.value se.se_creation_date ~default:default_creation_date in
-    let next_t = datetime_add t (day days_to_delete) in
+    let next_t = Period.add t (Period.day days_to_delete) in
     return_some (`Destroy, uuid, next_t)
 
   let extract_automatic_data_validated uuid_s =
@@ -2027,15 +2026,15 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     match state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
        let t = Option.value dates.e_finalization ~default:default_validation_date in
-       let next_t = datetime_add t (day days_to_delete) in
+       let next_t = Period.add t (Period.day days_to_delete) in
        return_some (`Delete, uuid, next_t)
     | `Tallied ->
        let t = Option.value dates.e_tally ~default:default_tally_date in
-       let next_t = datetime_add t (day days_to_archive) in
+       let next_t = Period.add t (Period.day days_to_archive) in
        return_some (`Archive, uuid, next_t)
     | `Archived ->
        let t = Option.value dates.e_archive ~default:default_archive_date in
-       let next_t = datetime_add t (day days_to_delete) in
+       let next_t = Period.add t (Period.day days_to_delete) in
        return_some (`Delete, uuid, next_t)
 
   let try_extract extract x =
@@ -2059,13 +2058,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = raw_string_of_uuid uuid in
-    let now = now () in
+    let now = Datetime.now () in
     let action, comment = match action with
       | `Destroy -> Api_drafts.delete_draft, "destroyed"
       | `Delete -> delete_election, "deleted"
       | `Archive -> Api_elections.archive_election, "archived"
     in
-    if datetime_compare now next_t > 0 then (
+    if Datetime.compare now next_t > 0 then (
       let* () = action uuid in
       return (
           Printf.ksprintf Ocsigen_messages.warning

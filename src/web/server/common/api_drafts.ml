@@ -27,7 +27,6 @@ open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios
 open Belenios_api.Serializable_j
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Api_generic
@@ -211,7 +210,7 @@ let post_drafts account draft =
       se_metadata;
       se_public_creds = token;
       se_public_creds_received = false;
-      se_creation_date = Some (now ());
+      se_creation_date = Some (Datetime.now ());
       se_administrator = None;
     }
   in
@@ -950,7 +949,7 @@ let validate_election uuid se =
   (* finish *)
   let* () = Web_persist.set_election_state uuid `Open in
   let* dates = Web_persist.get_election_dates uuid in
-  Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}
+  Web_persist.set_election_dates uuid {dates with e_finalization = Some (Datetime.now ())}
 
 let merge_voters a b f =
   let weights =
@@ -1355,7 +1354,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
          let elections =
            List.fold_left
              (fun accu (kind, summary_uuid, date, summary_name) ->
-               let summary_date = unixfloat_of_datetime date in
+               let summary_date = Datetime.to_unixfloat date in
                let summary_kind = None in
                if kind = `Draft then
                  {summary_uuid; summary_name; summary_date; summary_kind} :: accu

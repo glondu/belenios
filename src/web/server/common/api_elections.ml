@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Belenios_core.Common
 open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Belenios_api.Serializable_j
 open Web_common
@@ -77,35 +76,35 @@ let get_election_status uuid =
     match status_state with
     | `Tallied ->
        let t = Option.value d.e_tally ~default:default_tally_date in
-       Some (unixfloat_of_datetime @@ datetime_add t (day days_to_archive))
+       Some (Datetime.to_unixfloat @@ Period.add t (Period.day days_to_archive))
     | _ -> None
   in
   let status_auto_delete_date =
     match status_state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
        let t = Option.value d.e_finalization ~default:default_validation_date in
-       unixfloat_of_datetime @@ datetime_add t (day days_to_delete)
+       Datetime.to_unixfloat @@ Period.add t (Period.day days_to_delete)
     | `Tallied ->
        let t = Option.value d.e_tally ~default:default_tally_date in
-       unixfloat_of_datetime @@ datetime_add t (day (days_to_archive + days_to_delete))
+       Datetime.to_unixfloat @@ Period.add t (Period.day (days_to_archive + days_to_delete))
     | `Archived ->
        let t = Option.value d.e_archive ~default:default_archive_date in
-       unixfloat_of_datetime @@ datetime_add t (day days_to_delete)
+       Datetime.to_unixfloat @@ Period.add t (Period.day days_to_delete)
   in
   let* postpone = Web_persist.get_election_result_hidden uuid in
   Lwt.return {
       status_state;
       status_auto_archive_date;
       status_auto_delete_date;
-      status_postpone_date = Option.map unixfloat_of_datetime postpone;
+      status_postpone_date = Option.map Datetime.to_unixfloat postpone;
     }
 
 let get_election_automatic_dates uuid =
   let* d = Web_persist.get_election_dates uuid in
   Lwt.return
     {
-      auto_date_open = Option.map unixfloat_of_datetime d.e_auto_open;
-      auto_date_close = Option.map unixfloat_of_datetime d.e_auto_close;
+      auto_date_open = Option.map Datetime.to_unixfloat d.e_auto_open;
+      auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
     }
 
 let set_election_state uuid state =
@@ -134,8 +133,8 @@ let open_election uuid = set_election_state uuid `Open
 let close_election uuid = set_election_state uuid `Closed
 
 let set_election_auto_dates uuid d =
-  let e_auto_open = Option.map datetime_of_unixfloat d.auto_date_open in
-  let e_auto_close = Option.map datetime_of_unixfloat d.auto_date_close in
+  let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
+  let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
   let* dates = Web_persist.get_election_dates uuid in
   Web_persist.set_election_dates uuid {dates with e_auto_open; e_auto_close}
 
@@ -254,7 +253,7 @@ let delete_sensitive_data uuid =
 let archive_election uuid =
   let* () = delete_sensitive_data uuid in
   let* dates = Web_persist.get_election_dates uuid in
-  Web_persist.set_election_dates uuid {dates with e_archive = Some (now ())}
+  Web_persist.set_election_dates uuid {dates with e_archive = Some (Datetime.now ())}
 
 let delete_election election metadata =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
@@ -411,9 +410,9 @@ let set_postpone_date uuid date =
     match date with
     | None -> cont None
     | Some t ->
-       let t = datetime_of_unixfloat t in
-       let max = datetime_add (now ()) (day days_to_publish_result) in
-       if datetime_compare t max > 0 then
+       let t = Datetime.from_unixfloat t in
+       let max = Period.add (Datetime.now ()) (Period.day days_to_publish_result) in
+       if Datetime.compare t max > 0 then
          Lwt.return_false
        else
          cont (Some t)
@@ -513,7 +512,7 @@ let split_voting_record =
   fun x ->
   let s = Pcre.exec ~rex x in
   {
-    vr_date = unixfloat_of_datetime @@ raw_datetime_of_string @@ Pcre.get_substring s 1;
+    vr_date = Datetime.to_unixfloat @@ Datetime.wrap @@ Pcre.get_substring s 1;
     vr_username = Pcre.get_substring s 3;
   }
 
@@ -547,7 +546,7 @@ let cast_ballot send_confirmation election ~rawballot ~user =
   let* state = Web_persist.get_election_state uuid in
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
-  let* r = Web_persist.cast_ballot election ~rawballot ~user:user_s ~weight (now ()) in
+  let* r = Web_persist.cast_ballot election ~rawballot ~user:user_s ~weight (Datetime.now ()) in
   match r with
   | Ok (hash, revote) ->
      let* success = send_confirmation uuid revote login email oweight hash in
@@ -753,7 +752,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           let elections =
             List.fold_left
               (fun accu (kind, summary_uuid, date, summary_name) ->
-                let summary_date = unixfloat_of_datetime date in
+                let summary_date = Datetime.to_unixfloat date in
                 match kind with
                 | `Draft -> accu
                 | (`Validated | `Tallied | `Archived) as x ->

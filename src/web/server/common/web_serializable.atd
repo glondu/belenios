@@ -27,7 +27,7 @@ type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type weight <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type hash <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
-type datetime <ocaml predef from="Web_serializable_builtin"> = abstract
+type datetime = string wrap <ocaml module="Web_types.Datetime">
 type proof <ocaml predef from="Belenios_core.Serializable"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 type election_checksums <ocaml predef from="Belenios_core.Serializable"> = abstract

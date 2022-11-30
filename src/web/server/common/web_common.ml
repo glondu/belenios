@@ -27,7 +27,6 @@ open Platform
 open Common
 open Serializable_builtin_t
 open Serializable_t
-open Web_serializable_builtin_t
 open Web_serializable_j
 
 let ( let&* ) x f =
@@ -37,6 +36,9 @@ let ( let&* ) x f =
 
 let ( !! ) x = !Web_config.spool_dir // x
 let ( /// ) uuid x = !!(raw_string_of_uuid uuid // x)
+
+module Datetime = Web_types.Datetime
+module Period = Web_types.Period
 
 module LwtRandom = struct
 
@@ -98,7 +100,7 @@ let decompose_seconds s =
 
 let format_period l x =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let y, m, d, s = ymds x in
+  let y, m, d, s = Period.ymds x in
   let y = if y = 0 then "" else string_of_int y ^ (s_ " year(s)") in
   let m = if m = 0 then "" else string_of_int m ^ (s_ " month(s)") in
   let d = if d = 0 then "" else string_of_int d ^ (s_ " day(s)") in
@@ -130,7 +132,7 @@ let security_log s =
   | None -> return ()
   | Some ic ->
      Lwt_io.atomic (fun ic ->
-         let* () = Lwt_io.write ic (string_of_datetime (now ())) in
+         let* () = Lwt_io.write ic (string_of_datetime (Datetime.now ())) in
          let* () = Lwt_io.write ic ": " in
          let* () = Lwt_io.write_line ic (s ()) in
          Lwt_io.flush ic
@@ -306,7 +308,7 @@ let send_email kind ~recipient ~subject ~body =
   in
   let headers, _ = contents in
   let* token = generate_token ~length:6 () in
-  let date = format_datetime ~fmt:"%Y%m%d%H%M%S" (now ()) in
+  let date = Datetime.format ~fmt:"%Y%m%d%H%M%S" (Datetime.now ()) in
   let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
   headers#update_field "Belenios-Domain" !Web_config.domain;
