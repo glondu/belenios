@@ -21,7 +21,6 @@
 
 <doc text="API-specific serializable datatypes">
 
-type json <ocaml module="Yojson.Safe" t="t"> = abstract
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
@@ -124,7 +123,7 @@ type 'a trustee = {
 } <ocaml field_prefix="trustee_">
 
 type basic_trustees = {
-    trustees : json trustee_public_key trustee list;
+    trustees : abstract trustee_public_key trustee list;
 } <ocaml field_prefix="bt_">
 
 type threshold_trustees = {
@@ -152,7 +151,7 @@ type draft_request =
   ]
 
 type trustees_request =
-  [ Add of json trustee
+  [ Add of abstract trustee
   | Import of uuid
   | SetBasic
   | SetThreshold of int
