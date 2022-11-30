@@ -449,11 +449,11 @@ module Make (M : RANDOM) (G : GROUP) = struct
     fun _ x ->
     Shape.to_array x
     |> Array.map (fun i -> Weight.reduce ~total (log i))
-    |> (fun x -> RHomomorphic x)
+    |> (fun x -> `Homomorphic x)
 
   let check_result ~num_tallied _ x r =
     match r with
-    | RHomomorphic r ->
+    | `Homomorphic r ->
        Array.for_all2
          (fun x r ->
            let r = Weight.expand ~total:num_tallied r in

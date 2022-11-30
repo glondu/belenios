@@ -22,7 +22,6 @@
 open Lwt
 open Lwt.Syntax
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_j
 open Common
 open Web_serializable_j
@@ -164,7 +163,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let format_question_result uuid l (i, q) r =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     match q, r with
-    | Question.Homomorphic x, RHomomorphic r ->
+    | Question.Homomorphic x, `Homomorphic r ->
        let open Question_h_t in
        let answers = Array.to_list x.q_answers in
        let answers = match x.q_blank with
@@ -188,7 +187,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            div ~a:[a_class ["result_question"]] (txt_br x.q_question);
            answers;
          ]
-    | Question.NonHomomorphic (q, extra), RNonHomomorphic ballots ->
+    | Question.NonHomomorphic (q, extra), `NonHomomorphic ballots ->
        let open Question_nh_t in
        let applied_counting_method, show_others =
          match Question.get_counting_method extra with

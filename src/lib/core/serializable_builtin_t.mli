@@ -26,7 +26,8 @@ type 'a shape = 'a Shape.t =
   | SArray of 'a shape array
 
 type question_result =
-  | RHomomorphic of Weight.t array
-  | RNonHomomorphic of int array array
+  [ `Homomorphic of Weight.t array
+  | `NonHomomorphic of int array array
+  ]
 
 val json_of_question_result : question_result -> Yojson.Safe.t

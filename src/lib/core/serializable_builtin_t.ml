@@ -26,15 +26,16 @@ type 'a shape = 'a Shape.t =
   | SArray of 'a shape array
 
 type question_result =
-  | RHomomorphic of Weight.t array
-  | RNonHomomorphic of int array array
+  [ `Homomorphic of Weight.t array
+  | `NonHomomorphic of int array array
+  ]
 
 let json_of_question_result = function
-  | RHomomorphic xs ->
+  | `Homomorphic xs ->
      xs
      |> Array.map Weight.unwrap
      |> (fun x -> `List (Array.to_list x))
-  | RNonHomomorphic xs ->
+  | `NonHomomorphic xs ->
      xs
      |> Array.map
           (fun ys ->

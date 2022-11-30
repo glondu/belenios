@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -70,8 +69,8 @@ module MakeResult (X : ELECTION_BASE) = struct
       let rec check i =
         if i < n then (
           match questions.(i), x.(i) with
-          | Homomorphic _, RHomomorphic _ -> check (i + 1)
-          | NonHomomorphic _, RNonHomomorphic _ -> check (i + 1)
+          | Homomorphic _, `Homomorphic _ -> check (i + 1)
+          | NonHomomorphic _, `NonHomomorphic _ -> check (i + 1)
           | _, _ -> failwith "cast_result: type mismatch"
         ) else ()
       in
@@ -85,7 +84,7 @@ module MakeResult (X : ELECTION_BASE) = struct
     match Yojson.Safe.from_lexbuf ~stream:true state buf with
     | `List xs ->
        let n = Array.length election.e_questions in
-       let result = Array.make n (RHomomorphic [||]) in
+       let result = Array.make n (`Homomorphic [||]) in
        let rec loop i xs =
          match (i < n), xs with
          | true, (x :: xs) ->
@@ -96,7 +95,7 @@ module MakeResult (X : ELECTION_BASE) = struct
                     ys
                     |> Array.of_list
                     |> Array.map Weight.wrap
-                    |> (fun x -> result.(i) <- RHomomorphic x)
+                    |> (fun x -> result.(i) <- `Homomorphic x)
                     |> (fun () -> loop (i + 1) xs)
                  | _ -> failwith "read_result/Homomorphic: list expected"
                 )
@@ -117,7 +116,7 @@ module MakeResult (X : ELECTION_BASE) = struct
                                   )
                           | _ -> failwith "read_result/NonHomomorphic: list list expected"
                          )
-                    |> (fun x -> result.(i) <- RNonHomomorphic x)
+                    |> (fun x -> result.(i) <- `NonHomomorphic x)
                     |> (fun () -> loop (i + 1) xs)
                  | _ -> failwith "read_result/NonHomomorphic: list expected"
                 )

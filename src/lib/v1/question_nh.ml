@@ -86,7 +86,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
              | SAtomic x -> G.to_ints n x
              | _ -> invalid_arg "Question_nh.compute_result/1"
             )
-       |> (fun x -> RNonHomomorphic x)
+       |> (fun x -> `NonHomomorphic x)
     | _ -> invalid_arg "Question_nh.compute_result/2"
 
   let check_result ~num_tallied q x r =

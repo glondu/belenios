@@ -23,7 +23,6 @@ open Lwt
 open Lwt.Syntax
 open Belenios_core
 open Belenios
-open Serializable_builtin_t
 open Serializable_j
 open Common
 open Web_serializable_j
@@ -213,7 +212,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
              | Some result ->
                 let result = election_result_of_string read_result result in
                 (match (result.result :> raw_result).(question) with
-                 | RNonHomomorphic ballots -> continuation ballots
+                 | `NonHomomorphic ballots -> continuation ballots
                  | _ -> failwith "handle_method"
                 )
              | None ->
