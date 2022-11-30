@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Signatures
 open Belenios_core.Serializable_core_j
 
 (** {1 Serializers for type user_or_id} *)
@@ -30,7 +31,7 @@ let write_user_or_id write_user buf = function
 let user_or_id_of_json read_user = function
   | `Int i -> `Id [i]
   | `List _ as x -> `Id (int_list_of_string (Yojson.Safe.to_string x))
-  | `Assoc _ as x -> `User (unboxed_of_string read_user (Yojson.Safe.to_string x))
+  | `Assoc _ as x -> `User (Json.from_string read_user (Yojson.Safe.to_string x))
   | _ -> invalid_arg "user_or_id_of_json"
 
 let read_user_or_id read_user state buf =

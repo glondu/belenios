@@ -27,7 +27,6 @@ type number <ocaml predef from="Serializable_builtin"> = abstract
 
 (** {2 Helpers} *)
 
-type 'a unboxed = 'a
 type int_list = int list
 
 (** {2 Basic cryptographic datastructures} *)
