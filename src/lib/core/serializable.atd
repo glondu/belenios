@@ -31,7 +31,7 @@ type hash <ocaml predef from="Serializable_builtin"> = abstract
 type 'a shape <ocaml predef from="Serializable_builtin"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
 type proof <ocaml predef from="Serializable_core"> = abstract
-type question <ocaml module="Question"> = abstract
+type question = abstract wrap <ocaml module="Question">
 
 (** {2 Trustees} *)
 

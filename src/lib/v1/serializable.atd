@@ -22,7 +22,7 @@
 type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
 type proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
-type question <ocaml module="Belenios_core.Question"> = abstract
+type question = abstract wrap <ocaml module="Belenios_core.Question">
 
 type 'a params = {
   version : int;

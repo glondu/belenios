@@ -21,12 +21,12 @@
 
 open Signatures_core
 
-type question =
+type t =
   | Homomorphic of Question_h_t.question
   | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
-val read_question : question reader
-val write_question : question writer
+val wrap : Yojson.Safe.t -> t
+val unwrap : t -> Yojson.Safe.t
 
 type counting_method =
   [ `None
@@ -36,7 +36,7 @@ type counting_method =
 
 val get_counting_method : Yojson.Safe.t option -> counting_method
 
-val erase_question : question -> question
+val erase_question : t -> t
 
 module Make (M : RANDOM) (G : GROUP)
          (QHomomorphic : Question_sigs.QUESTION
@@ -51,5 +51,5 @@ module Make (M : RANDOM) (G : GROUP)
            and type answer := G.t Question_nh_t.answer) : Question_sigs.QUESTION
        with type 'a m := 'a M.t
         and type elt := G.t
-        and type question := question
+        and type question := t
         and type answer := Yojson.Safe.t
