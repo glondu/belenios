@@ -28,6 +28,9 @@ let ( let& ) = Option.bind
 let ( // ) = Filename.concat
 
 module Uuid = Common_types.Uuid
+module Hash = Common_types.Hash
+
+let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
 
 module Array = struct
   include Array

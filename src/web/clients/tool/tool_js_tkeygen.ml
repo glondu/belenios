@@ -24,7 +24,6 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_core
 open Common
-open Belenios_core.Serializable_builtin_t
 open Belenios_tool_common
 open Serializable_j
 open Belenios_js.Common

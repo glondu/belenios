@@ -21,7 +21,6 @@
 
 module B = Belenios
 open Belenios_platform
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Common

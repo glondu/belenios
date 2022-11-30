@@ -22,11 +22,6 @@
 open Signatures_core
 open Serializable_builtin_t
 
-(** {1 Serializers for type hash} *)
-
-val write_hash : hash writer
-val read_hash : hash reader
-
 (** {1 Serializers for type shape} *)
 
 val write_shape : 'a writer -> 'a shape writer

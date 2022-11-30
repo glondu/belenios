@@ -23,22 +23,6 @@ open Belenios_platform
 open Platform
 open Common
 
-module Hash : sig
-  type t
-
-  val of_hex : string -> t
-  val to_hex : t -> string
-
-  val to_b64 : t -> string
-  val of_b64 : string -> t
-
-  val hash_string : string -> t
-end
-
-val sha256_b64 : string -> string
-
-type hash = Hash.t
-
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array

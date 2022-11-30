@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_core.Serializable_builtin_t
+open Belenios_core.Common
 open Belenios_js.Common
 
 let computed_fingerprint = ref ""

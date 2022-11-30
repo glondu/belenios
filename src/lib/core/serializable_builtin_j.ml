@@ -21,24 +21,6 @@
 
 open Serializable_builtin_t
 
-(** {1 Helpers for interacting with atd-generated stuff} *)
-
-let make_write to_string buf x =
-  Buffer.add_char buf '"';
-  Buffer.add_string buf (to_string x);
-  Buffer.add_char buf '"'
-
-let make_read name of_string state buf =
-  match Yojson.Safe.from_lexbuf ~stream:true state buf with
-  | `String s -> of_string s
-  | _ -> invalid_arg (name ^ ": a string was expected")
-
-(** {1 Serializers for type hash} *)
-
-let write_hash = make_write Hash.to_hex
-
-let read_hash = make_read "read_hash" Hash.of_hex
-
 (** {1 Serializers for type shape} *)
 
 let rec write_shape write buf = function

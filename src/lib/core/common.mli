@@ -28,6 +28,9 @@ val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
 
 module Uuid = Common_types.Uuid
+module Hash = Common_types.Hash
+
+val sha256_b64 : string -> string
 
 module Array : sig
   include module type of Array

@@ -33,3 +33,18 @@ module Uuid : sig
   val wrap : string -> t
   val unwrap : t -> string
 end
+
+module Hash : sig
+  type t
+
+  val wrap : string -> t
+  val unwrap : t -> string
+
+  val of_hex : string -> t
+  val to_hex : t -> string
+
+  val to_b64 : t -> string
+  val of_b64 : string -> t
+
+  val hash_string : string -> t
+end
