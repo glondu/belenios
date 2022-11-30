@@ -21,7 +21,7 @@
 
 <doc text="API-specific serializable datatypes">
 
-type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type 'a trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = abstract

@@ -32,11 +32,11 @@ open Common
 let context = ref `None
 
 let draft_a x =
-  let uuid = raw_string_of_uuid x.summary_uuid in
+  let uuid = Uuid.unwrap x.summary_uuid in
   a ~href:("#drafts/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
 
 let election_a x =
-  let uuid = raw_string_of_uuid x.summary_uuid in
+  let uuid = Uuid.unwrap x.summary_uuid in
   a ~href:("#elections/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
 
 let regexps =
@@ -176,7 +176,7 @@ let rec show_root main =
       let* x = post_with_token ?ifmatch (tget ()) "drafts" |> wrap uuid_of_string in
       match x with
       | Ok uuid ->
-         Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ raw_string_of_uuid uuid);
+         Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ Uuid.unwrap uuid);
          Lwt.return_unit
       | Error e ->
          let@ () = show_in main in

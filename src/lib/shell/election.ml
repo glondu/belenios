@@ -47,7 +47,7 @@ let election_uuid_of_string_ballot x =
   match j with
   | `Assoc o ->
      (match List.assoc_opt "election_uuid" o with
-      | Some (`String x) -> uuid_of_raw_string x
+      | Some (`String x) -> Uuid.wrap x
       | _ -> failwith "election_uuid_of_string_ballot: invalid election_uuid"
      )
   | _ -> failwith "election_uuid_of_string_ballot: invalid ballot"

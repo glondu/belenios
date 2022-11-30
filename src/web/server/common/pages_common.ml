@@ -23,7 +23,6 @@ open Lwt
 open Lwt.Syntax
 open Belenios_platform
 open Belenios_core
-open Serializable_builtin_t
 open Common
 open Web_common
 open Eliom_content.Html.F
@@ -100,7 +99,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       | None ->
          raw_a ~service:admin [txt (s_ "Administer elections")] ()
       | Some uuid ->
-         raw_a ~service:election_admin ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))] [txt (s_ "Administer this election")] uuid
+         raw_a ~service:election_admin ~a:[a_id ("election_admin_" ^ (Uuid.unwrap uuid))] [txt (s_ "Administer this election")] uuid
     in
     let lang_box =
       match lang_box with

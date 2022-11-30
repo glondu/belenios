@@ -318,7 +318,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         let a =
           a_id "start"
           :: a_user_data "uri" uri
-          :: a_user_data "uuid" (raw_string_of_uuid uuid)
+          :: a_user_data "uuid" (Uuid.unwrap uuid)
           :: a_user_data "lang" lang
           :: a_style "font-size:35px;"
           :: disabled
@@ -578,7 +578,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       let hash =
         Netencoding.Url.mk_url_encoded_parameters
           [
-            "uuid", raw_string_of_uuid uuid;
+            "uuid", Uuid.unwrap uuid;
             "lang", lang;
           ]
       in
@@ -690,7 +690,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = election.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
-    let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
+    let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", Uuid.unwrap uuid] in
     let content =
       [
         div [
@@ -1008,7 +1008,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let form =
       get_form ~service:method_mj
         (fun (uuidn, (questionn, ngradesn)) -> [
-             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user Uuid.unwrap);
              input ~input_type:`Hidden ~name:questionn ~value:question int;
              txt (s_ "Number of grades:");
              txt " ";
@@ -1065,7 +1065,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let form =
       get_form ~service:method_stv
         (fun (uuidn, (questionn, nseatsn)) -> [
-             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user Uuid.unwrap);
              input ~input_type:`Hidden ~name:questionn ~value:question int;
              txt (s_ "Number of seats:");
              txt " ";

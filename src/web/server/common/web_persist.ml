@@ -220,7 +220,7 @@ let get_trustees uuid =
   in
   let msg =
     Printf.sprintf "missing trustees for election %s"
-      (raw_string_of_uuid uuid)
+      (Uuid.unwrap uuid)
   in
   Lwt.fail (Failure msg)
 
@@ -509,7 +509,7 @@ let build_elections_by_owner_cache () =
           else (
             Lwt.catch
               (fun () ->
-                let uuid = uuid_of_raw_string uuid_s in
+                let uuid = Uuid.wrap uuid_s in
                 let* election = get_draft_election uuid in
                 match election with
                 | None ->
@@ -644,7 +644,7 @@ let get_credential_cache uuid cred =
         (Failure
            (Printf.sprintf
               "could not find credential record of %s/%s"
-              (raw_string_of_uuid uuid) cred
+              (Uuid.unwrap uuid) cred
            )
         )
     )
@@ -993,7 +993,7 @@ let compute_audit_cache uuid =
   match election with
   | None ->
      Printf.ksprintf failwith
-       "compute_cache: %s does not exist" (raw_string_of_uuid uuid)
+       "compute_cache: %s does not exist" (Uuid.unwrap uuid)
   | Some election ->
      let* voters =
        let* x = Spool.get_raw_list ~uuid Spool.voters in

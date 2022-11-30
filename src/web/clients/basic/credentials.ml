@@ -70,7 +70,7 @@ let show main uuid =
           let container = div [] |> Tyxml_js.To_dom.of_div in
           let b =
             let@ () = button "Generate credentials" in
-            let uuid_ = uuid_of_raw_string uuid in
+            let uuid_ = Uuid.wrap uuid in
             let show_weight =
               List.exists
                 (fun v ->

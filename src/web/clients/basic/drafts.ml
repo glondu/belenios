@@ -76,7 +76,7 @@ let rec show_draft_voters uuid draft container =
     let i, iget = input "" in
     let b =
       let@ () = button "Import voters" in
-      let r = `Import (uuid_of_raw_string (iget ())) in
+      let r = `Import (Uuid.wrap (iget ())) in
       let* x = post_with_token ~ifmatch (string_of_voters_request r) "drafts/%s/voters" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
@@ -211,7 +211,7 @@ let rec show_draft_trustees uuid container =
     let i, iget = input "" in
     let b =
       let@ () = button "Import trustees" in
-      let r = `Import (uuid_of_raw_string (iget ())) in
+      let r = `Import (Uuid.wrap (iget ())) in
       let* x = post_with_token ?ifmatch (string_of_trustees_request r) "drafts/%s/trustees" uuid in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)

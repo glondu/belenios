@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
-open Platform
 open Serializable_builtin_t
 
 (** {1 Helpers for interacting with atd-generated stuff} *)
@@ -34,18 +32,6 @@ let make_read name of_string state buf =
   match Yojson.Safe.from_lexbuf ~stream:true state buf with
   | `String s -> of_string s
   | _ -> invalid_arg (name ^ ": a string was expected")
-
-(** {1 Serializers for type number} *)
-
-let write_number = make_write Z.to_string
-
-let read_number = make_read "read_number" Z.of_string
-
-(** {1 Serializers for type uuid} *)
-
-let write_uuid = make_write raw_string_of_uuid
-
-let read_uuid = make_read "read_uuid" uuid_of_raw_string
 
 (** {1 Serializers for type hash} *)
 

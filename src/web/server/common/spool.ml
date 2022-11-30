@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Serializable_builtin_t
+open Belenios_core.Common
 open Belenios_core.Serializable_j
 open Web_serializable_j
 open Web_common
@@ -175,7 +175,7 @@ let audit_cache =
 
 let voters = raw "voters.txt"
 
-let chain_filename uuid = raw_string_of_uuid uuid ^ ".bel"
+let chain_filename uuid = Uuid.unwrap uuid ^ ".bel"
 let chain uuid = raw (chain_filename uuid)
 
 let last_event =

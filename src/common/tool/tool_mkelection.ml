@@ -21,9 +21,9 @@
 
 open Belenios_core
 open Belenios
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
+open Common
 
 module type PARAMS = sig
   val version : int
@@ -52,7 +52,7 @@ let parse_params p =
   let module T = (val Trustees.get_by_version P.version) in
   let module R = struct
     let version = P.version
-    let uuid = uuid_of_raw_string P.uuid
+    let uuid = Uuid.wrap P.uuid
     let template = template_of_string P.template
     let group = P.group
     module G = (val Group.of_string ~version P.group : GROUP)

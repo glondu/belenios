@@ -103,7 +103,7 @@ let check x =
 module MakeDerive (G : GROUP) = struct
 
   let derive uuid x =
-    let uuid = raw_string_of_uuid uuid in
+    let uuid = Uuid.unwrap uuid in
     let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
     Z.(of_hex derived mod G.q)
 

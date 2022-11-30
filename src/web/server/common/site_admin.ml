@@ -769,7 +769,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              >>= Html.send
            ) else (
              Printf.sprintf "%s/draft/credentials.html#%s-%s"
-               !Web_config.prefix (raw_string_of_uuid uuid) token
+               !Web_config.prefix (Uuid.unwrap uuid) token
              |> String_redirection.send
            )
       )
@@ -877,7 +877,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                 Pages_common.generic_page ~title msg () >>= Html.send ~code:403
               else (
                 Printf.sprintf "%s/draft/trustee.html#%s-%s"
-                  !Web_config.prefix (raw_string_of_uuid uuid) token
+                  !Web_config.prefix (Uuid.unwrap uuid) token
                 |> String_redirection.send
               )
       )
@@ -982,7 +982,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_import_post
       (fun uuid from_s ->
-        let from = uuid_of_raw_string from_s in
+        let from = Uuid.wrap from_s in
         let@ se = with_draft_election ~save:false uuid in
         let@ _ = with_metadata_check_owner from in
         let* l = get_preferred_gettext () in
@@ -1028,7 +1028,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:election_draft_import_trustees_post
       (fun uuid from ->
-        let from = uuid_of_raw_string from in
+        let from = Uuid.wrap from in
         let@ se = with_draft_election ~save:false uuid in
         let@ _ = with_metadata_check_owner from in
         let* metadata = Web_persist.get_election_metadata from in
@@ -1085,7 +1085,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            | Some _ ->
               Web_persist.remove_audit_cache uuid
            | None ->
-              Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server has failed for election %s!") (raw_string_of_uuid uuid)))
+              Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server has failed for election %s!") (Uuid.unwrap uuid)))
          ) else return_unit
        in
        Pages_admin.election_admin ?shuffle_token ?tally_token election metadata status () >>= Html.send
@@ -1284,7 +1284,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     if b then copy_file src dst else return_unit
 
   let make_archive uuid =
-    let uuid_s = raw_string_of_uuid uuid in
+    let uuid_s = Uuid.unwrap uuid in
     let* temp_dir =
       Lwt_preemptive.detach (fun () ->
           let temp_dir = Filename.temp_file "belenios" "archive" in
@@ -1299,7 +1299,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       Lwt_list.iter_p (fun x ->
           try_copy_file (uuid /// x) (temp_dir // "public" // x)
         ) [
-          raw_string_of_uuid uuid ^ ".bel";
+          Uuid.unwrap uuid ^ ".bel";
         ]
     in
     let* () =
@@ -1382,7 +1382,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    () >>= Html.send
                ) else (
                  Printf.sprintf "%s/election/trustees.html#%s-%s"
-                   !Web_config.prefix (raw_string_of_uuid uuid) token
+                   !Web_config.prefix (Uuid.unwrap uuid) token
                  |> String_redirection.send
                )
             | None -> forbidden ()
@@ -1514,7 +1514,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         match expected_token with
         | Some x when token = x.tk_token ->
            Printf.sprintf "%s/election/shuffle.html#%s-%s"
-             !Web_config.prefix (raw_string_of_uuid uuid) token
+             !Web_config.prefix (Uuid.unwrap uuid) token
            |> String_redirection.send
         | _ -> forbidden ()
       )
@@ -1628,7 +1628,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         | None -> fail_http `Not_found
         | Some _ ->
            Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
-             !Web_config.prefix (raw_string_of_uuid uuid) token
+             !Web_config.prefix (Uuid.unwrap uuid) token
            |> String_redirection.send
       )
 
@@ -2010,7 +2010,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       )
 
   let extract_automatic_data_draft uuid_s =
-    let uuid = uuid_of_raw_string uuid_s in
+    let uuid = Uuid.wrap uuid_s in
     let* se = Web_persist.get_draft_election uuid in
     let&* se in
     let t = Option.value se.se_creation_date ~default:default_creation_date in
@@ -2018,7 +2018,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     return_some (`Destroy, uuid, next_t)
 
   let extract_automatic_data_validated uuid_s =
-    let uuid = uuid_of_raw_string uuid_s in
+    let uuid = Uuid.wrap uuid_s in
     let* election = Web_persist.get_raw_election uuid in
     let&* _ = election in
     let* state = Web_persist.get_election_state uuid in
@@ -2057,7 +2057,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         )
 
   let process_election_for_data_policy (action, uuid, next_t) =
-    let uuid_s = raw_string_of_uuid uuid in
+    let uuid_s = Uuid.unwrap uuid in
     let now = Datetime.now () in
     let action, comment = match action with
       | `Destroy -> Api_drafts.delete_draft, "destroyed"

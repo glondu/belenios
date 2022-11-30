@@ -19,8 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
-type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
+type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type question = abstract wrap <ocaml module="Belenios_core.Question">
 

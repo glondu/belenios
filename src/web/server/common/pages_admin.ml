@@ -22,7 +22,6 @@
 open Lwt
 open Lwt.Syntax
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_j
 open Common
 open Belenios_api.Serializable_t
@@ -185,7 +184,7 @@ module Make
       let name = if name = "" then s_ "(untitled)" else name in
       li [
           a ~service:election_admin
-            ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))]
+            ~a:[a_id ("election_admin_" ^ (Uuid.unwrap uuid))]
             [txt name] uuid;
         ]
     in
@@ -193,7 +192,7 @@ module Make
       let name = if name = "" then s_ "(untitled)" else name in
       li [
           a ~service:election_draft
-            ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))]
+            ~a:[a_id ("election_draft_" ^ (Uuid.unwrap uuid))]
             [txt name] uuid;
         ]
     in
@@ -375,7 +374,7 @@ module Make
     let hash =
       Netencoding.Url.mk_url_encoded_parameters
         [
-          "uuid", raw_string_of_uuid uuid;
+          "uuid", Uuid.unwrap uuid;
           "lang", lang;
         ]
     in
@@ -731,7 +730,7 @@ module Make
                in
                let uri =
                  Printf.sprintf "%s/draft/trustee.html#%s-%s"
-                   !Web_config.prefix (raw_string_of_uuid uuid) t.st_token
+                   !Web_config.prefix (Uuid.unwrap uuid) t.st_token
                in
                let* mail_cell, link_cell =
                  if t.st_token <> "" then (
@@ -920,7 +919,7 @@ module Make
                in
                let uri =
                  Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
-                   !Web_config.prefix (raw_string_of_uuid uuid) t.stt_token
+                   !Web_config.prefix (Uuid.unwrap uuid) t.stt_token
                in
                let* mail_cell =
                  let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
@@ -1092,7 +1091,7 @@ module Make
     in
     let url =
       Printf.sprintf "%s/draft/credentials.html#%s-%s"
-        !Web_config.prefix (raw_string_of_uuid uuid) se.se_public_creds
+        !Web_config.prefix (Uuid.unwrap uuid) se.se_public_creds
     in
     let content = [
         back;
@@ -1407,7 +1406,7 @@ module Make
           ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
-    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form_textarea =
       post_form ~a:[a_id "submit_form"; a_style "display:none;"]
         ~service:election_draft_credentials_post
@@ -1503,7 +1502,7 @@ module Make
         ]
     in
     let form =
-      let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+      let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
       let service = Eliom_service.preapply ~service:election_draft_trustee_post (uuid, token) in
       post_form
         ~a:[a_id "data_form"]
@@ -1575,7 +1574,7 @@ module Make
           ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
-    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form =
       post_form
         ~service:election_draft_threshold_trustee_post
@@ -1681,7 +1680,7 @@ module Make
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let format_election (from_uuid, name) =
-      let from_uuid = raw_string_of_uuid from_uuid in
+      let from_uuid = Uuid.unwrap from_uuid in
       let form = post_form ~service
                    (fun from ->
                      [
@@ -2041,7 +2040,7 @@ module Make
                      (fun (nuuid, ntrustee) ->
                        let a = if disabled then [a_disabled ()] else [] in
                        [
-                         input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
+                         input ~input_type:`Hidden ~name:nuuid ~value:uuid (user Uuid.unwrap);
                          input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                          input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                        ]
@@ -2079,7 +2078,7 @@ module Make
                                 (fun (nuuid, ntrustee) ->
                                   let a = if select_disabled || done_ then [a_disabled ()] else [] in
                                   [
-                                    input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
+                                    input ~input_type:`Hidden ~name:nuuid ~value:uuid (user Uuid.unwrap);
                                     input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                                     input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                                   ]
@@ -2457,7 +2456,7 @@ module Make
               div [txt (s_ "You may skip a trustee if they do not answer. Be aware that this reduces the security.")];
               div
                 [
-                  input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
+                  input ~input_type:`Hidden ~name:nuuid ~value:uuid (user Uuid.unwrap);
                   input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
                   input ~input_type:`Submit ~value:(s_ "Confirm") string;
                   txt " ";
@@ -2472,7 +2471,7 @@ module Make
   let shuffle_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let title = s_ "Shuffle" in
     let content = [
         div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
@@ -2567,7 +2566,7 @@ module Make
                   ];
                 li [
                     div ~a:[a_id "pd_done"] [
-                        let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+                        let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
                         post_form
                           ~a:[a_id "pd_form"]
                           ~service:election_tally_trustees_post

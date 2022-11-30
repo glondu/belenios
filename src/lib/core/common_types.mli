@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,6 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
+open Belenios_platform.Platform
 
-val with_lock : Uuid.t -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+module Number : sig
+  type t = Z.t
+  val wrap : string -> t
+  val unwrap : t -> string
+end
+
+module Uuid : sig
+  type t
+  val min_length : int
+  val wrap : string -> t
+  val unwrap : t -> string
+end

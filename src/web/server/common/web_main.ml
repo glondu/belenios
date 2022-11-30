@@ -21,8 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core
-open Serializable_builtin_t
+open Belenios_core.Common
 open Web_serializable_j
 open Web_common
 
@@ -70,7 +69,7 @@ module Make () = struct
                      Web_config.maxmailsatonce := int_of_string limit
                   | Element ("uuid", ["length", length], []) ->
                      let length = int_of_string length in
-                     if length >= min_uuid_length then
+                     if length >= Uuid.min_length then
                        Web_config.uuid_length := Some length
                      else
                        failwith "UUID length is too small"

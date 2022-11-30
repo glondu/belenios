@@ -23,10 +23,10 @@
 
 (** {2 Predefined types} *)
 
-type number <ocaml predef from="Serializable_builtin"> = abstract
+type number = string wrap <ocaml module="Common_types.Number">
 type weight <ocaml predef from="Serializable_builtin"> = abstract
 type question_result <ocaml predef from="Serializable_builtin"> = abstract
-type uuid <ocaml predef from="Serializable_builtin"> = abstract
+type uuid = string wrap <ocaml module="Common_types.Uuid">
 type hash <ocaml predef from="Serializable_builtin"> = abstract
 type 'a shape <ocaml predef from="Serializable_builtin"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract

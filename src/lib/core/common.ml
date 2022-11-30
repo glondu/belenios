@@ -27,6 +27,8 @@ let ( let@ ) f x = f x
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
 
+module Uuid = Common_types.Uuid
+
 module Array = struct
   include Array
 

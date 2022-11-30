@@ -333,7 +333,7 @@ let delete_election election metadata =
   in
   let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
   let files_to_delete = [
-      raw_string_of_uuid uuid ^ ".bel";
+      Uuid.unwrap uuid ^ ".bel";
       "dates.json";
       "metadata.json";
       "passwords.csv";
@@ -553,7 +553,7 @@ let cast_ballot send_confirmation election ~rawballot ~user =
      let () =
        if revote then
          Printf.ksprintf Ocsigen_messages.accesslog
-           "Someone revoted in election %s" (raw_string_of_uuid uuid)
+           "Someone revoted in election %s" (Uuid.unwrap uuid)
      in
      Lwt.return (user, hash, revote, weight, success)
   | Error e ->
@@ -764,7 +764,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
        | _ -> method_not_allowed
      end
   | uuid :: endpoint ->
-     let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+     let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
      let* raw = Web_persist.get_raw_election uuid in
      let@ raw = Option.unwrap not_found raw in
      let* metadata = Web_persist.get_election_metadata uuid in

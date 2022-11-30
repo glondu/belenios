@@ -27,6 +27,8 @@ val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
 
+module Uuid = Common_types.Uuid
+
 module Array : sig
   include module type of Array
   val for_all3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool

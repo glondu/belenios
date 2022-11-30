@@ -23,29 +23,6 @@ open Belenios_platform
 open Platform
 open Common
 
-type number = Z.t
-type uuid = string
-
-let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-let min_uuid_length = 14 (* at least 82 bits of entropy *)
-
-let check token =
-  let n = String.length token in
-  n >= min_uuid_length &&
-    let rec loop i =
-      if i >= 0 then
-        match String.index_opt digits token.[i] with
-        | Some _ -> loop (i-1)
-        | None -> false
-      else true
-    in loop (n-1)
-
-let uuid_of_raw_string x =
-  if check x then x
-  else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
-
-let raw_string_of_uuid x = x
-
 module Hash = struct
   type t = string
 

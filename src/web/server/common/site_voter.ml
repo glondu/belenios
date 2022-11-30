@@ -126,7 +126,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       | None ->
          let msg =
            Printf.sprintf "send_confirmation_email: %s not found"
-             (raw_string_of_uuid uuid)
+             (Uuid.unwrap uuid)
          in
          Lwt.fail (Failure msg)
     in

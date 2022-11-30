@@ -22,16 +22,6 @@
 open Signatures_core
 open Serializable_builtin_t
 
-(** {1 Serializers for type number} *)
-
-val write_number : number writer
-val read_number : number reader
-
-(** {1 Serializers for type uuid} *)
-
-val write_uuid : uuid writer
-val read_uuid : uuid reader
-
 (** {1 Serializers for type hash} *)
 
 val write_hash : hash writer

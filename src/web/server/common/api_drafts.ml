@@ -161,13 +161,13 @@ let draft_of_api a se d =
   }
 
 let delete_draft uuid =
-  let* () = rmdir !!(raw_string_of_uuid uuid) in
+  let* () = rmdir !!(Uuid.unwrap uuid) in
   Web_persist.clear_elections_by_owner_cache ()
 
 let generate_uuid () =
   let length = !Web_config.uuid_length in
   let* token = generate_token ?length () in
-  Lwt.return (uuid_of_raw_string token)
+  Lwt.return (Uuid.wrap token)
 
 let post_drafts account draft =
   let@ () = fun cont ->
@@ -215,7 +215,7 @@ let post_drafts account draft =
     }
   in
   let se = draft_of_api account se draft in
-  let* () = Lwt_unix.mkdir !!(raw_string_of_uuid uuid) 0o700 in
+  let* () = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700 in
   let* () = Web_persist.set_draft_election uuid se in
   let* () = Web_persist.clear_elections_by_owner_cache () in
   Lwt.return uuid
@@ -736,7 +736,7 @@ let dump_passwords uuid db =
 let validate_election uuid se =
   let* s = get_draft_status uuid se in
   let version = se.se_version in
-  let uuid_s = raw_string_of_uuid uuid in
+  let uuid_s = Uuid.unwrap uuid in
   (* convenience tests *)
   let () =
     if se.se_questions.t_name = "" then
@@ -1379,7 +1379,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
        | _ -> method_not_allowed
      end
   | uuid :: endpoint ->
-     let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+     let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
      let* se = Web_persist.get_draft_election uuid in
      let@ se = Option.unwrap not_found se in
      dispatch_draft ~token ~ifmatch endpoint method_ body uuid se
