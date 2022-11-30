@@ -21,9 +21,7 @@
 
 open Common
 
-type 'a shape = 'a Shape.t =
-  | SAtomic of 'a
-  | SArray of 'a shape array
+type 'a shape = 'a Shape.t
 
 type question_result =
   [ `Homomorphic of Weight.t array

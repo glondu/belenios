@@ -24,8 +24,8 @@ open Serializable_builtin_t
 (** {1 Serializers for type shape} *)
 
 let rec write_shape write buf = function
-  | SAtomic x -> write buf x
-  | SArray xs -> Atdgen_runtime.Oj_run.write_array (write_shape write) buf xs
+  | `Atomic x -> write buf x
+  | `Array xs -> Atdgen_runtime.Oj_run.write_array (write_shape write) buf xs
 
 let rec read_shape read state buf =
   Yojson.Safe.read_space state buf;
@@ -33,9 +33,9 @@ let rec read_shape read state buf =
   if buf.lex_curr_pos >= buf.lex_buffer_len then buf.refill_buff buf;
   if buf.lex_curr_pos >= buf.lex_buffer_len then Yojson.json_error "Unexpected end of input";
   if Bytes.get buf.lex_buffer buf.lex_curr_pos = '[' then
-    SArray (Yojson.Safe.read_array (read_shape read) state buf)
+    `Array (Yojson.Safe.read_array (read_shape read) state buf)
   else
-    SAtomic (read state buf)
+    `Atomic (read state buf)
 
 (** {1 Serializers for type question_result} *)
 

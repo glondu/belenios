@@ -24,7 +24,6 @@ open Belenios_core
 open Platform
 open Common
 open Signatures_core
-open Serializable_builtin_t
 open Serializable_core_t
 open Question_h_t
 
@@ -418,10 +417,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
         | _, _ -> false
 
   let extract_ciphertexts _ a =
-    SArray (Array.map (fun x -> SAtomic x) a.choices)
+    `Array (Array.map (fun x -> `Atomic x) a.choices)
 
   let process_ciphertexts q es =
-    let neutral = SArray (Array.make (question_length q) (SAtomic dummy_ciphertext)) in
+    let neutral = `Array (Array.make (question_length q) (`Atomic dummy_ciphertext)) in
     let ( * ) = Shape.map2 eg_combine in
     let rec power b n =
       if Z.(compare n zero) > 0 then (

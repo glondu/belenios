@@ -23,7 +23,6 @@ module PSerializable_j = Serializable_j
 open Belenios_platform
 open Belenios_core
 open Platform
-open Serializable_builtin_t
 open Serializable_core_j
 open Serializable_j
 open PSerializable_j
@@ -263,7 +262,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   end
 
   let process_ballots bs =
-    SArray (
+    `Array (
         Array.mapi (fun i q ->
             Q.process_ciphertexts q
               (List.map
@@ -297,7 +296,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
            loop (i+1) (j+1)
       ) else (
         assert (j = m);
-        SArray x
+        `Array x
       )
     in
     loop 0 0
@@ -330,12 +329,12 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     Shape.forall (fun {alpha; beta} -> G.check alpha && G.check beta) c
 
   let rec swaps = function
-    | SAtomic x -> let* x in M.return (SAtomic x)
-    | SArray x ->
+    | `Atomic x -> let* x in M.return (`Atomic x)
+    | `Array x ->
        let rec loop i accu =
          if i >= 0
          then let* x = swaps x.(i) in loop (pred i) (x::accu)
-         else M.return (SArray (Array.of_list accu))
+         else M.return (`Array (Array.of_list accu))
        in
        loop (pred (Array.length x)) []
 
@@ -381,9 +380,9 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
        in
        let raw_result =
          match results with
-         | SAtomic _ ->
+         | `Atomic _ ->
             invalid_arg "Election.compute_result: cannot compute result"
-         | SArray xs ->
+         | `Array xs ->
             Array.map2 (Q.compute_result ~num_tallied) election.e_questions xs
        in
        let result = W.cast_result raw_result in
@@ -404,7 +403,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
              ) encrypted_tally factors
          in
          match results with
-         | SArray xs ->
+         | `Array xs ->
             Array.for_all3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
          | _ -> false
 end

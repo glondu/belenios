@@ -24,7 +24,6 @@ open Belenios_core
 open Platform
 open Common
 open Signatures_core
-open Serializable_builtin_t
 open Serializable_core_t
 open Question_nh_t
 
@@ -55,11 +54,11 @@ module Make (M : RANDOM) (G : GROUP) = struct
         Z.(challenge =% G.hash zkp [| commitment |])
 
   let extract_ciphertexts _ a =
-    SAtomic a.choices
+    `Atomic a.choices
 
   let compare_ciphertexts x y =
     match x, y with
-    | SAtomic x, SAtomic y ->
+    | `Atomic x, `Atomic y ->
        let c = G.compare x.alpha y.alpha in
        if c = 0 then G.compare x.beta y.beta else c
     | _, _ -> invalid_arg "Question_nh.compare_ciphertexts"
@@ -74,16 +73,16 @@ module Make (M : RANDOM) (G : GROUP) = struct
         ) (Array.of_list es)
     in
     Array.fast_sort compare_ciphertexts es;
-    SArray es
+    `Array es
 
   let compute_result ~num_tallied:_ q x =
     let n = Array.length q.q_answers in
     match x with
-    | SArray xs ->
+    | `Array xs ->
        xs
        |> Array.map
             (function
-             | SAtomic x -> G.to_ints n x
+             | `Atomic x -> G.to_ints n x
              | _ -> invalid_arg "Question_nh.compute_result/1"
             )
        |> (fun x -> `NonHomomorphic x)

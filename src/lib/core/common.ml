@@ -93,55 +93,56 @@ end
 
 module Shape = struct
   type 'a t =
-    | SAtomic of 'a
-    | SArray of 'a t array
+    [ `Atomic of 'a
+    | `Array of 'a t array
+    ]
 
   let of_array x =
-    SArray (Array.map (fun x -> SAtomic x) x)
+    `Array (Array.map (fun x -> `Atomic x) x)
 
   let to_array = function
-    | SAtomic _ -> invalid_arg "Shape.to_array"
-    | SArray xs ->
+    | `Atomic _ -> invalid_arg "Shape.to_array"
+    | `Array xs ->
        Array.map (function
-           | SAtomic x -> x
-           | SArray _ -> invalid_arg "Shape.to_array"
+           | `Atomic x -> x
+           | `Array _ -> invalid_arg "Shape.to_array"
          ) xs
 
   let to_shape_array = function
-    | SAtomic _ -> invalid_arg "Shape.to_shape_array"
-    | SArray xs -> xs
+    | `Atomic _ -> invalid_arg "Shape.to_shape_array"
+    | `Array xs -> xs
 
   let rec map f = function
-    | SAtomic x -> SAtomic (f x)
-    | SArray x -> SArray (Array.map (map f) x)
+    | `Atomic x -> `Atomic (f x)
+    | `Array x -> `Array (Array.map (map f) x)
 
   let rec map2 f a b =
     match a, b with
-    | SAtomic x, SAtomic y -> SAtomic (f x y)
-    | SArray x, SArray y -> SArray (Array.map2 (map2 f) x y)
+    | `Atomic x, `Atomic y -> `Atomic (f x y)
+    | `Array x, `Array y -> `Array (Array.map2 (map2 f) x y)
     | _, _ -> invalid_arg "Shape.map2"
 
   let rec flatten = function
-    | SAtomic x -> [x]
-    | SArray xs -> Array.map flatten xs |> Array.to_list |> List.flatten
+    | `Atomic x -> [x]
+    | `Array xs -> Array.map flatten xs |> Array.to_list |> List.flatten
 
   let split x =
     map fst x, map snd x
 
   let rec forall p = function
-    | SAtomic x -> p x
-    | SArray x -> Array.for_all (forall p) x
+    | `Atomic x -> p x
+    | `Array x -> Array.for_all (forall p) x
 
   let rec forall2 p x y =
     match x, y with
-    | SAtomic x, SAtomic y -> p x y
-    | SArray x, SArray y -> Array.for_all2 (forall2 p) x y
+    | `Atomic x, `Atomic y -> p x y
+    | `Array x, `Array y -> Array.for_all2 (forall2 p) x y
     | _, _ -> invalid_arg "Shape.forall2"
 
   let rec forall3 p x y z =
     match x, y, z with
-    | SAtomic x, SAtomic y, SAtomic z -> p x y z
-    | SArray x, SArray y, SArray z -> Array.for_all3 (forall3 p) x y z
+    | `Atomic x, `Atomic y, `Atomic z -> p x y z
+    | `Array x, `Array y, `Array z -> Array.for_all3 (forall3 p) x y z
     | _, _, _ -> invalid_arg "Shape.forall3"
 
 end
