@@ -25,33 +25,6 @@ type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
 
-let extract_weight str =
-  try
-    let i = String.rindex str ',' in
-    let w = Weight.of_string (String.sub str (i + 1) (String.length str - i - 1)) in
-    String.sub str 0 i, w
-  with _ -> str, Weight.one
-
-let split_identity x =
-  match String.split_on_char ',' x with
-  | [address] -> address, address, Weight.one
-  | [address; login] -> address, (if login = "" then address else login), Weight.one
-  | [address; login; weight] ->
-     address,
-     (if login = "" then address else login),
-     Weight.of_string weight
-  | _ -> failwith "Common.split_identity"
-
-let split_identity_opt x =
-  match String.split_on_char ',' x with
-  | [address] -> address, None, None
-  | [address; login] -> address, (if login = "" then None else Some login), None
-  | [address; login; weight] ->
-     address,
-     (if login = "" then None else Some login),
-     Some (Weight.of_string weight)
-  | _ -> failwith "Common.split_identity_opt"
-
 type question_result =
   | RHomomorphic of Weight.t array
   | RNonHomomorphic of int array array

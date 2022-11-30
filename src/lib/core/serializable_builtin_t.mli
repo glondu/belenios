@@ -25,15 +25,6 @@ type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
 
-(** Input: [str = "something[,weight]"]
-    Output:
-    - if [weight] is an integer > 0, return [(something, weight)]
-    - else, return [(str, 1)] *)
-val extract_weight : string -> string * Weight.t
-
-val split_identity : string -> string * string * Weight.t
-val split_identity_opt : string -> string * string option * Weight.t option
-
 type question_result =
   | RHomomorphic of Weight.t array
   | RNonHomomorphic of int array array

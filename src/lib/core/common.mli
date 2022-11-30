@@ -100,4 +100,13 @@ val split_on_br : string -> string list
 val split_lines : string -> string list
 val strip_cred : string -> string
 
+(** Input: [str = "something[,weight]"]
+    Output:
+    - if [weight] is an integer > 0, return [(something, weight)]
+    - else, return [(str, 1)] *)
+val extract_weight : string -> string * Weight.t
+
+val split_identity : string -> string * string * Weight.t
+val split_identity_opt : string -> string * string option * Weight.t option
+
 val supported_crypto_versions : int list

@@ -24,7 +24,6 @@ open Lwt.Syntax
 open Belenios_core
 open Signatures
 open Belenios
-open Serializable_builtin_t
 open Serializable_j
 open Common
 open Web_serializable_j

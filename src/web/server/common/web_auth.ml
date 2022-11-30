@@ -22,7 +22,6 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Web_serializable_j
 open Web_common
