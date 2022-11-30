@@ -37,14 +37,6 @@ let rec read_shape read state buf =
   else
     SAtomic (read state buf)
 
-(** {1 Serializers for type weight} *)
-
-let write_weight buf x =
-  Yojson.Safe.write_t buf (json_of_weight x)
-
-let read_weight state buf =
-  weight_of_json (Yojson.Safe.from_lexbuf ~stream:true state buf)
-
 (** {1 Serializers for type question_result} *)
 
 let write_question_result buf x =

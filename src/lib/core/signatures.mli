@@ -23,8 +23,8 @@
 
 open Belenios_platform
 open Platform
-open Serializable_builtin_t
 open Serializable_t
+open Common
 
 include module type of Signatures_core
 

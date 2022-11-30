@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type weight <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type datetime = string wrap <ocaml module="Belenios_server.Web_types.Datetime">
 type auth_config <ocaml predef from="Belenios_server.Web_serializable"> = abstract
 type draft_voter <ocaml predef from="Belenios_server.Web_serializable"> = abstract

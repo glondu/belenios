@@ -24,7 +24,7 @@
 (** {1 Predefined types} *)
 
 type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
-type weight <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type datetime = string wrap <ocaml module="Web_types.Datetime">

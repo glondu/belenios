@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 module B = Belenios
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios_core.Common

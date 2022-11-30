@@ -95,7 +95,7 @@ module MakeResult (X : ELECTION_BASE) = struct
                  | `List ys ->
                     ys
                     |> Array.of_list
-                    |> Array.map weight_of_json
+                    |> Array.map Weight.wrap
                     |> (fun x -> result.(i) <- RHomomorphic x)
                     |> (fun () -> loop (i + 1) xs)
                  | _ -> failwith "read_result/Homomorphic: list expected"

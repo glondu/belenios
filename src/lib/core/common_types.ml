@@ -86,3 +86,56 @@ module Hash = struct
   let unwrap = to_hex
 
 end
+
+let weight_of_raw_string x =
+  try
+    let x = Z.of_string x in
+    if Z.(compare x zero >= 0) then
+      x
+    else
+      raise Exit
+  with _ -> Printf.ksprintf invalid_arg "%S is not a valid weight" x
+
+let weight_of_int x =
+  if x >= 0 then
+    Z.of_int x
+  else
+    Printf.ksprintf invalid_arg "%d is not a valid weight" x
+
+let weight_of_json = function
+  | `Int x -> weight_of_int x
+  | `Intlit x | `String x -> weight_of_raw_string x
+  | _ -> invalid_arg "invalid weight"
+
+let max_int31 = Z.of_string "1073741823"
+
+let json_of_weight x =
+  if Z.(compare x max_int31 <= 0) then
+    `Int (Z.to_int x)
+  else
+    `String (Z.to_string x)
+
+module Weight = struct
+
+  include Z
+
+  let max_expanded_weight = of_string "100000000000"
+
+  let is_int x i = Z.(compare x (of_int i) = 0)
+
+  let of_string x = weight_of_json (`String x)
+
+  let expand ~total:_ x = x
+
+  let reduce ~total:_ x = x
+
+  let min a b =
+    if compare a b < 0 then a else b
+
+  let max a b =
+    if compare a b > 0 then a else b
+
+  let wrap = weight_of_json
+  let unwrap = json_of_weight
+
+end

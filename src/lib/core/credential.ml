@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Serializable_builtin_t
 open Platform
 open Signatures
 open Common

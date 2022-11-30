@@ -19,63 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
-open Platform
 open Common
 
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
-
-type weight = Z.t
-
-let weight_of_raw_string x =
-  try
-    let x = Z.of_string x in
-    if Z.(compare x zero >= 0) then
-      x
-    else
-      raise Exit
-  with _ -> Printf.ksprintf invalid_arg "%S is not a valid weight" x
-
-let weight_of_int x =
-  if x >= 0 then
-    Z.of_int x
-  else
-    Printf.ksprintf invalid_arg "%d is not a valid weight" x
-
-let weight_of_json = function
-  | `Int x -> weight_of_int x
-  | `Intlit x | `String x -> weight_of_raw_string x
-  | _ -> invalid_arg "invalid weight"
-
-let max_int31 = Z.of_string "1073741823"
-
-let json_of_weight x =
-  if Z.(compare x max_int31 <= 0) then
-    `Int (Z.to_int x)
-  else
-    `String (Z.to_string x)
-
-module Weight = struct
-  include Z
-
-  let max_expanded_weight = of_string "100000000000"
-
-  let is_int x i = Z.(compare x (of_int i) = 0)
-
-  let of_string x = weight_of_json (`String x)
-
-  let expand ~total:_ x = x
-
-  let reduce ~total:_ x = x
-
-  let min a b =
-    if compare a b < 0 then a else b
-
-  let max a b =
-    if compare a b > 0 then a else b
-end
 
 let extract_weight str =
   try
@@ -105,13 +53,13 @@ let split_identity_opt x =
   | _ -> failwith "Common.split_identity_opt"
 
 type question_result =
-  | RHomomorphic of weight array
+  | RHomomorphic of Weight.t array
   | RNonHomomorphic of int array array
 
 let json_of_question_result = function
   | RHomomorphic xs ->
      xs
-     |> Array.map json_of_weight
+     |> Array.map Weight.unwrap
      |> (fun x -> `List (Array.to_list x))
   | RNonHomomorphic xs ->
      xs

@@ -19,34 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
-open Platform
 open Common
 
 type 'a shape = 'a Shape.t =
   | SAtomic of 'a
   | SArray of 'a shape array
-
-module Weight : sig
-  type t
-  val zero : t
-  val one : t
-  val is_int : t -> int -> bool
-  val ( + ) : t -> t -> t
-  val expand : total:t -> t -> Z.t
-  val reduce : total:t -> Z.t -> t
-  val max_expanded_weight : Z.t
-  val min : t -> t -> t
-  val max : t -> t -> t
-  val of_string : string -> t
-  val to_string : t -> string
-  val compare : t -> t -> int
-end
-
-type weight = Weight.t
-
-val weight_of_json : Yojson.Safe.t -> weight
-val json_of_weight : weight -> Yojson.Safe.t
 
 (** Input: [str = "something[,weight]"]
     Output:
@@ -58,7 +35,7 @@ val split_identity : string -> string * string * Weight.t
 val split_identity_opt : string -> string * string option * Weight.t option
 
 type question_result =
-  | RHomomorphic of weight array
+  | RHomomorphic of Weight.t array
   | RNonHomomorphic of int array array
 
 val json_of_question_result : question_result -> Yojson.Safe.t

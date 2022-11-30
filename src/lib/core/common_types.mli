@@ -48,3 +48,21 @@ module Hash : sig
 
   val hash_string : string -> t
 end
+
+module Weight : sig
+  type t
+  val wrap : Yojson.Safe.t -> t
+  val unwrap : t -> Yojson.Safe.t
+  val zero : t
+  val one : t
+  val is_int : t -> int -> bool
+  val ( + ) : t -> t -> t
+  val expand : total:t -> t -> Z.t
+  val reduce : total:t -> Z.t -> t
+  val max_expanded_weight : Z.t
+  val min : t -> t -> t
+  val max : t -> t -> t
+  val of_string : string -> t
+  val to_string : t -> string
+  val compare : t -> t -> int
+end

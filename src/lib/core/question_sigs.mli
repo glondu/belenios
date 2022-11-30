@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Common
 open Serializable_builtin_t
 open Serializable_core_t
 
