@@ -31,6 +31,7 @@ module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
 module Question_result = Common_types.Question_result
+module Shape = Common_types.Shape
 
 val sha256_b64 : string -> string
 
@@ -56,23 +57,6 @@ module Option : sig
   include module type of Option
   val wrap : ('a -> 'b) -> 'a -> 'b option
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
-end
-
-module Shape : sig
-  type 'a t =
-    [ `Atomic of 'a
-    | `Array of 'a t array
-    ]
-  val of_array : 'a array -> 'a t
-  val to_array : 'a t -> 'a array
-  val to_shape_array : 'a t -> 'a t array
-  val map : ('a -> 'b) -> 'a t -> 'b t
-  val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
-  val flatten : 'a t -> 'a list
-  val split : ('a * 'b) t -> 'a t * 'b t
-  val forall : ('a -> bool) -> 'a t -> bool
-  val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
-  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
 end
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit

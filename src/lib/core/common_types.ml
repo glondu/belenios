@@ -165,3 +165,90 @@ module Question_result = struct
      |> (fun x -> `List (Array.to_list x))
 
 end
+
+let for_all3 f a b c =
+  let n = Array.length a in
+  n = Array.length b &&
+    n = Array.length c &&
+      (let rec check i =
+         if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
+         else true
+       in check (pred n))
+
+module Shape = struct
+  type 'a t =
+    [ `Atomic of 'a
+    | `Array of 'a t array
+    ]
+
+  let of_array x =
+    `Array (Array.map (fun x -> `Atomic x) x)
+
+  let to_array = function
+    | `Atomic _ -> invalid_arg "Shape.to_array"
+    | `Array xs ->
+       Array.map (function
+           | `Atomic x -> x
+           | `Array _ -> invalid_arg "Shape.to_array"
+         ) xs
+
+  let to_shape_array = function
+    | `Atomic _ -> invalid_arg "Shape.to_shape_array"
+    | `Array xs -> xs
+
+  let rec map f = function
+    | `Atomic x -> `Atomic (f x)
+    | `Array x -> `Array (Array.map (map f) x)
+
+  let rec map2 f a b =
+    match a, b with
+    | `Atomic x, `Atomic y -> `Atomic (f x y)
+    | `Array x, `Array y -> `Array (Array.map2 (map2 f) x y)
+    | _, _ -> invalid_arg "Shape.map2"
+
+  let rec flatten = function
+    | `Atomic x -> [x]
+    | `Array xs -> Array.map flatten xs |> Array.to_list |> List.flatten
+
+  let split x =
+    map fst x, map snd x
+
+  let rec forall p = function
+    | `Atomic x -> p x
+    | `Array x -> Array.for_all (forall p) x
+
+  let rec forall2 p x y =
+    match x, y with
+    | `Atomic x, `Atomic y -> p x y
+    | `Array x, `Array y -> Array.for_all2 (forall2 p) x y
+    | _, _ -> invalid_arg "Shape.forall2"
+
+  let rec forall3 p x y z =
+    match x, y, z with
+    | `Atomic x, `Atomic y, `Atomic z -> p x y z
+    | `Array x, `Array y, `Array z -> for_all3 (forall3 p) x y z
+    | _, _, _ -> invalid_arg "Shape.forall3"
+
+end
+
+module Atd_shape_t = struct
+  type 'a shape = 'a Shape.t
+end
+
+module Atd_shape_j = struct
+
+  let rec write_shape write buf = function
+    | `Atomic x -> write buf x
+    | `Array xs -> Atdgen_runtime.Oj_run.write_array (write_shape write) buf xs
+
+  let rec read_shape read state buf =
+    Yojson.Safe.read_space state buf;
+    let open Lexing in
+    if buf.lex_curr_pos >= buf.lex_buffer_len then buf.refill_buff buf;
+    if buf.lex_curr_pos >= buf.lex_buffer_len then Yojson.json_error "Unexpected end of input";
+    if Bytes.get buf.lex_buffer buf.lex_curr_pos = '[' then
+      `Array (Yojson.Safe.read_array (read_shape read) state buf)
+    else
+      `Atomic (read state buf)
+
+end

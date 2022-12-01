@@ -31,6 +31,7 @@ module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
 module Question_result = Common_types.Question_result
+module Shape = Common_types.Shape
 
 let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
 
@@ -90,62 +91,6 @@ module Option = struct
     match x with
     | None -> default
     | Some x -> f x
-end
-
-module Shape = struct
-  type 'a t =
-    [ `Atomic of 'a
-    | `Array of 'a t array
-    ]
-
-  let of_array x =
-    `Array (Array.map (fun x -> `Atomic x) x)
-
-  let to_array = function
-    | `Atomic _ -> invalid_arg "Shape.to_array"
-    | `Array xs ->
-       Array.map (function
-           | `Atomic x -> x
-           | `Array _ -> invalid_arg "Shape.to_array"
-         ) xs
-
-  let to_shape_array = function
-    | `Atomic _ -> invalid_arg "Shape.to_shape_array"
-    | `Array xs -> xs
-
-  let rec map f = function
-    | `Atomic x -> `Atomic (f x)
-    | `Array x -> `Array (Array.map (map f) x)
-
-  let rec map2 f a b =
-    match a, b with
-    | `Atomic x, `Atomic y -> `Atomic (f x y)
-    | `Array x, `Array y -> `Array (Array.map2 (map2 f) x y)
-    | _, _ -> invalid_arg "Shape.map2"
-
-  let rec flatten = function
-    | `Atomic x -> [x]
-    | `Array xs -> Array.map flatten xs |> Array.to_list |> List.flatten
-
-  let split x =
-    map fst x, map snd x
-
-  let rec forall p = function
-    | `Atomic x -> p x
-    | `Array x -> Array.for_all (forall p) x
-
-  let rec forall2 p x y =
-    match x, y with
-    | `Atomic x, `Atomic y -> p x y
-    | `Array x, `Array y -> Array.for_all2 (forall2 p) x y
-    | _, _ -> invalid_arg "Shape.forall2"
-
-  let rec forall3 p x y z =
-    match x, y, z with
-    | `Atomic x, `Atomic y, `Atomic z -> p x y z
-    | `Array x, `Array y, `Array z -> Array.for_all3 (forall3 p) x y z
-    | _, _, _ -> invalid_arg "Shape.forall3"
-
 end
 
 let save_to filename writer x =

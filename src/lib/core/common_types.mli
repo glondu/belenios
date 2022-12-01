@@ -75,3 +75,30 @@ module Question_result : sig
   val wrap : Yojson.Safe.t -> t
   val unwrap : t -> Yojson.Safe.t
 end
+
+module Shape : sig
+  type 'a t =
+    [ `Atomic of 'a
+    | `Array of 'a t array
+    ]
+  val of_array : 'a array -> 'a t
+  val to_array : 'a t -> 'a array
+  val to_shape_array : 'a t -> 'a t array
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
+  val flatten : 'a t -> 'a list
+  val split : ('a * 'b) t -> 'a t * 'b t
+  val forall : ('a -> bool) -> 'a t -> bool
+  val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
+  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
+end
+
+module Atd_shape_t : sig
+  type 'a shape = 'a Shape.t
+end
+
+module Atd_shape_j : sig
+  open Atdgen_runtime.Util.Json
+  val write_shape : 'a writer -> 'a Shape.t writer
+  val read_shape : 'a reader -> 'a Shape.t reader
+end
