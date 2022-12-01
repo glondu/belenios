@@ -22,23 +22,3 @@
 open Common
 
 type 'a shape = 'a Shape.t
-
-type question_result =
-  [ `Homomorphic of Weight.t array
-  | `NonHomomorphic of int array array
-  ]
-
-let json_of_question_result = function
-  | `Homomorphic xs ->
-     xs
-     |> Array.map Weight.unwrap
-     |> (fun x -> `List (Array.to_list x))
-  | `NonHomomorphic xs ->
-     xs
-     |> Array.map
-          (fun ys ->
-            ys
-            |> Array.map (fun i -> `Int i)
-            |> (fun y -> `List (Array.to_list y))
-          )
-     |> (fun x -> `List (Array.to_list x))

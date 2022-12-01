@@ -26,8 +26,3 @@ open Serializable_builtin_t
 
 val write_shape : 'a writer -> 'a shape writer
 val read_shape : 'a reader -> 'a shape reader
-
-(** {1 Serializers for type question_result} *)
-
-val write_question_result : question_result writer
-val read_question_result : question_result reader

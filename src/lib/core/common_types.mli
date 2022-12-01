@@ -66,3 +66,12 @@ module Weight : sig
   val to_string : t -> string
   val compare : t -> t -> int
 end
+
+module Question_result : sig
+  type t =
+    [ `Homomorphic of Weight.t array
+    | `NonHomomorphic of int array array
+    ]
+  val wrap : Yojson.Safe.t -> t
+  val unwrap : t -> Yojson.Safe.t
+end

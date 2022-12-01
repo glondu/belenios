@@ -25,7 +25,7 @@
 
 type number = string wrap <ocaml module="Common_types.Number">
 type weight = abstract wrap <ocaml module="Common_types.Weight">
-type question_result <ocaml predef from="Serializable_builtin"> = abstract
+type question_result = abstract wrap <ocaml module="Common_types.Question_result">
 type uuid = string wrap <ocaml module="Common_types.Uuid">
 type hash = string wrap <ocaml module="Common_types.Hash">
 type 'a shape <ocaml predef from="Serializable_builtin"> = abstract

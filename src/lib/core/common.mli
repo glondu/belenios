@@ -30,6 +30,7 @@ val ( // ) : string -> string -> string
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
+module Question_result = Common_types.Question_result
 
 val sha256_b64 : string -> string
 

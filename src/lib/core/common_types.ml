@@ -139,3 +139,29 @@ module Weight = struct
   let unwrap = json_of_weight
 
 end
+
+module Question_result = struct
+
+  type t =
+    [ `Homomorphic of Weight.t array
+    | `NonHomomorphic of int array array
+    ]
+
+  let wrap _ = failwith "Question_result.wrap: unimplemented"
+
+  let unwrap = function
+  | `Homomorphic xs ->
+     xs
+     |> Array.map Weight.unwrap
+     |> (fun x -> `List (Array.to_list x))
+  | `NonHomomorphic xs ->
+     xs
+     |> Array.map
+          (fun ys ->
+            ys
+            |> Array.map (fun i -> `Int i)
+            |> (fun y -> `List (Array.to_list y))
+          )
+     |> (fun x -> `List (Array.to_list x))
+
+end

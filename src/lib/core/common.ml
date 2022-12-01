@@ -30,6 +30,7 @@ let ( // ) = Filename.concat
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
+module Question_result = Common_types.Question_result
 
 let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
 

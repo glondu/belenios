@@ -22,10 +22,3 @@
 open Common
 
 type 'a shape = 'a Shape.t
-
-type question_result =
-  [ `Homomorphic of Weight.t array
-  | `NonHomomorphic of int array array
-  ]
-
-val json_of_question_result : question_result -> Yojson.Safe.t

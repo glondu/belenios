@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
-
 (** {1 Serializers for type shape} *)
 
 let rec write_shape write buf = function
@@ -36,12 +34,3 @@ let rec read_shape read state buf =
     `Array (Yojson.Safe.read_array (read_shape read) state buf)
   else
     `Atomic (read state buf)
-
-(** {1 Serializers for type question_result} *)
-
-let write_question_result buf x =
-  Yojson.Safe.write_t buf (json_of_question_result x)
-
-let read_question_result _ _ =
-  (* should not be called *)
-  failwith "read_question_result"
