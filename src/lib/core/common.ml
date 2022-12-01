@@ -31,35 +31,10 @@ module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
 module Question_result = Common_types.Question_result
+module Array = Common_types.Array
 module Shape = Common_types.Shape
 
 let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
-
-module Array = struct
-  include Array
-
-  let for_all3 f a b c =
-    let n = Array.length a in
-    n = Array.length b &&
-      n = Array.length c &&
-        (let rec check i =
-           if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
-           else true
-         in check (pred n))
-
-  let map3 f a b c =
-    Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
-
-  let findi f a =
-    let n = Array.length a in
-    let rec loop i =
-      if i < n then
-        match f i a.(i) with
-        | None -> loop (i+1)
-        | Some _ as x -> x
-      else None
-    in loop 0
-end
 
 module String = struct
   include String

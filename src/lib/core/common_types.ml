@@ -166,14 +166,33 @@ module Question_result = struct
 
 end
 
-let for_all3 f a b c =
-  let n = Array.length a in
-  n = Array.length b &&
-    n = Array.length c &&
-      (let rec check i =
-         if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
-         else true
-       in check (pred n))
+module Array = struct
+
+  include Stdlib.Array
+
+  let for_all3 f a b c =
+    let n = Array.length a in
+    n = Array.length b &&
+      n = Array.length c &&
+        (let rec check i =
+           if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
+           else true
+         in check (pred n))
+
+  let map3 f a b c =
+    Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
+
+  let findi f a =
+    let n = Array.length a in
+    let rec loop i =
+      if i < n then
+        match f i a.(i) with
+        | None -> loop (i+1)
+        | Some _ as x -> x
+      else None
+    in loop 0
+
+end
 
 module Shape = struct
   type 'a t =
@@ -226,7 +245,7 @@ module Shape = struct
   let rec forall3 p x y z =
     match x, y, z with
     | `Atomic x, `Atomic y, `Atomic z -> p x y z
-    | `Array x, `Array y, `Array z -> for_all3 (forall3 p) x y z
+    | `Array x, `Array y, `Array z -> Array.for_all3 (forall3 p) x y z
     | _, _, _ -> invalid_arg "Shape.forall3"
 
 end

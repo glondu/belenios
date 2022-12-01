@@ -76,6 +76,14 @@ module Question_result : sig
   val unwrap : t -> Yojson.Safe.t
 end
 
+module Array : sig
+  include module type of Stdlib.Array
+  val for_all3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
+  val map3 : ('a -> 'b -> 'c -> 'd) ->
+             'a array -> 'b array -> 'c array -> 'd array
+  val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
+end
+
 module Shape : sig
   type 'a t =
     [ `Atomic of 'a
