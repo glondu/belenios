@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_core.Serializable_builtin_t
 open Belenios_core
 open Common
 open Belenios

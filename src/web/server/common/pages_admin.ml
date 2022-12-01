@@ -22,11 +22,9 @@
 open Lwt
 open Lwt.Syntax
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_j
 open Common
 open Belenios_api.Serializable_t
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
@@ -186,7 +184,7 @@ module Make
       let name = if name = "" then s_ "(untitled)" else name in
       li [
           a ~service:election_admin
-            ~a:[a_id ("election_admin_" ^ (raw_string_of_uuid uuid))]
+            ~a:[a_id ("election_admin_" ^ (Uuid.unwrap uuid))]
             [txt name] uuid;
         ]
     in
@@ -194,7 +192,7 @@ module Make
       let name = if name = "" then s_ "(untitled)" else name in
       li [
           a ~service:election_draft
-            ~a:[a_id ("election_draft_" ^ (raw_string_of_uuid uuid))]
+            ~a:[a_id ("election_draft_" ^ (Uuid.unwrap uuid))]
             [txt name] uuid;
         ]
     in
@@ -376,7 +374,7 @@ module Make
     let hash =
       Netencoding.Url.mk_url_encoded_parameters
         [
-          "uuid", raw_string_of_uuid uuid;
+          "uuid", Uuid.unwrap uuid;
           "lang", lang;
         ]
     in
@@ -645,7 +643,7 @@ module Make
                          ] in
     let form_destroy =
       let t = Option.value se.se_creation_date ~default:default_creation_date in
-      let t = datetime_add t (day days_to_delete) in
+      let t = Period.add t (Period.day days_to_delete) in
       post_form
         ~service:election_draft_destroy
         (fun () ->
@@ -654,7 +652,7 @@ module Make
                 h2 [txt (s_ "Destroy election")];
                 div [
                     txt (s_ "Note: this election will be automatically destroyed after ");
-                    txt (format_datetime t);
+                    txt (Datetime.format t);
                     txt ".";
                   ];
                 input ~input_type:`Submit ~value:(s_ "Destroy election") string;
@@ -732,7 +730,7 @@ module Make
                in
                let uri =
                  Printf.sprintf "%s/draft/trustee.html#%s-%s"
-                   !Web_config.prefix (raw_string_of_uuid uuid) t.st_token
+                   !Web_config.prefix (Uuid.unwrap uuid) t.st_token
                in
                let* mail_cell, link_cell =
                  if t.st_token <> "" then (
@@ -921,7 +919,7 @@ module Make
                in
                let uri =
                  Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
-                   !Web_config.prefix (raw_string_of_uuid uuid) t.stt_token
+                   !Web_config.prefix (Uuid.unwrap uuid) t.stt_token
                in
                let* mail_cell =
                  let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
@@ -1093,7 +1091,7 @@ module Make
     in
     let url =
       Printf.sprintf "%s/draft/credentials.html#%s-%s"
-        !Web_config.prefix (raw_string_of_uuid uuid) se.se_public_creds
+        !Web_config.prefix (Uuid.unwrap uuid) se.se_public_creds
     in
     let content = [
         back;
@@ -1408,7 +1406,7 @@ module Make
           ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
-    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form_textarea =
       post_form ~a:[a_id "submit_form"; a_style "display:none;"]
         ~service:election_draft_credentials_post
@@ -1504,7 +1502,7 @@ module Make
         ]
     in
     let form =
-      let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+      let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
       let service = Eliom_service.preapply ~service:election_draft_trustee_post (uuid, token) in
       post_form
         ~a:[a_id "data_form"]
@@ -1576,7 +1574,7 @@ module Make
           ul [li [span ~a:[a_id "election_url"] []]];
         ]
     in
-    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let form =
       post_form
         ~service:election_draft_threshold_trustee_post
@@ -1682,7 +1680,7 @@ module Make
   let election_draft_importer l ~service ~title ~note uuid (elections, tallied, archived) =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let format_election (from_uuid, name) =
-      let from_uuid = raw_string_of_uuid from_uuid in
+      let from_uuid = Uuid.unwrap from_uuid in
       let form = post_form ~service
                    (fun from ->
                      [
@@ -1943,7 +1941,7 @@ module Make
       let* d = Api_elections.get_election_automatic_dates uuid in
       let format = function
         | None -> ""
-        | Some x -> format_datetime @@ datetime_of_unixfloat x
+        | Some x -> Datetime.format @@ Datetime.from_unixfloat x
       in
       return @@ post_form ~service:election_auto_post
                   (fun (lopen, lclose) ->
@@ -1953,7 +1951,7 @@ module Make
                           b [txt (s_ "Note:")];
                           txt " ";
                           txt (s_ "times are in UTC. Now is ");
-                          txt (format_datetime @@ now ());
+                          txt (Datetime.format @@ Datetime.now ());
                           txt ".";
                         ];
                       div ~a:[a_style "margin-left: 3em;"] [
@@ -2042,7 +2040,7 @@ module Make
                      (fun (nuuid, ntrustee) ->
                        let a = if disabled then [a_disabled ()] else [] in
                        [
-                         input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
+                         input ~input_type:`Hidden ~name:nuuid ~value:uuid (user Uuid.unwrap);
                          input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                          input ~a ~input_type:`Submit ~value:(s_ "Skip") string;
                        ]
@@ -2080,7 +2078,7 @@ module Make
                                 (fun (nuuid, ntrustee) ->
                                   let a = if select_disabled || done_ then [a_disabled ()] else [] in
                                   [
-                                    input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
+                                    input ~input_type:`Hidden ~name:nuuid ~value:uuid (user Uuid.unwrap);
                                     input ~input_type:`Hidden ~name:ntrustee ~value:x.shuffler_address string;
                                     input ~a ~input_type:`Submit ~value:(s_ "Select this trustee") string;
                                   ]
@@ -2221,7 +2219,7 @@ module Make
                 div [
                     Printf.sprintf
                       (f_ "The result is scheduled to be published after %s.")
-                      (raw_string_of_datetime t)
+                      (Datetime.unwrap t)
                     |> txt
                   ]
               in
@@ -2248,7 +2246,7 @@ module Make
                         ];
                       div [
                           txt (s_ "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is ");
-                          txt (String.sub (string_of_datetime (now ())) 1 19);
+                          txt (String.sub (string_of_datetime (Datetime.now ())) 1 19);
                           txt ".";
                         ];
                     ]
@@ -2309,7 +2307,7 @@ module Make
       | Some t ->
          div [
              txt (s_ "This election will be automatically archived after ");
-             txt (format_datetime @@ datetime_of_unixfloat t);
+             txt (Datetime.format @@ Datetime.from_unixfloat t);
              txt ".";
            ]
     in
@@ -2326,7 +2324,7 @@ module Make
       let t = status.status_auto_delete_date in
       div [
           txt (s_ "This election will be automatically deleted after ");
-          txt (format_datetime @@ datetime_of_unixfloat t);
+          txt (Datetime.format @@ Datetime.from_unixfloat t);
           txt ".";
         ]
     in
@@ -2408,7 +2406,7 @@ module Make
       List.map
         (fun {vr_date; vr_username} ->
           tr [
-              td [txt @@ format_datetime @@ datetime_of_unixfloat vr_date];
+              td [txt @@ Datetime.format @@ Datetime.from_unixfloat vr_date];
               td [txt vr_username]
             ]
         ) records
@@ -2458,7 +2456,7 @@ module Make
               div [txt (s_ "You may skip a trustee if they do not answer. Be aware that this reduces the security.")];
               div
                 [
-                  input ~input_type:`Hidden ~name:nuuid ~value:uuid (user raw_string_of_uuid);
+                  input ~input_type:`Hidden ~name:nuuid ~value:uuid (user Uuid.unwrap);
                   input ~input_type:`Hidden ~name:ntrustee ~value:trustee string;
                   input ~input_type:`Submit ~value:(s_ "Confirm") string;
                   txt " ";
@@ -2473,7 +2471,7 @@ module Make
   let shuffle_static () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let title = s_ "Shuffle" in
     let content = [
         div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
@@ -2568,7 +2566,7 @@ module Make
                   ];
                 li [
                     div ~a:[a_id "pd_done"] [
-                        let uuid = uuid_of_raw_string "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
+                        let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
                         post_form
                           ~a:[a_id "pd_form"]
                           ~service:election_tally_trustees_post
@@ -2899,7 +2897,7 @@ module Make
                   txt (
                       match account.account_consent with
                       | None -> s_ "(none)"
-                      | Some t -> format_datetime t
+                      | Some t -> Datetime.format t
                     );
                 ];
               div [

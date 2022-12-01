@@ -22,9 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Web_auth_sig
@@ -96,7 +94,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
                         let* () = Web_persist.clear_elections_by_owner_cache () in
                         return a
                      | Some x ->
-                        let account_last_connected = now () in
+                        let account_last_connected = Datetime.now () in
                         let x = {x with account_last_connected} in
                         let* () = Accounts.update_account x in
                         return x

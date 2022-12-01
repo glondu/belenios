@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable_builtin_t
 open Signatures
 open Common
 
@@ -45,7 +44,7 @@ end
 
 module Make (P : PARAMS) (M : RANDOM) () = struct
 
-  let uuid = uuid_of_raw_string P.uuid
+  let uuid = Uuid.wrap P.uuid
   module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
   let ( let* ) = M.bind
 

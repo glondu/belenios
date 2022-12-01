@@ -23,12 +23,7 @@
 
 (** {2 Predefined types} *)
 
-type number <ocaml predef from="Serializable_builtin"> = abstract
-
-(** {2 Helpers} *)
-
-type 'a unboxed = 'a
-type int_list = int list
+type number = string wrap <ocaml module="Common_types.Number">
 
 (** {2 Basic cryptographic datastructures} *)
 

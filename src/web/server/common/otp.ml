@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios_core.Common
-open Web_serializable_builtin_t
 open Web_common
 
 module type SENDER = sig
@@ -38,7 +37,7 @@ module Make (I : SENDER) () = struct
   type code =
     {
       code : string;
-      expiration_time : datetime;
+      expiration_time : Datetime.t;
       mutable trials_left : int;
     }
 
@@ -46,19 +45,19 @@ module Make (I : SENDER) () = struct
 
   let filter_codes_by_time now table =
     SMap.filter (fun _ {expiration_time; _} ->
-        datetime_compare now expiration_time <= 0
+        Datetime.compare now expiration_time <= 0
       ) table
 
   let generate ~address =
-    let now = now () in
+    let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
     let* code = generate_numeric () in
-    let expiration_time = datetime_add now (second 900) in
+    let expiration_time = Period.add now (Period.second 900) in
     codes := SMap.add address {code; expiration_time; trials_left = 10} codes_;
     I.send ~address ~code
 
   let check ~address ~code =
-    let now = now () in
+    let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
     codes := codes_;
     match SMap.find_opt address codes_ with

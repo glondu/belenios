@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios_core.Signatures
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
@@ -70,7 +69,7 @@ let show main uuid =
           let container = div [] |> Tyxml_js.To_dom.of_div in
           let b =
             let@ () = button "Generate credentials" in
-            let uuid_ = uuid_of_raw_string uuid in
+            let uuid_ = Uuid.wrap uuid in
             let show_weight =
               List.exists
                 (fun v ->

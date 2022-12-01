@@ -21,12 +21,11 @@
 
 open Signatures_core
 
-type question =
+type t =
   | Homomorphic of Question_h_t.question
   | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
-let read_question l b =
-  let x = Yojson.Safe.read_json l b in
+let wrap x =
   match x with
   | `Assoc o ->
      (match List.assoc_opt "type" o with
@@ -34,7 +33,7 @@ let read_question l b =
          Homomorphic (Question_h_j.question_of_string (Yojson.Safe.to_string x))
       | Some (`String "NonHomomorphic") ->
          (match List.assoc_opt "value" o with
-          | None -> failwith "Question.read_question: value is missing"
+          | None -> failwith "Question.wrap: value is missing"
           | Some v ->
              NonHomomorphic (
                  Question_nh_j.question_of_string (Yojson.Safe.to_string v),
@@ -42,12 +41,12 @@ let read_question l b =
                )
          )
       | Some _ ->
-         failwith "Question.read_question: unexpected type"
+         failwith "Question.wrap: unexpected type"
      )
-  | _ -> failwith "Question.read_question: unexpected JSON value"
+  | _ -> failwith "Question.wrap: unexpected JSON value"
 
-let write_question b = function
-  | Homomorphic q -> Question_h_j.write_question b q
+let unwrap = function
+  | Homomorphic q -> Yojson.Safe.from_string (Question_h_j.string_of_question q)
   | NonHomomorphic (q, extra) ->
      let o =
        match extra with
@@ -59,7 +58,7 @@ let write_question b = function
        :: ("value", Yojson.Safe.from_string (Question_nh_j.string_of_question q))
        :: o
      in
-     Yojson.Safe.write_json b (`Assoc o)
+     `Assoc o
 
 type counting_method =
   [ `None

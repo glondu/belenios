@@ -20,9 +20,9 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Serializable_builtin_t
 open Platform
 open Signatures
+open Common
 
 module MakeGenerate (M : RANDOM) : sig
   val generate : unit -> string M.t
@@ -32,7 +32,7 @@ val parse : string -> [`Valid | `Invalid | `MaybePassword]
 val check : string -> bool
 
 module MakeDerive (G : GROUP) : sig
-  val derive : uuid -> string -> Z.t
+  val derive : Uuid.t -> string -> Z.t
 end
 
 module MakeParsePublicCredential (G : GROUP) : sig

@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Belenios_server
@@ -35,7 +34,7 @@ let log fmt = Printf.ksprintf (fun x -> Lwt_io.write_line Lwt_io.stdout x) fmt
 let elog fmt = Printf.ksprintf (fun x -> Lwt_io.write_line Lwt_io.stderr x) fmt
 
 let is_election_with_old_crypto uuid =
-  let uuid_s = raw_string_of_uuid uuid in
+  let uuid_s = Uuid.unwrap uuid in
   let@ version = fun cont ->
     let* x = read_file_single_line ~uuid "election.json" in
     match x with
@@ -74,7 +73,7 @@ let convert_metadata_to_v1 (metadata : old_metadata) =
   }
 
 let migrate_draft_to_v1 uuid accu =
-  let uuid_s = raw_string_of_uuid uuid in
+  let uuid_s = Uuid.unwrap uuid in
   let* draft = read_file_single_line ~uuid Spool.(filename draft) in
   match draft with
   | None -> Lwt.return accu
@@ -122,7 +121,7 @@ let migrate_draft_to_v1 uuid accu =
      Lwt.return @@ uuid :: accu
 
 let migrate_election_to_v1 uuid accu =
-  let uuid_s = raw_string_of_uuid uuid in
+  let uuid_s = Uuid.unwrap uuid in
   let* migration = read_file ~uuid "migration" in
   match migration with
   | None ->
@@ -458,7 +457,7 @@ let get_uuids () =
         let@ () = fun cont ->
           if uuid_s = "." || uuid_s = ".." then Lwt.return accu else cont ()
         in
-        match uuid_of_raw_string uuid_s with
+        match Uuid.wrap uuid_s with
         | exception _ ->
            let* () = elog "%s is not a valid UUID; ignored" uuid_s in
            Lwt.return accu
@@ -512,7 +511,7 @@ let () =
           | [] -> migrate_spool_to_v1 uuids
           | _ ->
              let* () = elog "The following elections use old crypto:" in
-             let* () = Lwt_list.iter_s (fun x -> elog "  %s" (raw_string_of_uuid x)) old_elections in
+             let* () = Lwt_list.iter_s (fun x -> elog "  %s" (Uuid.unwrap x)) old_elections in
              let* () = elog "Please delete them before migrating the spool." in
              Lwt.return 2
         end

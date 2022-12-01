@@ -25,9 +25,7 @@ open Belenios_platform
 open Belenios_core
 open Platform
 open Common
-open Serializable_builtin_t
 open Serializable_t
-open Web_serializable_builtin_t
 open Web_serializable_j
 
 let ( let&* ) x f =
@@ -36,7 +34,10 @@ let ( let&* ) x f =
   | Some x -> f x
 
 let ( !! ) x = !Web_config.spool_dir // x
-let ( /// ) uuid x = !!(raw_string_of_uuid uuid // x)
+let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
+
+module Datetime = Web_types.Datetime
+module Period = Web_types.Period
 
 module LwtRandom = struct
 
@@ -98,7 +99,7 @@ let decompose_seconds s =
 
 let format_period l x =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let y, m, d, s = ymds x in
+  let y, m, d, s = Period.ymds x in
   let y = if y = 0 then "" else string_of_int y ^ (s_ " year(s)") in
   let m = if m = 0 then "" else string_of_int m ^ (s_ " month(s)") in
   let d = if d = 0 then "" else string_of_int d ^ (s_ " day(s)") in
@@ -130,7 +131,7 @@ let security_log s =
   | None -> return ()
   | Some ic ->
      Lwt_io.atomic (fun ic ->
-         let* () = Lwt_io.write ic (string_of_datetime (now ())) in
+         let* () = Lwt_io.write ic (string_of_datetime (Datetime.now ())) in
          let* () = Lwt_io.write ic ": " in
          let* () = Lwt_io.write_line ic (s ()) in
          Lwt_io.flush ic
@@ -156,7 +157,7 @@ let set_rewrite_prefix ~src ~dst =
   in rewrite_fun := f
 
 let get_election_home_url uuid =
-  Printf.sprintf "%s/elections/%s/" !Web_config.prefix (raw_string_of_uuid uuid)
+  Printf.sprintf "%s/elections/%s/" !Web_config.prefix (Uuid.unwrap uuid)
 
 type election_file =
   | ESArchive of uuid
@@ -174,11 +175,11 @@ let election_file_of_string = function
   | "result.json" -> ESResult
   | x ->
      match Filename.chop_suffix_opt ~suffix:".bel" x with
-     | Some uuid_s -> ESArchive (uuid_of_raw_string uuid_s)
+     | Some uuid_s -> ESArchive (Uuid.wrap uuid_s)
      | None -> invalid_arg ("election_dir_item: " ^ x)
 
 let string_of_election_file = function
-  | ESArchive x -> raw_string_of_uuid x ^ ".bel"
+  | ESArchive x -> Uuid.unwrap x ^ ".bel"
   | ESRaw -> "election.json"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"
@@ -193,8 +194,8 @@ let election_file x =
 
 let uuid x =
   Eliom_parameter.user_type
-    ~of_string:uuid_of_raw_string
-    ~to_string:raw_string_of_uuid
+    ~of_string:Uuid.wrap
+    ~to_string:Uuid.unwrap
     x
 
 type site_cont =
@@ -206,13 +207,13 @@ let site_cont_of_string x =
   match Pcre.split ~pat:"/" x with
   | ["home"] -> ContSiteHome
   | ["admin"] -> ContSiteAdmin
-  | ["elections"; uuid] -> ContSiteElection (uuid_of_raw_string uuid)
+  | ["elections"; uuid] -> ContSiteElection (Uuid.wrap uuid)
   | _ -> invalid_arg "site_login_cont_of_string"
 
 let string_of_site_cont = function
   | ContSiteHome -> "home"
   | ContSiteAdmin -> "admin"
-  | ContSiteElection uuid -> Printf.sprintf "elections/%s" (raw_string_of_uuid uuid)
+  | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
 
 let site_cont x =
   Eliom_parameter.user_type
@@ -306,7 +307,7 @@ let send_email kind ~recipient ~subject ~body =
   in
   let headers, _ = contents in
   let* token = generate_token ~length:6 () in
-  let date = format_datetime ~fmt:"%Y%m%d%H%M%S" (now ()) in
+  let date = Datetime.format ~fmt:"%Y%m%d%H%M%S" (Datetime.now ()) in
   let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
   headers#update_field "Belenios-Domain" !Web_config.domain;
@@ -315,7 +316,7 @@ let send_email kind ~recipient ~subject ~body =
   let () =
     match uuid with
     | None -> ()
-    | Some uuid -> headers#update_field "Belenios-UUID" (raw_string_of_uuid uuid)
+    | Some uuid -> headers#update_field "Belenios-UUID" (Uuid.unwrap uuid)
   in
   let return_path = !Web_config.return_path in
   let sendmail = sendmail ?return_path in

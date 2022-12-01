@@ -23,17 +23,10 @@
 
 open Belenios_platform
 open Platform
-open Serializable_builtin_t
 open Serializable_t
+open Common
 
-(** Helpers for interacting with atd stuff *)
-
-type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
-type 'a writer = Buffer.t -> 'a -> unit
-
-module type GROUP = Signatures_core.GROUP
-module type MONAD = Signatures_core.MONAD
-module type RANDOM = Signatures_core.RANDOM
+include module type of Signatures_core
 
 module type ELECTION_BASE = sig
   module G : GROUP

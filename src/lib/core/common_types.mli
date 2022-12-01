@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,20 +19,26 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
-open Platform
-open Common
+open Belenios_platform.Platform
 
-type number = Z.t
-type uuid
+module Number : sig
+  type t = Z.t
+  val wrap : string -> t
+  val unwrap : t -> string
+end
 
-val min_uuid_length : int
-
-val uuid_of_raw_string : string -> uuid
-val raw_string_of_uuid : uuid -> string
+module Uuid : sig
+  type t
+  val min_length : int
+  val wrap : string -> t
+  val unwrap : t -> string
+end
 
 module Hash : sig
   type t
+
+  val wrap : string -> t
+  val unwrap : t -> string
 
   val of_hex : string -> t
   val to_hex : t -> string
@@ -43,16 +49,10 @@ module Hash : sig
   val hash_string : string -> t
 end
 
-val sha256_b64 : string -> string
-
-type hash = Hash.t
-
-type 'a shape = 'a Shape.t =
-  | SAtomic of 'a
-  | SArray of 'a shape array
-
 module Weight : sig
   type t
+  val wrap : Yojson.Safe.t -> t
+  val unwrap : t -> Yojson.Safe.t
   val zero : t
   val one : t
   val is_int : t -> int -> bool
@@ -67,22 +67,46 @@ module Weight : sig
   val compare : t -> t -> int
 end
 
-type weight = Weight.t
+module Question_result : sig
+  type t =
+    [ `Homomorphic of Weight.t array
+    | `NonHomomorphic of int array array
+    ]
+  val wrap : Yojson.Safe.t -> t
+  val unwrap : t -> Yojson.Safe.t
+end
 
-val weight_of_json : Yojson.Safe.t -> weight
-val json_of_weight : weight -> Yojson.Safe.t
+module Array : sig
+  include module type of Stdlib.Array
+  val for_all3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
+  val map3 : ('a -> 'b -> 'c -> 'd) ->
+             'a array -> 'b array -> 'c array -> 'd array
+  val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
+end
 
-(** Input: [str = "something[,weight]"]
-    Output:
-    - if [weight] is an integer > 0, return [(something, weight)]
-    - else, return [(str, 1)] *)
-val extract_weight : string -> string * Weight.t
+module Shape : sig
+  type 'a t =
+    [ `Atomic of 'a
+    | `Array of 'a t array
+    ]
+  val of_array : 'a array -> 'a t
+  val to_array : 'a t -> 'a array
+  val to_shape_array : 'a t -> 'a t array
+  val map : ('a -> 'b) -> 'a t -> 'b t
+  val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
+  val flatten : 'a t -> 'a list
+  val split : ('a * 'b) t -> 'a t * 'b t
+  val forall : ('a -> bool) -> 'a t -> bool
+  val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
+  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
+end
 
-val split_identity : string -> string * string * Weight.t
-val split_identity_opt : string -> string * string option * Weight.t option
+module Atd_shape_t : sig
+  type 'a shape = 'a Shape.t
+end
 
-type question_result =
-  | RHomomorphic of weight array
-  | RNonHomomorphic of int array array
-
-val json_of_question_result : question_result -> Yojson.Safe.t
+module Atd_shape_j : sig
+  open Atdgen_runtime.Util.Json
+  val write_shape : 'a writer -> 'a Shape.t writer
+  val read_shape : 'a reader -> 'a Shape.t reader
+end

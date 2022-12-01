@@ -22,12 +22,10 @@
 open Lwt.Syntax
 open Belenios_platform.Platform
 open Belenios_core.Common
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios
 open Belenios_api.Serializable_j
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Api_generic
@@ -162,13 +160,13 @@ let draft_of_api a se d =
   }
 
 let delete_draft uuid =
-  let* () = rmdir !!(raw_string_of_uuid uuid) in
+  let* () = rmdir !!(Uuid.unwrap uuid) in
   Web_persist.clear_elections_by_owner_cache ()
 
 let generate_uuid () =
   let length = !Web_config.uuid_length in
   let* token = generate_token ?length () in
-  Lwt.return (uuid_of_raw_string token)
+  Lwt.return (Uuid.wrap token)
 
 let post_drafts account draft =
   let@ () = fun cont ->
@@ -211,12 +209,12 @@ let post_drafts account draft =
       se_metadata;
       se_public_creds = token;
       se_public_creds_received = false;
-      se_creation_date = Some (now ());
+      se_creation_date = Some (Datetime.now ());
       se_administrator = None;
     }
   in
   let se = draft_of_api account se draft in
-  let* () = Lwt_unix.mkdir !!(raw_string_of_uuid uuid) 0o700 in
+  let* () = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700 in
   let* () = Web_persist.set_draft_election uuid se in
   let* () = Web_persist.clear_elections_by_owner_cache () in
   Lwt.return uuid
@@ -737,7 +735,7 @@ let dump_passwords uuid db =
 let validate_election uuid se =
   let* s = get_draft_status uuid se in
   let version = se.se_version in
-  let uuid_s = raw_string_of_uuid uuid in
+  let uuid_s = Uuid.unwrap uuid in
   (* convenience tests *)
   let () =
     if se.se_questions.t_name = "" then
@@ -950,7 +948,7 @@ let validate_election uuid se =
   (* finish *)
   let* () = Web_persist.set_election_state uuid `Open in
   let* dates = Web_persist.get_election_dates uuid in
-  Web_persist.set_election_dates uuid {dates with e_finalization = Some (now ())}
+  Web_persist.set_election_dates uuid {dates with e_finalization = Some (Datetime.now ())}
 
 let merge_voters a b f =
   let weights =
@@ -1355,7 +1353,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
          let elections =
            List.fold_left
              (fun accu (kind, summary_uuid, date, summary_name) ->
-               let summary_date = unixfloat_of_datetime date in
+               let summary_date = Datetime.to_unixfloat date in
                let summary_kind = None in
                if kind = `Draft then
                  {summary_uuid; summary_name; summary_date; summary_kind} :: accu
@@ -1380,7 +1378,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
        | _ -> method_not_allowed
      end
   | uuid :: endpoint ->
-     let@ uuid = Option.unwrap bad_request (Option.wrap uuid_of_raw_string uuid) in
+     let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
      let* se = Web_persist.get_draft_election uuid in
      let@ se = Option.unwrap not_found se in
      dispatch_draft ~token ~ifmatch endpoint method_ body uuid se

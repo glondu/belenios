@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Belenios_core
 open Common
-open Web_serializable_builtin_t
 open Web_common
 
 type link_kind =
@@ -33,21 +32,21 @@ type link_kind =
 type link = {
     service : string;
     code : string;
-    l_expiration_time : datetime;
+    l_expiration_time : Datetime.t;
     kind : link_kind;
   }
 
 let links = ref SMap.empty
 
 let filter_links_by_time table =
-  let now = now () in
+  let now = Datetime.now () in
   SMap.filter (fun _ {l_expiration_time; _} ->
-      datetime_compare now l_expiration_time <= 0
+      Datetime.compare now l_expiration_time <= 0
     ) table
 
 let send_confirmation_link l ~service address =
   let* code = generate_numeric () in
-  let l_expiration_time = datetime_add (now ()) (second 900) in
+  let l_expiration_time = Period.add (Datetime.now ()) (Period.second 900) in
   let kind = `CreateAccount in
   let link = {service; code; l_expiration_time; kind} in
   let nlinks = filter_links_by_time !links in
@@ -58,7 +57,7 @@ let send_confirmation_link l ~service address =
 
 let send_changepw_link l ~service ~address ~username =
   let* code = generate_numeric () in
-  let l_expiration_time = datetime_add (now ()) (second 900) in
+  let l_expiration_time = Period.add (Datetime.now ()) (Period.second 900) in
   let kind = `ChangePassword username in
   let link = {service; code; l_expiration_time; kind} in
   let nlinks = filter_links_by_time !links in

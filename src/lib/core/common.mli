@@ -27,13 +27,14 @@ val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
 
-module Array : sig
-  include module type of Array
-  val for_all3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
-  val map3 : ('a -> 'b -> 'c -> 'd) ->
-             'a array -> 'b array -> 'c array -> 'd array
-  val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
-end
+module Uuid = Common_types.Uuid
+module Hash = Common_types.Hash
+module Weight = Common_types.Weight
+module Question_result = Common_types.Question_result
+module Array = Common_types.Array
+module Shape = Common_types.Shape
+
+val sha256_b64 : string -> string
 
 module String : sig
   include module type of String
@@ -49,22 +50,6 @@ module Option : sig
   include module type of Option
   val wrap : ('a -> 'b) -> 'a -> 'b option
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
-end
-
-module Shape : sig
-  type 'a t =
-    | SAtomic of 'a
-    | SArray of 'a t array
-  val of_array : 'a array -> 'a t
-  val to_array : 'a t -> 'a array
-  val to_shape_array : 'a t -> 'a t array
-  val map : ('a -> 'b) -> 'a t -> 'b t
-  val map2 : ('a -> 'b -> 'c) -> 'a t -> 'b t -> 'c t
-  val flatten : 'a t -> 'a list
-  val split : ('a * 'b) t -> 'a t * 'b t
-  val forall : ('a -> bool) -> 'a t -> bool
-  val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
-  val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
 end
 
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
@@ -93,5 +78,14 @@ end
 val split_on_br : string -> string list
 val split_lines : string -> string list
 val strip_cred : string -> string
+
+(** Input: [str = "something[,weight]"]
+    Output:
+    - if [weight] is an integer > 0, return [(something, weight)]
+    - else, return [(str, 1)] *)
+val extract_weight : string -> string * Weight.t
+
+val split_identity : string -> string * string * Weight.t
+val split_identity_opt : string -> string * string option * Weight.t option
 
 val supported_crypto_versions : int list

@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_builtin_t
-open Common
+open Belenios_core.Common
 
 let mutexes = ref SMap.empty
 
@@ -44,7 +42,7 @@ let unlock uuid_s =
      | Some u -> Lwt.wakeup_later u ()
 
 let with_lock uuid f =
-  let uuid_s = raw_string_of_uuid uuid in
+  let uuid_s = Uuid.unwrap uuid in
   Lwt.bind
     (lock uuid_s)
     (fun () ->

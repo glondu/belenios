@@ -19,11 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type json <ocaml module="Yojson.Safe" t="t"> = abstract
-type number <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
-type uuid <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
+type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
+type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
-type question <ocaml module="Belenios_core.Question"> = abstract
+type question = abstract wrap <ocaml module="Belenios_core.Question">
 
 type 'a params = {
   version : int;
@@ -47,6 +46,6 @@ type 'a ballot = {
   election_uuid : uuid;
   election_hash : string;
   credential : 'a;
-  answers : json list <ocaml repr="array">;
+  answers : abstract list <ocaml repr="array">;
   ?signature : signature option;
 }

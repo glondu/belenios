@@ -19,8 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_builtin_t
+open Belenios_core.Common
 open Web_serializable_t
 
 module type S = sig

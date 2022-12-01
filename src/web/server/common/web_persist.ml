@@ -24,10 +24,8 @@ open Lwt.Syntax
 open Belenios_core
 open Signatures
 open Belenios
-open Serializable_builtin_t
 open Serializable_j
 open Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 
@@ -104,7 +102,7 @@ let set_election_result_hidden uuid hidden =
 let get_election_result_hidden uuid =
   let* t = Spool.get ~uuid Spool.hide_result in
   let&* t in
-  if datetime_compare (now ()) t < 0 then
+  if Datetime.compare (Datetime.now ()) t < 0 then
     return_some t
   else
     let* () = set_election_result_hidden uuid None in
@@ -221,7 +219,7 @@ let get_trustees uuid =
   in
   let msg =
     Printf.sprintf "missing trustees for election %s"
-      (raw_string_of_uuid uuid)
+      (Uuid.unwrap uuid)
   in
   Lwt.fail (Failure msg)
 
@@ -407,7 +405,7 @@ let internal_release_tally ~force uuid =
      let* () = remove_audit_cache uuid in
      let* () = set_election_state uuid `Tallied in
      let* dates = get_election_dates uuid in
-     let* () = set_election_dates uuid {dates with e_tally = Some (now ())} in
+     let* () = set_election_dates uuid {dates with e_tally = Some (Datetime.now ())} in
      let* () = cleanup_file (uuid /// "decryption_tokens.json") in
      let* () = cleanup_file (uuid /// "shuffles.jsons") in
      let* () = clear_shuffle_token uuid in
@@ -419,11 +417,11 @@ let get_election_state ?(update = true) ?(ignore_errors = true) uuid =
   let@ state = fun cont ->
     match x with Some x -> cont x | None -> return `Archived
   in
-  let now = now () in
+  let now = Datetime.now () in
   let* dates = get_election_dates uuid in
   let past = function
     | None -> false
-    | Some t -> datetime_compare t now < 0
+    | Some t -> Datetime.compare t now < 0
   in
   let@ () = fun cont ->
     match state with
@@ -510,7 +508,7 @@ let build_elections_by_owner_cache () =
           else (
             Lwt.catch
               (fun () ->
-                let uuid = uuid_of_raw_string uuid_s in
+                let uuid = Uuid.wrap uuid_s in
                 let* election = get_draft_election uuid in
                 match election with
                 | None ->
@@ -645,7 +643,7 @@ let get_credential_cache uuid cred =
         (Failure
            (Printf.sprintf
               "could not find credential record of %s/%s"
-              (raw_string_of_uuid uuid) cred
+              (Uuid.unwrap uuid) cred
            )
         )
     )
@@ -994,7 +992,7 @@ let compute_audit_cache uuid =
   match election with
   | None ->
      Printf.ksprintf failwith
-       "compute_cache: %s does not exist" (raw_string_of_uuid uuid)
+       "compute_cache: %s does not exist" (Uuid.unwrap uuid)
   | Some election ->
      let* voters =
        let* x = Spool.get_raw_list ~uuid Spool.voters in

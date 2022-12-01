@@ -21,7 +21,6 @@
 
 module B = Belenios
 open Belenios_platform
-open Belenios_core.Serializable_builtin_t
 open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Common
@@ -60,7 +59,7 @@ module Events : CMDLINER_MODULE = struct
     in
     let file =
       let election = B.Election.of_string election in
-      dir // raw_string_of_uuid election.e_uuid ^ ".bel"
+      dir // Uuid.unwrap election.e_uuid ^ ".bel"
     in
     ignore (Tool_events.init ~file ~election ~trustees ~public_creds)
 

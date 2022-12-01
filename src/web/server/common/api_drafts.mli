@@ -60,7 +60,7 @@ val submit_public_credentials : uuid -> draft_election -> credential_list -> uni
 val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 
 val get_draft_trustees : is_admin:bool -> draft_election -> trustees
-val post_draft_trustees : uuid -> draft_election -> json trustee -> unit Lwt.t
+val post_draft_trustees : uuid -> draft_election -> Yojson.Safe.t trustee -> unit Lwt.t
 val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t
 
 val set_threshold :

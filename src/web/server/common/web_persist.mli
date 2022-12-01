@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_t
 open Common
 open Web_serializable_t

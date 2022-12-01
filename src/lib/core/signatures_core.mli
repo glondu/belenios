@@ -24,8 +24,10 @@ open Platform
 
 (** Helpers for interacting with atd stuff *)
 
-type 'a reader = Yojson.Safe.lexer_state -> Lexing.lexbuf -> 'a
-type 'a writer = Buffer.t -> 'a -> unit
+module Json = Atdgen_runtime.Util.Json
+
+type 'a reader = 'a Json.reader
+type 'a writer = 'a Json.writer
 
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig

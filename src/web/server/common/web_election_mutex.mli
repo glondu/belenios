@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
+open Belenios_core.Common
 
-val with_lock : Serializable_builtin_t.uuid -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+val with_lock : Uuid.t -> (unit -> 'a Lwt.t) -> 'a Lwt.t

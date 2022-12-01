@@ -23,7 +23,6 @@ open Lwt
 open Lwt.Syntax
 open Belenios_core
 open Common
-open Serializable_builtin_t
 open Web_serializable_t
 open Web_common
 

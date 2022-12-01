@@ -19,15 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type weight <ocaml predef from="Belenios_core.Serializable_builtin"> = abstract
-type datetime <ocaml predef from="Belenios_server.Web_serializable_builtin"> = abstract
-type user <ocaml predef from="Belenios_server.Web_serializable"> = abstract
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
+type datetime = string wrap <ocaml module="Belenios_server.Web_types.Datetime">
 type auth_config <ocaml predef from="Belenios_server.Web_serializable"> = abstract
 type draft_voter <ocaml predef from="Belenios_server.Web_serializable"> = abstract
 type template <ocaml predef from="Belenios_server.Web_serializable"> = abstract
 type draft_trustee <ocaml predef from="Belenios_server.Web_serializable"> = abstract
 type draft_threshold_trustee <ocaml predef from="Belenios_server.Web_serializable"> = abstract
-type 'a user_or_id <ocaml predef from="Serializable_builtin"> = abstract
+type user_or_id = abstract wrap <ocaml module="User_or_id">
 
 type shuffler = string nullable
 
@@ -58,7 +57,7 @@ type old_election_state =
   ]
 
 type old_metadata = {
-  ?owner: user user_or_id option;
+  ?owner: user_or_id option;
   ?auth_config: auth_config list option;
   ?cred_authority : string option;
   ?trustees : string list option;
@@ -69,7 +68,7 @@ type old_metadata = {
 
 type old_draft_election = {
   ?version : int option;
-  owner : user user_or_id;
+  owner : user_or_id;
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : template;

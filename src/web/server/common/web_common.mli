@@ -22,12 +22,14 @@
 open Belenios_core
 open Signatures
 open Serializable_t
-open Web_serializable_builtin_t
 open Web_serializable_t
 
 val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val ( !! ) : string -> string
 val ( /// ) : uuid -> string -> string
+
+module Datetime = Web_types.Datetime
+module Period = Web_types.Period
 
 module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
 (** Lwt-compatible random number generation. *)
@@ -43,7 +45,7 @@ val fail : error -> 'a Lwt.t
 
 val explain_error : (module Belenios_ui.I18n.GETTEXT) -> error -> string
 
-val format_period : (module Belenios_ui.I18n.GETTEXT) -> period -> string
+val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
 
 val open_security_log : string -> unit Lwt.t
 (** Set the path to the security logger. *)

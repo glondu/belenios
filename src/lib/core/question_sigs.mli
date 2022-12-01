@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
+open Common
 open Serializable_core_t
 
 module type QUESTION = sig
@@ -31,9 +31,9 @@ module type QUESTION = sig
   val create_answer : question -> public_key:elt -> prefix:string -> int array -> answer m
   val verify_answer : question -> public_key:elt -> prefix:string -> answer -> bool
 
-  val extract_ciphertexts : question -> answer -> elt ciphertext shape
-  val process_ciphertexts : question -> (Weight.t * elt ciphertext shape) list -> elt ciphertext shape
+  val extract_ciphertexts : question -> answer -> elt ciphertext Shape.t
+  val process_ciphertexts : question -> (Weight.t * elt ciphertext Shape.t) list -> elt ciphertext Shape.t
 
-  val compute_result : num_tallied:Weight.t -> question -> elt shape -> question_result
-  val check_result : num_tallied:Weight.t -> question -> elt shape -> question_result -> bool
+  val compute_result : num_tallied:Weight.t -> question -> elt Shape.t -> Question_result.t
+  val check_result : num_tallied:Weight.t -> question -> elt Shape.t -> Question_result.t -> bool
 end

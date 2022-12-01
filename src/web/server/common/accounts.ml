@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Lwt.Infix
 open Belenios_core.Common
-open Web_serializable_builtin_t
 open Web_common
 open Web_serializable_j
 
@@ -84,7 +83,7 @@ let create_account ~email user =
     | Some _ -> find_free_id (n + 1)
   in
   let* account_id = find_free_id counter in
-  let account_last_connected = now () in
+  let account_last_connected = Datetime.now () in
   let account_name =
     let x = drop_after_at user.user_name in
     if x = "" then Printf.sprintf "User #%d" account_id else x

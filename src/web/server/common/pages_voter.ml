@@ -22,10 +22,8 @@
 open Lwt
 open Lwt.Syntax
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_j
 open Common
-open Web_serializable_builtin_t
 open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
@@ -165,7 +163,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let format_question_result uuid l (i, q) r =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     match q, r with
-    | Question.Homomorphic x, RHomomorphic r ->
+    | Question.Homomorphic x, `Homomorphic r ->
        let open Question_h_t in
        let answers = Array.to_list x.q_answers in
        let answers = match x.q_blank with
@@ -189,7 +187,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            div ~a:[a_class ["result_question"]] (txt_br x.q_question);
            answers;
          ]
-    | Question.NonHomomorphic (q, extra), RNonHomomorphic ballots ->
+    | Question.NonHomomorphic (q, extra), `NonHomomorphic ballots ->
        let open Question_nh_t in
        let applied_counting_method, show_others =
          match Question.get_counting_method extra with
@@ -245,17 +243,17 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = params.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let* dates = Web_persist.get_election_dates uuid in
-    let now = now () in
+    let now = Datetime.now () in
     let state_ =
       match state with
       | `Closed ->
          let it_will_open =
            match dates.e_auto_open with
-           | Some t when datetime_compare now t < 0 ->
+           | Some t when Datetime.compare now t < 0 ->
               span [
                   txt " ";
                   txt (s_ "It will open in ");
-                  txt (format_period l (datetime_sub t now));
+                  txt (format_period l (Period.sub t now));
                   txt ".";
                 ]
            | _ -> txt ""
@@ -268,10 +266,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       | `Open ->
          let it_will_close =
            match dates.e_auto_close with
-           | Some t when datetime_compare now t < 0 ->
+           | Some t when Datetime.compare now t < 0 ->
               span [
                   txt (s_ "The election will close in ");
-                  txt (format_period l (datetime_sub t now));
+                  txt (format_period l (Period.sub t now));
                   txt ".";
                 ]
            | _ -> txt ""
@@ -319,7 +317,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         let a =
           a_id "start"
           :: a_user_data "uri" uri
-          :: a_user_data "uuid" (raw_string_of_uuid uuid)
+          :: a_user_data "uuid" (Uuid.unwrap uuid)
           :: a_user_data "lang" lang
           :: a_style "font-size:35px;"
           :: disabled
@@ -395,7 +393,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
            div [
                Printf.ksprintf txt
                  (f_ "The result of this election is currently not publicly available. It will be in %s.")
-                 (format_period l (datetime_sub t now));
+                 (format_period l (Period.sub t now));
              ]
       | None -> return go_to_the_booth
     in
@@ -579,7 +577,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       let hash =
         Netencoding.Url.mk_url_encoded_parameters
           [
-            "uuid", raw_string_of_uuid uuid;
+            "uuid", Uuid.unwrap uuid;
             "lang", lang;
           ]
       in
@@ -691,7 +689,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let uuid = election.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
-    let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", raw_string_of_uuid uuid] in
+    let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", Uuid.unwrap uuid] in
     let content =
       [
         div [
@@ -1009,7 +1007,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let form =
       get_form ~service:method_mj
         (fun (uuidn, (questionn, ngradesn)) -> [
-             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user Uuid.unwrap);
              input ~input_type:`Hidden ~name:questionn ~value:question int;
              txt (s_ "Number of grades:");
              txt " ";
@@ -1066,7 +1064,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let form =
       get_form ~service:method_stv
         (fun (uuidn, (questionn, nseatsn)) -> [
-             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user raw_string_of_uuid);
+             input ~input_type:`Hidden ~name:uuidn ~value:uuid (user Uuid.unwrap);
              input ~input_type:`Hidden ~name:questionn ~value:question int;
              txt (s_ "Number of seats:");
              txt " ";

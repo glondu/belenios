@@ -27,31 +27,14 @@ let ( let@ ) f x = f x
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
 
-module Array = struct
-  include Array
+module Uuid = Common_types.Uuid
+module Hash = Common_types.Hash
+module Weight = Common_types.Weight
+module Question_result = Common_types.Question_result
+module Array = Common_types.Array
+module Shape = Common_types.Shape
 
-  let for_all3 f a b c =
-    let n = Array.length a in
-    n = Array.length b &&
-      n = Array.length c &&
-        (let rec check i =
-           if i >= 0 then f a.(i) b.(i) c.(i) && check (pred i)
-           else true
-         in check (pred n))
-
-  let map3 f a b c =
-    Array.mapi (fun i ai -> f ai b.(i) c.(i)) a
-
-  let findi f a =
-    let n = Array.length a in
-    let rec loop i =
-      if i < n then
-        match f i a.(i) with
-        | None -> loop (i+1)
-        | Some _ as x -> x
-      else None
-    in loop 0
-end
+let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
 
 module String = struct
   include String
@@ -83,61 +66,6 @@ module Option = struct
     match x with
     | None -> default
     | Some x -> f x
-end
-
-module Shape = struct
-  type 'a t =
-    | SAtomic of 'a
-    | SArray of 'a t array
-
-  let of_array x =
-    SArray (Array.map (fun x -> SAtomic x) x)
-
-  let to_array = function
-    | SAtomic _ -> invalid_arg "Shape.to_array"
-    | SArray xs ->
-       Array.map (function
-           | SAtomic x -> x
-           | SArray _ -> invalid_arg "Shape.to_array"
-         ) xs
-
-  let to_shape_array = function
-    | SAtomic _ -> invalid_arg "Shape.to_shape_array"
-    | SArray xs -> xs
-
-  let rec map f = function
-    | SAtomic x -> SAtomic (f x)
-    | SArray x -> SArray (Array.map (map f) x)
-
-  let rec map2 f a b =
-    match a, b with
-    | SAtomic x, SAtomic y -> SAtomic (f x y)
-    | SArray x, SArray y -> SArray (Array.map2 (map2 f) x y)
-    | _, _ -> invalid_arg "Shape.map2"
-
-  let rec flatten = function
-    | SAtomic x -> [x]
-    | SArray xs -> Array.map flatten xs |> Array.to_list |> List.flatten
-
-  let split x =
-    map fst x, map snd x
-
-  let rec forall p = function
-    | SAtomic x -> p x
-    | SArray x -> Array.for_all (forall p) x
-
-  let rec forall2 p x y =
-    match x, y with
-    | SAtomic x, SAtomic y -> p x y
-    | SArray x, SArray y -> Array.for_all2 (forall2 p) x y
-    | _, _ -> invalid_arg "Shape.forall2"
-
-  let rec forall3 p x y z =
-    match x, y, z with
-    | SAtomic x, SAtomic y, SAtomic z -> p x y z
-    | SArray x, SArray y, SArray z -> Array.for_all3 (forall3 p) x y z
-    | _, _, _ -> invalid_arg "Shape.forall3"
-
 end
 
 let save_to filename writer x =
@@ -305,5 +233,32 @@ let strip_cred x =
   | [x; ""; _] -> x
   | [x; y; _] -> Printf.sprintf "%s,%s" x y
   | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
+
+let extract_weight str =
+  try
+    let i = String.rindex str ',' in
+    let w = Weight.of_string (String.sub str (i + 1) (String.length str - i - 1)) in
+    String.sub str 0 i, w
+  with _ -> str, Weight.one
+
+let split_identity x =
+  match String.split_on_char ',' x with
+  | [address] -> address, address, Weight.one
+  | [address; login] -> address, (if login = "" then address else login), Weight.one
+  | [address; login; weight] ->
+     address,
+     (if login = "" then address else login),
+     Weight.of_string weight
+  | _ -> failwith "Common.split_identity"
+
+let split_identity_opt x =
+  match String.split_on_char ',' x with
+  | [address] -> address, None, None
+  | [address; login] -> address, (if login = "" then None else Some login), None
+  | [address; login; weight] ->
+     address,
+     (if login = "" then None else Some login),
+     Some (Weight.of_string weight)
+  | _ -> failwith "Common.split_identity_opt"
 
 let supported_crypto_versions = [1]

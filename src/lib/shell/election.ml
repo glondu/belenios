@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -47,7 +46,7 @@ let election_uuid_of_string_ballot x =
   match j with
   | `Assoc o ->
      (match List.assoc_opt "election_uuid" o with
-      | Some (`String x) -> uuid_of_raw_string x
+      | Some (`String x) -> Uuid.wrap x
       | _ -> failwith "election_uuid_of_string_ballot: invalid election_uuid"
      )
   | _ -> failwith "election_uuid_of_string_ballot: invalid ballot"
@@ -70,8 +69,8 @@ module MakeResult (X : ELECTION_BASE) = struct
       let rec check i =
         if i < n then (
           match questions.(i), x.(i) with
-          | Homomorphic _, RHomomorphic _ -> check (i + 1)
-          | NonHomomorphic _, RNonHomomorphic _ -> check (i + 1)
+          | Homomorphic _, `Homomorphic _ -> check (i + 1)
+          | NonHomomorphic _, `NonHomomorphic _ -> check (i + 1)
           | _, _ -> failwith "cast_result: type mismatch"
         ) else ()
       in
@@ -85,7 +84,7 @@ module MakeResult (X : ELECTION_BASE) = struct
     match Yojson.Safe.from_lexbuf ~stream:true state buf with
     | `List xs ->
        let n = Array.length election.e_questions in
-       let result = Array.make n (RHomomorphic [||]) in
+       let result = Array.make n (`Homomorphic [||]) in
        let rec loop i xs =
          match (i < n), xs with
          | true, (x :: xs) ->
@@ -95,8 +94,8 @@ module MakeResult (X : ELECTION_BASE) = struct
                  | `List ys ->
                     ys
                     |> Array.of_list
-                    |> Array.map weight_of_json
-                    |> (fun x -> result.(i) <- RHomomorphic x)
+                    |> Array.map Weight.wrap
+                    |> (fun x -> result.(i) <- `Homomorphic x)
                     |> (fun () -> loop (i + 1) xs)
                  | _ -> failwith "read_result/Homomorphic: list expected"
                 )
@@ -117,7 +116,7 @@ module MakeResult (X : ELECTION_BASE) = struct
                                   )
                           | _ -> failwith "read_result/NonHomomorphic: list list expected"
                          )
-                    |> (fun x -> result.(i) <- RNonHomomorphic x)
+                    |> (fun x -> result.(i) <- `NonHomomorphic x)
                     |> (fun () -> loop (i + 1) xs)
                  | _ -> failwith "read_result/NonHomomorphic: list expected"
                 )

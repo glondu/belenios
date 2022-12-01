@@ -24,7 +24,6 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_core
 open Belenios
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
 open Common
@@ -411,7 +410,7 @@ let loadElection credential () =
   let params = P.election in
   set_content_with_br "election_name" params.e_name;
   set_content_with_br "election_description" params.e_description;
-  set_content "election_uuid" (raw_string_of_uuid params.e_uuid);
+  set_content "election_uuid" (Uuid.unwrap params.e_uuid);
   set_content "election_fingerprint" P.fingerprint;
   let$ e = document##getElementById (Js.string "intro") in
   match credential with

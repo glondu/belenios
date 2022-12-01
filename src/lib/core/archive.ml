@@ -19,9 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_builtin_t
 open Serializable_j
 open Signatures
+open Common
 
 type data_or_event = Data | Event of event
 
