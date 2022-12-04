@@ -71,6 +71,7 @@
         <auth name="captcha"><email use_captcha="true"/></auth> <!-- DEMO -->
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
         <source file="_SHAREDIR_/belenios.tar.gz"/>
+        <logo file="_SHAREDIR_/placeholder.png" mime-type="image/png"/>
         <sealing file="demo/sealing.txt" mime-type="text/plain"/>
         <default-group group="BELENIOS-2048"/>
         <nh-group group="RFC-3526-2048"/>

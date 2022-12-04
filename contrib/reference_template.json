@@ -60,7 +60,7 @@
     "/static/groups/rfc3526-2048.json"  : null,
     "/static/locales/admin/*.json"      : null,
     "/static/locales/voter/*.json"      : null,
-    "/static/logo.png"          : null,
+    "/LOGO"                     : null,
     "/static/mime.types"        : null,
     "/static/placeholder.png"   : null,
     "/static/reset.css"         : null,

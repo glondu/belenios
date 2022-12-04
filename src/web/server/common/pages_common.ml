@@ -82,7 +82,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
 
     module Uris = struct
       let home = absolute_uri_of_service ~service:home ()
-      let logo = static "logo.png"
+      let logo = absolute_uri_of_service ~service:logo ()
       let belenios = Eliom_content.Xml.uri_of_string Belenios_ui.Links.belenios
       let source_code = absolute_uri_of_service ~service:source_code ()
       let privacy_policy = Xml.uri_of_string !Web_config.gdpr_uri

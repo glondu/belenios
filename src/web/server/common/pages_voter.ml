@@ -956,8 +956,12 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       div ~a:[a_id "booth_div"; a_style "display:none;"] [
           div ~a:[a_id "header"] [
               div ~a:[a_style "float: left; padding: 15px;"] [
+                  let src =
+                    Eliom_uri.make_string_uri ~service:logo ()
+                    |> Eliom_content.Xml.uri_of_string
+                  in
                   img ~alt:(s_ "Election server") ~a:[a_height 70]
-                    ~src:(static "logo.png") ();
+                    ~src ();
                 ];
               div ~a:[a_style "float: right; padding: 15px;"] [
                   img ~alt:"" ~a:[a_height 70]

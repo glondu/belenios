@@ -55,6 +55,8 @@ module Make () = struct
                      Lwt_main.run (open_security_log file)
                   | Element ("source", ["file", file], []) ->
                      source_file := Some file
+                  | Element ("logo", ["file", file; "mime-type", mime_type], []) ->
+                     Web_config.logo := Some (file, mime_type)
                   | Element ("sealing", ["file", file; "mime-type", mime_type], []) ->
                      Web_config.sealing := Some (file, mime_type)
                   | Element ("default-group", ["file", file], []) ->
