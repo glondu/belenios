@@ -6,6 +6,7 @@ dev
  * Optimize some exponentiations
  * In credential generation, generate also a mapping from public
    credentials to usernames, to be sent to the voting server
+ * Ensure all public credentials are distinct
  * Web server:
    + Add a spool migration tool
    + Add a direct cast API (experimental)
@@ -13,6 +14,7 @@ dev
    + Add a SEALING service, GET-able by logged in administrators
    + Unify the style of all server-generated pages
    + Changes in API related to drafts and trustees
+   + Add configurable LOGO and favicon.ico services
  * Command-line tool:
    + Add a system integrity (sealing) measurement command
 
