@@ -35,6 +35,7 @@ let footer_file = ref None
 let admin_home = ref None
 let source_file = ref "belenios.tar.gz"
 let logo = ref None
+let favicon = ref None
 let sealing = ref None
 let maxmailsatonce = ref 1000
 let uuid_length = ref None

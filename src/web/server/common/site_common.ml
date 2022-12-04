@@ -70,6 +70,14 @@ module Make (X : Pages_sig.S) = struct
         | Some (file, content_type) -> File.send ~content_type file
       )
 
+  let () =
+    Any.register ~service:favicon
+      (fun () () ->
+        match !Web_config.favicon with
+        | None -> fail_http `Not_found
+        | Some (file, content_type) -> File.send ~content_type file
+      )
+
   let redir_preapply s u () = Redirection.send (Redirection (preapply ~service:s u))
 
   let wrap_handler f =

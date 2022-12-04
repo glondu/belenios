@@ -57,6 +57,8 @@ module Make () = struct
                      source_file := Some file
                   | Element ("logo", ["file", file; "mime-type", mime_type], []) ->
                      Web_config.logo := Some (file, mime_type)
+                  | Element ("favicon", ["file", file; "mime-type", mime_type], []) ->
+                     Web_config.favicon := Some (file, mime_type)
                   | Element ("sealing", ["file", file; "mime-type", mime_type], []) ->
                      Web_config.sealing := Some (file, mime_type)
                   | Element ("default-group", ["file", file], []) ->

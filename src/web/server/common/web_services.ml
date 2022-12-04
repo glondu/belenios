@@ -35,6 +35,7 @@ module Make () = struct
 
   let source_code = create ~path:(Path ["belenios.tar.gz"]) ~meth:(Get unit) ()
   let logo = create ~path:(Path ["LOGO"]) ~meth:(Get unit) ()
+  let favicon = create ~path:(Path ["favicon.ico"]) ~meth:(Get unit) ()
   let sealing = create ~path:(Path ["SEALING"]) ~meth:(Get unit) ()
 
   let election_draft_new = create_attached_post ~csrf_safe:true ~fallback:admin ~post_params:(radio string "credmgmt" ** radio string "auth" ** opt (string "cas_server")) ()
