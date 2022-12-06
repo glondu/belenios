@@ -1,4 +1,4 @@
-dev
+2.0
 ===
 
  * The spool format has changed in an incompatible way. A migration

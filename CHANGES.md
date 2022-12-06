@@ -1,5 +1,5 @@
-dev
-===
+2.0 (2022-12-06)
+================
 
  * Change the format of public data of running elections
  * Drop crypto v0
