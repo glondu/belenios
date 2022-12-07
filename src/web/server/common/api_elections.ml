@@ -333,6 +333,7 @@ let delete_election election metadata =
   let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
   let files_to_delete = [
       Uuid.unwrap uuid ^ ".bel";
+      "last_event.json";
       "dates.json";
       "metadata.json";
       "passwords.csv";
