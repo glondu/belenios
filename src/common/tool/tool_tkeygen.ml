@@ -60,7 +60,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       0 8 |> String.uppercase_ascii
     in
     let priv = string_of_number private_key in
-    let pub = string_of_trustee_public_key G.write public_key in
+    let pub = string_of_trustee_public_key (swrite G.to_string) public_key in
     M.return {id; priv; pub}
 
 end

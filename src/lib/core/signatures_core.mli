@@ -75,12 +75,6 @@ module type GROUP = sig
   (** Convert a group element to an int array. The first argument is
      the size of the array. *)
 
-  val read : t reader
-  (** Reading from a stream. *)
-
-  val write : t writer
-  (** Writing to a stream. *)
-
   val hash : string -> t array -> Z.t
   (** Hash an array of elements into an integer mod [q]. The string
       argument is a string that is prepended before computing the hash. *)

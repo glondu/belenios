@@ -535,7 +535,7 @@ let generate_server_trustee se =
   let module K = Trustees.MakeSimple (G) (LwtRandom) in
   let* private_key = K.generate () in
   let* public_key = K.prove private_key in
-  let st_public_key = string_of_trustee_public_key G.write public_key in
+  let st_public_key = string_of_trustee_public_key (swrite G.to_string) public_key in
   let st_private_key = Some private_key in
   let st_name = Some "server" in
   Lwt.return {st_id; st_token; st_public_key; st_private_key; st_name}
@@ -802,7 +802,7 @@ let validate_election uuid se =
                 (List.map (fun {st_id; _} -> st_id) ts),
                 (List.map
                    (fun {st_public_key; st_name; _} ->
-                     let pk = trustee_public_key_of_string G.read st_public_key in
+                     let pk = trustee_public_key_of_string (sread G.of_string) st_public_key in
                      let pk = { pk with trustee_name = st_name } in
                      `Single pk
                    ) ts),
@@ -815,7 +815,7 @@ let validate_election uuid se =
        match x.dtp_parameters with
        | None -> raise (Error "key establishment not finished")
        | Some tp ->
-          let tp = threshold_parameters_of_string G.read tp in
+          let tp = threshold_parameters_of_string (sread G.of_string) tp in
           let named =
             let open Belenios_core.Serializable_j in
             List.combine (Array.to_list tp.t_verification_keys) ts
@@ -828,7 +828,7 @@ let validate_election uuid se =
             List.map (fun {stt_voutput; _} ->
                 match stt_voutput with
                 | Some v ->
-                   let voutput = voutput_of_string G.read v in
+                   let voutput = voutput_of_string (sread G.of_string) v in
                    voutput.vo_private_key
                 | None -> raise (Error "inconsistent state")
               ) ts
@@ -896,7 +896,7 @@ let validate_election uuid se =
   in
   (* initialize events *)
   let* () =
-    let raw_trustees = string_of_trustees G.write trustees in
+    let raw_trustees = string_of_trustees (swrite G.to_string) trustees in
     let raw_public_creds = string_of_public_credentials public_creds in
     let setup_election = Hash.hash_string raw_election in
     let setup_trustees = Hash.hash_string raw_trustees in
@@ -1011,7 +1011,7 @@ let import_trustees uuid se from metadata =
      let module G = (val Group.of_string ~version se.se_group : GROUP) in
      let module Trustees = (val Trustees.get_by_version version) in
      let module K = Trustees.MakeCombinator (G) in
-     let trustees = trustees_of_string G.read trustees in
+     let trustees = trustees_of_string (sread G.of_string) trustees in
      if not (K.check trustees) then
        Lwt.return @@ Stdlib.Error `Invalid
      else
@@ -1026,7 +1026,7 @@ let import_trustees uuid se from metadata =
                    let stt_name = vo_public_key.trustee_name in
                    let* stt_token = generate_token () in
                    let stt_voutput = {vo_public_key; vo_private_key} in
-                   let stt_voutput = Some (string_of_voutput G.write stt_voutput) in
+                   let stt_voutput = Some (string_of_voutput (swrite G.to_string) stt_voutput) in
                    let stt = {
                        stt_id; stt_token; stt_voutput;
                        stt_step = Some 7; stt_cert = None;
@@ -1045,7 +1045,7 @@ let import_trustees uuid se from metadata =
               {
                 dtp_threshold = Some t.t_threshold;
                 dtp_trustees = se_threshold_trustees;
-                dtp_parameters = Some (string_of_threshold_parameters G.write t);
+                dtp_parameters = Some (string_of_threshold_parameters (swrite G.to_string) t);
                 dtp_error = None;
               }
             in
@@ -1077,11 +1077,11 @@ let import_trustees uuid se from metadata =
                      if st_id = "server" then (
                        let* private_key = KG.generate () in
                        let* public_key = KG.prove private_key in
-                       let public_key = string_of_trustee_public_key G.write public_key in
+                       let public_key = string_of_trustee_public_key (swrite G.to_string) public_key in
                        Lwt.return ("", Some private_key, public_key)
                      ) else (
                        let* st_token = generate_token () in
-                       let public_key = string_of_trustee_public_key G.write public_key in
+                       let public_key = string_of_trustee_public_key (swrite G.to_string) public_key in
                        Lwt.return (st_token, None, public_key)
                      )
                    in

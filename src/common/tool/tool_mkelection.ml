@@ -57,7 +57,7 @@ let parse_params p =
     let group = P.group
     module G = (val Group.of_string ~version P.group : GROUP)
     let get_trustees () =
-      P.get_trustees () |> trustees_of_string G.read
+      P.get_trustees () |> trustees_of_string (sread G.of_string)
     module Trustees = T
   end
   in (module R : PARSED_PARAMS)

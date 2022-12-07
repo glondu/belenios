@@ -93,7 +93,7 @@ let proceed draft pedersen =
               Lwt.return_unit
          in
          let* voutput = T.step5 certs key vinput in
-         set_textarea "compute_data" (string_of_voutput G.write voutput);
+         set_textarea "compute_data" (string_of_voutput (swrite G.to_string) voutput);
          Lwt.return_unit
       | _ ->
          alert "Unexpected state!";

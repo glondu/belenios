@@ -213,7 +213,7 @@ let migrate_election_to_v1 uuid accu =
        in
        let* () = log "    Finalizing election..." in
        let et = E.E.process_ballots ballots in
-       let et_s = string_of_encrypted_tally E.G.write et in
+       let et_s = string_of_encrypted_tally E.(swrite G.to_string) et in
        let et_h = Hash.hash_string et_s in
        let sized =
          {
@@ -326,12 +326,12 @@ let migrate_election_to_v1 uuid accu =
               | Some x ->
                  x
                  |> old_election_result_of_string
-                      Yojson.Safe.read_json (read_encrypted_tally E.G.read)
-                      (read_partial_decryption E.G.read) (read_shuffle E.G.read)
+                      Yojson.Safe.read_json (read_encrypted_tally E.(sread G.of_string))
+                      (read_partial_decryption E.(sread G.of_string)) (read_shuffle E.(sread G.of_string))
                  |> Lwt.return
             in
             let flattened_trustees =
-              trustees_of_string E.G.read trustees
+              trustees_of_string E.(sread G.of_string) trustees
               |> List.map
                    (function
                     | `Single x -> [x]
@@ -362,7 +362,7 @@ let migrate_election_to_v1 uuid accu =
                    Lwt_list.iter_s
                      (fun (x, name) ->
                        let owned_owner = find_owner name in
-                       let shuffle_s = string_of_shuffle E.G.write x in
+                       let shuffle_s = string_of_shuffle E.(swrite G.to_string) x in
                        let owned_payload = Hash.hash_string shuffle_s in
                        let owned = {owned_owner; owned_payload} in
                        let owned_s = string_of_owned write_hash owned in
@@ -392,7 +392,7 @@ let migrate_election_to_v1 uuid accu =
               Lwt_list.iter_s
                 (fun x ->
                   let owned_owner = find_owner x in
-                  let pd_s = string_of_partial_decryption E.G.write x in
+                  let pd_s = string_of_partial_decryption E.(swrite G.to_string) x in
                   let owned_payload = Hash.hash_string pd_s in
                   let owned = {owned_owner; owned_payload} in
                   let owned_s = string_of_owned write_hash owned in

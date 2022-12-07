@@ -33,7 +33,7 @@ let eta = ref 0
 let shuffle election ciphertexts =
   let open (val !Belenios_js.I18n.gettext) in
   let module W = Election.Make (struct let raw_election = election end) (LwtJsRandom) () in
-  let ciphertexts = nh_ciphertexts_of_string W.G.read ciphertexts in
+  let ciphertexts = nh_ciphertexts_of_string W.(sread G.of_string) ciphertexts in
   let full_shuffle () =
     let id =
       if !eta > 0 then
@@ -51,7 +51,7 @@ let shuffle election ciphertexts =
         None
     in
     let* shuffle = W.E.shuffle_ciphertexts ciphertexts in
-    let r = string_of_shuffle W.G.write shuffle in
+    let r = string_of_shuffle W.(swrite G.to_string) shuffle in
     let () =
       match id with
       | Some x ->

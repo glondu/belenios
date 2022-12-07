@@ -915,7 +915,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                      let version = se.se_version in
                      let module G = (val Group.of_string ~version se.se_group : GROUP) in
                      let module Trustees = (val Trustees.get_by_version version) in
-                     let pk = trustee_public_key_of_string G.read public_key in
+                     let pk = trustee_public_key_of_string (sread G.of_string) public_key in
                      let module K = Trustees.MakeCombinator (G) in
                      if not (K.check [`Single pk]) then
                        let msg = s_ "Invalid public key!" in
@@ -1076,9 +1076,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
        let* () =
          if pending_server_shuffle then (
            let* cc = Web_persist.get_nh_ciphertexts election in
-           let cc = nh_ciphertexts_of_string W.G.read cc in
+           let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
            let* shuffle = W.E.shuffle_ciphertexts cc in
-           let shuffle = string_of_shuffle W.G.write shuffle in
+           let shuffle = string_of_shuffle W.(swrite G.to_string) shuffle in
            let* x = Web_persist.append_to_shuffles election 1 shuffle in
            match x with
            | Some _ ->
@@ -1437,7 +1437,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let module W = (val election) in
         let* pks =
           let* trustees = Web_persist.get_trustees uuid in
-          let trustees = trustees_of_string W.G.read trustees in
+          let trustees = trustees_of_string W.(sread G.of_string) trustees in
           trustees
           |> List.map
                (function
@@ -1449,14 +1449,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           |> return
         in
         let pk = pks.(trustee_id-1).trustee_public_key in
-        let pd = partial_decryption_of_string W.G.read partial_decryption in
+        let pd = partial_decryption_of_string W.(sread G.of_string) partial_decryption in
         let* et =
           let* x = Web_persist.get_latest_encrypted_tally election in
           match x with
           | None -> assert false
-          | Some x -> Lwt.return @@ encrypted_tally_of_string W.G.read x
+          | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
         in
-        if string_of_partial_decryption W.G.write pd = partial_decryption && W.E.check_factor et pk pd then (
+        if string_of_partial_decryption W.(swrite G.to_string) pd = partial_decryption && W.E.check_factor et pk pd then (
           let pd = trustee_id, partial_decryption in
           let* () = Web_persist.add_partial_decryption uuid pd in
           Pages_common.generic_page ~title:(s_ "Success")
@@ -1707,7 +1707,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                    | Some 5 ->
                       let certs = get_certs () in
                       let polynomials = get_polynomials () in
-                      let voutput = voutput_of_string G.read data in
+                      let voutput = voutput_of_string (sread G.of_string) data in
                       if K.step5_check certs i polynomials voutput then (
                         t.stt_voutput <- Some data;
                         t.stt_step <- Some 6;
@@ -1750,10 +1750,10 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                         let voutputs = Array.map (fun x ->
                                            match x.stt_voutput with
                                            | None -> failwith "Missing voutput"
-                                           | Some y -> voutput_of_string G.read y
+                                           | Some y -> voutput_of_string (sread G.of_string) y
                                          ) ts in
                         let p = K.step6 certs polynomials voutputs in
-                        dtp.dtp_parameters <- Some (string_of_threshold_parameters G.write p);
+                        dtp.dtp_parameters <- Some (string_of_threshold_parameters (swrite G.to_string) p);
                         Array.iter (fun x -> x.stt_step <- Some 7) ts
                       with e ->
                         dtp.dtp_error <- Some (Printexc.to_string e)

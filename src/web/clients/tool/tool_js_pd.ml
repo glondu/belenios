@@ -73,7 +73,7 @@ let compute_partial_decryption tally_trustee _ =
   let&|&& e = !election in
   let module P = Election.Make (struct let raw_election = e end) (LwtJsRandom) () in
   let&|&& e = !encrypted_tally in
-  let encrypted_tally = encrypted_tally_of_string P.G.read e in
+  let encrypted_tally = encrypted_tally_of_string P.(sread G.of_string) e in
   let&& e = document##getElementById (Js.string "private_key") in
   let&& e = Dom_html.CoerceTo.input e in
   let pk_str = Js.to_string e##.value in
@@ -85,7 +85,7 @@ let compute_partial_decryption tally_trustee _ =
        let module C = Trustees.MakeChannels (P.G) (LwtJsRandom) (PKI) in
        let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in
        let vk = P.G.(g **~ sk) in
-       let epk = C.recv dk vk (encrypted_msg_of_string P.G.read epk) in
+       let epk = C.recv dk vk (encrypted_msg_of_string P.(sread G.of_string) epk) in
        (partial_decryption_key_of_string epk).pdk_decryption_key
     | None ->
        basic_check_private_key pk_str;
@@ -96,7 +96,7 @@ let compute_partial_decryption tally_trustee _ =
   in
   Lwt.async (fun () ->
       let* factor = P.E.compute_factor encrypted_tally private_key in
-      set_textarea "pd" (string_of_partial_decryption P.G.write factor);
+      set_textarea "pd" (string_of_partial_decryption P.(swrite G.to_string) factor);
       Lwt.return_unit
     );
   return_unit

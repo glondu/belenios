@@ -142,7 +142,7 @@ module Make (P : PARAMS) () = struct
     get_trustees ()
 
   let trustees =
-    Option.map (trustees_of_string G.read) trustees_as_string
+    Option.map (trustees_of_string (sread G.of_string)) trustees_as_string
 
   let public_keys_with_pok =
     trustees
@@ -300,7 +300,7 @@ module Make (P : PARAMS) () = struct
               sized_total_weight;
               sized_encrypted_tally =
                 Hash.hash_string
-                  (string_of_encrypted_tally G.write encrypted_tally);
+                  (string_of_encrypted_tally (swrite G.to_string) encrypted_tally);
             }
           )
       )
@@ -326,7 +326,7 @@ module Make (P : PARAMS) () = struct
     lazy
       (
         Lazy.force shuffles_as_text
-        |> Option.map (List.map (shuffle_of_string G.read))
+        |> Option.map (List.map (shuffle_of_string (sread G.of_string)))
       )
 
   let shuffles_hash =
@@ -395,7 +395,7 @@ module Make (P : PARAMS) () = struct
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
-    let pd = string_of_partial_decryption G.write factor in
+    let pd = string_of_partial_decryption (swrite G.to_string) factor in
     let opd =
       {
         owned_owner;
@@ -407,7 +407,7 @@ module Make (P : PARAMS) () = struct
   let tdecrypt owned_owner key pdk =
     let sk = P.derive_sk key and dk = P.derive_dk key in
     let vk = G.(g **~ sk) in
-    let pdk = C.recv dk vk (encrypted_msg_of_string G.read pdk) in
+    let pdk = C.recv dk vk (encrypted_msg_of_string (sread G.of_string) pdk) in
     let pdk = (partial_decryption_key_of_string pdk).pdk_decryption_key in
     let pvk = G.(g **~ pdk) in
     (match trustees with
@@ -426,7 +426,7 @@ module Make (P : PARAMS) () = struct
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally pdk in
     assert (E.check_factor tally pvk factor);
-    let pd = string_of_partial_decryption G.write factor in
+    let pd = string_of_partial_decryption (swrite G.to_string) factor in
     let opd =
       {
         owned_owner;
@@ -444,7 +444,7 @@ module Make (P : PARAMS) () = struct
       | Some x -> x
     in
     let fill of_string (_, owned, x) = {owned with owned_payload = of_string x} in
-    let factors = List.map (fill (partial_decryption_of_string G.read)) pds in
+    let factors = List.map (fill (partial_decryption_of_string (sread G.of_string))) pds in
     let* tally, sized = Lazy.force encrypted_tally in
     let sized = {sized with sized_encrypted_tally = tally} in
     match trustees with
@@ -476,7 +476,7 @@ module Make (P : PARAMS) () = struct
       | _, _, None -> failwith "no partial decryptions"
       | Some result, Some trustees, Some pds ->
          let fill of_string (_, owned, x) = {owned with owned_payload = of_string x} in
-         let factors = List.map (fill (partial_decryption_of_string G.read)) pds in
+         let factors = List.map (fill (partial_decryption_of_string (sread G.of_string))) pds in
          let* tally, sized = Lazy.force encrypted_tally in
          let sized = {sized with sized_encrypted_tally = tally} in
          if not (E.check_result sized factors trustees result) then
@@ -490,7 +490,7 @@ module Make (P : PARAMS) () = struct
     let* cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
     let* shuffle = E.shuffle_ciphertexts cc in
-    let shuffle_s = string_of_shuffle G.write shuffle in
+    let shuffle_s = string_of_shuffle (swrite G.to_string) shuffle in
     let owned =
       {
         owned_owner;
@@ -573,7 +573,7 @@ module Make (P : PARAMS) () = struct
 
   let compute_encrypted_tally () =
     let et, sized = Lazy.force raw_encrypted_tally in
-    string_of_encrypted_tally G.write et,
+    string_of_encrypted_tally (swrite G.to_string) et,
     string_of_sized_encrypted_tally write_hash sized
 
 end

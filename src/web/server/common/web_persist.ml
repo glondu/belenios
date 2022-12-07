@@ -164,9 +164,9 @@ let get_nh_ciphertexts election =
              match x with
              | None -> assert false
              | Some x ->
-                encrypted_tally_of_string W.G.read x
+                encrypted_tally_of_string W.(sread G.of_string) x
                 |> W.E.extract_nh_ciphertexts
-                |> string_of_nh_ciphertexts W.G.write
+                |> string_of_nh_ciphertexts W.(swrite G.to_string)
                 |> return
      end
   | Some x ->
@@ -186,8 +186,8 @@ let get_nh_ciphertexts election =
               match x with
               | None -> assert false
               | Some x ->
-                 let x = shuffle_of_string W.G.read x in
-                 return @@ string_of_nh_ciphertexts W.G.write x.shuffle_ciphertexts
+                 let x = shuffle_of_string W.(sread G.of_string) x in
+                 return @@ string_of_nh_ciphertexts W.(swrite G.to_string) x.shuffle_ciphertexts
 
 let get_latest_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
@@ -205,12 +205,12 @@ let get_latest_encrypted_tally election =
           let* x = Web_events.get_data ~uuid x.sized_encrypted_tally in
           match x with
           | None -> assert false
-          | Some x -> cont @@ encrypted_tally_of_string W.G.read x
+          | Some x -> cont @@ encrypted_tally_of_string W.(sread G.of_string) x
   in
   let* nh = get_nh_ciphertexts election in
-  let nh = nh_ciphertexts_of_string W.G.read nh in
+  let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in
   let tally = W.E.merge_nh_ciphertexts nh tally in
-  return_some @@ string_of_encrypted_tally W.G.write tally
+  return_some @@ string_of_encrypted_tally W.(swrite G.to_string) tally
 
 let get_trustees uuid =
   let* x = get_from_setup_data uuid (fun x -> x.setup_trustees) in
@@ -335,7 +335,7 @@ let internal_release_tally ~force uuid =
     let* x = get_latest_encrypted_tally (module W) in
     match x with
     | None -> assert false
-    | Some x -> Lwt.return @@ encrypted_tally_of_string W.G.read x
+    | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
   in
   let* sized =
     let* x = get_sized_encrypted_tally uuid in
@@ -347,13 +347,13 @@ let internal_release_tally ~force uuid =
   in
   let* trustees =
     let* x = get_trustees uuid in
-    Lwt.return @@ trustees_of_string W.G.read x
+    Lwt.return @@ trustees_of_string W.(sread G.of_string) x
   in
   let* pds, transactions =
     let pds =
       List.rev_map
         (fun x ->
-          let owned_payload = partial_decryption_of_string W.G.read x.owned_payload in
+          let owned_payload = partial_decryption_of_string W.(sread G.of_string) x.owned_payload in
           {x with owned_payload}
         ) pds
     in
@@ -364,7 +364,7 @@ let internal_release_tally ~force uuid =
       | Some sk ->
          let* pd = W.E.compute_factor tally sk in
          let owned = {owned_owner; owned_payload = pd} in
-         let pd = string_of_partial_decryption W.G.write pd in
+         let pd = string_of_partial_decryption W.(swrite G.to_string) pd in
          let payload =
            {
              owned_owner;
@@ -779,7 +779,7 @@ let compute_encrypted_tally election =
       ) [] (GMap.bindings ballots)
   in
   let tally = W.E.process_ballots ballots in
-  let tally_s = string_of_encrypted_tally W.G.write tally in
+  let tally_s = string_of_encrypted_tally W.(swrite G.to_string) tally in
   let payload =
     {
       sized_num_tallied = List.length ballots;
@@ -818,11 +818,11 @@ let append_to_shuffles election owned_owner shuffle_s =
     | None -> assert false
     | Some x -> cont x
   in
-  let shuffle = shuffle_of_string W.G.read shuffle_s in
+  let shuffle = shuffle_of_string W.(sread G.of_string) shuffle_s in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = get_nh_ciphertexts election in
-  let last_nh = nh_ciphertexts_of_string W.G.read last_nh in
-  if string_of_shuffle W.G.write shuffle = shuffle_s && W.E.check_shuffle last_nh shuffle then (
+  let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
+  if string_of_shuffle W.(swrite G.to_string) shuffle = shuffle_s && W.E.check_shuffle last_nh shuffle then (
     let owned =
       {
         owned_owner;

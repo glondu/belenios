@@ -107,16 +107,6 @@ let make description ff_params =
            decode_int (pred n) (shift_right x padding);
            xs
 
-      let read state buf =
-        match Yojson.Safe.from_lexbuf ~stream:true state buf with
-        | `String s -> Z.of_string s
-        | _ -> invalid_arg "Group_field.read: a string was expected"
-
-      let write buf x =
-        Buffer.add_char buf '"';
-        Buffer.add_string buf (Z.to_string x);
-        Buffer.add_char buf '"'
-
       let hash prefix xs =
         let x = prefix ^ (map_and_concat_with_commas Z.to_string xs) in
         let z = Z.of_hex (sha256_hex x) in

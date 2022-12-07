@@ -52,6 +52,9 @@ module Option : sig
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
 end
 
+val sread : (string -> 'a) -> 'a reader
+val swrite : ('a -> string) -> 'a writer
+
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
 
 val compare_b64 : string -> string -> int

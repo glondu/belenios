@@ -148,14 +148,14 @@ module Ttkeygen : CMDLINER_MODULE = struct
        let key = get_mandatory_opt "--key" key |> string_of_file in
        let vinput = read_line () |> vinput_of_string in
        let voutput = T.step5 certs key vinput in
-       Printf.printf "%s\n%!" (string_of_voutput G.write voutput)
+       Printf.printf "%s\n%!" (string_of_voutput (swrite G.to_string) voutput)
     | 6 ->
        let certs = get_certs () in
        let n = Array.length certs.certs in
        let polynomials = get_polynomials () in
        assert (n = Array.length polynomials);
        let voutputs = lines_of_stdin ()
-                      |> List.map (voutput_of_string G.read)
+                      |> List.map (voutput_of_string (sread G.of_string))
                       |> Array.of_list
        in
        assert (n = Array.length voutputs);
@@ -169,7 +169,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
          close_out oc;
          Printf.eprintf "I: wrote %s\n%!" fn
        done;
-       Printf.printf "%s\n%!" (string_of_threshold_parameters G.write tparams)
+       Printf.printf "%s\n%!" (string_of_threshold_parameters (swrite G.to_string) tparams)
     | _ -> failwith "invalid step"
 
   let step_t =

@@ -63,12 +63,12 @@ let to_string params ~group ~public_key =
       e_group = group; e_public_key;
     }
   in
-  string_of_params G.write params
+  string_of_params (swrite G.to_string) params
 
 module Parse (R : RAW_ELECTION) () = struct
   let j = params_of_string Yojson.Safe.read_json R.raw_election
   module G = (val Group.of_string j.e_group)
-  let params = params_of_string G.read R.raw_election
+  let params = params_of_string (sread G.of_string) R.raw_election
 
   let election =
     let {
@@ -87,8 +87,8 @@ module Parse (R : RAW_ELECTION) () = struct
   let public_key = params.e_public_key
 
   type nonrec ballot = G.t ballot
-  let string_of_ballot x = string_of_ballot G.write x
-  let ballot_of_string x = ballot_of_string G.read x
+  let string_of_ballot x = string_of_ballot (swrite G.to_string) x
+  let ballot_of_string x = ballot_of_string (sread G.of_string) x
   let get_credential x = Some x.credential
 
 end
@@ -155,7 +155,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
         signature = None;
       }
     in
-    let s_hash = sha256_b64 (string_of_ballot G.write ballot_without_signature) in
+    let s_hash = sha256_b64 (string_of_ballot (swrite G.to_string) ballot_without_signature) in
     let* signature =
       let* w = M.random q in
       let commitment = g **~ w in
@@ -188,7 +188,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
         signature = None;
       }
     in
-    let expected_hash = sha256_b64 (string_of_ballot G.write ballot_without_signature) in
+    let expected_hash = sha256_b64 (string_of_ballot (swrite G.to_string) ballot_without_signature) in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = election.e_uuid
     && election_hash = W.fingerprint
@@ -241,10 +241,10 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
          ) else M.return (Error `WrongWeight)
 
     let cast ?user ?weight rawballot =
-      match ballot_of_string G.read rawballot with
+      match ballot_of_string (sread G.of_string) rawballot with
       | exception e -> M.return (Error (`SerializationError e))
       | ballot ->
-         if string_of_ballot G.write ballot <> rawballot then (
+         if string_of_ballot (swrite G.to_string) ballot <> rawballot then (
            M.return (Error `NonCanonical)
          ) else (
            let credential = G.to_string ballot.credential in

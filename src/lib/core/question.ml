@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Signatures_core
+open Common
 
 type t =
   | Homomorphic of Question_h_t.question
@@ -124,13 +125,13 @@ module Make (M : RANDOM) (G : GROUP)
     | Homomorphic q ->
        let* answer = QHomomorphic.create_answer q ~public_key ~prefix m in
        answer
-       |> Question_h_j.string_of_answer G.write
+       |> Question_h_j.string_of_answer (swrite G.to_string)
        |> Yojson.Safe.from_string
        |> M.return
     | NonHomomorphic (q, _) ->
        let* answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
        answer
-       |> Question_nh_j.string_of_answer G.write
+       |> Question_nh_j.string_of_answer (swrite G.to_string)
        |> Yojson.Safe.from_string
        |> M.return
 
@@ -139,12 +140,12 @@ module Make (M : RANDOM) (G : GROUP)
     | Homomorphic q ->
        a
        |> Yojson.Safe.to_string
-       |> Question_h_j.answer_of_string G.read
+       |> Question_h_j.answer_of_string (sread G.of_string)
        |> QHomomorphic.verify_answer q ~public_key ~prefix
     | NonHomomorphic (q, _) ->
        a
        |> Yojson.Safe.to_string
-       |> Question_nh_j.answer_of_string G.read
+       |> Question_nh_j.answer_of_string (sread G.of_string)
        |> QNonHomomorphic.verify_answer q ~public_key ~prefix
 
   let extract_ciphertexts q a =
@@ -152,12 +153,12 @@ module Make (M : RANDOM) (G : GROUP)
     | Homomorphic q ->
        a
        |> Yojson.Safe.to_string
-       |> Question_h_j.answer_of_string G.read
+       |> Question_h_j.answer_of_string (sread G.of_string)
        |> QHomomorphic.extract_ciphertexts q
     | NonHomomorphic (q, _) ->
        a
        |> Yojson.Safe.to_string
-       |> Question_nh_j.answer_of_string G.read
+       |> Question_nh_j.answer_of_string (sread G.of_string)
        |> QNonHomomorphic.extract_ciphertexts q
 
   let process_ciphertexts q e =
