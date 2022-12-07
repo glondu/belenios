@@ -211,7 +211,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
              match result with
              | Some result ->
                 let result = election_result_of_string read_result result in
-                (match (result.result :> raw_result).(question) with
+                (match Election_result.nth result.result question with
                  | `NonHomomorphic ballots -> continuation ballots
                  | _ -> failwith "handle_method"
                 )

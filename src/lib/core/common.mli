@@ -30,6 +30,8 @@ val ( // ) : string -> string -> string
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
+module Question_signature = Common_types.Question_signature
+module Election_result = Common_types.Election_result
 module Question_result = Common_types.Question_result
 module Array = Common_types.Array
 module Shape = Common_types.Shape

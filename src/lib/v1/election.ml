@@ -86,6 +86,8 @@ module Parse (R : RAW_ELECTION) () = struct
   let fingerprint = sha256_b64 R.raw_election
   let public_key = params.e_public_key
 
+  module S = (val Question.compute_signature (Array.to_list election.e_questions))
+
   type nonrec ballot = G.t ballot
   let string_of_ballot x = string_of_ballot (swrite G.to_string) x
   let ballot_of_string x = ballot_of_string (sread G.of_string) x
@@ -378,14 +380,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
              beta / f
            ) et factors
        in
-       let raw_result =
-         match results with
-         | `Atomic _ ->
-            invalid_arg "Election.compute_result: cannot compute result"
-         | `Array xs ->
-            Array.map2 (Q.compute_result ~num_tallied) election.e_questions xs
-       in
-       let result = W.cast_result raw_result in
+       let result = Q.compute_result ~num_tallied W.S.x results in
        Ok {result}
     | Error e -> Error e
 
@@ -402,10 +397,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
                beta / f
              ) encrypted_tally factors
          in
-         match results with
-         | `Array xs ->
-            Array.for_all3 (Q.check_result ~num_tallied) election.e_questions xs (result : W.result :> raw_result)
-         | _ -> false
+         Q.check_result ~num_tallied W.S.x results result
 end
 
 module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () = struct

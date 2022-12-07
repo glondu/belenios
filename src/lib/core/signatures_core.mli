@@ -107,3 +107,8 @@ module type RANDOM = sig
   val random : Z.t -> Z.t t
                           (** [random q] returns a random number modulo [q]. *)
 end
+
+module type QUESTION_SIGNATURE_PACK = sig
+  type t
+  val x : t Common_types.Question_signature.t
+end

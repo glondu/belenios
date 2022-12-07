@@ -34,6 +34,8 @@ module type ELECTION_BASE = sig
   val fingerprint : string
   val public_key : G.t
 
+  module S : QUESTION_SIGNATURE_PACK
+
   type ballot
   val string_of_ballot : ballot -> string
   val ballot_of_string : string -> ballot
@@ -41,17 +43,19 @@ module type ELECTION_BASE = sig
 end
 
 module type ELECTION_RESULT = sig
-  type result = private raw_result
-  val cast_result : raw_result -> result
+  type question_signature
+  type result = question_signature Election_result.t
   val write_result : result writer
   val read_result : result reader
 end
 
-module type MAKE_RESULT = functor (X : ELECTION_BASE) -> ELECTION_RESULT
+module type MAKE_RESULT =
+  functor (X : ELECTION_BASE) ->
+  ELECTION_RESULT with type question_signature := X.S.t
 
 module type ELECTION_DATA = sig
   include ELECTION_BASE
-  include ELECTION_RESULT
+  include ELECTION_RESULT with type question_signature := S.t
 end
 
 type combination_error =

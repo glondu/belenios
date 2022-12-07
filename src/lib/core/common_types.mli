@@ -67,13 +67,29 @@ module Weight : sig
   val compare : t -> t -> int
 end
 
+module Question_signature : sig
+  type _ t =
+    | Nil : unit t
+    | Homomorphic : 'a t -> ([`Homomorphic] * 'a) t
+    | NonHomomorphic : int * 'a t -> ([`NonHomomorphic] * 'a) t
+end
+
 module Question_result : sig
   type t =
     [ `Homomorphic of Weight.t array
     | `NonHomomorphic of int array array
     ]
-  val wrap : Yojson.Safe.t -> t
-  val unwrap : t -> Yojson.Safe.t
+end
+
+module Election_result : sig
+  type _ t =
+    | Nil : unit t
+    | Homomorphic : Weight.t array * 'a t -> ([`Homomorphic] * 'a) t
+    | NonHomomorphic : int array array * 'a t -> ([`NonHomomorphic] * 'a) t
+  val wrap : 'a Question_signature.t -> Yojson.Safe.t -> 'a t
+  val unwrap : 'a t -> Yojson.Safe.t
+  val nth : 'a t -> int -> Question_result.t
+  val map2 : (int -> Question_result.t -> 'b -> 'c) -> 'a t -> 'b array -> 'c list
 end
 
 module Array : sig

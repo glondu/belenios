@@ -49,6 +49,6 @@ end
 
 module type QUESTION = sig
   include QUESTION_CORE
-  val compute_result : num_tallied:Weight.t -> question -> elt Shape.t -> Question_result.t
-  val check_result : num_tallied:Weight.t -> question -> elt Shape.t -> Question_result.t -> bool
+  val compute_result : num_tallied:Weight.t -> 'a Question_signature.t -> elt Shape.t -> 'a Election_result.t
+  val check_result : num_tallied:Weight.t -> 'a Question_signature.t -> elt Shape.t -> 'a Election_result.t -> bool
 end

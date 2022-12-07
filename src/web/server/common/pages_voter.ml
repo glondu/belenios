@@ -160,7 +160,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
       blank;
     ]
 
-  let format_question_result uuid l (i, q) r =
+  let format_question_result uuid l i r q =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     match q, r with
     | Question.Homomorphic x, `Homomorphic r ->
@@ -367,8 +367,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          in
          return @@ div [
                        ul (
-                           Array.map2 (format_question_result uuid l) (Array.mapi (fun i q -> i, q) W.election.e_questions) (r.result :> raw_result)
-                           |> Array.to_list
+                           Election_result.map2 (format_question_result uuid l) r.result W.election.e_questions
                          );
                        div [
                            txt (s_ "Number of accepted ballots: ");
