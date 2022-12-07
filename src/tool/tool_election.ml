@@ -378,7 +378,7 @@ module Make (P : PARAMS) () = struct
     let sk = number_of_string privkey in
     let pk = G.(g **~ sk) in
     if Array.for_all (fun x -> not G.(x =~ pk)) (Lazy.force pks) then (
-      print_msg "W: your key is not present in trustees.jsons";
+      failwith "your key is not present in trustees";
     );
     (match Lazy.force shuffles_hash with
      | None | Some [] ->
@@ -391,7 +391,7 @@ module Make (P : PARAMS) () = struct
                Printf.ksprintf print_msg "I: shuffle %s has been applied" s)
     );
     if B.Election.has_nh_questions election then
-      print_msg "W: you should check that your shuffle appears in the list of applied shuffles";
+      print_msg "I: you should check that your shuffle appears in the list of applied shuffles";
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
@@ -411,7 +411,7 @@ module Make (P : PARAMS) () = struct
     let pdk = (partial_decryption_key_of_string pdk).pdk_decryption_key in
     let pvk = G.(g **~ pdk) in
     (match trustees with
-     | None -> print_msg "W: trustees are missing"
+     | None -> failwith "trustees are missing"
      | Some ts ->
         if not @@ List.exists
                     (function
@@ -421,7 +421,7 @@ module Make (P : PARAMS) () = struct
                           (fun x -> G.(x.trustee_public_key =~ pvk))
                           t.t_verification_keys
                     ) ts
-        then print_msg "W: your key is not present in threshold parameters"
+        then failwith "your key is not present in threshold parameters"
     );
     let* tally, _ = Lazy.force encrypted_tally in
     let* factor = E.compute_factor tally pdk in
@@ -467,11 +467,11 @@ module Make (P : PARAMS) () = struct
     let* () =
       match Lazy.force rawballots with
       | Some _ -> let* b = Lazy.force shuffles_check in assert b; M.return ()
-      | None -> print_msg "W: no ballots to check"; M.return ()
+      | None -> print_msg "I: no ballots to check"; M.return ()
     in
     let* () =
       match Lazy.force result, trustees, Lazy.force pds with
-      | None, _, _ -> print_msg "W: no result to check"; M.return ()
+      | None, _, _ -> print_msg "I: no result to check"; M.return ()
       | _, None, _ -> failwith "missing trustees"
       | _, _, None -> failwith "no partial decryptions"
       | Some result, Some trustees, Some pds ->
