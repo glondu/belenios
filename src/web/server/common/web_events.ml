@@ -208,16 +208,24 @@ let gethash ~uuid ~index ~filename x =
        )
        (fun () -> close fd)
 
+let with_archive uuid default f =
+  let filename = Spool.chain_filename uuid in
+  let* b = Lwt_unix.file_exists (uuid /// filename) in
+  if b then f filename else Lwt.return default
+
 let get_data ~uuid x =
+  let@ filename = with_archive uuid None in
   let* r = get_index uuid in
-  gethash ~uuid ~index:r.map ~filename:(Spool.chain_filename uuid) x
+  gethash ~uuid ~index:r.map ~filename x
 
 let get_event ~uuid x =
+  let@ filename = with_archive uuid None in
   let* r = get_index uuid in
-  let* x = gethash ~uuid ~index:r.map ~filename:(Spool.chain_filename uuid) x in
+  let* x = gethash ~uuid ~index:r.map ~filename x in
   Lwt.return @@ Option.map event_of_string x
 
 let get_roots ~uuid =
+  let@ _ = with_archive uuid empty_roots in
   let* r = get_index uuid in
   Lwt.return r.roots
 
