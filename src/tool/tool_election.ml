@@ -257,56 +257,52 @@ module Make (P : PARAMS) () = struct
              used := Some ballot_id;
              M.return (hash, (credential, w, ballot))
 
-  let ballots =
+  let rev_ballots =
     let rec loop accu = function
       | [] -> M.return accu
       | b :: bs ->
          let* x = cast b in
          loop (x :: accu) bs
     in
-    lazy (Lazy.force rawballots |> Option.map (loop []))
+    lazy (
+        match Lazy.force rawballots with
+        | None -> []
+        | Some bs -> loop [] bs
+      )
+
+  let final_ballots =
+    lazy (
+        List.fold_left
+          (fun ((seen, bs) as accu) ((_, (credential, _, _)) as b) ->
+            if SSet.mem credential seen then
+              accu
+            else SSet.add credential seen, b :: bs
+          ) (SSet.empty, []) (Lazy.force rev_ballots)
+        |> snd
+      )
 
   let raw_encrypted_tally =
     lazy (
-        match Lazy.force ballots with
-        | None ->
-           let encrypted_tally = E.process_ballots [] in
-           M.return
-             (
-               encrypted_tally,
-               {
-                 sized_num_tallied = 0;
-                 sized_total_weight = Weight.zero;
-                 sized_encrypted_tally =
-                   Hash.hash_string
-                     (string_of_encrypted_tally G.write encrypted_tally);
-               }
-             )
-        | Some ballots ->
-           let* ballots in
-           let ballots =
-             List.fold_left
-               (fun accu (_, (credential, w, ballot)) ->
-                 SMap.add credential (w, ballot) accu
-               ) SMap.empty (List.rev ballots)
-           in
-           let ballots = SMap.fold (fun _ x accu -> x :: accu) ballots [] in
-           let sized_total_weight =
-             let open Weight in
-             List.fold_left (fun accu (w, _) -> accu + w) zero ballots
-           in
-           let encrypted_tally = E.process_ballots ballots in
-           M.return
-             (
-               encrypted_tally,
-               {
-                 sized_num_tallied = List.length ballots;
-                 sized_total_weight;
-                 sized_encrypted_tally =
-                   Hash.hash_string
-                     (string_of_encrypted_tally G.write encrypted_tally);
-               }
-             )
+        let ballots =
+          Lazy.force final_ballots
+          |> List.rev_map (fun (_, (_, w, b)) -> (w, b))
+        in
+        let sized_total_weight =
+          let open Weight in
+          List.fold_left (fun accu (w, _) -> accu + w) zero ballots
+        in
+        let encrypted_tally = E.process_ballots ballots in
+        M.return
+          (
+            encrypted_tally,
+            {
+              sized_num_tallied = List.length ballots;
+              sized_total_weight;
+              sized_encrypted_tally =
+                Hash.hash_string
+                  (string_of_encrypted_tally G.write encrypted_tally);
+            }
+          )
       )
 
   let result_as_string = lazy (get_result ())
@@ -469,7 +465,7 @@ module Make (P : PARAMS) () = struct
      | None -> failwith "missing trustees"
     );
     let* () =
-      match Lazy.force ballots with
+      match Lazy.force rawballots with
       | Some _ -> let* b = Lazy.force shuffles_check in assert b; M.return ()
       | None -> print_msg "W: no ballots to check"; M.return ()
     in
@@ -560,7 +556,7 @@ module Make (P : PARAMS) () = struct
       | None -> false
       | Some (b, _) -> b
     in
-    Option.value ~default:[] (Lazy.force ballots)
+    Lazy.force final_ballots
     |> List.rev_map
          (fun (bs_hash, (_, w, _)) ->
            let bs_weight =
