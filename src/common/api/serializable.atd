@@ -131,7 +131,7 @@ type threshold_trustees = {
     trustees : cert trustee list;
 } <ocaml field_prefix="tt_">
 
-type trustees =
+type draft_trustees =
   [ Basic of basic_trustees
   | Threshold of threshold_trustees
   ]

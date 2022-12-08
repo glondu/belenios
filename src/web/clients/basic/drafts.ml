@@ -140,8 +140,8 @@ type trustee_with_writer =
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
-  let* x = get trustees_of_string "drafts/%s/trustees" uuid in
-  let ifmatch = compute_ifmatch string_of_trustees x in
+  let* x = get draft_trustees_of_string "drafts/%s/trustees" uuid in
+  let ifmatch = compute_ifmatch string_of_draft_trustees x in
   let@ trustees = with_ok "trustees" x in
   let mode =
     match trustees with

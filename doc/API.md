@@ -73,7 +73,7 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `drafts/$UUID/trustees`
 
-* `GET`: unit -> trustees (administrator or nobody)
+* `GET`: unit -> draft_trustees (administrator or nobody)
 * `POST`: trustees_request -> unit (administrator)
 
 ## `drafts/$UUID/trustees/$ADDRESS` (administrator)

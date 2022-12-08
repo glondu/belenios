@@ -1281,8 +1281,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
      begin
        let@ who = with_administrator_or_nobody token se in
        let get is_admin () =
+         let open Belenios_api.Serializable_j in
          let x = get_draft_trustees ~is_admin se in
-         Lwt.return @@ string_of_trustees x
+         Lwt.return @@ string_of_draft_trustees x
        in
        match method_, who with
        | `GET, `Nobody -> handle_get (get false)
