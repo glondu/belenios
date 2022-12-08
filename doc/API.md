@@ -28,7 +28,7 @@ typically used to avoid silent conflicts. An HTTP error 412
 # Endpoints
 
 Here, we give for each endpoint the available methods and their
-types. They refer to types defined in `src/api/serializable.atd`.
+types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `configuration` (anybody)
 
