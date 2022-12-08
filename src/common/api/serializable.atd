@@ -28,6 +28,7 @@ type 'a trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = ab
 type cert <ocaml predef from="Belenios_core.Serializable"> = abstract
 type vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type configured_authentication = {
     instance : string;

@@ -629,6 +629,13 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
        | `GET -> Lwt.return (200, raw)
        | _ -> method_not_allowed
      end
+  | ["trustees"] ->
+     begin
+       let get () = Web_persist.get_trustees uuid in
+       match method_ with
+       | `GET -> handle_get get
+       | _ -> method_not_allowed
+     end
   | ["automatic-dates"] ->
      begin
        let get () =
