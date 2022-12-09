@@ -107,12 +107,12 @@ let erase_question = function
        )
 
 module Make (M : RANDOM) (G : GROUP)
-         (QHomomorphic : Question_sigs.QUESTION
+         (QHomomorphic : Question_sigs.QUESTION_H
           with type 'a m := 'a M.t
            and type elt := G.t
            and type question := Question_h_t.question
            and type answer := G.t Question_h_t.answer)
-         (QNonHomomorphic : Question_sigs.QUESTION
+         (QNonHomomorphic : Question_sigs.QUESTION_NH
           with type 'a m := 'a M.t
            and type elt := G.t
            and type question := Question_nh_t.question
@@ -170,11 +170,13 @@ module Make (M : RANDOM) (G : GROUP)
     let compute_h = lazy (QHomomorphic.compute_result ~num_tallied) in
     fun q x ->
     match q with
-    | Homomorphic q -> Lazy.force compute_h q x
-    | NonHomomorphic (q, _) -> QNonHomomorphic.compute_result ~num_tallied q x
+    | Homomorphic _ -> `Homomorphic (Lazy.force compute_h x)
+    | NonHomomorphic (q, _) -> `NonHomomorphic (QNonHomomorphic.compute_result ~num_answers:(Array.length q.q_answers) x)
+
 
   let check_result ~num_tallied q x r =
-    match q with
-    | Homomorphic q -> QHomomorphic.check_result ~num_tallied q x r
-    | NonHomomorphic (q, _) -> QNonHomomorphic.check_result ~num_tallied q x r
+    match q, r with
+    | Homomorphic _, `Homomorphic r -> QHomomorphic.check_result ~num_tallied x r
+    | NonHomomorphic (q, _), `NonHomomorphic r -> QNonHomomorphic.check_result ~num_answers:(Array.length q.q_answers) x r
+    | _ -> invalid_arg "check_result"
 end

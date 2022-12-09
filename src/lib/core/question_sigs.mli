@@ -22,7 +22,7 @@
 open Common
 open Serializable_core_t
 
-module type QUESTION = sig
+module type QUESTION_CORE = sig
   type question
   type answer
   type elt
@@ -33,7 +33,22 @@ module type QUESTION = sig
 
   val extract_ciphertexts : question -> answer -> elt ciphertext Shape.t
   val process_ciphertexts : question -> (Weight.t * elt ciphertext Shape.t) list -> elt ciphertext Shape.t
+end
 
+module type QUESTION_H = sig
+  include QUESTION_CORE
+  val compute_result : num_tallied:Weight.t -> elt Shape.t -> Weight.t array
+  val check_result : num_tallied:Weight.t -> elt Shape.t -> Weight.t array -> bool
+end
+
+module type QUESTION_NH = sig
+  include QUESTION_CORE
+  val compute_result : num_answers:int -> elt Shape.t -> int array array
+  val check_result : num_answers:int -> elt Shape.t -> int array array -> bool
+end
+
+module type QUESTION = sig
+  include QUESTION_CORE
   val compute_result : num_tallied:Weight.t -> question -> elt Shape.t -> Question_result.t
   val check_result : num_tallied:Weight.t -> question -> elt Shape.t -> Question_result.t -> bool
 end

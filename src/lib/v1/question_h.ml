@@ -445,20 +445,16 @@ module Make (M : RANDOM) (G : GROUP) = struct
       | Some x -> x
       | None -> invalid_arg "Cannot compute result"
     in
-    fun _ x ->
+    fun x ->
     Shape.to_array x
     |> Array.map (fun i -> Weight.reduce ~total (log i))
-    |> (fun x -> `Homomorphic x)
 
-  let check_result ~num_tallied _ x r =
-    match r with
-    | `Homomorphic r ->
-       Array.for_all2
-         (fun x r ->
-           let r = Weight.expand ~total:num_tallied r in
-           let g' = if Z.compare r Z.zero = 0 then G.one else g **~ r in
-           x =~ g'
-         ) (Shape.to_array x) r
-    | _ -> false
+  let check_result ~num_tallied x r =
+    Array.for_all2
+      (fun x r ->
+        let r = Weight.expand ~total:num_tallied r in
+        let g' = if Z.compare r Z.zero = 0 then G.one else g **~ r in
+        x =~ g'
+      ) (Shape.to_array x) r
 
 end

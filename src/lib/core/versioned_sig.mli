@@ -29,7 +29,7 @@ end
 
 module type QUESTION_H_SIG = sig
 
-  module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+  module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION_H
          with type 'a m := 'a M.t
           and type elt := G.t
           and type question := Question_h_t.question
@@ -39,7 +39,7 @@ end
 
 module type QUESTION_NH_SIG = sig
 
-  module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION
+  module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION_NH
          with type 'a m := 'a M.t
           and type elt := G.t
           and type question := Question_nh_t.question

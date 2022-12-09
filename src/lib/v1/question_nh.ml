@@ -75,8 +75,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     Array.fast_sort compare_ciphertexts es;
     `Array es
 
-  let compute_result ~num_tallied:_ q x =
-    let n = Array.length q.q_answers in
+  let compute_result ~num_answers:n x =
     match x with
     | `Array xs ->
        xs
@@ -85,9 +84,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
              | `Atomic x -> G.to_ints n x
              | _ -> invalid_arg "Question_nh.compute_result/1"
             )
-       |> (fun x -> `NonHomomorphic x)
     | _ -> invalid_arg "Question_nh.compute_result/2"
 
-  let check_result ~num_tallied q x r =
-    r = compute_result ~num_tallied q x
+  let check_result ~num_answers x r =
+    r = compute_result ~num_answers x
 end
