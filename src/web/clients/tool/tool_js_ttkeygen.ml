@@ -119,14 +119,14 @@ let fill_interactivity () =
   let href = Dom_html.window##.location##.href |> Js.to_string in
   set_content "election_url" (build_election_url href uuid);
   let@ draft = fun cont ->
-    let url = Printf.sprintf "../../api/drafts/%s" uuid in
+    let url = Printf.sprintf "../api/drafts/%s" uuid in
     let* x = get draft_of_string url in
     match x with
     | Some x -> cont x
     | None -> fail "(token error)"
   in
   let@ pedersen = fun cont ->
-    let url = Printf.sprintf "../../api/drafts/%s/trustees-pedersen" uuid in
+    let url = Printf.sprintf "../api/drafts/%s/trustees-pedersen" uuid in
     let* x = get ~token (pedersen_of_string Yojson.Safe.read_json) url in
     match x with
     | Some x -> cont x
