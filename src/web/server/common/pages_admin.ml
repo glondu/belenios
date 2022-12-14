@@ -69,6 +69,20 @@ module Make
     in
     base ~title ~content ()
 
+  let checkpriv_link l uuid =
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
+    let uri_base =
+      let service = Eliom_service.static_dir () in
+      Eliom_uri.make_string_uri ~absolute:true ~service ["static"; "checkpriv.html"]
+      |> rewrite_prefix
+    in
+    let uri =
+      uri_base ^ "#" ^ Uuid.unwrap uuid
+      |> Eliom_content.Xml.uri_of_string
+    in
+    Eliom_content.Html.F.Raw.a ~a:[a_href uri]
+      [txt @@ s_ "Check private key ownership"]
+
   let login_box ?cont () =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -1881,7 +1895,7 @@ module Make
             ];
           tr [
               td [txt (s_ "Trustees?")];
-              td [trustees];
+              td [trustees; txt " ("; checkpriv_link l uuid; txt ")"];
             ];
           tr [
               td [txt (s_ "Contact?")];
@@ -2365,6 +2379,9 @@ module Make
           ];
         div [
             a ~service:election_missing_voters [txt (s_ "Missing voters")] (uuid, ());
+          ];
+        div [
+            checkpriv_link l uuid;
           ];
         div_regenpwd;
         hr ();
