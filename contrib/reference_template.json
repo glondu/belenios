@@ -78,6 +78,8 @@
     "/static/tool_js_shuffle.js"        : null,
     "/static/tool_js_tkeygen.js"        : null,
     "/static/tool_js_ttkeygen.js"       : null,
+    "/static/checkpriv.html"            : null,
+    "/static/checkpriv.js"              : null,
     "/draft/credentials.html"           : {},
     "/draft/trustee.html"               : {},
     "/draft/threshold-trustee.html"     : {},
