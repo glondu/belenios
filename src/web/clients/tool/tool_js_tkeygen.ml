@@ -85,7 +85,7 @@ let fill_interactivity () =
      set_content "election_url" (build_election_url href uuid);
      set_form_target "data_form" "submit-trustee" uuid token;
      begin
-       let url = Printf.sprintf "../../api/drafts/%s" uuid in
+       let url = Printf.sprintf "../api/drafts/%s" uuid in
        let* x = get draft_of_string url in
        match x with
        | Some draft ->
