@@ -107,10 +107,10 @@ module type BBOX = sig
   type user
 
   (** Tries to cast a raw ballot. If possible, returns [Ok
-     (credential, parsed_ballot, id_of_ballot_to_be_replaced)]. *)
+     (credential, id_of_ballot_to_be_replaced)]. *)
   val cast :
     ?user:user -> ?weight:weight -> string ->
-    (string * ballot * ballot_id option, cast_error) Stdlib.result m
+    (string * ballot_id option, cast_error) Stdlib.result m
 end
 
 (** Cryptographic primitives for an election with homomorphic tally. *)

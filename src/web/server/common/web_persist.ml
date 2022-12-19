@@ -963,7 +963,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
   let* x = B.cast ~user ~weight rawballot in
   match x with
   | Error _ as x -> return x
-  | Ok (credential, _, old) ->
+  | Ok (credential, old) ->
      let@ hash, revote = fun cont ->
        match old with
        | None ->

@@ -256,7 +256,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
            | Ok old ->
               let* () = M.yield () in
               if check_ballot ballot then
-                M.return (Ok (credential, ballot, old))
+                M.return (Ok (credential, old))
               else
                 M.return (Error `InvalidBallot)
          )

@@ -247,7 +247,7 @@ module Make (P : PARAMS) () = struct
        | Error e ->
           Printf.ksprintf failwith "error while casting ballot %s: %s"
             ballot_id (string_of_cast_error e)
-       | Ok (credential, ballot, old) ->
+       | Ok (credential, old) ->
           match SMap.find_opt credential creds with
           | None ->
              Printf.ksprintf failwith "invalid credential for ballot %s"
@@ -255,7 +255,7 @@ module Make (P : PARAMS) () = struct
           | Some (w, used) ->
              assert (!used = old);
              used := Some ballot_id;
-             M.return (hash, (credential, w, ballot))
+             M.return (hash, (credential, w, rawballot))
 
   let rev_ballots =
     let rec loop accu = function
@@ -285,7 +285,7 @@ module Make (P : PARAMS) () = struct
     lazy (
         let ballots =
           Lazy.force final_ballots
-          |> List.rev_map (fun (_, (_, w, b)) -> (w, b))
+          |> List.rev_map (fun (_, (_, w, b)) -> (w, ballot_of_string b))
         in
         let sized_total_weight =
           let open Weight in
