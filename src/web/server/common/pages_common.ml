@@ -39,11 +39,11 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       | None -> []
     in
     Eliom_content.Html.F.Raw.a
-      ~a:(a_href (uri_of_string (fun () -> uri)) :: attributes)
+      ~a:(a_href (Xml.uri_of_string uri) :: attributes)
       [txt text]
 
   let raw_a ~service ?(a = []) contents x =
-    let href = uri_of_string (fun () -> Eliom_uri.make_string_uri ~service x) in
+    let href = Xml.uri_of_string (Eliom_uri.make_string_uri ~service x) in
     Eliom_content.Html.F.Raw.a ~a:(a_href href :: a) contents
 
   let absolute_uri_of_service ~service x =
@@ -157,7 +157,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       | None -> uri
       | Some x -> uri ^ "#" ^ x
     in
-    let href = [a_href (uri_of_string (fun () -> uri))] in
+    let href = [a_href (Xml.uri_of_string uri)] in
     let style =
       match style with
       | None -> []

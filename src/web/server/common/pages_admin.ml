@@ -755,7 +755,7 @@ module Make
                        if this_line then
                          a ~service:election_draft_trustees [txt (s_ "Hide link")] uuid
                        else
-                         Raw.a ~a:[a_href (uri_of_string (fun () -> uri))] [txt (s_ "Link")]
+                         Raw.a ~a:[a_href (Xml.uri_of_string uri)] [txt (s_ "Link")]
                      in
                      return (mail_cell, link_cell)
                    ) else (
@@ -955,7 +955,7 @@ module Make
                            if this_line then
                              a ~service:election_draft_threshold_trustees [txt (s_ "Hide link")] uuid
                            else
-                             Raw.a ~a:[a_href (uri_of_string (fun () -> uri))] [txt (s_ "Link")]
+                             Raw.a ~a:[a_href (Xml.uri_of_string uri)] [txt (s_ "Link")]
                          ];
                        td [
                            txt state;
@@ -1122,7 +1122,7 @@ module Make
                 Raw.a
                   ~a:[
                     a_id "credential_authority_link";
-                    a_href (uri_of_string (fun () -> url))
+                    a_href (Xml.uri_of_string url)
                   ]
                   [txt url];
               ];
