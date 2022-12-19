@@ -743,8 +743,10 @@ module Make
                  | _ -> false
                in
                let uri =
-                 Printf.sprintf "%s/draft/trustee.html#%s-%s"
-                   !Web_config.prefix (Uuid.unwrap uuid) t.st_token
+                 let service = election_draft_trustee_static in
+                 Eliom_uri.make_string_uri ~absolute:true ~service ()
+                 |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) t.st_token)
+                 |> rewrite_prefix
                in
                let* mail_cell, link_cell =
                  if t.st_token <> "" then (
@@ -932,8 +934,10 @@ module Make
                  | _ -> "unknown"
                in
                let uri =
-                 Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
-                   !Web_config.prefix (Uuid.unwrap uuid) t.stt_token
+                 let service = election_draft_threshold_trustee_static in
+                 Eliom_uri.make_string_uri ~absolute:true ~service ()
+                 |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) t.stt_token)
+                 |> rewrite_prefix
                in
                let* mail_cell =
                  let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
@@ -1104,8 +1108,10 @@ module Make
         ]
     in
     let url =
-      Printf.sprintf "%s/draft/credentials.html#%s-%s"
-        !Web_config.prefix (Uuid.unwrap uuid) se.se_public_creds
+      let service = election_draft_credentials_static in
+      Eliom_uri.make_string_uri ~absolute:true ~service ()
+      |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) se.se_public_creds)
+      |> rewrite_prefix
     in
     let content = [
         back;
