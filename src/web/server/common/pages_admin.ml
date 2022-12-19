@@ -2177,9 +2177,12 @@ module Make
                     | Some x when x = t.trustee_pd_token -> true
                     | _ -> false
                   in
-                  let service = election_tally_trustees in
-                  let x = (uuid, t.trustee_pd_token) in
-                  let uri = rewrite_prefix @@ Eliom_uri.make_string_uri ~absolute:true ~service x in
+                  let uri =
+                    let service = election_tally_trustees_static in
+                    Eliom_uri.make_string_uri ~absolute:true ~service ()
+                    |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) t.trustee_pd_token)
+                    |> rewrite_prefix
+                  in
                   let* mail, link =
                     if t.trustee_pd_address = "server" then (
                       return (txt (s_ "(server)"), txt (s_ "(server)"))
@@ -2190,7 +2193,7 @@ module Make
                         if this_line then
                           a ~service:election_admin [txt (s_ "Hide link")] uuid
                         else
-                          a ~service [txt (s_ "Link")] x
+                          Raw.a ~a:[a_href (Xml.uri_of_string uri)] [txt (s_ "Link")]
                       in
                       return (mail, link)
                     )
@@ -2542,7 +2545,7 @@ module Make
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title = s_ "Partial decryption" in
-    let content = [
+    let content = div ~a:[a_id "initially_hidden_content"; a_style "display: none;"] [
         p [txt (s_ "It is now time to compute your partial decryption factors.")];
         p [
             txt (s_ "The fingerprint of the encrypted tally is ");
@@ -2608,7 +2611,7 @@ module Make
           ];
         script_with_lang ~lang "tool_js_pd.js";
       ] in
-    base ~title ~content ~static:true ()
+    base ~title ~content:[content] ~static:true ()
 
   let signup_captcha ~service error challenge email =
     let* l = get_preferred_gettext () in
