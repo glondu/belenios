@@ -172,6 +172,11 @@ val is_group_fixed : draft_election -> bool
 
 val get_booth_index : int option -> int
 
+val compute_hash_link :
+  service:(unit, unit, Eliom_service.get, 'a, 'b, 'c, 'd,
+           [`WithoutSuffix], 'e, unit, 'f) Eliom_service.t ->
+  uuid:uuid -> token:string -> string
+
 val default_contact : string
 val default_questions : question array
 val default_name : string

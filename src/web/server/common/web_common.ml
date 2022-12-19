@@ -474,6 +474,11 @@ let get_booth_index = function
   | None -> 0
   | Some i -> i - 1
 
+let compute_hash_link ~service ~uuid ~token =
+  Eliom_uri.make_string_uri ~absolute:true ~service ()
+  |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
+  |> rewrite_prefix
+
 let default_contact = ""
 
 let default_questions =

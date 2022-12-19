@@ -743,10 +743,8 @@ module Make
                  | _ -> false
                in
                let uri =
-                 let service = election_draft_trustee_static in
-                 Eliom_uri.make_string_uri ~absolute:true ~service ()
-                 |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) t.st_token)
-                 |> rewrite_prefix
+                 compute_hash_link ~uuid ~token:t.st_token
+                   ~service:election_draft_trustee_static
                in
                let* mail_cell, link_cell =
                  if t.st_token <> "" then (
@@ -934,10 +932,8 @@ module Make
                  | _ -> "unknown"
                in
                let uri =
-                 let service = election_draft_threshold_trustee_static in
-                 Eliom_uri.make_string_uri ~absolute:true ~service ()
-                 |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) t.stt_token)
-                 |> rewrite_prefix
+                 compute_hash_link ~uuid ~token:t.stt_token
+                   ~service:election_draft_threshold_trustee_static
                in
                let* mail_cell =
                  let* subject, body = Mails_admin.mail_trustee_generation_threshold langs uri in
@@ -1108,10 +1104,8 @@ module Make
         ]
     in
     let url =
-      let service = election_draft_credentials_static in
-      Eliom_uri.make_string_uri ~absolute:true ~service ()
-      |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) se.se_public_creds)
-      |> rewrite_prefix
+      compute_hash_link ~uuid ~token:se.se_public_creds
+        ~service:election_draft_credentials_static
     in
     let content = [
         back;
@@ -2079,10 +2073,8 @@ module Make
                  match x.shuffler_token with
                  | Some token ->
                     let uri =
-                      let service = election_shuffle_link_static in
-                      Eliom_uri.make_string_uri ~absolute:true ~service ()
-                      |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
-                      |> rewrite_prefix
+                      compute_hash_link ~uuid ~token
+                        ~service:election_shuffle_link_static
                     in
                     let* subject, body = Mails_admin.mail_shuffle langs uri in
                     return @@ div
@@ -2119,10 +2111,8 @@ module Make
                  match this_line, x.shuffler_token with
                  | true, Some token ->
                     let uri =
-                      let service = election_shuffle_link_static in
-                      Eliom_uri.make_string_uri ~absolute:true ~service ()
-                      |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
-                      |> rewrite_prefix
+                      compute_hash_link ~uuid ~token
+                        ~service:election_shuffle_link_static
                     in
                     [
                       tr
@@ -2189,10 +2179,8 @@ module Make
                     | _ -> false
                   in
                   let uri =
-                    let service = election_tally_trustees_static in
-                    Eliom_uri.make_string_uri ~absolute:true ~service ()
-                    |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) t.trustee_pd_token)
-                    |> rewrite_prefix
+                    compute_hash_link ~uuid ~token:t.trustee_pd_token
+                      ~service:election_tally_trustees_static
                   in
                   let* mail, link =
                     if t.trustee_pd_address = "server" then (
