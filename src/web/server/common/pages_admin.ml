@@ -2073,9 +2073,10 @@ module Make
                  match x.shuffler_token with
                  | Some token ->
                     let uri =
-                      rewrite_prefix @@
-                        Eliom_uri.make_string_uri
-                          ~absolute:true ~service:election_shuffle_link (uuid, token)
+                      let service = election_shuffle_link_static in
+                      Eliom_uri.make_string_uri ~absolute:true ~service ()
+                      |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
+                      |> rewrite_prefix
                     in
                     let* subject, body = Mails_admin.mail_shuffle langs uri in
                     return @@ div
@@ -2085,7 +2086,7 @@ module Make
                                   if this_line then
                                     a ~service:election_admin [txt (s_ "Hide link")] uuid
                                   else
-                                    a ~service:election_shuffle_link ~a:[a_id "shuffle-link"] [txt (s_ "Link")] (uuid, token)
+                                    Raw.a ~a:[a_href (Xml.uri_of_string uri); a_id "shuffle-link"] [txt (s_ "Link")]
                                 ]
                  | None ->
                     return @@ post_form ~service:election_shuffler_select
@@ -2111,6 +2112,12 @@ module Make
                let second_line =
                  match this_line, x.shuffler_token with
                  | true, Some token ->
+                    let uri =
+                      let service = election_shuffle_link_static in
+                      Eliom_uri.make_string_uri ~absolute:true ~service ()
+                      |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
+                      |> rewrite_prefix
+                    in
                     [
                       tr
                         [
@@ -2120,9 +2127,7 @@ module Make
                               txt x.shuffler_address;
                               txt (s_ " is:");
                               br ();
-                              Eliom_uri.make_string_uri ~absolute:true
-                                ~service:election_shuffle_link (uuid, token)
-                              |> rewrite_prefix |> txt
+                              txt uri;
                             ]
                         ]
                     ]
@@ -2493,7 +2498,7 @@ module Make
     let open (val l) in
     let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
     let title = s_ "Shuffle" in
-    let content = [
+    let content = div ~a:[a_id "initially_hidden_content"; a_style "display: none;"] [
         div [txt (s_ "As a trustee, your first role is to shuffle the encrypted ballots.")];
         div [
             txt (s_ "Current list of ballots:");
@@ -2539,7 +2544,7 @@ module Make
         script_with_lang ~lang "tool_js_shuffle.js";
       ]
     in
-    base ~title ~content ~static:true ()
+    base ~title ~content:[content] ~static:true ()
 
   let tally_trustees_static () =
     let* l = get_preferred_gettext () in

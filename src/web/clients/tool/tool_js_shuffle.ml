@@ -104,6 +104,7 @@ let () =
            alert "Unable to extract UUID and token from URL";
            Lwt.return_unit
       in
+      let@ () = redirect_if_admin "shuffle" uuid token in
       set_form_target "submit_form" "submit-shuffle" uuid token;
       set_nh_ciphertexts_link uuid;
       let open Js_of_ocaml_lwt.XmlHttpRequest in
