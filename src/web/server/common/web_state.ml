@@ -39,6 +39,7 @@ module Make () = struct
     | _ -> return_none
 
   let ballot = Eliom_reference.eref ~scope:belenios_scope None
+  let precast_data = Eliom_reference.eref ~scope:belenios_scope None
   let cast_confirmed = Eliom_reference.eref ~scope:belenios_scope None
 
   let language = Eliom_reference.eref ~scope:default_scope None

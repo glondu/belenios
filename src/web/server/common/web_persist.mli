@@ -22,6 +22,7 @@
 open Belenios_core
 open Serializable_t
 open Common
+open Web_common
 open Web_serializable_t
 
 val get_draft_election : uuid -> draft_election option Lwt.t
@@ -88,9 +89,14 @@ val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
+val precast_ballot :
+  (module Site_common_sig.ELECTION_LWT) -> rawballot:string ->
+  (string * credential_record, Signatures.cast_error) result Lwt.t
+
 val cast_ballot :
   (module Site_common_sig.ELECTION_LWT) ->
   rawballot:string -> user:string -> weight:Weight.t -> datetime ->
+  precast_data:(string * credential_record) ->
   (string * bool, Signatures.cast_error) result Lwt.t
 
 val get_audit_cache : uuid -> audit_cache Lwt.t

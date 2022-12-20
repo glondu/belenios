@@ -213,6 +213,9 @@ module Make (P : PARAMS) () = struct
     | `WrongWeight -> "wrong weight"
     | `UsedCredential -> "used credential"
     | `RevoteNotAllowed -> "revote not allowed"
+    | `DuplicateBallot -> "duplicate ballot"
+    | `ExpiredBallot -> "expired ballot"
+    | `WrongUsername -> "wrong username"
 
   let cast rawballot =
     let hash = Hash.hash_string rawballot in

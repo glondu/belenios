@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core.Common
+open Web_common
 open Web_serializable_t
 
 module type S = sig
@@ -31,6 +32,7 @@ module type S = sig
   val get_election_user : uuid -> user option Lwt.t
 
   val ballot : string option Eliom_reference.eref
+  val precast_data : (string * credential_record) option Eliom_reference.eref
   val cast_confirmed : (user * string * bool * Weight.t * bool, Web_common.error) result option Eliom_reference.eref
 
   val language : string option Eliom_reference.eref

@@ -932,13 +932,39 @@ let add_credential_mapping uuid cred mapping =
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
-type credential_record = {
-    cr_ballot : string option;
-    cr_weight : weight;
-    cr_username : string option;
-}
+let get_credential_record uuid credential =
+  let* cr_ballot = find_credential_mapping uuid credential in
+  let&* cr_ballot in
+  let* c = get_credential_cache uuid credential in
+  return_some {cr_ballot; cr_weight = c.weight; cr_username = c.username}
 
-let do_cast_ballot election ~rawballot ~user ~weight date =
+let precast_ballot election ~rawballot =
+  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let uuid = W.election.e_uuid in
+  let@ () = fun cont ->
+    let hash = Hash.hash_string rawballot in
+    let* x = Web_events.get_data ~uuid hash in
+    match x with
+    | None -> cont ()
+    | Some _ -> Lwt.return @@ Error `DuplicateBallot
+  in
+  let@ rc = fun cont ->
+    match W.E.check_rawballot rawballot with
+    | Error _ as x -> Lwt.return x
+    | Ok rc -> cont rc
+  in
+  let@ cr = fun cont ->
+    let* x = get_credential_record uuid rc.rc_credential in
+    match x with
+    | None -> Lwt.return @@ Error `InvalidCredential
+    | Some cr -> cont cr
+  in
+  if rc.rc_check () then
+    Lwt.return @@ Ok (rc.rc_credential, cr)
+  else
+    Lwt.return @@ Error `InvalidBallot
+
+let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   let@ last = fun cont ->
@@ -957,43 +983,34 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
     let&* _, old_credential = x in
     return_some old_credential
   in
-  let get_credential_record credential =
-    let* cr_ballot = find_credential_mapping uuid credential in
-    let&* cr_ballot in
-    let* c = get_credential_cache uuid credential in
-    return_some {cr_ballot; cr_weight = c.weight; cr_username = c.username}
-  in
   let@ x = fun cont ->
-    match W.E.check_rawballot rawballot with
-    | Error _ as x -> cont x
-    | Ok rc ->
-       let* x = get_credential_record rc.rc_credential in
-       match x with
-       | None -> cont @@ Error `InvalidCredential
-       | Some cr ->
-          let@ () = fun cont2 ->
-            if Weight.compare cr.cr_weight weight <> 0 then
-              cont @@ Error `WrongWeight
-            else cont2 ()
-          in
-          let@ () = fun cont2 ->
-            match cr.cr_username with
-            | Some username when get_username user <> username ->
-               cont @@ Error `WrongCredential
-            | Some _ -> cont2 ()
-            | None ->
-               let* x = get_user_record user in
-               match x, cr.cr_ballot with
-               | None, None -> cont2 ()
-               | None, Some _ -> cont @@ Error `UsedCredential
-               | Some _, None -> cont @@ Error `RevoteNotAllowed
-               | Some credential, _ when credential = rc.rc_credential -> cont2 ()
-               | Some _, _ -> cont @@ Error `WrongCredential
-          in
-          let* () = Lwt.pause () in
-          if rc.rc_check () then
-            cont @@ Ok (rc.rc_credential, cr.cr_ballot)
-          else cont @@ Error `InvalidBallot
+    let credential, cr = precast_data in
+    let@ () = fun cont2 ->
+      if Weight.compare cr.cr_weight weight <> 0 then
+        cont @@ Error `WrongWeight
+      else cont2 ()
+    in
+    let@ () = fun cont2 ->
+      match cr.cr_username with
+      | Some username when get_username user <> username ->
+         cont @@ Error `WrongUsername
+      | Some _ -> cont2 ()
+      | None ->
+         let* x = get_user_record user in
+         match x, cr.cr_ballot with
+         | None, None -> cont2 ()
+         | None, Some _ -> cont @@ Error `UsedCredential
+         | Some _, None -> cont @@ Error `RevoteNotAllowed
+         | Some credential', _ when credential' = credential -> cont2 ()
+         | Some _, _ -> cont @@ Error `WrongCredential
+    in
+    let* x = get_credential_record uuid credential in
+    match x with
+    | None -> assert false
+    | Some cr' when cr'.cr_ballot = cr.cr_ballot ->
+       cont @@ Ok (credential, cr.cr_ballot)
+    | Some _ ->
+       cont @@ Error `ExpiredBallot
   in
   match x with
   | Error _ as x -> return x
@@ -1015,11 +1032,11 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
      let* () = add_extended_record uuid user (date, credential) in
      return (Ok (hash, revote))
 
-let cast_ballot election ~rawballot ~user ~weight date =
+let cast_ballot election ~rawballot ~user ~weight date ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   Web_election_mutex.with_lock uuid
-    (fun () -> do_cast_ballot election ~rawballot ~user ~weight date)
+    (fun () -> do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)
 
 let compute_audit_cache uuid =
   let* election = get_raw_election uuid in

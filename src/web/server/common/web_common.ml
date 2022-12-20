@@ -88,6 +88,9 @@ let explain_error l e =
   | CastError `UsedCredential -> s_ "your credential has already been used"
   | CastError `WrongCredential -> s_ "you are not allowed to vote with this credential"
   | CastError `WrongWeight -> s_ "your credential has a bad weight"
+  | CastError `DuplicateBallot -> s_ "this ballot has already been accepted"
+  | CastError `ExpiredBallot -> s_ "this ballot has expired"
+  | CastError `WrongUsername -> s_ "your username is wrong"
 
 let decompose_seconds s =
   let s = float_of_int s in
@@ -478,6 +481,12 @@ let compute_hash_link ~service ~uuid ~token =
   Eliom_uri.make_string_uri ~absolute:true ~service ()
   |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
   |> rewrite_prefix
+
+type credential_record = {
+    cr_ballot : string option;
+    cr_weight : weight;
+    cr_username : string option;
+}
 
 let default_contact = ""
 

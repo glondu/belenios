@@ -521,7 +521,7 @@ let get_records uuid =
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
-let cast_ballot send_confirmation election ~rawballot ~user =
+let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
   let* voters = read_file ~uuid "voters.txt" in
@@ -546,7 +546,7 @@ let cast_ballot send_confirmation election ~rawballot ~user =
   let* state = Web_persist.get_election_state uuid in
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
-  let* r = Web_persist.cast_ballot election ~rawballot ~user:user_s ~weight (Datetime.now ()) in
+  let* r = Web_persist.cast_ballot election ~rawballot ~user:user_s ~weight (Datetime.now ()) ~precast_data in
   match r with
   | Ok (hash, revote) ->
      let* success = send_confirmation uuid revote login email oweight hash in
@@ -740,8 +740,12 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
             let@ () = handle_generic_error in
             let send_confirmation _ _ _ _ _ _ = Lwt.return_true in
             let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
-            let* _ = cast_ballot send_confirmation (module W) ~rawballot ~user in
-            ok
+            let* x = Web_persist.precast_ballot (module W) ~rawballot in
+            match x with
+            | Error _ -> bad_request
+            | Ok precast_data ->
+               let* _ = cast_ballot send_confirmation (module W) ~rawballot ~user ~precast_data in
+               ok
           end
        | _ -> method_not_allowed
      end

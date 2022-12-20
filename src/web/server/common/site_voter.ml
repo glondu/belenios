@@ -99,22 +99,44 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
   let () =
     Any.register ~service:election_submit_ballot_check
       (fun () () ->
+        let* l = get_preferred_gettext () in
+        let open (val l) in
         let* ballot = Eliom_reference.get Web_state.ballot in
         match ballot with
         | None ->
-           let* l = get_preferred_gettext () in
-           let open (val l) in
            Pages_common.generic_page ~title:(s_ "Cookies are blocked") (s_ "Your browser seems to block cookies. Please enable them.") ()
            >>= Html.send
-        | Some ballot ->
-           match Election.election_uuid_of_string_ballot ballot with
+        | Some rawballot ->
+           match Election.election_uuid_of_string_ballot rawballot with
            | exception _ ->
-              Pages_common.generic_page ~title:"Error" "Ill-formed ballot" () >>= Html.send
+              Pages_common.generic_page ~title:(s_ "Error") (s_ "Ill-formed ballot") ()
+              >>= Html.send
            | uuid ->
-              let* election = Web_persist.get_draft_election uuid in
+              let* election = find_election uuid in
               match election with
-              | Some _ -> redir_preapply election_draft uuid ()
-              | None -> redir_preapply election_login ((uuid, ()), None) ()
+              | Some e ->
+                 let@ precast_data = fun cont ->
+                   let* x = Web_persist.precast_ballot e ~rawballot in
+                   match x with
+                   | Ok x -> cont x
+                   | Error e ->
+                      let msg =
+                        Printf.sprintf (f_ "Your ballot is rejected because %s.")
+                          (explain_error l (CastError e))
+                      in
+                      Pages_common.generic_page ~title:(s_ "Error") msg ()
+                      >>= Html.send
+                 in
+                 let* () = Eliom_reference.set Web_state.precast_data (Some precast_data) in
+                 redir_preapply election_login ((uuid, ()), None) ()
+              | None ->
+                 let* election = Web_persist.get_draft_election uuid in
+                 match election with
+                 | Some _ -> redir_preapply election_draft uuid ()
+                 | None ->
+                    let msg = s_ "Unknown election" in
+                    Pages_common.generic_page ~title:(s_ "Error") msg ()
+                    >>= Html.send
       )
 
   let send_confirmation_email uuid revote user recipient weight hash =
@@ -154,10 +176,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       (fun uuid () ->
         let@ election = with_election uuid in
         let* ballot = Eliom_reference.get Web_state.ballot in
-        match ballot with
-        | None ->
+        let* precast_data = Eliom_reference.get Web_state.precast_data in
+        match ballot, precast_data with
+        | None, _ | _, None ->
            Pages_voter.lost_ballot election () >>= Html.send
-        | Some rawballot ->
+        | Some rawballot, Some precast_data ->
            let* () = Eliom_reference.unset Web_state.ballot in
            let* user = Web_state.get_election_user uuid in
            match user with
@@ -167,7 +190,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
               let* result =
                 Lwt.catch
                   (fun () ->
-                    let* hash = Api_elections.cast_ballot send_confirmation_email election ~rawballot ~user in
+                    let* hash = Api_elections.cast_ballot send_confirmation_email election ~rawballot ~user ~precast_data in
                     return (Ok hash)
                   )
                   (function

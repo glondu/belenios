@@ -177,6 +177,12 @@ val compute_hash_link :
            [`WithoutSuffix], 'e, unit, 'f) Eliom_service.t ->
   uuid:uuid -> token:string -> string
 
+type credential_record = {
+    cr_ballot : string option;
+    cr_weight : weight;
+    cr_username : string option;
+}
+
 val default_contact : string
 val default_questions : question array
 val default_name : string

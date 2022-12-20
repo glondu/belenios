@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Web_common
 open Web_serializable_t
 open Belenios_api.Serializable_t
 open Api_generic
@@ -62,4 +63,5 @@ val direct_voter_auth : (uuid -> Yojson.Safe.t -> user Lwt.t) ref
 val cast_ballot :
   (uuid -> bool -> string -> string -> weight option -> string -> bool Lwt.t) ->
   (module Site_common_sig.ELECTION_LWT) -> rawballot:string -> user:user ->
+  precast_data:(string * credential_record) ->
   (user * string * bool * weight * bool) Lwt.t

@@ -76,6 +76,9 @@ type cast_error =
   | `WrongWeight
   | `UsedCredential
   | `RevoteNotAllowed
+  | `DuplicateBallot
+  | `ExpiredBallot
+  | `WrongUsername
   ]
 
 type rawballot_check = {
