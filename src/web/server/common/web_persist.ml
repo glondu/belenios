@@ -932,6 +932,12 @@ let add_credential_mapping uuid cred mapping =
   credential_mappings_cache#add uuid xs;
   dump_credential_mappings uuid xs
 
+type credential_record = {
+    cr_ballot : string option;
+    cr_weight : weight;
+    cr_username : string option;
+}
+
 let do_cast_ballot election ~rawballot ~user ~weight date =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
@@ -941,26 +947,54 @@ let do_cast_ballot election ~rawballot ~user ~weight date =
     | None -> assert false
     | Some x -> cont x
   in
-  let module X =
-    struct
-      type user = string
-      let get_username user =
-        match String.index_opt user ':' with
-        | None -> user
-        | Some i -> String.sub user (i + 1) (String.length user - i - 1)
-      let get_user_record user =
-        let* x = find_extended_record uuid user in
-        let&* _, old_credential = x in
-        return_some old_credential
-      let get_credential_record credential =
-        let* cr_ballot = find_credential_mapping uuid credential in
-        let&* cr_ballot in
-        let* c = get_credential_cache uuid credential in
-        return_some {cr_ballot; cr_weight = c.weight; cr_username = c.username}
-    end
+  let get_username user =
+    match String.index_opt user ':' with
+    | None -> user
+    | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
-  let module B = W.E.CastBallot (X) in
-  let* x = B.cast ~user ~weight rawballot in
+  let get_user_record user =
+    let* x = find_extended_record uuid user in
+    let&* _, old_credential = x in
+    return_some old_credential
+  in
+  let get_credential_record credential =
+    let* cr_ballot = find_credential_mapping uuid credential in
+    let&* cr_ballot in
+    let* c = get_credential_cache uuid credential in
+    return_some {cr_ballot; cr_weight = c.weight; cr_username = c.username}
+  in
+  let@ x = fun cont ->
+    match W.E.check_rawballot rawballot with
+    | Error _ as x -> cont x
+    | Ok rc ->
+       let* x = get_credential_record rc.rc_credential in
+       match x with
+       | None -> cont @@ Error `InvalidCredential
+       | Some cr ->
+          let@ () = fun cont2 ->
+            if Weight.compare cr.cr_weight weight <> 0 then
+              cont @@ Error `WrongWeight
+            else cont2 ()
+          in
+          let@ () = fun cont2 ->
+            match cr.cr_username with
+            | Some username when get_username user <> username ->
+               cont @@ Error `WrongCredential
+            | Some _ -> cont2 ()
+            | None ->
+               let* x = get_user_record user in
+               match x, cr.cr_ballot with
+               | None, None -> cont2 ()
+               | None, Some _ -> cont @@ Error `UsedCredential
+               | Some _, None -> cont @@ Error `RevoteNotAllowed
+               | Some credential, _ when credential = rc.rc_credential -> cont2 ()
+               | Some _, _ -> cont @@ Error `WrongCredential
+          in
+          let* () = Lwt.pause () in
+          if rc.rc_check () then
+            cont @@ Ok (rc.rc_credential, cr.cr_ballot)
+          else cont @@ Error `InvalidBallot
+  in
   match x with
   | Error _ as x -> return x
   | Ok (credential, old) ->

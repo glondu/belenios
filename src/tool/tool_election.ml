@@ -220,29 +220,17 @@ module Make (P : PARAMS) () = struct
     | None -> failwith "missing public credentials"
     | Some creds ->
        let ballot_id = sha256_b64 rawballot in
-       let module X =
-         struct
-           type user = string
-           let get_credential_record c =
-             match SMap.find_opt c creds with
-             | None -> M.return None
-             | Some (cr_weight, old) -> M.return (Some {cr_ballot = !old; cr_weight; cr_username = Some c})
-           let get_user_record user =
-             match SMap.find_opt user creds with
-             | None -> M.return None
-             | Some (_, old) when !old = None -> M.return None
-             | _ -> M.return (Some user)
-           let get_username user = user
-         end
+       let@ x = fun cont ->
+         match E.check_rawballot rawballot with
+         | Error _ as x -> cont x
+         | Ok rc ->
+            let* x = SMap.find_opt rc.rc_credential creds in
+            match x with
+            | None -> cont (Error `InvalidCredential)
+            | Some (_, old) when rc.rc_check () ->
+               cont @@ Ok (rc.rc_credential, !old)
+            | Some _ -> cont @@ Error `InvalidBallot
        in
-       let module B = E.CastBallot (X) in
-       let user =
-         let b = ballot_of_string rawballot in
-         match get_credential b with
-         | None -> failwith "credential is missing in ballot"
-         | Some credential -> G.to_string credential
-       in
-       let* x = B.cast ~user rawballot in
        match x with
        | Error e ->
           Printf.ksprintf failwith "error while casting ballot %s: %s"
