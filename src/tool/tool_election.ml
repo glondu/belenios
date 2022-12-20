@@ -217,13 +217,19 @@ module Make (P : PARAMS) () = struct
     | `ExpiredBallot -> "expired ballot"
     | `WrongUsername -> "wrong username"
 
-  let cast rawballot =
+  let cast accu rawballot =
     let hash = Hash.hash_string rawballot in
     match Lazy.force public_creds with
     | None -> failwith "missing public credentials"
     | Some creds ->
        let ballot_id = sha256_b64 rawballot in
        let@ x = fun cont ->
+         let@ accu = fun cont2 ->
+           if SSet.mem ballot_id accu then
+             cont @@ Error `DuplicateBallot
+           else
+             cont2 @@ SSet.add ballot_id accu
+         in
          match E.check_rawballot rawballot with
          | Error _ as x -> cont x
          | Ok rc ->
@@ -231,14 +237,14 @@ module Make (P : PARAMS) () = struct
             match x with
             | None -> cont (Error `InvalidCredential)
             | Some (_, old) when rc.rc_check () ->
-               cont @@ Ok (rc.rc_credential, !old)
+               cont @@ Ok (rc.rc_credential, !old, accu)
             | Some _ -> cont @@ Error `InvalidBallot
        in
        match x with
        | Error e ->
           Printf.ksprintf failwith "error while casting ballot %s: %s"
             ballot_id (string_of_cast_error e)
-       | Ok (credential, old) ->
+       | Ok (credential, old, accu) ->
           match SMap.find_opt credential creds with
           | None ->
              Printf.ksprintf failwith "invalid credential for ballot %s"
@@ -246,19 +252,19 @@ module Make (P : PARAMS) () = struct
           | Some (w, used) ->
              assert (!used = old);
              used := Some ballot_id;
-             M.return (hash, (credential, w, rawballot))
+             M.return ((hash, (credential, w, rawballot)), accu)
 
   let rev_ballots =
-    let rec loop accu = function
+    let rec loop accu seen = function
       | [] -> M.return accu
       | b :: bs ->
-         let* x = cast b in
-         loop (x :: accu) bs
+         let* x, seen = cast seen b in
+         loop (x :: accu) seen bs
     in
     lazy (
         match Lazy.force rawballots with
         | None -> []
-        | Some bs -> loop [] bs
+        | Some bs -> loop [] SSet.empty bs
       )
 
   let final_ballots =
