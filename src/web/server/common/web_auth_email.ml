@@ -98,7 +98,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
 
   module Otp = Otp.Make (Sender) ()
 
-  let handle_email_post ~state name ok =
+  let handle_email_post ~state ?(show_email_address = false) name ok =
     let name = String.trim name in
     let* address, site_or_election =
       let* uuid = Eliom_reference.get uuid_ref in
@@ -123,7 +123,8 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
        let* () = Otp.generate ~address in
        let* () = Eliom_reference.set env (Some (state, name, address)) in
        let* () = Eliom_reference.unset uuid_ref in
-       Pages_common.email_login site_or_election >>= Eliom_registration.Html.send
+       let address = if show_email_address then Some address else None in
+       Pages_common.email_login ?address site_or_election >>= Eliom_registration.Html.send
     | _ ->
        run_post_login_handler ~state
          {
@@ -143,7 +144,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
            let* precast_data = Eliom_reference.get Web_state.precast_data in
            match precast_data with
            | Some (_, {cr_username = Some name; _}) ->
-              handle_email_post ~state name true
+              handle_email_post ~show_email_address:true ~state name true
            | _ ->
               let* fragment = Pages_common.login_email `Election username_or_address ~state in
               let* title = Pages_common.login_title `Election auth_instance in

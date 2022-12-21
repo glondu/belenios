@@ -104,7 +104,7 @@ module type S = sig
       Eliom_service.t ->
     unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val email_login : [`Site | `Election] -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val email_login : ?address:string -> [`Site | `Election] -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val email_email : address:string -> code:string -> (string * string) Lwt.t
 
   val signup_captcha_img : string -> [> Html_types.img ] Eliom_content.Html.elt

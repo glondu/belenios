@@ -323,13 +323,22 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     in
     base ~title ~content ()
 
-  let email_login site_or_election =
+  let email_login ?address site_or_election =
     let* l = get_preferred_gettext () in
     let open (val l) in
+    let address =
+      match address with
+      | None -> txt ""
+      | Some address ->
+         div [
+             txt @@ Printf.sprintf (f_ "A verification code has been sent to %s.") address;
+           ]
+    in
     let form =
       post_form ~service:email_login_post
         (fun lcode ->
           [
+            address;
             div [
                 txt (s_ "Please enter the verification code received by e-mail:");
                 txt " ";
