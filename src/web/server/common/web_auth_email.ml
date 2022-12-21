@@ -33,7 +33,7 @@ type login_env =
     auth_instance : string;
   }
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
+module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
 
   module HashedInt = struct
     type t = int
@@ -140,9 +140,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
         | None ->
            Pages_common.authentication_impossible () >>= Eliom_registration.Html.send
         | Some {username_or_address; state; auth_instance} ->
-           let* fragment = Pages_common.login_email `Election username_or_address ~state in
-           let* title = Pages_common.login_title `Election auth_instance in
-           Pages_common.base ~title ~content:[fragment] () >>= Eliom_registration.Html.send
+           let* precast_data = Eliom_reference.get Web_state.precast_data in
+           match precast_data with
+           | Some (_, {cr_username = Some name; _}) ->
+              handle_email_post ~state name true
+           | _ ->
+              let* fragment = Pages_common.login_email `Election username_or_address ~state in
+              let* title = Pages_common.login_title `Election auth_instance in
+              Pages_common.base ~title ~content:[fragment] () >>= Eliom_registration.Html.send
       )
 
   let () =
