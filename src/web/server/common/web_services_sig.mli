@@ -709,6 +709,11 @@ module type S = sig
      [ `One of string ] Eliom_parameter.param_name *
        [ `One of string ] Eliom_parameter.param_name, Eliom_service.non_ocaml)
       Eliom_service.t
+  val email_election_login :
+    (unit, unit, Eliom_service.get, Eliom_service.non_att,
+     Eliom_service.co, Eliom_service.non_ext, Eliom_service.reg,
+     [ `WithoutSuffix ], unit, unit, Eliom_service.non_ocaml)
+      Eliom_service.t
   val email_captcha_post :
     (unit, string * (string * (string * string)), Eliom_service.post,
      Eliom_service.non_att, Eliom_service.co, Eliom_service.non_ext,

@@ -151,6 +151,7 @@ module Make () = struct
 
   let dummy_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
   let email_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username")) ()
+  let email_election_login = create ~path:No_path ~meth:(Get unit) ()
   let email_captcha_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "challenge" ** string "response" ** string "username")) ()
   let email_login_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "code")) ()
   let password_post = create ~csrf_safe:true ~path:No_path ~meth:(Post (unit, string "state" ** string "username" ** string "password")) ()

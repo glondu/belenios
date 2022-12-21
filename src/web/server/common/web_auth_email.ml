@@ -26,6 +26,13 @@ open Common
 open Web_serializable_t
 open Web_common
 
+type login_env =
+  {
+    username_or_address : [`Username | `Address];
+    state : string;
+    auth_instance : string;
+  }
+
 module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
 
   module HashedInt = struct
@@ -41,8 +48,9 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
 
   let uuid_ref = Eliom_reference.eref ~scope None
   let env = Eliom_reference.eref ~scope None
+  let login_env = Eliom_reference.eref ~scope None
 
-  let auth_system uuid {auth_config; _} =
+  let auth_system uuid {auth_config; auth_instance; _} =
     let module X =
       struct
         let pre_login_handler username_or_address ~state =
@@ -64,8 +72,14 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
                return @@ Web_auth_sig.Html fragment
              )
           | _ ->
-             let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
-             return @@ Web_auth_sig.Html fragment
+             if site_or_election = `Election then (
+               let env = {username_or_address; state; auth_instance} in
+               let* () = Eliom_reference.set login_env (Some env) in
+               return @@ Web_auth_sig.Redirection (Redirection Web_services.email_election_login)
+             ) else (
+               let* fragment = Pages_common.login_email site_or_election username_or_address ~state in
+               return @@ Web_auth_sig.Html fragment
+             )
 
         let direct _ =
           failwith "direct authentication not implemented for email"
@@ -117,6 +131,19 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
              fun _ _ cont ->
              cont None
          }
+
+  let () =
+    Eliom_registration.Any.register ~service:Web_services.email_election_login
+      (fun () () ->
+        let* env = Eliom_reference.get login_env in
+        match env with
+        | None ->
+           Pages_common.authentication_impossible () >>= Eliom_registration.Html.send
+        | Some {username_or_address; state; auth_instance} ->
+           let* fragment = Pages_common.login_email `Election username_or_address ~state in
+           let* title = Pages_common.login_title `Election auth_instance in
+           Pages_common.base ~title ~content:[fragment] () >>= Eliom_registration.Html.send
+      )
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_post

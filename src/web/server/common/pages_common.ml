@@ -421,4 +421,17 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     let open (val l) in
     return @@ div [txt (s_ "You cannot log in now. Please try later.")]
 
+  let authentication_impossible () =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let content =
+      [
+        txt @@ s_ "Authentication is impossible.";
+        txt @@ " ";
+        txt @@ s_ "Maybe cookies are blocked."
+      ]
+    in
+    let title = s_ "Authentication impossible" in
+    base ~title ~content ()
+
 end
