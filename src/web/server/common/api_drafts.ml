@@ -381,7 +381,7 @@ let generate_credentials_on_server send uuid se =
             G.(g **~ x)
           in
           let* job = send ~recipient ~login ~weight ~credential in
-          Lwt.return (CMap.add pub_cred weight public_creds, (v.sv_id, credential) :: private_creds, job :: jobs)
+          Lwt.return (CMap.add pub_cred (weight, login) public_creds, (v.sv_id, credential) :: private_creds, job :: jobs)
         ) (CMap.empty, [], []) se.se_voters
     in
     let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
@@ -389,11 +389,10 @@ let generate_credentials_on_server send uuid se =
     let public_creds =
       CMap.bindings public_creds
       |> List.map
-           (fun (cred, weight) ->
-             let cred = G.to_string cred in
-             if show_weight then
-               Printf.sprintf "%s,%s" cred (Weight.to_string weight)
-             else cred
+           (fun (cred, (weight, login)) ->
+             G.to_string cred
+             ^ (if show_weight then Printf.sprintf ",%s" (Weight.to_string weight) else ",")
+             ^ Printf.sprintf ",%s" login
            )
     in
     let public_creds = string_of_public_credentials public_creds in
