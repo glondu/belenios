@@ -52,6 +52,7 @@ type configuration = {
     authentications : authentication_system list;
     default_group : string;
     default_nh_group : string;
+    max_voters : int;
 }
 
 type api_account = {

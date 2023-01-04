@@ -130,6 +130,7 @@ let get_configuration () =
       end;
     default_group = !Web_config.default_group;
     default_nh_group = !Web_config.nh_group;
+    max_voters = !Web_config.maxmailsatonce;
   }
 
 let get_account a =
