@@ -53,6 +53,7 @@ type configuration = {
     default_group : string;
     default_nh_group : string;
     max_voters : int;
+    languages : (string * string) list <json repr="object">;
 }
 
 type api_account = {
