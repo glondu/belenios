@@ -137,7 +137,7 @@ type draft_trustees =
   | Threshold of threshold_trustees
   ]
 
-type status = {
+type draft_status = {
     num_voters : int;
     ?passwords_ready : bool option;
     credentials_ready : bool;

@@ -82,7 +82,7 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `drafts/$UUID/status` (administrator)
 
-* `GET`: unit -> status
+* `GET`: unit -> draft_status
 
 ## `elections` (administrator)
 

@@ -70,7 +70,7 @@ val set_threshold :
 val get_draft_trustees_mode : draft_election -> [`Basic | `Threshold of int]
 val put_draft_trustees_mode : uuid -> draft_election -> [`Basic | `Threshold of int] -> unit Lwt.t
 
-val get_draft_status : uuid -> draft_election -> status Lwt.t
+val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
 
 val set_downloaded : uuid -> unit Lwt.t
 

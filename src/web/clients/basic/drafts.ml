@@ -228,9 +228,9 @@ let rec show_draft_trustees uuid container =
 
 let rec show_draft_status uuid container =
   let@ () = show_in container in
-  let* x = get status_of_string "drafts/%s/status" uuid in
+  let* x = get draft_status_of_string "drafts/%s/status" uuid in
   let@ status = with_ok "status" x in
-  let t, _ = textarea (string_of_status status) in
+  let t, _ = textarea (string_of_draft_status status) in
   let b label r =
     let@ () = button label in
     let* x = post_with_token (string_of_draft_request r) "drafts/%s" uuid in
