@@ -144,7 +144,7 @@ type draft_status = {
     ?private_credentials_downloaded : bool option;
     trustees_ready : bool;
     nh_and_weights_compatible : bool;
-} <ocaml field_prefix="status_">
+}
 
 type draft_request =
   [ SetDownloaded

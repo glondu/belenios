@@ -679,24 +679,24 @@ let put_draft_trustees_mode uuid se mode =
   | _, _ -> Lwt.fail (Error "change not allowed")
 
 let get_draft_status uuid se =
-  let* status_private_credentials_downloaded =
+  let* private_credentials_downloaded =
     if se.se_metadata.e_cred_authority = Some "server" then (
       let* b = file_exists (uuid /// "private_creds.downloaded") in
       Lwt.return_some b
     ) else Lwt.return_none
   in
   Lwt.return {
-      status_num_voters = List.length se.se_voters;
-      status_passwords_ready =
+      num_voters = List.length se.se_voters;
+      passwords_ready =
         begin
           match se.se_metadata.e_auth_config with
           | Some [{auth_system = "password"; _}] ->
              Some (List.for_all (fun v -> v.sv_password <> None) se.se_voters)
           | _ -> None
         end;
-      status_credentials_ready = se.se_public_creds_received;
-      status_private_credentials_downloaded;
-      status_trustees_ready =
+      credentials_ready = se.se_public_creds_received;
+      private_credentials_downloaded;
+      trustees_ready =
         begin
           match se.se_trustees with
           | `Basic x ->
@@ -704,7 +704,7 @@ let get_draft_status uuid se =
           | `Threshold x ->
              List.for_all (fun t -> t.stt_step = Some 7) x.dtp_trustees
         end;
-      status_nh_and_weights_compatible =
+      nh_and_weights_compatible =
         begin
           let has_weights =
             List.exists
@@ -754,17 +754,17 @@ let validate_election uuid se =
   in
   (* check status *)
   let () =
-    if s.status_num_voters = 0 then raise (Error "no voters");
+    if s.num_voters = 0 then raise (Error "no voters");
     begin
-      match s.status_passwords_ready with
+      match s.passwords_ready with
       | Some false -> raise (Error "some passwords are missing")
       | Some true | None -> ()
     end;
-    if not s.status_credentials_ready then
+    if not s.credentials_ready then
       raise (Error "public credentials are missing");
-    if not s.status_trustees_ready then
+    if not s.trustees_ready then
       raise (Error "trustees are not ready");
-    if not s.status_nh_and_weights_compatible then
+    if not s.nh_and_weights_compatible then
       raise (Error "weights are incompatible with NH questions")
   in
   (* trustees *)

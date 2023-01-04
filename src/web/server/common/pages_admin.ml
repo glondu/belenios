@@ -1783,12 +1783,12 @@ module Make
         ready, ok "OK"
     in
     let ready, voters =
-      match s.status_num_voters with
+      match s.num_voters with
       | 0 -> false, notok "Missing"
       | n -> ready, ok (Printf.sprintf (f_ "%d voter(s)") n)
     in
     let ready, passwords =
-      match s.status_passwords_ready with
+      match s.passwords_ready with
       | Some true -> ready, ok "OK"
       | Some false -> false, notok (s_ "Missing")
       | None -> ready, ok (s_ "Not applicable")
@@ -1799,12 +1799,12 @@ module Make
       | Some _ -> ready, ok "OK"
     in
     let ready, credentials =
-      match s.status_credentials_ready with
+      match s.credentials_ready with
       | true -> ready, ok "OK"
       | false -> false, notok (s_ "Missing")
     in
     let private_creds =
-      match s.status_private_credentials_downloaded with
+      match s.private_credentials_downloaded with
       | Some true -> ok "OK"
       | Some false ->
          span [
@@ -1817,12 +1817,12 @@ module Make
       | None -> ok (s_ "Not applicable")
     in
     let ready, trustees =
-      match s.status_trustees_ready with
+      match s.trustees_ready with
       | true -> ready, ok "OK"
       | false -> false, notok (s_ "Missing")
     in
     let ready, nh_and_weights =
-      match s.status_nh_and_weights_compatible with
+      match s.nh_and_weights_compatible with
       | true -> ready, []
       | false ->
          false,
