@@ -157,6 +157,10 @@ type draft_election = {
   public_creds_received <ocaml mutable> : bool;
   ?creation_date : datetime option;
   ?administrator <ocaml mutable> : string option;
+  ~trustees_visited <ocaml default="false" mutable> : bool;
+  ~credential_authority_visited <ocaml default="false" mutable> : bool;
+  ~voter_authentication_visited <ocaml default="false" mutable> : bool;
+  ~trustees_setup_step <ocaml default="1" mutable> : int;
 } <ocaml field_prefix="se_">
 
 (** {1 Types related to elections being tallied} *)

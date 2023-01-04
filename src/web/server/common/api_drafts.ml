@@ -211,6 +211,10 @@ let post_drafts account draft =
       se_public_creds_received = false;
       se_creation_date = Some (Datetime.now ());
       se_administrator = None;
+      se_trustees_visited = false;
+      se_credential_authority_visited = false;
+      se_voter_authentication_visited = false;
+      se_trustees_setup_step = 1;
     }
   in
   let se = draft_of_api account se draft in
@@ -722,6 +726,10 @@ let get_draft_status uuid se =
           in
           not (has_weights && has_nh)
         end;
+      trustees_visited = se.se_trustees_visited;
+      credential_authority_visited = se.se_credential_authority_visited;
+      voter_authentication_visited = se.se_voter_authentication_visited;
+      trustees_setup_step = se.se_trustees_setup_step;
     }
 
 let set_downloaded uuid =
@@ -1104,6 +1112,42 @@ let post_draft_status uuid se = function
      ok
   | `ValidateElection ->
      let* () = validate_election uuid se in
+     ok
+  | `SetTrusteesVisited ->
+     let* () =
+       if se.se_trustees_visited <> true then (
+         se.se_trustees_visited <- true;
+         let* () = Web_persist.set_draft_election uuid se in
+         Lwt.return_unit
+       ) else Lwt.return_unit
+     in
+     ok
+  | `SetCredentialAuthorityVisited ->
+     let* () =
+       if se.se_credential_authority_visited <> true then (
+         se.se_credential_authority_visited <- true;
+         let* () = Web_persist.set_draft_election uuid se in
+         Lwt.return_unit
+       ) else Lwt.return_unit
+     in
+     ok
+  | `SetVoterAuthenticationVisited ->
+     let* () =
+       if se.se_voter_authentication_visited <> true then (
+         se.se_voter_authentication_visited <- true;
+         let* () = Web_persist.set_draft_election uuid se in
+         Lwt.return_unit
+       ) else Lwt.return_unit
+     in
+     ok
+  | `SetTrusteesSetupStep i ->
+     let* () =
+       if se.se_trustees_setup_step <> i then (
+         se.se_trustees_setup_step <- i;
+         let* () = Web_persist.set_draft_election uuid se in
+         Lwt.return_unit
+       ) else Lwt.return_unit
+     in
      ok
 
 let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
