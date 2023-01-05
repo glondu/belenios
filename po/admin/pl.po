@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2022-12-15 12:47+0000\n"
+"PO-Revision-Date: 2023-01-06 13:01+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 
 #: src/web/server/common/pages_admin.ml:1997
 msgid " You may re-open the election when it is closed."
@@ -266,7 +266,7 @@ msgstr "Dodaj odpowiedź (opcję wyboru)"
 
 #: src/web/clients/checkpriv/checkpriv.ml:312
 msgid "Administer elections"
-msgstr ""
+msgstr "Zarządzaj głosowaniami"
 
 #. src/web/server/common/pages_admin.ml:213
 #: src/web/server/common/pages_admin.ml:1953
@@ -496,12 +496,12 @@ msgstr "Zmiana hasła"
 
 #: src/web/clients/checkpriv/checkpriv.ml:270
 msgid "Check private key"
-msgstr ""
+msgstr "Sprawdź klucz prywatny"
 
 #. src/web/server/common/pages_admin.ml:84
 #: src/web/clients/checkpriv/checkpriv.ml:246
 msgid "Check private key ownership"
-msgstr ""
+msgstr "Sprawdź do kogo należy klucz prywatny"
 
 #: src/web/server/common/pages_admin.ml:1917
 msgid "Checklist:"
@@ -582,7 +582,7 @@ msgstr "Kontakt?"
 #. src/web/clients/checkpriv/checkpriv.ml:51
 #: src/web/clients/checkpriv/checkpriv.ml:62
 msgid "Could not get %s (code %d)!"
-msgstr ""
+msgstr "Nie można pobrać %s (kod %d)!"
 
 #: src/web/server/common/site_admin.ml:1043
 msgid "Could not retrieve trustees from selected election!"
@@ -964,7 +964,7 @@ msgstr "Utwórz Twój cyfrowy udział w odszyfrowaniu wyniku głosowania"
 
 #: src/web/common/pages_common.ml:77
 msgid "Get the source code"
-msgstr ""
+msgstr "Pobierz kod źródłowy"
 
 #. src/web/server/common/pages_admin.ml:1356
 #. src/web/server/common/pages_admin.ml:1248
@@ -1252,7 +1252,7 @@ msgstr "Żaden kontakt nie został ustawiony!"
 
 #: src/web/clients/checkpriv/checkpriv.ml:38
 msgid "No matching public key was found!"
-msgstr ""
+msgstr "Nie odnaleziono odpowiedniego klucza publicznego!"
 
 #: src/web/server/common/site_admin.ml:422
 msgid "No such language: %s"
@@ -1483,7 +1483,7 @@ msgstr "Odrocz ogłoszenie wyników do"
 
 #: src/web/common/pages_common.ml:72
 msgid "Powered by "
-msgstr ""
+msgstr "System oparty na "
 
 #: src/web/clients/tool/tool_js_questions.ml:298
 msgid "Prefill with Condorcet-Schulze"
@@ -1508,7 +1508,7 @@ msgstr "Podgląd wirtualnej kabiny do głosowania"
 
 #: src/web/common/pages_common.ml:79
 msgid "Privacy policy"
-msgstr ""
+msgstr "Polityka prywatności"
 
 #: src/web/server/common/pages_admin.ml:1893
 msgid "Private credentials?"
@@ -1782,7 +1782,7 @@ msgstr "Wasz "
 
 #: src/web/clients/checkpriv/checkpriv.ml:274
 msgid "The UUID is invalid!"
-msgstr ""
+msgstr "UUID nie jest prawidłowy!"
 
 #: src/web/server/common/pages_admin.ml:2710
 msgid "The account creation "
@@ -1966,7 +1966,7 @@ msgstr "Do Twojego konta nie jest przypisany żaden adres e-mail."
 
 #: src/web/clients/checkpriv/checkpriv.ml:294
 msgid "There is no election with UUID %s on this server!"
-msgstr ""
+msgstr "Na tym serwerze nie ma głosowania z UUID %s!"
 
 #: src/web/server/common/pages_admin.ml:1058
 msgid "There is one link per trustee. Send a link to each trustee."
@@ -2028,7 +2028,7 @@ msgstr ""
 
 #: src/web/clients/checkpriv/checkpriv.ml:39
 msgid "This is the private key of %s."
-msgstr ""
+msgstr "To jest klucz prywatny %s."
 
 #: src/web/server/common/site_admin.ml:559
 msgid "This kind of change is not allowed now!"
@@ -2129,7 +2129,7 @@ msgstr "Wpisz hasło ponownie: "
 
 #: src/web/clients/checkpriv/checkpriv.ml:302
 msgid "UUID of the election:"
-msgstr ""
+msgstr "UUID głosowania:"
 
 #: src/web/server/common/site_admin.ml:1047
 msgid "Unsupported trustees!"
@@ -2398,7 +2398,7 @@ msgstr "Twoja nazwa użytkownika to: "
 #. src/web/clients/checkpriv/checkpriv.ml:114
 #: src/web/clients/checkpriv/checkpriv.ml:131
 msgid "anonymous trustee"
-msgstr ""
+msgstr "anonimowy mąż (osoba) zaufania"
 
 #: src/web/clients/tool/tool_js_questions.ml:431
 msgid "classic"
@@ -2418,7 +2418,7 @@ msgstr "pobierz"
 
 #: src/web/clients/checkpriv/checkpriv.ml:289
 msgid "draft election parameters"
-msgstr ""
+msgstr "parametry projektu głosowania"
 
 #: src/web/server/common/pages_admin.ml:1914
 msgid "election not ready"
@@ -2426,7 +2426,7 @@ msgstr "głosowanie nie jest gotowe"
 
 #: src/web/clients/checkpriv/checkpriv.ml:282
 msgid "election parameters"
-msgstr ""
+msgstr "parametry głosowania"
 
 #: src/web/server/common/pages_admin.ml:1912
 msgid "election ready"
@@ -2513,7 +2513,7 @@ msgstr ""
 
 #: src/web/clients/checkpriv/checkpriv.ml:249
 msgid "server configuration"
-msgstr ""
+msgstr "konfiguracja serwera"
 
 #: src/web/server/common/pages_admin.ml:1469
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
@@ -2610,7 +2610,7 @@ msgstr "czasy są podane w UTC. Teraz jest "
 #. src/web/clients/checkpriv/checkpriv.ml:102
 #: src/web/clients/checkpriv/checkpriv.ml:149
 msgid "trustee parameters"
-msgstr ""
+msgstr "parametry męża (osoby) zaufania"
 
 #: src/web/server/common/pages_admin.ml:1273
 msgid "typical use"
