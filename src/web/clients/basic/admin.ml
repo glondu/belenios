@@ -140,17 +140,17 @@ let rec show_root main =
     | Some c, Some a ->
        Some {
            draft_version = List.hd c.supported_crypto_versions;
-           draft_owners = [a.api_account_id];
+           draft_owners = [a.id];
            draft_questions =
              {
                t_description = "";
                t_name = "";
                t_questions = [||];
-               t_administrator = Some a.api_account_name;
+               t_administrator = Some a.name;
                t_credential_authority = Some "server";
              };
            draft_languages = ["en"; "fr"];
-           draft_contact = Some (Printf.sprintf "%s <%s>" a.api_account_name a.api_account_address);
+           draft_contact = Some (Printf.sprintf "%s <%s>" a.name a.address);
            draft_booth = List.hd c.supported_booth_versions;
            draft_authentication =
              begin
