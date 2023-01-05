@@ -77,7 +77,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let@ a = Accounts.add_update_hook in
     let* user = Eliom_reference.get Web_state.site_user in
     match user with
-    | Some (u, b, t) when a.account_id = b.account_id ->
+    | Some (u, b, t) when a.id = b.id ->
        Eliom_reference.set Web_state.site_user (Some (u, a, t))
     | _ -> Lwt.return_unit
 
@@ -138,26 +138,26 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
                | Some (_, a, _) ->
                   let* show =
-                    match a.account_consent with
+                    match a.consent with
                     | Some _ -> return_false
                     | None ->
                        let* b = Eliom_reference.get Web_state.show_cookie_disclaimer in
                        if b then (
                          return_true
                        ) else (
-                         let account_consent = Some (Datetime.now ()) in
-                         let a = {a with account_consent} in
-                         let* () = Accounts.update_account {a with account_consent} in
+                         let consent = Some (Datetime.now ()) in
+                         let a = {a with consent} in
+                         let* () = Accounts.update_account {a with consent} in
                          return_false
                        )
                   in
                   if show then (
                     Pages_admin.privacy_notice ContAdmin
                   ) else (
-                    if a.account_email = "" then (
+                    if a.email = "" then (
                       Pages_admin.set_email ()
                     ) else (
-                      let* elections = get_elections_by_owner_sorted a.account_id in
+                      let* elections = get_elections_by_owner_sorted a.id in
                       Pages_admin.admin ~elections
                     )
                   )
@@ -200,7 +200,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         | None, _ | _, None -> forbidden ()
         | Some address, Some (_, a, _) ->
            if SetEmailOtp.check ~address ~code then (
-             let a = {a with account_email = address} in
+             let a = {a with email = address} in
              let* () = Accounts.update_account a in
              let* () = Web_state.discard () in
              Redirection.send (Redirection admin)
@@ -214,24 +214,24 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
            )
       )
 
-  let create_new_election account cred draft_authentication =
+  let create_new_election (account : account) cred draft_authentication =
     let open Belenios_api.Serializable_t in
     let draft_questions =
       {
         t_description = default_description;
         t_name = default_name;
         t_questions = default_questions;
-        t_administrator = Some account.account_name;
+        t_administrator = Some account.name;
         t_credential_authority = Some (match cred with `Automatic -> "server" | `Manual -> "");
       }
     in
     let draft =
       {
         draft_version = List.hd supported_crypto_versions;
-        draft_owners = [account.account_id];
+        draft_owners = [account.id];
         draft_questions;
         draft_languages = ["en"; "fr"];
-        draft_contact = Some (Printf.sprintf "%s <%s>" account.account_name account.account_email);
+        draft_contact = Some (Printf.sprintf "%s <%s>" account.name account.email);
         draft_booth = 2;
         draft_authentication;
         draft_group = !Web_config.default_group;
@@ -973,7 +973,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         let@ _, account, _ = with_site_user in
         let@ se = with_draft_election_ro uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted account.account_id in
+        let* _, a, b, c = get_elections_by_owner_sorted account.id in
         Pages_admin.election_draft_import uuid se (a, b, c) ()
         >>= Html.send
       )
@@ -1019,7 +1019,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         let@ _, account, _ = with_site_user in
         let@ se = with_draft_election_ro uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted account.account_id in
+        let* _, a, b, c = get_elections_by_owner_sorted account.id in
         Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
         >>= Html.send
       )
@@ -1989,9 +1989,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let () =
     Any.register ~service:account_post
-      (fun () account_name ->
+      (fun () name ->
         let@ _, a, _ = with_user_and_account in
-        let a = {a with account_name} in
+        let a = {a with name} in
         let* () = Accounts.update_account a in
         Redirection.send (Redirection admin)
       )

@@ -105,7 +105,7 @@ let draft_of_api a se d =
   in
   let@ () = assert_ "invalid booth version" (List.mem d.draft_booth supported_booth_versions) in
   let@ () = assert_ "there must be at least one language" (List.length d.draft_languages >= 1) in
-  let@ () = assert_ "you must be in owners" (List.mem a.account_id d.draft_owners) in
+  let@ () = assert_ "you must be in owners" (List.mem a.id d.draft_owners) in
   let e_cred_authority = d.draft_questions.t_credential_authority in
   let () =
     let old = se.se_metadata.e_cred_authority in
@@ -175,7 +175,7 @@ let post_drafts account draft =
     else
       Lwt.(cont () >>= return_some)
   in
-  let owners = [account.account_id] in
+  let owners = [account.id] in
   let* uuid = generate_uuid () in
   let* token = generate_token () in
   let se_metadata =
@@ -1393,7 +1393,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
        let@ token = Option.unwrap unauthorized token in
        let@ account = Option.unwrap unauthorized (lookup_token token) in
        let get () =
-         let* elections = Web_persist.get_elections_by_owner account.account_id in
+         let* elections = Web_persist.get_elections_by_owner account.id in
          let elections =
            List.fold_left
              (fun accu (kind, summary_uuid, date, summary_name) ->

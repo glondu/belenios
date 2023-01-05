@@ -55,7 +55,7 @@ let invalidate_token token =
 let () =
   let@ a = Accounts.add_update_hook in
   let f {expiration; account} =
-    let account = if a.account_id = account.account_id then a else account in
+    let account = if a.id = account.id then a else account in
     {expiration; account}
   in
   tokens := SMap.map f !tokens;
@@ -134,17 +134,17 @@ let get_configuration () =
     languages = Belenios_ui.Languages.available;
   }
 
-let get_account a =
+let get_account (a : account) =
   {
-    id = a.account_id;
-    name = a.account_name;
-    address = a.account_email;
+    id = a.id;
+    name = a.name;
+    address = a.email;
   }
 
-let put_account a b =
-  if b.address <> a.account_email then
+let put_account (a : account) (b : api_account) =
+  if b.address <> a.email then
     raise (Error "cannot change address");
-  if b.id <> a.account_id then
+  if b.id <> a.id then
     raise (Error "cannot change id");
-  let a = {a with account_name = b.name} in
+  let a = {a with name = b.name} in
   Accounts.update_account a

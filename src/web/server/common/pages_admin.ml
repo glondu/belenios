@@ -102,7 +102,7 @@ module Make
            div [
                txt (s_ "Logged in as");
                txt " ";
-               em [a ~service:Web_services.account [txt account.account_name] ()];
+               em [a ~service:Web_services.account [txt account.name] ()];
                txt ".";
              ];
            div [
@@ -2891,12 +2891,12 @@ module Make
               div [
                   txt (s_ "Name:");
                   txt " ";
-                  input ~input_type:`Text ~name ~value:account.account_name string;
+                  input ~input_type:`Text ~name ~value:account.name string;
                 ];
               div [
                   txt (s_ "E-mail address:");
                   txt " ";
-                  txt account.account_email;
+                  txt account.email;
                 ];
               div [
                   txt (s_ "Authentication methods:");
@@ -2907,14 +2907,14 @@ module Make
                           li [
                               Printf.ksprintf txt "%s:%s" u.user_domain u.user_name;
                             ]
-                        ) account.account_authentications;
+                        ) account.authentications;
                     );
                 ];
               div [
                   txt (s_ "Consent date:");
                   txt " ";
                   txt (
-                      match account.account_consent with
+                      match account.consent with
                       | None -> s_ "(none)"
                       | Some t -> Datetime.format t
                     );

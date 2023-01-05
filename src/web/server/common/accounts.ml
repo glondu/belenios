@@ -57,7 +57,7 @@ let update_account account =
   let* () =
     let@ () = Lwt_mutex.with_lock account_mutex in
     write_file
-      (!Web_config.accounts_dir // Printf.sprintf "%d.json" account.account_id)
+      (!Web_config.accounts_dir // Printf.sprintf "%d.json" account.id)
       [string_of_account account]
   in
   Lwt_list.iter_s (fun f -> f account) !update_hooks
@@ -82,25 +82,25 @@ let create_account ~email user =
     | None -> Lwt.return n
     | Some _ -> find_free_id (n + 1)
   in
-  let* account_id = find_free_id counter in
-  let account_last_connected = Datetime.now () in
-  let account_name =
+  let* id = find_free_id counter in
+  let last_connected = Datetime.now () in
+  let name =
     let x = drop_after_at user.user_name in
-    if x = "" then Printf.sprintf "User #%d" account_id else x
+    if x = "" then Printf.sprintf "User #%d" id else x
   in
   let account =
     {
-      account_id;
-      account_name;
-      account_email = email;
-      account_last_connected;
-      account_authentications = [user];
-      account_consent = None;
-      account_capabilities = None;
+      id;
+      name;
+      email = email;
+      last_connected;
+      authentications = [user];
+      consent = None;
+      capabilities = None;
     }
   in
   let* () = update_account account in
-  let* () = write_file (!Web_config.accounts_dir // "counter") [string_of_int (account_id + 1)] in
+  let* () = write_file (!Web_config.accounts_dir // "counter") [string_of_int (id + 1)] in
   let* () = clear_account_cache () in
   Lwt.return account
 
@@ -114,8 +114,8 @@ let build_account_cache () =
           | None -> Lwt.return accu
           | Some account ->
              List.fold_left
-               (fun accu u -> UMap.add u account.account_id accu)
-               accu account.account_authentications
+               (fun accu u -> UMap.add u account.id accu)
+               accu account.authentications
              |> Lwt.return
         ) UMap.empty
 
@@ -139,8 +139,8 @@ let mask_of_capability = function
   | Sudo -> 1
 
 let has_capability cap account =
-  match account.account_capabilities with
+  match account.capabilities with
   | None -> false
   | Some i -> i land (mask_of_capability cap) <> 0
 
-let check a i = List.mem a.account_id i
+let check a i = List.mem a.id i

@@ -759,7 +759,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
        let@ account = Option.unwrap unauthorized (lookup_token token) in
        match method_ with
        | `GET ->
-          let* elections = Web_persist.get_elections_by_owner account.account_id in
+          let* elections = Web_persist.get_elections_by_owner account.id in
           let elections =
             List.fold_left
               (fun accu (kind, summary_uuid, date, summary_name) ->

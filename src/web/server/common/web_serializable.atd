@@ -224,7 +224,7 @@ type account = {
     authentications : user list;
     ?consent : datetime option;
     ?capabilities : int option;
-} <ocaml field_prefix="account_">
+}
 
 (** {1 Bulk emails} *)
 
