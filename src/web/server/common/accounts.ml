@@ -97,6 +97,9 @@ let create_account ~email user =
       authentications = [user];
       consent = None;
       capabilities = None;
+      language = None;
+      default_voter_languages = [];
+      default_contact = "";
     }
   in
   let* () = update_account account in

@@ -60,6 +60,9 @@ type api_account = {
     id : int;
     name : string;
     address : string;
+    ?language : string option;
+    default_voter_languages : string list;
+    default_contact : string;
 }
 
 type authentication =

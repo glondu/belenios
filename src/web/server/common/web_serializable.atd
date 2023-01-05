@@ -224,6 +224,9 @@ type account = {
     authentications : user list;
     ?consent : datetime option;
     ?capabilities : int option;
+    ?language : string option;
+    ~default_voter_languages <ocaml default="[]"> : string list;
+    ~default_contact <ocaml default="\"\""> : string;
 }
 
 (** {1 Bulk emails} *)

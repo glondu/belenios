@@ -139,6 +139,9 @@ let get_account (a : account) =
     id = a.id;
     name = a.name;
     address = a.email;
+    language = a.language;
+    default_voter_languages = a.default_voter_languages;
+    default_contact = a.default_contact;
   }
 
 let put_account (a : account) (b : api_account) =
@@ -146,5 +149,13 @@ let put_account (a : account) (b : api_account) =
     raise (Error "cannot change address");
   if b.id <> a.id then
     raise (Error "cannot change id");
-  let a = {a with name = b.name} in
+  let a =
+    {
+      a with
+      name = b.name;
+      language = b.language;
+      default_voter_languages = b.default_voter_languages;
+      default_contact = b.default_contact;
+    }
+  in
   Accounts.update_account a
