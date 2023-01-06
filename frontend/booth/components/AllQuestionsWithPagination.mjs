@@ -329,42 +329,12 @@ function TranslatableAllQuestionsWithPagination(props){
   }
 
   const renderedQuestions = props.electionObject.questions.map(function(question, question_index){
-    const questionType = question.type;
-    let answers = question.answers;
-    let minimumAnswers = null;
-    let maximumAnswers = null;
-    let questionText = question.title;
-    let blankVoteIsAllowed = question.blankVoteIsAllowed;
-    let complementaryProps = {};
     const identifierPrefix = `question_${question_index}_`;
     const visible = current_question_index === question_index ? true : false;
-    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
-      // Receive from backend the number of available grades, their labels and their ordering (index 0 is the best grade, and appreciation gets worse as index increases)
-      if (question.availableGrades && question.availableGrades.length > 1){
-        complementaryProps.availableGrades = question.availableGrades;
-      }
-      else {
-        return e(
-          "div",
-          null,
-          "Error: Wrong election parameters. Question of type MajorityJudgment does not provide the list of votable grades."
-        );
-      }
-    }
-    else if (questionType === QuestionTypeEnum.CLASSIC){
-      minimumAnswers = question.min;
-      maximumAnswers = question.max;
-    }
-
     return e(
       QuestionWithVotableAnswers,
       {
-        questionType,
-        answers,
-        minimumAnswers,
-        maximumAnswers,
-        question: questionText,
-        blankVoteIsAllowed,
+        question,
         identifierPrefix,
         visible,
         currentUserVoteForQuestion: current_user_vote_for_all_questions[question_index],
@@ -372,8 +342,7 @@ function TranslatableAllQuestionsWithPagination(props){
         currentCandidatesHavingAlertsForQuestion: candidatesIndexesHavingAlertInQuestion[question_index],
         dispatchUpdateUserVoteForQuestion: bindFunctionMergeObjectToFirstParameter(dispatch_current_user_vote_for_all_questions,
           {'question_index': question_index}
-        ),
-        ...complementaryProps
+        )
       }
     )
   });

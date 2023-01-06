@@ -3,18 +3,18 @@ import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgme
 import { TranslatablePreferentialVotingCandidatesList } from "./PreferentialVotingCandidatesList.mjs";
 import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 
-function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, maximumAnswers, question, answers, blankVoteIsAllowed, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGrades=null, t }){
+function TranslatableQuestionWithVotableAnswers({ question, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }){
   let description;
   let rendered_answers;
-  if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
+  if (question.type === QuestionTypeEnum.MAJORITY_JUDGMENT){
     description = t("majority_judgment_question_description");
     rendered_answers = e(
       TranslatableMajorityJudgmentVoteCandidatesList,
       {
         identifierPrefix,
-        candidates: answers,
-        blankVoteIsAllowed,
-        availableGrades,
+        candidates: question.answers,
+        blankVoteIsAllowed: question.blankVoteIsAllowed,
+        availableGrades: question.availableGrades,
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
@@ -22,14 +22,14 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       }
     );
   }
-  else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+  else if (question.type === QuestionTypeEnum.PREFERENTIAL_VOTING){
     description = t("preferential_voting_question_description");
     rendered_answers = e(
       TranslatablePreferentialVotingCandidatesList,
       {
         identifierPrefix,
-        candidates: answers,
-        blankVoteIsAllowed,
+        candidates: question.answers,
+        blankVoteIsAllowed: question.blankVoteIsAllowed,
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
@@ -37,7 +37,9 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       }
     );
   }
-  else if (questionType === QuestionTypeEnum.CLASSIC){
+  else if (question.type === QuestionTypeEnum.CLASSIC){
+    let minimumAnswers = question.min;
+    let maximumAnswers = question.max;
     let classic_question_subtype = "checkbox";
     if ( minimumAnswers === 1 && maximumAnswers === 1){
       classic_question_subtype = "radio";
@@ -53,8 +55,8 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       {
         type: classic_question_subtype,
         identifierPrefix,
-        candidates: answers,
-        blankVoteIsAllowed,
+        candidates: question.answers,
+        blankVoteIsAllowed: question.blankVoteIsAllowed,
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
@@ -83,7 +85,7 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
       {
         className: `${bemBlockName}__question-title`
       },
-      txt_br(question)
+      txt_br(question.title)
     ),
     e(
       "p",
@@ -104,16 +106,6 @@ function TranslatableQuestionWithVotableAnswers({ questionType, minimumAnswers, 
 }
 
 TranslatableQuestionWithVotableAnswers.defaultProps = {
-  "questionType": QuestionTypeEnum.CLASSIC,
-  "answers": [
-    "Answer 1",
-    "Answer 2",
-    "Answer 3"
-  ],
-  "minimumAnswers": 1,
-  "maximumAnswers": 2,
-  "blankVoteIsAllowed": false,
-  "question": "Question 1?",
   "identifierPrefix": "question_1_",
   "visible": true,
   "currentUserVoteForQuestion": [],
