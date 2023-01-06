@@ -114,7 +114,6 @@ let migrate_draft_to_v1 uuid accu =
          se_public_creds_received = draft.se_public_creds_received;
          se_creation_date = draft.se_creation_date;
          se_administrator = draft.se_administrator;
-         se_trustees_visited = false;
          se_credential_authority_visited = false;
          se_voter_authentication_visited = false;
          se_trustees_setup_step = 1;

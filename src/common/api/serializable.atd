@@ -149,7 +149,6 @@ type draft_status = {
     ?private_credentials_downloaded : bool option;
     trustees_ready : bool;
     nh_and_weights_compatible : bool;
-    trustees_visited : bool;
     credential_authority_visited : bool;
     voter_authentication_visited : bool;
     trustees_setup_step : int;
@@ -158,7 +157,6 @@ type draft_status = {
 type draft_request =
   [ SetDownloaded
   | ValidateElection
-  | SetTrusteesVisited
   | SetCredentialAuthorityVisited
   | SetVoterAuthenticationVisited
   | SetTrusteesSetupStep of int
