@@ -294,15 +294,15 @@ const afterI18nInitialized = (uuid, lang, credential) => {
     document.querySelector("html").setAttribute("lang",
 i18next.languages[0] || "en");
     const container = document.querySelector("#vote-app");
-    ReactDOM.render(
+    const root = ReactDOM.createRoot(container);
+    root.render(
       e(
         VoteApp,
         {
           votingCredential: credential,
           uuid: uuid
         }
-      ),
-      container
+      )
     );
   }
 };
