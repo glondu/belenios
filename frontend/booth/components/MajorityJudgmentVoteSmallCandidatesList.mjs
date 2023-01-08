@@ -1,11 +1,9 @@
 function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
   const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
-    const isSelected = index === selectedGradeIndex ? true : false;
     return e(
       "option",
       {
         value: index,
-        selected: isSelected
       },
       availableGrade
     );
@@ -21,6 +19,7 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
   let additionalPropsOnMain = {};
   if (selectedGradeIndex !== null && selectedGradeIndex !== undefined){
     additionalPropsOnSelect['data-value'] = selectedGradeIndex;
+    additionalPropsOnSelect['value'] = selectedGradeIndex;
     additionalPropsOnMain['style'] = {
       "--selected-grade-color": availableGradesCssColors[selectedGradeIndex]
     }
