@@ -1,14 +1,3 @@
-function NicePasswordInput(props={}){
-  return e(
-    "input",
-    {
-      type: "password",
-      className: "nice-password-input",
-      ...props
-    }
-  );
-}
-
 function NiceTextInput(props={}){
   return e(
     "input",
@@ -20,5 +9,5 @@ function NiceTextInput(props={}){
   );
 }
 
-export { NicePasswordInput, NiceTextInput };
-export default NicePasswordInput;
+export { NiceTextInput };
+export default NiceTextInput;
