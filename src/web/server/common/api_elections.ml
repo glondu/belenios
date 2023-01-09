@@ -142,7 +142,7 @@ let get_partial_decryptions uuid metadata =
     let* state = Web_persist.get_election_state uuid in
     match state with
     | `EncryptedTally -> cont ()
-    | _ -> Lwt.fail @@ Error "not in state EncryptedTally"
+    | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
   let open Belenios_core.Serializable_j in
   let* pds = Web_persist.get_partial_decryptions uuid in
@@ -155,7 +155,7 @@ let get_partial_decryptions uuid metadata =
       | `Single _ :: ts -> loop ts threshold (npks + 1)
       | `Pedersen t :: ts ->
          match threshold with
-         | Some _ -> raise @@ Error "unsupported: two Pedersen"
+         | Some _ -> raise @@ Error (`Unsupported "two Pedersens")
          | None -> loop ts (Some t.t_threshold) (npks + Array.length t.t_verification_keys)
     in
     loop trustees None 0
@@ -425,7 +425,7 @@ let get_shuffles uuid metadata =
     let* state = Web_persist.get_election_state uuid in
     match state with
     | `Shuffling -> cont ()
-    | _ -> Lwt.fail @@ Error "not in state Shuffling"
+    | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
   let* shuffles = Web_persist.get_shuffles uuid in
   let shuffles = Option.value shuffles ~default:[] in
@@ -492,12 +492,12 @@ let skip_shuffler uuid trustee =
     | Some x when x.tk_trustee = trustee ->
        Web_persist.clear_shuffle_token uuid
     | None -> Lwt.return_unit
-    | _ -> Lwt.fail @@ Error "trustee is not currently selected"
+    | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
   let* x = Spool.get ~uuid Spool.skipped_shufflers in
   let x = Option.value x ~default:[] in
   if List.mem trustee x then
-    Lwt.fail @@ Error "trustee already skipped"
+    Lwt.fail @@ Error `NotInExpectedState
   else
     Spool.set ~uuid Spool.skipped_shufflers (trustee :: x)
 

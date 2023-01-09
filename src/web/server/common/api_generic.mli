@@ -26,7 +26,7 @@ val new_token : account -> string Lwt.t
 val lookup_token : string -> account option
 val invalidate_token : string -> unit
 
-exception Error of string
+exception Error of error
 
 type result = int * string
 

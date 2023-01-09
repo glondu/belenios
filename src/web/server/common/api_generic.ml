@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Web_serializable_t
 open Belenios_core.Common
-open Belenios_api.Serializable_t
+open Belenios_api.Serializable_j
 open Web_common
 
 let ( let& ) = Option.bind
@@ -61,7 +61,7 @@ let () =
   tokens := SMap.map f !tokens;
   Lwt.return_unit
 
-exception Error of string
+exception Error of Belenios_api.Serializable_t.error
 
 type result = int * string
 
@@ -90,14 +90,15 @@ let handle_ifmatch ifmatch current cont =
 let handle_generic_error f =
   Lwt.catch f
     (function
-     | Error msg ->
-        let json =
-          `Assoc [
-              "status", `String "Bad Request";
-              "error", `String msg;
-            ]
+     | Error error ->
+        let request_status =
+          {
+            code = 400;
+            status = "Bad Request";
+            error;
+          }
         in
-        Lwt.return (400, Yojson.Safe.to_string json)
+        Lwt.return (400, string_of_request_status request_status)
      | _ -> bad_request
     )
 
@@ -146,9 +147,9 @@ let get_account (a : account) =
 
 let put_account (a : account) (b : api_account) =
   if b.address <> a.email then
-    raise (Error "cannot change address");
+    raise (Error (`CannotChange "address"));
   if b.id <> a.id then
-    raise (Error "cannot change id");
+    raise (Error (`CannotChange "id"));
   let a =
     {
       a with

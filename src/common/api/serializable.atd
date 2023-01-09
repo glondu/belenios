@@ -30,6 +30,38 @@ type vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type validation_error =
+  [ NoTitle
+  | NoQuestions
+  | NoAdministrator
+  | NoCredentialAuthority
+  | NoVoters
+  | TooManyVoters
+  | MissingPasswords
+  | MissingPublicCredentials
+  | TrusteesNotReady
+  | WeightsAreIncompatibleWithNH
+  | NotSinglePrivateKey
+  | KeyEstablishmentNotFinished
+  ]
+
+type error =
+  [ GenericError of string
+  | NotInExpectedState
+  | CannotChange of string
+  | Invalid of string
+  | Unsupported of string
+  | Missing of string
+  | MissingVoter of string
+  | ValidationError of validation_error
+  ]
+
+type request_status = {
+    code : int;
+    status : string;
+    error : error;
+}
+
 type configured_authentication = {
     instance : string;
     system : string;

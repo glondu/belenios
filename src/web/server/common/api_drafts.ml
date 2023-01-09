@@ -68,7 +68,7 @@ let get_authentication se =
   | Some [{auth_system = "password"; _}] -> `Password
   | Some [{auth_system = "cas"; auth_config; _}] -> `CAS (List.assoc "server" auth_config)
   | Some [{auth_system = "import"; auth_instance; _}] -> `Configured auth_instance
-  | _ -> raise (Error "invalid authentication")
+  | _ -> raise (Error (`Invalid "authentication"))
 
 let auth_config_of_authentication = function
   | `Password -> {auth_system = "password"; auth_instance = "password"; auth_config = []}
@@ -101,30 +101,30 @@ let draft_of_api a se d =
   let version = se.se_version in
   let () =
     if d.draft_version <> version then
-      raise (Error "cannot change version")
+      raise (Error (`CannotChange "version"))
   in
-  let@ () = assert_ "invalid booth version" (List.mem d.draft_booth supported_booth_versions) in
-  let@ () = assert_ "there must be at least one language" (List.length d.draft_languages >= 1) in
-  let@ () = assert_ "you must be in owners" (List.mem a.id d.draft_owners) in
+  let@ () = assert_ (`Invalid "booth version") (List.mem d.draft_booth supported_booth_versions) in
+  let@ () = assert_ (`Invalid "languages") (List.length d.draft_languages >= 1) in
+  let@ () = assert_ (`Invalid "owners") (List.mem a.id d.draft_owners) in
   let e_cred_authority = d.draft_questions.t_credential_authority in
   let () =
     let old = se.se_metadata.e_cred_authority in
     if e_cred_authority <> old then
       if se.se_public_creds_received && (old = Some "server" || e_cred_authority = Some "server") then
-        raise (Error "credential authority change not allowed")
+        raise (Error (`CannotChange "credential authority"))
   in
   let se_group = d.draft_group in
   let () =
     let old = se.se_group in
     if se_group <> old then (
       if se.se_public_creds_received then
-        raise (Error "the group cannot be changed")
+        raise (Error (`CannotChange "group"))
       else (
         try
           let module G = (val Group.of_string ~version se_group) in
           ()
         with _ ->
-          raise (Error "invalid group")
+          raise (Error (`Invalid "group"))
       )
     )
   in
@@ -137,7 +137,7 @@ let draft_of_api a se d =
     if has_nh_questions then (
       match se_group with
       | "RFC-3526-2048" -> ()
-      | _ -> raise (Error "a NH group is required for these questions")
+      | _ -> raise (Error (`Invalid "NH group"))
     )
   in
   let se_metadata =
@@ -242,19 +242,19 @@ let put_draft_voters uuid se voters =
     Lwt_list.fold_left_s
       (fun (total_weight, shape, voters) {sv_id; _} ->
         if not (is_identity sv_id) then (
-          Lwt.fail @@ Error (Printf.sprintf "invalid identity: %s" sv_id)
+          Lwt.fail @@ Error (`Invalid "identity")
         ) else (
           let address, login, weight = split_identity_opt sv_id in
           let* () =
             match shape, login with
-            | Some (true, _), None -> Lwt.fail @@ Error (Printf.sprintf "missing login in %s" sv_id)
-            | Some (false, _), Some _ -> Lwt.fail @@ Error (Printf.sprintf "extra login in %s" sv_id)
+            | Some (true, _), None -> Lwt.fail @@ Error (`Invalid "missing login")
+            | Some (false, _), Some _ -> Lwt.fail @@ Error (`Invalid "extra login")
             | _ -> Lwt.return_unit
           in
           let* () =
             match shape, weight with
-            | Some (_, true), None -> Lwt.fail @@ Error (Printf.sprintf "missing weight in %s" sv_id)
-            | Some (_, false), Some _ -> Lwt.fail @@ Error (Printf.sprintf "extra weight in %s" sv_id)
+            | Some (_, true), None -> Lwt.fail @@ Error (`Invalid "missing weight")
+            | Some (_, false), Some _ -> Lwt.fail @@ Error (`Invalid "extra weight")
             | _ -> Lwt.return_unit
           in
           let shape =
@@ -265,7 +265,7 @@ let put_draft_voters uuid se voters =
           let login = String.lowercase_ascii (Option.value login ~default:address) in
           let* voters =
             if SSet.mem login voters then (
-              Lwt.fail @@ Error (Printf.sprintf "duplicate login in %s" sv_id)
+              Lwt.fail @@ Error (`Invalid "duplicate login")
             ) else (
               Lwt.return (SSet.add login voters)
             )
@@ -278,7 +278,7 @@ let put_draft_voters uuid se voters =
   let* () =
     let expanded = Weight.expand ~total:total_weight total_weight in
     if Z.compare expanded Weight.max_expanded_weight > 0 then (
-      Lwt.fail @@ Error (Printf.sprintf "expanded total weight too big: %s/%s" (Z.to_string expanded) (Z.to_string Weight.max_expanded_weight))
+      Lwt.fail @@ Error (`GenericError (Printf.sprintf "expanded total weight too big: %s/%s" (Z.to_string expanded) (Z.to_string Weight.max_expanded_weight)))
     ) else (
       Lwt.return_unit
     )
@@ -296,13 +296,13 @@ let post_draft_passwords generate uuid se voters =
   in
   let () =
     if SMap.cardinal se_voters > !Web_config.maxmailsatonce then
-      raise (Error "too many voters")
+      raise (Error (`ValidationError `TooManyVoters))
   in
   let voters =
     List.map
       (fun id ->
         match SMap.find_opt id se_voters with
-        | None -> raise (Error (Printf.sprintf "voter not in voter list: %s" id))
+        | None -> raise (Error (`Missing id))
         | Some v -> v
       ) voters
   in
@@ -406,13 +406,13 @@ let generate_credentials_on_server send uuid se =
   )
 
 let exn_of_generate_credentials_on_server_error = function
-  | `NoVoters -> Error "no voters"
-  | `TooManyVoters -> Error "too many voters"
-  | `Already -> Error "already done"
-  | `NoServer -> Error "credential authority is not the server"
+  | `NoVoters -> Error (`ValidationError `NoVoters)
+  | `TooManyVoters -> Error (`ValidationError `TooManyVoters)
+  | `Already -> Error (`GenericError "already done")
+  | `NoServer -> Error (`GenericError "credential authority is not the server")
 
 let submit_public_credentials uuid se credentials =
-  let () = if se.se_voters = [] then raise (Error "No voters") in
+  let () = if se.se_voters = [] then raise (Error (`ValidationError `NoVoters)) in
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let usernames =
@@ -420,7 +420,7 @@ let submit_public_credentials uuid se credentials =
       (fun accu {sv_id; _} ->
         let _, username, weight = split_identity sv_id in
         if SMap.mem username accu then (
-          raise (Error (Printf.sprintf "duplicate username %s" username))
+          raise (Error (`GenericError (Printf.sprintf "duplicate username %s" username)))
         ) else (
           SMap.add username (weight, ref false) accu
         )
@@ -432,7 +432,7 @@ let submit_public_credentials uuid se credentials =
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
-              raise (Error (Printf.sprintf "invalid %s at index %d" x i))
+              raise (Error (`GenericError (Printf.sprintf "invalid %s at index %d" x i)))
             ) fmt
         in
         let cred, weight, username =
@@ -523,11 +523,11 @@ let get_draft_trustees ~is_admin se =
 
 let check_address address =
   if not @@ is_email address then
-    raise (Error (Printf.sprintf "invalid e-mail address: %s" address))
+    raise (Error (`Invalid "e-mail address"))
 
 let ensure_none label x =
   if x <> None then
-    raise (Error (Printf.sprintf "%s must not be set" label))
+    raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
 let generate_server_trustee se =
   let st_id = "server" and st_token = "" in
@@ -546,7 +546,7 @@ let post_draft_trustees uuid se t =
   let address =
     match t.trustee_address with
     | Some x -> check_address x; x
-    | None -> raise (Error "missing address")
+    | None -> raise (Error (`Missing "address"))
   in
   let () = ensure_none "token" t.trustee_token in
   let () = ensure_none "state" t.trustee_state in
@@ -563,7 +563,7 @@ let post_draft_trustees uuid se t =
      in
      let () =
        if List.exists (fun x -> x.st_id = address) ts then
-         raise (Error "address already used")
+         raise (Error (`GenericError "address already used"))
      in
      let* st_token = generate_token () in
      let t =
@@ -581,7 +581,7 @@ let post_draft_trustees uuid se t =
      let ts = x.dtp_trustees in
      let () =
        if List.exists (fun x -> x.stt_id = address) ts then
-         raise (Error "address already used")
+         raise (Error (`GenericError "address already used"))
      in
      let* stt_token = generate_token () in
      let t =
@@ -676,10 +676,10 @@ let put_draft_trustees_mode uuid se mode =
        let* x = set_threshold uuid se threshold in
        match x with
        | Ok () -> Lwt.return_unit
-       | Error `NoTrustees -> Lwt.fail (Error "no trustees")
-       | Error `OutOfBounds -> Lwt.fail (Error "threshold out of bounds")
+       | Error `NoTrustees -> Lwt.fail (Error (`GenericError "no trustees"))
+       | Error `OutOfBounds -> Lwt.fail (Error (`GenericError "threshold out of bounds"))
      end
-  | _, _ -> Lwt.fail (Error "change not allowed")
+  | _, _ -> Lwt.fail (Error (`GenericError "change not allowed"))
 
 let get_draft_status uuid se =
   let* private_credentials_downloaded =
@@ -742,36 +742,37 @@ let validate_election uuid se =
   let version = se.se_version in
   let uuid_s = Uuid.unwrap uuid in
   (* convenience tests *)
+  let validation_error x = raise (Error (`ValidationError x)) in
   let () =
     if se.se_questions.t_name = "" then
-      raise (Error "no title");
+      validation_error `NoTitle;
     if se.se_questions.t_questions = [||] then
-      raise (Error "no questions");
+      validation_error `NoQuestions;
     begin
       match se.se_administrator with
-      | None | Some "" -> raise (Error "no administrator")
+      | None | Some "" -> validation_error `NoAdministrator
       | _ -> ()
     end;
     begin
       match se.se_metadata.e_cred_authority with
-      | None | Some "" -> raise (Error "no credential authority")
+      | None | Some "" -> validation_error `NoCredentialAuthority
       | _ -> ()
     end
   in
   (* check status *)
   let () =
-    if s.num_voters = 0 then raise (Error "no voters");
+    if s.num_voters = 0 then validation_error `NoVoters;
     begin
       match s.passwords_ready with
-      | Some false -> raise (Error "some passwords are missing")
+      | Some false -> validation_error `MissingPasswords;
       | Some true | None -> ()
     end;
     if not s.credentials_ready then
-      raise (Error "public credentials are missing");
+      validation_error `MissingPublicCredentials;
     if not s.trustees_ready then
-      raise (Error "trustees are not ready");
+      validation_error `TrusteesNotReady;
     if not s.nh_and_weights_compatible then
-      raise (Error "weights are incompatible with NH questions")
+      validation_error `WeightsAreIncompatibleWithNH
   in
   (* trustees *)
   let group = Group.of_string ~version se.se_group in
@@ -800,7 +801,7 @@ let validate_election uuid se =
             in
             let private_key = match private_key with
               | [x] -> `KEY x
-              | _ -> raise (Error "not a single private key")
+              | _ -> validation_error `NotSinglePrivateKey
             in
             Lwt.return
               begin
@@ -818,7 +819,7 @@ let validate_election uuid se =
     | `Threshold x ->
        let ts = x.dtp_trustees in
        match x.dtp_parameters with
-       | None -> raise (Error "key establishment not finished")
+       | None -> validation_error `KeyEstablishmentNotFinished
        | Some tp ->
           let tp = threshold_parameters_of_string (sread G.of_string) tp in
           let named =
@@ -835,7 +836,7 @@ let validate_election uuid se =
                 | Some v ->
                    let voutput = voutput_of_string (sread G.of_string) v in
                    voutput.vo_private_key
-                | None -> raise (Error "inconsistent state")
+                | None -> raise (Error (`GenericError "inconsistent state"))
               ) ts
           in
           let* server_private_key = KG.generate () in
@@ -1211,8 +1212,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                | Ok () -> ok
                | Stdlib.Error `Forbidden -> forbidden
                | Stdlib.Error `NotFound -> not_found
-               | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error "total weight too big")
-               | Stdlib.Error (`Duplicate x) -> Lwt.fail (Error ("duplicate: " ^ x))
+               | Stdlib.Error (`TotalWeightTooBig _) -> Lwt.fail (Error (`GenericError "total weight too big"))
+               | Stdlib.Error (`Duplicate x) -> Lwt.fail (Error (`GenericError ("duplicate: " ^ x)))
           end
        | _ -> method_not_allowed
      end
@@ -1349,7 +1350,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                     | `MissingPrivateKeys -> "missing private keys"
                     | `Unsupported -> "unsupported"
                   in
-                  Lwt.fail (Error msg)
+                  Lwt.fail (Error (`GenericError msg))
           end
        | _ -> method_not_allowed
      end
