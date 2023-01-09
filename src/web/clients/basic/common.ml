@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios_core.Common
+open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
 
@@ -101,12 +102,19 @@ let get of_string url =
       | 200 ->
          let@ x = Option.unwrap bad_result (Option.wrap of_string x.content) in
          Lwt.return @@ Ok x
-      | code -> Lwt.return @@ Error (`BadStatus (code, x.content))
+      | _ ->
+         let x =
+           match request_status_of_string x.content with
+           | exception _ -> `BadStatus (x.code, x.content)
+           | status -> `Error status
+         in
+         Lwt.return @@ Error x
     ) url
 
 let string_of_error = function
   | `BadResult -> "bad result"
   | `BadStatus (code, content) -> Printf.sprintf "bad status %d: %s" code content
+  | `Error e -> string_of_request_status e
 
 let wrap of_string x =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
