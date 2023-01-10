@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import WholeVoteRecap from "./WholeVoteRecap.mjs";
 import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
 import LoadingSpinner from "./LoadingSpinner.mjs";
@@ -210,7 +213,7 @@ function TranslatableReviewEncryptSection({
   );
 }
 
-const ReviewEncryptSection = ReactI18next.withTranslation()(TranslatableReviewEncryptSection);
+const ReviewEncryptSection = withTranslation()(TranslatableReviewEncryptSection);
 
 export { ReviewEncryptSection, TranslatableReviewEncryptSection };
 export default ReviewEncryptSection;

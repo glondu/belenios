@@ -1,11 +1,15 @@
+import i18next from "i18next";
+import { initReactI18next } from "react-i18next";
+import i18nextHttpBackend from "i18next-http-backend";
+
 function i18n_init(language_code="en", onInitialized=null, onLanguageChanged=null){
   const translationsBackendOptions = { // these are options to i18nextHttpBackend plugin of i18next
     loadPath: '../translations/{{lng}}.json'
   };
 
   i18next
-    .use(window.i18nextHttpBackend)
-    .use(ReactI18next.initReactI18next) // passes i18n down to react-i18next
+    .use(i18nextHttpBackend)
+    .use(initReactI18next) // passes i18n down to react-i18next
     .init(
       {
         lng: language_code,

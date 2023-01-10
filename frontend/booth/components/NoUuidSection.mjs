@@ -1,6 +1,7 @@
-import { WhiteNiceButton } from "./NiceButton.mjs";
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
 
-const e = React.createElement;
+import { WhiteNiceButton } from "./NiceButton.mjs";
 
 function TranslatableNoUuidSection({ onClickLoadFromUuid=null, onClickLoadFromParameters=null, t }){
   const loadViaUuidMessage = t("ask_election_uuid_to_load");
@@ -60,7 +61,7 @@ function TranslatableNoUuidSection({ onClickLoadFromUuid=null, onClickLoadFromPa
   );
 }
 
-const NoUuidSection = ReactI18next.withTranslation()(TranslatableNoUuidSection);
+const NoUuidSection = withTranslation()(TranslatableNoUuidSection);
 
 export { NoUuidSection, TranslatableNoUuidSection };
 export default NoUuidSection;

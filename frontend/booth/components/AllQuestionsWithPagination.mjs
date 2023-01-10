@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import { QuestionWithVotableAnswers } from "./QuestionWithVotableAnswers.mjs";
 import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 import VoteNavigation from "./VoteNavigation.mjs";
@@ -371,7 +374,7 @@ TranslatableAllQuestionsWithPagination.defaultProps = {
   t: function(s){ return s; }
 };
 
-const AllQuestionsWithPagination = ReactI18next.withTranslation()(TranslatableAllQuestionsWithPagination);
+const AllQuestionsWithPagination = withTranslation()(TranslatableAllQuestionsWithPagination);
 
 export { AllQuestionsWithPagination, TranslatableAllQuestionsWithPagination, QuestionTypeEnum, detectQuestionType };
 export default AllQuestionsWithPagination;

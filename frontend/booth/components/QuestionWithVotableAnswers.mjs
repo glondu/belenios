@@ -1,3 +1,7 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+import { txt_br } from "../shortcuts.mjs";
+
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
 import { TranslatablePreferentialVotingCandidatesList } from "./PreferentialVotingCandidatesList.mjs";
@@ -114,7 +118,7 @@ TranslatableQuestionWithVotableAnswers.defaultProps = {
   "dispatchUpdateUserVoteForQuestion": () => {}
 };
 
-const QuestionWithVotableAnswers = ReactI18next.withTranslation()(TranslatableQuestionWithVotableAnswers);
+const QuestionWithVotableAnswers = withTranslation()(TranslatableQuestionWithVotableAnswers);
 
 export { QuestionWithVotableAnswers, TranslatableQuestionWithVotableAnswers };
 export default QuestionWithVotableAnswers;

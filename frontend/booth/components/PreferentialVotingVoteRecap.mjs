@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import { buildColumnLabel } from "./PreferentialVotingCandidatesList.mjs";
 
 function PreferentialVotingVoteRecapForPreferenceLevel({ preference_level_title, preference_level_candidates }){
@@ -121,7 +124,7 @@ function TranslatablePreferentialVotingVoteRecap({ question, question_index, unc
   );
 }
 
-const PreferentialVotingVoteRecap = ReactI18next.withTranslation()(TranslatablePreferentialVotingVoteRecap);
+const PreferentialVotingVoteRecap = withTranslation()(TranslatablePreferentialVotingVoteRecap);
 
 export { TranslatablePreferentialVotingVoteRecap, PreferentialVotingVoteRecap };
 export default PreferentialVotingVoteRecap;

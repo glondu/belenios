@@ -1,9 +1,8 @@
-import { WhiteNiceButton } from "./NiceButton.mjs";
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+import { Draggable, Droppable } from "react-beautiful-dnd";
 
-const { Draggable, Droppable } = window.ReactBeautifulDnd;
-const React = window.React;
-const ReactDOM = window.ReactDOM;
-const e = React.createElement;
+import { WhiteNiceButton } from "./NiceButton.mjs";
 
 const TranslatableMoveCandidateHandle = ({t, tReady, ...props}) => {
   // the icon visual is made using CSS
@@ -23,7 +22,7 @@ const TranslatableMoveCandidateHandle = ({t, tReady, ...props}) => {
   );
 }
 
-const MoveCandidateHandle = ReactI18next.withTranslation()(TranslatableMoveCandidateHandle);
+const MoveCandidateHandle = withTranslation()(TranslatableMoveCandidateHandle);
 
 const TranslatableCandidate = ({ candidate, index, otherColumns, onSelectDestinationColumn, disabled, t }) => {
   const otherPreferencesSelectOptions = otherColumns.map(column => {
@@ -87,7 +86,7 @@ const TranslatableCandidate = ({ candidate, index, otherColumns, onSelectDestina
   );
 }
 
-const Candidate = ReactI18next.withTranslation()(TranslatableCandidate);
+const Candidate = withTranslation()(TranslatableCandidate);
 
 const CandidateList = ({innerRef, placeholder, children, ...otherProps}) => {
   return e(
@@ -116,7 +115,7 @@ const TranslatableDeletePreferenceLevelButton = ({onClick, disabled, t}) => {
   );
 };
 
-const DeletePreferenceLevelButton = ReactI18next.withTranslation()(TranslatableDeletePreferenceLevelButton);
+const DeletePreferenceLevelButton = withTranslation()(TranslatableDeletePreferenceLevelButton);
 
 // A Column is a list which has a title (prop label) and which can contain candidates.
 // These candidates can be moved to other columns by drag & drop or using the select box next to each candidate.

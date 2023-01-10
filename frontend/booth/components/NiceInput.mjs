@@ -1,3 +1,5 @@
+import React, { createElement as e } from "react";
+
 function NiceTextInput(props={}){
   return e(
     "input",

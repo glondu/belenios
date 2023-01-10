@@ -1,4 +1,5 @@
-const e = React.createElement;
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
 
 function Breadcrumb(props) {
   const renderedSteps = props.steps.map((step, index) => {
@@ -101,7 +102,7 @@ function TranslatableVoteBreadcrumb({ t, currentStep=1, ...props }){
   );
 }
 
-const VoteBreadcrumb = ReactI18next.withTranslation()(TranslatableVoteBreadcrumb);
+const VoteBreadcrumb = withTranslation()(TranslatableVoteBreadcrumb);
 
 export { Breadcrumb, TranslatableVoteBreadcrumb, VoteBreadcrumb };
 export default Breadcrumb;

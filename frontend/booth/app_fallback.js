@@ -1,1 +1,0 @@
-document.getElementsByTagName("body")[0].innerHTML = "This page is not compatible with your web browser. Please use a more recent web browser.";

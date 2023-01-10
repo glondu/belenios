@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import { BlueNiceButton } from "./NiceButton.mjs";
 import { NiceTextInput } from "./NiceInput.mjs";
 
@@ -76,7 +79,7 @@ function TranslatableInputCredentialSection({ onSubmit=null, t }){
   );
 }
 
-const InputCredentialSection = ReactI18next.withTranslation()(TranslatableInputCredentialSection);
+const InputCredentialSection = withTranslation()(TranslatableInputCredentialSection);
 
 export { InputCredentialSection, TranslatableInputCredentialSection };
 export default InputCredentialSection;

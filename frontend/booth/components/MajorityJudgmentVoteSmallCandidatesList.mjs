@@ -1,3 +1,5 @@
+import React, { createElement as e } from "react";
+
 function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
   const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
     return e(

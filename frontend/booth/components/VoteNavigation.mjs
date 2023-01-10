@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import { NiceButton, BlueNiceButton } from "./NiceButton.mjs";
 
 function GenericNavigation({ labelInfo=null, labelPreviousButton=null, labelNextButton=null, disabledPreviousButton=false, disabledNextButton=false, hiddenPreviousButton=false, hiddenNextButton=false, onClickPreviousButton=null, onClickNextButton=null }){
@@ -78,7 +81,7 @@ function TranslatableVoteNavigation({ question_index=0, questions_length=1, onCl
   );
 }
 
-const VoteNavigation = ReactI18next.withTranslation()(TranslatableVoteNavigation);
+const VoteNavigation = withTranslation()(TranslatableVoteNavigation);
 
 export { VoteNavigation, TranslatableVoteNavigation, GenericNavigation };
 export default VoteNavigation;

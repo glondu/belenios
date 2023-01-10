@@ -1,3 +1,5 @@
+import React, { createElement as e } from "react";
+
 // Parameter `tagName` can be "button", "input", "a"
 function NiceButton ({ label=null, styling="default", className=null, tagName="button", ...props }){
   props["className"] = className ? `nice-button nice-button--${styling} ${className}` : `nice-button nice-button--${styling}`;

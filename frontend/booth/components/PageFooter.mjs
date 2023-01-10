@@ -1,4 +1,5 @@
-const e = React.createElement;
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
 
 function TranslatablePageFooter({electionUuid, electionFingerprint, t}) {
   return e(
@@ -28,7 +29,7 @@ TranslatablePageFooter.defaultProps = {
   electionFingerprint: "aaaaa"
 };
 
-const PageFooter = ReactI18next.withTranslation()(TranslatablePageFooter);
+const PageFooter = withTranslation()(TranslatablePageFooter);
 
 function EmptyPageFooter(props) {
   return e(

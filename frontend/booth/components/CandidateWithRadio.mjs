@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { txt_br } from "../shortcuts.mjs";
+
 function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, currentAlertsForCandidateInQuestion, ...props }){
   const checkedValue = checked ? "checked" : null;
   const onChange = (event) => {

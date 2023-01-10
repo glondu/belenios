@@ -1,4 +1,6 @@
-const e = React.createElement;
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+import { txt_br } from "../shortcuts.mjs";
 
 function TranslatablePageHeader({title, subTitle, t}) {
   return e(
@@ -59,7 +61,7 @@ TranslatablePageHeader.defaultProps = {
   logoAlt: "Election server"
 };
 
-const PageHeader = ReactI18next.withTranslation()(TranslatablePageHeader);
+const PageHeader = withTranslation()(TranslatablePageHeader);
 
 export { PageHeader, TranslatablePageHeader };
 export default PageHeader;

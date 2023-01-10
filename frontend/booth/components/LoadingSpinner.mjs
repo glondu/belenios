@@ -1,3 +1,4 @@
+import React, { createElement as e } from "react";
 
 function LoadingSpinner(props) {
   return e(

@@ -1,6 +1,6 @@
 'use strict';
 
-const e = React.createElement;
+import { createElement as e } from "react";
 
 function txt_br(x) {
     if (x) {
@@ -18,3 +18,5 @@ function txt_br(x) {
         return x;
     }
 }
+
+export { txt_br };

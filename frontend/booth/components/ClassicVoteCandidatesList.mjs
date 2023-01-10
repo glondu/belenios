@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
 import CandidateWithRadio from "./CandidateWithRadio.mjs";
 
@@ -87,7 +90,7 @@ TranslatableClassicVoteCandidatesList.defaultProps = {
   t: (s) => {return s;}
 };
 
-const ClassicVoteCandidatesList = ReactI18next.withTranslation()(TranslatableClassicVoteCandidatesList);
+const ClassicVoteCandidatesList = withTranslation()(TranslatableClassicVoteCandidatesList);
 
 export { ClassicVoteCandidatesList, TranslatableClassicVoteCandidatesList };
 export default ClassicVoteCandidatesList;

@@ -1,3 +1,5 @@
+import React, { createElement as e } from "react";
+
 function DisplayDependingOnWindowWidth({ widthLimit, smallComponent, bigComponent, ...props }) {
   const evaluateBelowLimit = () => {
     return window.innerWidth < widthLimit;

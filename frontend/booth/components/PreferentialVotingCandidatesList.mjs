@@ -1,8 +1,10 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+import { DragDropContext } from "react-beautiful-dnd";
+
 import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
 import PreferentialVotingColumn from './PreferentialVotingColumn.mjs';
 import { WhiteNiceButton } from "./NiceButton.mjs";
-
-const { DragDropContext } = window.ReactBeautifulDnd;
 
 const buildColumnLabel = (column, columnOrderIndex, t) => {
   return column && column.title ? column.title : t('preferential_voting_preference_level', {level: columnOrderIndex+1});
@@ -395,7 +397,7 @@ TranslatablePreferentialVotingCandidatesList.defaultProps = {
   dispatchUpdateUserVoteForQuestion: () => {}
 };
 
-const PreferentialVotingCandidatesList = ReactI18next.withTranslation()(TranslatablePreferentialVotingCandidatesList);
+const PreferentialVotingCandidatesList = withTranslation()(TranslatablePreferentialVotingCandidatesList);
 
 export { PreferentialVotingCandidatesList, TranslatablePreferentialVotingCandidatesList, buildColumnLabel };
 export default PreferentialVotingCandidatesList;

@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
 import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.mjs";
 
@@ -143,7 +146,7 @@ function TranslatableMajorityJudgmentVoteRecap({ question, question_index, uncry
   );
 }
 
-const MajorityJudgmentVoteRecap = ReactI18next.withTranslation()(TranslatableMajorityJudgmentVoteRecap);
+const MajorityJudgmentVoteRecap = withTranslation()(TranslatableMajorityJudgmentVoteRecap);
 
 export { TranslatableMajorityJudgmentVoteRecap, MajorityJudgmentVoteRecap };
 export default MajorityJudgmentVoteRecap;

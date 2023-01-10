@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import { QuestionTypeEnum } from "../election_utils.mjs";
 import ClassicVoteRecap from "./ClassicVoteRecap.mjs";
 import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.mjs";
@@ -42,7 +45,7 @@ function TranslatableWholeVoteRecap({ electionObject=null, uncryptedBallot=[], t
   );
 }
 
-const WholeVoteRecap = ReactI18next.withTranslation()(TranslatableWholeVoteRecap);
+const WholeVoteRecap = withTranslation()(TranslatableWholeVoteRecap);
 
 export { WholeVoteRecap, TranslatableWholeVoteRecap };
 export default WholeVoteRecap;

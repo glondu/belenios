@@ -1,3 +1,5 @@
+import React, { createElement as e } from "react";
+
 function MajorityJudgmentVoteBigCandidateAvailableGrade({ name, id, checked=null, gradeLabel, availableGrades, gradeIndex, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, ...props }){
   const checkedValue = checked ? "checked" : null;
   const onChange = (event) => {

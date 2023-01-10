@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
 import { TranslatableMajorityJudgmentVoteSmallCandidatesList } from "./MajorityJudgmentVoteSmallCandidatesList.mjs";
 import { TranslatableMajorityJudgmentVoteBigCandidatesList } from "./MajorityJudgmentVoteBigCandidatesList.mjs";
@@ -94,7 +97,7 @@ TranslatableMajorityJudgmentVoteCandidatesList.defaultProps = {
   dispatchUpdateUserVote: () => {}
 };
 
-const MajorityJudgmentVoteCandidatesList = ReactI18next.withTranslation()(TranslatableMajorityJudgmentVoteCandidatesList);
+const MajorityJudgmentVoteCandidatesList = withTranslation()(TranslatableMajorityJudgmentVoteCandidatesList);
 
 export { MajorityJudgmentVoteCandidatesList, TranslatableMajorityJudgmentVoteCandidatesList };
 export default MajorityJudgmentVoteCandidatesList;

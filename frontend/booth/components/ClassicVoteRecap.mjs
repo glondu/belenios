@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { withTranslation } from "react-i18next";
+
 function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallot, t }){
   const questionText = question.title;
   const questionPossibleAnswers = question.answers;
@@ -58,7 +61,7 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
   );
 }
 
-const ClassicVoteRecap = ReactI18next.withTranslation()(TranslatableClassicVoteRecap);
+const ClassicVoteRecap = withTranslation()(TranslatableClassicVoteRecap);
 
 export { ClassicVoteRecap, TranslatableClassicVoteRecap };
 export default ClassicVoteRecap;

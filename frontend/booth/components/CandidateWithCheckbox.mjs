@@ -1,3 +1,6 @@
+import React, { createElement as e } from "react";
+import { txt_br } from "../shortcuts.mjs";
+
 function CandidateWithCheckbox({ name, id, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, currentAlertsForCandidateInQuestion, ...props }){
   const checkedValue = checked ? true : false;
   const onChange = (event) => {

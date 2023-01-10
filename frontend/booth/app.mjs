@@ -1,3 +1,8 @@
+import ReactDOM from "react-dom/client";
+import React, { createElement as e } from "react";
+import i18next from "i18next";
+import { withTranslation } from "react-i18next";
+
 import i18n_init from "./i18n_init.mjs";
 import PageHeader from "./components/PageHeader.mjs";
 import { VoteBreadcrumb } from "./components/Breadcrumb.mjs";
@@ -286,7 +291,7 @@ function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
   }
 }
 
-const VoteApp = ReactI18next.withTranslation()(TranslatableVoteApp);
+const VoteApp = withTranslation()(TranslatableVoteApp);
 
 const afterI18nInitialized = (uuid, lang, credential) => {
   return function(){
