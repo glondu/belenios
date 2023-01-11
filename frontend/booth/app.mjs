@@ -291,8 +291,7 @@ const VoteApp = ReactI18next.withTranslation()(TranslatableVoteApp);
 const afterI18nInitialized = (uuid, lang, credential) => {
   return function(){
     document.title = i18next.t("page_title");
-    document.querySelector("html").setAttribute("lang",
-i18next.languages[0] || "en");
+    document.querySelector("html").setAttribute("lang", i18next.languages[0] || "en");
     const container = document.querySelector("#vote-app");
     const root = ReactDOM.createRoot(container);
     root.render(
