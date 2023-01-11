@@ -46,7 +46,9 @@ clean:
 	dune clean $(DUNE_DEBUG_ARGS)
 	$(MAKE) -C po clean
 	$(MAKE) -C tests/tool clean
-	rm -f geckodriver.log
+	$(MAKE) -C frontend clean
+	rm -rf geckodriver.log venv .hypothesis _tests
+	find tests -name __pycache__ -print0 | xargs -0 rm -rf
 
 .PHONY: doc
 doc:

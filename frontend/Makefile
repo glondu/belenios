@@ -74,4 +74,7 @@ booth/bundle.js: booth/dist/$(BUNDLE)
 package-lock.json: package.json
 	npm install
 
-.PHONY: install
+.PHONY: install clean
+
+clean:
+	rm -rf package-lock.json node_modules booth/dist booth/bundle.js
