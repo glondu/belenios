@@ -87,7 +87,7 @@ function GenericPage({title=null, subTitle=null, children}){
   );
 }
 
-function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
+function TranslatableVoteApp({uuid=null, votingCredential=null, draft, t}){
   const [currentStep, setCurrentStep] = React.useState(votingCredential ? 2 : 1); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
   const [electionObject, setElectionObject] = React.useState(undefined);
@@ -114,14 +114,9 @@ function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
     setElectionLoadingStatus(1);
   };
 
-  const loadElectionDataFromUuid = (uuid) => {
-    fetch(`${relativeServerRootFolder}/elections/${uuid}/election.json`)
-      .then(response => {
-        if(!response.ok){
-          return fetch(`${relativeServerRootFolder}/draft/preview/${uuid}/election.json`);
-        }
-        return response;
-      })
+  const loadElectionDataFromUuid = (uuid, draft) => {
+    const url = draft ? `${relativeServerRootFolder}/draft/preview/${uuid}/election.json` : `${relativeServerRootFolder}/elections/${uuid}/election.json`;
+    fetch(url)
       .then(response => {
         if(!response.ok){
           setElectionLoadingErrorMessage("Error: Could not load this election. Maybe no election exists with this identifier."); // TODO: should we localize this?
@@ -135,7 +130,7 @@ function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
 
   React.useMemo(() => {
     if(uuid){
-      loadElectionDataFromUuid(uuid);
+      loadElectionDataFromUuid(uuid, draft);
     }
   }, [uuid]);
 
@@ -157,7 +152,7 @@ function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
       // document.location.reload();
 
       // v2:
-      loadElectionDataFromUuid(uuid);
+      loadElectionDataFromUuid(uuid, draft);
     };
 
     const titleMessage = t("page_title");
@@ -293,7 +288,7 @@ function TranslatableVoteApp({uuid=null, votingCredential=null, t}){
 
 const VoteApp = withTranslation()(TranslatableVoteApp);
 
-const afterI18nInitialized = (uuid, lang, credential) => {
+const afterI18nInitialized = (uuid, lang, credential, draft) => {
   return function(){
     document.title = i18next.t("page_title");
     document.querySelector("html").setAttribute("lang", i18next.languages[0] || "en");
@@ -304,7 +299,8 @@ const afterI18nInitialized = (uuid, lang, credential) => {
         VoteApp,
         {
           votingCredential: credential,
-          uuid: uuid
+          uuid: uuid,
+          draft
         }
       )
     );
@@ -316,9 +312,10 @@ function main() {
   const lang = hash_parameters['lang'];
   const uuid = hash_parameters['uuid'];
   const credential = hash_parameters['credential'];
+  const draft = hash_parameters['draft'];
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";
-  i18n_init(lang, afterI18nInitialized(uuid, lang, credential));
+  i18n_init(lang, afterI18nInitialized(uuid, lang, credential, draft));
 }
 
 main();

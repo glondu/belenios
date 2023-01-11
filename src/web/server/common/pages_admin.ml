@@ -390,6 +390,7 @@ module Make
         [
           "uuid", Uuid.unwrap uuid;
           "lang", lang;
+          "draft", "1";
         ]
     in
     let Booth election_vote = fst booths.(get_booth_index metadata.e_booth_version) in

@@ -432,25 +432,27 @@ let get_params x =
   else
     Url.decode_arguments (String.sub x 1 (n-1))
 
-let load_uuid uuid credential =
+let load_uuid ~draft uuid credential =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let url =
+    match draft with
+    | None -> Printf.sprintf "elections/%s/election.json" uuid
+    | Some _ -> Printf.sprintf "draft/preview/%s/election.json" uuid
+  in
   let* raw =
-    let* x = Printf.ksprintf get "elections/%s/election.json" uuid in
-    if x.code = 404 then (
-      let* x = Printf.ksprintf get "draft/preview/%s/election.json" uuid in
-      Lwt.return x.content
-    ) else Lwt.return x.content
+    let* x = get url in
+    Lwt.return x.content
   in
   set_textarea "election_params" raw;
   run_handler (loadElection credential) ();
   Lwt.return_unit
 
-let load_uuid_handler lang credential =
+let load_uuid_handler ~draft lang credential =
   match get_textarea_opt "uuid" with
   | Some uuid ->
      let encoded = Url.encode_arguments ["uuid", uuid; "lang", lang] in
      Dom_html.window##.location##.hash := Js.string encoded;
-     load_uuid uuid credential
+     load_uuid ~draft uuid credential
   | None -> Lwt.return_unit
 
 let load_params_handler credential =
@@ -469,13 +471,14 @@ let () =
         | Some x -> x
         | None -> "en"
       in
+      let draft = List.assoc_opt "draft" params in
       let credential = List.assoc_opt "credential" params in
       let* () = Belenios_js.I18n.init ~dir:"static/" ~component:"voter" ~lang in
       let () =
         let$ e = document##getElementById (Js.string "load_uuid") in
         Lwt_js_events.async (fun () ->
             let* _ = Lwt_js_events.click e in
-            load_uuid_handler lang credential
+            load_uuid_handler ~draft lang credential
           )
       in
       let () =
@@ -490,5 +493,5 @@ let () =
          set_element_display "wait_div" "none";
          set_element_display "election_loader" "block";
          Lwt.return_unit
-      | Some uuid -> load_uuid uuid credential
+      | Some uuid -> load_uuid ~draft uuid credential
     )
