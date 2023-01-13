@@ -115,6 +115,14 @@ ln -sfT /etc/systemd/system/belenios.service "$DIR/rootfs/etc/systemd/system/mul
 mkdir "$DIR/rootfs/var/belenios"
 chroot "$DIR/rootfs" chown belenios:belenios /var/belenios
 
+echo "Remove some unnecessary files..."
+
+rm -rf \
+   "$DIR/rootfs/usr/share/doc" \
+   "$DIR/rootfs/usr/share/man" \
+   "$DIR/rootfs/usr/include" \
+   "$DIR/rootfs/var/lib/apt" \
+
 echo "Creating rootfs.squashfs..."
 
 mksquashfs "$DIR/rootfs" "$DIR/rootfs.squashfs"
