@@ -1,11 +1,7 @@
 ifeq "$(BELENIOS_DEBUG)" "1"
-    JAVASCRIPT_MODE := development
-    JAVASCRIPT_EXTENSION :=
     BUNDLE := bundle.development.js
-    VOTE_PAGE := vote_development.html
+    VOTE_PAGE := vote.html
 else
-    JAVASCRIPT_MODE := production
-    JAVASCRIPT_EXTENSION := .min
     BUNDLE := bundle.production.js
     VOTE_PAGE := vote.html
 endif
@@ -14,58 +10,24 @@ ifeq "$(DESTDIR)" ""
 	DESTDIR := ./build
 endif
 
-REACT_JS_FOLDER := react/umd
-REACT_JS_FILENAME := react.$(JAVASCRIPT_MODE)$(JAVASCRIPT_EXTENSION).js
-REACT_JS_URL := $(REACT_JS_FOLDER)/$(REACT_JS_FILENAME)
-REACT_DOM_JS_FOLDER := react-dom/umd
-REACT_DOM_JS_FILENAME := react-dom.$(JAVASCRIPT_MODE)$(JAVASCRIPT_EXTENSION).js
-REACT_DOM_JS_URL := $(REACT_DOM_JS_FOLDER)/$(REACT_DOM_JS_FILENAME)
-I18NEXT_JS_FOLDER := i18next/dist/umd
-I18NEXT_JS_FILENAME := i18next$(JAVASCRIPT_EXTENSION).js
-I18NEXT_JS_URL := $(I18NEXT_JS_FOLDER)/$(I18NEXT_JS_FILENAME)
-I18NEXT_HTTP_BACKEND_JS_FOLDER := i18next-http-backend
-I18NEXT_HTTP_BACKEND_JS_FILENAME := i18nextHttpBackend$(JAVASCRIPT_EXTENSION).js
-I18NEXT_HTTP_BACKEND_JS_URL := $(I18NEXT_HTTP_BACKEND_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_FILENAME)
-REACT_I18NEXT_JS_FOLDER := react-i18next/dist/umd
-REACT_I18NEXT_JS_FILENAME := react-i18next$(JAVASCRIPT_EXTENSION).js
-REACT_I18NEXT_JS_URL := $(REACT_I18NEXT_JS_FOLDER)/$(REACT_I18NEXT_JS_FILENAME)
-REACT_BEAUTIFUL_DND_JS_FOLDER := react-beautiful-dnd/dist
-REACT_BEAUTIFUL_DND_JS_FILENAME := react-beautiful-dnd$(JAVASCRIPT_EXTENSION).js
-REACT_BEAUTIFUL_DND_JS_URL := $(REACT_BEAUTIFUL_DND_JS_FOLDER)/$(REACT_BEAUTIFUL_DND_JS_FILENAME)
-INITIAL_EXTERNAL_JS_FOLDER := node_modules
-PUBLIC_EXTERNAL_JS_FOLDER := $(DESTDIR)/node_modules
 PUBLIC_INTERNAL_JS_FOLDER := $(DESTDIR)
 INITIAL_TRANSLATIONS_FOLDER := translations
 PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/translations
 
 # The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server` to install Belenios.
-install: $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_BEAUTIFUL_DND_JS_URL) booth/bundle.js booth/*.js booth/*.css booth/$(VOTE_PAGE) booth/components/*.css
-	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_FOLDER)
-	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL)
-	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_FOLDER)
-	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL)
-	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_FOLDER)
-	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL)
-	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_FOLDER)
-	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL)
-	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_FOLDER)
-	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL)
-	mkdir -p $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_BEAUTIFUL_DND_JS_FOLDER)
-	cp -r $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_BEAUTIFUL_DND_JS_URL) $(PUBLIC_EXTERNAL_JS_FOLDER)/$(REACT_BEAUTIFUL_DND_JS_URL)
+install: booth/bundle.js booth/*.css booth/$(VOTE_PAGE) booth/components/*.css
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth
-	cp -r booth/*.js booth/*.css $(PUBLIC_INTERNAL_JS_FOLDER)/booth/
+	cp -r booth/bundle.js booth/*.css $(PUBLIC_INTERNAL_JS_FOLDER)/booth/
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth/components
 	cp -r booth/components/*.css $(PUBLIC_INTERNAL_JS_FOLDER)/booth/components/
 	cp -r booth/$(VOTE_PAGE) $(PUBLIC_INTERNAL_JS_FOLDER)/booth/vote.html
 	mkdir -p $(PUBLIC_TRANSLATIONS_FOLDER)
 	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
 
-$(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_DOM_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(I18NEXT_HTTP_BACKEND_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_I18NEXT_JS_URL) $(INITIAL_EXTERNAL_JS_FOLDER)/$(REACT_BEAUTIFUL_DND_JS_URL): package-lock.json
-
-booth/dist/bundle.production.js: booth/*.mjs booth/components/*.mjs
+booth/dist/bundle.production.js: package-lock.json booth/*.mjs booth/components/*.mjs
 	cd booth && npx webpack --config webpack.config.production.js
 
-booth/dist/bundle.development.js: booth/*.mjs booth/components/*.mjs
+booth/dist/bundle.development.js: package-lock.json booth/*.mjs booth/components/*.mjs
 	cd booth && npx webpack --config webpack.config.development.js
 
 booth/bundle.js: booth/dist/$(BUNDLE)
