@@ -1,25 +1,3 @@
-.ui-accordion .ui-accordion-header,
-.toggle-trigger{cursor:pointer;margin-top:1px;position:relative;padding-bottom:5px;background:#f1f1f1;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;}
-.ui-accordion .ui-accordion-header:hover,
-.toggle-trigger:hover{background:#eceaea;}
-#content .ui-accordion .ui-accordion-header>a,
-#content .toggle-trigger>a{text-decoration:none;color:#363636;font-size:14px;padding-left:10px;}
-.ui-accordion .ui-accordion-content,
-.toggle-container{border-top:0 none;margin-bottom:2px;padding:20px 20px;position:relative;top:1px;margin-right:5px;text-align:justify;}
-.toggle-trigger-res{<!-- cursor:pointer;-->
-margin-top:1px;position:relative;padding-bottom:5px;background:#f1f1f1;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;}
-.toggle-trigger-res:hover{background:#eceaea;}
-#content .toggle-trigger-res>a{text-decoration:none;color:#363636;font-size:14px;padding-left:10px;}
-.toggle-container-res{border-top:0 none;margin-bottom:2px;padding:20px 20px;position:relative;top:1px;margin-right:5px;}
-.left-align{float:left;margin:8px 18px 18px 0;display:block;}
-.right-align{float:right;margin:0px 0px 0px 10px;display:block;}
-.boxed{background:white;padding:5px;border:1px solid #cccccc;}
-.border{border:2px solid white;}
-#content a.link-button,
-#content a.link-button-light{display:table;background:#363636;color:#f1f1f1;text-decoration:none;padding:3px 10px;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;}
-#content a.link-button-light{background:#f1f1f1;color:#363636;}
-#content a.link-button:hover{background:#000000;}
-#content a.link-button-light:hover{background:#cecece;}
 table, td, th{vertical-align:middle;}
 table{border-collapse:separate;border-spacing:0;border-top:1px solid white;margin-bottom:28px;width:100%;text-align:left;}
 th{border-top:5px solid #555555;color:#ffffff;padding:10px;text-transform:uppercase;background-color:#49494b;}
@@ -27,7 +5,3 @@ td{padding:10px;}
 td, th{border-bottom:1px solid #1f1f1f;}
 .authentication-table {border: none;}
 .authentication-table td, .authentication-table th {border: none;}
-.lists-arrow ul,
-.lists-star ul,
-.lists-arrow ul{line-height:1.5em;}
-.lists-star ul{line-height:1.5em;}
