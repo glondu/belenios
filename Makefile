@@ -13,7 +13,7 @@ build-debug-server:
 	  < src/scripts/checki18next/reference.json
 	rm -rf _run/usr
 	dune install $(DUNE_DEBUG_ARGS) --destdir=_run --prefix=/usr 2>/dev/null
-	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server/frontend -C frontend
+	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
 	git archive --prefix=belenios-debug/ HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-release-server:
@@ -24,7 +24,7 @@ build-release-server:
 	  < src/scripts/checki18next/reference.json
 	rm -rf _run/usr
 	dune install --destdir=_run --prefix=/usr 2>/dev/null
-	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server/frontend -C frontend
+	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
 	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
 
 build-i18next-reference:

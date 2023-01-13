@@ -842,7 +842,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* l = get_preferred_gettext () in
     let open (val l) in
     let head = head (title (txt (s_ "Belenios Booth"))) [
-                   link ~rel:[`Stylesheet] ~href:(static "booth.css") ();
+                   link ~rel:[`Stylesheet] ~href:(static "booth.bundle.css") ();
                    script ~a:[a_src (static "tool_js_booth.js")] (txt "");
                  ] in
     let wait_div =

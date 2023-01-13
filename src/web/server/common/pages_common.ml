@@ -119,7 +119,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
          (head (Eliom_content.Html.F.title (txt title)) [
               meta ~a:[a_name "viewport"; a_content "width=device-width, initial-scale=1"] ();
               script (txt "window.onbeforeunload = function () {};");
-              link ~rel:[`Stylesheet] ~href:(static "responsive_site.css") ();
+              link ~rel:[`Stylesheet] ~href:(static "site.bundle.css") ();
          ])
          (body (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content ~footer ~administer ~extra_footer ()))
       )

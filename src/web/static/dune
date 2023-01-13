@@ -1,5 +1,5 @@
 (install
- (files booth.css common.css site.css responsive_site.css placeholder.png)
+ (files placeholder.png)
  (section share)
  (package belenios-server))
 
