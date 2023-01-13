@@ -25,10 +25,10 @@ install: booth/bundle.js booth/*.css booth/$(VOTE_PAGE) booth/components/*.css
 	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
 
 booth/dist/bundle.production.js: package-lock.json booth/*.mjs booth/components/*.mjs
-	cd booth && npx webpack --config webpack.config.production.js
+	( cd booth && npx webpack --config webpack.config.js --mode production ) && mv booth/dist/bundle.js $@
 
 booth/dist/bundle.development.js: package-lock.json booth/*.mjs booth/components/*.mjs
-	cd booth && npx webpack --config webpack.config.development.js
+	( cd booth && npx webpack --config webpack.config.js --mode development ) && mv booth/dist/bundle.js $@
 
 booth/bundle.js: booth/dist/$(BUNDLE)
 	cp $< $@
