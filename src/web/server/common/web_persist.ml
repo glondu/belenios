@@ -993,7 +993,7 @@ let compute_audit_cache uuid =
   | None ->
      Printf.ksprintf failwith
        "compute_cache: %s does not exist" (Uuid.unwrap uuid)
-  | Some election ->
+  | Some _ ->
      let* voters =
        let* x = Spool.get_raw_list ~uuid Spool.voters in
        match x with
@@ -1007,10 +1007,10 @@ let compute_audit_cache uuid =
        Lwt.return_some (List.map (fun (_, x, _) -> x) x)
      in
      let* encrypted_tally =
-       let module W = Election.Make (struct let raw_election = election end) (LwtRandom) () in
-       let* x = get_latest_encrypted_tally (module W) in
+       let* x = get_sized_encrypted_tally uuid in
        let&* x in
-       Lwt.return_some (Hash.hash_string x)
+       let x = sized_encrypted_tally_of_string read_hash x in
+       Lwt.return_some x.sized_encrypted_tally
      in
      let* trustees = get_trustees uuid in
      let* cache_checksums =
