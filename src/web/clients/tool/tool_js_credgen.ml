@@ -76,7 +76,7 @@ let fill_interactivity () =
   let href = Dom_html.window##.location##.href |> Js.to_string in
   set_content "election_url" (build_election_url href uuid);
   let@ draft = fun cont ->
-    let url = Printf.sprintf "../../api/drafts/%s" uuid in
+    let url = Printf.sprintf "../api/drafts/%s" uuid in
     let* x = get draft_of_string url in
     match x with
     | Some x -> cont x
@@ -85,7 +85,7 @@ let fill_interactivity () =
        Lwt.return_unit
   in
   let@ voters = fun cont ->
-    let url = Printf.sprintf "../../api/drafts/%s/voters" uuid in
+    let url = Printf.sprintf "../api/drafts/%s/voters" uuid in
     let* x = get ~token voter_list_of_string url in
     match x with
     | Some x -> cont x

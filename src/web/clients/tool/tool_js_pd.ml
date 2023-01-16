@@ -137,7 +137,7 @@ let fill_interactivity () =
   in
   set_form_target "pd_form" "submit-partial-decryption" uuid token;
   let@ tally_trustee = fun cont ->
-    let url = Printf.sprintf "../../api/elections/%s/tally-trustee" uuid in
+    let url = Printf.sprintf "../api/elections/%s/tally-trustee" uuid in
     let* x = get ~token tally_trustee_of_string url in
     match x with
     | Some x -> cont x
