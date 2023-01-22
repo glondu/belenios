@@ -3,9 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2023-01-06 13:01+0000\n"
-"Last-Translator: inkarnation <94744834+inkarnation@users.noreply.github.com>"
-"\n"
+"PO-Revision-Date: 2023-01-23 20:49+0000\n"
+"Last-Translator: Stefan Zeh <stefan.zeh@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/belenios/voter/de/"
 ">\n"
 "Language: de\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.16-dev\n"
 
 #: src/web/server/common/pages_common.ml:275
 msgid " (if you forgot it, for example)."
@@ -286,12 +285,12 @@ msgstr "Cookies sind deaktiviert"
 
 #: src/web/server/common/mails_voter.ml:126
 msgid "Credential:"
-msgstr "Wählernummer:"
+msgstr "Wahlschein-Code:"
 
 #: src/web/server/common/pages_voter.ml:496
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
-"Wählernummern wurden generiert und durch %s verschickt und haben den "
+"Wahlschein-Codes wurden generiert und durch %s verschickt und haben den "
 "Fingerabdruck %s."
 
 #. src/web/server/common/mails_voter.ml:362
@@ -396,15 +395,15 @@ msgstr ""
 #. src/web/server/common/pages_voter.ml:637
 #: src/web/server/common/pages_voter.ml:905
 msgid "Input credential"
-msgstr "Wählernummer eingeben"
+msgstr "Wahlschein-Code eingeben"
 
 #: src/web/server/common/pages_voter.ml:924
 msgid "Input your credential "
-msgstr "Bitte Wählernummer eingeben "
+msgstr "Bitte Wahlschein-Code eingeben "
 
 #: src/web/clients/tool/tool_js_booth.ml:386
 msgid "Invalid credential!"
-msgstr "Falsche Wählernummer!"
+msgstr "Falscher Wahlschein-Code!"
 
 #: src/web/server/common/site_voter.ml:230
 msgid "Invalid index for question."
@@ -491,7 +490,7 @@ msgstr "Nicht gefunden"
 #: src/web/server/common/mails_voter.ml:52
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
-"Beachten Sie, dass Sie auch die Wählernummer benötigen, die in einer "
+"Beachten Sie, dass Sie auch den Wahlschein-Code benötigen, der in einer "
 "separaten E-Mail gesendet wird, um mit der Abstimmung zu beginnen."
 
 #: src/web/clients/tool/tool_js_booth.ml:225
@@ -540,7 +539,7 @@ msgstr "Bitte geben Sie den per E-Mail erhaltenen Bestätigungscode ein:"
 
 #: src/web/clients/tool/tool_js_booth.ml:380
 msgid "Please enter your credential:"
-msgstr "Bitte geben Sie Ihre Wählernummer ein:"
+msgstr "Bitte geben Sie Ihren Wahlschein-Code ein:"
 
 #: src/web/server/common/mails_voter.ml:48
 msgid "Please find below your login and password for the election"
@@ -651,7 +650,7 @@ msgstr "Schritt 1"
 
 #: src/web/server/common/pages_voter.ml:920
 msgid "Step 1/6: Input credential"
-msgstr "Schritt 1/6: Wählernummer eingeben"
+msgstr "Schritt 1/6: Wahlschein-Code eingeben"
 
 #: src/web/server/common/pages_voter.ml:649
 msgid "Step 2"
@@ -793,7 +792,7 @@ msgstr "Diese Wahl verwendet Gewichtungen!"
 
 #: src/web/server/common/pages_voter.ml:725
 msgid "This is a revote."
-msgstr ""
+msgstr "Dies ist eine Wahlwiederholung."
 
 #: src/web/clients/tool/tool_js_booth.ml:388
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
@@ -932,12 +931,12 @@ msgstr "Sie müssen maximal %d Antworten auswählen"
 #: src/web/server/common/mails_voter.ml:120
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
-"Vor dem Betreten der Wahlkabine werden Sie aufgefordert, Ihre Wählernummer "
-"einzugeben."
+"Vor dem Betreten der Wahlkabine werden Sie aufgefordert, Ihren Wahlschein-"
+"Code einzugeben."
 
 #: src/web/server/common/mails_voter.ml:119
 msgid "You will find below your credential."
-msgstr "Folgend finden Sie Ihre Wählernummer."
+msgstr "Folgend finden Sie Ihren Wahlschein-Code."
 
 #: src/web/server/common/pages_voter.ml:766
 msgid "Your ballot for "
@@ -953,7 +952,7 @@ msgstr "Ihr Browser nimmt keine Cookies an, bitte aktivieren Sie diese."
 
 #: src/web/server/common/mails_voter.ml:155
 msgid "Your credential for election %s"
-msgstr "Ihre Wählernummer für die Abstimmung %s"
+msgstr "Ihr Wahlschein-Code für die Abstimmung %s"
 
 #: src/web/server/common/pages_common.ml:359
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
@@ -1031,11 +1030,11 @@ msgstr "Datenschutzbestimmungen"
 
 #: src/web/server/common/pages_voter.ml:59
 msgid "public data"
-msgstr ""
+msgstr "Oeffentliche Daten"
 
 #: src/web/server/common/pages_voter.ml:380
 msgid "raw result"
-msgstr ""
+msgstr "unbearbeitetes Ergebnis"
 
 #: src/web/server/common/web_common.ml:85
 msgid "some proofs failed verification"
@@ -1067,7 +1066,7 @@ msgstr "Sie dürfen nicht abstimmen"
 
 #: src/web/server/common/web_common.ml:89
 msgid "you are not allowed to vote with this credential"
-msgstr "Sie dürfen nicht mit dieser Wählernummer abstimmen"
+msgstr "Sie dürfen nicht mit diesem Wahlschein-Code abstimmen"
 
 #: src/web/server/common/web_common.ml:83
 msgid "your ballot has a syntax error (%s)"
@@ -1079,12 +1078,12 @@ msgstr "Ihr Stimmzettel ist nicht in kanonischer Form"
 
 #: src/web/server/common/web_common.ml:90
 msgid "your credential has a bad weight"
-msgstr "Ihre Wählernummer hat eine ungültige Gewichtung"
+msgstr "Ihr Wahlschein-Code hat eine ungültige Gewichtung"
 
 #: src/web/server/common/web_common.ml:88
 msgid "your credential has already been used"
-msgstr "Ihre Wählernummer wurde schon benutzt"
+msgstr "Ihr Wahlschein-Code wurde schon benutzt"
 
 #: src/web/server/common/web_common.ml:86
 msgid "your credential is invalid"
-msgstr "Ihre Wählernummer ist ungültig"
+msgstr "Ihr Wahlschein-Code ist ungültig"
