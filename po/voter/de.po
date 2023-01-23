@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2023-01-23 20:49+0000\n"
+"PO-Revision-Date: 2023-01-24 07:28+0000\n"
 "Last-Translator: Stefan Zeh <stefan.zeh@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/belenios/voter/de/"
 ">\n"
@@ -24,7 +24,7 @@ msgstr " Sie erhalten eine Bestätigung per E-Mail."
 
 #: src/web/server/common/pages_voter.ml:751
 msgid " anytime during the election."
-msgstr " vorhanden ist."
+msgstr " während des Wahlvorgangs."
 
 #: src/web/server/common/pages_voter.ml:738
 msgid " as user "
@@ -32,15 +32,15 @@ msgstr " als Benutzer "
 
 #: src/web/server/common/pages_voter.ml:816
 msgid " ballot(s) have been accepted so far."
-msgstr " Stimme(n) wurden bis jetzt angenommen."
+msgstr " Wahlzettel wurden bis jetzt angenommen."
 
 #: src/web/server/common/pages_voter.ml:828
 msgid " ballot(s) have been accepted, and "
-msgstr " Stimme(n) wurden angenommen, und "
+msgstr " Wahlzettel wurden angenommen, und "
 
 #: src/web/server/common/pages_voter.ml:822
 msgid " ballot(s) have been accepted."
-msgstr " Stimme(n) wurden angenommen."
+msgstr " Stimmzettel wurden angenommen."
 
 #: src/web/server/common/web_common.ml:105
 msgid " day(s)"
@@ -98,7 +98,7 @@ msgstr "%d leere(r) Stimmzettel"
 #. src/web/server/common/pages_voter.ml:99
 #: src/web/server/common/pages_voter.ml:1123
 msgid "%d invalid ballot(s)"
-msgstr "%d ungültige Stimme(n)"
+msgstr "%d ungültige(r) Stimmzettel"
 
 #: src/web/server/common/pages_voter.ml:486
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
@@ -109,7 +109,7 @@ msgstr ""
 #. src/web/server/common/pages_voter.ml:89
 #: src/web/server/common/pages_voter.ml:115
 msgid "%d valid (non-blank) ballot(s)"
-msgstr "%d gültige(r) Stimmzettel (nicht leere)"
+msgstr "%d gültige(r) (nicht leere) Stimmzettel"
 
 #. src/web/server/common/pages_voter.ml:90
 #: src/web/server/common/pages_voter.ml:116
@@ -179,7 +179,7 @@ msgstr "Fragen beantworten"
 #: src/web/server/common/pages_voter.ml:1029
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
-"Als Bequemlichkeit wird 0 immer als schlechteste Bewertung interpretiert."
+"Der Einfachheit halber wird 0 immer als schlechteste Bewertung interpretiert."
 
 #: src/web/clients/tool/tool_js_booth.ml:252
 msgid "At least one of the answers is invalid!"
