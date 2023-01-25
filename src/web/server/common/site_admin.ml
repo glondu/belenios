@@ -621,18 +621,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                  (fun x ->
                    match Voter.of_string x with
                    | exception _ -> Printf.ksprintf failwith (f_ "%S is not a valid identity") x
-                   | (_, {address; login; _}) as voter ->
-                      let () =
-                        if not (is_email address) then
-                          Printf.ksprintf failwith (f_ "%S is not a valid address") address
-                      in
-                      let () =
-                        match login with
-                        | None -> ()
-                        | Some x ->
-                           if not (is_username x) then
-                             Printf.ksprintf failwith (f_ "%S is not a valid login") x
-                      in
+                   | voter ->
+                      if not (Voter.validate voter) then
+                        Printf.ksprintf failwith (f_ "%S is not a valid identity") x;
                       voter
                  )
           in

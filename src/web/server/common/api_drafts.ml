@@ -238,18 +238,11 @@ let put_draft_voters uuid se voters =
   let all_voters =
     List.map
       (fun voter ->
+        if not (Voter.validate voter) then raise @@ Error (`Invalid "identity");
         let sv_id = Voter.to_string voter in
-        let address, login, _ = Voter.get voter in
-        if not (is_email address) then raise @@ Error (`Invalid "email");
+        let _, login, _ = Voter.get voter in
         match SMap.find_opt (String.lowercase_ascii login) existing_voters with
-        | None ->
-           let () =
-             let (_, {login; _}) : Voter.t = voter in
-             match login with
-             | None -> ()
-             | Some x -> if not (is_username x) then raise @@ Error (`Invalid "login")
-           in
-           {sv_id; sv_password = None}, voter
+        | None -> {sv_id; sv_password = None}, voter
         | Some (v, _) ->
            v.sv_id <- sv_id;
            v, voter

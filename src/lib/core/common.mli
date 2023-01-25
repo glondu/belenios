@@ -105,6 +105,7 @@ module Voter : sig
   val list_to_string : t list -> string
   val list_of_string : string -> t list
   val get : t -> string * string * Weight.t
+  val validate : t -> bool
 end
 
 val has_explicit_weights : Voter.t list -> bool

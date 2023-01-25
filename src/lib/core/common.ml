@@ -347,6 +347,12 @@ module Voter = struct
     address,
     Option.value login ~default:address,
     Option.value weight ~default:Weight.one
+
+  let validate ((_, {address; login; _}) : t) =
+    is_email address
+    && match login with
+       | None -> true
+       | Some login -> is_username login
 end
 
 let has_explicit_weights voters =
