@@ -90,7 +90,17 @@ val strip_cred : string -> string
     - else, return [(str, 1)] *)
 val extract_weight : string -> string * Weight.t
 
-val split_identity : string -> string * string * Weight.t
-val split_identity_opt : string -> string * string option * Weight.t option
+module Voter : sig
+  type t = [`Plain | `Json] * Serializable_core_t.voter
+  val wrap : Yojson.Safe.t -> t
+  val unwrap : t -> Yojson.Safe.t
+  val to_string : t -> string
+  val of_string : string -> t
+  val list_to_string : t list -> string
+  val list_of_string : string -> t list
+  val get : t -> string * string * Weight.t
+end
+
+val has_explicit_weights : Voter.t list -> bool
 
 val supported_crypto_versions : int list

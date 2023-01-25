@@ -105,13 +105,13 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
       match uuid with
       | None -> return ((if is_email name then Some name else None), `Site)
       | Some uuid ->
-         let* voters = Web_persist.get_voters uuid in
+         let* voters = Spool.get_voters ~uuid in
          let* address =
            let&* voters in
            let rec loop = function
              | [] -> return_none
              | v :: vs ->
-                let address, login, _ = split_identity v in
+                let address, login, _ = Voter.get v in
                 if String.lowercase_ascii name = String.lowercase_ascii login then return_some address else loop vs
            in
            loop voters

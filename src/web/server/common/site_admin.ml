@@ -479,13 +479,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     else
       let title = se.se_questions.t_name in
       let langs = get_languages se.se_metadata.e_languages in
-      let show_weight =
-        List.exists
-          (fun id ->
-            let _, _, weight = split_identity_opt id.sv_id in
-            weight <> None
-          ) voters
-      in
+      let show_weight = has_explicit_weights voters in
       let* jobs =
         Lwt_list.fold_left_s (fun jobs id ->
             match id.sv_password with
@@ -493,7 +487,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | None | Some _ ->
                let* email, x =
                  Mails_voter.generate_password_email se.se_metadata langs title uuid
-                   id.sv_id show_weight
+                   (Voter.of_string id.sv_id) show_weight
                in
                id.sv_password <- Some x;
                Lwt.return (email :: jobs)
@@ -596,26 +590,19 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         >>= Html.send
       )
 
-  let bool_of_opt = function
-    | None -> false
-    | Some _ -> true
-
   let check_consistency voters =
+    let get_shape voter =
+      match Voter.of_string voter.sv_id with
+      | `Plain, {login; weight; _} -> `Plain (login <> None, weight <> None)
+      | `Json, _ -> `Json
+    in
     match voters with
     | [] -> true
     | voter :: voters ->
-       let has_login, has_weight =
-         let _, login, weight = split_identity_opt voter.sv_id in
-         bool_of_opt login,
-         bool_of_opt weight
-       in
+       let shape = get_shape voter in
        let rec loop = function
          | [] -> true
-         | voter :: voters ->
-            let _, login, weight = split_identity_opt voter.sv_id in
-            bool_of_opt login = has_login
-            && bool_of_opt weight = has_weight
-            && loop voters
+         | voter :: voters -> get_shape voter = shape && loop voters
        in
        loop voters
 
@@ -628,12 +615,26 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         if se.se_public_creds_received then
           forbidden ()
         else (
-          let voters = Pcre.split voters in
-          let () =
-            match List.find_opt (fun x -> not (is_identity x)) voters with
-            | Some bad ->
-               Printf.ksprintf failwith (f_ "%S is not a valid identity") bad
-            | None -> ()
+          let voters =
+            split_lines voters
+            |> List.map
+                 (fun x ->
+                   match Voter.of_string x with
+                   | exception _ -> Printf.ksprintf failwith (f_ "%S is not a valid identity") x
+                   | (_, {address; login; _}) as voter ->
+                      let () =
+                        if not (is_email address) then
+                          Printf.ksprintf failwith (f_ "%S is not a valid address") address
+                      in
+                      let () =
+                        match login with
+                        | None -> ()
+                        | Some x ->
+                           if not (is_username x) then
+                             Printf.ksprintf failwith (f_ "%S is not a valid login") x
+                      in
+                      voter
+                 )
           in
           match Api_drafts.merge_voters se.se_voters voters (fun _ -> None) with
           | Error x ->
@@ -1192,12 +1193,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun (uuid, ()) () ->
         let@ _ = with_metadata_check_owner uuid in
         let* voters =
-          let* file = read_file ~uuid (string_of_election_file ESVoters) in
+          let* file = Spool.get_voters ~uuid in
           match file with
           | Some vs ->
              return (
                  List.fold_left (fun accu v ->
-                     let _, login, _ = split_identity v in
+                     let _, login, _ = Voter.get v in
                      SSet.add (PString.lowercase_ascii login) accu
                    ) SSet.empty vs
                )

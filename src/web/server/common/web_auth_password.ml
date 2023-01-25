@@ -166,15 +166,6 @@ let do_change_password ~db_fname ~username ~password () =
   let* () = write_file db_fname db in
   return_unit
 
-let username_rex = "^[A-Z0-9._%+-]+$"
-
-let is_username =
-  let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
-  fun x ->
-  match pcre_exec_opt ~rex x with
-  | Some _ -> true
-  | None -> false
-
 let add_account user ~password ~email =
   if String.trim password = password then (
     if is_username user.user_name then

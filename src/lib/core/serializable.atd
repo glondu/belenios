@@ -68,6 +68,10 @@ type params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
+type voter = abstract wrap <ocaml module="Common.Voter">
+
+type voter_list = voter list
+
 type public_credentials = string list
 
 type template = {

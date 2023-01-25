@@ -302,7 +302,7 @@ let delete_election election metadata =
          )
     |> Lwt.return
   in
-  let* voters = Web_persist.get_voters uuid in
+  let* voters = Spool.get_voters ~uuid in
   let* ballots = Web_persist.get_ballot_hashes uuid in
   let* result = Web_persist.get_election_result uuid in
   let de_nb_voters, de_has_weights =
@@ -310,11 +310,7 @@ let delete_election election metadata =
     | None -> 0, false
     | Some voters ->
        List.length voters,
-       List.exists
-         (fun x ->
-           let _, _, weight = split_identity_opt x in
-           weight <> None
-         ) voters
+       Belenios_core.Common.has_explicit_weights voters
   in
   let de = {
       de_uuid = uuid;
@@ -355,21 +351,15 @@ let delete_election election metadata =
   Web_persist.clear_elections_by_owner_cache ()
 
 let find_user_id uuid user =
-  let db = Lwt_io.lines_of_file (uuid /// "voters.txt") in
-  let* db = Lwt_stream.to_list db in
+  let* db = Spool.get_voters ~uuid in
+  let db = Option.value db ~default:[] in
   let rec loop = function
     | [] -> None
     | id :: xs ->
-       let _, login, _ = split_identity id in
+       let _, login, _ = Voter.get id in
        if String.lowercase_ascii login = user then Some id else loop xs
   in
-  let show_weight =
-    List.exists
-      (fun x ->
-        let _, _, weight = split_identity_opt x in
-        weight <> None
-      ) db
-  in
+  let show_weight = Belenios_core.Common.has_explicit_weights db in
   Lwt.return (loop db, show_weight)
 
 let load_password_db uuid =
@@ -397,7 +387,7 @@ let regenpwd election metadata user =
      let* db = load_password_db uuid in
      let* email, x =
        Mails_voter.generate_password_email metadata langs title uuid
-       id show_weight
+         id show_weight
      in
      let* () = Mails_voter.submit_bulk_emails [email] in
      let db = replace_password user x db in
@@ -524,23 +514,17 @@ let get_records uuid =
 let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION_LWT) in
   let uuid = W.election.e_uuid in
-  let* voters = read_file ~uuid "voters.txt" in
-  let voters = match voters with Some xs -> xs | None -> [] in
+  let* voters = Spool.get_voters ~uuid in
+  let voters = Option.value voters ~default:[] in
   let* email, login, weight =
     let rec loop = function
       | x :: xs ->
-         let email, login, weight = split_identity x in
+         let email, login, weight = Voter.get x in
          if String.lowercase_ascii login = String.lowercase_ascii user.user_name then Lwt.return (email, login, weight) else loop xs
       | [] -> fail UnauthorizedVoter
     in loop voters
   in
-  let show_weight =
-    List.exists
-      (fun x ->
-        let _, _, weight = split_identity_opt x in
-        weight <> None
-      ) voters
-  in
+  let show_weight = Belenios_core.Common.has_explicit_weights voters in
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state uuid in
@@ -659,9 +643,12 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let* x = read_file ~uuid (string_of_election_file ESVoters) in
-          let x = Option.value x ~default:[] in
-          Lwt.return (200, string_of_voter_list x)
+          let* x = read_whole_file ~uuid (string_of_election_file ESVoters) in
+          begin
+            match x with
+            | None -> not_found
+            | Some x -> Lwt.return (200, x)
+          end
        | _ -> method_not_allowed
      end
   | ["records"] ->

@@ -57,10 +57,7 @@ let show main uuid =
           in
           Lwt.return @@ div [txt msg]
        | Ok xs ->
-          let fingerprint =
-            String.concat "\n" xs ^ "\n"
-            |> sha256_b64
-          in
+          let fingerprint = Voter.list_to_string xs |> sha256_b64 in
           let fingerprint =
             Printf.sprintf
               "The voter list has %d voter(s) and its fingerprint is %s."
@@ -70,20 +67,14 @@ let show main uuid =
           let b =
             let@ () = button "Generate credentials" in
             let uuid_ = Uuid.wrap uuid in
-            let show_weight =
-              List.exists
-                (fun v ->
-                  let _, _, weight = split_identity_opt v in
-                  weight <> None
-                ) xs
-            in
+            let show_weight = has_explicit_weights xs in
             let version = draft.draft_version in
             let module G = (val Belenios.Group.of_string ~version draft.draft_group : GROUP) in
             let module CMap = Map.Make (G) in
             let module CD = Belenios_core.Credential.MakeDerive (G) in
             let* public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
-                  let _, _, weight = split_identity v in
+                  let _, _, weight = Voter.get v in
                   let* cred = CG.generate () in
                   let pub_cred =
                     let x = CD.derive uuid_ cred in
@@ -92,7 +83,7 @@ let show main uuid =
                   Lwt.return (CMap.add pub_cred weight public_creds, (v, cred) :: private_creds)
                 ) (CMap.empty, []) xs
             in
-            let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
+            let private_creds = List.rev_map (fun (v, c) -> Voter.to_string v ^ " " ^ c) private_creds in
             let public_creds =
               CMap.bindings public_creds
               |> List.map

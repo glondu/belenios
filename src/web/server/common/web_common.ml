@@ -370,13 +370,12 @@ let extract_email =
     Some (Pcre.get_substring s 1)
   )
 
-(* see http://www.regular-expressions.info/email.html *)
-let identity_rex = Pcre.regexp
-                     ~flags:[`CASELESS]
-                     "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}(,[A-Z0-9._%+-]*(,[1-9][0-9]*)?)?$"
+let username_rex = "^[A-Z0-9._%+-]+$"
 
-let is_identity x =
-  match pcre_exec_opt ~rex:identity_rex x with
+let is_username =
+  let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
+  fun x ->
+  match pcre_exec_opt ~rex x with
   | Some _ -> true
   | None -> false
 
@@ -398,6 +397,14 @@ let read_file ?uuid x =
     (fun () ->
       let* lines = Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list in
       Lwt.return_some lines
+    )
+    (fun _ -> Lwt.return_none)
+
+let read_whole_file ?uuid x =
+  Lwt.catch
+    (fun () ->
+      let* x = Lwt_io.chars_of_file (get_fname uuid x) |> Lwt_stream.to_string in
+      Lwt.return_some x
     )
     (fun _ -> Lwt.return_none)
 
@@ -501,6 +508,13 @@ let default_questions =
     }
   in
   [| Question.Homomorphic question |]
+
+let has_explicit_weights voters =
+  List.exists
+    (fun v ->
+      let (_, {weight; _}) : Voter.t = Voter.of_string v.sv_id in
+      weight <> None
+    ) voters
 
 let default_name = ""
 let default_description = ""

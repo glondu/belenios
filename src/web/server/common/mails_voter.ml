@@ -86,9 +86,9 @@ let format_password_email (x : password_email) =
 
 open Belenios_platform.Platform
 
-let generate_password_email metadata langs title uuid id show_weight =
-  let recipient, login, weight = split_identity id in
-  let weight = if show_weight then Some weight else None in
+let generate_password_email metadata langs title uuid v show_weight =
+  let (_, {address; login; weight}) : Voter.t = v in
+  let weight = if show_weight then weight else None in
   let* salt = generate_token () in
   let* password =
     let* x = generate_token ~length:15 () in
@@ -98,12 +98,12 @@ let generate_password_email metadata langs title uuid id show_weight =
   let x : password_email = {
       uuid;
       title;
-      login;
+      login = Option.value login ~default:address;
       password;
       weight;
       contact = metadata.e_contact;
       langs;
-      recipient;
+      recipient = address;
     }
   in
   return (`Password x, (salt, hashed))
@@ -158,13 +158,7 @@ let format_credential_email (x : credential_email) =
 
 let generate_credential_email uuid se =
   let title = se.se_questions.t_name in
-  let show_weight =
-    List.exists
-      (fun v ->
-        let _, _, weight = split_identity_opt v.sv_id in
-        weight <> None
-      ) se.se_voters
-  in
+  let show_weight = has_explicit_weights se.se_voters in
   let has_passwords =
     match se.se_metadata.e_auth_config with
     | Some [{auth_system = "password"; _}] -> true

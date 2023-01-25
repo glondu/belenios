@@ -59,8 +59,8 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `drafts/$UUID/passwords` (administrator)
 
-* `GET`: unit -> voter_list
-* `POST`: voter_list -> unit
+* `GET`: unit -> string_list
+* `POST`: string_list -> unit
 
 ## `drafts/$UUID/credentials` (administrator or credential authority)
 

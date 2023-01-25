@@ -24,6 +24,7 @@
 (** {2 Predefined types} *)
 
 type number = string wrap <ocaml module="Common_types.Number">
+type weight = abstract wrap <ocaml module="Common_types.Weight">
 
 (** {2 Basic cryptographic datastructures} *)
 
@@ -41,3 +42,11 @@ type proof = {
 
 type disjunctive_proof = proof list <ocaml repr="array">
 <doc text="A disjunctive ZKP. The size of the array is the number of disjuncts. ">
+
+type voter = {
+    address : string;
+    ?login : string option;
+    ?weight : weight option;
+}
+
+type voter_list = voter list

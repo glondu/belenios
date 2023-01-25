@@ -244,7 +244,7 @@ module Credgen : CMDLINER_MODULE = struct
          if n < 1 then (
            failcmd "the argument of --count must be a positive number"
          ) else `Generate (generate_ids n)
-      | None, Some f, None -> `Generate (lines_of_file f)
+      | None, Some f, None -> `Generate (string_of_file f |> Voter.list_of_string)
       | None, None, Some c -> `Derive c
       | _, _, _ ->
          failcmd "--count, --file and --derive are mutually exclusive"

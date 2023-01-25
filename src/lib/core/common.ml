@@ -251,16 +251,6 @@ let extract_weight str =
     String.sub str 0 i, w
   with _ -> str, Weight.one
 
-let split_identity x =
-  match String.split_on_char ',' x with
-  | [address] -> address, address, Weight.one
-  | [address; login] -> address, (if login = "" then address else login), Weight.one
-  | [address; login; weight] ->
-     address,
-     (if login = "" then address else login),
-     Weight.of_string weight
-  | _ -> failwith "Common.split_identity"
-
 let split_identity_opt x =
   match String.split_on_char ',' x with
   | [address] -> address, None, None
@@ -270,5 +260,65 @@ let split_identity_opt x =
      (if login = "" then None else Some login),
      Some (Weight.of_string weight)
   | _ -> failwith "Common.split_identity_opt"
+
+module Voter = struct
+  type t = [`Plain | `Json] * Serializable_core_t.voter
+
+  let wrap = function
+    | `String x ->
+       let address, login, weight = split_identity_opt x in
+       ((`Plain, {address; login; weight}) : t)
+    | x ->
+       let s = Yojson.Safe.to_string x in
+       `Json, Serializable_core_j.voter_of_string s
+
+  let of_string x =
+    match Serializable_core_j.voter_of_string x with
+    | exception _ -> wrap (`String x)
+    | o -> `Json, o
+
+  let to_string ((typ, o) : t) =
+    match typ with
+    | `Json -> Serializable_core_j.string_of_voter o
+    | `Plain ->
+       match o with
+       | {address; login = None; weight = None} -> address
+       | {address; login = None; weight = Some weight} -> address ^ ",," ^ Weight.to_string weight
+       | {address; login = Some login; weight = None} -> address ^ "," ^ login
+       | {address; login = Some login; weight = Some weight} -> address ^ "," ^ login ^ "," ^ Weight.to_string weight
+
+  let unwrap ((typ, o) as x : t) =
+    match typ with
+    | `Json ->
+       let s = Serializable_core_j.string_of_voter o in
+       Yojson.Safe.from_string s
+    | `Plain -> `String (to_string x)
+
+  let list_to_string voters =
+    if List.exists (fun (x, _) -> x = `Json) voters then
+      Serializable_core_j.string_of_voter_list (List.map snd voters)
+    else (
+      let b = Buffer.create 1024 in
+      List.iter
+        (fun x ->
+          Buffer.add_string b (to_string x);
+          Buffer.add_char b '\n';
+        ) voters;
+      Buffer.contents b
+    )
+
+  let list_of_string x =
+    match Serializable_core_j.voter_list_of_string x with
+    | voters -> List.map (fun x -> `Json, x) voters
+    | exception _ -> split_lines x |> List.map of_string
+
+  let get ((_, {address; login; weight}) : t) =
+    address,
+    Option.value login ~default:address,
+    Option.value weight ~default:Weight.one
+end
+
+let has_explicit_weights voters =
+  List.exists (fun ((_, {weight; _}) : Voter.t) -> weight <> None) voters
 
 let supported_crypto_versions = [1]

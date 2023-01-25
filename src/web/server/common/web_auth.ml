@@ -180,12 +180,11 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
          | Some uuid ->
             let* c = get_election_auth_configs uuid in
             let* username_or_address =
-              let* voters = Web_persist.get_voters uuid in
+              let* voters = Spool.get_voters ~uuid in
               match voters with
               | None | Some [] -> return `Username
-              | Some (v :: _) ->
-                 let _, username, _ = split_identity_opt v in
-                 match username with
+              | Some ((_, {login; _}) :: _) ->
+                 match login with
                  | None -> return `Address
                  | Some _ -> return `Username
             in

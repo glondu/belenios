@@ -39,7 +39,7 @@ type credentials =
 module type S = sig
   type 'a m
   val derive : string -> string
-  val generate : string list -> credentials m
+  val generate : Voter.t list -> credentials m
 end
 
 module Make (P : PARAMS) (M : RANDOM) () = struct
@@ -71,32 +71,26 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
        monadic_fold_left f accu xs
 
   let generate ids =
-    let implicit_weights = ref true in
+    let implicit_weights = not (has_explicit_weights ids) in
     let* privs, pubs =
       monadic_fold_left
         (fun (privs, pubs) id ->
-          let address, username, weight = split_identity_opt id in
-          let username = Option.value ~default:address username in
-          let weight =
-            match weight with
-            | None -> Weight.one
-            | Some w -> implicit_weights := false; w
-          in
+          let _, username, weight = Voter.get id in
           let* priv = CG.generate () in
           M.return (
-              (id ^ " " ^ priv) :: privs,
+              (Voter.to_string id ^ " " ^ priv) :: privs,
               CredSet.add (derive_in_group priv) (weight, username) pubs
             )
         ) ([], CredSet.empty) ids
     in
     let serialize (e, (w, id)) =
       G.to_string e
-      ^ (if !implicit_weights then "," else Printf.sprintf ",%s" (Weight.to_string w))
+      ^ (if implicit_weights then "," else Printf.sprintf ",%s" (Weight.to_string w))
       ^ Printf.sprintf ",%s" id
     in
     let serialize_public (e, (w, _)) =
       G.to_string e
-      ^ (if !implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
+      ^ (if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
     in
     let bindings = CredSet.bindings pubs in
     M.return
@@ -121,5 +115,8 @@ let generate_ids n =
   let last = first + n - 1 in
   let rec loop last accu =
     if last < first then accu
-    else loop (last-1) (string_of_int last :: accu)
+    else
+      let address = string_of_int last in
+      let x : Voter.t = `Plain, {address; login = None; weight = None} in
+      loop (last-1) (x :: accu)
   in loop last []

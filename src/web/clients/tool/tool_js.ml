@@ -159,12 +159,10 @@ module Credgen = struct
     Lwt.return_unit
 
   let generate_n () =
-    get_textarea "credgen_number" |>
-    int_of_string |> generate_ids |> generate
+    get_textarea "credgen_number" |> int_of_string |> generate_ids |> generate
 
   let generate_ids () =
-    get_textarea "credgen_ids" ^ "\n" |>
-    split_lines |> generate
+    get_textarea "credgen_ids" |> Voter.list_of_string |> generate
 
   let cmds = [
     "do_credgen_derive", derive;

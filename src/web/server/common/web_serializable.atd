@@ -106,7 +106,7 @@ type audit_cache = {
 (** {1 Types related to elections being prepared} *)
 
 type draft_voter = {
-  id : string;
+  id <ocaml mutable> : string;
   ?password <ocaml mutable> : (string * string) option;
 } <ocaml field_prefix="sv_">
 

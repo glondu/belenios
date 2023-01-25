@@ -567,8 +567,6 @@ let get_elections_by_owner user =
   | None -> return []
   | Some xs -> return xs
 
-let get_voters uuid = Spool.get_raw_list ~uuid Spool.voters
-
 let get_passwords uuid =
   let csv =
     try Some (Csv.load (uuid /// "passwords.csv"))
@@ -1046,12 +1044,12 @@ let compute_audit_cache uuid =
        "compute_cache: %s does not exist" (Uuid.unwrap uuid)
   | Some _ ->
      let* voters =
-       let* x = Spool.get_raw_list ~uuid Spool.voters in
+       let* x = Spool.get_voters ~uuid in
        match x with
        | Some x -> return x
        | None -> failwith "voters are missing"
      in
-     let cache_voters_hash = Hash.hash_string (String.concat "\n" voters ^ "\n") in
+     let cache_voters_hash = Hash.hash_string (Voter.list_to_string voters) in
      let* shuffles =
        let* x = get_shuffles uuid in
        let&* x in

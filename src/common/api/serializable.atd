@@ -137,7 +137,9 @@ type summary = {
 
 type summary_list = summary list
 
-type voter_list = string list
+type voter_list <ocaml predef from="Belenios_core.Serializable"> = abstract
+
+type string_list = string list
 
 type credential_list = string list
 

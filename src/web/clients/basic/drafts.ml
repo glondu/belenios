@@ -88,15 +88,19 @@ let rec show_draft_passwords uuid container =
   let@ () = show_in container in
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
   let@ voters = with_ok "voters" x in
-  let* x = get voter_list_of_string "drafts/%s/passwords" uuid in
-  let ifmatch = compute_ifmatch string_of_voter_list x in
+  let* x = get string_list_of_string "drafts/%s/passwords" uuid in
+  let ifmatch = compute_ifmatch string_of_string_list x in
   let@ x = with_ok "passwords" x in
   let missing =
-    let x = List.fold_left (fun accu v -> SSet.add v accu) SSet.empty x in
-    List.filter (fun v -> not @@ SSet.mem v x) voters
+    let x = List.fold_left (fun accu v -> SSet.add (String.lowercase_ascii v) accu) SSet.empty x in
+    List.filter_map
+      (fun v ->
+        let _, login, _ = Voter.get v in
+        if SSet.mem (String.lowercase_ascii login) x then None else Some login
+      ) voters
   in
-  let t1, _ = textarea (string_of_voter_list x) in
-  let t2, t2get = textarea (string_of_voter_list missing) in
+  let t1, _ = textarea (string_of_string_list x) in
+  let t2, t2get = textarea (string_of_string_list missing) in
   let b =
     let@ () = button "Generate and send passwords" in
     let* x = post_with_token ?ifmatch (t2get ()) "drafts/%s/passwords" uuid in

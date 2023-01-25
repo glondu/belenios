@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Common
 open Web_serializable_t
 
 val generate_password_email :
@@ -26,7 +27,7 @@ val generate_password_email :
   string list ->
   string ->
   Web_serializable_t.uuid ->
-  string -> bool -> (bulk_email * (string * string)) Lwt.t
+  Voter.t -> bool -> (bulk_email * (string * string)) Lwt.t
 
 val generate_credential_email :
   Web_serializable_t.uuid ->

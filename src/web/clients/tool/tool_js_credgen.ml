@@ -31,19 +31,7 @@ open Belenios_api.Serializable_j
 
 let generate uuid draft =
   let raw = get_textarea "voters" in
-  let ids =
-    let rec loop i accu =
-      if i >= 0 then
-        let j =
-          match String.rindex_from_opt raw i '\n' with
-          | Some x -> x
-          | None -> -1
-        in
-        loop (j-1) (String.sub raw (j+1) (i-j) :: accu)
-      else
-        accu
-    in loop (String.length raw - 2) []
-  in
+  let ids = Voter.list_of_string raw in
   let module P : PARAMS = struct
     let version = draft.draft_version
     let uuid = uuid
@@ -93,11 +81,7 @@ let fill_interactivity () =
        alert "Unable to get voters";
        Lwt.return_unit
   in
-  let raw =
-    let b = Buffer.create 1024 in
-    List.iter (fun x -> Printf.bprintf b "%s\n" x) voters;
-    Buffer.contents b
-  in
+  let raw = Voter.list_to_string voters in
   set_textarea "voters" raw;
   set_content "voters_hash" (sha256_b64 raw);
   let&&* e = document##getElementById (Js.string "interactivity") in

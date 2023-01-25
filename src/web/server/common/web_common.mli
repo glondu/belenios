@@ -148,10 +148,11 @@ val pcre_exec_opt : rex:Pcre.regexp -> string -> Pcre.substrings option
 val is_email : string -> bool
 val extract_email : string -> string option
 
-val is_identity : string -> bool
+val is_username : string -> bool
 
 val file_exists : string -> bool Lwt.t
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
+val read_whole_file : ?uuid:uuid -> string -> string option Lwt.t
 val read_file_single_line : ?uuid:uuid -> string -> string option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 
@@ -182,6 +183,8 @@ type credential_record = {
     cr_weight : weight;
     cr_username : string option;
 }
+
+val has_explicit_weights : draft_voter list -> bool
 
 val default_contact : string
 val default_questions : question array

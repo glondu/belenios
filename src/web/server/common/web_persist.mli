@@ -61,7 +61,6 @@ type election_kind =
 val get_elections_by_owner : int -> (election_kind * uuid * datetime * string) list Lwt.t
 val clear_elections_by_owner_cache : unit -> unit Lwt.t
 
-val get_voters : uuid -> string list option Lwt.t
 val get_passwords : uuid -> (string * string) SMap.t option Lwt.t
 val get_private_key : uuid -> number option Lwt.t
 val get_private_keys : uuid -> string list option Lwt.t

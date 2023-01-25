@@ -2431,7 +2431,7 @@ module Make
             ]
         ) records
     in
-    let* voters = Web_persist.get_voters uuid in
+    let* voters = Spool.get_voters ~uuid in
     let nvoters =
       match voters with
       | None -> failwith "voter list not found"

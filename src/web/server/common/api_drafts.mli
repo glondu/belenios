@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Common
 open Belenios_api.Serializable_t
 open Web_serializable_t
 
@@ -30,11 +31,6 @@ val post_drafts : account -> draft -> uuid option Lwt.t
 
 val get_draft_voters : draft_election -> voter_list
 val put_draft_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
-
-val get_draft_passwords : draft_election -> voter_list
-val post_draft_passwords :
-  (Web_serializable_t.metadata -> string -> ('a * (string * string)) Lwt.t) ->
-  uuid -> draft_election -> voter_list -> 'a list Lwt.t
 
 val get_draft_credentials :
   [`Administrator of account | `CredentialAuthority] ->
@@ -78,7 +74,7 @@ val dump_passwords : uuid -> string list list -> unit Lwt.t
 val validate_election : uuid -> draft_election -> unit Lwt.t
 
 val merge_voters :
-  draft_voter list -> string list ->
+  draft_voter list -> Voter.t list ->
   (string -> (string * string) option) -> (draft_voter list * weight, string) Stdlib.result
 
 val import_voters :

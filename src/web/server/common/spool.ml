@@ -173,8 +173,6 @@ let audit_cache =
     filename = "audit_cache.json";
   }
 
-let voters = raw "voters.txt"
-
 let chain_filename uuid = Uuid.unwrap uuid ^ ".bel"
 let chain uuid = raw (chain_filename uuid)
 
@@ -184,3 +182,8 @@ let last_event =
     to_string = string_of_last_event;
     filename = "last_event.json";
   }
+
+let get_voters ~uuid =
+  let* x = read_whole_file ~uuid "voters.txt" in
+  let&* x in
+  Lwt.return_some (Voter.list_of_string x)

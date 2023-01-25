@@ -50,7 +50,8 @@ val extended_records : extended_record list
 val records : string list
 val credential_mappings : credential_mapping list
 val audit_cache : audit_cache t
-val voters : string list
 val chain_filename : uuid -> string
 val chain : uuid -> string t
 val last_event : last_event t
+
+val get_voters : uuid:uuid -> voter_list option Lwt.t
