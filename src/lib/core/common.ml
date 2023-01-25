@@ -251,6 +251,37 @@ let extract_weight str =
     String.sub str 0 i, w
   with _ -> str, Weight.one
 
+let re_exec_opt ~rex x =
+  try Some (Re.Pcre.exec ~rex x) with Not_found -> None
+
+let username_rex = "^[A-Z0-9._%+-]+$"
+
+let is_username =
+  let rex = Re.Pcre.regexp ~flags:[`CASELESS] username_rex in
+  fun x ->
+  match re_exec_opt ~rex x with
+  | Some _ -> true
+  | None -> false
+
+let email_rex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
+
+let is_email =
+  let rex = Re.Pcre.regexp ~flags:[`CASELESS] ("^" ^ email_rex ^ "$") in
+  fun x ->
+  match re_exec_opt ~rex x with
+  | Some _ -> true
+  | None -> false
+
+let extract_email =
+  let rex = Re.Pcre.regexp ~flags:[`CASELESS] ("<(" ^ email_rex ^ ")>") in
+  fun x ->
+  if is_email x then
+    Some x
+  else (
+    let& s = re_exec_opt ~rex x in
+    Some (Re.Pcre.get_substring s 1)
+  )
+
 let split_identity_opt x =
   match String.split_on_char ',' x with
   | [address] -> address, None, None

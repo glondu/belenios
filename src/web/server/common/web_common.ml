@@ -348,37 +348,6 @@ let string_of_languages xs =
 let languages_of_string x =
   Pcre.split x
 
-let pcre_exec_opt ~rex x =
-  try Some (Pcre.exec ~rex x) with Not_found -> None
-
-let email_rex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
-
-let is_email =
-  let rex = Pcre.regexp ~flags:[`CASELESS] ("^" ^ email_rex ^ "$") in
-  fun x ->
-  match pcre_exec_opt ~rex x with
-  | Some _ -> true
-  | None -> false
-
-let extract_email =
-  let rex = Pcre.regexp ~flags:[`CASELESS] ("<(" ^ email_rex ^ ")>") in
-  fun x ->
-  if is_email x then
-    Some x
-  else (
-    let& s = pcre_exec_opt ~rex x in
-    Some (Pcre.get_substring s 1)
-  )
-
-let username_rex = "^[A-Z0-9._%+-]+$"
-
-let is_username =
-  let rex = Pcre.regexp ~flags:[`CASELESS] username_rex in
-  fun x ->
-  match pcre_exec_opt ~rex x with
-  | Some _ -> true
-  | None -> false
-
 let file_exists x =
   Lwt.catch
     (fun () ->

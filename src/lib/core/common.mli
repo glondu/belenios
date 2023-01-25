@@ -90,6 +90,12 @@ val strip_cred : string -> string
     - else, return [(str, 1)] *)
 val extract_weight : string -> string * Weight.t
 
+val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
+
+val is_username : string -> bool
+val is_email : string -> bool
+val extract_email : string -> string option
+
 module Voter : sig
   type t = [`Plain | `Json] * Serializable_core_t.voter
   val wrap : Yojson.Safe.t -> t

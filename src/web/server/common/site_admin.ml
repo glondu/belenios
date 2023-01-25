@@ -257,9 +257,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let http_rex = "^https?://[a-z0-9/.-]+$"
 
   let is_http_url =
-    let rex = Pcre.regexp ~flags:[`CASELESS] http_rex in
+    let rex = Re.Pcre.regexp ~flags:[`CASELESS] http_rex in
     fun x ->
-    match pcre_exec_opt ~rex x with
+    match re_exec_opt ~rex x with
     | Some _ -> true
     | None -> false
 

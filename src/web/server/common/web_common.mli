@@ -143,13 +143,6 @@ val get_languages : string list option -> string list
 val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
 
-val pcre_exec_opt : rex:Pcre.regexp -> string -> Pcre.substrings option
-
-val is_email : string -> bool
-val extract_email : string -> string option
-
-val is_username : string -> bool
-
 val file_exists : string -> bool Lwt.t
 val read_file : ?uuid:uuid -> string -> string list option Lwt.t
 val read_whole_file : ?uuid:uuid -> string -> string option Lwt.t
