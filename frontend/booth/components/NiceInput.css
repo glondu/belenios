@@ -1,4 +1,4 @@
-.nice-text-input {
+.nice-password-input, .nice-text-input {
   border-radius: 8px;
   border: 1px solid #c4c4c4;
   padding: 5px 10px;
