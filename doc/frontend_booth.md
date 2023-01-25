@@ -14,6 +14,8 @@ Install npm, optionnaly using nvm (if you choose to use nvm, don't forget to exe
 
 Then install the minimum dependencies required for this project (React, i18next, etc): `npm install`
 
+You will also need to build the frontend project with `make`
+
 ### Execute an HTTP server to display the vote.html page
 
 The `frontend/booth/vote.html` page is autonomous as it can be accessed without any instance of the Belenios server running: it simply need to refer to an election.json file located in a folder named after the uuid of the election. But this page uses Javascript Modules, and as stated in the [Mozilla Developer Network page about Javascript Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules): "You need to pay attention to local testing — if you try to load the HTML file locally (i.e. with a `file://` URL), you'll run into CORS errors due to JavaScript module security requirements. You need to do your testing through a server.".
