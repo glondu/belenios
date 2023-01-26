@@ -6,6 +6,8 @@ import os
 import subprocess
 import re
 import sys
+import json
+from collections import OrderedDict
 from uuid import uuid4
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.support.select import Select
@@ -272,18 +274,9 @@ Page of the election: {election_url}
 Note that you are allowed to vote several times.  Only the last vote
 counts."""
         with open(private_credentials_file_path) as myfile:
+            data = json.load(myfile, object_pairs_hook=OrderedDict)
             i = 0
-            for line in myfile:
-                voter_email_address = None
-                match = re.search(r'^(\S+)\s(\S+)$', line)
-                if match:
-                    if voters_email_addresses is not None:
-                        voter_email_address = voters_email_addresses[i]
-                    else:
-                        voter_email_address = match.group(1)
-                    voter_private_credential = match.group(2)
-                else:
-                    raise Exception("File creds.txt has wrong format")
+            for voter_email_address, voter_private_credential in data.items():
                 custom_content = content.format(election_title=settings.ELECTION_TITLE, credential=voter_private_credential, election_url=self.election_page_url)
                 self.fake_sent_emails_manager.send_email(from_email_address, voter_email_address, subject, custom_content)
                 i += 1

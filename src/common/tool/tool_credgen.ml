@@ -21,6 +21,7 @@
 
 open Belenios_core
 open Signatures
+open Serializable_t
 open Common
 
 module type PARAMS = sig
@@ -31,7 +32,7 @@ end
 
 type credentials =
   {
-    priv : string list;
+    priv : private_credentials;
     public : string list;
     public_with_ids : string list;
   }
@@ -78,7 +79,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
           let _, username, weight = Voter.get id in
           let* priv = CG.generate () in
           M.return (
-              (Voter.to_string id ^ " " ^ priv) :: privs,
+              (username, priv) :: privs,
               CredSet.add (derive_in_group priv) (weight, username) pubs
             )
         ) ([], CredSet.empty) ids

@@ -1,3 +1,4 @@
+open Belenios_core.Serializable_t
 open Belenios_core.Common
 
 module type PARAMS = sig
@@ -8,7 +9,7 @@ end
 
 type credentials =
   {
-    priv : string list;
+    priv : private_credentials;
     public : string list;
     public_with_ids : string list;
   }

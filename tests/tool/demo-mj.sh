@@ -32,7 +32,8 @@ group="--group RFC-3526-2048"
 # Generate credentials
 belenios-tool setup generate-credentials $uuid $group --count 102 | tee generate-credentials.out
 mv *.pubcreds public_creds.json
-mv *.privcreds private_creds.txt
+mv *.privcreds private_creds.json
+paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-output '.[]' < private_creds.json) > private_creds.txt
 
 # Generate trustee keys
 belenios-tool setup generate-trustee-key $group

@@ -42,7 +42,7 @@ let generate uuid draft =
   set_textarea "pks" (string_of_public_credentials c.public_with_ids);
   let hash = sha256_b64 (string_of_public_credentials c.public) in
   set_content "public_creds_fp" hash;
-  let text_creds = (c.priv |> String.concat "\n") ^ "\n" in
+  let text_creds = string_of_private_credentials c.priv in
   set_download "creds" "text/plain" "creds.txt" text_creds;
   set_download "voters_txt" "text/plain" "voters.txt" raw;
   set_element_display "submit_form" "inline";

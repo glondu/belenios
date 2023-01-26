@@ -153,7 +153,7 @@ module Credgen = struct
     let module X = Make (P) (LwtJsRandom) () in
     let* c = X.generate ids in
     set_textarea "credgen_generated_creds"
-      (c.priv |> String.concat "\n");
+      (string_of_private_credentials c.priv);
     set_textarea "credgen_generated_pks"
       (c.public_with_ids |> String.concat "\n");
     Lwt.return_unit

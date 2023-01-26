@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios_core.Signatures
+open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
@@ -83,7 +84,13 @@ let show main uuid =
                   Lwt.return (CMap.add pub_cred weight public_creds, (v, cred) :: private_creds)
                 ) (CMap.empty, []) xs
             in
-            let private_creds = List.rev_map (fun (v, c) -> Voter.to_string v ^ " " ^ c) private_creds in
+            let private_creds =
+              List.rev_map
+                (fun (v, c) ->
+                  let _, login, _ = Voter.get v in
+                  login, c
+                ) private_creds
+            in
             let public_creds =
               CMap.bindings public_creds
               |> List.map
@@ -95,7 +102,7 @@ let show main uuid =
                    )
             in
             let op = string_of_credential_list public_creds in
-            let t, _ = textarea (String.concat "\n" private_creds ^ "\n") in
+            let t, _ = textarea (string_of_private_credentials private_creds) in
             let button_container = div [] |> Tyxml_js.To_dom.of_div in
             let b =
               let@ () = button "Send public credentials to server" in

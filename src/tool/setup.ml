@@ -216,18 +216,8 @@ module Credgen : CMDLINER_MODULE = struct
     close_out oc;
     Printf.printf "%d %s saved to %s\n%!" count info fname
 
-  let as_lines things oc =
-    let count = ref 0 in
-    List.iter
-      (fun x ->
-        incr count;
-        output_string oc x;
-        output_string oc "\n";
-      ) things;
-    !count
-
-  let as_public_credentials things oc =
-    output_string oc (string_of_public_credentials things);
+  let as_json to_string things oc =
+    output_string oc (to_string things);
     List.length things
 
   let main version group dir uuid count file derive =
@@ -256,8 +246,8 @@ module Credgen : CMDLINER_MODULE = struct
        let c = R.generate ids in
        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
        let base = dir // timestamp in
-       save params_priv base (as_lines c.priv);
-       save params_pub base (as_public_credentials c.public_with_ids);
+       save params_priv base (as_json string_of_private_credentials c.priv);
+       save params_pub base (as_json string_of_public_credentials c.public_with_ids);
        let h = sha256_b64 (string_of_public_credentials c.public) in
        Printf.printf "The fingerprint of public credentials is %s\n%!" h
 

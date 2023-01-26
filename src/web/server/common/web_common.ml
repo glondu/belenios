@@ -393,6 +393,16 @@ let write_file ?uuid x lines =
   in
   Lwt_unix.rename fname_new fname
 
+let write_whole_file ?uuid x data =
+  let fname = get_fname uuid x in
+  let fname_new = fname ^ ".new" in
+  let* () =
+    let open Lwt_io in
+    let@ oc = with_file ~mode:Output fname_new in
+    write oc data
+  in
+  Lwt_unix.rename fname_new fname
+
 let cleanup_file f =
   Lwt.catch
     (fun () -> Lwt_unix.unlink f)

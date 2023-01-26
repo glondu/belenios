@@ -74,6 +74,8 @@ type voter_list = voter list
 
 type public_credentials = string list
 
+type private_credentials = (string * string) list <json repr="object">
+
 type template = {
   description : string;
   name : string;

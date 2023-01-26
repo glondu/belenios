@@ -386,11 +386,14 @@ let generate_credentials_on_server send uuid se =
             G.(g **~ x)
           in
           let* job = send ~recipient ~login ~weight ~credential in
-          Lwt.return (CMap.add pub_cred (weight, login) public_creds, (v.sv_id, credential) :: private_creds, job :: jobs)
+          Lwt.return (CMap.add pub_cred (weight, login) public_creds, (login, credential) :: private_creds, job :: jobs)
         ) (CMap.empty, [], []) se.se_voters
     in
-    let private_creds = List.rev_map (fun (id, c) -> Voter.to_string id ^ " " ^ c) private_creds in
-    let* () = write_file ~uuid "private_creds.txt" private_creds in
+    let private_creds =
+      List.rev private_creds
+      |> string_of_private_credentials
+    in
+    let* () = write_whole_file ~uuid "private_creds.txt" private_creds in
     let public_creds =
       CMap.bindings public_creds
       |> List.map
