@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import json
+from collections import OrderedDict
 import smtplib
 from email.mime.text import MIMEText
 from string import Template
@@ -20,6 +22,9 @@ UUID='pmFbhhuxH3k6vc'
 SMTP='smtp.example.com'
 username='bozo'
 password = getpass.getpass("please type your password: ")
+
+# name of the file where to read the voter list
+VOTERS_FILE='voters.txt'
 
 # name of the file where to read the credentials
 CODE_FILE='creds.txt'
@@ -71,17 +76,38 @@ Reminder: there are two candidates Maïté and Amandine.
 Thank you for your participation.
 """)
 
+# Populate mapping from logins to addresses
+voters = {}
+try:
+    with open(VOTERS_FILE) as vf:
+        data = json.load(vf)
+        for x in data:
+            address = x["address"]
+            login = x.get("login", address)
+            voters[login] = address
+except json.JSONDecodeError:
+    with open(VOTERS_FILE) as vf:
+        for line in vf:
+            l = line.strip().split(",")
+            if len(l) < 2:
+                address = l[0]
+                login = l[0]
+            else:
+                address = l[0]
+                login = l[1] or address
+            voters[login] = address
+
 # Real stuff starts here. Pretty short, isn't it?
 with open(CODE_FILE) as cf:
     d = dict(UUID=UUID)
     s = smtplib.SMTP(SMTP)
     s.starttls()
     s.login(username, password)
-    for line in cf:
-        l = line.split()
-        d['ELECTION_CODE']=l[1]
+    data = json.load(cf, object_pairs_hook=OrderedDict)
+    for login, credential in data.items():
+        d['ELECTION_CODE'] = credential
         msg = MIMEText(TEMPLATE.substitute(d))
-        email=l[0].split(",")[0]
+        email = voters[login]
         msg['Subject'] = SUBJECT
         msg['From'] = FROM
         if DEBUG:
