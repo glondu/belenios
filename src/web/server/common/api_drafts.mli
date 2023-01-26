@@ -75,7 +75,7 @@ val validate_election : uuid -> draft_election -> unit Lwt.t
 
 val merge_voters :
   draft_voter list -> Voter.t list ->
-  (string -> (string * string) option) -> (draft_voter list * weight, string) Stdlib.result
+  (Voter.t -> (string * string) option) -> (draft_voter list * weight, Voter.t) Stdlib.result
 
 val import_voters :
   uuid -> draft_election -> uuid ->

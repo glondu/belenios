@@ -1283,12 +1283,13 @@ module Make
             div [input ~input_type:`Submit ~value:(s_ "Add") string]])
         uuid
     in
-    let mk_remove_button id =
+    let mk_remove_button voter =
+      let _, value, _ = Voter.get voter in
       post_form
         ~service:election_draft_voters_remove
         (fun name ->
           [
-            input ~input_type:`Hidden ~name ~value:id string;
+            input ~input_type:`Hidden ~name ~value string;
             input ~input_type:`Submit ~value:(s_ "Remove") string;
           ]
         ) uuid
@@ -1306,7 +1307,8 @@ module Make
       | Some [{auth_system = "password"; _}] -> true
       | _ -> false
     in
-    let mk_regen_passwd value =
+    let mk_regen_passwd voter =
+      let _, value, _ = Voter.get voter in
       post_form ~service:election_draft_voters_passwd
         ~a:[a_style "display: inline;"]
         (fun name ->
@@ -1323,7 +1325,7 @@ module Make
     let voters =
       List.map (fun v ->
           tr (
-              [td [txt v.sv_id]] @
+              [td [txt @@ Voter.to_string v.sv_id]] @
                 (if has_passwords then [td (format_password_cell v)] else []) @
                   (if se.se_public_creds_received then [] else [td [mk_remove_button v.sv_id]])
             )

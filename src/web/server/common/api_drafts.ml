@@ -224,36 +224,34 @@ let post_drafts account draft =
 
 let get_draft_voters se =
   se.se_voters
-  |> List.map (fun x -> Voter.of_string x.sv_id)
+  |> List.map (fun x -> x.sv_id)
 
 let put_draft_voters uuid se voters =
   let existing_voters =
     List.fold_left
       (fun accu v ->
-        let voter = Voter.of_string v.sv_id in
-        let _, login, _ = Voter.get voter in
-        SMap.add (String.lowercase_ascii login) (v, voter) accu
+        let _, login, _ = Voter.get v.sv_id in
+        SMap.add (String.lowercase_ascii login) v accu
       ) SMap.empty se.se_voters
   in
-  let all_voters =
+  let se_voters =
     List.map
       (fun voter ->
         if not (Voter.validate voter) then raise @@ Error (`Invalid "identity");
-        let sv_id = Voter.to_string voter in
         let _, login, _ = Voter.get voter in
         match SMap.find_opt (String.lowercase_ascii login) existing_voters with
-        | None -> {sv_id; sv_password = None}, voter
-        | Some (v, _) ->
-           v.sv_id <- sv_id;
-           v, voter
+        | None -> {sv_id = voter; sv_password = None}
+        | Some v ->
+           v.sv_id <- voter;
+           v
       ) voters
   in
   let* total_weight, _, _ =
     Lwt_list.fold_left_s
-      (fun (total_weight, shape, voters) (_, voter) ->
+      (fun (total_weight, shape, voters) v ->
         let shape =
           let shape' =
-            let ((typ, {login; weight; _}) : Voter.t) = voter in
+            let ((typ, {login; weight; _}) : Voter.t) = v.sv_id in
             match typ with
             | `Plain -> `Plain ((login <> None), (weight <> None))
             | `Json -> `Json
@@ -262,7 +260,7 @@ let put_draft_voters uuid se voters =
           | Some x when x <> shape' -> raise @@ Error (`Invalid "format mix")
           | _ -> Some shape'
         in
-        let _, login, weight = Voter.get voter in
+        let _, login, weight = Voter.get v.sv_id in
         let login = String.lowercase_ascii login in
         let* voters =
           if SSet.mem login voters then (
@@ -272,7 +270,7 @@ let put_draft_voters uuid se voters =
           )
         in
         Lwt.return (Weight.(total_weight + weight), shape, voters)
-      ) (Weight.zero, None, SSet.empty) all_voters
+      ) (Weight.zero, None, SSet.empty) se_voters
   in
   let* () =
     let expanded = Weight.expand ~total:total_weight total_weight in
@@ -282,7 +280,7 @@ let put_draft_voters uuid se voters =
       Lwt.return_unit
     )
   in
-  let se = {se with se_voters = List.map fst all_voters} in
+  let se = {se with se_voters} in
   Web_persist.set_draft_election uuid se
 
 let get_draft_passwords se =
@@ -291,7 +289,7 @@ let get_draft_passwords se =
        (fun x ->
          Option.map
            (fun _ ->
-             let _, login, _ = Voter.(x.sv_id |> of_string |> get) in
+             let _, login, _ = Voter.get x.sv_id in
              login
            ) x.sv_password
        )
@@ -300,9 +298,8 @@ let post_draft_passwords generate uuid se voters =
   let se_voters =
     List.fold_left
       (fun accu v ->
-        let voter = Voter.of_string v.sv_id in
-        let _, login, _ = Voter.get voter in
-        SMap.add (String.lowercase_ascii login) (v, voter) accu
+        let _, login, _ = Voter.get v.sv_id in
+        SMap.add (String.lowercase_ascii login) v accu
       ) SMap.empty se.se_voters
   in
   let () =
@@ -319,8 +316,8 @@ let post_draft_passwords generate uuid se voters =
   in
   let* jobs =
     Lwt_list.fold_left_s
-      (fun jobs (v, voter) ->
-        let* job, x = generate se.se_metadata voter in
+      (fun jobs v ->
+        let* job, x = generate se.se_metadata v.sv_id in
         v.sv_password <- Some x;
         Lwt.return (job :: jobs)
       ) [] voters
@@ -382,7 +379,7 @@ let generate_credentials_on_server send uuid se =
     let module CD = Belenios_core.Credential.MakeDerive (G) in
     let* public_creds, private_creds, jobs =
       Lwt_list.fold_left_s (fun (public_creds, private_creds, jobs) v ->
-          let recipient, login, weight = Voter.(v.sv_id |> of_string |> get) in
+          let recipient, login, weight = Voter.get v.sv_id in
           let* credential = CG.generate () in
           let pub_cred =
             let x = CD.derive uuid credential in
@@ -392,7 +389,7 @@ let generate_credentials_on_server send uuid se =
           Lwt.return (CMap.add pub_cred (weight, login) public_creds, (v.sv_id, credential) :: private_creds, job :: jobs)
         ) (CMap.empty, [], []) se.se_voters
     in
-    let private_creds = List.rev_map (fun (id, c) -> id ^ " " ^ c) private_creds in
+    let private_creds = List.rev_map (fun (id, c) -> Voter.to_string id ^ " " ^ c) private_creds in
     let* () = write_file ~uuid "private_creds.txt" private_creds in
     let public_creds =
       CMap.bindings public_creds
@@ -423,7 +420,7 @@ let submit_public_credentials uuid se credentials =
   let usernames =
     List.fold_left
       (fun accu {sv_id; _} ->
-        let _, username, weight = Voter.(sv_id |> of_string |> get) in
+        let _, username, weight = Voter.get sv_id in
         if SMap.mem username accu then (
           raise (Error (`GenericError (Printf.sprintf "duplicate username %s" username)))
         ) else (
@@ -892,7 +889,7 @@ let validate_election uuid se =
       (fun oc -> Lwt_io.write oc x)
   in
   let open Belenios_core.Serializable_j in
-  let voters = se.se_voters |> List.map (fun x -> Voter.of_string x.sv_id) in
+  let voters = get_draft_voters se in
   let* () = create_whole_file "voters.txt" (Voter.list_to_string voters) in
   let* () = create_file "metadata.json" string_of_metadata [metadata] in
   (* initialize credentials *)
@@ -949,7 +946,7 @@ let validate_election uuid se =
     | Some [{auth_system = "password"; _}] ->
        let db =
          List.filter_map (fun v ->
-             let _, login, _ = Voter.(v.sv_id |> of_string |> get) in
+             let _, login, _ = Voter.get v.sv_id in
              let& salt, hashed = v.sv_password in
              Some [login; salt; hashed]
            ) se.se_voters
@@ -966,16 +963,15 @@ let merge_voters a b f =
   let weights =
     List.fold_left
       (fun accu sv ->
-        let _, login, weight = Voter.(sv.sv_id |> of_string |> get) in
+        let _, login, weight = Voter.get sv.sv_id in
         let login = String.lowercase_ascii login in
         SMap.add login weight accu
       ) SMap.empty a
   in
   let rec loop weights accu = function
     | [] -> Ok (List.rev accu, Weight.(SMap.fold (fun _ x y -> x + y) weights zero))
-    | x :: xs ->
-       let sv_id = Voter.to_string x in
-       let _, login, weight = Voter.get x in
+    | sv_id :: xs ->
+       let _, login, weight = Voter.get sv_id in
        let login = String.lowercase_ascii login in
        if SMap.mem login weights then
          Stdlib.Error sv_id
@@ -992,7 +988,7 @@ let import_voters uuid se from =
     | None -> fun _ -> None
     | Some p ->
        fun sv_id ->
-       let _, login, _ = Voter.(sv_id |> of_string |> get) in
+       let _, login, _ = Voter.get sv_id in
        SMap.find_opt (String.lowercase_ascii login) p
   in
   match voters with
@@ -1010,7 +1006,9 @@ let import_voters uuid se from =
           ) else (
             Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
           )
-       | Error x -> Lwt.return @@ Stdlib.Error (`Duplicate x)
+       | Error x ->
+          let _, login, _ = Voter.get x in
+          Lwt.return @@ Stdlib.Error (`Duplicate login)
      )
   | None -> Lwt.return @@ Stdlib.Error `NotFound
 

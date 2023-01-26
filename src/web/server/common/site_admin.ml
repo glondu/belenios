@@ -487,7 +487,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
             | None | Some _ ->
                let* email, x =
                  Mails_voter.generate_password_email se.se_metadata langs title uuid
-                   (Voter.of_string id.sv_id) show_weight
+                   id.sv_id show_weight
                in
                id.sv_password <- Some x;
                Lwt.return (email :: jobs)
@@ -592,7 +592,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let check_consistency voters =
     let get_shape voter =
-      match Voter.of_string voter.sv_id with
+      match voter.sv_id with
       | `Plain, {login; weight; _} -> `Plain (login <> None, weight <> None)
       | `Json, _ -> `Json
     in
@@ -629,6 +629,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           in
           match Api_drafts.merge_voters se.se_voters voters (fun _ -> None) with
           | Error x ->
+             let _, x, _ = Voter.get x in
              Printf.ksprintf failwith (f_ "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins.") x
           | Ok (voters, total_weight) ->
              let () =
@@ -675,7 +676,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         if se.se_public_creds_received then
           forbidden ()
         else (
-          se.se_voters <- List.filter (fun v -> v.sv_id <> voter) se.se_voters;
+          let filter v =
+            let _, login, _ = Voter.get v.sv_id in
+            login <> voter
+          in
+          se.se_voters <- List.filter filter se.se_voters;
           redir_preapply election_draft_voters uuid ()
         )
       )
@@ -696,7 +701,11 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_voters_passwd
       (fun uuid voter ->
         let@ se = with_draft_election uuid in
-        let voter = List.filter (fun v -> v.sv_id = voter) se.se_voters in
+        let filter v =
+          let _, login, _ = Voter.get v.sv_id in
+          login = voter
+        in
+        let voter = List.filter filter se.se_voters in
         handle_password se uuid ~force:true voter
       )
 

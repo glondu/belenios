@@ -105,8 +105,10 @@ type audit_cache = {
 
 (** {1 Types related to elections being prepared} *)
 
+type voter <ocaml predef from="Belenios_core.Serializable"> = abstract
+
 type draft_voter = {
-  id <ocaml mutable> : string;
+  id <ocaml mutable> : voter;
   ?password <ocaml mutable> : (string * string) option;
 } <ocaml field_prefix="sv_">
 

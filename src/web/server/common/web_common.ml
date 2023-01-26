@@ -481,7 +481,7 @@ let default_questions =
 let has_explicit_weights voters =
   List.exists
     (fun v ->
-      let (_, {weight; _}) : Voter.t = Voter.of_string v.sv_id in
+      let (_, {weight; _}) : Voter.t = v.sv_id in
       weight <> None
     ) voters
 
