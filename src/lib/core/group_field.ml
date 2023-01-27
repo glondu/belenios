@@ -24,18 +24,6 @@ open Platform
 open Serializable_j
 open Common
 
-(** Helper functions *)
-
-let map_and_concat_with_commas f xs =
-  let n = Array.length xs in
-  let res = Buffer.create (n * 1024) in
-  for i = 0 to n-1 do
-    Buffer.add_string res (f xs.(i));
-    Buffer.add_char res ',';
-  done;
-  let size = Buffer.length res - 1 in
-  if size > 0 then Buffer.sub res 0 size else ""
-
 (** Finite field arithmetic *)
 
 let check_params {p; q; g; embedding} =

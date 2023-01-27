@@ -292,6 +292,16 @@ let split_identity_opt x =
      Some (Weight.of_string weight)
   | _ -> failwith "Common.split_identity_opt"
 
+let map_and_concat_with_commas f xs =
+  let n = Array.length xs in
+  let res = Buffer.create (n * 1024) in
+  for i = 0 to n-1 do
+    Buffer.add_string res (f xs.(i));
+    Buffer.add_char res ',';
+  done;
+  let size = Buffer.length res - 1 in
+  if size > 0 then Buffer.sub res 0 size else ""
+
 module Voter = struct
   type t = [`Plain | `Json] * Serializable_core_t.voter
 
