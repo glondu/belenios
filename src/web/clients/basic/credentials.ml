@@ -101,7 +101,7 @@ let show main uuid =
                      else cred
                    )
             in
-            let op = string_of_credential_list public_creds in
+            let op = string_of_public_credentials public_creds in
             let t, _ = textarea (string_of_private_credentials private_creds) in
             let button_container = div [] |> Tyxml_js.To_dom.of_div in
             let b =

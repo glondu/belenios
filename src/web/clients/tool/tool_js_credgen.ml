@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_core.Common
-open Belenios_core.Serializable_j
 open Belenios_tool_common
 open Belenios_js.Common
 open Tool_credgen

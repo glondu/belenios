@@ -107,6 +107,13 @@ let handle_get get =
   let* x = get () in
   Lwt.return (200, x)
 
+let handle_get_option get =
+  let@ () = handle_generic_error in
+  let* x = get () in
+  match x with
+  | None -> not_found
+  | Some x -> Lwt.return (200, x)
+
 let get_configuration () =
   {
     privacy_policy = !Web_config.gdpr_uri;

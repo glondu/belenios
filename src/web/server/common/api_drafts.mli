@@ -32,10 +32,6 @@ val post_drafts : account -> draft -> uuid option Lwt.t
 val get_draft_voters : draft_election -> voter_list
 val put_draft_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
-val get_draft_credentials :
-  [`Administrator of account | `CredentialAuthority] ->
-  uuid -> draft_election -> credentials Lwt.t
-
 type generate_credentials_on_server_error =
   [ `NoVoters
   | `TooManyVoters
@@ -51,7 +47,7 @@ val generate_credentials_on_server :
 val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
-val submit_public_credentials : uuid -> draft_election -> credential_list -> unit Lwt.t
+val submit_public_credentials : uuid -> draft_election -> public_credentials -> unit Lwt.t
 
 val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 

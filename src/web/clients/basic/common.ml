@@ -151,6 +151,14 @@ let with_ok_opt what x f =
      let* y = f x in
      Lwt.return (y, Some x)
 
+let with_ok_not_found what x f =
+  match x with
+  | Error (`BadStatus (404, _)) -> f None
+  | Error e ->
+     let msg = Printf.sprintf "Error while retrieving %s: %s" what (string_of_error e) in
+     Lwt.return [txt msg]
+  | Ok x -> f (Some x)
+
 let compute_ifmatch to_string x =
   match x with
   | Error _ -> None

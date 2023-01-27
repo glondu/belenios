@@ -51,6 +51,9 @@ val handle_generic_error :
 val handle_get :
   (unit -> string Lwt.t) -> result Lwt.t
 
+val handle_get_option :
+  (unit -> string option Lwt.t) -> result Lwt.t
+
 val get_configuration : unit -> configuration
 
 val get_account : account -> api_account

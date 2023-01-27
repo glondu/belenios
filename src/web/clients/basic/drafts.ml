@@ -111,32 +111,37 @@ let rec show_draft_passwords uuid container =
 
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
-  let* x = get credentials_of_string "drafts/%s/credentials" uuid in
-  let ifmatch = compute_ifmatch string_of_credentials x in
-  let@ x = with_ok "credentials" x in
-  match x.credentials_public, x.credentials_token with
-  | None, None ->
-     let b =
-       let@ () = button "Generate on server" in
-       let op = string_of_credential_list [] in
-       let* x = post_with_token ?ifmatch op "drafts/%s/credentials" uuid in
-       let@ () = show_in container in
-       generic_proceed x (fun () -> show_draft_credentials uuid container)
-     in
-     Lwt.return [b]
-  | None, Some token ->
-     let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
-     let module X = Belenios_ui.Mails_admin.Make (Belenios_js.I18n) in
-     let subject, body = X.mail_credential_authority !Belenios_js.I18n.gettext link in
-     Lwt.return [
-         a_mailto ~recipient:"" ~subject ~body "Send an e-mail to the credential authority";
-         txt " ";
-         txt "or send the following link manually:";
-         txt " ";
-         txt link;
-       ]
-  | Some _, _ ->
-     let t, _ = textarea (string_of_credentials x) in
+  let* x = get public_credentials_of_string "drafts/%s/credentials/public" uuid in
+  let@ x = with_ok_not_found "credentials" x in
+  match x with
+  | None ->
+     let* x = get (fun x -> x) "drafts/%s/credentials/token" uuid in
+     let@ x = with_ok_not_found "token" x in
+     begin
+       match x with
+       | None ->
+          let b =
+            let@ () = button "Generate on server" in
+            let op = string_of_public_credentials [] in
+            let* x = post_with_token op "drafts/%s/credentials" uuid in
+            let@ () = show_in container in
+            generic_proceed x (fun () -> show_draft_credentials uuid container)
+          in
+          Lwt.return [b]
+       | Some token ->
+          let link = Js.to_string Dom_html.window##.location##.href ^ "@" ^ token in
+          let module X = Belenios_ui.Mails_admin.Make (Belenios_js.I18n) in
+          let subject, body = X.mail_credential_authority !Belenios_js.I18n.gettext link in
+          Lwt.return [
+              a_mailto ~recipient:"" ~subject ~body "Send an e-mail to the credential authority";
+              txt " ";
+              txt "or send the following link manually:";
+              txt " ";
+              txt link;
+            ]
+     end
+  | Some x ->
+     let t, _ = textarea (string_of_public_credentials x) in
      Lwt.return [t]
 
 type trustee_with_writer =

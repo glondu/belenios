@@ -141,18 +141,8 @@ type voter_list <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type string_list = string list
 
-type credential_list = string list
-
-type private_credential = {
-    voter : string;
-    credential : string;
-} <ocaml field_prefix="pc_">
-
-type credentials = {
-    ?token : string option;
-    ?public : credential_list option;
-    ?private : private_credential list option;
-} <ocaml field_prefix="credentials_">
+type public_credentials = string list
+type private_credentials <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type 'a trustee = {
     ?address : string option;

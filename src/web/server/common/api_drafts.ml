@@ -325,32 +325,17 @@ let post_draft_passwords generate uuid se voters =
   let* () = Web_persist.set_draft_election uuid se in
   Lwt.return jobs
 
-let split_private_credential x =
-  match String.split_on_char ' ' x with
-  | [pc_voter; pc_credential] -> Some {pc_voter; pc_credential}
-  | _ -> None
+let get_credentials_token se =
+  if se.se_metadata.e_cred_authority = Some "server" then
+    Lwt.return_none
+  else
+    Lwt.return_some se.se_public_creds
 
-let get_draft_credentials who uuid se =
-  let credentials_token =
-    if se.se_metadata.e_cred_authority = Some "server" then
-      None
-    else
-      Some se.se_public_creds
-  in
-  let* credentials_public =
-    let* x = read_file_single_line ~uuid "public_creds.json" in
-    let&* x in
-    Lwt.return_some (public_credentials_of_string x)
-  in
-  let* credentials_private =
-    match who with
-    | `Administrator _ ->
-       let* x = read_file ~uuid "private_creds.txt" in
-       Option.map (List.filter_map split_private_credential) x
-       |> Lwt.return
-    | `CredentialAuthority -> Lwt.return_none
-  in
-  Lwt.return {credentials_token; credentials_public; credentials_private}
+let get_credentials_public uuid =
+  read_whole_file ~uuid "public_creds.json"
+
+let get_credentials_private uuid =
+  read_whole_file ~uuid "private_creds.txt"
 
 type generate_credentials_on_server_error =
   [ `NoVoters
@@ -1148,6 +1133,54 @@ let post_draft_status uuid se = function
      in
      ok
 
+let dispatch_credentials ~token endpoint method_ body uuid se =
+  match endpoint with
+  | ["token"] ->
+     begin
+       let@ _ = with_administrator token se in
+       match method_ with
+       | `GET -> handle_get_option (fun () -> get_credentials_token se)
+       | _ -> method_not_allowed
+     end
+  | ["private"] ->
+     begin
+       let@ _ = with_administrator token se in
+       match method_ with
+       | `GET -> handle_get_option (fun () -> get_credentials_private uuid)
+       | _ -> method_not_allowed
+     end
+  | ["public"] ->
+     begin
+       match method_ with
+       | `GET -> handle_get_option (fun () -> get_credentials_public uuid)
+       | `POST ->
+          let@ who = with_administrator_or_credential_authority token se in
+          if se.se_public_creds_received then (
+            forbidden
+          ) else (
+            let@ x = body.run public_credentials_of_string in
+            match who, x with
+            | `Administrator _, [] ->
+               begin
+                 let@ () = handle_generic_error in
+                 let send = Mails_voter.generate_credential_email uuid se in
+                 let* x = generate_credentials_on_server send uuid se in
+                 match x with
+                 | Ok jobs ->
+                    let* () = Mails_voter.submit_bulk_emails jobs in
+                    ok
+                 | Error e -> Lwt.fail @@ exn_of_generate_credentials_on_server_error e
+               end
+            | `CredentialAuthority, credentials ->
+               let@ () = handle_generic_error in
+               let* () = submit_public_credentials uuid se credentials in
+               ok
+            | _ -> forbidden
+          )
+       | _ -> method_not_allowed
+     end
+  | _ -> not_found
+
 let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   match endpoint with
   | [] ->
@@ -1250,41 +1283,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           ok
        | _ -> method_not_allowed
      end
-  | ["credentials"] ->
-     begin
-       let@ who = with_administrator_or_credential_authority token se in
-       let get () =
-         let* x = get_draft_credentials who uuid se in
-         Lwt.return @@ string_of_credentials x
-       in
-       match method_ with
-       | `GET -> handle_get get
-       | `POST ->
-          let@ () = handle_ifmatch ifmatch get in
-          if se.se_public_creds_received then (
-            forbidden
-          ) else (
-            let@ x = body.run credential_list_of_string in
-            match who, x with
-            | `Administrator _, [] ->
-               begin
-                 let@ () = handle_generic_error in
-                 let send = Mails_voter.generate_credential_email uuid se in
-                 let* x = generate_credentials_on_server send uuid se in
-                 match x with
-                 | Ok jobs ->
-                    let* () = Mails_voter.submit_bulk_emails jobs in
-                    ok
-                 | Error e -> Lwt.fail @@ exn_of_generate_credentials_on_server_error e
-               end
-            | `CredentialAuthority, credentials ->
-               let@ () = handle_generic_error in
-               let* () = submit_public_credentials uuid se credentials in
-               ok
-            | _ -> forbidden
-          )
-       | _ -> method_not_allowed
-     end
+  | "credentials" :: endpoint ->
+     dispatch_credentials ~token endpoint method_ body uuid se
   | ["trustees-pedersen"] ->
      begin
        let@ trustee, dtp = with_threshold_trustee token se in
