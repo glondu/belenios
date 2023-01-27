@@ -44,8 +44,10 @@ let get_ff_params = function
 
 let of_string x =
   match get_ff_params x with
-  | exception Not_found ->
-     Printf.ksprintf failwith "unknown group: %s" x
   | params ->
      let module G = (val Group_field.make x params : Group_field.GROUP) in
      (module G : GROUP)
+  | exception Not_found ->
+     match x with
+     | "Ed25519" -> (module Ed25519_pure)
+     | _ -> Printf.ksprintf failwith "unknown group: %s" x
