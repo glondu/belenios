@@ -343,10 +343,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_qu
         number_of_voters = settings.NUMBER_OF_INVITED_VOTERS
     generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
     belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
-    if nh_question:
-        crypto_group = "RFC-3526-2048"
-    else:
-        crypto_group = "BELENIOS-2048"
+    crypto_group = "Ed25519"
     command = [belenios_tool_path, "setup", "generate-credentials", "--uuid", election_id, "--group", crypto_group, "--count", str(number_of_voters)]
     running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     process_timeout = 15 * number_of_voters # seconds

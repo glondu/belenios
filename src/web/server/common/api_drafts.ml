@@ -136,7 +136,7 @@ let draft_of_api a se d =
     in
     if has_nh_questions then (
       match se_group with
-      | "RFC-3526-2048" -> ()
+      | "RFC-3526-2048" | "Ed25519" -> ()
       | _ -> raise (Error (`Invalid "NH group"))
     )
   in
