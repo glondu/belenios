@@ -27,7 +27,7 @@ cd $DIR
 
 # Common options
 uuid="--uuid $UUID"
-group="--group RFC-3526-2048"
+group="--group Ed25519"
 
 # Generate credentials
 belenios-tool setup generate-credentials $uuid $group --count 102 | tee generate-credentials.out

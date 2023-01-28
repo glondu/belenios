@@ -65,3 +65,5 @@ module Z : sig
   val logxor : t -> t -> t
   val hash_to_int : t -> int
 end
+
+val libsodium_stubs : (module Signatures.LIBSODIUM_STUBS) option

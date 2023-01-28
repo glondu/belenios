@@ -2,4 +2,8 @@
  (name belenios_platform_native)
  (public_name belenios-platform-native)
  (implements belenios_platform)
+ (foreign_stubs
+  (language c)
+  (names libsodium_stubs))
+ (c_library_flags (-lsodium))
  (libraries cryptokit))
