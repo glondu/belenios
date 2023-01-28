@@ -46,6 +46,7 @@ function getNative () {
         mod: function(a, b) { return a % b; },
         toInt: function(n) { return Number(n); },
         toString: function(n) { return n.toString(); },
+        toHex: function(n) { return n.toString(16); },
         compare: function(a, b) {
             if (a < b) return -1;
             if (a > b) return 1;
@@ -85,7 +86,9 @@ function getNative () {
         bitLength: bitLength,
         shiftLeft: function(a, b) { return a << BigInt(b); },
         shiftRight: function(a, b) { return a >> BigInt(b); },
-        and: function(a, b) { return a & b; }
+        and: function(a, b) { return a & b; },
+        or: function(a, b) { return a | b; },
+        xor: function(a, b) { return a ^ b; }
     };
 }
 
@@ -103,6 +106,7 @@ function getJsbn () {
         mod: function(a, b) { return a.mod(b); },
         toInt: function(n) { return n.intValue(); },
         toString: function(n) { return n.toString(); },
+        toHex: function(n) { return n.toString(16); },
         compare: function(a, b) { return a.compareTo(b); },
         modPow: function(a, e, m) { return a.modPow(e, m); },
         modInverse: function(a, m) { return a.modInverse(m); },
@@ -110,7 +114,9 @@ function getJsbn () {
         bitLength: function(n) { return n.bitLength(); },
         shiftLeft: function(a, b) { return a.shiftLeft(b); },
         shiftRight: function(a, b) { return a.shiftRight(b); },
-        and: function(a, b) { return a.and(b); }
+        and: function(a, b) { return a.and(b); },
+        or: function(a, b) { return a.or(b); },
+        xor: function(a, b) { return a.xor(b); }
     };
 }
 

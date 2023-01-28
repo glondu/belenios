@@ -50,6 +50,7 @@ module Z : sig
   val erem : t -> t -> t
   val to_int : t -> int
   val to_string : t -> string
+  val to_hex : t -> string
   val compare : t -> t -> int
   val ( =% ) : t -> t -> bool
   val powm : t -> t -> t -> t
@@ -60,5 +61,7 @@ module Z : sig
   val shift_left : t -> int -> t
   val shift_right : t -> int -> t
   val logand : t -> t -> t
+  val logor : t -> t -> t
+  val logxor : t -> t -> t
   val hash_to_int : t -> int
 end

@@ -185,6 +185,7 @@ module BigIntCompat = struct
       method _mod : bigint -> bigint -> bigint meth
       method toInt : bigint -> int meth
       method toString : bigint -> js_string t meth
+      method toHex : bigint -> js_string t meth
       method compare : bigint -> bigint -> int meth
       method modPow : bigint -> bigint -> bigint -> bigint meth
       method modInverse : bigint -> bigint -> bigint meth
@@ -193,6 +194,8 @@ module BigIntCompat = struct
       method shiftLeft : bigint -> int -> bigint meth
       method shiftRight : bigint -> int -> bigint meth
       method _and : bigint -> bigint -> bigint meth
+      method _or : bigint -> bigint -> bigint meth
+      method xor : bigint -> bigint -> bigint meth
     end
 
   let lib : lib t = belenios##._BigIntCompat
@@ -216,6 +219,7 @@ module Z = struct
 
   let to_int x = lib##toInt x
   let to_string x = lib##toString x |> Js.to_string
+  let to_hex x = lib##toHex x |> Js.to_string
   let compare x y = lib##compare x y
   let ( =% ) x y = compare x y = 0
   let powm x y m = lib##modPow x y m
@@ -241,6 +245,8 @@ module Z = struct
   let shift_left x n = lib##shiftLeft x n
   let shift_right x n = lib##shiftRight x n
   let logand x y = lib##_and x y
+  let logor x y = lib##_or x y
+  let logxor x y = lib##xor x y
 
   let hash_modulus = of_int 1073741789 (* previous_prime(2^30) *)
   let hash_to_int x = to_int (erem x hash_modulus)
