@@ -42,6 +42,14 @@ let get_ff_params = function
      }
   | _ -> raise Not_found
 
+let ed25519 : (module GROUP) =
+  match libsodium_stubs with
+  | None -> (module Ed25519_pure)
+  | Some stubs ->
+     let module S = (val stubs) in
+     let module G = Ed25519_libsodium.Make (S) in
+     (module G)
+
 let of_string x =
   match get_ff_params x with
   | params ->
@@ -49,5 +57,5 @@ let of_string x =
      (module G : GROUP)
   | exception Not_found ->
      match x with
-     | "Ed25519" -> (module Ed25519_pure)
+     | "Ed25519" -> ed25519
      | _ -> Printf.ksprintf failwith "unknown group: %s" x

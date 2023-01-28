@@ -251,3 +251,5 @@ module Z = struct
   let hash_modulus = of_int 1073741789 (* previous_prime(2^30) *)
   let hash_to_int x = to_int (erem x hash_modulus)
 end
+
+let libsodium_stubs = None
