@@ -62,7 +62,7 @@ opam@89b04864d029:~$ ls
 opam-repository
 opam@89b04864d029:~$ git clone https://gitlab.com/swergas/belenios-ci.git
 opam@89b04864d029:~$ cd belenios-ci
-opam@89b04864d029:~$ sudo apt install build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev -y
+opam@89b04864d029:~$ sudo apt install build-essential libgmp-dev libsodium-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev -y
 opam@89b04864d029:~$ eval `grep "opam install" ./opam-bootstrap.sh`
 opam@89b04864d029:~$ make all
 ```
@@ -93,7 +93,7 @@ build:
   image: debian:9
   script:
     # Install required packages
-    - apt-get update -qq && apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev git
+    - apt-get update -qq && apt-get install -y -qq build-essential libgmp-dev libsodium-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev git
     # Install Opam via opam-bootstrap.sh, as recommended in INSTALL.md
     - ./opam-bootstrap.sh
     # Post-Opam installation procedure
@@ -136,7 +136,7 @@ build:
   image: ocaml/opam2:debian-9
   script:
     # Install required packages
-    - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
+    - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libsodium-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
     # Install the same Opam packages that opam-bootstrap.sh installs
     - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
@@ -184,7 +184,7 @@ Here is the procedure to create such a Docker image and publish it on Docker Hub
 $ sha256sum ./opam-bootstrap.sh
 efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb  ./opam-bootstrap.sh
 $ docker container run -ti ocaml/opam2:debian-9 /bin/bash
-$ sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
+$ sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libsodium-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
 $ opam install --yes atdgen zarith cryptokit calendar cmdliner sqlite3 eliom=6.3.0 csv
 $ exit
 $ docker container ls -a
@@ -226,7 +226,7 @@ build:
   image: swergas/beleniosbase:efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb
   script:
     # Install required packages
-    # - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
+    # - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libsodium-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
     # Install the same Opam packages that opam-bootstrap.sh installs
     # - eval `grep "opam install" ./opam-bootstrap.sh`
     # Compile belenios
