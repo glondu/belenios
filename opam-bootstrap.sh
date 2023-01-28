@@ -24,7 +24,7 @@ mkdir opam-repository
 cd opam-repository
 git init
 git remote add origin https://github.com/ocaml/opam-repository.git
-git fetch --depth=1 origin 685eb4efcebfa671660e55d76dea017f00fed4d9:opam
+git fetch --depth=1 origin a9fb5a379794b0d5d7f663ff3a3bed5d4672a5d3:opam
 git checkout opam
 
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
