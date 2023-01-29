@@ -56,7 +56,7 @@
 This document is a specification of the voting protocol implemented in
 Belenios \version.
 A high level description of Belenios and some statistics about its
-usage can be found~\cite{Belenios-Meadows2019}.
+usage can be found in~\cite{Belenios-Meadows2019}.
 A security proof of the protocol for ballot privacy and verifiability
 is presented in~\cite{Belenios-Easycrypt-CSF18}. The proof has been conducted with the
 tool EasyCrypt. It focuses on the protocol aspects and assumes
@@ -116,10 +116,10 @@ mix homomorphic and non-homomorphic questions.
 The cryptography involved in Belenios needs a cyclic group $\G$ where
 discrete logarithms are hard to compute. We will denote by $g$ a
 generator and $q$ its order. We use a multiplicative notation for the
-group operation. For practical purposes, we use a multiplicative
+group operation. In practice, $\G$ can be either a multiplicative
 subgroup of $\F^*_p$ (hence, all exponentiations are implicitly done
-modulo $p$). We suppose the group parameters are agreed on
-beforehand. Default group parameters are given as examples in
+modulo $p$), or an elliptic curve. We suppose the group parameters are agreed on
+beforehand. Examples of supported groups are given in
 section~\ref{default-group}.
 
 \medskip
@@ -182,7 +182,7 @@ hash chain. It contains in particular:
   in particular the questions and the list of voters
 \item $\mathcal{S}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
   sends it to $\mathcal{C}$
-\item $\mathcal{C}$ generates \hyperref[credentials]{credentials}
+\item $\mathcal{C}$ generates \hyperref[credentials]{private credentials}
   $c_1,\dots,c_n$ and computes
   \[L=\shuffle((\public(c_1),w_1,\mathcal{V}_1),\dots,(\public(c_n),w_n,\mathcal{V}_n))\]
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
@@ -290,13 +290,11 @@ trustee as specified in section~\ref{polynomials}.
   \item let $C$ be the public credential used in $b$ (its
     $\textsf{credential}$ field)
   \item $\mathcal{S}$ checks that $(C,w_i,\mathcal{V})\in L$
-  \item (revote case) if $\mathcal{V}$ has already voted,
-    $\mathcal{S}$ checks that it was with $C$
   \item $\mathcal{S}$ checks all zero-knowledge proofs of $b$
-  \item $\mathcal{S}$ adds $b$ to $B$ (or replaces the old ballot in
-    case of revote)
+  \item $\mathcal{S}$ adds $b$ to $D$
   \end{enumerate}
 \item at any time (even after tally), $\mathcal{V}$ may check that $h$
+  (if it is her last ballot)
   appears in the list of pretty ballots $PB$ and the weight of her
   ballot as it appears in $PB$ is equal to her weight
 \end{enumerate}
@@ -313,14 +311,14 @@ voters), credentials can be recovered:
 \begin{enumerate}
 \item $\mathcal{V}_i$ contacts $\mathcal{C}$
 \item $\mathcal{C}$ looks up $\mathcal{V}_i$'s private credential $c_i$
-\item $\mathcal{C}$ sends $c_i$
+\item $\mathcal{C}$ sends $c_i$ to $\mathcal{V}_i$
 \end{enumerate}
 
 \subsection{Tally}
 
 \begin{enumerate}
-\item $\mathcal{A}$ stops $\mathcal{S}$ and  $\mathcal{S}$ computes the initial
-  \hyperref[tally]{$\etally$} $\Pi_0$
+\item $\mathcal{A}$ stops $\mathcal{S}$,  $\mathcal{S}$ computes the initial
+  \hyperref[tally]{$\etally$} $\Pi_0$, and publishes it in $D$
 \item $\mathcal{S}$ extracts the non-homomorphic ciphertexts from the
   encrypted tally (see
   section~\ref{shuffles}):
@@ -330,10 +328,11 @@ voters), credentials can be recovered:
  then for $z\in[1\dots m]$:
   \begin{enumerate}
   \item $\mathcal{S}$ sends $\tilde\Pi_{z-1}$ to $\mathcal{T}_z$
+  \item $\mathcal{T}_z$ verifies consistency of $D$
   \item $\mathcal{T}_z$ runs the shuffle algorithm, producing a
     \hyperref[shuffles]{$\texttt{shuffle}$} $\sigma_z$ and sends it to
     $\mathcal{S}$
-  \item $\mathcal{S}$ verifies $\sigma_z$ and extracts
+  \item $\mathcal{S}$ verifies $\sigma_z$, publishes it in $D$, and extracts
     $\tilde\Pi_z=\textsf{ciphertexts}(\sigma_z)$
   \end{enumerate}
 \item $\mathcal{S}$ merges shuffled non-homomorphic ciphertexts with
@@ -344,13 +343,14 @@ voters), credentials can be recovered:
   \begin{enumerate}
   \item $\mathcal{S}$ sends $\Pi$ (and $K_z$ if in threshold mode) to
     $\mathcal{T}_z$
+  \item $\mathcal{T}_z$ verifies consistency of $D$
   \item $\mathcal{T}_z$ generates a \hyperref[tally]{$\pdecryption$} $\delta_z$
     and sends it to $\mathcal{S}$
-  \item $\mathcal{S}$ verifies $\delta_z$
+  \item $\mathcal{S}$ verifies $\delta_z$ and adds it to $D$
   \end{enumerate}
 \item $\mathcal{S}$ combines all the partial decryptions, computes and publishes
   the election \hyperref[election-result]{\result}
-\item $\mathcal{T}_z$ checks that $\delta_z$ and $\sigma_z$ appears in
+\item $\mathcal{T}_z$ checks that $\delta_z$ and $\sigma_z$ (if any) appear in
   {\result}
 \end{enumerate}
 
@@ -425,10 +425,10 @@ instead the command line tool \texttt{verify} can be used.
 
 \subsection{Conventions}
 
-Structured data is encoded in JSON (RFC 4627). There is no specific
-requirement on the formatting and order of fields, but care must be
-taken when hashes are computed. We use the notation
-$\textsf{field}(o)$ to access the field \textsf{field} of $o$.
+Structured data is encoded in JSON (RFC 4627). When serialized, data
+must be in compact form, and order of fields must be respected. We use
+the notation $\textsf{field}(o)$ to access the field \textsf{field} of
+$o$.
 
 \subsection{Basic types}
 \label{basic-types}
@@ -441,8 +441,9 @@ $\textsf{field}(o)$ to access the field \textsf{field} of $o$.
   of size at least 14), encoded as a JSON string
 \item $\I$: small integer, encoded as a JSON number
 \item $\B$: boolean, encoded as a JSON boolean
-\item $\N$, $\Z_q$, $\G$: big integer, written in base 10 and encoded as a
+\item $\N$, $\Z_q$: big integer, written in base 10 and encoded as a
   JSON string
+\item $\G$: a JSON string, whose interpretation depends on the group
 \item $\hash$: hash (typically SHA256), written in hexadecimal and
   encoded as a JSON string
 \end{itemize}
@@ -590,8 +591,8 @@ $\pklabel$ is $X=g^x$. A $\tpk$ is a bundle of this public key with a
 \end{enumerate}
 where $\Hash_\pok$ is computed as follows:
 \[\Hash_\pok(X,A) = \shatwo(\verb=pok|=G\verb=|=X\verb=|=A) \]
-where $\pok$ and the vertical bars are verbatim and numbers are
-written in base 10, and $G$ is the string specifying the group in the
+where $\pok$ and the vertical bars are verbatim,
+and $G$ is the string specifying the group in the
 $\election$ structure. The result is interpreted as a 256-bit
 big-endian number. The proof is verified as follows:
 \begin{enumerate}
@@ -646,8 +647,8 @@ To compute the \textsf{signature},
 \item pick a random $w\in\Z_q$
 \item compute the commitment $A=g^w$
 \item compute the \textsf{challenge} as
-  $\textsf{SHA256}(\texttt{sigmsg|}M\texttt{|}A)$, where $A$ is written
-  in base 10 and the result is interpreted as a 256-bit big-endian
+  $\textsf{SHA256}(\texttt{sigmsg|}M\texttt{|}A)$, where
+  the result is interpreted as a 256-bit big-endian
   number
 \item compute the \textsf{response} as
   $w-\textsf{sk}\times\textsf{challenge}\mod q$
@@ -681,7 +682,7 @@ To compute the \texttt{encrypted\_msg}:
 \item compute $\textsf{data}$ as the hexadecimal encoding of the (symmetric)
   encryption of $M$ using AES in CCM mode with
   $\textsf{SHA256}(\texttt{key|}g^s)$ as the key and $\textsf{SHA256}(\texttt{iv|}g^r)$ as the
-  initialization vector (where numbers are written in base 10)
+  initialization vector
 \end{enumerate}
 To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 \begin{enumerate}
@@ -719,8 +720,7 @@ to \textsf{recipient} (an encryption key) by encapsulating it in a
 $\jstring$, and finally encrypting it with \textsf{recipient}. The
 resulting $\jstring$ will be denoted by
 $\textsf{send}(\textsf{sk},\textsf{recipient},\textsf{message})$, and
-can be transmitted using a third-party (such as the election
-administrator).
+can be transmitted using a third-party (typically the election server).
 \begin{gather*}
   \texttt{channel\_msg}=\left\{
     \begin{array}{rcl}
@@ -964,8 +964,7 @@ secret exponent, a public key $\public(c)=g^s$ is computed.
 
 \[\texttt{public\_credentials}=\jstring^\ast\]
 
-Public credentials, sent to the server by the credential authority,
-and published as part of public data, are a list of strings, each one
+Public credentials, published as part of public data, are a list of strings, each one
 being:
 \begin{itemize}
 \item either a public credential by itself (if weights are not being
@@ -1005,7 +1004,8 @@ being:
     \texttt{question\_gen}&=&\left\{
       \begin{array}{rcl}
         \textsf{type}&:&\jstring\\
-        \textsf{value}&:&\texttt{json}
+        \textsf{value}&:&\texttt{json}\\
+        ?\textsf{extra}&:&\texttt{json}
       \end{array}
     \right\}
   \end{array}
@@ -1043,7 +1043,8 @@ Non-homomorphic questions are represented nested in a
 \textsf{value} property is set to a \texttt{question\_nh}
 structure. They are needed when homomorphic questions are not
 suitable, for example when answers represent preferences or are too
-big.
+big. An \textsf{extra} field may be present, to give a hint on the
+intended counting method (Majority Judgment, Condorcet, STV, \dots).
 
 \subsection{Elections}
 \label{elections}
@@ -1077,31 +1078,12 @@ election and is sent to each voter, serialized as a string which must
 be always the same throughout the election. The $\textsf{version}$ is
 set to 1 in this version of the specification. It is incremented in
 case of backward-incompatible changes. The group is specified by the
-$\textsf{group}$ member, either $\texttt{BELENIOS-2048}$ or
-$\texttt{RFC-3526-2048}$. These groups are described in
-section~\ref{default-group}, using the following structures:
-\begin{gather*}
-  \texttt{embedding}=\left\{
-    \begin{array}{rcl}
-      \textsf{padding}&:&\I\\
-      \textsf{bits\_per\_int}&:&\I
-    \end{array}
-  \right\}
-  \qquad
-  \texttt{group}=\left\{
-    \begin{array}{rcl}
-      \textsf{g}&:&\G\\
-      \textsf{p}&:&\N\\
-      \textsf{q}&:&\N\\
-      \textsf{?embedding}&:&\texttt{embedding}
-    \end{array}
-  \right\}
-\end{gather*}
+$\textsf{group}$ member, a short string unambiguously describing the
+group (see section~\ref{default-group}).
+
 The election public key, which is denoted by $y$ throughout this
 document, is computed during the setup phase, and stored in the
-$\textsf{public\_key}$ member. The \texttt{embedding} structure is
-required when the election includes a non-homomorphic question; its
-meaning will be explained in section~\ref{nh-answers}.
+$\textsf{public\_key}$ member.
 
 During an election, the following data need to be public in order to
 verify the setup phase and to validate ballots:
@@ -1124,9 +1106,10 @@ as payload of the \texttt{Setup} event in public data.
   \right\}
 \end{gather*}
 
-Additionally, we will denote throughout this document by $\varphi$
-the fingerprint of the election, as explained in
-section~\ref{ballots}.
+\label{varphi}
+Additionally, we will denote throughout this document by $\varphi$ the
+Base64 encoding of the \textsf{election} field of
+\texttt{setup\_data}, without padding.
 
 \subsection{Encrypted answers}
 \label{answers}
@@ -1216,20 +1199,11 @@ They are computed as described in section~\ref{bproof}.
 
 The plaintext answer to a non-homomorphic question is a vector
 $[v_1,\dots,v_n]$ of small integers, one for each possible
-choice. When an election contains such a question, its \texttt{group}
-structure must include an \textsf{embedding} field, specifying how the
-vector of integers will be encoded into a single ciphertext:
+choice. When an election contains such a question, $\G$ must support
+the \textsf{to\_ints} and \textsf{of\_ints} operations (see
+section~\ref{default-group}). The answer is encrypted as follows:
 \begin{itemize}
-\item in the following, \textsf{bits\_per\_int} is denoted by $\kappa$
-  and \textsf{padding} by $p$;
-\item it is assumed that each $v_i$ is $\kappa$ bits (or less);
-\item $[v_1,\dots,v_n]$ is encoded as:
-  \[
-    \xi=\textsf{group\_encode}_{\kappa,p}([v_1,\dots,v_n])=(((v_1\times
-    2^\kappa+v_2)\times 2^\kappa+\dotsb)\times 2^\kappa+v_n)\times
-    2^p+\varepsilon
-  \]
-  where $\varepsilon$ (of $p$ bits or less) is chosen so that $\xi\in\G$;
+\item $\xi=\textsf{of\_ints}([v_1,\dots,v_n])$
 \item $\textsf{choices}$ is set to an El Gamal encryption of $\xi$ as
   follows:
   \begin{enumerate}
@@ -1249,9 +1223,8 @@ vector of integers will be encoded into a single ciphertext:
   \[
     \Hash_{\textsf{raweg}}(S,y,\alpha,\beta,A)=\shatwo(\verb=raweg|=S\verb=|=y\verb=,=\alpha\verb=,=\beta\verb=|=A)\mod q
   \]
-  where \verb=raweg=, the vertical bars and the commas are verbatim and
-  numbers are written in base 10. The result is interpreted as a 256-bit
-  big-endian number.
+  where \verb=raweg=, vertical bars and commas are verbatim. The
+  result is interpreted as a 256-bit big-endian number.
 \end{itemize}
 The proof is verified as follows:
 \begin{enumerate}
@@ -1290,8 +1263,8 @@ following procedure, parameterised by a string $S$:
 \end{enumerate}
 In the above, $\Hash_\iprove$ is computed as follows:
 \[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\mod q\]
-where \verb=prove=, the vertical bars and the commas are verbatim and
-numbers are written in base 10. The result is interpreted as a 256-bit
+where \verb=prove=, vertical bars and commas are verbatim.
+The result is interpreted as a 256-bit
 big-endian number. We will denote the whole procedure by
 $\iprove(S,r,i,M_0,\dots,M_k)$.
 
@@ -1343,9 +1316,8 @@ built as follows:
 In the above, $\Hash_{\mathsf{bproof0}}$ is computed as follows:
 \[\Hash_{\mathsf{bproof0}}(\dotsc)=
 \shatwo(\verb=bproof0|=S\verb=|=A_0\verb=,=B_0\verb=,=A_\Sigma\verb=,=B_\Sigma)\mod q\]
-where \verb=bproof0=, the vertical bars and the commas are verbatim and
-numbers are written in base 10. The result is interpreted as a 256-bit
-big-endian number.
+where \verb=bproof0=, vertical bars and commas are verbatim.
+The result is interpreted as a 256-bit big-endian number.
 
 \paragraph{Computing \oproof}
 In $m_0=1\lor m_\Sigma\in[M_1\dots M_k]$, the second case
@@ -1376,9 +1348,8 @@ follows:
 In the above, $\Hash_{\mathsf{bproof1}}$ is computed as follows:
 \[\Hash_{\mathsf{bproof1}}(\dotsc)=
 \shatwo(\verb=bproof1|=S\verb=|=A_0\verb=,=B_0\verb=,=\dotsc\verb=,=A_k\verb=,=B_k)\mod q\]
-where \verb=bproof1=, the vertical bars and the commas are verbatim and
-numbers are written in base 10. The result is interpreted as a 256-bit
-big-endian number.
+where \verb=bproof1=, vertical bars and commas are verbatim.
+The result is interpreted as a 256-bit big-endian number.
 
 \subsubsection{Blank votes ($m_0=1$)}
 
@@ -1476,9 +1447,8 @@ In the above, $\Hash_\siglabel$ is computed as follows:
 \[
 \Hash_\siglabel(H,A)=\shatwo(\verb=sig|=H\verb=|=A)
 \]
-where \verb=sig=, the vertical bars and commas are verbatim and
-numbers are written in base 10. The result is interpreted as a 256-bit
-big-endian number.
+where \verb=sig=, vertical bars and commas are verbatim.
+The result is interpreted as a 256-bit big-endian number.
 
 Signatures are verified as follows ($\textsf{credential}$ and
 $\textsf{hash}$ can be obtained from the surrounding ballot):
@@ -1505,21 +1475,13 @@ $\textsf{hash}$ can be obtained from the surrounding ballot):
 \end{gather*}
 A ballot references in its $\textsf{credential}$ member the public
 credential $S=g^{\secret(c)}$ ($c$ being the secret credential) of the
-voter.
-
-The so-called hash (or \emph{fingerprint}) of the election
-is computed with the function $\Hash_\json$:
-\[
-\Hash_\json(J)=\basesixfour(\shatwo(J))
-\]
-Where $J$ is the serialization of the $\election$ structure, and the
-Base64 encoding is done without padding.
+voter. The hash (or \emph{fingerprint}) of the election is $\varphi$ (see
+section~\ref{varphi}).
 
 To compute the $\textsf{hash}$ used in signatures, the ballot without
 the $\siglabel$ field is first serialized as a JSON compact string,
-where object fields are ordered as specified in this
-document. $\Hash_\json$ is then used on this serialization.
-
+where object fields are ordered as specified in this document. The
+hash is the compact Base64 encoding of the SHA256 of this string.
 The same hashing function is used on the serialization of the whole
 $\ballot$ structure to produce a so-called \emph{smart ballot
   tracker}.
@@ -1703,9 +1665,8 @@ In the above, $\Hash_\decrypt$ is computed as follows:
 \[
 \Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=\varphi\verb=|=X\verb=|=A\verb=,=B)\mod q
 \]
-where \verb=decrypt=, the vertical bars and the comma are verbatim and
-numbers are written in base 10. The result is interpreted as a 256-bit
-big-endian number.
+where \verb=decrypt=, vertical bars and commas are verbatim.
+The result is interpreted as a 256-bit big-endian number.
 
 These proofs are verified using the $\tpk$ structure $k$ that the
 trustee sent to the administrator during the election setup:
@@ -1787,22 +1748,88 @@ as follows:
   computed because it is bounded by the sum of all weights;
 \item if question $i$ is non-homomorphic,
   \[
-    \resultlabel_{i,j}=\textsf{group\_decode}_{\kappa,p}\left(\frac{\betalabel(a'_{i,j})}{F_{i,j}}\right)
+    \resultlabel_{i,j}=\textsf{to\_ints}\left(\frac{\betalabel(a'_{i,j})}{F_{i,j}}\right)
   \]
-  where $j$ represents a ballot, and $\textsf{group\_decode}$ is the
-  inverse of $\textsf{group\_encode}$ from section~\ref{nh-answers}.
+  where $j$ represents a ballot.
 \end{itemize}
 
-\section{Group parameters}
+\section{Groups}
 \label{default-group}
 
-\subsection{BELENIOS-2048}
+A group is designed by a short string. In addition to the usual
+mathematical group definition, it must support the following
+operations:
+\begin{itemize}
+\item \textsf{check}: checking that an element of the surrounding set
+  is indeed a group element;
+\item \textsf{to\_string}, \textsf{of\_string}: (de-)serialization
+  to/from strings, used when serializing JSON structures or computing
+  hashes.
+\end{itemize}
+Additionally, it may support the following operations, needed for
+non-homomorphic questions (see section~\ref{nh-answers}):
+\begin{itemize}
+\item \textsf{to\_ints}, \textsf{of\_ints}: embedding of vectors of
+  small integers into group elements,
+\item \textsf{get\_generator}: a function mapping integers to group
+  generators different from $g$.
+\end{itemize}
+Supported groups include:
+\begin{itemize}
+\item BELENIOS-2048
+\item RFC-3526-2048
+\item Ed25519
+\end{itemize}
+
+\subsection{Finite fields}
+
+Here, groups are multiplicative subgroups of $\F^*_p$ described by the
+following structure:
+\begin{gather*}
+  \texttt{group}=\left\{
+    \begin{array}{rcl}
+      \textsf{g}&:&\G\\
+      \textsf{p}&:&\N\\
+      \textsf{q}&:&\N\\
+      \textsf{?embedding}&:&\texttt{embedding}
+    \end{array}
+  \right\}
+\end{gather*}
+When serialized as strings, group elements are written in base 10.
+
+These groups may support non-homomorphic encoding described by the
+following structure:
+\begin{gather*}
+  \texttt{embedding}=\left\{
+    \begin{array}{rcl}
+      \textsf{padding}&:&\I\\
+      \textsf{bits\_per\_int}&:&\I
+    \end{array}
+  \right\}
+\end{gather*}
+The encoding works as follows:
+\begin{itemize}
+\item in the following, \textsf{bits\_per\_int} is denoted by $\kappa$
+  and \textsf{padding} by $p$;
+\item it is assumed that each $v_i$ is $\kappa$ bits (or less);
+\item $[v_1,\dots,v_n]$ is encoded as:
+  \[
+    \xi=\textsf{of\_ints}([v_1,\dots,v_n])=(((v_1\times
+    2^\kappa+v_2)\times 2^\kappa+\dotsb)\times 2^\kappa+v_n)\times
+    2^p+\varepsilon
+  \]
+  where $\varepsilon$ (of $p$ bits or less) is chosen so that $\xi\in\G$.
+\end{itemize}
+The \textsf{get\_generator} function is the pure part of
+\textsf{GetGenerator} defined in table~\ref{get-generator}.
+
+\subsubsection{BELENIOS-2048}
 \label{h-group}
 
 This group is optimized for elections that have only homomorphic
-questions and is used in this case. Its parameters have been generated
-by the \verb=fips.sage= script (available in Belenios sources), which
-is itself based on FIPS 186-4.
+questions. It has no \textsf{embedding}. Its parameters have been
+generated by the \verb=fips.sage= script (available in Belenios
+sources), which is itself based on FIPS 186-4.
 
 \[
 \begin{array}{lcr}
@@ -1844,14 +1871,13 @@ The additional output of the generation algorithm is:
 \end{array}
 \]
 
-\subsection{RFC-3526-2048}
+\subsubsection{RFC-3526-2048}
 \label{nh-group}
 
 The group described in the previous section is not suitable for
-encoding non-homomorphic answers (the $\textsf{group\_encode}$
-function of section~\ref{nh-answers}). Therefore, we use a different
-group if the election has non-homomorphic questions. This group is
-the 2048-bit one defined in RFC 3526:
+encoding non-homomorphic answers. Therefore, we describe here a
+different group for cases where the election has non-homomorphic
+questions. This group is the 2048-bit one defined in RFC 3526:
 \[
 \begin{array}{lcr}
 \textsf{p}&=&32317006071311007\\
@@ -1889,6 +1915,57 @@ Additionally, its \textsf{embedding} field is set to:
   \right\}
 \]
 
+\subsection{Elliptic curves}
+
+\subsubsection{Ed25519}
+
+The Ed25519 group is a well-known group, used in the eponymous
+signature scheme. It is defined by the following parameters:
+\begin{itemize}
+\item $p=2^{255}-19$,
+\item $E/\F_p$ is the twisted Edwards curve:
+  \[
+    -x^2+y^2=1-\frac{121665}{121666}x^2y^2,
+  \]
+\item $g$ is the unique point in $E(\F_p)$ whose $y$ coordinate is
+  $4/5$ whose $x$ coordinate is positive,
+\item the order of $g$ is $q=2^{252}+27742317777372353535851937790883648493$.
+\end{itemize}
+In the above, \emph{positive} is defined in terms of bit-encoding:
+\begin{itemize}
+\item \emph{positive} coordinates are even coordinates (least significant bit is cleared),
+\item \emph{negative} coordinates are odd coordinates (least significant bit is set).
+\end{itemize}
+
+Group elements are points represented by their coordinates $(x, y)$,
+which can be \emph{compressed} into a single 256-bit number
+$z=\textsf{compress}(x,y)$:
+\begin{itemize}
+\item let $b$ be the least significant bit of $x$ shifted to the left
+  by 255 bits,
+\item let $z$ be the binary XOR of $b$ and $y$.
+\end{itemize}
+This $z$ can be uncompressed into a single point
+$\textsf{uncompress}(z)$. This compressed form is used for
+serialization, written in hexadecimal, always padded with
+leading-zeroes so that the resulting string is always 64 characters.
+
+Additionally, a non-homomorphic encoding is defined as follows:
+\begin{itemize}
+\item let $\kappa=8$ and $p=14$;
+\item it is assumed that each small integer is $\kappa$ bits (or less);
+\item $[v_1,\dots,v_n]$ is encoded as:
+  \[
+    \xi=\textsf{of\_ints}([v_1,\dots,v_n])=\textsf{uncompress}((((v_1\times
+    2^\kappa+v_2)\times 2^\kappa+\dotsb)\times 2^\kappa+v_n)\times
+    2^p+\varepsilon)
+  \]
+  where $\varepsilon$ (of $p$ bits or less) is the smallest
+  non-negative integer such that $\xi\in\G$.
+\end{itemize}
+The \textsf{get\_generator} function is the pure part of
+\textsf{GetGenerator} defined in table~\ref{get-generator-ed25519}.
+
 \section{Shuffle algorithms}
 \label{shuffle-algorithms}
 
@@ -1903,7 +1980,7 @@ $\textsf{CheckShuffleProof}$ algorithm, used to check a proof produced
 by $\textsf{GenShuffleProof}$. For more explanations on these
 algorithms, please refer to the CHVote System Specification.
 
-\begin{table}
+\begin{table}[h]
   \begin{framed}
     \noindent\paragraph{Input}
     \begin{itemize}
@@ -2030,7 +2107,7 @@ algorithms, please refer to the CHVote System Specification.
     \item
       $y\leftarrow(\textbf{e},\textbf{e}',\textbf{c},\hat{\textbf{c}},pk)$,
       $\textsf{str}_y\leftarrow\textsf{str}_c\llbracket\hat{\textbf{c}}\rrbracket
-      pk$\hfill// $pk$ taken as a number in base 10
+      pk$\hfill
     \item
       $c\leftarrow\textsf{GetNIZKPChallenge}(\verb=shuffle-challenge|=\varphi\verb=|=\textsf{str}_t\textsf{str}_y)$\hfill//
       see table~\ref{get-nizkp-challenge}
@@ -2089,7 +2166,7 @@ algorithms, please refer to the CHVote System Specification.
       $\textsf{str}_t\leftarrow\llbracket[t_1,t_2,t_3,t_{4,1},t_{4,2}]\rrbracket\llbracket[\hat{t}_1,\dots,\hat{t}_N]\rrbracket$
     \item
       $\textsf{str}_y\leftarrow\textsf{str}_c\llbracket\hat{\textbf{c}}\rrbracket
-      pk$\hfill// $pk$ taken as a number in base 10
+      pk$\hfill
     \item
       $c\leftarrow\textsf{GetNIZKPChallenge}(\verb=shuffle-challenge|=\varphi\verb=|=\textsf{str}_t\textsf{str}_y)$\hfill//
       see table~\ref{get-nizkp-challenge}
@@ -2178,6 +2255,34 @@ algorithms, please refer to the CHVote System Specification.
   \begin{framed}
     \noindent\paragraph{Input}
     \begin{itemize}
+    \item $i\in\Z$: number of the independent generator to get
+    \end{itemize}
+    \noindent\paragraph{State (shared between all runs)}
+    \begin{itemize}
+    \item $\mathcal{X}\in\mathcal{P}(\N\times\G)$ (initialized to
+      $\emptyset$): generators to avoid
+    \end{itemize}
+    \noindent\paragraph{Algorithm}
+    \begin{enumerate}
+    \item $x\leftarrow\shatwo(\verb=ggen|=i)>>2$\hfill// $i$ in base 10,
+      output as a big-endian number
+    \item $h\leftarrow\textsf{uncompress}(x+\varepsilon)$
+      \hfill// $\varepsilon$: smallest non-negative integer such that
+      $h\in\G$
+    \item If $h\in\{1,g\}$, abort
+    \item If $\exists j\neq i, (j,h)\in\mathcal{X}$, abort
+    \item $\mathcal{X}\leftarrow\mathcal{X}\cup\{(i,h)\}$
+    \item Return $h$\hfill// $h\in\G$
+    \end{enumerate}
+  \end{framed}
+  \caption{Function $\mathsf{GetGenerator}(i)$ (for Ed25519)}
+  \label{get-generator-ed25519}
+\end{table}
+
+\begin{table}
+  \begin{framed}
+    \noindent\paragraph{Input}
+    \begin{itemize}
     \item $\psi=[j_1,\dots,j_N]\in\Psi_N$: permutation
     \item $\textbf{h}=[h_1,\dots,h_N]\in\G^N$: independent generators
     \end{itemize}
@@ -2211,8 +2316,8 @@ algorithms, please refer to the CHVote System Specification.
     \item set $S$ to the empty string
     \item For $i=1,\dots,N$:
       \begin{itemize}
-      \item append $\alphalabel(e_i)$, a comma, $\betalabel(e_i)$ and a comma to $S$, or\hfill// in base 10
-      \item append $c_i$ and a comma to $S$\hfill// in base 10
+      \item append $\alphalabel(e_i)$, a comma, $\betalabel(e_i)$ and a comma to $S$, or\hfill
+      \item append $c_i$ and a comma to $S$\hfill
       \end{itemize}
     \item Return $S$\hfill// $S\in\jstring$
     \end{enumerate}

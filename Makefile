@@ -54,7 +54,7 @@ clean:
 doc:
 	$(MAKE) doc/specification.pdf
 
-doc/specification.pdf: doc/specification.tex
+doc/specification.pdf: doc/specification.tex doc/spec_version.tex
 	cd doc && for u in 1 2 3; do pdflatex specification.tex; done
 
 release:
