@@ -332,8 +332,12 @@ let send_email kind ~recipient ~subject ~body =
           let* () = Lwt_unix.sleep 1. in
           loop (retry - 1)
        | e ->
-          Ocsigen_messages.errlog ("Failed to send an e-mail: " ^ Printexc.to_string e);
-          Lwt.fail e
+          let msg =
+            Printf.sprintf "Failed to send an e-mail to %s: %s"
+              recipient (Printexc.to_string e)
+          in
+          Ocsigen_messages.errlog msg;
+          Lwt.return_unit
       )
   in loop 2
 
