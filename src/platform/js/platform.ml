@@ -252,4 +252,62 @@ module Z = struct
   let hash_to_int x = to_int (erem x hash_modulus)
 end
 
-let libsodium_stubs = None
+class type libsodium =
+  object
+    method bytes : unit -> int Js.meth
+    method scalarbytes : unit -> int Js.meth
+    method is_valid_point_ : int -> int Js.meth
+    method scalarmult : int -> int -> int -> int Js.meth
+    method base : int Js.readonly_prop
+    method buffer : Typed_array.uint8Array Js.t Js.readonly_prop
+  end
+
+let build_libsodium_stubs (libsodium : libsodium Js.t) =
+  let module X : Signatures.LIBSODIUM_STUBS =
+    struct
+      type scalar = bytes
+      type point = bytes
+      let bytes () = libsodium##bytes ()
+      let scalarbytes () = libsodium##scalarbytes ()
+
+      let base = libsodium##.base
+      let buffer = libsodium##.buffer
+      let nbytes = bytes ()
+      let nscalarbytes = scalarbytes ()
+
+      let copy_to_wasm address x length =
+        for i = 0 to length - 1 do
+          Typed_array.set buffer (address + i) (int_of_char (Bytes.get x i))
+        done
+
+      let copy_from_wasm x address length =
+        for i = 0 to length - 1 do
+          Bytes.set x i (char_of_int (Typed_array.unsafe_get buffer (address + i)))
+        done
+
+      let is_valid_point p =
+        copy_to_wasm base p nbytes;
+        libsodium##is_valid_point_ base
+
+      let reg1 = base + nbytes
+      let reg2 = reg1 + nscalarbytes
+
+      let scalarmult q n p =
+        copy_to_wasm reg1 n nscalarbytes;
+        copy_to_wasm reg2 p nbytes;
+        let r = libsodium##scalarmult base reg1 reg2 in
+        copy_from_wasm q base nbytes;
+        r
+    end
+  in
+  (module X : Signatures.LIBSODIUM_STUBS)
+
+let libsodium_ref = ref None
+
+let libsodium_stubs () =
+  match !libsodium_ref with
+  | None ->
+     Js.Optdef.iter belenios##.libsodium
+       (fun x -> libsodium_ref := Some (build_libsodium_stubs x));
+     !libsodium_ref
+  | x -> x

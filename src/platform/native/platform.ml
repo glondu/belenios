@@ -228,4 +228,4 @@ module Libsodium_stubs = struct
   external scalarmult : point -> scalar -> point -> int = "belenios_libsodium_ed25519_scalarmult" [@@noalloc]
 end
 
-let libsodium_stubs = Some (module Libsodium_stubs : Signatures.LIBSODIUM_STUBS)
+let libsodium_stubs () = Some (module Libsodium_stubs : Signatures.LIBSODIUM_STUBS)

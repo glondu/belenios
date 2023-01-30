@@ -66,4 +66,4 @@ module Z : sig
   val hash_to_int : t -> int
 end
 
-val libsodium_stubs : (module Signatures.LIBSODIUM_STUBS) option
+val libsodium_stubs : unit -> (module Signatures.LIBSODIUM_STUBS) option

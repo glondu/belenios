@@ -1,0 +1,4 @@
+(install
+ (files libsodium.wasm)
+ (section share)
+ (package belenios-server))
