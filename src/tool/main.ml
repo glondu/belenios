@@ -20,11 +20,62 @@
 (**************************************************************************)
 
 module B = Belenios
-open Belenios_platform
+open Belenios_platform.Platform
 open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Common
 open Cmdliner
+
+module Bench : CMDLINER_MODULE = struct
+
+  let gen n i =
+    let j = n * i in
+    let xs = Array.init n (fun i -> sha256_hex (string_of_int (j + i))) in
+    Z.of_hex (xs |> Array.to_list |> String.concat "")
+
+  let bench_group version group n =
+    let@ () = wrap_main in
+    let group = get_mandatory_opt "--group" group in
+    let module G = (val B.Group.of_string ~version group) in
+    let byte_length = Z.bit_length G.q / 8 + 1 in
+    let xs = Array.init n (fun i -> Z.(gen byte_length i mod G.q)) in
+    let start = Unix.gettimeofday () in
+    Array.iter (fun x -> ignore G.(g **~ x)) xs;
+    let stop = Unix.gettimeofday () in
+    let delta = stop -. start in
+    Printf.printf "%d group exponentiations in %.3f s!\n" n delta
+
+  let group_t =
+    let doc = "Use group $(docv)." in
+    Arg.(value & opt (some string) None & info ["group"] ~docv:"GROUP" ~doc)
+
+  let version_t =
+    let doc = "Use protocol version $(docv)." in
+    Arg.(value & opt int (List.hd supported_crypto_versions) & info ["protocol-version"] ~docv:"VERSION" ~doc)
+
+  let count_t =
+    let doc = "Do $(docv) iterations." in
+    Arg.(value & opt int 1000 & info ["count"] ~docv:"COUNT" ~doc)
+
+  let group_cmd =
+    let doc = "bench group exponentiation" in
+    let man =
+      [
+        `S "DESCRIPTION";
+        `P "This command performs a benchmark of group exponentiation.";
+      ] @ common_man
+    in
+    Cmd.v (Cmd.info "group" ~doc ~man)
+      Term.(ret (const bench_group $ version_t $ group_t $ count_t))
+
+  let cmd =
+    let doc = "benchmarking commands" in
+    let man = common_man in
+    let info = Cmd.info "bench" ~doc ~man in
+    let cmds = [group_cmd] in
+    Cmd.group info cmds
+
+end
 
 module Shasum : CMDLINER_MODULE = struct
 
@@ -244,6 +295,7 @@ end
 
 let cmds =
   [
+    Bench.cmd;
     Shasum.cmd;
     Setup.cmd;
     Election.cmd;
@@ -253,7 +305,7 @@ let cmds =
   ]
 
 let default_cmd =
-  let open Version in
+  let open Belenios_platform.Version in
   let version = Printf.sprintf "%s (%s)" version build in
   let version = if debug then version ^ " [debug]" else version in
   let doc = "election management tool" in
