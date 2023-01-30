@@ -5,8 +5,6 @@
     "/static/frontend/booth/bundle.js"      : null,
     "/static/frontend/booth/vote.html"      : null,
     "/static/frontend/translations/*.json"      : null,
-    "/static/groups/default.json"       : null,
-    "/static/groups/rfc3526-2048.json"  : null,
     "/static/locales/admin/*.json"      : null,
     "/static/locales/voter/*.json"      : null,
     "/LOGO"                     : null,

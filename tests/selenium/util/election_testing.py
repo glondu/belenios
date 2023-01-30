@@ -332,7 +332,7 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_qu
     """
     Use local CLI belenios-tool to generate a number of credentials corresponding to the number of voters. Example:
     ```
-    ./_run/tool-debug/bin/belenios-tool setup generate-credentials --uuid dmGuNVL1meanZt --group ./files/groups/default.json --count 5
+    ./_run/tool-debug/bin/belenios-tool setup generate-credentials --uuid dmGuNVL1meanZt --group Ed25519 --count 5
     5 private credentials with ids saved to ./1579802689.privcreds
     5 public credentials saved to ./1579802689.pubcreds
     5 hashed public credentials with ids saved to ./1579802689.hashcreds
