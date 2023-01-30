@@ -226,7 +226,6 @@ module Libsodium_stubs = struct
   external scalarbytes : unit -> int = "belenios_libsodium_ed25519_scalarbytes" [@@noalloc]
   external is_valid_point : point -> int = "belenios_libsodium_ed25519_is_valid_point" [@@noalloc]
   external scalarmult : point -> scalar -> point -> int = "belenios_libsodium_ed25519_scalarmult" [@@noalloc]
-  external scalarmult_base : point -> scalar -> int = "belenios_libsodium_ed25519_scalarmult_base" [@@noalloc]
 end
 
 let libsodium_stubs = Some (module Libsodium_stubs : Signatures.LIBSODIUM_STUBS)

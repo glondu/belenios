@@ -27,5 +27,4 @@ module type LIBSODIUM_STUBS = sig
   val scalarbytes : unit -> int
   val is_valid_point : point -> int
   val scalarmult : point -> scalar -> point -> int
-  val scalarmult_base : point -> scalar -> int
 end
