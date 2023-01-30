@@ -104,10 +104,29 @@ module Tests = struct
     Printf.ksprintf alert "%d modular exponentiations in %d ms!" n delta;
     Lwt.return_unit
 
+  let gen n i =
+    let j = n * i in
+    let xs = Array.init n (fun i -> sha256_hex (string_of_int (j + i))) in
+    Z.of_hex (xs |> Array.to_list |> String.concat "")
+
+  let bench_group () =
+    let group = get_select "bench_group_group" |> Belenios.Group.of_string ~version:1 in
+    let module G = (val group) in
+    let n = get_input "bench_group_nb" |> int_of_string in
+    let byte_length = Z.bit_length G.q / 8 + 1 in
+    let xs = Array.init n (fun i -> Z.(gen byte_length i mod G.q)) in
+    let start = new%js Js.date_now in
+    Array.iter (fun x -> ignore G.(g **~ x)) xs;
+    let stop = new%js Js.date_now in
+    let delta = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
+    Printf.ksprintf alert "%d group exponentiations in %d ms!" n delta;
+    Lwt.return_unit
+
   let cmds =
     [
       "do_unit_tests", unit_tests;
       "bench_powm", bench_powm;
+      "bench_group", bench_group;
     ]
 end
 

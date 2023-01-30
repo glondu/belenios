@@ -80,6 +80,19 @@ let set_input id z =
   Option.iter (fun x -> x##.value := Js.string z)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
 
+let get_select_opt id =
+  Option.map (fun x -> Js.to_string x##.value)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.select)
+
+let get_select id =
+  match get_select_opt id with
+  | Some x -> x
+  | None -> Printf.ksprintf failwith "<select> %s is missing" id
+
+let set_select id z =
+  Option.iter (fun x -> x##.value := Js.string z)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.select)
+
 let set_element_display id x =
   let$ e = document##getElementById (Js.string id) in
   e##.style##.display := Js.string x

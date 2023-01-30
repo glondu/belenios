@@ -18,6 +18,15 @@
         <button id="do_unit_tests">Run unit tests</button>
         <button id="bench_powm">Bench modular exponentiation</button>
       </div>
+      <div>
+        <select id="bench_group_group" value="Ed25519">
+          <option>Ed25519</option>
+          <option>BELENIOS-2048</option>
+          <option>RFC-3526-2048</option>
+        </select>
+        <input id="bench_group_nb" value="1000"></input>
+        <button id="bench_group">Bench group exponentiation</button>
+      </div>
     </div>
     <div id="setup">
       <h2>Pre-election setup</h2>
