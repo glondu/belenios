@@ -43,7 +43,7 @@ msgstr " ψήφος(ι) έχουν γίνει αποδεκτές, και "
 msgid " ballot(s) have been accepted."
 msgstr " ψήφος(ι) έχουν γίνει αποδεκτές."
 
-#: src/web/server/common/web_common.ml:105
+#: src/web/server/common/web_common.ml:108
 msgid " day(s)"
 msgstr " ημέρα(-ες)"
 
@@ -59,11 +59,11 @@ msgstr " έχει γίνει αποδεκτό."
 msgid " have been tallied."
 msgstr " έχουν καταμετρηθεί."
 
-#: src/web/server/common/web_common.ml:107
+#: src/web/server/common/web_common.ml:110
 msgid " hour(s)"
 msgstr " ώρα(-ες)"
 
-#: src/web/server/common/pages_common.ml:407
+#: src/web/server/common/pages_common.ml:416
 msgid " in the following box: "
 msgstr " στο ακόλουθο πεδίο: "
 
@@ -71,19 +71,19 @@ msgstr " στο ακόλουθο πεδίο: "
 msgid " is rejected, because "
 msgstr " απορρίφθηκε, επειδή "
 
-#: src/web/server/common/web_common.ml:108
+#: src/web/server/common/web_common.ml:111
 msgid " minute(s)"
 msgstr " λεπτό(-ά)"
 
-#: src/web/server/common/web_common.ml:104
+#: src/web/server/common/web_common.ml:107
 msgid " month(s)"
 msgstr " μήνας(-ες)"
 
-#: src/web/server/common/web_common.ml:109
+#: src/web/server/common/web_common.ml:112
 msgid " second(s)"
 msgstr " δευτερόλεπτο(-α)"
 
-#: src/web/server/common/web_common.ml:103
+#: src/web/server/common/web_common.ml:106
 msgid " year(s)"
 msgstr " έτος(-η)"
 
@@ -141,6 +141,10 @@ msgstr ""
 "Μία ψήφος είναι άκυρη εαν δύο υποψήφιοι έχουν την ίδια σειρά προτίμησης ή "
 "εαν ένας βαθμός λείπει."
 
+#: src/web/server/common/pages_common.ml:334
+msgid "A verification code has been sent to %s."
+msgstr ""
+
 #: src/web/server/common/pages_voter.ml:408
 msgid "Accept"
 msgstr "Αποδοχή"
@@ -192,7 +196,7 @@ msgstr "Έλεγχος δεδομένων: "
 #: src/web/server/common/pages_voter.ml:911
 #. src/web/server/common/pages_voter.ml:666
 #. src/web/server/common/pages_voter.ml:664
-#. src/web/server/common/pages_common.ml:348
+#. src/web/server/common/pages_common.ml:357
 #. src/web/server/common/pages_common.ml:302
 #. src/web/server/common/pages_common.ml:253
 msgid "Authenticate"
@@ -212,15 +216,23 @@ msgstr ""
 "Η αυθεντικοποίηση απέτυχε, πιθανά λόγω λανθασμένου ονόματος χρήστη ή "
 "κωδικού, ή δεν έχετε το δικαίωμα σε αυτή την ενέργεια."
 
+#: src/web/server/common/pages_common.ml:443
+msgid "Authentication impossible"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:438
+msgid "Authentication is impossible."
+msgstr ""
+
 #: src/web/server/common/pages_voter.ml:214
 msgid "Available methods on this server:"
 msgstr "Διαθέσιμες μέθοδοι στον διακομιστή:"
 
-#: src/web/server/common/pages_common.ml:386
+#: src/web/server/common/pages_common.ml:395
 msgid "Bad e-mail address!"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:385
+#: src/web/server/common/pages_common.ml:394
 msgid "Bad security code!"
 msgstr ""
 
@@ -229,15 +241,15 @@ msgstr ""
 msgid "Belenios Booth"
 msgstr "Παραβάν ψηφοφορίας Belenios"
 
-#: src/web/server/common/pages_common.ml:370
+#: src/web/server/common/pages_common.ml:379
 msgid "Belenios Server"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:372
+#: src/web/server/common/pages_common.ml:381
 msgid "Belenios authentication"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:366
+#: src/web/server/common/pages_common.ml:375
 msgid "Best regards,"
 msgstr ""
 
@@ -293,8 +305,8 @@ msgstr ""
 "Τα διαπιστευτήρια δημιουργήθηκαν και εστάλησαν από τον %s και έχουν "
 "δακτυλικό αποτύπωμα %s."
 
-#: src/web/server/common/pages_common.ml:357
-#. src/web/server/common/mails_voter.ml:362
+#: src/web/server/common/pages_common.ml:366
+#. src/web/server/common/mails_voter.ml:356
 msgid "Dear %s,"
 msgstr "Αγαπητέ/ή %s,"
 
@@ -302,7 +314,7 @@ msgstr "Αγαπητέ/ή %s,"
 msgid "Done"
 msgstr "Ολοκλήρωση"
 
-#: src/web/server/common/pages_common.ml:398
+#: src/web/server/common/pages_common.ml:407
 #. src/web/server/common/pages_common.ml:282
 #. src/web/server/common/pages_common.ml:237
 msgid "E-mail address:"
@@ -325,11 +337,14 @@ msgstr "Διακομιστής ψηφοφορίας"
 msgid "Encrypting…"
 msgstr "Κρυπτογραφώντας…"
 
-#: src/web/server/common/site_voter.ml:302
-#. src/web/server/common/site_voter.ml:277
-#. src/web/server/common/site_voter.ml:229
-#. src/web/server/common/site_voter.ml:224
-#. src/web/server/common/site_voter.ml:219
+#: src/web/server/common/site_voter.ml:325
+#. src/web/server/common/site_voter.ml:300
+#. src/web/server/common/site_voter.ml:252
+#. src/web/server/common/site_voter.ml:247
+#. src/web/server/common/site_voter.ml:242
+#. src/web/server/common/site_voter.ml:138
+#. src/web/server/common/site_voter.ml:127
+#. src/web/server/common/site_voter.ml:112
 msgid "Error"
 msgstr "Σφάλμα"
 
@@ -371,6 +386,10 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Εαν θέλετε να ψηφίσετε, πρέπει να "
 
+#: src/web/server/common/site_voter.ml:112
+msgid "Ill-formed ballot"
+msgstr ""
+
 #: src/web/server/common/pages_voter.ml:1153
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
@@ -402,7 +421,7 @@ msgstr "Εισάγετε το διαπιστευτήριό σας "
 msgid "Invalid credential!"
 msgstr "Λανθασμένο διαπιστευτήριο!"
 
-#: src/web/server/common/site_voter.ml:230
+#: src/web/server/common/site_voter.ml:253
 msgid "Invalid index for question."
 msgstr "Λανθασμένο ευρετήριο για την ερώτηση."
 
@@ -430,7 +449,7 @@ msgstr "Γλώσσα:"
 msgid "Loading…"
 msgstr "Φόρτωση…"
 
-#: src/web/server/common/pages_common.ml:347
+#: src/web/server/common/pages_common.ml:356
 #. src/web/server/common/pages_common.ml:301
 #. src/web/server/common/pages_common.ml:252
 #. src/web/server/common/pages_common.ml:229
@@ -464,6 +483,10 @@ msgstr ""
 msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
 "Υπάρχουν διάφορες παραλλαγές της SRV, τεκμηριώνουμε τις επιλογές μας στην "
+
+#: src/web/server/common/pages_common.ml:440
+msgid "Maybe cookies are blocked."
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1086
 #. src/web/server/common/pages_voter.ml:1033
@@ -522,11 +545,11 @@ msgstr "Σελίδα ψηφοφορίας:"
 msgid "Password:"
 msgstr "Κωδικός:"
 
-#: src/web/server/common/pages_common.ml:405
+#: src/web/server/common/pages_common.ml:414
 msgid "Please enter "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:334
+#: src/web/server/common/pages_common.ml:343
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
@@ -592,7 +615,7 @@ msgstr "Μη επεξεργασμένα συμβάντα"
 msgid "Restart"
 msgstr "Επανεκκίνηση"
 
-#: src/web/server/common/mails_voter.ml:387
+#: src/web/server/common/mails_voter.ml:381
 msgid "Results will be published on the election page"
 msgstr "Τα αποτελέσματα θα αναρτηθούν στην σελίδα της ψηφοφορίας"
 
@@ -669,8 +692,8 @@ msgstr ""
 msgid "Step 5"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:411
-#. src/web/server/common/pages_common.ml:339
+#: src/web/server/common/pages_common.ml:420
+#. src/web/server/common/pages_common.ml:348
 msgid "Submit"
 msgstr ""
 
@@ -719,11 +742,11 @@ msgstr ""
 "Ο αριθμός διαφορετικών βαθμών (Άριστος, πολύ καλός κλπ.) συνήθως κυμαίνεται "
 "μεταξύ 5 και 7."
 
-#: src/web/server/common/site_voter.ml:278
+#: src/web/server/common/site_voter.ml:301
 msgid "The number of grades is invalid."
 msgstr "Ο αριθμός των βαθμών είναι λανθασμένος."
 
-#: src/web/server/common/site_voter.ml:303
+#: src/web/server/common/site_voter.ml:326
 msgid "The number of seats is invalid."
 msgstr "Ο αριθμός των θέσεων είναι λανθασμένος."
 
@@ -737,7 +760,7 @@ msgstr ""
 "Το αποτέλεσμα της ψηφοφορίας δεν είναι δημόσια διαθέσιμο αυτή την στιγμή. Θα "
 "είναι σε %s."
 
-#: src/web/server/common/site_voter.ml:220
+#: src/web/server/common/site_voter.ml:243
 msgid "The result of this election is not available."
 msgstr "Το αποτέλεσμα της ψηφοφορίας δεν είναι διαθέσιμο."
 
@@ -793,13 +816,13 @@ msgstr ""
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr "Αυτό μοιάζει με κωδικός πρόσβασης, μήπως κοιτάξατε στο λάθος e-mail;"
 
-#: src/web/server/common/site_voter.ml:225
+#: src/web/server/common/site_voter.ml:248
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 "Η ερώτηση είναι ομομορφική, η μέθοδος αυτή δεν μπορεί να χρησιμοποιηθεί για "
 "το αποτέλεσμά της."
 
-#: src/web/server/common/mails_voter.ml:379
+#: src/web/server/common/mails_voter.ml:373
 msgid "This vote replaces any previous vote."
 msgstr "Η ψήφος αυτή αντικαθιστά προηγούμενες ψήφους."
 
@@ -826,7 +849,11 @@ msgstr "Συνολική βαρύτητα αποδεκτών ψήφων:"
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Η επιτροπή ανακάτεψε τα ψηφοδέλτια με την εξής σειρά:"
 
-#: src/web/server/common/pages_common.ml:360
+#: src/web/server/common/site_voter.ml:137
+msgid "Unknown election"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:369
 msgid "Use the following code:"
 msgstr ""
 
@@ -853,7 +880,7 @@ msgstr ""
 "βαθμολόγηση ή επιλογές λανθασμένα καταταγμένες) θα απορριφθούν στο τέλος της "
 "ψηφοφορίας."
 
-#: src/web/server/common/pages_common.ml:364
+#: src/web/server/common/pages_common.ml:373
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
@@ -902,11 +929,11 @@ msgstr "Μπορείτε επίσης να κατεβάσετε το "
 msgid "You can check its presence in the "
 msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην "
 
-#: src/web/server/common/mails_voter.ml:383
+#: src/web/server/common/mails_voter.ml:377
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Μπορείτε να ελέγξετε την ύπαρξή του στην κάλπη, προσβάσιμη στο"
 
-#: src/web/server/common/pages_common.ml:422
+#: src/web/server/common/pages_common.ml:431
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
@@ -935,6 +962,10 @@ msgstr "To ψηφοδέλτιό σας για το "
 msgid "Your ballot has been encrypted, "
 msgstr "Το ψηφοδέλτιό σας έχει κρυπτογραφηθεί, "
 
+#: src/web/server/common/site_voter.ml:124
+msgid "Your ballot is rejected because %s."
+msgstr ""
+
 #: src/web/server/common/site_voter.ml:107
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Ο browser σας μπλοκάρει τα cookies. Παρακαλούμε ενεργοποιήστε τα."
@@ -943,7 +974,7 @@ msgstr "Ο browser σας μπλοκάρει τα cookies. Παρακαλούμ�
 msgid "Your credential for election %s"
 msgstr "Το διαπιστευτήριό σας για την ψηφοφορία %s"
 
-#: src/web/server/common/pages_common.ml:359
+#: src/web/server/common/pages_common.ml:368
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
@@ -951,7 +982,7 @@ msgstr ""
 msgid "Your password for election %s"
 msgstr "Ο κωδικός σας για την ψηφοφορία %s"
 
-#: src/web/server/common/mails_voter.ml:374
+#: src/web/server/common/mails_voter.ml:368
 msgid "Your smart ballot tracker is"
 msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι"
 
@@ -960,11 +991,11 @@ msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σ�
 msgid "Your smart ballot tracker is "
 msgstr "Ο κωδικός ανίχνευσης του ψηφοδελτίου σας είναι "
 
-#: src/web/server/common/mails_voter.ml:364
+#: src/web/server/common/mails_voter.ml:358
 msgid "Your vote for election"
 msgstr "Η ψήφος σας για την ψηφοφορία"
 
-#: src/web/server/common/site_voter.ml:144
+#: src/web/server/common/site_voter.ml:166
 msgid "Your vote for election %s"
 msgstr "Η ψήφος σας για την ψηφοφορία %s"
 
@@ -973,7 +1004,7 @@ msgid "Your vote was not recorded!"
 msgstr "Η ψήφος σας δεν καταγράφηκε!"
 
 #: src/web/server/common/pages_voter.ml:733
-#. src/web/server/common/mails_voter.ml:371
+#. src/web/server/common/mails_voter.ml:365
 msgid "Your weight is %s."
 msgstr ""
 
@@ -993,7 +1024,7 @@ msgstr "αλλάξτε των κωδικό σας"
 msgid "create an account"
 msgstr "δημιουργήσετε έναν λογαριασμό"
 
-#: src/web/server/common/mails_voter.ml:368
+#: src/web/server/common/mails_voter.ml:362
 msgid "has been recorded."
 msgstr "έχει καταγραφεί."
 
@@ -1039,6 +1070,14 @@ msgstr "η σελίδα της Wikipedia"
 msgid "the election is closed"
 msgstr "η ψηφοφορία έχει ολοκληρωθεί"
 
+#: src/web/server/common/web_common.ml:91
+msgid "this ballot has already been accepted"
+msgstr ""
+
+#: src/web/server/common/web_common.ml:92
+msgid "this ballot has expired"
+msgstr ""
+
 #: src/web/server/common/pages_common.ml:319
 msgid "try to log in again"
 msgstr "Δοκιμάστε να συνδεθείτε ξανά"
@@ -1074,4 +1113,8 @@ msgstr "το διαπιστευτήριό σας έχει ήδη χρησιμο�
 #: src/web/server/common/web_common.ml:86
 msgid "your credential is invalid"
 msgstr "το διαπιστευτήριό σας είναι λανθασμένο"
+
+#: src/web/server/common/web_common.ml:93
+msgid "your username is wrong"
+msgstr ""
 
