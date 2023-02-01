@@ -1,3 +1,17 @@
+dev
+===
+
+ * When generating credentials, output private credentials in JSON (as
+   an object indexed by logins)
+ * Add support for Ed25519 (elliptic curve) group and use it by default
+ * Web server:
+   + Add private key ownership check
+   + Remove address input step in email authentication
+   + Many changes in API, version bumped to 3
+   + Pack JS files of the new booth
+   + Pack CSS files
+   + Add support for voters in JSON format
+
 2.0 (2022-12-06)
 ================
 
