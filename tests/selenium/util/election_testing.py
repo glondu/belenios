@@ -328,7 +328,7 @@ def verify_election_consistency(election_id, snapshot_folder=None):
         raise Exception("Error: Verification took longer than " + process_timeout + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
 
 
-def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_question=False):
+def belenios_tool_generate_credentials(election_id, voters, nh_question=False):
     """
     Use local CLI belenios-tool to generate a number of credentials corresponding to the number of voters. Example:
     ```
@@ -339,12 +339,14 @@ def belenios_tool_generate_credentials(election_id, number_of_voters=None, nh_qu
     ```
     """
 
-    if not number_of_voters:
-        number_of_voters = settings.NUMBER_OF_INVITED_VOTERS
     generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
+    voters_file = os.path.join(generated_files_destination_folder, "voters.txt")
+    number_of_voters = len(voters.split())
+    with open(voters_file, "w") as f:
+        f.write(voters)
     belenios_tool_path = os.path.join(settings.GIT_REPOSITORY_ABSOLUTE_PATH, "_run/tool-debug/bin/belenios-tool")
     crypto_group = "Ed25519"
-    command = [belenios_tool_path, "setup", "generate-credentials", "--uuid", election_id, "--group", crypto_group, "--count", str(number_of_voters)]
+    command = [belenios_tool_path, "setup", "generate-credentials", "--uuid", election_id, "--group", crypto_group, "--file", "voters.txt"]
     running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     process_timeout = 15 * number_of_voters # seconds
     credential_file_id = None
@@ -371,17 +373,10 @@ def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_
     i = 0
     for k, v in voters_data.items():
         i += 1
-        # Extract voter private credential from global private credentials file (it corresponds to row `i` in the file) and write it to its own file
+        # Write voter private credential to its own file
         voter_credential_file = os.path.join(generated_files_destination_folder, "voter_row_" + str(i) + "_privcred.txt")
-        command = "tail -n +" + str(i) + " " + global_credential_file_id + ".privcreds | head -n 1 | cut -d' ' -f2 > " + voter_credential_file
-        running_process = subprocess.Popen(command, cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
-        process_timeout = 15 # seconds
-        try:
-            outs, errs = running_process.communicate(timeout=process_timeout)
-        except subprocess.TimeoutExpired:
-            running_process.kill()
-            outs, errs = running_process.communicate()
-            raise Exception("Error: Extraction of voter private credential from global private credentials file took longer than " + str(process_timeout) + " seconds. STDOUT was: " + outs + " STDERR was:" + errs)
+        with open(voter_credential_file, "w") as f:
+            f.write(v["credential"])
 
         # Write array of voter's answers to questions in a file: This is his non-encrypted ballot, written as a JSON array where each element is the answer to the `i`th question. This answer is itself an array of zeros or ones depending on whether voter checked or not the checkbox corresponding to this answer.
         voter_uncrypted_ballot_file = os.path.join(generated_files_destination_folder, "voter_row_" + str(i) + "_uncrypted_ballot.json")

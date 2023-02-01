@@ -6,7 +6,7 @@ import os
 import sys
 import csv
 from util.fake_sent_emails_manager import FakeSentEmailsManager
-from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_has_non_empty_content, wait_for_element_exists_and_contains_expected_text
+from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_has_non_empty_content, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_attribute
 from util.election_testing import strtobool, console_log, remove_database_folder, wait_a_bit, initialize_server, verify_election_consistency, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, admin_election_draft_page_url_to_election_id, belenios_tool_generate_credentials, remove_credentials_files, belenios_tool_generate_ballots
 from test_scenario_2 import BeleniosTestElectionScenario2Base, initialize_browser_for_scenario_2
 import settings
@@ -64,9 +64,12 @@ class BeleniosLoadTestingSetUp(BeleniosTestElectionScenario2Base):
         future_election_link_element = wait_for_element_exists_and_has_non_empty_content(browser, future_election_link_css_selector)
         self.election_page_url = future_election_link_element.get_attribute('innerText').strip()
 
+        # She gets the voter list
+        voters = wait_for_element_exists_and_has_non_empty_attribute(browser, "#voters", "value").get_attribute("value")
+
         # She executes local (not server's) CLI belenios-tool to generate a number of credentials corresponding to the number of voters. This creates some local files.
         console_log("#### Starting step: belenios_tool_generate_credentials")
-        self.credential_file_id = belenios_tool_generate_credentials(self.election_id, nh_question=settings.NH_QUESTION)
+        self.credential_file_id = belenios_tool_generate_credentials(self.election_id, voters, nh_question=settings.NH_QUESTION)
         console_log("#### Step complete: belenios_tool_generate_credentials")
         console_log("#### Credential file id:", self.credential_file_id)
 
