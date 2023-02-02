@@ -1,5 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
+import { markup } from "../shortcuts.mjs";
 
 function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallot, t }){
   const questionText = question.title;
@@ -21,7 +22,7 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
         return e(
           "li",
           null,
-          questionPossibleAnswers[index]
+          markup(questionPossibleAnswers[index])
         );
       }
     }
@@ -42,7 +43,7 @@ function TranslatableClassicVoteRecap({ question, question_index, uncryptedBallo
       {
         className: "whole-vote-recap__question-title"
       },
-      questionText,
+      markup(questionText),
     ),
     e(
       "ul",

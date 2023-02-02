@@ -1,5 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
+import { markup } from "../shortcuts.mjs";
 
 import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
 import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.mjs";
@@ -19,7 +20,7 @@ function MajorityJudgmentVoteRecapForCandidateBig({ candidateName, selectedGrade
       {
         className: `${bemBlockName}__candidate-name`
       },
-      candidateName
+      markup(candidateName)
     ),
     e(
       "div",
@@ -46,7 +47,7 @@ function MajorityJudgmentVoteRecapForCandidateSmall({ candidateName, selectedGra
       {
         className: `${bemBlockName}__candidate-name`
       },
-      candidateName
+      markup(candidateName)
     ),
     e(
       "div",
@@ -127,7 +128,7 @@ function TranslatableMajorityJudgmentVoteRecap({ question, question_index, uncry
       {
         className: "whole-vote-recap__question-title"
       },
-      questionText,
+      markup(questionText),
     ),
     e(
       "div",

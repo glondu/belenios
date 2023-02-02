@@ -1,6 +1,7 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 import { Draggable, Droppable } from "react-beautiful-dnd";
+import { markup } from "../shortcuts.mjs";
 
 import { WhiteNiceButton } from "./NiceButton.mjs";
 
@@ -61,7 +62,7 @@ const TranslatableCandidate = ({ candidate, index, otherColumns, onSelectDestina
         {
           className: "preferential-voting__candidate-label"
         },
-        candidate.content
+        markup(candidate.content)
       ),
       e(
         "select",

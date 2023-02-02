@@ -1,4 +1,5 @@
 import React, { createElement as e } from "react";
+import { markup } from "../shortcuts.mjs";
 
 function MajorityJudgmentVoteBigCandidateAvailableGrade({ name, id, checked=null, gradeLabel, availableGrades, gradeIndex, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, ...props }){
   const checkedValue = checked ? "checked" : null;
@@ -99,7 +100,7 @@ function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, available
         {
           className: `${bemBlockName}__candidate-info__label`
         },
-        candidateInfo
+        markup(candidateInfo)
       )
     ),
     e(

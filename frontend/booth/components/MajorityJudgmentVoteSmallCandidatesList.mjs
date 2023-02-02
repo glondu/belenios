@@ -1,4 +1,5 @@
 import React, { createElement as e } from "react";
+import { markup } from "../shortcuts.mjs";
 
 function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
   const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
@@ -42,7 +43,7 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
       {
         className: `${bemBlockName}__candidate-info`
       },
-      candidateInfo
+      markup(candidateInfo)
     ),
     e(
       "select",
