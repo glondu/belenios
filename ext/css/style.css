@@ -67,3 +67,7 @@ h6{font-size:20px;}
 #footer #bottom{position:relative;width:100%;font-size:12px;line-height:1.5em;line-height:80px;text-align:center;color:#868686;}
 #footer #bottom a{color:#ffd800;text-decoration:none;}
 #footer #bottom #to-top{position:absolute;right:30px;top:26px;width:33px;height:33px;cursor:pointer;}
+
+.markup-b {font-weight: bold;}
+.markup-i {font-style: italic;}
+.markup-error {color: red;}

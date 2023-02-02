@@ -76,10 +76,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         (fun l ->
           li [match l with
               | [] -> failwith "anomaly in Pages_voter.majority_judgment"
-              | [x] -> span (txt_br x)
+              | [x] -> markup x
               | l -> div [
                          txt (s_ "Tie:");
-                         ul (List.map (fun x -> li (txt_br x)) l);
+                         ul (List.map (fun x -> li [markup x]) l);
                        ]
             ]
         ) explicit_winners
@@ -132,10 +132,10 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         (fun l ->
           li [match l with
               | [] -> failwith "anomaly in Web_templates.schulze"
-              | [x] -> span (txt_br x)
+              | [x] -> markup x
               | l -> div [
                          txt (s_ "Tie:");
-                         ul (List.map (fun x -> li (txt_br x)) l);
+                         ul (List.map (fun x -> li [markup x]) l);
                        ]
             ]
         ) explicit_winners
@@ -172,7 +172,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
        in
        let answers =
          List.mapi (fun j x ->
-             tr [td (txt_br x); td [txt @@ Weight.to_string r.(j)]]
+             tr [td [markup x]; td [txt @@ Weight.to_string r.(j)]]
            ) answers
        in
        let answers =
@@ -184,7 +184,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             | _ -> table (y :: ys)
        in
        li ~a:[a_class ["result_question_item"]] [
-           div ~a:[a_class ["result_question"]] (txt_br x.q_question);
+           div ~a:[a_class ["result_question"]] [markup x.q_question];
            answers;
          ]
     | Question.NonHomomorphic (q, extra), `NonHomomorphic ballots ->
@@ -223,7 +223,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
          ) else txt ""
        in
        li ~a:[a_class ["result_question_item"]] [
-           div ~a:[a_class ["result_question"]] (txt_br q.q_question);
+           div ~a:[a_class ["result_question"]] [markup q.q_question];
            applied_counting_method;
            div [
                txt (s_ "The raw results can be viewed in the ");
@@ -541,7 +541,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         script ~a:[a_src (static "home.js")] (txt "");
       ] in
     let* lang_box = lang_box (ContSiteElection uuid) in
-    let title = br_truncate params.e_name in
+    let title = params.e_name in
     let full_title = params.e_name in
     base ~lang_box ~full_title ~title ~content ~footer ~uuid ()
 
@@ -624,7 +624,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         form_upload;
       ] in
     let* footer = audit_footer election in
-    let title = br_truncate params.e_name in
+    let title = params.e_name in
     let full_title = params.e_name in
     base ~full_title ~title ~content ~uuid ~footer ()
 
@@ -683,7 +683,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION_LWT) in
-    let title = br_truncate election.e_name in
+    let title = election.e_name in
     let full_title = election.e_name in
     let uuid = election.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
@@ -764,7 +764,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
           ];
         p ([
               txt (s_ "Your ballot for ");
-              em (txt_br name);
+              em [markup name];
             ] @ result);
         p
           [a
@@ -772,7 +772,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
              [txt (s_ "Go back to election")]
              (uuid, ())];
       ] in
-    let title = br_truncate name in
+    let title = name in
     let full_title = name in
     base ~full_title ~title ~content ~uuid ()
 
@@ -784,7 +784,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let* hashes = Web_persist.get_ballot_hashes uuid in
     let* audit_cache = Web_persist.get_audit_cache uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
-    let title = br_truncate election.e_name ^ " — " ^ s_ "Accepted ballots" in
+    let title = election.e_name ^ " — " ^ s_ "Accepted ballots" in
     let nballots = ref 0 in
     let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
     let ballots =

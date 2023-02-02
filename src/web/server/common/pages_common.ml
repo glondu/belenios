@@ -111,8 +111,8 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
     let* extra_footer = maybe_static !Web_config.footer_file in
     let full_title =
       match full_title with
-      | None -> [txt title]
-      | Some x -> txt_br x
+      | None -> markup title
+      | Some x -> markup x
     in
     Lwt.return
       (html ~a:[a_dir `Ltr; a_xml_lang lang]

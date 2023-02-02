@@ -313,7 +313,7 @@ let onload () =
   in
   Lwt.return
     (Ui.base_body !Belenios_js.I18n.gettext
-       ~full_title:[txt title] ~content ~administer
+       ~full_title:(span [txt title]) ~content ~administer
        ()
     )
 

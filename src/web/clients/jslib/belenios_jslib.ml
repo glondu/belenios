@@ -45,6 +45,16 @@ let encryptBallot election cred plaintext callback =
   let tracker = sha256_b64 ballot in
   callback ballot tracker
 
+class type renderingFunctions =
+  object
+    method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
+    method br : int -> Js.Unsafe.any Js.meth
+    method bold : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+    method italic : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+    method result : Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+    method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
+  end
+
 let belenios =
   object%js
     method computeFingerprint x =
@@ -97,6 +107,23 @@ let belenios =
           ) (fun e -> failure (Printexc.to_string e))
         );
       Js.undefined
+
+    method markup (p : renderingFunctions Js.t) x =
+      let open Belenios_ui in
+      let pp =
+        {
+          Markup.text = (fun key x -> p##text key (Js.string x));
+          br = (fun key -> p##br key);
+          italic = (fun key xs -> p##italic key (Js.array @@ Array.of_list xs));
+          bold = (fun key xs -> p##bold key (Js.array @@ Array.of_list xs));
+        }
+      in
+      try
+        let lexbuf = Lexing.from_string (Js.to_string x) in
+        let xs = Markup_parser.full Markup_lexer.token lexbuf in
+        let xs = Markup.render pp xs in
+        p##result (Js.array @@ Array.of_list xs)
+      with _ -> p##error x
   end
 
 let () = Js.export "belenios" belenios

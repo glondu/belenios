@@ -1,5 +1,5 @@
 import React, { createElement as e } from "react";
-import { txt_br } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.mjs";
 
 function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchUpdateUserVoteForCandidateInQuestion, currentAlertsForCandidateInQuestion, ...props }){
   const checkedValue = checked ? "checked" : null;
@@ -43,7 +43,7 @@ function CandidateWithRadio({ name, id, value, checked, candidateInfo, dispatchU
         {
           'className': 'candidate-info'
         },
-        txt_br(candidateInfo)
+        markup(candidateInfo)
       )
     )
   );

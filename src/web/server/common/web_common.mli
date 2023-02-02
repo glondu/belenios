@@ -156,8 +156,7 @@ val rmdir : string -> unit Lwt.t
 val urlize : string -> string
 val unurlize : string -> string
 
-val txt_br : string -> [> `Br | `PCDATA ] Eliom_content.Html.elt list
-val br_truncate : string -> string
+val markup : string -> [> Html_types.span ] Eliom_content.Html.elt
 
 val webize_trustee_public_key : 'a trustee_public_key -> 'a web_trustee_public_key
 val unwebize_trustee_public_key : 'a web_trustee_public_key -> 'a trustee_public_key

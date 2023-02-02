@@ -2,21 +2,17 @@
 
 import { createElement as e } from "react";
 
-function txt_br(x) {
-    if (x) {
-        const lines = x.split(/<br>/);
-        var result = [];
-        if (lines.length > 0) {
-            result.push(e("span", {key: 0}, lines[0]));
-            for (var i = 1; i < lines.length; i++) {
-                result.push(e("br", {key: 2 * i - 1}));
-                result.push(e("span", {key: 2 * i}, lines[i]));
-            }
-        }
-        return result;
-    } else {
-        return x;
-    }
+const markupFunctions = {
+    text: ((key, x) => e("span", {key}, x)),
+    br: ((key) => e("br", {key})),
+    bold: ((key, xs) => e("span", {key, className: "markup-b"}, ...xs)),
+    italic: ((key, xs) => e("span", {key, className: "markup-i"}, ...xs)),
+    error: ((x) => e("span", {className: "markup-error"}, x)),
+    result: ((xs) => e("span", {}, ...xs))
 }
 
-export { txt_br };
+function markup(x) {
+    return belenios.markup(markupFunctions, x);
+}
+
+export { markup };

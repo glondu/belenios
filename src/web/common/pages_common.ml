@@ -53,7 +53,7 @@ module Make (Base : BASE) = struct
                         ];
                     ];
                   div ~a:[a_class ["page-header__titles"]] [
-                      h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] full_title;
+                      h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] [full_title];
                       p ~a:[a_class ["page-header__titles__election-description"]; a_id "election_description"] [txt ""]; (* no description provided? *)
                     ];
                   div ~a:[a_class ["page-header__right"]] [

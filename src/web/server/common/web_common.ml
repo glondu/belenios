@@ -420,20 +420,23 @@ let rmdir dir =
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
 
-let txt_br x =
+let markup x =
   let open Eliom_content.Html.F in
-  let rec loop accu = function
-    | [] -> List.rev accu
-    | [x] -> List.rev (txt x :: accu)
-    | x :: xs -> loop (br () :: txt x :: accu) xs
+  let open Belenios_ui in
+  let p =
+    {
+      Markup.bold = (fun _ xs -> span ~a:[a_class ["markup-b"]] xs);
+      text = (fun _ x -> txt x);
+      br = (fun _ -> br ());
+      italic = (fun _ xs -> span ~a:[a_class ["markup-i"]] xs);
+    }
   in
-  loop [] (split_on_br x)
-
-let br_truncate x =
-  match split_on_br x with
-  | [] -> ""
-  | [x] -> x
-  | x :: _ -> x ^ "..."
+  try
+    let lexbuf = Lexing.from_string x in
+    let xs = Markup_parser.full Markup_lexer.token lexbuf in
+    let xs = Markup.render p xs in
+    span xs
+  with _ -> span ~a:[a_class ["markup-error"]] [txt x]
 
 let webize_trustee_public_key pk =
   {

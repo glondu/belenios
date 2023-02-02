@@ -58,3 +58,7 @@ input[type=password], input[type=text] {
 .page-body {
   background: white;
 }
+
+.markup-b {font-weight: bold;}
+.markup-i {font-style: italic;}
+.markup-error {color: red;}

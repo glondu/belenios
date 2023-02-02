@@ -407,7 +407,7 @@ module Make
   let election_draft uuid se () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = Printf.sprintf (f_ "Preparation of election %s") (br_truncate se.se_questions.t_name) in
+    let title = Printf.sprintf (f_ "Preparation of election %s") se.se_questions.t_name in
     let available_languages = List.map fst Belenios_ui.Languages.available in
     let form_languages =
       post_form ~service:election_draft_languages
@@ -1953,7 +1953,7 @@ module Make
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION_LWT) in
     let uuid = election.e_uuid in
-    let title = br_truncate election.e_name ^ " — " ^ s_ "Administration" in
+    let title = election.e_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
       let* d = Api_elections.get_election_automatic_dates uuid in
       let format = function
@@ -2422,7 +2422,7 @@ module Make
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION_LWT) in
     let uuid = election.e_uuid in
-    let title = br_truncate election.e_name ^ " — " ^ s_ "Records" in
+    let title = election.e_name ^ " — " ^ s_ "Records" in
     let nrecords = List.length records in
     let records =
       List.map

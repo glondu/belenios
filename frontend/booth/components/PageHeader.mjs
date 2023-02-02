@@ -1,6 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { txt_br } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.mjs";
 
 function TranslatablePageHeader({title, subTitle, t}) {
   return e(
@@ -35,7 +35,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
           className: "page-header__titles__election-name",
           id: "election_name",
         },
-        txt_br(title)
+        markup(title)
       ),
       e(
         "p",
@@ -43,7 +43,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
           className: "page-header__titles__election-description",
           id: "election_description"
         },
-        txt_br(subTitle)
+        markup(subTitle)
       )
     ),
     e(

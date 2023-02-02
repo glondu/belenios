@@ -1,6 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { txt_br } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.mjs";
 
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
@@ -89,7 +89,7 @@ function TranslatableQuestionWithVotableAnswers({ question, identifierPrefix, vi
       {
         className: `${bemBlockName}__question-title`
       },
-      txt_br(question.title)
+      markup(question.title)
     ),
     e(
       "p",
