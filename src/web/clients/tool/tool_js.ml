@@ -116,10 +116,16 @@ module Tests = struct
     let byte_length = Z.bit_length G.q / 8 + 1 in
     let xs = Array.init n (fun i -> Z.(gen byte_length i mod G.q)) in
     let start = new%js Js.date_now in
-    Array.iter (fun x -> ignore G.(g **~ x)) xs;
+    let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = new%js Js.date_now in
-    let delta = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
-    Printf.ksprintf alert "%d group exponentiations in %d ms!" n delta;
+    let delta_exp = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
+    let start = new%js Js.date_now in
+    ignore (Array.fold_left G.( *~ ) G.one ys);
+    let stop = new%js Js.date_now in
+    let delta_mul = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
+    Printf.ksprintf alert
+      "Bench result (size %d): %d ms (exp), %d ms (mul)!\n"
+      n delta_exp delta_mul;
     Lwt.return_unit
 
   let cmds =

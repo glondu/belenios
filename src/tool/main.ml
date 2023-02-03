@@ -40,10 +40,16 @@ module Bench : CMDLINER_MODULE = struct
     let byte_length = Z.bit_length G.q / 8 + 1 in
     let xs = Array.init n (fun i -> Z.(gen byte_length i mod G.q)) in
     let start = Unix.gettimeofday () in
-    Array.iter (fun x -> ignore G.(g **~ x)) xs;
+    let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = Unix.gettimeofday () in
-    let delta = stop -. start in
-    Printf.printf "%d group exponentiations in %.3f s!\n" n delta
+    let delta_exp = stop -. start in
+    let start = Unix.gettimeofday () in
+    ignore (Array.fold_left G.( *~ ) G.one ys);
+    let stop = Unix.gettimeofday () in
+    let delta_mul = stop -. start in
+    Printf.printf
+      "Bench result (size %d): %.3f s (exp), %.3f s (mul)!\n"
+      n delta_exp delta_mul
 
   let group_t =
     let doc = "Use group $(docv)." in
@@ -58,11 +64,11 @@ module Bench : CMDLINER_MODULE = struct
     Arg.(value & opt int 1000 & info ["count"] ~docv:"COUNT" ~doc)
 
   let group_cmd =
-    let doc = "bench group exponentiation" in
+    let doc = "bench group operations" in
     let man =
       [
         `S "DESCRIPTION";
-        `P "This command performs a benchmark of group exponentiation.";
+        `P "This command performs a benchmark of group exponentiation and multiplication.";
       ] @ common_man
     in
     Cmd.v (Cmd.info "group" ~doc ~man)
