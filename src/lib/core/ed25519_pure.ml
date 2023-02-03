@@ -249,6 +249,7 @@ let hash_to_int p =
 let description = "Ed25519"
 
 let q = l
+let cofactor = Z.of_int 8
 
 let get_generator i =
   let s = Printf.sprintf "ggen|%d" i in
@@ -258,7 +259,7 @@ let get_generator i =
     | None -> find_element Z.(accu + one)
     | Some p ->
        let p = of_coordinates p in
-       if check p then p else find_element Z.(accu + one)
+       p **~ cofactor
   in
   let h = find_element base in
   (* it is very unlikely (but theoretically possible) that one of the following assertions fails *)

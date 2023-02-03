@@ -2266,9 +2266,10 @@ algorithms, please refer to the CHVote System Specification.
     \begin{enumerate}
     \item $x\leftarrow\shatwo(\verb=ggen|=i)>>2$\hfill// $i$ in base 10,
       output as a big-endian number
-    \item $h\leftarrow\textsf{uncompress}(x+\varepsilon)$
+    \item $b\leftarrow\textsf{uncompress}(x+\varepsilon)$
       \hfill// $\varepsilon$: smallest non-negative integer such that
-      $h\in\G$
+      $b\in E$
+    \item $h\leftarrow b^8$
     \item If $h\in\{1,g\}$, abort
     \item If $\exists j\neq i, (j,h)\in\mathcal{X}$, abort
     \item $\mathcal{X}\leftarrow\mathcal{X}\cup\{(i,h)\}$
