@@ -258,6 +258,7 @@ class type libsodium =
     method scalarbytes : unit -> int Js.meth
     method is_valid_point_ : int -> int Js.meth
     method scalarmult : int -> int -> int -> int Js.meth
+    method add : int -> int -> int -> int Js.meth
     method base : int Js.readonly_prop
     method buffer : Typed_array.uint8Array Js.t Js.readonly_prop
   end
@@ -298,6 +299,15 @@ let build_libsodium_stubs (libsodium : libsodium Js.t) =
         let r = libsodium##scalarmult base reg1 reg2 in
         copy_from_wasm q base nbytes;
         r
+
+      let reg3 = reg1 + nbytes
+
+      let add r p q =
+        copy_to_wasm reg1 p nbytes;
+        copy_to_wasm reg3 q nbytes;
+        let result = libsodium##add base reg1 reg3 in
+        copy_from_wasm r base nbytes;
+        result
     end
   in
   (module X : Signatures.LIBSODIUM_STUBS)

@@ -37,3 +37,7 @@ value belenios_libsodium_ed25519_is_valid_point(value p) {
 value belenios_libsodium_ed25519_scalarmult(value q, value n, value p) {
   return Val_int(crypto_scalarmult_ed25519_noclamp(Bytes_val(q), Bytes_val(n), Bytes_val(p)));
 }
+
+value belenios_libsodium_ed25519_add(value r, value p, value q) {
+  return Val_int(crypto_core_ed25519_add(Bytes_val(r), Bytes_val(p), Bytes_val(q)));
+}

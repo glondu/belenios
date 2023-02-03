@@ -127,7 +127,11 @@ module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
   let g = make_from_pure G.g
 
   let ( *~ ) a b =
-    make_from_pure G.(get_as_pure a *~ get_as_pure b)
+    let r = E.create_point () in
+    if B.add r (get_as_nacl a) (get_as_nacl b) = 0 then
+      make_from_nacl r
+    else
+      make_from_pure G.(get_as_pure a *~ get_as_pure b)
 
   let ( **~ ) p n =
     let r = E.create_point () in

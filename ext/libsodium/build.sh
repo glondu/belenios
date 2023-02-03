@@ -25,6 +25,7 @@ for u in *.tar.*; do tar xf $u; done
 wasm-ld --no-entry --import-undefined \
   --export crypto_core_ed25519_is_valid_point \
   --export crypto_scalarmult_ed25519_noclamp \
+  --export crypto_core_ed25519_add \
   --export crypto_core_ed25519_bytes \
   --export crypto_core_ed25519_scalarbytes \
   -o libsodium.wasm libsodium-stable/libsodium-wasm32-wasi/lib/libsodium.a

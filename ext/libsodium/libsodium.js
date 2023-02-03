@@ -26,6 +26,7 @@ if (WebAssembly && WebAssembly.instantiateStreaming) {
                         scalarbytes: raw.crypto_core_ed25519_scalarbytes,
                         is_valid_point: raw.crypto_core_ed25519_is_valid_point,
                         scalarmult: raw.crypto_scalarmult_ed25519_noclamp,
+                        add: raw.crypto_core_ed25519_add,
                         base: base,
                         buffer: buffer
                     };
