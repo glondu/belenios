@@ -12,7 +12,7 @@ function memset(dst, c, n) {
 if (WebAssembly && WebAssembly.instantiateStreaming) {
     // TODO: use directly WebAssembly.instantiateStreaming(fetch("libsodium.wasm"), importObject).then(...)
     // when ocaml-magic-mime supports wasm (https://github.com/mirage/ocaml-magic-mime/issues/27)
-    fetch("libsodium.wasm").then(function (response) {
+    fetch("data:application/wasm;base64,@WASM@").then(function (response) {
         if (response.ok) {
             response.arrayBuffer().then(function (buffer) {
                 var env = {memset: memset};

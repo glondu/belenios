@@ -21,7 +21,6 @@
     "/static/tool_js_shuffle.js"        : null,
     "/static/tool_js_tkeygen.js"        : null,
     "/static/tool_js_ttkeygen.js"       : null,
-    "/static/libsodium.wasm"            : null,
     "/static/checkpriv.html"            : null,
     "/static/checkpriv.js"              : null,
     "/draft/credentials.html"           : {},
