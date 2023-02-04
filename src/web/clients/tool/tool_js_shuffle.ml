@@ -62,22 +62,32 @@ let shuffle election ciphertexts =
     Lwt.return r
   in
   let bench_shuffle () =
-    let n =
-      Array.fold_left (fun accu x -> accu + Array.length x) 0 ciphertexts
+    let nballots =
+      if Array.length ciphertexts > 0 then
+        Array.length ciphertexts.(0)
+      else
+        0
     in
-    let* x = LwtJsRandom.random W.G.q in
-    let start = new%js Js.date_now in
-    let _ = W.G.(g **~ x) in
-    let stop = new%js Js.date_now in
-    set_element_display "controls_div" "block";
-    set_element_display "wait_div" "none";
-    let delta = (stop##valueOf -. start##valueOf) /. 1000. in
-    (* cost is 11n+7 modpows, we add another n for the overhead *)
-    eta := int_of_float (ceil (delta *. float_of_int (12 * n + 7)));
-    clear_content_by_id "estimation";
-    set_content "estimation"
-      (Printf.sprintf (f_ "Estimated computation time: %d second(s)") !eta);
-    Lwt.return_unit
+    let threshold = 5 in
+    if nballots > threshold then (
+      let sub = Array.map (fun x -> Array.sub x 0 threshold) ciphertexts in
+      let start = new%js Js.date_now in
+      let* _ = W.E.shuffle_ciphertexts sub in
+      let stop = new%js Js.date_now in
+      let delta = (stop##valueOf -. start##valueOf) /. 1000. in
+      eta := int_of_float (ceil (float_of_int nballots *. delta /. float_of_int threshold));
+      set_element_display "controls_div" "block";
+      set_element_display "wait_div" "none";
+      clear_content_by_id "estimation";
+      set_content "estimation"
+        (Printf.sprintf (f_ "Estimated computation time: %d second(s)") !eta);
+      Lwt.return_unit
+    ) else (
+      set_element_display "controls_div" "block";
+      set_element_display "wait_div" "none";
+      clear_content_by_id "estimation";
+      Lwt.return_unit
+    )
   in
   Lwt.async bench_shuffle;
   full_shuffle
