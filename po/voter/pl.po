@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2023-02-03 06:39+0000\n"
+"PO-Revision-Date: 2023-02-04 21:00+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -143,7 +143,6 @@ msgstr ""
 "preferencji."
 
 #: src/web/server/common/pages_common.ml:334
-#, fuzzy
 msgid "A verification code has been sent to %s."
 msgstr "Kod weryfikacyjny został wysłany do %s."
 
@@ -221,11 +220,11 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:443
 msgid "Authentication impossible"
-msgstr ""
+msgstr "Uwierzytelnienie niemożliwe"
 
 #: src/web/server/common/pages_common.ml:438
 msgid "Authentication is impossible."
-msgstr ""
+msgstr "Uwierzytelnienie nie jest możliwe."
 
 #: src/web/server/common/pages_voter.ml:214
 msgid "Available methods on this server:"
@@ -393,7 +392,7 @@ msgstr "Jeśli chcesz zagłosować, musisz "
 
 #: src/web/server/common/site_voter.ml:112
 msgid "Ill-formed ballot"
-msgstr ""
+msgstr "Źle sformułowana karta do głosowania"
 
 #: src/web/server/common/pages_voter.ml:1153
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
@@ -497,7 +496,7 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:440
 msgid "Maybe cookies are blocked."
-msgstr ""
+msgstr "Być może ciasteczka są zablokowane."
 
 #. src/web/server/common/pages_voter.ml:1033
 #: src/web/server/common/pages_voter.ml:1086
@@ -875,7 +874,7 @@ msgstr ""
 
 #: src/web/server/common/site_voter.ml:137
 msgid "Unknown election"
-msgstr ""
+msgstr "Nieznane głosowanie"
 
 #: src/web/server/common/pages_common.ml:369
 msgid "Use the following code:"
@@ -995,7 +994,7 @@ msgstr "Twoja karta do głosowania została zaszyfrowana, "
 
 #: src/web/server/common/site_voter.ml:124
 msgid "Your ballot is rejected because %s."
-msgstr ""
+msgstr "Twoja karta do głosownia została odrzucona, ponieważ %s."
 
 #: src/web/server/common/site_voter.ml:107
 msgid "Your browser seems to block cookies. Please enable them."
@@ -1107,11 +1106,11 @@ msgstr "Głosowanie zakończyło się"
 
 #: src/web/server/common/web_common.ml:91
 msgid "this ballot has already been accepted"
-msgstr ""
+msgstr "ta karta do głosowania została już przyjęta"
 
 #: src/web/server/common/web_common.ml:92
 msgid "this ballot has expired"
-msgstr ""
+msgstr "ta karta do głosowania straciła ważność"
 
 #: src/web/server/common/pages_common.ml:319
 msgid "try to log in again"
@@ -1151,4 +1150,4 @@ msgstr "Twój kod głosowania nie jest prawidłowy"
 
 #: src/web/server/common/web_common.ml:93
 msgid "your username is wrong"
-msgstr ""
+msgstr "błędna nazwa użytkownika"
