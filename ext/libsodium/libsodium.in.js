@@ -10,28 +10,20 @@ function memset(dst, c, n) {
 }
 
 if (WebAssembly && WebAssembly.instantiateStreaming) {
-    // TODO: use directly WebAssembly.instantiateStreaming(fetch("libsodium.wasm"), importObject).then(...)
-    // when ocaml-magic-mime supports wasm (https://github.com/mirage/ocaml-magic-mime/issues/27)
-    fetch("data:application/wasm;base64,@WASM@").then(function (response) {
-        if (response.ok) {
-            response.arrayBuffer().then(function (buffer) {
-                var env = {memset: memset};
-                var importObject = {env: env};
-                WebAssembly.instantiate(buffer, importObject).then(function (obj) {
-                    var raw = obj.instance.exports;
-                    var base = 0x10000 * raw.memory.grow(1);
-                    var buffer = new Uint8Array(raw.memory.buffer);
-                    belenios.libsodium = {
-                        bytes: raw.crypto_core_ed25519_bytes,
-                        scalarbytes: raw.crypto_core_ed25519_scalarbytes,
-                        is_valid_point: raw.crypto_core_ed25519_is_valid_point,
-                        scalarmult: raw.crypto_scalarmult_ed25519_noclamp,
-                        add: raw.crypto_core_ed25519_add,
-                        base: base,
-                        buffer: buffer
-                    };
-                });
-            });
-        }
+    var env = {memset: memset};
+    var importObject = {env: env};
+    WebAssembly.instantiateStreaming(fetch("data:application/wasm;base64,@WASM@"), importObject).then(function (obj) {
+        var raw = obj.instance.exports;
+        var base = 0x10000 * raw.memory.grow(1);
+        var buffer = new Uint8Array(raw.memory.buffer);
+        belenios.libsodium = {
+            bytes: raw.crypto_core_ed25519_bytes,
+            scalarbytes: raw.crypto_core_ed25519_scalarbytes,
+            is_valid_point: raw.crypto_core_ed25519_is_valid_point,
+            scalarmult: raw.crypto_scalarmult_ed25519_noclamp,
+            add: raw.crypto_core_ed25519_add,
+            base: base,
+            buffer: buffer
+        };
     });
 }
