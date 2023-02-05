@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2023-02-01 12:52+0000\n"
+"PO-Revision-Date: 2023-02-06 06:39+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -572,8 +572,8 @@ msgstr "Por favor ingrese:"
 #: src/web/clients/tool/tool_js_fingerprint.ml:59
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
-"Pegue los datos para los que desea calcular la huella digital en el área de "
-"texto a continuación:"
+"Por favor, pegue los datos para los que desea calcular la huella digital en "
+"el área de texto de abajo:"
 
 #: src/web/server/common/pages_voter.ml:1043
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
@@ -631,9 +631,7 @@ msgstr "Revisar y encriptar"
 
 #: src/web/server/common/pages_voter.ml:889
 msgid "Save it to check that it is taken into account later."
-msgstr ""
-"Guardeló para posteriormente verificar que su voto efectivamente ha sido "
-"considerado."
+msgstr "Guárdalo para comprobar que se tiene en cuenta más adelante."
 
 #: src/web/server/common/pages_voter.ml:304
 msgid "See accepted ballots"
@@ -774,7 +772,7 @@ msgstr "El peso total es %s (min: %s, max: %s)."
 
 #: src/web/server/common/pages_voter.ml:424
 msgid "The voter list has %d voter(s) and fingerprint %s."
-msgstr "La lista de electores tienen %d votante(s) y huella (s) digital(es) %s."
+msgstr "La lista de votantes tiene %d voto(s) y huella(s) digital(es) %s."
 
 #: src/web/server/common/pages_voter.ml:1031
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
