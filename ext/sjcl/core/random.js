@@ -498,12 +498,12 @@ sjcl.random = new sjcl.prng(6);
       buf = new Uint32Array(new Uint8Array(buf).buffer);
       sjcl.random.addEntropy(buf, 1024, "crypto.randomBytes");
 
-    } else if (typeof window !== 'undefined' && typeof Uint32Array !== 'undefined') {
+    } else if (typeof Uint32Array !== 'undefined') {
       ab = new Uint32Array(32);
-      if (window.crypto && window.crypto.getRandomValues) {
-        window.crypto.getRandomValues(ab);
-      } else if (window.msCrypto && window.msCrypto.getRandomValues) {
-        window.msCrypto.getRandomValues(ab);
+      if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        crypto.getRandomValues(ab);
+      } else if (typeof msCrypto !== 'undefined' && msCrypto.getRandomValues) {
+        msCrypto.getRandomValues(ab);
       } else {
         return;
       }
