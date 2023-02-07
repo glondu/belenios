@@ -1,0 +1,6 @@
+(executable
+ (name belenios_worker)
+ (modes js)
+ (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js ../../../../ext/libsodium/libsodium.js))
+ (libraries js_of_ocaml belenios-platform-js belenios belenios_js)
+ (preprocess (pps js_of_ocaml-ppx)))

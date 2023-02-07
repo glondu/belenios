@@ -23,74 +23,59 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios_core
-open Belenios
-open Serializable_j
 open Common
 open Belenios_js.Common
+open Belenios_js.Messages
 
-let eta = ref 0
+(* We create the worker here, so that its libsodium wasm module
+   initializes as soon as possible. *)
+let worker = Worker.create "../static/belenios_worker.js"
 
 let shuffle election ciphertexts =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = Election.Make (struct let raw_election = election end) (Random) () in
-  let ciphertexts = nh_ciphertexts_of_string W.(sread G.of_string) ciphertexts in
-  let full_shuffle () =
-    let id =
-      if !eta > 0 then
-        let start = (new%js Js.date_now)##valueOf in
-        let stop = start +. float_of_int !eta *. 1000. in
-        let update () =
-          let now = (new%js Js.date_now)##valueOf in
-          let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
-          clear_content_by_id "estimation";
-          set_content "estimation"
-            (Printf.sprintf (f_ "Estimated remaining time: %d second(s)") eta)
-        in
-        Some (Dom_html.window##setInterval (Js.wrap_callback update) 500.)
-      else
-        None
-    in
-    let shuffle = W.E.shuffle_ciphertexts ciphertexts in
-    let r = string_of_shuffle W.(swrite G.to_string) shuffle in
-    let () =
-      match id with
-      | Some x ->
-         Dom_html.window##clearInterval x;
+  let t1, u1 = Lwt.task () in
+  let t2, u2 = Lwt.task () in
+  let onmessage2 =
+    Dom.handler
+      (fun e ->
+        worker##.onmessage := Dom.no_handler;
+        Lwt.wakeup_later u2 e##.data;
+        Js._true
+      )
+  in
+  let onmessage1 =
+    Dom.handler
+      (fun e ->
+        worker##.onmessage := onmessage2;
+        Lwt.wakeup_later u1 e##.data;
+        Js._true
+      )
+  in
+  worker##.onmessage := onmessage1;
+  worker##postMessage (Shuffle {election; ciphertexts});
+  let@ result = fun cont ->
+    let* x = t1 in
+    match x with
+    | ShuffleEstimate eta ->
+       let start = (new%js Js.date_now)##valueOf in
+       let stop = start +. float_of_int eta *. 1000. in
+       let update () =
+         let now = (new%js Js.date_now)##valueOf in
+         let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
          clear_content_by_id "estimation";
-      | None -> ()
-    in
-    Lwt.return r
+         set_content "estimation"
+           (Printf.sprintf (f_ "Estimated remaining time: %d second(s)") eta)
+       in
+       let id = Dom_html.window##setInterval (Js.wrap_callback update) 500. in
+       let* x = t2 in
+       Dom_html.window##clearInterval id;
+       cont x
+    | x -> cont x
   in
-  let bench_shuffle () =
-    let nballots =
-      if Array.length ciphertexts > 0 then
-        Array.length ciphertexts.(0)
-      else
-        0
-    in
-    let threshold = 5 in
-    if nballots > threshold then (
-      let sub = Array.map (fun x -> Array.sub x 0 threshold) ciphertexts in
-      let start = new%js Js.date_now in
-      let _ = W.E.shuffle_ciphertexts sub in
-      let stop = new%js Js.date_now in
-      let delta = (stop##valueOf -. start##valueOf) /. 1000. in
-      eta := int_of_float (ceil (float_of_int nballots *. delta /. float_of_int threshold));
-      set_element_display "controls_div" "block";
-      set_element_display "wait_div" "none";
-      clear_content_by_id "estimation";
-      set_content "estimation"
-        (Printf.sprintf (f_ "Estimated computation time: %d second(s)") !eta);
-      Lwt.return_unit
-    ) else (
-      set_element_display "controls_div" "block";
-      set_element_display "wait_div" "none";
-      clear_content_by_id "estimation";
-      Lwt.return_unit
-    )
-  in
-  Lwt.async bench_shuffle;
-  full_shuffle
+  clear_content_by_id "estimation";
+  match result with
+  | ShuffleResult result -> Lwt.return result
+  | _ -> Lwt.fail (Failure "unexpected response from worker")
 
 let set_nh_ciphertexts_link uuid =
   let href =
@@ -119,16 +104,21 @@ let () =
       set_nh_ciphertexts_link uuid;
       let open Js_of_ocaml_lwt.XmlHttpRequest in
       let* election = get ("../elections/" ^ uuid ^ "/election.json") in
+      let election = String.trim election.content in
       let* ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
-      set_textarea "current_ballots" ciphertexts.content;
-      let full_shuffle = shuffle (String.trim election.content) ciphertexts.content in
+      let ciphertexts = ciphertexts.content in
+      set_textarea "current_ballots" ciphertexts;
+      set_element_display "controls_div" "block";
+      set_element_display "wait_div" "none";
+      clear_content_by_id "estimation";
       match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
       | None -> Lwt.return_unit
       | Some btn ->
          let* _ = Lwt_js_events.click btn in
          set_element_display "controls_div" "none";
          set_element_display "wait_div" "block";
-         let* shuffle = full_shuffle () in
+         let* shuffle = shuffle (Js.string election) (Js.string ciphertexts) in
+         let shuffle = Js.to_string shuffle in
          set_textarea "shuffle" shuffle;
          set_element_display "wait_div" "none";
          set_content "hash" (sha256_b64 shuffle);

@@ -1,5 +1,6 @@
 {
     "/static/belenios_jslib.js"         : null,
+    "/static/belenios_worker.js"        : null,
     "/static/encrypting.gif"            : null,
     "/static/frontend/booth/app.bundle.css" : null,
     "/static/frontend/booth/bundle.js"      : null,

@@ -17,6 +17,7 @@
   admin.js
   home.js
   checkpriv.js
+  belenios_worker.js
   belenios_jslib.js)
  (section share)
  (package belenios-server))
@@ -74,6 +75,11 @@
 (rule
  (target belenios_jslib.js)
  (deps ../clients/jslib/belenios_jslib.bc.js)
+ (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target belenios_worker.js)
+ (deps ../clients/worker/belenios_worker.bc.js)
  (action (with-stdout-to %{target} (run ./wrap_tool.sh %{deps}))))
 
 (rule
