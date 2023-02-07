@@ -9,7 +9,7 @@ function memset(dst, c, n) {
     }
 }
 
-if (WebAssembly && WebAssembly.instantiateStreaming) {
+if (typeof WebAssembly !== "undefined" && WebAssembly.instantiateStreaming) {
     var env = {memset: memset};
     var importObject = {env: env};
     WebAssembly.instantiateStreaming(fetch("data:application/wasm;base64,@WASM@"), importObject).then(function (obj) {
