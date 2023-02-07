@@ -15,11 +15,10 @@ type credentials =
   }
 
 module type S = sig
-  type 'a m
   val derive : string -> string
-  val generate : Voter.t list -> credentials m
+  val generate : Voter.t list -> credentials
 end
 
-module Make (P : PARAMS) (M : Belenios_core.Signatures.RANDOM) () : S with type 'a m := 'a M.t
+module Make (P : PARAMS) (M : Belenios_core.Signatures.RANDOM) () : S
 
 val generate_ids : int -> Voter.t list

@@ -68,32 +68,32 @@ val get_trustees : uuid -> string Lwt.t
 
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
-val get_ballot_weight : (module Site_common_sig.ELECTION_LWT) -> string -> Weight.t Lwt.t
+val get_ballot_weight : (module Site_common_sig.ELECTION) -> string -> Weight.t Lwt.t
 
-val compute_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> unit Lwt.t
+val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> unit Lwt.t
 
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : uuid -> string option Lwt.t
-val get_latest_encrypted_tally : (module Site_common_sig.ELECTION_LWT) -> string option Lwt.t
+val get_latest_encrypted_tally : (module Site_common_sig.ELECTION) -> string option Lwt.t
 
 val get_shuffle_token : uuid -> shuffle_token option Lwt.t
 val gen_shuffle_token : uuid -> string -> int -> string option -> shuffle_token Lwt.t
 val clear_shuffle_token : uuid -> unit Lwt.t
 
-val get_nh_ciphertexts : (module Site_common_sig.ELECTION_LWT) -> string Lwt.t
+val get_nh_ciphertexts : (module Site_common_sig.ELECTION) -> string Lwt.t
 
-val append_to_shuffles : (module Site_common_sig.ELECTION_LWT) -> int -> string -> string option Lwt.t
+val append_to_shuffles : (module Site_common_sig.ELECTION) -> int -> string -> string option Lwt.t
 
 val has_voted : uuid -> user -> bool Lwt.t
 
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
 val precast_ballot :
-  (module Site_common_sig.ELECTION_LWT) -> rawballot:string ->
+  (module Site_common_sig.ELECTION) -> rawballot:string ->
   (string * credential_record, Signatures.cast_error) result Lwt.t
 
 val cast_ballot :
-  (module Site_common_sig.ELECTION_LWT) ->
+  (module Site_common_sig.ELECTION) ->
   rawballot:string -> user:string -> weight:Weight.t -> datetime ->
   precast_data:(string * credential_record) ->
   (string * bool, Signatures.cast_error) result Lwt.t

@@ -30,7 +30,7 @@ open Tyxml_js.Html5
 open Belenios_js.Common
 open Common
 
-module CG = Belenios_core.Credential.MakeGenerate (LwtJsRandom)
+module CG = Belenios_core.Credential.MakeGenerate (Random)
 
 let show main uuid =
   let@ () = show_in main in
@@ -76,7 +76,7 @@ let show main uuid =
             let* public_creds, private_creds =
               Lwt_list.fold_left_s (fun (public_creds, private_creds) v ->
                   let _, _, weight = Voter.get v in
-                  let* cred = CG.generate () in
+                  let cred = CG.generate () in
                   let pub_cred =
                     let x = CD.derive uuid_ cred in
                     G.(g **~ x)

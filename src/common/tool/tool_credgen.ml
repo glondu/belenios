@@ -38,16 +38,14 @@ type credentials =
   }
 
 module type S = sig
-  type 'a m
   val derive : string -> string
-  val generate : Voter.t list -> credentials m
+  val generate : Voter.t list -> credentials
 end
 
 module Make (P : PARAMS) (M : RANDOM) () = struct
 
   let uuid = Uuid.wrap P.uuid
   module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
-  let ( let* ) = M.bind
 
   module CG = Credential.MakeGenerate (M)
   module CD = Credential.MakeDerive (G)
@@ -65,23 +63,17 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   let derive x =
     G.to_string (derive_in_group x)
 
-  let rec monadic_fold_left f accu = function
-    | [] -> M.return accu
-    | x :: xs ->
-       let* accu = f accu x in
-       monadic_fold_left f accu xs
-
   let generate ids =
     let implicit_weights = not (has_explicit_weights ids) in
-    let* privs, pubs =
-      monadic_fold_left
+    let privs, pubs =
+      List.fold_left
         (fun (privs, pubs) id ->
           let _, username, weight = Voter.get id in
-          let* priv = CG.generate () in
-          M.return (
-              (username, priv) :: privs,
-              CredSet.add (derive_in_group priv) (weight, username) pubs
-            )
+          let priv = CG.generate () in
+          (
+            (username, priv) :: privs,
+            CredSet.add (derive_in_group priv) (weight, username) pubs
+          )
         ) ([], CredSet.empty) ids
     in
     let serialize (e, (w, id)) =
@@ -94,12 +86,11 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       ^ (if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
     in
     let bindings = CredSet.bindings pubs in
-    M.return
-      {
-        priv = List.rev privs;
-        public = List.map serialize_public bindings;
-        public_with_ids = List.map serialize bindings;
-      }
+    {
+      priv = List.rev privs;
+      public = List.map serialize_public bindings;
+      public_with_ids = List.map serialize bindings;
+    }
 
 end
 

@@ -180,7 +180,7 @@ let migrate_election_to_v1 uuid accu =
            ]
        in
        let module R = struct let raw_election = election end in
-       let module E = Belenios.Election.Make (R) (LwtRandom) () in
+       let module E = Belenios.Election.Make (R) (Random) () in
        let weights =
          let module PPC = Belenios_core.Credential.MakeParsePublicCredential (E.G) in
          List.fold_left

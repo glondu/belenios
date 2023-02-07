@@ -137,32 +137,26 @@ let erase_question = function
 
 module Make (M : RANDOM) (G : GROUP)
          (QHomomorphic : Question_sigs.QUESTION_H
-          with type 'a m := 'a M.t
-           and type elt := G.t
+          with type elt := G.t
            and type question := Question_h_t.question
            and type answer := G.t Question_h_t.answer)
          (QNonHomomorphic : Question_sigs.QUESTION_NH
-          with type 'a m := 'a M.t
-           and type elt := G.t
+          with type elt := G.t
            and type question := Question_nh_t.question
            and type answer := G.t Question_nh_t.answer) = struct
-
-  let ( let* ) = M.bind
 
   let create_answer q ~public_key ~prefix m =
     match q with
     | Homomorphic q ->
-       let* answer = QHomomorphic.create_answer q ~public_key ~prefix m in
+       let answer = QHomomorphic.create_answer q ~public_key ~prefix m in
        answer
        |> Question_h_j.string_of_answer (swrite G.to_string)
        |> Yojson.Safe.from_string
-       |> M.return
     | NonHomomorphic (q, _) ->
-       let* answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
+       let answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
        answer
        |> Question_nh_j.string_of_answer (swrite G.to_string)
        |> Yojson.Safe.from_string
-       |> M.return
 
   let verify_answer q ~public_key ~prefix a =
     match q with

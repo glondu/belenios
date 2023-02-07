@@ -129,7 +129,6 @@ module Make (P : PARAMS) () = struct
   include MakeGetters (P)
   include B.Election.Make (struct let raw_election = raw_election end) (M) ()
   module Trustees = (val B.Trustees.get_by_version election.e_version)
-  let ( let* ) = M.bind
 
   module P = Trustees.MakePKI (G) (M)
   module C = Trustees.MakeChannels (G) (M) (P)
@@ -233,7 +232,7 @@ module Make (P : PARAMS) () = struct
          match E.check_rawballot rawballot with
          | Error _ as x -> cont x
          | Ok rc ->
-            let* x = SMap.find_opt rc.rc_credential creds in
+            let x = SMap.find_opt rc.rc_credential creds in
             match x with
             | None -> cont (Error `InvalidCredential)
             | Some (_, old) when rc.rc_check () ->
@@ -252,13 +251,13 @@ module Make (P : PARAMS) () = struct
           | Some (w, used) ->
              assert (!used = old);
              used := Some ballot_id;
-             M.return ((hash, (credential, w, rawballot)), accu)
+             ((hash, (credential, w, rawballot)), accu)
 
   let rev_ballots =
     let rec loop accu seen = function
-      | [] -> M.return accu
+      | [] -> accu
       | b :: bs ->
-         let* x, seen = cast seen b in
+         let x, seen = cast seen b in
          loop (x :: accu) seen bs
     in
     lazy (
@@ -289,17 +288,16 @@ module Make (P : PARAMS) () = struct
           List.fold_left (fun accu (w, _) -> accu + w) zero ballots
         in
         let encrypted_tally = E.process_ballots ballots in
-        M.return
-          (
-            encrypted_tally,
-            {
-              sized_num_tallied = List.length ballots;
-              sized_total_weight;
-              sized_encrypted_tally =
-                Hash.hash_string
-                  (string_of_encrypted_tally (swrite G.to_string) encrypted_tally);
-            }
-          )
+        (
+          encrypted_tally,
+          {
+            sized_num_tallied = List.length ballots;
+            sized_total_weight;
+            sized_encrypted_tally =
+              Hash.hash_string
+                (string_of_encrypted_tally (swrite G.to_string) encrypted_tally);
+          }
+        )
       )
 
   let result_as_string = lazy (get_result ())
@@ -335,7 +333,7 @@ module Make (P : PARAMS) () = struct
 
   let shuffles_check =
     lazy (
-        let* rtally, _ = Lazy.force raw_encrypted_tally in
+        let rtally, _ = Lazy.force raw_encrypted_tally in
         let cc = E.extract_nh_ciphertexts rtally in
         let rec loop i cc ss =
           match ss with
@@ -344,19 +342,19 @@ module Make (P : PARAMS) () = struct
                loop (i+1) s.shuffle_ciphertexts ss
              else
                Printf.ksprintf failwith "shuffle #%d failed tests" i
-          | [] -> M.return true
+          | [] -> true
         in
         match Lazy.force shuffles with
         | Some ss -> loop 0 cc ss
-        | None -> M.return true
+        | None -> true
       )
 
   let encrypted_tally =
     lazy (
-        let* raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
+        let raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
         match Option.map List.rev (Lazy.force shuffles) with
-        | Some (s :: _) -> M.return (E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally, ntally)
-        | _ -> M.return (raw_encrypted_tally, ntally)
+        | Some (s :: _) -> (E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally, ntally)
+        | _ -> (raw_encrypted_tally, ntally)
       )
 
   let vote privcred ballot =
@@ -367,9 +365,9 @@ module Make (P : PARAMS) () = struct
          let module CD = Belenios_core.Credential.MakeDerive (G) in
          CD.derive election.e_uuid cred
     in
-    let* b = E.create_ballot ~sk ballot in
+    let b = E.create_ballot ~sk ballot in
     assert (E.check_ballot b);
-    M.return (string_of_ballot b)
+    string_of_ballot b
 
   let decrypt owned_owner privkey =
     let sk = number_of_string privkey in
@@ -389,8 +387,8 @@ module Make (P : PARAMS) () = struct
     );
     if B.Election.has_nh_questions election then
       print_msg "I: you should check that your shuffle appears in the list of applied shuffles";
-    let* tally, _ = Lazy.force encrypted_tally in
-    let* factor = E.compute_factor tally sk in
+    let tally, _ = Lazy.force encrypted_tally in
+    let factor = E.compute_factor tally sk in
     assert (E.check_factor tally pk factor);
     let pd = string_of_partial_decryption (swrite G.to_string) factor in
     let opd =
@@ -399,7 +397,7 @@ module Make (P : PARAMS) () = struct
         owned_payload = Hash.hash_string pd;
       }
     in
-    M.return (pd, string_of_owned write_hash opd)
+    (pd, string_of_owned write_hash opd)
 
   let tdecrypt owned_owner key pdk =
     let sk = P.derive_sk key and dk = P.derive_dk key in
@@ -420,8 +418,8 @@ module Make (P : PARAMS) () = struct
                     ) ts
         then failwith "your key is not present in threshold parameters"
     );
-    let* tally, _ = Lazy.force encrypted_tally in
-    let* factor = E.compute_factor tally pdk in
+    let tally, _ = Lazy.force encrypted_tally in
+    let factor = E.compute_factor tally pdk in
     assert (E.check_factor tally pvk factor);
     let pd = string_of_partial_decryption (swrite G.to_string) factor in
     let opd =
@@ -430,7 +428,7 @@ module Make (P : PARAMS) () = struct
         owned_payload = Hash.hash_string pd;
       }
     in
-    M.return (pd, string_of_owned write_hash opd)
+    (pd, string_of_owned write_hash opd)
 
   let pds = lazy (get_pds ())
 
@@ -442,13 +440,13 @@ module Make (P : PARAMS) () = struct
     in
     let fill of_string (_, owned, x) = {owned with owned_payload = of_string x} in
     let factors = List.map (fill (partial_decryption_of_string (sread G.of_string))) pds in
-    let* tally, sized = Lazy.force encrypted_tally in
+    let tally, sized = Lazy.force encrypted_tally in
     let sized = {sized with sized_encrypted_tally = tally} in
     match trustees with
     | Some trustees ->
        begin
          match E.compute_result sized factors trustees with
-         | Ok result -> M.return (string_of_election_result write_result result)
+         | Ok result -> string_of_election_result write_result result
          | Error e -> failwith (B.Trustees.string_of_combination_error e)
        end
     | None -> failwith "missing trustees"
@@ -461,32 +459,30 @@ module Make (P : PARAMS) () = struct
         assert G.(public_key =~ K.combine_keys trustees)
      | None -> failwith "missing trustees"
     );
-    let* () =
+    let () =
       match Lazy.force rawballots with
-      | Some _ -> let* b = Lazy.force shuffles_check in assert b; M.return ()
-      | None -> print_msg "I: no ballots to check"; M.return ()
+      | Some _ -> let b = Lazy.force shuffles_check in assert b
+      | None -> print_msg "I: no ballots to check"
     in
-    let* () =
+    let () =
       match Lazy.force result, trustees, Lazy.force pds with
-      | None, _, _ -> print_msg "I: no result to check"; M.return ()
+      | None, _, _ -> print_msg "I: no result to check"
       | _, None, _ -> failwith "missing trustees"
       | _, _, None -> failwith "no partial decryptions"
       | Some result, Some trustees, Some pds ->
          let fill of_string (_, owned, x) = {owned with owned_payload = of_string x} in
          let factors = List.map (fill (partial_decryption_of_string (sread G.of_string))) pds in
-         let* tally, sized = Lazy.force encrypted_tally in
+         let tally, sized = Lazy.force encrypted_tally in
          let sized = {sized with sized_encrypted_tally = tally} in
          if not (E.check_result sized factors trustees result) then
-           failwith "check_result failed";
-         M.return ()
+           failwith "check_result failed"
     in
-    print_msg "I: all checks passed";
-    M.return ()
+    print_msg "I: all checks passed"
 
   let shuffle_ciphertexts owned_owner =
-    let* cc, _ = Lazy.force encrypted_tally in
+    let cc, _ = Lazy.force encrypted_tally in
     let cc = E.extract_nh_ciphertexts cc in
-    let* shuffle = E.shuffle_ciphertexts cc in
+    let shuffle = E.shuffle_ciphertexts cc in
     let shuffle_s = string_of_shuffle (swrite G.to_string) shuffle in
     let owned =
       {
@@ -494,7 +490,7 @@ module Make (P : PARAMS) () = struct
         owned_payload = Hash.hash_string shuffle_s;
       }
     in
-    M.return (shuffle_s, string_of_owned write_hash owned)
+    (shuffle_s, string_of_owned write_hash owned)
 
   let checksums () =
     let election = setup_data.setup_election in

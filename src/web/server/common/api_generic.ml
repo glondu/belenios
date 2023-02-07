@@ -35,7 +35,7 @@ type token = {
 let tokens = ref SMap.empty
 
 let new_token account =
-  let* token = generate_token ~length:22 () in
+  let token = generate_token ~length:22 () in
   let expiration = Period.add (Datetime.now ()) (Period.day 1) in
   tokens := SMap.add token {expiration; account} !tokens;
   Lwt.return token

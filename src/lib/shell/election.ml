@@ -80,7 +80,7 @@ let has_nh_questions e =
 
 module type MAKER =
   functor (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) ()  ->
-  ELECTION with type 'a m = 'a M.t
+  ELECTION
 
 module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
 

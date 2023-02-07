@@ -126,20 +126,11 @@ let z10 = Z.of_int 10
 
 module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
   let random_char () =
-    R.bind (R.random z58) (fun n -> R.return b58_digits.[Z.to_int n])
+    let n = R.random z58 in
+    b58_digits.[Z.to_int n]
 
   let generate_token ?(length=14) () =
-    let res = Bytes.create length in
-    let rec loop i =
-      if i < length then (
-        R.bind (random_char ())
-          (fun c ->
-            Bytes.set res i c;
-            loop (i + 1)
-          )
-      ) else R.return (Bytes.to_string res)
-    in
-    loop 0
+    String.init length (fun _ -> random_char ())
 
   let generate_numeric ?(length=6) () =
     let modulus =
@@ -150,9 +141,8 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
       in
       loop length Z.one
     in
-    R.bind (R.random modulus) (fun n ->
-        R.return (Printf.sprintf "%0*d" length (Z.to_int n))
-      )
+    let n = R.random modulus in
+    Printf.sprintf "%0*d" length (Z.to_int n)
 end
 
 let sqrt s =

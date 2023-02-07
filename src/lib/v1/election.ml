@@ -96,9 +96,6 @@ module Parse (R : RAW_ELECTION) () = struct
 end
 
 module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
-  type 'a m = 'a M.t
-  let ( let* ) = M.bind
-
   type elt = W.G.t
 
   module G = W.G
@@ -120,20 +117,19 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       knowledge *)
 
   let fs_prove gs x oracle =
-    let* w = M.random q in
+    let w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
-    let* () = M.yield () in
     let challenge = oracle commitments in
     let response = Z.(erem (w - x * challenge) q) in
-    M.return {challenge; response}
+    {challenge; response}
 
   (** Ballot creation *)
 
   let swap xs =
     let rec loop i accu =
       if i >= 0
-      then let* x = xs.(i) in loop (pred i) (x::accu)
-      else M.return (Array.of_list accu)
+      then let x = xs.(i) in loop (pred i) (x::accu)
+      else (Array.of_list accu)
     in loop (pred (Array.length xs)) []
 
   let create_answer y zkp q m =
@@ -147,7 +143,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
-    let* answers = swap (Array.map2 (create_answer W.public_key zkp) election.e_questions m) in
+    let answers = swap (Array.map2 (create_answer W.public_key zkp) election.e_questions m) in
     let ballot_without_signature =
       {
         election_uuid;
@@ -158,22 +154,22 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       }
     in
     let s_hash = sha256_b64 (string_of_ballot (swrite G.to_string) ballot_without_signature) in
-    let* signature =
-      let* w = M.random q in
+    let signature =
+      let w = M.random q in
       let commitment = g **~ w in
       let prefix = make_sig_prefix s_hash in
       let challenge = G.hash prefix [|commitment|] in
       let response = Z.(erem (w - sk * challenge) q) in
       let s_proof = {challenge; response} in
-      M.return (Some {s_hash; s_proof})
+      Some {s_hash; s_proof}
     in
-    M.return {
-        election_uuid;
-        election_hash;
-        credential;
-        answers;
-        signature;
-      }
+    {
+      election_uuid;
+      election_hash;
+      credential;
+      answers;
+      signature;
+    }
 
   (** Ballot verification *)
 
@@ -263,12 +259,12 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let rec loop i accu =
       if i >= 0 then (
         let c = cc.(i) in
-        let* (c', r', psi) = Mix.gen_shuffle W.public_key c in
-        let* pi = Mix.gen_shuffle_proof W.public_key c c' r' psi in
+        let c', r', psi = Mix.gen_shuffle W.public_key c in
+        let pi = Mix.gen_shuffle_proof W.public_key c c' r' psi in
         loop (i-1) ((c', pi) :: accu)
       ) else (
         let shuffle_ciphertexts, shuffle_proofs = Array.(split (of_list accu)) in
-        M.return {shuffle_ciphertexts; shuffle_proofs}
+        {shuffle_ciphertexts; shuffle_proofs}
       )
     in
     loop (Array.length cc - 1) []
@@ -286,24 +282,13 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   let check_ciphertext c =
     Shape.forall (fun {alpha; beta} -> G.check alpha && G.check beta) c
 
-  let rec swaps = function
-    | `Atomic x -> let* x in M.return (`Atomic x)
-    | `Array x ->
-       let rec loop i accu =
-         if i >= 0
-         then let* x = swaps x.(i) in loop (pred i) (x::accu)
-         else M.return (`Array (Array.of_list accu))
-       in
-       loop (pred (Array.length x)) []
-
   let compute_factor c x =
     if check_ciphertext c then (
       let res = Shape.map (eg_factor x) c in
       let decryption_factors, decryption_proofs = Shape.split res in
-      let* decryption_proofs = swaps decryption_proofs in
-      M.return {decryption_factors; decryption_proofs}
+      {decryption_factors; decryption_proofs}
     ) else (
-      M.fail (Invalid_argument "Invalid ciphertext")
+      invalid_arg "Invalid ciphertext"
     )
 
   let check_factor c y f =
@@ -363,6 +348,5 @@ module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () = stru
     include MakeResult (X)
   end
   include Y
-  type 'a m = 'a M.t
   module E = MakeElection (Y) (M)
 end

@@ -137,7 +137,7 @@ let do_add_account ~db_fname ~username ~password ~email () =
   let username_ = String.lowercase_ascii username in
   let email_ = String.lowercase_ascii email in
   let* db = Lwt_preemptive.detach Csv.load db_fname in
-  let* salt = generate_token ~length:8 () in
+  let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec append accu = function
     | [] -> Ok (List.rev ([username; salt; hashed; email] :: accu))
@@ -155,7 +155,7 @@ let do_add_account ~db_fname ~username ~password ~email () =
 let do_change_password ~db_fname ~username ~password () =
   let username = String.lowercase_ascii username in
   let* db = Lwt_preemptive.detach Csv.load db_fname in
-  let* salt = generate_token ~length:8 () in
+  let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec change accu = function
     | [] -> accu

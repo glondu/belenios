@@ -45,7 +45,7 @@ let filter_links_by_time table =
     ) table
 
 let send_confirmation_link l ~service address =
-  let* code = generate_numeric () in
+  let code = generate_numeric () in
   let l_expiration_time = Period.add (Datetime.now ()) (Period.second 900) in
   let kind = `CreateAccount in
   let link = {service; code; l_expiration_time; kind} in
@@ -56,7 +56,7 @@ let send_confirmation_link l ~service address =
   Lwt.return_unit
 
 let send_changepw_link l ~service ~address ~username =
-  let* code = generate_numeric () in
+  let code = generate_numeric () in
   let l_expiration_time = Period.add (Datetime.now ()) (Period.second 900) in
   let kind = `ChangePassword username in
   let link = {service; code; l_expiration_time; kind} in

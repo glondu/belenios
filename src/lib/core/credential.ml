@@ -40,17 +40,17 @@ let format x =
 module MakeGenerate (M : RANDOM) = struct
 
   let get_random_digit () =
-    M.bind (M.random n58) (fun x -> M.return (Z.to_int x))
+    let x = M.random n58 in
+    Z.to_int x
 
   let generate_raw_token () =
     let res = Bytes.create token_length in
     let rec loop i accu =
       if i < token_length then (
-        M.bind (get_random_digit ()) (fun digit ->
-            Bytes.set res i digits.[digit];
-            loop (i+1) Z.(n58 * accu + of_int digit)
-          )
-      ) else M.return (Bytes.to_string res, accu)
+        let digit = get_random_digit () in
+        Bytes.set res i digits.[digit];
+        loop (i+1) Z.(n58 * accu + of_int digit)
+      ) else (Bytes.to_string res, accu)
     in loop 0 Z.zero
 
   let add_checksum (raw, value) =
@@ -58,8 +58,8 @@ module MakeGenerate (M : RANDOM) = struct
     raw ^ String.make 1 digits.[checksum]
 
   let generate () =
-    M.bind (generate_raw_token ()) (fun x ->
-        M.return (format (add_checksum x)))
+    let x = generate_raw_token () in
+    format (add_checksum x)
 
 end
 

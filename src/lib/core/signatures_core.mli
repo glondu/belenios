@@ -102,9 +102,7 @@ end
 
 (** Random number generation. *)
 module type RANDOM = sig
-  include MONAD
-
-  val random : Z.t -> Z.t t
+  val random : Z.t -> Z.t
                           (** [random q] returns a random number modulo [q]. *)
 end
 

@@ -24,12 +24,6 @@ open Platform
 open Belenios_core
 open Common
 
-type 'a t = 'a
-let yield () = ()
-let return x = x
-let bind x f = f x
-let fail e = raise e
-
 let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
 let random q =

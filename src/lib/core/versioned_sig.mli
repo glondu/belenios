@@ -30,8 +30,7 @@ end
 module type QUESTION_H_SIG = sig
 
   module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION_H
-         with type 'a m := 'a M.t
-          and type elt := G.t
+         with type elt := G.t
           and type question := Question_h_t.question
           and type answer := G.t Question_h_t.answer
 
@@ -40,8 +39,7 @@ end
 module type QUESTION_NH_SIG = sig
 
   module Make (M : RANDOM) (G : GROUP) : Question_sigs.QUESTION_NH
-         with type 'a m := 'a M.t
-          and type elt := G.t
+         with type elt := G.t
           and type question := Question_nh_t.question
           and type answer := G.t Question_nh_t.answer
 
@@ -50,8 +48,7 @@ end
 module type MIXNET_SIG = sig
 
   module Make (W : ELECTION_DATA) (M : RANDOM) : MIXNET
-         with type 'a m := 'a M.t
-          and type elt := W.G.t
+         with type elt := W.G.t
           and type 'a proof := 'a Serializable_t.shuffle_proof
 
 end
@@ -62,6 +59,5 @@ module type ELECTION_SIG = sig
   val to_string : Serializable_t.params -> group:string -> public_key:string -> string
 
   module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
-         with type 'a m = 'a M.t
 
 end

@@ -146,7 +146,7 @@ let get_sized_encrypted_tally uuid =
      | Some x -> Lwt.return_some x
 
 let get_nh_ciphertexts election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let* x = Web_events.get_roots ~uuid in
   match x.roots_last_shuffle_event with
@@ -190,7 +190,7 @@ let get_nh_ciphertexts election =
                  return @@ string_of_nh_ciphertexts W.(swrite G.to_string) x.shuffle_ciphertexts
 
 let get_latest_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let* roots = Web_events.get_roots ~uuid in
   let@ tally = fun cont ->
@@ -330,7 +330,7 @@ let internal_release_tally ~force uuid =
     | None -> assert false
     | Some x -> cont x
   in
-  let module W = Election.Make (struct let raw_election = raw_election end) (LwtRandom) () in
+  let module W = Election.Make (struct let raw_election = raw_election end) (Random) () in
   let* tally =
     let* x = get_latest_encrypted_tally (module W) in
     match x with
@@ -362,7 +362,7 @@ let internal_release_tally ~force uuid =
       match x with
       | None -> assert false
       | Some sk ->
-         let* pd = W.E.compute_factor tally sk in
+         let pd = W.E.compute_factor tally sk in
          let owned = {owned_owner; owned_payload = pd} in
          let pd = string_of_partial_decryption W.(swrite G.to_string) pd in
          let payload =
@@ -651,7 +651,7 @@ let get_credential_weight uuid cred =
   Lwt.return x.weight
 
 let get_ballot_weight election ballot =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   Lwt.catch
     (fun () ->
       let ballot = W.ballot_of_string ballot in
@@ -686,7 +686,7 @@ let fold_on_ballots_weeded uuid f accu =
     | None -> Lwt.return accu
     | Some x -> cont x
   in
-  let module W = Election.Make (struct let raw_election = raw_election end) (LwtRandom) () in
+  let module W = Election.Make (struct let raw_election = raw_election end) (Random) () in
   let module GSet = Set.Make (W.G) in
   let* _, accu =
     fold_on_ballots uuid
@@ -710,7 +710,7 @@ let raw_get_ballots uuid =
   match x with
   | None -> return SMap.empty
   | Some x ->
-     let module W = Election.Make (struct let raw_election = x end) (LwtRandom) () in
+     let module W = Election.Make (struct let raw_election = x end) (Random) () in
      fold_on_ballots_weeded uuid
        (fun b accu ->
          let hash = sha256_b64 b in
@@ -733,7 +733,7 @@ let get_ballot_by_hash uuid hash =
     ) (fun _ -> Lwt.return_none)
 
 let add_ballot election last ballot =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let hash = sha256_b64 ballot in
   let* () =
@@ -747,7 +747,7 @@ let add_ballot election last ballot =
   return hash
 
 let compute_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
   let uuid = W.election.e_uuid in
   let@ last = fun cont ->
@@ -802,13 +802,13 @@ let compute_encrypted_tally election =
 let get_shuffle_token uuid = Spool.get ~uuid Spool.shuffle_token
 
 let gen_shuffle_token uuid tk_trustee tk_trustee_id tk_name =
-  let* tk_token = generate_token () in
+  let tk_token = generate_token () in
   let t = {tk_trustee; tk_token; tk_trustee_id; tk_name} in
   let* () = Spool.set ~uuid Spool.shuffle_token t in
   return t
 
 let append_to_shuffles election owned_owner shuffle_s =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let@ last = fun cont ->
     let* x = Spool.get ~uuid Spool.last_event in
@@ -937,7 +937,7 @@ let get_credential_record uuid credential =
   return_some {cr_ballot; cr_weight = c.weight; cr_username = c.username}
 
 let precast_ballot election ~rawballot =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let@ () = fun cont ->
     let hash = Hash.hash_string rawballot in
@@ -963,7 +963,7 @@ let precast_ballot election ~rawballot =
     Lwt.return @@ Error `InvalidBallot
 
 let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let@ last = fun cont ->
     let* x = Spool.get ~uuid Spool.last_event in
@@ -1031,7 +1031,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
      return (Ok (hash, revote))
 
 let cast_ballot election ~rawballot ~user ~weight date ~precast_data =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   Web_election_mutex.with_lock uuid
     (fun () -> do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)

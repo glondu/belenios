@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Js_of_ocaml_lwt
 open Js_of_ocaml_tyxml
 open Belenios_platform
 open Belenios_core
@@ -152,20 +151,13 @@ let run_handler handler () =
      let msg = "Unexpected error: " ^ Printexc.to_string e in
      alert msg
 
-module LwtJsRandom : Signatures.RANDOM with type 'a t = 'a Lwt.t = struct
-  type 'a t = 'a Lwt.t
-  let yield = Lwt_js.yield
-  let return = Lwt.return
-  let bind = Lwt.bind
-  let fail = Lwt.fail
-
+module Random : Signatures.RANDOM = struct
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =
     let size = bytes_to_sample q in
-    let* () = Lwt_js.yield () in
     let r = random_string (Lazy.force prng) size in
-    Lwt.return Z.(of_bits r mod q)
+    Z.(of_bits r mod q)
 end
 
 let get ?token of_string url =

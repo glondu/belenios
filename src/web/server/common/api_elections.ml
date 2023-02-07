@@ -184,7 +184,7 @@ let get_partial_decryptions uuid metadata =
           match metadata.e_trustees with
           | None -> failwith "missing trustees in get_tokens_decrypt"
           | Some ts ->
-             let* ts = Lwt_list.map_s (fun _ -> generate_token ()) ts in
+             let ts = List.map (fun _ -> generate_token ()) ts in
              let* () = Web_persist.set_decryption_tokens uuid ts in
              Lwt.return ts
   in
@@ -209,7 +209,7 @@ let transition_to_encrypted_tally uuid =
   Web_persist.set_election_state uuid `EncryptedTally
 
 let compute_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let* state = Web_persist.get_election_state uuid in
   match state with
@@ -225,7 +225,7 @@ let compute_encrypted_tally election =
   | _ -> Lwt.return_false
 
 let finish_shuffling election =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let* state = Web_persist.get_election_state uuid in
   match state with
@@ -255,7 +255,7 @@ let archive_election uuid =
   Web_persist.set_election_dates uuid {dates with e_archive = Some (Datetime.now ())}
 
 let delete_election election metadata =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let* () = delete_sensitive_data uuid in
   let de_template =
@@ -377,7 +377,7 @@ let rec replace_password username ((salt, hashed) as p) = function
 
 let regenpwd election metadata user =
   let user = String.lowercase_ascii user in
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let title = W.election.e_name in
   let* x = find_user_id uuid user in
@@ -512,7 +512,7 @@ let get_records uuid =
   Lwt.return @@ List.map split_voting_record x
 
 let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
-  let module W = (val election : Site_common_sig.ELECTION_LWT) in
+  let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let* voters = Spool.get_voters ~uuid in
   let voters = Option.value voters ~default:[] in
@@ -577,7 +577,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                  | `ComputeEncryptedTally -> compute_encrypted_tally
                  | `FinishShuffling -> finish_shuffling
                in
-               let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+               let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
                let* b = doit (module W) in
                if b then ok else forbidden
             | `ReleaseTally ->
@@ -590,7 +590,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                ok
             | `RegeneratePassword user ->
                let@ () = handle_generic_error in
-               let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+               let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
                let* b = regenpwd (module W) metadata user in
                if b then ok else not_found
             | `SetPostponeDate date ->
@@ -602,7 +602,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+          let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
           let* () = delete_election (module W) metadata in
           ok
        | _ -> method_not_allowed
@@ -726,7 +726,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
             let@ rawballot = body.run Fun.id in
             let@ () = handle_generic_error in
             let send_confirmation _ _ _ _ _ _ = Lwt.return_true in
-            let module W = Belenios.Election.Make (struct let raw_election = raw end) (LwtRandom) () in
+            let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
             let* x = Web_persist.precast_ballot (module W) ~rawballot in
             match x with
             | Error _ -> bad_request

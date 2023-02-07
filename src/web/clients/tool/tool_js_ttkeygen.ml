@@ -49,11 +49,11 @@ let gen_cert draft e _ =
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Trustees.MakePKI (G) (LwtJsRandom) in
-  let module C = Trustees.MakeChannels (G) (LwtJsRandom) (P) in
-  let module T = Trustees.MakePedersen (G) (LwtJsRandom) (P) (C) in
+  let module P = Trustees.MakePKI (G) (Random) in
+  let module C = Trustees.MakeChannels (G) (Random) (P) in
+  let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
   Lwt.async (fun () ->
-      let* key, cert = T.step1 () in
+      let key, cert = T.step1 () in
       clear_content e;
       set_download "private_key" "text/plain" "private_key.txt" key;
       set_element_display "key_helper" "block";
@@ -75,13 +75,13 @@ let proceed draft pedersen =
   let threshold = pedersen.pedersen_threshold in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Trustees.MakePKI (G) (LwtJsRandom) in
-  let module C = Trustees.MakeChannels (G) (LwtJsRandom) (P) in
-  let module T = Trustees.MakePedersen (G) (LwtJsRandom) (P) (C) in
+  let module P = Trustees.MakePKI (G) (Random) in
+  let module C = Trustees.MakeChannels (G) (Random) (P) in
+  let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
   Lwt.async (fun () ->
       match pedersen.pedersen_step with
       | 3 ->
-         let* polynomial = T.step3 certs key threshold in
+         let polynomial = T.step3 certs key threshold in
          set_textarea "compute_data" (string_of_polynomial polynomial);
          Lwt.return_unit
       | 5 ->
@@ -92,7 +92,7 @@ let proceed draft pedersen =
               alert "Unexpected state! (missing vinput)";
               Lwt.return_unit
          in
-         let* voutput = T.step5 certs key vinput in
+         let voutput = T.step5 certs key vinput in
          set_textarea "compute_data" (string_of_voutput (swrite G.to_string) voutput);
          Lwt.return_unit
       | _ ->

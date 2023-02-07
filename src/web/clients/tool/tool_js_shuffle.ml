@@ -32,7 +32,7 @@ let eta = ref 0
 
 let shuffle election ciphertexts =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = Election.Make (struct let raw_election = election end) (LwtJsRandom) () in
+  let module W = Election.Make (struct let raw_election = election end) (Random) () in
   let ciphertexts = nh_ciphertexts_of_string W.(sread G.of_string) ciphertexts in
   let full_shuffle () =
     let id =
@@ -50,7 +50,7 @@ let shuffle election ciphertexts =
       else
         None
     in
-    let* shuffle = W.E.shuffle_ciphertexts ciphertexts in
+    let shuffle = W.E.shuffle_ciphertexts ciphertexts in
     let r = string_of_shuffle W.(swrite G.to_string) shuffle in
     let () =
       match id with
@@ -72,7 +72,7 @@ let shuffle election ciphertexts =
     if nballots > threshold then (
       let sub = Array.map (fun x -> Array.sub x 0 threshold) ciphertexts in
       let start = new%js Js.date_now in
-      let* _ = W.E.shuffle_ciphertexts sub in
+      let _ = W.E.shuffle_ciphertexts sub in
       let stop = new%js Js.date_now in
       let delta = (stop##valueOf -. start##valueOf) /. 1000. in
       eta := int_of_float (ceil (float_of_int nballots *. delta /. float_of_int threshold));

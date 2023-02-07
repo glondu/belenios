@@ -29,13 +29,11 @@ open Signatures
 open Common
 open Belenios_js.Common
 
-module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
-
 let encryptBallot election cred plaintext () =
-  let module E = (val election : ELECTION_LWT) in
+  let module E = (val election : ELECTION) in
   let module CD = Credential.MakeDerive (E.G) in
   let sk = CD.derive E.election.e_uuid cred in
-  let* b = E.E.create_ballot ~sk plaintext in
+  let b = E.E.create_ballot ~sk plaintext in
   let s = E.string_of_ballot b in
   set_textarea "ballot" s;
   set_content "ballot_tracker" (sha256_b64 s);
@@ -406,7 +404,7 @@ let loadElection credential () =
         | None -> failwith "election_params is missing"
     end
   in
-  let module P = Election.Make (R) (LwtJsRandom) () in
+  let module P = Election.Make (R) (Random) () in
   let params = P.election in
   set_content_with_br "election_name" params.e_name;
   set_content_with_br "election_description" params.e_description;

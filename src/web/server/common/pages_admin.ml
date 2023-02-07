@@ -1951,7 +1951,7 @@ module Make
     let langs = get_languages metadata.e_languages in
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let open (val election : Site_common_sig.ELECTION) in
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
@@ -2420,7 +2420,7 @@ module Make
   let pretty_records election records () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let open (val election : Site_common_sig.ELECTION) in
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Records" in
     let nrecords = List.length records in

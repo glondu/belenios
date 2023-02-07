@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt.Syntax
 open Belenios_core.Common
 open Web_common
 
@@ -51,7 +50,7 @@ module Make (I : SENDER) () = struct
   let generate ~address =
     let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
-    let* code = generate_numeric () in
+    let code = generate_numeric () in
     let expiration_time = Period.add now (Period.second 900) in
     codes := SMap.add address {code; expiration_time; trials_left = 10} codes_;
     I.send ~address ~code

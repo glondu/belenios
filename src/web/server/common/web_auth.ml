@@ -113,7 +113,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
   let auth_systems = ref ([] : (string * auth_system) list)
 
   let get_pre_login_handler uuid username_or_address kind a =
-    let* state = generate_token () in
+    let state = generate_token () in
     let* () = Eliom_reference.set auth_env (Some (uuid, a, kind, state)) in
     match List.assoc_opt a.auth_system !auth_systems with
     | Some auth_system ->

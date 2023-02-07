@@ -89,9 +89,9 @@ open Belenios_platform.Platform
 let generate_password_email metadata langs title uuid v show_weight =
   let (_, {address; login; weight}) : Voter.t = v in
   let weight = if show_weight then weight else None in
-  let* salt = generate_token () in
+  let salt = generate_token () in
   let* password =
-    let* x = generate_token ~length:15 () in
+    let x = generate_token ~length:15 () in
     return (format_password x)
   in
   let hashed = sha256_hex (salt ^ password) in

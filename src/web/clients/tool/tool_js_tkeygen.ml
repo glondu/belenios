@@ -36,9 +36,9 @@ let tkeygen draft =
     let group = draft.draft_group
     let version = draft.draft_version
   end in
-  let module X = Make (P) (LwtJsRandom) () in
+  let module X = Make (P) (Random) () in
   let open X in
-  let* {id=_; priv; pub} = trustee_keygen () in
+  let {id=_; priv; pub} = trustee_keygen () in
   let hash =
     let pub = trustee_public_key_of_string Yojson.Safe.read_json pub in
     sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)

@@ -36,8 +36,8 @@ let generate uuid draft =
     let uuid = uuid
     let group = draft.draft_group
   end in
-  let module X = Make (P) (LwtJsRandom) () in
-  let* c = X.generate ids in
+  let module X = Make (P) (Random) () in
+  let c = X.generate ids in
   set_textarea "pks" (string_of_public_credentials c.public_with_ids);
   let hash = sha256_b64 (string_of_public_credentials c.public) in
   set_content "public_creds_fp" hash;

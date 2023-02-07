@@ -39,7 +39,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
   let audit_footer election =
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let open (val election : Site_common_sig.ELECTION) in
     let uuid = election.e_uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -238,7 +238,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let election_home election state () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let module W = (val election : Site_common_sig.ELECTION_LWT) in
+    let module W = (val election : Site_common_sig.ELECTION) in
     let params = W.election in
     let uuid = params.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
@@ -548,7 +548,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let cast_raw election () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let module W = (val election : Site_common_sig.ELECTION_LWT) in
+    let module W = (val election : Site_common_sig.ELECTION) in
     let params = W.election in
     let uuid = params.e_uuid in
     let form_rawballot = post_form ~service:election_submit_ballot
@@ -682,7 +682,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let lost_ballot election () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let open (val election : Site_common_sig.ELECTION) in
     let title = election.e_name in
     let full_title = election.e_name in
     let uuid = election.e_uuid in
@@ -713,7 +713,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let cast_confirmed election ~result () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let open (val election : Site_common_sig.ELECTION) in
     let uuid = election.e_uuid in
     let name = election.e_name in
     let result, step_title =
@@ -779,7 +779,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
   let pretty_ballots election =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let open (val election : Site_common_sig.ELECTION_LWT) in
+    let open (val election : Site_common_sig.ELECTION) in
     let uuid = election.e_uuid in
     let* hashes = Web_persist.get_ballot_hashes uuid in
     let* audit_cache = Web_persist.get_audit_cache uuid in

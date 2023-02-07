@@ -34,7 +34,7 @@ val has_nh_questions : params -> bool
 
 val make_raw_election : params -> group:string -> public_key:string -> string
 
-module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION with type 'a m = 'a M.t
+module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
 
 val compute_checksums :
   election:hash -> trustees:string -> public_credentials:string list ->

@@ -38,7 +38,6 @@ let question_length q =
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
-  let ( let* ) = M.bind
   let ( / ) x y = x *~ invert y
 
   let dummy_ciphertext =
@@ -71,12 +70,11 @@ module Make (M : RANDOM) (G : GROUP) = struct
       knowledge *)
 
   let fs_prove gs x oracle =
-    let* w = M.random q in
+    let w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
-    let* () = M.yield () in
     let challenge = oracle commitments in
     let response = Z.(erem (w - x * challenge) q) in
-    M.return {challenge; response}
+    {challenge; response}
 
   (** ZKPs for disjunctions *)
 
@@ -90,26 +88,23 @@ module Make (M : RANDOM) (G : GROUP) = struct
     and total_challenges = ref Z.zero in
     (* compute fake proofs *)
     let f i =
-      let* challenge = M.random q in
-      let* response = M.random q in
+      let challenge = M.random q in
+      let response = M.random q in
       proofs.(i) <- {challenge; response};
       commitments.(2*i) <- g **~ Z.((response + r * challenge) mod q);
-      let* () = M.yield () in
       commitments.(2*i+1) <- y **~ response *~ (beta *~ d.(i)) **~ challenge;
-      let* () = M.yield () in
-      total_challenges := Z.(!total_challenges + challenge);
-      M.return ()
+      total_challenges := Z.(!total_challenges + challenge)
     in
     let rec loop i =
-      if i < x then let* () = f i in loop (succ i)
+      if i < x then let () = f i in loop (succ i)
       else if i = x then loop (succ i)
-      else if i < n then let* () = f i in loop (succ i)
-      else M.return ()
+      else if i < n then let () = f i in loop (succ i)
+      else ()
     in
-    let* () = loop 0 in
+    let () = loop 0 in
     total_challenges := Z.(q - !total_challenges mod q);
     (* compute genuine proof *)
-    let* p =
+    let p =
       fs_prove [| g; y |] r (fun commitx ->
           Array.blit commitx 0 commitments (2*x) 2;
           let prefix = Printf.sprintf "prove|%s|%s,%s|"
@@ -119,7 +114,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
         )
     in
     proofs.(x) <- p;
-    M.return proofs
+    proofs
 
   let eg_disj_verify y d zkp proofs {alpha; beta} =
     G.check alpha && G.check beta &&
@@ -147,93 +142,84 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let make_blank_proof y zkp min max m0 c0 r0 mS cS rS =
     if m0 = 0 then (
-      let* blank_proof =
+      let blank_proof =
         (* proof of m0 = 0 \/ mS = 0 (first is true) *)
-        let* challenge1 = M.random q in
-        let* response1 = M.random q in
+        let challenge1 = M.random q in
+        let response1 = M.random q in
         let commitmentA1 = g **~ Z.((response1 + rS * challenge1) mod q) in
-        let* () = M.yield () in
         let commitmentB1 = y **~ response1 *~ cS.beta **~ challenge1 in
-        let* w = M.random q in
+        let w = M.random q in
         let commitmentA0 = g **~ w and commitmentB0 = y **~ w in
-        let* () = M.yield () in
         let prefix = Printf.sprintf "bproof0|%s|" zkp in
         let h = G.hash prefix [|commitmentA0; commitmentB0; commitmentA1; commitmentB1|] in
         let challenge0 = Z.(erem (h - challenge1) q) in
         let response0 = Z.(erem (w - r0 * challenge0) q) in
-        M.return [|
+        [|
             {challenge=challenge0; response=response0};
             {challenge=challenge1; response=response1};
-          |]
+        |]
       in
-      let* overall_proof =
+      let overall_proof =
         (* proof of m0 = 1 \/ min <= mS <= max (second is true) *)
         assert (min <= mS && mS <= max);
-        let* challenge0 = M.random q in
-        let* response0 = M.random q in
+        let challenge0 = M.random q in
+        let response0 = M.random q in
         let proof0 = {challenge=challenge0; response=response0} in
         let overall_proof = Array.make (max-min+2) proof0 in
         let commitments = Array.make (2*(max-min+2)) g in
         let total_challenges = ref challenge0 in
         commitments.(0) <- g **~ Z.((response0 + r0 * challenge0) mod q);
-        let* () = M.yield () in
         commitments.(1) <- y **~ response0 *~ (c0.beta / g) **~ challenge0;
-        let* () = M.yield () in
         let index_true = mS-min+1 in
         let rec loop i =
           if i < max-min+2 then (
             if i <> index_true then (
-              let* challenge = M.random q in
-              let* response = M.random q in
+              let challenge = M.random q in
+              let response = M.random q in
               let g' = if min+i-1 = 0 then G.one else g **~ Z.of_int (min+i-1) in
               let nbeta = cS.beta / g' in
               let j = 2*i in
               overall_proof.(i) <- {challenge; response};
               commitments.(j) <- g **~ Z.((response + rS * challenge) mod q);
-              let* () = M.yield () in
               commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
-              let* () = M.yield () in
               total_challenges := Z.(!total_challenges + challenge);
               loop (i+1)
             ) else loop (i+1)
-          ) else M.return ()
+          ) else ()
         in
-        let* () = loop 1 in
-        let* w = M.random q in
+        let () = loop 1 in
+        let w = M.random q in
         let j = 2 * index_true in
         commitments.(j) <- g **~ w;
         commitments.(j+1) <- y **~ w;
-        let* () = M.yield () in
         let prefix = Printf.sprintf "bproof1|%s|" zkp in
         let h = G.hash prefix commitments in
         let challenge = Z.(erem (h - !total_challenges) q) in
         let response = Z.(erem (w - rS * challenge) q) in
         overall_proof.(index_true) <- {challenge; response};
-        M.return overall_proof
+        overall_proof
       in
-      M.return (overall_proof, blank_proof)
+      (overall_proof, blank_proof)
     ) else (
-      let* blank_proof =
+      let blank_proof =
         (* proof of m0 = 0 \/ mS = 0 (second is true) *)
         assert (mS = 0);
-        let* challenge0 = M.random q in
-        let* response0 = M.random q in
+        let challenge0 = M.random q in
+        let response0 = M.random q in
         let commitmentA0 = g **~ Z.((response0 + r0 * challenge0) mod q) in
-        let* () = M.yield () in
         let commitmentB0 = y **~ response0 *~ c0.beta **~ challenge0 in
-        let* w = M.random q in
+        let w = M.random q in
         let commitmentA1 = g **~ w and commitmentB1 = y **~ w in
-        let* () = M.yield () in
         let prefix = Printf.sprintf "bproof0|%s|" zkp in
         let h = G.hash prefix [|commitmentA0; commitmentB0; commitmentA1; commitmentB1|] in
         let challenge1 = Z.(erem (h - challenge0) q) in
         let response1 = Z.(erem (w - rS * challenge1) q) in
-        M.return [|
+        [|
             {challenge=challenge0; response=response0};
             {challenge=challenge1; response=response1}
-          |]
+        |]
       in
-      let* overall_proof =
+      let overall_proof =
         (* proof of m0 = 1 \/ min <= mS <= max (first is true) *)
         assert (m0 = 1);
         let nil_proof = {challenge=Z.zero; response=Z.zero} in
@@ -242,33 +228,30 @@ module Make (M : RANDOM) (G : GROUP) = struct
         let total_challenges = ref Z.zero in
         let rec loop i =
           if i < max-min+2 then (
-            let* challenge = M.random q in
-            let* response = M.random q in
+            let challenge = M.random q in
+            let response = M.random q in
             let g' = if min+i-1 = 0 then G.one else g **~ Z.of_int (min+i-1) in
             let nbeta = cS.beta / g' in
             let j = 2*i in
             overall_proof.(i) <- {challenge; response};
             commitments.(j) <- g **~ Z.((response + rS * challenge) mod q);
-            let* () = M.yield () in
             commitments.(j+1) <- y **~ response *~ nbeta **~ challenge;
-            let* () = M.yield () in
             total_challenges := Z.(!total_challenges + challenge);
             loop (i+1)
-          ) else M.return ()
+          ) else ()
         in
-        let* () = loop 1 in
-        let* w = M.random q in
+        let () = loop 1 in
+        let w = M.random q in
         commitments.(0) <- g **~ w;
         commitments.(1) <- y **~ w;
-        let* () = M.yield () in
         let prefix = Printf.sprintf "bproof1|%s|" zkp in
         let h = G.hash prefix commitments in
         let challenge = Z.(erem (h - !total_challenges) q) in
         let response = Z.(erem (w - r0 * challenge) q) in
         overall_proof.(0) <- {challenge; response};
-        M.return overall_proof
+        overall_proof
       in
-      M.return (overall_proof, blank_proof)
+      (overall_proof, blank_proof)
     )
 
   let verify_blank_proof y zkp min max c0 cS overall_proof blank_proof =
@@ -344,13 +327,6 @@ module Make (M : RANDOM) (G : GROUP) = struct
     done;
     d
 
-  let swap xs =
-    let rec loop i accu =
-      if i >= 0
-      then let* x = xs.(i) in loop (pred i) (x::accu)
-      else M.return (Array.of_list accu)
-    in loop (pred (Array.length xs)) []
-
   let stringify_choices choices =
     choices
     |> Array.map
@@ -362,12 +338,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let create_answer q ~public_key:y ~prefix:zkp m =
     let n = Array.length m in
-    let* r = swap (Array.init n (fun _ -> M.random G.q)) in
+    let r = Array.init n (fun _ -> M.random G.q) in
     let choices = Array.map2 (eg_encrypt y) r m in
-    let* () = M.yield () in
     let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
-    let* () = M.yield () in
-    let* individual_proofs = swap individual_proofs in
     let zkp = zkp ^ "|" ^ stringify_choices choices in
     match q.q_blank with
     | Some true ->
@@ -380,12 +353,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
        let sumr = Array.fold_left Z.(+) Z.zero r' in
        let summ = Array.fold_left (+) 0 m' in
        let sumc = Array.fold_left eg_combine dummy_ciphertext choices' in
-       let* (overall_proof, blank_proof) =
+       let overall_proof, blank_proof =
          make_blank_proof y zkp q.q_min q.q_max
            m.(0) choices.(0) r.(0) summ sumc sumr
        in
        let blank_proof = Some blank_proof in
-       M.return {choices; individual_proofs; overall_proof; blank_proof}
+       {choices; individual_proofs; overall_proof; blank_proof}
     | _ ->
        (* indexes 0..n-1 are the actual choices *)
        assert (n = Array.length q.q_answers);
@@ -394,9 +367,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
        let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
        assert (q.q_min <= summ && summ <= q.q_max);
        let d = make_d q.q_min q.q_max in
-       let* overall_proof = eg_disj_prove y d zkp (summ - q.q_min) sumr sumc in
+       let overall_proof = eg_disj_prove y d zkp (summ - q.q_min) sumr sumc in
        let blank_proof = None in
-       M.return {choices; individual_proofs; overall_proof; blank_proof}
+       {choices; individual_proofs; overall_proof; blank_proof}
 
   let verify_answer q ~public_key:y ~prefix:zkp a =
     let n = Array.length a.choices in

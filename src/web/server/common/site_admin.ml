@@ -1078,7 +1078,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
          if pending_server_shuffle then (
            let* cc = Web_persist.get_nh_ciphertexts election in
            let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
-           let* shuffle = W.E.shuffle_ciphertexts cc in
+           let shuffle = W.E.shuffle_ciphertexts cc in
            let shuffle = string_of_shuffle W.(swrite G.to_string) shuffle in
            let* x = Web_persist.append_to_shuffles election 1 shuffle in
            match x with
@@ -1681,9 +1681,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                  let version = se.se_version in
                  let module G = (val Group.of_string ~version se.se_group : GROUP) in
                  let module Trustees = (val Trustees.get_by_version version) in
-                 let module P = Trustees.MakePKI (G) (LwtRandom) in
-                 let module C = Trustees.MakeChannels (G) (LwtRandom) (P) in
-                 let module K = Trustees.MakePedersen (G) (LwtRandom) (P) (C) in
+                 let module P = Trustees.MakePKI (G) (Random) in
+                 let module C = Trustees.MakeChannels (G) (Random) (P) in
+                 let module K = Trustees.MakePedersen (G) (Random) (P) (C) in
                  let* () =
                    match t.stt_step with
                    | Some 1 ->

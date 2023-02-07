@@ -42,16 +42,13 @@ val erase_question : t -> t
 
 module Make (M : RANDOM) (G : GROUP)
          (QHomomorphic : Question_sigs.QUESTION_H
-          with type 'a m := 'a M.t
-           and type elt := G.t
+          with type elt := G.t
            and type question := Question_h_t.question
            and type answer := G.t Question_h_t.answer)
          (QNonHomomorphic : Question_sigs.QUESTION_NH
-          with type 'a m := 'a M.t
-           and type elt := G.t
+          with type elt := G.t
            and type question := Question_nh_t.question
            and type answer := G.t Question_nh_t.answer) : Question_sigs.QUESTION
-       with type 'a m := 'a M.t
-        and type elt := G.t
+       with type elt := G.t
         and type question := t
         and type answer := Yojson.Safe.t

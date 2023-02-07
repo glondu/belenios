@@ -26,9 +26,8 @@ module type QUESTION_CORE = sig
   type question
   type answer
   type elt
-  type 'a m
 
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> answer m
+  val create_answer : question -> public_key:elt -> prefix:string -> int array -> answer
   val verify_answer : question -> public_key:elt -> prefix:string -> answer -> bool
 
   val extract_ciphertexts : question -> answer -> elt ciphertext Shape.t

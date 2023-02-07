@@ -24,7 +24,7 @@ open Signatures
 open Common
 
 module MakeGenerate (M : RANDOM) : sig
-  val generate : unit -> string M.t
+  val generate : unit -> string
 end
 
 val parse : string -> [`Valid | `Invalid | `MaybePassword]

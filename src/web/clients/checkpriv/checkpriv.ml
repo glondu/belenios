@@ -93,11 +93,9 @@ let uuid =
   |> Js.to_string
   |> extract_uuid
 
-module type ELECTION_LWT = ELECTION with type 'a m = 'a Lwt.t
-
 let do_election uuid election get_private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val election : ELECTION_LWT) in
+  let module W = (val election : ELECTION) in
   let@ trustees =
     perform (s_ "trustee parameters") (trustees_of_string (sread W.G.of_string))
       (Printf.sprintf "../api/elections/%s/trustees" uuid)
@@ -120,7 +118,7 @@ let do_election uuid election get_private_key =
   let find_pedersen =
     try
       let module Trustees = (val Trustees.get_by_version W.election.e_version) in
-      let module PKI = Trustees.MakePKI (W.G) (LwtJsRandom) in
+      let module PKI = Trustees.MakePKI (W.G) (Random) in
       let private_key = PKI.derive_sk private_key in
       let public_key = W.G.(g **~ private_key) in
       fun x ->
@@ -177,7 +175,7 @@ let do_draft uuid draft get_private_key =
      show_result name
   | `Threshold x ->
      let module Trustees = (val Trustees.get_by_version version) in
-     let module PKI = Trustees.MakePKI (G) (LwtJsRandom) in
+     let module PKI = Trustees.MakePKI (G) (Random) in
      let sk = PKI.derive_sk private_key in
      let vk = G.(g **~ sk) in
      let trustees = x.tt_trustees in
@@ -275,8 +273,8 @@ let onload () =
        Lwt.return_unit
     | _ ->
        let parse_election x =
-         let module X = Election.Make (struct let raw_election = x end) (LwtJsRandom) () in
-         (module X : ELECTION_LWT)
+         let module X = Election.Make (struct let raw_election = x end) (Random) () in
+         (module X : ELECTION)
        in
        let@ election =
          try_perform (s_ "election parameters") parse_election

@@ -39,13 +39,7 @@ let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
 module Datetime = Web_types.Datetime
 module Period = Web_types.Period
 
-module LwtRandom = struct
-
-  type 'a t = 'a Lwt.t
-  let yield = Lwt.pause
-  let return = Lwt.return
-  let bind = Lwt.bind
-  let fail = Lwt.fail
+module Random = struct
 
   let init_prng () = lazy (pseudo_rng (random_string secure_rng 16))
 
@@ -62,7 +56,7 @@ module LwtRandom = struct
   let random q =
     let size = bytes_to_sample q in
     let r = random_string (Lazy.force !prng) size in
-    return Z.(of_bits r mod q)
+    Z.(of_bits r mod q)
 
 end
 
@@ -256,7 +250,7 @@ type add_account_error =
   | PasswordMismatch
   | BadSpaceInPassword
 
-include MakeGenerateToken (LwtRandom)
+include MakeGenerateToken (Random)
 
 let format_password x =
   if String.length x = 15 then (
@@ -309,7 +303,7 @@ let send_email kind ~recipient ~subject ~body =
       ~subject body
   in
   let headers, _ = contents in
-  let* token = generate_token ~length:6 () in
+  let token = generate_token ~length:6 () in
   let date = Datetime.format ~fmt:"%Y%m%d%H%M%S" (Datetime.now ()) in
   let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;

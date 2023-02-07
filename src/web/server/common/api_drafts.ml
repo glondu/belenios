@@ -165,7 +165,7 @@ let delete_draft uuid =
 
 let generate_uuid () =
   let length = !Web_config.uuid_length in
-  let* token = generate_token ?length () in
+  let token = generate_token ?length () in
   Lwt.return (Uuid.wrap token)
 
 let post_drafts account draft =
@@ -177,7 +177,7 @@ let post_drafts account draft =
   in
   let owners = [account.id] in
   let* uuid = generate_uuid () in
-  let* token = generate_token () in
+  let token = generate_token () in
   let se_metadata =
     {
       e_owners = owners;
@@ -344,7 +344,7 @@ type generate_credentials_on_server_error =
   | `NoServer
   ]
 
-module CG = Belenios_core.Credential.MakeGenerate (LwtRandom)
+module CG = Belenios_core.Credential.MakeGenerate (Random)
 
 let generate_credentials_on_server send uuid se =
   let nvoters = List.length se.se_voters in
@@ -365,7 +365,7 @@ let generate_credentials_on_server send uuid se =
     let* public_creds, private_creds, jobs =
       Lwt_list.fold_left_s (fun (public_creds, private_creds, jobs) v ->
           let recipient, login, weight = Voter.get v.sv_id in
-          let* credential = CG.generate () in
+          let credential = CG.generate () in
           let pub_cred =
             let x = CD.derive uuid credential in
             G.(g **~ x)
@@ -524,9 +524,9 @@ let generate_server_trustee se =
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module K = Trustees.MakeSimple (G) (LwtRandom) in
-  let* private_key = K.generate () in
-  let* public_key = K.prove private_key in
+  let module K = Trustees.MakeSimple (G) (Random) in
+  let private_key = K.generate () in
+  let public_key = K.prove private_key in
   let st_public_key = string_of_trustee_public_key (swrite G.to_string) public_key in
   let st_private_key = Some private_key in
   let st_name = Some "server" in
@@ -555,7 +555,7 @@ let post_draft_trustees uuid se t =
        if List.exists (fun x -> x.st_id = address) ts then
          raise (Error (`GenericError "address already used"))
      in
-     let* st_token = generate_token () in
+     let st_token = generate_token () in
      let t =
        {
          st_id = address;
@@ -573,7 +573,7 @@ let post_draft_trustees uuid se t =
        if List.exists (fun x -> x.stt_id = address) ts then
          raise (Error (`GenericError "address already used"))
      in
-     let* stt_token = generate_token () in
+     let stt_token = generate_token () in
      let t =
        {
          stt_id = address;
@@ -763,7 +763,7 @@ let validate_election uuid se =
   let module G = (val group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeCombinator (G) in
-  let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+  let module KG = Trustees.MakeSimple (G) (Random) in
   let* trustee_names, trustees, private_keys =
     match se.se_trustees with
     | `Basic x ->
@@ -771,8 +771,8 @@ let validate_election uuid se =
        let* trustee_names, trustees, private_key =
          match ts with
          | [] ->
-            let* private_key = KG.generate () in
-            let* public_key = KG.prove private_key in
+            let private_key = KG.generate () in
+            let public_key = KG.prove private_key in
             let public_key = { public_key with trustee_name = Some "server" } in
             Lwt.return (["server"], [`Single public_key], `KEY private_key)
          | _ :: _ ->
@@ -823,8 +823,8 @@ let validate_election uuid se =
                 | None -> raise (Error (`GenericError "inconsistent state"))
               ) ts
           in
-          let* server_private_key = KG.generate () in
-          let* server_public_key = KG.prove server_private_key in
+          let server_private_key = KG.generate () in
+          let server_public_key = KG.prove server_private_key in
           let server_public_key = { server_public_key with trustee_name = Some "server" } in
           Lwt.return
             begin
@@ -1023,7 +1023,7 @@ let import_trustees uuid se from metadata =
                 match ts, pubs, privs with
                 | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs ->
                    let stt_name = vo_public_key.trustee_name in
-                   let* stt_token = generate_token () in
+                   let stt_token = generate_token () in
                    let stt_voutput = {vo_public_key; vo_private_key} in
                    let stt_voutput = Some (string_of_voutput (swrite G.to_string) stt_voutput) in
                    let stt = {
@@ -1068,18 +1068,18 @@ let import_trustees uuid se from metadata =
             | Exit -> Lwt.return @@ Stdlib.Error `Unsupported
           in
           let* ts =
-            let module KG = Trustees.MakeSimple (G) (LwtRandom) in
+            let module KG = Trustees.MakeSimple (G) (Random) in
             List.combine names ts
             |> Lwt_list.map_p
                  (fun (st_id, public_key) ->
                    let* st_token, st_private_key, st_public_key =
                      if st_id = "server" then (
-                       let* private_key = KG.generate () in
-                       let* public_key = KG.prove private_key in
+                       let private_key = KG.generate () in
+                       let public_key = KG.prove private_key in
                        let public_key = string_of_trustee_public_key (swrite G.to_string) public_key in
                        Lwt.return ("", Some private_key, public_key)
                      ) else (
-                       let* st_token = generate_token () in
+                       let st_token = generate_token () in
                        let public_key = string_of_trustee_public_key (swrite G.to_string) public_key in
                        Lwt.return (st_token, None, public_key)
                      )

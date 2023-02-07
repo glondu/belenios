@@ -89,9 +89,6 @@ type rawballot_check = {
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION_OPS = sig
 
-  type 'a m
-  (** The type of monadic values. *)
-
   (** {2 Election parameters} *)
 
   (** Ballots are encrypted using public-key cryptography secured by
@@ -118,7 +115,7 @@ module type ELECTION_OPS = sig
 
   type weighted_ballot = Weight.t * ballot
 
-  val create_ballot : sk:private_key -> plaintext -> ballot m
+  val create_ballot : sk:private_key -> plaintext -> ballot
   (** [create_ballot r answers] creates a ballot, or raises
       [Invalid_argument] if [answers] doesn't satisfy the election
       constraints. *)
@@ -136,7 +133,7 @@ module type ELECTION_OPS = sig
   val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
   val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
 
-  val shuffle_ciphertexts : elt nh_ciphertexts -> elt shuffle m
+  val shuffle_ciphertexts : elt nh_ciphertexts -> elt shuffle
   val check_shuffle : elt nh_ciphertexts -> elt shuffle -> bool
 
   (** {2 Partial decryptions} *)
@@ -146,7 +143,7 @@ module type ELECTION_OPS = sig
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
 
-  val compute_factor : elt Serializable_t.ciphertext shape -> private_key -> factor m
+  val compute_factor : elt Serializable_t.ciphertext shape -> private_key -> factor
 
   val check_factor : elt Serializable_t.ciphertext shape -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a
@@ -174,55 +171,50 @@ end
 
 module type ELECTION = sig
   include ELECTION_DATA
-  type 'a m
-  module E : ELECTION_OPS with type elt = G.t and type 'a m = 'a m and type ballot = ballot and type result_type = result
+  module E : ELECTION_OPS with type elt = G.t and type ballot = ballot and type result_type = result
 end
 
 module type PKI = sig
-  type 'a m
   type private_key
   type public_key
-  val genkey : unit -> string m
+  val genkey : unit -> string
   val derive_sk : string -> private_key
   val derive_dk : string -> private_key
-  val sign : private_key -> string -> signed_msg m
+  val sign : private_key -> string -> signed_msg
   val verify : public_key -> signed_msg -> bool
-  val encrypt : public_key -> string -> public_key encrypted_msg m
+  val encrypt : public_key -> string -> public_key encrypted_msg
   val decrypt : private_key -> public_key encrypted_msg -> string
-  val make_cert : sk:private_key -> dk:private_key -> cert m
+  val make_cert : sk:private_key -> dk:private_key -> cert
   val verify_cert : cert -> bool
 end
 
 module type CHANNELS = sig
-  type 'a m
   type private_key
   type public_key
-  val send : private_key -> public_key -> string -> public_key encrypted_msg m
+  val send : private_key -> public_key -> string -> public_key encrypted_msg
   val recv : private_key -> public_key -> public_key encrypted_msg -> string
 end
 
 module type PEDERSEN = sig
-  type 'a m
   type elt
 
-  val step1 : unit -> (string * cert) m
+  val step1 : unit -> string * cert
   val step1_check : cert -> bool
   val step2 : certs -> unit
-  val step3 : certs -> string -> int -> polynomial m
+  val step3 : certs -> string -> int -> polynomial
   val step3_check : certs -> int -> polynomial -> bool
   val step4 : certs -> polynomial array -> vinput array
-  val step5 : certs -> string -> vinput -> elt voutput m
+  val step5 : certs -> string -> vinput -> elt voutput
   val step5_check : certs -> int -> polynomial array -> elt voutput -> bool
   val step6 : certs -> polynomial array -> elt voutput array -> elt threshold_parameters
 end
 
 module type MIXNET = sig
-  type 'a m
   type elt
 
   type 'a proof
 
-  val gen_shuffle : elt -> elt ciphertext array -> (elt ciphertext array * number array * int array) m
-  val gen_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> number array -> int array -> elt proof m
+  val gen_shuffle : elt -> elt ciphertext array -> elt ciphertext array * number array * int array
+  val gen_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> number array -> int array -> elt proof
   val check_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> elt proof -> bool
 end

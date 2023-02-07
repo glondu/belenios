@@ -31,8 +31,7 @@ val ( /// ) : uuid -> string -> string
 module Datetime = Web_types.Datetime
 module Period = Web_types.Period
 
-module LwtRandom : RANDOM with type 'a t = 'a Lwt.t
-(** Lwt-compatible random number generation. *)
+module Random : RANDOM
 
 type error =
   | ElectionClosed
@@ -120,8 +119,8 @@ type add_account_error =
   | PasswordMismatch
   | BadSpaceInPassword
 
-val generate_token : ?length:int -> unit -> string Lwt.t
-val generate_numeric : ?length:int -> unit -> string Lwt.t
+val generate_token : ?length:int -> unit -> string
+val generate_numeric : ?length:int -> unit -> string
 
 val format_password : string -> string
 

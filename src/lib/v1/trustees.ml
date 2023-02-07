@@ -150,46 +150,39 @@ end
 module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open G
 
-  let ( let* ) = M.bind
-
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
 
   let fs_prove gs x oracle =
-    let* w = M.random q in
+    let w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
     let response = Z.(erem (w - x * challenge) q) in
-    M.return {challenge; response}
+    {challenge; response}
 
   let generate () = M.random q
 
   let prove x =
     let trustee_public_key = g **~ x in
     let zkp = "pok|" ^ G.description ^ "|" ^ G.to_string trustee_public_key ^ "|" in
-    let* trustee_pok = fs_prove [| g |] x (G.hash zkp) in
-    M.return {trustee_pok; trustee_public_key; trustee_name = None}
+    let trustee_pok = fs_prove [| g |] x (G.hash zkp) in
+    {trustee_pok; trustee_public_key; trustee_name = None}
 
 end
 
 module MakePKI (G : GROUP) (M : RANDOM) = struct
 
-  type 'a m = 'a M.t
   type private_key = Z.t
   type public_key = G.t
 
   let genkey () =
     let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" in
     let n = 22 and z58 = Z.of_int 58 in
-    let res = Bytes.create n in
-    let rec loop i =
-      if i < n then
-        M.bind (M.random z58) (fun x ->
-            Bytes.set res i b58_digits.[Z.to_int x];
-            loop (i+1)
-          )
-      else M.return (Bytes.to_string res)
-    in loop 0
+    String.init n
+      (fun _ ->
+        let x = M.random z58 in
+        b58_digits.[Z.to_int x]
+      )
 
   let derive_sk p =
     Z.of_hex (sha256_hex ("sk|" ^ p))
@@ -198,27 +191,24 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     Z.of_hex (sha256_hex ("dk|" ^ p))
 
   let sign sk s_message =
-    M.bind (M.random G.q) (fun w ->
-        let commitment = G.(g **~ w) in
-        let prefix = "sigmsg|" ^ s_message ^ "|" in
-        let challenge = G.hash prefix [|commitment|] in
-        let response = Z.(erem (w - sk * challenge) G.q) in
-        let s_signature = { challenge; response } in
-        M.return { s_message; s_signature }
-      )
+    let w = M.random G.q in
+    let commitment = G.(g **~ w) in
+    let prefix = "sigmsg|" ^ s_message ^ "|" in
+    let challenge = G.hash prefix [|commitment|] in
+    let response = Z.(erem (w - sk * challenge) G.q) in
+    let s_signature = { challenge; response } in
+    {s_message; s_signature}
 
   let encrypt y plaintext =
-    M.bind (M.random G.q) (fun r ->
-        M.bind (M.random G.q) (fun key ->
-            let key = G.(g **~ key) in
-            let y_alpha = G.(g **~ r) in
-            let y_beta = G.((y **~ r) *~ key) in
-            let key = sha256_hex ("key|" ^ G.to_string key) in
-            let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-            let y_data = Platform.encrypt ~key ~iv ~plaintext in
-            M.return {y_alpha; y_beta; y_data}
-          )
-      )
+    let r = M.random G.q in
+    let key = M.random G.q in
+    let key = G.(g **~ key) in
+    let y_alpha = G.(g **~ r) in
+    let y_beta = G.((y **~ r) *~ key) in
+    let key = sha256_hex ("key|" ^ G.to_string key) in
+    let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
+    let y_data = Platform.encrypt ~key ~iv ~plaintext in
+    {y_alpha; y_beta; y_data}
 
   let decrypt x {y_alpha; y_beta; y_data} =
     let key = sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x))) in
@@ -237,20 +227,17 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
 end
 
 module MakeChannels (G : GROUP) (M : RANDOM)
-         (P : PKI with type 'a m = 'a M.t
-                   and type private_key = Z.t
+         (P : PKI with type private_key = Z.t
                    and type public_key = G.t) = struct
 
-  type 'a m = 'a P.m
   type private_key = P.private_key
   type public_key = P.public_key
 
   let send sk c_recipient c_message =
     let msg = { c_recipient; c_message } in
     let msg = string_of_channel_msg (swrite G.to_string) msg in
-    M.bind (P.sign sk msg) (fun msg ->
-        P.encrypt c_recipient (string_of_signed_msg msg)
-      )
+    let msg = P.sign sk msg in
+    P.encrypt c_recipient (string_of_signed_msg msg)
 
   let recv dk vk msg =
     let msg = P.decrypt dk msg |> signed_msg_of_string in
@@ -265,28 +252,24 @@ module MakeChannels (G : GROUP) (M : RANDOM)
 end
 
 module MakePedersen (G : GROUP) (M : RANDOM)
-         (P : PKI with type 'a m = 'a M.t
-                   and type private_key = Z.t
+         (P : PKI with type private_key = Z.t
                    and type public_key = G.t)
-         (C : CHANNELS with type 'a m = 'a M.t
-                        and type private_key = Z.t
+         (C : CHANNELS with type private_key = Z.t
                         and type public_key = G.t) = struct
 
-  type 'a m = 'a M.t
   type elt = G.t
   open G
-  let ( let* ) = M.bind
 
   module K = MakeSimple (G) (M)
   module V = MakeVerificator (G)
   module L = MakeCombinator (G)
 
   let step1 () =
-    let* seed = P.genkey () in
+    let seed = P.genkey () in
     let sk = P.derive_sk seed in
     let dk = P.derive_dk seed in
-    let* cert = P.make_cert ~sk ~dk in
-    M.return (seed, cert)
+    let cert = P.make_cert ~sk ~dk in
+    (seed, cert)
 
   let step1_check cert = P.verify_cert cert
 
@@ -325,31 +308,31 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     let polynomial = Array.make threshold Z.zero in
     let rec fill_polynomial i =
       if i < threshold then
-        let* a = M.random q in
+        let a = M.random q in
         polynomial.(i) <- a;
         fill_polynomial (i+1)
-      else M.return ()
+      else ()
     in
-    let* () = fill_polynomial 0 in
-    let* p_polynomial =
-      let* x = C.send sk ek (string_of_raw_polynomial {polynomial}) in
-      M.return @@ string_of_encrypted_msg (swrite G.to_string) x
+    let () = fill_polynomial 0 in
+    let p_polynomial =
+      let x = C.send sk ek (string_of_raw_polynomial {polynomial}) in
+      string_of_encrypted_msg (swrite G.to_string) x
     in
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
     let coefexps = string_of_raw_coefexps (swrite G.to_string) {coefexps} in
-    let* p_coefexps = P.sign sk coefexps in
+    let p_coefexps = P.sign sk coefexps in
     let p_secrets = Array.make n "" in
     let rec fill_secrets j =
       if j < n then
         let secret = eval_poly polynomial (Z.of_int (j+1)) in
         let secret = string_of_secret {secret} in
-        let* x = C.send sk certs.(j).cert_encryption secret in
+        let x = C.send sk certs.(j).cert_encryption secret in
         p_secrets.(j) <- string_of_encrypted_msg (swrite G.to_string) x;
         fill_secrets (j+1)
-      else M.return ()
+      else ()
     in
-    let* () = fill_secrets 0 in
-    M.return {p_polynomial; p_secrets; p_coefexps}
+    let () = fill_secrets 0 in
+    {p_polynomial; p_secrets; p_coefexps}
 
   let step3_check certs i polynomial =
     let certs = Array.map (fun x -> cert_keys_of_string (sread G.of_string) x.s_message) certs.certs in
@@ -430,12 +413,10 @@ module MakePedersen (G : GROUP) (M : RANDOM)
     done;
     let pdk_decryption_key = Array.fold_left Z.(+) Z.zero secrets in
     let pdk = string_of_partial_decryption_key {pdk_decryption_key} in
-    M.bind (K.prove pdk_decryption_key) (fun vo_public_key ->
-        M.bind (C.send sk ek pdk) (fun private_key ->
-            let vo_private_key = string_of_encrypted_msg (swrite G.to_string) private_key in
-            M.return { vo_public_key; vo_private_key }
-          )
-      )
+    let vo_public_key = K.prove pdk_decryption_key in
+    let private_key = C.send sk ek pdk in
+    let vo_private_key = string_of_encrypted_msg (swrite G.to_string) private_key in
+    {vo_public_key; vo_private_key}
 
   let step5_check certs i polynomials voutput =
     let n = Array.length certs.certs in

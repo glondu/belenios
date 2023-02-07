@@ -144,9 +144,9 @@ module Tkeygen = struct
       let group = get_textarea "election_group"
       let version = get_textarea "version" |> int_of_string
     end in
-    let module X = Make (P) (LwtJsRandom) () in
+    let module X = Make (P) (Random) () in
     let open X in
-    let* {id; priv; pub} = trustee_keygen () in
+    let {id; priv; pub} = trustee_keygen () in
     set_textarea "tkeygen_id" id;
     set_textarea "tkeygen_secret" priv;
     set_textarea "tkeygen_public" pub;
@@ -164,7 +164,7 @@ module Credgen = struct
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
     end in
-    let module X = Make (P) (LwtJsRandom) () in
+    let module X = Make (P) (Random) () in
     let cred = get_textarea "credgen_derive_input" in
     set_textarea "credgen_derive_output" (X.derive cred);
     Lwt.return_unit
@@ -175,8 +175,8 @@ module Credgen = struct
       let uuid = get_textarea "election_uuid"
       let group = get_textarea "election_group"
     end in
-    let module X = Make (P) (LwtJsRandom) () in
-    let* c = X.generate ids in
+    let module X = Make (P) (Random) () in
+    let c = X.generate ids in
     set_textarea "credgen_generated_creds"
       (string_of_private_credentials c.priv);
     set_textarea "credgen_generated_pks"
@@ -222,8 +222,8 @@ module Mkelection = struct
 end
 
 let new_uuid () =
-  let open (Common.MakeGenerateToken (LwtJsRandom)) in
-  let* uuid = generate_token () in
+  let open (Common.MakeGenerateToken (Random)) in
+  let uuid = generate_token () in
   set_textarea "election_uuid" uuid;
   Lwt.return_unit
 
