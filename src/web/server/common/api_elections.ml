@@ -350,18 +350,6 @@ let delete_election election metadata =
   in
   Web_persist.clear_elections_by_owner_cache ()
 
-let find_user_id uuid user =
-  let* db = Spool.get_voters ~uuid in
-  let db = Option.value db ~default:[] in
-  let rec loop = function
-    | [] -> None
-    | id :: xs ->
-       let _, login, _ = Voter.get id in
-       if String.lowercase_ascii login = user then Some id else loop xs
-  in
-  let show_weight = Belenios_core.Common.has_explicit_weights db in
-  Lwt.return (loop db, show_weight)
-
 let load_password_db uuid =
   let db = uuid /// "passwords.csv" in
   Lwt_preemptive.detach Csv.load db
@@ -380,9 +368,10 @@ let regenpwd election metadata user =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
   let title = W.election.e_name in
-  let* x = find_user_id uuid user in
+  let* show_weight = Web_persist.has_explicit_weights uuid in
+  let* x = Web_persist.get_voter uuid user in
   match x with
-  | Some id, show_weight ->
+  | Some id ->
      let langs = get_languages metadata.e_languages in
      let* db = load_password_db uuid in
      let* email, x =
@@ -514,17 +503,13 @@ let get_records uuid =
 let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
-  let* voters = Spool.get_voters ~uuid in
-  let voters = Option.value voters ~default:[] in
   let* email, login, weight =
-    let rec loop = function
-      | x :: xs ->
-         let email, login, weight = Voter.get x in
-         if String.lowercase_ascii login = String.lowercase_ascii user.user_name then Lwt.return (email, login, weight) else loop xs
-      | [] -> fail UnauthorizedVoter
-    in loop voters
+    let* x = Web_persist.get_voter uuid user.user_name in
+    match x with
+    | Some x -> Lwt.return @@ Voter.get x
+    | None -> fail UnauthorizedVoter
   in
-  let show_weight = Belenios_core.Common.has_explicit_weights voters in
+  let* show_weight = Web_persist.has_explicit_weights uuid in
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state uuid in

@@ -581,6 +581,45 @@ let get_passwords uuid =
               ) SMap.empty csv in
   return_some res
 
+module VoterCacheTypes = struct
+  type key = uuid
+  type value = bool * Voter.t SMap.t
+end
+
+module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
+
+let raw_get_voter_cache uuid =
+  let* voters = Spool.get_voters ~uuid in
+  let voters = Option.value voters ~default:[] in
+  let map =
+    List.fold_left
+      (fun accu x ->
+        let _, login, _ = Voter.get x in
+        SMap.add (String.lowercase_ascii login) x accu
+      ) SMap.empty voters
+  in
+  let has_explicit_weights = Belenios_core.Common.has_explicit_weights voters in
+  Lwt.return (has_explicit_weights, map)
+
+let voter_cache =
+  new VoterCache.cache raw_get_voter_cache ~timer:3600. 10
+
+let has_explicit_weights uuid =
+  Lwt.catch
+    (fun () ->
+      let* x, _ = voter_cache#find uuid in
+      Lwt.return x
+    )
+    (fun _ -> Lwt.return_false)
+
+let get_voter uuid login =
+  Lwt.catch
+    (fun () ->
+      let* _, x = voter_cache#find uuid in
+      Lwt.return_some @@ SMap.find (String.lowercase_ascii login) x
+    )
+    (fun _ -> Lwt.return_none)
+
 type cred_cache =
   {
     weight : Weight.t;
