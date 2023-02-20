@@ -54,7 +54,7 @@ de suivi`, qui est une empreinte du bulletin. Ce `numéro de suivi` est
 en compte.
 
 Un tutoriel vidéo est disponible <a
-href="https://youtu.be/wuTOuVM4KB4">en ligne</a>.
+href="tutorial-voter.html">en ligne</a>.
 
 Le système de vote Belenios est *vérifiable*.
 
