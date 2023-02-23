@@ -116,9 +116,10 @@ mix homomorphic and non-homomorphic questions.
 The cryptography involved in Belenios needs a cyclic group $\G$ where
 discrete logarithms are hard to compute. We will denote by $g$ a
 generator and $q$ its order. We use a multiplicative notation for the
-group operation. In practice, $\G$ can be either a multiplicative
+group operation. In practice, $\G$ can be either a prime order multiplicative
 subgroup of $\F^*_p$ (hence, all exponentiations are implicitly done
-modulo $p$), or an elliptic curve. We suppose the group parameters are agreed on
+modulo $p$), or a prime order subgroup of the points of an elliptic curve. We
+suppose the group parameters are agreed on
 beforehand. Examples of supported groups are given in
 section~\ref{default-group}.
 
@@ -1818,7 +1819,10 @@ The encoding works as follows:
     2^\kappa+v_2)\times 2^\kappa+\dotsb)\times 2^\kappa+v_n)\times
     2^p+\varepsilon
   \]
-  where $\varepsilon$ (of $p$ bits or less) is chosen so that $\xi\in\G$.
+  where $\varepsilon$ (of $p$ bits or less) is chosen so that $\xi\in\G$;
+\item the $\textsf{to\_ints}$ is the inverse of $\textsf{of\_ints}$, and
+  takes as input a group element $\xi$ and the number $n$ of encoded
+  integers.
 \end{itemize}
 The \textsf{get\_generator} function is the pure part of
 \textsf{GetGenerator} defined in table~\ref{get-generator}.
@@ -1961,7 +1965,10 @@ Additionally, a non-homomorphic encoding is defined as follows:
     2^p+\varepsilon)
   \]
   where $\varepsilon$ (of $p$ bits or less) is the smallest
-  non-negative integer such that $\xi\in\G$.
+  non-negative integer such that $\xi\in\G$;
+\item the $\textsf{to\_ints}$ is the inverse of $\textsf{of\_ints}$, and
+  takes as input a group element $\xi$ and the number $n$ of encoded
+  integers.
 \end{itemize}
 The \textsf{get\_generator} function is the pure part of
 \textsf{GetGenerator} defined in table~\ref{get-generator-ed25519}.
