@@ -1,5 +1,5 @@
-dev
-===
+2.1 (2023-02-28)
+================
 
  * When generating credentials, output private credentials in JSON (as
    an object indexed by logins)
