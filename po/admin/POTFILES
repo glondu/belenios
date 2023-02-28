@@ -8,7 +8,7 @@ src/web/clients/tool/tool_js_tkeygen.ml
 src/web/clients/tool/tool_js_ttkeygen.ml
 src/web/clients/tool/tool_js_shuffle.ml
 src/web/clients/tool/tool_js_pd.ml
-src/web/clients/basic/admin.ml
+src/web/clients/basic/admin_basic.ml
 src/web/clients/basic/common.ml
 src/web/clients/basic/credentials.ml
 src/web/clients/basic/drafts.ml
