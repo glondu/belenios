@@ -262,7 +262,7 @@ msgstr "Adauga o intrebare"
 msgid "Add an answer"
 msgstr "Adauga un raspuns"
 
-#: src/web/clients/checkpriv/checkpriv.ml:312
+#: src/web/clients/checkpriv/checkpriv.ml:310
 msgid "Administer elections"
 msgstr ""
 
@@ -327,7 +327,8 @@ msgstr ""
 msgid "Answer: "
 msgstr "Raspuns: "
 
-#: src/web/clients/basic/admin.ml:206 src/web/server/common/pages_admin.ml:1734
+#: src/web/clients/basic/admin_basic.ml:206
+#. src/web/server/common/pages_admin.ml:1734
 #. src/web/server/common/pages_admin.ml:262
 msgid "Archived elections"
 msgstr "Alegeri arhivate"
@@ -467,11 +468,11 @@ msgstr "Schimba datele fixate in mod automat"
 msgid "Change password"
 msgstr "Schimba parola"
 
-#: src/web/clients/checkpriv/checkpriv.ml:270
+#: src/web/clients/checkpriv/checkpriv.ml:268
 msgid "Check private key"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:246
+#: src/web/clients/checkpriv/checkpriv.ml:244
 #. src/web/server/common/pages_admin.ml:84
 msgid "Check private key ownership"
 msgstr ""
@@ -783,11 +784,13 @@ msgstr "Pagina principala a alegerii"
 msgid "Election server"
 msgstr "Serverul alegerii"
 
-#: src/web/clients/basic/admin.ml:200 src/web/server/common/pages_admin.ml:253
+#: src/web/clients/basic/admin_basic.ml:200
+#. src/web/server/common/pages_admin.ml:253
 msgid "Elections being prepared"
 msgstr "Alegeri in curs de pregatire"
 
-#: src/web/clients/basic/admin.ml:202 src/web/server/common/pages_admin.ml:1730
+#: src/web/clients/basic/admin_basic.ml:202
+#. src/web/server/common/pages_admin.ml:1730
 #. src/web/server/common/pages_admin.ml:256
 msgid "Elections you can administer"
 msgstr "Alegeri pe care le puteti administra"
@@ -855,11 +858,7 @@ msgstr "Eroare"
 msgid "Error in format of private key: %s"
 msgstr "Eroare in formatul cheii private: %s"
 
-#: src/web/clients/tool/tool_js_shuffle.ml:79
-msgid "Estimated computation time: %d second(s)"
-msgstr "Timp de calcul estimat: %d secunde"
-
-#: src/web/clients/tool/tool_js_shuffle.ml:47
+#: src/web/clients/tool/tool_js_shuffle.ml:67
 msgid "Estimated remaining time: %d second(s)"
 msgstr "Estimarea timpului ramas: %d secunde"
 
@@ -1349,7 +1348,7 @@ msgstr "De indata ce alegerea se termina, fisierul creds.txt trebuie sters."
 msgid "Open election"
 msgstr "Deschide alegerea"
 
-#: src/web/clients/checkpriv/checkpriv.ml:231
+#: src/web/clients/checkpriv/checkpriv.ml:229
 #. src/web/server/common/pages_admin.ml:2571
 msgid "Or load it from a file:"
 msgstr "Sau incarcati-o dintr-un fisier:"
@@ -1417,7 +1416,7 @@ msgstr ""
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:225
+#: src/web/clients/checkpriv/checkpriv.ml:223
 #. src/web/server/common/pages_admin.ml:2564
 msgid "Please enter your private key:"
 msgstr "Va rugam sa introduceti cheia privata:"
@@ -1712,7 +1711,8 @@ msgstr "Trimite cheia publica folosind butonul de mai jos."
 msgid "Success"
 msgstr "Succes"
 
-#: src/web/clients/basic/admin.ml:204 src/web/server/common/pages_admin.ml:1732
+#: src/web/clients/basic/admin_basic.ml:204
+#. src/web/server/common/pages_admin.ml:1732
 #. src/web/server/common/pages_admin.ml:259
 msgid "Tallied elections"
 msgstr "Alegeri la care s-au numarat voturile"
@@ -1731,7 +1731,7 @@ msgstr "Multumesc pentru ajutor,"
 msgid "The "
 msgstr "- "
 
-#: src/web/clients/checkpriv/checkpriv.ml:274
+#: src/web/clients/checkpriv/checkpriv.ml:272
 msgid "The UUID is invalid!"
 msgstr ""
 
@@ -1908,7 +1908,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:294
+#: src/web/clients/checkpriv/checkpriv.ml:292
 msgid "There is no election with UUID %s on this server!"
 msgstr ""
 
@@ -2064,7 +2064,7 @@ msgstr "Autoritatile de descifrare ?"
 msgid "Type the password again: "
 msgstr "Introduceti parola din nou: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:302
+#: src/web/clients/checkpriv/checkpriv.ml:300
 msgid "UUID of the election:"
 msgstr ""
 
@@ -2312,8 +2312,8 @@ msgstr "Cheia dvoastra publica a fost deja primita !"
 msgid "Your username is: "
 msgstr "Numele dvoastra de utilizator este : "
 
-#: src/web/clients/checkpriv/checkpriv.ml:131
-#. src/web/clients/checkpriv/checkpriv.ml:114
+#: src/web/clients/checkpriv/checkpriv.ml:129
+#. src/web/clients/checkpriv/checkpriv.ml:112
 msgid "anonymous trustee"
 msgstr ""
 
@@ -2333,7 +2333,7 @@ msgstr "terminat: protocolul de stabilire a cheii s-a terminat"
 msgid "download"
 msgstr "descarca"
 
-#: src/web/clients/checkpriv/checkpriv.ml:289
+#: src/web/clients/checkpriv/checkpriv.ml:287
 msgid "draft election parameters"
 msgstr ""
 
@@ -2341,7 +2341,7 @@ msgstr ""
 msgid "election not ready"
 msgstr "alegerea nu este inca gata"
 
-#: src/web/clients/checkpriv/checkpriv.ml:282
+#: src/web/clients/checkpriv/checkpriv.ml:280
 msgid "election parameters"
 msgstr ""
 
@@ -2420,7 +2420,7 @@ msgstr ""
 msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:249
+#: src/web/clients/checkpriv/checkpriv.ml:247
 msgid "server configuration"
 msgstr ""
 
@@ -2500,8 +2500,8 @@ msgstr "mod cifrare cu prag"
 msgid "times are in UTC. Now is "
 msgstr "timpul este in UTC. Acum este "
 
-#: src/web/clients/checkpriv/checkpriv.ml:149
-#. src/web/clients/checkpriv/checkpriv.ml:102
+#: src/web/clients/checkpriv/checkpriv.ml:147
+#. src/web/clients/checkpriv/checkpriv.ml:100
 msgid "trustee parameters"
 msgstr ""
 

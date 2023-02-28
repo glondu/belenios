@@ -265,7 +265,7 @@ msgstr "Ajouter une question"
 msgid "Add an answer"
 msgstr "Ajouter une réponse"
 
-#: src/web/clients/checkpriv/checkpriv.ml:312
+#: src/web/clients/checkpriv/checkpriv.ml:310
 msgid "Administer elections"
 msgstr "Administrer des élections"
 
@@ -342,7 +342,8 @@ msgstr ""
 msgid "Answer: "
 msgstr "Réponse : "
 
-#: src/web/clients/basic/admin.ml:206 src/web/server/common/pages_admin.ml:1734
+#: src/web/clients/basic/admin_basic.ml:206
+#. src/web/server/common/pages_admin.ml:1734
 #. src/web/server/common/pages_admin.ml:262
 msgid "Archived elections"
 msgstr "Élections archivées"
@@ -484,11 +485,11 @@ msgstr "Changer les dates automatiques"
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
-#: src/web/clients/checkpriv/checkpriv.ml:270
+#: src/web/clients/checkpriv/checkpriv.ml:268
 msgid "Check private key"
 msgstr "Vérifier la clé privée"
 
-#: src/web/clients/checkpriv/checkpriv.ml:246
+#: src/web/clients/checkpriv/checkpriv.ml:244
 #. src/web/server/common/pages_admin.ml:84
 msgid "Check private key ownership"
 msgstr "Vérifier la possession de la clé privée"
@@ -802,11 +803,13 @@ msgstr "Page principale de l'élection"
 msgid "Election server"
 msgstr "Serveur d'élections"
 
-#: src/web/clients/basic/admin.ml:200 src/web/server/common/pages_admin.ml:253
+#: src/web/clients/basic/admin_basic.ml:200
+#. src/web/server/common/pages_admin.ml:253
 msgid "Elections being prepared"
 msgstr "Élections en cours de préparation"
 
-#: src/web/clients/basic/admin.ml:202 src/web/server/common/pages_admin.ml:1730
+#: src/web/clients/basic/admin_basic.ml:202
+#. src/web/server/common/pages_admin.ml:1730
 #. src/web/server/common/pages_admin.ml:256
 msgid "Elections you can administer"
 msgstr "Élections que vous pouvez administrer"
@@ -874,11 +877,7 @@ msgstr "Erreur"
 msgid "Error in format of private key: %s"
 msgstr "Erreur dans le format de la clé privée : %s"
 
-#: src/web/clients/tool/tool_js_shuffle.ml:79
-msgid "Estimated computation time: %d second(s)"
-msgstr "Temps de calcul estimé : %d seconde(s)"
-
-#: src/web/clients/tool/tool_js_shuffle.ml:47
+#: src/web/clients/tool/tool_js_shuffle.ml:67
 msgid "Estimated remaining time: %d second(s)"
 msgstr "Temps restant estimé : %d seconde(s)"
 
@@ -1381,7 +1380,7 @@ msgstr "Une fois l’élection terminée, le fichier creds.txt doit être détru
 msgid "Open election"
 msgstr "Ouvrir l'élection"
 
-#: src/web/clients/checkpriv/checkpriv.ml:231
+#: src/web/clients/checkpriv/checkpriv.ml:229
 #. src/web/server/common/pages_admin.ml:2571
 msgid "Or load it from a file:"
 msgstr "ou téléchargez la depuis un fichier :"
@@ -1450,7 +1449,7 @@ msgstr "Veuillez entrer les identités des électeurs à ajouter, un par ligne"
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Veuillez entrer le code de vérification reçu par courriel :"
 
-#: src/web/clients/checkpriv/checkpriv.ml:225
+#: src/web/clients/checkpriv/checkpriv.ml:223
 #. src/web/server/common/pages_admin.ml:2564
 msgid "Please enter your private key:"
 msgstr "Veuillez entrer votre clé privée :"
@@ -1750,7 +1749,8 @@ msgstr "Soumettez votre clé publique en utilisant le bouton ci-dessous."
 msgid "Success"
 msgstr "Succès"
 
-#: src/web/clients/basic/admin.ml:204 src/web/server/common/pages_admin.ml:1732
+#: src/web/clients/basic/admin_basic.ml:204
+#. src/web/server/common/pages_admin.ml:1732
 #. src/web/server/common/pages_admin.ml:259
 msgid "Tallied elections"
 msgstr "Élections dépouillées"
@@ -1769,7 +1769,7 @@ msgstr "Merci pour votre aide,"
 msgid "The "
 msgstr "Le "
 
-#: src/web/clients/checkpriv/checkpriv.ml:274
+#: src/web/clients/checkpriv/checkpriv.ml:272
 msgid "The UUID is invalid!"
 msgstr "L’UUID n’est pas valide !"
 
@@ -1953,7 +1953,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr "Aucune adresse courriel n'est associée à votre compte."
 
-#: src/web/clients/checkpriv/checkpriv.ml:294
+#: src/web/clients/checkpriv/checkpriv.ml:292
 msgid "There is no election with UUID %s on this server!"
 msgstr "Il n'y a pas d'élection avec l'UUID %s sur ce serveur !"
 
@@ -2108,7 +2108,7 @@ msgstr "Autorités de déchiffrement ?"
 msgid "Type the password again: "
 msgstr "Entrez de nouveau le mot de passe : "
 
-#: src/web/clients/checkpriv/checkpriv.ml:302
+#: src/web/clients/checkpriv/checkpriv.ml:300
 msgid "UUID of the election:"
 msgstr "UUID de l'élection :"
 
@@ -2380,8 +2380,8 @@ msgstr "Votre clé publique a déjà été reçue !"
 msgid "Your username is: "
 msgstr "Votre identifiant est : "
 
-#: src/web/clients/checkpriv/checkpriv.ml:131
-#. src/web/clients/checkpriv/checkpriv.ml:114
+#: src/web/clients/checkpriv/checkpriv.ml:129
+#. src/web/clients/checkpriv/checkpriv.ml:112
 msgid "anonymous trustee"
 msgstr "autorité de déchiffrement anonyme"
 
@@ -2401,7 +2401,7 @@ msgstr "Terminé : le protocole d'établissement de clé est terminé"
 msgid "download"
 msgstr "télécharger"
 
-#: src/web/clients/checkpriv/checkpriv.ml:289
+#: src/web/clients/checkpriv/checkpriv.ml:287
 msgid "draft election parameters"
 msgstr "paramètres de l'élection en cours de préparation"
 
@@ -2409,7 +2409,7 @@ msgstr "paramètres de l'élection en cours de préparation"
 msgid "election not ready"
 msgstr "élection pas encore prête"
 
-#: src/web/clients/checkpriv/checkpriv.ml:282
+#: src/web/clients/checkpriv/checkpriv.ml:280
 msgid "election parameters"
 msgstr "paramètres de l'élection"
 
@@ -2492,7 +2492,7 @@ msgstr ""
 msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr "envoyé à l'avance par courriel (utile pour les élections multiples)"
 
-#: src/web/clients/checkpriv/checkpriv.ml:249
+#: src/web/clients/checkpriv/checkpriv.ml:247
 msgid "server configuration"
 msgstr "configuration du serveur"
 
@@ -2578,8 +2578,8 @@ msgstr "mode chiffrement à seuil"
 msgid "times are in UTC. Now is "
 msgstr "les dates sont en UTC. Actuellement, nous sommes le "
 
-#: src/web/clients/checkpriv/checkpriv.ml:149
-#. src/web/clients/checkpriv/checkpriv.ml:102
+#: src/web/clients/checkpriv/checkpriv.ml:147
+#. src/web/clients/checkpriv/checkpriv.ml:100
 msgid "trustee parameters"
 msgstr "paramètres des autorités de déchiffrement"
 

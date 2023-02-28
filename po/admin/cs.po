@@ -261,7 +261,7 @@ msgstr "Přidat otázku"
 msgid "Add an answer"
 msgstr "Přidat odpověď"
 
-#: src/web/clients/checkpriv/checkpriv.ml:312
+#: src/web/clients/checkpriv/checkpriv.ml:310
 msgid "Administer elections"
 msgstr ""
 
@@ -331,7 +331,8 @@ msgstr ""
 msgid "Answer: "
 msgstr "Odpověď: "
 
-#: src/web/clients/basic/admin.ml:206 src/web/server/common/pages_admin.ml:1734
+#: src/web/clients/basic/admin_basic.ml:206
+#. src/web/server/common/pages_admin.ml:1734
 #. src/web/server/common/pages_admin.ml:262
 msgid "Archived elections"
 msgstr "Archivované volby"
@@ -468,11 +469,11 @@ msgstr "Změnit automatická datumy"
 msgid "Change password"
 msgstr "Změnit heslo"
 
-#: src/web/clients/checkpriv/checkpriv.ml:270
+#: src/web/clients/checkpriv/checkpriv.ml:268
 msgid "Check private key"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:246
+#: src/web/clients/checkpriv/checkpriv.ml:244
 #. src/web/server/common/pages_admin.ml:84
 msgid "Check private key ownership"
 msgstr ""
@@ -783,11 +784,13 @@ msgstr "Stránka volby"
 msgid "Election server"
 msgstr "Volební server"
 
-#: src/web/clients/basic/admin.ml:200 src/web/server/common/pages_admin.ml:253
+#: src/web/clients/basic/admin_basic.ml:200
+#. src/web/server/common/pages_admin.ml:253
 msgid "Elections being prepared"
 msgstr "Rozpracované volby"
 
-#: src/web/clients/basic/admin.ml:202 src/web/server/common/pages_admin.ml:1730
+#: src/web/clients/basic/admin_basic.ml:202
+#. src/web/server/common/pages_admin.ml:1730
 #. src/web/server/common/pages_admin.ml:256
 msgid "Elections you can administer"
 msgstr "Volby, které můžeš administrovat"
@@ -855,11 +858,7 @@ msgstr "Chyba"
 msgid "Error in format of private key: %s"
 msgstr "Chyba ve formátu soukromého klíče: %s"
 
-#: src/web/clients/tool/tool_js_shuffle.ml:79
-msgid "Estimated computation time: %d second(s)"
-msgstr "Odhadovaný čas pro výpočet: %d vteřin"
-
-#: src/web/clients/tool/tool_js_shuffle.ml:47
+#: src/web/clients/tool/tool_js_shuffle.ml:67
 msgid "Estimated remaining time: %d second(s)"
 msgstr "Odhadovaný zbývající čas: %d vteřin"
 
@@ -1351,7 +1350,7 @@ msgstr "Jakmile je volba ukončena, soubor creds.txt musí být zničen."
 msgid "Open election"
 msgstr "Zahájit volbu"
 
-#: src/web/clients/checkpriv/checkpriv.ml:231
+#: src/web/clients/checkpriv/checkpriv.ml:229
 #. src/web/server/common/pages_admin.ml:2571
 msgid "Or load it from a file:"
 msgstr "Nebo to nahrajte ze souboru:"
@@ -1421,7 +1420,7 @@ msgstr "Prosím zadej identity voličů, které chceš přidat, jednu na řádek
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Prosím zadej ověřovací kód, který ti příšel e-mailem:"
 
-#: src/web/clients/checkpriv/checkpriv.ml:225
+#: src/web/clients/checkpriv/checkpriv.ml:223
 #. src/web/server/common/pages_admin.ml:2564
 msgid "Please enter your private key:"
 msgstr "Prosím zadej svůj soukromý klíč:"
@@ -1718,7 +1717,8 @@ msgstr "Zadej svůj veřejný klíč pomocí tlačítka níže."
 msgid "Success"
 msgstr "Úspěch"
 
-#: src/web/clients/basic/admin.ml:204 src/web/server/common/pages_admin.ml:1732
+#: src/web/clients/basic/admin_basic.ml:204
+#. src/web/server/common/pages_admin.ml:1732
 #. src/web/server/common/pages_admin.ml:259
 msgid "Tallied elections"
 msgstr "Vyhodnocené volby"
@@ -1737,7 +1737,7 @@ msgstr "Děkujeme za tvou pomoc,"
 msgid "The "
 msgstr " "
 
-#: src/web/clients/checkpriv/checkpriv.ml:274
+#: src/web/clients/checkpriv/checkpriv.ml:272
 msgid "The UUID is invalid!"
 msgstr ""
 
@@ -1915,7 +1915,7 @@ msgstr "Objevil se požadavek na změnu hesla k tvému účtu na serveru Belenio
 msgid "There is no e-mail address attached to your account."
 msgstr "S tvým účtem není propojená žádná e-mailová adresa."
 
-#: src/web/clients/checkpriv/checkpriv.ml:294
+#: src/web/clients/checkpriv/checkpriv.ml:292
 msgid "There is no election with UUID %s on this server!"
 msgstr ""
 
@@ -2072,7 +2072,7 @@ msgstr "Garanti?"
 msgid "Type the password again: "
 msgstr "Zadej heslo znovu: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:302
+#: src/web/clients/checkpriv/checkpriv.ml:300
 msgid "UUID of the election:"
 msgstr ""
 
@@ -2325,8 +2325,8 @@ msgstr "Váš veřejný klíč již byl přijat!"
 msgid "Your username is: "
 msgstr "Tvoje uživatelské jméno je: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:131
-#. src/web/clients/checkpriv/checkpriv.ml:114
+#: src/web/clients/checkpriv/checkpriv.ml:129
+#. src/web/clients/checkpriv/checkpriv.ml:112
 msgid "anonymous trustee"
 msgstr ""
 
@@ -2346,7 +2346,7 @@ msgstr "hotovo: protokol pro vytvoření klíčů je dokončen"
 msgid "download"
 msgstr "stáhnout"
 
-#: src/web/clients/checkpriv/checkpriv.ml:289
+#: src/web/clients/checkpriv/checkpriv.ml:287
 msgid "draft election parameters"
 msgstr ""
 
@@ -2354,7 +2354,7 @@ msgstr ""
 msgid "election not ready"
 msgstr "volba není připravena"
 
-#: src/web/clients/checkpriv/checkpriv.ml:282
+#: src/web/clients/checkpriv/checkpriv.ml:280
 msgid "election parameters"
 msgstr ""
 
@@ -2437,7 +2437,7 @@ msgstr "posláno naším serverem (snadnější mód, ale zajišťuje méně bez
 msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr "posláno dopředu e-mailem (užitečné po několik voleb najednou)"
 
-#: src/web/clients/checkpriv/checkpriv.ml:249
+#: src/web/clients/checkpriv/checkpriv.ml:247
 msgid "server configuration"
 msgstr ""
 
@@ -2518,8 +2518,8 @@ msgstr "mód minimálního počtu aktivních garantů"
 msgid "times are in UTC. Now is "
 msgstr "časy jsou v UTC. Nyní je "
 
-#: src/web/clients/checkpriv/checkpriv.ml:149
-#. src/web/clients/checkpriv/checkpriv.ml:102
+#: src/web/clients/checkpriv/checkpriv.ml:147
+#. src/web/clients/checkpriv/checkpriv.ml:100
 msgid "trustee parameters"
 msgstr ""
 

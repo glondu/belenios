@@ -266,7 +266,7 @@ msgstr "Dodaj pytanie, treść uchwały, albo decyzji do podjęcia"
 msgid "Add an answer"
 msgstr "Dodaj odpowiedź (opcję wyboru)"
 
-#: src/web/clients/checkpriv/checkpriv.ml:312
+#: src/web/clients/checkpriv/checkpriv.ml:310
 msgid "Administer elections"
 msgstr "Zarządzaj głosowaniami"
 
@@ -348,7 +348,8 @@ msgstr ""
 msgid "Answer: "
 msgstr "Odpowiedź (opcja wyboru): "
 
-#: src/web/clients/basic/admin.ml:206 src/web/server/common/pages_admin.ml:1734
+#: src/web/clients/basic/admin_basic.ml:206
+#. src/web/server/common/pages_admin.ml:1734
 #. src/web/server/common/pages_admin.ml:262
 msgid "Archived elections"
 msgstr "Archiwum głosowań"
@@ -496,11 +497,11 @@ msgstr "Ustaw automatyczny początek i koniec"
 msgid "Change password"
 msgstr "Zmiana hasła"
 
-#: src/web/clients/checkpriv/checkpriv.ml:270
+#: src/web/clients/checkpriv/checkpriv.ml:268
 msgid "Check private key"
 msgstr "Sprawdź klucz prywatny"
 
-#: src/web/clients/checkpriv/checkpriv.ml:246
+#: src/web/clients/checkpriv/checkpriv.ml:244
 #. src/web/server/common/pages_admin.ml:84
 msgid "Check private key ownership"
 msgstr "Sprawdź do kogo należy klucz prywatny"
@@ -813,11 +814,13 @@ msgstr "Strona głosowania"
 msgid "Election server"
 msgstr "Serwer głosowania"
 
-#: src/web/clients/basic/admin.ml:200 src/web/server/common/pages_admin.ml:253
+#: src/web/clients/basic/admin_basic.ml:200
+#. src/web/server/common/pages_admin.ml:253
 msgid "Elections being prepared"
 msgstr "Głosowania w trakcie przygotowania"
 
-#: src/web/clients/basic/admin.ml:202 src/web/server/common/pages_admin.ml:1730
+#: src/web/clients/basic/admin_basic.ml:202
+#. src/web/server/common/pages_admin.ml:1730
 #. src/web/server/common/pages_admin.ml:256
 msgid "Elections you can administer"
 msgstr "Głosowania którymi administrujesz"
@@ -885,11 +888,7 @@ msgstr "Błąd"
 msgid "Error in format of private key: %s"
 msgstr "Błąd w formacie klucza prywatnego: %s"
 
-#: src/web/clients/tool/tool_js_shuffle.ml:79
-msgid "Estimated computation time: %d second(s)"
-msgstr "Szacunkowy czas trwania obliczeń %d sek."
-
-#: src/web/clients/tool/tool_js_shuffle.ml:47
+#: src/web/clients/tool/tool_js_shuffle.ml:67
 msgid "Estimated remaining time: %d second(s)"
 msgstr "Pozostało: %d sek."
 
@@ -1394,7 +1393,7 @@ msgstr "Po zakończeniu głosowania, plik creds.txt musi zostać zniszczony."
 msgid "Open election"
 msgstr "Otwórz głosowanie"
 
-#: src/web/clients/checkpriv/checkpriv.ml:231
+#: src/web/clients/checkpriv/checkpriv.ml:229
 #. src/web/server/common/pages_admin.ml:2571
 msgid "Or load it from a file:"
 msgstr "Lub załaduj go z pliku:"
@@ -1466,7 +1465,7 @@ msgstr ""
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Wprowadź kod weryfikacyjny, który otrzymałeś na Twój adres e-mail:"
 
-#: src/web/clients/checkpriv/checkpriv.ml:225
+#: src/web/clients/checkpriv/checkpriv.ml:223
 #. src/web/server/common/pages_admin.ml:2564
 msgid "Please enter your private key:"
 msgstr "Wprowadź swój klucz prywatny:"
@@ -1763,7 +1762,8 @@ msgstr "Prześlij swój klucz publiczny za pomocą poniższego przycisku."
 msgid "Success"
 msgstr "Zakończono z powodzeniem"
 
-#: src/web/clients/basic/admin.ml:204 src/web/server/common/pages_admin.ml:1732
+#: src/web/clients/basic/admin_basic.ml:204
+#. src/web/server/common/pages_admin.ml:1732
 #. src/web/server/common/pages_admin.ml:259
 msgid "Tallied elections"
 msgstr "Głosowania z ustalonymi wynikami"
@@ -1782,7 +1782,7 @@ msgstr "Dziękujemy Ci za Twoją pomoc,"
 msgid "The "
 msgstr "Wasz "
 
-#: src/web/clients/checkpriv/checkpriv.ml:274
+#: src/web/clients/checkpriv/checkpriv.ml:272
 msgid "The UUID is invalid!"
 msgstr "UUID nie jest prawidłowy!"
 
@@ -1966,7 +1966,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr "Do Twojego konta nie jest przypisany żaden adres e-mail."
 
-#: src/web/clients/checkpriv/checkpriv.ml:294
+#: src/web/clients/checkpriv/checkpriv.ml:292
 msgid "There is no election with UUID %s on this server!"
 msgstr "Na tym serwerze nie ma głosowania z UUID %s!"
 
@@ -2129,7 +2129,7 @@ msgstr "Mężowie (osoby) zaufania?"
 msgid "Type the password again: "
 msgstr "Wpisz hasło ponownie: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:302
+#: src/web/clients/checkpriv/checkpriv.ml:300
 msgid "UUID of the election:"
 msgstr "UUID głosowania:"
 
@@ -2397,8 +2397,8 @@ msgstr "Twój klucz publiczny został już odebrany!"
 msgid "Your username is: "
 msgstr "Twoja nazwa użytkownika to: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:131
-#. src/web/clients/checkpriv/checkpriv.ml:114
+#: src/web/clients/checkpriv/checkpriv.ml:129
+#. src/web/clients/checkpriv/checkpriv.ml:112
 msgid "anonymous trustee"
 msgstr "anonimowy mąż (osoba) zaufania"
 
@@ -2418,7 +2418,7 @@ msgstr "gotowe: procedura utworzenia klucza została zakończona"
 msgid "download"
 msgstr "pobierz"
 
-#: src/web/clients/checkpriv/checkpriv.ml:289
+#: src/web/clients/checkpriv/checkpriv.ml:287
 msgid "draft election parameters"
 msgstr "parametry projektu głosowania"
 
@@ -2426,7 +2426,7 @@ msgstr "parametry projektu głosowania"
 msgid "election not ready"
 msgstr "głosowanie nie jest gotowe"
 
-#: src/web/clients/checkpriv/checkpriv.ml:282
+#: src/web/clients/checkpriv/checkpriv.ml:280
 msgid "election parameters"
 msgstr "parametry głosowania"
 
@@ -2513,7 +2513,7 @@ msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
 "wysyłane z wyprzedzeniem e-mailem (przydatne przy wielokrotnych głosowaniach)"
 
-#: src/web/clients/checkpriv/checkpriv.ml:249
+#: src/web/clients/checkpriv/checkpriv.ml:247
 msgid "server configuration"
 msgstr "konfiguracja serwera"
 
@@ -2609,8 +2609,8 @@ msgstr ""
 msgid "times are in UTC. Now is "
 msgstr "czasy są podane w UTC. Teraz jest "
 
-#: src/web/clients/checkpriv/checkpriv.ml:149
-#. src/web/clients/checkpriv/checkpriv.ml:102
+#: src/web/clients/checkpriv/checkpriv.ml:147
+#. src/web/clients/checkpriv/checkpriv.ml:100
 msgid "trustee parameters"
 msgstr "parametry męża (osoby) zaufania"
 

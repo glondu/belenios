@@ -43,7 +43,7 @@ msgstr " stemme(r) har blitt godtatt, og "
 msgid " ballot(s) have been accepted."
 msgstr " stemme(r) har blitt godtatt."
 
-#: src/web/server/common/web_common.ml:108
+#: src/web/server/common/web_common.ml:102
 msgid " day(s)"
 msgstr " dag(er)"
 
@@ -59,7 +59,7 @@ msgstr " har blitt godtatt."
 msgid " have been tallied."
 msgstr " har blitt opptalt."
 
-#: src/web/server/common/web_common.ml:110
+#: src/web/server/common/web_common.ml:104
 msgid " hour(s)"
 msgstr " time(r)"
 
@@ -71,19 +71,19 @@ msgstr " i følgende stemmeurne: "
 msgid " is rejected, because "
 msgstr " har blitt avslått, fordi "
 
-#: src/web/server/common/web_common.ml:111
+#: src/web/server/common/web_common.ml:105
 msgid " minute(s)"
 msgstr " minutt(er)"
 
-#: src/web/server/common/web_common.ml:107
+#: src/web/server/common/web_common.ml:101
 msgid " month(s)"
 msgstr " måned(er)"
 
-#: src/web/server/common/web_common.ml:112
+#: src/web/server/common/web_common.ml:106
 msgid " second(s)"
 msgstr " sekund(er)"
 
-#: src/web/server/common/web_common.ml:106
+#: src/web/server/common/web_common.ml:100
 msgid " year(s)"
 msgstr " år"
 
@@ -117,7 +117,7 @@ msgstr "%d gyldige (ikke-blanke) stemmesedler"
 msgid "%d valid ballot(s)"
 msgstr "%d gyldige stemmesedler"
 
-#: src/web/clients/tool/tool_js_booth.ml:164
+#: src/web/clients/tool/tool_js_booth.ml:162
 msgid "(nothing)"
 msgstr "(ingenting)"
 
@@ -185,7 +185,7 @@ msgstr "Svar på spørsmål"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "I beleilighetsøyemed tolkes 0 alltid som laveste vurdering."
 
-#: src/web/clients/tool/tool_js_booth.ml:252
+#: src/web/clients/tool/tool_js_booth.ml:250
 msgid "At least one of the answers is invalid!"
 msgstr "Minst ett av svarene er ugyldig!"
 
@@ -253,8 +253,8 @@ msgstr "Belenios-identitetsbekreftelse"
 msgid "Best regards,"
 msgstr "Hilsen,"
 
-#: src/web/clients/tool/tool_js_booth.ml:156
-#. src/web/clients/tool/tool_js_booth.ml:82
+#: src/web/clients/tool/tool_js_booth.ml:154
+#. src/web/clients/tool/tool_js_booth.ml:80
 #. src/web/server/common/pages_voter.ml:170
 msgid "Blank vote"
 msgstr "Blank stemme"
@@ -369,13 +369,13 @@ msgstr "Gå til kildekoden"
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
-#: src/web/clients/tool/tool_js_booth.ml:230
+#: src/web/clients/tool/tool_js_booth.ml:228
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Hvis du blir spurt om å vurdere kandidater (flertallsvurdering) er 1 den "
 "beste karakteren, høyere nummer er verre."
 
-#: src/web/clients/tool/tool_js_booth.ml:233
+#: src/web/clients/tool/tool_js_booth.ml:231
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Hvis du blir spurt om å vurdere kandidater (Condorcet, STV, …) bruk 1 for "
@@ -416,7 +416,7 @@ msgstr "Skriv inn identitetsdetalj"
 msgid "Input your credential "
 msgstr "Skriv inn din identitetsdetalj "
 
-#: src/web/clients/tool/tool_js_booth.ml:386
+#: src/web/clients/tool/tool_js_booth.ml:384
 msgid "Invalid credential!"
 msgstr "Ugyldig identitetsdetalj!"
 
@@ -491,11 +491,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr "Mer info er å finne "
 
-#: src/web/clients/tool/tool_js_booth.ml:315
+#: src/web/clients/tool/tool_js_booth.ml:313
 msgid "Next"
 msgstr "Next"
 
-#: src/web/clients/tool/tool_js_booth.ml:136
+#: src/web/clients/tool/tool_js_booth.ml:134
 msgid "No other choices are allowed when voting blank"
 msgstr "Ingen andre valg tillates når blank stemme avgis"
 
@@ -509,7 +509,7 @@ msgstr ""
 "Merk at du også trenger en identitetsdetalj (sendt i egen e-post) for å "
 "begynne avstemming."
 
-#: src/web/clients/tool/tool_js_booth.ml:225
+#: src/web/clients/tool/tool_js_booth.ml:223
 msgid "Notes:"
 msgstr "Merknader:"
 
@@ -553,7 +553,7 @@ msgstr "Skriv inn "
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Skriv inn verifikasjonskoden du har mottatt på e-post:"
 
-#: src/web/clients/tool/tool_js_booth.ml:380
+#: src/web/clients/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Skriv inn din identitetsdetalj:"
 
@@ -595,7 +595,7 @@ msgstr "Vent… "
 msgid "Powered by "
 msgstr "Drevet av "
 
-#: src/web/clients/tool/tool_js_booth.ml:314
+#: src/web/clients/tool/tool_js_booth.ml:312
 msgid "Previous"
 msgstr "Forrige"
 
@@ -633,7 +633,7 @@ msgstr "Lagre den for å sjekke at den har blitt tatt hensyn til senere."
 msgid "See accepted ballots"
 msgstr "Se godkjente stemmer"
 
-#: src/web/clients/tool/tool_js_booth.ml:76
+#: src/web/clients/tool/tool_js_booth.ml:74
 msgid "Select between %d and %d answer(s)"
 msgstr "Velg mellom %d og %d svar"
 
@@ -814,7 +814,7 @@ msgstr "Dette valget bruker vekter."
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:388
+#: src/web/clients/tool/tool_js_booth.ml:386
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr "Dette ser ut til å være et passord … Kanskje du fant frem feil e-post?"
 
@@ -863,7 +863,7 @@ msgstr "Bruk følgende kode:"
 msgid "Username:"
 msgstr "Brukernavn:"
 
-#: src/web/clients/tool/tool_js_booth.ml:206
+#: src/web/clients/tool/tool_js_booth.ml:204
 msgid "Value must be an integer between 0 and 255."
 msgstr "Verdi må være et heltall mellom 0 og 255."
 
@@ -871,7 +871,7 @@ msgstr "Verdi må være et heltall mellom 0 og 255."
 msgid "Warning:"
 msgstr "Advarsel:"
 
-#: src/web/clients/tool/tool_js_booth.ml:236
+#: src/web/clients/tool/tool_js_booth.ml:234
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Advarsel: Systemet vil godta ethvert heltall mellom 0 og 255, men i henhold "
@@ -936,11 +936,11 @@ msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 msgid "You cannot log in now. Please try later."
 msgstr "Du kan ikke logge inn nå. Prøv igjen senere."
 
-#: src/web/clients/tool/tool_js_booth.ml:123
+#: src/web/clients/tool/tool_js_booth.ml:121
 msgid "You must select at least %d answer(s)"
 msgstr "Du må velge minst %d svar"
 
-#: src/web/clients/tool/tool_js_booth.ml:126
+#: src/web/clients/tool/tool_js_booth.ml:124
 msgid "You must select at most %d answer(s)"
 msgstr "Du kan ikke velge mer enn %d svar"
 
@@ -1030,7 +1030,7 @@ msgstr "opprett en konto"
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
-#: src/web/clients/tool/tool_js_booth.ml:378
+#: src/web/clients/tool/tool_js_booth.ml:376
 #. src/web/server/common/pages_voter.ml:1087
 #. src/web/server/common/pages_voter.ml:1034
 msgid "here"
@@ -1056,7 +1056,7 @@ msgstr ""
 msgid "raw result"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:85
+#: src/web/server/common/web_common.ml:79
 msgid "some proofs failed verification"
 msgstr "noen bevis kunne ikke bekreftes"
 
@@ -1068,15 +1068,15 @@ msgstr "start fra begynnelsen"
 msgid "the Wikipedia page"
 msgstr "Wikipedia-siden"
 
-#: src/web/server/common/web_common.ml:81
+#: src/web/server/common/web_common.ml:75
 msgid "the election is closed"
 msgstr "valget er over"
 
-#: src/web/server/common/web_common.ml:91
+#: src/web/server/common/web_common.ml:85
 msgid "this ballot has already been accepted"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:92
+#: src/web/server/common/web_common.ml:86
 msgid "this ballot has expired"
 msgstr ""
 
@@ -1084,39 +1084,39 @@ msgstr ""
 msgid "try to log in again"
 msgstr "prøv å logge inn igjen"
 
-#: src/web/server/common/web_common.ml:87
+#: src/web/server/common/web_common.ml:81
 msgid "you are not allowed to revote"
 msgstr "du tillates ikke å stemme på ny"
 
-#: src/web/server/common/web_common.ml:82
+#: src/web/server/common/web_common.ml:76
 msgid "you are not allowed to vote"
 msgstr "du tillates ikke å stemme"
 
-#: src/web/server/common/web_common.ml:89
+#: src/web/server/common/web_common.ml:83
 msgid "you are not allowed to vote with this credential"
 msgstr "du tillates ikke å stemme med denne identitetsdetaljen"
 
-#: src/web/server/common/web_common.ml:83
+#: src/web/server/common/web_common.ml:77
 msgid "your ballot has a syntax error (%s)"
 msgstr "din stemme har en syntaksfeil (%s)"
 
-#: src/web/server/common/web_common.ml:84
+#: src/web/server/common/web_common.ml:78
 msgid "your ballot is not in canonical form"
 msgstr "stemmeseddelen din er ikke i kanonisk form"
 
-#: src/web/server/common/web_common.ml:90
+#: src/web/server/common/web_common.ml:84
 msgid "your credential has a bad weight"
 msgstr "din identitetsdetalj har feilaktig vekting"
 
-#: src/web/server/common/web_common.ml:88
+#: src/web/server/common/web_common.ml:82
 msgid "your credential has already been used"
 msgstr "din identitetsdetalj har allerede blitt brukt"
 
-#: src/web/server/common/web_common.ml:86
+#: src/web/server/common/web_common.ml:80
 msgid "your credential is invalid"
 msgstr "din identitetsdetalj er ugyldig"
 
-#: src/web/server/common/web_common.ml:93
+#: src/web/server/common/web_common.ml:87
 msgid "your username is wrong"
 msgstr ""
 

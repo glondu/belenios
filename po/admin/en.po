@@ -255,7 +255,7 @@ msgstr "Add a question"
 msgid "Add an answer"
 msgstr "Add an answer"
 
-#: src/web/clients/checkpriv/checkpriv.ml:312
+#: src/web/clients/checkpriv/checkpriv.ml:310
 msgid "Administer elections"
 msgstr ""
 
@@ -316,7 +316,8 @@ msgstr ""
 msgid "Answer: "
 msgstr "Answer: "
 
-#: src/web/clients/basic/admin.ml:206 src/web/server/common/pages_admin.ml:1734
+#: src/web/clients/basic/admin_basic.ml:206
+#. src/web/server/common/pages_admin.ml:1734
 #. src/web/server/common/pages_admin.ml:262
 msgid "Archived elections"
 msgstr "Archived elections"
@@ -448,11 +449,11 @@ msgstr "Change automatic dates"
 msgid "Change password"
 msgstr "Change password"
 
-#: src/web/clients/checkpriv/checkpriv.ml:270
+#: src/web/clients/checkpriv/checkpriv.ml:268
 msgid "Check private key"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:246
+#: src/web/clients/checkpriv/checkpriv.ml:244
 #. src/web/server/common/pages_admin.ml:84
 msgid "Check private key ownership"
 msgstr ""
@@ -756,11 +757,13 @@ msgstr "Election home"
 msgid "Election server"
 msgstr "Election server"
 
-#: src/web/clients/basic/admin.ml:200 src/web/server/common/pages_admin.ml:253
+#: src/web/clients/basic/admin_basic.ml:200
+#. src/web/server/common/pages_admin.ml:253
 msgid "Elections being prepared"
 msgstr "Elections being prepared"
 
-#: src/web/clients/basic/admin.ml:202 src/web/server/common/pages_admin.ml:1730
+#: src/web/clients/basic/admin_basic.ml:202
+#. src/web/server/common/pages_admin.ml:1730
 #. src/web/server/common/pages_admin.ml:256
 msgid "Elections you can administer"
 msgstr "Elections you can administer"
@@ -822,11 +825,7 @@ msgstr "Error"
 msgid "Error in format of private key: %s"
 msgstr "Error in format of private key: %s"
 
-#: src/web/clients/tool/tool_js_shuffle.ml:79
-msgid "Estimated computation time: %d second(s)"
-msgstr "Estimated computation time: %d second(s)"
-
-#: src/web/clients/tool/tool_js_shuffle.ml:47
+#: src/web/clients/tool/tool_js_shuffle.ml:67
 msgid "Estimated remaining time: %d second(s)"
 msgstr "Estimated remaining time: %d second(s)"
 
@@ -1288,7 +1287,7 @@ msgstr "Once the election is over, the file creds.txt must be destroyed."
 msgid "Open election"
 msgstr "Open election"
 
-#: src/web/clients/checkpriv/checkpriv.ml:231
+#: src/web/clients/checkpriv/checkpriv.ml:229
 #. src/web/server/common/pages_admin.ml:2571
 msgid "Or load it from a file:"
 msgstr "Or load it from a file:"
@@ -1357,7 +1356,7 @@ msgstr "Please enter the identities of voters to add, one per line"
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:225
+#: src/web/clients/checkpriv/checkpriv.ml:223
 #. src/web/server/common/pages_admin.ml:2564
 msgid "Please enter your private key:"
 msgstr "Please enter your private key:"
@@ -1644,7 +1643,8 @@ msgstr "Submit your public key using the button below."
 msgid "Success"
 msgstr "Success"
 
-#: src/web/clients/basic/admin.ml:204 src/web/server/common/pages_admin.ml:1732
+#: src/web/clients/basic/admin_basic.ml:204
+#. src/web/server/common/pages_admin.ml:1732
 #. src/web/server/common/pages_admin.ml:259
 msgid "Tallied elections"
 msgstr "Tallied elections"
@@ -1663,7 +1663,7 @@ msgstr "Thank you for your help,"
 msgid "The "
 msgstr "The "
 
-#: src/web/clients/checkpriv/checkpriv.ml:274
+#: src/web/clients/checkpriv/checkpriv.ml:272
 msgid "The UUID is invalid!"
 msgstr ""
 
@@ -1833,7 +1833,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:294
+#: src/web/clients/checkpriv/checkpriv.ml:292
 msgid "There is no election with UUID %s on this server!"
 msgstr ""
 
@@ -1977,7 +1977,7 @@ msgstr "Trustees?"
 msgid "Type the password again: "
 msgstr "Type the password again: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:302
+#: src/web/clients/checkpriv/checkpriv.ml:300
 msgid "UUID of the election:"
 msgstr ""
 
@@ -2200,8 +2200,8 @@ msgstr "Your public key has already been received!"
 msgid "Your username is: "
 msgstr "Your username is: "
 
-#: src/web/clients/checkpriv/checkpriv.ml:131
-#. src/web/clients/checkpriv/checkpriv.ml:114
+#: src/web/clients/checkpriv/checkpriv.ml:129
+#. src/web/clients/checkpriv/checkpriv.ml:112
 msgid "anonymous trustee"
 msgstr ""
 
@@ -2221,7 +2221,7 @@ msgstr "done: the key establishment protocol is finished"
 msgid "download"
 msgstr "download"
 
-#: src/web/clients/checkpriv/checkpriv.ml:289
+#: src/web/clients/checkpriv/checkpriv.ml:287
 msgid "draft election parameters"
 msgstr ""
 
@@ -2229,7 +2229,7 @@ msgstr ""
 msgid "election not ready"
 msgstr "election not ready"
 
-#: src/web/clients/checkpriv/checkpriv.ml:282
+#: src/web/clients/checkpriv/checkpriv.ml:280
 msgid "election parameters"
 msgstr ""
 
@@ -2308,7 +2308,7 @@ msgstr ""
 msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
 
-#: src/web/clients/checkpriv/checkpriv.ml:249
+#: src/web/clients/checkpriv/checkpriv.ml:247
 msgid "server configuration"
 msgstr ""
 
@@ -2385,8 +2385,8 @@ msgstr "threshold mode"
 msgid "times are in UTC. Now is "
 msgstr "times are in UTC. Now is "
 
-#: src/web/clients/checkpriv/checkpriv.ml:149
-#. src/web/clients/checkpriv/checkpriv.ml:102
+#: src/web/clients/checkpriv/checkpriv.ml:147
+#. src/web/clients/checkpriv/checkpriv.ml:100
 msgid "trustee parameters"
 msgstr ""
 

@@ -44,7 +44,7 @@ msgstr " buletin(e) de vot au fost acceptat(e), și "
 msgid " ballot(s) have been accepted."
 msgstr " buletin(e) de vot au fost acceptat(e)."
 
-#: src/web/server/common/web_common.ml:108
+#: src/web/server/common/web_common.ml:102
 msgid " day(s)"
 msgstr " zi(le)"
 
@@ -60,7 +60,7 @@ msgstr " a fost acceptat."
 msgid " have been tallied."
 msgstr " au fost contorizate."
 
-#: src/web/server/common/web_common.ml:110
+#: src/web/server/common/web_common.ml:104
 msgid " hour(s)"
 msgstr " ora(e)"
 
@@ -72,19 +72,19 @@ msgstr ""
 msgid " is rejected, because "
 msgstr " este resprins, deoarece "
 
-#: src/web/server/common/web_common.ml:111
+#: src/web/server/common/web_common.ml:105
 msgid " minute(s)"
 msgstr " minut(e)"
 
-#: src/web/server/common/web_common.ml:107
+#: src/web/server/common/web_common.ml:101
 msgid " month(s)"
 msgstr " luna(i)"
 
-#: src/web/server/common/web_common.ml:112
+#: src/web/server/common/web_common.ml:106
 msgid " second(s)"
 msgstr " secundă(e)"
 
-#: src/web/server/common/web_common.ml:106
+#: src/web/server/common/web_common.ml:100
 msgid " year(s)"
 msgstr " an(i)"
 
@@ -116,7 +116,7 @@ msgstr ""
 msgid "%d valid ballot(s)"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:164
+#: src/web/clients/tool/tool_js_booth.ml:162
 msgid "(nothing)"
 msgstr "(nimic)"
 
@@ -178,7 +178,7 @@ msgstr "Răspuns la întrebări"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:252
+#: src/web/clients/tool/tool_js_booth.ml:250
 msgid "At least one of the answers is invalid!"
 msgstr "Cel putin unul din raspunsuri nu este bun!"
 
@@ -246,8 +246,8 @@ msgstr ""
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:156
-#. src/web/clients/tool/tool_js_booth.ml:82
+#: src/web/clients/tool/tool_js_booth.ml:154
+#. src/web/clients/tool/tool_js_booth.ml:80
 #. src/web/server/common/pages_voter.ml:170
 msgid "Blank vote"
 msgstr "Vot alb"
@@ -361,13 +361,13 @@ msgstr "Obține codul sursă"
 msgid "Go back to election"
 msgstr "Întoarcere la pagina de start a alegerii"
 
-#: src/web/clients/tool/tool_js_booth.ml:230
+#: src/web/clients/tool/tool_js_booth.ml:228
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Daca vi se cere sa notati candidatii (judecarea majoritara) atunci 1 este "
 "nota maxima, numerele mai mari corespunzand notelor mai putin bune."
 
-#: src/web/clients/tool/tool_js_booth.ml:233
+#: src/web/clients/tool/tool_js_booth.ml:231
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Daca vi se cere sa ordonati candidatii (Condorcet, STV, ...) atunci folositi "
@@ -403,7 +403,7 @@ msgstr "Introducere cod de votare"
 msgid "Input your credential "
 msgstr "Introduceți codul vostru de votare "
 
-#: src/web/clients/tool/tool_js_booth.ml:386
+#: src/web/clients/tool/tool_js_booth.ml:384
 msgid "Invalid credential!"
 msgstr "Cod de votare invalid !"
 
@@ -476,11 +476,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:315
+#: src/web/clients/tool/tool_js_booth.ml:313
 msgid "Next"
 msgstr "Următor"
 
-#: src/web/clients/tool/tool_js_booth.ml:136
+#: src/web/clients/tool/tool_js_booth.ml:134
 msgid "No other choices are allowed when voting blank"
 msgstr "Nu puteți selecta o altă opțiune la un vot alb"
 
@@ -492,7 +492,7 @@ msgstr "Inexistent"
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:225
+#: src/web/clients/tool/tool_js_booth.ml:223
 msgid "Notes:"
 msgstr "Remarci:"
 
@@ -536,7 +536,7 @@ msgstr ""
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:380
+#: src/web/clients/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Vă rugăm să introduceți codul de votare:"
 
@@ -572,7 +572,7 @@ msgstr "Va rugam sa asteptati... "
 msgid "Powered by "
 msgstr "Realizat de "
 
-#: src/web/clients/tool/tool_js_booth.ml:314
+#: src/web/clients/tool/tool_js_booth.ml:312
 msgid "Previous"
 msgstr "Precedent"
 
@@ -611,7 +611,7 @@ msgstr ""
 msgid "See accepted ballots"
 msgstr "Consultă buletinele de vot acceptate"
 
-#: src/web/clients/tool/tool_js_booth.ml:76
+#: src/web/clients/tool/tool_js_booth.ml:74
 msgid "Select between %d and %d answer(s)"
 msgstr "Selectați între %d și %d rspuns(uri)"
 
@@ -780,7 +780,7 @@ msgstr ""
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:388
+#: src/web/clients/tool/tool_js_booth.ml:386
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr ""
 
@@ -828,7 +828,7 @@ msgstr ""
 msgid "Username:"
 msgstr "Nume utilizator:"
 
-#: src/web/clients/tool/tool_js_booth.ml:206
+#: src/web/clients/tool/tool_js_booth.ml:204
 msgid "Value must be an integer between 0 and 255."
 msgstr "Valoarea trebuie sa fie un numar intreg intre 0 si 255."
 
@@ -836,7 +836,7 @@ msgstr "Valoarea trebuie sa fie un numar intreg intre 0 si 255."
 msgid "Warning:"
 msgstr "Atentie:"
 
-#: src/web/clients/tool/tool_js_booth.ml:236
+#: src/web/clients/tool/tool_js_booth.ml:234
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Atentie: sistemul va accepta orice numar intreg intre 0 si 255, dar, in "
@@ -897,11 +897,11 @@ msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:123
+#: src/web/clients/tool/tool_js_booth.ml:121
 msgid "You must select at least %d answer(s)"
 msgstr "Trebuie să selectați cel puțin %d răspuns(uri)"
 
-#: src/web/clients/tool/tool_js_booth.ml:126
+#: src/web/clients/tool/tool_js_booth.ml:124
 msgid "You must select at most %d answer(s)"
 msgstr "Trebuie să selectați cel mult %d răspuns(uri)"
 
@@ -987,7 +987,7 @@ msgstr "creati un cont"
 msgid "has been recorded."
 msgstr "a fost înregistrat."
 
-#: src/web/clients/tool/tool_js_booth.ml:378
+#: src/web/clients/tool/tool_js_booth.ml:376
 #. src/web/server/common/pages_voter.ml:1087
 #. src/web/server/common/pages_voter.ml:1034
 msgid "here"
@@ -1013,7 +1013,7 @@ msgstr ""
 msgid "raw result"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:85
+#: src/web/server/common/web_common.ml:79
 msgid "some proofs failed verification"
 msgstr "unele dovezi sunt invalide"
 
@@ -1025,15 +1025,15 @@ msgstr "incepeti de la inceput"
 msgid "the Wikipedia page"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:81
+#: src/web/server/common/web_common.ml:75
 msgid "the election is closed"
 msgstr "alegerea este inchisă"
 
-#: src/web/server/common/web_common.ml:91
+#: src/web/server/common/web_common.ml:85
 msgid "this ballot has already been accepted"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:92
+#: src/web/server/common/web_common.ml:86
 msgid "this ballot has expired"
 msgstr ""
 
@@ -1041,39 +1041,39 @@ msgstr ""
 msgid "try to log in again"
 msgstr "incercati sa va conectati din nou"
 
-#: src/web/server/common/web_common.ml:87
+#: src/web/server/common/web_common.ml:81
 msgid "you are not allowed to revote"
 msgstr "nu sunteți autorizați să revotați"
 
-#: src/web/server/common/web_common.ml:82
+#: src/web/server/common/web_common.ml:76
 msgid "you are not allowed to vote"
 msgstr "nu sunteți autorizați să votați"
 
-#: src/web/server/common/web_common.ml:89
+#: src/web/server/common/web_common.ml:83
 msgid "you are not allowed to vote with this credential"
 msgstr "nu sunteți autorizați să votați cu acest cod de vot"
 
-#: src/web/server/common/web_common.ml:83
+#: src/web/server/common/web_common.ml:77
 msgid "your ballot has a syntax error (%s)"
 msgstr "buletinul vostru de vot are o eroare sintactică (%s)"
 
-#: src/web/server/common/web_common.ml:84
+#: src/web/server/common/web_common.ml:78
 msgid "your ballot is not in canonical form"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:90
+#: src/web/server/common/web_common.ml:84
 msgid "your credential has a bad weight"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:88
+#: src/web/server/common/web_common.ml:82
 msgid "your credential has already been used"
 msgstr "codul vostru de votare a vost deja utilizat"
 
-#: src/web/server/common/web_common.ml:86
+#: src/web/server/common/web_common.ml:80
 msgid "your credential is invalid"
 msgstr "codul vostru de votare este invalid"
 
-#: src/web/server/common/web_common.ml:93
+#: src/web/server/common/web_common.ml:87
 msgid "your username is wrong"
 msgstr ""
 

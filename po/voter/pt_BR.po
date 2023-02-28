@@ -43,7 +43,7 @@ msgstr " cédula(s) que foram aceitas, e "
 msgid " ballot(s) have been accepted."
 msgstr " cédula(s) que foram aceitas."
 
-#: src/web/server/common/web_common.ml:108
+#: src/web/server/common/web_common.ml:102
 msgid " day(s)"
 msgstr " dia(s)"
 
@@ -59,7 +59,7 @@ msgstr " foi aceito(a)."
 msgid " have been tallied."
 msgstr " foram apurados."
 
-#: src/web/server/common/web_common.ml:110
+#: src/web/server/common/web_common.ml:104
 msgid " hour(s)"
 msgstr " hora(s)"
 
@@ -71,19 +71,19 @@ msgstr " na caixa seguinte "
 msgid " is rejected, because "
 msgstr " foi rejeitado, porque "
 
-#: src/web/server/common/web_common.ml:111
+#: src/web/server/common/web_common.ml:105
 msgid " minute(s)"
 msgstr " minuto(s)"
 
-#: src/web/server/common/web_common.ml:107
+#: src/web/server/common/web_common.ml:101
 msgid " month(s)"
 msgstr " mês(es)"
 
-#: src/web/server/common/web_common.ml:112
+#: src/web/server/common/web_common.ml:106
 msgid " second(s)"
 msgstr " segundo(s)"
 
-#: src/web/server/common/web_common.ml:106
+#: src/web/server/common/web_common.ml:100
 msgid " year(s)"
 msgstr " ano(s)"
 
@@ -117,7 +117,7 @@ msgstr ""
 msgid "%d valid ballot(s)"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:164
+#: src/web/clients/tool/tool_js_booth.ml:162
 msgid "(nothing)"
 msgstr "(nada)"
 
@@ -185,7 +185,7 @@ msgstr "Responder às questões"
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Por conveniência, 0 é sempre interpretado como a nota mais baixa."
 
-#: src/web/clients/tool/tool_js_booth.ml:252
+#: src/web/clients/tool/tool_js_booth.ml:250
 msgid "At least one of the answers is invalid!"
 msgstr "Ao menos uma das respostas é inválida!"
 
@@ -253,8 +253,8 @@ msgstr ""
 msgid "Best regards,"
 msgstr "Atenciosamente,"
 
-#: src/web/clients/tool/tool_js_booth.ml:156
-#. src/web/clients/tool/tool_js_booth.ml:82
+#: src/web/clients/tool/tool_js_booth.ml:154
+#. src/web/clients/tool/tool_js_booth.ml:80
 #. src/web/server/common/pages_voter.ml:170
 msgid "Blank vote"
 msgstr "Voto em branco"
@@ -369,13 +369,13 @@ msgstr "Obter o código fonte"
 msgid "Go back to election"
 msgstr "Voltar para a eleição"
 
-#: src/web/clients/tool/tool_js_booth.ml:230
+#: src/web/clients/tool/tool_js_booth.ml:228
 msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
 msgstr ""
 "Se for solicitado a você classificar os candidatos (voto majoritário) então "
 "1 é a melhor classificação, números mais altos são piores."
 
-#: src/web/clients/tool/tool_js_booth.ml:233
+#: src/web/clients/tool/tool_js_booth.ml:231
 msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
 msgstr ""
 "Se for solicitado a você classificar os candidatos (Condorcet, STV, ...) "
@@ -416,7 +416,7 @@ msgstr "Inserir credencial"
 msgid "Input your credential "
 msgstr "Insira sua credencial "
 
-#: src/web/clients/tool/tool_js_booth.ml:386
+#: src/web/clients/tool/tool_js_booth.ml:384
 msgid "Invalid credential!"
 msgstr "Credencial inválida!"
 
@@ -491,11 +491,11 @@ msgstr ""
 msgid "More information can be found "
 msgstr "Maiores informações podem ser encontradas "
 
-#: src/web/clients/tool/tool_js_booth.ml:315
+#: src/web/clients/tool/tool_js_booth.ml:313
 msgid "Next"
 msgstr "Próximo"
 
-#: src/web/clients/tool/tool_js_booth.ml:136
+#: src/web/clients/tool/tool_js_booth.ml:134
 msgid "No other choices are allowed when voting blank"
 msgstr "Nenhuma outra opção é permitida quando se vota em branco"
 
@@ -509,7 +509,7 @@ msgstr ""
 "Note que você também precisa de uma credencial, enviada em um email "
 "separado, para votar."
 
-#: src/web/clients/tool/tool_js_booth.ml:225
+#: src/web/clients/tool/tool_js_booth.ml:223
 msgid "Notes:"
 msgstr "Notas:"
 
@@ -553,7 +553,7 @@ msgstr "Por favor, envie "
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Insira o código de verificação recebido por e-mail:"
 
-#: src/web/clients/tool/tool_js_booth.ml:380
+#: src/web/clients/tool/tool_js_booth.ml:378
 msgid "Please enter your credential:"
 msgstr "Por favor, insira sua credencial:"
 
@@ -594,7 +594,7 @@ msgstr "Por favor, espere... "
 msgid "Powered by "
 msgstr "Distribuído por "
 
-#: src/web/clients/tool/tool_js_booth.ml:314
+#: src/web/clients/tool/tool_js_booth.ml:312
 msgid "Previous"
 msgstr "Anterior"
 
@@ -632,7 +632,7 @@ msgstr "Salve-o para posteriormente verificar que seu voto foi considerado."
 msgid "See accepted ballots"
 msgstr "Ver as cédulas aceitas"
 
-#: src/web/clients/tool/tool_js_booth.ml:76
+#: src/web/clients/tool/tool_js_booth.ml:74
 msgid "Select between %d and %d answer(s)"
 msgstr "Selecione entre %d e %d resposta(s)"
 
@@ -809,7 +809,7 @@ msgstr "Essa eleição utiliza pesos!"
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:388
+#: src/web/clients/tool/tool_js_booth.ml:386
 msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
 msgstr "Isso parece uma senha... Talvez você tenha visto o e-mail errado?"
 
@@ -860,7 +860,7 @@ msgstr "Utilize o seguinte código:"
 msgid "Username:"
 msgstr "Nome de usuário:"
 
-#: src/web/clients/tool/tool_js_booth.ml:206
+#: src/web/clients/tool/tool_js_booth.ml:204
 msgid "Value must be an integer between 0 and 255."
 msgstr "O valor deve ser um inteiro entre 0 e 255."
 
@@ -868,7 +868,7 @@ msgstr "O valor deve ser um inteiro entre 0 e 255."
 msgid "Warning:"
 msgstr "Atenção:"
 
-#: src/web/clients/tool/tool_js_booth.ml:236
+#: src/web/clients/tool/tool_js_booth.ml:234
 msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
 msgstr ""
 "Aviso: o sistema aceitará qualquer valor inteiro entre 0 e 255 mas, de "
@@ -933,11 +933,11 @@ msgstr "Você pode verificar sua presença na urna, disponível em"
 msgid "You cannot log in now. Please try later."
 msgstr "Você não pode fazer login agora. Tente novamente mais tarde."
 
-#: src/web/clients/tool/tool_js_booth.ml:123
+#: src/web/clients/tool/tool_js_booth.ml:121
 msgid "You must select at least %d answer(s)"
 msgstr "Você deve selecionar pelo menos %d resposta(s)"
 
-#: src/web/clients/tool/tool_js_booth.ml:126
+#: src/web/clients/tool/tool_js_booth.ml:124
 msgid "You must select at most %d answer(s)"
 msgstr "Você deve selecionar no máximo %d resposta(s)"
 
@@ -1026,7 +1026,7 @@ msgstr "criar uma conta"
 msgid "has been recorded."
 msgstr "foi registrado."
 
-#: src/web/clients/tool/tool_js_booth.ml:378
+#: src/web/clients/tool/tool_js_booth.ml:376
 #. src/web/server/common/pages_voter.ml:1087
 #. src/web/server/common/pages_voter.ml:1034
 msgid "here"
@@ -1052,7 +1052,7 @@ msgstr ""
 msgid "raw result"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:85
+#: src/web/server/common/web_common.ml:79
 msgid "some proofs failed verification"
 msgstr "algumas provas falharam na verificação"
 
@@ -1064,15 +1064,15 @@ msgstr "começar do ínicio"
 msgid "the Wikipedia page"
 msgstr "página da Wikipedia"
 
-#: src/web/server/common/web_common.ml:81
+#: src/web/server/common/web_common.ml:75
 msgid "the election is closed"
 msgstr "A eleição está fechada"
 
-#: src/web/server/common/web_common.ml:91
+#: src/web/server/common/web_common.ml:85
 msgid "this ballot has already been accepted"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:92
+#: src/web/server/common/web_common.ml:86
 msgid "this ballot has expired"
 msgstr ""
 
@@ -1080,39 +1080,39 @@ msgstr ""
 msgid "try to log in again"
 msgstr "Tente entrar novamente"
 
-#: src/web/server/common/web_common.ml:87
+#: src/web/server/common/web_common.ml:81
 msgid "you are not allowed to revote"
 msgstr "Você não está autorizado(a) a votar novamente"
 
-#: src/web/server/common/web_common.ml:82
+#: src/web/server/common/web_common.ml:76
 msgid "you are not allowed to vote"
 msgstr "Você não está autorizado(a) a votar"
 
-#: src/web/server/common/web_common.ml:89
+#: src/web/server/common/web_common.ml:83
 msgid "you are not allowed to vote with this credential"
 msgstr "Você não está autorizado a votar com essa credencial"
 
-#: src/web/server/common/web_common.ml:83
+#: src/web/server/common/web_common.ml:77
 msgid "your ballot has a syntax error (%s)"
 msgstr "Sua cédula tem um erro de sintaxe (%s)"
 
-#: src/web/server/common/web_common.ml:84
+#: src/web/server/common/web_common.ml:78
 msgid "your ballot is not in canonical form"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:90
+#: src/web/server/common/web_common.ml:84
 msgid "your credential has a bad weight"
 msgstr "sua credencial tem um mau peso"
 
-#: src/web/server/common/web_common.ml:88
+#: src/web/server/common/web_common.ml:82
 msgid "your credential has already been used"
 msgstr "Sua credencial já foi utilizada"
 
-#: src/web/server/common/web_common.ml:86
+#: src/web/server/common/web_common.ml:80
 msgid "your credential is invalid"
 msgstr "Sua credencial é inválida"
 
-#: src/web/server/common/web_common.ml:93
+#: src/web/server/common/web_common.ml:87
 msgid "your username is wrong"
 msgstr ""
 
