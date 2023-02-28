@@ -11,6 +11,7 @@ dev
    + Pack JS files of the new booth
    + Pack CSS files
    + Add support for voters in JSON format
+   + Interpret basic `<i>` and `<b>` markup (GitHub issue #66)
 
 2.0 (2022-12-06)
 ================
