@@ -508,6 +508,18 @@ def get_all_available_languages(belenios_srcpath):
     result.sort()
     return result
 
+def get_admin_available_languages(belenios_srcpath):
+    admin = read_linguas(belenios_srcpath + "/po/admin/LINGUAS")
+    result = [str(x).strip() for x in admin]
+    result.sort()
+    return result
+
+def get_voter_available_languages(belenios_srcpath):
+    voter = read_linguas(belenios_srcpath + "/po/voter/LINGUAS")
+    result = [str(x).strip() for x in voter]
+    result.sort()
+    return result
+
 # Will be populated if needed
 langs = []
 
@@ -600,14 +612,10 @@ if args.checkhash == True:
     reference = {}
     for f, descr in tmp_reference.items():
         if f == "/static/locales/admin/*.json":
-            langs = [x[0:-3] for x in os.listdir(args.beleniospath + "/po/admin") if x[-3:] == ".po"]
-            langs.sort()
-            for x in langs:
+            for x in get_admin_available_languages(args.beleniospath):
                 reference["/static/locales/admin/{}.json".format(x)] = None
         elif f == "/static/locales/voter/*.json":
-            langs = [x[0:-3] for x in os.listdir(args.beleniospath + "/po/voter") if x[-3:] == ".po"]
-            langs.sort()
-            for x in langs:
+            for x in get_voter_available_languages(args.beleniospath):
                 reference["/static/locales/voter/{}.json".format(x)] = None
         elif f == "/static/frontend/translations/*.json":
             langs = [x for x in os.listdir(args.beleniospath + "/frontend/translations") if x[-5:] == ".json"]
