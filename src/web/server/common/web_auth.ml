@@ -174,24 +174,28 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
     match user, uuid with
     | Some _, None -> get_cont `Login kind ()
     | Some _, Some _ | None, _ ->
-       let* c, site_or_election, username_or_address =
+       let* c =
          match uuid with
-         | None -> return (!Web_config.site_auth_config, `Site, `Username)
-         | Some uuid ->
-            let* c = get_election_auth_configs uuid in
-            let* username_or_address =
-              let* voters = Spool.get_voters ~uuid in
-              match voters with
-              | None | Some [] -> return `Username
-              | Some ((_, {login; _}) :: _) ->
-                 match login with
-                 | None -> return `Address
-                 | Some _ -> return `Username
-            in
-            return (c, `Election, username_or_address)
+         | None -> return !Web_config.site_auth_config
+         | Some uuid -> get_election_auth_configs uuid
        in
        match service with
        | Some s ->
+          let* site_or_election, username_or_address =
+            match uuid with
+            | None -> return (`Site, `Username)
+            | Some uuid ->
+               let* username_or_address =
+                 let* voters = Spool.get_voters ~uuid in
+                 match voters with
+                 | None | Some [] -> return `Username
+                 | Some ((_, {login; _}) :: _) ->
+                    match login with
+                    | None -> return `Address
+                    | Some _ -> return `Username
+               in
+               return (`Election, username_or_address)
+          in
           let* a =
             match find_auth_instance s c with
             | Some x -> return x
