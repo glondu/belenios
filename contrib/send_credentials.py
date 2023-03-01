@@ -36,7 +36,7 @@ Bonjour,
 Nous vous invitons à participer à l'élection du meilleur cookie
 à l'adresse suivante:
 
-  https://belenios.loria.fr/elections/$UUID/
+  https://vote.belenios.org/elections/$UUID/
 
 Vous aurez besoin de vos identifiants LDAP ou de votre login/mot de
 passe, mais aussi du code de vote personnel (appelé "credential") que voici :
@@ -59,7 +59,7 @@ Hello,
 You are listed as a voter for the election of the best cookie.
 Please visit the following link:
 
-  https://belenios.loria.fr/elections/$UUID/
+  https://vote.belenios.org/elections/$UUID/
 
 You will need your LDAP or login / password, and also the following
 credential (personal code):
