@@ -67,6 +67,7 @@ val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 
 val has_explicit_weights : uuid -> bool Lwt.t
+val username_or_address : uuid -> [`Username | `Address] Lwt.t
 val get_voter : uuid -> string -> Voter.t option Lwt.t
 
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t

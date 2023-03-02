@@ -185,15 +185,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
             match uuid with
             | None -> return (`Site, `Username)
             | Some uuid ->
-               let* username_or_address =
-                 let* voters = Spool.get_voters ~uuid in
-                 match voters with
-                 | None | Some [] -> return `Username
-                 | Some ((_, {login; _}) :: _) ->
-                    match login with
-                    | None -> return `Address
-                    | Some _ -> return `Username
-               in
+               let* username_or_address = Web_persist.username_or_address uuid in
                return (`Election, username_or_address)
           in
           let* a =

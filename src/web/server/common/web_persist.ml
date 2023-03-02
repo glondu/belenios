@@ -583,7 +583,12 @@ let get_passwords uuid =
 
 module VoterCacheTypes = struct
   type key = uuid
-  type value = bool * Voter.t SMap.t
+  type value =
+    {
+      has_explicit_weights : bool;
+      username_or_address : [`Username | `Address];
+      voter_map : Voter.t SMap.t;
+    }
 end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
@@ -591,7 +596,7 @@ module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 let raw_get_voter_cache uuid =
   let* voters = Spool.get_voters ~uuid in
   let voters = Option.value voters ~default:[] in
-  let map =
+  let voter_map =
     List.fold_left
       (fun accu x ->
         let _, login, _ = Voter.get x in
@@ -599,7 +604,15 @@ let raw_get_voter_cache uuid =
       ) SMap.empty voters
   in
   let has_explicit_weights = Belenios_core.Common.has_explicit_weights voters in
-  Lwt.return (has_explicit_weights, map)
+  let username_or_address =
+    match voters with
+    | [] -> `Username
+    | ((_, {login; _}) :: _) ->
+       match login with
+       | None -> `Address
+       | Some _ -> `Username
+  in
+  Lwt.return VoterCacheTypes.{has_explicit_weights; username_or_address; voter_map}
 
 let voter_cache =
   new VoterCache.cache raw_get_voter_cache ~timer:3600. 10
@@ -607,16 +620,24 @@ let voter_cache =
 let has_explicit_weights uuid =
   Lwt.catch
     (fun () ->
-      let* x, _ = voter_cache#find uuid in
-      Lwt.return x
+      let* x = voter_cache#find uuid in
+      Lwt.return x.has_explicit_weights
     )
     (fun _ -> Lwt.return_false)
+
+let username_or_address uuid =
+  Lwt.catch
+    (fun () ->
+      let* x = voter_cache#find uuid in
+      Lwt.return x.username_or_address
+    )
+    (fun _ -> Lwt.return `Username)
 
 let get_voter uuid login =
   Lwt.catch
     (fun () ->
-      let* _, x = voter_cache#find uuid in
-      Lwt.return_some @@ SMap.find (String.lowercase_ascii login) x
+      let* x = voter_cache#find uuid in
+      Lwt.return_some @@ SMap.find (String.lowercase_ascii login) x.voter_map
     )
     (fun _ -> Lwt.return_none)
 
