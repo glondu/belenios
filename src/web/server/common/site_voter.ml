@@ -335,7 +335,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
-  let handle_pseudo_file uuid f site_user =
+  let handle_pseudo_file ~preload uuid f site_user =
     let* confidential =
       match f with
       | ESRaw | ESETally | ESArchive _ -> return false
@@ -362,6 +362,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
            let* x = Web_persist.get_raw_election uuid in
            match x with
            | Some x ->
+              let () =
+                if preload then
+                  Lwt.async
+                    (fun () ->
+                      let* _ = Web_persist.has_explicit_weights uuid in
+                      Lwt.return_unit
+                    )
+              in
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
            | None -> fail_http `Not_found
@@ -392,7 +400,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
   let () =
     Any.register ~service:election_dir
       (fun (uuid, f) () ->
+        let preload =
+          let ri = Eliom_request_info.get_ri () in
+          match Ocsigen_request.header ri Ocsigen_header.Name.referer with
+          | None -> false
+          | Some referer -> Stdlib.String.ends_with ~suffix:"/vote.html" referer
+        in
         let* site_user = Eliom_reference.get Web_state.site_user in
-        handle_pseudo_file uuid f site_user)
+        handle_pseudo_file ~preload uuid f site_user)
 
 end
