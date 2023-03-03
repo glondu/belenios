@@ -969,7 +969,8 @@ let merge_voters a b f =
   loop weights (List.rev a) b
 
 let import_voters uuid se from =
-  let* voters = Spool.get_voters ~uuid:from in
+  let* voters = Web_persist.get_voters from in
+  let voters = SMap.bindings voters.voter_map |> List.map snd in
   let* passwords = Web_persist.get_passwords from in
   let get_password =
     match passwords with
@@ -979,26 +980,23 @@ let import_voters uuid se from =
        let _, login, _ = Voter.get sv_id in
        SMap.find_opt (String.lowercase_ascii login) p
   in
-  match voters with
-  | Some voters ->
-     if se.se_public_creds_received then (
-       Lwt.return @@ Stdlib.Error `Forbidden
-     ) else (
-       match merge_voters se.se_voters voters get_password with
-       | Ok (voters, total_weight) ->
-          let expanded = Weight.expand ~total:total_weight total_weight in
-          if Z.compare expanded Weight.max_expanded_weight <= 0 then (
-            se.se_voters <- voters;
-            let* () = Web_persist.set_draft_election uuid se in
-            Lwt.return @@ Ok ()
-          ) else (
-            Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
-          )
-       | Error x ->
-          let _, login, _ = Voter.get x in
-          Lwt.return @@ Stdlib.Error (`Duplicate login)
-     )
-  | None -> Lwt.return @@ Stdlib.Error `NotFound
+  if se.se_public_creds_received then (
+    Lwt.return @@ Stdlib.Error `Forbidden
+  ) else (
+    match merge_voters se.se_voters voters get_password with
+    | Ok (voters, total_weight) ->
+       let expanded = Weight.expand ~total:total_weight total_weight in
+       if Z.compare expanded Weight.max_expanded_weight <= 0 then (
+         se.se_voters <- voters;
+         let* () = Web_persist.set_draft_election uuid se in
+         Lwt.return @@ Ok ()
+       ) else (
+         Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
+       )
+    | Error x ->
+       let _, login, _ = Voter.get x in
+       Lwt.return @@ Stdlib.Error (`Duplicate login)
+  )
 
 let import_trustees uuid se from metadata =
   let open Belenios_core.Serializable_j in

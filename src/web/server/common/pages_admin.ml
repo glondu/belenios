@@ -2433,12 +2433,8 @@ module Make
             ]
         ) records
     in
-    let* voters = Spool.get_voters ~uuid in
-    let nvoters =
-      match voters with
-      | None -> failwith "voter list not found"
-      | Some l -> List.length l
-    in
+    let* voters = Web_persist.get_voters uuid in
+    let nvoters = SMap.cardinal voters.voter_map in
     let summary =
       div [
           Printf.ksprintf txt

@@ -302,16 +302,11 @@ let delete_election election metadata =
          )
     |> Lwt.return
   in
-  let* voters = Spool.get_voters ~uuid in
+  let* voters = Web_persist.get_voters uuid in
   let* ballots = Web_persist.get_ballot_hashes uuid in
   let* result = Web_persist.get_election_result uuid in
-  let de_nb_voters, de_has_weights =
-    match voters with
-    | None -> 0, false
-    | Some voters ->
-       List.length voters,
-       Belenios_core.Common.has_explicit_weights voters
-  in
+  let de_nb_voters = SMap.cardinal voters.voter_map in
+  let de_has_weights = voters.has_explicit_weights in
   let de = {
       de_uuid = uuid;
       de_template;
