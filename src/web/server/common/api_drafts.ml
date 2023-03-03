@@ -717,10 +717,6 @@ let get_draft_status uuid se =
 let set_downloaded uuid =
   write_file ~uuid "private_creds.downloaded" []
 
-let dump_passwords uuid db =
-  List.map (fun line -> String.concat "," line) db |>
-    write_file ~uuid "passwords.csv"
-
 let validate_election uuid se =
   let* s = get_draft_status uuid se in
   let version = se.se_version in
@@ -939,7 +935,7 @@ let validate_election uuid se =
              Some [login; salt; hashed]
            ) se.se_voters
        in
-       if db <> [] then dump_passwords uuid db else Lwt.return_unit
+       if db <> [] then Web_persist.dump_passwords uuid db else Lwt.return_unit
     | _ -> Lwt.return_unit
   in
   (* finish *)

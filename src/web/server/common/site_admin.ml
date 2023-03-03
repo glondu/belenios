@@ -510,7 +510,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let open (val l) in
         let@ election = with_election uuid in
         let service = preapply ~service:election_admin uuid in
-        let* b = Api_elections.regenpwd election metadata user in
+        let* b = Web_persist.regen_password election metadata user in
         if b then (
           Pages_common.generic_page ~title:(s_ "Success") ~service
             (Printf.sprintf (f_ "A new password has been mailed to %s.") user) ()

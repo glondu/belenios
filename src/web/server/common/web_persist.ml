@@ -1311,3 +1311,42 @@ let delete_election uuid =
       ) files_to_delete
   in
   clear_elections_by_owner_cache ()
+
+let load_password_db uuid =
+  let db = uuid /// "passwords.csv" in
+  Lwt_preemptive.detach Csv.load db
+
+let rec replace_password username ((salt, hashed) as p) = function
+  | [] -> []
+  | ((username' :: _ :: _ :: rest) as x) :: xs ->
+     if username = String.lowercase_ascii username' then
+       (username' :: salt :: hashed :: rest) :: xs
+     else
+       x :: (replace_password username p xs)
+  | x :: xs -> x :: (replace_password username p xs)
+
+let dump_passwords uuid db =
+  List.map (fun line -> String.concat "," line) db |>
+    write_file ~uuid "passwords.csv"
+
+let regen_password election metadata user =
+  let user = String.lowercase_ascii user in
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let title = W.election.e_name in
+  let* voters = get_voters uuid in
+  let show_weight = voters.has_explicit_weights in
+  let x = SMap.find_opt (String.lowercase_ascii user) voters.voter_map in
+  match x with
+  | Some id ->
+     let langs = get_languages metadata.e_languages in
+     let* db = load_password_db uuid in
+     let* email, x =
+       Mails_voter.generate_password_email metadata langs title uuid
+         id show_weight
+     in
+     let* () = Mails_voter.submit_bulk_emails [email] in
+     let db = replace_password user x db in
+     let* () = dump_passwords uuid db in
+     Lwt.return_true
+  | _ -> Lwt.return_false

@@ -37,9 +37,6 @@ val compute_encrypted_tally :
 val finish_shuffling :
   (module Site_common_sig.ELECTION) -> bool Lwt.t
 
-val regenpwd :
-  (module Site_common_sig.ELECTION) -> metadata -> string -> bool Lwt.t
-
 val get_records : uuid -> records Lwt.t
 
 val set_postpone_date : uuid -> float option -> bool Lwt.t
