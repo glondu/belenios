@@ -46,14 +46,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
-  let delete_election uuid =
-    let* election = find_election uuid in
-    match election with
-    | None -> return_unit
-    | Some election ->
-       let* metadata = Web_persist.get_election_metadata uuid in
-       Api_elections.delete_election election metadata
-
   let () = Any.register ~service:home
              (fun () () -> Redirection.send (Redirection admin))
 
@@ -1183,7 +1175,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_delete
       (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
-        let* () = delete_election uuid in
+        let* () = Web_persist.delete_election uuid in
         redir_preapply admin () ()
       )
 
@@ -1994,8 +1986,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let now = Datetime.now () in
     let action, comment = match action with
       | `Destroy -> Api_drafts.delete_draft, "destroyed"
-      | `Delete -> delete_election, "deleted"
-      | `Archive -> Api_elections.archive_election, "archived"
+      | `Delete -> Web_persist.delete_election, "deleted"
+      | `Archive -> Web_persist.archive_election, "archived"
     in
     if Datetime.compare now next_t > 0 then (
       let* () = action uuid in

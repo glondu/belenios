@@ -110,3 +110,6 @@ val get_audit_cache : uuid -> audit_cache Lwt.t
 val remove_audit_cache : uuid -> unit Lwt.t
 
 val get_archive : uuid -> string option Lwt.t
+
+val archive_election : uuid -> unit Lwt.t
+val delete_election : uuid -> unit Lwt.t
