@@ -114,6 +114,7 @@ val get_archive : uuid -> string option Lwt.t
 val archive_election : uuid -> unit Lwt.t
 val delete_election : uuid -> unit Lwt.t
 
+val get_password_filename : uuid -> string
 val dump_passwords : uuid -> string list list -> unit Lwt.t
 val regen_password :
   (module Site_common_sig.ELECTION) ->

@@ -567,9 +567,12 @@ let get_elections_by_owner user =
   | None -> return []
   | Some xs -> return xs
 
+let get_password_filename uuid =
+  uuid /// "passwords.csv"
+
 let get_passwords uuid =
   let csv =
-    try Some (Csv.load (uuid /// "passwords.csv"))
+    try Some (Csv.load (get_password_filename uuid))
     with _ -> None
   in
   let&* csv in
