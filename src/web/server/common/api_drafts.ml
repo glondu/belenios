@@ -674,7 +674,7 @@ let put_draft_trustees_mode uuid se mode =
 let get_draft_status uuid se =
   let* private_credentials_downloaded =
     if se.se_metadata.e_cred_authority = Some "server" then (
-      let* b = file_exists (uuid /// "private_creds.downloaded") in
+      let* b = Web_persist.get_private_creds_downloaded uuid in
       Lwt.return_some b
     ) else Lwt.return_none
   in
@@ -713,9 +713,6 @@ let get_draft_status uuid se =
       voter_authentication_visited = se.se_voter_authentication_visited;
       trustees_setup_step = se.se_trustees_setup_step;
     }
-
-let set_downloaded uuid =
-  write_file ~uuid "private_creds.downloaded" []
 
 let validate_election uuid se =
   let* s = get_draft_status uuid se in
@@ -923,7 +920,7 @@ let validate_election uuid se =
   let* () = cleanup_file (uuid /// "draft.json") in
   (* clean up private credentials, if any *)
   let* () = cleanup_file (uuid /// "private_creds.txt") in
-  let* () = cleanup_file (uuid /// "private_creds.downloaded") in
+  let* () = Web_persist.clear_private_creds_downloaded uuid in
   (* write passwords *)
   let* () =
     match metadata.e_auth_config with
@@ -1094,7 +1091,7 @@ let check_owner account uuid cont =
 
 let post_draft_status uuid se = function
   | `SetDownloaded ->
-     let* () = set_downloaded uuid in
+     let* () = Web_persist.set_private_creds_downloaded uuid in
      ok
   | `ValidateElection ->
      let* () = validate_election uuid se in

@@ -830,7 +830,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_credentials_get
       (fun uuid () ->
         let@ _ = with_draft_election_ro uuid in
-        let* () = Api_drafts.set_downloaded uuid in
+        let* () = Web_persist.set_private_creds_downloaded uuid in
         let filename = Web_persist.get_private_creds_filename uuid in
         File.send ~content_type:"text/plain" filename
       )

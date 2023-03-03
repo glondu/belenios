@@ -120,3 +120,6 @@ val regen_password :
   metadata -> string -> bool Lwt.t
 
 val get_private_creds_filename : uuid -> string
+val get_private_creds_downloaded : uuid -> bool Lwt.t
+val set_private_creds_downloaded : uuid -> unit Lwt.t
+val clear_private_creds_downloaded : uuid -> unit Lwt.t

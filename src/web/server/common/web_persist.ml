@@ -1353,3 +1353,12 @@ let regen_password election metadata user =
 
 let get_private_creds_filename uuid =
   uuid /// "private_creds.txt"
+
+let get_private_creds_downloaded uuid =
+  file_exists (uuid /// "private_creds.downloaded")
+
+let set_private_creds_downloaded uuid =
+  write_file ~uuid "private_creds.downloaded" []
+
+let clear_private_creds_downloaded uuid =
+  cleanup_file (uuid /// "private_creds.downloaded")
