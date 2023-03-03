@@ -118,3 +118,5 @@ val dump_passwords : uuid -> string list list -> unit Lwt.t
 val regen_password :
   (module Site_common_sig.ELECTION) ->
   metadata -> string -> bool Lwt.t
+
+val get_private_creds_filename : uuid -> string

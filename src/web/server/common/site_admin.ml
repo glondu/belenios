@@ -831,7 +831,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         let@ _ = with_draft_election_ro uuid in
         let* () = Api_drafts.set_downloaded uuid in
-        File.send ~content_type:"text/plain" (uuid /// "private_creds.txt")
+        let filename = Web_persist.get_private_creds_filename uuid in
+        File.send ~content_type:"text/plain" filename
       )
 
   let () =

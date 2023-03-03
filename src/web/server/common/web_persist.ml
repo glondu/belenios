@@ -1350,3 +1350,6 @@ let regen_password election metadata user =
      let* () = dump_passwords uuid db in
      Lwt.return_true
   | _ -> Lwt.return_false
+
+let get_private_creds_filename uuid =
+  uuid /// "private_creds.txt"
