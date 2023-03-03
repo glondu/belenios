@@ -1362,3 +1362,6 @@ let set_private_creds_downloaded uuid =
 
 let clear_private_creds_downloaded uuid =
   cleanup_file (uuid /// "private_creds.downloaded")
+
+let get_election_file uuid f =
+  uuid /// string_of_election_file f

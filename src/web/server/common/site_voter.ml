@@ -393,8 +393,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
               return @@ cast_unknown_content_kind x
            | None -> fail_http `Not_found
          end
-      | _ ->
-         File.send ~content_type (uuid /// string_of_election_file f)
+      | f ->
+         let filename = Web_persist.get_election_file uuid f in
+         File.send ~content_type filename
     ) else forbidden ()
 
   let () =
