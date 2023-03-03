@@ -2,6 +2,7 @@
 *.bbl
 *.blg
 *.dvi
+*.rubbercache
 *.install
 _build
 _build-debug
