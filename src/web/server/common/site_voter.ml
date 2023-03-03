@@ -366,7 +366,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
                 if preload then
                   Lwt.async
                     (fun () ->
-                      let* _ = Web_persist.has_explicit_weights uuid in
+                      let* _ = Web_persist.get_voters uuid in
                       Lwt.return_unit
                     )
               in

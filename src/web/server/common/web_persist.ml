@@ -581,14 +581,16 @@ let get_passwords uuid =
               ) SMap.empty csv in
   return_some res
 
+type voters =
+  {
+    has_explicit_weights : bool;
+    username_or_address : [`Username | `Address];
+    voter_map : Voter.t SMap.t;
+  }
+
 module VoterCacheTypes = struct
   type key = uuid
-  type value =
-    {
-      has_explicit_weights : bool;
-      username_or_address : [`Username | `Address];
-      voter_map : Voter.t SMap.t;
-    }
+  type value = voters
 end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
@@ -612,34 +614,22 @@ let raw_get_voter_cache uuid =
        | None -> `Address
        | Some _ -> `Username
   in
-  Lwt.return VoterCacheTypes.{has_explicit_weights; username_or_address; voter_map}
+  Lwt.return {has_explicit_weights; username_or_address; voter_map}
 
 let voter_cache =
   new VoterCache.cache raw_get_voter_cache ~timer:3600. 10
 
-let has_explicit_weights uuid =
-  Lwt.catch
-    (fun () ->
-      let* x = voter_cache#find uuid in
-      Lwt.return x.has_explicit_weights
-    )
-    (fun _ -> Lwt.return_false)
+let dummy_voters =
+  {
+    has_explicit_weights = false;
+    username_or_address = `Username;
+    voter_map = SMap.empty;
+  }
 
-let username_or_address uuid =
+let get_voters uuid =
   Lwt.catch
-    (fun () ->
-      let* x = voter_cache#find uuid in
-      Lwt.return x.username_or_address
-    )
-    (fun _ -> Lwt.return `Username)
-
-let get_voter uuid login =
-  Lwt.catch
-    (fun () ->
-      let* x = voter_cache#find uuid in
-      Lwt.return_some @@ SMap.find (String.lowercase_ascii login) x.voter_map
-    )
-    (fun _ -> Lwt.return_none)
+    (fun () -> voter_cache#find uuid)
+    (fun _ -> Lwt.return dummy_voters)
 
 type cred_cache =
   {
