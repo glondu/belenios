@@ -228,7 +228,7 @@ let get_shuffles uuid metadata =
   in
   let* shuffles = Web_persist.get_shuffles uuid in
   let shuffles = Option.value shuffles ~default:[] in
-  let* skipped = Spool.get ~uuid Spool.skipped_shufflers in
+  let* skipped = Web_persist.get_skipped_shufflers uuid in
   let skipped = Option.value skipped ~default:[] in
   let* token = Web_persist.get_shuffle_token uuid in
   Lwt.return {
@@ -293,12 +293,12 @@ let skip_shuffler uuid trustee =
     | None -> Lwt.return_unit
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* x = Spool.get ~uuid Spool.skipped_shufflers in
+  let* x = Web_persist.get_skipped_shufflers uuid in
   let x = Option.value x ~default:[] in
   if List.mem trustee x then
     Lwt.fail @@ Error `NotInExpectedState
   else
-    Spool.set ~uuid Spool.skipped_shufflers (trustee :: x)
+    Web_persist.set_skipped_shufflers uuid (trustee :: x)
 
 let select_shuffler uuid metadata trustee =
   let* trustee_id, name = get_trustee_name uuid metadata trustee in

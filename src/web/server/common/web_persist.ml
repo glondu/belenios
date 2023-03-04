@@ -1638,3 +1638,9 @@ let finish_shuffling election =
      let* () = transition_to_encrypted_tally uuid in
      Lwt.return_true
   | _ -> Lwt.return_false
+
+let get_skipped_shufflers uuid =
+  Spool.get ~uuid Spool.skipped_shufflers
+
+let set_skipped_shufflers uuid shufflers =
+  Spool.set ~uuid Spool.skipped_shufflers shufflers

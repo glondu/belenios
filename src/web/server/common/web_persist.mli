@@ -134,3 +134,6 @@ val create_draft : uuid -> draft_election -> unit Lwt.t
 
 val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> bool Lwt.t
 val finish_shuffling : (module Site_common_sig.ELECTION) -> bool Lwt.t
+
+val get_skipped_shufflers : uuid -> string list option Lwt.t
+val set_skipped_shufflers : uuid -> string list -> unit Lwt.t
