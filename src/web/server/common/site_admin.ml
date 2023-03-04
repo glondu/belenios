@@ -1936,53 +1936,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         String.send ~code (content, "text/plain")
       )
 
-  let extract_automatic_data_draft uuid_s =
-    let uuid = Uuid.wrap uuid_s in
-    let* se = Web_persist.get_draft_election uuid in
-    let&* se in
-    let t = Option.value se.se_creation_date ~default:default_creation_date in
-    let next_t = Period.add t (Period.day days_to_delete) in
-    return_some (`Destroy, uuid, next_t)
-
-  let extract_automatic_data_validated uuid_s =
-    let uuid = Uuid.wrap uuid_s in
-    let* election = Web_persist.get_raw_election uuid in
-    let&* _ = election in
-    let* state = Web_persist.get_election_state uuid in
-    let* dates = Web_persist.get_election_dates uuid in
-    match state with
-    | `Open | `Closed | `Shuffling | `EncryptedTally ->
-       let t = Option.value dates.e_finalization ~default:default_validation_date in
-       let next_t = Period.add t (Period.day days_to_delete) in
-       return_some (`Delete, uuid, next_t)
-    | `Tallied ->
-       let t = Option.value dates.e_tally ~default:default_tally_date in
-       let next_t = Period.add t (Period.day days_to_archive) in
-       return_some (`Archive, uuid, next_t)
-    | `Archived ->
-       let t = Option.value dates.e_archive ~default:default_archive_date in
-       let next_t = Period.add t (Period.day days_to_delete) in
-       return_some (`Delete, uuid, next_t)
-
-  let try_extract extract x =
-    Lwt.catch
-      (fun () -> extract x)
-      (fun _ -> return_none)
-
-  let get_next_actions () =
-    Lwt_unix.files_of_directory !Web_config.spool_dir |>
-      Lwt_stream.to_list >>=
-      Lwt_list.filter_map_s
-        (fun x ->
-          if x = "." || x = ".." then return_none
-          else (
-            let* r = try_extract extract_automatic_data_draft x in
-            match r with
-            | None -> try_extract extract_automatic_data_validated x
-            | x -> return x
-          )
-        )
-
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = Uuid.unwrap uuid in
     let now = Datetime.now () in
@@ -2002,7 +1955,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let rec data_policy_loop () =
     let open Ocsigen_messages in
     let () = accesslog "Data policy process started" in
-    let* elections = get_next_actions () in
+    let* elections = Web_persist.get_next_actions () in
     let* () = Lwt_list.iter_s process_election_for_data_policy elections in
     let () = accesslog "Data policy process completed" in
     let* () = Lwt_unix.sleep 3600. in

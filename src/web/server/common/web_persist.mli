@@ -137,3 +137,5 @@ val finish_shuffling : (module Site_common_sig.ELECTION) -> bool Lwt.t
 
 val get_skipped_shufflers : uuid -> string list option Lwt.t
 val set_skipped_shufflers : uuid -> string list -> unit Lwt.t
+
+val get_next_actions : unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t

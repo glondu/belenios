@@ -1644,3 +1644,50 @@ let get_skipped_shufflers uuid =
 
 let set_skipped_shufflers uuid shufflers =
   Spool.set ~uuid Spool.skipped_shufflers shufflers
+
+let extract_automatic_data_draft uuid_s =
+  let uuid = Uuid.wrap uuid_s in
+  let* se = get_draft_election uuid in
+  let&* se in
+  let t = Option.value se.se_creation_date ~default:default_creation_date in
+  let next_t = Period.add t (Period.day days_to_delete) in
+  return_some (`Destroy, uuid, next_t)
+
+let extract_automatic_data_validated uuid_s =
+  let uuid = Uuid.wrap uuid_s in
+  let* election = get_raw_election uuid in
+  let&* _ = election in
+  let* state = get_election_state uuid in
+  let* dates = get_election_dates uuid in
+  match state with
+  | `Open | `Closed | `Shuffling | `EncryptedTally ->
+     let t = Option.value dates.e_finalization ~default:default_validation_date in
+     let next_t = Period.add t (Period.day days_to_delete) in
+     return_some (`Delete, uuid, next_t)
+  | `Tallied ->
+     let t = Option.value dates.e_tally ~default:default_tally_date in
+     let next_t = Period.add t (Period.day days_to_archive) in
+     return_some (`Archive, uuid, next_t)
+  | `Archived ->
+     let t = Option.value dates.e_archive ~default:default_archive_date in
+     let next_t = Period.add t (Period.day days_to_delete) in
+     return_some (`Delete, uuid, next_t)
+
+let try_extract extract x =
+  Lwt.catch
+    (fun () -> extract x)
+    (fun _ -> return_none)
+
+let get_next_actions () =
+  Lwt_unix.files_of_directory !Web_config.spool_dir
+  |> Lwt_stream.to_list
+  >>= Lwt_list.filter_map_s
+        (fun x ->
+          if x = "." || x = ".." then return_none
+          else (
+            let* r = try_extract extract_automatic_data_draft x in
+            match r with
+            | None -> try_extract extract_automatic_data_validated x
+            | x -> return x
+          )
+        )
