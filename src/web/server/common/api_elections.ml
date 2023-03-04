@@ -204,38 +204,6 @@ let get_partial_decryptions uuid metadata =
       partial_decryptions_threshold = threshold;
     }
 
-
-let transition_to_encrypted_tally uuid =
-  Web_persist.set_election_state uuid `EncryptedTally
-
-let compute_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let* state = Web_persist.get_election_state uuid in
-  match state with
-  | `Closed ->
-     let* () = Web_persist.compute_encrypted_tally election in
-     if Belenios.Election.has_nh_questions W.election then (
-       let* () = Web_persist.set_election_state uuid `Shuffling in
-       Lwt.return_true
-     ) else (
-       let* () = transition_to_encrypted_tally uuid in
-       Lwt.return_true
-     )
-  | _ -> Lwt.return_false
-
-let finish_shuffling election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let* state = Web_persist.get_election_state uuid in
-  match state with
-  | `Shuffling ->
-     let* () = Web_events.append ~uuid [Event (`EndShuffles, None)] in
-     let* () = Spool.del ~uuid Spool.skipped_shufflers in
-     let* () = transition_to_encrypted_tally uuid in
-     Lwt.return_true
-  | _ -> Lwt.return_false
-
 let set_postpone_date uuid date =
   let@ date = fun cont ->
     match date with
@@ -412,8 +380,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                let@ () = handle_generic_error in
                let doit =
                  match x with
-                 | `ComputeEncryptedTally -> compute_encrypted_tally
-                 | `FinishShuffling -> finish_shuffling
+                 | `ComputeEncryptedTally -> Web_persist.compute_encrypted_tally
+                 | `FinishShuffling -> Web_persist.finish_shuffling
                in
                let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
                let* b = doit (module W) in

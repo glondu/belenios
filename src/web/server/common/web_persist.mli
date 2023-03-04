@@ -80,8 +80,6 @@ val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_ballot_weight : (module Site_common_sig.ELECTION) -> string -> Weight.t Lwt.t
 
-val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> unit Lwt.t
-
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : uuid -> string option Lwt.t
 val get_latest_encrypted_tally : (module Site_common_sig.ELECTION) -> string option Lwt.t
@@ -133,3 +131,6 @@ val validate_election : uuid -> draft_election -> Belenios_api.Serializable_t.dr
 
 val delete_draft : uuid -> unit Lwt.t
 val create_draft : uuid -> draft_election -> unit Lwt.t
+
+val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> bool Lwt.t
+val finish_shuffling : (module Site_common_sig.ELECTION) -> bool Lwt.t

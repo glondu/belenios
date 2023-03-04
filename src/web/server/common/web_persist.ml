@@ -802,7 +802,7 @@ let add_ballot election last ballot =
   let () = ballots_cache#remove uuid in
   return hash
 
-let compute_encrypted_tally election =
+let raw_compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
   let uuid = W.election.e_uuid in
@@ -1607,3 +1607,34 @@ let create_draft uuid se =
   let* () = set_draft_election uuid se in
   let* () = clear_elections_by_owner_cache () in
   Lwt.return_unit
+
+let transition_to_encrypted_tally uuid =
+  set_election_state uuid `EncryptedTally
+
+let compute_encrypted_tally election =
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let* state = get_election_state uuid in
+  match state with
+  | `Closed ->
+     let* () = raw_compute_encrypted_tally election in
+     if Belenios.Election.has_nh_questions W.election then (
+       let* () = set_election_state uuid `Shuffling in
+       Lwt.return_true
+     ) else (
+       let* () = transition_to_encrypted_tally uuid in
+       Lwt.return_true
+     )
+  | _ -> Lwt.return_false
+
+let finish_shuffling election =
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let* state = get_election_state uuid in
+  match state with
+  | `Shuffling ->
+     let* () = Web_events.append ~uuid [Event (`EndShuffles, None)] in
+     let* () = Spool.del ~uuid Spool.skipped_shufflers in
+     let* () = transition_to_encrypted_tally uuid in
+     Lwt.return_true
+  | _ -> Lwt.return_false

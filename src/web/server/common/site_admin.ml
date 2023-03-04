@@ -1424,7 +1424,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* _ = Api_elections.compute_encrypted_tally election in
+        let* _ = Web_persist.compute_encrypted_tally election in
         redir_preapply election_admin uuid ()
       )
 
@@ -1504,7 +1504,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_decrypt (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* _ = Api_elections.finish_shuffling election in
+        let* _ = Web_persist.finish_shuffling election in
         redir_preapply election_admin uuid ()
       )
 

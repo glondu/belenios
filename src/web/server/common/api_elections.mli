@@ -32,11 +32,6 @@ val close_election : uuid -> bool Lwt.t
 
 val set_election_auto_dates : uuid -> election_auto_dates -> unit Lwt.t
 
-val compute_encrypted_tally :
-  (module Site_common_sig.ELECTION) -> bool Lwt.t
-val finish_shuffling :
-  (module Site_common_sig.ELECTION) -> bool Lwt.t
-
 val get_records : uuid -> records Lwt.t
 
 val set_postpone_date : uuid -> float option -> bool Lwt.t
