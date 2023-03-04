@@ -1693,3 +1693,28 @@ let get_next_actions () =
             | x -> return x
           )
         )
+
+let set_election_state uuid state =
+  let* allowed =
+    let* state = get_election_state uuid in
+    match state with
+    | `Open | `Closed -> Lwt.return_true
+    | _ -> Lwt.return_false
+  in
+  if allowed then (
+    let* () =
+      set_election_state uuid
+        (state : [`Open | `Closed] :> Web_serializable_t.election_state)
+    in
+    let* dates = get_election_dates uuid in
+    let* () =
+      set_election_dates uuid
+        {dates with e_auto_open = None; e_auto_close = None}
+    in
+    Lwt.return_true
+  ) else (
+    Lwt.return_false
+  )
+
+let open_election uuid = set_election_state uuid `Open
+let close_election uuid = set_election_state uuid `Closed

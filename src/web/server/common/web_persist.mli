@@ -33,7 +33,6 @@ val set_draft_election : uuid -> draft_election -> unit Lwt.t
 val release_tally : uuid -> unit Lwt.t
 
 val get_election_state : uuid -> election_state Lwt.t
-val set_election_state : uuid -> election_state -> unit Lwt.t
 
 val get_election_dates : uuid -> election_dates Lwt.t
 val set_election_dates : uuid -> election_dates -> unit Lwt.t
@@ -139,3 +138,6 @@ val get_skipped_shufflers : uuid -> string list option Lwt.t
 val set_skipped_shufflers : uuid -> string list -> unit Lwt.t
 
 val get_next_actions : unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
+
+val open_election : uuid -> bool Lwt.t
+val close_election : uuid -> bool Lwt.t

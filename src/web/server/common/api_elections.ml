@@ -106,31 +106,6 @@ let get_election_automatic_dates uuid =
       auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
     }
 
-let set_election_state uuid state =
-  let* allowed =
-    let* state = Web_persist.get_election_state uuid in
-    match state with
-    | `Open | `Closed -> Lwt.return_true
-    | _ -> Lwt.return_false
-  in
-  if allowed then (
-    let* () =
-      Web_persist.set_election_state uuid
-        (state : [`Open | `Closed] :> Web_serializable_t.election_state)
-    in
-    let* dates = Web_persist.get_election_dates uuid in
-    let* () =
-      Web_persist.set_election_dates uuid
-        {dates with e_auto_open = None; e_auto_close = None}
-    in
-    Lwt.return_true
-  ) else (
-    Lwt.return_false
-  )
-
-let open_election uuid = set_election_state uuid `Open
-let close_election uuid = set_election_state uuid `Closed
-
 let set_election_auto_dates uuid d =
   let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
   let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
@@ -371,8 +346,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
             | (`Open | `Close) as x ->
                let doit =
                  match x with
-                 | `Open -> open_election
-                 | `Close -> close_election
+                 | `Open -> Web_persist.open_election
+                 | `Close -> Web_persist.close_election
                in
                let* b = doit uuid in
                if b then ok else forbidden

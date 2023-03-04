@@ -27,9 +27,6 @@ open Api_generic
 val get_election_status : uuid -> election_status Lwt.t
 val get_election_automatic_dates : uuid -> election_auto_dates Lwt.t
 
-val open_election : uuid -> bool Lwt.t
-val close_election : uuid -> bool Lwt.t
-
 val set_election_auto_dates : uuid -> election_auto_dates -> unit Lwt.t
 
 val get_records : uuid -> records Lwt.t

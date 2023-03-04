@@ -1094,7 +1094,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let election_set_state state uuid () =
     let@ _ = with_metadata_check_owner uuid in
-    let set = Api_elections.(if state then open_election else close_election) in
+    let set = Web_persist.(if state then open_election else close_election) in
     let* b = set uuid in
     if b then redir_preapply election_admin uuid () else forbidden ()
 
