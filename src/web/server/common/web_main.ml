@@ -235,7 +235,7 @@ module Make () = struct
   module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
 
   let check_spool_version () =
-    let* x = read_file !!"version" in
+    let* x = Web_persist.get_spool_version () in
     match x with
     | Some ["1"] -> Lwt.return_unit
     | _ -> Lwt.fail (Failure "unknown spool version")

@@ -29,6 +29,9 @@ open Common
 open Web_serializable_j
 open Web_common
 
+let get_spool_version () =
+  read_file !!"version"
+
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()
 
