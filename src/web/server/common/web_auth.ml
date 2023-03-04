@@ -185,8 +185,8 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
             match uuid with
             | None -> return (`Site, `Username)
             | Some uuid ->
-               let* username_or_address = Web_persist.username_or_address uuid in
-               return (`Election, username_or_address)
+               let* voters = Web_persist.get_voters uuid in
+               return (`Election, voters.username_or_address)
           in
           let* a =
             match find_auth_instance s c with

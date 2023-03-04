@@ -204,186 +204,6 @@ let get_partial_decryptions uuid metadata =
       partial_decryptions_threshold = threshold;
     }
 
-
-let transition_to_encrypted_tally uuid =
-  Web_persist.set_election_state uuid `EncryptedTally
-
-let compute_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let* state = Web_persist.get_election_state uuid in
-  match state with
-  | `Closed ->
-     let* () = Web_persist.compute_encrypted_tally election in
-     if Belenios.Election.has_nh_questions W.election then (
-       let* () = Web_persist.set_election_state uuid `Shuffling in
-       Lwt.return_true
-     ) else (
-       let* () = transition_to_encrypted_tally uuid in
-       Lwt.return_true
-     )
-  | _ -> Lwt.return_false
-
-let finish_shuffling election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let* state = Web_persist.get_election_state uuid in
-  match state with
-  | `Shuffling ->
-     let* () = Web_events.append ~uuid [Event (`EndShuffles, None)] in
-     let* () = Spool.del ~uuid Spool.skipped_shufflers in
-     let* () = transition_to_encrypted_tally uuid in
-     Lwt.return_true
-  | _ -> Lwt.return_false
-
-let delete_sensitive_data uuid =
-  let* () = cleanup_file (uuid /// "state.json") in
-  let* () = cleanup_file (uuid /// "decryption_tokens.json") in
-  let* () = cleanup_file (uuid /// "partial_decryptions.json") in
-  let* () = cleanup_file (uuid /// "extended_records.jsons") in
-  let* () = cleanup_file (uuid /// "credential_mappings.jsons") in
-  let* () = cleanup_file (uuid /// "public_creds.json") in
-  let* () = rmdir (uuid /// "ballots") in
-  let* () = cleanup_file (uuid /// "ballots_index.json") in
-  let* () = cleanup_file (uuid /// "private_key.json") in
-  let* () = cleanup_file (uuid /// "private_keys.jsons") in
-  Lwt.return_unit
-
-let archive_election uuid =
-  let* () = delete_sensitive_data uuid in
-  let* dates = Web_persist.get_election_dates uuid in
-  Web_persist.set_election_dates uuid {dates with e_archive = Some (Datetime.now ())}
-
-let delete_election election metadata =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let* () = delete_sensitive_data uuid in
-  let de_template =
-    {
-      t_description = "";
-      t_name = W.election.e_name;
-      t_questions = Array.map Belenios_core.Question.erase_question W.election.e_questions;
-      t_administrator = None;
-      t_credential_authority = None;
-    }
-  in
-  let de_owners = metadata.e_owners in
-  let* dates = Web_persist.get_election_dates uuid in
-  let de_date =
-    match dates.e_tally with
-    | Some x -> x
-    | None ->
-       match dates.e_finalization with
-       | Some x -> x
-       | None ->
-          match dates.e_creation with
-          | Some x -> x
-          | None -> default_validation_date
-  in
-  let de_authentication_method = match metadata.e_auth_config with
-    | Some [{auth_system = "cas"; auth_config; _}] ->
-       let server = List.assoc "server" auth_config in
-       `CAS server
-    | Some [{auth_system = "password"; _}] -> `Password
-    | _ -> `Unknown
-  in
-  let de_credential_method = match metadata.e_cred_authority with
-    | Some "server" -> `Automatic
-    | _ -> `Manual
-  in
-  let* de_trustees =
-    let open Belenios_core.Serializable_j in
-    let* trustees = Web_persist.get_trustees uuid in
-    trustees_of_string Yojson.Safe.read_json trustees
-    |> List.map
-         (function
-          | `Single _ -> `Single
-          | `Pedersen t -> `Pedersen (t.t_threshold, Array.length t.t_verification_keys)
-         )
-    |> Lwt.return
-  in
-  let* voters = Spool.get_voters ~uuid in
-  let* ballots = Web_persist.get_ballot_hashes uuid in
-  let* result = Web_persist.get_election_result uuid in
-  let de_nb_voters, de_has_weights =
-    match voters with
-    | None -> 0, false
-    | Some voters ->
-       List.length voters,
-       Belenios_core.Common.has_explicit_weights voters
-  in
-  let de = {
-      de_uuid = uuid;
-      de_template;
-      de_owners;
-      de_nb_voters;
-      de_nb_ballots = List.length ballots;
-      de_date;
-      de_tallied = result <> None;
-      de_authentication_method;
-      de_credential_method;
-      de_trustees;
-      de_has_weights;
-    }
-  in
-  let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
-  let files_to_delete = [
-      Uuid.unwrap uuid ^ ".bel";
-      "last_event.json";
-      "dates.json";
-      "metadata.json";
-      "passwords.csv";
-      "records";
-      "hide_result";
-      "shuffle_token";
-      "voters.txt";
-      "archive.zip";
-      "audit_cache.json";
-      Spool.filename Spool.skipped_shufflers;
-    ]
-  in
-  let* () =
-    Lwt_list.iter_p
-      (fun x ->
-        cleanup_file (uuid /// x)
-      ) files_to_delete
-  in
-  Web_persist.clear_elections_by_owner_cache ()
-
-let load_password_db uuid =
-  let db = uuid /// "passwords.csv" in
-  Lwt_preemptive.detach Csv.load db
-
-let rec replace_password username ((salt, hashed) as p) = function
-  | [] -> []
-  | ((username' :: _ :: _ :: rest) as x) :: xs ->
-     if username = String.lowercase_ascii username' then
-       (username' :: salt :: hashed :: rest) :: xs
-     else
-       x :: (replace_password username p xs)
-  | x :: xs -> x :: (replace_password username p xs)
-
-let regenpwd election metadata user =
-  let user = String.lowercase_ascii user in
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let title = W.election.e_name in
-  let* show_weight = Web_persist.has_explicit_weights uuid in
-  let* x = Web_persist.get_voter uuid user in
-  match x with
-  | Some id ->
-     let langs = get_languages metadata.e_languages in
-     let* db = load_password_db uuid in
-     let* email, x =
-       Mails_voter.generate_password_email metadata langs title uuid
-         id show_weight
-     in
-     let* () = Mails_voter.submit_bulk_emails [email] in
-     let db = replace_password user x db in
-     let* () = Api_drafts.dump_passwords uuid db in
-     Lwt.return_true
-  | _ -> Lwt.return_false
-
 let set_postpone_date uuid date =
   let@ date = fun cont ->
     match date with
@@ -408,7 +228,7 @@ let get_shuffles uuid metadata =
   in
   let* shuffles = Web_persist.get_shuffles uuid in
   let shuffles = Option.value shuffles ~default:[] in
-  let* skipped = Spool.get ~uuid Spool.skipped_shufflers in
+  let* skipped = Web_persist.get_skipped_shufflers uuid in
   let skipped = Option.value skipped ~default:[] in
   let* token = Web_persist.get_shuffle_token uuid in
   Lwt.return {
@@ -473,12 +293,12 @@ let skip_shuffler uuid trustee =
     | None -> Lwt.return_unit
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* x = Spool.get ~uuid Spool.skipped_shufflers in
+  let* x = Web_persist.get_skipped_shufflers uuid in
   let x = Option.value x ~default:[] in
   if List.mem trustee x then
     Lwt.fail @@ Error `NotInExpectedState
   else
-    Spool.set ~uuid Spool.skipped_shufflers (trustee :: x)
+    Web_persist.set_skipped_shufflers uuid (trustee :: x)
 
 let select_shuffler uuid metadata trustee =
   let* trustee_id, name = get_trustee_name uuid metadata trustee in
@@ -503,13 +323,14 @@ let get_records uuid =
 let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
+  let* voters = Web_persist.get_voters uuid in
   let* email, login, weight =
-    let* x = Web_persist.get_voter uuid user.user_name in
+    let x = SMap.find_opt (String.lowercase_ascii user.user_name) voters.voter_map in
     match x with
     | Some x -> Lwt.return @@ Voter.get x
     | None -> fail UnauthorizedVoter
   in
-  let* show_weight = Web_persist.has_explicit_weights uuid in
+  let show_weight = voters.has_explicit_weights in
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state uuid in
@@ -559,8 +380,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                let@ () = handle_generic_error in
                let doit =
                  match x with
-                 | `ComputeEncryptedTally -> compute_encrypted_tally
-                 | `FinishShuffling -> finish_shuffling
+                 | `ComputeEncryptedTally -> Web_persist.compute_encrypted_tally
+                 | `FinishShuffling -> Web_persist.finish_shuffling
                in
                let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
                let* b = doit (module W) in
@@ -571,12 +392,12 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                ok
             | `Archive ->
                let@ () = handle_generic_error in
-               let* () = archive_election uuid in
+               let* () = Web_persist.archive_election uuid in
                ok
             | `RegeneratePassword user ->
                let@ () = handle_generic_error in
                let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
-               let* b = regenpwd (module W) metadata user in
+               let* b = Web_persist.regen_password (module W) metadata user in
                if b then ok else not_found
             | `SetPostponeDate date ->
                let@ () = handle_generic_error in
@@ -587,8 +408,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let module W = Belenios.Election.Make (struct let raw_election = raw end) (Random) () in
-          let* () = delete_election (module W) metadata in
+          let* () = Web_persist.delete_election uuid in
           ok
        | _ -> method_not_allowed
      end

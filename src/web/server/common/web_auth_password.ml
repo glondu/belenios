@@ -70,7 +70,7 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
          | _ -> failwith "invalid configuration for admin site"
        end
     | Some uuid ->
-       let db = uuid /// "passwords.csv" in
+       let db = Web_persist.get_password_filename uuid in
        check_password_with_file db name password
 
   let auth_system uuid a =

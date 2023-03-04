@@ -29,6 +29,9 @@ open Common
 open Web_serializable_j
 open Web_common
 
+let get_spool_version () =
+  read_file !!"version"
+
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()
 
@@ -567,9 +570,12 @@ let get_elections_by_owner user =
   | None -> return []
   | Some xs -> return xs
 
+let get_password_filename uuid =
+  uuid /// "passwords.csv"
+
 let get_passwords uuid =
   let csv =
-    try Some (Csv.load (uuid /// "passwords.csv"))
+    try Some (Csv.load (get_password_filename uuid))
     with _ -> None
   in
   let&* csv in
@@ -581,14 +587,16 @@ let get_passwords uuid =
               ) SMap.empty csv in
   return_some res
 
+type voters =
+  {
+    has_explicit_weights : bool;
+    username_or_address : [`Username | `Address];
+    voter_map : Voter.t SMap.t;
+  }
+
 module VoterCacheTypes = struct
   type key = uuid
-  type value =
-    {
-      has_explicit_weights : bool;
-      username_or_address : [`Username | `Address];
-      voter_map : Voter.t SMap.t;
-    }
+  type value = voters
 end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
@@ -612,34 +620,22 @@ let raw_get_voter_cache uuid =
        | None -> `Address
        | Some _ -> `Username
   in
-  Lwt.return VoterCacheTypes.{has_explicit_weights; username_or_address; voter_map}
+  Lwt.return {has_explicit_weights; username_or_address; voter_map}
 
 let voter_cache =
   new VoterCache.cache raw_get_voter_cache ~timer:3600. 10
 
-let has_explicit_weights uuid =
-  Lwt.catch
-    (fun () ->
-      let* x = voter_cache#find uuid in
-      Lwt.return x.has_explicit_weights
-    )
-    (fun _ -> Lwt.return_false)
+let dummy_voters =
+  {
+    has_explicit_weights = false;
+    username_or_address = `Username;
+    voter_map = SMap.empty;
+  }
 
-let username_or_address uuid =
+let get_voters uuid =
   Lwt.catch
-    (fun () ->
-      let* x = voter_cache#find uuid in
-      Lwt.return x.username_or_address
-    )
-    (fun _ -> Lwt.return `Username)
-
-let get_voter uuid login =
-  Lwt.catch
-    (fun () ->
-      let* x = voter_cache#find uuid in
-      Lwt.return_some @@ SMap.find (String.lowercase_ascii login) x.voter_map
-    )
-    (fun _ -> Lwt.return_none)
+    (fun () -> voter_cache#find uuid)
+    (fun _ -> Lwt.return dummy_voters)
 
 type cred_cache =
   {
@@ -806,7 +802,7 @@ let add_ballot election last ballot =
   let () = ballots_cache#remove uuid in
   return hash
 
-let compute_encrypted_tally election =
+let raw_compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
   let uuid = W.election.e_uuid in
@@ -1144,3 +1140,554 @@ let get_audit_cache uuid =
      let* cache = compute_audit_cache uuid in
      let* () = Spool.set ~uuid Spool.audit_cache cache in
      return cache
+
+let copy_file src dst =
+  let open Lwt_io in
+  chars_of_file src |> chars_to_file dst
+
+let try_copy_file src dst =
+  let* b = file_exists src in
+  if b then copy_file src dst else return_unit
+
+let make_archive uuid =
+  let uuid_s = Uuid.unwrap uuid in
+  let* temp_dir =
+    Lwt_preemptive.detach (fun () ->
+        let temp_dir = Filename.temp_file "belenios" "archive" in
+        Sys.remove temp_dir;
+        Unix.mkdir temp_dir 0o700;
+        Unix.mkdir (temp_dir // "public") 0o755;
+        Unix.mkdir (temp_dir // "restricted") 0o700;
+        temp_dir
+      ) ()
+  in
+  let* () =
+    Lwt_list.iter_p (fun x ->
+        try_copy_file (uuid /// x) (temp_dir // "public" // x)
+      ) [
+        Uuid.unwrap uuid ^ ".bel";
+      ]
+  in
+  let* () =
+    Lwt_list.iter_p (fun x ->
+        try_copy_file (uuid /// x) (temp_dir // "restricted" // x)
+      ) [
+        "voters.txt";
+        "records";
+      ]
+  in
+  let command =
+    Printf.ksprintf Lwt_process.shell
+      "cd \"%s\" && zip -r archive public restricted" temp_dir
+  in
+  let* r = Lwt_process.exec command in
+  match r with
+  | Unix.WEXITED 0 ->
+     let fname = uuid /// "archive.zip" in
+     let fname_new = fname ^ ".new" in
+     let* () = copy_file (temp_dir // "archive.zip") fname_new in
+     let* () = Lwt_unix.rename fname_new fname in
+     rmdir temp_dir
+  | _ ->
+     Printf.ksprintf Ocsigen_messages.errlog
+       "Error while creating archive.zip for election %s, temporary directory left in %s"
+       uuid_s temp_dir;
+     return_unit
+
+let get_archive uuid =
+  let* state = get_election_state uuid in
+  if state = `Archived then (
+    let archive_name = uuid /// "archive.zip" in
+    let* b = file_exists archive_name in
+    let* () = if not b then make_archive uuid else return_unit in
+    Lwt.return_some archive_name
+  ) else Lwt.return_none
+
+let delete_sensitive_data uuid =
+  let* () = cleanup_file (uuid /// "state.json") in
+  let* () = cleanup_file (uuid /// "decryption_tokens.json") in
+  let* () = cleanup_file (uuid /// "partial_decryptions.json") in
+  let* () = cleanup_file (uuid /// "extended_records.jsons") in
+  let* () = cleanup_file (uuid /// "credential_mappings.jsons") in
+  let* () = cleanup_file (uuid /// "public_creds.json") in
+  let* () = rmdir (uuid /// "ballots") in
+  let* () = cleanup_file (uuid /// "ballots_index.json") in
+  let* () = cleanup_file (uuid /// "private_key.json") in
+  let* () = cleanup_file (uuid /// "private_keys.jsons") in
+  Lwt.return_unit
+
+let archive_election uuid =
+  let* () = delete_sensitive_data uuid in
+  let* dates = get_election_dates uuid in
+  set_election_dates uuid {dates with e_archive = Some (Datetime.now ())}
+
+let delete_election uuid =
+  let@ election = fun cont ->
+    let* x = get_raw_election uuid in
+    match x with
+    | None -> Lwt.return_unit
+    | Some e -> cont e
+  in
+  let module W = Election.Make (struct let raw_election = election end) (Random) () in
+  let* metadata = get_election_metadata uuid in
+  let* () = delete_sensitive_data uuid in
+  let de_template =
+    {
+      t_description = "";
+      t_name = W.election.e_name;
+      t_questions = Array.map Belenios_core.Question.erase_question W.election.e_questions;
+      t_administrator = None;
+      t_credential_authority = None;
+    }
+  in
+  let de_owners = metadata.e_owners in
+  let* dates = get_election_dates uuid in
+  let de_date =
+    match dates.e_tally with
+    | Some x -> x
+    | None ->
+       match dates.e_finalization with
+       | Some x -> x
+       | None ->
+          match dates.e_creation with
+          | Some x -> x
+          | None -> default_validation_date
+  in
+  let de_authentication_method = match metadata.e_auth_config with
+    | Some [{auth_system = "cas"; auth_config; _}] ->
+       let server = List.assoc "server" auth_config in
+       `CAS server
+    | Some [{auth_system = "password"; _}] -> `Password
+    | _ -> `Unknown
+  in
+  let de_credential_method = match metadata.e_cred_authority with
+    | Some "server" -> `Automatic
+    | _ -> `Manual
+  in
+  let* de_trustees =
+    let open Belenios_core.Serializable_j in
+    let* trustees = get_trustees uuid in
+    trustees_of_string Yojson.Safe.read_json trustees
+    |> List.map
+         (function
+          | `Single _ -> `Single
+          | `Pedersen t -> `Pedersen (t.t_threshold, Array.length t.t_verification_keys)
+         )
+    |> Lwt.return
+  in
+  let* voters = get_voters uuid in
+  let* ballots = get_ballot_hashes uuid in
+  let* result = get_election_result uuid in
+  let de_nb_voters = SMap.cardinal voters.voter_map in
+  let de_has_weights = voters.has_explicit_weights in
+  let de = {
+      de_uuid = uuid;
+      de_template;
+      de_owners;
+      de_nb_voters;
+      de_nb_ballots = List.length ballots;
+      de_date;
+      de_tallied = result <> None;
+      de_authentication_method;
+      de_credential_method;
+      de_trustees;
+      de_has_weights;
+    }
+  in
+  let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
+  let files_to_delete = [
+      Uuid.unwrap uuid ^ ".bel";
+      "last_event.json";
+      "dates.json";
+      "metadata.json";
+      "passwords.csv";
+      "records";
+      "hide_result";
+      "shuffle_token";
+      "voters.txt";
+      "archive.zip";
+      "audit_cache.json";
+      Spool.filename Spool.skipped_shufflers;
+    ]
+  in
+  let* () =
+    Lwt_list.iter_p
+      (fun x ->
+        cleanup_file (uuid /// x)
+      ) files_to_delete
+  in
+  clear_elections_by_owner_cache ()
+
+let load_password_db uuid =
+  let db = uuid /// "passwords.csv" in
+  Lwt_preemptive.detach Csv.load db
+
+let rec replace_password username ((salt, hashed) as p) = function
+  | [] -> []
+  | ((username' :: _ :: _ :: rest) as x) :: xs ->
+     if username = String.lowercase_ascii username' then
+       (username' :: salt :: hashed :: rest) :: xs
+     else
+       x :: (replace_password username p xs)
+  | x :: xs -> x :: (replace_password username p xs)
+
+let dump_passwords uuid db =
+  List.map (fun line -> String.concat "," line) db |>
+    write_file ~uuid "passwords.csv"
+
+let regen_password election metadata user =
+  let user = String.lowercase_ascii user in
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let title = W.election.e_name in
+  let* voters = get_voters uuid in
+  let show_weight = voters.has_explicit_weights in
+  let x = SMap.find_opt (String.lowercase_ascii user) voters.voter_map in
+  match x with
+  | Some id ->
+     let langs = get_languages metadata.e_languages in
+     let* db = load_password_db uuid in
+     let* email, x =
+       Mails_voter.generate_password_email metadata langs title uuid
+         id show_weight
+     in
+     let* () = Mails_voter.submit_bulk_emails [email] in
+     let db = replace_password user x db in
+     let* () = dump_passwords uuid db in
+     Lwt.return_true
+  | _ -> Lwt.return_false
+
+let get_private_creds_filename uuid =
+  uuid /// "private_creds.txt"
+
+let get_private_creds_downloaded uuid =
+  file_exists (uuid /// "private_creds.downloaded")
+
+let set_private_creds_downloaded uuid =
+  write_file ~uuid "private_creds.downloaded" []
+
+let clear_private_creds_downloaded uuid =
+  cleanup_file (uuid /// "private_creds.downloaded")
+
+let get_election_file uuid f =
+  uuid /// string_of_election_file f
+
+let validate_election uuid se s =
+  let open Belenios_api.Serializable_j in
+  let version = se.se_version in
+  let uuid_s = Uuid.unwrap uuid in
+  (* convenience tests *)
+  let validation_error x = raise (Api_generic.Error (`ValidationError x)) in
+  let () =
+    if se.se_questions.t_name = "" then
+      validation_error `NoTitle;
+    if se.se_questions.t_questions = [||] then
+      validation_error `NoQuestions;
+    begin
+      match se.se_administrator with
+      | None | Some "" -> validation_error `NoAdministrator
+      | _ -> ()
+    end;
+    begin
+      match se.se_metadata.e_cred_authority with
+      | None | Some "" -> validation_error `NoCredentialAuthority
+      | _ -> ()
+    end
+  in
+  (* check status *)
+  let () =
+    if s.num_voters = 0 then validation_error `NoVoters;
+    begin
+      match s.passwords_ready with
+      | Some false -> validation_error `MissingPasswords;
+      | Some true | None -> ()
+    end;
+    if not s.credentials_ready then
+      validation_error `MissingPublicCredentials;
+    if not s.trustees_ready then
+      validation_error `TrusteesNotReady;
+    if not s.nh_and_weights_compatible then
+      validation_error `WeightsAreIncompatibleWithNH
+  in
+  (* trustees *)
+  let group = Group.of_string ~version se.se_group in
+  let module G = (val group : GROUP) in
+  let module Trustees = (val Trustees.get_by_version version) in
+  let module K = Trustees.MakeCombinator (G) in
+  let module KG = Trustees.MakeSimple (G) (Random) in
+  let* trustee_names, trustees, private_keys =
+    match se.se_trustees with
+    | `Basic x ->
+       let ts = x.dbp_trustees in
+       let* trustee_names, trustees, private_key =
+         match ts with
+         | [] ->
+            let private_key = KG.generate () in
+            let public_key = KG.prove private_key in
+            let public_key = { public_key with trustee_name = Some "server" } in
+            Lwt.return (["server"], [`Single public_key], `KEY private_key)
+         | _ :: _ ->
+            let private_key =
+              List.fold_left (fun accu {st_private_key; _} ->
+                  match st_private_key with
+                  | Some x -> x :: accu
+                  | None -> accu
+                ) [] ts
+            in
+            let private_key = match private_key with
+              | [x] -> `KEY x
+              | _ -> validation_error `NotSinglePrivateKey
+            in
+            Lwt.return
+              begin
+                (List.map (fun {st_id; _} -> st_id) ts),
+                (List.map
+                   (fun {st_public_key; st_name; _} ->
+                     let pk = trustee_public_key_of_string (sread G.of_string) st_public_key in
+                     let pk = { pk with trustee_name = st_name } in
+                     `Single pk
+                   ) ts),
+                private_key
+              end
+       in
+       Lwt.return (trustee_names, trustees, private_key)
+    | `Threshold x ->
+       let ts = x.dtp_trustees in
+       match x.dtp_parameters with
+       | None -> validation_error `KeyEstablishmentNotFinished
+       | Some tp ->
+          let tp = threshold_parameters_of_string (sread G.of_string) tp in
+          let named =
+            let open Belenios_core.Serializable_j in
+            List.combine (Array.to_list tp.t_verification_keys) ts
+            |> List.map (fun (k, t) -> { k with trustee_name = t.stt_name })
+            |> Array.of_list
+          in
+          let tp = { tp with t_verification_keys = named } in
+          let trustee_names = List.map (fun {stt_id; _} -> stt_id) ts in
+          let private_keys =
+            List.map (fun {stt_voutput; _} ->
+                match stt_voutput with
+                | Some v ->
+                   let voutput = voutput_of_string (sread G.of_string) v in
+                   voutput.vo_private_key
+                | None -> raise (Api_generic.Error (`GenericError "inconsistent state"))
+              ) ts
+          in
+          let server_private_key = KG.generate () in
+          let server_public_key = KG.prove server_private_key in
+          let server_public_key = { server_public_key with trustee_name = Some "server" } in
+          Lwt.return
+            begin
+              "server" :: trustee_names,
+              [`Single server_public_key; `Pedersen tp],
+              `KEYS (server_private_key, private_keys)
+            end
+  in
+  let y = K.combine_keys trustees in
+  (* election parameters *)
+  let metadata =
+    {
+      se.se_metadata with
+      e_trustees = Some trustee_names;
+      e_owners = se.se_owners;
+    }
+  in
+  let template = se.se_questions in
+  let params =
+    {
+      e_version = se.se_version;
+      e_description = template.t_description;
+      e_name = template.t_name;
+      e_questions = template.t_questions;
+      e_uuid = uuid;
+      e_administrator = se.se_administrator;
+      e_credential_authority = metadata.e_cred_authority;
+    }
+  in
+  let raw_election =
+    let public_key = G.to_string y in
+    Election.make_raw_election params ~group:se.se_group ~public_key
+  in
+  (* write election files to disk *)
+  let dir = !!uuid_s in
+  let create_file fname what xs =
+    Lwt_io.with_file
+      ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+      ~perm:0o600 ~mode:Lwt_io.Output (dir // fname)
+      (fun oc ->
+        Lwt_list.iter_s
+          (fun v ->
+            let* () = Lwt_io.write oc (what v) in
+            Lwt_io.write oc "\n") xs)
+  in
+  let create_whole_file fname x =
+    Lwt_io.with_file
+      ~flags:(Unix.([O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC]))
+      ~perm:0o600 ~mode:Lwt_io.Output (dir // fname)
+      (fun oc -> Lwt_io.write oc x)
+  in
+  let open Belenios_core.Serializable_j in
+  let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
+  let* () = create_whole_file "voters.txt" (Voter.list_to_string voters) in
+  let* () = create_file "metadata.json" string_of_metadata [metadata] in
+  (* initialize credentials *)
+  let* public_creds =
+    let fname = uuid /// "public_creds.json" in
+    let* file = read_file_single_line fname in
+    match file with
+    | Some x ->
+       let x = public_credentials_of_string x |> List.map strip_cred in
+       let* () = init_credential_mapping uuid x in
+       Lwt.return x
+    | None -> Lwt.fail @@ Failure "no public credentials"
+  in
+  (* initialize events *)
+  let* () =
+    let raw_trustees = string_of_trustees (swrite G.to_string) trustees in
+    let raw_public_creds = string_of_public_credentials public_creds in
+    let setup_election = Hash.hash_string raw_election in
+    let setup_trustees = Hash.hash_string raw_trustees in
+    let setup_credentials = Hash.hash_string raw_public_creds in
+    let setup_data =
+      {
+        setup_election;
+        setup_trustees;
+        setup_credentials;
+      }
+    in
+    let setup_data_s = string_of_setup_data setup_data in
+    Web_events.append ~lock:false ~uuid
+      [
+        Data raw_election;
+        Data raw_trustees;
+        Data raw_public_creds;
+        Data setup_data_s;
+        Event (`Setup, Some (Hash.hash_string setup_data_s));
+      ]
+  in
+  (* create file with private keys, if any *)
+  let* () =
+    match private_keys with
+    | `KEY x -> create_file "private_key.json" string_of_number [x]
+    | `KEYS (x, y) ->
+       let* () = create_file "private_key.json" string_of_number [x] in
+       create_file "private_keys.jsons" (fun x -> x) y
+  in
+  (* clean up draft *)
+  let* () = cleanup_file (uuid /// "draft.json") in
+  (* clean up private credentials, if any *)
+  let* () = cleanup_file (uuid /// "private_creds.txt") in
+  let* () = clear_private_creds_downloaded uuid in
+  (* write passwords *)
+  let* () =
+    match metadata.e_auth_config with
+    | Some [{auth_system = "password"; _}] ->
+       let db =
+         List.filter_map (fun v ->
+             let _, login, _ = Voter.get v.sv_id in
+             let& salt, hashed = v.sv_password in
+             Some [login; salt; hashed]
+           ) se.se_voters
+       in
+       if db <> [] then dump_passwords uuid db else Lwt.return_unit
+    | _ -> Lwt.return_unit
+  in
+  (* finish *)
+  let* () = set_election_state uuid `Open in
+  let* dates = get_election_dates uuid in
+  set_election_dates uuid {dates with e_finalization = Some (Datetime.now ())}
+
+let delete_draft uuid =
+  let* () = rmdir !!(Uuid.unwrap uuid) in
+  clear_elections_by_owner_cache ()
+
+let create_draft uuid se =
+  let* () = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700 in
+  let* () = set_draft_election uuid se in
+  let* () = clear_elections_by_owner_cache () in
+  Lwt.return_unit
+
+let transition_to_encrypted_tally uuid =
+  set_election_state uuid `EncryptedTally
+
+let compute_encrypted_tally election =
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let* state = get_election_state uuid in
+  match state with
+  | `Closed ->
+     let* () = raw_compute_encrypted_tally election in
+     if Belenios.Election.has_nh_questions W.election then (
+       let* () = set_election_state uuid `Shuffling in
+       Lwt.return_true
+     ) else (
+       let* () = transition_to_encrypted_tally uuid in
+       Lwt.return_true
+     )
+  | _ -> Lwt.return_false
+
+let finish_shuffling election =
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let* state = get_election_state uuid in
+  match state with
+  | `Shuffling ->
+     let* () = Web_events.append ~uuid [Event (`EndShuffles, None)] in
+     let* () = Spool.del ~uuid Spool.skipped_shufflers in
+     let* () = transition_to_encrypted_tally uuid in
+     Lwt.return_true
+  | _ -> Lwt.return_false
+
+let get_skipped_shufflers uuid =
+  Spool.get ~uuid Spool.skipped_shufflers
+
+let set_skipped_shufflers uuid shufflers =
+  Spool.set ~uuid Spool.skipped_shufflers shufflers
+
+let extract_automatic_data_draft uuid_s =
+  let uuid = Uuid.wrap uuid_s in
+  let* se = get_draft_election uuid in
+  let&* se in
+  let t = Option.value se.se_creation_date ~default:default_creation_date in
+  let next_t = Period.add t (Period.day days_to_delete) in
+  return_some (`Destroy, uuid, next_t)
+
+let extract_automatic_data_validated uuid_s =
+  let uuid = Uuid.wrap uuid_s in
+  let* election = get_raw_election uuid in
+  let&* _ = election in
+  let* state = get_election_state uuid in
+  let* dates = get_election_dates uuid in
+  match state with
+  | `Open | `Closed | `Shuffling | `EncryptedTally ->
+     let t = Option.value dates.e_finalization ~default:default_validation_date in
+     let next_t = Period.add t (Period.day days_to_delete) in
+     return_some (`Delete, uuid, next_t)
+  | `Tallied ->
+     let t = Option.value dates.e_tally ~default:default_tally_date in
+     let next_t = Period.add t (Period.day days_to_archive) in
+     return_some (`Archive, uuid, next_t)
+  | `Archived ->
+     let t = Option.value dates.e_archive ~default:default_archive_date in
+     let next_t = Period.add t (Period.day days_to_delete) in
+     return_some (`Delete, uuid, next_t)
+
+let try_extract extract x =
+  Lwt.catch
+    (fun () -> extract x)
+    (fun _ -> return_none)
+
+let get_next_actions () =
+  Lwt_unix.files_of_directory !Web_config.spool_dir
+  |> Lwt_stream.to_list
+  >>= Lwt_list.filter_map_s
+        (fun x ->
+          if x = "." || x = ".." then return_none
+          else (
+            let* r = try_extract extract_automatic_data_draft x in
+            match r with
+            | None -> try_extract extract_automatic_data_validated x
+            | x -> return x
+          )
+        )

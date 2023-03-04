@@ -46,14 +46,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
-  let delete_election uuid =
-    let* election = find_election uuid in
-    match election with
-    | None -> return_unit
-    | Some election ->
-       let* metadata = Web_persist.get_election_metadata uuid in
-       Api_elections.delete_election election metadata
-
   let () = Any.register ~service:home
              (fun () () -> Redirection.send (Redirection admin))
 
@@ -518,7 +510,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let open (val l) in
         let@ election = with_election uuid in
         let service = preapply ~service:election_admin uuid in
-        let* b = Api_elections.regenpwd election metadata user in
+        let* b = Web_persist.regen_password election metadata user in
         if b then (
           Pages_common.generic_page ~title:(s_ "Success") ~service
             (Printf.sprintf (f_ "A new password has been mailed to %s.") user) ()
@@ -838,8 +830,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_credentials_get
       (fun uuid () ->
         let@ _ = with_draft_election_ro uuid in
-        let* () = Api_drafts.set_downloaded uuid in
-        File.send ~content_type:"text/plain" (uuid /// "private_creds.txt")
+        let* () = Web_persist.set_private_creds_downloaded uuid in
+        let filename = Web_persist.get_private_creds_filename uuid in
+        File.send ~content_type:"text/plain" filename
       )
 
   let () =
@@ -952,7 +945,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         Lwt.catch
           (fun () ->
             if Accounts.check account se.se_owners then (
-              let* () = Api_drafts.validate_election uuid se in
+              let* s = Api_drafts.get_draft_status uuid se in
+              let* () = Web_persist.validate_election uuid se s in
               redir_preapply election_admin uuid ()
             ) else Lwt.fail (Failure "Forbidden")
           )
@@ -965,7 +959,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_destroy
       (fun uuid () ->
         let@ _ = with_draft_election ~save:false uuid in
-        let* () = Api_drafts.delete_draft uuid in
+        let* () = Web_persist.delete_draft uuid in
         Redirection.send (Redirection admin)
       )
 
@@ -1183,7 +1177,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_delete
       (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
-        let* () = delete_election uuid in
+        let* () = Web_persist.delete_election uuid in
         redir_preapply admin () ()
       )
 
@@ -1192,18 +1186,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_missing_voters
       (fun (uuid, ()) () ->
         let@ _ = with_metadata_check_owner uuid in
-        let* voters =
-          let* file = Spool.get_voters ~uuid in
-          match file with
-          | Some vs ->
-             return (
-                 List.fold_left (fun accu v ->
-                     let _, login, _ = Voter.get v in
-                     SSet.add (PString.lowercase_ascii login) accu
-                   ) SSet.empty vs
-               )
-          | None -> return SSet.empty
-        in
+        let* voters = Web_persist.get_voters uuid in
         let* voters =
           let* file = read_file ~uuid (string_of_election_file ESRecords) in
           match file with
@@ -1212,13 +1195,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                  List.fold_left (fun accu r ->
                      let s = Pcre.exec ~rex r in
                      let v = Pcre.get_substring s 1 in
-                     SSet.remove (PString.lowercase_ascii v) accu
-                   ) voters rs
+                     SMap.remove (PString.lowercase_ascii v) accu
+                   ) voters.voter_map rs
                )
-          | None -> return voters
+          | None -> return voters.voter_map
         in
         let buf = Buffer.create 128 in
-        SSet.iter (fun v ->
+        SMap.iter (fun v _ ->
             Buffer.add_string buf v;
             Buffer.add_char buf '\n'
           ) voters;
@@ -1275,76 +1258,20 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         )
       )
 
-  let copy_file src dst =
-    let open Lwt_io in
-    chars_of_file src |> chars_to_file dst
-
-  let try_copy_file src dst =
-    let* b = file_exists src in
-    if b then copy_file src dst else return_unit
-
-  let make_archive uuid =
-    let uuid_s = Uuid.unwrap uuid in
-    let* temp_dir =
-      Lwt_preemptive.detach (fun () ->
-          let temp_dir = Filename.temp_file "belenios" "archive" in
-          Sys.remove temp_dir;
-          Unix.mkdir temp_dir 0o700;
-          Unix.mkdir (temp_dir // "public") 0o755;
-          Unix.mkdir (temp_dir // "restricted") 0o700;
-          temp_dir
-        ) ()
-    in
-    let* () =
-      Lwt_list.iter_p (fun x ->
-          try_copy_file (uuid /// x) (temp_dir // "public" // x)
-        ) [
-          Uuid.unwrap uuid ^ ".bel";
-        ]
-    in
-    let* () =
-      Lwt_list.iter_p (fun x ->
-          try_copy_file (uuid /// x) (temp_dir // "restricted" // x)
-        ) [
-          "voters.txt";
-          "records";
-        ]
-    in
-    let command =
-      Printf.ksprintf Lwt_process.shell
-        "cd \"%s\" && zip -r archive public restricted" temp_dir
-    in
-    let* r = Lwt_process.exec command in
-    match r with
-    | Unix.WEXITED 0 ->
-       let fname = uuid /// "archive.zip" in
-       let fname_new = fname ^ ".new" in
-       let* () = copy_file (temp_dir // "archive.zip") fname_new in
-       let* () = Lwt_unix.rename fname_new fname in
-       rmdir temp_dir
-    | _ ->
-       Printf.ksprintf Ocsigen_messages.errlog
-         "Error while creating archive.zip for election %s, temporary directory left in %s"
-         uuid_s temp_dir;
-       return_unit
-
   let () =
     Any.register ~service:election_download_archive
       (fun (uuid, ()) () ->
         let@ _ = with_metadata_check_owner uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let* state = Web_persist.get_election_state uuid in
-        if state = `Archived then (
-          let archive_name = uuid /// "archive.zip" in
-          let* b = file_exists archive_name in
-          let* () = if not b then make_archive uuid else return_unit in
-          File.send ~content_type:"application/zip" archive_name
-        ) else (
-          let service = preapply ~service:election_admin uuid in
-          Pages_common.generic_page ~title:(s_ "Error") ~service
-            (s_ "The election is not archived!") () >>= Html.send
-        )
+        let* x = Web_persist.get_archive uuid in
+        match x with
+        | Some archive_name ->
+           File.send ~content_type:"application/zip" archive_name
+        | None ->
+           let service = preapply ~service:election_admin uuid in
+           Pages_common.generic_page ~title:(s_ "Error") ~service
+             (s_ "The election is not archived!") () >>= Html.send
       )
 
   let find_trustee_id uuid token =
@@ -1497,7 +1424,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
       (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* _ = Api_elections.compute_encrypted_tally election in
+        let* _ = Web_persist.compute_encrypted_tally election in
         redir_preapply election_admin uuid ()
       )
 
@@ -1577,7 +1504,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_decrypt (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
         let@ election = with_election uuid in
-        let* _ = Api_elections.finish_shuffling election in
+        let* _ = Web_persist.finish_shuffling election in
         redir_preapply election_admin uuid ()
       )
 
@@ -2009,60 +1936,13 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         String.send ~code (content, "text/plain")
       )
 
-  let extract_automatic_data_draft uuid_s =
-    let uuid = Uuid.wrap uuid_s in
-    let* se = Web_persist.get_draft_election uuid in
-    let&* se in
-    let t = Option.value se.se_creation_date ~default:default_creation_date in
-    let next_t = Period.add t (Period.day days_to_delete) in
-    return_some (`Destroy, uuid, next_t)
-
-  let extract_automatic_data_validated uuid_s =
-    let uuid = Uuid.wrap uuid_s in
-    let* election = Web_persist.get_raw_election uuid in
-    let&* _ = election in
-    let* state = Web_persist.get_election_state uuid in
-    let* dates = Web_persist.get_election_dates uuid in
-    match state with
-    | `Open | `Closed | `Shuffling | `EncryptedTally ->
-       let t = Option.value dates.e_finalization ~default:default_validation_date in
-       let next_t = Period.add t (Period.day days_to_delete) in
-       return_some (`Delete, uuid, next_t)
-    | `Tallied ->
-       let t = Option.value dates.e_tally ~default:default_tally_date in
-       let next_t = Period.add t (Period.day days_to_archive) in
-       return_some (`Archive, uuid, next_t)
-    | `Archived ->
-       let t = Option.value dates.e_archive ~default:default_archive_date in
-       let next_t = Period.add t (Period.day days_to_delete) in
-       return_some (`Delete, uuid, next_t)
-
-  let try_extract extract x =
-    Lwt.catch
-      (fun () -> extract x)
-      (fun _ -> return_none)
-
-  let get_next_actions () =
-    Lwt_unix.files_of_directory !Web_config.spool_dir |>
-      Lwt_stream.to_list >>=
-      Lwt_list.filter_map_s
-        (fun x ->
-          if x = "." || x = ".." then return_none
-          else (
-            let* r = try_extract extract_automatic_data_draft x in
-            match r with
-            | None -> try_extract extract_automatic_data_validated x
-            | x -> return x
-          )
-        )
-
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = Uuid.unwrap uuid in
     let now = Datetime.now () in
     let action, comment = match action with
-      | `Destroy -> Api_drafts.delete_draft, "destroyed"
-      | `Delete -> delete_election, "deleted"
-      | `Archive -> Api_elections.archive_election, "archived"
+      | `Destroy -> Web_persist.delete_draft, "destroyed"
+      | `Delete -> Web_persist.delete_election, "deleted"
+      | `Archive -> Web_persist.archive_election, "archived"
     in
     if Datetime.compare now next_t > 0 then (
       let* () = action uuid in
@@ -2075,7 +1955,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let rec data_policy_loop () =
     let open Ocsigen_messages in
     let () = accesslog "Data policy process started" in
-    let* elections = get_next_actions () in
+    let* elections = Web_persist.get_next_actions () in
     let* () = Lwt_list.iter_s process_election_for_data_policy elections in
     let () = accesslog "Data policy process completed" in
     let* () = Lwt_unix.sleep 3600. in

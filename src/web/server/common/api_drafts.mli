@@ -26,7 +26,6 @@ open Web_serializable_t
 val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> draft_election -> draft -> draft_election
 
-val delete_draft : uuid -> unit Lwt.t
 val post_drafts : account -> draft -> uuid option Lwt.t
 
 val get_draft_voters : draft_election -> voter_list
@@ -63,11 +62,6 @@ val get_draft_trustees_mode : draft_election -> [`Basic | `Threshold of int]
 val put_draft_trustees_mode : uuid -> draft_election -> [`Basic | `Threshold of int] -> unit Lwt.t
 
 val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
-
-val set_downloaded : uuid -> unit Lwt.t
-
-val dump_passwords : uuid -> string list list -> unit Lwt.t
-val validate_election : uuid -> draft_election -> unit Lwt.t
 
 val merge_voters :
   draft_voter list -> Voter.t list ->

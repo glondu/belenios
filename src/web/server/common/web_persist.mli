@@ -25,6 +25,8 @@ open Common
 open Web_common
 open Web_serializable_t
 
+val get_spool_version : unit -> string list option Lwt.t
+
 val get_draft_election : uuid -> draft_election option Lwt.t
 val set_draft_election : uuid -> draft_election -> unit Lwt.t
 
@@ -66,15 +68,17 @@ val get_private_key : uuid -> number option Lwt.t
 val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 
-val has_explicit_weights : uuid -> bool Lwt.t
-val username_or_address : uuid -> [`Username | `Address] Lwt.t
-val get_voter : uuid -> string -> Voter.t option Lwt.t
+type voters =
+  {
+    has_explicit_weights : bool;
+    username_or_address : [`Username | `Address];
+    voter_map : Voter.t SMap.t;
+  }
+val get_voters : uuid -> voters Lwt.t
 
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_ballot_weight : (module Site_common_sig.ELECTION) -> string -> Weight.t Lwt.t
-
-val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> unit Lwt.t
 
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : uuid -> string option Lwt.t
@@ -104,3 +108,34 @@ val cast_ballot :
 
 val get_audit_cache : uuid -> audit_cache Lwt.t
 val remove_audit_cache : uuid -> unit Lwt.t
+
+val get_archive : uuid -> string option Lwt.t
+
+val archive_election : uuid -> unit Lwt.t
+val delete_election : uuid -> unit Lwt.t
+
+val get_password_filename : uuid -> string
+val dump_passwords : uuid -> string list list -> unit Lwt.t
+val regen_password :
+  (module Site_common_sig.ELECTION) ->
+  metadata -> string -> bool Lwt.t
+
+val get_private_creds_filename : uuid -> string
+val get_private_creds_downloaded : uuid -> bool Lwt.t
+val set_private_creds_downloaded : uuid -> unit Lwt.t
+val clear_private_creds_downloaded : uuid -> unit Lwt.t
+
+val get_election_file : uuid -> election_file -> string
+
+val validate_election : uuid -> draft_election -> Belenios_api.Serializable_t.draft_status -> unit Lwt.t
+
+val delete_draft : uuid -> unit Lwt.t
+val create_draft : uuid -> draft_election -> unit Lwt.t
+
+val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> bool Lwt.t
+val finish_shuffling : (module Site_common_sig.ELECTION) -> bool Lwt.t
+
+val get_skipped_shufflers : uuid -> string list option Lwt.t
+val set_skipped_shufflers : uuid -> string list -> unit Lwt.t
+
+val get_next_actions : unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
