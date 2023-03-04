@@ -39,8 +39,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   open Web_services
   open Site_common
 
-  module PString = String
-
   open Eliom_service
   open Eliom_registration
 
@@ -272,12 +270,12 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
           | Some "cas" ->
              (match cas_server with
               | None -> fail_http `Bad_request
-              | Some cas_server -> return @@ `CAS (PString.trim cas_server)
+              | Some cas_server -> return @@ `CAS (Stdlib.String.trim cas_server)
              )
           | Some x ->
-             let n = PString.length x in
-             if n > 1 && PString.get x 0 = '%' then (
-               let name = PString.sub x 1 (n - 1) in
+             let n = Stdlib.String.length x in
+             if n > 1 && Stdlib.String.get x 0 = '%' then (
+               let name = Stdlib.String.sub x 1 (n - 1) in
                return @@ `Configured name
              ) else fail_http `Bad_request
           | _ -> fail_http `Bad_request
@@ -445,7 +443,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let@ se = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        if PString.length name > max_election_name_size then (
+        if Stdlib.String.length name > max_election_name_size then (
           let msg =
             Printf.sprintf (f_ "The election name must be %d characters or less!")
               max_election_name_size
@@ -1195,7 +1193,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                  List.fold_left (fun accu r ->
                      let s = Pcre.exec ~rex r in
                      let v = Pcre.get_substring s 1 in
-                     SMap.remove (PString.lowercase_ascii v) accu
+                     SMap.remove (Stdlib.String.lowercase_ascii v) accu
                    ) voters.voter_map rs
                )
           | None -> return voters.voter_map
@@ -1792,7 +1790,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
   let () =
     Any.register ~service:signup_login_post
       (fun () code ->
-        let code = PString.trim code in
+        let code = Stdlib.String.trim code in
         let* address = Eliom_reference.get Web_state.signup_address in
         match address with
         | None -> forbidden ()

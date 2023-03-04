@@ -34,8 +34,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
   open Web_services
   open Site_common
 
-  module PString = String
-
   open Eliom_service
   open Eliom_registration
 
@@ -79,7 +77,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       )
 
   let submit_ballot ballot =
-    let ballot = PString.trim ballot in
+    let ballot = Stdlib.String.trim ballot in
     let* () = Eliom_reference.set Web_state.ballot (Some ballot) in
     redir_preapply election_submit_ballot_check () ()
 

@@ -21,17 +21,13 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core
 open Belenios
-open Common
 open Web_common
 
 module Make (X : Pages_sig.S) = struct
 
   open X
   open Web_services
-
-  module PString = String
 
   open Eliom_service
   open Eliom_registration
