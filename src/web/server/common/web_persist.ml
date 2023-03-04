@@ -415,7 +415,7 @@ let internal_release_tally ~force uuid =
      Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
-let get_election_state ?(update = true) ?(ignore_errors = true) uuid =
+let raw_get_election_state ?(update = true) ?(ignore_errors = true) uuid =
   let* x = Spool.get ~uuid Spool.state in
   let@ state = fun cont ->
     match x with Some x -> cont x | None -> return `Archived
@@ -458,6 +458,8 @@ let get_election_state ?(update = true) ?(ignore_errors = true) uuid =
     else return_unit
   in
   return new_state
+
+let get_election_state uuid = raw_get_election_state uuid
 
 let release_tally uuid =
   let* state = get_election_state uuid in
@@ -524,7 +526,7 @@ let build_elections_by_owner_cache () =
                      | Some election ->
                         let* dates = get_election_dates uuid in
                         let* kind, date =
-                          let* state = get_election_state ~update:false uuid in
+                          let* state = raw_get_election_state ~update:false uuid in
                           match state with
                           | `Open | `Closed | `Shuffling | `EncryptedTally ->
                              let date = Option.value dates.e_finalization ~default:default_validation_date in

@@ -32,7 +32,7 @@ val set_draft_election : uuid -> draft_election -> unit Lwt.t
 
 val release_tally : uuid -> unit Lwt.t
 
-val get_election_state : ?update:bool -> ?ignore_errors:bool -> uuid -> election_state Lwt.t
+val get_election_state : uuid -> election_state Lwt.t
 val set_election_state : uuid -> election_state -> unit Lwt.t
 
 val get_election_dates : uuid -> election_dates Lwt.t
