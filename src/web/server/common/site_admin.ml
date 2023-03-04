@@ -959,7 +959,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_draft_destroy
       (fun uuid () ->
         let@ _ = with_draft_election ~save:false uuid in
-        let* () = Api_drafts.delete_draft uuid in
+        let* () = Web_persist.delete_draft uuid in
         Redirection.send (Redirection admin)
       )
 
@@ -1987,7 +1987,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     let uuid_s = Uuid.unwrap uuid in
     let now = Datetime.now () in
     let action, comment = match action with
-      | `Destroy -> Api_drafts.delete_draft, "destroyed"
+      | `Destroy -> Web_persist.delete_draft, "destroyed"
       | `Delete -> Web_persist.delete_election, "deleted"
       | `Archive -> Web_persist.archive_election, "archived"
     in

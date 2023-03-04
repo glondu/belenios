@@ -1594,3 +1594,7 @@ let validate_election uuid se s =
   let* () = set_election_state uuid `Open in
   let* dates = get_election_dates uuid in
   set_election_dates uuid {dates with e_finalization = Some (Datetime.now ())}
+
+let delete_draft uuid =
+  let* () = rmdir !!(Uuid.unwrap uuid) in
+  clear_elections_by_owner_cache ()

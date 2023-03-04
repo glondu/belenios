@@ -159,10 +159,6 @@ let draft_of_api a se d =
     se_group;
   }
 
-let delete_draft uuid =
-  let* () = rmdir !!(Uuid.unwrap uuid) in
-  Web_persist.clear_elections_by_owner_cache ()
-
 let generate_uuid () =
   let length = !Web_config.uuid_length in
   let token = generate_token ?length () in
@@ -983,7 +979,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
        | `DELETE, `Administrator _ ->
           let@ () = handle_ifmatch ifmatch get in
           let@ () = handle_generic_error in
-          let* () = delete_draft uuid in
+          let* () = Web_persist.delete_draft uuid in
           ok
        | _ -> method_not_allowed
      end
