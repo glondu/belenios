@@ -98,20 +98,6 @@ let get_election_status uuid =
       status_postpone_date = Option.map Datetime.to_unixfloat postpone;
     }
 
-let get_election_automatic_dates uuid =
-  let* d = Web_persist.get_election_dates uuid in
-  Lwt.return
-    {
-      auto_date_open = Option.map Datetime.to_unixfloat d.e_auto_open;
-      auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
-    }
-
-let set_election_auto_dates uuid d =
-  let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
-  let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
-  let* dates = Web_persist.get_election_dates uuid in
-  Web_persist.set_election_dates uuid {dates with e_auto_open; e_auto_close}
-
 let get_partial_decryptions uuid metadata =
   let@ () = fun cont ->
     let* state = Web_persist.get_election_state uuid in
@@ -403,7 +389,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
   | ["automatic-dates"] ->
      begin
        let get () =
-         let* x = get_election_automatic_dates uuid in
+         let* x = Web_persist.get_election_automatic_dates uuid in
          Lwt.return @@ string_of_election_auto_dates x
        in
        match method_ with
@@ -413,7 +399,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ () = handle_ifmatch ifmatch get in
           let@ d = body.run election_auto_dates_of_string in
           let@ () = handle_generic_error in
-          let* () = set_election_auto_dates uuid d in
+          let* () = Web_persist.set_election_automatic_dates uuid d in
           ok
        | _ -> method_not_allowed
      end

@@ -35,7 +35,6 @@ val release_tally : uuid -> unit Lwt.t
 val get_election_state : uuid -> election_state Lwt.t
 
 val get_election_dates : uuid -> election_dates Lwt.t
-val set_election_dates : uuid -> election_dates -> unit Lwt.t
 
 val get_partial_decryptions : uuid -> string owned list Lwt.t
 val add_partial_decryption : uuid -> int * string -> unit Lwt.t
@@ -141,3 +140,6 @@ val get_next_actions : unit -> ([> `Archive | `Delete | `Destroy ] * uuid * date
 
 val open_election : uuid -> bool Lwt.t
 val close_election : uuid -> bool Lwt.t
+
+val get_election_automatic_dates : uuid -> Belenios_api.Serializable_t.election_auto_dates Lwt.t
+val set_election_automatic_dates : uuid -> Belenios_api.Serializable_t.election_auto_dates -> unit Lwt.t

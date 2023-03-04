@@ -1164,7 +1164,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                auto_date_close = Option.map Datetime.to_unixfloat e_auto_close;
              }
            in
-           let* () = Api_elections.set_election_auto_dates uuid dates in
+           let* () = Web_persist.set_election_automatic_dates uuid dates in
            redir_preapply election_admin uuid ()
         | Error msg ->
            let service = preapply ~service:election_admin uuid in

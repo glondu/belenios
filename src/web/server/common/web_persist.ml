@@ -1718,3 +1718,19 @@ let set_election_state uuid state =
 
 let open_election uuid = set_election_state uuid `Open
 let close_election uuid = set_election_state uuid `Closed
+
+let get_election_automatic_dates uuid =
+  let open Belenios_api.Serializable_t in
+  let* d = get_election_dates uuid in
+  Lwt.return
+    {
+      auto_date_open = Option.map Datetime.to_unixfloat d.e_auto_open;
+      auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
+    }
+
+let set_election_automatic_dates uuid d =
+  let open Belenios_api.Serializable_t in
+  let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
+  let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
+  let* dates = get_election_dates uuid in
+  set_election_dates uuid {dates with e_auto_open; e_auto_close}

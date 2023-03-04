@@ -1955,7 +1955,7 @@ module Make
     let uuid = election.e_uuid in
     let title = election.e_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
-      let* d = Api_elections.get_election_automatic_dates uuid in
+      let* d = Web_persist.get_election_automatic_dates uuid in
       let format = function
         | None -> ""
         | Some x -> Datetime.format @@ Datetime.from_unixfloat x
