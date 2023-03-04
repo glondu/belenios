@@ -213,9 +213,7 @@ let post_drafts account draft =
     }
   in
   let se = draft_of_api account se draft in
-  let* () = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700 in
-  let* () = Web_persist.set_draft_election uuid se in
-  let* () = Web_persist.clear_elections_by_owner_cache () in
+  let* () = Web_persist.create_draft uuid se in
   Lwt.return uuid
 
 let get_draft_voters se =
