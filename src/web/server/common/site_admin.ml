@@ -945,7 +945,8 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         Lwt.catch
           (fun () ->
             if Accounts.check account se.se_owners then (
-              let* () = Api_drafts.validate_election uuid se in
+              let* s = Api_drafts.get_draft_status uuid se in
+              let* () = Web_persist.validate_election uuid se s in
               redir_preapply election_admin uuid ()
             ) else Lwt.fail (Failure "Forbidden")
           )

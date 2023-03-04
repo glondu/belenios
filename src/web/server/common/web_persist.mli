@@ -126,3 +126,5 @@ val set_private_creds_downloaded : uuid -> unit Lwt.t
 val clear_private_creds_downloaded : uuid -> unit Lwt.t
 
 val get_election_file : uuid -> election_file -> string
+
+val validate_election : uuid -> draft_election -> Belenios_api.Serializable_t.draft_status -> unit Lwt.t
