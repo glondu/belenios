@@ -575,6 +575,10 @@ let get_elections_by_owner user =
 let get_password_filename uuid =
   uuid /// "passwords.csv"
 
+let check_password uuid ~user ~password =
+  let db = get_password_filename uuid in
+  check_password_with_file ~db ~name_or_email:user ~password
+
 let get_passwords uuid =
   let csv =
     try Some (Csv.load (get_password_filename uuid))

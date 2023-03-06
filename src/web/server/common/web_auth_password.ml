@@ -34,44 +34,15 @@ let does_allow_signups c =
 
 module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
 
-  let check_password_with_file db name_or_email password =
-    let name_or_email = String.trim name_or_email |> String.lowercase_ascii in
-    let check_name_or_email =
-      if is_email name_or_email then
-        function
-        | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email ->
-           (* When authenticating as a voter, the username may be an email *)
-           true
-        | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = name_or_email ->
-           (* When authenticating as an admin, email is 4th CSV field *)
-           true
-        | _ -> false
-      else
-        function
-        | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email -> true
-        | _ -> false
-    in
-    let* db = Lwt_preemptive.detach Csv.load db in
-    match List.find_opt check_name_or_email db with
-    | Some (u :: salt :: hashed :: xs) ->
-       if sha256_hex (salt ^ String.trim password) = hashed then (
-         let email = match xs with [] -> "" | x :: _ -> x in
-         return_some (u, email)
-       ) else
-         return_none
-    | _ -> return_none
-
   let check uuid a name password =
     match uuid with
     | None ->
        begin
          match List.assoc_opt "db" a.auth_config with
-         | Some db -> check_password_with_file db name password
+         | Some db -> check_password_with_file ~db ~name_or_email:name ~password
          | _ -> failwith "invalid configuration for admin site"
        end
-    | Some uuid ->
-       let db = Web_persist.get_password_filename uuid in
-       check_password_with_file db name password
+    | Some uuid -> Web_persist.check_password uuid ~user:name ~password
 
   let auth_system uuid a =
     let module X =

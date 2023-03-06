@@ -176,6 +176,10 @@ type credential_record = {
     cr_username : string option;
 }
 
+val check_password_with_file :
+  db:string -> name_or_email:string -> password:string ->
+  (string * string) option Lwt.t
+
 val has_explicit_weights : draft_voter list -> bool
 
 val default_contact : string

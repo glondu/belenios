@@ -111,10 +111,8 @@ val get_archive : uuid -> string option Lwt.t
 val archive_election : uuid -> unit Lwt.t
 val delete_election : uuid -> unit Lwt.t
 
-val get_password_filename : uuid -> string
-val regen_password :
-  (module Site_common_sig.ELECTION) ->
-  metadata -> string -> bool Lwt.t
+val check_password : uuid -> user:string -> password:string -> (string * string) option Lwt.t
+val regen_password : (module Site_common_sig.ELECTION) -> metadata -> string -> bool Lwt.t
 
 val get_private_creds_filename : uuid -> string
 val get_private_creds_downloaded : uuid -> bool Lwt.t

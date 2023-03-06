@@ -475,6 +475,33 @@ type credential_record = {
     cr_username : string option;
 }
 
+let check_password_with_file ~db ~name_or_email ~password =
+  let name_or_email = String.trim name_or_email |> String.lowercase_ascii in
+  let check_name_or_email =
+    if is_email name_or_email then
+      function
+      | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email ->
+         (* When authenticating as a voter, the username may be an email *)
+         true
+      | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = name_or_email ->
+         (* When authenticating as an admin, email is 4th CSV field *)
+         true
+      | _ -> false
+    else
+      function
+      | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email -> true
+      | _ -> false
+  in
+  let* db = Lwt_preemptive.detach Csv.load db in
+  match List.find_opt check_name_or_email db with
+  | Some (u :: salt :: hashed :: xs) ->
+     if sha256_hex (salt ^ String.trim password) = hashed then (
+       let email = match xs with [] -> "" | x :: _ -> x in
+       return_some (u, email)
+     ) else
+       return_none
+  | _ -> return_none
+
 let default_contact = ""
 
 let default_questions =
