@@ -44,7 +44,6 @@ val set_decryption_tokens : uuid -> decryption_tokens -> unit Lwt.t
 
 val get_raw_election : uuid -> string option Lwt.t
 
-val empty_metadata : metadata
 val get_election_metadata : uuid -> metadata Lwt.t
 
 val get_election_result : uuid -> string option Lwt.t
@@ -113,7 +112,6 @@ val archive_election : uuid -> unit Lwt.t
 val delete_election : uuid -> unit Lwt.t
 
 val get_password_filename : uuid -> string
-val dump_passwords : uuid -> string list list -> unit Lwt.t
 val regen_password :
   (module Site_common_sig.ELECTION) ->
   metadata -> string -> bool Lwt.t
@@ -121,7 +119,6 @@ val regen_password :
 val get_private_creds_filename : uuid -> string
 val get_private_creds_downloaded : uuid -> bool Lwt.t
 val set_private_creds_downloaded : uuid -> unit Lwt.t
-val clear_private_creds_downloaded : uuid -> unit Lwt.t
 
 val get_election_file : uuid -> election_file -> string
 
