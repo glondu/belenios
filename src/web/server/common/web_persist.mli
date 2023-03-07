@@ -25,7 +25,7 @@ open Common
 open Web_common
 open Web_serializable_t
 
-val get_spool_version : unit -> string list option Lwt.t
+val get_spool_version : unit -> int Lwt.t
 
 val get_draft_election : uuid -> draft_election option Lwt.t
 val set_draft_election : uuid -> draft_election -> unit Lwt.t

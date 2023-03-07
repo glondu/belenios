@@ -30,7 +30,10 @@ open Web_serializable_j
 open Web_common
 
 let get_spool_version () =
-  read_file !!"version"
+  let* x = read_file !!"version" in
+  match x with
+  | Some [version] -> return @@ int_of_string version
+  | _ -> return 0
 
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()

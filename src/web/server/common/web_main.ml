@@ -237,7 +237,7 @@ module Make () = struct
   let check_spool_version () =
     let* x = Web_persist.get_spool_version () in
     match x with
-    | Some ["1"] -> Lwt.return_unit
+    | 1 -> Lwt.return_unit
     | _ -> Lwt.fail (Failure "unknown spool version")
 
   let () = Api_elections.direct_voter_auth := Web_auth.direct_voter_auth
