@@ -125,7 +125,9 @@ let default_dates =
     e_auto_close = None;
   }
 
-let get_election_dates uuid = Spool.get_default ~default:default_dates ~uuid Spool.dates
+let get_election_dates uuid =
+  let* x = Spool.get ~uuid Spool.dates in
+  Lwt.return (Option.value ~default:default_dates x)
 
 let set_election_dates uuid x =
   let* () = Spool.set ~uuid Spool.dates x in
@@ -249,7 +251,7 @@ let get_partial_decryptions uuid =
 
 let get_private_key uuid = Spool.get ~uuid Spool.private_key
 
-let get_private_keys uuid = Spool.get_raw_list ~uuid Spool.private_keys
+let get_private_keys uuid = Spool.get ~uuid Spool.private_keys
 
 let empty_metadata = {
     e_owners = [];
@@ -262,7 +264,8 @@ let empty_metadata = {
   }
 
 let get_election_metadata uuid =
-  Spool.get_default ~default:empty_metadata ~uuid Spool.metadata
+  let* x = Spool.get ~uuid Spool.metadata in
+  Lwt.return (Option.value ~default:empty_metadata x)
 
 let get_owned_shuffles uuid =
   let* x = Web_events.get_roots ~uuid in
@@ -610,8 +613,13 @@ end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 
+let raw_get_voters ~uuid =
+  let* x = read_whole_file ~uuid "voters.txt" in
+  let&* x in
+  Lwt.return_some (Voter.list_of_string x)
+
 let raw_get_voter_cache uuid =
-  let* voters = Spool.get_voters ~uuid in
+  let* voters = raw_get_voters ~uuid in
   let voters = Option.value voters ~default:[] in
   let voter_map =
     List.fold_left
@@ -911,17 +919,23 @@ end
 
 module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
+let extended_records_filename = "extended_records.jsons"
+
 let raw_get_extended_records uuid =
-  Spool.get_fold_s_default ~uuid Spool.extended_records
-    (fun x accu ->
+  let* x = read_file ~uuid extended_records_filename in
+  let x = Option.value ~default:[] x in
+  Lwt_list.fold_left_s
+    (fun accu x ->
+      let x = extended_record_of_string x in
       return @@ SMap.add x.r_username (x.r_date, x.r_credential) accu
-    ) SMap.empty
+    ) SMap.empty x
 
 let dump_extended_records uuid rs =
   let rs = SMap.bindings rs in
   let extended_records =
     List.map (fun (r_username, (r_date, r_credential)) ->
         {r_username; r_date; r_credential}
+        |> string_of_extended_record
       ) rs
   in
   let records =
@@ -929,8 +943,8 @@ let dump_extended_records uuid rs =
         Printf.sprintf "%s %S" (string_of_datetime d) u
       ) rs
   in
-  let* () = Spool.set_list ~uuid Spool.extended_records extended_records in
-  Spool.set_list ~uuid Spool.records records
+  let* () = write_file ~uuid extended_records_filename extended_records in
+  write_file ~uuid (string_of_election_file ESRecords) records
 
 let extended_records_cache =
   new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
@@ -956,17 +970,23 @@ end
 
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
+let credential_mappings_filename = "credential_mappings.jsons"
+
 let raw_get_credential_mappings uuid =
-  Spool.get_fold_s_default ~uuid Spool.credential_mappings
-    (fun x accu -> return @@ SMap.add x.c_credential x.c_ballot accu)
-    SMap.empty
+  let* x = read_file ~uuid credential_mappings_filename in
+  let x = Option.value ~default:[] x in
+  Lwt_list.fold_left_s
+    (fun accu x ->
+      let x = credential_mapping_of_string x in
+      return @@ SMap.add x.c_credential x.c_ballot accu
+    ) SMap.empty x
 
 let dump_credential_mappings uuid xs =
   SMap.fold
     (fun c_credential c_ballot accu -> {c_credential; c_ballot} :: accu)
     xs []
-  |> List.rev
-  |> Spool.set_list ~uuid Spool.credential_mappings
+  |> List.rev_map string_of_credential_mapping
+  |> write_file ~uuid credential_mappings_filename
 
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
@@ -1109,7 +1129,7 @@ let compute_audit_cache uuid =
        "compute_cache: %s does not exist" (Uuid.unwrap uuid)
   | Some _ ->
      let* voters =
-       let* x = Spool.get_voters ~uuid in
+       let* x = raw_get_voters ~uuid in
        match x with
        | Some x -> return x
        | None -> failwith "voters are missing"
@@ -1212,18 +1232,32 @@ let get_archive uuid =
     Lwt.return_some archive_name
   ) else Lwt.return_none
 
+type spool_item =
+  | Spool_item : 'a Spool.t -> spool_item
+
 let delete_sensitive_data uuid =
-  let* () = cleanup_file (uuid /// "state.json") in
-  let* () = cleanup_file (uuid /// "decryption_tokens.json") in
-  let* () = cleanup_file (uuid /// "partial_decryptions.json") in
-  let* () = cleanup_file (uuid /// "extended_records.jsons") in
-  let* () = cleanup_file (uuid /// "credential_mappings.jsons") in
-  let* () = cleanup_file (uuid /// "public_creds.json") in
-  let* () = rmdir (uuid /// "ballots") in
-  let* () = cleanup_file (uuid /// "ballots_index.json") in
-  let* () = cleanup_file (uuid /// "private_key.json") in
-  let* () = cleanup_file (uuid /// "private_keys.jsons") in
-  Lwt.return_unit
+  let* () =
+    Lwt_list.iter_p
+    (fun (Spool_item x) -> Spool.del ~uuid x)
+    [
+      Spool_item Spool.state;
+      Spool_item Spool.private_key;
+      Spool_item Spool.private_keys;
+      Spool_item Spool.decryption_tokens;
+    ]
+  in
+  let* () =
+    Lwt_list.iter_p
+      (fun x -> cleanup_file (uuid /// x))
+      [
+        extended_records_filename;
+        credential_mappings_filename;
+        "partial_decryptions.json";
+        "public_creds.json";
+        "ballots_index.json";
+      ]
+  in
+  rmdir (uuid /// "ballots")
 
 let archive_election uuid =
   let* () = delete_sensitive_data uuid in
@@ -1304,26 +1338,29 @@ let delete_election uuid =
     }
   in
   let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
-  let files_to_delete = [
-      Uuid.unwrap uuid ^ ".bel";
-      "last_event.json";
-      "dates.json";
-      "metadata.json";
-      "passwords.csv";
-      "records";
-      "hide_result";
-      "shuffle_token";
-      "voters.txt";
-      "archive.zip";
-      "audit_cache.json";
-      Spool.filename Spool.skipped_shufflers;
+  let* () =
+    Lwt_list.iter_p
+    (fun (Spool_item x) -> Spool.del ~uuid x)
+    [
+      Spool_item Spool.last_event;
+      Spool_item Spool.dates;
+      Spool_item Spool.metadata;
+      Spool_item Spool.audit_cache;
+      Spool_item Spool.hide_result;
+      Spool_item Spool.shuffle_token;
+      Spool_item Spool.skipped_shufflers;
     ]
   in
   let* () =
     Lwt_list.iter_p
-      (fun x ->
-        cleanup_file (uuid /// x)
-      ) files_to_delete
+      (fun x -> cleanup_file (uuid /// x))
+      [
+        Uuid.unwrap uuid ^ ".bel";
+        "passwords.csv";
+        "records";
+        "voters.txt";
+        "archive.zip";
+      ]
   in
   clear_elections_by_owner_cache ()
 

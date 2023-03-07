@@ -23,35 +23,25 @@ open Belenios_core.Serializable_t
 open Web_serializable_t
 
 type 'a t
-type 'a list
-
-val filename : 'a t -> string
 
 val get : uuid:uuid -> 'a t -> 'a option Lwt.t
-val get_default : default:'a -> uuid:uuid -> 'a t -> 'a Lwt.t
-val get_raw_list : uuid:uuid -> string list -> string List.t option Lwt.t
-val get_fold_s : uuid:uuid -> 'a list -> ('a -> 'b -> 'b Lwt.t) -> 'b -> 'b option Lwt.t
-val get_fold_s_default : uuid:uuid -> 'a list -> ('a -> 'b -> 'b Lwt.t) -> 'b -> 'b Lwt.t
 val set : uuid:uuid -> 'a t -> 'a -> unit Lwt.t
-val set_list : uuid:uuid -> 'a list -> 'a List.t -> unit Lwt.t
 val del : uuid:uuid -> 'a t -> unit Lwt.t
 
+(* draft elections *)
 val draft : draft_election t
-val hide_result : datetime t
-val dates : election_dates t
-val state : election_state t
-val decryption_tokens : decryption_tokens t
-val metadata : metadata t
-val private_key : number t
-val private_keys : string list
-val skipped_shufflers : skipped_shufflers t
-val shuffle_token : shuffle_token t
-val extended_records : extended_record list
-val records : string list
-val credential_mappings : credential_mapping list
-val audit_cache : audit_cache t
-val chain_filename : uuid -> string
-val chain : uuid -> string t
-val last_event : last_event t
 
-val get_voters : uuid:uuid -> voter_list option Lwt.t
+(* sensitive data *)
+val state : election_state t
+val private_key : number t
+val private_keys : string list t
+val decryption_tokens : decryption_tokens t
+
+(* other data *)
+val last_event : last_event t
+val dates : election_dates t
+val metadata : metadata t
+val audit_cache : audit_cache t
+val hide_result : datetime t
+val shuffle_token : shuffle_token t
+val skipped_shufflers : skipped_shufflers t

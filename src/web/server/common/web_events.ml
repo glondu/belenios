@@ -127,6 +127,9 @@ let build_roots ~size ~pos filename =
   in
   Lwt.finalize (fun () -> loop empty_roots) (fun () -> close ic)
 
+let chain_filename uuid =
+  string_of_election_file (ESArchive uuid)
+
 let do_get_index ~uuid =
   let* last = Spool.get ~uuid Spool.last_event in
   let size, pos =
@@ -135,7 +138,7 @@ let do_get_index ~uuid =
     | Some x -> x.last_height + 100, x.last_pos
   in
   let ( ! ) x = uuid /// x in
-  let* map, roots, timestamp = build_roots ~size ~pos !(Spool.chain_filename uuid) in
+  let* map, roots, timestamp = build_roots ~size ~pos !(chain_filename uuid) in
   let remove () = Hashtbl.remove indexes uuid in
   let timeout = Lwt_timeout.create 3600 remove in
   let r = {timeout; map; roots; timestamp} in
@@ -209,7 +212,7 @@ let gethash ~uuid ~index ~filename x =
        (fun () -> close fd)
 
 let with_archive uuid default f =
-  let filename = Spool.chain_filename uuid in
+  let filename = chain_filename uuid in
   let* b = Lwt_unix.file_exists (uuid /// filename) in
   if b then f filename else Lwt.return default
 
@@ -270,7 +273,7 @@ let append ?(lock = true) ~uuid ?last ops =
   let last_hash = match last_hash with None -> assert false | Some x -> x in
   let items = List.rev items in
   let* last_pos, records =
-    raw_append ~uuid ~filename:(Spool.chain_filename uuid) ~timestamp:index.timestamp pos items
+    raw_append ~uuid ~filename:(chain_filename uuid) ~timestamp:index.timestamp pos items
   in
   let* () =
     Spool.set ~uuid Spool.last_event
