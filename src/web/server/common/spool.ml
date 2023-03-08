@@ -46,7 +46,7 @@ let get ~uuid file =
   match file with
   | File file ->
      begin
-       let* x = read_file_single_line ~uuid file.filename in
+       let* x = Filesystem.read_file_single_line ~uuid file.filename in
        let&* x in
        try Lwt.return_some (file.of_string x)
        with _ -> Lwt.return_none
@@ -55,12 +55,12 @@ let get ~uuid file =
 
 let set ~uuid file x =
   match file with
-  | File file -> write_file ~uuid file.filename [file.to_string x]
+  | File file -> Filesystem.write_file ~uuid file.filename [file.to_string x]
   | Abstract a -> a.set uuid x
 
 let del ~uuid file =
   match file with
-  | File file -> cleanup_file (uuid /// file.filename)
+  | File file -> Filesystem.cleanup_file (uuid /// file.filename)
   | Abstract a -> a.del uuid
 
 let make_file x = File x
@@ -116,9 +116,9 @@ let private_key =
 
 let private_keys =
   let filename = "private_keys.jsons" in
-  let get uuid = read_file ~uuid filename in
-  let set uuid x = write_file ~uuid filename x in
-  let del uuid = cleanup_file (uuid /// filename) in
+  let get uuid = Filesystem.read_file ~uuid filename in
+  let set uuid x = Filesystem.write_file ~uuid filename x in
+  let del uuid = Filesystem.cleanup_file (uuid /// filename) in
   Abstract {get; set; del}
 
 let skipped_shufflers =

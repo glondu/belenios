@@ -142,16 +142,6 @@ val get_languages : string list option -> string list
 val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
 
-val file_exists : string -> bool Lwt.t
-val read_file : ?uuid:uuid -> string -> string list option Lwt.t
-val read_whole_file : ?uuid:uuid -> string -> string option Lwt.t
-val read_file_single_line : ?uuid:uuid -> string -> string option Lwt.t
-val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
-val write_whole_file : ?uuid:uuid -> string -> string -> unit Lwt.t
-
-val cleanup_file : string -> unit Lwt.t
-val rmdir : string -> unit Lwt.t
-
 val urlize : string -> string
 val unurlize : string -> string
 

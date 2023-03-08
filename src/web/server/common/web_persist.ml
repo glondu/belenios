@@ -30,7 +30,7 @@ open Web_serializable_j
 open Web_common
 
 let get_spool_version () =
-  let* x = read_file !!"version" in
+  let* x = Filesystem.read_file !!"version" in
   match x with
   | Some [version] -> return @@ int_of_string version
   | _ -> return 0
@@ -415,8 +415,8 @@ let internal_release_tally ~force uuid =
      let* () = set_election_state uuid `Tallied in
      let* dates = get_election_dates uuid in
      let* () = set_election_dates uuid {dates with e_tally = Some (Datetime.now ())} in
-     let* () = cleanup_file (uuid /// "decryption_tokens.json") in
-     let* () = cleanup_file (uuid /// "shuffles.jsons") in
+     let* () = Filesystem.cleanup_file (uuid /// "decryption_tokens.json") in
+     let* () = Filesystem.cleanup_file (uuid /// "shuffles.jsons") in
      let* () = clear_shuffle_token uuid in
      Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
@@ -614,7 +614,7 @@ end
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 
 let get_voters_file uuid =
-  read_whole_file ~uuid (string_of_election_file ESVoters)
+  Filesystem.read_whole_file ~uuid (string_of_election_file ESVoters)
 
 let raw_get_voters ~uuid =
   let* x = get_voters_file uuid in
@@ -677,7 +677,7 @@ let get_public_creds uuid =
   | Some x -> return @@ public_credentials_of_string x
 
 let raw_get_credential_cache uuid =
-  let* x = read_file_single_line ~uuid "public_creds.json" in
+  let* x = Filesystem.read_file_single_line ~uuid "public_creds.json" in
   match x with
   | None ->
      let* x = get_public_creds uuid in
@@ -925,7 +925,7 @@ module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 let extended_records_filename = "extended_records.jsons"
 
 let raw_get_extended_records uuid =
-  let* x = read_file ~uuid extended_records_filename in
+  let* x = Filesystem.read_file ~uuid extended_records_filename in
   let x = Option.value ~default:[] x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -946,8 +946,8 @@ let dump_extended_records uuid rs =
         Printf.sprintf "%s %S" (string_of_datetime d) u
       ) rs
   in
-  let* () = write_file ~uuid extended_records_filename extended_records in
-  write_file ~uuid (string_of_election_file ESRecords) records
+  let* () = Filesystem.write_file ~uuid extended_records_filename extended_records in
+  Filesystem.write_file ~uuid (string_of_election_file ESRecords) records
 
 let extended_records_cache =
   new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
@@ -976,7 +976,7 @@ module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 let credential_mappings_filename = "credential_mappings.jsons"
 
 let raw_get_credential_mappings uuid =
-  let* x = read_file ~uuid credential_mappings_filename in
+  let* x = Filesystem.read_file ~uuid credential_mappings_filename in
   let x = Option.value ~default:[] x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -989,7 +989,7 @@ let dump_credential_mappings uuid xs =
     (fun c_credential c_ballot accu -> {c_credential; c_ballot} :: accu)
     xs []
   |> List.rev_map string_of_credential_mapping
-  |> write_file ~uuid credential_mappings_filename
+  |> Filesystem.write_file ~uuid credential_mappings_filename
 
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
@@ -1178,7 +1178,7 @@ let copy_file src dst =
   chars_of_file src |> chars_to_file dst
 
 let try_copy_file src dst =
-  let* b = file_exists src in
+  let* b = Filesystem.file_exists src in
   if b then copy_file src dst else return_unit
 
 let make_archive uuid =
@@ -1219,7 +1219,7 @@ let make_archive uuid =
      let fname_new = fname ^ ".new" in
      let* () = copy_file (temp_dir // "archive.zip") fname_new in
      let* () = Lwt_unix.rename fname_new fname in
-     rmdir temp_dir
+     Filesystem.rmdir temp_dir
   | _ ->
      Printf.ksprintf Ocsigen_messages.errlog
        "Error while creating archive.zip for election %s, temporary directory left in %s"
@@ -1230,7 +1230,7 @@ let get_archive uuid =
   let* state = get_election_state uuid in
   if state = `Archived then (
     let archive_name = uuid /// "archive.zip" in
-    let* b = file_exists archive_name in
+    let* b = Filesystem.file_exists archive_name in
     let* () = if not b then make_archive uuid else return_unit in
     Lwt.return_some archive_name
   ) else Lwt.return_none
@@ -1251,7 +1251,7 @@ let delete_sensitive_data uuid =
   in
   let* () =
     Lwt_list.iter_p
-      (fun x -> cleanup_file (uuid /// x))
+      (fun x -> Filesystem.cleanup_file (uuid /// x))
       [
         extended_records_filename;
         credential_mappings_filename;
@@ -1260,7 +1260,7 @@ let delete_sensitive_data uuid =
         "ballots_index.json";
       ]
   in
-  rmdir (uuid /// "ballots")
+  Filesystem.rmdir (uuid /// "ballots")
 
 let archive_election uuid =
   let* () = delete_sensitive_data uuid in
@@ -1340,7 +1340,7 @@ let delete_election uuid =
       de_has_weights;
     }
   in
-  let* () = write_file ~uuid "deleted.json" [string_of_deleted_election de] in
+  let* () = Filesystem.write_file ~uuid "deleted.json" [string_of_deleted_election de] in
   let* () =
     Lwt_list.iter_p
     (fun (Spool_item x) -> Spool.del ~uuid x)
@@ -1356,7 +1356,7 @@ let delete_election uuid =
   in
   let* () =
     Lwt_list.iter_p
-      (fun x -> cleanup_file (uuid /// x))
+      (fun x -> Filesystem.cleanup_file (uuid /// x))
       [
         Uuid.unwrap uuid ^ ".bel";
         "passwords.csv";
@@ -1382,7 +1382,7 @@ let rec replace_password username ((salt, hashed) as p) = function
 
 let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db |>
-    write_file ~uuid "passwords.csv"
+    Filesystem.write_file ~uuid "passwords.csv"
 
 let regen_password election metadata user =
   let user = String.lowercase_ascii user in
@@ -1410,13 +1410,13 @@ let get_private_creds_filename uuid =
   uuid /// "private_creds.txt"
 
 let get_private_creds_downloaded uuid =
-  file_exists (uuid /// "private_creds.downloaded")
+  Filesystem.file_exists (uuid /// "private_creds.downloaded")
 
 let set_private_creds_downloaded uuid =
-  write_file ~uuid "private_creds.downloaded" []
+  Filesystem.write_file ~uuid "private_creds.downloaded" []
 
 let clear_private_creds_downloaded uuid =
-  cleanup_file (uuid /// "private_creds.downloaded")
+  Filesystem.cleanup_file (uuid /// "private_creds.downloaded")
 
 let get_election_file uuid f =
   uuid /// string_of_election_file f
@@ -1583,7 +1583,7 @@ let validate_election uuid se s =
   (* initialize credentials *)
   let* public_creds =
     let fname = uuid /// "public_creds.json" in
-    let* file = read_file_single_line fname in
+    let* file = Filesystem.read_file_single_line fname in
     match file with
     | Some x ->
        let x = public_credentials_of_string x |> List.map strip_cred in
@@ -1624,9 +1624,9 @@ let validate_election uuid se s =
        create_file "private_keys.jsons" (fun x -> x) y
   in
   (* clean up draft *)
-  let* () = cleanup_file (uuid /// "draft.json") in
+  let* () = Filesystem.cleanup_file (uuid /// "draft.json") in
   (* clean up private credentials, if any *)
-  let* () = cleanup_file (uuid /// "private_creds.txt") in
+  let* () = Filesystem.cleanup_file (uuid /// "private_creds.txt") in
   let* () = clear_private_creds_downloaded uuid in
   (* write passwords *)
   let* () =
@@ -1648,7 +1648,7 @@ let validate_election uuid se s =
   set_election_dates uuid {dates with e_finalization = Some (Datetime.now ())}
 
 let delete_draft uuid =
-  let* () = rmdir !!(Uuid.unwrap uuid) in
+  let* () = Filesystem.rmdir !!(Uuid.unwrap uuid) in
   clear_elections_by_owner_cache ()
 
 let create_draft uuid se =
@@ -1784,13 +1784,13 @@ let set_election_automatic_dates uuid d =
 
 let set_draft_public_credentials uuid public_creds =
   let public_creds = string_of_public_credentials public_creds in
-  write_file ~uuid "public_creds.json" [public_creds]
+  Filesystem.write_file ~uuid "public_creds.json" [public_creds]
 
 let get_draft_public_credentials uuid =
-  read_whole_file ~uuid "public_creds.json"
+  Filesystem.read_whole_file ~uuid "public_creds.json"
 
 let get_draft_private_credentials uuid =
-  read_whole_file ~uuid "private_creds.txt"
+  Filesystem.read_whole_file ~uuid "private_creds.txt"
 
 let get_records uuid =
-  read_file ~uuid (string_of_election_file ESRecords)
+  Filesystem.read_file ~uuid (string_of_election_file ESRecords)

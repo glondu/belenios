@@ -145,7 +145,7 @@ module Make () = struct
     Lwt_main.run
       (match !source_file with
        | Some f ->
-          let* b = file_exists f in
+          let* b = Filesystem.file_exists f in
           if b then (
             return f
           ) else (

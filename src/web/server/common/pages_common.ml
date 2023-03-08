@@ -70,7 +70,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
          let* b = Lwt_unix.file_exists f' in
          return (if b then f' else f)
        in
-       let* file = read_file f in
+       let* file = Filesystem.read_file f in
        match file with
        | None -> return default
        | Some x -> return @@ Unsafe.data (String.concat "\n" x)
