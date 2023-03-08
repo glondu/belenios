@@ -325,12 +325,6 @@ let get_credentials_token se =
   else
     Lwt.return_some se.se_public_creds
 
-let get_credentials_public uuid =
-  read_whole_file ~uuid "public_creds.json"
-
-let get_credentials_private uuid =
-  read_whole_file ~uuid "private_creds.txt"
-
 type generate_credentials_on_server_error =
   [ `NoVoters
   | `TooManyVoters
@@ -382,8 +376,7 @@ let generate_credentials_on_server send uuid se =
              ^ Printf.sprintf ",%s" login
            )
     in
-    let public_creds = string_of_public_credentials public_creds in
-    let* () = write_file ~uuid "public_creds.json" [public_creds] in
+    let* () = Web_persist.set_draft_public_credentials uuid public_creds in
     se.se_public_creds_received <- true;
     let* () = Web_persist.set_draft_election uuid se in
     Lwt.return (Ok jobs)
@@ -443,8 +436,7 @@ let submit_public_credentials uuid se credentials =
         i + 1, SSet.add cred_s accu
       ) (0, SSet.empty) credentials
   in
-  let credentials = string_of_public_credentials credentials in
-  let* () = write_file ~uuid "public_creds.json" [credentials] in
+  let* () = Web_persist.set_draft_public_credentials uuid credentials in
   se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se
 
@@ -906,13 +898,13 @@ let dispatch_credentials ~token endpoint method_ body uuid se =
      begin
        let@ _ = with_administrator token se in
        match method_ with
-       | `GET -> handle_get_option (fun () -> get_credentials_private uuid)
+       | `GET -> handle_get_option (fun () -> Web_persist.get_draft_private_credentials uuid)
        | _ -> method_not_allowed
      end
   | ["public"] ->
      begin
        match method_ with
-       | `GET -> handle_get_option (fun () -> get_credentials_public uuid)
+       | `GET -> handle_get_option (fun () -> Web_persist.get_draft_public_credentials uuid)
        | `POST ->
           let@ who = with_administrator_or_credential_authority token se in
           if se.se_public_creds_received then (

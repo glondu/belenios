@@ -277,7 +277,7 @@ let split_voting_record =
   }
 
 let get_records uuid =
-  let* x = read_file ~uuid (string_of_election_file ESRecords) in
+  let* x = Web_persist.get_records uuid in
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
@@ -409,7 +409,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
        match method_ with
        | `GET ->
           let@ () = handle_generic_error in
-          let* x = read_whole_file ~uuid (string_of_election_file ESVoters) in
+          let* x = Web_persist.get_voters_file uuid in
           begin
             match x with
             | None -> not_found

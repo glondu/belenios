@@ -1186,7 +1186,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
         let@ _ = with_metadata_check_owner uuid in
         let* voters = Web_persist.get_voters uuid in
         let* voters =
-          let* file = read_file ~uuid (string_of_election_file ESRecords) in
+          let* file = Web_persist.get_records uuid in
           match file with
           | Some rs ->
              return (

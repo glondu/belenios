@@ -613,8 +613,11 @@ end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 
+let get_voters_file uuid =
+  read_whole_file ~uuid (string_of_election_file ESVoters)
+
 let raw_get_voters ~uuid =
-  let* x = read_whole_file ~uuid "voters.txt" in
+  let* x = get_voters_file uuid in
   let&* x in
   Lwt.return_some (Voter.list_of_string x)
 
@@ -1778,3 +1781,16 @@ let set_election_automatic_dates uuid d =
   let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
   let* dates = get_election_dates uuid in
   set_election_dates uuid {dates with e_auto_open; e_auto_close}
+
+let set_draft_public_credentials uuid public_creds =
+  let public_creds = string_of_public_credentials public_creds in
+  write_file ~uuid "public_creds.json" [public_creds]
+
+let get_draft_public_credentials uuid =
+  read_whole_file ~uuid "public_creds.json"
+
+let get_draft_private_credentials uuid =
+  read_whole_file ~uuid "private_creds.txt"
+
+let get_records uuid =
+  read_file ~uuid (string_of_election_file ESRecords)
