@@ -97,12 +97,12 @@ let post_with_token ?ifmatch x url =
 
 let bad_result = Lwt.return (Error `BadResult)
 
-let get of_string url =
+let get ?(notoken = false) of_string url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers = ["Authorization", "Bearer " ^ !api_token] in
+  let headers = if notoken then None else Some ["Authorization", "Bearer " ^ !api_token] in
   Printf.ksprintf
     (fun x ->
-      let* x = perform_raw_url ~headers (api_root ^ x) in
+      let* x = perform_raw_url ?headers (api_root ^ x) in
       match x.code with
       | 200 ->
          let@ x = Option.unwrap bad_result (Option.wrap of_string x.content) in

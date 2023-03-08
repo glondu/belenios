@@ -34,7 +34,7 @@ module CG = Belenios_core.Credential.MakeGenerate (Random)
 
 let show main uuid =
   let@ () = show_in main in
-  let* x = get draft_of_string "drafts/%s" uuid in
+  let* x = get ~notoken:true draft_of_string "drafts/%s" uuid in
   match x with
   | Error e ->
      let msg =
