@@ -1792,5 +1792,8 @@ let get_draft_public_credentials uuid =
 let get_draft_private_credentials uuid =
   Filesystem.read_whole_file ~uuid "private_creds.txt"
 
+let set_draft_private_credentials uuid private_creds =
+  Filesystem.write_whole_file ~uuid "private_creds.txt" private_creds
+
 let get_records uuid =
   Filesystem.read_file ~uuid (string_of_election_file ESRecords)

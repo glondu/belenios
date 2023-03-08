@@ -366,7 +366,7 @@ let generate_credentials_on_server send uuid se =
       List.rev private_creds
       |> string_of_private_credentials
     in
-    let* () = Filesystem.write_whole_file ~uuid "private_creds.txt" private_creds in
+    let* () = Web_persist.set_draft_private_credentials uuid private_creds in
     let public_creds =
       CMap.bindings public_creds
       |> List.map
