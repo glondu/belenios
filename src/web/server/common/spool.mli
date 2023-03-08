@@ -30,6 +30,8 @@ val del : uuid:uuid -> 'a t -> unit Lwt.t
 
 (* draft elections *)
 val draft : draft_election t
+val draft_public_credentials : string t
+val draft_private_credentials : string t
 
 (* sensitive data *)
 val state : election_state t

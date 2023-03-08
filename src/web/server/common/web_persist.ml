@@ -1784,16 +1784,16 @@ let set_election_automatic_dates uuid d =
 
 let set_draft_public_credentials uuid public_creds =
   let public_creds = string_of_public_credentials public_creds in
-  Filesystem.write_file ~uuid "public_creds.json" [public_creds]
+  Spool.set ~uuid Spool.draft_public_credentials public_creds
 
 let get_draft_public_credentials uuid =
-  Filesystem.read_whole_file ~uuid "public_creds.json"
+  Spool.get ~uuid Spool.draft_public_credentials
 
 let get_draft_private_credentials uuid =
-  Filesystem.read_whole_file ~uuid "private_creds.txt"
+  Spool.get ~uuid Spool.draft_private_credentials
 
-let set_draft_private_credentials uuid private_creds =
-  Filesystem.write_whole_file ~uuid "private_creds.txt" private_creds
+let set_draft_private_credentials uuid =
+  Spool.set ~uuid Spool.draft_private_credentials
 
 let get_records uuid =
   Filesystem.read_file ~uuid (string_of_election_file ESRecords)

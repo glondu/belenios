@@ -72,6 +72,20 @@ let draft =
     filename = "draft.json";
   } |> make_file
 
+let draft_public_credentials =
+  let filename = "public_creds.json" in
+  let get uuid = Filesystem.read_whole_file ~uuid filename in
+  let set uuid x = Filesystem.write_file ~uuid filename [x] in
+  let del uuid = Filesystem.cleanup_file (uuid /// filename) in
+  Abstract {get; set; del}
+
+let draft_private_credentials =
+  let filename = "private_creds.txt" in
+  let get uuid = Filesystem.read_whole_file ~uuid filename in
+  let set uuid x = Filesystem.write_whole_file ~uuid filename x in
+  let del uuid = Filesystem.cleanup_file (uuid /// filename) in
+  Abstract {get; set; del}
+
 let hide_result =
   {
     of_string = datetime_of_string;
