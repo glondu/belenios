@@ -415,8 +415,7 @@ let internal_release_tally ~force uuid =
      let* () = set_election_state uuid `Tallied in
      let* dates = get_election_dates uuid in
      let* () = set_election_dates uuid {dates with e_tally = Some (Datetime.now ())} in
-     let* () = Filesystem.cleanup_file (uuid /// "decryption_tokens.json") in
-     let* () = Filesystem.cleanup_file (uuid /// "shuffles.jsons") in
+     let* () = Spool.del ~uuid Spool.decryption_tokens in
      let* () = clear_shuffle_token uuid in
      Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
@@ -1260,7 +1259,7 @@ let delete_sensitive_data uuid =
         "ballots_index.json";
       ]
   in
-  Filesystem.rmdir (uuid /// "ballots")
+  Lwt.return_unit
 
 let archive_election uuid =
   let* () = delete_sensitive_data uuid in
@@ -1624,9 +1623,9 @@ let validate_election uuid se s =
        create_file "private_keys.jsons" (fun x -> x) y
   in
   (* clean up draft *)
-  let* () = Filesystem.cleanup_file (uuid /// "draft.json") in
+  let* () = Spool.del ~uuid Spool.draft in
   (* clean up private credentials, if any *)
-  let* () = Filesystem.cleanup_file (uuid /// "private_creds.txt") in
+  let* () = Spool.del ~uuid Spool.draft_private_credentials in
   let* () = clear_private_creds_downloaded uuid in
   (* write passwords *)
   let* () =
