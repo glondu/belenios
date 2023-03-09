@@ -65,13 +65,10 @@ val get_private_key : uuid -> number option Lwt.t
 val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 
-type voters =
-  {
-    has_explicit_weights : bool;
-    username_or_address : [`Username | `Address];
-    voter_map : Voter.t SMap.t;
-  }
-val get_voters : uuid -> voters Lwt.t
+val get_has_explicit_weights : uuid -> bool Lwt.t
+val get_username_or_address : uuid -> [`Username | `Address] Lwt.t
+val get_voter : uuid -> string -> Voter.t option Lwt.t
+val get_all_voters : uuid -> Voter.t list Lwt.t
 
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t

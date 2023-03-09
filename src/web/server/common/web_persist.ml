@@ -615,14 +615,14 @@ module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 let get_voters_file uuid =
   Filesystem.read_whole_file ~uuid (string_of_election_file ESVoters)
 
-let raw_get_voters ~uuid =
+let get_all_voters uuid =
   let* x = get_voters_file uuid in
-  let&* x in
-  Lwt.return_some (Voter.list_of_string x)
+  match x with
+  | None -> Lwt.return []
+  | Some x -> Lwt.return (Voter.list_of_string x)
 
 let raw_get_voter_cache uuid =
-  let* voters = raw_get_voters ~uuid in
-  let voters = Option.value voters ~default:[] in
+  let* voters = get_all_voters uuid in
   let voter_map =
     List.fold_left
       (fun accu x ->
@@ -655,6 +655,18 @@ let get_voters uuid =
   Lwt.catch
     (fun () -> voter_cache#find uuid)
     (fun _ -> Lwt.return dummy_voters)
+
+let get_has_explicit_weights uuid =
+  let* x = get_voters uuid in
+  Lwt.return x.has_explicit_weights
+
+let get_username_or_address uuid =
+  let* x = get_voters uuid in
+  Lwt.return x.username_or_address
+
+let get_voter uuid id =
+  let* x = get_voters uuid in
+  Lwt.return @@ SMap.find_opt (String.lowercase_ascii id) x.voter_map
 
 type cred_cache =
   {
@@ -1130,12 +1142,7 @@ let compute_audit_cache uuid =
      Printf.ksprintf failwith
        "compute_cache: %s does not exist" (Uuid.unwrap uuid)
   | Some _ ->
-     let* voters =
-       let* x = raw_get_voters ~uuid in
-       match x with
-       | Some x -> return x
-       | None -> failwith "voters are missing"
-     in
+     let* voters = get_all_voters uuid in
      let cache_voters_hash = Hash.hash_string (Voter.list_to_string voters) in
      let* shuffles =
        let* x = get_shuffles uuid in

@@ -1184,7 +1184,14 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     Any.register ~service:election_missing_voters
       (fun (uuid, ()) () ->
         let@ _ = with_metadata_check_owner uuid in
-        let* voters = Web_persist.get_voters uuid in
+        let* voters = Web_persist.get_all_voters uuid in
+        let voters =
+          List.fold_left
+            (fun accu x ->
+              let _, login, _ = Voter.get x in
+              SMap.add (Stdlib.String.lowercase_ascii login) x accu
+            ) SMap.empty voters
+        in
         let* voters =
           let* file = Web_persist.get_records uuid in
           match file with
@@ -1194,9 +1201,9 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
                      let s = Pcre.exec ~rex r in
                      let v = Pcre.get_substring s 1 in
                      SMap.remove (Stdlib.String.lowercase_ascii v) accu
-                   ) voters.voter_map rs
+                   ) voters rs
                )
-          | None -> return voters.voter_map
+          | None -> return voters
         in
         let buf = Buffer.create 128 in
         SMap.iter (fun v _ ->

@@ -2433,8 +2433,8 @@ module Make
             ]
         ) records
     in
-    let* voters = Web_persist.get_voters uuid in
-    let nvoters = SMap.cardinal voters.voter_map in
+    let* voters = Web_persist.get_all_voters uuid in
+    let nvoters = List.length voters in
     let summary =
       div [
           Printf.ksprintf txt

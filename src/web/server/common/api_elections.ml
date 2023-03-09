@@ -284,14 +284,13 @@ let get_records uuid =
 let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.election.e_uuid in
-  let* voters = Web_persist.get_voters uuid in
   let* email, login, weight =
-    let x = SMap.find_opt (String.lowercase_ascii user.user_name) voters.voter_map in
+    let* x = Web_persist.get_voter uuid user.user_name in
     match x with
     | Some x -> Lwt.return @@ Voter.get x
     | None -> fail UnauthorizedVoter
   in
-  let show_weight = voters.has_explicit_weights in
+  let* show_weight = Web_persist.get_has_explicit_weights uuid in
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state uuid in

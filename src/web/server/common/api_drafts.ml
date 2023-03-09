@@ -722,8 +722,7 @@ let merge_voters a b f =
   loop weights (List.rev a) b
 
 let import_voters uuid se from =
-  let* voters = Web_persist.get_voters from in
-  let voters = SMap.bindings voters.voter_map |> List.map snd in
+  let* voters = Web_persist.get_all_voters from in
   let* passwords = Web_persist.get_passwords from in
   let get_password =
     match passwords with

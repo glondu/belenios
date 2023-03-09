@@ -105,9 +105,8 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
       match uuid with
       | None -> return ((if is_email name then Some name else None), `Site)
       | Some uuid ->
-         let* voters = Web_persist.get_voters uuid in
          let* address =
-           let x = SMap.find_opt (String.lowercase_ascii name) voters.voter_map in
+           let* x = Web_persist.get_voter uuid name in
            match x with
            | None -> Lwt.return_none
            | Some v ->
