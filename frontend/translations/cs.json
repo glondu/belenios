@@ -11,7 +11,7 @@
     "encrypted_ballot_is": "Zašifrovaný hlasovací lístek:",
     "previous_button_label": "Předchozí",
     "copy_to_clipboard_label": "Kopírovat",
-    "ask_to_save_your_smart_ballot_tracker": "Ulož jej, abys později mohl zkontrolovat, že tvůj hlas byl započten.",
+    "ask_to_save_your_smart_ballot_tracker": "Ulož jej, abys později mohl(a) ověřit , že tvůj hlas byl započten.",
     "your_smart_ballot_tracker_is": "Tvůj kód pro kontrolu chytré volby je:",
     "your_ballot_has_been_encrypted": "Tvůj hlasovací lístek byl zašifrován, ale ještě nebyl odevzdán!",
     "your_smart_ballot_tracker_has_been_copied": "Tvůj kód pro kontrolu chytré volby byl zkopírován do schránky tvého zařízení. Můžeš nyní otevřít textový soubor a vložit jej do něj (v závislosti na zařízení můžeš vložit stisknutím CTRL-V, CMD-V nebo dlouhým stiskem a volbou Vložit).",
