@@ -743,14 +743,6 @@ if __name__ == "__main__":
     settings.ADMINISTRATOR_EMAIL_ADDRESS = os.getenv('ADMINISTRATOR_EMAIL_ADDRESS', settings.ADMINISTRATOR_EMAIL_ADDRESS)
     settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS = os.getenv('CREDENTIAL_AUTHORITY_EMAIL_ADDRESS', settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
     # TODO: settings.TRUSTEES_EMAIL_ADDRESSES (it cannot be manipulated the same way because it is an array)
-
-    if os.getenv('BOOTH_VERSION', None):
-        input_booth_version = os.getenv('BOOTH_VERSION')
-        if hasattr(settings.BOOTH_VERSIONS, input_booth_version):
-            settings.BOOTH_VERSION = getattr(settings.BOOTH_VERSION, input_booth_version)
-        else:
-            raise Exception("Error: Unknown value for BOOTH_VERSION:", input_booth_version)
-
     console_log("USE_HEADLESS_BROWSER:", settings.USE_HEADLESS_BROWSER)
     console_log("SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH:", settings.SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH)
     console_log("WAIT_TIME_BETWEEN_EACH_STEP:", settings.WAIT_TIME_BETWEEN_EACH_STEP)
@@ -768,7 +760,5 @@ if __name__ == "__main__":
     console_log("ADMINISTRATOR_EMAIL_ADDRESS:", settings.ADMINISTRATOR_EMAIL_ADDRESS)
     console_log("CREDENTIAL_AUTHORITY_EMAIL_ADDRESS:", settings.CREDENTIAL_AUTHORITY_EMAIL_ADDRESS)
     console_log("TRUSTEES_EMAIL_ADDRESSES:", settings.TRUSTEES_EMAIL_ADDRESSES)
-
-    console_log("BOOTH_VERSION:", settings.BOOTH_VERSION)
 
     unittest.main()

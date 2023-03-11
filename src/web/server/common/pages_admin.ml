@@ -393,16 +393,19 @@ module Make
           "draft", "1";
         ]
     in
-    let Booth election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
-    let service =
-      Eliom_uri.make_string_uri
-        ~service:(election_vote ()) ~absolute:true () |> rewrite_prefix
-    in
-    span [
-        direct_a (service ^ "#" ^ hash) (s_ "Preview booth");
-        txt " ";
-        txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "123-456-789-abc-deN");
-      ]
+    match get_booth_index metadata.e_booth_version with
+    | Some i ->
+       let Booth election_vote = fst booths.(i) in
+       let service =
+         Eliom_uri.make_string_uri
+           ~service:(election_vote ()) ~absolute:true () |> rewrite_prefix
+       in
+       span [
+           direct_a (service ^ "#" ^ hash) (s_ "Preview booth");
+           txt " ";
+           txt (Printf.sprintf (f_ "(you can use any credential such as %s).") "123-456-789-abc-deN");
+         ]
+    | None -> span [txt @@ s_ "Unsupported booth version"]
 
   let election_draft uuid se () =
     let* l = get_preferred_gettext () in

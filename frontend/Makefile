@@ -17,7 +17,7 @@ INITIAL_TRANSLATIONS_FOLDER := translations
 PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/frontend/translations
 
 # The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server` to install Belenios.
-install: site.bundle.css booth.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
+install: site.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth
 	cp *.bundle.css $(DESTDIR)
 	cp -r booth/bundle.js booth/app.bundle.css $(PUBLIC_INTERNAL_JS_FOLDER)/booth/
@@ -36,9 +36,6 @@ booth/bundle.js: booth/dist/$(BUNDLE)
 
 site.bundle.css: package-lock.json $(CSS_DEPS)
 	NODE_PATH=$(CURDIR)/node_modules nodejs ./bundle-css.js ../src/web/static/responsive_site.css > $@
-
-booth.bundle.css: package-lock.json $(CSS_DEPS)
-	NODE_PATH=$(CURDIR)/node_modules nodejs ./bundle-css.js ../src/web/static/booth.css > $@
 
 booth/app.bundle.css: package-lock.json $(CSS_DEPS)
 	NODE_PATH=$(CURDIR)/node_modules nodejs ./bundle-css.js booth/app.css > $@

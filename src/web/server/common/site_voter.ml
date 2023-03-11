@@ -64,12 +64,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Site_admin : Si
       )
 
   let () =
-    Any.register ~service:booth_v1
-      (fun () () ->
-        let* () = Eliom_reference.unset Web_state.ballot in
-        Pages_voter.booth () >>= Html.send)
-
-  let () =
     Any.register ~service:election_cast
       (fun uuid () ->
         let@ election = with_election uuid in

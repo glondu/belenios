@@ -101,8 +101,6 @@ module Make () = struct
   let election_auto_post = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:(string "open" ** string "close") ()
   let election_delete = create_attached_post ~csrf_safe:true ~fallback:election_admin ~post_params:unit ()
 
-  let booth_v1 = create ~path:(Path ["vote.html"]) ~meth:(Get unit) ()
-
   let booth_v2 () =
     Eliom_service.preapply ~service:(Eliom_service.static_dir ())
       ["static"; "frontend"; "booth"; "vote.html"]
@@ -116,7 +114,6 @@ module Make () = struct
 
   let booths =
     [|
-      Booth (fun () -> booth_v1), "Version 1";
       Booth booth_v2, "Version 2";
     |]
 

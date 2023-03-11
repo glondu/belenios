@@ -396,8 +396,8 @@ let is_group_fixed se =
      | `Threshold x -> x.dtp_trustees <> []
 
 let get_booth_index = function
-  | None -> 0
-  | Some i -> i - 1
+  | Some 2 -> Some 0
+  | _ -> None
 
 let compute_hash_link ~service ~uuid ~token =
   Eliom_uri.make_string_uri ~absolute:true ~service ()
@@ -475,4 +475,4 @@ let days_to_publish_result = 7
 let max_election_name_size = 80
 let max_total_weight = 100_000
 
-let supported_booth_versions = [2; 1]
+let supported_booth_versions = [2]

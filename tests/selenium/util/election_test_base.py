@@ -308,11 +308,7 @@ pris en compte.
         timeout = settings.EXPLICIT_WAIT_TIMEOUT
 
         if direct:
-            booth_url = None
-            if settings.BOOTH_VERSION == settings.BOOTH_VERSIONS.RESPONSIVE_BOOTH:
-                booth_url = settings.SERVER_URL + "/static/frontend/booth/vote.html#" + urlencode({"uuid": self.election_id, "lang": "en"})
-            else:
-                booth_url = settings.SERVER_URL + "/vote.html#" + urlencode({"uuid": self.election_id})
+            booth_url = settings.SERVER_URL + "/static/frontend/booth/vote.html#" + urlencode({"uuid": self.election_id, "lang": "en"})
             browser.get(booth_url)
 
         else:
@@ -330,7 +326,7 @@ pris en compte.
 
         wait_a_bit()
 
-        if settings.BOOTH_VERSION == settings.BOOTH_VERSIONS.RESPONSIVE_BOOTH:
+        if True: # new booth
             # A loading screen appears, then another screen appears. It contains an input for credential and a "Next" button. He types his credential in the input field, and clicks on the "Next" button.
             step_1_page = ResponsiveBoothStep1Page(browser, timeout)
             step_1_page.verify_page()
@@ -394,62 +390,6 @@ pris en compte.
 
             # import time
             # time.sleep(1000)
-        else:
-            # A loading screen appears, then another screen appears. He clicks on the "Here" button. A modal opens (it is an HTML modal created using Window.prompt()), with an input field. He types his credential.
-            step_1_page = NormalVoteStep1Page(browser, timeout)
-            step_1_page.verify_page()
-            step_1_page.click_on_here_button_and_type_voter_credential(voter["credential"])
-
-            wait_a_bit()
-
-            # A new screen appears, which has a title "Step 2/6: Answer to questions", and a content:
-            # "Question 1?"
-            # "Question #1 of 1 — select between 1 and 2 answer(s)"
-            # [ ] "Answer 1"
-            # [ ] "Answer 2"
-            # [Next]
-            # (where "[ ]" is a checkbox, and [Next] is a button)
-            step_2_page = NormalVoteStep2Page(browser, timeout)
-            step_2_page.verify_page()
-
-            # He fills his votes to each answer of the question
-            vote_data = voter["votes"]
-            step_2_page.fill_vote_form(vote_data)
-
-            wait_a_bit()
-
-            # He clicks on the "Next" button
-            step_2_page.click_on_next_button()
-
-            wait_a_bit()
-
-            """
-            A new screen appears, showing:
-
-            Step 3/6: Review and encrypt
-            Question 1?
-            - Answer 1
-
-            Your ballot has been encrypted, but has not been cast yet!
-
-            Your smart ballot tracker is sLRilXoAYcodIrjWrOqPrVXLNlRyCJAqFeeHZ4WCajU
-
-            We invite you to save it in order to check later that it is taken into account.
-
-            [Continue]
-            [Restart]
-            """
-            step_3_page = NormalVoteStep3Page(browser, timeout)
-            step_3_page.verify_page()
-            # He remembers the smart ballot tracker that is displayed.
-            smart_ballot_tracker_value = step_3_page.get_smart_ballot_tracker_value()
-            assert len(smart_ballot_tracker_value) > 5
-            voter["smart_ballot_tracker"] = smart_ballot_tracker_value
-
-            # He clicks on the "Continue" button
-            step_3_page.click_on_continue_button()
-
-            wait_a_bit()
 
         # He arrives on the login page, with a login form (as he has not already logged in during this visit, he does not arrive directly on the step 5 page)
         login_page = VoterLoginPage(browser, timeout)

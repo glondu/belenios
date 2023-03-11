@@ -7,7 +7,7 @@ import sys
 from urllib.parse import urljoin, urlsplit
 
 from util.election_testing import strtobool, wait_a_bit
-from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep6Page, BallotBoxPage
+from util.page_objects import ElectionHomePage, ResponsiveBoothStep1Page, ResponsiveBoothStep2Page, ResponsiveBoothStep3Page, VoterLoginPage, NormalVoteStep6Page, BallotBoxPage
 from util.monkeys import SeleniumClickerMonkey, SeleniumFormFillerMonkey
 from util.execution import console_log
 from test_fuzz_vote import BeleniosTestElectionWithCreationBase
@@ -96,19 +96,15 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionWithCreationBase):
         wait_a_bit()
 
         console_log("## Verifying that we are on step 1 page")
-        step_1_page = NormalVoteStep1Page(browser, timeout)
+        step_1_page = ResponsiveBoothStep1Page(browser, timeout)
         step_1_page.verify_page()
 
-        # Here:
-        # We cannot have a monkey behaviour, because there is only one button to click (the "here" button).
-        # We can go back. This goes back to election home page
-
-        console_log("## Clicking on 'here' button")
-        step_1_page.click_on_here_button_and_type_voter_credential(settings.VOTER_CREDENTIAL)
+        step_1_page.type_voter_credential(settings.VOTER_CREDENTIAL)
+        step_1_page.click_next_button()
 
         wait_a_bit()
 
-        step_2_page = NormalVoteStep2Page(browser, timeout)
+        step_2_page = ResponsiveBoothStep2Page(browser, timeout)
         step_2_page.verify_page()
 
         # Here:
@@ -117,17 +113,17 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionWithCreationBase):
         # We can go back. This would go back to the election home page (not to the "Step 1" page, which would probably have been the intuitive behaviour)
 
         console_log("## Answering vote question by checking randomly some checkboxes")
-        step_2_parent_css_selector = "#question_div"
+        step_2_parent_css_selector = '.question-with-votable-answers'
         form_filler_monkey = SeleniumFormFillerMonkey(browser, step_2_parent_css_selector) # Warning: In the DOM of the vote page, step 2, checkboxes are not in a `<form>`.
         form_filler_monkey.fill_form()
 
         console_log("## Click on the 'Next' button")
-        step_2_page.click_on_next_button()
+        step_2_page.click_next_button()
 
         wait_a_bit()
 
         console_log("## Verify that we are on step 3 and that page content is correct (ballot tracker is not empty)")
-        step_3_page = NormalVoteStep3Page(browser, timeout)
+        step_3_page = ResponsiveBoothStep3Page(browser, timeout)
         step_3_page.verify_page()
         step_3_smart_ballot_tracker_value = step_3_page.get_smart_ballot_tracker_value()
 
@@ -136,7 +132,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionWithCreationBase):
         # We can click on the "Restart" button (`<button onclick="location.reload();">Restart</button>`). This goes back to step 1.
 
         console_log("## Click on the 'Continue' button")
-        step_3_page.click_on_continue_button()
+        step_3_page.click_next_button()
 
         wait_a_bit()
 

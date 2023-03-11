@@ -493,11 +493,6 @@ module type S = sig
      [ `One of Web_serializable_t.uuid ] Eliom_parameter.param_name, unit,
      Eliom_service.non_ocaml)
       Eliom_service.t
-  val booth_v1 :
-    (unit, unit, Eliom_service.get, Eliom_service.att, Eliom_service.non_co,
-     Eliom_service.non_ext, Eliom_service.reg, [ `WithoutSuffix ], unit,
-     unit, Eliom_service.non_ocaml)
-      Eliom_service.t
   val booth_v2 :
     unit ->
     (unit, unit, Eliom_service.get, Eliom_service.att, Eliom_service.non_co,

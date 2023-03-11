@@ -220,7 +220,7 @@ let deleteQuestion q =
   Dom.removeChild x q;
   return ()
 
-let rec createQuestion booth_set q =
+let rec createQuestion q =
   let open (val !Belenios_js.I18n.gettext) in
   let question, answers, props, extra =
     match q with
@@ -255,7 +255,7 @@ let rec createQuestion booth_set q =
   let insert_text = document##createTextNode (Js.string (s_ "Insert")) in
   let insert_btn = Dom_html.createButton document in
   let f _ =
-    let x = createQuestion booth_set (default_question ()) in
+    let x = createQuestion (default_question ()) in
     let&& p = container##.parentNode in
     Dom.insertBefore p x (Js.some container);
     return ()
@@ -317,21 +317,18 @@ let rec createQuestion booth_set q =
     Dom_html.handler
       (fun _ ->
         i_extra##.value := Js.string default_mj_specification;
-        booth_set `New;
         Js._false
       );
   prefill_schulze##.onclick :=
     Dom_html.handler
       (fun _ ->
         i_extra##.value := Js.string default_schulze_specification;
-        booth_set `New;
         Js._false
       );
   clear_spec##.onclick :=
     Dom_html.handler
       (fun _ ->
         i_extra##.value := Js.string "";
-        booth_set `Classic;
         Js._false
       );
   let div_extra3 = Dom_html.createDiv document in
@@ -371,9 +368,9 @@ let rec createQuestion booth_set q =
       (fun _ ->
         let&& parent = container##.parentNode in
         if Js.to_bool cb_type##.checked then
-          Dom.replaceChild parent (createQuestion booth_set default_question_nh) container
+          Dom.replaceChild parent (createQuestion default_question_nh) container
         else
-          Dom.replaceChild parent (createQuestion booth_set default_question_h) container;
+          Dom.replaceChild parent (createQuestion default_question_h) container;
         return ()
       )
   in
@@ -419,29 +416,7 @@ let createRadioItem name checked label =
   Dom.appendChild container (document##createTextNode (Js.string label));
   radio, container
 
-let createBoothSelector booth_version =
-  let open (val !Belenios_js.I18n.gettext) in
-  let container = Dom_html.createDiv document in
-  let line1 = Dom_html.createDiv document in
-  Dom.appendChild container line1;
-  Dom.appendChild line1 (document##createTextNode (Js.string (s_ "Booth:")));
-  let line2 = Dom_html.createDiv document in
-  Dom.appendChild container line2;
-  let name = Js.string "booth_version_radio" in
-  let r1, i1 = createRadioItem name (booth_version = 1) (s_ "classic") in
-  Dom.appendChild line2 i1;
-  let line3 = Dom_html.createDiv document in
-  Dom.appendChild container line3;
-  let r2, i2 = createRadioItem name (booth_version = 2) (s_ "new interface") in
-  Dom.appendChild line3 i2;
-  let get () = if Js.to_bool r2##.checked then 2 else 1 in
-  let set = function
-    | `Classic -> r1##.checked := Js._true
-    | `New -> r2##.checked := Js._true
-  in
-  get, set, container
-
-let createTemplate (booth_get, booth_set, booth_select) template =
+let createTemplate template =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   (* name *)
@@ -477,7 +452,7 @@ let createTemplate (booth_get, booth_set, booth_select) template =
   Dom.appendChild container x;
   Array.iter
     (fun q ->
-     let x = createQuestion booth_set q in
+     let x = createQuestion q in
      Dom.appendChild h_questions_div x)
     template.t_questions;
   (* button for adding question *)
@@ -485,16 +460,13 @@ let createTemplate (booth_get, booth_set, booth_select) template =
   let b = Dom_html.createButton document in
   let t = document##createTextNode (Js.string (s_ "Add a question")) in
   let f _ =
-    let x = createQuestion booth_set (default_question ()) in
+    let x = createQuestion (default_question ()) in
     Dom.appendChild h_questions_div x
   in
   b##.onclick := handler f;
   Dom.appendChild b t;
   Dom.appendChild x b;
   Dom.appendChild container x;
-  (* booth selection *)
-  Dom.appendChild container (Dom_html.createHr document);
-  Dom.appendChild container booth_select;
   (* button for submitting *)
   let x = Dom_html.createHr document in
   Dom.appendChild container x;
@@ -505,7 +477,7 @@ let createTemplate (booth_get, booth_set, booth_select) template =
     try
       let template = extractTemplate () in
       set_textarea "questions" (string_of_template template);
-      let booth_version = booth_get () in
+      let booth_version = 2 in
       set_input "booth_version" (string_of_int booth_version);
       let&& x = document##querySelector (Js.string "form") in
       let&& x = Dom_html.CoerceTo.form x in
@@ -524,14 +496,14 @@ let createTemplate (booth_get, booth_set, booth_select) template =
 
 (* Handling of hybrid checkbox *)
 
-let handle_hybrid booth_set e _ =
+let handle_hybrid e _ =
   hybrid_mode := Js.to_bool e##.checked;
   let qs = document##querySelectorAll (Js.string ".question") in
   for i = 0 to qs##.length do
     ignore (let&& x = qs##item i in deleteQuestion x)
   done;
   let&& qsdiv = document##getElementById (Js.string "election_questions") in
-  Dom.appendChild qsdiv (createQuestion booth_set (default_question ()));
+  Dom.appendChild qsdiv (createQuestion (default_question ()));
   return ()
 
 (* Entry point *)
@@ -539,7 +511,6 @@ let handle_hybrid booth_set e _ =
 let fill_interactivity () =
   let&& e = document##getElementById (Js.string "interactivity") in
   let t = template_of_string (get_textarea "questions") in
-  let booth_version = int_of_string (get_input "booth_version") in
   let has_nh =
     Array.exists
       (function
@@ -548,15 +519,14 @@ let fill_interactivity () =
       ) t.t_questions
   in
   hybrid_mode := has_nh;
-  let (_, booth_set, _) as booth_selector = createBoothSelector booth_version in
-  let div = createTemplate booth_selector t in
+  let div = createTemplate t in
   Dom.appendChild e div;
   let&& x = document##querySelector (Js.string "form") in
   x##.style##.display := Js.string "none";
   let&& e = document##getElementById (Js.string "hybrid_mode") in
   let&& e = Dom_html.CoerceTo.input e in
   e##.checked := Js.bool !hybrid_mode;
-  e##.onchange := handler (handle_hybrid booth_set e);
+  e##.onchange := handler (handle_hybrid e);
   return ()
 
 let () =

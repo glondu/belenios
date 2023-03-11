@@ -311,18 +311,21 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         | `Open -> []
         | _ -> [a_disabled ()]
       in
-      let Booth election_vote = fst booths.(get_booth_index metadata.e_booth_version) in
       let button =
-        let uri = Eliom_uri.make_string_uri ~service:(election_vote ()) () in
-        let a =
-          a_id "start"
-          :: a_user_data "uri" uri
-          :: a_user_data "uuid" (Uuid.unwrap uuid)
-          :: a_user_data "lang" lang
-          :: a_style "font-size:35px;"
-          :: disabled
-        in
-        Eliom_content.Html.F.button ~a [txt (s_ "Start")]
+        match get_booth_index metadata.e_booth_version with
+        | Some i ->
+           let Booth election_vote = fst booths.(i) in
+           let uri = Eliom_uri.make_string_uri ~service:(election_vote ()) () in
+           let a =
+             a_id "start"
+             :: a_user_data "uri" uri
+             :: a_user_data "uuid" (Uuid.unwrap uuid)
+             :: a_user_data "lang" lang
+             :: a_style "font-size:35px;"
+             :: disabled
+           in
+           Eliom_content.Html.F.button ~a [txt (s_ "Start")]
+        | None -> span [txt @@ s_ "Unsupported booth version"]
       in
       div ~a:[a_style "text-align:center;"] [
           div [button];
@@ -687,8 +690,18 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
     let full_title = election.e_name in
     let uuid = election.e_uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
-    let Booth service = fst Web_services.booths.(get_booth_index metadata.e_booth_version) in
-    let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", Uuid.unwrap uuid] in
+    let you_must_restart =
+      match get_booth_index metadata.e_booth_version with
+      | Some i ->
+         let Booth service = fst Web_services.booths.(i) in
+         let hash = Netencoding.Url.mk_url_encoded_parameters ["uuid", Uuid.unwrap uuid] in
+         div [
+             txt (s_ "If you want to vote, you must ");
+             make_a_with_hash ~service:(service ()) ~hash (s_ "start from the beginning");
+             txt ".";
+           ]
+      | None -> txt ""
+    in
     let content =
       [
         div [
@@ -696,11 +709,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             txt " ";
             txt (s_ "Your vote was not recorded!");
           ];
-        div [
-            txt (s_ "If you want to vote, you must ");
-            make_a_with_hash ~service:(service ()) ~hash (s_ "start from the beginning");
-            txt ".";
-          ];
+        you_must_restart;
         div [
             a ~service:Web_services.election_home [
                 txt (s_ "Go back to election")
@@ -837,164 +846,6 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
         links;
       ] in
     base ~title ~content ~uuid ()
-
-  let booth () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let head = head (title (txt (s_ "Belenios Booth"))) [
-                   link ~rel:[`Stylesheet] ~href:(static "booth.bundle.css") ();
-                   script ~a:[a_src (static "tool_js_booth.js")] (txt "");
-                 ] in
-    let wait_div =
-      div ~a:[a_id "wait_div"] [
-          txt (s_ "Please wait… ");
-          img ~src:(static "encrypting.gif") ~alt:(s_ "Loading…") ();
-        ]
-    in
-    let election_loader =
-      div ~a:[a_id "election_loader"; a_style "display:none;"] [
-          h1 [txt (s_ "Belenios Booth")];
-          br ();
-          txt "Load an election on this server by giving its UUID:";
-          div [raw_textarea "uuid" ""];
-          div [button_no_value ~button_type:`Button ~a:[a_id "load_uuid"] [txt "Load from UUID"]];
-          br ();
-          txt "Load any election by giving its parameters:";
-          div [raw_textarea "election_params" ""];
-          div [button_no_value ~button_type:`Button ~a:[a_id "load_params"] [txt "Load parameters"]];
-        ]
-    in
-    let text_choices = raw_textarea "choices" "" in
-    let ballot_form =
-      post_form ~a:[a_id "ballot_form"] ~service:election_submit_ballot
-        (fun encrypted_vote -> [
-             div ~a:[a_id "div_ballot"; a_style "display:none;"] [
-                 txt "Encrypted ballot:";
-                 div [
-                     textarea
-                       ~a:[a_id "ballot"; a_rows 1; a_cols 80; a_readonly ()]
-                       ~name:encrypted_vote ();
-                   ];
-               ];
-             p [
-                 txt (s_ "Your ballot has been encrypted, ");
-                 b [txt (s_ "but not cast yet")];
-                 txt (s_ "!");
-               ];
-             p [
-                 txt (s_ "Your smart ballot tracker is ");
-                 span ~a:[a_id "ballot_tracker"] [];
-               ];
-             p [
-                 txt (s_ "Save it to check that it is taken into account later.");
-               ];
-             br ();
-             div ~a:[a_id "div_submit"] [
-                 input ~input_type:`Submit ~value:(s_ "Continue") ~a:[a_style "font-size:30px;"] string;
-               ];
-             div ~a:[a_id "div_submit_manually"; a_style "display:none;"] [
-                 txt "You must submit your ballot manually.";
-               ];
-             br (); br ();
-        ])
-        ()
-    in
-    let main =
-      div ~a:[a_id "main"] [
-          div ~a:[a_style "text-align:center; margin-bottom:20px;"] [
-              span ~a:[a_id "progress1"; a_style "font-weight:bold;"] [txt (s_ "Input credential")];
-              txt " — ";
-              span ~a:[a_id "progress2"] [txt (s_ "Answer to questions")];
-              txt " — ";
-              span ~a:[a_id "progress3"] [txt (s_ "Review and encrypt")];
-              txt " — ";
-              span ~a:[a_id "progress4"] [txt (s_ "Authenticate")];
-              txt " — ";
-              span ~a:[a_id "progress5"] [txt (s_ "Confirm")];
-              txt " — ";
-              span ~a:[a_id "progress6"] [txt (s_ "Done")];
-              hr ();
-            ];
-          div ~a:[a_id "intro"; a_style "text-align:center;"] [
-              div ~a:[a_class ["current_step"]] [
-                  txt (s_ "Step 1/6: Input credential");
-                ];
-              br (); br ();
-              p ~a:[a_id "input_code"; a_style "font-size:20px;"] [
-                  txt (s_ "Input your credential ");
-                ];
-              br (); br ();
-            ];
-          div ~a:[a_id "question_div"; a_style "display:none;"] [
-              div ~a:[a_class ["current_step"]] [
-                  txt (s_ "Step 2/6: Answer to questions");
-                ];
-            ];
-          div ~a:[a_id "plaintext_div"; a_style "display:none;"] [
-              div ~a:[a_class ["current_step"]] [
-                  txt (s_ "Step 3/6: Review and encrypt");
-                ];
-              div ~a:[a_id "pretty_choices"] [];
-              div ~a:[a_style "display:none;"] [
-                  txt "Plaintext raw ballot:";
-                  div [text_choices];
-                ];
-              div ~a:[a_style "text-align:center;"] [
-                  div ~a:[a_id "encrypting_div"] [
-                      p [txt (s_ "Please wait while your ballot is being encrypted…")];
-                      img ~src:(static "encrypting.gif") ~alt:(s_ "Encrypting…") ();
-                    ];
-                  div ~a:[a_id "ballot_div"; a_style "display:none;"] [ballot_form];
-                  Unsafe.data ("<button onclick=\"location.reload();\">" ^ s_ "Restart" ^ "</button>");
-                  br (); br ();
-                ];
-            ];
-        ]
-    in
-    let booth_div =
-      div ~a:[a_id "booth_div"; a_style "display:none;"] [
-          div ~a:[a_id "header"] [
-              div ~a:[a_style "float: left; padding: 15px;"] [
-                  let src =
-                    Eliom_uri.make_string_uri ~service:logo ()
-                    |> Eliom_content.Xml.uri_of_string
-                  in
-                  img ~alt:(s_ "Election server") ~a:[a_height 70]
-                    ~src ();
-                ];
-              div ~a:[a_style "float: right; padding: 15px;"] [
-                  img ~alt:"" ~a:[a_height 70]
-                    ~src:(static "placeholder.png") ();
-                ];
-              div ~a:[a_style "text-align:center; padding: 20px;"] [
-                  h1 ~a:[a_id "election_name"] [];
-                  p ~a:[a_id "election_description"] [];
-                ];
-              div ~a:[a_style "clear: both;"] [];
-            ];
-          main;
-          div ~a:[a_id "footer"] [
-              div ~a:[a_id "bottom"] [
-                  div [
-                      txt (s_ "Election UUID: ");
-                      span ~a:[a_id "election_uuid"] [];
-                    ];
-                  div [
-                      txt (s_ "Election fingerprint: ");
-                      span ~a:[a_id "election_fingerprint"] [];
-                    ];
-                ];
-            ];
-        ]
-    in
-    let body = body [
-                   wait_div;
-                   election_loader;
-                   div ~a:[a_id "wrapper"] [
-                       booth_div;
-                     ];
-                 ] in
-    return @@ html ~a:[a_dir `Ltr; a_xml_lang lang] head body
 
   let schulze q r =
     let* l = get_preferred_gettext () in

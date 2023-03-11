@@ -667,17 +667,6 @@ def administrator_edits_election_questions(browser, nh_question=False):
     remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
     remove_button_element.click()
 
-    if settings.BOOTH_VERSION == settings.BOOTH_VERSIONS.RESPONSIVE_BOOTH:
-        booth_index = 1
-    else:
-        booth_index = 0
-
-    # In the booth type section, she clicks on the Nth radio button, to select the appropriate booth
-    booth_version_radio_buttons = browser.find_elements_by_css_selector("input[type=radio][name=booth_version_radio]")
-    if not booth_version_radio_buttons or len(booth_version_radio_buttons) != 2:
-        raise Exception("Booth version should be selected among 2 radio buttons")
-    booth_version_radio_buttons[booth_index].click()
-
     wait_a_bit()
 
     # She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)

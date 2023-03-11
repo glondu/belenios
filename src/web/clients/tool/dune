@@ -4,14 +4,6 @@
  (package belenios-server))
 
 (executable
- (name tool_js_booth)
- (modes js)
- (modules tool_js_booth)
- (js_of_ocaml (javascript_files ../../../../ext/sjcl/sjcl.js ../../../../ext/jsbn/BigIntCompatFull.js ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_tool_common belenios_js)
- (preprocess (pps js_of_ocaml-ppx)))
-
-(executable
  (name tool_js_credgen)
  (modes js)
  (modules tool_js_credgen)

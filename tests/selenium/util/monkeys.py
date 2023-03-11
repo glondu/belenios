@@ -45,7 +45,7 @@ def get_all_buttons_in_page(browser):
 
 
 def get_all_input_type_checkbox_elements(browser_or_parent_element):
-    all_input_type_checkbox = browser_or_parent_element.find_elements_by_css_selector("input[type=checkbox]")
+    all_input_type_checkbox = browser_or_parent_element.find_elements_by_css_selector("label")
     displayed_elements = list(filter(element_is_visible_filter, all_input_type_checkbox))
     return displayed_elements
 

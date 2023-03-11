@@ -32,8 +32,6 @@ module type S = sig
   val cast_confirmed : (module Site_common_sig.ELECTION) -> result:(user * string * bool * Weight.t * bool, Web_common.error) result -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
   val pretty_ballots : (module Site_common_sig.ELECTION) -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val booth : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val schulze : Question_nh_t.question -> schulze_result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val majority_judgment_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
