@@ -28,7 +28,10 @@ module Make () = struct
   let uuid_and_token = uuid "uuid" ** string "token"
 
   let home = create ~path:(Path [""]) ~meth:(Get unit) ()
+
   let admin = create ~path:(Path ["admin"]) ~meth:(Get unit) ()
+  let admin_basic () = Eliom_service.preapply ~service:(Eliom_service.static_dir ()) ["static"; "admin_basic.html"]
+
   let privacy_notice_accept = create ~path:No_path ~csrf_safe:true ~meth:(Post (unit, privacy_cont "cont")) ()
   let site_login = create ~path:(Path ["login"]) ~meth:(Get (opt (string "service") ** site_cont "cont")) ()
   let logout = create ~path:(Path ["logout"]) ~meth:(Get (site_cont "cont")) ()

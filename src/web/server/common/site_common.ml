@@ -83,7 +83,7 @@ module Make (X : Pages_sig.S) = struct
         >>= Html.send)
 
   let get_cont_state cont =
-    let redir = match cont with
+    let redir = match cont.path with
       | ContSiteHome -> Redirection home
       | ContSiteAdmin -> Redirection admin
       | ContSiteElection uuid -> Redirection (preapply ~service:election_home (uuid, ()))

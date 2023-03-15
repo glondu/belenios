@@ -54,15 +54,25 @@ let a_mailto ~recipient ~subject ~body label =
 let api_token = ref ""
 let api_root = "../api/"
 
-let get_api_token () =
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = get "../api-token" in
-  if x.code = 200 then (
-    api_token := x.content;
-    Lwt.return_true
-  ) else (
-    Lwt.return_false
-  )
+let get_api_token hash =
+  match hash with
+  | `Credentials (_, token) -> api_token := token; Lwt.return_unit
+  | `Error -> Lwt.return_unit
+  | _ ->
+     let open Js_of_ocaml_lwt.XmlHttpRequest in
+     let* x = get "../api-token" in
+     if x.code = 200 then (
+       api_token := x.content;
+       Lwt.return_unit
+     ) else (
+       let target =
+         match hash with
+         | `Election uuid -> Printf.sprintf "../login?cont=elections/%s@basic" uuid
+         | _ -> "../login?cont=admin@basic"
+       in
+       Dom_html.window##.location##assign (Js.string target);
+       Lwt.return_unit
+     )
 
 let delete_with_token ?ifmatch url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in

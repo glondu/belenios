@@ -1086,7 +1086,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
        Pages_common.generic_page ~title:(s_ "Forbidden") msg ()
        >>= Html.send ~code:403
     | _ ->
-       redir_preapply site_login (None, ContSiteElection uuid) ()
+       redir_preapply site_login (None, default_admin (ContSiteElection uuid)) ()
 
   let () =
     Any.register ~service:election_admin
@@ -1837,7 +1837,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              | Ok () ->
                 let* () = Web_signup.remove_link email in
                 let* () = Web_state.discard () in
-                let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
+                let service = preapply ~service:site_login (Some service, default_admin ContSiteAdmin) in
                 Pages_common.generic_page ~title:(s_ "Account creation") ~service (s_ "The account has been created.") ()
                 >>= Html.send
              | Error e -> Pages_admin.signup email (Some e) username >>= Html.send
@@ -1861,7 +1861,7 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
              | Ok () ->
                 let* () = Web_signup.remove_link address in
                 let* () = Web_state.discard () in
-                let service = preapply ~service:site_login (Some service, ContSiteAdmin) in
+                let service = preapply ~service:site_login (Some service, default_admin ContSiteAdmin) in
                 Pages_common.generic_page ~title:(s_ "Change password") ~service (s_ "The password has been changed.") ()
                 >>= Html.send
              | Error e -> Pages_admin.changepw ~username ~address (Some e) >>= Html.send

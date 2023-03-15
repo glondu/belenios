@@ -45,15 +45,33 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
   let get_cont login_or_logout x =
     let open Eliom_registration in
     let redir = match x with
-      | `Election uuid -> Redirection (preapply ~service:election_cast_confirm uuid)
-      | `Site ContSiteHome -> Redirection home
-      | `Site ContSiteAdmin -> Redirection admin
-      | `Site (ContSiteElection uuid) ->
+      | `Election uuid -> `R (Redirection (preapply ~service:election_cast_confirm uuid))
+      | `Site {path = ContSiteHome; _} -> `R (Redirection home)
+      | `Site {path = ContSiteAdmin; admin = admin_ui} ->
+         begin
+           match admin_ui with
+           | Classic -> `R (Redirection admin)
+           | Basic -> `R (Redirection (admin_basic ()))
+         end
+      | `Site {path = ContSiteElection uuid; admin = admin_ui} ->
          match login_or_logout with
-         | `Login -> Redirection (preapply ~service:election_admin uuid)
-         | `Logout -> Redirection (preapply ~service:election_home (uuid, ()))
+         | `Login ->
+            begin
+              match admin_ui with
+              | Classic -> `R (Redirection (preapply ~service:election_admin uuid))
+              | Basic ->
+                 let base =
+                   Eliom_uri.make_string_uri ~service:(admin_basic ()) ~absolute:true ()
+                   |> rewrite_prefix
+                 in
+                 `S (Printf.sprintf "%s#elections/%s" base (Uuid.unwrap uuid))
+            end
+         | `Logout -> `R (Redirection (preapply ~service:election_home (uuid, ())))
     in
-    fun () -> Redirection.send redir
+    fun () ->
+    match redir with
+    | `R r -> Redirection.send r
+    | `S s -> String_redirection.send s
 
   let restart_login service = function
     | `Election uuid -> preapply ~service:election_login ((uuid, ()), Some service)
@@ -236,7 +254,7 @@ module Make (Web_state : Web_state_sig.S) (Web_services : Web_services_sig.S) (P
   let get_site_login_handler service =
     match find_auth_instance service !Web_config.site_auth_config with
     | None -> return @@ Html (Eliom_content.Html.F.div [])
-    | Some a -> get_pre_login_handler None `Username (`Site ContSiteAdmin) a
+    | Some a -> get_pre_login_handler None `Username (`Site (default_admin ContSiteAdmin)) a
 
   let direct_voter_auth uuid x =
     let fail () = failwith "invalid direct auth" in

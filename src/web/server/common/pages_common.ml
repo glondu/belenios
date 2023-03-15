@@ -125,6 +125,7 @@ module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) = st
       )
 
   let lang_box cont =
+    let cont = default_admin cont in
     let* l = get_preferred_gettext () in
     let open (val l) in
     let langs = List.map (fun (l, x) -> Option ([], l, Some (txt x), l = lang)) Belenios_ui.Languages.available in

@@ -195,22 +195,53 @@ let uuid x =
     ~to_string:Uuid.unwrap
     x
 
-type site_cont =
+type site_cont_path =
   | ContSiteHome
   | ContSiteAdmin
   | ContSiteElection of uuid
 
-let site_cont_of_string x =
-  match Pcre.split ~pat:"/" x with
-  | ["home"] -> ContSiteHome
-  | ["admin"] -> ContSiteAdmin
-  | ["elections"; uuid] -> ContSiteElection (Uuid.wrap uuid)
-  | _ -> invalid_arg "site_login_cont_of_string"
+type site_cont_admin =
+  | Classic
+  | Basic
 
-let string_of_site_cont = function
-  | ContSiteHome -> "home"
-  | ContSiteAdmin -> "admin"
-  | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
+type site_cont =
+  {
+    path : site_cont_path;
+    admin : site_cont_admin;
+  }
+
+let default_admin path = {path; admin = Classic}
+
+let site_cont_of_string x =
+  let fail () = invalid_arg "site_cont_of_string" in
+  let path, admin =
+    match String.split_on_char '@' x with
+    | [path; "basic"] -> path, Basic
+    | [path] -> path, Classic
+    | _ -> fail ()
+  in
+  let path =
+    match String.split_on_char '/' path with
+    | ["home"] -> ContSiteHome
+    | ["admin"] -> ContSiteAdmin
+    | ["elections"; uuid] -> ContSiteElection (Uuid.wrap uuid)
+    | _ -> fail ()
+  in
+  {path; admin}
+
+let string_of_site_cont x =
+  let path =
+    match x.path with
+    | ContSiteHome -> "home"
+    | ContSiteAdmin -> "admin"
+    | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
+  in
+  let admin =
+    match x.admin with
+    | Classic -> ""
+    | Basic -> "@basic"
+  in
+  path ^ admin
 
 let site_cont x =
   Eliom_parameter.user_type

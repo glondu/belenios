@@ -82,11 +82,22 @@ val uuid :
    [ `One of uuid ] Eliom_parameter.param_name)
     Eliom_parameter.params_type
 
-type site_cont =
+type site_cont_path =
   | ContSiteHome
   | ContSiteAdmin
   | ContSiteElection of uuid
 
+type site_cont_admin =
+  | Classic
+  | Basic
+
+type site_cont =
+  {
+    path : site_cont_path;
+    admin : site_cont_admin;
+  }
+
+val default_admin : site_cont_path -> site_cont
 val string_of_site_cont : site_cont -> string
 
 val site_cont :

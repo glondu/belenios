@@ -93,6 +93,7 @@ module Make
       | None -> ContSiteHome
       | Some x -> x
     in
+    let cont = default_admin cont in
     let login service = Eliom_service.preapply ~service:site_login (Some service, cont) in
     let logout () = Eliom_service.preapply ~service:logout cont in
     let body =
@@ -155,7 +156,7 @@ module Make
                   txt (s_ "Log in with");
                   txt " ";
                   a ~service:site_login [txt service]
-                    (Some service, ContSiteAdmin);
+                    (Some service, default_admin ContSiteAdmin);
                   txt ".";
                 ]
          in
@@ -167,7 +168,7 @@ module Make
                    txt (s_ "You can also log in with");
                    txt " ";
                    a ~service:site_login [txt service]
-                     (Some service, ContSiteAdmin);
+                     (Some service, default_admin ContSiteAdmin);
                    txt ".";
                  ]
              ) others

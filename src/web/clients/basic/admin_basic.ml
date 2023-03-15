@@ -218,7 +218,9 @@ let show hash main =
   | `Credentials (uuid, _) -> context := `None; Credentials.show main uuid
 
 let onhashchange () =
-  show (parse_hash ()) document##.body
+  let hash = parse_hash () in
+  let* () = get_api_token hash in
+  show hash document##.body
 
 let onload () =
   let lang =
@@ -227,18 +229,8 @@ let onload () =
   in
   let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
   let hash = parse_hash () in
-  let* b =
-    match hash with
-    | `Root | `Draft _ | `Election _ -> get_api_token ()
-    | `Credentials (_, token) -> api_token := token; Lwt.return_true
-    | `Error -> Lwt.return_true
-  in
-  if b then (
-    show hash document##.body
-  ) else (
-    alert "Unable to retrieve API token. Please log in again.";
-    Lwt.return_unit
-  )
+  let* () = get_api_token hash in
+  show hash document##.body
 
 let () =
   Dom_html.window##.onload := lwt_handler onload;

@@ -408,7 +408,7 @@ module Make (Web_state : Web_state_sig.S) (Web_i18n : Web_i18n_sig.S) (Web_servi
             txt (s_ "By using this site, you accept our ");
             direct_a !Web_config.gdpr_uri (s_ "personal data policy");
             txt ". ";
-            a ~service:set_cookie_disclaimer [txt (s_ "Accept")] (ContSiteElection uuid);
+            a ~service:set_cookie_disclaimer [txt (s_ "Accept")] (default_admin (ContSiteElection uuid));
           ]
       else txt ""
     in
