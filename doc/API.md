@@ -66,12 +66,12 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 * `GET`: unit -> string
 
-## `draft/$UUID/credentials/public`
+## `drafts/$UUID/credentials/public`
 
 * `GET`: unit -> public_credentials (anybody)
 * `POST`: public_credentials -> unit (credential authority)
 
-## `draft/$UUID/credentials/private` (administrator)
+## `drafts/$UUID/credentials/private` (administrator)
 
 * `GET`: unit -> private_credentials
 
