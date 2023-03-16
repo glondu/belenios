@@ -38,6 +38,9 @@ module Make (Base : BASE) = struct
   open Base
   open Base.Html
 
+  let a_aria_label = Unsafe.string_attrib "aria-label"
+  let a_aria_hidden = Unsafe.string_attrib "aria-hidden" "true"
+
   let base_body l ~full_title ~content ~administer
         ?(login_box = txt "") ?(warning = txt "") ?(lang_box = txt "")
         ?(footer = txt "") ?(extra_footer = txt "") () =
@@ -47,8 +50,8 @@ module Make (Base : BASE) = struct
           div ~a:[a_class ["page"]] [
               div ~a:[a_id "header"; a_class ["page-header"]] [
                   div ~a:[a_class ["page-header__logo"]] [
-                      a ~a:[a_href Uris.home] [
-                          img ~a:[a_class ["page-header__logo__image"]] ~alt:(s_ "Election server")
+                      a ~a:[a_href Uris.home; a_aria_label (s_ "Election server")] [
+                          img ~a:[a_class ["page-header__logo__image"]; a_aria_hidden] ~alt:(s_ "Election server")
                             ~src:Uris.logo ();
                         ];
                     ];

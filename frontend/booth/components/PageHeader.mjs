@@ -12,6 +12,7 @@ function TranslatablePageHeader({title, subTitle, t}) {
     e(
       "div",
       {
+        "aria-hidden": true,
         className: "page-header__logo"
       },
       e(
