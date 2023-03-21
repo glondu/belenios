@@ -94,7 +94,7 @@ function TranslatableAllQuestionsWithPagination(props){
   };
   const initialVoteForAllQuestions = props.electionObject.questions.map((question, question_index) => {
     const questionType = question.type;
-    if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT || questionType === QuestionTypeEnum.PREFERENTIAL_VOTING || questionType === QuestionTypeEnum.CLASSIC){
+    if (questionType in QuestionTypeEnum){
       return question.answers.map(computeInitialVoteToQuestionFromAvailableAnswersMapFunction);
     }
     return [];
@@ -160,7 +160,7 @@ function TranslatableAllQuestionsWithPagination(props){
     vote_of_voter_per_question = props.electionObject.questions.map(function(question, question_index){
       let answers_to_question = [];
       const questionType = question.type;
-      if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT || questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+      if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT || questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITH_EQUALITY || questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITHOUT_EQUALITY){
         let question_answers = question.answers;
         // Handle blank vote: if (on this question) blank vote is allowed and user has voted blank, then we represent user's vote (to this question) as an array of zeros of length `question_answers.length`
         const user_has_voted_blank = question.blankVoteIsAllowed && current_user_vote_for_all_questions[question_index].length === question.answers.length + 1 && current_user_vote_for_all_questions[question_index][question.answers.length] === 1;
@@ -170,7 +170,7 @@ function TranslatableAllQuestionsWithPagination(props){
         else {
           answers_to_question = current_user_vote_for_all_questions[question_index].slice(0, question_answers.length).map((el) => {return el === undefined ? 0 : el+1;}); // We add 1 because the value of el represents the index of the selected grade in the array of available grades labels (indexes in arrays start at 0, and by convention index 0 must contain the label of the highest grade, index 2 must contain the label of the second highest grade, etc), whereas Belenios backend expects Majority Judgement grades to start at 1, 1 being the highest grade, 2 being the second highest grade, etc (and 0 being interpreted as "vote nul" in French (invalid vote), and voting 0 to every candidate being interpreted as voting blank to this question). And Belenios backend expects Preferential Voting rank associated to each candidate to also start at 1, 1 being the most preferred (and 0 being interpreted as "not ranked", and voting 0 to every candidate being interpreted as voting blank to this question).
 
-          if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+          if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITH_EQUALITY){
             // remove all preference levels which are empty, because the backend only cares about relative ordering
             const upperBound = question.answers.length;
             let aCandidateAtCurrentPreferenceLevelExists;
@@ -192,6 +192,7 @@ function TranslatableAllQuestionsWithPagination(props){
               }
             } while (hasChanged);
           }
+          // TODO: Is there anything special to do in case of QuestionTypeEnum.PREFERENTIAL_VOTING_WITHOUT_EQUALITY?
         }
       }
       else if (questionType === QuestionTypeEnum.CLASSIC){
@@ -239,7 +240,7 @@ function TranslatableAllQuestionsWithPagination(props){
     const questionType = current_question_data.type;
     let user_vote_to_question_is_valid = true;
     if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
-      // verify that user has selected a grade for all candidates (in majority judgment, it is not accepted to select a grade for only some candidates)
+      // Verify that user has selected a grade for all candidates (in majority judgment, it is not accepted to select a grade for only some candidates)
       const user_has_voted_blank = current_question_data.blankVoteIsAllowed && current_user_vote_for_all_questions[current_question_index].length > current_question_data.answers.length && current_user_vote_for_all_questions[current_question_index][current_question_data.answers.length] === 1;
       if (!user_has_voted_blank){
         current_user_vote_for_all_questions[current_question_index].forEach((selected_grade, candidate_index) => {
@@ -256,8 +257,11 @@ function TranslatableAllQuestionsWithPagination(props){
         });
       }
     }
-    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
-      // TODO
+    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITH_EQUALITY){
+      // TODO: Verify validity of a vote to a question of type `QuestionTypeEnum.PREFERENTIAL_VOTING_WITH_EQUALITY`. Is there a possibility for such a vote to be invalid? What could an invalid vote look like? What should we verify?
+    }
+    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITHOUT_EQUALITY){
+      // TODO: Verify validity of a vote to a question of type `QuestionTypeEnum.PREFERENTIAL_VOTING_WITHOUT_EQUALITY`. Is there a possibility for such a vote to be invalid? What could an invalid vote look like? What should we verify?
     }
     else if (questionType === QuestionTypeEnum.CLASSIC){
       // Before moving on to next question, verify that user input respects question constraints:

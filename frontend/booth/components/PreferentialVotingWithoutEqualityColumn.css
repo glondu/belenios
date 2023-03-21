@@ -1,0 +1,32 @@
+.preferential-voting-without-equality__candidate-container {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.preferential-voting-without-equality__candidate-rank {
+  align-self: center;
+  font-size: small;
+  text-align: right;
+  padding-right: 1ch;
+  width: 3ch;
+  color: rgb(0, 0, 0);
+  transition: color 1s;
+}
+
+.preferential-voting-without-equality__candidate-rank--hidden {
+  color: rgb(173, 173, 173);
+}
+
+.preferential-voting-without-equality__candidate {
+  display: flex;
+  border: 1px solid #d3d3d3;
+  border-radius: 8px;
+  background-color: #fff;
+  min-height: 32px;
+  box-sizing: border-box;
+}
+
+.preferential-voting-without-equality__candidate .preferential-voting__candidate-select-destination {
+  width: 105px;
+  margin-left: 5px;
+}

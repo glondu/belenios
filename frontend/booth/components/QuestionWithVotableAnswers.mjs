@@ -5,6 +5,7 @@ import { markup } from "../shortcuts.mjs";
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
 import { TranslatablePreferentialVotingCandidatesList } from "./PreferentialVotingCandidatesList.mjs";
+import { TranslatablePreferentialVotingWithoutEqualityCandidatesList } from "./PreferentialVotingWithoutEqualityCandidatesList.mjs";
 import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
 
 function TranslatableQuestionWithVotableAnswers({ question, identifierPrefix, visible, currentUserVoteForQuestion, currentAlertsTextsForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, t }){
@@ -26,10 +27,25 @@ function TranslatableQuestionWithVotableAnswers({ question, identifierPrefix, vi
       }
     );
   }
-  else if (question.type === QuestionTypeEnum.PREFERENTIAL_VOTING){
+  else if (question.type === QuestionTypeEnum.PREFERENTIAL_VOTING_WITH_EQUALITY){
     description = t("preferential_voting_question_description");
     rendered_answers = e(
       TranslatablePreferentialVotingCandidatesList,
+      {
+        identifierPrefix,
+        candidates: question.answers,
+        blankVoteIsAllowed: question.blankVoteIsAllowed,
+        currentUserVoteForQuestion,
+        currentCandidatesHavingAlertsForQuestion,
+        dispatchUpdateUserVoteForQuestion,
+        t
+      }
+    );
+  }
+  else if (question.type === QuestionTypeEnum.PREFERENTIAL_VOTING_WITHOUT_EQUALITY){
+    description = t("preferential_voting_question_description");
+    rendered_answers = e(
+      TranslatablePreferentialVotingWithoutEqualityCandidatesList,
       {
         identifierPrefix,
         candidates: question.answers,

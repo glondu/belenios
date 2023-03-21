@@ -5,6 +5,7 @@ import { QuestionTypeEnum } from "../election_utils.mjs";
 import ClassicVoteRecap from "./ClassicVoteRecap.mjs";
 import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.mjs";
 import PreferentialVotingVoteRecap from "./PreferentialVotingVoteRecap.mjs";
+import PreferentialVotingWithoutEqualityVoteRecap from "./PreferentialVotingWithoutEqualityVoteRecap.mjs";
 
 function TranslatableWholeVoteRecap({ electionObject=null, uncryptedBallot=[], t }){
   const renderedQuestions = electionObject.questions.map(function(question, question_index){
@@ -13,8 +14,11 @@ function TranslatableWholeVoteRecap({ electionObject=null, uncryptedBallot=[], t
     if (questionType === QuestionTypeEnum.MAJORITY_JUDGMENT){
       questionRecapComponent = MajorityJudgmentVoteRecap;
     }
-    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING){
+    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITH_EQUALITY){
       questionRecapComponent = PreferentialVotingVoteRecap;
+    }
+    else if (questionType === QuestionTypeEnum.PREFERENTIAL_VOTING_WITHOUT_EQUALITY){
+      questionRecapComponent = PreferentialVotingWithoutEqualityVoteRecap;
     }
     else if (questionType === QuestionTypeEnum.CLASSIC){
       questionRecapComponent = ClassicVoteRecap;
