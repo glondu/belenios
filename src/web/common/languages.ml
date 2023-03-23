@@ -31,6 +31,7 @@ let available =
     "fi", "Suomi";
     "fr", "Français";
     "it", "Italiano";
+    "jpn_JP", "日本語";
     "lt", "Lietuvių";
     "ms", "Bahasa Melayu";
     "nb", "Norsk (Bokmål)";
