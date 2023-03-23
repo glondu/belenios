@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.15-dev\n"
 
-#: src/web/server/common/pages_admin.ml:2000
+#: src/web/server/common/pages_admin.ml:2004
 msgid " You may re-open the election when it is closed."
 msgstr " Usted puede reabrir la elección cuando esta cerrada."
 
@@ -27,16 +27,16 @@ msgstr " y "
 msgid " and a password: "
 msgstr " y una contraseña: "
 
-#: src/web/server/common/pages_admin.ml:1607
-#. src/web/server/common/pages_admin.ml:1543
+#: src/web/server/common/pages_admin.ml:1611
+#. src/web/server/common/pages_admin.ml:1547
 msgid " and save it to a secure location."
 msgstr " y guardar esto en una localización segura."
 
-#: src/web/server/common/pages_admin.ml:1445
+#: src/web/server/common/pages_admin.ml:1449
 msgid " and save the file to a secure location."
 msgstr " y guardar esto en una localización segura."
 
-#: src/web/server/common/pages_admin.ml:1818
+#: src/web/server/common/pages_admin.ml:1822
 msgid " and save them securely."
 msgstr " y guardar esto de forma segura."
 
@@ -53,7 +53,7 @@ msgstr " respuestas."
 msgid " because "
 msgstr " porque "
 
-#: src/web/server/common/pages_admin.ml:2296
+#: src/web/server/common/pages_admin.ml:2300
 msgid " has been computed."
 msgstr " ha sido computado."
 
@@ -62,10 +62,10 @@ msgstr " ha sido computado."
 msgid " in the following box: "
 msgstr " en la siguiente casilla: "
 
-#: src/web/server/common/pages_admin.ml:2222
-#. src/web/server/common/pages_admin.ml:2127
-#. src/web/server/common/pages_admin.ml:976
-#. src/web/server/common/pages_admin.ml:798
+#: src/web/server/common/pages_admin.ml:2226
+#. src/web/server/common/pages_admin.ml:2131
+#. src/web/server/common/pages_admin.ml:980
+#. src/web/server/common/pages_admin.ml:802
 msgid " is:"
 msgstr " es:"
 
@@ -73,19 +73,19 @@ msgstr " es:"
 msgid " or username: "
 msgstr " o nombre de usuario: "
 
-#: src/web/server/common/pages_admin.ml:1033
+#: src/web/server/common/pages_admin.ml:1037
 msgid " out of "
 msgstr " fuera de "
 
-#: src/web/server/common/pages_admin.ml:606
+#: src/web/server/common/pages_admin.ml:610
 msgid " to set up the election key."
 msgstr " establecer una clave de elección."
 
-#: src/web/server/common/pages_admin.ml:1035
+#: src/web/server/common/pages_admin.ml:1039
 msgid " trustees will be needed to decrypt the result."
 msgstr " serán necesarios fedatarios para descifrar el resutado."
 
-#: src/web/server/common/pages_admin.ml:592
+#: src/web/server/common/pages_admin.ml:596
 msgid " voter(s) registered"
 msgstr " elector(es) registrado(s)"
 
@@ -93,45 +93,45 @@ msgstr " elector(es) registrado(s)"
 msgid " your contribution to decryption."
 msgstr " su contribución al descifrado."
 
-#: src/web/server/common/site_admin.ml:626
-#. src/web/server/common/site_admin.ml:623
+#: src/web/server/common/site_admin.ml:616
+#. src/web/server/common/site_admin.ml:613
 msgid "%S is not a valid identity"
 msgstr "%S no es una identificación válida"
 
-#: src/web/server/common/pages_admin.ml:1791
+#: src/web/server/common/pages_admin.ml:1795
 msgid "%d voter(s)"
 msgstr "%d elector/es"
 
-#: src/web/server/common/site_admin.ml:528
+#: src/web/server/common/site_admin.ml:518
 msgid "%s is not a registered user for this election."
 msgstr "%s no es un usuario registrado para esta elección."
 
-#: src/web/server/common/site_admin.ml:1139
-#. src/web/server/common/site_admin.ml:1128
+#: src/web/server/common/site_admin.ml:1131
+#. src/web/server/common/site_admin.ml:1120
 msgid "%s is not a valid date!"
 msgstr "¡%s no es una fecha válida!"
 
-#: src/web/server/common/site_admin.ml:741
+#: src/web/server/common/site_admin.ml:731
 msgid "%s is not a valid e-mail address!"
 msgstr "¡%s no es una dirección de correo válida!"
 
-#: src/web/server/common/pages_admin.ml:1934
+#: src/web/server/common/pages_admin.ml:1938
 msgid "(Warning: This action is irreversible.)"
 msgstr "(Atención: esta acción es irreversible)"
 
-#: src/web/server/common/pages_admin.ml:786
+#: src/web/server/common/pages_admin.ml:790
 msgid "(cannot be removed)"
 msgstr "(no puede ser eliminado)"
 
-#: src/web/server/common/pages_admin.ml:763
+#: src/web/server/common/pages_admin.ml:767
 msgid "(done)"
 msgstr "(hecho)"
 
-#: src/web/server/common/pages_admin.ml:321
+#: src/web/server/common/pages_admin.ml:322
 msgid "(for example: https://cas.inria.fr/cas)"
 msgstr "(por ejemplo: https://cas.inria.fr/cas)"
 
-#: src/web/server/common/pages_admin.ml:335
+#: src/web/server/common/pages_admin.ml:336
 msgid "(imported from server)"
 msgstr "(importado del servidor)"
 
@@ -139,31 +139,31 @@ msgstr "(importado del servidor)"
 msgid "(none)"
 msgstr "(ninguno)"
 
-#: src/web/server/common/pages_admin.ml:951
-#. src/web/server/common/pages_admin.ml:778
+#: src/web/server/common/pages_admin.ml:955
+#. src/web/server/common/pages_admin.ml:782
 msgid "(not available)"
 msgstr "(no disponible)"
 
-#: src/web/server/common/pages_admin.ml:2190
-#. src/web/server/common/pages_admin.ml:2190
-#. src/web/server/common/pages_admin.ml:767
+#: src/web/server/common/pages_admin.ml:2194
+#. src/web/server/common/pages_admin.ml:2194
+#. src/web/server/common/pages_admin.ml:771
 msgid "(server)"
 msgstr "(servidor)"
 
-#: src/web/server/common/pages_admin.ml:2068
+#: src/web/server/common/pages_admin.ml:2072
 msgid "(skipped)"
 msgstr "(omitido)"
 
-#: src/web/server/common/pages_admin.ml:1026
+#: src/web/server/common/pages_admin.ml:1030
 msgid "(the threshold must be smaller than the number of trustees)"
 msgstr "(el umbral debe ser menor que el número de fedatarios)"
 
-#: src/web/server/common/pages_admin.ml:206
-#. src/web/server/common/pages_admin.ml:198
+#: src/web/server/common/pages_admin.ml:207
+#. src/web/server/common/pages_admin.ml:199
 msgid "(untitled)"
 msgstr "(sin título)"
 
-#: src/web/server/common/pages_admin.ml:404
+#: src/web/server/common/pages_admin.ml:407
 msgid "(you can use any credential such as %s)."
 msgstr "(puede utilizar cualquier credencial tal como %s)."
 
@@ -172,7 +172,7 @@ msgstr "(puede utilizar cualquier credencial tal como %s)."
 msgid ". Please try again with a different one."
 msgstr ". Porfavor inténtelo de nuevo con una contraseña diferente."
 
-#: src/web/server/common/pages_admin.ml:1614
+#: src/web/server/common/pages_admin.ml:1618
 msgid ". Save it so that you can check that it appears on the election home later."
 msgstr ""
 ". Guarde esto de manera de poder comprobar luego si aparece en la página de "
@@ -182,11 +182,11 @@ msgstr ""
 msgid "1. Click on the link."
 msgstr "1.- Seleccionar el enlace."
 
-#: src/web/server/common/pages_admin.ml:1003
+#: src/web/server/common/pages_admin.ml:1007
 msgid "1a: action needed from trustee: generate private key"
 msgstr "1a: acción necesaria del fedatario: generar una clave privada"
 
-#: src/web/server/common/pages_admin.ml:1005
+#: src/web/server/common/pages_admin.ml:1009
 msgid "1b, 2b, 3b: waiting for other trustees"
 msgstr "1b, 2b, 3b: esperando por otros fedatarios"
 
@@ -194,7 +194,7 @@ msgstr "1b, 2b, 3b: esperando por otros fedatarios"
 msgid "2. Click on \"Generate\"."
 msgstr "2. Seleccionar \"Generar\"."
 
-#: src/web/server/common/pages_admin.ml:1004
+#: src/web/server/common/pages_admin.ml:1008
 msgid "2a, 3a: action needed from trustee: enter private key"
 msgstr "2a, 3a: acción necesaria del fedatario: ingresar clave privada"
 
@@ -218,11 +218,11 @@ msgstr ""
 msgid "6. Click on \"Submit the public credentials\"."
 msgstr "6. Seleccione \"Enviar credenciales públicas\"."
 
-#: src/web/server/common/site_admin.ml:524
+#: src/web/server/common/site_admin.ml:514
 msgid "A new password has been mailed to %s."
 msgstr "Una nueva contraseña fue enviada a %s."
 
-#: src/web/server/common/site_admin.ml:912
+#: src/web/server/common/site_admin.ml:903
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr "Una clave privada ya existía, la clave que cargó fue ignorada!"
 
@@ -230,8 +230,8 @@ msgstr "Una clave privada ya existía, la clave que cargó fue ignorada!"
 msgid "Accept"
 msgstr "Aceptar"
 
-#: src/web/server/common/site_admin.ml:1909
-#. src/web/server/common/site_admin.ml:1788
+#: src/web/server/common/site_admin.ml:1841
+#. src/web/server/common/site_admin.ml:1720
 msgid "Account creation"
 msgstr "Creación de cuenta"
 
@@ -239,7 +239,7 @@ msgstr "Creación de cuenta"
 msgid "Account management"
 msgstr "Manejo de cuentas"
 
-#: src/web/server/common/site_admin.ml:1968
+#: src/web/server/common/site_admin.ml:1900
 msgid "Account not found"
 msgstr "Cuenta no encontrada"
 
@@ -247,17 +247,17 @@ msgstr "Cuenta no encontrada"
 msgid "Account settings"
 msgstr "Configuración de la cuenta"
 
-#: src/web/server/common/pages_admin.ml:1283
-#. src/web/server/common/pages_admin.ml:896
-#. src/web/server/common/pages_admin.ml:720
+#: src/web/server/common/pages_admin.ml:1287
+#. src/web/server/common/pages_admin.ml:900
+#. src/web/server/common/pages_admin.ml:724
 msgid "Add"
 msgstr "Agregar"
 
-#: src/web/clients/tool/tool_js_questions.ml:486
+#: src/web/clients/tool/tool_js_questions.ml:461
 msgid "Add a question"
 msgstr "Añadir una pregunta"
 
-#: src/web/clients/tool/tool_js_questions.ml:398
+#: src/web/clients/tool/tool_js_questions.ml:395
 msgid "Add an answer"
 msgstr "Añadir una respuesta"
 
@@ -265,12 +265,12 @@ msgstr "Añadir una respuesta"
 msgid "Administer elections"
 msgstr "Gestionar las elecciones"
 
-#: src/web/server/common/pages_admin.ml:1956
-#. src/web/server/common/pages_admin.ml:213
+#: src/web/server/common/pages_admin.ml:1960
+#. src/web/server/common/pages_admin.ml:214
 msgid "Administration"
 msgstr "Administración"
 
-#: src/web/server/common/pages_admin.ml:551
+#: src/web/server/common/pages_admin.ml:555
 msgid "All passwords have been sent!"
 msgstr "¡Todas las contraseñas han sido enviadas!"
 
@@ -280,25 +280,25 @@ msgstr ""
 "Todos los fedatarios deben haber completado una etapa antes de proceder con "
 "la siguiente."
 
-#: src/web/clients/tool/tool_js_questions.ml:385
+#: src/web/clients/tool/tool_js_questions.ml:382
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternativa (los electores asignan un número a cada candidato)"
 
-#: src/web/server/common/pages_admin.ml:1835
+#: src/web/server/common/pages_admin.ml:1839
 msgid "Alternative questions cannot be combined with weights."
 msgstr "Preguntas alternativas no pueden ser combinadas con pesos."
 
-#: src/web/server/common/pages_admin.ml:1208
+#: src/web/server/common/pages_admin.ml:1212
 msgid "Alternative voting methods (warning, still experimental):"
 msgstr "Métodos de voto alternativos (advertencia, experimental):"
 
-#: src/web/server/common/pages_admin.ml:1119
+#: src/web/server/common/pages_admin.ml:1123
 msgid "Alternatively, you can send the credential authority the following link:"
 msgstr ""
 "Alternativamente, puede enviar a la autoridad de credenciales el siguiente "
 "enlace:"
 
-#: src/web/server/common/pages_admin.ml:1966
+#: src/web/server/common/pages_admin.ml:1970
 msgid "Alternatively, you may set up automatic dates."
 msgstr "Alternativamente, puede disponer de fechas automáticas."
 
@@ -306,21 +306,21 @@ msgstr "Alternativamente, puede disponer de fechas automáticas."
 msgid "An e-mail with a code has been sent to %s."
 msgstr "Un correo electrónico con un código ha sido enviado a %s."
 
-#: src/web/server/common/pages_admin.ml:276
+#: src/web/server/common/pages_admin.ml:277
 msgid "An election with the same UUID already exists."
 msgstr "Ya existe una elección con el mismo UUID."
 
-#: src/web/server/common/site_admin.ml:1545
+#: src/web/server/common/site_admin.ml:1477
 msgid "An error occurred while applying the shuffle."
 msgstr "Ocurrió un error al aplicar la mezcla."
 
-#: src/web/server/common/site_admin.ml:1485
+#: src/web/server/common/site_admin.ml:1417
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Ocurrió un error al computar el resultado (%s). Probablemente, esto "
 "signifique que algún fedatario no ha hecho su trabajo."
 
-#: src/web/server/common/pages_admin.ml:1268
+#: src/web/server/common/pages_admin.ml:1272
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 "Una identidad es \"correo\" o \"correo, nombre_de_usuario\" o \"correo"
@@ -334,8 +334,8 @@ msgid "Answer: "
 msgstr "Respuesta : "
 
 #: src/web/clients/basic/admin_basic.ml:206
-#. src/web/server/common/pages_admin.ml:1734
-#. src/web/server/common/pages_admin.ml:262
+#. src/web/server/common/pages_admin.ml:1738
+#. src/web/server/common/pages_admin.ml:263
 msgid "Archived elections"
 msgstr "Elecciones archivadas"
 
@@ -344,11 +344,11 @@ msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr ""
 "Como fedatario, su primera función es mezclar las papeletas encriptadas."
 
-#: src/web/server/common/pages_admin.ml:2173
+#: src/web/server/common/pages_admin.ml:2177
 msgid "At least %d trustee(s) must act."
 msgstr "Por lo menos %d fedatario(s) deben participar."
 
-#: src/web/server/common/pages_admin.ml:545
+#: src/web/server/common/pages_admin.ml:549
 msgid "Authentication"
 msgstr "Autenticación"
 
@@ -356,47 +356,47 @@ msgstr "Autenticación"
 msgid "Authentication methods:"
 msgstr "Métodos de autenticación:"
 
-#: src/web/server/common/pages_admin.ml:569
+#: src/web/server/common/pages_admin.ml:573
 msgid "Authentication scheme: %s (imported from server)"
 msgstr "Esquema de autentificación: %s (importado desde el servidor)"
 
-#: src/web/server/common/pages_admin.ml:564
+#: src/web/server/common/pages_admin.ml:568
 msgid "Authentication scheme: CAS with server "
 msgstr "Esquema de autenticación : CAS con servidor "
 
-#: src/web/server/common/pages_admin.ml:560
+#: src/web/server/common/pages_admin.ml:564
 msgid "Authentication scheme: dummy"
 msgstr "Esquema de autenticación : dummy"
 
-#: src/web/server/common/pages_admin.ml:549
+#: src/web/server/common/pages_admin.ml:553
 msgid "Authentication scheme: password"
 msgstr "Esquema de autenticación : contraseña"
 
-#: src/web/server/common/site_admin.ml:1088
+#: src/web/server/common/site_admin.ml:1080
 msgid "Automatic shuffle by server has failed for election %s!"
 msgstr "¡La mezcla automática del servidor para la elección %s ha fallado!"
 
-#: src/web/server/common/pages_admin.ml:1981
+#: src/web/server/common/pages_admin.ml:1985
 msgid "Automatically close the election at:"
 msgstr "Cerrar la elección automáticamente al:"
 
-#: src/web/server/common/pages_admin.ml:1976
+#: src/web/server/common/pages_admin.ml:1980
 msgid "Automatically open the election at:"
 msgstr "Abrir la elección automáticamente al:"
 
-#: src/web/server/common/pages_admin.ml:422
+#: src/web/server/common/pages_admin.ml:426
 msgid "Available languages:"
 msgstr "Idiomas disponibles :"
 
-#: src/web/server/common/pages_admin.ml:2299
+#: src/web/server/common/pages_admin.ml:2303
 msgid "Awaiting trustees…"
 msgstr "Esperando fedatarios…"
 
-#: src/web/server/common/pages_admin.ml:1104
+#: src/web/server/common/pages_admin.ml:1108
 msgid "Back to election preparation page"
 msgstr "Volver a la página de preparación de la elección"
 
-#: src/web/server/common/site_admin.ml:300
+#: src/web/server/common/site_admin.ml:290
 msgid "Bad CAS server!"
 msgstr "¡Servidor CAS defectuoso!"
 
@@ -433,17 +433,13 @@ msgstr "Atentamente,"
 msgid "Blank vote is allowed"
 msgstr "El voto en blanco está permitido"
 
-#: src/web/clients/tool/tool_js_questions.ml:427
-msgid "Booth:"
-msgstr "Urna:"
-
-#: src/web/server/common/pages_admin.ml:600
+#: src/web/server/common/pages_admin.ml:604
 msgid "By default, the election server manages the keys of the election (degraded privacy mode)."
 msgstr ""
 "Por defecto, el servidor de la elección gestiona las claves de la elección ("
 "modo de privacidad degradado)."
 
-#: src/web/server/common/pages_admin.ml:314
+#: src/web/server/common/pages_admin.ml:315
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
 "CAS (servidor de autenticación externo, ofrece mejores garantías de "
@@ -453,24 +449,24 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: src/web/server/common/site_admin.ml:831
+#: src/web/server/common/site_admin.ml:821
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 "No se pudieron enviar las credenciales, hay demasiados electores (el máximo "
 "es %d)"
 
-#: src/web/server/common/site_admin.ml:476
+#: src/web/server/common/site_admin.ml:466
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr ""
 "No se pudieron enviar las contraseñas, hay demasiados electores (el máximo "
 "es %d)"
 
-#: src/web/server/common/pages_admin.ml:1990
+#: src/web/server/common/pages_admin.ml:1994
 msgid "Change automatic dates"
 msgstr "Cambiar las fechas automáticas"
 
-#: src/web/server/common/site_admin.ml:1933
-#. src/web/server/common/site_admin.ml:1829
+#: src/web/server/common/site_admin.ml:1865
+#. src/web/server/common/site_admin.ml:1761
 #. src/web/server/common/pages_admin.ml:2800
 #. src/web/server/common/pages_admin.ml:2677
 msgid "Change password"
@@ -485,11 +481,11 @@ msgstr "Comprobar la clave privada"
 msgid "Check private key ownership"
 msgstr "Verificar la propiedad de la clave privada"
 
-#: src/web/server/common/pages_admin.ml:1920
+#: src/web/server/common/pages_admin.ml:1924
 msgid "Checklist:"
 msgstr "Lista de comprobación:"
 
-#: src/web/clients/tool/tool_js_questions.ml:354
+#: src/web/clients/tool/tool_js_questions.ml:351
 msgid "Classical (selection of answers)"
 msgstr "Clásico (selección de respuestas)"
 
@@ -497,7 +493,7 @@ msgstr "Clásico (selección de respuestas)"
 msgid "Clear"
 msgstr "Limpiar"
 
-#: src/web/server/common/pages_admin.ml:604
+#: src/web/server/common/pages_admin.ml:608
 msgid "Click "
 msgstr "Clic "
 
@@ -517,15 +513,15 @@ msgstr "Hacer clic en \"Enviar\" para enviar su clave de verificación."
 msgid "Click on the link."
 msgstr "Haga clic en el enlace."
 
-#: src/web/server/common/pages_admin.ml:1998
+#: src/web/server/common/pages_admin.ml:2002
 msgid "Close election"
 msgstr "Cerrar la elección"
 
-#: src/web/server/common/pages_admin.ml:1582
+#: src/web/server/common/pages_admin.ml:1586
 msgid "Collaborative key generation"
 msgstr "Generación de clave colaborativa"
 
-#: src/web/server/common/pages_admin.ml:1834
+#: src/web/server/common/pages_admin.ml:1838
 msgid "Compatibility of weights with questions?"
 msgstr "¿Compatibilidad de pesos con preguntas?"
 
@@ -537,7 +533,7 @@ msgstr "Procesar huella digital"
 msgid "Compute shuffle"
 msgstr "Computar la mezcla"
 
-#: src/web/server/common/pages_admin.ml:2283
+#: src/web/server/common/pages_admin.ml:2287
 msgid "Compute the result"
 msgstr "Calcular el resultado"
 
@@ -549,15 +545,15 @@ msgstr "Confirmar"
 msgid "Consent date:"
 msgstr "Fecha de consentimiento:"
 
-#: src/web/server/common/pages_admin.ml:532
+#: src/web/server/common/pages_admin.ml:536
 msgid "Contact"
 msgstr "Contacto"
 
-#: src/web/server/common/pages_admin.ml:511
+#: src/web/server/common/pages_admin.ml:515
 msgid "Contact:"
 msgstr "Contacto:"
 
-#: src/web/server/common/pages_admin.ml:1904
+#: src/web/server/common/pages_admin.ml:1908
 msgid "Contact?"
 msgstr "Contacto?"
 
@@ -566,11 +562,11 @@ msgstr "Contacto?"
 msgid "Could not get %s (code %d)!"
 msgstr "¡No se pudo obtener %s (code %d)!"
 
-#: src/web/server/common/site_admin.ml:1044
+#: src/web/server/common/site_admin.ml:1036
 msgid "Could not retrieve trustees from selected election!"
 msgstr "¡No se pudieron recuperar los fedatarios para la elección seleccionada!"
 
-#: src/web/server/common/site_admin.ml:998
+#: src/web/server/common/site_admin.ml:990
 msgid "Could not retrieve voter list from election %s"
 msgstr "No se pudo recuperar la lista de electores para la elección %s"
 
@@ -583,16 +579,16 @@ msgstr "Especificación del método de conteo"
 msgid "Create an account"
 msgstr "Crear una cuenta"
 
-#: src/web/server/common/pages_admin.ml:1932
-#. src/web/server/common/pages_admin.ml:657
+#: src/web/server/common/pages_admin.ml:1936
+#. src/web/server/common/pages_admin.ml:661
 msgid "Create election"
 msgstr "Crear elección"
 
-#: src/web/server/common/pages_admin.ml:273
+#: src/web/server/common/pages_admin.ml:274
 msgid "Create new election"
 msgstr "Crear una nueva elección"
 
-#: src/web/server/common/site_admin.ml:247
+#: src/web/server/common/site_admin.ml:237
 msgid "Creating new elections is forbidden on this server!"
 msgstr "¡Está prohibido crear nuevas elecciones en este servidor!"
 
@@ -600,49 +596,49 @@ msgstr "¡Está prohibido crear nuevas elecciones en este servidor!"
 msgid "Credential authority link"
 msgstr "Enlace de autoridad de credenciales"
 
-#: src/web/server/common/pages_admin.ml:1888
+#: src/web/server/common/pages_admin.ml:1892
 msgid "Credential authority?"
 msgstr "¿Autoridad de credenciales?"
 
-#: src/web/server/common/pages_admin.ml:1419
-#. src/web/server/common/pages_admin.ml:1408
+#: src/web/server/common/pages_admin.ml:1423
+#. src/web/server/common/pages_admin.ml:1412
 msgid "Credential generation"
 msgstr "Generación de credenciales"
 
-#: src/web/server/common/pages_admin.ml:648
+#: src/web/server/common/pages_admin.ml:652
 msgid "Credential management"
 msgstr "Gestión de credenciales"
 
-#: src/web/server/common/pages_admin.ml:613
+#: src/web/server/common/pages_admin.ml:617
 msgid "Credentials"
 msgstr "Credenciales"
 
-#: src/web/server/common/pages_admin.ml:1141
-#. src/web/server/common/pages_admin.ml:1084
+#: src/web/server/common/pages_admin.ml:1145
+#. src/web/server/common/pages_admin.ml:1088
 msgid "Credentials for election %s"
 msgstr "Credenciales para la elección %s"
 
-#: src/web/server/common/pages_admin.ml:1411
-#. src/web/server/common/pages_admin.ml:634
+#: src/web/server/common/pages_admin.ml:1415
+#. src/web/server/common/pages_admin.ml:638
 msgid "Credentials have already been generated!"
 msgstr "¡Las acreditaciones ya han sido generadas!"
 
-#: src/web/server/common/site_admin.ml:825
+#: src/web/server/common/site_admin.ml:815
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
 msgstr ""
 "¡Las acreditaciones han sido generadas y enviadas por correo! Usted debería "
 "descargar las credenciales privadas (y almacenarlas en forma segura), en "
 "caso de que alguien extravíe su acreditación."
 
-#: src/web/server/common/pages_admin.ml:1144
+#: src/web/server/common/pages_admin.ml:1148
 msgid "Credentials have been received and checked!"
 msgstr "¡Las acreditaciones han sido recibidas y verificadas!"
 
-#: src/web/server/common/pages_admin.ml:356
+#: src/web/server/common/pages_admin.ml:357
 msgid "Credentials:"
 msgstr "Credenciales:"
 
-#: src/web/server/common/pages_admin.ml:1892
+#: src/web/server/common/pages_admin.ml:1896
 msgid "Credentials?"
 msgstr "¿Acreditación?"
 
@@ -650,12 +646,12 @@ msgstr "¿Acreditación?"
 msgid "Current list of ballots:"
 msgstr "Listado actual de votos:"
 
-#: src/web/server/common/site_admin.ml:1548
+#: src/web/server/common/site_admin.ml:1480
 msgid "Data is invalid! (%s)"
 msgstr "¡ Los datos no son válidos ! (%s)"
 
-#: src/web/server/common/pages_admin.ml:1654
-#. src/web/server/common/pages_admin.ml:1622
+#: src/web/server/common/pages_admin.ml:1658
+#. src/web/server/common/pages_admin.ml:1626
 msgid "Data:"
 msgstr "Datos :"
 
@@ -679,28 +675,28 @@ msgstr "Estimado/a autoridad de credenciales,"
 msgid "Dear trustee,"
 msgstr "Estimada(o) fedataria(o),"
 
-#: src/web/server/common/pages_admin.ml:2357
+#: src/web/server/common/pages_admin.ml:2361
 msgid "Delete election"
 msgstr "Eliminar la elección"
 
-#: src/web/server/common/pages_admin.ml:461
+#: src/web/server/common/pages_admin.ml:465
 msgid "Description of the election."
 msgstr "Descripción de la elección."
 
-#: src/web/server/common/pages_admin.ml:456
+#: src/web/server/common/pages_admin.ml:460
 msgid "Description of the election:"
 msgstr "Descripción de la elección:"
 
-#: src/web/clients/tool/tool_js_questions.ml:461
+#: src/web/clients/tool/tool_js_questions.ml:436
 msgid "Description:"
 msgstr "Descripción:"
 
-#: src/web/server/common/pages_admin.ml:1868
+#: src/web/server/common/pages_admin.ml:1872
 msgid "Description?"
 msgstr "¿Descripción?"
 
-#: src/web/server/common/pages_admin.ml:673
-#. src/web/server/common/pages_admin.ml:667
+#: src/web/server/common/pages_admin.ml:677
+#. src/web/server/common/pages_admin.ml:671
 msgid "Destroy election"
 msgstr "Borrar la elección"
 
@@ -708,18 +704,18 @@ msgstr "Borrar la elección"
 msgid "Don't forget to save:"
 msgstr "No olvide guardar:"
 
-#: src/web/server/common/pages_admin.ml:2305
-#. src/web/server/common/pages_admin.ml:2159
-#. src/web/server/common/pages_admin.ml:815
+#: src/web/server/common/pages_admin.ml:2309
+#. src/web/server/common/pages_admin.ml:2163
+#. src/web/server/common/pages_admin.ml:819
 msgid "Done?"
 msgstr "¿Hecho?"
 
-#: src/web/server/common/pages_admin.ml:1450
-#. src/web/server/common/pages_admin.ml:1443
+#: src/web/server/common/pages_admin.ml:1454
+#. src/web/server/common/pages_admin.ml:1447
 msgid "Download "
 msgstr "Descargar "
 
-#: src/web/server/common/pages_admin.ml:2319
+#: src/web/server/common/pages_admin.ml:2323
 msgid "Download archive."
 msgstr "Descargar el archivo."
 
@@ -727,12 +723,12 @@ msgstr "Descargar el archivo."
 msgid "Download as a file"
 msgstr "Descargar como archivo"
 
-#: src/web/server/common/pages_admin.ml:619
+#: src/web/server/common/pages_admin.ml:623
 msgid "Download private credentials"
 msgstr "Descargar acreditaciones privadas"
 
-#: src/web/server/common/pages_admin.ml:1605
-#. src/web/server/common/pages_admin.ml:1541
+#: src/web/server/common/pages_admin.ml:1609
+#. src/web/server/common/pages_admin.ml:1545
 msgid "Download your "
 msgstr "Descargue su "
 
@@ -743,18 +739,18 @@ msgstr ""
 "manera no será posible abrir la urna para el escrutinio y la elección será "
 "anulada."
 
-#: src/web/server/common/site_admin.ml:1014
-#. src/web/server/common/site_admin.ml:633
+#: src/web/server/common/site_admin.ml:1006
+#. src/web/server/common/site_admin.ml:623
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
 "Votante duplicado: %s. Esto no se permite. Si dos electores poseen la misma "
 "dirección, use nombres de usuario diferentes."
 
-#: src/web/server/common/pages_admin.ml:2303
-#. src/web/server/common/pages_admin.ml:2193
-#. src/web/server/common/pages_admin.ml:941
-#. src/web/server/common/pages_admin.ml:813
-#. src/web/server/common/pages_admin.ml:754
+#: src/web/server/common/pages_admin.ml:2307
+#. src/web/server/common/pages_admin.ml:2197
+#. src/web/server/common/pages_admin.ml:945
+#. src/web/server/common/pages_admin.ml:817
+#. src/web/server/common/pages_admin.ml:758
 msgid "E-mail"
 msgstr "Correo electrónico"
 
@@ -764,56 +760,57 @@ msgstr "Correo electrónico"
 msgid "E-mail address:"
 msgstr "Dirección de correo electrónico:"
 
-#: src/web/server/common/pages_admin.ml:629
+#: src/web/server/common/pages_admin.ml:633
 msgid "Edit credential authority name"
 msgstr "Editar el nombre de la autoridad de credenciales"
 
-#: src/web/server/common/pages_admin.ml:577
+#: src/web/server/common/pages_admin.ml:581
 msgid "Edit questions"
 msgstr "Editar las preguntas"
 
-#: src/web/server/common/pages_admin.ml:587
+#: src/web/server/common/pages_admin.ml:591
 msgid "Edit voters"
 msgstr "Editar la lista de electores"
 
-#: src/web/server/common/pages_admin.ml:1761
-#. src/web/server/common/pages_admin.ml:1751
-#. src/web/server/common/pages_admin.ml:1743
+#: src/web/server/common/pages_admin.ml:1765
+#. src/web/server/common/pages_admin.ml:1755
+#. src/web/server/common/pages_admin.ml:1747
 msgid "Election "
 msgstr "Elección "
 
-#: src/web/server/common/pages_admin.ml:2377
+#: src/web/server/common/pages_admin.ml:2381
 msgid "Election home"
 msgstr "Página principal de la elección"
 
-#: src/web/server/common/pages_admin.ml:213
+#: src/web/server/common/pages_admin.ml:214
 #. src/web/server/common/pages_admin.ml:51
-#. src/web/common/pages_common.ml:51
+#. src/web/common/pages_common.ml:54
+#. src/web/common/pages_common.ml:53
 msgid "Election server"
 msgstr "Servidor de elecciones"
 
 #: src/web/clients/basic/admin_basic.ml:200
-#. src/web/server/common/pages_admin.ml:253
+#. src/web/server/common/pages_admin.ml:254
 msgid "Elections being prepared"
 msgstr "Elecciones en proceso de preparación"
 
 #: src/web/clients/basic/admin_basic.ml:202
-#. src/web/server/common/pages_admin.ml:1730
-#. src/web/server/common/pages_admin.ml:256
+#. src/web/server/common/pages_admin.ml:1734
+#. src/web/server/common/pages_admin.ml:257
 msgid "Elections you can administer"
 msgstr "Elecciones que usted puede administrar"
 
-#: src/web/server/common/site_admin.ml:1047
+#: src/web/server/common/site_admin.ml:1039
 msgid "Encrypted decryption keys are missing!"
 msgstr "¡Faltan las claves cifradas!"
 
-#: src/web/server/common/pages_admin.ml:1986
+#: src/web/server/common/pages_admin.ml:1990
 msgid "Enter dates in UTC format, as per YYYY-MM-DD HH:MM:SS, leave empty for no date."
 msgstr ""
 "Escriba las fechas en formato UTC: YYYY-MM-DD HH:MM:SS, deje en blanco para "
 "no establecer fecha."
 
-#: src/web/server/common/pages_admin.ml:2267
+#: src/web/server/common/pages_admin.ml:2271
 msgid "Enter the date in UTC fornat, as per YYYY-MM-DD HH:MM:SS. For example, today is "
 msgstr ""
 "Escriba la fecha en UTC siguiendo el formato YYYY-MM-DD HH:MM:SS. Por "
@@ -825,40 +822,40 @@ msgstr ""
 "Ingrese su clave privada en el primer espacio y apoye sobre \"Generar su "
 "contribución al descifrado\"."
 
-#: src/web/server/common/pages_admin.ml:1637
+#: src/web/server/common/pages_admin.ml:1641
 msgid "Enter your private key:"
 msgstr "Ingrese su clave privada:"
 
-#: src/web/server/common/site_admin.ml:1600
-#. src/web/server/common/site_admin.ml:1596
-#. src/web/server/common/site_admin.ml:1548
-#. src/web/server/common/site_admin.ml:1545
-#. src/web/server/common/site_admin.ml:1488
-#. src/web/server/common/site_admin.ml:1468
-#. src/web/server/common/site_admin.ml:1380
-#. src/web/server/common/site_admin.ml:1345
-#. src/web/server/common/site_admin.ml:1179
-#. src/web/server/common/site_admin.ml:1140
-#. src/web/server/common/site_admin.ml:1122
-#. src/web/server/common/site_admin.ml:1050
-#. src/web/server/common/site_admin.ml:1012
-#. src/web/server/common/site_admin.ml:1003
+#: src/web/server/common/site_admin.ml:1532
+#. src/web/server/common/site_admin.ml:1528
+#. src/web/server/common/site_admin.ml:1480
+#. src/web/server/common/site_admin.ml:1477
+#. src/web/server/common/site_admin.ml:1420
+#. src/web/server/common/site_admin.ml:1400
+#. src/web/server/common/site_admin.ml:1312
+#. src/web/server/common/site_admin.ml:1278
+#. src/web/server/common/site_admin.ml:1171
+#. src/web/server/common/site_admin.ml:1132
+#. src/web/server/common/site_admin.ml:1114
+#. src/web/server/common/site_admin.ml:1042
+#. src/web/server/common/site_admin.ml:1004
 #. src/web/server/common/site_admin.ml:995
-#. src/web/server/common/site_admin.ml:923
-#. src/web/server/common/site_admin.ml:913
-#. src/web/server/common/site_admin.ml:876
-#. src/web/server/common/site_admin.ml:743
-#. src/web/server/common/site_admin.ml:527
-#. src/web/server/common/site_admin.ml:461
-#. src/web/server/common/site_admin.ml:421
-#. src/web/server/common/site_admin.ml:403
-#. src/web/server/common/site_admin.ml:390
-#. src/web/server/common/site_admin.ml:365
-#. src/web/server/common/site_admin.ml:302
-#. src/web/server/common/site_admin.ml:300
-#. src/web/server/common/site_admin.ml:246
-#. src/web/server/common/site_admin.ml:188
-#. src/web/server/common/site_admin.ml:107
+#. src/web/server/common/site_admin.ml:987
+#. src/web/server/common/site_admin.ml:914
+#. src/web/server/common/site_admin.ml:904
+#. src/web/server/common/site_admin.ml:867
+#. src/web/server/common/site_admin.ml:733
+#. src/web/server/common/site_admin.ml:517
+#. src/web/server/common/site_admin.ml:451
+#. src/web/server/common/site_admin.ml:411
+#. src/web/server/common/site_admin.ml:393
+#. src/web/server/common/site_admin.ml:380
+#. src/web/server/common/site_admin.ml:355
+#. src/web/server/common/site_admin.ml:292
+#. src/web/server/common/site_admin.ml:290
+#. src/web/server/common/site_admin.ml:236
+#. src/web/server/common/site_admin.ml:178
+#. src/web/server/common/site_admin.ml:97
 msgid "Error"
 msgstr "Error"
 
@@ -874,19 +871,19 @@ msgstr "Tiempo restante estimado: %d segundo(s)"
 msgid "Estimating computation time…"
 msgstr "Estimando el tiempo de cómputo …"
 
-#: src/web/server/common/pages_admin.ml:2161
+#: src/web/server/common/pages_admin.ml:2165
 msgid "Fingerprint"
 msgstr "Huella digital"
 
-#: src/web/server/common/pages_admin.ml:1435
+#: src/web/server/common/pages_admin.ml:1439
 msgid "Fingerprint of public credentials:"
 msgstr "Huella digital de las acreditaciones públicas :"
 
-#: src/web/server/common/pages_admin.ml:1533
+#: src/web/server/common/pages_admin.ml:1537
 msgid "Fingerprint of the verification key:"
 msgstr "Huella digital de la clave de verificación :"
 
-#: src/web/server/common/pages_admin.ml:1491
+#: src/web/server/common/pages_admin.ml:1495
 msgid "Fingerprint of voters:"
 msgstr "Huella digital de los electores :"
 
@@ -898,21 +895,21 @@ msgstr "Siga las instrucciones."
 msgid "Follow the link."
 msgstr "Siga el enlace."
 
-#: src/web/server/common/pages_admin.ml:349
+#: src/web/server/common/pages_admin.ml:350
 msgid "For a better control of eligibility, voters will be authenticated by two factors: credentials and passwords"
 msgstr ""
 "Para un mejor control de la elegibilidad, los electores serán autenticados "
 "por dos factores: credenciales y contraseñas"
 
-#: src/web/server/common/pages_admin.ml:602
+#: src/web/server/common/pages_admin.ml:606
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr ""
 "Para elecciones reales, la clave debe ser compartida entre fedatarios "
 "independientes."
 
-#: src/web/server/common/site_admin.ml:1395
-#. src/web/server/common/site_admin.ml:1392
-#. src/web/server/common/site_admin.ml:1094
+#: src/web/server/common/site_admin.ml:1327
+#. src/web/server/common/site_admin.ml:1324
+#. src/web/server/common/site_admin.ml:1086
 msgid "Forbidden"
 msgstr "Prohibido"
 
@@ -924,12 +921,12 @@ msgstr "Generar"
 msgid "Generate a key"
 msgstr "Generar una clave"
 
-#: src/web/server/common/pages_admin.ml:1338
-#. src/web/server/common/pages_admin.ml:555
+#: src/web/server/common/pages_admin.ml:1342
+#. src/web/server/common/pages_admin.ml:559
 msgid "Generate and mail missing passwords"
 msgstr "Generar y enviar contraseñas faltantes"
 
-#: src/web/server/common/pages_admin.ml:644
+#: src/web/server/common/pages_admin.ml:648
 msgid "Generate on server"
 msgstr "Generar en el servidor"
 
@@ -941,15 +938,15 @@ msgstr "Generar clave privada"
 msgid "Generate your contribution to decryption"
 msgstr "Generar su contribución al descifrado"
 
-#: src/web/common/pages_common.ml:77
+#: src/web/common/pages_common.ml:80
 msgid "Get the source code"
 msgstr "Conseguir el código fuente"
 
-#: src/web/server/common/pages_admin.ml:1940
-#. src/web/server/common/pages_admin.ml:1359
-#. src/web/server/common/pages_admin.ml:1249
-#. src/web/server/common/pages_admin.ml:1071
-#. src/web/server/common/pages_admin.ml:857
+#: src/web/server/common/pages_admin.ml:1944
+#. src/web/server/common/pages_admin.ml:1363
+#. src/web/server/common/pages_admin.ml:1253
+#. src/web/server/common/pages_admin.ml:1075
+#. src/web/server/common/pages_admin.ml:861
 msgid "Go back to election draft"
 msgstr "Volver a la preparación de la elección"
 
@@ -961,18 +958,18 @@ msgstr "Aquí están las instrucciones:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Aquí está el enlace para proceder al escrutinio:"
 
-#: src/web/server/common/pages_admin.ml:2196
-#. src/web/server/common/pages_admin.ml:2088
-#. src/web/server/common/pages_admin.ml:957
-#. src/web/server/common/pages_admin.ml:757
+#: src/web/server/common/pages_admin.ml:2200
+#. src/web/server/common/pages_admin.ml:2092
+#. src/web/server/common/pages_admin.ml:961
+#. src/web/server/common/pages_admin.ml:761
 msgid "Hide link"
 msgstr "Ocultar el enlace"
 
-#: src/web/server/common/pages_admin.ml:1351
+#: src/web/server/common/pages_admin.ml:1355
 msgid "Identity"
 msgstr "Identidad"
 
-#: src/web/server/common/pages_admin.ml:138
+#: src/web/server/common/pages_admin.ml:139
 msgid "If you do not have any account, you may "
 msgstr "Si usted no tiene una cuenta, usted puede "
 
@@ -984,41 +981,41 @@ msgstr "Caracter ilegal: %c"
 msgid "Impersonate a user"
 msgstr "Suplantar a un usuario"
 
-#: src/web/server/common/pages_admin.ml:1715
+#: src/web/server/common/pages_admin.ml:1719
 msgid "Import from this election"
 msgstr "Importar desde esta elección"
 
-#: src/web/server/common/pages_admin.ml:1751
-#. src/web/server/common/pages_admin.ml:823
+#: src/web/server/common/pages_admin.ml:1755
+#. src/web/server/common/pages_admin.ml:827
 msgid "Import trustees from another election"
 msgstr "Importar fedatarios desde otra elección"
 
-#: src/web/server/common/pages_admin.ml:1743
-#. src/web/server/common/pages_admin.ml:1391
+#: src/web/server/common/pages_admin.ml:1747
+#. src/web/server/common/pages_admin.ml:1395
 msgid "Import voters from another election"
 msgstr "Importar listado de electores desde otra elección"
 
-#: src/web/server/common/site_admin.ml:1045
+#: src/web/server/common/site_admin.ml:1037
 msgid "Imported trustees are invalid for this election!"
 msgstr "¡Los fedatarios importados son inválidos para esta elección!"
 
-#: src/web/server/common/pages_admin.ml:1752
+#: src/web/server/common/pages_admin.ml:1756
 msgid "Imported trustees will have the same keys as in the original election."
 msgstr ""
 "Los fedatarios importados tendrán las mismas claves que en la elección "
 "original."
 
-#: src/web/server/common/pages_admin.ml:1744
+#: src/web/server/common/pages_admin.ml:1748
 msgid "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
 msgstr ""
 "Los electores importados tendrán la misma contraseña que en la elección "
 "original y no se les reenviará un correo electrónico nuevo."
 
-#: src/web/server/common/site_admin.ml:1046
+#: src/web/server/common/site_admin.ml:1038
 msgid "Inconsistency in imported election!"
 msgstr "¡Inconsistencia en la elección importada!"
 
-#: src/web/server/common/site_admin.ml:211
+#: src/web/server/common/site_admin.ml:201
 msgid "Incorrect code"
 msgstr "Código incorrecto"
 
@@ -1027,16 +1024,16 @@ msgstr "Código incorrecto"
 msgid "Insert"
 msgstr "Insertar"
 
-#: src/web/server/common/pages_admin.ml:1674
-#. src/web/server/common/pages_admin.ml:1146
+#: src/web/server/common/pages_admin.ml:1678
+#. src/web/server/common/pages_admin.ml:1150
 msgid "Instructions"
 msgstr "Instrucciones"
 
 #: src/web/server/common/pages_admin.ml:2559
-#. src/web/server/common/pages_admin.ml:1634
-#. src/web/server/common/pages_admin.ml:1602
-#. src/web/server/common/pages_admin.ml:1538
-#. src/web/server/common/pages_admin.ml:1440
+#. src/web/server/common/pages_admin.ml:1638
+#. src/web/server/common/pages_admin.ml:1606
+#. src/web/server/common/pages_admin.ml:1542
+#. src/web/server/common/pages_admin.ml:1444
 #. src/web/common/mails_admin.ml:213
 #. src/web/common/mails_admin.ml:177
 msgid "Instructions:"
@@ -1054,11 +1051,11 @@ msgstr "El número máximo de opciones es inválido"
 msgid "Invalid minimum number of choices"
 msgstr "El número mínimo de opciones es inválido"
 
-#: src/web/server/common/site_admin.ml:922
+#: src/web/server/common/site_admin.ml:913
 msgid "Invalid public key!"
 msgstr "¡Clave pública inválida!"
 
-#: src/web/server/common/site_admin.ml:382
+#: src/web/server/common/site_admin.ml:372
 msgid "Invalid public name for credential authority!"
 msgstr "¡Nombre público de la autoridad de credenciales inválido!"
 
@@ -1066,28 +1063,28 @@ msgstr "¡Nombre público de la autoridad de credenciales inválido!"
 msgid "It is now time to compute your partial decryption factors."
 msgstr "Es momento de procesar su contribución parcial al descifrado."
 
-#: src/web/server/common/pages_admin.ml:437
+#: src/web/server/common/pages_admin.ml:441
 msgid "Languages"
 msgstr "Idiomas"
 
-#: src/web/server/common/pages_admin.ml:417
+#: src/web/server/common/pages_admin.ml:421
 msgid "Languages:"
 msgstr "Idiomas:"
 
-#: src/web/clients/tool/tool_js_questions.ml:340
+#: src/web/clients/tool/tool_js_questions.ml:337
 msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
 msgstr ""
 "Dejar en blanco para otros métodos de recuento. Tenga en cuenta que para "
 "otros métodos de recuento, la interfaz de votación es bastante tosca: el "
 "votante tiene que introducir un número entero delante de cada respuesta."
 
-#: src/web/server/common/pages_admin.ml:2304
-#. src/web/server/common/pages_admin.ml:2198
-#. src/web/server/common/pages_admin.ml:2090
-#. src/web/server/common/pages_admin.ml:994
-#. src/web/server/common/pages_admin.ml:959
-#. src/web/server/common/pages_admin.ml:814
-#. src/web/server/common/pages_admin.ml:759
+#: src/web/server/common/pages_admin.ml:2308
+#. src/web/server/common/pages_admin.ml:2202
+#. src/web/server/common/pages_admin.ml:2094
+#. src/web/server/common/pages_admin.ml:998
+#. src/web/server/common/pages_admin.ml:963
+#. src/web/server/common/pages_admin.ml:818
+#. src/web/server/common/pages_admin.ml:763
 msgid "Link"
 msgstr "Enlace"
 
@@ -1103,7 +1100,7 @@ msgstr "Enlace para mezclar las papeletas encriptadas"
 msgid "Link to tally the election"
 msgstr "Enlace para el escrutinio de la elección"
 
-#: src/web/server/common/pages_admin.ml:1489
+#: src/web/server/common/pages_admin.ml:1493
 msgid "List of voters:"
 msgstr "Listado de electores:"
 
@@ -1111,24 +1108,24 @@ msgstr "Listado de electores:"
 msgid "Loading…"
 msgstr "Cargando…"
 
-#: src/web/server/common/pages_admin.ml:155
+#: src/web/server/common/pages_admin.ml:156
 msgid "Log in with"
 msgstr "Iniciar con"
 
-#: src/web/server/common/pages_admin.ml:125
+#: src/web/server/common/pages_admin.ml:126
 msgid "Log in:"
 msgstr "Usuario:"
 
-#: src/web/server/common/pages_admin.ml:109
+#: src/web/server/common/pages_admin.ml:110
 msgid "Log out"
 msgstr "Salir"
 
-#: src/web/server/common/pages_admin.ml:103
+#: src/web/server/common/pages_admin.ml:104
 msgid "Logged in as"
 msgstr "Conectado como"
 
-#: src/web/server/common/pages_admin.ml:2085
-#. src/web/server/common/pages_admin.ml:993
+#: src/web/server/common/pages_admin.ml:2089
+#. src/web/server/common/pages_admin.ml:997
 msgid "Mail"
 msgstr "Correo"
 
@@ -1136,7 +1133,7 @@ msgstr "Correo"
 msgid "Maximum number of choices must be greater than 0!"
 msgstr "¡El número máximo de opciones debe ser mayor que cero!"
 
-#: src/web/server/common/pages_admin.ml:1000
+#: src/web/server/common/pages_admin.ml:1004
 msgid "Meaning of states:"
 msgstr "Significado de los estados:"
 
@@ -1144,20 +1141,20 @@ msgstr "Significado de los estados:"
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr "¡El numero mínimo de opciones debe ser menor o igual al número máximo!"
 
-#: src/web/server/common/pages_admin.ml:1825
-#. src/web/server/common/pages_admin.ml:1807
-#. src/web/server/common/pages_admin.ml:1801
-#. src/web/server/common/pages_admin.ml:1796
-#. src/web/server/common/pages_admin.ml:1778
+#: src/web/server/common/pages_admin.ml:1829
+#. src/web/server/common/pages_admin.ml:1811
+#. src/web/server/common/pages_admin.ml:1805
+#. src/web/server/common/pages_admin.ml:1800
+#. src/web/server/common/pages_admin.ml:1782
 msgid "Missing"
 msgstr "Faltante"
 
-#: src/web/server/common/pages_admin.ml:2386
+#: src/web/server/common/pages_admin.ml:2390
 msgid "Missing voters"
 msgstr "Votantes sin participar"
 
-#: src/web/clients/tool/tool_js_questions.ml:345
-#. src/web/server/common/pages_admin.ml:1225
+#: src/web/clients/tool/tool_js_questions.ml:342
+#. src/web/server/common/pages_admin.ml:1229
 msgid "More information."
 msgstr "Más información."
 
@@ -1177,23 +1174,23 @@ msgstr "Debe comenzar con comillas (el caracter escrito es diferente)"
 msgid "Must start with a double quote (empty string given)"
 msgstr "Debe comenzar con comillas (la cadena está vacía)"
 
-#: src/web/server/common/pages_admin.ml:519
+#: src/web/server/common/pages_admin.ml:523
 msgid "Name <user@example.org>"
 msgstr "Nombre <usuario@ejemplo.org>"
 
-#: src/web/server/common/pages_admin.ml:474
+#: src/web/server/common/pages_admin.ml:478
 msgid "Name and description of the election"
 msgstr "Nombre y descripción de la elección"
 
-#: src/web/server/common/pages_admin.ml:451
+#: src/web/server/common/pages_admin.ml:455
 msgid "Name of the election"
 msgstr "Nombre de la elección"
 
-#: src/web/server/common/pages_admin.ml:447
+#: src/web/server/common/pages_admin.ml:451
 msgid "Name of the election:"
 msgstr "Nombre de la elección:"
 
-#: src/web/clients/tool/tool_js_questions.ml:450
+#: src/web/clients/tool/tool_js_questions.ml:425
 msgid "Name of the election: "
 msgstr "Nombre de la elección: "
 
@@ -1201,23 +1198,23 @@ msgstr "Nombre de la elección: "
 msgid "Name:"
 msgstr "Nombre:"
 
-#: src/web/server/common/pages_admin.ml:1864
+#: src/web/server/common/pages_admin.ml:1868
 msgid "Name?"
 msgstr "¿Nombre?"
 
-#: src/web/server/common/pages_admin.ml:239
+#: src/web/server/common/pages_admin.ml:240
 msgid "New elections are not allowed on this server."
 msgstr "No se permiten nuevas elecciones en este servidor."
 
-#: src/web/server/common/pages_admin.ml:2209
-#. src/web/server/common/pages_admin.ml:2108
-#. src/web/server/common/pages_admin.ml:1852
-#. src/web/server/common/pages_admin.ml:1323
-#. src/web/server/common/pages_admin.ml:784
+#: src/web/server/common/pages_admin.ml:2213
+#. src/web/server/common/pages_admin.ml:2112
+#. src/web/server/common/pages_admin.ml:1856
+#. src/web/server/common/pages_admin.ml:1327
+#. src/web/server/common/pages_admin.ml:788
 msgid "No"
 msgstr "No"
 
-#: src/web/server/common/pages_admin.ml:1856
+#: src/web/server/common/pages_admin.ml:1860
 msgid "No contact was set!"
 msgstr "¡No se estableció ningún contacto!"
 
@@ -1225,18 +1222,18 @@ msgstr "¡No se estableció ningún contacto!"
 msgid "No matching public key was found!"
 msgstr "¡No se encontró ninguna clave pública coincidente!"
 
-#: src/web/server/common/site_admin.ml:422
+#: src/web/server/common/site_admin.ml:412
 msgid "No such language: %s"
 msgstr "El idioma no existe: %s"
 
-#: src/web/server/common/pages_admin.ml:1845
+#: src/web/server/common/pages_admin.ml:1849
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr ""
 "No se definieron fedatarios. Esto significa que el servidor gestionará "
 "automáticamente la clave de la elección."
 
-#: src/web/server/common/site_admin.ml:829
-#. src/web/server/common/pages_admin.ml:1344
+#: src/web/server/common/site_admin.ml:819
+#. src/web/server/common/pages_admin.ml:1348
 msgid "No voters"
 msgstr "No hay electores"
 
@@ -1244,50 +1241,50 @@ msgstr "No hay electores"
 msgid "Nobody voted!"
 msgstr "¡Nadie ha votado!"
 
-#: src/web/server/common/site_admin.ml:302
+#: src/web/server/common/site_admin.ml:292
 msgid "Non-empty CAS server, but CAS authentication not selected!"
 msgstr "Servidor CAS presente, pero ¡no se ha seleccionado autenticación CAS!"
 
-#: src/web/server/common/pages_admin.ml:1820
-#. src/web/server/common/pages_admin.ml:1797
+#: src/web/server/common/pages_admin.ml:1824
+#. src/web/server/common/pages_admin.ml:1801
 msgid "Not applicable"
 msgstr "No es aplicable"
 
-#: src/web/server/common/pages_admin.ml:1814
+#: src/web/server/common/pages_admin.ml:1818
 msgid "Not downloaded."
 msgstr "No ha sido descargado."
 
-#: src/web/server/common/pages_admin.ml:1784
-#. src/web/server/common/pages_admin.ml:1772
-#. src/web/server/common/pages_admin.ml:1766
+#: src/web/server/common/pages_admin.ml:1788
+#. src/web/server/common/pages_admin.ml:1776
+#. src/web/server/common/pages_admin.ml:1770
 msgid "Not edited"
 msgstr "No ha sido editado"
 
-#: src/web/server/common/pages_admin.ml:116
+#: src/web/server/common/pages_admin.ml:117
 msgid "Not logged in."
 msgstr "No ha ingresado."
 
-#: src/web/server/common/pages_admin.ml:1132
+#: src/web/server/common/pages_admin.ml:1136
 msgid "Note that this authority will personally have to send each credential to its respective voter."
 msgstr ""
 "Recuerde que esta autoridad deberá enviar las acreditaciones a cada votante "
 "en forma personal."
 
-#: src/web/server/common/pages_admin.ml:1217
+#: src/web/server/common/pages_admin.ml:1221
 msgid "Note that:"
 msgstr "Recuerde que:"
 
-#: src/web/server/common/pages_admin.ml:1968
-#. src/web/server/common/pages_admin.ml:1727
-#. src/web/server/common/pages_admin.ml:1470
+#: src/web/server/common/pages_admin.ml:1972
+#. src/web/server/common/pages_admin.ml:1731
+#. src/web/server/common/pages_admin.ml:1474
 msgid "Note:"
 msgstr "Aviso:"
 
-#: src/web/server/common/pages_admin.ml:2281
+#: src/web/server/common/pages_admin.ml:2285
 msgid "Note: no more partial decryptions will be allowed."
 msgstr "Nota: no se permitirán más desencriptaciones parciales."
 
-#: src/web/server/common/pages_admin.ml:669
+#: src/web/server/common/pages_admin.ml:673
 msgid "Note: this election will be automatically destroyed after "
 msgstr "Aviso: esta elección será eliminada automáticamente después de "
 
@@ -1311,7 +1308,7 @@ msgstr "Número de registros: %d%d"
 msgid "Of course, more cryptographic solutions are welcome as well."
 msgstr "Por supuesto, otras soluciones de cifrado serán bienvenidas."
 
-#: src/web/server/common/pages_admin.ml:1052
+#: src/web/server/common/pages_admin.ml:1056
 msgid "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption."
 msgstr ""
 "En esta página, usted puede configurar un grupo de fedatarios de modo que "
@@ -1323,17 +1320,17 @@ msgstr ""
 "Una vez finalizada y validada la elección, se espera que destruya el archivo "
 "creds.txt para obtener mayores garantías de privacidad."
 
-#: src/web/server/common/pages_admin.ml:1148
+#: src/web/server/common/pages_admin.ml:1152
 msgid "Once the election is open, check that:"
 msgstr "Una vez que la elección esté en marcha, verifique que:"
 
-#: src/web/server/common/pages_admin.ml:1550
+#: src/web/server/common/pages_admin.ml:1554
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
 msgstr ""
 "Una vez que la elección esté en marcha, usted debe verificar que esté "
 "presente en el conjunto de claves públicas anunciadas por el servidor."
 
-#: src/web/server/common/pages_admin.ml:1677
+#: src/web/server/common/pages_admin.ml:1681
 msgid "Once the election is open, you must check that it is present in the set of verification keys published by the server."
 msgstr ""
 "Una vez que la elección esté en marcha, usted debe verificar que esté "
@@ -1346,18 +1343,18 @@ msgstr ""
 "identificadores de sus dos claves estén presentes en el conjunto de claves "
 "anunciadas por el servidor."
 
-#: src/web/server/common/pages_admin.ml:1459 src/web/common/mails_admin.ml:47
+#: src/web/server/common/pages_admin.ml:1463 src/web/common/mails_admin.ml:47
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr ""
 "Una vez que la elección esté en marcha, usted debe verificar que coincidan "
 "con lo publicado por el servidor."
 
-#: src/web/server/common/pages_admin.ml:1162
+#: src/web/server/common/pages_admin.ml:1166
 msgid "Once the election is over, the file creds.txt must be destroyed."
 msgstr ""
 "Una vez que la elección concluya, el archivo creds.txt debe ser eliminado."
 
-#: src/web/server/common/pages_admin.ml:2002
+#: src/web/server/common/pages_admin.ml:2006
 msgid "Open election"
 msgstr "Abrir la elección"
 
@@ -1366,7 +1363,7 @@ msgstr "Abrir la elección"
 msgid "Or load it from a file:"
 msgstr "O cárguela desde un archivo:"
 
-#: src/web/server/common/pages_admin.ml:1215
+#: src/web/server/common/pages_admin.ml:1219
 msgid "Our platform currently supports Condorcet, STV and majority judgment, but you may also apply your own method on the raw result (shuffled list of ballots)."
 msgstr ""
 "Nuestra plataforma admite actualmente Condorcet, STV y el juicio por "
@@ -1377,19 +1374,19 @@ msgstr ""
 msgid "Partial decryption"
 msgstr "Desencriptado parcial"
 
-#: src/web/server/common/pages_admin.ml:1352
+#: src/web/server/common/pages_admin.ml:1356
 msgid "Password sent?"
 msgstr "¿Contraseñas enviadas?"
 
-#: src/web/server/common/site_admin.ml:499
+#: src/web/server/common/site_admin.ml:489
 msgid "Passwords have been generated and mailed!"
 msgstr "¡Las contraseñas han sido generadas y enviadas!"
 
-#: src/web/server/common/pages_admin.ml:372
+#: src/web/server/common/pages_admin.ml:373
 msgid "Passwords:"
 msgstr "Contraseñas:"
 
-#: src/web/server/common/pages_admin.ml:1884
+#: src/web/server/common/pages_admin.ml:1888
 msgid "Passwords?"
 msgstr "¿Contraseñas?"
 
@@ -1397,11 +1394,11 @@ msgstr "¿Contraseñas?"
 msgid "Personal data processing notice"
 msgstr "Aviso de privacidad y tratamiento de datos personales"
 
-#: src/web/server/common/pages_admin.ml:1816
+#: src/web/server/common/pages_admin.ml:1820
 msgid "Please "
 msgstr "Por favor "
 
-#: src/web/server/common/site_admin.ml:1594
+#: src/web/server/common/site_admin.ml:1526
 msgid "Please add some trustees first!"
 msgstr "¡Por favor agruegue primero algun(os) fedatario(s)!"
 
@@ -1422,7 +1419,7 @@ msgstr "Por favor escriba "
 msgid "Please enter the code here:"
 msgstr "Por favor, introduzca el código aquí:"
 
-#: src/web/server/common/pages_admin.ml:1367
+#: src/web/server/common/pages_admin.ml:1371
 msgid "Please enter the identities of voters to add, one per line"
 msgstr ""
 "Por favor introduzca, una por linea, las identificaciones de los electores a "
@@ -1446,11 +1443,11 @@ msgstr "Sírvase proporcionar uno:"
 msgid "Please wait… "
 msgstr "Por favor espere... "
 
-#: src/web/server/common/pages_admin.ml:2262
+#: src/web/server/common/pages_admin.ml:2266
 msgid "Postpone publication until"
 msgstr "Posponer la publicación hasta"
 
-#: src/web/common/pages_common.ml:72
+#: src/web/common/pages_common.ml:75
 msgid "Powered by "
 msgstr "Desarrollado por "
 
@@ -1462,73 +1459,73 @@ msgstr "Completar con Condorcet-Schulze"
 msgid "Prefill with Majority Judgment"
 msgstr "Completar con juicio por mayoría"
 
-#: src/web/server/common/pages_admin.ml:410
+#: src/web/server/common/pages_admin.ml:414
 msgid "Preparation of election %s"
 msgstr "Preparación de la elección %s"
 
-#: src/web/server/common/pages_admin.ml:291
-#. src/web/server/common/pages_admin.ml:244
+#: src/web/server/common/pages_admin.ml:292
+#. src/web/server/common/pages_admin.ml:245
 msgid "Prepare a new election"
 msgstr "Preparar una nueva elección"
 
-#: src/web/server/common/pages_admin.ml:402
+#: src/web/server/common/pages_admin.ml:405
 msgid "Preview booth"
 msgstr "Previsualizar la urna"
 
-#: src/web/common/pages_common.ml:79
+#: src/web/common/pages_common.ml:82
 msgid "Privacy policy"
 msgstr "Política de privacidad"
 
-#: src/web/server/common/pages_admin.ml:1896
+#: src/web/server/common/pages_admin.ml:1900
 msgid "Private credentials?"
 msgstr "¿Acreditaciones privadas?"
 
 #: src/web/server/common/pages_admin.ml:2877
 #. src/web/server/common/pages_admin.ml:2854
 #. src/web/server/common/pages_admin.ml:2830
-#. src/web/server/common/pages_admin.ml:1642
-#. src/web/server/common/pages_admin.ml:375
+#. src/web/server/common/pages_admin.ml:1646
+#. src/web/server/common/pages_admin.ml:376
 msgid "Proceed"
 msgstr "Continuar"
 
-#: src/web/server/common/pages_admin.ml:2143
+#: src/web/server/common/pages_admin.ml:2147
 msgid "Proceed to decryption"
 msgstr "Proceder al descifrado"
 
-#: src/web/server/common/pages_admin.ml:2041
+#: src/web/server/common/pages_admin.ml:2045
 msgid "Proceed to vote counting"
 msgstr "Proceder al escrutinio"
 
-#: src/web/server/common/pages_admin.ml:1432
+#: src/web/server/common/pages_admin.ml:1436
 msgid "Public credentials:"
 msgstr "Acreditaciones públicas:"
 
-#: src/web/server/common/pages_admin.ml:1530
+#: src/web/server/common/pages_admin.ml:1534
 msgid "Public key:"
 msgstr "Clave pública:"
 
-#: src/web/server/common/pages_admin.ml:992
-#. src/web/server/common/pages_admin.ml:812
+#: src/web/server/common/pages_admin.ml:996
+#. src/web/server/common/pages_admin.ml:816
 msgid "Public name"
 msgstr "Nombre público"
 
-#: src/web/server/common/pages_admin.ml:502
+#: src/web/server/common/pages_admin.ml:506
 msgid "Public name of the administrator"
 msgstr "Nombre público del administrador"
 
-#: src/web/server/common/pages_admin.ml:483
+#: src/web/server/common/pages_admin.ml:487
 msgid "Public name of the administrator:"
 msgstr "Nombre público del administrador:"
 
-#: src/web/server/common/pages_admin.ml:1872
+#: src/web/server/common/pages_admin.ml:1876
 msgid "Public name of the administrator?"
 msgstr "¿Nombre público del administrador?"
 
-#: src/web/server/common/pages_admin.ml:1094
+#: src/web/server/common/pages_admin.ml:1098
 msgid "Public name of the credential authority:"
 msgstr "Nombre público de la autoridad de credenciales:"
 
-#: src/web/server/common/pages_admin.ml:2249
+#: src/web/server/common/pages_admin.ml:2253
 msgid "Publish the result as soon as possible"
 msgstr "Publique el resultado lo antes posible"
 
@@ -1536,19 +1533,19 @@ msgstr "Publique el resultado lo antes posible"
 msgid "Question: "
 msgstr "Pregunta: "
 
-#: src/web/server/common/pages_admin.ml:1182
+#: src/web/server/common/pages_admin.ml:1186
 msgid "Questions for election %s"
 msgstr "Preguntas para la elección %s"
 
-#: src/web/server/common/pages_admin.ml:1194
+#: src/web/server/common/pages_admin.ml:1198
 msgid "Questions:"
 msgstr "Preguntas:"
 
-#: src/web/server/common/pages_admin.ml:1876
+#: src/web/server/common/pages_admin.ml:1880
 msgid "Questions?"
 msgstr "¿Preguntas?"
 
-#: src/web/server/common/pages_admin.ml:2425
+#: src/web/server/common/pages_admin.ml:2429
 msgid "Records"
 msgstr "Registros"
 
@@ -1560,53 +1557,53 @@ msgstr ""
 "es conocida junto con las otras claves de los demás fedatarios, la "
 "privacidad del voto no podrá ser garantizada)."
 
-#: src/web/server/common/pages_admin.ml:2371
+#: src/web/server/common/pages_admin.ml:2375
 msgid "Regenerate and e-mail a password"
 msgstr "Regenerar y enviar una contraseña"
 
-#: src/web/server/common/pages_admin.ml:2416
+#: src/web/server/common/pages_admin.ml:2420
 msgid "Regenerate and e-mail password"
 msgstr "Regenerar y enviar una contraseña"
 
-#: src/web/server/common/pages_admin.ml:1678
+#: src/web/server/common/pages_admin.ml:1682
 msgid "Remember that you must also check the presence of your public key."
 msgstr ""
 "Recuerde que usted debe también verificar la presencia de su clave pública."
 
-#: src/web/server/common/pages_admin.ml:1679
+#: src/web/server/common/pages_admin.ml:1683
 msgid "Remember to store you private key securely."
 msgstr "Recuerde almacenar su clave privada con seguridad."
 
 #: src/web/clients/tool/tool_js_questions.ml:245
 #. src/web/clients/tool/tool_js_questions.ml:153
-#. src/web/server/common/pages_admin.ml:1353
-#. src/web/server/common/pages_admin.ml:1293
-#. src/web/server/common/pages_admin.ml:996
-#. src/web/server/common/pages_admin.ml:907
-#. src/web/server/common/pages_admin.ml:816
-#. src/web/server/common/pages_admin.ml:730
+#. src/web/server/common/pages_admin.ml:1357
+#. src/web/server/common/pages_admin.ml:1297
+#. src/web/server/common/pages_admin.ml:1000
+#. src/web/server/common/pages_admin.ml:911
+#. src/web/server/common/pages_admin.ml:820
+#. src/web/server/common/pages_admin.ml:734
 msgid "Remove"
 msgstr "Eliminar"
 
-#: src/web/server/common/pages_admin.ml:1303
+#: src/web/server/common/pages_admin.ml:1307
 msgid "Remove all"
 msgstr "Eliminar todos"
 
-#: src/web/server/common/pages_admin.ml:1041
+#: src/web/server/common/pages_admin.ml:1045
 msgid "Reset threshold"
 msgstr "Reestablecer umbral"
 
-#: src/web/clients/tool/tool_js_questions.ml:503
-#. src/web/server/common/pages_admin.ml:1197
-#. src/web/server/common/pages_admin.ml:526
-#. src/web/server/common/pages_admin.ml:496
-#. src/web/server/common/pages_admin.ml:467
-#. src/web/server/common/pages_admin.ml:431
+#: src/web/clients/tool/tool_js_questions.ml:475
+#. src/web/server/common/pages_admin.ml:1201
+#. src/web/server/common/pages_admin.ml:530
+#. src/web/server/common/pages_admin.ml:500
+#. src/web/server/common/pages_admin.ml:471
+#. src/web/server/common/pages_admin.ml:435
 msgid "Save changes"
 msgstr "Guardar los cambios"
 
-#: src/web/server/common/pages_admin.ml:1676
-#. src/web/server/common/pages_admin.ml:1548
+#: src/web/server/common/pages_admin.ml:1680
+#. src/web/server/common/pages_admin.ml:1552
 msgid "Save the fingerprint above."
 msgstr "Guardar la huella digital."
 
@@ -1617,28 +1614,28 @@ msgstr ""
 "elección esté en marcha, usted debe verificar que esté presente en el "
 "conjunto de huellas digitales de verificación publicadas por el servidor."
 
-#: src/web/server/common/pages_admin.ml:1457
+#: src/web/server/common/pages_admin.ml:1461
 msgid "Save the two fingerprints above."
 msgstr "Guarde ambas huellas digitales."
 
-#: src/web/server/common/pages_admin.ml:2099
+#: src/web/server/common/pages_admin.ml:2103
 msgid "Select this trustee"
 msgstr "Seleccione a esta(e) fedataria(o)"
 
-#: src/web/server/common/pages_admin.ml:1317
+#: src/web/server/common/pages_admin.ml:1321
 msgid "Send again"
 msgstr "Reenviar"
 
-#: src/web/server/common/pages_admin.ml:1116
+#: src/web/server/common/pages_admin.ml:1120
 msgid "Send instructions to the credential authority"
 msgstr "Enviar instrucciones a autoridad de credenciales"
 
-#: src/web/server/common/pages_admin.ml:317
+#: src/web/server/common/pages_admin.ml:318
 msgid "Server address:"
 msgstr "Dirección de servidor:"
 
-#: src/web/server/common/pages_admin.ml:1097
-#. src/web/server/common/pages_admin.ml:1024
+#: src/web/server/common/pages_admin.ml:1101
+#. src/web/server/common/pages_admin.ml:1028
 msgid "Set"
 msgstr "Confirmar"
 
@@ -1650,11 +1647,11 @@ msgstr "Mezclar"
 msgid "Shuffled list of ballots:"
 msgstr "Lista de votos mezclados:"
 
-#: src/web/server/common/pages_admin.ml:2153
+#: src/web/server/common/pages_admin.ml:2157
 msgid "Shuffling of ballots"
 msgstr "Mezcla de papeletas"
 
-#: src/web/server/common/pages_admin.ml:2062
+#: src/web/server/common/pages_admin.ml:2066
 msgid "Skip"
 msgstr "Ignorar"
 
@@ -1668,7 +1665,7 @@ msgstr ""
 "Alguien está intentando asociar su dirección de correo electrónico a una "
 "cuenta en nuestro servidor Belenios."
 
-#: src/web/server/common/pages_admin.ml:995
+#: src/web/server/common/pages_admin.ml:999
 msgid "State"
 msgstr "Estado"
 
@@ -1676,7 +1673,7 @@ msgstr "Estado"
 msgid "Step %d/3"
 msgstr "Paso %d/3"
 
-#: src/web/server/common/pages_admin.ml:1584
+#: src/web/server/common/pages_admin.ml:1588
 msgid "Step 0/3"
 msgstr "Paso 0/3"
 
@@ -1688,51 +1685,51 @@ msgstr "Paso 0/3"
 #. src/web/server/common/pages_admin.ml:2638
 #. src/web/server/common/pages_admin.ml:2598
 #. src/web/server/common/pages_admin.ml:2537
-#. src/web/server/common/pages_admin.ml:2411
-#. src/web/server/common/pages_admin.ml:1652
-#. src/web/server/common/pages_admin.ml:1619
-#. src/web/server/common/pages_admin.ml:1483
+#. src/web/server/common/pages_admin.ml:2415
+#. src/web/server/common/pages_admin.ml:1656
+#. src/web/server/common/pages_admin.ml:1623
+#. src/web/server/common/pages_admin.ml:1487
 msgid "Submit"
 msgstr "Enviar"
 
-#: src/web/server/common/pages_admin.ml:1480
+#: src/web/server/common/pages_admin.ml:1484
 msgid "Submit by file"
 msgstr "Enviar como archivo"
 
-#: src/web/server/common/pages_admin.ml:1646
-#. src/web/server/common/pages_admin.ml:1617
+#: src/web/server/common/pages_admin.ml:1650
+#. src/web/server/common/pages_admin.ml:1621
 msgid "Submit data using the following button:"
 msgstr "Enviar los datos usando el siguiente botón:"
 
-#: src/web/server/common/pages_admin.ml:1464
+#: src/web/server/common/pages_admin.ml:1468
 msgid "Submit public credentials"
 msgstr "Enviar acreditaciones públicas"
 
-#: src/web/server/common/pages_admin.ml:1461
+#: src/web/server/common/pages_admin.ml:1465
 msgid "Submit public credentials using the button below."
 msgstr "Envíe las acreditaciones públicas mediante el siguiente botón."
 
-#: src/web/server/common/pages_admin.ml:1555
+#: src/web/server/common/pages_admin.ml:1559
 msgid "Submit public key"
 msgstr "Enviar clave publica"
 
-#: src/web/server/common/pages_admin.ml:1552
+#: src/web/server/common/pages_admin.ml:1556
 msgid "Submit your public key using the button below."
 msgstr "Envíe su clave pública mediante el siguiente botón."
 
-#: src/web/server/common/site_admin.ml:1543
-#. src/web/server/common/site_admin.ml:1463
-#. src/web/server/common/site_admin.ml:930
-#. src/web/server/common/site_admin.ml:824
-#. src/web/server/common/site_admin.ml:523
-#. src/web/server/common/site_admin.ml:498
-#. src/web/server/common/site_admin.ml:388
+#: src/web/server/common/site_admin.ml:1475
+#. src/web/server/common/site_admin.ml:1395
+#. src/web/server/common/site_admin.ml:921
+#. src/web/server/common/site_admin.ml:814
+#. src/web/server/common/site_admin.ml:513
+#. src/web/server/common/site_admin.ml:488
+#. src/web/server/common/site_admin.ml:378
 msgid "Success"
 msgstr "Éxito"
 
 #: src/web/clients/basic/admin_basic.ml:204
-#. src/web/server/common/pages_admin.ml:1732
-#. src/web/server/common/pages_admin.ml:259
+#. src/web/server/common/pages_admin.ml:1736
+#. src/web/server/common/pages_admin.ml:260
 msgid "Tallied elections"
 msgstr "Elecciones escrutadas"
 
@@ -1746,7 +1743,7 @@ msgstr "Gracias de nuevo por su ayuda,"
 msgid "Thank you for your help,"
 msgstr "Gracias por su ayuda,"
 
-#: src/web/server/common/pages_admin.ml:2291
+#: src/web/server/common/pages_admin.ml:2295
 msgid "The "
 msgstr "El "
 
@@ -1758,11 +1755,11 @@ msgstr "¡El UUID no es válido!"
 msgid "The account creation "
 msgstr "La creación de cuenta "
 
-#: src/web/server/common/site_admin.ml:1909
+#: src/web/server/common/site_admin.ml:1841
 msgid "The account has been created."
 msgstr "La cuenta ha sido creada."
 
-#: src/web/server/common/site_admin.ml:833
+#: src/web/server/common/site_admin.ml:823
 msgid "The authority is not the server"
 msgstr "El servidor no es la autoridad"
 
@@ -1770,15 +1767,15 @@ msgstr "El servidor no es la autoridad"
 msgid "The change "
 msgstr "El cambio "
 
-#: src/web/server/common/pages_admin.ml:281
+#: src/web/server/common/pages_admin.ml:282
 msgid "The creation failed."
 msgstr "La creación falló."
 
-#: src/web/server/common/site_admin.ml:827
+#: src/web/server/common/site_admin.ml:817
 msgid "The credentials were already sent"
 msgstr "Las credenciales ya fueron enviadas"
 
-#: src/web/server/common/site_admin.ml:1121
+#: src/web/server/common/site_admin.ml:1113
 msgid "The date must be less than %d days in the future!"
 msgstr "¡La fecha debe ser inferior a %d días en el futuro!"
 
@@ -1789,19 +1786,19 @@ msgstr "¡La fecha debe ser inferior a %d días en el futuro!"
 msgid "The election administrator"
 msgstr "El administrador de elecciones"
 
-#: src/web/server/common/site_admin.ml:1394
+#: src/web/server/common/site_admin.ml:1326
 msgid "The election has already been tallied."
 msgstr "La elección ya ha sido escrutada."
 
-#: src/web/server/common/pages_admin.ml:2003
+#: src/web/server/common/pages_admin.ml:2007
 msgid "The election is closed. No one can vote."
 msgstr "La elección está cerrada. Nadie puede votar."
 
-#: src/web/server/common/site_admin.ml:1346
+#: src/web/server/common/site_admin.ml:1279
 msgid "The election is not archived!"
 msgstr "¡La elección no está archivada!"
 
-#: src/web/server/common/site_admin.ml:1391
+#: src/web/server/common/site_admin.ml:1323
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr ""
 "La elección no está lista para el escrutinio. Por favor, vuelva más tarde."
@@ -1810,16 +1807,16 @@ msgstr ""
 msgid "The election is now closed."
 msgstr "La elección está cerrada en este momento."
 
-#: src/web/server/common/pages_admin.ml:1999
+#: src/web/server/common/pages_admin.ml:2003
 msgid "The election is open. Voters can vote."
 msgstr "La elección está abierta. Los electores pueden votar."
 
-#: src/web/server/common/site_admin.ml:816
-#. src/web/server/common/site_admin.ml:478
+#: src/web/server/common/site_admin.ml:806
+#. src/web/server/common/site_admin.ml:468
 msgid "The election name has not been edited!"
 msgstr "¡El nombre de la elección no ha sido editado!"
 
-#: src/web/server/common/site_admin.ml:458
+#: src/web/server/common/site_admin.ml:448
 msgid "The election name must be %d characters or less!"
 msgstr "¡El nombre de la elección debe tener %d caracteres o menos!"
 
@@ -1827,7 +1824,7 @@ msgstr "¡El nombre de la elección debe tener %d caracteres o menos!"
 msgid "The fingerprint of the encrypted tally is "
 msgstr "La huella digital del escrutinio cifrado es "
 
-#: src/web/server/common/pages_admin.ml:1612
+#: src/web/server/common/pages_admin.ml:1616
 msgid "The fingerprint of your public key is "
 msgstr "La huella digital de su clave pública es "
 
@@ -1843,16 +1840,16 @@ msgstr "Aparecerá la huella digital de su mezcla. Guárdela."
 msgid "The given maximum is greater than the number of choices!"
 msgstr "¡El máximo ingresado es mayor que el número de opciones!"
 
-#: src/web/server/common/pages_admin.ml:2220
-#. src/web/server/common/pages_admin.ml:2125
-#. src/web/server/common/pages_admin.ml:974
-#. src/web/server/common/pages_admin.ml:796
+#: src/web/server/common/pages_admin.ml:2224
+#. src/web/server/common/pages_admin.ml:2129
+#. src/web/server/common/pages_admin.ml:978
+#. src/web/server/common/pages_admin.ml:800
 msgid "The link that must be sent to trustee "
 msgstr "El enlace que debe enviarse al fedatario "
 
-#: src/web/server/common/pages_admin.ml:1590
-#. src/web/server/common/pages_admin.ml:1517
-#. src/web/server/common/pages_admin.ml:1422
+#: src/web/server/common/pages_admin.ml:1594
+#. src/web/server/common/pages_admin.ml:1521
+#. src/web/server/common/pages_admin.ml:1426
 msgid "The link to the election will be:"
 msgstr "El enlace a la elección será:"
 
@@ -1862,11 +1859,11 @@ msgstr ""
 "La página también contiene instrucciones para verificar el registro de "
 "votación, después del escrutinio."
 
-#: src/web/server/common/site_admin.ml:1469
+#: src/web/server/common/site_admin.ml:1401
 msgid "The partial decryption didn't pass validation!"
 msgstr "¡El descifrado parcial no pasó la validación!"
 
-#: src/web/server/common/site_admin.ml:1933
+#: src/web/server/common/site_admin.ml:1865
 msgid "The password has been changed."
 msgstr "La contraseña ha sido cambiada."
 
@@ -1874,18 +1871,18 @@ msgstr "La contraseña ha sido cambiada."
 msgid "The private key must be downloaded first!"
 msgstr "¡La clave privada debe descargarse primero!"
 
-#: src/web/server/common/site_admin.ml:210
+#: src/web/server/common/site_admin.ml:200
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr ""
 "El código proporcionado es incorrecto. Vuelva atrás e inténtelo de nuevo."
 
-#: src/web/server/common/site_admin.ml:387
+#: src/web/server/common/site_admin.ml:377
 msgid "The public name of the credential authority has been set successfully!"
 msgstr ""
 "¡El nombre público de la autoridad de credenciales se ha establecido "
 "correctamente!"
 
-#: src/web/server/common/pages_admin.ml:2240
+#: src/web/server/common/pages_admin.ml:2244
 msgid "The result is scheduled to be published after %s."
 msgstr "El resultado está programado para publicarse después de %s."
 
@@ -1895,16 +1892,16 @@ msgstr ""
 "La segunda casiila ahora está con material criptográfico. Por favor presione "
 "el botón \"Enviar\"."
 
-#: src/web/server/common/site_admin.ml:1543
+#: src/web/server/common/site_admin.ml:1475
 msgid "The shuffle has been successfully applied!"
 msgstr "¡La mezcla fue hecha correctamente!"
 
-#: src/web/server/common/site_admin.ml:1598
+#: src/web/server/common/site_admin.ml:1530
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr "¡El umbral debe ser positivo y menor que el número de fedatarios!"
 
-#: src/web/server/common/site_admin.ml:1006
-#. src/web/server/common/site_admin.ml:639
+#: src/web/server/common/site_admin.ml:998
+#. src/web/server/common/site_admin.ml:629
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 "No se puede manejar el peso total (%s). Su valor expandido debe ser menor "
@@ -1914,13 +1911,13 @@ msgstr ""
 msgid "The voter has to choose between "
 msgstr "El/la votante tiene que elegir entre "
 
-#: src/web/server/common/site_admin.ml:645
+#: src/web/server/common/site_admin.ml:635
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr ""
 "La lista de electores no es consistente (falta un nombre de usuario o un "
 "peso)."
 
-#: src/web/server/common/site_admin.ml:663
+#: src/web/server/common/site_admin.ml:653
 msgid "There are too many voters (max is %d)"
 msgstr "Hay demasiados electores (el máximo es %d)"
 
@@ -1938,11 +1935,11 @@ msgstr "No hay ninguna dirección de correo electrónico asociada a su cuenta."
 msgid "There is no election with UUID %s on this server!"
 msgstr "¡No hay elecciones con el UUID %s en este servidor!"
 
-#: src/web/server/common/pages_admin.ml:1059
+#: src/web/server/common/pages_admin.ml:1063
 msgid "There is one link per trustee. Send a link to each trustee."
 msgstr "Existe un enlace por fedatario. Envíe un enlace a cada fedatario."
 
-#: src/web/server/common/pages_admin.ml:833
+#: src/web/server/common/pages_admin.ml:837
 msgid "There is one link per trustee. Send each trustee the respective link."
 msgstr ""
 "Hay un enlace por fedatario. Envíe a cada fedatario el enlace respectivo."
@@ -1951,42 +1948,42 @@ msgstr ""
 msgid "There will be 3 steps."
 msgstr "Habrá 3 pasos."
 
-#: src/web/server/common/site_admin.ml:1967
+#: src/web/server/common/site_admin.ml:1899
 msgid "This account does not exist"
 msgstr "Esta cuenta no existe"
 
-#: src/web/server/common/pages_admin.ml:1213
+#: src/web/server/common/pages_admin.ml:1217
 msgid "This allows deciding the winner according to your favorite counting method."
 msgstr ""
 "Esto permite decidir el ganador de acuerdo con su método de conteo favorito."
 
-#: src/web/server/common/pages_admin.ml:523
+#: src/web/server/common/pages_admin.ml:527
 msgid "This contact will be added to emails sent to the voters."
 msgstr ""
 "Este contacto se agregará a los correos electrónicos enviados a los "
 "electores."
 
-#: src/web/server/common/site_admin.ml:187
+#: src/web/server/common/site_admin.ml:177
 msgid "This e-mail address is invalid!"
 msgstr "¡Esta dirección de correo electrónico no es válida!"
 
-#: src/web/server/common/pages_admin.ml:2312
+#: src/web/server/common/pages_admin.ml:2316
 msgid "This election has been tallied."
 msgstr "Esta elección ha sido escrutada."
 
-#: src/web/server/common/pages_admin.ml:2316
+#: src/web/server/common/pages_admin.ml:2320
 msgid "This election is archived."
 msgstr "Esta elección está archivada."
 
-#: src/web/server/common/pages_admin.ml:2328
+#: src/web/server/common/pages_admin.ml:2332
 msgid "This election will be automatically archived after "
 msgstr "Esta elección se archivará automáticamente después de "
 
-#: src/web/server/common/pages_admin.ml:2345
+#: src/web/server/common/pages_admin.ml:2349
 msgid "This election will be automatically deleted after "
 msgstr "Esta elección se eliminará automáticamente después de "
 
-#: src/web/server/common/pages_admin.ml:428
+#: src/web/server/common/pages_admin.ml:432
 msgid "This is a space-separated list of languages that will be used in emails sent by the server."
 msgstr ""
 "Esta es una lista de idiomas separados por espacios que se utilizarán en los "
@@ -1996,33 +1993,33 @@ msgstr ""
 msgid "This is the private key of %s."
 msgstr "Esta es la clave privada de %s."
 
-#: src/web/server/common/site_admin.ml:553
+#: src/web/server/common/site_admin.ml:543
 msgid "This kind of change is not allowed now!"
 msgstr "¡Este tipo de cambio no está permitido ahora!"
 
-#: src/web/server/common/pages_admin.ml:1454 src/web/common/mails_admin.ml:45
+#: src/web/server/common/pages_admin.ml:1458 src/web/common/mails_admin.ml:45
 msgid "This list must be the one approved by the election commission."
 msgstr "Esta lista debe ser la aprobada por la comisión electoral."
 
-#: src/web/server/common/pages_admin.ml:493
+#: src/web/server/common/pages_admin.ml:497
 msgid "This name will be published on the election result page."
 msgstr "Este nombre se publicará en la página de resultados de las elecciones."
 
-#: src/web/server/common/site_admin.ml:108
+#: src/web/server/common/site_admin.ml:98
 msgid "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 msgstr ""
 "Los administradores autenticados no pueden acceder a esta página porque está "
 "destinada a ser utilizada por terceros."
 
-#: src/web/server/common/pages_admin.ml:1021
+#: src/web/server/common/pages_admin.ml:1025
 msgid "Threshold:"
 msgstr "Umbral:"
 
-#: src/web/server/common/pages_admin.ml:1233
+#: src/web/server/common/pages_admin.ml:1237
 msgid "Tick the box to activate this mode."
 msgstr "Marque la casilla para activar este modo."
 
-#: src/web/server/common/pages_admin.ml:180
+#: src/web/server/common/pages_admin.ml:181
 msgid "To administer an election, you need to log in."
 msgstr "Para administrar una elección, debe iniciar sesión."
 
@@ -2035,13 +2032,13 @@ msgstr "Para confirmar que se crea la cuenta utilice el siguiente código:"
 msgid "To confirm this, please use the following code:"
 msgstr "Para confirmar esto, utilice el siguiente código:"
 
-#: src/web/server/common/pages_admin.ml:845
+#: src/web/server/common/pages_admin.ml:849
 msgid "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 msgstr ""
 "Para configurar la clave de la elección, debe nominar fedatarios. Cada "
 "fedatario creará una clave secreta."
 
-#: src/web/server/common/pages_admin.ml:847
+#: src/web/server/common/pages_admin.ml:851
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
 msgstr ""
 "Para configurar la elección de modo que solo se necesite un subconjunto de "
@@ -2055,33 +2052,33 @@ msgstr "Para utilizar este sitio, debe aceptar nuestra "
 msgid "Too short"
 msgstr "Demasiado corta"
 
-#: src/web/server/common/pages_admin.ml:2302
-#. src/web/server/common/pages_admin.ml:2157
-#. src/web/server/common/pages_admin.ml:991
-#. src/web/server/common/pages_admin.ml:811
+#: src/web/server/common/pages_admin.ml:2306
+#. src/web/server/common/pages_admin.ml:2161
+#. src/web/server/common/pages_admin.ml:995
+#. src/web/server/common/pages_admin.ml:815
 msgid "Trustee"
 msgstr "Fedatario"
 
-#: src/web/server/common/pages_admin.ml:1579
-#. src/web/server/common/pages_admin.ml:1514
+#: src/web/server/common/pages_admin.ml:1583
+#. src/web/server/common/pages_admin.ml:1518
 msgid "Trustee key generation"
 msgstr "Generación de claves de fedatarios"
 
-#: src/web/server/common/pages_admin.ml:889
-#. src/web/server/common/pages_admin.ml:713
+#: src/web/server/common/pages_admin.ml:893
+#. src/web/server/common/pages_admin.ml:717
 msgid "Trustee's e-mail address:"
 msgstr "Dirección de correo electrónico del fedatario:"
 
-#: src/web/server/common/pages_admin.ml:598
+#: src/web/server/common/pages_admin.ml:602
 msgid "Trustees"
 msgstr "Fedatarios"
 
-#: src/web/server/common/pages_admin.ml:870
-#. src/web/server/common/pages_admin.ml:707
+#: src/web/server/common/pages_admin.ml:874
+#. src/web/server/common/pages_admin.ml:711
 msgid "Trustees for election %s"
 msgstr "Fedatarios de la elección %s"
 
-#: src/web/server/common/pages_admin.ml:1900
+#: src/web/server/common/pages_admin.ml:1904
 msgid "Trustees?"
 msgstr "¿Fedatarios?"
 
@@ -2094,11 +2091,15 @@ msgstr "Escriba la contraseña nuevamente: "
 msgid "UUID of the election:"
 msgstr "UUID de la elección:"
 
-#: src/web/server/common/site_admin.ml:1048
+#: src/web/server/common/pages_admin.ml:409
+msgid "Unsupported booth version"
+msgstr ""
+
+#: src/web/server/common/site_admin.ml:1040
 msgid "Unsupported trustees!"
 msgstr "¡Fedatarios no soportados!"
 
-#: src/web/server/common/pages_admin.ml:1481
+#: src/web/server/common/pages_admin.ml:1485
 msgid "Use this form to upload public credentials generated with the command-line tool."
 msgstr ""
 "Utilice este formulario para cargar credenciales públicas generadas con la "
@@ -2108,33 +2109,33 @@ msgstr ""
 msgid "Username"
 msgstr "Nombre de Usuario"
 
-#: src/web/server/common/pages_admin.ml:2407
+#: src/web/server/common/pages_admin.ml:2411
 msgid "Username:"
 msgstr "Nombre de usuario:"
 
-#: src/web/server/common/pages_admin.ml:1931
-#. src/web/server/common/pages_admin.ml:1761
-#. src/web/server/common/pages_admin.ml:656
+#: src/web/server/common/pages_admin.ml:1935
+#. src/web/server/common/pages_admin.ml:1765
+#. src/web/server/common/pages_admin.ml:660
 msgid "Validate creation"
 msgstr "Validar creación"
 
-#: src/web/server/common/pages_admin.ml:190
+#: src/web/server/common/pages_admin.ml:191
 msgid "Verifiable online voting platform"
 msgstr "Plataforma de votación online verificable"
 
-#: src/web/server/common/pages_admin.ml:2380
+#: src/web/server/common/pages_admin.ml:2384
 msgid "Voter list"
 msgstr "Lista de electores"
 
-#: src/web/server/common/pages_admin.ml:1263
+#: src/web/server/common/pages_admin.ml:1267
 msgid "Voters for election %s"
 msgstr "Votantes para la elección %s"
 
-#: src/web/server/common/pages_admin.ml:1880
+#: src/web/server/common/pages_admin.ml:1884
 msgid "Voters?"
 msgstr "¿Votantes?"
 
-#: src/web/server/common/pages_admin.ml:2383
+#: src/web/server/common/pages_admin.ml:2387
 msgid "Voting records"
 msgstr "Registros de la votación"
 
@@ -2150,17 +2151,17 @@ msgstr ""
 "Esperando a los otros fedatarios ... Vuelva a cargar la página para "
 "comprobar el progreso."
 
-#: src/web/server/common/pages_admin.ml:1854
-#. src/web/server/common/pages_admin.ml:1843
-#. src/web/server/common/pages_admin.ml:1379
+#: src/web/server/common/pages_admin.ml:1858
+#. src/web/server/common/pages_admin.ml:1847
+#. src/web/server/common/pages_admin.ml:1383
 msgid "Warning:"
 msgstr "Advertencia:"
 
-#: src/web/server/common/pages_admin.ml:2359
+#: src/web/server/common/pages_admin.ml:2363
 msgid "Warning: This action is irreversible."
 msgstr "Advertencia: esta acción es irreversible."
 
-#: src/web/server/common/pages_admin.ml:2044
+#: src/web/server/common/pages_admin.ml:2048
 msgid "Warning: This action is irreversible; the election will be definitively closed."
 msgstr ""
 "Advertencia: esta acción es irreversible; la elección quedará "
@@ -2174,7 +2175,7 @@ msgstr ""
 "Advertencia: este código es válido por 15 minutos y los códigos enviados "
 "anteriormente a esta dirección ya no son válidos."
 
-#: src/web/server/common/pages_admin.ml:640
+#: src/web/server/common/pages_admin.ml:644
 msgid "Warning: this will freeze the voter list!"
 msgstr "Advertencia: ¡esto congelará la lista de electores!"
 
@@ -2188,15 +2189,15 @@ msgstr ""
 "Cuando los resultados de la elección sean publicados, asegúrese que la "
 "huella digital de su mezcla aparezca en la página de resultados."
 
-#: src/web/server/common/pages_admin.ml:2209
-#. src/web/server/common/pages_admin.ml:2108
-#. src/web/server/common/pages_admin.ml:1858
-#. src/web/server/common/pages_admin.ml:1322
-#. src/web/server/common/pages_admin.ml:784
+#: src/web/server/common/pages_admin.ml:2213
+#. src/web/server/common/pages_admin.ml:2112
+#. src/web/server/common/pages_admin.ml:1862
+#. src/web/server/common/pages_admin.ml:1326
+#. src/web/server/common/pages_admin.ml:788
 msgid "Yes"
 msgstr "Sí"
 
-#: src/web/server/common/site_admin.ml:1093
+#: src/web/server/common/site_admin.ml:1085
 msgid "You are not allowed to administer this election!"
 msgstr "¡No se le permite administrar esta elección!"
 
@@ -2204,23 +2205,23 @@ msgstr "¡No se le permite administrar esta elección!"
 msgid "You can also access the "
 msgstr "También puede acceder al "
 
-#: src/web/server/common/pages_admin.ml:167
+#: src/web/server/common/pages_admin.ml:168
 msgid "You can also log in with"
 msgstr "También puede iniciar sesión con"
 
-#: src/web/server/common/site_admin.ml:1830
+#: src/web/server/common/site_admin.ml:1762
 msgid "You cannot change your password now. Please try later."
 msgstr "No puede cambiar su contraseña ahora. Por favor intente mas tarde."
 
-#: src/web/server/common/site_admin.ml:1789
+#: src/web/server/common/site_admin.ml:1721
 msgid "You cannot create an account now. Please try later."
 msgstr "No puede crear una cuenta ahora. Por favor intente mas tarde."
 
-#: src/web/server/common/site_admin.ml:378
+#: src/web/server/common/site_admin.ml:368
 msgid "You cannot set the credential authority for this election!"
 msgstr "¡No puede establecer la autoridad de credenciales para esta elección!"
 
-#: src/web/server/common/pages_admin.ml:2279
+#: src/web/server/common/pages_admin.ml:2283
 msgid "You may force the computation of the result now, if the required number of trustees have done their job, by clicking on the following button."
 msgstr ""
 "Puede forzar el cálculo del resultado ahora, si el número requerido de "
@@ -2232,7 +2233,7 @@ msgstr ""
 "Es posible que deba volver a enviar las acreditaciones a los electores que "
 "las perdieron."
 
-#: src/web/server/common/pages_admin.ml:2259
+#: src/web/server/common/pages_admin.ml:2263
 msgid "You may postpone the publication of the election result up to %d days in the future."
 msgstr ""
 "Puede posponer la publicación del resultado de la elección hasta %d días en "
@@ -2250,7 +2251,7 @@ msgstr ""
 "Puede utilizar un script propio o el que se proporciona en la distribución "
 "de Belenios, consulte las instrucciones aquí:"
 
-#: src/web/server/common/pages_admin.ml:1211
+#: src/web/server/common/pages_admin.ml:1215
 msgid "You may wish voters to rank candidates or give each candidate a score."
 msgstr ""
 "Es posible que desee que los electores clasifiquen a los candidatos o le den "
@@ -2262,15 +2263,15 @@ msgstr ""
 "Debe registrar esta huella digital y verificar que aparezca en la página de "
 "resultados de la elección."
 
-#: src/web/server/common/site_admin.ml:404
+#: src/web/server/common/site_admin.ml:394
 msgid "You must select at least one language!"
 msgstr "¡Debes seleccionar al menos un idioma!"
 
-#: src/web/server/common/pages_admin.ml:1723
-#. src/web/server/common/pages_admin.ml:233
-#. src/web/server/common/pages_admin.ml:228
-#. src/web/server/common/pages_admin.ml:223
-#. src/web/server/common/pages_admin.ml:218
+#: src/web/server/common/pages_admin.ml:1727
+#. src/web/server/common/pages_admin.ml:234
+#. src/web/server/common/pages_admin.ml:229
+#. src/web/server/common/pages_admin.ml:224
+#. src/web/server/common/pages_admin.ml:219
 msgid "You own no such elections!"
 msgstr "¡No eres dueño de tales elecciones!"
 
@@ -2292,19 +2293,19 @@ msgstr ""
 "Luego, deberá enviar (generalmente por correo electrónico) cada acreditación "
 "privada al votante asociado como está escrito en el archivo creds.txt."
 
-#: src/web/server/common/pages_admin.ml:1609
+#: src/web/server/common/pages_admin.ml:1613
 msgid "You will use it in the next steps and to decrypt the final result."
 msgstr "Lo usará en los siguientes pasos y para descifrar el resultado final."
 
-#: src/web/server/common/pages_admin.ml:1545
+#: src/web/server/common/pages_admin.ml:1549
 msgid "You will use it to decrypt the final result."
 msgstr "Lo usará para descifrar el resultado final."
 
-#: src/web/server/common/pages_admin.ml:1447 src/web/common/mails_admin.ml:43
+#: src/web/server/common/pages_admin.ml:1451 src/web/common/mails_admin.ml:43
 msgid "You will use it to send credentials to voters."
 msgstr "Lo usará para enviar acreditaciones a los electores."
 
-#: src/web/server/common/pages_admin.ml:1385
+#: src/web/server/common/pages_admin.ml:1389
 msgid "You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
 "No podrá modificar las direcciones de email una vez que las credenciales "
@@ -2334,19 +2335,19 @@ msgstr ""
 "publicada por el servidor cuando la elección esté abierta. Se necesitará su "
 "clave privada para descifrar el resultado de la elección."
 
-#: src/web/server/common/site_admin.ml:929
+#: src/web/server/common/site_admin.ml:920
 msgid "Your key has been received and checked!"
 msgstr "¡Su clave ha sido recibida y revisada!"
 
-#: src/web/server/common/site_admin.ml:1381
+#: src/web/server/common/site_admin.ml:1313
 msgid "Your partial decryption has already been received and checked!"
 msgstr "¡Su descifrado parcial ya ha sido recibido y verificado!"
 
-#: src/web/server/common/site_admin.ml:1464
+#: src/web/server/common/site_admin.ml:1396
 msgid "Your partial decryption has been received and checked!"
 msgstr "¡Su descifrado parcial ha sido recibido y verificado!"
 
-#: src/web/server/common/site_admin.ml:875
+#: src/web/server/common/site_admin.ml:866
 msgid "Your public key has already been received!"
 msgstr "¡Su clave pública ya ha sido recibida!"
 
@@ -2359,19 +2360,15 @@ msgstr "Su nombre de usuario es: "
 msgid "anonymous trustee"
 msgstr "administrador anónimo"
 
-#: src/web/clients/tool/tool_js_questions.ml:431
-msgid "classic"
-msgstr "Clásico"
-
-#: src/web/server/common/pages_admin.ml:139
+#: src/web/server/common/pages_admin.ml:140
 msgid "contact us"
 msgstr "Contacte con nosotros"
 
-#: src/web/server/common/pages_admin.ml:1006
+#: src/web/server/common/pages_admin.ml:1010
 msgid "done: the key establishment protocol is finished"
 msgstr "hecho: el protocolo de establecimiento de claves ha finalizado"
 
-#: src/web/server/common/pages_admin.ml:1817
+#: src/web/server/common/pages_admin.ml:1821
 msgid "download"
 msgstr "descargar"
 
@@ -2379,7 +2376,7 @@ msgstr "descargar"
 msgid "draft election parameters"
 msgstr "proyecto de los parámetros electorales"
 
-#: src/web/server/common/pages_admin.ml:1917
+#: src/web/server/common/pages_admin.ml:1921
 msgid "election not ready"
 msgstr "elección no lista"
 
@@ -2387,11 +2384,11 @@ msgstr "elección no lista"
 msgid "election parameters"
 msgstr "parámetros electorales"
 
-#: src/web/server/common/pages_admin.ml:1915
+#: src/web/server/common/pages_admin.ml:1919
 msgid "election ready"
 msgstr "elección lista"
 
-#: src/web/server/common/pages_admin.ml:2294
+#: src/web/server/common/pages_admin.ml:2298
 msgid "encrypted tally"
 msgstr "escrutinio cifrado"
 
@@ -2400,21 +2397,17 @@ msgstr "escrutinio cifrado"
 msgid "failed"
 msgstr "falló"
 
-#: src/web/server/common/pages_admin.ml:605
+#: src/web/server/common/pages_admin.ml:609
 msgid "here"
 msgstr "aquí"
 
-#: src/web/server/common/pages_admin.ml:1002
+#: src/web/server/common/pages_admin.ml:1006
 msgid "init: administrator needs to set threshold"
 msgstr "init: el/la administrador/la necesita establecer umbral"
 
-#: src/web/server/common/pages_admin.ml:351
+#: src/web/server/common/pages_admin.ml:352
 msgid "more info"
 msgstr "más información"
-
-#: src/web/clients/tool/tool_js_questions.ml:435
-msgid "new interface"
-msgstr "Nueva interfaz"
 
 #: src/web/server/common/pages_admin.ml:2762
 msgid "of an unknown reason"
@@ -2428,17 +2421,17 @@ msgstr "o simplemente puede imprimirlo y guardarlo en una caja fuerte."
 msgid "personal data policy"
 msgstr "política de privacidad de datos personales"
 
-#: src/web/server/common/pages_admin.ml:1444
+#: src/web/server/common/pages_admin.ml:1448
 msgid "private credentials"
 msgstr "acreditaciones privadas"
 
-#: src/web/server/common/pages_admin.ml:1606
-#. src/web/server/common/pages_admin.ml:1542
+#: src/web/server/common/pages_admin.ml:1610
+#. src/web/server/common/pages_admin.ml:1546
 msgid "private key"
 msgstr "clave privada"
 
-#: src/web/server/common/pages_admin.ml:893
-#. src/web/server/common/pages_admin.ml:717
+#: src/web/server/common/pages_admin.ml:897
+#. src/web/server/common/pages_admin.ml:721
 msgid "public name:"
 msgstr "nombre público :"
 
@@ -2446,22 +2439,22 @@ msgstr "nombre público :"
 msgid "raw data"
 msgstr "datos sin procesar"
 
-#: src/web/server/common/pages_admin.ml:368
+#: src/web/server/common/pages_admin.ml:369
 msgid "sent by a third party chosen by you (safe mode)"
 msgstr "enviadas por un tercero elegido por usted (modo seguro)"
 
-#: src/web/server/common/pages_admin.ml:329
+#: src/web/server/common/pages_admin.ml:330
 msgid "sent by email when voting (a short password, renewed for each vote)"
 msgstr ""
 "enviadas por correo electrónico cuando se vota (una contraseña corta, "
 "renovada para cada voto)"
 
-#: src/web/server/common/pages_admin.ml:361
+#: src/web/server/common/pages_admin.ml:362
 msgid "sent by our server (easier mode but offers less security)"
 msgstr ""
 "enviadas por nuestro servidor (modo más fácil pero ofrece menos seguridad)"
 
-#: src/web/server/common/pages_admin.ml:306
+#: src/web/server/common/pages_admin.ml:307
 msgid "sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
 "enviadas por adelantado por correo electrónico (útil para elecciones "
@@ -2471,18 +2464,18 @@ msgstr ""
 msgid "server configuration"
 msgstr "configuración del servidor"
 
-#: src/web/server/common/pages_admin.ml:1472
+#: src/web/server/common/pages_admin.ml:1476
 msgid "submitting a large number of credentials using the above form may fail; in this case, you have to use the command-line tool and the form below."
 msgstr ""
 "enviar una gran cantidad de acreditaciones utilizando el formulario anterior "
 "puede fallar; en ese caso, debe utilizar la herramienta de línea de comandos "
 "y el formulario a continuación."
 
-#: src/web/server/common/pages_admin.ml:1220
+#: src/web/server/common/pages_admin.ml:1224
 msgid "the after-the-vote procedure will require more steps;"
 msgstr "el procedimiento posterior a la votación requerirá más pasos;"
 
-#: src/web/server/common/pages_admin.ml:1154
+#: src/web/server/common/pages_admin.ml:1158
 msgid "the fingerprint of public credentials matches what has been saved;"
 msgstr ""
 "la huella digital de las credenciales públicas coincide con lo que se ha "
@@ -2496,7 +2489,7 @@ msgstr "la huella digital de su clave pública ;"
 msgid "the fingerprint of your verification key."
 msgstr "la huella digital de su clave de verificación."
 
-#: src/web/server/common/pages_admin.ml:1451
+#: src/web/server/common/pages_admin.ml:1455
 msgid "the list of voters"
 msgstr "la lista de electores"
 
@@ -2508,7 +2501,7 @@ msgstr "la nueva contraseña es demasiado débil (%s)"
 msgid "the new password starts or ends with a space"
 msgstr "la nueva contraseña empieza o acaba con un espacio"
 
-#: src/web/server/common/pages_admin.ml:1151
+#: src/web/server/common/pages_admin.ml:1155
 msgid "the number of voters is correct, and the fingerprint of the voter list matches what has been saved;"
 msgstr ""
 "el número de votantes es correcto, y la huella digital de la lista de "
@@ -2535,7 +2528,7 @@ msgstr "el nombre de usuario ya está en uso"
 msgid "the username is invalid"
 msgstr "el nombre de usuario no es válido"
 
-#: src/web/server/common/pages_admin.ml:1223
+#: src/web/server/common/pages_admin.ml:1227
 msgid "the voting interface will depend on the selected counting method. In some cases, you should explain to voters (e.g. in the question field) how they are supposed to express their vote."
 msgstr ""
 "la interfaz de votación dependerá del método de escrutinio seleccionado. En "
@@ -2546,11 +2539,11 @@ msgstr ""
 msgid "there is already an account with this e-mail address"
 msgstr "ya existe una cuenta con esta dirección de correo electrónico"
 
-#: src/web/server/common/pages_admin.ml:848
+#: src/web/server/common/pages_admin.ml:852
 msgid "threshold mode"
 msgstr "modo de umbral"
 
-#: src/web/server/common/pages_admin.ml:1970
+#: src/web/server/common/pages_admin.ml:1974
 msgid "times are in UTC. Now is "
 msgstr "las horas están en UTC. Ahora son las "
 
@@ -2559,25 +2552,25 @@ msgstr "las horas están en UTC. Ahora son las "
 msgid "trustee parameters"
 msgstr "parámetros del administrador"
 
-#: src/web/server/common/pages_admin.ml:1274
+#: src/web/server/common/pages_admin.ml:1278
 msgid "typical use"
 msgstr "uso típico"
 
-#: src/web/server/common/pages_admin.ml:1275
+#: src/web/server/common/pages_admin.ml:1279
 msgid "when a login is needed, e.g. CAS"
 msgstr "cuando el inicio de sesión sea necesario, por ejemplo CAS"
 
-#: src/web/server/common/pages_admin.ml:1276
+#: src/web/server/common/pages_admin.ml:1280
 msgid "when some voters have several votes"
 msgstr "cuando algunos electores poseen varios votos"
 
-#: src/web/server/common/pages_admin.ml:1157
+#: src/web/server/common/pages_admin.ml:1161
 msgid "you can send the private credential back to its rightful owner in case it gets lost."
 msgstr ""
 "puede enviar la acreditación privada a su legítimo propietario en caso de "
 "que se pierda."
 
-#: src/web/server/common/pages_admin.ml:1381
+#: src/web/server/common/pages_admin.ml:1385
 msgid "you have to make sure that the email addresses are valid."
 msgstr "debe asegurarse de que las direcciones de email son correctas."
 

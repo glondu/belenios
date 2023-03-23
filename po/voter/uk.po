@@ -16,31 +16,31 @@ msgstr ""
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 4.5-dev\n"
 
-#: src/web/server/common/pages_common.ml:275
+#: src/web/server/common/pages_common.ml:276
 msgid " (if you forgot it, for example)."
 msgstr " (наприклад, якщо ви забули)."
 
-#: src/web/server/common/pages_voter.ml:752
+#: src/web/server/common/pages_voter.ml:761
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Вам був висланий лист-підтвердження."
 
-#: src/web/server/common/pages_voter.ml:751
+#: src/web/server/common/pages_voter.ml:760
 msgid " anytime during the election."
 msgstr " будь-коли під час виборів."
 
-#: src/web/server/common/pages_voter.ml:738
+#: src/web/server/common/pages_voter.ml:747
 msgid " as user "
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:816
+#: src/web/server/common/pages_voter.ml:825
 msgid " ballot(s) have been accepted so far."
 msgstr " бюлетень(-і) було прийнято на даний час."
 
-#: src/web/server/common/pages_voter.ml:828
+#: src/web/server/common/pages_voter.ml:837
 msgid " ballot(s) have been accepted, and "
 msgstr " бюлетень(-і) було прийнято та "
 
-#: src/web/server/common/pages_voter.ml:822
+#: src/web/server/common/pages_voter.ml:831
 msgid " ballot(s) have been accepted."
 msgstr " бюлетень(-і) було прийнято."
 
@@ -52,11 +52,11 @@ msgstr " день(дні)"
 msgid " for more information."
 msgstr " для додаткової інформації."
 
-#: src/web/server/common/pages_voter.ml:740
+#: src/web/server/common/pages_voter.ml:749
 msgid " has been accepted."
 msgstr " було прийнято."
 
-#: src/web/server/common/pages_voter.ml:830
+#: src/web/server/common/pages_voter.ml:839
 msgid " have been tallied."
 msgstr " було підраховано."
 
@@ -64,11 +64,11 @@ msgstr " було підраховано."
 msgid " hour(s)"
 msgstr " година(годин)"
 
-#: src/web/server/common/pages_common.ml:416
+#: src/web/server/common/pages_common.ml:417
 msgid " in the following box: "
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:755
+#: src/web/server/common/pages_voter.ml:764
 msgid " is rejected, because "
 msgstr " відхилено, тому що "
 
@@ -88,21 +88,17 @@ msgstr " секунда(секунд)"
 msgid " year(s)"
 msgstr " рік(років)"
 
-#: src/web/server/common/pages_voter.ml:882
-msgid "!"
-msgstr "!"
-
 #: src/web/server/common/pages_voter.ml:121
 #. src/web/server/common/pages_voter.ml:95
 msgid "%d blank ballot(s)"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1123
+#: src/web/server/common/pages_voter.ml:974
 #. src/web/server/common/pages_voter.ml:99
 msgid "%d invalid ballot(s)"
 msgstr "%d недійсних бюлетень(-ів)"
 
-#: src/web/server/common/pages_voter.ml:486
+#: src/web/server/common/pages_voter.ml:489
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
 msgstr ""
 "%d з наступних %d довірених органів (ключів підтвердження) [відкритих ключів]"
@@ -118,15 +114,11 @@ msgstr ""
 msgid "%d valid ballot(s)"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:162
-msgid "(nothing)"
-msgstr "(нічого)"
-
-#: src/web/server/common/pages_common.ml:273
+#: src/web/server/common/pages_common.ml:274
 msgid ", or "
 msgstr ", або "
 
-#: src/web/server/common/pages_voter.ml:1027
+#: src/web/server/common/pages_voter.ml:878
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
 msgstr "1 - найвища оцінка, 2 - наступна за найвищою оцінкою тощо."
 
@@ -136,21 +128,21 @@ msgstr ""
 "Переможець за методом Кондорсе - кандидат, якому надають перевагу над усіма "
 "іншими кандидатами."
 
-#: src/web/server/common/pages_voter.ml:1129
+#: src/web/server/common/pages_voter.ml:980
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Бюлетень недійсний, якщо двом кандидатам було надано однаковий порядок "
 "уподобань або якщо ранг відсутній."
 
-#: src/web/server/common/pages_common.ml:334
+#: src/web/server/common/pages_common.ml:335
 msgid "A verification code has been sent to %s."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:408
+#: src/web/server/common/pages_voter.ml:411
 msgid "Accept"
 msgstr "Згода"
 
-#: src/web/server/common/pages_voter.ml:787
+#: src/web/server/common/pages_voter.ml:796
 msgid "Accepted ballots"
 msgstr "Прийняті бюлетені"
 
@@ -166,60 +158,54 @@ msgstr "Керувати виборами"
 msgid "Administer this election"
 msgstr "Керувати цими виборами"
 
-#: src/web/server/common/pages_voter.ml:332
+#: src/web/server/common/pages_voter.ml:335
 msgid "Advanced mode"
 msgstr "Розширений режим"
 
-#: src/web/server/common/pages_voter.ml:465
+#: src/web/server/common/pages_voter.ml:468
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:907
-#. src/web/server/common/pages_voter.ml:648
-#. src/web/server/common/pages_voter.ml:646
+#: src/web/server/common/pages_voter.ml:651
+#. src/web/server/common/pages_voter.ml:649
 msgid "Answer to questions"
 msgstr "Відровісти на запитання"
 
-#: src/web/server/common/pages_voter.ml:1029
+#: src/web/server/common/pages_voter.ml:880
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr ""
-
-#: src/web/clients/tool/tool_js_booth.ml:250
-msgid "At least one of the answers is invalid!"
-msgstr "Принаймні одна з відповідей недійсна!"
 
 #: src/web/server/common/pages_voter.ml:53
 msgid "Audit data: "
 msgstr "Дані аудиту: "
 
-#: src/web/server/common/pages_voter.ml:911
-#. src/web/server/common/pages_voter.ml:666
-#. src/web/server/common/pages_voter.ml:664
-#. src/web/server/common/pages_common.ml:357
-#. src/web/server/common/pages_common.ml:302
-#. src/web/server/common/pages_common.ml:253
+#: src/web/server/common/pages_voter.ml:669
+#. src/web/server/common/pages_voter.ml:667
+#. src/web/server/common/pages_common.ml:358
+#. src/web/server/common/pages_common.ml:303
+#. src/web/server/common/pages_common.ml:254
 msgid "Authenticate"
 msgstr "Аутентифікувати"
 
-#: src/web/server/common/pages_common.ml:211
+#: src/web/server/common/pages_common.ml:212
 msgid "Authenticate with %s"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:313
+#: src/web/server/common/pages_common.ml:314
 msgid "Authentication failed"
 msgstr "Помилка аутентифікації"
 
-#: src/web/server/common/pages_common.ml:316
+#: src/web/server/common/pages_common.ml:317
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Помилка аутентифікації, можливо, через неправильне ім’я користувача чи "
 "пароль, або вам не дозволено виконувати цю операцію."
 
-#: src/web/server/common/pages_common.ml:443
+#: src/web/server/common/pages_common.ml:444
 msgid "Authentication impossible"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:438
+#: src/web/server/common/pages_common.ml:439
 msgid "Authentication is impossible."
 msgstr ""
 
@@ -227,38 +213,31 @@ msgstr ""
 msgid "Available methods on this server:"
 msgstr "Доступні методи на цьому сервері:"
 
-#: src/web/server/common/pages_common.ml:395
+#: src/web/server/common/pages_common.ml:396
 msgid "Bad e-mail address!"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:394
+#: src/web/server/common/pages_common.ml:395
 msgid "Bad security code!"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:856
-#. src/web/server/common/pages_voter.ml:844
-msgid "Belenios Booth"
-msgstr "Кабінка Беленіос"
-
-#: src/web/server/common/pages_common.ml:379
+#: src/web/server/common/pages_common.ml:380
 msgid "Belenios Server"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:381
+#: src/web/server/common/pages_common.ml:382
 msgid "Belenios authentication"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:375
+#: src/web/server/common/pages_common.ml:376
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:154
-#. src/web/clients/tool/tool_js_booth.ml:80
-#. src/web/server/common/pages_voter.ml:170
+#: src/web/server/common/pages_voter.ml:170
 msgid "Blank vote"
 msgstr "Протестний голос"
 
-#: src/web/server/common/pages_voter.ml:405
+#: src/web/server/common/pages_voter.ml:408
 msgid "By using this site, you accept our "
 msgstr "Використовуючи цей сайт, ви приймаєте нашу "
 
@@ -274,23 +253,21 @@ msgstr ""
 msgid "Computed fingerprint:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1002
+#: src/web/server/common/pages_voter.ml:853
 msgid "Condorcet-Schulze method"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:913
-#. src/web/server/common/pages_voter.ml:675
-#. src/web/server/common/pages_voter.ml:673
+#: src/web/server/common/pages_voter.ml:678
+#. src/web/server/common/pages_voter.ml:676
 msgid "Confirm"
 msgstr "Підтвердити"
 
-#: src/web/server/common/pages_voter.ml:1075
-#. src/web/server/common/pages_voter.ml:1018
-#. src/web/server/common/pages_voter.ml:893
+#: src/web/server/common/pages_voter.ml:926
+#. src/web/server/common/pages_voter.ml:869
 msgid "Continue"
 msgstr "Продовжити"
 
-#: src/web/server/common/site_voter.ml:107
+#: src/web/server/common/site_voter.ml:99
 msgid "Cookies are blocked"
 msgstr "Файли cookie заблоковано"
 
@@ -298,50 +275,37 @@ msgstr "Файли cookie заблоковано"
 msgid "Credential:"
 msgstr "Посвідчення:"
 
-#: src/web/server/common/pages_voter.ml:496
+#: src/web/server/common/pages_voter.ml:499
 msgid "Credentials were generated and sent by %s and have fingerprint %s."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:366
+#: src/web/server/common/pages_common.ml:367
 #. src/web/server/common/mails_voter.ml:356
 msgid "Dear %s,"
 msgstr "Шановний(-а) %s,"
 
-#: src/web/server/common/pages_voter.ml:915
-msgid "Done"
-msgstr "Готово"
-
-#: src/web/server/common/pages_common.ml:407
-#. src/web/server/common/pages_common.ml:282
-#. src/web/server/common/pages_common.ml:237
+#: src/web/server/common/pages_common.ml:408
+#. src/web/server/common/pages_common.ml:283
+#. src/web/server/common/pages_common.ml:238
 msgid "E-mail address:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:979
-msgid "Election UUID: "
-msgstr "UUID виборів: "
-
-#: src/web/server/common/pages_voter.ml:983
-#. src/web/server/common/pages_voter.ml:49
+#: src/web/server/common/pages_voter.ml:49
 msgid "Election fingerprint: "
 msgstr "Відбиток виборів: "
 
-#: src/web/server/common/pages_voter.ml:962 src/web/common/pages_common.ml:51
+#: src/web/common/pages_common.ml:54 src/web/common/pages_common.ml:53
 msgid "Election server"
 msgstr "Сервер виборів"
 
-#: src/web/server/common/pages_voter.ml:945
-msgid "Encrypting…"
-msgstr "Шифрування…"
-
-#: src/web/server/common/site_voter.ml:325
-#. src/web/server/common/site_voter.ml:300
-#. src/web/server/common/site_voter.ml:252
-#. src/web/server/common/site_voter.ml:247
-#. src/web/server/common/site_voter.ml:242
-#. src/web/server/common/site_voter.ml:138
-#. src/web/server/common/site_voter.ml:127
-#. src/web/server/common/site_voter.ml:112
+#: src/web/server/common/site_voter.ml:317
+#. src/web/server/common/site_voter.ml:292
+#. src/web/server/common/site_voter.ml:244
+#. src/web/server/common/site_voter.ml:239
+#. src/web/server/common/site_voter.ml:234
+#. src/web/server/common/site_voter.ml:130
+#. src/web/server/common/site_voter.ml:119
+#. src/web/server/common/site_voter.ml:104
 msgid "Error"
 msgstr "Помилка"
 
@@ -349,72 +313,50 @@ msgstr "Помилка"
 msgid "Expected fingerprint:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:758
+#: src/web/server/common/pages_voter.ml:767
 msgid "FAIL!"
 msgstr "Помилка!"
 
-#: src/web/server/common/site_common.ml:126
+#: src/web/server/common/site_common.ml:122
 msgid "Forbidden"
 msgstr ""
 
-#: src/web/common/pages_common.ml:77
+#: src/web/common/pages_common.ml:80
 msgid "Get the source code"
 msgstr "Отримати сирцевий код"
 
-#: src/web/server/common/pages_voter.ml:805
-#. src/web/server/common/pages_voter.ml:772
-#. src/web/server/common/pages_voter.ml:706
+#: src/web/server/common/pages_voter.ml:814
+#. src/web/server/common/pages_voter.ml:781
+#. src/web/server/common/pages_voter.ml:715
 msgid "Go back to election"
 msgstr "Повернутися до виборів"
 
-#: src/web/clients/tool/tool_js_booth.ml:228
-msgid "If you are asked to grade candidates (majority judgement) then 1 is the best grade, higher numbers are worse."
-msgstr ""
-"Якщо вас попросять оцінити кандидатів (при рішенні більшості), тоді 1 — "
-"найкраща оцінка, більші цифри гірші."
-
-#: src/web/clients/tool/tool_js_booth.ml:231
-msgid "If you are asked to rank candidates (Condorcet, STV, ...) then use 1 for your first choice, 2 for the second, etc."
-msgstr ""
-"Якщо вас просять оцінити кандидатів (метод Кондорсе, система єдиного "
-"перехідного голосу, інше), то використовуйте 1 для вашого першого вибору, 2 "
-"для другого і т.д."
-
-#: src/web/server/common/pages_voter.ml:700
+#: src/web/server/common/pages_voter.ml:699
 msgid "If you want to vote, you must "
 msgstr "Якщо ви хочете проголосувати, ви повинні "
 
-#: src/web/server/common/site_voter.ml:112
+#: src/web/server/common/site_voter.ml:104
 msgid "Ill-formed ballot"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1153
+#: src/web/server/common/pages_voter.ml:1004
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1025
+#: src/web/server/common/pages_voter.ml:876
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1082
+#: src/web/server/common/pages_voter.ml:933
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:905
-#. src/web/server/common/pages_voter.ml:639
-#. src/web/server/common/pages_voter.ml:637
+#: src/web/server/common/pages_voter.ml:642
+#. src/web/server/common/pages_voter.ml:640
 msgid "Input credential"
 msgstr "Ввід посвідчення"
 
-#: src/web/server/common/pages_voter.ml:924
-msgid "Input your credential "
-msgstr "Введіть своє посвідчення "
-
-#: src/web/clients/tool/tool_js_booth.ml:384
-msgid "Invalid credential!"
-msgstr "Недійсне посвідчення!"
-
-#: src/web/server/common/site_voter.ml:253
+#: src/web/server/common/site_voter.ml:245
 msgid "Invalid index for question."
 msgstr "Недійсний індекс для запитання."
 
@@ -434,26 +376,22 @@ msgstr "Він відкриється через "
 msgid "JSON result"
 msgstr "Результат JSON"
 
-#: src/web/server/common/pages_common.ml:136
+#: src/web/server/common/pages_common.ml:137
 msgid "Language:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:851
-msgid "Loading…"
-msgstr "Завантаження…"
-
-#: src/web/server/common/pages_common.ml:356
-#. src/web/server/common/pages_common.ml:301
-#. src/web/server/common/pages_common.ml:252
-#. src/web/server/common/pages_common.ml:229
+#: src/web/server/common/pages_common.ml:357
+#. src/web/server/common/pages_common.ml:302
+#. src/web/server/common/pages_common.ml:253
+#. src/web/server/common/pages_common.ml:230
 msgid "Log in"
 msgstr "Вхід"
 
-#: src/web/server/common/pages_common.ml:210
+#: src/web/server/common/pages_common.ml:211
 msgid "Log in with %s"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1157
+#: src/web/server/common/pages_voter.ml:1008
 msgid "Look at the raw events for more details."
 msgstr ""
 
@@ -461,37 +399,29 @@ msgstr ""
 msgid "Majority Judgment"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1059
-#. src/web/server/common/pages_voter.ml:1009
+#: src/web/server/common/pages_voter.ml:910
+#. src/web/server/common/pages_voter.ml:860
 msgid "Majority Judgment method"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1151
+#: src/web/server/common/pages_voter.ml:1002
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1089
+#: src/web/server/common/pages_voter.ml:940
 msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:440
+#: src/web/server/common/pages_common.ml:441
 msgid "Maybe cookies are blocked."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1086
-#. src/web/server/common/pages_voter.ml:1033
+#: src/web/server/common/pages_voter.ml:937
+#. src/web/server/common/pages_voter.ml:884
 msgid "More information can be found "
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:313
-msgid "Next"
-msgstr "Далі"
-
-#: src/web/clients/tool/tool_js_booth.ml:134
-msgid "No other choices are allowed when voting blank"
-msgstr "Інші варіанти не допускаються у протестному голосі"
-
-#: src/web/server/common/site_common.ml:52
+#: src/web/server/common/site_common.ml:48
 msgid "Not found"
 msgstr "Не знайдено"
 
@@ -499,19 +429,15 @@ msgstr "Не знайдено"
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:223
-msgid "Notes:"
-msgstr "Примітки:"
-
-#: src/web/server/common/pages_voter.ml:373
+#: src/web/server/common/pages_voter.ml:376
 msgid "Number of accepted ballots: "
 msgstr "Кількість прийнятих бюлетенів: "
 
-#: src/web/server/common/pages_voter.ml:1015
+#: src/web/server/common/pages_voter.ml:866
 msgid "Number of grades:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1072
+#: src/web/server/common/pages_voter.ml:923
 msgid "Number of seats:"
 msgstr ""
 
@@ -530,28 +456,24 @@ msgstr "Тільки останній голос враховується."
 msgid "Page of the election:"
 msgstr "Сторінка виборів:"
 
-#: src/web/server/common/pages_common.ml:294
+#: src/web/server/common/pages_common.ml:295
 #. src/web/server/common/mails_voter.ml:56
 msgid "Password:"
 msgstr "Пароль:"
 
-#: src/web/server/common/pages_common.ml:414
+#: src/web/server/common/pages_common.ml:415
 msgid "Please enter "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:343
+#: src/web/server/common/pages_common.ml:344
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
-
-#: src/web/clients/tool/tool_js_booth.ml:378
-msgid "Please enter your credential:"
-msgstr "Будь ласка, введіть своє посвідчення:"
 
 #: src/web/server/common/mails_voter.ml:48
 msgid "Please find below your login and password for the election"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:226
+#: src/web/server/common/pages_common.ml:227
 msgid "Please log in:"
 msgstr "Будь ласка, увійдіть:"
 
@@ -559,69 +481,44 @@ msgstr "Будь ласка, увійдіть:"
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1043
+#: src/web/server/common/pages_voter.ml:894
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1097
+#: src/web/server/common/pages_voter.ml:948
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:944
-msgid "Please wait while your ballot is being encrypted…"
-msgstr "Зачекайте, будь ласка, поки ваш бюлетень зашифровується…"
-
-#: src/web/server/common/pages_voter.ml:850
-msgid "Please wait… "
-msgstr "Зачекайте, будь ласка… "
-
-#: src/web/common/pages_common.ml:72
+#: src/web/common/pages_common.ml:75
 msgid "Powered by "
 msgstr "Працює на "
 
-#: src/web/clients/tool/tool_js_booth.ml:312
-msgid "Previous"
-msgstr "Попередній"
-
-#: src/web/common/pages_common.ml:79
+#: src/web/common/pages_common.ml:82
 msgid "Privacy policy"
 msgstr "Політика конфіденційності"
 
-#: src/web/server/common/pages_common.ml:184
+#: src/web/server/common/pages_common.ml:185
 msgid "Proceed"
 msgstr "Продовжити"
 
-#: src/web/server/common/pages_voter.ml:1137
+#: src/web/server/common/pages_voter.ml:988
 msgid "Raw events"
 msgstr ""
-
-#: src/web/server/common/pages_voter.ml:948
-msgid "Restart"
-msgstr "Перезавантажити"
 
 #: src/web/server/common/mails_voter.ml:381
 msgid "Results will be published on the election page"
 msgstr "Результати будуть опубліковані на сторінці виборів"
 
-#: src/web/server/common/pages_voter.ml:909
-#. src/web/server/common/pages_voter.ml:657
-#. src/web/server/common/pages_voter.ml:655
+#: src/web/server/common/pages_voter.ml:660
+#. src/web/server/common/pages_voter.ml:658
 msgid "Review and encrypt"
 msgstr "Переглянути та зашифрувати"
-
-#: src/web/server/common/pages_voter.ml:889
-msgid "Save it to check that it is taken into account later."
-msgstr "Збережіть його, щоб перевірити врахування голосу пізніше."
 
 #: src/web/server/common/pages_voter.ml:304
 msgid "See accepted ballots"
 msgstr "Переглянути прийняті бюлетені"
 
-#: src/web/clients/tool/tool_js_booth.ml:74
-msgid "Select between %d and %d answer(s)"
-msgstr "Виберіть між %d та %d відповіддю(-ями)"
-
-#: src/web/server/common/pages_common.ml:139
+#: src/web/server/common/pages_common.ml:140
 msgid "Set"
 msgstr ""
 
@@ -633,57 +530,45 @@ msgstr ""
 msgid "Single Transferable Vote"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1113
-#. src/web/server/common/pages_voter.ml:1066
+#: src/web/server/common/pages_voter.ml:964
+#. src/web/server/common/pages_voter.ml:917
 msgid "Single Transferable Vote method"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:325
+#: src/web/server/common/pages_voter.ml:327
 msgid "Start"
 msgstr "Почати"
 
-#: src/web/server/common/pages_voter.ml:640
+#: src/web/server/common/pages_voter.ml:643
 msgid "Step 1"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:920
-msgid "Step 1/6: Input credential"
-msgstr "Крок 1/6: Введіть посвідчення"
-
-#: src/web/server/common/pages_voter.ml:649
+#: src/web/server/common/pages_voter.ml:652
 msgid "Step 2"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:930
-msgid "Step 2/6: Answer to questions"
-msgstr "Крок 2/6: Дайте відповідь на запитання"
-
-#: src/web/server/common/pages_voter.ml:658
+#: src/web/server/common/pages_voter.ml:661
 msgid "Step 3"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:935
-msgid "Step 3/6: Review and encrypt"
-msgstr "Крок 3/6: Перегляньте та зашифруйте"
-
-#: src/web/server/common/pages_voter.ml:667
+#: src/web/server/common/pages_voter.ml:670
 msgid "Step 4"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:676
+#: src/web/server/common/pages_voter.ml:679
 msgid "Step 5"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:420
-#. src/web/server/common/pages_common.ml:348
+#: src/web/server/common/pages_common.ml:421
+#. src/web/server/common/pages_common.ml:349
 msgid "Submit"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1155
+#: src/web/server/common/pages_voter.ml:1006
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:753
+#: src/web/server/common/pages_voter.ml:762
 msgid "Thank you for voting!"
 msgstr "Дякуємо за голосування!"
 
@@ -691,7 +576,7 @@ msgstr "Дякуємо за голосування!"
 msgid "The Schulze winners are:"
 msgstr "Переможцями по Шульце стали:"
 
-#: src/web/server/common/pages_voter.ml:1164
+#: src/web/server/common/pages_voter.ml:1015
 msgid "The Single Transferable Vote winners are:"
 msgstr ""
 
@@ -704,7 +589,7 @@ msgstr "Вибори закриті і підраховуються."
 msgid "The election will close in "
 msgstr "Вибори закриються через "
 
-#: src/web/server/common/pages_voter.ml:516
+#: src/web/server/common/pages_voter.ml:519
 msgid "The fingerprint of the encrypted tally is %s."
 msgstr ""
 
@@ -716,15 +601,15 @@ msgstr ""
 msgid "The fingerprints match!"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1041
+#: src/web/server/common/pages_voter.ml:892
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 
-#: src/web/server/common/site_voter.ml:301
+#: src/web/server/common/site_voter.ml:293
 msgid "The number of grades is invalid."
 msgstr ""
 
-#: src/web/server/common/site_voter.ml:326
+#: src/web/server/common/site_voter.ml:318
 msgid "The number of seats is invalid."
 msgstr ""
 
@@ -732,33 +617,33 @@ msgstr ""
 msgid "The raw results can be viewed in the "
 msgstr "Необроблені результати можна переглянути в "
 
-#: src/web/server/common/pages_voter.ml:394
+#: src/web/server/common/pages_voter.ml:397
 msgid "The result of this election is currently not publicly available. It will be in %s."
 msgstr ""
 "Результат цих виборів наразі недоступний у відкритому доступі. Це "
 "відбудеться через %s."
 
-#: src/web/server/common/site_voter.ml:243
+#: src/web/server/common/site_voter.ml:235
 msgid "The result of this election is not available."
 msgstr "Результат цих виборів недоступний."
 
-#: src/web/server/common/pages_voter.ml:444
+#: src/web/server/common/pages_voter.ml:447
 msgid "The total weight is %s (min: %s, max: %s)."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:424
+#: src/web/server/common/pages_voter.ml:427
 msgid "The voter list has %d voter(s) and fingerprint %s."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1031
+#: src/web/server/common/pages_voter.ml:882
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1149
+#: src/web/server/common/pages_voter.ml:1000
 msgid "There has been at least one tie."
 msgstr ""
 
-#: src/web/server/common/site_common.ml:52
+#: src/web/server/common/site_common.ml:48
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr ""
 "Цих виборів не існує. Це може статися для виборів, які ще не були відкриті "
@@ -768,7 +653,7 @@ msgstr ""
 msgid "This election has been tallied."
 msgstr "Ці вибори були підраховані."
 
-#: src/web/server/common/pages_voter.ml:417
+#: src/web/server/common/pages_voter.ml:420
 msgid "This election is administered by %s."
 msgstr ""
 
@@ -780,19 +665,15 @@ msgstr "Ці вибори заархівовані."
 msgid "This election is currently closed."
 msgstr "Наразі ці вибори закриті."
 
-#: src/web/server/common/pages_voter.ml:433
+#: src/web/server/common/pages_voter.ml:436
 msgid "This election uses weights!"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:725
+#: src/web/server/common/pages_voter.ml:734
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_booth.ml:386
-msgid "This looks like a password... Maybe you looked at the wrong e-mail?"
-msgstr ""
-
-#: src/web/server/common/site_voter.ml:248
+#: src/web/server/common/site_voter.ml:240
 msgid "This question is homomorphic, this method cannot be applied to its result."
 msgstr ""
 
@@ -815,45 +696,38 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr "Для отримання додаткової інформації, будь ласка, зв'яжіться з:"
 
-#: src/web/server/common/pages_voter.ml:360
+#: src/web/server/common/pages_voter.ml:363
 msgid "Total weight of accepted ballots:"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:506
+#: src/web/server/common/pages_voter.ml:509
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/server/common/site_voter.ml:137
+#: src/web/server/common/site_voter.ml:129
 msgid "Unknown election"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:369
+#: src/web/server/common/pages_voter.ml:328
+msgid "Unsupported booth version"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:370
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:281
-#. src/web/server/common/pages_common.ml:236
+#: src/web/server/common/pages_common.ml:282
+#. src/web/server/common/pages_common.ml:237
 #. src/web/server/common/mails_voter.ml:128
 #. src/web/server/common/mails_voter.ml:55
 msgid "Username:"
 msgstr "Ім'я користувача:"
 
-#: src/web/clients/tool/tool_js_booth.ml:204
-msgid "Value must be an integer between 0 and 255."
-msgstr "Значення має бути цілим числом від 0 до 255."
-
-#: src/web/server/common/pages_voter.ml:695
+#: src/web/server/common/pages_voter.ml:708
 msgid "Warning:"
 msgstr "Увага:"
 
-#: src/web/clients/tool/tool_js_booth.ml:234
-msgid "Warning: the system will accept any integer between 0 and 255 but, according to the election rules, invalid ballots (score too high or candidates not properly ranked) will be rejected at the end of the election."
-msgstr ""
-"Увага: система прийматиме будь-яке ціле число від 0 до 255, але, згідно з "
-"правилами виборів, недійсні бюлетені (бал занадто високий або кандидати не "
-"мають належного рейтингу) будуть відхилені в кінці виборів."
-
-#: src/web/server/common/pages_common.ml:373
+#: src/web/server/common/pages_common.ml:374
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
@@ -861,11 +735,11 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1084
+#: src/web/server/common/pages_voter.ml:935
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:149
+#: src/web/server/common/pages_common.ml:150
 msgid "Wish to help with translations?"
 msgstr ""
 
@@ -878,23 +752,23 @@ msgstr ""
 msgid "You are listed as a voter for the election"
 msgstr "Вас внесли до списку виборців на ціх виборах"
 
-#: src/web/server/common/site_common.ml:125
+#: src/web/server/common/site_common.ml:121
 msgid "You are not allowed to access this page!"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:318
+#: src/web/server/common/pages_common.ml:319
 msgid "You can "
 msgstr "Ви можете "
 
-#: src/web/server/common/pages_common.ml:271
+#: src/web/server/common/pages_common.ml:272
 msgid "You can also "
 msgstr "Ви також можете "
 
-#: src/web/server/common/pages_voter.ml:378
+#: src/web/server/common/pages_voter.ml:381
 msgid "You can also download the "
 msgstr "Ви також можете завантажити "
 
-#: src/web/server/common/pages_voter.ml:749
+#: src/web/server/common/pages_voter.ml:758
 msgid "You can check its presence in the "
 msgstr "Ви можете перевірити його присутність у "
 
@@ -903,17 +777,9 @@ msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Ви можете перевірити його наявність у виборчій скриньці, доступній за адресою"
 
-#: src/web/server/common/pages_common.ml:431
+#: src/web/server/common/pages_common.ml:432
 msgid "You cannot log in now. Please try later."
 msgstr ""
-
-#: src/web/clients/tool/tool_js_booth.ml:121
-msgid "You must select at least %d answer(s)"
-msgstr "Ви повинні вибрати принаймні %d відповідь(-і)"
-
-#: src/web/clients/tool/tool_js_booth.ml:124
-msgid "You must select at most %d answer(s)"
-msgstr "Ви повинні вибрати не більше %d відповіді(-ей)"
 
 #: src/web/server/common/mails_voter.ml:120
 msgid "You will be asked to enter your credential before entering the voting booth."
@@ -924,19 +790,15 @@ msgstr ""
 msgid "You will find below your credential."
 msgstr "Нижче ви знайдете ваше посвідчення."
 
-#: src/web/server/common/pages_voter.ml:766
+#: src/web/server/common/pages_voter.ml:775
 msgid "Your ballot for "
 msgstr "Ваш бюлетень за "
 
-#: src/web/server/common/pages_voter.ml:880
-msgid "Your ballot has been encrypted, "
-msgstr "Ваш бюлетень було зашифровано, "
-
-#: src/web/server/common/site_voter.ml:124
+#: src/web/server/common/site_voter.ml:116
 msgid "Your ballot is rejected because %s."
 msgstr ""
 
-#: src/web/server/common/site_voter.ml:107
+#: src/web/server/common/site_voter.ml:99
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Здається, ваш браузер блокує файли cookie. Будь ласка, увімкніть їх."
 
@@ -944,7 +806,7 @@ msgstr "Здається, ваш браузер блокує файли cookie. 
 msgid "Your credential for election %s"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:368
+#: src/web/server/common/pages_common.ml:369
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 
@@ -956,8 +818,7 @@ msgstr "Ваш пароль для виборів %s"
 msgid "Your smart ballot tracker is"
 msgstr "Ваш смарт-трекер бюлетеню"
 
-#: src/web/server/common/pages_voter.ml:885
-#. src/web/server/common/pages_voter.ml:744
+#: src/web/server/common/pages_voter.ml:753
 msgid "Your smart ballot tracker is "
 msgstr "Ваш смарт-трекер бюлетеню "
 
@@ -965,32 +826,28 @@ msgstr "Ваш смарт-трекер бюлетеню "
 msgid "Your vote for election"
 msgstr "Ваш голос на виборах"
 
-#: src/web/server/common/site_voter.ml:166
+#: src/web/server/common/site_voter.ml:158
 msgid "Your vote for election %s"
 msgstr "Ваш голос на виборах %s"
 
-#: src/web/server/common/pages_voter.ml:697
+#: src/web/server/common/pages_voter.ml:710
 msgid "Your vote was not recorded!"
 msgstr "Ваш голос не був записаний!"
 
-#: src/web/server/common/pages_voter.ml:733
+#: src/web/server/common/pages_voter.ml:742
 #. src/web/server/common/mails_voter.ml:365
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:750
+#: src/web/server/common/pages_voter.ml:759
 msgid "ballot box"
 msgstr "виборча скринька"
 
-#: src/web/server/common/pages_voter.ml:881
-msgid "but not cast yet"
-msgstr "але ще не подані"
-
-#: src/web/server/common/pages_common.ml:274
+#: src/web/server/common/pages_common.ml:275
 msgid "change your password"
 msgstr "змінити ваш пароль"
 
-#: src/web/server/common/pages_common.ml:272
+#: src/web/server/common/pages_common.ml:273
 msgid "create an account"
 msgstr "створити обліковий запис"
 
@@ -998,13 +855,12 @@ msgstr "створити обліковий запис"
 msgid "has been recorded."
 msgstr "було записано."
 
-#: src/web/clients/tool/tool_js_booth.ml:376
-#. src/web/server/common/pages_voter.ml:1087
-#. src/web/server/common/pages_voter.ml:1034
+#: src/web/server/common/pages_voter.ml:938
+#. src/web/server/common/pages_voter.ml:885
 msgid "here"
 msgstr "тут"
 
-#: src/web/server/common/pages_voter.ml:1090
+#: src/web/server/common/pages_voter.ml:941
 msgid "our code of STV"
 msgstr ""
 
@@ -1012,7 +868,7 @@ msgstr ""
 msgid "parameters"
 msgstr "параметри"
 
-#: src/web/server/common/pages_voter.ml:406
+#: src/web/server/common/pages_voter.ml:409
 msgid "personal data policy"
 msgstr "політика щодо персональних даних"
 
@@ -1020,7 +876,7 @@ msgstr "політика щодо персональних даних"
 msgid "public data"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:380
+#: src/web/server/common/pages_voter.ml:383
 msgid "raw result"
 msgstr ""
 
@@ -1028,7 +884,7 @@ msgstr ""
 msgid "some proofs failed verification"
 msgstr "деякі докази не вдалося перевірити"
 
-#: src/web/server/common/pages_voter.ml:701
+#: src/web/server/common/pages_voter.ml:700
 msgid "start from the beginning"
 msgstr "почати з початку"
 
@@ -1048,7 +904,7 @@ msgstr ""
 msgid "this ballot has expired"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:319
+#: src/web/server/common/pages_common.ml:320
 msgid "try to log in again"
 msgstr "спробуйте увійти знову"
 
