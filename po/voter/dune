@@ -99,6 +99,16 @@
  (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
+ (target jpn_JP.mo)
+ (deps jpn_JP.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target jpn_JP.json)
+ (deps jpn_JP.mo)
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target nb.mo)
  (deps nb.po)
  (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
@@ -202,6 +212,8 @@
   (fr.json as locales/voter/fr.json)
   (it.mo as locales/voter/it.mo)
   (it.json as locales/voter/it.json)
+  (jpn_JP.mo as locales/voter/jpn_JP.mo)
+  (jpn_JP.json as locales/voter/jpn_JP.json)
   (nb.mo as locales/voter/nb.mo)
   (nb.json as locales/voter/nb.json)
   (nl.mo as locales/voter/nl.mo)
