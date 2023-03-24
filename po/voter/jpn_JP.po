@@ -97,12 +97,12 @@ msgstr " 年"
 #. src/web/server/common/pages_voter.ml:95
 #: src/web/server/common/pages_voter.ml:121
 msgid "%d blank ballot(s)"
-msgstr "白紙投票"
+msgstr "%d 白紙投票"
 
 #. src/web/server/common/pages_voter.ml:99
 #: src/web/server/common/pages_voter.ml:974
 msgid "%d invalid ballot(s)"
-msgstr "無効投票"
+msgstr "%d 無効投票"
 
 #: src/web/server/common/pages_voter.ml:489
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
