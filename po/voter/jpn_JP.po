@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-23 08:37+0000\n"
-"PO-Revision-Date: 2023-03-24 07:38+0000\n"
+"PO-Revision-Date: 2023-03-26 11:37+0000\n"
 "Last-Translator: Hayakawa Akira <campbeak@tcd.ie>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/belenios/voter/"
 "jpn_JP/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 4.17-dev\n"
 
 #: src/web/server/common/pages_common.ml:276
 msgid " (if you forgot it, for example)."
@@ -110,17 +110,19 @@ msgstr ""
 
 #. src/web/server/common/pages_voter.ml:89
 #: src/web/server/common/pages_voter.ml:115
+#, fuzzy
 msgid "%d valid (non-blank) ballot(s)"
-msgstr ""
+msgstr "有効な投票（白紙投票でない）"
 
 #. src/web/server/common/pages_voter.ml:90
 #: src/web/server/common/pages_voter.ml:116
+#, fuzzy
 msgid "%d valid ballot(s)"
-msgstr ""
+msgstr "有効な投票"
 
 #: src/web/server/common/pages_common.ml:274
 msgid ", or "
-msgstr ""
+msgstr "、または "
 
 #: src/web/server/common/pages_voter.ml:878
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
@@ -140,36 +142,36 @@ msgstr ""
 
 #: src/web/server/common/pages_voter.ml:411
 msgid "Accept"
-msgstr ""
+msgstr "同意"
 
 #: src/web/server/common/pages_voter.ml:796
 msgid "Accepted ballots"
-msgstr ""
+msgstr "受理された投票"
 
 #: src/web/server/common/pages_voter.ml:103
 msgid "According to Majority Judgment, the ranking is:"
-msgstr ""
+msgstr "マジョリティー・ジャッジメントによるランキング："
 
 #: src/web/server/common/pages_common.ml:100
 msgid "Administer elections"
-msgstr ""
+msgstr "選挙を管理する"
 
 #: src/web/server/common/pages_common.ml:102
 msgid "Administer this election"
-msgstr ""
+msgstr "この選挙を管理する"
 
 #: src/web/server/common/pages_voter.ml:335
 msgid "Advanced mode"
-msgstr ""
+msgstr "アドバンスト・モード"
 
 #: src/web/server/common/pages_voter.ml:468
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
-msgstr ""
+msgstr "結果を復号化するのは次に記載の管理者すべての参加（検証キー）が必要です："
 
 #. src/web/server/common/pages_voter.ml:649
 #: src/web/server/common/pages_voter.ml:651
 msgid "Answer to questions"
-msgstr ""
+msgstr "質問の解答"
 
 #: src/web/server/common/pages_voter.ml:880
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
@@ -221,27 +223,28 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:380
 msgid "Belenios Server"
-msgstr ""
+msgstr "ベレニオス・サーバー"
 
 #: src/web/server/common/pages_common.ml:382
 msgid "Belenios authentication"
-msgstr ""
+msgstr "ベレニオス認証"
 
 #: src/web/server/common/pages_common.ml:376
 msgid "Best regards,"
-msgstr ""
+msgstr "よろしくお願いします。"
 
 #: src/web/server/common/pages_voter.ml:170
 msgid "Blank vote"
-msgstr ""
+msgstr "白紙投票"
 
 #: src/web/server/common/pages_voter.ml:408
+#, fuzzy
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "このサイトを利用することで、次の内容に同意したとみなします： "
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:85
 msgid "Compare"
-msgstr ""
+msgstr "比較"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:69
 msgid "Compute fingerprint"
