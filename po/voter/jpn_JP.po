@@ -8,96 +8,101 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-23 08:37+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2023-03-24 07:38+0000\n"
+"Last-Translator: Hayakawa Akira <campbeak@tcd.ie>\n"
+"Language-Team: Japanese <https://hosted.weblate.org/projects/belenios/voter/"
+"jpn_JP/>\n"
 "Language: jpn_JP\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.16.2-dev\n"
 
 #: src/web/server/common/pages_common.ml:276
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " （例、忘れた場合）。"
 
 #: src/web/server/common/pages_voter.ml:761
+#, fuzzy
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " 登録されているメールアドレスに確認メールが送信されました。"
 
 #: src/web/server/common/pages_voter.ml:760
 msgid " anytime during the election."
-msgstr ""
+msgstr " 選挙期間中何時でも。"
 
 #: src/web/server/common/pages_voter.ml:747
 msgid " as user "
-msgstr ""
+msgstr " ユーザーとして "
 
 #: src/web/server/common/pages_voter.ml:825
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " 今までに{{count}}個の投票が受理されました。"
 
 #: src/web/server/common/pages_voter.ml:837
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " {{count}}個の投票が受理され、 "
 
 #: src/web/server/common/pages_voter.ml:831
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " {{count}}個の投票が受理されました。"
 
 #: src/web/server/common/web_common.ml:102
 msgid " day(s)"
-msgstr ""
+msgstr " 日"
 
 #: src/web/server/common/pages_voter.ml:152
+#, fuzzy
 msgid " for more information."
-msgstr ""
+msgstr " より詳しく知るには"
 
 #: src/web/server/common/pages_voter.ml:749
 msgid " has been accepted."
-msgstr ""
+msgstr " が受理されました。"
 
 #: src/web/server/common/pages_voter.ml:839
 msgid " have been tallied."
-msgstr ""
+msgstr " 集計が終了しました。"
 
 #: src/web/server/common/web_common.ml:104
 msgid " hour(s)"
-msgstr ""
+msgstr " 時間"
 
 #: src/web/server/common/pages_common.ml:417
+#, fuzzy
 msgid " in the following box: "
-msgstr ""
+msgstr " 次の箱内に "
 
 #: src/web/server/common/pages_voter.ml:764
 msgid " is rejected, because "
-msgstr ""
+msgstr " は次の理由によって却下されました "
 
 #: src/web/server/common/web_common.ml:105
 msgid " minute(s)"
-msgstr ""
+msgstr " 分"
 
 #: src/web/server/common/web_common.ml:101
 msgid " month(s)"
-msgstr ""
+msgstr " 月"
 
 #: src/web/server/common/web_common.ml:106
 msgid " second(s)"
-msgstr ""
+msgstr " 秒"
 
 #: src/web/server/common/web_common.ml:100
 msgid " year(s)"
-msgstr ""
+msgstr " 年"
 
 #. src/web/server/common/pages_voter.ml:95
 #: src/web/server/common/pages_voter.ml:121
 msgid "%d blank ballot(s)"
-msgstr ""
+msgstr "白紙投票"
 
 #. src/web/server/common/pages_voter.ml:99
 #: src/web/server/common/pages_voter.ml:974
 msgid "%d invalid ballot(s)"
-msgstr ""
+msgstr "無効投票"
 
 #: src/web/server/common/pages_voter.ml:489
 msgid "%d of the following %d trustees (verification keys) [public keys] are needed to decrypt the election result:"
