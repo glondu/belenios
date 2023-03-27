@@ -112,13 +112,13 @@ msgstr ""
 #: src/web/server/common/pages_voter.ml:115
 #, fuzzy
 msgid "%d valid (non-blank) ballot(s)"
-msgstr "有効な投票（白紙投票でない）"
+msgstr "%d 有効な投票（白紙投票でない）"
 
 #. src/web/server/common/pages_voter.ml:90
 #: src/web/server/common/pages_voter.ml:116
 #, fuzzy
 msgid "%d valid ballot(s)"
-msgstr "有効な投票"
+msgstr "%d 有効な投票"
 
 #: src/web/server/common/pages_common.ml:274
 msgid ", or "
