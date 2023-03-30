@@ -1054,32 +1054,6 @@ module Make (X : Pages_sig.S) (Site_common : Site_common_sig.S) (Web_auth : Web_
     match site_user with
     | Some (_, a, _) when Accounts.check a metadata.e_owners ->
        let* status = Api_elections.get_election_status uuid in
-       let module W = (val election) in
-       let* pending_server_shuffle =
-         match status.status_state with
-         | `Shuffling ->
-            if Election.has_nh_questions W.election then
-              let* x = Web_persist.get_shuffles uuid in
-              match x with
-              | None -> return_true
-              | Some _ -> return_false
-            else return_false
-         | _ -> return_false
-       in
-       let* () =
-         if pending_server_shuffle then (
-           let* cc = Web_persist.get_nh_ciphertexts election in
-           let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
-           let shuffle = W.E.shuffle_ciphertexts cc in
-           let shuffle = string_of_shuffle W.(swrite G.to_string) shuffle in
-           let* x = Web_persist.append_to_shuffles election 1 shuffle in
-           match x with
-           | Some _ ->
-              Web_persist.remove_audit_cache uuid
-           | None ->
-              Lwt.fail (Failure (Printf.sprintf (f_ "Automatic shuffle by server has failed for election %s!") (Uuid.unwrap uuid)))
-         ) else return_unit
-       in
        Pages_admin.election_admin ?shuffle_token ?tally_token election metadata status () >>= Html.send
     | Some _ ->
        let msg = s_ "You are not allowed to administer this election!" in

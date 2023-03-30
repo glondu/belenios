@@ -278,21 +278,83 @@ let get_owned_shuffles uuid =
      in
      return_some x
 
+let remove_audit_cache uuid = Spool.del ~uuid Spool.audit_cache
+
+let raw_get_shuffles uuid x =
+  let* x =
+    Lwt_list.map_s
+      (fun (h, o) ->
+        let* x = Web_events.get_data ~uuid o.owned_payload in
+        match x with
+        | None -> assert false
+        | Some x -> Lwt.return (h, o, x)
+      ) x
+  in
+  Lwt.return_some x
+
+let append_to_shuffles election owned_owner shuffle_s =
+  let module W = (val election : Site_common_sig.ELECTION) in
+  let uuid = W.election.e_uuid in
+  let@ last = fun cont ->
+    let* x = Spool.get ~uuid Spool.last_event in
+    match x with
+    | None -> assert false
+    | Some x -> cont x
+  in
+  let shuffle = shuffle_of_string W.(sread G.of_string) shuffle_s in
+  let shuffle_h = Hash.hash_string shuffle_s in
+  let* last_nh = get_nh_ciphertexts election in
+  let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
+  if string_of_shuffle W.(swrite G.to_string) shuffle = shuffle_s && W.E.check_shuffle last_nh shuffle then (
+    let owned =
+      {
+        owned_owner;
+        owned_payload = shuffle_h;
+      }
+    in
+    let owned_s = string_of_owned write_hash owned in
+    let* () =
+      Web_events.append ~uuid ~last
+        [
+          Data shuffle_s;
+          Data owned_s;
+          Event (`Shuffle, Some (Hash.hash_string owned_s));
+        ]
+    in
+    return_some @@ sha256_b64 shuffle_s
+  ) else return_none
+
 let get_shuffles uuid =
+  let@ raw_election = fun cont ->
+    let* x = get_raw_election uuid in
+    match x with
+    | None -> Lwt.return_none
+    | Some x -> cont x
+  in
+  let module W = Election.Make (struct let raw_election = raw_election end) (Random) () in
+  let election = (module W : Site_common_sig.ELECTION) in
   let* x = get_owned_shuffles uuid in
   match x with
-  | None -> Lwt.return_none
-  | Some x ->
-     let* x =
-       Lwt_list.map_s
-         (fun (h, o) ->
-           let* x = Web_events.get_data ~uuid o.owned_payload in
-           match x with
-           | None -> assert false
-           | Some x -> Lwt.return (h, o, x)
-         ) x
+  | Some x -> raw_get_shuffles uuid x
+  | None ->
+     (* if we are in `Shuffling state and there are no shuffles,
+        perform a server-side shuffle *)
+     let@ () = fun cont ->
+       let* state = Spool.get ~uuid Spool.state in
+       match state with
+       | Some `Shuffling -> cont ()
+       | _ -> Lwt.return_none
      in
-     Lwt.return_some x
+     let* cc = get_nh_ciphertexts election in
+     let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
+     let shuffle = W.E.shuffle_ciphertexts cc in
+     let shuffle = string_of_shuffle W.(swrite G.to_string) shuffle in
+     let* x = append_to_shuffles election 1 shuffle in
+     let&* _ = x in
+     let* () = remove_audit_cache uuid in
+     let* x = get_owned_shuffles uuid in
+     let&* x in
+     raw_get_shuffles uuid x
 
 let make_result_transaction write_result result =
   let payload = string_of_election_result write_result result in
@@ -301,8 +363,6 @@ let make_result_transaction write_result result =
     Data payload;
     Event (`Result, Some (Hash.hash_string payload));
   ]
-
-let remove_audit_cache uuid = Spool.del ~uuid Spool.audit_cache
 
 let clear_shuffle_token uuid = Spool.del ~uuid Spool.shuffle_token
 
@@ -893,38 +953,6 @@ let gen_shuffle_token uuid tk_trustee tk_trustee_id tk_name =
   let t = {tk_trustee; tk_token; tk_trustee_id; tk_name} in
   let* () = Spool.set ~uuid Spool.shuffle_token t in
   return t
-
-let append_to_shuffles election owned_owner shuffle_s =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let@ last = fun cont ->
-    let* x = Spool.get ~uuid Spool.last_event in
-    match x with
-    | None -> assert false
-    | Some x -> cont x
-  in
-  let shuffle = shuffle_of_string W.(sread G.of_string) shuffle_s in
-  let shuffle_h = Hash.hash_string shuffle_s in
-  let* last_nh = get_nh_ciphertexts election in
-  let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
-  if string_of_shuffle W.(swrite G.to_string) shuffle = shuffle_s && W.E.check_shuffle last_nh shuffle then (
-    let owned =
-      {
-        owned_owner;
-        owned_payload = shuffle_h;
-      }
-    in
-    let owned_s = string_of_owned write_hash owned in
-    let* () =
-      Web_events.append ~uuid ~last
-        [
-          Data shuffle_s;
-          Data owned_s;
-          Event (`Shuffle, Some (Hash.hash_string owned_s));
-        ]
-    in
-    return_some @@ sha256_b64 shuffle_s
-  ) else return_none
 
 module ExtendedRecordsCacheTypes = struct
   type key = uuid
