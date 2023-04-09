@@ -8,34 +8,36 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-23 08:37+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2023-04-10 12:48+0000\n"
+"Last-Translator: linluoxue <linluomoxue@foxmail.com>\n"
+"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
+"belenios/voter/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.17-dev\n"
 
 #: src/web/server/common/pages_common.ml:276
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " 如果你忘记了，举例说明。"
 
 #: src/web/server/common/pages_voter.ml:761
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " 确认电子邮件已发送给您。"
 
 #: src/web/server/common/pages_voter.ml:760
 msgid " anytime during the election."
-msgstr ""
+msgstr " 在选举期间的任何时候。"
 
 #: src/web/server/common/pages_voter.ml:747
 msgid " as user "
-msgstr ""
+msgstr " 以用户身份 "
 
 #: src/web/server/common/pages_voter.ml:825
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " 迄今为止，已经接受了投票。"
 
 #: src/web/server/common/pages_voter.ml:837
 msgid " ballot(s) have been accepted, and "
