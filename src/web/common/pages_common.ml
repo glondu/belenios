@@ -34,52 +34,85 @@ module type BASE = sig
 end
 
 module Make (Base : BASE) = struct
-
   open Base
   open Base.Html
 
   let a_aria_label = Unsafe.string_attrib "aria-label"
   let a_aria_hidden = Unsafe.string_attrib "aria-hidden" "true"
 
-  let base_body l ~full_title ~content ~administer
-        ?(login_box = txt "") ?(warning = txt "") ?(lang_box = txt "")
-        ?(footer = txt "") ?(extra_footer = txt "") () =
+  let base_body l ~full_title ~content ~administer ?(login_box = txt "")
+      ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
+      ?(extra_footer = txt "") () =
     let open (val l : I18n.GETTEXT) in
     [
-      div ~a:[a_id "vote-app"] [
-          div ~a:[a_class ["page"]] [
-              div ~a:[a_id "header"; a_class ["page-header"]] [
-                  div ~a:[a_class ["page-header__logo"]] [
-                      a ~a:[a_href Uris.home; a_aria_label (s_ "Election server")] [
-                          img ~a:[a_class ["page-header__logo__image"]; a_aria_hidden] ~alt:(s_ "Election server")
-                            ~src:Uris.logo ();
+      div
+        ~a:[ a_id "vote-app" ]
+        [
+          div
+            ~a:[ a_class [ "page" ] ]
+            [
+              div
+                ~a:[ a_id "header"; a_class [ "page-header" ] ]
+                [
+                  div
+                    ~a:[ a_class [ "page-header__logo" ] ]
+                    [
+                      a
+                        ~a:
+                          [
+                            a_href Uris.home;
+                            a_aria_label (s_ "Election server");
+                          ]
+                        [
+                          img
+                            ~a:
+                              [
+                                a_class [ "page-header__logo__image" ];
+                                a_aria_hidden;
+                              ]
+                            ~alt:(s_ "Election server") ~src:Uris.logo ();
                         ];
                     ];
-                  div ~a:[a_class ["page-header__titles"]] [
-                      h1 ~a:[a_class ["page-header__titles__election-name"]; a_id "election_name"] [full_title];
-                      p ~a:[a_class ["page-header__titles__election-description"]; a_id "election_description"] [txt ""]; (* no description provided? *)
+                  div
+                    ~a:[ a_class [ "page-header__titles" ] ]
+                    [
+                      h1
+                        ~a:
+                          [
+                            a_class [ "page-header__titles__election-name" ];
+                            a_id "election_name";
+                          ]
+                        [ full_title ];
+                      p
+                        ~a:
+                          [
+                            a_class
+                              [ "page-header__titles__election-description" ];
+                            a_id "election_description";
+                          ]
+                        [ txt "" ];
+                      (* no description provided? *)
                     ];
-                  div ~a:[a_class ["page-header__right"]] [
-                      login_box;
-                    ];
+                  div ~a:[ a_class [ "page-header__right" ] ] [ login_box ];
                 ];
-              div ~a:[a_class ["page-body"]] [
-                  warning;
-                  div ~a:[a_id "main"] [
-                      lang_box;
-                      div content;
-                    ]
-                ];
-              div ~a:[a_class ["page-footer"]] [
+              div
+                ~a:[ a_class [ "page-body" ] ]
+                [ warning; div ~a:[ a_id "main" ] [ lang_box; div content ] ];
+              div
+                ~a:[ a_class [ "page-footer" ] ]
+                [
                   footer;
                   txt (s_ "Powered by ");
-                  a ~a:[a_href Uris.belenios] [txt "Belenios"];
+                  a ~a:[ a_href Uris.belenios ] [ txt "Belenios" ];
                   Belenios_platform.Version.(
-                    Printf.ksprintf txt " %s (%s). " version build
-                  );
-                  a ~a:[a_href Uris.source_code] [txt (s_ "Get the source code")];
+                    Printf.ksprintf txt " %s (%s). " version build);
+                  a
+                    ~a:[ a_href Uris.source_code ]
+                    [ txt (s_ "Get the source code") ];
                   txt ". ";
-                  a ~a:[a_href Uris.privacy_policy] [txt (s_ "Privacy policy")];
+                  a
+                    ~a:[ a_href Uris.privacy_policy ]
+                    [ txt (s_ "Privacy policy") ];
                   txt ". ";
                   administer;
                   txt ".";
@@ -88,5 +121,4 @@ module Make (Base : BASE) = struct
             ];
         ];
     ]
-
 end

@@ -19,12 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+val create_captcha : unit -> string Lwt.t
 (** Returns a challenge string, used to identify the captcha in
    following functions. *)
-val create_captcha : unit -> string Lwt.t
 
-(** Returns the image associated to a challenge. *)
 val get_captcha : challenge:string -> (string * string) Lwt.t
+(** Returns the image associated to a challenge. *)
 
 val check_captcha : challenge:string -> response:string -> bool Lwt.t
 

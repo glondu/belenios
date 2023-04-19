@@ -22,9 +22,7 @@
 open Belenios_core.Common
 open Common
 
-type verifydiff_error =
-  | NotPrefix
-  | ErrorInFirst
+type verifydiff_error = NotPrefix | ErrorInFirst
 
 exception VerifydiffError of verifydiff_error
 
@@ -34,8 +32,8 @@ let explain_error = function
 
 let () =
   Printexc.register_printer (function
-      | VerifydiffError e -> Some ("verify-diff error: " ^ explain_error e)
-      | _ -> None)
+    | VerifydiffError e -> Some ("verify-diff error: " ^ explain_error e)
+    | _ -> None)
 
 let verifydiff dir1 dir2 =
   let file1 = dir1 // find_bel_in_dir dir1 in
@@ -44,10 +42,20 @@ let verifydiff dir1 dir2 =
     let open Tool_events in
     let index1 = get_index ~file:file1 in
     let index2 = get_index ~file:file2 in
-    if (try fsck index1; false with _ -> true) then
-      raise (VerifydiffError ErrorInFirst);
+    if
+      try
+        fsck index1;
+        false
+      with _ -> true
+    then raise (VerifydiffError ErrorInFirst);
     if not (starts_with ~prefix:index1 index2) then
       raise (VerifydiffError NotPrefix)
   in
-  let module X = Tool_election.Make (struct let file = file2 end) () in
+  let module X =
+    Tool_election.Make
+      (struct
+        let file = file2
+      end)
+      ()
+  in
   X.verify ()

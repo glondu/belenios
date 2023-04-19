@@ -21,4 +21,5 @@
 
 val get_by_version : int -> (module Belenios_core.Trustees_sig.S)
 
-val string_of_combination_error : Belenios_core.Signatures.combination_error -> string
+val string_of_combination_error :
+  Belenios_core.Signatures.combination_error -> string

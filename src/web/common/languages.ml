@@ -21,25 +21,25 @@
 
 let available =
   [
-    "ar", "العربية";
-    "cs", "Čeština";
-    "de", "Deutsch";
-    "el", "Ελληνικά";
-    "en", "English";
-    "es", "Español";
-    "es_419", "Español (Latinoamérica)";
-    "fi", "Suomi";
-    "fr", "Français";
-    "it", "Italiano";
-    "jpn_JP", "日本語";
-    "lt", "Lietuvių";
-    "ms", "Bahasa Melayu";
-    "nb", "Norsk (Bokmål)";
-    "nl", "Nederlands";
-    "oc", "Occitan";
-    "pl", "Polski";
-    "pt_BR", "Português (Brasil)";
-    "ro", "Română";
-    "sk", "Slovenčina";
-    "uk", "Українська";
+    ("ar", "العربية");
+    ("cs", "Čeština");
+    ("de", "Deutsch");
+    ("el", "Ελληνικά");
+    ("en", "English");
+    ("es", "Español");
+    ("es_419", "Español (Latinoamérica)");
+    ("fi", "Suomi");
+    ("fr", "Français");
+    ("it", "Italiano");
+    ("jpn_JP", "日本語");
+    ("lt", "Lietuvių");
+    ("ms", "Bahasa Melayu");
+    ("nb", "Norsk (Bokmål)");
+    ("nl", "Nederlands");
+    ("oc", "Occitan");
+    ("pl", "Polski");
+    ("pt_BR", "Português (Brasil)");
+    ("ro", "Română");
+    ("sk", "Slovenčina");
+    ("uk", "Українська");
   ]

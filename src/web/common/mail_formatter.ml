@@ -21,19 +21,9 @@
 
 let width = 72
 
-type t =
-  {
-    buffer : Buffer.t;
-    mutable current : int;
-    mutable pending : bool;
-  }
+type t = { buffer : Buffer.t; mutable current : int; mutable pending : bool }
 
-let create () =
-  {
-    buffer = Buffer.create 1000;
-    current = 0;
-    pending = false;
-  }
+let create () = { buffer = Buffer.create 1000; current = 0; pending = false }
 
 let add_newline t =
   Buffer.add_string t.buffer "\n";
@@ -51,12 +41,11 @@ let add_word t s =
   if t.current + pending + length > width then (
     add_newline t;
     add_string t s;
-    t.pending <- true
-  ) else (
+    t.pending <- true)
+  else (
     if t.pending then add_string t " ";
     add_string t s;
-    t.pending <- true
-  )
+    t.pending <- true)
 
 let add_sentence t s =
   let n = String.length s in
@@ -64,10 +53,8 @@ let add_sentence t s =
     if i < n then (
       let j = try String.index_from s i ' ' with Not_found -> n in
       add_word t (String.sub s i (j - i));
-      loop (j + 1)
-    )
+      loop (j + 1))
   in
   loop 0
 
-let contents t =
-  Buffer.contents t.buffer
+let contents t = Buffer.contents t.buffer

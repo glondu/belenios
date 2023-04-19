@@ -1,4 +1,7 @@
 (rule
  (target libsodium.js)
  (deps libsodium.wasm libsodium.in.js)
- (action (with-stdout-to %{target} (run ./gen.sh))))
+ (action
+  (with-stdout-to
+   %{target}
+   (run ./gen.sh))))

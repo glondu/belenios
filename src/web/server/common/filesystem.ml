@@ -26,37 +26,33 @@ open Web_common
 let file_exists x =
   Lwt.catch
     (fun () ->
-      let* () = Lwt_unix.(access x [R_OK]) in
-      Lwt.return_true
-    )
+      let* () = Lwt_unix.(access x [ R_OK ]) in
+      Lwt.return_true)
     (fun _ -> Lwt.return_false)
 
-let get_fname uuid x =
-  match uuid with
-  | None -> x
-  | Some uuid -> uuid /// x
+let get_fname uuid x = match uuid with None -> x | Some uuid -> uuid /// x
 
 let read_file ?uuid x =
   Lwt.catch
     (fun () ->
-      let* lines = Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list in
-      Lwt.return_some lines
-    )
+      let* lines =
+        Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list
+      in
+      Lwt.return_some lines)
     (fun _ -> Lwt.return_none)
 
 let read_whole_file ?uuid x =
   Lwt.catch
     (fun () ->
-      let* x = Lwt_io.chars_of_file (get_fname uuid x) |> Lwt_stream.to_string in
-      Lwt.return_some x
-    )
+      let* x =
+        Lwt_io.chars_of_file (get_fname uuid x) |> Lwt_stream.to_string
+      in
+      Lwt.return_some x)
     (fun _ -> Lwt.return_none)
 
 let read_file_single_line ?uuid filename =
   let* x = read_file ?uuid filename in
-  match x with
-  | Some [x] -> Lwt.return_some x
-  | _ -> Lwt.return_none
+  match x with Some [ x ] -> Lwt.return_some x | _ -> Lwt.return_none
 
 let write_file ?uuid x lines =
   let fname = get_fname uuid x in
@@ -79,11 +75,9 @@ let write_whole_file ?uuid x data =
   Lwt_unix.rename fname_new fname
 
 let cleanup_file f =
-  Lwt.catch
-    (fun () -> Lwt_unix.unlink f)
-    (fun _ -> Lwt.return_unit)
+  Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
 
 let rmdir dir =
-  let command = "rm", [| "rm"; "-rf"; dir |] in
+  let command = ("rm", [| "rm"; "-rf"; dir |]) in
   let* _ = Lwt_process.exec command in
   Lwt.return_unit

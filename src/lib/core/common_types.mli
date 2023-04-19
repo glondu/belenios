@@ -23,12 +23,14 @@ open Belenios_platform.Platform
 
 module Number : sig
   type t = Z.t
+
   val wrap : string -> t
   val unwrap : t -> string
 end
 
 module Uuid : sig
   type t
+
   val min_length : int
   val wrap : string -> t
   val unwrap : t -> string
@@ -39,18 +41,16 @@ module Hash : sig
 
   val wrap : string -> t
   val unwrap : t -> string
-
   val of_hex : string -> t
   val to_hex : t -> string
-
   val to_b64 : t -> string
   val of_b64 : string -> t
-
   val hash_string : string -> t
 end
 
 module Weight : sig
   type t
+
   val wrap : Yojson.Safe.t -> t
   val unwrap : t -> Yojson.Safe.t
   val zero : t
@@ -70,41 +70,44 @@ end
 module Question_signature : sig
   type _ t =
     | Nil : unit t
-    | Homomorphic : 'a t -> ([`Homomorphic] * 'a) t
-    | NonHomomorphic : int * 'a t -> ([`NonHomomorphic] * 'a) t
+    | Homomorphic : 'a t -> ([ `Homomorphic ] * 'a) t
+    | NonHomomorphic : int * 'a t -> ([ `NonHomomorphic ] * 'a) t
 end
 
 module Question_result : sig
   type t =
-    [ `Homomorphic of Weight.t array
-    | `NonHomomorphic of int array array
-    ]
+    [ `Homomorphic of Weight.t array | `NonHomomorphic of int array array ]
 end
 
 module Election_result : sig
   type _ t =
     | Nil : unit t
-    | Homomorphic : Weight.t array * 'a t -> ([`Homomorphic] * 'a) t
-    | NonHomomorphic : int array array * 'a t -> ([`NonHomomorphic] * 'a) t
+    | Homomorphic : Weight.t array * 'a t -> ([ `Homomorphic ] * 'a) t
+    | NonHomomorphic : int array array * 'a t -> ([ `NonHomomorphic ] * 'a) t
+
   val wrap : 'a Question_signature.t -> Yojson.Safe.t -> 'a t
   val unwrap : 'a t -> Yojson.Safe.t
   val nth : 'a t -> int -> Question_result.t
-  val map2 : (int -> Question_result.t -> 'b -> 'c) -> 'a t -> 'b array -> 'c list
+
+  val map2 :
+    (int -> Question_result.t -> 'b -> 'c) -> 'a t -> 'b array -> 'c list
 end
 
 module Array : sig
   include module type of Stdlib.Array
-  val for_all3 : ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
-  val map3 : ('a -> 'b -> 'c -> 'd) ->
-             'a array -> 'b array -> 'c array -> 'd array
+
+  val for_all3 :
+    ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
+
+  val map3 :
+    ('a -> 'b -> 'c -> 'd) -> 'a array -> 'b array -> 'c array -> 'd array
+
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
 end
 
 module Shape : sig
-  type 'a t =
-    [ `Atomic of 'a
-    | `Array of 'a t array
-    ]
+  type 'a t = [ `Atomic of 'a | `Array of 'a t array ]
+
   val of_array : 'a array -> 'a t
   val to_array : 'a t -> 'a array
   val to_shape_array : 'a t -> 'a t array
@@ -123,6 +126,7 @@ end
 
 module Atd_shape_j : sig
   open Atdgen_runtime.Util.Json
+
   val write_shape : 'a writer -> 'a Shape.t writer
   val read_shape : 'a reader -> 'a Shape.t reader
 end

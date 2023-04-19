@@ -34,11 +34,11 @@ end
 
 module type S = sig
   type keypair = { id : string; priv : string; pub : string }
+
   val trustee_keygen : unit -> keypair
 end
 
 module Make (P : PARAMS) (M : RANDOM) () = struct
-
   module G = (val Group.of_string ~version:P.version P.group : GROUP)
   module Trustees = (val Trustees.get_by_version P.version)
 
@@ -52,13 +52,12 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
   let trustee_keygen () =
     let private_key = KG.generate () in
     let public_key = KG.prove private_key in
-    assert (K.check [`Single public_key]);
-    let id = String.sub
-      (sha256_hex (G.to_string public_key.trustee_public_key))
-      0 8 |> String.uppercase_ascii
+    assert (K.check [ `Single public_key ]);
+    let id =
+      String.sub (sha256_hex (G.to_string public_key.trustee_public_key)) 0 8
+      |> String.uppercase_ascii
     in
     let priv = string_of_number private_key in
     let pub = string_of_trustee_public_key (swrite G.to_string) public_key in
-    {id; priv; pub}
-
+    { id; priv; pub }
 end

@@ -49,36 +49,37 @@ let generate uuid draft =
 
 let fill_interactivity () =
   let open (val !Belenios_js.I18n.gettext) in
-  let@ uuid, token = fun cont ->
+  let@ uuid, token =
+   fun cont ->
     let hash = Dom_html.window##.location##.hash |> Js.to_string in
     match extract_uuid_and_token hash with
     | Some (uuid, token) -> cont (uuid, token)
     | None ->
-       alert "Unable to extract UUID and token from URL";
-       Lwt.return_unit
+        alert "Unable to extract UUID and token from URL";
+        Lwt.return_unit
   in
   let@ () = redirect_if_admin "credentials" uuid token in
   set_form_target "submit_form" "submit-credentials" uuid token;
   set_form_target "submit_form_file" "submit-credentials-file" uuid token;
   let href = Dom_html.window##.location##.href |> Js.to_string in
   set_content "election_url" (build_election_url href uuid);
-  let@ draft = fun cont ->
+  let@ draft cont =
     let url = Printf.sprintf "../api/drafts/%s" uuid in
     let* x = get draft_of_string url in
     match x with
     | Some x -> cont x
     | None ->
-       alert "Unable to get draft";
-       Lwt.return_unit
+        alert "Unable to get draft";
+        Lwt.return_unit
   in
-  let@ voters = fun cont ->
+  let@ voters cont =
     let url = Printf.sprintf "../api/drafts/%s/voters" uuid in
     let* x = get ~token voter_list_of_string url in
     match x with
     | Some x -> cont x
     | None ->
-       alert "Unable to get voters";
-       Lwt.return_unit
+        alert "Unable to get voters";
+        Lwt.return_unit
   in
   let raw = Voter.list_to_string voters in
   set_textarea "voters" raw;
@@ -90,8 +91,7 @@ let fill_interactivity () =
   let t = document##createTextNode (Js.string (s_ "Generate")) in
   Lwt_js_events.async (fun () ->
       let* _ = Lwt_js_events.click b in
-      generate uuid draft
-    );
+      generate uuid draft);
   Dom.appendChild b t;
   Dom.appendChild x b;
   Lwt.return_unit
@@ -100,5 +100,4 @@ let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Belenios_js.I18n.auto_init "admin" in
-      fill_interactivity ()
-    )
+      fill_interactivity ())

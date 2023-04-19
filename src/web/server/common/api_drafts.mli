@@ -25,61 +25,87 @@ open Web_serializable_t
 
 val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> draft_election -> draft -> draft_election
-
 val post_drafts : account -> draft -> uuid option Lwt.t
-
 val get_draft_voters : draft_election -> voter_list
 val put_draft_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
 
 type generate_credentials_on_server_error =
-  [ `NoVoters
-  | `TooManyVoters
-  | `Already
-  | `NoServer
-  ]
+  [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
 val generate_credentials_on_server :
-  (recipient:string -> login:string -> weight:weight -> credential:string -> 'a Lwt.t) ->
-  uuid -> draft_election ->
+  (recipient:string ->
+  login:string ->
+  weight:weight ->
+  credential:string ->
+  'a Lwt.t) ->
+  uuid ->
+  draft_election ->
   ('a list, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
-val submit_public_credentials : uuid -> draft_election -> public_credentials -> unit Lwt.t
+val submit_public_credentials :
+  uuid -> draft_election -> public_credentials -> unit Lwt.t
 
 val generate_server_trustee : draft_election -> draft_trustee Lwt.t
 
-val get_draft_trustees : is_admin:bool -> draft_election -> Belenios_api.Serializable_t.draft_trustees
-val post_draft_trustees : uuid -> draft_election -> Yojson.Safe.t trustee -> unit Lwt.t
+val get_draft_trustees :
+  is_admin:bool -> draft_election -> Belenios_api.Serializable_t.draft_trustees
+
+val post_draft_trustees :
+  uuid -> draft_election -> Yojson.Safe.t trustee -> unit Lwt.t
+
 val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t
 
 val set_threshold :
-  uuid -> draft_election -> int ->
-  (unit, [`NoTrustees | `OutOfBounds]) Stdlib.result Lwt.t
+  uuid ->
+  draft_election ->
+  int ->
+  (unit, [ `NoTrustees | `OutOfBounds ]) Stdlib.result Lwt.t
 
-val get_draft_trustees_mode : draft_election -> [`Basic | `Threshold of int]
-val put_draft_trustees_mode : uuid -> draft_election -> [`Basic | `Threshold of int] -> unit Lwt.t
+val get_draft_trustees_mode : draft_election -> [ `Basic | `Threshold of int ]
+
+val put_draft_trustees_mode :
+  uuid -> draft_election -> [ `Basic | `Threshold of int ] -> unit Lwt.t
 
 val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
 
 val merge_voters :
-  draft_voter list -> Voter.t list ->
-  (Voter.t -> (string * string) option) -> (draft_voter list * weight, Voter.t) Stdlib.result
+  draft_voter list ->
+  Voter.t list ->
+  (Voter.t -> (string * string) option) ->
+  (draft_voter list * weight, Voter.t) Stdlib.result
 
 val import_voters :
-  uuid -> draft_election -> uuid ->
-  (unit, [ `Forbidden | `NotFound | `TotalWeightTooBig of weight | `Duplicate of string ]) Stdlib.result Lwt.t
+  uuid ->
+  draft_election ->
+  uuid ->
+  ( unit,
+    [ `Forbidden
+    | `NotFound
+    | `TotalWeightTooBig of weight
+    | `Duplicate of string ] )
+  Stdlib.result
+  Lwt.t
 
 val import_trustees :
-  uuid -> draft_election ->
-  uuid -> metadata ->
-  ([> `Basic | `Threshold ],
-   [> `Inconsistent | `Invalid | `MissingPrivateKeys | `None | `Unsupported ])
-    Stdlib.result Lwt.t
+  uuid ->
+  draft_election ->
+  uuid ->
+  metadata ->
+  ( [> `Basic | `Threshold ],
+    [> `Inconsistent | `Invalid | `MissingPrivateKeys | `None | `Unsupported ]
+  )
+  Stdlib.result
+  Lwt.t
 
 open Api_generic
 
 val dispatch :
-  token:string option -> ifmatch:string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
-  body -> result Lwt.t
+  token:string option ->
+  ifmatch:string option ->
+  string list ->
+  [ `GET | `POST | `PUT | `DELETE ] ->
+  body ->
+  result Lwt.t

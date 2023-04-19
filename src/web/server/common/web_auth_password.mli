@@ -22,11 +22,24 @@
 open Web_serializable_t
 open Web_common
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) : sig end
+module Make
+    (Web_services : Web_services_sig.S)
+    (Pages_common : Pages_common_sig.S)
+    (Web_auth : Web_auth_sig.S) : sig end
 
 (** Password-protected admin account management *)
 
-val add_account : user -> password:string -> email:string -> (unit, add_account_error) result Lwt.t
-val change_password : user -> password:string -> (unit, add_account_error) result Lwt.t
+val add_account :
+  user ->
+  password:string ->
+  email:string ->
+  (unit, add_account_error) result Lwt.t
 
-val lookup_account : service:string -> username:string -> email:string -> (string * string) option Lwt.t
+val change_password :
+  user -> password:string -> (unit, add_account_error) result Lwt.t
+
+val lookup_account :
+  service:string ->
+  username:string ->
+  email:string ->
+  (string * string) option Lwt.t

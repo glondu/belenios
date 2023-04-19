@@ -24,28 +24,23 @@ open Web_common
 open Web_serializable_t
 
 module type S = sig
-
   val show_cookie_disclaimer : bool Eliom_reference.eref
-
   val site_user : (user * account * string) option Eliom_reference.eref
   val election_user : (uuid * user) option Eliom_reference.eref
   val get_election_user : uuid -> user option Lwt.t
-
   val ballot : string option Eliom_reference.eref
   val precast_data : (string * credential_record) option Eliom_reference.eref
-  val cast_confirmed : (user * string * bool * Weight.t * bool, Web_common.error) result option Eliom_reference.eref
+
+  val cast_confirmed :
+    (user * string * bool * Weight.t * bool, Web_common.error) result option
+    Eliom_reference.eref
 
   val language : string option Eliom_reference.eref
 
-  type link_kind =
-    [ `CreateAccount
-    | `ChangePassword of string
-    ]
+  type link_kind = [ `CreateAccount | `ChangePassword of string ]
 
   val signup_address : string option Eliom_reference.eref
   val signup_env : (string * link_kind) option Eliom_reference.eref
-
   val set_email_env : string option Eliom_reference.eref
-
   val discard : unit -> unit Lwt.t
 end

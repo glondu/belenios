@@ -86,7 +86,7 @@ module type GROUP = sig
   (** A total ordering over the elements of the group. *)
 
   val get_generator : int -> t
-                               (** [get_generator i] computes generator #[i] of the group. *)
+  (** [get_generator i] computes generator #[i] of the group. *)
 
   val description : string
 end
@@ -94,6 +94,7 @@ end
 (** Monad signature. *)
 module type MONAD = sig
   type 'a t
+
   val yield : unit -> unit t
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
@@ -103,10 +104,11 @@ end
 (** Random number generation. *)
 module type RANDOM = sig
   val random : Z.t -> Z.t
-                          (** [random q] returns a random number modulo [q]. *)
+  (** [random q] returns a random number modulo [q]. *)
 end
 
 module type QUESTION_SIGNATURE_PACK = sig
   type t
+
   val x : t Common_types.Question_signature.t
 end

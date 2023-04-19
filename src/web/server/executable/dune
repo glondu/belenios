@@ -3,11 +3,5 @@
  (public_name belenios-server)
  (package belenios-server)
  (flags -linkall)
- (libraries
-  ocsigenserver
-  ocsipersist.sqlite
-  ocsigenserver.ext.redirectmod
-  ocsigenserver.ext.staticmod
-  eliom
-  belenios-platform-native
-  belenios-server))
+ (libraries ocsigenserver ocsipersist.sqlite ocsigenserver.ext.redirectmod
+   ocsigenserver.ext.staticmod eliom belenios-platform-native belenios-server))

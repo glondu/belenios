@@ -28,33 +28,22 @@ open Platform
 open Common
 
 let document = Dom_html.document
-
 let ( let&& ) = Js.Opt.bind
 let ( let&&* ) x f = Js.Opt.case x (fun () -> Lwt.return_unit) f
 let ( let$ ) = Js.Opt.iter
 let ( let&$ ) x f = Option.iter f x
-
-let ( let&|&& ) x f =
-  match x with
-  | None -> Js.null
-  | Some x -> f x
-
-let return_unit =
-  Js.some ()
-
-let alert s =
-  Dom_html.window##alert (Js.string s)
-
-let confirm s =
-  Dom_html.window##confirm (Js.string s)
-  |> Js.to_bool
+let ( let&|&& ) x f = match x with None -> Js.null | Some x -> f x
+let return_unit = Js.some ()
+let alert s = Dom_html.window##alert (Js.string s)
+let confirm s = Dom_html.window##confirm (Js.string s) |> Js.to_bool
 
 let prompt s =
   let x = Dom_html.window##prompt (Js.string s) (Js.string "") in
   Js.Opt.to_option (Js.Opt.map x Js.to_string)
 
 let get_textarea_opt id =
-  Option.map (fun x -> Js.to_string x##.value)
+  Option.map
+    (fun x -> Js.to_string x##.value)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.textarea)
 
 let get_textarea id =
@@ -63,11 +52,13 @@ let get_textarea id =
   | None -> Printf.ksprintf failwith "<textarea> %s is missing" id
 
 let set_textarea id z =
-  Option.iter (fun x -> x##.value := Js.string z)
+  Option.iter
+    (fun x -> x##.value := Js.string z)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.textarea)
 
 let get_input_opt id =
-  Option.map (fun x -> Js.to_string x##.value)
+  Option.map
+    (fun x -> Js.to_string x##.value)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
 
 let get_input id =
@@ -76,11 +67,13 @@ let get_input id =
   | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
 let set_input id z =
-  Option.iter (fun x -> x##.value := Js.string z)
+  Option.iter
+    (fun x -> x##.value := Js.string z)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
 
 let get_select_opt id =
-  Option.map (fun x -> Js.to_string x##.value)
+  Option.map
+    (fun x -> Js.to_string x##.value)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.select)
 
 let get_select id =
@@ -89,7 +82,8 @@ let get_select id =
   | None -> Printf.ksprintf failwith "<select> %s is missing" id
 
 let set_select id z =
-  Option.iter (fun x -> x##.value := Js.string z)
+  Option.iter
+    (fun x -> x##.value := Js.string z)
     (Dom_html.getElementById_coerce id Dom_html.CoerceTo.select)
 
 let set_element_display id x =
@@ -97,19 +91,21 @@ let set_element_display id x =
   e##.style##.display := Js.string x
 
 let set_download id mime fn x =
-  let x = (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x)) in
+  let x =
+    (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x))
+  in
   match Dom_html.getElementById_coerce id Dom_html.CoerceTo.a with
   | None -> ()
   | Some e ->
-     e##setAttribute (Js.string "download") (Js.string fn);
-     e##.href := x
+      e##setAttribute (Js.string "download") (Js.string fn);
+      e##.href := x
 
 let get_content x =
-  Js.Opt.get (
-      let&& e = document##getElementById (Js.string x) in
-      let&& x = e##.textContent in
-      Js.some (Js.to_string x)
-    ) (fun () -> x)
+  Js.Opt.get
+    (let&& e = document##getElementById (Js.string x) in
+     let&& x = e##.textContent in
+     Js.some (Js.to_string x))
+    (fun () -> x)
 
 let set_content id x =
   let$ e = document##getElementById (Js.string id) in
@@ -120,15 +116,15 @@ let append_with_br e x =
   let rec loop = function
     | [] -> ()
     | x :: xs ->
-       Dom.appendChild e (Dom_html.createBr document);
-       Dom.appendChild e (document##createTextNode (Js.string x));
-       loop xs
+        Dom.appendChild e (Dom_html.createBr document);
+        Dom.appendChild e (document##createTextNode (Js.string x));
+        loop xs
   in
   match split_on_br x with
   | [] -> ()
   | x :: xs ->
-     Dom.appendChild e (document##createTextNode (Js.string x));
-     loop xs
+      Dom.appendChild e (document##createTextNode (Js.string x));
+      loop xs
 
 let set_content_with_br id x =
   let$ e = document##getElementById (Js.string id) in
@@ -146,10 +142,10 @@ let clear_content_by_id id =
   clear_content e
 
 let run_handler handler () =
-  try handler () with
-  | e ->
-     let msg = "Unexpected error: " ^ Printexc.to_string e in
-     alert msg
+  try handler ()
+  with e ->
+    let msg = "Unexpected error: " ^ Printexc.to_string e in
+    alert msg
 
 module Random : Signatures.RANDOM = struct
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
@@ -163,8 +159,8 @@ end
 let get ?token of_string url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers =
-    let& token in
-    Some ["Authorization", "Bearer " ^ token]
+    let& token = token in
+    Some [ ("Authorization", "Bearer " ^ token) ]
   in
   let* x = perform_raw_url ?headers url in
   match x.code with
@@ -189,9 +185,8 @@ let build_election_url href uuid =
 
 let set_form_target id target uuid token =
   let action =
-    ["uuid", uuid; "token", token]
-    |> Url.encode_arguments
-    |> (fun x -> Printf.sprintf "%s?%s" target x)
+    [ ("uuid", uuid); ("token", token) ] |> Url.encode_arguments |> fun x ->
+    Printf.sprintf "%s?%s" target x
   in
   let$ form = document##getElementById (Js.string id) in
   let$ form = Dom_html.CoerceTo.form form in
@@ -203,14 +198,15 @@ let redirect_if_admin target uuid token cont =
   if x.code = 200 then (
     let url = Printf.sprintf "%s/%s/%s" target uuid token in
     Dom_html.window##.location##replace (Js.string url);
-    Lwt.return_unit
-  ) else (
+    Lwt.return_unit)
+  else (
     set_element_display "initially_hidden_content" "block";
-    cont ()
-  )
+    cont ())
 
 let lwt_handler f =
-  Dom_html.handler (fun _ -> Lwt.async f; Js._true)
+  Dom_html.handler (fun _ ->
+      Lwt.async f;
+      Js._true)
 
 let show_in container f =
   let* content = f () in
@@ -223,10 +219,10 @@ let input ?a value =
   let elt = Tyxml_js.Html.input ?a () in
   let r = Tyxml_js.To_dom.of_input elt in
   r##.value := Js.string value;
-  elt, (fun () -> Js.to_string r##.value)
+  (elt, fun () -> Js.to_string r##.value)
 
 let button ?a label handler =
-  let elt = Tyxml_js.Html.button ?a [Tyxml_js.Html.txt label] in
+  let elt = Tyxml_js.Html.button ?a [ Tyxml_js.Html.txt label ] in
   let r = Tyxml_js.To_dom.of_button elt in
   r##.onclick := lwt_handler handler;
   elt

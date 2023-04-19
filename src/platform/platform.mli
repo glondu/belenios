@@ -20,23 +20,24 @@
 (**************************************************************************)
 
 val debug : string -> unit
-
 val sha256_hex : string -> string
 val pbkdf2_utf8 : iterations:int -> salt:string -> string -> string
-
 val aes_hex : key:string -> data:string -> string
 
-(** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
 val encrypt : key:string -> iv:string -> plaintext:string -> string
+(** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
+
 val decrypt : key:string -> iv:string -> ciphertext:string -> string
 
 type rng
+
 val secure_rng : rng
 val pseudo_rng : string -> rng
 val random_string : rng -> int -> string
 
 module Z : sig
   type t
+
   val zero : t
   val one : t
   val of_int : int -> t

@@ -33,10 +33,10 @@ let nchoices =
   let rex = Pcre.regexp "^V: ([-1-9]+)\\s" in
   match tally_txt with
   | [] -> failwith "No lines in input"
-  | line :: _ ->
-     match Pcre.exec ~rex line with
-     | s -> String.length (Pcre.get_substring s 1)
-     | exception Not_found -> failwith "Could not parse last line as a ballot"
+  | line :: _ -> (
+      match Pcre.exec ~rex line with
+      | s -> String.length (Pcre.get_substring s 1)
+      | exception Not_found -> failwith "Could not parse last line as a ballot")
 
 let rex =
   let buf = Buffer.create 32 in
@@ -50,18 +50,17 @@ let rex =
 let rec convert accu = function
   | [] -> accu
   | line :: lines ->
-     let accu =
-       match Pcre.exec ~rex line with
-       | s ->
-          let get i =
-            let x = Pcre.get_substring s (i + 1) in
-            if x = "-" then 0 else int_of_string x
-          in
-          (Array.init nchoices get) :: accu
-       | exception Not_found -> accu
-     in
-     convert accu lines
+      let accu =
+        match Pcre.exec ~rex line with
+        | s ->
+            let get i =
+              let x = Pcre.get_substring s (i + 1) in
+              if x = "-" then 0 else int_of_string x
+            in
+            Array.init nchoices get :: accu
+        | exception Not_found -> accu
+      in
+      convert accu lines
 
 let tally = convert [] tally_txt |> Array.of_list
-
 let () = print_endline (string_of_condorcet_ballots tally)

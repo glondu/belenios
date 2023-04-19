@@ -31,9 +31,11 @@ let compute_handler input output _ =
   let input = Js.to_string input##.value in
   computed_fingerprint := sha256_b64 input;
   clear_content output;
-  Dom.appendChild output (document##createTextNode (Js.string (s_ "Computed fingerprint:")));
+  Dom.appendChild output
+    (document##createTextNode (Js.string (s_ "Computed fingerprint:")));
   Dom.appendChild output (document##createTextNode (Js.string " "));
-  Dom.appendChild output (document##createTextNode (Js.string !computed_fingerprint));
+  Dom.appendChild output
+    (document##createTextNode (Js.string !computed_fingerprint));
   Js._true
 
 let compare_handler input output _ =
@@ -41,14 +43,11 @@ let compare_handler input output _ =
   let input = Js.to_string input##.value in
   if input <> "" then (
     let result =
-      if input = !computed_fingerprint then
-        s_ "The fingerprints match!"
-      else
-        s_ "The fingerprints differ!"
+      if input = !computed_fingerprint then s_ "The fingerprints match!"
+      else s_ "The fingerprints differ!"
     in
     clear_content output;
-    Dom.appendChild output (document##createTextNode (Js.string result))
-  );
+    Dom.appendChild output (document##createTextNode (Js.string result)));
   Js._true
 
 let fill_interactivity () =
@@ -56,7 +55,12 @@ let fill_interactivity () =
   let$ container = document##getElementById (Js.string "interactivity") in
   let result_div = Dom_html.createDiv document in
   let intro_div = Dom_html.createDiv document in
-  Dom.appendChild intro_div (document##createTextNode (Js.string (s_ "Please paste the data for which you want to compute the fingerprint in the text area below:")));
+  Dom.appendChild intro_div
+    (document##createTextNode
+       (Js.string
+          (s_
+             "Please paste the data for which you want to compute the \
+              fingerprint in the text area below:")));
   Dom.appendChild container intro_div;
   let textarea_div = Dom_html.createDiv document in
   let textarea = Dom_html.createTextarea document in
@@ -66,14 +70,17 @@ let fill_interactivity () =
   Dom.appendChild container textarea_div;
   let compute_div = Dom_html.createDiv document in
   let compute = Dom_html.createButton document in
-  let compute_label = document##createTextNode (Js.string (s_ "Compute fingerprint")) in
+  let compute_label =
+    document##createTextNode (Js.string (s_ "Compute fingerprint"))
+  in
   compute##.onclick := Dom_html.handler (compute_handler textarea result_div);
   Dom.appendChild compute compute_label;
   Dom.appendChild compute_div compute;
   Dom.appendChild container compute_div;
   Dom.appendChild container result_div;
   let input_div = Dom_html.createDiv document in
-  Dom.appendChild input_div (document##createTextNode (Js.string (s_ "Expected fingerprint:")));
+  Dom.appendChild input_div
+    (document##createTextNode (Js.string (s_ "Expected fingerprint:")));
   Dom.appendChild input_div (document##createTextNode (Js.string " "));
   let input = Dom_html.createInput document in
   input##.size := 50;
@@ -94,5 +101,4 @@ let () =
       let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
       let* () = Belenios_js.I18n.auto_init "admin" in
       fill_interactivity ();
-      Lwt.return_unit
-    )
+      Lwt.return_unit)

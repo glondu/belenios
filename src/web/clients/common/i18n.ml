@@ -25,7 +25,7 @@ open Belenios_core.Common
 
 let components = Hashtbl.create 2
 
-module Default  = struct
+module Default = struct
   let lang = "en_devel"
   let s_ x = x
   let f_ x = x
@@ -40,21 +40,21 @@ let build_gettext component lang =
   let* x = Printf.ksprintf get "%slocales/%s/%s.json" !dir component lang in
   match x.code with
   | 200 ->
-     let translations = Js._JSON##parse (Js.string x.content) in
-     let module X =
-       struct
-         let lang = lang
-         let s_ str_id =
-           let str = Js.Unsafe.get translations (Js.string str_id) in
-           Js.Optdef.case str
-             (fun () -> str_id)
-             (fun x -> Js.to_string (Js.Unsafe.get x 0))
-         let f_ str_id =
-           let str = s_ (string_of_format str_id) in
-           Scanf.format_from_string str str_id
-       end
-     in
-     Lwt.return (module X : Belenios_ui.I18n.GETTEXT)
+      let translations = Js._JSON##parse (Js.string x.content) in
+      let module X = struct
+        let lang = lang
+
+        let s_ str_id =
+          let str = Js.Unsafe.get translations (Js.string str_id) in
+          Js.Optdef.case str
+            (fun () -> str_id)
+            (fun x -> Js.to_string (Js.Unsafe.get x 0))
+
+        let f_ str_id =
+          let str = s_ (string_of_format str_id) in
+          Scanf.format_from_string str str_id
+      end in
+      Lwt.return (module X : Belenios_ui.I18n.GETTEXT)
   | _ -> Lwt.return default
 
 let lang_mutex = Lwt_mutex.create ()
@@ -64,20 +64,20 @@ let get ~component ~lang =
     match Hashtbl.find_opt components component with
     | Some x -> x
     | None ->
-       let x = Hashtbl.create 10 in
-       Hashtbl.add components component x;
-       x
+        let x = Hashtbl.create 10 in
+        Hashtbl.add components component x;
+        x
   in
   match Hashtbl.find_opt langs lang with
   | Some x -> Lwt.return x
-  | None ->
-     let@ () = Lwt_mutex.with_lock lang_mutex in
-     match Hashtbl.find_opt langs lang with
-     | Some x -> Lwt.return x
-     | None ->
-        let* x = build_gettext component lang in
-        Hashtbl.add langs lang x;
-        Lwt.return x
+  | None -> (
+      let@ () = Lwt_mutex.with_lock lang_mutex in
+      match Hashtbl.find_opt langs lang with
+      | Some x -> Lwt.return x
+      | None ->
+          let* x = build_gettext component lang in
+          Hashtbl.add langs lang x;
+          Lwt.return x)
 
 let init ~dir:d ~component ~lang =
   dir := d;

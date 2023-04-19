@@ -27,7 +27,9 @@ open Common
 (* https://en.wikipedia.org/wiki/EdDSA *)
 
 let q = Z.(shift_left one 255 - of_int 19)
-let l = Z.(shift_left one 252 + of_string "27742317777372353535851937790883648493")
+
+let l =
+  Z.(shift_left one 252 + of_string "27742317777372353535851937790883648493")
 
 module F = struct
   let zero = Z.zero
@@ -43,14 +45,13 @@ module F = struct
 end
 
 let a = F.(zero - one)
-let d = F.(zero - of_int 121665 * invert (of_int 121666))
+let d = F.(zero - (of_int 121665 * invert (of_int 121666)))
 
 (* https://hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html *)
 
 type t = Z.t * Z.t * Z.t * Z.t
 
-let of_coordinates (x, y) =
-  x, y, Z.one, F.(x * y)
+let of_coordinates (x, y) = (x, y, Z.one, F.(x * y))
 
 let to_coordinates (x, y, z, _) =
   let open F in
@@ -60,14 +61,16 @@ let to_coordinates (x, y, z, _) =
 let curve x y z t =
   let open F in
   let x2 = x * x and y2 = y * y and z2 = z * z and t2 = t * t in
-  a * x2 + y2 - z2 - d * t2
+  (a * x2) + y2 - z2 - (d * t2)
 
 let one = of_coordinates F.(zero, one)
 
 let g =
-  of_coordinates (
-      Z.of_string "15112221349535400772501151409588531511454012693041857206046113283949847762202",
-      Z.of_string "46316835694926478169428394003475163141307993866256225615783033603165251855960"
+  of_coordinates
+    ( Z.of_string
+        "15112221349535400772501151409588531511454012693041857206046113283949847762202",
+      Z.of_string
+        "46316835694926478169428394003475163141307993866256225615783033603165251855960"
     )
 
 (* https://hyperelliptic.org/EFD/g1p/auto-twisted.html *)
@@ -88,7 +91,7 @@ let ( *~ ) (x1, y1, z1, t1) (x2, y2, z2, t2) =
   let y3 = g * h in
   let t3 = e * h in
   let z3 = f * g in
-  x3, y3, z3, t3
+  (x3, y3, z3, t3)
 
 let windowsize = 4
 let windowmask = (1 lsl windowsize) - 1
@@ -104,25 +107,23 @@ let ( **~ ) p n =
       let s = z *~ z in
       t.(i) <- s;
       t.(i + 1) <- s *~ p;
-      init (i + 2)
-    ) else ()
+      init (i + 2))
+    else ()
   in
   init 2;
   let rec loop i s =
-    if i >= 0 then (
+    if i >= 0 then
       let k = i * windowsize in
       let j = Z.(logand (shift_right n k) windowmaskZ |> to_int) in
       let s = s *~ t.(j) in
       let s =
-        if i <> 0 then (
-          let rec loop i s =
-            if i > 0 then loop (i - 1) (s *~ s) else s
-          in
+        if i <> 0 then
+          let rec loop i s = if i > 0 then loop (i - 1) (s *~ s) else s in
           loop windowsize s
-        ) else s
+        else s
       in
       loop (i - 1) s
-    ) else s
+    else s
   in
   loop (windowiterations - 1) one
 
@@ -134,8 +135,8 @@ let ( =~ ) p1 p2 = compare p1 p2 = 0
 
 let check ((x, y, z, t) as p) =
   Z.(compare z zero > 0)
-  && check_modulo q x && check_modulo q y
-  && check_modulo q z && check_modulo q t
+  && check_modulo q x && check_modulo q y && check_modulo q z
+  && check_modulo q t
   && F.(compare (x * y) (z * t) = 0)
   && F.(compare (curve x y z t) zero = 0)
   && p **~ l =~ one
@@ -145,12 +146,12 @@ let is_even x = Z.(compare (logand x one) zero = 0)
 let is_base_point =
   let four_fifth = F.(of_int 4 * invert (of_int 5)) in
   fun p ->
-  check p
-  && let x, y = to_coordinates p in
-     Z.compare four_fifth y = 0 && is_even x
+    check p
+    &&
+    let x, y = to_coordinates p in
+    Z.compare four_fifth y = 0 && is_even x
 
-let invert (x, y, z, t) =
-  F.(zero - x, y, z, zero - t)
+let invert (x, y, z, t) = F.(zero - x, y, z, zero - t)
 
 let compress (x, y) =
   let open Z in
@@ -164,24 +165,24 @@ let modsqrt_check, modsqrt =
   let open Z in
   let five = of_int 5 and eight = of_int 8 in
   let exp = (q - five) / eight in
-  (fun () -> Z.(compare (q mod eight) five = 0)),
-  fun a ->
-  let v = powm (shift_left a 1) exp q in
-  let i = erem (shift_left (a * v * v) 1) q in
-  erem (a * v * (i - one)) q
+  ( (fun () -> Z.(compare (q mod eight) five = 0)),
+    fun a ->
+      let v = powm (shift_left a 1) exp q in
+      let i = erem (shift_left (a * v * v) 1) q in
+      erem (a * v * (i - one)) q )
 
 let uncompress raw =
   let open Z in
   let y = logand raw mask255 in
   let y2 = erem (y * y) q in
-  let x2 = erem ((y2 - one) * invert (d * y2 + one) q) q in
+  let x2 = erem ((y2 - one) * invert ((d * y2) + one) q) q in
   let x = modsqrt x2 in
-  if compare (erem (x * x) q) x2 = 0 then (
+  if compare (erem (x * x) q) x2 = 0 then
     let xsign = logand x one in
     let rsign = shift_right raw 255 in
     let x = if compare xsign rsign = 0 then x else erem (zero - x) q in
     Some (x, y)
-  ) else None
+  else None
 
 let hex_size = 64
 
@@ -203,39 +204,37 @@ let bits_per_int = 8
 let of_ints =
   let mask_per_int = pred (1 lsl bits_per_int) in
   fun xs ->
-  (* Koblitz method *)
-  let open Z in
-  let n = Array.length xs in
-  let rec encode_int i accu =
-    if i < n then
-      let x = xs.(i) land mask_per_int in
-      encode_int (succ i) (shift_left accu bits_per_int + of_int x)
-    else
-      shift_left accu padding
-  in
-  let rec find_element accu =
-    match uncompress accu with
-    | None -> find_element Z.(accu + one)
-    | Some p ->
-       let p = of_coordinates p in
-       if check p then p else find_element Z.(accu + one)
-  in
-  find_element (encode_int 0 Z.zero)
+    (* Koblitz method *)
+    let open Z in
+    let n = Array.length xs in
+    let rec encode_int i accu =
+      if i < n then
+        let x = xs.(i) land mask_per_int in
+        encode_int (succ i) (shift_left accu bits_per_int + of_int x)
+      else shift_left accu padding
+    in
+    let rec find_element accu =
+      match uncompress accu with
+      | None -> find_element Z.(accu + one)
+      | Some p ->
+          let p = of_coordinates p in
+          if check p then p else find_element Z.(accu + one)
+    in
+    find_element (encode_int 0 Z.zero)
 
 let to_ints =
   let open Z in
   let mask_per_int = shift_left one bits_per_int - one in
   fun n p ->
-  let x = compress (to_coordinates p) in
-  let xs = Array.make n 0 in
-  let rec decode_int i x =
-    if i >= 0 then (
-      xs.(i) <- to_int (logand x mask_per_int);
-      decode_int (pred i) (shift_right x bits_per_int)
-    )
-  in
-  decode_int (pred n) (shift_right x padding);
-  xs
+    let x = compress (to_coordinates p) in
+    let xs = Array.make n 0 in
+    let rec decode_int i x =
+      if i >= 0 then (
+        xs.(i) <- to_int (logand x mask_per_int);
+        decode_int (pred i) (shift_right x bits_per_int))
+    in
+    decode_int (pred n) (shift_right x padding);
+    xs
 
 let hash prefix xs =
   let x = prefix ^ map_and_concat_with_commas to_string xs in
@@ -247,7 +246,6 @@ let hash_to_int p =
   Z.(hash_to_int (shift_left x 256 + y))
 
 let description = "Ed25519"
-
 let q = l
 let cofactor = Z.of_int 8
 
@@ -258,8 +256,8 @@ let get_generator i =
     match uncompress accu with
     | None -> find_element Z.(accu + one)
     | Some p ->
-       let p = of_coordinates p in
-       p **~ cofactor
+        let p = of_coordinates p in
+        p **~ cofactor
   in
   let h = find_element base in
   (* it is very unlikely (but theoretically possible) that one of the following assertions fails *)
@@ -268,7 +266,4 @@ let get_generator i =
   h
 
 let selfcheck () =
-  check one
-  && is_base_point g
-  && g **~ q =~ one
-  && modsqrt_check ()
+  check one && is_base_point g && g **~ q =~ one && modsqrt_check ()

@@ -26,7 +26,6 @@ open Web_serializable_j
 open Web_common
 
 module Make () = struct
-
   (** Parse configuration from <eliom> *)
 
   let prefix = ref None
@@ -42,92 +41,88 @@ module Make () = struct
   let domain = ref None
 
   let () =
-    Eliom_config.get_config () |>
-      let open Xml in
-      List.iter @@ function
-                  | PCData x ->
-                     Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios" x
-                  | Element ("prefix", ["value", x], []) ->
-                     prefix := Some x
-                  | Element ("maxrequestbodysizeinmemory", ["value", m], []) ->
-                     Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
-                  | Element ("log", ["file", file], []) ->
-                     Lwt_main.run (open_security_log file)
-                  | Element ("source", ["file", file], []) ->
-                     source_file := Some file
-                  | Element ("logo", ["file", file; "mime-type", mime_type], []) ->
-                     Web_config.logo := Some (file, mime_type)
-                  | Element ("favicon", ["file", file; "mime-type", mime_type], []) ->
-                     Web_config.favicon := Some (file, mime_type)
-                  | Element ("sealing", ["file", file; "mime-type", mime_type], []) ->
-                     Web_config.sealing := Some (file, mime_type)
-                  | Element ("default-group", ["file", file], []) ->
-                     default_group_file := Some (`File file)
-                  | Element ("nh-group", ["file", file], []) ->
-                     nh_group_file := Some (`File file)
-                  | Element ("default-group", ["group", group], []) ->
-                     default_group_file := Some (`Group group)
-                  | Element ("nh-group", ["group", group], []) ->
-                     nh_group_file := Some (`Group group)
-                  | Element ("maxmailsatonce", ["value", limit], []) ->
-                     Web_config.maxmailsatonce := int_of_string limit
-                  | Element ("uuid", ["length", length], []) ->
-                     let length = int_of_string length in
-                     if length >= Uuid.min_length then
-                       Web_config.uuid_length := Some length
-                     else
-                       failwith "UUID length is too small"
-                  | Element ("contact", ["uri", uri], []) ->
-                     Web_config.contact_uri := Some uri
-                  | Element ("gdpr", ["uri", uri], []) ->
-                     gdpr_uri := Some uri
-                  | Element ("server", attrs, []) ->
-                     let set check_email attr setter =
-                       match List.assoc_opt attr attrs with
-                       | Some mail ->
-                          if not check_email || is_email mail then setter mail
-                          else Printf.ksprintf failwith "%s is not a valid e-mail address" mail
-                       | None -> ()
-                     in
-                     set true "mail" (fun x -> Web_config.server_mail := x);
-                     set true "return-path" (fun x -> Web_config.return_path := Some x);
-                     set false "name" (fun x -> Web_config.server_name := x);
-                  | Element ("locales", ["dir", dir], []) ->
-                     locales_dir := Some dir
-                  | Element ("spool", ["dir", dir], []) ->
-                     spool_dir := Some dir
-                  | Element ("accounts", ["dir", dir], []) ->
-                     accounts_dir := Some dir
-                  | Element ("warning", ["file", file], []) ->
-                     Web_config.warning_file := Some file
-                  | Element ("footer", ["file", file], []) ->
-                     Web_config.footer_file := Some file
-                  | Element ("admin-home", ["file", file], []) ->
-                     Web_config.admin_home := Some file
-                  | Element ("rewrite-prefix", ["src", src; "dst", dst], []) ->
-                     set_rewrite_prefix ~src ~dst
-                  | Element ("auth", ["name", auth_instance],
-                             [Element (auth_system, auth_config, [])]) ->
-                     let i = {auth_system; auth_instance; auth_config} in
-                     auth_instances := i :: !auth_instances
-                  | Element ("auth-export", ["name", "builtin-password"], []) ->
-                     auth_instances_export := `BuiltinPassword :: !auth_instances_export
-                  | Element ("auth-export", ["name", "builtin-cas"], []) ->
-                     auth_instances_export := `BuiltinCAS :: !auth_instances_export
-                  | Element ("auth-export", ["name", auth_instance],
-                             [Element (auth_system, auth_config, [])]) ->
-                     let i = {auth_system; auth_instance; auth_config} in
-                     auth_instances_export := `Export i :: !auth_instances_export
-                  | Element ("domain", ["name", name], []) ->
-                     domain := Some name
-                  | Element ("deny-revote", [], []) ->
-                     Web_config.deny_revote := true
-                  | Element ("deny-newelection", [], []) ->
-                     Web_config.deny_newelection := true
-                  | Element (tag, _, _) ->
-                     Printf.ksprintf failwith
-                       "invalid configuration for tag %s in belenios"
-                       tag
+    Eliom_config.get_config ()
+    |>
+    let open Xml in
+    List.iter @@ function
+    | PCData x ->
+        Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios"
+          x
+    | Element ("prefix", [ ("value", x) ], []) -> prefix := Some x
+    | Element ("maxrequestbodysizeinmemory", [ ("value", m) ], []) ->
+        Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
+    | Element ("log", [ ("file", file) ], []) ->
+        Lwt_main.run (open_security_log file)
+    | Element ("source", [ ("file", file) ], []) -> source_file := Some file
+    | Element ("logo", [ ("file", file); ("mime-type", mime_type) ], []) ->
+        Web_config.logo := Some (file, mime_type)
+    | Element ("favicon", [ ("file", file); ("mime-type", mime_type) ], []) ->
+        Web_config.favicon := Some (file, mime_type)
+    | Element ("sealing", [ ("file", file); ("mime-type", mime_type) ], []) ->
+        Web_config.sealing := Some (file, mime_type)
+    | Element ("default-group", [ ("file", file) ], []) ->
+        default_group_file := Some (`File file)
+    | Element ("nh-group", [ ("file", file) ], []) ->
+        nh_group_file := Some (`File file)
+    | Element ("default-group", [ ("group", group) ], []) ->
+        default_group_file := Some (`Group group)
+    | Element ("nh-group", [ ("group", group) ], []) ->
+        nh_group_file := Some (`Group group)
+    | Element ("maxmailsatonce", [ ("value", limit) ], []) ->
+        Web_config.maxmailsatonce := int_of_string limit
+    | Element ("uuid", [ ("length", length) ], []) ->
+        let length = int_of_string length in
+        if length >= Uuid.min_length then Web_config.uuid_length := Some length
+        else failwith "UUID length is too small"
+    | Element ("contact", [ ("uri", uri) ], []) ->
+        Web_config.contact_uri := Some uri
+    | Element ("gdpr", [ ("uri", uri) ], []) -> gdpr_uri := Some uri
+    | Element ("server", attrs, []) ->
+        let set check_email attr setter =
+          match List.assoc_opt attr attrs with
+          | Some mail ->
+              if (not check_email) || is_email mail then setter mail
+              else
+                Printf.ksprintf failwith "%s is not a valid e-mail address" mail
+          | None -> ()
+        in
+        set true "mail" (fun x -> Web_config.server_mail := x);
+        set true "return-path" (fun x -> Web_config.return_path := Some x);
+        set false "name" (fun x -> Web_config.server_name := x)
+    | Element ("locales", [ ("dir", dir) ], []) -> locales_dir := Some dir
+    | Element ("spool", [ ("dir", dir) ], []) -> spool_dir := Some dir
+    | Element ("accounts", [ ("dir", dir) ], []) -> accounts_dir := Some dir
+    | Element ("warning", [ ("file", file) ], []) ->
+        Web_config.warning_file := Some file
+    | Element ("footer", [ ("file", file) ], []) ->
+        Web_config.footer_file := Some file
+    | Element ("admin-home", [ ("file", file) ], []) ->
+        Web_config.admin_home := Some file
+    | Element ("rewrite-prefix", [ ("src", src); ("dst", dst) ], []) ->
+        set_rewrite_prefix ~src ~dst
+    | Element
+        ( "auth",
+          [ ("name", auth_instance) ],
+          [ Element (auth_system, auth_config, []) ] ) ->
+        let i = { auth_system; auth_instance; auth_config } in
+        auth_instances := i :: !auth_instances
+    | Element ("auth-export", [ ("name", "builtin-password") ], []) ->
+        auth_instances_export := `BuiltinPassword :: !auth_instances_export
+    | Element ("auth-export", [ ("name", "builtin-cas") ], []) ->
+        auth_instances_export := `BuiltinCAS :: !auth_instances_export
+    | Element
+        ( "auth-export",
+          [ ("name", auth_instance) ],
+          [ Element (auth_system, auth_config, []) ] ) ->
+        let i = { auth_system; auth_instance; auth_config } in
+        auth_instances_export := `Export i :: !auth_instances_export
+    | Element ("domain", [ ("name", name) ], []) -> domain := Some name
+    | Element ("deny-revote", [], []) -> Web_config.deny_revote := true
+    | Element ("deny-newelection", [], []) ->
+        Web_config.deny_newelection := true
+    | Element (tag, _, _) ->
+        Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
+          tag
 
   let () =
     match !prefix with
@@ -144,15 +139,11 @@ module Make () = struct
   let source_file =
     Lwt_main.run
       (match !source_file with
-       | Some f ->
+      | Some f ->
           let* b = Filesystem.file_exists f in
-          if b then (
-            return f
-          ) else (
-            Printf.ksprintf failwith "file %s does not exist" f
-          )
-       | None -> failwith "missing <source> in configuration"
-      )
+          if b then return f
+          else Printf.ksprintf failwith "file %s does not exist" f
+      | None -> failwith "missing <source> in configuration")
 
   let locales_dir =
     match !locales_dir with
@@ -172,26 +163,24 @@ module Make () = struct
   let default_group =
     Lwt_main.run
       (match !default_group_file with
-       | None -> failwith "missing <default-group> in configuration"
-       | Some (`Group x) -> return x
-       | Some (`File x) ->
+      | None -> failwith "missing <default-group> in configuration"
+      | Some (`Group x) -> return x
+      | Some (`File x) -> (
           let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
           match x with
-          | [x] -> return x
-          | _ -> failwith "invalid default group file"
-      )
+          | [ x ] -> return x
+          | _ -> failwith "invalid default group file"))
 
   let nh_group =
     Lwt_main.run
       (match !nh_group_file with
-       | None -> failwith "missing <nh-group> in configuration"
-       | Some (`Group x) -> return x
-       | Some (`File x) ->
+      | None -> failwith "missing <nh-group> in configuration"
+      | Some (`Group x) -> return x
+      | Some (`File x) -> (
           let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
           match x with
-          | [x] -> return x
-          | _ -> failwith "invalid NH group file"
-      )
+          | [ x ] -> return x
+          | _ -> failwith "invalid NH group file"))
 
   let domain =
     match !domain with
@@ -216,20 +205,33 @@ module Make () = struct
     module Web_services = Web_services.Make ()
     module Web_i18n = Web_i18n.Make (Web_state)
     module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
-    module Pages_admin = Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common) (Mails_admin)
-    module Pages_voter = Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
+
+    module Pages_admin =
+      Pages_admin.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
+        (Mails_admin)
+
+    module Pages_voter =
+      Pages_voter.Make (Web_state) (Web_i18n) (Web_services) (Pages_common)
   end
 
   module Api = Api_eliom.Make ()
   module Web_captcha = Web_captcha.Make (X.Web_services)
 
-  module Web_auth = Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
-  module Web_auth_dummy = Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
-  module Web_auth_password = Web_auth_password.Make (X.Web_services) (X.Pages_common) (Web_auth)
-  module Web_auth_email = Web_auth_email.Make (X.Web_state) (X.Web_services) (X.Pages_common) (Web_auth)
+  module Web_auth =
+    Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
+
+  module Web_auth_dummy =
+    Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
+
+  module Web_auth_password =
+    Web_auth_password.Make (X.Web_services) (X.Pages_common) (Web_auth)
+
+  module Web_auth_email =
+    Web_auth_email.Make (X.Web_state) (X.Web_services) (X.Pages_common)
+      (Web_auth)
+
   module Web_auth_cas = Web_auth_cas.Make (Web_auth)
   module Web_auth_oidc = Web_auth_oidc.Make (Web_auth)
-
   module Site_common = Site_common.Make (X)
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
@@ -244,7 +246,6 @@ module Make () = struct
   let () = Lwt_main.run @@ check_spool_version ()
   let () = Lwt.async Site_admin.data_policy_loop
   let () = Lwt.async Mails_voter.process_bulk_emails
-
 end
 
 let main () =

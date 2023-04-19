@@ -32,46 +32,47 @@ let context = ref `None
 
 let draft_a x =
   let uuid = Uuid.unwrap x.summary_uuid in
-  a ~href:("#drafts/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
+  a ~href:("#drafts/" ^ uuid)
+    (if x.summary_name = "" then "(no title)" else x.summary_name)
 
 let election_a x =
   let uuid = Uuid.unwrap x.summary_uuid in
-  a ~href:("#elections/" ^ uuid) (if x.summary_name = "" then "(no title)" else x.summary_name)
+  a ~href:("#elections/" ^ uuid)
+    (if x.summary_name = "" then "(no title)" else x.summary_name)
 
 let regexps =
   [
-    Regexp.regexp "^#?$", (fun _ -> `Root);
-    Regexp.regexp "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees|status))?$",
-    begin
+    (Regexp.regexp "^#?$", fun _ -> `Root);
+    ( Regexp.regexp
+        "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees|status))?$",
       fun r ->
-      match Regexp.matched_group r 1, Regexp.matched_group r 3 with
-      | Some uuid, None -> `Draft (uuid, `Draft)
-      | Some uuid, Some "voters" -> `Draft (uuid, `Voters)
-      | Some uuid, Some "passwords" -> `Draft (uuid, `Passwords)
-      | Some uuid, Some "credentials" -> `Draft (uuid, `Credentials)
-      | Some uuid, Some "trustees" -> `Draft (uuid, `Trustees)
-      | Some uuid, Some "status" -> `Draft (uuid, `Status)
-      | _ -> `Error
-    end;
-    Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
-    begin
+        match (Regexp.matched_group r 1, Regexp.matched_group r 3) with
+        | Some uuid, None -> `Draft (uuid, `Draft)
+        | Some uuid, Some "voters" -> `Draft (uuid, `Voters)
+        | Some uuid, Some "passwords" -> `Draft (uuid, `Passwords)
+        | Some uuid, Some "credentials" -> `Draft (uuid, `Credentials)
+        | Some uuid, Some "trustees" -> `Draft (uuid, `Trustees)
+        | Some uuid, Some "status" -> `Draft (uuid, `Status)
+        | _ -> `Error );
+    ( Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
       fun r ->
-      match Regexp.matched_group r 1, Regexp.matched_group r 2 with
-      | Some uuid, Some token -> `Credentials (uuid, token)
-      | _ -> `Error
-    end;
-    Regexp.regexp "^#elections/([0-9A-Za-z]+)$",
-    begin
+        match (Regexp.matched_group r 1, Regexp.matched_group r 2) with
+        | Some uuid, Some token -> `Credentials (uuid, token)
+        | _ -> `Error );
+    ( Regexp.regexp "^#elections/([0-9A-Za-z]+)$",
       fun r ->
-      match Regexp.matched_group r 1 with
-      | Some uuid -> `Election uuid
-      | _ -> `Error
-    end;
+        match Regexp.matched_group r 1 with
+        | Some uuid -> `Election uuid
+        | _ -> `Error );
   ]
 
 let parse_hash () =
   let x = Js.to_string Dom_html.window##.location##.hash in
-  let r = List.find_map (fun (r, f) -> Option.map f @@ Regexp.string_match r x 0) regexps in
+  let r =
+    List.find_map
+      (fun (r, f) -> Option.map f @@ Regexp.string_match r x 0)
+      regexps
+  in
   Option.value r ~default:`Error
 
 let show_error main =
@@ -85,7 +86,7 @@ let rec show_root main =
   let* configuration, configuration_opt =
     let* x = get configuration_of_string "configuration" in
     let@ c = with_ok_opt "configuration" x in
-    Lwt.return [txt (string_of_configuration c)]
+    Lwt.return [ txt (string_of_configuration c) ]
   in
   let* account, account_opt =
     let* x = get api_account_of_string "account" in
@@ -103,9 +104,9 @@ let rec show_root main =
         | code -> Printf.sprintf "Error %d: %s" code x.content
       in
       let b = button "Proceed" (fun () -> show_root main) in
-      Lwt.return [div [txt msg]; div [b]]
+      Lwt.return [ div [ txt msg ]; div [ b ] ]
     in
-    Lwt.return [div [t]; div [b]]
+    Lwt.return [ div [ t ]; div [ b ] ]
   in
   let* x = get summary_list_of_string "drafts" in
   let ifmatch = compute_ifmatch string_of_summary_list x in
@@ -113,109 +114,114 @@ let rec show_root main =
     let@ drafts = with_ok "drafts" x in
     drafts
     |> List.sort (fun a b -> compare b.summary_date a.summary_date)
-    |> List.map (fun x -> li [draft_a x])
-    |> (fun xs -> Lwt.return [ul xs])
+    |> List.map (fun x -> li [ draft_a x ])
+    |> fun xs -> Lwt.return [ ul xs ]
   in
   let* validated, tallied, archived =
     let* x = get summary_list_of_string "elections" in
     match x with
     | Error e ->
-       let msg =
-         Printf.sprintf "An error occurred while retrieving elections: %s"
-           (string_of_error e)
-       in
-       let x () = [txt msg] in
-       Lwt.return (x (), x (), x ())
+        let msg =
+          Printf.sprintf "An error occurred while retrieving elections: %s"
+            (string_of_error e)
+        in
+        let x () = [ txt msg ] in
+        Lwt.return (x (), x (), x ())
     | Ok elections ->
-       let make kind =
-         List.filter (fun x -> x.summary_kind = Some kind) elections
-         |> List.sort (fun a b -> compare b.summary_date a.summary_date)
-         |> List.map (fun x -> li [election_a x])
-         |> (fun xs -> [ul xs])
-       in
-       Lwt.return (make `Validated, make `Tallied, make `Archived)
+        let make kind =
+          List.filter (fun x -> x.summary_kind = Some kind) elections
+          |> List.sort (fun a b -> compare b.summary_date a.summary_date)
+          |> List.map (fun x -> li [ election_a x ])
+          |> fun xs -> [ ul xs ]
+        in
+        Lwt.return (make `Validated, make `Tallied, make `Archived)
   in
   let template =
-    match configuration_opt, account_opt with
+    match (configuration_opt, account_opt) with
     | Some c, Some a ->
-       Some {
-           draft_version = List.hd c.supported_crypto_versions;
-           draft_owners = [a.id];
-           draft_questions =
-             {
-               t_description = "";
-               t_name = "";
-               t_questions = [||];
-               t_administrator = Some a.name;
-               t_credential_authority = Some "server";
-             };
-           draft_languages = ["en"; "fr"];
-           draft_contact = Some (Printf.sprintf "%s <%s>" a.name a.address);
-           draft_booth = List.hd c.supported_booth_versions;
-           draft_authentication =
-             begin
-               match c.authentications with
-               | [] | `Password :: _ -> `Password
-               | `CAS :: _ -> `CAS ""
-               | `Configured x :: _ -> `Configured x.configured_instance
-             end;
-           draft_group = c.default_group;
-         }
+        Some
+          {
+            draft_version = List.hd c.supported_crypto_versions;
+            draft_owners = [ a.id ];
+            draft_questions =
+              {
+                t_description = "";
+                t_name = "";
+                t_questions = [||];
+                t_administrator = Some a.name;
+                t_credential_authority = Some "server";
+              };
+            draft_languages = [ "en"; "fr" ];
+            draft_contact = Some (Printf.sprintf "%s <%s>" a.name a.address);
+            draft_booth = List.hd c.supported_booth_versions;
+            draft_authentication =
+              (match c.authentications with
+              | [] | `Password :: _ -> `Password
+              | `CAS :: _ -> `CAS ""
+              | `Configured x :: _ -> `Configured x.configured_instance);
+            draft_group = c.default_group;
+          }
     | _ -> None
   in
   let create =
     let value =
-      match template with
-      | None -> ""
-      | Some x -> string_of_draft x
+      match template with None -> "" | Some x -> string_of_draft x
     in
     let t, tget = textarea value in
     let b =
       let@ () = button "Create new draft" in
-      let* x = post_with_token ?ifmatch (tget ()) "drafts" |> wrap uuid_of_string in
+      let* x =
+        post_with_token ?ifmatch (tget ()) "drafts" |> wrap uuid_of_string
+      in
       match x with
       | Ok uuid ->
-         Dom_html.window##.location##.hash := Js.string ("#drafts/" ^ Uuid.unwrap uuid);
-         Lwt.return_unit
+          Dom_html.window##.location##.hash
+          := Js.string ("#drafts/" ^ Uuid.unwrap uuid);
+          Lwt.return_unit
       | Error e ->
-         let@ () = show_in main in
-         let msg =
-           Printf.ksprintf txt
-             "An error occurred while creating the draft: %s"
-             (string_of_error e)
-         in
-         let b = button "Proceed" (fun () -> show_root main) in
-         Lwt.return [div [msg]; div [b]]
+          let@ () = show_in main in
+          let msg =
+            Printf.ksprintf txt "An error occurred while creating the draft: %s"
+              (string_of_error e)
+          in
+          let b = button "Proceed" (fun () -> show_root main) in
+          Lwt.return [ div [ msg ]; div [ b ] ]
     in
-    div [
-        div [t];
-        div [b];
-      ]
+    div [ div [ t ]; div [ b ] ]
   in
-  Lwt.return [
-      h1 [txt "Server configuration"];
+  Lwt.return
+    [
+      h1 [ txt "Server configuration" ];
       div configuration;
-      h1 [txt "My account"];
+      h1 [ txt "My account" ];
       div account;
-      h1 [txt @@ s_ "Elections being prepared"];
+      h1 [ txt @@ s_ "Elections being prepared" ];
       div drafts;
-      h1 [txt @@ s_ "Elections you can administer"];
+      h1 [ txt @@ s_ "Elections you can administer" ];
       div validated;
-      h1 [txt @@ s_ "Tallied elections"];
+      h1 [ txt @@ s_ "Tallied elections" ];
       div tallied;
-      h1 [txt @@ s_ "Archived elections"];
+      h1 [ txt @@ s_ "Archived elections" ];
       div archived;
-      h1 [txt "Create new draft"];
+      h1 [ txt "Create new draft" ];
       create;
     ]
 
 let show hash main =
   match hash with
-  | `Error -> context := `None; show_error main
-  | `Root -> context := `None; show_root main
+  | `Error ->
+      context := `None;
+      show_error main
+  | `Root ->
+      context := `None;
+      show_root main
   | `Draft (uuid, tab) -> Drafts.show main uuid tab context
-  | `Election uuid -> context := `None; Elections.show main uuid
-  | `Credentials (uuid, _) -> context := `None; Credentials.show main uuid
+  | `Election uuid ->
+      context := `None;
+      Elections.show main uuid
+  | `Credentials (uuid, _) ->
+      context := `None;
+      Credentials.show main uuid
 
 let onhashchange () =
   let hash = parse_hash () in
@@ -224,8 +230,10 @@ let onhashchange () =
 
 let onload () =
   let lang =
-    Js.Optdef.case Dom_html.window##.navigator##.language
-      (fun () -> "en") Js.to_string
+    Js.Optdef.case
+      Dom_html.window##.navigator##.language
+      (fun () -> "en")
+      Js.to_string
   in
   let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
   let hash = parse_hash () in

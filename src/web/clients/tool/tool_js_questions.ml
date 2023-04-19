@@ -26,10 +26,13 @@ open Serializable_j
 open Belenios_js.Common
 
 let return = Js.Opt.return
-let handler f = Dom_html.handler (fun e -> ignore (f e); Js._false)
+
+let handler f =
+  Dom_html.handler (fun e ->
+      ignore (f e);
+      Js._false)
 
 let hybrid_mode = ref false
-
 let q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |]
 
 let default_question_h =
@@ -45,13 +48,12 @@ let default_question_h =
 
 let default_question_nh =
   let open Question_nh_t in
-  Question.NonHomomorphic (
-      {
+  Question.NonHomomorphic
+    ( {
         q_question = "Give a rank to each candidate (a number between 1 and 3)";
         q_answers;
       },
-      None
-    )
+      None )
 
 let default_question () =
   if !hybrid_mode then default_question_nh else default_question_h
@@ -66,12 +68,12 @@ let default_schulze_specification =
 
 let extractAnswer a =
   let&& x = Dom_html.CoerceTo.input a in
-  return (Js.to_string (x##.value))
+  return (Js.to_string x##.value)
 
 let extractQuestion q =
   let open (val !Belenios_js.I18n.gettext) in
   let&& x = Dom_html.CoerceTo.input q in
-  let q_question = Js.to_string (x##.value) in
+  let q_question = Js.to_string x##.value in
   let&& p1 = q##.parentNode in
   let&& p2 = p1##.parentNode in
   let&& p2 = Dom.CoerceTo.element p2 in
@@ -80,62 +82,75 @@ let extractQuestion q =
     let&& x = p2##querySelector (Js.string selector) in
     let&& x = Dom_html.CoerceTo.input x in
     let x = Js.to_string x##.value in
-    try return (int_of_string x) with
-    | _ -> failwith (error_msg ^ ": " ^ x ^ ".")
+    try return (int_of_string x)
+    with _ -> failwith (error_msg ^ ": " ^ x ^ ".")
   in
   let answers = p2##querySelectorAll (Js.string ".question_answer") in
   let q_answers =
-    Array.init
-      (answers##.length)
-      (fun i ->
-       let a = let&& x = answers##item (i) in extractAnswer x in
-       Js.Opt.get a (fun () -> failwith "extractQuestion"))
+    Array.init answers##.length (fun i ->
+        let a =
+          let&& x = answers##item i in
+          extractAnswer x
+        in
+        Js.Opt.get a (fun () -> failwith "extractQuestion"))
   in
-  Js.Opt.case (p2##querySelector (Js.string ".question_blank"))
+  Js.Opt.case
+    (p2##querySelector (Js.string ".question_blank"))
     (fun () ->
       let&& x = p2##querySelector (Js.string ".question_extra") in
       let&& x = Dom_html.CoerceTo.input x in
       let x = Js.to_string x##.value in
       let extra =
-        if x = "" then
-          None
-        else (
+        if x = "" then None
+        else
           try Some (Yojson.Safe.from_string x)
           with _ -> failwith (s_ "Invalid counting method specification!")
-        )
       in
       let open Question_nh_t in
-      return (Question.NonHomomorphic ({q_question; q_answers}, extra))
-    )
+      return (Question.NonHomomorphic ({ q_question; q_answers }, extra)))
     (fun q_blank ->
       let&& q_blank = Dom_html.CoerceTo.input q_blank in
       let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
-      let&& q_min = numeric ".question_min" (s_ "Invalid minimum number of choices") in
-      let&& q_max = numeric ".question_max" (s_ "Invalid maximum number of choices") in
+      let&& q_min =
+        numeric ".question_min" (s_ "Invalid minimum number of choices")
+      in
+      let&& q_max =
+        numeric ".question_max" (s_ "Invalid maximum number of choices")
+      in
       if not (q_min <= q_max) then
-        failwith (s_ "Minimum number of choices must be less than or equal to maximum number of choices!");
-      if (q_max = 0) then
+        failwith
+          (s_
+             "Minimum number of choices must be less than or equal to maximum \
+              number of choices!");
+      if q_max = 0 then
         failwith (s_ "Maximum number of choices must be greater than 0!");
-      if (q_max > Array.length q_answers) then
+      if q_max > Array.length q_answers then
         failwith (s_ "The given maximum is greater than the number of choices!");
       let open Question_h_t in
-      return (Question.Homomorphic {q_question; q_blank; q_min; q_max; q_answers})
-    )
+      return
+        (Question.Homomorphic { q_question; q_blank; q_min; q_max; q_answers }))
 
 let extractTemplate () =
   let t_name = get_input "q_election_name" in
   let t_description = get_textarea "q_election_description" in
   let questions = document##querySelectorAll (Js.string ".question_question") in
   let t_questions =
-    Array.init
-      (questions##.length)
-      (fun i ->
-       let q = let&& x = questions##item (i) in extractQuestion x in
-       Js.Opt.get q (fun () -> failwith "extractTemplate"))
+    Array.init questions##.length (fun i ->
+        let q =
+          let&& x = questions##item i in
+          extractQuestion x
+        in
+        Js.Opt.get q (fun () -> failwith "extractTemplate"))
   in
   let t_administrator = None in
   let t_credential_authority = None in
-  {t_name; t_description; t_questions; t_administrator; t_credential_authority}
+  {
+    t_name;
+    t_description;
+    t_questions;
+    t_administrator;
+    t_credential_authority;
+  }
 
 (* Injecting the OCaml structure into the DOM *)
 
@@ -179,7 +194,9 @@ let createHomomorphicQuestionPropDiv min max blank =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let x = Dom_html.createDiv document in
-  let t = document##createTextNode (Js.string (s_ "The voter has to choose between ")) in
+  let t =
+    document##createTextNode (Js.string (s_ "The voter has to choose between "))
+  in
   Dom.appendChild x t;
   let h_min = Dom_html.createInput document in
   Dom.appendChild x h_min;
@@ -201,7 +218,7 @@ let createHomomorphicQuestionPropDiv min max blank =
   let x = Dom_html.createLabel document in
   let h_blank = Dom_html.createInput ~_type:(Js.string "checkbox") document in
   h_blank##.className := Js.string "question_blank";
-  h_blank##.checked := Js.(match blank with Some true -> _true | _ -> _false);
+  (h_blank##.checked := Js.(match blank with Some true -> _true | _ -> _false));
   Dom.appendChild x h_blank;
   let t = document##createTextNode (Js.string (s_ "Blank vote is allowed")) in
   Dom.appendChild x t;
@@ -209,11 +226,13 @@ let createHomomorphicQuestionPropDiv min max blank =
   Dom.appendChild container checkboxContainer;
   container
 
-let default_props = None, 0, 1
+let default_props = (None, 0, 1)
 
 let gensym =
   let counter = ref 0 in
-  fun () -> incr counter; !counter
+  fun () ->
+    incr counter;
+    !counter
 
 let deleteQuestion q =
   let&& x = q##.parentNode in
@@ -225,11 +244,11 @@ let rec createQuestion q =
   let question, answers, props, extra =
     match q with
     | Question.Homomorphic q ->
-       let open Question_h_t in
-       q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max), None
+        let open Question_h_t in
+        (q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max), None)
     | Question.NonHomomorphic (q, extra) ->
-       let open Question_nh_t in
-       q.q_question, q.q_answers, None, extra
+        let open Question_nh_t in
+        (q.q_question, q.q_answers, None, extra)
   in
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question";
@@ -267,14 +286,13 @@ let rec createQuestion q =
   (* properties *)
   let prop_div_h =
     let blank, min, max =
-      match props with
-      | Some x -> x
-      | None -> default_props
+      match props with Some x -> x | None -> default_props
     in
     createHomomorphicQuestionPropDiv min max blank
   in
   let type_div = Dom_html.createDiv document in
-  type_div##.style##.display := if !hybrid_mode then Js.string "block" else Js.string "none";
+  type_div##.style##.display
+  := if !hybrid_mode then Js.string "block" else Js.string "none";
   Dom.appendChild container type_div;
   let prop_div_nh = Dom_html.createDiv document in
   (* extra *)
@@ -298,8 +316,7 @@ let rec createQuestion q =
     (document##createTextNode (Js.string (s_ "Prefill with Condorcet-Schulze")));
   Dom.appendChild div_extra1 prefill_schulze;
   let clear_spec = Dom_html.createButton document in
-  Dom.appendChild clear_spec
-    (document##createTextNode (Js.string (s_ "Clear")));
+  Dom.appendChild clear_spec (document##createTextNode (Js.string (s_ "Clear")));
   Dom.appendChild div_extra1 clear_spec;
   let div_extra2 = Dom_html.createDiv document in
   Dom.appendChild fieldset div_extra2;
@@ -309,46 +326,48 @@ let rec createQuestion q =
   i_extra##.className := Js.string "question_extra";
   i_extra##.size := 80;
   (match extra with
-   | None -> ()
-   | Some x ->
-      i_extra##.value := Js.string (Yojson.Safe.to_string x)
-  );
+  | None -> ()
+  | Some x -> i_extra##.value := Js.string (Yojson.Safe.to_string x));
   prefill_mj##.onclick :=
-    Dom_html.handler
-      (fun _ ->
+    Dom_html.handler (fun _ ->
         i_extra##.value := Js.string default_mj_specification;
-        Js._false
-      );
+        Js._false);
   prefill_schulze##.onclick :=
-    Dom_html.handler
-      (fun _ ->
+    Dom_html.handler (fun _ ->
         i_extra##.value := Js.string default_schulze_specification;
-        Js._false
-      );
+        Js._false);
   clear_spec##.onclick :=
-    Dom_html.handler
-      (fun _ ->
+    Dom_html.handler (fun _ ->
         i_extra##.value := Js.string "";
-        Js._false
-      );
+        Js._false);
   let div_extra3 = Dom_html.createDiv document in
   div_extra3##.className := Js.string "nh_explain";
   Dom.appendChild fieldset div_extra3;
-  Dom.appendChild div_extra3 (document##createTextNode (Js.string (s_ "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer.")));
+  Dom.appendChild div_extra3
+    (document##createTextNode
+       (Js.string
+          (s_
+             "Leave blank for other counting methods. Note that for other \
+              counting methods, the voting interface is quite rough: the voter \
+              has to enter an integer in front of each answer.")));
   Dom.appendChild div_extra3 (document##createTextNode (Js.string " "));
   let more_info = Dom_html.createA document in
   Dom.appendChild div_extra3 more_info;
   more_info##.href := Js.string Belenios_ui.Links.mixnet;
-  Dom.appendChild more_info (document##createTextNode (Js.string (s_ "More information.")));
+  Dom.appendChild more_info
+    (document##createTextNode (Js.string (s_ "More information.")));
   (* selector *)
-  let _type = Js.string "radio" and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
+  let _type = Js.string "radio"
+  and name = Printf.ksprintf Js.string "type%d" (gensym ()) in
   let type_classical = Dom_html.createDiv document in
   Dom.appendChild type_div type_classical;
   let x = Dom_html.createLabel document in
   Dom.appendChild type_classical x;
   let cb_type_classical = Dom_html.createInput ~_type ~name document in
   Dom.appendChild x cb_type_classical;
-  Dom.appendChild x (document##createTextNode (Js.string (s_ "Classical (selection of answers)")));
+  Dom.appendChild x
+    (document##createTextNode
+       (Js.string (s_ "Classical (selection of answers)")));
   let type_alternative = Dom_html.createDiv document in
   Dom.appendChild type_div type_alternative;
   let x = Dom_html.createLabel document in
@@ -356,38 +375,37 @@ let rec createQuestion q =
   let cb_type = Dom_html.createInput ~_type ~name document in
   cb_type##.className := Js.string "nonhomomorphic_tally";
   (match props with
-   | Some _ ->
+  | Some _ ->
       Dom.appendChild container prop_div_h;
       cb_type_classical##.checked := Js._true
-   | None ->
+  | None ->
       Dom.appendChild container prop_div_nh;
-      cb_type##.checked := Js._true
-  );
+      cb_type##.checked := Js._true);
   let f =
-    handler
-      (fun _ ->
+    handler (fun _ ->
         let&& parent = container##.parentNode in
         if Js.to_bool cb_type##.checked then
           Dom.replaceChild parent (createQuestion default_question_nh) container
         else
           Dom.replaceChild parent (createQuestion default_question_h) container;
-        return ()
-      )
+        return ())
   in
   cb_type##.onchange := f;
   cb_type_classical##.onchange := f;
   if not (Js.to_bool (Js.Unsafe.pure_js_expr "allow_nh")) then
     cb_type##.disabled := Js._true;
   Dom.appendChild x cb_type;
-  Dom.appendChild x (document##createTextNode (Js.string (s_ "Alternative (voters assign a number to each candidate)")));
+  Dom.appendChild x
+    (document##createTextNode
+       (Js.string (s_ "Alternative (voters assign a number to each candidate)")));
   (* answers *)
   let h_answers = Dom_html.createDiv document in
   h_answers##.className := Js.string "question_answers";
   Dom.appendChild container h_answers;
   Array.iter
     (fun a ->
-     let x = createAnswer a in
-     Dom.appendChild h_answers x)
+      let x = createAnswer a in
+      Dom.appendChild h_answers x)
     answers;
   (* button for adding answer *)
   let x = Dom_html.createDiv document in
@@ -414,7 +432,7 @@ let createRadioItem name checked label =
   Dom.appendChild container radio;
   Dom.appendChild container (document##createTextNode (Js.string " "));
   Dom.appendChild container (document##createTextNode (Js.string label));
-  radio, container
+  (radio, container)
 
 let createTemplate template =
   let open (val !Belenios_js.I18n.gettext) in
@@ -452,8 +470,8 @@ let createTemplate template =
   Dom.appendChild container x;
   Array.iter
     (fun q ->
-     let x = createQuestion q in
-     Dom.appendChild h_questions_div x)
+      let x = createQuestion q in
+      Dom.appendChild h_questions_div x)
     template.t_questions;
   (* button for adding question *)
   let x = Dom_html.createDiv document in
@@ -500,7 +518,9 @@ let handle_hybrid e _ =
   hybrid_mode := Js.to_bool e##.checked;
   let qs = document##querySelectorAll (Js.string ".question") in
   for i = 0 to qs##.length do
-    ignore (let&& x = qs##item i in deleteQuestion x)
+    ignore
+      (let&& x = qs##item i in
+       deleteQuestion x)
   done;
   let&& qsdiv = document##getElementById (Js.string "election_questions") in
   Dom.appendChild qsdiv (createQuestion (default_question ()));
@@ -513,10 +533,8 @@ let fill_interactivity () =
   let t = template_of_string (get_textarea "questions") in
   let has_nh =
     Array.exists
-      (function
-       | Question.NonHomomorphic _ -> true
-       | _ -> false
-      ) t.t_questions
+      (function Question.NonHomomorphic _ -> true | _ -> false)
+      t.t_questions
   in
   hybrid_mode := has_nh;
   let div = createTemplate t in
@@ -534,5 +552,4 @@ let () =
       let* _ = Js_of_ocaml_lwt.Lwt_js_events.onload () in
       let* () = Belenios_js.I18n.auto_init "admin" in
       ignore (fill_interactivity ());
-      Lwt.return_unit
-    )
+      Lwt.return_unit)

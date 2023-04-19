@@ -49,6 +49,7 @@ module Beat = struct
     else if l1 < l2 then 1
     else if l1 > l2 then -1
     else 0
+
   let min x y = if compare x y > 0 then y else x
   let max x y = if compare x y > 0 then x else y
 end
@@ -71,15 +72,15 @@ let compute_raw nchoices ballots =
           if x < y then result.(i).(j) <- result.(i).(j) + 1
           else if y < x then result.(j).(i) <- result.(j).(i) + 1
         done
-      done
-    ) ballots;
+      done)
+    ballots;
   result
 
 (* The strength of a path (beatpath) is the min of the strengths of
    all the links along the path. To compare two choices, we look at
    the max of all the beatpaths between them.  If the max of the
    beatpaths from A to B is stronger than the max of all the beatpaths
-   from B to A, then A is ranked above B.  *)
+   from B to A, then A is ranked above B. *)
 
 (** [compute_initial_matrix m] returns a matrix which is the initial
    starting point for the Floyd-Warshall algorithm.  Input [m] is a
@@ -95,12 +96,8 @@ let compute_initial_matrix m =
   for i = 0 to n - 1 do
     for j = 0 to n - 1 do
       let x = m.(i).(j) and y = m.(j).(i) in
-      if x > y then (
-        r.(i).(j) <- (x, y)
-      ) else if x < y then (
-        r.(j).(i) <- (y, x)
-      )
-    done;
+      if x > y then r.(i).(j) <- (x, y) else if x < y then r.(j).(i) <- (y, x)
+    done
   done;
   r
 
@@ -119,8 +116,8 @@ let compute_transitive_closure m =
       for j = 0 to n - 1 do
         (* consider going from i to j via k, comparing to existing path *)
         m.(i).(j) <- Beat.(max m.(i).(j) (min m.(i).(k) m.(k).(j)))
-      done;
-    done;
+      done
+    done
   done
 
 (** [winner m ignore] returns the winners, according to the transitive
@@ -134,20 +131,15 @@ let compute_winners m ignore =
   for i = 0 to n - 1 do
     if not ignore.(i) then (
       let won = ref true in
-      begin
-        try
-          for j = 0 to n - 1 do
-            if not ignore.(j) then (
-              if Beat.compare m.(j).(i) m.(i).(j) > 0 then (
-                won := false;
-                raise Exit
-              )
-            )
-          done
-        with Exit -> ()
-      end;
-      if !won then winners := i :: !winners
-    );
+      (try
+         for j = 0 to n - 1 do
+           if not ignore.(j) then
+             if Beat.compare m.(j).(i) m.(i).(j) > 0 then (
+               won := false;
+               raise Exit)
+         done
+       with Exit -> ());
+      if !won then winners := i :: !winners)
   done;
   List.rev !winners
 
@@ -165,27 +157,25 @@ let rank_candidates raw =
     List.iter
       (fun j ->
         ignore.(j) <- true;
-        incr num_ranked
-      ) winners;
+        incr num_ranked)
+      winners
   done;
-  List.rev !result, beatpaths
+  (List.rev !result, beatpaths)
 
 let compute ~nchoices ~blank_allowed ballots =
   let n = Array.length ballots in
   let ballots = Array.to_list ballots in
   let null_ballot = Array.make nchoices 0 in
   let schulze_valid, schulze_blank, ballots =
-    if blank_allowed then (
+    if blank_allowed then
       let rec loop valid blank ballots = function
-        | [] -> valid, Some blank, ballots
+        | [] -> (valid, Some blank, ballots)
         | ballot :: xs ->
-           if ballot = null_ballot then
-             loop valid (blank + 1) ballots xs
-           else
-             loop (valid + 1) blank (ballot :: ballots) xs
+            if ballot = null_ballot then loop valid (blank + 1) ballots xs
+            else loop (valid + 1) blank (ballot :: ballots) xs
       in
       loop 0 0 [] ballots
-    ) else n, None, ballots
+    else (n, None, ballots)
   in
   let schulze_raw = compute_raw nchoices ballots in
   let schulze_winners, schulze_beatpaths = rank_candidates schulze_raw in

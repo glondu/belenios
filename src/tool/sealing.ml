@@ -25,45 +25,36 @@ open Common
 
 let parse_config x =
   sealing_config_of_string x
-  |> List.map
-       (fun (r, i) ->
-         Str.regexp r,
-         List.fold_left (Fun.flip SSet.add) SSet.empty i
-       )
+  |> List.map (fun (r, i) ->
+         (Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
 
 let find_ign cfg path =
   List.filter_map
-    (fun (r, i) ->
-      if Str.string_match r path 0 then Some i else None
-    ) cfg
+    (fun (r, i) -> if Str.string_match r path 0 then Some i else None)
+    cfg
   |> List.fold_left SSet.union SSet.empty
 
 let rec measure full cfg ign path =
   let make name x = if SSet.mem name ign then None else Some x in
   let st = Unix.LargeFile.lstat path in
   let st_contents =
-    if SSet.mem "contents" ign then (
-      None
-    ) else (
+    if SSet.mem "contents" ign then None
+    else
       match st.st_kind with
       | S_CHR | S_BLK | S_FIFO | S_SOCK -> None
       | S_REG -> Some (`REG (Hash.hash_string (string_of_file path)))
       | S_LNK -> Some (`LNK (Unix.readlink path))
       | S_DIR ->
-         let files =
-           Sys.readdir path
-           |> Array.to_list
-           |> List.filter (fun x -> x <> "." && x <> "..")
-           |> List.sort String.compare
-           |> List.map
-                (fun x ->
-                  let path = path // x in
-                  let ign = find_ign cfg path in
-                  (if full then path else x), measure full cfg ign path
-                )
-         in
-         Some (`DIR files)
-    )
+          let files =
+            Sys.readdir path |> Array.to_list
+            |> List.filter (fun x -> x <> "." && x <> "..")
+            |> List.sort String.compare
+            |> List.map (fun x ->
+                   let path = path // x in
+                   let ign = find_ign cfg path in
+                   ((if full then path else x), measure full cfg ign path))
+          in
+          Some (`DIR files)
   in
   let kind =
     match st.st_kind with
@@ -93,30 +84,34 @@ let rec measure full cfg ign path =
 
 let main full cfg path =
   let cfg =
-    match cfg with
-    | None -> []
-    | Some x -> parse_config (string_of_file x)
+    match cfg with None -> [] | Some x -> parse_config (string_of_file x)
   in
   let ign = find_ign cfg path in
   let x = measure full cfg ign path in
   print_endline (string_of_stats x);
- `Ok ()
+  `Ok ()
 
 open Cmdliner
 
 let full_t =
   let doc = "Use full paths in directory contents." in
-  let the_info = Arg.info ["full-paths"] ~doc in
+  let the_info = Arg.info [ "full-paths" ] ~doc in
   Arg.(value & flag the_info)
 
 let cfg_t =
-  let doc = "Read configuration from $(docv). It must be a JSON file with a single object mapping regular expressions to properties that should be ignored. Regular expressions must be in OCaml's Str format. Possible properties are: dev, ino, kind, perm, nlink, uid, gid, rdev, size, atime, mtime, ctime and contents." in
-  let the_info = Arg.info ["config"] ~docv:"CONFIG" ~doc in
+  let doc =
+    "Read configuration from $(docv). It must be a JSON file with a single \
+     object mapping regular expressions to properties that should be ignored. \
+     Regular expressions must be in OCaml's Str format. Possible properties \
+     are: dev, ino, kind, perm, nlink, uid, gid, rdev, size, atime, mtime, \
+     ctime and contents."
+  in
+  let the_info = Arg.info [ "config" ] ~docv:"CONFIG" ~doc in
   Arg.(value & opt (some file) None the_info)
 
 let path_t =
   let doc = "Measure path $(docv)." in
-  let the_info = Arg.info ["path"] ~docv:"PATH" ~doc in
+  let the_info = Arg.info [ "path" ] ~docv:"PATH" ~doc in
   Arg.(value & opt file Filename.current_dir_name the_info)
 
 let cmd =
@@ -124,8 +119,14 @@ let cmd =
   let man =
     [
       `S "DESCRIPTION";
-      `P "This command recursively reads all the files in a directory and outputs (on standard output) a canonical representation of its contents. Given a suitable configuration file, this output can be a measure of the integrity of the system.";
-    ] @ common_man
+      `P
+        "This command recursively reads all the files in a directory and \
+         outputs (on standard output) a canonical representation of its \
+         contents. Given a suitable configuration file, this output can be a \
+         measure of the integrity of the system.";
+    ]
+    @ common_man
   in
-  Cmd.v (Cmd.info "measure" ~doc ~man)
+  Cmd.v
+    (Cmd.info "measure" ~doc ~man)
     Term.(ret (const main $ full_t $ cfg_t $ path_t))

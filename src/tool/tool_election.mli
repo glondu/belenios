@@ -4,6 +4,7 @@ end
 
 module type S = sig
   type 'a m
+
   val vote : string option -> int array array -> string m
   val decrypt : int -> string -> (string * string) m
   val tdecrypt : int -> string -> string -> (string * string) m

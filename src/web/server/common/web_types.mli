@@ -21,6 +21,7 @@
 
 module Datetime : sig
   type t
+
   val now : unit -> t
   val wrap : string -> t
   val unwrap : t -> string
@@ -32,6 +33,7 @@ end
 
 module Period : sig
   type t
+
   val day : int -> t
   val second : int -> t
   val add : Datetime.t -> t -> Datetime.t

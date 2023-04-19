@@ -32,27 +32,26 @@ module type S = sig
 end
 
 module Make (I : SENDER) () = struct
-
-  type code =
-    {
-      code : string;
-      expiration_time : Datetime.t;
-      mutable trials_left : int;
-    }
+  type code = {
+    code : string;
+    expiration_time : Datetime.t;
+    mutable trials_left : int;
+  }
 
   let codes = ref SMap.empty
 
   let filter_codes_by_time now table =
-    SMap.filter (fun _ {expiration_time; _} ->
-        Datetime.compare now expiration_time <= 0
-      ) table
+    SMap.filter
+      (fun _ { expiration_time; _ } ->
+        Datetime.compare now expiration_time <= 0)
+      table
 
   let generate ~address =
     let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
     let expiration_time = Period.add now (Period.second 900) in
-    codes := SMap.add address {code; expiration_time; trials_left = 10} codes_;
+    codes := SMap.add address { code; expiration_time; trials_left = 10 } codes_;
     I.send ~address ~code
 
   let check ~address ~code =
@@ -62,15 +61,11 @@ module Make (I : SENDER) () = struct
     match SMap.find_opt address codes_ with
     | None -> false
     | Some x ->
-       if x.code = code then (
-         codes := SMap.remove address codes_;
-         true
-       ) else (
-         if x.trials_left > 0 then
-           x.trials_left <- x.trials_left - 1
-         else
-           codes := SMap.remove address codes_;
-         false
-       )
-
+        if x.code = code then (
+          codes := SMap.remove address codes_;
+          true)
+        else (
+          if x.trials_left > 0 then x.trials_left <- x.trials_left - 1
+          else codes := SMap.remove address codes_;
+          false)
 end

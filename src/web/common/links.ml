@@ -23,4 +23,6 @@ let belenios = "https://www.belenios.org/"
 let setup = "https://www.belenios.org/setup.html"
 let translation = "https://www.belenios.org/translation.html"
 let mixnet = "https://www.belenios.org/mixnet.html"
-let cred_instructions = "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"
+
+let cred_instructions =
+  "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"

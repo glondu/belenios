@@ -22,7 +22,6 @@
 open Js_of_ocaml
 
 let belenios = Js.Unsafe.pure_js_expr "belenios"
-
 let debug x = Firebug.console##log (Js.string x)
 
 module Sjcl = struct
@@ -95,7 +94,6 @@ module Sjcl = struct
     end
 
   let sjcl : sjcl t = belenios##.sjcl
-
   let hex = sjcl##.codec##.hex
   let utf8String = sjcl##.codec##.utf8String
   let sha256 = sjcl##.hash##.sha256
@@ -103,23 +101,12 @@ module Sjcl = struct
   let ccm = sjcl##.mode##.ccm
 end
 
-let hex_fromBits x =
-  Sjcl.hex##fromBits x |> Js.to_string
-
-let hex_toBits x =
-  Sjcl.hex##toBits (Js.string x)
-
-let utf8String_fromBits x =
-  Sjcl.utf8String##fromBits x |> Js.to_string
-
-let utf8String_toBits x =
-  Sjcl.utf8String##toBits (Js.string x)
-
-let sha256 x =
-  Sjcl.sha256##hash (Js.string x)
-
-let sha256_hex x =
-  hex_fromBits (sha256 x)
+let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
+let hex_toBits x = Sjcl.hex##toBits (Js.string x)
+let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
+let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
+let sha256 x = Sjcl.sha256##hash (Js.string x)
+let sha256_hex x = hex_fromBits (sha256 x)
 
 let pbkdf2_generic toBits ~iterations ~salt x =
   let salt = toBits salt in
@@ -158,17 +145,17 @@ let pseudo_rng _ = ()
 
 let string_of_hex hex n =
   String.init n (fun i ->
-    let c = int_of_string ("0x" ^ String.sub hex (2*i) 2) in
-    char_of_int c
-  )
+      let c = int_of_string ("0x" ^ String.sub hex (2 * i) 2) in
+      char_of_int c)
 
 let random_string () n =
-  let words = Sjcl.sjcl##.random##randomWords (n/4+1) in
+  let words = Sjcl.sjcl##.random##randomWords ((n / 4) + 1) in
   let hex_words = hex_fromBits words in
   string_of_hex hex_words n
 
 module BigIntCompat = struct
   open Js
+
   type bigint
 
   class type lib =
@@ -203,11 +190,11 @@ end
 
 module Z = struct
   open BigIntCompat
+
   type t = bigint
 
   let zero = lib##._ZERO
   let one = lib##._ONE
-
   let of_hex x = lib##ofHex (Js.string x)
   let of_string x = lib##ofString (Js.string x)
   let of_int x = lib##ofInt x
@@ -216,7 +203,6 @@ module Z = struct
   let ( * ) x y = lib##multiply x y
   let ( / ) x y = lib##divide x y
   let ( mod ) x y = lib##_mod x y
-
   let to_int x = lib##toInt x
   let to_string x = lib##toString x |> Js.to_string
   let to_hex x = lib##toHex x |> Js.to_string
@@ -231,23 +217,21 @@ module Z = struct
     if compare r zero < 0 then r + y else r
 
   let probab_prime x n = lib##isProbablePrime x n
-
   let z256 = of_int 256
 
   let of_bits x =
     let n = String.length x in
     let rec loop res i =
-      if i >= 0
-      then loop (res * z256 + of_int (int_of_char x.[i])) (pred i)
+      if i >= 0 then loop ((res * z256) + of_int (int_of_char x.[i])) (pred i)
       else res
-    in loop zero (pred n)
+    in
+    loop zero (pred n)
 
   let shift_left x n = lib##shiftLeft x n
   let shift_right x n = lib##shiftRight x n
   let logand x y = lib##_and x y
   let logor x y = lib##_or x y
   let logxor x y = lib##xor x y
-
   let hash_modulus = of_int 1073741789 (* previous_prime(2^30) *)
   let hash_to_int x = to_int (erem x hash_modulus)
 end
@@ -264,52 +248,51 @@ class type libsodium =
   end
 
 let build_libsodium_stubs (libsodium : libsodium Js.t) =
-  let module X : Signatures.LIBSODIUM_STUBS =
-    struct
-      type scalar = bytes
-      type point = bytes
-      let bytes () = libsodium##bytes ()
-      let scalarbytes () = libsodium##scalarbytes ()
+  let module X : Signatures.LIBSODIUM_STUBS = struct
+    type scalar = bytes
+    type point = bytes
 
-      let base = libsodium##.base
-      let buffer = libsodium##.buffer
-      let nbytes = bytes ()
-      let nscalarbytes = scalarbytes ()
+    let bytes () = libsodium##bytes ()
+    let scalarbytes () = libsodium##scalarbytes ()
+    let base = libsodium##.base
+    let buffer = libsodium##.buffer
+    let nbytes = bytes ()
+    let nscalarbytes = scalarbytes ()
 
-      let copy_to_wasm address x length =
-        for i = 0 to length - 1 do
-          Typed_array.set buffer (address + i) (int_of_char (Bytes.get x i))
-        done
+    let copy_to_wasm address x length =
+      for i = 0 to length - 1 do
+        Typed_array.set buffer (address + i) (int_of_char (Bytes.get x i))
+      done
 
-      let copy_from_wasm x address length =
-        for i = 0 to length - 1 do
-          Bytes.set x i (char_of_int (Typed_array.unsafe_get buffer (address + i)))
-        done
+    let copy_from_wasm x address length =
+      for i = 0 to length - 1 do
+        Bytes.set x i
+          (char_of_int (Typed_array.unsafe_get buffer (address + i)))
+      done
 
-      let is_valid_point p =
-        copy_to_wasm base p nbytes;
-        libsodium##is_valid_point_ base
+    let is_valid_point p =
+      copy_to_wasm base p nbytes;
+      libsodium##is_valid_point_ base
 
-      let reg1 = base + nbytes
-      let reg2 = reg1 + nscalarbytes
+    let reg1 = base + nbytes
+    let reg2 = reg1 + nscalarbytes
 
-      let scalarmult q n p =
-        copy_to_wasm reg1 n nscalarbytes;
-        copy_to_wasm reg2 p nbytes;
-        let r = libsodium##scalarmult base reg1 reg2 in
-        copy_from_wasm q base nbytes;
-        r
+    let scalarmult q n p =
+      copy_to_wasm reg1 n nscalarbytes;
+      copy_to_wasm reg2 p nbytes;
+      let r = libsodium##scalarmult base reg1 reg2 in
+      copy_from_wasm q base nbytes;
+      r
 
-      let reg3 = reg1 + nbytes
+    let reg3 = reg1 + nbytes
 
-      let add r p q =
-        copy_to_wasm reg1 p nbytes;
-        copy_to_wasm reg3 q nbytes;
-        let result = libsodium##add base reg1 reg3 in
-        copy_from_wasm r base nbytes;
-        result
-    end
-  in
+    let add r p q =
+      copy_to_wasm reg1 p nbytes;
+      copy_to_wasm reg3 q nbytes;
+      let result = libsodium##add base reg1 reg3 in
+      copy_from_wasm r base nbytes;
+      result
+  end in
   (module X : Signatures.LIBSODIUM_STUBS)
 
 let libsodium_ref = ref None
@@ -317,7 +300,7 @@ let libsodium_ref = ref None
 let libsodium_stubs () =
   match !libsodium_ref with
   | None ->
-     Js.Optdef.iter belenios##.libsodium
-       (fun x -> libsodium_ref := Some (build_libsodium_stubs x));
-     !libsodium_ref
+      Js.Optdef.iter belenios##.libsodium (fun x ->
+          libsodium_ref := Some (build_libsodium_stubs x));
+      !libsodium_ref
   | x -> x

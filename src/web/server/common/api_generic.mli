@@ -29,32 +29,24 @@ val invalidate_token : string -> unit
 exception Error of error
 
 type result = int * string
-
-type body = {
-    run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t
-}
+type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 val ok : result Lwt.t
 val bad_request : result Lwt.t
 val unauthorized : result Lwt.t
 val forbidden : result Lwt.t
-val not_found  : result Lwt.t
+val not_found : result Lwt.t
 val method_not_allowed : result Lwt.t
 
 val handle_ifmatch :
-  string option -> (unit -> string Lwt.t) ->
-  (unit -> result Lwt.t) -> result Lwt.t
+  string option ->
+  (unit -> string Lwt.t) ->
+  (unit -> result Lwt.t) ->
+  result Lwt.t
 
-val handle_generic_error :
-  (unit -> result Lwt.t) -> result Lwt.t
-
-val handle_get :
-  (unit -> string Lwt.t) -> result Lwt.t
-
-val handle_get_option :
-  (unit -> string option Lwt.t) -> result Lwt.t
-
+val handle_generic_error : (unit -> result Lwt.t) -> result Lwt.t
+val handle_get : (unit -> string Lwt.t) -> result Lwt.t
+val handle_get_option : (unit -> string option Lwt.t) -> result Lwt.t
 val get_configuration : unit -> configuration
-
 val get_account : account -> api_account
 val put_account : account -> api_account -> unit Lwt.t

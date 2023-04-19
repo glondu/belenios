@@ -32,19 +32,25 @@ val get_roots : index -> roots
 
 val fold_on_event_payload_hashes :
   index -> event_type -> hash -> (hash -> 'a -> 'a) -> 'a -> 'a
+
 val fold_on_event_payloads :
   index -> event_type -> hash -> (string -> 'a -> 'a) -> 'a -> 'a
 
 val fsck : index -> unit
 val starts_with : prefix:index -> index -> bool
 
-type append_operation =
-  | Data of string
-  | Event of event_type * hash option
+type append_operation = Data of string | Event of event_type * hash option
 
 val append : index -> append_operation list -> unit
 
-val init : file:string -> election:string -> trustees:string -> public_creds:string -> index
+val init :
+  file:string ->
+  election:string ->
+  trustees:string ->
+  public_creds:string ->
+  index
 
 module DirectMonad : MONAD with type 'a t = 'a
-module Writer : ARCHIVE_WRITER with type 'a m := 'a and type archive = out_channel
+
+module Writer :
+  ARCHIVE_WRITER with type 'a m := 'a and type archive = out_channel

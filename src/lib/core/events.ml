@@ -21,21 +21,22 @@
 
 open Serializable_j
 
-let empty_roots = {
+let empty_roots =
+  {
     roots_setup_data = None;
     roots_encrypted_tally = None;
     roots_result = None;
     roots_last_ballot_event = None;
     roots_last_shuffle_event = None;
     roots_last_pd_event = None;
-}
+  }
 
 let update_roots h event accu =
   match event.event_typ with
-  | `Ballot -> {accu with roots_last_ballot_event = Some h}
-  | `PartialDecryption -> {accu with roots_last_pd_event = Some h}
-  | `Shuffle -> {accu with roots_last_shuffle_event = Some h}
-  | `Setup -> {accu with roots_setup_data = event.event_payload}
-  | `EncryptedTally -> {accu with roots_encrypted_tally = event.event_payload}
-  | `Result -> {accu with roots_result = event.event_payload}
+  | `Ballot -> { accu with roots_last_ballot_event = Some h }
+  | `PartialDecryption -> { accu with roots_last_pd_event = Some h }
+  | `Shuffle -> { accu with roots_last_shuffle_event = Some h }
+  | `Setup -> { accu with roots_setup_data = event.event_payload }
+  | `EncryptedTally -> { accu with roots_encrypted_tally = event.event_payload }
+  | `Result -> { accu with roots_result = event.event_payload }
   | _ -> accu

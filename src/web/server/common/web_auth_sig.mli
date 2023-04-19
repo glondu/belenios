@@ -26,26 +26,31 @@ type result =
   | Redirection : 'a Eliom_registration.redirection -> result
 
 module type AUTH_SYSTEM = sig
-  val pre_login_handler : [`Username | `Address] -> state:string -> result Lwt.t
+  val pre_login_handler :
+    [ `Username | `Address ] -> state:string -> result Lwt.t
+
   val direct : Yojson.Safe.t -> string Lwt.t
 end
 
 type auth_system = uuid option -> auth_config -> (module AUTH_SYSTEM)
 
 module type S = sig
-
-  type post_login_handler =
-    {
-      post_login_handler :
-        'a. uuid option -> auth_config ->
-        ((string * string) option -> 'a Lwt.t) -> 'a Lwt.t
-    }
+  type post_login_handler = {
+    post_login_handler :
+      'a.
+      uuid option ->
+      auth_config ->
+      ((string * string) option -> 'a Lwt.t) ->
+      'a Lwt.t;
+  }
 
   val register :
-    auth_system:string -> auth_system ->
-    state:string -> post_login_handler -> Eliom_registration.Html.result Lwt.t
+    auth_system:string ->
+    auth_system ->
+    state:string ->
+    post_login_handler ->
+    Eliom_registration.Html.result Lwt.t
 
   val get_site_login_handler : string -> result Lwt.t
-
   val direct_voter_auth : uuid -> Yojson.Safe.t -> user Lwt.t
 end

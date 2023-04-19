@@ -31,14 +31,10 @@ let n53 = Z.of_int 53
 let format x =
   assert (token_length = 14);
   assert (String.length x = 15);
-  String.sub x 0 3
-  ^ "-" ^ String.sub x 3 3
-  ^ "-" ^ String.sub x 6 3
-  ^ "-" ^ String.sub x 9 3
-  ^ "-" ^ String.sub x 12 3
+  String.sub x 0 3 ^ "-" ^ String.sub x 3 3 ^ "-" ^ String.sub x 6 3 ^ "-"
+  ^ String.sub x 9 3 ^ "-" ^ String.sub x 12 3
 
 module MakeGenerate (M : RANDOM) = struct
-
   let get_random_digit () =
     let x = M.random n58 in
     Z.to_int x
@@ -49,9 +45,10 @@ module MakeGenerate (M : RANDOM) = struct
       if i < token_length then (
         let digit = get_random_digit () in
         Bytes.set res i digits.[digit];
-        loop (i+1) Z.(n58 * accu + of_int digit)
-      ) else (Bytes.to_string res, accu)
-    in loop 0 Z.zero
+        loop (i + 1) Z.((n58 * accu) + of_int digit))
+      else (Bytes.to_string res, accu)
+    in
+    loop 0 Z.zero
 
   let add_checksum (raw, value) =
     let checksum = 53 - Z.(to_int (value mod n53)) in
@@ -60,66 +57,57 @@ module MakeGenerate (M : RANDOM) = struct
   let generate () =
     let x = generate_raw_token () in
     format (add_checksum x)
-
 end
 
 let check_raw x =
   let rec loop i accu =
     if i < token_length then
       let& digit = String.index_opt digits x.[i] in
-      loop (i+1) Z.(n58 * accu + of_int digit)
+      loop (i + 1) Z.((n58 * accu) + of_int digit)
     else Some accu
   in
-  match loop 0 Z.zero, String.index_opt digits x.[token_length] with
+  match (loop 0 Z.zero, String.index_opt digits x.[token_length]) with
   | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
   | _, _ -> false
 
 let parse x =
   let n = String.length x in
-  if n = token_length + 1 then (
-    if check_raw x then `Valid else `Invalid
-  ) else if n = token_length + 5 then (
+  if n = token_length + 1 then if check_raw x then `Valid else `Invalid
+  else if n = token_length + 5 then (
     assert (n = 19);
-    if x.[3] = '-' && x.[7] = '-' && x.[11] = '-' && x.[15] = '-' then (
+    if x.[3] = '-' && x.[7] = '-' && x.[11] = '-' && x.[15] = '-' then
       let actual =
-        String.sub x 0 3
-        ^ String.sub x 4 3 ^ String.sub x 8 3
+        String.sub x 0 3 ^ String.sub x 4 3 ^ String.sub x 8 3
         ^ String.sub x 12 3 ^ String.sub x 16 3
       in
       if check_raw actual then `Valid else `Invalid
-    ) else `Invalid
-  ) else if n = token_length + 3 then (
+    else `Invalid)
+  else if n = token_length + 3 then (
     assert (n = 17);
-    if x.[5] = '-' && x.[11] = '-' then `MaybePassword else `Invalid
-  ) else `Invalid
+    if x.[5] = '-' && x.[11] = '-' then `MaybePassword else `Invalid)
+  else `Invalid
 
 let check x =
-  match parse x with
-  | `Valid -> true
-  | `Invalid | `MaybePassword -> false
+  match parse x with `Valid -> true | `Invalid | `MaybePassword -> false
 
 module MakeDerive (G : GROUP) = struct
-
   let derive uuid x =
     let uuid = Uuid.unwrap uuid in
     let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
     Z.(of_hex derived mod G.q)
-
 end
 
 module MakeParsePublicCredential (G : GROUP) = struct
-
   let parse_public_credential s =
     try
       match String.index s ',' with
       | exception Not_found ->
-         let x = G.of_string s in
-         if G.check x then Some (Weight.one, x) else None
+          let x = G.of_string s in
+          if G.check x then Some (Weight.one, x) else None
       | i ->
-         let n = String.length s in
-         let w = Weight.of_string (String.sub s (i + 1) (n - i - 1)) in
-         let x = G.of_string (String.sub s 0 i) in
-         if G.check x then Some (w, x) else None
+          let n = String.length s in
+          let w = Weight.of_string (String.sub s (i + 1) (n - i - 1)) in
+          let x = G.of_string (String.sub s 0 i) in
+          if G.check x then Some (w, x) else None
     with _ -> None
-
 end

@@ -7,12 +7,11 @@ module type PARAMS = sig
   val group : string
 end
 
-type credentials =
-  {
-    priv : private_credentials;
-    public : string list;
-    public_with_ids : string list;
-  }
+type credentials = {
+  priv : private_credentials;
+  public : string list;
+  public_with_ids : string list;
+}
 
 module type S = sig
   val derive : string -> string

@@ -25,25 +25,27 @@ open Belenios_api.Serializable_t
 open Api_generic
 
 val get_election_status : uuid -> election_status Lwt.t
-
 val get_records : uuid -> records Lwt.t
-
 val set_postpone_date : uuid -> float option -> bool Lwt.t
-
 val get_partial_decryptions : uuid -> metadata -> partial_decryptions Lwt.t
 val get_shuffles : uuid -> metadata -> shuffles Lwt.t
-
 val skip_shuffler : uuid -> string -> unit Lwt.t
 val select_shuffler : uuid -> metadata -> string -> unit Lwt.t
 
 val dispatch :
-  token:string option -> ifmatch:string option -> string list -> [`GET | `POST | `PUT | `DELETE] ->
-  body -> result Lwt.t
+  token:string option ->
+  ifmatch:string option ->
+  string list ->
+  [ `GET | `POST | `PUT | `DELETE ] ->
+  body ->
+  result Lwt.t
 
 val direct_voter_auth : (uuid -> Yojson.Safe.t -> user Lwt.t) ref
 
 val cast_ballot :
   (uuid -> bool -> string -> string -> weight option -> string -> bool Lwt.t) ->
-  (module Site_common_sig.ELECTION) -> rawballot:string -> user:user ->
-  precast_data:(string * credential_record) ->
+  (module Site_common_sig.ELECTION) ->
+  rawballot:string ->
+  user:user ->
+  precast_data:string * credential_record ->
   (user * string * bool * weight * bool) Lwt.t

@@ -25,11 +25,11 @@ open Belenios_platform
 open Platform
 open Serializable_t
 open Common
-
 include module type of Signatures_core
 
 module type ELECTION_BASE = sig
   module G : GROUP
+
   val election : params
   val fingerprint : string
   val public_key : G.t
@@ -37,6 +37,7 @@ module type ELECTION_BASE = sig
   module S : QUESTION_SIGNATURE_PACK
 
   type ballot
+
   val string_of_ballot : ballot -> string
   val ballot_of_string : string -> ballot
   val get_credential : ballot -> G.t option
@@ -45,12 +46,12 @@ end
 module type ELECTION_RESULT = sig
   type question_signature
   type result = question_signature Election_result.t
+
   val write_result : result writer
   val read_result : result reader
 end
 
-module type MAKE_RESULT =
-  functor (X : ELECTION_BASE) ->
+module type MAKE_RESULT = functor (X : ELECTION_BASE) ->
   ELECTION_RESULT with type question_signature := X.S.t
 
 module type ELECTION_DATA = sig
@@ -78,17 +79,12 @@ type cast_error =
   | `RevoteNotAllowed
   | `DuplicateBallot
   | `ExpiredBallot
-  | `WrongUsername
-  ]
+  | `WrongUsername ]
 
-type rawballot_check = {
-    rc_credential : string;
-    rc_check : unit -> bool;
-}
+type rawballot_check = { rc_credential : string; rc_check : unit -> bool }
 
 (** Cryptographic primitives for an election with homomorphic tally. *)
 module type ELECTION_OPS = sig
-
   (** {2 Election parameters} *)
 
   (** Ballots are encrypted using public-key cryptography secured by
@@ -97,7 +93,6 @@ module type ELECTION_OPS = sig
       members of a suitably chosen group. *)
 
   type elt
-
   type private_key = Z.t
   type public_key = elt
 
@@ -129,9 +124,10 @@ module type ELECTION_OPS = sig
   (** {2 Tally} *)
 
   val process_ballots : weighted_ballot list -> elt encrypted_tally
-
   val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
-  val merge_nh_ciphertexts : elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
+
+  val merge_nh_ciphertexts :
+    elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
 
   val shuffle_ciphertexts : elt nh_ciphertexts -> elt shuffle
   val check_shuffle : elt nh_ciphertexts -> elt shuffle -> bool
@@ -143,9 +139,11 @@ module type ELECTION_OPS = sig
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
 
-  val compute_factor : elt Serializable_t.ciphertext shape -> private_key -> factor
+  val compute_factor :
+    elt Serializable_t.ciphertext shape -> private_key -> factor
 
-  val check_factor : elt Serializable_t.ciphertext shape -> public_key -> factor -> bool
+  val check_factor :
+    elt Serializable_t.ciphertext shape -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a
       trustee whose public_key is [pk], is valid with respect to the
       encrypted tally [c]. *)
@@ -153,30 +151,42 @@ module type ELECTION_OPS = sig
   (** {2 Result} *)
 
   type result_type
+
   type result = result_type Serializable_t.election_result
   (** The election result. It contains the needed data to validate the
       result from the encrypted tally. *)
 
   val compute_result :
-    elt encrypted_tally sized_encrypted_tally -> factor owned list -> elt trustees ->
+    elt encrypted_tally sized_encrypted_tally ->
+    factor owned list ->
+    elt trustees ->
     (result, combination_error) Stdlib.result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
   val check_result :
-    elt encrypted_tally sized_encrypted_tally -> factor owned list -> elt trustees ->
-    result -> bool
+    elt encrypted_tally sized_encrypted_tally ->
+    factor owned list ->
+    elt trustees ->
+    result ->
+    bool
 end
 
 module type ELECTION = sig
   include ELECTION_DATA
-  module E : ELECTION_OPS with type elt = G.t and type ballot = ballot and type result_type = result
+
+  module E :
+    ELECTION_OPS
+      with type elt = G.t
+       and type ballot = ballot
+       and type result_type = result
 end
 
 module type PKI = sig
   type private_key
   type public_key
+
   val genkey : unit -> string
   val derive_sk : string -> private_key
   val derive_dk : string -> private_key
@@ -191,6 +201,7 @@ end
 module type CHANNELS = sig
   type private_key
   type public_key
+
   val send : private_key -> public_key -> string -> public_key encrypted_msg
   val recv : private_key -> public_key -> public_key encrypted_msg -> string
 end
@@ -206,15 +217,28 @@ module type PEDERSEN = sig
   val step4 : certs -> polynomial array -> vinput array
   val step5 : certs -> string -> vinput -> elt voutput
   val step5_check : certs -> int -> polynomial array -> elt voutput -> bool
-  val step6 : certs -> polynomial array -> elt voutput array -> elt threshold_parameters
+
+  val step6 :
+    certs -> polynomial array -> elt voutput array -> elt threshold_parameters
 end
 
 module type MIXNET = sig
   type elt
-
   type 'a proof
 
-  val gen_shuffle : elt -> elt ciphertext array -> elt ciphertext array * number array * int array
-  val gen_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> number array -> int array -> elt proof
-  val check_shuffle_proof : elt -> elt ciphertext array -> elt ciphertext array -> elt proof -> bool
+  val gen_shuffle :
+    elt ->
+    elt ciphertext array ->
+    elt ciphertext array * number array * int array
+
+  val gen_shuffle_proof :
+    elt ->
+    elt ciphertext array ->
+    elt ciphertext array ->
+    number array ->
+    int array ->
+    elt proof
+
+  val check_shuffle_proof :
+    elt -> elt ciphertext array -> elt ciphertext array -> elt proof -> bool
 end

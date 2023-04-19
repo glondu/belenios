@@ -30,12 +30,11 @@ module type PARAMS = sig
   val group : string
 end
 
-type credentials =
-  {
-    priv : private_credentials;
-    public : string list;
-    public_with_ids : string list;
-  }
+type credentials = {
+  priv : private_credentials;
+  public : string list;
+  public_with_ids : string list;
+}
 
 module type S = sig
   val derive : string -> string
@@ -43,25 +42,20 @@ module type S = sig
 end
 
 module Make (P : PARAMS) (M : RANDOM) () = struct
-
   let uuid = Uuid.wrap P.uuid
-  module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
 
+  module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
   module CG = Credential.MakeGenerate (M)
   module CD = Credential.MakeDerive (G)
-
   module CredSet = Map.Make (G)
 
   let derive_in_group x =
-    if Credential.check x then (
+    if Credential.check x then
       let x = CD.derive uuid x in
       G.(g **~ x)
-    ) else (
-      Printf.ksprintf failwith "invalid secret credential: %s" x
-    )
+    else Printf.ksprintf failwith "invalid secret credential: %s" x
 
-  let derive x =
-    G.to_string (derive_in_group x)
+  let derive x = G.to_string (derive_in_group x)
 
   let generate ids =
     let implicit_weights = not (has_explicit_weights ids) in
@@ -70,20 +64,20 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
         (fun (privs, pubs) id ->
           let _, username, weight = Voter.get id in
           let priv = CG.generate () in
-          (
-            (username, priv) :: privs,
-            CredSet.add (derive_in_group priv) (weight, username) pubs
-          )
-        ) ([], CredSet.empty) ids
+          ( (username, priv) :: privs,
+            CredSet.add (derive_in_group priv) (weight, username) pubs ))
+        ([], CredSet.empty) ids
     in
     let serialize (e, (w, id)) =
       G.to_string e
-      ^ (if implicit_weights then "," else Printf.sprintf ",%s" (Weight.to_string w))
+      ^ (if implicit_weights then ","
+        else Printf.sprintf ",%s" (Weight.to_string w))
       ^ Printf.sprintf ",%s" id
     in
     let serialize_public (e, (w, _)) =
       G.to_string e
-      ^ (if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w))
+      ^
+      if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
     in
     let bindings = CredSet.bindings pubs in
     {
@@ -91,11 +85,9 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       public = List.map serialize_public bindings;
       public_with_ids = List.map serialize bindings;
     }
-
 end
 
-let int_length n =
-  string_of_int n |> String.length
+let int_length n = string_of_int n |> String.length
 
 let rec find_first n first =
   if int_length first = int_length (first + n) then first
@@ -109,6 +101,7 @@ let generate_ids n =
     if last < first then accu
     else
       let address = string_of_int last in
-      let x : Voter.t = `Plain, {address; login = None; weight = None} in
-      loop (last-1) (x :: accu)
-  in loop last []
+      let x : Voter.t = (`Plain, { address; login = None; weight = None }) in
+      loop (last - 1) (x :: accu)
+  in
+  loop last []

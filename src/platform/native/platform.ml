@@ -21,10 +21,9 @@
 
 let debug x = prerr_endline x
 
-let sha256_hex x = Cryptokit.(x |>
-  hash_string (Hash.sha256 ()) |>
-  transform_string (Hexa.encode ())
-)
+let sha256_hex x =
+  Cryptokit.(
+    x |> hash_string (Hash.sha256 ()) |> transform_string (Hexa.encode ()))
 
 let int_msb i =
   let result = Bytes.create 4 in
@@ -38,8 +37,7 @@ let xor a b =
   let n = String.length a in
   assert (n = String.length b);
   String.init n (fun i ->
-    char_of_int (int_of_char a.[i] lxor int_of_char b.[i])
-  )
+      char_of_int (int_of_char a.[i] lxor int_of_char b.[i]))
 
 let pbkdf2 ~prf ~salt ~iterations ~size password =
   let c = iterations - 1 in
@@ -50,29 +48,32 @@ let pbkdf2 ~prf ~salt ~iterations ~size password =
     let rec loop c u accu =
       if c > 0 then
         let u' = Cryptokit.hash_string (prf password) u in
-        loop (c-1) u' (xor accu u')
+        loop (c - 1) u' (xor accu u')
       else accu
-    in loop c u u
+    in
+    loop c u u
   in
   for i = 1 to size do
-    let offset = (i-1) * hLen in
-    String.blit (one_iteration i) 0 result offset hLen;
+    let offset = (i - 1) * hLen in
+    String.blit (one_iteration i) 0 result offset hLen
   done;
   Bytes.to_string result
 
 let pbkdf2_generic toBits ~iterations ~salt x =
   let open Cryptokit in
   let salt = toBits salt in
-  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations ~size:1 ~salt x |>
-  transform_string (Hexa.encode ())
+  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations ~size:1 ~salt x
+  |> transform_string (Hexa.encode ())
 
 let pbkdf2_utf8 = pbkdf2_generic (fun x -> x)
 
 let aes_raw ~key ~data =
-  begin[@alert "-crypto"] (* OK for a single block *)
+  begin
     let open Cryptokit in
-    transform_string (Cipher.(aes ~mode:ECB key Encrypt)) data
+    transform_string Cipher.(aes ~mode:ECB key Encrypt) data
   end
+  [@alert "-crypto"]
+(* OK for a single block *)
 
 let aes_hex ~key ~data =
   let open Cryptokit in
@@ -83,12 +84,16 @@ let aes_hex ~key ~data =
 
 let read_i32 str i =
   let open Int32 in
-  let (!) x = of_int (int_of_char str.[i+x]) in
-  logor (shift_left !0 24) (logor (shift_left !1 16) (logor (shift_left !2 8) !3))
+  let ( ! ) x = of_int (int_of_char str.[i + x]) in
+  logor (shift_left !0 24)
+    (logor (shift_left !1 16) (logor (shift_left !2 8) !3))
 
 let export_i32 x =
   let open Int32 in
-  let (!) i = String.make 1 (char_of_int (to_int (logand 0xffl (shift_right_logical x i)))) in
+  let ( ! ) i =
+    String.make 1
+      (char_of_int (to_int (logand 0xffl (shift_right_logical x i))))
+  in
   !24 ^ !16 ^ !8 ^ !0
 
 let xor128 x y =
@@ -102,14 +107,22 @@ let xor128 x y =
 
 let ccm_computeTag prf plaintext iv adata tlen ll =
   let l = String.length plaintext in
-  let plaintext = plaintext ^ "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000" in
+  let plaintext =
+    plaintext
+    ^ "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+  in
   let tlen = tlen / 8 in
-  if tlen mod 2 <> 0 || tlen < 4 || tlen > 16 then invalid_arg "ccm: invalid tag length";
+  if tlen mod 2 <> 0 || tlen < 4 || tlen > 16 then
+    invalid_arg "ccm: invalid tag length";
   let flags =
     (if String.length adata <> 0 then 1 lsl 6 else 0)
-    lor ((tlen - 2) lsl 2) lor (ll - 1)
+    lor ((tlen - 2) lsl 2)
+    lor (ll - 1)
   in
-  let mac = String.make 1 (char_of_int flags) ^ iv ^ "\000\000\000\000\000\000\000\000\000\000\000\000" in
+  let mac =
+    String.make 1 (char_of_int flags)
+    ^ iv ^ "\000\000\000\000\000\000\000\000\000\000\000\000"
+  in
   (* works only for "small enough" plaintext (length < 31 bits) *)
   let a = read_i32 mac 12 in
   let a = Int32.(logor a (of_int l)) in
@@ -119,16 +132,23 @@ let ccm_computeTag prf plaintext iv adata tlen ll =
   let i = ref 0 in
   while !i < l do
     mac := prf (xor128 !mac (String.sub plaintext !i 16));
-    i := !i + 16;
+    i := !i + 16
   done;
   String.sub !mac 0 tlen
 
 let ccm_ctrMode prf data iv tag tlen ll =
   let l = String.length data in
-  let data = data ^ "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000" in
-  let ctr = String.make 1 (char_of_int (ll - 1)) ^ iv ^ "\000\000\000\000\000\000\000\000\000\000\000\000" in
+  let data =
+    data ^ "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+  in
+  let ctr =
+    String.make 1 (char_of_int (ll - 1))
+    ^ iv ^ "\000\000\000\000\000\000\000\000\000\000\000\000"
+  in
   let ctr = ref (String.sub ctr 0 16) in
-  let tag = tag ^ "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000" in
+  let tag =
+    tag ^ "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+  in
   let tag = String.sub (xor128 (prf !ctr) tag) 0 (tlen / 8) in
   let i = ref 0 in
   let res = ref "" in
@@ -136,10 +156,10 @@ let ccm_ctrMode prf data iv tag tlen ll =
     (* works only for "small enough" plaintexts (length < 31 bits) *)
     let c = Int32.succ (read_i32 !ctr 12) in
     ctr := String.sub !ctr 0 12 ^ export_i32 c;
-    res := !res ^ (xor128 (prf !ctr) (String.sub data !i 16));
-    i := !i + 16;
+    res := !res ^ xor128 (prf !ctr) (String.sub data !i 16);
+    i := !i + 16
   done;
-  String.sub !res 0 l, tag
+  (String.sub !res 0 l, tag)
 
 let ccm_encrypt prf plaintext iv adata tlen =
   let ivl = String.length iv in
@@ -147,7 +167,9 @@ let ccm_encrypt prf plaintext iv adata tlen =
   if ivl < 7 then invalid_arg "ccm: iv must be at least 7 bytes";
   let l =
     let l = ref 2 in
-    while !l < 4 && (ol asr (8 * !l) <> 0) do incr l done;
+    while !l < 4 && ol asr (8 * !l) <> 0 do
+      incr l
+    done;
     if !l < 15 - ivl then l := 15 - ivl;
     !l
   in
@@ -158,13 +180,15 @@ let ccm_encrypt prf plaintext iv adata tlen =
 
 let ccm_decrypt prf ciphertext iv adata tlen =
   let ivl = String.length iv in
-  let ol = String.length ciphertext - tlen / 8 in
+  let ol = String.length ciphertext - (tlen / 8) in
   let out = String.sub ciphertext 0 ol in
   let tag = String.sub ciphertext ol (String.length ciphertext - ol) in
   if ivl < 7 then invalid_arg "ccm: iv must be at least 7 bytes";
   let l =
     let l = ref 2 in
-    while !l < 4 && (ol asr (8 * !l) <> 0) do incr l done;
+    while !l < 4 && ol asr (8 * !l) <> 0 do
+      incr l
+    done;
     if !l < 15 - ivl then l := 15 - ivl;
     !l
   in
@@ -196,8 +220,8 @@ let decrypt ~key ~iv ~ciphertext =
 type rng = Cryptokit.Random.rng
 
 let secure_rng =
-  if Version.debug && Sys.getenv_opt "BELENIOS_USE_URANDOM" <> None
-  then Cryptokit.Random.device_rng "/dev/urandom"
+  if Version.debug && Sys.getenv_opt "BELENIOS_USE_URANDOM" <> None then
+    Cryptokit.Random.device_rng "/dev/urandom"
   else Cryptokit.Random.secure_rng
 
 let pseudo_rng = Cryptokit.Random.pseudo_rng
@@ -205,15 +229,14 @@ let random_string = Cryptokit.Random.string
 
 module Z = struct
   include Z
+
   let of_hex x = of_string_base 16 x
   let to_hex x = format "%x" x
   let ( =% ) = equal
   let bit_length x = Stdlib.(String.length (to_bits x) * 8)
-
-  let powm x a m =
-    if Z.compare a Z.zero = 0 then Z.one else powm_sec x a m
-    (* Warning: no efforts have been made to be constant time in the
-       rest of the code. *)
+  let powm x a m = if Z.compare a Z.zero = 0 then Z.one else powm_sec x a m
+  (* Warning: no efforts have been made to be constant time in the
+     rest of the code. *)
 
   let hash_to_int = Z.hash
 end
@@ -223,10 +246,22 @@ module Libsodium_stubs = struct
   type point = bytes
 
   external bytes : unit -> int = "belenios_libsodium_ed25519_bytes" [@@noalloc]
-  external scalarbytes : unit -> int = "belenios_libsodium_ed25519_scalarbytes" [@@noalloc]
-  external is_valid_point : point -> int = "belenios_libsodium_ed25519_is_valid_point" [@@noalloc]
-  external scalarmult : point -> scalar -> point -> int = "belenios_libsodium_ed25519_scalarmult" [@@noalloc]
-  external add : point -> point -> point -> int = "belenios_libsodium_ed25519_add" [@@noalloc]
+
+  external scalarbytes : unit -> int = "belenios_libsodium_ed25519_scalarbytes"
+    [@@noalloc]
+
+  external is_valid_point : point -> int
+    = "belenios_libsodium_ed25519_is_valid_point"
+    [@@noalloc]
+
+  external scalarmult : point -> scalar -> point -> int
+    = "belenios_libsodium_ed25519_scalarmult"
+    [@@noalloc]
+
+  external add : point -> point -> point -> int
+    = "belenios_libsodium_ed25519_add"
+    [@@noalloc]
 end
 
-let libsodium_stubs () = Some (module Libsodium_stubs : Signatures.LIBSODIUM_STUBS)
+let libsodium_stubs () =
+  Some (module Libsodium_stubs : Signatures.LIBSODIUM_STUBS)

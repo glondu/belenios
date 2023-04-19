@@ -30,7 +30,6 @@ open Serializable_j
 open Belenios_js.Common
 
 let computeFingerprint = sha256_b64
-
 let checkCredential = Credential.check
 
 let encryptBallot election cred plaintext callback =
@@ -48,7 +47,10 @@ class type renderingFunctions =
     method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
     method br : int -> Js.Unsafe.any Js.meth
     method bold : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
-    method italic : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+
+    method italic :
+      int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+
     method result : Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
     method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
   end
@@ -56,10 +58,7 @@ class type renderingFunctions =
 let belenios =
   object%js
     method computeFingerprint x =
-      Js._JSON##stringify x
-      |> Js.to_string
-      |> computeFingerprint
-      |> Js.string
+      Js._JSON##stringify x |> Js.to_string |> computeFingerprint |> Js.string
 
     method checkCredential cred =
       if checkCredential (Js.to_string cred) then Js._true else Js._false
@@ -77,33 +76,26 @@ let belenios =
       in
       let failure error =
         let () =
-          Js.Unsafe.fun_call failure
-            [|
-              Js.Unsafe.inject (Js.string error);
-            |]
+          Js.Unsafe.fun_call failure [| Js.Unsafe.inject (Js.string error) |]
         in
         Lwt.return_unit
       in
-      Lwt.async
-        (fun () ->
-          Lwt.catch (fun () ->
-            let* () = Lwt_js.yield () in
-            let module R =
-              struct
+      Lwt.async (fun () ->
+          Lwt.catch
+            (fun () ->
+              let* () = Lwt_js.yield () in
+              let module R = struct
                 let raw_election = Js._JSON##stringify params |> Js.to_string
-              end
-            in
-            let module W = Election.Make (R) (Random) () in
-            let* () = Lwt_js.yield () in
-            let plaintext =
-              Js._JSON##stringify plaintext
-              |> Js.to_string
-              |> plaintext_of_string
-            in
-            let* () = Lwt_js.yield () in
-            encryptBallot (module W) (Js.to_string cred) plaintext success
-          ) (fun e -> failure (Printexc.to_string e))
-        );
+              end in
+              let module W = Election.Make (R) (Random) () in
+              let* () = Lwt_js.yield () in
+              let plaintext =
+                Js._JSON##stringify plaintext
+                |> Js.to_string |> plaintext_of_string
+              in
+              let* () = Lwt_js.yield () in
+              encryptBallot (module W) (Js.to_string cred) plaintext success)
+            (fun e -> failure (Printexc.to_string e)));
       Js.undefined
 
     method markup (p : renderingFunctions Js.t) x =

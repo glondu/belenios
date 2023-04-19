@@ -25,10 +25,8 @@ open Belenios
 open Web_common
 
 module Make (X : Pages_sig.S) = struct
-
   open X
   open Web_services
-
   open Eliom_service
   open Eliom_registration
 
@@ -38,82 +36,83 @@ module Make (X : Pages_sig.S) = struct
     let* election = Web_persist.get_raw_election uuid in
     match election with
     | Some e ->
-       let module W = Election.Make (struct let raw_election = e end) (Random) () in
-       return_some (module W : Site_common_sig.ELECTION)
+        let module W =
+          Election.Make
+            (struct
+              let raw_election = e
+            end)
+            (Random)
+            ()
+        in
+        return_some (module W : Site_common_sig.ELECTION)
     | _ -> return_none
 
   let election_not_found () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    Pages_common.generic_page ~title:(s_ "Not found") (s_ "This election does not exist. This may happen for elections that have not yet been open or have been deleted.") ()
+    Pages_common.generic_page ~title:(s_ "Not found")
+      (s_
+         "This election does not exist. This may happen for elections that \
+          have not yet been open or have been deleted.")
+      ()
     >>= Html.send ~code:404
 
   let with_election uuid f =
     let* x = find_election uuid in
-    match x with
-    | None -> election_not_found ()
-    | Some election -> f election
-
-  let () = File.register ~service:source_code
-             ~content_type:"application/x-gzip"
-             (fun () () -> return !Web_config.source_file)
+    match x with None -> election_not_found () | Some election -> f election
 
   let () =
-    Any.register ~service:logo
-      (fun () () ->
+    File.register ~service:source_code ~content_type:"application/x-gzip"
+      (fun () () -> return !Web_config.source_file)
+
+  let () =
+    Any.register ~service:logo (fun () () ->
         match !Web_config.logo with
         | None -> fail_http `Not_found
-        | Some (file, content_type) -> File.send ~content_type file
-      )
+        | Some (file, content_type) -> File.send ~content_type file)
 
   let () =
-    Any.register ~service:favicon
-      (fun () () ->
+    Any.register ~service:favicon (fun () () ->
         match !Web_config.favicon with
         | None -> fail_http `Not_found
-        | Some (file, content_type) -> File.send ~content_type file
-      )
+        | Some (file, content_type) -> File.send ~content_type file)
 
-  let redir_preapply s u () = Redirection.send (Redirection (preapply ~service:s u))
+  let redir_preapply s u () =
+    Redirection.send (Redirection (preapply ~service:s u))
 
   let wrap_handler f =
-    Lwt.catch f
-      (fun e ->
+    Lwt.catch f (fun e ->
         Pages_common.generic_page ~title:"Error" (Printexc.to_string e) ()
         >>= Html.send)
 
   let get_cont_state cont =
-    let redir = match cont.path with
+    let redir =
+      match cont.path with
       | ContSiteHome -> Redirection home
       | ContSiteAdmin -> Redirection admin
-      | ContSiteElection uuid -> Redirection (preapply ~service:election_home (uuid, ()))
+      | ContSiteElection uuid ->
+          Redirection (preapply ~service:election_home (uuid, ()))
     in
     fun () -> Redirection.send redir
 
   let () =
-    Any.register ~service:set_cookie_disclaimer
-      (fun cont () ->
+    Any.register ~service:set_cookie_disclaimer (fun cont () ->
         let* () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
-        get_cont_state cont ()
-      )
+        get_cont_state cont ())
 
   let () =
-    Any.register ~service:election_nh_ciphertexts
-      (fun uuid () ->
+    Any.register ~service:election_nh_ciphertexts (fun uuid () ->
         let* x = find_election uuid in
         match x with
         | None -> fail_http `Not_found
         | Some election ->
-           let* x = Web_persist.get_nh_ciphertexts election in
-           String.send (x, "application/json")
-      )
+            let* x = Web_persist.get_nh_ciphertexts election in
+            String.send (x, "application/json"))
 
   let () =
-    Any.register ~service:set_language
-      (fun (lang, cont) () ->
+    Any.register ~service:set_language (fun (lang, cont) () ->
         let* () = Eliom_reference.set Web_state.language (Some lang) in
-        get_cont_state cont ()
-      )
+        get_cont_state cont ())
 
   let forbidden () =
     let* l = get_preferred_gettext () in
@@ -121,5 +120,4 @@ module Make (X : Pages_sig.S) = struct
     let msg = s_ "You are not allowed to access this page!" in
     Pages_common.generic_page ~title:(s_ "Forbidden") msg ()
     >>= Html.send ~code:403
-
 end

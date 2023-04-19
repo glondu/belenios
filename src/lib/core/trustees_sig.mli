@@ -24,9 +24,8 @@ open Serializable_t
 open Signatures
 
 module type S = sig
-
+  (** Simple distributed generation of an election public key. *)
   module MakeSimple (G : GROUP) (M : RANDOM) : sig
-
     (** This module implements a simple distributed key generation. Each
       share is a number modulo q, and the secret key is their sum. All
       shares are needed to decrypt, but the decryptions can be done in
@@ -36,33 +35,31 @@ module type S = sig
     (** [generate ()] generates a new private key. *)
 
     val prove : Z.t -> G.t trustee_public_key
-  (** [prove x] returns the public key associated to [x] and a zero-
+    (** [prove x] returns the public key associated to [x] and a zero-
       knowledge proof of its knowledge. *)
-
   end
-  (** Simple distributed generation of an election public key. *)
 
   module MakePKI (G : GROUP) (M : RANDOM) :
-  PKI with type private_key = Z.t
-         and type public_key = G.t
+    PKI with type private_key = Z.t and type public_key = G.t
 
-  module MakeChannels (G : GROUP) (M : RANDOM)
-           (P : PKI with type private_key = Z.t
-                     and type public_key = G.t) :
-  CHANNELS with type private_key = P.private_key
-            and type public_key = P.public_key
+  module MakeChannels
+      (G : GROUP)
+      (M : RANDOM)
+      (P : PKI with type private_key = Z.t and type public_key = G.t) :
+    CHANNELS
+      with type private_key = P.private_key
+       and type public_key = P.public_key
 
   exception PedersenFailure of string
 
-  module MakePedersen (G : GROUP) (M : RANDOM)
-           (P : PKI with type private_key = Z.t
-                     and type public_key = G.t)
-           (C : CHANNELS with type private_key = Z.t
-                          and type public_key = G.t) :
-  PEDERSEN with type elt = G.t
+  module MakePedersen
+      (G : GROUP)
+      (M : RANDOM)
+      (P : PKI with type private_key = Z.t and type public_key = G.t)
+      (C : CHANNELS with type private_key = Z.t and type public_key = G.t) :
+    PEDERSEN with type elt = G.t
 
   module MakeCombinator (G : GROUP) : sig
-
     val check : G.t trustees -> bool
     (** Check consistency of a set of trustees. *)
 
@@ -72,9 +69,8 @@ module type S = sig
     val combine_factors :
       G.t trustees ->
       (G.t -> G.t partial_decryption -> bool) ->
-      G.t partial_decryption owned list -> (G.t shape, combination_error) result
-                                                                    (** Compute synthetic decryption factors. *)
-
+      G.t partial_decryption owned list ->
+      (G.t shape, combination_error) result
+    (** Compute synthetic decryption factors. *)
   end
-
 end

@@ -38,7 +38,7 @@ let tkeygen draft =
   end in
   let module X = Make (P) (Random) () in
   let open X in
-  let {id=_; priv; pub} = trustee_keygen () in
+  let { id = _; priv; pub } = trustee_keygen () in
   let hash =
     let pub = trustee_public_key_of_string Yojson.Safe.read_json pub in
     sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)
@@ -51,15 +51,19 @@ let tkeygen draft =
   let () =
     match Dom_html.getElementById_coerce "private_key" Dom_html.CoerceTo.a with
     | None -> ()
-    | Some x -> x##.onclick := Dom_html.handler (fun _ -> downloaded := true; Js._true)
+    | Some x ->
+        x##.onclick :=
+          Dom_html.handler (fun _ ->
+              downloaded := true;
+              Js._true)
   in
   let () =
     let handler =
       let@ _ = Dom_html.handler in
       if not !downloaded then (
         alert @@ s_ "The private key must be downloaded first!";
-        Js._false
-      ) else Js._true
+        Js._false)
+      else Js._true
     in
     let xs = document##getElementsByTagName (Js.string "form") in
     for i = 0 to xs##.length - 1 do
@@ -79,32 +83,28 @@ let fill_interactivity () =
   let&&* e = document##getElementById (Js.string "interactivity") in
   let hash = Dom_html.window##.location##.hash |> Js.to_string in
   match extract_uuid_and_token hash with
-  | Some (uuid, token) ->
-     let@ () = redirect_if_admin "trustee" uuid token in
-     let href = Dom_html.window##.location##.href |> Js.to_string in
-     set_content "election_url" (build_election_url href uuid);
-     set_form_target "data_form" "submit-trustee" uuid token;
-     begin
-       let url = Printf.sprintf "../api/drafts/%s" uuid in
-       let* x = get draft_of_string url in
-       match x with
-       | Some draft ->
+  | Some (uuid, token) -> (
+      let@ () = redirect_if_admin "trustee" uuid token in
+      let href = Dom_html.window##.location##.href |> Js.to_string in
+      set_content "election_url" (build_election_url href uuid);
+      set_form_target "data_form" "submit-trustee" uuid token;
+      let url = Printf.sprintf "../api/drafts/%s" uuid in
+      let* x = get draft_of_string url in
+      match x with
+      | Some draft ->
           let b = Dom_html.createButton document in
           let t = document##createTextNode (Js.string (s_ "Generate a key")) in
           Lwt_js_events.async (fun () ->
               let* _ = Lwt_js_events.click b in
-              tkeygen draft
-            );
+              tkeygen draft);
           Dom.appendChild b t;
           Dom.appendChild e b;
           Lwt.return_unit
-       | None -> fail "(token error)"
-     end
+      | None -> fail "(token error)")
   | None -> fail "(uuid error)"
 
 let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Belenios_js.I18n.auto_init "admin" in
-      fill_interactivity ()
-    )
+      fill_interactivity ())

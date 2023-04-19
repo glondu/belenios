@@ -33,75 +33,112 @@ let of_string x =
   let open PSerializable_j in
   let params = params_of_string Yojson.Safe.read_json x in
   let {
-      e_description; e_name; e_questions; e_uuid;
-      e_administrator; e_credential_authority;
-      _
-    } = params
+    e_description;
+    e_name;
+    e_questions;
+    e_uuid;
+    e_administrator;
+    e_credential_authority;
+    _;
+  } =
+    params
   in
   let open Serializable_j in
   {
     e_version = 1;
-    e_description; e_name; e_questions; e_uuid;
-    e_administrator; e_credential_authority;
+    e_description;
+    e_name;
+    e_questions;
+    e_uuid;
+    e_administrator;
+    e_credential_authority;
   }
 
 let to_string params ~group ~public_key =
   let open Serializable_j in
   let {
-      e_description; e_name; e_questions; e_uuid;
-      e_administrator; e_credential_authority;
-      _
-    } = params
+    e_description;
+    e_name;
+    e_questions;
+    e_uuid;
+    e_administrator;
+    e_credential_authority;
+    _;
+  } =
+    params
   in
   let module G = (val Group.of_string group) in
   let e_public_key = G.of_string public_key in
   let open PSerializable_j in
-  let params = {
+  let params =
+    {
       e_version = 1;
-      e_description; e_name; e_questions; e_uuid;
-      e_administrator; e_credential_authority;
-      e_group = group; e_public_key;
+      e_description;
+      e_name;
+      e_questions;
+      e_uuid;
+      e_administrator;
+      e_credential_authority;
+      e_group = group;
+      e_public_key;
     }
   in
   string_of_params (swrite G.to_string) params
 
 module Parse (R : RAW_ELECTION) () = struct
   let j = params_of_string Yojson.Safe.read_json R.raw_election
+
   module G = (val Group.of_string j.e_group)
+
   let params = params_of_string (sread G.of_string) R.raw_election
 
   let election =
     let {
-        e_description; e_name; e_questions; e_uuid;
-        e_administrator; e_credential_authority;
-        _
-      } = params
+      e_description;
+      e_name;
+      e_questions;
+      e_uuid;
+      e_administrator;
+      e_credential_authority;
+      _;
+    } =
+      params
     in
     let open Serializable_j in
     {
       e_version = 1;
-      e_description; e_name; e_questions; e_uuid;
-      e_administrator; e_credential_authority;
+      e_description;
+      e_name;
+      e_questions;
+      e_uuid;
+      e_administrator;
+      e_credential_authority;
     }
+
   let fingerprint = sha256_b64 R.raw_election
   let public_key = params.e_public_key
 
-  module S = (val Question.compute_signature (Array.to_list election.e_questions))
+  module S =
+    (val Question.compute_signature (Array.to_list election.e_questions))
 
   type nonrec ballot = G.t ballot
+
   let string_of_ballot x = string_of_ballot (swrite G.to_string) x
   let ballot_of_string x = ballot_of_string (sread G.of_string) x
   let get_credential x = Some x.credential
-
 end
 
 module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   type elt = W.G.t
 
   module G = W.G
-  module Q = Question.Make (M) (G) (Question_h.Make (M) (G)) (Question_nh.Make (M) (G))
+
+  module Q =
+    Question.Make (M) (G) (Question_h.Make (M) (G)) (Question_nh.Make (M) (G))
+
   module Mix = Mixnet.Make (W) (M)
   open G
+
   let election = W.election
 
   type private_key = Z.t
@@ -120,121 +157,109 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let w = M.random q in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
-    let response = Z.(erem (w - x * challenge) q) in
-    {challenge; response}
+    let response = Z.(erem (w - (x * challenge)) q) in
+    { challenge; response }
 
   (** Ballot creation *)
 
   let swap xs =
     let rec loop i accu =
-      if i >= 0
-      then let x = xs.(i) in loop (pred i) (x::accu)
-      else (Array.of_list accu)
-    in loop (pred (Array.length xs)) []
+      if i >= 0 then
+        let x = xs.(i) in
+        loop (pred i) (x :: accu)
+      else Array.of_list accu
+    in
+    loop (pred (Array.length xs)) []
 
-  let create_answer y zkp q m =
-    Q.create_answer q ~public_key:y ~prefix:zkp m
-
-  let make_sig_prefix hash =
-    "sig|" ^ hash ^ "|"
+  let create_answer y zkp q m = Q.create_answer q ~public_key:y ~prefix:zkp m
+  let make_sig_prefix hash = "sig|" ^ hash ^ "|"
 
   let create_ballot ~sk m =
     let election_uuid = election.e_uuid in
     let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
-    let answers = swap (Array.map2 (create_answer W.public_key zkp) election.e_questions m) in
-    let ballot_without_signature =
-      {
-        election_uuid;
-        election_hash;
-        credential;
-        answers;
-        signature = None;
-      }
+    let answers =
+      swap (Array.map2 (create_answer W.public_key zkp) election.e_questions m)
     in
-    let s_hash = sha256_b64 (string_of_ballot (swrite G.to_string) ballot_without_signature) in
+    let ballot_without_signature =
+      { election_uuid; election_hash; credential; answers; signature = None }
+    in
+    let s_hash =
+      sha256_b64
+        (string_of_ballot (swrite G.to_string) ballot_without_signature)
+    in
     let signature =
       let w = M.random q in
       let commitment = g **~ w in
       let prefix = make_sig_prefix s_hash in
-      let challenge = G.hash prefix [|commitment|] in
-      let response = Z.(erem (w - sk * challenge) q) in
-      let s_proof = {challenge; response} in
-      Some {s_hash; s_proof}
+      let challenge = G.hash prefix [| commitment |] in
+      let response = Z.(erem (w - (sk * challenge)) q) in
+      let s_proof = { challenge; response } in
+      Some { s_hash; s_proof }
     in
-    {
-      election_uuid;
-      election_hash;
-      credential;
-      answers;
-      signature;
-    }
+    { election_uuid; election_hash; credential; answers; signature }
 
   (** Ballot verification *)
 
-  let verify_answer y zkp q a =
-    Q.verify_answer q ~public_key:y ~prefix:zkp a
+  let verify_answer y zkp q a = Q.verify_answer q ~public_key:y ~prefix:zkp a
 
-  let check_ballot {election_uuid; election_hash; credential; answers; signature} =
+  let check_ballot
+      { election_uuid; election_hash; credential; answers; signature } =
     let ballot_without_signature =
-      {
-        election_uuid;
-        election_hash;
-        credential;
-        answers;
-        signature = None;
-      }
+      { election_uuid; election_hash; credential; answers; signature = None }
     in
-    let expected_hash = sha256_b64 (string_of_ballot (swrite G.to_string) ballot_without_signature) in
+    let expected_hash =
+      sha256_b64
+        (string_of_ballot (swrite G.to_string) ballot_without_signature)
+    in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = election.e_uuid
     && election_hash = W.fingerprint
     && (match signature with
-        | Some {s_hash; s_proof = {challenge; response}} ->
-           s_hash = expected_hash
-           && G.check credential
-           && check_modulo q challenge
-           && check_modulo q response
-           && let commitment = g **~ response *~ credential **~ challenge in
-              let prefix = make_sig_prefix s_hash in
-              Z.(challenge =% G.hash prefix [|commitment|])
-        | None -> false
-       )
-    && Array.for_all2 (verify_answer W.public_key zkp) election.e_questions answers
+       | Some { s_hash; s_proof = { challenge; response } } ->
+           s_hash = expected_hash && G.check credential
+           && check_modulo q challenge && check_modulo q response
+           &&
+           let commitment = (g **~ response) *~ (credential **~ challenge) in
+           let prefix = make_sig_prefix s_hash in
+           Z.(challenge =% G.hash prefix [| commitment |])
+       | None -> false)
+    && Array.for_all2
+         (verify_answer W.public_key zkp)
+         election.e_questions answers
 
   let check_rawballot rawballot =
     match ballot_of_string (sread G.of_string) rawballot with
     | exception e -> Error (`SerializationError e)
     | ballot ->
-       if string_of_ballot (swrite G.to_string) ballot = rawballot then
-         Ok
-           {
-             rc_credential = G.to_string ballot.credential;
-             rc_check = (fun () -> check_ballot ballot);
-           }
-       else Error `NonCanonical
+        if string_of_ballot (swrite G.to_string) ballot = rawballot then
+          Ok
+            {
+              rc_credential = G.to_string ballot.credential;
+              rc_check = (fun () -> check_ballot ballot);
+            }
+        else Error `NonCanonical
 
   let process_ballots bs =
-    `Array (
-        Array.mapi (fun i q ->
-            Q.process_ciphertexts q
-              (List.map
-                 (fun (w, b) ->
-                   w, Q.extract_ciphertexts q b.answers.(i)
-                 ) bs
-              )
-          ) election.e_questions
-      )
+    `Array
+      (Array.mapi
+         (fun i q ->
+           Q.process_ciphertexts q
+             (List.map
+                (fun (w, b) -> (w, Q.extract_ciphertexts q b.answers.(i)))
+                bs))
+         election.e_questions)
 
   let extract_nh_ciphertexts x =
     let x = Shape.to_shape_array x in
     let rec loop i accu =
-      if i >= 0 then (
+      if i >= 0 then
         match election.e_questions.(i) with
-        | Question.Homomorphic _ -> loop (i-1) accu
-        | Question.NonHomomorphic _ -> loop (i-1) (Shape.to_array x.(i) :: accu)
-      ) else Array.of_list accu
+        | Question.Homomorphic _ -> loop (i - 1) accu
+        | Question.NonHomomorphic _ ->
+            loop (i - 1) (Shape.to_array x.(i) :: accu)
+      else Array.of_list accu
     in
     loop (Array.length x - 1) []
 
@@ -244,66 +269,66 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let rec loop i j =
       if i < n && j < m then (
         match election.e_questions.(i) with
-        | Question.Homomorphic _ -> loop (i+1) j
+        | Question.Homomorphic _ -> loop (i + 1) j
         | Question.NonHomomorphic _ ->
-           x.(i) <- Shape.of_array cc.(j);
-           loop (i+1) (j+1)
-      ) else (
+            x.(i) <- Shape.of_array cc.(j);
+            loop (i + 1) (j + 1))
+      else (
         assert (j = m);
-        `Array x
-      )
+        `Array x)
     in
     loop 0 0
 
   let shuffle_ciphertexts cc =
     let rec loop i accu =
-      if i >= 0 then (
+      if i >= 0 then
         let c = cc.(i) in
         let c', r', psi = Mix.gen_shuffle W.public_key c in
         let pi = Mix.gen_shuffle_proof W.public_key c c' r' psi in
-        loop (i-1) ((c', pi) :: accu)
-      ) else (
-        let shuffle_ciphertexts, shuffle_proofs = Array.(split (of_list accu)) in
-        {shuffle_ciphertexts; shuffle_proofs}
-      )
+        loop (i - 1) ((c', pi) :: accu)
+      else
+        let shuffle_ciphertexts, shuffle_proofs =
+          Array.(split (of_list accu))
+        in
+        { shuffle_ciphertexts; shuffle_proofs }
     in
     loop (Array.length cc - 1) []
 
   let check_shuffle cc s =
-    Array.for_all3 (Mix.check_shuffle_proof W.public_key) cc s.shuffle_ciphertexts s.shuffle_proofs
+    Array.for_all3
+      (Mix.check_shuffle_proof W.public_key)
+      cc s.shuffle_ciphertexts s.shuffle_proofs
 
   type factor = elt partial_decryption
 
-  let eg_factor x {alpha; _} =
+  let eg_factor x { alpha; _ } =
     let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
-    alpha **~ x,
-    fs_prove [| g; alpha |] x (hash zkp)
+    (alpha **~ x, fs_prove [| g; alpha |] x (hash zkp))
 
   let check_ciphertext c =
-    Shape.forall (fun {alpha; beta} -> G.check alpha && G.check beta) c
+    Shape.forall (fun { alpha; beta } -> G.check alpha && G.check beta) c
 
   let compute_factor c x =
-    if check_ciphertext c then (
+    if check_ciphertext c then
       let res = Shape.map (eg_factor x) c in
       let decryption_factors, decryption_proofs = Shape.split res in
-      {decryption_factors; decryption_proofs}
-    ) else (
-      invalid_arg "Invalid ciphertext"
-    )
+      { decryption_factors; decryption_proofs }
+    else invalid_arg "Invalid ciphertext"
 
   let check_factor c y f =
     let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
-    Shape.forall3 (fun {alpha; _} f {challenge; response} ->
-        G.check f
-        && check_modulo q challenge
-        && check_modulo q response
-        && let commitments =
-             [|
-               g **~ response *~ y **~ challenge;
-               alpha **~ response *~ f **~ challenge;
-             |]
-           in Z.(hash zkp commitments =% challenge)
-      ) c f.decryption_factors f.decryption_proofs
+    Shape.forall3
+      (fun { alpha; _ } f { challenge; response } ->
+        G.check f && check_modulo q challenge && check_modulo q response
+        &&
+        let commitments =
+          [|
+            (g **~ response) *~ (y **~ challenge);
+            (alpha **~ response) *~ (f **~ challenge);
+          |]
+        in
+        Z.(hash zkp commitments =% challenge))
+      c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result
   type result = result_type Serializable_t.election_result
@@ -316,37 +341,35 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let check = check_factor et in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Ok factors ->
-       let results =
-         Shape.map2 (fun {beta; _} f ->
-             beta / f
-           ) et factors
-       in
-       let result = Q.compute_result ~num_tallied W.S.x results in
-       Ok {result}
+        let results = Shape.map2 (fun { beta; _ } f -> beta / f) et factors in
+        let result = Q.compute_result ~num_tallied W.S.x results in
+        Ok { result }
     | Error e -> Error e
 
-  let check_result encrypted_tally partial_decryptions trustees {result} =
+  let check_result encrypted_tally partial_decryptions trustees { result } =
     let num_tallied = encrypted_tally.sized_total_weight in
     let encrypted_tally = encrypted_tally.sized_encrypted_tally in
-    check_ciphertext encrypted_tally &&
-      let check = check_factor encrypted_tally in
-      match Combinator.combine_factors trustees check partial_decryptions with
-      | Error _ -> false
-      | Ok factors ->
-         let results =
-           Shape.map2 (fun {beta; _} f ->
-               beta / f
-             ) encrypted_tally factors
-         in
-         Q.check_result ~num_tallied W.S.x results result
+    check_ciphertext encrypted_tally
+    &&
+    let check = check_factor encrypted_tally in
+    match Combinator.combine_factors trustees check partial_decryptions with
+    | Error _ -> false
+    | Ok factors ->
+        let results =
+          Shape.map2 (fun { beta; _ } f -> beta / f) encrypted_tally factors
+        in
+        Q.check_result ~num_tallied W.S.x results result
 end
 
-module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () = struct
+module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () =
+struct
   module X = Parse (R) ()
+
   module Y = struct
     include X
     include MakeResult (X)
   end
+
   include Y
   module E = MakeElection (Y) (M)
 end

@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type verifydiff_error =
-  | NotPrefix
-  | ErrorInFirst
+type verifydiff_error = NotPrefix | ErrorInFirst
 
 exception VerifydiffError of verifydiff_error
 

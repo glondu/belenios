@@ -27,36 +27,34 @@ open Web_common
 
 let ( let& ) = Option.bind
 
-type token = {
-    expiration : datetime;
-    account : account;
-  }
+type token = { expiration : datetime; account : account }
 
 let tokens = ref SMap.empty
 
 let new_token account =
   let token = generate_token ~length:22 () in
   let expiration = Period.add (Datetime.now ()) (Period.day 1) in
-  tokens := SMap.add token {expiration; account} !tokens;
+  tokens := SMap.add token { expiration; account } !tokens;
   Lwt.return token
 
 let filter tokens =
   let now = Datetime.now () in
-  SMap.filter (fun _ {expiration; _} -> Datetime.compare now expiration < 0) tokens
+  SMap.filter
+    (fun _ { expiration; _ } -> Datetime.compare now expiration < 0)
+    tokens
 
 let lookup_token token =
   tokens := filter !tokens;
-  let& {account; _} = SMap.find_opt token !tokens in
+  let& { account; _ } = SMap.find_opt token !tokens in
   Some account
 
-let invalidate_token token =
-  tokens := SMap.remove token !tokens
+let invalidate_token token = tokens := SMap.remove token !tokens
 
 let () =
   let@ a = Accounts.add_update_hook in
-  let f {expiration; account} =
+  let f { expiration; account } =
     let account = if a.id = account.id then a else account in
-    {expiration; account}
+    { expiration; account }
   in
   tokens := SMap.map f !tokens;
   Lwt.return_unit
@@ -64,10 +62,7 @@ let () =
 exception Error of Belenios_api.Serializable_t.error
 
 type result = int * string
-
-type body = {
-    run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t
-}
+type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 let ok = Lwt.return (200, "{}")
 let bad_request = Lwt.return (400, "\"Bad Request\"")
@@ -81,26 +76,15 @@ let handle_ifmatch ifmatch current cont =
   match ifmatch with
   | None -> cont ()
   | Some x ->
-     let* current = current () in
-     if sha256_b64 current = x then
-       cont ()
-     else
-       precondition_failed
+      let* current = current () in
+      if sha256_b64 current = x then cont () else precondition_failed
 
 let handle_generic_error f =
-  Lwt.catch f
-    (function
-     | Error error ->
-        let request_status =
-          {
-            code = 400;
-            status = "Bad Request";
-            error;
-          }
-        in
+  Lwt.catch f (function
+    | Error error ->
+        let request_status = { code = 400; status = "Bad Request"; error } in
         Lwt.return (400, string_of_request_status request_status)
-     | _ -> bad_request
-    )
+    | _ -> bad_request)
 
 let handle_get get =
   let@ () = handle_generic_error in
@@ -110,9 +94,7 @@ let handle_get get =
 let handle_get_option get =
   let@ () = handle_generic_error in
   let* x = get () in
-  match x with
-  | None -> not_found
-  | Some x -> Lwt.return (200, x)
+  match x with None -> not_found | Some x -> Lwt.return (200, x)
 
 let get_configuration () =
   {
@@ -124,18 +106,17 @@ let get_configuration () =
     supported_crypto_versions;
     supported_booth_versions;
     authentications =
-      begin
-        List.map
-          (function
-           | `BuiltinPassword -> `Password
-           | `BuiltinCAS -> `CAS
-           | `Export a ->
-              `Configured {
+      List.map
+        (function
+          | `BuiltinPassword -> `Password
+          | `BuiltinCAS -> `CAS
+          | `Export a ->
+              `Configured
+                {
                   configured_instance = a.auth_instance;
                   configured_system = a.auth_system;
-                }
-          ) !Web_config.exported_auth_config
-      end;
+                })
+        !Web_config.exported_auth_config;
     default_group = !Web_config.default_group;
     default_nh_group = !Web_config.nh_group;
     max_voters = !Web_config.maxmailsatonce;
@@ -153,10 +134,8 @@ let get_account (a : account) =
   }
 
 let put_account (a : account) (b : api_account) =
-  if b.address <> a.email then
-    raise (Error (`CannotChange "address"));
-  if b.id <> a.id then
-    raise (Error (`CannotChange "id"));
+  if b.address <> a.email then raise (Error (`CannotChange "address"));
+  if b.id <> a.id then raise (Error (`CannotChange "id"));
   let a =
     {
       a with

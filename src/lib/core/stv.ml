@@ -29,13 +29,13 @@ let process ballot =
   let nchoices = Array.length ballot in
   let used = Array.make nchoices false in
   let rec lookup rank i =
-    if i < nchoices then (
+    if i < nchoices then
       if ballot.(i) = rank then (
-        assert (not (used.(i)));
+        assert (not used.(i));
         used.(i) <- true;
-        Some i
-      ) else lookup rank (i + 1)
-    ) else None
+        Some i)
+      else lookup rank (i + 1)
+    else None
   in
   let rec build_preference_list rank accu =
     match lookup rank 0 with
@@ -44,11 +44,9 @@ let process ballot =
   in
   let preference_list = build_preference_list 1 [] in
   let rec check i =
-    if i < nchoices then (
-      if used.(i) || ballot.(i) = 0 then (
-        check (i + 1)
-      ) else false
-    ) else true
+    if i < nchoices then
+      if used.(i) || ballot.(i) = 0 then check (i + 1) else false
+    else true
   in
   if check 0 then Some preference_list else None
 
@@ -64,7 +62,7 @@ let assign choices ((_, ballot) as b) =
   in
   match ballot with
   | [] -> choices
-  | x :: xs -> List.fold_left (prepend []) (prepend [b] choices x) xs
+  | x :: xs -> List.fold_left (prepend []) (prepend [ b ] choices x) xs
 
 (** Here, [scores] is an association list mapping from choices to
    ballots and total score. This function collects all the ballots,
@@ -77,113 +75,93 @@ let transfer coef i scores =
         (fun accu (w, b) ->
           let w = if ai = i then w *. coef else w in
           let b = List.filter (fun x -> x <> i) b in
-          (w, b) :: accu
-        ) accu ab
-    ) [] scores
+          (w, b) :: accu)
+        accu ab)
+    [] scores
 
 (** This function performs a round of the STV algorithm. It
    tail-recursively calls itself until [nseats] is [0] or there is not
    enough remaining choices, and returns the list of events
    (Win|Lose|TieWin|TieLose) that occured during the process. *)
 let rec run quota ballots events nseats =
-  if nseats > 0 then (
+  if nseats > 0 then
     let choices = List.fold_left assign IMap.empty ballots in
-    if IMap.cardinal choices <= nseats then (
+    if IMap.cardinal choices <= nseats then
       (* there is not enough choices: they all win *)
-      choices
-      |> IMap.bindings
-      |> List.map fst
+      choices |> IMap.bindings |> List.map fst
       |> (fun x -> `Win x :: events)
       |> List.rev
-    ) else (
+    else
       let scores =
         (* for each choice, compute the sum of scores of its assigned
            ballots *)
         choices
-        |> IMap.map
-             (fun bs ->
-               bs, List.fold_left (fun accu (w, _) -> accu +. w) 0. bs
-             )
+        |> IMap.map (fun bs ->
+               (bs, List.fold_left (fun accu (w, _) -> accu +. w) 0. bs))
         |> IMap.bindings
         |> List.sort
              (* we sort the choices, with greater total score first,
                 then in question order (this is our "arbitrary" tie
                 breaking, chosen by the election administrator) *)
-             (fun (ai, (_, aw)) (bi, (_, bw)) ->
-               compare (bw, ai) (aw, bi)
-             )
+             (fun (ai, (_, aw)) (bi, (_, bw)) -> compare (bw, ai) (aw, bi))
       in
       match scores with
       | (ai, (_, aw)) :: xs when aw >= quota ->
-         (* the first choice is above the quota *)
-         let events =
-           match xs with
-           | (bi, (_, bw)) :: _ when aw = bw ->
-              (* the second choice has the same total score, we chose
-                 the first one, but log the tie *)
-              `TieWin [ai; bi] :: events
-           | _ -> events
-         in
-         (* note that we select a single winner, even if there are
-            several choices above quota *)
-         let c = (aw -. quota) /. aw in
-         run quota (transfer c ai scores) (`Win [ai] :: events) (nseats - 1)
-      | scores ->
-         match List.rev scores with
-         | (ai, (_, aw)) :: xs ->
-            (* we select the last choice *)
-            let events =
-              match xs with
-              | (bi, (_, bw)) :: _ when aw = bw ->
-                 (* the second last choice has the same total score,
-                    we chose the last one, but log the tie *)
-                 `TieLose [ai; bi] :: events
-              | _ -> events
-            in
-            run quota (transfer 1. ai scores) (`Lose ai :: events) nseats
-         | [] ->
-            (* should not happen, because if there is no choices left,
-               the condition "there is not enough choices" above
-               should have been triggered *)
-            assert false
-    )
-  ) else List.rev events
+          (* the first choice is above the quota *)
+          let events =
+            match xs with
+            | (bi, (_, bw)) :: _ when aw = bw ->
+                (* the second choice has the same total score, we chose
+                   the first one, but log the tie *)
+                `TieWin [ ai; bi ] :: events
+            | _ -> events
+          in
+          (* note that we select a single winner, even if there are
+             several choices above quota *)
+          let c = (aw -. quota) /. aw in
+          run quota (transfer c ai scores) (`Win [ ai ] :: events) (nseats - 1)
+      | scores -> (
+          match List.rev scores with
+          | (ai, (_, aw)) :: xs ->
+              (* we select the last choice *)
+              let events =
+                match xs with
+                | (bi, (_, bw)) :: _ when aw = bw ->
+                    (* the second last choice has the same total score,
+                       we chose the last one, but log the tie *)
+                    `TieLose [ ai; bi ] :: events
+                | _ -> events
+              in
+              run quota (transfer 1. ai scores) (`Lose ai :: events) nseats
+          | [] ->
+              (* should not happen, because if there is no choices left,
+                 the condition "there is not enough choices" above
+                 should have been triggered *)
+              assert false)
+  else List.rev events
 
 let compute ~nseats ballots =
   let nballots = Array.length ballots in
   let rec partition accu invalid i =
-    if i < nballots then (
+    if i < nballots then
       let ballot = ballots.(i) in
       match process ballot with
       | None -> partition accu (ballot :: invalid) (i + 1)
       | Some x -> partition (x :: accu) invalid (i + 1)
-    ) else (
-      List.sort compare accu,
-      Array.of_list (List.sort compare invalid)
-    )
+    else (List.sort compare accu, Array.of_list (List.sort compare invalid))
   in
   let stv_ballots, stv_invalid = partition [] [] 0 in
   let n = List.length stv_ballots in
   let quota = floor (float n /. float (nseats + 1)) +. 1. in
-  let wballots = List.map (fun b -> 1., b) stv_ballots in
+  let wballots = List.map (fun b -> (1., b)) stv_ballots in
   let stv_events = run quota wballots [] nseats in
   let stv_winners =
-    stv_events
-    |> List.map
-         (function
-          | `Win x -> x
-          | _ -> []
-         )
-    |> List.flatten
+    stv_events |> List.map (function `Win x -> x | _ -> []) |> List.flatten
   in
-  assert
-    (if n > 0 then (
-       let nwinners = List.length stv_winners in
-       let nchoices = Array.length ballots.(0) in
-       if nchoices > nseats then
-         nwinners = nseats
-       else
-         nwinners = nchoices
-     ) else stv_winners = []
-    );
-  {stv_ballots; stv_invalid; stv_events; stv_winners}
+  assert (
+    if n > 0 then
+      let nwinners = List.length stv_winners in
+      let nchoices = Array.length ballots.(0) in
+      if nchoices > nseats then nwinners = nseats else nwinners = nchoices
+    else stv_winners = []);
+  { stv_ballots; stv_invalid; stv_events; stv_winners }

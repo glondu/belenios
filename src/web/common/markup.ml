@@ -19,16 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type 'a rendering_functions =
-  {
-    text : int -> string -> 'a;
-    br : int -> 'a;
-    bold : int -> 'a list -> 'a;
-    italic : int -> 'a list -> 'a;
-  }
+type 'a rendering_functions = {
+  text : int -> string -> 'a;
+  br : int -> 'a;
+  bold : int -> 'a list -> 'a;
+  italic : int -> 'a list -> 'a;
+}
 
-let rec render p xs =
-  List.mapi (render_item p) xs
+let rec render p xs = List.mapi (render_item p) xs
 
 and render_item p i = function
   | Markup_types.Text s -> p.text i s

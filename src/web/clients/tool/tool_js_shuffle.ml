@@ -36,40 +36,36 @@ let shuffle election ciphertexts =
   let t1, u1 = Lwt.task () in
   let t2, u2 = Lwt.task () in
   let onmessage2 =
-    Dom.handler
-      (fun e ->
+    Dom.handler (fun e ->
         worker##.onmessage := Dom.no_handler;
         Lwt.wakeup_later u2 e##.data;
-        Js._true
-      )
+        Js._true)
   in
   let onmessage1 =
-    Dom.handler
-      (fun e ->
+    Dom.handler (fun e ->
         worker##.onmessage := onmessage2;
         Lwt.wakeup_later u1 e##.data;
-        Js._true
-      )
+        Js._true)
   in
   worker##.onmessage := onmessage1;
-  worker##postMessage (Shuffle {election; ciphertexts});
-  let@ result = fun cont ->
+  worker##postMessage (Shuffle { election; ciphertexts });
+  let@ result cont =
     let* x = t1 in
     match x with
     | ShuffleEstimate eta ->
-       let start = (new%js Js.date_now)##valueOf in
-       let stop = start +. float_of_int eta *. 1000. in
-       let update () =
-         let now = (new%js Js.date_now)##valueOf in
-         let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
-         clear_content_by_id "estimation";
-         set_content "estimation"
-           (Printf.sprintf (f_ "Estimated remaining time: %d second(s)") eta)
-       in
-       let id = Dom_html.window##setInterval (Js.wrap_callback update) 500. in
-       let* x = t2 in
-       Dom_html.window##clearInterval id;
-       cont x
+        let start = (new%js Js.date_now)##valueOf in
+        let stop = start +. (float_of_int eta *. 1000.) in
+        let update () =
+          let now = (new%js Js.date_now)##valueOf in
+          let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
+          clear_content_by_id "estimation";
+          set_content "estimation"
+            (Printf.sprintf (f_ "Estimated remaining time: %d second(s)") eta)
+        in
+        let id = Dom_html.window##setInterval (Js.wrap_callback update) 500. in
+        let* x = t2 in
+        Dom_html.window##clearInterval id;
+        cont x
     | x -> cont x
   in
   clear_content_by_id "estimation";
@@ -79,9 +75,8 @@ let shuffle election ciphertexts =
 
 let set_nh_ciphertexts_link uuid =
   let href =
-    ["uuid", uuid]
-    |> Url.encode_arguments
-    |> (fun x -> Printf.sprintf "nh-ciphertexts?%s" x)
+    [ ("uuid", uuid) ] |> Url.encode_arguments |> fun x ->
+    Printf.sprintf "nh-ciphertexts?%s" x
   in
   let$ a = document##getElementById (Js.string "nh_ciphertexts_link") in
   let$ a = Dom_html.CoerceTo.a a in
@@ -91,13 +86,14 @@ let () =
   Lwt.async (fun () ->
       let* _ = Lwt_js_events.onload () in
       let* () = Belenios_js.I18n.auto_init "admin" in
-      let@ uuid, token = fun cont ->
+      let@ uuid, token =
+       fun cont ->
         let hash = Dom_html.window##.location##.hash |> Js.to_string in
         match extract_uuid_and_token hash with
         | Some (uuid, token) -> cont (uuid, token)
         | None ->
-           alert "Unable to extract UUID and token from URL";
-           Lwt.return_unit
+            alert "Unable to extract UUID and token from URL";
+            Lwt.return_unit
       in
       let@ () = redirect_if_admin "shuffle" uuid token in
       set_form_target "submit_form" "submit-shuffle" uuid token;
@@ -111,17 +107,19 @@ let () =
       set_element_display "controls_div" "block";
       set_element_display "wait_div" "none";
       clear_content_by_id "estimation";
-      match Dom_html.getElementById_coerce "compute_shuffle" Dom_html.CoerceTo.button with
+      match
+        Dom_html.getElementById_coerce "compute_shuffle"
+          Dom_html.CoerceTo.button
+      with
       | None -> Lwt.return_unit
       | Some btn ->
-         let* _ = Lwt_js_events.click btn in
-         set_element_display "controls_div" "none";
-         set_element_display "wait_div" "block";
-         let* shuffle = shuffle (Js.string election) (Js.string ciphertexts) in
-         let shuffle = Js.to_string shuffle in
-         set_textarea "shuffle" shuffle;
-         set_element_display "wait_div" "none";
-         set_content "hash" (sha256_b64 shuffle);
-         set_element_display "hash_div" "block";
-         Lwt.return_unit
-    )
+          let* _ = Lwt_js_events.click btn in
+          set_element_display "controls_div" "none";
+          set_element_display "wait_div" "block";
+          let* shuffle = shuffle (Js.string election) (Js.string ciphertexts) in
+          let shuffle = Js.to_string shuffle in
+          set_textarea "shuffle" shuffle;
+          set_element_display "wait_div" "none";
+          set_content "hash" (sha256_b64 shuffle);
+          set_element_display "hash_div" "block";
+          Lwt.return_unit)

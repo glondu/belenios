@@ -37,7 +37,9 @@ let chars_of_stdin () =
   let buf = Buffer.create 1024 in
   let rec loop () =
     match input_char stdin with
-    | c -> Buffer.add_char buf c; loop ()
+    | c ->
+        Buffer.add_char buf c;
+        loop ()
     | exception End_of_file -> ()
   in
   loop ();
@@ -46,13 +48,12 @@ let chars_of_stdin () =
 let download dir url =
   let url, file =
     match String.split_on_char '/' url |> List.rev with
-    | "" :: uuid :: _ -> url, uuid ^ ".bel"
-    | last :: rest ->
-       begin
-         match Filename.chop_suffix_opt ~suffix:".bel" last with
-         | None -> url ^ "/", last ^ ".bel"
-         | Some uuid -> String.concat "/" (List.rev ("" :: rest)), uuid ^ ".bel"
-       end
+    | "" :: uuid :: _ -> (url, uuid ^ ".bel")
+    | last :: rest -> (
+        match Filename.chop_suffix_opt ~suffix:".bel" last with
+        | None -> (url ^ "/", last ^ ".bel")
+        | Some uuid -> (String.concat "/" (List.rev ("" :: rest)), uuid ^ ".bel")
+        )
     | _ -> failwith "bad url"
   in
   Printf.eprintf "I: downloading %s%s...\n%!" url file;
@@ -61,7 +62,10 @@ let download dir url =
     Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
   in
   let r = Sys.command command in
-  if r <> 0 then (Sys.remove target; None) else Some file
+  if r <> 0 then (
+    Sys.remove target;
+    None)
+  else Some file
 
 let rm_rf dir =
   let files = Sys.readdir dir in
@@ -81,27 +85,29 @@ let lines_of_file fname =
   let rec loop accu =
     match input_line ic with
     | line -> loop (line :: accu)
-    | exception End_of_file -> close_in ic; List.rev accu
+    | exception End_of_file ->
+        close_in ic;
+        List.rev accu
   in
   loop []
 
-let string_of_file f =
-  lines_of_file f |> String.concat "\n"
+let string_of_file f = lines_of_file f |> String.concat "\n"
 
 let load_from_file of_string filename =
   if Sys.file_exists filename then (
     Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    Some (lines_of_file filename |> List.rev_map of_string)
-  ) else None
+    Some (lines_of_file filename |> List.rev_map of_string))
+  else None
 
 let find_bel_in_dir dir =
   match
-    Sys.readdir dir
-    |> Array.to_list
+    Sys.readdir dir |> Array.to_list
     |> List.filter (fun x -> Filename.check_suffix x ".bel")
   with
-  | [file] -> file
-  | _ -> Printf.ksprintf failwith "directory %s must contain a single .bel file" dir
+  | [ file ] -> file
+  | _ ->
+      Printf.ksprintf failwith "directory %s must contain a single .bel file"
+        dir
 
 let wrap_main f =
   match f () with
@@ -110,13 +116,14 @@ let wrap_main f =
   | exception Failure e -> `Error (false, e)
   | exception e -> `Error (false, Printexc.to_string e)
 
-let common_man = [
-  `S "MORE INFORMATION";
-  `P "This command is part of the Belenios command-line tool.";
-  `P "To get more help on a specific subcommand, run:";
-  `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
-  `P "See $(i,https://www.belenios.org/).";
-]
+let common_man =
+  [
+    `S "MORE INFORMATION";
+    `P "This command is part of the Belenios command-line tool.";
+    `P "To get more help on a specific subcommand, run:";
+    `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
+    `P "See $(i,https://www.belenios.org/).";
+  ]
 
 open Cmdliner
 
@@ -126,16 +133,16 @@ end
 
 let dir_t, optdir_t =
   let doc = "Use directory $(docv) for reading and writing election files." in
-  let the_info = Arg.info ["dir"] ~docv:"DIR" ~doc in
-  Arg.(value & opt dir Filename.current_dir_name the_info),
-  Arg.(value & opt (some dir) None the_info)
+  let the_info = Arg.info [ "dir" ] ~docv:"DIR" ~doc in
+  ( Arg.(value & opt dir Filename.current_dir_name the_info),
+    Arg.(value & opt (some dir) None the_info) )
 
 let url_t =
   let doc = "Download election files from $(docv)." in
-  let the_info = Arg.info ["url"] ~docv:"URL" ~doc in
+  let the_info = Arg.info [ "url" ] ~docv:"URL" ~doc in
   Arg.(value & opt (some string) None the_info)
 
 let key_t =
   let doc = "Read private key from file $(docv)." in
-  let the_info = Arg.info ["key"] ~docv:"KEY" ~doc in
+  let the_info = Arg.info [ "key" ] ~docv:"KEY" ~doc in
   Arg.(value & opt (some file) None the_info)

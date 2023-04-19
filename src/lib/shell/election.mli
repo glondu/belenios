@@ -27,16 +27,16 @@ open Serializable_t
 
 val get_version : string -> int
 val of_string : string -> params
-
 val election_uuid_of_string_ballot : string -> uuid
-
 val has_nh_questions : params -> bool
-
 val make_raw_election : params -> group:string -> public_key:string -> string
 
 module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
 
 val compute_checksums :
-  election:hash -> trustees:string -> public_credentials:string list ->
-  shuffles:hash owned list option -> encrypted_tally:hash option ->
+  election:hash ->
+  trustees:string ->
+  public_credentials:string list ->
+  shuffles:hash owned list option ->
+  encrypted_tally:hash option ->
   election_checksums

@@ -27,27 +27,49 @@ module type QUESTION_CORE = sig
   type answer
   type elt
 
-  val create_answer : question -> public_key:elt -> prefix:string -> int array -> answer
-  val verify_answer : question -> public_key:elt -> prefix:string -> answer -> bool
+  val create_answer :
+    question -> public_key:elt -> prefix:string -> int array -> answer
+
+  val verify_answer :
+    question -> public_key:elt -> prefix:string -> answer -> bool
 
   val extract_ciphertexts : question -> answer -> elt ciphertext Shape.t
-  val process_ciphertexts : question -> (Weight.t * elt ciphertext Shape.t) list -> elt ciphertext Shape.t
+
+  val process_ciphertexts :
+    question ->
+    (Weight.t * elt ciphertext Shape.t) list ->
+    elt ciphertext Shape.t
 end
 
 module type QUESTION_H = sig
   include QUESTION_CORE
+
   val compute_result : num_tallied:Weight.t -> elt Shape.t -> Weight.t array
-  val check_result : num_tallied:Weight.t -> elt Shape.t -> Weight.t array -> bool
+
+  val check_result :
+    num_tallied:Weight.t -> elt Shape.t -> Weight.t array -> bool
 end
 
 module type QUESTION_NH = sig
   include QUESTION_CORE
+
   val compute_result : num_answers:int -> elt Shape.t -> int array array
   val check_result : num_answers:int -> elt Shape.t -> int array array -> bool
 end
 
 module type QUESTION = sig
   include QUESTION_CORE
-  val compute_result : num_tallied:Weight.t -> 'a Question_signature.t -> elt Shape.t -> 'a Election_result.t
-  val check_result : num_tallied:Weight.t -> 'a Question_signature.t -> elt Shape.t -> 'a Election_result.t -> bool
+
+  val compute_result :
+    num_tallied:Weight.t ->
+    'a Question_signature.t ->
+    elt Shape.t ->
+    'a Election_result.t
+
+  val check_result :
+    num_tallied:Weight.t ->
+    'a Question_signature.t ->
+    elt Shape.t ->
+    'a Election_result.t ->
+    bool
 end

@@ -21,4 +21,5 @@
 
 open Serializable_t
 
-val compute : nchoices:int -> blank_allowed:bool -> condorcet_ballots -> schulze_result
+val compute :
+  nchoices:int -> blank_allowed:bool -> condorcet_ballots -> schulze_result

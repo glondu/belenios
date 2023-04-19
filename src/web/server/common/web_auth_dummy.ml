@@ -22,32 +22,31 @@
 open Lwt.Syntax
 open Lwt
 
-module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig.S) (Web_auth : Web_auth_sig.S) = struct
-
+module Make
+    (Web_services : Web_services_sig.S)
+    (Pages_common : Pages_common_sig.S)
+    (Web_auth : Web_auth_sig.S) =
+struct
   let auth_system uuid _ =
-    let module X =
-      struct
-        let pre_login_handler username_or_address ~state =
-          let site_or_election =
-            match uuid with
-            | None -> `Site
-            | Some _ -> `Election
-          in
-          let* page = Pages_common.login_dummy site_or_election username_or_address ~state in
-          return @@ Web_auth_sig.Html page
+    let module X = struct
+      let pre_login_handler username_or_address ~state =
+        let site_or_election =
+          match uuid with None -> `Site | Some _ -> `Election
+        in
+        let* page =
+          Pages_common.login_dummy site_or_election username_or_address ~state
+        in
+        return @@ Web_auth_sig.Html page
 
-        let direct x =
-          let fail () = failwith "invalid direct dummy authentication" in
-          match x with
-          | `Assoc x ->
-             begin
-               match List.assoc_opt "username" x with
-               | Some (`String x) -> Lwt.return x
-               | _ -> fail ()
-             end
-          | _ -> fail ()
-      end
-    in
+      let direct x =
+        let fail () = failwith "invalid direct dummy authentication" in
+        match x with
+        | `Assoc x -> (
+            match List.assoc_opt "username" x with
+            | Some (`String x) -> Lwt.return x
+            | _ -> fail ())
+        | _ -> fail ()
+    end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
   let run_post_login_handler =
@@ -59,9 +58,6 @@ module Make (Web_services : Web_services_sig.S) (Pages_common : Pages_common_sig
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              fun _ _ cont ->
-              cont (Some (name, ""))
-          }
-      )
-
+              (fun _ _ cont -> cont (Some (name, "")));
+          })
 end

@@ -20,8 +20,8 @@
 (**************************************************************************)
 
 module Datetime = struct
-
   open CalendarLib
+
   let datetime_format = "%Y-%m-%d %H:%M:%S"
 
   type t = Calendar.Precise.t
@@ -35,31 +35,29 @@ module Datetime = struct
   let wrap s =
     match String.index_opt s '.' with
     | None ->
-       let l = Printer.Precise_Calendar.from_fstring datetime_format s in
-       Calendar.Precise.from_gmt l
+        let l = Printer.Precise_Calendar.from_fstring datetime_format s in
+        Calendar.Precise.from_gmt l
     | Some i ->
-       let l = Printer.Precise_Calendar.from_fstring datetime_format (String.sub s 0 i) in
-       let l = Calendar.Precise.from_gmt l in
-       let r = float_of_string ("0" ^ String.sub s i (String.length s - i)) in
-       let r = int_of_float (Float.round r) in
-       Calendar.Precise.add l (Calendar.Precise.Period.second r)
+        let l =
+          Printer.Precise_Calendar.from_fstring datetime_format
+            (String.sub s 0 i)
+        in
+        let l = Calendar.Precise.from_gmt l in
+        let r = float_of_string ("0" ^ String.sub s i (String.length s - i)) in
+        let r = int_of_float (Float.round r) in
+        Calendar.Precise.add l (Calendar.Precise.Period.second r)
 
   let compare = Calendar.Precise.compare
-
-  let format ?(fmt = datetime_format) a =
-    Printer.Precise_Calendar.sprint fmt a
-
-  let to_unixfloat a =
-    Calendar.Precise.to_unixfloat a |> Float.round
-
-  let from_unixfloat t =
-    Calendar.Precise.from_unixfloat t
-
+  let format ?(fmt = datetime_format) a = Printer.Precise_Calendar.sprint fmt a
+  let to_unixfloat a = Calendar.Precise.to_unixfloat a |> Float.round
+  let from_unixfloat t = Calendar.Precise.from_unixfloat t
 end
 
 module Period = struct
   open CalendarLib
+
   type t = Calendar.Precise.Period.t
+
   let day = Calendar.Precise.Period.day
   let second = Calendar.Precise.Period.second
   let add = Calendar.Precise.add

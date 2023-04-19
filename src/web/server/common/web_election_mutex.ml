@@ -26,24 +26,24 @@ let mutexes = ref SMap.empty
 let lock uuid_s =
   match SMap.find_opt uuid_s !mutexes with
   | None ->
-     mutexes := SMap.add uuid_s (Queue.create ()) !mutexes;
-     Lwt.return_unit
+      mutexes := SMap.add uuid_s (Queue.create ()) !mutexes;
+      Lwt.return_unit
   | Some waiters ->
-     let t, u = Lwt.task () in
-     Queue.push u waiters;
-     t
+      let t, u = Lwt.task () in
+      Queue.push u waiters;
+      t
 
 let unlock uuid_s =
   match SMap.find_opt uuid_s !mutexes with
   | None -> ()
-  | Some waiters ->
-     match Queue.take_opt waiters with
-     | None -> mutexes := SMap.remove uuid_s !mutexes
-     | Some u -> Lwt.wakeup_later u ()
+  | Some waiters -> (
+      match Queue.take_opt waiters with
+      | None -> mutexes := SMap.remove uuid_s !mutexes
+      | Some u -> Lwt.wakeup_later u ())
 
 let with_lock uuid f =
   let uuid_s = Uuid.unwrap uuid in
-  Lwt.bind
-    (lock uuid_s)
-    (fun () ->
-      Lwt.finalize f (fun () -> unlock uuid_s; Lwt.return_unit))
+  Lwt.bind (lock uuid_s) (fun () ->
+      Lwt.finalize f (fun () ->
+          unlock uuid_s;
+          Lwt.return_unit))

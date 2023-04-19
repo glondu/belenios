@@ -27,14 +27,18 @@ val generate_password_email :
   string list ->
   string ->
   Web_serializable_t.uuid ->
-  Voter.t -> bool -> (bulk_email * (string * string)) Lwt.t
+  Voter.t ->
+  bool ->
+  (bulk_email * (string * string)) Lwt.t
 
 val generate_credential_email :
   Web_serializable_t.uuid ->
   Web_serializable_t.draft_election ->
   recipient:string ->
   login:string ->
-  weight:Web_serializable_t.weight -> credential:string -> bulk_email Lwt.t
+  weight:Web_serializable_t.weight ->
+  credential:string ->
+  bulk_email Lwt.t
 
 val submit_bulk_emails : bulk_email list -> unit Lwt.t
 val process_bulk_emails : unit -> unit Lwt.t
@@ -45,4 +49,8 @@ val mail_confirmation :
   string ->
   Web_serializable_t.weight option ->
   string ->
-  bool -> string -> string -> string option -> string
+  bool ->
+  string ->
+  string ->
+  string option ->
+  string

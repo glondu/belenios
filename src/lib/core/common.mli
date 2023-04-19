@@ -40,30 +40,30 @@ val sha256_b64 : string -> string
 
 module String : sig
   include module type of String
+
   val drop_prefix : prefix:string -> string -> string option
 end
 
 module List : sig
   include module type of List
+
   val join : 'a -> 'a list -> 'a list
 end
 
 module Option : sig
   include module type of Option
+
   val wrap : ('a -> 'b) -> 'a -> 'b option
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
 end
 
 val sread : (string -> 'a) -> 'a reader
 val swrite : ('a -> string) -> 'a writer
-
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
-
 val compare_b64 : string -> string -> int
 
 module SSet : Set.S with type elt = string
 module SMap : Map.S with type key = string
-
 module IMap : Map.S with type key = int
 
 val bytes_to_sample : Z.t -> int
@@ -84,22 +84,21 @@ val split_on_br : string -> string list
 val split_lines : string -> string list
 val strip_cred : string -> string
 
+val extract_weight : string -> string * Weight.t
 (** Input: [str = "something[,weight]"]
     Output:
     - if [weight] is an integer > 0, return [(something, weight)]
     - else, return [(str, 1)] *)
-val extract_weight : string -> string * Weight.t
 
 val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
-
 val is_username : string -> bool
 val is_email : string -> bool
 val extract_email : string -> string option
-
 val map_and_concat_with_commas : ('a -> string) -> 'a array -> string
 
 module Voter : sig
-  type t = [`Plain | `Json] * Serializable_core_t.voter
+  type t = [ `Plain | `Json ] * Serializable_core_t.voter
+
   val wrap : Yojson.Safe.t -> t
   val unwrap : t -> Yojson.Safe.t
   val to_string : t -> string
@@ -111,5 +110,4 @@ module Voter : sig
 end
 
 val has_explicit_weights : Voter.t list -> bool
-
 val supported_crypto_versions : int list

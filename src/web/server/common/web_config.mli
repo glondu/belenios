@@ -23,8 +23,10 @@ open Web_serializable_t
 
 val prefix : string ref
 val site_auth_config : auth_config list ref
+
 val exported_auth_config :
-  [`BuiltinPassword | `BuiltinCAS | `Export of auth_config] list ref
+  [ `BuiltinPassword | `BuiltinCAS | `Export of auth_config ] list ref
+
 val locales_dir : string ref
 val spool_dir : string ref
 val accounts_dir : string ref

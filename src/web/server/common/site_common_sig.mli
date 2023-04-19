@@ -22,13 +22,8 @@
 module type ELECTION = Belenios_core.Signatures.ELECTION
 
 module type S = sig
-
-  val find_election :
-    Web_serializable_t.uuid ->
-    (module ELECTION) option Lwt.t
-
-  val election_not_found :
-    unit -> Eliom_registration.Html.result Lwt.t
+  val find_election : Web_serializable_t.uuid -> (module ELECTION) option Lwt.t
+  val election_not_found : unit -> Eliom_registration.Html.result Lwt.t
 
   val with_election :
     Web_serializable_t.uuid ->
@@ -36,14 +31,25 @@ module type S = sig
     Eliom_registration.Html.result Lwt.t
 
   val redir_preapply :
-    ('a, unit, Eliom_service.get, Eliom_service.att, 'b, 'c, 'd,
-     [< `WithSuffix | `WithoutSuffix ], 'e, unit, 'f)
-      Eliom_service.t -> 'a -> unit -> 'g Eliom_registration.kind Lwt.t
+    ( 'a,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      'b,
+      'c,
+      'd,
+      [< `WithSuffix | `WithoutSuffix ],
+      'e,
+      unit,
+      'f )
+    Eliom_service.t ->
+    'a ->
+    unit ->
+    'g Eliom_registration.kind Lwt.t
 
   val wrap_handler :
     (unit -> Eliom_registration.Html.result Lwt.t) ->
     Eliom_registration.Html.result Lwt.t
 
-  val forbidden :
-    unit -> Eliom_registration.Html.result Lwt.t
+  val forbidden : unit -> Eliom_registration.Html.result Lwt.t
 end

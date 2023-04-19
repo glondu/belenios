@@ -23,19 +23,15 @@ open Serializable_t
 open Signatures
 
 type data_or_event = Data | Event of event
-
-type record =
-  {
-    typ : data_or_event;
-    hash : hash;
-    location : location;
-  }
+type record = { typ : data_or_event; hash : hash; location : location }
 
 val block_size : int
 
 module type IO_READER = sig
   include MONAD
+
   type file
+
   val get_pos : file -> int64 t
   val set_pos : file -> int64 -> unit t
   val read_block : file -> bytes -> unit t
@@ -44,16 +40,19 @@ end
 module type ARCHIVE_READER = sig
   type 'a m
   type archive
+
   val read_header : archive -> archive_header m
   val read_record : archive -> record m
 end
 
-module MakeReader (M : IO_READER) : ARCHIVE_READER
-       with type 'a m := 'a M.t and type archive = M.file
+module MakeReader (M : IO_READER) :
+  ARCHIVE_READER with type 'a m := 'a M.t and type archive = M.file
 
 module type IO_WRITER = sig
   include MONAD
+
   type file
+
   val get_pos : file -> int64 t
   val write_block : file -> bytes -> unit t
 end
@@ -61,26 +60,30 @@ end
 module type ARCHIVE_WRITER = sig
   type 'a m
   type archive
+
   val write_header : archive -> archive_header -> unit m
-  val write_record : archive -> timestamp:int64 -> data_or_event -> string -> record m
+
+  val write_record :
+    archive -> timestamp:int64 -> data_or_event -> string -> record m
 end
 
-module MakeWriter (M : IO_WRITER) : ARCHIVE_WRITER
-       with type 'a m := 'a M.t and type archive = M.file
+module MakeWriter (M : IO_WRITER) :
+  ARCHIVE_WRITER with type 'a m := 'a M.t and type archive = M.file
 
 module type IO_ARCHIVER = sig
   include MONAD
+
   val get_hash : hash -> string option t
 end
 
 module type ARCHIVER = sig
   type 'a m
   type archive
+
   val write_archive : archive -> archive_header -> event -> unit m
 end
 
 module MakeArchiver
-         (M : IO_ARCHIVER)
-         (W : ARCHIVE_WRITER with type 'a m := 'a M.t)
-       : ARCHIVER
-       with type 'a m := 'a M.t and type archive := W.archive
+    (M : IO_ARCHIVER)
+    (W : ARCHIVE_WRITER with type 'a m := 'a M.t) :
+  ARCHIVER with type 'a m := 'a M.t and type archive := W.archive
