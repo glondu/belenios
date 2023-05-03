@@ -64,6 +64,9 @@ let default_mj_specification =
 let default_schulze_specification =
   "{\"type\":\"PreferentialVoting\",\"blank\":true,\"method\":\"Schulze\"}"
 
+let default_stv_specification =
+  "{\"type\":\"PreferentialVoting\",\"blank\":true,\"method\":\"STV\"}"
+
 (* Getting the OCaml structure out of the DOM *)
 
 let extractAnswer a =
@@ -315,6 +318,10 @@ let rec createQuestion q =
   Dom.appendChild prefill_schulze
     (document##createTextNode (Js.string (s_ "Prefill with Condorcet-Schulze")));
   Dom.appendChild div_extra1 prefill_schulze;
+  let prefill_stv = Dom_html.createButton document in
+  Dom.appendChild prefill_stv
+    (document##createTextNode (Js.string (s_ "Prefill with STV")));
+  Dom.appendChild div_extra1 prefill_stv;
   let clear_spec = Dom_html.createButton document in
   Dom.appendChild clear_spec (document##createTextNode (Js.string (s_ "Clear")));
   Dom.appendChild div_extra1 clear_spec;
@@ -335,6 +342,10 @@ let rec createQuestion q =
   prefill_schulze##.onclick :=
     Dom_html.handler (fun _ ->
         i_extra##.value := Js.string default_schulze_specification;
+        Js._false);
+  prefill_stv##.onclick :=
+    Dom_html.handler (fun _ ->
+        i_extra##.value := Js.string default_stv_specification;
         Js._false);
   clear_spec##.onclick :=
     Dom_html.handler (fun _ ->
