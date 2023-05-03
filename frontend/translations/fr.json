@@ -13,6 +13,7 @@
     "breadcrumb_authenticate": "Authentification",
     "breadcrumb_confirm": "Confirmation",
     "breadcrumb_step_x": "Étape {{count}}",
+    "breadcrumb_step_x_plural": "Étape {{count}}",
     "blank_vote": "Vote blanc",
     "ask_for_credential": "Veuillez saisir votre code de vote :",
     "next_button_label": "Suivant",
@@ -31,6 +32,11 @@
     "preferential_voting_drag_candidate": "Déplacer ce candidat",
     "preferential_voting_move_candidate_to": "Déplacer vers",
     "preferential_voting_delete_preference_level": "Supprimer ce niveau de préférence",
+    "preferential_voting_ranked": "Classé",
+    "preferential_voting_without_equality_move_candidate_above_position_x": "Au-dessus de la position {{count}}",
+    "preferential_voting_without_equality_move_candidate_above_position_x_plural": "Au-dessus de la position {{count}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x": "En-dessous de la position {{count}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x_plural": "En-dessous de la position {{count}}",
     "majority_judgment_question_description": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante.",
     "preferential_voting_question_description": "Veuillez classer les candidats par ordre de préférence.",
     "ask_to_select_x_answers": "Veuillez sélectionner {{count}} réponse.",
@@ -49,6 +55,6 @@
     "review_ballot_for_questions_plural": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu pour les {{count}} questions est :",
     "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} }) sur {{number_of_questions}}",
     "ask_to_select_between_x": "Veuillez sélectionner entre {{count}}",
-    "ask_to_select_between_x_plural": "Veuillez sélectionner entre {{count}}",
-    "question_x": "Question {{count}}"
+    "question_x": "Question {{count}}",
+    "ask_to_select_between_x_plural": "Veuillez sélectionner entre {{count}}"
 }

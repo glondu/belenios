@@ -13,6 +13,7 @@
     "breadcrumb_authenticate": "Authenticate",
     "breadcrumb_confirm": "Confirm",
     "breadcrumb_step_x": "Step {{count}}",
+    "breadcrumb_step_x_plural": "Step {{count}}",
     "blank_vote": "Blank vote",
     "ask_for_credential": "Please enter your credential:",
     "next_button_label": "Next",
@@ -31,6 +32,11 @@
     "preferential_voting_drag_candidate": "Move this candidate",
     "preferential_voting_move_candidate_to": "Move to",
     "preferential_voting_delete_preference_level": "Delete this preference level",
+    "preferential_voting_ranked": "Ranked",
+    "preferential_voting_without_equality_move_candidate_above_position_x": "Above position {{count}}",
+    "preferential_voting_without_equality_move_candidate_above_position_x_plural": "Above position {{count}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x": "Below position {{count}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x_plural": "Below position {{count}}",
     "majority_judgment_question_description": "Please grade each candidate before moving on to next step.",
     "preferential_voting_question_description": "Please rank candidates by preference.",
     "ask_to_select_x_answers": "Please select {{count}} answer.",
@@ -49,6 +55,6 @@
     "review_ballot_for_questions_plural": "Your ballot is not yet in the ballot box, and contains the following answers to all {{count}} questions:",
     "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} }) of {{number_of_questions}}",
     "ask_to_select_between_x": "Please select between {{count}}",
-    "ask_to_select_between_x_plural": "Please select between {{count}}",
-    "question_x": "Question {{count}}"
+    "question_x": "Question {{count}}",
+    "ask_to_select_between_x_plural": "Please select between {{count}}"
 }

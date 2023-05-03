@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "i18n-extract": "echo 'Extracting translated strings from Javascript files and updating frontend_translations/*.json...' && npx i18next-parser"
+    "i18n-extract": "echo 'Extracting translated strings from Javascript files and updating frontend_translations/*.json...' && npx i18next-parser@4.0.1"
   },
   "repository": {
     "type": "git",

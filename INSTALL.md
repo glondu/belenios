@@ -136,8 +136,8 @@ compiled with:
 
 It will produce a full installation of Belenios, its libraries and its
 server, in the `_run/usr` directory. See `demo/ocsigenserver.conf.in`
-for an ocsigenserver configuration template, and the _Server
-administrator's guide_ for more information on how to use it.
+for an ocsigenserver configuration template, and the [Server
+administrator's guide](doc/web.md) for more information on how to use it.
 
 Documentation
 -------------

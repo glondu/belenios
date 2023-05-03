@@ -6,5 +6,6 @@ module.exports = {
     'i18next-parser-explicit-declarations.js'
   ],
   locales: ['en', 'fr'],
-  keepRemoved: false
+  keepRemoved: false,
+  indentation: 4
 }
