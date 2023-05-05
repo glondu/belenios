@@ -115,8 +115,11 @@ module Make (Web_auth : Web_auth_sig.S) = struct
                 ( Lazy.force oidc_self,
                   ("code", (client_id, ("openid email", (state, "consent")))) )
             in
-            return
-            @@ Web_auth_sig.Redirection (Eliom_registration.Redirection service)
+            let url =
+              Eliom_uri.make_string_uri ~service ~absolute:true ()
+              |> rewrite_prefix
+            in
+            return @@ Web_auth_sig.Redirection url
         | _ -> failwith "oidc_login_handler invoked with bad config"
 
       let direct _ =

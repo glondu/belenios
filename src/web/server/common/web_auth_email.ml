@@ -79,9 +79,12 @@ struct
             if site_or_election = `Election then
               let env = { username_or_address; state; auth_instance } in
               let* () = Eliom_reference.set login_env (Some env) in
-              return
-              @@ Web_auth_sig.Redirection
-                   (Redirection Web_services.email_election_login)
+              let service = Web_services.email_election_login in
+              let url =
+                Eliom_uri.make_string_uri ~service ~absolute:true ()
+                |> rewrite_prefix
+              in
+              return @@ Web_auth_sig.Redirection url
             else
               let* fragment =
                 Pages_common.login_email site_or_election username_or_address

@@ -23,7 +23,7 @@ open Web_serializable_t
 
 type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result
-  | Redirection : 'a Eliom_registration.redirection -> result
+  | Redirection : string -> result
 
 module type AUTH_SYSTEM = sig
   val pre_login_handler :

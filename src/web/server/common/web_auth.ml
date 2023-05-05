@@ -230,7 +230,7 @@ struct
                 in
                 Pages_common.base ~title ~content:[ x ] ()
                 >>= Eliom_registration.Html.send
-            | Redirection x -> Eliom_registration.Redirection.send x)
+            | Redirection x -> Eliom_registration.String_redirection.send x)
         | None -> (
             match c with
             | [ s ] ->
