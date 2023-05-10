@@ -779,7 +779,7 @@ let get_ballot_weight election ballot =
 
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = (string * Weight.t) SMap.t
+  type value = Weight.t SMap.t
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -837,14 +837,14 @@ let raw_get_ballots uuid =
         (fun b accu ->
           let hash = sha256_b64 b in
           let* weight = get_ballot_weight (module W) b in
-          return (SMap.add hash (b, weight) accu))
+          return (SMap.add hash weight accu))
         SMap.empty
 
 let ballots_cache = new BallotsCache.cache raw_get_ballots ~timer:3600. 10
 
 let get_ballot_hashes uuid =
   let* ballots = ballots_cache#find uuid in
-  SMap.bindings ballots |> List.map (fun (h, (_, w)) -> (h, w)) |> return
+  SMap.bindings ballots |> return
 
 let get_ballot_by_hash uuid hash =
   Lwt.catch
