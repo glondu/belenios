@@ -12,8 +12,9 @@
     "breadcrumb_review_and_encrypt": "Récapitulatif et chiffrement",
     "breadcrumb_authenticate": "Authentification",
     "breadcrumb_confirm": "Confirmation",
-    "breadcrumb_step_x": "Étape {{count}}",
-    "breadcrumb_step_x_plural": "Étape {{count}}",
+    "breadcrumb_step_x_0": "Étape {{count}}",
+    "breadcrumb_step_x_1": "Étape {{count}}",
+    "breadcrumb_step_x_2": "Étape {{count}}",
     "blank_vote": "Vote blanc",
     "ask_for_credential": "Veuillez saisir votre code de vote :",
     "next_button_label": "Suivant",
@@ -55,6 +56,6 @@
     "review_ballot_for_questions_plural": "Votre bulletin de vote n'est pas encore placé dans l'urne, et son contenu pour les {{count}} questions est :",
     "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} }) sur {{number_of_questions}}",
     "ask_to_select_between_x": "Veuillez sélectionner entre {{count}}",
-    "question_x": "Question {{count}}",
-    "ask_to_select_between_x_plural": "Veuillez sélectionner entre {{count}}"
+    "ask_to_select_between_x_plural": "Veuillez sélectionner entre {{count}}",
+    "question_x": "Question {{count}}"
 }
