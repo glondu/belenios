@@ -13,6 +13,7 @@
     "breadcrumb_authenticate": "Authentifizieren",
     "breadcrumb_confirm": "Bestätigen",
     "breadcrumb_step_x": "Schritt {{count}}",
+    "breadcrumb_step_x_plural": "Schritt {{count}}",
     "blank_vote": "Enthaltung",
     "ask_for_credential": "Bitte geben Sie Ihren Wahlschein-Code ein:",
     "next_button_label": "Weiter",
@@ -28,8 +29,8 @@
     "preferential_votign_add_preference_level": "+ Präferenzrang hier einfügen",
     "preferential_voting_warning_delete_only_empty_level": "Sie können einen Präferenzrang nur löschen wenn er leer ist. Bitte bewegen Sie die enthaltenen Kandidaten zuerst auf andere Präferenzränge.",
     "preferential_voting_not_ranked": "Nicht eingeordnet",
-    "preferential_voting_drag_candidate": "Diesen Kandidat bewegen",
-    "preferential_voting_move_candidate_to": "Bewegen nach",
+    "preferential_voting_drag_candidate": "Diesen Kandidaten verschieben",
+    "preferential_voting_move_candidate_to": "Verschieben nach",
     "preferential_voting_delete_preference_level": "Diesen Präferenzrang löschen",
     "majority_judgment_question_description": "Bitte bewerten Sie alle Kandidaten bevor Sie mit dem nächsten Schritt fortfahren.",
     "preferential_voting_question_description": "Bitte ordnen Sie die Kandidaten nach Präferenz.",
@@ -50,5 +51,9 @@
     "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} }) von {{number_of_questions}}",
     "ask_to_select_between_x": "Bitte zwischen {{count}}",
     "ask_to_select_between_x_plural": "Bitte zwischen {{count}}",
-    "question_x": "Frage {{count}}"
+    "question_x": "Frage {{count}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x": "Unter Position {{count}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x_plural": "Unter Position {{count}}",
+    "preferential_voting_without_equality_move_candidate_above_position_x": "Über Position {{count}}",
+    "preferential_voting_without_equality_move_candidate_above_position_x_plural": "Über Position {{count}}"
 }
