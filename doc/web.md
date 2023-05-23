@@ -116,7 +116,7 @@ site. Available authentication methods:
    file, a fourth field with the plaintext password is included. The
    sample file has been generated with the following shell command:
 
-   `for u in $(seq 1 5); do SALT=$(pwgen); PASS=$(pwgen); echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | read a b; echo $a),$PASS"; done`
+   `for u in $(seq 1 5); do SALT=$(pwgen); PASS=$(pwgen); echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | { read a b; echo $a; }),$PASS"; done`
 
  * `<cas>`: authenticate with a [CAS](https://www.apereo.org/projects/cas)
    server. For example:
