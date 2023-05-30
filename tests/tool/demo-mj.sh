@@ -169,7 +169,7 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote") | belenios-tool archive add-event --type=Ballot
+    belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote") | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted" >&2
     echo >&2
 done

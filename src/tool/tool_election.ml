@@ -340,7 +340,7 @@ module Make (P : PARAMS) () = struct
              ntally )
        | _ -> (raw_encrypted_tally, ntally))
 
-  let vote privcred ballot =
+  let vote privcred choice =
     let sk =
       match privcred with
       | None -> failwith "missing private credential"
@@ -348,7 +348,7 @@ module Make (P : PARAMS) () = struct
           let module CD = Belenios_core.Credential.MakeDerive (G) in
           CD.derive election.e_uuid cred
     in
-    let b = E.create_ballot ~sk ballot in
+    let b = E.create_ballot ~sk choice in
     assert (E.check_ballot b);
     string_of_ballot b
 

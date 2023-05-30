@@ -54,17 +54,17 @@ let main url dir action =
       ()
   in
   (match action with
-  | `Vote (privcred, ballot) ->
-      let ballot =
-        match load_from_file plaintext_of_string ballot with
-        | Some [ b ] -> b
-        | _ -> failwith "invalid plaintext ballot file"
+  | `Vote (privcred, choice) ->
+      let choice =
+        match load_from_file plaintext_of_string choice with
+        | Some [ c ] -> c
+        | _ -> failwith "invalid choice file"
       and privcred =
         match load_from_file (fun x -> x) privcred with
         | Some [ cred ] -> cred
         | _ -> failwith "invalid credential"
       in
-      print_endline (X.vote (Some privcred) ballot)
+      print_endline (X.vote (Some privcred) choice)
   | `Decrypt (i, privkey) ->
       let privkey =
         match load_from_file (fun x -> x) privkey with
@@ -96,9 +96,9 @@ let privkey_t =
   let the_info = Arg.info [ "privkey" ] ~docv:"PRIV_KEY" ~doc in
   Arg.(value & opt (some file) None the_info)
 
-let ballot_t =
-  let doc = "Read ballot choices from file $(docv)." in
-  let the_info = Arg.info [ "ballot" ] ~docv:"BALLOT" ~doc in
+let choice_t =
+  let doc = "Read voting choice from file $(docv)." in
+  let the_info = Arg.info [ "choice" ] ~docv:"CHOICE" ~doc in
   Arg.(value & opt (some file) None the_info)
 
 let pdk_t =
@@ -126,14 +126,14 @@ let vote_cmd =
     @ common_man
   in
   let main =
-    Term.const (fun u d p b ->
+    Term.const (fun u d p c ->
         let p = get_mandatory_opt "--privcred" p in
-        let b = get_mandatory_opt "--ballot" b in
-        main u d (`Vote (p, b)))
+        let c = get_mandatory_opt "--choice" c in
+        main u d (`Vote (p, c)))
   in
   Cmd.v
     (Cmd.info "generate-ballot" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t $ privcred_t $ ballot_t))
+    Term.(ret (main $ url_t $ optdir_t $ privcred_t $ choice_t))
 
 let verify_cmd =
   let doc = "verify election data" in
