@@ -76,6 +76,13 @@ let main url dir action =
       let key = string_of_file key in
       let pdk = string_of_file pdk in
       print_endline2 (X.tdecrypt i key pdk)
+  | `VerifyBallot b ->
+      let ballot =
+        match load_from_file (fun x -> x) b with
+        | Some [ ballot ] -> ballot
+        | _ -> failwith "invalid ballot file"
+      in
+      X.verify_ballot ballot
   | `Verify -> X.verify ()
   | `ComputeResult -> print_endline (X.compute_result ())
   | `Shuffle trustee_id -> print_endline2 (X.shuffle_ciphertexts trustee_id)
@@ -99,6 +106,11 @@ let privkey_t =
 let choice_t =
   let doc = "Read voting choice from file $(docv)." in
   let the_info = Arg.info [ "choice" ] ~docv:"CHOICE" ~doc in
+  Arg.(value & opt (some file) None the_info)
+
+let ballot_t =
+  let doc = "Read ballot from file $(docv)." in
+  let the_info = Arg.info [ "ballot" ] ~docv:"BALLOT" ~doc in
   Arg.(value & opt (some file) None the_info)
 
 let pdk_t =
@@ -134,6 +146,24 @@ let vote_cmd =
   Cmd.v
     (Cmd.info "generate-ballot" ~doc ~man)
     Term.(ret (main $ url_t $ optdir_t $ privcred_t $ choice_t))
+
+let verify_ballot_cmd =
+  let doc = "verify a single ballot" in
+  let man =
+    [
+      `S "DESCRIPTION";
+      `P "This command performs verifications on a single ballot.";
+    ]
+    @ common_man
+  in
+  let main =
+    Term.const (fun u d b ->
+        let b = get_mandatory_opt "--encrypted-ballot" b in
+        main u d (`VerifyBallot b))
+  in
+  Cmd.v
+    (Cmd.info "verify-ballot" ~doc ~man)
+    Term.(ret (main $ url_t $ optdir_t $ ballot_t))
 
 let verify_cmd =
   let doc = "verify election data" in
@@ -314,6 +344,7 @@ end
 let cmds =
   [
     vote_cmd;
+    verify_ballot_cmd;
     verify_cmd;
     decrypt_cmd;
     tdecrypt_cmd;

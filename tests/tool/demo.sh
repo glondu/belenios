@@ -80,6 +80,7 @@ EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
     BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
+    belenios-tool election verify-ballot --ballot <(echo "$BALLOT")
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted with $HASH" >&2

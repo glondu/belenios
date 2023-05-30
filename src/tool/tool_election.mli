@@ -9,6 +9,7 @@ module type S = sig
   val decrypt : int -> string -> (string * string) m
   val tdecrypt : int -> string -> string -> (string * string) m
   val compute_result : unit -> string m
+  val verify_ballot : string -> unit m
   val verify : unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string

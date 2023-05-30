@@ -49,6 +49,7 @@ module type S = sig
   val decrypt : int -> string -> (string * string) m
   val tdecrypt : int -> string -> string -> (string * string) m
   val compute_result : unit -> string m
+  val verify_ballot : string -> unit m
   val verify : unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
@@ -416,6 +417,13 @@ module Make (P : PARAMS) () = struct
         | Ok result -> string_of_election_result write_result result
         | Error e -> failwith (B.Trustees.string_of_combination_error e))
     | None -> failwith "missing trustees"
+
+  let verify_ballot raw_ballot =
+    match pre_cast SSet.empty raw_ballot with
+    | Error e ->
+        Printf.ksprintf failwith "error: %s in ballot %s"
+          (string_of_cast_error e) raw_ballot
+    | Ok _ -> print_msg "I: ballot is valid"
 
   let verify () =
     let () = fsck () in
