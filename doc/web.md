@@ -111,12 +111,13 @@ site. Available authentication methods:
     + a user name
     + a salt
     + SHA256(salt concatenated with password)
+    + an e-mail address
 
    Additional fields are ignored. In the sample `password_db.csv`
-   file, a fourth field with the plaintext password is included. The
+   file, a fifth field with the plaintext password is included. The
    sample file has been generated with the following shell command:
 
-   `for u in $(seq 1 5); do SALT=$(pwgen); PASS=$(pwgen); echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | { read a b; echo $a; }),$PASS"; done`
+   `for u in $(seq 1 5); do SALT=$(pwgen -s 12); PASS=$(pwgen -s 12); echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | { read a b; echo $a; }),user$u@example.com,$PASS"; done`
 
  * `<cas>`: authenticate with a [CAS](https://www.apereo.org/projects/cas)
    server. For example:

@@ -26,7 +26,7 @@ ELECTION_TITLE = "My test election for Scenario 1"
 ELECTION_DESCRIPTION = "This is the description of my test election for Scenario 1"
 LOGIN_MODE = "local"
 ADMINISTRATOR_USERNAME = "user1" # This value comes from file `demo/password_db.csv`, first row, first column
-ADMINISTRATOR_PASSWORD = "phiexoey" # This value comes from file `demo/password_db.csv`, first row, 4th column
+ADMINISTRATOR_PASSWORD = "RP91JMQkL6Lz" # This value comes from file `demo/password_db.csv`, first row, 5th column
 INITIATOR_CONTACT = "Election initiator <election.initiator@mytestelection.com>"
 
 GIT_REPOSITORY_ABSOLUTE_PATH = dirname(dirname(dirname(abspath(__file__))))
