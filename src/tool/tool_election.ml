@@ -52,7 +52,7 @@ module type S = sig
   val verify : unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
-  val compute_voters : string list -> string list
+  val compute_voters : (string * string) list -> string list
   val compute_ballot_summary : unit -> string
   val compute_encrypted_tally : unit -> string * string
 end
@@ -486,23 +486,15 @@ module Make (P : PARAMS) () = struct
       ~public_credentials
     |> string_of_election_checksums
 
-  let split line =
-    match String.index_opt line ' ' with
-    | None ->
-        Printf.ksprintf failwith "Invalid private credential line (%S)" line
-    | Some i ->
-        ( String.sub line 0 i,
-          String.sub line (i + 1) (String.length line - i - 1) )
-
   let compute_voters privcreds =
     let module D = Belenios_core.Credential.MakeDerive (G) in
     let map =
       List.fold_left
-        (fun accu line ->
-          let id, cred = split line in
+        (fun accu (id, cred) ->
           SMap.add G.(g **~ D.derive election.e_uuid cred |> to_string) id accu)
         SMap.empty privcreds
     in
+    ignore (Lazy.force final_ballots);
     match Lazy.force public_creds with
     | None -> []
     | Some creds ->

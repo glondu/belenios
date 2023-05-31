@@ -240,7 +240,8 @@ let compute_voters_cmd =
   let main =
     Term.const (fun u d privcreds ->
         let privcreds =
-          get_mandatory_opt "--privcreds" privcreds |> lines_of_file
+          get_mandatory_opt "--privcreds" privcreds
+          |> string_of_file |> Yojson.Safe.from_string |> key_value_list_of_json
         in
         main u d (`ComputeVoters privcreds))
   in

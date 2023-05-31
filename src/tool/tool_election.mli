@@ -12,7 +12,7 @@ module type S = sig
   val verify : unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
-  val compute_voters : string list -> string list
+  val compute_voters : (string * string) list -> string list
   val compute_ballot_summary : unit -> string
   val compute_encrypted_tally : unit -> string * string
 end

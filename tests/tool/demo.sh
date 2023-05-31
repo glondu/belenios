@@ -110,6 +110,16 @@ belenios-tool archive add-event --type=EndBallots < /dev/null
 belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
 belenios-tool election verify
 
+header "Check voters"
+
+NUMBER_OF_VOTERS="$(belenios-tool election compute-voters --privcreds private_creds.json | wc -l)"
+if [ "$NUMBER_OF_VOTERS" -eq "5" ]; then
+    echo "Number of voters is correct"
+else
+    echo "Number of voters does not match!"
+    exit 1
+fi
+
 header "Perform decryption"
 
 trustee_id=1
