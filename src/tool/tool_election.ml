@@ -199,7 +199,7 @@ module Make (P : PARAMS) () = struct
                     let y = G.to_string y in
                     if SMap.mem y accu then
                       Printf.ksprintf failwith "duplicate credential: %s" y
-                    else (has_weights, SMap.add y (w, ref None) accu)
+                    else (has_weights, SMap.add y w accu)
                 | None ->
                     Printf.ksprintf failwith
                       "%s is not a valid public credential" x)
@@ -239,9 +239,7 @@ module Make (P : PARAMS) () = struct
     in
     match SMap.find_opt rc.rc_credential creds with
     | None -> Error `InvalidCredential
-    | Some (w, ballot_for_creds) when rc.rc_check () ->
-        ballot_for_creds := Some ballot_id;
-        Ok (hash, (rc.rc_credential, w, rawballot))
+    | Some w when rc.rc_check () -> Ok (hash, (rc.rc_credential, w, rawballot))
     | Some _ -> Error `InvalidBallot
 
   let final_ballots =
@@ -265,7 +263,7 @@ module Make (P : PARAMS) () = struct
        List.fold_left
          (fun ((seen, bs) as accu) (h, (credential, w, b)) ->
            if SSet.mem credential seen then accu
-           else (SSet.add credential seen, (h, w, b) :: bs))
+           else (SSet.add credential seen, (h, credential, w, b) :: bs))
          (SSet.empty, []) ballot_box
        |> snd)
 
@@ -273,7 +271,7 @@ module Make (P : PARAMS) () = struct
     lazy
       (let ballots =
          Lazy.force final_ballots
-         |> List.rev_map (fun (_, w, b) -> (w, ballot_of_string b))
+         |> List.rev_map (fun (_, _, w, b) -> (w, ballot_of_string b))
        in
        let sized_total_weight =
          let open Weight in
@@ -494,20 +492,15 @@ module Make (P : PARAMS) () = struct
           SMap.add G.(g **~ D.derive election.e_uuid cred |> to_string) id accu)
         SMap.empty privcreds
     in
-    ignore (Lazy.force final_ballots);
-    match Lazy.force public_creds with
-    | None -> []
-    | Some creds ->
-        SMap.fold
-          (fun cred (_, ballot) accu ->
-            match !ballot with
-            | None -> accu
-            | Some h -> (
-                match SMap.find_opt cred map with
-                | None ->
-                    Printf.ksprintf failwith "Unknown public key in ballot %s" h
-                | Some id -> id :: accu))
-          creds []
+    let ballots = Lazy.force final_ballots in
+    List.fold_left
+      (fun accu (h, cred, _, _) ->
+        match SMap.find_opt cred map with
+        | None ->
+            Printf.ksprintf failwith "Unknown public key in ballot %s"
+              (Hash.to_b64 h)
+        | Some id -> id :: accu)
+      [] ballots
 
   let compute_ballot_summary () =
     let has_weights =
@@ -516,7 +509,7 @@ module Make (P : PARAMS) () = struct
       | Some (b, _) -> b
     in
     Lazy.force final_ballots
-    |> List.rev_map (fun (bs_hash, w, _) ->
+    |> List.rev_map (fun (bs_hash, _, w, _) ->
            let bs_weight =
              if has_weights then Some w
              else (

@@ -254,7 +254,7 @@ vote :
   correspond à la liste des bulletins dans l'urne. Cette vérification
   peut être effectuée à l'aide de la commande:
 
-      belenios-tool election compute-voters --privcreds /path/to/creds.txt --url https://url/to/election
+      belenios-tool election compute-voters --privcreds /path/to/creds.json --url https://url/to/election
 
   La liste obtenue doit coïncider (à l'ordre près) avec celle fournie par
   l'administrateur.

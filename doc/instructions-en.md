@@ -239,7 +239,7 @@ expected that the credential authority :
   to the ballots in the ballot box. This verification can be done with
   the command:
 
-        belenios-tool election compute-voters --privcreds /path/to/creds.txt --url https://url/to/election
+        belenios-tool election compute-voters --privcreds /path/to/creds.json --url https://url/to/election
 
   (where `https://url/to/election` is of the form
   `PREFIX/elections/UUID`, as explained at the top of this document).
