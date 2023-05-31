@@ -222,67 +222,58 @@ module Make (P : PARAMS) () = struct
     | `ExpiredBallot -> "expired ballot"
     | `WrongUsername -> "wrong username"
 
-  let cast accu rawballot =
+  let pre_cast ballot_box rawballot =
     let hash = Hash.hash_string rawballot in
-    match Lazy.force public_creds with
-    | None -> failwith "missing public credentials"
-    | Some creds -> (
-        let ballot_id = sha256_b64 rawballot in
-        let@ x cont =
-          let@ accu cont2 =
-            if SSet.mem ballot_id accu then cont @@ Error `DuplicateBallot
-            else cont2 @@ SSet.add ballot_id accu
-          in
-          match E.check_rawballot rawballot with
-          | Error _ as x -> cont x
-          | Ok rc -> (
-              let x = SMap.find_opt rc.rc_credential creds in
-              match x with
-              | None -> cont (Error `InvalidCredential)
-              | Some (_, old) when rc.rc_check () ->
-                  cont @@ Ok (rc.rc_credential, !old, accu)
-              | Some _ -> cont @@ Error `InvalidBallot)
-        in
-        match x with
-        | Error e ->
-            Printf.ksprintf failwith "error while casting ballot %s: %s"
-              ballot_id (string_of_cast_error e)
-        | Ok (credential, old, accu) -> (
-            match SMap.find_opt credential creds with
-            | None ->
-                Printf.ksprintf failwith "invalid credential for ballot %s"
-                  ballot_id
-            | Some (w, used) ->
-                assert (!used = old);
-                used := Some ballot_id;
-                ((hash, (credential, w, rawballot)), accu)))
-
-  let rev_ballots =
-    let rec loop accu seen = function
-      | [] -> accu
-      | b :: bs ->
-          let x, seen = cast seen b in
-          loop (x :: accu) seen bs
+    let ballot_id = Hash.to_b64 hash in
+    let@ creds cont =
+      match Lazy.force public_creds with
+      | None -> failwith "missing public credentials"
+      | Some creds -> cont creds
     in
-    lazy
-      (match Lazy.force rawballots with
-      | None -> []
-      | Some bs -> loop [] SSet.empty bs)
+    let is_duplicate = SSet.mem ballot_id ballot_box in
+    let@ rc cont =
+      match (is_duplicate, E.check_rawballot rawballot) with
+      | true, _ -> Error `DuplicateBallot
+      | _, (Error _ as e) -> e
+      | _, Ok rc -> cont rc
+    in
+    match SMap.find_opt rc.rc_credential creds with
+    | None -> Error `InvalidCredential
+    | Some (w, ballot_for_creds) when rc.rc_check () ->
+        ballot_for_creds := Some ballot_id;
+        Ok (hash, (rc.rc_credential, w, rawballot))
+    | Some _ -> Error `InvalidBallot
 
   let final_ballots =
     lazy
-      (List.fold_left
-         (fun ((seen, bs) as accu) ((_, (credential, _, _)) as b) ->
+      (let ballot_box =
+         let rec cast_all accu seen = function
+           | [] -> accu
+           | b :: bs -> (
+               match pre_cast seen b with
+               | Error e ->
+                   Printf.ksprintf failwith "error while casting ballot %s: %s"
+                     (sha256_b64 b) (string_of_cast_error e)
+               | Ok (hash, x) ->
+                   let ballot_id = Hash.to_b64 hash in
+                   cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
+         in
+         match Lazy.force rawballots with
+         | None -> []
+         | Some bs -> cast_all [] SSet.empty bs
+       in
+       List.fold_left
+         (fun ((seen, bs) as accu) (h, (credential, w, b)) ->
            if SSet.mem credential seen then accu
-           else (SSet.add credential seen, b :: bs))
-         (SSet.empty, []) (Lazy.force rev_ballots)
-      |> snd)
+           else (SSet.add credential seen, (h, w, b) :: bs))
+         (SSet.empty, []) ballot_box
+       |> snd)
 
   let raw_encrypted_tally =
     lazy
       (let ballots =
          Lazy.force final_ballots
-         |> List.rev_map (fun (_, (_, w, b)) -> (w, ballot_of_string b))
+         |> List.rev_map (fun (_, w, b) -> (w, ballot_of_string b))
        in
        let sized_total_weight =
          let open Weight in
@@ -533,7 +524,7 @@ module Make (P : PARAMS) () = struct
       | Some (b, _) -> b
     in
     Lazy.force final_ballots
-    |> List.rev_map (fun (bs_hash, (_, w, _)) ->
+    |> List.rev_map (fun (bs_hash, w, _) ->
            let bs_weight =
              if has_weights then Some w
              else (
