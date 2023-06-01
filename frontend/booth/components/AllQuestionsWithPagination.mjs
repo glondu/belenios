@@ -289,6 +289,15 @@ function TranslatableAllQuestionsWithPagination(props) {
               ...answers_to_question,
             ];
           }
+        } else if (questionType === QuestionTypeEnum.GENERIC) {
+          let question_answers = question.answers;
+          answers_to_question = current_user_vote_for_all_questions[
+            question_index
+          ]
+            .slice(0, question_answers.length)
+            .map((el) => {
+              return el === undefined ? 0 : el;
+            });
         }
         return answers_to_question;
       },

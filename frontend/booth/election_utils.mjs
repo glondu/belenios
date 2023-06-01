@@ -1,4 +1,5 @@
 const QuestionTypeEnum = Object.freeze({
+  GENERIC: "GENERIC",
   CLASSIC: "CLASSIC", // In this question type, voter can select between `questions[i].min` and `questions[i].max` answers, or optionally vote blank (if `questions[i].blank` is true). Question's title is available as `questions[i].question`. Available answers or candidates are each element of array `questions[i].answers`.
   MAJORITY_JUDGMENT: "MAJORITY_JUDGMENT", // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
   PREFERENTIAL_VOTING_WITH_EQUALITY: "PREFERENTIAL_VOTING_WITH_EQUALITY", // In this question type, voter must associate a rank (represented by a number, 1 being the most preferred, and a bigger number being less preferred ; blank vote cand be accepted, and equality is accepted) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`
@@ -11,8 +12,6 @@ const detectQuestionType = (question) => {
   if (!nonHomomorphic) {
     return QuestionTypeEnum.CLASSIC;
   } else {
-    const basicErrorText =
-      "This booth does not know how to render non-homomorphic questions which don't mention their type.";
     if (
       question.hasOwnProperty("extra") &&
       question.extra.hasOwnProperty("type")
@@ -39,7 +38,7 @@ const detectQuestionType = (question) => {
         throw preciseErrorText;
       }
     } else {
-      throw basicErrorText;
+      return QuestionTypeEnum.GENERIC;
     }
   }
 };
@@ -70,6 +69,9 @@ class ElectionQuestion {
         "blank" in this.questionData && this.questionData["blank"] === true;
       this.min = this.questionData.min;
       this.max = this.questionData.max;
+    } else if (this.type === QuestionTypeEnum.GENERIC) {
+      this.title = this.questionData.value.question;
+      this.answers = this.questionData.value.answers;
     } else {
       // TODO
     }

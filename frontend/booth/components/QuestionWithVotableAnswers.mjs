@@ -2,6 +2,7 @@ import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 import { markup } from "../shortcuts.mjs";
 
+import { TranslatableGenericVoteCandidatesList } from "./GenericVoteCandidatesList.mjs";
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.mjs"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.mjs";
 import { TranslatablePreferentialVotingCandidatesList } from "./PreferentialVotingCandidatesList.mjs";
@@ -81,6 +82,15 @@ function TranslatableQuestionWithVotableAnswers({
       identifierPrefix,
       candidates: question.answers,
       blankVoteIsAllowed: question.blankVoteIsAllowed,
+      currentUserVoteForQuestion,
+      currentCandidatesHavingAlertsForQuestion,
+      dispatchUpdateUserVoteForQuestion,
+      t,
+    });
+  } else if (question.type === QuestionTypeEnum.GENERIC) {
+    rendered_answers = e(TranslatableGenericVoteCandidatesList, {
+      identifierPrefix,
+      candidates: question.answers,
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
