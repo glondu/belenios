@@ -49,10 +49,11 @@ module type S = sig
   val decrypt : int -> string -> (string * string) m
   val tdecrypt : int -> string -> string -> (string * string) m
   val compute_result : unit -> string m
+  val verify_ballot : string -> unit m
   val verify : unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
-  val compute_voters : string list -> string list
+  val compute_voters : (string * string) list -> string list
   val compute_ballot_summary : unit -> string
   val compute_encrypted_tally : unit -> string * string
 end
@@ -199,7 +200,7 @@ module Make (P : PARAMS) () = struct
                     let y = G.to_string y in
                     if SMap.mem y accu then
                       Printf.ksprintf failwith "duplicate credential: %s" y
-                    else (has_weights, SMap.add y (w, ref None) accu)
+                    else (has_weights, SMap.add y w accu)
                 | None ->
                     Printf.ksprintf failwith
                       "%s is not a valid public credential" x)
@@ -222,67 +223,56 @@ module Make (P : PARAMS) () = struct
     | `ExpiredBallot -> "expired ballot"
     | `WrongUsername -> "wrong username"
 
-  let cast accu rawballot =
+  let pre_cast ballot_box rawballot =
     let hash = Hash.hash_string rawballot in
-    match Lazy.force public_creds with
-    | None -> failwith "missing public credentials"
-    | Some creds -> (
-        let ballot_id = sha256_b64 rawballot in
-        let@ x cont =
-          let@ accu cont2 =
-            if SSet.mem ballot_id accu then cont @@ Error `DuplicateBallot
-            else cont2 @@ SSet.add ballot_id accu
-          in
-          match E.check_rawballot rawballot with
-          | Error _ as x -> cont x
-          | Ok rc -> (
-              let x = SMap.find_opt rc.rc_credential creds in
-              match x with
-              | None -> cont (Error `InvalidCredential)
-              | Some (_, old) when rc.rc_check () ->
-                  cont @@ Ok (rc.rc_credential, !old, accu)
-              | Some _ -> cont @@ Error `InvalidBallot)
-        in
-        match x with
-        | Error e ->
-            Printf.ksprintf failwith "error while casting ballot %s: %s"
-              ballot_id (string_of_cast_error e)
-        | Ok (credential, old, accu) -> (
-            match SMap.find_opt credential creds with
-            | None ->
-                Printf.ksprintf failwith "invalid credential for ballot %s"
-                  ballot_id
-            | Some (w, used) ->
-                assert (!used = old);
-                used := Some ballot_id;
-                ((hash, (credential, w, rawballot)), accu)))
-
-  let rev_ballots =
-    let rec loop accu seen = function
-      | [] -> accu
-      | b :: bs ->
-          let x, seen = cast seen b in
-          loop (x :: accu) seen bs
+    let ballot_id = Hash.to_b64 hash in
+    let@ creds cont =
+      match Lazy.force public_creds with
+      | None -> failwith "missing public credentials"
+      | Some creds -> cont creds
     in
-    lazy
-      (match Lazy.force rawballots with
-      | None -> []
-      | Some bs -> loop [] SSet.empty bs)
+    let is_duplicate = SSet.mem ballot_id ballot_box in
+    let@ rc cont =
+      match (is_duplicate, E.check_rawballot rawballot) with
+      | true, _ -> Error `DuplicateBallot
+      | _, (Error _ as e) -> e
+      | _, Ok rc -> cont rc
+    in
+    match SMap.find_opt rc.rc_credential creds with
+    | None -> Error `InvalidCredential
+    | Some w when rc.rc_check () -> Ok (hash, (rc.rc_credential, w, rawballot))
+    | Some _ -> Error `InvalidBallot
 
   let final_ballots =
     lazy
-      (List.fold_left
-         (fun ((seen, bs) as accu) ((_, (credential, _, _)) as b) ->
+      (let ballot_box =
+         let rec cast_all accu seen = function
+           | [] -> accu
+           | b :: bs -> (
+               match pre_cast seen b with
+               | Error e ->
+                   Printf.ksprintf failwith "error while casting ballot %s: %s"
+                     (sha256_b64 b) (string_of_cast_error e)
+               | Ok (hash, x) ->
+                   let ballot_id = Hash.to_b64 hash in
+                   cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
+         in
+         match Lazy.force rawballots with
+         | None -> []
+         | Some bs -> cast_all [] SSet.empty bs
+       in
+       List.fold_left
+         (fun ((seen, bs) as accu) (h, (credential, w, b)) ->
            if SSet.mem credential seen then accu
-           else (SSet.add credential seen, b :: bs))
-         (SSet.empty, []) (Lazy.force rev_ballots)
-      |> snd)
+           else (SSet.add credential seen, (h, credential, w, b) :: bs))
+         (SSet.empty, []) ballot_box
+       |> snd)
 
   let raw_encrypted_tally =
     lazy
       (let ballots =
          Lazy.force final_ballots
-         |> List.rev_map (fun (_, (_, w, b)) -> (w, ballot_of_string b))
+         |> List.rev_map (fun (_, _, w, b) -> (w, ballot_of_string b))
        in
        let sized_total_weight =
          let open Weight in
@@ -340,7 +330,7 @@ module Make (P : PARAMS) () = struct
              ntally )
        | _ -> (raw_encrypted_tally, ntally))
 
-  let vote privcred ballot =
+  let vote privcred choice =
     let sk =
       match privcred with
       | None -> failwith "missing private credential"
@@ -348,7 +338,7 @@ module Make (P : PARAMS) () = struct
           let module CD = Belenios_core.Credential.MakeDerive (G) in
           CD.derive election.e_uuid cred
     in
-    let b = E.create_ballot ~sk ballot in
+    let b = E.create_ballot ~sk choice in
     assert (E.check_ballot b);
     string_of_ballot b
 
@@ -428,6 +418,13 @@ module Make (P : PARAMS) () = struct
         | Error e -> failwith (B.Trustees.string_of_combination_error e))
     | None -> failwith "missing trustees"
 
+  let verify_ballot raw_ballot =
+    match pre_cast SSet.empty raw_ballot with
+    | Error e ->
+        Printf.ksprintf failwith "error: %s in ballot %s"
+          (string_of_cast_error e) raw_ballot
+    | Ok _ -> print_msg "I: ballot is valid"
+
   let verify () =
     let () = fsck () in
     (match trustees with
@@ -495,36 +492,23 @@ module Make (P : PARAMS) () = struct
       ~public_credentials
     |> string_of_election_checksums
 
-  let split line =
-    match String.index_opt line ' ' with
-    | None ->
-        Printf.ksprintf failwith "Invalid private credential line (%S)" line
-    | Some i ->
-        ( String.sub line 0 i,
-          String.sub line (i + 1) (String.length line - i - 1) )
-
   let compute_voters privcreds =
     let module D = Belenios_core.Credential.MakeDerive (G) in
     let map =
       List.fold_left
-        (fun accu line ->
-          let id, cred = split line in
+        (fun accu (id, cred) ->
           SMap.add G.(g **~ D.derive election.e_uuid cred |> to_string) id accu)
         SMap.empty privcreds
     in
-    match Lazy.force public_creds with
-    | None -> []
-    | Some creds ->
-        SMap.fold
-          (fun cred (_, ballot) accu ->
-            match !ballot with
-            | None -> accu
-            | Some h -> (
-                match SMap.find_opt cred map with
-                | None ->
-                    Printf.ksprintf failwith "Unknown public key in ballot %s" h
-                | Some id -> id :: accu))
-          creds []
+    let ballots = Lazy.force final_ballots in
+    List.fold_left
+      (fun accu (h, cred, _, _) ->
+        match SMap.find_opt cred map with
+        | None ->
+            Printf.ksprintf failwith "Unknown public key in ballot %s"
+              (Hash.to_b64 h)
+        | Some id -> id :: accu)
+      [] ballots
 
   let compute_ballot_summary () =
     let has_weights =
@@ -533,7 +517,7 @@ module Make (P : PARAMS) () = struct
       | Some (b, _) -> b
     in
     Lazy.force final_ballots
-    |> List.rev_map (fun (bs_hash, (_, w, _)) ->
+    |> List.rev_map (fun (bs_hash, _, w, _) ->
            let bs_weight =
              if has_weights then Some w
              else (

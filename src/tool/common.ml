@@ -80,6 +80,17 @@ let get_mandatory_opt name = function
   | Some x -> x
   | None -> failcmd "%s is mandatory" name
 
+let key_value_list_of_json = function
+  | `Assoc x as json ->
+      x
+      |> List.map (function
+           | a, `String b -> (a, b)
+           | _ ->
+               failcmd "%s has not expected JSON type"
+                 (Yojson.Safe.to_string json))
+  | json ->
+      failcmd "%s is not a proper JSON object" (Yojson.Safe.to_string json)
+
 let lines_of_file fname =
   let ic = open_in fname in
   let rec loop accu =

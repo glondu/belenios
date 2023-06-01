@@ -79,7 +79,8 @@ cat > votes.txt <<EOF
 EOF
 
 paste private_creds.txt votes.txt | while read id cred vote; do
-    BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote"))"
+    BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
+    belenios-tool election verify-ballot --ballot <(echo "$BALLOT")
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted with $HASH" >&2
@@ -95,7 +96,7 @@ header "Simulate revotes and verify diff"
 tdir="$(mktemp -d)"
 cp $UUID.bel "$tdir"
 paste <(head -n 3 private_creds.txt) <(head -n 3 votes.txt) | while read id cred vote; do
-    BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --ballot <(echo "$vote"))"
+    BALLOT="$(belenios-tool election generate-ballot --privcred <(echo "$cred") --choice <(echo "$vote"))"
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted with $HASH" >&2
@@ -109,6 +110,16 @@ header "End voting phase"
 belenios-tool archive add-event --type=EndBallots < /dev/null
 belenios-tool election compute-encrypted-tally | belenios-tool archive add-event --type=EncryptedTally
 belenios-tool election verify
+
+header "Check voters"
+
+NUMBER_OF_VOTERS="$(belenios-tool election compute-voters --privcreds private_creds.json | wc -l)"
+if [ "$NUMBER_OF_VOTERS" -eq "5" ]; then
+    echo "Number of voters is correct"
+else
+    echo "Number of voters does not match!"
+    exit 1
+fi
 
 header "Perform decryption"
 

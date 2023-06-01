@@ -42,7 +42,7 @@ your choices in a file `/path/to/choices.json` (as an array of arrays
 of 0/1 in JSON format), the following command will output a raw ballot
 that can be sent to the administrator of the election:
 
-    belenios-tool election generate-ballot --dir /path/to/election --privcred /path/to/credential --ballot /path/to/choices.json
+    belenios-tool election generate-ballot --dir /path/to/election --privcred /path/to/credential --choice /path/to/choices.json
 
 In the case where the election is administered with the web interface,
 a raw ballot prepared with the command-line tool can be uploaded directly
