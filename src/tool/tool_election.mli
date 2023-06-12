@@ -10,7 +10,7 @@ module type S = sig
   val tdecrypt : int -> string -> string -> (string * string) m
   val compute_result : unit -> string m
   val verify_ballot : string -> unit m
-  val verify : unit -> unit m
+  val verify : ?skip_ballot_check:bool -> unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
   val compute_voters : (string * string) list -> string list
