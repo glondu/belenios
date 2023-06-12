@@ -422,7 +422,12 @@ module Make (P : PARAMS) () = struct
     | None -> failwith "missing trustees"
 
   let verify_ballot raw_ballot =
-    match pre_cast SSet.empty raw_ballot with
+    let ballot_box =
+      collect_ballots ~skip_ballot_check:true ()
+      |> List.map (fun (h, _, _, _) -> Hash.to_b64 h)
+      |> SSet.of_list
+    in
+    match pre_cast ballot_box raw_ballot with
     | Error e ->
         Printf.ksprintf failwith "error: %s in ballot %s"
           (string_of_cast_error e) raw_ballot
