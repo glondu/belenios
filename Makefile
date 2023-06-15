@@ -1,10 +1,17 @@
 BELENIOS_BUILD := $(shell ./src/platform/version/get_build.sh)
 DUNE_DEBUG_ARGS := --build-dir=_build-debug
+BELENIOS_SRC := _run/usr/share/belenios-server/belenios.tar.gz
 
 export BELENIOS_BUILD
 
 minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool
+
+MANIFEST:
+	git ls-files > $@
+
+$(BELENIOS_SRC): MANIFEST
+	tar -czf $@ --transform='s,^,belenios/,' --verbatim-files-from --files-from=$<
 
 build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
@@ -14,7 +21,7 @@ build-debug-server:
 	rm -rf _run/usr
 	dune install $(DUNE_DEBUG_ARGS) --destdir=_run --prefix=/usr 2>/dev/null
 	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
-	git archive --prefix=belenios-debug/ HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
+	rm -f $(BELENIOS_SRC) && $(MAKE) $(BELENIOS_SRC)
 
 build-release-server:
 	$(MAKE) clean
@@ -25,7 +32,7 @@ build-release-server:
 	rm -rf _run/usr
 	dune install --destdir=_run --prefix=/usr 2>/dev/null
 	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
-	git archive --prefix="belenios-$(shell git describe --tags)/" HEAD | gzip -9n > _run/usr/share/belenios-server/belenios.tar.gz
+	rm -f $(BELENIOS_SRC) && $(MAKE) $(BELENIOS_SRC)
 
 build-i18next-reference:
 	BELENIOS_DEBUG=1 dune exec $(DUNE_DEBUG_ARGS) -- \
