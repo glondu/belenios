@@ -33,6 +33,7 @@ let gdpr_uri = ref ""
 let warning_file = ref None
 let footer_file = ref None
 let admin_home = ref None
+let success_snippet = ref None
 let source_file = ref "belenios.tar.gz"
 let logo = ref None
 let favicon = ref None

@@ -852,7 +852,7 @@ struct
     let open (val election : Site_common_sig.ELECTION) in
     let uuid = election.e_uuid in
     let name = election.e_name in
-    let result, step_title =
+    let result, snippet, step_title =
       match result with
       | Ok (user, hash, revote, weight, email) ->
           let this_is_a_revote =
@@ -889,6 +889,7 @@ struct
                 (if email then s_ " A confirmation e-mail has been sent to you."
                 else "");
             ],
+            read_snippet ~lang !Web_config.success_snippet,
             s_ "Thank you for voting!" )
       | Error e ->
           ( [
@@ -896,13 +897,16 @@ struct
               txt (Web_common.explain_error l e);
               txt ".";
             ],
+            Lwt.return (txt ""),
             s_ "FAIL!" )
     in
+    let* snippet in
     let content =
       [
         progress_responsive_step5 l;
         div ~a:[ a_class [ "current_step" ] ] [ txt step_title ];
         p ([ txt (s_ "Your ballot for "); em [ markup name ] ] @ result);
+        snippet;
         p
           [
             a ~service:Web_services.election_home

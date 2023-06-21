@@ -98,6 +98,8 @@ module Make () = struct
         Web_config.footer_file := Some file
     | Element ("admin-home", [ ("file", file) ], []) ->
         Web_config.admin_home := Some file
+    | Element ("success-snippet", [ ("file", file) ], []) ->
+        Web_config.success_snippet := Some file
     | Element ("rewrite-prefix", [ ("src", src); ("dst", dst) ], []) ->
         set_rewrite_prefix ~src ~dst
     | Element

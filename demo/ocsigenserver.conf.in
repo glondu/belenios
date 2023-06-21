@@ -81,6 +81,7 @@
         <spool dir="_VARDIR_/spool"/>
         <accounts dir="_VARDIR_/accounts"/>
         <admin-home file="_VARDIR_/admin-home.html"/>
+        <success-snippet file="_VARDIR_/success-snippet.html"/>
         <warning file="_VARDIR_/warning.html"/>
         <footer file="_VARDIR_/footer.html"/>
         <!-- <deny-newelection/> -->

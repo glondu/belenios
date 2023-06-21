@@ -38,6 +38,7 @@ val gdpr_uri : string ref
 val warning_file : string option ref
 val footer_file : string option ref
 val admin_home : string option ref
+val success_snippet : string option ref
 val source_file : string ref
 val logo : (string * string) option ref
 val favicon : (string * string) option ref
