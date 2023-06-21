@@ -39,7 +39,7 @@
     "preferential_voting_without_equality_move_candidate_below_position_x": "En-dessous de la position {{count}}",
     "preferential_voting_without_equality_move_candidate_below_position_x_plural": "En-dessous de la position {{count}}",
     "majority_judgment_question_description": "Veuillez qualifier chaque candidat avant de passer à l'étape suivante.",
-    "preferential_voting_question_description": "Veuillez classer les candidats par ordre de préférence.",
+    "preferential_voting_question_description": "Veuillez classer les candidats par ordre de préférence. Les candidats non classés, s'il y en a, sont considérés les moins préférés (à égalité entre eux).",
     "ask_to_select_x_answers": "Veuillez sélectionner {{count}} réponse.",
     "ask_to_select_x_answers_plural": "Veuillez sélectionner {{count}} réponses.",
     "ask_to_select_between_x_and_y_answers": "$t(ask_to_select_between_x, {\"count\": {{min}} }) et {{count}} réponse.",
