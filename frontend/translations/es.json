@@ -34,7 +34,7 @@
     "your_smart_ballot_tracker_has_been_copied": "Su comprobante de voto inteligente ha sido copiado al portapapeles de su dispositivo. Ahora puede abrir un documento y pegarlo (dependiendo de su dispositivo, puede pegar presionando CTRL-V, CMD-V o haciendo clic derecho y sleccionando pegar).",
     "encrypted_ballot_is": "Voto encriptado:",
     "majority_judgment_question_description": "Por favor, califique a cada candidato antes de pasar al siguiente paso.",
-    "preferential_voting_question_description": "Por favor, clasifique a los candidatos por preferencia.",
+    "preferential_voting_question_description": "Por favor, clasifique a los candidatos en orden por preferencia. Los candidatos no clasificados, si los hay, se consideran menos preferidos (iguales entre sí).",
     "preferential_voting_not_ranked": "Sin clasificar",
     "preferential_voting_delete_preference_level": "Eliminar este nivel de preferencia",
     "ask_to_select_x_answers": "Por favor, seleccione {{count}} respuesta.",
