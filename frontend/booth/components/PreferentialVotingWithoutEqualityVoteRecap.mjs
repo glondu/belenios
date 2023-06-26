@@ -103,7 +103,7 @@ function TranslatablePreferentialVotingWithoutEqualityVoteRecap({ question, ques
       {
         className: "whole-vote-recap__question-title"
       },
-      questionText,
+      markup(questionText),
     ),
     e(
       "div",

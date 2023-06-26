@@ -106,7 +106,7 @@ function TranslatablePreferentialVotingVoteRecap({ question, question_index, unc
       {
         className: "whole-vote-recap__question-title"
       },
-      questionText,
+      markup(questionText),
     ),
     e(
       "div",
