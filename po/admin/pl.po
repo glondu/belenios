@@ -20,7 +20,7 @@ msgstr ""
 msgid " You may re-open the election when it is closed."
 msgstr " Uwaga: Jeśli zamkniesz głosowanie, możesz je potem otworzyć ponownie."
 
-#: src/web/clients/tool/tool_js_questions.ml:206
+#: src/web/clients/tool/tool_js_questions.ml:209
 msgid " and "
 msgstr " i "
 
@@ -45,7 +45,7 @@ msgstr " i zapisz je w bezpieczny sposób."
 msgid " and your e-mail address is: "
 msgstr " i Twój adres email to: "
 
-#: src/web/clients/tool/tool_js_questions.ml:213
+#: src/web/clients/tool/tool_js_questions.ml:216
 msgid " answers."
 msgstr " odpowiedzi (opcje wyboru)."
 
@@ -258,11 +258,11 @@ msgstr "Ustawienia konta"
 msgid "Add"
 msgstr "Dodaj"
 
-#: src/web/clients/tool/tool_js_questions.ml:479
+#: src/web/clients/tool/tool_js_questions.ml:490
 msgid "Add a question"
 msgstr "Dodaj pytanie, treść uchwały, albo decyzji do podjęcia"
 
-#: src/web/clients/tool/tool_js_questions.ml:413
+#: src/web/clients/tool/tool_js_questions.ml:424
 msgid "Add an answer"
 msgstr "Dodaj odpowiedź (opcję wyboru)"
 
@@ -284,7 +284,7 @@ msgid "All trustees must have completed one step before you can proceed to the n
 msgstr ""
 "Wszyscy mężowie (osoby) zaufania muszą zakończyć, nim przejdziesz dalej."
 
-#: src/web/clients/tool/tool_js_questions.ml:400
+#: src/web/clients/tool/tool_js_questions.ml:411
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr ""
 "Alternatywnie (uprawnieni do głosowania przypisują liczbę (rangę, punktację) "
@@ -344,7 +344,7 @@ msgstr ""
 "\"użytkownik@domena.com,użytkownik,2\", albo wreszcie \"użytkownik@domena."
 "com,,2\"."
 
-#: src/web/clients/tool/tool_js_questions.ml:161
+#: src/web/clients/tool/tool_js_questions.ml:164
 msgid "Answer: "
 msgstr "Odpowiedź (opcja wyboru): "
 
@@ -444,7 +444,7 @@ msgstr ""
 msgid "Best regards,"
 msgstr "Z pozdrowieniami"
 
-#: src/web/clients/tool/tool_js_questions.ml:223
+#: src/web/clients/tool/tool_js_questions.ml:226
 msgid "Blank vote is allowed"
 msgstr "Pusty głos jest dozwolony"
 
@@ -500,11 +500,11 @@ msgstr "Sprawdź do kogo należy klucz prywatny"
 msgid "Checklist:"
 msgstr "Lista kontrolna:"
 
-#: src/web/clients/tool/tool_js_questions.ml:370
+#: src/web/clients/tool/tool_js_questions.ml:381
 msgid "Classical (selection of answers)"
 msgstr "Klasyczny (wybór odpowiedzi, opcji)"
 
-#: src/web/clients/tool/tool_js_questions.ml:319
+#: src/web/clients/tool/tool_js_questions.ml:326
 msgid "Clear"
 msgstr "Usuń"
 
@@ -585,7 +585,7 @@ msgstr "Nie udało się pobrać mężów (osób) zaufania z wybranych głosowań
 msgid "Could not retrieve voter list from election %s"
 msgstr "Nie można pobrać listy uprawnionych do głosowania z głosowania %s"
 
-#: src/web/clients/tool/tool_js_questions.ml:301
+#: src/web/clients/tool/tool_js_questions.ml:304
 msgid "Counting method specification"
 msgstr "Specyfikacja metody ustalania wyników głosowania"
 
@@ -703,7 +703,7 @@ msgstr "Opis głosowania."
 msgid "Description of the election:"
 msgstr "Opis głosowania:"
 
-#: src/web/clients/tool/tool_js_questions.ml:454
+#: src/web/clients/tool/tool_js_questions.ml:465
 msgid "Description:"
 msgstr "Opis:"
 
@@ -1038,8 +1038,8 @@ msgstr "Niespójność w zaimportowanym głosowaniu!"
 msgid "Incorrect code"
 msgstr "Nieprawidłowy kod"
 
-#: src/web/clients/tool/tool_js_questions.ml:274
-#. src/web/clients/tool/tool_js_questions.ml:179
+#: src/web/clients/tool/tool_js_questions.ml:277
+#. src/web/clients/tool/tool_js_questions.ml:182
 msgid "Insert"
 msgstr "Wstaw"
 
@@ -1058,15 +1058,15 @@ msgstr "Instrukcje"
 msgid "Instructions:"
 msgstr "Instrukcje:"
 
-#: src/web/clients/tool/tool_js_questions.ml:107
+#: src/web/clients/tool/tool_js_questions.ml:110
 msgid "Invalid counting method specification!"
 msgstr "Nieprawidłowa specyfikacja metody liczenia!"
 
-#: src/web/clients/tool/tool_js_questions.ml:118
+#: src/web/clients/tool/tool_js_questions.ml:121
 msgid "Invalid maximum number of choices"
 msgstr "Nieprawidłowa maksymalna liczba opcji wyboru"
 
-#: src/web/clients/tool/tool_js_questions.ml:115
+#: src/web/clients/tool/tool_js_questions.ml:118
 msgid "Invalid minimum number of choices"
 msgstr "Nieprawidłowa minimalna liczba opcji wyboru"
 
@@ -1092,7 +1092,7 @@ msgstr "Języki"
 msgid "Languages:"
 msgstr "Języki:"
 
-#: src/web/clients/tool/tool_js_questions.ml:349
+#: src/web/clients/tool/tool_js_questions.ml:360
 msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
 msgstr ""
 "Pozostaw to pole puste gdy stosujesz inne systemy głosowania. Uwaga: W "
@@ -1151,7 +1151,7 @@ msgstr "Zalogowany jako"
 msgid "Mail"
 msgstr "Email"
 
-#: src/web/clients/tool/tool_js_questions.ml:126
+#: src/web/clients/tool/tool_js_questions.ml:129
 msgid "Maximum number of choices must be greater than 0!"
 msgstr "Maksymalna liczba odpowiedzi (opcji wyboru) musi być większa niż 0!"
 
@@ -1159,7 +1159,7 @@ msgstr "Maksymalna liczba odpowiedzi (opcji wyboru) musi być większa niż 0!"
 msgid "Meaning of states:"
 msgstr "Znaczenie statusów:"
 
-#: src/web/clients/tool/tool_js_questions.ml:122
+#: src/web/clients/tool/tool_js_questions.ml:125
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 "Minimalna liczba opcji do wybrania musi być mniejsza lub równa maksymalnej "
@@ -1177,7 +1177,7 @@ msgstr "Brak"
 msgid "Missing voters"
 msgstr "Uprawnieni, którzy nie oddali głosu"
 
-#: src/web/clients/tool/tool_js_questions.ml:358
+#: src/web/clients/tool/tool_js_questions.ml:369
 #. src/web/server/common/pages_admin.ml:1487
 msgid "More information."
 msgstr "Więcej informacji."
@@ -1214,7 +1214,7 @@ msgstr "Nazwa głosowania"
 msgid "Name of the election:"
 msgstr "Nazwa głosowania:"
 
-#: src/web/clients/tool/tool_js_questions.ml:443
+#: src/web/clients/tool/tool_js_questions.ml:454
 msgid "Name of the election: "
 msgstr "Nazwa głosowania: "
 
@@ -1477,13 +1477,17 @@ msgstr "Odrocz ogłoszenie wyników do"
 msgid "Powered by "
 msgstr "System oparty na "
 
-#: src/web/clients/tool/tool_js_questions.ml:316
+#: src/web/clients/tool/tool_js_questions.ml:319
 msgid "Prefill with Condorcet-Schulze"
 msgstr "Wypełnij zgodnie z systemem Condorcet-Schulzego"
 
-#: src/web/clients/tool/tool_js_questions.ml:312
+#: src/web/clients/tool/tool_js_questions.ml:315
 msgid "Prefill with Majority Judgment"
 msgstr "Wypełnij zgodnie z systemem Sądu Większościowego (Laraki/Baliński)"
+
+#: src/web/clients/tool/tool_js_questions.ml:323
+msgid "Prefill with STV"
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:460
 msgid "Preparation of election %s"
@@ -1555,7 +1559,7 @@ msgstr "Imię i nazwisko (nazwa) administratora kodów głosowania:"
 msgid "Publish the result as soon as possible"
 msgstr "Od razu ogłoś wyniki głosowania"
 
-#: src/web/clients/tool/tool_js_questions.ml:257
+#: src/web/clients/tool/tool_js_questions.ml:260
 msgid "Question: "
 msgstr "Pytanie (uchwała, decyzja): "
 
@@ -1600,8 +1604,8 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr "Pamiętaj, aby bezpiecznie przechowywać swój klucz prywatny."
 
-#: src/web/clients/tool/tool_js_questions.ml:264
-#. src/web/clients/tool/tool_js_questions.ml:168
+#: src/web/clients/tool/tool_js_questions.ml:267
+#. src/web/clients/tool/tool_js_questions.ml:171
 #. src/web/server/common/pages_admin.ml:1669
 #. src/web/server/common/pages_admin.ml:1598
 #. src/web/server/common/pages_admin.ml:1140
@@ -1619,7 +1623,7 @@ msgstr "Usuń wszystko"
 msgid "Reset threshold"
 msgstr "Zresetuj próg"
 
-#: src/web/clients/tool/tool_js_questions.ml:493
+#: src/web/clients/tool/tool_js_questions.ml:504
 #. src/web/server/common/pages_admin.ml:1434
 #. src/web/server/common/pages_admin.ml:580
 #. src/web/server/common/pages_admin.ml:549
@@ -1864,7 +1868,7 @@ msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr ""
 "Wyświetli się cyfrowy odcisk (hasz) tasowania oddanych głosów. Zapisz go."
 
-#: src/web/clients/tool/tool_js_questions.ml:128
+#: src/web/clients/tool/tool_js_questions.ml:131
 msgid "The given maximum is greater than the number of choices!"
 msgstr "Podane maksimum jest większe niż liczba odpowiedzi (opcji wyboru)!"
 
@@ -1934,7 +1938,7 @@ msgstr ""
 "Suma wag głosów (%s) nie może być przetworzona. Ta wartość musi być mniejsza "
 "niż %s."
 
-#: src/web/clients/tool/tool_js_questions.ml:198
+#: src/web/clients/tool/tool_js_questions.ml:201
 msgid "The voter has to choose between "
 msgstr "Uprawniony do głosowania musi wybrać pomiędzy "
 

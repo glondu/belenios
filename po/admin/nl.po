@@ -19,7 +19,7 @@ msgstr ""
 msgid " You may re-open the election when it is closed."
 msgstr " Je kunt de stemming heropenen wanneer deze gesloten is."
 
-#: src/web/clients/tool/tool_js_questions.ml:206
+#: src/web/clients/tool/tool_js_questions.ml:209
 msgid " and "
 msgstr " en "
 
@@ -44,7 +44,7 @@ msgstr " en bewaar ze veilig."
 msgid " and your e-mail address is: "
 msgstr " en je e-mailadres is: "
 
-#: src/web/clients/tool/tool_js_questions.ml:213
+#: src/web/clients/tool/tool_js_questions.ml:216
 msgid " answers."
 msgstr " antwoorden."
 
@@ -247,11 +247,11 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:479
+#: src/web/clients/tool/tool_js_questions.ml:490
 msgid "Add a question"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:413
+#: src/web/clients/tool/tool_js_questions.ml:424
 msgid "Add an answer"
 msgstr ""
 
@@ -272,7 +272,7 @@ msgstr ""
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:400
+#: src/web/clients/tool/tool_js_questions.ml:411
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr ""
 
@@ -312,7 +312,7 @@ msgstr ""
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:161
+#: src/web/clients/tool/tool_js_questions.ml:164
 msgid "Answer: "
 msgstr ""
 
@@ -406,7 +406,7 @@ msgstr ""
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:223
+#: src/web/clients/tool/tool_js_questions.ml:226
 msgid "Blank vote is allowed"
 msgstr ""
 
@@ -454,11 +454,11 @@ msgstr ""
 msgid "Checklist:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:370
+#: src/web/clients/tool/tool_js_questions.ml:381
 msgid "Classical (selection of answers)"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:319
+#: src/web/clients/tool/tool_js_questions.ml:326
 msgid "Clear"
 msgstr ""
 
@@ -539,7 +539,7 @@ msgstr ""
 msgid "Could not retrieve voter list from election %s"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:301
+#: src/web/clients/tool/tool_js_questions.ml:304
 msgid "Counting method specification"
 msgstr ""
 
@@ -653,7 +653,7 @@ msgstr ""
 msgid "Description of the election:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:454
+#: src/web/clients/tool/tool_js_questions.ml:465
 msgid "Description:"
 msgstr ""
 
@@ -966,8 +966,8 @@ msgstr ""
 msgid "Incorrect code"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:274
-#. src/web/clients/tool/tool_js_questions.ml:179
+#: src/web/clients/tool/tool_js_questions.ml:277
+#. src/web/clients/tool/tool_js_questions.ml:182
 msgid "Insert"
 msgstr ""
 
@@ -986,15 +986,15 @@ msgstr ""
 msgid "Instructions:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:107
+#: src/web/clients/tool/tool_js_questions.ml:110
 msgid "Invalid counting method specification!"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:118
+#: src/web/clients/tool/tool_js_questions.ml:121
 msgid "Invalid maximum number of choices"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:115
+#: src/web/clients/tool/tool_js_questions.ml:118
 msgid "Invalid minimum number of choices"
 msgstr ""
 
@@ -1018,7 +1018,7 @@ msgstr ""
 msgid "Languages:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:349
+#: src/web/clients/tool/tool_js_questions.ml:360
 msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
 msgstr ""
 
@@ -1073,7 +1073,7 @@ msgstr ""
 msgid "Mail"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:126
+#: src/web/clients/tool/tool_js_questions.ml:129
 msgid "Maximum number of choices must be greater than 0!"
 msgstr ""
 
@@ -1081,7 +1081,7 @@ msgstr ""
 msgid "Meaning of states:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:122
+#: src/web/clients/tool/tool_js_questions.ml:125
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 
@@ -1097,7 +1097,7 @@ msgstr ""
 msgid "Missing voters"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:358
+#: src/web/clients/tool/tool_js_questions.ml:369
 #. src/web/server/common/pages_admin.ml:1487
 msgid "More information."
 msgstr ""
@@ -1134,7 +1134,7 @@ msgstr ""
 msgid "Name of the election:"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:443
+#: src/web/clients/tool/tool_js_questions.ml:454
 msgid "Name of the election: "
 msgstr ""
 
@@ -1367,12 +1367,16 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:316
+#: src/web/clients/tool/tool_js_questions.ml:319
 msgid "Prefill with Condorcet-Schulze"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:312
+#: src/web/clients/tool/tool_js_questions.ml:315
 msgid "Prefill with Majority Judgment"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_questions.ml:323
+msgid "Prefill with STV"
 msgstr ""
 
 #: src/web/server/common/pages_admin.ml:460
@@ -1445,7 +1449,7 @@ msgstr ""
 msgid "Publish the result as soon as possible"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:257
+#: src/web/clients/tool/tool_js_questions.ml:260
 msgid "Question: "
 msgstr ""
 
@@ -1485,8 +1489,8 @@ msgstr ""
 msgid "Remember to store you private key securely."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:264
-#. src/web/clients/tool/tool_js_questions.ml:168
+#: src/web/clients/tool/tool_js_questions.ml:267
+#. src/web/clients/tool/tool_js_questions.ml:171
 #. src/web/server/common/pages_admin.ml:1669
 #. src/web/server/common/pages_admin.ml:1598
 #. src/web/server/common/pages_admin.ml:1140
@@ -1504,7 +1508,7 @@ msgstr ""
 msgid "Reset threshold"
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:493
+#: src/web/clients/tool/tool_js_questions.ml:504
 #. src/web/server/common/pages_admin.ml:1434
 #. src/web/server/common/pages_admin.ml:580
 #. src/web/server/common/pages_admin.ml:549
@@ -1741,7 +1745,7 @@ msgstr ""
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:128
+#: src/web/clients/tool/tool_js_questions.ml:131
 msgid "The given maximum is greater than the number of choices!"
 msgstr ""
 
@@ -1803,7 +1807,7 @@ msgstr ""
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 
-#: src/web/clients/tool/tool_js_questions.ml:198
+#: src/web/clients/tool/tool_js_questions.ml:201
 msgid "The voter has to choose between "
 msgstr ""
 

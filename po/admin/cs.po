@@ -19,7 +19,7 @@ msgstr ""
 msgid " You may re-open the election when it is closed."
 msgstr " Pokud volbu ukončíš, můžeš ji znovu zahájit."
 
-#: src/web/clients/tool/tool_js_questions.ml:206
+#: src/web/clients/tool/tool_js_questions.ml:209
 msgid " and "
 msgstr " a "
 
@@ -44,7 +44,7 @@ msgstr " a bezpečně je ulož."
 msgid " and your e-mail address is: "
 msgstr " a tvoje e-mailová adresa je: "
 
-#: src/web/clients/tool/tool_js_questions.ml:213
+#: src/web/clients/tool/tool_js_questions.ml:216
 msgid " answers."
 msgstr " odpověďmi."
 
@@ -253,11 +253,11 @@ msgstr "Nastavení účtu"
 msgid "Add"
 msgstr "Přidat"
 
-#: src/web/clients/tool/tool_js_questions.ml:479
+#: src/web/clients/tool/tool_js_questions.ml:490
 msgid "Add a question"
 msgstr "Přidat otázku"
 
-#: src/web/clients/tool/tool_js_questions.ml:413
+#: src/web/clients/tool/tool_js_questions.ml:424
 msgid "Add an answer"
 msgstr "Přidat odpověď"
 
@@ -280,7 +280,7 @@ msgstr ""
 "Každý garant musí dokončit příslušný krok, než můžeš přikročit k dalšímu "
 "kroku."
 
-#: src/web/clients/tool/tool_js_questions.ml:400
+#: src/web/clients/tool/tool_js_questions.ml:411
 msgid "Alternative (voters assign a number to each candidate)"
 msgstr "Alternativní (voliči každému kandidátovi přiřadí číslo)"
 
@@ -327,7 +327,7 @@ msgstr ""
 "hlasů, kterými volič disponuje (v případě, že všichni voliči nedisponují "
 "stejným počtem hlasů)."
 
-#: src/web/clients/tool/tool_js_questions.ml:161
+#: src/web/clients/tool/tool_js_questions.ml:164
 msgid "Answer: "
 msgstr "Odpověď: "
 
@@ -421,7 +421,7 @@ msgstr "Odkaz na zamíchání zašifrovaných volebních lístků naleznete ní�
 msgid "Best regards,"
 msgstr "S pozdravem,"
 
-#: src/web/clients/tool/tool_js_questions.ml:223
+#: src/web/clients/tool/tool_js_questions.ml:226
 msgid "Blank vote is allowed"
 msgstr "Prázdný volební lístek je povolen"
 
@@ -474,11 +474,11 @@ msgstr "Ověřit vlastnictví soukromého klíče"
 msgid "Checklist:"
 msgstr "Seznam úkolů:"
 
-#: src/web/clients/tool/tool_js_questions.ml:370
+#: src/web/clients/tool/tool_js_questions.ml:381
 msgid "Classical (selection of answers)"
 msgstr "Klasika (výběr odpovědí)"
 
-#: src/web/clients/tool/tool_js_questions.ml:319
+#: src/web/clients/tool/tool_js_questions.ml:326
 msgid "Clear"
 msgstr "Vyčistit"
 
@@ -559,7 +559,7 @@ msgstr "Nebylo možné získat garanta pro vybranou volbu!"
 msgid "Could not retrieve voter list from election %s"
 msgstr "Nebylo možné získat seznam voličů pro volbu %s"
 
-#: src/web/clients/tool/tool_js_questions.ml:301
+#: src/web/clients/tool/tool_js_questions.ml:304
 msgid "Counting method specification"
 msgstr "Určení metody vyhodnocení"
 
@@ -676,7 +676,7 @@ msgstr "Popis volby."
 msgid "Description of the election:"
 msgstr "Popis volby:"
 
-#: src/web/clients/tool/tool_js_questions.ml:454
+#: src/web/clients/tool/tool_js_questions.ml:465
 msgid "Description:"
 msgstr "Popis:"
 
@@ -1003,8 +1003,8 @@ msgstr "Nekonzistence v převzaté volbě!"
 msgid "Incorrect code"
 msgstr "Nesprávný kód"
 
-#: src/web/clients/tool/tool_js_questions.ml:274
-#. src/web/clients/tool/tool_js_questions.ml:179
+#: src/web/clients/tool/tool_js_questions.ml:277
+#. src/web/clients/tool/tool_js_questions.ml:182
 msgid "Insert"
 msgstr "Vložit"
 
@@ -1023,15 +1023,15 @@ msgstr "Pokyny"
 msgid "Instructions:"
 msgstr "Pokyny:"
 
-#: src/web/clients/tool/tool_js_questions.ml:107
+#: src/web/clients/tool/tool_js_questions.ml:110
 msgid "Invalid counting method specification!"
 msgstr "Neplatné určení metody vyhodnocení!"
 
-#: src/web/clients/tool/tool_js_questions.ml:118
+#: src/web/clients/tool/tool_js_questions.ml:121
 msgid "Invalid maximum number of choices"
 msgstr "Neplatný maximální počet možností"
 
-#: src/web/clients/tool/tool_js_questions.ml:115
+#: src/web/clients/tool/tool_js_questions.ml:118
 msgid "Invalid minimum number of choices"
 msgstr "Neplatný minimální počet možností"
 
@@ -1056,7 +1056,7 @@ msgstr "Jazyky"
 msgid "Languages:"
 msgstr "Jazyky:"
 
-#: src/web/clients/tool/tool_js_questions.ml:349
+#: src/web/clients/tool/tool_js_questions.ml:360
 msgid "Leave blank for other counting methods. Note that for other counting methods, the voting interface is quite rough: the voter has to enter an integer in front of each answer."
 msgstr ""
 "Nech prázdné pro ostatní metody vyhodnocení. Pro tyto ostatní metody je "
@@ -1114,7 +1114,7 @@ msgstr "Přihlášen(a) jako"
 msgid "Mail"
 msgstr "E-mail"
 
-#: src/web/clients/tool/tool_js_questions.ml:126
+#: src/web/clients/tool/tool_js_questions.ml:129
 msgid "Maximum number of choices must be greater than 0!"
 msgstr "Maximální počet možností musí být vyšší než 0!"
 
@@ -1122,7 +1122,7 @@ msgstr "Maximální počet možností musí být vyšší než 0!"
 msgid "Meaning of states:"
 msgstr "Význam stavů:"
 
-#: src/web/clients/tool/tool_js_questions.ml:122
+#: src/web/clients/tool/tool_js_questions.ml:125
 msgid "Minimum number of choices must be less than or equal to maximum number of choices!"
 msgstr ""
 "Minimální počet možností musí být menší nebo rovný maximálnímu počtu "
@@ -1140,7 +1140,7 @@ msgstr "Chybějící"
 msgid "Missing voters"
 msgstr "Voliči, kteří ještě nehlasovali"
 
-#: src/web/clients/tool/tool_js_questions.ml:358
+#: src/web/clients/tool/tool_js_questions.ml:369
 #. src/web/server/common/pages_admin.ml:1487
 msgid "More information."
 msgstr "Další informace."
@@ -1177,7 +1177,7 @@ msgstr "Jméno volby"
 msgid "Name of the election:"
 msgstr "Jméno volby:"
 
-#: src/web/clients/tool/tool_js_questions.ml:443
+#: src/web/clients/tool/tool_js_questions.ml:454
 msgid "Name of the election: "
 msgstr "Jméno volby: "
 
@@ -1434,13 +1434,17 @@ msgstr "Odložit zveřejnění až do"
 msgid "Powered by "
 msgstr "Provozuje "
 
-#: src/web/clients/tool/tool_js_questions.ml:316
+#: src/web/clients/tool/tool_js_questions.ml:319
 msgid "Prefill with Condorcet-Schulze"
 msgstr "Předvyplnit pomocí Schulzovy Condorcetovy metody"
 
-#: src/web/clients/tool/tool_js_questions.ml:312
+#: src/web/clients/tool/tool_js_questions.ml:315
 msgid "Prefill with Majority Judgment"
 msgstr "Předvyplň pro většinový úsudek"
+
+#: src/web/clients/tool/tool_js_questions.ml:323
+msgid "Prefill with STV"
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:460
 msgid "Preparation of election %s"
@@ -1512,7 +1516,7 @@ msgstr "Veřejné jméno vydavatele přístupových kódů:"
 msgid "Publish the result as soon as possible"
 msgstr "Zveřejni výsledky, jakmile to bude možné"
 
-#: src/web/clients/tool/tool_js_questions.ml:257
+#: src/web/clients/tool/tool_js_questions.ml:260
 msgid "Question: "
 msgstr "Otázka: "
 
@@ -1556,8 +1560,8 @@ msgid "Remember to store you private key securely."
 msgstr ""
 "Bezpečně si ulož svůj soukromý klíč, bez něj nebude možné volbu vyhodnotit."
 
-#: src/web/clients/tool/tool_js_questions.ml:264
-#. src/web/clients/tool/tool_js_questions.ml:168
+#: src/web/clients/tool/tool_js_questions.ml:267
+#. src/web/clients/tool/tool_js_questions.ml:171
 #. src/web/server/common/pages_admin.ml:1669
 #. src/web/server/common/pages_admin.ml:1598
 #. src/web/server/common/pages_admin.ml:1140
@@ -1575,7 +1579,7 @@ msgstr "Odstranit vše"
 msgid "Reset threshold"
 msgstr "Zresetovat minimální počet aktivních garantů"
 
-#: src/web/clients/tool/tool_js_questions.ml:493
+#: src/web/clients/tool/tool_js_questions.ml:504
 #. src/web/server/common/pages_admin.ml:1434
 #. src/web/server/common/pages_admin.ml:580
 #. src/web/server/common/pages_admin.ml:549
@@ -1818,7 +1822,7 @@ msgstr "Veřejný otisk tvého zamíchání je:"
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr "Zobrazí se jedinečný otisk tvého zamíchání. Ulož si jej."
 
-#: src/web/clients/tool/tool_js_questions.ml:128
+#: src/web/clients/tool/tool_js_questions.ml:131
 msgid "The given maximum is greater than the number of choices!"
 msgstr "Zadané maximum je vyšší než počet voleb!"
 
@@ -1888,7 +1892,7 @@ msgstr ""
 "Součet vah (%s) nelze zpracovat. Jeho expandovaná hodnota musí být menší než "
 "%s."
 
-#: src/web/clients/tool/tool_js_questions.ml:198
+#: src/web/clients/tool/tool_js_questions.ml:201
 msgid "The voter has to choose between "
 msgstr "Volič si musí vybrat mezi "
 

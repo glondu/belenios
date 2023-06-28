@@ -31,15 +31,15 @@ msgstr " οποιαδήποτε στιγμή κατά την διάρκεια τ
 msgid " as user "
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:959
+#: src/web/server/common/pages_voter.ml:963
 msgid " ballot(s) have been accepted so far."
 msgstr " ψήφος(ι) έχουν γίνει αποδεκτές μέχρι τώρα."
 
-#: src/web/server/common/pages_voter.ml:971
+#: src/web/server/common/pages_voter.ml:975
 msgid " ballot(s) have been accepted, and "
 msgstr " ψήφος(ι) έχουν γίνει αποδεκτές, και "
 
-#: src/web/server/common/pages_voter.ml:964
+#: src/web/server/common/pages_voter.ml:968
 msgid " ballot(s) have been accepted."
 msgstr " ψήφος(ι) έχουν γίνει αποδεκτές."
 
@@ -55,7 +55,7 @@ msgstr " για περισσότερες πληροφορίες."
 msgid " has been accepted."
 msgstr " έχει γίνει αποδεκτό."
 
-#: src/web/server/common/pages_voter.ml:973
+#: src/web/server/common/pages_voter.ml:977
 msgid " have been tallied."
 msgstr " έχουν καταμετρηθεί."
 
@@ -67,7 +67,7 @@ msgstr " ώρα(-ες)"
 msgid " in the following box: "
 msgstr " στο ακόλουθο πεδίο: "
 
-#: src/web/server/common/pages_voter.ml:895
+#: src/web/server/common/pages_voter.ml:896
 msgid " is rejected, because "
 msgstr " απορρίφθηκε, επειδή "
 
@@ -92,7 +92,7 @@ msgstr " έτος(-η)"
 msgid "%d blank ballot(s)"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1116
+#: src/web/server/common/pages_voter.ml:1120
 #. src/web/server/common/pages_voter.ml:109
 msgid "%d invalid ballot(s)"
 msgstr "%d άκυρες ψήφοι"
@@ -117,7 +117,7 @@ msgstr ""
 msgid ", or "
 msgstr ", ή "
 
-#: src/web/server/common/pages_voter.ml:1010
+#: src/web/server/common/pages_voter.ml:1014
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
 msgstr "1 είναι ο υψηλότερος βαθμός, 2 ο επόμενος υψηλότερος, κλπ."
 
@@ -127,7 +127,7 @@ msgstr ""
 "Ένας νικητής τύπου Condorcet είναι ένας υποψήφιος που προτιμήθηκε από όλους "
 "τους άλλους υποψηφίους."
 
-#: src/web/server/common/pages_voter.ml:1124
+#: src/web/server/common/pages_voter.ml:1128
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Μία ψήφος είναι άκυρη εαν δύο υποψήφιοι έχουν την ίδια σειρά προτίμησης ή "
@@ -141,7 +141,7 @@ msgstr ""
 msgid "Accept"
 msgstr "Αποδοχή"
 
-#: src/web/server/common/pages_voter.ml:926
+#: src/web/server/common/pages_voter.ml:930
 msgid "Accepted ballots"
 msgstr "Αποδεκτές ψήφοι"
 
@@ -172,7 +172,7 @@ msgstr ""
 msgid "Answer to questions"
 msgstr "Απαντήστε στις ερωτήσεις"
 
-#: src/web/server/common/pages_voter.ml:1013
+#: src/web/server/common/pages_voter.ml:1017
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
 msgstr "Για ευκολία, το 0 θεωρείται πάντα ο χαμηλότερος βαθμός."
 
@@ -254,7 +254,7 @@ msgstr "Υπολογισμός αποτυπώματος"
 msgid "Computed fingerprint:"
 msgstr "Υπολογισμένο αποτύπωμα:"
 
-#: src/web/server/common/pages_voter.ml:983
+#: src/web/server/common/pages_voter.ml:987
 msgid "Condorcet-Schulze method"
 msgstr "Μέθοδος Condorcet-Schulze"
 
@@ -263,8 +263,8 @@ msgstr "Μέθοδος Condorcet-Schulze"
 msgid "Confirm"
 msgstr "Επιβεβαίωση"
 
-#: src/web/server/common/pages_voter.ml:1061
-#. src/web/server/common/pages_voter.ml:999
+#: src/web/server/common/pages_voter.ml:1065
+#. src/web/server/common/pages_voter.ml:1003
 msgid "Continue"
 msgstr "Συνέχεια"
 
@@ -316,7 +316,7 @@ msgstr "Σφάλμα"
 msgid "Expected fingerprint:"
 msgstr "Αναμενόμενο αποτύπωμα:"
 
-#: src/web/server/common/pages_voter.ml:899
+#: src/web/server/common/pages_voter.ml:901
 msgid "FAIL!"
 msgstr "ΑΠΟΤΥΧΙΑ!"
 
@@ -328,8 +328,8 @@ msgstr ""
 msgid "Get the source code"
 msgstr "Κατεβάστε τον πηγαίο κώδικα"
 
-#: src/web/server/common/pages_voter.ml:946
-#. src/web/server/common/pages_voter.ml:909
+#: src/web/server/common/pages_voter.ml:950
+#. src/web/server/common/pages_voter.ml:913
 #. src/web/server/common/pages_voter.ml:842
 msgid "Go back to election"
 msgstr "Επιστρέψτε στην ψηφοφορία"
@@ -342,19 +342,19 @@ msgstr "Εαν θέλετε να ψηφίσετε, πρέπει να "
 msgid "Ill-formed ballot"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1150
+#: src/web/server/common/pages_voter.ml:1154
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "Στην εκτέλεσή μας, όταν αρκετοί υποψήφιοι έχουν τον ίδιο αριθμό ψήφων όταν "
 "είναι έτοιμοι να εκλεγούν ή να αποκλειστούν, ακολουθούμε την σειρά με την "
 "οποία οι υποψήφιοι ανακοινώθηκαν στην ψηφοφορία."
 
-#: src/web/server/common/pages_voter.ml:1006
+#: src/web/server/common/pages_voter.ml:1010
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
 "Στην μέθοδο Κρίσης Πλειοψηφίας, μια ψήφος δίνει έναν βαθμό σε κάθε υποψήφιο."
 
-#: src/web/server/common/pages_voter.ml:1068
+#: src/web/server/common/pages_voter.ml:1072
 msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 "Στην μέθοδο STV, οι ψηφοφόροι βαθμολογούν υποψηφίους με σειρά προτίμησης."
@@ -399,7 +399,7 @@ msgstr "Είσοδος"
 msgid "Log in with %s"
 msgstr "Είσοδος με %s"
 
-#: src/web/server/common/pages_voter.ml:1161
+#: src/web/server/common/pages_voter.ml:1165
 msgid "Look at the raw events for more details."
 msgstr "Δείτε στα μη επεξεργασμένα γεγονότα για περισσότερες πληροφορίες."
 
@@ -407,18 +407,18 @@ msgstr "Δείτε στα μη επεξεργασμένα γεγονότα γι�
 msgid "Majority Judgment"
 msgstr "Κρίση πλειοψηφίας"
 
-#: src/web/server/common/pages_voter.ml:1045
-#. src/web/server/common/pages_voter.ml:990
+#: src/web/server/common/pages_voter.ml:1049
+#. src/web/server/common/pages_voter.ml:994
 msgid "Majority Judgment method"
 msgstr "Μέθοδος Κρίσης πλειοψηφίας"
 
-#: src/web/server/common/pages_voter.ml:1145
+#: src/web/server/common/pages_voter.ml:1149
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Υπάρχουν διάφορες παραλλαγές της STV , ανάλογα για παράδειγμα με το πώς "
 "αντιμετωπίζονται οι ισοπαλίες."
 
-#: src/web/server/common/pages_voter.ml:1082
+#: src/web/server/common/pages_voter.ml:1086
 msgid "Many variants of STV exist, we documented our choices in "
 msgstr ""
 "Υπάρχουν διάφορες παραλλαγές της SRV, τεκμηριώνουμε τις επιλογές μας στην "
@@ -427,8 +427,8 @@ msgstr ""
 msgid "Maybe cookies are blocked."
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1078
-#. src/web/server/common/pages_voter.ml:1020
+#: src/web/server/common/pages_voter.ml:1082
+#. src/web/server/common/pages_voter.ml:1024
 msgid "More information can be found "
 msgstr "Περισσότερες πληροφορίες μπορούν να βρεθούν "
 
@@ -444,11 +444,11 @@ msgstr ""
 msgid "Number of accepted ballots: "
 msgstr "Αριθμός αποδεκτών ψηφοδελτίων: "
 
-#: src/web/server/common/pages_voter.ml:996
+#: src/web/server/common/pages_voter.ml:1000
 msgid "Number of grades:"
 msgstr "Αριθμός βαθμών:"
 
-#: src/web/server/common/pages_voter.ml:1058
+#: src/web/server/common/pages_voter.ml:1062
 msgid "Number of seats:"
 msgstr "Αριθμός θέσεων:"
 
@@ -494,13 +494,13 @@ msgstr ""
 "Παρακαλούμε επικολλήστε τα δεδομένα για τα οποία θέλετε να υπολογίσετε το "
 "αποτύπωμα στην κάτωθι περιοχή:"
 
-#: src/web/server/common/pages_voter.ml:1034
+#: src/web/server/common/pages_voter.ml:1038
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
 "Παρακαλούμε παραθέστε τον αριθμό των βαθμών για να δείτε το αποτέλεσμα της "
 "ψηφοφορίας βάσει της μεθόδου Κρίσης Πλειοψηφίας."
 
-#: src/web/server/common/pages_voter.ml:1093
+#: src/web/server/common/pages_voter.ml:1097
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
 msgstr ""
 "Παρακαλούμε παραθέστε τον αριθμό των θέσεων για να δείτε το αποτέλεσμα της "
@@ -518,7 +518,7 @@ msgstr "Πολιτική Ιδιωτικότητας"
 msgid "Proceed"
 msgstr "Προχωρήστε"
 
-#: src/web/server/common/pages_voter.ml:1132
+#: src/web/server/common/pages_voter.ml:1136
 msgid "Raw events"
 msgstr "Μη επεξεργασμένα συμβάντα"
 
@@ -549,8 +549,8 @@ msgstr ""
 msgid "Single Transferable Vote"
 msgstr "Μοναδική Μεταβιβάσιμη Ψήφος (STV)"
 
-#: src/web/server/common/pages_voter.ml:1104
-#. src/web/server/common/pages_voter.ml:1052
+#: src/web/server/common/pages_voter.ml:1108
+#. src/web/server/common/pages_voter.ml:1056
 msgid "Single Transferable Vote method"
 msgstr "μέθοδος Μοναδικής Μεταβιβάσιμης Ψήφου (STV)"
 
@@ -583,13 +583,13 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:1157
+#: src/web/server/common/pages_voter.ml:1161
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Οι υποψήφιοι αυτοί σημειώνονται ως \"TieWin\" όταν εκλεγούν και \"TieLose\" "
 "εαν έχουν χάσει."
 
-#: src/web/server/common/pages_voter.ml:892
+#: src/web/server/common/pages_voter.ml:893
 msgid "Thank you for voting!"
 msgstr "Σας ευχαριστούμε για την συμμετοχή σας στην ψηφοφορία!"
 
@@ -597,7 +597,7 @@ msgstr "Σας ευχαριστούμε για την συμμετοχή σας 
 msgid "The Schulze winners are:"
 msgstr "Οι νικητές βάσει μεθόδου Schulze είναι:"
 
-#: src/web/server/common/pages_voter.ml:1167
+#: src/web/server/common/pages_voter.ml:1171
 msgid "The Single Transferable Vote winners are:"
 msgstr "Οι νικητές βάσει μεθόδου Μοναδικής Μεταβιβάσιμης Ψήφου είναι:"
 
@@ -622,7 +622,7 @@ msgstr "Τα αποτυπώματα διαφέρουν!"
 msgid "The fingerprints match!"
 msgstr "Τα αποτυπώματα ταιριάζουν!"
 
-#: src/web/server/common/pages_voter.ml:1029
+#: src/web/server/common/pages_voter.ml:1033
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
 "Ο αριθμός διαφορετικών βαθμών (Άριστος, πολύ καλός κλπ.) συνήθως κυμαίνεται "
@@ -658,13 +658,13 @@ msgstr ""
 msgid "The voter list has %d voter(s) and fingerprint %s."
 msgstr "Η λίστα ψηφοφόρων έχει %d ψηφοφόρους και αποτύπωμα %s."
 
-#: src/web/server/common/pages_voter.ml:1016
+#: src/web/server/common/pages_voter.ml:1020
 msgid "The winner is the candidate with the highest median (or the 2nd highest median if there is a tie, etc.)."
 msgstr ""
 "Ο νικητής είναι ο υποψήφιος με τον υψηλότερο διάμεσο (ή τον 2ο υψηλότερο εάν "
 "υπάρχει ισοψηφία κοκ.)."
 
-#: src/web/server/common/pages_voter.ml:1142
+#: src/web/server/common/pages_voter.ml:1146
 msgid "There has been at least one tie."
 msgstr "Υπάρχει τουλάχιστον μια ισοψηφία."
 
@@ -763,7 +763,7 @@ msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 "Εδώ χρησιμοποιούμε την μέθοδο Schulze και παραπέμπουμε τους ψηφοφόρους στο "
 
-#: src/web/server/common/pages_voter.ml:1073
+#: src/web/server/common/pages_voter.ml:1077
 msgid "When a candidate obtains enough votes to be elected, the votes are transferred to the next candidate in the voter ballot, with a coefficient proportional to the \"surplus\" of votes."
 msgstr ""
 "Όταν ένας υποψήφιος συγκεντρώνει αρκετές ψήφους για να εκλεγεί, οι ψήφοι "
@@ -820,7 +820,7 @@ msgstr ""
 msgid "You will find below your credential."
 msgstr "Παρακάτω θα βρείτε το διαπιστευτήριό σας."
 
-#: src/web/server/common/pages_voter.ml:905
+#: src/web/server/common/pages_voter.ml:908
 msgid "Your ballot for "
 msgstr "To ψηφοδέλτιό σας για το "
 
@@ -885,12 +885,12 @@ msgstr "δημιουργήσετε έναν λογαριασμό"
 msgid "has been recorded."
 msgstr "έχει καταγραφεί."
 
-#: src/web/server/common/pages_voter.ml:1080
-#. src/web/server/common/pages_voter.ml:1021
+#: src/web/server/common/pages_voter.ml:1084
+#. src/web/server/common/pages_voter.ml:1025
 msgid "here"
 msgstr "εδώ"
 
-#: src/web/server/common/pages_voter.ml:1085
+#: src/web/server/common/pages_voter.ml:1089
 msgid "our code of STV"
 msgstr "ο κώδικας της μεθόδου STV"
 
