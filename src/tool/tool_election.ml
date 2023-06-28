@@ -50,7 +50,7 @@ module type S = sig
   val tdecrypt : int -> string -> string -> (string * string) m
   val compute_result : unit -> string m
   val verify_ballot : string -> unit m
-  val verify : unit -> unit m
+  val verify : ?skip_ballot_check:bool -> unit -> unit m
   val shuffle_ciphertexts : int -> (string * string) m
   val checksums : unit -> string
   val compute_voters : (string * string) list -> string list
@@ -223,7 +223,7 @@ module Make (P : PARAMS) () = struct
     | `ExpiredBallot -> "expired ballot"
     | `WrongUsername -> "wrong username"
 
-  let pre_cast ballot_box rawballot =
+  let pre_cast ?(skip_ballot_check = false) ballot_box rawballot =
     let hash = Hash.hash_string rawballot in
     let ballot_id = Hash.to_b64 hash in
     let@ creds cont =
@@ -240,33 +240,36 @@ module Make (P : PARAMS) () = struct
     in
     match SMap.find_opt rc.rc_credential creds with
     | None -> Error `InvalidCredential
-    | Some w when rc.rc_check () -> Ok (hash, (rc.rc_credential, w, rawballot))
+    | Some w when skip_ballot_check || rc.rc_check () ->
+        Ok (hash, (rc.rc_credential, w, rawballot))
     | Some _ -> Error `InvalidBallot
 
-  let final_ballots =
-    lazy
-      (let ballot_box =
-         let rec cast_all accu seen = function
-           | [] -> accu
-           | b :: bs -> (
-               match pre_cast seen b with
-               | Error e ->
-                   Printf.ksprintf failwith "error while casting ballot %s: %s"
-                     (sha256_b64 b) (string_of_cast_error e)
-               | Ok (hash, x) ->
-                   let ballot_id = Hash.to_b64 hash in
-                   cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
-         in
-         match Lazy.force rawballots with
-         | None -> []
-         | Some bs -> cast_all [] SSet.empty bs
-       in
-       List.fold_left
-         (fun ((seen, bs) as accu) (h, (credential, w, b)) ->
-           if SSet.mem credential seen then accu
-           else (SSet.add credential seen, (h, credential, w, b) :: bs))
-         (SSet.empty, []) ballot_box
-       |> snd)
+  let collect_ballots ?(skip_ballot_check = false) () =
+    let ballot_box =
+      let rec cast_all accu seen = function
+        | [] -> accu
+        | b :: bs -> (
+            match pre_cast seen b ~skip_ballot_check with
+            | Error e ->
+                Printf.ksprintf failwith "error while casting ballot %s: %s"
+                  (sha256_b64 b) (string_of_cast_error e)
+            | Ok (hash, x) ->
+                let ballot_id = Hash.to_b64 hash in
+                cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
+      in
+      match Lazy.force rawballots with
+      | None -> []
+      | Some bs -> cast_all [] SSet.empty bs
+    in
+    List.fold_left
+      (fun ((seen, bs) as accu) (h, (credential, w, b)) ->
+        if SSet.mem credential seen then accu
+        else (SSet.add credential seen, (h, credential, w, b) :: bs))
+      (SSet.empty, []) ballot_box
+    |> snd
+
+  let final_ballots = lazy (collect_ballots ())
+  let unverified_ballots = lazy (collect_ballots ~skip_ballot_check:true ())
 
   let raw_encrypted_tally =
     lazy
@@ -419,13 +422,18 @@ module Make (P : PARAMS) () = struct
     | None -> failwith "missing trustees"
 
   let verify_ballot raw_ballot =
-    match pre_cast SSet.empty raw_ballot with
+    let ballot_box =
+      collect_ballots ~skip_ballot_check:true ()
+      |> List.map (fun (h, _, _, _) -> Hash.to_b64 h)
+      |> SSet.of_list
+    in
+    match pre_cast ballot_box raw_ballot with
     | Error e ->
         Printf.ksprintf failwith "error: %s in ballot %s"
           (string_of_cast_error e) raw_ballot
     | Ok _ -> print_msg "I: ballot is valid"
 
-  let verify () =
+  let verify ?(skip_ballot_check = false) () =
     let () = fsck () in
     (match trustees with
     | Some trustees ->
@@ -434,10 +442,18 @@ module Make (P : PARAMS) () = struct
     | None -> failwith "missing trustees");
     let () =
       match Lazy.force rawballots with
+      | Some _ -> (
+          match skip_ballot_check with
+          | false -> ignore (Lazy.force final_ballots)
+          | true -> ignore (Lazy.force unverified_ballots))
+      | None -> print_msg "I: no ballots to check"
+    in
+    let () =
+      match Lazy.force shuffles with
       | Some _ ->
           let b = Lazy.force shuffles_check in
           assert b
-      | None -> print_msg "I: no ballots to check"
+      | None -> print_msg "I: no shuffles to check"
     in
     let () =
       match (Lazy.force result, trustees, Lazy.force pds) with

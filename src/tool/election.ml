@@ -83,7 +83,7 @@ let main url dir action =
         | _ -> failwith "invalid ballot file"
       in
       X.verify_ballot ballot
-  | `Verify -> X.verify ()
+  | `Verify skip_ballot_check -> X.verify ?skip_ballot_check ()
   | `ComputeResult -> print_endline (X.compute_result ())
   | `Shuffle trustee_id -> print_endline2 (X.shuffle_ciphertexts trustee_id)
   | `Checksums -> X.checksums () |> print_endline
@@ -128,6 +128,13 @@ let trustee_id_t =
   let the_info = Arg.info [ "trustee-id" ] ~docv:"TRUSTEE-ID" ~doc in
   Arg.(value & opt (some int) None the_info)
 
+let skip_ballot_check_t =
+  let doc = "Skip checking the content of each ballot." in
+  let the_info =
+    Arg.info [ "skip-ballot-check" ] ~docv:"SKIP-BALLOT-CHECK" ~doc
+  in
+  Arg.(value & opt (some bool) None the_info)
+
 let vote_cmd =
   let doc = "create a ballot" in
   let man =
@@ -171,9 +178,10 @@ let verify_cmd =
     [ `S "DESCRIPTION"; `P "This command performs all possible verifications." ]
     @ common_man
   in
+  let main = Term.const (fun u d s -> main u d (`Verify s)) in
   Cmd.v
     (Cmd.info "verify" ~doc ~man)
-    Term.(ret (const main $ url_t $ optdir_t $ const `Verify))
+    Term.(ret (main $ url_t $ optdir_t $ skip_ballot_check_t))
 
 let decrypt_man =
   [

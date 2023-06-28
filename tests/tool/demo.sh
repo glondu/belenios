@@ -22,7 +22,7 @@ UUID=`belenios-tool setup generate-token`
 echo "UUID of the election is $UUID"
 
 DIR=$BELENIOS/tests/tool/data/$UUID
-mkdir $DIR
+mkdir -p $DIR
 cd $DIR
 
 # Common options
@@ -86,6 +86,10 @@ paste private_creds.txt votes.txt | while read id cred vote; do
     echo "Voter $id voted with $HASH" >&2
     echo >&2
 done
+
+header "Perform verification (skip-ballot-check)"
+
+belenios-tool election verify --skip-ballot-check true
 
 header "Perform verification"
 
