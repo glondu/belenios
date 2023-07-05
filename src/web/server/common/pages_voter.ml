@@ -900,7 +900,7 @@ struct
             Lwt.return (txt ""),
             s_ "FAIL!" )
     in
-    let* snippet in
+    let* snippet = snippet in
     let content =
       [
         progress_responsive_step5 l;
