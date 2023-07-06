@@ -25,6 +25,9 @@ install: site.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
 	mkdir -p $(PUBLIC_TRANSLATIONS_FOLDER)
 	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
 
+format:
+	npx prettier ./booth --write
+
 booth/dist/bundle.production.js: package-lock.json booth/*.mjs booth/components/*.mjs
 	( cd booth && npx webpack --config webpack.config.js --mode production ) && mv booth/dist/bundle.js $@
 
