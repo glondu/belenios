@@ -19,14 +19,16 @@
 @import "./select-css.css";
 
 body {
-  background: #E5E4E2;
+  background: #e5e4e2;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: lighter;
   line-height: initial;
 }
 
-h1, h2, h3 {
-  font-family: 'Ubuntu', arial, serif;
+h1,
+h2,
+h3 {
+  font-family: "Ubuntu", arial, serif;
 }
 
 @media screen and (max-width: 640px) {
@@ -41,7 +43,8 @@ h1, h2, h3 {
   }
 }
 
-input[type=password], input[type=text] {
+input[type="password"],
+input[type="text"] {
   font-size: 16px; /* this prevents Iphone browser from zooming in */
 }
 
@@ -60,6 +63,12 @@ input[type=password], input[type=text] {
   background: white;
 }
 
-.markup-b {font-weight: bold;}
-.markup-i {font-style: italic;}
-.markup-error {color: red;}
+.markup-b {
+  font-weight: bold;
+}
+.markup-i {
+  font-style: italic;
+}
+.markup-error {
+  color: red;
+}

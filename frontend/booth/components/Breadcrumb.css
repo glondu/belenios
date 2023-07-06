@@ -36,7 +36,8 @@
   content: ">";
 }
 
-.breadcrumb__step-separator:last-child, .breadcrumb__step-separator:first-child {
+.breadcrumb__step-separator:last-child,
+.breadcrumb__step-separator:first-child {
   visibility: hidden;
 }
 

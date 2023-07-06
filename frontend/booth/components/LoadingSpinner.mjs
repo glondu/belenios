@@ -5,7 +5,7 @@ function LoadingSpinner(props) {
     "div",
     {
       className: "lds-spinner",
-      ...props
+      ...props,
     },
     e("div"),
     e("div"),

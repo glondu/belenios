@@ -29,7 +29,8 @@
 
 /* Customize appearance of checkboxes (by hiding it and replacing its UI with a span.checkbox-appearance) */
 
-.candidate-with-checkbox input[type="checkbox"], .candidate-with-checkbox input[type="radio"] {
+.candidate-with-checkbox input[type="checkbox"],
+.candidate-with-checkbox input[type="radio"] {
   opacity: 0;
   width: 1em;
   height: 1em;
@@ -38,7 +39,7 @@
 }
 
 .candidate-with-checkbox input[type="checkbox"] ~ label .checkbox-appearance {
-  content:'';
+  content: "";
   border: 2px solid #ccc;
   border-radius: 5px;
   background-color: #fff;
@@ -48,7 +49,7 @@
 }
 
 .candidate-with-checkbox input[type="radio"] ~ label .radio-button-appearance {
-  content:'';
+  content: "";
   border: 2px solid #ccc;
   border-radius: 18px;
   background-color: #fff;
@@ -57,16 +58,31 @@
   display: inline-block;
 }
 
-.candidate-with-checkbox input[type="checkbox"]:checked ~ label, .candidate-with-checkbox input[type="radio"]:checked ~ label {
+.candidate-with-checkbox input[type="checkbox"]:checked ~ label,
+.candidate-with-checkbox input[type="radio"]:checked ~ label {
   background-color: #c4ffcc;
 }
 
-.candidate-with-checkbox input[type="checkbox"]:checked ~ label .checkbox-appearance, .candidate-with-checkbox input[type="radio"]:checked ~ label .radio-button-appearance {
+.candidate-with-checkbox
+  input[type="checkbox"]:checked
+  ~ label
+  .checkbox-appearance,
+.candidate-with-checkbox
+  input[type="radio"]:checked
+  ~ label
+  .radio-button-appearance {
   background-color: #007ad6;
   border-color: #007ad6;
 }
 
-.candidate-with-checkbox input[type="checkbox"]:checked ~ label .checkbox-appearance::after, .candidate-with-checkbox input[type="radio"]:checked ~ label .radio-button-appearance::after {
+.candidate-with-checkbox
+  input[type="checkbox"]:checked
+  ~ label
+  .checkbox-appearance::after,
+.candidate-with-checkbox
+  input[type="radio"]:checked
+  ~ label
+  .radio-button-appearance::after {
   content: "✓";
   color: white;
   font-size: 20px;

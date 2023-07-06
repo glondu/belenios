@@ -26,7 +26,8 @@
   box-sizing: border-box;
 }
 
-.preferential-voting-without-equality__candidate .preferential-voting__candidate-select-destination {
+.preferential-voting-without-equality__candidate
+  .preferential-voting__candidate-select-destination {
   width: 105px;
   margin-left: 5px;
 }

@@ -1,18 +1,28 @@
 import React, { createElement as e } from "react";
 import { markup } from "../shortcuts.mjs";
 
-function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availableGrades, selectedGradeIndex=null, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, t }){
-  const renderedAvailableGrades = availableGrades.map((availableGrade, index) => {
-    return e(
-      "option",
-      {
-        value: index,
-      },
-      availableGrade
-    );
-  });
+function TranslatableMajorityJudgmentVoteSmallCandidate({
+  candidateInfo,
+  availableGrades,
+  selectedGradeIndex = null,
+  currentAlertsForCandidateInQuestion,
+  dispatchUserVoteForCandidateInQuestion,
+  availableGradesCssColors,
+  t,
+}) {
+  const renderedAvailableGrades = availableGrades.map(
+    (availableGrade, index) => {
+      return e(
+        "option",
+        {
+          value: index,
+        },
+        availableGrade,
+      );
+    },
+  );
   const onChange = (event) => {
-    const val = event.target.value
+    const val = event.target.value;
     event.target.dataset.value = val;
     const valAsInt = parseInt(val, 10);
     const finalVal = isNaN(valAsInt) ? undefined : valAsInt;
@@ -20,61 +30,74 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({ candidateInfo, availab
   };
   let additionalPropsOnSelect = {};
   let additionalPropsOnMain = {};
-  if (selectedGradeIndex !== null && selectedGradeIndex !== undefined){
-    additionalPropsOnSelect['data-value'] = selectedGradeIndex;
-    additionalPropsOnSelect['value'] = selectedGradeIndex;
-    additionalPropsOnMain['style'] = {
-      "--selected-grade-color": availableGradesCssColors[selectedGradeIndex]
-    }
+  if (selectedGradeIndex !== null && selectedGradeIndex !== undefined) {
+    additionalPropsOnSelect["data-value"] = selectedGradeIndex;
+    additionalPropsOnSelect["value"] = selectedGradeIndex;
+    additionalPropsOnMain["style"] = {
+      "--selected-grade-color": availableGradesCssColors[selectedGradeIndex],
+    };
   }
   const bemBlockName = "majority-judgment-vote-small-candidate";
   let cssClasses = bemBlockName;
-  if (currentAlertsForCandidateInQuestion){
+  if (currentAlertsForCandidateInQuestion) {
     cssClasses += ` ${bemBlockName}--with-alert`;
   }
   return e(
     "div",
     {
       className: cssClasses,
-      ...additionalPropsOnMain
+      ...additionalPropsOnMain,
     },
     e(
       "div",
       {
-        className: `${bemBlockName}__candidate-info`
+        className: `${bemBlockName}__candidate-info`,
       },
-      markup(candidateInfo)
+      markup(candidateInfo),
     ),
     e(
       "select",
       {
         className: `${bemBlockName}__grade-selector select-css`,
         onChange: onChange,
-        ...additionalPropsOnSelect
+        ...additionalPropsOnSelect,
       },
       e(
         "option",
         {
-          value: ""
+          value: "",
         },
-        t("majority_judgment_grade_select")
+        t("majority_judgment_grade_select"),
       ),
-      ...renderedAvailableGrades
-    )
+      ...renderedAvailableGrades,
+    ),
   );
 }
 
-function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix, candidates, blankVoteIsAllowed, renderedBlankVoteComponent, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
+function TranslatableMajorityJudgmentVoteSmallCandidatesList({
+  identifierPrefix,
+  candidates,
+  blankVoteIsAllowed,
+  renderedBlankVoteComponent,
+  availableGrades,
+  currentUserVoteForQuestion,
+  currentCandidatesHavingAlertsForQuestion,
+  dispatchUpdateUserVoteForQuestion,
+  availableGradesCssColors,
+  t,
+}) {
   let renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifier = `${identifierPrefix}_candidate_${candidateIndex}`;
     const dispatchUserVoteForCandidateInQuestion = (selected_grade) => {
       dispatchUpdateUserVoteForQuestion({
-        type: 'saveVoteForCandidateInQuestion',
+        type: "saveVoteForCandidateInQuestion",
         candidate_index: candidateIndex,
-        user_vote_for_candidate: selected_grade
+        user_vote_for_candidate: selected_grade,
       });
-    }
-    const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
+    };
+    const currentAlerts =
+      currentCandidatesHavingAlertsForQuestion &&
+      currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     const commonProps = {
       candidateInfo: candidate,
       availableGrades,
@@ -84,22 +107,19 @@ function TranslatableMajorityJudgmentVoteSmallCandidatesList({ identifierPrefix,
       currentAlertsForCandidateInQuestion: currentAlerts,
       dispatchUserVoteForCandidateInQuestion,
       availableGradesCssColors,
-      t
+      t,
     };
-    return e(
-      TranslatableMajorityJudgmentVoteSmallCandidate,
-      commonProps
-    );
+    return e(TranslatableMajorityJudgmentVoteSmallCandidate, commonProps);
   });
-  if (renderedBlankVoteComponent){
+  if (renderedBlankVoteComponent) {
     renderedCandidates.push(renderedBlankVoteComponent);
   }
   return e(
     "div",
     {
-      className: "majority-judgment-vote-small-candidates-list"
+      className: "majority-judgment-vote-small-candidates-list",
     },
-    ...renderedCandidates
+    ...renderedCandidates,
   );
 }
 
