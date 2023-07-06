@@ -1,6 +1,11 @@
 import React, { createElement as e } from "react";
 
-function DisplayDependingOnWindowWidth({ widthLimit, smallComponent, bigComponent, ...props }) {
+function DisplayDependingOnWindowWidth({
+  widthLimit,
+  smallComponent,
+  bigComponent,
+  ...props
+}) {
   const evaluateBelowLimit = () => {
     return window.innerWidth < widthLimit;
   };
@@ -15,10 +20,7 @@ function DisplayDependingOnWindowWidth({ widthLimit, smallComponent, bigComponen
     return () => window.removeEventListener("resize", updateMedia);
   });
 
-  return e(
-    belowLimit ? smallComponent : bigComponent,
-    props
-  );
+  return e(belowLimit ? smallComponent : bigComponent, props);
 }
 
 export { DisplayDependingOnWindowWidth };

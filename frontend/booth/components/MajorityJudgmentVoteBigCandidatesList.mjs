@@ -1,54 +1,60 @@
 import React, { createElement as e } from "react";
 import { markup } from "../shortcuts.mjs";
 
-function MajorityJudgmentVoteBigCandidateAvailableGrade({ name, id, checked=null, gradeLabel, availableGrades, gradeIndex, dispatchUserVoteForCandidateInQuestion, availableGradesCssColors, ...props }){
+function MajorityJudgmentVoteBigCandidateAvailableGrade({
+  name,
+  id,
+  checked = null,
+  gradeLabel,
+  availableGrades,
+  gradeIndex,
+  dispatchUserVoteForCandidateInQuestion,
+  availableGradesCssColors,
+  ...props
+}) {
   const checkedValue = checked ? "checked" : null;
   const onChange = (event) => {
-    if (event.target.checked){
+    if (event.target.checked) {
       dispatchUserVoteForCandidateInQuestion(gradeIndex);
     }
   };
   return e(
-    'div',
+    "div",
     {
       className: `majority-judgment-vote-big-candidate__grade clickable`,
       style: {
-        '--majority-judgment-available-grade-color': availableGradesCssColors[gradeIndex]
+        "--majority-judgment-available-grade-color":
+          availableGradesCssColors[gradeIndex],
       },
-      ...props
+      ...props,
     },
+    e("input", {
+      type: "radio",
+      className: "majority-judgment-vote-big-candidate__grade__input",
+      name: name,
+      id: id,
+      value: gradeIndex,
+      defaultChecked: checkedValue,
+      onChange: onChange,
+    }),
     e(
-      'input',
-      {
-        type: 'radio',
-        className: 'majority-judgment-vote-big-candidate__grade__input',
-        name: name,
-        id: id,
-        value: gradeIndex,
-        defaultChecked: checkedValue,
-        onChange: onChange
-      }
-    ),
-    e(
-      'label',
+      "label",
       {
         htmlFor: id,
-        className: 'majority-judgment-vote-big-candidate__grade__label'
+        className: "majority-judgment-vote-big-candidate__grade__label",
       },
+      e("span", {
+        className: "radio-button-appearance",
+      }),
       e(
-        'span',
+        "span",
         {
-          'className': 'radio-button-appearance'
-        }
-      ),
-      e(
-        'span',
-        {
-          'className': 'majority-judgment-vote-big-candidate__grade__label__label'
+          className:
+            "majority-judgment-vote-big-candidate__grade__label__label",
         },
-        gradeLabel
-      )
-    )
+        gradeLabel,
+      ),
+    ),
   );
 }
 
@@ -60,122 +66,140 @@ MajorityJudgmentVoteBigCandidateAvailableGrade.defaultProps = {
   availableGrades: ["Poor", "Good", "Excellent"],
   gradeIndex: 2,
   dispatchUserVoteForCandidateInQuestion: (selected_grade_index) => {},
-  availableGradesCssColors: ["red", "yellow", "green"]
+  availableGradesCssColors: ["red", "yellow", "green"],
 };
 
-function TranslatableMajorityJudgmentVoteBigCandidate({ candidateInfo, availableGrades, identifierPrefix, name, currentAlertsForCandidateInQuestion, dispatchUserVoteForCandidateInQuestion, selectedGradeIndex, availableGradesCssColors, t }){
-  const bemBlockName = 'majority-judgment-vote-big-candidate';
+function TranslatableMajorityJudgmentVoteBigCandidate({
+  candidateInfo,
+  availableGrades,
+  identifierPrefix,
+  name,
+  currentAlertsForCandidateInQuestion,
+  dispatchUserVoteForCandidateInQuestion,
+  selectedGradeIndex,
+  availableGradesCssColors,
+  t,
+}) {
+  const bemBlockName = "majority-judgment-vote-big-candidate";
   let cssClasses = bemBlockName;
-  if (currentAlertsForCandidateInQuestion){
+  if (currentAlertsForCandidateInQuestion) {
     cssClasses += ` ${bemBlockName}--with-alert`;
   }
   const renderedGrades = availableGrades.map((gradeLabel, gradeIndex) => {
     const identifier = `${identifierPrefix}_grade_${gradeIndex}`;
-    return e(
-      MajorityJudgmentVoteBigCandidateAvailableGrade,
-      {
-        name,
-        id: identifier,
-        checked: selectedGradeIndex === gradeIndex,
-        gradeLabel,
-        availableGrades,
-        gradeIndex,
-        dispatchUserVoteForCandidateInQuestion,
-        availableGradesCssColors
-      }
-    );
+    return e(MajorityJudgmentVoteBigCandidateAvailableGrade, {
+      name,
+      id: identifier,
+      checked: selectedGradeIndex === gradeIndex,
+      gradeLabel,
+      availableGrades,
+      gradeIndex,
+      dispatchUserVoteForCandidateInQuestion,
+      availableGradesCssColors,
+    });
   });
   return e(
     "div",
     {
-      className: cssClasses
+      className: cssClasses,
     },
     e(
       "div",
       {
-        className: `${bemBlockName}__candidate-info`
+        className: `${bemBlockName}__candidate-info`,
       },
       e(
         "div",
         {
-          className: `${bemBlockName}__candidate-info__label`
+          className: `${bemBlockName}__candidate-info__label`,
         },
-        markup(candidateInfo)
-      )
+        markup(candidateInfo),
+      ),
     ),
     e(
       "div",
       {
-        className: `${bemBlockName}__available-grades`
+        className: `${bemBlockName}__available-grades`,
       },
-      ...renderedGrades
-    )
+      ...renderedGrades,
+    ),
   );
 }
 
-function TranslatableMajorityJudgmentVoteBigCandidatesList({ identifierPrefix, candidates, blankVoteIsAllowed, renderedBlankVoteComponent, availableGrades, currentUserVoteForQuestion, currentCandidatesHavingAlertsForQuestion, dispatchUpdateUserVoteForQuestion, availableGradesCssColors, t }){
-  const shouldDisplayWideMode = availableGrades.length > 8 || availableGrades.reduce((accumulator, gradeLabel) => { return accumulator + gradeLabel.length; }, 0) > 70;
+function TranslatableMajorityJudgmentVoteBigCandidatesList({
+  identifierPrefix,
+  candidates,
+  blankVoteIsAllowed,
+  renderedBlankVoteComponent,
+  availableGrades,
+  currentUserVoteForQuestion,
+  currentCandidatesHavingAlertsForQuestion,
+  dispatchUpdateUserVoteForQuestion,
+  availableGradesCssColors,
+  t,
+}) {
+  const shouldDisplayWideMode =
+    availableGrades.length > 8 ||
+    availableGrades.reduce((accumulator, gradeLabel) => {
+      return accumulator + gradeLabel.length;
+    }, 0) > 70;
   let renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifierConsolidatedPrefix = `${identifierPrefix}_candidate_${candidateIndex}`;
-    const currentAlerts = currentCandidatesHavingAlertsForQuestion && currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
+    const currentAlerts =
+      currentCandidatesHavingAlertsForQuestion &&
+      currentCandidatesHavingAlertsForQuestion.includes(candidateIndex);
     const dispatchUserVoteForCandidateInQuestion = (selected_grade_index) => {
       dispatchUpdateUserVoteForQuestion({
-        type: 'saveVoteForCandidateInQuestion',
+        type: "saveVoteForCandidateInQuestion",
         candidate_index: candidateIndex,
-        user_vote_for_candidate: selected_grade_index
+        user_vote_for_candidate: selected_grade_index,
       });
     };
-    return e(
-      TranslatableMajorityJudgmentVoteBigCandidate,
-      {
-        candidateInfo: candidate,
-        availableGrades,
-        key: candidateIndex,
-        identifierPrefix: identifierConsolidatedPrefix,
-        name: identifierConsolidatedPrefix,
-        currentAlertsForCandidateInQuestion: currentAlerts,
-        dispatchUserVoteForCandidateInQuestion,
-        selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
-        availableGradesCssColors,
-        t
-      }
-    );
+    return e(TranslatableMajorityJudgmentVoteBigCandidate, {
+      candidateInfo: candidate,
+      availableGrades,
+      key: candidateIndex,
+      identifierPrefix: identifierConsolidatedPrefix,
+      name: identifierConsolidatedPrefix,
+      currentAlertsForCandidateInQuestion: currentAlerts,
+      dispatchUserVoteForCandidateInQuestion,
+      selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
+      availableGradesCssColors,
+      t,
+    });
   });
 
-  if (renderedBlankVoteComponent){
+  if (renderedBlankVoteComponent) {
     renderedCandidates.push(renderedBlankVoteComponent);
   }
 
   let cssClasses = "majority-judgment-vote-big-candidates-list noselect";
-  if (shouldDisplayWideMode){
+  if (shouldDisplayWideMode) {
     cssClasses += " majority-judgment-vote-big-candidates-list--wide";
   }
   const approximateCandidatesListHeight = 100 * candidates.length;
   let afterCandidatesList = [];
-  if (shouldDisplayWideMode){
+  if (shouldDisplayWideMode) {
     afterCandidatesList = [
-      e(
-        "div",
-        {
-          className: 'majority-judgment-vote-big-candidates-list-spacer',
-          style: {
-            'height': `${approximateCandidatesListHeight}px`
-          }
-        }
-      )
+      e("div", {
+        className: "majority-judgment-vote-big-candidates-list-spacer",
+        style: {
+          height: `${approximateCandidatesListHeight}px`,
+        },
+      }),
     ];
   }
   return e(
     React.Fragment,
     null,
     e(
-      'div',
+      "div",
       {
-        className: cssClasses
+        className: cssClasses,
       },
-      ...renderedCandidates
+      ...renderedCandidates,
     ),
-    ...afterCandidatesList
+    ...afterCandidatesList,
   );
 }
 
