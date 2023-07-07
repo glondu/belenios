@@ -14,3 +14,11 @@ src/web/clients/basic/credentials.ml
 src/web/clients/basic/drafts.ml
 src/web/clients/basic/elections.ml
 src/web/clients/checkpriv/checkpriv.ml
+src/web/clients/admin/account.ml
+src/web/clients/admin/admin.ml
+src/web/clients/admin/cache.ml
+src/web/clients/admin/common.ml
+src/web/clients/admin/elections.ml
+src/web/clients/admin/preview.ml
+src/web/clients/admin/questions.ml
+src/web/clients/admin/trustees.ml
