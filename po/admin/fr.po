@@ -948,11 +948,11 @@ msgstr "Page principale de l'élection"
 
 #: src/web/clients/admin/elections.ml:1596
 msgid "Election is currently closed"
-msgstr ""
+msgstr "L'élection est actuellement fermée"
 
 #: src/web/clients/admin/elections.ml:1595
 msgid "Election is currently open"
-msgstr ""
+msgstr "L'élection est actuellement ouverte"
 
 #: src/web/clients/admin/trustees.ml:688 src/web/clients/admin/elections.ml:362
 msgid "Election main page"
