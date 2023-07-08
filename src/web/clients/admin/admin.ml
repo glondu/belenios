@@ -442,9 +442,7 @@ let onhashchange () =
   | _ -> Lwt.return_unit
 
 let extract_lang x =
-  match String.index_opt x '-' with
-  | None -> x
-  | Some i -> String.sub x 0 i
+  match String.index_opt x '-' with None -> x | Some i -> String.sub x 0 i
 
 let onload () =
   let lang =
