@@ -1592,8 +1592,8 @@ let open_close_content () =
   let ifmatch = Some ifmatch in
   let is_open = if status.status_state = `Open then true else false in
   let curr, action, request =
-    if is_open then ("open", s_ "Close", `Close)
-    else ("closed", s_ "Open", `Open)
+    if is_open then (s_ "Election is currently open", s_ "Close", `Close)
+    else (s_ "Election is currently closed", s_ "Open", `Open)
   in
   let but =
     button action (fun () ->
@@ -1610,7 +1610,7 @@ let open_close_content () =
             alert ("Failed with error code " ^ string_of_int x.code);
             Lwt.return_unit)
   in
-  Lwt.return [ h2 [ txt (s_ "Current status is " ^ curr) ]; div [ but ] ]
+  Lwt.return [ h2 [ txt curr ]; div [ but ] ]
 
 let result_archived_content () =
   let open (val !Belenios_js.I18n.gettext) in
