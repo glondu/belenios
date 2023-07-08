@@ -781,10 +781,6 @@ msgstr "Kody głosowania?"
 msgid "Current list of ballots:"
 msgstr "Aktualna lista kart do głosowania:"
 
-#: src/web/clients/admin/elections.ml:1613
-msgid "Current status is "
-msgstr ""
-
 #: src/web/clients/admin/elections.ml:921
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr ""
@@ -958,6 +954,14 @@ msgstr "Głosowanie "
 #: src/web/server/common/pages_admin.ml:2959
 msgid "Election home"
 msgstr "Strona głosowania"
+
+#: src/web/clients/admin/elections.ml:1596
+msgid "Election is currently closed"
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:1595
+msgid "Election is currently open"
+msgstr ""
 
 #: src/web/clients/admin/trustees.ml:688 src/web/clients/admin/elections.ml:362
 msgid "Election main page"
