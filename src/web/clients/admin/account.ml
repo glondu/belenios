@@ -50,7 +50,7 @@ let rec update_main_zone () =
           h2 [ txt @@ s_ "Administrator's profile: " ];
           div
             [
-              div [ txt (s_ "Id: " ^ string_of_int acc.id) ];
+              div [ txt (s_ "ID: " ^ string_of_int acc.id) ];
               div [ txt (s_ "E-mail: " ^ acc.address) ];
               div
                 [
@@ -76,7 +76,7 @@ and update_main () =
     let dec =
       div
         ~a:[ a_class [ "main-menu__item"; "clickable"; "noselect" ] ]
-        [ txt @@ s_ "Logout" ]
+        [ txt @@ s_ "Log Out" ]
     in
     let r = Tyxml_js.To_dom.of_div dec in
     r##.onclick := lwt_handler logout;
