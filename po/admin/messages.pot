@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-08 08:45+0000\n"
+"POT-Creation-Date: 2023-07-10 05:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1124,7 +1124,7 @@ msgid "Home"
 msgstr ""
 
 #: src/web/clients/admin/account.ml:53
-msgid "Id: "
+msgid "ID: "
 msgstr ""
 
 #: src/web/clients/admin/elections.ml:709
@@ -1301,6 +1301,10 @@ msgstr ""
 msgid "Loading…"
 msgstr ""
 
+#: src/web/clients/admin/account.ml:79
+msgid "Log Out"
+msgstr ""
+
 #: src/web/server/common/pages_admin.ml:170
 msgid "Log in with"
 msgstr ""
@@ -1319,10 +1323,6 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:708
 msgid "Login"
-msgstr ""
-
-#: src/web/clients/admin/account.ml:79
-msgid "Logout"
 msgstr ""
 
 #: src/web/server/common/pages_admin.ml:2583

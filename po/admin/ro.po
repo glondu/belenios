@@ -1157,7 +1157,7 @@ msgid "Home"
 msgstr ""
 
 #: src/web/clients/admin/account.ml:53
-msgid "Id: "
+msgid "ID: "
 msgstr ""
 
 #: src/web/clients/admin/elections.ml:709
@@ -1339,6 +1339,10 @@ msgstr ""
 msgid "Loading…"
 msgstr "Incarcare…"
 
+#: src/web/clients/admin/account.ml:79
+msgid "Log Out"
+msgstr ""
+
 #: src/web/server/common/pages_admin.ml:170
 msgid "Log in with"
 msgstr ""
@@ -1357,10 +1361,6 @@ msgstr "Conectat in calitate de"
 
 #: src/web/clients/admin/elections.ml:708
 msgid "Login"
-msgstr ""
-
-#: src/web/clients/admin/account.ml:79
-msgid "Logout"
 msgstr ""
 
 #: src/web/server/common/pages_admin.ml:2583

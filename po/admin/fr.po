@@ -1178,8 +1178,8 @@ msgid "Home"
 msgstr "Accueil"
 
 #: src/web/clients/admin/account.ml:53
-msgid "Id: "
-msgstr "Id : "
+msgid "ID: "
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:709
 #. src/web/server/common/pages_admin.ml:1674
@@ -1364,6 +1364,10 @@ msgstr "Chargement..."
 msgid "Loading…"
 msgstr "Chargement…"
 
+#: src/web/clients/admin/account.ml:79
+msgid "Log Out"
+msgstr ""
+
 #: src/web/server/common/pages_admin.ml:170
 msgid "Log in with"
 msgstr "Se connecter avec"
@@ -1383,10 +1387,6 @@ msgstr "Connecté en tant que"
 #: src/web/clients/admin/elections.ml:708
 msgid "Login"
 msgstr "Nom d'utilisateur"
-
-#: src/web/clients/admin/account.ml:79
-msgid "Logout"
-msgstr "Déconnexion"
 
 #: src/web/server/common/pages_admin.ml:2583
 #. src/web/server/common/pages_admin.ml:1145
