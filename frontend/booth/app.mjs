@@ -304,8 +304,10 @@ function main() {
   const hash_parameters = getHashParametersFromURL();
   const lang = hash_parameters["lang"];
   const uuid = hash_parameters["uuid"];
-  const credential = hash_parameters["credential"];
   const draft = hash_parameters["draft"];
+  const credential = draft
+    ? "123-456-789-abc-deN"
+    : hash_parameters["credential"];
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";
   i18n_init(lang, afterI18nInitialized(uuid, lang, credential, draft));
