@@ -12,6 +12,7 @@ function TranslatableReviewEncryptSection({
   smartBallotTracker = null,
   onClickPrevious = null,
   urlToPostEncryptedBallot = "",
+  draft = null,
   t,
 }) {
   // identifiers are copied from original booth
@@ -99,6 +100,13 @@ function TranslatableReviewEncryptSection({
     },
     onClick: onClickPrevious,
   });
+  const nextOnClick =
+    draft == 2
+      ? () => {
+          window.close();
+          return false;
+        }
+      : null;
   const paginationWhenBallotHasBeenEncrypted = e(
     "div",
     {
@@ -112,6 +120,7 @@ function TranslatableReviewEncryptSection({
       // this Next button submits the form
       BlueNiceButton,
       {
+        onClick: nextOnClick,
         label: t("next_button_label"),
         style: {
           ...navigationButtonStyle,

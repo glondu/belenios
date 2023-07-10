@@ -273,6 +273,7 @@ function TranslatableVoteApp({
           smartBallotTracker,
           onClickPrevious,
           urlToPostEncryptedBallot,
+          draft,
         }),
       );
     }
