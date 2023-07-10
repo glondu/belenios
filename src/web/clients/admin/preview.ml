@@ -45,10 +45,6 @@ let preview_booth () =
       let content =
         [
           div [ txt @@ s_ "Preview will open in a new tab" ];
-          div
-            [
-              txt @@ s_ "Fake credential in order to test: 123-456-789-abc-deN.";
-            ];
           div ~a:[ a_id "prev_lk" ] [ link ];
         ]
       in

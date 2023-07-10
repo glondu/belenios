@@ -452,15 +452,7 @@ struct
             ()
           |> rewrite_prefix
         in
-        span
-          [
-            direct_a (service ^ "#" ^ hash) (s_ "Preview booth");
-            txt " ";
-            txt
-              (Printf.sprintf
-                 (f_ "(you can use any credential such as %s).")
-                 "123-456-789-abc-deN");
-          ]
+        span [ direct_a (service ^ "#" ^ hash) (s_ "Preview booth") ]
     | None -> span [ txt @@ s_ "Unsupported booth version" ]
 
   let election_draft uuid se () =
