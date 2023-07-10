@@ -56,5 +56,12 @@
     "majority_judgment_question_description": "Oceń każdego kandydata (opcję) nim przejdziesz do następnego kroku.",
     "ask_to_select_between_x_0": "Zaznacz pomiędzy {{count}}",
     "ask_to_select_between_x_1": "Zaznacz pomiędzy {{count}}",
-    "ask_to_select_between_x_2": "Zaznacz pomiędzy {{count}}"
+    "ask_to_select_between_x_2": "Zaznacz pomiędzy {{count}}",
+    "preferential_voting_ranked": "Uszeregowano",
+    "preferential_voting_without_equality_move_candidate_below_position_x_0": "Poniżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_below_position_x_1": "Poniżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_below_position_x_2": "Poniżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_above_position_x_0": "Powyżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_above_position_x_1": "Powyżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_above_position_x_2": "Powyżej {{count}} pozycji"
 }
