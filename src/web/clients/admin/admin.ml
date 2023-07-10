@@ -351,7 +351,7 @@ let nav_menu () =
   r##.onclick := lwt_handler account_handler;
   Lwt.return [ elt1; elt2; elt3 ]
 
-let footer =
+let footer () =
   (* TODO *)
   let open (val !Belenios_js.I18n.gettext) in
   [
@@ -377,7 +377,7 @@ let show_root main =
           div ~a:[ a_class [ "page-header" ]; a_id "header" ] header;
           div ~a:[ a_class [ "nav-menu" ] ] nav_menu;
           div ~a:[ a_class [ "page-body" ]; a_id "main" ] page_body;
-          div ~a:[ a_class [ "footer" ] ] footer;
+          div ~a:[ a_class [ "footer" ] ] (footer ());
         ];
       div
         ~a:[ a_id "popup" ]
