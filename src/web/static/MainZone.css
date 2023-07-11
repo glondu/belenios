@@ -13,14 +13,14 @@
 div.ins_sym {
     width: 1.8ex;
     height: 1.8ex;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'><circle cx='5' cy='5' r='4.5' stroke='black' fill='none'/><path d='M 5 2 V 8 M 2 5 H 8' stroke='black'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='5' cy='5' r='4.5' stroke='black' fill='none'/%3E%3Cpath d='M 5 2 V 8 M 2 5 H 8' stroke='black'/%3E%3C/svg%3E");
     background-size: cover;
 }
 
 div.del_sym {
     width: 1.8ex;
     height: 1.8ex;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'><circle cx='5' cy='5' r='4.5' stroke='black' fill='none'/><path d='M 2.88 2.88 L 7.12 7.12 M 7.12 2.88 L 2.88 7.12' stroke='black'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,%3Csvg viewBox='0 0 10 10' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='5' cy='5' r='4.5' stroke='black' fill='none'/%3E%3Cpath d='M 2.88 2.88 L 7.12 7.12 M 7.12 2.88 L 2.88 7.12' stroke='black'/%3E%3C/svg%3E");
     background-size: cover;
 }
 
