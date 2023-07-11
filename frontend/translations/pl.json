@@ -52,9 +52,16 @@
     "ask_to_select_between_x_and_y_answers_0": "$t(ask_to_select_between_x, {\"count\": {{min}} }) i {{count}} odpowiedzią (wyborem).",
     "ask_to_select_between_x_and_y_answers_1": "$t(ask_to_select_between_x, {\"count\": {{min}} }) i {{count}} odpowiedziami (wyborami).",
     "ask_to_select_between_x_and_y_answers_2": "$t(ask_to_select_between_x, {\"count\": {{min}} }) i {{count}} odpowiedziami (wyborami).",
-    "preferential_voting_question_description": "Uszereguj kandydatów (opcje) według preferencji.",
+    "preferential_voting_question_description": "Uszereguj kandydatów (opcje) według preferencji. Kandydaci (opcje) nieuszeregowanie będą uważani (na równi) za mniej preferowanych.",
     "majority_judgment_question_description": "Oceń każdego kandydata (opcję) nim przejdziesz do następnego kroku.",
     "ask_to_select_between_x_0": "Zaznacz pomiędzy {{count}}",
     "ask_to_select_between_x_1": "Zaznacz pomiędzy {{count}}",
-    "ask_to_select_between_x_2": "Zaznacz pomiędzy {{count}}"
+    "ask_to_select_between_x_2": "Zaznacz pomiędzy {{count}}",
+    "preferential_voting_ranked": "Uszeregowano",
+    "preferential_voting_without_equality_move_candidate_below_position_x_0": "Poniżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_below_position_x_1": "Poniżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_below_position_x_2": "Poniżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_above_position_x_0": "Powyżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_above_position_x_1": "Powyżej {{count}} pozycji",
+    "preferential_voting_without_equality_move_candidate_above_position_x_2": "Powyżej {{count}} pozycji"
 }
