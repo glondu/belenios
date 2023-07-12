@@ -7,6 +7,7 @@ check:
 	./demo-nh.sh
 	./demo-mj.sh
 	./demo-stv.sh
+	./demo-n-voters.sh
 
 clean:
 	rm -rf data
