@@ -72,7 +72,7 @@ paste private_creds.txt votes.txt | while read id cred vote; do
     HASH="$(printf "%s" "$BALLOT" | belenios-tool sha256-b64)"
     echo "$BALLOT" | belenios-tool archive add-event --type=Ballot
     echo "Voter $id voted with $HASH" >&2
-    belenios-tool election verify --skip-ballot-check true
+    belenios-tool election verify --skip-ballot-check
     echo >&2
 done
 

@@ -89,7 +89,7 @@ done
 
 header "Perform verification (skip-ballot-check)"
 
-belenios-tool election verify --skip-ballot-check true
+belenios-tool election verify --skip-ballot-check
 
 header "Perform verification"
 

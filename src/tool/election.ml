@@ -83,7 +83,7 @@ let main url dir action =
         | _ -> failwith "invalid ballot file"
       in
       X.verify_ballot ballot
-  | `Verify skip_ballot_check -> X.verify ?skip_ballot_check ()
+  | `Verify skip_ballot_check -> X.verify ~skip_ballot_check ()
   | `ComputeResult -> print_endline (X.compute_result ())
   | `Shuffle trustee_id -> print_endline2 (X.shuffle_ciphertexts trustee_id)
   | `Checksums -> X.checksums () |> print_endline
@@ -133,7 +133,7 @@ let skip_ballot_check_t =
   let the_info =
     Arg.info [ "skip-ballot-check" ] ~docv:"SKIP-BALLOT-CHECK" ~doc
   in
-  Arg.(value & opt (some bool) None the_info)
+  Arg.(value & flag the_info)
 
 let vote_cmd =
   let doc = "create a ballot" in
