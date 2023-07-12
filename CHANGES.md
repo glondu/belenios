@@ -1,3 +1,25 @@
+dev
+===
+
+ * Command-line tool:
+   + Rename `--ballot` argument of `generate-ballot` to `--choice`
+   + Add `verify-ballot` command
+   + Add `--skip-ballot-check` mode for `verify` command
+ * Web server:
+   + Various optimizations for handling elections with around 30k
+     voters
+   + Remove classical booth
+   + New booth:
+     - Add support for STV questions (rank without equality)
+     - Add basic support for generic questions (give a number to each
+       choice)
+   + Add possibility to insert an HTML snippet in the page that
+     is shown to the voter after a successful vote
+   + Add a new admin interface (experimental for now)
+   + Automatically use fake credential in booth preview
+ * Translations:
+   + Add Japanese
+
 2.1 (2023-02-28)
 ================
 
