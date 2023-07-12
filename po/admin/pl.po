@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2023-07-11 09:31+0000\n"
+"PO-Revision-Date: 2023-07-13 13:51+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/admin/pl/"
 ">\n"
@@ -274,7 +274,6 @@ msgid "Add"
 msgstr "Dodaj"
 
 #: src/web/clients/admin/questions.ml:452
-#, fuzzy
 msgid "Add a grade"
 msgstr "Oceń"
 
@@ -330,7 +329,7 @@ msgstr ""
 msgid "Alternative questions cannot be combined with weights."
 msgstr ""
 "Alternatywne metody ustalania wyników głosowania nie mogą być połączone z "
-"wagami."
+"wagami głosu."
 
 #: src/web/server/common/pages_admin.ml:1452
 msgid "Alternative voting methods (warning, still experimental):"
@@ -376,14 +375,14 @@ msgstr "Wystąpił błąd podczas pobierania: %s"
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 "Pojedynczą tożsamość należy zapisać wg następującej składni: jako \"adres\", "
-"albo jako: \"adres,login\", albo \"adres,login,waga\", albo \"adres,,waga\", "
-"gdzie \"adres\" to adres e-mail uprawnionego, \"login\" to nazwa skojarzona "
-"z uprawnionym służąca do uwierzytelniania, a \"waga\" to liczba głosów "
-"służących uprawnionemu (w przypadku, gdy w głosowaniu uprawnieni dysponują "
-"różną ilością głosów). Zwróć uwagę na przecinki! Przykładowe rekordy to: "
-"\"użytkownik@domena.com\", albo \"użytkownik@domena.com,użytkownik\", albo "
-"\"użytkownik@domena.com,użytkownik,2\", albo wreszcie \"użytkownik@domena."
-"com,,2\"."
+"albo jako: \"adres,login\", albo \"adres,login,waga głosu\", albo \"adres"
+",,waga głosu\", gdzie \"adres\" to adres e-mail uprawnionego, \"login\" to "
+"nazwa skojarzona z uprawnionym służąca do uwierzytelniania, a \"waga głosu\" "
+"to liczba głosów służących uprawnionemu (w przypadku, gdy w głosowaniu "
+"uprawnieni dysponują różną ilością głosów). Zwróć uwagę na przecinki! "
+"Przykładowe rekordy to: \"użytkownik@domena.com\", albo \"użytkownik@domena."
+"com,użytkownik\", albo \"użytkownik@domena.com,użytkownik,2\", albo wreszcie "
+"\"użytkownik@domena.com,,2\"."
 
 #: src/web/clients/tool/tool_js_questions.ml:164
 msgid "Answer: "
@@ -495,9 +494,8 @@ msgid "Belenios account e-mail address change"
 msgstr "Zmiana adresu e-mail konta Belenios"
 
 #: src/web/clients/admin/admin.ml:86
-#, fuzzy
 msgid "Belenios administrator page"
-msgstr "Strona administratora głosowania"
+msgstr "Administracja głosowaniami Belenios"
 
 #: src/web/server/common/pages_admin.ml:3658
 msgid "Belenios password change"
@@ -530,7 +528,6 @@ msgstr ""
 "ograniczonej prywatności)."
 
 #: src/web/clients/admin/elections.ml:1176
-#, fuzzy
 msgid "By our server (not ideal for decentralized security)"
 msgstr "Przez nasz serwer (brak decentralizacji bezpieczeństwa)"
 
@@ -632,7 +629,7 @@ msgstr "Wspólne tworzenie kluczy"
 
 #: src/web/server/common/pages_admin.ml:2302
 msgid "Compatibility of weights with questions?"
-msgstr "Zgodność wag z pytaniami (uchwałami, decyzjami)?"
+msgstr "Zgodność wag głosów z pytaniami (uchwałami, decyzjami)?"
 
 #: src/web/server/common/pages_admin.ml:3473
 msgid "Compute fingerprint"
@@ -1155,7 +1152,7 @@ msgstr "Zobacz wyniki głosowania!"
 
 #: src/web/clients/admin/questions.ml:566
 msgid "Grade propositions"
-msgstr "Oceń propozycje"
+msgstr "Ocena propozycji"
 
 #: src/web/common/mails_admin.ml:131 src/web/common/mails_admin.ml:45
 msgid "Here are the instructions:"
@@ -1188,7 +1185,7 @@ msgstr "Nr: "
 #. src/web/server/common/pages_admin.ml:1666
 #: src/web/clients/admin/elections.ml:709
 msgid "Identity"
-msgstr "Tożsamość"
+msgstr "Tożsamość uprawnionego"
 
 #: src/web/server/common/pages_admin.ml:153
 msgid "If you do not have any account, you may "
@@ -1258,7 +1255,7 @@ msgstr "Wstaw pytanie, uchwałę, decyzję do podjęcia"
 
 #: src/web/clients/admin/questions.ml:542
 msgid "Insert an answer"
-msgstr "Wstaw propozycję odpowiedzi"
+msgstr "Wstaw odpowiedzi (opcje wyboru)"
 
 #. src/web/server/common/pages_admin.ml:1356
 #: src/web/server/common/pages_admin.ml:2112
@@ -1323,8 +1320,8 @@ msgid "Leave blank for other counting methods. Note that for other counting meth
 msgstr ""
 "Pozostaw to pole puste gdy stosujesz inne systemy głosowania. Uwaga: W "
 "przypadku innych systemów głosowania wygląd interfejsu głosowania jest "
-"jeszcze niewygodny. Głosujący musi wprowadzić liczbę całkowitą przed każdą "
-"odpowiedzią (opcją wyboru)."
+"jeszcze nieodpracowany. Głosujący musi wprowadzić liczbę całkowitą przed "
+"każdą odpowiedzią (opcją wyboru)."
 
 #. src/web/server/common/pages_admin.ml:2721
 #. src/web/server/common/pages_admin.ml:2588
@@ -2104,9 +2101,8 @@ msgid "Security"
 msgstr "Bezpieczeństwo"
 
 #: src/web/clients/admin/questions.ml:558
-#, fuzzy
 msgid "Select propositions"
-msgstr "Wybierz opcje"
+msgstr "Wybór propozycji"
 
 #. src/web/server/common/pages_admin.ml:2605
 #: src/web/clients/admin/trustees.ml:630
@@ -2182,9 +2178,8 @@ msgstr ""
 "Ktoś próbuje powiązać Twój adres e-mail z kontem na naszym serwerze Belenios."
 
 #: src/web/clients/admin/questions.ml:562
-#, fuzzy
 msgid "Sort propositions"
-msgstr "Sortuj opcje"
+msgstr "Uszeregowanie propozycji"
 
 #: src/web/server/common/pages_admin.ml:1139
 msgid "State"
@@ -2469,7 +2464,8 @@ msgstr "Uprawniony do głosowania musi wybrać pomiędzy "
 #: src/web/server/common/site_admin.ml:634
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr ""
-"Lista uprawnionych do głosowania nie jest spójna (brakuje loginu lub wagi)."
+"Lista uprawnionych do głosowania nie jest spójna (brakuje loginu lub wagi "
+"głosu)."
 
 #: src/web/server/common/site_admin.ml:655
 msgid "There are too many voters (max is %d)"
@@ -2721,7 +2717,7 @@ msgstr "Wypróbuj."
 
 #: src/web/clients/admin/questions.ml:554
 msgid "Type of answer:"
-msgstr "Typ odpowiedzi (opcji wyboru):"
+msgstr "Typ głosu:"
 
 #. src/web/server/common/pages_admin.ml:3397
 #: src/web/server/common/pages_admin.ml:3453
@@ -2865,8 +2861,8 @@ msgstr "Uwaga: to jest nieodwracalne!"
 #: src/web/clients/admin/elections.ml:1397
 msgid "Warning: this will freeze the voter list!"
 msgstr ""
-"Uwaga: Kliknięcie poniżej i rozpoczęcie pracy z kodami głosowania spowoduje "
-"zamknięcie i zapieczętowanie listy uprawnionych do głosowania!"
+"Uwaga: Kliknięcie spowoduje zamknięcie i zapieczętowanie listy uprawnionych "
+"do głosowania!"
 
 #: src/web/common/mails_admin.ml:246 src/web/common/mails_admin.ml:162
 msgid "We suggest two options:"
@@ -2874,7 +2870,7 @@ msgstr "Proponujemy dwie opcje:"
 
 #: src/web/clients/admin/elections.ml:707
 msgid "Weight"
-msgstr "Waga"
+msgstr "Waga głosu"
 
 #: src/web/common/mails_admin.ml:358
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
