@@ -16,7 +16,7 @@ header () {
     echo
 }
 
-num_voters="10" # modify the number of voters here
+: ${num_voters:="10"} # modify the number of voters here
 
 header "Setup election"
 
