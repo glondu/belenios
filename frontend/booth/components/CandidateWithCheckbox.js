@@ -1,5 +1,5 @@
 import React, { createElement as e } from "react";
-import { markup } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.js";
 
 function CandidateWithCheckbox({
   name,

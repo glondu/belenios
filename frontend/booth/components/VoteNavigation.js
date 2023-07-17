@@ -1,7 +1,7 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import { NiceButton, BlueNiceButton } from "./NiceButton.mjs";
+import { NiceButton, BlueNiceButton } from "./NiceButton.js";
 
 function GenericNavigation({
   labelInfo = null,

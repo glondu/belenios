@@ -1,8 +1,8 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
-import CandidateWithRadio from "./CandidateWithRadio.mjs";
+import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
+import CandidateWithRadio from "./CandidateWithRadio.js";
 
 /*
 Displays a list of candidates represented using instances of component CandidateWithCheckbox or CandidateWithRadio, depending on value of "type" prop.

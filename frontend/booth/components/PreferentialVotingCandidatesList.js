@@ -2,9 +2,9 @@ import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 import { DragDropContext } from "react-beautiful-dnd";
 
-import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
-import PreferentialVotingColumn from "./PreferentialVotingColumn.mjs";
-import { WhiteNiceButton } from "./NiceButton.mjs";
+import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
+import PreferentialVotingColumn from "./PreferentialVotingColumn.js";
+import { WhiteNiceButton } from "./NiceButton.js";
 
 const buildColumnLabel = (column, columnOrderIndex, t) => {
   return column && column.title

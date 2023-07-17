@@ -1,9 +1,9 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 import { Draggable, Droppable } from "react-beautiful-dnd";
-import { markup } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.js";
 
-import { WhiteNiceButton } from "./NiceButton.mjs";
+import { WhiteNiceButton } from "./NiceButton.js";
 
 const TranslatableMoveCandidateHandle = ({ t, tReady, ...props }) => {
   // the icon visual is made using CSS

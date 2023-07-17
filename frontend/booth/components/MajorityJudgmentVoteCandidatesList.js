@@ -1,11 +1,11 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
-import { TranslatableMajorityJudgmentVoteSmallCandidatesList } from "./MajorityJudgmentVoteSmallCandidatesList.mjs";
-import { TranslatableMajorityJudgmentVoteBigCandidatesList } from "./MajorityJudgmentVoteBigCandidatesList.mjs";
-import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.mjs";
-import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
+import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.js";
+import { TranslatableMajorityJudgmentVoteSmallCandidatesList } from "./MajorityJudgmentVoteSmallCandidatesList.js";
+import { TranslatableMajorityJudgmentVoteBigCandidatesList } from "./MajorityJudgmentVoteBigCandidatesList.js";
+import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.js";
+import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
 
 function TranslatableMajorityJudgmentVoteCandidatesList({
   identifierPrefix,

@@ -3,15 +3,15 @@ import React, { createElement as e } from "react";
 import i18next from "i18next";
 import { withTranslation } from "react-i18next";
 
-import i18n_init from "./i18n_init.mjs";
-import PageHeader from "./components/PageHeader.mjs";
-import { VoteBreadcrumb } from "./components/Breadcrumb.mjs";
-import { AllQuestionsWithPagination } from "./components/AllQuestionsWithPagination.mjs";
-import NoUuidSection from "./components/NoUuidSection.mjs";
-import InputCredentialSection from "./components/InputCredentialSection.mjs";
-import ReviewEncryptSection from "./components/ReviewEncryptSection.mjs";
-import { PageFooter, EmptyPageFooter } from "./components/PageFooter.mjs";
-import { Election } from "./election_utils.mjs";
+import i18n_init from "./i18n_init.js";
+import PageHeader from "./components/PageHeader.js";
+import { VoteBreadcrumb } from "./components/Breadcrumb.js";
+import { AllQuestionsWithPagination } from "./components/AllQuestionsWithPagination.js";
+import NoUuidSection from "./components/NoUuidSection.js";
+import InputCredentialSection from "./components/InputCredentialSection.js";
+import ReviewEncryptSection from "./components/ReviewEncryptSection.js";
+import { PageFooter, EmptyPageFooter } from "./components/PageFooter.js";
+import { Election } from "./election_utils.js";
 
 const relativeServerRootFolder = "../../..";
 

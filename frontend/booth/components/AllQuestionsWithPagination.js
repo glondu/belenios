@@ -1,9 +1,9 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import { QuestionWithVotableAnswers } from "./QuestionWithVotableAnswers.mjs";
-import { QuestionTypeEnum, detectQuestionType } from "../election_utils.mjs";
-import VoteNavigation from "./VoteNavigation.mjs";
+import { QuestionWithVotableAnswers } from "./QuestionWithVotableAnswers.js";
+import { QuestionTypeEnum, detectQuestionType } from "../election_utils.js";
+import VoteNavigation from "./VoteNavigation.js";
 
 const deepCloneArray = (currentArray) => {
   return currentArray.map((element) => {
