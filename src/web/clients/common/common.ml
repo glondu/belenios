@@ -66,6 +66,16 @@ let get_input id =
   | Some x -> x
   | None -> Printf.ksprintf failwith "<input> %s is missing" id
 
+let get_checked_opt id =
+  Option.map
+    (fun x -> Js.to_bool x##.checked)
+    (Dom_html.getElementById_coerce id Dom_html.CoerceTo.input)
+
+let get_checked id =
+  match get_checked_opt id with
+  | Some x -> x
+  | None -> Printf.ksprintf failwith "<input> %s is missing" id
+
 let set_input id z =
   Option.iter
     (fun x -> x##.value := Js.string z)

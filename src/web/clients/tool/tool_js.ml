@@ -244,9 +244,24 @@ let new_uuid () =
   set_textarea "election_uuid" uuid;
   Lwt.return_unit
 
+module Schulze = struct
+  let compute () =
+    let ballots =
+      get_textarea "schulze_raw_plaintext_ballots"
+      |> condorcet_ballots_of_string
+    in
+    let nchoices = get_input "schulze_nchoices" |> int_of_string in
+    let blank_allowed = get_checked "schulze_blank" in
+    let output = Schulze.compute ~nchoices ~blank_allowed ballots in
+    set_textarea "schulze_output" (string_of_schulze_result output);
+    Lwt.return_unit
+
+  let cmds = [ ("do_schulze", compute) ]
+end
+
 let cmds =
   [ ("new_uuid", new_uuid) ]
-  @ Tests.cmds @ Tkeygen.cmds @ Credgen.cmds @ Mkelection.cmds
+  @ Tests.cmds @ Tkeygen.cmds @ Credgen.cmds @ Mkelection.cmds @ Schulze.cmds
 
 let () =
   Lwt.async (fun () ->

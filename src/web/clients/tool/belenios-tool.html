@@ -117,5 +117,28 @@
         </div>
       </div>
     </div>
+    <div id="method-schulze">
+      <h3>Condorcet-Schulze method</h3>
+      <div>
+        <div>
+          <label for="schulze_raw_plaintext_ballots">Raw plaintext ballots:</label>
+          <div><textarea id="schulze_raw_plaintext_ballots" rows="10" cols="80"></textarea></div>
+        </div>
+        <div>
+          <label for="schulze_nchoices">Number of choices:</label>
+          <input type="number" id="schulze_nchoices"/>
+        </div>
+        <div>
+          <input type="checkbox" id="schulze_blank" checked/><label for="schulze_blank">Allow blank</label>
+        </div>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <div>
+          <button id="do_schulze">Compute</button>
+          <div><textarea id="schulze_output" rows="10" cols="80"></textarea></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
