@@ -28,10 +28,10 @@ install: site.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
 format:
 	npx prettier ./booth --write
 
-booth/dist/bundle.production.js: package-lock.json booth/*.mjs booth/components/*.mjs
+booth/dist/bundle.production.js: package-lock.json booth/*.js booth/components/*.js
 	( cd booth && npx webpack --config webpack.config.js --mode production ) && mv booth/dist/bundle.js $@
 
-booth/dist/bundle.development.js: package-lock.json booth/*.mjs booth/components/*.mjs
+booth/dist/bundle.development.js: package-lock.json booth/*.js booth/components/*.js
 	( cd booth && npx webpack --config webpack.config.js --mode development ) && mv booth/dist/bundle.js $@
 
 booth/bundle.js: booth/dist/$(BUNDLE)

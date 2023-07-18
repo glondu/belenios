@@ -1,9 +1,9 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { markup } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.js";
 
-import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.mjs";
-import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.mjs";
+import DisplayDependingOnWindowWidth from "./DisplayDependingOnWindowWidth.js";
+import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_colors.js";
 
 function MajorityJudgmentVoteRecapForCandidateBig({
   candidateName,

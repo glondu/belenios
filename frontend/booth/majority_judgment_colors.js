@@ -1,4 +1,4 @@
-import { lerpInArray, hslToCssColor } from "./color_utils.mjs";
+import { lerpInArray, hslToCssColor } from "./color_utils.js";
 
 const gradeIndexToCssColor = (
   gradesHslColorScale,

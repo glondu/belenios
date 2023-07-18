@@ -1,7 +1,7 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import { WhiteNiceButton } from "./NiceButton.mjs";
+import { WhiteNiceButton } from "./NiceButton.js";
 
 function TranslatableNoUuidSection({
   onClickLoadFromUuid = null,

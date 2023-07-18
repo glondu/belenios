@@ -1,11 +1,11 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import { QuestionTypeEnum } from "../election_utils.mjs";
-import ClassicVoteRecap from "./ClassicVoteRecap.mjs";
-import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.mjs";
-import PreferentialVotingVoteRecap from "./PreferentialVotingVoteRecap.mjs";
-import PreferentialVotingWithoutEqualityVoteRecap from "./PreferentialVotingWithoutEqualityVoteRecap.mjs";
+import { QuestionTypeEnum } from "../election_utils.js";
+import ClassicVoteRecap from "./ClassicVoteRecap.js";
+import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.js";
+import PreferentialVotingVoteRecap from "./PreferentialVotingVoteRecap.js";
+import PreferentialVotingWithoutEqualityVoteRecap from "./PreferentialVotingWithoutEqualityVoteRecap.js";
 
 function TranslatableWholeVoteRecap({
   electionObject = null,

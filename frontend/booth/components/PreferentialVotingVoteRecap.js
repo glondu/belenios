@@ -1,8 +1,8 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { markup } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.js";
 
-import { buildColumnLabel } from "./PreferentialVotingCandidatesList.mjs";
+import { buildColumnLabel } from "./PreferentialVotingCandidatesList.js";
 
 function PreferentialVotingVoteRecapForPreferenceLevel({
   preference_level_title,

@@ -1,9 +1,9 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import WholeVoteRecap from "./WholeVoteRecap.mjs";
-import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.mjs";
-import LoadingSpinner from "./LoadingSpinner.mjs";
+import WholeVoteRecap from "./WholeVoteRecap.js";
+import { WhiteNiceButton, BlueNiceButton, NiceButton } from "./NiceButton.js";
+import LoadingSpinner from "./LoadingSpinner.js";
 
 function TranslatableReviewEncryptSection({
   electionObject = null,

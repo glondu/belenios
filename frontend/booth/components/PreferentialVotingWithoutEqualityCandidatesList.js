@@ -2,8 +2,8 @@ import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 import { DragDropContext } from "react-beautiful-dnd";
 
-import CandidateWithCheckbox from "./CandidateWithCheckbox.mjs";
-import PreferentialVotingWithoutEqualityColumn from "./PreferentialVotingWithoutEqualityColumn.mjs";
+import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
+import PreferentialVotingWithoutEqualityColumn from "./PreferentialVotingWithoutEqualityColumn.js";
 
 const buildColumnLabel = (column, columnOrderIndex, t) => {
   return column && column.title

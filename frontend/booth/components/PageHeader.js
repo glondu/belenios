@@ -1,6 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { markup } from "../shortcuts.mjs";
+import { markup } from "../shortcuts.js";
 
 function TranslatablePageHeader({ title, subTitle, t }) {
   return e(

@@ -1,7 +1,7 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 
-import CandidateWithInput from "./CandidateWithInput.mjs";
+import CandidateWithInput from "./CandidateWithInput.js";
 
 function TranslatableGenericVoteCandidatesList({
   candidates,
