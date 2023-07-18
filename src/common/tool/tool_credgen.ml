@@ -71,7 +71,7 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
     let serialize (e, (w, id)) =
       G.to_string e
       ^ (if implicit_weights then ","
-        else Printf.sprintf ",%s" (Weight.to_string w))
+         else Printf.sprintf ",%s" (Weight.to_string w))
       ^ Printf.sprintf ",%s" id
     in
     let serialize_public (e, (w, _)) =

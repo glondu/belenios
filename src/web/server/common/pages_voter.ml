@@ -887,7 +887,7 @@ struct
               txt (s_ " anytime during the election.");
               txt
                 (if email then s_ " A confirmation e-mail has been sent to you."
-                else "");
+                 else "");
             ],
             read_snippet ~lang !Web_config.success_snippet,
             s_ "Thank you for voting!" )
@@ -938,8 +938,8 @@ struct
             [
               a ~service:election_pretty_ballot [ txt h ] ((uuid, ()), h);
               (if show_weights then
-               Printf.ksprintf txt " (%s)" (Weight.to_string w)
-              else txt "");
+                 Printf.ksprintf txt " (%s)" (Weight.to_string w)
+               else txt "");
             ])
         hashes
     in

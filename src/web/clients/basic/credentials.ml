@@ -65,8 +65,9 @@ let show main uuid =
               let uuid_ = Uuid.wrap uuid in
               let show_weight = has_explicit_weights xs in
               let version = draft.draft_version in
-              let module G = (val Belenios.Group.of_string ~version
-                                    draft.draft_group : GROUP)
+              let module G =
+                (val Belenios.Group.of_string ~version draft.draft_group
+                    : GROUP)
               in
               let module CMap = Map.Make (G) in
               let module CD = Belenios_core.Credential.MakeDerive (G) in

@@ -240,7 +240,7 @@ let tabs x =
                 let* draft = Cache.get_until_success Cache.draft in
                 Lwt.return
                   (if draft.draft_questions.t_questions = [||] then `Todo
-                  else `Done)),
+                   else `Done)),
         (fun () -> Lwt.return true),
         default_handler x )
   | Voters ->
@@ -358,8 +358,8 @@ let tabs x =
         default_handler x )
   | ElectionPage ->
       ( (if is_draft then s_ "Preview"
-        else if is_finished then s_ "Results page"
-        else s_ "Election main page"),
+         else if is_finished then s_ "Results page"
+         else s_ "Election main page"),
         (fun () -> Lwt.return `None),
         (fun () ->
           if not is_draft then Lwt.return true
@@ -514,8 +514,8 @@ let subtab_elt name () =
   let attr = [ a_class [ String.concat " " classes ] ] in
   let title = div ~a:attr [ txt title ] in
   (if available then
-   let r = Tyxml_js.To_dom.of_div title in
-   r##.onclick := lwt_handler handler);
+     let r = Tyxml_js.To_dom.of_div title in
+     r##.onclick := lwt_handler handler);
   let* status = status () in
   let status =
     match status with
@@ -814,7 +814,7 @@ let voters_content () =
           [
             txt
               (if is_frozen then s_ "Voter list (not editable):"
-              else s_ "Voter list:");
+               else s_ "Voter list:");
           ];
         div
           ~a:[ a_id "list_warning" ]
@@ -834,69 +834,69 @@ let voters_content () =
           ];
         tablex [ tbody (header_row :: rows_of_voters) ];
         (if is_frozen then div []
-        else
-          let max =
-            match config with
-            | Error _ -> "maybe 2500"
-            | Ok c -> string_of_int c.max_voters
-          in
-          div
-            [
-              rm_button;
-              div
-                ~a:[ a_id "addtolist" ]
-                [
-                  div
-                    [
-                      txt
-                        (Printf.sprintf
-                           (f_
-                              "Please enter the identities of voters to add, \
-                               one per line (max %s).")
-                           max);
-                    ];
-                  div
-                    [
-                      tt;
-                      div
-                        ~a:[ a_class [ "tooltip" ] ]
-                        [
-                          div [ txt "?" ];
-                          div
-                            ~a:[ a_class [ "tooltiptext" ] ]
-                            [
-                              txt
-                                (s_
-                                   "An identity is either \"address\", or \
-                                    \"address,username\", or \
-                                    \"address,username,weight\", or \
-                                    \"address,,weight\" where \"address\" is \
-                                    an e-mail address, \"username\" the \
-                                    associated user name for authentication, \
-                                    and \"weight\" is the number of votes of \
-                                    the voter (in case voters don't have all \
-                                    the same number of votes).");
-                            ];
-                        ];
-                    ];
-                  add_button;
-                  div
-                    ~a:[ a_id "import_block" ]
-                    [
-                      h4 [ txt @@ s_ "Import voters " ];
-                      ul
-                        [
-                          li [ import_but ];
-                          li
-                            [
-                              txt @@ s_ "from a file: ";
-                              upload_input;
-                              upload_button;
-                            ];
-                        ];
-                    ];
-                ];
-            ]);
+         else
+           let max =
+             match config with
+             | Error _ -> "maybe 2500"
+             | Ok c -> string_of_int c.max_voters
+           in
+           div
+             [
+               rm_button;
+               div
+                 ~a:[ a_id "addtolist" ]
+                 [
+                   div
+                     [
+                       txt
+                         (Printf.sprintf
+                            (f_
+                               "Please enter the identities of voters to add, \
+                                one per line (max %s).")
+                            max);
+                     ];
+                   div
+                     [
+                       tt;
+                       div
+                         ~a:[ a_class [ "tooltip" ] ]
+                         [
+                           div [ txt "?" ];
+                           div
+                             ~a:[ a_class [ "tooltiptext" ] ]
+                             [
+                               txt
+                                 (s_
+                                    "An identity is either \"address\", or \
+                                     \"address,username\", or \
+                                     \"address,username,weight\", or \
+                                     \"address,,weight\" where \"address\" is \
+                                     an e-mail address, \"username\" the \
+                                     associated user name for authentication, \
+                                     and \"weight\" is the number of votes of \
+                                     the voter (in case voters don't have all \
+                                     the same number of votes).");
+                             ];
+                         ];
+                     ];
+                   add_button;
+                   div
+                     ~a:[ a_id "import_block" ]
+                     [
+                       h4 [ txt @@ s_ "Import voters " ];
+                       ul
+                         [
+                           li [ import_but ];
+                           li
+                             [
+                               txt @@ s_ "from a file: ";
+                               upload_input;
+                               upload_button;
+                             ];
+                         ];
+                     ];
+                 ];
+             ]);
       ]
   else
     (* Running election *)

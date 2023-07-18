@@ -606,16 +606,16 @@ struct
                 [
                   txt (s_ "Authentication scheme: password");
                   (if List.for_all (fun v -> v.sv_password <> None) se.se_voters
-                  then div [ txt (s_ "All passwords have been sent!") ]
-                  else
-                    post_form ~service:election_draft_auth_genpwd
-                      (fun () ->
-                        [
-                          input ~input_type:`Submit
-                            ~value:(s_ "Generate and mail missing passwords")
-                            string;
-                        ])
-                      uuid);
+                   then div [ txt (s_ "All passwords have been sent!") ]
+                   else
+                     post_form ~service:election_draft_auth_genpwd
+                       (fun () ->
+                         [
+                           input ~input_type:`Submit
+                             ~value:(s_ "Generate and mail missing passwords")
+                             string;
+                         ])
+                       uuid);
                 ]
           | `Dummy -> div [ txt (s_ "Authentication scheme: dummy") ]
           | `CAS server ->
@@ -693,52 +693,52 @@ struct
         [
           h2 [ txt (s_ "Credentials") ];
           (if se.se_public_creds_received then
-           let div_private_creds =
-             if cred_auth_is_server then
-               div
-                 [
-                   a ~service:election_draft_credentials_get
-                     [ txt (s_ "Download private credentials") ]
-                     uuid;
-                 ]
-             else txt ""
-           in
-           let div_edit_credential_authority_name =
-             if cred_auth_is_server then txt ""
-             else
-               div
-                 [
-                   a ~service:election_draft_credential_authority
-                     [ txt (s_ "Edit credential authority name") ]
-                     uuid;
-                 ]
-           in
-           div
-             [
-               div [ txt (s_ "Credentials have already been generated!") ];
-               div_edit_credential_authority_name;
-               div_private_creds;
-             ]
-          else
-            div
-              [
-                txt (s_ "Warning: this will freeze the voter list!");
-                (if cred_auth_is_server then
-                 post_form ~service:election_draft_credentials_server
-                   (fun () ->
-                     [
-                       input ~input_type:`Submit
-                         ~value:(s_ "Generate on server") string;
-                     ])
-                   uuid
-                else
-                  div
-                    [
-                      a ~service:election_draft_credential_authority
-                        [ txt (s_ "Credential management") ]
-                        uuid;
-                    ]);
-              ]);
+             let div_private_creds =
+               if cred_auth_is_server then
+                 div
+                   [
+                     a ~service:election_draft_credentials_get
+                       [ txt (s_ "Download private credentials") ]
+                       uuid;
+                   ]
+               else txt ""
+             in
+             let div_edit_credential_authority_name =
+               if cred_auth_is_server then txt ""
+               else
+                 div
+                   [
+                     a ~service:election_draft_credential_authority
+                       [ txt (s_ "Edit credential authority name") ]
+                       uuid;
+                   ]
+             in
+             div
+               [
+                 div [ txt (s_ "Credentials have already been generated!") ];
+                 div_edit_credential_authority_name;
+                 div_private_creds;
+               ]
+           else
+             div
+               [
+                 txt (s_ "Warning: this will freeze the voter list!");
+                 (if cred_auth_is_server then
+                    post_form ~service:election_draft_credentials_server
+                      (fun () ->
+                        [
+                          input ~input_type:`Submit
+                            ~value:(s_ "Generate on server") string;
+                        ])
+                      uuid
+                  else
+                    div
+                      [
+                        a ~service:election_draft_credential_authority
+                          [ txt (s_ "Credential management") ]
+                          uuid;
+                      ]);
+               ]);
         ]
     in
     let link_confirm =
@@ -893,8 +893,8 @@ struct
                       td
                         [
                           (if t.st_id = "server" then
-                           txt (s_ "(cannot be removed)")
-                          else mk_form_trustee_del t.st_id);
+                             txt (s_ "(cannot be removed)")
+                           else mk_form_trustee_del t.st_id);
                         ];
                     ]
                 in
@@ -948,16 +948,16 @@ struct
             [
               trustees;
               (if x.dbp_trustees <> [] then
-               div
-                 [
-                   txt
-                     (s_
-                        "There is one link per trustee. Send each trustee the \
-                         respective link.");
-                   br ();
-                   br ();
-                 ]
-              else txt "");
+                 div
+                   [
+                     txt
+                       (s_
+                          "There is one link per trustee. Send each trustee \
+                           the respective link.");
+                     br ();
+                     br ();
+                   ]
+               else txt "");
               form_trustees_add;
             ]
       | `Threshold _ -> txt ""
@@ -1090,13 +1090,13 @@ struct
                        td
                          [
                            (if this_line then
-                            a ~service:election_draft_threshold_trustees
-                              [ txt (s_ "Hide link") ]
-                              uuid
-                           else
-                             Raw.a
-                               ~a:[ a_href (Xml.uri_of_string uri) ]
-                               [ txt (s_ "Link") ]);
+                              a ~service:election_draft_threshold_trustees
+                                [ txt (s_ "Hide link") ]
+                                uuid
+                            else
+                              Raw.a
+                                ~a:[ a_href (Xml.uri_of_string uri) ]
+                                [ txt (s_ "Link") ]);
                          ];
                        td [ txt state ];
                      ]
@@ -1239,17 +1239,17 @@ struct
           br ();
           trustees;
           (if dtp.dtp_trustees <> [] then
-           div
-             [
-               txt
-                 (s_
-                    "There is one link per trustee. Send a link to each \
-                     trustee.");
-               br ();
-               br ();
-               maybe_error;
-             ]
-          else txt "");
+             div
+               [
+                 txt
+                   (s_
+                      "There is one link per trustee. Send a link to each \
+                       trustee.");
+                 br ();
+                 br ();
+                 maybe_error;
+               ]
+           else txt "");
           form_trustees_add;
           form_reset;
         ]
@@ -1665,7 +1665,7 @@ struct
                 (tr
                    ([ th [ txt (s_ "Identity") ] ]
                    @ (if has_passwords then [ th [ txt (s_ "Password sent?") ] ]
-                     else [])
+                      else [])
                    @
                    if se.se_public_creds_received then []
                    else [ th [ txt (s_ "Remove") ] ])
@@ -2575,17 +2575,17 @@ struct
                                (s_ "Mail");
                              txt " | ";
                              (if this_line then
-                              a ~service:election_admin
-                                [ txt (s_ "Hide link") ]
-                                uuid
-                             else
-                               Raw.a
-                                 ~a:
-                                   [
-                                     a_href (Xml.uri_of_string uri);
-                                     a_id "shuffle-link";
-                                   ]
-                                 [ txt (s_ "Link") ]);
+                                a ~service:election_admin
+                                  [ txt (s_ "Hide link") ]
+                                  uuid
+                              else
+                                Raw.a
+                                  ~a:
+                                    [
+                                      a_href (Xml.uri_of_string uri);
+                                      a_id "shuffle-link";
+                                    ]
+                                  [ txt (s_ "Link") ]);
                            ]
                   | None ->
                       return
