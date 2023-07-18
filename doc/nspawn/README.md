@@ -14,7 +14,7 @@ takes a few hundreds MB. Several instances can be deployed on the same
 machine. It is expected that these instances listen on localhost, and
 that a reverse-proxy on the host exposes them on different vhosts or
 directories of some vhost, with TLS. Configuring the reverse-proxy is
-out of the scope of this document.
+documented [here](../reverse-proxy.md).
 
 This technique requires Linux and root privileges. If you don't trust
 something, it is suggested to use a virtual machine.
