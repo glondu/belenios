@@ -897,8 +897,8 @@ struct
                       return_some (title, msg, 400)
                     else
                       let version = se.se_version in
-                      let module G = (val Group.of_string ~version se.se_group
-                                        : GROUP)
+                      let module G =
+                        (val Group.of_string ~version se.se_group : GROUP)
                       in
                       let module Trustees =
                         (val Trustees.get_by_version version)
@@ -1594,8 +1594,8 @@ struct
                       ts
                   in
                   let version = se.se_version in
-                  let module G = (val Group.of_string ~version se.se_group
-                                    : GROUP)
+                  let module G =
+                    (val Group.of_string ~version se.se_group : GROUP)
                   in
                   let module Trustees = (val Trustees.get_by_version version) in
                   let module P = Trustees.MakePKI (G) (Random) in

@@ -617,19 +617,19 @@ let q_to_html ind q all_ro =
   in
   let dd = div ~a:[ a_class attr ] inner in
   (if ro then
-   let r = Tyxml_js.To_dom.of_div dd in
-   r##.onclick :=
-     lwt_handler (fun _ ->
-         if all_ro then Lwt.return_unit
-         else
-           (* Changing the focus of the question implies a sync to server *)
-           let* () = local_save () in
-           let* () = Cache.sync_until_success () in
-           let old_curr = !curr_doing in
-           curr_doing := ind;
-           let* () = !update_question old_curr in
-           let* () = !update_question !curr_doing in
-           scroll_to_active_question ()));
+     let r = Tyxml_js.To_dom.of_div dd in
+     r##.onclick :=
+       lwt_handler (fun _ ->
+           if all_ro then Lwt.return_unit
+           else
+             (* Changing the focus of the question implies a sync to server *)
+             let* () = local_save () in
+             let* () = Cache.sync_until_success () in
+             let old_curr = !curr_doing in
+             curr_doing := ind;
+             let* () = !update_question old_curr in
+             let* () = !update_question !curr_doing in
+             scroll_to_active_question ()));
   Lwt.return dd
 
 let () =
@@ -664,8 +664,8 @@ let draft_recompute_main_zone () =
   in
   let prev = div ~a:[ a_id "previewbooth" ] [ prev_but ] in
   (if Array.length !all_gen_quest > 0 then
-   let r = Tyxml_js.To_dom.of_div prev_but in
-   r##.onclick := lwt_handler (fun () -> Preview.preview_booth ()));
+     let r = Tyxml_js.To_dom.of_div prev_but in
+     r##.onclick := lwt_handler (fun () -> Preview.preview_booth ()));
   let q_show =
     div
       ~a:[ a_class [ "fake_question" ] ]

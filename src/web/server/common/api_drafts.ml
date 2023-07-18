@@ -375,8 +375,8 @@ let generate_credentials_on_server send uuid se =
       |> List.map (fun (cred, (weight, login)) ->
              G.to_string cred
              ^ (if show_weight then
-                Printf.sprintf ",%s" (Weight.to_string weight)
-               else ",")
+                  Printf.sprintf ",%s" (Weight.to_string weight)
+                else ",")
              ^ Printf.sprintf ",%s" login)
     in
     let* () = Web_persist.set_draft_public_credentials uuid public_creds in
