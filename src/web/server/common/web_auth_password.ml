@@ -32,18 +32,34 @@ let does_allow_signups c =
   | Some x -> bool_of_string x
   | None -> false
 
+module Channel = struct
+  type t = { uuid : uuid option; name : string }
+
+  let equal = Stdlib.( = )
+  let hash = Hashtbl.hash
+end
+
+module Throttle = Lwt_throttle.Make (Channel)
+
 module Make
     (Web_services : Web_services_sig.S)
     (Pages_common : Pages_common_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
+  let throttle = Throttle.create ~rate:1 ~max:5 ~n:!Web_config.maxmailsatonce
+
   let check uuid a name password =
-    match uuid with
-    | None -> (
-        match List.assoc_opt "db" a.auth_config with
-        | Some db -> check_password_with_file ~db ~name_or_email:name ~password
-        | _ -> failwith "invalid configuration for admin site")
-    | Some uuid -> Web_persist.check_password uuid ~user:name ~password
+    let channel = Channel.{ uuid; name } in
+    let* b = Throttle.wait throttle channel in
+    if b then
+      match uuid with
+      | None -> (
+          match List.assoc_opt "db" a.auth_config with
+          | Some db ->
+              check_password_with_file ~db ~name_or_email:name ~password
+          | _ -> failwith "invalid configuration for admin site")
+      | Some uuid -> Web_persist.check_password uuid ~user:name ~password
+    else Lwt.return_none
 
   let auth_system uuid a =
     let module X = struct
