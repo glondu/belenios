@@ -66,7 +66,8 @@ Deploying
 
 We assume the deployment server runs Linux, systemd and has
 `systemd-nspawn` installed. We also assume that `systemd-resolved` is
-running, and an MTA is installed and listening on localhost.
+running, and an [MTA](../mta.md) is installed and listening on
+localhost.
 
 When deploying on a server for the first time, run:
 
