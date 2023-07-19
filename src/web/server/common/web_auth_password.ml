@@ -158,7 +158,7 @@ let do_change_password ~db_fname ~username ~password () =
 let add_account user ~password ~email =
   if String.trim password = password then
     if is_username user.user_name then
-      let* c = Web_signup.cracklib_check password in
+      let* c = Web_signup.check_password password in
       match c with
       | Some e -> return (Error (BadPassword e))
       | None -> (
@@ -177,7 +177,7 @@ let add_account user ~password ~email =
 
 let change_password user ~password =
   if String.trim password = password then
-    let* c = Web_signup.cracklib_check password in
+    let* c = Web_signup.check_password password in
     match c with
     | Some e -> return (Error (BadPassword e))
     | None -> (

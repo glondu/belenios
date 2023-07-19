@@ -33,4 +33,4 @@ val send_changepw_link :
 
 val confirm_link : string -> (string * string * link_kind) option Lwt.t
 val remove_link : string -> unit Lwt.t
-val cracklib_check : string -> string option Lwt.t
+val check_password : string -> string option Lwt.t

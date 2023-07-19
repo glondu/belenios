@@ -92,3 +92,28 @@ let cracklib_check password =
       let* x = Lwt_process.pmap ~env:[| "LANG=C" |] cracklib password in
       Lwt.return (extract_comment x)
   | Some _ -> Lwt.return_some "newline in password"
+
+let is_lower = function 'a' .. 'z' -> true | _ -> false
+let is_upper = function 'A' .. 'Z' -> true | _ -> false
+let is_digit = function '0' .. '9' -> true | _ -> false
+
+let is_special c =
+  let i = int_of_char c in
+  (32 < i && i < 48)
+  || (57 < i && i < 65)
+  || (90 < i && i < 97)
+  || (122 < i && i < 127)
+
+let complexity_check password =
+  if String.length password < 12 then Some "less than 12 characters"
+  else if not (String.exists is_lower password) then Some "no lowercase letter"
+  else if not (String.exists is_upper password) then Some "no uppercase letter"
+  else if not (String.exists is_digit password) then Some "no digit"
+  else if not (String.exists is_special password) then
+    Some "no special character"
+  else None
+
+let check_password password =
+  match complexity_check password with
+  | Some x -> Lwt.return_some x
+  | None -> cracklib_check password
