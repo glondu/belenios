@@ -506,5 +506,5 @@ ou encore :
 
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
-Vous pouvez également utiliser [l'outil en ligne](https://vote.belenios.org/compute-fingerprint) mis à disposition par
+Vous pouvez également utiliser [l'outil en ligne](https://vote.belenios.org/tools/compute-fingerprint) mis à disposition par
 Belenios.

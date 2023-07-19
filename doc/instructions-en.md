@@ -480,5 +480,5 @@ but of course you may replace it by any other file.
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
 You may also use
-[the online tool](https://vote.belenios.org/compute-fingerprint)
+[the online tool](https://vote.belenios.org/tools/compute-fingerprint)
 supported by Belenios.
