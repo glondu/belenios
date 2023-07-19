@@ -80,8 +80,7 @@ ext/libsodium/LICENSE
 ext/libsodium/README.md
 ext/libsodium/build.sh
 ext/libsodium/dune
-ext/libsodium/gen.sh
-ext/libsodium/libsodium.in.js
+ext/libsodium/libsodium.js
 ext/libsodium/libsodium.wasm
 ext/sjcl/LICENSE.txt
 ext/sjcl/README.md

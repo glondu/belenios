@@ -1,7 +1,4 @@
-(rule
- (target libsodium.js)
- (deps libsodium.wasm libsodium.in.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run ./gen.sh))))
+(install
+ (files libsodium.wasm)
+ (section share)
+ (package belenios-server))
