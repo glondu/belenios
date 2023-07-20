@@ -86,7 +86,8 @@ let unwrap = function
 type counting_method =
   [ `None
   | `MajorityJudgment of Question_nh_t.mj_extra
-  | `Schulze of Question_nh_t.schulze_extra ]
+  | `Schulze of Question_nh_t.schulze_extra
+  | `STV of Question_nh_t.stv_extra ]
 
 let get_counting_method extra =
   let open Question_nh_j in
@@ -100,6 +101,10 @@ let get_counting_method extra =
       | Some (`String "Schulze") -> (
           match extra |> Yojson.Safe.to_string |> schulze_extra_of_string with
           | x -> `Schulze x
+          | exception _ -> `None)
+      | Some (`String "STV") -> (
+          match extra |> Yojson.Safe.to_string |> stv_extra_of_string with
+          | x -> `STV x
           | exception _ -> `None)
       | _ -> `None)
   | _ -> `None

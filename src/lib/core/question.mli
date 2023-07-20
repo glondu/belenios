@@ -32,7 +32,8 @@ val unwrap : t -> Yojson.Safe.t
 type counting_method =
   [ `None
   | `MajorityJudgment of Question_nh_t.mj_extra
-  | `Schulze of Question_nh_t.schulze_extra ]
+  | `Schulze of Question_nh_t.schulze_extra
+  | `STV of Question_nh_t.stv_extra ]
 
 val get_counting_method : Yojson.Safe.t option -> counting_method
 val erase_question : t -> t

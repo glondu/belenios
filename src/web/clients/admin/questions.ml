@@ -44,7 +44,7 @@ type gen_quest = {
   sel_min : int;
   sel_max : int;
   seats : int;
-  count_meth : [ `None | `MJ | `Schulze ];
+  count_meth : [ `None | `MJ | `Schulze | `STV ];
   grade_names : string array;
 }
 
@@ -93,15 +93,17 @@ let q_to_gen q =
           default_grades )
     | NonHomomorphic (q, extra) ->
         let me = get_counting_method extra in
-        let bk, ki, gr, me =
+        let bk, ki, gr, me, seats =
           match me with
           | `Schulze o ->
-              (o.schulze_extra_blank, `Sort, default_grades, `Schulze)
+              (o.schulze_extra_blank, `Sort, default_grades, `Schulze, 1)
+          | `STV o ->
+              (o.stv_extra_blank, `Sort, default_grades, `STV, o.stv_extra_seats)
           | `MajorityJudgment o ->
-              (o.mj_extra_blank, `Grade, o.mj_extra_grades, `MJ)
-          | `None -> (false, `Grade, default_grades, `None)
+              (o.mj_extra_blank, `Grade, o.mj_extra_grades, `MJ, 1)
+          | `None -> (false, `Grade, default_grades, `None, 1)
         in
-        (q.q_question, q.q_answers, bk, ki, 1, 1, 1, me, gr)
+        (q.q_question, q.q_answers, bk, ki, 1, 1, seats, me, gr)
   in
   {
     question;

@@ -49,3 +49,8 @@ type mj_extra = {
 type schulze_extra = {
   blank : bool;
 } <ocaml field_prefix="schulze_extra_">
+
+type stv_extra = {
+  blank : bool;
+  seats : int;
+} <ocaml field_prefix="stv_extra_">

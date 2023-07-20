@@ -65,7 +65,7 @@ let default_schulze_specification =
   "{\"type\":\"PreferentialVoting\",\"blank\":true,\"method\":\"Schulze\"}"
 
 let default_stv_specification =
-  "{\"type\":\"PreferentialVoting\",\"blank\":true,\"method\":\"STV\"}"
+  "{\"type\":\"PreferentialVoting\",\"blank\":true,\"method\":\"STV\",\"seats\":1}"
 
 (* Getting the OCaml structure out of the DOM *)
 

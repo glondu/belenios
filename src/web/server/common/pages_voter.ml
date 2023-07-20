@@ -184,6 +184,75 @@ struct
       blank;
     ]
 
+  let stv_content l q r =
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
+    let winners =
+      r.stv_winners
+      |> List.map (fun i -> q.Question_nh_t.q_answers.(i))
+      |> List.map (fun l -> li [ txt l ])
+    in
+    let invalid =
+      ( ( r.stv_invalid |> string_of_mj_ballots |> fun x ->
+          "data:application/json," ^ x )
+      |> fun x ->
+        direct_a x
+          (Printf.sprintf
+             (f_ "%d invalid ballot(s)")
+             (Array.length r.stv_invalid)) )
+      |> fun x ->
+      div
+        [
+          x;
+          txt ". ";
+          txt
+            (s_
+               "A ballot is invalid if two candidates have been given the same \
+                preference order or if a rank is missing.");
+        ]
+    in
+    let events =
+      ( r.stv_events |> string_of_stv_events |> fun x ->
+        "data:application/json," ^ x )
+      |> fun x -> direct_a x (s_ "Raw events")
+    in
+    let tie =
+      if
+        List.exists
+          (function `TieWin _ | `TieLose _ -> true | _ -> false)
+          r.stv_events
+      then
+        div
+          [
+            txt (s_ "There has been at least one tie.");
+            txt " ";
+            txt
+              (s_
+                 "Many variants of STV exist, depending for example on how to \
+                  break ties.");
+            txt " ";
+            txt
+              (s_
+                 "In our implementation, when several candidates have the same \
+                  number of votes when they are ready to be elected or \
+                  eliminated, we follow the order in which candidates were \
+                  listed in the election.");
+            txt " ";
+            txt
+              (s_
+                 "Such candidates are marked as \"TieWin\" when they are \
+                  elected and as \"TieLose\" if they have lost.");
+            txt " ";
+            txt (s_ "Look at the raw events for more details.");
+          ]
+      else txt ""
+    in
+    [
+      div [ txt (s_ "The Single Transferable Vote winners are:"); ul winners ];
+      tie;
+      div [ events ];
+      div [ invalid ];
+    ]
+
   let format_question_result uuid l i r q =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     match (q, r) with
@@ -236,6 +305,11 @@ struct
               let r = Schulze.compute ~nchoices ~blank_allowed ballots in
               let contents = schulze_content l q r in
               (div ~a:[ a_class [ "schulze_result" ] ] contents, false)
+          | `STV o ->
+              let nseats = o.stv_extra_seats in
+              let r = Stv.compute ~nseats ballots in
+              let contents = stv_content l q r in
+              (div ~a:[ a_class [ "stv_result" ] ] contents, false)
         in
         let others =
           if show_others then
@@ -1106,73 +1180,6 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title = s_ "Single Transferable Vote method" in
-    let winners =
-      r.stv_winners
-      |> List.map (fun i -> q.Question_nh_t.q_answers.(i))
-      |> List.map (fun l -> li [ txt l ])
-    in
-    let invalid =
-      ( ( r.stv_invalid |> string_of_mj_ballots |> fun x ->
-          "data:application/json," ^ x )
-      |> fun x ->
-        direct_a x
-          (Printf.sprintf
-             (f_ "%d invalid ballot(s)")
-             (Array.length r.stv_invalid)) )
-      |> fun x ->
-      div
-        [
-          x;
-          txt ". ";
-          txt
-            (s_
-               "A ballot is invalid if two candidates have been given the same \
-                preference order or if a rank is missing.");
-        ]
-    in
-    let events =
-      ( r.stv_events |> string_of_stv_events |> fun x ->
-        "data:application/json," ^ x )
-      |> fun x -> direct_a x (s_ "Raw events")
-    in
-    let tie =
-      if
-        List.exists
-          (function `TieWin _ | `TieLose _ -> true | _ -> false)
-          r.stv_events
-      then
-        div
-          [
-            txt (s_ "There has been at least one tie.");
-            txt " ";
-            txt
-              (s_
-                 "Many variants of STV exist, depending for example on how to \
-                  break ties.");
-            txt " ";
-            txt
-              (s_
-                 "In our implementation, when several candidates have the same \
-                  number of votes when they are ready to be elected or \
-                  eliminated, we follow the order in which candidates were \
-                  listed in the election.");
-            txt " ";
-            txt
-              (s_
-                 "Such candidates are marked as \"TieWin\" when they are \
-                  elected and as \"TieLose\" if they have lost.");
-            txt " ";
-            txt (s_ "Look at the raw events for more details.");
-          ]
-      else txt ""
-    in
-    let content =
-      [
-        div [ txt (s_ "The Single Transferable Vote winners are:"); ul winners ];
-        tie;
-        div [ events ];
-        div [ invalid ];
-      ]
-    in
+    let content = stv_content l q r in
     base ~title ~content ()
 end
