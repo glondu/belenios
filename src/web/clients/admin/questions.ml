@@ -35,7 +35,6 @@ open Common
  * irrelevant parts of the record.
  * This is closer to what is shown to the user.
  *)
-(* TODO(seats) : the number of seats is not properly taken into account in the API *)
 type gen_quest = {
   question : string;
   answers : string array;
@@ -130,15 +129,27 @@ let gen_to_q q =
         }
   | `Sort ->
       let extra =
-        `Assoc
-          [
-            ("type", `String "PreferentialVoting");
-            ("blank", `Bool q.blank);
-            ("method", `String "Schulze");
-          ]
+        match q.count_meth with
+        | `Schulze ->
+            Some
+              (`Assoc
+                [
+                  ("type", `String "PreferentialVoting");
+                  ("blank", `Bool q.blank);
+                  ("method", `String "Schulze");
+                ])
+        | `STV ->
+            Some
+              (`Assoc
+                [
+                  ("type", `String "PreferentialVoting");
+                  ("blank", `Bool q.blank);
+                  ("seats", `Int q.seats);
+                  ("method", `String "STV");
+                ])
+        | _ -> None
       in
-      NonHomomorphic
-        ({ q_question = q.question; q_answers = q.answers }, Some extra)
+      NonHomomorphic ({ q_question = q.question; q_answers = q.answers }, extra)
   | `Grade ->
       let extra =
         `Assoc
@@ -328,19 +339,46 @@ let q_to_html_inner ind q =
                  ];
              ]
     | `Sort ->
-        (* TODO(seats) *)
-        (*
-      let attr = [a_input_type `Number; a_id ("seats"^string_of_int(ind)); a_input_min (`Number 1); a_input_max (`Number (Array.length q.answers))] in
-      let attr = if ro then (a_disabled () :: attr) else attr in
-      let inp_seats, _ = input ~a:attr (string_of_int !all_gen_quest.(ind-1).seats) in
-      let r = Tyxml_js.To_dom.of_input inp_seats in
-      r##.onchange := lwt_handler (fun () ->
-          let value = int_of_string (Js.to_string r##.value) in
-          !all_gen_quest.(!curr_doing) <- { !all_gen_quest.(!curr_doing) with
-            seats = value };
-          !update_question !curr_doing
-      );
-        *)
+        let update_count_meth count_meth =
+          let current = !all_gen_quest.(!curr_doing) in
+          if current.count_meth <> count_meth then (
+            !all_gen_quest.(!curr_doing) <- { current with count_meth };
+            !update_question !curr_doing)
+          else Lwt.return_unit
+        in
+        let inp_seats, _ =
+          let attr =
+            [
+              a_input_type `Number;
+              a_id ("seats" ^ string_of_int ind);
+              a_input_min (`Number 1);
+              a_input_max (`Number (Array.length q.answers));
+            ]
+          in
+          let attr = if ro then a_disabled () :: attr else attr in
+          input ~a:attr (string_of_int !all_gen_quest.(ind - 1).seats)
+        in
+        let r = Tyxml_js.To_dom.of_input inp_seats in
+        r##.onchange :=
+          lwt_handler (fun () ->
+              let value = int_of_string (Js.to_string r##.value) in
+              !all_gen_quest.(!curr_doing) <-
+                { (!all_gen_quest.(!curr_doing)) with seats = value };
+              !update_question !curr_doing);
+        let div_seats =
+          div
+            [
+              label
+                ~a:[ a_label_for ("seats" ^ string_of_int ind) ]
+                [ txt @@ s_ "Number of seats:"; txt " " ];
+              inp_seats;
+            ]
+        in
+        let dom_seats = Tyxml_js.To_dom.of_div div_seats in
+        let () =
+          let display = if q.count_meth = `STV then "block" else "none" in
+          dom_seats##.style##.display := Js.string display
+        in
         let rad_name = "sort" ^ string_of_int ind in
         let inp_sort_rad1, _ =
           let attr =
@@ -355,31 +393,41 @@ let q_to_html_inner ind q =
           in
           input ~a:attr ""
         in
+        let r = Tyxml_js.To_dom.of_input inp_sort_rad1 in
+        r##.onchange :=
+          lwt_handler (fun () ->
+              let checked = Js.to_bool r##.checked in
+              let display = if checked then "none" else "block" in
+              dom_seats##.style##.display := Js.string display;
+              let count_meth = if checked then `Schulze else `STV in
+              update_count_meth count_meth);
         let inp_sort_rad2, _ =
           let attr =
             [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_2") ]
           in
-          let attr = if false then a_checked () :: attr else attr in
-          (* STV is currently not available: disable this button *)
           let attr =
-            if true then a_disabled () :: attr
+            if q.count_meth = `STV then a_checked () :: attr else attr
+          in
+          let attr =
+            if ro then a_disabled () :: attr
             else a_class [ "clickable" ] :: attr
           in
           input ~a:attr ""
         in
+        let r = Tyxml_js.To_dom.of_input inp_sort_rad2 in
+        r##.onchange :=
+          lwt_handler (fun () ->
+              let checked = Js.to_bool r##.checked in
+              let display = if checked then "block" else "none" in
+              dom_seats##.style##.display := Js.string display;
+              let count_meth = if checked then `STV else `Schulze in
+              update_count_meth count_meth);
         Lwt.return
         @@ div
              ~a:[ a_class [ "expand_sort" ] ]
              [
                div
                  [
-                   (* TODO(seats) *)
-                   (*
-          div [
-            inp_seats;
-            label ~a:[a_label_for ("seats"^string_of_int(ind))] [txt "Nombre de sièges à pourvoir"];
-          ];
-                              *)
                    div
                      [
                        inp_sort_rad1;
@@ -393,6 +441,7 @@ let q_to_html_inner ind q =
                        label
                          ~a:[ a_label_for (rad_name ^ "_2") ]
                          [ txt @@ s_ "STV method" ];
+                       div_seats;
                      ];
                  ];
              ]
