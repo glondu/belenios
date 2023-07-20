@@ -1,5 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
+import { markup } from "../shortcuts.js";
 
 function PreferentialVotingWithoutEqualityVoteRecapForPreferenceLevel({
   preference_level_title,
