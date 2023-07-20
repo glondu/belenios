@@ -200,9 +200,11 @@ let q_to_html_inner ind q =
   let ro = not (!curr_doing = ind) in
   let ind = ind + 1 in
   (* text of the question *)
-  let attr = [ a_class [ "qtit" ]; a_id ("q" ^ string_of_int ind) ] in
-  let attr = if ro then a_readonly () :: attr else attr in
-  let inp_tit, _ = input ~a:attr q.question in
+  let inp_tit, _ =
+    let attr = [ a_class [ "qtit" ]; a_id ("q" ^ string_of_int ind) ] in
+    let attr = if ro then a_readonly () :: attr else attr in
+    input ~a:attr q.question
+  in
   let r = Tyxml_js.To_dom.of_input inp_tit in
   r##.onchange :=
     lwt_handler (fun _ ->
@@ -214,24 +216,32 @@ let q_to_html_inner ind q =
         !update_question !curr_doing);
   (* type of question, select, sort or grade *)
   let rad_name = "type" ^ string_of_int ind in
-  let attr = [ a_name rad_name; a_id (rad_name ^ "_1"); a_input_type `Radio ] in
-  let attr = if q.kind = `Select then a_checked () :: attr else attr in
-  let attr =
-    if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+  let inp_rad1, _ =
+    let attr =
+      [ a_name rad_name; a_id (rad_name ^ "_1"); a_input_type `Radio ]
+    in
+    let attr = if q.kind = `Select then a_checked () :: attr else attr in
+    let attr =
+      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+    in
+    input ~a:attr ""
   in
-  let inp_rad1, _ = input ~a:attr "" in
   let r = Tyxml_js.To_dom.of_input inp_rad1 in
   r##.onchange :=
     lwt_handler (fun () ->
         !all_gen_quest.(!curr_doing) <-
           { (!all_gen_quest.(!curr_doing)) with kind = `Select };
         !update_question !curr_doing);
-  let attr = [ a_name rad_name; a_id (rad_name ^ "_2"); a_input_type `Radio ] in
-  let attr = if q.kind = `Sort then a_checked () :: attr else attr in
-  let attr =
-    if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+  let inp_rad2, _ =
+    let attr =
+      [ a_name rad_name; a_id (rad_name ^ "_2"); a_input_type `Radio ]
+    in
+    let attr = if q.kind = `Sort then a_checked () :: attr else attr in
+    let attr =
+      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+    in
+    input ~a:attr ""
   in
-  let inp_rad2, _ = input ~a:attr "" in
   let r = Tyxml_js.To_dom.of_input inp_rad2 in
   r##.onchange :=
     lwt_handler (fun () ->
@@ -241,12 +251,16 @@ let q_to_html_inner ind q =
           !all_gen_quest.(!curr_doing) <-
             { (!all_gen_quest.(!curr_doing)) with count_meth = `Schulze };
         !update_question !curr_doing);
-  let attr = [ a_name rad_name; a_id (rad_name ^ "_3"); a_input_type `Radio ] in
-  let attr = if q.kind = `Grade then a_checked () :: attr else attr in
-  let attr =
-    if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+  let inp_rad3, _ =
+    let attr =
+      [ a_name rad_name; a_id (rad_name ^ "_3"); a_input_type `Radio ]
+    in
+    let attr = if q.kind = `Grade then a_checked () :: attr else attr in
+    let attr =
+      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+    in
+    input ~a:attr ""
   in
-  let inp_rad3, _ = input ~a:attr "" in
   let r = Tyxml_js.To_dom.of_input inp_rad3 in
   r##.onchange :=
     lwt_handler (fun () ->
@@ -269,8 +283,8 @@ let q_to_html_inner ind q =
           ]
         in
         let attr = if ro then a_disabled () :: attr else attr in
-        let attr1 = a_id ("selm" ^ string_of_int ind) :: attr in
         let inp_selm, _ =
+          let attr1 = a_id ("selm" ^ string_of_int ind) :: attr in
           input ~a:attr1 (string_of_int !all_gen_quest.(ind - 1).sel_min)
         in
         let r = Tyxml_js.To_dom.of_input inp_selm in
@@ -280,8 +294,8 @@ let q_to_html_inner ind q =
               !all_gen_quest.(!curr_doing) <-
                 { (!all_gen_quest.(!curr_doing)) with sel_min = value };
               !update_question !curr_doing);
-        let attr2 = a_id ("selM" ^ string_of_int ind) :: attr in
         let inp_selM, _ =
+          let attr2 = a_id ("selM" ^ string_of_int ind) :: attr in
           input ~a:attr2 (string_of_int !all_gen_quest.(ind - 1).sel_max)
         in
         let r = Tyxml_js.To_dom.of_input inp_selM in
@@ -328,26 +342,31 @@ let q_to_html_inner ind q =
       );
         *)
         let rad_name = "sort" ^ string_of_int ind in
-        let attr =
-          [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_1") ]
+        let inp_sort_rad1, _ =
+          let attr =
+            [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_1") ]
+          in
+          let attr =
+            if q.count_meth = `Schulze then a_checked () :: attr else attr
+          in
+          let attr =
+            if ro then a_disabled () :: attr
+            else a_class [ "clickable" ] :: attr
+          in
+          input ~a:attr ""
         in
-        let attr =
-          if q.count_meth = `Schulze then a_checked () :: attr else attr
+        let inp_sort_rad2, _ =
+          let attr =
+            [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_2") ]
+          in
+          let attr = if false then a_checked () :: attr else attr in
+          (* STV is currently not available: disable this button *)
+          let attr =
+            if true then a_disabled () :: attr
+            else a_class [ "clickable" ] :: attr
+          in
+          input ~a:attr ""
         in
-        let attr =
-          if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
-        in
-        let inp_sort_rad1, _ = input ~a:attr "" in
-        let attr =
-          [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_2") ]
-        in
-        let attr = if false then a_checked () :: attr else attr in
-        (* STV is currently not available: disable this button *)
-        let attr =
-          if true then a_disabled () :: attr
-          else a_class [ "clickable" ] :: attr
-        in
-        let inp_sort_rad2, _ = input ~a:attr "" in
         Lwt.return
         @@ div
              ~a:[ a_class [ "expand_sort" ] ]
@@ -462,12 +481,14 @@ let q_to_html_inner ind q =
              [ div (div [ txt @@ s_ "Proposed grades:" ] :: list_grades) ]
   in
   (* blank choice *)
-  let attr = [ a_id ("blank" ^ string_of_int ind); a_input_type `Checkbox ] in
-  let attr = if q.blank then a_checked () :: attr else attr in
-  let attr =
-    if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+  let inp, _ =
+    let attr = [ a_id ("blank" ^ string_of_int ind); a_input_type `Checkbox ] in
+    let attr = if q.blank then a_checked () :: attr else attr in
+    let attr =
+      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+    in
+    input ~a:attr ""
   in
-  let inp, _ = input ~a:attr "" in
   let r = Tyxml_js.To_dom.of_input inp in
   r##.onchange :=
     lwt_handler (fun _ ->
