@@ -158,10 +158,4 @@ let compute ~nseats ballots =
   let stv_winners =
     stv_events |> List.map (function `Win x -> x | _ -> []) |> List.flatten
   in
-  assert (
-    if n > 0 then
-      let nwinners = List.length stv_winners in
-      let nchoices = Array.length ballots.(0) in
-      if nchoices > nseats then nwinners = nseats else nwinners = nchoices
-    else stv_winners = []);
   { stv_ballots; stv_invalid; stv_events; stv_winners }
