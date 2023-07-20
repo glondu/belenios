@@ -71,7 +71,7 @@ Add the following lines to the relevant section of
 `/etc/nginx/sites-available/vote.example.org`:
 ```
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+    add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; img-src 'self' data:;" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer" always;
