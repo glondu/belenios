@@ -29,69 +29,58 @@ module Sjcl = struct
 
   type bits
 
-  class type codec =
-    object
-      method fromBits : bits -> js_string t meth
-      method toBits : js_string t -> bits meth
-    end
+  class type codec = object
+    method fromBits : bits -> js_string t meth
+    method toBits : js_string t -> bits meth
+  end
 
-  class type codecs =
-    object
-      method hex : codec t readonly_prop
-      method utf8String : codec t readonly_prop
-      method base64 : codec t readonly_prop
-    end
+  class type codecs = object
+    method hex : codec t readonly_prop
+    method utf8String : codec t readonly_prop
+    method base64 : codec t readonly_prop
+  end
 
-  class type hash =
-    object
-      method hash : js_string t -> bits meth
-    end
+  class type hash = object
+    method hash : js_string t -> bits meth
+  end
 
-  class type hashes =
-    object
-      method sha256 : hash t readonly_prop
-    end
+  class type hashes = object
+    method sha256 : hash t readonly_prop
+  end
 
-  class type cipher =
-    object
-      method encrypt : bits -> bits meth
-    end
+  class type cipher = object
+    method encrypt : bits -> bits meth
+  end
 
-  class type ciphers =
-    object
-      method aes : (bits -> cipher t) constr readonly_prop
-    end
+  class type ciphers = object
+    method aes : (bits -> cipher t) constr readonly_prop
+  end
 
-  class type mode =
-    object
-      method encrypt : cipher t -> bits -> bits -> bits meth
-      method decrypt : cipher t -> bits -> bits -> bits meth
-    end
+  class type mode = object
+    method encrypt : cipher t -> bits -> bits -> bits meth
+    method decrypt : cipher t -> bits -> bits -> bits meth
+  end
 
-  class type modes =
-    object
-      method ccm : mode t readonly_prop
-    end
+  class type modes = object
+    method ccm : mode t readonly_prop
+  end
 
-  class type random =
-    object
-      method randomWords : int -> bits meth
-    end
+  class type random = object
+    method randomWords : int -> bits meth
+  end
 
-  class type misc =
-    object
-      method pbkdf2 : js_string t -> bits -> int -> int -> bits meth
-    end
+  class type misc = object
+    method pbkdf2 : js_string t -> bits -> int -> int -> bits meth
+  end
 
-  class type sjcl =
-    object
-      method codec : codecs t readonly_prop
-      method hash : hashes t readonly_prop
-      method cipher : ciphers t readonly_prop
-      method mode : modes t readonly_prop
-      method random : random t readonly_prop
-      method misc : misc t readonly_prop
-    end
+  class type sjcl = object
+    method codec : codecs t readonly_prop
+    method hash : hashes t readonly_prop
+    method cipher : ciphers t readonly_prop
+    method mode : modes t readonly_prop
+    method random : random t readonly_prop
+    method misc : misc t readonly_prop
+  end
 
   let sjcl : sjcl t = belenios##.sjcl
   let hex = sjcl##.codec##.hex
@@ -158,32 +147,31 @@ module BigIntCompat = struct
 
   type bigint
 
-  class type lib =
-    object
-      method _ZERO : bigint readonly_prop
-      method _ONE : bigint readonly_prop
-      method ofInt : int -> bigint meth
-      method ofString : js_string t -> bigint meth
-      method ofHex : js_string t -> bigint meth
-      method add : bigint -> bigint -> bigint meth
-      method subtract : bigint -> bigint -> bigint meth
-      method multiply : bigint -> bigint -> bigint meth
-      method divide : bigint -> bigint -> bigint meth
-      method _mod : bigint -> bigint -> bigint meth
-      method toInt : bigint -> int meth
-      method toString : bigint -> js_string t meth
-      method toHex : bigint -> js_string t meth
-      method compare : bigint -> bigint -> int meth
-      method modPow : bigint -> bigint -> bigint -> bigint meth
-      method modInverse : bigint -> bigint -> bigint meth
-      method bitLength : bigint -> int meth
-      method isProbablePrime : bigint -> int -> int meth
-      method shiftLeft : bigint -> int -> bigint meth
-      method shiftRight : bigint -> int -> bigint meth
-      method _and : bigint -> bigint -> bigint meth
-      method _or : bigint -> bigint -> bigint meth
-      method xor : bigint -> bigint -> bigint meth
-    end
+  class type lib = object
+    method _ZERO : bigint readonly_prop
+    method _ONE : bigint readonly_prop
+    method ofInt : int -> bigint meth
+    method ofString : js_string t -> bigint meth
+    method ofHex : js_string t -> bigint meth
+    method add : bigint -> bigint -> bigint meth
+    method subtract : bigint -> bigint -> bigint meth
+    method multiply : bigint -> bigint -> bigint meth
+    method divide : bigint -> bigint -> bigint meth
+    method _mod : bigint -> bigint -> bigint meth
+    method toInt : bigint -> int meth
+    method toString : bigint -> js_string t meth
+    method toHex : bigint -> js_string t meth
+    method compare : bigint -> bigint -> int meth
+    method modPow : bigint -> bigint -> bigint -> bigint meth
+    method modInverse : bigint -> bigint -> bigint meth
+    method bitLength : bigint -> int meth
+    method isProbablePrime : bigint -> int -> int meth
+    method shiftLeft : bigint -> int -> bigint meth
+    method shiftRight : bigint -> int -> bigint meth
+    method _and : bigint -> bigint -> bigint meth
+    method _or : bigint -> bigint -> bigint meth
+    method xor : bigint -> bigint -> bigint meth
+  end
 
   let lib : lib t = belenios##._BigIntCompat
 end
@@ -236,16 +224,15 @@ module Z = struct
   let hash_to_int x = to_int (erem x hash_modulus)
 end
 
-class type libsodium =
-  object
-    method bytes : unit -> int Js.meth
-    method scalarbytes : unit -> int Js.meth
-    method is_valid_point_ : int -> int Js.meth
-    method scalarmult : int -> int -> int -> int Js.meth
-    method add : int -> int -> int -> int Js.meth
-    method base : int Js.readonly_prop
-    method buffer : Typed_array.uint8Array Js.t Js.readonly_prop
-  end
+class type libsodium = object
+  method bytes : unit -> int Js.meth
+  method scalarbytes : unit -> int Js.meth
+  method is_valid_point_ : int -> int Js.meth
+  method scalarmult : int -> int -> int -> int Js.meth
+  method add : int -> int -> int -> int Js.meth
+  method base : int Js.readonly_prop
+  method buffer : Typed_array.uint8Array Js.t Js.readonly_prop
+end
 
 let build_libsodium_stubs (libsodium : libsodium Js.t) =
   let module X : Signatures.LIBSODIUM_STUBS = struct

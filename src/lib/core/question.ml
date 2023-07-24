@@ -188,19 +188,19 @@ struct
                     'a Question_signature.t ->
                     G.t Shape.t list ->
                     'a Election_result.t =
-          fun (type a) (qs : a Question_signature.t) xs ->
-           let r : a Election_result.t =
-             match (qs, xs) with
-             | Nil, [] -> Nil
-             | Nil, _ -> invalid_arg "compute_result: list too long"
-             | _, [] -> invalid_arg "compute_result: list too short"
-             | Homomorphic qs, x :: xs ->
-                 Homomorphic (Lazy.force compute_h x, loop qs xs)
-             | NonHomomorphic (num_answers, qs), x :: xs ->
-                 NonHomomorphic
-                   (QNonHomomorphic.compute_result ~num_answers x, loop qs xs)
-           in
-           r
+         fun (type a) (qs : a Question_signature.t) xs ->
+          let r : a Election_result.t =
+            match (qs, xs) with
+            | Nil, [] -> Nil
+            | Nil, _ -> invalid_arg "compute_result: list too long"
+            | _, [] -> invalid_arg "compute_result: list too short"
+            | Homomorphic qs, x :: xs ->
+                Homomorphic (Lazy.force compute_h x, loop qs xs)
+            | NonHomomorphic (num_answers, qs), x :: xs ->
+                NonHomomorphic
+                  (QNonHomomorphic.compute_result ~num_answers x, loop qs xs)
+          in
+          r
         in
         loop qs (Array.to_list xs)
 
@@ -214,17 +214,16 @@ struct
                     G.t Shape.t list ->
                     'a Election_result.t ->
                     bool =
-          fun (type a) (qs : a Question_signature.t) xs
-              (rs : a Election_result.t) ->
-           match (qs, xs, rs) with
-           | Nil, [], Nil -> true
-           | Nil, _, Nil -> invalid_arg "check_result: list too long"
-           | _, [], _ -> invalid_arg "check_result: list too short"
-           | Homomorphic qs, x :: xs, Homomorphic (r, rs) ->
-               QHomomorphic.check_result ~num_tallied x r && loop qs xs rs
-           | NonHomomorphic (num_answers, qs), x :: xs, NonHomomorphic (r, rs)
-             ->
-               QNonHomomorphic.check_result ~num_answers x r && loop qs xs rs
+         fun (type a) (qs : a Question_signature.t) xs
+             (rs : a Election_result.t) ->
+          match (qs, xs, rs) with
+          | Nil, [], Nil -> true
+          | Nil, _, Nil -> invalid_arg "check_result: list too long"
+          | _, [], _ -> invalid_arg "check_result: list too short"
+          | Homomorphic qs, x :: xs, Homomorphic (r, rs) ->
+              QHomomorphic.check_result ~num_tallied x r && loop qs xs rs
+          | NonHomomorphic (num_answers, qs), x :: xs, NonHomomorphic (r, rs) ->
+              QNonHomomorphic.check_result ~num_answers x r && loop qs xs rs
         in
         loop qs (Array.to_list xs) rs
 end

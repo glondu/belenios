@@ -387,7 +387,7 @@ let tabs x =
           else if is_draft then is_ready ()
           else Lwt.return false),
         default_handler x )
-  | Tally -> (
+  | Tally ->
       ( s_ "Tally the election",
         (fun () -> Lwt.return `None),
         (fun () ->
@@ -461,7 +461,7 @@ let tabs x =
                 !update_election_main ()
             | _ ->
                 alert ("Failed with error code " ^ string_of_int x.code);
-                Lwt.return_unit ))
+                Lwt.return_unit )
   | Destroy ->
       ( s_ "Delete the election",
         (fun () -> Lwt.return `None),

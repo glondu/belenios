@@ -172,17 +172,17 @@ module Election_result = struct
       | _ -> failwith "list expected in Election_result.wrap"
     in
     let rec loop : 'a. 'a Question_signature.t -> Yojson.Safe.t list -> 'a t =
-      fun (type a) (s : a Question_signature.t) x ->
-       let r : a t =
-         match (s, x) with
-         | Nil, [] -> Nil
-         | Nil, _ -> failwith "list too long in Election_result.wrap"
-         | Homomorphic s, x :: xs -> Homomorphic (wrap_homomorphic x, loop s xs)
-         | NonHomomorphic (_, s), x :: xs ->
-             NonHomomorphic (wrap_nonhomomorphic x, loop s xs)
-         | _, [] -> failwith "list too short in Election_result.wrap"
-       in
-       r
+     fun (type a) (s : a Question_signature.t) x ->
+      let r : a t =
+        match (s, x) with
+        | Nil, [] -> Nil
+        | Nil, _ -> failwith "list too long in Election_result.wrap"
+        | Homomorphic s, x :: xs -> Homomorphic (wrap_homomorphic x, loop s xs)
+        | NonHomomorphic (_, s), x :: xs ->
+            NonHomomorphic (wrap_nonhomomorphic x, loop s xs)
+        | _, [] -> failwith "list too short in Election_result.wrap"
+      in
+      r
     in
     loop s x
 
@@ -197,11 +197,11 @@ module Election_result = struct
 
   let unwrap x =
     let rec loop : 'a. 'a t -> Yojson.Safe.t list =
-      fun (type a) (x : a t) ->
-       match x with
-       | Nil -> []
-       | Homomorphic (x, xs) -> unwrap_homomorphic x :: loop xs
-       | NonHomomorphic (x, xs) -> unwrap_nonhomomorphic x :: loop xs
+     fun (type a) (x : a t) ->
+      match x with
+      | Nil -> []
+      | Homomorphic (x, xs) -> unwrap_homomorphic x :: loop xs
+      | NonHomomorphic (x, xs) -> unwrap_nonhomomorphic x :: loop xs
     in
     `List (loop x)
 
@@ -209,13 +209,13 @@ module Election_result = struct
     if i < 0 then invalid_arg "Election_result.nth: negative index"
     else
       let rec loop : 'a. int -> 'a t -> Question_result.t =
-        fun (type a) i (xs : a t) ->
-         match (i, xs) with
-         | _, Nil -> invalid_arg "Election_result.nth: out of bounds"
-         | 0, Homomorphic (x, _) -> `Homomorphic x
-         | 0, NonHomomorphic (x, _) -> `NonHomomorphic x
-         | i, Homomorphic (_, xs) -> loop (i - 1) xs
-         | i, NonHomomorphic (_, xs) -> loop (i - 1) xs
+       fun (type a) i (xs : a t) ->
+        match (i, xs) with
+        | _, Nil -> invalid_arg "Election_result.nth: out of bounds"
+        | 0, Homomorphic (x, _) -> `Homomorphic x
+        | 0, NonHomomorphic (x, _) -> `NonHomomorphic x
+        | i, Homomorphic (_, xs) -> loop (i - 1) xs
+        | i, NonHomomorphic (_, xs) -> loop (i - 1) xs
       in
       loop i x
 
@@ -223,19 +223,19 @@ module Election_result = struct
     let n = Array.length ys in
     let fail () = invalid_arg "Election_result.map2" in
     let rec loop : 'a. int -> 'a t -> c list -> c list =
-      fun (type a) i (xs : a t) accu ->
-       match xs with
-       | Nil -> if i = n then List.rev accu else fail ()
-       | Homomorphic (x, xs) ->
-           if i < n then
-             let accu = f i (`Homomorphic x) ys.(i) :: accu in
-             loop (i + 1) xs accu
-           else fail ()
-       | NonHomomorphic (x, xs) ->
-           if i < n then
-             let accu = f i (`NonHomomorphic x) ys.(i) :: accu in
-             loop (i + 1) xs accu
-           else fail ()
+     fun (type a) i (xs : a t) accu ->
+      match xs with
+      | Nil -> if i = n then List.rev accu else fail ()
+      | Homomorphic (x, xs) ->
+          if i < n then
+            let accu = f i (`Homomorphic x) ys.(i) :: accu in
+            loop (i + 1) xs accu
+          else fail ()
+      | NonHomomorphic (x, xs) ->
+          if i < n then
+            let accu = f i (`NonHomomorphic x) ys.(i) :: accu in
+            loop (i + 1) xs accu
+          else fail ()
     in
     loop 0 xs []
 end
