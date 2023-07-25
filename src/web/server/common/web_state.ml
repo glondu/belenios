@@ -39,9 +39,6 @@ module Make () = struct
   let precast_data = Eliom_reference.eref ~scope:belenios_scope None
   let cast_confirmed = Eliom_reference.eref ~scope:belenios_scope None
   let language = Eliom_reference.eref ~scope:default_scope None
-
-  type link_kind = [ `CreateAccount | `ChangePassword of string ]
-
   let signup_address = Eliom_reference.eref ~scope:belenios_scope None
   let signup_env = Eliom_reference.eref ~scope:belenios_scope None
   let set_email_env = Eliom_reference.eref ~scope:belenios_scope None

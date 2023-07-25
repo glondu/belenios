@@ -19,18 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type link_kind = [ `CreateAccount | `ChangePassword of string ]
-
-val send_confirmation_link :
+val send_confirmation_code :
   (module Belenios_ui.I18n.GETTEXT) -> service:string -> string -> unit Lwt.t
 
-val send_changepw_link :
+val send_changepw_code :
   (module Belenios_ui.I18n.GETTEXT) ->
   service:string ->
   address:string ->
   username:string ->
   unit Lwt.t
 
-val confirm_link : string -> (string * string * link_kind) option Lwt.t
-val remove_link : string -> unit Lwt.t
+val confirm_code :
+  address:string -> code:string -> Web_state_sig.signup_env option
+
 val check_password : string -> string option Lwt.t

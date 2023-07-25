@@ -24,55 +24,43 @@ open Belenios_core
 open Common
 open Web_common
 
-type link_kind = [ `CreateAccount | `ChangePassword of string ]
+module Sender = struct
+  type payload = Web_state_sig.signup_env
 
-type link = {
-  service : string;
-  code : string;
-  l_expiration_time : Datetime.t;
-  kind : link_kind;
-}
+  type context = {
+    kind : Web_state_sig.signup_kind;
+    gettext : (module Belenios_ui.I18n.GETTEXT);
+  }
 
-let links = ref SMap.empty
+  let send ~context ~address ~code =
+    match context.kind with
+    | CreateAccount ->
+        let subject, body =
+          Pages_admin.mail_confirmation_link context.gettext address code
+        in
+        send_email MailAccountCreation ~recipient:address ~subject ~body
+    | ChangePassword _ ->
+        let subject, body =
+          Pages_admin.mail_changepw_link context.gettext address code
+        in
+        send_email MailPasswordChange ~recipient:address ~subject ~body
+end
 
-let filter_links_by_time table =
-  let now = Datetime.now () in
-  SMap.filter
-    (fun _ { l_expiration_time; _ } ->
-      Datetime.compare now l_expiration_time <= 0)
-    table
+module Otp = Otp.Make (Sender) ()
 
-let send_confirmation_link l ~service address =
-  let code = generate_numeric () in
-  let l_expiration_time = Period.add (Datetime.now ()) (Period.second 900) in
-  let kind = `CreateAccount in
-  let link = { service; code; l_expiration_time; kind } in
-  let nlinks = filter_links_by_time !links in
-  links := SMap.add address link nlinks;
-  let subject, body = Pages_admin.mail_confirmation_link l address code in
-  let* () = send_email MailAccountCreation ~recipient:address ~subject ~body in
-  Lwt.return_unit
+let send_confirmation_code gettext ~service address =
+  let kind = Web_state_sig.CreateAccount in
+  let payload = Web_state_sig.{ kind; service } in
+  let context = Sender.{ kind; gettext } in
+  Otp.generate ~payload ~context ~address
 
-let send_changepw_link l ~service ~address ~username =
-  let code = generate_numeric () in
-  let l_expiration_time = Period.add (Datetime.now ()) (Period.second 900) in
-  let kind = `ChangePassword username in
-  let link = { service; code; l_expiration_time; kind } in
-  let nlinks = filter_links_by_time !links in
-  links := SMap.add address link nlinks;
-  let subject, body = Pages_admin.mail_changepw_link l address code in
-  let* () = send_email MailPasswordChange ~recipient:address ~subject ~body in
-  Lwt.return_unit
+let send_changepw_code gettext ~service ~address ~username =
+  let kind = Web_state_sig.ChangePassword { username } in
+  let payload = Web_state_sig.{ kind; service } in
+  let context = Sender.{ kind; gettext } in
+  Otp.generate ~payload ~context ~address
 
-let confirm_link address =
-  links := filter_links_by_time !links;
-  let&* x = SMap.find_opt address !links in
-  Lwt.return_some (x.code, x.service, x.kind)
-
-let remove_link address =
-  links := filter_links_by_time !links;
-  links := SMap.remove address !links;
-  Lwt.return_unit
+let confirm_code = Otp.check
 
 let cracklib =
   let x = "cracklib-check" in

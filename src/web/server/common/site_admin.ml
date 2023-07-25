@@ -1729,7 +1729,7 @@ struct
         in
         match error with
         | None ->
-            let* () = Web_signup.send_confirmation_link l ~service email in
+            let* () = Web_signup.send_confirmation_code l ~service email in
             let* () =
               Eliom_reference.set Web_state.signup_address (Some email)
             in
@@ -1779,7 +1779,7 @@ struct
                   let* () =
                     Eliom_reference.set Web_state.signup_address (Some address)
                   in
-                  Web_signup.send_changepw_link l ~service ~address ~username
+                  Web_signup.send_changepw_code l ~service ~address ~username
             in
             Pages_admin.signup_login ()
         | _ -> changepw_captcha_handler service error email username)
@@ -1791,13 +1791,9 @@ struct
         match address with
         | None -> forbidden ()
         | Some address -> (
-            let* x = Web_signup.confirm_link address in
-            match x with
-            | Some (code2, service, kind) when code = code2 ->
-                let* () =
-                  Eliom_reference.set Web_state.signup_env
-                    (Some (service, kind))
-                in
+            match Web_signup.confirm_code ~address ~code with
+            | Some x ->
+                let* () = Eliom_reference.set Web_state.signup_env (Some x) in
                 redir_preapply signup () ()
             | _ -> forbidden ()))
 
@@ -1806,9 +1802,9 @@ struct
         let* address = Eliom_reference.get Web_state.signup_address in
         let* x = Eliom_reference.get Web_state.signup_env in
         match (address, x) with
-        | Some address, Some (_, `CreateAccount) ->
+        | Some address, Some { kind = CreateAccount; _ } ->
             Pages_admin.signup address None "" >>= Html.send
-        | Some address, Some (_, `ChangePassword username) ->
+        | Some address, Some { kind = ChangePassword { username }; _ } ->
             Pages_admin.changepw ~username ~address None >>= Html.send
         | _ -> forbidden ())
 
@@ -1820,13 +1816,12 @@ struct
         let* address = Eliom_reference.get Web_state.signup_address in
         let* x = Eliom_reference.get Web_state.signup_env in
         match (address, x) with
-        | Some email, Some (service, `CreateAccount) ->
+        | Some email, Some { service; kind = CreateAccount } ->
             if password = password2 then
               let user = { user_name = username; user_domain = service } in
               let* x = Web_auth_password.add_account user ~password ~email in
               match x with
               | Ok () ->
-                  let* () = Web_signup.remove_link email in
                   let* () = Web_state.discard () in
                   let service =
                     preapply ~service:site_login
@@ -1851,13 +1846,12 @@ struct
         let* address = Eliom_reference.get Web_state.signup_address in
         let* x = Eliom_reference.get Web_state.signup_env in
         match (address, x) with
-        | Some address, Some (service, `ChangePassword username) ->
+        | Some address, Some { service; kind = ChangePassword { username } } ->
             if password = password2 then
               let user = { user_name = username; user_domain = service } in
               let* x = Web_auth_password.change_password user ~password in
               match x with
               | Ok () ->
-                  let* () = Web_signup.remove_link address in
                   let* () = Web_state.discard () in
                   let service =
                     preapply ~service:site_login
