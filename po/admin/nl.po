@@ -264,7 +264,7 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:452
+#: src/web/clients/admin/questions.ml:522
 msgid "Add a grade"
 msgstr ""
 
@@ -305,7 +305,7 @@ msgstr ""
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:482
+#: src/web/clients/admin/questions.ml:554
 msgid "Allow blank vote"
 msgstr ""
 
@@ -372,7 +372,7 @@ msgstr ""
 msgid "Are you sure you want to delete this election?"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:591
+#: src/web/clients/admin/questions.ml:663
 msgid "Are you sure you want to delete this question?"
 msgstr ""
 
@@ -1086,7 +1086,7 @@ msgstr ""
 msgid "Go see the result on the election main page!"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:566
+#: src/web/clients/admin/questions.ml:638
 msgid "Grade propositions"
 msgstr ""
 
@@ -1177,11 +1177,11 @@ msgstr ""
 msgid "Insert"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:673
+#: src/web/clients/admin/questions.ml:745
 msgid "Insert a question"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:542
+#: src/web/clients/admin/questions.ml:614
 msgid "Insert an answer"
 msgstr ""
 
@@ -1332,7 +1332,7 @@ msgstr ""
 msgid "Management of credentials:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:310
+#: src/web/clients/admin/questions.ml:337
 msgid "Maximal number of choices to select"
 msgstr ""
 
@@ -1344,11 +1344,11 @@ msgstr ""
 msgid "Meaning of states:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:367
+#: src/web/clients/admin/questions.ml:436
 msgid "Method of Condorcet-Schulze"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:303
+#: src/web/clients/admin/questions.ml:330
 msgid "Minimal number of choices to select"
 msgstr ""
 
@@ -1437,7 +1437,7 @@ msgstr ""
 msgid "Name?"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:535
+#: src/web/clients/admin/questions.ml:607
 msgid "New answer"
 msgstr ""
 
@@ -1445,7 +1445,7 @@ msgstr ""
 msgid "New elections are not allowed on this server."
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:441 src/web/clients/admin/questions.ml:422
+#: src/web/clients/admin/questions.ml:511 src/web/clients/admin/questions.ml:492
 msgid "New grade"
 msgstr ""
 
@@ -1545,6 +1545,10 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:3022
 msgid "Number of records: %d/%d"
+msgstr ""
+
+#: src/web/clients/admin/questions.ml:373
+msgid "Number of seats:"
 msgstr ""
 
 #: src/web/common/mails_admin.ml:256 src/web/common/mails_admin.ml:172
@@ -1747,7 +1751,7 @@ msgstr ""
 msgid "Preview booth"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:663
+#: src/web/clients/admin/questions.ml:735
 msgid "Preview voter's interface"
 msgstr ""
 
@@ -1787,11 +1791,11 @@ msgstr ""
 msgid "Proceed to vote counting"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:568
+#: src/web/clients/admin/questions.ml:640
 msgid "Proposed answers:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:460
+#: src/web/clients/admin/questions.ml:530
 msgid "Proposed grades:"
 msgstr ""
 
@@ -1833,7 +1837,7 @@ msgstr ""
 msgid "Publish the result as soon as possible"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:552
+#: src/web/clients/admin/questions.ml:624
 msgid "Question "
 msgstr ""
 
@@ -1849,7 +1853,7 @@ msgstr ""
 msgid "Questions for election %s"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:679
+#: src/web/clients/admin/questions.ml:751
 #. src/web/server/common/pages_admin.ml:1423
 msgid "Questions:"
 msgstr ""
@@ -1858,7 +1862,7 @@ msgstr ""
 msgid "Questions?"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:700
+#: src/web/clients/admin/questions.ml:772
 msgid "Questions (non editable):"
 msgstr ""
 
@@ -1930,7 +1934,7 @@ msgstr ""
 msgid "Running or finished elections:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:374
+#: src/web/clients/admin/questions.ml:443
 msgid "STV method"
 msgstr ""
 
@@ -1960,7 +1964,7 @@ msgstr ""
 msgid "Security"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:558
+#: src/web/clients/admin/questions.ml:630
 msgid "Select propositions"
 msgstr ""
 
@@ -2035,7 +2039,7 @@ msgstr ""
 msgid "Someone is trying to associate your e-mail address to an account on our Belenios server."
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:562
+#: src/web/clients/admin/questions.ml:634
 msgid "Sort propositions"
 msgstr ""
 
@@ -2531,7 +2535,7 @@ msgstr ""
 msgid "Try it."
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:554
+#: src/web/clients/admin/questions.ml:626
 msgid "Type of answer:"
 msgstr ""
 

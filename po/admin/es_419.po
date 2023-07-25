@@ -270,7 +270,7 @@ msgstr "Configuración de la cuenta"
 msgid "Add"
 msgstr "Agregar"
 
-#: src/web/clients/admin/questions.ml:452
+#: src/web/clients/admin/questions.ml:522
 msgid "Add a grade"
 msgstr ""
 
@@ -313,7 +313,7 @@ msgstr ""
 "Todos los fedatarios deben haber completado una etapa antes de proceder con "
 "la siguiente."
 
-#: src/web/clients/admin/questions.ml:482
+#: src/web/clients/admin/questions.ml:554
 msgid "Allow blank vote"
 msgstr ""
 
@@ -389,7 +389,7 @@ msgstr ""
 msgid "Are you sure you want to delete this election?"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:591
+#: src/web/clients/admin/questions.ml:663
 msgid "Are you sure you want to delete this question?"
 msgstr ""
 
@@ -1130,7 +1130,7 @@ msgstr "Volver a la preparación de la elección"
 msgid "Go see the result on the election main page!"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:566
+#: src/web/clients/admin/questions.ml:638
 msgid "Grade propositions"
 msgstr ""
 
@@ -1225,11 +1225,11 @@ msgstr "Código incorrecto"
 msgid "Insert"
 msgstr "Insertar"
 
-#: src/web/clients/admin/questions.ml:673
+#: src/web/clients/admin/questions.ml:745
 msgid "Insert a question"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:542
+#: src/web/clients/admin/questions.ml:614
 msgid "Insert an answer"
 msgstr ""
 
@@ -1383,7 +1383,7 @@ msgstr ""
 msgid "Management of credentials:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:310
+#: src/web/clients/admin/questions.ml:337
 msgid "Maximal number of choices to select"
 msgstr ""
 
@@ -1395,11 +1395,11 @@ msgstr "¡El número máximo de opciones debe ser mayor que cero!"
 msgid "Meaning of states:"
 msgstr "Significado de los estados:"
 
-#: src/web/clients/admin/questions.ml:367
+#: src/web/clients/admin/questions.ml:436
 msgid "Method of Condorcet-Schulze"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:303
+#: src/web/clients/admin/questions.ml:330
 msgid "Minimal number of choices to select"
 msgstr ""
 
@@ -1488,7 +1488,7 @@ msgstr ""
 msgid "Name?"
 msgstr "¿Nombre?"
 
-#: src/web/clients/admin/questions.ml:535
+#: src/web/clients/admin/questions.ml:607
 msgid "New answer"
 msgstr ""
 
@@ -1496,7 +1496,7 @@ msgstr ""
 msgid "New elections are not allowed on this server."
 msgstr "No se permiten nuevas elecciones en este servidor."
 
-#: src/web/clients/admin/questions.ml:441 src/web/clients/admin/questions.ml:422
+#: src/web/clients/admin/questions.ml:511 src/web/clients/admin/questions.ml:492
 msgid "New grade"
 msgstr ""
 
@@ -1605,6 +1605,10 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:3022
 msgid "Number of records: %d/%d"
 msgstr "Número de registros: %d%d"
+
+#: src/web/clients/admin/questions.ml:373
+msgid "Number of seats:"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:256 src/web/common/mails_admin.ml:172
 msgid "Of course, more cryptographic solutions are welcome as well."
@@ -1826,7 +1830,7 @@ msgstr ""
 msgid "Preview booth"
 msgstr "Previsualizar la urna"
 
-#: src/web/clients/admin/questions.ml:663
+#: src/web/clients/admin/questions.ml:735
 msgid "Preview voter's interface"
 msgstr ""
 
@@ -1866,11 +1870,11 @@ msgstr ""
 msgid "Proceed to vote counting"
 msgstr "Proceder al escrutinio"
 
-#: src/web/clients/admin/questions.ml:568
+#: src/web/clients/admin/questions.ml:640
 msgid "Proposed answers:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:460
+#: src/web/clients/admin/questions.ml:530
 msgid "Proposed grades:"
 msgstr ""
 
@@ -1912,7 +1916,7 @@ msgstr "Nombre público de la autoridad de credenciales:"
 msgid "Publish the result as soon as possible"
 msgstr "Publicar los resultados lo antes posible"
 
-#: src/web/clients/admin/questions.ml:552
+#: src/web/clients/admin/questions.ml:624
 msgid "Question "
 msgstr ""
 
@@ -1928,7 +1932,7 @@ msgstr ""
 msgid "Questions for election %s"
 msgstr "Preguntas para la elección %s"
 
-#: src/web/clients/admin/questions.ml:679
+#: src/web/clients/admin/questions.ml:751
 #. src/web/server/common/pages_admin.ml:1423
 msgid "Questions:"
 msgstr "Preguntas:"
@@ -1937,7 +1941,7 @@ msgstr "Preguntas:"
 msgid "Questions?"
 msgstr "¿Preguntas?"
 
-#: src/web/clients/admin/questions.ml:700
+#: src/web/clients/admin/questions.ml:772
 msgid "Questions (non editable):"
 msgstr ""
 
@@ -2014,7 +2018,7 @@ msgstr ""
 msgid "Running or finished elections:"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:374
+#: src/web/clients/admin/questions.ml:443
 msgid "STV method"
 msgstr ""
 
@@ -2047,7 +2051,7 @@ msgstr "Guarde ambas huellas digitales."
 msgid "Security"
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:558
+#: src/web/clients/admin/questions.ml:630
 msgid "Select propositions"
 msgstr ""
 
@@ -2124,7 +2128,7 @@ msgstr ""
 "Alguien está intentando asociar su dirección de correo electrónico a una "
 "cuenta en nuestro servidor Belenios."
 
-#: src/web/clients/admin/questions.ml:562
+#: src/web/clients/admin/questions.ml:634
 msgid "Sort propositions"
 msgstr ""
 
@@ -2645,7 +2649,7 @@ msgstr "¿Fedatarios?"
 msgid "Try it."
 msgstr ""
 
-#: src/web/clients/admin/questions.ml:554
+#: src/web/clients/admin/questions.ml:626
 msgid "Type of answer:"
 msgstr ""
 
