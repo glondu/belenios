@@ -88,6 +88,16 @@ If you are familiar with OCaml, please read the `opam-bootstrap.sh`
 shell script, or the following two sections to compile Belenios with
 your existing OCaml installation.
 
+OPAM overlay
+------------
+
+Belenios needs some OPAM packages to be patched. This is done in an
+opam repository overlay that you can add with the following command:
+
+    opam repository add belenios-overlay $PWD/ext/opam-overlay
+
+This is automatically handled by `opam-bootstrap.sh`
+
 Command-line tool
 -----------------
 

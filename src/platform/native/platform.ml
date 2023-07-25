@@ -248,19 +248,19 @@ module Libsodium_stubs = struct
   external bytes : unit -> int = "belenios_libsodium_ed25519_bytes" [@@noalloc]
 
   external scalarbytes : unit -> int = "belenios_libsodium_ed25519_scalarbytes"
-    [@@noalloc]
+  [@@noalloc]
 
   external is_valid_point : point -> int
     = "belenios_libsodium_ed25519_is_valid_point"
-    [@@noalloc]
+  [@@noalloc]
 
   external scalarmult : point -> scalar -> point -> int
     = "belenios_libsodium_ed25519_scalarmult"
-    [@@noalloc]
+  [@@noalloc]
 
   external add : point -> point -> point -> int
     = "belenios_libsodium_ed25519_add"
-    [@@noalloc]
+  [@@noalloc]
 end
 
 let libsodium_stubs () =

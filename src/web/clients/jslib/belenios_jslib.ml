@@ -42,18 +42,14 @@ let encryptBallot election cred plaintext callback =
   let tracker = sha256_b64 ballot in
   callback ballot tracker
 
-class type renderingFunctions =
-  object
-    method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
-    method br : int -> Js.Unsafe.any Js.meth
-    method bold : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
-
-    method italic :
-      int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
-
-    method result : Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
-    method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
-  end
+class type renderingFunctions = object
+  method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
+  method br : int -> Js.Unsafe.any Js.meth
+  method bold : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+  method italic : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+  method result : Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+  method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
+end
 
 let belenios =
   object%js
