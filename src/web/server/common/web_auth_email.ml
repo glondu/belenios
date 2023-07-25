@@ -100,6 +100,8 @@ struct
     Web_auth.register ~auth_system:"email" auth_system
 
   module Sender = struct
+    type payload = unit
+
     let send ~address ~code =
       let* subject, body = Pages_common.email_email ~address ~code in
       send_email ~subject ~body ~recipient:address MailLogin
@@ -126,7 +128,7 @@ struct
     in
     match (ok, address) with
     | true, Some address ->
-        let* () = Otp.generate ~address in
+        let* () = Otp.generate ~address ~payload:() in
         let* () = Eliom_reference.set env (Some (state, name, address)) in
         let* () = Eliom_reference.unset uuid_ref in
         let address = if show_email_address then Some address else None in
@@ -179,10 +181,11 @@ struct
                 Web_auth.post_login_handler =
                   (fun _ _ cont ->
                     let* ok =
-                      if Otp.check ~address ~code then
-                        let* () = Eliom_state.discard ~scope () in
-                        return_some (name, address)
-                      else return_none
+                      match Otp.check ~address ~code with
+                      | Some () ->
+                          let* () = Eliom_state.discard ~scope () in
+                          return_some (name, address)
+                      | None -> return_none
                     in
                     cont ok);
               }

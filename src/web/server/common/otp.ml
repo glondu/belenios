@@ -23,17 +23,24 @@ open Belenios_core.Common
 open Web_common
 
 module type SENDER = sig
+  type payload
+
   val send : address:string -> code:string -> unit Lwt.t
 end
 
 module type S = sig
-  val generate : address:string -> unit Lwt.t
-  val check : address:string -> code:string -> bool
+  type payload
+
+  val generate : address:string -> payload:payload -> unit Lwt.t
+  val check : address:string -> code:string -> payload option
 end
 
 module Make (I : SENDER) () = struct
+  type payload = I.payload
+
   type code = {
     code : string;
+    payload : payload;
     expiration_time : Datetime.t;
     mutable trials_left : int;
   }
@@ -46,12 +53,15 @@ module Make (I : SENDER) () = struct
         Datetime.compare now expiration_time <= 0)
       table
 
-  let generate ~address =
+  let generate ~address ~payload =
     let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
     let expiration_time = Period.add now (Period.second 900) in
-    codes := SMap.add address { code; expiration_time; trials_left = 10 } codes_;
+    codes :=
+      SMap.add address
+        { code; payload; expiration_time; trials_left = 10 }
+        codes_;
     I.send ~address ~code
 
   let check ~address ~code =
@@ -59,13 +69,13 @@ module Make (I : SENDER) () = struct
     let codes_ = filter_codes_by_time now !codes in
     codes := codes_;
     match SMap.find_opt address codes_ with
-    | None -> false
+    | None -> None
     | Some x ->
         if x.code = code then (
           codes := SMap.remove address codes_;
-          true)
+          Some x.payload)
         else (
           if x.trials_left > 0 then x.trials_left <- x.trials_left - 1
           else codes := SMap.remove address codes_;
-          false)
+          None)
 end

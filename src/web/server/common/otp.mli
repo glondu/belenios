@@ -20,12 +20,16 @@
 (**************************************************************************)
 
 module type SENDER = sig
+  type payload
+
   val send : address:string -> code:string -> unit Lwt.t
 end
 
 module type S = sig
-  val generate : address:string -> unit Lwt.t
-  val check : address:string -> code:string -> bool
+  type payload
+
+  val generate : address:string -> payload:payload -> unit Lwt.t
+  val check : address:string -> code:string -> payload option
 end
 
-module Make (I : SENDER) () : S
+module Make (I : SENDER) () : S with type payload = I.payload

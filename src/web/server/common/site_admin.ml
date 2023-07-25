@@ -149,6 +149,8 @@ struct
               Pages_admin.admin ~elections)
 
   module SetEmailSender = struct
+    type payload = unit
+
     let send ~address ~code =
       let* l = get_preferred_gettext () in
       let subject, body = Pages_admin_root.mail_set_email l address code in
@@ -164,7 +166,7 @@ struct
           let* () =
             Eliom_reference.set Web_state.set_email_env (Some address)
           in
-          let* () = SetEmailOtp.generate ~address in
+          let* () = SetEmailOtp.generate ~address ~payload:() in
           Pages_admin.set_email_confirm ~address >>= Html.send
         else
           let* l = get_preferred_gettext () in
@@ -179,22 +181,23 @@ struct
         let* x = Eliom_reference.get Web_state.set_email_env in
         match (x, u) with
         | None, _ | _, None -> forbidden ()
-        | Some address, Some (_, a, _) ->
-            if SetEmailOtp.check ~address ~code then
-              let a = { a with email = address } in
-              let* () = Accounts.update_account a in
-              let* () = Web_state.discard () in
-              Redirection.send (Redirection admin)
-            else
-              let* l = get_preferred_gettext () in
-              let open (val l) in
-              let msg =
-                s_
-                  "The provided code is incorrect. Please go back and try \
-                   again."
-              in
-              let title = s_ "Incorrect code" in
-              Pages_common.generic_page ~title msg () >>= Html.send ~code:403)
+        | Some address, Some (_, a, _) -> (
+            match SetEmailOtp.check ~address ~code with
+            | Some () ->
+                let a = { a with email = address } in
+                let* () = Accounts.update_account a in
+                let* () = Web_state.discard () in
+                Redirection.send (Redirection admin)
+            | None ->
+                let* l = get_preferred_gettext () in
+                let open (val l) in
+                let msg =
+                  s_
+                    "The provided code is incorrect. Please go back and try \
+                     again."
+                in
+                let title = s_ "Incorrect code" in
+                Pages_common.generic_page ~title msg () >>= Html.send ~code:403))
 
   let create_new_election (account : account) cred draft_authentication =
     let open Belenios_api.Serializable_t in
