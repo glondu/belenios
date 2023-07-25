@@ -21,15 +21,20 @@
 
 module type SENDER = sig
   type payload
+  type context
 
-  val send : address:string -> code:string -> unit Lwt.t
+  val send : context:context -> address:string -> code:string -> unit Lwt.t
 end
 
 module type S = sig
   type payload
+  type context
 
-  val generate : address:string -> payload:payload -> unit Lwt.t
+  val generate :
+    context:context -> address:string -> payload:payload -> unit Lwt.t
+
   val check : address:string -> code:string -> payload option
 end
 
-module Make (I : SENDER) () : S with type payload = I.payload
+module Make (I : SENDER) () :
+  S with type payload = I.payload and type context = I.context

@@ -24,19 +24,24 @@ open Web_common
 
 module type SENDER = sig
   type payload
+  type context
 
-  val send : address:string -> code:string -> unit Lwt.t
+  val send : context:context -> address:string -> code:string -> unit Lwt.t
 end
 
 module type S = sig
   type payload
+  type context
 
-  val generate : address:string -> payload:payload -> unit Lwt.t
+  val generate :
+    context:context -> address:string -> payload:payload -> unit Lwt.t
+
   val check : address:string -> code:string -> payload option
 end
 
 module Make (I : SENDER) () = struct
   type payload = I.payload
+  type context = I.context
 
   type code = {
     code : string;
@@ -53,7 +58,7 @@ module Make (I : SENDER) () = struct
         Datetime.compare now expiration_time <= 0)
       table
 
-  let generate ~address ~payload =
+  let generate ~context ~address ~payload =
     let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
@@ -62,7 +67,7 @@ module Make (I : SENDER) () = struct
       SMap.add address
         { code; payload; expiration_time; trials_left = 10 }
         codes_;
-    I.send ~address ~code
+    I.send ~context ~address ~code
 
   let check ~address ~code =
     let now = Datetime.now () in

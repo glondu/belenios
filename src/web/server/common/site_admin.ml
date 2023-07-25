@@ -150,8 +150,9 @@ struct
 
   module SetEmailSender = struct
     type payload = unit
+    type context = unit
 
-    let send ~address ~code =
+    let send ~context:() ~address ~code =
       let* l = get_preferred_gettext () in
       let subject, body = Pages_admin_root.mail_set_email l address code in
       send_email ~subject ~recipient:address ~body MailSetEmail
@@ -166,7 +167,7 @@ struct
           let* () =
             Eliom_reference.set Web_state.set_email_env (Some address)
           in
-          let* () = SetEmailOtp.generate ~address ~payload:() in
+          let* () = SetEmailOtp.generate ~context:() ~address ~payload:() in
           Pages_admin.set_email_confirm ~address >>= Html.send
         else
           let* l = get_preferred_gettext () in
