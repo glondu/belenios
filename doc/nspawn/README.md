@@ -34,16 +34,21 @@ the following commands:
 
 The `belenios-stage1.sh` script (which must be run as root) takes a
 directory as argument and bootstraps in it a Debian distribution with
-the appropriate prerequisites, and runs `opam-bootstrap.sh` inside it.
+the appropriate prerequisites and creates a user `belenios`.
 
 One can log into the resulting environment with the command:
 
     systemd-nspawn --directory=/path/to/development/environment --user=belenios
 
-To work on Belenios inside this environment, one must source the
-`/home/belenios/opam-env.sh` file. One can then clone Belenios sources
-(they are expected in `/home/belenios/belenios`), and build them using
-`make build-release-server` (or `make build-debug-server`).
+To work on Belenios inside this environment, the first time, you must:
+- clone Belenios sources (in `/home/belenios/belenios`)
+- go to `/home/belenios/belenios`
+- run `BELENIOS_OPAM_INIT_ARGS=--disable-sandboxing ./opam-bootstrap.sh`
+
+Then, each time you want to build, you must:
+- go to `/home/belenios/belenios`
+- run `. ./env.sh`
+- run `make build-release-server` (or `make build-debug-server`).
 
 
 Building the deployment environment

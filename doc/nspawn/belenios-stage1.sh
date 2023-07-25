@@ -23,8 +23,7 @@ debootstrap --merged-usr --variant=buildd bullseye "$DIR"
 echo 'APT::Install-Recommends "false";' >> "$DIR/etc/apt/apt.conf"
 
 cp "$SRC/belenios-stage2.sh" "$DIR"
-cp "$SRC/../../opam-bootstrap.sh" "$DIR"
 
 systemd-nspawn --directory="$DIR" --tmpfs=/tmp:nosuid,size=768M /belenios-stage2.sh
 
-rm -f "$DIR/belenios-stage2.sh" "$DIR/opam-bootstrap.sh"
+rm -f "$DIR/belenios-stage2.sh"
