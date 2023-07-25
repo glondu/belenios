@@ -44,6 +44,7 @@ To work on Belenios inside this environment, the first time, you must:
 - clone Belenios sources (in `/home/belenios/belenios`)
 - go to `/home/belenios/belenios`
 - run `BELENIOS_OPAM_INIT_ARGS=--disable-sandboxing ./opam-bootstrap.sh`
+- run `head -n2 env.sh > ../opam-env.sh && . ../opam-env.sh && opam env >> ../opam-env.sh`
 
 Then, each time you want to build, you must:
 - go to `/home/belenios/belenios`
