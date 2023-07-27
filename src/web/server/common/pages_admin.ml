@@ -251,12 +251,25 @@ struct
         in
         let try_new_ui =
           div
-            ~a:[ a_class [ "hybrid_box" ] ]
-            [
-              txt (s_ "There is a new experimental administration interface.");
-              txt " ";
-              a ~service:(admin_new ()) [ txt (s_ "Try it.") ] ();
-            ]
+          @@
+          let str, xml =
+            let s_ = Belenios_ui.I18n.s_xml s_ in
+            s_
+              "<div><b>New:</b> try the <a>experimental interface</a> (more \
+               ergonomic)</div>"
+          in
+          match xml with
+          | Element ("div", [], xs) ->
+              List.map
+                (function
+                  | Xml_light_types.PCData x -> txt x
+                  | Element ("b", [], [ PCData x ]) ->
+                      span ~a:[ a_class [ "markup-b" ] ] [ txt x ]
+                  | Element ("a", [], [ PCData x ]) ->
+                      a ~service:(admin_new ()) [ txt x ] ()
+                  | _ -> txt str)
+                xs
+          | _ -> [ txt str ]
         in
         let prepare_new_election =
           if !Web_config.deny_newelection then
@@ -275,8 +288,9 @@ struct
           [
             div
               [
-                try_new_ui;
                 prepare_new_election;
+                div [ br () ];
+                try_new_ui;
                 div [ br () ];
                 h2 [ txt (s_ "Elections being prepared") ];
                 draft;
