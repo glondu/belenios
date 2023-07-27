@@ -238,7 +238,7 @@ msgstr "6. Cliquez sur « Soumettre les parties publiques codes de vote »."
 
 #: src/web/server/common/pages_admin.ml:257
 msgid "<div><b>New:</b> try the <a>experimental interface</a> (more ergonomic)</div>"
-msgstr ""
+msgstr "<div><b>Nouveau :</b> essayez l'<a>interface expérimentale</a> (plus ergonomique)</div>"
 
 #: src/web/server/common/site_admin.ml:508
 msgid "A new password has been mailed to %s."
@@ -1175,7 +1175,7 @@ msgstr "Accueil"
 
 #: src/web/clients/admin/account.ml:53
 msgid "ID: "
-msgstr ""
+msgstr "Identifiant : "
 
 #: src/web/clients/admin/elections.ml:709
 #. src/web/server/common/pages_admin.ml:1680
@@ -1362,7 +1362,7 @@ msgstr "Chargement…"
 
 #: src/web/clients/admin/account.ml:79
 msgid "Log Out"
-msgstr ""
+msgstr "Déconnexion"
 
 #: src/web/server/common/pages_admin.ml:170
 msgid "Log in with"
@@ -1633,7 +1633,7 @@ msgstr "Nombre d'émargements : %d/%d"
 
 #: src/web/clients/admin/questions.ml:373
 msgid "Number of seats:"
-msgstr ""
+msgstr "Nombre de sièges :"
 
 #: src/web/common/mails_admin.ml:256 src/web/common/mails_admin.ml:172
 msgid "Of course, more cryptographic solutions are welcome as well."
