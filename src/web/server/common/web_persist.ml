@@ -1219,12 +1219,13 @@ let make_archive uuid =
 
 let get_archive uuid =
   let* state = get_election_state uuid in
-  if state = `Archived then
-    let archive_name = uuid /// "archive.zip" in
-    let* b = Filesystem.file_exists archive_name in
-    let* () = if not b then make_archive uuid else return_unit in
-    Lwt.return_some archive_name
-  else Lwt.return_none
+  match state with
+  | `Tallied | `Archived ->
+      let archive_name = uuid /// "archive.zip" in
+      let* b = Filesystem.file_exists archive_name in
+      let* () = if not b then make_archive uuid else return_unit in
+      Lwt.return_some archive_name
+  | _ -> Lwt.return_none
 
 type spool_item = Spool_item : 'a Spool.t -> spool_item
 
