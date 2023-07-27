@@ -29,4 +29,10 @@ module type S = sig
   val get : component:string -> lang:string -> (module GETTEXT) Lwt.t
 end
 
-val s_xml : (string -> string) -> string -> string * Xml.xml
+let s_xml translate str =
+  match Xml.parse_string (translate str) with
+  | x -> (str, x)
+  | exception _ -> (
+      match Xml.parse_string str with
+      | x -> (str, x)
+      | exception _ -> (str, PCData str))
