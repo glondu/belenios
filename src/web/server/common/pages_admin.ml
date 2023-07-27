@@ -2884,7 +2884,18 @@ struct
                  release_form;
                ]
       | `Tallied ->
-          return @@ div [ div [ txt (s_ "This election has been tallied.") ] ]
+          return
+          @@ div
+               [
+                 div
+                   [
+                     txt (s_ "This election has been tallied.");
+                     txt " ";
+                     a ~service:election_download_archive
+                       [ txt (s_ "Download archive.") ]
+                       (uuid, ());
+                   ];
+               ]
       | `Archived ->
           return
           @@ div
