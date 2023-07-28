@@ -178,7 +178,7 @@ let election_a2 x kind =
   in
   let r = Tyxml_js.To_dom.of_a elt in
   r##.onclick := lwt_handler (choose_election_handler uuid kind);
-  elt
+  div ~a:[ a_class [ "txt_with_a" ] ] [ elt ]
 
 let list_draft () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -265,7 +265,11 @@ let rec page_body () =
                  update_page_body ());
            let title =
              if active then
-               [ div ~a:[ a_class [ "main-menu__item-active" ] ] []; title ]
+               [
+                 div
+                   ~a:[ a_class [ "positioned" ] ]
+                   [ div ~a:[ a_class [ "main-menu__item-active" ] ] []; title ];
+               ]
              else [ title ]
            in
            (div ~a:[ a_class [ "main-menu__doing" ] ] [] :: title)
