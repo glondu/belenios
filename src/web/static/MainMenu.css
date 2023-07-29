@@ -18,7 +18,7 @@
 }
 
 .main-menu__item, .main-menu__item-menutitle {
-    height: 15px;
+    min-height: 15px;
     font-size: 80%;
     margin-top:5px;
     margin-bottom:5px;
