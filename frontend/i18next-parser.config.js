@@ -4,7 +4,7 @@ module.exports = {
     'booth/components/*.js',
     'booth/app.js'
   ],
-  locales: ['en', 'fr'],
+  locales: ['en', 'ar', 'cs', 'de', 'el', 'es', 'es_419', 'fi', 'fr', 'it', 'jpn_JP', 'lt', 'nb', 'oc', 'pl', 'pt_BR', 'ro', 'uk'],
   keepRemoved: false,
   indentation: 4
 }
