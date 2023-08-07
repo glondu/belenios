@@ -97,7 +97,7 @@ const TranslatableCandidateWithoutEquality = ({
       const candidate = allCandidates[cand.candidateId];
       const candidateLabel = t(
         "preferential_voting_without_equality_move_candidate_above_position_x",
-        { count: cand.index + 1, candidate: candidate.content },
+        { index: cand.index + 1, candidate: candidate.content },
       );
       const destinationColumnAndIndex = `ranked~${cand.index}`;
       return SelectOption({
@@ -120,7 +120,7 @@ const TranslatableCandidateWithoutEquality = ({
       const belowLastLabel = t(
         "preferential_voting_without_equality_move_candidate_below_position_x",
         {
-          count: columns["ranked"]["candidatesIds"].length,
+          index: columns["ranked"]["candidatesIds"].length,
           candidate: bottomRankedCandidate.content,
         },
       );

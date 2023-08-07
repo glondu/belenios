@@ -11,7 +11,7 @@
     "election_server": "Server delle elezioni",
     "ask_to_wait_during_ballot_encryption": "Si prega di attendere, la cifratura della sua scheda elettorale è in corso…",
     "previous_button_label": "Precedente",
-    "breadcrumb_step_x": "Passo {{count}}",
+    "breadcrumb_step_x": "Passo {{step}}",
     "ask_to_select_x_answers": "Si prega di selezionare {{count}} risposta.",
     "ask_to_select_x_answers_plural": "Si prega di selezionare {{count}} risposte.",
     "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto è stato conteggiato.",

@@ -3,7 +3,7 @@
     "alert_question_constraint_no_blank_and_other": "No puedes votar en blanco y escoger otra respuesta.",
     "breadcrumb_authenticate": "Autenticar",
     "breadcrumb_confirm": "Confirmar",
-    "breadcrumb_step_x": "Paso {{count}}",
+    "breadcrumb_step_x": "Paso {{step}}",
     "ask_for_credential": "Por favor, ingresa tu acreditación:",
     "next_button_label": "Siguiente",
     "majority_judgment_grade_select": "Por favor, selecciona una opción",
@@ -42,13 +42,9 @@
     "your_smart_ballot_tracker_is": "Tu rastreador de voto inteligente es:",
     "ask_to_save_your_smart_ballot_tracker": "Por favor, guárdalo para revisar después que tu voto haya sido tomado en cuenta.",
     "copy_to_clipboard_label": "Cpòar",
-    "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} }) de {{number_of_questions}}",
-    "ask_to_select_between_x": "Por favor selecciona entre {{count}}",
-    "ask_to_select_between_x_plural": "Por favor, selecciona entre {{count}}",
+    "question_x_of_y": "Pregunta {{current_question}} de {{number_of_questions}}",
     "previous_button_label": "Anterior",
     "review_ballot_for_questions": "Tu voto todavía no está en la urna, y tiene el siguiente contenido:",
-    "review_ballot_for_questions_plural": "Tu voto todavía no está en la urna, y tiene las siguientes respuestas a las {{count}} preguntas:",
-    "question_x": "Pregunta {{count}}",
-    "ask_to_select_between_x_and_y_answers": "$t(ask_to_select_between_x, {\"count\": {{min}} }) y {{count}} pregunta.",
-    "ask_to_select_between_x_and_y_answers_plural": "$t(ask_to_select_between_x, {\"count\": {{min}} }) y {{count}} preguntas."
+    "ask_to_select_between_x_and_y_answers": "Por favor selecciona entre {{min}} y {{count}} pregunta.",
+    "ask_to_select_between_x_and_y_answers_plural": "Por favor selecciona entre {{min}} y {{count}} preguntas."
 }

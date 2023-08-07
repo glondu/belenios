@@ -3,8 +3,6 @@
     "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "{{candidate}}候補のグレードを選んでください。",
     "election_server": "選挙サーバー",
     "encrypted_ballot_is": "暗号化された投票：",
-    "ask_to_select_between_x_0": "{{count}}個まで選択可能",
-    "question_x": "質問{{count}}",
     "alert_invalid_credential": "無効な認証情報！",
     "next_button_label": "次へ",
     "breadcrumb_authenticate": "認証",
@@ -30,7 +28,6 @@
     "ask_for_credential": "認証情報を入力してください：",
     "ask_election_uuid_to_load": "UUIDをもとにこのサーバーに選挙を起動する：",
     "ask_to_select_x_answers_0": "解答を{{count}}個選んでください。",
-    "ask_to_select_between_x_and_y_answers_0": "解答を$t(ask_to_select_between_x, {\"count\": {{min}} })個から{{count}}個選んでください。",
     "ask_to_wait_during_ballot_encryption": "投票が暗号化されるまで少々お待ち願います。",
     "your_smart_ballot_tracker_has_been_copied": "スマート投票追跡番号がコピーされました。テキスト・エディターなどにペーストしてください（機器次第ですがCtrl-v、Cmd-v、長押しでペーストを選択してペーストできます）。",
     "your_ballot_has_been_encrypted": "投票は暗号されましたが、まだ送信されてません！",
@@ -38,11 +35,11 @@
     "copy_to_clipboard_label": "コピー",
     "ask_to_save_your_smart_ballot_tracker": "後で投票が正しく行われたことを確認するために大事に保管してください。",
     "previous_button_label": "戻る",
-    "review_ballot_for_questions_0": "投票がまだ投票箱に送信されてません。次の内容が各質問（{{count}}）に記載されています。",
+    "review_ballot_for_questions": "投票がまだ投票箱に送信されてません。次の内容が各質問（{{count}}）に記載されています。",
     "preferential_voting_preference_level": "第{{level}}優先",
     "preferential_voting_warning_delete_only_empty_level": "優先ランクは空の場合のみ削除可能です。削除する前にまず候補を違う優先ランクに移動してください。",
     "preferential_votign_add_preference_level": "「＋」ここに優先ランクを追加",
     "preferential_voting_question_description": "候補を優先順に並べてください。",
-    "question_x_of_y": "$t(question_x, {\"count\": {{current_question}} })／{{number_of_questions}}",
-    "breadcrumb_step_x": "手順その{{count}}"
+    "question_x_of_y": "質問{{current_question}}／{{number_of_questions}}",
+    "breadcrumb_step_x": "手順その{{step}}"
 }

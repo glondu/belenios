@@ -179,11 +179,7 @@ function TranslatableReviewEncryptSection({
         {
           className: "review-encrypt-section",
         },
-        e(
-          "h2",
-          null,
-          t("review_ballot_for_questions", { count: uncryptedBallot.length }),
-        ),
+        e("h2", null, t("review_ballot_for_questions")),
         e(WholeVoteRecap, {
           electionObject,
           uncryptedBallot,

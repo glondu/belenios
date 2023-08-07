@@ -83,7 +83,7 @@ function TranslatableVoteBreadcrumb({ t, currentStep = 1, ...props }) {
   voteBreadcrumbSteps = voteBreadcrumbSteps.map(function (el, index) {
     return {
       ...el,
-      shortTitle: t("breadcrumb_step_x", { count: index + 1 }),
+      shortTitle: t("breadcrumb_step_x", { step: index + 1 }),
       isCurrentStep: currentStep === index + 1 ? true : false,
     };
   });
