@@ -78,7 +78,7 @@ let check (reference : Yojson.Safe.t) (json : Yojson.Safe.t) =
           match specials with
           | `List specials -> (
               match List.assoc_opt k json with
-              | None -> ()
+              | None | Some (`String "") -> ()
               | Some (`String to_check) ->
                   List.iter
                     (function

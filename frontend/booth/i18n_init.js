@@ -17,6 +17,7 @@ function i18n_init(
     .use(initReactI18next) // passes i18n down to react-i18next
     .init(
       {
+        returnEmptyString: false,
         compatibilityJSON: "v3",
         lng: language_code,
         debug: false,
