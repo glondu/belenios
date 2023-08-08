@@ -17,6 +17,14 @@ dev
      is shown to the voter after a successful vote
    + Add a new admin interface (experimental for now)
    + Automatically use fake credential in booth preview
+   + Change location of compute-fingerprint service
+   + Limit rate of password authentication attempts
+   + Add a complexity check to password creation
+   + Uniformize handling of one-time passwords
+   + Allow download of archive.zip in Tallied state as well
+ * Documentation:
+   + Add reverse-proxy
+   + Add MTA
  * Translations:
    + Add Japanese
 
