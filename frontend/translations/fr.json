@@ -1,6 +1,6 @@
 {
     "page_title": "Isoloir Belenios",
-    "alert_invalid_credential": "Code de vote invalide !",
+    "alert_invalid_credential": "Code de vote invalide\u00a0!",
     "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "Veuillez évaluer le candidat {{candidate}}.",
     "alert_question_constraint_no_blank_and_other": "Vous ne pouvez pas cocher à la fois le vote blanc et une autre réponse.",
     "alert_question_constraint_no_less_than_min": "Cette question n'accepte pas moins de {{count}} réponse cochée.",
@@ -17,8 +17,8 @@
     "ask_for_credential": "Veuillez saisir votre code de vote :",
     "next_button_label": "Suivant",
     "majority_judgment_grade_select": "Veuillez sélectionner une mention",
-    "ask_election_uuid_to_load": "Charger une élection stockée sur ce serveur en donnant son UUID :",
-    "ask_election_parameters_to_load": "Charger n'importe quelle élection en donnant ses paramètres :",
+    "ask_election_uuid_to_load": "Charger une élection stockée sur ce serveur en donnant son UUID\u00a0:",
+    "ask_election_parameters_to_load": "Charger n'importe quelle élection en donnant ses paramètres\u00a0:",
     "load_election_from_uuid_label": "Charger à partir de l'UUID",
     "load_election_from_parameters_label": "Charger à partir des paramètres",
     "election_uuid_is_x": "UUID de l'élection : {{uuid}}",
