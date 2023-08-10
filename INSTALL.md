@@ -11,6 +11,19 @@ us](mailto:contact@belenios.org).
 Using containers
 ----------------
 
+In order to quickly run a local instance, a
+[demo Dockerfile](./Dockerfile_belenios_demo) is available. The following
+commands let you build the image and run it to make the server accessible at
+[localhost:8001](http://localhost:8001). Emails are not sent but only printed
+in a file accessible from
+[localhost:8001/static/mail.txt](http://localhost:8001/static/mail.txt) __Note
+that this is not meant for production purposes.__
+```
+make clean # to avoid copying everything in the image
+docker build -f Dockerfile_belenios_demo -t belenios .
+docker run --rm --network host -it belenios
+```
+
 If you are using Linux and have root privileges, you might be
 interested in our documentation on [deploying Belenios using
 systemd-nspawn](doc/nspawn/README.md).
