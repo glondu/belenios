@@ -11,8 +11,9 @@
     "next_button_label": "Successivo",
     "majority_judgment_grade_select": "Si prega di selezionare un'opzione",
     "election_server": "Server delle elezioni",
-    "ask_to_select_x_answers": "Si prega di selezionare {{count}} risposta.",
-    "ask_to_select_x_answers_plural": "Si prega di selezionare {{count}} risposte.",
+    "ask_to_select_x_answers_0": "Si prega di selezionare {{count}} risposta.",
+    "ask_to_select_x_answers_1": "Si prega di selezionare {{count}} risposte.",
+    "ask_to_select_x_answers_2": "",
     "ask_to_wait_during_ballot_encryption": "Si prega di attendere, la cifratura della sua scheda elettorale è in corso…",
     "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto è stato conteggiato.",
     "previous_button_label": "Precedente"
