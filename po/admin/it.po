@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2023-08-16 06:53+0000\n"
+"PO-Revision-Date: 2023-08-17 15:47+0000\n"
 "Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/admin/"
 "it/>\n"
@@ -289,7 +289,7 @@ msgstr ""
 
 #: src/web/clients/checkpriv/checkpriv.ml:295
 msgid "Administer elections"
-msgstr ""
+msgstr "Per amministrare elezioni"
 
 #. src/web/server/common/pages_admin.ml:229
 #: src/web/server/common/pages_admin.ml:2436
@@ -594,7 +594,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:3487
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "Calcolare l'impronta"
 
 #: src/web/server/common/pages_admin.ml:3146
 msgid "Compute shuffle"
@@ -1048,7 +1048,7 @@ msgstr ""
 #. src/web/server/common/site_admin.ml:1059
 #: src/web/server/common/site_admin.ml:1301
 msgid "Forbidden"
-msgstr ""
+msgstr "Accesso non consentito"
 
 #: src/web/clients/tool/tool_js_credgen.ml:91
 msgid "Generate"
@@ -1081,7 +1081,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:111
 msgid "Get the source code"
-msgstr ""
+msgstr "Per scaricare il codice sorgente"
 
 #. src/web/server/common/pages_admin.ml:1694
 #. src/web/server/common/pages_admin.ml:1529
@@ -1558,7 +1558,7 @@ msgstr ""
 
 #: src/web/clients/admin/questions.ml:373
 msgid "Number of seats:"
-msgstr ""
+msgstr "Numero di posti:"
 
 #: src/web/common/mails_admin.ml:256 src/web/common/mails_admin.ml:172
 msgid "Of course, more cryptographic solutions are welcome as well."
@@ -1676,7 +1676,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:3301
 #: src/web/server/common/pages_admin.ml:3334
 msgid "Please enter "
-msgstr ""
+msgstr "Digitare "
 
 #: src/web/server/common/pages_admin.ml:3526
 msgid "Please enter the code here:"
@@ -1782,7 +1782,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:447
 #: src/web/server/common/pages_admin.ml:3552
 msgid "Proceed"
-msgstr "Proceda"
+msgstr "Procedere"
 
 #: src/web/server/common/pages_admin.ml:2667
 msgid "Proceed to decryption"
@@ -2081,7 +2081,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:1882
 #: src/web/server/common/pages_admin.ml:3599
 msgid "Submit"
-msgstr ""
+msgstr "Invia"
 
 #: src/web/server/common/pages_admin.ml:1873
 msgid "Submit by file"
@@ -2917,7 +2917,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:57
 msgid "personal data policy"
-msgstr ""
+msgstr "Politica dei dati personali"
 
 #: src/web/server/common/pages_admin.ml:1801
 msgid "private credentials"
