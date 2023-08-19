@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2023-08-19 16:08+0000\n"
+"PO-Revision-Date: 2023-08-21 17:50+0000\n"
 "Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/admin/"
 "it/>\n"
@@ -90,11 +90,11 @@ msgstr " su "
 
 #: src/web/server/common/pages_admin.ml:700
 msgid " to set up the election key."
-msgstr ""
+msgstr " per inizializzare la chiave dell'elezione."
 
 #: src/web/server/common/pages_admin.ml:1224
 msgid " trustees will be needed to decrypt the result."
-msgstr " sarà necessario che i fiduciari decrittino il risultato."
+msgstr " sarà necessario che gli enti certificatori decrittino il risultato."
 
 #: src/web/server/common/pages_admin.ml:678
 msgid " voter(s) registered"
@@ -175,7 +175,8 @@ msgstr "(ignorato)"
 
 #: src/web/server/common/pages_admin.ml:1212
 msgid "(the threshold must be smaller than the number of trustees)"
-msgstr "(la soglia minima deve essere inferiore al numero di amministratori)"
+msgstr ""
+"(la soglia minima deve essere inferiore al numero di enti certificatori)"
 
 #. src/web/server/common/pages_admin.ml:210
 #: src/web/server/common/pages_admin.ml:220
@@ -200,10 +201,12 @@ msgstr "1. Cliccare sul link."
 #: src/web/server/common/pages_admin.ml:1172
 msgid "1a: action needed from trustee: generate private key"
 msgstr ""
+"1a: azione necessaria da parte di un ente certificatore: generare la chiave "
+"privata"
 
 #: src/web/server/common/pages_admin.ml:1184
 msgid "1b, 2b, 3b: waiting for other trustees"
-msgstr "1b, 2b, 3b: in attesa degli altri fiduciari"
+msgstr "1b, 2b, 3b: in attesa degli altri enti certificatori"
 
 #: src/web/common/mails_admin.ml:49
 msgid "2. Click on \"Generate\"."
@@ -212,6 +215,8 @@ msgstr "2. Cliccare su \"Generare\"."
 #: src/web/server/common/pages_admin.ml:1179
 msgid "2a, 3a: action needed from trustee: enter private key"
 msgstr ""
+"2a, 3a: azione necessaria da parte di un ente certificatore: digitare la "
+"chiave privata"
 
 #: src/web/common/mails_admin.ml:52
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
@@ -226,6 +231,8 @@ msgstr "4. Scaricare la lista degli elettori (voters.txt)."
 #: src/web/common/mails_admin.ml:64
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
+"5. Salvare le due impronte digitali: quella della lista degli elettori e "
+"quella dei codici di voto"
 
 #: src/web/common/mails_admin.ml:73
 msgid "6. Click on \"Submit the public credentials\"."
@@ -249,7 +256,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:67
 msgid "Accept"
-msgstr "Accettare"
+msgstr "Accettazione"
 
 #. src/web/server/common/site_admin.ml:1709
 #: src/web/server/common/site_admin.ml:1830
@@ -277,7 +284,7 @@ msgstr "Aggiungere"
 
 #: src/web/clients/admin/questions.ml:522
 msgid "Add a grade"
-msgstr ""
+msgstr "Aggiungere un grado di valutazione"
 
 #: src/web/clients/tool/tool_js_questions.ml:490
 msgid "Add a question"
@@ -285,7 +292,7 @@ msgstr "Nuova domanda"
 
 #: src/web/clients/admin/trustees.ml:196
 msgid "Add a trustee"
-msgstr "Aggiungere un fiduciario"
+msgstr "Aggiungere un ente certificatore"
 
 #: src/web/clients/tool/tool_js_questions.ml:424
 msgid "Add an answer"
@@ -293,7 +300,7 @@ msgstr "Nuova risposta"
 
 #: src/web/clients/admin/trustees.ml:147
 msgid "Add trustee"
-msgstr "Aggiungere il fiduciario"
+msgstr "Aggiungere ente certificatore"
 
 #: src/web/clients/checkpriv/checkpriv.ml:295
 msgid "Administer elections"
@@ -315,8 +322,8 @@ msgstr "Tutte le password sono state inviate!"
 #: src/web/common/mails_admin.ml:214
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
-"Tutti i fiduciari devono aver completato lo stesso passaggio della procedura "
-"prima di procedere al successivo."
+"Tutti gli enti certificatori devono aver completato lo stesso passaggio "
+"della procedura prima di procedere con il successivo."
 
 #: src/web/clients/admin/questions.ml:554
 msgid "Allow blank vote"
@@ -337,6 +344,8 @@ msgstr "Metodi di voto alternativo (attenzione, ancora sperimentale):"
 #: src/web/server/common/pages_admin.ml:1330
 msgid "Alternatively, you can send the credential authority the following link:"
 msgstr ""
+"In alternativa, lei può inviare all'autorità di certificazione il seguente "
+"link:"
 
 #: src/web/server/common/pages_admin.ml:2447
 msgid "Alternatively, you may set up automatic dates."
@@ -358,8 +367,8 @@ msgstr "Si è verificato un errore mentre veniva effettuato il mescolamento."
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Si è verificato un errore mentre veniva calcolato il risultato (%s). Molto "
-"probabilmente ciò significa che un fiduciario non ha completato il suo "
-"compito."
+"probabilmente ciò significa che un ente certificatore non ha completato il "
+"suo compito."
 
 #: src/web/clients/admin/elections.ml:72
 msgid "An error occurred while retrieving elections: %s"
@@ -403,12 +412,12 @@ msgstr "È sicuro/a di voler scrutinare questa elezione?"
 #: src/web/server/common/pages_admin.ml:3113
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr ""
-"Come fiduciario, il suo ruolo primario è quello di mescolare le schede "
-"crittografate."
+"Come ente certificatore, il suo ruolo primario è quello di mescolare le "
+"schede crittografate."
 
 #: src/web/server/common/pages_admin.ml:2702
 msgid "At least %d trustee(s) must act."
-msgstr "Almeno %d fiduciario(i) deve(ono) intervenire."
+msgstr "Almeno %d ente(i) certificatore(i) deve(ono) intervenire."
 
 #: src/web/server/common/pages_admin.ml:616
 msgid "Authentication"
@@ -453,7 +462,7 @@ msgstr "Lingue disponibili:"
 
 #: src/web/server/common/pages_admin.ml:2873
 msgid "Awaiting trustees…"
-msgstr "In attesa dei fiduciari…"
+msgstr "In attesa degli enti certificatori…"
 
 #: src/web/server/common/pages_admin.ml:1309
 msgid "Back to election preparation page"
@@ -506,10 +515,12 @@ msgstr "Da una terza parte di sua scelta"
 #: src/web/server/common/pages_admin.ml:689
 msgid "By default, the election server manages the keys of the election (degraded privacy mode)."
 msgstr ""
+"Per default, il server dell'elezione gestisce le chiavi dell'elezione ("
+"modalità di privacy degradata)."
 
 #: src/web/clients/admin/elections.ml:1176
 msgid "By our server (not ideal for decentralized security)"
-msgstr ""
+msgstr "Dal nostro server (non ideale per la sicurezza decentralizzata)"
 
 #. src/web/server/common/pages_admin.ml:362
 #: src/web/clients/admin/elections.ml:1424
@@ -613,7 +624,7 @@ msgstr "Compatibilità dei pesi con le domande?"
 
 #: src/web/server/common/pages_admin.ml:3487
 msgid "Compute fingerprint"
-msgstr "Calcolare l'impronta"
+msgstr "Calcolare l'impronta digitale"
 
 #: src/web/server/common/pages_admin.ml:3146
 msgid "Compute shuffle"
@@ -634,7 +645,7 @@ msgstr "Data del consenso:"
 #. src/web/server/common/pages_admin.ml:600
 #: src/web/clients/admin/elections.ml:279
 msgid "Contact"
-msgstr ""
+msgstr "Contatto"
 
 #. src/web/server/common/pages_admin.ml:580
 #: src/web/clients/admin/elections.ml:1102
@@ -652,7 +663,8 @@ msgstr "Non è stato possibile avere %s (codice %d)!"
 
 #: src/web/server/common/site_admin.ml:1032
 msgid "Could not retrieve trustees from selected election!"
-msgstr "Non è stato possibile reperire fiduciari per l'elezione selezionata!"
+msgstr ""
+"Non è stato possibile reperire enti certificatori per l'elezione selezionata!"
 
 #: src/web/server/common/site_admin.ml:981
 msgid "Could not retrieve voter list from election %s"
@@ -661,7 +673,7 @@ msgstr ""
 
 #: src/web/clients/tool/tool_js_questions.ml:304
 msgid "Counting method specification"
-msgstr ""
+msgstr "Specificazione del metodo di conteggio"
 
 #: src/web/clients/admin/elections.ml:1558
 msgid "Create"
@@ -674,7 +686,7 @@ msgstr "Creare una nuova elezione"
 #. src/web/server/common/pages_admin.ml:3312
 #: src/web/server/common/pages_admin.ml:3420
 msgid "Create an account"
-msgstr "Creare un'utenza"
+msgstr "Creare una nuova utenza"
 
 #. src/web/server/common/pages_admin.ml:762
 #: src/web/server/common/pages_admin.ml:2410
@@ -708,25 +720,25 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:1757
 #: src/web/server/common/pages_admin.ml:1766
 msgid "Credential generation"
-msgstr ""
+msgstr "Generazione dei codici di voto"
 
 #: src/web/server/common/pages_admin.ml:752
 msgid "Credential management"
-msgstr ""
+msgstr "Gestione codici di voto"
 
 #: src/web/server/common/pages_admin.ml:708
 msgid "Credentials"
-msgstr ""
+msgstr "Codici di voto"
 
 #. src/web/server/common/pages_admin.ml:1287
 #: src/web/server/common/pages_admin.ml:1363
 msgid "Credentials for election %s"
-msgstr ""
+msgstr "Codici di voto per l'elezione %s"
 
 #. src/web/server/common/pages_admin.ml:732
 #: src/web/server/common/pages_admin.ml:1759
 msgid "Credentials have already been generated!"
-msgstr ""
+msgstr "I codici di voto sono già stati generati!"
 
 #: src/web/server/common/site_admin.ml:804
 msgid "Credentials have been generated and mailed! You should download private credentials (and store them securely), in case someone loses his/her credential."
@@ -734,7 +746,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:1367
 msgid "Credentials have been received and checked!"
-msgstr ""
+msgstr "I codici di voto sono stati ricevuti e verificati!"
 
 #: src/web/clients/admin/elections.ml:1315
 msgid "Credentials have been received from the external credential authority."
@@ -742,11 +754,11 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:418
 msgid "Credentials:"
-msgstr ""
+msgstr "Codici di voto:"
 
 #: src/web/server/common/pages_admin.ml:2375
 msgid "Credentials?"
-msgstr ""
+msgstr "Codici di voto?"
 
 #: src/web/server/common/pages_admin.ml:3119
 msgid "Current list of ballots:"
@@ -771,7 +783,7 @@ msgstr "Data/Ora (UTC)"
 
 #: src/web/clients/admin/elections.ml:259
 msgid "Dates"
-msgstr ""
+msgstr "Date"
 
 #. src/web/server/common/pages_admin.ml:3645
 #. src/web/server/common/pages_admin.ml:3611
@@ -787,19 +799,19 @@ msgstr ""
 #. src/web/common/mails_admin.ml:118
 #: src/web/common/mails_admin.ml:334 src/web/common/mails_admin.ml:282
 msgid "Dear trustee,"
-msgstr ""
+msgstr "Gentile ente certificatore,"
 
 #: src/web/clients/admin/elections.ml:289
 msgid "Decryption trustees"
-msgstr ""
+msgstr "Enti certificatori"
 
 #: src/web/clients/admin/elections.ml:1541
 msgid "Default mode:"
-msgstr ""
+msgstr "Modalità di default:"
 
 #: src/web/clients/admin/elections.ml:752
 msgid "Delete all"
-msgstr ""
+msgstr "Cancellare tutto"
 
 #: src/web/server/common/pages_admin.ml:2933
 msgid "Delete election"
@@ -807,7 +819,7 @@ msgstr "Cancellare l'elezione"
 
 #: src/web/clients/admin/elections.ml:466
 msgid "Delete the election"
-msgstr ""
+msgstr "Cancellare l'elezione"
 
 #: src/web/server/common/pages_admin.ml:530
 msgid "Description of the election."
@@ -857,7 +869,7 @@ msgstr "Scaricare come file"
 
 #: src/web/server/common/pages_admin.ml:715
 msgid "Download private credentials"
-msgstr ""
+msgstr "Scaricare le parti private dei codici di voto"
 
 #. src/web/server/common/pages_admin.ml:1950
 #: src/web/server/common/pages_admin.ml:2033
@@ -867,6 +879,9 @@ msgstr ""
 #: src/web/common/mails_admin.ml:141
 msgid "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 msgstr ""
+"Scaricare la sua chiave privata. Si assicuri di SALVARLA in modo "
+"appropriato, altrimenti non sarà possibile effettuare lo scrutinio e "
+"l'elezione sarà cancellata."
 
 #: src/web/clients/admin/elections.ml:1459
 msgid "Dummy auth (should not be used in production): "
@@ -923,15 +938,15 @@ msgstr "Pagina principale dell'elezione"
 
 #: src/web/clients/admin/elections.ml:1596
 msgid "Election is currently closed"
-msgstr ""
+msgstr "L'elezione è al momento chiusa"
 
 #: src/web/clients/admin/elections.ml:1595
 msgid "Election is currently open"
-msgstr ""
+msgstr "L'elezione è al momento aperta"
 
 #: src/web/clients/admin/trustees.ml:688 src/web/clients/admin/elections.ml:362
 msgid "Election main page"
-msgstr ""
+msgstr "Pagina principale dell'elezione"
 
 #. src/web/server/common/pages_admin.ml:50
 #. src/web/common/pages_common.ml:73
@@ -947,7 +962,7 @@ msgstr "Elezioni in corso di preparazione"
 
 #: src/web/clients/admin/admin.ml:190
 msgid "Elections being setup:"
-msgstr ""
+msgstr "Elezioni in preparazione:"
 
 #. src/web/server/common/pages_admin.ml:2197
 #. src/web/server/common/pages_admin.ml:298
@@ -977,7 +992,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:2083
 msgid "Enter your private key:"
-msgstr ""
+msgstr "Digitare la sua chiave privata:"
 
 #. src/web/server/common/site_admin.ml:1501
 #. src/web/server/common/site_admin.ml:1455
@@ -1014,19 +1029,19 @@ msgstr "Errore"
 
 #: src/web/clients/tool/tool_js_pd.ml:106
 msgid "Error in format of private key: %s"
-msgstr ""
+msgstr "Errore nel formato della chiave privata: %s"
 
 #: src/web/clients/admin/elections.ml:1349
 msgid "Error while retrieving server configuration: %s"
-msgstr ""
+msgstr "Errore nel recupero della configurazione del server: %s"
 
 #: src/web/clients/tool/tool_js_shuffle.ml:63
 msgid "Estimated remaining time: %d second(s)"
-msgstr ""
+msgstr "Stima del tempo residuo: %d secondo(i)"
 
 #: src/web/server/common/pages_admin.ml:3134
 msgid "Estimating computation time…"
-msgstr ""
+msgstr "Stima del tempo di calcolo in corso…"
 
 #: src/web/clients/admin/trustees.ml:583 src/web/clients/admin/trustees.ml:503
 msgid "Failed to connect; please reload"
@@ -1038,15 +1053,15 @@ msgstr "Impronta digitale"
 
 #: src/web/server/common/pages_admin.ml:1787
 msgid "Fingerprint of public credentials:"
-msgstr ""
+msgstr "Impronta digitale della parte pubblica dei codici di voto:"
 
 #: src/web/server/common/pages_admin.ml:1939
 msgid "Fingerprint of the verification key:"
-msgstr ""
+msgstr "Impronta digitale della chiave di verifica:"
 
 #: src/web/server/common/pages_admin.ml:1893
 msgid "Fingerprint of voters:"
-msgstr ""
+msgstr "Impronta digitale dell'elenco degli elettori:"
 
 #: src/web/common/mails_admin.ml:211
 msgid "Follow the instructions."
@@ -1063,6 +1078,8 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:694
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr ""
+"Per elezioni reali, la chiave deve essere condivisa tra enti certificatori "
+"indipendenti."
 
 #. src/web/server/common/site_admin.ml:1297
 #. src/web/server/common/site_admin.ml:1059
@@ -1101,7 +1118,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:111
 msgid "Get the source code"
-msgstr "Per scaricare il codice sorgente"
+msgstr "Scaricare il codice sorgente"
 
 #. src/web/server/common/pages_admin.ml:1694
 #. src/web/server/common/pages_admin.ml:1529
@@ -1170,7 +1187,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:954
 #: src/web/server/common/pages_admin.ml:2228
 msgid "Import trustees from another election"
-msgstr ""
+msgstr "Importare gli enti certificatori da un'altra elezione"
 
 #: src/web/clients/admin/elections.ml:886
 msgid "Import voters "
@@ -1183,11 +1200,13 @@ msgstr ""
 
 #: src/web/server/common/site_admin.ml:1034
 msgid "Imported trustees are invalid for this election!"
-msgstr ""
+msgstr "Gli enti certificatori importati non sono validi per questa elezione!"
 
 #: src/web/server/common/pages_admin.ml:2231
 msgid "Imported trustees will have the same keys as in the original election."
 msgstr ""
+"Gli enti certificatori importati avranno le stesse chiavi dell'elezione "
+"originaria."
 
 #: src/web/server/common/pages_admin.ml:2216
 msgid "Imported voters will have the same password as in the original election, and no new e-mail will be sent."
@@ -1338,7 +1357,7 @@ msgstr "Uscire"
 
 #: src/web/server/common/pages_admin.ml:110
 msgid "Logged in as"
-msgstr ""
+msgstr "Connesso come"
 
 #: src/web/clients/admin/elections.ml:708
 msgid "Login"
@@ -1493,6 +1512,8 @@ msgstr ""
 #: src/web/clients/admin/trustees.ml:380
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
+"Non è stato impostato alcun ente certificatore esterno. Lei conferma che si "
+"affiderà al server per la garanzia della privacy?"
 
 #: src/web/clients/checkpriv/checkpriv.ml:38
 msgid "No matching public key was found!"
@@ -1505,6 +1526,8 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:2335
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr ""
+"Non è stato impostato alcun ente certificatore. Ciò significa che il server "
+"gestirà l'elezione in autonomia."
 
 #. src/web/server/common/pages_admin.ml:1672
 #: src/web/server/common/site_admin.ml:812
@@ -1567,10 +1590,15 @@ msgstr ""
 #: src/web/clients/tool/tool_js_ttkeygen.ml:194
 msgid "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
 msgstr ""
+"Ora tutti i certificati degli enti certificatori sono stati generati. "
+"Procedere per generare la sua parte della chiave di decrittazione."
 
 #: src/web/clients/tool/tool_js_ttkeygen.ml:198
 msgid "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
 msgstr ""
+"Ora tutti gli enti certificatori hanno generato le loro chiavi segrete. "
+"Procedere con le verifiche finali così che l'elezione possa essere "
+"convalidata."
 
 #: src/web/server/common/pages_admin.ml:3036
 msgid "Number of records: %d/%d"
@@ -1587,6 +1615,9 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:1246
 msgid "On this page, you can configure a group of trustees so that only a subset of them is needed to perform the decryption."
 msgstr ""
+"Su questa pagina lei può configurare un gruppo di enti certificatori così "
+"che soltanto un sottoinsieme di essi sia necessario per effettuare la "
+"decrittazione."
 
 #: src/web/common/mails_admin.ml:99
 msgid "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."
@@ -1659,7 +1690,7 @@ msgstr "Password inviata?"
 
 #: src/web/server/common/site_admin.ml:485
 msgid "Passwords have been generated and mailed!"
-msgstr ""
+msgstr "Le password sono state generate e inviate per posta elettronica!"
 
 #: src/web/server/common/pages_admin.ml:445
 msgid "Passwords:"
@@ -1671,7 +1702,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:50
 msgid "Personal data processing notice"
-msgstr ""
+msgstr "Accettazione dell'utilizzo dei dati personali"
 
 #: src/web/server/common/pages_admin.ml:2295
 msgid "Please "
@@ -1679,7 +1710,7 @@ msgstr ""
 
 #: src/web/server/common/site_admin.ml:1497
 msgid "Please add some trustees first!"
-msgstr ""
+msgstr "Si prega di aggiungere prima alcuni enti certificatori!"
 
 #: src/web/server/common/pages_admin.ml:3461
 msgid "Please choose a password: "
@@ -1696,7 +1727,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:3301
 #: src/web/server/common/pages_admin.ml:3334
 msgid "Please enter "
-msgstr "Digitare "
+msgstr "Si prega di digitare "
 
 #: src/web/server/common/pages_admin.ml:3526
 msgid "Please enter the code here:"
@@ -1749,7 +1780,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:105
 msgid "Powered by "
-msgstr "Gestito da "
+msgstr "Opera con "
 
 #: src/web/clients/tool/tool_js_questions.ml:319
 msgid "Prefill with Condorcet-Schulze"
@@ -1770,7 +1801,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:283
 #: src/web/server/common/pages_admin.ml:331
 msgid "Prepare a new election"
-msgstr ""
+msgstr "Predisporre una nuova elezione"
 
 #: src/web/clients/admin/elections.ml:360
 msgid "Preview"
@@ -1815,6 +1846,8 @@ msgstr ""
 #: src/web/clients/admin/trustees.ml:283
 msgid "Proceed to next step? This will freeze the list of trustees."
 msgstr ""
+"Procedere con il passo successivo? Ciò renderà non più modificabile la lista "
+"degli enti certificatori."
 
 #: src/web/server/common/pages_admin.ml:2532
 msgid "Proceed to vote counting"
@@ -1911,6 +1944,10 @@ msgstr ""
 #: src/web/common/mails_admin.ml:241 src/web/common/mails_admin.ml:157
 msgid "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it securely (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 msgstr ""
+"Riguardo alla sua chiave privata, è cruciale che lei la salvi (altrimenti "
+"l'elezione sarà cancellata) e la conservi in modo sicuro (se la sua chiave "
+"privata fosse conosciuta insieme alle chiavi private degli altri enti "
+"certificatori, la privacy del voto non sarebbe più garantita)."
 
 #: src/web/server/common/pages_admin.ml:2955
 msgid "Regenerate and e-mail a password"
@@ -1974,7 +2011,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:503
 #: src/web/clients/tool/tool_js_questions.ml:504
 msgid "Save changes"
-msgstr ""
+msgstr "Salvare le modifiche"
 
 #. src/web/server/common/pages_admin.ml:1962
 #: src/web/server/common/pages_admin.ml:2129
@@ -2000,7 +2037,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:2619
 #: src/web/clients/admin/trustees.ml:630
 msgid "Select this trustee"
-msgstr ""
+msgstr "Selezionare questo ente certificatore"
 
 #: src/web/clients/admin/elections.ml:180
 msgid "Selecting CAS authentication requires setting a valid CAS server"
@@ -2054,11 +2091,11 @@ msgstr ""
 
 #: src/web/clients/admin/trustees.ml:672
 msgid "Skip all remaining trustees"
-msgstr ""
+msgstr "Ignorare tutti i restanti enti certificatori"
 
 #: src/web/server/common/pages_admin.ml:3071
 msgid "Skipping trustee %s"
-msgstr ""
+msgstr "Ignorare l'ente certificatore %s"
 
 #: src/web/clients/admin/elections.ml:1040
 msgid "Some language in the list is not available"
@@ -2110,7 +2147,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:2056
 #: src/web/server/common/pages_admin.ml:2096
 msgid "Submit data using the following button:"
-msgstr ""
+msgstr "Inviare i dati utilizzando il seguente tasto:"
 
 #: src/web/server/common/pages_admin.ml:1846
 msgid "Submit public credentials"
@@ -2122,11 +2159,11 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:1981
 msgid "Submit public key"
-msgstr ""
+msgstr "Inviare la chiave pubblica"
 
 #: src/web/server/common/pages_admin.ml:1973
 msgid "Submit your public key using the button below."
-msgstr ""
+msgstr "Inviare la chiave pubblica utilizzando il tasto qui sotto."
 
 #. src/web/server/common/site_admin.ml:1365
 #. src/web/server/common/site_admin.ml:926
@@ -2275,7 +2312,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:923
 #: src/web/server/common/pages_admin.ml:2761
 msgid "The link that must be sent to trustee "
-msgstr ""
+msgstr "Il link che deve essere inviato all'ente certificatore: "
 
 #. src/web/server/common/pages_admin.ml:1918
 #. src/web/server/common/pages_admin.ml:1770
@@ -2293,7 +2330,7 @@ msgstr ""
 
 #: src/web/server/common/site_admin.ml:1862
 msgid "The password has been changed."
-msgstr ""
+msgstr "La password è stata cambiata."
 
 #: src/web/clients/tool/tool_js_tkeygen.ml:64
 msgid "The private key must be downloaded first!"
@@ -2314,10 +2351,12 @@ msgstr ""
 #: src/web/common/mails_admin.ml:306
 msgid "The second box is now filled with crypto material. Please press the button \"Submit\"."
 msgstr ""
+"La seconda casella contiene ora materiale crittografato. Si prega di premere "
+"il tasto \"Inviare\"."
 
 #: src/web/clients/admin/trustees.ml:316 src/web/clients/admin/trustees.ml:111
 msgid "The server is always one of the trustees"
-msgstr ""
+msgstr "Il server è sempre uno tra quelli degli enti certificatori"
 
 #: src/web/server/common/site_admin.ml:1446
 msgid "The shuffle has been successfully applied!"
@@ -2326,6 +2365,8 @@ msgstr ""
 #: src/web/server/common/site_admin.ml:1505
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
+"La soglia deve essere positiva e inferiore al numero degli enti "
+"certificatori!"
 
 #. src/web/server/common/site_admin.ml:630
 #: src/web/server/common/site_admin.ml:989
@@ -2347,6 +2388,7 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:3649
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr ""
+"C'è stata una richiesta di cambio della sua password sul server di Belenios."
 
 #: src/web/server/common/pages_admin.ml:3498
 msgid "There is no e-mail address attached to your account."
@@ -2359,10 +2401,12 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:1259
 msgid "There is one link per trustee. Send a link to each trustee."
 msgstr ""
+"C'è un link per ente certificatore. Inviare a ciascuno di essi il suo link."
 
 #: src/web/server/common/pages_admin.ml:968
 msgid "There is one link per trustee. Send each trustee the respective link."
 msgstr ""
+"C'è un link per ente certificatore. Inviare a ciascuno di essi il suo link."
 
 #: src/web/common/mails_admin.ml:212
 msgid "There will be 3 steps."
@@ -2438,6 +2482,8 @@ msgstr ""
 #: src/web/server/common/site_admin.ml:98
 msgid "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 msgstr ""
+"Questa pagina non è accessibile dagli amministratori, in quanto è riservata "
+"a terze parti."
 
 #: src/web/clients/admin/elections.ml:1342
 msgid "This task is completed. Passwords have been sent."
@@ -2479,14 +2525,18 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:985
 msgid "To set up the election key, you need to nominate trustees. Each trustee will create a secret key."
 msgstr ""
+"Per inizializzare la chiave dell'elezione, è necessario nominare degli enti "
+"certificatori. Ognuno di essi creerà la propria chiave segreta."
 
 #: src/web/server/common/pages_admin.ml:990
 msgid "To set up the election so that only a subset of trustees is needed, go to the "
 msgstr ""
+"Per inizializzare l'elezione in modo che sia necessario soltanto un "
+"sottoinsieme di enti certificatori, andare al "
 
 #: src/web/server/common/pages_admin.ml:56
 msgid "To use this site, you must accept our "
-msgstr ""
+msgstr "Per utilizzare questo sito, è necessario accettare "
 
 #: src/web/clients/tool/tool_js_pd.ml:61
 msgid "Too short"
@@ -2497,64 +2547,65 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:940
 #: src/web/server/common/pages_admin.ml:2877
 msgid "Trustee"
-msgstr ""
+msgstr "Ente certificatore"
 
 #. src/web/server/common/pages_admin.ml:1914
 #: src/web/server/common/pages_admin.ml:2003
 msgid "Trustee key generation"
-msgstr ""
+msgstr "Generazione della chiave dell'ente certificatore"
 
 #: src/web/clients/admin/trustees.ml:331
 msgid "Trustee setup - Done"
-msgstr ""
+msgstr "Impostazione enti certificatori - Completata"
 
 #: src/web/clients/admin/trustees.ml:292
 msgid "Trustee setup - Step 1: choose the trustees"
 msgstr ""
+"Impostazione enti certificatori - Passo 1: scegliere gli enti certificatori"
 
 #: src/web/clients/admin/trustees.ml:438
 msgid "Trustee setup - Step 2: key generation"
-msgstr ""
+msgstr "Impostazione enti certificatori - Passo 2: generazione delle chiavi"
 
 #. src/web/server/common/pages_admin.ml:826
 #: src/web/server/common/pages_admin.ml:1037
 msgid "Trustee's e-mail address:"
-msgstr ""
+msgstr "Indirizzo di posta elettronica dell'ente certificatore:"
 
 #. src/web/clients/admin/trustees.ml:306
 #. src/web/clients/admin/trustees.ml:101
 #: src/web/clients/admin/trustees.ml:510 src/web/clients/admin/trustees.ml:399
 msgid "Trustee's email"
-msgstr ""
+msgstr "Casella di posta elettronica dell'ente certificatore"
 
 #: src/web/clients/admin/trustees.ml:131
 msgid "Trustee's email "
-msgstr ""
+msgstr "Casella di posta elettronica dell'ente certificatore "
 
 #: src/web/clients/admin/trustees.ml:400
 msgid "Trustee's name"
-msgstr ""
+msgstr "Denominazione dell'ente certificatore"
 
 #: src/web/clients/admin/trustees.ml:307 src/web/clients/admin/trustees.ml:102
 msgid "Trustee's public name"
-msgstr ""
+msgstr "Nome pubblico dell'ente certificatore"
 
 #: src/web/clients/admin/trustees.ml:135
 msgid "Trustee's public name "
-msgstr ""
+msgstr "Nome pubblico dell'ente certificatore "
 
 #: src/web/server/common/pages_admin.ml:685
 msgid "Trustees"
-msgstr ""
+msgstr "Enti certificatori"
 
 #. src/web/server/common/pages_admin.ml:820
 #: src/web/server/common/pages_admin.ml:1018
 msgid "Trustees for election %s"
-msgstr ""
+msgstr "Enti certificatori per l'elezione %s"
 
 #: src/web/server/common/pages_admin.ml:2379
 msgid "Trustees?"
-msgstr ""
+msgstr "Enti certificatori?"
 
 #: src/web/clients/admin/questions.ml:626
 msgid "Type of answer:"
@@ -2579,7 +2630,7 @@ msgstr ""
 
 #: src/web/server/common/site_admin.ml:1038
 msgid "Unsupported trustees!"
-msgstr ""
+msgstr "Enti certificatori non supportati!"
 
 #: src/web/clients/admin/elections.ml:799
 msgid "Upload voter file"
@@ -2649,6 +2700,8 @@ msgstr ""
 #: src/web/clients/tool/tool_js_ttkeygen.ml:154
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
+"In attesa degli altri enti certificatori... Caricare di nuovo la pagina per "
+"verificare il progresso."
 
 #: src/web/clients/admin/elections.ml:753
 msgid "Warning, this action is irreversible"
@@ -2657,6 +2710,8 @@ msgstr ""
 #: src/web/clients/admin/trustees.ml:215
 msgid "Warning, this will delete the current list of trustees"
 msgstr ""
+"Attenzione, questa operazione cancellerà la lista attuale degli enti "
+"certificatori"
 
 #: src/web/clients/admin/elections.ml:1014
 msgid "Warning, use UTC time (for instance, now is %s)."
@@ -2730,10 +2785,14 @@ msgstr ""
 #: src/web/server/common/site_admin.ml:1749
 msgid "You cannot change your password now. Please try later."
 msgstr ""
+"Non è possibile cambiare la password in questo momento. Si prega di provare "
+"di nuovo più tardi."
 
 #: src/web/server/common/site_admin.ml:1710
 msgid "You cannot create an account now. Please try later."
 msgstr ""
+"Non è possibile creare una nuova utenza in questo momento. Si prega di "
+"provare di nuovo più tardi."
 
 #: src/web/server/common/site_admin.ml:364
 msgid "You cannot set the credential authority for this election!"
@@ -2742,6 +2801,9 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:2839
 msgid "You may force the computation of the result now, if the required number of trustees have done their job, by clicking on the following button."
 msgstr ""
+"Lei può forzare adesso il calcolo del risultato, se il numero richiesto di "
+"enti certificatori ha completato il proprio compito, cliccando sul tasto "
+"seguente."
 
 #: src/web/common/mails_admin.ml:95
 msgid "You may need to resend credentials to voters who have lost them."
@@ -2754,6 +2816,8 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:3080
 msgid "You may skip a trustee if they do not answer. Be aware that this reduces the security."
 msgstr ""
+"È possibile ignorare un ente certificatore se non risponde. Sia consapevole "
+"che ciò riduce la sicurezza."
 
 #: src/web/common/mails_admin.ml:82
 msgid "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"
@@ -2807,6 +2871,9 @@ msgstr ""
 #: src/web/clients/admin/elections.ml:830
 msgid "You won't be able to change the email addresses once the credentials are created. Voters with invalid email addresses won't be able to vote."
 msgstr ""
+"Non sarà possibile modificare gli indirizzi di posta elettronica una volta "
+"che i codici di voto siano stati creati. Gli elettori con indirizzi di posta "
+"elettronica non validi non saranno in grado di votare."
 
 #. src/web/server/common/pages_admin.ml:3509
 #: src/web/server/common/pages_admin.ml:3535
@@ -2816,6 +2883,8 @@ msgstr ""
 #: src/web/server/common/pages_admin.ml:3615
 msgid "Your e-mail address has been used to create an account on our Belenios server."
 msgstr ""
+"Il suo indirizzo di posta elettronica è stato usato per creare una nuova "
+"utenza sul server di Belenios."
 
 #: src/web/server/common/pages_admin.ml:3400
 msgid "Your e-mail address is: "
@@ -2852,7 +2921,7 @@ msgstr ""
 #. src/web/clients/checkpriv/checkpriv.ml:107
 #: src/web/clients/checkpriv/checkpriv.ml:124
 msgid "anonymous trustee"
-msgstr ""
+msgstr "ente certificatore anonimo"
 
 #: src/web/server/common/pages_admin.ml:154
 msgid "contact us"
@@ -2937,7 +3006,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:57
 msgid "personal data policy"
-msgstr "Politica dei dati personali"
+msgstr "la nostra policy dei dati personali"
 
 #: src/web/server/common/pages_admin.ml:1801
 msgid "private credentials"
@@ -3081,7 +3150,7 @@ msgstr ""
 #. src/web/clients/checkpriv/checkpriv.ml:93
 #: src/web/clients/checkpriv/checkpriv.ml:139
 msgid "trustee parameters"
-msgstr ""
+msgstr "parametri dell'ente certificatore"
 
 #. src/web/server/common/pages_admin.ml:1582
 #: src/web/clients/admin/elections.ml:744
