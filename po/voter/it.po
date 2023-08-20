@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2023-08-19 16:08+0000\n"
+"PO-Revision-Date: 2023-08-21 17:50+0000\n"
 "Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/voter/"
 "it/>\n"
@@ -118,7 +118,7 @@ msgstr ", o "
 
 #: src/web/server/common/pages_voter.ml:1088
 msgid "1 is the highest grade, 2 is the second highest grade, etc."
-msgstr "1 è il voto più alto, 2 il secondo, ecc."
+msgstr "1 è il grado di valutazione più alto, 2 il secondo, ecc."
 
 #: src/web/server/common/pages_voter.ml:163
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
@@ -138,7 +138,7 @@ msgstr "Un codice di verifica è stato inviato a %s."
 
 #: src/web/server/common/pages_voter.ml:540
 msgid "Accept"
-msgstr "Accettare"
+msgstr "Accettazione"
 
 #: src/web/server/common/pages_voter.ml:1004
 msgid "Accepted ballots"
@@ -173,7 +173,9 @@ msgstr "Risposta alle domande"
 
 #: src/web/server/common/pages_voter.ml:1091
 msgid "As a convenience, 0 is always interpreted as the lowest grade."
-msgstr "Per convenienza, 0 è sempre interpretato come il voto più basso."
+msgstr ""
+"Per convenienza, 0 è sempre interpretato come il grado di valutazione più "
+"basso."
 
 #: src/web/server/common/pages_voter.ml:59
 msgid "Audit data: "
@@ -248,7 +250,7 @@ msgstr "Compara"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:74
 msgid "Compute fingerprint"
-msgstr "Calcolare l'impronta"
+msgstr "Calcolare l'impronta digitale"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:35
 msgid "Computed fingerprint:"
@@ -324,7 +326,7 @@ msgstr "Accesso non consentito"
 
 #: src/web/common/pages_common.ml:111
 msgid "Get the source code"
-msgstr "Per scaricare il codice sorgente"
+msgstr "Scaricare il codice sorgente"
 
 #. src/web/server/common/pages_voter.ml:987
 #. src/web/server/common/pages_voter.ml:916
@@ -350,8 +352,8 @@ msgstr ""
 #: src/web/server/common/pages_voter.ml:1084
 msgid "In the context of Majority Judgment, a vote gives a grade to each candidate."
 msgstr ""
-"Nel contesto di un giudizio per maggioranza, una scheda attribuisce un voto "
-"as ogni candidato."
+"Nel contesto di un giudizio per maggioranza, un voto attribuisce un grado di "
+"valutazione ad ogni candidato."
 
 #: src/web/server/common/pages_voter.ml:1146
 msgid "In the context of STV, voters rank candidates by order of preference."
@@ -449,7 +451,7 @@ msgstr "Numero di schede accettate: "
 
 #: src/web/server/common/pages_voter.ml:1074
 msgid "Number of grades:"
-msgstr "Numero di gradazioni:"
+msgstr "Numero di gradi di valutazione:"
 
 #: src/web/server/common/pages_voter.ml:1136
 msgid "Number of seats:"
@@ -477,7 +479,7 @@ msgstr "Password:"
 
 #: src/web/server/common/pages_common.ml:529
 msgid "Please enter "
-msgstr "Digitare "
+msgstr "Si prega di digitare "
 
 #: src/web/server/common/pages_common.ml:444
 msgid "Please enter the verification code received by e-mail:"
@@ -500,6 +502,8 @@ msgstr ""
 #: src/web/server/common/pages_voter.ml:1112
 msgid "Please provide the number of grades to see the result of the election according to the Majority Judgment method."
 msgstr ""
+"Si prega di fornire il numero di gradi di valutazione per vedere i risultati "
+"dell'elezione secondo il metodo del Giudizio Maggiortiario."
 
 #: src/web/server/common/pages_voter.ml:1171
 msgid "Please provide the number of seats to see the result of the election according to the Single Transferable Vote method."
@@ -509,7 +513,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:105
 msgid "Powered by "
-msgstr "Gestito da "
+msgstr "Opera con "
 
 #: src/web/common/pages_common.ml:115
 msgid "Privacy policy"
@@ -624,12 +628,12 @@ msgstr "Le impronte coincidono!"
 #: src/web/server/common/pages_voter.ml:1107
 msgid "The number of different grades (Excellent, Very Good, etc.) typically varies from 5 to 7."
 msgstr ""
-"Il numero delle differenti gradazioni (Eccellente, Molto Buono, ecc.) "
+"Il numero delle differenti valutazioni (Eccellente, Molto Buono, ecc.) "
 "variano tipicamente da 5 a 7."
 
 #: src/web/server/common/site_voter.ml:290
 msgid "The number of grades is invalid."
-msgstr "Il numero delle gradazioni non è valido."
+msgstr "Il numero dei gradi di valutazione non è valido."
 
 #: src/web/server/common/site_voter.ml:307
 msgid "The number of seats is invalid."
@@ -903,7 +907,7 @@ msgstr "parametri"
 
 #: src/web/server/common/pages_voter.ml:537
 msgid "personal data policy"
-msgstr "Politica dei dati personali"
+msgstr "la nostra policy dei dati personali"
 
 #: src/web/server/common/pages_voter.ml:64
 msgid "public data"
