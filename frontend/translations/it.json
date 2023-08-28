@@ -15,7 +15,7 @@
     "ask_to_select_x_answers_1": "Si prega di selezionare {{count}} risposte.",
     "ask_to_select_x_answers_2": "Si prega di selezionare {{count}} risposte.",
     "ask_to_wait_during_ballot_encryption": "Si prega di attendere, la cifratura della sua scheda elettorale è in corso…",
-    "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto è stato conteggiato.",
+    "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto sia stato conteggiato.",
     "previous_button_label": "Precedente",
     "question_x_of_y": "Domanda {{current_question}} di {{number_of_questions}}",
     "alert_question_constraint_no_blank_and_other": "Non è possibile selezionare contemporaneamente scheda bianca e un'altra risposta.",
