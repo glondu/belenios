@@ -765,7 +765,7 @@ msgstr "Listado actual de votos:"
 
 #: src/web/clients/admin/elections.ml:921
 msgid "Current turnout: %d / %d = %.2f %%"
-msgstr "Participación actual: %d / %d = %.2f %%%"
+msgstr "Participación actual: %d / %d = %.2f %%"
 
 #: src/web/server/common/site_admin.ml:1457
 msgid "Data is invalid! (%s)"
