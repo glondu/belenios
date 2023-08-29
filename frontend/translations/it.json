@@ -15,7 +15,7 @@
     "ask_to_select_x_answers_1": "Si prega di selezionare {{count}} risposte.",
     "ask_to_select_x_answers_2": "Si prega di selezionare {{count}} risposte.",
     "ask_to_wait_during_ballot_encryption": "Si prega di attendere, la cifratura della sua scheda elettorale è in corso…",
-    "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto è stato conteggiato.",
+    "ask_to_save_your_smart_ballot_tracker": "La invitiamo a salvarlo per verificare successivamente che il suo voto sia stato conteggiato.",
     "previous_button_label": "Precedente",
     "question_x_of_y": "Domanda {{current_question}} di {{number_of_questions}}",
     "alert_question_constraint_no_blank_and_other": "Non è possibile selezionare contemporaneamente scheda bianca e un'altra risposta.",
@@ -44,5 +44,11 @@
     "alert_question_constraint_no_less_than_min_2": "Questa domanda non accetta meno di {{count}} risposte selezionate.",
     "alert_question_constraint_no_more_than_max_0": "",
     "alert_question_constraint_no_more_than_max_1": "",
-    "alert_question_constraint_no_more_than_max_2": ""
+    "alert_question_constraint_no_more_than_max_2": "",
+    "preferential_voting_ranked": "Classificato",
+    "your_smart_ballot_tracker_is": "Il suo codice di verifica è:",
+    "page_title": "Cabina elettorale virtuale di Belenios",
+    "preferential_voting_not_ranked": "Non classificato",
+    "preferential_voting_question_description": "Si prega di classificare i candidati per preferenza. I candidati non classificati, se presenti, sono considerati alla pari come non preferiti.",
+    "your_smart_ballot_tracker_has_been_copied": "Il suo codice di verifica è stato copiato negli Appunti del suo dispositivo. Ora può aprire un documento di testo e incollarlo (a seconda del suo dispositivo, si può incollare premendo Ctrl-V o Cmd-V o con un click prolungato e successiva selezione di 'Paste'/'Incolla')."
 }
