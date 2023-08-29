@@ -24,7 +24,7 @@
     "preferential_voting_delete_preference_level": "Eliminare il livello di preferenza",
     "review_ballot_for_questions": "La sua scheda, che al momento non è ancora stata inserita nell'urna, ha il seguente contenuto:",
     "encrypted_ballot_is": "Scheda crittografata:",
-    "your_ballot_has_been_encrypted": "La sua scheda è stata crittografata, ma ancora non scrutinata!",
+    "your_ballot_has_been_encrypted": "La sua scheda è stata crittografata, ma non ancora scrutinata!",
     "ask_to_select_between_x_and_y_answers_0": "Si prega di selezionare una sola risposta.",
     "ask_to_select_between_x_and_y_answers_1": "Si prega di selezionare tra {{min}} e {{count}} risposte.",
     "ask_to_select_between_x_and_y_answers_2": "Si prega di selezionare tra {{min}} e {{count}} risposte.",
