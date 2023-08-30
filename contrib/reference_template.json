@@ -23,9 +23,9 @@
     "/static/libsodium.wasm"            : null,
     "/static/checkpriv.html"            : null,
     "/static/checkpriv.js"              : null,
-    "/draft/credentials.html"           : {},
-    "/draft/trustee.html"               : {},
-    "/draft/threshold-trustee.html"     : {},
-    "/election/trustees.html"           : {},
-    "/election/shuffle.html"            : {}
+    "/draft/credentials.html"           : null,
+    "/draft/trustee.html"               : null,
+    "/draft/threshold-trustee.html"     : null,
+    "/election/trustees.html"           : null,
+    "/election/shuffle.html"            : null
 }
