@@ -1,3 +1,9 @@
+2.2
+===
+
+ * If nspawn-based containers are used, the `belenios-nspawn` script
+   should be updated on the host.
+
 2.0
 ===
 
