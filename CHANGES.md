@@ -22,6 +22,7 @@ dev
    + Add a complexity check to password creation
    + Uniformize handling of one-time passwords
    + Allow download of archive.zip in Tallied state as well
+   + Add demo dockerfile
  * Documentation:
    + Add reverse-proxy
    + Add MTA
