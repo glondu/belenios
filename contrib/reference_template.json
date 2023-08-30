@@ -27,6 +27,5 @@
     "/draft/trustee.html"               : {},
     "/draft/threshold-trustee.html"     : {},
     "/election/trustees.html"           : {},
-    "/election/shuffle.html"            : {},
-    "/vote.html" : {}
+    "/election/shuffle.html"            : {}
 }
