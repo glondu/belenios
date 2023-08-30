@@ -1,5 +1,5 @@
-dev
-===
+2.2 (2023-08-30)
+================
 
  * Command-line tool:
    + Rename `--ballot` argument of `generate-ballot` to `--choice`
