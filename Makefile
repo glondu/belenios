@@ -19,7 +19,7 @@ build-debug-server:
 	  src/scripts/checki18next/checki18next.exe --dir frontend/translations \
 	  < src/scripts/checki18next/reference.json
 	rm -rf _run/usr
-	dune install $(DUNE_DEBUG_ARGS) --destdir=_run --prefix=/usr 2>/dev/null
+	dune install $(DUNE_DEBUG_ARGS) --display=quiet --destdir=_run --prefix=/usr
 	BELENIOS_DEBUG=1 $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
 	rm -f $(BELENIOS_SRC) && $(MAKE) $(BELENIOS_SRC)
 
@@ -30,7 +30,7 @@ build-release-server:
 	  src/scripts/checki18next/checki18next.exe --dir frontend/translations \
 	  < src/scripts/checki18next/reference.json
 	rm -rf _run/usr
-	dune install --destdir=_run --prefix=/usr 2>/dev/null
+	dune install --display=quiet --destdir=_run --prefix=/usr
 	BELENIOS_DEBUG= $(MAKE) DESTDIR=../_run/usr/share/belenios-server -C frontend
 	rm -f $(BELENIOS_SRC) && $(MAKE) $(BELENIOS_SRC)
 
@@ -42,7 +42,7 @@ build-i18next-reference:
 build-debug-tool:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS) -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool
 	rm -rf _run/tool-debug
-	dune install $(DUNE_DEBUG_ARGS) --destdir=_run/tool-debug --prefix=/ belenios-platform belenios-platform-native belenios-lib belenios-tool 2>/dev/null
+	dune install $(DUNE_DEBUG_ARGS) --display=quiet --destdir=_run/tool-debug --prefix=/ belenios-platform belenios-platform-native belenios-lib belenios-tool
 
 check:
 	$(MAKE) build-debug-tool
