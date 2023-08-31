@@ -29,6 +29,16 @@ type record = { typ : data_or_event; hash : hash; location : location }
 let block_size = 512
 let block_sizeL = Int64.of_int block_size
 
+let new_header () =
+  let timestamp = Unix.time () |> Int64.of_float in
+  { version = 1; timestamp = `String (Int64.to_string timestamp) }
+
+let get_timestamp header =
+  match header.timestamp with
+  | `String x | `Intlit x -> Int64.of_string x
+  | `Int x -> Int64.of_int x
+  | _ -> invalid_arg "get_timestamp"
+
 module type IO_READER = sig
   include MONAD
 
@@ -192,7 +202,8 @@ module MakeWriter (M : IO_WRITER) = struct
     let buffer = Bytes.make block_size '\000' in
     let header_s = string_of_archive_header header in
     let header_n = String.length header_s |> Int64.of_int in
-    let* () = raw_write_header f buffer "BELENIOS" header_n header.timestamp in
+    let timestamp = get_timestamp header in
+    let* () = raw_write_header f buffer "BELENIOS" header_n timestamp in
     raw_write_body f buffer header_s
 
   let write_record f ~timestamp typ payload =
@@ -256,7 +267,7 @@ struct
     | Some hash -> get_hash hash
 
   let write_archive archive header last =
-    let timestamp = header.timestamp in
+    let timestamp = get_timestamp header in
     let* () = W.write_header archive header in
     let rec loop last accu =
       match last.event_parent with

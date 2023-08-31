@@ -33,6 +33,7 @@ type index = {
   file : string;
   mutable lines : (Archive.data_or_event * hash) list;
   timestamp : int64;
+  header : archive_header;
 }
 
 module DirectMonad = struct
@@ -73,7 +74,7 @@ let build_index filename =
   let header = Reader.read_header ic in
   let rec loop last accu lines =
     match Reader.read_record ic with
-    | exception End_of_file -> (r, last, accu, lines, header.timestamp)
+    | exception End_of_file -> (r, last, accu, lines, header)
     | record ->
         let last, accu =
           match record.typ with
@@ -88,8 +89,9 @@ let build_index filename =
     (fun () -> loop None empty_roots [])
 
 let get_index ~file =
-  let map, last_event, roots, lines, timestamp = build_index file in
-  { map; roots; last_event; file; lines; timestamp }
+  let map, last_event, roots, lines, header = build_index file in
+  let timestamp = Archive.get_timestamp header in
+  { map; roots; last_event; file; lines; timestamp; header }
 
 let gethash ~index ~filename x =
   match Hashtbl.find_opt index x with
@@ -135,7 +137,6 @@ let fsck index =
   let last_event =
     match index.last_event with None -> failwith "no events" | Some x -> x
   in
-  let header = { version = 1; timestamp = index.timestamp } in
   let module IoComparer = struct
     include DirectMonad
 
@@ -164,7 +165,7 @@ let fsck index =
   Fun.protect
     ~finally:(fun () -> close_in ic)
     (fun () ->
-      let () = Archiver.write_archive ic header last_event in
+      let () = Archiver.write_archive ic index.header last_event in
       if LargeFile.pos_in ic <> length then
         failwith "generated archive is shorter than original one")
 
@@ -177,7 +178,7 @@ let starts_with ~(prefix : index) (index : index) =
   in
   loop (List.rev prefix.lines) (List.rev index.lines)
 
-let write_header filename ~timestamp =
+let write_header filename header =
   let oc =
     open_out_gen
       [ Open_wronly; Open_append; Open_creat; Open_binary ]
@@ -185,7 +186,7 @@ let write_header filename ~timestamp =
   in
   Fun.protect
     ~finally:(fun () -> close_out oc)
-    (fun () -> Writer.write_header oc { version = 1; timestamp })
+    (fun () -> Writer.write_header oc header)
 
 let raw_append ~filename ~timestamp xs =
   let oc =
@@ -241,7 +242,7 @@ let append index ops =
 
 let init ~file ~election ~trustees ~public_creds =
   if Sys.file_exists file then Printf.ksprintf failwith "%s already exists" file;
-  let timestamp = Unix.time () |> Int64.of_float in
+  let header = Archive.new_header () in
   let index =
     {
       map = Hashtbl.create 1000;
@@ -249,10 +250,11 @@ let init ~file ~election ~trustees ~public_creds =
       last_event = None;
       file;
       lines = [];
-      timestamp;
+      timestamp = Archive.get_timestamp header;
+      header;
     }
   in
-  write_header file ~timestamp;
+  write_header file header;
   let setup_election = Hash.hash_string election in
   let setup_trustees = Hash.hash_string trustees in
   let setup_credentials = Hash.hash_string public_creds in

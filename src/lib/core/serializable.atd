@@ -301,7 +301,7 @@ type location = {
 
 type archive_header = {
   version : int;
-  timestamp : int <ocaml repr="int64">;
+  timestamp : abstract;
 }
 
 type event_type =

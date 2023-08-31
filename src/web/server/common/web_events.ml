@@ -76,7 +76,7 @@ module Writer = Archive.MakeWriter (IoWriter)
 
 let indexes = Hashtbl.create 100
 
-let write_header ~filename ~timestamp =
+let write_header ~filename ~header =
   let open Lwt_unix in
   let* fd = openfile filename [ O_WRONLY; O_APPEND; O_CREAT ] 0o644 in
   Lwt.finalize
@@ -85,7 +85,7 @@ let write_header ~filename ~timestamp =
       let oc =
         { IoWriter.channel = Lwt_io.of_fd ~mode:Output fd; position = 0L }
       in
-      let* () = Writer.write_header oc { version = 1; timestamp } in
+      let* () = Writer.write_header oc header in
       Lwt_io.flush oc.channel)
     (fun () -> close fd)
 
@@ -95,9 +95,9 @@ let build_roots ~size ~pos filename =
    fun cont ->
     if pos > 0L then cont ()
     else
-      let timestamp = Unix.time () |> Int64.of_float in
-      let* () = write_header ~filename ~timestamp in
-      Lwt.return (r, empty_roots, timestamp)
+      let header = Archive.new_header () in
+      let* () = write_header ~filename ~header in
+      Lwt.return (r, empty_roots, Archive.get_timestamp header)
   in
   let* fd = Lwt_unix.openfile filename [ Unix.O_RDONLY ] 0o644 in
   let open Lwt_io in
@@ -114,7 +114,7 @@ let build_roots ~size ~pos filename =
       in
       Hashtbl.add r record.hash record.location;
       loop accu)
-    else Lwt.return (r, accu, header.timestamp)
+    else Lwt.return (r, accu, Archive.get_timestamp header)
   in
   Lwt.finalize (fun () -> loop empty_roots) (fun () -> close ic)
 
