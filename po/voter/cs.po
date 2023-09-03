@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2023-09-03 21:54+0000\n"
+"PO-Revision-Date: 2023-09-04 23:53+0000\n"
 "Last-Translator: Tomáš Hnyk <tomashnyk@gmail.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
@@ -185,21 +185,21 @@ msgstr "Audit dat: "
 #. src/web/server/common/pages_common.ml:296
 #: src/web/server/common/pages_voter.ml:857
 msgid "Authenticate"
-msgstr "Přihlásit se"
+msgstr "Ověřit"
 
 #: src/web/server/common/pages_common.ml:232
 msgid "Authenticate with %s"
-msgstr "Přihlásit se pomocí %s"
+msgstr "Ověřit pomocí %s"
 
 #: src/web/server/common/pages_common.ml:401
 msgid "Authentication failed"
-msgstr "Přihlášení se nepovedlo"
+msgstr "Přihlášení selhalo"
 
 #: src/web/server/common/pages_common.ml:407
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
-"Přihlášení se nepovedlo, pravděpodobně kvůli špatnému jménu a heslu, nebo "
-"nemáš pro tuto operaci oprávnění."
+"Přihlášení selhalo, pravděpodobně kvůli špatnému jménu a heslu, nebo nemáš "
+"pro tuto operaci oprávnění."
 
 #: src/web/server/common/pages_common.ml:556
 msgid "Authentication impossible"
@@ -235,7 +235,7 @@ msgstr "S pozdravem,"
 
 #: src/web/server/common/pages_voter.ml:264
 msgid "Blank vote"
-msgstr "Prázdný lístek"
+msgstr "Prázdný volební lístek"
 
 #: src/web/server/common/pages_voter.ml:536
 msgid "By using this site, you accept our "
@@ -265,7 +265,7 @@ msgstr "Potvrdit"
 #. src/web/server/common/pages_voter.ml:1077
 #: src/web/server/common/pages_voter.ml:1139
 msgid "Continue"
-msgstr "Pokračovat"
+msgstr "Jít dál"
 
 #: src/web/server/common/site_voter.ml:91
 msgid "Cookies are blocked"
@@ -436,7 +436,7 @@ msgstr "Nenalezeno"
 #: src/web/server/common/mails_voter.ml:57
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
-"Provolbu potřebuješ také přístupový údaj, který se zasílá dalším e-mailem."
+"Provolbu potřebuješ také přístupový kód, který se zasílá dalším e-mailem."
 
 #: src/web/server/common/pages_voter.ml:496
 msgid "Number of accepted ballots: "
@@ -734,7 +734,7 @@ msgstr "Neznámá volba"
 
 #: src/web/server/common/pages_voter.ml:439
 msgid "Unsupported booth version"
-msgstr "Nepodporovaná verze hlasování"
+msgstr "Nepodporovaná verze hlasovací místnosti"
 
 #: src/web/server/common/pages_common.ml:472
 msgid "Use the following code:"
@@ -813,7 +813,7 @@ msgstr "Nyní se nemůžeš přihlásit. Zkus to prosím později."
 #: src/web/server/common/mails_voter.ml:145
 msgid "You will be asked to enter your credential before entering the voting booth."
 msgstr ""
-"Před tím, než budeš moci vyplnit svůj volební lístek, budeš požádán(a) o "
+"Před tím, než budeš moci vstoupit do hlasovací místnosti, budeš požádán(a) o "
 "zadání přístupového kódu."
 
 #: src/web/server/common/mails_voter.ml:143
@@ -916,7 +916,7 @@ msgstr "nezpracovaný výsledek"
 
 #: src/web/server/common/web_common.ml:75
 msgid "some proofs failed verification"
-msgstr "některé důkazy neprošly verifikací"
+msgstr "verifikace některých důkazů selhala"
 
 #: src/web/server/common/pages_voter.ml:899
 msgid "start from the beginning"
@@ -964,7 +964,7 @@ msgstr "tvůj hlasovací lístek není v kanonickém tvaru"
 
 #: src/web/server/common/web_common.ml:81
 msgid "your credential has a bad weight"
-msgstr "tvůj přístupový údaj má špatnou váhu"
+msgstr "tvůj přístupový kód má špatnou váhu"
 
 #: src/web/server/common/web_common.ml:78
 msgid "your credential has already been used"
