@@ -1,8 +1,8 @@
 {
-    "page_title": "Hlasování Belenios",
+    "page_title": "Hlasovací místnost Belenios",
     "alert_invalid_credential": "Neplatný přístupový kód!",
-    "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "Vyber snámku por kandidáta/ku {{candidate}}.",
-    "alert_question_constraint_no_blank_and_other": "Nelze odevzdat zároveň prázdný lístek a další odpověď.",
+    "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "Vyber známku por kandidáta/ku {{candidate}}.",
+    "alert_question_constraint_no_blank_and_other": "Nelze odevzdat zároveň prázdný volební lístek a další odpověď.",
     "alert_question_constraint_no_less_than_min_0": "Tato otázka vyžaduje alespoň {{count}} zaškrtnutou odpověď.",
     "alert_question_constraint_no_less_than_min_1": "Tato otázka vyžaduje alespoň {{count}} zaškrtnuté odpovědi.",
     "alert_question_constraint_no_less_than_min_2": "Tato otázka vyžaduje alespoň {{count}} zaškrtnutých odpovědí.",
@@ -12,10 +12,10 @@
     "breadcrumb_input_credential": "Vložit přístupový kód",
     "breadcrumb_answer_to_questions": "Odpověz na otázky",
     "breadcrumb_review_and_encrypt": "Ověřit a zašifrovat",
-    "breadcrumb_authenticate": "Přihlásit se",
+    "breadcrumb_authenticate": "Ověřit",
     "breadcrumb_confirm": "Potvrdit",
     "breadcrumb_step_x": "Krok {{step}}",
-    "blank_vote": "Prázdný lístek",
+    "blank_vote": "Prázdný volební lístek",
     "ask_for_credential": "Zadej svůj přistupový kód:",
     "next_button_label": "Další",
     "majority_judgment_grade_select": "Vyber jednu z možností",
@@ -34,7 +34,7 @@
     "preferential_voting_move_candidate_to": "Přesunout do",
     "preferential_voting_delete_preference_level": "Smazat tuto úroveň preference",
     "majority_judgment_question_description": "Oznámkuj všechny kandidáty/ky před dalším krokem.",
-    "preferential_voting_question_description": "Seřaď kandidáty/ky dle preference.",
+    "preferential_voting_question_description": "Seřaď kandidáty/ky dle preference. Kandidáti s nepřiřazeným pořadím, pokud takoví jsou, jsou považování za (stejně) méně preferované.",
     "ask_to_select_x_answers_0": "Vyber {{count}} otázku.",
     "ask_to_select_x_answers_1": "Vyber {{count}} otázky.",
     "ask_to_select_x_answers_2": "Vyber {{count}} otázek.",
@@ -50,5 +50,8 @@
     "previous_button_label": "Předchozí",
     "encrypted_ballot_is": "Zašifrovaný hlasovací lístek:",
     "review_ballot_for_questions": "Tvůj hlasovací lístek ještě není ve volební urně a má následující obsah:",
-    "question_x_of_y": "Otázka {{current_question}} z {{number_of_questions}}"
+    "question_x_of_y": "Otázka {{current_question}} z {{number_of_questions}}",
+    "preferential_voting_without_equality_move_candidate_above_position_x": "Nad pozicí {{index}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x": "Pod pozicí {{index}}",
+    "preferential_voting_ranked": "Pořadí přiřazeno"
 }
