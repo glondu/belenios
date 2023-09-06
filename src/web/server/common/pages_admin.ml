@@ -207,7 +207,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let format_election (uuid, name) =
-      let name = if name = "" then s_ "(untitled)" else name in
+      let name = if name = "" then s_ "(no title)" else name in
       li
         [
           a ~service:election_admin
@@ -217,7 +217,7 @@ struct
         ]
     in
     let format_draft_election (uuid, name) =
-      let name = if name = "" then s_ "(untitled)" else name in
+      let name = if name = "" then s_ "(no title)" else name in
       li
         [
           a ~service:election_draft
@@ -382,7 +382,7 @@ struct
                              [
                                txt
                                  (s_
-                                    "sent by email when voting (a short \
+                                    "sent by e-mail when voting (a short \
                                      password, renewed for each vote)");
                              ]
                          | _ ->
@@ -498,7 +498,7 @@ struct
                 txt
                   (s_
                      "This is a space-separated list of languages that will be \
-                      used in emails sent by the server.");
+                      used in e-mails sent by the server.");
               ];
             div [ input ~input_type:`Submit ~value:(s_ "Save changes") string ];
           ])
@@ -591,7 +591,8 @@ struct
             div
               [
                 txt
-                  (s_ "This contact will be added to emails sent to the voters.");
+                  (s_
+                     "This contact will be added to e-mails sent to the voters.");
               ];
             div [ input ~input_type:`Submit ~value:(s_ "Save changes") string ];
           ])
@@ -1722,7 +1723,7 @@ struct
               b [ txt (s_ "Warning:") ];
               txt " ";
               txt
-                (s_ "you have to make sure that the email addresses are valid.");
+                (s_ "you have to make sure that the e-mail addresses are valid.");
             ];
           div
             ~a:
@@ -1733,8 +1734,8 @@ struct
             [
               txt
                 (s_
-                   "You won't be able to change the email addresses once the \
-                    credentials are created. Voters with invalid email \
+                   "You won't be able to change the e-mail addresses once the \
+                    credentials are created. Voters with invalid e-mail \
                     addresses won't be able to vote.");
             ];
         ]
@@ -2142,7 +2143,12 @@ struct
                        "Remember that you must also check the presence of your \
                         public key.");
                 ];
-              li [ txt (s_ "Remember to store you private key securely.") ];
+              li
+                [
+                  txt
+                    (s_
+                       "Remember to store you private key in a secure location.");
+                ];
             ];
         ]
     in
@@ -2296,7 +2302,7 @@ struct
               a ~service:election_draft_credentials_get
                 [ txt (s_ "download") ]
                 uuid;
-              txt (s_ " and save them securely.");
+              txt (s_ " and save them in a secure location.");
             ]
       | None -> ok (s_ "Not applicable")
     in
@@ -2586,7 +2592,7 @@ struct
                       @@ div
                            [
                              a_mailto ~dest:x.shuffler_address ~subject ~body
-                               (s_ "Mail");
+                               (s_ "E-mail");
                              txt " | ";
                              (if this_line then
                                 a ~service:election_admin
@@ -2941,7 +2947,8 @@ struct
           post_form ~service:election_delete
             (fun () ->
               [
-                input ~input_type:`Submit ~value:(s_ "Delete election") string;
+                input ~input_type:`Submit ~value:(s_ "Delete the election")
+                  string;
                 txt " ";
                 txt (s_ "Warning: This action is irreversible.");
               ])
@@ -3019,7 +3026,7 @@ struct
         uuid
     in
     let content = [ form ] in
-    let title = s_ "Regenerate and e-mail password" in
+    let title = s_ "Regenerate and e-mail a password" in
     let* login_box = login_box ~cont:(ContSiteElection uuid) () in
     base ~title ~login_box ~content ~uuid ()
 

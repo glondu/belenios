@@ -156,9 +156,9 @@ module Make (I : I18n.S) = struct
     add_sentence b
       (s_
          "Regarding your private key, it is crucial you save it (otherwise the \
-          election will be canceled) and store it securely (if your private \
-          key is known together with the private keys of the other trustees, \
-          then vote privacy is no longer guaranteed).");
+          election will be canceled) and store it in a secure location (if \
+          your private key is known together with the private keys of the \
+          other trustees, then vote privacy is no longer guaranteed).");
     add_sentence b (s_ "We suggest two options:");
     add_newline b;
     add_string b "1. ";
@@ -240,9 +240,9 @@ module Make (I : I18n.S) = struct
     add_sentence b
       (s_
          "Regarding your private key, it is crucial you save it (otherwise the \
-          election will be canceled) and store it securely (if your private \
-          key is known together with the private keys of the other trustees, \
-          then vote privacy is no longer guaranteed).");
+          election will be canceled) and store it in a secure location (if \
+          your private key is known together with the private keys of the \
+          other trustees, then vote privacy is no longer guaranteed).");
     add_sentence b (s_ "We suggest two options:");
     add_newline b;
     add_string b "1. ";

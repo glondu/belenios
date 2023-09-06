@@ -803,8 +803,8 @@ struct
               Pages_common.generic_page ~title:(s_ "Success") ~service
                 (s_
                    "Credentials have been generated and mailed! You should \
-                    download private credentials (and store them securely), in \
-                    case someone loses his/her credential.")
+                    download private credentials (and store them in a secure \
+                    location), in case someone loses his/her credential.")
                 ()
               >>= Html.send
           | Error `Already ->

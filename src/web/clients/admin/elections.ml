@@ -813,24 +813,25 @@ let voters_content () =
         h2
           [
             txt
-              (if is_frozen then s_ "Voter list (not editable):"
-               else s_ "Voter list:");
+              (if is_frozen then s_ "List of voters (not editable):"
+               else s_ "List of voters:");
           ];
         div
           ~a:[ a_id "list_warning" ]
           [
             strong [ txt @@ s_ "Warning:" ];
             txt " ";
-            txt (s_ "you have to make sure that the email addresses are valid.");
+            txt
+              (s_ "you have to make sure that the e-mail addresses are valid.");
           ];
         div
           ~a:[ a_id "list_warning2" ]
           [
             txt
               (s_
-                 "You won't be able to change the email addresses once the \
-                  credentials are created. Voters with invalid email addresses \
-                  won't be able to vote.");
+                 "You won't be able to change the e-mail addresses once the \
+                  credentials are created. Voters with invalid e-mail \
+                  addresses won't be able to vote.");
           ];
         tablex [ tbody (header_row :: rows_of_voters) ];
         (if is_frozen then div []
@@ -1052,7 +1053,7 @@ let language_content () =
   in
   Lwt.return
     [
-      h2 [ txt @@ s_ "Languages :" ];
+      h2 [ txt @@ s_ "Languages:" ];
       div
         ~a:[ a_id "choose_lang" ]
         [
@@ -1061,7 +1062,7 @@ let language_content () =
               txt
               @@ s_
                    "This is a space-separated list of languages that will be \
-                    used in emails sent by the server.";
+                    used in e-mails sent by the server.";
             ];
           div [ label ~a:[ a_label_for "inplang" ] [ txt "Languages: " ]; inp ];
         ];
@@ -1101,7 +1102,9 @@ let contact_content () =
     [
       h2 [ txt @@ s_ "Contact:" ];
       div
-        [ txt @@ s_ "This contact will be added to emails sent to the voters." ];
+        [
+          txt @@ s_ "This contact will be added to e-mails sent to the voters.";
+        ];
       div [ label ~a:[ a_label_for "inpcont" ] [ txt "Contact: " ]; inp ];
       h2 [ txt @@ s_ "Public name of the administrator: " ];
       div
@@ -1486,7 +1489,7 @@ let voterspwd_content () =
                          let inp, lab =
                            rad i sel
                              (s_
-                                "Password sent by email when voting (a short \
+                                "Password sent by e-mail when voting (a short \
                                  password, renewed for each vote)")
                              ()
                          in

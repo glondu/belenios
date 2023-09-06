@@ -98,7 +98,7 @@ let recompute_main_zone_1 () =
   let header_row =
     tr
       [
-        th [ txt @@ s_ "Trustee's email" ];
+        th [ txt @@ s_ "Trustee's e-mail" ];
         th [ txt @@ s_ "Trustee's public name" ];
         th [];
       ]
@@ -128,7 +128,7 @@ let recompute_main_zone_1 () =
   in
   let add_form =
     let lab1 =
-      label ~a:[ a_label_for "inp1" ] [ txt @@ s_ "Trustee's email " ]
+      label ~a:[ a_label_for "inp1" ] [ txt @@ s_ "Trustee's e-mail " ]
     in
     let inp1, inp1_get = input ~a:[ a_id "inp1" ] "" in
     let lab2 =
@@ -144,7 +144,7 @@ let recompute_main_zone_1 () =
           Lwt.return_unit)
     in
     let add_but =
-      button (s_ "Add trustee") (fun () ->
+      button (s_ "Add a trustee") (fun () ->
           let t =
             {
               trustee_address = Some (inp1_get ());
@@ -303,7 +303,7 @@ let recompute_main_zone_3 () =
   let header_row =
     tr
       [
-        th [ txt @@ s_ "Trustee's email" ];
+        th [ txt @@ s_ "Trustee's e-mail" ];
         th [ txt @@ s_ "Trustee's public name" ];
         th [];
       ]
@@ -347,7 +347,7 @@ let string_of_state st =
   | `Threshold _ -> (
       match st with
       | None -> s_ "none"
-      | Some 0 -> s_ "step 0 ?" (* should not occur if threshold is set *)
+      | Some 0 -> s_ "step 0?" (* should not occur if threshold is set *)
       | Some 1 | Some 2 -> s_ "step 1 / 3"
       | Some 3 | Some 4 -> s_ "step 2 / 3"
       | Some 5 | Some 6 -> s_ "step 3 / 3"
@@ -396,7 +396,7 @@ let recompute_main_zone_2 () =
     let header_row =
       tr
         [
-          th [ txt @@ s_ "Trustee's email" ];
+          th [ txt @@ s_ "Trustee's e-mail" ];
           th [ txt @@ s_ "Trustee's name" ];
           th [ txt @@ s_ "Link to send" ];
           th [ txt @@ s_ "Status" ];
@@ -507,7 +507,7 @@ let main_zone_tallying () =
         let header_row =
           tr
             [
-              th [ txt @@ s_ "Trustee's email" ];
+              th [ txt @@ s_ "Trustee's e-mail" ];
               th [ txt @@ s_ "Link to send" ];
               th [ txt @@ s_ "Done?" ];
               th [];
@@ -587,7 +587,7 @@ let main_zone_shuffling () =
         let header_row =
           tr
             [
-              th [ txt @@ s_ "Shuffler's email" ];
+              th [ txt @@ s_ "Shuffler's e-mail" ];
               th [];
               (* select and skip buttons / link to send *)
               th [ txt @@ s_ "Done?" ];

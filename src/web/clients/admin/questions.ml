@@ -433,7 +433,7 @@ let q_to_html_inner ind q =
                        inp_sort_rad1;
                        label
                          ~a:[ a_label_for (rad_name ^ "_1") ]
-                         [ txt @@ s_ "Method of Condorcet-Schulze" ];
+                         [ txt @@ s_ "Condorcet-Schulze method" ];
                      ];
                    div
                      [
