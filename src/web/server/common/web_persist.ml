@@ -1419,6 +1419,44 @@ let clear_private_creds_downloaded uuid =
 
 let get_election_file uuid f = uuid /// string_of_election_file f
 
+let get_draft_private_credentials uuid =
+  Spool.get ~uuid Spool.draft_private_credentials
+
+let set_draft_private_credentials uuid =
+  Spool.set ~uuid Spool.draft_private_credentials
+
+let send_credentials uuid se =
+  let@ () =
+   fun cont -> if se.se_pending_credentials then cont () else Lwt.return_unit
+  in
+  let@ private_creds cont =
+    let* x = get_draft_private_credentials uuid in
+    match x with
+    | None -> Lwt.return_unit
+    | Some x -> cont @@ private_credentials_of_string x
+  in
+  let voter_map =
+    List.fold_left
+      (fun accu v ->
+        let recipient, login, weight = Voter.get v.sv_id in
+        SMap.add login (recipient, weight) accu)
+      SMap.empty se.se_voters
+  in
+  let send = Mails_voter.generate_credential_email uuid se in
+  let* jobs =
+    Lwt_list.fold_left_s
+      (fun jobs (login, credential) ->
+        match SMap.find_opt login voter_map with
+        | None -> Lwt.return jobs
+        | Some (recipient, weight) ->
+            let* job = send ~recipient ~login ~weight ~credential in
+            Lwt.return (job :: jobs))
+      [] private_creds
+  in
+  let* () = Mails_voter.submit_bulk_emails jobs in
+  se.se_pending_credentials <- false;
+  Lwt.return_unit
+
 let validate_election uuid se s =
   let open Belenios_api.Serializable_j in
   let version = se.se_version in
@@ -1614,6 +1652,8 @@ let validate_election uuid se s =
         let* () = create_file "private_key.json" string_of_number [ x ] in
         create_file "private_keys.jsons" (fun x -> x) y
   in
+  (* send private credentials, if any *)
+  let* () = send_credentials uuid se in
   (* clean up draft *)
   let* () = Spool.del ~uuid Spool.draft in
   (* clean up private credentials, if any *)
@@ -1772,12 +1812,6 @@ let set_draft_public_credentials uuid public_creds =
 
 let get_draft_public_credentials uuid =
   Spool.get ~uuid Spool.draft_public_credentials
-
-let get_draft_private_credentials uuid =
-  Spool.get ~uuid Spool.draft_private_credentials
-
-let set_draft_private_credentials uuid =
-  Spool.set ~uuid Spool.draft_private_credentials
 
 let get_records uuid =
   Filesystem.read_file ~uuid (string_of_election_file ESRecords)

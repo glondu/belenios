@@ -794,17 +794,16 @@ struct
         if se.se_questions.t_name = default_name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else
-          let send = Mails_voter.generate_credential_email uuid se in
-          let* x = Api_drafts.generate_credentials_on_server send uuid se in
+          let* x = Api_drafts.generate_credentials_on_server uuid se in
           match x with
-          | Ok jobs ->
-              let* () = Mails_voter.submit_bulk_emails jobs in
+          | Ok () ->
               let service = preapply ~service:election_draft uuid in
               Pages_common.generic_page ~title:(s_ "Success") ~service
                 (s_
-                   "Credentials have been generated and mailed! You should \
-                    download private credentials (and store them in a secure \
-                    location), in case someone loses his/her credential.")
+                   "Credentials have been generated! They will be e-mailed \
+                    when the election is validated. You should download \
+                    private credentials (and store them in a secure location), \
+                    in case someone loses their credential.")
                 ()
               >>= Html.send
           | Error `Already ->

@@ -33,14 +33,9 @@ type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
 val generate_credentials_on_server :
-  (recipient:string ->
-  login:string ->
-  weight:weight ->
-  credential:string ->
-  'a Lwt.t) ->
   uuid ->
   draft_election ->
-  ('a list, generate_credentials_on_server_error) Stdlib.result Lwt.t
+  (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t
 
 val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn

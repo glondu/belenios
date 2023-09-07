@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
+import time
 import unittest
 import random
 import os
@@ -93,6 +94,9 @@ class BeleniosTestElectionWithCreationBase(BeleniosTestElectionScenario2Base):
                     temporary_fake_sent_emails_manager.uninstall_fake_sendmail_log_file()
 
             self.administrator_creates_election()
+
+            # Wait for e-mails to be delivered
+            time.sleep(10)
 
             console_log("### Starting step: download_all_sent_emails")
             self.distant_fake_sent_emails_manager = self.download_all_sent_emails()

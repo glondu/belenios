@@ -114,80 +114,13 @@ class BeleniosElectionTestBase(unittest.TestCase):
         generate_on_server_button_element = wait_for_element_exists(browser, generate_on_server_button_css_selector, settings.EXPLICIT_WAIT_TIMEOUT)
         generate_on_server_button_element.click()
 
-        # Wait for emails to be delivered
+        # Wait for credentials to be generated
         time.sleep(10)
 
-        # (Server sends emails to voters.) She checks that server does not show any error that would happen when trying to send these emails (this can happen if sendmail is not configured)
-        confirmation_sentence_expected_text = "Credentials have been generated and mailed!"
+        # She checks that server does not show any error
+        confirmation_sentence_expected_text = "Credentials have been generated!"
         confirmation_sentence_css_selector = "#main p"
         wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
-
-        # Now we do a sanity check that server has really tried to send emails. For this, we look for email addresses in the temporary file where our fake sendmail executable redirects its inputs to.
-
-        """
-        An email sent by Belenios (using sendmail or using the fake sendmail) to a voter looks like this:
-
-Content-type: text/plain; charset="UTF-8"
-Content-transfer-encoding: quoted-printable
-From: Belenios public server <noreply@example.org>
-To: "820E7G83JBY0F4Z3DY2Y@example.org"
- <820E7G83JBY0F4Z3DY2Y@example.org>
-Subject: Your credential for election My test election for Scenario 1
-MIME-Version: 1.0
-X-Mailer: OcamlNet (ocamlnet.sourceforge.net)
-Date: Wed, 31 Oct 2018 15:22:27 +0100
-
-You are listed as a voter for the election
-
-  My test election for Scenario 1
-
-You will find below your credential.  To cast a vote, you will also
-need a password, sent in a separate email.  Be careful, passwords and
-credentials look similar but play different roles.  You will be asked
-to enter your credential before entering the voting booth.  Login and
-passwords are required once your ballot is ready to be cast.
-
-Credential: yQVDQaKSAQVjdZq
-Page of the election: http://localhost:8001/elections/AFFNDEPnpy21bw/
-
-Note that you are allowed to vote several times.  Only the last vote
-counts.
-
-----------
-
-Vous =C3=AAtes enregistr=C3=A9(e) en tant qu=27=C3=A9lecteur(trice) pour=20=
-l=27=C3=A9lection
-
-  My test election for Scenario 1
-
-Veuillez trouver ci-dessous votre code de vote. Pour soumettre un
-bulletin, vous aurez =C3=A9galement besoin d=27un mot de passe, envoy=C3=A9=
- dans
-un e-mail s=C3=A9par=C3=A9. Soyez attentif(ve), le mot de passe et le cod=
-e de
-vote se ressemblent mais jouent des r=C3=B4les diff=C3=A9rents. Le syst=C3=
-=A8me vous
-demandera votre code de vote d=C3=A8s l=27entr=C3=A9e dans l=27isoloir=20=
-virtuel. Le
-nom d=27utilisateur et le mot de passe sont n=C3=A9cessaires lorsque votr=
-e
-bulletin est pr=C3=AAt =C3=A0 =C3=AAtre soumis.
-
-Code de vote=C2=A0: yQVDQaKSAQVjdZq
-Page de l=27=C3=A9lection=C2=A0: http://localhost:8001/elections/AFFNDEPn=
-py21bw/
-
-Notez que vous pouvez voter plusieurs fois. Seul le dernier vote est
-pris en compte.
-
---=20
-        """
-
-        email_address_to_look_for = self.voters_email_addresses[0]
-        text_to_look_for = 'To: "' + email_address_to_look_for + '"'
-        email_address_found = self.fake_sent_emails_manager.find_in_sent_emails(text_to_look_for)
-        assert email_address_found, "Text '" + email_address_to_look_for + "' not found in fake sendmail log file " + self.fake_sent_emails_manager.log_file_path
-
 
         # She clicks on the "Proceed" link
         proceed_link_css_selector = "#generic_proceed_link"

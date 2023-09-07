@@ -220,6 +220,7 @@ let post_drafts account draft =
       se_credential_authority_visited = false;
       se_voter_authentication_visited = false;
       se_trustees_setup_step = 1;
+      se_pending_credentials = false;
     }
   in
   let se = draft_of_api account se draft in
@@ -336,7 +337,7 @@ type generate_credentials_on_server_error =
 
 module CG = Belenios_core.Credential.MakeGenerate (Random)
 
-let generate_credentials_on_server send uuid se =
+let generate_credentials_on_server uuid se =
   let nvoters = List.length se.se_voters in
   if nvoters > !Web_config.maxmailsatonce then
     Lwt.return (Stdlib.Error `TooManyVoters)
@@ -350,21 +351,19 @@ let generate_credentials_on_server send uuid se =
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module CMap = Map.Make (G) in
     let module CD = Belenios_core.Credential.MakeDerive (G) in
-    let* public_creds, private_creds, jobs =
+    let* public_creds, private_creds =
       Lwt_list.fold_left_s
-        (fun (public_creds, private_creds, jobs) v ->
-          let recipient, login, weight = Voter.get v.sv_id in
+        (fun (public_creds, private_creds) v ->
+          let _, login, weight = Voter.get v.sv_id in
           let credential = CG.generate () in
           let pub_cred =
             let x = CD.derive uuid credential in
             G.(g **~ x)
           in
-          let* job = send ~recipient ~login ~weight ~credential in
           Lwt.return
             ( CMap.add pub_cred (weight, login) public_creds,
-              (login, credential) :: private_creds,
-              job :: jobs ))
-        (CMap.empty, [], []) se.se_voters
+              (login, credential) :: private_creds ))
+        (CMap.empty, []) se.se_voters
     in
     let private_creds =
       List.rev private_creds |> string_of_private_credentials
@@ -381,8 +380,9 @@ let generate_credentials_on_server send uuid se =
     in
     let* () = Web_persist.set_draft_public_credentials uuid public_creds in
     se.se_public_creds_received <- true;
+    se.se_pending_credentials <- true;
     let* () = Web_persist.set_draft_election uuid se in
-    Lwt.return (Ok jobs)
+    Lwt.return (Ok ())
 
 let exn_of_generate_credentials_on_server_error = function
   | `NoVoters -> Error (`ValidationError `NoVoters)
@@ -918,12 +918,9 @@ let dispatch_credentials ~token endpoint method_ body uuid se =
             match (who, x) with
             | `Administrator _, [] -> (
                 let@ () = handle_generic_error in
-                let send = Mails_voter.generate_credential_email uuid se in
-                let* x = generate_credentials_on_server send uuid se in
+                let* x = generate_credentials_on_server uuid se in
                 match x with
-                | Ok jobs ->
-                    let* () = Mails_voter.submit_bulk_emails jobs in
-                    ok
+                | Ok () -> ok
                 | Error e ->
                     Lwt.fail @@ exn_of_generate_credentials_on_server_error e)
             | `CredentialAuthority, credentials ->
