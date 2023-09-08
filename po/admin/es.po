@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2023-09-08 07:58+0000\n"
+"PO-Revision-Date: 2023-09-08 08:32+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -1983,7 +1983,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:2149
 msgid "Remember to store you private key in a secure location."
-msgstr ""
+msgstr "Recuerda guardar tu clave privada en un lugar seguro."
 
 #. src/web/clients/tool/tool_js_questions.ml:171
 #. src/web/server/common/pages_admin.ml:1686
@@ -2099,7 +2099,7 @@ msgstr "Lista de votos mezclados:"
 
 #: src/web/clients/admin/trustees.ml:590
 msgid "Shuffler's e-mail"
-msgstr ""
+msgstr "Correo electrónico de Shuffler"
 
 #: src/web/server/common/pages_admin.ml:2686
 msgid "Shuffling of ballots"
@@ -2456,6 +2456,8 @@ msgstr ""
 #: src/web/clients/admin/elections.ml:1106
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
+"Este contacto será añadido a los correos electrónicos enviados a los "
+"votantes."
 
 #: src/web/server/common/site_admin.ml:175
 msgid "This e-mail address is invalid!"
@@ -2493,6 +2495,8 @@ msgstr "Esta elección se eliminará automáticamente después de "
 #: src/web/clients/admin/elections.ml:1063
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
+"Se trata de una lista separada por espacios de los idiomas que se utilizarán "
+"en los mensajes de correo electrónico enviados por el servidor."
 
 #: src/web/clients/checkpriv/checkpriv.ml:39
 msgid "This is the private key of %s."
@@ -2603,11 +2607,11 @@ msgstr "Configuración de los fideicomisarios - Paso 2: generación de las clave
 #. src/web/clients/admin/trustees.ml:101
 #: src/web/clients/admin/trustees.ml:510 src/web/clients/admin/trustees.ml:399
 msgid "Trustee's e-mail"
-msgstr ""
+msgstr "Correo electrónico del administrador"
 
 #: src/web/clients/admin/trustees.ml:131
 msgid "Trustee's e-mail "
-msgstr ""
+msgstr "Correo electrónico del administrador "
 
 #. src/web/server/common/pages_admin.ml:827
 #: src/web/server/common/pages_admin.ml:1038
@@ -2916,6 +2920,9 @@ msgstr "Lo usará para enviar acreditaciones a los electores."
 #: src/web/clients/admin/elections.ml:831
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
+"No podrás cambiar las direcciones de correo electrónico una vez creadas las "
+"credenciales. Los votantes con direcciones de correo electrónico no válidas "
+"no podrán votar."
 
 #. src/web/server/common/pages_admin.ml:3527
 #: src/web/server/common/pages_admin.ml:3553
@@ -3079,6 +3086,8 @@ msgstr "enviadas por un tercero elegido por usted (modo seguro)"
 #: src/web/server/common/pages_admin.ml:384
 msgid "sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
+"enviada por correo electrónico al votar (una contraseña corta, renovada para "
+"cada voto)"
 
 #: src/web/server/common/pages_admin.ml:427
 msgid "sent by our server (easier mode but offers less security)"
@@ -3105,7 +3114,7 @@ msgstr "omitido"
 
 #: src/web/clients/admin/trustees.ml:350
 msgid "step 0?"
-msgstr ""
+msgstr "¿Paso 0?"
 
 #: src/web/clients/admin/trustees.ml:351
 msgid "step 1 / 3"
@@ -3244,6 +3253,7 @@ msgstr ""
 #: src/web/clients/admin/elections.ml:825
 msgid "you have to make sure that the e-mail addresses are valid."
 msgstr ""
+"debes asegurarte de que las direcciones de correo electrónico sean correctas."
 
 #: src/web/common/mails_admin.ml:250 src/web/common/mails_admin.ml:166
 msgid "you may store the key on a USB stick and store it in a safe;"
