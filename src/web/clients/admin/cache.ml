@@ -24,6 +24,7 @@ open Belenios_api.Serializable_j
 open Belenios_core.Common
 open Belenios_core.Serializable_j
 open Belenios_js.Common
+open Belenios_js.Session
 open Common
 open Lwt.Syntax
 

@@ -26,7 +26,7 @@ open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
-open Common
+open Belenios_js.Session
 
 let context = ref `None
 
@@ -62,7 +62,7 @@ let regexps =
     ( Regexp.regexp "^#elections/([0-9A-Za-z]+)$",
       fun r ->
         match Regexp.matched_group r 1 with
-        | Some uuid -> `Election uuid
+        | Some uuid -> `Election (Uuid.wrap uuid)
         | _ -> `Error );
   ]
 
@@ -216,14 +216,14 @@ let show hash main =
   | `Draft (uuid, tab) -> Drafts.show main uuid tab context
   | `Election uuid ->
       context := `None;
-      Elections.show main uuid
+      Elections.show main (Uuid.unwrap uuid)
   | `Credentials (uuid, _) ->
       context := `None;
       Credentials.show main uuid
 
 let onhashchange () =
   let hash = parse_hash () in
-  let* () = get_api_token hash in
+  let* () = init_api_token ~ui:"basic" hash in
   show hash document##.body
 
 let onload () =
@@ -235,7 +235,7 @@ let onload () =
   in
   let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
   let hash = parse_hash () in
-  let* () = get_api_token hash in
+  let* () = init_api_token ~ui:"basic" hash in
   show hash document##.body
 
 let () =

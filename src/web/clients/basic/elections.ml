@@ -26,6 +26,7 @@ open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
+open Belenios_js.Session
 open Common
 
 let rec show main uuid =

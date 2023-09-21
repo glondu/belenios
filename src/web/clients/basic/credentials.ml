@@ -28,7 +28,7 @@ open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
-open Common
+open Belenios_js.Session
 module CG = Belenios_core.Credential.MakeGenerate (Random)
 
 let show main uuid =

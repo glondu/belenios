@@ -19,46 +19,64 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Js_of_ocaml_tyxml.Tyxml_js.Html5
 open Belenios_core.Common
 
 (** Session management *)
 
-val logout : unit -> unit Lwt.t
+val init_api_token :
+  ui:string ->
+  [> `Credentials of 'a * string | `Election of Uuid.t | `Error ] ->
+  unit Lwt.t
 
-(** Context *)
+(** XHR helpers *)
 
-type tab =
-  | Title
-  | Questions
-  | Voters
-  | Dates
-  | Language
-  | Contact
-  | Trustees
-  | CredAuth
-  | VotersPwd
-  | ElectionPage
-  | CreateOpenClose
-  | Tally
-  | Destroy
+type xhr_result =
+  | BadResult
+  | BadStatus of int * string
+  | RequestStatus of Belenios_api.Serializable_t.request_status
 
-type status = Draft | Running | Tallied | Archived
+type ('a, 'b) xhr_helper = ('a, unit, string, 'b Lwt.t) format4 -> 'a
 
-type context =
-  | Election of { uuid : Uuid.t; status : status; tab : tab }
-  | List_draft
-  | List_running
-  | List_old
-  | Profile
+type 'a raw_xhr_helper =
+  ('a, Js_of_ocaml_lwt.XmlHttpRequest.http_frame) xhr_helper
 
-val where_am_i : context ref
-val get_current_uuid : unit -> string
-val is_draft : unit -> bool
-val is_running : unit -> bool
-val is_archived : unit -> bool
-val is_finished : unit -> bool
+val delete_with_token : ?ifmatch:string -> 'a raw_xhr_helper
+val post_with_token : ?ifmatch:string -> string -> 'a raw_xhr_helper
+val put_with_token : ifmatch:string -> string -> 'a raw_xhr_helper
+
+val get :
+  ?notoken:bool ->
+  (string -> 'a) ->
+  ('b, ('a * string, xhr_result) result) xhr_helper
+
+(** Error handling *)
+
+val string_of_error : xhr_result -> string
+
+val wrap :
+  (string -> 'b) ->
+  Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t ->
+  ('b, xhr_result) result Lwt.t
+
+val with_ok :
+  string ->
+  ('a, xhr_result) result ->
+  ('a -> ([> Html_types.txt ] as 'b) elt list Lwt.t) ->
+  'b elt list Lwt.t
+
+val with_ok_opt :
+  string ->
+  ('a * 'b, xhr_result) result ->
+  ('a * 'b -> ([> Html_types.txt ] as 'c) elt list Lwt.t) ->
+  ('c elt list * 'a option) Lwt.t
+
+val with_ok_not_found :
+  string ->
+  ('a, xhr_result) result ->
+  ('a option -> ([> Html_types.txt ] as 'b) elt list Lwt.t) ->
+  'b elt list Lwt.t
 
 (** Misc *)
 
-val popup_failsync : string -> unit Lwt.t
-val url_prefix : unit -> string
+val get_ifmatch : ('a * string, 'c) result -> string option

@@ -26,6 +26,7 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios_js.Common
+open Belenios_js.Session
 open Common
 
 let send_draft_request req =

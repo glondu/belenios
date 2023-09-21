@@ -26,6 +26,7 @@ open Belenios_core.Common
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
+open Belenios_js.Session
 open Common
 
 (* The hash in the url can be:
@@ -422,7 +423,7 @@ let onhashchange () =
   let* () = Cache.sync_until_success () in
   Cache.invalidate_all ();
   let hash = parse_hash () in
-  let* () = get_api_token hash in
+  let* () = init_api_token ~ui:"new" hash in
   let* where =
     match hash with
     | `Home -> Lwt.return List_draft

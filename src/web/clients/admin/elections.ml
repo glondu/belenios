@@ -28,6 +28,7 @@ open Belenios_api.Serializable_j
 open Belenios_core.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
+open Belenios_js.Session
 open Common
 
 (* Syntaxic helper for Js.Optdef...

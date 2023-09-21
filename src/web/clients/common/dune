@@ -1,7 +1,7 @@
 (library
  (name belenios_js)
  (libraries js_of_ocaml js_of_ocaml-lwt js_of_ocaml-tyxml belenios-platform
-   belenios belenios_ui)
+   belenios belenios_ui belenios_api)
  (modules_without_implementation messages)
  (preprocess
   (pps js_of_ocaml-ppx)))
