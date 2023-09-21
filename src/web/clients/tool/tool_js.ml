@@ -131,8 +131,8 @@ module Tests = struct
     in
     let module G = (val group) in
     let n = get_input "bench_group_nb" |> int_of_string in
-    let byte_length = (Z.bit_length G.q / 8) + 1 in
-    let xs = Array.init n (fun i -> Z.(gen byte_length i mod G.q)) in
+    let byte_length = bytes_to_sample G.Zq.q in
+    let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.of_Z) in
     let start = new%js Js.date_now in
     let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = new%js Js.date_now in
@@ -237,9 +237,11 @@ module Mkelection = struct
       let get_trustees () =
         get_textarea "mkelection_pks"
         |> split_lines
-        |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+        |> List.map
+             (trustee_public_key_of_string Yojson.Safe.read_json
+                Yojson.Safe.read_json)
         |> List.map (fun x -> `Single x)
-        |> string_of_trustees Yojson.Safe.write_json
+        |> string_of_trustees Yojson.Safe.write_json Yojson.Safe.write_json
     end in
     let module X = (val make (module P : PARAMS) : S) in
     set_textarea "mkelection_output" (X.mkelection ());

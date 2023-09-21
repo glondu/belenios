@@ -26,9 +26,9 @@ open Common
 
 module G = Ed25519_pure
 
-let l = G.q
-
 module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
+  module Zq = G.Zq
+
   module E = struct
     open B
 
@@ -49,7 +49,7 @@ module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
       loop 0 z
 
     let scalar_of_number z =
-      let z = Z.erem z l in
+      let z = Zq.to_Z z in
       of_z_generic scalarbytes z
 
     let number_of_scalar b =
@@ -145,15 +145,14 @@ module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
   let hash prefix xs =
     let x = prefix ^ map_and_concat_with_commas to_string xs in
     let z = Z.of_hex (sha256_hex x) in
-    Z.(z mod l)
+    Zq.of_Z z
 
   let hash_to_int p = G.hash_to_int (get_as_pure p)
   let description = "Ed25519"
-  let q = l
 
   let selfcheck () =
     check one && check g
     && G.compare (get_as_pure g) G.g = 0
-    && (g **~ Z.(l - one)) *~ g =~ one
+    && (g **~ Zq.(zero - one)) *~ g =~ one
     && g *~ invert g =~ one
 end

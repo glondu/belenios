@@ -43,10 +43,13 @@ val exn_of_generate_credentials_on_server_error :
 val submit_public_credentials :
   uuid -> draft_election -> public_credentials -> unit Lwt.t
 
-val generate_server_trustee : draft_election -> draft_trustee Lwt.t
+val generate_server_trustee :
+  draft_election -> Yojson.Safe.t draft_trustee Lwt.t
 
 val get_draft_trustees :
-  is_admin:bool -> draft_election -> Belenios_api.Serializable_t.draft_trustees
+  is_admin:bool ->
+  draft_election ->
+  (Yojson.Safe.t, Yojson.Safe.t) Belenios_api.Serializable_t.draft_trustees
 
 val post_draft_trustees :
   uuid -> draft_election -> Yojson.Safe.t trustee -> unit Lwt.t

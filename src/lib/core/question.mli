@@ -44,11 +44,11 @@ module Make
     (QHomomorphic : Question_sigs.QUESTION_H
                       with type elt := G.t
                        and type question := Question_h_t.question
-                       and type answer := G.t Question_h_t.answer)
+                       and type answer := (G.t, G.Zq.t) Question_h_t.answer)
     (QNonHomomorphic : Question_sigs.QUESTION_NH
                          with type elt := G.t
                           and type question := Question_nh_t.question
-                          and type answer := G.t Question_nh_t.answer) :
+                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer) :
   Question_sigs.QUESTION
     with type elt := G.t
      and type question := t

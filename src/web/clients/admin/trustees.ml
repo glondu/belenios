@@ -47,18 +47,29 @@ let step = ref 0
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let cast_bt_trustee x =
-  string_of_trustee (write_trustee_public_key Yojson.Safe.write_json) x
+  x
+  |> string_of_trustee
+       (write_trustee_public_key Yojson.Safe.write_json Yojson.Safe.write_json)
   |> trustee_of_string Yojson.Safe.read_json
 
 let cast_tt_trustee x =
-  string_of_trustee write_cert x |> trustee_of_string Yojson.Safe.read_json
+  x
+  |> string_of_trustee (write_cert Yojson.Safe.write_json)
+  |> trustee_of_string Yojson.Safe.read_json
 
 let get_trustees () =
   let uuid = get_current_uuid () in
   let* status = Cache.get_until_success Cache.status in
   step := status.trustees_setup_step;
-  let* x = get draft_trustees_of_string "drafts/%s/trustees" uuid in
-  ifmatch_tt := compute_ifmatch string_of_draft_trustees x;
+  let* x =
+    get
+      (draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
+      "drafts/%s/trustees" uuid
+  in
+  ifmatch_tt :=
+    compute_ifmatch
+      (string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json)
+      x;
   match x with
   | Error e ->
       alert (string_of_error e);

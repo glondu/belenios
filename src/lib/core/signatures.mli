@@ -21,8 +21,6 @@
 
 (** Signatures *)
 
-open Belenios_platform
-open Platform
 open Serializable_t
 open Common
 include module type of Signatures_core
@@ -93,7 +91,8 @@ module type ELECTION_OPS = sig
       members of a suitably chosen group. *)
 
   type elt
-  type private_key = Z.t
+  type scalar
+  type private_key = scalar
   type public_key = elt
 
   (** {2 Ballots} *)
@@ -129,12 +128,12 @@ module type ELECTION_OPS = sig
   val merge_nh_ciphertexts :
     elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
 
-  val shuffle_ciphertexts : elt nh_ciphertexts -> elt shuffle
-  val check_shuffle : elt nh_ciphertexts -> elt shuffle -> bool
+  val shuffle_ciphertexts : elt nh_ciphertexts -> (elt, scalar) shuffle
+  val check_shuffle : elt nh_ciphertexts -> (elt, scalar) shuffle -> bool
 
   (** {2 Partial decryptions} *)
 
-  type factor = elt partial_decryption
+  type factor = (elt, scalar) partial_decryption
   (** A decryption share. It is computed by a trustee from his or her
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
@@ -159,7 +158,7 @@ module type ELECTION_OPS = sig
   val compute_result :
     elt encrypted_tally sized_encrypted_tally ->
     factor owned list ->
-    elt trustees ->
+    (elt, scalar) trustees ->
     (result, combination_error) Stdlib.result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
@@ -168,7 +167,7 @@ module type ELECTION_OPS = sig
   val check_result :
     elt encrypted_tally sized_encrypted_tally ->
     factor owned list ->
-    elt trustees ->
+    (elt, scalar) trustees ->
     result ->
     bool
 end
@@ -179,6 +178,7 @@ module type ELECTION = sig
   module E :
     ELECTION_OPS
       with type elt = G.t
+       and type scalar = G.Zq.t
        and type ballot = ballot
        and type result_type = result
 end
@@ -190,12 +190,12 @@ module type PKI = sig
   val genkey : unit -> string
   val derive_sk : string -> private_key
   val derive_dk : string -> private_key
-  val sign : private_key -> string -> signed_msg
-  val verify : public_key -> signed_msg -> bool
+  val sign : private_key -> string -> private_key signed_msg
+  val verify : public_key -> private_key signed_msg -> bool
   val encrypt : public_key -> string -> public_key encrypted_msg
   val decrypt : private_key -> public_key encrypted_msg -> string
-  val make_cert : sk:private_key -> dk:private_key -> cert
-  val verify_cert : cert -> bool
+  val make_cert : sk:private_key -> dk:private_key -> private_key cert
+  val verify_cert : private_key cert -> bool
 end
 
 module type CHANNELS = sig
@@ -207,35 +207,46 @@ module type CHANNELS = sig
 end
 
 module type PEDERSEN = sig
+  type scalar
   type elt
 
-  val step1 : unit -> string * cert
-  val step1_check : cert -> bool
-  val step2 : certs -> unit
-  val step3 : certs -> string -> int -> polynomial
-  val step3_check : certs -> int -> polynomial -> bool
-  val step4 : certs -> polynomial array -> vinput array
-  val step5 : certs -> string -> vinput -> elt voutput
-  val step5_check : certs -> int -> polynomial array -> elt voutput -> bool
+  val step1 : unit -> string * scalar cert
+  val step1_check : scalar cert -> bool
+  val step2 : scalar certs -> unit
+  val step3 : scalar certs -> string -> int -> scalar polynomial
+  val step3_check : scalar certs -> int -> scalar polynomial -> bool
+  val step4 : scalar certs -> scalar polynomial array -> scalar vinput array
+  val step5 : scalar certs -> string -> scalar vinput -> (elt, scalar) voutput
+
+  val step5_check :
+    scalar certs ->
+    int ->
+    scalar polynomial array ->
+    (elt, scalar) voutput ->
+    bool
 
   val step6 :
-    certs -> polynomial array -> elt voutput array -> elt threshold_parameters
+    scalar certs ->
+    scalar polynomial array ->
+    (elt, scalar) voutput array ->
+    (elt, scalar) threshold_parameters
 end
 
 module type MIXNET = sig
   type elt
+  type scalar
   type 'a proof
 
   val gen_shuffle :
     elt ->
     elt ciphertext array ->
-    elt ciphertext array * number array * int array
+    elt ciphertext array * scalar array * int array
 
   val gen_shuffle_proof :
     elt ->
     elt ciphertext array ->
     elt ciphertext array ->
-    number array ->
+    scalar array ->
     int array ->
     elt proof
 

@@ -457,7 +457,7 @@ let get_draft_trustees ~is_admin se =
                   ( Some 1,
                     Some
                       (trustee_public_key_of_string Yojson.Safe.read_json
-                         t.st_public_key) )
+                         Yojson.Safe.read_json t.st_public_key) )
               in
               let trustee_address, trustee_token, trustee_state =
                 if is_admin then (Some t.st_id, Some t.st_token, trustee_state)
@@ -512,9 +512,10 @@ let generate_server_trustee se =
   let private_key = K.generate () in
   let public_key = K.prove private_key in
   let st_public_key =
-    string_of_trustee_public_key (swrite G.to_string) public_key
+    string_of_trustee_public_key (swrite G.to_string) (swrite G.Zq.to_string)
+      public_key
   in
-  let st_private_key = Some private_key in
+  let st_private_key = Some (`String (private_key |> G.Zq.to_string)) in
   let st_name = Some "server" in
   Lwt.return { st_id; st_token; st_public_key; st_private_key; st_name }
 
@@ -747,7 +748,9 @@ let import_trustees uuid se from metadata =
       let module G = (val Group.of_string ~version se.se_group : GROUP) in
       let module Trustees = (val Trustees.get_by_version version) in
       let module K = Trustees.MakeCombinator (G) in
-      let trustees = trustees_of_string (sread G.of_string) trustees in
+      let trustees =
+        trustees_of_string (sread G.of_string) (sread G.Zq.of_string) trustees
+      in
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
@@ -764,7 +767,8 @@ let import_trustees uuid se from metadata =
                       let stt_voutput = { vo_public_key; vo_private_key } in
                       let stt_voutput =
                         Some
-                          (string_of_voutput (swrite G.to_string) stt_voutput)
+                          (string_of_voutput (swrite G.to_string)
+                             (swrite G.Zq.to_string) stt_voutput)
                       in
                       let stt =
                         {
@@ -792,7 +796,9 @@ let import_trustees uuid se from metadata =
                   dtp_threshold = Some t.t_threshold;
                   dtp_trustees = se_threshold_trustees;
                   dtp_parameters =
-                    Some (string_of_threshold_parameters (swrite G.to_string) t);
+                    Some
+                      (string_of_threshold_parameters (swrite G.to_string)
+                         (swrite G.Zq.to_string) t);
                   dtp_error = None;
                 }
               in
@@ -825,14 +831,17 @@ let import_trustees uuid se from metadata =
                          let public_key = KG.prove private_key in
                          let public_key =
                            string_of_trustee_public_key (swrite G.to_string)
-                             public_key
+                             (swrite G.Zq.to_string) public_key
                          in
-                         Lwt.return ("", Some private_key, public_key)
+                         Lwt.return
+                           ( "",
+                             Some (`String (G.Zq.to_string private_key)),
+                             public_key )
                        else
                          let st_token = generate_token () in
                          let public_key =
                            string_of_trustee_public_key (swrite G.to_string)
-                             public_key
+                             (swrite G.Zq.to_string) public_key
                          in
                          Lwt.return (st_token, None, public_key)
                      in
@@ -1044,11 +1053,12 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             pedersen_vinput = trustee.stt_vinput;
             pedersen_voutput =
               Option.map
-                (voutput_of_string Yojson.Safe.read_json)
+                (voutput_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
                 trustee.stt_voutput;
           }
         in
-        Lwt.return @@ string_of_pedersen Yojson.Safe.write_json r
+        Lwt.return
+        @@ string_of_pedersen Yojson.Safe.write_json Yojson.Safe.write_json r
       in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "trustees" ] -> (
@@ -1056,7 +1066,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
       let get is_admin () =
         let open Belenios_api.Serializable_j in
         let x = get_draft_trustees ~is_admin se in
-        Lwt.return @@ string_of_draft_trustees x
+        Lwt.return
+        @@ string_of_draft_trustees Yojson.Safe.write_json
+             Yojson.Safe.write_json x
       in
       match (method_, who) with
       | `GET, `Nobody -> handle_get (get false)

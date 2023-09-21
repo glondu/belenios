@@ -30,7 +30,7 @@ module type QUESTION_H_SIG = sig
     Question_sigs.QUESTION_H
       with type elt := G.t
        and type question := Question_h_t.question
-       and type answer := G.t Question_h_t.answer
+       and type answer := (G.t, G.Zq.t) Question_h_t.answer
 end
 
 module type QUESTION_NH_SIG = sig
@@ -38,14 +38,15 @@ module type QUESTION_NH_SIG = sig
     Question_sigs.QUESTION_NH
       with type elt := G.t
        and type question := Question_nh_t.question
-       and type answer := G.t Question_nh_t.answer
+       and type answer := (G.t, G.Zq.t) Question_nh_t.answer
 end
 
 module type MIXNET_SIG = sig
   module Make (W : ELECTION_DATA) (M : RANDOM) :
     MIXNET
       with type elt := W.G.t
-       and type 'a proof := 'a Serializable_t.shuffle_proof
+       and type scalar := W.G.Zq.t
+       and type 'a proof := ('a, W.G.Zq.t) Serializable_t.shuffle_proof
 end
 
 module type ELECTION_SIG = sig

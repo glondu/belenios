@@ -60,7 +60,7 @@ let handle_shuffle { election; ciphertexts } =
     else cont ()
   in
   W.E.shuffle_ciphertexts ciphertexts
-  |> string_of_shuffle W.(swrite G.to_string)
+  |> string_of_shuffle W.(swrite G.to_string) W.(swrite G.Zq.to_string)
   |> fun r -> Worker.post_message (ShuffleResult (Js.string r))
 
 let handle_request = function Shuffle r -> handle_shuffle r

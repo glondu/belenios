@@ -94,7 +94,7 @@ module MakeDerive (G : GROUP) = struct
   let derive uuid x =
     let uuid = Uuid.unwrap uuid in
     let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
-    Z.(of_hex derived mod G.q)
+    Z.(of_hex derived) |> G.Zq.of_Z
 end
 
 module MakeParsePublicCredential (G : GROUP) = struct

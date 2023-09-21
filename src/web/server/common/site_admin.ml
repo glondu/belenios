@@ -908,7 +908,7 @@ struct
                       in
                       let pk =
                         trustee_public_key_of_string (sread G.of_string)
-                          public_key
+                          (sread G.Zq.of_string) public_key
                       in
                       let module K = Trustees.MakeCombinator (G) in
                       if not (K.check [ `Single pk ]) then
@@ -1336,7 +1336,12 @@ struct
         let module W = (val election) in
         let* pks =
           let* trustees = Web_persist.get_trustees uuid in
-          let trustees = trustees_of_string W.(sread G.of_string) trustees in
+          let trustees =
+            trustees_of_string
+              W.(sread G.of_string)
+              W.(sread G.Zq.of_string)
+              trustees
+          in
           trustees
           |> List.map (function
                | `Single x -> [ x ]
@@ -1345,7 +1350,10 @@ struct
         in
         let pk = pks.(trustee_id - 1).trustee_public_key in
         let pd =
-          partial_decryption_of_string W.(sread G.of_string) partial_decryption
+          partial_decryption_of_string
+            W.(sread G.of_string)
+            W.(sread G.Zq.of_string)
+            partial_decryption
         in
         let* et =
           let* x = Web_persist.get_latest_encrypted_tally election in
@@ -1355,7 +1363,10 @@ struct
               Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
         in
         if
-          string_of_partial_decryption W.(swrite G.to_string) pd
+          string_of_partial_decryption
+            W.(swrite G.to_string)
+            W.(swrite G.Zq.to_string)
+            pd
           = partial_decryption
           && W.E.check_factor et pk pd
         then
@@ -1561,8 +1572,17 @@ struct
               match election with
               | None -> fail_http `Not_found
               | Some se ->
+                  let version = se.se_version in
+                  let module G =
+                    (val Group.of_string ~version se.se_group : GROUP)
+                  in
+                  let se_trustees =
+                    se.se_trustees
+                    |> string_of_draft_trustees Yojson.Safe.write_json
+                    |> draft_trustees_of_string (sread G.Zq.of_string)
+                  in
                   let dtp =
-                    match se.se_trustees with
+                    match se_trustees with
                     | `Basic _ -> failwith "No threshold trustees"
                     | `Threshold x -> x
                   in
@@ -1596,10 +1616,6 @@ struct
                         | Some y -> y)
                       ts
                   in
-                  let version = se.se_version in
-                  let module G =
-                    (val Group.of_string ~version se.se_group : GROUP)
-                  in
                   let module Trustees = (val Trustees.get_by_version version) in
                   let module P = Trustees.MakePKI (G) (Random) in
                   let module C = Trustees.MakeChannels (G) (Random) (P) in
@@ -1607,7 +1623,7 @@ struct
                   let* () =
                     match t.stt_step with
                     | Some 1 ->
-                        let cert = cert_of_string data in
+                        let cert = cert_of_string (sread G.Zq.of_string) data in
                         if K.step1_check cert then (
                           t.stt_cert <- Some cert;
                           t.stt_step <- Some 2;
@@ -1615,7 +1631,9 @@ struct
                         else failwith "Invalid certificate"
                     | Some 3 ->
                         let certs = get_certs () in
-                        let polynomial = polynomial_of_string data in
+                        let polynomial =
+                          polynomial_of_string (sread G.Zq.of_string) data
+                        in
                         if K.step3_check certs i polynomial then (
                           t.stt_polynomial <- Some polynomial;
                           t.stt_step <- Some 4;
@@ -1625,7 +1643,8 @@ struct
                         let certs = get_certs () in
                         let polynomials = get_polynomials () in
                         let voutput =
-                          voutput_of_string (sread G.of_string) data
+                          voutput_of_string (sread G.of_string)
+                            (sread G.Zq.of_string) data
                         in
                         if K.step5_check certs i polynomials voutput then (
                           t.stt_voutput <- Some data;
@@ -1668,19 +1687,24 @@ struct
                                match x.stt_voutput with
                                | None -> failwith "Missing voutput"
                                | Some y ->
-                                   voutput_of_string (sread G.of_string) y)
+                                   voutput_of_string (sread G.of_string)
+                                     (sread G.Zq.of_string) y)
                              ts
                          in
                          let p = K.step6 certs polynomials voutputs in
                          dtp.dtp_parameters <-
                            Some
                              (string_of_threshold_parameters
-                                (swrite G.to_string) p);
+                                (swrite G.to_string) (swrite G.Zq.to_string) p);
                          Array.iter (fun x -> x.stt_step <- Some 7) ts
                        with e -> dtp.dtp_error <- Some (Printexc.to_string e));
                       return_unit)
                     else return_unit
                   in
+                  se.se_trustees <-
+                    se_trustees
+                    |> string_of_draft_trustees (swrite G.Zq.to_string)
+                    |> draft_trustees_of_string Yojson.Safe.read_json;
                   Web_persist.set_draft_election uuid se)
         in
         redir_preapply election_draft_threshold_trustee (uuid, token) ())

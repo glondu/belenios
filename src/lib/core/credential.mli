@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
 open Signatures
 open Common
 
@@ -31,7 +30,7 @@ val parse : string -> [ `Valid | `Invalid | `MaybePassword ]
 val check : string -> bool
 
 module MakeDerive (G : GROUP) : sig
-  val derive : Uuid.t -> string -> Z.t
+  val derive : Uuid.t -> string -> G.Zq.t
 end
 
 module MakeParsePublicCredential (G : GROUP) : sig

@@ -132,11 +132,11 @@ module Make
     (QHomomorphic : Question_sigs.QUESTION_H
                       with type elt := G.t
                        and type question := Question_h_t.question
-                       and type answer := G.t Question_h_t.answer)
+                       and type answer := (G.t, G.Zq.t) Question_h_t.answer)
     (QNonHomomorphic : Question_sigs.QUESTION_NH
                          with type elt := G.t
                           and type question := Question_nh_t.question
-                          and type answer := G.t Question_nh_t.answer) =
+                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer) =
 struct
   let create_answer q ~public_key ~prefix m =
     match q with
@@ -144,11 +144,13 @@ struct
         let answer = QHomomorphic.create_answer q ~public_key ~prefix m in
         answer
         |> Question_h_j.string_of_answer (swrite G.to_string)
+             (swrite G.Zq.to_string)
         |> Yojson.Safe.from_string
     | NonHomomorphic (q, _) ->
         let answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
         answer
         |> Question_nh_j.string_of_answer (swrite G.to_string)
+             (swrite G.Zq.to_string)
         |> Yojson.Safe.from_string
 
   let verify_answer q ~public_key ~prefix a =
@@ -156,10 +158,12 @@ struct
     | Homomorphic q ->
         a |> Yojson.Safe.to_string
         |> Question_h_j.answer_of_string (sread G.of_string)
+             (sread G.Zq.of_string)
         |> QHomomorphic.verify_answer q ~public_key ~prefix
     | NonHomomorphic (q, _) ->
         a |> Yojson.Safe.to_string
         |> Question_nh_j.answer_of_string (sread G.of_string)
+             (sread G.Zq.of_string)
         |> QNonHomomorphic.verify_answer q ~public_key ~prefix
 
   let extract_ciphertexts q a =
@@ -167,10 +171,12 @@ struct
     | Homomorphic q ->
         a |> Yojson.Safe.to_string
         |> Question_h_j.answer_of_string (sread G.of_string)
+             (sread G.Zq.of_string)
         |> QHomomorphic.extract_ciphertexts q
     | NonHomomorphic (q, _) ->
         a |> Yojson.Safe.to_string
         |> Question_nh_j.answer_of_string (sread G.of_string)
+             (sread G.Zq.of_string)
         |> QNonHomomorphic.extract_ciphertexts q
 
   let process_ciphertexts q e =

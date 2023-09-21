@@ -64,6 +64,35 @@ module Option = struct
   let unwrap default x f = match x with None -> default | Some x -> f x
 end
 
+module MakeField (X : sig
+  val q : Z.t
+end) =
+struct
+  type t = Z.t
+
+  let q = X.q
+  let of_int x = Z.(erem (of_int x) q)
+  let to_int x = Z.to_int x
+  let zero = of_int 0
+  let one = of_int 1
+  let of_Z x = Z.erem x q
+  let to_Z x = x
+
+  let of_string x =
+    let x = Z.of_string x in
+    if Z.compare zero x <= 0 && Z.compare x q < 0 then x
+    else invalid_arg "MakeField().of_string: number not in range"
+
+  let to_string x = Z.to_string x
+  let compare = Z.compare
+  let double x = Z.(erem (shift_left x 1) q)
+  let invert x = Z.invert x q
+  let ( + ) x y = Z.(erem (x + y) q)
+  let ( - ) x y = Z.(erem (x - y) q)
+  let ( * ) x y = Z.(erem (x * y) q)
+  let ( =% ) x y = compare x y = 0
+end
+
 let sread of_string state buf =
   match Yojson.Safe.read_json state buf with
   | `String x -> of_string x
@@ -170,7 +199,7 @@ module BabyStepGiantStep (G : GROUP) = struct
             let rec find = function
               | [] -> None
               | j :: jj ->
-                  let r = Z.(((of_int i * of_int m) + of_int j) mod G.q) in
+                  let r = G.Zq.((of_int i * of_int m) + of_int j) in
                   if G.(alpha **~ r =~ beta) then Some r else find jj
             in
             find jj

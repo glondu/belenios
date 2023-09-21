@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
-open Belenios_platform.Platform
 open Belenios_core.Signatures
 open Belenios_core.Serializable_j
 open Belenios_core.Common
@@ -91,7 +90,7 @@ let do_election uuid election get_private_key =
   let module W = (val election : ELECTION) in
   let@ trustees =
     perform (s_ "trustee parameters")
-      (trustees_of_string (sread W.G.of_string))
+      (trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string))
       (Printf.sprintf "../api/elections/%s/trustees" uuid)
   in
   let private_key = get_private_key () in
@@ -99,7 +98,7 @@ let do_election uuid election get_private_key =
     try
       match Yojson.Safe.from_string private_key with
       | `String x ->
-          let private_key = Z.of_string x in
+          let private_key = W.G.Zq.of_string x in
           let public_key = W.G.(g **~ private_key) in
           fun x ->
             if W.G.compare public_key x.trustee_public_key = 0 then
@@ -136,22 +135,19 @@ let do_draft uuid draft get_private_key =
   let version = draft.draft_version in
   let module G = (val Group.of_string ~version draft.draft_group) in
   let@ trustees =
-    perform (s_ "trustee parameters") draft_trustees_of_string
+    perform (s_ "trustee parameters")
+      (draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
       (Printf.sprintf "../api/drafts/%s/trustees" uuid)
   in
   let private_key = get_private_key () in
   match trustees with
   | `Basic x ->
-      let cast x =
-        string_of_trustee (write_trustee_public_key Yojson.Safe.write_json) x
-        |> trustee_of_string (read_trustee_public_key (sread G.of_string))
-      in
-      let trustees = List.map cast x.bt_trustees in
+      let trustees = x.bt_trustees in
       let name =
         let@ private_key cont =
           try
             match Yojson.Safe.from_string private_key with
-            | `String x -> cont (Z.of_string x)
+            | `String x -> cont (G.Zq.of_string x)
             | _ -> raise Exit
           with _ -> None
         in

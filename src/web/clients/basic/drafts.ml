@@ -157,8 +157,16 @@ type trustee_with_writer =
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
-  let* x = get draft_trustees_of_string "drafts/%s/trustees" uuid in
-  let ifmatch = compute_ifmatch string_of_draft_trustees x in
+  let* x =
+    get
+      (draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
+      "drafts/%s/trustees" uuid
+  in
+  let ifmatch =
+    compute_ifmatch
+      (string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json)
+      x
+  in
   let@ trustees = with_ok "trustees" x in
   let mode =
     match trustees with
@@ -198,8 +206,11 @@ let rec show_draft_trustees uuid container =
   let (TWW (trustees, write)) =
     match trustees with
     | `Basic x ->
-        TWW (x.bt_trustees, write_trustee_public_key Yojson.Safe.write_json)
-    | `Threshold x -> TWW (x.tt_trustees, write_cert)
+        TWW
+          ( x.bt_trustees,
+            write_trustee_public_key Yojson.Safe.write_json
+              Yojson.Safe.write_json )
+    | `Threshold x -> TWW (x.tt_trustees, write_cert Yojson.Safe.write_json)
   in
   let all_trustees =
     List.map

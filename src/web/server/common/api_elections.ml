@@ -50,7 +50,9 @@ let find_trustee_private_key uuid trustee_id =
   (* there is one Pedersen trustee *)
   let* trustees = Web_persist.get_trustees uuid in
   let open Belenios_core.Serializable_j in
-  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  let trustees =
+    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
+  in
   let rec loop i ts =
     match ts with
     | [] -> Lwt.return_none (* an error, actually *)
@@ -115,7 +117,9 @@ let get_partial_decryptions uuid metadata =
   let open Belenios_core.Serializable_j in
   let* pds = Web_persist.get_partial_decryptions uuid in
   let* trustees = Web_persist.get_trustees uuid in
-  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  let trustees =
+    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
+  in
   let threshold, npks =
     let rec loop trustees threshold npks =
       match trustees with
@@ -232,7 +236,9 @@ let extract_names trustees =
 let get_trustee_names uuid =
   let open Belenios_core.Serializable_j in
   let* trustees = Web_persist.get_trustees uuid in
-  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  let trustees =
+    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
+  in
   Lwt.return (extract_names trustees)
 
 let get_trustee_name uuid metadata trustee =

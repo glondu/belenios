@@ -186,7 +186,12 @@ let get_nh_ciphertexts election =
                   match x with
                   | None -> assert false
                   | Some x ->
-                      let x = shuffle_of_string W.(sread G.of_string) x in
+                      let x =
+                        shuffle_of_string
+                          W.(sread G.of_string)
+                          W.(sread G.Zq.of_string)
+                          x
+                      in
                       return
                       @@ string_of_nh_ciphertexts
                            W.(swrite G.to_string)
@@ -289,12 +294,15 @@ let append_to_shuffles election owned_owner shuffle_s =
     let* x = Spool.get ~uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
   in
-  let shuffle = shuffle_of_string W.(sread G.of_string) shuffle_s in
+  let shuffle =
+    shuffle_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) shuffle_s
+  in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = get_nh_ciphertexts election in
   let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
   if
-    string_of_shuffle W.(swrite G.to_string) shuffle = shuffle_s
+    string_of_shuffle W.(swrite G.to_string) W.(swrite G.Zq.to_string) shuffle
+    = shuffle_s
     && W.E.check_shuffle last_nh shuffle
   then
     let owned = { owned_owner; owned_payload = shuffle_h } in
@@ -338,7 +346,12 @@ let get_shuffles uuid =
       let* cc = get_nh_ciphertexts election in
       let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
       let shuffle = W.E.shuffle_ciphertexts cc in
-      let shuffle = string_of_shuffle W.(swrite G.to_string) shuffle in
+      let shuffle =
+        string_of_shuffle
+          W.(swrite G.to_string)
+          W.(swrite G.Zq.to_string)
+          shuffle
+      in
       let* x = append_to_shuffles election 1 shuffle in
       let&* _ = x in
       let* () = remove_audit_cache uuid in
@@ -404,14 +417,18 @@ let internal_release_tally ~force uuid =
   in
   let* trustees =
     let* x = get_trustees uuid in
-    Lwt.return @@ trustees_of_string W.(sread G.of_string) x
+    Lwt.return
+    @@ trustees_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) x
   in
   let* pds, transactions =
     let pds =
       List.rev_map
         (fun x ->
           let owned_payload =
-            partial_decryption_of_string W.(sread G.of_string) x.owned_payload
+            partial_decryption_of_string
+              W.(sread G.of_string)
+              W.(sread G.Zq.of_string)
+              x.owned_payload
           in
           { x with owned_payload })
         pds
@@ -419,11 +436,16 @@ let internal_release_tally ~force uuid =
     let decrypt owned_owner =
       let* x = get_private_key uuid in
       match x with
-      | None -> assert false
-      | Some sk ->
+      | Some (`String sk) ->
+          let sk = W.G.Zq.of_string sk in
           let pd = W.E.compute_factor tally sk in
           let owned = { owned_owner; owned_payload = pd } in
-          let pd = string_of_partial_decryption W.(swrite G.to_string) pd in
+          let pd =
+            string_of_partial_decryption
+              W.(swrite G.to_string)
+              W.(swrite G.Zq.to_string)
+              pd
+          in
           let payload =
             { owned_owner; owned_payload = Hash.hash_string pd }
             |> string_of_owned write_hash
@@ -437,6 +459,7 @@ let internal_release_tally ~force uuid =
             ]
           in
           Lwt.return (owned, transaction)
+      | _ -> assert false
     in
     Lwt_list.fold_left_s
       (fun ((pds, transactions) as accu) (i, t) ->
@@ -1312,7 +1335,7 @@ let delete_election uuid =
   let* de_trustees =
     let open Belenios_core.Serializable_j in
     let* trustees = get_trustees uuid in
-    trustees_of_string Yojson.Safe.read_json trustees
+    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
     |> List.map (function
          | `Single _ -> `Single
          | `Pedersen t ->
@@ -1487,11 +1510,17 @@ let validate_election uuid se s =
   (* trustees *)
   let group = Group.of_string ~version se.se_group in
   let module G = (val group : GROUP) in
+  let trustees =
+    let open Web_serializable_j in
+    se.se_trustees
+    |> string_of_draft_trustees Yojson.Safe.write_json
+    |> draft_trustees_of_string (sread G.Zq.of_string)
+  in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeCombinator (G) in
   let module KG = Trustees.MakeSimple (G) (Random) in
   let* trustee_names, trustees, private_keys =
-    match se.se_trustees with
+    match trustees with
     | `Basic x ->
         let ts = x.dbp_trustees in
         let* trustee_names, trustees, private_key =
@@ -1523,7 +1552,7 @@ let validate_election uuid se s =
                     (fun { st_public_key; st_name; _ } ->
                       let pk =
                         trustee_public_key_of_string (sread G.of_string)
-                          st_public_key
+                          (sread G.Zq.of_string) st_public_key
                       in
                       let pk = { pk with trustee_name = st_name } in
                       `Single pk)
@@ -1536,7 +1565,10 @@ let validate_election uuid se s =
         match x.dtp_parameters with
         | None -> validation_error `KeyEstablishmentNotFinished
         | Some tp ->
-            let tp = threshold_parameters_of_string (sread G.of_string) tp in
+            let tp =
+              threshold_parameters_of_string (sread G.of_string)
+                (sread G.Zq.of_string) tp
+            in
             let named =
               let open Belenios_core.Serializable_j in
               List.combine (Array.to_list tp.t_verification_keys) ts
@@ -1550,7 +1582,10 @@ let validate_election uuid se s =
                 (fun { stt_voutput; _ } ->
                   match stt_voutput with
                   | Some v ->
-                      let voutput = voutput_of_string (sread G.of_string) v in
+                      let voutput =
+                        voutput_of_string (sread G.of_string)
+                          (sread G.Zq.of_string) v
+                      in
                       voutput.vo_private_key
                   | None ->
                       raise
@@ -1628,7 +1663,9 @@ let validate_election uuid se s =
   in
   (* initialize events *)
   let* () =
-    let raw_trustees = string_of_trustees (swrite G.to_string) trustees in
+    let raw_trustees =
+      string_of_trustees (swrite G.to_string) (swrite G.Zq.to_string) trustees
+    in
     let raw_public_creds = string_of_public_credentials public_creds in
     let setup_election = Hash.hash_string raw_election in
     let setup_trustees = Hash.hash_string raw_trustees in
@@ -1647,9 +1684,16 @@ let validate_election uuid se s =
   (* create file with private keys, if any *)
   let* () =
     match private_keys with
-    | `KEY x -> create_file "private_key.json" string_of_number [ x ]
+    | `KEY x ->
+        create_file "private_key.json"
+          (string_of_identity (swrite G.Zq.to_string))
+          [ x ]
     | `KEYS (x, y) ->
-        let* () = create_file "private_key.json" string_of_number [ x ] in
+        let* () =
+          create_file "private_key.json"
+            (string_of_identity (swrite G.Zq.to_string))
+            [ x ]
+        in
         create_file "private_keys.jsons" (fun x -> x) y
   in
   (* send private credentials, if any *)

@@ -97,10 +97,11 @@ let compute_partial_decryption tally_trustee _ =
         let epk =
           C.recv dk vk (encrypted_msg_of_string P.(sread G.of_string) epk)
         in
-        (partial_decryption_key_of_string epk).pdk_decryption_key
+        (partial_decryption_key_of_string (sread P.G.Zq.of_string) epk)
+          .pdk_decryption_key
     | None -> (
         basic_check_private_key pk_str;
-        try number_of_string pk_str
+        try identity_of_string (sread P.G.Zq.of_string) pk_str
         with e ->
           Printf.ksprintf failwith
             (f_ "Error in format of private key: %s")
@@ -109,7 +110,10 @@ let compute_partial_decryption tally_trustee _ =
   Lwt.async (fun () ->
       let factor = P.E.compute_factor encrypted_tally private_key in
       set_textarea "pd"
-        (string_of_partial_decryption P.(swrite G.to_string) factor);
+        (string_of_partial_decryption
+           P.(swrite G.to_string)
+           P.(swrite G.Zq.to_string)
+           factor);
       Lwt.return_unit);
   return_unit
 

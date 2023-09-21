@@ -137,10 +137,10 @@ val unurlize : string -> string
 val markup : string -> [> Html_types.span ] Eliom_content.Html.elt
 
 val webize_trustee_public_key :
-  'a trustee_public_key -> 'a web_trustee_public_key
+  ('a, 'b) trustee_public_key -> ('a, 'b) web_trustee_public_key
 
 val unwebize_trustee_public_key :
-  'a web_trustee_public_key -> 'a trustee_public_key
+  ('a, 'b) web_trustee_public_key -> ('a, 'b) trustee_public_key
 
 val get_suitable_group_kind : template -> [ `H | `NH ]
 val is_group_fixed : draft_election -> bool

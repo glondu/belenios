@@ -31,11 +31,9 @@ exception PedersenFailure of string
 
 module MakeVerificator (G : GROUP) = struct
   let verify vk { s_message; s_signature = { challenge; response } } =
-    check_modulo G.q challenge && check_modulo G.q response
-    &&
     let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
     let prefix = "sigmsg|" ^ s_message ^ "|" in
-    Z.(challenge =% G.hash prefix [| commitment |])
+    G.Zq.(challenge =% G.hash prefix [| commitment |])
 
   let verify_cert x =
     let keys = cert_keys_of_string (sread G.of_string) x.s_message in
@@ -47,17 +45,17 @@ module MakeVerificator (G : GROUP) = struct
     let threshold = Array.length coefexps.(0) in
     assert (threshold > 0);
     Array.init n (fun j ->
-        let jj = Z.of_int (j + 1) in
+        let jj = G.Zq.of_int (j + 1) in
         let rec loop_compute_vk i vk =
           if i < n then (
             let c = coefexps.(i) in
             assert (threshold = Array.length c);
             let rec loop k jk accu =
               if k < threshold then
-                loop (k + 1) Z.(jk * jj) G.(accu *~ (c.(k) **~ jk))
+                loop (k + 1) G.Zq.(jk * jj) G.(accu *~ (c.(k) **~ jk))
               else accu
             in
-            let computed_gsij = loop 0 Z.one G.one in
+            let computed_gsij = loop 0 G.Zq.one G.one in
             loop_compute_vk (i + 1) G.(vk *~ computed_gsij))
           else vk
         in
@@ -71,11 +69,9 @@ module MakeCombinator (G : GROUP) = struct
     G.check y
     &&
     let { challenge; response } = trustee_pok in
-    check_modulo G.q challenge && check_modulo G.q response
-    &&
     let commitment = G.((g **~ response) *~ (y **~ challenge)) in
     let zkp = "pok|" ^ G.description ^ "|" ^ G.to_string y ^ "|" in
-    Z.(challenge =% G.hash zkp [| commitment |])
+    G.Zq.(challenge =% G.hash zkp [| commitment |])
 
   let check_pedersen t =
     Array.for_all V.verify_cert t.t_certs
@@ -125,9 +121,8 @@ module MakeCombinator (G : GROUP) = struct
     List.fold_left
       (fun accu k ->
         let kj = k - j in
-        if kj = 0 then accu
-        else Z.(accu * of_int k * invert (of_int kj) G.q mod G.q))
-      Z.one indexes
+        if kj = 0 then accu else G.Zq.(accu * of_int k * invert (of_int kj)))
+      G.Zq.one indexes
 
   let combine_factors trustees check partial_decryptions =
     (* neutral factor *)
@@ -160,17 +155,19 @@ end
 module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open G
 
+  let random () = M.random G.Zq.q |> G.Zq.of_Z
+
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
 
   let fs_prove gs x oracle =
-    let w = M.random q in
+    let w = random () in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
-    let response = Z.(erem (w - (x * challenge)) q) in
+    let response = G.Zq.(w - (x * challenge)) in
     { challenge; response }
 
-  let generate () = M.random q
+  let generate = random
 
   let prove x =
     let trustee_public_key = g **~ x in
@@ -182,8 +179,10 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
 end
 
 module MakePKI (G : GROUP) (M : RANDOM) = struct
-  type private_key = Z.t
+  type private_key = G.Zq.t
   type public_key = G.t
+
+  let random () = M.random G.Zq.q |> G.Zq.of_Z
 
   let genkey () =
     let b58_digits =
@@ -194,21 +193,21 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
         let x = M.random z58 in
         b58_digits.[Z.to_int x])
 
-  let derive_sk p = Z.of_hex (sha256_hex ("sk|" ^ p))
-  let derive_dk p = Z.of_hex (sha256_hex ("dk|" ^ p))
+  let derive_sk p = Z.of_hex (sha256_hex ("sk|" ^ p)) |> G.Zq.of_Z
+  let derive_dk p = Z.of_hex (sha256_hex ("dk|" ^ p)) |> G.Zq.of_Z
 
   let sign sk s_message =
-    let w = M.random G.q in
+    let w = random () in
     let commitment = G.(g **~ w) in
     let prefix = "sigmsg|" ^ s_message ^ "|" in
     let challenge = G.hash prefix [| commitment |] in
-    let response = Z.(erem (w - (sk * challenge)) G.q) in
+    let response = G.Zq.(w - (sk * challenge)) in
     let s_signature = { challenge; response } in
     { s_message; s_signature }
 
   let encrypt y plaintext =
-    let r = M.random G.q in
-    let key = M.random G.q in
+    let r = random () in
+    let key = random () in
     let key = G.(g **~ key) in
     let y_alpha = G.(g **~ r) in
     let y_beta = G.((y **~ r) *~ key) in
@@ -237,7 +236,7 @@ end
 module MakeChannels
     (G : GROUP)
     (M : RANDOM)
-    (P : PKI with type private_key = Z.t and type public_key = G.t) =
+    (P : PKI with type private_key = G.Zq.t and type public_key = G.t) =
 struct
   type private_key = P.private_key
   type public_key = P.public_key
@@ -246,10 +245,10 @@ struct
     let msg = { c_recipient; c_message } in
     let msg = string_of_channel_msg (swrite G.to_string) msg in
     let msg = P.sign sk msg in
-    P.encrypt c_recipient (string_of_signed_msg msg)
+    P.encrypt c_recipient (string_of_signed_msg (swrite G.Zq.to_string) msg)
 
   let recv dk vk msg =
-    let msg = P.decrypt dk msg |> signed_msg_of_string in
+    let msg = P.decrypt dk msg |> signed_msg_of_string (sread G.Zq.of_string) in
     if not (P.verify vk msg) then
       failwith "invalid signature on received message";
     let msg = channel_msg_of_string (sread G.of_string) msg.s_message in
@@ -262,15 +261,18 @@ end
 module MakePedersen
     (G : GROUP)
     (M : RANDOM)
-    (P : PKI with type private_key = Z.t and type public_key = G.t)
-    (C : CHANNELS with type private_key = Z.t and type public_key = G.t) =
+    (P : PKI with type private_key = G.Zq.t and type public_key = G.t)
+    (C : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) =
 struct
+  type scalar = G.Zq.t
   type elt = G.t
 
   open G
   module K = MakeSimple (G) (M)
   module V = MakeVerificator (G)
   module L = MakeCombinator (G)
+
+  let random () = M.random Zq.q |> Zq.of_Z
 
   let step1 () =
     let seed = P.genkey () in
@@ -291,10 +293,10 @@ struct
       certs
 
   let eval_poly polynomial x =
-    let cur = ref Z.one and res = ref Z.zero in
+    let cur = ref Zq.one and res = ref Zq.zero in
     for i = 0 to Array.length polynomial - 1 do
-      (res := Z.(!res + (!cur * polynomial.(i) mod q)));
-      cur := Z.(!cur * x mod q)
+      (res := Zq.(!res + (!cur * polynomial.(i))));
+      cur := Zq.(!cur * x)
     done;
     !res
 
@@ -321,17 +323,20 @@ struct
       | None -> raise (PedersenFailure "could not find my certificate")
       | Some _ -> ()
     in
-    let polynomial = Array.make threshold Z.zero in
+    let polynomial = Array.make threshold Zq.zero in
     let rec fill_polynomial i =
       if i < threshold then (
-        let a = M.random q in
+        let a = random () in
         polynomial.(i) <- a;
         fill_polynomial (i + 1))
       else ()
     in
     let () = fill_polynomial 0 in
     let p_polynomial =
-      let x = C.send sk ek (string_of_raw_polynomial { polynomial }) in
+      let x =
+        C.send sk ek
+          (string_of_raw_polynomial (swrite Zq.to_string) { polynomial })
+      in
       string_of_encrypted_msg (swrite G.to_string) x
     in
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
@@ -340,8 +345,8 @@ struct
     let p_secrets = Array.make n "" in
     let rec fill_secrets j =
       if j < n then (
-        let secret = eval_poly polynomial (Z.of_int (j + 1)) in
-        let secret = string_of_secret { secret } in
+        let secret = eval_poly polynomial (Zq.of_int (j + 1)) in
+        let secret = string_of_secret (swrite Zq.to_string) { secret } in
         let x = C.send sk certs.(j).cert_encryption secret in
         p_secrets.(j) <- string_of_encrypted_msg (swrite G.to_string) x;
         fill_secrets (j + 1))
@@ -403,12 +408,13 @@ struct
     let j =
       match j with
       | None -> raise (PedersenFailure "could not find my certificate")
-      | Some i -> Z.of_int i
+      | Some i -> Zq.of_int i
     in
     let { polynomial } =
       vinput.vi_polynomial
       |> encrypted_msg_of_string (sread G.of_string)
-      |> C.recv dk vk |> raw_polynomial_of_string
+      |> C.recv dk vk
+      |> raw_polynomial_of_string (sread Zq.of_string)
     in
     let threshold = Array.length polynomial in
     assert (n = Array.length vinput.vi_secrets);
@@ -417,7 +423,7 @@ struct
           vinput.vi_secrets.(i)
           |> encrypted_msg_of_string (sread G.of_string)
           |> C.recv dk certs.(i).cert_verification
-          |> secret_of_string
+          |> secret_of_string (sread Zq.of_string)
           |> fun x -> x.secret)
     in
     assert (n = Array.length vinput.vi_coefexps);
@@ -437,17 +443,20 @@ struct
     for i = 0 to n - 1 do
       let c = coefexps.(i) in
       let rec loop k jk accu =
-        if k < threshold then loop (k + 1) Z.(jk * j) (accu *~ (c.(k) **~ jk))
+        if k < threshold then loop (k + 1) Zq.(jk * j) (accu *~ (c.(k) **~ jk))
         else accu
       in
-      let computed_gsij = loop 0 Z.one one in
+      let computed_gsij = loop 0 Zq.one one in
       if not (g **~ secrets.(i) =~ computed_gsij) then
         raise
           (PedersenFailure
              (Printf.sprintf "secret %d does not validate" (i + 1)))
     done;
-    let pdk_decryption_key = Array.fold_left Z.( + ) Z.zero secrets in
-    let pdk = string_of_partial_decryption_key { pdk_decryption_key } in
+    let pdk_decryption_key = Array.fold_left Zq.( + ) Zq.zero secrets in
+    let pdk =
+      string_of_partial_decryption_key (swrite Zq.to_string)
+        { pdk_decryption_key }
+    in
     let vo_public_key = K.prove pdk_decryption_key in
     let private_key = C.send sk ek pdk in
     let vo_private_key =

@@ -19,9 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
-type proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type question = abstract wrap <ocaml module="Belenios_core.Question">
 
 type 'a params = {
@@ -37,15 +36,15 @@ type 'a params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
-type signature = {
+type 'a signature = {
   hash : string;
-  proof : proof;
+  proof : 'a proof;
 } <ocaml field_prefix="s_">
 
-type 'a ballot = {
+type ('a, 'b) ballot = {
   election_uuid : uuid;
   election_hash : string;
   credential : 'a;
   answers : abstract list <ocaml repr="array">;
-  ?signature : signature option;
+  ?signature : 'b signature option;
 }

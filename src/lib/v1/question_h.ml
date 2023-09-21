@@ -35,6 +35,7 @@ let question_length q =
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
+  let random () = M.random Zq.q |> Zq.of_Z
   let ( / ) x y = x *~ invert y
   let dummy_ciphertext = { alpha = G.one; beta = G.one }
 
@@ -44,18 +45,18 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   (** ElGamal encryption. *)
   let eg_encrypt y r x =
-    { alpha = g **~ r; beta = (y **~ r) *~ (g **~ Z.of_int x) }
+    { alpha = g **~ r; beta = (y **~ r) *~ (g **~ Zq.of_int x) }
 
-  let dummy_proof = { challenge = Z.zero; response = Z.zero }
+  let dummy_proof = { challenge = Zq.zero; response = Zq.zero }
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
 
   let fs_prove gs x oracle =
-    let w = M.random q in
+    let w = random () in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
-    let response = Z.(erem (w - (x * challenge)) q) in
+    let response = Zq.(w - (x * challenge)) in
     { challenge; response }
 
   (** ZKPs for disjunctions *)
@@ -67,16 +68,16 @@ module Make (M : RANDOM) (G : GROUP) = struct
     assert (0 <= x && x < n);
     let proofs = Array.make n dummy_proof
     and commitments = Array.make (2 * n) g
-    and total_challenges = ref Z.zero in
+    and total_challenges = ref Zq.zero in
     (* compute fake proofs *)
     let f i =
-      let challenge = M.random q in
-      let response = M.random q in
+      let challenge = random () in
+      let response = random () in
       proofs.(i) <- { challenge; response };
-      commitments.(2 * i) <- (g **~ Z.((response + (r * challenge)) mod q));
+      commitments.(2 * i) <- (g **~ Zq.(response + (r * challenge)));
       commitments.((2 * i) + 1) <-
         (y **~ response) *~ ((beta *~ d.(i)) **~ challenge);
-      total_challenges := Z.(!total_challenges + challenge)
+      total_challenges := Zq.(!total_challenges + challenge)
     in
     let rec loop i =
       if i < x then
@@ -89,7 +90,6 @@ module Make (M : RANDOM) (G : GROUP) = struct
       else ()
     in
     let () = loop 0 in
-    (total_challenges := Z.(q - (!total_challenges mod q)));
     (* compute genuine proof *)
     let p =
       fs_prove [| g; y |] r (fun commitx ->
@@ -98,7 +98,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
             Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
               (G.to_string beta)
           in
-          Z.((G.hash prefix commitments + !total_challenges) mod q))
+          Zq.(G.hash prefix commitments - !total_challenges))
     in
     proofs.(x) <- p;
     proofs
@@ -109,24 +109,19 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let n = Array.length d in
     n = Array.length proofs
     &&
-    let commitments = Array.make (2 * n) g and total_challenges = ref Z.zero in
-    try
-      for i = 0 to n - 1 do
-        let { challenge; response } = proofs.(i) in
-        if check_modulo q challenge && check_modulo q response then (
-          commitments.(2 * i) <- (g **~ response) *~ (alpha **~ challenge);
-          commitments.((2 * i) + 1) <-
-            (y **~ response) *~ ((beta *~ d.(i)) **~ challenge);
-          total_challenges := Z.(!total_challenges + challenge))
-        else raise Exit
-      done;
-      (total_challenges := Z.(!total_challenges mod q));
-      let prefix =
-        Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
-          (G.to_string beta)
-      in
-      Z.(hash prefix commitments =% !total_challenges)
-    with Exit -> false
+    let commitments = Array.make (2 * n) g and total_challenges = ref Zq.zero in
+    for i = 0 to n - 1 do
+      let { challenge; response } = proofs.(i) in
+      commitments.(2 * i) <- (g **~ response) *~ (alpha **~ challenge);
+      commitments.((2 * i) + 1) <-
+        (y **~ response) *~ ((beta *~ d.(i)) **~ challenge);
+      total_challenges := Zq.(!total_challenges + challenge)
+    done;
+    let prefix =
+      Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
+        (G.to_string beta)
+    in
+    Zq.(hash prefix commitments =% !total_challenges)
 
   (** ZKPs for blank ballots *)
 
@@ -134,19 +129,19 @@ module Make (M : RANDOM) (G : GROUP) = struct
     if m0 = 0 then
       let blank_proof =
         (* proof of m0 = 0 \/ mS = 0 (first is true) *)
-        let challenge1 = M.random q in
-        let response1 = M.random q in
-        let commitmentA1 = g **~ Z.((response1 + (rS * challenge1)) mod q) in
+        let challenge1 = random () in
+        let response1 = random () in
+        let commitmentA1 = g **~ Zq.(response1 + (rS * challenge1)) in
         let commitmentB1 = (y **~ response1) *~ (cS.beta **~ challenge1) in
-        let w = M.random q in
+        let w = random () in
         let commitmentA0 = g **~ w and commitmentB0 = y **~ w in
         let prefix = Printf.sprintf "bproof0|%s|" zkp in
         let h =
           G.hash prefix
             [| commitmentA0; commitmentB0; commitmentA1; commitmentB1 |]
         in
-        let challenge0 = Z.(erem (h - challenge1) q) in
-        let response0 = Z.(erem (w - (r0 * challenge0)) q) in
+        let challenge0 = Zq.(h - challenge1) in
+        let response0 = Zq.(w - (r0 * challenge0)) in
         [|
           { challenge = challenge0; response = response0 };
           { challenge = challenge1; response = response1 };
@@ -155,42 +150,42 @@ module Make (M : RANDOM) (G : GROUP) = struct
       let overall_proof =
         (* proof of m0 = 1 \/ min <= mS <= max (second is true) *)
         assert (min <= mS && mS <= max);
-        let challenge0 = M.random q in
-        let response0 = M.random q in
+        let challenge0 = random () in
+        let response0 = random () in
         let proof0 = { challenge = challenge0; response = response0 } in
         let overall_proof = Array.make (max - min + 2) proof0 in
         let commitments = Array.make (2 * (max - min + 2)) g in
         let total_challenges = ref challenge0 in
-        commitments.(0) <- (g **~ Z.((response0 + (r0 * challenge0)) mod q));
+        commitments.(0) <- (g **~ Zq.(response0 + (r0 * challenge0)));
         commitments.(1) <- (y **~ response0) *~ ((c0.beta / g) **~ challenge0);
         let index_true = mS - min + 1 in
         let rec loop i =
           if i < max - min + 2 then
             if i <> index_true then (
-              let challenge = M.random q in
-              let response = M.random q in
+              let challenge = random () in
+              let response = random () in
               let g' =
-                if min + i - 1 = 0 then G.one else g **~ Z.of_int (min + i - 1)
+                if min + i - 1 = 0 then G.one else g **~ Zq.of_int (min + i - 1)
               in
               let nbeta = cS.beta / g' in
               let j = 2 * i in
               overall_proof.(i) <- { challenge; response };
-              commitments.(j) <- (g **~ Z.((response + (rS * challenge)) mod q));
+              commitments.(j) <- (g **~ Zq.(response + (rS * challenge)));
               commitments.(j + 1) <- (y **~ response) *~ (nbeta **~ challenge);
-              (total_challenges := Z.(!total_challenges + challenge));
+              (total_challenges := Zq.(!total_challenges + challenge));
               loop (i + 1))
             else loop (i + 1)
           else ()
         in
         let () = loop 1 in
-        let w = M.random q in
+        let w = random () in
         let j = 2 * index_true in
         commitments.(j) <- g **~ w;
         commitments.(j + 1) <- y **~ w;
         let prefix = Printf.sprintf "bproof1|%s|" zkp in
         let h = G.hash prefix commitments in
-        let challenge = Z.(erem (h - !total_challenges) q) in
-        let response = Z.(erem (w - (rS * challenge)) q) in
+        let challenge = Zq.(h - !total_challenges) in
+        let response = Zq.(w - (rS * challenge)) in
         overall_proof.(index_true) <- { challenge; response };
         overall_proof
       in
@@ -199,19 +194,19 @@ module Make (M : RANDOM) (G : GROUP) = struct
       let blank_proof =
         (* proof of m0 = 0 \/ mS = 0 (second is true) *)
         assert (mS = 0);
-        let challenge0 = M.random q in
-        let response0 = M.random q in
-        let commitmentA0 = g **~ Z.((response0 + (r0 * challenge0)) mod q) in
+        let challenge0 = random () in
+        let response0 = random () in
+        let commitmentA0 = g **~ Zq.(response0 + (r0 * challenge0)) in
         let commitmentB0 = (y **~ response0) *~ (c0.beta **~ challenge0) in
-        let w = M.random q in
+        let w = random () in
         let commitmentA1 = g **~ w and commitmentB1 = y **~ w in
         let prefix = Printf.sprintf "bproof0|%s|" zkp in
         let h =
           G.hash prefix
             [| commitmentA0; commitmentB0; commitmentA1; commitmentB1 |]
         in
-        let challenge1 = Z.(erem (h - challenge0) q) in
-        let response1 = Z.(erem (w - (rS * challenge1)) q) in
+        let challenge1 = Zq.(h - challenge0) in
+        let response1 = Zq.(w - (rS * challenge1)) in
         [|
           { challenge = challenge0; response = response0 };
           { challenge = challenge1; response = response1 };
@@ -220,34 +215,33 @@ module Make (M : RANDOM) (G : GROUP) = struct
       let overall_proof =
         (* proof of m0 = 1 \/ min <= mS <= max (first is true) *)
         assert (m0 = 1);
-        let nil_proof = { challenge = Z.zero; response = Z.zero } in
-        let overall_proof = Array.make (max - min + 2) nil_proof in
+        let overall_proof = Array.make (max - min + 2) dummy_proof in
         let commitments = Array.make (2 * (max - min + 2)) g in
-        let total_challenges = ref Z.zero in
+        let total_challenges = ref Zq.zero in
         let rec loop i =
           if i < max - min + 2 then (
-            let challenge = M.random q in
-            let response = M.random q in
+            let challenge = random () in
+            let response = random () in
             let g' =
-              if min + i - 1 = 0 then G.one else g **~ Z.of_int (min + i - 1)
+              if min + i - 1 = 0 then G.one else g **~ Zq.of_int (min + i - 1)
             in
             let nbeta = cS.beta / g' in
             let j = 2 * i in
             overall_proof.(i) <- { challenge; response };
-            commitments.(j) <- (g **~ Z.((response + (rS * challenge)) mod q));
+            commitments.(j) <- (g **~ Zq.(response + (rS * challenge)));
             commitments.(j + 1) <- (y **~ response) *~ (nbeta **~ challenge);
-            (total_challenges := Z.(!total_challenges + challenge));
+            (total_challenges := Zq.(!total_challenges + challenge));
             loop (i + 1))
           else ()
         in
         let () = loop 1 in
-        let w = M.random q in
+        let w = random () in
         commitments.(0) <- g **~ w;
         commitments.(1) <- y **~ w;
         let prefix = Printf.sprintf "bproof1|%s|" zkp in
         let h = G.hash prefix commitments in
-        let challenge = Z.(erem (h - !total_challenges) q) in
-        let response = Z.(erem (w - (r0 * challenge)) q) in
+        let challenge = Zq.(h - !total_challenges) in
+        let response = Zq.(w - (r0 * challenge)) in
         overall_proof.(0) <- { challenge; response };
         overall_proof
       in
@@ -257,67 +251,53 @@ module Make (M : RANDOM) (G : GROUP) = struct
     G.check c0.alpha && G.check c0.beta && G.check cS.alpha && G.check cS.beta
     (* check blank_proof, proof of m0 = 0 \/ mS = 0 *)
     && Array.length blank_proof = 2
-    && (try
-          let commitments = Array.make 4 g in
-          let total_challenges = ref Z.zero in
-          let { challenge; response } = blank_proof.(0) in
-          if not (check_modulo q challenge && check_modulo q response) then
-            raise Exit;
-          commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
-          commitments.(1) <- (y **~ response) *~ (c0.beta **~ challenge);
-          (total_challenges := Z.(!total_challenges + challenge));
-          let { challenge; response } = blank_proof.(1) in
-          if not (check_modulo q challenge && check_modulo q response) then
-            raise Exit;
-          commitments.(2) <- (g **~ response) *~ (cS.alpha **~ challenge);
-          commitments.(3) <- (y **~ response) *~ (cS.beta **~ challenge);
-          (total_challenges := Z.(!total_challenges + challenge));
-          let prefix = Printf.sprintf "bproof0|%s|" zkp in
-          let h = G.hash prefix commitments in
-          let total_challenges = Z.(!total_challenges mod q) in
-          Z.(h =% total_challenges)
-        with Exit -> false)
+    && (let commitments = Array.make 4 g in
+        let total_challenges = ref Zq.zero in
+        let { challenge; response } = blank_proof.(0) in
+        commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
+        commitments.(1) <- (y **~ response) *~ (c0.beta **~ challenge);
+        (total_challenges := Zq.(!total_challenges + challenge));
+        let { challenge; response } = blank_proof.(1) in
+        commitments.(2) <- (g **~ response) *~ (cS.alpha **~ challenge);
+        commitments.(3) <- (y **~ response) *~ (cS.beta **~ challenge);
+        (total_challenges := Zq.(!total_challenges + challenge));
+        let prefix = Printf.sprintf "bproof0|%s|" zkp in
+        let h = G.hash prefix commitments in
+        Zq.(h =% !total_challenges))
     (* check overall_proof, proof of m0 = 1 \/ min <= mS <= max *)
     && Array.length overall_proof = max - min + 2
     &&
-    try
-      let commitments = Array.make (2 * (max - min + 2)) g in
-      let total_challenges = ref Z.zero in
-      let { challenge; response } = overall_proof.(0) in
-      if not (check_modulo q challenge && check_modulo q response) then
-        raise Exit;
-      commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
-      commitments.(1) <- (y **~ response) *~ ((c0.beta / g) **~ challenge);
-      (total_challenges := Z.(!total_challenges + challenge));
-      let rec loop i =
-        if i < max - min + 2 then (
-          let { challenge; response } = overall_proof.(i) in
-          if not (check_modulo q challenge && check_modulo q response) then
-            raise Exit;
-          let g' =
-            if min + i - 1 = 0 then G.one else g **~ Z.of_int (min + i - 1)
-          in
-          let nbeta = cS.beta / g' in
-          let j = 2 * i in
-          commitments.(j) <- (g **~ response) *~ (cS.alpha **~ challenge);
-          commitments.(j + 1) <- (y **~ response) *~ (nbeta **~ challenge);
-          (total_challenges := Z.(!total_challenges + challenge));
-          loop (i + 1))
-        else ()
-      in
-      loop 1;
-      let prefix = Printf.sprintf "bproof1|%s|" zkp in
-      let h = G.hash prefix commitments in
-      let total_challenges = Z.(!total_challenges mod q) in
-      Z.(h =% total_challenges)
-    with Exit -> false
+    let commitments = Array.make (2 * (max - min + 2)) g in
+    let total_challenges = ref Zq.zero in
+    let { challenge; response } = overall_proof.(0) in
+    commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
+    commitments.(1) <- (y **~ response) *~ ((c0.beta / g) **~ challenge);
+    (total_challenges := Zq.(!total_challenges + challenge));
+    let rec loop i =
+      if i < max - min + 2 then (
+        let { challenge; response } = overall_proof.(i) in
+        let g' =
+          if min + i - 1 = 0 then G.one else g **~ Zq.of_int (min + i - 1)
+        in
+        let nbeta = cS.beta / g' in
+        let j = 2 * i in
+        commitments.(j) <- (g **~ response) *~ (cS.alpha **~ challenge);
+        commitments.(j + 1) <- (y **~ response) *~ (nbeta **~ challenge);
+        (total_challenges := Zq.(!total_challenges + challenge));
+        loop (i + 1))
+      else ()
+    in
+    loop 1;
+    let prefix = Printf.sprintf "bproof1|%s|" zkp in
+    let h = G.hash prefix commitments in
+    Zq.(h =% !total_challenges)
 
   let invg = invert g
   let d01 = [| G.one; invg |]
 
   let make_d min max =
     let n = max - min + 1 in
-    let g' = if min = 0 then G.one else g **~ Z.of_int min in
+    let g' = if min = 0 then G.one else g **~ Zq.of_int min in
     let d = Array.make n (invert g') in
     for i = 1 to n - 1 do
       d.(i) <- d.(i - 1) *~ invg
@@ -332,7 +312,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let create_answer q ~public_key:y ~prefix:zkp m =
     let n = Array.length m in
-    let r = Array.init n (fun _ -> M.random G.q) in
+    let r = Array.init n (fun _ -> random ()) in
     let choices = Array.map2 (eg_encrypt y) r m in
     let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
     let zkp = zkp ^ "|" ^ stringify_choices choices in
@@ -344,7 +324,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
         let choices' = Array.sub choices 1 (n - 1) in
         let r' = Array.sub r 1 (n - 1) in
         let m' = Array.sub m 1 (n - 1) in
-        let sumr = Array.fold_left Z.( + ) Z.zero r' in
+        let sumr = Array.fold_left Zq.( + ) Zq.zero r' in
         let summ = Array.fold_left ( + ) 0 m' in
         let sumc = Array.fold_left eg_combine dummy_ciphertext choices' in
         let overall_proof, blank_proof =
@@ -356,7 +336,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | _ ->
         (* indexes 0..n-1 are the actual choices *)
         assert (n = Array.length q.q_answers);
-        let sumr = Array.fold_left Z.( + ) Z.zero r in
+        let sumr = Array.fold_left Zq.( + ) Zq.zero r in
         let summ = Array.fold_left ( + ) 0 m in
         let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
         assert (q.q_min <= summ && summ <= q.q_max);
@@ -419,13 +399,14 @@ module Make (M : RANDOM) (G : GROUP) = struct
         | None -> invalid_arg "Cannot compute result"
     in
     fun x ->
-      Shape.to_array x |> Array.map (fun i -> Weight.reduce ~total (log i))
+      Shape.to_array x
+      |> Array.map (fun i -> Weight.reduce ~total (log i |> Zq.to_Z))
 
   let check_result ~num_tallied x r =
     Array.for_all2
       (fun x r ->
-        let r = Weight.expand ~total:num_tallied r in
-        let g' = if Z.compare r Z.zero = 0 then G.one else g **~ r in
+        let r = Weight.expand ~total:num_tallied r |> Zq.of_Z in
+        let g' = if Zq.compare r Zq.zero = 0 then G.one else g **~ r in
         x =~ g')
       (Shape.to_array x) r
 end

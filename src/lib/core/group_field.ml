@@ -42,17 +42,20 @@ let make description ff_params =
   let module G = struct
     open Z
 
+    module Zq = MakeField (struct
+      let q = q
+    end)
+
     type t = Z.t
 
     let p = p
-    let q = q
     let one = Z.one
     let g = g
     let ( *~ ) a b = a * b mod p
-    let ( **~ ) a b = powm a b p
+    let ( **~ ) a b = powm a (Zq.to_Z b) p
     let invert x = Z.invert x p
     let ( =~ ) = Z.( =% )
-    let check x = check_modulo p x && x **~ q =~ one
+    let check x = check_modulo p x && powm x q p =~ one
     let to_string = Z.to_string
     let of_string = Z.of_string
 
@@ -92,7 +95,7 @@ let make description ff_params =
     let hash prefix xs =
       let x = prefix ^ map_and_concat_with_commas Z.to_string xs in
       let z = Z.of_hex (sha256_hex x) in
-      Z.(z mod q)
+      Zq.of_Z z
 
     let hash_to_int = Z.hash_to_int
     let compare = Z.compare

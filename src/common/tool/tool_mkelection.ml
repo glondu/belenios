@@ -45,7 +45,7 @@ module type PARSED_PARAMS = sig
 
   module G : GROUP
 
-  val get_trustees : unit -> G.t trustees
+  val get_trustees : unit -> (G.t, G.Zq.t) trustees
 
   module Trustees : Trustees_sig.S
 end
@@ -62,7 +62,8 @@ let parse_params p =
     module G = (val Group.of_string ~version P.group : GROUP)
 
     let get_trustees () =
-      P.get_trustees () |> trustees_of_string (sread G.of_string)
+      P.get_trustees ()
+      |> trustees_of_string (sread G.of_string) (sread G.Zq.of_string)
 
     module Trustees = T
   end in

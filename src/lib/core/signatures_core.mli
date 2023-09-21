@@ -29,10 +29,36 @@ module Json = Atdgen_runtime.Util.Json
 type 'a reader = 'a Json.reader
 type 'a writer = 'a Json.writer
 
+(** A finite integer field, suitable for scalar operations of a
+    group. *)
+module type FIELD = sig
+  type t
+
+  val q : Z.t
+  val zero : t
+  val one : t
+  val to_int : t -> int
+  val of_int : int -> t
+  val to_Z : t -> Z.t
+  val of_Z : Z.t -> t
+  val to_string : t -> string
+  val of_string : string -> t
+  val compare : t -> t -> int
+  val double : t -> t
+  val invert : t -> t
+  val ( + ) : t -> t -> t
+  val ( - ) : t -> t -> t
+  val ( * ) : t -> t -> t
+  val ( =% ) : t -> t -> bool
+end
+
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
   (** The following interface is redundant: it is assumed, but not
       checked, that usual mathematical relations hold. *)
+
+  module Zq : FIELD
+  (** The type of scalars. *)
 
   type t
   (** The type of elements. Note that it may be larger than the group
@@ -47,13 +73,10 @@ module type GROUP = sig
   val g : t
   (** A generator of the group. *)
 
-  val q : Z.t
-  (** The order of [g]. *)
-
   val ( *~ ) : t -> t -> t
   (** Multiplication. *)
 
-  val ( **~ ) : t -> Z.t -> t
+  val ( **~ ) : t -> Zq.t -> t
   (** Exponentiation. *)
 
   val ( =~ ) : t -> t -> bool
@@ -75,8 +98,8 @@ module type GROUP = sig
   (** Convert a group element to an int array. The first argument is
      the size of the array. *)
 
-  val hash : string -> t array -> Z.t
-  (** Hash an array of elements into an integer mod [q]. The string
+  val hash : string -> t array -> Zq.t
+  (** Hash an array of elements into a scalar. The string
       argument is a string that is prepended before computing the hash. *)
 
   val hash_to_int : t -> int

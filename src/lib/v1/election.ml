@@ -20,9 +20,7 @@
 (**************************************************************************)
 
 module PSerializable_j = Serializable_j
-open Belenios_platform
 open Belenios_core
-open Platform
 open Serializable_core_j
 open Serializable_j
 open PSerializable_j
@@ -121,15 +119,20 @@ module Parse (R : RAW_ELECTION) () = struct
   module S =
     (val Question.compute_signature (Array.to_list election.e_questions))
 
-  type nonrec ballot = G.t ballot
+  type nonrec ballot = (G.t, G.Zq.t) ballot
 
-  let string_of_ballot x = string_of_ballot (swrite G.to_string) x
-  let ballot_of_string x = ballot_of_string (sread G.of_string) x
+  let string_of_ballot x =
+    string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string) x
+
+  let ballot_of_string x =
+    ballot_of_string (sread G.of_string) (sread G.Zq.of_string) x
+
   let get_credential x = Some x.credential
 end
 
 module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   type elt = W.G.t
+  type scalar = W.G.Zq.t
 
   module G = W.G
 
@@ -141,23 +144,24 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let election = W.election
 
-  type private_key = Z.t
+  type private_key = scalar
   type public_key = elt
 
+  let random () = M.random Zq.q |> Zq.of_Z
   let ( / ) x y = x *~ invert y
 
   type plaintext = int array array
-  type nonrec ballot = elt ballot
+  type nonrec ballot = (elt, scalar) ballot
   type weighted_ballot = Weight.t * ballot
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
 
   let fs_prove gs x oracle =
-    let w = M.random q in
+    let w = random () in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
-    let response = Z.(erem (w - (x * challenge)) q) in
+    let response = Zq.(w - (x * challenge)) in
     { challenge; response }
 
   (** Ballot creation *)
@@ -187,14 +191,15 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     in
     let s_hash =
       sha256_b64
-        (string_of_ballot (swrite G.to_string) ballot_without_signature)
+        (string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
+           ballot_without_signature)
     in
     let signature =
-      let w = M.random q in
+      let w = random () in
       let commitment = g **~ w in
       let prefix = make_sig_prefix s_hash in
       let challenge = G.hash prefix [| commitment |] in
-      let response = Z.(erem (w - (sk * challenge)) q) in
+      let response = Zq.(w - (sk * challenge)) in
       let s_proof = { challenge; response } in
       Some { s_hash; s_proof }
     in
@@ -211,7 +216,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     in
     let expected_hash =
       sha256_b64
-        (string_of_ballot (swrite G.to_string) ballot_without_signature)
+        (string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
+           ballot_without_signature)
     in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = election.e_uuid
@@ -219,21 +225,25 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     && (match signature with
        | Some { s_hash; s_proof = { challenge; response } } ->
            s_hash = expected_hash && G.check credential
-           && check_modulo q challenge && check_modulo q response
            &&
            let commitment = (g **~ response) *~ (credential **~ challenge) in
            let prefix = make_sig_prefix s_hash in
-           Z.(challenge =% G.hash prefix [| commitment |])
+           Zq.(challenge =% G.hash prefix [| commitment |])
        | None -> false)
     && Array.for_all2
          (verify_answer W.public_key zkp)
          election.e_questions answers
 
   let check_rawballot rawballot =
-    match ballot_of_string (sread G.of_string) rawballot with
+    match
+      ballot_of_string (sread G.of_string) (sread G.Zq.of_string) rawballot
+    with
     | exception e -> Error (`SerializationError e)
     | ballot ->
-        if string_of_ballot (swrite G.to_string) ballot = rawballot then
+        if
+          string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string) ballot
+          = rawballot
+        then
           Ok
             {
               rc_credential = G.to_string ballot.credential;
@@ -299,7 +309,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
       (Mix.check_shuffle_proof W.public_key)
       cc s.shuffle_ciphertexts s.shuffle_proofs
 
-  type factor = elt partial_decryption
+  type factor = (elt, scalar) partial_decryption
 
   let eg_factor x { alpha; _ } =
     let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
@@ -319,7 +329,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     Shape.forall3
       (fun { alpha; _ } f { challenge; response } ->
-        G.check f && check_modulo q challenge && check_modulo q response
+        G.check f
         &&
         let commitments =
           [|
@@ -327,7 +337,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
             (alpha **~ response) *~ (f **~ challenge);
           |]
         in
-        Z.(hash zkp commitments =% challenge))
+        Zq.(hash zkp commitments =% challenge))
       c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result

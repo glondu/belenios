@@ -34,13 +34,13 @@ type 'a ciphertext = {
 }
 <doc text="An ElGamal ciphertext.">
 
-type proof = {
-  challenge : number;
-  response : number;
+type 'a proof = {
+  challenge : 'a;
+  response : 'a;
 }
 <doc text="A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP).">
 
-type disjunctive_proof = proof list <ocaml repr="array">
+type 'a disjunctive_proof = 'a proof list <ocaml repr="array">
 <doc text="A disjunctive ZKP. The size of the array is the number of disjuncts. ">
 
 type voter = {

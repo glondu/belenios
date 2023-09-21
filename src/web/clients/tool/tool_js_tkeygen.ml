@@ -40,7 +40,10 @@ let tkeygen draft =
   let open X in
   let { id = _; priv; pub } = trustee_keygen () in
   let hash =
-    let pub = trustee_public_key_of_string Yojson.Safe.read_json pub in
+    let pub =
+      trustee_public_key_of_string Yojson.Safe.read_json Yojson.Safe.read_json
+        pub
+    in
     sha256_b64 (Yojson.Safe.to_string pub.trustee_public_key)
   in
   set_textarea "pk" pub;

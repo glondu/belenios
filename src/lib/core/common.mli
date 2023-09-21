@@ -57,6 +57,10 @@ module Option : sig
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
 end
 
+module MakeField (X : sig
+  val q : Z.t
+end) : FIELD
+
 val sread : (string -> 'a) -> 'a reader
 val swrite : ('a -> string) -> 'a writer
 val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
@@ -77,7 +81,7 @@ end
 val sqrt : Z.t -> Z.t
 
 module BabyStepGiantStep (G : GROUP) : sig
-  val log : generator:G.t -> max:Z.t -> G.t -> Z.t option
+  val log : generator:G.t -> max:Z.t -> G.t -> G.Zq.t option
 end
 
 val split_on_br : string -> string list

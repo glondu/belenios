@@ -35,7 +35,7 @@ val draft_private_credentials : string t
 
 (* sensitive data *)
 val state : election_state t
-val private_key : number t
+val private_key : Yojson.Safe.t t
 val private_keys : string list t
 val decryption_tokens : decryption_tokens t
 

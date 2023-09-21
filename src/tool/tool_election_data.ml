@@ -109,11 +109,12 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
 end
 
 module type ELECTION_DATA = sig
+  type s
   type t
   type r
 
   val trustees_as_string : string option
-  val trustees : t trustees option
+  val trustees : (t, s) trustees option
   val pks : t array Lazy.t
   val raw_public_creds : string list option Lazy.t
   val public_creds_weights : (bool * weight SMap.t) option Lazy.t
@@ -132,7 +133,7 @@ module type ELECTION_DATA = sig
     (t encrypted_tally * hash sized_encrypted_tally) Lazy.t
 
   val raw_shuffles : (hash * hash owned * string) list option Lazy.t
-  val shuffles : t shuffle list option Lazy.t
+  val shuffles : (t, s) shuffle list option Lazy.t
   val shuffles_hash : string list option Lazy.t
   val encrypted_tally : (t encrypted_tally * hash sized_encrypted_tally) Lazy.t
   val pds : (hash * hash owned * string) list option Lazy.t
@@ -142,15 +143,19 @@ module type ELECTION_DATA = sig
 end
 
 module Make (Getters : GETTERS) (Election : ELECTION) :
-  ELECTION_DATA with type t := Election.G.t with type r := Election.result =
-struct
+  ELECTION_DATA
+    with type s := Election.G.Zq.t
+     and type t := Election.G.t
+     and type r := Election.result = struct
   include Getters
   include Election
 
   let trustees_as_string = get_trustees ()
 
   let trustees =
-    Option.map (trustees_of_string (sread G.of_string)) trustees_as_string
+    Option.map
+      (trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
+      trustees_as_string
 
   let pks =
     lazy
@@ -289,7 +294,9 @@ struct
   let shuffles =
     lazy
       (Lazy.force shuffles_as_text
-      |> Option.map (List.map (shuffle_of_string (sread G.of_string))))
+      |> Option.map
+           (List.map
+              (shuffle_of_string (sread G.of_string) (sread G.Zq.of_string))))
 
   let shuffles_hash =
     lazy (Lazy.force shuffles_as_text |> Option.map (List.map sha256_b64))

@@ -23,8 +23,8 @@ open Signatures
 open Serializable_t
 
 val compute_synthetic_factors :
-  'a trustee_kind list ->
-  ('a -> 'a partial_decryption -> bool) ->
-  'a partial_decryption owned list ->
-  ((int * 'a partial_decryption) list -> 'a shape) ->
+  ('a, 'b) trustee_kind list ->
+  ('a -> ('a, 'b) partial_decryption -> bool) ->
+  ('a, 'b) partial_decryption owned list ->
+  ((int * ('a, 'b) partial_decryption) list -> 'a shape) ->
   ('a shape list, combination_error) result

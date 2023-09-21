@@ -94,30 +94,37 @@ end
 module Ttkeygen : CMDLINER_MODULE = struct
   let main group version step certs threshold key polynomials =
     let@ () = wrap_main in
-    let get_certs () =
-      let certs = get_mandatory_opt "--certs" certs in
-      match load_from_file cert_of_string certs with
-      | None -> Printf.ksprintf failwith "%s does not exist" certs
-      | Some l -> { certs = Array.of_list (List.rev l) }
-    in
-    let get_polynomials () =
-      let polynomials = get_mandatory_opt "--polynomials" polynomials in
-      match load_from_file polynomial_of_string polynomials with
-      | None -> Printf.ksprintf failwith "%s does not exist" polynomials
-      | Some l -> Array.of_list (List.rev l)
-    in
     let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module P = Trustees.MakePKI (G) (Random) in
     let module C = Trustees.MakeChannels (G) (Random) (P) in
     let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
+    let get_certs () =
+      let certs = get_mandatory_opt "--certs" certs in
+      match load_from_file (cert_of_string (sread G.Zq.of_string)) certs with
+      | None -> Printf.ksprintf failwith "%s does not exist" certs
+      | Some l -> { certs = Array.of_list (List.rev l) }
+    in
+    let get_polynomials () =
+      let polynomials = get_mandatory_opt "--polynomials" polynomials in
+      match
+        load_from_file (polynomial_of_string (sread G.Zq.of_string)) polynomials
+      with
+      | None -> Printf.ksprintf failwith "%s does not exist" polynomials
+      | Some l -> Array.of_list (List.rev l)
+    in
     match step with
     | 1 ->
         let key, cert = T.step1 () in
         let id = sha256_hex cert.s_message in
         Printf.eprintf "I: certificate %s has been generated\n%!" id;
-        let pub = ("certificate", id ^ ".cert", 0o444, string_of_cert cert) in
+        let pub =
+          ( "certificate",
+            id ^ ".cert",
+            0o444,
+            string_of_cert (swrite G.Zq.to_string) cert )
+        in
         let prv = ("private key", id ^ ".key", 0o400, key) in
         let save (descr, filename, perm, thing) =
           let oc = open_out_gen [ Open_wronly; Open_creat ] perm filename in
@@ -139,7 +146,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let threshold = get_mandatory_opt "--threshold" threshold in
         let key = get_mandatory_opt "--key" key |> string_of_file in
         let polynomial = T.step3 certs key threshold in
-        Printf.printf "%s\n%!" (string_of_polynomial polynomial)
+        Printf.printf "%s\n%!"
+          (string_of_polynomial (swrite G.Zq.to_string) polynomial)
     | 4 ->
         let certs = get_certs () in
         let n = Array.length certs.certs in
@@ -151,7 +159,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
           let id = sha256_hex certs.certs.(i).s_message in
           let fn = id ^ ".vinput" in
           let oc = open_out_gen [ Open_wronly; Open_creat ] 0o444 fn in
-          output_string oc (string_of_vinput vinputs.(i));
+          output_string oc
+            (string_of_vinput (swrite G.Zq.to_string) vinputs.(i));
           output_char oc '\n';
           close_out oc;
           Printf.eprintf "I: wrote %s\n%!" fn
@@ -159,9 +168,11 @@ module Ttkeygen : CMDLINER_MODULE = struct
     | 5 ->
         let certs = get_certs () in
         let key = get_mandatory_opt "--key" key |> string_of_file in
-        let vinput = read_line () |> vinput_of_string in
+        let vinput = read_line () |> vinput_of_string (sread G.Zq.of_string) in
         let voutput = T.step5 certs key vinput in
-        Printf.printf "%s\n%!" (string_of_voutput (swrite G.to_string) voutput)
+        Printf.printf "%s\n%!"
+          (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
+             voutput)
     | 6 ->
         let certs = get_certs () in
         let n = Array.length certs.certs in
@@ -169,7 +180,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
         assert (n = Array.length polynomials);
         let voutputs =
           lines_of_stdin ()
-          |> List.map (voutput_of_string (sread G.of_string))
+          |> List.map
+               (voutput_of_string (sread G.of_string) (sread G.Zq.of_string))
           |> Array.of_list
         in
         assert (n = Array.length voutputs);
@@ -184,7 +196,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
           Printf.eprintf "I: wrote %s\n%!" fn
         done;
         Printf.printf "%s\n%!"
-          (string_of_threshold_parameters (swrite G.to_string) tparams)
+          (string_of_threshold_parameters (swrite G.to_string)
+             (swrite G.Zq.to_string) tparams)
     | _ -> failwith "invalid step"
 
   let step_t =
@@ -333,19 +346,25 @@ module Mktrustees : CMDLINER_MODULE = struct
         | None -> []
         | Some t ->
             t
-            |> List.map (trustee_public_key_of_string Yojson.Safe.read_json)
+            |> List.map
+                 (trustee_public_key_of_string Yojson.Safe.read_json
+                    Yojson.Safe.read_json)
             |> List.map (fun x -> `Single x)
       in
       let pedersens =
         match get_threshold () with
         | None -> []
         | Some t ->
-            t |> threshold_parameters_of_string Yojson.Safe.read_json
+            t
+            |> threshold_parameters_of_string Yojson.Safe.read_json
+                 Yojson.Safe.read_json
             |> fun x -> [ `Pedersen x ]
       in
       match singles @ pedersens with
       | [] -> failwith "trustees are missing"
-      | trustees -> string_of_trustees Yojson.Safe.write_json trustees
+      | trustees ->
+          string_of_trustees Yojson.Safe.write_json Yojson.Safe.write_json
+            trustees
     in
     let trustees = get_trustees () in
     let oc = open_out (dir // "trustees.json") in

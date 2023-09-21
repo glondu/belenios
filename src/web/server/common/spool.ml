@@ -122,8 +122,8 @@ let metadata =
 
 let private_key =
   {
-    of_string = number_of_string;
-    to_string = string_of_number;
+    of_string = Yojson.Safe.from_string;
+    to_string = Yojson.Safe.to_string;
     filename = "private_key.json";
   }
   |> make_file

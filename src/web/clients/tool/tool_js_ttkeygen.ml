@@ -58,7 +58,7 @@ let gen_cert draft e _ =
       set_download "private_key" "text/plain" "private_key.txt" key;
       set_element_display "key_helper" "block";
       let fp = sha256_b64 cert.s_message in
-      let cert = string_of_cert cert in
+      let cert = string_of_cert (swrite G.Zq.to_string) cert in
       set_content "pki_fp" fp;
       set_textarea "data" cert;
       Lwt.return_unit);
@@ -67,12 +67,17 @@ let gen_cert draft e _ =
 let proceed draft pedersen =
   let version = draft.draft_version in
   let group = draft.draft_group in
+  let module G = (val Group.of_string ~version group : GROUP) in
+  let pedersen =
+    pedersen
+    |> string_of_pedersen Yojson.Safe.write_json Yojson.Safe.write_json
+    |> pedersen_of_string (sread G.of_string) (sread G.Zq.of_string)
+  in
   let$ e = document##getElementById (Js.string "compute_private_key") in
   let$ e = Dom_html.CoerceTo.input e in
   let key = Js.to_string e##.value in
   let certs = { certs = pedersen.pedersen_certs } in
   let threshold = pedersen.pedersen_threshold in
-  let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (Random) in
   let module C = Trustees.MakeChannels (G) (Random) (P) in
@@ -81,7 +86,8 @@ let proceed draft pedersen =
       match pedersen.pedersen_step with
       | 3 ->
           let polynomial = T.step3 certs key threshold in
-          set_textarea "compute_data" (string_of_polynomial polynomial);
+          set_textarea "compute_data"
+            (string_of_polynomial (swrite G.Zq.to_string) polynomial);
           Lwt.return_unit
       | 5 ->
           let@ vinput cont =
@@ -93,7 +99,8 @@ let proceed draft pedersen =
           in
           let voutput = T.step5 certs key vinput in
           set_textarea "compute_data"
-            (string_of_voutput (swrite G.to_string) voutput);
+            (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
+               voutput);
           Lwt.return_unit
       | _ ->
           alert "Unexpected state!";
@@ -125,7 +132,11 @@ let fill_interactivity () =
   in
   let@ pedersen cont =
     let url = Printf.sprintf "../api/drafts/%s/trustees-pedersen" uuid in
-    let* x = get ~token (pedersen_of_string Yojson.Safe.read_json) url in
+    let* x =
+      get ~token
+        (pedersen_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
+        url
+    in
     match x with Some x -> cont x | None -> fail "(pedersen error)"
   in
   let step = pedersen.pedersen_step in

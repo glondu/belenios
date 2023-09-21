@@ -23,17 +23,16 @@
 
 (** {1 Predefined types} *)
 
-type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type datetime = string wrap <ocaml module="Web_types.Datetime">
-type proof <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a proof <ocaml predef from="Belenios_core.Serializable"> = abstract
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 type election_checksums <ocaml predef from="Belenios_core.Serializable"> = abstract
-type cert <ocaml predef from="Belenios_core.Serializable"> = abstract
-type polynomial <ocaml predef from="Belenios_core.Serializable"> = abstract
-type vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a polynomial <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 (** {1 Web-specific types} *)
 
@@ -91,8 +90,8 @@ type election_state =
 type decryption_tokens = string list
 
 (* The following is a supertype of trustee_public_key *)
-type 'a web_trustee_public_key = {
-  pok : proof;
+type ('a, 'b) web_trustee_public_key = {
+  pok : 'b proof;
   public_key : 'a;
   ?server : bool option;
 } <ocaml field_prefix="web_trustee_">
@@ -112,39 +111,39 @@ type draft_voter = {
   ?password <ocaml mutable> : (string * string) option;
 } <ocaml field_prefix="sv_">
 
-type draft_trustee = {
+type 'a draft_trustee = {
   id : string;
   token : string;
   public_key <ocaml mutable> : string;
-  ?private_key : number option;
+  ?private_key : 'a option;
   ?name : string option;
 } <ocaml field_prefix="st_">
 
-type draft_threshold_trustee = {
+type 'a draft_threshold_trustee = {
   id : string;
   token : string;
   ?step <ocaml mutable> : int option;
-  ?cert <ocaml mutable> : cert option;
-  ?polynomial <ocaml mutable> : polynomial option;
-  ?vinput <ocaml mutable> : vinput option;
+  ?cert <ocaml mutable> : 'a cert option;
+  ?polynomial <ocaml mutable> : 'a polynomial option;
+  ?vinput <ocaml mutable> : 'a vinput option;
   ?voutput <ocaml mutable> : string option;
   ?name : string option;
 } <ocaml field_prefix="stt_">
 
-type draft_basic_params = {
-  trustees <ocaml mutable> : draft_trustee list;
+type 'a draft_basic_params = {
+  trustees <ocaml mutable> : 'a draft_trustee list;
 } <ocaml field_prefix="dbp_">
 
-type draft_threshold_params = {
+type 'a draft_threshold_params = {
   ?threshold <ocaml mutable> : int option;
-  trustees <ocaml mutable> : draft_threshold_trustee list;
+  trustees <ocaml mutable> : 'a draft_threshold_trustee list;
   ?parameters <ocaml mutable> : string option;
   ?error <ocaml mutable> : string option;
 } <ocaml field_prefix="dtp_">
 
-type draft_trustees =
-  [ Basic of draft_basic_params
-  | Threshold of draft_threshold_params
+type 'a draft_trustees =
+  [ Basic of 'a draft_basic_params
+  | Threshold of 'a draft_threshold_params
   ]
 
 type draft_election = {
@@ -153,7 +152,7 @@ type draft_election = {
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : template;
-  trustees <ocaml mutable> : draft_trustees;
+  trustees <ocaml mutable> : abstract draft_trustees;
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;

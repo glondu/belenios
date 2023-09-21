@@ -24,11 +24,11 @@
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
-type 'a trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = abstract
-type cert <ocaml predef from="Belenios_core.Serializable"> = abstract
-type vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
+type ('a, 'b) trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type ('a, 'b) voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type ('a, 'b) trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type validation_error =
   [ NoTitle
@@ -114,12 +114,12 @@ type draft = {
     group : string;
 } <ocaml field_prefix="draft_">
 
-type 'a pedersen = {
+type ('a, 'b) pedersen = {
     threshold : int;
     step : int;
-    certs : cert list <ocaml repr="array">;
-    ?vinput : vinput option;
-    ?voutput : 'a voutput option;
+    certs : 'b cert list <ocaml repr="array">;
+    ?vinput : 'b vinput option;
+    ?voutput : ('a, 'b) voutput option;
 } <ocaml field_prefix="pedersen_">
 
 type kind =
@@ -152,18 +152,18 @@ type 'a trustee = {
     ?key : 'a option;
 } <ocaml field_prefix="trustee_">
 
-type basic_trustees = {
-    trustees : abstract trustee_public_key trustee list;
+type ('a, 'b) basic_trustees = {
+    trustees : ('a, 'b) trustee_public_key trustee list;
 } <ocaml field_prefix="bt_">
 
-type threshold_trustees = {
+type 'a threshold_trustees = {
     ?threshold : int option;
-    trustees : cert trustee list;
+    trustees : 'a cert trustee list;
 } <ocaml field_prefix="tt_">
 
-type draft_trustees =
-  [ Basic of basic_trustees
-  | Threshold of threshold_trustees
+type ('a, 'b) draft_trustees =
+  [ Basic of ('a, 'b) basic_trustees
+  | Threshold of 'b threshold_trustees
   ]
 
 type draft_status = {

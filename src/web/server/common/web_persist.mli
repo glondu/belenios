@@ -48,7 +48,6 @@ val get_elections_by_owner :
 
 val clear_elections_by_owner_cache : unit -> unit Lwt.t
 val get_passwords : uuid -> (string * string) SMap.t option Lwt.t
-val get_private_key : uuid -> number option Lwt.t
 val get_private_keys : uuid -> string list option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 val get_has_explicit_weights : uuid -> bool Lwt.t

@@ -31,27 +31,22 @@ let q = Z.(shift_left one 255 - of_int 19)
 let l =
   Z.(shift_left one 252 + of_string "27742317777372353535851937790883648493")
 
-module F = struct
-  let zero = Z.zero
-  let one = Z.one
-  let of_int = Z.of_int
-  let compare = Z.compare
-  let reduce x = Z.erem x q
-  let double a = reduce Z.(shift_left a 1)
-  let ( + ) a b = reduce Z.(a + b)
-  let ( * ) a b = reduce Z.(a * b)
-  let ( - ) a b = reduce Z.(a - b)
-  let invert a = Z.invert a q
-end
+module F = MakeField (struct
+  let q = q
+end)
+
+module Zq = MakeField (struct
+  let q = l
+end)
 
 let a = F.(zero - one)
 let d = F.(zero - (of_int 121665 * invert (of_int 121666)))
 
 (* https://hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html *)
 
-type t = Z.t * Z.t * Z.t * Z.t
+type t = F.t * F.t * F.t * F.t
 
-let of_coordinates (x, y) = (x, y, Z.one, F.(x * y))
+let of_coordinates (x, y) = (x, y, F.one, F.(x * y))
 
 let to_coordinates (x, y, z, _) =
   let open F in
@@ -67,9 +62,9 @@ let one = of_coordinates F.(zero, one)
 
 let g =
   of_coordinates
-    ( Z.of_string
+    ( F.of_string
         "15112221349535400772501151409588531511454012693041857206046113283949847762202",
-      Z.of_string
+      F.of_string
         "46316835694926478169428394003475163141307993866256225615783033603165251855960"
     )
 
@@ -98,7 +93,7 @@ let windowmask = (1 lsl windowsize) - 1
 let windowmaskZ = Z.of_int windowmask
 let windowiterations = int_of_float (ceil (255. /. float_of_int windowsize))
 
-let ( **~ ) p n =
+let raw_pow p n =
   let t = Array.make (windowmask + 1) one in
   t.(1) <- p;
   let rec init i =
@@ -127,6 +122,8 @@ let ( **~ ) p n =
   in
   loop (windowiterations - 1) one
 
+let ( **~ ) p n = raw_pow p (Zq.to_Z n)
+
 let compare (x1, y1, z1, _) (x2, y2, z2, _) =
   let a = F.(compare (x1 * z2) (x2 * z1)) in
   if a = 0 then F.(compare (y1 * z2) (y2 * z1)) else a
@@ -134,14 +131,12 @@ let compare (x1, y1, z1, _) (x2, y2, z2, _) =
 let ( =~ ) p1 p2 = compare p1 p2 = 0
 
 let check ((x, y, z, t) as p) =
-  Z.(compare z zero > 0)
-  && check_modulo q x && check_modulo q y && check_modulo q z
-  && check_modulo q t
+  F.(compare z zero > 0)
   && F.(compare (x * y) (z * t) = 0)
   && F.(compare (curve x y z t) zero = 0)
-  && p **~ l =~ one
+  && raw_pow p l =~ one
 
-let is_even x = Z.(compare (logand x one) zero = 0)
+let is_even x = Z.(compare (logand (F.to_Z x) one) zero = 0)
 
 let is_base_point =
   let four_fifth = F.(of_int 4 * invert (of_int 5)) in
@@ -149,12 +144,13 @@ let is_base_point =
     check p
     &&
     let x, y = to_coordinates p in
-    Z.compare four_fifth y = 0 && is_even x
+    F.compare four_fifth y = 0 && is_even x
 
 let invert (x, y, z, t) = F.(zero - x, y, z, zero - t)
 
 let compress (x, y) =
   let open Z in
+  let x = F.to_Z x and y = F.to_Z y in
   let b = shift_left (logand x one) 255 in
   logxor y b
 
@@ -167,20 +163,21 @@ let modsqrt_check, modsqrt =
   let exp = (q - five) / eight in
   ( (fun () -> Z.(compare (q mod eight) five = 0)),
     fun a ->
+      let a = F.to_Z a in
       let v = powm (shift_left a 1) exp q in
       let i = erem (shift_left (a * v * v) 1) q in
-      erem (a * v * (i - one)) q )
+      F.of_Z (a * v * (i - one)) )
 
 let uncompress raw =
   let open Z in
-  let y = logand raw mask255 in
-  let y2 = erem (y * y) q in
-  let x2 = erem ((y2 - one) * invert ((d * y2) + one) q) q in
+  let y = F.of_Z (logand raw mask255) in
+  let y2 = F.(y * y) in
+  let x2 = F.((y2 - one) * invert ((d * y2) + one)) in
   let x = modsqrt x2 in
-  if compare (erem (x * x) q) x2 = 0 then
-    let xsign = logand x one in
+  if F.(compare (x * x) x2) = 0 then
+    let xsign = logand (F.to_Z x) one in
     let rsign = shift_right raw 255 in
-    let x = if compare xsign rsign = 0 then x else erem (zero - x) q in
+    let x = if compare xsign rsign = 0 then x else F.(zero - x) in
     Some (x, y)
   else None
 
@@ -239,15 +236,15 @@ let to_ints =
 let hash prefix xs =
   let x = prefix ^ map_and_concat_with_commas to_string xs in
   let z = Z.of_hex (sha256_hex x) in
-  Z.(z mod l)
+  Zq.of_Z z
 
 let hash_to_int p =
   let x, y = to_coordinates p in
+  let x = F.to_Z x and y = F.to_Z y in
   Z.(hash_to_int (shift_left x 256 + y))
 
 let description = "Ed25519"
-let q = l
-let cofactor = Z.of_int 8
+let cofactor = Zq.of_int 8
 
 let get_generator i =
   let s = Printf.sprintf "ggen|%d" i in
@@ -266,4 +263,4 @@ let get_generator i =
   h
 
 let selfcheck () =
-  check one && is_base_point g && g **~ q =~ one && modsqrt_check ()
+  check one && is_base_point g && raw_pow g F.q =~ one && modsqrt_check ()

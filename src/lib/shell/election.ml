@@ -135,7 +135,9 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
     let tc_name = k.trustee_name in
     { tc_checksum; tc_name }
   in
-  let trustees = trustees_of_string Yojson.Safe.read_json trustees in
+  let trustees =
+    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
+  in
   let ec_trustees =
     trustees
     |> List.map (function `Single k -> [ tc_of_tpk k ] | `Pedersen _ -> [])

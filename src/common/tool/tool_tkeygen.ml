@@ -57,7 +57,10 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       String.sub (sha256_hex (G.to_string public_key.trustee_public_key)) 0 8
       |> String.uppercase_ascii
     in
-    let priv = string_of_number private_key in
-    let pub = string_of_trustee_public_key (swrite G.to_string) public_key in
+    let priv = string_of_number @@ G.Zq.to_Z private_key in
+    let pub =
+      string_of_trustee_public_key (swrite G.to_string) (swrite G.Zq.to_string)
+        public_key
+    in
     { id; priv; pub }
 end

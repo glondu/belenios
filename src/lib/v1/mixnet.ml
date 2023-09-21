@@ -30,7 +30,8 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   module G = W.G
   open G
 
-  let randoms n = Array.init n (fun _ -> M.random G.q)
+  let random () = M.random Zq.q |> Zq.of_Z
+  let randoms n = Array.init n (fun _ -> random ())
 
   let gen_permutation n =
     let tmp = Array.init n (fun i -> i) in
@@ -59,10 +60,10 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
 
   let gen_permutation_commitment psi h =
     let n = Array.length psi in
-    let c = Array.make n G.one and r = Array.make n Z.zero in
+    let c = Array.make n G.one and r = Array.make n Zq.zero in
     let rec loop i =
       if i < n then (
-        let r_ = M.random G.q in
+        let r_ = random () in
         r.(psi.(i)) <- r_;
         c.(psi.(i)) <- (g **~ r_) *~ h.(i);
         loop (succ i))
@@ -74,11 +75,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let h = sha256_hex str in
     Array.init n (fun i ->
         let i = sha256_hex (string_of_int i) in
-        Z.(of_hex (sha256_hex (h ^ i)) mod G.q))
+        Z.(of_hex (sha256_hex (h ^ i))) |> Zq.of_Z)
 
   let get_nizkp_challenge str =
     let h = sha256_hex str in
-    Z.(of_hex h mod G.q)
+    Z.(of_hex h) |> Zq.of_Z
 
   let str_egs e =
     let b = Buffer.create 1024 in
@@ -136,10 +137,10 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     in
     let uu' = Array.init n (fun i -> uu.(psi.(i))) in
     let cc_hat, rr_hat = gen_commitment_chain h uu' in
-    let w1 = M.random G.q in
-    let w2 = M.random G.q in
-    let w3 = M.random G.q in
-    let w4 = M.random G.q in
+    let w1 = random () in
+    let w2 = random () in
+    let w3 = random () in
+    let w4 = random () in
     let ww_hat = randoms n in
     let ww' = randoms n in
     let t1 = g **~ w1 and t2 = g **~ w2 in
@@ -164,26 +165,20 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
       get_nizkp_challenge
         ("shuffle-challenge|" ^ W.fingerprint ^ "|" ^ str2 ^ str3)
     in
-    let r_bar = Z.(Array.fold_left ( + ) zero rr mod G.q) in
-    let s1 = Z.((w1 + (c * r_bar)) mod G.q) in
-    let vv = Array.make n Z.one in
+    let r_bar = Zq.(Array.fold_left ( + ) zero rr) in
+    let s1 = Zq.(w1 + (c * r_bar)) in
+    let vv = Array.make n Zq.one in
     for i = n - 2 downto 0 do
-      vv.(i) <- Z.(uu'.(succ i) * vv.(succ i) mod G.q)
+      vv.(i) <- Zq.(uu'.(succ i) * vv.(succ i))
     done;
-    let r_hat =
-      Z.(Array.fold_left ( + ) zero (Array.map2 ( * ) rr_hat vv) mod G.q)
-    in
-    let s2 = Z.((w2 + (c * r_hat)) mod G.q) in
-    let r_tilde =
-      Z.(Array.fold_left ( + ) zero (Array.map2 ( * ) rr uu) mod G.q)
-    in
-    let s3 = Z.((w3 + (c * r_tilde)) mod G.q) in
-    let r' = Z.(Array.fold_left ( + ) zero (Array.map2 ( * ) rr' uu) mod G.q) in
-    let s4 = Z.((w4 + (c * r')) mod G.q) in
-    let ss_hat =
-      Array.init n (fun i -> Z.((ww_hat.(i) + (c * rr_hat.(i))) mod G.q))
-    in
-    let ss' = Array.init n (fun i -> Z.((ww'.(i) + (c * uu'.(i))) mod G.q)) in
+    let r_hat = Zq.(Array.fold_left ( + ) zero (Array.map2 ( * ) rr_hat vv)) in
+    let s2 = Zq.(w2 + (c * r_hat)) in
+    let r_tilde = Zq.(Array.fold_left ( + ) zero (Array.map2 ( * ) rr uu)) in
+    let s3 = Zq.(w3 + (c * r_tilde)) in
+    let r' = Zq.(Array.fold_left ( + ) zero (Array.map2 ( * ) rr' uu)) in
+    let s4 = Zq.(w4 + (c * r')) in
+    let ss_hat = Array.init n (fun i -> Zq.(ww_hat.(i) + (c * rr_hat.(i)))) in
+    let ss' = Array.init n (fun i -> Zq.(ww'.(i) + (c * uu'.(i)))) in
     let s = (s1, s2, s3, s4, ss_hat, ss') in
     (t, s, cc, cc_hat)
 
@@ -197,7 +192,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let t1, t2, t3, (t41, t42), tt_hat = t in
     let s1, s2, s3, s4, ss_hat, ss' = s in
     Array.for_all G.check [| t1; t2; t3; t41; t42 |]
-    && Array.for_all (check_modulo G.q) [| s1; s2; s3; s4 |]
     && n = Array.length cc
     && n = Array.length cc_hat
     && n = Array.length tt_hat
@@ -206,8 +200,6 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     && Array.for_all G.check cc
     && Array.for_all G.check cc_hat
     && Array.for_all G.check tt_hat
-    && Array.for_all (check_modulo G.q) ss_hat
-    && Array.for_all (check_modulo G.q) ss'
     &&
     let hh = Array.init n get_generator_indep in
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
@@ -223,7 +215,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let c_bar =
       Array.fold_left ( *~ ) one cc *~ invert (Array.fold_left ( *~ ) one hh)
     in
-    let u = Z.(Array.fold_left ( * ) one uu mod G.q) in
+    let u = Zq.(Array.fold_left ( * ) one uu) in
     let c_hat = (if n = 0 then h else cc_hat.(pred n)) *~ invert (h **~ u) in
     let c_tilde = Array.fold_left ( *~ ) one (Array.map2 ( **~ ) cc uu) in
     let a' =

@@ -24,7 +24,7 @@
 (** {2 Predefined types} *)
 
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
-type proof <ocaml predef from="Serializable_core"> = abstract
+type 'a proof <ocaml predef from="Serializable_core"> = abstract
 
 (** {2 Questions and answers} *)
 
@@ -33,9 +33,9 @@ type question = {
   question : string;
 } <ocaml field_prefix="q_">
 
-type 'a answer = {
+type ('a, 'b) answer = {
   choices : 'a ciphertext;
-  proof : proof;
+  proof : 'b proof;
 }
 <doc text="An answer to a question.">
 

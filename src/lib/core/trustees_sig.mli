@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
 open Serializable_t
 open Signatures
 
@@ -31,21 +30,21 @@ module type S = sig
       shares are needed to decrypt, but the decryptions can be done in
       a distributed fashion. *)
 
-    val generate : unit -> Z.t
+    val generate : unit -> G.Zq.t
     (** [generate ()] generates a new private key. *)
 
-    val prove : Z.t -> G.t trustee_public_key
+    val prove : G.Zq.t -> (G.t, G.Zq.t) trustee_public_key
     (** [prove x] returns the public key associated to [x] and a zero-
       knowledge proof of its knowledge. *)
   end
 
   module MakePKI (G : GROUP) (M : RANDOM) :
-    PKI with type private_key = Z.t and type public_key = G.t
+    PKI with type private_key = G.Zq.t and type public_key = G.t
 
   module MakeChannels
       (G : GROUP)
       (M : RANDOM)
-      (P : PKI with type private_key = Z.t and type public_key = G.t) :
+      (P : PKI with type private_key = G.Zq.t and type public_key = G.t) :
     CHANNELS
       with type private_key = P.private_key
        and type public_key = P.public_key
@@ -55,21 +54,21 @@ module type S = sig
   module MakePedersen
       (G : GROUP)
       (M : RANDOM)
-      (P : PKI with type private_key = Z.t and type public_key = G.t)
-      (C : CHANNELS with type private_key = Z.t and type public_key = G.t) :
-    PEDERSEN with type elt = G.t
+      (P : PKI with type private_key = G.Zq.t and type public_key = G.t)
+      (C : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) :
+    PEDERSEN with type elt = G.t and type scalar = G.Zq.t
 
   module MakeCombinator (G : GROUP) : sig
-    val check : G.t trustees -> bool
+    val check : (G.t, G.Zq.t) trustees -> bool
     (** Check consistency of a set of trustees. *)
 
-    val combine_keys : G.t trustees -> G.t
+    val combine_keys : (G.t, G.Zq.t) trustees -> G.t
     (** Compute the public key associated to a set of trustees. *)
 
     val combine_factors :
-      G.t trustees ->
-      (G.t -> G.t partial_decryption -> bool) ->
-      G.t partial_decryption owned list ->
+      (G.t, G.Zq.t) trustees ->
+      (G.t -> (G.t, G.Zq.t) partial_decryption -> bool) ->
+      (G.t, G.Zq.t) partial_decryption owned list ->
       (G.t shape, combination_error) result
     (** Compute synthetic decryption factors. *)
   end

@@ -29,13 +29,17 @@ type uuid = string wrap <ocaml module="Common_types.Uuid">
 type hash = string wrap <ocaml module="Common_types.Hash">
 type 'a shape <ocaml predef from="Common_types.Atd_shape"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
-type proof <ocaml predef from="Serializable_core"> = abstract
+type 'a proof <ocaml predef from="Serializable_core"> = abstract
 type question = abstract wrap <ocaml module="Question">
+
+(** {2 Helpers} *)
+
+type 'a identity = 'a
 
 (** {2 Trustees} *)
 
-type 'a trustee_public_key = {
-  pok : proof;
+type ('a, 'b) trustee_public_key = {
+  pok : 'b proof;
   public_key : 'a;
   ?name : string option;
 } <ocaml field_prefix="trustee_">
@@ -85,9 +89,9 @@ type template = {
 } <ocaml field_prefix="t_">
 <doc text="Election template.">
 
-type 'a partial_decryption = {
+type ('a, 'b) partial_decryption = {
   decryption_factors : 'a shape;
-  decryption_proofs : proof shape;
+  decryption_proofs : 'b proof shape;
 }
 
 type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
@@ -104,17 +108,17 @@ type 'a sized_encrypted_tally = {
 
 type 'a nh_ciphertexts = 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">
 
-type 'a shuffle_proof =
+type ('a, 'b) shuffle_proof =
   (('a * 'a * 'a * ('a * 'a) * 'a list <ocaml repr="array">) *
-     (number * number * number * number *
-        number list <ocaml repr="array"> * number list <ocaml repr="array">) *
+     ('b * 'b * 'b * 'b *
+        'b list <ocaml repr="array"> * 'b list <ocaml repr="array">) *
        'a list <ocaml repr="array"> * 'a list <ocaml repr="array">)
 
-type 'a shuffle_proofs = 'a shuffle_proof list <ocaml repr="array">
+type ('a, 'b) shuffle_proofs = ('a, 'b) shuffle_proof list <ocaml repr="array">
 
-type 'a shuffle = {
+type ('a, 'b) shuffle = {
   ciphertexts : 'a nh_ciphertexts;
-  proofs : 'a shuffle_proofs;
+  proofs : ('a, 'b) shuffle_proofs;
 } <ocaml field_prefix="shuffle_">
 
 (** {2 Election result} *)
@@ -167,9 +171,9 @@ type ballot_summary = ballot_summary_item list
 
 (** {2 PKI support} *)
 
-type signed_msg = {
+type 'a signed_msg = {
   message : string;
-  signature : proof;
+  signature : 'a proof;
 } <ocaml field_prefix="s_">
 
 type 'a channel_msg = {
@@ -190,60 +194,60 @@ type 'a cert_keys = {
   encryption : 'a;
 } <ocaml field_prefix="cert_">
 
-type cert = signed_msg (* cert_keys *)
+type 'a cert = 'a signed_msg (* cert_keys *)
 
-type certs = {
-  certs : cert list <ocaml repr="array">;
+type 'a certs = {
+  certs : 'a cert list <ocaml repr="array">;
 }
 
-type raw_polynomial = {
-  polynomial : number list <ocaml repr="array">
+type 'a raw_polynomial = {
+  polynomial : 'a list <ocaml repr="array">
 }
 
 type 'a raw_coefexps = {
   coefexps : 'a list <ocaml repr="array">
 }
 
-type coefexps = signed_msg (* raw_coefexps *)
+type 'a coefexps = 'a signed_msg (* raw_coefexps *)
 
-type secret = {
-  secret : number;
+type 'a secret = {
+  secret : 'a;
 }
 
-type polynomial = {
+type 'a polynomial = {
   polynomial : string; (* sent raw_polynomial *)
   secrets : string list <ocaml repr="array">; (* sent secrets *)
-  coefexps : coefexps;
+  coefexps : 'a coefexps;
 } <ocaml field_prefix="p_">
 
-type vinput = {
+type 'a vinput = {
   polynomial : string; (* sent raw_polynomial *)
   secrets : string list <ocaml repr="array">; (* sent secrets *)
-  coefexps : coefexps list <ocaml repr="array">;
+  coefexps : 'a coefexps list <ocaml repr="array">;
 } <ocaml field_prefix="vi_">
 
-type partial_decryption_key = {
-  decryption_key : number;
+type 'a partial_decryption_key = {
+  decryption_key : 'a;
 } <ocaml field_prefix="pdk_">
 
-type 'a voutput = {
+type ('a, 'b) voutput = {
   private_key : string; (* sent partial_decryption_key *)
-  public_key : 'a trustee_public_key;
+  public_key : ('a, 'b) trustee_public_key;
 } <ocaml field_prefix="vo_">
 
-type 'a threshold_parameters = {
+type ('a, 'b) threshold_parameters = {
   threshold : int;
-  certs : cert list <ocaml repr="array">;
-  coefexps : coefexps list <ocaml repr="array">;
-  verification_keys : 'a trustee_public_key list <ocaml repr="array">;
+  certs : 'b cert list <ocaml repr="array">;
+  coefexps : 'b coefexps list <ocaml repr="array">;
+  verification_keys : ('a, 'b) trustee_public_key list <ocaml repr="array">;
 } <ocaml field_prefix="t_">
 
-type 'a trustee_kind =
-  [ Single of 'a trustee_public_key
-  | Pedersen of 'a threshold_parameters
+type ('a, 'b) trustee_kind =
+  [ Single of ('a, 'b) trustee_public_key
+  | Pedersen of ('a, 'b) threshold_parameters
   ]
 
-type 'a trustees = 'a trustee_kind list
+type ('a, 'b) trustees = ('a, 'b) trustee_kind list
 
 (** {2 Condorcet} *)
 
