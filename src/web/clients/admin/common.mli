@@ -22,30 +22,6 @@
 open Js_of_ocaml_tyxml.Tyxml_js.Html5
 open Belenios_core.Common
 
-(** Html5 helpers *)
-
-val textarea :
-  ?cols:int ->
-  ?rows:int ->
-  ?placeholder:string ->
-  string ->
-  [> Html_types.textarea ] elt * (unit -> string)
-
-val a :
-  ?a:[< Html_types.a_attrib ] attrib list ->
-  href:uri ->
-  string ->
-  [> [> Html_types.txt ] Html_types.a ] elt
-
-val a_data :
-  filename:string ->
-  mime_type:string ->
-  data:string ->
-  string ->
-  [> [> Html_types.txt ] Html_types.a ] elt
-
-val scrollIntoViewById : string -> unit Lwt.t
-
 (** Session management *)
 
 val get_api_token : [> `Election of Uuid.t ] -> unit Lwt.t

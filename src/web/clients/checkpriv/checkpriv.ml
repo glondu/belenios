@@ -287,9 +287,7 @@ let onload () =
       div [ button ];
     ]
   in
-  let administer =
-    a ~a:[ a_href (prefix ^ "/admin") ] [ txt @@ s_ "Administer elections" ]
-  in
+  let administer = a ~href:(prefix ^ "/admin") @@ s_ "Administer elections" in
   Lwt.return
     (Ui.base_body !Belenios_js.I18n.gettext
        ~full_title:(span [ txt title ])

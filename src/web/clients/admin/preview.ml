@@ -19,11 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_js.Common
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
+open Belenios_js.Common
 open Common
 
 let preview_booth () =

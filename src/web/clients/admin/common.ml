@@ -27,38 +27,6 @@ open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
 
-let textarea ?(cols = 80) ?(rows = 10) ?placeholder value =
-  let elt = textarea (txt value) in
-  let r = Tyxml_js.To_dom.of_textarea elt in
-  r##.cols := cols;
-  r##.rows := rows;
-  let () =
-    match placeholder with
-    | None -> ()
-    | Some x -> r##.placeholder := Js.string x
-  in
-  (elt, fun () -> Js.to_string r##.value)
-
-let a ?a ~href label =
-  let elt = Tyxml_js.Html.a ?a [ txt label ] in
-  let r = Tyxml_js.To_dom.of_a elt in
-  r##.href := Js.string href;
-  elt
-
-let a_data ~filename ~mime_type ~data x =
-  let href = Printf.sprintf "data:%s,%s" mime_type (Url.urlencode data) in
-  a ~a:[ a_download (Some filename) ] ~href x
-
-let scrollIntoViewById id =
-  let&&* d = document##getElementById (Js.string id) in
-  let () =
-    (Js.Unsafe.coerce d)##scrollIntoView
-      (object%js
-         val behavior = Js.string "smooth"
-      end)
-  in
-  Lwt.return_unit
-
 let api_token = ref ""
 let api_root = "../api/"
 
