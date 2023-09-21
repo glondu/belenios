@@ -66,7 +66,7 @@ type 'a raw_xhr_helper =
 val delete_with_token : ?ifmatch:string -> 'a raw_xhr_helper
 val post_with_token : ?ifmatch:string -> string -> 'a raw_xhr_helper
 val put_with_token : ifmatch:string -> string -> 'a raw_xhr_helper
-val get : (string -> 'a) -> ('b, ('a, xhr_result) result) xhr_helper
+val get : (string -> 'a) -> ('b, ('a * string, xhr_result) result) xhr_helper
 
 (** Error handling *)
 
@@ -118,6 +118,6 @@ val is_finished : unit -> bool
 
 (** Misc *)
 
-val compute_ifmatch : ('a -> string) -> ('a, 'b) result -> string option
+val get_ifmatch : ('a * string, 'b) result -> string option
 val popup_failsync : string -> unit Lwt.t
 val url_prefix : unit -> string

@@ -74,7 +74,7 @@ let popup_choose_elec handler () =
       in
       alert msg;
       Lwt.return_unit
-  | Ok elections ->
+  | Ok (elections, _) ->
       let name_uuids =
         elections
         |> List.filter (fun x ->
@@ -166,7 +166,7 @@ let nb_shufflers () =
   | Error e ->
       alert (string_of_error e);
       Lwt.return 0
-  | Ok tt -> Lwt.return @@ List.length tt.shuffles_shufflers
+  | Ok (tt, _) -> Lwt.return @@ List.length tt.shuffles_shufflers
 
 let default_handler tab () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -1251,7 +1251,7 @@ let credauth_content () =
         | Error _ ->
             alert "Failed to get token";
             Lwt.return @@ div []
-        | Ok token ->
+        | Ok (token, _) ->
             let link =
               url_prefix () ^ "/draft/credentials.html#" ^ uuid ^ "-" ^ token
             in
@@ -1278,7 +1278,7 @@ let credauth_content () =
     in
     match priv with
     | Error _ -> Lwt.return @@ div [ txt "Error" ]
-    | Ok p ->
+    | Ok (p, _) ->
         let data =
           string_of_private_credentials p |> Js_of_ocaml.Url.urlencode
         in
@@ -1405,11 +1405,9 @@ let voterspwd_content () =
                                let* voters =
                                  Cache.get_until_success Cache.voters
                                in
-                               let ifmatch =
-                                 compute_ifmatch (fun x -> x) (Ok "[]")
-                               in
+                               let ifmatch = sha256_b64 "[]" in
                                let* _ =
-                                 post_with_token ?ifmatch
+                                 post_with_token ~ifmatch
                                    (string_of_voter_list voters)
                                    "drafts/%s/passwords" uuid
                                in

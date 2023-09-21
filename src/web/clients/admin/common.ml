@@ -136,8 +136,9 @@ let get of_string url =
       let* x = perform_raw_url ~headers (api_root ^ x) in
       match x.code with
       | 200 ->
+          let ifmatch = sha256_b64 x.content in
           let@ x = Option.unwrap bad_result (Option.wrap of_string x.content) in
-          Lwt.return @@ Ok x
+          Lwt.return @@ Ok (x, ifmatch)
       | _ ->
           let x =
             match request_status_of_string x.content with
@@ -170,8 +171,7 @@ let with_ok what x f =
       Lwt.return [ txt msg ]
   | Ok x -> f x
 
-let compute_ifmatch to_string x =
-  match x with Error _ -> None | Ok x -> Some (x |> to_string |> sha256_b64)
+let get_ifmatch x = match x with Error _ -> None | Ok (_, x) -> Some x
 
 (* Global information for remembering which subpage is visited. *)
 

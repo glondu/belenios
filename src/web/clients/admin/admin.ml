@@ -54,7 +54,7 @@ let header () =
     | Election { uuid; status = Draft; _ } -> (
         let* x = get draft_of_string "drafts/%s" (Uuid.unwrap uuid) in
         match x with
-        | Ok draft ->
+        | Ok (draft, _) ->
             Lwt.return
               ( s_ "Setup: " ^ draft.draft_questions.t_name,
                 draft.draft_questions.t_description )
@@ -64,7 +64,7 @@ let header () =
           get Yojson.Safe.from_string "elections/%s/election" (Uuid.unwrap uuid)
         in
         match x with
-        | Ok election ->
+        | Ok (election, _) ->
             let name =
               match election with
               | `Assoc o -> (
@@ -134,7 +134,7 @@ let newdraft () =
     | Error e ->
         alert ("Failed to retrieve account info: " ^ string_of_error e);
         Lwt.return None
-    | Ok c -> Lwt.return @@ Some c
+    | Ok (c, _) -> Lwt.return @@ Some c
   in
   Lwt.return
   @@
@@ -183,7 +183,7 @@ let election_a2 x kind =
 let list_draft () =
   let open (val !Belenios_js.I18n.gettext) in
   let* x = get summary_list_of_string "drafts" in
-  let@ drafts = with_ok "drafts" x in
+  let@ drafts, _ = with_ok "drafts" x in
   drafts
   |> List.sort (fun a b -> compare b.summary_date a.summary_date)
   |> List.map (fun x -> li [ election_a2 x Draft ])
@@ -200,7 +200,7 @@ let list_elec () =
       in
       let x () = [ div [ txt msg ] ] in
       Lwt.return (x (), x ())
-  | Ok elections ->
+  | Ok (elections, _) ->
       let make title kind =
         List.filter
           (fun x -> match x.summary_kind with Some y -> kind y | _ -> false)
@@ -283,7 +283,7 @@ let rec page_body () =
       (s_ "Create a new election")
       (fun () ->
         let* x = get summary_list_of_string "drafts" in
-        let ifmatch = compute_ifmatch string_of_summary_list x in
+        let ifmatch = get_ifmatch x in
         let* dr = newdraft () in
         match dr with
         | None ->
@@ -396,7 +396,7 @@ let find_kind uuid =
     let* x = get summary_list_of_string "drafts" in
     match x with
     | Error _ -> Lwt.return false
-    | Ok drafts ->
+    | Ok (drafts, _) ->
         Lwt.return @@ List.exists (fun x -> x.summary_uuid = uuid) drafts
   in
   if is_draft then Lwt.return (Some Draft)
@@ -404,7 +404,7 @@ let find_kind uuid =
     let* x = get summary_list_of_string "elections" in
     match x with
     | Error _ -> Lwt.return None
-    | Ok elecs -> (
+    | Ok (elecs, _) -> (
         let e = List.find_opt (fun x -> x.summary_uuid = uuid) elecs in
         match e with
         | None -> Lwt.return None

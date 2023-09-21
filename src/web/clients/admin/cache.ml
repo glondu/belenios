@@ -74,11 +74,11 @@ let get x =
               @@ Error
                    (Printf.sprintf "Got structured error from server, code %d"
                       e.code))
-      | Ok content_str ->
+      | Ok (content_str, ifmatch) ->
           let content = x.of_string content_str in
           x.dirty <- false;
           x.content <- Some content;
-          x.ifmatch <- sha256_b64 content_str;
+          x.ifmatch <- ifmatch;
           Lwt.return @@ Ok content)
   | Some content -> Lwt.return @@ Ok content
 

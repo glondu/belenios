@@ -66,15 +66,12 @@ let get_trustees () =
       (draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
       "drafts/%s/trustees" uuid
   in
-  ifmatch_tt :=
-    compute_ifmatch
-      (string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json)
-      x;
+  ifmatch_tt := get_ifmatch x;
   match x with
   | Error e ->
       alert (string_of_error e);
       Lwt.return_unit
-  | Ok tt -> (
+  | Ok (tt, _) -> (
       match tt with
       | `Basic x ->
           all_trustee := List.map cast_bt_trustee x.bt_trustees;
@@ -503,7 +500,7 @@ let get_trustees_pd () =
   | Error e ->
       alert (string_of_error e);
       Lwt.return_unit
-  | Ok tt ->
+  | Ok (tt, _) ->
       part_dec := Some tt;
       Lwt.return_unit
 
@@ -568,7 +565,7 @@ let get_shuffles () =
   | Error e ->
       alert (string_of_error e);
       Lwt.return_unit
-  | Ok tt ->
+  | Ok (tt, _) ->
       shuffles := Some tt;
       Lwt.return_unit
 
