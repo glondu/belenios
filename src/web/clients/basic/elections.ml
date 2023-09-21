@@ -31,10 +31,10 @@ open Common
 let rec show main uuid =
   let@ () = show_in main in
   let* x = get (fun x -> x) "elections/%s/election" uuid in
-  let@ raw_election = with_ok "election" x in
+  let@ raw_election, _ = with_ok "election" x in
   let* x = get election_status_of_string "elections/%s" uuid in
-  let ifmatch = compute_ifmatch string_of_election_status x in
-  let@ status = with_ok "status" x in
+  let ifmatch = get_ifmatch x in
+  let@ status, _ = with_ok "status" x in
   let make label request =
     let@ () = button label in
     let* x =
@@ -74,8 +74,7 @@ let rec show main uuid =
     let* x =
       get election_auto_dates_of_string "elections/%s/automatic-dates" uuid
     in
-    let@ dates = with_ok "automatic-dates" x in
-    let ifmatch = sha256_b64 (string_of_election_auto_dates dates) in
+    let@ dates, ifmatch = with_ok "automatic-dates" x in
     let make_input d =
       let value =
         match d with
@@ -138,7 +137,7 @@ let rec show main uuid =
   in
   let make of_string to_string what =
     let* x = get of_string "elections/%s/%s" uuid what in
-    let@ voters = with_ok what x in
+    let@ voters, _ = with_ok what x in
     let t, _ = textarea (to_string voters) in
     Lwt.return [ t ]
   in

@@ -41,7 +41,7 @@ let show main uuid =
           (string_of_error e)
       in
       Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
-  | Ok draft ->
+  | Ok (draft, _) ->
       let* voters =
         let* x = get voter_list_of_string "drafts/%s/voters" uuid in
         match x with
@@ -52,7 +52,7 @@ let show main uuid =
                 (string_of_error e)
             in
             Lwt.return @@ div [ txt msg ]
-        | Ok xs ->
+        | Ok (xs, _) ->
             let fingerprint = Voter.list_to_string xs |> sha256_b64 in
             let fingerprint =
               Printf.sprintf

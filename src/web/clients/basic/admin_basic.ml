@@ -85,16 +85,15 @@ let rec show_root main =
   let@ () = show_in main in
   let* configuration, configuration_opt =
     let* x = get configuration_of_string "configuration" in
-    let@ c = with_ok_opt "configuration" x in
+    let@ c, _ = with_ok_opt "configuration" x in
     Lwt.return [ txt (string_of_configuration c) ]
   in
   let* account, account_opt =
     let* x = get api_account_of_string "account" in
-    let@ account = with_ok_opt "account" x in
+    let@ account, ifmatch = with_ok_opt "account" x in
     let account_str = string_of_api_account account in
     let t, tget = textarea ~rows:2 account_str in
     let b =
-      let ifmatch = sha256_b64 account_str in
       let@ () = button "Save changes" in
       let* x = put_with_token ~ifmatch (tget ()) "account" in
       let@ () = show_in main in
@@ -109,9 +108,8 @@ let rec show_root main =
     Lwt.return [ div [ t ]; div [ b ] ]
   in
   let* x = get summary_list_of_string "drafts" in
-  let ifmatch = compute_ifmatch string_of_summary_list x in
+  let@ drafts, ifmatch = with_ok "drafts" x in
   let* drafts =
-    let@ drafts = with_ok "drafts" x in
     drafts
     |> List.sort (fun a b -> compare b.summary_date a.summary_date)
     |> List.map (fun x -> li [ draft_a x ])
@@ -127,7 +125,7 @@ let rec show_root main =
         in
         let x () = [ txt msg ] in
         Lwt.return (x (), x (), x ())
-    | Ok elections ->
+    | Ok (elections, _) ->
         let make kind =
           List.filter (fun x -> x.summary_kind = Some kind) elections
           |> List.sort (fun a b -> compare b.summary_date a.summary_date)
@@ -171,7 +169,7 @@ let rec show_root main =
     let b =
       let@ () = button "Create new draft" in
       let* x =
-        post_with_token ?ifmatch (tget ()) "drafts" |> wrap uuid_of_string
+        post_with_token ~ifmatch (tget ()) "drafts" |> wrap uuid_of_string
       in
       match x with
       | Ok uuid ->

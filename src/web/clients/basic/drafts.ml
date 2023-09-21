@@ -55,10 +55,9 @@ let show_draft_main show_all uuid draft container =
 let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
-  let@ voters = with_ok "voters" x in
+  let@ voters, ifmatch = with_ok "voters" x in
   let voters_str = string_of_voter_list voters in
   let t, tget = textarea voters_str in
-  let ifmatch = sha256_b64 voters_str in
   let b =
     let@ () = button "Save changes" in
     let* x = put_with_token ~ifmatch (tget ()) "drafts/%s/voters" uuid in
@@ -85,10 +84,9 @@ let rec show_draft_voters uuid draft container =
 let rec show_draft_passwords uuid container =
   let@ () = show_in container in
   let* x = get voter_list_of_string "drafts/%s/voters" uuid in
-  let@ voters = with_ok "voters" x in
+  let@ voters, _ = with_ok "voters" x in
   let* x = get string_list_of_string "drafts/%s/passwords" uuid in
-  let ifmatch = compute_ifmatch string_of_string_list x in
-  let@ x = with_ok "passwords" x in
+  let@ x, ifmatch = with_ok "passwords" x in
   let missing =
     let x =
       List.fold_left
@@ -105,7 +103,7 @@ let rec show_draft_passwords uuid container =
   let t2, t2get = textarea (string_of_string_list missing) in
   let b =
     let@ () = button "Generate and send passwords" in
-    let* x = post_with_token ?ifmatch (t2get ()) "drafts/%s/passwords" uuid in
+    let* x = post_with_token ~ifmatch (t2get ()) "drafts/%s/passwords" uuid in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_passwords uuid container)
   in
@@ -131,7 +129,7 @@ let rec show_draft_credentials uuid container =
             generic_proceed x (fun () -> show_draft_credentials uuid container)
           in
           Lwt.return [ b ]
-      | Some token ->
+      | Some (token, _) ->
           let link =
             Js.to_string Dom_html.window##.location##.href ^ "@" ^ token
           in
@@ -148,7 +146,7 @@ let rec show_draft_credentials uuid container =
               txt " ";
               txt link;
             ])
-  | Some x ->
+  | Some (x, _) ->
       let t, _ = textarea (string_of_public_credentials x) in
       Lwt.return [ t ]
 
@@ -162,12 +160,7 @@ let rec show_draft_trustees uuid container =
       (draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
       "drafts/%s/trustees" uuid
   in
-  let ifmatch =
-    compute_ifmatch
-      (string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json)
-      x
-  in
-  let@ trustees = with_ok "trustees" x in
+  let@ trustees, ifmatch = with_ok "trustees" x in
   let mode =
     match trustees with
     | `Basic _ -> "basic"
@@ -194,7 +187,7 @@ let rec show_draft_trustees uuid container =
             Lwt.return_unit
       in
       let* x =
-        post_with_token ?ifmatch
+        post_with_token ~ifmatch
           (string_of_trustees_request request)
           "drafts/%s/trustees" uuid
       in
@@ -239,7 +232,7 @@ let rec show_draft_trustees uuid container =
     let@ () = button "Add trustee" in
     let r = `Add (trustee_of_string Yojson.Safe.read_json (t2get ())) in
     let* x =
-      post_with_token ?ifmatch
+      post_with_token ~ifmatch
         (string_of_trustees_request r)
         "drafts/%s/trustees" uuid
     in
@@ -252,7 +245,7 @@ let rec show_draft_trustees uuid container =
       let@ () = button "Import trustees" in
       let r = `Import (Uuid.wrap (iget ())) in
       let* x =
-        post_with_token ?ifmatch
+        post_with_token ~ifmatch
           (string_of_trustees_request r)
           "drafts/%s/trustees" uuid
       in
@@ -267,7 +260,7 @@ let rec show_draft_trustees uuid container =
 let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = get draft_status_of_string "drafts/%s/status" uuid in
-  let@ status = with_ok "status" x in
+  let@ status, _ = with_ok "status" x in
   let t, _ = textarea (string_of_draft_status status) in
   let b label r =
     let@ () = button label in
@@ -329,7 +322,7 @@ let show main uuid tab context =
             (string_of_error e)
         in
         Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
-    | Ok draft ->
+    | Ok (draft, _) ->
         let title = h2 [] in
         let container = div [] in
         let* () =
