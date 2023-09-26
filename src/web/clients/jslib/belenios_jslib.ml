@@ -29,26 +29,6 @@ open Signatures
 open Serializable_j
 open Belenios_js.Common
 
-let computeFingerprint = sha256_b64
-let checkCredential = Credential.check
-
-let encryptBallot election cred plaintext success failure =
-  let module P = (val election : ELECTION) in
-  let module G = P.G in
-  let module Cred =
-    Credential.Make (Random) (G)
-      (struct
-        let uuid = P.election.e_uuid
-      end)
-  in
-  match Cred.derive cred with
-  | Ok sk ->
-      let b = P.E.create_ballot ~sk plaintext in
-      let ballot = P.string_of_ballot b in
-      let tracker = sha256_b64 ballot in
-      success ballot tracker
-  | Error _ -> failure "invalid credential"
-
 class type renderingFunctions = object
   method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
   method br : int -> Js.Unsafe.any Js.meth
@@ -58,16 +38,37 @@ class type renderingFunctions = object
   method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
 end
 
+module type ELECTION_WITH_SK = sig
+  include ELECTION
+
+  val sk : G.Zq.t
+end
+
+class type checkCredentialCallbacks = object
+  method success : (module ELECTION_WITH_SK) -> unit Js.meth
+  method failure : Js.js_string Js.t -> unit Js.meth
+  method invalid : unit -> unit Js.meth
+  method maybePassword : unit -> unit Js.meth
+end
+
+class type encryptBallotCallbacks = object
+  method success : Js.js_string Js.t -> Js.js_string Js.t -> unit Js.meth
+  method failure : Js.js_string Js.t -> unit Js.meth
+end
+
 class type belenios = object
-  method computeFingerprint : Js.js_string Js.t -> Js.js_string Js.t Js.meth
-  method checkCredential : Js.js_string Js.t -> bool Js.t Js.meth
+  method computeFingerprint : Js.Unsafe.any Js.t -> Js.js_string Js.t Js.meth
+
+  method checkCredential :
+    Js.Unsafe.any ->
+    Js.js_string Js.t ->
+    checkCredentialCallbacks Js.t ->
+    unit Js.meth
 
   method encryptBallot :
+    (module ELECTION_WITH_SK) ->
     Js.js_string Js.t ->
-    Js.js_string Js.t ->
-    Js.js_string Js.t ->
-    (Js.js_string Js.t -> Js.js_string Js.t -> unit) Js.callback ->
-    (Js.js_string Js.t -> unit) Js.callback ->
+    encryptBallotCallbacks Js.t ->
     unit Js.meth
 
   method markup :
@@ -77,28 +78,10 @@ end
 let belenios : belenios Js.t =
   object%js
     method computeFingerprint x =
-      Js._JSON##stringify x |> Js.to_string |> computeFingerprint |> Js.string
+      Js._JSON##stringify x |> Js.to_string |> sha256_b64 |> Js.string
 
-    method checkCredential cred =
-      if checkCredential (Js.to_string cred) then Js._true else Js._false
-
-    method encryptBallot params cred plaintext success failure =
-      let success ballot tracker =
-        let () =
-          Js.Unsafe.fun_call success
-            [|
-              Js.Unsafe.inject (Js.string ballot);
-              Js.Unsafe.inject (Js.string tracker);
-            |]
-        in
-        Lwt.return_unit
-      in
-      let failure error =
-        let () =
-          Js.Unsafe.fun_call failure [| Js.Unsafe.inject (Js.string error) |]
-        in
-        Lwt.return_unit
-      in
+    method checkCredential params cred
+        (callbacks : checkCredentialCallbacks Js.t) =
       Lwt.async (fun () ->
           Lwt.catch
             (fun () ->
@@ -108,15 +91,49 @@ let belenios : belenios Js.t =
               end in
               let module W = Election.Make (R) (Random) () in
               let* () = Lwt_js.yield () in
+              let module Cred =
+                Credential.Make (Random) (W.G)
+                  (struct
+                    let uuid = W.election.e_uuid
+                  end)
+              in
+              let () =
+                match Cred.derive (Js.to_string cred) with
+                | Ok sk ->
+                    let module X : ELECTION_WITH_SK = struct
+                      include W
+
+                      let sk = sk
+                    end in
+                    callbacks##success (module X : ELECTION_WITH_SK)
+                | Error `Invalid -> callbacks##invalid ()
+                | Error `MaybePassword -> callbacks##maybePassword ()
+              in
+              Lwt.return_unit)
+            (fun e ->
+              callbacks##failure (Printexc.to_string e |> Js.string);
+              Lwt.return_unit))
+
+    method encryptBallot election plaintext
+        (callbacks : encryptBallotCallbacks Js.t) =
+      Lwt.async (fun () ->
+          Lwt.catch
+            (fun () ->
+              let* () = Lwt_js.yield () in
+              let open (val election : ELECTION_WITH_SK) in
               let plaintext =
                 Js._JSON##stringify plaintext
                 |> Js.to_string |> plaintext_of_string
               in
               let* () = Lwt_js.yield () in
-              encryptBallot
-                (module W)
-                (Js.to_string cred) plaintext success failure)
-            (fun e -> failure (Printexc.to_string e)))
+              let b = E.create_ballot ~sk plaintext in
+              let ballot = string_of_ballot b in
+              let tracker = sha256_b64 ballot in
+              callbacks##success (Js.string ballot) (Js.string tracker);
+              Lwt.return_unit)
+            (fun e ->
+              callbacks##failure (Printexc.to_string e |> Js.string);
+              Lwt.return_unit))
 
     method markup (p : renderingFunctions Js.t) x =
       let open Belenios_ui in

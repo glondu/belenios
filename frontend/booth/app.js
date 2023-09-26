@@ -91,6 +91,8 @@ function TranslatableVoteApp({
   const [electionObject, setElectionObject] = React.useState(undefined);
   const [electionFingerprint, setElectionFingerprint] = React.useState("");
   const [credential, setCredential] = React.useState(votingCredential);
+  const electionModule = React.useRef(null);
+  const [firstLoad, setFirstLoad] = React.useState(true);
   const [electionLoadingStatus, setElectionLoadingStatus] = React.useState(0); // 0: not yet loaded. 1: loaded with success. 2: loaded with error.
   const [electionLoadingErrorMessage, setElectionLoadingErrorMessage] =
     React.useState(null);
@@ -135,6 +137,30 @@ function TranslatableVoteApp({
       loadElectionDataFromUuid(uuid, draft);
     }
   }, [uuid]);
+
+  const changeCredential = (credential) => {
+    const invalid = () => {
+      alert(t("alert_invalid_credential"));
+      setCredential(null);
+      setCurrentStep(1);
+    };
+    const callbacks = {
+      success: (election) => {
+        electionModule.current = election;
+        setCredential(credential);
+        setCurrentStep(2);
+      },
+      failure: (error) => {
+        alert("Error: " + error);
+        setCredential(null);
+        setCurrentStep(1);
+      },
+      invalid,
+      maybePassword: invalid,
+    };
+    setFirstLoad(false);
+    belenios.checkCredential(electionData, credential, callbacks);
+  };
 
   if (!uuid && electionLoadingStatus == 0) {
     const onClickLoadFromParameters = (election_params) => {
@@ -202,17 +228,13 @@ function TranslatableVoteApp({
         },
         e(InputCredentialSection, {
           onSubmit: function (credential) {
-            if (belenios.checkCredential(credential) === true) {
-              setCredential(credential);
-              setCurrentStep(2);
-            } else {
-              alert(t("alert_invalid_credential"));
-            }
+            changeCredential(credential);
             return false;
           },
         }),
       );
     } else if (currentStep === 2) {
+      if (firstLoad && credential) changeCredential(credential);
       return e(
         VotePage,
         {
@@ -232,20 +254,20 @@ function TranslatableVoteApp({
             setCryptedBallotBeforeReview(null);
             setSmartBallotTracker(null);
             setCurrentStep(3);
-            const encryptBallotSuccessCallback = (ballot, tracker) => {
-              setCryptedBallotBeforeReview(ballot);
-              setSmartBallotTracker(tracker);
-            };
-            const encryptBallotErrorCallback = (error) => {
-              alert("Error: " + error);
+            const callbacks = {
+              success: (ballot, tracker) => {
+                setCryptedBallotBeforeReview(ballot);
+                setSmartBallotTracker(tracker);
+              },
+              failure: (error) => {
+                alert("Error: " + error);
+              },
             };
             setTimeout(function () {
               belenios.encryptBallot(
-                electionData,
-                credential,
+                electionModule.current,
                 voterSelectedAnswersAsUncryptedBallot,
-                encryptBallotSuccessCallback,
-                encryptBallotErrorCallback,
+                callbacks,
               );
             }, 50);
           },
