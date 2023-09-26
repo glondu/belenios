@@ -33,20 +33,20 @@ Instructions for the voter
 --------------------------
 
 Before the election starts, the voter receives an email that contains
-his private `credential` and the `url` of the election. The election
+their private `credential` and the `url` of the election. The election
 page displays the opening time when it is not yet open.
 
 During the election, a voter can visit the election page and vote as
 follows:
 
-- he enters his private `credential`
-- he can then see the questions and select his candidates
-- his computer encrypts his choices
+- they enter their private `credential`
+- they can then see the questions and select their candidates
+- their computer encrypts their choices
 (with a Javascript program) and prints a `smart ballot tracker` which is
 a fingerprint of the ballot. This `smart ballot tracker` is also sent by
-email to the voter when he has completed the voting procedure.
-- once the voter has reviewed his choices, he has to authenticate
-  himself by first entering his email address. He then receives a
+email to the voter when they have completed the voting procedure.
+- once the voter has reviewed their choices, they have to authenticate
+  themself. To do so, they then receive a
   one-time password by email, that should be entered into the voting
   interface. Other authentication means may be used (for example, a
   password may be sent before the start of the election).
@@ -54,28 +54,28 @@ email to the voter when he has completed the voting procedure.
 
 The Belenios system is *verifiable*.
 
-- a voter may check that his ballot is indeed taken into account, by 
-looking for his `smart ballot tracker` on the ballot box,
+- a voter may check that their ballot is indeed taken into account, by
+looking for their `smart ballot tracker` on the ballot box,
 visiting the link `See accepted ballots` on the main page of the
-election. He must complain if this is not the case.
+election. They must complain if this is not the case.
 For even more security, the voter can perform this check
 with another device, possibly from a different location.
 If a voter votes several times, only the last smart ballot tracker
 appears on the ballot box.
 
-- The voter must also vehemently protest if he receives a
+- The voter must also vehemently protest if they receive a
 confirmation email that contains a `smart ballot tracker` that is
 different from the one that was printed on the screen during the voting
-phase. Somebody probably managed to add a ballot in his name. This can
+phase. Somebody probably managed to add a ballot in their name. This can
 for instance be a hint of an attack by a system administrator who has
-access to the mailbox of the voter, in the case where both the login /
-password and the credential are sent to the same address.
+access to the mailbox of the voter, in the case where both the
+credential and the one-time password are sent to the same address.
 
 
 
 A voter can also verify the whole voting process. Instead of checking only
-the presence of his ballot in the ballot box, he can verify the validity
-of all the ballots, he can monitor the ballot box to check that no ballot
+the presence of their ballot in the ballot box, they can verify the validity
+of all the ballots, they can monitor the ballot box to check that no ballot
 disappears (except in case of revote), and finally check that the claimed
 result corresponds to the ballots in the ballot box. For all of this, the
 voter can follow the auditor instructions below.
@@ -95,60 +95,75 @@ string):
 
 Moreover, it is expected that the trustee saves:
 
-- her decryption key (or PKI key, in threshold mode) (file
+- their decryption key (or PKI key, in threshold mode) (file
   `private_key.json` or `private_key.txt`). **This key must be saved in a
   secure place** (encrypted container, USB stick stored in a closed place,
   etc) because it protects the secret of the votes (in combination with
   the decryption keys of the other trustees);
 - the `url` of the election;
-- (in threshold mode) the fingerprint of her PKI public key, simply
+- (in threshold mode) the fingerprint of their PKI public key, simply
   called `public key` below;
-- the fingerprint of her verification key associated to her decryption
+- the fingerprint of their verification key associated to their decryption
   key `verification key`.
+
+To ensure that the decryption authorities have generated their key
+correctly, the election administrator may, before the start of the
+election, ask each authority to verify that they have their decryption
+key. In this case, the decryption authority receives a URL of the
+form:
+
+    PREFIX/static/checkpriv.html#UUID
+
+and is prompted to enter their decryption key. The authority must
+check that the `UUID` of the election displayed is correct and that
+their name appears correctly after clicking on `Verify private
+key`. The decryption authority must *never* enter their decryption key
+outside of this verification step (with the URL indicated above) and
+the decryption step (see below).
 
 As soon as the election is ready, it is expected that the trustee checks:
 
-- that her `verification key` is present on the election page, next to her
+- that their `verification key` is present on the election page, next to their
   name;
-- (in threshold mode) that her PKI `public key` is present on the
-  election page, next to her name.
+- (in threshold mode) that their PKI `public key` is present on the
+  election page, next to their name.
 
 After the closing of the election, the trustee participates to the
 computation of the tally. In the case of an election with alternative
 voting (ordering of the candidates, giving them a grade), the tally
 starts by a shuffle phase. For this, it is expected from the trustee that
-she:
+they:
 
-- checks that the URL of the page has the following form:
+- check that the URL of the page has the following form:
   `PREFIX/election/shuffle.html#UUID-TOKEN`;
-- saves the fingerprint of the ballot box after her shuffle: `fingerprint
+- save the fingerprint of the ballot box after their shuffle: `fingerprint
   of your shuffle`;
-- checks immediately thereafter that this fingerprint is present on the
-  page of the election (to ensure that her shuffle has not be ignored).
+- check immediately thereafter that this fingerprint is present on the
+  page of the election (to ensure that their shuffle has not be ignored).
 
 In all cases, the tally then proceeds with a phase where the trustee uses
-her private key to decrypt the result. It is expected that the trustee:
+their private key to decrypt the result. It is expected that the trustee:
 
-- checks that the URL of the page has the following form:
+- check that the URL of the page has the following form:
   `PREFIX/election/trustees.html#UUID-TOKEN`;
-- checks (only for alternative voting) the fingerprint of her shuffle
+- check (only for alternative voting) the fingerprint of their shuffle
   `fingerprint of your shuffle` as saved in the previous step is present
-  on the page of the election, next to her name. If this is not the case,
+  on the page of the election, next to their name. If this is not the case,
   the private key must not be used;
-- saves the fingerprint of the ballot box to be decrypted: `fingerprint
+- save the fingerprint of the ballot box to be decrypted: `fingerprint
   of the encrypted tally`.
 
 
 Once the tally is finished, the results are published on the page of the
 election. It is expected that the trustee:
 
-- **destroys** her decryption key;
+- **destroys** their decryption key;
 - checks that the following data
-are present on this page, each time associated to her name:
+are present on this page, each time associated to their name:
 
-- (in threshold mode) her PKI `public key`;
-- her `verification key`;
-- (for alternative voting) the fingerprint of her shuffle;
+- (in threshold mode) their PKI `public key`;
+- their `verification key`;
+- (for alternative voting) the fingerprint of their shuffle;
 - the fingerprint of the ballot box to be decrypted `fingerprint of the
   encrypted tally` (in order to check that her private key has not be
   used to decrypt something else).
@@ -161,7 +176,7 @@ The main role of the credential authority is to generate and transmit
 a private credential to each voter.
 
 **Setup.** During the setup of the election, the credential authority
-first obtains a private link. She must follow the link, and make sure
+first obtains a private link. They must follow the link, and make sure
 the URL of the resulting page has the following form:
 `PREFIX/draft/credentials.html#UUID-TOKEN`.
 
@@ -172,7 +187,7 @@ vote;
 
 Then the authority has two options to generate the credentials:
 
-- either click on `Generate` on her browser;
+- either click on `Generate` on their browser;
 - or:
   - copy the voter list to a file, e.g. `voter.txt`;
   - let `$UUID` be the identifier of the election (the last component
@@ -205,12 +220,12 @@ During this step, it is expected that the credential authority saves:
 - the `fingerprint of the public credentials`.
 
 The credential authority is in charge of sending the credentials to the
-voters. She must include the `url` of the election in the message that
-she sends (by email, by postal mail). For sending the credentials by
+voters. They must include the `url` of the election in the message that
+they send (by email, by postal mail). For sending the credentials by
 email, it is possible to use the `contrib/send_credentials.py` script
 included in the Belenios sources (see the auditor section below for how
 to get the sources). After editing this program according to the appropriate
-settings, she can run it:
+settings, they can run it:
 
     contrib/send_credentials.py
 
@@ -226,10 +241,10 @@ expected that the credential authority:
   commands suggested [here](#hash);
 
 - verifies that the fingerprint of the list of the public credentials
-  corresponds to the one displayed close to his name;
+  corresponds to the one displayed close to their name;
 
 - during the election, the credential authority can, when a voter asks,
-  send him again his private credential if he lost it.
+  send them again their private credential if they lost it.
 
 
 **After the tally.** At the end of the election, in order to validate the records, it is
@@ -252,7 +267,7 @@ Once the election is finished and validated, it is expected that the
 credential authority:
 
 - destroys the file `creds.txt`. Indeed, this file gives the link between
-  a voter and his (encrypted) ballot. This link could compromise the vote
+  a voter and their (encrypted) ballot. This link could compromise the vote
   secrecy in the long term, for instance if the encryption keys become
   too small for the computing power in the future (or if a quantum
   computer becomes available...).
@@ -332,7 +347,7 @@ downloaded, in the form of a `git` repository.
 In order to check that the HTML/Javascript codes used by voters,
 decryption trustees, and credential authorities are
 not modified by a corrupted server, the auditor needs to find out the
-"right" code for each of these programs. She will then make sure the server
+"right" code for each of these programs. They will then make sure the server
 delivers these files uncorrupted. First, a template must be
 prepared: we just copy it from the Belenios sources:
 
@@ -451,10 +466,16 @@ The important points for the administrator are the following:
 - to verify that all the participants use the same `url` for the
   election;
 - if the administrator did not commission someone as a credential authority,
-  she must download the list of private credentials (`Download private
+  they must download the list of private credentials (`Download private
   credentials`) in order to be able to send again the credential to a
   voter who has lost it. For better security, though, it is preferred to
   commission a third party to play the role of credential authority.
+- if external election authorities are used (highly recommended for
+  vote privacy), make sure that they have correctly stored their
+  private key, otherwise it will not be possible to tally the
+  election. For this, click on `Check private key ownership`, send
+  the obtained link to the authorities, and make sure the test was
+  sucessful, with the display of the name of the authority.
 
 For getting the best security level, the administrator must have:
 

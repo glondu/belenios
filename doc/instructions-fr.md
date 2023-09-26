@@ -46,8 +46,8 @@ l'aide d'un programme JavaScript) et affiche à l'électeur un `numéro
 de suivi`, qui est une empreinte du bulletin. Ce `numéro de suivi` est
 également envoyé par mail lorsque l'électeur a fini de voter.
 - une fois que l'électeur a vérifié ses choix, il est invité à
-  s'authentifier en saisissant son adresse mail. Il reçoit alors un
-  mot de passe éphémère à son adresse, qu'il saisit dans l'interface de
+  s'authentifier. Il reçoit alors un
+  mot de passe éphémère à son adresse email, qu'il saisit dans l'interface de
   vote. D'autres moyens d'authentification sont possibles (par exemple
   un envoi préalable d'un mot de passe suivant les élections).
 - note : un électeur peut voter à nouveau. Seul le *dernier* vote est pris
@@ -109,6 +109,21 @@ De plus, il est attendu que l'autorité de déchiffrement sauvegarde :
 - (en mode threshold) l'empreinte de sa clé publique de PKI `clé publique`;
 - l'empreinte de sa clé vérification associée à sa clé de
   déchiffrement `clé de vérification`.
+
+Pour s'assurer que les autorités de déchiffrement ont correctement
+généré leur clé, l'administrateur de l'élection peut, avant le début
+de l'élection, demander à chaque autorité de vérifier qu'elle possède
+bien sa clé de déchiffrement. Dans ce cas, l'autorité de déchiffrement
+reçoit une URL de la forme
+
+    PREFIXE/static/checkpriv.html#UUID
+
+et est invitée à entrer sa clé de déchiffrement. L'autorité doit
+vérifier que l'`UUID` de l'élection affichée est correcte et que c'est
+bien son nom qui apparait après avoir cliqué sur `Vérifier la clé
+privée`. L'autorité de déchiffrement ne doit *jamais* entrer sa clé de
+déchiffrement en dehors de cette étape de vérification (avec l'URL
+indiquée ci-dessus) et de l'étape de dépouillement (voir ci-dessous).
 
 Dès que l'élection est prête,  il est attendu que l'autorité de
 déchiffrement vérifie :
@@ -478,6 +493,15 @@ la liste des codes de vote (`Télécharger les parties privées des codes de vot
 pouvoir renvoyer son code de vote à un électeur qui l'aurait
 perdu. D'un point de vue sécurité, il est cependant préférable de
 déléguer la génération des codes de vote à une tierce personne.
+- s'il y a des autorités externes de déchiffrement (fortement
+  recommandé pour le secret du vote), l'administrateur de l'élection
+  doit s'assurer qu'elles ont correctement enregistré leur clé de
+  déchiffrement, sinon l'élection ne pourra pas être dépouillée. Pour
+  cela, il est possible de cliquer sur `Vérifier la possession de la
+  clé privée` dans la page récapitulative de l'élection. Il faut
+  ensuite envoyer le lien obtenu à chaque autorité et s'assurer
+  qu'elles confirment que le test a fonctionné correctement (avec
+  affichage de leur nom).
 
 Pour un niveau de sécurité maximal, l'administrateur de l'élection
 doit disposer :
