@@ -269,7 +269,7 @@ module Credgen : CMDLINER_MODULE = struct
       | Some n, None, None ->
           if n < 1 then
             failcmd "the argument of --count must be a positive number"
-          else `Generate (generate_ids n)
+          else `Generate (Voter.generate n)
       | None, Some f, None ->
           `Generate (string_of_file f |> Voter.list_of_string)
       | None, None, Some c -> `Derive c

@@ -357,9 +357,28 @@ module Voter = struct
   let validate ((_, { address; login; _ }) : t) =
     is_email address
     && match login with None -> true | Some login -> is_username login
-end
 
-let has_explicit_weights voters =
-  List.exists (fun ((_, { weight; _ }) : Voter.t) -> weight <> None) voters
+  let int_length n = string_of_int n |> String.length
+
+  let rec find_first n first =
+    if int_length first = int_length (first + n) then first
+    else find_first n (10 * first)
+
+  let generate n =
+    (* choose the first id so that they all have the same length *)
+    let first = find_first n 1 in
+    let last = first + n - 1 in
+    let rec loop last accu =
+      if last < first then accu
+      else
+        let address = string_of_int last in
+        let x : t = (`Plain, { address; login = None; weight = None }) in
+        loop (last - 1) (x :: accu)
+    in
+    loop last []
+
+  let has_explicit_weights voters =
+    List.exists (fun ((_, { weight; _ }) : t) -> weight <> None) voters
+end
 
 let supported_crypto_versions = [ 1 ]

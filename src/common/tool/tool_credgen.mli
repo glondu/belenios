@@ -12,5 +12,3 @@ module type S = sig
 end
 
 module Make (P : PARAMS) (M : Belenios_core.Signatures.RANDOM) () : S
-
-val generate_ids : int -> Voter.t list

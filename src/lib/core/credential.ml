@@ -121,7 +121,7 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
     { private_cred; private_key }
 
   let generate voters =
-    let implicit_weights = not (has_explicit_weights voters) in
+    let implicit_weights = not (Voter.has_explicit_weights voters) in
     let privs, pubs =
       List.fold_left
         (fun (privs, pubs) v ->

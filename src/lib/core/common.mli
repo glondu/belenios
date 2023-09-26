@@ -112,7 +112,8 @@ module Voter : sig
   val list_of_string : string -> t list
   val get : t -> string * string * Weight.t
   val validate : t -> bool
+  val generate : int -> t list
+  val has_explicit_weights : t list -> bool
 end
 
-val has_explicit_weights : Voter.t list -> bool
 val supported_crypto_versions : int list

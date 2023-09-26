@@ -694,7 +694,7 @@ let raw_get_voter_cache uuid =
         SMap.add (String.lowercase_ascii login) x accu)
       SMap.empty voters
   in
-  let has_explicit_weights = Belenios_core.Common.has_explicit_weights voters in
+  let has_explicit_weights = Voter.has_explicit_weights voters in
   let username_or_address =
     match voters with
     | [] -> `Username
