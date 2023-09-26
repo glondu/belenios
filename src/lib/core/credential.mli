@@ -23,8 +23,6 @@ open Signatures
 open Serializable_t
 open Common
 
-val check : string -> bool
-
 type batch = {
   private_creds : private_credentials;
   public_creds : public_credentials;

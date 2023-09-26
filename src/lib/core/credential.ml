@@ -62,9 +62,6 @@ let parse x =
     if x.[5] = '-' && x.[11] = '-' then `MaybePassword else `Invalid)
   else `Invalid
 
-let check x =
-  match parse x with `Valid -> true | `Invalid | `MaybePassword -> false
-
 type 'a t = { private_cred : string; private_key : 'a }
 
 type batch = {
