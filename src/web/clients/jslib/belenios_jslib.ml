@@ -58,7 +58,23 @@ class type renderingFunctions = object
   method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
 end
 
-let belenios =
+class type belenios = object
+  method computeFingerprint : Js.js_string Js.t -> Js.js_string Js.t Js.meth
+  method checkCredential : Js.js_string Js.t -> bool Js.t Js.meth
+
+  method encryptBallot :
+    Js.js_string Js.t ->
+    Js.js_string Js.t ->
+    Js.js_string Js.t ->
+    (Js.js_string Js.t -> Js.js_string Js.t -> unit) Js.callback ->
+    (Js.js_string Js.t -> unit) Js.callback ->
+    unit Js.meth
+
+  method markup :
+    renderingFunctions Js.t -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
+end
+
+let belenios : belenios Js.t =
   object%js
     method computeFingerprint x =
       Js._JSON##stringify x |> Js.to_string |> computeFingerprint |> Js.string
@@ -100,8 +116,7 @@ let belenios =
               encryptBallot
                 (module W)
                 (Js.to_string cred) plaintext success failure)
-            (fun e -> failure (Printexc.to_string e)));
-      Js.undefined
+            (fun e -> failure (Printexc.to_string e)))
 
     method markup (p : renderingFunctions Js.t) x =
       let open Belenios_ui in
