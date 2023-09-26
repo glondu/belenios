@@ -310,14 +310,14 @@ struct
 
   let content_type_of_file = function
     | ESRaw -> "application/json; charset=utf-8"
-    | ESETally | ESResult -> "application/json"
+    | ESETally | ESResult | ESSalts -> "application/json"
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
   let handle_pseudo_file ~preload uuid f site_user =
     let* confidential =
       match f with
-      | ESRaw | ESETally | ESArchive _ -> return false
+      | ESRaw | ESETally | ESArchive _ | ESSalts -> return false
       | ESRecords | ESVoters -> return true
       | ESResult -> (
           let* hidden = Web_persist.get_election_result_hidden uuid in

@@ -246,20 +246,42 @@ let split_lines str =
 let parse_public_credential of_string x =
   let open Serializable_core_t in
   match String.split_on_char ',' x with
-  | [ c ] -> { credential = of_string c; weight = None; username = None }
+  | [ c ] ->
+      { credential = of_string c; weight = None; username = None; salt = None }
   | [ c; w ] ->
       {
         credential = of_string c;
         weight = Some (Weight.of_string w);
         username = None;
+        salt = None;
       }
   | [ c; ""; u ] ->
-      { credential = of_string c; weight = None; username = Some u }
+      {
+        credential = of_string c;
+        weight = None;
+        username = Some u;
+        salt = None;
+      }
   | [ c; w; u ] ->
       {
         credential = of_string c;
         weight = Some (Weight.of_string w);
         username = Some u;
+        salt = None;
+      }
+  | [ c; ""; u; s ] ->
+      {
+        credential = of_string c;
+        weight = None;
+        username = Some u;
+        salt = Some s;
+      }
+  | [ c; w; u; s ] ->
+      {
+        credential = of_string c;
+        weight = Some (Weight.of_string w);
+        username = Some u;
+        salt = Some s;
       }
   | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
 
@@ -273,6 +295,7 @@ let format_public_credential to_string x =
 let strip_public_credential x =
   x |> parse_public_credential Fun.id |> format_public_credential Fun.id
 
+let extract_salt x = (parse_public_credential Fun.id x).salt
 let re_exec_opt ~rex x = try Some (Re.Pcre.exec ~rex x) with Not_found -> None
 let username_rex = "^[A-Z0-9._%+-]+$"
 

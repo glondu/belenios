@@ -349,15 +349,27 @@ let generate_credentials_on_server uuid se =
     let module Cred =
       Belenios_core.Credential.Make (Random) (G)
         (struct
+          type 'a t = 'a
+
+          let return x = x
+          let bind x f = f x
           let uuid = uuid
+          let get_salt _ = None
         end)
     in
-    let Belenios_core.Credential.{ private_creds; public_with_ids; _ } =
+    let Belenios_core.Credential.{ private_creds; public_with_ids_and_salts; _ }
+        =
       Cred.generate (List.map (fun v -> v.sv_id) se.se_voters)
     in
     let private_creds = private_creds |> string_of_private_credentials in
     let* () = Web_persist.set_draft_private_credentials uuid private_creds in
-    let* () = Web_persist.set_draft_public_credentials uuid public_with_ids in
+    let* () =
+      Web_persist.set_draft_public_credentials uuid public_with_ids_and_salts
+    in
+    let salts = public_with_ids_and_salts |> List.filter_map extract_salt in
+    let* () =
+      if salts <> [] then Web_persist.set_salts uuid salts else Lwt.return_unit
+    in
     se.se_public_creds_received <- true;
     se.se_pending_credentials <- true;
     let* () = Web_persist.set_draft_election uuid se in
@@ -386,9 +398,9 @@ let submit_public_credentials uuid se credentials =
         else SMap.add username (weight, ref false) accu)
       SMap.empty se.se_voters
   in
-  let _ =
+  let _, _, _, salts =
     List.fold_left
-      (fun (i, accu) x ->
+      (fun (i, creds, saltset, salts) x ->
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
@@ -410,15 +422,26 @@ let submit_public_credentials uuid se credentials =
               if !used then invalid "duplicate username %s" username
               else if Weight.compare w weight <> 0 then
                 invalid "differing weight"
-              else if SSet.mem cred_s accu then invalid "duplicate credential"
+              else if SSet.mem cred_s creds then invalid "duplicate credential"
+              else if
+                match p.salt with None -> false | Some s -> SSet.mem s saltset
+              then invalid "duplicate salt"
               else if not (G.check p.credential) then
                 invalid "public credential"
               else used := true
         in
-        (i + 1, SSet.add cred_s accu))
-      (0, SSet.empty) credentials
+        match p.salt with
+        | None -> (i + 1, SSet.add cred_s creds, saltset, salts)
+        | Some s ->
+            (i + 1, SSet.add cred_s creds, SSet.add s saltset, s :: salts))
+      (0, SSet.empty, SSet.empty, [])
+      credentials
   in
+  let salts = List.rev salts in
   let* () = Web_persist.set_draft_public_credentials uuid credentials in
+  let* () =
+    if salts <> [] then Web_persist.set_salts uuid salts else Lwt.return_unit
+  in
   se.se_public_creds_received <- true;
   Web_persist.set_draft_election uuid se
 

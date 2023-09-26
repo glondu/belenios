@@ -55,6 +55,7 @@ class type encryptBallotCallbacks = object
 end
 
 class type belenios = object
+  method setApiRoot : Js.js_string Js.t -> unit Js.meth
   method computeFingerprint : Js.Unsafe.any Js.t -> Js.js_string Js.t Js.meth
 
   method checkCredential :
@@ -73,8 +74,12 @@ class type belenios = object
     renderingFunctions Js.t -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
 end
 
+let apiRoot = ref "../../../api"
+
 let belenios : belenios Js.t =
   object%js
+    method setApiRoot x = apiRoot := Js.to_string x
+
     method computeFingerprint x =
       Js._JSON##stringify x |> Js.to_string |> sha256_b64 |> Js.string
 
@@ -92,11 +97,21 @@ let belenios : belenios Js.t =
               let module Cred =
                 Credential.Make (Random) (W.G)
                   (struct
+                    type 'a t = 'a Lwt.t
+
+                    let return = Lwt.return
+                    let bind = Lwt.bind
                     let uuid = W.election.e_uuid
+
+                    let get_salt i =
+                      Printf.ksprintf
+                        (get (salt_of_string (sread W.G.of_string)))
+                        "%s/elections/%s/salts/%d" !apiRoot (Uuid.unwrap uuid) i
                   end)
               in
+              let* x = Cred.derive (Js.to_string cred) in
               let () =
-                match Cred.derive (Js.to_string cred) with
+                match x with
                 | Ok sk ->
                     let module X : ELECTION_WITH_SK = struct
                       include W
@@ -108,6 +123,10 @@ let belenios : belenios Js.t =
                     callbacks##failure (Js.string "INVALID_CREDENTIAL") Js.null
                 | Error `MaybePassword ->
                     callbacks##failure (Js.string "MAYBE_PASSWORD") Js.null
+                | Error `Wrong ->
+                    callbacks##failure (Js.string "WRONG_CREDENTIAL") Js.null
+                | Error `MissingSalt ->
+                    callbacks##failure (Js.string "MISSING_SALT") Js.null
               in
               Lwt.return_unit)
             (fun e ->

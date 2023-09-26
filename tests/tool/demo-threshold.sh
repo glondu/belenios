@@ -33,6 +33,7 @@ group="--group Ed25519"
 belenios-tool setup generate-credentials $uuid $group --count 5 | tee generate-credentials.out
 mv *.pubcreds public_creds.json
 mv *.privcreds private_creds.json
+mv *.salts salts.json
 paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-output '.[]' < private_creds.json) > private_creds.txt
 
 # Generate trustee keys

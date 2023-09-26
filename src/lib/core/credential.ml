@@ -25,16 +25,18 @@ open Serializable_t
 open Common
 
 let token_length = 14
+let salt_length = 22 (* > 128 bits of entropy *)
 let n58 = Z.of_int 58
 let n53 = Z.of_int 53
 
 let format x =
-  assert (token_length = 14);
-  assert (String.length x = 15);
-  String.sub x 0 3 ^ "-" ^ String.sub x 3 3 ^ "-" ^ String.sub x 6 3 ^ "-"
-  ^ String.sub x 9 3 ^ "-" ^ String.sub x 12 3
+  assert (String.length x = token_length);
+  Printf.sprintf "%s-%s-%s-%s" (String.sub x 0 3) (String.sub x 3 4)
+    (String.sub x 7 3) (String.sub x 10 4)
 
-let check_raw x =
+let check_old_raw x =
+  String.length x = token_length + 1
+  &&
   let rec loop i accu =
     if i < token_length then
       let& digit = String.index_opt b58_digits x.[i] in
@@ -45,80 +47,103 @@ let check_raw x =
   | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
   | _, _ -> false
 
-let parse x =
-  let n = String.length x in
-  if n = token_length + 1 then if check_raw x then `Valid else `Invalid
-  else if n = token_length + 5 then (
-    assert (n = 19);
-    if x.[3] = '-' && x.[7] = '-' && x.[11] = '-' && x.[15] = '-' then
-      let actual =
-        String.sub x 0 3 ^ String.sub x 4 3 ^ String.sub x 8 3
-        ^ String.sub x 12 3 ^ String.sub x 16 3
-      in
-      if check_raw actual then `Valid else `Invalid
-    else `Invalid)
-  else if n = token_length + 3 then (
-    assert (n = 17);
-    if x.[5] = '-' && x.[11] = '-' then `MaybePassword else `Invalid)
-  else `Invalid
+let check_old xs =
+  List.for_all (fun x -> String.length x = 3) xs
+  && check_old_raw (String.concat "" xs)
 
-type 'a t = { private_cred : string; private_key : 'a }
+let check x n =
+  String.length x = n
+  && String.for_all (fun digit -> String.contains b58_digits digit) x
+
+let parse_raw x =
+  match String.split_on_char '-' x with
+  | [ a ] when check_old_raw a ->
+      (* very old style credential with no "-", e.g. 123456789abcdeN *)
+      `Valid_old
+  | [ _; _; _; _; _ ] as xs when check_old xs ->
+      (* old style credential with "-", e.g. 123-456-789-abc-deN *)
+      `Valid_old
+  | [ _; _; _ ] as xs when List.for_all (fun x -> String.length x = 5) xs ->
+      (* maybe a password, e.g. XXXXX-XXXXX-XXXXX *)
+      `MaybePassword
+  | [ a; b; c; d; e ] when List.for_all2 check [ a; b; c; d ] [ 3; 4; 3; 4 ]
+    -> (
+      (* new style credential with index, e.g. XXX-XXXX-XXX-XXXX-NNNN *)
+      match int_of_string_opt e with
+      | Some e -> `Valid (String.concat "" [ a; b; c; d ], e)
+      | None -> `Invalid)
+  | _ -> `Invalid
+
+type 'a t = { raw : string; private_key : 'a; salt : string }
 
 type batch = {
   private_creds : private_credentials;
   public_creds : public_credentials;
-  public_with_ids : string list;
+  public_with_ids_and_salts : string list;
 }
 
 module type ELECTION = sig
+  type 'a t
+  type public_key
+
+  val return : 'a -> 'a t
+  val bind : 'a t -> ('a -> 'b t) -> 'b t
   val uuid : Uuid.t
+  val get_salt : int -> public_key salt option t
 end
 
 module type S = sig
+  type 'a m
   type private_key
   type public_key
 
   val generate : Voter.t list -> batch
-  val derive : string -> (private_key, [ `Invalid | `MaybePassword ]) result
+
+  val derive :
+    string ->
+    (private_key, [ `Wrong | `Invalid | `MaybePassword | `MissingSalt ]) result
+    m
+
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
-module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
+module Make (R : RANDOM) (G : GROUP) (E : ELECTION with type public_key := G.t) =
+struct
+  module GT = MakeGenerateToken (R)
   module GMap = Map.Make (G)
 
-  let get_random_digit () =
-    let x = R.random n58 in
-    Z.to_int x
+  let ( let* ) = E.bind
 
-  let generate_raw_token () =
-    let res = Bytes.create token_length in
-    let rec loop i accu =
-      if i < token_length then (
-        let digit = get_random_digit () in
-        Bytes.set res i b58_digits.[digit];
-        loop (i + 1) Z.((n58 * accu) + of_int digit))
-      else (Bytes.to_string res, accu)
-    in
-    loop 0 Z.zero
-
-  let add_checksum (raw, value) =
-    let checksum = 53 - Z.(to_int (value mod n53)) in
-    raw ^ String.make 1 b58_digits.[checksum]
-
-  let derive_raw x =
-    let uuid = Uuid.unwrap E.uuid in
-    let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid ~size:1 x in
+  let derive_raw ~salt x =
+    (* TODO: do not depend on uuid *)
+    let salt = Uuid.unwrap E.uuid ^ salt in
+    let derived = pbkdf2_utf8 ~iterations:100000 ~salt ~size:2 x in
     G.Zq.reduce_hex derived
 
-  let derive x =
-    match parse x with
-    | `Valid -> Ok (derive_raw x)
-    | (`Invalid | `MaybePassword) as x -> Error x
-
   let generate_one () =
-    let private_cred = generate_raw_token () |> add_checksum |> format in
-    let private_key = derive_raw private_cred in
-    { private_cred; private_key }
+    (* we generate only new-style credentials *)
+    let raw = GT.generate_token ~length:token_length () in
+    let salt = GT.generate_token ~length:salt_length () in
+    let private_key = derive_raw ~salt raw in
+    { raw = format raw; salt; private_key }
+
+  let derive x =
+    match parse_raw x with
+    | `Valid_old ->
+        let salt = Uuid.unwrap E.uuid in
+        let derived = pbkdf2_utf8 ~iterations:1000 ~salt ~size:1 x in
+        let r = G.Zq.reduce_hex derived in
+        E.return (Ok r)
+    | `Valid (raw, index) -> (
+        let* salt = E.get_salt index in
+        match salt with
+        | None -> E.return (Error `MissingSalt)
+        | Some { salt; public_credential } ->
+            let x = derive_raw ~salt raw in
+            if G.(compare (g **~ x) public_credential = 0) then E.return (Ok x)
+            else E.return (Error `Wrong))
+    | `Invalid -> E.return (Error `Invalid)
+    | `MaybePassword -> E.return (Error `MaybePassword)
 
   let generate voters =
     let implicit_weights = not (Voter.has_explicit_weights voters) in
@@ -126,27 +151,38 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
       List.fold_left
         (fun (privs, pubs) v ->
           let _, username, weight = Voter.get v in
-          let { private_cred; private_key } = generate_one () in
-          ( (username, private_cred) :: privs,
-            GMap.add G.(g **~ private_key) (weight, username) pubs ))
-        ([], GMap.empty) voters
+          let { raw; salt; private_key } = generate_one () in
+          ( SMap.add username (ref raw) privs,
+            GMap.add G.(g **~ private_key) (weight, username, salt) pubs ))
+        (SMap.empty, GMap.empty) voters
     in
-    let serialize_with_id (e, (w, id)) =
+    let serialize_with_id_and_salt (e, (w, id, salt)) =
       G.to_string e
       ^ (if implicit_weights then ","
          else Printf.sprintf ",%s" (Weight.to_string w))
-      ^ Printf.sprintf ",%s" id
+      ^ Printf.sprintf ",%s" id ^ Printf.sprintf ",%s" salt
     in
-    let serialize_public (e, (w, _)) =
+    let serialize_public (e, (w, _, _)) =
       G.to_string e
       ^
       if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
     in
     let bindings = GMap.bindings pubs in
+    let index_size = String.length (string_of_int (GMap.cardinal pubs - 1)) in
+    let () =
+      List.iteri
+        (fun i (_, (_, id, _)) ->
+          let r = SMap.find id privs in
+          r := Printf.sprintf "%s-%0*d" !r index_size i)
+        bindings
+    in
+    let private_creds =
+      SMap.fold (fun id cred creds -> (id, !cred) :: creds) privs [] |> List.rev
+    in
     {
-      private_creds = List.rev privs;
+      private_creds;
       public_creds = List.map serialize_public bindings;
-      public_with_ids = List.map serialize_with_id bindings;
+      public_with_ids_and_salts = List.map serialize_with_id_and_salt bindings;
     }
 
   let parse_public_credential s =

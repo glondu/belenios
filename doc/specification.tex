@@ -183,14 +183,17 @@ hash chain. It contains in particular:
   in particular the questions and the list of voters
 \item $\mathcal{S}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
   sends it to $\mathcal{C}$
-\item $\mathcal{C}$ generates \hyperref[credentials]{private credentials}
-  $c_1,\dots,c_n$ and computes
-  \[L=\shuffle((\public(c_1),w_1,\mathcal{V}_1),\dots,(\public(c_n),w_n,\mathcal{V}_n))\]
+\item $\mathcal{C}$ generates random \hyperref[credentials]{private
+    credentials and salts} $c_1,\dots,c_n$ and $s_1,\dots,s_n$ and
+  computes
+  \[L=\textsf{sort}((\public(c_1,s_1),w_1,\mathcal{V}_1,s_1),\dots,(\public(c_n,s_n),w_n,\mathcal{V}_n,s_n))\]
+  (for each $c_i$, the index suffix in $c_i$ is set to its index in $L$)
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
 \item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
  \item $\mathcal{C}$ sends $L$ to $\mathcal{S}$
  \item $\mathcal{S}$ checks that the $\mathcal{V}_i$ and the $w_i$ in
-   $L$ are correct, and that all public credentials are distinct
+   $L$ are correct, and that all public credentials and salts are
+   distinct, and extract the salt list as $\texttt{salts}$;
  \item $\mathcal{S}$ defines the shape of the
    \hyperref[trustees]{$\texttt{trustees}$} structure that will be
    used in the election depending on $\mathcal{A}$'s instructions;
@@ -198,10 +201,9 @@ hash chain. It contains in particular:
    establishment protocols (see \ref{process-filling-trustees}) as
      needed to fill in the $\texttt{trustees}$ structure;
 \item $\mathcal{S}$ creates the \hyperref[elections]{$\election$} $E$
-\item $\mathcal{S}$ loads $E$ and $L$ % into $\mathcal{S}$ and starts it
-\item $\mathcal{C}$ checks that the list of public credentials $L$
-  is exactly the one that appears on the election data of the election of
-  {$\uuid$} $u$.
+\item $\mathcal{S}$ publishes $\texttt{salts}$
+\item $\mathcal{C}$ checks that the list of public credentials in $L$
+  is exactly the one that appears on the public data of the election.
 \end{enumerate}
 Step~\ref{item-forget} is optional. It offers a better protection
 against ballot stuffing in case $\mathcal{C}$ unintentionally leaks
@@ -283,7 +285,11 @@ trustee as specified in section~\ref{polynomials}.
 \subsection{Vote}
 
 \begin{enumerate}
-\item $\mathcal{V}$ gets $E$
+\item $\mathcal{V}$ gets public data of $E$
+\item $\mathcal{V}$ uses the index in her secret credential $c$ to get
+  her public credential $\hat c$ (from election public data) and her
+  salt $s$ (from \texttt{salts}), and checks that
+  $\hat c=\public(c,s)$
 \item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$, she
   computes the hash $h$ of $b$, called tracking number, and submits $b$ to $\mathcal{S}$
 \item $\mathcal{S}$ processes $b$:
@@ -937,31 +943,29 @@ from one election to another.
 \subsection{Credentials}
 \label{credentials}
 
-\newcommand{\secret}{\texttt{secret}}
+\newcommand{\secret}{\textsf{secret}}
 
 A secret \emph{credential} $c$ is a string of the form
-$\texttt{XXX-XXX-XXX-XXX-XXX}$ or $\texttt{XXXXXXXXXXXXXXX}$, where
-the 15 $\texttt{X}$ characters are taken from the set:
-
+$\texttt{XXX-XXXX-XXX-XXXX-NNNN}$, where the 14 $\texttt{X}$
+characters are taken from the Base58 alphabet:
 \[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
-The first 14 characters are random, and the last one is a checksum to
-detect typing errors. To compute the checksum, each character is
-interpreted as a base 58 digit: $\texttt{1}$ is $0$, $\texttt{2}$ is
-$1$, \dots, $\texttt{z}$ is $57$. The first 14 characters are
-interpreted as a big-endian number $c_1$ The checksum is $53-c_1\mod
-53$.
+The string $\texttt{XXXXXXXXXXXXXX}$ will be called the \emph{prefix}
+of $c$. $\texttt{NNNN}$ is a base 10 number that serves as an index to
+locate the salt associated to $c$ in the list of salts and the
+matching public key in the election public data. A \emph{salt} $s$ is
+a string of 22 characters from the Base58 alphabet.
 
-From this string, a secret exponent $s=\secret(c)$ is derived by using
-PBKDF2 (RFC 2898) with:
+From $c$ and $s$, a secret exponent $x=\secret(c,s)$ is derived by
+using PBKDF2 (RFC 2898) with:
 \begin{itemize}
-\item $c$ as password;
+\item the prefix of $c$ as password;
 \item HMAC-SHA256 (RFC 2104, FIPS PUB 180-2) as pseudorandom function;
-\item the $\uuid$ of the election as salt;
-\item $1000$ iterations
+\item the concatenation of the $\uuid$ of the election and $s$ as salt;
+\item $100\,000$ iterations
 \end{itemize}
-and an output size of 1 block, which is interpreted as a big-endian
-256-bit number and then reduced modulo $q$ to form $s$.  From this
-secret exponent, a public key $\public(c)=g^s$ is computed.
+and an output size of 2 blocks, which is interpreted as a big-endian
+512-bit number and then reduced modulo $q$ to form $x$.  From this
+secret exponent, a public key $\public(c,s)=g^x$ is computed.
 
 \[\texttt{public\_credentials}=\jstring^\ast\]
 
@@ -1475,8 +1479,9 @@ $\textsf{hash}$ can be obtained from the surrounding ballot):
   \right\}
 \end{gather*}
 A ballot references in its $\textsf{credential}$ member the public
-credential $S=g^{\secret(c)}$ ($c$ being the secret credential) of the
-voter. The hash (or \emph{fingerprint}) of the election is $\varphi$ (see
+credential $S=g^{\secret(c,s)}$ ($c$ being the secret credential, $s$
+being the associated salt) of the voter. The hash (or
+\emph{fingerprint}) of the election is $\varphi$ (see
 section~\ref{varphi}).
 
 To compute the $\textsf{hash}$ used in signatures, the ballot without

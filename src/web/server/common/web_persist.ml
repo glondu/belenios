@@ -731,7 +731,11 @@ type cred_cache = { weight : Weight.t; username : string option }
 
 module CredCacheTypes = struct
   type key = uuid
-  type value = cred_cache SMap.t
+
+  type value = {
+    cred_map : cred_cache SMap.t;
+    salts : Yojson.Safe.t salt array option;
+  }
 end
 
 module CredCache = Ocsigen_cache.Make (CredCacheTypes)
@@ -743,27 +747,45 @@ let get_public_creds uuid =
   | Some x -> return @@ public_credentials_of_string x
 
 let raw_get_credential_cache uuid =
+  let make_salts creds =
+    let* x = Spool.get ~uuid Spool.salts in
+    match x with
+    | None -> Lwt.return_none
+    | Some salts ->
+        List.combine salts (List.rev creds)
+        |> List.map (fun (salt, cred) ->
+               { salt; public_credential = `String cred })
+        |> Array.of_list |> Lwt.return_some
+  in
   let* x = Filesystem.read_file_single_line ~uuid "public_creds.json" in
   match x with
   | None ->
       let* x = get_public_creds uuid in
-      List.fold_left
-        (fun accu x ->
-          let p = parse_public_credential Fun.id x in
-          let weight = Option.value ~default:Weight.one p.weight in
-          SMap.add p.credential { weight; username = None } accu)
-        SMap.empty x
-      |> return
+      let cred_map, creds =
+        List.fold_left
+          (fun (cred_map, creds) x ->
+            let p = parse_public_credential Fun.id x in
+            let weight = Option.value ~default:Weight.one p.weight in
+            ( SMap.add p.credential { weight; username = None } cred_map,
+              p.credential :: creds ))
+          (SMap.empty, []) x
+      in
+      let* salts = make_salts creds in
+      Lwt.return CredCacheTypes.{ cred_map; salts }
   | Some x ->
       let x = public_credentials_of_string x in
-      List.fold_left
-        (fun accu x ->
-          let p = parse_public_credential Fun.id x in
-          let weight = Option.value ~default:Weight.one p.weight in
-          let username = p.username in
-          SMap.add p.credential { weight; username } accu)
-        SMap.empty x
-      |> return
+      let cred_map, creds =
+        List.fold_left
+          (fun (cred_map, creds) x ->
+            let p = parse_public_credential Fun.id x in
+            let weight = Option.value ~default:Weight.one p.weight in
+            let username = p.username in
+            ( SMap.add p.credential { weight; username } cred_map,
+              p.credential :: creds ))
+          (SMap.empty, []) x
+      in
+      let* salts = make_salts creds in
+      Lwt.return CredCacheTypes.{ cred_map; salts }
 
 let credential_cache =
   new CredCache.cache raw_get_credential_cache ~timer:3600. 10
@@ -772,7 +794,7 @@ let get_credential_cache uuid cred =
   Lwt.catch
     (fun () ->
       let* xs = credential_cache#find uuid in
-      return @@ SMap.find cred xs)
+      return @@ SMap.find cred xs.cred_map)
     (fun _ ->
       Lwt.fail
         (Failure
@@ -782,6 +804,17 @@ let get_credential_cache uuid cred =
 let get_credential_weight uuid cred =
   let* x = get_credential_cache uuid cred in
   Lwt.return x.weight
+
+let get_salt uuid i =
+  Lwt.catch
+    (fun () ->
+      let* xs = credential_cache#find uuid in
+      match xs.salts with
+      | None -> Lwt.return_none
+      | Some salts ->
+          if 0 <= i && i < Array.length salts then Lwt.return_some salts.(i)
+          else Lwt.return_none)
+    (fun _ -> Lwt.return_none)
 
 let get_ballot_weight election ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
@@ -1372,6 +1405,7 @@ let delete_election uuid =
         Spool_item Spool.hide_result;
         Spool_item Spool.shuffle_token;
         Spool_item Spool.skipped_shufflers;
+        Spool_item Spool.salts;
       ]
   in
   let* () =
@@ -1864,3 +1898,5 @@ let get_draft_public_credentials uuid =
 
 let get_records uuid =
   Filesystem.read_file ~uuid (string_of_election_file ESRecords)
+
+let set_salts uuid salts = Spool.set ~uuid Spool.salts salts

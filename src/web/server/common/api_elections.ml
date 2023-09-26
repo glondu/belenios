@@ -389,6 +389,18 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       match method_ with
       | `GET -> Lwt.return (200, raw)
       | _ -> method_not_allowed)
+  | [ "salts"; index ] -> (
+      match int_of_string_opt index with
+      | None -> bad_request
+      | Some index -> (
+          match method_ with
+          | `GET -> (
+              let* x = Web_persist.get_salt uuid index in
+              match x with
+              | None -> not_found
+              | Some x ->
+                  Lwt.return (200, string_of_salt Yojson.Safe.write_json x))
+          | _ -> method_not_allowed))
   | [ "trustees" ] -> (
       let get () = Web_persist.get_trustees uuid in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)

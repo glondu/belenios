@@ -192,7 +192,12 @@ module Credgen = struct
     let module Cred =
       Belenios_core.Credential.Make (Random) (G)
         (struct
+          type 'a t = 'a
+
+          let return x = x
+          let bind x f = f x
           let uuid = uuid
+          let get_salt _ = None
         end)
     in
     let cred = get_textarea "credgen_derive_input" in
@@ -211,14 +216,19 @@ module Credgen = struct
     let module Cred =
       Belenios_core.Credential.Make (Random) (G)
         (struct
+          type 'a t = 'a
+
+          let return x = x
+          let bind x f = f x
           let uuid = uuid
+          let get_salt _ = None
         end)
     in
     let c = Cred.generate ids in
     set_textarea "credgen_generated_creds"
       (string_of_private_credentials c.private_creds);
     set_textarea "credgen_generated_pks"
-      (c.public_with_ids |> String.concat "\n");
+      (c.public_with_ids_and_salts |> String.concat "\n");
     Lwt.return_unit
 
   let generate_n () =

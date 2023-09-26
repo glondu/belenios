@@ -36,11 +36,16 @@ let generate uuid draft =
   let module Cred =
     Belenios_core.Credential.Make (Random) (G)
       (struct
+        type 'a t = 'a
+
+        let return x = x
+        let bind x f = f x
         let uuid = uuid
+        let get_salt _ = None
       end)
   in
   let c = Cred.generate ids in
-  set_textarea "pks" (string_of_public_credentials c.public_with_ids);
+  set_textarea "pks" (string_of_public_credentials c.public_with_ids_and_salts);
   let hash = sha256_b64 (string_of_public_credentials c.public_creds) in
   set_content "public_creds_fp" hash;
   let text_creds = string_of_private_credentials c.private_creds in

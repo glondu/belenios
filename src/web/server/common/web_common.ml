@@ -162,6 +162,7 @@ type election_file =
   | ESRecords
   | ESETally
   | ESResult
+  | ESSalts
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
@@ -169,6 +170,7 @@ let election_file_of_string = function
   | "voters.txt" -> ESVoters
   | "encrypted_tally.json" -> ESETally
   | "result.json" -> ESResult
+  | "salts.json" -> ESSalts
   | x -> (
       match Filename.chop_suffix_opt ~suffix:".bel" x with
       | Some uuid_s -> ESArchive (Uuid.wrap uuid_s)
@@ -181,6 +183,7 @@ let string_of_election_file = function
   | ESVoters -> "voters.txt"
   | ESETally -> "encrypted_tally.json"
   | ESResult -> "result.json"
+  | ESSalts -> "salts.json"
 
 let election_file x =
   Eliom_parameter.user_type ~of_string:election_file_of_string

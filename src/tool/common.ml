@@ -56,16 +56,21 @@ let download dir url =
         )
     | _ -> failwith "bad url"
   in
-  Printf.eprintf "I: downloading %s%s...\n%!" url file;
-  let target = dir // file in
-  let command =
-    Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
+  let perform file =
+    Printf.eprintf "I: downloading %s%s...\n%!" url file;
+    let target = dir // file in
+    let command =
+      Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
+    in
+    let r = Sys.command command in
+    if r <> 0 then (
+      Sys.remove target;
+      None)
+    else Some file
   in
-  let r = Sys.command command in
-  if r <> 0 then (
-    Sys.remove target;
-    None)
-  else Some file
+  match perform file with
+  | None -> None
+  | Some file -> Some (file, perform "salts.json")
 
 let rm_rf dir =
   let files = Sys.readdir dir in

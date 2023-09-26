@@ -25,6 +25,7 @@ open Belenios_core.Common
 
 module type PARAMS = sig
   val file : string
+  val salts_file : string option
 end
 
 module type GETTERS = sig
@@ -32,6 +33,7 @@ module type GETTERS = sig
   val setup_data : setup_data
   val raw_election : string
   val get_trustees : unit -> string option
+  val get_salts : unit -> salts option
   val get_public_creds : unit -> string list option
   val get_ballots : unit -> string list option
   val get_shuffles : unit -> (hash * hash owned * string) list option
@@ -45,6 +47,12 @@ module type ELECTION_DATA = sig
   type s
   type t
   type r
+
+  module Cred :
+    Belenios_core.Credential.S
+      with type private_key := s
+       and type public_key := t
+       and type 'a m := 'a
 
   val trustees_as_string : string option
   val trustees : (t, s) trustees option

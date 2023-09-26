@@ -166,3 +166,11 @@ let last_event =
     filename = "last_event.json";
   }
   |> make_file
+
+let salts =
+  {
+    of_string = salts_of_string;
+    to_string = string_of_salts;
+    filename = "salts.json";
+  }
+  |> make_file

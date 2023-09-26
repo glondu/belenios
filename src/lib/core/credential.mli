@@ -26,21 +26,39 @@ open Common
 type batch = {
   private_creds : private_credentials;
   public_creds : public_credentials;
-  public_with_ids : string list;
+  public_with_ids_and_salts : string list;
 }
 
 module type ELECTION = sig
+  type 'a t
+  type public_key
+
+  val return : 'a -> 'a t
+  val bind : 'a t -> ('a -> 'b t) -> 'b t
   val uuid : Uuid.t
+  val get_salt : int -> public_key salt option t
 end
 
 module type S = sig
+  type 'a m
   type private_key
   type public_key
 
   val generate : Voter.t list -> batch
-  val derive : string -> (private_key, [ `Invalid | `MaybePassword ]) result
+
+  val derive :
+    string ->
+    (private_key, [ `Wrong | `Invalid | `MaybePassword | `MissingSalt ]) result
+    m
+
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
-module Make (R : RANDOM) (G : GROUP) (E : ELECTION) :
-  S with type public_key := G.t and type private_key := G.Zq.t
+module Make
+    (R : RANDOM)
+    (G : GROUP)
+    (E : ELECTION with type public_key := G.t) :
+  S
+    with type public_key := G.t
+     and type private_key := G.Zq.t
+     and type 'a m := 'a E.t

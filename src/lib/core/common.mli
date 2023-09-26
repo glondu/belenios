@@ -92,6 +92,7 @@ val parse_public_credential :
   (string -> 'a) -> string -> 'a Serializable_core_t.public_credential
 
 val strip_public_credential : string -> string
+val extract_salt : string -> string option
 val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
 val is_username : string -> bool
 val is_email : string -> bool

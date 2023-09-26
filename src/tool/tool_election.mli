@@ -1,5 +1,6 @@
 module type PARAMS = sig
   val file : string
+  val salts_file : string option
 end
 
 module type S = sig

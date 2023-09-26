@@ -25,6 +25,7 @@ open Belenios_core.Common
 
 module type PARAMS = sig
   val file : string
+  val salts_file : string option
 end
 
 module type S = sig
@@ -64,12 +65,6 @@ module Make (P : PARAMS) () = struct
   module P = Trustees.MakePKI (G) (R)
   module C = Trustees.MakeChannels (G) (R) (P)
   module K = Trustees.MakeCombinator (G)
-
-  module Cred =
-    Belenios_core.Credential.Make (Random) (G)
-      (struct
-        let uuid = election.e_uuid
-      end)
 
   (* Check trustee keys, if present *)
   let () =

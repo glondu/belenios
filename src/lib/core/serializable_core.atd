@@ -55,4 +55,5 @@ type 'a public_credential = {
   credential : 'a;
   ?weight : weight option;
   ?username : string option;
+  ?salt : string option;
 }

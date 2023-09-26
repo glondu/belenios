@@ -29,6 +29,7 @@ module type GETTERS = sig
   val setup_data : setup_data
   val raw_election : string
   val get_trustees : unit -> string option
+  val get_salts : unit -> salts option
   val get_public_creds : unit -> string list option
   val get_ballots : unit -> string list option
   val get_shuffles : unit -> (hash * hash owned * string) list option
@@ -38,6 +39,7 @@ end
 
 module type PARAMS = sig
   val file : string
+  val salts_file : string option
 end
 
 module MakeGetters (X : PARAMS) : GETTERS = struct
@@ -64,6 +66,11 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     |> Option.map public_credentials_of_string
 
   let get_trustees () = get_data setup_data.setup_trustees
+
+  let get_salts () =
+    match X.salts_file with
+    | None -> None
+    | Some f -> Some (f |> string_of_file |> salts_of_string)
 
   let get_ballots () =
     match roots.roots_last_ballot_event with
@@ -111,6 +118,12 @@ module type ELECTION_DATA = sig
   type s
   type t
   type r
+
+  module Cred :
+    Belenios_core.Credential.S
+      with type private_key := s
+       and type public_key := t
+       and type 'a m := 'a
 
   val trustees_as_string : string option
   val trustees : (t, s) trustees option
@@ -176,13 +189,45 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        | Some pks -> pks
        | None -> failwith "missing public keys")
 
-  module Cred =
+  let raw_public_creds = lazy (get_public_creds ())
+
+  module rec Cred :
+    (Belenios_core.Credential.S
+      with type private_key := G.Zq.t
+       and type public_key := G.t
+       and type 'a m := 'a) =
     Belenios_core.Credential.Make (Random) (G)
       (struct
-        let uuid = election.e_uuid
-      end)
+        type 'a t = 'a
 
-  let raw_public_creds = lazy (get_public_creds ())
+        let return x = x
+        let bind x f = f x
+        let uuid = election.e_uuid
+
+        let get_salt_lazy =
+          lazy
+            (match get_salts () with
+            | None -> fun _ -> None
+            | Some salts -> (
+                match Lazy.force raw_public_creds with
+                | None -> fun _ -> None
+                | Some creds ->
+                    let salts =
+                      List.combine salts creds
+                      |> List.map (fun (salt, cred) ->
+                             match Cred.parse_public_credential cred with
+                             | Some (_, public_credential) ->
+                                 { salt; public_credential }
+                             | None ->
+                                 Printf.ksprintf failwith
+                                   "%s is not a valid public credential" cred)
+                      |> Array.of_list
+                    in
+                    let n = Array.length salts in
+                    fun i -> if 0 <= i && i < n then Some salts.(i) else None))
+
+        let get_salt i = Lazy.force get_salt_lazy i
+      end)
 
   let public_creds_weights =
     lazy
