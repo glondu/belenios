@@ -21,7 +21,6 @@
 
 open Belenios_core
 open Signatures
-open Serializable_t
 open Common
 
 module type PARAMS = sig
@@ -30,15 +29,9 @@ module type PARAMS = sig
   val group : string
 end
 
-type credentials = {
-  priv : private_credentials;
-  public : string list;
-  public_with_ids : string list;
-}
-
 module type S = sig
   val derive : string -> string
-  val generate : Voter.t list -> credentials
+  val generate : Voter.t list -> Credential.batch
 end
 
 module Make (P : PARAMS) (R : RANDOM) () = struct
@@ -50,8 +43,6 @@ module Make (P : PARAMS) (R : RANDOM) () = struct
         let uuid = Uuid.wrap P.uuid
       end)
 
-  module CredSet = Map.Make (G)
-
   let derive_in_group x =
     if Credential.check x then
       let x = Cred.derive x in
@@ -59,35 +50,7 @@ module Make (P : PARAMS) (R : RANDOM) () = struct
     else Printf.ksprintf failwith "invalid secret credential: %s" x
 
   let derive x = G.to_string (derive_in_group x)
-
-  let generate ids =
-    let implicit_weights = not (has_explicit_weights ids) in
-    let privs, pubs =
-      List.fold_left
-        (fun (privs, pubs) id ->
-          let _, username, weight = Voter.get id in
-          let Credential.{ private_cred; private_key } = Cred.generate () in
-          ( (username, private_cred) :: privs,
-            CredSet.add G.(g **~ private_key) (weight, username) pubs ))
-        ([], CredSet.empty) ids
-    in
-    let serialize (e, (w, id)) =
-      G.to_string e
-      ^ (if implicit_weights then ","
-         else Printf.sprintf ",%s" (Weight.to_string w))
-      ^ Printf.sprintf ",%s" id
-    in
-    let serialize_public (e, (w, _)) =
-      G.to_string e
-      ^
-      if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
-    in
-    let bindings = CredSet.bindings pubs in
-    {
-      priv = List.rev privs;
-      public = List.map serialize_public bindings;
-      public_with_ids = List.map serialize bindings;
-    }
+  let generate = Cred.generate
 end
 
 let int_length n = string_of_int n |> String.length

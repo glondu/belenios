@@ -61,7 +61,6 @@ let show main uuid =
             let container = div [] |> Tyxml_js.To_dom.of_div in
             let b =
               let@ () = button "Generate credentials" in
-              let show_weight = has_explicit_weights xs in
               let version = draft.draft_version in
               let module G =
                 (val Belenios.Group.of_string ~version draft.draft_group
@@ -74,33 +73,8 @@ let show main uuid =
                     let uuid = Uuid.wrap uuid
                   end)
               in
-              let* public_creds, private_creds =
-                Lwt_list.fold_left_s
-                  (fun (public_creds, private_creds) v ->
-                    let _, _, weight = Voter.get v in
-                    let Belenios_core.Credential.{ private_cred; private_key } =
-                      Cred.generate ()
-                    in
-                    let pub_cred = G.(g **~ private_key) in
-                    Lwt.return
-                      ( CMap.add pub_cred weight public_creds,
-                        (v, private_cred) :: private_creds ))
-                  (CMap.empty, []) xs
-              in
-              let private_creds =
-                List.rev_map
-                  (fun (v, c) ->
-                    let _, login, _ = Voter.get v in
-                    (login, c))
-                  private_creds
-              in
-              let public_creds =
-                CMap.bindings public_creds
-                |> List.map (fun (cred, weight) ->
-                       let cred = G.to_string cred in
-                       if show_weight then
-                         Printf.sprintf "%s,%s" cred (Weight.to_string weight)
-                       else cred)
+              let Belenios_core.Credential.{ public_creds; private_creds; _ } =
+                Cred.generate xs
               in
               let op = string_of_public_credentials public_creds in
               let t, _ =

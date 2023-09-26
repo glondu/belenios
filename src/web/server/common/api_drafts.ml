@@ -344,43 +344,20 @@ let generate_credentials_on_server uuid se =
   else if se.se_metadata.e_cred_authority <> Some "server" then
     Lwt.return (Stdlib.Error `NoServer)
   else
-    let show_weight = has_explicit_weights se.se_voters in
     let version = se.se_version in
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
-    let module CMap = Map.Make (G) in
     let module Cred =
       Belenios_core.Credential.Make (Random) (G)
         (struct
           let uuid = uuid
         end)
     in
-    let* public_creds, private_creds =
-      Lwt_list.fold_left_s
-        (fun (public_creds, private_creds) v ->
-          let _, login, weight = Voter.get v.sv_id in
-          let Belenios_core.Credential.{ private_cred; private_key } =
-            Cred.generate ()
-          in
-          let pub_cred = G.(g **~ private_key) in
-          Lwt.return
-            ( CMap.add pub_cred (weight, login) public_creds,
-              (login, private_cred) :: private_creds ))
-        (CMap.empty, []) se.se_voters
+    let Belenios_core.Credential.{ private_creds; public_with_ids; _ } =
+      Cred.generate (List.map (fun v -> v.sv_id) se.se_voters)
     in
-    let private_creds =
-      List.rev private_creds |> string_of_private_credentials
-    in
+    let private_creds = private_creds |> string_of_private_credentials in
     let* () = Web_persist.set_draft_private_credentials uuid private_creds in
-    let public_creds =
-      CMap.bindings public_creds
-      |> List.map (fun (cred, (weight, login)) ->
-             G.to_string cred
-             ^ (if show_weight then
-                  Printf.sprintf ",%s" (Weight.to_string weight)
-                else ",")
-             ^ Printf.sprintf ",%s" login)
-    in
-    let* () = Web_persist.set_draft_public_credentials uuid public_creds in
+    let* () = Web_persist.set_draft_public_credentials uuid public_with_ids in
     se.se_public_creds_received <- true;
     se.se_pending_credentials <- true;
     let* () = Web_persist.set_draft_election uuid se in

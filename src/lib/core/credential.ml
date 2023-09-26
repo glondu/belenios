@@ -21,6 +21,7 @@
 
 open Belenios_platform.Platform
 open Signatures
+open Serializable_t
 open Common
 
 let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -67,6 +68,12 @@ let check x =
 
 type 'a t = { private_cred : string; private_key : 'a }
 
+type batch = {
+  private_creds : private_credentials;
+  public_creds : public_credentials;
+  public_with_ids : string list;
+}
+
 module type ELECTION = sig
   val uuid : Uuid.t
 end
@@ -75,12 +82,14 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : unit -> private_key t
+  val generate : Voter.t list -> batch
   val derive : string -> private_key
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
 module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
+  module GMap = Map.Make (G)
+
   let get_random_digit () =
     let x = R.random n58 in
     Z.to_int x
@@ -105,10 +114,39 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
     let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
     Z.(of_hex derived) |> G.Zq.of_Z
 
-  let generate () =
+  let generate_one () =
     let private_cred = generate_raw_token () |> add_checksum |> format in
     let private_key = derive private_cred in
     { private_cred; private_key }
+
+  let generate voters =
+    let implicit_weights = not (has_explicit_weights voters) in
+    let privs, pubs =
+      List.fold_left
+        (fun (privs, pubs) v ->
+          let _, username, weight = Voter.get v in
+          let { private_cred; private_key } = generate_one () in
+          ( (username, private_cred) :: privs,
+            GMap.add G.(g **~ private_key) (weight, username) pubs ))
+        ([], GMap.empty) voters
+    in
+    let serialize_with_id (e, (w, id)) =
+      G.to_string e
+      ^ (if implicit_weights then ","
+         else Printf.sprintf ",%s" (Weight.to_string w))
+      ^ Printf.sprintf ",%s" id
+    in
+    let serialize_public (e, (w, _)) =
+      G.to_string e
+      ^
+      if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
+    in
+    let bindings = GMap.bindings pubs in
+    {
+      private_creds = List.rev privs;
+      public_creds = List.map serialize_public bindings;
+      public_with_ids = List.map serialize_with_id bindings;
+    }
 
   let parse_public_credential s =
     try

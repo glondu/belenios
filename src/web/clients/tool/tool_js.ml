@@ -205,7 +205,7 @@ module Credgen = struct
     let module X = Make (P) (Random) () in
     let c = X.generate ids in
     set_textarea "credgen_generated_creds"
-      (string_of_private_credentials c.priv);
+      (string_of_private_credentials c.private_creds);
     set_textarea "credgen_generated_pks"
       (c.public_with_ids |> String.concat "\n");
     Lwt.return_unit

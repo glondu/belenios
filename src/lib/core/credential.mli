@@ -20,12 +20,17 @@
 (**************************************************************************)
 
 open Signatures
+open Serializable_t
 open Common
 
 val parse : string -> [ `Valid | `Invalid | `MaybePassword ]
 val check : string -> bool
 
-type 'a t = { private_cred : string; private_key : 'a }
+type batch = {
+  private_creds : private_credentials;
+  public_creds : public_credentials;
+  public_with_ids : string list;
+}
 
 module type ELECTION = sig
   val uuid : Uuid.t
@@ -35,7 +40,7 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : unit -> private_key t
+  val generate : Voter.t list -> batch
   val derive : string -> private_key
   val parse_public_credential : string -> (Weight.t * public_key) option
 end

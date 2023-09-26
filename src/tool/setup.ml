@@ -281,10 +281,11 @@ module Credgen : CMDLINER_MODULE = struct
         let c = R.generate ids in
         let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
         let base = dir // timestamp in
-        save params_priv base (as_json string_of_private_credentials c.priv);
+        save params_priv base
+          (as_json string_of_private_credentials c.private_creds);
         save params_pub base
           (as_json string_of_public_credentials c.public_with_ids);
-        let h = sha256_b64 (string_of_public_credentials c.public) in
+        let h = sha256_b64 (string_of_public_credentials c.public_creds) in
         Printf.printf "The fingerprint of public credentials is %s\n%!" h
 
   let count_t =
