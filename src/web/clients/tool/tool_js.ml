@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios_platform
 open Belenios_core
+open Signatures
 open Common
 open Belenios_tool_common
 open Platform
@@ -183,27 +184,37 @@ module Tkeygen = struct
 end
 
 module Credgen = struct
-  open Tool_credgen
-
   let derive () =
-    let module P : PARAMS = struct
-      let version = get_textarea "version" |> int_of_string
-      let uuid = get_textarea "election_uuid"
-      let group = get_textarea "election_group"
-    end in
-    let module X = Make (P) (Random) () in
+    let version = get_textarea "version" |> int_of_string in
+    let uuid = get_textarea "election_uuid" |> Uuid.wrap in
+    let group = get_textarea "election_group" in
+    let module G = (val Belenios.Group.of_string ~version group : GROUP) in
+    let module Cred =
+      Belenios_core.Credential.Make (Random) (G)
+        (struct
+          let uuid = uuid
+        end)
+    in
     let cred = get_textarea "credgen_derive_input" in
-    set_textarea "credgen_derive_output" (X.derive cred);
+    let () =
+      match Cred.derive cred with
+      | Ok x -> set_textarea "credgen_derive_output" G.(g **~ x |> to_string)
+      | Error _ -> alert "invalid credential"
+    in
     Lwt.return_unit
 
   let generate ids =
-    let module P : PARAMS = struct
-      let version = get_textarea "version" |> int_of_string
-      let uuid = get_textarea "election_uuid"
-      let group = get_textarea "election_group"
-    end in
-    let module X = Make (P) (Random) () in
-    let c = X.generate ids in
+    let version = get_textarea "version" |> int_of_string in
+    let uuid = get_textarea "election_uuid" |> Uuid.wrap in
+    let group = get_textarea "election_group" in
+    let module G = (val Belenios.Group.of_string ~version group : GROUP) in
+    let module Cred =
+      Belenios_core.Credential.Make (Random) (G)
+        (struct
+          let uuid = uuid
+        end)
+    in
+    let c = Cred.generate ids in
     set_textarea "credgen_generated_creds"
       (string_of_private_credentials c.private_creds);
     set_textarea "credgen_generated_pks"

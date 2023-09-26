@@ -22,22 +22,24 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
+open Belenios_core.Signatures
 open Belenios_core.Common
-open Belenios_tool_common
 open Belenios_js.Common
-open Tool_credgen
 open Belenios_api.Serializable_j
 
 let generate uuid draft =
   let raw = get_textarea "voters" in
   let ids = Voter.list_of_string raw in
-  let module P : PARAMS = struct
-    let version = draft.draft_version
-    let uuid = uuid
-    let group = draft.draft_group
-  end in
-  let module X = Make (P) (Random) () in
-  let c = X.generate ids in
+  let version = draft.draft_version in
+  let group = draft.draft_group in
+  let module G = (val Belenios.Group.of_string ~version group : GROUP) in
+  let module Cred =
+    Belenios_core.Credential.Make (Random) (G)
+      (struct
+        let uuid = uuid
+      end)
+  in
+  let c = Cred.generate ids in
   set_textarea "pks" (string_of_public_credentials c.public_with_ids);
   let hash = sha256_b64 (string_of_public_credentials c.public_creds) in
   set_content "public_creds_fp" hash;
@@ -91,7 +93,7 @@ let fill_interactivity () =
   let t = document##createTextNode (Js.string (s_ "Generate")) in
   Lwt_js_events.async (fun () ->
       let* _ = Lwt_js_events.click b in
-      generate uuid draft);
+      generate (Uuid.wrap uuid) draft);
   Dom.appendChild b t;
   Dom.appendChild x b;
   Lwt.return_unit

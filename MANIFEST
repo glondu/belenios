@@ -233,8 +233,6 @@ requirements.txt
 src/common/api/dune
 src/common/api/serializable.atd
 src/common/tool/dune
-src/common/tool/tool_credgen.ml
-src/common/tool/tool_credgen.mli
 src/common/tool/tool_mkelection.ml
 src/common/tool/tool_mkelection.mli
 src/common/tool/tool_tkeygen.ml

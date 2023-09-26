@@ -240,8 +240,6 @@ module Ttkeygen : CMDLINER_MODULE = struct
 end
 
 module Credgen : CMDLINER_MODULE = struct
-  open Tool_credgen
-
   let params_priv = ("private credentials with ids", ".privcreds", 0o400)
   let params_pub = ("public credentials", ".pubcreds", 0o444)
 
@@ -258,12 +256,8 @@ module Credgen : CMDLINER_MODULE = struct
 
   let main version group dir uuid count file derive =
     let@ () = wrap_main in
-    let module P = struct
-      let version = version
-      let group = get_mandatory_opt "--group" group
-      let uuid = get_mandatory_opt "--uuid" uuid
-    end in
-    let module R = Make (P) (Random) () in
+    let group = get_mandatory_opt "--group" group in
+    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
     let action =
       match (count, file, derive) with
       | Some n, None, None ->
@@ -275,10 +269,20 @@ module Credgen : CMDLINER_MODULE = struct
       | None, None, Some c -> `Derive c
       | _, _, _ -> failcmd "--count, --file and --derive are mutually exclusive"
     in
+    let module G = (val Group.of_string ~version group : GROUP) in
+    let module Cred =
+      Belenios_core.Credential.Make (Random) (G)
+        (struct
+          let uuid = uuid
+        end)
+    in
     match action with
-    | `Derive c -> print_endline (R.derive c)
+    | `Derive c -> (
+        match Cred.derive c with
+        | Ok x -> print_endline G.(g **~ x |> to_string)
+        | Error _ -> failcmd "invalid credential")
     | `Generate ids ->
-        let c = R.generate ids in
+        let c = Cred.generate ids in
         let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
         let base = dir // timestamp in
         save params_priv base
