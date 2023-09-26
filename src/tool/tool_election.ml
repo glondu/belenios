@@ -84,7 +84,10 @@ module Make (P : PARAMS) () = struct
     let sk =
       match privcred with
       | None -> failwith "missing private credential"
-      | Some cred -> Cred.derive cred
+      | Some cred -> (
+          match Cred.derive cred with
+          | Ok x -> x
+          | Error _ -> failwith "invalid private credential")
     in
     let b = E.create_ballot ~sk choice in
     assert (E.check_ballot b);
@@ -284,7 +287,9 @@ module Make (P : PARAMS) () = struct
     let map =
       List.fold_left
         (fun accu (id, cred) ->
-          SMap.add G.(g **~ Cred.derive cred |> to_string) id accu)
+          match Cred.derive cred with
+          | Error _ -> Printf.ksprintf failwith "invalid credential %s" cred
+          | Ok x -> SMap.add G.(g **~ x |> to_string) id accu)
         SMap.empty privcreds
     in
     let ballots = Lazy.force verified_ballots in

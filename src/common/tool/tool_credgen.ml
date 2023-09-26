@@ -44,10 +44,9 @@ module Make (P : PARAMS) (R : RANDOM) () = struct
       end)
 
   let derive_in_group x =
-    if Credential.check x then
-      let x = Cred.derive x in
-      G.(g **~ x)
-    else Printf.ksprintf failwith "invalid secret credential: %s" x
+    match Cred.derive x with
+    | Ok x -> G.(g **~ x)
+    | Error _ -> Printf.ksprintf failwith "invalid secret credential: %s" x
 
   let derive x = G.to_string (derive_in_group x)
   let generate = Cred.generate

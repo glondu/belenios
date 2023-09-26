@@ -82,7 +82,7 @@ module type S = sig
   type public_key
 
   val generate : Voter.t list -> batch
-  val derive : string -> private_key
+  val derive : string -> (private_key, [ `Invalid | `MaybePassword ]) result
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
@@ -108,14 +108,19 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
     let checksum = 53 - Z.(to_int (value mod n53)) in
     raw ^ String.make 1 b58_digits.[checksum]
 
-  let derive x =
+  let derive_raw x =
     let uuid = Uuid.unwrap E.uuid in
     let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
     Z.(of_hex derived) |> G.Zq.of_Z
 
+  let derive x =
+    match parse x with
+    | `Valid -> Ok (derive_raw x)
+    | (`Invalid | `MaybePassword) as x -> Error x
+
   let generate_one () =
     let private_cred = generate_raw_token () |> add_checksum |> format in
-    let private_key = derive private_cred in
+    let private_key = derive_raw private_cred in
     { private_cred; private_key }
 
   let generate voters =

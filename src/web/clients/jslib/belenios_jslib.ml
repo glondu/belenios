@@ -32,7 +32,7 @@ open Belenios_js.Common
 let computeFingerprint = sha256_b64
 let checkCredential = Credential.check
 
-let encryptBallot election cred plaintext callback =
+let encryptBallot election cred plaintext success failure =
   let module P = (val election : ELECTION) in
   let module G = P.G in
   let module Cred =
@@ -41,11 +41,13 @@ let encryptBallot election cred plaintext callback =
         let uuid = P.election.e_uuid
       end)
   in
-  let sk = Cred.derive cred in
-  let b = P.E.create_ballot ~sk plaintext in
-  let ballot = P.string_of_ballot b in
-  let tracker = sha256_b64 ballot in
-  callback ballot tracker
+  match Cred.derive cred with
+  | Ok sk ->
+      let b = P.E.create_ballot ~sk plaintext in
+      let ballot = P.string_of_ballot b in
+      let tracker = sha256_b64 ballot in
+      success ballot tracker
+  | Error _ -> failure "invalid credential"
 
 class type renderingFunctions = object
   method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
@@ -95,7 +97,9 @@ let belenios =
                 |> Js.to_string |> plaintext_of_string
               in
               let* () = Lwt_js.yield () in
-              encryptBallot (module W) (Js.to_string cred) plaintext success)
+              encryptBallot
+                (module W)
+                (Js.to_string cred) plaintext success failure)
             (fun e -> failure (Printexc.to_string e)));
       Js.undefined
 
