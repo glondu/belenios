@@ -21,6 +21,8 @@
 
 open Belenios_platform.Platform
 
+val b58_digits : string
+
 module Number : sig
   type t = Z.t
 

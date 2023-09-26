@@ -21,6 +21,8 @@
 
 open Belenios_platform.Platform
 
+let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
 module Number = struct
   type t = Z.t
 
@@ -31,7 +33,6 @@ end
 module Uuid = struct
   type t = string
 
-  let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
   let min_length = 14 (* at least 82 bits of entropy *)
 
   let check token =
@@ -40,7 +41,7 @@ module Uuid = struct
     &&
     let rec loop i =
       if i >= 0 then
-        match String.index_opt digits token.[i] with
+        match String.index_opt b58_digits token.[i] with
         | Some _ -> loop (i - 1)
         | None -> false
       else true

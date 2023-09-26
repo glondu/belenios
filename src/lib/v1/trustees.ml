@@ -185,9 +185,6 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
   let random () = M.random G.Zq.q |> G.Zq.of_Z
 
   let genkey () =
-    let b58_digits =
-      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-    in
     let n = 22 and z58 = Z.of_int 58 in
     String.init n (fun _ ->
         let x = M.random z58 in

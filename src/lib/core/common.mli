@@ -37,6 +37,7 @@ module Array = Common_types.Array
 module Shape = Common_types.Shape
 
 val sha256_b64 : string -> string
+val b58_digits : string
 
 module String : sig
   include module type of String

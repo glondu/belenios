@@ -37,6 +37,7 @@ module Array = Common_types.Array
 module Shape = Common_types.Shape
 
 let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
+let b58_digits = Common_types.b58_digits
 
 module String = struct
   include String
@@ -140,7 +141,6 @@ let bytes_to_sample q =
   (Z.bit_length q / 8) + 17
 
 let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)
-let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let z58 = Z.of_int (String.length b58_digits)
 let z10 = Z.of_int 10
 

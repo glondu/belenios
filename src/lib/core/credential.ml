@@ -24,7 +24,6 @@ open Signatures
 open Serializable_t
 open Common
 
-let digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 let token_length = 14
 let n58 = Z.of_int 58
 let n53 = Z.of_int 53
@@ -38,11 +37,11 @@ let format x =
 let check_raw x =
   let rec loop i accu =
     if i < token_length then
-      let& digit = String.index_opt digits x.[i] in
+      let& digit = String.index_opt b58_digits x.[i] in
       loop (i + 1) Z.((n58 * accu) + of_int digit)
     else Some accu
   in
-  match (loop 0 Z.zero, String.index_opt digits x.[token_length]) with
+  match (loop 0 Z.zero, String.index_opt b58_digits x.[token_length]) with
   | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
   | _, _ -> false
 
@@ -99,7 +98,7 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
     let rec loop i accu =
       if i < token_length then (
         let digit = get_random_digit () in
-        Bytes.set res i digits.[digit];
+        Bytes.set res i b58_digits.[digit];
         loop (i + 1) Z.((n58 * accu) + of_int digit))
       else (Bytes.to_string res, accu)
     in
@@ -107,7 +106,7 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
 
   let add_checksum (raw, value) =
     let checksum = 53 - Z.(to_int (value mod n53)) in
-    raw ^ String.make 1 digits.[checksum]
+    raw ^ String.make 1 b58_digits.[checksum]
 
   let derive x =
     let uuid = Uuid.unwrap E.uuid in
