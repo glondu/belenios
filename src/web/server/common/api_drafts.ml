@@ -335,8 +335,6 @@ let get_credentials_token se =
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
-module CG = Belenios_core.Credential.MakeGenerate (Random)
-
 let generate_credentials_on_server uuid se =
   let nvoters = List.length se.se_voters in
   if nvoters > !Web_config.maxmailsatonce then
@@ -350,19 +348,23 @@ let generate_credentials_on_server uuid se =
     let version = se.se_version in
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module CMap = Map.Make (G) in
-    let module CD = Belenios_core.Credential.MakeDerive (G) in
+    let module Cred =
+      Belenios_core.Credential.Make (Random) (G)
+        (struct
+          let uuid = uuid
+        end)
+    in
     let* public_creds, private_creds =
       Lwt_list.fold_left_s
         (fun (public_creds, private_creds) v ->
           let _, login, weight = Voter.get v.sv_id in
-          let credential = CG.generate () in
-          let pub_cred =
-            let x = CD.derive uuid credential in
-            G.(g **~ x)
+          let Belenios_core.Credential.{ private_cred; private_key } =
+            Cred.generate ()
           in
+          let pub_cred = G.(g **~ private_key) in
           Lwt.return
             ( CMap.add pub_cred (weight, login) public_creds,
-              (login, credential) :: private_creds ))
+              (login, private_cred) :: private_creds ))
         (CMap.empty, []) se.se_voters
     in
     let private_creds =

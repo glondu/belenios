@@ -41,17 +41,20 @@ module type S = sig
   val generate : Voter.t list -> credentials
 end
 
-module Make (P : PARAMS) (M : RANDOM) () = struct
-  let uuid = Uuid.wrap P.uuid
-
+module Make (P : PARAMS) (R : RANDOM) () = struct
   module G = (val Belenios.Group.of_string ~version:P.version P.group : GROUP)
-  module CG = Credential.MakeGenerate (M)
-  module CD = Credential.MakeDerive (G)
+
+  module Cred =
+    Credential.Make (R) (G)
+      (struct
+        let uuid = Uuid.wrap P.uuid
+      end)
+
   module CredSet = Map.Make (G)
 
   let derive_in_group x =
     if Credential.check x then
-      let x = CD.derive uuid x in
+      let x = Cred.derive x in
       G.(g **~ x)
     else Printf.ksprintf failwith "invalid secret credential: %s" x
 
@@ -63,9 +66,9 @@ module Make (P : PARAMS) (M : RANDOM) () = struct
       List.fold_left
         (fun (privs, pubs) id ->
           let _, username, weight = Voter.get id in
-          let priv = CG.generate () in
-          ( (username, priv) :: privs,
-            CredSet.add (derive_in_group priv) (weight, username) pubs ))
+          let Credential.{ private_cred; private_key } = Cred.generate () in
+          ( (username, private_cred) :: privs,
+            CredSet.add G.(g **~ private_key) (weight, username) pubs ))
         ([], CredSet.empty) ids
     in
     let serialize (e, (w, id)) =

@@ -22,17 +22,23 @@
 open Signatures
 open Common
 
-module MakeGenerate (M : RANDOM) : sig
-  val generate : unit -> string
-end
-
 val parse : string -> [ `Valid | `Invalid | `MaybePassword ]
 val check : string -> bool
 
-module MakeDerive (G : GROUP) : sig
-  val derive : Uuid.t -> string -> G.Zq.t
+type 'a t = { private_cred : string; private_key : 'a }
+
+module type ELECTION = sig
+  val uuid : Uuid.t
 end
 
-module MakeParsePublicCredential (G : GROUP) : sig
-  val parse_public_credential : string -> (Weight.t * G.t) option
+module type S = sig
+  type private_key
+  type public_key
+
+  val generate : unit -> private_key t
+  val derive : string -> private_key
+  val parse_public_credential : string -> (Weight.t * public_key) option
 end
+
+module Make (R : RANDOM) (G : GROUP) (E : ELECTION) :
+  S with type public_key := G.t and type private_key := G.Zq.t

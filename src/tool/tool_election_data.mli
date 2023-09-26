@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module B = Belenios
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios_core.Common

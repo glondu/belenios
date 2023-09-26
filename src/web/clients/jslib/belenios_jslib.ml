@@ -35,8 +35,13 @@ let checkCredential = Credential.check
 let encryptBallot election cred plaintext callback =
   let module P = (val election : ELECTION) in
   let module G = P.G in
-  let module CD = Credential.MakeDerive (G) in
-  let sk = CD.derive P.election.e_uuid cred in
+  let module Cred =
+    Credential.Make (Random) (G)
+      (struct
+        let uuid = P.election.e_uuid
+      end)
+  in
+  let sk = Cred.derive cred in
   let b = P.E.create_ballot ~sk plaintext in
   let ballot = P.string_of_ballot b in
   let tracker = sha256_b64 ballot in

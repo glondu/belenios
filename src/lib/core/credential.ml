@@ -34,31 +34,6 @@ let format x =
   String.sub x 0 3 ^ "-" ^ String.sub x 3 3 ^ "-" ^ String.sub x 6 3 ^ "-"
   ^ String.sub x 9 3 ^ "-" ^ String.sub x 12 3
 
-module MakeGenerate (M : RANDOM) = struct
-  let get_random_digit () =
-    let x = M.random n58 in
-    Z.to_int x
-
-  let generate_raw_token () =
-    let res = Bytes.create token_length in
-    let rec loop i accu =
-      if i < token_length then (
-        let digit = get_random_digit () in
-        Bytes.set res i digits.[digit];
-        loop (i + 1) Z.((n58 * accu) + of_int digit))
-      else (Bytes.to_string res, accu)
-    in
-    loop 0 Z.zero
-
-  let add_checksum (raw, value) =
-    let checksum = 53 - Z.(to_int (value mod n53)) in
-    raw ^ String.make 1 digits.[checksum]
-
-  let generate () =
-    let x = generate_raw_token () in
-    format (add_checksum x)
-end
-
 let check_raw x =
   let rec loop i accu =
     if i < token_length then
@@ -90,14 +65,51 @@ let parse x =
 let check x =
   match parse x with `Valid -> true | `Invalid | `MaybePassword -> false
 
-module MakeDerive (G : GROUP) = struct
-  let derive uuid x =
-    let uuid = Uuid.unwrap uuid in
-    let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
-    Z.(of_hex derived) |> G.Zq.of_Z
+type 'a t = { private_cred : string; private_key : 'a }
+
+module type ELECTION = sig
+  val uuid : Uuid.t
 end
 
-module MakeParsePublicCredential (G : GROUP) = struct
+module type S = sig
+  type private_key
+  type public_key
+
+  val generate : unit -> private_key t
+  val derive : string -> private_key
+  val parse_public_credential : string -> (Weight.t * public_key) option
+end
+
+module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
+  let get_random_digit () =
+    let x = R.random n58 in
+    Z.to_int x
+
+  let generate_raw_token () =
+    let res = Bytes.create token_length in
+    let rec loop i accu =
+      if i < token_length then (
+        let digit = get_random_digit () in
+        Bytes.set res i digits.[digit];
+        loop (i + 1) Z.((n58 * accu) + of_int digit))
+      else (Bytes.to_string res, accu)
+    in
+    loop 0 Z.zero
+
+  let add_checksum (raw, value) =
+    let checksum = 53 - Z.(to_int (value mod n53)) in
+    raw ^ String.make 1 digits.[checksum]
+
+  let derive x =
+    let uuid = Uuid.unwrap E.uuid in
+    let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
+    Z.(of_hex derived) |> G.Zq.of_Z
+
+  let generate () =
+    let private_cred = generate_raw_token () |> add_checksum |> format in
+    let private_key = derive private_cred in
+    { private_cred; private_key }
+
   let parse_public_credential s =
     try
       match String.index s ',' with

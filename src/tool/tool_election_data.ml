@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module B = Belenios
 open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios_core.Common
@@ -177,7 +176,11 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        | Some pks -> pks
        | None -> failwith "missing public keys")
 
-  module PPC = Belenios_core.Credential.MakeParsePublicCredential (G)
+  module Cred =
+    Belenios_core.Credential.Make (Random) (G)
+      (struct
+        let uuid = election.e_uuid
+      end)
 
   let raw_public_creds = lazy (get_public_creds ())
 
@@ -190,7 +193,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
                 let has_weights =
                   has_weights || String.index_opt x ',' <> None
                 in
-                match PPC.parse_public_credential x with
+                match Cred.parse_public_credential x with
                 | Some (w, y) ->
                     let y = G.to_string y in
                     if SMap.mem y accu then

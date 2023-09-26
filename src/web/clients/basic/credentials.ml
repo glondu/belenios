@@ -29,7 +29,6 @@ open Belenios_api.Serializable_j
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
-module CG = Belenios_core.Credential.MakeGenerate (Random)
 
 let show main uuid =
   let@ () = show_in main in
@@ -62,7 +61,6 @@ let show main uuid =
             let container = div [] |> Tyxml_js.To_dom.of_div in
             let b =
               let@ () = button "Generate credentials" in
-              let uuid_ = Uuid.wrap uuid in
               let show_weight = has_explicit_weights xs in
               let version = draft.draft_version in
               let module G =
@@ -70,19 +68,23 @@ let show main uuid =
                     : GROUP)
               in
               let module CMap = Map.Make (G) in
-              let module CD = Belenios_core.Credential.MakeDerive (G) in
+              let module Cred =
+                Belenios_core.Credential.Make (Random) (G)
+                  (struct
+                    let uuid = Uuid.wrap uuid
+                  end)
+              in
               let* public_creds, private_creds =
                 Lwt_list.fold_left_s
                   (fun (public_creds, private_creds) v ->
                     let _, _, weight = Voter.get v in
-                    let cred = CG.generate () in
-                    let pub_cred =
-                      let x = CD.derive uuid_ cred in
-                      G.(g **~ x)
+                    let Belenios_core.Credential.{ private_cred; private_key } =
+                      Cred.generate ()
                     in
+                    let pub_cred = G.(g **~ private_key) in
                     Lwt.return
                       ( CMap.add pub_cred weight public_creds,
-                        (v, cred) :: private_creds ))
+                        (v, private_cred) :: private_creds ))
                   (CMap.empty, []) xs
               in
               let private_creds =

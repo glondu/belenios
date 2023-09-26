@@ -65,6 +65,12 @@ module Make (P : PARAMS) () = struct
   module C = Trustees.MakeChannels (G) (R) (P)
   module K = Trustees.MakeCombinator (G)
 
+  module Cred =
+    Belenios_core.Credential.Make (Random) (G)
+      (struct
+        let uuid = election.e_uuid
+      end)
+
   (* Check trustee keys, if present *)
   let () =
     match trustees with
@@ -78,9 +84,7 @@ module Make (P : PARAMS) () = struct
     let sk =
       match privcred with
       | None -> failwith "missing private credential"
-      | Some cred ->
-          let module CD = Belenios_core.Credential.MakeDerive (G) in
-          CD.derive election.e_uuid cred
+      | Some cred -> Cred.derive cred
     in
     let b = E.create_ballot ~sk choice in
     assert (E.check_ballot b);
@@ -277,11 +281,10 @@ module Make (P : PARAMS) () = struct
     |> string_of_election_checksums
 
   let compute_voters privcreds =
-    let module D = Belenios_core.Credential.MakeDerive (G) in
     let map =
       List.fold_left
         (fun accu (id, cred) ->
-          SMap.add G.(g **~ D.derive election.e_uuid cred |> to_string) id accu)
+          SMap.add G.(g **~ Cred.derive cred |> to_string) id accu)
         SMap.empty privcreds
     in
     let ballots = Lazy.force verified_ballots in
