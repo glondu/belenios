@@ -139,24 +139,30 @@ function TranslatableVoteApp({
   }, [uuid]);
 
   const changeCredential = (credential) => {
-    const invalid = () => {
-      alert(t("alert_invalid_credential"));
-      setCredential(null);
-      setCurrentStep(1);
-    };
     const callbacks = {
       success: (election) => {
         electionModule.current = election;
         setCredential(credential);
         setCurrentStep(2);
       },
-      failure: (error) => {
-        alert("Error: " + error);
+      failure: (error, detail) => {
+        let msg = null;
+        switch (error) {
+          case "INVALID_CREDENTIAL":
+          case "MAYBE_PASSWORD":
+            msg = t("alert_invalid_credential");
+            break;
+          case "GENERIC_FAILURE":
+            msg = "Error: " + detail;
+            break;
+          default:
+            msg = "Unexpected error: " + error + " (" + detail + ")";
+            break;
+        }
+        alert(msg);
         setCredential(null);
         setCurrentStep(1);
       },
-      invalid,
-      maybePassword: invalid,
     };
     setFirstLoad(false);
     belenios.checkCredential(electionData, credential, callbacks);

@@ -46,9 +46,7 @@ end
 
 class type checkCredentialCallbacks = object
   method success : (module ELECTION_WITH_SK) -> unit Js.meth
-  method failure : Js.js_string Js.t -> unit Js.meth
-  method invalid : unit -> unit Js.meth
-  method maybePassword : unit -> unit Js.meth
+  method failure : Js.js_string Js.t -> Js.js_string Js.t Js.opt -> unit Js.meth
 end
 
 class type encryptBallotCallbacks = object
@@ -106,12 +104,16 @@ let belenios : belenios Js.t =
                       let sk = sk
                     end in
                     callbacks##success (module X : ELECTION_WITH_SK)
-                | Error `Invalid -> callbacks##invalid ()
-                | Error `MaybePassword -> callbacks##maybePassword ()
+                | Error `Invalid ->
+                    callbacks##failure (Js.string "INVALID_CREDENTIAL") Js.null
+                | Error `MaybePassword ->
+                    callbacks##failure (Js.string "MAYBE_PASSWORD") Js.null
               in
               Lwt.return_unit)
             (fun e ->
-              callbacks##failure (Printexc.to_string e |> Js.string);
+              callbacks##failure
+                (Js.string "GENERIC_FAILURE")
+                (Js.some (Printexc.to_string e |> Js.string));
               Lwt.return_unit))
 
     method encryptBallot election plaintext
