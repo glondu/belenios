@@ -1,3 +1,14 @@
+dev
+===
+
+ * Update OCaml stack to 4.14.1 and base containers on Debian 12
+ * Add individual salts in credential derivation. This changes the
+   format of private credentials. The old format is still supported
+   for existing elections, but new ones will use the new format.
+ * Web server:
+   + Improve consistency of texts (GitHub issue #75)
+   + Send private credentials on draft validation
+
 2.2 (2023-08-30)
 ================
 
