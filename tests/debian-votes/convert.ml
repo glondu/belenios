@@ -30,12 +30,12 @@ let rec input_lines ic lines =
 let tally_txt = input_lines stdin []
 
 let nchoices =
-  let rex = Pcre.regexp "^V: ([-1-9]+)\\s" in
+  let rex = Re.Pcre.regexp "^V: ([-1-9]+)\\s" in
   match tally_txt with
   | [] -> failwith "No lines in input"
   | line :: _ -> (
-      match Pcre.exec ~rex line with
-      | s -> String.length (Pcre.get_substring s 1)
+      match Re.Pcre.exec ~rex line with
+      | s -> String.length (Re.Pcre.get_substring s 1)
       | exception Not_found -> failwith "Could not parse last line as a ballot")
 
 let rex =
@@ -45,16 +45,16 @@ let rex =
     Buffer.add_string buf "(.)"
   done;
   Buffer.add_string buf "\\s";
-  Pcre.regexp (Buffer.contents buf)
+  Re.Pcre.regexp (Buffer.contents buf)
 
 let rec convert accu = function
   | [] -> accu
   | line :: lines ->
       let accu =
-        match Pcre.exec ~rex line with
+        match Re.Pcre.exec ~rex line with
         | s ->
             let get i =
-              let x = Pcre.get_substring s (i + 1) in
+              let x = Re.Pcre.get_substring s (i + 1) in
               if x = "-" then 0 else int_of_string x
             in
             Array.init nchoices get :: accu

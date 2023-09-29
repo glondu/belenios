@@ -101,10 +101,10 @@ let get ~component ~lang =
               else Lwt.return (Hashtbl.find langs devel_lang))
 
 let parse_lang =
-  let rex = Pcre.regexp "^([a-z]{2})(?:-.*)?$" in
+  let rex = Re.Pcre.regexp "^([a-z]{2})(?:-.*)?$" in
   fun s ->
-    match Pcre.exec ~rex s with
-    | groups -> Some (Pcre.get_substring groups 1)
+    match Re.Pcre.exec ~rex s with
+    | groups -> Some (Re.Pcre.get_substring groups 1)
     | exception Not_found -> None
 
 let get_preferred_language () =

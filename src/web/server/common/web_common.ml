@@ -232,7 +232,7 @@ let site_cont x =
 type privacy_cont = ContAdmin | ContSignup of string
 
 let privacy_cont_of_string x =
-  match Pcre.split ~pat:"/" x with
+  match String.split_on_char '/' x with
   | [ "admin" ] -> ContAdmin
   | [ "signup"; service ] -> ContSignup service
   | _ -> invalid_arg "privacy_cont_of_string"
@@ -340,7 +340,7 @@ let send_email kind ~recipient ~subject ~body =
 
 let get_languages xs = match xs with None -> [ "en" ] | Some xs -> xs
 let string_of_languages xs = String.concat " " (get_languages xs)
-let languages_of_string x = Pcre.split x
+let languages_of_string x = Re.Pcre.(split ~rex:(regexp "\\s+") x)
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
 

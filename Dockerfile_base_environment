@@ -1,5 +1,5 @@
-FROM debian:11
-RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq bubblewrap build-essential libgmp-dev libsodium-dev libpcre3-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime git jq npm rsync
+FROM debian:12
+RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq bubblewrap build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime git jq npm rsync
 RUN useradd --create-home belenios
 COPY opam-bootstrap.sh /home/belenios
 COPY ext/opam-overlay /home/belenios/ext/opam-overlay
