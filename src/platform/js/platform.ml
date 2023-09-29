@@ -97,9 +97,11 @@ let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
 let sha256 x = Sjcl.sha256##hash (Js.string x)
 let sha256_hex x = hex_fromBits (sha256 x)
 
-let pbkdf2_generic toBits ~iterations ~salt x =
+let pbkdf2_generic toBits ~iterations ~salt ~size x =
   let salt = toBits salt in
-  let derived = Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations 256 in
+  let derived =
+    Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations (256 * size)
+  in
   hex_fromBits derived
 
 let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits

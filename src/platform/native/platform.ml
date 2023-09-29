@@ -59,10 +59,10 @@ let pbkdf2 ~prf ~salt ~iterations ~size password =
   done;
   Bytes.to_string result
 
-let pbkdf2_generic toBits ~iterations ~salt x =
+let pbkdf2_generic toBits ~iterations ~salt ~size x =
   let open Cryptokit in
   let salt = toBits salt in
-  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations ~size:1 ~salt x
+  pbkdf2 ~prf:MAC.hmac_sha256 ~iterations ~size ~salt x
   |> transform_string (Hexa.encode ())
 
 let pbkdf2_utf8 = pbkdf2_generic (fun x -> x)

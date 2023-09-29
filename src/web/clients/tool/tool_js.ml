@@ -149,7 +149,7 @@ module Tests = struct
   let bench_pbkdf2 () =
     let iterations = get_input "bench_pbkdf2_nb" |> int_of_string in
     let start = new%js Js.date_now in
-    ignore (pbkdf2_utf8 ~iterations ~salt:"SALT" "INPUT");
+    ignore (pbkdf2_utf8 ~iterations ~salt:"SALT" ~size:1 "INPUT");
     let stop = new%js Js.date_now in
     let delta = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
     Printf.ksprintf alert "Bench result (side %d): %d ms!\n" iterations delta;

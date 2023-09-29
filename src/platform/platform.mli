@@ -21,7 +21,7 @@
 
 val debug : string -> unit
 val sha256_hex : string -> string
-val pbkdf2_utf8 : iterations:int -> salt:string -> string -> string
+val pbkdf2_utf8 : iterations:int -> salt:string -> size:int -> string -> string
 val aes_hex : key:string -> data:string -> string
 
 val encrypt : key:string -> iv:string -> plaintext:string -> string

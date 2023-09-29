@@ -107,7 +107,7 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
 
   let derive_raw x =
     let uuid = Uuid.unwrap E.uuid in
-    let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid x in
+    let derived = pbkdf2_utf8 ~iterations:1000 ~salt:uuid ~size:1 x in
     G.Zq.reduce_hex derived
 
   let derive x =
