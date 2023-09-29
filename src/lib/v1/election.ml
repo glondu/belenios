@@ -147,7 +147,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   type private_key = scalar
   type public_key = elt
 
-  let random () = M.random Zq.q |> Zq.of_Z
+  let random () = M.random Zq.q |> Zq.coerce
   let ( / ) x y = x *~ invert y
 
   type plaintext = int array array

@@ -30,7 +30,7 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
   module G = W.G
   open G
 
-  let random () = M.random Zq.q |> Zq.of_Z
+  let random () = M.random Zq.q |> Zq.coerce
   let randoms n = Array.init n (fun _ -> random ())
 
   let gen_permutation n =
@@ -75,11 +75,11 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let h = sha256_hex str in
     Array.init n (fun i ->
         let i = sha256_hex (string_of_int i) in
-        Z.(of_hex (sha256_hex (h ^ i))) |> Zq.of_Z)
+        Z.(of_hex (sha256_hex (h ^ i))) |> Zq.reduce)
 
   let get_nizkp_challenge str =
     let h = sha256_hex str in
-    Z.(of_hex h) |> Zq.of_Z
+    Z.(of_hex h) |> Zq.reduce
 
   let str_egs e =
     let b = Buffer.create 1024 in

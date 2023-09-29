@@ -166,11 +166,11 @@ let modsqrt_check, modsqrt =
       let a = F.to_Z a in
       let v = powm (shift_left a 1) exp q in
       let i = erem (shift_left (a * v * v) 1) q in
-      F.of_Z (a * v * (i - one)) )
+      F.reduce (a * v * (i - one)) )
 
 let uncompress raw =
   let open Z in
-  let y = F.of_Z (logand raw mask255) in
+  let y = F.reduce (logand raw mask255) in
   let y2 = F.(y * y) in
   let x2 = F.((y2 - one) * invert ((d * y2) + one)) in
   let x = modsqrt x2 in
@@ -236,7 +236,7 @@ let to_ints =
 let hash prefix xs =
   let x = prefix ^ map_and_concat_with_commas to_string xs in
   let z = Z.of_hex (sha256_hex x) in
-  Zq.of_Z z
+  Zq.reduce z
 
 let hash_to_int p =
   let x, y = to_coordinates p in

@@ -35,7 +35,7 @@ let question_length q =
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
-  let random () = M.random Zq.q |> Zq.of_Z
+  let random () = M.random Zq.q |> Zq.coerce
   let ( / ) x y = x *~ invert y
   let dummy_ciphertext = { alpha = G.one; beta = G.one }
 
@@ -405,7 +405,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let check_result ~num_tallied x r =
     Array.for_all2
       (fun x r ->
-        let r = Weight.expand ~total:num_tallied r |> Zq.of_Z in
+        let r = Weight.expand ~total:num_tallied r |> Zq.coerce in
         let g' = if Zq.compare r Zq.zero = 0 then G.one else g **~ r in
         x =~ g')
       (Shape.to_array x) r

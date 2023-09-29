@@ -76,8 +76,12 @@ struct
   let to_int x = Z.to_int x
   let zero = of_int 0
   let one = of_int 1
-  let of_Z x = Z.erem x q
   let to_Z x = x
+  let reduce x = Z.erem x q
+
+  let coerce x =
+    if Z.compare zero x <= 0 && Z.compare x q < 0 then x
+    else invalid_arg "MakeField().coerce: number not in range"
 
   let of_string x =
     let x = Z.of_string x in

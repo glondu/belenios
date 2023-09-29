@@ -28,7 +28,7 @@ open Question_nh_t
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
-  let random () = M.random Zq.q |> Zq.of_Z
+  let random () = M.random Zq.q |> Zq.coerce
 
   let create_answer q ~public_key:y ~prefix m =
     assert (Array.length q.q_answers = Array.length m);

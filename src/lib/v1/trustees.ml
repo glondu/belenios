@@ -155,7 +155,7 @@ end
 module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open G
 
-  let random () = M.random G.Zq.q |> G.Zq.of_Z
+  let random () = M.random G.Zq.q |> G.Zq.coerce
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
@@ -182,7 +182,7 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
   type private_key = G.Zq.t
   type public_key = G.t
 
-  let random () = M.random G.Zq.q |> G.Zq.of_Z
+  let random () = M.random G.Zq.q |> G.Zq.coerce
 
   let genkey () =
     let n = 22 and z58 = Z.of_int 58 in
@@ -190,8 +190,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
         let x = M.random z58 in
         b58_digits.[Z.to_int x])
 
-  let derive_sk p = Z.of_hex (sha256_hex ("sk|" ^ p)) |> G.Zq.of_Z
-  let derive_dk p = Z.of_hex (sha256_hex ("dk|" ^ p)) |> G.Zq.of_Z
+  let derive_sk p = Z.of_hex (sha256_hex ("sk|" ^ p)) |> G.Zq.reduce
+  let derive_dk p = Z.of_hex (sha256_hex ("dk|" ^ p)) |> G.Zq.reduce
 
   let sign sk s_message =
     let w = random () in
@@ -269,7 +269,7 @@ struct
   module V = MakeVerificator (G)
   module L = MakeCombinator (G)
 
-  let random () = M.random Zq.q |> Zq.of_Z
+  let random () = M.random Zq.q |> Zq.coerce
 
   let step1 () =
     let seed = P.genkey () in

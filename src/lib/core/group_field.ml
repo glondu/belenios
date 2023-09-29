@@ -95,7 +95,7 @@ let make description ff_params =
     let hash prefix xs =
       let x = prefix ^ map_and_concat_with_commas Z.to_string xs in
       let z = Z.of_hex (sha256_hex x) in
-      Zq.of_Z z
+      Zq.reduce z
 
     let hash_to_int = Z.hash_to_int
     let compare = Z.compare

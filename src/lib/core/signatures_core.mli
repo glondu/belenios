@@ -40,7 +40,8 @@ module type FIELD = sig
   val to_int : t -> int
   val of_int : int -> t
   val to_Z : t -> Z.t
-  val of_Z : Z.t -> t
+  val reduce : Z.t -> t
+  val coerce : Z.t -> t
   val to_string : t -> string
   val of_string : string -> t
   val compare : t -> t -> int

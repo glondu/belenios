@@ -145,7 +145,7 @@ module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
   let hash prefix xs =
     let x = prefix ^ map_and_concat_with_commas to_string xs in
     let z = Z.of_hex (sha256_hex x) in
-    Zq.of_Z z
+    Zq.reduce z
 
   let hash_to_int p = G.hash_to_int (get_as_pure p)
   let description = "Ed25519"
