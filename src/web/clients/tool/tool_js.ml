@@ -124,7 +124,7 @@ module Tests = struct
   let gen n i =
     let j = n * i in
     let xs = Array.init n (fun i -> sha256_hex (string_of_int (j + i))) in
-    Z.of_hex (xs |> Array.to_list |> String.concat "")
+    xs |> Array.to_list |> String.concat ""
 
   let bench_group () =
     let group =
@@ -133,7 +133,7 @@ module Tests = struct
     let module G = (val group) in
     let n = get_input "bench_group_nb" |> int_of_string in
     let byte_length = bytes_to_sample G.Zq.q in
-    let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.reduce) in
+    let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.reduce_hex) in
     let start = new%js Js.date_now in
     let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = new%js Js.date_now in

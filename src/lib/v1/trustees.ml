@@ -190,8 +190,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
         let x = M.random z58 in
         b58_digits.[Z.to_int x])
 
-  let derive_sk p = Z.of_hex (sha256_hex ("sk|" ^ p)) |> G.Zq.reduce
-  let derive_dk p = Z.of_hex (sha256_hex ("dk|" ^ p)) |> G.Zq.reduce
+  let derive_sk p = G.Zq.reduce_hex (sha256_hex ("sk|" ^ p))
+  let derive_dk p = G.Zq.reduce_hex (sha256_hex ("dk|" ^ p))
 
   let sign sk s_message =
     let w = random () in

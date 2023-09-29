@@ -78,6 +78,7 @@ struct
   let one = of_int 1
   let to_Z x = x
   let reduce x = Z.erem x q
+  let reduce_hex x = Z.(erem (of_hex x) q)
 
   let coerce x =
     if Z.compare zero x <= 0 && Z.compare x q < 0 then x

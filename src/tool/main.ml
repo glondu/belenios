@@ -30,14 +30,14 @@ module Bench : CMDLINER_MODULE = struct
   let gen n i =
     let j = n * i in
     let xs = Array.init n (fun i -> sha256_hex (string_of_int (j + i))) in
-    Z.of_hex (xs |> Array.to_list |> String.concat "")
+    xs |> Array.to_list |> String.concat ""
 
   let bench_group version group n =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
     let module G = (val B.Group.of_string ~version group) in
     let byte_length = bytes_to_sample G.Zq.q in
-    let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.reduce) in
+    let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.reduce_hex) in
     let start = Unix.gettimeofday () in
     let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = Unix.gettimeofday () in

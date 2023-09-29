@@ -75,11 +75,9 @@ module Make (W : ELECTION_DATA) (M : RANDOM) = struct
     let h = sha256_hex str in
     Array.init n (fun i ->
         let i = sha256_hex (string_of_int i) in
-        Z.(of_hex (sha256_hex (h ^ i))) |> Zq.reduce)
+        Zq.reduce_hex (sha256_hex (h ^ i)))
 
-  let get_nizkp_challenge str =
-    let h = sha256_hex str in
-    Z.(of_hex h) |> Zq.reduce
+  let get_nizkp_challenge str = Zq.reduce_hex (sha256_hex str)
 
   let str_egs e =
     let b = Buffer.create 1024 in

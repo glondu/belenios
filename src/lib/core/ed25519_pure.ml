@@ -235,8 +235,7 @@ let to_ints =
 
 let hash prefix xs =
   let x = prefix ^ map_and_concat_with_commas to_string xs in
-  let z = Z.of_hex (sha256_hex x) in
-  Zq.reduce z
+  Zq.reduce_hex (sha256_hex x)
 
 let hash_to_int p =
   let x, y = to_coordinates p in
