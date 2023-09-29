@@ -1855,7 +1855,13 @@ let set_draft_public_credentials uuid public_creds =
   Spool.set ~uuid Spool.draft_public_credentials public_creds
 
 let get_draft_public_credentials uuid =
-  Spool.get ~uuid Spool.draft_public_credentials
+  let* x = Spool.get ~uuid Spool.draft_public_credentials in
+  let&* x = x in
+  let x =
+    x |> public_credentials_of_string |> List.map strip_cred
+    |> string_of_public_credentials
+  in
+  Lwt.return_some x
 
 let get_records uuid =
   Filesystem.read_file ~uuid (string_of_election_file ESRecords)
