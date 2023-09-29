@@ -46,7 +46,7 @@ EOF
 echo "Installing Debian prerequisites..."
 
 chroot "$DIR/rootfs" sh -c "apt-get update -qq && apt-get upgrade -qq"
-chroot "$DIR/rootfs" sh -c "apt-get install -qq netbase libgmp-dev libsodium-dev libpcre3-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime msmtp-mta logrotate"
+chroot "$DIR/rootfs" sh -c "apt-get install -qq netbase libgmp-dev libsodium-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime msmtp-mta logrotate"
 chroot "$DIR/rootfs" sh -c "apt-get clean"
 chroot "$DIR/rootfs" useradd belenios
 
