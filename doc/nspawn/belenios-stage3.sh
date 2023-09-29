@@ -27,7 +27,7 @@ cd /
 
 echo "Debootstrapping..."
 
-debootstrap --merged-usr --variant=minbase --include=systemd,dbus bullseye "$DIR/rootfs"
+debootstrap --merged-usr --variant=minbase --include=systemd,dbus bookworm "$DIR/rootfs"
 echo 'APT::Install-Recommends "false";' >> "$DIR/rootfs/etc/apt/apt.conf"
 
 ln -sfT /usr/lib/systemd/resolv.conf "$DIR/rootfs/etc/resolv.conf"
@@ -46,7 +46,7 @@ EOF
 echo "Installing Debian prerequisites..."
 
 chroot "$DIR/rootfs" sh -c "apt-get update -qq && apt-get upgrade -qq"
-chroot "$DIR/rootfs" sh -c "apt-get install -qq netbase libgmp-dev libsodium-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime msmtp-mta logrotate"
+chroot "$DIR/rootfs" sh -c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq netbase libgmp-dev libsodium-dev libssl-dev libsqlite3-dev ca-certificates zip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime msmtp-mta logrotate"
 chroot "$DIR/rootfs" sh -c "apt-get clean"
 chroot "$DIR/rootfs" useradd belenios
 
