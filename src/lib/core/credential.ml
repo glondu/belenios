@@ -150,15 +150,11 @@ module Make (R : RANDOM) (G : GROUP) (E : ELECTION) = struct
     }
 
   let parse_public_credential s =
-    try
-      match String.index s ',' with
-      | exception Not_found ->
-          let x = G.of_string s in
-          if G.check x then Some (Weight.one, x) else None
-      | i ->
-          let n = String.length s in
-          let w = Weight.of_string (String.sub s (i + 1) (n - i - 1)) in
-          let x = G.of_string (String.sub s 0 i) in
-          if G.check x then Some (w, x) else None
-    with _ -> None
+    match parse_public_credential G.of_string s with
+    | exception Invalid_argument _ -> None
+    | p ->
+        if G.check p.credential then
+          let weight = Option.value ~default:Weight.one p.weight in
+          Some (weight, p.credential)
+        else None
 end

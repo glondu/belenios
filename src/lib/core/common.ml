@@ -243,21 +243,35 @@ let split_lines str =
   in
   loop [] 0
 
-let strip_cred x =
+let parse_public_credential of_string x =
+  let open Serializable_core_t in
   match String.split_on_char ',' x with
-  | [ _ ] | [ _; _ ] -> x
-  | [ x; ""; _ ] -> x
-  | [ x; y; _ ] -> Printf.sprintf "%s,%s" x y
+  | [ c ] -> { credential = of_string c; weight = None; username = None }
+  | [ c; w ] ->
+      {
+        credential = of_string c;
+        weight = Some (Weight.of_string w);
+        username = None;
+      }
+  | [ c; ""; u ] ->
+      { credential = of_string c; weight = None; username = Some u }
+  | [ c; w; u ] ->
+      {
+        credential = of_string c;
+        weight = Some (Weight.of_string w);
+        username = Some u;
+      }
   | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
 
-let extract_weight str =
-  try
-    let i = String.rindex str ',' in
-    let w =
-      Weight.of_string (String.sub str (i + 1) (String.length str - i - 1))
-    in
-    (String.sub str 0 i, w)
-  with _ -> (str, Weight.one)
+let format_public_credential to_string x =
+  let open Serializable_core_t in
+  match x.weight with
+  | None -> to_string x.credential
+  | Some w ->
+      Printf.sprintf "%s,%s" (to_string x.credential) (Weight.to_string w)
+
+let strip_public_credential x =
+  x |> parse_public_credential Fun.id |> format_public_credential Fun.id
 
 let re_exec_opt ~rex x = try Some (Re.Pcre.exec ~rex x) with Not_found -> None
 let username_rex = "^[A-Z0-9._%+-]+$"

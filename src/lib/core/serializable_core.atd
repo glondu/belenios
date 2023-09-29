@@ -50,3 +50,9 @@ type voter = {
 }
 
 type voter_list = voter list
+
+type 'a public_credential = {
+  credential : 'a;
+  ?weight : weight option;
+  ?username : string option;
+}

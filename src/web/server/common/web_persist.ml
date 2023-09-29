@@ -749,23 +749,19 @@ let raw_get_credential_cache uuid =
       let* x = get_public_creds uuid in
       List.fold_left
         (fun accu x ->
-          let x, weight = extract_weight x in
-          SMap.add x { weight; username = None } accu)
+          let p = parse_public_credential Fun.id x in
+          let weight = Option.value ~default:Weight.one p.weight in
+          SMap.add p.credential { weight; username = None } accu)
         SMap.empty x
       |> return
   | Some x ->
       let x = public_credentials_of_string x in
       List.fold_left
         (fun accu x ->
-          let cred, weight, username =
-            match String.split_on_char ',' x with
-            | [ x ] -> (x, Weight.one, None)
-            | [ x; y ] -> (x, Weight.of_string y, None)
-            | [ x; ""; z ] -> (x, Weight.one, Some z)
-            | [ x; y; z ] -> (x, Weight.of_string y, Some z)
-            | _ -> assert false
-          in
-          SMap.add cred { weight; username } accu)
+          let p = parse_public_credential Fun.id x in
+          let weight = Option.value ~default:Weight.one p.weight in
+          let username = p.username in
+          SMap.add p.credential { weight; username } accu)
         SMap.empty x
       |> return
 
@@ -1030,7 +1026,7 @@ let init_credential_mapping uuid xs =
   let xs =
     List.fold_left
       (fun accu x ->
-        let x, _ = extract_weight x in
+        let x = (parse_public_credential Fun.id x).credential in
         if SMap.mem x accu then failwith "trying to add duplicate credential"
         else SMap.add x None accu)
       SMap.empty xs
@@ -1656,7 +1652,9 @@ let validate_election uuid se s =
     let* file = Filesystem.read_file_single_line fname in
     match file with
     | Some x ->
-        let x = public_credentials_of_string x |> List.map strip_cred in
+        let x =
+          public_credentials_of_string x |> List.map strip_public_credential
+        in
         let* () = init_credential_mapping uuid x in
         Lwt.return x
     | None -> Lwt.fail @@ Failure "no public credentials"
@@ -1858,7 +1856,8 @@ let get_draft_public_credentials uuid =
   let* x = Spool.get ~uuid Spool.draft_public_credentials in
   let&* x = x in
   let x =
-    x |> public_credentials_of_string |> List.map strip_cred
+    x |> public_credentials_of_string
+    |> List.map strip_public_credential
     |> string_of_public_credentials
   in
   Lwt.return_some x

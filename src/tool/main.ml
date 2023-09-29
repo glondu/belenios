@@ -118,7 +118,8 @@ module Events : CMDLINER_MODULE = struct
     let trustees = string_of_file trustees in
     let public_creds =
       string_of_file public_creds
-      |> public_credentials_of_string |> List.map strip_cred
+      |> public_credentials_of_string
+      |> List.map strip_public_credential
       |> string_of_public_credentials
     in
     let file =

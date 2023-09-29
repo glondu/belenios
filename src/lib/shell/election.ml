@@ -103,23 +103,16 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
     let w_total, min, max =
       List.fold_left
         (fun (total, min, max) cred ->
-          match String.index cred ',' with
-          | exception Not_found -> (Weight.(total + one), min, max)
-          | i ->
-              let n = String.length cred in
-              let w = Weight.of_string (String.sub cred (i + 1) (n - i - 1)) in
-              let total = Weight.(total + w) in
-              let min =
-                match min with
-                | None -> Some w
-                | Some w' -> Some (Weight.min w w')
-              in
-              let max =
-                match max with
-                | None -> Some w
-                | Some w' -> Some (Weight.max w w')
-              in
-              (total, min, max))
+          let p = parse_public_credential Fun.id cred in
+          let w = Option.value ~default:Weight.one p.weight in
+          let total = Weight.(total + w) in
+          let min =
+            match min with None -> Some w | Some w' -> Some (Weight.min w w')
+          in
+          let max =
+            match max with None -> Some w | Some w' -> Some (Weight.max w w')
+          in
+          (total, min, max))
         (Weight.zero, None, None) public_credentials
     in
     if Weight.is_int w_total ec_num_voters then None

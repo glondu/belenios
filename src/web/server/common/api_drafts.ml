@@ -397,13 +397,12 @@ let submit_public_credentials uuid se credentials =
                    (`GenericError (Printf.sprintf "invalid %s at index %d" x i))))
             fmt
         in
-        let cred, weight, username =
-          match String.split_on_char ',' x with
-          | [ c; ""; u ] -> (G.of_string c, Weight.one, u)
-          | [ c; w; u ] -> (G.of_string c, Weight.of_string w, u)
-          | _ -> invalid "record"
+        let p = parse_public_credential G.of_string x in
+        let weight = Option.value ~default:Weight.one p.weight in
+        let username =
+          match p.username with Some u -> u | None -> invalid "record"
         in
-        let cred_s = G.to_string cred in
+        let cred_s = G.to_string p.credential in
         let () =
           match SMap.find_opt username usernames with
           | None -> invalid "username %s" username
@@ -412,7 +411,8 @@ let submit_public_credentials uuid se credentials =
               else if Weight.compare w weight <> 0 then
                 invalid "differing weight"
               else if SSet.mem cred_s accu then invalid "duplicate credential"
-              else if not (G.check cred) then invalid "public credential"
+              else if not (G.check p.credential) then
+                invalid "public credential"
               else used := true
         in
         (i + 1, SSet.add cred_s accu))
