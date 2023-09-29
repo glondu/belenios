@@ -25,7 +25,7 @@ mkdir opam-repository
 cd opam-repository
 git init
 git remote add origin https://github.com/ocaml/opam-repository.git
-git fetch --depth=1 origin 0f0319b6fdf6c811c00ecf56bb035dc471f21090:opam
+git fetch --depth=1 origin d45d933f2f08ca7f2b61f60dbef34930e1d5194b:opam
 git checkout opam
 
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
@@ -96,14 +96,14 @@ echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
-opam switch create 4.13.1 ocaml-base-compiler.4.13.1
+opam switch create 4.14.1 ocaml-base-compiler.4.14.1
 eval $(opam env)
 opam repository add belenios-overlay $BELENIOS_SRC/ext/opam-overlay
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes base64 hex dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite eliom=10.0.0 gettext-camomile ocamlnet
+opam install --yes base64 hex dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite eliom gettext-camomile ocamlnet
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

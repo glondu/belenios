@@ -52,7 +52,7 @@ chroot "$DIR/rootfs" useradd belenios
 
 echo "Setting up runtime files from opam root..."
 
-cp -a --parents home/belenios/.belenios/opam/4.13.1/lib/findlib.conf "$DIR/rootfs"
+cp -a --parents home/belenios/.belenios/opam/4.14.1/lib/findlib.conf "$DIR/rootfs"
 
 echo "Copying needed runtime files from belenios source tree..."
 
