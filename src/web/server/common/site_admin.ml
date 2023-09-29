@@ -1152,7 +1152,7 @@ struct
         redir_preapply admin () ())
 
   let () =
-    let rex = Pcre.regexp "\".*\" \".*:(.*)\"" in
+    let rex = Re.Pcre.regexp "\".*\" \".*:(.*)\"" in
     Any.register ~service:election_missing_voters (fun (uuid, ()) () ->
         let@ _ = with_metadata_check_owner uuid in
         let* voters = Web_persist.get_all_voters uuid in
@@ -1170,8 +1170,8 @@ struct
               return
                 (List.fold_left
                    (fun accu r ->
-                     let s = Pcre.exec ~rex r in
-                     let v = Pcre.get_substring s 1 in
+                     let s = Re.Pcre.exec ~rex r in
+                     let v = Re.Pcre.get_substring s 1 in
                      SMap.remove (Stdlib.String.lowercase_ascii v) accu)
                    voters rs)
           | None -> return voters

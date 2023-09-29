@@ -2,16 +2,16 @@
 (* Usage: ocaml fill_en_po.ml < en.po | sponge en.po *)
 
 #use "topfind";;
-#require "pcre";;
+#require "re";;
 
-let rex = Pcre.regexp "^msgid (.*)$"
+let rex = Re.Pcre.regexp "^msgid (.*)$"
 
 let rec process_msgid ic oc =
   match input_line ic with
   | exception End_of_file -> ()
   | line ->
-     match Pcre.exec ~rex line with
-     | s -> process_msgstr (Pcre.get_substring s 1) ic oc
+     match Re.Pcre.exec ~rex line with
+     | s -> process_msgstr (Re.Pcre.get_substring s 1) ic oc
      | exception Not_found ->
         Printf.fprintf oc "%s\n%!" line;
         process_msgid ic oc

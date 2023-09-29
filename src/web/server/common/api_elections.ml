@@ -268,12 +268,13 @@ let select_shuffler uuid metadata trustee =
   Lwt.return_unit
 
 let split_voting_record =
-  let rex = Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
+  let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
   fun x ->
-    let s = Pcre.exec ~rex x in
+    let s = Re.Pcre.exec ~rex x in
     {
-      vr_date = Datetime.to_unixfloat @@ Datetime.wrap @@ Pcre.get_substring s 1;
-      vr_username = Pcre.get_substring s 3;
+      vr_date =
+        Datetime.to_unixfloat @@ Datetime.wrap @@ Re.Pcre.get_substring s 1;
+      vr_username = Re.Pcre.get_substring s 3;
     }
 
 let get_records uuid =
