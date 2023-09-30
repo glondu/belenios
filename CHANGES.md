@@ -1,5 +1,5 @@
-dev
-===
+2.3 (2023-09-30)
+================
 
  * Update OCaml stack to 4.14.1 and base containers on Debian 12
  * Add individual salts in credential derivation. This changes the
