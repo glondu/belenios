@@ -43,7 +43,13 @@ module Make (Web_auth : Web_auth_sig.S) = struct
          ()
       |> rewrite_prefix)
 
-  let oidc_get_userinfo ocfg info =
+  let oidc_use_sub a =
+    let get x = List.assoc_opt x a.auth_config in
+    match get "use_sub" with
+    | Some "true" -> true
+    | _ -> false
+
+  let oidc_get_userinfo a ocfg info =
     try
       let info = oidc_tokens_of_string info in
       let access_token = info.oidc_access_token in
@@ -55,14 +61,20 @@ module Make (Web_auth : Web_auth_sig.S) = struct
       let* info = Cohttp_lwt.Body.to_string body in
       try
         let x = oidc_userinfo_of_string info in
-        return_some
-          (match x.oidc_email with
-          | Some x -> (x, x)
-          | None -> (x.oidc_sub, ""))
+        if oidc_use_sub a then
+          return_some
+            (x.oidc_sub, (match x.oidc_email with
+              | Some x -> x
+              | None -> ""))
+        else
+          return_some
+            (match x.oidc_email with
+              | Some x -> (x, x)
+              | None -> (x.oidc_sub, ""))
       with _ -> return_none
     with _ -> return_none
 
-  let oidc_get_name ocfg client_id client_secret code =
+  let oidc_get_name a ocfg client_id client_secret code =
     let params =
       [
         ("code", [ code ]);
@@ -77,7 +89,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
         (Uri.of_string ocfg.token_endpoint)
     in
     let* info = Cohttp_lwt.Body.to_string body in
-    oidc_get_userinfo ocfg info
+    oidc_get_userinfo a ocfg info
 
   let get_oidc_configuration server =
     let url = server ^ "/.well-known/openid-configuration" in
@@ -152,7 +164,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
                     in
                     let* () = Eliom_state.discard ~scope () in
                     let* name =
-                      oidc_get_name ocfg client_id client_secret code
+                      oidc_get_name a ocfg client_id client_secret code
                     in
                     cont name
                 | _, _ -> fail_http `Service_unavailable);
