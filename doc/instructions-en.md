@@ -192,17 +192,14 @@ Then the authority has two options to generate the credentials:
   - copy the voter list to a file, e.g. `voter.txt`;
   - let `$UUID` be the identifier of the election (the last component
     in the given election URL, see at the top of this document);
-  - let `$GROUP` be either `BELENIOS-2048` (if there are no
-    alternative questions) or `RFC-3526-2048` (if there is at least
-    one alternative question);
   - run the command:
 
-        belenios-tool setup generate-credentials --file voters.txt --group $GROUP --uuid $UUID
+        belenios-tool setup generate-credentials --file voters.txt --group Ed25519 --uuid $UUID
 
     It will generate two files, `$TIMESTAMP.privcreds` and
     `$TIMESTAMP.pubcreds`, and output the `fingerprint of public credentials`;
   - upload the `.pubcreds` file with the `Submit by file` form;
-  - keep the `.privcreds` file and save it as `creds.txt`.
+  - keep the `.privcreds` file and save it as `creds.json`.
 
 The second option should be preferred for more security, in particular
 if there is no auditor in charge of monitoring the server.
@@ -266,7 +263,7 @@ expected that the credential authority :
 Once the election is finished and validated, it is expected that the
 credential authority:
 
-- destroys the file `creds.txt`. Indeed, this file gives the link between
+- destroys the file `creds.json`. Indeed, this file gives the link between
   a voter and their (encrypted) ballot. This link could compromise the vote
   secrecy in the long term, for instance if the encryption keys become
   too small for the computing power in the future (or if a quantum
