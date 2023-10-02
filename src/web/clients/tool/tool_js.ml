@@ -30,6 +30,8 @@ open Platform
 open Serializable_j
 open Belenios_js.Common
 
+let root = ".."
+
 let install_handler (id, handler) =
   let f _ =
     Lwt.async (fun () ->
@@ -292,9 +294,95 @@ module Schulze = struct
   let cmds = [ ("do_schulze", compute) ]
 end
 
+module BuggyPartialDecryption = struct
+  open Belenios_api.Serializable_j
+
+  let compute () =
+    let hash = get_input "buggy_pd_hash" in
+    let seed = get_input "buggy_pd_seed" in
+    let@ uuid, token =
+     fun cont ->
+      match String.split_on_char '-' hash with
+      | [ uuid; token ] -> cont (uuid, token)
+      | _ ->
+          Printf.ksprintf alert "%s is not a valid access code" hash;
+          Lwt.return_unit
+    in
+    let@ raw_election cont =
+      let* x =
+        Printf.ksprintf (get Fun.id) "%s/elections/%s/election.json" root uuid
+      in
+      match x with
+      | None ->
+          Printf.ksprintf alert "Election %s could not be found!" uuid;
+          Lwt.return_unit
+      | Some x -> cont x
+    in
+    let@ encrypted_tally cont =
+      let* x =
+        Printf.ksprintf (get Fun.id) "%s/elections/%s/encrypted_tally.json" root
+          uuid
+      in
+      match x with
+      | None ->
+          Printf.ksprintf alert "Could not get encrypted tally of election %s!"
+            uuid;
+          Lwt.return_unit
+      | Some x -> cont x
+    in
+    let@ epk cont =
+      let* x =
+        Printf.ksprintf
+          (get ~token tally_trustee_of_string)
+          "%s/api/elections/%s/tally-trustee" root uuid
+      in
+      match x with
+      | Some { tally_trustee_private_key = Some x } -> cont x
+      | _ ->
+          alert "Could not get encrypted private key!";
+          Lwt.return_unit
+    in
+    let module P =
+      Belenios.Election.Make
+        (struct
+          let raw_election = raw_election
+        end)
+        (Random)
+        ()
+    in
+    let encrypted_tally =
+      encrypted_tally |> encrypted_tally_of_string (sread P.G.of_string)
+    in
+    let private_key =
+      let module Trustees =
+        (val Belenios.Trustees.get_by_version P.election.e_version)
+      in
+      let module PKI = Trustees.MakePKI (P.G) (Random) in
+      let module C = Trustees.MakeChannels (P.G) (Random) (PKI) in
+      let sk = PKI.derive_sk seed and dk = PKI.derive_dk seed in
+      let vk = P.G.(g **~ sk) in
+      let epk =
+        epk
+        |> encrypted_msg_of_string P.(sread G.of_string)
+        |> C.recv dk vk
+        |> partial_decryption_key_of_string (sread Z.of_string)
+      in
+      let buggy = epk.pdk_decryption_key in
+      P.G.Zq.reduce buggy
+    in
+    let factor = P.E.compute_factor encrypted_tally private_key in
+    set_textarea "buggy_pd_output"
+      (string_of_partial_decryption (swrite P.G.to_string)
+         (swrite P.G.Zq.to_string) factor);
+    Lwt.return_unit
+
+  let cmds = [ ("do_buggy_pd", compute) ]
+end
+
 let cmds =
   [ ("new_uuid", new_uuid) ]
   @ Tests.cmds @ Tkeygen.cmds @ Credgen.cmds @ Mkelection.cmds @ Schulze.cmds
+  @ BuggyPartialDecryption.cmds
 
 let () =
   Lwt.async (fun () ->

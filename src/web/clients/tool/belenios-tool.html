@@ -11,6 +11,7 @@
       <li><a href="#tests">Unit tests</a></li>
       <li><a href="#setup">Pre-election setup</a></li>
       <li><a href="#method-schulze">Condorcet-Schulze method</a></li>
+      <li><a href="#buggy-pd">Partial decryption of buggy election</a></li>
     </ul>
     <div id="tests">
       <h2>Tests and benchmarks</h2>
@@ -142,6 +143,18 @@
           <button id="do_schulze">Compute</button>
           <div><textarea id="schulze_output" rows="10" cols="80"></textarea></div>
         </div>
+      </div>
+    </div>
+    <div id="buggy-pd">
+      <h3>Partial decryption of buggy election</h3>
+      <div>
+        <div>
+          Access code (part of the URL after hash sign):
+          <input id="buggy_pd_hash" size="40"/>
+        </div>
+        <div>Private key: <input id="buggy_pd_seed" size="40"/></div>
+        <div><button id="do_buggy_pd">Compute</button></div>
+        <div><textarea id="buggy_pd_output" rows="10" cols="80"></textarea></div>
       </div>
     </div>
   </body>
