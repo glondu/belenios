@@ -1,4 +1,4 @@
 # Tools for automated tests
 selenium==3.141.0
 hypothesis==5.6.0
-urllib3==1.26.15
+urllib3==1.26.17
