@@ -207,7 +207,8 @@ hash chain. It contains in particular:
 \end{enumerate}
 Step~\ref{item-forget} is optional. It offers a better protection
 against ballot stuffing in case $\mathcal{C}$ unintentionally leaks
-private credentials.
+private credentials (but disables credential recovery, see
+Section~\ref{sec:recovery}).
 
 \subsubsection{Filling in the \texttt{trustees} structure}
 \label{process-filling-trustees}
@@ -307,7 +308,7 @@ trustee as specified in section~\ref{polynomials}.
 \end{enumerate}
 
 
-\subsection{Credential recovery}
+\subsection{Credential recovery}\label{sec:recovery}
 
 If $\mathcal C$ has forgotten the private credentials of the voter
 (optional step~\ref{item-forget} of the setup) then credentials cannot
@@ -398,7 +399,8 @@ This ensures that nothing has been removed from $D'$.
 \end{enumerate}
 
 There is no tool support on the web interface for these checks,
-instead the command line tools \texttt{verify} and \texttt{verify-diff} can be used.
+instead the command line tools \texttt{election verify} and
+\texttt{election verify-diff} can be used.
 
 \subsubsection{After the tally}
 The auditor retrieves the public data $D$ and in particular the list
@@ -425,7 +427,7 @@ that case, the audit should also check that this human-readable data is
 consistent with the election data.
 
 There is no tool support on the web interface for these checks,
-instead the command line tool \texttt{verify} can be used.
+instead the command line tool \texttt{election verify} can be used.
 
 \section{Messages}
 \label{messages}
@@ -477,7 +479,7 @@ $o$.
 \subsection{Public data}
 \label{public-data}
 
-During an election, all public data are published in a dynamic
+During an election, all public data is published in a dynamic
 file. This file can be used to perform verifications and
 monitoring. It is actually an old-style tar archive and evolves in an
 append-only fashion. It stops evolving when the election is tallied.
@@ -1762,7 +1764,7 @@ as follows:
 \section{Groups}
 \label{default-group}
 
-A group is designed by a short string. In addition to the usual
+A group is identified by a short string. In addition to the usual
 mathematical group definition, it must support the following
 operations:
 \begin{itemize}
@@ -1937,7 +1939,7 @@ defined by the following parameters:
     -x^2+y^2=1-\frac{121665}{121666}x^2y^2,
   \]
 \item $g$ is the unique point in $E(\F_p)$ whose $y$ coordinate is
-  $4/5$ whose $x$ coordinate is positive,
+  $4/5$ and whose $x$ coordinate is positive,
 \item the order of $g$ is $q=2^{252}+27742317777372353535851937790883648493$.
 \end{itemize}
 In the above, \emph{positive} is defined in terms of bit-encoding:
