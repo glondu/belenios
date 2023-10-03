@@ -201,18 +201,15 @@ L'autorité a alors deux options pour générer les codes de vote:
   - copier la liste électorale dans un fichier `voters.txt` ;
   - nommer `$UUID` l'identifiant de l'élection (le dernier composant de
     l'URL de l'élection, donnée par la page) ;
-  - nommer `$GROUP` soit `BELENIOS-2048` (s'il n'y a pas de question
-    alternative), soit `RFC-3526-2048` (s'il y a au moins une question
-    alternative) ;
   - exécuter la commande :
 
-        belenios-tool setup generate-credentials --file voters.txt --group $GROUP --uuid $UUID
+        belenios-tool setup generate-credentials --file voters.txt --group Ed25519 --uuid $UUID
 
     Elle génère deux fichiers, `$TIMESTAMP.privcreds` et
     `$TIMESTAMP.pubcreds`, et l'`empreinte des codes de vote publics` ;
   - soumettre le fichier `.pubcreds` avec le formulaire `Soumettre via
     un fichier` ;
-  - sauvegarder le fichier `.privcreds` en tant que `creds.txt`.
+  - sauvegarder le fichier `.privcreds` en tant que `creds.json`.
 
 La seconde option devrait être préférée pour plus de sécurité, en
 particulier s'il n'y a pas d'auditeur en charge de surveiller le
@@ -277,7 +274,7 @@ vote :
 Une fois l'élection terminée et validée, il est attendu que l'autorité de
 génération de codes de vote :
 
-- détruise le fichier `creds.txt`. En effet, ce fichier permet de faire
+- détruise le fichier `creds.json`. En effet, ce fichier permet de faire
   le lien entre un électeur et son bulletin (chiffré). Ce lien
   pourrait compromettre l'anonymat du vote à long terme, par exemple
   si les clés de chiffrement utilisées deviennent trop faibles pour la
