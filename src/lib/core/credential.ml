@@ -99,6 +99,8 @@ module type S = sig
   type public_key
 
   val generate : Voter.t list -> batch m
+  val generate_sub : int -> sub_batch
+  val merge_sub : Voter.t list -> sub_batch -> batch
 
   val derive :
     string ->
@@ -191,6 +193,67 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       public_with_ids_and_salts = List.map serialize_with_id_and_salt bindings;
     }
     |> E.return
+
+  let generate_sub n =
+    let rng = pseudo_rng (random_string secure_rng 32) in
+    let rec loop n accu =
+      if n > 0 then
+        let { raw; salt; private_key } = generate_one rng in
+        let sub_public = G.(g **~ private_key |> to_string) in
+        let x = { sub_base = raw; sub_salt = salt; sub_public } in
+        loop (n - 1) (x :: accu)
+      else accu
+    in
+    loop n []
+
+  let merge_sub voters subs =
+    let implicit_weights = not (Voter.has_explicit_weights voters) in
+    let privs, pubs =
+      let rec loop (privs, pubs) voters subs =
+        match (voters, subs) with
+        | v :: vs, s :: ss ->
+            let _, username, weight = Voter.get v in
+            let privs = SMap.add username (ref s.sub_base) privs in
+            let pubs =
+              GMap.add
+                G.(of_string s.sub_public)
+                (weight, username, s.sub_salt)
+                pubs
+            in
+            loop (privs, pubs) vs ss
+        | [], _ -> (privs, pubs)
+        | _ :: _, [] -> failwith "merge_sub"
+      in
+      loop (SMap.empty, GMap.empty) voters subs
+    in
+    let serialize_with_id_and_salt (e, (w, id, salt)) =
+      G.to_string e
+      ^ (if implicit_weights then ","
+         else Printf.sprintf ",%s" (Weight.to_string w))
+      ^ Printf.sprintf ",%s" id ^ Printf.sprintf ",%s" salt
+    in
+    let serialize_public (e, (w, _, _)) =
+      G.to_string e
+      ^
+      if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
+    in
+    let bindings = GMap.bindings pubs in
+    let index_size = String.length (string_of_int (GMap.cardinal pubs - 1)) in
+    let () =
+      List.iteri
+        (fun i (_, (_, id, _)) ->
+          let r = SMap.find id privs in
+          r := Printf.sprintf "%s-%0*d" !r index_size i)
+        bindings
+    in
+    let private_creds =
+      SMap.fold (fun id cred creds -> (id, !cred) :: creds) privs [] |> List.rev
+    in
+    {
+      private_creds;
+      public_creds = List.map serialize_public bindings;
+      public_with_ids_and_salts = List.map serialize_with_id_and_salt bindings;
+    }
 
   let parse_public_credential s =
     match parse_public_credential G.of_string s with

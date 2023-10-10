@@ -87,6 +87,14 @@ type 'a salt = {
     public_credential : 'a;
 }
 
+type sub_batch_item = {
+    base : string;
+    salt : string;
+    public : string;
+} <ocaml field_prefix="sub_">
+
+type sub_batch = sub_batch_item list
+
 type template = {
   description : string;
   name : string;

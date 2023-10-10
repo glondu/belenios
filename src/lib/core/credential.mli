@@ -46,6 +46,8 @@ module type S = sig
   type public_key
 
   val generate : Voter.t list -> batch m
+  val generate_sub : int -> sub_batch
+  val merge_sub : Voter.t list -> sub_batch -> batch
 
   val derive :
     string ->

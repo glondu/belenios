@@ -255,10 +255,11 @@ module Credgen : CMDLINER_MODULE = struct
     output_string oc (to_string things);
     List.length things
 
-  let main version group dir uuid count file derive =
+  let main version group dir uuid count jobs file derive =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
     let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
+    let () = if jobs <= 0 then failcmd "--jobs must be positive" in
     let action =
       match (count, file, derive) with
       | Some n, None, None ->
@@ -284,30 +285,67 @@ module Credgen : CMDLINER_MODULE = struct
           let get_salt _ = None
         end)
     in
+    let save (c : Belenios_core.Credential.batch) =
+      let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
+      let base = dir // timestamp in
+      save params_priv base
+        (as_json string_of_private_credentials c.private_creds);
+      save params_pub base
+        (as_json string_of_public_credentials c.public_with_ids_and_salts);
+      let the_salts =
+        c.public_with_ids_and_salts |> List.filter_map extract_salt
+      in
+      save salts base (as_json string_of_salts the_salts);
+      let h = sha256_b64 (string_of_public_credentials c.public_creds) in
+      Printf.printf "The fingerprint of public credentials is %s\n%!" h
+    in
     match action with
     | `Derive c -> (
         match Cred.derive c with
         | Ok x -> print_endline G.(g **~ x |> to_string)
         | Error _ -> failcmd "invalid credential")
+    | `Generate ids when jobs = 1 -> save (Cred.generate ids)
     | `Generate ids ->
-        let c = Cred.generate ids in
-        let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
-        let base = dir // timestamp in
-        save params_priv base
-          (as_json string_of_private_credentials c.private_creds);
-        save params_pub base
-          (as_json string_of_public_credentials c.public_with_ids_and_salts);
-        let the_salts =
-          c.public_with_ids_and_salts |> List.filter_map extract_salt
+        let n = (List.length ids / jobs) + 1 in
+        let args =
+          [|
+            Sys.argv.(0);
+            "setup";
+            "generate-sub-credentials";
+            Printf.sprintf "--protocol-version=%d" version;
+            Printf.sprintf "--group=%s" group;
+            Printf.sprintf "--uuid=%s" (Uuid.unwrap uuid);
+            Printf.sprintf "--count=%d" n;
+          |]
         in
-        save salts base (as_json string_of_salts the_salts);
-        let h = sha256_b64 (string_of_public_credentials c.public_creds) in
-        Printf.printf "The fingerprint of public credentials is %s\n%!" h
+        let rec open_processes jobs accu =
+          if jobs > 0 then
+            let ic = Unix.open_process_args_in Sys.executable_name args in
+            open_processes (jobs - 1) (ic :: accu)
+          else accu
+        in
+        let rec collect_processes accu = function
+          | [] -> accu
+          | ic :: ics -> (
+              let line = input_line ic in
+              match Unix.close_process_in ic with
+              | Unix.WEXITED 0 ->
+                  let sub = sub_batch_of_string line in
+                  collect_processes (List.rev_append sub accu) ics
+              | _ -> failcmd "generate-sub-credentials failed")
+        in
+        open_processes jobs [] |> collect_processes [] |> Cred.merge_sub ids
+        |> save
 
   let count_t =
     let doc = "Generate $(docv) credentials." in
     let the_info = Arg.info [ "count" ] ~docv:"N" ~doc in
     Arg.(value & opt (some int) None the_info)
+
+  let jobs_t =
+    let doc = "Use $(docv) parallel jobs." in
+    let the_info = Arg.info [ "jobs" ] ~docv:"JOBS" ~doc in
+    Arg.(value & opt int 1 the_info)
 
   let file_t =
     let doc =
@@ -343,8 +381,52 @@ module Credgen : CMDLINER_MODULE = struct
       (Cmd.info "generate-credentials" ~doc ~man)
       Term.(
         ret
-          (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ file_t
-         $ derive_t))
+          (const main $ version_t $ group_t $ dir_t $ uuid_t $ count_t $ jobs_t
+         $ file_t $ derive_t))
+end
+
+module SubCredgen : CMDLINER_MODULE = struct
+  let main version group uuid count =
+    let@ () = wrap_main in
+    let group = get_mandatory_opt "--group" group in
+    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
+    let count = get_mandatory_opt "--count" count in
+    let module G = (val Group.of_string ~version group : GROUP) in
+    let module Cred =
+      Belenios_core.Credential.Make
+        (G)
+        (struct
+          type 'a t = 'a
+
+          let return x = x
+          let bind x f = f x
+          let pause () = ()
+          let uuid = uuid
+          let get_salt _ = None
+        end)
+    in
+    let x = Cred.generate_sub count in
+    print_endline (string_of_sub_batch x)
+
+  let count_t =
+    let doc = "Generate $(docv) credentials." in
+    let the_info = Arg.info [ "count" ] ~docv:"N" ~doc in
+    Arg.(value & opt (some int) None the_info)
+
+  let cmd =
+    let doc = "generate sub credentials" in
+    let man =
+      [
+        `S "DESCRIPTION";
+        `P
+          "This command is an implementation detail and should not be run \
+           directly.";
+      ]
+      @ common_man
+    in
+    Cmd.v
+      (Cmd.info "generate-sub-credentials" ~doc ~man)
+      Term.(ret (const main $ version_t $ group_t $ uuid_t $ count_t))
 end
 
 module Mktrustees : CMDLINER_MODULE = struct
@@ -484,6 +566,7 @@ let cmd =
       Tkeygen.cmd;
       Ttkeygen.cmd;
       Credgen.cmd;
+      SubCredgen.cmd;
       Mktrustees.cmd;
       Mkelection.cmd;
       GenerateToken.cmd;
