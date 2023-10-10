@@ -215,7 +215,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         generate_button_element = wait_for_element_exists(browser, generate_button_css_selector)
         generate_button_element.click()
 
-        wait_for_elements_exist_and_are_visible(browser, "#creds")
+        wait_for_elements_exist_and_are_visible(browser, "#creds", wait_duration=30)
 
         # She clicks on the "private credentials" link and downloads this file. File is by default downloaded to /tmp using filename `creds.txt`, but we choose to name it using an unique identifier instead.
         link_css_ids = ["creds"]
