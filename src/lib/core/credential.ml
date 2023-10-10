@@ -121,10 +121,13 @@ struct
     let derived = pbkdf2_utf8 ~iterations:100000 ~salt ~size:2 x in
     G.Zq.reduce_hex derived
 
+  let generate_token = GT.generate_token ~length:token_length
+  let generate_salt = GT.generate_token ~length:salt_length
+
   let generate_one () =
     (* we generate only new-style credentials *)
-    let raw = GT.generate_token ~length:token_length () in
-    let salt = GT.generate_token ~length:salt_length () in
+    let raw = generate_token () in
+    let salt = generate_salt () in
     let private_key = derive_raw ~salt raw in
     { raw = format raw; salt; private_key }
 

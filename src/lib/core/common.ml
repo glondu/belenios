@@ -146,26 +146,31 @@ let bytes_to_sample q =
   (Z.bit_length q / 8) + 17
 
 let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)
-let z58 = Z.of_int (String.length b58_digits)
-let z10 = Z.of_int 10
+let b10_digits = "0123456789"
 
 module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
-  let random_char () =
-    let n = R.random z58 in
-    b58_digits.[Z.to_int n]
-
-  let generate_token ?(length = 14) () =
-    String.init length (fun _ -> random_char ())
-
-  let generate_numeric ?(length = 6) () =
+  let generate ~length ~digits =
+    let radix = String.length digits |> Z.of_int in
     let modulus =
       let rec loop length accu =
-        if length > 0 then loop (length - 1) Z.(accu * z10) else accu
+        if length > 0 then loop (length - 1) Z.(accu * radix) else accu
       in
       loop length Z.one
     in
-    let n = R.random modulus in
-    Printf.sprintf "%0*d" length (Z.to_int n)
+    let to_string x =
+      let result = Bytes.create length in
+      let rec loop i x =
+        if i >= 0 then (
+          Bytes.set result i digits.[Z.(to_int (x mod radix))];
+          loop (i - 1) Z.(x / radix))
+        else Bytes.to_string result
+      in
+      loop (length - 1) x
+    in
+    fun () -> R.random modulus |> to_string
+
+  let generate_token ?(length = 14) = generate ~length ~digits:b58_digits
+  let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
 end
 
 let sqrt s =
