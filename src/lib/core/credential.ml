@@ -108,9 +108,7 @@ module type S = sig
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
-module Make (R : RANDOM) (G : GROUP) (E : ELECTION with type public_key := G.t) =
-struct
-  module GT = MakeGenerateToken (R)
+module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
   module GMap = Map.Make (G)
 
   let ( let* ) = E.bind
@@ -121,13 +119,10 @@ struct
     let derived = pbkdf2_utf8 ~iterations:100000 ~salt ~size:2 x in
     G.Zq.reduce_hex derived
 
-  let generate_token = GT.generate_token ~length:token_length
-  let generate_salt = GT.generate_token ~length:salt_length
-
-  let generate_one () =
+  let generate_one rng =
     (* we generate only new-style credentials *)
-    let raw = generate_token () in
-    let salt = generate_salt () in
+    let raw = generate_b58_token ~rng ~length:token_length in
+    let salt = generate_b58_token ~rng ~length:salt_length in
     let private_key = derive_raw ~salt raw in
     { raw = format raw; salt; private_key }
 
@@ -156,12 +151,13 @@ struct
         monadic_fold_left f (f accu x) xs
 
   let generate voters =
+    let rng = pseudo_rng (random_string secure_rng 32) in
     let implicit_weights = not (Voter.has_explicit_weights voters) in
     let* privs, pubs =
       monadic_fold_left
         (fun (privs, pubs) v ->
           let _, username, weight = Voter.get v in
-          let { raw; salt; private_key } = generate_one () in
+          let { raw; salt; private_key } = generate_one rng in
           ( SMap.add username (ref raw) privs,
             GMap.add G.(g **~ private_key) (weight, username, salt) pubs ))
         (SMap.empty, GMap.empty) voters

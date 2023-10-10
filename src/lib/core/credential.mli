@@ -55,10 +55,7 @@ module type S = sig
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
 
-module Make
-    (R : RANDOM)
-    (G : GROUP)
-    (E : ELECTION with type public_key := G.t) :
+module Make (G : GROUP) (E : ELECTION with type public_key := G.t) :
   S
     with type public_key := G.t
      and type private_key := G.Zq.t

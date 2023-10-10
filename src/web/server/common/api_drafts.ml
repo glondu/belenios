@@ -347,7 +347,8 @@ let generate_credentials_on_server uuid se =
     let version = se.se_version in
     let module G = (val Group.of_string ~version se.se_group : GROUP) in
     let module Cred =
-      Belenios_core.Credential.Make (Random) (G)
+      Belenios_core.Credential.Make
+        (G)
         (struct
           type 'a t = 'a Lwt.t
 

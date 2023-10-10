@@ -68,7 +68,8 @@ let show main uuid =
               in
               let module CMap = Map.Make (G) in
               let module Cred =
-                Belenios_core.Credential.Make (Random) (G)
+                Belenios_core.Credential.Make
+                  (G)
                   (struct
                     type 'a t = 'a Lwt.t
 

@@ -272,7 +272,8 @@ module Credgen : CMDLINER_MODULE = struct
     in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Cred =
-      Belenios_core.Credential.Make (Random) (G)
+      Belenios_core.Credential.Make
+        (G)
         (struct
           type 'a t = 'a
 

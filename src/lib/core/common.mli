@@ -79,6 +79,7 @@ module MakeGenerateToken (R : RANDOM) : sig
   val generate_numeric : ?length:int -> unit -> string
 end
 
+val generate_b58_token : rng:rng -> length:int -> string
 val sqrt : Z.t -> Z.t
 
 module BabyStepGiantStep (G : GROUP) : sig

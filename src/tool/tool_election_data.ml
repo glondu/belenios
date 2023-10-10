@@ -196,7 +196,8 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       with type private_key := G.Zq.t
        and type public_key := G.t
        and type 'a m := 'a) =
-    Belenios_core.Credential.Make (Random) (G)
+    Belenios_core.Credential.Make
+      (G)
       (struct
         type 'a t = 'a
 

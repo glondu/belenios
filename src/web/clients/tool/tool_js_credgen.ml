@@ -34,7 +34,8 @@ let generate uuid draft =
   let group = draft.draft_group in
   let module G = (val Belenios.Group.of_string ~version group : GROUP) in
   let module Cred =
-    Belenios_core.Credential.Make (Random) (G)
+    Belenios_core.Credential.Make
+      (G)
       (struct
         type 'a t = 'a Lwt.t
 

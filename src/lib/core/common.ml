@@ -173,6 +173,22 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
   let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
 end
 
+let generate_b58_digit rng =
+  (* 2^16 = 1129*58 + 54 -> by taking a 16-bit number modulo 58, 4
+     digits have lower (but negligible) probability to come up *)
+  let x = random_string rng 2 in
+  b58_digits.[(Char.code x.[0] lsl 8) lor Char.code x.[1] mod 58]
+
+let generate_b58_token ~rng ~length =
+  let result = Bytes.create length in
+  let rec loop i =
+    if i >= 0 then (
+      Bytes.set result i (generate_b58_digit rng);
+      loop (i - 1))
+    else Bytes.to_string result
+  in
+  loop (length - 1)
+
 let sqrt s =
   (* https://en.wikipedia.org/wiki/Integer_square_root *)
   let rec loop x0 =

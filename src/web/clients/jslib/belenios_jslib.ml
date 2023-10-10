@@ -95,7 +95,8 @@ let belenios : belenios Js.t =
               let module W = Election.Make (R) (Random) () in
               let* () = Lwt_js.yield () in
               let module Cred =
-                Credential.Make (Random) (W.G)
+                Credential.Make
+                  (W.G)
                   (struct
                     type 'a t = 'a Lwt.t
 
