@@ -202,6 +202,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
 
         let return x = x
         let bind x f = f x
+        let pause () = ()
         let uuid = election.e_uuid
 
         let get_salt_lazy =

@@ -198,6 +198,7 @@ module Credgen = struct
 
           let return x = x
           let bind x f = f x
+          let pause () = ()
           let uuid = uuid
           let get_salt _ = None
         end)
@@ -222,6 +223,7 @@ module Credgen = struct
 
           let return x = x
           let bind x f = f x
+          let pause () = ()
           let uuid = uuid
           let get_salt _ = None
         end)

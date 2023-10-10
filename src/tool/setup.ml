@@ -278,6 +278,7 @@ module Credgen : CMDLINER_MODULE = struct
 
           let return x = x
           let bind x f = f x
+          let pause () = ()
           let uuid = uuid
           let get_salt _ = None
         end)

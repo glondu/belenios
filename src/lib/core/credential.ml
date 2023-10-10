@@ -88,6 +88,7 @@ module type ELECTION = sig
 
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
+  val pause : unit -> unit t
   val uuid : Uuid.t
   val get_salt : int -> public_key salt option t
 end
@@ -97,7 +98,7 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : Voter.t list -> batch
+  val generate : Voter.t list -> batch m
 
   val derive :
     string ->
@@ -145,10 +146,16 @@ struct
     | `Invalid -> E.return (Error `Invalid)
     | `MaybePassword -> E.return (Error `MaybePassword)
 
+  let rec monadic_fold_left f accu = function
+    | [] -> E.return accu
+    | x :: xs ->
+        let* () = E.pause () in
+        monadic_fold_left f (f accu x) xs
+
   let generate voters =
     let implicit_weights = not (Voter.has_explicit_weights voters) in
-    let privs, pubs =
-      List.fold_left
+    let* privs, pubs =
+      monadic_fold_left
         (fun (privs, pubs) v ->
           let _, username, weight = Voter.get v in
           let { raw; salt; private_key } = generate_one () in
@@ -184,6 +191,7 @@ struct
       public_creds = List.map serialize_public bindings;
       public_with_ids_and_salts = List.map serialize_with_id_and_salt bindings;
     }
+    |> E.return
 
   let parse_public_credential s =
     match parse_public_credential G.of_string s with

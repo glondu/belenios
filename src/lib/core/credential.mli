@@ -35,6 +35,7 @@ module type ELECTION = sig
 
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
+  val pause : unit -> unit t
   val uuid : Uuid.t
   val get_salt : int -> public_key salt option t
 end
@@ -44,7 +45,7 @@ module type S = sig
   type private_key
   type public_key
 
-  val generate : Voter.t list -> batch
+  val generate : Voter.t list -> batch m
 
   val derive :
     string ->

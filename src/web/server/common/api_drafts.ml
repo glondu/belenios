@@ -349,16 +349,17 @@ let generate_credentials_on_server uuid se =
     let module Cred =
       Belenios_core.Credential.Make (Random) (G)
         (struct
-          type 'a t = 'a
+          type 'a t = 'a Lwt.t
 
-          let return x = x
-          let bind x f = f x
+          let return = Lwt.return
+          let bind = Lwt.bind
+          let pause = Lwt.pause
           let uuid = uuid
-          let get_salt _ = None
+          let get_salt _ = Lwt.return_none
         end)
     in
-    let Belenios_core.Credential.{ private_creds; public_with_ids_and_salts; _ }
-        =
+    let* Belenios_core.Credential.
+           { private_creds; public_with_ids_and_salts; _ } =
       Cred.generate (List.map (fun v -> v.sv_id) se.se_voters)
     in
     let private_creds = private_creds |> string_of_private_credentials in

@@ -101,6 +101,7 @@ let belenios : belenios Js.t =
 
                     let return = Lwt.return
                     let bind = Lwt.bind
+                    let pause = Lwt.pause
                     let uuid = W.election.e_uuid
 
                     let get_salt i =

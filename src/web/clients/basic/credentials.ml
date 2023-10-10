@@ -70,15 +70,16 @@ let show main uuid =
               let module Cred =
                 Belenios_core.Credential.Make (Random) (G)
                   (struct
-                    type 'a t = 'a
+                    type 'a t = 'a Lwt.t
 
-                    let return x = x
-                    let bind x f = f x
+                    let return = Lwt.return
+                    let bind = Lwt.bind
+                    let pause = Lwt.pause
                     let uuid = Uuid.wrap uuid
-                    let get_salt _ = None
+                    let get_salt _ = Lwt.return_none
                   end)
               in
-              let Belenios_core.Credential.{ public_creds; private_creds; _ } =
+              let* Belenios_core.Credential.{ public_creds; private_creds; _ } =
                 Cred.generate xs
               in
               let op = string_of_public_credentials public_creds in
