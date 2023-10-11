@@ -528,7 +528,7 @@ struct
         let* l = get_preferred_gettext () in
         let open (val l) in
         let template = template_of_string template in
-        let fixed_group = is_group_fixed se in
+        let fixed_group = Web_persist.is_group_fixed uuid se in
         (match
            ( get_suitable_group_kind se.se_questions,
              get_suitable_group_kind template )
@@ -597,90 +597,97 @@ struct
         let@ se = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        if se.se_public_creds_received then forbidden ()
-        else
-          let voters =
-            split_lines voters
-            |> List.map (fun x ->
-                   match Voter.of_string x with
-                   | exception _ ->
-                       Printf.ksprintf failwith
-                         (f_ "%S is not a valid identity")
-                         x
-                   | voter ->
-                       if not (Voter.validate voter) then
+        match Web_persist.get_credentials_status uuid se with
+        | `Done | `Pending _ -> forbidden ()
+        | `None -> (
+            let voters =
+              split_lines voters
+              |> List.map (fun x ->
+                     match Voter.of_string x with
+                     | exception _ ->
                          Printf.ksprintf failwith
                            (f_ "%S is not a valid identity")
-                           x;
-                       voter)
-          in
-          match Api_drafts.merge_voters se.se_voters voters (fun _ -> None) with
-          | Error x ->
-              let _, x, _ = Voter.get x in
-              Printf.ksprintf failwith
-                (f_
-                   "Duplicate voter: %s. This is not allowed. If two voters \
-                    have the same address, use different logins.")
-                x
-          | Ok (voters, total_weight) ->
-              let () =
-                let expanded = Weight.expand ~total:total_weight total_weight in
-                if Z.compare expanded Weight.max_expanded_weight > 0 then
-                  Printf.ksprintf failwith
-                    (f_
-                       "The total weight (%s) cannot be handled. Its expanded \
-                        value must be less than %s.")
-                    Weight.(to_string total_weight)
-                    (Z.to_string Weight.max_expanded_weight)
-              in
-              if not (check_consistency voters) then
-                failwith
-                  (s_
-                     "The voter list is not consistent (a login or a weight is \
-                      missing).");
-              let uses_password_auth =
-                match se.se_metadata.e_auth_config with
-                | Some configs ->
-                    List.exists
-                      (fun { auth_system; _ } -> auth_system = "password")
-                      configs
-                | None -> false
-              in
-              let cred_auth_is_server =
-                se.se_metadata.e_cred_authority = Some "server"
-              in
-              if
-                (uses_password_auth || cred_auth_is_server)
-                && List.length voters > !Web_config.maxmailsatonce
-              then
-                Lwt.fail
-                  (Failure
-                     (Printf.sprintf
-                        (f_ "There are too many voters (max is %d)")
-                        !Web_config.maxmailsatonce))
-              else (
-                se.se_voters <- voters;
-                redir_preapply election_draft_voters uuid ()))
+                           x
+                     | voter ->
+                         if not (Voter.validate voter) then
+                           Printf.ksprintf failwith
+                             (f_ "%S is not a valid identity")
+                             x;
+                         voter)
+            in
+            match
+              Api_drafts.merge_voters se.se_voters voters (fun _ -> None)
+            with
+            | Error x ->
+                let _, x, _ = Voter.get x in
+                Printf.ksprintf failwith
+                  (f_
+                     "Duplicate voter: %s. This is not allowed. If two voters \
+                      have the same address, use different logins.")
+                  x
+            | Ok (voters, total_weight) ->
+                let () =
+                  let expanded =
+                    Weight.expand ~total:total_weight total_weight
+                  in
+                  if Z.compare expanded Weight.max_expanded_weight > 0 then
+                    Printf.ksprintf failwith
+                      (f_
+                         "The total weight (%s) cannot be handled. Its \
+                          expanded value must be less than %s.")
+                      Weight.(to_string total_weight)
+                      (Z.to_string Weight.max_expanded_weight)
+                in
+                if not (check_consistency voters) then
+                  failwith
+                    (s_
+                       "The voter list is not consistent (a login or a weight \
+                        is missing).");
+                let uses_password_auth =
+                  match se.se_metadata.e_auth_config with
+                  | Some configs ->
+                      List.exists
+                        (fun { auth_system; _ } -> auth_system = "password")
+                        configs
+                  | None -> false
+                in
+                let cred_auth_is_server =
+                  se.se_metadata.e_cred_authority = Some "server"
+                in
+                if
+                  (uses_password_auth || cred_auth_is_server)
+                  && List.length voters > !Web_config.maxmailsatonce
+                then
+                  Lwt.fail
+                    (Failure
+                       (Printf.sprintf
+                          (f_ "There are too many voters (max is %d)")
+                          !Web_config.maxmailsatonce))
+                else (
+                  se.se_voters <- voters;
+                  redir_preapply election_draft_voters uuid ())))
 
   let () =
     Any.register ~service:election_draft_voters_remove (fun uuid voter ->
         let@ se = with_draft_election uuid in
-        if se.se_public_creds_received then forbidden ()
-        else
-          let filter v =
-            let _, login, _ = Voter.get v.sv_id in
-            login <> voter
-          in
-          se.se_voters <- List.filter filter se.se_voters;
-          redir_preapply election_draft_voters uuid ())
+        match Web_persist.get_credentials_status uuid se with
+        | `Done | `Pending _ -> forbidden ()
+        | `None ->
+            let filter v =
+              let _, login, _ = Voter.get v.sv_id in
+              login <> voter
+            in
+            se.se_voters <- List.filter filter se.se_voters;
+            redir_preapply election_draft_voters uuid ())
 
   let () =
     Any.register ~service:election_draft_voters_remove_all (fun uuid () ->
         let@ se = with_draft_election uuid in
-        if se.se_public_creds_received then forbidden ()
-        else (
-          se.se_voters <- [];
-          redir_preapply election_draft_voters uuid ()))
+        match Web_persist.get_credentials_status uuid se with
+        | `Done | `Pending _ -> forbidden ()
+        | `None ->
+            se.se_voters <- [];
+            redir_preapply election_draft_voters uuid ())
 
   let () =
     Any.register ~service:election_draft_voters_passwd (fun uuid voter ->
@@ -746,14 +753,15 @@ struct
         let* election = Web_persist.get_draft_election uuid in
         match election with
         | None -> fail_http `Not_found
-        | Some se ->
-            if se.se_public_creds_received then
-              Pages_admin.election_draft_credentials_already_generated ()
-              >>= Html.send
-            else
-              Printf.sprintf "%s/draft/credentials.html#%s-%s"
-                !Web_config.prefix (Uuid.unwrap uuid) token
-              |> String_redirection.send)
+        | Some se -> (
+            match Web_persist.get_credentials_status uuid se with
+            | `Done | `Pending _ ->
+                Pages_admin.election_draft_credentials_already_generated ()
+                >>= Html.send
+            | `None ->
+                Printf.sprintf "%s/draft/credentials.html#%s-%s"
+                  !Web_config.prefix (Uuid.unwrap uuid) token
+                |> String_redirection.send))
 
   let () =
     Html.register ~service:election_draft_credentials_static (fun () () ->
@@ -763,13 +771,15 @@ struct
     let* election = Web_persist.get_draft_election uuid in
     match election with
     | None -> fail_http `Not_found
-    | Some se ->
+    | Some se -> (
         if se.se_public_creds <> token then forbidden ()
-        else if se.se_public_creds_received then forbidden ()
         else
-          let creds = public_credentials_of_string creds in
-          let* () = Api_drafts.submit_public_credentials uuid se creds in
-          Pages_admin.election_draft_credentials_done se () >>= Html.send
+          match Web_persist.get_credentials_status uuid se with
+          | `Done | `Pending _ -> forbidden ()
+          | `None ->
+              let creds = public_credentials_of_string creds in
+              let* () = Api_drafts.submit_public_credentials uuid se creds in
+              Pages_admin.election_draft_credentials_done se () >>= Html.send)
 
   let () =
     Any.register ~service:election_draft_credentials_post

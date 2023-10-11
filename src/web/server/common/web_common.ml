@@ -389,13 +389,6 @@ let get_suitable_group_kind { t_questions; _ } =
     t_questions;
   !group
 
-let is_group_fixed se =
-  se.se_public_creds_received
-  ||
-  match se.se_trustees with
-  | `Basic x -> x.dbp_trustees <> []
-  | `Threshold x -> x.dtp_trustees <> []
-
 let get_booth_index = function Some 2 -> Some 0 | _ -> None
 
 let compute_hash_link ~service ~uuid ~token =

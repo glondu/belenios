@@ -707,53 +707,61 @@ struct
       div
         [
           h2 [ txt (s_ "Credentials") ];
-          (if se.se_public_creds_received then
-             let div_private_creds =
-               if cred_auth_is_server then
-                 div
-                   [
-                     a ~service:election_draft_credentials_get
-                       [ txt (s_ "Download private credentials") ]
-                       uuid;
-                   ]
-               else txt ""
-             in
-             let div_edit_credential_authority_name =
-               if cred_auth_is_server then txt ""
-               else
-                 div
-                   [
-                     a ~service:election_draft_credential_authority
-                       [ txt (s_ "Edit credential authority name") ]
-                       uuid;
-                   ]
-             in
-             div
-               [
-                 div [ txt (s_ "Credentials have already been generated!") ];
-                 div_edit_credential_authority_name;
-                 div_private_creds;
-               ]
-           else
-             div
-               [
-                 txt (s_ "Warning: this will freeze the voter list!");
-                 (if cred_auth_is_server then
-                    post_form ~service:election_draft_credentials_server
-                      (fun () ->
-                        [
-                          input ~input_type:`Submit
-                            ~value:(s_ "Generate on server") string;
-                        ])
-                      uuid
-                  else
-                    div
-                      [
-                        a ~service:election_draft_credential_authority
-                          [ txt (s_ "Credential management") ]
-                          uuid;
-                      ]);
-               ]);
+          (match Web_persist.get_credentials_status uuid se with
+          | `Done ->
+              let div_private_creds =
+                if cred_auth_is_server then
+                  div
+                    [
+                      a ~service:election_draft_credentials_get
+                        [ txt (s_ "Download private credentials") ]
+                        uuid;
+                    ]
+                else txt ""
+              in
+              let div_edit_credential_authority_name =
+                if cred_auth_is_server then txt ""
+                else
+                  div
+                    [
+                      a ~service:election_draft_credential_authority
+                        [ txt (s_ "Edit credential authority name") ]
+                        uuid;
+                    ]
+              in
+              div
+                [
+                  div [ txt (s_ "Credentials have already been generated!") ];
+                  div_edit_credential_authority_name;
+                  div_private_creds;
+                ]
+          | `None ->
+              div
+                [
+                  txt (s_ "Warning: this will freeze the voter list!");
+                  (if cred_auth_is_server then
+                     post_form ~service:election_draft_credentials_server
+                       (fun () ->
+                         [
+                           input ~input_type:`Submit
+                             ~value:(s_ "Generate on server") string;
+                         ])
+                       uuid
+                   else
+                     div
+                       [
+                         a ~service:election_draft_credential_authority
+                           [ txt (s_ "Credential management") ]
+                           uuid;
+                       ]);
+                ]
+          | `Pending n ->
+              div
+                [
+                  txt (s_ "Credentials are being generated on the server.");
+                  txt " ";
+                  Printf.ksprintf txt (f_ "Number of credentials left: %d.") n;
+                ]);
         ]
     in
     let link_confirm =
@@ -1455,7 +1463,7 @@ struct
     let allow_nh =
       match get_suitable_group_kind se.se_questions with
       | `NH -> true
-      | `H -> not (is_group_fixed se)
+      | `H -> not (Web_persist.is_group_fixed uuid se)
     in
     let hybrid_box =
       div
@@ -1617,12 +1625,13 @@ struct
         uuid
     in
     let remove_all_button =
-      if se.se_public_creds_received then div []
-      else
-        post_form ~service:election_draft_voters_remove_all
-          (fun () ->
-            [ input ~input_type:`Submit ~value:(s_ "Remove all") string ])
-          uuid
+      match Web_persist.get_credentials_status uuid se with
+      | `Done | `Pending _ -> div []
+      | `None ->
+          post_form ~service:election_draft_voters_remove_all
+            (fun () ->
+              [ input ~input_type:`Submit ~value:(s_ "Remove all") string ])
+            uuid
     in
     let has_passwords =
       match se.se_metadata.e_auth_config with
@@ -1652,8 +1661,9 @@ struct
             ([ td [ txt @@ Voter.to_string v.sv_id ] ]
             @ (if has_passwords then [ td (format_password_cell v) ] else [])
             @
-            if se.se_public_creds_received then []
-            else [ td [ mk_remove_button v.sv_id ] ]))
+            match Web_persist.get_credentials_status uuid se with
+            | `Done | `Pending _ -> []
+            | `None -> [ td [ mk_remove_button v.sv_id ] ]))
         se.se_voters
     in
     let form_passwords =
@@ -1682,8 +1692,9 @@ struct
                    @ (if has_passwords then [ th [ txt (s_ "Password sent?") ] ]
                       else [])
                    @
-                   if se.se_public_creds_received then []
-                   else [ th [ txt (s_ "Remove") ] ])
+                   match Web_persist.get_credentials_status uuid se with
+                   | `Done | `Pending _ -> []
+                   | `None -> [ th [ txt (s_ "Remove") ] ])
                 :: voters);
               remove_all_button;
             ]
@@ -1697,22 +1708,23 @@ struct
         ]
     in
     let div_add =
-      if se.se_public_creds_received then txt ""
-      else
-        div
-          [
-            div
-              [
-                txt
-                  (s_
-                     "Please enter the identities of voters to add, one per \
-                      line");
-                txt " (max ";
-                txt (string_of_int maxvoters);
-                txt ").";
-              ];
-            form;
-          ]
+      match Web_persist.get_credentials_status uuid se with
+      | `Done | `Pending _ -> txt ""
+      | `None ->
+          div
+            [
+              div
+                [
+                  txt
+                    (s_
+                       "Please enter the identities of voters to add, one per \
+                        line");
+                  txt " (max ";
+                  txt (string_of_int maxvoters);
+                  txt ").";
+                ];
+              form;
+            ]
     in
     let warning =
       div

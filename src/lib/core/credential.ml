@@ -99,7 +99,7 @@ module type S = sig
   type public_key
 
   val generate : Voter.t list -> batch m
-  val generate_sub : int -> sub_batch
+  val generate_sub : int -> sub_batch m * (unit -> int)
   val merge_sub : Voter.t list -> sub_batch -> batch
 
   val derive :
@@ -196,15 +196,18 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
 
   let generate_sub n =
     let rng = pseudo_rng (random_string secure_rng 32) in
-    let rec loop n accu =
-      if n > 0 then
+    let n = ref n in
+    let rec loop accu =
+      if !n > 0 then (
+        let* () = E.pause () in
         let { raw; salt; private_key } = generate_one rng in
         let sub_public = G.(g **~ private_key |> to_string) in
         let x = { sub_base = raw; sub_salt = salt; sub_public } in
-        loop (n - 1) (x :: accu)
-      else accu
+        decr n;
+        loop (x :: accu))
+      else E.return accu
     in
-    loop n []
+    (loop [], fun () -> !n)
 
   let merge_sub voters subs =
     let implicit_weights = not (Voter.has_explicit_weights voters) in

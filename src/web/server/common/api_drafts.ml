@@ -105,7 +105,7 @@ let api_of_draft se =
 
 let assert_ msg b f = if b then f () else raise (Error msg)
 
-let draft_of_api a se d =
+let draft_of_api a uuid se d =
   let version = se.se_version in
   let () =
     if d.draft_version <> version then raise (Error (`CannotChange "version"))
@@ -123,7 +123,7 @@ let draft_of_api a se d =
     let old = se.se_metadata.e_cred_authority in
     if e_cred_authority <> old then
       if
-        se.se_public_creds_received
+        Web_persist.get_credentials_status uuid se <> `None
         && (old = Some "server" || e_cred_authority = Some "server")
       then raise (Error (`CannotChange "credential authority"))
   in
@@ -131,7 +131,8 @@ let draft_of_api a se d =
   let () =
     let old = se.se_group in
     if se_group <> old then
-      if se.se_public_creds_received then raise (Error (`CannotChange "group"))
+      if Web_persist.get_credentials_status uuid se <> `None then
+        raise (Error (`CannotChange "group"))
       else
         try
           let module G = (val Group.of_string ~version se_group) in
@@ -223,7 +224,7 @@ let post_drafts account draft =
       se_pending_credentials = false;
     }
   in
-  let se = draft_of_api account se draft in
+  let se = draft_of_api account uuid se draft in
   let* () = Web_persist.create_draft uuid se in
   Lwt.return uuid
 
@@ -340,41 +341,12 @@ let generate_credentials_on_server uuid se =
   if nvoters > !Web_config.maxmailsatonce then
     Lwt.return (Stdlib.Error `TooManyVoters)
   else if nvoters = 0 then Lwt.return (Stdlib.Error `NoVoters)
-  else if se.se_public_creds_received then Lwt.return (Stdlib.Error `Already)
+  else if Web_persist.get_credentials_status uuid se <> `None then
+    Lwt.return (Stdlib.Error `Already)
   else if se.se_metadata.e_cred_authority <> Some "server" then
     Lwt.return (Stdlib.Error `NoServer)
   else
-    let version = se.se_version in
-    let module G = (val Group.of_string ~version se.se_group : GROUP) in
-    let module Cred =
-      Belenios_core.Credential.Make
-        (G)
-        (struct
-          type 'a t = 'a Lwt.t
-
-          let return = Lwt.return
-          let bind = Lwt.bind
-          let pause = Lwt.pause
-          let uuid = uuid
-          let get_salt _ = Lwt.return_none
-        end)
-    in
-    let* Belenios_core.Credential.
-           { private_creds; public_with_ids_and_salts; _ } =
-      Cred.generate (List.map (fun v -> v.sv_id) se.se_voters)
-    in
-    let private_creds = private_creds |> string_of_private_credentials in
-    let* () = Web_persist.set_draft_private_credentials uuid private_creds in
-    let* () =
-      Web_persist.set_draft_public_credentials uuid public_with_ids_and_salts
-    in
-    let salts = public_with_ids_and_salts |> List.filter_map extract_salt in
-    let* () =
-      if salts <> [] then Web_persist.set_salts uuid salts else Lwt.return_unit
-    in
-    se.se_public_creds_received <- true;
-    se.se_pending_credentials <- true;
-    let* () = Web_persist.set_draft_election uuid se in
+    let () = Web_persist.generate_credentials_on_server_async uuid se in
     Lwt.return (Ok ())
 
 let exn_of_generate_credentials_on_server_error = function
@@ -728,7 +700,8 @@ let import_voters uuid se from =
           let _, login, _ = Voter.get sv_id in
           SMap.find_opt (String.lowercase_ascii login) p
   in
-  if se.se_public_creds_received then Lwt.return @@ Stdlib.Error `Forbidden
+  if Web_persist.get_credentials_status uuid se <> `None then
+    Lwt.return @@ Stdlib.Error `Forbidden
   else
     match merge_voters se.se_voters voters get_password with
     | Ok (voters, total_weight) ->
@@ -925,7 +898,7 @@ let dispatch_credentials ~token endpoint method_ body uuid se =
               Web_persist.get_draft_public_credentials uuid)
       | `POST -> (
           let@ who = with_administrator_or_credential_authority token se in
-          if se.se_public_creds_received then forbidden
+          if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
             let@ x = body.run public_credentials_of_string in
             match (who, x) with
@@ -962,7 +935,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             draft.draft_questions.t_name <> se.se_questions.t_name
             || se.se_owners <> draft.draft_owners
           in
-          let se = draft_of_api account se draft in
+          let se = draft_of_api account uuid se draft in
           let* () = Web_persist.set_draft_election uuid se in
           let* () =
             if update_cache then Web_persist.clear_elections_by_owner_cache ()
@@ -990,7 +963,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
       | `GET, _ -> handle_get get
       | `PUT, `Administrator _ ->
           let@ () = handle_ifmatch ifmatch get in
-          if se.se_public_creds_received then forbidden
+          if Web_persist.get_credentials_status uuid se <> `None then forbidden
           else
             let@ voters = body.run voter_list_of_string in
             let@ () = handle_generic_error in

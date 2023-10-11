@@ -1900,3 +1900,72 @@ let get_records uuid =
   Filesystem.read_file ~uuid (string_of_election_file ESRecords)
 
 let set_salts uuid salts = Spool.set ~uuid Spool.salts salts
+
+type credentials_status = [ `None | `Pending of int | `Done ]
+
+let pending_generations = ref SMap.empty
+
+let generate_credentials_on_server_async uuid se =
+  let uuid_s = Uuid.unwrap uuid in
+  match SMap.find_opt uuid_s !pending_generations with
+  | Some _ -> ()
+  | None ->
+      let voters = List.map (fun v -> v.sv_id) se.se_voters in
+      let module G =
+        (val Belenios.Group.of_string ~version:se.se_version se.se_group)
+      in
+      let module Cred =
+        Belenios_core.Credential.Make
+          (G)
+          (struct
+            type 'a t = 'a Lwt.t
+
+            let return = Lwt.return
+            let bind = Lwt.bind
+            let pause = Lwt.pause
+            let uuid = uuid
+            let get_salt _ = Lwt.return_none
+          end)
+      in
+      let t, p = Cred.generate_sub (List.length voters) in
+      pending_generations := SMap.add uuid_s p !pending_generations;
+      Lwt.async (fun () ->
+          let* x = t in
+          let Belenios_core.Credential.
+                { private_creds; public_with_ids_and_salts; _ } =
+            Cred.merge_sub voters x
+          in
+          let* se = get_draft_election uuid in
+          match se with
+          | None -> Lwt.return_unit
+          | Some se ->
+              let private_creds =
+                private_creds |> string_of_private_credentials
+              in
+              let* () = set_draft_private_credentials uuid private_creds in
+              let* () =
+                set_draft_public_credentials uuid public_with_ids_and_salts
+              in
+              let salts =
+                public_with_ids_and_salts |> List.filter_map extract_salt
+              in
+              let* () =
+                if salts <> [] then set_salts uuid salts else Lwt.return_unit
+              in
+              se.se_public_creds_received <- true;
+              se.se_pending_credentials <- true;
+              let* () = set_draft_election uuid se in
+              pending_generations := SMap.remove uuid_s !pending_generations;
+              Lwt.return_unit)
+
+let get_credentials_status uuid se =
+  match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with
+  | Some p -> `Pending (p ())
+  | None -> if se.se_public_creds_received then `Done else `None
+
+let is_group_fixed uuid se =
+  get_credentials_status uuid se <> `None
+  ||
+  match se.se_trustees with
+  | `Basic x -> x.dbp_trustees <> []
+  | `Threshold x -> x.dtp_trustees <> []

@@ -144,3 +144,9 @@ val get_records : uuid -> string list option Lwt.t
 val get_voters_file : uuid -> string option Lwt.t
 val set_salts : uuid -> salts -> unit Lwt.t
 val get_salt : uuid -> int -> Yojson.Safe.t salt option Lwt.t
+
+type credentials_status = [ `None | `Pending of int | `Done ]
+
+val generate_credentials_on_server_async : uuid -> draft_election -> unit
+val get_credentials_status : uuid -> draft_election -> credentials_status
+val is_group_fixed : uuid -> draft_election -> bool

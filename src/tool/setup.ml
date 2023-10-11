@@ -405,7 +405,7 @@ module SubCredgen : CMDLINER_MODULE = struct
           let get_salt _ = None
         end)
     in
-    let x = Cred.generate_sub count in
+    let x, _ = Cred.generate_sub count in
     print_endline (string_of_sub_batch x)
 
   let count_t =

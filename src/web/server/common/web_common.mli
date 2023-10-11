@@ -144,7 +144,6 @@ val unwebize_trustee_public_key :
   ('a, 'b) web_trustee_public_key -> ('a, 'b) trustee_public_key
 
 val get_suitable_group_kind : template -> [ `H | `NH ]
-val is_group_fixed : draft_election -> bool
 val get_booth_index : int option -> int option
 
 val compute_hash_link :
