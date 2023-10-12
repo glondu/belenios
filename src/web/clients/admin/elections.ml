@@ -328,16 +328,19 @@ let tabs x =
           else
             match curr_tab = x with
             | true -> Lwt.return `Doing
-            | false ->
+            | false -> (
                 let* status = Cache.get_until_success Cache.status in
-                if
-                  status.credentials_ready
-                  &&
-                  match status.private_credentials_downloaded with
-                  | None -> true
-                  | Some b -> b
-                then Lwt.return `Done
-                else Lwt.return `Todo),
+                if status.credentials_ready then
+                  if
+                    match status.private_credentials_downloaded with
+                    | None -> true
+                    | Some b -> b
+                  then Lwt.return `Done
+                  else Lwt.return `Todo
+                else
+                  match status.credentials_left with
+                  | None -> Lwt.return `Todo
+                  | Some _ -> Lwt.return `Wip)),
         (fun () -> Lwt.return is_draft),
         default_handler x )
   | VotersPwd ->
@@ -1321,11 +1324,24 @@ let credauth_content () =
               authority.";
       ]
   in
+  (* The page content, when the server is generating credentials *)
+  let pending_content i =
+    div
+      [
+        txt @@ s_ "Credentials are being generated on the server.";
+        txt " ";
+        Printf.ksprintf txt (f_ "Number of credentials left: %d.") i;
+      ]
+  in
   let content =
     match first_currsel with
     | `None -> changeable_content
-    | `Server ->
-        if status.credentials_ready then server_content else changeable_content
+    | `Server -> (
+        if status.credentials_ready then server_content
+        else
+          match status.credentials_left with
+          | None -> changeable_content
+          | Some i -> pending_content i)
     | `Extern ->
         if status.credentials_ready then extern_content else changeable_content
   in

@@ -635,6 +635,12 @@ let get_draft_status uuid se =
       Lwt.return_some b
     else Lwt.return_none
   in
+  let credentials_ready, credentials_left =
+    match Web_persist.get_credentials_status uuid se with
+    | `None -> (false, None)
+    | `Pending n -> (false, Some n)
+    | `Done -> (true, None)
+  in
   Lwt.return
     {
       num_voters = List.length se.se_voters;
@@ -643,7 +649,8 @@ let get_draft_status uuid se =
         | Some [ { auth_system = "password"; _ } ] ->
             Some (List.for_all (fun v -> v.sv_password <> None) se.se_voters)
         | _ -> None);
-      credentials_ready = se.se_public_creds_received;
+      credentials_ready;
+      credentials_left;
       private_credentials_downloaded;
       trustees_ready =
         (match se.se_trustees with

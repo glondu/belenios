@@ -170,6 +170,7 @@ type draft_status = {
     num_voters : int;
     ?passwords_ready : bool option;
     credentials_ready : bool;
+    ?credentials_left : int option;
     ?private_credentials_downloaded : bool option;
     trustees_ready : bool;
     nh_and_weights_compatible : bool;
