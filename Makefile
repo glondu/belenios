@@ -1,5 +1,5 @@
 BELENIOS_BUILD := $(shell ./src/platform/version/get_build.sh)
-DUNE_DEBUG_ARGS := --build-dir=_build-debug
+DUNE_DEBUG_ARGS :=
 BELENIOS_SRC := _run/usr/share/belenios-server/belenios.tar.gz
 
 export BELENIOS_BUILD
