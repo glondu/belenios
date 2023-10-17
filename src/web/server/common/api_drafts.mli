@@ -33,6 +33,7 @@ type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
 val generate_credentials_on_server :
+  account ->
   uuid ->
   draft_election ->
   (unit, generate_credentials_on_server_error) Stdlib.result Lwt.t

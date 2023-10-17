@@ -31,3 +31,4 @@ type capability = Sudo
 
 val has_capability : capability -> account -> bool
 val check : account -> int list -> bool
+val max_voters : account -> int

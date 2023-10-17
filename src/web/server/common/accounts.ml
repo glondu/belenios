@@ -96,6 +96,7 @@ let create_account ~email user =
       language = None;
       default_voter_languages = [];
       default_contact = "";
+      voters_limit = None;
     }
   in
   let* () = update_account account in
@@ -145,3 +146,7 @@ let has_capability cap account =
   | Some i -> i land mask_of_capability cap <> 0
 
 let check a i = List.mem a.id i
+
+let max_voters a =
+  let default = !Web_config.maxmailsatonce in
+  max default (Option.value ~default a.voters_limit)

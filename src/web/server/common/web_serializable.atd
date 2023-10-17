@@ -228,6 +228,7 @@ type account = {
     ?language : string option;
     ~default_voter_languages <ocaml default="[]"> : string list;
     ~default_contact <ocaml default="\"\""> : string;
+    ?voters_limit : int option;
 }
 
 (** {1 Bulk emails} *)

@@ -450,15 +450,16 @@ struct
           let* () = Web_persist.clear_elections_by_owner_cache () in
           redir_preapply election_draft uuid ()))
 
-  let handle_password se uuid ~force voters =
+  let handle_password account se uuid ~force voters =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    if List.length voters > !Web_config.maxmailsatonce then
+    let max_voters = Accounts.max_voters account in
+    if List.length voters > max_voters then
       Lwt.fail
         (Failure
            (Printf.sprintf
               (f_ "Cannot send passwords, there are too many voters (max is %d)")
-              !Web_config.maxmailsatonce))
+              max_voters))
     else if se.se_questions.t_name = default_name then
       Lwt.fail (Failure (s_ "The election name has not been edited!"))
     else
@@ -489,7 +490,8 @@ struct
   let () =
     Any.register ~service:election_draft_auth_genpwd (fun uuid () ->
         let@ se = with_draft_election uuid in
-        handle_password se uuid ~force:false se.se_voters)
+        let@ _, account, _ = with_site_user in
+        handle_password account se uuid ~force:false se.se_voters)
 
   let () =
     Any.register ~service:election_regenpwd (fun uuid () ->
@@ -573,8 +575,9 @@ struct
   let () =
     Any.register ~service:election_draft_voters (fun uuid () ->
         let@ se = with_draft_election_ro uuid in
-        Pages_admin.election_draft_voters uuid se !Web_config.maxmailsatonce ()
-        >>= Html.send)
+        let@ _, account, _ = with_site_user in
+        let max_voters = Accounts.max_voters account in
+        Pages_admin.election_draft_voters uuid se max_voters () >>= Html.send)
 
   let check_consistency voters =
     let get_shape voter =
@@ -595,6 +598,7 @@ struct
   let () =
     Any.register ~service:election_draft_voters_add (fun uuid voters ->
         let@ se = with_draft_election uuid in
+        let@ _, account, _ = with_site_user in
         let* l = get_preferred_gettext () in
         let open (val l) in
         match Web_persist.get_credentials_status uuid se with
@@ -626,6 +630,7 @@ struct
                       have the same address, use different logins.")
                   x
             | Ok (voters, total_weight) ->
+                let max_voters = Accounts.max_voters account in
                 let () =
                   let expanded =
                     Weight.expand ~total:total_weight total_weight
@@ -656,13 +661,13 @@ struct
                 in
                 if
                   (uses_password_auth || cred_auth_is_server)
-                  && List.length voters > !Web_config.maxmailsatonce
+                  && List.length voters > max_voters
                 then
                   Lwt.fail
                     (Failure
                        (Printf.sprintf
                           (f_ "There are too many voters (max is %d)")
-                          !Web_config.maxmailsatonce))
+                          max_voters))
                 else (
                   se.se_voters <- voters;
                   redir_preapply election_draft_voters uuid ())))
@@ -692,12 +697,13 @@ struct
   let () =
     Any.register ~service:election_draft_voters_passwd (fun uuid voter ->
         let@ se = with_draft_election uuid in
+        let@ _, account, _ = with_site_user in
         let filter v =
           let _, login, _ = Voter.get v.sv_id in
           login = voter
         in
         let voter = List.filter filter se.se_voters in
-        handle_password se uuid ~force:true voter)
+        handle_password account se uuid ~force:true voter)
 
   let ensure_trustees_mode uuid se mode =
     match (se.se_trustees, mode) with
@@ -799,12 +805,14 @@ struct
   let () =
     Any.register ~service:election_draft_credentials_server (fun uuid () ->
         let@ se = with_draft_election uuid in
+        let@ _, account, _ = with_site_user in
+        let max_voters = Accounts.max_voters account in
         let* l = get_preferred_gettext () in
         let open (val l) in
         if se.se_questions.t_name = default_name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else
-          let* x = Api_drafts.generate_credentials_on_server uuid se in
+          let* x = Api_drafts.generate_credentials_on_server account uuid se in
           match x with
           | Ok () ->
               let service = preapply ~service:election_draft uuid in
@@ -826,7 +834,7 @@ struct
                       (f_
                          "Cannot send credentials, there are too many voters \
                           (max is %d)")
-                      !Web_config.maxmailsatonce))
+                      max_voters))
           | Error `NoServer ->
               Lwt.fail (Failure (s_ "The authority is not the server")))
 

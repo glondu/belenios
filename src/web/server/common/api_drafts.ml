@@ -298,7 +298,7 @@ let get_draft_passwords se =
              login)
            x.sv_password)
 
-let post_draft_passwords generate uuid se voters =
+let post_draft_passwords account generate uuid se voters =
   let se_voters =
     List.fold_left
       (fun accu v ->
@@ -307,7 +307,7 @@ let post_draft_passwords generate uuid se voters =
       SMap.empty se.se_voters
   in
   let () =
-    if SMap.cardinal se_voters > !Web_config.maxmailsatonce then
+    if SMap.cardinal se_voters > Accounts.max_voters account then
       raise (Error (`ValidationError `TooManyVoters))
   in
   let voters =
@@ -336,9 +336,9 @@ let get_credentials_token se =
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
-let generate_credentials_on_server uuid se =
+let generate_credentials_on_server account uuid se =
   let nvoters = List.length se.se_voters in
-  if nvoters > !Web_config.maxmailsatonce then
+  if nvoters > Accounts.max_voters account then
     Lwt.return (Stdlib.Error `TooManyVoters)
   else if nvoters = 0 then Lwt.return (Stdlib.Error `NoVoters)
   else if Web_persist.get_credentials_status uuid se <> `None then
@@ -909,9 +909,9 @@ let dispatch_credentials ~token endpoint method_ body uuid se =
           else
             let@ x = body.run public_credentials_of_string in
             match (who, x) with
-            | `Administrator _, [] -> (
+            | `Administrator account, [] -> (
                 let@ () = handle_generic_error in
-                let* x = generate_credentials_on_server uuid se in
+                let* x = generate_credentials_on_server account uuid se in
                 match x with
                 | Ok () -> ok
                 | Error e ->
@@ -994,7 +994,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
                   Lwt.fail (Error (`GenericError ("duplicate: " ^ x)))))
       | _ -> method_not_allowed)
   | [ "passwords" ] -> (
-      let@ _ = with_administrator token se in
+      let@ account = with_administrator token se in
       let get () =
         let x = get_draft_passwords se in
         Lwt.return @@ string_of_string_list x
@@ -1013,7 +1013,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
               Mails_voter.generate_password_email metadata langs title uuid id
                 show_weight
           in
-          let* jobs = post_draft_passwords generate uuid se voters in
+          let* jobs = post_draft_passwords account generate uuid se voters in
           let* () = Mails_voter.submit_bulk_emails jobs in
           ok
       | _ -> method_not_allowed)
