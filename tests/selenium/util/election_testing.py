@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import re
 import json
+import email.parser
+import email.policy
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -68,16 +70,17 @@ def populate_credential_and_password_for_voters_from_sent_emails(fake_sent_email
         if len(emails_with_credential) == 0:
             raise Exception("No credential email found for voter " + voter_email_address)
         email_with_credential = emails_with_credential[0]
+        parsed_email = email.parser.Parser(policy=email.policy.default).parsestr(email_with_credential["full_content"][8:]).get_content()
 
         voter_credential = ""
-        match = re.search(r'^Credential: (.*)$', email_with_credential["full_content"], re.MULTILINE)
+        match = re.search(r'^Your credential: (.*)$', parsed_email, re.MULTILINE)
         if match:
             voter_credential = match.group(1)
         else:
             raise Exception("Credential not found in credential email for voter " + voter_email_address)
 
         election_page_url = "" # In this scenario, it looks like all voters receive the same election page URL. Maybe in different scenarios, voters will not all receive the same vote URL (for the same election).
-        match = re.search(r'^Page of the election: (.*)$', email_with_credential["full_content"], re.MULTILINE)
+        match = re.search(r'(http.*/elections/[0-9A-Za-z]+/)$', parsed_email, re.MULTILINE)
         if match:
             election_page_url = match.group(1)
         else:

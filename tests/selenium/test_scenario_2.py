@@ -269,7 +269,7 @@ credentials look similar but play different roles.  You will be asked
 to enter your credential before entering the voting booth.  Login and
 passwords are required once your ballot is ready to be cast.
 
-Credential: {credential}
+Your credential: {credential}
 Page of the election: {election_url}
 
 Note that you are allowed to vote several times.  Only the last vote

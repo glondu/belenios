@@ -38,6 +38,7 @@ let contact_footer l contact =
         add_newline b;
         add_sentence b (s_ "To get more information, please contact:");
         add_newline b;
+        add_newline b;
         add_string b "  ";
         add_string b x
 
@@ -133,6 +134,12 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
+  add_sentence b
+    (s_
+       "Warning: this e-mail contains personal and confidential material and \
+        should not be transmitted.");
+  add_newline b;
+  add_newline b;
   add_sentence b (s_ "You are listed as a voter for the election");
   add_newline b;
   add_newline b;
@@ -140,26 +147,34 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   add_string b title;
   add_newline b;
   add_newline b;
-  add_sentence b (s_ "You will find below your credential.");
-  add_sentence b
-    (s_
-       "You will be asked to enter your credential before entering the voting \
-        booth.");
-  if has_passwords then
+  add_sentence b (s_ "Please vote here using your personal link:");
+  add_newline b;
+  add_newline b;
+  add_string b "  ";
+  add_string b (Printf.sprintf "%s#c=%s" url cred);
+  add_newline b;
+  add_newline b;
+  if has_passwords then (
     add_sentence b
       (s_
          "To cast a vote, you will also need a password, sent in a separate \
           email.");
+    add_newline b;
+    add_newline b);
+  add_string b (s_ "If the above link does not work:");
   add_newline b;
   add_newline b;
-  add_string b (s_ "Credential:");
+  add_string b (s_ "Public page of the election:");
   add_string b " ";
-  add_string b cred;
-  add_newline b;
+  add_string b url;
   add_newline b;
   add_string b (s_ "Username:");
   add_string b " ";
   add_string b login;
+  add_newline b;
+  add_string b (s_ "Your credential:");
+  add_string b " ";
+  add_string b cred;
   add_newline b;
   (match weight with
   | Some weight ->
@@ -168,10 +183,6 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
       add_string b (Weight.to_string weight);
       add_newline b
   | None -> ());
-  add_string b (s_ "Page of the election:");
-  add_string b " ";
-  add_string b url;
-  add_newline b;
   add_newline b;
   add_sentence b (s_ "You are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
