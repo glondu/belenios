@@ -2,6 +2,7 @@
 # coding: utf-8
 import random
 from urllib.parse import urljoin, urlsplit
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoAlertPresentException
 from time import sleep
 
@@ -22,7 +23,7 @@ def fence_filter_for_links_generator(fence_filter_function, initial_page_url):
 
 
 def get_all_visible_links(browser):
-    all_links = browser.find_elements_by_css_selector("a[href]")
+    all_links = browser.find_elements(By.CSS_SELECTOR, "a[href]")
     displayed_links = list(filter(element_is_visible_filter, all_links))
     return displayed_links
 
@@ -39,13 +40,13 @@ def get_all_clickable_links_in_page(browser, fence_filter_function, initial_page
 
 
 def get_all_buttons_in_page(browser):
-    all_input_type_submit_buttons = browser.find_elements_by_css_selector("button, input[type=submit]") # Possible improvement: Are there other possible types of buttons we should detect? Not in Belenios. Maybe file browse buttons, but these are special.
+    all_input_type_submit_buttons = browser.find_elements(By.CSS_SELECTOR, "button, input[type=submit]") # Possible improvement: Are there other possible types of buttons we should detect? Not in Belenios. Maybe file browse buttons, but these are special.
     displayed_elements = list(filter(element_is_visible_filter, all_input_type_submit_buttons))
     return displayed_elements
 
 
 def get_all_input_type_checkbox_elements(browser_or_parent_element):
-    all_input_type_checkbox = browser_or_parent_element.find_elements_by_css_selector("label")
+    all_input_type_checkbox = browser_or_parent_element.find_elements(By.CSS_SELECTOR, "label")
     displayed_elements = list(filter(element_is_visible_filter, all_input_type_checkbox))
     return displayed_elements
 
@@ -159,7 +160,7 @@ class SeleniumFormFillerMonkey():
 
 
     def fill_form(self):
-        form_element = self.browser.find_element_by_css_selector(self.form_css_selector)
+        form_element = self.browser.find_element(By.CSS_SELECTOR, self.form_css_selector)
 
         all_input_type_checkbox_elements = get_all_input_type_checkbox_elements(form_element)
         # v1: This does not work when monkey checks zero checkbox, because in this case Belenios displays an Alert saying that voter is forced to check at least one checkbox
@@ -184,8 +185,8 @@ class SeleniumFormFillerMonkey():
 
 
     # def click_on_submit_button(self):
-    #     form_element = self.browser.find_element_by_css_selector(self.form_css_selector)
-    #     submit_button = form_element.find_element_by_css_selector("input[type=submit]")
+    #     form_element = self.browser.find_element(By.CSS_SELECTOR, self.form_css_selector)
+    #     submit_button = form_element.find_element(By.CSS_SELECTOR, "input[type=submit]")
     #     submit_button.click()
 
 

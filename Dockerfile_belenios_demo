@@ -1,4 +1,4 @@
-FROM glondu/beleniosbase:20230929-1
+FROM glondu/beleniosbase:20231020-1
 # alternatively, run "docker build -f Dockerfile_base_environment -t beleniosbase ." and replace with the line below
 # FROM beleniosbase
 

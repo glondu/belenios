@@ -171,7 +171,7 @@ class an_element_with_partial_link_text_exists(object):
         self.partial_link_text = partial_link_text
 
     def __call__(self, driver):
-        element = driver.find_element_by_partial_link_text(self.partial_link_text)
+        element = driver.find_element(By.PARTIAL_LINK_TEXT, self.partial_link_text)
         if not element:
             return False
         return element
@@ -182,7 +182,7 @@ class an_element_with_link_text_exists(object):
         self.link_text = link_text
 
     def __call__(self, driver):
-        element = driver.find_element_by_link_text(self.link_text)
+        element = driver.find_element(By.LINK_TEXT, self.link_text)
         if not element:
             return False
         return element

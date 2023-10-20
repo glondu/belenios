@@ -223,7 +223,7 @@ class NormalVoteStep2Page(NormalVoteGenericStepPage):
         For now, only one question is supported, with only 2 possible answers.
         """
 
-        answers_elements = wait_for_elements_exist_and_are_visible(self.browser, self.answers_css_selector, self.timeout) # or we could use find_element_by_xpath("//div[@id='question_div']/input[@type='checkbox'][2]")
+        answers_elements = wait_for_elements_exist_and_are_visible(self.browser, self.answers_css_selector, self.timeout) # or we could use find_element(By.XPATH, "//div[@id='question_div']/input[@type='checkbox'][2]")
 
         assert len(answers_elements) == 2
         anwser1_element_is_proxy = answers_elements[0].tag_name == "label"

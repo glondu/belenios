@@ -6,6 +6,7 @@ import random
 import re
 import warnings
 from urllib.parse import urlencode
+from selenium.webdriver.common.by import By
 from util.selenium_tools import wait_for_element_exists, wait_for_elements_exist, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, printable_page_source
 from util.election_testing import random_email_addresses_generator, populate_credential_and_password_for_voters_from_sent_emails, populate_random_votes_for_voters, repopulate_vote_confirmations_for_voters_from_sent_emails, wait_a_bit, build_css_selector_to_find_buttons_in_page_content_by_value, find_button_in_page_content_by_value, initialize_browser, election_page_url_to_election_id, verify_election_consistency, create_election_data_snapshot, delete_election_data_snapshot, log_in_as_administrator, log_out, administrator_starts_creation_of_election, administrator_edits_election_questions, administrator_sets_election_voters, administrator_validates_creation_of_election
 from util.execution import console_log
@@ -556,9 +557,9 @@ class BeleniosElectionTestBase(unittest.TestCase):
             answer_label_css_selector = base_selector + " td:nth-child(1)"
             answer_total_css_selector = base_selector + " td:nth-child(2)"
             answer_expected_label = "Answer " + str(answer_id)
-            answer_element = browser.find_element_by_css_selector(answer_label_css_selector)
+            answer_element = browser.find_element(By.CSS_SELECTOR, answer_label_css_selector)
             verify_element_label(answer_element, answer_expected_label)
-            answer_total_real_value_element = browser.find_element_by_css_selector(answer_total_css_selector)
+            answer_total_real_value_element = browser.find_element(By.CSS_SELECTOR, answer_total_css_selector)
             answer_total_real_value = answer_total_real_value_element.get_attribute('innerText').strip()
             answer_total_expected_value = str(number_of_votes_per_answer['answer' + str(answer_id)])
             assert answer_total_real_value == answer_total_expected_value, "Number of votes for Answer " + str(answer_id) + " displayed on vote result page  (" + answer_total_real_value + ") does not match expected value (" + answer_total_expected_value + "). " + printable_page_source(browser)

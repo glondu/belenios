@@ -10,6 +10,7 @@ import json
 from collections import OrderedDict
 from uuid import uuid4
 from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from util.fake_sent_emails_manager import FakeSentEmailsManager
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_element_exists_and_has_non_empty_content, wait_for_an_element_with_partial_link_text_exists, set_element_attribute, wait_for_element_exists_and_has_non_empty_attribute, verify_all_elements_have_attribute_value, verify_some_elements_have_attribute_value, wait_for_elements_exist_and_are_visible, wait_for_an_element_with_link_text_exists
@@ -168,7 +169,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         credential_authority_element.clear()
         credential_authority_element.send_keys("Cecily")
         credential_authority_set_css_selector = "#main form input[type=submit]"
-        credential_authority_set_element = browser.find_element_by_css_selector(credential_authority_set_css_selector)
+        credential_authority_set_element = browser.find_element(By.CSS_SELECTOR, credential_authority_set_css_selector)
         credential_authority_set_element.click()
 
         wait_a_bit()
