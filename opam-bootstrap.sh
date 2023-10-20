@@ -98,7 +98,7 @@ echo
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
 opam switch create 4.14.1 ocaml-base-compiler.4.14.1
 eval $(opam env)
-opam repository add belenios-overlay $BELENIOS_SRC/ext/opam-overlay
+opam repository add --yes belenios-overlay $BELENIOS_SRC/ext/opam-overlay
 
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
