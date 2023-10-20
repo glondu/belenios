@@ -48,7 +48,7 @@ let generate uuid (Draft (_, draft)) =
       end)
   in
   let* c = Cred.generate ids in
-  set_textarea "pks" (string_of_public_credentials c.public_with_ids_and_salts);
+  set_textarea "pks" (string_of_public_credentials c.public_with_ids);
   let hash = sha256_b64 (string_of_public_credentials c.public_creds) in
   set_content "public_creds_fp" hash;
   let text_creds = string_of_private_credentials c.private_creds in

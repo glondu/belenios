@@ -1922,8 +1922,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
       pending_generations := SMap.add uuid_s p !pending_generations;
       Lwt.async (fun () ->
           let* x = t in
-          let Belenios_core.Credential.
-                { private_creds; public_with_ids_and_salts; _ } =
+          let Belenios_core.Credential.{ private_creds; public_with_ids; _ } =
             Cred.merge_sub voters x
           in
           let* se = get_draft_election uuid in
@@ -1934,15 +1933,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
                 private_creds |> string_of_private_credentials
               in
               let* () = set_draft_private_credentials uuid private_creds in
-              let* () =
-                set_draft_public_credentials uuid public_with_ids_and_salts
-              in
-              let salts =
-                public_with_ids_and_salts |> List.filter_map extract_salt
-              in
-              let* () =
-                if salts <> [] then set_salts uuid salts else Lwt.return_unit
-              in
+              let* () = set_draft_public_credentials uuid public_with_ids in
               se.se_public_creds_received <- true;
               se.se_pending_credentials <- true;
               let* () = set_draft_election uuid (Draft (v, se)) in

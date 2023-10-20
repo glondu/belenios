@@ -241,7 +241,6 @@ end
 module Credgen : CMDLINER_MODULE = struct
   let params_priv = ("private credentials with ids", ".privcreds", 0o400)
   let params_pub = ("public credentials", ".pubcreds", 0o444)
-  let salts = ("salts", ".salts", 0o444)
 
   let save (info, ext, perm) basename f =
     let fname = basename ^ ext in
@@ -290,11 +289,7 @@ module Credgen : CMDLINER_MODULE = struct
       save params_priv base
         (as_json string_of_private_credentials c.private_creds);
       save params_pub base
-        (as_json string_of_public_credentials c.public_with_ids_and_salts);
-      let the_salts =
-        c.public_with_ids_and_salts |> List.filter_map extract_salt
-      in
-      save salts base (as_json string_of_salts the_salts);
+        (as_json string_of_public_credentials c.public_with_ids);
       let h = sha256_b64 (string_of_public_credentials c.public_creds) in
       Printf.printf "The fingerprint of public credentials is %s\n%!" h
     in

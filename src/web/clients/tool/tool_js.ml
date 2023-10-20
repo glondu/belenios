@@ -234,7 +234,7 @@ module Credgen = struct
     set_textarea "credgen_generated_creds"
       (string_of_private_credentials c.private_creds);
     set_textarea "credgen_generated_pks"
-      (c.public_with_ids_and_salts |> String.concat "\n");
+      (c.public_with_ids |> String.concat "\n");
     Lwt.return_unit
 
   let generate_n () =

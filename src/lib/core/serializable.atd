@@ -73,7 +73,7 @@ type 'a salt = {
 
 type sub_batch_item = {
     base : string;
-    salt : string;
+    ?salt : string option;
     public : string;
 } <ocaml field_prefix="sub_">
 

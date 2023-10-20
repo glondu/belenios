@@ -948,29 +948,22 @@ from one election to another.
 \newcommand{\secret}{\textsf{secret}}
 
 A secret \emph{credential} $c$ is a string of the form
-$\texttt{XXX-XXXX-XXX-XXXX-NNNN}$, where the 14 $\texttt{X}$
+$\texttt{XXXXX-XXXXXX-XXXXX-XXXXXX}$, where the 22 $\texttt{X}$
 characters are taken from the Base58 alphabet:
 \[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
-The string $\texttt{XXXXXXXXXXXXXX}$ will be called the \emph{prefix}
-of $c$. $\texttt{NNNN}$ is a base 10 number that serves as an index to
-locate the salt associated to $c$ in the list of salts and the
-matching public key in the election public data. A \emph{salt} $s$ is
-a string of 22 characters from the Base58 alphabet.
-
-From $c$ and $s$, a secret exponent $x=\secret(c,s)$ is derived by
-using PBKDF2 (RFC 2898) with:
+From $c$, a secret exponent $x=\secret(c)$ is derived as follows:
 \begin{itemize}
-\item the prefix of $c$ as password;
-\item HMAC-SHA256 (RFC 2104, FIPS PUB 180-2) as pseudorandom function;
-\item the concatenation of the $\uuid$ of the election and $s$ as salt;
-\item $100\,000$ iterations
+\item for $i=0,1$, let
+  $x_i=\textsf{SHA256}(\texttt{derive\_credential|}\uuid\texttt{|}i\texttt{|}c)$,
+  where $\uuid$ is replaced with the $\uuid$ of the election, $i$ is
+  written in base 10, and the result is written in hexadecimal;
+\item $x$ is the concatenation of $x_0$ and $x_1$, interpreted as a
+  big-endian (512-bit) hexadecimal number, taken modulo $q$.
 \end{itemize}
-and an output size of 2 blocks, which is interpreted as a big-endian
-512-bit number and then reduced modulo $q$ to form $x$.  From this
-secret exponent, a public key $\public(c,s)=g^x$ is computed.
+From this secret exponent, a public key $\public(c)=g^x$ is
+computed.
 
 \[\texttt{public\_credentials}=\jstring^\ast\]
-
 Public credentials, published as part of public data, are a list of strings, each one
 being:
 \begin{itemize}

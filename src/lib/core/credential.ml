@@ -29,10 +29,10 @@ let salt_length = 22 (* > 128 bits of entropy *)
 let n58 = Z.of_int 58
 let n53 = Z.of_int 53
 
-let format x =
-  assert (String.length x = token_length);
-  Printf.sprintf "%s-%s-%s-%s" (String.sub x 0 3) (String.sub x 3 4)
-    (String.sub x 7 3) (String.sub x 10 4)
+let format_full x =
+  assert (String.length x = salt_length);
+  Printf.sprintf "%s-%s-%s-%s" (String.sub x 0 5) (String.sub x 5 6)
+    (String.sub x 11 5) (String.sub x 16 6)
 
 let check_old_raw x =
   String.length x = token_length + 1
@@ -72,14 +72,17 @@ let parse_raw x =
       match int_of_string_opt e with
       | Some e -> `Valid (String.concat "" [ a; b; c; d ], e)
       | None -> `Invalid)
+  | [ a; b; c; d ] when List.for_all2 check [ a; b; c; d ] [ 5; 6; 5; 6 ] ->
+      (* full style credential, e.g. XXXXX-XXXXXX-XXXXX-XXXXXX *)
+      `Valid_full
   | _ -> `Invalid
 
-type 'a t = { raw : string; private_key : 'a; salt : string }
+type 'a t = { private_credential : string; private_key : 'a }
 
 type batch = {
   private_creds : private_credentials;
   public_creds : public_credentials;
-  public_with_ids_and_salts : string list;
+  public_with_ids : string list;
 }
 
 module type ELECTION = sig
@@ -115,18 +118,34 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
 
   let ( let* ) = E.bind
 
+  let derive_full seed =
+    let output_length = 128 (* 512 bits *) in
+    (* TODO: get rid of uuid in the following line (when the formal proof is done) *)
+    let prefix = Printf.sprintf "derive_credential|%s" (Uuid.unwrap E.uuid) in
+    let b = Buffer.create output_length in
+    let rec loop i =
+      if Buffer.length b >= output_length then
+        Buffer.contents b |> G.Zq.reduce_hex
+      else (
+        Printf.ksprintf
+          (fun x -> x |> sha256_hex |> Buffer.add_string b)
+          "%s|%d|%s" prefix i seed;
+        loop (i + 1))
+    in
+    loop 0
+
   let derive_raw ~salt x =
-    (* TODO: do not depend on uuid *)
     let salt = Uuid.unwrap E.uuid ^ salt in
     let derived = pbkdf2_utf8 ~iterations:100000 ~salt ~size:2 x in
     G.Zq.reduce_hex derived
 
   let generate_one rng =
-    (* we generate only new-style credentials *)
-    let raw = generate_b58_token ~rng ~length:token_length in
-    let salt = generate_b58_token ~rng ~length:salt_length in
-    let private_key = derive_raw ~salt raw in
-    { raw = format raw; salt; private_key }
+    (* we generate only full style credentials *)
+    let private_credential =
+      generate_b58_token ~rng ~length:salt_length |> format_full
+    in
+    let private_key = derive_full private_credential in
+    { private_credential; private_key }
 
   let derive x =
     match parse_raw x with
@@ -135,6 +154,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         let derived = pbkdf2_utf8 ~iterations:1000 ~salt ~size:1 x in
         let r = G.Zq.reduce_hex derived in
         E.return (Ok r)
+    | `Valid_full -> E.return (Ok (derive_full x))
     | `Valid (raw, index) -> (
         let* salt = E.get_salt index in
         match salt with
@@ -159,38 +179,27 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       monadic_fold_left
         (fun (privs, pubs) v ->
           let _, username, weight = Voter.get v in
-          let { raw; salt; private_key } = generate_one rng in
-          ( SMap.add username (ref raw) privs,
-            GMap.add G.(g **~ private_key) (weight, username, salt) pubs ))
+          let { private_credential; private_key } = generate_one rng in
+          ( SMap.add username private_credential privs,
+            GMap.add G.(g **~ private_key) (weight, username) pubs ))
         (SMap.empty, GMap.empty) voters
     in
-    let serialize_with_id_and_salt (e, (w, id, salt)) =
+    let serialize_with_id (e, (w, id)) =
       G.to_string e
       ^ (if implicit_weights then ","
          else Printf.sprintf ",%s" (Weight.to_string w))
-      ^ Printf.sprintf ",%s" id ^ Printf.sprintf ",%s" salt
+      ^ Printf.sprintf ",%s" id
     in
-    let serialize_public (e, (w, _, _)) =
+    let serialize_public (e, (w, _)) =
       G.to_string e
       ^
       if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
     in
     let bindings = GMap.bindings pubs in
-    let index_size = String.length (string_of_int (GMap.cardinal pubs - 1)) in
-    let () =
-      List.iteri
-        (fun i (_, (_, id, _)) ->
-          let r = SMap.find id privs in
-          r := Printf.sprintf "%s-%0*d" !r index_size i)
-        bindings
-    in
-    let private_creds =
-      SMap.fold (fun id cred creds -> (id, !cred) :: creds) privs [] |> List.rev
-    in
     {
-      private_creds;
+      private_creds = SMap.bindings privs;
       public_creds = List.map serialize_public bindings;
-      public_with_ids_and_salts = List.map serialize_with_id_and_salt bindings;
+      public_with_ids = List.map serialize_with_id bindings;
     }
     |> E.return
 
@@ -200,9 +209,11 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     let rec loop accu =
       if !n > 0 then (
         let* () = E.pause () in
-        let { raw; salt; private_key } = generate_one rng in
+        let { private_credential; private_key } = generate_one rng in
         let sub_public = G.(g **~ private_key |> to_string) in
-        let x = { sub_base = raw; sub_salt = salt; sub_public } in
+        let x =
+          { sub_base = private_credential; sub_salt = None; sub_public }
+        in
         decr n;
         loop (x :: accu))
       else E.return accu
@@ -216,12 +227,9 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         match (voters, subs) with
         | v :: vs, s :: ss ->
             let _, username, weight = Voter.get v in
-            let privs = SMap.add username (ref s.sub_base) privs in
+            let privs = SMap.add username s.sub_base privs in
             let pubs =
-              GMap.add
-                G.(of_string s.sub_public)
-                (weight, username, s.sub_salt)
-                pubs
+              GMap.add G.(of_string s.sub_public) (weight, username) pubs
             in
             loop (privs, pubs) vs ss
         | [], _ -> (privs, pubs)
@@ -229,33 +237,22 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       in
       loop (SMap.empty, GMap.empty) voters subs
     in
-    let serialize_with_id_and_salt (e, (w, id, salt)) =
+    let serialize_with_id (e, (w, id)) =
       G.to_string e
       ^ (if implicit_weights then ","
          else Printf.sprintf ",%s" (Weight.to_string w))
-      ^ Printf.sprintf ",%s" id ^ Printf.sprintf ",%s" salt
+      ^ Printf.sprintf ",%s" id
     in
-    let serialize_public (e, (w, _, _)) =
+    let serialize_public (e, (w, _)) =
       G.to_string e
       ^
       if implicit_weights then "" else Printf.sprintf ",%s" (Weight.to_string w)
     in
     let bindings = GMap.bindings pubs in
-    let index_size = String.length (string_of_int (GMap.cardinal pubs - 1)) in
-    let () =
-      List.iteri
-        (fun i (_, (_, id, _)) ->
-          let r = SMap.find id privs in
-          r := Printf.sprintf "%s-%0*d" !r index_size i)
-        bindings
-    in
-    let private_creds =
-      SMap.fold (fun id cred creds -> (id, !cred) :: creds) privs [] |> List.rev
-    in
     {
-      private_creds;
+      private_creds = SMap.bindings privs;
       public_creds = List.map serialize_public bindings;
-      public_with_ids_and_salts = List.map serialize_with_id_and_salt bindings;
+      public_with_ids = List.map serialize_with_id bindings;
     }
 
   let parse_public_credential s =
