@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Js_of_ocaml_lwt
 open Js_of_ocaml_tyxml
 open Belenios_core.Common
 open Belenios_api.Serializable_j
@@ -36,19 +35,6 @@ open Common
  * failed assignement will be ignored.
  *)
 let ( let^ ) x f = Js.Optdef.case x (fun () -> Lwt.return_unit) f
-
-let read_full file =
-  let t, u = Lwt.task () in
-  let reader = new%js File.fileReader in
-  reader##.onload :=
-    Dom.handler (fun _ ->
-        let () =
-          let$ text = File.CoerceTo.string reader##.result in
-          Lwt.wakeup_later u text
-        in
-        Js._false);
-  reader##readAsText file;
-  t
 
 (* FIXME: get timezone offset from browser *)
 let datestring_of_float x =
@@ -204,7 +190,7 @@ let default_handler tab () =
  * and associated to them is the following data
  *     - string to print in the menu (internationalized)
  *     - function to decide its status (done, doing, todo...)
- *     - function to decide its availability (clicable ?)
+ *     - function to decide its availability (clickable ?)
  *     - function to compute the onclick handler (or directly the handler?)
  *)
 
@@ -466,6 +452,11 @@ let tabs x =
             | _ ->
                 alert ("Failed with error code " ^ string_of_int x.code);
                 Lwt.return_unit )
+  | Export ->
+      ( s_ "Export the election",
+        (fun () -> Lwt.return `None),
+        (fun () -> Lwt.return true),
+        default_handler x )
   | Destroy ->
       ( s_ "Delete the election",
         (fun () -> Lwt.return `None),
@@ -580,8 +571,9 @@ let tab_manage () =
   let* tab_electionpage = subtab_elt ElectionPage () in
   let* tab_create = subtab_elt CreateOpenClose () in
   let* tab_tally = subtab_elt Tally () in
+  let* tab_export = subtab_elt Export () in
   let* tab_destroy = subtab_elt Destroy () in
-  let elt = [ tab_electionpage; tab_create; tab_tally; tab_destroy ] in
+  let elt = [ tab_electionpage; tab_create; tab_tally; tab_export; tab_destroy ] in
   Lwt.return
     (title
     :: flatten_with_sep
@@ -1612,6 +1604,74 @@ let result_archived_content () =
       but;
     ]
 
+let draft_of_params (Belenios.Election.Template (V1, params)) =
+  let* x = Cache.get Cache.config in
+  let* configuration_opt =
+    match x with
+    | Error e ->
+        alert ("Failed to retrieve server config: " ^ e);
+        Lwt.return None
+    | Ok c -> Lwt.return @@ Some c
+  in
+  let* account_opt =
+    let* x = get api_account_of_string "account" in
+    match x with
+    | Error e ->
+        alert ("Failed to retrieve account info: " ^ string_of_error e);
+        Lwt.return None
+    | Ok (c, _) -> Lwt.return @@ Some c
+  in
+  let owners =
+    match (account_opt) with
+    | Some a -> [ a.id ]
+    | None -> []
+  in
+  let contact =
+    match (account_opt) with
+    | Some a -> (Printf.sprintf "%s <%s>" a.name a.address);
+    | None -> Option.get(params.t_administrator)
+  in
+  let draft_group = (Option.get configuration_opt).default_group in
+  let questions =
+  {
+    t_description = params.t_description;
+    t_name = params.t_name;
+    t_questions = params.t_questions;
+    t_administrator = params.t_administrator;
+    t_credential_authority = params.t_credential_authority;
+  }
+  in
+  Lwt.return (Belenios_api.Common.Draft (V1, {
+    draft_version = 1;
+    draft_questions = questions;
+    draft_owners = owners;
+    draft_languages = [ "en"; "fr" ];
+    draft_booth = 1;
+    draft_group;
+    draft_authentication = `Password;
+    draft_contact = Some(contact)
+  }))
+
+let export_content () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let* draft  = if is_draft () then (
+    let* draft = Cache.get_until_success Cache.draft in
+    Lwt.return draft
+  ) else (
+    let* election = Cache.get_until_success Cache.e_elec in
+    let* draft = (draft_of_params election) in
+    Lwt.return draft
+  ) in
+  let button_text = s_ "Click here to export the election" in
+  let encoded_data = Js.encodeURIComponent (Js.string @@ Belenios_api.Common.string_of_draft draft) in
+  let href = "data:text/json;charset=utf-8," ^ (Js.to_string encoded_data) in
+  let uuid = get_current_uuid () in
+  let link = a ~a:[ (a_target "_download_election"); (a_download (Some(uuid ^ ".json"))) ] ~href button_text in
+  Lwt.return
+    [
+      link;
+    ]
+
 let update_main_zone () =
   let&&* container = document##getElementById (Js.string "main_zone") in
   let* content =
@@ -1628,6 +1688,7 @@ let update_main_zone () =
     | Election { tab = ElectionPage; _ } -> result_archived_content ()
     | Election { tab = CreateOpenClose; _ } ->
         if is_draft () then create_content () else open_close_content ()
+    | Election { tab = Export; _ } -> export_content ()
     | _ -> Lwt.return [ txt "Error: should never print this" ]
   in
   show_in container (fun () -> Lwt.return content)

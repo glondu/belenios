@@ -47,6 +47,7 @@ type tab =
   | ElectionPage
   | CreateOpenClose
   | Tally
+  | Export
   | Destroy
 
 type status = Draft | Running | Tallied | Archived
@@ -96,3 +97,16 @@ let url_prefix () =
       | Some pr -> pr)
 
 let default_version = Belenios.Election.(Version V1)
+
+let read_full file =
+  let t, u = Lwt.task () in
+  let reader = new%js File.fileReader in
+  reader##.onload :=
+    Dom.handler (fun _ ->
+        let () =
+          let$ text = File.CoerceTo.string reader##.result in
+          Lwt.wakeup_later u text
+        in
+        Js._false);
+  reader##readAsText file;
+  t

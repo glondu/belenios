@@ -307,7 +307,46 @@ let rec page_body () =
                 alert ("Creation failed: " ^ string_of_error e);
                 Lwt.return_unit))
   in
-  let menus = div ~a:[ a_class [ "main-menu__button" ] ] [ but_cr ] :: menus in
+  let file_elt = Tyxml_js.Html.input ~a:[
+    a_input_type `File; a_style "display:none;"
+  ] () in
+  let file_dom = Tyxml_js.To_dom.of_input file_elt in
+  let () = file_dom##.onchange := lwt_handler (fun _ ->
+    let files = file_dom##.files in
+    let files = Js.Optdef.get files (fun () -> assert false) in
+    if files##.length = 0 then
+      Lwt.return_unit
+    else
+      let file = files##item 0 in
+      let file = Js.Opt.get file  (fun () -> assert false) in
+      let* text = Common.read_full file in
+      let text = Js.to_string text in
+      let* x = post_with_token text "drafts"
+        |> wrap uuid_of_string
+      in
+      match x with
+      | Ok uuid ->
+          where_am_i := Election { uuid; status = Draft; tab = Title };
+          Dom_html.window##.location##.hash
+          := Js.string (Uuid.unwrap uuid);
+          Lwt.return_unit
+      | Error e ->
+          alert ("Creation failed: "
+            ^ Belenios_js.Session.(string_of_error e));
+          Lwt.return_unit
+  ) in
+  let button_import =
+    button
+      ~a:[ a_class [ "clickable" ] ]
+      (s_ "Import an election")
+      (fun () -> 
+        let file_unsafe = Js.Unsafe.coerce file_dom in
+        let () = file_unsafe##click() in
+        Lwt.return_unit)
+  in
+  let menus = div ~a:[ a_class [ "main-menu__button" ] ] [
+    but_cr; button_import
+  ] :: menus in
   let main_menu = div ~a:[ a_id "main_menu"; a_class [ "main-menu" ] ] menus in
   Lwt.return
     [
