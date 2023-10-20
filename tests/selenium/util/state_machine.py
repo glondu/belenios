@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
+from selenium.webdriver.common.by import By
 from util.monkeys import SeleniumFormFillerMonkey, StateForSmartMonkey
 from util.page_objects import ElectionHomePage, NormalVoteStep1Page, NormalVoteStep2Page, NormalVoteStep3Page, VoterLoginPage, NormalVoteStep6Page, BallotBoxPage, UnauthorizedPage, ServerHomePage, AdvancedModeVotePage, LoginFailedPage
 from util.execution import console_log
@@ -33,7 +34,7 @@ class ElectionHomePageState(StateForSmartMonkey):
 
         def click_on_accept_personal_data_policy_link(in_memory=None):
             try:
-                if self.browser.find_element_by_link_text("Accept"):
+                if self.browser.find_element(By.LINK_TEXT, "Accept"):
                     self.page.click_on_accept_personal_data_policy_link()
             finally:
                 return self

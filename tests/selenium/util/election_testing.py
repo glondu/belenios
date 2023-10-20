@@ -9,6 +9,7 @@ import subprocess
 import re
 import json
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from util.selenium_tools import wait_for_element_exists, wait_for_element_exists_and_contains_expected_text, wait_for_an_element_with_partial_link_text_exists, verify_element_label, wait_for_element_exists_and_attribute_contains_expected_text, wait_until_page_url_changes
@@ -223,12 +224,12 @@ def build_css_selector_to_find_buttons_in_page_content_by_value(expected_value):
 
 def find_button_in_page_content_by_value(browser, expected_value):
     css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(expected_value)
-    return browser.find_element_by_css_selector(css_selector)
+    return browser.find_element(By.CSS_SELECTOR, css_selector)
 
 
 def find_buttons_in_page_content_by_value(browser, expected_value):
     css_selector = build_css_selector_to_find_buttons_in_page_content_by_value(expected_value)
-    return browser.find_elements_by_css_selector(css_selector)
+    return browser.find_elements(By.CSS_SELECTOR, css_selector)
 
 
 def initialize_server():
@@ -247,27 +248,23 @@ def initialize_server():
 def initialize_browser(for_scenario_2=False):
     browser = None
 
-    profile = webdriver.FirefoxProfile()
-    profile.set_preference("intl.accept_languages", "en-us")
+    options = webdriver.firefox.options.Options()
+    options.set_preference("intl.accept_languages", "en-us")
 
     if for_scenario_2:
         # Test Scenario 2 requires users to download things from their browser.
         # Define a custom profile for Firefox, to automatically download files that a page asks user to download, without asking. This is because Selenium can't control downloads.
-        profile.set_preference('browser.download.folderList', 2) # Can be set to either 0, 1, or 2. When set to 0, Firefox will save all files downloaded via the browser on the user's desktop. When set to 1, these downloads are stored in the Downloads folder. When set to 2, the location specified for the most recent download is utilized again.
-        profile.set_preference('browser.download.manager.showWhenStarting', False)
-        profile.set_preference('browser.download.dir', settings.BROWSER_DOWNLOAD_FOLDER)
+        options.set_preference('browser.download.folderList', 2) # Can be set to either 0, 1, or 2. When set to 0, Firefox will save all files downloaded via the browser on the user's desktop. When set to 1, these downloads are stored in the Downloads folder. When set to 2, the location specified for the most recent download is utilized again.
+        options.set_preference('browser.download.manager.showWhenStarting', False)
+        options.set_preference('browser.download.dir', settings.BROWSER_DOWNLOAD_FOLDER)
         mime_types_that_should_be_downloaded = ['text/plain', 'application/json']
-        profile.set_preference('browser.helperApps.neverAsk.saveToDisk', ';'.join(mime_types_that_should_be_downloaded))
+        options.set_preference('browser.helperApps.neverAsk.saveToDisk', ';'.join(mime_types_that_should_be_downloaded))
 
     if settings.USE_HEADLESS_BROWSER:
-        from selenium.webdriver.firefox.options import Options
-        options = Options()
         options.add_argument("--headless")
         options.log.level = "trace"
-        browser = webdriver.Firefox(profile, options=options)
-    else:
-        browser = webdriver.Firefox(profile)
-        # browser.maximize_window() # make the browser window use all available screen space. FIXME: When enabled, some clicks are not triggered anymore
+
+    browser = webdriver.Firefox(options=options)
     browser.implicitly_wait(settings.WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
     return browser
 
@@ -577,7 +574,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
     wait_a_bit()
 
     election_description_field_css_selector = "#name_and_description_form textarea[name=__co_eliom_description]"
-    election_description_field_element = browser.find_element_by_css_selector(election_description_field_css_selector)
+    election_description_field_element = browser.find_element(By.CSS_SELECTOR, election_description_field_css_selector)
     election_description_field_value = election_description
     election_description_field_element.clear()
     election_description_field_element.send_keys(election_description_field_value)
@@ -586,14 +583,14 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     # She clicks on the "Save changes" button (the one that is next to the election description field)
     save_changes_button_css_selector = "#name_and_description_form input[type=submit]"
-    save_changes_button_element = browser.find_element_by_css_selector(save_changes_button_css_selector)
+    save_changes_button_element = browser.find_element(By.CSS_SELECTOR, save_changes_button_css_selector)
     save_changes_button_element.click()
 
     wait_a_bit()
 
     # In "Contact" section, she changes the value of "contact" field
     election_contact_field_css_selector = "#form_contact input[name=__co_eliom_contact]"
-    election_contact_field_element = browser.find_element_by_css_selector(election_contact_field_css_selector)
+    election_contact_field_element = browser.find_element(By.CSS_SELECTOR, election_contact_field_css_selector)
     election_contact_field_value = initiator_contact
     election_contact_field_element.clear()
     election_contact_field_element.send_keys(election_contact_field_value)
@@ -602,14 +599,14 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     # She clicks on the "Save changes" button (the one that is in the "Contact" section)
     contact_section_save_changes_button_css_selector = "#form_contact input[type=submit]"
-    contact_section_save_changes_button_element = browser.find_element_by_css_selector(contact_section_save_changes_button_css_selector)
+    contact_section_save_changes_button_element = browser.find_element(By.CSS_SELECTOR, contact_section_save_changes_button_css_selector)
     contact_section_save_changes_button_element.click()
 
     wait_a_bit()
 
     # In "Public name of the administrator" section, she changes the value of "name" field
     admin_name_field_css_selector = "#form_admin_name input[name=__co_eliom_name]"
-    admin_name_field_element = browser.find_element_by_css_selector(admin_name_field_css_selector)
+    admin_name_field_element = browser.find_element(By.CSS_SELECTOR, admin_name_field_css_selector)
     admin_name_field_value = "Election initiator"
     admin_name_field_element.clear()
     admin_name_field_element.send_keys(admin_name_field_value)
@@ -618,7 +615,7 @@ def administrator_starts_creation_of_election(browser, manual_credential_managem
 
     # She clicks on the "Save changes" button (the one that is in the "Contact" section)
     admin_name_save_changes_button_css_selector = "#form_admin_name input[type=submit]"
-    admin_name_save_changes_button_element = browser.find_element_by_css_selector(admin_name_save_changes_button_css_selector)
+    admin_name_save_changes_button_element = browser.find_element(By.CSS_SELECTOR, admin_name_save_changes_button_css_selector)
     admin_name_save_changes_button_element.click()
 
     wait_a_bit()
@@ -650,28 +647,28 @@ def administrator_edits_election_questions(browser, nh_question=False):
 
     if nh_question:
         # She ticks "Tick the box to activate this mode."
-        browser.find_element_by_css_selector("#hybrid_mode").click()
+        browser.find_element(By.CSS_SELECTOR, "#hybrid_mode").click()
         # She ticks "Alternative"
         nhtally_css_selector = ".nonhomomorphic_tally"
-        nhtally_checkbox_element = browser.find_element_by_css_selector(nhtally_css_selector)
+        nhtally_checkbox_element = browser.find_element(By.CSS_SELECTOR, nhtally_css_selector)
         nhtally_checkbox_element.click()
     else:
         # She sets max to 2
-        max_input = browser.find_element_by_css_selector(".question_max")
+        max_input = browser.find_element(By.CSS_SELECTOR, ".question_max")
         max_input.send_keys(Keys.BACKSPACE)
         max_input.send_keys("2")
 
     # She removes answer 3
     candidate_to_remove = 3
     remove_button_css_selector = ".question_answer_item:nth-child(" + str(candidate_to_remove) + ") .btn_remove"
-    remove_button_element = browser.find_element_by_css_selector(remove_button_css_selector)
+    remove_button_element = browser.find_element(By.CSS_SELECTOR, remove_button_css_selector)
     remove_button_element.click()
 
     wait_a_bit()
 
     # She clicks on the "Save changes" button (this redirects to the "Preparation of election" page)
     save_changes_button_expected_label = "Save changes"
-    button_elements = browser.find_elements_by_css_selector("button")
+    button_elements = browser.find_elements(By.CSS_SELECTOR, "button")
     assert len(button_elements)
     save_changes_button_element = button_elements[-1]
     verify_element_label(save_changes_button_element, save_changes_button_expected_label)
