@@ -4,4 +4,4 @@
  (package belenios-server)
  (flags -linkall)
  (libraries ocsigenserver ocsipersist.sqlite ocsigenserver.ext.redirectmod
-   ocsigenserver.ext.staticmod eliom belenios-platform-native belenios-server))
+   ocsigenserver.ext.staticmod eliom.server belenios-platform-native belenios-server))
