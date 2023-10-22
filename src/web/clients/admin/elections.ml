@@ -1390,7 +1390,7 @@ let voterspwd_content () =
             lwt_handler (fun _ ->
                 let* () = send_draft_request `SetVoterAuthenticationVisited in
                 Cache.set Cache.draft { draft with draft_authentication };
-                Lwt.return_unit)
+                !update_election_main ())
         in
         let ll =
           c.authentications
