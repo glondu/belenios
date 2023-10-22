@@ -32,19 +32,45 @@ let rec update_main_zone () =
   let* ac = Cache.get Cache.account in
   match ac with
   | Ok acc ->
-      let inp, nameset = input ~a:[ a_id "inpname" ] acc.name in
-      let r = Tyxml_js.To_dom.of_input inp in
-      r##.onchange :=
-        lwt_handler (fun _ ->
-            let newname = nameset () in
-            Cache.set Cache.account { acc with name = newname };
-            let* () =
-              let&&* container =
-                document##getElementById (Js.string "nav_username")
+      let input_name =
+        let inp, nameset = input ~a:[ a_id "inpname" ] acc.name in
+        let r = Tyxml_js.To_dom.of_input inp in
+        r##.onchange :=
+          lwt_handler (fun _ ->
+              let newname = nameset () in
+              Cache.set Cache.account { acc with name = newname };
+              let* () =
+                let&&* container =
+                  document##getElementById (Js.string "nav_username")
+                in
+                show_in container (fun () -> Lwt.return [ txt newname ])
               in
-              show_in container (fun () -> Lwt.return [ txt newname ])
-            in
-            update_main ());
+              update_main ());
+        inp
+      in
+      let input_language =
+        let current = Option.value ~default:"" acc.language in
+        let options =
+          Belenios_ui.Languages.available
+          |> List.map (fun (code, label) ->
+                 option ~a:[ a_value code ] (txt label))
+        in
+        let options =
+          option ~a:[ a_value "" ] (txt @@ s_ "Navigator's default") :: options
+        in
+        let select = select ~a:[ a_id "inplang" ] options in
+        let r = Tyxml_js.To_dom.of_select select in
+        r##.value := Js.string current;
+        r##.onchange :=
+          lwt_handler (fun _ ->
+              let language =
+                match Js.to_string r##.value with "" -> None | x -> Some x
+              in
+              Cache.set Cache.account { acc with language };
+              let* () = Belenios_js.I18n.set ~language in
+              update_main ());
+        select
+      in
       let content =
         [
           h2 [ txt @@ s_ "Administrator's profile: " ];
@@ -54,7 +80,16 @@ let rec update_main_zone () =
               div [ txt (s_ "E-mail: " ^ acc.address) ];
               div
                 [
-                  label ~a:[ a_label_for "inpname" ] [ txt @@ s_ "Name: " ]; inp;
+                  label ~a:[ a_label_for "inpname" ] [ txt @@ s_ "Name: " ];
+                  input_name;
+                ];
+              div
+                [
+                  label
+                    ~a:[ a_label_for "inplang" ]
+                    [ txt @@ s_ "Language for administrator interface:" ];
+                  txt " ";
+                  input_language;
                 ];
             ];
         ]

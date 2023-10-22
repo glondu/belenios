@@ -33,7 +33,9 @@ end
 
 let default = (module Default : Belenios_ui.I18n.GETTEXT)
 let gettext = ref default
+let init_gettext = ref default
 let dir = ref ""
+let component = ref ""
 
 let build_gettext component lang =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
@@ -79,13 +81,24 @@ let get ~component ~lang =
           Hashtbl.add langs lang x;
           Lwt.return x)
 
-let init ~dir:d ~component ~lang =
+let init ~dir:d ~component:c ~lang =
   dir := d;
-  let* x = get ~component ~lang in
+  component := c;
+  let* x = get ~component:c ~lang in
   gettext := x;
+  init_gettext := x;
   Lwt.return_unit
 
 let auto_init component =
   let lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
   let dir = Js.to_string (Js.Unsafe.pure_js_expr "belenios_dir") in
   init ~dir ~component ~lang
+
+let set ~language =
+  let* x =
+    match language with
+    | None -> Lwt.return !init_gettext
+    | Some lang -> get ~component:!component ~lang
+  in
+  gettext := x;
+  Lwt.return_unit

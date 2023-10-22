@@ -424,6 +424,12 @@ let onhashchange () =
   Cache.invalidate_all ();
   let hash = parse_hash () in
   let* () = init_api_token ~ui:"new" hash in
+  let* () =
+    let* account = Cache.(get account) in
+    match account with
+    | Ok { language; _ } -> Belenios_js.I18n.set ~language
+    | Error _ -> Lwt.return_unit
+  in
   let* where =
     match hash with
     | `Home -> Lwt.return List_draft

@@ -25,3 +25,4 @@ include Belenios_ui.I18n.S
 
 val init : dir:string -> component:string -> lang:string -> unit Lwt.t
 val auto_init : string -> unit Lwt.t
+val set : language:string option -> unit Lwt.t
