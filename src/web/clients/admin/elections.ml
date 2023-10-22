@@ -1383,6 +1383,15 @@ let voterspwd_content () =
           let lab = label ~a:[ a_label_for id ] [ txt text ] in
           (inp, lab)
         in
+        let set_onchange e get =
+          let e = Tyxml_js.To_dom.of_input e in
+          let draft_authentication = get () in
+          e##.onchange :=
+            lwt_handler (fun _ ->
+                let* () = send_draft_request `SetVoterAuthenticationVisited in
+                Cache.set Cache.draft { draft with draft_authentication };
+                Lwt.return_unit)
+        in
         let ll =
           c.authentications
           |> List.mapi (fun i x ->
@@ -1395,15 +1404,7 @@ let voterspwd_content () =
                              multiple elections)")
                          ()
                      in
-                     let r = Tyxml_js.To_dom.of_input inp in
-                     r##.onchange :=
-                       lwt_handler (fun _ ->
-                           let* () =
-                             send_draft_request `SetVoterAuthenticationVisited
-                           in
-                           Cache.set Cache.draft
-                             { draft with draft_authentication = `Password };
-                           Lwt.return_unit);
+                     set_onchange inp (fun () -> `Password);
                      let but =
                        button (s_ "Send passwords to voters") (fun () ->
                            let* dr = Cache.get_until_success Cache.draft in
@@ -1447,22 +1448,9 @@ let voterspwd_content () =
                      let inp2, get2 =
                        input ~a:[ a_placeholder "https://cas.inria.fr" ] casname
                      in
-                     let handler =
-                       lwt_handler (fun _ ->
-                           let* () =
-                             send_draft_request `SetVoterAuthenticationVisited
-                           in
-                           Cache.set Cache.draft
-                             {
-                               draft with
-                               draft_authentication = `CAS (get2 ());
-                             };
-                           Lwt.return_unit)
-                     in
-                     let r = Tyxml_js.To_dom.of_input inp in
-                     r##.onchange := handler;
-                     let r = Tyxml_js.To_dom.of_input inp2 in
-                     r##.onchange := handler;
+                     let get () = `CAS (get2 ()) in
+                     set_onchange inp get;
+                     set_onchange inp2 get;
                      div [ inp; lab; inp2 ]
                  | `Configured xx -> (
                      match xx.configured_system with
@@ -1480,20 +1468,8 @@ let voterspwd_content () =
                              ^ xx.configured_instance)
                              ()
                          in
-                         let r = Tyxml_js.To_dom.of_input inp in
-                         r##.onchange :=
-                           lwt_handler (fun _ ->
-                               let* () =
-                                 send_draft_request
-                                   `SetVoterAuthenticationVisited
-                               in
-                               Cache.set Cache.draft
-                                 {
-                                   draft with
-                                   draft_authentication =
-                                     `Configured xx.configured_instance;
-                                 };
-                               Lwt.return_unit);
+                         set_onchange inp (fun () ->
+                             `Configured xx.configured_instance);
                          div [ inp; lab ]
                      | "email" ->
                          let sel =
@@ -1508,20 +1484,8 @@ let voterspwd_content () =
                                  password, renewed for each vote)")
                              ()
                          in
-                         let r = Tyxml_js.To_dom.of_input inp in
-                         r##.onchange :=
-                           lwt_handler (fun _ ->
-                               let* () =
-                                 send_draft_request
-                                   `SetVoterAuthenticationVisited
-                               in
-                               Cache.set Cache.draft
-                                 {
-                                   draft with
-                                   draft_authentication =
-                                     `Configured xx.configured_instance;
-                                 };
-                               Lwt.return_unit);
+                         set_onchange inp (fun () ->
+                             `Configured xx.configured_instance);
                          div [ inp; lab ]
                      | _ ->
                          (* TODO: add oidc, cas, password, here *)
@@ -1535,20 +1499,8 @@ let voterspwd_content () =
                              ("Unknown (" ^ xx.configured_instance ^ ")")
                              ()
                          in
-                         let r = Tyxml_js.To_dom.of_input inp in
-                         r##.onchange :=
-                           lwt_handler (fun _ ->
-                               let* () =
-                                 send_draft_request
-                                   `SetVoterAuthenticationVisited
-                               in
-                               Cache.set Cache.draft
-                                 {
-                                   draft with
-                                   draft_authentication =
-                                     `Configured xx.configured_instance;
-                                 };
-                               Lwt.return_unit);
+                         set_onchange inp (fun () ->
+                             `Configured xx.configured_instance);
                          div [ inp; lab ]))
         in
         let ll =
