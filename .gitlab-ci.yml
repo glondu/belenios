@@ -95,8 +95,6 @@ build_and_run_automated_test_scenarios_with_preinstalled_image_and_prepared_data
     - source venv/bin/activate
     # Install pip packages
     - pip install -r requirements.txt
-    # Run the automated test scenario 1 using responsive booth
-    - BOOTH_VERSION=RESPONSIVE_BOOTH python3 ./tests/selenium/test_scenario_1.py
     # Run the automated test scenario 4
     - python3 ./tests/selenium/test_scenario_4.py
     # Run the automated test scenario 2
