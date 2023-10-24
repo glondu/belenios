@@ -60,7 +60,7 @@ class BeleniosMonkeyTestClicker(BeleniosTestElectionWithCreationBase):
         console_log("## Going to election page:", election_url)
 
         monkey = SeleniumClickerMonkey(browser, election_url, 0.25, belenios_fence_filter, verify_page_is_not_an_error_page)
-        monkey.start(200)
+        monkey.start(100)
 
 
     def test_sometimes_smart_monkey_votes(self):
