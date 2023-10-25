@@ -45,6 +45,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let random () = M.random Zq.q |> Zq.coerce
 
   let create_answer q ~public_key:y ~prefix m =
+    let m = Shape.to_array m in
     assert (Array.length q.q_answers = Array.length m);
     let r = random () in
     let alpha = g **~ r and beta = (y **~ r) *~ G.of_ints m in

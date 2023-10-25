@@ -33,7 +33,7 @@ module type QUESTION = sig
   val write_answer : answer writer
 
   val create_answer :
-    question -> public_key:element -> prefix:string -> int array -> answer
+    question -> public_key:element -> prefix:string -> int Shape.t -> answer
 
   val verify_answer :
     question -> public_key:element -> prefix:string -> answer -> bool

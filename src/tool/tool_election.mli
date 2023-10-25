@@ -1,3 +1,5 @@
+open Belenios
+
 module type PARAMS = sig
   val file : string
   val salts_file : string option
@@ -6,7 +8,7 @@ end
 module type S = sig
   type 'a m
 
-  val vote : string option -> int array array -> string m
+  val vote : string option -> int Shape.t array -> string m
   val decrypt : int -> string -> (string * string) m
   val tdecrypt : int -> string -> string -> (string * string) m
   val compute_result : unit -> string m

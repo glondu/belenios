@@ -325,6 +325,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     |> Array.to_list |> String.concat ","
 
   let create_answer q ~public_key:y ~prefix:zkp m =
+    let m = Shape.to_array m in
     let n = Array.length m in
     let r = Array.init n (fun _ -> random ()) in
     let choices = Array.map2 (eg_encrypt y) r m in
