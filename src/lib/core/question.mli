@@ -25,7 +25,6 @@ type t =
   | Homomorphic of Question_h_t.question
   | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
-val compute_signature : t list -> (module QUESTION_SIGNATURE_PACK)
 val wrap : Yojson.Safe.t -> t
 val unwrap : t -> Yojson.Safe.t
 

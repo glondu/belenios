@@ -32,8 +32,6 @@ module type ELECTION_BASE = sig
   val fingerprint : string
   val public_key : G.t
 
-  module S : QUESTION_SIGNATURE_PACK
-
   type ballot
 
   val string_of_ballot : ballot -> string

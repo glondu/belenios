@@ -26,34 +26,6 @@ type t =
   | Homomorphic of Question_h_t.question
   | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
-let rec compute_signature qs =
-  match qs with
-  | [] ->
-      let module X = struct
-        type t = unit
-
-        let x = Question_signature.Nil
-      end in
-      (module X : QUESTION_SIGNATURE_PACK)
-  | Homomorphic _ :: qs ->
-      let module X = (val compute_signature qs) in
-      let module Y = struct
-        type t = [ `Homomorphic ] * X.t
-
-        let x = Question_signature.Homomorphic X.x
-      end in
-      (module Y)
-  | NonHomomorphic (q, _) :: qs ->
-      let module X = (val compute_signature qs) in
-      let module Y = struct
-        type t = [ `NonHomomorphic ] * X.t
-
-        let x =
-          Question_signature.NonHomomorphic
-            (Array.length q.Question_nh_t.q_answers, X.x)
-      end in
-      (module Y)
-
 let wrap x =
   match x with
   | `Assoc o -> (

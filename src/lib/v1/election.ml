@@ -116,9 +116,6 @@ module Parse (R : RAW_ELECTION) () = struct
   let fingerprint = sha256_b64 R.raw_election
   let public_key = params.e_public_key
 
-  module S =
-    (val Question.compute_signature (Array.to_list election.e_questions))
-
   type nonrec ballot = (G.t, G.Zq.t) ballot
 
   let string_of_ballot x =
