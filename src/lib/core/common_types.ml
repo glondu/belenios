@@ -244,6 +244,11 @@ end
 module Array = struct
   include Stdlib.Array
 
+  let mapi2 f a b =
+    let n = Array.length a in
+    if n = Array.length b then Array.init n (fun i -> f i a.(i) b.(i))
+    else invalid_arg "Array.mapi2"
+
   let for_all3 f a b c =
     let n = Array.length a in
     n = Array.length b

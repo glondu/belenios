@@ -227,8 +227,11 @@ struct
               let* result = Web_persist.get_election_result uuid in
               match result with
               | Some result -> (
-                  let result = election_result_of_string read_result result in
-                  match Election_result.nth result.result question with
+                  let result =
+                    (election_result_of_string read_result result).result
+                    |> to_generic_result
+                  in
+                  match result.(question) with
                   | `NonHomomorphic ballots -> continuation ballots
                   | _ -> failwith "handle_method")
               | None ->

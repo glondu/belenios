@@ -22,10 +22,11 @@
 open Common
 open Serializable_core_t
 
-module type QUESTION_CORE = sig
+module type QUESTION = sig
   type question
   type answer
   type elt
+  type result
 
   val create_answer :
     question -> public_key:elt -> prefix:string -> int array -> answer
@@ -39,37 +40,14 @@ module type QUESTION_CORE = sig
     question ->
     (Weight.t * elt ciphertext Shape.t) list ->
     elt ciphertext Shape.t
-end
-
-module type QUESTION_H = sig
-  include QUESTION_CORE
-
-  val compute_result : num_tallied:Weight.t -> elt Shape.t -> Weight.t array
-
-  val check_result :
-    num_tallied:Weight.t -> elt Shape.t -> Weight.t array -> bool
-end
-
-module type QUESTION_NH = sig
-  include QUESTION_CORE
-
-  val compute_result : num_answers:int -> elt Shape.t -> int array array
-  val check_result : num_answers:int -> elt Shape.t -> int array array -> bool
-end
-
-module type QUESTION = sig
-  include QUESTION_CORE
 
   val compute_result :
-    num_tallied:Weight.t ->
-    'a Question_signature.t ->
-    elt Shape.t ->
-    'a Election_result.t
+    total_weight:Weight.t -> question -> elt Shape.t -> result
 
   val check_result :
-    num_tallied:Weight.t ->
-    'a Question_signature.t ->
-    elt Shape.t ->
-    'a Election_result.t ->
-    bool
+    total_weight:Weight.t -> question -> elt Shape.t -> result -> bool
 end
+
+type generic_result =
+  [ `Homomorphic of Question_h_t.result
+  | `NonHomomorphic of Question_nh_t.result ]

@@ -488,9 +488,11 @@ struct
           @@ div
                [
                  ul
-                   (Election_result.map2
+                   (Array.mapi2
                       (format_question_result uuid l)
-                      r.result W.election.e_questions);
+                      (W.to_generic_result r.result)
+                      W.election.e_questions
+                   |> Array.to_list);
                  div
                    [
                      txt (s_ "Number of accepted ballots: ");

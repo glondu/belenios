@@ -99,6 +99,8 @@ end
 module Array : sig
   include module type of Stdlib.Array
 
+  val mapi2 : (int -> 'a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
+
   val for_all3 :
     ('a -> 'b -> 'c -> bool) -> 'a array -> 'b array -> 'c array -> bool
 

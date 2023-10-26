@@ -129,14 +129,16 @@ let erase_question = function
 module Make
     (M : RANDOM)
     (G : GROUP)
-    (QHomomorphic : Question_sigs.QUESTION_H
+    (QHomomorphic : Question_sigs.QUESTION
                       with type elt := G.t
                        and type question := Question_h_t.question
-                       and type answer := (G.t, G.Zq.t) Question_h_t.answer)
-    (QNonHomomorphic : Question_sigs.QUESTION_NH
+                       and type answer := (G.t, G.Zq.t) Question_h_t.answer
+                       and type result := Question_h_t.result)
+    (QNonHomomorphic : Question_sigs.QUESTION
                          with type elt := G.t
                           and type question := Question_nh_t.question
-                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer) =
+                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer
+                          and type result := Question_nh_t.result) =
 struct
   let create_answer q ~public_key ~prefix m =
     match q with
@@ -184,52 +186,18 @@ struct
     | Homomorphic q -> QHomomorphic.process_ciphertexts q e
     | NonHomomorphic (q, _) -> QNonHomomorphic.process_ciphertexts q e
 
-  let compute_result ~num_tallied qs x =
-    match x with
-    | `Atomic _ -> invalid_arg "compute_result: invalid result"
-    | `Array xs ->
-        let compute_h = lazy (QHomomorphic.compute_result ~num_tallied) in
-        let rec loop
-                  : 'a.
-                    'a Question_signature.t ->
-                    G.t Shape.t list ->
-                    'a Election_result.t =
-         fun (type a) (qs : a Question_signature.t) xs ->
-          let r : a Election_result.t =
-            match (qs, xs) with
-            | Nil, [] -> Nil
-            | Nil, _ -> invalid_arg "compute_result: list too long"
-            | _, [] -> invalid_arg "compute_result: list too short"
-            | Homomorphic qs, x :: xs ->
-                Homomorphic (Lazy.force compute_h x, loop qs xs)
-            | NonHomomorphic (num_answers, qs), x :: xs ->
-                NonHomomorphic
-                  (QNonHomomorphic.compute_result ~num_answers x, loop qs xs)
-          in
-          r
-        in
-        loop qs (Array.to_list xs)
+  let compute_result ~total_weight q x =
+    match q with
+    | Homomorphic q ->
+        `Homomorphic (QHomomorphic.compute_result ~total_weight q x)
+    | NonHomomorphic (q, _) ->
+        `NonHomomorphic (QNonHomomorphic.compute_result ~total_weight q x)
 
-  let check_result ~num_tallied qs x rs =
-    match x with
-    | `Atomic _ -> invalid_arg "check_result: invalid result"
-    | `Array xs ->
-        let rec loop
-                  : 'a.
-                    'a Question_signature.t ->
-                    G.t Shape.t list ->
-                    'a Election_result.t ->
-                    bool =
-         fun (type a) (qs : a Question_signature.t) xs
-             (rs : a Election_result.t) ->
-          match (qs, xs, rs) with
-          | Nil, [], Nil -> true
-          | Nil, _, Nil -> invalid_arg "check_result: list too long"
-          | _, [], _ -> invalid_arg "check_result: list too short"
-          | Homomorphic qs, x :: xs, Homomorphic (r, rs) ->
-              QHomomorphic.check_result ~num_tallied x r && loop qs xs rs
-          | NonHomomorphic (num_answers, qs), x :: xs, NonHomomorphic (r, rs) ->
-              QNonHomomorphic.check_result ~num_answers x r && loop qs xs rs
-        in
-        loop qs (Array.to_list xs) rs
+  let check_result ~total_weight q x r =
+    match (q, r) with
+    | Homomorphic q, `Homomorphic r ->
+        QHomomorphic.check_result ~total_weight q x r
+    | NonHomomorphic (q, _), `NonHomomorphic r ->
+        QNonHomomorphic.check_result ~total_weight q x r
+    | _, _ -> invalid_arg "check_result: invalid result"
 end

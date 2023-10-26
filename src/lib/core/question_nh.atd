@@ -39,6 +39,8 @@ type ('a, 'b) answer = {
 }
 <doc text="An answer to a question.">
 
+type result = int list <ocaml repr="array"> list <ocaml repr="array">
+
 (** {2 Counting methods} *)
 
 type mj_extra = {

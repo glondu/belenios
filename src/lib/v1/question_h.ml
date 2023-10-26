@@ -388,7 +388,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let es = List.map (fun (w, b) -> power b (Weight.expand ~total w)) es in
     List.fold_left (Shape.map2 eg_combine) neutral es
 
-  let compute_result ~num_tallied:total =
+  let compute_result ~total_weight:total _ =
     let num_tallied = Weight.expand ~total total in
     let log =
       let module X = BabyStepGiantStep (G) in
@@ -402,10 +402,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
       Shape.to_array x
       |> Array.map (fun i -> Weight.reduce ~total (log i |> Zq.to_Z))
 
-  let check_result ~num_tallied x r =
+  let check_result ~total_weight _ x r =
     Array.for_all2
       (fun x r ->
-        let r = Weight.expand ~total:num_tallied r |> Zq.coerce in
+        let r = Weight.expand ~total:total_weight r |> Zq.coerce in
         let g' = if Zq.compare r Zq.zero = 0 then G.one else g **~ r in
         x =~ g')
       (Shape.to_array x) r

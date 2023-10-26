@@ -42,19 +42,19 @@ module type ELECTION_BASE = sig
 end
 
 module type ELECTION_RESULT = sig
-  type question_signature
-  type result = question_signature Election_result.t
+  type result
 
+  val of_generic_result : Question_sigs.generic_result array -> result
+  val to_generic_result : result -> Question_sigs.generic_result array
   val write_result : result writer
   val read_result : result reader
 end
 
-module type MAKE_RESULT = functor (X : ELECTION_BASE) ->
-  ELECTION_RESULT with type question_signature := X.S.t
+module type MAKE_RESULT = functor (X : ELECTION_BASE) -> ELECTION_RESULT
 
 module type ELECTION_DATA = sig
   include ELECTION_BASE
-  include ELECTION_RESULT with type question_signature := S.t
+  include ELECTION_RESULT
 end
 
 type combination_error =

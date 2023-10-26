@@ -346,29 +346,39 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   module Combinator = Trustees.MakeCombinator (G)
 
   let compute_result encrypted_tally partial_decryptions trustees =
-    let num_tallied = encrypted_tally.sized_total_weight in
+    let total_weight = encrypted_tally.sized_total_weight in
     let et = encrypted_tally.sized_encrypted_tally in
     let check = check_factor et in
     match Combinator.combine_factors trustees check partial_decryptions with
-    | Ok factors ->
-        let results = Shape.map2 (fun { beta; _ } f -> beta / f) et factors in
-        let result = Q.compute_result ~num_tallied W.S.x results in
-        Ok { result }
+    | Ok factors -> (
+        match Shape.map2 (fun { beta; _ } f -> beta / f) et factors with
+        | `Array rs ->
+            Array.map2
+              (Q.compute_result ~total_weight)
+              W.election.e_questions rs
+            |> W.of_generic_result
+            |> fun result -> Ok { result }
+        | `Atomic _ -> failwith "compute_result: invalid shape")
     | Error e -> Error e
 
   let check_result encrypted_tally partial_decryptions trustees { result } =
-    let num_tallied = encrypted_tally.sized_total_weight in
+    let total_weight = encrypted_tally.sized_total_weight in
     let encrypted_tally = encrypted_tally.sized_encrypted_tally in
     check_ciphertext encrypted_tally
     &&
     let check = check_factor encrypted_tally in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Error _ -> false
-    | Ok factors ->
-        let results =
+    | Ok factors -> (
+        match
           Shape.map2 (fun { beta; _ } f -> beta / f) encrypted_tally factors
-        in
-        Q.check_result ~num_tallied W.S.x results result
+        with
+        | `Array rs ->
+            Array.for_all3
+              (Q.check_result ~total_weight)
+              W.election.e_questions rs
+              (W.to_generic_result result)
+        | `Atomic _ -> failwith "check_result: invalid shape")
 end
 
 module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () =

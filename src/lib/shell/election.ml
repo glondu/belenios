@@ -56,14 +56,31 @@ let make_raw_election params ~group ~public_key =
       Printf.ksprintf invalid_arg "make_raw_election: unsupported version: %d" n
 
 module MakeResult (X : ELECTION_BASE) = struct
-  open X
+  type result = Yojson.Safe.t
 
-  type result = S.t Election_result.t
+  let unwrap_generic_result = function
+    | `Homomorphic x ->
+        x |> Question_h_j.string_of_result |> Yojson.Safe.from_string
+    | `NonHomomorphic x ->
+        x |> Question_nh_j.string_of_result |> Yojson.Safe.from_string
 
-  let write_result buf x = Yojson.Safe.write_json buf (Election_result.unwrap x)
+  let of_generic_result x =
+    x |> Array.map unwrap_generic_result |> fun x -> `List (Array.to_list x)
 
-  let read_result state buf =
-    Election_result.wrap S.x (Yojson.Safe.read_json state buf)
+  let wrap_generic_result (q : question) x =
+    let x = Yojson.Safe.to_string x in
+    match q with
+    | Homomorphic _ -> `Homomorphic (x |> Question_h_j.result_of_string)
+    | NonHomomorphic _ -> `NonHomomorphic (x |> Question_nh_j.result_of_string)
+
+  let to_generic_result = function
+    | `List x ->
+        x |> Array.of_list
+        |> Array.map2 wrap_generic_result X.election.e_questions
+    | _ -> invalid_arg "to_generirc_result: list expected"
+
+  let write_result = Yojson.Safe.write_json
+  let read_result = Yojson.Safe.read_json
 end
 
 (** Helper functions *)

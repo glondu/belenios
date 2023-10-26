@@ -79,14 +79,14 @@ module Make (M : RANDOM) (G : GROUP) = struct
     Array.fast_sort compare_ciphertexts es;
     `Array es
 
-  let compute_result ~num_answers:n x =
+  let compute_result ~total_weight:_ q x =
     match x with
     | `Array xs ->
         xs
         |> Array.map (function
-             | `Atomic x -> G.to_ints n x
+             | `Atomic x -> G.to_ints (Array.length q.q_answers) x
              | _ -> invalid_arg "Question_nh.compute_result/1")
     | _ -> invalid_arg "Question_nh.compute_result/2"
 
-  let check_result ~num_answers x r = r = compute_result ~num_answers x
+  let check_result ~total_weight q x r = r = compute_result ~total_weight q x
 end
