@@ -34,9 +34,18 @@ let get_version x =
       | _ -> failwith "Election.of_string: invalid version")
   | _ -> failwith "Election.of_string: invalid data"
 
-let of_string x =
+let get_uuid x =
+  let j = Yojson.Safe.from_string x in
+  match j with
+  | `Assoc o -> (
+      match List.assoc_opt "uuid" o with
+      | Some (`String x) -> Uuid.wrap x
+      | _ -> failwith "Election.get_uuid: invalid data")
+  | _ -> failwith "Election.get_uuid: object expected"
+
+let template_of_string x =
   match get_version x with
-  | 1 -> Belenios_v1.Election.of_string x
+  | 1 -> Belenios_v1.Election.template_of_string x
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
@@ -77,7 +86,7 @@ module MakeResult (X : ELECTION_BASE) = struct
   let to_generic_result = function
     | `List x ->
         x |> Array.of_list
-        |> Array.map2 wrap_generic_result X.election.e_questions
+        |> Array.map2 wrap_generic_result X.template.t_questions
     | _ -> invalid_arg "to_generirc_result: list expected"
 
   let write_result = Yojson.Safe.write_json
@@ -90,7 +99,7 @@ let has_nh_questions e =
   Array.exists
     (function
       | Question.NonHomomorphic _ -> true | Question.Homomorphic _ -> false)
-    e.e_questions
+    e.t_questions
 
 module type MAKER = functor
   (MakeResult : MAKE_RESULT)

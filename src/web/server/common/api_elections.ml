@@ -284,7 +284,7 @@ let get_records uuid =
 
 let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let* email, login, weight =
     let* x = Web_persist.get_voter uuid user.user_name in
     match x with

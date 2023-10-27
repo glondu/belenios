@@ -43,7 +43,6 @@ struct
 
   let audit_footer election =
     let open (val election : Site_common_sig.ELECTION) in
-    let uuid = election.e_uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
     return
@@ -358,8 +357,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let module W = (val election : Site_common_sig.ELECTION) in
-    let params = W.election in
-    let uuid = params.e_uuid in
+    let uuid = W.uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let* dates = Web_persist.get_election_dates uuid in
     let now = Datetime.now () in
@@ -491,7 +489,7 @@ struct
                    (Array.mapi2
                       (format_question_result uuid l)
                       (W.to_generic_result r.result)
-                      W.election.e_questions
+                      W.template.t_questions
                    |> Array.to_list);
                  div
                    [
@@ -551,7 +549,7 @@ struct
         [
           Printf.ksprintf txt
             (f_ "This election is administered by %s.")
-            (Option.value params.e_administrator ~default:"N/A");
+            (Option.value W.template.t_administrator ~default:"N/A");
         ]
     in
     let div_voters =
@@ -648,7 +646,7 @@ struct
             (f_
                "Credentials were generated and sent by %s and have fingerprint \
                 %s.")
-            (Option.value params.e_credential_authority ~default:"N/A")
+            (Option.value W.template.t_credential_authority ~default:"N/A")
             (Hash.to_b64 checksums.ec_public_credentials);
         ]
     in
@@ -702,16 +700,15 @@ struct
       ]
     in
     let* lang_box = lang_box (ContSiteElection uuid) in
-    let title = params.e_name in
-    let full_title = params.e_name in
+    let title = W.template.t_name in
+    let full_title = title in
     base ~lang_box ~full_title ~title ~content ~footer ~uuid ()
 
   let cast_raw election () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let module W = (val election : Site_common_sig.ELECTION) in
-    let params = W.election in
-    let uuid = params.e_uuid in
+    let uuid = W.uuid in
     let form_rawballot =
       post_form ~service:election_submit_ballot
         (fun name ->
@@ -791,8 +788,8 @@ struct
       ]
     in
     let* footer = audit_footer election in
-    let title = params.e_name in
-    let full_title = params.e_name in
+    let title = W.template.t_name in
+    let full_title = title in
     base ~full_title ~title ~content ~uuid ~footer ()
 
   let progress_responsive_step5 l =
@@ -882,9 +879,8 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let title = election.e_name in
-    let full_title = election.e_name in
-    let uuid = election.e_uuid in
+    let title = template.t_name in
+    let full_title = title in
     let* metadata = Web_persist.get_election_metadata uuid in
     let you_must_restart =
       match get_booth_index metadata.e_booth_version with
@@ -926,8 +922,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let uuid = election.e_uuid in
-    let name = election.e_name in
+    let name = template.t_name in
     let result, snippet, step_title =
       match result with
       | Ok (user, hash, revote, weight, email) ->
@@ -999,11 +994,10 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let uuid = election.e_uuid in
     let* hashes = Web_persist.get_ballot_hashes uuid in
     let* audit_cache = Web_persist.get_audit_cache uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
-    let title = election.e_name ^ " — " ^ s_ "Accepted ballots" in
+    let title = template.t_name ^ " — " ^ s_ "Accepted ballots" in
     let nballots = ref 0 in
     let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
     let ballots =

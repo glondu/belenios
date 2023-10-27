@@ -61,17 +61,6 @@ type ff_params = {
 
 (** {2 Elections} *)
 
-type params = {
-  version : int;
-  description : string;
-  name : string;
-  questions : question list <ocaml repr="array">;
-  uuid : uuid;
-  ?administrator : string option;
-  ?credential_authority : string option;
-} <ocaml field_prefix="e_">
-<doc text="Election parameters relevant for creating a ballot.">
-
 type voter = abstract wrap <ocaml module="Common.Voter">
 
 type voter_list = voter list

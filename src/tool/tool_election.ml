@@ -61,7 +61,7 @@ module Make (P : PARAMS) () = struct
 
   let print_msg = prerr_endline
 
-  module Trustees = (val B.Trustees.get_by_version election.e_version)
+  module Trustees = (val B.Trustees.get_by_version version)
   module P = Trustees.MakePKI (G) (R)
   module C = Trustees.MakeChannels (G) (R) (P)
   module K = Trustees.MakeCombinator (G)
@@ -95,7 +95,7 @@ module Make (P : PARAMS) () = struct
       failwith "your key is not present in trustees";
     (match Lazy.force shuffles_hash with
     | None | Some [] ->
-        if B.Election.has_nh_questions election then
+        if B.Election.has_nh_questions template then
           failwith
             "the election has non-homomorphic questions and no shuffles were \
              found"
@@ -103,7 +103,7 @@ module Make (P : PARAMS) () = struct
         shuffles
         |> List.iter (fun s ->
                Printf.ksprintf print_msg "I: shuffle %s has been applied" s));
-    if B.Election.has_nh_questions election then
+    if B.Election.has_nh_questions template then
       print_msg
         "I: you should check that your shuffle appears in the list of applied \
          shuffles";

@@ -110,8 +110,7 @@ let do_election uuid election get_private_key =
   in
   let find_pedersen =
     try
-      let module Trustees = (val Trustees.get_by_version W.election.e_version)
-      in
+      let module Trustees = (val Trustees.get_by_version W.version) in
       let module PKI = Trustees.MakePKI (W.G) (Random) in
       let private_key = PKI.derive_sk private_key in
       let public_key = W.G.(g **~ private_key) in

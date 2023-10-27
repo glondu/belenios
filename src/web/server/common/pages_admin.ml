@@ -2450,8 +2450,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let uuid = election.e_uuid in
-    let title = election.e_name ^ " — " ^ s_ "Administration" in
+    let title = template.t_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
       let* d = Web_persist.get_election_automatic_dates uuid in
       let format = function
@@ -3046,8 +3045,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let uuid = election.e_uuid in
-    let title = election.e_name ^ " — " ^ s_ "Records" in
+    let title = template.t_name ^ " — " ^ s_ "Records" in
     let nrecords = List.length records in
     let records =
       List.map

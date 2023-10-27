@@ -656,8 +656,8 @@ let title_content () =
   else
     (* not is_draft, i.e. running *)
     let* elec = Cache.get_until_success Cache.e_elec in
-    let tit = elec.e_name in
-    let desc = elec.e_description in
+    let tit = elec.t_name in
+    let desc = elec.t_description in
     Lwt.return
       [
         h2 [ txt @@ s_ "Title:" ];

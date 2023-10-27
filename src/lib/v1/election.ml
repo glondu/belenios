@@ -27,29 +27,15 @@ open PSerializable_j
 open Signatures
 open Common
 
-let of_string x =
+let template_of_string x =
   let open PSerializable_j in
   let params = params_of_string Yojson.Safe.read_json x in
-  let {
-    e_description;
-    e_name;
-    e_questions;
-    e_uuid;
-    e_administrator;
-    e_credential_authority;
-    _;
-  } =
-    params
-  in
-  let open Serializable_j in
   {
-    e_version = 1;
-    e_description;
-    e_name;
-    e_questions;
-    e_uuid;
-    e_administrator;
-    e_credential_authority;
+    t_name = params.e_name;
+    t_description = params.e_description;
+    t_questions = params.e_questions;
+    t_administrator = params.e_administrator;
+    t_credential_authority = params.e_credential_authority;
   }
 
 let make_raw_election template ~uuid ~group ~public_key =
@@ -76,29 +62,17 @@ module Parse (R : RAW_ELECTION) () = struct
 
   module G = (val Group.of_string j.e_group)
 
+  let version = 1
   let params = params_of_string (sread G.of_string) R.raw_election
+  let uuid = params.e_uuid
 
-  let election =
-    let {
-      e_description;
-      e_name;
-      e_questions;
-      e_uuid;
-      e_administrator;
-      e_credential_authority;
-      _;
-    } =
-      params
-    in
-    let open Serializable_j in
+  let template =
     {
-      e_version = 1;
-      e_description;
-      e_name;
-      e_questions;
-      e_uuid;
-      e_administrator;
-      e_credential_authority;
+      t_name = params.e_name;
+      t_description = params.e_description;
+      t_questions = params.e_questions;
+      t_administrator = params.e_administrator;
+      t_credential_authority = params.e_credential_authority;
     }
 
   let fingerprint = sha256_b64 R.raw_election
@@ -126,8 +100,6 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
 
   module Mix = Mixnet.Make (W) (M)
   open G
-
-  let election = W.election
 
   type private_key = scalar
   type public_key = elt
@@ -164,12 +136,13 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
   let make_sig_prefix hash = "sig|" ^ hash ^ "|"
 
   let create_ballot ~sk m =
-    let election_uuid = election.e_uuid in
+    let election_uuid = W.uuid in
     let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
     let answers =
-      swap (Array.map2 (create_answer W.public_key zkp) election.e_questions m)
+      swap
+        (Array.map2 (create_answer W.public_key zkp) W.template.t_questions m)
     in
     let ballot_without_signature =
       { election_uuid; election_hash; credential; answers; signature = None }
@@ -205,7 +178,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
            ballot_without_signature)
     in
     let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
-    election_uuid = election.e_uuid
+    election_uuid = W.uuid
     && election_hash = W.fingerprint
     && (match signature with
        | Some { s_hash; s_proof = { challenge; response } } ->
@@ -217,7 +190,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
        | None -> false)
     && Array.for_all2
          (verify_answer W.public_key zkp)
-         election.e_questions answers
+         W.template.t_questions answers
 
   let check_rawballot rawballot =
     match
@@ -244,13 +217,13 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
              (List.map
                 (fun (w, b) -> (w, Q.extract_ciphertexts q b.answers.(i)))
                 bs))
-         election.e_questions)
+         W.template.t_questions)
 
   let extract_nh_ciphertexts x =
     let x = Shape.to_shape_array x in
     let rec loop i accu =
       if i >= 0 then
-        match election.e_questions.(i) with
+        match W.template.t_questions.(i) with
         | Question.Homomorphic _ -> loop (i - 1) accu
         | Question.NonHomomorphic _ ->
             loop (i - 1) (Shape.to_array x.(i) :: accu)
@@ -263,7 +236,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
       if i < n && j < m then (
-        match election.e_questions.(i) with
+        match W.template.t_questions.(i) with
         | Question.Homomorphic _ -> loop (i + 1) j
         | Question.NonHomomorphic _ ->
             x.(i) <- Shape.of_array cc.(j);
@@ -340,7 +313,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
         | `Array rs ->
             Array.map2
               (Q.compute_result ~total_weight)
-              W.election.e_questions rs
+              W.template.t_questions rs
             |> W.of_generic_result
             |> fun result -> Ok { result }
         | `Atomic _ -> failwith "compute_result: invalid shape")
@@ -361,7 +334,7 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
         | `Array rs ->
             Array.for_all3
               (Q.check_result ~total_weight)
-              W.election.e_questions rs
+              W.template.t_questions rs
               (W.to_generic_result result)
         | `Atomic _ -> failwith "check_result: invalid shape")
 end

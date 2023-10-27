@@ -358,9 +358,7 @@ module BuggyPartialDecryption = struct
       encrypted_tally |> encrypted_tally_of_string (sread P.G.of_string)
     in
     let private_key =
-      let module Trustees =
-        (val Belenios.Trustees.get_by_version P.election.e_version)
-      in
+      let module Trustees = (val Belenios.Trustees.get_by_version P.version) in
       let module PKI = Trustees.MakePKI (P.G) (Random) in
       let module C = Trustees.MakeChannels (P.G) (Random) (PKI) in
       let sk = PKI.derive_sk seed and dk = PKI.derive_dk seed in

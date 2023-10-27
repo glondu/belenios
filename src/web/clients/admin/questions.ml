@@ -786,7 +786,7 @@ let questions_content () =
       Lwt.return draft.draft_questions.t_questions
     else
       let* elec = Cache.get_until_success Cache.e_elec in
-      Lwt.return elec.e_questions
+      Lwt.return elec.t_questions
   in
   all_gen_quest := Array.map q_to_gen qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then

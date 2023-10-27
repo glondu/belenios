@@ -28,7 +28,9 @@ include module type of Signatures_core
 module type ELECTION_BASE = sig
   module G : GROUP
 
-  val election : params
+  val template : template
+  val version : int
+  val uuid : uuid
   val fingerprint : string
   val public_key : G.t
 

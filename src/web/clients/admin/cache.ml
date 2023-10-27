@@ -219,8 +219,8 @@ let e_status =
 let e_elec =
   {
     endpoint = WithUuid { fmt = "elections/%s/election" };
-    of_string = Belenios.Election.of_string;
-    to_string = string_of_params;
+    of_string = Belenios.Election.template_of_string;
+    to_string = string_of_template;
     readonly = true;
     content = None;
     dirty = true;

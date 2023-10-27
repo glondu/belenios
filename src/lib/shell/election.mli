@@ -26,9 +26,10 @@ open Signatures
 open Serializable_t
 
 val get_version : string -> int
-val of_string : string -> params
+val get_uuid : string -> uuid
+val template_of_string : string -> template
 val election_uuid_of_string_ballot : string -> uuid
-val has_nh_questions : params -> bool
+val has_nh_questions : template -> bool
 
 val make_raw_election :
   version:int ->

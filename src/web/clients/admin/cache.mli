@@ -37,7 +37,7 @@ val draft : draft t
 val voters : voter_list t
 val status : draft_status t
 val account : api_account t
-val e_elec : params t
+val e_elec : template t
 val e_voters : voter_list t
 val e_records : records t
 val e_status : election_status t

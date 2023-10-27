@@ -123,8 +123,8 @@ module Events : CMDLINER_MODULE = struct
       |> string_of_public_credentials
     in
     let file =
-      let election = B.Election.of_string election in
-      (dir // Uuid.unwrap election.e_uuid) ^ ".bel"
+      let uuid = B.Election.get_uuid election in
+      (dir // Uuid.unwrap uuid) ^ ".bel"
     in
     ignore (Tool_events.init ~file ~election ~trustees ~public_creds)
 

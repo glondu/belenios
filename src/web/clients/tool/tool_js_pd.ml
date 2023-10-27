@@ -88,8 +88,7 @@ let compute_partial_decryption tally_trustee _ =
   let private_key =
     match tally_trustee.tally_trustee_private_key with
     | Some epk ->
-        let module Trustees = (val Trustees.get_by_version P.election.e_version)
-        in
+        let module Trustees = (val Trustees.get_by_version P.version) in
         let module PKI = Trustees.MakePKI (P.G) (Random) in
         let module C = Trustees.MakeChannels (P.G) (Random) (PKI) in
         let sk = PKI.derive_sk pk_str and dk = PKI.derive_dk pk_str in

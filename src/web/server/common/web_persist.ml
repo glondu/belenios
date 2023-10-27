@@ -149,7 +149,7 @@ let get_sized_encrypted_tally uuid =
 
 let get_nh_ciphertexts election =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let* x = Web_events.get_roots ~uuid in
   match x.roots_last_shuffle_event with
   | None -> (
@@ -199,7 +199,7 @@ let get_nh_ciphertexts election =
 
 let get_latest_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let* roots = Web_events.get_roots ~uuid in
   let@ tally cont =
     match roots.roots_encrypted_tally with
@@ -289,7 +289,7 @@ let raw_get_shuffles uuid x =
 
 let append_to_shuffles election owned_owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let@ last cont =
     let* x = Spool.get ~uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
@@ -605,8 +605,8 @@ let build_elections_by_owner_cache () =
                               in
                               return (`Archived, date)
                         in
-                        let election = Election.of_string election in
-                        let item = (kind, uuid, date, election.e_name) in
+                        let template = Election.template_of_string election in
+                        let item = (kind, uuid, date, template.t_name) in
                         return
                         @@ List.fold_left
                              (fun accu id -> umap_add id item accu)
@@ -824,7 +824,7 @@ let get_ballot_weight election ballot =
       match W.get_credential ballot with
       | None -> failwith "missing signature"
       | Some credential ->
-          get_credential_weight W.election.e_uuid (W.G.to_string credential))
+          get_credential_weight W.uuid (W.G.to_string credential))
     (fun e ->
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))
@@ -907,7 +907,7 @@ let get_ballot_by_hash uuid hash =
 
 let add_ballot election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let hash = sha256_b64 ballot in
   let* () =
     Web_events.append ~lock:false ~uuid ~last
@@ -919,7 +919,7 @@ let add_ballot election last ballot =
 let raw_compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let@ last cont =
     let* x = Spool.get ~uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
@@ -1085,7 +1085,7 @@ let get_credential_record uuid credential =
 
 let precast_ballot election ~rawballot =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let@ () =
    fun cont ->
     let hash = Hash.hash_string rawballot in
@@ -1110,7 +1110,7 @@ let precast_ballot election ~rawballot =
 
 let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let@ last cont =
     let* x = Spool.get ~uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
@@ -1175,7 +1175,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
 
 let cast_ballot election ~rawballot ~user ~weight date ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   Web_election_mutex.with_lock uuid (fun () ->
       do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)
 
@@ -1328,9 +1328,9 @@ let delete_election uuid =
   let de_template =
     {
       t_description = "";
-      t_name = W.election.e_name;
+      t_name = W.template.t_name;
       t_questions =
-        Array.map Belenios_core.Question.erase_question W.election.e_questions;
+        Array.map Belenios_core.Question.erase_question W.template.t_questions;
       t_administrator = None;
       t_credential_authority = None;
     }
@@ -1440,8 +1440,8 @@ let dump_passwords uuid db =
 let regen_password election metadata user =
   let user = String.lowercase_ascii user in
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
-  let title = W.election.e_name in
+  let uuid = W.uuid in
+  let title = W.template.t_name in
   let* voters = get_voters uuid in
   let show_weight = voters.has_explicit_weights in
   let x = SMap.find_opt (String.lowercase_ascii user) voters.voter_map in
@@ -1758,12 +1758,12 @@ let transition_to_encrypted_tally uuid = set_election_state uuid `EncryptedTally
 
 let compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let* state = get_election_state uuid in
   match state with
   | `Closed ->
       let* () = raw_compute_encrypted_tally election in
-      if Belenios.Election.has_nh_questions W.election then
+      if Belenios.Election.has_nh_questions W.template then
         let* () = set_election_state uuid `Shuffling in
         Lwt.return_true
       else
@@ -1773,7 +1773,7 @@ let compute_encrypted_tally election =
 
 let finish_shuffling election =
   let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.election.e_uuid in
+  let uuid = W.uuid in
   let* state = get_election_state uuid in
   match state with
   | `Shuffling ->

@@ -142,7 +142,7 @@ struct
           Lwt.fail (Failure msg)
     in
     let open (val election) in
-    let title = election.e_name in
+    let title = template.t_name in
     let* metadata = Web_persist.get_election_metadata uuid in
     let x = (uuid, ()) in
     let url1 =
@@ -219,7 +219,7 @@ struct
     let open (val l) in
     let@ election = with_election uuid in
     let open (val election) in
-    let questions = election.e_questions in
+    let questions = template.t_questions in
     if 0 <= question && question < Array.length questions then
       match questions.(question) with
       | Question.NonHomomorphic (q, extra) ->

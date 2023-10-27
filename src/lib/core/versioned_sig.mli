@@ -52,7 +52,7 @@ module type MIXNET_SIG = sig
 end
 
 module type ELECTION_SIG = sig
-  val of_string : string -> Serializable_t.params
+  val template_of_string : string -> Serializable_t.template
 
   val make_raw_election :
     Serializable_t.template ->
