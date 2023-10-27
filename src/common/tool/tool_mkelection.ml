@@ -80,22 +80,10 @@ module Make (P : PARSED_PARAMS) : S = struct
   let y = K.combine_keys trustees
   let public_key = G.to_string y
 
-  (* Setup election *)
-
-  let params =
-    {
-      e_version = version;
-      e_description = template.t_description;
-      e_name = template.t_name;
-      e_questions = template.t_questions;
-      e_uuid = uuid;
-      e_administrator = template.t_administrator;
-      e_credential_authority = template.t_credential_authority;
-    }
-
   (* Generate and serialize election.json *)
 
-  let mkelection () = Election.make_raw_election params ~group ~public_key
+  let mkelection () =
+    Election.make_raw_election ~version template ~uuid ~group ~public_key
 end
 
 let make params =

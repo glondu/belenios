@@ -52,31 +52,19 @@ let of_string x =
     e_credential_authority;
   }
 
-let to_string params ~group ~public_key =
-  let open Serializable_j in
-  let {
-    e_description;
-    e_name;
-    e_questions;
-    e_uuid;
-    e_administrator;
-    e_credential_authority;
-    _;
-  } =
-    params
-  in
+let make_raw_election template ~uuid ~group ~public_key =
   let module G = (val Group.of_string group) in
   let e_public_key = G.of_string public_key in
   let open PSerializable_j in
   let params =
     {
       e_version = 1;
-      e_description;
-      e_name;
-      e_questions;
-      e_uuid;
-      e_administrator;
-      e_credential_authority;
+      e_description = template.t_description;
+      e_name = template.t_name;
+      e_questions = template.t_questions;
+      e_uuid = uuid;
+      e_administrator = template.t_administrator;
+      e_credential_authority = template.t_credential_authority;
       e_group = group;
       e_public_key;
     }

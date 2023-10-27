@@ -54,8 +54,12 @@ end
 module type ELECTION_SIG = sig
   val of_string : string -> Serializable_t.params
 
-  val to_string :
-    Serializable_t.params -> group:string -> public_key:string -> string
+  val make_raw_election :
+    Serializable_t.template ->
+    uuid:Common.Uuid.t ->
+    group:string ->
+    public_key:string ->
+    string
 
   module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () :
     ELECTION

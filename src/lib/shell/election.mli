@@ -29,7 +29,14 @@ val get_version : string -> int
 val of_string : string -> params
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : params -> bool
-val make_raw_election : params -> group:string -> public_key:string -> string
+
+val make_raw_election :
+  version:int ->
+  template ->
+  uuid:uuid ->
+  group:string ->
+  public_key:string ->
+  string
 
 module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
 

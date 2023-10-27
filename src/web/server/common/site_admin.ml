@@ -554,20 +554,10 @@ struct
         let version = se.se_version in
         let group = se.se_group in
         let module G = (val Group.of_string ~version group : GROUP) in
-        let params =
-          {
-            e_version = version;
-            e_description = se.se_questions.t_description;
-            e_name = se.se_questions.t_name;
-            e_questions = se.se_questions.t_questions;
-            e_uuid = uuid;
-            e_administrator = se.se_administrator;
-            e_credential_authority = se.se_metadata.e_cred_authority;
-          }
-        in
         let public_key = G.to_string G.g in
         let raw_election =
-          Election.make_raw_election params ~group ~public_key
+          Election.make_raw_election ~version se.se_questions ~uuid ~group
+            ~public_key
         in
         let* x = String.send (raw_election, "application/json") in
         return @@ Eliom_registration.cast_unknown_content_kind x)

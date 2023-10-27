@@ -1641,21 +1641,10 @@ let validate_election uuid se s =
       e_owners = se.se_owners;
     }
   in
-  let template = se.se_questions in
-  let params =
-    {
-      e_version = se.se_version;
-      e_description = template.t_description;
-      e_name = template.t_name;
-      e_questions = template.t_questions;
-      e_uuid = uuid;
-      e_administrator = se.se_administrator;
-      e_credential_authority = metadata.e_cred_authority;
-    }
-  in
   let raw_election =
     let public_key = G.to_string y in
-    Election.make_raw_election params ~group:se.se_group ~public_key
+    Election.make_raw_election ~version:se.se_version se.se_questions ~uuid
+      ~group:se.se_group ~public_key
   in
   (* write election files to disk *)
   let dir = !!uuid_s in

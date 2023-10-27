@@ -49,9 +49,10 @@ let election_uuid_of_string_ballot x =
       | _ -> failwith "election_uuid_of_string_ballot: invalid election_uuid")
   | _ -> failwith "election_uuid_of_string_ballot: invalid ballot"
 
-let make_raw_election params ~group ~public_key =
-  match params.e_version with
-  | 1 -> Belenios_v1.Election.to_string params ~group ~public_key
+let make_raw_election ~version template ~uuid ~group ~public_key =
+  match version with
+  | 1 ->
+      Belenios_v1.Election.make_raw_election template ~uuid ~group ~public_key
   | n ->
       Printf.ksprintf invalid_arg "make_raw_election: unsupported version: %d" n
 
