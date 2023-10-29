@@ -61,6 +61,5 @@ module type ELECTION_SIG = sig
     public_key:string ->
     string
 
-  module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () :
-    ELECTION
+  module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
 end

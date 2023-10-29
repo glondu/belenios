@@ -50,8 +50,6 @@ module type ELECTION_RESULT = sig
   val read_result : result reader
 end
 
-module type MAKE_RESULT = functor (X : ELECTION_BASE) -> ELECTION_RESULT
-
 module type ELECTION_DATA = sig
   include ELECTION_BASE
   include ELECTION_RESULT

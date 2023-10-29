@@ -87,6 +87,32 @@ module Parse (R : RAW_ELECTION) () = struct
     ballot_of_string (sread G.of_string) (sread G.Zq.of_string) x
 
   let get_credential x = Some x.credential
+
+  type result = Yojson.Safe.t
+
+  let unwrap_generic_result = function
+    | `Homomorphic x ->
+        x |> Question_h_j.string_of_result |> Yojson.Safe.from_string
+    | `NonHomomorphic x ->
+        x |> Question_nh_j.string_of_result |> Yojson.Safe.from_string
+
+  let of_generic_result x =
+    x |> Array.map unwrap_generic_result |> fun x -> `List (Array.to_list x)
+
+  let wrap_generic_result (q : question) x =
+    let x = Yojson.Safe.to_string x in
+    match q with
+    | Homomorphic _ -> `Homomorphic (x |> Question_h_j.result_of_string)
+    | NonHomomorphic _ -> `NonHomomorphic (x |> Question_nh_j.result_of_string)
+
+  let to_generic_result = function
+    | `List x ->
+        x |> Array.of_list
+        |> Array.map2 wrap_generic_result template.t_questions
+    | _ -> invalid_arg "to_generirc_result: list expected"
+
+  let write_result = Yojson.Safe.write_json
+  let read_result = Yojson.Safe.read_json
 end
 
 module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
@@ -339,15 +365,8 @@ module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
         | `Atomic _ -> failwith "check_result: invalid shape")
 end
 
-module Make (MakeResult : MAKE_RESULT) (R : RAW_ELECTION) (M : RANDOM) () =
-struct
+module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
   module X = Parse (R) ()
-
-  module Y = struct
-    include X
-    include MakeResult (X)
-  end
-
-  include Y
-  module E = MakeElection (Y) (M)
+  include X
+  module E = MakeElection (X) (M)
 end
