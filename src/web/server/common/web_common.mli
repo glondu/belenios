@@ -177,19 +177,3 @@ val check_password_with_file :
   (string * string) option Lwt.t
 
 val has_explicit_weights : draft_voter list -> bool
-val default_contact : string
-val default_questions : question array
-val default_name : string
-val default_description : string
-val default_creation_date : datetime
-val default_validation_date : datetime
-val default_tally_date : datetime
-val default_archive_date : datetime
-val days_to_archive : int
-val days_to_delete : int
-val days_to_mail : int
-val days_between_mails : int
-val days_to_publish_result : int
-val max_election_name_size : int
-val max_total_weight : int
-val supported_booth_versions : int list

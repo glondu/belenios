@@ -589,19 +589,19 @@ let build_elections_by_owner_cache () =
                           | `Open | `Closed | `Shuffling | `EncryptedTally ->
                               let date =
                                 Option.value dates.e_finalization
-                                  ~default:default_validation_date
+                                  ~default:Web_defaults.validation_date
                               in
                               return (`Validated, date)
                           | `Tallied ->
                               let date =
                                 Option.value dates.e_tally
-                                  ~default:default_tally_date
+                                  ~default:Web_defaults.tally_date
                               in
                               return (`Tallied, date)
                           | `Archived ->
                               let date =
                                 Option.value dates.e_archive
-                                  ~default:default_archive_date
+                                  ~default:Web_defaults.archive_date
                               in
                               return (`Archived, date)
                         in
@@ -614,7 +614,7 @@ let build_elections_by_owner_cache () =
                 | Some se ->
                     let date =
                       Option.value se.se_creation_date
-                        ~default:default_creation_date
+                        ~default:Web_defaults.creation_date
                     in
                     let ids = se.se_owners in
                     let item = (`Draft, uuid, date, se.se_questions.t_name) in
@@ -1346,7 +1346,7 @@ let delete_election uuid =
         | None -> (
             match dates.e_creation with
             | Some x -> x
-            | None -> default_validation_date))
+            | None -> Web_defaults.validation_date))
   in
   let de_authentication_method =
     match metadata.e_auth_config with
@@ -1792,8 +1792,10 @@ let extract_automatic_data_draft uuid_s =
   let uuid = Uuid.wrap uuid_s in
   let* se = get_draft_election uuid in
   let&* se = se in
-  let t = Option.value se.se_creation_date ~default:default_creation_date in
-  let next_t = Period.add t (Period.day days_to_delete) in
+  let t =
+    Option.value se.se_creation_date ~default:Web_defaults.creation_date
+  in
+  let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
   return_some (`Destroy, uuid, next_t)
 
 let extract_automatic_data_validated uuid_s =
@@ -1805,17 +1807,17 @@ let extract_automatic_data_validated uuid_s =
   match state with
   | `Open | `Closed | `Shuffling | `EncryptedTally ->
       let t =
-        Option.value dates.e_finalization ~default:default_validation_date
+        Option.value dates.e_finalization ~default:Web_defaults.validation_date
       in
-      let next_t = Period.add t (Period.day days_to_delete) in
+      let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
       return_some (`Delete, uuid, next_t)
   | `Tallied ->
-      let t = Option.value dates.e_tally ~default:default_tally_date in
-      let next_t = Period.add t (Period.day days_to_archive) in
+      let t = Option.value dates.e_tally ~default:Web_defaults.tally_date in
+      let next_t = Period.add t (Period.day Web_defaults.days_to_archive) in
       return_some (`Archive, uuid, next_t)
   | `Archived ->
-      let t = Option.value dates.e_archive ~default:default_archive_date in
-      let next_t = Period.add t (Period.day days_to_delete) in
+      let t = Option.value dates.e_archive ~default:Web_defaults.archive_date in
+      let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
       return_some (`Delete, uuid, next_t)
 
 let try_extract extract x =

@@ -204,9 +204,9 @@ struct
     let open Belenios_api.Serializable_t in
     let draft_questions =
       {
-        t_description = default_description;
-        t_name = default_name;
-        t_questions = default_questions;
+        t_description = Web_defaults.description;
+        t_name = Web_defaults.name;
+        t_questions = Web_defaults.questions;
         t_administrator = Some account.name;
         t_credential_authority =
           Some (match cred with `Automatic -> "server" | `Manual -> "");
@@ -418,7 +418,7 @@ struct
     Any.register ~service:election_draft_contact (fun uuid contact ->
         let@ se = with_draft_election uuid in
         let contact =
-          if contact = "" || contact = default_contact then None
+          if contact = "" || contact = Web_defaults.contact then None
           else Some contact
         in
         se.se_metadata <- { se.se_metadata with e_contact = contact };
@@ -437,11 +437,11 @@ struct
         let@ se = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        if Stdlib.String.length name > max_election_name_size then
+        if Stdlib.String.length name > Web_defaults.max_election_name_size then
           let msg =
             Printf.sprintf
               (f_ "The election name must be %d characters or less!")
-              max_election_name_size
+              Web_defaults.max_election_name_size
           in
           Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
         else (
@@ -460,7 +460,7 @@ struct
            (Printf.sprintf
               (f_ "Cannot send passwords, there are too many voters (max is %d)")
               max_voters))
-    else if se.se_questions.t_name = default_name then
+    else if se.se_questions.t_name = Web_defaults.name then
       Lwt.fail (Failure (s_ "The election name has not been edited!"))
     else
       let title = se.se_questions.t_name in
@@ -799,7 +799,7 @@ struct
         let max_voters = Accounts.max_voters account in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        if se.se_questions.t_name = default_name then
+        if se.se_questions.t_name = Web_defaults.name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else
           let* x = Api_drafts.generate_credentials_on_server account uuid se in
@@ -1094,7 +1094,7 @@ struct
       let msg =
         Printf.sprintf
           (f_ "The date must be less than %d days in the future!")
-          days_to_publish_result
+          Web_defaults.days_to_publish_result
       in
       Pages_common.generic_page ~title:(s_ "Error") ~service msg ()
       >>= Html.send

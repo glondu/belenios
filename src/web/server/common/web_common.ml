@@ -426,42 +426,9 @@ let check_password_with_file ~db ~name_or_email ~password =
       else return_none
   | _ -> return_none
 
-let default_contact = ""
-
-let default_questions =
-  let open Question_h_t in
-  let question =
-    {
-      q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
-      q_blank = None;
-      q_min = 1;
-      q_max = 1;
-      q_question = "Question 1?";
-    }
-  in
-  [| Question.Homomorphic question |]
-
 let has_explicit_weights voters =
   List.exists
     (fun v ->
       let (_, { weight; _ }) : Voter.t = v.sv_id in
       weight <> None)
     voters
-
-let default_name = ""
-let default_description = ""
-let default_creation_date = datetime_of_string "\"2018-11-26 00:00:00.000000\""
-
-let default_validation_date =
-  datetime_of_string "\"2015-10-01 00:00:00.000000\""
-
-let default_tally_date = datetime_of_string "\"2018-11-26 00:00:00.000000\""
-let default_archive_date = datetime_of_string "\"2018-11-26 00:00:00.000000\""
-let days_to_archive = 7
-let days_to_delete = 365
-let days_to_mail = 30
-let days_between_mails = 7
-let days_to_publish_result = 7
-let max_election_name_size = 80
-let max_total_weight = 100_000
-let supported_booth_versions = [ 2 ]

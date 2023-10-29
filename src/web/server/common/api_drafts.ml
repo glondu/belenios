@@ -112,7 +112,7 @@ let draft_of_api a uuid se d =
   in
   let@ () =
     assert_ (`Invalid "booth version")
-      (List.mem d.draft_booth supported_booth_versions)
+      (List.mem d.draft_booth Web_defaults.supported_booth_versions)
   in
   let@ () =
     assert_ (`Invalid "languages") (List.length d.draft_languages >= 1)

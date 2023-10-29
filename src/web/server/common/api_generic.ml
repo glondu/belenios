@@ -97,6 +97,7 @@ let handle_get_option get =
   match x with None -> not_found | Some x -> Lwt.return (200, x)
 
 let get_configuration () =
+  let open Web_defaults in
   {
     privacy_policy = !Web_config.gdpr_uri;
     belenios_version = Belenios_platform.Version.version;
