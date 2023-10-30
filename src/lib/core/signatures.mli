@@ -51,8 +51,8 @@ end
 module type ELECTION_RESULT = sig
   type result
 
-  val of_generic_result : Question_sigs.generic_result array -> result
-  val to_generic_result : result -> Question_sigs.generic_result array
+  val of_generic_result : string array -> result
+  val to_generic_result : result -> string array
   val write_result : result writer
   val read_result : result reader
 end

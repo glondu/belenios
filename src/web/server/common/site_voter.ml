@@ -233,14 +233,11 @@ struct
           f l q extra (fun continuation ->
               let* result = Web_persist.get_election_result uuid in
               match result with
-              | Some result -> (
-                  let result =
-                    (election_result_of_string read_result result).result
-                    |> to_generic_result
-                  in
-                  match result.(question) with
-                  | `NonHomomorphic ballots -> continuation ballots
-                  | _ -> failwith "handle_method")
+              | Some result ->
+                  (election_result_of_string read_result result).result
+                  |> to_generic_result
+                  |> (fun x -> x.(question))
+                  |> Question_nh_j.result_of_string |> continuation
               | None ->
                   Pages_common.generic_page ~title:(s_ "Error")
                     (s_ "The result of this election is not available.")

@@ -54,4 +54,4 @@ module Make
     with type elt := G.t
      and type question := t
      and type answer := Yojson.Safe.t
-     and type result := Question_sigs.generic_result
+     and type result := string

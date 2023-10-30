@@ -47,7 +47,3 @@ module type QUESTION = sig
   val check_result :
     total_weight:Weight.t -> question -> elt Shape.t -> result -> bool
 end
-
-type generic_result =
-  [ `Homomorphic of Question_h_t.result
-  | `NonHomomorphic of Question_nh_t.result ]

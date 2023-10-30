@@ -254,9 +254,10 @@ struct
 
   let format_question_result uuid l i r q =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    match (q, r) with
-    | Question.Homomorphic x, `Homomorphic r ->
-        let open Question_h_t in
+    match q with
+    | Question.Homomorphic x ->
+        let open Question_h_j in
+        let r = r |> result_of_string in
         let answers = Array.to_list x.q_answers in
         let answers =
           match x.q_blank with
@@ -283,8 +284,9 @@ struct
             div ~a:[ a_class [ "result_question" ] ] [ markup x.q_question ];
             answers;
           ]
-    | Question.NonHomomorphic (q, extra), `NonHomomorphic ballots ->
-        let open Question_nh_t in
+    | Question.NonHomomorphic (q, extra) ->
+        let open Question_nh_j in
+        let ballots = r |> result_of_string in
         let applied_counting_method, show_others =
           match Question.get_counting_method extra with
           | `None -> (txt "", true)
@@ -351,7 +353,6 @@ struct
                 others;
               ];
           ]
-    | _ -> failwith "format_question_result"
 
   let election_home election state () =
     let* l = get_preferred_gettext () in

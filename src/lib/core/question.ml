@@ -161,15 +161,18 @@ struct
   let compute_result ~total_weight q x =
     match q with
     | Homomorphic q ->
-        `Homomorphic (QHomomorphic.compute_result ~total_weight q x)
+        QHomomorphic.compute_result ~total_weight q x
+        |> Question_h_j.string_of_result
     | NonHomomorphic (q, _) ->
-        `NonHomomorphic (QNonHomomorphic.compute_result ~total_weight q x)
+        QNonHomomorphic.compute_result ~total_weight q x
+        |> Question_nh_j.string_of_result
 
   let check_result ~total_weight q x r =
-    match (q, r) with
-    | Homomorphic q, `Homomorphic r ->
-        QHomomorphic.check_result ~total_weight q x r
-    | NonHomomorphic (q, _), `NonHomomorphic r ->
-        QNonHomomorphic.check_result ~total_weight q x r
-    | _, _ -> invalid_arg "check_result: invalid result"
+    match q with
+    | Homomorphic q ->
+        r |> Question_h_j.result_of_string
+        |> QHomomorphic.check_result ~total_weight q x
+    | NonHomomorphic (q, _) ->
+        r |> Question_nh_j.result_of_string
+        |> QNonHomomorphic.check_result ~total_weight q x
 end
