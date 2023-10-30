@@ -28,6 +28,7 @@ open Serializable_j
 open Signatures
 open Belenios_js.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 
 let set_step i =
   let open (val !Belenios_js.I18n.gettext) in
@@ -44,7 +45,7 @@ let set_explain str =
   Dom.appendChild e t;
   Dom.appendChild e (Dom_html.createBr document)
 
-let gen_cert draft e _ =
+let gen_cert (Draft (_, draft)) e _ =
   let version = draft.draft_version in
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
@@ -64,7 +65,7 @@ let gen_cert draft e _ =
       Lwt.return_unit);
   Js._false
 
-let proceed draft pedersen =
+let proceed (Draft (_, draft)) pedersen =
   let version = draft.draft_version in
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in

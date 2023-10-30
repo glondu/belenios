@@ -28,7 +28,7 @@ type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type datetime = string wrap <ocaml module="Web_types.Datetime">
 type 'a proof <ocaml predef from="Belenios_core.Serializable"> = abstract
-type template <ocaml predef from="Belenios_core.Serializable"> = abstract
+type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 type election_checksums <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a polynomial <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -146,12 +146,12 @@ type 'a draft_trustees =
   | Threshold of 'a draft_threshold_params
   ]
 
-type draft_election = {
+type 'question raw_draft_election = {
   version : int;
   owners : int list;
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
-  questions <ocaml mutable> : template;
+  questions <ocaml mutable> : 'question template;
   trustees <ocaml mutable> : abstract draft_trustees;
   metadata <ocaml mutable> : metadata;
   public_creds : string;
@@ -184,7 +184,7 @@ type deleted_trustee = [ Single | Pedersen of (int * int) ]
 
 type deleted_election = {
   uuid : uuid;
-  template : template;
+  template : abstract template;
   owners : int list;
   nb_voters : int;
   nb_ballots : int;

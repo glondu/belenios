@@ -24,6 +24,7 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios_core.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
@@ -55,7 +56,7 @@ let header () =
     | Election { uuid; status = Draft; _ } -> (
         let* x = get draft_of_string "drafts/%s" (Uuid.unwrap uuid) in
         match x with
-        | Ok (draft, _) ->
+        | Ok (Draft (_, draft), _) ->
             Lwt.return
               ( s_ "Setup: " ^ draft.draft_questions.t_name,
                 draft.draft_questions.t_description )
@@ -291,7 +292,7 @@ let rec page_body () =
             alert "Creation failed: could not get config from server";
             Lwt.return_unit
         | Some d -> (
-            let dr = string_of_draft d in
+            let dr = string_of_draft (Draft (default_version, d)) in
             let* x =
               post_with_token ?ifmatch dr "drafts" |> wrap uuid_of_string
             in

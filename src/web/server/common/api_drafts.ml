@@ -26,17 +26,18 @@ open Belenios_core.Serializable_j
 open Belenios_core.Signatures
 open Belenios
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Web_serializable_j
 open Web_common
 open Api_generic
 
-let with_administrator token se f =
+let with_administrator token (Draft (_, se)) f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token with
   | Some a when Accounts.check a se.se_owners -> f a
   | _ -> not_found
 
-let with_administrator_or_credential_authority token se f =
+let with_administrator_or_credential_authority token (Draft (_, se)) f =
   let@ token = Option.unwrap unauthorized token in
   if token = se.se_public_creds then f `CredentialAuthority
   else
@@ -44,7 +45,7 @@ let with_administrator_or_credential_authority token se f =
     | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
     | _ -> not_found
 
-let with_administrator_or_nobody token se f =
+let with_administrator_or_nobody token (Draft (_, se)) f =
   match token with
   | None -> f `Nobody
   | Some token -> (
@@ -52,7 +53,7 @@ let with_administrator_or_nobody token se f =
       | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
       | _ -> not_found)
 
-let with_threshold_trustee token se f =
+let with_threshold_trustee token (Draft (_, se)) f =
   let@ token = Option.unwrap unauthorized token in
   match se.se_trustees with
   | `Basic _ -> not_found
@@ -82,7 +83,7 @@ let auth_config_of_authentication = function
   | `Configured auth_instance ->
       { auth_system = "import"; auth_instance; auth_config = [] }
 
-let api_of_draft se =
+let api_of_draft (Draft (v, se)) =
   let draft_questions =
     {
       se.se_questions with
@@ -92,23 +93,29 @@ let api_of_draft se =
     }
   in
   Lwt.return
-    {
-      draft_version = se.se_version;
-      draft_owners = se.se_owners;
-      draft_questions;
-      draft_languages = Option.value se.se_metadata.e_languages ~default:[];
-      draft_contact = se.se_metadata.e_contact;
-      draft_booth = Option.value se.se_metadata.e_booth_version ~default:1;
-      draft_authentication = get_authentication se;
-      draft_group = se.se_group;
-    }
+    (Belenios_api.Common.Draft
+       ( v,
+         {
+           draft_version = se.se_version;
+           draft_owners = se.se_owners;
+           draft_questions;
+           draft_languages = Option.value se.se_metadata.e_languages ~default:[];
+           draft_contact = se.se_metadata.e_contact;
+           draft_booth = Option.value se.se_metadata.e_booth_version ~default:1;
+           draft_authentication = get_authentication se;
+           draft_group = se.se_group;
+         } ))
 
 let assert_ msg b f = if b then f () else raise (Error msg)
 
-let draft_of_api a uuid se d =
+let draft_of_api a uuid (Draft (v, se) as fse)
+    (Belenios_api.Common.Draft (v', d)) =
   let version = se.se_version in
-  let () =
-    if d.draft_version <> version then raise (Error (`CannotChange "version"))
+  let@ Refl =
+   fun cont ->
+    match Belenios.Election.compare_version v v' with
+    | Some x -> cont x
+    | None -> raise (Error (`CannotChange "version"))
   in
   let@ () =
     assert_ (`Invalid "booth version")
@@ -123,7 +130,7 @@ let draft_of_api a uuid se d =
     let old = se.se_metadata.e_cred_authority in
     if e_cred_authority <> old then
       if
-        Web_persist.get_credentials_status uuid se <> `None
+        Web_persist.get_credentials_status uuid fse <> `None
         && (old = Some "server" || e_cred_authority = Some "server")
       then raise (Error (`CannotChange "credential authority"))
   in
@@ -131,7 +138,7 @@ let draft_of_api a uuid se d =
   let () =
     let old = se.se_group in
     if se_group <> old then
-      if Web_persist.get_credentials_status uuid se <> `None then
+      if Web_persist.get_credentials_status uuid fse <> `None then
         raise (Error (`CannotChange "group"))
       else
         try
@@ -141,10 +148,7 @@ let draft_of_api a uuid se d =
   in
   let () =
     let has_nh_questions =
-      Array.exists
-        (function
-          | Belenios_core.Question.NonHomomorphic _ -> true | _ -> false)
-        d.draft_questions.t_questions
+      Belenios.Election.has_nh_questions (Template (v, d.draft_questions))
     in
     if has_nh_questions then
       match se_group with
@@ -170,6 +174,7 @@ let draft_of_api a uuid se d =
     se_administrator = d.draft_questions.t_administrator;
     se_group;
   }
+  |> fun x -> Draft (v, x)
 
 let generate_uuid () =
   let length = !Web_config.uuid_length in
@@ -207,7 +212,7 @@ let post_drafts account draft =
   in
   let se =
     {
-      se_version = List.hd supported_crypto_versions;
+      se_version = Web_defaults.version;
       se_owners = owners;
       se_group = !Web_config.default_group;
       se_voters = [];
@@ -224,13 +229,15 @@ let post_drafts account draft =
       se_pending_credentials = false;
     }
   in
-  let se = draft_of_api account uuid se draft in
+  let (Version V1) = Belenios.Election.version_of_int se.se_version in
+  let se = draft_of_api account uuid (Draft (V1, se)) draft in
   let* () = Web_persist.create_draft uuid se in
   Lwt.return uuid
 
-let get_draft_voters se = se.se_voters |> List.map (fun x -> x.sv_id)
+let get_draft_voters (Draft (_, se)) =
+  se.se_voters |> List.map (fun x -> x.sv_id)
 
-let put_draft_voters uuid se voters =
+let put_draft_voters uuid (Draft (v, se)) voters =
   let existing_voters =
     List.fold_left
       (fun accu v ->
@@ -287,9 +294,9 @@ let put_draft_voters uuid se voters =
     else Lwt.return_unit
   in
   let se = { se with se_voters } in
-  Web_persist.set_draft_election uuid se
+  Web_persist.set_draft_election uuid (Draft (v, se))
 
-let get_draft_passwords se =
+let get_draft_passwords (Draft (_, se)) =
   se.se_voters
   |> List.filter_map (fun x ->
          Option.map
@@ -298,7 +305,7 @@ let get_draft_passwords se =
              login)
            x.sv_password)
 
-let post_draft_passwords account generate uuid se voters =
+let post_draft_passwords account generate uuid (Draft (v, se)) voters =
   let se_voters =
     List.fold_left
       (fun accu v ->
@@ -326,27 +333,27 @@ let post_draft_passwords account generate uuid se voters =
         Lwt.return (job :: jobs))
       [] voters
   in
-  let* () = Web_persist.set_draft_election uuid se in
+  let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
   Lwt.return jobs
 
-let get_credentials_token se =
+let get_credentials_token (Draft (_, se)) =
   if se.se_metadata.e_cred_authority = Some "server" then Lwt.return_none
   else Lwt.return_some se.se_public_creds
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
 
-let generate_credentials_on_server account uuid se =
+let generate_credentials_on_server account uuid (Draft (_, se) as draft) =
   let nvoters = List.length se.se_voters in
   if nvoters > Accounts.max_voters account then
     Lwt.return (Stdlib.Error `TooManyVoters)
   else if nvoters = 0 then Lwt.return (Stdlib.Error `NoVoters)
-  else if Web_persist.get_credentials_status uuid se <> `None then
+  else if Web_persist.get_credentials_status uuid draft <> `None then
     Lwt.return (Stdlib.Error `Already)
   else if se.se_metadata.e_cred_authority <> Some "server" then
     Lwt.return (Stdlib.Error `NoServer)
   else
-    let () = Web_persist.generate_credentials_on_server_async uuid se in
+    let () = Web_persist.generate_credentials_on_server_async uuid draft in
     Lwt.return (Ok ())
 
 let exn_of_generate_credentials_on_server_error = function
@@ -355,7 +362,7 @@ let exn_of_generate_credentials_on_server_error = function
   | `Already -> Error (`GenericError "already done")
   | `NoServer -> Error (`GenericError "credential authority is not the server")
 
-let submit_public_credentials uuid se credentials =
+let submit_public_credentials uuid (Draft (v, se)) credentials =
   let () =
     if se.se_voters = [] then raise (Error (`ValidationError `NoVoters))
   in
@@ -417,9 +424,9 @@ let submit_public_credentials uuid se credentials =
     if salts <> [] then Web_persist.set_salts uuid salts else Lwt.return_unit
   in
   se.se_public_creds_received <- true;
-  Web_persist.set_draft_election uuid se
+  Web_persist.set_draft_election uuid (Draft (v, se))
 
-let get_draft_trustees ~is_admin se =
+let get_draft_trustees ~is_admin (Draft (_, se)) =
   match se.se_trustees with
   | `Basic x ->
       let bt_trustees =
@@ -479,7 +486,7 @@ let ensure_none label x =
   if x <> None then
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
-let generate_server_trustee se =
+let generate_server_trustee (Draft (_, se)) =
   let st_id = "server" and st_token = "" in
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group) in
@@ -495,7 +502,7 @@ let generate_server_trustee se =
   let st_name = Some "server" in
   Lwt.return { st_id; st_token; st_public_key; st_private_key; st_name }
 
-let post_draft_trustees uuid se t =
+let post_draft_trustees uuid (Draft (v, se)) t =
   let address =
     match t.trustee_address with
     | Some x ->
@@ -512,7 +519,7 @@ let post_draft_trustees uuid se t =
         let ts = x.dbp_trustees in
         if List.exists (fun x -> x.st_id = "server") ts then Lwt.return ts
         else
-          let* server = generate_server_trustee se in
+          let* server = generate_server_trustee (Draft (v, se)) in
           Lwt.return (ts @ [ server ])
       in
       let () =
@@ -530,7 +537,7 @@ let post_draft_trustees uuid se t =
         }
       in
       x.dbp_trustees <- ts @ [ t ];
-      Web_persist.set_draft_election uuid se
+      Web_persist.set_draft_election uuid (Draft (v, se))
   | `Threshold x ->
       let ts = x.dtp_trustees in
       let () =
@@ -551,7 +558,7 @@ let post_draft_trustees uuid se t =
         }
       in
       x.dtp_trustees <- ts @ [ t ];
-      Web_persist.set_draft_election uuid se
+      Web_persist.set_draft_election uuid (Draft (v, se))
 
 let rec filter_out_first f = function
   | [] -> (false, [])
@@ -561,14 +568,14 @@ let rec filter_out_first f = function
         let touched, xs = filter_out_first f xs in
         (touched, x :: xs)
 
-let delete_draft_trustee uuid se trustee =
+let delete_draft_trustee uuid (Draft (v, se)) trustee =
   match se.se_trustees with
   | `Basic x ->
       let ts = x.dbp_trustees in
       let touched, ts = filter_out_first (fun x -> x.st_id = trustee) ts in
       if touched then (
         x.dbp_trustees <- ts;
-        let* () = Web_persist.set_draft_election uuid se in
+        let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
         Lwt.return_true)
       else Lwt.return_false
   | `Threshold x ->
@@ -576,11 +583,11 @@ let delete_draft_trustee uuid se trustee =
       let touched, ts = filter_out_first (fun x -> x.stt_id = trustee) ts in
       if touched then (
         x.dtp_trustees <- ts;
-        let* () = Web_persist.set_draft_election uuid se in
+        let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
         Lwt.return_true)
       else Lwt.return_false
 
-let set_threshold uuid se threshold =
+let set_threshold uuid (Draft (v, se)) threshold =
   match se.se_trustees with
   | `Basic _ -> Lwt.return @@ Stdlib.Error `NoTrustees
   | `Threshold x when x.dtp_trustees = [] ->
@@ -593,21 +600,21 @@ let set_threshold uuid se threshold =
       if 0 <= threshold && threshold < List.length ts then (
         List.iter (fun t -> t.stt_step <- step) ts;
         x.dtp_threshold <- maybe_threshold;
-        let* () = Web_persist.set_draft_election uuid se in
+        let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
         Lwt.return @@ Ok ())
       else Lwt.return @@ Stdlib.Error `OutOfBounds
 
-let get_draft_trustees_mode se =
+let get_draft_trustees_mode (Draft (_, se)) =
   match se.se_trustees with
   | `Basic _ -> `Basic
   | `Threshold x -> `Threshold (Option.value x.dtp_threshold ~default:0)
 
-let put_draft_trustees_mode uuid se mode =
-  match (get_draft_trustees_mode se, mode) with
+let put_draft_trustees_mode uuid (Draft (v, se)) mode =
+  match (get_draft_trustees_mode (Draft (v, se)), mode) with
   | a, b when a = b -> Lwt.return_unit
   | _, `Basic ->
       se.se_trustees <- `Basic { dbp_trustees = [] };
-      Web_persist.set_draft_election uuid se
+      Web_persist.set_draft_election uuid (Draft (v, se))
   | `Basic, `Threshold 0 ->
       let dtp =
         {
@@ -618,9 +625,9 @@ let put_draft_trustees_mode uuid se mode =
         }
       in
       se.se_trustees <- `Threshold dtp;
-      Web_persist.set_draft_election uuid se
+      Web_persist.set_draft_election uuid (Draft (v, se))
   | `Threshold _, `Threshold threshold -> (
-      let* x = set_threshold uuid se threshold in
+      let* x = set_threshold uuid (Draft (v, se)) threshold in
       match x with
       | Ok () -> Lwt.return_unit
       | Error `NoTrustees -> Lwt.fail (Error (`GenericError "no trustees"))
@@ -628,7 +635,7 @@ let put_draft_trustees_mode uuid se mode =
           Lwt.fail (Error (`GenericError "threshold out of bounds")))
   | _, _ -> Lwt.fail (Error (`GenericError "change not allowed"))
 
-let get_draft_status uuid se =
+let get_draft_status uuid (Draft (v, se)) =
   let* private_credentials_downloaded =
     if se.se_metadata.e_cred_authority = Some "server" then
       let* b = Web_persist.get_private_creds_downloaded uuid in
@@ -636,7 +643,7 @@ let get_draft_status uuid se =
     else Lwt.return_none
   in
   let credentials_ready, credentials_left =
-    match Web_persist.get_credentials_status uuid se with
+    match Web_persist.get_credentials_status uuid (Draft (v, se)) with
     | `None -> (false, None)
     | `Pending n -> (false, Some n)
     | `Done -> (true, None)
@@ -661,10 +668,7 @@ let get_draft_status uuid se =
       nh_and_weights_compatible =
         (let has_weights = has_explicit_weights se.se_voters in
          let has_nh =
-           Array.exists
-             (function
-               | Belenios_core.Question.NonHomomorphic _ -> true | _ -> false)
-             se.se_questions.t_questions
+           Belenios.Election.has_nh_questions (Template (v, se.se_questions))
          in
          not (has_weights && has_nh));
       credential_authority_visited = se.se_credential_authority_visited;
@@ -696,7 +700,7 @@ let merge_voters a b f =
   in
   loop weights (List.rev a) b
 
-let import_voters uuid se from =
+let import_voters uuid (Draft (v, se)) from =
   let* voters = Web_persist.get_all_voters from in
   let* passwords = Web_persist.get_passwords from in
   let get_password =
@@ -707,7 +711,7 @@ let import_voters uuid se from =
           let _, login, _ = Voter.get sv_id in
           SMap.find_opt (String.lowercase_ascii login) p
   in
-  if Web_persist.get_credentials_status uuid se <> `None then
+  if Web_persist.get_credentials_status uuid (Draft (v, se)) <> `None then
     Lwt.return @@ Stdlib.Error `Forbidden
   else
     match merge_voters se.se_voters voters get_password with
@@ -715,14 +719,14 @@ let import_voters uuid se from =
         let expanded = Weight.expand ~total:total_weight total_weight in
         if Z.compare expanded Weight.max_expanded_weight <= 0 then (
           se.se_voters <- voters;
-          let* () = Web_persist.set_draft_election uuid se in
+          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
           Lwt.return @@ Ok ())
         else Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
     | Error x ->
         let _, login, _ = Voter.get x in
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
-let import_trustees uuid se from metadata =
+let import_trustees uuid (Draft (v, se)) from metadata =
   let open Belenios_core.Serializable_j in
   match metadata.e_trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
@@ -787,7 +791,7 @@ let import_trustees uuid se from metadata =
                 }
               in
               se.se_trustees <- `Threshold dtp;
-              let* () = Web_persist.set_draft_election uuid se in
+              let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
               Lwt.return @@ Ok `Threshold
           | Stdlib.Error _ as x -> Lwt.return x
         in
@@ -840,7 +844,7 @@ let import_trustees uuid se from metadata =
                        })
             in
             se.se_trustees <- `Basic { dbp_trustees = ts };
-            let* () = Web_persist.set_draft_election uuid se in
+            let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
             Lwt.return @@ Ok `Basic)
 
 let check_owner account uuid cont =
@@ -848,19 +852,19 @@ let check_owner account uuid cont =
   if Accounts.check account metadata.e_owners then cont metadata
   else unauthorized
 
-let post_draft_status uuid se = function
+let post_draft_status uuid (Draft (v, se)) = function
   | `SetDownloaded ->
       let* () = Web_persist.set_private_creds_downloaded uuid in
       ok
   | `ValidateElection ->
-      let* s = get_draft_status uuid se in
-      let* () = Web_persist.validate_election uuid se s in
+      let* s = get_draft_status uuid (Draft (v, se)) in
+      let* () = Web_persist.validate_election uuid (Draft (v, se)) s in
       ok
   | `SetCredentialAuthorityVisited ->
       let* () =
         if se.se_credential_authority_visited <> true then (
           se.se_credential_authority_visited <- true;
-          let* () = Web_persist.set_draft_election uuid se in
+          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -869,7 +873,7 @@ let post_draft_status uuid se = function
       let* () =
         if se.se_voter_authentication_visited <> true then (
           se.se_voter_authentication_visited <- true;
-          let* () = Web_persist.set_draft_election uuid se in
+          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -878,7 +882,7 @@ let post_draft_status uuid se = function
       let* () =
         if se.se_trustees_setup_step <> i then (
           se.se_trustees_setup_step <- i;
-          let* () = Web_persist.set_draft_election uuid se in
+          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -939,6 +943,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           let@ draft = body.run draft_of_string in
           let@ () = handle_generic_error in
           let update_cache =
+            let (Draft (_, se)) = se in
+            let (Belenios_api.Common.Draft (_, draft)) = draft in
             draft.draft_questions.t_name <> se.se_questions.t_name
             || se.se_owners <> draft.draft_owners
           in
@@ -1006,6 +1012,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
           let@ voters = body.run string_list_of_string in
           let@ () = handle_generic_error in
           let generate =
+            let (Draft (_, se)) = se in
             let title = se.se_questions.t_name in
             let langs = get_languages se.se_metadata.e_languages in
             let show_weight = has_explicit_weights se.se_voters in

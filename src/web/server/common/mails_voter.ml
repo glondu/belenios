@@ -198,7 +198,7 @@ let format_credential_email (x : credential_email) =
   in
   return (subject, body)
 
-let generate_credential_email uuid se =
+let generate_credential_email uuid (Draft (_, se)) =
   let title = se.se_questions.t_name in
   let show_weight = has_explicit_weights se.se_voters in
   let has_passwords =

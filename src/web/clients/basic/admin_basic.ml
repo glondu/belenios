@@ -24,6 +24,7 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios_core.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
@@ -163,7 +164,10 @@ let rec show_root main =
   in
   let create =
     let value =
-      match template with None -> "" | Some x -> string_of_draft x
+      match template with
+      | None -> ""
+      | Some x -> string_of_draft (Draft (V1, x))
+      (* FIXME *)
     in
     let t, tget = textarea value in
     let b =

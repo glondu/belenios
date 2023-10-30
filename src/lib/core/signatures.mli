@@ -26,9 +26,16 @@ open Common
 include module type of Signatures_core
 
 module type ELECTION_BASE = sig
+  type question
+
+  val read_question : question reader
+  val write_question : question writer
+  val erase_question : question -> question
+
   module G : GROUP
 
-  val template : template
+  val template : question template
+  val has_nh_questions : bool
   val version : int
   val uuid : uuid
   val fingerprint : string

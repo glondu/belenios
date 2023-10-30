@@ -21,6 +21,11 @@
 
 open Web_serializable_j
 
+let version =
+  let open Belenios.Election in
+  let (Version v) = List.hd supported_crypto_versions in
+  int_of_version v
+
 let name = ""
 let description = ""
 let contact = ""

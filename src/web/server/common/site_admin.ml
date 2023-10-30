@@ -202,6 +202,9 @@ struct
 
   let create_new_election (account : account) cred draft_authentication =
     let open Belenios_api.Serializable_t in
+    let (Version (V1 as v)) =
+      List.hd Belenios.Election.supported_crypto_versions
+    in
     let draft_questions =
       {
         t_description = Web_defaults.description;
@@ -214,7 +217,7 @@ struct
     in
     let draft =
       {
-        draft_version = List.hd supported_crypto_versions;
+        draft_version = Web_defaults.version;
         draft_owners = [ account.id ];
         draft_questions;
         draft_languages = [ "en"; "fr" ];
@@ -225,7 +228,9 @@ struct
         draft_group = !Web_config.default_group;
       }
     in
-    let* uuid = Api_drafts.post_drafts account draft in
+    let* uuid =
+      Api_drafts.post_drafts account (Belenios_api.Common.Draft (v, draft))
+    in
     match uuid with
     | Some uuid -> redir_preapply election_draft uuid ()
     | None ->
@@ -295,7 +300,8 @@ struct
     let* election = Web_persist.get_draft_election uuid in
     match election with
     | None -> fail_http `Not_found
-    | Some se -> if Accounts.check a se.se_owners then f se else forbidden ()
+    | Some (Draft (_, se) as x) ->
+        if Accounts.check a se.se_owners then f x else forbidden ()
 
   let () =
     Any.register ~service:election_draft (fun uuid () ->
@@ -304,10 +310,10 @@ struct
 
   let () =
     Any.register ~service:election_draft_trustees (fun uuid () ->
-        let@ se = with_draft_election_ro uuid in
+        let@ (Draft (_, se) as x) = with_draft_election_ro uuid in
         match se.se_trustees with
         | `Basic _ ->
-            Pages_admin.election_draft_trustees uuid se () >>= Html.send
+            Pages_admin.election_draft_trustees uuid x () >>= Html.send
         | `Threshold _ ->
             redir_preapply election_draft_threshold_trustees uuid ())
 
@@ -329,13 +335,13 @@ struct
     let* election = Web_persist.get_draft_election uuid in
     match election with
     | None -> fail_http `Not_found
-    | Some se ->
+    | Some (Draft (_, se) as x) ->
         if Accounts.check a se.se_owners then
           Lwt.catch
             (fun () ->
-              let* r = f se in
+              let* r = f x in
               let* () =
-                if save then Web_persist.set_draft_election uuid se
+                if save then Web_persist.set_draft_election uuid x
                 else return_unit
               in
               return r)
@@ -351,7 +357,7 @@ struct
   let () =
     Any.register ~service:election_draft_set_credential_authority
       (fun uuid name ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
         let service =
@@ -384,7 +390,7 @@ struct
 
   let () =
     Any.register ~service:election_draft_languages (fun uuid languages ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
         let langs = languages_of_string languages in
@@ -416,7 +422,7 @@ struct
 
   let () =
     Any.register ~service:election_draft_contact (fun uuid contact ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let contact =
           if contact = "" || contact = Web_defaults.contact then None
           else Some contact
@@ -426,7 +432,7 @@ struct
 
   let () =
     Any.register ~service:election_draft_admin_name (fun uuid name ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let administrator = if name = "" then None else Some name in
         se.se_administrator <- administrator;
         redir_preapply election_draft uuid ())
@@ -434,7 +440,7 @@ struct
   let () =
     Any.register ~service:election_draft_description
       (fun uuid (name, description) ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
         if Stdlib.String.length name > Web_defaults.max_election_name_size then
@@ -489,7 +495,7 @@ struct
 
   let () =
     Any.register ~service:election_draft_auth_genpwd (fun uuid () ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let@ _, account, _ = with_site_user in
         handle_password account se uuid ~force:false se.se_voters)
 
@@ -526,14 +532,14 @@ struct
   let () =
     Any.register ~service:election_draft_questions_post
       (fun uuid (template, booth_version) ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (V1, se) as x) = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let template = template_of_string template in
-        let fixed_group = Web_persist.is_group_fixed uuid se in
+        let template = template_of_string read_question template in
+        let fixed_group = Web_persist.is_group_fixed uuid x in
         (match
-           ( get_suitable_group_kind se.se_questions,
-             get_suitable_group_kind template )
+           ( get_suitable_group_kind (Template (V1, se.se_questions)),
+             get_suitable_group_kind (Template (V1, template)) )
          with
         | `NH, `NH | `H, `H -> ()
         | `NH, `H when fixed_group -> ()
@@ -550,14 +556,15 @@ struct
 
   let () =
     Any.register ~service:election_draft_preview (fun (uuid, ()) () ->
-        let@ se = with_draft_election_ro uuid in
+        let@ (Draft (v, se)) = with_draft_election_ro uuid in
         let version = se.se_version in
         let group = se.se_group in
         let module G = (val Group.of_string ~version group : GROUP) in
         let public_key = G.to_string G.g in
         let raw_election =
-          Election.make_raw_election ~version se.se_questions ~uuid ~group
-            ~public_key
+          Election.make_raw_election ~version
+            (Template (v, se.se_questions))
+            ~uuid ~group ~public_key
         in
         let* x = String.send (raw_election, "application/json") in
         return @@ Eliom_registration.cast_unknown_content_kind x)
@@ -587,11 +594,11 @@ struct
 
   let () =
     Any.register ~service:election_draft_voters_add (fun uuid voters ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se) as x) = with_draft_election uuid in
         let@ _, account, _ = with_site_user in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        match Web_persist.get_credentials_status uuid se with
+        match Web_persist.get_credentials_status uuid x with
         | `Done | `Pending _ -> forbidden ()
         | `None -> (
             let voters =
@@ -664,8 +671,8 @@ struct
 
   let () =
     Any.register ~service:election_draft_voters_remove (fun uuid voter ->
-        let@ se = with_draft_election uuid in
-        match Web_persist.get_credentials_status uuid se with
+        let@ (Draft (_, se) as x) = with_draft_election uuid in
+        match Web_persist.get_credentials_status uuid x with
         | `Done | `Pending _ -> forbidden ()
         | `None ->
             let filter v =
@@ -677,8 +684,8 @@ struct
 
   let () =
     Any.register ~service:election_draft_voters_remove_all (fun uuid () ->
-        let@ se = with_draft_election uuid in
-        match Web_persist.get_credentials_status uuid se with
+        let@ (Draft (_, se) as x) = with_draft_election uuid in
+        match Web_persist.get_credentials_status uuid x with
         | `Done | `Pending _ -> forbidden ()
         | `None ->
             se.se_voters <- [];
@@ -686,7 +693,7 @@ struct
 
   let () =
     Any.register ~service:election_draft_voters_passwd (fun uuid voter ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se)) = with_draft_election uuid in
         let@ _, account, _ = with_site_user in
         let filter v =
           let _, login, _ = Voter.get v.sv_id in
@@ -695,11 +702,11 @@ struct
         let voter = List.filter filter se.se_voters in
         handle_password account se uuid ~force:true voter)
 
-  let ensure_trustees_mode uuid se mode =
+  let ensure_trustees_mode uuid (Draft (_, se) as x) mode =
     match (se.se_trustees, mode) with
-    | `Basic _, `Basic | `Threshold _, `Threshold _ -> Lwt.return se
+    | `Basic _, `Basic | `Threshold _, `Threshold _ -> Lwt.return x
     | `Threshold _, `Basic | `Basic _, `Threshold _ -> (
-        let* () = Api_drafts.put_draft_trustees_mode uuid se mode in
+        let* () = Api_drafts.put_draft_trustees_mode uuid x mode in
         let* x = Web_persist.get_draft_election uuid in
         match x with
         | Some se -> Lwt.return se
@@ -767,15 +774,15 @@ struct
     let* election = Web_persist.get_draft_election uuid in
     match election with
     | None -> fail_http `Not_found
-    | Some se -> (
+    | Some (Draft (_, se) as x) -> (
         if se.se_public_creds <> token then forbidden ()
         else
-          match Web_persist.get_credentials_status uuid se with
+          match Web_persist.get_credentials_status uuid x with
           | `Done | `Pending _ -> forbidden ()
           | `None ->
               let creds = public_credentials_of_string creds in
-              let* () = Api_drafts.submit_public_credentials uuid se creds in
-              Pages_admin.election_draft_credentials_done se () >>= Html.send)
+              let* () = Api_drafts.submit_public_credentials uuid x creds in
+              Pages_admin.election_draft_credentials_done x () >>= Html.send)
 
   let () =
     Any.register ~service:election_draft_credentials_post
@@ -794,7 +801,7 @@ struct
 
   let () =
     Any.register ~service:election_draft_credentials_server (fun uuid () ->
-        let@ se = with_draft_election uuid in
+        let@ (Draft (_, se) as x) = with_draft_election uuid in
         let@ _, account, _ = with_site_user in
         let max_voters = Accounts.max_voters account in
         let* l = get_preferred_gettext () in
@@ -802,7 +809,7 @@ struct
         if se.se_questions.t_name = Web_defaults.name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else
-          let* x = Api_drafts.generate_credentials_on_server account uuid se in
+          let* x = Api_drafts.generate_credentials_on_server account uuid x in
           match x with
           | Ok () ->
               let service = preapply ~service:election_draft uuid in
@@ -845,9 +852,9 @@ struct
               let* election = Web_persist.get_draft_election uuid in
               match election with
               | None -> fail_http `Not_found
-              | Some se ->
+              | Some (Draft (_, se) as x) ->
                   if Accounts.check a se.se_owners then
-                    Pages_admin.election_draft_trustees ~token uuid se ()
+                    Pages_admin.election_draft_trustees ~token uuid x ()
                     >>= Html.send
                   else forbidden ())
             ()
@@ -855,7 +862,7 @@ struct
         let* election = Web_persist.get_draft_election uuid in
         match election with
         | None -> fail_http `Not_found
-        | Some se -> (
+        | Some (Draft (_, se)) -> (
             let ts =
               match se.se_trustees with
               | `Basic x -> x.dbp_trustees
@@ -891,7 +898,7 @@ struct
                 let* election = Web_persist.get_draft_election uuid in
                 match election with
                 | None -> fail_http `Not_found
-                | Some se ->
+                | Some (Draft (_, se) as fse) ->
                     let ts =
                       match se.se_trustees with
                       | `Basic x -> x.dbp_trustees
@@ -926,7 +933,7 @@ struct
                       else (
                         (* we keep pk as a string because of G.t *)
                         t.st_public_key <- public_key;
-                        let* () = Web_persist.set_draft_election uuid se in
+                        let* () = Web_persist.set_draft_election uuid fse in
                         let msg =
                           s_ "Your key has been received and checked!"
                         in
@@ -946,12 +953,12 @@ struct
   let () =
     Any.register ~service:election_draft_create (fun uuid () ->
         let@ _, account, _ = with_site_user in
-        let@ se = with_draft_election ~save:false uuid in
+        let@ (Draft (_, se) as fse) = with_draft_election ~save:false uuid in
         Lwt.catch
           (fun () ->
             if Accounts.check account se.se_owners then
-              let* s = Api_drafts.get_draft_status uuid se in
-              let* () = Web_persist.validate_election uuid se s in
+              let* s = Api_drafts.get_draft_status uuid fse in
+              let* () = Web_persist.validate_election uuid fse s in
               redir_preapply election_admin uuid ()
             else Lwt.fail (Failure "Forbidden"))
           (fun e ->
@@ -1547,10 +1554,10 @@ struct
               let* election = Web_persist.get_draft_election uuid in
               match election with
               | None -> fail_http `Not_found
-              | Some se ->
+              | Some (Draft (_, se) as fse) ->
                   if Accounts.check a se.se_owners then
-                    Pages_admin.election_draft_threshold_trustees ~token uuid se
-                      ()
+                    Pages_admin.election_draft_threshold_trustees ~token uuid
+                      fse ()
                     >>= Html.send
                   else forbidden ())
             ()
@@ -1579,7 +1586,7 @@ struct
               let* election = Web_persist.get_draft_election uuid in
               match election with
               | None -> fail_http `Not_found
-              | Some se ->
+              | Some (Draft (v, se)) ->
                   let version = se.se_version in
                   let module G =
                     (val Group.of_string ~version se.se_group : GROUP)
@@ -1713,7 +1720,7 @@ struct
                     se_trustees
                     |> string_of_draft_trustees (swrite G.Zq.to_string)
                     |> draft_trustees_of_string Yojson.Safe.read_json;
-                  Web_persist.set_draft_election uuid se)
+                  Web_persist.set_draft_election uuid (Draft (v, se)))
         in
         redir_preapply election_draft_threshold_trustee (uuid, token) ())
 

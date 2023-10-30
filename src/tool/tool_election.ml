@@ -95,7 +95,7 @@ module Make (P : PARAMS) () = struct
       failwith "your key is not present in trustees";
     (match Lazy.force shuffles_hash with
     | None | Some [] ->
-        if B.Election.has_nh_questions template then
+        if Election.has_nh_questions then
           failwith
             "the election has non-homomorphic questions and no shuffles were \
              found"
@@ -103,7 +103,7 @@ module Make (P : PARAMS) () = struct
         shuffles
         |> List.iter (fun s ->
                Printf.ksprintf print_msg "I: shuffle %s has been applied" s));
-    if B.Election.has_nh_questions template then
+    if Election.has_nh_questions then
       print_msg
         "I: you should check that your shuffle appears in the list of applied \
          shuffles";

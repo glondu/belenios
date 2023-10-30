@@ -33,7 +33,7 @@ val generate_password_email :
 
 val generate_credential_email :
   Web_serializable_t.uuid ->
-  Web_serializable_t.draft_election ->
+  Web_common.draft_election ->
   recipient:string ->
   login:string ->
   weight:Web_serializable_t.weight ->

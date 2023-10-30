@@ -25,6 +25,7 @@ open Js_of_ocaml_tyxml
 open Belenios_core.Signatures
 open Belenios_core.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
@@ -323,7 +324,7 @@ let show main uuid tab context =
             (string_of_error e)
         in
         Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
-    | Ok (draft, _) ->
+    | Ok ((Draft (_, d) as draft), _) ->
         let title = h2 [] in
         let container = div [] in
         let* () =
@@ -342,7 +343,7 @@ let show main uuid tab context =
           Lwt.return
             [
               div [ a ~href:"#" "Home" ];
-              h1 [ txt draft.draft_questions.t_name ];
+              h1 [ txt d.draft_questions.t_name ];
               tabs;
               title;
               container;

@@ -143,7 +143,9 @@ val webize_trustee_public_key :
 val unwebize_trustee_public_key :
   ('a, 'b) web_trustee_public_key -> ('a, 'b) trustee_public_key
 
-val get_suitable_group_kind : template -> [ `H | `NH ]
+val get_suitable_group_kind :
+  Belenios.Election.versioned_template -> [ `H | `NH ]
+
 val get_booth_index : int option -> int option
 
 val compute_hash_link :
@@ -177,3 +179,11 @@ val check_password_with_file :
   (string * string) option Lwt.t
 
 val has_explicit_weights : draft_voter list -> bool
+
+type draft_election =
+  | Draft :
+      'a Belenios.Election.version * 'a raw_draft_election
+      -> draft_election
+
+val draft_election_of_string : string -> draft_election
+val string_of_draft_election : draft_election -> string

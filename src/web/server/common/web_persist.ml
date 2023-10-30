@@ -605,13 +605,15 @@ let build_elections_by_owner_cache () =
                               in
                               return (`Archived, date)
                         in
-                        let template = Election.template_of_string election in
+                        let (Template (V1, template)) =
+                          Election.template_of_string election
+                        in
                         let item = (kind, uuid, date, template.t_name) in
                         return
                         @@ List.fold_left
                              (fun accu id -> umap_add id item accu)
                              accu ids)
-                | Some se ->
+                | Some (Draft (_, se)) ->
                     let date =
                       Option.value se.se_creation_date
                         ~default:Web_defaults.creation_date
@@ -1329,11 +1331,12 @@ let delete_election uuid =
     {
       t_description = "";
       t_name = W.template.t_name;
-      t_questions =
-        Array.map Belenios_core.Question.erase_question W.template.t_questions;
+      t_questions = Array.map W.erase_question W.template.t_questions;
       t_administrator = None;
       t_credential_authority = None;
     }
+    |> string_of_template W.write_question
+    |> template_of_string Yojson.Safe.read_json
   in
   let de_owners = metadata.e_owners in
   let* dates = get_election_dates uuid in
@@ -1478,7 +1481,7 @@ let get_draft_private_credentials uuid =
 let set_draft_private_credentials uuid =
   Spool.set ~uuid Spool.draft_private_credentials
 
-let send_credentials uuid se =
+let send_credentials uuid (Draft (v, se)) =
   let@ () =
    fun cont -> if se.se_pending_credentials then cont () else Lwt.return_unit
   in
@@ -1495,7 +1498,7 @@ let send_credentials uuid se =
         SMap.add login (recipient, weight) accu)
       SMap.empty se.se_voters
   in
-  let send = Mails_voter.generate_credential_email uuid se in
+  let send = Mails_voter.generate_credential_email uuid (Draft (v, se)) in
   let* jobs =
     Lwt_list.fold_left_s
       (fun jobs (login, credential) ->
@@ -1510,7 +1513,7 @@ let send_credentials uuid se =
   se.se_pending_credentials <- false;
   Lwt.return_unit
 
-let validate_election uuid se s =
+let validate_election uuid (Draft (v, se)) s =
   let open Belenios_api.Serializable_j in
   let version = se.se_version in
   let uuid_s = Uuid.unwrap uuid in
@@ -1641,9 +1644,10 @@ let validate_election uuid se s =
       e_owners = se.se_owners;
     }
   in
+  let template = Belenios.Election.Template (v, se.se_questions) in
   let raw_election =
     let public_key = G.to_string y in
-    Election.make_raw_election ~version:se.se_version se.se_questions ~uuid
+    Election.make_raw_election ~version:se.se_version template ~uuid
       ~group:se.se_group ~public_key
   in
   (* write election files to disk *)
@@ -1718,7 +1722,7 @@ let validate_election uuid se s =
         create_file "private_keys.jsons" (fun x -> x) y
   in
   (* send private credentials, if any *)
-  let* () = send_credentials uuid se in
+  let* () = send_credentials uuid (Draft (v, se)) in
   (* clean up draft *)
   let* () = Spool.del ~uuid Spool.draft in
   (* clean up private credentials, if any *)
@@ -1763,7 +1767,7 @@ let compute_encrypted_tally election =
   match state with
   | `Closed ->
       let* () = raw_compute_encrypted_tally election in
-      if Belenios.Election.has_nh_questions W.template then
+      if W.has_nh_questions then
         let* () = set_election_state uuid `Shuffling in
         Lwt.return_true
       else
@@ -1791,7 +1795,7 @@ let set_skipped_shufflers uuid shufflers =
 let extract_automatic_data_draft uuid_s =
   let uuid = Uuid.wrap uuid_s in
   let* se = get_draft_election uuid in
-  let&* se = se in
+  let&* (Draft (_, se)) = se in
   let t =
     Option.value se.se_creation_date ~default:Web_defaults.creation_date
   in
@@ -1896,7 +1900,7 @@ type credentials_status = [ `None | `Pending of int | `Done ]
 
 let pending_generations = ref SMap.empty
 
-let generate_credentials_on_server_async uuid se =
+let generate_credentials_on_server_async uuid (Draft (_, se)) =
   let uuid_s = Uuid.unwrap uuid in
   match SMap.find_opt uuid_s !pending_generations with
   | Some _ -> ()
@@ -1929,7 +1933,7 @@ let generate_credentials_on_server_async uuid se =
           let* se = get_draft_election uuid in
           match se with
           | None -> Lwt.return_unit
-          | Some se ->
+          | Some (Draft (v, se)) ->
               let private_creds =
                 private_creds |> string_of_private_credentials
               in
@@ -1945,17 +1949,17 @@ let generate_credentials_on_server_async uuid se =
               in
               se.se_public_creds_received <- true;
               se.se_pending_credentials <- true;
-              let* () = set_draft_election uuid se in
+              let* () = set_draft_election uuid (Draft (v, se)) in
               pending_generations := SMap.remove uuid_s !pending_generations;
               Lwt.return_unit)
 
-let get_credentials_status uuid se =
+let get_credentials_status uuid (Draft (_, se)) =
   match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with
   | Some p -> `Pending (p ())
   | None -> if se.se_public_creds_received then `Done else `None
 
-let is_group_fixed uuid se =
-  get_credentials_status uuid se <> `None
+let is_group_fixed uuid (Draft (_, se) as fse) =
+  get_credentials_status uuid fse <> `None
   ||
   match se.se_trustees with
   | `Basic x -> x.dbp_trustees <> []

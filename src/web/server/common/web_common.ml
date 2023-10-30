@@ -381,7 +381,8 @@ let unwebize_trustee_public_key pk =
       (if pk.web_trustee_server = Some true then Some "server" else None);
   }
 
-let get_suitable_group_kind { t_questions; _ } =
+let get_suitable_group_kind
+    (Belenios.Election.Template (V1, { t_questions; _ })) =
   let group = ref `H in
   Array.iter
     (function
@@ -432,3 +433,22 @@ let has_explicit_weights voters =
       let (_, { weight; _ }) : Voter.t = v.sv_id in
       weight <> None)
     voters
+
+type draft_election =
+  | Draft :
+      'a Belenios.Election.version * 'a raw_draft_election
+      -> draft_election
+
+let draft_election_of_string x =
+  let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
+  let open Belenios.Election in
+  match version_of_int abstract.se_version with
+  | Version (V1 as v) ->
+      let x =
+        raw_draft_election_of_string Belenios_core.Serializable_j.read_question
+          x
+      in
+      Draft (v, x)
+
+let string_of_draft_election (Draft (V1, x)) =
+  string_of_raw_draft_election Belenios_core.Serializable_j.write_question x

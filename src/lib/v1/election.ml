@@ -58,6 +58,9 @@ let make_raw_election template ~uuid ~group ~public_key =
   string_of_params (swrite G.to_string) params
 
 module Parse (R : RAW_ELECTION) () = struct
+  let read_question = read_question
+  let write_question = write_question
+  let erase_question = Question.erase_question
   let j = params_of_string Yojson.Safe.read_json R.raw_election
 
   module G = (val Group.of_string j.e_group)
@@ -74,6 +77,11 @@ module Parse (R : RAW_ELECTION) () = struct
       t_administrator = params.e_administrator;
       t_credential_authority = params.e_credential_authority;
     }
+
+  let has_nh_questions =
+    Array.exists
+      (function Question.NonHomomorphic _ -> true | _ -> false)
+      template.t_questions
 
   let fingerprint = sha256_b64 R.raw_election
   let public_key = params.e_public_key
@@ -115,7 +123,10 @@ module Parse (R : RAW_ELECTION) () = struct
   let read_result = Yojson.Safe.read_json
 end
 
-module MakeElection (W : ELECTION_DATA) (M : RANDOM) = struct
+module MakeElection
+    (W : ELECTION_DATA with type question := Question.t)
+    (M : RANDOM) =
+struct
   type elt = W.G.t
   type scalar = W.G.Zq.t
 

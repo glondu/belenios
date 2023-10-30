@@ -44,7 +44,9 @@ module type QUESTION_NH_SIG = sig
 end
 
 module type MIXNET_SIG = sig
-  module Make (W : ELECTION_DATA) (M : RANDOM) :
+  type question
+
+  module Make (W : ELECTION_DATA with type question := question) (M : RANDOM) :
     MIXNET
       with type elt := W.G.t
        and type scalar := W.G.Zq.t
@@ -52,14 +54,17 @@ module type MIXNET_SIG = sig
 end
 
 module type ELECTION_SIG = sig
-  val template_of_string : string -> Serializable_t.template
+  type question
+
+  val template_of_string : string -> question Serializable_t.template
 
   val make_raw_election :
-    Serializable_t.template ->
+    question Serializable_t.template ->
     uuid:Common.Uuid.t ->
     group:string ->
     public_key:string ->
     string
 
-  module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
+  module Make (R : RAW_ELECTION) (M : RANDOM) () :
+    ELECTION with type question := question
 end

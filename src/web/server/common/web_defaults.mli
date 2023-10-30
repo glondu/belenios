@@ -22,6 +22,7 @@
 open Belenios_core.Serializable_t
 open Web_serializable_t
 
+val version : int
 val contact : string
 val questions : question array
 val name : string

@@ -84,10 +84,10 @@ type sub_batch_item = {
 
 type sub_batch = sub_batch_item list
 
-type template = {
+type 'question template = {
   description : string;
   name : string;
-  questions : question list <ocaml repr="array">;
+  questions : 'question list <ocaml repr="array">;
   ?administrator : string option;
   ?credential_authority : string option;
 } <ocaml field_prefix="t_">

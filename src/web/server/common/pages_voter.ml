@@ -357,6 +357,16 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let module W = (val election : Site_common_sig.ELECTION) in
+    let@ questions cont =
+      let prove (type t) (x : t Belenios.Election.version) : (t, Question.t) eq
+          =
+        match x with V1 -> Refl
+      in
+      let cast_array (type t u) (e : (t, u) eq) (x : t array) : u array =
+        match e with Refl -> x
+      in
+      cont (cast_array (prove W.witness) W.template.t_questions)
+    in
     let uuid = W.uuid in
     let* metadata = Web_persist.get_election_metadata uuid in
     let* dates = Web_persist.get_election_dates uuid in
@@ -489,7 +499,7 @@ struct
                    (Array.mapi2
                       (format_question_result uuid l)
                       (W.to_generic_result r.result)
-                      W.template.t_questions
+                      questions
                    |> Array.to_list);
                  div
                    [

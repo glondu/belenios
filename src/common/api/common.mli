@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,37 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type ELECTION = Belenios.Election.ELECTION
+type draft =
+  | Draft : 'a Belenios.Election.version * 'a Serializable_t.draft -> draft
 
-module type S = sig
-  val find_election : Web_serializable_t.uuid -> (module ELECTION) option Lwt.t
-  val election_not_found : unit -> Eliom_registration.Html.result Lwt.t
-
-  val with_election :
-    Web_serializable_t.uuid ->
-    ((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
-    Eliom_registration.Html.result Lwt.t
-
-  val redir_preapply :
-    ( 'a,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      'b,
-      'c,
-      'd,
-      [< `WithSuffix | `WithoutSuffix ],
-      'e,
-      unit,
-      'f )
-    Eliom_service.t ->
-    'a ->
-    unit ->
-    'g Eliom_registration.kind Lwt.t
-
-  val wrap_handler :
-    (unit -> Eliom_registration.Html.result Lwt.t) ->
-    Eliom_registration.Html.result Lwt.t
-
-  val forbidden : unit -> Eliom_registration.Html.result Lwt.t
-end
+val draft_of_string : string -> draft
+val string_of_draft : draft -> string

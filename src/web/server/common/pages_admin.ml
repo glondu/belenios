@@ -469,7 +469,7 @@ struct
         span [ direct_a (service ^ "#" ^ hash) (s_ "Preview booth") ]
     | None -> span [ txt @@ s_ "Unsupported booth version" ]
 
-  let election_draft uuid se () =
+  let election_draft uuid (Draft (_, se) as fse) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -707,7 +707,7 @@ struct
       div
         [
           h2 [ txt (s_ "Credentials") ];
-          (match Web_persist.get_credentials_status uuid se with
+          (match Web_persist.get_credentials_status uuid fse with
           | `Done ->
               let div_private_creds =
                 if cred_auth_is_server then
@@ -824,7 +824,7 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_trustees ?token uuid se () =
+  let election_draft_trustees ?token uuid (Draft (_, se)) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1022,7 +1022,7 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_threshold_trustees ?token uuid se () =
+  let election_draft_threshold_trustees ?token uuid (Draft (_, se)) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1291,7 +1291,7 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_credential_authority uuid se () =
+  let election_draft_credential_authority uuid (Draft (_, se)) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1367,7 +1367,7 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_credentials_done se () =
+  let election_draft_credentials_done (Draft (_, se)) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1431,7 +1431,7 @@ struct
         script ~a:[ a_src file ] (txt "");
       ]
 
-  let election_draft_questions uuid se () =
+  let election_draft_questions uuid (Draft (V1, se) as fse) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1441,7 +1441,7 @@ struct
       match se.se_metadata.e_booth_version with None -> 1 | Some v -> v
     in
     let form =
-      let value = string_of_template se.se_questions in
+      let value = string_of_template write_question se.se_questions in
       post_form ~service:election_draft_questions_post
         (fun (nquestions, nbooth) ->
           [
@@ -1463,9 +1463,9 @@ struct
         uuid
     in
     let allow_nh =
-      match get_suitable_group_kind se.se_questions with
+      match get_suitable_group_kind (Template (V1, se.se_questions)) with
       | `NH -> true
-      | `H -> not (Web_persist.is_group_fixed uuid se)
+      | `H -> not (Web_persist.is_group_fixed uuid fse)
     in
     let hybrid_box =
       div
@@ -1545,7 +1545,7 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_voters uuid se maxvoters () =
+  let election_draft_voters uuid (Draft (_, se) as fse) maxvoters () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1627,7 +1627,7 @@ struct
         uuid
     in
     let remove_all_button =
-      match Web_persist.get_credentials_status uuid se with
+      match Web_persist.get_credentials_status uuid fse with
       | `Done | `Pending _ -> div []
       | `None ->
           post_form ~service:election_draft_voters_remove_all
@@ -1663,7 +1663,7 @@ struct
             ([ td [ txt @@ Voter.to_string v.sv_id ] ]
             @ (if has_passwords then [ td (format_password_cell v) ] else [])
             @
-            match Web_persist.get_credentials_status uuid se with
+            match Web_persist.get_credentials_status uuid fse with
             | `Done | `Pending _ -> []
             | `None -> [ td [ mk_remove_button v.sv_id ] ]))
         se.se_voters
@@ -1694,7 +1694,7 @@ struct
                    @ (if has_passwords then [ th [ txt (s_ "Password sent?") ] ]
                       else [])
                    @
-                   match Web_persist.get_credentials_status uuid se with
+                   match Web_persist.get_credentials_status uuid fse with
                    | `Done | `Pending _ -> []
                    | `None -> [ th [ txt (s_ "Remove") ] ])
                 :: voters);
@@ -1710,7 +1710,7 @@ struct
         ]
     in
     let div_add =
-      match Web_persist.get_credentials_status uuid se with
+      match Web_persist.get_credentials_status uuid fse with
       | `Done | `Pending _ -> txt ""
       | `None ->
           div
@@ -2225,7 +2225,7 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_draft_import uuid se elections () =
+  let election_draft_import uuid (Draft (_, se)) elections () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -2240,7 +2240,7 @@ struct
     let service = election_draft_import_post in
     election_draft_importer l ~service ~title ~note uuid elections
 
-  let election_draft_import_trustees uuid se elections () =
+  let election_draft_import_trustees uuid (Draft (_, se)) elections () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -2254,7 +2254,7 @@ struct
     let service = election_draft_import_trustees_post in
     election_draft_importer l ~service ~title ~note uuid elections
 
-  let election_draft_confirm uuid se () =
+  let election_draft_confirm uuid (Draft (V1, se) as fse) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let notok x = span ~a:[ a_style "color: red;" ] [ txt x ] in
@@ -2262,7 +2262,7 @@ struct
     let title =
       s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Validate creation"
     in
-    let* s = Api_drafts.get_draft_status uuid se in
+    let* s = Api_drafts.get_draft_status uuid fse in
     let ready = true in
     let ready, name =
       if se.se_questions.t_name = Web_defaults.name then

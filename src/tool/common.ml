@@ -162,3 +162,8 @@ let key_t =
   let doc = "Read private key from file $(docv)." in
   let the_info = Arg.info [ "key" ] ~docv:"KEY" ~doc in
   Arg.(value & opt (some file) None the_info)
+
+let default_version =
+  let open Belenios.Election in
+  let (Version v) = List.hd supported_crypto_versions in
+  int_of_version v

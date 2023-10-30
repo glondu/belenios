@@ -40,7 +40,7 @@ end
 module type PARSED_PARAMS = sig
   val version : int
   val uuid : uuid
-  val template : template
+  val template : Election.versioned_template
   val group : string
 
   module G : GROUP
@@ -56,7 +56,11 @@ let parse_params p =
   let module R = struct
     let version = P.version
     let uuid = Uuid.wrap P.uuid
-    let template = template_of_string P.template
+
+    let template =
+      let (Version V1) = Belenios.Election.version_of_int version in
+      Election.Template (V1, template_of_string read_question P.template)
+
     let group = P.group
 
     module G = (val Group.of_string ~version P.group : GROUP)

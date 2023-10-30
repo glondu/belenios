@@ -21,6 +21,7 @@
 
 open Js_of_ocaml
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Belenios_core.Common
 open Belenios_core.Serializable_j
 open Belenios_js.Common
@@ -220,7 +221,7 @@ let e_elec =
   {
     endpoint = WithUuid { fmt = "elections/%s/election" };
     of_string = Belenios.Election.template_of_string;
-    to_string = string_of_template;
+    to_string = Belenios.Election.string_of_template;
     readonly = true;
     content = None;
     dirty = true;

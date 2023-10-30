@@ -43,11 +43,30 @@ let get_uuid x =
       | _ -> failwith "Election.get_uuid: invalid data")
   | _ -> failwith "Election.get_uuid: object expected"
 
+type _ version = V1 : Question.t version
+
+let compare_version (type t) (x : t version) (type u) (y : u version) :
+    (t, u) eq option =
+  match (x, y) with V1, V1 -> Some Refl
+
+type some_version = Version : 'a version -> some_version
+
+let int_of_version (type t) (x : t version) = match x with V1 -> 1
+
+let version_of_int = function
+  | 1 -> Version V1
+  | v -> Printf.ksprintf invalid_arg "unsupported version: %d" v
+
+type versioned_template =
+  | Template : 'a version * 'a template -> versioned_template
+
 let template_of_string x =
   match get_version x with
-  | 1 -> Belenios_v1.Election.template_of_string x
+  | 1 -> Template (V1, Belenios_v1.Election.template_of_string x)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
+
+let string_of_template (Template (V1, x)) = string_of_template write_question x
 
 let election_uuid_of_string_ballot x =
   let j = Yojson.Safe.from_string x in
@@ -60,30 +79,46 @@ let election_uuid_of_string_ballot x =
 
 let make_raw_election ~version template ~uuid ~group ~public_key =
   match version with
-  | 1 ->
-      Belenios_v1.Election.make_raw_election template ~uuid ~group ~public_key
+  | 1 -> (
+      match template with
+      | Template (V1, template) ->
+          Belenios_v1.Election.make_raw_election template ~uuid ~group
+            ~public_key)
   | n ->
       Printf.ksprintf invalid_arg "make_raw_election: unsupported version: %d" n
 
 (** Helper functions *)
 
-let has_nh_questions e =
+let has_nh_questions (Template (V1, e)) =
   Array.exists
     (function
       | Question.NonHomomorphic _ -> true | Question.Homomorphic _ -> false)
     e.t_questions
 
-module type MAKER = functor (R : RAW_ELECTION) (M : RANDOM) () -> ELECTION
+module type ELECTION = sig
+  include ELECTION
+
+  val witness : question version
+end
 
 module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
   let x =
     match get_version R.raw_election with
-    | 1 -> (module Belenios_v1.Election.Make : MAKER)
+    | 1 ->
+        let module X = struct
+          type question = Question.t
+
+          include Belenios_v1.Election.Make (R) (M) ()
+
+          let witness = V1
+        end in
+        (module X : ELECTION)
     | n -> Printf.ksprintf failwith "Election.Make: unsupported version: %d" n
 
-  module X = (val x)
-  include X (R) (M) ()
+  include (val x)
 end
+
+let supported_crypto_versions = [ Version V1 ]
 
 (** Computing checksums *)
 

@@ -505,7 +505,7 @@ let createTemplate template =
   let f _ =
     try
       let template = extractTemplate () in
-      set_textarea "questions" (string_of_template template);
+      set_textarea "questions" (string_of_template write_question template);
       let booth_version = 2 in
       set_input "booth_version" (string_of_int booth_version);
       let&& x = document##querySelector (Js.string "form") in
@@ -541,7 +541,7 @@ let handle_hybrid e _ =
 
 let fill_interactivity () =
   let&& e = document##getElementById (Js.string "interactivity") in
-  let t = template_of_string (get_textarea "questions") in
+  let t = template_of_string read_question (get_textarea "questions") in
   let has_nh =
     Array.exists
       (function Question.NonHomomorphic _ -> true | _ -> false)

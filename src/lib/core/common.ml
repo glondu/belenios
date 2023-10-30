@@ -27,6 +27,10 @@ let ( let@ ) f x = f x
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
 
+type (_, _) eq = Refl : ('a, 'a) eq
+
+let cast (type t u) (e : (t, u) eq) (x : t) : u = match e with Refl -> x
+
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
@@ -440,5 +444,3 @@ module Voter = struct
   let has_explicit_weights voters =
     List.exists (fun ((_, { weight; _ }) : t) -> weight <> None) voters
 end
-
-let supported_crypto_versions = [ 1 ]

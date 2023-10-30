@@ -26,8 +26,9 @@ open Belenios_core.Signatures
 open Belenios_core.Common
 open Belenios_js.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 
-let generate uuid draft =
+let generate uuid (Draft (_, draft)) =
   let raw = get_textarea "voters" in
   let ids = Voter.list_of_string raw in
   let version = draft.draft_version in

@@ -26,6 +26,7 @@ open Belenios_core.Signatures
 open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
@@ -40,7 +41,7 @@ let show main uuid =
           (string_of_error e)
       in
       Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
-  | Ok (draft, _) ->
+  | Ok (Draft (_, draft), _) ->
       let* voters =
         let* x = get voter_list_of_string "drafts/%s/voters" uuid in
         match x with

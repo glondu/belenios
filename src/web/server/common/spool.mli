@@ -29,7 +29,7 @@ val set : uuid:uuid -> 'a t -> 'a -> unit Lwt.t
 val del : uuid:uuid -> 'a t -> unit Lwt.t
 
 (* draft elections *)
-val draft : draft_election t
+val draft : Web_common.draft_election t
 val draft_public_credentials : string t
 val draft_private_credentials : string t
 

@@ -219,9 +219,16 @@ struct
     let open (val l) in
     let@ election = with_election uuid in
     let open (val election) in
+    let@ cast cont =
+      let open Belenios.Election in
+      let prove (type t) (x : t version) : (t, Question.t) eq =
+        match x with V1 -> Refl
+      in
+      cont (cast (prove witness))
+    in
     let questions = template.t_questions in
     if 0 <= question && question < Array.length questions then
-      match questions.(question) with
+      match cast questions.(question) with
       | Question.NonHomomorphic (q, extra) ->
           f l q extra (fun continuation ->
               let* result = Web_persist.get_election_result uuid in

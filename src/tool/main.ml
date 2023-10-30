@@ -56,8 +56,7 @@ module Bench : CMDLINER_MODULE = struct
   let version_t =
     let doc = "Use protocol version $(docv)." in
     Arg.(
-      value
-      & opt int (List.hd supported_crypto_versions)
+      value & opt int default_version
       & info [ "protocol-version" ] ~docv:"VERSION" ~doc)
 
   let count_t =

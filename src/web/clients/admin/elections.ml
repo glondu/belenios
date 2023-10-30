@@ -137,7 +137,7 @@ let is_valid_url s = s <> ""
 
 (* Ready means that it can be created. *)
 let is_ready () =
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let* status = Cache.get_until_success Cache.status in
   let b =
     draft.draft_questions.t_name <> ""
@@ -174,7 +174,7 @@ let default_handler tab () =
   (* Before syncing, check if draft is consistent *)
   let* ok =
     if is_draft () && Cache.modified Cache.draft then
-      let* draft = Cache.get_until_success Cache.draft in
+      let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
       match draft.draft_authentication with
       | `CAS s when not (is_valid_url s) ->
           alert
@@ -225,7 +225,7 @@ let tabs x =
             match curr_tab = x with
             | true -> Lwt.return `Doing
             | false ->
-                let* draft = Cache.get_until_success Cache.draft in
+                let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
                 Lwt.return
                   (if draft.draft_questions.t_name = "" then `Todo else `Done)),
         (fun () -> Lwt.return true),
@@ -238,7 +238,7 @@ let tabs x =
             match curr_tab = x with
             | true -> Lwt.return `Doing
             | false ->
-                let* draft = Cache.get_until_success Cache.draft in
+                let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
                 Lwt.return
                   (if draft.draft_questions.t_questions = [||] then `Todo
                    else `Done)),
@@ -368,7 +368,7 @@ let tabs x =
         (fun () ->
           if not is_draft then Lwt.return true
           else
-            let* draft = Cache.get_until_success Cache.draft in
+            let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
             Lwt.return
               (draft.draft_questions.t_questions <> [||]
               && draft.draft_questions.t_name <> "")),
@@ -604,7 +604,7 @@ let handler f =
 
 let update_header () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let title = draft.draft_questions.t_name in
   let descr = draft.draft_questions.t_description in
   let* () =
@@ -617,20 +617,22 @@ let update_header () =
 let title_content () =
   let open (val !Belenios_js.I18n.gettext) in
   if is_draft () then (
-    let* draft = Cache.get_until_success Cache.draft in
+    let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let name, nameget =
       textarea ~cols:50 ~rows:3 draft.draft_questions.t_name
     in
     let r = Tyxml_js.To_dom.of_textarea name in
     r##.onchange :=
       lwt_handler (fun _ ->
-          let* draft = Cache.get_until_success Cache.draft in
+          let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
           Cache.set Cache.draft
-            {
-              draft with
-              draft_questions =
-                { draft.draft_questions with t_name = nameget () };
-            };
+            (Draft
+               ( v,
+                 {
+                   draft with
+                   draft_questions =
+                     { draft.draft_questions with t_name = nameget () };
+                 } ));
           update_header ());
     let desc, descget =
       textarea ~cols:50 ~rows:5 draft.draft_questions.t_description
@@ -638,13 +640,15 @@ let title_content () =
     let r = Tyxml_js.To_dom.of_textarea desc in
     r##.onchange :=
       lwt_handler (fun _ ->
-          let* draft = Cache.get_until_success Cache.draft in
+          let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
           Cache.set Cache.draft
-            {
-              draft with
-              draft_questions =
-                { draft.draft_questions with t_description = descget () };
-            };
+            (Draft
+               ( v,
+                 {
+                   draft with
+                   draft_questions =
+                     { draft.draft_questions with t_description = descget () };
+                 } ));
           update_header ());
     Lwt.return
       [
@@ -655,7 +659,7 @@ let title_content () =
       ])
   else
     (* not is_draft, i.e. running *)
-    let* elec = Cache.get_until_success Cache.e_elec in
+    let* (Template (_, elec)) = Cache.get_until_success Cache.e_elec in
     let tit = elec.t_name in
     let desc = elec.t_description in
     Lwt.return
@@ -1029,7 +1033,7 @@ let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 
 let language_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let* config = Cache.get_until_success Cache.config in
   let lang = draft.draft_languages in
   let strlang = String.concat " " lang in
@@ -1041,7 +1045,9 @@ let language_content () =
         if
           check_lang_choice newlist
             (List.map (fun (x, _) -> x) config.languages)
-        then Cache.set Cache.draft { draft with draft_languages = newlist }
+        then
+          Cache.set Cache.draft
+            (Draft (v, { draft with draft_languages = newlist }))
         else alert @@ s_ "Some language in the list is not available");
   let avail_lang =
     config.languages
@@ -1080,14 +1086,15 @@ let language_content () =
 
 let contact_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let contact = Option.value ~default:"" draft.draft_contact in
   let inp, contget = input ~a:[ a_id "inpcont" ] contact in
   let r = Tyxml_js.To_dom.of_input inp in
   r##.onchange :=
     handler (fun _ ->
         let newc = contget () in
-        Cache.set Cache.draft { draft with draft_contact = Some newc });
+        Cache.set Cache.draft
+          (Draft (v, { draft with draft_contact = Some newc })));
   (* The default set by the server is the name of the administrator;
    * no need to do it on our side. In case this changes, we default to "" *)
   let admin = Option.value ~default:"" draft.draft_questions.t_administrator in
@@ -1097,11 +1104,13 @@ let contact_content () =
     handler (fun _ ->
         let newA = adminget () in
         Cache.set Cache.draft
-          {
-            draft with
-            draft_questions =
-              { draft.draft_questions with t_administrator = Some newA };
-          });
+          (Draft
+             ( v,
+               {
+                 draft with
+                 draft_questions =
+                   { draft.draft_questions with t_administrator = Some newA };
+               } )));
   Lwt.return
     [
       h2 [ txt @@ s_ "Contact:" ];
@@ -1130,13 +1139,15 @@ let send_draft_request req =
   Lwt.return_unit
 
 let change_credauth_name name =
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   Cache.set Cache.draft
-    {
-      draft with
-      draft_questions =
-        { draft.draft_questions with t_credential_authority = Some name };
-    };
+    (Draft
+       ( v,
+         {
+           draft with
+           draft_questions =
+             { draft.draft_questions with t_credential_authority = Some name };
+         } ));
   let* () = Cache.sync_until_success () in
   let* () = send_draft_request `SetCredentialAuthorityVisited in
   let* res = Cache.sync () in
@@ -1147,7 +1158,7 @@ let change_credauth_name name =
 let credauth_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let* status = Cache.get_until_success Cache.status in
   let first_currsel =
     if not status.credential_authority_visited then `None
@@ -1352,7 +1363,7 @@ let voterspwd_content () =
   let* status = Cache.get_until_success Cache.status in
   let first_visit = not status.voter_authentication_visited in
   let pwd_rdy = status.passwords_ready in
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let* voters = Cache.get_until_success Cache.voters in
   let curr_auth = draft.draft_authentication in
   if List.length voters = 0 then
@@ -1389,7 +1400,8 @@ let voterspwd_content () =
           e##.onchange :=
             lwt_handler (fun _ ->
                 let* () = send_draft_request `SetVoterAuthenticationVisited in
-                Cache.set Cache.draft { draft with draft_authentication };
+                Cache.set Cache.draft
+                  (Draft (v, { draft with draft_authentication }));
                 !update_election_main ())
         in
         let ll =
@@ -1407,7 +1419,9 @@ let voterspwd_content () =
                      set_onchange inp (fun () -> `Password);
                      let but =
                        button (s_ "Send passwords to voters") (fun () ->
-                           let* dr = Cache.get_until_success Cache.draft in
+                           let* (Draft (_, dr)) =
+                             Cache.get_until_success Cache.draft
+                           in
                            if dr.draft_authentication <> `Password then (
                              alert
                              @@ s_ "Please select password authentication first";

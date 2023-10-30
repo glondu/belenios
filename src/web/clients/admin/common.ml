@@ -94,3 +94,5 @@ let url_prefix () =
       match Regexp.matched_group mat 1 with
       | None -> "https://fake_link_please_edit"
       | Some pr -> pr)
+
+let default_version = Belenios.Election.V1

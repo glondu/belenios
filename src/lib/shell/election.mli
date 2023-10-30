@@ -22,24 +22,47 @@
 (** Election primitives *)
 
 open Belenios_core
+open Common
 open Signatures
 open Serializable_t
 
 val get_version : string -> int
 val get_uuid : string -> uuid
-val template_of_string : string -> template
+
+type _ version = V1 : Question.t version
+
+val compare_version : 'a version -> 'b version -> ('a, 'b) eq option
+
+type some_version = Version : 'a version -> some_version
+
+val int_of_version : 'a version -> int
+val version_of_int : int -> some_version
+
+type versioned_template =
+  | Template : 'a version * 'a template -> versioned_template
+
+val template_of_string : string -> versioned_template
+val string_of_template : versioned_template -> string
 val election_uuid_of_string_ballot : string -> uuid
-val has_nh_questions : template -> bool
+val has_nh_questions : versioned_template -> bool
 
 val make_raw_election :
   version:int ->
-  template ->
+  versioned_template ->
   uuid:uuid ->
   group:string ->
   public_key:string ->
   string
 
+module type ELECTION = sig
+  include ELECTION
+
+  val witness : question version
+end
+
 module Make (R : RAW_ELECTION) (M : RANDOM) () : ELECTION
+
+val supported_crypto_versions : some_version list
 
 val compute_checksums :
   election:hash ->

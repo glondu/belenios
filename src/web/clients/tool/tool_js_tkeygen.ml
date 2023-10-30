@@ -29,8 +29,9 @@ open Serializable_j
 open Belenios_js.Common
 open Tool_tkeygen
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 
-let tkeygen draft =
+let tkeygen (Draft (_, draft)) =
   let open (val !Belenios_js.I18n.gettext) in
   let module P : PARAMS = struct
     let group = draft.draft_group

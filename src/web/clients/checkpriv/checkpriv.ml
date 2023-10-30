@@ -27,6 +27,7 @@ open Belenios_core.Signatures
 open Belenios_core.Serializable_j
 open Belenios_core.Common
 open Belenios_api.Serializable_j
+open Belenios_api.Common
 open Belenios
 open Belenios_js.Common
 
@@ -277,7 +278,7 @@ let onload () =
                   (f_ "There is no election with UUID %s on this server!")
                   uuid;
                 Lwt.return_unit
-            | Some draft -> do_draft uuid draft get_private_key))
+            | Some (Draft (_, draft)) -> do_draft uuid draft get_private_key))
   in
   let content =
     [

@@ -27,6 +27,10 @@ val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
 
+type (_, _) eq = Refl : ('a, 'a) eq
+
+val cast : ('a, 'b) eq -> 'a -> 'b
+
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
@@ -111,5 +115,3 @@ module Voter : sig
   val generate : int -> t list
   val has_explicit_weights : t list -> bool
 end
-
-val supported_crypto_versions : int list

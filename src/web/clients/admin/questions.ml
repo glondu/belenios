@@ -185,13 +185,15 @@ let local_save () =
   (* FIXME: should use default groups sent by server, here *)
   let group = "Ed25519" in
   let qq = Array.map gen_to_q !all_gen_quest in
-  let* draft = Cache.get_until_success Cache.draft in
+  let* (Draft (V1, draft)) = Cache.get_until_success Cache.draft in
   Cache.set Cache.draft
-    {
-      draft with
-      draft_questions = { draft.draft_questions with t_questions = qq };
-      draft_group = group;
-    };
+    (Draft
+       ( V1,
+         {
+           draft with
+           draft_questions = { draft.draft_questions with t_questions = qq };
+           draft_group = group;
+         } ));
   Lwt.return_unit
 
 let insert_new_q ind =
@@ -771,6 +773,9 @@ let running_recompute_main_zone () =
   in
   Lwt.return (h2 [ txt @@ s_ "Questions (non editable):" ] :: q_show)
 
+type questions =
+  | Questions : 'a Belenios.Election.version * 'a array -> questions
+
 (* Called from the outside.
  * Returns stuff to be put in the main zone.
  * In draft mode, if empty questions, then create a new draft question when
@@ -780,13 +785,13 @@ let questions_content () =
   let is_draft =
     match !where_am_i with Election { status = Draft; _ } -> true | _ -> false
   in
-  let* qs =
+  let* (Questions (V1, qs)) =
     if is_draft then
-      let* draft = Cache.get_until_success Cache.draft in
-      Lwt.return draft.draft_questions.t_questions
+      let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+      Lwt.return (Questions (v, draft.draft_questions.t_questions))
     else
-      let* elec = Cache.get_until_success Cache.e_elec in
-      Lwt.return elec.t_questions
+      let* (Template (v, elec)) = Cache.get_until_success Cache.e_elec in
+      Lwt.return (Questions (v, elec.t_questions))
   in
   all_gen_quest := Array.map q_to_gen qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then
