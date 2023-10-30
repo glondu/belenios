@@ -25,24 +25,6 @@ module type GROUP_SIG = sig
   val of_string : string -> (module GROUP)
 end
 
-module type QUESTION_H_SIG = sig
-  module Make (M : RANDOM) (G : GROUP) :
-    Question_sigs.QUESTION
-      with type elt := G.t
-       and type question := Question_h_t.question
-       and type answer := (G.t, G.Zq.t) Question_h_t.answer
-       and type result := Question_h_t.result
-end
-
-module type QUESTION_NH_SIG = sig
-  module Make (M : RANDOM) (G : GROUP) :
-    Question_sigs.QUESTION
-      with type elt := G.t
-       and type question := Question_nh_t.question
-       and type answer := (G.t, G.Zq.t) Question_nh_t.answer
-       and type result := Question_nh_t.result
-end
-
 module type MIXNET_SIG = sig
   type question
 
