@@ -26,7 +26,9 @@ open Common
 open Serializable_core_t
 open Signatures
 
-module Make (W : ELECTION_DATA with type question := Question.t) (M : RANDOM) =
+module Make
+    (W : ELECTION_DATA with type question := Belenios_question.t)
+    (M : RANDOM) =
 struct
   module G = W.G
   open G

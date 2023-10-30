@@ -70,7 +70,8 @@ struct
   let majority_judgment_content l q r =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let explicit_winners =
-      List.map (List.map (fun i -> q.Question_nh_t.q_answers.(i))) r.mj_winners
+      let open Belenios_question.NonHomomorphic in
+      List.map (List.map (fun i -> q.q_answers.(i))) r.mj_winners
     in
     let pretty_winners =
       List.map
@@ -133,9 +134,8 @@ struct
       | None -> txt ""
     in
     let explicit_winners =
-      List.map
-        (List.map (fun i -> q.Question_nh_t.q_answers.(i)))
-        r.schulze_winners
+      let open Belenios_question.NonHomomorphic in
+      List.map (List.map (fun i -> q.q_answers.(i))) r.schulze_winners
     in
     let pretty_winners =
       List.map
@@ -186,8 +186,9 @@ struct
   let stv_content l q r =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let winners =
+      let open Belenios_question.NonHomomorphic in
       r.stv_winners
-      |> List.map (fun i -> q.Question_nh_t.q_answers.(i))
+      |> List.map (fun i -> q.q_answers.(i))
       |> List.map (fun l -> li [ txt l ])
     in
     let invalid =
@@ -254,9 +255,10 @@ struct
 
   let format_question_result uuid l i r q =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
+    let open Belenios_question in
     match q with
-    | Question.Homomorphic x ->
-        let open Question_h_j in
+    | Homomorphic x ->
+        let open Homomorphic in
         let r = r |> result_of_string in
         let answers = Array.to_list x.q_answers in
         let answers =
@@ -284,15 +286,15 @@ struct
             div ~a:[ a_class [ "result_question" ] ] [ markup x.q_question ];
             answers;
           ]
-    | Question.NonHomomorphic (q, extra) ->
-        let open Question_nh_j in
+    | NonHomomorphic (q, extra) ->
+        let open NonHomomorphic in
         let ballots = r |> result_of_string in
         let applied_counting_method, show_others =
-          match Question.get_counting_method extra with
+          match get_counting_method extra with
           | `None -> (txt "", true)
           | `MajorityJudgment o ->
               let ngrades = Array.length o.mj_extra_grades in
-              let nchoices = Array.length q.Question_nh_t.q_answers in
+              let nchoices = Array.length q.q_answers in
               let blank_allowed = o.mj_extra_blank in
               let mj =
                 Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
@@ -301,7 +303,7 @@ struct
               let contents = majority_judgment_content l q mj in
               (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
           | `Schulze o ->
-              let nchoices = Array.length q.Question_nh_t.q_answers in
+              let nchoices = Array.length q.q_answers in
               let blank_allowed = o.schulze_extra_blank in
               let r = Schulze.compute ~nchoices ~blank_allowed ballots in
               let contents = schulze_content l q r in
@@ -359,8 +361,8 @@ struct
     let open (val l) in
     let module W = (val election : Site_common_sig.ELECTION) in
     let@ questions cont =
-      let prove (type t) (x : t Belenios.Election.version) : (t, Question.t) eq
-          =
+      let prove (type t) (x : t Belenios.Election.version) :
+          (t, Belenios_question.t) eq =
         match x with V1 -> Refl
       in
       let cast_array (type t u) (e : (t, u) eq) (x : t array) : u array =

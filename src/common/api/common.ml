@@ -28,10 +28,10 @@ let draft_of_string x =
   match version_of_int abstract.draft_version with
   | Version (V1 as v) ->
       let x =
-        Serializable_j.draft_of_string
-          Belenios_core.Serializable_j.read_question x
+        Serializable_j.draft_of_string Belenios_v1.Serializable_j.read_question
+          x
       in
       Draft (v, x)
 
 let string_of_draft (Draft (V1, x)) =
-  Serializable_j.string_of_draft Belenios_core.Serializable_j.write_question x
+  Serializable_j.string_of_draft Belenios_v1.Serializable_j.write_question x

@@ -385,8 +385,7 @@ let get_suitable_group_kind
     (Belenios.Election.Template (V1, { t_questions; _ })) =
   let group = ref `H in
   Array.iter
-    (function
-      | Question.NonHomomorphic _ -> group := `NH | Question.Homomorphic _ -> ())
+    (function Belenios_question.NonHomomorphic _ -> group := `NH | _ -> ())
     t_questions;
   !group
 
@@ -445,10 +444,9 @@ let draft_election_of_string x =
   match version_of_int abstract.se_version with
   | Version (V1 as v) ->
       let x =
-        raw_draft_election_of_string Belenios_core.Serializable_j.read_question
-          x
+        raw_draft_election_of_string Belenios_v1.Serializable_j.read_question x
       in
       Draft (v, x)
 
 let string_of_draft_election (Draft (V1, x)) =
-  string_of_raw_draft_election Belenios_core.Serializable_j.write_question x
+  string_of_raw_draft_election Belenios_v1.Serializable_j.write_question x

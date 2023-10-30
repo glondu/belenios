@@ -60,7 +60,7 @@ let make_raw_election template ~uuid ~group ~public_key =
 module Parse (R : RAW_ELECTION) () = struct
   let read_question = read_question
   let write_question = write_question
-  let erase_question = Question.erase_question
+  let erase_question = Belenios_question.erase_question
   let j = params_of_string Yojson.Safe.read_json R.raw_election
 
   module G = (val Group.of_string j.e_group)
@@ -79,8 +79,9 @@ module Parse (R : RAW_ELECTION) () = struct
     }
 
   let has_nh_questions =
+    let open Belenios_question in
     Array.exists
-      (function Question.NonHomomorphic _ -> true | _ -> false)
+      (function NonHomomorphic _ -> true | _ -> false)
       template.t_questions
 
   let fingerprint = sha256_b64 R.raw_election
@@ -110,7 +111,7 @@ module Parse (R : RAW_ELECTION) () = struct
 end
 
 module MakeElection
-    (W : ELECTION_DATA with type question := Question.t)
+    (W : ELECTION_DATA with type question := Belenios_question.t)
     (M : RANDOM) =
 struct
   type elt = W.G.t
@@ -119,7 +120,8 @@ struct
   module G = W.G
 
   module Q =
-    Question.Make (M) (G) (Question_h.Make (M) (G)) (Question_nh.Make (M) (G))
+    Belenios_question.Make (M) (G) (Question_h.Make (M) (G))
+      (Question_nh.Make (M) (G))
 
   module Mix = Mixnet.Make (W) (M)
   open G
@@ -246,10 +248,10 @@ struct
     let x = Shape.to_shape_array x in
     let rec loop i accu =
       if i >= 0 then
+        let open Belenios_question in
         match W.template.t_questions.(i) with
-        | Question.Homomorphic _ -> loop (i - 1) accu
-        | Question.NonHomomorphic _ ->
-            loop (i - 1) (Shape.to_array x.(i) :: accu)
+        | Homomorphic _ -> loop (i - 1) accu
+        | NonHomomorphic _ -> loop (i - 1) (Shape.to_array x.(i) :: accu)
       else Array.of_list accu
     in
     loop (Array.length x - 1) []
@@ -259,9 +261,10 @@ struct
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
       if i < n && j < m then (
+        let open Belenios_question in
         match W.template.t_questions.(i) with
-        | Question.Homomorphic _ -> loop (i + 1) j
-        | Question.NonHomomorphic _ ->
+        | Homomorphic _ -> loop (i + 1) j
+        | NonHomomorphic _ ->
             x.(i) <- Shape.of_array cc.(j);
             loop (i + 1) (j + 1))
       else (

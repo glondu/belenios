@@ -19,8 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures_core
-open Common
+module Homomorphic = Question_h_j
+module NonHomomorphic = Question_nh_j
+open Belenios_core.Signatures
+open Belenios_core.Common
 
 type t =
   | Homomorphic of Question_h_t.question
@@ -101,12 +103,12 @@ let erase_question = function
 module Make
     (M : RANDOM)
     (G : GROUP)
-    (QHomomorphic : Question_sigs.QUESTION
+    (QHomomorphic : Belenios_core.Question_sigs.QUESTION
                       with type elt := G.t
                        and type question := Question_h_t.question
                        and type answer := (G.t, G.Zq.t) Question_h_t.answer
                        and type result := Question_h_t.result)
-    (QNonHomomorphic : Question_sigs.QUESTION
+    (QNonHomomorphic : Belenios_core.Question_sigs.QUESTION
                          with type elt := G.t
                           and type question := Question_nh_t.question
                           and type answer := (G.t, G.Zq.t) Question_nh_t.answer

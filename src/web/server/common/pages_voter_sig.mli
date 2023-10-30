@@ -52,7 +52,7 @@ module type S = sig
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val schulze :
-    Question_nh_t.question ->
+    Belenios_question.NonHomomorphic.question ->
     schulze_result ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
@@ -60,14 +60,14 @@ module type S = sig
     uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val majority_judgment :
-    Question_nh_t.question ->
+    Belenios_question.NonHomomorphic.question ->
     mj_result ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val stv_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val stv :
-    Question_nh_t.question ->
+    Belenios_question.NonHomomorphic.question ->
     stv_result ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

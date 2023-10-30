@@ -31,8 +31,8 @@ let description = ""
 let contact = ""
 
 let questions =
-  let open Belenios_core.Question_h_t in
-  let question =
+  let open Belenios_question in
+  let question : Homomorphic.question =
     {
       q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
       q_blank = None;
@@ -41,7 +41,7 @@ let questions =
       q_question = "Question 1?";
     }
   in
-  [| Belenios_core.Question.Homomorphic question |]
+  [| Homomorphic question |]
 
 let creation_date = datetime_of_string "\"2018-11-26 00:00:00.000000\""
 let validation_date = datetime_of_string "\"2015-10-01 00:00:00.000000\""

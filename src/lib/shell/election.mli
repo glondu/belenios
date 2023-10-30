@@ -29,7 +29,7 @@ open Serializable_t
 val get_version : string -> int
 val get_uuid : string -> uuid
 
-type _ version = V1 : Question.t version
+type _ version = V1 : Belenios_question.t version
 
 val compare_version : 'a version -> 'b version -> ('a, 'b) eq option
 

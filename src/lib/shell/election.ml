@@ -43,7 +43,7 @@ let get_uuid x =
       | _ -> failwith "Election.get_uuid: invalid data")
   | _ -> failwith "Election.get_uuid: object expected"
 
-type _ version = V1 : Question.t version
+type _ version = V1 : Belenios_question.t version
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
     (t, u) eq option =
@@ -66,7 +66,9 @@ let template_of_string x =
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
-let string_of_template (Template (V1, x)) = string_of_template write_question x
+let string_of_template (Template (V1, x)) =
+  let open Belenios_v1.Serializable_j in
+  string_of_template write_question x
 
 let election_uuid_of_string_ballot x =
   let j = Yojson.Safe.from_string x in
@@ -90,10 +92,8 @@ let make_raw_election ~version template ~uuid ~group ~public_key =
 (** Helper functions *)
 
 let has_nh_questions (Template (V1, e)) =
-  Array.exists
-    (function
-      | Question.NonHomomorphic _ -> true | Question.Homomorphic _ -> false)
-    e.t_questions
+  let open Belenios_question in
+  Array.exists (function NonHomomorphic _ -> true | _ -> false) e.t_questions
 
 module type ELECTION = sig
   include ELECTION
@@ -106,7 +106,7 @@ module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
     match get_version R.raw_election with
     | 1 ->
         let module X = struct
-          type question = Question.t
+          type question = Belenios_question.t
 
           include Belenios_v1.Election.Make (R) (M) ()
 

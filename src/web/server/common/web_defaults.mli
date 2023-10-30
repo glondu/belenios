@@ -19,12 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Serializable_t
 open Web_serializable_t
 
 val version : int
 val contact : string
-val questions : question array
+val questions : Belenios_question.t array
 val name : string
 val description : string
 val creation_date : datetime

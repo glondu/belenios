@@ -23,7 +23,7 @@ open Belenios_core
 open Common
 open Signatures_core
 open Serializable_core_t
-open Question_nh_t
+open Belenios_question.NonHomomorphic
 
 module Make (M : RANDOM) (G : GROUP) = struct
   open G

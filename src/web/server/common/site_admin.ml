@@ -535,6 +535,7 @@ struct
         let@ (Draft (V1, se) as x) = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
+        let open Belenios_v1.Serializable_j in
         let template = template_of_string read_question template in
         let fixed_group = Web_persist.is_group_fixed uuid x in
         (match

@@ -12,18 +12,6 @@
   (run atdgen -t %{deps})))
 
 (rule
- (targets question_h_t.ml question_h_t.mli)
- (deps question_h.atd)
- (action
-  (run atdgen -t %{deps})))
-
-(rule
- (targets question_nh_t.ml question_nh_t.mli)
- (deps question_nh.atd)
- (action
-  (run atdgen -t %{deps})))
-
-(rule
  (targets serializable_t.ml serializable_t.mli)
  (deps serializable.atd)
  (action
@@ -32,18 +20,6 @@
 (rule
  (targets serializable_core_j.ml serializable_core_j.mli)
  (deps serializable_core.atd)
- (action
-  (run atdgen -j -j-std %{deps})))
-
-(rule
- (targets question_h_j.ml question_h_j.mli)
- (deps question_h.atd)
- (action
-  (run atdgen -j -j-std %{deps})))
-
-(rule
- (targets question_nh_j.ml question_nh_j.mli)
- (deps question_nh.atd)
  (action
   (run atdgen -j -j-std %{deps})))
 

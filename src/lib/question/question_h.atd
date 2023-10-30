@@ -23,9 +23,9 @@
 
 (** {2 Predefined types} *)
 
-type weight = abstract wrap <ocaml module="Common_types.Weight">
-type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
-type 'a disjunctive_proof <ocaml predef from="Serializable_core"> = abstract
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
+type 'a ciphertext <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type 'a disjunctive_proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 
 (** {2 Questions and answers} *)
 

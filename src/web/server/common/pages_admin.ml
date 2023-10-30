@@ -1441,6 +1441,7 @@ struct
       match se.se_metadata.e_booth_version with None -> 1 | Some v -> v
     in
     let form =
+      let open Belenios_v1.Serializable_j in
       let value = string_of_template write_question se.se_questions in
       post_form ~service:election_draft_questions_post
         (fun (nquestions, nbooth) ->

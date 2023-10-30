@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,40 +19,41 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Serializable datatypes for non-homomorphic questions">
+module Homomorphic = Question_h_j
+module NonHomomorphic = Question_nh_j
+open Belenios_core.Signatures
 
-(** {2 Predefined types} *)
+type t =
+  | Homomorphic of Question_h_t.question
+  | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
 
-type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
-type 'a proof <ocaml predef from="Serializable_core"> = abstract
+val wrap : Yojson.Safe.t -> t
+val unwrap : t -> Yojson.Safe.t
 
-(** {2 Questions and answers} *)
+type counting_method =
+  [ `None
+  | `MajorityJudgment of Question_nh_t.mj_extra
+  | `Schulze of Question_nh_t.schulze_extra
+  | `STV of Question_nh_t.stv_extra ]
 
-type question = {
-  answers : string list <ocaml repr="array">;
-  question : string;
-} <ocaml field_prefix="q_">
+val get_counting_method : Yojson.Safe.t option -> counting_method
+val erase_question : t -> t
 
-type ('a, 'b) answer = {
-  choices : 'a ciphertext;
-  proof : 'b proof;
-}
-<doc text="An answer to a question.">
-
-type result = int list <ocaml repr="array"> list <ocaml repr="array">
-
-(** {2 Counting methods} *)
-
-type mj_extra = {
-  blank : bool;
-  grades : string list <ocaml repr="array">;
-} <ocaml field_prefix="mj_extra_">
-
-type schulze_extra = {
-  blank : bool;
-} <ocaml field_prefix="schulze_extra_">
-
-type stv_extra = {
-  blank : bool;
-  seats : int;
-} <ocaml field_prefix="stv_extra_">
+module Make
+    (M : RANDOM)
+    (G : GROUP)
+    (QHomomorphic : Belenios_core.Question_sigs.QUESTION
+                      with type elt := G.t
+                       and type question := Question_h_t.question
+                       and type answer := (G.t, G.Zq.t) Question_h_t.answer
+                       and type result := Question_h_t.result)
+    (QNonHomomorphic : Belenios_core.Question_sigs.QUESTION
+                         with type elt := G.t
+                          and type question := Question_nh_t.question
+                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer
+                          and type result := Question_nh_t.result) :
+  Belenios_core.Question_sigs.QUESTION
+    with type elt := G.t
+     and type question := t
+     and type answer := Yojson.Safe.t
+     and type result := string

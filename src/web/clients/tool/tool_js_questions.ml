@@ -36,8 +36,7 @@ let hybrid_mode = ref false
 let q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |]
 
 let default_question_h =
-  let open Question_h_t in
-  Question.Homomorphic
+  Belenios_question.Homomorphic
     {
       q_question = "Question?";
       q_min = 1;
@@ -47,8 +46,7 @@ let default_question_h =
     }
 
 let default_question_nh =
-  let open Question_nh_t in
-  Question.NonHomomorphic
+  Belenios_question.NonHomomorphic
     ( {
         q_question = "Give a rank to each candidate (a number between 1 and 3)";
         q_answers;
@@ -109,8 +107,8 @@ let extractQuestion q =
           try Some (Yojson.Safe.from_string x)
           with _ -> failwith (s_ "Invalid counting method specification!")
       in
-      let open Question_nh_t in
-      return (Question.NonHomomorphic ({ q_question; q_answers }, extra)))
+      return
+        (Belenios_question.NonHomomorphic ({ q_question; q_answers }, extra)))
     (fun q_blank ->
       let&& q_blank = Dom_html.CoerceTo.input q_blank in
       let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
@@ -129,9 +127,9 @@ let extractQuestion q =
         failwith (s_ "Maximum number of choices must be greater than 0!");
       if q_max > Array.length q_answers then
         failwith (s_ "The given maximum is greater than the number of choices!");
-      let open Question_h_t in
       return
-        (Question.Homomorphic { q_question; q_blank; q_min; q_max; q_answers }))
+        (Belenios_question.Homomorphic
+           { q_question; q_blank; q_min; q_max; q_answers }))
 
 let extractTemplate () =
   let t_name = get_input "q_election_name" in
@@ -246,12 +244,9 @@ let rec createQuestion q =
   let open (val !Belenios_js.I18n.gettext) in
   let question, answers, props, extra =
     match q with
-    | Question.Homomorphic q ->
-        let open Question_h_t in
+    | Belenios_question.Homomorphic q ->
         (q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max), None)
-    | Question.NonHomomorphic (q, extra) ->
-        let open Question_nh_t in
-        (q.q_question, q.q_answers, None, extra)
+    | NonHomomorphic (q, extra) -> (q.q_question, q.q_answers, None, extra)
   in
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question";
@@ -504,6 +499,7 @@ let createTemplate template =
   let t = document##createTextNode (Js.string (s_ "Save changes")) in
   let f _ =
     try
+      let open Belenios_v1.Serializable_j in
       let template = extractTemplate () in
       set_textarea "questions" (string_of_template write_question template);
       let booth_version = 2 in
@@ -540,11 +536,12 @@ let handle_hybrid e _ =
 (* Entry point *)
 
 let fill_interactivity () =
+  let open Belenios_v1.Serializable_j in
   let&& e = document##getElementById (Js.string "interactivity") in
   let t = template_of_string read_question (get_textarea "questions") in
   let has_nh =
     Array.exists
-      (function Question.NonHomomorphic _ -> true | _ -> false)
+      (function Belenios_question.NonHomomorphic _ -> true | _ -> false)
       t.t_questions
   in
   hybrid_mode := has_nh;

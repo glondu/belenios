@@ -217,11 +217,12 @@ struct
   let handle_method uuid question f =
     let* l = get_preferred_gettext () in
     let open (val l) in
+    let open Belenios_question in
     let@ election = with_election uuid in
     let open (val election) in
     let@ cast cont =
       let open Belenios.Election in
-      let prove (type t) (x : t version) : (t, Question.t) eq =
+      let prove (type t) (x : t version) : (t, Belenios_question.t) eq =
         match x with V1 -> Refl
       in
       cont (cast (prove witness))
@@ -229,7 +230,7 @@ struct
     let questions = template.t_questions in
     if 0 <= question && question < Array.length questions then
       match cast questions.(question) with
-      | Question.NonHomomorphic (q, extra) ->
+      | NonHomomorphic (q, extra) ->
           f l q extra (fun continuation ->
               let* result = Web_persist.get_election_result uuid in
               match result with
@@ -237,13 +238,13 @@ struct
                   (election_result_of_string read_result result).result
                   |> to_generic_result
                   |> (fun x -> x.(question))
-                  |> Question_nh_j.result_of_string |> continuation
+                  |> NonHomomorphic.result_of_string |> continuation
               | None ->
                   Pages_common.generic_page ~title:(s_ "Error")
                     (s_ "The result of this election is not available.")
                     ()
                   >>= Html.send ~code:404)
-      | Question.Homomorphic _ ->
+      | Homomorphic _ ->
           Pages_common.generic_page ~title:(s_ "Error")
             (s_
                "This question is homomorphic, this method cannot be applied to \
@@ -260,9 +261,10 @@ struct
     Any.register ~service:method_schulze (fun (uuid, question) () ->
         handle_method uuid question (fun _ q extra continuation ->
             continuation (fun ballots ->
-                let nchoices = Array.length q.Question_nh_t.q_answers in
+                let open Belenios_question in
+                let nchoices = Array.length q.q_answers in
                 let blank_allowed =
-                  match Question.get_counting_method extra with
+                  match get_counting_method extra with
                   | `Schulze o -> o.schulze_extra_blank
                   | _ -> false
                 in
@@ -275,18 +277,19 @@ struct
     Any.register ~service:method_mj (fun (uuid, (question, ngrades)) () ->
         handle_method uuid question (fun l q extra continuation ->
             let open (val l : Belenios_ui.I18n.GETTEXT) in
+            let open Belenios_question in
             match ngrades with
             | None ->
                 Pages_voter.majority_judgment_select uuid question >>= Html.send
             | Some ngrades ->
                 if ngrades > 0 then
                   let blank_allowed =
-                    match Question.get_counting_method extra with
+                    match get_counting_method extra with
                     | `MajorityJudgment o -> o.mj_extra_blank
                     | _ -> false
                   in
                   continuation (fun ballots ->
-                      let nchoices = Array.length q.Question_nh_t.q_answers in
+                      let nchoices = Array.length q.q_answers in
                       let mj =
                         Majority_judgment.compute ~nchoices ~ngrades
                           ~blank_allowed ballots

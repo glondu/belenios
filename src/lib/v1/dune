@@ -1,7 +1,7 @@
 (library
  (name belenios_v1)
  (public_name belenios-lib.v1)
- (libraries yojson atdgen belenios_platform belenios_core))
+ (libraries yojson atdgen belenios_platform belenios_core belenios_question))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

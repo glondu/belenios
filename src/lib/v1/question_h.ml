@@ -25,7 +25,7 @@ open Platform
 open Common
 open Signatures_core
 open Serializable_core_t
-open Question_h_t
+open Belenios_question.Homomorphic
 
 (** Helper functions *)
 

@@ -58,6 +58,7 @@ let parse_params p =
     let uuid = Uuid.wrap P.uuid
 
     let template =
+      let open Belenios_v1.Serializable_j in
       let (Version V1) = Belenios.Election.version_of_int version in
       Election.Template (V1, template_of_string read_question P.template)
 

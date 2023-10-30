@@ -20,9 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core.Common
-open Belenios_core.Question
-open Belenios_core.Question_h_j
-open Belenios_core.Question_nh_j
+open Belenios_question
 open Belenios_api.Serializable_j
 open Lwt.Syntax
 open Js_of_ocaml

@@ -62,4 +62,4 @@ val is_finished : unit -> bool
 
 val popup_failsync : string -> unit Lwt.t
 val url_prefix : unit -> string
-val default_version : Belenios_core.Question.t Belenios.Election.version
+val default_version : Belenios_question.t Belenios.Election.version

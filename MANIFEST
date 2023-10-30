@@ -1,3 +1,4 @@
+.dockerignore
 .gitignore
 .gitlab-ci.yml
 .ocamlformat
@@ -5,6 +6,7 @@ AUTHORS
 CHANGES.md
 COPYING
 Dockerfile_base_environment
+Dockerfile_belenios_demo
 Dockerfile_test_scenario_environment
 INSTALL.md
 MANIFEST
@@ -49,6 +51,7 @@ doc/frontend_booth.md
 doc/instructions-en.md
 doc/instructions-fr.md
 doc/load_testing.md
+doc/mta.md
 doc/nspawn/README.md
 doc/nspawn/belenios-container@.service
 doc/nspawn/belenios-nspawn
@@ -56,6 +59,7 @@ doc/nspawn/belenios-stage1.sh
 doc/nspawn/belenios-stage2.sh
 doc/nspawn/belenios-stage3.sh
 doc/references.bib
+doc/reverse-proxy.md
 doc/spec_version.tex
 doc/specification.tex
 doc/tool.md
@@ -82,6 +86,7 @@ ext/libsodium/build.sh
 ext/libsodium/dune
 ext/libsodium/libsodium.js
 ext/libsodium/libsodium.wasm
+ext/opam-overlay/repo
 ext/sjcl/LICENSE.txt
 ext/sjcl/README.md
 ext/sjcl/core/aes.js
@@ -108,11 +113,13 @@ frontend/booth/components/Breadcrumb.css
 frontend/booth/components/Breadcrumb.js
 frontend/booth/components/CandidateWithCheckbox.css
 frontend/booth/components/CandidateWithCheckbox.js
+frontend/booth/components/CandidateWithInput.js
 frontend/booth/components/CandidateWithRadio.js
 frontend/booth/components/ClassicVoteCandidatesList.css
 frontend/booth/components/ClassicVoteCandidatesList.js
 frontend/booth/components/ClassicVoteRecap.js
 frontend/booth/components/DisplayDependingOnWindowWidth.js
+frontend/booth/components/GenericVoteCandidatesList.js
 frontend/booth/components/InputCredentialSection.css
 frontend/booth/components/InputCredentialSection.js
 frontend/booth/components/LoadingSpinner.css
@@ -230,6 +237,8 @@ po/voter/sk.po
 po/voter/uk.po
 po/voter/zh_Hans.po
 requirements.txt
+src/common/api/common.ml
+src/common/api/common.mli
 src/common/api/dune
 src/common/api/serializable.atd
 src/common/tool/dune
@@ -256,10 +265,6 @@ src/lib/core/group_field.ml
 src/lib/core/group_field.mli
 src/lib/core/majority_judgment.ml
 src/lib/core/majority_judgment.mli
-src/lib/core/question.ml
-src/lib/core/question.mli
-src/lib/core/question_h.atd
-src/lib/core/question_nh.atd
 src/lib/core/question_sigs.mli
 src/lib/core/schulze.ml
 src/lib/core/schulze.mli
@@ -273,6 +278,11 @@ src/lib/core/trustees_sig.mli
 src/lib/core/util.ml
 src/lib/core/util.mli
 src/lib/core/versioned_sig.mli
+src/lib/question/belenios_question.ml
+src/lib/question/belenios_question.mli
+src/lib/question/dune
+src/lib/question/question_h.atd
+src/lib/question/question_nh.atd
 src/lib/shell/dune
 src/lib/shell/election.ml
 src/lib/shell/election.mli
@@ -328,6 +338,8 @@ src/tool/setup.ml
 src/tool/setup.mli
 src/tool/tool_election.ml
 src/tool/tool_election.mli
+src/tool/tool_election_data.ml
+src/tool/tool_election_data.mli
 src/tool/tool_events.ml
 src/tool/tool_events.mli
 src/tool/tool_mkarchive.ml
@@ -368,6 +380,8 @@ src/web/clients/common/dune
 src/web/clients/common/i18n.ml
 src/web/clients/common/i18n.mli
 src/web/clients/common/messages.mli
+src/web/clients/common/session.ml
+src/web/clients/common/session.mli
 src/web/clients/election-home/dune
 src/web/clients/election-home/home.ml
 src/web/clients/election-home/home.mli
@@ -391,6 +405,7 @@ src/web/clients/worker/belenios_worker.ml
 src/web/clients/worker/belenios_worker.mli
 src/web/clients/worker/dune
 src/web/common/dune
+src/web/common/i18n.ml
 src/web/common/i18n.mli
 src/web/common/languages.ml
 src/web/common/languages.mli
@@ -462,6 +477,8 @@ src/web/server/common/web_common.ml
 src/web/server/common/web_common.mli
 src/web/server/common/web_config.ml
 src/web/server/common/web_config.mli
+src/web/server/common/web_defaults.ml
+src/web/server/common/web_defaults.mli
 src/web/server/common/web_election_mutex.ml
 src/web/server/common/web_election_mutex.mli
 src/web/server/common/web_events.ml
@@ -531,6 +548,7 @@ tests/selenium/vote_with_prepared_ballots_direct.py
 tests/tool/.gitignore
 tests/tool/Makefile
 tests/tool/demo-mj.sh
+tests/tool/demo-n-voters.sh
 tests/tool/demo-nh.sh
 tests/tool/demo-stv.sh
 tests/tool/demo-threshold.sh
