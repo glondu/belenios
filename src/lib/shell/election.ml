@@ -92,8 +92,7 @@ let make_raw_election ~version template ~uuid ~group ~public_key =
 (** Helper functions *)
 
 let has_nh_questions (Template (V1, e)) =
-  let open Belenios_question in
-  Array.exists (function NonHomomorphic _ -> true | _ -> false) e.t_questions
+  Array.exists Belenios_question.is_nh_question e.t_questions
 
 module type ELECTION = sig
   include ELECTION

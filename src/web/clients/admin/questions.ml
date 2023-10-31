@@ -75,10 +75,10 @@ let curr_doing = ref (-1)
 let update_question = ref (fun _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let q_to_gen q =
+let q_to_gen question =
   let question, answers, blank, kind, sel_min, sel_max, seats, meth, names =
-    match q with
-    | Homomorphic q ->
+    match question.value with
+    | Homomorphic.Q q ->
         ( q.q_question,
           q.q_answers,
           Option.value ~default:false q.q_blank,
@@ -88,8 +88,8 @@ let q_to_gen q =
           1,
           `None,
           default_grades )
-    | NonHomomorphic (q, extra) ->
-        let me = get_counting_method extra in
+    | Non_homomorphic.Q q ->
+        let me = get_counting_method question.extra in
         let bk, ki, gr, me, seats =
           match me with
           | `Schulze o ->
@@ -101,6 +101,7 @@ let q_to_gen q =
           | `None -> (false, `Grade, default_grades, `None, 1)
         in
         (q.q_question, q.q_answers, bk, ki, 1, 1, seats, me, gr)
+    | _ -> failwith "q_to_gen"
   in
   {
     question;
@@ -117,14 +118,16 @@ let q_to_gen q =
 let gen_to_q q =
   match q.kind with
   | `Select ->
-      Homomorphic
-        {
-          q_question = q.question;
-          q_answers = q.answers;
-          q_blank = Some q.blank;
-          q_min = q.sel_min;
-          q_max = q.sel_max;
-        }
+      Homomorphic.make
+        ~value:
+          {
+            q_question = q.question;
+            q_answers = q.answers;
+            q_blank = Some q.blank;
+            q_min = q.sel_min;
+            q_max = q.sel_max;
+          }
+        ~extra:None
   | `Sort ->
       let extra =
         match q.count_meth with
@@ -147,22 +150,26 @@ let gen_to_q q =
                 ])
         | _ -> None
       in
-      NonHomomorphic ({ q_question = q.question; q_answers = q.answers }, extra)
+      Non_homomorphic.make
+        ~value:{ q_question = q.question; q_answers = q.answers }
+        ~extra
   | `Grade ->
       let extra =
-        `Assoc
-          [
-            ("type", `String "ScoreVoting");
-            ("blank", `Bool q.blank);
-            ("method", `String "MajorityJudgment");
-            ( "grades",
-              `List
-                (q.grade_names |> Array.to_list |> List.map (fun x -> `String x))
-            );
-          ]
+        Some
+          (`Assoc
+            [
+              ("type", `String "ScoreVoting");
+              ("blank", `Bool q.blank);
+              ("method", `String "MajorityJudgment");
+              ( "grades",
+                `List
+                  (q.grade_names |> Array.to_list
+                  |> List.map (fun x -> `String x)) );
+            ])
       in
-      NonHomomorphic
-        ({ q_question = q.question; q_answers = q.answers }, Some extra)
+      Non_homomorphic.make
+        ~value:{ q_question = q.question; q_answers = q.answers }
+        ~extra
 
 let delete_or_insert attr handler_d handler_i =
   let del = div ~a:[ a_class [ "del_sym clickable" ] ] [] in

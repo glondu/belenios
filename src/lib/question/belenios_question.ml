@@ -19,43 +19,61 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Homomorphic = Question_h_j
-module NonHomomorphic = Question_nh_j
 open Belenios_core.Signatures
 open Belenios_core.Common
+module Homomorphic = Homomorphic
+module Non_homomorphic = Non_homomorphic
 
-type t =
-  | Homomorphic of Question_h_t.question
-  | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
+type t = Types.question = {
+  type_ : string;
+  value : Types.raw_question;
+  extra : Yojson.Safe.t option;
+}
 
-let wrap x =
-  match x with
-  | `Assoc o -> (
-      match List.assoc_opt "type" o with
-      | None ->
-          Homomorphic
-            (Question_h_j.question_of_string (Yojson.Safe.to_string x))
-      | Some (`String "NonHomomorphic") -> (
-          match List.assoc_opt "value" o with
-          | None -> failwith "Question.wrap: value is missing"
-          | Some v ->
-              NonHomomorphic
-                ( Question_nh_j.question_of_string (Yojson.Safe.to_string v),
-                  List.assoc_opt "extra" o ))
-      | Some _ -> failwith "Question.wrap: unexpected type")
-  | _ -> failwith "Question.wrap: unexpected JSON value"
+let types : (module Types.QUESTION) list =
+  [ (module Homomorphic); (module Non_homomorphic) ]
 
-let unwrap = function
-  | Homomorphic q -> Yojson.Safe.from_string (Question_h_j.string_of_question q)
-  | NonHomomorphic (q, extra) ->
-      let o = match extra with None -> [] | Some x -> [ ("extra", x) ] in
-      let o =
-        ("type", `String "NonHomomorphic")
-        :: ( "value",
-             Yojson.Safe.from_string (Question_nh_j.string_of_question q) )
-        :: o
+let lookup_type type_ =
+  let rec loop = function
+    | [] -> None
+    | x :: xs ->
+        let module X = (val x : Types.QUESTION) in
+        if X.type_ = type_ then Some x else loop xs
+  in
+  loop types
+
+let wrap = function
+  | `Assoc o as j -> (
+      let type_, value, extra =
+        match List.assoc_opt "type" o with
+        | None -> ("Homomorphic", j, None)
+        | Some (`String type_) ->
+            let value =
+              match List.assoc_opt "value" o with
+              | None -> invalid_arg "read_question: value expected"
+              | Some x -> x
+            in
+            (type_, value, List.assoc_opt "extra" o)
+        | _ -> invalid_arg "read_question: string expected in type"
       in
-      `Assoc o
+      match lookup_type type_ with
+      | None ->
+          Printf.ksprintf invalid_arg "read_question: unsupported type %s" type_
+      | Some x ->
+          let module X = (val x) in
+          X.wrap ~value ~extra)
+  | _ -> invalid_arg "read_question: object expected"
+
+let unwrap q =
+  match lookup_type q.type_ with
+  | None ->
+      Printf.ksprintf invalid_arg "write_question: unsupported type %s" q.type_
+  | Some x -> (
+      let module X = (val x) in
+      match X.unwrap q with Some x -> x | None -> invalid_arg "write_question")
+
+let read_question a b = Yojson.Safe.read_json a b |> wrap
+let write_question b x = unwrap x |> Yojson.Safe.write_json b
 
 type counting_method =
   [ `None
@@ -83,10 +101,11 @@ let get_counting_method extra =
       | _ -> `None)
   | _ -> `None
 
-let erase_question = function
-  | Homomorphic q ->
+let erase_question x =
+  match x.value with
+  | Homomorphic.Q q ->
       let open Question_h_t in
-      Homomorphic
+      let q =
         {
           q_answers = Array.map (fun _ -> "") q.q_answers;
           q_blank = q.q_blank;
@@ -94,11 +113,18 @@ let erase_question = function
           q_max = q.q_max;
           q_question = "";
         }
-  | NonHomomorphic (q, extra) ->
+      in
+      { x with value = Homomorphic.Q q }
+  | Non_homomorphic.Q q ->
       let open Question_nh_t in
-      NonHomomorphic
-        ( { q_answers = Array.map (fun _ -> "") q.q_answers; q_question = "" },
-          extra )
+      let q =
+        { q_answers = Array.map (fun _ -> "") q.q_answers; q_question = "" }
+      in
+      { x with value = Non_homomorphic.Q q }
+  | _ -> failwith "erase_question"
+
+let is_nh_question x =
+  match x.value with Non_homomorphic.Q _ -> true | _ -> false
 
 module Make
     (M : RANDOM)
@@ -114,67 +140,73 @@ module Make
                           and type answer := (G.t, G.Zq.t) Question_nh_t.answer
                           and type result := Question_nh_t.result) =
 struct
-  let create_answer q ~public_key ~prefix m =
-    match q with
-    | Homomorphic q ->
+  let create_answer x ~public_key ~prefix m =
+    match x.value with
+    | Homomorphic.Q q ->
         let answer = QHomomorphic.create_answer q ~public_key ~prefix m in
         answer
         |> Question_h_j.string_of_answer (swrite G.to_string)
              (swrite G.Zq.to_string)
         |> Yojson.Safe.from_string
-    | NonHomomorphic (q, _) ->
+    | Non_homomorphic.Q q ->
         let answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
         answer
         |> Question_nh_j.string_of_answer (swrite G.to_string)
              (swrite G.Zq.to_string)
         |> Yojson.Safe.from_string
+    | _ -> failwith "create_answer"
 
-  let verify_answer q ~public_key ~prefix a =
-    match q with
-    | Homomorphic q ->
+  let verify_answer x ~public_key ~prefix a =
+    match x.value with
+    | Homomorphic.Q q ->
         a |> Yojson.Safe.to_string
         |> Question_h_j.answer_of_string (sread G.of_string)
              (sread G.Zq.of_string)
         |> QHomomorphic.verify_answer q ~public_key ~prefix
-    | NonHomomorphic (q, _) ->
+    | Non_homomorphic.Q q ->
         a |> Yojson.Safe.to_string
         |> Question_nh_j.answer_of_string (sread G.of_string)
              (sread G.Zq.of_string)
         |> QNonHomomorphic.verify_answer q ~public_key ~prefix
+    | _ -> failwith "verify_answer"
 
-  let extract_ciphertexts q a =
-    match q with
-    | Homomorphic q ->
+  let extract_ciphertexts x a =
+    match x.value with
+    | Homomorphic.Q q ->
         a |> Yojson.Safe.to_string
         |> Question_h_j.answer_of_string (sread G.of_string)
              (sread G.Zq.of_string)
         |> QHomomorphic.extract_ciphertexts q
-    | NonHomomorphic (q, _) ->
+    | Non_homomorphic.Q q ->
         a |> Yojson.Safe.to_string
         |> Question_nh_j.answer_of_string (sread G.of_string)
              (sread G.Zq.of_string)
         |> QNonHomomorphic.extract_ciphertexts q
+    | _ -> failwith "extract_ciphertexts"
 
-  let process_ciphertexts q e =
-    match q with
-    | Homomorphic q -> QHomomorphic.process_ciphertexts q e
-    | NonHomomorphic (q, _) -> QNonHomomorphic.process_ciphertexts q e
+  let process_ciphertexts x e =
+    match x.value with
+    | Homomorphic.Q q -> QHomomorphic.process_ciphertexts q e
+    | Non_homomorphic.Q q -> QNonHomomorphic.process_ciphertexts q e
+    | _ -> failwith "process_ciphertexts"
 
   let compute_result ~total_weight q x =
-    match q with
-    | Homomorphic q ->
+    match q.value with
+    | Homomorphic.Q q ->
         QHomomorphic.compute_result ~total_weight q x
         |> Question_h_j.string_of_result
-    | NonHomomorphic (q, _) ->
+    | Non_homomorphic.Q q ->
         QNonHomomorphic.compute_result ~total_weight q x
         |> Question_nh_j.string_of_result
+    | _ -> failwith "compute_result"
 
   let check_result ~total_weight q x r =
-    match q with
-    | Homomorphic q ->
+    match q.value with
+    | Homomorphic.Q q ->
         r |> Question_h_j.result_of_string
         |> QHomomorphic.check_result ~total_weight q x
-    | NonHomomorphic (q, _) ->
+    | Non_homomorphic.Q q ->
         r |> Question_nh_j.result_of_string
         |> QNonHomomorphic.check_result ~total_weight q x
+    | _ -> failwith "check_result"
 end

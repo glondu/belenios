@@ -229,8 +229,9 @@ struct
     in
     let questions = template.t_questions in
     if 0 <= question && question < Array.length questions then
-      match cast questions.(question) with
-      | NonHomomorphic (q, extra) ->
+      let { value; extra; _ } = cast questions.(question) in
+      match value with
+      | Non_homomorphic.Q q ->
           f l q extra (fun continuation ->
               let* result = Web_persist.get_election_result uuid in
               match result with
@@ -238,17 +239,17 @@ struct
                   (election_result_of_string read_result result).result
                   |> to_generic_result
                   |> (fun x -> x.(question))
-                  |> NonHomomorphic.result_of_string |> continuation
+                  |> Non_homomorphic.Syntax.result_of_string |> continuation
               | None ->
                   Pages_common.generic_page ~title:(s_ "Error")
                     (s_ "The result of this election is not available.")
                     ()
                   >>= Html.send ~code:404)
-      | Homomorphic _ ->
+      | _ ->
           Pages_common.generic_page ~title:(s_ "Error")
             (s_
-               "This question is homomorphic, this method cannot be applied to \
-                its result.")
+               "This question is not non-homomorphic, this method cannot be \
+                applied to its result.")
             ()
           >>= Html.send ~code:403
     else

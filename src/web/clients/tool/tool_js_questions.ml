@@ -24,6 +24,7 @@ open Js_of_ocaml
 open Belenios_core
 open Serializable_j
 open Belenios_js.Common
+open Belenios_question
 
 let return = Js.Opt.return
 
@@ -36,22 +37,25 @@ let hybrid_mode = ref false
 let q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |]
 
 let default_question_h =
-  Belenios_question.Homomorphic
-    {
-      q_question = "Question?";
-      q_min = 1;
-      q_max = 1;
-      q_blank = None;
-      q_answers;
-    }
+  Homomorphic.make
+    ~value:
+      {
+        q_question = "Question?";
+        q_min = 1;
+        q_max = 1;
+        q_blank = None;
+        q_answers;
+      }
+    ~extra:None
 
 let default_question_nh =
-  Belenios_question.NonHomomorphic
-    ( {
+  Non_homomorphic.make
+    ~value:
+      {
         q_question = "Give a rank to each candidate (a number between 1 and 3)";
         q_answers;
-      },
-      None )
+      }
+    ~extra:None
 
 let default_question () =
   if !hybrid_mode then default_question_nh else default_question_h
@@ -107,8 +111,7 @@ let extractQuestion q =
           try Some (Yojson.Safe.from_string x)
           with _ -> failwith (s_ "Invalid counting method specification!")
       in
-      return
-        (Belenios_question.NonHomomorphic ({ q_question; q_answers }, extra)))
+      return (Non_homomorphic.make ~value:{ q_question; q_answers } ~extra))
     (fun q_blank ->
       let&& q_blank = Dom_html.CoerceTo.input q_blank in
       let q_blank = if Js.to_bool q_blank##.checked then Some true else None in
@@ -128,8 +131,9 @@ let extractQuestion q =
       if q_max > Array.length q_answers then
         failwith (s_ "The given maximum is greater than the number of choices!");
       return
-        (Belenios_question.Homomorphic
-           { q_question; q_blank; q_min; q_max; q_answers }))
+        (Homomorphic.make
+           ~value:{ q_question; q_blank; q_min; q_max; q_answers }
+           ~extra:None))
 
 let extractTemplate () =
   let t_name = get_input "q_election_name" in
@@ -240,13 +244,14 @@ let deleteQuestion q =
   Dom.removeChild x q;
   return ()
 
-let rec createQuestion q =
+let rec createQuestion question =
   let open (val !Belenios_js.I18n.gettext) in
   let question, answers, props, extra =
-    match q with
-    | Belenios_question.Homomorphic q ->
+    match question.value with
+    | Homomorphic.Q q ->
         (q.q_question, q.q_answers, Some (q.q_blank, q.q_min, q.q_max), None)
-    | NonHomomorphic (q, extra) -> (q.q_question, q.q_answers, None, extra)
+    | Non_homomorphic.Q q -> (q.q_question, q.q_answers, None, question.extra)
+    | _ -> failwith "createQuestion"
   in
   let container = Dom_html.createDiv document in
   container##.className := Js.string "question";
@@ -539,11 +544,7 @@ let fill_interactivity () =
   let open Belenios_v1.Serializable_j in
   let&& e = document##getElementById (Js.string "interactivity") in
   let t = template_of_string read_question (get_textarea "questions") in
-  let has_nh =
-    Array.exists
-      (function Belenios_question.NonHomomorphic _ -> true | _ -> false)
-      t.t_questions
-  in
+  let has_nh = Array.exists is_nh_question t.t_questions in
   hybrid_mode := has_nh;
   let div = createTemplate t in
   Dom.appendChild e div;

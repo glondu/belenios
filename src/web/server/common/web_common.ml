@@ -385,7 +385,7 @@ let get_suitable_group_kind
     (Belenios.Election.Template (V1, { t_questions; _ })) =
   let group = ref `H in
   Array.iter
-    (function Belenios_question.NonHomomorphic _ -> group := `NH | _ -> ())
+    (fun x -> if Belenios_question.is_nh_question x then group := `NH)
     t_questions;
   !group
 

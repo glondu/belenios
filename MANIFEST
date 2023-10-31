@@ -281,8 +281,13 @@ src/lib/core/versioned_sig.mli
 src/lib/question/belenios_question.ml
 src/lib/question/belenios_question.mli
 src/lib/question/dune
+src/lib/question/homomorphic.ml
+src/lib/question/homomorphic.mli
+src/lib/question/non_homomorphic.ml
+src/lib/question/non_homomorphic.mli
 src/lib/question/question_h.atd
 src/lib/question/question_nh.atd
+src/lib/question/types.mli
 src/lib/shell/dune
 src/lib/shell/election.ml
 src/lib/shell/election.mli

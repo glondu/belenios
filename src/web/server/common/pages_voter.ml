@@ -70,7 +70,7 @@ struct
   let majority_judgment_content l q r =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let explicit_winners =
-      let open Belenios_question.NonHomomorphic in
+      let open Belenios_question.Non_homomorphic.Syntax in
       List.map (List.map (fun i -> q.q_answers.(i))) r.mj_winners
     in
     let pretty_winners =
@@ -134,7 +134,7 @@ struct
       | None -> txt ""
     in
     let explicit_winners =
-      let open Belenios_question.NonHomomorphic in
+      let open Belenios_question.Non_homomorphic.Syntax in
       List.map (List.map (fun i -> q.q_answers.(i))) r.schulze_winners
     in
     let pretty_winners =
@@ -186,7 +186,7 @@ struct
   let stv_content l q r =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let winners =
-      let open Belenios_question.NonHomomorphic in
+      let open Belenios_question.Non_homomorphic.Syntax in
       r.stv_winners
       |> List.map (fun i -> q.q_answers.(i))
       |> List.map (fun l -> li [ txt l ])
@@ -253,12 +253,12 @@ struct
       div [ invalid ];
     ]
 
-  let format_question_result uuid l i r q =
+  let format_question_result uuid l i r question =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let open Belenios_question in
-    match q with
-    | Homomorphic x ->
-        let open Homomorphic in
+    match question.value with
+    | Homomorphic.Q x ->
+        let open Homomorphic.Syntax in
         let r = r |> result_of_string in
         let answers = Array.to_list x.q_answers in
         let answers =
@@ -286,11 +286,11 @@ struct
             div ~a:[ a_class [ "result_question" ] ] [ markup x.q_question ];
             answers;
           ]
-    | NonHomomorphic (q, extra) ->
-        let open NonHomomorphic in
+    | Non_homomorphic.Q q ->
+        let open Non_homomorphic.Syntax in
         let ballots = r |> result_of_string in
         let applied_counting_method, show_others =
-          match get_counting_method extra with
+          match get_counting_method question.extra with
           | `None -> (txt "", true)
           | `MajorityJudgment o ->
               let ngrades = Array.length o.mj_extra_grades in
@@ -355,6 +355,10 @@ struct
                 others;
               ];
           ]
+    | _ ->
+        li
+          ~a:[ a_class [ "result_question_item" ] ]
+          [ div [ txt @@ s_ "Unsupported question type" ] ]
 
   let election_home election state () =
     let* l = get_preferred_gettext () in

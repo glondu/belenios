@@ -19,16 +19,20 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Homomorphic = Question_h_j
-module NonHomomorphic = Question_nh_j
 open Belenios_core.Signatures
+module Homomorphic = Homomorphic
+module Non_homomorphic = Non_homomorphic
 
-type t =
-  | Homomorphic of Question_h_t.question
-  | NonHomomorphic of Question_nh_t.question * Yojson.Safe.t option
+type t = Types.question = {
+  type_ : string;
+  value : Types.raw_question;
+  extra : Yojson.Safe.t option;
+}
 
 val wrap : Yojson.Safe.t -> t
 val unwrap : t -> Yojson.Safe.t
+val read_question : t reader
+val write_question : t writer
 
 type counting_method =
   [ `None
@@ -38,6 +42,7 @@ type counting_method =
 
 val get_counting_method : Yojson.Safe.t option -> counting_method
 val erase_question : t -> t
+val is_nh_question : t -> bool
 
 module Make
     (M : RANDOM)

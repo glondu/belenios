@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,55 +19,23 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
-open Belenios_core
-open Serializable_t
-open Web_serializable_t
+module Syntax = Question_nh_j
 
-module type S = sig
-  val election_home :
-    (module Site_common_sig.ELECTION) ->
-    election_state ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+type t = Syntax.question
+type Types.raw_question += Q of t
 
-  val cast_raw :
-    (module Site_common_sig.ELECTION) ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+let type_ = "NonHomomorphic"
+let make ~value ~extra = Types.{ type_; value = Q value; extra }
 
-  val lost_ballot :
-    (module Site_common_sig.ELECTION) ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
+let wrap ~value ~extra =
+  let value = Q (value |> Yojson.Safe.to_string |> Syntax.question_of_string) in
+  Types.{ type_; value; extra }
 
-  val cast_confirmed :
-    (module Site_common_sig.ELECTION) ->
-    result:(user * string * bool * Weight.t * bool, Web_common.error) result ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val pretty_ballots :
-    (module Site_common_sig.ELECTION) ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val schulze :
-    Belenios_question.Non_homomorphic.t ->
-    schulze_result ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val majority_judgment_select :
-    uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val majority_judgment :
-    Belenios_question.Non_homomorphic.t ->
-    mj_result ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val stv_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val stv :
-    Belenios_question.Non_homomorphic.t ->
-    stv_result ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-end
+let unwrap (q : Types.question) =
+  match q.value with
+  | Q x ->
+      let value = x |> Syntax.string_of_question |> Yojson.Safe.from_string in
+      let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
+      Some
+        (`Assoc (("type", `String "NonHomomorphic") :: ("value", value) :: o))
+  | _ -> None
