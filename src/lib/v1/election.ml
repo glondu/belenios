@@ -114,11 +114,7 @@ struct
   type scalar = W.G.Zq.t
 
   module G = W.G
-
-  module Q =
-    Belenios_question.Make (M) (G) (Question_h.Make (M) (G))
-      (Question_nh.Make (M) (G))
-
+  module Q = Question.Make (M) (G)
   module Mix = Mixnet.Make (W) (M)
   open G
 

@@ -25,6 +25,17 @@ module type GROUP_SIG = sig
   val of_string : string -> (module GROUP)
 end
 
+module type QUESTION_SIG = sig
+  type question
+
+  module Make (M : RANDOM) (G : GROUP) :
+    Question_sigs.QUESTION
+      with type elt := G.t
+       and type question := question
+       and type answer := Yojson.Safe.t
+       and type result := string
+end
+
 module type MIXNET_SIG = sig
   type question
 

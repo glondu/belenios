@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
 open Belenios_core.Common
 module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
@@ -125,88 +124,3 @@ let erase_question x =
 
 let is_nh_question x =
   match x.value with Non_homomorphic.Q _ -> true | _ -> false
-
-module Make
-    (M : RANDOM)
-    (G : GROUP)
-    (QHomomorphic : Belenios_core.Question_sigs.QUESTION
-                      with type elt := G.t
-                       and type question := Question_h_t.question
-                       and type answer := (G.t, G.Zq.t) Question_h_t.answer
-                       and type result := Question_h_t.result)
-    (QNonHomomorphic : Belenios_core.Question_sigs.QUESTION
-                         with type elt := G.t
-                          and type question := Question_nh_t.question
-                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer
-                          and type result := Question_nh_t.result) =
-struct
-  let create_answer x ~public_key ~prefix m =
-    match x.value with
-    | Homomorphic.Q q ->
-        let answer = QHomomorphic.create_answer q ~public_key ~prefix m in
-        answer
-        |> Question_h_j.string_of_answer (swrite G.to_string)
-             (swrite G.Zq.to_string)
-        |> Yojson.Safe.from_string
-    | Non_homomorphic.Q q ->
-        let answer = QNonHomomorphic.create_answer q ~public_key ~prefix m in
-        answer
-        |> Question_nh_j.string_of_answer (swrite G.to_string)
-             (swrite G.Zq.to_string)
-        |> Yojson.Safe.from_string
-    | _ -> failwith "create_answer"
-
-  let verify_answer x ~public_key ~prefix a =
-    match x.value with
-    | Homomorphic.Q q ->
-        a |> Yojson.Safe.to_string
-        |> Question_h_j.answer_of_string (sread G.of_string)
-             (sread G.Zq.of_string)
-        |> QHomomorphic.verify_answer q ~public_key ~prefix
-    | Non_homomorphic.Q q ->
-        a |> Yojson.Safe.to_string
-        |> Question_nh_j.answer_of_string (sread G.of_string)
-             (sread G.Zq.of_string)
-        |> QNonHomomorphic.verify_answer q ~public_key ~prefix
-    | _ -> failwith "verify_answer"
-
-  let extract_ciphertexts x a =
-    match x.value with
-    | Homomorphic.Q q ->
-        a |> Yojson.Safe.to_string
-        |> Question_h_j.answer_of_string (sread G.of_string)
-             (sread G.Zq.of_string)
-        |> QHomomorphic.extract_ciphertexts q
-    | Non_homomorphic.Q q ->
-        a |> Yojson.Safe.to_string
-        |> Question_nh_j.answer_of_string (sread G.of_string)
-             (sread G.Zq.of_string)
-        |> QNonHomomorphic.extract_ciphertexts q
-    | _ -> failwith "extract_ciphertexts"
-
-  let process_ciphertexts x e =
-    match x.value with
-    | Homomorphic.Q q -> QHomomorphic.process_ciphertexts q e
-    | Non_homomorphic.Q q -> QNonHomomorphic.process_ciphertexts q e
-    | _ -> failwith "process_ciphertexts"
-
-  let compute_result ~total_weight q x =
-    match q.value with
-    | Homomorphic.Q q ->
-        QHomomorphic.compute_result ~total_weight q x
-        |> Question_h_j.string_of_result
-    | Non_homomorphic.Q q ->
-        QNonHomomorphic.compute_result ~total_weight q x
-        |> Question_nh_j.string_of_result
-    | _ -> failwith "compute_result"
-
-  let check_result ~total_weight q x r =
-    match q.value with
-    | Homomorphic.Q q ->
-        r |> Question_h_j.result_of_string
-        |> QHomomorphic.check_result ~total_weight q x
-    | Non_homomorphic.Q q ->
-        r |> Question_nh_j.result_of_string
-        |> QNonHomomorphic.check_result ~total_weight q x
-    | _ -> failwith "check_result"
-end

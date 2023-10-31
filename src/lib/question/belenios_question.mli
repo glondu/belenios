@@ -43,22 +43,3 @@ type counting_method =
 val get_counting_method : Yojson.Safe.t option -> counting_method
 val erase_question : t -> t
 val is_nh_question : t -> bool
-
-module Make
-    (M : RANDOM)
-    (G : GROUP)
-    (QHomomorphic : Belenios_core.Question_sigs.QUESTION
-                      with type elt := G.t
-                       and type question := Question_h_t.question
-                       and type answer := (G.t, G.Zq.t) Question_h_t.answer
-                       and type result := Question_h_t.result)
-    (QNonHomomorphic : Belenios_core.Question_sigs.QUESTION
-                         with type elt := G.t
-                          and type question := Question_nh_t.question
-                          and type answer := (G.t, G.Zq.t) Question_nh_t.answer
-                          and type result := Question_nh_t.result) :
-  Belenios_core.Question_sigs.QUESTION
-    with type elt := G.t
-     and type question := t
-     and type answer := Yojson.Safe.t
-     and type result := string

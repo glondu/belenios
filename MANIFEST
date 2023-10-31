@@ -302,6 +302,8 @@ src/lib/v1/group.ml
 src/lib/v1/group.mli
 src/lib/v1/mixnet.ml
 src/lib/v1/mixnet.mli
+src/lib/v1/question.ml
+src/lib/v1/question.mli
 src/lib/v1/question_h.ml
 src/lib/v1/question_h.mli
 src/lib/v1/question_nh.ml
