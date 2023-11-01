@@ -24,7 +24,7 @@ open Belenios_core.Common
 open Belenios_question
 
 let types : (module Types.QUESTION_KIND) list =
-  [ (module Question_h); (module Question_nh) ]
+  [ (module Question_h); (module Question_nh); (module Question_l) ]
 
 let lookup_type type_ =
   let rec loop = function

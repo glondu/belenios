@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,28 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
-module Homomorphic = Homomorphic
-module Non_homomorphic = Non_homomorphic
-module Lists = Lists
+module Syntax = Question_l_j
 
-type t = Types.question = {
-  type_ : string;
-  value : Types.raw_question;
-  extra : Yojson.Safe.t option;
-}
+type t = Syntax.question
+type Types.raw_question += Q of t
 
-val wrap : Yojson.Safe.t -> t
-val unwrap : t -> Yojson.Safe.t
-val read_question : t reader
-val write_question : t writer
+let type_ = "Lists"
+let make ~value ~extra = Types.{ type_; value = Q value; extra }
 
-type counting_method =
-  [ `None
-  | `MajorityJudgment of Question_nh_t.mj_extra
-  | `Schulze of Question_nh_t.schulze_extra
-  | `STV of Question_nh_t.stv_extra ]
+let wrap ~value ~extra =
+  let value = Q (value |> Yojson.Safe.to_string |> Syntax.question_of_string) in
+  Types.{ type_; value; extra }
 
-val get_counting_method : Yojson.Safe.t option -> counting_method
-val erase_question : t -> t
-val is_nh_question : t -> bool
+let unwrap (q : Types.question) =
+  match q.value with
+  | Q x ->
+      let value = x |> Syntax.string_of_question |> Yojson.Safe.from_string in
+      let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
+      Some (`Assoc (("type", `String type_) :: ("value", value) :: o))
+  | _ -> None

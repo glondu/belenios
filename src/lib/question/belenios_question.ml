@@ -22,6 +22,7 @@
 open Belenios_core.Common
 module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
+module Lists = Lists
 
 type t = Types.question = {
   type_ : string;
@@ -30,7 +31,7 @@ type t = Types.question = {
 }
 
 let types : (module Types.QUESTION) list =
-  [ (module Homomorphic); (module Non_homomorphic) ]
+  [ (module Homomorphic); (module Non_homomorphic); (module Lists) ]
 
 let lookup_type type_ =
   let rec loop = function
