@@ -364,15 +364,8 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let module W = (val election : Site_common_sig.ELECTION) in
-    let@ questions cont =
-      let prove (type t) (x : t Belenios.Election.version) :
-          (t, Belenios_question.t) eq =
-        match x with V1 -> Refl
-      in
-      let cast_array (type t u) (e : (t, u) eq) (x : t array) : u array =
-        match e with Refl -> x
-      in
-      cont (cast_array (prove W.witness) W.template.t_questions)
+    let questions =
+      Belenios.Election.get_questions (Template (W.witness, W.template))
     in
     let uuid = W.uuid in
     let* metadata = Web_persist.get_election_metadata uuid in

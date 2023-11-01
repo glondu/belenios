@@ -29,7 +29,7 @@ open Serializable_t
 val get_version : string -> int
 val get_uuid : string -> uuid
 
-type _ version = V1 : Belenios_question.t version
+type _ version = V1 : Belenios_v1.Question.t version
 
 val compare_version : 'a version -> 'b version -> ('a, 'b) eq option
 
@@ -45,6 +45,7 @@ val template_of_string : string -> versioned_template
 val string_of_template : versioned_template -> string
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : versioned_template -> bool
+val get_questions : versioned_template -> Belenios_question.t array
 
 val make_raw_election :
   version:int ->

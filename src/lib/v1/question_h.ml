@@ -25,7 +25,17 @@ open Platform
 open Common
 open Signatures_core
 open Serializable_core_t
-open Belenios_question.Homomorphic.Syntax
+open Belenios_question
+open Homomorphic
+open Syntax
+
+type nonrec question = question
+type nonrec result = result
+
+let type_ = type_
+let of_concrete x = match x.value with Q x -> Some x | _ -> None
+let read_result = read_result
+let write_result = write_result
 
 (** Helper functions *)
 
@@ -35,6 +45,10 @@ let question_length q =
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
+  type nonrec answer = (G.t, G.Zq.t) answer
+
+  let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
+  let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
   let random () = M.random Zq.q |> Zq.coerce
   let ( / ) x y = x *~ invert y
   let dummy_ciphertext = { alpha = G.one; beta = G.one }

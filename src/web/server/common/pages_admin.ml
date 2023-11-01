@@ -1464,9 +1464,11 @@ struct
         uuid
     in
     let allow_nh =
-      match get_suitable_group_kind (Template (V1, se.se_questions)) with
-      | `NH -> true
-      | `H -> not (Web_persist.is_group_fixed uuid fse)
+      match
+        Belenios.Election.has_nh_questions (Template (V1, se.se_questions))
+      with
+      | true -> true
+      | false -> not (Web_persist.is_group_fixed uuid fse)
     in
     let hybrid_box =
       div
@@ -2280,8 +2282,10 @@ struct
       else (ready, ok "OK")
     in
     let ready, questions =
-      if se.se_questions.t_questions = Web_defaults.questions then
-        (false, notok (s_ "Not edited"))
+      if
+        Belenios.Election.get_questions (Template (V1, se.se_questions))
+        = Web_defaults.questions
+      then (false, notok (s_ "Not edited"))
       else (ready, ok "OK")
     in
     let ready, voters =

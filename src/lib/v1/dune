@@ -1,6 +1,7 @@
 (library
  (name belenios_v1)
  (public_name belenios-lib.v1)
+ (modules_without_implementation types)
  (libraries yojson atdgen belenios_platform belenios_core belenios_question))
 
 (rule

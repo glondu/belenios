@@ -1,3 +1,1 @@
-include
-  Belenios_core.Versioned_sig.MIXNET_SIG
-    with type question := Belenios_question.t
+include Belenios_core.Versioned_sig.MIXNET_SIG with type question := Question.t

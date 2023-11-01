@@ -292,7 +292,8 @@ let rec page_body () =
             alert "Creation failed: could not get config from server";
             Lwt.return_unit
         | Some d -> (
-            let dr = string_of_draft (Draft (default_version, d)) in
+            let (Version (V1 as v)) = default_version in
+            let dr = string_of_draft (Draft (v, d)) in
             let* x =
               post_with_token ?ifmatch dr "drafts" |> wrap uuid_of_string
             in

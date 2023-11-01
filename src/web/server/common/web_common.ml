@@ -381,14 +381,6 @@ let unwebize_trustee_public_key pk =
       (if pk.web_trustee_server = Some true then Some "server" else None);
   }
 
-let get_suitable_group_kind
-    (Belenios.Election.Template (V1, { t_questions; _ })) =
-  let group = ref `H in
-  Array.iter
-    (fun x -> if Belenios_question.is_nh_question x then group := `NH)
-    t_questions;
-  !group
-
 let get_booth_index = function Some 2 -> Some 0 | _ -> None
 
 let compute_hash_link ~service ~uuid ~token =

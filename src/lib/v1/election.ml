@@ -59,9 +59,12 @@ let make_raw_election template ~uuid ~group ~public_key =
   string_of_params (swrite G.to_string) params
 
 module Parse (R : RAW_ELECTION) () = struct
-  let read_question = read_question
-  let write_question = write_question
-  let erase_question = erase_question
+  let read_question a b = Question.of_concrete (read_question a b)
+  let write_question b x = write_question b (Question.to_concrete x)
+
+  let erase_question x =
+    x |> Question.to_concrete |> erase_question |> Question.of_concrete
+
   let j = params_of_string Yojson.Safe.read_json R.raw_election
 
   module G = (val Group.of_string j.e_group)
@@ -79,7 +82,7 @@ module Parse (R : RAW_ELECTION) () = struct
       t_credential_authority = params.e_credential_authority;
     }
 
-  let has_nh_questions = Array.exists is_nh_question template.t_questions
+  let has_nh_questions = Array.exists Question.is_nh_question params.e_questions
   let fingerprint = sha256_b64 R.raw_election
   let public_key = params.e_public_key
 
@@ -107,7 +110,7 @@ module Parse (R : RAW_ELECTION) () = struct
 end
 
 module MakeElection
-    (W : ELECTION_DATA with type question := Belenios_question.t)
+    (W : ELECTION_DATA with type question := Question.t)
     (M : RANDOM) =
 struct
   type elt = W.G.t
@@ -240,7 +243,7 @@ struct
     let x = Shape.to_shape_array x in
     let rec loop i accu =
       if i >= 0 then
-        match is_nh_question W.template.t_questions.(i) with
+        match Question.is_nh_question W.template.t_questions.(i) with
         | false -> loop (i - 1) accu
         | true -> loop (i - 1) (Shape.to_array x.(i) :: accu)
       else Array.of_list accu
@@ -252,7 +255,7 @@ struct
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
       if i < n && j < m then (
-        match is_nh_question W.template.t_questions.(i) with
+        match Question.is_nh_question W.template.t_questions.(i) with
         | false -> loop (i + 1) j
         | true ->
             x.(i) <- Shape.of_array cc.(j);

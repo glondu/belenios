@@ -506,6 +506,13 @@ let createTemplate template =
     try
       let open Belenios_v1.Serializable_j in
       let template = extractTemplate () in
+      let template =
+        {
+          template with
+          t_questions =
+            Array.map Belenios_v1.Question.of_concrete template.t_questions;
+        }
+      in
       set_textarea "questions" (string_of_template write_question template);
       let booth_version = 2 in
       set_input "booth_version" (string_of_int booth_version);
@@ -544,6 +551,12 @@ let fill_interactivity () =
   let open Belenios_v1.Serializable_j in
   let&& e = document##getElementById (Js.string "interactivity") in
   let t = template_of_string read_question (get_textarea "questions") in
+  let t =
+    {
+      t with
+      t_questions = Array.map Belenios_v1.Question.to_concrete t.t_questions;
+    }
+  in
   let has_nh = Array.exists is_nh_question t.t_questions in
   hybrid_mode := has_nh;
   let div = createTemplate t in

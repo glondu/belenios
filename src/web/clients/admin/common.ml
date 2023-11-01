@@ -95,4 +95,4 @@ let url_prefix () =
       | None -> "https://fake_link_please_edit"
       | Some pr -> pr)
 
-let default_version = Belenios.Election.V1
+let default_version = Belenios.Election.(Version V1)

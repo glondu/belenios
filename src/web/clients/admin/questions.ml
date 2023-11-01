@@ -76,6 +76,7 @@ let update_question = ref (fun _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let q_to_gen question =
+  let question = Belenios_v1.Question.to_concrete question in
   let question, answers, blank, kind, sel_min, sel_max, seats, meth, names =
     match question.value with
     | Homomorphic.Q q ->
@@ -116,6 +117,7 @@ let q_to_gen question =
   }
 
 let gen_to_q q =
+  let@ () = fun cont -> cont () |> Belenios_v1.Question.of_concrete in
   match q.kind with
   | `Select ->
       Homomorphic.make

@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Signatures
 open Common
 open Serializable_core_t
 
@@ -27,6 +28,9 @@ module type QUESTION = sig
   type answer
   type elt
   type result
+
+  val read_answer : answer reader
+  val write_answer : answer writer
 
   val create_answer :
     question -> public_key:elt -> prefix:string -> int array -> answer

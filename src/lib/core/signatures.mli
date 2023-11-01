@@ -40,12 +40,15 @@ module type ELECTION_BASE = sig
   val uuid : uuid
   val fingerprint : string
   val public_key : G.t
+end
 
+module type ELECTION_BALLOT = sig
+  type element
   type ballot
 
   val string_of_ballot : ballot -> string
   val ballot_of_string : string -> ballot
-  val get_credential : ballot -> G.t option
+  val get_credential : ballot -> element option
 end
 
 module type ELECTION_RESULT = sig
@@ -59,6 +62,7 @@ end
 
 module type ELECTION_DATA = sig
   include ELECTION_BASE
+  include ELECTION_BALLOT with type element := G.t
   include ELECTION_RESULT
 end
 

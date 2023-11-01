@@ -26,12 +26,16 @@ module type GROUP_SIG = sig
 end
 
 module type QUESTION_SIG = sig
-  type question
+  type t
+
+  val wrap : Yojson.Safe.t -> t
+  val unwrap : t -> Yojson.Safe.t
+  val is_nh_question : t -> bool
 
   module Make (M : RANDOM) (G : GROUP) :
     Question_sigs.QUESTION
       with type elt := G.t
-       and type question := question
+       and type question := t
        and type answer := Yojson.Safe.t
        and type result := string
 end

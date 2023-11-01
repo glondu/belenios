@@ -209,7 +209,8 @@ struct
       {
         t_description = Web_defaults.description;
         t_name = Web_defaults.name;
-        t_questions = Web_defaults.questions;
+        t_questions =
+          Array.map Belenios_v1.Question.of_concrete Web_defaults.questions;
         t_administrator = Some account.name;
         t_credential_authority =
           Some (match cred with `Automatic -> "server" | `Manual -> "");
@@ -539,15 +540,15 @@ struct
         let template = template_of_string read_question template in
         let fixed_group = Web_persist.is_group_fixed uuid x in
         (match
-           ( get_suitable_group_kind (Template (V1, se.se_questions)),
-             get_suitable_group_kind (Template (V1, template)) )
+           ( Election.has_nh_questions (Template (V1, se.se_questions)),
+             Election.has_nh_questions (Template (V1, template)) )
          with
-        | `NH, `NH | `H, `H -> ()
-        | `NH, `H when fixed_group -> ()
-        | `NH, `H -> se.se_group <- !Web_config.default_group
-        | `H, `NH when fixed_group ->
+        | true, true | false, false -> ()
+        | true, false when fixed_group -> ()
+        | true, false -> se.se_group <- !Web_config.default_group
+        | false, true when fixed_group ->
             failwith (s_ "This kind of change is not allowed now!")
-        | `H, `NH -> se.se_group <- !Web_config.nh_group);
+        | false, true -> se.se_group <- !Web_config.nh_group);
         se.se_questions <- template;
         let e_booth_version =
           match booth_version with 1 -> None | x -> Some x

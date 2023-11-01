@@ -311,6 +311,7 @@ src/lib/v1/question_nh.mli
 src/lib/v1/serializable.atd
 src/lib/v1/trustees.ml
 src/lib/v1/trustees.mli
+src/lib/v1/types.mli
 src/platform/dune
 src/platform/js/dune
 src/platform/js/platform.ml

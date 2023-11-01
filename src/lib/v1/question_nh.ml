@@ -23,11 +23,25 @@ open Belenios_core
 open Common
 open Signatures_core
 open Serializable_core_t
-open Belenios_question.Non_homomorphic.Syntax
+open Belenios_question
+open Non_homomorphic
+open Syntax
+
+type nonrec question = question
+type nonrec result = result
+
+let type_ = type_
+let of_concrete x = match x.value with Q x -> Some x | _ -> None
+let read_result = read_result
+let write_result = write_result
 
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
+  type nonrec answer = (G.t, G.Zq.t) answer
+
+  let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
+  let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
   let random () = M.random Zq.q |> Zq.coerce
 
   let create_answer q ~public_key:y ~prefix m =

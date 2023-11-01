@@ -143,9 +143,6 @@ val webize_trustee_public_key :
 val unwebize_trustee_public_key :
   ('a, 'b) web_trustee_public_key -> ('a, 'b) trustee_public_key
 
-val get_suitable_group_kind :
-  Belenios.Election.versioned_template -> [ `H | `NH ]
-
 val get_booth_index : int option -> int option
 
 val compute_hash_link :

@@ -43,7 +43,7 @@ let get_uuid x =
       | _ -> failwith "Election.get_uuid: invalid data")
   | _ -> failwith "Election.get_uuid: object expected"
 
-type _ version = V1 : Belenios_question.t version
+type _ version = V1 : Belenios_v1.Question.t version
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
     (t, u) eq option =
@@ -92,7 +92,10 @@ let make_raw_election ~version template ~uuid ~group ~public_key =
 (** Helper functions *)
 
 let has_nh_questions (Template (V1, e)) =
-  Array.exists Belenios_question.is_nh_question e.t_questions
+  Array.exists Belenios_v1.Question.is_nh_question e.t_questions
+
+let get_questions (Template (V1, e)) =
+  Array.map Belenios_v1.Question.to_concrete e.t_questions
 
 module type ELECTION = sig
   include ELECTION
@@ -105,7 +108,7 @@ module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
     match get_version R.raw_election with
     | 1 ->
         let module X = struct
-          type question = Belenios_question.t
+          type question = Belenios_v1.Question.t
 
           include Belenios_v1.Election.Make (R) (M) ()
 
