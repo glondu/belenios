@@ -320,7 +320,8 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     lazy
       (let ballots =
          Lazy.force verified_ballots
-         |> List.rev_map (fun (_, _, w, b) -> (w, ballot_of_string b))
+         |> List.rev_map (fun (_, _, w, b) ->
+                (w, identity_of_string read_ballot b))
        in
        let sized_total_weight =
          let open Weight in

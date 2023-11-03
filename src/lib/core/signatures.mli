@@ -46,8 +46,8 @@ module type ELECTION_BALLOT = sig
   type element
   type ballot
 
-  val string_of_ballot : ballot -> string
-  val ballot_of_string : string -> ballot
+  val read_ballot : ballot reader
+  val write_ballot : ballot writer
   val get_credential : ballot -> element option
 end
 

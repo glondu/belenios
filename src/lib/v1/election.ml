@@ -88,12 +88,8 @@ module Parse (R : RAW_ELECTION) () = struct
 
   type nonrec ballot = (G.t, G.Zq.t) ballot
 
-  let string_of_ballot x =
-    string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string) x
-
-  let ballot_of_string x =
-    ballot_of_string (sread G.of_string) (sread G.Zq.of_string) x
-
+  let read_ballot = read_ballot (sread G.of_string) (sread G.Zq.of_string)
+  let write_ballot = write_ballot (swrite G.to_string) (swrite G.Zq.to_string)
   let get_credential x = Some x.credential
 
   type result = Yojson.Safe.t

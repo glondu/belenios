@@ -822,7 +822,7 @@ let get_ballot_weight election ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   Lwt.catch
     (fun () ->
-      let ballot = W.ballot_of_string ballot in
+      let ballot = identity_of_string W.read_ballot ballot in
       match W.get_credential ballot with
       | None -> failwith "missing signature"
       | Some credential ->
@@ -861,7 +861,7 @@ let fold_on_ballots_weeded uuid f accu =
   let* _, accu =
     fold_on_ballots uuid
       (fun _ b ((seen, accu) as x) ->
-        let ballot = W.ballot_of_string b in
+        let ballot = identity_of_string W.read_ballot b in
         match W.get_credential ballot with
         | None -> assert false
         | Some credential ->
@@ -929,7 +929,7 @@ let raw_compute_encrypted_tally election =
   let* ballots =
     fold_on_ballots uuid
       (fun _ b accu ->
-        let ballot = W.ballot_of_string b in
+        let ballot = identity_of_string W.read_ballot b in
         match W.get_credential ballot with
         | None -> assert false
         | Some credential ->
