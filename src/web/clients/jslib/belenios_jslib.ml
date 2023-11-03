@@ -150,7 +150,7 @@ let belenios : belenios Js.t =
               in
               let* () = Lwt_js.yield () in
               let b = E.create_ballot ~sk plaintext in
-              let ballot = string_of_identity write_ballot b in
+              let ballot = write_ballot -- b in
               let tracker = sha256_b64 ballot in
               callbacks##success (Js.string ballot) (Js.string tracker);
               Lwt.return_unit)

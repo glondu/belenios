@@ -822,7 +822,7 @@ let get_ballot_weight election ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   Lwt.catch
     (fun () ->
-      let ballot = identity_of_string W.read_ballot ballot in
+      let ballot = W.read_ballot ++ ballot in
       match W.get_credential ballot with
       | None -> failwith "missing signature"
       | Some credential ->
@@ -861,7 +861,7 @@ let fold_on_ballots_weeded uuid f accu =
   let* _, accu =
     fold_on_ballots uuid
       (fun _ b ((seen, accu) as x) ->
-        let ballot = identity_of_string W.read_ballot b in
+        let ballot = W.read_ballot ++ b in
         match W.get_credential ballot with
         | None -> assert false
         | Some credential ->
@@ -929,7 +929,7 @@ let raw_compute_encrypted_tally election =
   let* ballots =
     fold_on_ballots uuid
       (fun _ b accu ->
-        let ballot = identity_of_string W.read_ballot b in
+        let ballot = W.read_ballot ++ b in
         match W.get_credential ballot with
         | None -> assert false
         | Some credential ->
@@ -1710,14 +1710,10 @@ let validate_election uuid (Draft (v, se)) s =
   let* () =
     match private_keys with
     | `KEY x ->
-        create_file "private_key.json"
-          (string_of_identity (swrite G.Zq.to_string))
-          [ x ]
+        create_file "private_key.json" (( -- ) (swrite G.Zq.to_string)) [ x ]
     | `KEYS (x, y) ->
         let* () =
-          create_file "private_key.json"
-            (string_of_identity (swrite G.Zq.to_string))
-            [ x ]
+          create_file "private_key.json" (( -- ) (swrite G.Zq.to_string)) [ x ]
         in
         create_file "private_keys.jsons" (fun x -> x) y
   in

@@ -26,6 +26,8 @@ open Signatures_core
 let ( let@ ) f x = f x
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
+let ( ++ ) = Serializable_core_j.identity_of_string
+let ( -- ) w x = Serializable_core_j.string_of_identity w x
 
 type (_, _) eq = Refl : ('a, 'a) eq
 

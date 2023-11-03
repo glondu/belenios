@@ -86,10 +86,10 @@ module Make (P : PARAMS) () = struct
     in
     let b = E.create_ballot ~sk choice in
     assert (E.check_ballot b);
-    string_of_identity write_ballot b
+    write_ballot -- b
 
   let decrypt owned_owner privkey =
-    let sk = identity_of_string (sread G.Zq.of_string) privkey in
+    let sk = sread G.Zq.of_string ++ privkey in
     let pk = G.(g **~ sk) in
     if Array.for_all (fun x -> not G.(x =~ pk)) (Lazy.force pks) then
       failwith "your key is not present in trustees";

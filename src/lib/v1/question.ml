@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_core.Signatures
-open Belenios_core.Serializable_j
+open Belenios_core.Common
 open Belenios_question
 
 let types : (module Types.QUESTION_KIND) list =
@@ -81,21 +81,18 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let module X = (val x) in
     let module Q = X.Kind.Make (M) (G) in
     Q.create_answer X.abstract ~public_key ~prefix m
-    |> string_of_identity Q.write_answer
-    |> Yojson.Safe.from_string
+    |> ( -- ) Q.write_answer |> Yojson.Safe.from_string
 
   let verify_answer (x : t) ~public_key ~prefix a =
     let module X = (val x) in
     let module Q = X.Kind.Make (M) (G) in
-    a |> Yojson.Safe.to_string
-    |> identity_of_string Q.read_answer
+    a |> Yojson.Safe.to_string |> ( ++ ) Q.read_answer
     |> Q.verify_answer X.abstract ~public_key ~prefix
 
   let extract_ciphertexts (x : t) a =
     let module X = (val x) in
     let module Q = X.Kind.Make (M) (G) in
-    a |> Yojson.Safe.to_string
-    |> identity_of_string Q.read_answer
+    a |> Yojson.Safe.to_string |> ( ++ ) Q.read_answer
     |> Q.extract_ciphertexts X.abstract
 
   let process_ciphertexts (x : t) e =
@@ -106,13 +103,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let compute_result ~total_weight (q : t) x =
     let module X = (val q) in
     let module Q = X.Kind.Make (M) (G) in
-    Q.compute_result ~total_weight X.abstract x
-    |> string_of_identity X.Kind.write_result
+    Q.compute_result ~total_weight X.abstract x |> ( -- ) X.Kind.write_result
 
   let check_result ~total_weight (q : t) x r =
     let module X = (val q) in
     let module Q = X.Kind.Make (M) (G) in
-    r
-    |> identity_of_string X.Kind.read_result
-    |> Q.check_result ~total_weight X.abstract x
+    r |> ( ++ ) X.Kind.read_result |> Q.check_result ~total_weight X.abstract x
 end

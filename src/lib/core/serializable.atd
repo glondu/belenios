@@ -31,10 +31,6 @@ type 'a shape <ocaml predef from="Common_types.Atd_shape"> = abstract
 type 'a ciphertext <ocaml predef from="Serializable_core"> = abstract
 type 'a proof <ocaml predef from="Serializable_core"> = abstract
 
-(** {2 Helpers} *)
-
-type 'a identity = 'a
-
 (** {2 Trustees} *)
 
 type ('a, 'b) trustee_public_key = {

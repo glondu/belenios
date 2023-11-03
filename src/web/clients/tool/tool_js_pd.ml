@@ -100,7 +100,7 @@ let compute_partial_decryption tally_trustee _ =
           .pdk_decryption_key
     | None -> (
         basic_check_private_key pk_str;
-        try identity_of_string (sread P.G.Zq.of_string) pk_str
+        try sread P.G.Zq.of_string ++ pk_str
         with e ->
           Printf.ksprintf failwith
             (f_ "Error in format of private key: %s")

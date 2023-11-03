@@ -23,6 +23,7 @@
 
 (** {2 Predefined types} *)
 
+type 'a identity = 'a
 type number = string wrap <ocaml module="Common_types.Number">
 type weight = abstract wrap <ocaml module="Common_types.Weight">
 
