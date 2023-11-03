@@ -113,7 +113,7 @@ module MakeElection
     (W : ELECTION_DATA with type question := Question.t)
     (M : RANDOM) =
 struct
-  type elt = W.G.t
+  type element = W.G.t
   type scalar = W.G.Zq.t
 
   module G = W.G
@@ -122,13 +122,13 @@ struct
   open G
 
   type private_key = scalar
-  type public_key = elt
+  type public_key = element
 
   let random () = M.random Zq.q |> Zq.coerce
   let ( / ) x y = x *~ invert y
 
   type plaintext = int array array
-  type nonrec ballot = (elt, scalar) ballot
+  type nonrec ballot = (element, scalar) ballot
   type weighted_ballot = Weight.t * ballot
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
@@ -286,7 +286,7 @@ struct
       (Mix.check_shuffle_proof W.public_key)
       cc s.shuffle_ciphertexts s.shuffle_proofs
 
-  type factor = (elt, scalar) partial_decryption
+  type factor = (element, scalar) partial_decryption
 
   let eg_factor x { alpha; _ } =
     let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in

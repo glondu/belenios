@@ -99,10 +99,10 @@ module type ELECTION_OPS = sig
       are integers modulo a large prime number. Public keys are
       members of a suitably chosen group. *)
 
-  type elt
+  type element
   type scalar
   type private_key = scalar
-  type public_key = elt
+  type public_key = element
 
   (** {2 Ballots} *)
 
@@ -131,27 +131,29 @@ module type ELECTION_OPS = sig
 
   (** {2 Tally} *)
 
-  val process_ballots : weighted_ballot list -> elt encrypted_tally
-  val extract_nh_ciphertexts : elt encrypted_tally -> elt nh_ciphertexts
+  val process_ballots : weighted_ballot list -> element encrypted_tally
+  val extract_nh_ciphertexts : element encrypted_tally -> element nh_ciphertexts
 
   val merge_nh_ciphertexts :
-    elt nh_ciphertexts -> elt encrypted_tally -> elt encrypted_tally
+    element nh_ciphertexts -> element encrypted_tally -> element encrypted_tally
 
-  val shuffle_ciphertexts : elt nh_ciphertexts -> (elt, scalar) shuffle
-  val check_shuffle : elt nh_ciphertexts -> (elt, scalar) shuffle -> bool
+  val shuffle_ciphertexts : element nh_ciphertexts -> (element, scalar) shuffle
+
+  val check_shuffle :
+    element nh_ciphertexts -> (element, scalar) shuffle -> bool
 
   (** {2 Partial decryptions} *)
 
-  type factor = (elt, scalar) partial_decryption
+  type factor = (element, scalar) partial_decryption
   (** A decryption share. It is computed by a trustee from his or her
       private key share and the encrypted tally, and contains a
       cryptographic proof that he or she didn't cheat. *)
 
   val compute_factor :
-    elt Serializable_t.ciphertext shape -> private_key -> factor
+    element Serializable_t.ciphertext shape -> private_key -> factor
 
   val check_factor :
-    elt Serializable_t.ciphertext shape -> public_key -> factor -> bool
+    element Serializable_t.ciphertext shape -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a
       trustee whose public_key is [pk], is valid with respect to the
       encrypted tally [c]. *)
@@ -165,18 +167,18 @@ module type ELECTION_OPS = sig
       result from the encrypted tally. *)
 
   val compute_result :
-    elt encrypted_tally sized_encrypted_tally ->
+    element encrypted_tally sized_encrypted_tally ->
     factor owned list ->
-    (elt, scalar) trustees ->
+    (element, scalar) trustees ->
     (result, combination_error) Stdlib.result
   (** Combine the encrypted tally and the factors from all trustees to
       produce the election result. The first argument is the number of
       tallied ballots. May raise [Invalid_argument]. *)
 
   val check_result :
-    elt encrypted_tally sized_encrypted_tally ->
+    element encrypted_tally sized_encrypted_tally ->
     factor owned list ->
-    (elt, scalar) trustees ->
+    (element, scalar) trustees ->
     result ->
     bool
 end
@@ -186,7 +188,7 @@ module type ELECTION = sig
 
   module E :
     ELECTION_OPS
-      with type elt = G.t
+      with type element = G.t
        and type scalar = G.Zq.t
        and type ballot = ballot
        and type result_type = result
