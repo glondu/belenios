@@ -45,7 +45,7 @@ module type MIXNET_SIG = sig
 
   module Make (W : ELECTION_DATA with type question := question) (M : RANDOM) :
     MIXNET
-      with type elt := W.G.t
+      with type element := W.G.t
        and type scalar := W.G.Zq.t
        and type 'a proof := ('a, W.G.Zq.t) Serializable_t.shuffle_proof
 end

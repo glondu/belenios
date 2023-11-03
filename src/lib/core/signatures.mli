@@ -246,23 +246,27 @@ module type PEDERSEN = sig
 end
 
 module type MIXNET = sig
-  type elt
+  type element
   type scalar
   type 'a proof
 
   val gen_shuffle :
-    elt ->
-    elt ciphertext array ->
-    elt ciphertext array * scalar array * int array
+    element ->
+    element ciphertext array ->
+    element ciphertext array * scalar array * int array
 
   val gen_shuffle_proof :
-    elt ->
-    elt ciphertext array ->
-    elt ciphertext array ->
+    element ->
+    element ciphertext array ->
+    element ciphertext array ->
     scalar array ->
     int array ->
-    elt proof
+    element proof
 
   val check_shuffle_proof :
-    elt -> elt ciphertext array -> elt ciphertext array -> elt proof -> bool
+    element ->
+    element ciphertext array ->
+    element ciphertext array ->
+    element proof ->
+    bool
 end
