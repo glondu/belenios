@@ -219,7 +219,7 @@ end
 
 module type PEDERSEN = sig
   type scalar
-  type elt
+  type element
 
   val step1 : unit -> string * scalar cert
   val step1_check : scalar cert -> bool
@@ -227,20 +227,22 @@ module type PEDERSEN = sig
   val step3 : scalar certs -> string -> int -> scalar polynomial
   val step3_check : scalar certs -> int -> scalar polynomial -> bool
   val step4 : scalar certs -> scalar polynomial array -> scalar vinput array
-  val step5 : scalar certs -> string -> scalar vinput -> (elt, scalar) voutput
+
+  val step5 :
+    scalar certs -> string -> scalar vinput -> (element, scalar) voutput
 
   val step5_check :
     scalar certs ->
     int ->
     scalar polynomial array ->
-    (elt, scalar) voutput ->
+    (element, scalar) voutput ->
     bool
 
   val step6 :
     scalar certs ->
     scalar polynomial array ->
-    (elt, scalar) voutput array ->
-    (elt, scalar) threshold_parameters
+    (element, scalar) voutput array ->
+    (element, scalar) threshold_parameters
 end
 
 module type MIXNET = sig

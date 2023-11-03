@@ -262,7 +262,7 @@ module MakePedersen
     (C : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) =
 struct
   type scalar = G.Zq.t
-  type elt = G.t
+  type element = G.t
 
   open G
   module K = MakeSimple (G) (M)

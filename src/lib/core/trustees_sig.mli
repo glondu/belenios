@@ -56,7 +56,7 @@ module type S = sig
       (M : RANDOM)
       (P : PKI with type private_key = G.Zq.t and type public_key = G.t)
       (C : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) :
-    PEDERSEN with type elt = G.t and type scalar = G.Zq.t
+    PEDERSEN with type element = G.t and type scalar = G.Zq.t
 
   module MakeCombinator (G : GROUP) : sig
     val check : (G.t, G.Zq.t) trustees -> bool
