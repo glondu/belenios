@@ -11,7 +11,7 @@ module type QUESTION_KIND = sig
 
   module Make (M : RANDOM) (G : GROUP) :
     Belenios_core.Question_sigs.QUESTION
-      with type elt := G.t
+      with type element := G.t
        and type question := question
        and type result := result
 end

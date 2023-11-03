@@ -26,28 +26,28 @@ open Serializable_core_t
 module type QUESTION = sig
   type question
   type answer
-  type elt
+  type element
   type result
 
   val read_answer : answer reader
   val write_answer : answer writer
 
   val create_answer :
-    question -> public_key:elt -> prefix:string -> int array -> answer
+    question -> public_key:element -> prefix:string -> int array -> answer
 
   val verify_answer :
-    question -> public_key:elt -> prefix:string -> answer -> bool
+    question -> public_key:element -> prefix:string -> answer -> bool
 
-  val extract_ciphertexts : question -> answer -> elt ciphertext Shape.t
+  val extract_ciphertexts : question -> answer -> element ciphertext Shape.t
 
   val process_ciphertexts :
     question ->
-    (Weight.t * elt ciphertext Shape.t) list ->
-    elt ciphertext Shape.t
+    (Weight.t * element ciphertext Shape.t) list ->
+    element ciphertext Shape.t
 
   val compute_result :
-    total_weight:Weight.t -> question -> elt Shape.t -> result
+    total_weight:Weight.t -> question -> element Shape.t -> result
 
   val check_result :
-    total_weight:Weight.t -> question -> elt Shape.t -> result -> bool
+    total_weight:Weight.t -> question -> element Shape.t -> result -> bool
 end

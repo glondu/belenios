@@ -34,7 +34,7 @@ module type QUESTION_SIG = sig
 
   module Make (M : RANDOM) (G : GROUP) :
     Question_sigs.QUESTION
-      with type elt := G.t
+      with type element := G.t
        and type question := t
        and type answer := Yojson.Safe.t
        and type result := string
