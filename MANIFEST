@@ -582,12 +582,14 @@ tests/selenium/vote_with_prepared_ballots.py
 tests/selenium/vote_with_prepared_ballots_direct.py
 tests/tool/.gitignore
 tests/tool/Makefile
+tests/tool/demo-l.sh
 tests/tool/demo-mj.sh
 tests/tool/demo-n-voters.sh
 tests/tool/demo-nh.sh
 tests/tool/demo-stv.sh
 tests/tool/demo-threshold.sh
 tests/tool/demo.sh
+tests/tool/templates/questions-l.json
 tests/tool/templates/questions-mj.json
 tests/tool/templates/questions-nh.json
 tests/tool/templates/questions-stv.json

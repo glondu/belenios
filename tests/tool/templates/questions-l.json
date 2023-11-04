@@ -1,0 +1,1 @@
+{"description":"Description of the election.","name":"Name of the election","questions":[{"type":"Lists","value":{"answers":[["List 1","Canditate 1-1","Candidate 1-2"],["List 2","Canditate 2-1"],["List 3","Canditate 3-1","Candidate 3-2","Candidate 3-3"]],"question":"Question 1?"}}]}
