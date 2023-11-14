@@ -387,7 +387,7 @@ def belenios_tool_generate_ballots(voters_data, global_credential_file_id, vote_
 
         # Execute belenios-tool to generate a vote ballot for voter
         voter_crypted_ballot_file = "voter_row_" + str(i) + "_crypted_ballot.json"
-        command = [belenios_tool_path, "election", "generate-ballot", "--url", vote_page_url, "--privcred", voter_credential_file, "--ballot", voter_uncrypted_ballot_file, ">", voter_crypted_ballot_file]
+        command = [belenios_tool_path, "election", "generate-ballot", "--url", vote_page_url, "--privcred", voter_credential_file, "--choice", voter_uncrypted_ballot_file, ">", voter_crypted_ballot_file]
         running_process = subprocess.Popen(" ".join(command), cwd=generated_files_destination_folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
         process_timeout = 120 # seconds
         try:
