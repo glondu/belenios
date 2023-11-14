@@ -1,0 +1,4 @@
+(executable
+ (name main)
+ (libraries cohttp-lwt-unix cmdliner belenios-platform-native belenios
+   belenios_api))
