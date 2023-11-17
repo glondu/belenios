@@ -333,14 +333,6 @@ let is_email =
   let rex = Re.Pcre.regexp ~flags:[ `CASELESS ] ("^" ^ email_rex ^ "$") in
   fun x -> match re_exec_opt ~rex x with Some _ -> true | None -> false
 
-let extract_email =
-  let rex = Re.Pcre.regexp ~flags:[ `CASELESS ] ("<(" ^ email_rex ^ ")>") in
-  fun x ->
-    if is_email x then Some x
-    else
-      let& s = re_exec_opt ~rex x in
-      Some (Re.Pcre.get_substring s 1)
-
 let split_identity_opt x =
   match String.split_on_char ',' x with
   | [ address ] -> (address, None, None)

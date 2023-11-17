@@ -100,7 +100,6 @@ val extract_salt : string -> string option
 val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
 val is_username : string -> bool
 val is_email : string -> bool
-val extract_email : string -> string option
 val map_and_concat_with_commas : ('a -> string) -> 'a array -> string
 
 module Voter : sig
