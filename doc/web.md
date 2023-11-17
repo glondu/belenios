@@ -119,6 +119,11 @@ site. Available authentication methods:
 
    `for u in $(seq 1 5); do SALT=$(pwgen -s 12); PASS=$(pwgen -s 12); echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | { read a b; echo $a; }),user$u@example.com,$PASS"; done`
 
+   The element can have the `allowsignups="true"` attribute, in which
+   case an interface will be exposed so that people can create
+   administrator accounts and change their password by themselves (the
+   password database will be dynamically updated).
+
  * `<cas>`: authenticate with a [CAS](https://www.apereo.org/projects/cas)
    server. For example:
 
@@ -155,3 +160,9 @@ directory should be empty when the server is launched for the first
 time, and will be populated with election data. A typical location
 would be `/var/lib/belenios`. Warning: it may contain sensitive data
 (e.g. the private key when no external trustees are set).
+
+A blacklist on domains used in administrator e-mail addresses (for
+accounts created with the `allowsignups` feature described above) can
+be set with a `<blacklisted-domains file="/path/to/file">`
+element. You can for example use [this
+file](https://github.com/disposable-email-domains/disposable-email-domains/blob/master/disposable_email_blocklist.conf).

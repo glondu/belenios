@@ -327,11 +327,19 @@ let is_username =
   let rex = Re.Pcre.regexp ~flags:[ `CASELESS ] username_rex in
   fun x -> match re_exec_opt ~rex x with Some _ -> true | None -> false
 
-let email_rex = "[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
+let email_rex = "^[A-Z0-9._%+-]+@([A-Z0-9.-]+\\.[A-Z]{2,})$"
 
 let is_email =
-  let rex = Re.Pcre.regexp ~flags:[ `CASELESS ] ("^" ^ email_rex ^ "$") in
-  fun x -> match re_exec_opt ~rex x with Some _ -> true | None -> false
+  let rex = Re.Pcre.regexp ~flags:[ `CASELESS ] email_rex in
+  fun ?blacklist x ->
+    match re_exec_opt ~rex x with
+    | None -> false
+    | Some g -> (
+        match blacklist with
+        | None -> true
+        | Some blacklist ->
+            let domain = Re.Pcre.get_substring g 1 |> String.lowercase_ascii in
+            not (SSet.mem domain blacklist))
 
 let split_identity_opt x =
   match String.split_on_char ',' x with

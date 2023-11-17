@@ -122,6 +122,16 @@ module Make () = struct
     | Element ("deny-revote", [], []) -> Web_config.deny_revote := true
     | Element ("deny-newelection", [], []) ->
         Web_config.deny_newelection := true
+    | Element ("blacklisted-domains", [ ("file", file) ], []) ->
+        let ic = open_in file in
+        let rec loop accu =
+          match input_line ic with
+          | exception End_of_file ->
+              close_in ic;
+              accu
+          | x -> loop (SSet.add x accu)
+        in
+        Web_config.blacklisted_domains := loop !Web_config.blacklisted_domains
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag

@@ -163,7 +163,7 @@ struct
   let () =
     Any.register ~service:set_email_post (fun () address ->
         let@ _ = with_site_user in
-        if is_email address then
+        if is_email ~blacklist:!Web_config.blacklisted_domains address then
           let* () =
             Eliom_reference.set Web_state.set_email_env (Some address)
           in
@@ -1764,7 +1764,9 @@ struct
         let* error =
           let* ok = Web_captcha.check_captcha ~challenge ~response in
           if ok then
-            if is_email email then return_none else return_some BadAddress
+            if is_email ~blacklist:!Web_config.blacklisted_domains email then
+              return_none
+            else return_some BadAddress
           else return_some BadCaptcha
         in
         match error with
