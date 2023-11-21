@@ -1012,6 +1012,11 @@ let dump_extended_records uuid rs =
   in
   Filesystem.write_file ~uuid (string_of_election_file ESRecords) records
 
+let extended_records_deferrer =
+  Election_defer.create (fun uuid ->
+      let* x = raw_get_extended_records uuid in
+      dump_extended_records uuid x)
+
 let extended_records_cache =
   new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
 
@@ -1023,7 +1028,15 @@ let add_extended_record uuid username r =
   let* rs = extended_records_cache#find uuid in
   let rs = SMap.add username r rs in
   extended_records_cache#add uuid rs;
-  dump_extended_records uuid rs
+  let* () =
+    let r_date, r_credential = r in
+    { r_username = username; r_date; r_credential }
+    |> string_of_extended_record
+    |> (fun x -> [ x ])
+    |> Filesystem.append_to_file ~uuid extended_records_filename
+  in
+  Election_defer.defer extended_records_deferrer uuid;
+  Lwt.return_unit
 
 let has_voted uuid user =
   let* rs = extended_records_cache#find uuid in
@@ -1054,6 +1067,11 @@ let dump_credential_mappings uuid xs =
   |> List.rev_map string_of_credential_mapping
   |> Filesystem.write_file ~uuid credential_mappings_filename
 
+let credential_mappings_deferrer =
+  Election_defer.create (fun uuid ->
+      let* x = raw_get_credential_mappings uuid in
+      dump_credential_mappings uuid x)
+
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
 
@@ -1077,7 +1095,14 @@ let add_credential_mapping uuid cred mapping =
   let* xs = credential_mappings_cache#find uuid in
   let xs = SMap.add cred mapping xs in
   credential_mappings_cache#add uuid xs;
-  dump_credential_mappings uuid xs
+  let* () =
+    { c_credential = cred; c_ballot = mapping }
+    |> string_of_credential_mapping
+    |> (fun x -> [ x ])
+    |> Filesystem.append_to_file ~uuid credential_mappings_filename
+  in
+  Election_defer.defer credential_mappings_deferrer uuid;
+  Lwt.return_unit
 
 let get_credential_record uuid credential =
   let* cr_ballot = find_credential_mapping uuid credential in

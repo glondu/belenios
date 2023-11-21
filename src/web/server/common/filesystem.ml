@@ -74,6 +74,14 @@ let write_whole_file ?uuid x data =
   in
   Lwt_unix.rename fname_new fname
 
+let append_to_file ?uuid x lines =
+  let fname = get_fname uuid x in
+  let open Lwt_io in
+  let@ oc =
+    with_file ~mode:Output ~flags:[ O_WRONLY; O_APPEND; O_CREAT ] fname
+  in
+  Lwt_list.iter_s (write_line oc) lines
+
 let cleanup_file f =
   Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
 

@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2023-2023 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,14 +19,23 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_t
+open Belenios_core.Common
 
-val file_exists : string -> bool Lwt.t
-val read_file : ?uuid:uuid -> string -> string list option Lwt.t
-val read_whole_file : ?uuid:uuid -> string -> string option Lwt.t
-val read_file_single_line : ?uuid:uuid -> string -> string option Lwt.t
-val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
-val write_whole_file : ?uuid:uuid -> string -> string -> unit Lwt.t
-val append_to_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
-val cleanup_file : string -> unit Lwt.t
-val rmdir : string -> unit Lwt.t
+type t = { task : Uuid.t -> unit Lwt.t; mutable deferred : SSet.t }
+
+let create task = { task; deferred = SSet.empty }
+
+let defer t uuid =
+  let uuid_s = Uuid.unwrap uuid in
+  match SSet.mem uuid_s t.deferred with
+  | false ->
+      t.deferred <- SSet.add uuid_s t.deferred;
+      Lwt.async (fun () ->
+          Lwt.finalize
+            (fun () ->
+              let@ () = Web_election_mutex.with_lock uuid in
+              t.task uuid)
+            (fun () ->
+              t.deferred <- SSet.remove uuid_s t.deferred;
+              Lwt.return_unit))
+  | true -> ()
