@@ -573,7 +573,9 @@ let tab_manage () =
   let* tab_tally = subtab_elt Tally () in
   let* tab_export = subtab_elt Export () in
   let* tab_destroy = subtab_elt Destroy () in
-  let elt = [ tab_electionpage; tab_create; tab_tally; tab_export; tab_destroy ] in
+  let elt =
+    [ tab_electionpage; tab_create; tab_tally; tab_export; tab_destroy ]
+  in
   Lwt.return
     (title
     :: flatten_with_sep
@@ -1621,56 +1623,60 @@ let draft_of_params (Belenios.Election.Template (V1, params)) =
         Lwt.return None
     | Ok (c, _) -> Lwt.return @@ Some c
   in
-  let owners =
-    match (account_opt) with
-    | Some a -> [ a.id ]
-    | None -> []
-  in
+  let owners = match account_opt with Some a -> [ a.id ] | None -> [] in
   let contact =
-    match (account_opt) with
-    | Some a -> (Printf.sprintf "%s <%s>" a.name a.address);
-    | None -> Option.get(params.t_administrator)
+    match account_opt with
+    | Some a -> Printf.sprintf "%s <%s>" a.name a.address
+    | None -> Option.get params.t_administrator
   in
   let draft_group = (Option.get configuration_opt).default_group in
   let questions =
-  {
-    t_description = params.t_description;
-    t_name = params.t_name;
-    t_questions = params.t_questions;
-    t_administrator = params.t_administrator;
-    t_credential_authority = params.t_credential_authority;
-  }
+    {
+      t_description = params.t_description;
+      t_name = params.t_name;
+      t_questions = params.t_questions;
+      t_administrator = params.t_administrator;
+      t_credential_authority = params.t_credential_authority;
+    }
   in
-  Lwt.return (Belenios_api.Common.Draft (V1, {
-    draft_version = 1;
-    draft_questions = questions;
-    draft_owners = owners;
-    draft_languages = [ "en"; "fr" ];
-    draft_booth = 1;
-    draft_group;
-    draft_authentication = `Password;
-    draft_contact = Some(contact)
-  }))
+  Lwt.return
+    (Belenios_api.Common.Draft
+       ( V1,
+         {
+           draft_version = 1;
+           draft_questions = questions;
+           draft_owners = owners;
+           draft_languages = [ "en"; "fr" ];
+           draft_booth = 1;
+           draft_group;
+           draft_authentication = `Password;
+           draft_contact = Some contact;
+         } ))
 
 let export_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* draft  = if is_draft () then (
-    let* draft = Cache.get_until_success Cache.draft in
-    Lwt.return draft
-  ) else (
-    let* election = Cache.get_until_success Cache.e_elec in
-    let* draft = (draft_of_params election) in
-    Lwt.return draft
-  ) in
+  let* draft =
+    if is_draft () then
+      let* draft = Cache.get_until_success Cache.draft in
+      Lwt.return draft
+    else
+      let* election = Cache.get_until_success Cache.e_elec in
+      let* draft = draft_of_params election in
+      Lwt.return draft
+  in
   let button_text = s_ "Click here to export the election" in
-  let encoded_data = Js.encodeURIComponent (Js.string @@ Belenios_api.Common.string_of_draft draft) in
-  let href = "data:text/json;charset=utf-8," ^ (Js.to_string encoded_data) in
+  let encoded_data =
+    Js.encodeURIComponent
+      (Js.string @@ Belenios_api.Common.string_of_draft draft)
+  in
+  let href = "data:text/json;charset=utf-8," ^ Js.to_string encoded_data in
   let uuid = get_current_uuid () in
-  let link = a ~a:[ (a_target "_download_election"); (a_download (Some(uuid ^ ".json"))) ] ~href button_text in
-  Lwt.return
-    [
-      link;
-    ]
+  let link =
+    a
+      ~a:[ a_target "_download_election"; a_download (Some (uuid ^ ".json")) ]
+      ~href button_text
+  in
+  Lwt.return [ link ]
 
 let update_main_zone () =
   let&&* container = document##getElementById (Js.string "main_zone") in
