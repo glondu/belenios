@@ -101,21 +101,23 @@ let sync_one x =
         let content_str = x.to_string content in
         let ifmatch = x.ifmatch in
         match !where_am_i with
-        | Election {uuid; _} -> (
-          let url = match x.endpoint with
-          | Plain x -> x
-          | WithUuid { fmt } -> Printf.sprintf fmt (Uuid.unwrap uuid)
-          in
-          let* y = put_with_token ~ifmatch content_str "%s" url in
-          match y.code with
-          | 200 ->
-              x.dirty <- false;
-              x.ifmatch <- sha256_b64 content_str;
-              Lwt.return @@ Ok ()
-          | code ->
-              Lwt.return
-              @@ Error
-                   (Printf.sprintf "Failed to sync data to server, code %d" code))
+        | Election { uuid; _ } -> (
+            let url =
+              match x.endpoint with
+              | Plain x -> x
+              | WithUuid { fmt } -> Printf.sprintf fmt (Uuid.unwrap uuid)
+            in
+            let* y = put_with_token ~ifmatch content_str "%s" url in
+            match y.code with
+            | 200 ->
+                x.dirty <- false;
+                x.ifmatch <- sha256_b64 content_str;
+                Lwt.return @@ Ok ()
+            | code ->
+                Lwt.return
+                @@ Error
+                     (Printf.sprintf "Failed to sync data to server, code %d"
+                        code))
         | _ -> Lwt.return @@ Ok ())
 
 (***********************************)
