@@ -2309,20 +2309,23 @@ struct
       | true -> (ready, ok "OK")
       | false -> (false, notok (s_ "Missing"))
     in
+    let private_creds_base =
+      match s.credentials_ready with
+      | true ->
+          [
+            txt " ";
+            txt (s_ "Please ");
+            a ~service:election_draft_credentials_get
+              [ txt (s_ "download") ]
+              uuid;
+            txt (s_ " and save them in a secure location.");
+          ]
+      | false -> []
+    in
     let private_creds =
       match s.private_credentials_downloaded with
       | Some true -> ok "OK"
-      | Some false ->
-          span
-            [
-              notok (s_ "Not downloaded.");
-              txt " ";
-              txt (s_ "Please ");
-              a ~service:election_draft_credentials_get
-                [ txt (s_ "download") ]
-                uuid;
-              txt (s_ " and save them in a secure location.");
-            ]
+      | Some false -> span (notok (s_ "Not downloaded.") :: private_creds_base)
       | None -> ok (s_ "Not applicable")
     in
     let ready, trustees =
