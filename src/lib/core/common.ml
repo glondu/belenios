@@ -252,20 +252,24 @@ let split_on_br s =
   in
   loop 0 0 []
 
-let split_lines str =
+let rev_split_lines str =
   let n = String.length str in
-  let find i c =
-    match String.index_from_opt str i c with None -> n | Some j -> j
-  in
-  let rec loop accu i =
-    if i < n then
-      let j = min (find i '\n') (find i '\r') in
+  let rec loop accu i j =
+    if j < n then
+      match str.[j] with
+      | '\n' | '\r' ->
+          let line = String.sub str i (j - i) in
+          let accu = if line = "" then accu else line :: accu in
+          loop accu (j + 1) (j + 1)
+      | _ -> loop accu i (j + 1)
+    else
       let line = String.sub str i (j - i) in
       let accu = if line = "" then accu else line :: accu in
-      loop accu (j + 1)
-    else List.rev accu
+      accu
   in
-  loop [] 0
+  loop [] 0 0
+
+let split_lines str = List.rev @@ rev_split_lines str
 
 let parse_public_credential of_string x =
   let open Serializable_core_t in
@@ -413,7 +417,7 @@ module Voter = struct
   let list_of_string x =
     match Serializable_core_j.voter_list_of_string x with
     | voters -> List.map (fun x -> (`Json, x)) voters
-    | exception _ -> split_lines x |> List.map of_string
+    | exception _ -> rev_split_lines x |> List.rev_map of_string
 
   let get ((_, { address; login; weight }) : t) =
     ( address,
