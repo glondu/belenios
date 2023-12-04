@@ -1159,7 +1159,7 @@ struct
                       ([
                          th [ txt (s_ "Trustee") ];
                          th [ txt (s_ "Public name") ];
-                         th [ txt (s_ "Mail") ];
+                         th [ txt (s_ "E-mail") ];
                          th [ txt (s_ "Link") ];
                          th [ txt (s_ "State") ];
                        ]
@@ -1830,7 +1830,7 @@ struct
                             txt (s_ "Download ");
                             raw_a ~service:home
                               ~a:[ a_id "voters_txt" ]
-                              [ txt (s_ "the list of voters") ]
+                              [ txt (s_ "voter list") ]
                               ();
                             txt ".";
                             br ();
@@ -1906,7 +1906,7 @@ struct
       let hash = span ~a:[ a_id "voters_hash" ] [] in
       div
         [
-          div [ txt (s_ "List of voters:") ];
+          div [ txt (s_ "Voter list:") ];
           div [ raw_textarea ~rows:5 ~cols:40 "voters" "" ];
           div [ txt (s_ "Fingerprint of voters:"); txt " "; hash ];
         ]

@@ -821,8 +821,8 @@ let voters_content () =
         h2
           [
             txt
-              (if is_frozen then s_ "List of voters (not editable):"
-               else s_ "List of voters:");
+              (if is_frozen then s_ "Voter list (not editable):"
+               else s_ "Voter list:");
           ];
         div
           ~a:[ a_id "list_warning" ]
