@@ -55,6 +55,7 @@ type metadata = {
   ?languages : string list option;
   ?contact : string option;
   ?booth_version : int option;
+  ?billing_request : string option;
 } <ocaml field_prefix="e_">
 
 type election_dates = {

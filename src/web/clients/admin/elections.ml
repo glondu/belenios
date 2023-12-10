@@ -1545,6 +1545,10 @@ let create_content () =
               (string_of_draft_request `ValidateElection)
               "drafts/%s" uuid
           in
+          let fail () =
+            alert ("Failed with error code " ^ string_of_int x.code);
+            Lwt.return_unit
+          in
           match x.code with
           | 200 ->
               where_am_i :=
@@ -1555,9 +1559,21 @@ let create_content () =
                     tab = CreateOpenClose;
                   };
               !update_election_main ()
-          | _ ->
-              alert ("Failed with error code " ^ string_of_int x.code);
-              Lwt.return_unit)
+          | 400 -> (
+              match request_status_of_string x.content with
+              | exception _ -> fail ()
+              | status -> (
+                  match status.error with
+                  | `ValidationError (`MissingBilling id) ->
+                      let url =
+                        Printf.sprintf
+                          "%s/draft/prebilling?id=%s&cont=elections/%s@new"
+                          (url_prefix ()) id uuid
+                      in
+                      Dom_html.window##.location##.href := Js.string url;
+                      Lwt.return_unit
+                  | _ -> fail ()))
+          | _ -> fail ())
     in
     Lwt.return
       [

@@ -199,6 +199,7 @@ let post_drafts account draft =
       e_languages = None;
       e_contact = None;
       e_booth_version = None;
+      e_billing_request = None;
     }
   in
   let se_questions =
@@ -852,13 +853,15 @@ let check_owner account uuid cont =
   if Accounts.check account metadata.e_owners then cont metadata
   else unauthorized
 
-let post_draft_status uuid (Draft (v, se)) = function
+let post_draft_status ~admin_id uuid (Draft (v, se)) = function
   | `SetDownloaded ->
       let* () = Web_persist.set_private_creds_downloaded uuid in
       ok
   | `ValidateElection ->
       let* s = get_draft_status uuid (Draft (v, se)) in
-      let* () = Web_persist.validate_election uuid (Draft (v, se)) s in
+      let* () =
+        Web_persist.validate_election ~admin_id uuid (Draft (v, se)) s
+      in
       ok
   | `SetCredentialAuthorityVisited ->
       let* () =
@@ -955,11 +958,11 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             else Lwt.return_unit
           in
           ok
-      | `POST, `Administrator _ ->
+      | `POST, `Administrator a ->
           let@ () = handle_ifmatch ifmatch get in
           let@ x = body.run draft_request_of_string in
           let@ () = handle_generic_error in
-          post_draft_status uuid se x
+          post_draft_status ~admin_id:a.id uuid se x
       | `DELETE, `Administrator _ ->
           let@ () = handle_ifmatch ifmatch get in
           let@ () = handle_generic_error in

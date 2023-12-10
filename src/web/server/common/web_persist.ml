@@ -257,6 +257,7 @@ let empty_metadata =
     e_languages = None;
     e_contact = None;
     e_booth_version = None;
+    e_billing_request = None;
   }
 
 let get_election_metadata uuid =
@@ -1246,6 +1247,27 @@ let get_audit_cache uuid =
       let* () = Spool.set ~uuid Spool.audit_cache cache in
       return cache
 
+let get_admin_context admin_id =
+  let* elections = get_elections_by_owner admin_id in
+  let* elections =
+    Lwt_list.filter_map_s
+      (function
+        | `Validated, uuid, _, _ ->
+            let* cache = get_audit_cache uuid in
+            Lwt.return_some cache.cache_checksums.ec_num_voters
+        | _ -> Lwt.return_none)
+      elections
+  in
+  let* account = Accounts.get_account_by_id admin_id in
+  let email =
+    match account with None -> !Web_config.server_mail | Some a -> a.email
+  in
+  let nb_elections = List.length elections in
+  let total_voters = List.fold_left ( + ) 0 elections in
+  Lwt.return Belenios_api.Serializable_t.{ email; nb_elections; total_voters }
+
+let () = Billing.set_get_admin_context get_admin_context
+
 let copy_file src dst =
   let open Lwt_io in
   chars_of_file src |> chars_to_file dst
@@ -1538,7 +1560,7 @@ let send_credentials uuid (Draft (v, se)) =
   se.se_pending_credentials <- false;
   Lwt.return_unit
 
-let validate_election uuid (Draft (v, se)) s =
+let validate_election ~admin_id uuid (Draft (v, se)) s =
   let open Belenios_api.Serializable_j in
   let version = se.se_version in
   let uuid_s = Uuid.unwrap uuid in
@@ -1564,6 +1586,20 @@ let validate_election uuid (Draft (v, se)) s =
     if not s.trustees_ready then validation_error `TrusteesNotReady;
     if not s.nh_and_weights_compatible then
       validation_error `WeightsAreIncompatibleWithNH
+  in
+  (* billing *)
+  let* () =
+    match (!Web_config.billing, se.se_metadata.e_billing_request) with
+    | None, _ -> Lwt.return_unit
+    | Some _, None ->
+        let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
+        let se_metadata = { se.se_metadata with e_billing_request = Some id } in
+        let se = { se with se_metadata } in
+        let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
+        validation_error (`MissingBilling id)
+    | Some (url, _), Some id ->
+        let* b = Billing.check ~url ~id in
+        if b then Lwt.return_unit else validation_error (`MissingBilling id)
   in
   (* trustees *)
   let group = Group.of_string ~version se.se_group in

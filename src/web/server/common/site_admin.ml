@@ -35,6 +35,7 @@ module Pages_admin_root = Pages_admin
 module Make
     (X : Pages_sig.S)
     (Site_common : Site_common_sig.S)
+    (Web_cont : Web_cont_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
   open X
@@ -952,19 +953,56 @@ struct
         let@ se = with_draft_election_ro uuid in
         Pages_admin.election_draft_confirm uuid se () >>= Html.send)
 
+  let redirect_billing ~cont ~url ~callback ~id =
+    let* () = Eliom_reference.set Web_state.billing_env (Some cont) in
+    Printf.sprintf "%s/pre?id=%s&callback=%s" url id callback
+    |> String_redirection.send
+
+  let handle_draft_create postbilling cont =
+    let uuid =
+      match cont.path with
+      | ContSiteElection uuid -> uuid
+      | _ -> failwith "handle_draft_create"
+    in
+    let@ _, account, _ = with_site_user in
+    let@ (Draft (_, se) as fse) = with_draft_election ~save:false uuid in
+    Lwt.catch
+      (fun () ->
+        if Accounts.check account se.se_owners then
+          let* s = Api_drafts.get_draft_status uuid fse in
+          let* () =
+            Web_persist.validate_election ~admin_id:account.id uuid fse s
+          in
+          Web_cont.exec cont
+        else Lwt.fail (Failure "Forbidden"))
+      (fun e ->
+        match (postbilling, !Web_config.billing, e) with
+        | ( false,
+            Some (url, callback),
+            Api_generic.Error (`ValidationError (`MissingBilling id)) ) ->
+            redirect_billing ~cont ~url ~callback ~id
+        | _ -> Pages_admin.new_election_failure (`Exception e) () >>= Html.send)
+
   let () =
     Any.register ~service:election_draft_create (fun uuid () ->
-        let@ _, account, _ = with_site_user in
-        let@ (Draft (_, se) as fse) = with_draft_election ~save:false uuid in
-        Lwt.catch
-          (fun () ->
-            if Accounts.check account se.se_owners then
-              let* s = Api_drafts.get_draft_status uuid fse in
-              let* () = Web_persist.validate_election uuid fse s in
-              redir_preapply election_admin uuid ()
-            else Lwt.fail (Failure "Forbidden"))
-          (fun e ->
-            Pages_admin.new_election_failure (`Exception e) () >>= Html.send))
+        let cont = { path = ContSiteElection uuid; admin = Classic } in
+        handle_draft_create false cont)
+
+  let () =
+    Any.register ~service:election_draft_prebilling (fun (id, cont) () ->
+        match !Web_config.billing with
+        | Some (url, callback) -> redirect_billing ~cont ~url ~callback ~id
+        | None -> handle_draft_create false cont)
+
+  let () =
+    Any.register ~service:election_draft_postbilling (fun () () ->
+        let* cont = Eliom_reference.get Web_state.billing_env in
+        match cont with
+        | None ->
+            Pages_admin.new_election_failure
+              (`Exception (Failure "Session expired")) ()
+            >>= Html.send
+        | Some cont -> handle_draft_create true cont)
 
   let () =
     Any.register ~service:election_draft_destroy (fun uuid () ->

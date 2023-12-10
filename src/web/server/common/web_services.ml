@@ -232,6 +232,15 @@ module Make () = struct
   let election_draft_confirm =
     create ~path:(Path [ "draft"; "confirm" ]) ~meth:(Get (uuid "uuid")) ()
 
+  let election_draft_prebilling =
+    create
+      ~path:(Path [ "draft"; "prebilling" ])
+      ~meth:(Get (string "id" ** site_cont "cont"))
+      ()
+
+  let election_draft_postbilling =
+    create ~path:(Path [ "draft"; "postbilling" ]) ~meth:(Get unit) ()
+
   let election_draft_create =
     create_attached_post ~csrf_safe:true ~fallback:election_draft
       ~post_params:unit ()

@@ -43,6 +43,7 @@ type validation_error =
   | WeightsAreIncompatibleWithNH
   | NotSinglePrivateKey
   | KeyEstablishmentNotFinished
+  | MissingBilling of string
   ]
 
 type error =
@@ -266,3 +267,17 @@ type shuffler_request =
   [ Skip
   | Select
   ]
+
+type billing_context = {
+    email : string;
+    nb_elections : int;
+    total_voters : int;
+}
+
+type billing_request = {
+    admin_id : int;
+    date : float;
+    uuid : uuid;
+    nb_voters : int;
+    ?context : billing_context option;
+}

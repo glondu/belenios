@@ -79,6 +79,8 @@ module Make () = struct
           Api_drafts.dispatch ~token ~ifmatch endpoint method_ body
       | "elections" :: endpoint ->
           Api_elections.dispatch ~token ~ifmatch endpoint method_ body
+      | "billing" :: endpoint ->
+          Billing.dispatch ~token ~ifmatch endpoint method_ body
       | _ -> not_found
     in
     Eliom_registration.String.send ~code (response, "application/json")

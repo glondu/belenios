@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2023-2023 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,31 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let prefix = ref ""
-let site_auth_config = ref []
-let exported_auth_config = ref []
-let locales_dir = ref "."
-let spool_dir = ref "."
-let accounts_dir = ref "."
-let server_name = ref "Belenios public server"
-let server_mail = ref "noreply@example.org"
-let return_path = ref None
-let contact_uri = ref None
-let gdpr_uri = ref ""
-let warning_file = ref None
-let footer_file = ref None
-let admin_home = ref None
-let success_snippet = ref None
-let source_file = ref "belenios.tar.gz"
-let logo = ref None
-let favicon = ref None
-let sealing = ref None
-let maxmailsatonce = ref 1000
-let uuid_length = ref None
-let default_group = ref ""
-let nh_group = ref ""
-let domain = ref ""
-let deny_revote = ref false
-let deny_newelection = ref false
-let blacklisted_domains = ref Belenios_core.Common.SSet.empty
-let billing = ref None
+open Belenios_core.Common
+open Api_generic
+
+val create : admin_id:int -> uuid:Uuid.t -> nb_voters:int -> string Lwt.t
+val check : url:string -> id:string -> bool Lwt.t
+
+val set_get_admin_context :
+  (int -> Belenios_api.Serializable_t.billing_context Lwt.t) -> unit
+
+val dispatch :
+  token:string option ->
+  ifmatch:string option ->
+  string list ->
+  [ `GET | `POST | `PUT | `DELETE ] ->
+  body ->
+  result Lwt.t

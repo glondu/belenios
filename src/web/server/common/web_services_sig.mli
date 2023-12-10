@@ -716,6 +716,35 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
+  val election_draft_prebilling :
+    ( string * Web_common.site_cont,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom_parameter.param_name
+      * [ `One of Web_common.site_cont ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
+  val election_draft_postbilling :
+    ( unit,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      unit,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
   val election_draft_create :
     ( Web_serializable_t.uuid,
       unit,

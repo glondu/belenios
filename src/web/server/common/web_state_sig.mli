@@ -42,5 +42,6 @@ module type S = sig
   val signup_address : string option Eliom_reference.eref
   val signup_env : signup_env option Eliom_reference.eref
   val set_email_env : string option Eliom_reference.eref
+  val billing_env : site_cont option Eliom_reference.eref
   val discard : unit -> unit Lwt.t
 end

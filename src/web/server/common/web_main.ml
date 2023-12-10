@@ -132,6 +132,8 @@ module Make () = struct
           | x -> loop (SSet.add x accu)
         in
         Web_config.blacklisted_domains := loop !Web_config.blacklisted_domains
+    | Element ("billing", [ ("url", url); ("callback", callback) ], []) ->
+        Web_config.billing := Some (url, callback)
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag
@@ -228,6 +230,7 @@ module Make () = struct
 
   module Api = Api_eliom.Make ()
   module Web_captcha = Web_captcha.Make (X.Web_services)
+  module Web_cont = Web_cont.Make (X.Web_services)
 
   module Web_auth =
     Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
@@ -245,7 +248,7 @@ module Make () = struct
   module Web_auth_cas = Web_auth_cas.Make (Web_auth)
   module Web_auth_oidc = Web_auth_oidc.Make (Web_auth)
   module Site_common = Site_common.Make (X)
-  module Site_admin = Site_admin.Make (X) (Site_common) (Web_auth)
+  module Site_admin = Site_admin.Make (X) (Site_common) (Web_cont) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
 
   let check_spool_version () =
