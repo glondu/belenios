@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-08 08:07+0000\n"
-"PO-Revision-Date: 2023-12-28 10:11+0000\n"
+"PO-Revision-Date: 2023-12-29 14:08+0000\n"
 "Last-Translator: noreddine belhadj cheikh <noreddine.belhadjcheikh@gmail.com>"
 "\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/belenios/voter/ar/"
@@ -446,7 +446,7 @@ msgstr "عدد الدرجات:"
 
 #: src/web/server/common/pages_voter.ml:1142
 msgid "Number of seats:"
-msgstr "عدد الدرجات:"
+msgstr "عدد المقاعد:"
 
 #. src/web/server/common/mails_voter.ml:74
 #: src/web/server/common/mails_voter.ml:181
