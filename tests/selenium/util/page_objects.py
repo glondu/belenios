@@ -77,23 +77,23 @@ class NormalVoteGenericStepPage(VerifiablePage):
 
 
 class ResponsiveFrontendSelectors:
-    current_step_css_selector = ".breadcrumb__step--current"
-    current_step_title_css_selector = ".breadcrumb__step--current .breadcrumb__step__title"
+    current_step_css_selector = ".progress__step--current"
+    current_step_title_css_selector = ".progress__step--current .progress__step__title"
 
 
 class ResponsiveBoothGenericStepPage(VerifiablePage):
     current_step_title_css_selector = ResponsiveFrontendSelectors.current_step_title_css_selector
-    expected_breadcrumb_title = "" # will be customized by children
+    expected_progress_title = "" # will be customized by children
 
-    def verify_breadcrumb(self):
-        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, self.current_step_title_css_selector, self.expected_breadcrumb_title, self.timeout)
+    def verify_progress(self):
+        wait_for_an_element_exists_and_is_visible_and_contains_expected_text(self.browser, self.current_step_title_css_selector, self.expected_progress_title, self.timeout)
 
     def verify_page(self):
-        self.verify_breadcrumb()
+        self.verify_progress()
 
 
 class ResponsiveBoothStep1Page(ResponsiveBoothGenericStepPage):
-    expected_breadcrumb_title = "Input credential"
+    expected_progress_title = "Input credential"
     credential_input_css_selector = "#credential"
     next_button_css_selector = ".input-credential-section__button"
 
@@ -155,7 +155,7 @@ class NormalVoteStep1Page(NormalVoteGenericStepPage):
 
 
 class ResponsiveBoothStep2Page(ResponsiveBoothGenericStepPage):
-    expected_breadcrumb_title = "Answer to questions"
+    expected_progress_title = "Answer to questions"
     answers_css_selector = ".classic-vote-candidates-list label" # includes blank vote
     next_button_css_selector = ".vote-navigation__next-button-container .nice-button"
 
@@ -271,7 +271,7 @@ class BallotTrackerPage(SeleniumPageObjectModel):
 
 
 class ResponsiveBoothStep3Page(ResponsiveBoothGenericStepPage):
-    expected_breadcrumb_title = "Review and encrypt"
+    expected_progress_title = "Review and encrypt"
 
     def __init__(self, browser, timeout):
         super().__init__(browser, timeout)
