@@ -3,7 +3,7 @@
 
 /* UI Components try to respect [BEM](http://getbem.com/naming/) for the naming of their CSS classes */
 @import "../../../frontend/booth/components/PageHeader.css";
-@import "../../../frontend/booth/components/Breadcrumb.css";
+@import "../../../frontend/booth/components/Progress.css";
 @import "../../../frontend/booth/components/PageFooter.css";
 @import "../../../frontend/booth/components/NiceButton.css";
 @import "../../../frontend/booth/components/NiceInput.css";

@@ -5,7 +5,7 @@ import { withTranslation } from "react-i18next";
 
 import i18n_init from "./i18n_init.js";
 import PageHeader from "./components/PageHeader.js";
-import { VoteBreadcrumb } from "./components/Breadcrumb.js";
+import { VoteProgress } from "./components/Progress.js";
 import { AllQuestionsWithPagination } from "./components/AllQuestionsWithPagination.js";
 import NoUuidSection from "./components/NoUuidSection.js";
 import InputCredentialSection from "./components/InputCredentialSection.js";
@@ -45,7 +45,7 @@ function VotePage({
         className: "page-body",
         id: "main", // used to ease targetting of DOM elements in automated tests
       },
-      e(VoteBreadcrumb, {
+      e(VoteProgress, {
         currentStep: currentStep,
       }),
       children,

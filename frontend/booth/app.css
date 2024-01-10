@@ -1,6 +1,6 @@
 /* UI Components try to respect [BEM](http://getbem.com/naming/) for the naming of their CSS classes */
 @import "./components/PageHeader.css";
-@import "./components/Breadcrumb.css";
+@import "./components/Progress.css";
 @import "./components/InputCredentialSection.css";
 @import "./components/CandidateWithCheckbox.css";
 @import "./components/ClassicVoteCandidatesList.css";

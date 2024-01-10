@@ -805,84 +805,117 @@ struct
   let progress_responsive_step5 l =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     div
-      ~a:[ a_class [ "breadcrumb" ]; a_style "padding-top: 0;" ]
+      ~a:[ a_class [ "progress" ]; a_style "padding-top: 0;" ]
       [
-        div ~a:[ a_class [ "breadcrumb__step-separator" ] ] [];
+        div ~a:[ a_class [ "progress__step-separator" ] ] [];
         div
-          ~a:[ a_class [ "breadcrumb__step" ] ]
+          ~a:[ a_class [ "progress__step"; "progress__step--done" ] ]
           [
+            div
+              ~a:[ a_class [ "progress__step__dot-container"; "line-right" ] ]
+              [ div ~a:[ a_class [ "progress__step__dot" ] ] [ txt "" ] ];
             span
-              ~a:[ a_class [ "breadcrumb__step__title" ] ]
+              ~a:[ a_class [ "progress__step__title" ] ]
               [ txt (s_ "Input credential") ];
             span
               ~a:
                 [
-                  a_class [ "breadcrumb__step__short-title" ];
+                  a_class [ "progress__step__short-title" ];
                   a_title (s_ "Input credential");
                 ]
               [ txt (s_ "Step 1") ];
           ];
-        div ~a:[ a_class [ "breadcrumb__step-separator" ] ] [];
+        div ~a:[ a_class [ "progress__step-separator" ] ] [];
         div
-          ~a:[ a_class [ "breadcrumb__step" ] ]
+          ~a:[ a_class [ "progress__step"; "progress__step--done" ] ]
           [
+            div
+              ~a:
+                [
+                  a_class
+                    [
+                      "progress__step__dot-container"; "line-left"; "line-right";
+                    ];
+                ]
+              [ div ~a:[ a_class [ "progress__step__dot" ] ] [ txt "" ] ];
             span
-              ~a:[ a_class [ "breadcrumb__step__title" ] ]
+              ~a:[ a_class [ "progress__step__title" ] ]
               [ txt (s_ "Answer to questions") ];
             span
               ~a:
                 [
-                  a_class [ "breadcrumb__step__short-title" ];
+                  a_class [ "progress__step__short-title" ];
                   a_title (s_ "Answer to questions");
                 ]
               [ txt (s_ "Step 2") ];
           ];
-        div ~a:[ a_class [ "breadcrumb__step-separator" ] ] [];
+        div ~a:[ a_class [ "progress__step-separator" ] ] [];
         div
-          ~a:[ a_class [ "breadcrumb__step" ] ]
+          ~a:[ a_class [ "progress__step"; "progress__step--done" ] ]
           [
+            div
+              ~a:
+                [
+                  a_class
+                    [
+                      "progress__step__dot-container"; "line-left"; "line-right";
+                    ];
+                ]
+              [ div ~a:[ a_class [ "progress__step__dot" ] ] [ txt "" ] ];
             span
-              ~a:[ a_class [ "breadcrumb__step__title" ] ]
+              ~a:[ a_class [ "progress__step__title" ] ]
               [ txt (s_ "Review and encrypt") ];
             span
               ~a:
                 [
-                  a_class [ "breadcrumb__step__short-title" ];
+                  a_class [ "progress__step__short-title" ];
                   a_title (s_ "Review and encrypt");
                 ]
               [ txt (s_ "Step 3") ];
           ];
-        div ~a:[ a_class [ "breadcrumb__step-separator" ] ] [];
+        div ~a:[ a_class [ "progress__step-separator" ] ] [];
         div
-          ~a:[ a_class [ "breadcrumb__step" ] ]
+          ~a:[ a_class [ "progress__step"; "progress__step--done" ] ]
           [
+            div
+              ~a:
+                [
+                  a_class
+                    [
+                      "progress__step__dot-container"; "line-left"; "line-right";
+                    ];
+                ]
+              [ div ~a:[ a_class [ "progress__step__dot" ] ] [ txt "" ] ];
             span
-              ~a:[ a_class [ "breadcrumb__step__title" ] ]
+              ~a:[ a_class [ "progress__step__title" ] ]
               [ txt (s_ "Authenticate") ];
             span
               ~a:
                 [
-                  a_class [ "breadcrumb__step__short-title" ];
+                  a_class [ "progress__step__short-title" ];
                   a_title (s_ "Authenticate");
                 ]
               [ txt (s_ "Step 4") ];
           ];
-        div ~a:[ a_class [ "breadcrumb__step-separator" ] ] [];
+        div ~a:[ a_class [ "progress__step-separator" ] ] [];
         div
-          ~a:[ a_class [ "breadcrumb__step breadcrumb__step--current" ] ]
+          ~a:[ a_class [ "progress__step"; "progress__step--current" ] ]
           [
+            div
+              ~a:[ a_class [ "progress__step__dot-container"; "line-left" ] ]
+              [ div ~a:[ a_class [ "progress__step__dot" ] ] [ txt "" ] ];
             span
-              ~a:[ a_class [ "breadcrumb__step__title" ] ]
+              ~a:[ a_class [ "progress__step__title" ] ]
               [ txt (s_ "Confirm") ];
             span
               ~a:
                 [
-                  a_class [ "breadcrumb__step__short-title" ];
+                  a_class [ "progress__step__short-title" ];
                   a_title (s_ "Confirm");
                 ]
               [ txt (s_ "Step 5") ];
           ];
-        div ~a:[ a_class [ "breadcrumb__step-separator" ] ] [];
+        div ~a:[ a_class [ "progress__step-separator" ] ] [];
       ]
 
   let lost_ballot election () =

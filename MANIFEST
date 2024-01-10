@@ -109,8 +109,6 @@ frontend/booth/app.css
 frontend/booth/app.js
 frontend/booth/color_utils.js
 frontend/booth/components/AllQuestionsWithPagination.js
-frontend/booth/components/Breadcrumb.css
-frontend/booth/components/Breadcrumb.js
 frontend/booth/components/CandidateWithCheckbox.css
 frontend/booth/components/CandidateWithCheckbox.js
 frontend/booth/components/CandidateWithInput.js
@@ -147,6 +145,8 @@ frontend/booth/components/PreferentialVotingWithoutEqualityCandidatesList.js
 frontend/booth/components/PreferentialVotingWithoutEqualityColumn.css
 frontend/booth/components/PreferentialVotingWithoutEqualityColumn.js
 frontend/booth/components/PreferentialVotingWithoutEqualityVoteRecap.js
+frontend/booth/components/Progress.css
+frontend/booth/components/Progress.js
 frontend/booth/components/QuestionWithVotableAnswers.css
 frontend/booth/components/QuestionWithVotableAnswers.js
 frontend/booth/components/ReviewEncryptSection.css
@@ -440,6 +440,8 @@ src/web/server/common/api_eliom.mli
 src/web/server/common/api_generic.ml
 src/web/server/common/api_generic.mli
 src/web/server/common/dune
+src/web/server/common/election_defer.ml
+src/web/server/common/election_defer.mli
 src/web/server/common/filesystem.ml
 src/web/server/common/filesystem.mli
 src/web/server/common/mails_voter.ml
@@ -530,6 +532,17 @@ tests/debian-votes/convert.ml
 tests/debian-votes/download.sh
 tests/debian-votes/dune
 tests/dune
+tests/scaling/common.ml
+tests/scaling/common.mli
+tests/scaling/dune
+tests/scaling/main.ml
+tests/scaling/main.mli
+tests/scaling/random.ml
+tests/scaling/random.mli
+tests/scaling/setup.ml
+tests/scaling/setup.mli
+tests/scaling/vote.ml
+tests/scaling/vote.mli
 tests/selenium/load_testing_set_up.py
 tests/selenium/settings.py
 tests/selenium/test_clicker_monkey.py

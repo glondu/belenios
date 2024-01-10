@@ -1,0 +1,101 @@
+.progress {
+  line-height: 1.1em;
+  font-size: 12px;
+  display: flex;
+}
+
+@media screen and (max-width: 640px) {
+  .progress {
+    padding: 12px 6px;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .progress {
+    padding: 15px 20px;
+  }
+}
+
+.progress__step {
+  text-align: center;
+  flex: 1;
+}
+.progress__step--not-current {
+  color: #757575;
+}
+.progress__step--current {
+  font-weight: bold;
+  color: #212121;
+}
+.progress__step--current .progress__step__dot {
+  background-color: #212121;
+  border: 2px solid #212121;
+}
+.progress__step--done .progress__step__dot {
+  background-color: #757575;
+  border: 2px solid #757575;
+}
+
+.progress__step__dot-container {
+  width: 100%;
+  position: relative;
+}
+
+.progress__step__dot {
+  position: relative;
+  z-index: 2;
+  margin: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
+  background-color: #fafafa;
+  border: 2px solid #757575;
+  margin-bottom: 8px;
+}
+.line-left::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  right: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 2px;
+  background-color: #757575;
+  z-index: 1;
+}
+.line-right::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  height: 2px;
+  background-color: #757575;
+  z-index: 1;
+}
+
+.progress__step__title {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+@media screen and (max-width: 640px) {
+  .progress__step__title {
+    display: none;
+  }
+
+  .progress__step__short-title {
+    display: initial;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .progress__step__title {
+    display: initial;
+  }
+
+  .progress__step__short-title {
+    display: none;
+  }
+}
