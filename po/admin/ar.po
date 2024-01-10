@@ -755,7 +755,7 @@ msgstr "نسبة المشاركة الحالية: %d / %d = %.2f %%"
 
 #: src/web/server/common/site_admin.ml:1484
 msgid "Data is invalid! (%s)"
-msgstr "البيانات غير صحيحة! (٪س)"
+msgstr "البيانات غير صحيحة! (%s)"
 
 #. src/web/server/common/pages_admin.ml:2080
 #: src/web/server/common/pages_admin.ml:2123
@@ -2112,7 +2112,7 @@ msgstr "الوضع"
 
 #: src/web/clients/tool/tool_js_ttkeygen.ml:37
 msgid "Step %d/3"
-msgstr "الخطوة 3/d%"
+msgstr "الخطوة 3/%d"
 
 #: src/web/server/common/pages_admin.ml:2027
 msgid "Step 0/3"
