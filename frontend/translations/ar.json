@@ -1,8 +1,8 @@
 {
     "page_title": "كشك تصويت بيلينيوس",
     "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "يرجى اختيار رتبة للمرشح {{candidate}}.",
-    "breadcrumb_answer_to_questions": "أجب على الأسئلة",
-    "breadcrumb_review_and_encrypt": "مراجعة وتشفير",
-    "breadcrumb_confirm": "تأكيد",
+    "progress_answer_to_questions": "أجب على الأسئلة",
+    "progress_review_and_encrypt": "مراجعة وتشفير",
+    "progress_confirm": "تأكيد",
     "blank_vote": "تصويت فارغ"
 }

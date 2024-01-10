@@ -1,6 +1,6 @@
 {
-    "breadcrumb_authenticate": "Autentificatz-vos",
-    "breadcrumb_confirm": "Confirmar",
+    "progress_authenticate": "Autentificatz-vos",
+    "progress_confirm": "Confirmar",
     "next_button_label": "Seguent",
     "previous_button_label": "Precedent"
 }

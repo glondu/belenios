@@ -80,25 +80,25 @@ Progress.defaultProps = {
 function TranslatableVoteProgress({ t, ...props }) {
   let voteProgressSteps = [
     {
-      title: t("breadcrumb_input_credential"),
+      title: t("progress_input_credential"),
     },
     {
-      title: t("breadcrumb_answer_to_questions"),
+      title: t("progress_answer_to_questions"),
     },
     {
-      title: t("breadcrumb_review_and_encrypt"),
+      title: t("progress_review_and_encrypt"),
     },
     {
-      title: t("breadcrumb_authenticate"),
+      title: t("progress_authenticate"),
     },
     {
-      title: t("breadcrumb_confirm"),
+      title: t("progress_confirm"),
     },
   ];
   voteProgressSteps = voteProgressSteps.map(function (el, index) {
     return {
       ...el,
-      shortTitle: t("breadcrumb_step_x", { step: index + 1 }),
+      shortTitle: t("progress_step_x", { step: index + 1 }),
     };
   });
   return e(Progress, {
