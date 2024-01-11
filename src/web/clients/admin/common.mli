@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Js_of_ocaml
 open Belenios_core.Common
 
 (** Session management *)
@@ -40,6 +41,7 @@ type tab =
   | ElectionPage
   | CreateOpenClose
   | Tally
+  | Export
   | Destroy
 
 type status = Draft | Running | Tallied | Archived
@@ -63,3 +65,4 @@ val is_finished : unit -> bool
 val popup_failsync : string -> unit Lwt.t
 val url_prefix : unit -> string
 val default_version : Belenios.Election.some_version
+val read_full : #File.blob Js.t -> Js.js_string Js.t Lwt.t
