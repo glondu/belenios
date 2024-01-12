@@ -203,7 +203,7 @@ struct
     let* login_box = login_box ~cont:ContSiteAdmin () in
     base ~title ~login_box ~content ()
 
-  let try_new_ui l =
+  let try_new_ui l uuid =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     div
     @@
@@ -221,7 +221,9 @@ struct
             | Element ("b", [], [ PCData x ]) ->
                 span ~a:[ a_class [ "markup-b" ] ] [ txt x ]
             | Element ("a", [], [ PCData x ]) ->
-                a ~service:(admin_new ()) [ txt x ] ()
+                Eliom_content.Html.F.Raw.a
+                  ~a:[ a_href (make_admin_new_uri uuid) ]
+                  [ txt x ]
             | _ -> txt str)
           xs
     | _ -> [ txt str ]
@@ -291,7 +293,7 @@ struct
               [
                 prepare_new_election;
                 div [ br () ];
-                try_new_ui l;
+                try_new_ui l None;
                 div [ br () ];
                 h2 [ txt (s_ "Elections being prepared") ];
                 draft;
@@ -799,7 +801,7 @@ struct
     in
     let content =
       [
-        try_new_ui l;
+        try_new_ui l (Some uuid);
         hr ();
         div_description;
         hr ();
@@ -3001,7 +3003,7 @@ struct
     in
     let content =
       [
-        try_new_ui l;
+        try_new_ui l (Some uuid);
         div
           [
             a ~service:Web_services.election_home

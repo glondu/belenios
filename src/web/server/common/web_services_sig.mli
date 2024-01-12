@@ -85,6 +85,9 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
+  val make_admin_new_uri :
+    Web_serializable_t.uuid option -> Eliom_content.Xml.uri
+
   val privacy_notice_accept :
     ( unit,
       Web_common.privacy_cont,

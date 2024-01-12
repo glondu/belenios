@@ -38,6 +38,17 @@ module Make () = struct
       ~service:(Eliom_service.static_dir ())
       [ "static"; "admin.html" ]
 
+  let make_admin_new_uri uuid =
+    let base =
+      Eliom_uri.make_string_uri ~absolute:true ~service:(admin_new ()) ()
+      |> rewrite_prefix
+    in
+    Eliom_content.Xml.uri_of_string
+    @@
+    match uuid with
+    | None -> base
+    | Some uuid -> base ^ "#" ^ Belenios_core.Common.Uuid.unwrap uuid
+
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true
       ~meth:(Post (unit, privacy_cont "cont"))
