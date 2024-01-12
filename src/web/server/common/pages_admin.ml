@@ -203,6 +203,29 @@ struct
     let* login_box = login_box ~cont:ContSiteAdmin () in
     base ~title ~login_box ~content ()
 
+  let try_new_ui l =
+    let open (val l : Belenios_ui.I18n.GETTEXT) in
+    div
+    @@
+    let str, xml =
+      let s_ = Belenios_ui.I18n.s_xml s_ in
+      s_
+        "<div><b>New:</b> try the <a>experimental interface</a> (more \
+         ergonomic)</div>"
+    in
+    match xml with
+    | Element ("div", [], xs) ->
+        List.map
+          (function
+            | Xml_light_types.PCData x -> txt x
+            | Element ("b", [], [ PCData x ]) ->
+                span ~a:[ a_class [ "markup-b" ] ] [ txt x ]
+            | Element ("a", [], [ PCData x ]) ->
+                a ~service:(admin_new ()) [ txt x ] ()
+            | _ -> txt str)
+          xs
+    | _ -> [ txt str ]
+
   let admin ~elections =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -249,28 +272,6 @@ struct
           | [] -> p [ txt (s_ "You own no such elections!") ]
           | _ -> ul @@ List.map format_election archived
         in
-        let try_new_ui =
-          div
-          @@
-          let str, xml =
-            let s_ = Belenios_ui.I18n.s_xml s_ in
-            s_
-              "<div><b>New:</b> try the <a>experimental interface</a> (more \
-               ergonomic)</div>"
-          in
-          match xml with
-          | Element ("div", [], xs) ->
-              List.map
-                (function
-                  | Xml_light_types.PCData x -> txt x
-                  | Element ("b", [], [ PCData x ]) ->
-                      span ~a:[ a_class [ "markup-b" ] ] [ txt x ]
-                  | Element ("a", [], [ PCData x ]) ->
-                      a ~service:(admin_new ()) [ txt x ] ()
-                  | _ -> txt str)
-                xs
-          | _ -> [ txt str ]
-        in
         let prepare_new_election =
           if !Web_config.deny_newelection then
             div [ txt (s_ "New elections are not allowed on this server.") ]
@@ -290,7 +291,7 @@ struct
               [
                 prepare_new_election;
                 div [ br () ];
-                try_new_ui;
+                try_new_ui l;
                 div [ br () ];
                 h2 [ txt (s_ "Elections being prepared") ];
                 draft;
@@ -798,6 +799,8 @@ struct
     in
     let content =
       [
+        try_new_ui l;
+        hr ();
         div_description;
         hr ();
         div_admin_name;
@@ -2998,6 +3001,7 @@ struct
     in
     let content =
       [
+        try_new_ui l;
         div
           [
             a ~service:Web_services.election_home
