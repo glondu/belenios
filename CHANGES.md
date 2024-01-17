@@ -1,3 +1,23 @@
+dev
+===
+
+ * Drop salts and directly use long enough credentials
+ * Command-line tool:
+   + Add parallel credential generation
+ * Web server:
+   + Add section in belenios-tool.html to partial decrypt buggy
+     elections
+   + Generate credentials on server asynchronously
+   + Add a per-admin limit on number of voters
+   + Add a domain blacklist for administrator addresses
+   + Do not offer credentials for download when they are not ready
+   + Send personal links in credential e-mails (GitHub issue #49)
+   + Add a scaling test tool (using the HTTP API)
+   + Replace breadcrumb with line-vertices progress bar
+   + Add billing support
+   + New admin UI:
+     - Add language preference in account tab
+
 2.3 (2023-09-30)
 ================
 
