@@ -1,6 +1,6 @@
 {
   "name": "belenios-responsive-booth",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Responsive booth for Belenios (a verifiable online voting system)",
   "main": "index.js",
   "directories": {

@@ -1,5 +1,5 @@
-dev
-===
+2.4 (2024-01-24)
+================
 
  * Drop salts and directly use long enough credentials
  * Command-line tool:
