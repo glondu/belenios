@@ -67,7 +67,7 @@ let show main uuid =
               in
               let module CMap = Map.Make (G) in
               let module Cred =
-                Belenios_core.Credential.Make
+                Credential.Make
                   (G)
                   (struct
                     type 'a t = 'a Lwt.t
@@ -79,7 +79,7 @@ let show main uuid =
                     let get_salt _ = Lwt.return_none
                   end)
               in
-              let* Belenios_core.Credential.{ public_creds; private_creds; _ } =
+              let* Credential.{ public_creds; private_creds; _ } =
                 Cred.generate xs
               in
               let op = string_of_public_credentials public_creds in

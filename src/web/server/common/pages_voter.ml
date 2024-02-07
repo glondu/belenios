@@ -21,9 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core
-open Serializable_j
-open Common
+open Belenios
 open Web_serializable_j
 open Web_common
 open Eliom_content.Html.F
@@ -297,20 +295,22 @@ struct
               let nchoices = Array.length q.q_answers in
               let blank_allowed = o.mj_extra_blank in
               let mj =
-                Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
-                  ballots
+                Methods.Majority_judgment.compute ~nchoices ~ngrades
+                  ~blank_allowed ballots
               in
               let contents = majority_judgment_content l q mj in
               (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
           | `Schulze o ->
               let nchoices = Array.length q.q_answers in
               let blank_allowed = o.schulze_extra_blank in
-              let r = Schulze.compute ~nchoices ~blank_allowed ballots in
+              let r =
+                Methods.Schulze.compute ~nchoices ~blank_allowed ballots
+              in
               let contents = schulze_content l q r in
               (div ~a:[ a_class [ "schulze_result" ] ] contents, false)
           | `STV o ->
               let nseats = o.stv_extra_seats in
-              let r = Stv.compute ~nseats ballots in
+              let r = Methods.Stv.compute ~nseats ballots in
               let contents = stv_content l q r in
               (div ~a:[ a_class [ "stv_result" ] ] contents, false)
         in

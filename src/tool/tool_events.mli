@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_core.Archive
 
 type index
 
@@ -52,4 +51,4 @@ val init :
 module DirectMonad : MONAD with type 'a t = 'a
 
 module Writer :
-  ARCHIVE_WRITER with type 'a m := 'a and type archive = out_channel
+  Archive.ARCHIVE_WRITER with type 'a m := 'a and type archive = out_channel

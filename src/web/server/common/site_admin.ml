@@ -23,11 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Belenios_platform
 open Platform
-open Belenios_core
 open Belenios
-open Serializable_j
-open Signatures
-open Common
 open Web_serializable_j
 open Web_common
 module Pages_admin_root = Pages_admin

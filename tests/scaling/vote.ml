@@ -37,7 +37,7 @@ module Make (P : PARAMS) () = struct
   module W = Belenios.Election.Make (P) (Random) ()
 
   module Cred =
-    Belenios_core.Credential.Make
+    Credential.Make
       (W.G)
       (struct
         type 'a t = 'a Lwt.t

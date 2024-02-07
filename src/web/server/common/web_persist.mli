@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_t
-open Common
+open Belenios
 open Web_common
 open Web_serializable_t
 
@@ -83,7 +81,7 @@ val init_credential_mapping : uuid -> string list -> unit Lwt.t
 val precast_ballot :
   (module Site_common_sig.ELECTION) ->
   rawballot:string ->
-  (string * credential_record, Signatures.cast_error) result Lwt.t
+  (string * credential_record, cast_error) result Lwt.t
 
 val cast_ballot :
   (module Site_common_sig.ELECTION) ->
@@ -92,7 +90,7 @@ val cast_ballot :
   weight:Weight.t ->
   datetime ->
   precast_data:string * credential_record ->
-  (string * bool, Signatures.cast_error) result Lwt.t
+  (string * bool, cast_error) result Lwt.t
 
 val get_audit_cache : uuid -> audit_cache Lwt.t
 val remove_audit_cache : uuid -> unit Lwt.t

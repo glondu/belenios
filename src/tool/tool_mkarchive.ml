@@ -59,8 +59,7 @@ let mkarchive dir =
         Some (string_of_file (dir // data_filename))
       else None
   end in
-  let module Archiver =
-    Belenios_core.Archive.MakeArchiver (IoArchiver) (Tool_events.Writer)
+  let module Archiver = Archive.MakeArchiver (IoArchiver) (Tool_events.Writer)
   in
   set_binary_mode_out stdout true;
   Archiver.write_archive stdout header last_event

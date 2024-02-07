@@ -21,8 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core
-open Common
+open Belenios
 
 module Make (I : I18n.S) = struct
   let mail_credential_authority l url =

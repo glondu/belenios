@@ -19,8 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Serializable_j
+open Belenios
 
 let rec input_lines ic lines =
   match input_line ic with

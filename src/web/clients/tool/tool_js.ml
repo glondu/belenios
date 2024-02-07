@@ -21,13 +21,9 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_platform
-open Belenios_core
-open Signatures
-open Common
+open Belenios_platform.Platform
+open Belenios
 open Belenios_tool_common
-open Platform
-open Serializable_j
 open Belenios_js.Common
 
 let root = ".."
@@ -192,7 +188,7 @@ module Credgen = struct
     let group = get_textarea "election_group" in
     let module G = (val Belenios.Group.of_string ~version group : GROUP) in
     let module Cred =
-      Belenios_core.Credential.Make
+      Credential.Make
         (G)
         (struct
           type 'a t = 'a
@@ -218,7 +214,7 @@ module Credgen = struct
     let group = get_textarea "election_group" in
     let module G = (val Belenios.Group.of_string ~version group : GROUP) in
     let module Cred =
-      Belenios_core.Credential.Make
+      Credential.Make
         (G)
         (struct
           type 'a t = 'a
@@ -278,7 +274,7 @@ module Mkelection = struct
 end
 
 let new_uuid () =
-  let open Common.MakeGenerateToken (Random) in
+  let open MakeGenerateToken (Random) in
   let uuid = generate_token () in
   set_textarea "election_uuid" uuid;
   Lwt.return_unit
@@ -291,7 +287,7 @@ module Schulze = struct
     in
     let nchoices = get_input "schulze_nchoices" |> int_of_string in
     let blank_allowed = get_checked "schulze_blank" in
-    let output = Schulze.compute ~nchoices ~blank_allowed ballots in
+    let output = Methods.Schulze.compute ~nchoices ~blank_allowed ballots in
     set_textarea "schulze_output" (string_of_schulze_result output);
     Lwt.return_unit
 

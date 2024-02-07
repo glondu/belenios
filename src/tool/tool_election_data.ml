@@ -118,7 +118,7 @@ module type ELECTION_DATA = sig
   type r
 
   module Cred :
-    Belenios_core.Credential.S
+    Credential.S
       with type private_key := s
        and type public_key := t
        and type 'a m := 'a
@@ -190,11 +190,11 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let raw_public_creds = lazy (get_public_creds ())
 
   module rec Cred :
-    (Belenios_core.Credential.S
+    (Credential.S
       with type private_key := G.Zq.t
        and type public_key := G.t
        and type 'a m := 'a) =
-    Belenios_core.Credential.Make
+    Credential.Make
       (G)
       (struct
         type 'a t = 'a

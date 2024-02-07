@@ -47,7 +47,7 @@ module type ELECTION_DATA = sig
   type r
 
   module Cred :
-    Belenios_core.Credential.S
+    Credential.S
       with type private_key := s
        and type public_key := t
        and type 'a m := 'a

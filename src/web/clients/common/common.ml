@@ -22,10 +22,8 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
-open Belenios_platform
-open Belenios_core
-open Platform
-open Common
+open Belenios_platform.Platform
+open Belenios
 
 let document = Dom_html.document
 let ( let&& ) = Js.Opt.bind
@@ -157,7 +155,7 @@ let run_handler handler () =
     let msg = "Unexpected error: " ^ Printexc.to_string e in
     alert msg
 
-module Random : Signatures.RANDOM = struct
+module Random : RANDOM = struct
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =

@@ -19,11 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
 open Belenios
-open Serializable_j
-open Signatures
-open Common
 
 module type PARAMS = sig
   val version : int
@@ -47,7 +43,7 @@ module type PARSED_PARAMS = sig
 
   val get_trustees : unit -> (G.t, G.Zq.t) trustees
 
-  module Trustees : Trustees_sig.S
+  module Trustees : Belenios_core.Trustees_sig.S
 end
 
 let parse_params p =

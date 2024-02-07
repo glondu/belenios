@@ -21,9 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_core.Events
 open Web_common
-module Archive = Belenios_core.Archive
 
 let block_size = Archive.block_size
 let block_sizeL = Int64.of_int block_size
@@ -96,7 +94,7 @@ let build_roots ~size ~pos filename =
     else
       let header = Archive.new_header () in
       let* () = write_header ~filename ~header in
-      Lwt.return (r, empty_roots, Archive.get_timestamp header)
+      Lwt.return (r, Events.empty_roots, Archive.get_timestamp header)
   in
   let* fd = Lwt_unix.openfile filename [ Unix.O_RDONLY ] 0o644 in
   let open Lwt_io in
@@ -109,13 +107,13 @@ let build_roots ~size ~pos filename =
       let accu =
         match record.typ with
         | Data -> accu
-        | Event event -> update_roots record.hash event accu
+        | Event event -> Events.update_roots record.hash event accu
       in
       Hashtbl.add r record.hash record.location;
       loop accu)
     else Lwt.return (r, accu, Archive.get_timestamp header)
   in
-  Lwt.finalize (fun () -> loop empty_roots) (fun () -> close ic)
+  Lwt.finalize (fun () -> loop Events.empty_roots) (fun () -> close ic)
 
 let chain_filename uuid = string_of_election_file (ESArchive uuid)
 
@@ -207,7 +205,7 @@ let get_event ~uuid x =
   Lwt.return @@ Option.map event_of_string x
 
 let get_roots ~uuid =
-  let@ _ = with_archive uuid empty_roots in
+  let@ _ = with_archive uuid Events.empty_roots in
   let* r = get_index uuid in
   Lwt.return r.roots
 
@@ -243,7 +241,10 @@ let append ?(lock = true) ~uuid ?last ops =
             let event_s = string_of_event event in
             let event_h = Hash.hash_string event_s in
             let accu = (Archive.Event event, event_s) :: accu in
-            (Some event_h, event_height, update_roots event_h event roots, accu)
+            ( Some event_h,
+              event_height,
+              Events.update_roots event_h event roots,
+              accu )
         | Data payload ->
             let accu = (Archive.Data, payload) :: accu in
             (event_parent, event_height, roots, accu))

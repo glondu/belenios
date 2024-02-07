@@ -9,4 +9,4 @@ module type S = sig
   val trustee_keygen : unit -> keypair
 end
 
-module Make (P : PARAMS) (M : Belenios_core.Signatures.RANDOM) () : S
+module Make (P : PARAMS) (M : Belenios.RANDOM) () : S

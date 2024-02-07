@@ -221,7 +221,7 @@ module Methods : CMDLINER_MODULE = struct
         | Some b -> b
       in
       ballots
-      |> Belenios_core.Schulze.compute ~nchoices ~blank_allowed
+      |> Methods.Schulze.compute ~nchoices ~blank_allowed
       |> string_of_schulze_result |> print_endline
 
   let mj nchoices ngrades blank_allowed =
@@ -246,8 +246,7 @@ module Methods : CMDLINER_MODULE = struct
         | Some b -> b
       in
       ballots
-      |> Belenios_core.Majority_judgment.compute ~nchoices ~ngrades
-           ~blank_allowed
+      |> Methods.Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
       |> string_of_mj_result |> print_endline
 
   let stv nseats =
@@ -258,7 +257,7 @@ module Methods : CMDLINER_MODULE = struct
       | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
     in
     chars_of_stdin () |> stv_raw_ballots_of_string
-    |> Belenios_core.Stv.compute ~nseats
+    |> Methods.Stv.compute ~nseats
     |> string_of_stv_result |> print_endline
 
   let nchoices_t =

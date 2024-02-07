@@ -20,8 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_core
-open Serializable_t
 open Web_serializable_t
 
 module type S = sig

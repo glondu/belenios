@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core
-open Signatures
-open Serializable_t
+open Belenios
 open Web_serializable_t
 
 val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t

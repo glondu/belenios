@@ -135,7 +135,7 @@ module Make (P : PARAMS) = struct
     let* token = get_credentials_token uuid in
     let module G = (val Belenios.Group.of_string ~version group) in
     let module Cred =
-      Belenios_core.Credential.Make
+      Credential.Make
         (G)
         (struct
           type 'a t = 'a Lwt.t

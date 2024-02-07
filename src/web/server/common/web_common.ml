@@ -21,11 +21,8 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_platform
-open Belenios_core
-open Platform
-open Common
-open Serializable_t
+open Belenios_platform.Platform
+open Belenios
 open Web_serializable_j
 
 let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
@@ -53,10 +50,7 @@ module Random = struct
     Z.(of_bits r mod q)
 end
 
-type error =
-  | ElectionClosed
-  | UnauthorizedVoter
-  | CastError of Signatures.cast_error
+type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
 exception BeleniosWebError of error
 

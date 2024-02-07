@@ -21,10 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core
 open Belenios
-open Serializable_j
-open Common
 open Web_serializable_j
 open Web_common
 
@@ -265,7 +262,7 @@ struct
                   | _ -> false
                 in
                 let schulze =
-                  Schulze.compute ~nchoices ~blank_allowed ballots
+                  Methods.Schulze.compute ~nchoices ~blank_allowed ballots
                 in
                 Pages_voter.schulze q schulze >>= Html.send)))
 
@@ -287,7 +284,7 @@ struct
                   continuation (fun ballots ->
                       let nchoices = Array.length q.q_answers in
                       let mj =
-                        Majority_judgment.compute ~nchoices ~ngrades
+                        Methods.Majority_judgment.compute ~nchoices ~ngrades
                           ~blank_allowed ballots
                       in
                       Pages_voter.majority_judgment q mj >>= Html.send)
@@ -306,7 +303,7 @@ struct
             | Some nseats ->
                 if nseats > 0 then
                   continuation (fun ballots ->
-                      let stv = Stv.compute ~nseats ballots in
+                      let stv = Methods.Stv.compute ~nseats ballots in
                       Pages_voter.stv q stv >>= Html.send)
                 else
                   Pages_common.generic_page ~title:(s_ "Error")

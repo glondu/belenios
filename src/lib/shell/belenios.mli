@@ -25,3 +25,12 @@ include module type of Belenios_core.Signatures
 module Election = Election
 module Group = Group
 module Trustees = Trustees
+module Credential = Belenios_core.Credential
+module Events = Belenios_core.Events
+module Archive = Belenios_core.Archive
+
+module Methods : sig
+  module Schulze = Belenios_core.Schulze
+  module Stv = Belenios_core.Stv
+  module Majority_judgment = Belenios_core.Majority_judgment
+end

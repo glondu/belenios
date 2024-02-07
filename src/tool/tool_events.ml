@@ -20,8 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_core.Events
-module Archive = Belenios_core.Archive
 
 let block_size = Archive.block_size
 
@@ -78,14 +76,15 @@ let build_index filename =
         let last, accu =
           match record.typ with
           | Data -> (last, accu)
-          | Event event -> (Some event, update_roots record.hash event accu)
+          | Event event ->
+              (Some event, Events.update_roots record.hash event accu)
         in
         Hashtbl.add r record.hash record.location;
         loop last accu ((record.typ, record.hash) :: lines)
   in
   Fun.protect
     ~finally:(fun () -> close_in ic)
-    (fun () -> loop None empty_roots [])
+    (fun () -> loop None Events.empty_roots [])
 
 let get_index ~file =
   let map, last_event, roots, lines, header = build_index file in
@@ -224,7 +223,7 @@ let append index ops =
             let typ = Archive.Event event in
             let event_s = string_of_event event in
             let event_h = Hash.hash_string event_s in
-            let roots = update_roots event_h event roots in
+            let roots = Events.update_roots event_h event roots in
             let items = (typ, event_s) :: items in
             (Some event, roots, items, (typ, event_h) :: lines))
       (index.last_event, index.roots, [], index.lines)
@@ -245,7 +244,7 @@ let init ~file ~election ~trustees ~public_creds =
   let index =
     {
       map = Hashtbl.create 1000;
-      roots = empty_roots;
+      roots = Events.empty_roots;
       last_event = None;
       file;
       lines = [];

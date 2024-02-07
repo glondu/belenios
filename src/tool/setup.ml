@@ -268,7 +268,7 @@ module Credgen : CMDLINER_MODULE = struct
     in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Cred =
-      Belenios_core.Credential.Make
+      Credential.Make
         (G)
         (struct
           type 'a t = 'a
@@ -280,7 +280,7 @@ module Credgen : CMDLINER_MODULE = struct
           let get_salt _ = None
         end)
     in
-    let save (c : Belenios_core.Credential.batch) =
+    let save (c : Credential.batch) =
       let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
       let base = dir // timestamp in
       save params_priv base
@@ -384,7 +384,7 @@ module SubCredgen : CMDLINER_MODULE = struct
     let count = get_mandatory_opt "--count" count in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Cred =
-      Belenios_core.Credential.Make
+      Credential.Make
         (G)
         (struct
           type 'a t = 'a

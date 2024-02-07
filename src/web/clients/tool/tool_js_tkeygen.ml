@@ -22,10 +22,8 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
-open Belenios_core
-open Common
+open Belenios
 open Belenios_tool_common
-open Serializable_j
 open Belenios_js.Common
 open Tool_tkeygen
 open Belenios_api.Serializable_j

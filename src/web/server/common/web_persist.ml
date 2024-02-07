@@ -1961,7 +1961,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
         (val Belenios.Group.of_string ~version:se.se_version se.se_group)
       in
       let module Cred =
-        Belenios_core.Credential.Make
+        Credential.Make
           (G)
           (struct
             type 'a t = 'a Lwt.t
@@ -1977,7 +1977,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
       pending_generations := SMap.add uuid_s p !pending_generations;
       Lwt.async (fun () ->
           let* x = t in
-          let Belenios_core.Credential.{ private_creds; public_with_ids; _ } =
+          let Credential.{ private_creds; public_with_ids; _ } =
             Cred.merge_sub voters x
           in
           let* se = get_draft_election uuid in

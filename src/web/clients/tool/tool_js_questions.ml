@@ -21,8 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_core
-open Serializable_j
+open Belenios
 open Belenios_js.Common
 open Belenios_question
 
