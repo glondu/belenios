@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_api.Serializable_j
-open Belenios_core.Serializable_t
+open Belenios
 
 type 'a t
 

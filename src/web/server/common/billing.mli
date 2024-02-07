@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
+open Belenios
 open Api_generic
 
 val create : admin_id:int -> uuid:Uuid.t -> nb_voters:int -> string Lwt.t

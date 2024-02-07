@@ -20,8 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Serializable_j
-open Belenios_core.Common
+open Belenios
 open Belenios_core.Events
 open Web_common
 module Archive = Belenios_core.Archive

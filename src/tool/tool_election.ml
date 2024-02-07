@@ -20,8 +20,7 @@
 (**************************************************************************)
 
 module B = Belenios
-open Belenios_core.Serializable_j
-open Belenios_core.Common
+open Belenios
 
 module type PARAMS = sig
   val file : string

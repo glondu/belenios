@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
+open Belenios
 open Web_common
 
 module Make (Web_services : Web_services_sig.S) = struct

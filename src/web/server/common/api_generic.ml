@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Web_serializable_t
-open Belenios_core.Common
+open Belenios
 open Belenios_api.Serializable_j
 open Web_common
 

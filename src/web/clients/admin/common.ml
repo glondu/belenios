@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
-open Belenios_core.Common
+open Belenios
 open Belenios_js.Common
 
 let logout () =

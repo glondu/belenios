@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Common
+open Belenios
 
 let default_lang = "en"
 let devel_lang = "en_devel"

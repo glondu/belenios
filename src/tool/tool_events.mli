@@ -19,8 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
-open Belenios_core.Serializable_t
+open Belenios
 open Belenios_core.Archive
 
 type index

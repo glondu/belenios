@@ -22,7 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
-open Belenios_core.Common
+open Belenios
 open Web_common
 
 module Make (Web_auth : Web_auth_sig.S) = struct

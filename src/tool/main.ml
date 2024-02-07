@@ -19,10 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module B = Belenios
+module E = Election
 open Belenios_platform.Platform
-open Belenios_core.Serializable_j
-open Belenios_core.Common
+open Belenios
 open Common
 open Cmdliner
 
@@ -35,7 +34,7 @@ module Bench : CMDLINER_MODULE = struct
   let bench_group version group n =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
-    let module G = (val B.Group.of_string ~version group) in
+    let module G = (val Group.of_string ~version group) in
     let byte_length = bytes_to_sample G.Zq.q in
     let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.reduce_hex) in
     let start = Unix.gettimeofday () in
@@ -122,7 +121,7 @@ module Events : CMDLINER_MODULE = struct
       |> string_of_public_credentials
     in
     let file =
-      let uuid = B.Election.get_uuid election in
+      let uuid = Election.get_uuid election in
       (dir // Uuid.unwrap uuid) ^ ".bel"
     in
     ignore (Tool_events.init ~file ~election ~trustees ~public_creds)
@@ -339,7 +338,7 @@ let cmds =
     Bench.cmd;
     Shasum.cmd;
     Setup.cmd;
-    Election.cmd;
+    E.cmd;
     Events.cmd;
     Methods.cmd;
     Sealing.cmd;

@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Serializable_j
+open Belenios
 open Web_serializable_j
 open Web_common
 

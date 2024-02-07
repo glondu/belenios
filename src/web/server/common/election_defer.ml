@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
+open Belenios
 
 type t = { task : Uuid.t -> unit Lwt.t; mutable deferred : SSet.t }
 

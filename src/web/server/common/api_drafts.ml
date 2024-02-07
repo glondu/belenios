@@ -21,9 +21,6 @@
 
 open Lwt.Syntax
 open Belenios_platform.Platform
-open Belenios_core.Common
-open Belenios_core.Serializable_j
-open Belenios_core.Signatures
 open Belenios
 open Belenios_api.Serializable_j
 open Belenios_api.Common
@@ -728,7 +725,6 @@ let import_voters uuid (Draft (v, se)) from =
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
 let import_trustees uuid (Draft (v, se)) from metadata =
-  let open Belenios_core.Serializable_j in
   match metadata.e_trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
   | Some names -> (
@@ -749,8 +745,9 @@ let import_trustees uuid (Draft (v, se)) from metadata =
             | Some privs ->
                 let rec loop ts pubs privs accu =
                   match (ts, pubs, privs) with
-                  | stt_id :: ts, vo_public_key :: pubs, vo_private_key :: privs
-                    ->
+                  | ( stt_id :: ts,
+                      (vo_public_key : _ trustee_public_key) :: pubs,
+                      vo_private_key :: privs ) ->
                       let stt_name = vo_public_key.trustee_name in
                       let stt_token = generate_token () in
                       let stt_voutput = { vo_public_key; vo_private_key } in

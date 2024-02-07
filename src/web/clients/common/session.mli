@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml_tyxml.Tyxml_js.Html5
-open Belenios_core.Common
+open Belenios
 
 (** Session management *)
 

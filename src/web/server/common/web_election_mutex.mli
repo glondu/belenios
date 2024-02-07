@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
+open Belenios
 
 val with_lock : Uuid.t -> (unit -> 'a Lwt.t) -> 'a Lwt.t

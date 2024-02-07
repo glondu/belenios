@@ -21,11 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core
-open Signatures
 open Belenios
-open Serializable_j
-open Common
 open Web_serializable_j
 open Web_common
 
@@ -1412,7 +1408,6 @@ let delete_election uuid =
     | _ -> `Manual
   in
   let* de_trustees =
-    let open Belenios_core.Serializable_j in
     let* trustees = get_trustees uuid in
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
     |> List.map (function
@@ -1664,9 +1659,9 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
                 (sread G.Zq.of_string) tp
             in
             let named =
-              let open Belenios_core.Serializable_j in
               List.combine (Array.to_list tp.t_verification_keys) ts
-              |> List.map (fun (k, t) -> { k with trustee_name = t.stt_name })
+              |> List.map (fun ((k : _ trustee_public_key), t) ->
+                     { k with trustee_name = t.stt_name })
               |> Array.of_list
             in
             let tp = { tp with t_verification_keys = named } in
@@ -1730,7 +1725,6 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
       ~perm:0o600 ~mode:Lwt_io.Output (dir // fname)
       (fun oc -> Lwt_io.write oc x)
   in
-  let open Belenios_core.Serializable_j in
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
   let* () = create_whole_file "voters.txt" (Voter.list_to_string voters) in
   let* () = create_file "metadata.json" string_of_metadata [ metadata ] in

@@ -21,11 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_core
-open Common
 open Belenios
-open Serializable_j
-open Signatures
 open Belenios_js.Common
 open Belenios_api.Serializable_j
 open Belenios_api.Common

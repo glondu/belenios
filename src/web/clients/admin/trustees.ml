@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Common
+open Belenios
 open Belenios_api.Serializable_j
 open Lwt.Syntax
 open Js_of_ocaml

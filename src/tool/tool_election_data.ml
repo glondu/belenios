@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Serializable_j
-open Belenios_core.Signatures
-open Belenios_core.Common
+open Belenios
 open Common
 
 module type GETTERS = sig

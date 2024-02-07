@@ -20,8 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Common
-open Belenios_core.Serializable_j
+open Belenios
 open Web_serializable_j
 open Belenios_api.Serializable_j
 open Web_common
@@ -49,7 +48,6 @@ let find_trustee_private_key uuid trustee_id =
   let&* keys = keys in
   (* there is one Pedersen trustee *)
   let* trustees = Web_persist.get_trustees uuid in
-  let open Belenios_core.Serializable_j in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
@@ -119,7 +117,6 @@ let get_partial_decryptions uuid metadata =
     | `EncryptedTally -> cont ()
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let open Belenios_core.Serializable_j in
   let* pds = Web_persist.get_partial_decryptions uuid in
   let* trustees = Web_persist.get_trustees uuid in
   let trustees =
@@ -229,18 +226,16 @@ let get_shuffles uuid metadata =
     }
 
 let extract_names trustees =
-  let open Belenios_core.Serializable_t in
   trustees
   |> List.map (function
        | `Pedersen x ->
            x.t_verification_keys |> Array.to_list
-           |> List.map (fun x -> x.trustee_name)
-       | `Single x -> [ x.trustee_name ])
+           |> List.map (fun (x : _ trustee_public_key) -> x.trustee_name)
+       | `Single (x : _ trustee_public_key) -> [ x.trustee_name ])
   |> List.flatten
   |> List.mapi (fun i x -> (i + 1, x))
 
 let get_trustee_names uuid =
-  let open Belenios_core.Serializable_j in
   let* trustees = Web_persist.get_trustees uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees

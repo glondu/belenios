@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Belenios_core.Common
+open Belenios
 
 let components = Hashtbl.create 2
 

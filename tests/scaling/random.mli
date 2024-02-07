@@ -1,1 +1,1 @@
-include Belenios_core.Signatures.RANDOM
+include Belenios.RANDOM

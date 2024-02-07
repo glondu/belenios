@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Common
+open Belenios
 open Web_common
 
 let file_exists x =

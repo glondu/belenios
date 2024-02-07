@@ -45,5 +45,5 @@ let nh_group = ref ""
 let domain = ref ""
 let deny_revote = ref false
 let deny_newelection = ref false
-let blacklisted_domains = ref Belenios_core.Common.SSet.empty
+let blacklisted_domains = ref Belenios.SSet.empty
 let billing = ref None

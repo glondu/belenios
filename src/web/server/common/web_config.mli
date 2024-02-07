@@ -50,5 +50,5 @@ val nh_group : string ref
 val domain : string ref
 val deny_revote : bool ref
 val deny_newelection : bool ref
-val blacklisted_domains : Belenios_core.Common.SSet.t ref
+val blacklisted_domains : Belenios.SSet.t ref
 val billing : (string * string) option ref

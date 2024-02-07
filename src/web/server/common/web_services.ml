@@ -47,7 +47,7 @@ module Make () = struct
     @@
     match uuid with
     | None -> base
-    | Some uuid -> base ^ "#" ^ Belenios_core.Common.Uuid.unwrap uuid
+    | Some uuid -> base ^ "#" ^ Belenios.Uuid.unwrap uuid
 
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true

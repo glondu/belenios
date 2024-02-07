@@ -22,7 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
-open Belenios_core.Common
+open Belenios
 open Web_serializable_j
 open Web_common
 open Web_auth_sig
