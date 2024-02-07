@@ -23,7 +23,7 @@
 
 open Serializable_t
 open Common
-include module type of Signatures_core
+include Signatures_core
 
 module type ELECTION_BASE = sig
   type question

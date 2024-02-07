@@ -270,8 +270,8 @@ src/lib/core/schulze.ml
 src/lib/core/schulze.mli
 src/lib/core/serializable.atd
 src/lib/core/serializable_core.atd
-src/lib/core/signatures.mli
-src/lib/core/signatures_core.mli
+src/lib/core/signatures.ml
+src/lib/core/signatures_core.ml
 src/lib/core/stv.ml
 src/lib/core/stv.mli
 src/lib/core/trustees_sig.mli
