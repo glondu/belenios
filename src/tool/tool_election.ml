@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module B = Belenios
 open Belenios
 
 module type PARAMS = sig
@@ -48,7 +47,7 @@ module Make (P : PARAMS) () = struct
   module R = Random
 
   module Election =
-    B.Election.Make
+    Belenios.Election.Make
       (struct
         let raw_election = Getters.raw_election
       end)
@@ -60,7 +59,7 @@ module Make (P : PARAMS) () = struct
 
   let print_msg = prerr_endline
 
-  module Trustees = (val B.Trustees.get_by_version version)
+  module Trustees = (val Belenios.Trustees.get_by_version version)
   module P = Trustees.MakePKI (G) (R)
   module C = Trustees.MakeChannels (G) (R) (P)
   module K = Trustees.MakeCombinator (G)
@@ -171,7 +170,7 @@ module Make (P : PARAMS) () = struct
     | Some trustees -> (
         match E.compute_result sized factors trustees with
         | Ok result -> string_of_election_result write_result result
-        | Error e -> failwith (B.Trustees.string_of_combination_error e))
+        | Error e -> failwith (Belenios.Trustees.string_of_combination_error e))
     | None -> failwith "missing trustees"
 
   let verify_ballot raw_ballot =
@@ -273,8 +272,8 @@ module Make (P : PARAMS) () = struct
       | None -> failwith "missing credentials"
       | Some x -> x
     in
-    B.Election.compute_checksums ~election ~shuffles ~encrypted_tally ~trustees
-      ~public_credentials
+    Belenios.Election.compute_checksums ~election ~shuffles ~encrypted_tally
+      ~trustees ~public_credentials
     |> string_of_election_checksums
 
   let compute_voters privcreds =
