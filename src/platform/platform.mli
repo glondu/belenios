@@ -23,20 +23,25 @@ module Debug : sig
   val debug : string -> unit
 end
 
-val sha256_hex : string -> string
-val pbkdf2_utf8 : iterations:int -> salt:string -> size:int -> string -> string
-val aes_hex : key:string -> data:string -> string
+module Crypto_primitives : sig
+  val sha256_hex : string -> string
 
-val encrypt : key:string -> iv:string -> plaintext:string -> string
-(** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
+  val pbkdf2_utf8 :
+    iterations:int -> salt:string -> size:int -> string -> string
 
-val decrypt : key:string -> iv:string -> ciphertext:string -> string
+  val aes_hex : key:string -> data:string -> string
 
-type rng
+  val encrypt : key:string -> iv:string -> plaintext:string -> string
+  (** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
 
-val secure_rng : rng
-val pseudo_rng : string -> rng
-val random_string : rng -> int -> string
+  val decrypt : key:string -> iv:string -> ciphertext:string -> string
+
+  type rng
+
+  val secure_rng : rng
+  val pseudo_rng : string -> rng
+  val random_string : rng -> int -> string
+end
 
 module Z : sig
   type t

@@ -93,59 +93,61 @@ module Sjcl = struct
   let ccm = sjcl##.mode##.ccm
 end
 
-let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
-let hex_toBits x = Sjcl.hex##toBits (Js.string x)
-let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
-let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
-let sha256 x = Sjcl.sha256##hash (Js.string x)
-let sha256_hex x = hex_fromBits (sha256 x)
+module Crypto_primitives = struct
+  let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
+  let hex_toBits x = Sjcl.hex##toBits (Js.string x)
+  let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
+  let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
+  let sha256 x = Sjcl.sha256##hash (Js.string x)
+  let sha256_hex x = hex_fromBits (sha256 x)
 
-let pbkdf2_generic toBits ~iterations ~salt ~size x =
-  let salt = toBits salt in
-  let derived =
-    Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations (256 * size)
-  in
-  hex_fromBits derived
+  let pbkdf2_generic toBits ~iterations ~salt ~size x =
+    let salt = toBits salt in
+    let derived =
+      Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations (256 * size)
+    in
+    hex_fromBits derived
 
-let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
+  let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
 
-let aes_hex ~key ~data =
-  let key = hex_toBits key in
-  let data = hex_toBits data in
-  let cipher = new%js Sjcl.aes key in
-  let output = cipher##encrypt data in
-  hex_fromBits output
+  let aes_hex ~key ~data =
+    let key = hex_toBits key in
+    let data = hex_toBits data in
+    let cipher = new%js Sjcl.aes key in
+    let output = cipher##encrypt data in
+    hex_fromBits output
 
-let encrypt ~key ~iv ~plaintext =
-  let key = hex_toBits key in
-  let iv = hex_toBits iv in
-  let plaintext = utf8String_toBits plaintext in
-  let prf = new%js Sjcl.aes key in
-  let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
-  hex_fromBits ciphertext
+  let encrypt ~key ~iv ~plaintext =
+    let key = hex_toBits key in
+    let iv = hex_toBits iv in
+    let plaintext = utf8String_toBits plaintext in
+    let prf = new%js Sjcl.aes key in
+    let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
+    hex_fromBits ciphertext
 
-let decrypt ~key ~iv ~ciphertext =
-  let key = hex_toBits key in
-  let iv = hex_toBits iv in
-  let ciphertext = hex_toBits ciphertext in
-  let prf = new%js Sjcl.aes key in
-  let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
-  utf8String_fromBits plaintext
+  let decrypt ~key ~iv ~ciphertext =
+    let key = hex_toBits key in
+    let iv = hex_toBits iv in
+    let ciphertext = hex_toBits ciphertext in
+    let prf = new%js Sjcl.aes key in
+    let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
+    utf8String_fromBits plaintext
 
-type rng = unit
+  type rng = unit
 
-let secure_rng = ()
-let pseudo_rng _ = ()
+  let secure_rng = ()
+  let pseudo_rng _ = ()
 
-let string_of_hex hex n =
-  String.init n (fun i ->
-      let c = int_of_string ("0x" ^ String.sub hex (2 * i) 2) in
-      char_of_int c)
+  let string_of_hex hex n =
+    String.init n (fun i ->
+        let c = int_of_string ("0x" ^ String.sub hex (2 * i) 2) in
+        char_of_int c)
 
-let random_string () n =
-  let words = Sjcl.sjcl##.random##randomWords ((n / 4) + 1) in
-  let hex_words = hex_fromBits words in
-  string_of_hex hex_words n
+  let random_string () n =
+    let words = Sjcl.sjcl##.random##randomWords ((n / 4) + 1) in
+    let hex_words = hex_fromBits words in
+    string_of_hex hex_words n
+end
 
 module BigIntCompat = struct
   open Js

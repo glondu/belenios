@@ -41,6 +41,8 @@ let install_handler (id, handler) =
   e##.onclick := Dom_html.handler f
 
 module Tests = struct
+  open Crypto_primitives
+
   let unit_tests () =
     let a = "13133254971699857128" and b = "31748915560162976106" in
     let c = Z.of_string a and d = Z.of_string b in

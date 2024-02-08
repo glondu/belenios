@@ -32,6 +32,8 @@ module Datetime = Web_types.Datetime
 module Period = Web_types.Period
 
 module Random = struct
+  open Crypto_primitives
+
   let init_prng () = lazy (pseudo_rng (random_string secure_rng 16))
   let prng = ref (init_prng ())
 

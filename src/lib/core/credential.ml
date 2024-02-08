@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform.Platform
+open Crypto_primitives
 open Signatures
 open Serializable_t
 open Common

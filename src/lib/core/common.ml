@@ -39,6 +39,7 @@ module Weight = Common_types.Weight
 module Array = Common_types.Array
 module Shape = Common_types.Shape
 
+let sha256_hex = Crypto_primitives.sha256_hex
 let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
 let b58_digits = Common_types.b58_digits
 
@@ -179,7 +180,7 @@ end
 let generate_b58_digit rng =
   (* 2^16 = 1129*58 + 54 -> by taking a 16-bit number modulo 58, 4
      digits have lower (but negligible) probability to come up *)
-  let x = random_string rng 2 in
+  let x = Crypto_primitives.random_string rng 2 in
   b58_digits.[(Char.code x.[0] lsl 8) lor Char.code x.[1] mod 58]
 
 let generate_b58_token ~rng ~length =

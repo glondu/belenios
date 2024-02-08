@@ -155,6 +155,8 @@ let run_handler handler () =
     alert msg
 
 module Random : RANDOM = struct
+  open Crypto_primitives
+
   let prng = lazy (pseudo_rng (random_string secure_rng 16))
 
   let random q =

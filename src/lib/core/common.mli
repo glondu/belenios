@@ -39,6 +39,7 @@ module Weight = Common_types.Weight
 module Array = Common_types.Array
 module Shape = Common_types.Shape
 
+val sha256_hex : string -> string
 val sha256_b64 : string -> string
 val b58_digits : string
 
@@ -82,7 +83,7 @@ module MakeGenerateToken (R : RANDOM) : sig
   val generate_numeric : ?length:int -> unit -> string
 end
 
-val generate_b58_token : rng:rng -> length:int -> string
+val generate_b58_token : rng:Crypto_primitives.rng -> length:int -> string
 val sqrt : Z.t -> Z.t
 
 module BabyStepGiantStep (G : GROUP) : sig

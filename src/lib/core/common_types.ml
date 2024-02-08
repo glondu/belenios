@@ -83,7 +83,7 @@ module Hash = struct
     | Ok x -> x
     | _ -> assert false
 
-  let hash_string = sha256_hex
+  let hash_string = Crypto_primitives.sha256_hex
   let wrap = of_hex
   let unwrap = to_hex
 end
