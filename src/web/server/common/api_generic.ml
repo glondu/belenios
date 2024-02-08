@@ -100,9 +100,9 @@ let get_configuration () =
   let open Web_defaults in
   {
     privacy_policy = !Web_config.gdpr_uri;
-    belenios_version = Belenios_platform.Version.version;
-    belenios_build = Belenios_platform.Version.build;
-    spec_version = Belenios_platform.Version.spec;
+    belenios_version = Version.version;
+    belenios_build = Version.build;
+    spec_version = Version.spec;
     api_version = 3;
     supported_crypto_versions =
       (let open Belenios.Election in

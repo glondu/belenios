@@ -104,7 +104,7 @@ module Make (Base : BASE) = struct
                   footer;
                   txt (s_ "Powered by ");
                   a ~a:[ a_href Uris.belenios ] [ txt "Belenios" ];
-                  Belenios_platform.Version.(
+                  Belenios.Version.(
                     Printf.ksprintf txt " %s (%s). " version build);
                   a
                     ~a:[ a_href Uris.source_code ]

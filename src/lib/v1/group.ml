@@ -53,7 +53,7 @@ let get_ff_params = function
   | _ -> raise Not_found
 
 let ed25519 () : (module GROUP) =
-  match libsodium_stubs () with
+  match Libsodium_stubs.make () with
   | None -> (module Ed25519_pure)
   | Some stubs ->
       let module S = (val stubs) in

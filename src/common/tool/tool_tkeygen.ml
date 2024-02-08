@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Belenios
-open Platform
 
 module type PARAMS = sig
   val group : string

@@ -19,7 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let debug x = prerr_endline x
+module Debug = struct
+  let debug x = prerr_endline x
+end
 
 let sha256_hex x =
   Cryptokit.(
@@ -241,7 +243,7 @@ module Z = struct
   let hash_to_int = Z.hash
 end
 
-module Libsodium_stubs = struct
+module Libsodium_stubs_mod = struct
   type scalar = bytes
   type point = bytes
 
@@ -263,5 +265,6 @@ module Libsodium_stubs = struct
   [@@noalloc]
 end
 
-let libsodium_stubs () =
-  Some (module Libsodium_stubs : Signatures.LIBSODIUM_STUBS)
+module Libsodium_stubs = struct
+  let make () = Some (module Libsodium_stubs_mod : Signatures.LIBSODIUM_STUBS)
+end

@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 module E = Election
-open Belenios_platform.Platform
 open Belenios
 open Common
 open Cmdliner
@@ -344,7 +343,7 @@ let cmds =
   ]
 
 let default_cmd =
-  let open Belenios_platform.Version in
+  let open Version in
   let version = Printf.sprintf "%s (%s)" version build in
   let version = if debug then version ^ " [debug]" else version in
   let doc = "election management tool" in

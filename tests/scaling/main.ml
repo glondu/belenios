@@ -24,7 +24,7 @@ open Cmdliner
 let cmds = [ Setup.cmd; Vote.cmd ]
 
 let default_cmd =
-  let open Belenios_platform.Version in
+  let open Belenios.Version in
   let version = Printf.sprintf "%s (%s)" version build in
   let version = if debug then version ^ " [debug]" else version in
   let doc = "Belenios scaling test tool" in

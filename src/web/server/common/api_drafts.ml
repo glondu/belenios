@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_platform.Platform
 open Belenios
 open Belenios_api.Serializable_j
 open Belenios_api.Common

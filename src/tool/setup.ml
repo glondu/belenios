@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_platform.Platform
 open Belenios_tool_common
 open Common
 open Cmdliner

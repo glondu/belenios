@@ -19,7 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val debug : string -> unit
+module Debug : sig
+  val debug : string -> unit
+end
+
 val sha256_hex : string -> string
 val pbkdf2_utf8 : iterations:int -> salt:string -> size:int -> string -> string
 val aes_hex : key:string -> data:string -> string
@@ -67,4 +70,6 @@ module Z : sig
   val hash_to_int : t -> int
 end
 
-val libsodium_stubs : unit -> (module Signatures.LIBSODIUM_STUBS) option
+module Libsodium_stubs : sig
+  val make : unit -> (module Signatures.LIBSODIUM_STUBS) option
+end

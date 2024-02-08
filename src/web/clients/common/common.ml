@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
-open Belenios_platform.Platform
 open Belenios
 
 let document = Dom_html.document

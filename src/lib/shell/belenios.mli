@@ -19,9 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+include module type of Belenios_platform.Platform
 include module type of Belenios_core.Common
 include module type of Belenios_core.Serializable_j
 include module type of Belenios_core.Signatures
+module Version = Belenios_platform.Version
 module Election = Election
 module Group = Group
 module Trustees = Trustees

@@ -22,7 +22,10 @@
 open Js_of_ocaml
 
 let belenios = Js.Unsafe.pure_js_expr "belenios"
-let debug x = Firebug.console##log (Js.string x)
+
+module Debug = struct
+  let debug x = Firebug.console##log (Js.string x)
+end
 
 module Sjcl = struct
   open Js
@@ -286,10 +289,12 @@ let build_libsodium_stubs (libsodium : libsodium Js.t) =
 
 let libsodium_ref = ref None
 
-let libsodium_stubs () =
-  match !libsodium_ref with
-  | None ->
-      Js.Optdef.iter belenios##.libsodium (fun x ->
-          libsodium_ref := Some (build_libsodium_stubs x));
-      !libsodium_ref
-  | x -> x
+module Libsodium_stubs = struct
+  let make () =
+    match !libsodium_ref with
+    | None ->
+        Js.Optdef.iter belenios##.libsodium (fun x ->
+            libsodium_ref := Some (build_libsodium_stubs x));
+        !libsodium_ref
+    | x -> x
+end

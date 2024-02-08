@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
-open Platform
 open Belenios
 
 let prng = lazy (pseudo_rng (random_string secure_rng 16))

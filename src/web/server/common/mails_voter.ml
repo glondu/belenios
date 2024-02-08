@@ -103,8 +103,6 @@ let format_password_email (x : password_email) =
   in
   Lwt.return (subject, body)
 
-open Belenios_platform.Platform
-
 let generate_password_email metadata langs title uuid v show_weight =
   let (_, { address; login; weight }) : Voter.t = v in
   let weight = if show_weight then weight else None in
