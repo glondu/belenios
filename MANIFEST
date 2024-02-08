@@ -336,8 +336,8 @@ src/scripts/translate_stubs/gen.sh
 src/scripts/translate_stubs/main.ml
 src/tool/common.ml
 src/tool/dune
-src/tool/election.ml
-src/tool/election.mli
+src/tool/election_cmd.ml
+src/tool/election_cmd.mli
 src/tool/main.ml
 src/tool/main.mli
 src/tool/random.ml

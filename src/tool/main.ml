@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module E = Election
 open Belenios
 open Common
 open Cmdliner
@@ -336,7 +335,7 @@ let cmds =
     Bench.cmd;
     Shasum.cmd;
     Setup.cmd;
-    E.cmd;
+    Election_cmd.cmd;
     Events.cmd;
     Methods.cmd;
     Sealing.cmd;
