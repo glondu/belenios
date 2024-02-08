@@ -76,7 +76,6 @@ let update_question = ref (fun _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let q_to_gen question =
-  let question = Belenios_v1.Question.to_concrete question in
   let question, answers, blank, kind, sel_min, sel_max, seats, meth, names =
     match question.value with
     | Homomorphic.Q q ->
@@ -117,7 +116,6 @@ let q_to_gen question =
   }
 
 let gen_to_q q =
-  let@ () = fun cont -> cont () |> Belenios_v1.Question.of_concrete in
   match q.kind with
   | `Select ->
       Homomorphic.make
@@ -192,10 +190,12 @@ let local_save () =
   (* FIXME: should use default groups sent by server, here *)
   let group = "Ed25519" in
   let qq = Array.map gen_to_q !all_gen_quest in
-  let* (Draft (V1, draft)) = Cache.get_until_success Cache.draft in
+  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+  let open (val Election.get_serializers v) in
+  let qq = Array.map of_concrete qq in
   Cache.set Cache.draft
     (Draft
-       ( V1,
+       ( v,
          {
            draft with
            draft_questions = { draft.draft_questions with t_questions = qq };
@@ -792,7 +792,7 @@ let questions_content () =
   let is_draft =
     match !where_am_i with Election { status = Draft; _ } -> true | _ -> false
   in
-  let* (Questions (V1, qs)) =
+  let* (Questions (v, qs)) =
     if is_draft then
       let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
       Lwt.return (Questions (v, draft.draft_questions.t_questions))
@@ -800,7 +800,8 @@ let questions_content () =
       let* (Template (v, elec)) = Cache.get_until_success Cache.e_elec in
       Lwt.return (Questions (v, elec.t_questions))
   in
-  all_gen_quest := Array.map q_to_gen qs;
+  let open (val Election.get_serializers v) in
+  all_gen_quest := Array.map (fun x -> x |> to_concrete |> q_to_gen) qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then
     curr_doing := 0;
   let* () =

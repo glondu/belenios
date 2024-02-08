@@ -286,13 +286,13 @@ let rec page_body () =
       (fun () ->
         let* x = get summary_list_of_string "drafts" in
         let ifmatch = get_ifmatch x in
+        let (Version v) = default_version in
         let* dr = newdraft () in
         match dr with
         | None ->
             alert "Creation failed: could not get config from server";
             Lwt.return_unit
         | Some d -> (
-            let (Version (V1 as v)) = default_version in
             let dr = string_of_draft (Draft (v, d)) in
             let* x =
               post_with_token ?ifmatch dr "drafts" |> wrap uuid_of_string

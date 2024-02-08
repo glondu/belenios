@@ -444,7 +444,8 @@ let createRadioItem name checked label =
   Dom.appendChild container (document##createTextNode (Js.string label));
   (radio, container)
 
-let createTemplate template =
+let createTemplate (Election.Template (v, template)) =
+  let open (val Election.get_serializers v) in
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   (* name *)
@@ -480,7 +481,7 @@ let createTemplate template =
   Dom.appendChild container x;
   Array.iter
     (fun q ->
-      let x = createQuestion q in
+      let x = createQuestion (to_concrete q) in
       Dom.appendChild h_questions_div x)
     template.t_questions;
   (* button for adding question *)
@@ -503,13 +504,11 @@ let createTemplate template =
   let t = document##createTextNode (Js.string (s_ "Save changes")) in
   let f _ =
     try
-      let open Belenios_v1.Serializable_j in
       let template = extractTemplate () in
       let template =
         {
           template with
-          t_questions =
-            Array.map Belenios_v1.Question.of_concrete template.t_questions;
+          t_questions = Array.map of_concrete template.t_questions;
         }
       in
       set_textarea "questions" (string_of_template write_question template);
@@ -547,18 +546,15 @@ let handle_hybrid e _ =
 (* Entry point *)
 
 let fill_interactivity () =
-  let open Belenios_v1.Serializable_j in
+  let (Version v) = List.hd Election.supported_crypto_versions in
+  let open (val Election.get_serializers v) in
   let&& e = document##getElementById (Js.string "interactivity") in
   let t = template_of_string read_question (get_textarea "questions") in
-  let t =
-    {
-      t with
-      t_questions = Array.map Belenios_v1.Question.to_concrete t.t_questions;
-    }
+  let has_nh =
+    Array.exists is_nh_question (Array.map to_concrete t.t_questions)
   in
-  let has_nh = Array.exists is_nh_question t.t_questions in
   hybrid_mode := has_nh;
-  let div = createTemplate t in
+  let div = createTemplate (Template (v, t)) in
   Dom.appendChild e div;
   let&& x = document##querySelector (Js.string "form") in
   x##.style##.display := Js.string "none";

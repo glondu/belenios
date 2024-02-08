@@ -26,12 +26,11 @@ let draft_of_string x =
   let abstract = Serializable_j.draft_of_string Yojson.Safe.read_json x in
   let open Belenios.Election in
   match version_of_int abstract.draft_version with
-  | Version (V1 as v) ->
-      let x =
-        Serializable_j.draft_of_string Belenios_v1.Serializable_j.read_question
-          x
-      in
+  | Version v ->
+      let open (val get_serializers v) in
+      let x = Serializable_j.draft_of_string read_question x in
       Draft (v, x)
 
-let string_of_draft (Draft (V1, x)) =
-  Serializable_j.string_of_draft Belenios_v1.Serializable_j.write_question x
+let string_of_draft (Draft (v, x)) =
+  let open (val Belenios.Election.get_serializers v) in
+  Serializable_j.string_of_draft write_question x

@@ -602,7 +602,7 @@ let build_elections_by_owner_cache () =
                               in
                               return (`Archived, date)
                         in
-                        let (Template (V1, template)) =
+                        let (Template (_, template)) =
                           Election.template_of_string election
                         in
                         let item = (kind, uuid, date, template.t_name) in

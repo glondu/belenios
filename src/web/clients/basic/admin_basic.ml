@@ -138,18 +138,22 @@ let rec show_root main =
   let template =
     match (configuration_opt, account_opt) with
     | Some c, Some a ->
-        Some
+        let draft_version = List.hd c.supported_crypto_versions in
+        let (Version v) = Election.version_of_int draft_version in
+        let draft_questions =
           {
-            draft_version = List.hd c.supported_crypto_versions;
+            t_description = "";
+            t_name = "";
+            t_questions = [||];
+            t_administrator = Some a.name;
+            t_credential_authority = Some "server";
+          }
+        in
+        let draft =
+          {
+            draft_version;
             draft_owners = [ a.id ];
-            draft_questions =
-              {
-                t_description = "";
-                t_name = "";
-                t_questions = [||];
-                t_administrator = Some a.name;
-                t_credential_authority = Some "server";
-              };
+            draft_questions;
             draft_languages = [ "en"; "fr" ];
             draft_contact = Some (Printf.sprintf "%s <%s>" a.name a.address);
             draft_booth = List.hd c.supported_booth_versions;
@@ -160,14 +164,13 @@ let rec show_root main =
               | `Configured x :: _ -> `Configured x.configured_instance);
             draft_group = c.default_group;
           }
+        in
+        Some (Draft (v, draft))
     | _ -> None
   in
   let create =
     let value =
-      match template with
-      | None -> ""
-      | Some x -> string_of_draft (Draft (V1, x))
-      (* FIXME *)
+      match template with None -> "" | Some x -> string_of_draft x
     in
     let t, tget = textarea value in
     let b =

@@ -50,14 +50,11 @@ module Make (P : PARAMS) () = struct
       end)
 
   let nb_candidates =
-    match Belenios.Election.compare_version W.witness V1 with
-    | None -> failwith "unexpected version"
-    | Some Refl -> (
-        let question : Belenios_v1.Question.t = W.template.t_questions.(0) in
-        let question = Belenios_v1.Question.to_concrete question in
-        match question.value with
-        | Belenios_question.Homomorphic.Q q -> Array.length q.q_answers
-        | _ -> failwith "unexpected question")
+    let open (val Belenios.Election.get_serializers W.witness) in
+    let question = to_concrete W.template.t_questions.(0) in
+    match question.value with
+    | Belenios_question.Homomorphic.Q q -> Array.length q.q_answers
+    | _ -> failwith "unexpected question"
 
   let random_choice () =
     let i = Stdlib.Random.int nb_candidates in

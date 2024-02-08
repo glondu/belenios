@@ -29,7 +29,19 @@ open Serializable_t
 val get_version : string -> int
 val get_uuid : string -> uuid
 
-type _ version = V1 : Belenios_v1.Question.t version
+module type SERIALIZABLE_QUESTION = sig
+  type t
+
+  val read_question : t reader
+  val write_question : t writer
+  val of_concrete : Belenios_question.t -> t
+  val to_concrete : t -> Belenios_question.t
+end
+
+type 'a version
+
+val get_serializers :
+  'a version -> (module SERIALIZABLE_QUESTION with type t = 'a)
 
 val compare_version : 'a version -> 'b version -> ('a, 'b) eq option
 

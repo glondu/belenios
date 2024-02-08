@@ -197,15 +197,13 @@ struct
 
   let create_new_election (account : account) cred draft_authentication =
     let open Belenios_api.Serializable_t in
-    let (Version (V1 as v)) =
-      List.hd Belenios.Election.supported_crypto_versions
-    in
+    let (Version v) = List.hd Belenios.Election.supported_crypto_versions in
+    let open (val Belenios.Election.get_serializers v) in
     let draft_questions =
       {
         t_description = Web_defaults.description;
         t_name = Web_defaults.name;
-        t_questions =
-          Array.map Belenios_v1.Question.of_concrete Web_defaults.questions;
+        t_questions = Array.map of_concrete Web_defaults.questions;
         t_administrator = Some account.name;
         t_credential_authority =
           Some (match cred with `Automatic -> "server" | `Manual -> "");
@@ -528,15 +526,15 @@ struct
   let () =
     Any.register ~service:election_draft_questions_post
       (fun uuid (template, booth_version) ->
-        let@ (Draft (V1, se) as x) = with_draft_election uuid in
+        let@ (Draft (v, se) as x) = with_draft_election uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let open Belenios_v1.Serializable_j in
+        let open (val Election.get_serializers v) in
         let template = template_of_string read_question template in
         let fixed_group = Web_persist.is_group_fixed uuid x in
         (match
-           ( Election.has_nh_questions (Template (V1, se.se_questions)),
-             Election.has_nh_questions (Template (V1, template)) )
+           ( Election.has_nh_questions (Template (v, se.se_questions)),
+             Election.has_nh_questions (Template (v, template)) )
          with
         | true, true | false, false -> ()
         | true, false when fixed_group -> ()

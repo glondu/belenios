@@ -43,7 +43,31 @@ let get_uuid x =
       | _ -> failwith "Election.get_uuid: invalid data")
   | _ -> failwith "Election.get_uuid: object expected"
 
+module type SERIALIZABLE_QUESTION = sig
+  type t
+
+  val read_question : t reader
+  val write_question : t writer
+  val of_concrete : Belenios_question.t -> t
+  val to_concrete : t -> Belenios_question.t
+end
+
+module Serializable_question_v1 = struct
+  open Belenios_v1
+
+  type t = Question.t
+
+  let read_question = Serializable_j.read_question
+  let write_question = Serializable_j.write_question
+  let of_concrete = Question.of_concrete
+  let to_concrete = Question.to_concrete
+end
+
 type _ version = V1 : Belenios_v1.Question.t version
+
+let get_serializers (type a) (v : a version) :
+    (module SERIALIZABLE_QUESTION with type t = a) =
+  match v with V1 -> (module Serializable_question_v1)
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
     (t, u) eq option =

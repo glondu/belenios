@@ -207,9 +207,11 @@ let post_drafts account draft =
       t_credential_authority = None;
     }
   in
+  let se_version = Web_defaults.version in
+  let (Version v) = Belenios.Election.version_of_int se_version in
   let se =
     {
-      se_version = Web_defaults.version;
+      se_version;
       se_owners = owners;
       se_group = !Web_config.default_group;
       se_voters = [];
@@ -226,8 +228,7 @@ let post_drafts account draft =
       se_pending_credentials = false;
     }
   in
-  let (Version V1) = Belenios.Election.version_of_int se.se_version in
-  let se = draft_of_api account uuid (Draft (V1, se)) draft in
+  let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () = Web_persist.create_draft uuid se in
   Lwt.return uuid
 

@@ -1434,7 +1434,7 @@ struct
         script ~a:[ a_src file ] (txt "");
       ]
 
-  let election_draft_questions uuid (Draft (V1, se) as fse) () =
+  let election_draft_questions uuid (Draft (v, se) as fse) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
@@ -1444,7 +1444,7 @@ struct
       match se.se_metadata.e_booth_version with None -> 1 | Some v -> v
     in
     let form =
-      let open Belenios_v1.Serializable_j in
+      let open (val Election.get_serializers v) in
       let value = string_of_template write_question se.se_questions in
       post_form ~service:election_draft_questions_post
         (fun (nquestions, nbooth) ->
@@ -1468,7 +1468,7 @@ struct
     in
     let allow_nh =
       match
-        Belenios.Election.has_nh_questions (Template (V1, se.se_questions))
+        Belenios.Election.has_nh_questions (Template (v, se.se_questions))
       with
       | true -> true
       | false -> not (Web_persist.is_group_fixed uuid fse)
@@ -2260,7 +2260,7 @@ struct
     let service = election_draft_import_trustees_post in
     election_draft_importer l ~service ~title ~note uuid elections
 
-  let election_draft_confirm uuid (Draft (V1, se) as fse) () =
+  let election_draft_confirm uuid (Draft (v, se) as fse) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let notok x = span ~a:[ a_style "color: red;" ] [ txt x ] in
@@ -2286,7 +2286,7 @@ struct
     in
     let ready, questions =
       if
-        Belenios.Election.get_questions (Template (V1, se.se_questions))
+        Belenios.Election.get_questions (Template (v, se.se_questions))
         = Web_defaults.questions
       then (false, notok (s_ "Not edited"))
       else (ready, ok "OK")
