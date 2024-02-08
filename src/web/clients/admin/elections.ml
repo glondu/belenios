@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Js_of_ocaml_tyxml
-module T = Trustees
 open Belenios
 open Belenios_api.Serializable_j
 open Tyxml_js.Html5
@@ -1638,7 +1637,7 @@ let update_main_zone () =
     | Election { tab = Dates; _ } -> dates_content ()
     | Election { tab = Language; _ } -> language_content ()
     | Election { tab = Contact; _ } -> contact_content ()
-    | Election { tab = Trustees; _ } -> T.trustees_content ()
+    | Election { tab = Trustees; _ } -> Trustees_tab.trustees_content ()
     | Election { tab = CredAuth; _ } -> credauth_content ()
     | Election { tab = VotersPwd; _ } -> voterspwd_content ()
     | Election { tab = ElectionPage; _ } -> result_archived_content ()

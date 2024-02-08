@@ -372,8 +372,8 @@ src/web/clients/admin/preview.ml
 src/web/clients/admin/preview.mli
 src/web/clients/admin/questions.ml
 src/web/clients/admin/questions.mli
-src/web/clients/admin/trustees.ml
-src/web/clients/admin/trustees.mli
+src/web/clients/admin/trustees_tab.ml
+src/web/clients/admin/trustees_tab.mli
 src/web/clients/basic/admin_basic.html
 src/web/clients/basic/admin_basic.ml
 src/web/clients/basic/admin_basic.mli
