@@ -16,6 +16,8 @@
 @import "./components/MajorityJudgmentVoteSmallCandidatesList.css";
 @import "./components/PreferentialVotingCandidatesList.css";
 @import "./components/PreferentialVotingWithoutEqualityColumn.css";
+@import "./components/CandidateList.css";
+@import "./components/ListsVoteCandidatesList.css";
 @import "./select-css.css";
 
 body {

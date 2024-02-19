@@ -4,12 +4,16 @@ const QuestionTypeEnum = Object.freeze({
   MAJORITY_JUDGMENT: "MAJORITY_JUDGMENT", // In this question type, voter must associate a grade (represented by a number) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`.
   PREFERENTIAL_VOTING_WITH_EQUALITY: "PREFERENTIAL_VOTING_WITH_EQUALITY", // In this question type, voter must associate a rank (represented by a number, 1 being the most preferred, and a bigger number being less preferred ; blank vote cand be accepted, and equality is accepted) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`
   PREFERENTIAL_VOTING_WITHOUT_EQUALITY: "PREFERENTIAL_VOTING_WITHOUT_EQUALITY", // In this question type, voter must associate a rank (represented by a number, 1 being the most preferred, and a bigger number being less preferred ; blank vote can be accepted, and equality is not accepted) to each answer or candidate. Question's title is available as `questions[i].value.question`. Available answers or candidates are each element of array `questions[i].value.answers`
+  LISTS: "LISTS",
 });
 
 const detectQuestionType = (question) => {
+  const lists = question.hasOwnProperty("type") && question["type"] == "Lists";
   const nonHomomorphic =
     question.hasOwnProperty("type") && question["type"] == "NonHomomorphic";
-  if (!nonHomomorphic) {
+  if (lists) {
+    return QuestionTypeEnum.LISTS;
+  } else if (!nonHomomorphic) {
     return QuestionTypeEnum.CLASSIC;
   } else {
     if (
@@ -69,6 +73,9 @@ class ElectionQuestion {
         "blank" in this.questionData && this.questionData["blank"] === true;
       this.min = this.questionData.min;
       this.max = this.questionData.max;
+    } else if (this.type === QuestionTypeEnum.LISTS) {
+      this.title = this.questionData.value.question;
+      this.answers = this.questionData.value.answers;
     } else if (this.type === QuestionTypeEnum.GENERIC) {
       this.title = this.questionData.value.question;
       this.answers = this.questionData.value.answers;
