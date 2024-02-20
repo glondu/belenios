@@ -74,8 +74,8 @@ struct
 
   module UiBase = struct
     module Xml = Eliom_content.Xml
-    module Svg = Eliom_content.Svg.F.Raw
-    module Html = Eliom_content.Html.F.Raw
+    module Svg = Eliom_content.Svg.F.Raw'
+    module Html = Eliom_content.Html.F.Raw'
 
     module Uris = struct
       let home = absolute_uri_of_service ~service:home ()
