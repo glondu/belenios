@@ -8,7 +8,7 @@ address will be https://vote.example.org; please adapt as needed.
 
 As root:
 ```
-apt install nginx-light nginx certbot python3-certbot-nginx
+apt install nginx-light nginx libnginx-mod-http-headers-more-filter certbot python3-certbot-nginx
 cat > /etc/nginx/sites-available/vote.example.org <<EOF
 server {
     server_name vote.example.org;
@@ -70,9 +70,10 @@ systemctl restart belenios-container@main.service
 Add the following lines to the relevant section of
 `/etc/nginx/sites-available/vote.example.org`:
 ```
+    more_clear_headers Server;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; img-src 'self' data:;" always;
-    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Frame-Options "DENY" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer" always;
     proxy_cookie_flags ~ secure httponly samesite=strict;
