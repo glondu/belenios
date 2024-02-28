@@ -170,7 +170,7 @@ let choose_election_handler uuid status () =
   where_am_i := Election { uuid; status; tab = Title };
   Lwt.return_unit
 
-let election_a2 x kind =
+let election_a2 x status =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = x.summary_uuid in
   let elt =
@@ -179,7 +179,7 @@ let election_a2 x kind =
       (if x.summary_name = "" then s_ "(no title)" else x.summary_name)
   in
   let r = Tyxml_js.To_dom.of_a elt in
-  r##.onclick := lwt_handler (choose_election_handler uuid kind);
+  r##.onclick := lwt_handler (choose_election_handler uuid status);
   div ~a:[ a_class [ "txt_with_a" ] ] [ elt ]
 
 let list_draft () =
@@ -190,6 +190,11 @@ let list_draft () =
   |> List.sort (fun a b -> compare b.summary_date a.summary_date)
   |> List.map (fun x -> li [ election_a2 x Draft ])
   |> fun xs -> Lwt.return [ h2 [ txt @@ s_ "Elections being setup:" ]; ul xs ]
+
+let status_of_state = function
+  | `Open | `Closed | `Shuffling | `EncryptedTally -> Running
+  | `Archived -> Archived
+  | `Tallied -> Tallied
 
 let list_elec () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -203,26 +208,25 @@ let list_elec () =
       let x () = [ div [ txt msg ] ] in
       Lwt.return (x (), x ())
   | Ok (elections, _) ->
-      let make title kind =
+      let make title f =
         List.filter
-          (fun x -> match x.summary_kind with Some y -> kind y | _ -> false)
+          (fun x -> match x.summary_state with Some y -> f y | _ -> false)
           elections
         |> List.sort (fun a b -> compare b.summary_date a.summary_date)
         |> List.map (fun x ->
                li
                  [
                    election_a2 x
-                     (match x.summary_kind with
-                     | Some `Validated -> Running
-                     | Some `Archived -> Archived
-                     | Some `Tallied -> Tallied
+                     (match x.summary_state with
+                     | Some y -> status_of_state y
                      | _ -> assert false);
                  ])
         |> fun xs -> [ h2 [ txt title ]; ul xs ]
       in
       let elt1 =
-        make (s_ "Running or finished elections:") (fun x ->
-            x = `Validated || x = `Tallied)
+        make (s_ "Running or finished elections:") (function
+          | `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied -> true
+          | _ -> false)
       in
       let elt2 = make (s_ "Archived elections:") (fun x -> x = `Archived) in
       Lwt.return (elt1, elt2)
@@ -394,7 +398,7 @@ let show_root main =
         ];
     ]
 
-let find_kind uuid =
+let find_status uuid =
   let* is_draft =
     let* x = get summary_list_of_string "drafts" in
     match x with
@@ -412,10 +416,8 @@ let find_kind uuid =
         match e with
         | None -> Lwt.return None
         | Some ee -> (
-            match ee.summary_kind with
-            | Some `Validated -> Lwt.return (Some Running)
-            | Some `Tallied -> Lwt.return (Some Tallied)
-            | Some `Archived -> Lwt.return (Some Archived)
+            match ee.summary_state with
+            | Some y -> Lwt.return_some (status_of_state y)
             | _ ->
                 Lwt.return
                   None (* should not occur, unless some race condition *)))
@@ -437,8 +439,8 @@ let onhashchange () =
     | `Home -> Lwt.return List_draft
     | `Profile -> Lwt.return Profile
     | `Election uuid -> (
-        let* kind = find_kind uuid in
-        match kind with
+        let* status = find_status uuid in
+        match status with
         | None ->
             alert @@ s_ "Unknown uuid";
             Lwt.return List_draft

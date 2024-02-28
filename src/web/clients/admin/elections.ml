@@ -78,9 +78,10 @@ let popup_choose_elec handler () =
       let name_uuids =
         elections
         |> List.filter (fun x ->
-               match x.summary_kind with
-               | Some `Validated -> true
-               | Some `Tallied -> true
+               match x.summary_state with
+               | Some (`Open | `Closed | `Shuffling | `EncryptedTally | `Tallied)
+                 ->
+                   true
                | _ -> false)
         |> List.map (fun x ->
                let but =

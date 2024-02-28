@@ -127,13 +127,22 @@ let rec show_root main =
         let x () = [ txt msg ] in
         Lwt.return (x (), x (), x ())
     | Ok (elections, _) ->
-        let make kind =
-          List.filter (fun x -> x.summary_kind = Some kind) elections
+        let make f =
+          List.filter
+            (fun x ->
+              match x.summary_state with Some y -> f y | None -> false)
+            elections
           |> List.sort (fun a b -> compare b.summary_date a.summary_date)
           |> List.map (fun x -> li [ election_a x ])
           |> fun xs -> [ ul xs ]
         in
-        Lwt.return (make `Validated, make `Tallied, make `Archived)
+        let is_validated = function
+          | `Open | `Closed | `Shuffling | `EncryptedTally -> true
+          | _ -> false
+        in
+        let is_tallied x = x = `Tallied in
+        let is_archived x = x = `Archived in
+        Lwt.return (make is_validated, make is_tallied, make is_archived)
   in
   let template =
     match (configuration_opt, account_opt) with

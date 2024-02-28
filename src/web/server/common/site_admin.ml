@@ -46,14 +46,18 @@ struct
 
   let get_elections_by_owner_sorted u =
     let* elections = Web_persist.get_elections_by_owner u in
-    let filter kind =
-      List.filter (fun (x, _, _, _) -> x = kind) elections
+    let filter f =
+      List.filter (fun (x, _, _, _) -> f x) elections
       |> List.map (fun (_, a, b, c) -> (a, b, c))
     in
-    let draft = filter `Draft in
-    let elections = filter `Validated in
-    let tallied = filter `Tallied in
-    let archived = filter `Archived in
+    let draft = filter (fun x -> x = `Draft) in
+    let elections =
+      filter (function
+        | `Open | `Closed | `Shuffling | `EncryptedTally -> true
+        | _ -> false)
+    in
+    let tallied = filter (fun x -> x = `Tallied) in
+    let archived = filter (fun x -> x = `Archived) in
     let sort l =
       List.sort (fun (_, x, _) (_, y, _) -> Datetime.compare x y) l
       |> List.map (fun (x, _, y) -> (x, y))

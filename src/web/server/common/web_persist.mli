@@ -39,10 +39,17 @@ val get_election_result : uuid -> string option Lwt.t
 val get_election_result_hidden : uuid -> datetime option Lwt.t
 val set_election_result_hidden : uuid -> datetime option -> unit Lwt.t
 
-type election_kind = [ `Draft | `Validated | `Tallied | `Archived ]
+type election_state =
+  [ `Draft
+  | `Open
+  | `Closed
+  | `Shuffling
+  | `EncryptedTally
+  | `Tallied
+  | `Archived ]
 
 val get_elections_by_owner :
-  int -> (election_kind * uuid * datetime * string) list Lwt.t
+  int -> (election_state * uuid * datetime * string) list Lwt.t
 
 val clear_elections_by_owner_cache : unit -> unit Lwt.t
 val get_passwords : uuid -> (string * string) SMap.t option Lwt.t

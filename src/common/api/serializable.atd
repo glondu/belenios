@@ -123,8 +123,11 @@ type ('a, 'b) pedersen = {
     ?voutput : ('a, 'b) voutput option;
 } <ocaml field_prefix="pedersen_">
 
-type kind =
-  [ Validated
+type state =
+  [ Open
+  | Closed
+  | Shuffling
+  | EncryptedTally
   | Tallied
   | Archived
   ]
@@ -133,7 +136,7 @@ type summary = {
     uuid : uuid;
     name : string;
     date : float;
-    ?kind : kind option;
+    ?state : state option;
 } <ocaml field_prefix="summary_">
 
 type summary_list = summary list
@@ -197,15 +200,6 @@ type trustees_request =
 
 type voters_request =
   [ Import of uuid
-  ]
-
-type state =
-  [ Open
-  | Closed
-  | Shuffling
-  | EncryptedTally
-  | Tallied
-  | Archived
   ]
 
 type election_status = {

@@ -523,13 +523,14 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           let* elections = Web_persist.get_elections_by_owner account.id in
           let elections =
             List.fold_left
-              (fun accu (kind, summary_uuid, date, summary_name) ->
+              (fun accu (state, summary_uuid, date, summary_name) ->
                 let summary_date = Datetime.to_unixfloat date in
-                match kind with
+                match state with
                 | `Draft -> accu
-                | (`Validated | `Tallied | `Archived) as x ->
-                    let summary_kind = Some x in
-                    { summary_uuid; summary_name; summary_date; summary_kind }
+                | ( `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied
+                  | `Archived ) as x ->
+                    let summary_state = Some x in
+                    { summary_uuid; summary_name; summary_date; summary_state }
                     :: accu)
               [] elections
           in

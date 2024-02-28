@@ -552,7 +552,14 @@ let add_partial_decryption uuid (owned_owner, pd) =
 let get_decryption_tokens uuid = Spool.get ~uuid Spool.decryption_tokens
 let set_decryption_tokens uuid = Spool.set ~uuid Spool.decryption_tokens
 
-type election_kind = [ `Draft | `Validated | `Tallied | `Archived ]
+type election_state =
+  [ `Draft
+  | `Open
+  | `Closed
+  | `Shuffling
+  | `EncryptedTally
+  | `Tallied
+  | `Archived ]
 
 let umap_add user x map =
   let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
@@ -578,17 +585,18 @@ let build_elections_by_owner_cache () =
                     | None -> return accu
                     | Some election ->
                         let* dates = get_election_dates uuid in
-                        let* kind, date =
+                        let* state, date =
                           let* state =
                             raw_get_election_state ~update:false uuid
                           in
                           match state with
-                          | `Open | `Closed | `Shuffling | `EncryptedTally ->
+                          | (`Open | `Closed | `Shuffling | `EncryptedTally) as
+                            s ->
                               let date =
                                 Option.value dates.e_finalization
                                   ~default:Web_defaults.validation_date
                               in
-                              return (`Validated, date)
+                              return (s, date)
                           | `Tallied ->
                               let date =
                                 Option.value dates.e_tally
@@ -605,7 +613,7 @@ let build_elections_by_owner_cache () =
                         let (Template (_, template)) =
                           Election.template_of_string election
                         in
-                        let item = (kind, uuid, date, template.t_name) in
+                        let item = (state, uuid, date, template.t_name) in
                         return
                         @@ List.fold_left
                              (fun accu id -> umap_add id item accu)
@@ -1248,7 +1256,7 @@ let get_admin_context admin_id =
   let* elections =
     Lwt_list.filter_map_s
       (function
-        | `Validated, uuid, _, _ ->
+        | (`Open | `Closed | `Shuffling | `EncryptedTally), uuid, _, _ ->
             let* cache = get_audit_cache uuid in
             Lwt.return_some cache.cache_checksums.ec_num_voters
         | _ -> Lwt.return_none)
