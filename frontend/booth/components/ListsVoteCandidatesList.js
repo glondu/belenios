@@ -11,10 +11,6 @@ function TranslatableListsVoteCandidatesList({
   dispatchUpdateUserVoteForQuestion,
   t,
 }) {
-  const isListSelected =
-    currentUserVoteForQuestion.filter((listAnswer) => listAnswer[0] === 1)
-      .length > 0;
-
   const renderedLists = lists.map((list, listIndex) => {
     const identifier = `${identifierPrefix}_choice_${listIndex}`;
     const dispatchUpdateUserVoteForCandidateInQuestion = (listValue) => {
@@ -46,24 +42,7 @@ function TranslatableListsVoteCandidatesList({
       name: identifier,
     });
 
-    if (!isListSelected || currentUserVoteForQuestion[listIndex][0] === 1) {
-      return listElement;
-    } else {
-      return null;
-    }
-  });
-
-  const clearButton = e(NiceButton, {
-    label: "Select another list",
-    onClick: () => {
-      const updatedVote = currentUserVoteForQuestion.map((list, _) =>
-        list.map((_) => 0),
-      );
-      dispatchUpdateUserVoteForQuestion({
-        type: "saveVoteForAllCandidatesInQuestion",
-        user_vote_for_all_candidates_in_question: updatedVote,
-      });
-    },
+    return listElement;
   });
 
   return e(
@@ -72,7 +51,6 @@ function TranslatableListsVoteCandidatesList({
       className: "lists-vote-candidates-list noselect",
     },
     ...renderedLists,
-    isListSelected ? clearButton : null,
   );
 }
 
