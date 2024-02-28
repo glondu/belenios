@@ -134,6 +134,7 @@ module Make () = struct
         Web_config.blacklisted_domains := loop !Web_config.blacklisted_domains
     | Element ("billing", [ ("url", url); ("callback", callback) ], []) ->
         Web_config.billing := Some (url, callback)
+    | Element ("restricted", [], []) -> Web_config.restricted_mode := true
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag
@@ -212,6 +213,36 @@ module Make () = struct
   let () = Web_config.site_auth_config := List.rev !auth_instances
   let () = Web_config.exported_auth_config := List.rev !auth_instances_export
   let () = Web_config.domain := domain
+
+  (** Restricted mode checks *)
+
+  let () =
+    let@ () = fun cont -> if !Web_config.restricted_mode then cont () in
+    if Version.debug then failwith "debug build not allowed in restricted mode";
+    if !Web_config.default_group <> "Ed25519" then
+      failwith "default group must be Ed25519 in restricted mode";
+    if
+      not
+        (List.for_all
+           (fun x -> x.auth_system = "password")
+           !Web_config.site_auth_config)
+    then
+      failwith
+        "only password authentication is allowed for administrators in \
+         restricted mode";
+    if
+      List.exists
+        (fun x -> List.mem_assoc "allowsignups" x.auth_config)
+        !Web_config.site_auth_config
+    then failwith "allowsignups is not allowed in restricted mode";
+    if
+      not
+        (List.for_all
+           (function `Export x -> x.auth_system = "email" | _ -> false)
+           !Web_config.exported_auth_config)
+    then
+      failwith
+        "only email authentication is allowed for voters in restricted mode"
 
   module X : Pages_sig.S = struct
     module Mails_admin = Belenios_ui.Mails_admin.Make (Web_i18n)

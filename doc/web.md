@@ -166,3 +166,29 @@ accounts created with the `allowsignups` feature described above) can
 be set with a `<blacklisted-domains file="/path/to/file">`
 element. You can for example use [this
 file](https://github.com/disposable-email-domains/disposable-email-domains/blob/master/disposable_email_blocklist.conf).
+
+### Restricted mode
+
+The `<restricted/>` configuration element puts the server in
+_restricted_ mode. The goal of this mode is to restrict choices to
+ease security audits.
+
+Some choices are enforced at server start up:
+- forbid debug mode
+- force default group to Ed25519
+- force administrator authentication to password
+- forbid account self-service
+- allow only email authentication for voters
+
+Other choices are enforced at election validation:
+- manual credential handling
+- only homomorphic questions are allowed
+- there must be >= 2 trustees and the threshold mode must be used
+- weights are forbidden
+- group must be Ed25519
+- voter authentication
+
+The UI is modified to avoid some excluded situations.
+
+A sample restricted mode configuration file is
+[available](../demo/ocsigenserver-restricted.conf.in).

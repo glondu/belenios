@@ -47,3 +47,4 @@ let deny_revote = ref false
 let deny_newelection = ref false
 let blacklisted_domains = ref Belenios.SSet.empty
 let billing = ref None
+let restricted_mode = ref false

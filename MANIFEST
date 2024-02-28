@@ -31,6 +31,7 @@ contrib/stats_on_deleted.sh
 demo/dummy_logins.txt
 demo/dune
 demo/mime.types
+demo/ocsigenserver-restricted.conf.in
 demo/ocsigenserver.conf.in
 demo/password_db.csv
 demo/run-server.sh

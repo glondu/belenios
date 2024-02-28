@@ -114,6 +114,7 @@ struct
     let full_title =
       match full_title with None -> markup title | Some x -> markup x
     in
+    let restricted_mode = !Web_config.restricted_mode in
     Lwt.return
       (html
          ~a:[ a_dir `Ltr; a_xml_lang lang ]
@@ -132,7 +133,7 @@ struct
             ])
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
-               ~footer ~administer ~extra_footer ())))
+               ~footer ~administer ~extra_footer ~restricted_mode ())))
 
   let lang_box cont =
     let cont = default_admin cont in

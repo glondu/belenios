@@ -202,6 +202,9 @@ struct
     base ~title ~login_box ~content ()
 
   let try_new_ui l uuid =
+    let@ () =
+     fun cont -> if !Web_config.restricted_mode then txt "" else cont ()
+    in
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     div
     @@
@@ -401,6 +404,23 @@ struct
                              :: txt " " :: legend);
                          ])
           in
+          let auto_credentials, checked =
+            if !Web_config.restricted_mode then (txt "", true)
+            else
+              ( div
+                  [
+                    label
+                      [
+                        radio ~checked:true ~name:credmgmt ~value:"auto" string;
+                        txt " ";
+                        txt
+                          (s_
+                             "sent by our server (easier mode but offers less \
+                              security)");
+                      ];
+                  ],
+                false )
+          in
           [
             div
               [
@@ -417,24 +437,12 @@ struct
                 li
                   [
                     txt (s_ "Credentials:");
+                    auto_credentials;
                     div
                       [
                         label
                           [
-                            radio ~checked:true ~name:credmgmt ~value:"auto"
-                              string;
-                            txt " ";
-                            txt
-                              (s_
-                                 "sent by our server (easier mode but offers \
-                                  less security)");
-                          ];
-                      ];
-                    div
-                      [
-                        label
-                          [
-                            radio ~name:credmgmt ~value:"manual" string;
+                            radio ~checked ~name:credmgmt ~value:"manual" string;
                             txt " ";
                             txt
                               (s_
@@ -1474,6 +1482,9 @@ struct
       | false -> not (Web_persist.is_group_fixed uuid fse)
     in
     let hybrid_box =
+      let@ () =
+       fun cont -> if !Web_config.restricted_mode then txt "" else cont ()
+      in
       div
         ~a:[ a_class [ "hybrid_box" ] ]
         [
@@ -2355,6 +2366,23 @@ struct
                 ];
             ] )
     in
+    let ready, restricted_mode =
+      match s.restricted_mode_error with
+      | None -> (ready, [])
+      | Some e ->
+          let msg =
+            match e with
+            | `AutoCredentials -> s_ "Credentials cannot be handled by server."
+            | `VoterAuthentication -> s_ "Bad authentication for voters."
+            | `ForbiddenQuestions -> s_ "This kind of questions is forbidden."
+            | `NotEnoughTrustees -> s_ "There are not enough trustees."
+            | `NoThreshold -> s_ "The threshold mode must be used."
+            | `HasWeights -> s_ "Weights are forbidden."
+            | `BadGroup -> s_ "The chosen group is not allowed."
+          in
+          ( false,
+            [ tr [ td [ txt (s_ "Restricted mode?") ]; td [ notok msg ] ] ] )
+    in
     let div_trustee_warning =
       match se.se_trustees with
       | `Basic x when x.dbp_trustees = [] ->
@@ -2413,6 +2441,7 @@ struct
           tr [ td [ txt (s_ "Contact?") ]; td [ txt contact ] ];
         ];
         nh_and_weights;
+        restricted_mode;
       ]
       |> List.flatten |> table
     in

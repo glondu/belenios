@@ -1,0 +1,92 @@
+<!-- -*- Mode: Xml -*- -->
+<ocsigen>
+
+  <server>
+
+    <port>127.0.0.1:8001</port>
+
+    <mimefile>_SHAREDIR_/mime.types</mimefile>
+
+    <logdir>_VARDIR_/log</logdir>
+    <datadir>_VARDIR_/lib</datadir>
+
+    <uploaddir>_VARDIR_/upload</uploaddir>
+
+    <!--
+      The following limits are there to avoid flooding the server.
+      <maxuploadfilesize> might need to be increased for handling large
+      elections.
+      <maxconnected> is related to the number of simultaneous voters
+      visiting the server.
+    -->
+    <maxuploadfilesize>5120kB</maxuploadfilesize>
+    <maxconnected>500</maxconnected>
+
+    <commandpipe>_RUNDIR_/ocsigenserver_command</commandpipe>
+
+    <charset>utf-8</charset>
+
+    <findlib path="_LIBDIR_"/>
+
+    <extension name="staticmod"/>
+    <extension name="redirectmod"/>
+
+    <extension name="ocsipersist">
+      <database file="_VARDIR_/lib/ocsidb"/>
+    </extension>
+
+    <extension name="eliom"/>
+
+    <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
+      <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
+      <site path="static" charset="utf-8">
+        <static dir="_SHAREDIR_" cache="0"/>
+      </site>
+      <eliom name="belenios">
+        <prefix value="http://127.0.0.1:8001"/>
+        <!-- Domain name used in Message-ID -->
+        <domain name="belenios.example.org"/>
+        <!--
+          The following can be adjusted to the capacity of your system.
+          If <maxrequestbodysizeinmemory> is too small, large elections
+          might fail, in particular with so-called alternative questions
+          with many voters.
+          <maxmailsatonce> depends heavily on how sending emails is
+          handled by your system.
+        -->
+        <maxrequestbodysizeinmemory value="1048576"/>
+        <maxmailsatonce value="1000"/>
+        <uuid length="14"/>
+        <gdpr uri="http://www.example.org/privacy_policy.html"/>
+        <!-- <contact uri="mailto:contact@example.org"/> -->
+        <server mail="noreply@example.org" return-path="bounces@example.org" name="Belenios public server"/>
+        <auth-export name="email"><email/></auth-export> <!-- DEMO -->
+        <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
+        <source file="_SHAREDIR_/belenios.tar.gz"/>
+        <logo file="_SHAREDIR_/placeholder.png" mime-type="image/png"/>
+        <favicon file="_VARDIR_/favicon.ico" mime-type="image/png"/>
+        <sealing file="demo/sealing.txt" mime-type="text/plain"/>
+        <default-group group="Ed25519"/>
+        <nh-group group="Ed25519"/>
+        <log file="_VARDIR_/log/security.log"/>
+        <locales dir="_SHAREDIR_/locales"/>
+        <spool dir="_VARDIR_/spool"/>
+        <accounts dir="_VARDIR_/accounts"/>
+        <admin-home file="_VARDIR_/admin-home.html"/>
+        <success-snippet file="_VARDIR_/success-snippet.html"/>
+        <warning file="_VARDIR_/warning.html"/>
+        <footer file="_VARDIR_/footer.html"/>
+        <!-- <deny-newelection/> -->
+        <!--
+            Uncomment the following line to disable revoting. Note that
+            the ability to revote is important as a (light) measure
+            against coercion.
+        -->
+        <!-- <deny-revote/> -->
+        <restricted/>
+      </eliom>
+    </host>
+
+  </server>
+
+</ocsigen>

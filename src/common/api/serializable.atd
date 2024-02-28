@@ -30,6 +30,16 @@ type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type restricted_mode_error =
+  [ AutoCredentials
+  | VoterAuthentication
+  | ForbiddenQuestions
+  | NotEnoughTrustees
+  | NoThreshold
+  | HasWeights
+  | BadGroup
+  ]
+
 type validation_error =
   [ NoTitle
   | NoQuestions
@@ -44,6 +54,7 @@ type validation_error =
   | NotSinglePrivateKey
   | KeyEstablishmentNotFinished
   | MissingBilling of string
+  | RestrictedMode of restricted_mode_error
   ]
 
 type error =
@@ -75,6 +86,7 @@ type authentication_system =
   ]
 
 type configuration = {
+    restricted_mode : bool;
     privacy_policy : string;
     belenios_version : string;
     belenios_build : string;
@@ -181,6 +193,7 @@ type draft_status = {
     credential_authority_visited : bool;
     voter_authentication_visited : bool;
     trustees_setup_step : int;
+    ?restricted_mode_error : restricted_mode_error option;
 }
 
 type draft_request =

@@ -99,6 +99,7 @@ let handle_get_option get =
 let get_configuration () =
   let open Web_defaults in
   {
+    restricted_mode = !Web_config.restricted_mode;
     privacy_policy = !Web_config.gdpr_uri;
     belenios_version = Version.version;
     belenios_build = Version.build;

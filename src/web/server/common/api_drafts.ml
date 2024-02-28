@@ -646,6 +646,27 @@ let get_draft_status uuid (Draft (v, se)) =
     | `Pending n -> (false, Some n)
     | `Done -> (true, None)
   in
+  let has_weights = has_explicit_weights se.se_voters in
+  let restricted_mode_error =
+    if !Web_config.restricted_mode then
+      if se.se_metadata.e_cred_authority = Some "server" then
+        Some `AutoCredentials
+      else if
+        match se.se_metadata.e_auth_config with
+        | Some [ { auth_system = "import"; _ } ] -> false
+        | _ -> true
+      then Some `VoterAuthentication
+      else if Belenios.Election.has_nh_questions (Template (v, se.se_questions))
+      then Some `ForbiddenQuestions
+      else if has_weights then Some `HasWeights
+      else if se.se_group <> "Ed25519" then Some `BadGroup
+      else
+        match se.se_trustees with
+        | `Basic _ -> Some `NoThreshold
+        | `Threshold { dtp_trustees = _ :: _ :: _; _ } -> None
+        | _ -> Some `NotEnoughTrustees
+    else None
+  in
   Lwt.return
     {
       num_voters = List.length se.se_voters;
@@ -664,14 +685,14 @@ let get_draft_status uuid (Draft (v, se)) =
         | `Threshold x ->
             List.for_all (fun t -> t.stt_step = Some 7) x.dtp_trustees);
       nh_and_weights_compatible =
-        (let has_weights = has_explicit_weights se.se_voters in
-         let has_nh =
+        (let has_nh =
            Belenios.Election.has_nh_questions (Template (v, se.se_questions))
          in
          not (has_weights && has_nh));
       credential_authority_visited = se.se_credential_authority_visited;
       voter_authentication_visited = se.se_voter_authentication_visited;
       trustees_setup_step = se.se_trustees_setup_step;
+      restricted_mode_error;
     }
 
 let merge_voters a b f =

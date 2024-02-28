@@ -1588,7 +1588,10 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
     if not s.credentials_ready then validation_error `MissingPublicCredentials;
     if not s.trustees_ready then validation_error `TrusteesNotReady;
     if not s.nh_and_weights_compatible then
-      validation_error `WeightsAreIncompatibleWithNH
+      validation_error `WeightsAreIncompatibleWithNH;
+    match s.restricted_mode_error with
+    | None -> ()
+    | Some e -> validation_error (`RestrictedMode e)
   in
   (* billing *)
   let* () =

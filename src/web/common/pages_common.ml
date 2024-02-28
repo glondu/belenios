@@ -42,8 +42,12 @@ module Make (Base : BASE) = struct
 
   let base_body l ~full_title ~content ~administer ?(login_box = txt "")
       ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
-      ?(extra_footer = txt "") () =
+      ?(extra_footer = txt "") ?(restricted_mode = false) () =
     let open (val l : I18n.GETTEXT) in
+    let restricted_mode =
+      if restricted_mode then span [ txt @@ s_ "Restricted mode"; txt ". " ]
+      else txt ""
+    in
     [
       div
         ~a:[ a_id "vote-app" ]
@@ -106,6 +110,7 @@ module Make (Base : BASE) = struct
                   a ~a:[ a_href Uris.belenios ] [ txt "Belenios" ];
                   Belenios.Version.(
                     Printf.ksprintf txt " %s (%s). " version build);
+                  restricted_mode;
                   a
                     ~a:[ a_href Uris.source_code ]
                     [ txt (s_ "Get the source code") ];
