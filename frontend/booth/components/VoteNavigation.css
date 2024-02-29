@@ -49,11 +49,3 @@
   padding: 15px 0 15px 15px;
   margin: 1px;
 }
-
-.vote-navigation__previous-button::before {
-  content: "<\a0\a0";
-}
-
-.vote-navigation__next-button::after {
-  content: "\a0\a0>";
-}
