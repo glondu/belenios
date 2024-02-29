@@ -15,38 +15,22 @@ function TranslatableInputCredentialSection({ onSubmit = null, t }) {
   return e(
     "div",
     {
-      className: "input-credential-section-container",
-      style: {
-        padding: "30px",
-      },
+      className: "input-credential-section__container",
     },
     e(
       "div",
       {
         className: "input-credential-section",
-        style: {
-          background: "rgb(229, 242, 247)",
-          padding: "20px",
-          textAlign: "center",
-          borderRadius: "8px",
-        },
       },
       e(
         "div",
         {
           className: "input-credential-section__instruction-container",
-          style: {
-            maxWidth: "300px",
-            margin: "0 auto",
-          },
         },
         e(
           "div",
           {
             className: "input-credential-section__instruction",
-            style: {
-              paddingBottom: "12px",
-            },
           },
           e("p", null, t("ask_for_credential")),
           e(NiceTextInput, {
@@ -58,9 +42,6 @@ function TranslatableInputCredentialSection({ onSubmit = null, t }) {
         ),
         e(BlueNiceButton, {
           className: "input-credential-section__button",
-          style: {
-            padding: "8px 28px",
-          },
           label: t("next_button_label"),
           onClick: onClick,
         }),

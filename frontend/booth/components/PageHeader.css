@@ -1,7 +1,7 @@
 .page-header {
   border-radius: 10px 10px 0 0;
-  background: #363636;
-  color: white;
+  background: var(--header-background);
+  color: var(--header-font);
   display: flex;
   padding: 8px 2px;
 }
