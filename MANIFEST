@@ -42,6 +42,7 @@ doc/API.md
 doc/Continuous_Integration.md
 doc/automated_tests.md
 doc/components.dot
+doc/cookies.md
 doc/election_test_scenario_1_specification.md
 doc/election_test_scenario_2_specification.md
 doc/election_test_scenario_3_specification.md
