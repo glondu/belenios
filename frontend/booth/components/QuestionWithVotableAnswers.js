@@ -90,6 +90,7 @@ function TranslatableQuestionWithVotableAnswers({
       t,
     });
   } else if (question.type === QuestionTypeEnum.LISTS) {
+    description = t("lists_question_description");
     rendered_answers = e(TranslatableListsVoteCandidatesList, {
       identifierPrefix,
       lists: question.answers,
