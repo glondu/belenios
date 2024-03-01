@@ -79,6 +79,9 @@ Add the following lines to the relevant section of
     proxy_cookie_flags ~ secure httponly samesite=strict;
 ```
 
+Note that if you set up CAS or OpenID Connect authentication with a
+third party server, you must use `samesite=none` instead.
+
 Run `systemctl restart nginx.service` (as root).
 
 ## Checking that everything works
