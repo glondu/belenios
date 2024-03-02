@@ -89,7 +89,7 @@ struct
   module Ui = Belenios_ui.Pages_common.Make (UiBase)
 
   let base ~title ?full_title ?(login_box = txt "") ?lang_box ~content
-      ?(footer = txt "") ?uuid ?static:(static_page = false) () =
+      ?(footer = txt "") ?uuid ?static:(static_page = false) ?redirect () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let administer =
@@ -115,22 +115,33 @@ struct
       match full_title with None -> markup title | Some x -> markup x
     in
     let restricted_mode = !Web_config.restricted_mode in
+    let head_content =
+      match redirect with
+      | None -> []
+      | Some uri ->
+          [
+            meta
+              ~a:
+                [
+                  a_http_equiv "refresh";
+                  a_content (Printf.sprintf "0;URL='%s'" uri);
+                ]
+              ();
+          ]
+    in
+    let head_content =
+      meta
+        ~a:
+          [ a_name "viewport"; a_content "width=device-width, initial-scale=1" ]
+        ()
+      :: script (txt "window.onbeforeunload = function () {};")
+      :: link ~rel:[ `Stylesheet ] ~href:(static "site.bundle.css") ()
+      :: head_content
+    in
     Lwt.return
       (html
          ~a:[ a_dir `Ltr; a_xml_lang lang ]
-         (head
-            (Eliom_content.Html.F.title (txt title))
-            [
-              meta
-                ~a:
-                  [
-                    a_name "viewport";
-                    a_content "width=device-width, initial-scale=1";
-                  ]
-                ();
-              script (txt "window.onbeforeunload = function () {};");
-              link ~rel:[ `Stylesheet ] ~href:(static "site.bundle.css") ();
-            ])
+         (head (Eliom_content.Html.F.title (txt title)) head_content)
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
                ~footer ~administer ~extra_footer ~restricted_mode ())))
@@ -554,4 +565,17 @@ struct
     in
     let title = s_ "Authentication impossible" in
     base ~title ~content ()
+
+  let html_redirection uri =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let content =
+      [
+        Eliom_content.Html.F.Raw.a
+          ~a:[ a_href (Xml.uri_of_string uri) ]
+          [ txt @@ s_ "Click here" ];
+      ]
+    in
+    let title = s_ "Redirection" in
+    base ~title ~content ~redirect:uri ()
 end

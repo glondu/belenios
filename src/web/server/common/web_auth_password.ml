@@ -59,7 +59,7 @@ struct
       | Some uuid -> Web_persist.check_password uuid ~user:name ~password
     else Lwt.return_none
 
-  let auth_system uuid a =
+  let handler uuid a =
     let module X = struct
       let pre_login_handler username_or_address ~state =
         let allowsignups = does_allow_signups a.auth_config in
@@ -69,7 +69,7 @@ struct
         let service = a.auth_instance in
         Pages_common.login_password site_or_election username_or_address
           ~service ~allowsignups ~state
-        >>= fun x -> return @@ Web_auth_sig.Html x
+        >>= fun x -> return (Web_auth_sig.Html x, Web_auth.No_data)
 
       let direct x =
         let fail () = failwith "invalid direct password authentication" in
@@ -89,13 +89,13 @@ struct
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
   let run_post_login_handler =
-    Web_auth.register ~auth_system:"password" auth_system
+    Web_auth.register ~auth_system:"password" { handler; extern = false }
 
   let password_handler () (state, (name, password)) =
     run_post_login_handler ~state
       {
         Web_auth.post_login_handler =
-          (fun uuid a cont ->
+          (fun ~data:_ uuid a cont ->
             let* ok = check uuid a name password in
             cont ok);
       }

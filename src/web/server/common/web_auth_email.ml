@@ -55,7 +55,7 @@ struct
   let env = Eliom_reference.eref ~scope None
   let login_env = Eliom_reference.eref ~scope None
 
-  let auth_system uuid { auth_config; auth_instance; _ } =
+  let handler uuid { auth_config; auth_instance; _ } =
     let module X = struct
       let pre_login_handler username_or_address ~state =
         let* () = Eliom_reference.set uuid_ref uuid in
@@ -70,10 +70,10 @@ struct
               let* fragment =
                 Pages_common.login_email_captcha ~state None challenge ""
               in
-              return @@ Web_auth_sig.Html fragment
+              return @@ (Web_auth_sig.Html fragment, Web_auth.No_data)
             else
               let* fragment = Pages_common.login_email_not_now () in
-              return @@ Web_auth_sig.Html fragment
+              return (Web_auth_sig.Html fragment, Web_auth.No_data)
         | _ ->
             if site_or_election = `Election then
               let env = { username_or_address; state; auth_instance } in
@@ -83,20 +83,20 @@ struct
                 Eliom_uri.make_string_uri ~service ~absolute:true ()
                 |> rewrite_prefix
               in
-              return @@ Web_auth_sig.Redirection url
+              return (Web_auth_sig.Redirection url, Web_auth.No_data)
             else
               let* fragment =
                 Pages_common.login_email site_or_election username_or_address
                   ~state
               in
-              return @@ Web_auth_sig.Html fragment
+              return (Web_auth_sig.Html fragment, Web_auth.No_data)
 
       let direct _ = failwith "direct authentication not implemented for email"
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
   let run_post_login_handler =
-    Web_auth.register ~auth_system:"email" auth_system
+    Web_auth.register ~auth_system:"email" { handler; extern = false }
 
   module Sender = struct
     type payload = unit
@@ -136,7 +136,7 @@ struct
         >>= Eliom_registration.Html.send
     | _ ->
         run_post_login_handler ~state
-          { Web_auth.post_login_handler = (fun _ _ cont -> cont None) }
+          { Web_auth.post_login_handler = (fun ~data:_ _ _ cont -> cont None) }
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_election_login
@@ -179,7 +179,7 @@ struct
             run_post_login_handler ~state
               {
                 Web_auth.post_login_handler =
-                  (fun _ _ cont ->
+                  (fun ~data:_ _ _ cont ->
                     let* ok =
                       match Otp.check ~address ~code with
                       | Some () ->
@@ -191,5 +191,8 @@ struct
               }
         | None ->
             run_post_login_handler ~state:""
-              { Web_auth.post_login_handler = (fun _ _ cont -> cont None) })
+              {
+                Web_auth.post_login_handler =
+                  (fun ~data:_ _ _ cont -> cont None);
+              })
 end

@@ -26,9 +26,7 @@ identify the client session on the server.
 Belenios uses the following data scopes:
 - the default one (cookie `eliomdatasession|||ref|`)
 - `belenios` (cookie `eliomdatasession||||belenios`)
-- `belenios-auth` (cookie `eliomdatasession||||belenios-auth`)
 - `belenios-auth-email` (cookie `eliomdatasession||||belenios-auth-email`)
-- `belenios-auth-oidc` (cookie `eliomdatasession||||belenios-auth-oidc`)
 
 There is also the default service scope, materialized by cookie
 `eliomservicesession|||ref|`, but it is not used in Belenios.

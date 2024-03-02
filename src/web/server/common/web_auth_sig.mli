@@ -21,23 +21,31 @@
 
 open Web_serializable_t
 
+type data = ..
+
 type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result
   | Redirection : string -> result
 
 module type AUTH_SYSTEM = sig
   val pre_login_handler :
-    [ `Username | `Address ] -> state:string -> result Lwt.t
+    [ `Username | `Address ] -> state:string -> (result * data) Lwt.t
 
   val direct : Yojson.Safe.t -> string Lwt.t
 end
 
-type auth_system = uuid option -> auth_config -> (module AUTH_SYSTEM)
+type auth_system = {
+  handler : uuid option -> auth_config -> (module AUTH_SYSTEM);
+  extern : bool;
+}
 
 module type S = sig
+  type data += No_data
+
   type post_login_handler = {
     post_login_handler :
       'a.
+      data:data ->
       uuid option ->
       auth_config ->
       ((string * string) option -> 'a Lwt.t) ->

@@ -124,7 +124,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     | None -> get_cas_validation_v1 server ~state ticket
     | Some _ -> return @@ `Yes v2
 
-  let auth_system _ a =
+  let handler _ a =
     let module X = struct
       let pre_login_handler _ ~state =
         match List.assoc_opt "server" a.Web_serializable_t.auth_config with
@@ -139,20 +139,21 @@ module Make (Web_auth : Web_auth_sig.S) = struct
               Eliom_uri.make_string_uri ~service ~absolute:true ()
               |> rewrite_prefix
             in
-            return @@ Web_auth_sig.Redirection url
+            return (Web_auth_sig.Redirection url, Web_auth.No_data)
         | _ -> failwith "cas_login_handler invoked with bad config"
 
       let direct _ = failwith "direct authentication not implemented for CAS"
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
-  let run_post_login_handler = Web_auth.register ~auth_system:"cas" auth_system
+  let run_post_login_handler =
+    Web_auth.register ~auth_system:"cas" { handler; extern = true }
 
   let cas_handler (state, ticket) () =
     run_post_login_handler ~state
       {
         Web_auth.post_login_handler =
-          (fun _ a cont ->
+          (fun ~data:_ _ a cont ->
             match
               (ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config)
             with

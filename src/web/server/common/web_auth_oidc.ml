@@ -26,10 +26,7 @@ open Web_serializable_j
 open Web_common
 
 module Make (Web_auth : Web_auth_sig.S) = struct
-  let scope =
-    `Session (Eliom_common.create_scope_hierarchy "belenios-auth-oidc")
-
-  let oidc_config = Eliom_reference.eref ~scope None
+  type Web_auth_sig.data += Data_oidc of oidc_configuration
 
   let login_oidc =
     Eliom_service.create
@@ -91,14 +88,13 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     let i = String.rindex url '/' in
     (String.sub url 0 i, [ String.sub url (i + 1) (n - i - 1) ])
 
-  let auth_system _ a =
+  let handler _ a =
     let get x = List.assoc_opt x a.auth_config in
     let module X = struct
       let pre_login_handler _ ~state =
         match (get "server", get "client_id") with
         | Some server, Some client_id ->
             let* ocfg = get_oidc_configuration server in
-            let* () = Eliom_reference.set oidc_config (Some ocfg) in
             let prefix, path = split_prefix_path ocfg.authorization_endpoint in
             let auth_endpoint =
               Eliom_service.extern ~prefix ~path
@@ -119,7 +115,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
               Eliom_uri.make_string_uri ~service ~absolute:true ()
               |> rewrite_prefix
             in
-            return @@ Web_auth_sig.Redirection url
+            return (Web_auth_sig.Redirection url, Data_oidc ocfg)
         | _ -> failwith "oidc_login_handler invoked with bad config"
 
       let direct _ =
@@ -127,7 +123,8 @@ module Make (Web_auth : Web_auth_sig.S) = struct
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
-  let run_post_login_handler = Web_auth.register ~auth_system:"oidc" auth_system
+  let run_post_login_handler =
+    Web_auth.register ~auth_system:"oidc" { handler; extern = true }
 
   let oidc_handler params () =
     let code = List.assoc_opt "code" params in
@@ -137,20 +134,18 @@ module Make (Web_auth : Web_auth_sig.S) = struct
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              (fun _ a cont ->
+              (fun ~data _ a cont ->
                 let get x = List.assoc_opt x a.auth_config in
                 match (get "client_id", get "client_secret") with
                 | Some client_id, Some client_secret ->
-                    let* ocfg =
-                      let* config = Eliom_reference.get oidc_config in
-                      match config with
-                      | None ->
+                    let ocfg =
+                      match data with
+                      | Data_oidc x -> x
+                      | _ ->
                           failwith
                             "oidc handler was invoked without discovered \
                              configuration"
-                      | Some x -> return x
                     in
-                    let* () = Eliom_state.discard ~scope () in
                     let* name =
                       oidc_get_name ocfg client_id client_secret code
                     in

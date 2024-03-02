@@ -95,6 +95,7 @@ module type S = sig
     ?footer:Html_types.div_content_fun Eliom_content.Html.elt ->
     ?uuid:Web_serializable_t.uuid ->
     ?static:bool ->
+    ?redirect:string ->
     unit ->
     [> Html_types.html ] Eliom_content.Html.elt Lwt.t
 
@@ -203,4 +204,7 @@ module type S = sig
 
   val authentication_impossible :
     unit -> [> Html_types.html ] Eliom_content.Html.F.elt Lwt.t
+
+  val html_redirection :
+    string -> [> Html_types.html ] Eliom_content.Html.F.elt Lwt.t
 end
