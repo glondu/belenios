@@ -1,3 +1,13 @@
+dev
+===
+
+ * Web server:
+   + Add documentation about cookie handling
+   + More hardening in reverse-proxy documentation
+   + Add a restricted mode
+   + Make OpenID Connect and CAS authentications compatible with
+     SameSite=Strict cookie policy
+
 2.4 (2024-01-24)
 ================
 
