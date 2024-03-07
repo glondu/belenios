@@ -83,6 +83,11 @@
             against coercion.
         -->
         <!-- <deny-revote/> -->
+        <!--
+            The following line enables restricted mode, which
+            restricts choices to ease security audits. Think twice
+            before removing it!
+        -->
         <restricted/>
       </eliom>
     </host>
