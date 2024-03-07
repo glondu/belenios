@@ -13,13 +13,19 @@ import getpass
 DEBUG=False
 DEBUG_MAIL='bozo.leclown@example.com'
 
+# If the first n credentials have already been sent, setting Skip=n
+# avoids sending them again. This is useful if the sending was
+# interrupted for some reason.
+Skip=0
+
 # Edit the following according to your election:
 FROM='bozo.leclown@example.com' # can be the email of the credential authority
 SUBJECT='Élection du meilleur cookie: votre matériel de vote'
-UUID='pmFbhhuxH3k6vc'
+UUID='noV7nXo1rACeiP'
 
 # Your outgoing email configuration:
 SMTP='smtp.example.com'
+port=587    # could also be 465, 25 ...
 username='bozo'
 password = getpass.getpass("please type your password: ")
 
@@ -38,14 +44,13 @@ Nous vous invitons à participer à l'élection du meilleur cookie
 
   https://vote.belenios.org/elections/$UUID/
 
-Vous aurez besoin de vos identifiants LDAP ou de votre login/mot de
-passe, mais aussi du code de vote personnel (appelé "credential") que voici :
+Vous aurez besoin du code de vote personnel (appelé "credential") que voici :
 
   $ELECTION_CODE
 
 Le scrutin est ouvert du 1 avril à 9h au 2 avril à 18h.
 
-Veillez bien à aller au bout des 6 étapes pour que votre vote soit pris
+Veillez bien à aller au bout des 5 étapes pour que votre vote soit pris
 en compte. Un mail de confirmation vous sera envoyé.
 
 Pour rappel, il y a deux candidats : Maïté et Amandine.
@@ -61,14 +66,13 @@ Please visit the following link:
 
   https://vote.belenios.org/elections/$UUID/
 
-You will need your LDAP or login / password, and also the following
-credential (personal code):
+You will need the following credential (personal code):
 
   $ELECTION_CODE
 
 The election is open from April 1st, 9am to April 2nd, 6pm.
 
-Be sure to go through the 6 steps to ensure that your vote is taken into
+Be sure to go through the 5 steps to ensure that your vote is taken into
 account. A confirmation email will be sent.
 
 Reminder: there are two candidates Maïté and Amandine.
@@ -97,23 +101,31 @@ except json.JSONDecodeError:
                 login = l[1] or address
             voters[login] = address
 
-# Real stuff starts here. Pretty short, isn't it?
+cpt = 0
+# Real stuff starts here.
+# We choose to open a new smtp+starttls connexion for each email to be
+# sent. In principle, a single connextion can handle several
+# send_message() calls, but there is always a limit.
 with open(CODE_FILE) as cf:
     d = dict(UUID=UUID)
-    s = smtplib.SMTP(SMTP)
-    s.starttls()
-    s.login(username, password)
     data = json.load(cf, object_pairs_hook=OrderedDict)
     for login, credential in data.items():
-        d['ELECTION_CODE'] = credential
-        msg = MIMEText(TEMPLATE.substitute(d))
-        email = voters[login]
-        msg['Subject'] = SUBJECT
-        msg['From'] = FROM
-        if DEBUG:
-            msg['To'] = DEBUG_MAIL
-        else:
-            msg['To'] = email
-        s.send_message(msg)
-        time.sleep(0.2) # short delay; might need more for very large election
-    s.quit()
+        if cpt >= Skip:
+            s = smtplib.SMTP(SMTP, port)
+            s.starttls()
+            s.login(username, password)
+            d['ELECTION_CODE'] = credential
+            msg = MIMEText(TEMPLATE.substitute(d))
+            email = voters[login]
+            msg['Subject'] = SUBJECT
+            msg['From'] = FROM
+            if DEBUG:
+                msg['To'] = DEBUG_MAIL
+            else:
+                msg['To'] = email
+            s.send_message(msg)
+            print(email,flush=True) # inform the user of the progress
+            s.quit()
+            time.sleep(0.2) # short delay; might need more for very large election
+        cpt = cpt+1
+
