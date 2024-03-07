@@ -38,7 +38,10 @@ l'heure d'ouverture lorsqu'elle n'est pas encore ouverte.
 Pendant l'élection, l'électeur peut se rendre sur la page de
 l'élection et voter de la manière suivante :
 
-- l'électeur saisit son `code de vote`
+- l'électeur saisit son `code de vote`. Cette étape peut être faite
+  automatiquement, si l'`url` de l'élection reçue par l'électeur
+  a été personnalisée avec le `code de vote` (cas d'un envoi de codes
+  de vote par le serveur notamment).
 - il a alors accès aux questions de l'élection et sélectionne ses
 candidats
 - l'ordinateur chiffre  ses choix (à
@@ -240,6 +243,10 @@ préalable pour le paramétrer correctement.
 
     contrib/send_credentials.py
 
+Ce programme construit en particulier un mail type, que l'autorité de
+génération de codes peut personnaliser. Par contre, la présentation
+des éléments techniques (`url` de l'élection et `code de vote` de
+l'électeur séparés) ne doit pas être modifiée sans refaire une analyse de sécurité.
 
 **Phase de vote.** Dès que l'élection est ouverte ainsi qu'à la fin de
 l'élection, il est attendu que l'autorité de génération de codes de

@@ -39,7 +39,10 @@ page displays the opening time when it is not yet open.
 During the election, a voter can visit the election page and vote as
 follows:
 
-- they enter their private `credential`
+- they enter their private `credential`. This step is done
+  automatically if the `url` of the election received by the voter has
+  been personalized with the `credential` of the voter (e.g. when the credentials
+  are sent by the server).
 - they can then see the questions and select their candidates
 - their computer encrypts their choices
 (with a Javascript program) and prints a `smart ballot tracker` which is
@@ -226,6 +229,11 @@ settings, they can run it:
 
     contrib/send_credentials.py
 
+The program produces in particular a sample email that can be adapted
+to the election by the credential authority. However, the display of
+the technical elements (e.g. `url` of the election and `credential` of
+the voter in two separate fields) must not be modified without
+conducting a security analysis.
 
 **Voting phase.**
 As soon as the election is open, and at the end of the election, it is
