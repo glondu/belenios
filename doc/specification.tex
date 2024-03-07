@@ -184,16 +184,14 @@ hash chain. It contains in particular:
 \item $\mathcal{S}$ generates a fresh \hyperref[basic-types]{$\uuid$} $u$ and
   sends it to $\mathcal{C}$
 \item $\mathcal{C}$ generates random \hyperref[credentials]{private
-    credentials and salts} $c_1,\dots,c_n$ and $s_1,\dots,s_n$ and
-  computes
-  \[L=\textsf{sort}((\public(c_1,s_1),w_1,\mathcal{V}_1,s_1),\dots,(\public(c_n,s_n),w_n,\mathcal{V}_n,s_n))\]
-  (for each $c_i$, the index suffix in $c_i$ is set to its index in $L$)
+    credentials} $c_1,\dots,c_n$ and computes
+  \[L=\textsf{sort}((\public(c_1),w_1,\mathcal{V}_1),\dots,(\public(c_n),w_n,\mathcal{V}_n))\]
 \item for $j\in[1\dots n]$, $\mathcal{C}$ sends $c_j$ to $\mathcal{V}_j$
 \item \label{item-forget} (optional) $\mathcal{C}$ forgets $c_1,\dots,c_n$
  \item $\mathcal{C}$ sends $L$ to $\mathcal{S}$
  \item $\mathcal{S}$ checks that the $\mathcal{V}_i$ and the $w_i$ in
-   $L$ are correct, and that all public credentials and salts are
-   distinct, and extract the salt list as $\texttt{salts}$;
+   $L$ are correct, and that all public credentials are
+   distinct;
  \item $\mathcal{S}$ defines the shape of the
    \hyperref[trustees]{$\texttt{trustees}$} structure that will be
    used in the election depending on $\mathcal{A}$'s instructions;
@@ -201,7 +199,6 @@ hash chain. It contains in particular:
    establishment protocols (see \ref{process-filling-trustees}) as
      needed to fill in the $\texttt{trustees}$ structure;
 \item $\mathcal{S}$ creates the \hyperref[elections]{$\election$} $E$
-\item $\mathcal{S}$ publishes $\texttt{salts}$
 \item $\mathcal{C}$ checks that the list of public credentials in $L$
   is exactly the one that appears on the public data of the election.
 \end{enumerate}
@@ -288,9 +285,8 @@ trustee as specified in section~\ref{polynomials}.
 \begin{enumerate}
 \item $\mathcal{V}$ gets public data of $E$
 \item $\mathcal{V}$ uses the index in her secret credential $c$ to get
-  her public credential $\hat c$ (from election public data) and her
-  salt $s$ (from \texttt{salts}), and checks that
-  $\hat c=\public(c,s)$
+  her public credential $\hat c$ (from election public data), and checks that
+  $\hat c=\public(c)$
 \item $\mathcal{V}$ creates a \hyperref[ballots]{$\ballot$} $b$, she
   computes the hash $h$ of $b$, called tracking number, and submits $b$ to $\mathcal{S}$
 \item $\mathcal{S}$ processes $b$:
@@ -1474,8 +1470,7 @@ $\textsf{hash}$ can be obtained from the surrounding ballot):
   \right\}
 \end{gather*}
 A ballot references in its $\textsf{credential}$ member the public
-credential $S=g^{\secret(c,s)}$ ($c$ being the secret credential, $s$
-being the associated salt) of the voter. The hash (or
+credential $S=g^{\secret(c,s)}$ ($c$ being the secret credential) of the voter. The hash (or
 \emph{fingerprint}) of the election is $\varphi$ (see
 section~\ref{varphi}).
 
