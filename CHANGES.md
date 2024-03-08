@@ -1,5 +1,5 @@
-dev
-===
+2.5 (2024-03-08)
+================
 
  * Web server:
    + Add documentation about cookie handling
