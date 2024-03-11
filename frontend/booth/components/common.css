@@ -21,6 +21,7 @@
   /* most colors come from https://materialui.co/colors/ */
   --font-light: #fafafa;
   --font-dark: #212121;
+  --alert-text: #bf360c;
 
   --background-light: #fafafa;
   --body-background: #e5e4e2;
@@ -30,7 +31,14 @@
   --header-font: var(--font-light);
   --header-background: #363636;
   --footer-font: #9e9e9e;
+  --footer-link-font: #f5f5f5;
   --footer-background: #363636;
+
+  --progress-active: #363636;
+  --progress-inactive: #757575;
+
+  --vote-nav-background: #757575;
+  --review-ballot-background: var(--box-blue);
 
   --button-default: #bdbdbd;
   --button-default-hover: #9e9e9e;
@@ -42,7 +50,13 @@
   --button-blue-hover: #1565c0;
   --button-blue-active: #0d47a1;
 
-  --vote-nav-background: #757575;
+  --candidate-background: #eeeeee;
+  --candidate-background-hover: #e0e0e0;
+  --candidate-background-checked: #bbdefb;
+  --candidate-background-checked-hover: #90caf9;
+  --candidate-checkbox-background: #fafafa;
+  --candidate-checkbox-border: #bdbdbd;
+  --candidate-checkbox-checked: #1976d2;
 
   --page-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
     0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);

@@ -3,7 +3,7 @@
 }
 
 .review-encrypt-section__encryption-section {
-  background: #e6f8fd;
+  background: var(--review-ballot-background);
   border-radius: 8px;
   padding: 20px;
   text-align: center;

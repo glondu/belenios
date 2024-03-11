@@ -10,7 +10,7 @@
 }
 
 .page-footer a {
-  color: #ffd800;
+  color: var(--footer-link-font);
   text-decoration: none;
 }
 

@@ -17,6 +17,6 @@
 }
 
 .question-with-votable-answers__alerts {
-  color: red;
+  color: var(--alert-text);
   font-size: 12px;
 }

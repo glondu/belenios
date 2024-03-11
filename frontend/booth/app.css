@@ -72,5 +72,5 @@ input[type="text"] {
   font-style: italic;
 }
 .markup-error {
-  color: red;
+  color: var(--alert-text);
 }
