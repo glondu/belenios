@@ -149,9 +149,8 @@ struct
                   match List.assoc_opt "allowlist" a.auth_config with
                   | None -> cont ()
                   | Some f ->
-                      let* allowlist =
-                        Lwt_io.lines_of_file f |> Lwt_stream.to_list
-                      in
+                      let* allowlist = Filesystem.read_file f in
+                      let allowlist = Option.value ~default:[] allowlist in
                       if List.mem name allowlist then cont ()
                       else restart_login ()
                 in
