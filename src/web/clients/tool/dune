@@ -11,8 +11,8 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api
-   belenios_tool_common belenios_js)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
+   belenios-server.api belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 
@@ -24,8 +24,8 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api
-   belenios_tool_common belenios_js)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
+   belenios-server.api belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 
@@ -37,8 +37,8 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api
-   belenios_tool_common belenios_js)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
+   belenios-server.api belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 
@@ -50,8 +50,8 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios belenios_api
-   belenios_tool_common belenios_js)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
+   belenios-server.api belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 
@@ -63,7 +63,7 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
@@ -76,7 +76,7 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
@@ -89,7 +89,7 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
@@ -102,7 +102,7 @@
   (javascript_files ../../../../ext/sjcl/sjcl.js
     ../../../../ext/jsbn/BigIntCompatFull.js
     ../../../../ext/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt belenios-platform-js belenios
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))

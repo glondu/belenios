@@ -2,7 +2,7 @@
  (name belenios_question)
  (public_name belenios-lib.question)
  (modules_without_implementation types)
- (libraries yojson atdgen belenios_platform belenios_core))
+ (libraries yojson atdgen belenios-platform belenios-lib.core))
 
 (rule
  (targets question_h_t.ml question_h_t.mli)

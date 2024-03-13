@@ -1,4 +1,4 @@
 (executable
  (name main)
- (libraries cohttp-lwt-unix cmdliner belenios-platform-native belenios
-   belenios_api))
+ (libraries cohttp-lwt-unix cmdliner belenios-platform-native belenios-lib
+   belenios-server.api))

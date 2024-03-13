@@ -1,7 +1,7 @@
 (library
  (name belenios_api)
  (public_name belenios-server.api)
- (libraries belenios))
+ (libraries belenios-lib))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

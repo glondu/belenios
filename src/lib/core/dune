@@ -1,7 +1,7 @@
 (library
  (name belenios_core)
  (public_name belenios-lib.core)
- (libraries base64 hex yojson atdgen re belenios_platform)
+ (libraries base64 hex yojson atdgen re belenios-platform)
  (modules_without_implementation question_sigs trustees_sig versioned_sig))
 
 (rule

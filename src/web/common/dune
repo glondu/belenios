@@ -1,7 +1,6 @@
 (library
  (name belenios_ui)
- (public_name belenios-server.ui)
- (libraries xml-light lwt tyxml belenios)
+ (libraries xml-light lwt tyxml belenios-lib)
  (modules_without_implementation mails_admin_sig markup_types))
 
 (ocamllex markup_lexer)

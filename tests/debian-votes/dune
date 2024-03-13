@@ -1,3 +1,3 @@
 (executable
  (name convert)
- (libraries belenios-platform-native belenios re))
+ (libraries belenios-platform-native belenios-lib re))
