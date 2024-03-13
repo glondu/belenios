@@ -446,18 +446,7 @@ struct
             Eliom_content.Html.F.button ~a [ txt (s_ "Start") ]
         | None -> span [ txt @@ s_ "Unsupported booth version" ]
       in
-      div
-        ~a:[ a_style "text-align:center;" ]
-        [
-          div [ button ];
-          div
-            [
-              a
-                ~service:(Eliom_service.preapply ~service:election_cast uuid)
-                [ txt (s_ "Advanced mode") ]
-                ();
-            ];
-        ]
+      div ~a:[ a_style "text-align:center;" ] [ div [ button ] ]
     in
     let* middle =
       let* result = Web_persist.get_election_result uuid in

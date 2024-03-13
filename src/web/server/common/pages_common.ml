@@ -89,7 +89,8 @@ struct
   module Ui = Belenios_ui.Pages_common.Make (UiBase)
 
   let base ~title ?full_title ?(login_box = txt "") ?lang_box ~content
-      ?(footer = txt "") ?sticky_footer ?uuid ?static:(static_page = false) ?redirect () =
+      ?(footer = txt "") ?sticky_footer ?uuid ?static:(static_page = false)
+      ?redirect () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let administer =
@@ -100,6 +101,15 @@ struct
             ~a:[ a_id ("election_admin_" ^ Uuid.unwrap uuid) ]
             [ txt (s_ "Administer this election") ]
             uuid
+    in
+    let advanced_booth =
+      match uuid with
+      | Some uuid ->
+          a
+            ~service:(Eliom_service.preapply ~service:election_cast uuid)
+            [ txt (s_ "Advanced mode") ]
+            ()
+      | None -> txt ""
     in
     let lang_box =
       match lang_box with
@@ -144,7 +154,8 @@ struct
          (head (Eliom_content.Html.F.title (txt title)) head_content)
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
-               ~footer ~administer ~extra_footer ?sticky_footer ~restricted_mode ())))
+               ~footer ~administer ~advanced_booth ~extra_footer ?sticky_footer
+               ~restricted_mode ())))
 
   let lang_box cont =
     let cont = default_admin cont in

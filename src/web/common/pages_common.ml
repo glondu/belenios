@@ -41,8 +41,9 @@ module Make (Base : BASE) = struct
   let a_aria_hidden = Unsafe.string_attrib "aria-hidden" "true"
 
   let base_body l ~full_title ~content ~administer ?(login_box = txt "")
-      ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
-      ?(extra_footer = txt "") ?sticky_footer ?(restricted_mode = false) () =
+      ?(advanced_booth = txt "") ?(warning = txt "") ?(lang_box = txt "")
+      ?(footer = txt "") ?(extra_footer = txt "") ?sticky_footer
+      ?(restricted_mode = false) () =
     let open (val l : I18n.GETTEXT) in
     let restricted_mode =
       if restricted_mode then span [ txt @@ s_ "Restricted mode"; txt ". " ]
@@ -120,6 +121,8 @@ module Make (Base : BASE) = struct
                     [ txt (s_ "Privacy policy") ];
                   txt ". ";
                   administer;
+                  txt ".";
+                  advanced_booth;
                   txt ".";
                   extra_footer;
                 ];
