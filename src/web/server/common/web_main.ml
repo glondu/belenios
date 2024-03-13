@@ -60,10 +60,6 @@ module Make () = struct
         Web_config.favicon := Some (file, mime_type)
     | Element ("sealing", [ ("file", file); ("mime-type", mime_type) ], []) ->
         Web_config.sealing := Some (file, mime_type)
-    | Element ("default-group", [ ("file", file) ], []) ->
-        default_group_file := Some (`File file)
-    | Element ("nh-group", [ ("file", file) ], []) ->
-        nh_group_file := Some (`File file)
     | Element ("default-group", [ ("group", group) ], []) ->
         default_group_file := Some (`Group group)
     | Element ("nh-group", [ ("group", group) ], []) ->
@@ -179,23 +175,13 @@ module Make () = struct
     Lwt_main.run
       (match !default_group_file with
       | None -> failwith "missing <default-group> in configuration"
-      | Some (`Group x) -> return x
-      | Some (`File x) -> (
-          let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
-          match x with
-          | [ x ] -> return x
-          | _ -> failwith "invalid default group file"))
+      | Some (`Group x) -> return x)
 
   let nh_group =
     Lwt_main.run
       (match !nh_group_file with
       | None -> failwith "missing <nh-group> in configuration"
-      | Some (`Group x) -> return x
-      | Some (`File x) -> (
-          let* x = Lwt_io.lines_of_file x |> Lwt_stream.to_list in
-          match x with
-          | [ x ] -> return x
-          | _ -> failwith "invalid NH group file"))
+      | Some (`Group x) -> return x)
 
   let domain =
     match !domain with
