@@ -566,77 +566,74 @@ let umap_add user x map =
   IMap.add user (x :: xs) map
 
 let build_elections_by_owner_cache () =
-  Lwt_unix.files_of_directory !Web_config.spool_dir
-  |> Lwt_stream.to_list
+  Filesystem.files_of_directory !Web_config.spool_dir
   >>= Lwt_list.fold_left_s
         (fun accu uuid_s ->
-          if uuid_s = "." || uuid_s = ".." then return accu
-          else
-            Lwt.catch
-              (fun () ->
-                let uuid = Uuid.wrap uuid_s in
-                let* election = get_draft_election uuid in
-                match election with
-                | None -> (
-                    let* metadata = get_election_metadata uuid in
-                    let ids = metadata.e_owners in
-                    let* election = get_raw_election uuid in
-                    match election with
-                    | None -> return accu
-                    | Some election ->
-                        let* dates = get_election_dates uuid in
-                        let* state, date =
-                          let* state =
-                            raw_get_election_state ~update:false uuid
-                          in
-                          match state with
-                          | (`Open | `Closed | `Shuffling | `EncryptedTally) as
-                            s ->
-                              let date =
-                                Option.value dates.e_finalization
-                                  ~default:Web_defaults.validation_date
-                              in
-                              return (s, date)
-                          | `Tallied ->
-                              let date =
-                                Option.value dates.e_tally
-                                  ~default:Web_defaults.tally_date
-                              in
-                              return (`Tallied, date)
-                          | `Archived ->
-                              let date =
-                                Option.value dates.e_archive
-                                  ~default:Web_defaults.archive_date
-                              in
-                              return (`Archived, date)
+          Lwt.catch
+            (fun () ->
+              let uuid = Uuid.wrap uuid_s in
+              let* election = get_draft_election uuid in
+              match election with
+              | None -> (
+                  let* metadata = get_election_metadata uuid in
+                  let ids = metadata.e_owners in
+                  let* election = get_raw_election uuid in
+                  match election with
+                  | None -> return accu
+                  | Some election ->
+                      let* dates = get_election_dates uuid in
+                      let* state, date =
+                        let* state =
+                          raw_get_election_state ~update:false uuid
                         in
-                        let (Template (_, template)) =
-                          Election.template_of_string election
-                        in
-                        let item = (state, uuid, date, template.t_name) in
-                        return
-                        @@ List.fold_left
-                             (fun accu id -> umap_add id item accu)
-                             accu ids)
-                | Some (Draft (_, se)) ->
-                    let date =
-                      Option.value se.se_creation_date
-                        ~default:Web_defaults.creation_date
-                    in
-                    let ids = se.se_owners in
-                    let item = (`Draft, uuid, date, se.se_questions.t_name) in
-                    return
-                    @@ List.fold_left
-                         (fun accu id -> umap_add id item accu)
-                         accu ids)
-              (function
-                | Lwt.Canceled ->
-                    Printf.ksprintf Ocsigen_messages.accesslog
-                      "Building elections_by_owner_cache canceled while \
-                       processing %s"
-                      uuid_s;
-                    Lwt.fail Lwt.Canceled
-                | _ -> return accu))
+                        match state with
+                        | (`Open | `Closed | `Shuffling | `EncryptedTally) as s
+                          ->
+                            let date =
+                              Option.value dates.e_finalization
+                                ~default:Web_defaults.validation_date
+                            in
+                            return (s, date)
+                        | `Tallied ->
+                            let date =
+                              Option.value dates.e_tally
+                                ~default:Web_defaults.tally_date
+                            in
+                            return (`Tallied, date)
+                        | `Archived ->
+                            let date =
+                              Option.value dates.e_archive
+                                ~default:Web_defaults.archive_date
+                            in
+                            return (`Archived, date)
+                      in
+                      let (Template (_, template)) =
+                        Election.template_of_string election
+                      in
+                      let item = (state, uuid, date, template.t_name) in
+                      return
+                      @@ List.fold_left
+                           (fun accu id -> umap_add id item accu)
+                           accu ids)
+              | Some (Draft (_, se)) ->
+                  let date =
+                    Option.value se.se_creation_date
+                      ~default:Web_defaults.creation_date
+                  in
+                  let ids = se.se_owners in
+                  let item = (`Draft, uuid, date, se.se_questions.t_name) in
+                  return
+                  @@ List.fold_left
+                       (fun accu id -> umap_add id item accu)
+                       accu ids)
+            (function
+              | Lwt.Canceled ->
+                  Printf.ksprintf Ocsigen_messages.accesslog
+                    "Building elections_by_owner_cache canceled while \
+                     processing %s"
+                    uuid_s;
+                  Lwt.fail Lwt.Canceled
+              | _ -> return accu))
         IMap.empty
 
 let get_elections_by_owner user =
@@ -1890,15 +1887,12 @@ let try_extract extract x =
   Lwt.catch (fun () -> extract x) (fun _ -> return_none)
 
 let get_next_actions () =
-  Lwt_unix.files_of_directory !Web_config.spool_dir
-  |> Lwt_stream.to_list
+  Filesystem.files_of_directory !Web_config.spool_dir
   >>= Lwt_list.filter_map_s (fun x ->
-          if x = "." || x = ".." then return_none
-          else
-            let* r = try_extract extract_automatic_data_draft x in
-            match r with
-            | None -> try_extract extract_automatic_data_validated x
-            | x -> return x)
+          let* r = try_extract extract_automatic_data_draft x in
+          match r with
+          | None -> try_extract extract_automatic_data_validated x
+          | x -> return x)
 
 let set_election_state uuid state =
   let* allowed =

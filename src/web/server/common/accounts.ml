@@ -109,8 +109,7 @@ let create_account ~email user =
   Lwt.return account
 
 let build_account_cache () =
-  Lwt_unix.files_of_directory !Web_config.accounts_dir
-  |> Lwt_stream.to_list
+  Filesystem.files_of_directory !Web_config.accounts_dir
   >>= Lwt_list.fold_left_s
         (fun accu f ->
           let* account = account_of_filename f in

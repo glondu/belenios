@@ -73,9 +73,7 @@ struct
 
   let () =
     Any.register ~service:election_submit_ballot_file (fun () ballot ->
-        let fname = ballot.Ocsigen_extensions.tmp_filename in
-        let* ballot = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
-        let* () = Lwt_unix.unlink fname in
+        let* ballot = Filesystem.exhaust_file ballot in
         submit_ballot ballot)
 
   let () =

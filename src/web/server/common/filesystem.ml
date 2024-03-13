@@ -23,6 +23,10 @@ open Lwt.Syntax
 open Belenios
 open Web_common
 
+let files_of_directory d =
+  let* all = Lwt_unix.files_of_directory d |> Lwt_stream.to_list in
+  Lwt.return @@ List.filter (fun x -> x <> "." && x <> "..") all
+
 let file_exists x =
   Lwt.catch
     (fun () ->
@@ -49,6 +53,14 @@ let read_whole_file ?uuid x =
       in
       Lwt.return_some x)
     (fun _ -> Lwt.return_none)
+
+let read_whole_file_i18n ~lang f =
+  let* f =
+    let f' = Printf.sprintf "%s.%s" f lang in
+    let* b = file_exists f' in
+    Lwt.return (if b then f' else f)
+  in
+  read_whole_file f
 
 let read_file_single_line ?uuid filename =
   let* x = read_file ?uuid filename in
@@ -89,3 +101,9 @@ let rmdir dir =
   let command = ("rm", [| "rm"; "-rf"; dir |]) in
   let* _ = Lwt_process.exec command in
   Lwt.return_unit
+
+let exhaust_file file =
+  let fname = file.Ocsigen_extensions.tmp_filename in
+  let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
+  let* () = Lwt_unix.unlink fname in
+  Lwt.return result

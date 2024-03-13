@@ -190,7 +190,7 @@ let gethash ~uuid ~index ~filename x =
 
 let with_archive uuid default f =
   let filename = chain_filename uuid in
-  let* b = Lwt_unix.file_exists (uuid /// filename) in
+  let* b = Filesystem.file_exists (uuid /// filename) in
   if b then f filename else Lwt.return default
 
 let get_data ~uuid x =

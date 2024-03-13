@@ -62,15 +62,10 @@ struct
     match file with
     | None -> return default
     | Some f -> (
-        let* f =
-          let f' = f ^ "." ^ lang in
-          let* b = Lwt_unix.file_exists f' in
-          return (if b then f' else f)
-        in
-        let* file = Filesystem.read_file f in
+        let* file = Filesystem.read_whole_file_i18n ~lang f in
         match file with
         | None -> return default
-        | Some x -> return @@ Unsafe.data (String.concat "\n" x))
+        | Some x -> return @@ Unsafe.data x)
 
   module UiBase = struct
     module Xml = Eliom_content.Xml

@@ -27,6 +27,7 @@ open Web_serializable_j
 let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
 let ( !! ) x = !Web_config.spool_dir // x
 let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
+let sleep = Lwt_unix.sleep
 
 module Datetime = Web_types.Datetime
 module Period = Web_types.Period
@@ -39,7 +40,7 @@ module Random = struct
 
   let () =
     let rec loop () =
-      let* () = Lwt_unix.sleep 1800. in
+      let* () = sleep 1800. in
       prng := init_prng ();
       loop ()
     in
@@ -324,7 +325,7 @@ let send_email kind ~recipient ~subject ~body =
         | Unix.Unix_error (Unix.EAGAIN, _, _) when retry > 0 ->
             Ocsigen_messages.warning
               "Failed to fork for sending an e-mail; will try again in 1s";
-            let* () = Lwt_unix.sleep 1. in
+            let* () = sleep 1. in
             loop (retry - 1)
         | e ->
             let msg =

@@ -793,9 +793,7 @@ struct
     Any.register ~service:election_draft_credentials_post_file
       (fun (uuid, token) creds ->
         let@ () = without_site_user () in
-        let fname = creds.Ocsigen_extensions.tmp_filename in
-        let* creds = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
-        let* () = Lwt_unix.unlink fname in
+        let* creds = Filesystem.exhaust_file creds in
         wrap_handler (fun () -> handle_credentials_post uuid token creds))
 
   let () =
@@ -2028,6 +2026,6 @@ struct
     let* elections = Web_persist.get_next_actions () in
     let* () = Lwt_list.iter_s process_election_for_data_policy elections in
     let () = accesslog "Data policy process completed" in
-    let* () = Lwt_unix.sleep 3600. in
+    let* () = sleep 3600. in
     data_policy_loop ()
 end
