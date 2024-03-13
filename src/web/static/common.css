@@ -97,3 +97,13 @@ button {
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
+
+.sticky-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #FAFAFA;
+    text-align: center;
+    border-top: 1px solid black;
+}

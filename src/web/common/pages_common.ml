@@ -42,7 +42,7 @@ module Make (Base : BASE) = struct
 
   let base_body l ~full_title ~content ~administer ?(login_box = txt "")
       ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
-      ?(extra_footer = txt "") ?(restricted_mode = false) () =
+      ?(extra_footer = txt "") ?sticky_footer ?(restricted_mode = false) () =
     let open (val l : I18n.GETTEXT) in
     let restricted_mode =
       if restricted_mode then span [ txt @@ s_ "Restricted mode"; txt ". " ]
@@ -125,5 +125,9 @@ module Make (Base : BASE) = struct
                 ];
             ];
         ];
+      (match sticky_footer with
+      | Some sticky_footer ->
+          div ~a:[ a_class [ "sticky-footer" ] ] [ sticky_footer ]
+      | None -> txt "");
     ]
 end

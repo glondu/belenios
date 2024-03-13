@@ -537,16 +537,13 @@ struct
     let cookie_disclaimer =
       if scd then
         div
-          ~a:
-            [
-              a_class [ "cookie-disclaimer" ];
-              a_style "border-style: solid; border-width: 1px;";
-            ]
+          ~a:[ a_class [ "cookie-disclaimer" ] ]
           [
             txt (s_ "By using this site, you accept our ");
             direct_a !Web_config.gdpr_uri (s_ "personal data policy");
             txt ". ";
             a ~service:set_cookie_disclaimer
+              ~a:[ a_class [ "nice-button"; "nice-button--default" ] ]
               [ txt (s_ "Accept") ]
               (default_admin (ContSiteElection uuid));
           ]
@@ -697,7 +694,6 @@ struct
     in
     let content =
       [
-        cookie_disclaimer;
         p state_;
         br ();
         div_show_weights;
@@ -712,7 +708,8 @@ struct
     let* lang_box = lang_box (ContSiteElection uuid) in
     let title = W.template.t_name in
     let full_title = title in
-    base ~lang_box ~full_title ~title ~content ~footer ~uuid ()
+    let sticky_footer = cookie_disclaimer in
+    base ~lang_box ~full_title ~title ~content ~footer ~uuid ~sticky_footer ()
 
   let cast_raw election () =
     let* l = get_preferred_gettext () in
