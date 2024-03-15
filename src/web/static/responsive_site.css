@@ -37,6 +37,7 @@ body {
 .page {
   max-width: 800px;
   margin: 0 auto;
+  margin-bottom: 100px; /* leave some space for sticky footer */
   box-shadow: var(--page-shadow);
   border-radius: 10px;
 }
@@ -48,4 +49,14 @@ body {
 .cookie-disclaimer {
   padding: 10px;
   margin: 10px;
+}
+
+.sticky-footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--background-light);
+  text-align: center;
+  border-top: 1px solid black;
 }

@@ -268,6 +268,7 @@ def initialize_browser(for_scenario_2=False):
         options.log.level = "trace"
 
     browser = webdriver.Firefox(options=options)
+    browser.set_window_size(1920, 1080)
     browser.implicitly_wait(settings.WAIT_TIME_BETWEEN_EACH_STEP) # In seconds
     return browser
 
