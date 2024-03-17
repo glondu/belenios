@@ -38,13 +38,6 @@ exception BeleniosWebError of error
 val fail : error -> 'a Lwt.t
 val explain_error : (module Belenios_ui.I18n.GETTEXT) -> error -> string
 val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
-
-val open_security_log : string -> unit Lwt.t
-(** Set the path to the security logger. *)
-
-val security_log : (unit -> string) -> unit Lwt.t
-(** Add an entry to the security log. *)
-
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val rewrite_prefix : string -> string
 val set_rewrite_prefix : src:string -> dst:string -> unit

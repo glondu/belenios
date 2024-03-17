@@ -102,35 +102,6 @@ let format_period l x =
   in
   if approx = "" then sec else approx
 
-let security_logfile = ref None
-
-let open_security_log f =
-  let* () =
-    match !security_logfile with
-    | Some ic -> Lwt_io.close ic
-    | None -> return ()
-  in
-  let* ic =
-    Lwt_io.(
-      open_file
-        ~flags:Unix.[ O_WRONLY; O_APPEND; O_CREAT ]
-        ~perm:0o600 ~mode:output f)
-  in
-  security_logfile := Some ic;
-  return ()
-
-let security_log s =
-  match !security_logfile with
-  | None -> return ()
-  | Some ic ->
-      Lwt_io.atomic
-        (fun ic ->
-          let* () = Lwt_io.write ic (string_of_datetime (Datetime.now ())) in
-          let* () = Lwt_io.write ic ": " in
-          let* () = Lwt_io.write_line ic (s ()) in
-          Lwt_io.flush ic)
-        ic
-
 let fail_http status =
   Lwt.fail
     (Ocsigen_extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
