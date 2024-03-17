@@ -86,6 +86,8 @@ let write_whole_file ?uuid x data =
   in
   Lwt_unix.rename fname_new fname
 
+let mk_election_dir uuid = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700
+
 let create_file ~uuid x what lines =
   let fname = get_fname (Some uuid) x in
   Lwt_io.with_file

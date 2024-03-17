@@ -1742,7 +1742,7 @@ let delete_draft uuid =
   clear_elections_by_owner_cache ()
 
 let create_draft uuid se =
-  let* () = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700 in
+  let* () = Filesystem.mk_election_dir uuid in
   let* () = set_draft_election uuid se in
   let* () = clear_elections_by_owner_cache () in
   Lwt.return_unit
