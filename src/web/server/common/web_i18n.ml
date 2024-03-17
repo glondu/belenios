@@ -89,7 +89,7 @@ let get ~component ~lang =
           | Some l -> Lwt.return l
           | None ->
               let module L = (val build_gettext_input component lang) in
-              let* b = Filesystem.file_exists L.mo_file in
+              let* b = Filesystem.(file_exists (Absolute L.mo_file)) in
               if b then (
                 let get () =
                   let module L = Belenios_Gettext (L) (GettextTranslate.Map) in

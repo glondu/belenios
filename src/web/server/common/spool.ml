@@ -27,7 +27,7 @@ open Web_common
 type 'a file = {
   of_string : string -> 'a;
   to_string : 'a -> string;
-  filename : string;
+  filename : Filesystem.election_file;
 }
 
 type 'a abstract = {
@@ -57,7 +57,7 @@ let set ~uuid file x =
 
 let del ~uuid file =
   match file with
-  | File file -> Filesystem.cleanup_file (uuid /// file.filename)
+  | File file -> Filesystem.(cleanup_file (Election (uuid, file.filename)))
   | Abstract a -> a.del uuid
 
 let make_file x = File x
@@ -66,31 +66,31 @@ let draft =
   {
     of_string = draft_election_of_string;
     to_string = string_of_draft_election;
-    filename = "draft.json";
+    filename = Draft;
   }
   |> make_file
 
 let draft_public_credentials =
-  let filename = "public_creds.json" in
+  let filename = Filesystem.Public_creds in
   let get uuid = Filesystem.(read_whole_file (Election (uuid, filename))) in
   let set uuid x = Filesystem.(write_file (Election (uuid, filename)) [ x ]) in
-  let del uuid = Filesystem.cleanup_file (uuid /// filename) in
+  let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let draft_private_credentials =
-  let filename = "private_creds.txt" in
+  let filename = Filesystem.Private_creds in
   let get uuid = Filesystem.(read_whole_file (Election (uuid, filename))) in
   let set uuid x =
     Filesystem.(write_whole_file (Election (uuid, filename)) x)
   in
-  let del uuid = Filesystem.cleanup_file (uuid /// filename) in
+  let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let hide_result =
   {
     of_string = datetime_of_string;
     to_string = string_of_datetime;
-    filename = "hide_result";
+    filename = Filesystem.Hide_result;
   }
   |> make_file
 
@@ -98,7 +98,7 @@ let dates =
   {
     of_string = election_dates_of_string;
     to_string = string_of_election_dates;
-    filename = "dates.json";
+    filename = Filesystem.Dates;
   }
   |> make_file
 
@@ -106,7 +106,7 @@ let state =
   {
     of_string = election_state_of_string;
     to_string = string_of_election_state;
-    filename = "state.json";
+    filename = Filesystem.State;
   }
   |> make_file
 
@@ -114,7 +114,7 @@ let decryption_tokens =
   {
     of_string = decryption_tokens_of_string;
     to_string = string_of_decryption_tokens;
-    filename = "decryption_tokens.json";
+    filename = Filesystem.Decryption_tokens;
   }
   |> make_file
 
@@ -122,7 +122,7 @@ let metadata =
   {
     of_string = metadata_of_string;
     to_string = string_of_metadata;
-    filename = "metadata.json";
+    filename = Filesystem.Metadata;
   }
   |> make_file
 
@@ -130,22 +130,22 @@ let private_key =
   {
     of_string = Yojson.Safe.from_string;
     to_string = Yojson.Safe.to_string;
-    filename = "private_key.json";
+    filename = Filesystem.Private_key;
   }
   |> make_file
 
 let private_keys =
-  let filename = "private_keys.jsons" in
+  let filename = Filesystem.Private_keys in
   let get uuid = Filesystem.(read_file (Election (uuid, filename))) in
   let set uuid x = Filesystem.(write_file (Election (uuid, filename)) x) in
-  let del uuid = Filesystem.cleanup_file (uuid /// filename) in
+  let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let skipped_shufflers =
   {
     of_string = skipped_shufflers_of_string;
     to_string = string_of_skipped_shufflers;
-    filename = "skipped_shufflers.json";
+    filename = Filesystem.Skipped_shufflers;
   }
   |> make_file
 
@@ -153,7 +153,7 @@ let shuffle_token =
   {
     of_string = shuffle_token_of_string;
     to_string = string_of_shuffle_token;
-    filename = "shuffle_token.json";
+    filename = Filesystem.Shuffle_token;
   }
   |> make_file
 
@@ -161,7 +161,7 @@ let audit_cache =
   {
     of_string = audit_cache_of_string;
     to_string = string_of_audit_cache;
-    filename = "audit_cache.json";
+    filename = Filesystem.Audit_cache;
   }
   |> make_file
 
@@ -169,7 +169,7 @@ let last_event =
   {
     of_string = last_event_of_string;
     to_string = string_of_last_event;
-    filename = "last_event.json";
+    filename = Filesystem.Last_event;
   }
   |> make_file
 
@@ -177,6 +177,6 @@ let salts =
   {
     of_string = salts_of_string;
     to_string = string_of_salts;
-    filename = "salts.json";
+    filename = Filesystem.Salts;
   }
   |> make_file

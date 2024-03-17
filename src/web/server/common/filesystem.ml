@@ -23,32 +23,89 @@ open Lwt.Syntax
 open Belenios
 open Web_common
 
+type election_file =
+  | Draft
+  | State
+  | Public_creds
+  | Private_creds
+  | Hide_result
+  | Dates
+  | Decryption_tokens
+  | Metadata
+  | Private_key
+  | Private_keys
+  | Skipped_shufflers
+  | Shuffle_token
+  | Audit_cache
+  | Last_event
+  | Salts
+  | Extended_records
+  | Credential_mappings
+  | Partial_decryptions
+  | Ballots_index
+  | Deleted
+  | Public_archive
+  | Passwords
+  | Records
+  | Voters
+  | Confidential_archive
+  | Private_creds_downloaded
+
 type t =
   | Spool_version
   | Account_counter
   | Account of int
-  | Election of uuid * string
+  | Election of uuid * election_file
   | Absolute of string
 
 let files_of_directory d =
   let* all = Lwt_unix.files_of_directory d |> Lwt_stream.to_list in
   Lwt.return @@ List.filter (fun x -> x <> "." && x <> "..") all
 
-let file_exists x =
-  Lwt.catch
-    (fun () ->
-      let* () = Lwt_unix.(access x [ R_OK ]) in
-      Lwt.return_true)
-    (fun _ -> Lwt.return_false)
-
 let get_fname uuid x = match uuid with None -> x | Some uuid -> uuid /// x
+
+let get_election_file_path uuid = function
+  | Draft -> "draft.json"
+  | State -> "state.json"
+  | Public_creds -> "public_creds.json"
+  | Private_creds -> "private_creds.txt"
+  | Hide_result -> "hide_result"
+  | Dates -> "dates.json"
+  | Decryption_tokens -> "decryption_tokens.json"
+  | Metadata -> "metadata.json"
+  | Private_key -> "private_key.json"
+  | Private_keys -> "private_keys.jsons"
+  | Skipped_shufflers -> "skipped_shufflers.json"
+  | Shuffle_token -> "shuffle_token.json"
+  | Audit_cache -> "audit_cache.json"
+  | Last_event -> "last_event.json"
+  | Salts -> "salts.json"
+  | Extended_records -> "extended_records.jsons"
+  | Credential_mappings -> "credential_mappings.jsons"
+  | Partial_decryptions -> "partial_decryptions.json"
+  | Ballots_index -> "ballots_index.json"
+  | Deleted -> "deleted.json"
+  | Public_archive -> Uuid.unwrap uuid ^ ".bel"
+  | Passwords -> "passwords.csv"
+  | Records -> "records"
+  | Voters -> "voters.txt"
+  | Confidential_archive -> "archive.zip"
+  | Private_creds_downloaded -> "private_creds.downloaded"
 
 let get_path = function
   | Spool_version -> !!"version"
   | Account_counter -> !Web_config.accounts_dir // "counter"
   | Account id -> !Web_config.accounts_dir // Printf.sprintf "%d.json" id
-  | Election (uuid, f) -> get_fname (Some uuid) f
+  | Election (uuid, f) -> get_fname (Some uuid) (get_election_file_path uuid f)
   | Absolute f -> f
+
+let file_exists x =
+  let x = get_path x in
+  Lwt.catch
+    (fun () ->
+      let* () = Lwt_unix.(access x [ R_OK ]) in
+      Lwt.return_true)
+    (fun _ -> Lwt.return_false)
 
 let read_file f =
   Lwt.catch
@@ -67,7 +124,7 @@ let read_whole_file f =
 let read_whole_file_i18n ~lang f =
   let* f =
     let f' = Printf.sprintf "%s.%s" f lang in
-    let* b = file_exists f' in
+    let* b = file_exists (Absolute f') in
     Lwt.return (if b then f' else f)
   in
   read_whole_file (Absolute f)
@@ -126,6 +183,7 @@ let append_to_file f lines =
   Lwt_list.iter_s (write_line oc) lines
 
 let cleanup_file f =
+  let f = get_path f in
   Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
 
 let rmdir dir =
@@ -144,7 +202,7 @@ let copy_file src dst =
   chars_of_file src |> chars_to_file dst
 
 let try_copy_file src dst =
-  let* b = file_exists src in
+  let* b = file_exists (Absolute src) in
   if b then copy_file src dst else Lwt.return_unit
 
 let make_archive uuid =
@@ -190,7 +248,7 @@ let make_archive uuid =
       Lwt.return_unit
 
 let get_archive uuid =
-  let* state = read_file_single_line (Election (uuid, "state.json")) in
+  let* state = read_file_single_line (Election (uuid, State)) in
   let final =
     match state with
     | None -> true
@@ -200,8 +258,8 @@ let get_archive uuid =
         | _ -> false)
   in
   if final then
-    let archive_name = uuid /// "archive.zip" in
+    let archive_name = Election (uuid, Confidential_archive) in
     let* b = file_exists archive_name in
     let* () = if not b then make_archive uuid else Lwt.return_unit in
-    Lwt.return_some archive_name
+    Lwt.return_some (get_path archive_name)
   else Lwt.return_none

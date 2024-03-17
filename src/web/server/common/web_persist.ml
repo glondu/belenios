@@ -681,8 +681,7 @@ end
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 
 let get_voters_file uuid =
-  Filesystem.(
-    read_whole_file (Election (uuid, string_of_election_file ESVoters)))
+  Filesystem.(read_whole_file (Election (uuid, Voters)))
 
 let get_all_voters uuid =
   let* x = get_voters_file uuid in
@@ -762,9 +761,7 @@ let raw_get_credential_cache uuid =
                { salt; public_credential = `String cred })
         |> Array.of_list |> Lwt.return_some
   in
-  let* x =
-    Filesystem.(read_file_single_line (Election (uuid, "public_creds.json")))
-  in
+  let* x = Filesystem.(read_file_single_line (Election (uuid, Public_creds))) in
   match x with
   | None ->
       let* x = get_public_creds uuid in
@@ -988,12 +985,8 @@ end
 
 module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
-let extended_records_filename = "extended_records.jsons"
-
 let raw_get_extended_records uuid =
-  let* x =
-    Filesystem.(read_file (Election (uuid, extended_records_filename)))
-  in
+  let* x = Filesystem.(read_file (Election (uuid, Extended_records))) in
   let x = Option.value ~default:[] x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -1015,11 +1008,9 @@ let dump_extended_records uuid rs =
       rs
   in
   let* () =
-    Filesystem.(
-      write_file (Election (uuid, extended_records_filename)) extended_records)
+    Filesystem.(write_file (Election (uuid, Extended_records)) extended_records)
   in
-  Filesystem.(
-    write_file (Election (uuid, string_of_election_file ESRecords)) records)
+  Filesystem.(write_file (Election (uuid, Records)) records)
 
 let extended_records_deferrer =
   Election_defer.create (fun uuid ->
@@ -1042,7 +1033,7 @@ let add_extended_record uuid username r =
     { r_username = username; r_date; r_credential }
     |> string_of_extended_record
     |> (fun x -> [ x ])
-    |> Filesystem.(append_to_file (Election (uuid, extended_records_filename)))
+    |> Filesystem.(append_to_file (Election (uuid, Extended_records)))
   in
   Election_defer.defer extended_records_deferrer uuid;
   Lwt.return_unit
@@ -1058,12 +1049,8 @@ end
 
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
-let credential_mappings_filename = "credential_mappings.jsons"
-
 let raw_get_credential_mappings uuid =
-  let* x =
-    Filesystem.(read_file (Election (uuid, credential_mappings_filename)))
-  in
+  let* x = Filesystem.(read_file (Election (uuid, Credential_mappings))) in
   let x = Option.value ~default:[] x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -1076,7 +1063,7 @@ let dump_credential_mappings uuid xs =
     (fun c_credential c_ballot accu -> { c_credential; c_ballot } :: accu)
     xs []
   |> List.rev_map string_of_credential_mapping
-  |> Filesystem.(write_file (Election (uuid, credential_mappings_filename)))
+  |> Filesystem.(write_file (Election (uuid, Credential_mappings)))
 
 let credential_mappings_deferrer =
   Election_defer.create (fun uuid ->
@@ -1110,8 +1097,7 @@ let add_credential_mapping uuid cred mapping =
     { c_credential = cred; c_ballot = mapping }
     |> string_of_credential_mapping
     |> (fun x -> [ x ])
-    |> Filesystem.(
-         append_to_file (Election (uuid, credential_mappings_filename)))
+    |> Filesystem.(append_to_file (Election (uuid, Credential_mappings)))
   in
   Election_defer.defer credential_mappings_deferrer uuid;
   Lwt.return_unit
@@ -1294,13 +1280,13 @@ let delete_sensitive_data uuid =
   in
   let* () =
     Lwt_list.iter_p
-      (fun x -> Filesystem.cleanup_file (uuid /// x))
+      (fun x -> Filesystem.(cleanup_file (Election (uuid, x))))
       [
-        extended_records_filename;
-        credential_mappings_filename;
-        "partial_decryptions.json";
-        "public_creds.json";
-        "ballots_index.json";
+        Extended_records;
+        Credential_mappings;
+        Partial_decryptions;
+        Public_creds;
+        Ballots_index;
       ]
   in
   Lwt.return_unit
@@ -1393,9 +1379,7 @@ let delete_election uuid =
   in
   let* () =
     Filesystem.(
-      write_file
-        (Election (uuid, "deleted.json"))
-        [ string_of_deleted_election de ])
+      write_file (Election (uuid, Deleted)) [ string_of_deleted_election de ])
   in
   let* () =
     Lwt_list.iter_p
@@ -1413,14 +1397,8 @@ let delete_election uuid =
   in
   let* () =
     Lwt_list.iter_p
-      (fun x -> Filesystem.cleanup_file (uuid /// x))
-      [
-        Uuid.unwrap uuid ^ ".bel";
-        "passwords.csv";
-        "records";
-        "voters.txt";
-        "archive.zip";
-      ]
+      (fun x -> Filesystem.(cleanup_file (Election (uuid, x))))
+      [ Public_archive; Passwords; Records; Voters; Confidential_archive ]
   in
   clear_elections_by_owner_cache ()
 
@@ -1438,7 +1416,7 @@ let rec replace_password username ((salt, hashed) as p) = function
 
 let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db
-  |> Filesystem.(write_file (Election (uuid, "passwords.csv")))
+  |> Filesystem.(write_file (Election (uuid, Passwords)))
 
 let regen_password election metadata user =
   let user = String.lowercase_ascii user in
@@ -1465,13 +1443,13 @@ let regen_password election metadata user =
 let get_private_creds_filename uuid = uuid /// "private_creds.txt"
 
 let get_private_creds_downloaded uuid =
-  Filesystem.file_exists (uuid /// "private_creds.downloaded")
+  Filesystem.(file_exists (Election (uuid, Private_creds_downloaded)))
 
 let set_private_creds_downloaded uuid =
-  Filesystem.(write_file (Election (uuid, "private_creds.downloaded")) [])
+  Filesystem.(write_file (Election (uuid, Private_creds_downloaded)) [])
 
 let clear_private_creds_downloaded uuid =
-  Filesystem.cleanup_file (uuid /// "private_creds.downloaded")
+  Filesystem.(cleanup_file (Election (uuid, Private_creds_downloaded)))
 
 let get_election_file uuid f = uuid /// string_of_election_file f
 
@@ -1670,20 +1648,16 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
   let* () =
     Filesystem.(
-      create_whole_file
-        (Election (uuid, "voters.txt"))
-        (Voter.list_to_string voters))
+      create_whole_file (Election (uuid, Voters)) (Voter.list_to_string voters))
   in
   let* () =
     Filesystem.(
-      create_file
-        (Election (uuid, "metadata.json"))
-        string_of_metadata [ metadata ])
+      create_file (Election (uuid, Metadata)) string_of_metadata [ metadata ])
   in
   (* initialize credentials *)
   let* public_creds =
     let* file =
-      Filesystem.(read_file_single_line (Election (uuid, "public_creds.json")))
+      Filesystem.(read_file_single_line (Election (uuid, Public_creds)))
     in
     match file with
     | Some x ->
@@ -1720,19 +1694,18 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
     | `KEY x ->
         Filesystem.(
           create_file
-            (Election (uuid, "private_key.json"))
+            (Election (uuid, Private_key))
             (( -- ) (swrite G.Zq.to_string))
             [ x ])
     | `KEYS (x, y) ->
         let* () =
           Filesystem.(
             create_file
-              (Election (uuid, "private_key.json"))
+              (Election (uuid, Private_key))
               (( -- ) (swrite G.Zq.to_string))
               [ x ])
         in
-        Filesystem.(
-          create_file (Election (uuid, "private_keys.jsons")) (fun x -> x) y)
+        Filesystem.(create_file (Election (uuid, Private_keys)) (fun x -> x) y)
   in
   (* send private credentials, if any *)
   let* () = send_credentials uuid (Draft (v, se)) in
@@ -1901,9 +1874,7 @@ let get_draft_public_credentials uuid =
   in
   Lwt.return_some x
 
-let get_records uuid =
-  Filesystem.(read_file (Election (uuid, string_of_election_file ESRecords)))
-
+let get_records uuid = Filesystem.(read_file (Election (uuid, Records)))
 let set_salts uuid salts = Spool.set ~uuid Spool.salts salts
 
 type credentials_status = [ `None | `Pending of int | `Done ]

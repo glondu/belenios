@@ -149,7 +149,7 @@ module Make () = struct
     Lwt_main.run
       (match !source_file with
       | Some f ->
-          let* b = Filesystem.file_exists f in
+          let* b = Filesystem.(file_exists (Absolute f)) in
           if b then return f
           else Printf.ksprintf failwith "file %s does not exist" f
       | None -> failwith "missing <source> in configuration")

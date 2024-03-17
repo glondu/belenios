@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_common
 
 let block_size = Archive.block_size
 let block_sizeL = Int64.of_int block_size
@@ -115,8 +114,6 @@ let build_roots ~size ~pos filename =
   in
   Lwt.finalize (fun () -> loop Events.empty_roots) (fun () -> close ic)
 
-let chain_filename uuid = string_of_election_file (ESArchive uuid)
-
 let do_get_index ~uuid =
   let* last = Spool.get ~uuid Spool.last_event in
   let size, pos =
@@ -124,8 +121,8 @@ let do_get_index ~uuid =
     | None -> (100, 0L)
     | Some x -> (x.last_height + 100, x.last_pos)
   in
-  let ( ! ) x = uuid /// x in
-  let* map, roots, timestamp = build_roots ~size ~pos !(chain_filename uuid) in
+  let filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+  let* map, roots, timestamp = build_roots ~size ~pos filename in
   let remove () = Hashtbl.remove indexes uuid in
   let timeout = Lwt_timeout.create 3600 remove in
   let r = { timeout; map; roots; timestamp } in
@@ -147,9 +144,9 @@ let get_index ?(lock = true) uuid =
   Lwt_timeout.start r.timeout;
   Lwt.return r
 
-let raw_append ~uuid ~filename ~timestamp offset xs =
+let raw_append ~filename ~timestamp offset xs =
   let open Lwt_unix in
-  let* fd = openfile (uuid /// filename) [ O_WRONLY; O_APPEND ] 0o644 in
+  let* fd = openfile filename [ O_WRONLY; O_APPEND ] 0o644 in
   Lwt.finalize
     (fun () ->
       let* () =
@@ -171,12 +168,12 @@ let raw_append ~uuid ~filename ~timestamp offset xs =
       Lwt.return (oc.position, records))
     (fun () -> close fd)
 
-let gethash ~uuid ~index ~filename x =
+let gethash ~index ~filename x =
   match Hashtbl.find_opt index x with
   | None -> Lwt.return_none
   | Some i ->
       let open Lwt_unix in
-      let* fd = openfile (uuid /// filename) [ O_RDONLY ] 0o644 in
+      let* fd = openfile filename [ O_RDONLY ] 0o644 in
       Lwt.finalize
         (fun () ->
           let* _ = LargeFile.lseek fd i.location_offset SEEK_SET in
@@ -189,19 +186,19 @@ let gethash ~uuid ~index ~filename x =
         (fun () -> close fd)
 
 let with_archive uuid default f =
-  let filename = chain_filename uuid in
-  let* b = Filesystem.file_exists (uuid /// filename) in
-  if b then f filename else Lwt.return default
+  let filename = Filesystem.(Election (uuid, Public_archive)) in
+  let* b = Filesystem.(file_exists filename) in
+  if b then f (Filesystem.get_path filename) else Lwt.return default
 
 let get_data ~uuid x =
   let@ filename = with_archive uuid None in
   let* r = get_index uuid in
-  gethash ~uuid ~index:r.map ~filename x
+  gethash ~index:r.map ~filename x
 
 let get_event ~uuid x =
   let@ filename = with_archive uuid None in
   let* r = get_index uuid in
-  let* x = gethash ~uuid ~index:r.map ~filename x in
+  let* x = gethash ~index:r.map ~filename x in
   Lwt.return @@ Option.map event_of_string x
 
 let get_roots ~uuid =
@@ -254,8 +251,8 @@ let append ?(lock = true) ~uuid ?last ops =
   let last_hash = match last_hash with None -> assert false | Some x -> x in
   let items = List.rev items in
   let* last_pos, records =
-    raw_append ~uuid ~filename:(chain_filename uuid) ~timestamp:index.timestamp
-      pos items
+    let filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+    raw_append ~filename ~timestamp:index.timestamp pos items
   in
   let* () =
     Spool.set ~uuid Spool.last_event { last_hash; last_height; last_pos }
