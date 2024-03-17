@@ -135,7 +135,7 @@ let do_add_account ~db_fname ~username ~password ~email () =
   | Error _ as x -> Lwt.return x
   | Ok db ->
       let db = List.map (String.concat ",") db in
-      let* () = Filesystem.write_file db_fname db in
+      let* () = Filesystem.(write_file (Absolute db_fname) db) in
       Lwt.return (Ok ())
 
 let do_change_password ~db_fname ~username ~password () =
@@ -150,7 +150,7 @@ let do_change_password ~db_fname ~username ~password () =
     | x :: xs -> change (x :: accu) xs
   in
   let db = List.rev_map (String.concat ",") (change [] db) in
-  let* () = Filesystem.write_file db_fname db in
+  let* () = Filesystem.(write_file (Absolute db_fname) db) in
   return_unit
 
 let add_account user ~password ~email =

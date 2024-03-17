@@ -149,7 +149,7 @@ struct
                   match List.assoc_opt "allowlist" a.auth_config with
                   | None -> cont ()
                   | Some f ->
-                      let* allowlist = Filesystem.read_file f in
+                      let* allowlist = Filesystem.(read_file (Absolute f)) in
                       let allowlist = Option.value ~default:[] allowlist in
                       if List.mem name allowlist then cont ()
                       else restart_login ()

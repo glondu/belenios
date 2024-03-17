@@ -23,6 +23,13 @@ open Lwt.Syntax
 open Belenios
 open Web_common
 
+type t =
+  | Spool_version
+  | Account_counter
+  | Account of int
+  | Election of uuid * string
+  | Absolute of string
+
 let files_of_directory d =
   let* all = Lwt_unix.files_of_directory d |> Lwt_stream.to_list in
   Lwt.return @@ List.filter (fun x -> x <> "." && x <> "..") all
@@ -36,21 +43,24 @@ let file_exists x =
 
 let get_fname uuid x = match uuid with None -> x | Some uuid -> uuid /// x
 
-let read_file ?uuid x =
+let get_path = function
+  | Spool_version -> !!"version"
+  | Account_counter -> !Web_config.accounts_dir // "counter"
+  | Account id -> !Web_config.accounts_dir // Printf.sprintf "%d.json" id
+  | Election (uuid, f) -> get_fname (Some uuid) f
+  | Absolute f -> f
+
+let read_file f =
   Lwt.catch
     (fun () ->
-      let* lines =
-        Lwt_io.lines_of_file (get_fname uuid x) |> Lwt_stream.to_list
-      in
+      let* lines = Lwt_io.lines_of_file (get_path f) |> Lwt_stream.to_list in
       Lwt.return_some lines)
     (fun _ -> Lwt.return_none)
 
-let read_whole_file ?uuid x =
+let read_whole_file f =
   Lwt.catch
     (fun () ->
-      let* x =
-        Lwt_io.chars_of_file (get_fname uuid x) |> Lwt_stream.to_string
-      in
+      let* x = Lwt_io.chars_of_file (get_path f) |> Lwt_stream.to_string in
       Lwt.return_some x)
     (fun _ -> Lwt.return_none)
 
@@ -60,14 +70,14 @@ let read_whole_file_i18n ~lang f =
     let* b = file_exists f' in
     Lwt.return (if b then f' else f)
   in
-  read_whole_file f
+  read_whole_file (Absolute f)
 
-let read_file_single_line ?uuid filename =
-  let* x = read_file ?uuid filename in
+let read_file_single_line f =
+  let* x = read_file f in
   match x with Some [ x ] -> Lwt.return_some x | _ -> Lwt.return_none
 
-let write_file ?uuid x lines =
-  let fname = get_fname uuid x in
+let write_file f lines =
+  let fname = get_path f in
   let fname_new = fname ^ ".new" in
   let* () =
     let open Lwt_io in
@@ -76,8 +86,8 @@ let write_file ?uuid x lines =
   in
   Lwt_unix.rename fname_new fname
 
-let write_whole_file ?uuid x data =
-  let fname = get_fname uuid x in
+let write_whole_file f data =
+  let fname = get_path f in
   let fname_new = fname ^ ".new" in
   let* () =
     let open Lwt_io in
@@ -88,8 +98,8 @@ let write_whole_file ?uuid x data =
 
 let mk_election_dir uuid = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700
 
-let create_file ~uuid x what lines =
-  let fname = get_fname (Some uuid) x in
+let create_file f what lines =
+  let fname = get_path f in
   Lwt_io.with_file
     ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
     ~perm:0o600 ~mode:Lwt_io.Output fname
@@ -100,15 +110,15 @@ let create_file ~uuid x what lines =
           Lwt_io.write oc "\n")
         lines)
 
-let create_whole_file ~uuid x data =
-  let fname = get_fname (Some uuid) x in
+let create_whole_file f data =
+  let fname = get_path f in
   Lwt_io.with_file
     ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
     ~perm:0o600 ~mode:Lwt_io.Output fname
     (fun oc -> Lwt_io.write oc data)
 
-let append_to_file ?uuid x lines =
-  let fname = get_fname uuid x in
+let append_to_file f lines =
+  let fname = get_path f in
   let open Lwt_io in
   let@ oc =
     with_file ~mode:Output ~flags:[ O_WRONLY; O_APPEND; O_CREAT ] fname
@@ -180,7 +190,7 @@ let make_archive uuid =
       Lwt.return_unit
 
 let get_archive uuid =
-  let* state = read_file_single_line ~uuid "state.json" in
+  let* state = read_file_single_line (Election (uuid, "state.json")) in
   let final =
     match state with
     | None -> true

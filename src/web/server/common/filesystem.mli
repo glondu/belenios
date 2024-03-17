@@ -21,18 +21,25 @@
 
 open Web_serializable_t
 
+type t =
+  | Spool_version
+  | Account_counter
+  | Account of int
+  | Election of uuid * string
+  | Absolute of string
+
 val files_of_directory : string -> string list Lwt.t
 val file_exists : string -> bool Lwt.t
-val read_file : ?uuid:uuid -> string -> string list option Lwt.t
-val read_whole_file : ?uuid:uuid -> string -> string option Lwt.t
+val read_file : t -> string list option Lwt.t
+val read_whole_file : t -> string option Lwt.t
 val read_whole_file_i18n : lang:string -> string -> string option Lwt.t
-val read_file_single_line : ?uuid:uuid -> string -> string option Lwt.t
-val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
-val write_whole_file : ?uuid:uuid -> string -> string -> unit Lwt.t
+val read_file_single_line : t -> string option Lwt.t
+val write_file : t -> string list -> unit Lwt.t
+val write_whole_file : t -> string -> unit Lwt.t
 val mk_election_dir : uuid -> unit Lwt.t
-val create_file : uuid:uuid -> string -> ('a -> string) -> 'a list -> unit Lwt.t
-val create_whole_file : uuid:uuid -> string -> string -> unit Lwt.t
-val append_to_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
+val create_file : t -> ('a -> string) -> 'a list -> unit Lwt.t
+val create_whole_file : t -> string -> unit Lwt.t
+val append_to_file : t -> string list -> unit Lwt.t
 val cleanup_file : string -> unit Lwt.t
 val rmdir : string -> unit Lwt.t
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
