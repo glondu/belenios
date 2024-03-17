@@ -1286,7 +1286,7 @@ struct
         let@ _ = with_metadata_check_owner uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let* x = Web_persist.get_archive uuid in
+        let* x = Filesystem.get_archive uuid in
         match x with
         | Some archive_name ->
             File.send ~content_type:"application/zip" archive_name

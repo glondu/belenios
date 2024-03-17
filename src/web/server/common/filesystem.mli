@@ -33,3 +33,4 @@ val append_to_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 val cleanup_file : string -> unit Lwt.t
 val rmdir : string -> unit Lwt.t
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
+val get_archive : uuid -> string option Lwt.t

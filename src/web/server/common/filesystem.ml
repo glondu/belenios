@@ -107,3 +107,70 @@ let exhaust_file file =
   let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
   let* () = Lwt_unix.unlink fname in
   Lwt.return result
+
+let copy_file src dst =
+  let open Lwt_io in
+  chars_of_file src |> chars_to_file dst
+
+let try_copy_file src dst =
+  let* b = file_exists src in
+  if b then copy_file src dst else Lwt.return_unit
+
+let make_archive uuid =
+  let uuid_s = Uuid.unwrap uuid in
+  let* temp_dir =
+    Lwt_preemptive.detach
+      (fun () ->
+        let temp_dir = Filename.temp_file "belenios" "archive" in
+        Sys.remove temp_dir;
+        Unix.mkdir temp_dir 0o700;
+        Unix.mkdir (temp_dir // "public") 0o755;
+        Unix.mkdir (temp_dir // "restricted") 0o700;
+        temp_dir)
+      ()
+  in
+  let* () =
+    Lwt_list.iter_p
+      (fun x -> try_copy_file (uuid /// x) (temp_dir // "public" // x))
+      [ Uuid.unwrap uuid ^ ".bel" ]
+  in
+  let* () =
+    Lwt_list.iter_p
+      (fun x -> try_copy_file (uuid /// x) (temp_dir // "restricted" // x))
+      [ "voters.txt"; "records" ]
+  in
+  let command =
+    Printf.ksprintf Lwt_process.shell
+      "cd \"%s\" && zip -r archive public restricted" temp_dir
+  in
+  let* r = Lwt_process.exec command in
+  match r with
+  | Unix.WEXITED 0 ->
+      let fname = uuid /// "archive.zip" in
+      let fname_new = fname ^ ".new" in
+      let* () = copy_file (temp_dir // "archive.zip") fname_new in
+      let* () = Lwt_unix.rename fname_new fname in
+      rmdir temp_dir
+  | _ ->
+      Printf.ksprintf Ocsigen_messages.errlog
+        "Error while creating archive.zip for election %s, temporary directory \
+         left in %s"
+        uuid_s temp_dir;
+      Lwt.return_unit
+
+let get_archive uuid =
+  let* state = read_file_single_line ~uuid "state.json" in
+  let final =
+    match state with
+    | None -> true
+    | Some x -> (
+        match Web_serializable_j.election_state_of_string x with
+        | `Tallied | `Archived -> true
+        | _ -> false)
+  in
+  if final then
+    let archive_name = uuid /// "archive.zip" in
+    let* b = file_exists archive_name in
+    let* () = if not b then make_archive uuid else Lwt.return_unit in
+    Lwt.return_some archive_name
+  else Lwt.return_none
