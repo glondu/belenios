@@ -66,10 +66,10 @@ val read_file_single_line : t -> string option Lwt.t
 val write_file : t -> string list -> unit Lwt.t
 val write_whole_file : t -> string -> unit Lwt.t
 val mk_election_dir : uuid -> unit Lwt.t
+val rm_election_dir : uuid -> unit Lwt.t
 val create_file : t -> ('a -> string) -> 'a list -> unit Lwt.t
 val create_whole_file : t -> string -> unit Lwt.t
 val append_to_file : t -> string list -> unit Lwt.t
 val cleanup_file : t -> unit Lwt.t
-val rmdir : string -> unit Lwt.t
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
 val get_archive : uuid -> string option Lwt.t

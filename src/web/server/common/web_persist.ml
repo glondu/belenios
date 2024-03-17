@@ -1735,7 +1735,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   set_election_dates uuid { dates with e_finalization = Some (Datetime.now ()) }
 
 let delete_draft uuid =
-  let* () = Filesystem.rmdir !!(Uuid.unwrap uuid) in
+  let* () = Filesystem.rm_election_dir uuid in
   clear_elections_by_owner_cache ()
 
 let create_draft uuid se =

@@ -191,6 +191,8 @@ let rmdir dir =
   let* _ = Lwt_process.exec command in
   Lwt.return_unit
 
+let rm_election_dir uuid = rmdir !!(Uuid.unwrap uuid)
+
 let exhaust_file file =
   let fname = file.Ocsigen_extensions.tmp_filename in
   let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
