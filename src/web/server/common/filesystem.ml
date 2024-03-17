@@ -86,6 +86,25 @@ let write_whole_file ?uuid x data =
   in
   Lwt_unix.rename fname_new fname
 
+let create_file ~uuid x what lines =
+  let fname = get_fname (Some uuid) x in
+  Lwt_io.with_file
+    ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
+    ~perm:0o600 ~mode:Lwt_io.Output fname
+    (fun oc ->
+      Lwt_list.iter_s
+        (fun v ->
+          let* () = Lwt_io.write oc (what v) in
+          Lwt_io.write oc "\n")
+        lines)
+
+let create_whole_file ~uuid x data =
+  let fname = get_fname (Some uuid) x in
+  Lwt_io.with_file
+    ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
+    ~perm:0o600 ~mode:Lwt_io.Output fname
+    (fun oc -> Lwt_io.write oc data)
+
 let append_to_file ?uuid x lines =
   let fname = get_fname uuid x in
   let open Lwt_io in

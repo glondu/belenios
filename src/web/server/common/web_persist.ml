@@ -1503,7 +1503,6 @@ let send_credentials uuid (Draft (v, se)) =
 let validate_election ~admin_id uuid (Draft (v, se)) s =
   let open Belenios_api.Serializable_j in
   let version = se.se_version in
-  let uuid_s = Uuid.unwrap uuid in
   (* convenience tests *)
   let validation_error x = raise (Api_generic.Error (`ValidationError x)) in
   let () =
@@ -1655,27 +1654,14 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
       ~group:se.se_group ~public_key
   in
   (* write election files to disk *)
-  let dir = !!uuid_s in
-  let create_file fname what xs =
-    Lwt_io.with_file
-      ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
-      ~perm:0o600 ~mode:Lwt_io.Output (dir // fname)
-      (fun oc ->
-        Lwt_list.iter_s
-          (fun v ->
-            let* () = Lwt_io.write oc (what v) in
-            Lwt_io.write oc "\n")
-          xs)
-  in
-  let create_whole_file fname x =
-    Lwt_io.with_file
-      ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
-      ~perm:0o600 ~mode:Lwt_io.Output (dir // fname)
-      (fun oc -> Lwt_io.write oc x)
-  in
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
-  let* () = create_whole_file "voters.txt" (Voter.list_to_string voters) in
-  let* () = create_file "metadata.json" string_of_metadata [ metadata ] in
+  let* () =
+    Filesystem.create_whole_file ~uuid "voters.txt"
+      (Voter.list_to_string voters)
+  in
+  let* () =
+    Filesystem.create_file ~uuid "metadata.json" string_of_metadata [ metadata ]
+  in
   (* initialize credentials *)
   let* public_creds =
     let fname = uuid /// "public_creds.json" in
@@ -1713,12 +1699,16 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   let* () =
     match private_keys with
     | `KEY x ->
-        create_file "private_key.json" (( -- ) (swrite G.Zq.to_string)) [ x ]
+        Filesystem.create_file ~uuid "private_key.json"
+          (( -- ) (swrite G.Zq.to_string))
+          [ x ]
     | `KEYS (x, y) ->
         let* () =
-          create_file "private_key.json" (( -- ) (swrite G.Zq.to_string)) [ x ]
+          Filesystem.create_file ~uuid "private_key.json"
+            (( -- ) (swrite G.Zq.to_string))
+            [ x ]
         in
-        create_file "private_keys.jsons" (fun x -> x) y
+        Filesystem.create_file ~uuid "private_keys.jsons" (fun x -> x) y
   in
   (* send private credentials, if any *)
   let* () = send_credentials uuid (Draft (v, se)) in

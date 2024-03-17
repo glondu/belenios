@@ -29,6 +29,8 @@ val read_whole_file_i18n : lang:string -> string -> string option Lwt.t
 val read_file_single_line : ?uuid:uuid -> string -> string option Lwt.t
 val write_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 val write_whole_file : ?uuid:uuid -> string -> string -> unit Lwt.t
+val create_file : uuid:uuid -> string -> ('a -> string) -> 'a list -> unit Lwt.t
+val create_whole_file : uuid:uuid -> string -> string -> unit Lwt.t
 val append_to_file : ?uuid:uuid -> string -> string list -> unit Lwt.t
 val cleanup_file : string -> unit Lwt.t
 val rmdir : string -> unit Lwt.t
