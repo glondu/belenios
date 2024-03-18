@@ -27,9 +27,7 @@ open Web_common
 
 let get_spool_version () =
   let* x = Filesystem.(read_file Spool_version) in
-  match x with
-  | Some [ version ] -> return @@ int_of_string version
-  | _ -> return 0
+  match x with Some x -> return @@ int_of_string x | None -> return 0
 
 let elections_by_owner_cache = ref None
 let elections_by_owner_mutex = Lwt_mutex.create ()
@@ -680,8 +678,7 @@ end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 
-let get_voters_file uuid =
-  Filesystem.(read_whole_file (Election (uuid, Voters)))
+let get_voters_file uuid = Filesystem.(read_file (Election (uuid, Voters)))
 
 let get_all_voters uuid =
   let* x = get_voters_file uuid in
@@ -761,7 +758,7 @@ let raw_get_credential_cache uuid =
                { salt; public_credential = `String cred })
         |> Array.of_list |> Lwt.return_some
   in
-  let* x = Filesystem.(read_file_single_line (Election (uuid, Public_creds))) in
+  let* x = Filesystem.(read_file (Election (uuid, Public_creds))) in
   match x with
   | None ->
       let* x = get_public_creds uuid in
@@ -987,7 +984,7 @@ module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
 let raw_get_extended_records uuid =
   let* x = Filesystem.(read_file (Election (uuid, Extended_records))) in
-  let x = Option.value ~default:[] x in
+  let x = match x with None -> [] | Some x -> split_lines x in
   Lwt_list.fold_left_s
     (fun accu x ->
       let x = extended_record_of_string x in
@@ -1001,11 +998,13 @@ let dump_extended_records uuid rs =
       (fun (r_username, (r_date, r_credential)) ->
         { r_username; r_date; r_credential } |> string_of_extended_record)
       rs
+    |> join_lines
   in
   let records =
     List.map
       (fun (u, (d, _)) -> Printf.sprintf "%s %S" (string_of_datetime d) u)
       rs
+    |> join_lines
   in
   let* () =
     Filesystem.(write_file (Election (uuid, Extended_records)) extended_records)
@@ -1051,7 +1050,7 @@ module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
 let raw_get_credential_mappings uuid =
   let* x = Filesystem.(read_file (Election (uuid, Credential_mappings))) in
-  let x = Option.value ~default:[] x in
+  let x = match x with None -> [] | Some x -> split_lines x in
   Lwt_list.fold_left_s
     (fun accu x ->
       let x = credential_mapping_of_string x in
@@ -1063,6 +1062,7 @@ let dump_credential_mappings uuid xs =
     (fun c_credential c_ballot accu -> { c_credential; c_ballot } :: accu)
     xs []
   |> List.rev_map string_of_credential_mapping
+  |> join_lines
   |> Filesystem.(write_file (Election (uuid, Credential_mappings)))
 
 let credential_mappings_deferrer =
@@ -1379,7 +1379,7 @@ let delete_election uuid =
   in
   let* () =
     Filesystem.(
-      write_file (Election (uuid, Deleted)) [ string_of_deleted_election de ])
+      write_file (Election (uuid, Deleted)) (string_of_deleted_election de))
   in
   let* () =
     Lwt_list.iter_p
@@ -1416,6 +1416,7 @@ let rec replace_password username ((salt, hashed) as p) = function
 
 let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db
+  |> join_lines
   |> Filesystem.(write_file (Election (uuid, Passwords)))
 
 let regen_password election metadata user =
@@ -1446,7 +1447,7 @@ let get_private_creds_downloaded uuid =
   Filesystem.(file_exists (Election (uuid, Private_creds_downloaded)))
 
 let set_private_creds_downloaded uuid =
-  Filesystem.(write_file (Election (uuid, Private_creds_downloaded)) [])
+  Filesystem.(write_file (Election (uuid, Private_creds_downloaded)) "")
 
 let clear_private_creds_downloaded uuid =
   Filesystem.(cleanup_file (Election (uuid, Private_creds_downloaded)))
@@ -1656,9 +1657,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   in
   (* initialize credentials *)
   let* public_creds =
-    let* file =
-      Filesystem.(read_file_single_line (Election (uuid, Public_creds)))
-    in
+    let* file = Filesystem.(read_file (Election (uuid, Public_creds))) in
     match file with
     | Some x ->
         let x =
@@ -1874,7 +1873,12 @@ let get_draft_public_credentials uuid =
   in
   Lwt.return_some x
 
-let get_records uuid = Filesystem.(read_file (Election (uuid, Records)))
+let get_records uuid =
+  let* x = Filesystem.(read_file (Election (uuid, Records))) in
+  match x with
+  | None -> Lwt.return_none
+  | Some x -> Lwt.return_some @@ split_lines x
+
 let set_salts uuid salts = Spool.set ~uuid Spool.salts salts
 
 type credentials_status = [ `None | `Pending of int | `Done ]

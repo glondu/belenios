@@ -92,6 +92,7 @@ end
 
 val split_on_br : string -> string list
 val split_lines : string -> string list
+val join_lines : string list -> string
 
 val parse_public_credential :
   (string -> 'a) -> string -> 'a Serializable_core_t.public_credential

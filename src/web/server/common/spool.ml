@@ -41,9 +41,7 @@ type 'a t = File of 'a file | Abstract of 'a abstract
 let get ~uuid file =
   match file with
   | File file -> (
-      let* x =
-        Filesystem.(read_file_single_line (Election (uuid, file.filename)))
-      in
+      let* x = Filesystem.(read_file (Election (uuid, file.filename))) in
       let&* x = x in
       try Lwt.return_some (file.of_string x) with _ -> Lwt.return_none)
   | Abstract a -> a.get uuid
@@ -52,7 +50,7 @@ let set ~uuid file x =
   match file with
   | File file ->
       Filesystem.(
-        write_file (Election (uuid, file.filename)) [ file.to_string x ])
+        write_file (Election (uuid, file.filename)) (file.to_string x))
   | Abstract a -> a.set uuid x
 
 let del ~uuid file =
@@ -72,17 +70,15 @@ let draft =
 
 let draft_public_credentials =
   let filename = Filesystem.Public_creds in
-  let get uuid = Filesystem.(read_whole_file (Election (uuid, filename))) in
-  let set uuid x = Filesystem.(write_file (Election (uuid, filename)) [ x ]) in
+  let get uuid = Filesystem.(read_file (Election (uuid, filename))) in
+  let set uuid x = Filesystem.(write_file (Election (uuid, filename)) x) in
   let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let draft_private_credentials =
   let filename = Filesystem.Private_creds in
-  let get uuid = Filesystem.(read_whole_file (Election (uuid, filename))) in
-  let set uuid x =
-    Filesystem.(write_whole_file (Election (uuid, filename)) x)
-  in
+  let get uuid = Filesystem.(read_file (Election (uuid, filename))) in
+  let set uuid x = Filesystem.(write_file (Election (uuid, filename)) x) in
   let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
@@ -136,8 +132,14 @@ let private_key =
 
 let private_keys =
   let filename = Filesystem.Private_keys in
-  let get uuid = Filesystem.(read_file (Election (uuid, filename))) in
-  let set uuid x = Filesystem.(write_file (Election (uuid, filename)) x) in
+  let get uuid =
+    let* x = Filesystem.(read_file (Election (uuid, filename))) in
+    let&* x = x in
+    Lwt.return_some @@ split_lines x
+  in
+  let set uuid x =
+    Filesystem.(write_file (Election (uuid, filename)) (join_lines x))
+  in
   let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 

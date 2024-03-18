@@ -23,6 +23,8 @@ open Lwt.Syntax
 open Belenios
 open Web_common
 
+type kind = Raw | Trim
+
 type election_file =
   | Draft
   | State
@@ -62,42 +64,44 @@ let files_of_directory d =
   let* all = Lwt_unix.files_of_directory d |> Lwt_stream.to_list in
   Lwt.return @@ List.filter (fun x -> x <> "." && x <> "..") all
 
-let get_fname uuid x = match uuid with None -> x | Some uuid -> uuid /// x
+let get_election_file_props uuid = function
+  | Draft -> ("draft.json", Trim)
+  | State -> ("state.json", Trim)
+  | Public_creds -> ("public_creds.json", Trim)
+  | Private_creds -> ("private_creds.txt", Raw)
+  | Hide_result -> ("hide_result", Trim)
+  | Dates -> ("dates.json", Trim)
+  | Decryption_tokens -> ("decryption_tokens.json", Trim)
+  | Metadata -> ("metadata.json", Trim)
+  | Private_key -> ("private_key.json", Trim)
+  | Private_keys -> ("private_keys.jsons", Raw)
+  | Skipped_shufflers -> ("skipped_shufflers.json", Trim)
+  | Shuffle_token -> ("shuffle_token.json", Trim)
+  | Audit_cache -> ("audit_cache.json", Trim)
+  | Last_event -> ("last_event.json", Trim)
+  | Salts -> ("salts.json", Trim)
+  | Extended_records -> ("extended_records.jsons", Raw)
+  | Credential_mappings -> ("credential_mappings.jsons", Raw)
+  | Partial_decryptions -> ("partial_decryptions.json", Raw)
+  | Ballots_index -> ("ballots_index.json", Raw)
+  | Deleted -> ("deleted.json", Trim)
+  | Public_archive -> (Uuid.unwrap uuid ^ ".bel", Raw)
+  | Passwords -> ("passwords.csv", Raw)
+  | Records -> ("records", Raw)
+  | Voters -> ("voters.txt", Raw)
+  | Confidential_archive -> ("archive.zip", Raw)
+  | Private_creds_downloaded -> ("private_creds.downloaded", Raw)
 
-let get_election_file_path uuid = function
-  | Draft -> "draft.json"
-  | State -> "state.json"
-  | Public_creds -> "public_creds.json"
-  | Private_creds -> "private_creds.txt"
-  | Hide_result -> "hide_result"
-  | Dates -> "dates.json"
-  | Decryption_tokens -> "decryption_tokens.json"
-  | Metadata -> "metadata.json"
-  | Private_key -> "private_key.json"
-  | Private_keys -> "private_keys.jsons"
-  | Skipped_shufflers -> "skipped_shufflers.json"
-  | Shuffle_token -> "shuffle_token.json"
-  | Audit_cache -> "audit_cache.json"
-  | Last_event -> "last_event.json"
-  | Salts -> "salts.json"
-  | Extended_records -> "extended_records.jsons"
-  | Credential_mappings -> "credential_mappings.jsons"
-  | Partial_decryptions -> "partial_decryptions.json"
-  | Ballots_index -> "ballots_index.json"
-  | Deleted -> "deleted.json"
-  | Public_archive -> Uuid.unwrap uuid ^ ".bel"
-  | Passwords -> "passwords.csv"
-  | Records -> "records"
-  | Voters -> "voters.txt"
-  | Confidential_archive -> "archive.zip"
-  | Private_creds_downloaded -> "private_creds.downloaded"
+let get_props = function
+  | Spool_version -> (!!"version", Trim)
+  | Account_counter -> (!Web_config.accounts_dir // "counter", Trim)
+  | Account id -> (!Web_config.accounts_dir // Printf.sprintf "%d.json" id, Trim)
+  | Election (uuid, f) ->
+      let fname, kind = get_election_file_props uuid f in
+      (uuid /// fname, kind)
+  | Absolute f -> (f, Raw)
 
-let get_path = function
-  | Spool_version -> !!"version"
-  | Account_counter -> !Web_config.accounts_dir // "counter"
-  | Account id -> !Web_config.accounts_dir // Printf.sprintf "%d.json" id
-  | Election (uuid, f) -> get_fname (Some uuid) (get_election_file_path uuid f)
-  | Absolute f -> f
+let get_path x = fst (get_props x)
 
 let file_exists x =
   let x = get_path x in
@@ -110,46 +114,29 @@ let file_exists x =
 let read_file f =
   Lwt.catch
     (fun () ->
-      let* lines = Lwt_io.lines_of_file (get_path f) |> Lwt_stream.to_list in
-      Lwt.return_some lines)
+      let path, kind = get_props f in
+      let* x = Lwt_io.chars_of_file path |> Lwt_stream.to_string in
+      match kind with
+      | Raw -> Lwt.return_some x
+      | Trim -> Lwt.return_some (String.trim x))
     (fun _ -> Lwt.return_none)
 
-let read_whole_file f =
-  Lwt.catch
-    (fun () ->
-      let* x = Lwt_io.chars_of_file (get_path f) |> Lwt_stream.to_string in
-      Lwt.return_some x)
-    (fun _ -> Lwt.return_none)
-
-let read_whole_file_i18n ~lang f =
+let read_file_i18n ~lang f =
   let* f =
     let f' = Printf.sprintf "%s.%s" f lang in
     let* b = file_exists (Absolute f') in
     Lwt.return (if b then f' else f)
   in
-  read_whole_file (Absolute f)
+  read_file (Absolute f)
 
-let read_file_single_line f =
-  let* x = read_file f in
-  match x with Some [ x ] -> Lwt.return_some x | _ -> Lwt.return_none
-
-let write_file f lines =
-  let fname = get_path f in
+let write_file f data =
+  let fname, kind = get_props f in
   let fname_new = fname ^ ".new" in
   let* () =
     let open Lwt_io in
     let@ oc = with_file ~mode:Output fname_new in
-    Lwt_list.iter_s (write_line oc) lines
-  in
-  Lwt_unix.rename fname_new fname
-
-let write_whole_file f data =
-  let fname = get_path f in
-  let fname_new = fname ^ ".new" in
-  let* () =
-    let open Lwt_io in
-    let@ oc = with_file ~mode:Output fname_new in
-    write oc data
+    let* () = write oc data in
+    match kind with Raw -> Lwt.return_unit | Trim -> write oc "\n"
   in
   Lwt_unix.rename fname_new fname
 
@@ -250,7 +237,7 @@ let make_archive uuid =
       Lwt.return_unit
 
 let get_archive uuid =
-  let* state = read_file_single_line (Election (uuid, State)) in
+  let* state = read_file (Election (uuid, State)) in
   let final =
     match state with
     | None -> true

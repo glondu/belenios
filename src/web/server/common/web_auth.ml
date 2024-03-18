@@ -150,7 +150,11 @@ struct
                   | None -> cont ()
                   | Some f ->
                       let* allowlist = Filesystem.(read_file (Absolute f)) in
-                      let allowlist = Option.value ~default:[] allowlist in
+                      let allowlist =
+                        match allowlist with
+                        | None -> []
+                        | Some x -> split_lines x
+                      in
                       if List.mem name allowlist then cont ()
                       else restart_login ()
                 in

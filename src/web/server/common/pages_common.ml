@@ -62,7 +62,7 @@ struct
     match file with
     | None -> return default
     | Some f -> (
-        let* file = Filesystem.read_whole_file_i18n ~lang f in
+        let* file = Filesystem.read_file_i18n ~lang f in
         match file with
         | None -> return default
         | Some x -> return @@ Unsafe.data x)

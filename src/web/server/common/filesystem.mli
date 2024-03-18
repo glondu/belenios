@@ -59,12 +59,9 @@ type t =
 val get_path : t -> string
 val files_of_directory : string -> string list Lwt.t
 val file_exists : t -> bool Lwt.t
-val read_file : t -> string list option Lwt.t
-val read_whole_file : t -> string option Lwt.t
-val read_whole_file_i18n : lang:string -> string -> string option Lwt.t
-val read_file_single_line : t -> string option Lwt.t
-val write_file : t -> string list -> unit Lwt.t
-val write_whole_file : t -> string -> unit Lwt.t
+val read_file : t -> string option Lwt.t
+val read_file_i18n : lang:string -> string -> string option Lwt.t
+val write_file : t -> string -> unit Lwt.t
 val mk_election_dir : uuid -> unit Lwt.t
 val rm_election_dir : uuid -> unit Lwt.t
 val create_file : t -> ('a -> string) -> 'a list -> unit Lwt.t

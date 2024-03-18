@@ -272,6 +272,15 @@ let rev_split_lines str =
 
 let split_lines str = List.rev @@ rev_split_lines str
 
+let join_lines xs =
+  let b = Buffer.create 1024 in
+  List.iter
+    (fun x ->
+      Buffer.add_string b x;
+      Buffer.add_char b '\n')
+    xs;
+  Buffer.contents b
+
 let parse_public_credential of_string x =
   let open Serializable_core_t in
   match String.split_on_char ',' x with

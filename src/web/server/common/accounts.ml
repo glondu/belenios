@@ -46,8 +46,8 @@ let account_of_filename filename =
   let&* id = int_of_string_opt id in
   let* contents = Filesystem.(read_file (Account id)) in
   match contents with
-  | Some [ x ] -> Lwt.return (try Some (account_of_string x) with _ -> None)
-  | _ -> Lwt.return_none
+  | Some x -> Lwt.return (try Some (account_of_string x) with _ -> None)
+  | None -> Lwt.return_none
 
 let get_account_by_id id = account_of_filename (Printf.sprintf "%d.json" id)
 let update_hooks = ref []
@@ -56,7 +56,7 @@ let add_update_hook f = update_hooks := f :: !update_hooks
 let update_account account =
   let* () =
     let@ () = Lwt_mutex.with_lock account_mutex in
-    Filesystem.(write_file (Account account.id) [ string_of_account account ])
+    Filesystem.(write_file (Account account.id) (string_of_account account))
   in
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 
@@ -68,9 +68,9 @@ let create_account ~email user =
   let* counter =
     let* x = Filesystem.(read_file Account_counter) in
     match x with
-    | Some [ x ] ->
+    | Some x ->
         Lwt.return (match int_of_string_opt x with None -> 1 | Some x -> x)
-    | _ -> Lwt.return 1
+    | None -> Lwt.return 1
   in
   let rec find_free_id n =
     let* x = get_account_by_id n in
@@ -98,9 +98,7 @@ let create_account ~email user =
     }
   in
   let* () = update_account account in
-  let* () =
-    Filesystem.(write_file Account_counter [ string_of_int (id + 1) ])
-  in
+  let* () = Filesystem.(write_file Account_counter (string_of_int (id + 1))) in
   let* () = clear_account_cache () in
   Lwt.return account
 
