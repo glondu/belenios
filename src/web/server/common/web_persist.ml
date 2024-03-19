@@ -646,7 +646,8 @@ let get_elections_by_owner user =
   in
   match IMap.find_opt user cache with None -> return [] | Some xs -> return xs
 
-let get_password_filename uuid = uuid /// "passwords.csv"
+let get_password_filename uuid =
+  Filesystem.(get_path (Election (uuid, Passwords)))
 
 let check_password uuid ~user ~password =
   let db = get_password_filename uuid in
@@ -1403,8 +1404,11 @@ let delete_election uuid =
   clear_elections_by_owner_cache ()
 
 let load_password_db uuid =
-  let db = uuid /// "passwords.csv" in
-  Lwt_preemptive.detach Csv.load db
+  let* db = Filesystem.(read_file (Election (uuid, Passwords))) in
+  match db with
+  | None -> Lwt.return []
+  | Some db ->
+      Lwt_preemptive.detach (fun db -> Csv.(input_all (of_string db))) db
 
 let rec replace_password username ((salt, hashed) as p) = function
   | [] -> []
@@ -1441,7 +1445,8 @@ let regen_password election metadata user =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let get_private_creds_filename uuid = uuid /// "private_creds.txt"
+let get_private_creds_filename uuid =
+  Filesystem.(get_path (Election (uuid, Private_creds)))
 
 let get_private_creds_downloaded uuid =
   Filesystem.(file_exists (Election (uuid, Private_creds_downloaded)))
@@ -1452,7 +1457,8 @@ let set_private_creds_downloaded uuid =
 let clear_private_creds_downloaded uuid =
   Filesystem.(cleanup_file (Election (uuid, Private_creds_downloaded)))
 
-let get_election_file uuid f = uuid /// string_of_election_file f
+let get_election_file uuid f =
+  Filesystem.(get_path (Election (uuid, to_election_file uuid f)))
 
 let get_draft_private_credentials uuid =
   Spool.get ~uuid Spool.draft_private_credentials

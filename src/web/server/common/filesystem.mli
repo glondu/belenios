@@ -56,6 +56,7 @@ type t =
   | Election of uuid * election_file
   | Absolute of string
 
+val to_election_file : uuid -> Web_common.election_file -> election_file
 val get_path : t -> string
 val files_of_directory : string -> string list Lwt.t
 val file_exists : t -> bool Lwt.t

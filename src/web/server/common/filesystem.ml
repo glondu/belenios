@@ -23,6 +23,9 @@ open Lwt.Syntax
 open Belenios
 open Web_common
 
+let ( !! ) x = !Web_config.spool_dir // x
+let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
+
 type kind = Raw | Trim
 
 type election_file =
@@ -100,6 +103,13 @@ let get_props = function
       let fname, kind = get_election_file_props uuid f in
       (uuid /// fname, kind)
   | Absolute f -> (f, Raw)
+
+let to_election_file uuid = function
+  | ESArchive x when x = uuid -> Public_archive
+  | ESVoters -> Voters
+  | ESRecords -> Records
+  | ESSalts -> Salts
+  | _ -> raise Not_found
 
 let get_path x = fst (get_props x)
 

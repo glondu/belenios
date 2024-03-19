@@ -363,9 +363,10 @@ struct
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
           | None -> fail_http `Not_found)
-      | f ->
-          let filename = Web_persist.get_election_file uuid f in
-          File.send ~content_type filename
+      | f -> (
+          match Web_persist.get_election_file uuid f with
+          | exception Not_found -> fail_http `Not_found
+          | filename -> File.send ~content_type filename)
     else forbidden ()
 
   let () =
