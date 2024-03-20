@@ -1038,10 +1038,6 @@ let add_extended_record uuid username r =
   Election_defer.defer extended_records_deferrer uuid;
   Lwt.return_unit
 
-let has_voted uuid user =
-  let* rs = extended_records_cache#find uuid in
-  return @@ SMap.mem (string_of_user user) rs
-
 module CredMappingsCacheTypes = struct
   type key = uuid
   type value = string option SMap.t

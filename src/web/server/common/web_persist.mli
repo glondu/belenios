@@ -82,7 +82,6 @@ val get_nh_ciphertexts : (module Site_common_sig.ELECTION) -> string Lwt.t
 val append_to_shuffles :
   (module Site_common_sig.ELECTION) -> int -> string -> string option Lwt.t
 
-val has_voted : uuid -> user -> bool Lwt.t
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
 val precast_ballot :
