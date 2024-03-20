@@ -61,10 +61,6 @@ val get_voter : uuid -> string -> Voter.t option Lwt.t
 val get_all_voters : uuid -> Voter.t list Lwt.t
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
-
-val get_ballot_weight :
-  (module Site_common_sig.ELECTION) -> string -> Weight.t Lwt.t
-
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : uuid -> string option Lwt.t
 
@@ -81,8 +77,6 @@ val get_nh_ciphertexts : (module Site_common_sig.ELECTION) -> string Lwt.t
 
 val append_to_shuffles :
   (module Site_common_sig.ELECTION) -> int -> string -> string option Lwt.t
-
-val init_credential_mapping : uuid -> string list -> unit Lwt.t
 
 val precast_ballot :
   (module Site_common_sig.ELECTION) ->
@@ -143,7 +137,6 @@ val set_election_automatic_dates :
 val set_draft_public_credentials : uuid -> public_credentials -> unit Lwt.t
 val get_draft_public_credentials : uuid -> string option Lwt.t
 val get_draft_private_credentials : uuid -> string option Lwt.t
-val set_draft_private_credentials : uuid -> string -> unit Lwt.t
 val get_records : uuid -> string list option Lwt.t
 val get_voters_file : uuid -> string option Lwt.t
 val set_salts : uuid -> salts -> unit Lwt.t
