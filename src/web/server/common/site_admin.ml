@@ -293,13 +293,14 @@ struct
             >>= Html.send
         | _ -> create_new_election a credmgmt auth_parsed)
 
+  let with_draft_public uuid f =
+    let* election = Web_persist.get_draft_election uuid in
+    match election with None -> fail_http `Not_found | Some x -> f x
+
   let with_draft_election_ro uuid f =
     let@ _, a, _ = with_site_user in
-    let* election = Web_persist.get_draft_election uuid in
-    match election with
-    | None -> fail_http `Not_found
-    | Some (Draft (_, se) as x) ->
-        if Accounts.check a se.se_owners then f x else forbidden ()
+    let@ (Draft (_, se) as x) = with_draft_public uuid in
+    if Accounts.check a se.se_owners then f x else forbidden ()
 
   let () =
     Any.register ~service:election_draft (fun uuid () ->
@@ -330,27 +331,21 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let@ () = Web_election_mutex.with_lock uuid in
-    let* election = Web_persist.get_draft_election uuid in
-    match election with
-    | None -> fail_http `Not_found
-    | Some (Draft (_, se) as x) ->
-        if Accounts.check a se.se_owners then
-          Lwt.catch
-            (fun () ->
-              let* r = f x in
-              let* () =
-                if save then Web_persist.set_draft_election uuid x
-                else return_unit
-              in
-              return r)
-            (fun e ->
-              let msg =
-                match e with Failure s -> s | _ -> Printexc.to_string e
-              in
-              let service = preapply ~service:election_draft uuid in
-              Pages_common.generic_page ~title:(s_ "Error") ~service msg ()
-              >>= Html.send)
-        else forbidden ()
+    let@ (Draft (_, se) as x) = with_draft_public uuid in
+    if Accounts.check a se.se_owners then
+      Lwt.catch
+        (fun () ->
+          let* r = f x in
+          let* () =
+            if save then Web_persist.set_draft_election uuid x else return_unit
+          in
+          return r)
+        (fun e ->
+          let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
+          let service = preapply ~service:election_draft uuid in
+          Pages_common.generic_page ~title:(s_ "Error") ~service msg ()
+          >>= Html.send)
+    else forbidden ()
 
   let () =
     Any.register ~service:election_draft_set_credential_authority
@@ -752,36 +747,30 @@ struct
   let () =
     Any.register ~service:election_draft_credentials (fun (uuid, token) () ->
         let@ () = without_site_user () in
-        let* election = Web_persist.get_draft_election uuid in
-        match election with
-        | None -> fail_http `Not_found
-        | Some se -> (
-            match Web_persist.get_credentials_status uuid se with
-            | `Done | `Pending _ ->
-                Pages_admin.election_draft_credentials_already_generated ()
-                >>= Html.send
-            | `None ->
-                Printf.sprintf "%s/draft/credentials.html#%s-%s"
-                  !Web_config.prefix (Uuid.unwrap uuid) token
-                |> String_redirection.send))
+        let@ se = with_draft_public uuid in
+        match Web_persist.get_credentials_status uuid se with
+        | `Done | `Pending _ ->
+            Pages_admin.election_draft_credentials_already_generated ()
+            >>= Html.send
+        | `None ->
+            Printf.sprintf "%s/draft/credentials.html#%s-%s" !Web_config.prefix
+              (Uuid.unwrap uuid) token
+            |> String_redirection.send)
 
   let () =
     Html.register ~service:election_draft_credentials_static (fun () () ->
         Pages_admin.election_draft_credentials_static ())
 
   let handle_credentials_post uuid token creds =
-    let* election = Web_persist.get_draft_election uuid in
-    match election with
-    | None -> fail_http `Not_found
-    | Some (Draft (_, se) as x) -> (
-        if se.se_public_creds <> token then forbidden ()
-        else
-          match Web_persist.get_credentials_status uuid x with
-          | `Done | `Pending _ -> forbidden ()
-          | `None ->
-              let creds = public_credentials_of_string creds in
-              let* () = Api_drafts.submit_public_credentials uuid x creds in
-              Pages_admin.election_draft_credentials_done x () >>= Html.send)
+    let@ (Draft (_, se) as x) = with_draft_public uuid in
+    if se.se_public_creds <> token then forbidden ()
+    else
+      match Web_persist.get_credentials_status uuid x with
+      | `Done | `Pending _ -> forbidden ()
+      | `None ->
+          let creds = public_credentials_of_string creds in
+          let* () = Api_drafts.submit_public_credentials uuid x creds in
+          Pages_admin.election_draft_credentials_done x () >>= Html.send
 
   let () =
     Any.register ~service:election_draft_credentials_post
@@ -846,37 +835,30 @@ struct
         let@ () =
           without_site_user
             ~fallback:(fun (_, a, _) ->
-              let* election = Web_persist.get_draft_election uuid in
-              match election with
-              | None -> fail_http `Not_found
-              | Some (Draft (_, se) as x) ->
-                  if Accounts.check a se.se_owners then
-                    Pages_admin.election_draft_trustees ~token uuid x ()
-                    >>= Html.send
-                  else forbidden ())
+              let@ (Draft (_, se) as x) = with_draft_public uuid in
+              if Accounts.check a se.se_owners then
+                Pages_admin.election_draft_trustees ~token uuid x ()
+                >>= Html.send
+              else forbidden ())
             ()
         in
-        let* election = Web_persist.get_draft_election uuid in
-        match election with
-        | None -> fail_http `Not_found
-        | Some (Draft (_, se)) -> (
-            let ts =
-              match se.se_trustees with
-              | `Basic x -> x.dbp_trustees
-              | `Threshold _ -> []
-            in
-            match List.find_opt (fun t -> t.st_token = token) ts with
-            | None -> forbidden ()
-            | Some t ->
-                if t.st_public_key <> "" then
-                  let msg = s_ "Your public key has already been received!" in
-                  let title = s_ "Error" in
-                  Pages_common.generic_page ~title msg ()
-                  >>= Html.send ~code:403
-                else
-                  Printf.sprintf "%s/draft/trustee.html#%s-%s"
-                    !Web_config.prefix (Uuid.unwrap uuid) token
-                  |> String_redirection.send))
+        let@ (Draft (_, se)) = with_draft_public uuid in
+        let ts =
+          match se.se_trustees with
+          | `Basic x -> x.dbp_trustees
+          | `Threshold _ -> []
+        in
+        match List.find_opt (fun t -> t.st_token = token) ts with
+        | None -> forbidden ()
+        | Some t ->
+            if t.st_public_key <> "" then
+              let msg = s_ "Your public key has already been received!" in
+              let title = s_ "Error" in
+              Pages_common.generic_page ~title msg () >>= Html.send ~code:403
+            else
+              Printf.sprintf "%s/draft/trustee.html#%s-%s" !Web_config.prefix
+                (Uuid.unwrap uuid) token
+              |> String_redirection.send)
 
   let () =
     Html.register ~service:election_draft_trustee_static (fun () () ->
@@ -892,50 +874,43 @@ struct
         else
           let* x =
             Web_election_mutex.with_lock uuid (fun () ->
-                let* election = Web_persist.get_draft_election uuid in
-                match election with
-                | None -> fail_http `Not_found
-                | Some (Draft (_, se) as fse) ->
-                    let ts =
-                      match se.se_trustees with
-                      | `Basic x -> x.dbp_trustees
-                      | `Threshold _ -> []
-                    in
-                    let&* t = List.find_opt (fun x -> token = x.st_token) ts in
-                    if t.st_public_key <> "" then
-                      let msg =
-                        s_
-                          "A public key already existed, the key you've just \
-                           uploaded has been ignored!"
-                      in
-                      let title = s_ "Error" in
-                      return_some (title, msg, 400)
-                    else
-                      let version = se.se_version in
-                      let module G =
-                        (val Group.of_string ~version se.se_group : GROUP)
-                      in
-                      let module Trustees =
-                        (val Trustees.get_by_version version)
-                      in
-                      let pk =
-                        trustee_public_key_of_string (sread G.of_string)
-                          (sread G.Zq.of_string) public_key
-                      in
-                      let module K = Trustees.MakeCombinator (G) in
-                      if not (K.check [ `Single pk ]) then
-                        let msg = s_ "Invalid public key!" in
-                        let title = s_ "Error" in
-                        return_some (title, msg, 400)
-                      else (
-                        (* we keep pk as a string because of G.t *)
-                        t.st_public_key <- public_key;
-                        let* () = Web_persist.set_draft_election uuid fse in
-                        let msg =
-                          s_ "Your key has been received and checked!"
-                        in
-                        let title = s_ "Success" in
-                        return_some (title, msg, 200)))
+                let@ (Draft (_, se) as fse) = with_draft_public uuid in
+                let ts =
+                  match se.se_trustees with
+                  | `Basic x -> x.dbp_trustees
+                  | `Threshold _ -> []
+                in
+                let&* t = List.find_opt (fun x -> token = x.st_token) ts in
+                if t.st_public_key <> "" then
+                  let msg =
+                    s_
+                      "A public key already existed, the key you've just \
+                       uploaded has been ignored!"
+                  in
+                  let title = s_ "Error" in
+                  return_some (title, msg, 400)
+                else
+                  let version = se.se_version in
+                  let module G =
+                    (val Group.of_string ~version se.se_group : GROUP)
+                  in
+                  let module Trustees = (val Trustees.get_by_version version) in
+                  let pk =
+                    trustee_public_key_of_string (sread G.of_string)
+                      (sread G.Zq.of_string) public_key
+                  in
+                  let module K = Trustees.MakeCombinator (G) in
+                  if not (K.check [ `Single pk ]) then
+                    let msg = s_ "Invalid public key!" in
+                    let title = s_ "Error" in
+                    return_some (title, msg, 400)
+                  else (
+                    (* we keep pk as a string because of G.t *)
+                    t.st_public_key <- public_key;
+                    let* () = Web_persist.set_draft_election uuid fse in
+                    let msg = s_ "Your key has been received and checked!" in
+                    let title = s_ "Success" in
+                    return_some (title, msg, 200)))
           in
           match x with
           | None -> forbidden ()
@@ -1585,15 +1560,11 @@ struct
         let@ () =
           without_site_user
             ~fallback:(fun (_, a, _) ->
-              let* election = Web_persist.get_draft_election uuid in
-              match election with
-              | None -> fail_http `Not_found
-              | Some (Draft (_, se) as fse) ->
-                  if Accounts.check a se.se_owners then
-                    Pages_admin.election_draft_threshold_trustees ~token uuid
-                      fse ()
-                    >>= Html.send
-                  else forbidden ())
+              let@ (Draft (_, se) as fse) = with_draft_public uuid in
+              if Accounts.check a se.se_owners then
+                Pages_admin.election_draft_threshold_trustees ~token uuid fse ()
+                >>= Html.send
+              else forbidden ())
             ()
         in
         let* election = Web_persist.get_draft_election uuid in
@@ -1617,144 +1588,140 @@ struct
         let@ () = wrap_handler_without_site_user in
         let* () =
           Web_election_mutex.with_lock uuid (fun () ->
-              let* election = Web_persist.get_draft_election uuid in
-              match election with
-              | None -> fail_http `Not_found
-              | Some (Draft (v, se)) ->
-                  let version = se.se_version in
-                  let module G =
-                    (val Group.of_string ~version se.se_group : GROUP)
-                  in
-                  let se_trustees =
-                    se.se_trustees
-                    |> string_of_draft_trustees Yojson.Safe.write_json
-                    |> draft_trustees_of_string (sread G.Zq.of_string)
-                  in
-                  let dtp =
-                    match se_trustees with
-                    | `Basic _ -> failwith "No threshold trustees"
-                    | `Threshold x -> x
-                  in
-                  let ts = Array.of_list dtp.dtp_trustees in
-                  let i, t =
-                    match
-                      Array.findi
-                        (fun i x ->
-                          if token = x.stt_token then Some (i, x) else None)
-                        ts
-                    with
-                    | Some (i, t) -> (i, t)
-                    | None -> failwith "Trustee not found"
-                  in
-                  let get_certs () =
-                    let certs =
-                      Array.map
-                        (fun x ->
-                          match x.stt_cert with
-                          | None -> failwith "Missing certificate"
-                          | Some y -> y)
-                        ts
+              let@ (Draft (v, se)) = with_draft_public uuid in
+              let version = se.se_version in
+              let module G = (val Group.of_string ~version se.se_group : GROUP)
+              in
+              let se_trustees =
+                se.se_trustees
+                |> string_of_draft_trustees Yojson.Safe.write_json
+                |> draft_trustees_of_string (sread G.Zq.of_string)
+              in
+              let dtp =
+                match se_trustees with
+                | `Basic _ -> failwith "No threshold trustees"
+                | `Threshold x -> x
+              in
+              let ts = Array.of_list dtp.dtp_trustees in
+              let i, t =
+                match
+                  Array.findi
+                    (fun i x ->
+                      if token = x.stt_token then Some (i, x) else None)
+                    ts
+                with
+                | Some (i, t) -> (i, t)
+                | None -> failwith "Trustee not found"
+              in
+              let get_certs () =
+                let certs =
+                  Array.map
+                    (fun x ->
+                      match x.stt_cert with
+                      | None -> failwith "Missing certificate"
+                      | Some y -> y)
+                    ts
+                in
+                { certs }
+              in
+              let get_polynomials () =
+                Array.map
+                  (fun x ->
+                    match x.stt_polynomial with
+                    | None -> failwith "Missing polynomial"
+                    | Some y -> y)
+                  ts
+              in
+              let module Trustees = (val Trustees.get_by_version version) in
+              let module P = Trustees.MakePKI (G) (Random) in
+              let module C = Trustees.MakeChannels (G) (Random) (P) in
+              let module K = Trustees.MakePedersen (G) (Random) (P) (C) in
+              let* () =
+                match t.stt_step with
+                | Some 1 ->
+                    let cert = cert_of_string (sread G.Zq.of_string) data in
+                    if K.step1_check cert then (
+                      t.stt_cert <- Some cert;
+                      t.stt_step <- Some 2;
+                      return_unit)
+                    else failwith "Invalid certificate"
+                | Some 3 ->
+                    let certs = get_certs () in
+                    let polynomial =
+                      polynomial_of_string (sread G.Zq.of_string) data
                     in
-                    { certs }
-                  in
-                  let get_polynomials () =
-                    Array.map
-                      (fun x ->
-                        match x.stt_polynomial with
-                        | None -> failwith "Missing polynomial"
-                        | Some y -> y)
-                      ts
-                  in
-                  let module Trustees = (val Trustees.get_by_version version) in
-                  let module P = Trustees.MakePKI (G) (Random) in
-                  let module C = Trustees.MakeChannels (G) (Random) (P) in
-                  let module K = Trustees.MakePedersen (G) (Random) (P) (C) in
-                  let* () =
-                    match t.stt_step with
-                    | Some 1 ->
-                        let cert = cert_of_string (sread G.Zq.of_string) data in
-                        if K.step1_check cert then (
-                          t.stt_cert <- Some cert;
-                          t.stt_step <- Some 2;
-                          return_unit)
-                        else failwith "Invalid certificate"
-                    | Some 3 ->
-                        let certs = get_certs () in
-                        let polynomial =
-                          polynomial_of_string (sread G.Zq.of_string) data
-                        in
-                        if K.step3_check certs i polynomial then (
-                          t.stt_polynomial <- Some polynomial;
-                          t.stt_step <- Some 4;
-                          return_unit)
-                        else failwith "Invalid polynomial"
-                    | Some 5 ->
-                        let certs = get_certs () in
-                        let polynomials = get_polynomials () in
-                        let voutput =
-                          voutput_of_string (sread G.of_string)
-                            (sread G.Zq.of_string) data
-                        in
-                        if K.step5_check certs i polynomials voutput then (
-                          t.stt_voutput <- Some data;
-                          t.stt_step <- Some 6;
-                          return_unit)
-                        else failwith "Invalid voutput"
-                    | _ -> failwith "Unknown step"
-                  in
-                  let* () =
-                    if Array.for_all (fun x -> x.stt_step = Some 2) ts then (
-                      (try
-                         K.step2 (get_certs ());
-                         Array.iter (fun x -> x.stt_step <- Some 3) ts
-                       with e -> dtp.dtp_error <- Some (Printexc.to_string e));
+                    if K.step3_check certs i polynomial then (
+                      t.stt_polynomial <- Some polynomial;
+                      t.stt_step <- Some 4;
                       return_unit)
-                    else return_unit
-                  in
-                  let* () =
-                    if Array.for_all (fun x -> x.stt_step = Some 4) ts then (
-                      (try
-                         let certs = get_certs () in
-                         let polynomials = get_polynomials () in
-                         let vinputs = K.step4 certs polynomials in
-                         for j = 0 to Array.length ts - 1 do
-                           ts.(j).stt_vinput <- Some vinputs.(j)
-                         done;
-                         Array.iter (fun x -> x.stt_step <- Some 5) ts
-                       with e -> dtp.dtp_error <- Some (Printexc.to_string e));
+                    else failwith "Invalid polynomial"
+                | Some 5 ->
+                    let certs = get_certs () in
+                    let polynomials = get_polynomials () in
+                    let voutput =
+                      voutput_of_string (sread G.of_string)
+                        (sread G.Zq.of_string) data
+                    in
+                    if K.step5_check certs i polynomials voutput then (
+                      t.stt_voutput <- Some data;
+                      t.stt_step <- Some 6;
                       return_unit)
-                    else return_unit
-                  in
-                  let* () =
-                    if Array.for_all (fun x -> x.stt_step = Some 6) ts then (
-                      (try
-                         let certs = get_certs () in
-                         let polynomials = get_polynomials () in
-                         let voutputs =
-                           Array.map
-                             (fun x ->
-                               match x.stt_voutput with
-                               | None -> failwith "Missing voutput"
-                               | Some y ->
-                                   voutput_of_string (sread G.of_string)
-                                     (sread G.Zq.of_string) y)
-                             ts
-                         in
-                         let p = K.step6 certs polynomials voutputs in
-                         dtp.dtp_parameters <-
-                           Some
-                             (string_of_threshold_parameters
-                                (swrite G.to_string) (swrite G.Zq.to_string) p);
-                         Array.iter (fun x -> x.stt_step <- Some 7) ts
-                       with e -> dtp.dtp_error <- Some (Printexc.to_string e));
-                      return_unit)
-                    else return_unit
-                  in
-                  se.se_trustees <-
-                    se_trustees
-                    |> string_of_draft_trustees (swrite G.Zq.to_string)
-                    |> draft_trustees_of_string Yojson.Safe.read_json;
-                  Web_persist.set_draft_election uuid (Draft (v, se)))
+                    else failwith "Invalid voutput"
+                | _ -> failwith "Unknown step"
+              in
+              let* () =
+                if Array.for_all (fun x -> x.stt_step = Some 2) ts then (
+                  (try
+                     K.step2 (get_certs ());
+                     Array.iter (fun x -> x.stt_step <- Some 3) ts
+                   with e -> dtp.dtp_error <- Some (Printexc.to_string e));
+                  return_unit)
+                else return_unit
+              in
+              let* () =
+                if Array.for_all (fun x -> x.stt_step = Some 4) ts then (
+                  (try
+                     let certs = get_certs () in
+                     let polynomials = get_polynomials () in
+                     let vinputs = K.step4 certs polynomials in
+                     for j = 0 to Array.length ts - 1 do
+                       ts.(j).stt_vinput <- Some vinputs.(j)
+                     done;
+                     Array.iter (fun x -> x.stt_step <- Some 5) ts
+                   with e -> dtp.dtp_error <- Some (Printexc.to_string e));
+                  return_unit)
+                else return_unit
+              in
+              let* () =
+                if Array.for_all (fun x -> x.stt_step = Some 6) ts then (
+                  (try
+                     let certs = get_certs () in
+                     let polynomials = get_polynomials () in
+                     let voutputs =
+                       Array.map
+                         (fun x ->
+                           match x.stt_voutput with
+                           | None -> failwith "Missing voutput"
+                           | Some y ->
+                               voutput_of_string (sread G.of_string)
+                                 (sread G.Zq.of_string) y)
+                         ts
+                     in
+                     let p = K.step6 certs polynomials voutputs in
+                     dtp.dtp_parameters <-
+                       Some
+                         (string_of_threshold_parameters (swrite G.to_string)
+                            (swrite G.Zq.to_string) p);
+                     Array.iter (fun x -> x.stt_step <- Some 7) ts
+                   with e -> dtp.dtp_error <- Some (Printexc.to_string e));
+                  return_unit)
+                else return_unit
+              in
+              se.se_trustees <-
+                se_trustees
+                |> string_of_draft_trustees (swrite G.Zq.to_string)
+                |> draft_trustees_of_string Yojson.Safe.read_json;
+              Web_persist.set_draft_election uuid (Draft (v, se)))
         in
         redir_preapply election_draft_threshold_trustee (uuid, token) ())
 
