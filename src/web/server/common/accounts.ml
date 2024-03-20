@@ -32,7 +32,6 @@ module UMap = Map.Make (struct
 end)
 
 let cache = ref None
-let counter_mutex = Lwt_mutex.create ()
 let account_mutex = Lwt_mutex.create ()
 let cache_mutex = Lwt_mutex.create ()
 
@@ -64,19 +63,13 @@ let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
 
 let create_account ~email user =
-  let@ () = Lwt_mutex.with_lock counter_mutex in
-  let* counter =
-    let* x = Filesystem.(read_file Account_counter) in
+  let@ id, u =
+   fun cont ->
+    let* x = Filesystem.new_account_id () in
     match x with
-    | Some x ->
-        Lwt.return (match int_of_string_opt x with None -> 1 | Some x -> x)
-    | None -> Lwt.return 1
+    | None -> Lwt.fail (Failure "impossible to create a new account")
+    | Some x -> cont x
   in
-  let rec find_free_id n =
-    let* x = get_account_by_id n in
-    match x with None -> Lwt.return n | Some _ -> find_free_id (n + 1)
-  in
-  let* id = find_free_id counter in
   let last_connected = Datetime.now () in
   let name =
     let x = drop_after_at user.user_name in
@@ -97,8 +90,13 @@ let create_account ~email user =
       voters_limit = None;
     }
   in
-  let* () = update_account account in
-  let* () = Filesystem.(write_file Account_counter (string_of_int (id + 1))) in
+  let* () =
+    Lwt.finalize
+      (fun () -> update_account account)
+      (fun () ->
+        Lwt.wakeup_later u ();
+        Lwt.return_unit)
+  in
   let* () = clear_account_cache () in
   Lwt.return account
 

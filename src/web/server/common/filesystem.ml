@@ -262,3 +262,25 @@ let get_archive uuid =
     let* () = if not b then make_archive uuid else Lwt.return_unit in
     Lwt.return_some (get_path archive_name)
   else Lwt.return_none
+
+let account_id_promise = ref Lwt.return_unit
+
+let new_account_id () =
+  let min = !Web_config.account_id_min in
+  let max = !Web_config.account_id_max in
+  let delta = Z.(max - min) in
+  let* () = !account_id_promise in
+  let t, u = Lwt.task () in
+  account_id_promise := t;
+  let rec loop trials =
+    if trials > 0 then
+      let id = Z.(to_int (min + Random.random delta)) in
+      let* b = file_exists (Account id) in
+      if b then loop (trials - 1) else Lwt.return_some (id, u)
+    else Lwt.fail Exit
+  in
+  Lwt.catch
+    (fun () -> loop 10)
+    (fun _ ->
+      Lwt.wakeup_later u ();
+      Lwt.return_none)

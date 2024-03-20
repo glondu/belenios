@@ -71,3 +71,4 @@ val append_to_file : t -> string list -> unit Lwt.t
 val cleanup_file : t -> unit Lwt.t
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
 val get_archive : uuid -> string option Lwt.t
+val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t

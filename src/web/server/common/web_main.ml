@@ -129,6 +129,14 @@ module Make () = struct
     | Element ("billing", [ ("url", url); ("callback", callback) ], []) ->
         Web_config.billing := Some (url, callback)
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
+    | Element ("account-ids", [ ("min", min); ("max", max) ], []) ->
+        let open Belenios_platform.Platform.Z in
+        let min = of_string min and max = of_string max in
+        if compare min zero > 0 && compare (max - min) (of_int 4000000) > 0 then (
+          (* birthday paradox: room for 2000 accounts *)
+          Web_config.account_id_min := min;
+          Web_config.account_id_max := max)
+        else failwith "account-ids delta is not big enough"
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag
