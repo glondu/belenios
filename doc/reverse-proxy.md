@@ -79,6 +79,10 @@ Add the following lines to the relevant section of
     proxy_cookie_flags ~ secure httponly samesite=strict;
 ```
 
+Note that `samesite=strict` is incompatible with external voter
+authentication. If you intend to authenticate voters with CAS or
+OpenID Connect, you may use `samesite=none` instead.
+
 Run `systemctl restart nginx.service` (as root).
 
 ## Checking that everything works
