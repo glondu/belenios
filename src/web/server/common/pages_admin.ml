@@ -3454,6 +3454,7 @@ struct
             | PasswordMismatch -> s_ "the two passwords are not the same"
             | BadSpaceInPassword ->
                 s_ "the password starts or ends with a space"
+            | DatabaseError -> s_ "there is an error in the database"
           in
           div
             [

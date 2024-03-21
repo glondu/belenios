@@ -222,6 +222,7 @@ type add_account_error =
   | BadPassword of string
   | PasswordMismatch
   | BadSpaceInPassword
+  | DatabaseError
 
 include MakeGenerateToken (Random)
 
@@ -359,7 +360,10 @@ type credential_record = {
   cr_username : string option;
 }
 
-let check_password_with_file ~db ~name_or_email ~password =
+let parse_csv db =
+  Lwt_preemptive.detach (fun db -> Csv.(input_all (of_string db))) db
+
+let check_password_with_file ~csv ~name_or_email ~password =
   let name_or_email = String.trim name_or_email |> String.lowercase_ascii in
   let check_name_or_email =
     if is_email name_or_email then function
@@ -374,7 +378,7 @@ let check_password_with_file ~db ~name_or_email ~password =
       | u :: _ :: _ :: _ when String.lowercase_ascii u = name_or_email -> true
       | _ -> false
   in
-  let* db = Lwt_preemptive.detach Csv.load db in
+  let* db = parse_csv csv in
   match List.find_opt check_name_or_email db with
   | Some (u :: salt :: hashed :: xs) ->
       if sha256_hex (salt ^ String.trim password) = hashed then

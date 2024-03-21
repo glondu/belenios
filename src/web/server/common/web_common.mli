@@ -101,6 +101,7 @@ type add_account_error =
   | BadPassword of string
   | PasswordMismatch
   | BadSpaceInPassword
+  | DatabaseError
 
 val generate_token : ?length:int -> unit -> string
 val generate_numeric : ?length:int -> unit -> string
@@ -159,8 +160,10 @@ type credential_record = {
   cr_username : string option;
 }
 
+val parse_csv : string -> Csv.t Lwt.t
+
 val check_password_with_file :
-  db:string ->
+  csv:string ->
   name_or_email:string ->
   password:string ->
   (string * string) option Lwt.t

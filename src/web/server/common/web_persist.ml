@@ -645,16 +645,16 @@ let get_elections_by_owner user =
   in
   match IMap.find_opt user cache with None -> return [] | Some xs -> return xs
 
-let get_password_filename uuid =
-  Filesystem.(get_path (Election (uuid, Passwords)))
-
 let check_password uuid ~user ~password =
-  let db = get_password_filename uuid in
-  check_password_with_file ~db ~name_or_email:user ~password
+  let* x = Filesystem.(read_file (Election (uuid, Passwords))) in
+  match x with
+  | None -> Lwt.return_none
+  | Some csv -> check_password_with_file ~csv ~name_or_email:user ~password
 
 let get_passwords uuid =
-  let csv = try Some (Csv.load (get_password_filename uuid)) with _ -> None in
+  let* csv = Filesystem.(read_file (Election (uuid, Passwords))) in
   let&* csv = csv in
+  let* csv = parse_csv csv in
   let res =
     List.fold_left
       (fun accu line ->

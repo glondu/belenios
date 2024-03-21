@@ -54,7 +54,9 @@ struct
       | None -> (
           match List.assoc_opt "db" a.auth_config with
           | Some db ->
-              check_password_with_file ~db ~name_or_email:name ~password
+              let* csv = Filesystem.(read_file (Absolute db)) in
+              let&* csv = csv in
+              check_password_with_file ~csv ~name_or_email:name ~password
           | _ -> failwith "invalid configuration for admin site")
       | Some uuid -> Web_persist.check_password uuid ~user:name ~password
     else Lwt.return_none
@@ -120,7 +122,14 @@ let password_db_mutex = Lwt_mutex.create ()
 let do_add_account ~db_fname ~username ~password ~email () =
   let username_ = String.lowercase_ascii username in
   let email_ = String.lowercase_ascii email in
-  let* db = Lwt_preemptive.detach Csv.load db_fname in
+  let@ db cont =
+    let* csv = Filesystem.(read_file (Absolute db_fname)) in
+    match csv with
+    | None -> Lwt.return (Error DatabaseError)
+    | Some csv ->
+        let* x = parse_csv csv in
+        cont x
+  in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec append accu = function
@@ -140,7 +149,14 @@ let do_add_account ~db_fname ~username ~password ~email () =
 
 let do_change_password ~db_fname ~username ~password () =
   let username = String.lowercase_ascii username in
-  let* db = Lwt_preemptive.detach Csv.load db_fname in
+  let@ db cont =
+    let* csv = Filesystem.(read_file (Absolute db_fname)) in
+    match csv with
+    | None -> Lwt.fail (Failure "database error")
+    | Some csv ->
+        let* x = parse_csv csv in
+        cont x
+  in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let rec change accu = function
@@ -196,8 +212,13 @@ let change_password user ~password =
 let lookup_account ~service ~username ~email =
   let username = String.trim username |> String.lowercase_ascii in
   let email = email |> String.lowercase_ascii in
-  let&* db = get_password_db_fname service in
-  let* db = Lwt_preemptive.detach Csv.load db in
+  let@ db cont =
+    let&* db_fname = get_password_db_fname service in
+    let* csv = Filesystem.(read_file (Absolute db_fname)) in
+    let&* csv = csv in
+    let* x = parse_csv csv in
+    cont x
+  in
   match
     List.find_opt
       (function
