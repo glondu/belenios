@@ -36,11 +36,11 @@ type election_file =
   | Shuffle_token
   | Audit_cache
   | Last_event
-  | Salts
+  | Salts (* obsolete *)
   | Extended_records
   | Credential_mappings
-  | Partial_decryptions
-  | Ballots_index
+  | Partial_decryptions (* obsolete *)
+  | Ballots_index (* obsolete *)
   | Deleted
   | Public_archive
   | Passwords
@@ -51,7 +51,7 @@ type election_file =
 
 type t =
   | Spool_version
-  | Account_counter
+  | Account_counter (* obsolete *)
   | Account of int
   | Election of uuid * election_file
   | Absolute of string
