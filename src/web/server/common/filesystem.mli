@@ -57,7 +57,6 @@ type t =
   | Auth_db of string
   | Absolute of string
 
-val to_election_file : uuid -> Web_common.election_file -> election_file
 val get_path : t -> string
 val list_accounts : unit -> int list Lwt.t
 val list_elections : unit -> uuid list Lwt.t

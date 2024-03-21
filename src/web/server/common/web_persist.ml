@@ -1452,9 +1452,6 @@ let set_private_creds_downloaded uuid =
 let clear_private_creds_downloaded uuid =
   Filesystem.(cleanup_file (Election (uuid, Private_creds_downloaded)))
 
-let get_election_file uuid f =
-  Filesystem.(get_path (Election (uuid, to_election_file uuid f)))
-
 let get_draft_private_credentials uuid =
   Spool.get ~uuid Spool.draft_private_credentials
 

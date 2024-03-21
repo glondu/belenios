@@ -122,13 +122,6 @@ let get_props = function
       (uuid /// fname, kind)
   | Absolute f | Auth_db f -> (f, Raw)
 
-let to_election_file uuid = function
-  | ESArchive x when x = uuid -> Public_archive
-  | ESVoters -> Voters
-  | ESRecords -> Records
-  | ESSalts -> Salts
-  | _ -> raise Not_found
-
 let get_path x = fst (get_props x)
 
 let file_exists x =

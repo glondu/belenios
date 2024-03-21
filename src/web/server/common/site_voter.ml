@@ -334,6 +334,13 @@ struct
     in
     if allowed then
       let content_type = content_type_of_file f in
+      let return_string = function
+        | Some x ->
+            let* x = String.send (x, content_type) in
+            return @@ cast_unknown_content_kind x
+        | None -> fail_http `Not_found
+      in
+      let ( !? ) x = x >>= return_string in
       match f with
       | ESRaw -> (
           let* x = Web_persist.get_raw_election uuid in
@@ -348,25 +355,17 @@ struct
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
           | None -> fail_http `Not_found)
-      | ESETally -> (
+      | ESETally ->
           let@ election = with_election uuid in
-          let* x = Web_persist.get_latest_encrypted_tally election in
-          match x with
-          | Some x ->
-              let* x = String.send (x, content_type) in
-              return @@ cast_unknown_content_kind x
-          | None -> fail_http `Not_found)
-      | ESResult -> (
-          let* x = Web_persist.get_election_result uuid in
-          match x with
-          | Some x ->
-              let* x = String.send (x, content_type) in
-              return @@ cast_unknown_content_kind x
-          | None -> fail_http `Not_found)
-      | f -> (
-          match Web_persist.get_election_file uuid f with
-          | exception Not_found -> fail_http `Not_found
-          | filename -> File.send ~content_type filename)
+          !?(Web_persist.get_latest_encrypted_tally election)
+      | ESResult -> !?(Web_persist.get_election_result uuid)
+      | ESVoters -> !?Filesystem.(read_file (Election (uuid, Voters)))
+      | ESRecords -> !?Filesystem.(read_file (Election (uuid, Records)))
+      | ESSalts -> !?Filesystem.(read_file (Election (uuid, Salts)))
+      | ESArchive u when u = uuid ->
+          let path = Filesystem.(get_path (Election (uuid, Public_archive))) in
+          File.send ~content_type path
+      | ESArchive _ -> fail_http `Not_found
     else forbidden ()
 
   let () =
