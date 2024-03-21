@@ -58,7 +58,8 @@ type t =
 
 val to_election_file : uuid -> Web_common.election_file -> election_file
 val get_path : t -> string
-val files_of_directory : string -> string list Lwt.t
+val list_accounts : unit -> int list Lwt.t
+val list_elections : unit -> uuid list Lwt.t
 val file_exists : t -> bool Lwt.t
 val read_file : t -> string option Lwt.t
 val read_file_i18n : lang:string -> string -> string option Lwt.t

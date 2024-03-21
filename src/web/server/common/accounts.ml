@@ -40,15 +40,15 @@ let clear_account_cache () =
   cache := None;
   Lwt.return_unit
 
-let account_of_filename filename =
-  let&* id = Filename.chop_suffix_opt ~suffix:".json" filename in
-  let&* id = int_of_string_opt id in
-  let* contents = Filesystem.(read_file (Account id)) in
-  match contents with
-  | Some x -> Lwt.return (try Some (account_of_string x) with _ -> None)
+let get_account_by_id id =
+  let* x = Filesystem.(read_file (Account id)) in
+  match x with
   | None -> Lwt.return_none
+  | Some x -> (
+      match account_of_string x with
+      | exception _ -> Lwt.return_none
+      | x -> Lwt.return_some x)
 
-let get_account_by_id id = account_of_filename (Printf.sprintf "%d.json" id)
 let update_hooks = ref []
 let add_update_hook f = update_hooks := f :: !update_hooks
 
@@ -101,10 +101,10 @@ let create_account ~email user =
   Lwt.return account
 
 let build_account_cache () =
-  Filesystem.files_of_directory !Web_config.accounts_dir
+  Filesystem.list_accounts ()
   >>= Lwt_list.fold_left_s
-        (fun accu f ->
-          let* account = account_of_filename f in
+        (fun accu id ->
+          let* account = get_account_by_id id in
           match account with
           | None -> Lwt.return accu
           | Some account ->

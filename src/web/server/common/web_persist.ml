@@ -564,12 +564,11 @@ let umap_add user x map =
   IMap.add user (x :: xs) map
 
 let build_elections_by_owner_cache () =
-  Filesystem.files_of_directory !Web_config.spool_dir
+  Filesystem.list_elections ()
   >>= Lwt_list.fold_left_s
-        (fun accu uuid_s ->
+        (fun accu uuid ->
           Lwt.catch
             (fun () ->
-              let uuid = Uuid.wrap uuid_s in
               let* election = get_draft_election uuid in
               match election with
               | None -> (
@@ -629,7 +628,7 @@ let build_elections_by_owner_cache () =
                   Printf.ksprintf Ocsigen_messages.accesslog
                     "Building elections_by_owner_cache canceled while \
                      processing %s"
-                    uuid_s;
+                    (Uuid.unwrap uuid);
                   Lwt.fail Lwt.Canceled
               | _ -> return accu))
         IMap.empty
@@ -1779,8 +1778,7 @@ let get_skipped_shufflers uuid = Spool.get ~uuid Spool.skipped_shufflers
 let set_skipped_shufflers uuid shufflers =
   Spool.set ~uuid Spool.skipped_shufflers shufflers
 
-let extract_automatic_data_draft uuid_s =
-  let uuid = Uuid.wrap uuid_s in
+let extract_automatic_data_draft uuid =
   let* se = get_draft_election uuid in
   let&* (Draft (_, se)) = se in
   let t =
@@ -1789,8 +1787,7 @@ let extract_automatic_data_draft uuid_s =
   let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
   return_some (`Destroy, uuid, next_t)
 
-let extract_automatic_data_validated uuid_s =
-  let uuid = Uuid.wrap uuid_s in
+let extract_automatic_data_validated uuid =
   let* election = get_raw_election uuid in
   let&* _ = election in
   let* state = get_election_state uuid in
@@ -1815,7 +1812,7 @@ let try_extract extract x =
   Lwt.catch (fun () -> extract x) (fun _ -> return_none)
 
 let get_next_actions () =
-  Filesystem.files_of_directory !Web_config.spool_dir
+  Filesystem.list_elections ()
   >>= Lwt_list.filter_map_s (fun x ->
           let* r = try_extract extract_automatic_data_draft x in
           match r with

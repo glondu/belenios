@@ -63,9 +63,26 @@ type t =
   | Election of uuid * election_file
   | Absolute of string
 
-let files_of_directory d =
-  let* all = Lwt_unix.files_of_directory d |> Lwt_stream.to_list in
-  Lwt.return @@ List.filter (fun x -> x <> "." && x <> "..") all
+let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
+
+let list_accounts () =
+  let* xs = files_of_directory !Web_config.accounts_dir in
+  Lwt.return
+  @@ List.fold_left
+       (fun accu x ->
+         match Filename.chop_suffix_opt ~suffix:".json" x with
+         | None -> accu
+         | Some x -> (
+             match int_of_string_opt x with None -> accu | Some x -> x :: accu))
+       [] xs
+
+let list_elections () =
+  let* xs = files_of_directory !Web_config.spool_dir in
+  Lwt.return
+  @@ List.fold_left
+       (fun accu x ->
+         match Uuid.wrap x with exception _ -> accu | x -> x :: accu)
+       [] xs
 
 let get_election_file_props uuid = function
   | Draft -> ("draft.json", Trim)
