@@ -61,6 +61,7 @@ type t =
   | Account_counter
   | Account of int
   | Election of uuid * election_file
+  | Auth_db of string
   | Absolute of string
 
 let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
@@ -119,7 +120,7 @@ let get_props = function
   | Election (uuid, f) ->
       let fname, kind = get_election_file_props uuid f in
       (uuid /// fname, kind)
-  | Absolute f -> (f, Raw)
+  | Absolute f | Auth_db f -> (f, Raw)
 
 let to_election_file uuid = function
   | ESArchive x when x = uuid -> Public_archive
