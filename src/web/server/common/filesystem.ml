@@ -331,13 +331,13 @@ let dump_extended_records uuid rs =
   let* () = write_file (Election (uuid, Extended_records)) extended_records in
   write_file (Election (uuid, Records)) records
 
-let extended_records_deferrer =
-  Election_defer.create (fun uuid ->
-      let* x = raw_get_extended_records uuid in
-      dump_extended_records uuid x)
-
 let extended_records_cache =
   new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
+
+let extended_records_deferrer =
+  Election_defer.create (fun uuid ->
+      let* x = extended_records_cache#find uuid in
+      dump_extended_records uuid x)
 
 let find_extended_record uuid username =
   let* rs = extended_records_cache#find uuid in
@@ -381,13 +381,13 @@ let dump_credential_mappings uuid xs =
   |> join_lines
   |> write_file (Election (uuid, Credential_mappings))
 
-let credential_mappings_deferrer =
-  Election_defer.create (fun uuid ->
-      let* x = raw_get_credential_mappings uuid in
-      dump_credential_mappings uuid x)
-
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
+
+let credential_mappings_deferrer =
+  Election_defer.create (fun uuid ->
+      let* x = credential_mappings_cache#find uuid in
+      dump_credential_mappings uuid x)
 
 let init_credential_mapping uuid xs =
   let xs =
