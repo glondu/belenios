@@ -62,7 +62,7 @@ type t =
 
 (** {1 Generic operations} *)
 
-val get_path : t -> string
+val get_path : t -> string Lwt.t
 val file_exists : t -> bool Lwt.t
 val read_file : t -> string option Lwt.t
 val write_file : t -> string -> unit Lwt.t
@@ -88,4 +88,3 @@ val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
 
 val read_file_i18n : lang:string -> string -> string option Lwt.t
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
-val get_archive : uuid -> string option Lwt.t

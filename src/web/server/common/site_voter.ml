@@ -356,7 +356,7 @@ struct
       | ESRecords -> !?Filesystem.(read_file (Election (uuid, Records)))
       | ESSalts -> !?Filesystem.(read_file (Election (uuid, Salts)))
       | ESArchive u when u = uuid ->
-          let path = Filesystem.(get_path (Election (uuid, Public_archive))) in
+          let* path = Filesystem.(get_path (Election (uuid, Public_archive))) in
           File.send ~content_type path
       | ESArchive _ -> fail_http `Not_found
     else forbidden ()

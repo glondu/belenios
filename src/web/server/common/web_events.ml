@@ -121,7 +121,7 @@ let do_get_index ~uuid =
     | None -> (100, 0L)
     | Some x -> (x.last_height + 100, x.last_pos)
   in
-  let filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+  let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
   let* map, roots, timestamp = build_roots ~size ~pos filename in
   let remove () = Hashtbl.remove indexes uuid in
   let timeout = Lwt_timeout.create 3600 remove in
@@ -188,7 +188,10 @@ let gethash ~index ~filename x =
 let with_archive uuid default f =
   let filename = Filesystem.(Election (uuid, Public_archive)) in
   let* b = Filesystem.(file_exists filename) in
-  if b then f (Filesystem.get_path filename) else Lwt.return default
+  if b then
+    let* path = Filesystem.get_path filename in
+    f path
+  else Lwt.return default
 
 let get_data ~uuid x =
   let@ filename = with_archive uuid None in
@@ -251,7 +254,7 @@ let append ?(lock = true) ~uuid ?last ops =
   let last_hash = match last_hash with None -> assert false | Some x -> x in
   let items = List.rev items in
   let* last_pos, records =
-    let filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+    let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
     raw_append ~filename ~timestamp:index.timestamp pos items
   in
   let* () =

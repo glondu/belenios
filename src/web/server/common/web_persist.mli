@@ -147,8 +147,6 @@ val clear_elections_by_owner_cache : unit -> unit Lwt.t
 val get_next_actions :
   unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
 
-val get_private_creds_filename : uuid -> string
-
 type credentials_status = [ `None | `Pending of int | `Done ]
 
 val generate_credentials_on_server_async : uuid -> draft_election -> unit

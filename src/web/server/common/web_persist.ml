@@ -1021,9 +1021,6 @@ let regen_password uuid metadata user =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let get_private_creds_filename uuid =
-  Filesystem.(get_path (Election (uuid, Private_creds)))
-
 let get_private_creds_downloaded uuid =
   Filesystem.(file_exists (Election (uuid, Private_creds_downloaded)))
 

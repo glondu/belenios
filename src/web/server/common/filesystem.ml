@@ -123,10 +123,8 @@ let get_props = function
       (uuid /// fname, kind)
   | Absolute f | Auth_db f -> (f, Raw)
 
-let get_path x = fst (get_props x)
-
 let file_exists x =
-  let x = get_path x in
+  let x = fst @@ get_props x in
   Lwt.catch
     (fun () ->
       let* () = Lwt_unix.(access x [ R_OK ]) in
@@ -165,7 +163,7 @@ let write_file f data =
 let mk_election_dir uuid = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700
 
 let append_to_file f lines =
-  let fname = get_path f in
+  let fname = fst @@ get_props f in
   let open Lwt_io in
   let@ oc =
     with_file ~mode:Output ~flags:[ O_WRONLY; O_APPEND; O_CREAT ] fname
@@ -173,7 +171,7 @@ let append_to_file f lines =
   Lwt_list.iter_s (write_line oc) lines
 
 let cleanup_file f =
-  let f = get_path f in
+  let f = fst @@ get_props f in
   Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
 
 let rmdir dir =
@@ -253,8 +251,14 @@ let get_archive uuid =
     let archive_name = Election (uuid, Confidential_archive) in
     let* b = file_exists archive_name in
     let* () = if not b then make_archive uuid else Lwt.return_unit in
-    Lwt.return_some (get_path archive_name)
-  else Lwt.return_none
+    Lwt.return (fst @@ get_props archive_name)
+  else Lwt.fail Not_found
+
+let get_path = function
+  | Election (_, (Public_archive | Private_creds)) as x ->
+      Lwt.return @@ fst @@ get_props x
+  | Election (uuid, Confidential_archive) -> get_archive uuid
+  | _ -> Lwt.fail Not_found
 
 let account_id_promise = ref Lwt.return_unit
 
