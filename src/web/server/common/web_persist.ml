@@ -1228,11 +1228,11 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
   let* () =
     Filesystem.(
-      create_whole_file (Election (uuid, Voters)) (Voter.list_to_string voters))
+      write_file (Election (uuid, Voters)) (Voter.list_to_string voters))
   in
   let* () =
     Filesystem.(
-      create_file (Election (uuid, Metadata)) string_of_metadata [ metadata ])
+      write_file (Election (uuid, Metadata)) (string_of_metadata metadata))
   in
   (* initialize credentials *)
   let* public_creds = Filesystem.init_credential_mapping uuid in
@@ -1261,19 +1261,15 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
     match private_keys with
     | `KEY x ->
         Filesystem.(
-          create_file
-            (Election (uuid, Private_key))
-            (( -- ) (swrite G.Zq.to_string))
-            [ x ])
+          write_file (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x))
     | `KEYS (x, y) ->
         let* () =
           Filesystem.(
-            create_file
+            write_file
               (Election (uuid, Private_key))
-              (( -- ) (swrite G.Zq.to_string))
-              [ x ])
+              (swrite G.Zq.to_string -- x))
         in
-        Filesystem.(create_file (Election (uuid, Private_keys)) (fun x -> x) y)
+        Filesystem.(write_file (Election (uuid, Private_keys)) (join_lines y))
   in
   (* send private credentials, if any *)
   let* () = send_credentials uuid (Draft (v, se)) in

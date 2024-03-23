@@ -156,32 +156,13 @@ let write_file f data =
   let fname_new = fname ^ ".new" in
   let* () =
     let open Lwt_io in
-    let@ oc = with_file ~mode:Output fname_new in
+    let@ oc = with_file ~perm:0o600 ~mode:Output fname_new in
     let* () = write oc data in
     match kind with Raw -> Lwt.return_unit | Trim -> write oc "\n"
   in
   Lwt_unix.rename fname_new fname
 
 let mk_election_dir uuid = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700
-
-let create_file f what lines =
-  let fname = get_path f in
-  Lwt_io.with_file
-    ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
-    ~perm:0o600 ~mode:Lwt_io.Output fname
-    (fun oc ->
-      Lwt_list.iter_s
-        (fun v ->
-          let* () = Lwt_io.write oc (what v) in
-          Lwt_io.write oc "\n")
-        lines)
-
-let create_whole_file f data =
-  let fname = get_path f in
-  Lwt_io.with_file
-    ~flags:Unix.[ O_WRONLY; O_NONBLOCK; O_CREAT; O_TRUNC ]
-    ~perm:0o600 ~mode:Lwt_io.Output fname
-    (fun oc -> Lwt_io.write oc data)
 
 let append_to_file f lines =
   let fname = get_path f in

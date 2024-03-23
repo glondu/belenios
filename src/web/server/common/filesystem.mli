@@ -66,8 +66,6 @@ val get_path : t -> string
 val file_exists : t -> bool Lwt.t
 val read_file : t -> string option Lwt.t
 val write_file : t -> string -> unit Lwt.t
-val create_file : t -> ('a -> string) -> 'a list -> unit Lwt.t
-val create_whole_file : t -> string -> unit Lwt.t
 val cleanup_file : t -> unit Lwt.t
 
 (** {1 Global operations} *)
