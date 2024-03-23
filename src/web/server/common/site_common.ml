@@ -33,7 +33,7 @@ module Make (X : Pages_sig.S) = struct
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 
   let find_election uuid =
-    let* election = Web_persist.get_raw_election uuid in
+    let* election = Public_archive.get_election uuid in
     match election with
     | Some e ->
         let module W =
@@ -106,7 +106,7 @@ module Make (X : Pages_sig.S) = struct
         match x with
         | None -> fail_http `Not_found
         | Some election ->
-            let* x = Web_persist.get_nh_ciphertexts election in
+            let* x = Public_archive.get_nh_ciphertexts election in
             String.send (x, "application/json"))
 
   let () =

@@ -1233,7 +1233,7 @@ struct
             else return_true
           in
           if allow then
-            let* result = Web_persist.get_election_result uuid in
+            let* result = Public_archive.get_result uuid in
             match result with
             | None -> fail_http `Not_found
             | Some result -> (
@@ -1296,7 +1296,7 @@ struct
             let* x = find_trustee_id uuid token in
             match x with
             | Some trustee_id ->
-                let* pds = Web_persist.get_partial_decryptions uuid in
+                let* pds = Public_archive.get_partial_decryptions uuid in
                 if List.exists (fun x -> x.owned_owner = trustee_id) pds then
                   Pages_common.generic_page ~title:(s_ "Error")
                     (s_
@@ -1347,7 +1347,7 @@ struct
           let* x = find_trustee_id uuid token in
           match x with Some x -> return x | None -> Lwt.fail TallyEarlyError
         in
-        let* pds = Web_persist.get_partial_decryptions uuid in
+        let* pds = Public_archive.get_partial_decryptions uuid in
         let* () =
           if List.exists (fun x -> x.owned_owner = trustee_id) pds then
             Lwt.fail TallyEarlyError
@@ -1357,7 +1357,7 @@ struct
         let@ election = with_election uuid in
         let module W = (val election) in
         let* pks =
-          let* trustees = Web_persist.get_trustees uuid in
+          let* trustees = Public_archive.get_trustees uuid in
           let trustees =
             trustees_of_string
               W.(sread G.of_string)

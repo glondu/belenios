@@ -72,23 +72,11 @@ val check_password :
 val regen_password :
   (module Site_common_sig.ELECTION) -> metadata -> string -> bool Lwt.t
 
-(** {1 Election data stored in public archive} *)
-
-val get_trustees : uuid -> string Lwt.t
-val get_raw_election : uuid -> string option Lwt.t
-val get_partial_decryptions : uuid -> string owned list Lwt.t
-val get_election_result : uuid -> string option Lwt.t
-val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
-val get_ballot_by_hash : uuid -> string -> string option Lwt.t
-val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
-val get_sized_encrypted_tally : uuid -> string option Lwt.t
-
 (** {1 Derived election data} *)
 
 val get_has_explicit_weights : uuid -> bool Lwt.t
 val get_username_or_address : uuid -> [ `Username | `Address ] Lwt.t
 val is_group_fixed : uuid -> draft_election -> bool
-val get_nh_ciphertexts : (module Site_common_sig.ELECTION) -> string Lwt.t
 
 val get_latest_encrypted_tally :
   (module Site_common_sig.ELECTION) -> string option Lwt.t

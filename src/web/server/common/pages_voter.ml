@@ -460,7 +460,7 @@ struct
         ]
     in
     let* middle =
-      let* result = Web_persist.get_election_result uuid in
+      let* result = Public_archive.get_result uuid in
       let result =
         Option.map (election_result_of_string W.read_result) result
       in
@@ -475,7 +475,7 @@ struct
       match result with
       | Some r when hidden = None || is_admin ->
           let* nballots, total_weight =
-            let* x = Web_persist.get_sized_encrypted_tally uuid in
+            let* x = Public_archive.get_sized_encrypted_tally uuid in
             match x with
             | None -> assert false
             | Some x ->
@@ -1037,7 +1037,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let* hashes = Web_persist.get_ballot_hashes uuid in
+    let* hashes = Public_archive.get_ballot_hashes uuid in
     let* audit_cache = Web_persist.get_audit_cache uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
     let title = template.t_name ^ " — " ^ s_ "Accepted ballots" in
@@ -1066,7 +1066,7 @@ struct
     in
     let* number =
       let n = !nballots in
-      let* x = Web_persist.get_sized_encrypted_tally uuid in
+      let* x = Public_archive.get_sized_encrypted_tally uuid in
       let x = Option.map (sized_encrypted_tally_of_string read_hash) x in
       match x with
       | None ->

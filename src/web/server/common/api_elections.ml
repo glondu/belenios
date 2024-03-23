@@ -47,7 +47,7 @@ let find_trustee_private_key uuid trustee_id =
   let* keys = Web_persist.get_private_keys uuid in
   let&* keys = keys in
   (* there is one Pedersen trustee *)
-  let* trustees = Web_persist.get_trustees uuid in
+  let* trustees = Public_archive.get_trustees uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
@@ -117,8 +117,8 @@ let get_partial_decryptions uuid metadata =
     | `EncryptedTally -> cont ()
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* pds = Web_persist.get_partial_decryptions uuid in
-  let* trustees = Web_persist.get_trustees uuid in
+  let* pds = Public_archive.get_partial_decryptions uuid in
+  let* trustees = Public_archive.get_trustees uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
@@ -198,7 +198,7 @@ let get_shuffles uuid metadata =
     | `Shuffling -> cont ()
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* shuffles = Web_persist.get_shuffles uuid in
+  let* shuffles = Public_archive.get_shuffles uuid in
   let shuffles = Option.value shuffles ~default:[] in
   let* skipped = Web_persist.get_skipped_shufflers uuid in
   let skipped = Option.value skipped ~default:[] in
@@ -236,7 +236,7 @@ let extract_names trustees =
   |> List.mapi (fun i x -> (i + 1, x))
 
 let get_trustee_names uuid =
-  let* trustees = Web_persist.get_trustees uuid in
+  let* trustees = Public_archive.get_trustees uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
@@ -403,7 +403,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                   Lwt.return (200, string_of_salt Yojson.Safe.write_json x))
           | _ -> method_not_allowed))
   | [ "trustees" ] -> (
-      let get () = Web_persist.get_trustees uuid in
+      let get () = Public_archive.get_trustees uuid in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "automatic-dates" ] -> (
       let get () =
@@ -538,7 +538,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* raw = Web_persist.get_raw_election uuid in
+      let* raw = Public_archive.get_election uuid in
       let@ raw = Option.unwrap not_found raw in
       let* metadata = Web_persist.get_election_metadata uuid in
       dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata

@@ -202,7 +202,7 @@ struct
 
   let () =
     Any.register ~service:election_pretty_ballot (fun ((uuid, ()), hash) () ->
-        let* ballot = Web_persist.get_ballot_by_hash uuid hash in
+        let* ballot = Public_archive.get_ballot_by_hash uuid hash in
         match ballot with
         | None -> fail_http `Not_found
         | Some b ->
@@ -223,7 +223,7 @@ struct
       match value with
       | Non_homomorphic.Q q ->
           f l q extra (fun continuation ->
-              let* result = Web_persist.get_election_result uuid in
+              let* result = Public_archive.get_result uuid in
               match result with
               | Some result ->
                   (election_result_of_string read_result result).result
@@ -343,7 +343,7 @@ struct
       let ( !? ) x = x >>= return_string in
       match f with
       | ESRaw -> (
-          let* x = Web_persist.get_raw_election uuid in
+          let* x = Public_archive.get_election uuid in
           match x with
           | Some x ->
               let () =
@@ -358,7 +358,7 @@ struct
       | ESETally ->
           let@ election = with_election uuid in
           !?(Web_persist.get_latest_encrypted_tally election)
-      | ESResult -> !?(Web_persist.get_election_result uuid)
+      | ESResult -> !?(Public_archive.get_result uuid)
       | ESVoters -> !?Filesystem.(read_file (Election (uuid, Voters)))
       | ESRecords -> !?Filesystem.(read_file (Election (uuid, Records)))
       | ESSalts -> !?Filesystem.(read_file (Election (uuid, Salts)))

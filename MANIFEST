@@ -464,6 +464,8 @@ src/web/server/common/pages_sig.mli
 src/web/server/common/pages_voter.ml
 src/web/server/common/pages_voter.mli
 src/web/server/common/pages_voter_sig.mli
+src/web/server/common/public_archive.ml
+src/web/server/common/public_archive.mli
 src/web/server/common/site_admin.ml
 src/web/server/common/site_admin.mli
 src/web/server/common/site_admin_sig.mli

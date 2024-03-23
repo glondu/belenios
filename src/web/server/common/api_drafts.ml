@@ -749,7 +749,7 @@ let import_trustees uuid (Draft (v, se)) from metadata =
   match metadata.e_trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
   | Some names -> (
-      let* trustees = Web_persist.get_trustees from in
+      let* trustees = Public_archive.get_trustees from in
       let version = se.se_version in
       let module G = (val Group.of_string ~version se.se_group : GROUP) in
       let module Trustees = (val Trustees.get_by_version version) in
