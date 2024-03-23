@@ -172,19 +172,11 @@ let draft_of_api a uuid (Draft (v, se) as fse)
   }
   |> fun x -> Draft (v, x)
 
-let generate_uuid () =
-  let length = !Web_config.uuid_length in
-  let token = generate_token ?length () in
-  Lwt.return (Uuid.wrap token)
-
 let post_drafts account draft =
   let@ () =
-   fun cont ->
-    if !Web_config.deny_newelection then Lwt.return_none
-    else Lwt.(cont () >>= return_some)
+   fun cont -> if !Web_config.deny_newelection then Lwt.return_none else cont ()
   in
   let owners = [ account.id ] in
-  let* uuid = generate_uuid () in
   let token = generate_token () in
   let se_metadata =
     {
@@ -228,9 +220,11 @@ let post_drafts account draft =
       se_pending_credentials = false;
     }
   in
+  let* uuid = Filesystem.new_election () in
+  let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () = Web_persist.create_draft uuid se in
-  Lwt.return uuid
+  Lwt.return_some uuid
 
 let get_draft_voters (Draft (_, se)) =
   se.se_voters |> List.map (fun x -> x.sv_id)

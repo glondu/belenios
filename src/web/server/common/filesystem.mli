@@ -72,8 +72,8 @@ val cleanup_file : t -> unit Lwt.t
 
 val list_accounts : unit -> int list Lwt.t
 val list_elections : unit -> uuid list Lwt.t
-val mk_election_dir : uuid -> unit Lwt.t
-val rm_election_dir : uuid -> unit Lwt.t
+val new_election : unit -> uuid option Lwt.t
+val cleanup_election : uuid -> unit Lwt.t
 val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
 
 (** {1 Specialized operations} *)

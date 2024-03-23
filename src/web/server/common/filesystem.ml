@@ -160,8 +160,6 @@ let write_file f data =
   in
   Lwt_unix.rename fname_new fname
 
-let mk_election_dir uuid = Lwt_unix.mkdir !!(Uuid.unwrap uuid) 0o700
-
 let append_to_file f lines =
   let fname = fst @@ get_props f in
   let open Lwt_io in
@@ -179,7 +177,20 @@ let rmdir dir =
   let* _ = Lwt_process.exec command in
   Lwt.return_unit
 
-let rm_election_dir uuid = rmdir !!(Uuid.unwrap uuid)
+let new_election () =
+  let length = !Web_config.uuid_length in
+  let rec loop trials =
+    if trials > 0 then
+      let uuid = generate_token ?length () in
+      Lwt.try_bind
+        (fun () -> Lwt_unix.mkdir !!uuid 0o700)
+        (fun () -> Lwt.return_some @@ Uuid.wrap uuid)
+        (fun _ -> loop (trials - 1))
+    else Lwt.return_none
+  in
+  loop 10
+
+let cleanup_election uuid = rmdir !!(Uuid.unwrap uuid)
 
 let exhaust_file file =
   let fname = file.Ocsigen_extensions.tmp_filename in

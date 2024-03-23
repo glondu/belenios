@@ -1296,11 +1296,10 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   set_election_dates uuid { dates with e_finalization = Some (Datetime.now ()) }
 
 let delete_draft uuid =
-  let* () = Filesystem.rm_election_dir uuid in
+  let* () = Filesystem.cleanup_election uuid in
   clear_elections_by_owner_cache ()
 
 let create_draft uuid se =
-  let* () = Filesystem.mk_election_dir uuid in
   let* () = set_draft_election uuid se in
   let* () = clear_elections_by_owner_cache () in
   Lwt.return_unit
