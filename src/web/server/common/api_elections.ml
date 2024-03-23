@@ -283,9 +283,7 @@ let get_records uuid =
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
-let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+let cast_ballot send_confirmation uuid ~rawballot ~user ~precast_data =
   let* email, login, weight =
     let* x = Web_persist.get_voter uuid user.user_name in
     match x with
@@ -299,7 +297,7 @@ let cast_ballot send_confirmation election ~rawballot ~user ~precast_data =
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
   let* r =
-    Web_persist.cast_ballot election ~rawballot ~user:user_s ~weight
+    Web_persist.cast_ballot uuid ~rawballot ~user:user_s ~weight
       (Datetime.now ()) ~precast_data
   in
   match r with
@@ -345,15 +343,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                 | `ComputeEncryptedTally -> Web_persist.compute_encrypted_tally
                 | `FinishShuffling -> Web_persist.finish_shuffling
               in
-              let module W =
-                Belenios.Election.Make
-                  (struct
-                    let raw_election = raw
-                  end)
-                  (Random)
-                  ()
-              in
-              let* b = doit (module W) in
+              let* b = doit uuid in
               if b then ok else forbidden
           | `ReleaseTally ->
               let@ () = handle_generic_error in
@@ -365,15 +355,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
               ok
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in
-              let module W =
-                Belenios.Election.Make
-                  (struct
-                    let raw_election = raw
-                  end)
-                  (Random)
-                  ()
-              in
-              let* b = Web_persist.regen_password (module W) metadata user in
+              let* b = Web_persist.regen_password uuid metadata user in
               if b then ok else not_found
           | `SetPostponeDate date ->
               let@ () = handle_generic_error in
@@ -492,22 +474,13 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ rawballot = body.run Fun.id in
           let@ () = handle_generic_error in
           let send_confirmation _ _ _ _ _ _ = Lwt.return_true in
-          let module W =
-            Belenios.Election.Make
-              (struct
-                let raw_election = raw
-              end)
-              (Random)
-              ()
-          in
-          let* x = Web_persist.precast_ballot (module W) ~rawballot in
+          let* x = Web_persist.precast_ballot uuid ~rawballot in
           match x with
           | Error _ -> bad_request
           | Ok precast_data ->
               let* _ =
-                cast_ballot send_confirmation
-                  (module W)
-                  ~rawballot ~user ~precast_data
+                cast_ballot send_confirmation uuid ~rawballot ~user
+                  ~precast_data
               in
               ok)
       | _ -> method_not_allowed)

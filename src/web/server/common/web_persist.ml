@@ -109,7 +109,7 @@ let get_latest_encrypted_tally election =
             | Some x ->
                 cont @@ encrypted_tally_of_string W.(sread G.of_string) x))
   in
-  let* nh = Public_archive.get_nh_ciphertexts election in
+  let* nh = Public_archive.get_nh_ciphertexts uuid in
   let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in
   let tally = W.E.merge_nh_ciphertexts nh tally in
   return_some @@ string_of_encrypted_tally W.(swrite G.to_string) tally
@@ -146,7 +146,7 @@ let append_to_shuffles election owned_owner shuffle_s =
     shuffle_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) shuffle_s
   in
   let shuffle_h = Hash.hash_string shuffle_s in
-  let* last_nh = Public_archive.get_nh_ciphertexts election in
+  let* last_nh = Public_archive.get_nh_ciphertexts uuid in
   let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
   if
     string_of_shuffle W.(swrite G.to_string) W.(swrite G.Zq.to_string) shuffle
@@ -196,20 +196,13 @@ let internal_release_tally ~force uuid =
     then cont ()
     else Lwt.return_false
   in
-  let@ raw_election cont =
-    let* x = Public_archive.get_election uuid in
-    match x with None -> assert false | Some x -> cont x
+  let@ election =
+    Public_archive.with_election uuid ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "internal_release_tally")))
   in
-  let module W =
-    Election.Make
-      (struct
-        let raw_election = raw_election
-      end)
-      (Random)
-      ()
-  in
+  let module W = (val election) in
   let* tally =
-    let* x = get_latest_encrypted_tally (module W) in
+    let* x = get_latest_encrypted_tally election in
     match x with
     | None -> assert false
     | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
@@ -815,9 +808,12 @@ let get_credential_record uuid credential =
   let* cr_weight = Public_archive.get_credential_weight uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
 
-let precast_ballot election ~rawballot =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+let precast_ballot uuid ~rawballot =
+  let@ election =
+    Public_archive.with_election uuid ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "precast_ballot")))
+  in
+  let module W = (val election) in
   let@ () =
    fun cont ->
     let hash = Hash.hash_string rawballot in
@@ -905,9 +901,11 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
       let* () = add_extended_record uuid user (date, credential) in
       return (Ok (hash, revote))
 
-let cast_ballot election ~rawballot ~user ~weight date ~precast_data =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =
+  let@ election =
+    Public_archive.with_election uuid ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "cast_ballot")))
+  in
   Web_election_mutex.with_lock uuid (fun () ->
       do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)
 
@@ -1004,18 +1002,10 @@ let archive_election uuid =
   set_election_dates uuid { dates with e_archive = Some (Datetime.now ()) }
 
 let delete_election uuid =
-  let@ election cont =
-    let* x = Public_archive.get_election uuid in
-    match x with None -> Lwt.return_unit | Some e -> cont e
+  let@ election =
+    Public_archive.with_election uuid ~fallback:(fun () -> Lwt.return_unit)
   in
-  let module W =
-    Election.Make
-      (struct
-        let raw_election = election
-      end)
-      (Random)
-      ()
-  in
+  let module W = (val election) in
   let* metadata = get_election_metadata uuid in
   let* () = delete_sensitive_data uuid in
   let de_template =
@@ -1129,10 +1119,13 @@ let dump_passwords uuid db =
   |> join_lines
   |> Filesystem.(write_file (Election (uuid, Passwords)))
 
-let regen_password election metadata user =
+let regen_password uuid metadata user =
   let user = String.lowercase_ascii user in
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+  let@ election =
+    Public_archive.with_election uuid ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "regen_password")))
+  in
+  let module W = (val election) in
   let title = W.template.t_name in
   let* voters = get_voters uuid in
   let show_weight = voters.has_explicit_weights in
@@ -1454,17 +1447,20 @@ let create_draft uuid se =
 
 let transition_to_encrypted_tally uuid = set_election_state uuid `EncryptedTally
 
-let compute_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+let compute_encrypted_tally uuid =
   let* state = get_election_state uuid in
   match state with
   | `Closed ->
+      let@ election =
+        Public_archive.with_election uuid ~fallback:(fun () ->
+            Lwt.fail (Election_not_found (uuid, "compute_encrypted_tally")))
+      in
+      let module W = (val election) in
       let* () = raw_compute_encrypted_tally election in
       if W.has_nh_questions then
         let* () = set_election_state uuid `Shuffling in
         (* perform server-side shuffle *)
-        let* cc = Public_archive.get_nh_ciphertexts election in
+        let* cc = Public_archive.get_nh_ciphertexts uuid in
         let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
         let shuffle = W.E.shuffle_ciphertexts cc in
         let shuffle =
@@ -1484,9 +1480,7 @@ let compute_encrypted_tally election =
         Lwt.return_true
   | _ -> Lwt.return_false
 
-let finish_shuffling election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+let finish_shuffling uuid =
   let* state = get_election_state uuid in
   match state with
   | `Shuffling ->

@@ -75,6 +75,38 @@ let get_trustees uuid =
 
 let get_election uuid = get_from_setup_data uuid (fun x -> x.setup_election)
 
+module ElectionCacheTypes = struct
+  type key = uuid
+  type value = (module Site_common_sig.ELECTION)
+end
+
+module ElectionCache = Ocsigen_cache.Make (ElectionCacheTypes)
+
+exception Not_cachable
+
+let raw_get_election uuid =
+  let* x = get_election uuid in
+  match x with
+  | None -> Lwt.fail Not_cachable
+  | Some x ->
+      let module W =
+        Election.Make
+          (struct
+            let raw_election = x
+          end)
+          (Random)
+          ()
+      in
+      Lwt.return (module W : Site_common_sig.ELECTION)
+
+let election_cache = new ElectionCache.cache raw_get_election ~timer:3600. 500
+
+let with_election uuid ~fallback f =
+  Lwt.try_bind
+    (fun () -> election_cache#find uuid)
+    f
+    (function Not_cachable -> fallback () | e -> Lwt.reraise e)
+
 let get_partial_decryptions uuid =
   let* x = Web_events.get_roots ~uuid in
   match x.roots_last_pd_event with
@@ -156,22 +188,11 @@ let fold_on_ballots uuid f accu =
   | None -> Lwt.return accu
   | Some e -> fold_on_event_payloads uuid `Ballot e f accu
 
-let fold_on_ballots_weeded uuid f accu =
-  let@ raw_election cont =
-    let* x = get_election uuid in
-    match x with None -> Lwt.return accu | Some x -> cont x
-  in
-  let module W =
-    Election.Make
-      (struct
-        let raw_election = raw_election
-      end)
-      (Random)
-      ()
-  in
+let fold_on_ballots_weeded election f accu =
+  let module W = (val election : Site_common_sig.ELECTION) in
   let module GSet = Set.Make (W.G) in
   let* _, accu =
-    fold_on_ballots uuid
+    fold_on_ballots W.uuid
       (fun _ b ((seen, accu) as x) ->
         let ballot = W.read_ballot ++ b in
         match W.get_credential ballot with
@@ -187,24 +208,15 @@ let fold_on_ballots_weeded uuid f accu =
   Lwt.return accu
 
 let raw_get_ballots uuid =
-  let* x = get_election uuid in
-  match x with
-  | None -> Lwt.return SMap.empty
-  | Some x ->
-      let module W =
-        Election.Make
-          (struct
-            let raw_election = x
-          end)
-          (Random)
-          ()
-      in
-      fold_on_ballots_weeded uuid
-        (fun b accu ->
-          let hash = sha256_b64 b in
-          let* weight = get_ballot_weight (module W) b in
-          Lwt.return (SMap.add hash weight accu))
-        SMap.empty
+  let@ election =
+    with_election uuid ~fallback:(fun () -> Lwt.return SMap.empty)
+  in
+  fold_on_ballots_weeded election
+    (fun b accu ->
+      let hash = sha256_b64 b in
+      let* weight = get_ballot_weight election b in
+      Lwt.return (SMap.add hash weight accu))
+    SMap.empty
 
 let ballots_cache = new BallotsCache.cache raw_get_ballots ~timer:3600. 10
 
@@ -242,9 +254,12 @@ let raw_get_shuffles uuid x =
   in
   Lwt.return_some x
 
-let get_nh_ciphertexts election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
+let get_nh_ciphertexts uuid =
+  let@ election =
+    with_election uuid ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "get_nh_ciphertexts")))
+  in
+  let module W = (val election) in
   let* x = Web_events.get_roots ~uuid in
   match x.roots_last_shuffle_event with
   | None -> (

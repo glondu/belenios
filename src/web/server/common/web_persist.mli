@@ -69,8 +69,7 @@ val get_voter : uuid -> string -> Voter.t option Lwt.t
 val check_password :
   uuid -> user:string -> password:string -> (string * string) option Lwt.t
 
-val regen_password :
-  (module Site_common_sig.ELECTION) -> metadata -> string -> bool Lwt.t
+val regen_password : uuid -> metadata -> string -> bool Lwt.t
 
 (** {1 Derived election data} *)
 
@@ -102,12 +101,12 @@ val validate_election :
   unit Lwt.t
 
 val precast_ballot :
-  (module Site_common_sig.ELECTION) ->
+  uuid ->
   rawballot:string ->
   (string * credential_record, cast_error) result Lwt.t
 
 val cast_ballot :
-  (module Site_common_sig.ELECTION) ->
+  uuid ->
   rawballot:string ->
   user:string ->
   weight:Weight.t ->
@@ -124,8 +123,8 @@ val archive_election : uuid -> unit Lwt.t
 val delete_election : uuid -> unit Lwt.t
 val delete_draft : uuid -> unit Lwt.t
 val create_draft : uuid -> draft_election -> unit Lwt.t
-val compute_encrypted_tally : (module Site_common_sig.ELECTION) -> bool Lwt.t
-val finish_shuffling : (module Site_common_sig.ELECTION) -> bool Lwt.t
+val compute_encrypted_tally : uuid -> bool Lwt.t
+val finish_shuffling : uuid -> bool Lwt.t
 val open_election : uuid -> bool Lwt.t
 val close_election : uuid -> bool Lwt.t
 

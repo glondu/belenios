@@ -499,9 +499,8 @@ struct
         let@ metadata = with_metadata_check_owner uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let@ election = with_election uuid in
         let service = preapply ~service:election_admin uuid in
-        let* b = Web_persist.regen_password election metadata user in
+        let* b = Web_persist.regen_password uuid metadata user in
         if b then
           Pages_common.generic_page ~title:(s_ "Success") ~service
             (Printf.sprintf (f_ "A new password has been mailed to %s.") user)
@@ -1431,8 +1430,7 @@ struct
   let () =
     Any.register ~service:election_compute_encrypted_tally (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
-        let@ election = with_election uuid in
-        let* _ = Web_persist.compute_encrypted_tally election in
+        let* _ = Web_persist.compute_encrypted_tally uuid in
         redir_preapply election_admin uuid ())
 
   let () =
@@ -1513,8 +1511,7 @@ struct
   let () =
     Any.register ~service:election_decrypt (fun uuid () ->
         let@ _ = with_metadata_check_owner uuid in
-        let@ election = with_election uuid in
-        let* _ = Web_persist.finish_shuffling election in
+        let* _ = Web_persist.finish_shuffling uuid in
         redir_preapply election_admin uuid ())
 
   let () =

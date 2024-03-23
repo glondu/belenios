@@ -28,7 +28,7 @@ val get_result : uuid -> string option Lwt.t
 val get_public_creds : uuid -> public_credentials Lwt.t
 val get_credential_weight : uuid -> string -> Weight.t Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
-val get_nh_ciphertexts : (module Site_common_sig.ELECTION) -> string Lwt.t
+val get_nh_ciphertexts : uuid -> string Lwt.t
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : uuid -> string option Lwt.t
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
@@ -36,3 +36,9 @@ val clear_ballot_cache : uuid -> unit
 
 val fold_on_ballots :
   uuid -> (hash -> string -> 'a -> 'a Lwt.t) -> 'a -> 'a Lwt.t
+
+val with_election :
+  uuid ->
+  fallback:(unit -> 'a Lwt.t) ->
+  ((module Site_common_sig.ELECTION) -> 'a Lwt.t) ->
+  'a Lwt.t

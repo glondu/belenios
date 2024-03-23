@@ -93,13 +93,11 @@ struct
                 Pages_common.generic_page ~title:(s_ "Error")
                   (s_ "Ill-formed ballot") ()
                 >>= Html.send
-            | uuid -> (
-                let* election = find_election uuid in
-                match election with
-                | Some e ->
-                    let@ precast_data cont =
-                      let* x = Web_persist.precast_ballot e ~rawballot in
-                      match x with
+            | uuid ->
+                let@ precast_data cont =
+                  Lwt.try_bind
+                    (fun () -> Web_persist.precast_ballot uuid ~rawballot)
+                    (function
                       | Ok x -> cont x
                       | Error e ->
                           let msg =
@@ -108,33 +106,28 @@ struct
                               (explain_error l (CastError e))
                           in
                           Pages_common.generic_page ~title:(s_ "Error") msg ()
-                          >>= Html.send
-                    in
-                    let* () =
-                      Eliom_reference.set Web_state.precast_data
-                        (Some precast_data)
-                    in
-                    redir_preapply election_login ((uuid, ()), None) ()
-                | None -> (
-                    let* election = Web_persist.get_draft_election uuid in
-                    match election with
-                    | Some _ -> redir_preapply election_draft uuid ()
-                    | None ->
-                        let msg = s_ "Unknown election" in
-                        Pages_common.generic_page ~title:(s_ "Error") msg ()
-                        >>= Html.send))))
+                          >>= Html.send)
+                    (function
+                      | Election_not_found _ -> (
+                          let* election = Web_persist.get_draft_election uuid in
+                          match election with
+                          | Some _ -> redir_preapply election_draft uuid ()
+                          | None ->
+                              let msg = s_ "Unknown election" in
+                              Pages_common.generic_page ~title:(s_ "Error") msg
+                                ()
+                              >>= Html.send)
+                      | e -> Lwt.reraise e)
+                in
+                let* () =
+                  Eliom_reference.set Web_state.precast_data (Some precast_data)
+                in
+                redir_preapply election_login ((uuid, ()), None) ()))
 
   let send_confirmation_email uuid revote user recipient weight hash =
-    let* election =
-      let* election = find_election uuid in
-      match election with
-      | Some election -> return election
-      | None ->
-          let msg =
-            Printf.sprintf "send_confirmation_email: %s not found"
-              (Uuid.unwrap uuid)
-          in
-          Lwt.fail (Failure msg)
+    let@ election =
+      Public_archive.with_election uuid ~fallback:(fun () ->
+          Lwt.fail (Election_not_found (uuid, "send_confirmation_email")))
     in
     let open (val election) in
     let title = template.t_name in
@@ -183,8 +176,8 @@ struct
                   Lwt.catch
                     (fun () ->
                       let* hash =
-                        Api_elections.cast_ballot send_confirmation_email
-                          election ~rawballot ~user ~precast_data
+                        Api_elections.cast_ballot send_confirmation_email uuid
+                          ~rawballot ~user ~precast_data
                       in
                       return (Ok hash))
                     (function

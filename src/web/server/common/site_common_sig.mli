@@ -22,7 +22,6 @@
 module type ELECTION = Belenios.Election.ELECTION
 
 module type S = sig
-  val find_election : Web_serializable_t.uuid -> (module ELECTION) option Lwt.t
   val election_not_found : unit -> Eliom_registration.Html.result Lwt.t
 
   val with_election :

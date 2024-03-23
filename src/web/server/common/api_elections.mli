@@ -44,7 +44,7 @@ val direct_voter_auth : (uuid -> Yojson.Safe.t -> user Lwt.t) ref
 
 val cast_ballot :
   (uuid -> bool -> string -> string -> weight option -> string -> bool Lwt.t) ->
-  (module Site_common_sig.ELECTION) ->
+  uuid ->
   rawballot:string ->
   user:user ->
   precast_data:string * credential_record ->

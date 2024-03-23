@@ -21,7 +21,6 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios
 open Web_common
 
 module Make (X : Pages_sig.S) = struct
@@ -31,21 +30,6 @@ module Make (X : Pages_sig.S) = struct
   open Eliom_registration
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
-
-  let find_election uuid =
-    let* election = Public_archive.get_election uuid in
-    match election with
-    | Some e ->
-        let module W =
-          Election.Make
-            (struct
-              let raw_election = e
-            end)
-            (Random)
-            ()
-        in
-        return_some (module W : Site_common_sig.ELECTION)
-    | _ -> return_none
 
   let election_not_found () =
     let* l = get_preferred_gettext () in
@@ -58,8 +42,7 @@ module Make (X : Pages_sig.S) = struct
     >>= Html.send ~code:404
 
   let with_election uuid f =
-    let* x = find_election uuid in
-    match x with None -> election_not_found () | Some election -> f election
+    Public_archive.with_election uuid ~fallback:election_not_found f
 
   let () =
     File.register ~service:source_code ~content_type:"application/x-gzip"
@@ -102,12 +85,11 @@ module Make (X : Pages_sig.S) = struct
 
   let () =
     Any.register ~service:election_nh_ciphertexts (fun uuid () ->
-        let* x = find_election uuid in
-        match x with
-        | None -> fail_http `Not_found
-        | Some election ->
-            let* x = Public_archive.get_nh_ciphertexts election in
-            String.send (x, "application/json"))
+        Lwt.try_bind
+          (fun () -> Public_archive.get_nh_ciphertexts uuid)
+          (fun x -> String.send (x, "application/json"))
+          (function
+            | Election_not_found _ -> fail_http `Not_found | e -> Lwt.reraise e))
 
   let () =
     Any.register ~service:set_language (fun (lang, cont) () ->

@@ -24,6 +24,8 @@ open Lwt.Syntax
 open Belenios
 open Web_serializable_j
 
+exception Election_not_found of uuid * string
+
 let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
 let sleep = Lwt_unix.sleep
 
