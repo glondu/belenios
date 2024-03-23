@@ -1235,17 +1235,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
       create_file (Election (uuid, Metadata)) string_of_metadata [ metadata ])
   in
   (* initialize credentials *)
-  let* public_creds =
-    let* file = Filesystem.(read_file (Election (uuid, Public_creds))) in
-    match file with
-    | Some x ->
-        let x =
-          public_credentials_of_string x |> List.map strip_public_credential
-        in
-        let* () = Filesystem.init_credential_mapping uuid x in
-        Lwt.return x
-    | None -> Lwt.fail @@ Failure "no public credentials"
-  in
+  let* public_creds = Filesystem.init_credential_mapping uuid in
   (* initialize events *)
   let* () =
     let raw_trustees =

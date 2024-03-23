@@ -389,17 +389,26 @@ let credential_mappings_deferrer =
       let* x = credential_mappings_cache#find uuid in
       dump_credential_mappings uuid x)
 
-let init_credential_mapping uuid xs =
-  let xs =
-    List.fold_left
-      (fun accu x ->
-        let x = (parse_public_credential Fun.id x).credential in
-        if SMap.mem x accu then failwith "trying to add duplicate credential"
-        else SMap.add x None accu)
-      SMap.empty xs
-  in
-  credential_mappings_cache#add uuid xs;
-  dump_credential_mappings uuid xs
+let init_credential_mapping uuid =
+  let* file = read_file (Election (uuid, Public_creds)) in
+  match file with
+  | Some x ->
+      let public_credentials =
+        public_credentials_of_string x |> List.map strip_public_credential
+      in
+      let xs =
+        List.fold_left
+          (fun accu x ->
+            let x = (parse_public_credential Fun.id x).credential in
+            if SMap.mem x accu then
+              failwith "trying to add duplicate credential"
+            else SMap.add x None accu)
+          SMap.empty public_credentials
+      in
+      credential_mappings_cache#add uuid xs;
+      let* () = dump_credential_mappings uuid xs in
+      Lwt.return public_credentials
+  | None -> Lwt.fail @@ Election_not_found (uuid, "init_credential_mapping")
 
 let find_credential_mapping uuid cred =
   let* xs = credential_mappings_cache#find uuid in
