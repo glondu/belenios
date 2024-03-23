@@ -678,131 +678,8 @@ let gen_shuffle_token uuid tk_trustee tk_trustee_id tk_name =
   let* () = Spool.set ~uuid Spool.shuffle_token t in
   return t
 
-module ExtendedRecordsCacheTypes = struct
-  type key = uuid
-  type value = (datetime * string) SMap.t
-end
-
-module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
-
-let raw_get_extended_records uuid =
-  let* x = Filesystem.(read_file (Election (uuid, Extended_records))) in
-  let x = match x with None -> [] | Some x -> split_lines x in
-  Lwt_list.fold_left_s
-    (fun accu x ->
-      let x = extended_record_of_string x in
-      return @@ SMap.add x.r_username (x.r_date, x.r_credential) accu)
-    SMap.empty x
-
-let dump_extended_records uuid rs =
-  let rs = SMap.bindings rs in
-  let extended_records =
-    List.map
-      (fun (r_username, (r_date, r_credential)) ->
-        { r_username; r_date; r_credential } |> string_of_extended_record)
-      rs
-    |> join_lines
-  in
-  let records =
-    List.map
-      (fun (u, (d, _)) -> Printf.sprintf "%s %S" (string_of_datetime d) u)
-      rs
-    |> join_lines
-  in
-  let* () =
-    Filesystem.(write_file (Election (uuid, Extended_records)) extended_records)
-  in
-  Filesystem.(write_file (Election (uuid, Records)) records)
-
-let extended_records_deferrer =
-  Election_defer.create (fun uuid ->
-      let* x = raw_get_extended_records uuid in
-      dump_extended_records uuid x)
-
-let extended_records_cache =
-  new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
-
-let find_extended_record uuid username =
-  let* rs = extended_records_cache#find uuid in
-  return (SMap.find_opt username rs)
-
-let add_extended_record uuid username r =
-  let* rs = extended_records_cache#find uuid in
-  let rs = SMap.add username r rs in
-  extended_records_cache#add uuid rs;
-  let* () =
-    let r_date, r_credential = r in
-    { r_username = username; r_date; r_credential }
-    |> string_of_extended_record
-    |> (fun x -> [ x ])
-    |> Filesystem.(append_to_file (Election (uuid, Extended_records)))
-  in
-  Election_defer.defer extended_records_deferrer uuid;
-  Lwt.return_unit
-
-module CredMappingsCacheTypes = struct
-  type key = uuid
-  type value = string option SMap.t
-end
-
-module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
-
-let raw_get_credential_mappings uuid =
-  let* x = Filesystem.(read_file (Election (uuid, Credential_mappings))) in
-  let x = match x with None -> [] | Some x -> split_lines x in
-  Lwt_list.fold_left_s
-    (fun accu x ->
-      let x = credential_mapping_of_string x in
-      return @@ SMap.add x.c_credential x.c_ballot accu)
-    SMap.empty x
-
-let dump_credential_mappings uuid xs =
-  SMap.fold
-    (fun c_credential c_ballot accu -> { c_credential; c_ballot } :: accu)
-    xs []
-  |> List.rev_map string_of_credential_mapping
-  |> join_lines
-  |> Filesystem.(write_file (Election (uuid, Credential_mappings)))
-
-let credential_mappings_deferrer =
-  Election_defer.create (fun uuid ->
-      let* x = raw_get_credential_mappings uuid in
-      dump_credential_mappings uuid x)
-
-let credential_mappings_cache =
-  new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
-
-let init_credential_mapping uuid xs =
-  let xs =
-    List.fold_left
-      (fun accu x ->
-        let x = (parse_public_credential Fun.id x).credential in
-        if SMap.mem x accu then failwith "trying to add duplicate credential"
-        else SMap.add x None accu)
-      SMap.empty xs
-  in
-  credential_mappings_cache#add uuid xs;
-  dump_credential_mappings uuid xs
-
-let find_credential_mapping uuid cred =
-  let* xs = credential_mappings_cache#find uuid in
-  return @@ SMap.find_opt cred xs
-
-let add_credential_mapping uuid cred mapping =
-  let* xs = credential_mappings_cache#find uuid in
-  let xs = SMap.add cred mapping xs in
-  credential_mappings_cache#add uuid xs;
-  let* () =
-    { c_credential = cred; c_ballot = mapping }
-    |> string_of_credential_mapping
-    |> (fun x -> [ x ])
-    |> Filesystem.(append_to_file (Election (uuid, Credential_mappings)))
-  in
-  Election_defer.defer credential_mappings_deferrer uuid;
-  Lwt.return_unit
-
 let get_credential_record uuid credential =
-  let* cr_ballot = find_credential_mapping uuid credential in
+  let* cr_ballot = Filesystem.find_credential_mapping uuid credential in
   let&* cr_ballot = cr_ballot in
   let* cr_username = get_credential_user uuid credential in
   let* cr_weight = Public_archive.get_credential_weight uuid credential in
@@ -849,7 +726,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
   let get_user_record user =
-    let* x = find_extended_record uuid user in
+    let* x = Filesystem.find_extended_record uuid user in
     let&* _, old_credential = x in
     return_some old_credential
   in
@@ -897,8 +774,8 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
               let* h = add_ballot election last rawballot in
               cont (h, true)
       in
-      let* () = add_credential_mapping uuid credential (Some hash) in
-      let* () = add_extended_record uuid user (date, credential) in
+      let* () = Filesystem.add_credential_mapping uuid credential (Some hash) in
+      let* () = Filesystem.add_extended_record uuid user (date, credential) in
       return (Ok (hash, revote))
 
 let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =
@@ -1365,7 +1242,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
         let x =
           public_credentials_of_string x |> List.map strip_public_credential
         in
-        let* () = init_credential_mapping uuid x in
+        let* () = Filesystem.init_credential_mapping uuid x in
         Lwt.return x
     | None -> Lwt.fail @@ Failure "no public credentials"
   in

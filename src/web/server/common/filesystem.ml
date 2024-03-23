@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
+open Web_serializable_j
 open Web_common
 
 let ( !! ) x = !Web_config.spool_dir // x
@@ -295,3 +296,124 @@ let new_account_id () =
     (fun _ ->
       Lwt.wakeup_later u ();
       Lwt.return_none)
+
+module ExtendedRecordsCacheTypes = struct
+  type key = uuid
+  type value = (datetime * string) SMap.t
+end
+
+module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
+
+let raw_get_extended_records uuid =
+  let* x = read_file (Election (uuid, Extended_records)) in
+  let x = match x with None -> [] | Some x -> split_lines x in
+  Lwt_list.fold_left_s
+    (fun accu x ->
+      let x = extended_record_of_string x in
+      Lwt.return @@ SMap.add x.r_username (x.r_date, x.r_credential) accu)
+    SMap.empty x
+
+let dump_extended_records uuid rs =
+  let rs = SMap.bindings rs in
+  let extended_records =
+    List.map
+      (fun (r_username, (r_date, r_credential)) ->
+        { r_username; r_date; r_credential } |> string_of_extended_record)
+      rs
+    |> join_lines
+  in
+  let records =
+    List.map
+      (fun (u, (d, _)) -> Printf.sprintf "%s %S" (string_of_datetime d) u)
+      rs
+    |> join_lines
+  in
+  let* () = write_file (Election (uuid, Extended_records)) extended_records in
+  write_file (Election (uuid, Records)) records
+
+let extended_records_deferrer =
+  Election_defer.create (fun uuid ->
+      let* x = raw_get_extended_records uuid in
+      dump_extended_records uuid x)
+
+let extended_records_cache =
+  new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
+
+let find_extended_record uuid username =
+  let* rs = extended_records_cache#find uuid in
+  Lwt.return (SMap.find_opt username rs)
+
+let add_extended_record uuid username r =
+  let* rs = extended_records_cache#find uuid in
+  let rs = SMap.add username r rs in
+  extended_records_cache#add uuid rs;
+  let* () =
+    let r_date, r_credential = r in
+    { r_username = username; r_date; r_credential }
+    |> string_of_extended_record
+    |> (fun x -> [ x ])
+    |> append_to_file (Election (uuid, Extended_records))
+  in
+  Election_defer.defer extended_records_deferrer uuid;
+  Lwt.return_unit
+
+module CredMappingsCacheTypes = struct
+  type key = uuid
+  type value = string option SMap.t
+end
+
+module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
+
+let raw_get_credential_mappings uuid =
+  let* x = read_file (Election (uuid, Credential_mappings)) in
+  let x = match x with None -> [] | Some x -> split_lines x in
+  Lwt_list.fold_left_s
+    (fun accu x ->
+      let x = credential_mapping_of_string x in
+      Lwt.return @@ SMap.add x.c_credential x.c_ballot accu)
+    SMap.empty x
+
+let dump_credential_mappings uuid xs =
+  SMap.fold
+    (fun c_credential c_ballot accu -> { c_credential; c_ballot } :: accu)
+    xs []
+  |> List.rev_map string_of_credential_mapping
+  |> join_lines
+  |> write_file (Election (uuid, Credential_mappings))
+
+let credential_mappings_deferrer =
+  Election_defer.create (fun uuid ->
+      let* x = raw_get_credential_mappings uuid in
+      dump_credential_mappings uuid x)
+
+let credential_mappings_cache =
+  new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
+
+let init_credential_mapping uuid xs =
+  let xs =
+    List.fold_left
+      (fun accu x ->
+        let x = (parse_public_credential Fun.id x).credential in
+        if SMap.mem x accu then failwith "trying to add duplicate credential"
+        else SMap.add x None accu)
+      SMap.empty xs
+  in
+  credential_mappings_cache#add uuid xs;
+  dump_credential_mappings uuid xs
+
+let find_credential_mapping uuid cred =
+  let* xs = credential_mappings_cache#find uuid in
+  Lwt.return @@ SMap.find_opt cred xs
+
+let add_credential_mapping uuid cred mapping =
+  let* xs = credential_mappings_cache#find uuid in
+  let xs = SMap.add cred mapping xs in
+  credential_mappings_cache#add uuid xs;
+  let* () =
+    { c_credential = cred; c_ballot = mapping }
+    |> string_of_credential_mapping
+    |> (fun x -> [ x ])
+    |> append_to_file (Election (uuid, Credential_mappings))
+  in
+  Election_defer.defer credential_mappings_deferrer uuid;
+  Lwt.return_unit

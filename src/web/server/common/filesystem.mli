@@ -68,8 +68,12 @@ val mk_election_dir : uuid -> unit Lwt.t
 val rm_election_dir : uuid -> unit Lwt.t
 val create_file : t -> ('a -> string) -> 'a list -> unit Lwt.t
 val create_whole_file : t -> string -> unit Lwt.t
-val append_to_file : t -> string list -> unit Lwt.t
 val cleanup_file : t -> unit Lwt.t
 val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
 val get_archive : uuid -> string option Lwt.t
 val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
+val find_extended_record : uuid -> string -> (datetime * string) option Lwt.t
+val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
+val init_credential_mapping : uuid -> string list -> unit Lwt.t
+val find_credential_mapping : uuid -> string -> string option option Lwt.t
+val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
