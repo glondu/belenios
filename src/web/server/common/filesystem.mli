@@ -21,6 +21,8 @@
 
 open Web_serializable_t
 
+(** {1 Type definitions} *)
+
 type election_file =
   | Draft
   | State
@@ -57,23 +59,34 @@ type t =
   | Auth_db of string
   | Absolute of string
 
+(** {1 Generic operations} *)
+
 val get_path : t -> string
-val list_accounts : unit -> int list Lwt.t
-val list_elections : unit -> uuid list Lwt.t
 val file_exists : t -> bool Lwt.t
 val read_file : t -> string option Lwt.t
-val read_file_i18n : lang:string -> string -> string option Lwt.t
 val write_file : t -> string -> unit Lwt.t
-val mk_election_dir : uuid -> unit Lwt.t
-val rm_election_dir : uuid -> unit Lwt.t
 val create_file : t -> ('a -> string) -> 'a list -> unit Lwt.t
 val create_whole_file : t -> string -> unit Lwt.t
 val cleanup_file : t -> unit Lwt.t
-val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
-val get_archive : uuid -> string option Lwt.t
+
+(** {1 Global operations} *)
+
+val list_accounts : unit -> int list Lwt.t
+val list_elections : unit -> uuid list Lwt.t
+val mk_election_dir : uuid -> unit Lwt.t
+val rm_election_dir : uuid -> unit Lwt.t
 val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
+
+(** {1 Specialized operations} *)
+
 val find_extended_record : uuid -> string -> (datetime * string) option Lwt.t
 val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
 val init_credential_mapping : uuid -> string list -> unit Lwt.t
 val find_credential_mapping : uuid -> string -> string option option Lwt.t
 val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
+
+(** {1 Misc} *)
+
+val read_file_i18n : lang:string -> string -> string option Lwt.t
+val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
+val get_archive : uuid -> string option Lwt.t
