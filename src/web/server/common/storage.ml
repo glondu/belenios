@@ -63,7 +63,6 @@ type t =
   | Account of int
   | Election of uuid * election_file
   | Auth_db of string
-  | Absolute of string
 
 let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
 
@@ -121,44 +120,23 @@ let get_props = function
   | Election (uuid, f) ->
       let fname, kind = get_election_file_props uuid f in
       (uuid /// fname, kind)
-  | Absolute f | Auth_db f -> (f, Raw)
+  | Auth_db f -> (f, Raw)
 
 let file_exists x =
   let x = fst @@ get_props x in
-  Lwt.catch
-    (fun () ->
-      let* () = Lwt_unix.(access x [ R_OK ]) in
-      Lwt.return_true)
-    (fun _ -> Lwt.return_false)
+  Filesystem.file_exists x
 
 let read_file f =
-  Lwt.catch
-    (fun () ->
-      let path, kind = get_props f in
-      let* x = Lwt_io.chars_of_file path |> Lwt_stream.to_string in
-      match kind with
-      | Raw -> Lwt.return_some x
-      | Trim -> Lwt.return_some (String.trim x))
-    (fun _ -> Lwt.return_none)
-
-let read_file_i18n ~lang f =
-  let* f =
-    let f' = Printf.sprintf "%s.%s" f lang in
-    let* b = file_exists (Absolute f') in
-    Lwt.return (if b then f' else f)
-  in
-  read_file (Absolute f)
+  let path, kind = get_props f in
+  let* x = Filesystem.read_file path in
+  match kind with
+  | Raw -> Lwt.return x
+  | Trim -> Lwt.return @@ Option.map String.trim x
 
 let write_file f data =
   let fname, kind = get_props f in
-  let fname_new = fname ^ ".new" in
-  let* () =
-    let open Lwt_io in
-    let@ oc = with_file ~perm:0o600 ~mode:Output fname_new in
-    let* () = write oc data in
-    match kind with Raw -> Lwt.return_unit | Trim -> write oc "\n"
-  in
-  Lwt_unix.rename fname_new fname
+  let data = match kind with Raw -> data | Trim -> data ^ "\n" in
+  Filesystem.write_file fname data
 
 let append_to_file f lines =
   let fname = fst @@ get_props f in
@@ -170,7 +148,7 @@ let append_to_file f lines =
 
 let cleanup_file f =
   let f = fst @@ get_props f in
-  Lwt.catch (fun () -> Lwt_unix.unlink f) (fun _ -> Lwt.return_unit)
+  Filesystem.cleanup_file f
 
 let rmdir dir =
   let command = ("rm", [| "rm"; "-rf"; dir |]) in
@@ -192,18 +170,12 @@ let new_election () =
 
 let cleanup_election uuid = rmdir !!(Uuid.unwrap uuid)
 
-let exhaust_file file =
-  let fname = file.Ocsigen_extensions.tmp_filename in
-  let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
-  let* () = Lwt_unix.unlink fname in
-  Lwt.return result
-
 let copy_file src dst =
   let open Lwt_io in
   chars_of_file src |> chars_to_file dst
 
 let try_copy_file src dst =
-  let* b = file_exists (Absolute src) in
+  let* b = Filesystem.file_exists src in
   if b then copy_file src dst else Lwt.return_unit
 
 let make_archive uuid =

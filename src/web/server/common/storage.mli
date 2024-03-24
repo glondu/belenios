@@ -58,12 +58,10 @@ type t =
   | Account of int
   | Election of uuid * election_file
   | Auth_db of string
-  | Absolute of string
 
 (** {1 Generic operations} *)
 
 val get_path : t -> string Lwt.t
-val file_exists : t -> bool Lwt.t
 val read_file : t -> string option Lwt.t
 val write_file : t -> string -> unit Lwt.t
 val cleanup_file : t -> unit Lwt.t
@@ -83,8 +81,3 @@ val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
 val init_credential_mapping : uuid -> public_credentials Lwt.t
 val find_credential_mapping : uuid -> string -> string option option Lwt.t
 val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
-
-(** {1 Misc} *)
-
-val read_file_i18n : lang:string -> string -> string option Lwt.t
-val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t

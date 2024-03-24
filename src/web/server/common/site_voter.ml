@@ -73,7 +73,7 @@ struct
 
   let () =
     Any.register ~service:election_submit_ballot_file (fun () ballot ->
-        let* ballot = Storage.exhaust_file ballot in
+        let* ballot = Filesystem.exhaust_file ballot in
         submit_ballot ballot)
 
   let () =
