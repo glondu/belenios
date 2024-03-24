@@ -54,7 +54,7 @@ struct
       | None -> (
           match List.assoc_opt "db" a.auth_config with
           | Some db ->
-              let* csv = Filesystem.(read_file (Auth_db db)) in
+              let* csv = Storage.(read_file (Auth_db db)) in
               let&* csv = csv in
               check_password_with_file ~csv ~name_or_email:name ~password
           | _ -> failwith "invalid configuration for admin site")
@@ -123,7 +123,7 @@ let do_add_account ~db_fname ~username ~password ~email () =
   let username_ = String.lowercase_ascii username in
   let email_ = String.lowercase_ascii email in
   let@ db cont =
-    let* csv = Filesystem.(read_file (Auth_db db_fname)) in
+    let* csv = Storage.(read_file (Auth_db db_fname)) in
     match csv with
     | None -> Lwt.return (Error DatabaseError)
     | Some csv ->
@@ -144,13 +144,13 @@ let do_add_account ~db_fname ~username ~password ~email () =
   | Error _ as x -> Lwt.return x
   | Ok db ->
       let db = List.map (String.concat ",") db in
-      let* () = Filesystem.(write_file (Auth_db db_fname) (join_lines db)) in
+      let* () = Storage.(write_file (Auth_db db_fname) (join_lines db)) in
       Lwt.return (Ok ())
 
 let do_change_password ~db_fname ~username ~password () =
   let username = String.lowercase_ascii username in
   let@ db cont =
-    let* csv = Filesystem.(read_file (Auth_db db_fname)) in
+    let* csv = Storage.(read_file (Auth_db db_fname)) in
     match csv with
     | None -> Lwt.fail (Failure "database error")
     | Some csv ->
@@ -166,7 +166,7 @@ let do_change_password ~db_fname ~username ~password () =
     | x :: xs -> change (x :: accu) xs
   in
   let db = List.rev_map (String.concat ",") (change [] db) in
-  let* () = Filesystem.(write_file (Auth_db db_fname) (join_lines db)) in
+  let* () = Storage.(write_file (Auth_db db_fname) (join_lines db)) in
   return_unit
 
 let add_account user ~password ~email =
@@ -214,7 +214,7 @@ let lookup_account ~service ~username ~email =
   let email = email |> String.lowercase_ascii in
   let@ db cont =
     let&* db_fname = get_password_db_fname service in
-    let* csv = Filesystem.(read_file (Auth_db db_fname)) in
+    let* csv = Storage.(read_file (Auth_db db_fname)) in
     let&* csv = csv in
     let* x = parse_csv csv in
     cont x

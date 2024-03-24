@@ -779,7 +779,7 @@ struct
     Any.register ~service:election_draft_credentials_post_file
       (fun (uuid, token) creds ->
         let@ () = without_site_user () in
-        let* creds = Filesystem.exhaust_file creds in
+        let* creds = Storage.exhaust_file creds in
         wrap_handler (fun () -> handle_credentials_post uuid token creds))
 
   let () =
@@ -822,9 +822,7 @@ struct
     Any.register ~service:election_draft_credentials_get (fun uuid () ->
         let@ _ = with_draft ~lock:false ~save:false uuid in
         let* () = Web_persist.set_private_creds_downloaded uuid in
-        let* filename =
-          Filesystem.(get_path (Election (uuid, Private_creds)))
-        in
+        let* filename = Storage.(get_path (Election (uuid, Private_creds))) in
         File.send ~content_type:"text/plain" filename)
 
   let () =
@@ -1261,8 +1259,7 @@ struct
         let* l = get_preferred_gettext () in
         let open (val l) in
         Lwt.try_bind
-          (fun () ->
-            Filesystem.(get_path (Election (uuid, Confidential_archive))))
+          (fun () -> Storage.(get_path (Election (uuid, Confidential_archive))))
           (fun archive_name ->
             File.send ~content_type:"application/zip" archive_name)
           (function

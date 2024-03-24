@@ -124,7 +124,7 @@ let do_get_index ~creat ~uuid =
     | None -> raise Creation_not_requested
     | Some x -> (x.last_height + 100, x.last_pos)
   in
-  let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+  let* filename = Storage.(get_path (Election (uuid, Public_archive))) in
   let* map, roots, timestamp = build_roots ~size ~pos filename in
   let remove () = Hashtbl.remove indexes uuid in
   let timeout = Lwt_timeout.create 3600 remove in
@@ -192,7 +192,7 @@ let get_data ~uuid x =
   Lwt.try_bind
     (fun () -> get_index ~creat:false uuid)
     (fun r ->
-      let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+      let* filename = Storage.(get_path (Election (uuid, Public_archive))) in
       gethash ~index:r.map ~filename x)
     (function Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
@@ -253,7 +253,7 @@ let append ?(lock = true) ~uuid ?last ops =
   let last_hash = match last_hash with None -> assert false | Some x -> x in
   let items = List.rev items in
   let* last_pos, records =
-    let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+    let* filename = Storage.(get_path (Election (uuid, Public_archive))) in
     raw_append ~filename ~timestamp:index.timestamp pos items
   in
   let* () =

@@ -26,7 +26,7 @@ open Web_serializable_j
 open Web_common
 
 let get_spool_version () =
-  let* x = Filesystem.(read_file Spool_version) in
+  let* x = Storage.(read_file Spool_version) in
   match x with Some x -> return @@ int_of_string x | None -> return 0
 
 let elections_by_owner_cache = ref None
@@ -369,7 +369,7 @@ let umap_add user x map =
   IMap.add user (x :: xs) map
 
 let build_elections_by_owner_cache () =
-  Filesystem.list_elections ()
+  Storage.list_elections ()
   >>= Lwt_list.fold_left_s
         (fun accu uuid ->
           Lwt.catch
@@ -451,13 +451,13 @@ let get_elections_by_owner user =
   match IMap.find_opt user cache with None -> return [] | Some xs -> return xs
 
 let check_password uuid ~user ~password =
-  let* x = Filesystem.(read_file (Election (uuid, Passwords))) in
+  let* x = Storage.(read_file (Election (uuid, Passwords))) in
   match x with
   | None -> Lwt.return_none
   | Some csv -> check_password_with_file ~csv ~name_or_email:user ~password
 
 let get_passwords uuid =
-  let* csv = Filesystem.(read_file (Election (uuid, Passwords))) in
+  let* csv = Storage.(read_file (Election (uuid, Passwords))) in
   let&* csv = csv in
   let* csv = parse_csv csv in
   let res =
@@ -483,7 +483,7 @@ end
 
 module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
 
-let get_voters_file uuid = Filesystem.(read_file (Election (uuid, Voters)))
+let get_voters_file uuid = Storage.(read_file (Election (uuid, Voters)))
 
 let get_all_voters uuid =
   let* x = get_voters_file uuid in
@@ -555,7 +555,7 @@ let raw_get_credential_cache uuid =
                { salt; public_credential = `String cred })
         |> Array.of_list |> Lwt.return_some
   in
-  let* x = Filesystem.(read_file (Election (uuid, Public_creds))) in
+  let* x = Storage.(read_file (Election (uuid, Public_creds))) in
   match x with
   | None ->
       let* x = Public_archive.get_public_creds uuid in
@@ -679,7 +679,7 @@ let gen_shuffle_token uuid tk_trustee tk_trustee_id tk_name =
   return t
 
 let get_credential_record uuid credential =
-  let* cr_ballot = Filesystem.find_credential_mapping uuid credential in
+  let* cr_ballot = Storage.find_credential_mapping uuid credential in
   let&* cr_ballot = cr_ballot in
   let* cr_username = get_credential_user uuid credential in
   let* cr_weight = Public_archive.get_credential_weight uuid credential in
@@ -726,7 +726,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
   let get_user_record user =
-    let* x = Filesystem.find_extended_record uuid user in
+    let* x = Storage.find_extended_record uuid user in
     let&* _, old_credential = x in
     return_some old_credential
   in
@@ -774,8 +774,8 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
               let* h = add_ballot election last rawballot in
               cont (h, true)
       in
-      let* () = Filesystem.add_credential_mapping uuid credential (Some hash) in
-      let* () = Filesystem.add_extended_record uuid user (date, credential) in
+      let* () = Storage.add_credential_mapping uuid credential (Some hash) in
+      let* () = Storage.add_extended_record uuid user (date, credential) in
       return (Ok (hash, revote))
 
 let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =
@@ -862,7 +862,7 @@ let delete_sensitive_data uuid =
   in
   let* () =
     Lwt_list.iter_p
-      (fun x -> Filesystem.(cleanup_file (Election (uuid, x))))
+      (fun x -> Storage.(cleanup_file (Election (uuid, x))))
       [
         Extended_records;
         Credential_mappings;
@@ -952,7 +952,7 @@ let delete_election uuid =
     }
   in
   let* () =
-    Filesystem.(
+    Storage.(
       write_file (Election (uuid, Deleted)) (string_of_deleted_election de))
   in
   let* () =
@@ -971,13 +971,13 @@ let delete_election uuid =
   in
   let* () =
     Lwt_list.iter_p
-      (fun x -> Filesystem.(cleanup_file (Election (uuid, x))))
+      (fun x -> Storage.(cleanup_file (Election (uuid, x))))
       [ Public_archive; Passwords; Records; Voters; Confidential_archive ]
   in
   clear_elections_by_owner_cache ()
 
 let load_password_db uuid =
-  let* db = Filesystem.(read_file (Election (uuid, Passwords))) in
+  let* db = Storage.(read_file (Election (uuid, Passwords))) in
   match db with
   | None -> Lwt.return []
   | Some db ->
@@ -994,7 +994,7 @@ let rec replace_password username ((salt, hashed) as p) = function
 let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db
   |> join_lines
-  |> Filesystem.(write_file (Election (uuid, Passwords)))
+  |> Storage.(write_file (Election (uuid, Passwords)))
 
 let regen_password uuid metadata user =
   let user = String.lowercase_ascii user in
@@ -1022,14 +1022,14 @@ let regen_password uuid metadata user =
   | _ -> Lwt.return_false
 
 let get_private_creds_downloaded uuid =
-  let* x = Filesystem.(read_file (Election (uuid, Private_creds_downloaded))) in
+  let* x = Storage.(read_file (Election (uuid, Private_creds_downloaded))) in
   match x with None -> Lwt.return_false | Some _ -> Lwt.return_true
 
 let set_private_creds_downloaded uuid =
-  Filesystem.(write_file (Election (uuid, Private_creds_downloaded)) "")
+  Storage.(write_file (Election (uuid, Private_creds_downloaded)) "")
 
 let clear_private_creds_downloaded uuid =
-  Filesystem.(cleanup_file (Election (uuid, Private_creds_downloaded)))
+  Storage.(cleanup_file (Election (uuid, Private_creds_downloaded)))
 
 let get_draft_private_credentials uuid =
   Spool.get ~uuid Spool.draft_private_credentials
@@ -1225,15 +1225,14 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   (* write election files to disk *)
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
   let* () =
-    Filesystem.(
-      write_file (Election (uuid, Voters)) (Voter.list_to_string voters))
+    Storage.(write_file (Election (uuid, Voters)) (Voter.list_to_string voters))
   in
   let* () =
-    Filesystem.(
+    Storage.(
       write_file (Election (uuid, Metadata)) (string_of_metadata metadata))
   in
   (* initialize credentials *)
-  let* public_creds = Filesystem.init_credential_mapping uuid in
+  let* public_creds = Storage.init_credential_mapping uuid in
   (* initialize events *)
   let* () =
     let raw_trustees =
@@ -1258,16 +1257,16 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   let* () =
     match private_keys with
     | `KEY x ->
-        Filesystem.(
+        Storage.(
           write_file (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x))
     | `KEYS (x, y) ->
         let* () =
-          Filesystem.(
+          Storage.(
             write_file
               (Election (uuid, Private_key))
               (swrite G.Zq.to_string -- x))
         in
-        Filesystem.(write_file (Election (uuid, Private_keys)) (join_lines y))
+        Storage.(write_file (Election (uuid, Private_keys)) (join_lines y))
   in
   (* send private credentials, if any *)
   let* () = send_credentials uuid (Draft (v, se)) in
@@ -1297,7 +1296,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   set_election_dates uuid { dates with e_finalization = Some (Datetime.now ()) }
 
 let delete_draft uuid =
-  let* () = Filesystem.cleanup_election uuid in
+  let* () = Storage.cleanup_election uuid in
   clear_elections_by_owner_cache ()
 
 let create_draft uuid se =
@@ -1389,7 +1388,7 @@ let try_extract extract x =
   Lwt.catch (fun () -> extract x) (fun _ -> return_none)
 
 let get_next_actions () =
-  Filesystem.list_elections ()
+  Storage.list_elections ()
   >>= Lwt_list.filter_map_s (fun x ->
           let* r = try_extract extract_automatic_data_draft x in
           match r with
@@ -1450,7 +1449,7 @@ let get_draft_public_credentials uuid =
   Lwt.return_some x
 
 let get_records uuid =
-  let* x = Filesystem.(read_file (Election (uuid, Records))) in
+  let* x = Storage.(read_file (Election (uuid, Records))) in
   match x with
   | None -> Lwt.return_none
   | Some x -> Lwt.return_some @@ split_lines x

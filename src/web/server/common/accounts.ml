@@ -41,7 +41,7 @@ let clear_account_cache () =
   Lwt.return_unit
 
 let get_account_by_id id =
-  let* x = Filesystem.(read_file (Account id)) in
+  let* x = Storage.(read_file (Account id)) in
   match x with
   | None -> Lwt.return_none
   | Some x -> (
@@ -55,7 +55,7 @@ let add_update_hook f = update_hooks := f :: !update_hooks
 let update_account account =
   let* () =
     let@ () = Lwt_mutex.with_lock account_mutex in
-    Filesystem.(write_file (Account account.id) (string_of_account account))
+    Storage.(write_file (Account account.id) (string_of_account account))
   in
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 
@@ -65,7 +65,7 @@ let drop_after_at x =
 let create_account ~email user =
   let@ id, u =
    fun cont ->
-    let* x = Filesystem.new_account_id () in
+    let* x = Storage.new_account_id () in
     match x with
     | None -> Lwt.fail (Failure "impossible to create a new account")
     | Some x -> cont x
@@ -101,7 +101,7 @@ let create_account ~email user =
   Lwt.return account
 
 let build_account_cache () =
-  Filesystem.list_accounts ()
+  Storage.list_accounts ()
   >>= Lwt_list.fold_left_s
         (fun accu id ->
           let* account = get_account_by_id id in

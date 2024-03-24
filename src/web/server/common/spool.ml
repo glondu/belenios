@@ -27,7 +27,7 @@ open Web_common
 type 'a file = {
   of_string : string -> 'a;
   to_string : 'a -> string;
-  filename : Filesystem.election_file;
+  filename : Storage.election_file;
 }
 
 type 'a abstract = {
@@ -41,7 +41,7 @@ type 'a t = File of 'a file | Abstract of 'a abstract
 let get ~uuid file =
   match file with
   | File file -> (
-      let* x = Filesystem.(read_file (Election (uuid, file.filename))) in
+      let* x = Storage.(read_file (Election (uuid, file.filename))) in
       let&* x = x in
       try Lwt.return_some (file.of_string x) with _ -> Lwt.return_none)
   | Abstract a -> a.get uuid
@@ -49,13 +49,12 @@ let get ~uuid file =
 let set ~uuid file x =
   match file with
   | File file ->
-      Filesystem.(
-        write_file (Election (uuid, file.filename)) (file.to_string x))
+      Storage.(write_file (Election (uuid, file.filename)) (file.to_string x))
   | Abstract a -> a.set uuid x
 
 let del ~uuid file =
   match file with
-  | File file -> Filesystem.(cleanup_file (Election (uuid, file.filename)))
+  | File file -> Storage.(cleanup_file (Election (uuid, file.filename)))
   | Abstract a -> a.del uuid
 
 let make_file x = File x
@@ -69,24 +68,24 @@ let draft =
   |> make_file
 
 let draft_public_credentials =
-  let filename = Filesystem.Public_creds in
-  let get uuid = Filesystem.(read_file (Election (uuid, filename))) in
-  let set uuid x = Filesystem.(write_file (Election (uuid, filename)) x) in
-  let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
+  let filename = Storage.Public_creds in
+  let get uuid = Storage.(read_file (Election (uuid, filename))) in
+  let set uuid x = Storage.(write_file (Election (uuid, filename)) x) in
+  let del uuid = Storage.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let draft_private_credentials =
-  let filename = Filesystem.Private_creds in
-  let get uuid = Filesystem.(read_file (Election (uuid, filename))) in
-  let set uuid x = Filesystem.(write_file (Election (uuid, filename)) x) in
-  let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
+  let filename = Storage.Private_creds in
+  let get uuid = Storage.(read_file (Election (uuid, filename))) in
+  let set uuid x = Storage.(write_file (Election (uuid, filename)) x) in
+  let del uuid = Storage.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let hide_result =
   {
     of_string = datetime_of_string;
     to_string = string_of_datetime;
-    filename = Filesystem.Hide_result;
+    filename = Storage.Hide_result;
   }
   |> make_file
 
@@ -94,7 +93,7 @@ let dates =
   {
     of_string = election_dates_of_string;
     to_string = string_of_election_dates;
-    filename = Filesystem.Dates;
+    filename = Storage.Dates;
   }
   |> make_file
 
@@ -102,7 +101,7 @@ let state =
   {
     of_string = election_state_of_string;
     to_string = string_of_election_state;
-    filename = Filesystem.State;
+    filename = Storage.State;
   }
   |> make_file
 
@@ -110,7 +109,7 @@ let decryption_tokens =
   {
     of_string = decryption_tokens_of_string;
     to_string = string_of_decryption_tokens;
-    filename = Filesystem.Decryption_tokens;
+    filename = Storage.Decryption_tokens;
   }
   |> make_file
 
@@ -118,7 +117,7 @@ let metadata =
   {
     of_string = metadata_of_string;
     to_string = string_of_metadata;
-    filename = Filesystem.Metadata;
+    filename = Storage.Metadata;
   }
   |> make_file
 
@@ -126,28 +125,28 @@ let private_key =
   {
     of_string = Yojson.Safe.from_string;
     to_string = Yojson.Safe.to_string;
-    filename = Filesystem.Private_key;
+    filename = Storage.Private_key;
   }
   |> make_file
 
 let private_keys =
-  let filename = Filesystem.Private_keys in
+  let filename = Storage.Private_keys in
   let get uuid =
-    let* x = Filesystem.(read_file (Election (uuid, filename))) in
+    let* x = Storage.(read_file (Election (uuid, filename))) in
     let&* x = x in
     Lwt.return_some @@ split_lines x
   in
   let set uuid x =
-    Filesystem.(write_file (Election (uuid, filename)) (join_lines x))
+    Storage.(write_file (Election (uuid, filename)) (join_lines x))
   in
-  let del uuid = Filesystem.(cleanup_file (Election (uuid, filename))) in
+  let del uuid = Storage.(cleanup_file (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let skipped_shufflers =
   {
     of_string = skipped_shufflers_of_string;
     to_string = string_of_skipped_shufflers;
-    filename = Filesystem.Skipped_shufflers;
+    filename = Storage.Skipped_shufflers;
   }
   |> make_file
 
@@ -155,7 +154,7 @@ let shuffle_token =
   {
     of_string = shuffle_token_of_string;
     to_string = string_of_shuffle_token;
-    filename = Filesystem.Shuffle_token;
+    filename = Storage.Shuffle_token;
   }
   |> make_file
 
@@ -163,7 +162,7 @@ let audit_cache =
   {
     of_string = audit_cache_of_string;
     to_string = string_of_audit_cache;
-    filename = Filesystem.Audit_cache;
+    filename = Storage.Audit_cache;
   }
   |> make_file
 
@@ -171,7 +170,7 @@ let last_event =
   {
     of_string = last_event_of_string;
     to_string = string_of_last_event;
-    filename = Filesystem.Last_event;
+    filename = Storage.Last_event;
   }
   |> make_file
 
@@ -179,6 +178,6 @@ let salts =
   {
     of_string = salts_of_string;
     to_string = string_of_salts;
-    filename = Filesystem.Salts;
+    filename = Storage.Salts;
   }
   |> make_file

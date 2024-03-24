@@ -220,7 +220,7 @@ let post_drafts account draft =
       se_pending_credentials = false;
     }
   in
-  let* uuid = Filesystem.new_election () in
+  let* uuid = Storage.new_election () in
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () = Web_persist.create_draft uuid se in

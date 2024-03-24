@@ -73,7 +73,7 @@ struct
 
   let () =
     Any.register ~service:election_submit_ballot_file (fun () ballot ->
-        let* ballot = Filesystem.exhaust_file ballot in
+        let* ballot = Storage.exhaust_file ballot in
         submit_ballot ballot)
 
   let () =
@@ -352,11 +352,11 @@ struct
           let@ election = with_election uuid in
           !?(Web_persist.get_latest_encrypted_tally election)
       | ESResult -> !?(Public_archive.get_result uuid)
-      | ESVoters -> !?Filesystem.(read_file (Election (uuid, Voters)))
-      | ESRecords -> !?Filesystem.(read_file (Election (uuid, Records)))
-      | ESSalts -> !?Filesystem.(read_file (Election (uuid, Salts)))
+      | ESVoters -> !?Storage.(read_file (Election (uuid, Voters)))
+      | ESRecords -> !?Storage.(read_file (Election (uuid, Records)))
+      | ESSalts -> !?Storage.(read_file (Election (uuid, Salts)))
       | ESArchive u when u = uuid ->
-          let* path = Filesystem.(get_path (Election (uuid, Public_archive))) in
+          let* path = Storage.(get_path (Election (uuid, Public_archive))) in
           File.send ~content_type path
       | ESArchive _ -> fail_http `Not_found
     else forbidden ()
