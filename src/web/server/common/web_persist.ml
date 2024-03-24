@@ -1022,7 +1022,8 @@ let regen_password uuid metadata user =
   | _ -> Lwt.return_false
 
 let get_private_creds_downloaded uuid =
-  Filesystem.(file_exists (Election (uuid, Private_creds_downloaded)))
+  let* x = Filesystem.(read_file (Election (uuid, Private_creds_downloaded))) in
+  match x with None -> Lwt.return_false | Some _ -> Lwt.return_true
 
 let set_private_creds_downloaded uuid =
   Filesystem.(write_file (Election (uuid, Private_creds_downloaded)) "")

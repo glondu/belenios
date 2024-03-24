@@ -114,11 +114,14 @@ let build_roots ~size ~pos filename =
   in
   Lwt.finalize (fun () -> loop Events.empty_roots) (fun () -> close ic)
 
-let do_get_index ~uuid =
+exception Creation_not_requested
+
+let do_get_index ~creat ~uuid =
   let* last = Spool.get ~uuid Spool.last_event in
   let size, pos =
     match last with
-    | None -> (100, 0L)
+    | None when creat -> (100, 0L)
+    | None -> raise Creation_not_requested
     | Some x -> (x.last_height + 100, x.last_pos)
   in
   let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
@@ -129,7 +132,7 @@ let do_get_index ~uuid =
   Hashtbl.add indexes uuid r;
   Lwt.return r
 
-let get_index ?(lock = true) uuid =
+let get_index ?(lock = true) ~creat uuid =
   let* r =
     match Hashtbl.find_opt indexes uuid with
     | Some r -> Lwt.return r
@@ -138,8 +141,8 @@ let get_index ?(lock = true) uuid =
           let@ () = Web_election_mutex.with_lock uuid in
           match Hashtbl.find_opt indexes uuid with
           | Some r -> Lwt.return r
-          | None -> do_get_index ~uuid
-        else do_get_index ~uuid
+          | None -> do_get_index ~creat ~uuid
+        else do_get_index ~creat ~uuid
   in
   Lwt_timeout.start r.timeout;
   Lwt.return r
@@ -185,29 +188,25 @@ let gethash ~index ~filename x =
           Lwt.return_some @@ Bytes.to_string buffer)
         (fun () -> close fd)
 
-let with_archive uuid default f =
-  let filename = Filesystem.(Election (uuid, Public_archive)) in
-  let* b = Filesystem.(file_exists filename) in
-  if b then
-    let* path = Filesystem.get_path filename in
-    f path
-  else Lwt.return default
-
 let get_data ~uuid x =
-  let@ filename = with_archive uuid None in
-  let* r = get_index uuid in
-  gethash ~index:r.map ~filename x
+  Lwt.try_bind
+    (fun () -> get_index ~creat:false uuid)
+    (fun r ->
+      let* filename = Filesystem.(get_path (Election (uuid, Public_archive))) in
+      gethash ~index:r.map ~filename x)
+    (function Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
 let get_event ~uuid x =
-  let@ filename = with_archive uuid None in
-  let* r = get_index uuid in
-  let* x = gethash ~index:r.map ~filename x in
+  let* x = get_data ~uuid x in
   Lwt.return @@ Option.map event_of_string x
 
 let get_roots ~uuid =
-  let@ _ = with_archive uuid Events.empty_roots in
-  let* r = get_index uuid in
-  Lwt.return r.roots
+  Lwt.try_bind
+    (fun () -> get_index ~creat:false uuid)
+    (fun r -> Lwt.return r.roots)
+    (function
+      | Creation_not_requested -> Lwt.return Events.empty_roots
+      | e -> Lwt.reraise e)
 
 type append_operation = Data of string | Event of event_type * hash option
 
@@ -223,7 +222,7 @@ let append ?(lock = true) ~uuid ?last ops =
     | None -> cont x
     | Some last -> if x = Some last then cont x else Lwt.fail RaceCondition
   in
-  let* index = get_index ~lock:false uuid in
+  let* index = get_index ~lock:false ~creat:true uuid in
   let event_parent, event_height, pos =
     match last with
     | None -> (None, -1, 1024L (* header size *))
