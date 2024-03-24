@@ -352,11 +352,11 @@ struct
           let@ election = with_election uuid in
           !?(Web_persist.get_latest_encrypted_tally election)
       | ESResult -> !?(Public_archive.get_result uuid)
-      | ESVoters -> !?Storage.(read_file (Election (uuid, Voters)))
-      | ESRecords -> !?Storage.(read_file (Election (uuid, Records)))
-      | ESSalts -> !?Storage.(read_file (Election (uuid, Salts)))
+      | ESVoters -> !?Storage.(get (Election (uuid, Voters)))
+      | ESRecords -> !?Storage.(get (Election (uuid, Records)))
+      | ESSalts -> !?Storage.(get (Election (uuid, Salts)))
       | ESArchive u when u = uuid ->
-          let* path = Storage.(get_path (Election (uuid, Public_archive))) in
+          let* path = Storage.(get_as_file (Election (uuid, Public_archive))) in
           File.send ~content_type path
       | ESArchive _ -> fail_http `Not_found
     else forbidden ()

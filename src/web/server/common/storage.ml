@@ -126,14 +126,14 @@ let file_exists x =
   let x = fst @@ get_props x in
   Filesystem.file_exists x
 
-let read_file f =
+let get f =
   let path, kind = get_props f in
   let* x = Filesystem.read_file path in
   match kind with
   | Raw -> Lwt.return x
   | Trim -> Lwt.return @@ Option.map String.trim x
 
-let write_file f data =
+let set f data =
   let fname, kind = get_props f in
   let data = match kind with Raw -> data | Trim -> data ^ "\n" in
   Filesystem.write_file fname data
@@ -146,7 +146,7 @@ let append_to_file f lines =
   in
   Lwt_list.iter_s (write_line oc) lines
 
-let cleanup_file f =
+let del f =
   let f = fst @@ get_props f in
   Filesystem.cleanup_file f
 
@@ -221,7 +221,7 @@ let make_archive uuid =
       Lwt.return_unit
 
 let get_archive uuid =
-  let* state = read_file (Election (uuid, State)) in
+  let* state = get (Election (uuid, State)) in
   let final =
     match state with
     | None -> true
@@ -237,7 +237,7 @@ let get_archive uuid =
     Lwt.return (fst @@ get_props archive_name)
   else Lwt.fail Not_found
 
-let get_path = function
+let get_as_file = function
   | Election (_, (Public_archive | Private_creds)) as x ->
       Lwt.return @@ fst @@ get_props x
   | Election (uuid, Confidential_archive) -> get_archive uuid
@@ -273,7 +273,7 @@ end
 module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
 let raw_get_extended_records uuid =
-  let* x = read_file (Election (uuid, Extended_records)) in
+  let* x = get (Election (uuid, Extended_records)) in
   let x = match x with None -> [] | Some x -> split_lines x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -296,8 +296,8 @@ let dump_extended_records uuid rs =
       rs
     |> join_lines
   in
-  let* () = write_file (Election (uuid, Extended_records)) extended_records in
-  write_file (Election (uuid, Records)) records
+  let* () = set (Election (uuid, Extended_records)) extended_records in
+  set (Election (uuid, Records)) records
 
 let extended_records_cache =
   new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
@@ -333,7 +333,7 @@ end
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
 let raw_get_credential_mappings uuid =
-  let* x = read_file (Election (uuid, Credential_mappings)) in
+  let* x = get (Election (uuid, Credential_mappings)) in
   let x = match x with None -> [] | Some x -> split_lines x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -347,7 +347,7 @@ let dump_credential_mappings uuid xs =
     xs []
   |> List.rev_map string_of_credential_mapping
   |> join_lines
-  |> write_file (Election (uuid, Credential_mappings))
+  |> set (Election (uuid, Credential_mappings))
 
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
@@ -358,7 +358,7 @@ let credential_mappings_deferrer =
       dump_credential_mappings uuid x)
 
 let init_credential_mapping uuid =
-  let* file = read_file (Election (uuid, Public_creds)) in
+  let* file = get (Election (uuid, Public_creds)) in
   match file with
   | Some x ->
       let public_credentials =

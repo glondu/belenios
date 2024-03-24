@@ -61,10 +61,10 @@ type t =
 
 (** {1 Generic operations} *)
 
-val get_path : t -> string Lwt.t
-val read_file : t -> string option Lwt.t
-val write_file : t -> string -> unit Lwt.t
-val cleanup_file : t -> unit Lwt.t
+val get_as_file : t -> string Lwt.t
+val get : t -> string option Lwt.t
+val set : t -> string -> unit Lwt.t
+val del : t -> unit Lwt.t
 
 (** {1 Global operations} *)
 

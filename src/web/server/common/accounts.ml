@@ -41,7 +41,7 @@ let clear_account_cache () =
   Lwt.return_unit
 
 let get_account_by_id id =
-  let* x = Storage.(read_file (Account id)) in
+  let* x = Storage.(get (Account id)) in
   match x with
   | None -> Lwt.return_none
   | Some x -> (
@@ -55,7 +55,7 @@ let add_update_hook f = update_hooks := f :: !update_hooks
 let update_account account =
   let* () =
     let@ () = Lwt_mutex.with_lock account_mutex in
-    Storage.(write_file (Account account.id) (string_of_account account))
+    Storage.(set (Account account.id) (string_of_account account))
   in
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 

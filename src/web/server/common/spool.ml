@@ -41,7 +41,7 @@ type 'a t = File of 'a file | Abstract of 'a abstract
 let get ~uuid file =
   match file with
   | File file -> (
-      let* x = Storage.(read_file (Election (uuid, file.filename))) in
+      let* x = Storage.(get (Election (uuid, file.filename))) in
       let&* x = x in
       try Lwt.return_some (file.of_string x) with _ -> Lwt.return_none)
   | Abstract a -> a.get uuid
@@ -49,12 +49,12 @@ let get ~uuid file =
 let set ~uuid file x =
   match file with
   | File file ->
-      Storage.(write_file (Election (uuid, file.filename)) (file.to_string x))
+      Storage.(set (Election (uuid, file.filename)) (file.to_string x))
   | Abstract a -> a.set uuid x
 
 let del ~uuid file =
   match file with
-  | File file -> Storage.(cleanup_file (Election (uuid, file.filename)))
+  | File file -> Storage.(del (Election (uuid, file.filename)))
   | Abstract a -> a.del uuid
 
 let make_file x = File x
@@ -69,16 +69,16 @@ let draft =
 
 let draft_public_credentials =
   let filename = Storage.Public_creds in
-  let get uuid = Storage.(read_file (Election (uuid, filename))) in
-  let set uuid x = Storage.(write_file (Election (uuid, filename)) x) in
-  let del uuid = Storage.(cleanup_file (Election (uuid, filename))) in
+  let get uuid = Storage.(get (Election (uuid, filename))) in
+  let set uuid x = Storage.(set (Election (uuid, filename)) x) in
+  let del uuid = Storage.(del (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let draft_private_credentials =
   let filename = Storage.Private_creds in
-  let get uuid = Storage.(read_file (Election (uuid, filename))) in
-  let set uuid x = Storage.(write_file (Election (uuid, filename)) x) in
-  let del uuid = Storage.(cleanup_file (Election (uuid, filename))) in
+  let get uuid = Storage.(get (Election (uuid, filename))) in
+  let set uuid x = Storage.(set (Election (uuid, filename)) x) in
+  let del uuid = Storage.(del (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let hide_result =
@@ -132,14 +132,12 @@ let private_key =
 let private_keys =
   let filename = Storage.Private_keys in
   let get uuid =
-    let* x = Storage.(read_file (Election (uuid, filename))) in
+    let* x = Storage.(get (Election (uuid, filename))) in
     let&* x = x in
     Lwt.return_some @@ split_lines x
   in
-  let set uuid x =
-    Storage.(write_file (Election (uuid, filename)) (join_lines x))
-  in
-  let del uuid = Storage.(cleanup_file (Election (uuid, filename))) in
+  let set uuid x = Storage.(set (Election (uuid, filename)) (join_lines x)) in
+  let del uuid = Storage.(del (Election (uuid, filename))) in
   Abstract { get; set; del }
 
 let skipped_shufflers =
