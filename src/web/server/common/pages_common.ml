@@ -103,13 +103,14 @@ struct
             uuid
     in
     let advanced_booth =
-      match uuid with
-      | Some uuid ->
-          a
-            ~service:(Eliom_service.preapply ~service:election_cast uuid)
-            [ txt (s_ "Advanced mode") ]
-            ()
-      | None -> txt ""
+      Option.map
+        (function
+          | uuid ->
+              a
+                ~service:(Eliom_service.preapply ~service:election_cast uuid)
+                [ txt (s_ "Advanced mode") ]
+                ())
+        uuid
     in
     let lang_box =
       match lang_box with

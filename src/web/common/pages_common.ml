@@ -41,7 +41,7 @@ module Make (Base : BASE) = struct
   let a_aria_hidden = Unsafe.string_attrib "aria-hidden" "true"
 
   let base_body l ~full_title ~content ~administer ?(login_box = txt "")
-      ?(advanced_booth = txt "") ?(warning = txt "") ?(lang_box = txt "")
+      ?(advanced_booth = None) ?(warning = txt "") ?(lang_box = txt "")
       ?(footer = txt "") ?(extra_footer = txt "") ?sticky_footer
       ?(restricted_mode = false) () =
     let open (val l : I18n.GETTEXT) in
@@ -122,8 +122,10 @@ module Make (Base : BASE) = struct
                   txt ". ";
                   administer;
                   txt ".";
-                  advanced_booth;
-                  txt ".";
+                  (match advanced_booth with
+                  | None -> txt ""
+                  | Some advanced_booth ->
+                      span [ txt " "; advanced_booth; txt "." ]);
                   extra_footer;
                 ];
             ];
