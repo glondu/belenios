@@ -421,7 +421,11 @@ struct
         ~a:[ a_style "text-align:center;" ]
         [
           a
-            ~a:[ a_style "font-size:25px;" ]
+            ~a:
+              [
+                a_style "font-size:25px;";
+                a_class [ "nice-button"; "nice-button--grey" ];
+              ]
             ~service:election_pretty_ballots
             [ txt (s_ "See accepted ballots") ]
             (uuid, ());
@@ -438,7 +442,9 @@ struct
               Eliom_uri.make_string_uri ~service:(election_vote ()) ()
             in
             let a =
-              a_id "start" :: a_user_data "uri" uri
+              a_id "start"
+              :: a_class [ "nice-button"; "nice-button--blue" ]
+              :: a_user_data "uri" uri
               :: a_user_data "uuid" (Uuid.unwrap uuid)
               :: a_user_data "lang" lang :: a_style "font-size:35px;"
               :: disabled

@@ -45,6 +45,17 @@
   background: var(--button-white-active);
 }
 
+.nice-button--grey {
+  background: var(--button-grey);
+  color: var(--font-light);
+}
+.nice-button--grey:hover {
+  background: var(--button-grey-hover);
+}
+.nice-button--grey:active {
+  background: var(--button-grey-active);
+}
+
 .nice-button--default {
   background: var(--button-default);
   color: var(--font-dark);
