@@ -81,3 +81,8 @@ val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
 val init_credential_mapping : uuid -> public_credentials Lwt.t
 val find_credential_mapping : uuid -> string -> string option option Lwt.t
 val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
+
+(** {1 Cleaning operations} *)
+
+val delete_sensitive_data : uuid -> unit Lwt.t
+val delete_live_data : uuid -> unit Lwt.t

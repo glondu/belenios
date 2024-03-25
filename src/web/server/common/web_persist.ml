@@ -847,34 +847,8 @@ let get_admin_context admin_id =
 
 let () = Billing.set_get_admin_context get_admin_context
 
-type spool_item = Spool_item : 'a Spool.t -> spool_item
-
-let delete_sensitive_data uuid =
-  let* () =
-    Lwt_list.iter_p
-      (fun (Spool_item x) -> Spool.del ~uuid x)
-      [
-        Spool_item Spool.state;
-        Spool_item Spool.private_key;
-        Spool_item Spool.private_keys;
-        Spool_item Spool.decryption_tokens;
-      ]
-  in
-  let* () =
-    Lwt_list.iter_p
-      (fun x -> Storage.(del (Election (uuid, x))))
-      [
-        Extended_records;
-        Credential_mappings;
-        Partial_decryptions;
-        Public_creds;
-        Ballots_index;
-      ]
-  in
-  Lwt.return_unit
-
 let archive_election uuid =
-  let* () = delete_sensitive_data uuid in
+  let* () = Storage.delete_sensitive_data uuid in
   let* dates = get_election_dates uuid in
   set_election_dates uuid { dates with e_archive = Some (Datetime.now ()) }
 
@@ -884,7 +858,7 @@ let delete_election uuid =
   in
   let module W = (val election) in
   let* metadata = get_election_metadata uuid in
-  let* () = delete_sensitive_data uuid in
+  let* () = Storage.delete_sensitive_data uuid in
   let de_template =
     {
       t_description = "";
@@ -954,25 +928,7 @@ let delete_election uuid =
   let* () =
     Storage.(set (Election (uuid, Deleted)) (string_of_deleted_election de))
   in
-  let* () =
-    Lwt_list.iter_p
-      (fun (Spool_item x) -> Spool.del ~uuid x)
-      [
-        Spool_item Spool.last_event;
-        Spool_item Spool.dates;
-        Spool_item Spool.metadata;
-        Spool_item Spool.audit_cache;
-        Spool_item Spool.hide_result;
-        Spool_item Spool.shuffle_token;
-        Spool_item Spool.skipped_shufflers;
-        Spool_item Spool.salts;
-      ]
-  in
-  let* () =
-    Lwt_list.iter_p
-      (fun x -> Storage.(del (Election (uuid, x))))
-      [ Public_archive; Passwords; Records; Voters; Confidential_archive ]
-  in
+  let* () = Storage.delete_live_data uuid in
   clear_elections_by_owner_cache ()
 
 let load_password_db uuid =

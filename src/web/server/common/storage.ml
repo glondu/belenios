@@ -394,3 +394,37 @@ let add_credential_mapping uuid cred mapping =
   in
   Election_defer.defer credential_mappings_deferrer uuid;
   Lwt.return_unit
+
+let delete_sensitive_data uuid =
+  Lwt_list.iter_p
+    (fun x -> del (Election (uuid, x)))
+    [
+      State;
+      Private_key;
+      Private_keys;
+      Decryption_tokens;
+      Extended_records;
+      Credential_mappings;
+      Partial_decryptions;
+      Public_creds;
+      Ballots_index;
+    ]
+
+let delete_live_data uuid =
+  Lwt_list.iter_p
+    (fun x -> del (Election (uuid, x)))
+    [
+      Last_event;
+      Dates;
+      Metadata;
+      Audit_cache;
+      Hide_result;
+      Shuffle_token;
+      Skipped_shufflers;
+      Salts;
+      Public_archive;
+      Passwords;
+      Records;
+      Voters;
+      Confidential_archive;
+    ]
