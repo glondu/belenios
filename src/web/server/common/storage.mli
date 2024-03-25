@@ -25,10 +25,7 @@ open Web_serializable_t
 (** {1 Type definitions} *)
 
 type election_file =
-  | Draft
   | State
-  | Public_creds
-  | Private_creds
   | Hide_result
   | Dates
   | Decryption_tokens
@@ -39,14 +36,17 @@ type election_file =
   | Shuffle_token
   | Audit_cache
   | Last_event
-  | Salts (* obsolete as of 2.4 *)
   | Deleted
+  | Private_creds_downloaded
+  | Draft
+  | Public_creds
+  | Private_creds
+  | Salts (* obsolete as of 2.4 *)
   | Public_archive
   | Passwords
   | Records
   | Voters
   | Confidential_archive
-  | Private_creds_downloaded
 
 type t =
   | Spool_version

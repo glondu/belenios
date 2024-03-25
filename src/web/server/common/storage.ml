@@ -30,10 +30,7 @@ let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
 type kind = Raw | Trim
 
 type election_file =
-  | Draft
   | State
-  | Public_creds
-  | Private_creds
   | Hide_result
   | Dates
   | Decryption_tokens
@@ -44,14 +41,17 @@ type election_file =
   | Shuffle_token
   | Audit_cache
   | Last_event
-  | Salts
   | Deleted
+  | Private_creds_downloaded
+  | Draft
+  | Public_creds
+  | Private_creds
+  | Salts
   | Public_archive
   | Passwords
   | Records
   | Voters
   | Confidential_archive
-  | Private_creds_downloaded
 
 type t =
   | Spool_version
