@@ -428,14 +428,7 @@ let build_elections_by_owner_cache () =
                   @@ List.fold_left
                        (fun accu id -> umap_add id item accu)
                        accu ids)
-            (function
-              | Lwt.Canceled ->
-                  Printf.ksprintf Ocsigen_messages.accesslog
-                    "Building elections_by_owner_cache canceled while \
-                     processing %s"
-                    (Uuid.unwrap uuid);
-                  Lwt.fail Lwt.Canceled
-              | _ -> return accu))
+            (fun _ -> return accu))
         IMap.empty
 
 let get_elections_by_owner user =
