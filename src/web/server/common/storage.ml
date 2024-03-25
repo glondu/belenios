@@ -45,8 +45,6 @@ type election_file =
   | Audit_cache
   | Last_event
   | Salts
-  | Extended_records
-  | Credential_mappings
   | Deleted
   | Public_archive
   | Passwords
@@ -99,8 +97,6 @@ let get_election_file_props uuid = function
   | Audit_cache -> ("audit_cache.json", Trim)
   | Last_event -> ("last_event.json", Trim)
   | Salts -> ("salts.json", Trim)
-  | Extended_records -> ("extended_records.jsons", Raw)
-  | Credential_mappings -> ("credential_mappings.jsons", Raw)
   | Deleted -> ("deleted.json", Trim)
   | Public_archive -> (Uuid.unwrap uuid ^ ".bel", Raw)
   | Passwords -> ("passwords.csv", Raw)
@@ -108,6 +104,9 @@ let get_election_file_props uuid = function
   | Voters -> ("voters.txt", Raw)
   | Confidential_archive -> ("archive.zip", Raw)
   | Private_creds_downloaded -> ("private_creds.downloaded", Raw)
+
+let extended_records_filename = "extended_records.jsons"
+let credential_mappings_filename = "credential_mappings.jsons"
 
 let get_props = function
   | Spool_version -> (!!"version", Trim)
@@ -134,8 +133,7 @@ let set f data =
   let data = match kind with Raw -> data | Trim -> data ^ "\n" in
   Filesystem.write_file fname data
 
-let append_to_file f lines =
-  let fname = fst @@ get_props f in
+let append_to_file fname lines =
   let open Lwt_io in
   let@ oc =
     with_file ~mode:Output ~flags:[ O_WRONLY; O_APPEND; O_CREAT ] fname
@@ -269,7 +267,7 @@ end
 module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
 
 let raw_get_extended_records uuid =
-  let* x = get (Election (uuid, Extended_records)) in
+  let* x = Filesystem.read_file (uuid /// extended_records_filename) in
   let x = match x with None -> [] | Some x -> split_lines x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -292,7 +290,9 @@ let dump_extended_records uuid rs =
       rs
     |> join_lines
   in
-  let* () = set (Election (uuid, Extended_records)) extended_records in
+  let* () =
+    Filesystem.write_file (uuid /// extended_records_filename) extended_records
+  in
   set (Election (uuid, Records)) records
 
 let extended_records_cache =
@@ -316,7 +316,7 @@ let add_extended_record uuid username r =
     { r_username = username; r_date; r_credential }
     |> string_of_extended_record
     |> (fun x -> [ x ])
-    |> append_to_file (Election (uuid, Extended_records))
+    |> append_to_file (uuid /// extended_records_filename)
   in
   Election_defer.defer extended_records_deferrer uuid;
   Lwt.return_unit
@@ -329,7 +329,7 @@ end
 module CredMappingsCache = Ocsigen_cache.Make (CredMappingsCacheTypes)
 
 let raw_get_credential_mappings uuid =
-  let* x = get (Election (uuid, Credential_mappings)) in
+  let* x = Filesystem.read_file (uuid /// credential_mappings_filename) in
   let x = match x with None -> [] | Some x -> split_lines x in
   Lwt_list.fold_left_s
     (fun accu x ->
@@ -343,7 +343,7 @@ let dump_credential_mappings uuid xs =
     xs []
   |> List.rev_map string_of_credential_mapping
   |> join_lines
-  |> set (Election (uuid, Credential_mappings))
+  |> Filesystem.write_file (uuid /// credential_mappings_filename)
 
 let credential_mappings_cache =
   new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
@@ -386,23 +386,20 @@ let add_credential_mapping uuid cred mapping =
     { c_credential = cred; c_ballot = mapping }
     |> string_of_credential_mapping
     |> (fun x -> [ x ])
-    |> append_to_file (Election (uuid, Credential_mappings))
+    |> append_to_file (uuid /// credential_mappings_filename)
   in
   Election_defer.defer credential_mappings_deferrer uuid;
   Lwt.return_unit
 
 let delete_sensitive_data uuid =
+  let* () =
+    Lwt_list.iter_p
+      (fun x -> Filesystem.cleanup_file (uuid /// x))
+      [ extended_records_filename; credential_mappings_filename ]
+  in
   Lwt_list.iter_p
     (fun x -> del (Election (uuid, x)))
-    [
-      State;
-      Private_key;
-      Private_keys;
-      Decryption_tokens;
-      Extended_records;
-      Credential_mappings;
-      Public_creds;
-    ]
+    [ State; Private_key; Private_keys; Decryption_tokens; Public_creds ]
 
 let delete_live_data uuid =
   Lwt_list.iter_p

@@ -40,8 +40,6 @@ type election_file =
   | Audit_cache
   | Last_event
   | Salts (* obsolete as of 2.4 *)
-  | Extended_records
-  | Credential_mappings
   | Deleted
   | Public_archive
   | Passwords
