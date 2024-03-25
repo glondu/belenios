@@ -504,8 +504,6 @@ src/web/server/common/web_defaults.ml
 src/web/server/common/web_defaults.mli
 src/web/server/common/web_election_mutex.ml
 src/web/server/common/web_election_mutex.mli
-src/web/server/common/web_events.ml
-src/web/server/common/web_events.mli
 src/web/server/common/web_i18n.ml
 src/web/server/common/web_i18n.mli
 src/web/server/common/web_i18n_sig.mli

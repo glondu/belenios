@@ -42,9 +42,9 @@ let set_draft_election uuid = Spool.set ~uuid Spool.draft
 
 let get_setup_data uuid =
   let* x =
-    let* x = Web_events.get_roots ~uuid in
+    let* x = Storage.get_roots uuid in
     let&* x = x.roots_setup_data in
-    Web_events.get_data ~uuid x
+    Storage.get_data uuid x
   in
   match x with
   | None -> assert false
@@ -93,17 +93,17 @@ let set_election_state uuid s =
 let get_latest_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
-  let* roots = Web_events.get_roots ~uuid in
+  let* roots = Storage.get_roots uuid in
   let@ tally cont =
     match roots.roots_encrypted_tally with
     | None -> return_none
     | Some x -> (
-        let* x = Web_events.get_data ~uuid x in
+        let* x = Storage.get_data uuid x in
         match x with
         | None -> assert false
         | Some x -> (
             let x = sized_encrypted_tally_of_string read_hash x in
-            let* x = Web_events.get_data ~uuid x.sized_encrypted_tally in
+            let* x = Storage.get_data uuid x.sized_encrypted_tally in
             match x with
             | None -> assert false
             | Some x ->
@@ -156,7 +156,7 @@ let append_to_shuffles election owned_owner shuffle_s =
     let owned = { owned_owner; owned_payload = shuffle_h } in
     let owned_s = string_of_owned write_hash owned in
     let* () =
-      Web_events.append ~uuid ~last
+      Storage.append uuid ~last
         [
           Data shuffle_s;
           Data owned_s;
@@ -168,7 +168,7 @@ let append_to_shuffles election owned_owner shuffle_s =
 
 let make_result_transaction write_result result =
   let payload = string_of_election_result write_result result in
-  let open Web_events in
+  let open Storage in
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
 let clear_shuffle_token uuid = Spool.del ~uuid Spool.shuffle_token
@@ -251,7 +251,7 @@ let internal_release_tally ~force uuid =
             |> string_of_owned write_hash
           in
           let transaction =
-            let open Web_events in
+            let open Storage in
             [
               Data pd;
               Data payload;
@@ -276,8 +276,7 @@ let internal_release_tally ~force uuid =
       let result_transaction = make_result_transaction W.write_result result in
       let* () =
         List.rev (result_transaction :: transactions)
-        |> List.flatten
-        |> Web_events.append ~uuid ~last
+        |> List.flatten |> Storage.append uuid ~last
       in
       let* () = remove_audit_cache uuid in
       let* () = set_election_state uuid `Tallied in
@@ -345,7 +344,7 @@ let add_partial_decryption uuid (owned_owner, pd) =
     { owned_owner; owned_payload = Hash.hash_string pd }
     |> string_of_owned write_hash
   in
-  Web_events.append ~uuid
+  Storage.append uuid
     [
       Data pd;
       Data payload;
@@ -605,7 +604,7 @@ let add_ballot election last ballot =
   let uuid = W.uuid in
   let hash = sha256_b64 ballot in
   let* () =
-    Web_events.append ~lock:false ~uuid ~last
+    Storage.append ~lock:false uuid ~last
       [ Data ballot; Event (`Ballot, Some (Hash.hash_string ballot)) ]
   in
   let () = Public_archive.clear_ballot_cache uuid in
@@ -653,7 +652,7 @@ let raw_compute_encrypted_tally election =
     |> string_of_sized_encrypted_tally write_hash
   in
   let* () =
-    Web_events.append ~uuid ~last
+    Storage.append uuid ~last
       [
         Event (`EndBallots, None);
         Data tally_s;
@@ -690,7 +689,7 @@ let precast_ballot uuid ~rawballot =
   let@ () =
    fun cont ->
     let hash = Hash.hash_string rawballot in
-    let* x = Web_events.get_data ~uuid hash in
+    let* x = Storage.get_data uuid hash in
     match x with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error `DuplicateBallot
@@ -1203,7 +1202,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
     let setup_credentials = Hash.hash_string raw_public_creds in
     let setup_data = { setup_election; setup_trustees; setup_credentials } in
     let setup_data_s = string_of_setup_data setup_data in
-    Web_events.append ~lock:false ~uuid
+    Storage.append ~lock:false uuid
       [
         Data raw_election;
         Data raw_trustees;
@@ -1300,7 +1299,7 @@ let finish_shuffling uuid =
   let* state = get_election_state uuid in
   match state with
   | `Shuffling ->
-      let* () = Web_events.append ~uuid [ Event (`EndShuffles, None) ] in
+      let* () = Storage.append uuid [ Event (`EndShuffles, None) ] in
       let* () = Spool.del ~uuid Spool.skipped_shufflers in
       let* () = transition_to_encrypted_tally uuid in
       Lwt.return_true

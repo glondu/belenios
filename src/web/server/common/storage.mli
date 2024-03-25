@@ -80,3 +80,16 @@ val init_credential_mapping : uuid -> public_credentials Lwt.t
 
 val delete_sensitive_data : uuid -> unit Lwt.t
 val delete_live_data : uuid -> unit Lwt.t
+
+(** {1 Public archive operations} *)
+
+val get_data : uuid -> hash -> string option Lwt.t
+val get_event : uuid -> hash -> event option Lwt.t
+val get_roots : uuid -> roots Lwt.t
+
+type append_operation = Data of string | Event of event_type * hash option
+
+exception RaceCondition
+
+val append :
+  ?lock:bool -> uuid -> ?last:last_event -> append_operation list -> unit Lwt.t
