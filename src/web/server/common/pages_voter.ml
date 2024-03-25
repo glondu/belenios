@@ -545,44 +545,55 @@ struct
       else txt ""
     in
     let* cache = Web_persist.get_audit_cache uuid in
-    let checksums = cache.cache_checksums in
-    let div_admin =
-      div
-        [
-          Printf.ksprintf txt
-            (f_ "This election is administered by %s.")
-            (Option.value W.template.t_administrator ~default:"N/A");
-        ]
+    let audit_admin =
+      [
+        tr
+          [
+            td [ txt (s_ "Administrator") ];
+            td [ txt (Option.value W.template.t_administrator ~default:"N/A") ];
+          ];
+      ]
     in
-    let div_voters =
-      div
-        ~a:[ a_id "voters" ]
-        [
-          Printf.ksprintf txt
-            (f_ "The voter list has %d voter(s) and fingerprint %s.")
-            cache.cache_checksums.ec_num_voters
-            (Hash.to_b64 cache.cache_voters_hash);
-        ]
+    let audit_voters =
+      [
+        tr
+          ~a:[ a_id "voters" ]
+          [
+            td [ txt (s_ "Number of voters") ];
+            td [ Printf.ksprintf txt "%d" cache.cache_checksums.ec_num_voters ];
+          ];
+        tr
+          [
+            td [ txt (s_ "Voter list fingerprint") ];
+            td
+              [
+                code
+                  [
+                    Printf.ksprintf txt "%s"
+                      (Hash.to_b64 cache.cache_voters_hash);
+                  ];
+              ];
+          ];
+      ]
     in
-    let show_weights = cache.cache_checksums.ec_weights <> None in
-    let div_show_weights =
-      if show_weights then
-        div [ b [ txt (s_ "This election uses weights!") ]; br () ]
-      else txt ""
-    in
-    let div_total_weight =
+    let audit_voter_weight =
       match cache.cache_checksums.ec_weights with
       | Some { w_total; w_min; w_max } ->
-          div
-            ~a:[ a_id "weights" ]
-            [
-              Printf.ksprintf txt
-                (f_ "The total weight is %s (min: %s, max: %s).")
-                (Weight.to_string w_total) (Weight.to_string w_min)
-                (Weight.to_string w_max);
-            ]
-      | _ -> txt ""
+          [
+            tr
+              [
+                td [ txt (s_ "Voters' total weight") ];
+                td
+                  [
+                    Printf.ksprintf txt "%s (min: %s, max: %s)"
+                      (Weight.to_string w_total) (Weight.to_string w_min)
+                      (Weight.to_string w_max);
+                  ];
+              ];
+          ]
+      | _ -> []
     in
+    let checksums = cache.cache_checksums in
     let format_tc id xs =
       ul
         ~a:[ a_id id ]
@@ -591,107 +602,142 @@ struct
              let name = Option.value x.tc_name ~default:"N/A" in
              li
                [
-                 Printf.ksprintf txt "%s (%s)" name (Hash.to_b64 x.tc_checksum);
+                 Printf.ksprintf txt "%s " name;
+                 code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.tc_checksum) ];
                ])
            xs)
     in
-    let div_trustees_mandatory =
+    let audit_trustees_mandatory =
       match checksums.ec_trustees with
-      | [] -> txt ""
+      | [] -> []
       | l ->
-          div
-            [
-              txt
-                (s_
-                   "All of the following trustees (verification keys) are \
-                    needed to decrypt the result:");
-              format_tc "trustees" l;
-            ]
+          [
+            tr
+              [
+                td
+                  [
+                    txt
+                      (s_
+                         "All of the following trustees (verification keys) \
+                          are needed to decrypt the result:");
+                  ];
+                td [ format_tc "trustees" l ];
+              ];
+          ]
     in
-    let format_ttc className xs =
-      ul
-        ~a:[ a_class [ className ] ]
-        (List.map
-           (fun x ->
-             let name = Option.value x.ttc_name ~default:"N/A" in
-             li
-               [
-                 Printf.ksprintf txt "%s (%s) [%s]" name
-                   (Hash.to_b64 x.ttc_verification_key)
-                   (Hash.to_b64 x.ttc_pki_key);
-               ])
-           xs)
-    in
-    let divs_trustees_threshold =
+    let audit_trustees_threshold =
+      let format_ttc className xs =
+        ul
+          ~a:[ a_class [ className ] ]
+          (List.map
+             (fun x ->
+               let name = Option.value x.ttc_name ~default:"N/A" in
+               li
+                 [
+                   Printf.ksprintf txt "%s " name;
+                   code
+                     [
+                       Printf.ksprintf txt "(%s) "
+                         (Hash.to_b64 x.ttc_verification_key);
+                     ];
+                   code
+                     [ Printf.ksprintf txt "[%s]" (Hash.to_b64 x.ttc_pki_key) ];
+                 ])
+             xs)
+      in
       List.map
         (fun x ->
-          div
+          tr
             [
-              Printf.ksprintf txt
-                (f_
-                   "%d of the following %d trustees (verification keys) \
-                    [public keys] are needed to decrypt the election result:")
-                x.ts_threshold
-                (List.length x.ts_trustees);
-              format_ttc "trustees_threshold" x.ts_trustees;
+              td
+                [
+                  Printf.ksprintf txt
+                    (f_
+                       "%d of the following %d trustees (verification keys) \
+                        [public keys] are needed to decrypt the election \
+                        result:")
+                    x.ts_threshold
+                    (List.length x.ts_trustees);
+                ];
+              td [ format_ttc "trustees_threshold" x.ts_trustees ];
             ])
         checksums.ec_trustees_threshold
     in
-    let div_trustees =
-      div (div_trustees_mandatory :: divs_trustees_threshold)
+    let audit_credentials =
+      [
+        tr
+          [
+            td [ txt (s_ "Credentials authority") ];
+            td
+              [
+                txt
+                  (Option.value W.template.t_credential_authority ~default:"N/A");
+              ];
+          ];
+        tr
+          ~a:[ a_id "credentials" ]
+          [
+            td [ txt (s_ "Credentials fingerprint") ];
+            td [ code [ txt (Hash.to_b64 checksums.ec_public_credentials) ] ];
+          ];
+      ]
     in
-    let div_credentials =
-      div
-        ~a:[ a_id "credentials" ]
-        [
-          Printf.ksprintf txt
-            (f_
-               "Credentials were generated and sent by %s and have fingerprint \
-                %s.")
-            (Option.value W.template.t_credential_authority ~default:"N/A")
-            (Hash.to_b64 checksums.ec_public_credentials);
-        ]
-    in
-    let div_shuffles =
+    let audit_shuffles =
       match checksums.ec_shuffles with
-      | None -> txt ""
+      | None -> []
       | Some xs ->
-          div
-            [
-              txt (s_ "Trustees shuffled the ballots in the following order:");
-              format_tc "shuffles" xs;
-            ]
+          [
+            tr
+              [
+                td
+                  [
+                    txt
+                      (s_
+                         "Trustees shuffled the ballots in the following order:");
+                  ];
+                td [ format_tc "shuffles" xs ];
+              ];
+          ]
     in
-    let div_tally =
+    let audit_tally =
       match checksums.ec_encrypted_tally with
-      | None -> txt ""
+      | None -> []
       | Some x ->
-          div
-            ~a:[ a_id "encrypted_tally" ]
-            [
-              Printf.ksprintf txt
-                (f_ "The fingerprint of the encrypted tally is %s.")
-                (Hash.to_b64 x);
-            ]
+          [
+            tr
+              [
+                td [ txt (s_ "Fingerprint of the encrypted tally") ];
+                td [ code [ txt (Hash.to_b64 x) ] ];
+              ];
+          ]
     in
+
     let div_audit =
       div
-        ~a:[ a_class [ "hybrid_box" ] ]
+        ~a:[ a_class [ "home-audit" ] ]
         [
-          div_admin;
-          div_voters;
-          div_total_weight;
-          div_trustees;
-          div_credentials;
-          div_shuffles;
-          div_tally;
+          div
+            ~a:[ a_class [ "home-audit__title" ] ]
+            [ txt (s_ "About this election") ];
+          table
+            (List.concat
+               [
+                 audit_admin;
+                 audit_voters;
+                 audit_voter_weight;
+                 audit_trustees_mandatory;
+                 audit_trustees_threshold;
+                 audit_credentials;
+                 audit_shuffles;
+                 audit_tally;
+               ]);
         ]
     in
+
     let content =
       [
         p state_;
         br ();
-        div_show_weights;
         middle;
         br ();
         ballots_link;

@@ -97,3 +97,36 @@ button {
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
+
+/* table in election home */
+.home-audit {
+    background: #F5F5F5;
+    padding: 1em;
+    margin-top: 2em;
+    margin-bottom: 2em;
+    margin-left: 10%;
+    margin-right: 10%;
+    font-size: 80%;
+    line-height: 2.2ex;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+.home-audit__title {
+    font-size: 20px;
+    margin-bottom: .5em;
+}
+.home-audit table {
+    border-top: none;
+    margin-bottom: 0;
+}
+.home-audit td {
+    border-bottom: none;
+    padding: 4px;
+}
+.home-audit tr:hover {
+    background-color: #E0E0E0;
+}
+.home-audit ul {
+    padding-left: 1.2em;
+}
+
