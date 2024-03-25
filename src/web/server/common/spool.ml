@@ -68,18 +68,12 @@ let draft =
   |> make_file
 
 let draft_public_credentials =
-  let filename = Storage.Public_creds in
-  let get uuid = Storage.(get (Election (uuid, filename))) in
-  let set uuid x = Storage.(set (Election (uuid, filename)) x) in
-  let del uuid = Storage.(del (Election (uuid, filename))) in
-  Abstract { get; set; del }
+  { of_string = Fun.id; to_string = Fun.id; filename = Storage.Public_creds }
+  |> make_file
 
 let draft_private_credentials =
-  let filename = Storage.Private_creds in
-  let get uuid = Storage.(get (Election (uuid, filename))) in
-  let set uuid x = Storage.(set (Election (uuid, filename)) x) in
-  let del uuid = Storage.(del (Election (uuid, filename))) in
-  Abstract { get; set; del }
+  { of_string = Fun.id; to_string = Fun.id; filename = Storage.Private_creds }
+  |> make_file
 
 let hide_result =
   {
