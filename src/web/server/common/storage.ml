@@ -47,8 +47,6 @@ type election_file =
   | Salts
   | Extended_records
   | Credential_mappings
-  | Partial_decryptions
-  | Ballots_index
   | Deleted
   | Public_archive
   | Passwords
@@ -103,8 +101,6 @@ let get_election_file_props uuid = function
   | Salts -> ("salts.json", Trim)
   | Extended_records -> ("extended_records.jsons", Raw)
   | Credential_mappings -> ("credential_mappings.jsons", Raw)
-  | Partial_decryptions -> ("partial_decryptions.json", Raw)
-  | Ballots_index -> ("ballots_index.json", Raw)
   | Deleted -> ("deleted.json", Trim)
   | Public_archive -> (Uuid.unwrap uuid ^ ".bel", Raw)
   | Passwords -> ("passwords.csv", Raw)
@@ -405,9 +401,7 @@ let delete_sensitive_data uuid =
       Decryption_tokens;
       Extended_records;
       Credential_mappings;
-      Partial_decryptions;
       Public_creds;
-      Ballots_index;
     ]
 
 let delete_live_data uuid =

@@ -42,8 +42,6 @@ type election_file =
   | Salts (* obsolete *)
   | Extended_records
   | Credential_mappings
-  | Partial_decryptions (* obsolete *)
-  | Ballots_index (* obsolete *)
   | Deleted
   | Public_archive
   | Passwords
