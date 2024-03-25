@@ -155,7 +155,7 @@ let append_to_shuffles election owned_owner shuffle_s =
   then
     let owned = { owned_owner; owned_payload = shuffle_h } in
     let owned_s = string_of_owned write_hash owned in
-    let* () =
+    let* x =
       Storage.append uuid ~last
         [
           Data shuffle_s;
@@ -163,7 +163,9 @@ let append_to_shuffles election owned_owner shuffle_s =
           Event (`Shuffle, Some (Hash.hash_string owned_s));
         ]
     in
-    return_some @@ sha256_b64 shuffle_s
+    match x with
+    | true -> return_some @@ sha256_b64 shuffle_s
+    | false -> Lwt.fail @@ Failure "race condition in append_to_shuffles"
   else return_none
 
 let make_result_transaction write_result result =
@@ -274,9 +276,16 @@ let internal_release_tally ~force uuid =
   match W.E.compute_result sized pds trustees with
   | Ok result ->
       let result_transaction = make_result_transaction W.write_result result in
-      let* () =
-        List.rev (result_transaction :: transactions)
-        |> List.flatten |> Storage.append uuid ~last
+      let@ () =
+       fun cont ->
+        let* x =
+          List.rev (result_transaction :: transactions)
+          |> List.flatten |> Storage.append uuid ~last
+        in
+        match x with
+        | true -> cont ()
+        | false ->
+            Lwt.fail @@ Failure "race condition in internal_release_tally"
       in
       let* () = remove_audit_cache uuid in
       let* () = set_election_state uuid `Tallied in
@@ -344,12 +353,17 @@ let add_partial_decryption uuid (owned_owner, pd) =
     { owned_owner; owned_payload = Hash.hash_string pd }
     |> string_of_owned write_hash
   in
-  Storage.append uuid
-    [
-      Data pd;
-      Data payload;
-      Event (`PartialDecryption, Some (Hash.hash_string payload));
-    ]
+  let* x =
+    Storage.append uuid
+      [
+        Data pd;
+        Data payload;
+        Event (`PartialDecryption, Some (Hash.hash_string payload));
+      ]
+  in
+  match x with
+  | true -> Lwt.return_unit
+  | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
 
 let get_decryption_tokens uuid = Spool.get ~uuid Spool.decryption_tokens
 let set_decryption_tokens uuid = Spool.set ~uuid Spool.decryption_tokens
@@ -603,12 +617,15 @@ let add_ballot election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let hash = sha256_b64 ballot in
-  let* () =
+  let* x =
     Storage.append ~lock:false uuid ~last
       [ Data ballot; Event (`Ballot, Some (Hash.hash_string ballot)) ]
   in
-  let () = Public_archive.clear_ballot_cache uuid in
-  return hash
+  match x with
+  | true ->
+      let () = Public_archive.clear_ballot_cache uuid in
+      return hash
+  | false -> Lwt.fail @@ Failure "race condition in add_ballot"
 
 let raw_compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
@@ -651,7 +668,7 @@ let raw_compute_encrypted_tally election =
     }
     |> string_of_sized_encrypted_tally write_hash
   in
-  let* () =
+  let* x =
     Storage.append uuid ~last
       [
         Event (`EndBallots, None);
@@ -660,7 +677,9 @@ let raw_compute_encrypted_tally election =
         Event (`EncryptedTally, Some (Hash.hash_string payload));
       ]
   in
-  return_unit
+  match x with
+  | true -> return_unit
+  | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
 let get_shuffle_token uuid = Spool.get ~uuid Spool.shuffle_token
 
@@ -1202,14 +1221,19 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
     let setup_credentials = Hash.hash_string raw_public_creds in
     let setup_data = { setup_election; setup_trustees; setup_credentials } in
     let setup_data_s = string_of_setup_data setup_data in
-    Storage.append ~lock:false uuid
-      [
-        Data raw_election;
-        Data raw_trustees;
-        Data raw_public_creds;
-        Data setup_data_s;
-        Event (`Setup, Some (Hash.hash_string setup_data_s));
-      ]
+    let* x =
+      Storage.append ~lock:false uuid
+        [
+          Data raw_election;
+          Data raw_trustees;
+          Data raw_public_creds;
+          Data setup_data_s;
+          Event (`Setup, Some (Hash.hash_string setup_data_s));
+        ]
+    in
+    match x with
+    | true -> Lwt.return_unit
+    | false -> Lwt.fail @@ Failure "race condition in validate_election"
   in
   (* create file with private keys, if any *)
   let* () =
@@ -1299,7 +1323,13 @@ let finish_shuffling uuid =
   let* state = get_election_state uuid in
   match state with
   | `Shuffling ->
-      let* () = Storage.append uuid [ Event (`EndShuffles, None) ] in
+      let@ () =
+       fun cont ->
+        let* x = Storage.append uuid [ Event (`EndShuffles, None) ] in
+        match x with
+        | true -> cont ()
+        | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
+      in
       let* () = Spool.del ~uuid Spool.skipped_shufflers in
       let* () = transition_to_encrypted_tally uuid in
       Lwt.return_true

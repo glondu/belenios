@@ -89,7 +89,5 @@ val get_roots : uuid -> roots Lwt.t
 
 type append_operation = Data of string | Event of event_type * hash option
 
-exception RaceCondition
-
 val append :
-  ?lock:bool -> uuid -> ?last:last_event -> append_operation list -> unit Lwt.t
+  ?lock:bool -> uuid -> ?last:last_event -> append_operation list -> bool Lwt.t

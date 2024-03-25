@@ -682,8 +682,6 @@ let get_roots uuid =
 
 type append_operation = Data of string | Event of event_type * hash option
 
-exception RaceCondition
-
 let append ?(lock = true) uuid ?last ops =
   let@ () =
    fun cont -> if lock then Web_election_mutex.with_lock uuid cont else cont ()
@@ -692,7 +690,7 @@ let append ?(lock = true) uuid ?last ops =
     let* x = get_last_event uuid in
     match last with
     | None -> cont x
-    | Some last -> if x = Some last then cont x else Lwt.fail RaceCondition
+    | Some last -> if x = Some last then cont x else Lwt.return_false
   in
   let* index = get_index ~lock:false ~creat:true uuid in
   let event_parent, event_height, pos =
@@ -731,4 +729,4 @@ let append ?(lock = true) uuid ?last ops =
   let* () = set_last_event uuid { last_hash; last_height; last_pos } in
   List.iter (fun r -> Hashtbl.add index.map r.Archive.hash r.location) records;
   index.roots <- roots;
-  Lwt.return_unit
+  Lwt.return_true
