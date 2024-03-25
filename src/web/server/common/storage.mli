@@ -39,7 +39,7 @@ type election_file =
   | Shuffle_token
   | Audit_cache
   | Last_event
-  | Salts (* obsolete *)
+  | Salts (* obsolete as of 2.4 *)
   | Extended_records
   | Credential_mappings
   | Deleted
@@ -52,7 +52,7 @@ type election_file =
 
 type t =
   | Spool_version
-  | Account_counter (* obsolete *)
+  | Account_counter (* obsolete as of 2.6 *)
   | Account of int
   | Election of uuid * election_file
   | Auth_db of string
