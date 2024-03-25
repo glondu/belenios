@@ -52,6 +52,8 @@ type election_file =
   | Records
   | Voters
   | Confidential_archive
+  | Extended_record of string
+  | Credential_mapping of string
 
 type t =
   | Spool_version
@@ -81,57 +83,86 @@ let list_elections () =
          match Uuid.wrap x with exception _ -> accu | x -> x :: accu)
        [] xs
 
+type abstract_file_ops = {
+  mutable get : uuid -> string -> string option Lwt.t;
+  mutable set : uuid -> string -> string -> unit Lwt.t;
+}
+
+let make_uninitialized_ops what =
+  let e = Lwt.fail (Failure (Printf.sprintf "Storage.%s uninitialized" what)) in
+  { get = (fun _ _ -> e); set = (fun _ _ _ -> e) }
+
+let extended_records_ops = make_uninitialized_ops "extended_records_ops"
+let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
+
+type election_file_props =
+  | Concrete of string * kind
+  | Abstract of abstract_file_ops * string
+
 let get_election_file_props uuid = function
-  | Draft -> ("draft.json", Trim)
-  | State -> ("state.json", Trim)
-  | Public_creds -> ("public_creds.json", Trim)
-  | Private_creds -> ("private_creds.txt", Raw)
-  | Hide_result -> ("hide_result", Trim)
-  | Dates -> ("dates.json", Trim)
-  | Decryption_tokens -> ("decryption_tokens.json", Trim)
-  | Metadata -> ("metadata.json", Trim)
-  | Private_key -> ("private_key.json", Trim)
-  | Private_keys -> ("private_keys.jsons", Raw)
-  | Skipped_shufflers -> ("skipped_shufflers.json", Trim)
-  | Shuffle_token -> ("shuffle_token.json", Trim)
-  | Audit_cache -> ("audit_cache.json", Trim)
-  | Last_event -> ("last_event.json", Trim)
-  | Salts -> ("salts.json", Trim)
-  | Deleted -> ("deleted.json", Trim)
-  | Public_archive -> (Uuid.unwrap uuid ^ ".bel", Raw)
-  | Passwords -> ("passwords.csv", Raw)
-  | Records -> ("records", Raw)
-  | Voters -> ("voters.txt", Raw)
-  | Confidential_archive -> ("archive.zip", Raw)
-  | Private_creds_downloaded -> ("private_creds.downloaded", Raw)
+  | Draft -> Concrete ("draft.json", Trim)
+  | State -> Concrete ("state.json", Trim)
+  | Public_creds -> Concrete ("public_creds.json", Trim)
+  | Private_creds -> Concrete ("private_creds.txt", Raw)
+  | Hide_result -> Concrete ("hide_result", Trim)
+  | Dates -> Concrete ("dates.json", Trim)
+  | Decryption_tokens -> Concrete ("decryption_tokens.json", Trim)
+  | Metadata -> Concrete ("metadata.json", Trim)
+  | Private_key -> Concrete ("private_key.json", Trim)
+  | Private_keys -> Concrete ("private_keys.jsons", Raw)
+  | Skipped_shufflers -> Concrete ("skipped_shufflers.json", Trim)
+  | Shuffle_token -> Concrete ("shuffle_token.json", Trim)
+  | Audit_cache -> Concrete ("audit_cache.json", Trim)
+  | Last_event -> Concrete ("last_event.json", Trim)
+  | Salts -> Concrete ("salts.json", Trim)
+  | Deleted -> Concrete ("deleted.json", Trim)
+  | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
+  | Passwords -> Concrete ("passwords.csv", Raw)
+  | Records -> Concrete ("records", Raw)
+  | Voters -> Concrete ("voters.txt", Raw)
+  | Confidential_archive -> Concrete ("archive.zip", Raw)
+  | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)
+  | Extended_record key -> Abstract (extended_records_ops, key)
+  | Credential_mapping key -> Abstract (credential_mappings_ops, key)
 
 let extended_records_filename = "extended_records.jsons"
 let credential_mappings_filename = "credential_mappings.jsons"
 
+type file_props =
+  | Concrete of string * kind
+  | Abstract of abstract_file_ops * uuid * string
+
 let get_props = function
-  | Spool_version -> (!!"version", Trim)
-  | Account_counter -> (!Web_config.accounts_dir // "counter", Trim)
-  | Account id -> (!Web_config.accounts_dir // Printf.sprintf "%d.json" id, Trim)
-  | Election (uuid, f) ->
-      let fname, kind = get_election_file_props uuid f in
-      (uuid /// fname, kind)
-  | Auth_db f -> (f, Raw)
+  | Spool_version -> Concrete (!!"version", Trim)
+  | Account_counter -> Concrete (!Web_config.accounts_dir // "counter", Trim)
+  | Account id ->
+      Concrete (!Web_config.accounts_dir // Printf.sprintf "%d.json" id, Trim)
+  | Election (uuid, f) -> (
+      match get_election_file_props uuid f with
+      | Concrete (fname, kind) -> Concrete (uuid /// fname, kind)
+      | Abstract (ops, key) -> Abstract (ops, uuid, key))
+  | Auth_db f -> Concrete (f, Raw)
 
 let file_exists x =
-  let x = fst @@ get_props x in
-  Filesystem.file_exists x
+  match get_props x with
+  | Concrete (path, _) -> Filesystem.file_exists path
+  | Abstract _ -> Lwt.fail (Failure "Storage.file_exists")
 
 let get f =
-  let path, kind = get_props f in
-  let* x = Filesystem.read_file path in
-  match kind with
-  | Raw -> Lwt.return x
-  | Trim -> Lwt.return @@ Option.map String.trim x
+  match get_props f with
+  | Concrete (path, kind) -> (
+      let* x = Filesystem.read_file path in
+      match kind with
+      | Raw -> Lwt.return x
+      | Trim -> Lwt.return @@ Option.map String.trim x)
+  | Abstract (ops, uuid, key) -> ops.get uuid key
 
 let set f data =
-  let fname, kind = get_props f in
-  let data = match kind with Raw -> data | Trim -> data ^ "\n" in
-  Filesystem.write_file fname data
+  match get_props f with
+  | Concrete (fname, kind) ->
+      let data = match kind with Raw -> data | Trim -> data ^ "\n" in
+      Filesystem.write_file fname data
+  | Abstract (ops, uuid, key) -> ops.set uuid key data
 
 let append_to_file fname lines =
   let open Lwt_io in
@@ -141,8 +172,9 @@ let append_to_file fname lines =
   Lwt_list.iter_s (write_line oc) lines
 
 let del f =
-  let f = fst @@ get_props f in
-  Filesystem.cleanup_file f
+  match get_props f with
+  | Concrete (f, _) -> Filesystem.cleanup_file f
+  | Abstract _ -> Lwt.fail (Failure "Storage.del")
 
 let rmdir dir =
   let command = ("rm", [| "rm"; "-rf"; dir |]) in
@@ -228,12 +260,16 @@ let get_archive uuid =
     let archive_name = Election (uuid, Confidential_archive) in
     let* b = file_exists archive_name in
     let* () = if not b then make_archive uuid else Lwt.return_unit in
-    Lwt.return (fst @@ get_props archive_name)
+    match get_props archive_name with
+    | Concrete (f, _) -> Lwt.return f
+    | Abstract _ -> Lwt.fail (Failure "Storage.get_archive")
   else Lwt.fail Not_found
 
 let get_as_file = function
-  | Election (_, (Public_archive | Private_creds)) as x ->
-      Lwt.return @@ fst @@ get_props x
+  | Election (_, (Public_archive | Private_creds)) as x -> (
+      match get_props x with
+      | Concrete (f, _) -> Lwt.return f
+      | Abstract _ -> Lwt.fail (Failure "Storage.get_as_file"))
   | Election (uuid, Confidential_archive) -> get_archive uuid
   | _ -> Lwt.fail Not_found
 
@@ -321,6 +357,24 @@ let add_extended_record uuid username r =
   Election_defer.defer extended_records_deferrer uuid;
   Lwt.return_unit
 
+let () =
+  extended_records_ops.get <-
+    (fun uuid r_username ->
+      let* x = find_extended_record uuid r_username in
+      match x with
+      | Some (r_date, r_credential) ->
+          Lwt.return_some
+          @@ string_of_extended_record { r_username; r_date; r_credential }
+      | None -> Lwt.return_none);
+  extended_records_ops.set <-
+    (fun uuid username data ->
+      let { r_username; r_date; r_credential } =
+        extended_record_of_string data
+      in
+      if username = r_username then
+        add_extended_record uuid username (r_date, r_credential)
+      else Lwt.fail (Failure "Storage.extended_records_ops.set"))
+
 module CredMappingsCacheTypes = struct
   type key = uuid
   type value = string option SMap.t
@@ -390,6 +444,17 @@ let add_credential_mapping uuid cred mapping =
   in
   Election_defer.defer credential_mappings_deferrer uuid;
   Lwt.return_unit
+
+let () =
+  credential_mappings_ops.get <-
+    (fun uuid cred ->
+      let* x = find_credential_mapping uuid cred in
+      let&* x = x in
+      Lwt.return_some @@ Option.value ~default:"" x);
+  credential_mappings_ops.set <-
+    (fun uuid cred data ->
+      let mapping = if data = "" then None else Some data in
+      add_credential_mapping uuid cred mapping)
 
 let delete_sensitive_data uuid =
   let* () =

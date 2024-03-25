@@ -672,8 +672,11 @@ let gen_shuffle_token uuid tk_trustee tk_trustee_id tk_name =
   return t
 
 let get_credential_record uuid credential =
-  let* cr_ballot = Storage.find_credential_mapping uuid credential in
+  let* cr_ballot =
+    Storage.(get (Election (uuid, Credential_mapping credential)))
+  in
   let&* cr_ballot = cr_ballot in
+  let cr_ballot = if cr_ballot = "" then None else Some cr_ballot in
   let* cr_username = get_credential_user uuid credential in
   let* cr_weight = Public_archive.get_credential_weight uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
@@ -719,9 +722,10 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
   let get_user_record user =
-    let* x = Storage.find_extended_record uuid user in
-    let&* _, old_credential = x in
-    return_some old_credential
+    let* x = Storage.(get (Election (uuid, Extended_record user))) in
+    let&* x = x in
+    let { r_credential; _ } = extended_record_of_string x in
+    return_some r_credential
   in
   let@ x cont =
     let credential, cr = precast_data in
@@ -767,8 +771,16 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
               let* h = add_ballot election last rawballot in
               cont (h, true)
       in
-      let* () = Storage.add_credential_mapping uuid credential (Some hash) in
-      let* () = Storage.add_extended_record uuid user (date, credential) in
+      let* () =
+        Storage.(set (Election (uuid, Credential_mapping credential)) hash)
+      in
+      let* () =
+        Storage.(
+          set
+            (Election (uuid, Extended_record user))
+            (string_of_extended_record
+               { r_username = user; r_date = date; r_credential = credential }))
+      in
       return (Ok (hash, revote))
 
 let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =

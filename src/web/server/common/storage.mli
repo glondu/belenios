@@ -47,6 +47,8 @@ type election_file =
   | Records
   | Voters
   | Confidential_archive
+  | Extended_record of string
+  | Credential_mapping of string
 
 type t =
   | Spool_version
@@ -72,11 +74,7 @@ val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
 
 (** {1 Specialized operations} *)
 
-val find_extended_record : uuid -> string -> (datetime * string) option Lwt.t
-val add_extended_record : uuid -> string -> datetime * string -> unit Lwt.t
 val init_credential_mapping : uuid -> public_credentials Lwt.t
-val find_credential_mapping : uuid -> string -> string option option Lwt.t
-val add_credential_mapping : uuid -> string -> string option -> unit Lwt.t
 
 (** {1 Cleaning operations} *)
 
