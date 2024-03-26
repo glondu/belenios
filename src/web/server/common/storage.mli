@@ -84,7 +84,6 @@ val delete_live_data : uuid -> unit Lwt.t
 
 (** {1 Public archive operations} *)
 
-val get_event : uuid -> hash -> event option Lwt.t
 val get_roots : uuid -> roots Lwt.t
 
 type append_operation = Data of string | Event of event_type * hash option

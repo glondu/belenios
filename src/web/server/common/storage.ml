@@ -673,10 +673,6 @@ let get_data uuid x =
 
 let () = data_ops.get <- get_data
 
-let get_event uuid x =
-  let* x = get_data uuid x in
-  Lwt.return @@ Option.map event_of_string x
-
 let get_roots uuid =
   Lwt.try_bind
     (fun () -> get_index ~creat:false uuid)

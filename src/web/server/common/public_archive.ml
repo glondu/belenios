@@ -26,6 +26,10 @@ open Web_common
 
 let get_data uuid x = Storage.(get (Election (uuid, Data x)))
 
+let get_event uuid x =
+  let* x = get_data uuid x in
+  Lwt.return @@ Option.map event_of_string x
+
 let get_from_data uuid f =
   let* x = Storage.get_roots uuid in
   match f x with None -> Lwt.return_none | Some x -> get_data uuid x
@@ -42,7 +46,7 @@ let get_from_setup_data uuid f =
 
 let fold_on_event_payload_hashes uuid typ last_event f accu =
   let rec loop e accu =
-    let* e = Storage.get_event uuid e in
+    let* e = get_event uuid e in
     match e with
     | None -> assert false
     | Some e ->
@@ -280,7 +284,7 @@ let get_nh_ciphertexts uuid =
                   |> string_of_nh_ciphertexts W.(swrite G.to_string)
                   |> Lwt.return)))
   | Some x -> (
-      let* x = Storage.get_event uuid x in
+      let* x = get_event uuid x in
       match x with
       | None -> assert false
       | Some x -> (
