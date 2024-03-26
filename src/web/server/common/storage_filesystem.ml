@@ -76,6 +76,8 @@ module Make (Config : CONFIG) = struct
   let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
   let data_ops = make_uninitialized_ops "data_ops"
   let roots_ops = make_uninitialized_ops "roots_ops"
+  let voters_config_ops = make_uninitialized_ops "voters_config_ops"
+  let voters_ops = make_uninitialized_ops "voters_ops"
 
   type election_file_props =
     | Concrete : string * kind -> election_file_props
@@ -108,6 +110,8 @@ module Make (Config : CONFIG) = struct
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
     | Data key -> Abstract (data_ops, key)
     | Roots -> Abstract (roots_ops, ())
+    | Voters_config -> Abstract (voters_config_ops, ())
+    | Voter key -> Abstract (voters_ops, key)
 
   let extended_records_filename = "extended_records.jsons"
   let credential_mappings_filename = "credential_mappings.jsons"
@@ -445,6 +449,71 @@ module Make (Config : CONFIG) = struct
       (fun uuid cred data ->
         let mapping = if data = "" then None else Some data in
         add_credential_mapping uuid cred mapping)
+
+  type voters = {
+    has_explicit_weights : bool;
+    username_or_address : [ `Username | `Address ];
+    voter_map : Voter.t SMap.t;
+  }
+
+  module VoterCacheTypes = struct
+    type key = uuid
+    type value = voters
+  end
+
+  module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
+
+  let get_all_voters uuid =
+    let* x = get (Election (uuid, Voters)) in
+    match x with
+    | None -> Lwt.return []
+    | Some x -> Lwt.return (Voter.list_of_string x)
+
+  let raw_get_voter_cache uuid =
+    let* voters = get_all_voters uuid in
+    let voter_map =
+      List.fold_left
+        (fun accu x ->
+          let _, login, _ = Voter.get x in
+          SMap.add (String.lowercase_ascii login) x accu)
+        SMap.empty voters
+    in
+    let has_explicit_weights = Voter.has_explicit_weights voters in
+    let username_or_address =
+      match voters with
+      | [] -> `Username
+      | (_, { login; _ }) :: _ -> (
+          match login with None -> `Address | Some _ -> `Username)
+    in
+    Lwt.return { has_explicit_weights; username_or_address; voter_map }
+
+  let voter_cache = new VoterCache.cache raw_get_voter_cache ~timer:3600. 10
+
+  let get_voters uuid =
+    Lwt.catch
+      (fun () ->
+        let* x = voter_cache#find uuid in
+        Lwt.return_some x)
+      (fun _ -> Lwt.return_none)
+
+  let get_voters_config uuid () =
+    let* x = get_voters uuid in
+    let&* { has_explicit_weights; username_or_address; voter_map } = x in
+    let nb_voters = SMap.cardinal voter_map in
+    let x : voters_config =
+      { has_explicit_weights; username_or_address; nb_voters }
+    in
+    Lwt.return_some @@ string_of_voters_config x
+
+  let get_voter uuid id =
+    let* x = get_voters uuid in
+    let&* { voter_map; _ } = x in
+    let&* x = SMap.find_opt (String.lowercase_ascii id) voter_map in
+    Lwt.return_some @@ Voter.to_string x
+
+  let () =
+    voters_config_ops.get <- get_voters_config;
+    voters_ops.get <- get_voter
 
   (** {1 Cleaning operations} *)
 

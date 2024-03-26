@@ -476,68 +476,37 @@ let get_passwords uuid =
   in
   return_some res
 
-type voters = {
-  has_explicit_weights : bool;
-  username_or_address : [ `Username | `Address ];
-  voter_map : Voter.t SMap.t;
-}
-
-module VoterCacheTypes = struct
-  type key = uuid
-  type value = voters
-end
-
-module VoterCache = Ocsigen_cache.Make (VoterCacheTypes)
-
-let get_voters_file uuid = Storage.(get (Election (uuid, Voters)))
-
 let get_all_voters uuid =
-  let* x = get_voters_file uuid in
+  let* x = Storage.(get (Election (uuid, Voters))) in
   match x with
   | None -> Lwt.return []
   | Some x -> Lwt.return (Voter.list_of_string x)
 
-let raw_get_voter_cache uuid =
-  let* voters = get_all_voters uuid in
-  let voter_map =
-    List.fold_left
-      (fun accu x ->
-        let _, login, _ = Voter.get x in
-        SMap.add (String.lowercase_ascii login) x accu)
-      SMap.empty voters
-  in
-  let has_explicit_weights = Voter.has_explicit_weights voters in
-  let username_or_address =
-    match voters with
-    | [] -> `Username
-    | (_, { login; _ }) :: _ -> (
-        match login with None -> `Address | Some _ -> `Username)
-  in
-  Lwt.return { has_explicit_weights; username_or_address; voter_map }
-
-let voter_cache = new VoterCache.cache raw_get_voter_cache ~timer:3600. 10
-
-let dummy_voters =
+let dummy_voters_config =
   {
     has_explicit_weights = false;
     username_or_address = `Username;
-    voter_map = SMap.empty;
+    nb_voters = 0;
   }
 
-let get_voters uuid =
-  Lwt.catch (fun () -> voter_cache#find uuid) (fun _ -> Lwt.return dummy_voters)
+let get_voters_config uuid =
+  let* x = Storage.(get (Election (uuid, Voters_config))) in
+  match x with
+  | None -> Lwt.return dummy_voters_config
+  | Some x -> Lwt.return @@ voters_config_of_string x
 
 let get_has_explicit_weights uuid =
-  let* x = get_voters uuid in
-  Lwt.return x.has_explicit_weights
+  let* { has_explicit_weights; _ } = get_voters_config uuid in
+  Lwt.return has_explicit_weights
 
 let get_username_or_address uuid =
-  let* x = get_voters uuid in
-  Lwt.return x.username_or_address
+  let* { username_or_address; _ } = get_voters_config uuid in
+  Lwt.return username_or_address
 
 let get_voter uuid id =
-  let* x = get_voters uuid in
-  Lwt.return @@ SMap.find_opt (String.lowercase_ascii id) x.voter_map
+  let* x = Storage.(get (Election (uuid, Voter id))) in
+  let&* x = x in
+  Lwt.return_some @@ Voter.of_string x
 
 module CredCacheTypes = struct
   type key = uuid
@@ -928,11 +897,18 @@ let delete_election uuid =
              `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
     |> Lwt.return
   in
-  let* voters = get_voters uuid in
   let* ballots = Public_archive.get_ballot_hashes uuid in
   let* result = Public_archive.get_result uuid in
-  let de_nb_voters = SMap.cardinal voters.voter_map in
-  let de_has_weights = voters.has_explicit_weights in
+  let* de_nb_voters, de_has_weights =
+    let* x = Storage.(get (Election (uuid, Voters_config))) in
+    match x with
+    | None -> Lwt.return (0, false)
+    | Some x ->
+        let { has_explicit_weights; nb_voters; _ } =
+          voters_config_of_string x
+        in
+        Lwt.return (nb_voters, has_explicit_weights)
+  in
   let de =
     {
       de_uuid = uuid;
@@ -982,11 +958,11 @@ let regen_password uuid metadata user =
   in
   let module W = (val election) in
   let title = W.template.t_name in
-  let* voters = get_voters uuid in
-  let show_weight = voters.has_explicit_weights in
-  let x = SMap.find_opt (String.lowercase_ascii user) voters.voter_map in
+  let* show_weight = get_has_explicit_weights uuid in
+  let* x = Storage.(get (Election (uuid, Voter user))) in
   match x with
   | Some id ->
+      let id = Voter.of_string id in
       let langs = get_languages metadata.e_languages in
       let* db = load_password_db uuid in
       let* email, x =

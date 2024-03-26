@@ -407,7 +407,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       match method_ with
       | `GET -> (
           let@ () = handle_generic_error in
-          let* x = Web_persist.get_voters_file uuid in
+          let* x = Storage.(get (Election (uuid, Voters))) in
           match x with None -> not_found | Some x -> Lwt.return (200, x))
       | _ -> method_not_allowed)
   | [ "records" ] -> (

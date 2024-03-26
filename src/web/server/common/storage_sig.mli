@@ -51,6 +51,8 @@ type election_file =
   | Credential_mapping of string
   | Data of hash
   | Roots
+  | Voters_config
+  | Voter of string
 
 type file =
   | Spool_version

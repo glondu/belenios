@@ -60,7 +60,6 @@ val get_all_voters : uuid -> Voter.t list Lwt.t
 val set_draft_public_credentials : uuid -> public_credentials -> unit Lwt.t
 val get_draft_public_credentials : uuid -> string option Lwt.t
 val get_draft_private_credentials : uuid -> string option Lwt.t
-val get_voters_file : uuid -> string option Lwt.t
 val get_records : uuid -> string list option Lwt.t
 val set_salts : uuid -> salts -> unit Lwt.t
 val get_salt : uuid -> int -> Yojson.Safe.t salt option Lwt.t
