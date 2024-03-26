@@ -21,6 +21,7 @@
 
 open Belenios
 
+val get_data : uuid -> hash -> string option Lwt.t
 val get_trustees : uuid -> string Lwt.t
 val get_election : uuid -> string option Lwt.t
 val get_partial_decryptions : uuid -> string owned list Lwt.t

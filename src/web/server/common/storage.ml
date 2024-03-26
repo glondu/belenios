@@ -54,6 +54,7 @@ type election_file =
   | Confidential_archive
   | Extended_record of string
   | Credential_mapping of string
+  | Data of hash
 
 type t =
   | Spool_version
@@ -83,9 +84,9 @@ let list_elections () =
          match Uuid.wrap x with exception _ -> accu | x -> x :: accu)
        [] xs
 
-type abstract_file_ops = {
-  mutable get : uuid -> string -> string option Lwt.t;
-  mutable set : uuid -> string -> string -> unit Lwt.t;
+type 'key abstract_file_ops = {
+  mutable get : uuid -> 'key -> string option Lwt.t;
+  mutable set : uuid -> 'key -> string -> unit Lwt.t;
 }
 
 let make_uninitialized_ops what =
@@ -94,10 +95,11 @@ let make_uninitialized_ops what =
 
 let extended_records_ops = make_uninitialized_ops "extended_records_ops"
 let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
+let data_ops = make_uninitialized_ops "data_ops"
 
 type election_file_props =
-  | Concrete of string * kind
-  | Abstract of abstract_file_ops * string
+  | Concrete : string * kind -> election_file_props
+  | Abstract : 'key abstract_file_ops * 'key -> election_file_props
 
 let get_election_file_props uuid = function
   | Draft -> Concrete ("draft.json", Trim)
@@ -124,13 +126,14 @@ let get_election_file_props uuid = function
   | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)
   | Extended_record key -> Abstract (extended_records_ops, key)
   | Credential_mapping key -> Abstract (credential_mappings_ops, key)
+  | Data key -> Abstract (data_ops, key)
 
 let extended_records_filename = "extended_records.jsons"
 let credential_mappings_filename = "credential_mappings.jsons"
 
 type file_props =
-  | Concrete of string * kind
-  | Abstract of abstract_file_ops * uuid * string
+  | Concrete : string * kind -> file_props
+  | Abstract : 'key abstract_file_ops * uuid * 'key -> file_props
 
 let get_props = function
   | Spool_version -> Concrete (!!"version", Trim)
@@ -667,6 +670,8 @@ let get_data uuid x =
       let* filename = get_as_file (Election (uuid, Public_archive)) in
       gethash ~index:r.map ~filename x)
     (function Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
+
+let () = data_ops.get <- get_data
 
 let get_event uuid x =
   let* x = get_data uuid x in

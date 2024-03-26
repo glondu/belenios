@@ -24,19 +24,21 @@ open Belenios
 open Web_serializable_j
 open Web_common
 
+let get_data uuid x = Storage.(get (Election (uuid, Data x)))
+
 let get_from_data uuid f =
   let* x = Storage.get_roots uuid in
-  match f x with None -> Lwt.return_none | Some x -> Storage.get_data uuid x
+  match f x with None -> Lwt.return_none | Some x -> get_data uuid x
 
 let get_from_setup_data uuid f =
   let* x = Storage.get_roots uuid in
   match x.roots_setup_data with
   | None -> Lwt.return_none
   | Some x -> (
-      let* x = Storage.get_data uuid x in
+      let* x = get_data uuid x in
       match x with
       | None -> Lwt.return_none
-      | Some x -> Storage.get_data uuid (f (setup_data_of_string x)))
+      | Some x -> get_data uuid (f (setup_data_of_string x)))
 
 let fold_on_event_payload_hashes uuid typ last_event f accu =
   let rec loop e accu =
@@ -57,7 +59,7 @@ let fold_on_event_payload_hashes uuid typ last_event f accu =
 let fold_on_event_payloads uuid typ last_event f accu =
   fold_on_event_payload_hashes uuid typ last_event
     (fun payload accu ->
-      let* x = Storage.get_data uuid payload in
+      let* x = get_data uuid payload in
       match x with None -> assert false | Some x -> f payload x accu)
     accu
 
@@ -114,7 +116,7 @@ let get_partial_decryptions uuid =
         (fun _ x accu ->
           let x = owned_of_string read_hash x in
           let* pd =
-            let* x = Storage.get_data uuid x.owned_payload in
+            let* x = get_data uuid x.owned_payload in
             match x with None -> assert false | Some x -> Lwt.return x
           in
           let x = { x with owned_payload = pd } in
@@ -226,7 +228,7 @@ let get_ballot_by_hash uuid hash =
   Lwt.catch
     (fun () ->
       let hash = Hash.of_b64 hash in
-      Storage.get_data uuid hash)
+      get_data uuid hash)
     (fun _ -> Lwt.return_none)
 
 let get_owned_shuffles uuid =
@@ -246,7 +248,7 @@ let raw_get_shuffles uuid x =
   let* x =
     Lwt_list.map_s
       (fun (h, o) ->
-        let* x = Storage.get_data uuid o.owned_payload in
+        let* x = get_data uuid o.owned_payload in
         match x with None -> assert false | Some x -> Lwt.return (h, o, x))
       x
   in
@@ -264,12 +266,12 @@ let get_nh_ciphertexts uuid =
       match x.roots_encrypted_tally with
       | None -> assert false
       | Some x -> (
-          let* x = Storage.get_data uuid x in
+          let* x = get_data uuid x in
           match x with
           | None -> assert false
           | Some x -> (
               let x = sized_encrypted_tally_of_string read_hash x in
-              let* x = Storage.get_data uuid x.sized_encrypted_tally in
+              let* x = get_data uuid x.sized_encrypted_tally in
               match x with
               | None -> assert false
               | Some x ->
@@ -285,12 +287,12 @@ let get_nh_ciphertexts uuid =
           match x.event_payload with
           | None -> assert false
           | Some x -> (
-              let* x = Storage.get_data uuid x in
+              let* x = get_data uuid x in
               match x with
               | None -> assert false
               | Some x -> (
                   let x = owned_of_string read_hash x in
-                  let* x = Storage.get_data uuid x.owned_payload in
+                  let* x = get_data uuid x.owned_payload in
                   match x with
                   | None -> assert false
                   | Some x ->
@@ -315,7 +317,7 @@ let get_sized_encrypted_tally uuid =
   match roots.roots_encrypted_tally with
   | None -> Lwt.return_none
   | Some x -> (
-      let* x = Storage.get_data uuid x in
+      let* x = get_data uuid x in
       match x with None -> assert false | Some x -> Lwt.return_some x)
 
 let clear_ballot_cache uuid = ballots_cache#remove uuid

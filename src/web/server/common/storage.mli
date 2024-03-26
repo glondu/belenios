@@ -49,6 +49,7 @@ type election_file =
   | Confidential_archive
   | Extended_record of string
   | Credential_mapping of string
+  | Data of hash
 
 type t =
   | Spool_version
@@ -83,7 +84,6 @@ val delete_live_data : uuid -> unit Lwt.t
 
 (** {1 Public archive operations} *)
 
-val get_data : uuid -> hash -> string option Lwt.t
 val get_event : uuid -> hash -> event option Lwt.t
 val get_roots : uuid -> roots Lwt.t
 

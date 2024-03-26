@@ -44,7 +44,7 @@ let get_setup_data uuid =
   let* x =
     let* x = Storage.get_roots uuid in
     let&* x = x.roots_setup_data in
-    Storage.get_data uuid x
+    Public_archive.get_data uuid x
   in
   match x with
   | None -> assert false
@@ -98,12 +98,12 @@ let get_latest_encrypted_tally election =
     match roots.roots_encrypted_tally with
     | None -> return_none
     | Some x -> (
-        let* x = Storage.get_data uuid x in
+        let* x = Public_archive.get_data uuid x in
         match x with
         | None -> assert false
         | Some x -> (
             let x = sized_encrypted_tally_of_string read_hash x in
-            let* x = Storage.get_data uuid x.sized_encrypted_tally in
+            let* x = Public_archive.get_data uuid x.sized_encrypted_tally in
             match x with
             | None -> assert false
             | Some x ->
@@ -708,7 +708,7 @@ let precast_ballot uuid ~rawballot =
   let@ () =
    fun cont ->
     let hash = Hash.hash_string rawballot in
-    let* x = Storage.get_data uuid hash in
+    let* x = Public_archive.get_data uuid hash in
     match x with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error `DuplicateBallot
