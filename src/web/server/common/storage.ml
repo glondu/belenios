@@ -55,6 +55,7 @@ type election_file =
   | Extended_record of string
   | Credential_mapping of string
   | Data of hash
+  | Roots
 
 type t =
   | Spool_version
@@ -96,6 +97,7 @@ let make_uninitialized_ops what =
 let extended_records_ops = make_uninitialized_ops "extended_records_ops"
 let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
 let data_ops = make_uninitialized_ops "data_ops"
+let roots_ops = make_uninitialized_ops "roots_ops"
 
 type election_file_props =
   | Concrete : string * kind -> election_file_props
@@ -127,6 +129,7 @@ let get_election_file_props uuid = function
   | Extended_record key -> Abstract (extended_records_ops, key)
   | Credential_mapping key -> Abstract (credential_mappings_ops, key)
   | Data key -> Abstract (data_ops, key)
+  | Roots -> Abstract (roots_ops, ())
 
 let extended_records_filename = "extended_records.jsons"
 let credential_mappings_filename = "credential_mappings.jsons"
@@ -673,13 +676,13 @@ let get_data uuid x =
 
 let () = data_ops.get <- get_data
 
-let get_roots uuid =
+let get_roots uuid () =
   Lwt.try_bind
     (fun () -> get_index ~creat:false uuid)
-    (fun r -> Lwt.return r.roots)
-    (function
-      | Creation_not_requested -> Lwt.return Events.empty_roots
-      | e -> Lwt.reraise e)
+    (fun r -> Lwt.return_some @@ string_of_roots r.roots)
+    (function Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
+
+let () = roots_ops.get <- get_roots
 
 type append_operation = Data of string | Event of event_type * hash option
 

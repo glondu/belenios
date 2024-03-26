@@ -24,6 +24,12 @@ open Belenios
 open Web_serializable_j
 open Web_common
 
+let get_roots uuid =
+  let* x = Storage.(get (Election (uuid, Roots))) in
+  match x with
+  | None -> Lwt.return Events.empty_roots
+  | Some x -> Lwt.return @@ roots_of_string x
+
 let get_data uuid x = Storage.(get (Election (uuid, Data x)))
 
 let get_event uuid x =
@@ -31,11 +37,11 @@ let get_event uuid x =
   Lwt.return @@ Option.map event_of_string x
 
 let get_from_data uuid f =
-  let* x = Storage.get_roots uuid in
+  let* x = get_roots uuid in
   match f x with None -> Lwt.return_none | Some x -> get_data uuid x
 
 let get_from_setup_data uuid f =
-  let* x = Storage.get_roots uuid in
+  let* x = get_roots uuid in
   match x.roots_setup_data with
   | None -> Lwt.return_none
   | Some x -> (
@@ -112,7 +118,7 @@ let with_election uuid ~fallback f =
     (function Not_cachable -> fallback () | e -> Lwt.reraise e)
 
 let get_partial_decryptions uuid =
-  let* x = Storage.get_roots uuid in
+  let* x = get_roots uuid in
   match x.roots_last_pd_event with
   | None -> Lwt.return []
   | Some x ->
@@ -187,7 +193,7 @@ end
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
 let fold_on_ballots uuid f accu =
-  let* x = Storage.get_roots uuid in
+  let* x = get_roots uuid in
   match x.roots_last_ballot_event with
   | None -> Lwt.return accu
   | Some e -> fold_on_event_payloads uuid `Ballot e f accu
@@ -236,7 +242,7 @@ let get_ballot_by_hash uuid hash =
     (fun _ -> Lwt.return_none)
 
 let get_owned_shuffles uuid =
-  let* x = Storage.get_roots uuid in
+  let* x = get_roots uuid in
   match x.roots_last_shuffle_event with
   | None -> Lwt.return_none
   | Some x ->
@@ -264,7 +270,7 @@ let get_nh_ciphertexts uuid =
         Lwt.fail (Election_not_found (uuid, "get_nh_ciphertexts")))
   in
   let module W = (val election) in
-  let* x = Storage.get_roots uuid in
+  let* x = get_roots uuid in
   match x.roots_last_shuffle_event with
   | None -> (
       match x.roots_encrypted_tally with
@@ -317,7 +323,7 @@ let get_shuffles uuid =
   raw_get_shuffles uuid x
 
 let get_sized_encrypted_tally uuid =
-  let* roots = Storage.get_roots uuid in
+  let* roots = get_roots uuid in
   match roots.roots_encrypted_tally with
   | None -> Lwt.return_none
   | Some x -> (

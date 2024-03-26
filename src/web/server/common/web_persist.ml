@@ -42,7 +42,7 @@ let set_draft_election uuid = Spool.set ~uuid Spool.draft
 
 let get_setup_data uuid =
   let* x =
-    let* x = Storage.get_roots uuid in
+    let* x = Public_archive.get_roots uuid in
     let&* x = x.roots_setup_data in
     Public_archive.get_data uuid x
   in
@@ -93,7 +93,7 @@ let set_election_state uuid s =
 let get_latest_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
-  let* roots = Storage.get_roots uuid in
+  let* roots = Public_archive.get_roots uuid in
   let@ tally cont =
     match roots.roots_encrypted_tally with
     | None -> return_none
