@@ -28,7 +28,6 @@ val get_election : uuid -> string option Lwt.t
 val get_partial_decryptions : uuid -> string owned list Lwt.t
 val get_result : uuid -> string option Lwt.t
 val get_public_creds : uuid -> public_credentials Lwt.t
-val get_credential_weight : uuid -> string -> Weight.t Lwt.t
 val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_nh_ciphertexts : uuid -> string Lwt.t
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t

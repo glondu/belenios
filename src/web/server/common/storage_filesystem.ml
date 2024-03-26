@@ -78,6 +78,7 @@ module Make (Config : CONFIG) = struct
   let roots_ops = make_uninitialized_ops "roots_ops"
   let voters_config_ops = make_uninitialized_ops "voters_config_ops"
   let voters_ops = make_uninitialized_ops "voters_ops"
+  let credential_weights_ops = make_uninitialized_ops "credential_weights_ops"
   let credential_users_ops = make_uninitialized_ops "credential_users_ops"
   let salts_ops = make_uninitialized_ops "salts_ops"
 
@@ -114,6 +115,7 @@ module Make (Config : CONFIG) = struct
     | Roots -> Abstract (roots_ops, ())
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
+    | Credential_weight key -> Abstract (credential_weights_ops, key)
     | Credential_user key -> Abstract (credential_users_ops, key)
     | Salt key -> Abstract (salts_ops, key)
 
@@ -523,7 +525,7 @@ module Make (Config : CONFIG) = struct
     type key = uuid
 
     type value = {
-      cred_map : string option SMap.t;
+      cred_map : (string option * Weight.t) SMap.t;
       salts : Yojson.Safe.t salt array option;
     }
   end
@@ -551,7 +553,10 @@ module Make (Config : CONFIG) = struct
           List.fold_left
             (fun (cred_map, creds) x ->
               let p = parse_public_credential Fun.id x in
-              (SMap.add p.credential p.username cred_map, p.credential :: creds))
+              ( SMap.add p.credential
+                  (p.username, Option.value ~default:Weight.one p.weight)
+                  cred_map,
+                p.credential :: creds ))
             (SMap.empty, []) x
         in
         let* salts = make_salts creds in
@@ -564,8 +569,16 @@ module Make (Config : CONFIG) = struct
     Lwt.catch
       (fun () ->
         let* x = credential_cache#find uuid in
-        let&* x = SMap.find_opt cred x.cred_map in
+        let&* x, _ = SMap.find_opt cred x.cred_map in
         Lwt.return_some @@ Option.value ~default:"" x)
+      (fun _ -> Lwt.return_none)
+
+  let get_credential_weight uuid cred =
+    Lwt.catch
+      (fun () ->
+        let* x = credential_cache#find uuid in
+        let&* _, x = SMap.find_opt cred x.cred_map in
+        Lwt.return_some @@ Weight.to_string x)
       (fun _ -> Lwt.return_none)
 
   let get_salt uuid i =
@@ -580,6 +593,7 @@ module Make (Config : CONFIG) = struct
 
   let () =
     credential_users_ops.get <- get_credential_user;
+    credential_weights_ops.get <- get_credential_weight;
     salts_ops.get <- get_salt
 
   (** {1 Cleaning operations} *)

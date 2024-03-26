@@ -538,6 +538,12 @@ let add_ballot election last ballot =
       return hash
   | false -> Lwt.fail @@ Failure "race condition in add_ballot"
 
+let get_credential_weight uuid credential =
+  let* x = Storage.(get (Election (uuid, Credential_weight credential))) in
+  match x with
+  | None -> Lwt.return Weight.one
+  | Some x -> Lwt.return @@ Weight.of_string x
+
 let raw_compute_encrypted_tally election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
@@ -560,9 +566,7 @@ let raw_compute_encrypted_tally election =
   let* ballots =
     Lwt_list.fold_left_s
       (fun accu (credential, ballot) ->
-        let* weight =
-          Public_archive.get_credential_weight uuid (W.G.to_string credential)
-        in
+        let* weight = get_credential_weight uuid (W.G.to_string credential) in
         Lwt.return @@ ((weight, ballot) :: accu))
       [] (GMap.bindings ballots)
   in
@@ -607,7 +611,7 @@ let get_credential_record uuid credential =
   let&* cr_ballot = cr_ballot in
   let cr_ballot = if cr_ballot = "" then None else Some cr_ballot in
   let* cr_username = get_credential_user uuid credential in
-  let* cr_weight = Public_archive.get_credential_weight uuid credential in
+  let* cr_weight = get_credential_weight uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
 
 let precast_ballot uuid ~rawballot =

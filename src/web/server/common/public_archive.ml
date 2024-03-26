@@ -135,42 +135,21 @@ let get_partial_decryptions uuid =
 
 let get_result uuid = get_from_data uuid (fun x -> x.roots_result)
 
-module WeightsCacheTypes = struct
-  type key = uuid
-  type value = weight SMap.t
-end
-
-module WeightsCache = Ocsigen_cache.Make (WeightsCacheTypes)
-
 let get_public_creds uuid =
   let* x = get_from_setup_data uuid (fun x -> x.setup_credentials) in
   match x with
   | None -> assert false
   | Some x -> Lwt.return @@ public_credentials_of_string x
 
-let raw_get_credential_cache uuid =
-  let* x = get_public_creds uuid in
-  Lwt.return
-  @@ List.fold_left
-       (fun weights x ->
-         let p = parse_public_credential Fun.id x in
-         let weight = Option.value ~default:Weight.one p.weight in
-         SMap.add p.credential weight weights)
-       SMap.empty x
-
-let credential_cache =
-  new WeightsCache.cache raw_get_credential_cache ~timer:3600. 10
-
 let get_credential_weight uuid cred =
-  Lwt.catch
-    (fun () ->
-      let* xs = credential_cache#find uuid in
-      Lwt.return @@ SMap.find cred xs)
-    (fun _ ->
+  let* x = Storage.(get (Election (uuid, Credential_weight cred))) in
+  match x with
+  | Some x -> Lwt.return @@ Weight.of_string x
+  | None ->
       Lwt.fail
         (Failure
            (Printf.sprintf "could not find credential weight of %s/%s"
-              (Uuid.unwrap uuid) cred)))
+              (Uuid.unwrap uuid) cred))
 
 let get_ballot_weight election ballot =
   let module W = (val election : Site_common_sig.ELECTION) in

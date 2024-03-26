@@ -53,6 +53,7 @@ type election_file =
   | Roots
   | Voters_config
   | Voter of string
+  | Credential_weight of string
   | Credential_user of string
   | Salt of int
 
