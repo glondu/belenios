@@ -508,79 +508,21 @@ let get_voter uuid id =
   let&* x = x in
   Lwt.return_some @@ Voter.of_string x
 
-module CredCacheTypes = struct
-  type key = uuid
-
-  type value = {
-    cred_map : string option SMap.t option;
-    salts : Yojson.Safe.t salt array option;
-  }
-end
-
-module CredCache = Ocsigen_cache.Make (CredCacheTypes)
-
-let raw_get_credential_cache uuid =
-  let make_salts creds =
-    let* x = Spool.get ~uuid Spool.salts in
-    match x with
-    | None -> Lwt.return_none
-    | Some salts ->
-        List.combine salts (List.rev creds)
-        |> List.map (fun (salt, cred) ->
-               { salt; public_credential = `String cred })
-        |> Array.of_list |> Lwt.return_some
-  in
-  let* x = Storage.(get (Election (uuid, Public_creds))) in
-  match x with
-  | None ->
-      let* x = Public_archive.get_public_creds uuid in
-      let creds =
-        List.fold_left
-          (fun creds x ->
-            let p = parse_public_credential Fun.id x in
-            p.credential :: creds)
-          [] x
-      in
-      let* salts = make_salts creds in
-      Lwt.return CredCacheTypes.{ cred_map = None; salts }
-  | Some x ->
-      let x = public_credentials_of_string x in
-      let cred_map, creds =
-        List.fold_left
-          (fun (cred_map, creds) x ->
-            let p = parse_public_credential Fun.id x in
-            (SMap.add p.credential p.username cred_map, p.credential :: creds))
-          (SMap.empty, []) x
-      in
-      let* salts = make_salts creds in
-      Lwt.return CredCacheTypes.{ cred_map = Some cred_map; salts }
-
-let credential_cache =
-  new CredCache.cache raw_get_credential_cache ~timer:3600. 10
-
 let get_credential_user uuid cred =
-  Lwt.catch
-    (fun () ->
-      let* x = credential_cache#find uuid in
-      let&* x = x.cred_map in
-      let&* x = SMap.find_opt cred x in
-      return x)
-    (fun _ ->
+  let* x = Storage.(get (Election (uuid, Credential_user cred))) in
+  match x with
+  | Some "" -> Lwt.return_none
+  | Some x -> Lwt.return_some x
+  | None ->
       Lwt.fail
         (Failure
            (Printf.sprintf "could not find credential record of %s/%s"
-              (Uuid.unwrap uuid) cred)))
+              (Uuid.unwrap uuid) cred))
 
 let get_salt uuid i =
-  Lwt.catch
-    (fun () ->
-      let* xs = credential_cache#find uuid in
-      match xs.salts with
-      | None -> Lwt.return_none
-      | Some salts ->
-          if 0 <= i && i < Array.length salts then Lwt.return_some salts.(i)
-          else Lwt.return_none)
-    (fun _ -> Lwt.return_none)
+  let* x = Storage.(get (Election (uuid, Salt i))) in
+  let&* x = x in
+  Lwt.return_some @@ salt_of_string Yojson.Safe.read_json x
 
 let add_ballot election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in

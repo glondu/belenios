@@ -78,6 +78,8 @@ module Make (Config : CONFIG) = struct
   let roots_ops = make_uninitialized_ops "roots_ops"
   let voters_config_ops = make_uninitialized_ops "voters_config_ops"
   let voters_ops = make_uninitialized_ops "voters_ops"
+  let credential_users_ops = make_uninitialized_ops "credential_users_ops"
+  let salts_ops = make_uninitialized_ops "salts_ops"
 
   type election_file_props =
     | Concrete : string * kind -> election_file_props
@@ -112,6 +114,8 @@ module Make (Config : CONFIG) = struct
     | Roots -> Abstract (roots_ops, ())
     | Voters_config -> Abstract (voters_config_ops, ())
     | Voter key -> Abstract (voters_ops, key)
+    | Credential_user key -> Abstract (credential_users_ops, key)
+    | Salt key -> Abstract (salts_ops, key)
 
   let extended_records_filename = "extended_records.jsons"
   let credential_mappings_filename = "credential_mappings.jsons"
@@ -515,6 +519,84 @@ module Make (Config : CONFIG) = struct
     voters_config_ops.get <- get_voters_config;
     voters_ops.get <- get_voter
 
+  module CredCacheTypes = struct
+    type key = uuid
+
+    type value = {
+      cred_map : string option SMap.t option;
+      salts : Yojson.Safe.t salt array option;
+    }
+  end
+
+  module CredCache = Ocsigen_cache.Make (CredCacheTypes)
+
+  let get_public_creds_live =
+    ref (fun _ -> Lwt.fail (Failure "get_public_creds_live not initialized"))
+
+  let raw_get_credential_cache uuid =
+    let make_salts creds =
+      let* x = get (Election (uuid, Salts)) in
+      match x with
+      | None -> Lwt.return_none
+      | Some salts ->
+          let salts = salts_of_string salts in
+          List.combine salts (List.rev creds)
+          |> List.map (fun (salt, cred) ->
+                 { salt; public_credential = `String cred })
+          |> Array.of_list |> Lwt.return_some
+    in
+    let* x = get (Election (uuid, Public_creds)) in
+    match x with
+    | None ->
+        (* deprecated as of 2.0 *)
+        let* x = !get_public_creds_live uuid in
+        let creds =
+          List.fold_left
+            (fun creds x ->
+              let p = parse_public_credential Fun.id x in
+              p.credential :: creds)
+            [] x
+        in
+        let* salts = make_salts creds in
+        Lwt.return CredCacheTypes.{ cred_map = None; salts }
+    | Some x ->
+        let x = public_credentials_of_string x in
+        let cred_map, creds =
+          List.fold_left
+            (fun (cred_map, creds) x ->
+              let p = parse_public_credential Fun.id x in
+              (SMap.add p.credential p.username cred_map, p.credential :: creds))
+            (SMap.empty, []) x
+        in
+        let* salts = make_salts creds in
+        Lwt.return CredCacheTypes.{ cred_map = Some cred_map; salts }
+
+  let credential_cache =
+    new CredCache.cache raw_get_credential_cache ~timer:3600. 10
+
+  let get_credential_user uuid cred =
+    Lwt.catch
+      (fun () ->
+        let* x = credential_cache#find uuid in
+        let&* x = x.cred_map in
+        let&* x = SMap.find_opt cred x in
+        Lwt.return_some @@ Option.value ~default:"" x)
+      (fun _ -> Lwt.return_none)
+
+  let get_salt uuid i =
+    Lwt.catch
+      (fun () ->
+        let* x = credential_cache#find uuid in
+        let&* salts = x.salts in
+        if 0 <= i && i < Array.length salts then
+          Lwt.return_some @@ string_of_salt Yojson.Safe.write_json salts.(i)
+        else Lwt.return_none)
+      (fun _ -> Lwt.return_none)
+
+  let () =
+    credential_users_ops.get <- get_credential_user;
+    salts_ops.get <- get_salt
+
   (** {1 Cleaning operations} *)
 
   let delete_sensitive_data uuid =
@@ -743,6 +825,23 @@ module Make (Config : CONFIG) = struct
         | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
   let () = roots_ops.get <- get_roots
+
+  let () =
+    get_public_creds_live :=
+      let fail = Lwt.fail (Failure "get_public_creds_live") in
+      fun uuid ->
+        Lwt.try_bind
+          (fun () -> get_index ~creat:false uuid)
+          (fun r ->
+            let ( let&* ) x f = match x with None -> fail | Some x -> f x in
+            let&* roots_setup_data = r.roots.roots_setup_data in
+            let* setup_data = get_data uuid roots_setup_data in
+            let&* setup_data = setup_data in
+            let { setup_credentials; _ } = setup_data_of_string setup_data in
+            let* x = get_data uuid setup_credentials in
+            let&* x = x in
+            Lwt.return @@ public_credentials_of_string x)
+          (function Creation_not_requested -> fail | e -> Lwt.reraise e)
 
   let append ?(lock = true) uuid ?last ops =
     let@ () = fun cont -> if lock then with_lock uuid cont else cont () in
