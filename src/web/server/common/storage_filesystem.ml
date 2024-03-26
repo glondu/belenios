@@ -525,7 +525,7 @@ module Make (Config : CONFIG) = struct
     type key = uuid
 
     type value = {
-      cred_map : (string option * Weight.t) SMap.t;
+      cred_map : (string * Weight.t) SMap.t;
       salts : Yojson.Safe.t salt array option;
     }
   end
@@ -553,8 +553,13 @@ module Make (Config : CONFIG) = struct
           List.fold_left
             (fun (cred_map, creds) x ->
               let p = parse_public_credential Fun.id x in
+              let username =
+                match p.username with
+                | None -> failwith "raw_get_credential_cache"
+                | Some x -> x
+              in
               ( SMap.add p.credential
-                  (p.username, Option.value ~default:Weight.one p.weight)
+                  (username, Option.value ~default:Weight.one p.weight)
                   cred_map,
                 p.credential :: creds ))
             (SMap.empty, []) x
@@ -570,7 +575,7 @@ module Make (Config : CONFIG) = struct
       (fun () ->
         let* x = credential_cache#find uuid in
         let&* x, _ = SMap.find_opt cred x.cred_map in
-        Lwt.return_some @@ Option.value ~default:"" x)
+        Lwt.return_some x)
       (fun _ -> Lwt.return_none)
 
   let get_credential_weight uuid cred =

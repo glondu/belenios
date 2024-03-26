@@ -511,7 +511,6 @@ let get_voter uuid id =
 let get_credential_user uuid cred =
   let* x = Storage.(get (Election (uuid, Credential_user cred))) in
   match x with
-  | Some "" -> Lwt.return_none
   | Some x -> Lwt.return_some x
   | None ->
       Lwt.fail
