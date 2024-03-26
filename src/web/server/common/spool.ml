@@ -27,7 +27,7 @@ open Web_common
 type 'a file = {
   of_string : string -> 'a;
   to_string : 'a -> string;
-  filename : Storage.election_file;
+  filename : Storage_sig.election_file;
 }
 
 type 'a abstract = {
@@ -68,18 +68,26 @@ let draft =
   |> make_file
 
 let draft_public_credentials =
-  { of_string = Fun.id; to_string = Fun.id; filename = Storage.Public_creds }
+  {
+    of_string = Fun.id;
+    to_string = Fun.id;
+    filename = Storage_sig.Public_creds;
+  }
   |> make_file
 
 let draft_private_credentials =
-  { of_string = Fun.id; to_string = Fun.id; filename = Storage.Private_creds }
+  {
+    of_string = Fun.id;
+    to_string = Fun.id;
+    filename = Storage_sig.Private_creds;
+  }
   |> make_file
 
 let hide_result =
   {
     of_string = datetime_of_string;
     to_string = string_of_datetime;
-    filename = Storage.Hide_result;
+    filename = Storage_sig.Hide_result;
   }
   |> make_file
 
@@ -87,7 +95,7 @@ let dates =
   {
     of_string = election_dates_of_string;
     to_string = string_of_election_dates;
-    filename = Storage.Dates;
+    filename = Storage_sig.Dates;
   }
   |> make_file
 
@@ -95,7 +103,7 @@ let state =
   {
     of_string = election_state_of_string;
     to_string = string_of_election_state;
-    filename = Storage.State;
+    filename = Storage_sig.State;
   }
   |> make_file
 
@@ -103,7 +111,7 @@ let decryption_tokens =
   {
     of_string = decryption_tokens_of_string;
     to_string = string_of_decryption_tokens;
-    filename = Storage.Decryption_tokens;
+    filename = Storage_sig.Decryption_tokens;
   }
   |> make_file
 
@@ -111,7 +119,7 @@ let metadata =
   {
     of_string = metadata_of_string;
     to_string = string_of_metadata;
-    filename = Storage.Metadata;
+    filename = Storage_sig.Metadata;
   }
   |> make_file
 
@@ -119,12 +127,12 @@ let private_key =
   {
     of_string = Yojson.Safe.from_string;
     to_string = Yojson.Safe.to_string;
-    filename = Storage.Private_key;
+    filename = Storage_sig.Private_key;
   }
   |> make_file
 
 let private_keys =
-  let filename = Storage.Private_keys in
+  let filename = Storage_sig.Private_keys in
   let get uuid =
     let* x = Storage.(get (Election (uuid, filename))) in
     let&* x = x in
@@ -138,7 +146,7 @@ let skipped_shufflers =
   {
     of_string = skipped_shufflers_of_string;
     to_string = string_of_skipped_shufflers;
-    filename = Storage.Skipped_shufflers;
+    filename = Storage_sig.Skipped_shufflers;
   }
   |> make_file
 
@@ -146,7 +154,7 @@ let shuffle_token =
   {
     of_string = shuffle_token_of_string;
     to_string = string_of_shuffle_token;
-    filename = Storage.Shuffle_token;
+    filename = Storage_sig.Shuffle_token;
   }
   |> make_file
 
@@ -154,7 +162,7 @@ let audit_cache =
   {
     of_string = audit_cache_of_string;
     to_string = string_of_audit_cache;
-    filename = Storage.Audit_cache;
+    filename = Storage_sig.Audit_cache;
   }
   |> make_file
 
@@ -162,7 +170,7 @@ let last_event =
   {
     of_string = last_event_of_string;
     to_string = string_of_last_event;
-    filename = Storage.Last_event;
+    filename = Storage_sig.Last_event;
   }
   |> make_file
 
@@ -170,6 +178,6 @@ let salts =
   {
     of_string = salts_of_string;
     to_string = string_of_salts;
-    filename = Storage.Salts;
+    filename = Storage_sig.Salts;
   }
   |> make_file

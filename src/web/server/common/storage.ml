@@ -23,46 +23,12 @@ open Lwt.Syntax
 open Belenios
 open Web_serializable_j
 open Web_common
+open Storage_sig
 
 let ( !! ) x = !Web_config.spool_dir // x
 let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
 
 type kind = Raw | Trim
-
-type election_file =
-  | State
-  | Hide_result
-  | Dates
-  | Decryption_tokens
-  | Metadata
-  | Private_key
-  | Private_keys
-  | Skipped_shufflers
-  | Shuffle_token
-  | Audit_cache
-  | Last_event
-  | Deleted
-  | Private_creds_downloaded
-  | Draft
-  | Public_creds
-  | Private_creds
-  | Salts
-  | Public_archive
-  | Passwords
-  | Records
-  | Voters
-  | Confidential_archive
-  | Extended_record of string
-  | Credential_mapping of string
-  | Data of hash
-  | Roots
-
-type t =
-  | Spool_version
-  | Account_counter
-  | Account of int
-  | Election of uuid * election_file
-  | Auth_db of string
 
 let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
 
@@ -683,8 +649,6 @@ let get_roots uuid () =
     (function Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
 let () = roots_ops.get <- get_roots
-
-type append_operation = Data of string | Event of event_type * hash option
 
 let append ?(lock = true) uuid ?last ops =
   let@ () =

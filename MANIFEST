@@ -478,6 +478,7 @@ src/web/server/common/spool.ml
 src/web/server/common/spool.mli
 src/web/server/common/storage.ml
 src/web/server/common/storage.mli
+src/web/server/common/storage_sig.mli
 src/web/server/common/web_auth.ml
 src/web/server/common/web_auth.mli
 src/web/server/common/web_auth_cas.ml

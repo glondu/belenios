@@ -170,7 +170,7 @@ let append_to_shuffles election owned_owner shuffle_s =
 
 let make_result_transaction write_result result =
   let payload = string_of_election_result write_result result in
-  let open Storage in
+  let open Storage_sig in
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
 let clear_shuffle_token uuid = Spool.del ~uuid Spool.shuffle_token
@@ -253,7 +253,7 @@ let internal_release_tally ~force uuid =
             |> string_of_owned write_hash
           in
           let transaction =
-            let open Storage in
+            let open Storage_sig in
             [
               Data pd;
               Data payload;
