@@ -79,6 +79,7 @@ module type S = sig
 
   (** {1 Specialized operations} *)
 
+  val with_lock : uuid -> (unit -> 'a Lwt.t) -> 'a Lwt.t
   val init_credential_mapping : uuid -> public_credentials Lwt.t
 
   (** {1 Cleaning operations} *)

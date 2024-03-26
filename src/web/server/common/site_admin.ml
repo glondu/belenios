@@ -300,8 +300,7 @@ struct
   let with_draft ?(lock = true) ?(save = true) uuid f =
     let@ _, a, _ = with_site_user in
     let@ () =
-     fun cont ->
-      if lock then Web_election_mutex.with_lock uuid cont else cont ()
+     fun cont -> if lock then Storage.with_lock uuid cont else cont ()
     in
     let@ (Draft (_, se) as x) = with_draft_public uuid in
     if Accounts.check a se.se_owners then
@@ -872,7 +871,7 @@ struct
         if token = "" then forbidden ()
         else
           let* x =
-            Web_election_mutex.with_lock uuid (fun () ->
+            Storage.with_lock uuid (fun () ->
                 let@ (Draft (_, se) as fse) = with_draft_public uuid in
                 let ts =
                   match se.se_trustees with
@@ -1587,7 +1586,7 @@ struct
       (fun (uuid, token) data ->
         let@ () = wrap_handler_without_site_user in
         let* () =
-          Web_election_mutex.with_lock uuid (fun () ->
+          Storage.with_lock uuid (fun () ->
               let@ (Draft (v, se)) = with_draft_public uuid in
               let version = se.se_version in
               let module G = (val Group.of_string ~version se.se_group : GROUP)

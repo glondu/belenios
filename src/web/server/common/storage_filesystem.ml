@@ -391,6 +391,8 @@ module Make (Config : CONFIG) = struct
         let* x = credential_mappings_cache#find uuid in
         dump_credential_mappings uuid x)
 
+  let with_lock = Election_mutex.with_lock
+
   let init_credential_mapping uuid =
     let* file = get (Election (uuid, Public_creds)) in
     match file with
@@ -594,7 +596,7 @@ module Make (Config : CONFIG) = struct
       | Some r -> Lwt.return r
       | None ->
           if lock then
-            let@ () = Web_election_mutex.with_lock uuid in
+            let@ () = with_lock uuid in
             match Hashtbl.find_opt indexes uuid with
             | Some r -> Lwt.return r
             | None -> do_get_index ~creat ~uuid
@@ -666,10 +668,7 @@ module Make (Config : CONFIG) = struct
   let () = roots_ops.get <- get_roots
 
   let append ?(lock = true) uuid ?last ops =
-    let@ () =
-     fun cont ->
-      if lock then Web_election_mutex.with_lock uuid cont else cont ()
-    in
+    let@ () = fun cont -> if lock then with_lock uuid cont else cont () in
     let@ last cont =
       let* x = get_last_event uuid in
       match last with

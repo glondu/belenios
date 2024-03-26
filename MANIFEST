@@ -448,6 +448,8 @@ src/web/server/common/billing.mli
 src/web/server/common/dune
 src/web/server/common/election_defer.ml
 src/web/server/common/election_defer.mli
+src/web/server/common/election_mutex.ml
+src/web/server/common/election_mutex.mli
 src/web/server/common/filesystem.ml
 src/web/server/common/filesystem.mli
 src/web/server/common/mails_voter.ml
@@ -505,8 +507,6 @@ src/web/server/common/web_cont.mli
 src/web/server/common/web_cont_sig.mli
 src/web/server/common/web_defaults.ml
 src/web/server/common/web_defaults.mli
-src/web/server/common/web_election_mutex.ml
-src/web/server/common/web_election_mutex.mli
 src/web/server/common/web_i18n.ml
 src/web/server/common/web_i18n.mli
 src/web/server/common/web_i18n_sig.mli

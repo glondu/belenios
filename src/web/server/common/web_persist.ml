@@ -806,7 +806,7 @@ let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =
     Public_archive.with_election uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "cast_ballot")))
   in
-  Web_election_mutex.with_lock uuid (fun () ->
+  Storage.with_lock uuid (fun () ->
       do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)
 
 let compute_audit_cache uuid =

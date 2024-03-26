@@ -33,7 +33,7 @@ let defer t uuid =
       Lwt.async (fun () ->
           Lwt.finalize
             (fun () ->
-              let@ () = Web_election_mutex.with_lock uuid in
+              let@ () = Election_mutex.with_lock uuid in
               t.task uuid)
             (fun () ->
               t.deferred <- SSet.remove uuid_s t.deferred;

@@ -60,6 +60,10 @@ let new_account_id () =
   let module X = (val get_backend ()) in
   X.new_account_id ()
 
+let with_lock uuid f =
+  let module X = (val get_backend ()) in
+  X.with_lock uuid f
+
 let init_credential_mapping uuid =
   let module X = (val get_backend ()) in
   X.init_credential_mapping uuid
