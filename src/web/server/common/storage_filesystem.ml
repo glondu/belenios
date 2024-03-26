@@ -31,6 +31,8 @@ module type CONFIG = sig
 end
 
 module Make (Config : CONFIG) = struct
+  (** {1 Generic operations} *)
+
   let ( !! ) x = Config.spool_dir // x
   let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
 
@@ -277,6 +279,8 @@ module Make (Config : CONFIG) = struct
         Lwt.wakeup_later u ();
         Lwt.return_none)
 
+  (** {1 Views} *)
+
   module ExtendedRecordsCacheTypes = struct
     type key = uuid
     type value = (datetime * string) SMap.t
@@ -442,6 +446,8 @@ module Make (Config : CONFIG) = struct
         let mapping = if data = "" then None else Some data in
         add_credential_mapping uuid cred mapping)
 
+  (** {1 Cleaning operations} *)
+
   let delete_sensitive_data uuid =
     let* () =
       Lwt_list.iter_p
@@ -470,6 +476,8 @@ module Make (Config : CONFIG) = struct
         Voters;
         Confidential_archive;
       ]
+
+  (** {1 Public archive operations} *)
 
   let get_last_event uuid =
     let* x = get (Election (uuid, Last_event)) in
