@@ -198,13 +198,19 @@ module Make () = struct
 
   let () = Web_config.source_file := source_file
   let () = Web_config.locales_dir := locales_dir
-  let () = Web_config.spool_dir := spool_dir
-  let () = Web_config.accounts_dir := accounts_dir
   let () = Web_config.default_group := default_group
   let () = Web_config.nh_group := nh_group
   let () = Web_config.site_auth_config := List.rev !auth_instances
   let () = Web_config.exported_auth_config := List.rev !auth_instances_export
   let () = Web_config.domain := domain
+
+  let () =
+    let module Config = struct
+      let spool_dir = spool_dir
+      let accounts_dir = accounts_dir
+    end in
+    let module Storage = Storage_filesystem.Make (Config) in
+    Web_config.storage_backend := Some (module Storage)
 
   (** Restricted mode checks *)
 
