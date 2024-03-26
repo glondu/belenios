@@ -523,15 +523,12 @@ module Make (Config : CONFIG) = struct
     type key = uuid
 
     type value = {
-      cred_map : string option SMap.t option;
+      cred_map : string option SMap.t;
       salts : Yojson.Safe.t salt array option;
     }
   end
 
   module CredCache = Ocsigen_cache.Make (CredCacheTypes)
-
-  let get_public_creds_live =
-    ref (fun _ -> Lwt.fail (Failure "get_public_creds_live not initialized"))
 
   let raw_get_credential_cache uuid =
     let make_salts creds =
@@ -547,18 +544,7 @@ module Make (Config : CONFIG) = struct
     in
     let* x = get (Election (uuid, Public_creds)) in
     match x with
-    | None ->
-        (* deprecated as of 2.0 *)
-        let* x = !get_public_creds_live uuid in
-        let creds =
-          List.fold_left
-            (fun creds x ->
-              let p = parse_public_credential Fun.id x in
-              p.credential :: creds)
-            [] x
-        in
-        let* salts = make_salts creds in
-        Lwt.return CredCacheTypes.{ cred_map = None; salts }
+    | None -> Lwt.fail (Election_not_found (uuid, "raw_get_credential_cache"))
     | Some x ->
         let x = public_credentials_of_string x in
         let cred_map, creds =
@@ -569,7 +555,7 @@ module Make (Config : CONFIG) = struct
             (SMap.empty, []) x
         in
         let* salts = make_salts creds in
-        Lwt.return CredCacheTypes.{ cred_map = Some cred_map; salts }
+        Lwt.return CredCacheTypes.{ cred_map; salts }
 
   let credential_cache =
     new CredCache.cache raw_get_credential_cache ~timer:3600. 10
@@ -578,8 +564,7 @@ module Make (Config : CONFIG) = struct
     Lwt.catch
       (fun () ->
         let* x = credential_cache#find uuid in
-        let&* x = x.cred_map in
-        let&* x = SMap.find_opt cred x in
+        let&* x = SMap.find_opt cred x.cred_map in
         Lwt.return_some @@ Option.value ~default:"" x)
       (fun _ -> Lwt.return_none)
 
@@ -825,23 +810,6 @@ module Make (Config : CONFIG) = struct
         | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
   let () = roots_ops.get <- get_roots
-
-  let () =
-    get_public_creds_live :=
-      let fail = Lwt.fail (Failure "get_public_creds_live") in
-      fun uuid ->
-        Lwt.try_bind
-          (fun () -> get_index ~creat:false uuid)
-          (fun r ->
-            let ( let&* ) x f = match x with None -> fail | Some x -> f x in
-            let&* roots_setup_data = r.roots.roots_setup_data in
-            let* setup_data = get_data uuid roots_setup_data in
-            let&* setup_data = setup_data in
-            let { setup_credentials; _ } = setup_data_of_string setup_data in
-            let* x = get_data uuid setup_credentials in
-            let&* x = x in
-            Lwt.return @@ public_credentials_of_string x)
-          (function Creation_not_requested -> fail | e -> Lwt.reraise e)
 
   let append ?(lock = true) uuid ?last ops =
     let@ () = fun cont -> if lock then with_lock uuid cont else cont () in
