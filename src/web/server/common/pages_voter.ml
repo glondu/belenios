@@ -711,7 +711,6 @@ struct
               ];
           ]
     in
-
     let div_audit =
       div
         ~a:[ a_class [ "home-audit" ] ]
@@ -733,7 +732,6 @@ struct
                ]);
         ]
     in
-
     let content =
       [
         p state_;
