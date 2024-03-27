@@ -121,6 +121,15 @@ let erase_question x =
         { q_answers = Array.map (fun _ -> "") q.q_answers; q_question = "" }
       in
       { x with value = Non_homomorphic.Q q }
+  | Lists.Q q ->
+      let open Question_l_t in
+      let q =
+        {
+          q_answers = Array.map (Array.map (fun _ -> "")) q.q_answers;
+          q_question = "";
+        }
+      in
+      { x with value = Lists.Q q }
   | _ -> failwith "erase_question"
 
 let is_nh_question x =
