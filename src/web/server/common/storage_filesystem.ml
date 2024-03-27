@@ -30,6 +30,8 @@ module type CONFIG = sig
   val accounts_dir : string
 end
 
+exception Uninitialized of string
+
 module Make (Config : CONFIG) = struct
   (** {1 Abstract election-specific file operations} *)
 
@@ -39,9 +41,7 @@ module Make (Config : CONFIG) = struct
   }
 
   let make_uninitialized_ops what =
-    let e =
-      Lwt.fail (Failure (Printf.sprintf "Storage.%s uninitialized" what))
-    in
+    let e = Lwt.fail @@ Uninitialized what in
     { get = (fun _ _ -> e); set = (fun _ _ _ -> e) }
 
   (** {1 Forward references} *)
@@ -58,11 +58,10 @@ module Make (Config : CONFIG) = struct
   let password_records_ops = make_uninitialized_ops "password_records_ops"
 
   let get_password_file =
-    ref (fun _ -> Lwt.fail (Failure "Storage.get_password_file uninitialized"))
+    ref (fun _ -> Lwt.fail @@ Uninitialized "get_password_file")
 
   let set_password_file =
-    ref (fun _ _ ->
-        Lwt.fail (Failure "Storage.set_password_file uninitialized"))
+    ref (fun _ _ -> Lwt.fail @@ Uninitialized "set_password_file")
 
   (** {1 Password file operations} *)
 
