@@ -60,6 +60,12 @@ struct
                      ~service:(file uuid (ESArchive uuid))
                      [ txt (s_ "public data") ]
                      ();
+                   txt ". ";
+                   a
+                     ~service:
+                       (Eliom_service.preapply ~service:election_cast uuid)
+                     [ txt (s_ "Advanced mode") ]
+                     ();
                    txt ".";
                  ];
              ];

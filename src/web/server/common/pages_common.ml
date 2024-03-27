@@ -102,16 +102,6 @@ struct
             [ txt (s_ "Administer this election") ]
             uuid
     in
-    let advanced_booth =
-      Option.map
-        (function
-          | uuid ->
-              a
-                ~service:(Eliom_service.preapply ~service:election_cast uuid)
-                [ txt (s_ "Advanced mode") ]
-                ())
-        uuid
-    in
     let lang_box =
       match lang_box with
       | None -> txt ""
@@ -155,8 +145,8 @@ struct
          (head (Eliom_content.Html.F.title (txt title)) head_content)
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
-               ~footer ~administer ~advanced_booth ~extra_footer ?sticky_footer
-               ~restricted_mode ())))
+               ~footer ~administer ~extra_footer ?sticky_footer ~restricted_mode
+               ())))
 
   let lang_box cont =
     let cont = default_admin cont in
