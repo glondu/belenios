@@ -1,7 +1,7 @@
 @import "common.css"; /* This component requires common `.clickable` */
 
 .candidate-with-checkbox {
-  background-color: #eee;
+  background-color: var(--candidate-background);
   border-radius: 7px;
   height: 55px;
   margin-bottom: 7px;
@@ -12,11 +12,11 @@
 }
 
 .candidate-with-checkbox--with-alert {
-  border: 1px solid red;
+  border: 1px solid var(--alert-text);
 }
 
 .candidate-with-checkbox:hover {
-  background-color: #ddd;
+  background-color: var(--candidate-background-hover);
 }
 
 .candidate-with-checkbox label {
@@ -40,9 +40,9 @@
 
 .candidate-with-checkbox input[type="checkbox"] ~ label .checkbox-appearance {
   content: "";
-  border: 2px solid #ccc;
+  border: 2px solid var(--candidate-checkbox-border);
   border-radius: 5px;
-  background-color: #fff;
+  background-color: var(--candidate-checkbox-background);
   width: 18px;
   height: 18px;
   display: inline-block;
@@ -50,9 +50,9 @@
 
 .candidate-with-checkbox input[type="radio"] ~ label .radio-button-appearance {
   content: "";
-  border: 2px solid #ccc;
+  border: 2px solid var(--candidate-checkbox-border);
   border-radius: 18px;
-  background-color: #fff;
+  background-color: var(--candidate-checkbox-background);
   width: 18px;
   height: 18px;
   display: inline-block;
@@ -60,7 +60,11 @@
 
 .candidate-with-checkbox input[type="checkbox"]:checked ~ label,
 .candidate-with-checkbox input[type="radio"]:checked ~ label {
-  background-color: #c4ffcc;
+  background-color: var(--candidate-background-checked);
+}
+.candidate-with-checkbox:hover input[type="checkbox"]:checked ~ label,
+.candidate-with-checkbox:hover input[type="radio"]:checked ~ label {
+  background-color: var(--candidate-background-checked-hover);
 }
 
 .candidate-with-checkbox
@@ -71,8 +75,8 @@
   input[type="radio"]:checked
   ~ label
   .radio-button-appearance {
-  background-color: #007ad6;
-  border-color: #007ad6;
+  background-color: var(--candidate-checkbox-checked);
+  border-color: var(--candidate-checkbox-checked);
 }
 
 .candidate-with-checkbox
@@ -84,7 +88,7 @@
   ~ label
   .radio-button-appearance::after {
   content: "✓";
-  color: white;
+  color: var(--font-light);
   font-size: 20px;
   padding-left: 2px;
   line-height: 100%;

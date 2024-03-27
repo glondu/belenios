@@ -93,6 +93,7 @@ module type S = sig
     ?lang_box:Html_types.div_content_fun Eliom_content.Html.elt ->
     content:[< Html_types.div_content_fun ] Eliom_content.Html.elt list ->
     ?footer:Html_types.div_content_fun Eliom_content.Html.elt ->
+    ?sticky_footer:Html_types.div_content_fun Eliom_content.Html.elt ->
     ?uuid:Web_serializable_t.uuid ->
     ?static:bool ->
     ?redirect:string ->

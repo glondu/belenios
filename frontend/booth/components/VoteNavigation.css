@@ -3,14 +3,14 @@
 .vote-navigation-container {
   clear: both;
   width: 100%;
-  background: #666;
+  background: var(--vote-nav-background);
   margin-top: 30px;
 }
 
 .vote-navigation {
   display: flex;
   justify-content: space-between;
-  color: #fff;
+  color: var(--font-light);
   padding: 0 10px;
   font-size: 14px;
   max-width: 550px;
@@ -48,12 +48,4 @@
 .vote-navigation__next-button-container {
   padding: 15px 0 15px 15px;
   margin: 1px;
-}
-
-.vote-navigation__previous-button::before {
-  content: "<\a0\a0";
-}
-
-.vote-navigation__next-button::after {
-  content: "\a0\a0>";
 }

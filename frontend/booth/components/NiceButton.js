@@ -32,5 +32,12 @@ function WhiteNiceButton(props) {
   });
 }
 
-export { NiceButton, BlueNiceButton, WhiteNiceButton };
+function GreyNiceButton(props) {
+  return NiceButton({
+    ...props,
+    styling: "grey",
+  });
+}
+
+export { NiceButton, BlueNiceButton, WhiteNiceButton, GreyNiceButton };
 export default NiceButton;

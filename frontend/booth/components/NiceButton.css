@@ -1,19 +1,22 @@
 .nice-button {
-  border: 1px solid;
+  border: 0;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 15px;
   font-weight: 400;
+  text-decoration: none;
   display: inline-block;
   line-height: initial;
+  box-shadow: var(--button-shadow);
 }
 
 .nice-button:hover {
   cursor: pointer;
+  box-shadow: var(--button-shadow-hover);
 }
-
 .nice-button[disabled]:hover {
   cursor: initial;
+  background: initial;
 }
 
 .nice-button[disabled] {
@@ -21,22 +24,45 @@
 }
 
 .nice-button--blue {
-  background: #1097e6;
-  color: white;
-  border-color: #0046ca;
-  background-image: linear-gradient(to bottom, #7ed0ff, #1097e6 66%, #0f8ad3);
+  background: var(--button-blue);
+  color: var(--font-light);
+}
+.nice-button--blue:hover {
+  background: var(--button-blue-hover);
+}
+.nice-button--blue:active {
+  background: var(--button-blue-active);
 }
 
 .nice-button--white {
-  color: black;
-  border-color: #847f7f;
-  background: white;
-  background-image: linear-gradient(to bottom, #fff, #ddd 66%, #bfbebe);
+  background: var(--button-white);
+  color: var(--font-dark);
+}
+.nice-button--white:hover {
+  background: var(--button-white-hover);
+}
+.nice-button--white:active {
+  background: var(--button-white-active);
+}
+
+.nice-button--grey {
+  background: var(--button-grey);
+  color: var(--font-light);
+}
+.nice-button--grey:hover {
+  background: var(--button-grey-hover);
+}
+.nice-button--grey:active {
+  background: var(--button-grey-active);
 }
 
 .nice-button--default {
-  background: #9d9d9d;
-  color: white;
-  border-color: #424242;
-  background-image: linear-gradient(to bottom, #c4c4c4, #888 66%, #606060);
+  background: var(--button-default);
+  color: var(--font-dark);
+}
+.nice-button--default:hover {
+  background: var(--button-default-hover);
+}
+.nice-button--default:active {
+  background: var(--button-default-active);
 }

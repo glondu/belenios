@@ -1,7 +1,7 @@
 .page-footer {
   border-radius: 0 0 10px 10px;
-  background: #363636;
-  color: rgb(134, 134, 134);
+  background: var(--footer-background);
+  color: var(--footer-font);
   text-align: center;
   padding: 5px 2px;
   line-height: 1.5em;
@@ -10,7 +10,7 @@
 }
 
 .page-footer a {
-  color: #ffd800;
+  color: var(--footer-link-font);
   text-decoration: none;
 }
 
