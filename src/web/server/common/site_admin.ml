@@ -296,7 +296,7 @@ struct
         | _ -> create_new_election a credmgmt auth_parsed)
 
   let with_draft_public uuid f =
-    let* election = Web_persist.get_draft_election uuid in
+    let* election = Spool.get ~uuid Spool.draft in
     match election with None -> fail_http `Not_found | Some x -> f x
 
   let with_draft ?(lock = true) ?(save = true) uuid f =
@@ -310,7 +310,7 @@ struct
         (fun () ->
           let* r = f x in
           let* () =
-            if save then Web_persist.set_draft_election uuid x else return_unit
+            if save then Spool.set ~uuid Spool.draft x else return_unit
           in
           return r)
         (fun e ->
@@ -699,7 +699,7 @@ struct
     | `Basic _, `Basic | `Threshold _, `Threshold _ -> Lwt.return x
     | `Threshold _, `Basic | `Basic _, `Threshold _ -> (
         let* () = Api_drafts.put_draft_trustees_mode uuid x mode in
-        let* x = Web_persist.get_draft_election uuid in
+        let* x = Spool.get ~uuid Spool.draft in
         match x with
         | Some se -> Lwt.return se
         | None -> Lwt.fail (Failure "inconsistency in ensure_trustees_mode"))
@@ -907,7 +907,7 @@ struct
                   else (
                     (* we keep pk as a string because of G.t *)
                     t.st_public_key <- public_key;
-                    let* () = Web_persist.set_draft_election uuid fse in
+                    let* () = Spool.set ~uuid Spool.draft fse in
                     let msg = s_ "Your key has been received and checked!" in
                     let title = s_ "Success" in
                     return_some (title, msg, 200)))
@@ -1276,7 +1276,7 @@ struct
             | e -> Lwt.reraise e))
 
   let find_trustee_id uuid token =
-    let* x = Web_persist.get_decryption_tokens uuid in
+    let* x = Spool.get ~uuid Spool.decryption_tokens in
     match x with
     | None -> return (int_of_string_opt token)
     | Some tokens ->
@@ -1383,7 +1383,7 @@ struct
             partial_decryption
         in
         let* et =
-          let* x = Web_persist.get_latest_encrypted_tally election in
+          let* x = Public_archive.get_latest_encrypted_tally uuid in
           match x with
           | None -> assert false
           | Some x ->
@@ -1476,8 +1476,8 @@ struct
                 in
                 match y with
                 | Some _ ->
-                    let* () = Web_persist.clear_shuffle_token uuid in
-                    let* () = Web_persist.remove_audit_cache uuid in
+                    let* () = Spool.del ~uuid Spool.shuffle_token in
+                    let* () = Spool.del ~uuid Spool.audit_cache in
                     Pages_common.generic_page ~title:(s_ "Success")
                       (s_ "The shuffle has been successfully applied!")
                       ()
@@ -1568,7 +1568,7 @@ struct
               else forbidden ())
             ()
         in
-        let* election = Web_persist.get_draft_election uuid in
+        let* election = Spool.get ~uuid Spool.draft in
         match election with
         | None -> fail_http `Not_found
         | Some _ ->
@@ -1722,7 +1722,7 @@ struct
                 se_trustees
                 |> string_of_draft_trustees (swrite G.Zq.to_string)
                 |> draft_trustees_of_string Yojson.Safe.read_json;
-              Web_persist.set_draft_election uuid (Draft (v, se)))
+              Spool.set ~uuid Spool.draft (Draft (v, se)))
         in
         redir_preapply election_draft_threshold_trustee (uuid, token) ())
 

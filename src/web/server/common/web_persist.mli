@@ -31,21 +31,15 @@ val get_spool_version : unit -> int Lwt.t
 
 val get_election_state : uuid -> election_state Lwt.t
 
-(** {1 Election data directly stored in filesystem} *)
+(** {1 Typed election data from storage} *)
 
-val get_draft_election : uuid -> draft_election option Lwt.t
-val set_draft_election : uuid -> draft_election -> unit Lwt.t
 val get_election_dates : uuid -> election_dates Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t
 val get_election_result_hidden : uuid -> datetime option Lwt.t
 val set_election_result_hidden : uuid -> datetime option -> unit Lwt.t
 val get_private_creds_downloaded : uuid -> bool Lwt.t
 val set_private_creds_downloaded : uuid -> unit Lwt.t
-val get_private_keys : uuid -> string list option Lwt.t
 val get_audit_cache : uuid -> audit_cache Lwt.t
-val remove_audit_cache : uuid -> unit Lwt.t
-val get_skipped_shufflers : uuid -> string list option Lwt.t
-val set_skipped_shufflers : uuid -> string list -> unit Lwt.t
 
 val get_election_automatic_dates :
   uuid -> Belenios_api.Serializable_t.election_auto_dates Lwt.t
@@ -56,11 +50,8 @@ val set_election_automatic_dates :
 (** {1 Voter-specific stuff} *)
 
 val get_all_voters : uuid -> Voter.t list Lwt.t
-val set_draft_public_credentials : uuid -> public_credentials -> unit Lwt.t
 val get_draft_public_credentials : uuid -> string option Lwt.t
-val get_draft_private_credentials : uuid -> string option Lwt.t
 val get_records : uuid -> string list option Lwt.t
-val set_salts : uuid -> salts -> unit Lwt.t
 val get_salt : uuid -> int -> Yojson.Safe.t salt option Lwt.t
 val get_voter : uuid -> string -> Voter.t option Lwt.t
 
@@ -78,19 +69,12 @@ val get_has_explicit_weights : uuid -> bool Lwt.t
 val get_username_or_address : uuid -> [ `Username | `Address ] Lwt.t
 val is_group_fixed : uuid -> draft_election -> bool
 
-val get_latest_encrypted_tally :
-  (module Site_common_sig.ELECTION) -> string option Lwt.t
-
 (** {1 Tokens} *)
-
-val get_decryption_tokens : uuid -> decryption_tokens option Lwt.t
-val set_decryption_tokens : uuid -> decryption_tokens -> unit Lwt.t
 
 val gen_shuffle_token :
   uuid -> string -> int -> string option -> shuffle_token Lwt.t
 
 val get_shuffle_token : uuid -> shuffle_token option Lwt.t
-val clear_shuffle_token : uuid -> unit Lwt.t
 
 (** {1 Election actions} *)
 

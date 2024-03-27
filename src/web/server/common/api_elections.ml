@@ -33,7 +33,7 @@ let with_administrator token metadata f =
   | _ -> unauthorized
 
 let find_trustee_id uuid token =
-  let* x = Web_persist.get_decryption_tokens uuid in
+  let* x = Spool.get ~uuid Spool.decryption_tokens in
   match x with
   | None -> Lwt.return (int_of_string_opt token)
   | Some tokens ->
@@ -44,7 +44,7 @@ let find_trustee_id uuid token =
       Lwt.return (find 1 tokens)
 
 let find_trustee_private_key uuid trustee_id =
-  let* keys = Web_persist.get_private_keys uuid in
+  let* keys = Spool.get ~uuid Spool.private_keys in
   let&* keys = keys in
   (* there is one Pedersen trustee *)
   let* trustees = Public_archive.get_trustees uuid in
@@ -151,7 +151,7 @@ let get_partial_decryptions uuid metadata =
     match threshold with
     | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
     | Some _ -> (
-        let* x = Web_persist.get_decryption_tokens uuid in
+        let* x = Spool.get ~uuid Spool.decryption_tokens in
         match x with
         | Some x -> Lwt.return x
         | None -> (
@@ -159,7 +159,7 @@ let get_partial_decryptions uuid metadata =
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                 let ts = List.map (fun _ -> generate_token ()) ts in
-                let* () = Web_persist.set_decryption_tokens uuid ts in
+                let* () = Spool.set ~uuid Spool.decryption_tokens ts in
                 Lwt.return ts))
   in
   Lwt.return
@@ -200,7 +200,7 @@ let get_shuffles uuid metadata =
   in
   let* shuffles = Public_archive.get_shuffles uuid in
   let shuffles = Option.value shuffles ~default:[] in
-  let* skipped = Web_persist.get_skipped_shufflers uuid in
+  let* skipped = Spool.get ~uuid Spool.skipped_shufflers in
   let skipped = Option.value skipped ~default:[] in
   let* token = Web_persist.get_shuffle_token uuid in
   Lwt.return
@@ -253,18 +253,18 @@ let skip_shuffler uuid trustee =
   let* x = Web_persist.get_shuffle_token uuid in
   let* () =
     match x with
-    | Some x when x.tk_trustee = trustee -> Web_persist.clear_shuffle_token uuid
+    | Some x when x.tk_trustee = trustee -> Spool.del ~uuid Spool.shuffle_token
     | None -> Lwt.return_unit
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* x = Web_persist.get_skipped_shufflers uuid in
+  let* x = Spool.get ~uuid Spool.skipped_shufflers in
   let x = Option.value x ~default:[] in
   if List.mem trustee x then Lwt.fail @@ Error `NotInExpectedState
-  else Web_persist.set_skipped_shufflers uuid (trustee :: x)
+  else Spool.set ~uuid Spool.skipped_shufflers (trustee :: x)
 
 let select_shuffler uuid metadata trustee =
   let* trustee_id, name = get_trustee_name uuid metadata trustee in
-  let* () = Web_persist.clear_shuffle_token uuid in
+  let* () = Spool.del ~uuid Spool.shuffle_token in
   let* _ = Web_persist.gen_shuffle_token uuid trustee trustee_id name in
   Lwt.return_unit
 

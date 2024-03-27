@@ -37,9 +37,6 @@ let clear_elections_by_owner_cache () =
   elections_by_owner_cache := None;
   return_unit
 
-let get_draft_election uuid = Spool.get ~uuid Spool.draft
-let set_draft_election uuid = Spool.set ~uuid Spool.draft
-
 let get_setup_data uuid =
   let* x =
     let* x = Public_archive.get_roots uuid in
@@ -90,33 +87,6 @@ let set_election_state uuid s =
   in
   clear_elections_by_owner_cache ()
 
-let get_latest_encrypted_tally election =
-  let module W = (val election : Site_common_sig.ELECTION) in
-  let uuid = W.uuid in
-  let* roots = Public_archive.get_roots uuid in
-  let@ tally cont =
-    match roots.roots_encrypted_tally with
-    | None -> return_none
-    | Some x -> (
-        let* x = Public_archive.get_data uuid x in
-        match x with
-        | None -> assert false
-        | Some x -> (
-            let x = sized_encrypted_tally_of_string read_hash x in
-            let* x = Public_archive.get_data uuid x.sized_encrypted_tally in
-            match x with
-            | None -> assert false
-            | Some x ->
-                cont @@ encrypted_tally_of_string W.(sread G.of_string) x))
-  in
-  let* nh = Public_archive.get_nh_ciphertexts uuid in
-  let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in
-  let tally = W.E.merge_nh_ciphertexts nh tally in
-  return_some @@ string_of_encrypted_tally W.(swrite G.to_string) tally
-
-let get_private_key uuid = Spool.get ~uuid Spool.private_key
-let get_private_keys uuid = Spool.get ~uuid Spool.private_keys
-
 let empty_metadata =
   {
     e_owners = [];
@@ -132,8 +102,6 @@ let empty_metadata =
 let get_election_metadata uuid =
   let* x = Spool.get ~uuid Spool.metadata in
   Lwt.return (Option.value ~default:empty_metadata x)
-
-let remove_audit_cache uuid = Spool.del ~uuid Spool.audit_cache
 
 let append_to_shuffles election owned_owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
@@ -173,8 +141,6 @@ let make_result_transaction write_result result =
   let open Storage_sig in
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
-let clear_shuffle_token uuid = Spool.del ~uuid Spool.shuffle_token
-
 let internal_release_tally ~force uuid =
   let@ last cont =
     let* x = Spool.get ~uuid Spool.last_event in
@@ -204,7 +170,7 @@ let internal_release_tally ~force uuid =
   in
   let module W = (val election) in
   let* tally =
-    let* x = get_latest_encrypted_tally election in
+    let* x = Public_archive.get_latest_encrypted_tally uuid in
     match x with
     | None -> assert false
     | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
@@ -236,7 +202,7 @@ let internal_release_tally ~force uuid =
         pds
     in
     let decrypt owned_owner =
-      let* x = get_private_key uuid in
+      let* x = Spool.get ~uuid Spool.private_key in
       match x with
       | Some (`String sk) ->
           let sk = W.G.Zq.of_string sk in
@@ -287,14 +253,14 @@ let internal_release_tally ~force uuid =
         | false ->
             Lwt.fail @@ Failure "race condition in internal_release_tally"
       in
-      let* () = remove_audit_cache uuid in
+      let* () = Spool.del ~uuid Spool.audit_cache in
       let* () = set_election_state uuid `Tallied in
       let* dates = get_election_dates uuid in
       let* () =
         set_election_dates uuid { dates with e_tally = Some (Datetime.now ()) }
       in
       let* () = Spool.del ~uuid Spool.decryption_tokens in
-      let* () = clear_shuffle_token uuid in
+      let* () = Spool.del ~uuid Spool.shuffle_token in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
@@ -365,9 +331,6 @@ let add_partial_decryption uuid (owned_owner, pd) =
   | true -> Lwt.return_unit
   | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
 
-let get_decryption_tokens uuid = Spool.get ~uuid Spool.decryption_tokens
-let set_decryption_tokens uuid = Spool.set ~uuid Spool.decryption_tokens
-
 type election_state =
   [ `Draft
   | `Open
@@ -387,7 +350,7 @@ let build_elections_by_owner_cache () =
         (fun accu uuid ->
           Lwt.catch
             (fun () ->
-              let* election = get_draft_election uuid in
+              let* election = Spool.get ~uuid Spool.draft in
               match election with
               | None -> (
                   let* metadata = get_election_metadata uuid in
@@ -908,18 +871,12 @@ let set_private_creds_downloaded uuid =
 let clear_private_creds_downloaded uuid =
   Storage.(del (Election (uuid, Private_creds_downloaded)))
 
-let get_draft_private_credentials uuid =
-  Spool.get ~uuid Spool.draft_private_credentials
-
-let set_draft_private_credentials uuid =
-  Spool.set ~uuid Spool.draft_private_credentials
-
 let send_credentials uuid (Draft (v, se)) =
   let@ () =
    fun cont -> if se.se_pending_credentials then cont () else Lwt.return_unit
   in
   let@ private_creds cont =
-    let* x = get_draft_private_credentials uuid in
+    let* x = Storage.(get (Election (uuid, Private_creds))) in
     match x with
     | None -> Lwt.return_unit
     | Some x -> cont @@ private_credentials_of_string x
@@ -1152,7 +1109,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   (* clean up draft *)
   let* () = Spool.del ~uuid Spool.draft in
   (* clean up private credentials, if any *)
-  let* () = Spool.del ~uuid Spool.draft_private_credentials in
+  let* () = Storage.(del (Election (uuid, Private_creds))) in
   let* () = clear_private_creds_downloaded uuid in
   (* write passwords *)
   let* () =
@@ -1179,7 +1136,7 @@ let delete_draft uuid =
   clear_elections_by_owner_cache ()
 
 let create_draft uuid se =
-  let* () = set_draft_election uuid se in
+  let* () = Spool.set ~uuid Spool.draft se in
   let* () = clear_elections_by_owner_cache () in
   Lwt.return_unit
 
@@ -1211,7 +1168,7 @@ let compute_encrypted_tally uuid =
         match x with
         | None -> Lwt.fail (Failure "server-side shuffle failed")
         | Some _ ->
-            let* () = remove_audit_cache uuid in
+            let* () = Spool.del ~uuid Spool.audit_cache in
             Lwt.return_true
       else
         let* () = transition_to_encrypted_tally uuid in
@@ -1234,13 +1191,8 @@ let finish_shuffling uuid =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let get_skipped_shufflers uuid = Spool.get ~uuid Spool.skipped_shufflers
-
-let set_skipped_shufflers uuid shufflers =
-  Spool.set ~uuid Spool.skipped_shufflers shufflers
-
 let extract_automatic_data_draft uuid =
-  let* se = get_draft_election uuid in
+  let* se = Spool.get ~uuid Spool.draft in
   let&* (Draft (_, se)) = se in
   let t =
     Option.value se.se_creation_date ~default:Web_defaults.creation_date
@@ -1319,17 +1271,11 @@ let set_election_automatic_dates uuid d =
   let* dates = get_election_dates uuid in
   set_election_dates uuid { dates with e_auto_open; e_auto_close }
 
-let set_draft_public_credentials uuid public_creds =
-  let public_creds = string_of_public_credentials public_creds in
-  Spool.set ~uuid Spool.draft_public_credentials public_creds
-
 let get_draft_public_credentials uuid =
   let* x = Spool.get ~uuid Spool.draft_public_credentials in
   let&* x = x in
   let x =
-    x |> public_credentials_of_string
-    |> List.map strip_public_credential
-    |> string_of_public_credentials
+    x |> List.map strip_public_credential |> string_of_public_credentials
   in
   Lwt.return_some x
 
@@ -1338,8 +1284,6 @@ let get_records uuid =
   match x with
   | None -> Lwt.return_none
   | Some x -> Lwt.return_some @@ split_lines x
-
-let set_salts uuid salts = Spool.set ~uuid Spool.salts salts
 
 type credentials_status = [ `None | `Pending of int | `Done ]
 
@@ -1374,18 +1318,22 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           let Credential.{ private_creds; public_with_ids; _ } =
             Cred.merge_sub voters x
           in
-          let* se = get_draft_election uuid in
+          let* se = Spool.get ~uuid Spool.draft in
           match se with
           | None -> Lwt.return_unit
           | Some (Draft (v, se)) ->
               let private_creds =
                 private_creds |> string_of_private_credentials
               in
-              let* () = set_draft_private_credentials uuid private_creds in
-              let* () = set_draft_public_credentials uuid public_with_ids in
+              let* () =
+                Storage.(set (Election (uuid, Private_creds)) private_creds)
+              in
+              let* () =
+                Spool.set ~uuid Spool.draft_public_credentials public_with_ids
+              in
               se.se_public_creds_received <- true;
               se.se_pending_credentials <- true;
-              let* () = set_draft_election uuid (Draft (v, se)) in
+              let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
               pending_generations := SMap.remove uuid_s !pending_generations;
               Lwt.return_unit)
 

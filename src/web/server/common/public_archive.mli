@@ -32,6 +32,7 @@ val get_ballot_by_hash : uuid -> string -> string option Lwt.t
 val get_nh_ciphertexts : uuid -> string Lwt.t
 val get_shuffles : uuid -> (hash * hash owned * string) list option Lwt.t
 val get_sized_encrypted_tally : uuid -> string option Lwt.t
+val get_latest_encrypted_tally : uuid -> string option Lwt.t
 val get_ballot_hashes : uuid -> (string * Weight.t) list Lwt.t
 val clear_ballot_cache : uuid -> unit
 

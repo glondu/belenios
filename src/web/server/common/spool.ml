@@ -69,17 +69,9 @@ let draft =
 
 let draft_public_credentials =
   {
-    of_string = Fun.id;
-    to_string = Fun.id;
+    of_string = public_credentials_of_string;
+    to_string = string_of_public_credentials;
     filename = Storage_sig.Public_creds;
-  }
-  |> make_file
-
-let draft_private_credentials =
-  {
-    of_string = Fun.id;
-    to_string = Fun.id;
-    filename = Storage_sig.Private_creds;
   }
   |> make_file
 

@@ -109,7 +109,7 @@ struct
                           >>= Html.send)
                     (function
                       | Election_not_found _ -> (
-                          let* election = Web_persist.get_draft_election uuid in
+                          let* election = Spool.get ~uuid Spool.draft in
                           match election with
                           | Some _ -> redir_preapply election_draft uuid ()
                           | None ->
@@ -348,9 +348,7 @@ struct
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
           | None -> fail_http `Not_found)
-      | ESETally ->
-          let@ election = with_election uuid in
-          !?(Web_persist.get_latest_encrypted_tally election)
+      | ESETally -> !?(Public_archive.get_latest_encrypted_tally uuid)
       | ESResult -> !?(Public_archive.get_result uuid)
       | ESVoters -> !?Storage.(get (Election (uuid, Voters)))
       | ESRecords -> !?Storage.(get (Election (uuid, Records)))

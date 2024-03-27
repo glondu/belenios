@@ -309,4 +309,31 @@ let get_sized_encrypted_tally uuid =
       let* x = get_data uuid x in
       match x with None -> assert false | Some x -> Lwt.return_some x)
 
+let get_latest_encrypted_tally uuid =
+  let@ election =
+    with_election uuid ~fallback:(fun () ->
+        Lwt.fail (Election_not_found (uuid, "get_latest_encrypted_tally")))
+  in
+  let module W = (val election) in
+  let* roots = get_roots uuid in
+  let@ tally cont =
+    match roots.roots_encrypted_tally with
+    | None -> Lwt.return_none
+    | Some x -> (
+        let* x = get_data uuid x in
+        match x with
+        | None -> assert false
+        | Some x -> (
+            let x = sized_encrypted_tally_of_string read_hash x in
+            let* x = get_data uuid x.sized_encrypted_tally in
+            match x with
+            | None -> assert false
+            | Some x ->
+                cont @@ encrypted_tally_of_string W.(sread G.of_string) x))
+  in
+  let* nh = get_nh_ciphertexts uuid in
+  let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in
+  let tally = W.E.merge_nh_ciphertexts nh tally in
+  Lwt.return_some @@ string_of_encrypted_tally W.(swrite G.to_string) tally
+
 let clear_ballot_cache uuid = ballots_cache#remove uuid

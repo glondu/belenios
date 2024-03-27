@@ -286,7 +286,7 @@ let put_draft_voters uuid (Draft (v, se)) voters =
     else Lwt.return_unit
   in
   let se = { se with se_voters } in
-  Web_persist.set_draft_election uuid (Draft (v, se))
+  Spool.set ~uuid Spool.draft (Draft (v, se))
 
 let get_draft_passwords (Draft (_, se)) =
   se.se_voters
@@ -325,7 +325,7 @@ let post_draft_passwords account generate uuid (Draft (v, se)) voters =
         Lwt.return (job :: jobs))
       [] voters
   in
-  let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+  let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
   Lwt.return jobs
 
 let get_credentials_token (Draft (_, se)) =
@@ -411,12 +411,12 @@ let submit_public_credentials uuid (Draft (v, se)) credentials =
       credentials
   in
   let salts = List.rev salts in
-  let* () = Web_persist.set_draft_public_credentials uuid credentials in
+  let* () = Spool.set ~uuid Spool.draft_public_credentials credentials in
   let* () =
-    if salts <> [] then Web_persist.set_salts uuid salts else Lwt.return_unit
+    if salts <> [] then Spool.set ~uuid Spool.salts salts else Lwt.return_unit
   in
   se.se_public_creds_received <- true;
-  Web_persist.set_draft_election uuid (Draft (v, se))
+  Spool.set ~uuid Spool.draft (Draft (v, se))
 
 let get_draft_trustees ~is_admin (Draft (_, se)) =
   match se.se_trustees with
@@ -529,7 +529,7 @@ let post_draft_trustees uuid (Draft (v, se)) t =
         }
       in
       x.dbp_trustees <- ts @ [ t ];
-      Web_persist.set_draft_election uuid (Draft (v, se))
+      Spool.set ~uuid Spool.draft (Draft (v, se))
   | `Threshold x ->
       let ts = x.dtp_trustees in
       let () =
@@ -550,7 +550,7 @@ let post_draft_trustees uuid (Draft (v, se)) t =
         }
       in
       x.dtp_trustees <- ts @ [ t ];
-      Web_persist.set_draft_election uuid (Draft (v, se))
+      Spool.set ~uuid Spool.draft (Draft (v, se))
 
 let rec filter_out_first f = function
   | [] -> (false, [])
@@ -567,7 +567,7 @@ let delete_draft_trustee uuid (Draft (v, se)) trustee =
       let touched, ts = filter_out_first (fun x -> x.st_id = trustee) ts in
       if touched then (
         x.dbp_trustees <- ts;
-        let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+        let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
         Lwt.return_true)
       else Lwt.return_false
   | `Threshold x ->
@@ -575,7 +575,7 @@ let delete_draft_trustee uuid (Draft (v, se)) trustee =
       let touched, ts = filter_out_first (fun x -> x.stt_id = trustee) ts in
       if touched then (
         x.dtp_trustees <- ts;
-        let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+        let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
         Lwt.return_true)
       else Lwt.return_false
 
@@ -592,7 +592,7 @@ let set_threshold uuid (Draft (v, se)) threshold =
       if 0 <= threshold && threshold < List.length ts then (
         List.iter (fun t -> t.stt_step <- step) ts;
         x.dtp_threshold <- maybe_threshold;
-        let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+        let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
         Lwt.return @@ Ok ())
       else Lwt.return @@ Stdlib.Error `OutOfBounds
 
@@ -606,7 +606,7 @@ let put_draft_trustees_mode uuid (Draft (v, se)) mode =
   | a, b when a = b -> Lwt.return_unit
   | _, `Basic ->
       se.se_trustees <- `Basic { dbp_trustees = [] };
-      Web_persist.set_draft_election uuid (Draft (v, se))
+      Spool.set ~uuid Spool.draft (Draft (v, se))
   | `Basic, `Threshold 0 ->
       let dtp =
         {
@@ -617,7 +617,7 @@ let put_draft_trustees_mode uuid (Draft (v, se)) mode =
         }
       in
       se.se_trustees <- `Threshold dtp;
-      Web_persist.set_draft_election uuid (Draft (v, se))
+      Spool.set ~uuid Spool.draft (Draft (v, se))
   | `Threshold _, `Threshold threshold -> (
       let* x = set_threshold uuid (Draft (v, se)) threshold in
       match x with
@@ -748,7 +748,7 @@ let import_voters uuid (Draft (v, se)) from =
         let expanded = Weight.expand ~total:total_weight total_weight in
         if Z.compare expanded Weight.max_expanded_weight <= 0 then (
           se.se_voters <- voters;
-          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+          let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
           Lwt.return @@ Ok ())
         else Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
     | Error x ->
@@ -770,7 +770,7 @@ let import_trustees uuid (Draft (v, se)) from metadata =
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
-          let* privs = Web_persist.get_private_keys from in
+          let* privs = Spool.get ~uuid:from Spool.private_keys in
           let* x =
             match privs with
             | Some privs ->
@@ -820,7 +820,7 @@ let import_trustees uuid (Draft (v, se)) from metadata =
                 }
               in
               se.se_trustees <- `Threshold dtp;
-              let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+              let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
               Lwt.return @@ Ok `Threshold
           | Stdlib.Error _ as x -> Lwt.return x
         in
@@ -873,7 +873,7 @@ let import_trustees uuid (Draft (v, se)) from metadata =
                        })
             in
             se.se_trustees <- `Basic { dbp_trustees = ts };
-            let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+            let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
             Lwt.return @@ Ok `Basic)
 
 let check_owner account uuid cont =
@@ -895,7 +895,7 @@ let post_draft_status ~admin_id uuid (Draft (v, se)) = function
       let* () =
         if se.se_credential_authority_visited <> true then (
           se.se_credential_authority_visited <- true;
-          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+          let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -904,7 +904,7 @@ let post_draft_status ~admin_id uuid (Draft (v, se)) = function
       let* () =
         if se.se_voter_authentication_visited <> true then (
           se.se_voter_authentication_visited <- true;
-          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+          let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -913,7 +913,7 @@ let post_draft_status ~admin_id uuid (Draft (v, se)) = function
       let* () =
         if se.se_trustees_setup_step <> i then (
           se.se_trustees_setup_step <- i;
-          let* () = Web_persist.set_draft_election uuid (Draft (v, se)) in
+          let* () = Spool.set ~uuid Spool.draft (Draft (v, se)) in
           Lwt.return_unit)
         else Lwt.return_unit
       in
@@ -931,7 +931,7 @@ let dispatch_credentials ~token endpoint method_ body uuid se =
       match method_ with
       | `GET ->
           handle_get_option (fun () ->
-              Web_persist.get_draft_private_credentials uuid)
+              Storage.(get (Election (uuid, Private_creds))))
       | _ -> method_not_allowed)
   | [ "public" ] -> (
       match method_ with
@@ -980,7 +980,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             || se.se_owners <> draft.draft_owners
           in
           let se = draft_of_api account uuid se draft in
-          let* () = Web_persist.set_draft_election uuid se in
+          let* () = Spool.set ~uuid Spool.draft se in
           let* () =
             if update_cache then Web_persist.clear_elections_by_owner_cache ()
             else Lwt.return_unit
@@ -1176,6 +1176,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* se = Web_persist.get_draft_election uuid in
+      let* se = Spool.get ~uuid Spool.draft in
       let@ se = Option.unwrap not_found se in
       dispatch_draft ~token ~ifmatch endpoint method_ body uuid se
