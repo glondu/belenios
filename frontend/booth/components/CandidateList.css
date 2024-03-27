@@ -1,0 +1,10 @@
+.candidate-list {
+  border: 1px solid lightgrey;
+  border-radius: 6px;
+  padding: 6px;
+  margin-bottom: 4px;
+}
+
+.candidate-list__list-name {
+  padding: 10px;
+}

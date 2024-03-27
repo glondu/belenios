@@ -65,13 +65,15 @@
 }
 
 .majority-judgment-vote-recap__answers-to-question,
-.classic-vote-recap__answers-to-question {
+.classic-vote-recap__answers-to-question,
+.lists-vote-recap__answers-to-question {
   padding: 15px 40px;
   margin: 10px 0 20px 0;
 }
 
 .majority-judgment-vote-recap__answers-to-question:last-child,
-.classic-vote-recap__answers-to-question:last-child {
+.classic-vote-recap__answers-to-question:last-child,
+.lists-vote-recap__answers-to-question:last-child {
   margin-bottom: 5px;
 }
 
@@ -146,4 +148,25 @@
   color: white;
   font-weight: bold;
   background-color: var(--selected-grade-color);
+}
+
+.lists-vote-recap__answers-to-question {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.lists-vote-recap__answers-to-question li {
+  background: #eee;
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+.lists-vote-recap__candidate {
+  margin-left: 20px;
+}
+
+.lists-vote-recap__candidate-strikethrough * {
+  text-decoration: line-through;
 }

@@ -3,6 +3,7 @@ import { withTranslation } from "react-i18next";
 import { markup } from "../shortcuts.js";
 
 import { TranslatableGenericVoteCandidatesList } from "./GenericVoteCandidatesList.js";
+import { TranslatableListsVoteCandidatesList } from "./ListsVoteCandidatesList.js";
 import { TranslatableClassicVoteCandidatesList } from "./ClassicVoteCandidatesList.js"; // FIXME: We have to import TranslatableClassicVoteCandidatesList instead of ClassicVoteCandidatesList, because otherwise Storybook throws a hook error.
 import { TranslatableMajorityJudgmentVoteCandidatesList } from "./MajorityJudgmentVoteCandidatesList.js";
 import { TranslatablePreferentialVotingCandidatesList } from "./PreferentialVotingCandidatesList.js";
@@ -21,6 +22,7 @@ function TranslatableQuestionWithVotableAnswers({
 }) {
   let description;
   let rendered_answers;
+
   if (question.type === QuestionTypeEnum.MAJORITY_JUDGMENT) {
     description = t("majority_judgment_question_description");
     rendered_answers = e(TranslatableMajorityJudgmentVoteCandidatesList, {
@@ -82,6 +84,16 @@ function TranslatableQuestionWithVotableAnswers({
       identifierPrefix,
       candidates: question.answers,
       blankVoteIsAllowed: question.blankVoteIsAllowed,
+      currentUserVoteForQuestion,
+      currentCandidatesHavingAlertsForQuestion,
+      dispatchUpdateUserVoteForQuestion,
+      t,
+    });
+  } else if (question.type === QuestionTypeEnum.LISTS) {
+    description = t("lists_question_description");
+    rendered_answers = e(TranslatableListsVoteCandidatesList, {
+      identifierPrefix,
+      lists: question.answers,
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,

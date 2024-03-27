@@ -361,6 +361,33 @@ struct
                 others;
               ];
           ]
+    | Lists.Q x ->
+        let open Lists.Syntax in
+        let r = r |> result_of_string in
+        let answers = Array.to_list x.q_answers in
+        let line_of_candidate name votes =
+          tr [ td [ markup name ]; td [ txt @@ Weight.to_string votes ] ]
+        in
+        let answers =
+          List.flatten
+            (List.mapi
+               (fun list_index x ->
+                 Array.to_list
+                   (Array.mapi
+                      (fun candidate_index x ->
+                        line_of_candidate x r.(list_index).(candidate_index))
+                      x))
+               answers)
+        in
+        let answers =
+          match answers with [] -> txt "" | y :: ys -> table (y :: ys)
+        in
+        li
+          ~a:[ a_class [ "result_question_item" ] ]
+          [
+            div ~a:[ a_class [ "result_question" ] ] [ markup x.q_question ];
+            answers;
+          ]
     | _ ->
         li
           ~a:[ a_class [ "result_question_item" ] ]

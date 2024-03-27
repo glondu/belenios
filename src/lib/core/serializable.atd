@@ -93,7 +93,7 @@ type ('a, 'b) partial_decryption = {
   decryption_proofs : 'b proof shape;
 }
 
-type plaintext = int list <ocaml repr="array"> list <ocaml repr="array">
+type plaintext = int shape list <ocaml repr="array">
 
 type 'a encrypted_tally = 'a ciphertext shape
 

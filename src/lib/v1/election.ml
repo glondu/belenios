@@ -123,7 +123,7 @@ struct
   let random () = M.random Zq.q |> Zq.coerce
   let ( / ) x y = x *~ invert y
 
-  type plaintext = int array array
+  type plaintext = int Shape.t array
   type nonrec ballot = (element, scalar) ballot
   type weighted_ballot = Weight.t * ballot
 

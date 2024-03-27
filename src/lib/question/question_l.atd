@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,28 +19,27 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
-module Homomorphic = Homomorphic
-module Non_homomorphic = Non_homomorphic
-module Lists = Lists
+<doc text="Serializable datatypes for lists questions">
 
-type t = Types.question = {
-  type_ : string;
-  value : Types.raw_question;
-  extra : Yojson.Safe.t option;
+(** {2 Predefined types} *)
+
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
+type 'a ciphertext <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type 'a disjunctive_proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+
+(** {2 Questions and answers} *)
+
+type question = {
+  answers : string list <ocaml repr="array"> list <ocaml repr="array">;
+  question : string;
+} <ocaml field_prefix="q_">
+
+type ('a, 'b) answer = {
+  choices : 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">;
+  individual_proofs : 'b disjunctive_proof list <ocaml repr="array"> list <ocaml repr="array">;
+  overall_proof : 'b proof;
+  list_proofs : 'b disjunctive_proof list <ocaml repr="array">;
 }
 
-val wrap : Yojson.Safe.t -> t
-val unwrap : t -> Yojson.Safe.t
-val read_question : t reader
-val write_question : t writer
-
-type counting_method =
-  [ `None
-  | `MajorityJudgment of Question_nh_t.mj_extra
-  | `Schulze of Question_nh_t.schulze_extra
-  | `STV of Question_nh_t.stv_extra ]
-
-val get_counting_method : Yojson.Safe.t option -> counting_method
-val erase_question : t -> t
-val is_nh_question : t -> bool
+type result = weight list <ocaml repr="array"> list <ocaml repr="array">

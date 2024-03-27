@@ -6,6 +6,7 @@ import ClassicVoteRecap from "./ClassicVoteRecap.js";
 import MajorityJudgmentVoteRecap from "./MajorityJudgmentVoteRecap.js";
 import PreferentialVotingVoteRecap from "./PreferentialVotingVoteRecap.js";
 import PreferentialVotingWithoutEqualityVoteRecap from "./PreferentialVotingWithoutEqualityVoteRecap.js";
+import ListsVoteRecap from "./ListsVoteRecap.js";
 
 function TranslatableWholeVoteRecap({
   electionObject = null,
@@ -28,6 +29,8 @@ function TranslatableWholeVoteRecap({
         questionRecapComponent = PreferentialVotingWithoutEqualityVoteRecap;
       } else if (questionType === QuestionTypeEnum.CLASSIC) {
         questionRecapComponent = ClassicVoteRecap;
+      } else if (questionType === QuestionTypeEnum.LISTS) {
+        questionRecapComponent = ListsVoteRecap;
       } else {
         return e("div", null, "Error: Unknown question type.");
       }

@@ -116,9 +116,11 @@ function TranslatableAllQuestionsWithPagination(props) {
     return undefined;
   };
   const initialVoteForAllQuestions = props.electionObject.questions.map(
-    (question, question_index) => {
+    (question, _) => {
       const questionType = question.type;
-      if (questionType in QuestionTypeEnum) {
+      if (questionType == QuestionTypeEnum.LISTS) {
+        return question.answers.map((l, _) => l.map((_) => undefined));
+      } else if (questionType in QuestionTypeEnum) {
         return question.answers.map(
           computeInitialVoteToQuestionFromAvailableAnswersMapFunction,
         );
@@ -298,6 +300,9 @@ function TranslatableAllQuestionsWithPagination(props) {
             .map((el) => {
               return el === undefined ? 0 : el;
             });
+        } else if (questionType === QuestionTypeEnum.LISTS) {
+          answers_to_question =
+            current_user_vote_for_all_questions[question_index];
         }
         return answers_to_question;
       },
@@ -433,6 +438,25 @@ function TranslatableAllQuestionsWithPagination(props) {
           });
           user_vote_to_question_is_valid = false;
         }
+      }
+    } else if (questionType === QuestionTypeEnum.LISTS) {
+      const numberOfListsSelected = voter_selected_answers_as_uncrypted_ballot[
+        current_question_index
+      ].reduce((accumulator, value, _) => {
+        const listSelected = value[0] === 1 ? 1 : 0;
+        return accumulator + listSelected;
+      }, 0);
+      if (numberOfListsSelected < 1) {
+        dispatch_current_alerts_for_all_questions({
+          type: "saveAlertForCandidateInQuestion",
+          question_index: current_question_index,
+          alert_id: "shouldSelectMoreCandidates",
+          candidates_indexes: undefined,
+          alert_text: t("alert_question_constraint_no_less_than_min", {
+            count: 1,
+          }),
+        });
+        user_vote_to_question_is_valid = false;
       }
     }
 
