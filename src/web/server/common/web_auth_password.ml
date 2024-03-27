@@ -50,15 +50,24 @@ struct
     let channel = Channel.{ uuid; name } in
     let* b = Throttle.wait throttle channel in
     if b then
-      match uuid with
-      | None -> (
-          match List.assoc_opt "db" a.auth_config with
-          | Some db ->
-              let* csv = Storage.(get (Auth_db db)) in
-              let&* csv = csv in
-              check_password_with_file ~csv ~name_or_email:name ~password
-          | _ -> failwith "invalid configuration for admin site")
-      | Some uuid -> Web_persist.check_password uuid ~user:name ~password
+      let* r =
+        match uuid with
+        | None ->
+            let@ file cont =
+              match List.assoc_opt "db" a.auth_config with
+              | None ->
+                  Lwt.fail @@ Failure "invalid configuration for admin site"
+              | Some x -> cont x
+            in
+            let key : Storage_sig.admin_password_file =
+              if is_email name then Address name else Username name
+            in
+            Storage.(get (Admin_password (file, key)))
+        | Some uuid -> Storage.(get (Election (uuid, Password name)))
+      in
+      let&* r = r in
+      let r = password_record_of_string r in
+      if check_password r password then Lwt.return_some r else Lwt.return_none
     else Lwt.return_none
 
   let handler uuid a =
@@ -83,7 +92,7 @@ struct
             | Some (`String username), Some (`String password) -> (
                 let* x = check uuid a username password in
                 match x with
-                | Some (username, _) -> Lwt.return username
+                | Some { username; _ } -> Lwt.return username
                 | None -> fail ())
             | _ -> fail ())
         | _ -> fail ()
@@ -98,8 +107,10 @@ struct
       {
         Web_auth.post_login_handler =
           (fun ~data:_ uuid a cont ->
-            let* ok = check uuid a name password in
-            cont ok);
+            let* x = check uuid a name password in
+            match x with
+            | None -> cont None
+            | Some { username; address; _ } -> cont @@ Some (username, address));
       }
 
   let () =
@@ -117,57 +128,42 @@ let get_password_db_fname service =
   in
   find !Web_config.site_auth_config
 
-let password_db_mutex = Lwt_mutex.create ()
-
 let do_add_account ~db_fname ~username ~password ~email () =
-  let username_ = String.lowercase_ascii username in
-  let email_ = String.lowercase_ascii email in
-  let@ db cont =
-    let* csv = Storage.(get (Auth_db db_fname)) in
-    match csv with
-    | None -> Lwt.return (Error DatabaseError)
-    | Some csv ->
-        let* x = parse_csv csv in
-        cont x
+  let@ () =
+   fun cont ->
+    let* r = Storage.(get (Admin_password (db_fname, Username username))) in
+    match r with None -> cont () | Some _ -> Lwt.return @@ Error UsernameTaken
+  in
+  let@ () =
+   fun cont ->
+    let* r = Storage.(get (Admin_password (db_fname, Address email))) in
+    match r with None -> cont () | Some _ -> Lwt.return @@ Error AddressTaken
   in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
-  let rec append accu = function
-    | [] -> Ok (List.rev ([ username; salt; hashed; email ] :: accu))
-    | (u :: _ :: _ :: _) :: _ when String.lowercase_ascii u = username_ ->
-        Error UsernameTaken
-    | (_ :: _ :: _ :: e :: _) :: _ when String.lowercase_ascii e = email_ ->
-        Error AddressTaken
-    | x :: xs -> append (x :: accu) xs
-  in
-  match append [] db with
-  | Error _ as x -> Lwt.return x
-  | Ok db ->
-      let db = List.map (String.concat ",") db in
-      let* () = Storage.(set (Auth_db db_fname) (join_lines db)) in
-      Lwt.return (Ok ())
+  let r = { username; salt; hashed; address = Some email } in
+  let r = string_of_password_record r in
+  Lwt.try_bind
+    (fun () -> Storage.(set (Admin_password (db_fname, Username username)) r))
+    (fun () -> Lwt.return @@ Ok ())
+    (fun _ -> Lwt.return @@ Error DatabaseError)
 
 let do_change_password ~db_fname ~username ~password () =
-  let username = String.lowercase_ascii username in
-  let@ db cont =
-    let* csv = Storage.(get (Auth_db db_fname)) in
-    match csv with
-    | None -> Lwt.fail (Failure "database error")
-    | Some csv ->
-        let* x = parse_csv csv in
-        cont x
+  let@ r cont =
+    let* r = Storage.(get (Admin_password (db_fname, Username username))) in
+    match r with
+    | None ->
+        Lwt.fail @@ Failure "password record not found in do_change_password"
+    | Some r -> cont @@ password_record_of_string r
   in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
-  let rec change accu = function
-    | [] -> accu
-    | (u :: _ :: _ :: x) :: xs when String.lowercase_ascii u = username ->
-        change ((u :: salt :: hashed :: x) :: accu) xs
-    | x :: xs -> change (x :: accu) xs
-  in
-  let db = List.rev_map (String.concat ",") (change [] db) in
-  let* () = Storage.(set (Auth_db db_fname) (join_lines db)) in
-  return_unit
+  let r = { r with salt; hashed } in
+  let r = string_of_password_record r in
+  Lwt.try_bind
+    (fun () -> Storage.(set (Admin_password (db_fname, Username username)) r))
+    (fun () -> Lwt.return_unit)
+    (fun _ -> Lwt.fail @@ Failure "database error")
 
 let add_account user ~password ~email =
   if String.trim password = password then
@@ -183,7 +179,7 @@ let add_account user ~password ~email =
                    (Printf.sprintf "add_account: unknown domain: %s"
                       user.user_domain))
           | Some db_fname ->
-              Lwt_mutex.with_lock password_db_mutex
+              Storage.with_lock None
                 (do_add_account ~db_fname ~username:user.user_name ~password
                    ~email))
     else return (Error BadUsername)
@@ -203,29 +199,25 @@ let change_password user ~password =
                     user.user_domain))
         | Some db_fname ->
             let* () =
-              Lwt_mutex.with_lock password_db_mutex
+              Storage.with_lock None
                 (do_change_password ~db_fname ~username:user.user_name ~password)
             in
             return (Ok ()))
   else return (Error BadSpaceInPassword)
 
 let lookup_account ~service ~username ~email =
-  let username = String.trim username |> String.lowercase_ascii in
-  let email = email |> String.lowercase_ascii in
-  let@ db cont =
-    let&* db_fname = get_password_db_fname service in
-    let* csv = Storage.(get (Auth_db db_fname)) in
-    let&* csv = csv in
-    let* x = parse_csv csv in
-    cont x
-  in
-  match
-    List.find_opt
-      (function
-        | u :: _ :: _ :: _ when String.lowercase_ascii u = username -> true
-        | _ :: _ :: _ :: e :: _ when String.lowercase_ascii e = email -> true
-        | _ -> false)
-      db
-  with
-  | Some (u :: _ :: _ :: e :: _) when is_email e -> return_some (u, e)
-  | _ -> return_none
+  let&* db_fname = get_password_db_fname service in
+  let username = String.trim username in
+  let* r = Storage.(get (Admin_password (db_fname, Username username))) in
+  match r with
+  | Some r ->
+      let { username; address; _ } = password_record_of_string r in
+      Lwt.return_some (username, address)
+  | None -> (
+      let address = String.trim email in
+      let* r = Storage.(get (Admin_password (db_fname, Address address))) in
+      match r with
+      | Some r ->
+          let { username; address; _ } = password_record_of_string r in
+          Lwt.return_some (username, address)
+      | None -> Lwt.return_none)

@@ -42,4 +42,4 @@ val lookup_account :
   service:string ->
   username:string ->
   email:string ->
-  (string * string) option Lwt.t
+  (string * string option) option Lwt.t

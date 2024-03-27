@@ -48,7 +48,7 @@ module type S = sig
       data:data ->
       uuid option ->
       auth_config ->
-      ((string * string) option -> 'a Lwt.t) ->
+      ((string * string option) option -> 'a Lwt.t) ->
       'a Lwt.t;
   }
 

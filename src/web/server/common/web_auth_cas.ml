@@ -66,7 +66,6 @@ module Make (Web_auth : Web_auth_sig.S) = struct
       let mail =
         extract "cas:attributes" info >>= extract "cas:mail" >>= extract_pcdata
       in
-      let mail = match mail with Some x -> x | None -> "" in
       Some (user, mail)
     with _ -> None
 
@@ -95,7 +94,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
         | "yes" ->
             let x =
               let& j = next_lf info (i + 1) in
-              Some (String.sub info (i + 1) (j - i - 1), "")
+              Some (String.sub info (i + 1) (j - i - 1), None)
             in
             `Yes x
         | "no" -> `No

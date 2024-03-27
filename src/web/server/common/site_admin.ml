@@ -142,7 +142,7 @@ struct
                     return_false
             in
             if show then Pages_admin.privacy_notice ContAdmin
-            else if a.email = "" then Pages_admin.set_email ()
+            else if a.email = None then Pages_admin.set_email ()
             else
               let* elections = get_elections_by_owner_sorted a.id in
               Pages_admin.admin ~elections)
@@ -184,7 +184,7 @@ struct
         | Some address, Some (_, a, _) -> (
             match SetEmailOtp.check ~address ~code with
             | Some () ->
-                let a = { a with email = address } in
+                let a = { a with email = Some address } in
                 let* () = Accounts.update_account a in
                 let* () = Web_state.discard () in
                 Redirection.send (Redirection admin)
@@ -213,14 +213,16 @@ struct
           Some (match cred with `Automatic -> "server" | `Manual -> "");
       }
     in
+    let address =
+      match account.email with None -> "" | Some x -> Printf.sprintf " <%s>" x
+    in
     let draft =
       {
         draft_version = Web_defaults.version;
         draft_owners = [ account.id ];
         draft_questions;
         draft_languages = [ "en"; "fr" ];
-        draft_contact =
-          Some (Printf.sprintf "%s <%s>" account.name account.email);
+        draft_contact = Some (account.name ^ address);
         draft_booth = 2;
         draft_authentication;
         draft_group = !Web_config.default_group;
@@ -300,7 +302,7 @@ struct
   let with_draft ?(lock = true) ?(save = true) uuid f =
     let@ _, a, _ = with_site_user in
     let@ () =
-     fun cont -> if lock then Storage.with_lock uuid cont else cont ()
+     fun cont -> if lock then Storage.with_lock (Some uuid) cont else cont ()
     in
     let@ (Draft (_, se) as x) = with_draft_public uuid in
     if Accounts.check a se.se_owners then
@@ -871,7 +873,7 @@ struct
         if token = "" then forbidden ()
         else
           let* x =
-            Storage.with_lock uuid (fun () ->
+            Storage.with_lock (Some uuid) (fun () ->
                 let@ (Draft (_, se) as fse) = with_draft_public uuid in
                 let ts =
                   match se.se_trustees with
@@ -1586,7 +1588,7 @@ struct
       (fun (uuid, token) data ->
         let@ () = wrap_handler_without_site_user in
         let* () =
-          Storage.with_lock uuid (fun () ->
+          Storage.with_lock (Some uuid) (fun () ->
               let@ (Draft (v, se)) = with_draft_public uuid in
               let version = se.se_version in
               let module G = (val Group.of_string ~version se.se_group : GROUP)
@@ -1809,17 +1811,17 @@ struct
                 Web_auth_password.lookup_account ~service ~email ~username
               in
               match x with
-              | None ->
+              | Some (username, Some address) ->
+                  let* () =
+                    Eliom_reference.set Web_state.signup_address (Some address)
+                  in
+                  Web_signup.send_changepw_code l ~service ~address ~username
+              | _ ->
                   return
                     (Printf.ksprintf Ocsigen_messages.warning
                        "Unsuccessful attempt to change the password of %S (%S) \
                         for service %s"
                        username email service)
-              | Some (username, address) ->
-                  let* () =
-                    Eliom_reference.set Web_state.signup_address (Some address)
-                  in
-                  Web_signup.send_changepw_code l ~service ~address ~username
             in
             Pages_admin.signup_login ()
         | _ -> changepw_captcha_handler service error email username)

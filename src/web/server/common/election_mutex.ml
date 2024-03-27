@@ -42,7 +42,7 @@ let unlock uuid_s =
       | Some u -> Lwt.wakeup_later u ())
 
 let with_lock uuid f =
-  let uuid_s = Uuid.unwrap uuid in
+  let uuid_s = match uuid with None -> "" | Some x -> Uuid.unwrap x in
   Lwt.bind (lock uuid_s) (fun () ->
       Lwt.finalize f (fun () ->
           unlock uuid_s;

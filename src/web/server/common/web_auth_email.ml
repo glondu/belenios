@@ -184,7 +184,7 @@ struct
                       match Otp.check ~address ~code with
                       | Some () ->
                           let* () = Eliom_state.discard ~scope () in
-                          return_some (name, address)
+                          return_some (name, Some address)
                       | None -> return_none
                     in
                     cont ok);

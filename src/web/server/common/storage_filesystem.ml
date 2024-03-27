@@ -31,6 +31,174 @@ module type CONFIG = sig
 end
 
 module Make (Config : CONFIG) = struct
+  (** {1 Abstract election-specific file operations} *)
+
+  type 'key abstract_file_ops = {
+    mutable get : uuid -> 'key -> string option Lwt.t;
+    mutable set : uuid -> 'key -> string -> unit Lwt.t;
+  }
+
+  let make_uninitialized_ops what =
+    let e =
+      Lwt.fail (Failure (Printf.sprintf "Storage.%s uninitialized" what))
+    in
+    { get = (fun _ _ -> e); set = (fun _ _ _ -> e) }
+
+  (** {1 Forward references} *)
+
+  let extended_records_ops = make_uninitialized_ops "extended_records_ops"
+  let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
+  let data_ops = make_uninitialized_ops "data_ops"
+  let roots_ops = make_uninitialized_ops "roots_ops"
+  let voters_config_ops = make_uninitialized_ops "voters_config_ops"
+  let voters_ops = make_uninitialized_ops "voters_ops"
+  let credential_weights_ops = make_uninitialized_ops "credential_weights_ops"
+  let credential_users_ops = make_uninitialized_ops "credential_users_ops"
+  let salts_ops = make_uninitialized_ops "salts_ops"
+  let password_records_ops = make_uninitialized_ops "password_records_ops"
+
+  let get_password_file =
+    ref (fun _ -> Lwt.fail (Failure "Storage.get_password_file uninitialized"))
+
+  let set_password_file =
+    ref (fun _ _ ->
+        Lwt.fail (Failure "Storage.set_password_file uninitialized"))
+
+  (** {1 Password file operations} *)
+
+  module PasswordRecordsCacheTypes = struct
+    type key = Admin of string | Election of uuid
+    type value = password_record SMap.t * password_record SMap.t
+  end
+
+  module PasswordRecordsCache = Ocsigen_cache.Make (PasswordRecordsCacheTypes)
+
+  exception Password_db_not_found
+
+  let raw_get_password_records (key : PasswordRecordsCacheTypes.key) =
+    let* csv =
+      match key with
+      | Admin file -> Filesystem.read_file file
+      | Election uuid -> !get_password_file uuid
+    in
+    let* csv =
+      match csv with
+      | None -> Lwt.fail Password_db_not_found
+      | Some x ->
+          Lwt_preemptive.detach (fun x -> Csv.(input_all (of_string x))) x
+    in
+    Lwt_list.fold_left_s
+      (fun ((username_indexed, address_indexed) as accu) r ->
+        let@ r cont =
+          match r with
+          | username :: salt :: hashed :: address :: _ ->
+              cont { username; salt; hashed; address = Some address }
+          | username :: salt :: hashed :: _ ->
+              cont { username; salt; hashed; address = None }
+          | _ -> Lwt.return accu
+        in
+        let username_indexed =
+          SMap.add (String.lowercase_ascii r.username) r username_indexed
+        in
+        let address_indexed =
+          match r.address with
+          | None -> address_indexed
+          | Some a -> SMap.add (String.lowercase_ascii a) r address_indexed
+        in
+        Lwt.return (username_indexed, address_indexed))
+      (SMap.empty, SMap.empty) csv
+
+  let password_records_cache =
+    new PasswordRecordsCache.cache raw_get_password_records ~timer:3600. 100
+
+  let get_password_record_generic where who =
+    Lwt.try_bind
+      (fun () -> password_records_cache#find where)
+      (fun (u, a) ->
+        let key, map =
+          match who with Username u' -> (u', u) | Address a' -> (a', a)
+        in
+        let r = SMap.find_opt (String.lowercase_ascii key) map in
+        Lwt.return @@ Option.map string_of_password_record r)
+      (function Password_db_not_found -> Lwt.return_none | e -> Lwt.reraise e)
+
+  let get_password_record_admin file who =
+    get_password_record_generic (Admin file) who
+
+  let get_password_record_election uuid who =
+    get_password_record_generic (Election uuid) (Username who)
+
+  let set_password_record_generic read write key data =
+    let { username; salt; hashed; address } = password_record_of_string data in
+    let update r =
+      match address with
+      | None ->
+          let xs = match r with _ :: _ :: _ :: xs -> xs | _ -> [] in
+          username :: salt :: hashed :: xs
+      | Some address ->
+          let xs = match r with _ :: _ :: _ :: _ :: xs -> xs | _ -> [] in
+          username :: salt :: hashed :: address :: xs
+    in
+    let@ csv cont =
+      let* x = read () in
+      match x with
+      | None -> Lwt.fail (Failure "missing password database")
+      | Some x -> cont x
+    in
+    let* csv =
+      Lwt_preemptive.detach (fun csv -> Csv.(input_all (of_string csv))) csv
+    in
+    let rec update_by_username x accu = function
+      | (u :: _ as r) :: rs when String.lowercase_ascii u = x ->
+          List.rev_append (update r :: accu) rs
+      | r :: rs -> update_by_username x (r :: accu) rs
+      | [] -> List.rev_append (update [] :: accu) []
+    in
+    let rec update_by_address x accu = function
+      | (_ :: _ :: _ :: u :: _ as r) :: rs when String.lowercase_ascii u = x ->
+          List.rev_append (update r :: accu) rs
+      | r :: rs -> update_by_address x (r :: accu) rs
+      | [] -> List.rev_append (update [] :: accu) []
+    in
+    let csv =
+      match key with
+      | Username u -> update_by_username (String.lowercase_ascii u) [] csv
+      | Address u -> update_by_address (String.lowercase_ascii u) [] csv
+    in
+    let* csv =
+      Lwt_preemptive.detach
+        (fun csv ->
+          let b = Buffer.create 1024 in
+          Csv.(output_all (to_buffer b) csv);
+          Buffer.contents b)
+        csv
+    in
+    write csv
+
+  let set_password_record_admin file key data =
+    let* () =
+      set_password_record_generic
+        (fun () -> Filesystem.read_file file)
+        (fun x -> Filesystem.write_file file x)
+        key data
+    in
+    password_records_cache#remove (Admin file);
+    Lwt.return_unit
+
+  let set_password_record_election uuid who data =
+    let* () =
+      set_password_record_generic
+        (fun () -> !get_password_file uuid)
+        (fun x -> !set_password_file uuid x)
+        (Username who) data
+    in
+    password_records_cache#remove (Election uuid);
+    Lwt.return_unit
+
+  let () =
+    password_records_ops.get <- get_password_record_election;
+    password_records_ops.set <- set_password_record_election
+
   (** {1 Generic operations} *)
 
   let ( !! ) x = Config.spool_dir // x
@@ -60,27 +228,6 @@ module Make (Config : CONFIG) = struct
          (fun accu x ->
            match Uuid.wrap x with exception _ -> accu | x -> x :: accu)
          [] xs
-
-  type 'key abstract_file_ops = {
-    mutable get : uuid -> 'key -> string option Lwt.t;
-    mutable set : uuid -> 'key -> string -> unit Lwt.t;
-  }
-
-  let make_uninitialized_ops what =
-    let e =
-      Lwt.fail (Failure (Printf.sprintf "Storage.%s uninitialized" what))
-    in
-    { get = (fun _ _ -> e); set = (fun _ _ _ -> e) }
-
-  let extended_records_ops = make_uninitialized_ops "extended_records_ops"
-  let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
-  let data_ops = make_uninitialized_ops "data_ops"
-  let roots_ops = make_uninitialized_ops "roots_ops"
-  let voters_config_ops = make_uninitialized_ops "voters_config_ops"
-  let voters_ops = make_uninitialized_ops "voters_ops"
-  let credential_weights_ops = make_uninitialized_ops "credential_weights_ops"
-  let credential_users_ops = make_uninitialized_ops "credential_users_ops"
-  let salts_ops = make_uninitialized_ops "salts_ops"
 
   type election_file_props =
     | Concrete : string * kind -> election_file_props
@@ -118,6 +265,7 @@ module Make (Config : CONFIG) = struct
     | Credential_weight key -> Abstract (credential_weights_ops, key)
     | Credential_user key -> Abstract (credential_users_ops, key)
     | Salt key -> Abstract (salts_ops, key)
+    | Password key -> Abstract (password_records_ops, key)
 
   let extended_records_filename = "extended_records.jsons"
   let credential_mappings_filename = "credential_mappings.jsons"
@@ -125,6 +273,7 @@ module Make (Config : CONFIG) = struct
   type file_props =
     | Concrete : string * kind -> file_props
     | Abstract : 'key abstract_file_ops * uuid * 'key -> file_props
+    | Admin_password : string * admin_password_file -> file_props
 
   let get_props = function
     | Spool_version -> Concrete (!!"version", Trim)
@@ -136,11 +285,12 @@ module Make (Config : CONFIG) = struct
         | Concrete (fname, kind) -> Concrete (uuid /// fname, kind)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
     | Auth_db f -> Concrete (f, Raw)
+    | Admin_password (file, key) -> Admin_password (file, key)
 
   let file_exists x =
     match get_props x with
     | Concrete (path, _) -> Filesystem.file_exists path
-    | Abstract _ -> Lwt.fail (Failure "Storage.file_exists")
+    | Abstract _ | Admin_password _ -> Lwt.fail (Failure "Storage.file_exists")
 
   let get f =
     match get_props f with
@@ -150,6 +300,7 @@ module Make (Config : CONFIG) = struct
         | Raw -> Lwt.return x
         | Trim -> Lwt.return @@ Option.map String.trim x)
     | Abstract (ops, uuid, key) -> ops.get uuid key
+    | Admin_password (file, key) -> get_password_record_admin file key
 
   let set f data =
     match get_props f with
@@ -157,6 +308,10 @@ module Make (Config : CONFIG) = struct
         let data = match kind with Raw -> data | Trim -> data ^ "\n" in
         Filesystem.write_file fname data
     | Abstract (ops, uuid, key) -> ops.set uuid key data
+    | Admin_password (file, key) -> set_password_record_admin file key data
+
+  let () = get_password_file := fun uuid -> get (Election (uuid, Passwords))
+  let () = set_password_file := fun uuid x -> set (Election (uuid, Passwords)) x
 
   let append_to_file fname lines =
     let open Lwt_io in
@@ -168,7 +323,7 @@ module Make (Config : CONFIG) = struct
   let del f =
     match get_props f with
     | Concrete (f, _) -> Filesystem.cleanup_file f
-    | Abstract _ -> Lwt.fail (Failure "Storage.del")
+    | Abstract _ | Admin_password _ -> Lwt.fail (Failure "Storage.del")
 
   let rmdir dir =
     let command = ("rm", [| "rm"; "-rf"; dir |]) in
@@ -256,14 +411,14 @@ module Make (Config : CONFIG) = struct
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
       | Concrete (f, _) -> Lwt.return f
-      | Abstract _ -> Lwt.fail (Failure "Storage.get_archive")
+      | _ -> Lwt.fail (Failure "Storage.get_archive")
     else Lwt.fail Not_found
 
   let get_as_file = function
     | Election (_, (Public_archive | Private_creds)) as x -> (
         match get_props x with
         | Concrete (f, _) -> Lwt.return f
-        | Abstract _ -> Lwt.fail (Failure "Storage.get_as_file"))
+        | _ -> Lwt.fail (Failure "Storage.get_as_file"))
     | Election (uuid, Confidential_archive) -> get_archive uuid
     | _ -> Lwt.fail Not_found
 
@@ -759,7 +914,7 @@ module Make (Config : CONFIG) = struct
       | Some r -> Lwt.return r
       | None ->
           if lock then
-            let@ () = with_lock uuid in
+            let@ () = with_lock (Some uuid) in
             match Hashtbl.find_opt indexes uuid with
             | Some r -> Lwt.return r
             | None -> do_get_index ~creat ~uuid
@@ -831,7 +986,9 @@ module Make (Config : CONFIG) = struct
   let () = roots_ops.get <- get_roots
 
   let append ?(lock = true) uuid ?last ops =
-    let@ () = fun cont -> if lock then with_lock uuid cont else cont () in
+    let@ () =
+     fun cont -> if lock then with_lock (Some uuid) cont else cont ()
+    in
     let@ last cont =
       let* x = get_last_event uuid in
       match last with

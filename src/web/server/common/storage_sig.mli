@@ -56,6 +56,9 @@ type election_file =
   | Credential_weight of string
   | Credential_user of string
   | Salt of int
+  | Password of string
+
+type admin_password_file = Username of string | Address of string
 
 type file =
   | Spool_version
@@ -63,6 +66,7 @@ type file =
   | Account of int
   | Election of uuid * election_file
   | Auth_db of string
+  | Admin_password of string * admin_password_file
 
 type append_operation = Data of string | Event of event_type * hash option
 
@@ -84,7 +88,7 @@ module type S = sig
 
   (** {1 Specialized operations} *)
 
-  val with_lock : uuid -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+  val with_lock : uuid option -> (unit -> 'a Lwt.t) -> 'a Lwt.t
   val init_credential_mapping : uuid -> public_credentials Lwt.t
 
   (** {1 Cleaning operations} *)

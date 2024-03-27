@@ -21,7 +21,7 @@
 
 open Web_serializable_t
 
-val create_account : email:string -> user -> account Lwt.t
+val create_account : email:string option -> user -> account Lwt.t
 val get_account_by_id : int -> account option Lwt.t
 val get_account : user -> account option Lwt.t
 val update_account : account -> unit Lwt.t

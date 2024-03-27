@@ -54,8 +54,8 @@ module Make (Web_auth : Web_auth_sig.S) = struct
         let x = oidc_userinfo_of_string info in
         return_some
           (match x.oidc_email with
-          | Some x -> (x, x)
-          | None -> (x.oidc_sub, ""))
+          | Some x -> (x, Some x)
+          | None -> (x.oidc_sub, None))
       with _ -> return_none
     with _ -> return_none
 

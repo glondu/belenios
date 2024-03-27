@@ -3644,7 +3644,12 @@ struct
                   txt " ";
                   input ~input_type:`Text ~name ~value:account.name string;
                 ];
-              div [ txt (s_ "E-mail address:"); txt " "; txt account.email ];
+              div
+                [
+                  txt (s_ "E-mail address:");
+                  txt " ";
+                  txt @@ Option.value ~default:"(none)" account.email;
+                ];
               div
                 [
                   txt (s_ "Authentication methods:");

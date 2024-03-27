@@ -457,24 +457,13 @@ let get_elections_by_owner user =
   match IMap.find_opt user cache with None -> return [] | Some xs -> return xs
 
 let check_password uuid ~user ~password =
-  let* x = Storage.(get (Election (uuid, Passwords))) in
+  let* x = Storage.(get (Election (uuid, Password user))) in
   match x with
   | None -> Lwt.return_none
-  | Some csv -> check_password_with_file ~csv ~name_or_email:user ~password
-
-let get_passwords uuid =
-  let* csv = Storage.(get (Election (uuid, Passwords))) in
-  let&* csv = csv in
-  let* csv = parse_csv csv in
-  let res =
-    List.fold_left
-      (fun accu line ->
-        match line with
-        | [ login; salt; hash ] -> SMap.add login (salt, hash) accu
-        | _ -> accu)
-      SMap.empty csv
-  in
-  return_some res
+  | Some r ->
+      let ({ username; address; _ } as r) = password_record_of_string r in
+      if check_password r password then Lwt.return_some (username, address)
+      else Lwt.return_none
 
 let get_all_voters uuid =
   let* x = Storage.(get (Election (uuid, Voters))) in
@@ -720,7 +709,7 @@ let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =
     Public_archive.with_election uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "cast_ballot")))
   in
-  Storage.with_lock uuid (fun () ->
+  Storage.with_lock (Some uuid) (fun () ->
       do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)
 
 let compute_audit_cache uuid =
@@ -776,7 +765,9 @@ let get_admin_context admin_id =
   in
   let* account = Accounts.get_account_by_id admin_id in
   let email =
-    match account with None -> !Web_config.server_mail | Some a -> a.email
+    match account with
+    | Some { email = Some x; _ } -> x
+    | _ -> !Web_config.server_mail
   in
   let nb_elections = List.length elections in
   let total_voters = List.fold_left ( + ) 0 elections in
@@ -875,21 +866,6 @@ let delete_election uuid =
   let* () = Storage.delete_live_data uuid in
   clear_elections_by_owner_cache ()
 
-let load_password_db uuid =
-  let* db = Storage.(get (Election (uuid, Passwords))) in
-  match db with
-  | None -> Lwt.return []
-  | Some db ->
-      Lwt_preemptive.detach (fun db -> Csv.(input_all (of_string db))) db
-
-let rec replace_password username ((salt, hashed) as p) = function
-  | [] -> []
-  | (username' :: _ :: _ :: rest as x) :: xs ->
-      if username = String.lowercase_ascii username' then
-        (username' :: salt :: hashed :: rest) :: xs
-      else x :: replace_password username p xs
-  | x :: xs -> x :: replace_password username p xs
-
 let dump_passwords uuid db =
   List.map (fun line -> String.concat "," line) db
   |> join_lines
@@ -905,18 +881,20 @@ let regen_password uuid metadata user =
   let title = W.template.t_name in
   let* show_weight = get_has_explicit_weights uuid in
   let* x = Storage.(get (Election (uuid, Voter user))) in
-  match x with
-  | Some id ->
+  let* y = Storage.(get (Election (uuid, Password user))) in
+  match (x, y) with
+  | Some id, Some r ->
       let id = Voter.of_string id in
+      let r = password_record_of_string r in
       let langs = get_languages metadata.e_languages in
-      let* db = load_password_db uuid in
-      let* email, x =
+      let* email, (salt, hashed) =
         Mails_voter.generate_password_email metadata langs title uuid id
           show_weight
       in
+      let r = { r with salt; hashed } in
+      let r = string_of_password_record r in
+      let* () = Storage.(set (Election (uuid, Password user)) r) in
       let* () = Mails_voter.submit_bulk_emails [ email ] in
-      let db = replace_password user x db in
-      let* () = dump_passwords uuid db in
       Lwt.return_true
   | _ -> Lwt.return_false
 

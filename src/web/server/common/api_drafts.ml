@@ -713,9 +713,25 @@ let merge_voters a b f =
   in
   loop weights (List.rev a) b
 
+let get_passwords uuid =
+  let* csv = Storage.(get (Election (uuid, Passwords))) in
+  let&* csv = csv in
+  let* csv =
+    Lwt_preemptive.detach (fun db -> Csv.(input_all (of_string db))) csv
+  in
+  let res =
+    List.fold_left
+      (fun accu line ->
+        match line with
+        | [ login; salt; hash ] -> SMap.add login (salt, hash) accu
+        | _ -> accu)
+      SMap.empty csv
+  in
+  Lwt.return_some res
+
 let import_voters uuid (Draft (v, se)) from =
   let* voters = Web_persist.get_all_voters from in
-  let* passwords = Web_persist.get_passwords from in
+  let* passwords = get_passwords from in
   let get_password =
     match passwords with
     | None -> fun _ -> None

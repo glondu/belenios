@@ -158,13 +158,16 @@ let rec show_root main =
             t_credential_authority = Some "server";
           }
         in
+        let address =
+          match a.address with None -> "" | Some x -> Printf.sprintf " <%s>" x
+        in
         let draft =
           {
             draft_version;
             draft_owners = [ a.id ];
             draft_questions;
             draft_languages = [ "en"; "fr" ];
-            draft_contact = Some (Printf.sprintf "%s <%s>" a.name a.address);
+            draft_contact = Some (a.name ^ address);
             draft_booth = List.hd c.supported_booth_versions;
             draft_authentication =
               (match c.authentications with

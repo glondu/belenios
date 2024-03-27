@@ -221,7 +221,7 @@ type oidc_userinfo = {
 type account = {
     id : int;
     name : string;
-    email : string;
+    ?email : string option;
     last_connected : datetime;
     authentications : user list;
     ?consent : datetime option;
@@ -279,4 +279,11 @@ type voters_config = {
   has_explicit_weights : bool;
   username_or_address : username_or_address;
   nb_voters : int;
+}
+
+type password_record = {
+  username : string;
+  salt : string;
+  hashed : string;
+  ?address : string option;
 }

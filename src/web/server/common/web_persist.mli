@@ -55,7 +55,6 @@ val set_election_automatic_dates :
 
 (** {1 Voter-specific stuff} *)
 
-val get_passwords : uuid -> (string * string) SMap.t option Lwt.t
 val get_all_voters : uuid -> Voter.t list Lwt.t
 val set_draft_public_credentials : uuid -> public_credentials -> unit Lwt.t
 val get_draft_public_credentials : uuid -> string option Lwt.t
@@ -66,7 +65,10 @@ val get_salt : uuid -> int -> Yojson.Safe.t salt option Lwt.t
 val get_voter : uuid -> string -> Voter.t option Lwt.t
 
 val check_password :
-  uuid -> user:string -> password:string -> (string * string) option Lwt.t
+  uuid ->
+  user:string ->
+  password:string ->
+  (string * string option) option Lwt.t
 
 val regen_password : uuid -> metadata -> string -> bool Lwt.t
 

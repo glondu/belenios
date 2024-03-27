@@ -162,14 +162,7 @@ type credential_record = {
   cr_username : string option;
 }
 
-val parse_csv : string -> Csv.t Lwt.t
-
-val check_password_with_file :
-  csv:string ->
-  name_or_email:string ->
-  password:string ->
-  (string * string) option Lwt.t
-
+val check_password : password_record -> string -> bool
 val has_explicit_weights : draft_voter list -> bool
 
 type draft_election =

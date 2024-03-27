@@ -77,7 +77,11 @@ let rec update_main_zone () =
           div
             [
               div [ txt (s_ "ID: " ^ string_of_int acc.id) ];
-              div [ txt (s_ "E-mail: " ^ acc.address) ];
+              div
+                [
+                  txt
+                    (s_ "E-mail: " ^ Option.value ~default:"(none)" acc.address);
+                ];
               div
                 [
                   label ~a:[ a_label_for "inpname" ] [ txt @@ s_ "Name: " ];

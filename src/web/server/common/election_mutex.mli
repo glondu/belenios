@@ -21,4 +21,4 @@
 
 open Belenios
 
-val with_lock : Uuid.t -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+val with_lock : uuid option -> (unit -> 'a Lwt.t) -> 'a Lwt.t

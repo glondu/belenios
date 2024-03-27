@@ -58,6 +58,6 @@ struct
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              (fun ~data:_ _ _ cont -> cont (Some (name, "")));
+              (fun ~data:_ _ _ cont -> cont (Some (name, None)));
           })
 end
