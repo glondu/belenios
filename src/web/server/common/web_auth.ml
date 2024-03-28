@@ -166,7 +166,7 @@ struct
                   match uuid with
                   | None ->
                       let* account =
-                        let* x = Accounts.get_account user in
+                        let* x = Accounts.update_account user in
                         match x with
                         | None ->
                             let* a = Accounts.create_account ~email user in
@@ -174,10 +174,10 @@ struct
                               Web_persist.clear_elections_by_owner_cache ()
                             in
                             return a
-                        | Some x ->
+                        | Some (x, set) ->
                             let last_connected = Datetime.now () in
                             let x = { x with last_connected } in
-                            let* () = Accounts.update_account x in
+                            let* () = set x in
                             return x
                       in
                       let* token = Api_generic.new_token account in

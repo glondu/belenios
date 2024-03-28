@@ -130,16 +130,19 @@ struct
             let* show =
               match a.consent with
               | Some _ -> return_false
-              | None ->
+              | None -> (
                   let* b =
                     Eliom_reference.get Web_state.show_cookie_disclaimer
                   in
                   if b then return_true
                   else
                     let consent = Some (Datetime.now ()) in
-                    let a = { a with consent } in
-                    let* () = Accounts.update_account { a with consent } in
-                    return_false
+                    let* x = Accounts.update_account_by_id a.id in
+                    match x with
+                    | None -> return_true
+                    | Some (a, set) ->
+                        let* () = set { a with consent } in
+                        return_false)
             in
             if show then Pages_admin.privacy_notice ContAdmin
             else if a.email = None then Pages_admin.set_email ()
@@ -184,8 +187,14 @@ struct
         | Some address, Some (_, a, _) -> (
             match SetEmailOtp.check ~address ~code with
             | Some () ->
-                let a = { a with email = Some address } in
-                let* () = Accounts.update_account a in
+                let@ a, set =
+                 fun cont ->
+                  let* x = Accounts.update_account_by_id a.id in
+                  match x with
+                  | None -> Lwt.fail @@ Failure "set_email_confirm"
+                  | Some x -> cont x
+                in
+                let* () = set { a with email = Some address } in
                 let* () = Web_state.discard () in
                 Redirection.send (Redirection admin)
             | None ->
@@ -299,19 +308,58 @@ struct
     let* election = Spool.get ~uuid Spool.draft in
     match election with None -> fail_http `Not_found | Some x -> f x
 
+  let with_draft_public_update uuid f =
+    let* election = Spool.update uuid Spool.draft in
+    match election with None -> fail_http `Not_found | Some x -> f x
+
   let with_draft ?(lock = true) ?(save = true) uuid f =
     let@ _, a, _ = with_site_user in
     let@ () =
      fun cont -> if lock then Storage.with_lock (Some uuid) cont else cont ()
     in
-    let@ (Draft (_, se) as x) = with_draft_public uuid in
+    let@ (Draft (_, se) as x), set =
+     fun cont ->
+      if save then
+        let* x = Spool.update uuid Spool.draft in
+        match x with
+        | None -> fail_http `Not_found
+        | Some (x, set) -> cont (x, Some set)
+      else
+        let* x = Spool.get ~uuid Spool.draft in
+        match x with None -> fail_http `Not_found | Some x -> cont (x, None)
+    in
     if Accounts.check a se.se_owners then
       Lwt.catch
         (fun () ->
           let* r = f x in
           let* () =
-            if save then Spool.set ~uuid Spool.draft x else return_unit
+            match set with None -> Lwt.return_unit | Some set -> set x
           in
+          return r)
+        (fun e ->
+          let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
+          let service = preapply ~service:election_draft uuid in
+          let* l = get_preferred_gettext () in
+          let open (val l) in
+          Pages_common.generic_page ~title:(s_ "Error") ~service msg ()
+          >>= Html.send)
+    else forbidden ()
+
+  let with_draft_update ?(lock = true) ?(save = true) uuid f =
+    let@ _, a, _ = with_site_user in
+    let@ () =
+     fun cont -> if lock then Storage.with_lock (Some uuid) cont else cont ()
+    in
+    let@ (((Draft (_, se) as x), set) as d) =
+     fun cont ->
+      let* x = Spool.update uuid Spool.draft in
+      match x with None -> fail_http `Not_found | Some x -> cont x
+    in
+    if Accounts.check a se.se_owners then
+      Lwt.catch
+        (fun () ->
+          let* r = f d in
+          let* () = if save then set x else return_unit in
           return r)
         (fun e ->
           let msg = match e with Failure s -> s | _ -> Printexc.to_string e in
@@ -694,22 +742,22 @@ struct
         let voter = List.filter filter se.se_voters in
         handle_password account se uuid ~force:true voter)
 
-  let ensure_trustees_mode uuid (Draft (_, se) as x) mode =
+  let ensure_trustees_mode uuid ((Draft (_, se) as x), set) mode =
     match (se.se_trustees, mode) with
     | `Basic _, `Basic | `Threshold _, `Threshold _ -> Lwt.return x
     | `Threshold _, `Basic | `Basic _, `Threshold _ -> (
-        let* () = Api_drafts.put_draft_trustees_mode uuid x mode in
+        let* () = Api_drafts.put_draft_trustees_mode (x, set) mode in
         let* x = Spool.get ~uuid Spool.draft in
         match x with
         | Some se -> Lwt.return se
         | None -> Lwt.fail (Failure "inconsistency in ensure_trustees_mode"))
 
   let handle_trustee_add mode uuid (trustee_address, trustee_name) =
-    let@ se = with_draft ~save:false uuid in
+    let@ se, set = with_draft_update ~save:false uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
     if is_email trustee_address then
-      let* se = ensure_trustees_mode uuid se mode in
+      let* se = ensure_trustees_mode uuid (se, set) mode in
       let open Belenios_api.Serializable_t in
       let trustee =
         {
@@ -720,7 +768,7 @@ struct
           trustee_key = None;
         }
       in
-      let* () = Api_drafts.post_draft_trustees uuid se trustee in
+      let* () = Api_drafts.post_draft_trustees (se, set) trustee in
       redir_preapply election_draft_trustees uuid ()
     else
       let msg =
@@ -731,8 +779,8 @@ struct
       >>= Html.send
 
   let handle_trustee_del service uuid address =
-    let@ se = with_draft ~save:false uuid in
-    let* _ = Api_drafts.delete_draft_trustee uuid se address in
+    let@ se = with_draft_update ~save:false uuid in
+    let* _ = Api_drafts.delete_draft_trustee se address in
     redir_preapply service uuid ()
 
   let () =
@@ -760,14 +808,14 @@ struct
         Pages_admin.election_draft_credentials_static ())
 
   let handle_credentials_post uuid token creds =
-    let@ (Draft (_, se) as x) = with_draft_public uuid in
+    let@ (Draft (_, se) as x), set = with_draft_public_update uuid in
     if se.se_public_creds <> token then forbidden ()
     else
       match Web_persist.get_credentials_status uuid x with
       | `Done | `Pending _ -> forbidden ()
       | `None ->
           let creds = public_credentials_of_string creds in
-          let* () = Api_drafts.submit_public_credentials uuid x creds in
+          let* () = Api_drafts.submit_public_credentials uuid (x, set) creds in
           Pages_admin.election_draft_credentials_done x () >>= Html.send
 
   let () =
@@ -874,7 +922,9 @@ struct
         else
           let* x =
             Storage.with_lock (Some uuid) (fun () ->
-                let@ (Draft (_, se) as fse) = with_draft_public uuid in
+                let@ (Draft (_, se) as fse), set =
+                  with_draft_public_update uuid
+                in
                 let ts =
                   match se.se_trustees with
                   | `Basic x -> x.dbp_trustees
@@ -907,7 +957,7 @@ struct
                   else (
                     (* we keep pk as a string because of G.t *)
                     t.st_public_key <- public_key;
-                    let* () = Spool.set ~uuid Spool.draft fse in
+                    let* () = set fse in
                     let msg = s_ "Your key has been received and checked!" in
                     let title = s_ "Success" in
                     return_some (title, msg, 200)))
@@ -934,13 +984,13 @@ struct
       | _ -> failwith "handle_draft_create"
     in
     let@ _, account, _ = with_site_user in
-    let@ (Draft (_, se) as fse) = with_draft ~save:false uuid in
+    let@ (Draft (_, se) as fse), set = with_draft_update ~save:false uuid in
     Lwt.catch
       (fun () ->
         if Accounts.check account se.se_owners then
           let* s = Api_drafts.get_draft_status uuid fse in
           let* () =
-            Web_persist.validate_election ~admin_id:account.id uuid fse s
+            Web_persist.validate_election ~admin_id:account.id uuid (fse, set) s
           in
           Web_cont.exec cont
         else Lwt.fail (Failure "Forbidden"))
@@ -989,7 +1039,7 @@ struct
   let () =
     Any.register ~service:election_draft_import_post (fun uuid from_s ->
         let from = Uuid.wrap from_s in
-        let@ se = with_draft ~save:false uuid in
+        let@ se = with_draft_update ~save:false uuid in
         let@ _ = with_metadata_check_owner from in
         let* l = get_preferred_gettext () in
         let open (val l) in
@@ -1038,10 +1088,10 @@ struct
   let () =
     Any.register ~service:election_draft_import_trustees_post (fun uuid from ->
         let from = Uuid.wrap from in
-        let@ se = with_draft ~save:false uuid in
+        let@ se = with_draft_update ~save:false uuid in
         let@ _ = with_metadata_check_owner from in
         let* metadata = Web_persist.get_election_metadata from in
-        let* x = Api_drafts.import_trustees uuid se from metadata in
+        let* x = Api_drafts.import_trustees se from metadata in
         match x with
         | Ok `Basic -> redir_preapply election_draft_trustees uuid ()
         | Ok `Threshold ->
@@ -1522,10 +1572,10 @@ struct
 
   let () =
     Any.register ~service:election_draft_threshold_set (fun uuid threshold ->
-        let@ se = with_draft ~save:false uuid in
+        let@ se = with_draft_update ~save:false uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let* x = Api_drafts.set_threshold uuid se threshold in
+        let* x = Api_drafts.set_threshold se threshold in
         match x with
         | Ok () -> redir_preapply election_draft_threshold_trustees uuid ()
         | Error `NoTrustees ->
@@ -1589,7 +1639,7 @@ struct
         let@ () = wrap_handler_without_site_user in
         let* () =
           Storage.with_lock (Some uuid) (fun () ->
-              let@ (Draft (v, se)) = with_draft_public uuid in
+              let@ Draft (v, se), set = with_draft_public_update uuid in
               let version = se.se_version in
               let module G = (val Group.of_string ~version se.se_group : GROUP)
               in
@@ -1722,7 +1772,7 @@ struct
                 se_trustees
                 |> string_of_draft_trustees (swrite G.Zq.to_string)
                 |> draft_trustees_of_string Yojson.Safe.read_json;
-              Spool.set ~uuid Spool.draft (Draft (v, se)))
+              set (Draft (v, se)))
         in
         redir_preapply election_draft_threshold_trustee (uuid, token) ())
 
@@ -1958,8 +2008,14 @@ struct
   let () =
     Any.register ~service:account_post (fun () name ->
         let@ _, a, _ = with_user_and_account in
-        let a = { a with name } in
-        let* () = Accounts.update_account a in
+        let@ a, set =
+         fun cont ->
+          let* x = Accounts.update_account_by_id a.id in
+          match x with
+          | None -> Lwt.fail @@ Failure "account_post"
+          | Some x -> cont x
+        in
+        let* () = set { a with name } in
         Redirection.send (Redirection admin))
 
   let () =

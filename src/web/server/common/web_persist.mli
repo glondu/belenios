@@ -30,10 +30,12 @@ val get_spool_version : unit -> int Lwt.t
 (** {1 Dynamically updated election data} *)
 
 val get_election_state : uuid -> election_state Lwt.t
+val update_election_state : uuid -> election_state updatable Lwt.t
 
 (** {1 Typed election data from storage} *)
 
 val get_election_dates : uuid -> election_dates Lwt.t
+val update_election_dates : uuid -> election_dates updatable Lwt.t
 val get_election_metadata : uuid -> metadata Lwt.t
 val get_election_result_hidden : uuid -> datetime option Lwt.t
 val set_election_result_hidden : uuid -> datetime option -> unit Lwt.t
@@ -81,7 +83,7 @@ val get_shuffle_token : uuid -> shuffle_token option Lwt.t
 val validate_election :
   admin_id:int ->
   uuid ->
-  draft_election ->
+  draft_election updatable ->
   Belenios_api.Serializable_t.draft_status ->
   unit Lwt.t
 

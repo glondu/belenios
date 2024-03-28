@@ -312,6 +312,23 @@ module Make (Config : CONFIG) = struct
   let () = get_password_file := fun uuid -> get (Election (uuid, Passwords))
   let () = set_password_file := fun uuid x -> set (Election (uuid, Passwords)) x
 
+  let update f =
+    let* x = get f in
+    let&* x = x in
+    let last = ref x in
+    let set x =
+      let* y = get f in
+      match y with
+      | Some y when !last = y ->
+          last := x;
+          set f x
+      | _ -> Lwt.fail Race_condition
+    in
+    Lwt.return_some (x, set)
+
+  let create = set
+  let ensure = set
+
   let append_to_file fname lines =
     let open Lwt_io in
     let@ oc =

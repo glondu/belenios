@@ -139,7 +139,7 @@ let get_account (a : account) =
     default_contact = a.default_contact;
   }
 
-let put_account (a : account) (b : api_account) =
+let put_account ((a, set) : account updatable) (b : api_account) =
   if b.address <> a.email then raise (Error (`CannotChange "address"));
   if b.id <> a.id then raise (Error (`CannotChange "id"));
   let a =
@@ -151,4 +151,4 @@ let put_account (a : account) (b : api_account) =
       default_contact = b.default_contact;
     }
   in
-  Accounts.update_account a
+  set a

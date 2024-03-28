@@ -32,8 +32,10 @@ type 'a file = {
 
 type 'a abstract = {
   get : uuid -> 'a option Lwt.t;
-  set : uuid -> 'a -> unit Lwt.t;
   del : uuid -> unit Lwt.t;
+  update : uuid -> 'a updatable option Lwt.t;
+  create : uuid -> 'a -> unit Lwt.t;
+  ensure : uuid -> 'a -> unit Lwt.t;
 }
 
 type 'a t = File of 'a file | Abstract of 'a abstract
@@ -46,16 +48,31 @@ let get ~uuid file =
       try Lwt.return_some (file.of_string x) with _ -> Lwt.return_none)
   | Abstract a -> a.get uuid
 
-let set ~uuid file x =
-  match file with
-  | File file ->
-      Storage.(set (Election (uuid, file.filename)) (file.to_string x))
-  | Abstract a -> a.set uuid x
-
 let del ~uuid file =
   match file with
   | File file -> Storage.(del (Election (uuid, file.filename)))
   | Abstract a -> a.del uuid
+
+let update uuid file =
+  match file with
+  | File file ->
+      let* x = Storage.(update (Election (uuid, file.filename))) in
+      let&* x, set = x in
+      let set x = set (file.to_string x) in
+      Lwt.return_some (file.of_string x, set)
+  | Abstract a -> a.update uuid
+
+let create uuid file x =
+  match file with
+  | File file ->
+      Storage.(create (Election (uuid, file.filename)) (file.to_string x))
+  | Abstract a -> a.create uuid x
+
+let ensure uuid file x =
+  match file with
+  | File file ->
+      Storage.(ensure (Election (uuid, file.filename)) (file.to_string x))
+  | Abstract a -> a.ensure uuid x
 
 let make_file x = File x
 
@@ -130,9 +147,20 @@ let private_keys =
     let&* x = x in
     Lwt.return_some @@ split_lines x
   in
-  let set uuid x = Storage.(set (Election (uuid, filename)) (join_lines x)) in
   let del uuid = Storage.(del (Election (uuid, filename))) in
-  Abstract { get; set; del }
+  let update uuid =
+    let* x = Storage.(update (Election (uuid, filename))) in
+    let&* x, set = x in
+    let set x = set (join_lines x) in
+    Lwt.return_some (split_lines x, set)
+  in
+  let create uuid x =
+    Storage.(create (Election (uuid, filename)) (join_lines x))
+  in
+  let ensure uuid x =
+    Storage.(ensure (Election (uuid, filename)) (join_lines x))
+  in
+  Abstract { get; del; update; create; ensure }
 
 let skipped_shufflers =
   {

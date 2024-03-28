@@ -144,24 +144,26 @@ let do_add_account ~db_fname ~username ~password ~email () =
   let r = { username; salt; hashed; address = Some email } in
   let r = string_of_password_record r in
   Lwt.try_bind
-    (fun () -> Storage.(set (Admin_password (db_fname, Username username)) r))
+    (fun () ->
+      Storage.(create (Admin_password (db_fname, Username username)) r))
     (fun () -> Lwt.return @@ Ok ())
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
 let do_change_password ~db_fname ~username ~password () =
-  let@ r cont =
-    let* r = Storage.(get (Admin_password (db_fname, Username username))) in
+  let@ r, set =
+   fun cont ->
+    let* r = Storage.(update (Admin_password (db_fname, Username username))) in
     match r with
     | None ->
         Lwt.fail @@ Failure "password record not found in do_change_password"
-    | Some r -> cont @@ password_record_of_string r
+    | Some (r, set) -> cont (password_record_of_string r, set)
   in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
   let r = { r with salt; hashed } in
   let r = string_of_password_record r in
   Lwt.try_bind
-    (fun () -> Storage.(set (Admin_password (db_fname, Username username)) r))
+    (fun () -> set r)
     (fun () -> Lwt.return_unit)
     (fun _ -> Lwt.fail @@ Failure "database error")
 

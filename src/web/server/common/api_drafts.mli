@@ -29,7 +29,7 @@ val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election
 val post_drafts : account -> draft -> uuid option Lwt.t
 val get_draft_voters : draft_election -> voter_list
-val put_draft_voters : uuid -> draft_election -> voter_list -> unit Lwt.t
+val put_draft_voters : draft_election updatable -> voter_list -> unit Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
@@ -44,7 +44,7 @@ val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
 val submit_public_credentials :
-  uuid -> draft_election -> public_credentials -> unit Lwt.t
+  uuid -> draft_election updatable -> public_credentials -> unit Lwt.t
 
 val generate_server_trustee :
   draft_election -> Yojson.Safe.t draft_trustee Lwt.t
@@ -55,20 +55,19 @@ val get_draft_trustees :
   (Yojson.Safe.t, Yojson.Safe.t) Belenios_api.Serializable_t.draft_trustees
 
 val post_draft_trustees :
-  uuid -> draft_election -> Yojson.Safe.t trustee -> unit Lwt.t
+  draft_election updatable -> Yojson.Safe.t trustee -> unit Lwt.t
 
-val delete_draft_trustee : uuid -> draft_election -> string -> bool Lwt.t
+val delete_draft_trustee : draft_election updatable -> string -> bool Lwt.t
 
 val set_threshold :
-  uuid ->
-  draft_election ->
+  draft_election updatable ->
   int ->
   (unit, [ `NoTrustees | `OutOfBounds ]) Stdlib.result Lwt.t
 
 val get_draft_trustees_mode : draft_election -> [ `Basic | `Threshold of int ]
 
 val put_draft_trustees_mode :
-  uuid -> draft_election -> [ `Basic | `Threshold of int ] -> unit Lwt.t
+  draft_election updatable -> [ `Basic | `Threshold of int ] -> unit Lwt.t
 
 val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
 
@@ -80,7 +79,7 @@ val merge_voters :
 
 val import_voters :
   uuid ->
-  draft_election ->
+  draft_election updatable ->
   uuid ->
   ( unit,
     [ `Forbidden
@@ -91,8 +90,7 @@ val import_voters :
   Lwt.t
 
 val import_trustees :
-  uuid ->
-  draft_election ->
+  draft_election updatable ->
   uuid ->
   metadata ->
   ( [> `Basic | `Threshold ],

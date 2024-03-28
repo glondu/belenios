@@ -23,6 +23,9 @@ open Belenios
 open Web_serializable_t
 
 exception Election_not_found of uuid * string
+exception Race_condition
+
+type 'a updatable = 'a * ('a -> unit Lwt.t)
 
 val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val sleep : float -> unit Lwt.t

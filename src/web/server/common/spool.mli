@@ -25,8 +25,10 @@ open Web_serializable_t
 type 'a t
 
 val get : uuid:uuid -> 'a t -> 'a option Lwt.t
-val set : uuid:uuid -> 'a t -> 'a -> unit Lwt.t
 val del : uuid:uuid -> 'a t -> unit Lwt.t
+val update : uuid -> 'a t -> 'a Web_common.updatable option Lwt.t
+val create : uuid -> 'a t -> 'a -> unit Lwt.t
+val ensure : uuid -> 'a t -> 'a -> unit Lwt.t
 
 (* draft elections *)
 val draft : Web_common.draft_election t

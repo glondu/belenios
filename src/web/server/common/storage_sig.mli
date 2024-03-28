@@ -75,7 +75,9 @@ module type S = sig
 
   val get_as_file : file -> string Lwt.t
   val get : file -> string option Lwt.t
-  val set : file -> string -> unit Lwt.t
+  val update : file -> (string * (string -> unit Lwt.t)) option Lwt.t
+  val create : file -> string -> unit Lwt.t
+  val ensure : file -> string -> unit Lwt.t
   val del : file -> unit Lwt.t
 
   (** {1 Global operations} *)

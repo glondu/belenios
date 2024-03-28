@@ -71,6 +71,8 @@ module Make () = struct
               let@ () = handle_ifmatch ifmatch get in
               let@ x = body.run api_account_of_string in
               let@ () = handle_generic_error in
+              let* account = Accounts.update_account_by_id account.id in
+              let@ account = Option.unwrap unauthorized account in
               let* () = Api_generic.put_account account x in
               ok
           | _ -> method_not_allowed)

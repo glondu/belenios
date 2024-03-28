@@ -159,7 +159,7 @@ let get_partial_decryptions uuid metadata =
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                 let ts = List.map (fun _ -> generate_token ()) ts in
-                let* () = Spool.set ~uuid Spool.decryption_tokens ts in
+                let* () = Spool.create uuid Spool.decryption_tokens ts in
                 Lwt.return ts))
   in
   Lwt.return
@@ -257,10 +257,15 @@ let skip_shuffler uuid trustee =
     | None -> Lwt.return_unit
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* x = Spool.get ~uuid Spool.skipped_shufflers in
-  let x = Option.value x ~default:[] in
-  if List.mem trustee x then Lwt.fail @@ Error `NotInExpectedState
-  else Spool.set ~uuid Spool.skipped_shufflers (trustee :: x)
+  let@ current, set =
+   fun cont ->
+    let* x = Spool.update uuid Spool.skipped_shufflers in
+    match x with
+    | None -> cont ([], Spool.create uuid Spool.skipped_shufflers)
+    | Some x -> cont x
+  in
+  if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
+  else set (trustee :: current)
 
 let select_shuffler uuid metadata trustee =
   let* trustee_id, name = get_trustee_name uuid metadata trustee in

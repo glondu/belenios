@@ -32,13 +32,18 @@ module UMap = Map.Make (struct
 end)
 
 let cache = ref None
-let account_mutex = Lwt_mutex.create ()
 let cache_mutex = Lwt_mutex.create ()
 
 let clear_account_cache () =
   let@ () = Lwt_mutex.with_lock cache_mutex in
   cache := None;
   Lwt.return_unit
+
+let update_hooks = ref []
+let add_update_hook f = update_hooks := f :: !update_hooks
+
+let run_update_hooks account =
+  Lwt_list.iter_s (fun f -> f account) !update_hooks
 
 let get_account_by_id id =
   let* x = Storage.(get (Account id)) in
@@ -49,15 +54,18 @@ let get_account_by_id id =
       | exception _ -> Lwt.return_none
       | x -> Lwt.return_some x)
 
-let update_hooks = ref []
-let add_update_hook f = update_hooks := f :: !update_hooks
-
-let update_account account =
-  let* () =
-    let@ () = Lwt_mutex.with_lock account_mutex in
-    Storage.(set (Account account.id) (string_of_account account))
-  in
-  Lwt_list.iter_s (fun f -> f account) !update_hooks
+let update_account_by_id id =
+  let* x = Storage.(update (Account id)) in
+  match x with
+  | None -> Lwt.return_none
+  | Some (x, set) -> (
+      let set x =
+        let* () = set (string_of_account x) in
+        run_update_hooks x
+      in
+      match account_of_string x with
+      | exception _ -> Lwt.return_none
+      | x -> Lwt.return (Some (x, set)))
 
 let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
@@ -92,7 +100,9 @@ let create_account ~email user =
   in
   let* () =
     Lwt.finalize
-      (fun () -> update_account account)
+      (fun () ->
+        let* () = Storage.(create (Account id) (string_of_account account)) in
+        run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();
         Lwt.return_unit)
@@ -114,7 +124,7 @@ let build_account_cache () =
               |> Lwt.return)
         UMap.empty
 
-let get_account user =
+let lookup_by_user lookup_by_id user =
   let* cache =
     match !cache with
     | Some x -> Lwt.return x
@@ -125,7 +135,10 @@ let get_account user =
         Lwt.return x
   in
   let&* id = UMap.find_opt user cache in
-  get_account_by_id id
+  lookup_by_id id
+
+let get_account = lookup_by_user get_account_by_id
+let update_account = lookup_by_user update_account_by_id
 
 type capability = Sudo
 

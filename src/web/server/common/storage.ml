@@ -32,9 +32,17 @@ let get f =
   let module X = (val get_backend ()) in
   X.get f
 
-let set f =
+let update f =
   let module X = (val get_backend ()) in
-  X.set f
+  X.update f
+
+let create f =
+  let module X = (val get_backend ()) in
+  X.create f
+
+let ensure f =
+  let module X = (val get_backend ()) in
+  X.ensure f
 
 let del f =
   let module X = (val get_backend ()) in
