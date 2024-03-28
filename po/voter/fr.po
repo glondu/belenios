@@ -140,7 +140,7 @@ msgstr "Un code de vérification a été envoyé à %s."
 
 #: src/web/server/common/pages_voter.ml:753
 msgid "About this election"
-msgstr ""
+msgstr "À propos de cette élection"
 
 #: src/web/server/common/pages_voter.ml:575
 msgid "Accept"
@@ -164,7 +164,7 @@ msgstr "Administrer cette élection"
 
 #: src/web/server/common/pages_voter.ml:585
 msgid "Administrator"
-msgstr ""
+msgstr "Administrateur"
 
 #: src/web/server/common/pages_voter.ml:67
 msgid "Advanced mode"
@@ -255,7 +255,7 @@ msgstr "En utilisant ce site, vous acceptez notre "
 
 #: src/web/server/common/pages_common.ml:573
 msgid "Click here"
-msgstr ""
+msgstr "Cliquez ici"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:92
 msgid "Compare"
@@ -289,11 +289,11 @@ msgstr "Les cookies sont bloqués"
 
 #: src/web/server/common/pages_voter.ml:703
 msgid "Credentials authority"
-msgstr ""
+msgstr "Autorité de codes de vote"
 
 #: src/web/server/common/pages_voter.ml:713
 msgid "Credentials fingerprint"
-msgstr ""
+msgstr "Empreinte des codes de vote"
 
 #: src/web/server/common/pages_common.ml:472
 #. src/web/server/common/mails_voter.ml:414
@@ -335,7 +335,7 @@ msgstr "ÉCHEC !"
 
 #: src/web/server/common/pages_voter.ml:742
 msgid "Fingerprint of the encrypted tally"
-msgstr ""
+msgstr "Empreinte du résultat chiffré"
 
 #: src/web/server/common/site_common.ml:103
 msgid "Forbidden"
@@ -480,7 +480,7 @@ msgstr "Nombre de sièges :"
 
 #: src/web/server/common/pages_voter.ml:595
 msgid "Number of voters"
-msgstr ""
+msgstr "Nombre d'électeurs"
 
 #: src/web/server/common/mails_voter.ml:177
 #. src/web/server/common/mails_voter.ml:72
@@ -563,11 +563,11 @@ msgstr "Evénements bruts"
 
 #: src/web/server/common/pages_common.ml:576
 msgid "Redirection"
-msgstr ""
+msgstr "Redirection"
 
 #: src/web/common/pages_common.ml:48
 msgid "Restricted mode"
-msgstr ""
+msgstr "Mode restreint"
 
 #: src/web/server/common/mails_voter.ml:448
 msgid "Results will be published on the election page"
@@ -781,11 +781,11 @@ msgstr "Nom d'utilisateur :"
 
 #: src/web/server/common/pages_voter.ml:600
 msgid "Voter list fingerprint"
-msgstr ""
+msgstr "Empreinte de la liste électorale"
 
 #: src/web/server/common/pages_voter.ml:618
 msgid "Voters' total weight"
-msgstr ""
+msgstr "Poids total des électeurs"
 
 #: src/web/server/common/pages_voter.ml:1018
 msgid "Warning:"

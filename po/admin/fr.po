@@ -469,7 +469,7 @@ msgstr "Mauvais serveur CAS !"
 
 #: src/web/server/common/pages_admin.ml:2376
 msgid "Bad authentication for voters."
-msgstr ""
+msgstr "Mauvaise authentification pour les électeurs."
 
 #: src/web/server/common/pages_admin.ml:3781
 #. src/web/server/common/pages_admin.ml:3747
@@ -742,7 +742,7 @@ msgstr "Les codes de vote sont en cours de génération sur le serveur."
 
 #: src/web/server/common/pages_admin.ml:2375
 msgid "Credentials cannot be handled by server."
-msgstr ""
+msgstr "Les codes de vote ne peuvent pas être gérés par le serveur."
 
 #: src/web/server/common/pages_admin.ml:1385
 #. src/web/server/common/pages_admin.ml:1309
@@ -2048,11 +2048,11 @@ msgstr "Réinitialiser le seuil"
 
 #: src/web/common/pages_common.ml:48
 msgid "Restricted mode"
-msgstr ""
+msgstr "Mode restreint"
 
 #: src/web/server/common/pages_admin.ml:2384
 msgid "Restricted mode?"
-msgstr ""
+msgstr "Mode restreint ?"
 
 #: src/web/clients/admin/elections.ml:1621 src/web/clients/admin/elections.ml:365
 msgid "Results page"
@@ -2308,7 +2308,7 @@ msgstr "Le changement "
 
 #: src/web/server/common/pages_admin.ml:2381
 msgid "The chosen group is not allowed."
-msgstr ""
+msgstr "Le groupe choisi n'est pas autorisé."
 
 #: src/web/server/common/pages_admin.ml:327
 msgid "The creation failed."
@@ -2445,7 +2445,7 @@ msgstr "Le mélange a été appliqué avec succès !"
 
 #: src/web/server/common/pages_admin.ml:2379
 msgid "The threshold mode must be used."
-msgstr ""
+msgstr "Le mode seuil doit être utilisé."
 
 #: src/web/server/common/site_admin.ml:1540
 msgid "The threshold must be positive and smaller than the number of trustees!"
@@ -2471,7 +2471,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:2378
 msgid "There are not enough trustees."
-msgstr ""
+msgstr "Il n'y a pas assez d'autorités de déchiffrement."
 
 #: src/web/server/common/site_admin.ml:658
 msgid "There are too many voters (max is %d)"
@@ -2567,7 +2567,7 @@ msgstr "Ce type de modification n'est pas autorisé pour l'instant !"
 
 #: src/web/server/common/pages_admin.ml:2377
 msgid "This kind of questions is forbidden."
-msgstr ""
+msgstr "Ce type de question est interdit."
 
 #: src/web/server/common/pages_admin.ml:1852 src/web/common/mails_admin.ml:60
 msgid "This list must be the one approved by the election commission."
@@ -2874,7 +2874,7 @@ msgstr "Poids"
 
 #: src/web/server/common/pages_admin.ml:2380
 msgid "Weights are forbidden."
-msgstr ""
+msgstr "Les poids sont interdits."
 
 #: src/web/common/mails_admin.ml:357
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
@@ -3293,7 +3293,7 @@ msgstr "il existe déjà un compte avec cette adresse courriel"
 
 #: src/web/server/common/pages_admin.ml:3457
 msgid "there is an error in the database"
-msgstr ""
+msgstr "il y a une erreur dans la base de données"
 
 #: src/web/server/common/pages_admin.ml:1016
 msgid "threshold mode"
