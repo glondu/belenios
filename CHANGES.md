@@ -1,3 +1,18 @@
+dev
+===
+
+ * Add basic support for "lists" questions
+ * Web server:
+   + Revamp election home page
+   + Randomize account ids
+   + Big refactoring of storage backend
+   + Configuration:
+     - Drop support for specifying groups by file
+     - Remove (unused) security log
+   + Documention:
+     - Nspawn: do not drop capabilities needed by logrotate
+     - Reverse-proxy: add a note about samesite=strict cookies
+
 2.5 (2024-03-08)
 ================
 
