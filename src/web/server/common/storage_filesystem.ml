@@ -312,17 +312,40 @@ module Make (Config : CONFIG) = struct
   let () = get_password_file := fun uuid -> get (Election (uuid, Passwords))
   let () = set_password_file := fun uuid x -> set (Election (uuid, Passwords)) x
 
+  module HashedFile = struct
+    type t = file
+
+    let equal = ( = )
+    let hash = Hashtbl.hash
+  end
+
+  module TxId = Ephemeron.K1.Make (HashedFile)
+
+  let txids_cells = TxId.create 1000
+
+  let gen_txid =
+    let counter = ref 0L in
+    fun () ->
+      let x = !counter in
+      counter := Int64.add x 1L;
+      x
+
+  let get_txid_cell f =
+    match TxId.find_opt txids_cells f with
+    | Some x -> x
+    | None ->
+        let x = ref (-1L) in
+        TxId.add txids_cells f x;
+        x
+
   let update f =
     let* x = get f in
     let&* x = x in
-    let last = ref x in
+    let txid_cell = get_txid_cell f in
+    let txid = gen_txid () in
+    txid_cell := txid;
     let set x =
-      let* y = get f in
-      match y with
-      | Some y when !last = y ->
-          last := x;
-          set f x
-      | _ -> Lwt.fail Race_condition
+      if !txid_cell = txid then set f x else Lwt.fail Race_condition
     in
     Lwt.return_some (x, set)
 
