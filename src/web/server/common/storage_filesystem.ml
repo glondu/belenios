@@ -53,7 +53,7 @@ module type S = sig
   module Make (Mutexes : MUTEXES) : Storage_sig.BACKEND
 end
 
-exception Uninitialized of string
+exception Not_implemented of string
 
 module MakeBackend (Config : CONFIG) : S = struct
   (** {1 Abstract election-specific file operations} *)
@@ -64,7 +64,7 @@ module MakeBackend (Config : CONFIG) : S = struct
   }
 
   let make_uninitialized_ops what =
-    let e = Lwt.fail @@ Uninitialized what in
+    let e = Lwt.fail @@ Not_implemented what in
     { get = (fun _ _ -> e); set = (fun _ _ _ -> e) }
 
   (** {1 Forward references} *)
@@ -81,10 +81,10 @@ module MakeBackend (Config : CONFIG) : S = struct
   let password_records_ops = make_uninitialized_ops "password_records_ops"
 
   let get_password_file =
-    ref (fun _ -> Lwt.fail @@ Uninitialized "get_password_file")
+    ref (fun _ -> Lwt.fail @@ Not_implemented "get_password_file")
 
   let set_password_file =
-    ref (fun _ _ -> Lwt.fail @@ Uninitialized "set_password_file")
+    ref (fun _ _ -> Lwt.fail @@ Not_implemented "set_password_file")
 
   (** {1 Password file operations} *)
 
