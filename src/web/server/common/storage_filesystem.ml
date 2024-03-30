@@ -312,7 +312,7 @@ module MakeBackend (Config : CONFIG) : S = struct
   let file_exists x =
     match get_props x with
     | Concrete (path, _) -> Filesystem.file_exists path
-    | Abstract _ | Admin_password _ -> Lwt.fail (Failure "Storage.file_exists")
+    | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
   let get f =
     match get_props f with
@@ -385,7 +385,7 @@ module MakeBackend (Config : CONFIG) : S = struct
   let del f =
     match get_props f with
     | Concrete (f, _) -> Filesystem.cleanup_file f
-    | Abstract _ | Admin_password _ -> Lwt.fail (Failure "Storage.del")
+    | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let rmdir dir =
     let command = ("rm", [| "rm"; "-rf"; dir |]) in
@@ -473,14 +473,14 @@ module MakeBackend (Config : CONFIG) : S = struct
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
       | Concrete (f, _) -> Lwt.return f
-      | _ -> Lwt.fail (Failure "Storage.get_archive")
+      | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
   let get_as_file = function
     | Election (_, (Public_archive | Private_creds)) as x -> (
         match get_props x with
         | Concrete (f, _) -> Lwt.return f
-        | _ -> Lwt.fail (Failure "Storage.get_as_file"))
+        | _ -> Lwt.fail @@ Not_implemented "get_as_file")
     | Election (uuid, Confidential_archive) -> get_archive uuid
     | _ -> Lwt.fail Not_found
 
@@ -588,7 +588,7 @@ module MakeBackend (Config : CONFIG) : S = struct
         in
         if username = r_username then
           add_extended_record uuid username (r_date, r_credential)
-        else Lwt.fail (Failure "Storage.extended_records_ops.set"))
+        else Lwt.fail @@ Not_implemented "extended_records_ops.set")
 
   module CredMappingsCacheTypes = struct
     type key = uuid
