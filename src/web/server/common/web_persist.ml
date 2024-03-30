@@ -1162,7 +1162,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
 
 let delete_draft s uuid =
   let module S = (val s : Storage_sig.BACKEND) in
-  let* () = S.cleanup_election uuid in
+  let* () = S.delete_election uuid in
   clear_elections_by_owner_cache ()
 
 let create_draft s uuid se =

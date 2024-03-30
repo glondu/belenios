@@ -1104,7 +1104,7 @@ module MakeBackend (Config : CONFIG) : S = struct
     let list_elections () = with_lock None list_elections
     let new_election () = with_lock None new_election
 
-    let cleanup_election uuid =
+    let delete_election uuid =
       with_lock (Some uuid) (fun () -> cleanup_election uuid)
 
     let new_account_id () = with_lock None new_account_id

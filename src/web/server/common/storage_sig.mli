@@ -85,7 +85,6 @@ module type BACKEND = sig
   val list_accounts : unit -> int list Lwt.t
   val list_elections : unit -> uuid list Lwt.t
   val new_election : unit -> uuid option Lwt.t
-  val cleanup_election : uuid -> unit Lwt.t
   val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
 
   (** {1 Specialized operations} *)
@@ -94,6 +93,7 @@ module type BACKEND = sig
 
   (** {1 Cleaning operations} *)
 
+  val delete_election : uuid -> unit Lwt.t
   val delete_sensitive_data : uuid -> unit Lwt.t
   val delete_live_data : uuid -> unit Lwt.t
 
