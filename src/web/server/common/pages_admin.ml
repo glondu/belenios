@@ -2571,6 +2571,7 @@ struct
     in
     let* state_div =
       match status.status_state with
+      | `Draft -> Lwt.return @@ txt "(should not happen)"
       | `Open ->
           let* auto_form = auto_form () in
           return @@ div [ state_form true; br (); auto_form ]

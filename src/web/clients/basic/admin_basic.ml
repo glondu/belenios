@@ -128,10 +128,7 @@ let rec show_root main =
         Lwt.return (x (), x (), x ())
     | Ok (elections, _) ->
         let make f =
-          List.filter
-            (fun x ->
-              match x.summary_state with Some y -> f y | None -> false)
-            elections
+          List.filter (fun x -> f x.summary_state) elections
           |> List.sort (fun a b -> compare b.summary_date a.summary_date)
           |> List.map (fun x -> li [ election_a x ])
           |> fun xs -> [ ul xs ]

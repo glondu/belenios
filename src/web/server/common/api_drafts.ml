@@ -1159,10 +1159,9 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
         let* elections = Web_persist.get_elections_by_owner account.id in
         let elections =
           List.fold_left
-            (fun accu (state, summary_uuid, date, summary_name) ->
+            (fun accu (summary_state, summary_uuid, date, summary_name) ->
               let summary_date = Datetime.to_unixfloat date in
-              let summary_state = None in
-              if state = `Draft then
+              if summary_state = `Draft then
                 { summary_uuid; summary_name; summary_date; summary_state }
                 :: accu
               else accu)

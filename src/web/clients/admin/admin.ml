@@ -195,6 +195,7 @@ let list_draft () =
   |> fun xs -> Lwt.return [ h2 [ txt @@ s_ "Elections being setup:" ]; ul xs ]
 
 let status_of_state = function
+  | `Draft -> Draft
   | `Open | `Closed | `Shuffling | `EncryptedTally -> Running
   | `Archived -> Archived
   | `Tallied -> Tallied
@@ -212,18 +213,10 @@ let list_elec () =
       Lwt.return (x (), x ())
   | Ok (elections, _) ->
       let make title f =
-        List.filter
-          (fun x -> match x.summary_state with Some y -> f y | _ -> false)
-          elections
+        List.filter (fun x -> f x.summary_state) elections
         |> List.sort (fun a b -> compare b.summary_date a.summary_date)
         |> List.map (fun x ->
-               li
-                 [
-                   election_a2 x
-                     (match x.summary_state with
-                     | Some y -> status_of_state y
-                     | _ -> assert false);
-                 ])
+               li [ election_a2 x (status_of_state x.summary_state) ])
         |> fun xs -> [ h2 [ txt title ]; ul xs ]
       in
       let elt1 =
@@ -418,12 +411,7 @@ let find_status uuid =
         let e = List.find_opt (fun x -> x.summary_uuid = uuid) elecs in
         match e with
         | None -> Lwt.return None
-        | Some ee -> (
-            match ee.summary_state with
-            | Some y -> Lwt.return_some (status_of_state y)
-            | _ ->
-                Lwt.return
-                  None (* should not occur, unless some race condition *)))
+        | Some ee -> Lwt.return_some @@ status_of_state ee.summary_state)
 
 let onhashchange () =
   let open (val !Belenios_js.I18n.gettext) in

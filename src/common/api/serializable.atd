@@ -136,7 +136,8 @@ type ('a, 'b) pedersen = {
 } <ocaml field_prefix="pedersen_">
 
 type state =
-  [ Open
+  [ Draft
+  | Open
   | Closed
   | Shuffling
   | EncryptedTally
@@ -148,7 +149,7 @@ type summary = {
     uuid : uuid;
     name : string;
     date : float;
-    ?state : state option;
+    state : state;
 } <ocaml field_prefix="summary_">
 
 type summary_list = summary list

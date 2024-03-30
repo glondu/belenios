@@ -79,10 +79,9 @@ let popup_choose_elec handler () =
         elections
         |> List.filter (fun x ->
                match x.summary_state with
-               | Some (`Open | `Closed | `Shuffling | `EncryptedTally | `Tallied)
-                 ->
+               | `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied ->
                    true
-               | _ -> false)
+               | `Draft | `Archived -> false)
         |> List.map (fun x ->
                let but =
                  button

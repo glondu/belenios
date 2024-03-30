@@ -103,7 +103,7 @@ let get_election_status s uuid =
   let* postpone = Web_persist.get_election_result_hidden s uuid in
   Lwt.return
     {
-      status_state;
+      status_state :> state;
       status_auto_archive_date;
       status_auto_delete_date;
       status_postpone_date = Option.map Datetime.to_unixfloat postpone;
@@ -508,8 +508,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
                 match state with
                 | `Draft -> accu
                 | ( `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied
-                  | `Archived ) as x ->
-                    let summary_state = Some x in
+                  | `Archived ) as summary_state ->
                     { summary_uuid; summary_name; summary_date; summary_state }
                     :: accu)
               [] elections
