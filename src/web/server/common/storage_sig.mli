@@ -70,7 +70,7 @@ type file =
 
 type append_operation = Data of string | Event of event_type * hash option
 
-module type S = sig
+module type BACKEND = sig
   (** {1 Generic operations} *)
 
   val get_as_file : file -> string Lwt.t
@@ -90,7 +90,6 @@ module type S = sig
 
   (** {1 Specialized operations} *)
 
-  val with_lock : uuid option -> (unit -> 'a Lwt.t) -> 'a Lwt.t
   val init_credential_mapping : uuid -> public_credentials Lwt.t
 
   (** {1 Cleaning operations} *)
@@ -100,10 +99,12 @@ module type S = sig
 
   (** {1 Public archive operations} *)
 
-  val append :
-    ?lock:bool ->
-    uuid ->
-    ?last:last_event ->
-    append_operation list ->
-    bool Lwt.t
+  val append : uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+end
+
+type t = (module BACKEND)
+type 'a u = t -> uuid -> 'a
+
+module type S = sig
+  val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
 end

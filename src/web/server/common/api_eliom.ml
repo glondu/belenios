@@ -50,6 +50,7 @@ module Make () = struct
             f x);
       }
     in
+    let@ s = Storage.with_transaction in
     let* code, response =
       match endpoint with
       | [ "configuration" ] -> (
@@ -71,15 +72,16 @@ module Make () = struct
               let@ () = handle_ifmatch ifmatch get in
               let@ x = body.run api_account_of_string in
               let@ () = handle_generic_error in
-              let* account = Accounts.update_account_by_id account.id in
+              let@ s = Storage.with_transaction in
+              let* account = Accounts.update_account_by_id s account.id in
               let@ account = Option.unwrap unauthorized account in
               let* () = Api_generic.put_account account x in
               ok
           | _ -> method_not_allowed)
       | "drafts" :: endpoint ->
-          Api_drafts.dispatch ~token ~ifmatch endpoint method_ body
+          Api_drafts.dispatch s ~token ~ifmatch endpoint method_ body
       | "elections" :: endpoint ->
-          Api_elections.dispatch ~token ~ifmatch endpoint method_ body
+          Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
       | "billing" :: endpoint ->
           Billing.dispatch ~token ~ifmatch endpoint method_ body
       | _ -> not_found

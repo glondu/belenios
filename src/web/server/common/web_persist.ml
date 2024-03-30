@@ -26,7 +26,9 @@ open Web_serializable_j
 open Web_common
 
 let get_spool_version () =
-  let* x = Storage.(get Spool_version) in
+  let@ s = Storage.with_transaction in
+  let module S = (val s) in
+  let* x = S.get Spool_version in
   match x with Some x -> return @@ int_of_string x | None -> return 0
 
 let elections_by_owner_cache = ref None
@@ -37,27 +39,27 @@ let clear_elections_by_owner_cache () =
   elections_by_owner_cache := None;
   return_unit
 
-let get_setup_data uuid =
+let get_setup_data s uuid =
   let* x =
-    let* x = Public_archive.get_roots uuid in
+    let* x = Public_archive.get_roots s uuid in
     let&* x = x.roots_setup_data in
-    Public_archive.get_data uuid x
+    Public_archive.get_data s uuid x
   in
   match x with
   | None -> assert false
   | Some x -> Lwt.return (setup_data_of_string x)
 
-let set_election_result_hidden uuid hidden =
+let set_election_result_hidden s uuid hidden =
   match hidden with
-  | None -> Spool.del ~uuid Spool.hide_result
-  | Some d -> Spool.ensure uuid Spool.hide_result d
+  | None -> Spool.del s uuid Spool.hide_result
+  | Some d -> Spool.ensure s uuid Spool.hide_result d
 
-let get_election_result_hidden uuid =
-  let* t = Spool.get ~uuid Spool.hide_result in
+let get_election_result_hidden s uuid =
+  let* t = Spool.get s uuid Spool.hide_result in
   let&* t = t in
   if Datetime.compare (Datetime.now ()) t < 0 then return_some t
   else
-    let* () = set_election_result_hidden uuid None in
+    let* () = set_election_result_hidden s uuid None in
     return_none
 
 let default_dates =
@@ -71,14 +73,14 @@ let default_dates =
     e_auto_close = None;
   }
 
-let get_election_dates uuid =
-  let* x = Spool.get ~uuid Spool.dates in
+let get_election_dates s uuid =
+  let* x = Spool.get s uuid Spool.dates in
   Lwt.return (Option.value ~default:default_dates x)
 
-let update_election_dates uuid =
-  let* x = Spool.update uuid Spool.dates in
+let update_election_dates s uuid =
+  let* x = Spool.update s uuid Spool.dates in
   match x with
-  | None -> Lwt.return (default_dates, Spool.create uuid Spool.dates)
+  | None -> Lwt.return (default_dates, Spool.create s uuid Spool.dates)
   | Some x -> Lwt.return x
 
 let empty_metadata =
@@ -93,22 +95,22 @@ let empty_metadata =
     e_billing_request = None;
   }
 
-let get_election_metadata uuid =
-  let* x = Spool.get ~uuid Spool.metadata in
+let get_election_metadata s uuid =
+  let* x = Spool.get s uuid Spool.metadata in
   Lwt.return (Option.value ~default:empty_metadata x)
 
-let append_to_shuffles election owned_owner shuffle_s =
+let append_to_shuffles s election owned_owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Spool.get ~uuid Spool.last_event in
+    let* x = Spool.get s uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
   in
   let shuffle =
     shuffle_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) shuffle_s
   in
   let shuffle_h = Hash.hash_string shuffle_s in
-  let* last_nh = Public_archive.get_nh_ciphertexts uuid in
+  let* last_nh = Public_archive.get_nh_ciphertexts s uuid in
   let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
   if
     string_of_shuffle W.(swrite G.to_string) W.(swrite G.Zq.to_string) shuffle
@@ -118,7 +120,8 @@ let append_to_shuffles election owned_owner shuffle_s =
     let owned = { owned_owner; owned_payload = shuffle_h } in
     let owned_s = string_of_owned write_hash owned in
     let* x =
-      Storage.append uuid ~last
+      let module S = (val s : Storage_sig.BACKEND) in
+      S.append uuid ~last
         [
           Data shuffle_s;
           Data owned_s;
@@ -135,17 +138,17 @@ let make_result_transaction write_result result =
   let open Storage_sig in
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
-let internal_release_tally ~force uuid set_state =
+let internal_release_tally ~force s uuid set_state =
   let@ last cont =
-    let* x = Spool.get ~uuid Spool.last_event in
+    let* x = Spool.get s uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
   in
-  let* metadata = get_election_metadata uuid in
+  let* metadata = get_election_metadata s uuid in
   let trustees_with_ids =
     Option.value metadata.e_trustees ~default:[ "server" ]
     |> List.mapi (fun i x -> (i + 1, x))
   in
-  let* pds = Public_archive.get_partial_decryptions uuid in
+  let* pds = Public_archive.get_partial_decryptions s uuid in
   let@ () =
    fun cont ->
     if force then cont ()
@@ -159,18 +162,18 @@ let internal_release_tally ~force uuid set_state =
     else Lwt.return_false
   in
   let@ election =
-    Public_archive.with_election uuid ~fallback:(fun () ->
+    Public_archive.with_election s uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "internal_release_tally")))
   in
   let module W = (val election) in
   let* tally =
-    let* x = Public_archive.get_latest_encrypted_tally uuid in
+    let* x = Public_archive.get_latest_encrypted_tally s uuid in
     match x with
     | None -> assert false
     | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
   in
   let* sized =
-    let* x = Public_archive.get_sized_encrypted_tally uuid in
+    let* x = Public_archive.get_sized_encrypted_tally s uuid in
     match x with
     | None -> assert false
     | Some x ->
@@ -178,7 +181,7 @@ let internal_release_tally ~force uuid set_state =
         Lwt.return { x with sized_encrypted_tally = tally }
   in
   let* trustees =
-    let* x = Public_archive.get_trustees uuid in
+    let* x = Public_archive.get_trustees s uuid in
     Lwt.return
     @@ trustees_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) x
   in
@@ -196,7 +199,7 @@ let internal_release_tally ~force uuid set_state =
         pds
     in
     let decrypt owned_owner =
-      let* x = Spool.get ~uuid Spool.private_key in
+      let* x = Spool.get s uuid Spool.private_key in
       match x with
       | Some (`String sk) ->
           let sk = W.G.Zq.of_string sk in
@@ -239,28 +242,29 @@ let internal_release_tally ~force uuid set_state =
       let@ () =
        fun cont ->
         let* x =
+          let module S = (val s : Storage_sig.BACKEND) in
           List.rev (result_transaction :: transactions)
-          |> List.flatten |> Storage.append uuid ~last
+          |> List.flatten |> S.append uuid ~last
         in
         match x with
         | true -> cont ()
         | false ->
             Lwt.fail @@ Failure "race condition in internal_release_tally"
       in
-      let* () = Spool.del ~uuid Spool.audit_cache in
+      let* () = Spool.del s uuid Spool.audit_cache in
       let* () = set_state `Tallied in
-      let* dates, set_dates = update_election_dates uuid in
+      let* dates, set_dates = update_election_dates s uuid in
       let* () = set_dates { dates with e_tally = Some (Datetime.now ()) } in
-      let* () = Spool.del ~uuid Spool.decryption_tokens in
-      let* () = Spool.del ~uuid Spool.shuffle_token in
+      let* () = Spool.del s uuid Spool.decryption_tokens in
+      let* () = Spool.del s uuid Spool.shuffle_token in
       let* () = clear_elections_by_owner_cache () in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
-let raw_get_election_state ?(update = true) ?(ignore_errors = true) uuid =
+let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
   let@ state, set_state =
    fun cont ->
-    let* x = Spool.update uuid Spool.state in
+    let* x = Spool.update s uuid Spool.state in
     match x with
     | Some x -> cont x
     | None ->
@@ -268,13 +272,13 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) uuid =
           (`Archived, fun _ -> Lwt.fail @@ Failure "cannot get out of Archived")
   in
   let now = Datetime.now () in
-  let* dates = get_election_dates uuid in
+  let* dates = get_election_dates s uuid in
   let past = function None -> false | Some t -> Datetime.compare t now < 0 in
   let@ () =
    fun cont ->
     match state with
     | `EncryptedTally when update -> (
-        let* hidden = get_election_result_hidden uuid in
+        let* hidden = get_election_result_hidden s uuid in
         match hidden with
         | Some _ when not (past hidden) -> cont ()
         | _ ->
@@ -283,7 +287,7 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) uuid =
               if ignore_errors then Lwt.catch cont2 (fun _ -> cont ())
               else cont2 ()
             in
-            let* b = internal_release_tally ~force:false uuid set_state in
+            let* b = internal_release_tally ~force:false s uuid set_state in
             return ((if b then `Tallied else state), set_state))
     | _ -> cont ()
   in
@@ -304,28 +308,29 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) uuid =
   in
   return (new_state, set_state)
 
-let update_election_state uuid = raw_get_election_state uuid
+let update_election_state s uuid = raw_get_election_state s uuid
 
-let get_election_state uuid =
-  let* x, _ = update_election_state uuid in
+let get_election_state s uuid =
+  let* x, _ = update_election_state s uuid in
   Lwt.return x
 
-let release_tally uuid =
-  let* state, set_state = update_election_state uuid in
+let release_tally s uuid =
+  let* state, set_state = update_election_state s uuid in
   match state with
   | `EncryptedTally ->
-      let* b = internal_release_tally ~force:true uuid set_state in
+      let* b = internal_release_tally ~force:true s uuid set_state in
       assert b;
       set_state `Tallied
   | _ -> Lwt.fail @@ Failure "election not in EncryptedTally state"
 
-let add_partial_decryption uuid (owned_owner, pd) =
+let add_partial_decryption s uuid (owned_owner, pd) =
   let payload =
     { owned_owner; owned_payload = Hash.hash_string pd }
     |> string_of_owned write_hash
   in
   let* x =
-    Storage.append uuid
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.append uuid
       [
         Data pd;
         Data payload;
@@ -350,67 +355,69 @@ let umap_add user x map =
   IMap.add user (x :: xs) map
 
 let build_elections_by_owner_cache () =
-  Storage.list_elections ()
-  >>= Lwt_list.fold_left_s
-        (fun accu uuid ->
-          Lwt.catch
-            (fun () ->
-              let* election = Spool.get ~uuid Spool.draft in
+  let* elections =
+    let@ s = Storage.with_transaction in
+    let module S = (val s) in
+    S.list_elections ()
+  in
+  Lwt_list.fold_left_s
+    (fun accu uuid ->
+      Lwt.catch
+        (fun () ->
+          let@ s = Storage.with_transaction in
+          let* election = Spool.get s uuid Spool.draft in
+          match election with
+          | None -> (
+              let* metadata = get_election_metadata s uuid in
+              let ids = metadata.e_owners in
+              let* election = Public_archive.get_election s uuid in
               match election with
-              | None -> (
-                  let* metadata = get_election_metadata uuid in
-                  let ids = metadata.e_owners in
-                  let* election = Public_archive.get_election uuid in
-                  match election with
-                  | None -> return accu
-                  | Some election ->
-                      let* dates = get_election_dates uuid in
-                      let* state, date =
-                        let* state, _ =
-                          raw_get_election_state ~update:false uuid
+              | None -> return accu
+              | Some election ->
+                  let* dates = get_election_dates s uuid in
+                  let* state, date =
+                    let* state, _ =
+                      raw_get_election_state ~update:false s uuid
+                    in
+                    match state with
+                    | (`Open | `Closed | `Shuffling | `EncryptedTally) as s ->
+                        let date =
+                          Option.value dates.e_finalization
+                            ~default:Web_defaults.validation_date
                         in
-                        match state with
-                        | (`Open | `Closed | `Shuffling | `EncryptedTally) as s
-                          ->
-                            let date =
-                              Option.value dates.e_finalization
-                                ~default:Web_defaults.validation_date
-                            in
-                            return (s, date)
-                        | `Tallied ->
-                            let date =
-                              Option.value dates.e_tally
-                                ~default:Web_defaults.tally_date
-                            in
-                            return (`Tallied, date)
-                        | `Archived ->
-                            let date =
-                              Option.value dates.e_archive
-                                ~default:Web_defaults.archive_date
-                            in
-                            return (`Archived, date)
-                      in
-                      let (Template (_, template)) =
-                        Election.template_of_string election
-                      in
-                      let item = (state, uuid, date, template.t_name) in
-                      return
-                      @@ List.fold_left
-                           (fun accu id -> umap_add id item accu)
-                           accu ids)
-              | Some (Draft (_, se)) ->
-                  let date =
-                    Option.value se.se_creation_date
-                      ~default:Web_defaults.creation_date
+                        return (s, date)
+                    | `Tallied ->
+                        let date =
+                          Option.value dates.e_tally
+                            ~default:Web_defaults.tally_date
+                        in
+                        return (`Tallied, date)
+                    | `Archived ->
+                        let date =
+                          Option.value dates.e_archive
+                            ~default:Web_defaults.archive_date
+                        in
+                        return (`Archived, date)
                   in
-                  let ids = se.se_owners in
-                  let item = (`Draft, uuid, date, se.se_questions.t_name) in
+                  let (Template (_, template)) =
+                    Election.template_of_string election
+                  in
+                  let item = (state, uuid, date, template.t_name) in
                   return
                   @@ List.fold_left
                        (fun accu id -> umap_add id item accu)
                        accu ids)
-            (fun _ -> return accu))
-        IMap.empty
+          | Some (Draft (_, se)) ->
+              let date =
+                Option.value se.se_creation_date
+                  ~default:Web_defaults.creation_date
+              in
+              let ids = se.se_owners in
+              let item = (`Draft, uuid, date, se.se_questions.t_name) in
+              return
+              @@ List.fold_left (fun accu id -> umap_add id item accu) accu ids)
+        (fun _ -> return accu))
+    IMap.empty elections
 
 let get_elections_by_owner user =
   let* cache =
@@ -424,8 +431,9 @@ let get_elections_by_owner user =
   in
   match IMap.find_opt user cache with None -> return [] | Some xs -> return xs
 
-let check_password uuid ~user ~password =
-  let* x = Storage.(get (Election (uuid, Password user))) in
+let check_password s uuid ~user ~password =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Password user)) in
   match x with
   | None -> Lwt.return_none
   | Some r ->
@@ -433,8 +441,9 @@ let check_password uuid ~user ~password =
       if check_password r password then Lwt.return_some (username, address)
       else Lwt.return_none
 
-let get_all_voters uuid =
-  let* x = Storage.(get (Election (uuid, Voters))) in
+let get_all_voters s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Voters)) in
   match x with
   | None -> Lwt.return []
   | Some x -> Lwt.return (Voter.list_of_string x)
@@ -446,27 +455,30 @@ let dummy_voters_config =
     nb_voters = 0;
   }
 
-let get_voters_config uuid =
-  let* x = Storage.(get (Election (uuid, Voters_config))) in
+let get_voters_config s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Voters_config)) in
   match x with
   | None -> Lwt.return dummy_voters_config
   | Some x -> Lwt.return @@ voters_config_of_string x
 
-let get_has_explicit_weights uuid =
-  let* { has_explicit_weights; _ } = get_voters_config uuid in
+let get_has_explicit_weights s uuid =
+  let* { has_explicit_weights; _ } = get_voters_config s uuid in
   Lwt.return has_explicit_weights
 
-let get_username_or_address uuid =
-  let* { username_or_address; _ } = get_voters_config uuid in
+let get_username_or_address s uuid =
+  let* { username_or_address; _ } = get_voters_config s uuid in
   Lwt.return username_or_address
 
-let get_voter uuid id =
-  let* x = Storage.(get (Election (uuid, Voter id))) in
+let get_voter s uuid id =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Voter id)) in
   let&* x = x in
   Lwt.return_some @@ Voter.of_string x
 
-let get_credential_user uuid cred =
-  let* x = Storage.(get (Election (uuid, Credential_user cred))) in
+let get_credential_user s uuid cred =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Credential_user cred)) in
   match x with
   | Some x -> Lwt.return_some x
   | None ->
@@ -475,17 +487,19 @@ let get_credential_user uuid cred =
            (Printf.sprintf "could not find credential record of %s/%s"
               (Uuid.unwrap uuid) cred))
 
-let get_salt uuid i =
-  let* x = Storage.(get (Election (uuid, Salt i))) in
+let get_salt s uuid i =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Salt i)) in
   let&* x = x in
   Lwt.return_some @@ salt_of_string Yojson.Safe.read_json x
 
-let add_ballot election last ballot =
+let add_ballot s election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let hash = sha256_b64 ballot in
   let* x =
-    Storage.append ~lock:false uuid ~last
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.append uuid ~last
       [ Data ballot; Event (`Ballot, Some (Hash.hash_string ballot)) ]
   in
   match x with
@@ -494,22 +508,23 @@ let add_ballot election last ballot =
       return hash
   | false -> Lwt.fail @@ Failure "race condition in add_ballot"
 
-let get_credential_weight uuid credential =
-  let* x = Storage.(get (Election (uuid, Credential_weight credential))) in
+let get_credential_weight s uuid credential =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Credential_weight credential)) in
   match x with
   | None -> Lwt.return Weight.one
   | Some x -> Lwt.return @@ Weight.of_string x
 
-let raw_compute_encrypted_tally election =
+let raw_compute_encrypted_tally s election =
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Spool.get ~uuid Spool.last_event in
+    let* x = Spool.get s uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
   in
   let* ballots =
-    Public_archive.fold_on_ballots uuid
+    Public_archive.fold_on_ballots s uuid
       (fun _ b accu ->
         let ballot = W.read_ballot ++ b in
         match W.get_credential ballot with
@@ -522,7 +537,7 @@ let raw_compute_encrypted_tally election =
   let* ballots =
     Lwt_list.fold_left_s
       (fun accu (credential, ballot) ->
-        let* weight = get_credential_weight uuid (W.G.to_string credential) in
+        let* weight = get_credential_weight s uuid (W.G.to_string credential) in
         Lwt.return @@ ((weight, ballot) :: accu))
       [] (GMap.bindings ballots)
   in
@@ -540,7 +555,8 @@ let raw_compute_encrypted_tally election =
     |> string_of_sized_encrypted_tally write_hash
   in
   let* x =
-    Storage.append uuid ~last
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.append uuid ~last
       [
         Event (`EndBallots, None);
         Data tally_s;
@@ -552,34 +568,35 @@ let raw_compute_encrypted_tally election =
   | true -> return_unit
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
-let get_shuffle_token uuid = Spool.get ~uuid Spool.shuffle_token
+let get_shuffle_token s uuid = Spool.get s uuid Spool.shuffle_token
 
-let gen_shuffle_token uuid tk_trustee tk_trustee_id tk_name =
+let gen_shuffle_token s uuid tk_trustee tk_trustee_id tk_name =
   let tk_token = generate_token () in
   let t = { tk_trustee; tk_token; tk_trustee_id; tk_name } in
-  let* () = Spool.create uuid Spool.shuffle_token t in
+  let* () = Spool.create s uuid Spool.shuffle_token t in
   return t
 
-let get_credential_record uuid credential =
+let get_credential_record s uuid credential =
   let* cr_ballot =
-    Storage.(get (Election (uuid, Credential_mapping credential)))
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.get (Election (uuid, Credential_mapping credential))
   in
   let&* cr_ballot = cr_ballot in
   let cr_ballot = if cr_ballot = "" then None else Some cr_ballot in
-  let* cr_username = get_credential_user uuid credential in
-  let* cr_weight = get_credential_weight uuid credential in
+  let* cr_username = get_credential_user s uuid credential in
+  let* cr_weight = get_credential_weight s uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
 
-let precast_ballot uuid ~rawballot =
+let precast_ballot s uuid ~rawballot =
   let@ election =
-    Public_archive.with_election uuid ~fallback:(fun () ->
+    Public_archive.with_election s uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "precast_ballot")))
   in
   let module W = (val election) in
   let@ () =
    fun cont ->
     let hash = Hash.hash_string rawballot in
-    let* x = Public_archive.get_data uuid hash in
+    let* x = Public_archive.get_data s uuid hash in
     match x with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error `DuplicateBallot
@@ -590,7 +607,7 @@ let precast_ballot uuid ~rawballot =
     | Ok rc -> cont rc
   in
   let@ cr cont =
-    let* x = get_credential_record uuid rc.rc_credential in
+    let* x = get_credential_record s uuid rc.rc_credential in
     match x with
     | None -> Lwt.return @@ Error `InvalidCredential
     | Some cr -> cont cr
@@ -598,11 +615,12 @@ let precast_ballot uuid ~rawballot =
   if rc.rc_check () then Lwt.return @@ Ok (rc.rc_credential, cr)
   else Lwt.return @@ Error `InvalidBallot
 
-let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
+let do_cast_ballot s election ~rawballot ~user ~weight date ~precast_data =
+  let module S = (val s : Storage_sig.BACKEND) in
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Spool.get ~uuid Spool.last_event in
+    let* x = Spool.get s uuid Spool.last_event in
     match x with None -> assert false | Some x -> cont x
   in
   let get_username user =
@@ -611,7 +629,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
   let get_user_record user =
-    let* x = Storage.(get (Election (uuid, Extended_record user))) in
+    let* x = S.get (Election (uuid, Extended_record user)) in
     let&* x = x in
     let { r_credential; _ } = extended_record_of_string x in
     return_some r_credential
@@ -638,7 +656,7 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
           | Some credential', _ when credential' = credential -> cont2 ()
           | Some _, _ -> cont @@ Error `WrongCredential)
     in
-    let* x = get_credential_record uuid credential in
+    let* x = get_credential_record s uuid credential in
     match x with
     | None -> assert false
     | Some cr' when cr'.cr_ballot = cr.cr_ballot ->
@@ -652,86 +670,85 @@ let do_cast_ballot election ~rawballot ~user ~weight date ~precast_data =
        fun cont ->
         match old with
         | None ->
-            let* h = add_ballot election last rawballot in
+            let* h = add_ballot s election last rawballot in
             cont (h, false)
         | Some _ ->
             if !Web_config.deny_revote then return @@ Error `RevoteNotAllowed
             else
-              let* h = add_ballot election last rawballot in
+              let* h = add_ballot s election last rawballot in
               cont (h, true)
       in
       let* () =
-        Storage.(create (Election (uuid, Credential_mapping credential)) hash)
+        S.create (Election (uuid, Credential_mapping credential)) hash
       in
       let* () =
-        Storage.(
-          create
-            (Election (uuid, Extended_record user))
-            (string_of_extended_record
-               { r_username = user; r_date = date; r_credential = credential }))
+        S.create
+          (Election (uuid, Extended_record user))
+          (string_of_extended_record
+             { r_username = user; r_date = date; r_credential = credential })
       in
       return (Ok (hash, revote))
 
-let cast_ballot uuid ~rawballot ~user ~weight date ~precast_data =
+let cast_ballot s uuid ~rawballot ~user ~weight date ~precast_data =
   let@ election =
-    Public_archive.with_election uuid ~fallback:(fun () ->
+    Public_archive.with_election s uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "cast_ballot")))
   in
-  Storage.with_lock (Some uuid) (fun () ->
-      do_cast_ballot election ~rawballot ~user ~weight date ~precast_data)
+  do_cast_ballot s election ~rawballot ~user ~weight date ~precast_data
 
-let compute_audit_cache uuid =
-  let* election = Public_archive.get_election uuid in
+let compute_audit_cache s uuid =
+  let* election = Public_archive.get_election s uuid in
   match election with
   | None ->
       Printf.ksprintf failwith "compute_cache: %s does not exist"
         (Uuid.unwrap uuid)
   | Some _ ->
-      let* voters = get_all_voters uuid in
+      let* voters = get_all_voters s uuid in
       let cache_voters_hash = Hash.hash_string (Voter.list_to_string voters) in
       let* shuffles =
-        let* x = Public_archive.get_shuffles uuid in
+        let* x = Public_archive.get_shuffles s uuid in
         let&* x = x in
         Lwt.return_some (List.map (fun (_, x, _) -> x) x)
       in
       let* encrypted_tally =
-        let* x = Public_archive.get_sized_encrypted_tally uuid in
+        let* x = Public_archive.get_sized_encrypted_tally s uuid in
         let&* x = x in
         let x = sized_encrypted_tally_of_string read_hash x in
         Lwt.return_some x.sized_encrypted_tally
       in
-      let* trustees = Public_archive.get_trustees uuid in
+      let* trustees = Public_archive.get_trustees s uuid in
       let* cache_checksums =
-        let* setup_data = get_setup_data uuid in
+        let* setup_data = get_setup_data s uuid in
         let election = setup_data.setup_election in
-        let* public_credentials = Public_archive.get_public_creds uuid in
+        let* public_credentials = Public_archive.get_public_creds s uuid in
         Election.compute_checksums ~election ~shuffles ~encrypted_tally
           ~trustees ~public_credentials
         |> Lwt.return
       in
       return { cache_voters_hash; cache_checksums; cache_threshold = None }
 
-let get_audit_cache uuid =
-  let* cache = Spool.get ~uuid Spool.audit_cache in
+let get_audit_cache s uuid =
+  let* cache = Spool.get s uuid Spool.audit_cache in
   match cache with
   | Some x -> return x
   | None ->
-      let* cache = compute_audit_cache uuid in
-      let* () = Spool.create uuid Spool.audit_cache cache in
+      let* cache = compute_audit_cache s uuid in
+      let* () = Spool.create s uuid Spool.audit_cache cache in
       return cache
 
 let get_admin_context admin_id =
+  let@ s = Storage.with_transaction in
   let* elections = get_elections_by_owner admin_id in
   let* elections =
     Lwt_list.filter_map_s
       (function
         | (`Open | `Closed | `Shuffling | `EncryptedTally), uuid, _, _ ->
-            let* cache = get_audit_cache uuid in
+            let* cache = get_audit_cache s uuid in
             Lwt.return_some cache.cache_checksums.ec_num_voters
         | _ -> Lwt.return_none)
       elections
   in
-  let* account = Accounts.get_account_by_id admin_id in
+  let* account = Accounts.get_account_by_id s admin_id in
   let email =
     match account with
     | Some { email = Some x; _ } -> x
@@ -743,19 +760,21 @@ let get_admin_context admin_id =
 
 let () = Billing.set_get_admin_context get_admin_context
 
-let archive_election uuid =
-  let* () = Storage.delete_sensitive_data uuid in
-  let* dates, set = update_election_dates uuid in
+let archive_election s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* () = S.delete_sensitive_data uuid in
+  let* dates, set = update_election_dates s uuid in
   let* () = set { dates with e_archive = Some (Datetime.now ()) } in
   clear_elections_by_owner_cache ()
 
-let delete_election uuid =
+let delete_election s uuid =
   let@ election =
-    Public_archive.with_election uuid ~fallback:(fun () -> Lwt.return_unit)
+    Public_archive.with_election s uuid ~fallback:(fun () -> Lwt.return_unit)
   in
+  let module S = (val s) in
   let module W = (val election) in
-  let* metadata = get_election_metadata uuid in
-  let* () = Storage.delete_sensitive_data uuid in
+  let* metadata = get_election_metadata s uuid in
+  let* () = S.delete_sensitive_data uuid in
   let de_template =
     {
       t_description = "";
@@ -768,7 +787,7 @@ let delete_election uuid =
     |> template_of_string Yojson.Safe.read_json
   in
   let de_owners = metadata.e_owners in
-  let* dates = get_election_dates uuid in
+  let* dates = get_election_dates s uuid in
   let de_date =
     match dates.e_tally with
     | Some x -> x
@@ -794,7 +813,7 @@ let delete_election uuid =
     | _ -> `Manual
   in
   let* de_trustees =
-    let* trustees = Public_archive.get_trustees uuid in
+    let* trustees = Public_archive.get_trustees s uuid in
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
     |> List.map (function
          | `Single _ -> `Single
@@ -802,10 +821,10 @@ let delete_election uuid =
              `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
     |> Lwt.return
   in
-  let* ballots = Public_archive.get_ballot_hashes uuid in
-  let* result = Public_archive.get_result uuid in
+  let* ballots = Public_archive.get_ballot_hashes s uuid in
+  let* result = Public_archive.get_result s uuid in
   let* de_nb_voters, de_has_weights =
-    let* x = Storage.(get (Election (uuid, Voters_config))) in
+    let* x = S.get (Election (uuid, Voters_config)) in
     match x with
     | None -> Lwt.return (0, false)
     | Some x ->
@@ -830,27 +849,29 @@ let delete_election uuid =
     }
   in
   let* () =
-    Storage.(create (Election (uuid, Deleted)) (string_of_deleted_election de))
+    S.create (Election (uuid, Deleted)) (string_of_deleted_election de)
   in
-  let* () = Storage.delete_live_data uuid in
+  let* () = S.delete_live_data uuid in
   clear_elections_by_owner_cache ()
 
-let dump_passwords uuid db =
+let dump_passwords s uuid db =
+  let module S = (val s : Storage_sig.BACKEND) in
   List.map (fun line -> String.concat "," line) db
   |> join_lines
-  |> Storage.(create (Election (uuid, Passwords)))
+  |> S.create (Election (uuid, Passwords))
 
-let regen_password uuid metadata user =
+let regen_password s uuid metadata user =
   let user = String.lowercase_ascii user in
   let@ election =
-    Public_archive.with_election uuid ~fallback:(fun () ->
+    Public_archive.with_election s uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "regen_password")))
   in
+  let module S = (val s) in
   let module W = (val election) in
   let title = W.template.t_name in
-  let* show_weight = get_has_explicit_weights uuid in
-  let* x = Storage.(get (Election (uuid, Voter user))) in
-  let* y = Storage.(update (Election (uuid, Password user))) in
+  let* show_weight = get_has_explicit_weights s uuid in
+  let* x = S.get (Election (uuid, Voter user)) in
+  let* y = S.update (Election (uuid, Password user)) in
   match (x, y) with
   | Some id, Some (r, set) ->
       let id = Voter.of_string id in
@@ -867,22 +888,26 @@ let regen_password uuid metadata user =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let get_private_creds_downloaded uuid =
-  let* x = Storage.(get (Election (uuid, Private_creds_downloaded))) in
+let get_private_creds_downloaded s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Private_creds_downloaded)) in
   match x with None -> Lwt.return_false | Some _ -> Lwt.return_true
 
-let set_private_creds_downloaded uuid =
-  Storage.(ensure (Election (uuid, Private_creds_downloaded)) "")
+let set_private_creds_downloaded s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  S.ensure (Election (uuid, Private_creds_downloaded)) ""
 
-let clear_private_creds_downloaded uuid =
-  Storage.(del (Election (uuid, Private_creds_downloaded)))
+let clear_private_creds_downloaded s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  S.del (Election (uuid, Private_creds_downloaded))
 
-let send_credentials uuid (Draft (v, se)) =
+let send_credentials s uuid (Draft (v, se)) =
+  let module S = (val s : Storage_sig.BACKEND) in
   let@ () =
    fun cont -> if se.se_pending_credentials then cont () else Lwt.return_unit
   in
   let@ private_creds cont =
-    let* x = Storage.(get (Election (uuid, Private_creds))) in
+    let* x = S.get (Election (uuid, Private_creds)) in
     match x with
     | None -> Lwt.return_unit
     | Some x -> cont @@ private_credentials_of_string x
@@ -909,7 +934,8 @@ let send_credentials uuid (Draft (v, se)) =
   se.se_pending_credentials <- false;
   Lwt.return_unit
 
-let validate_election ~admin_id uuid (Draft (v, se), set) s =
+let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
+  let module S = (val storage : Storage_sig.BACKEND) in
   let open Belenios_api.Serializable_j in
   let version = se.se_version in
   (* convenience tests *)
@@ -1064,14 +1090,12 @@ let validate_election ~admin_id uuid (Draft (v, se), set) s =
   in
   (* write election files to disk *)
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
+  let* () = S.create (Election (uuid, Voters)) (Voter.list_to_string voters) in
   let* () =
-    Storage.(create (Election (uuid, Voters)) (Voter.list_to_string voters))
-  in
-  let* () =
-    Storage.(create (Election (uuid, Metadata)) (string_of_metadata metadata))
+    S.create (Election (uuid, Metadata)) (string_of_metadata metadata)
   in
   (* initialize credentials *)
-  let* public_creds = Storage.init_credential_mapping uuid in
+  let* public_creds = S.init_credential_mapping uuid in
   (* initialize events *)
   let* () =
     let raw_trustees =
@@ -1084,7 +1108,7 @@ let validate_election ~admin_id uuid (Draft (v, se), set) s =
     let setup_data = { setup_election; setup_trustees; setup_credentials } in
     let setup_data_s = string_of_setup_data setup_data in
     let* x =
-      Storage.append ~lock:false uuid
+      S.append uuid
         [
           Data raw_election;
           Data raw_trustees;
@@ -1101,22 +1125,20 @@ let validate_election ~admin_id uuid (Draft (v, se), set) s =
   let* () =
     match private_keys with
     | `KEY x ->
-        Storage.(
-          create (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x))
+        S.create (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x)
     | `KEYS (x, y) ->
         let* () =
-          Storage.(
-            create (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x))
+          S.create (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x)
         in
-        Storage.(create (Election (uuid, Private_keys)) (join_lines y))
+        S.create (Election (uuid, Private_keys)) (join_lines y)
   in
   (* send private credentials, if any *)
-  let* () = send_credentials uuid (Draft (v, se)) in
+  let* () = send_credentials storage uuid (Draft (v, se)) in
   (* clean up draft *)
-  let* () = Spool.del ~uuid Spool.draft in
+  let* () = Spool.del storage uuid Spool.draft in
   (* clean up private credentials, if any *)
-  let* () = Storage.(del (Election (uuid, Private_creds))) in
-  let* () = clear_private_creds_downloaded uuid in
+  let* () = S.del (Election (uuid, Private_creds)) in
+  let* () = clear_private_creds_downloaded storage uuid in
   (* write passwords *)
   let* () =
     match metadata.e_auth_config with
@@ -1129,21 +1151,22 @@ let validate_election ~admin_id uuid (Draft (v, se), set) s =
               Some [ login; salt; hashed ])
             se.se_voters
         in
-        if db <> [] then dump_passwords uuid db else Lwt.return_unit
+        if db <> [] then dump_passwords storage uuid db else Lwt.return_unit
     | _ -> Lwt.return_unit
   in
   (* finish *)
-  let* () = Spool.create uuid Spool.state `Open in
-  let* dates, set = update_election_dates uuid in
+  let* () = Spool.create storage uuid Spool.state `Open in
+  let* dates, set = update_election_dates storage uuid in
   let* () = set { dates with e_finalization = Some (Datetime.now ()) } in
   clear_elections_by_owner_cache ()
 
-let delete_draft uuid =
-  let* () = Storage.cleanup_election uuid in
+let delete_draft s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* () = S.cleanup_election uuid in
   clear_elections_by_owner_cache ()
 
-let create_draft uuid se =
-  let* () = Spool.create uuid Spool.draft se in
+let create_draft s uuid se =
+  let* () = Spool.create s uuid Spool.draft se in
   let* () = clear_elections_by_owner_cache () in
   Lwt.return_unit
 
@@ -1151,20 +1174,20 @@ let transition_to_encrypted_tally set_state =
   let* () = set_state `EncryptedTally in
   clear_elections_by_owner_cache ()
 
-let compute_encrypted_tally uuid =
-  let* state, set_state = update_election_state uuid in
+let compute_encrypted_tally s uuid =
+  let* state, set_state = update_election_state s uuid in
   match state with
   | `Closed ->
       let@ election =
-        Public_archive.with_election uuid ~fallback:(fun () ->
+        Public_archive.with_election s uuid ~fallback:(fun () ->
             Lwt.fail (Election_not_found (uuid, "compute_encrypted_tally")))
       in
       let module W = (val election) in
-      let* () = raw_compute_encrypted_tally election in
+      let* () = raw_compute_encrypted_tally s election in
       if W.has_nh_questions then
         let* () = set_state `Shuffling in
         (* perform server-side shuffle *)
-        let* cc = Public_archive.get_nh_ciphertexts uuid in
+        let* cc = Public_archive.get_nh_ciphertexts s uuid in
         let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
         let shuffle = W.E.shuffle_ciphertexts cc in
         let shuffle =
@@ -1173,35 +1196,36 @@ let compute_encrypted_tally uuid =
             W.(swrite G.Zq.to_string)
             shuffle
         in
-        let* x = append_to_shuffles election 1 shuffle in
+        let* x = append_to_shuffles s election 1 shuffle in
         match x with
         | None -> Lwt.fail (Failure "server-side shuffle failed")
         | Some _ ->
-            let* () = Spool.del ~uuid Spool.audit_cache in
+            let* () = Spool.del s uuid Spool.audit_cache in
             Lwt.return_true
       else
         let* () = transition_to_encrypted_tally set_state in
         Lwt.return_true
   | _ -> Lwt.return_false
 
-let finish_shuffling uuid =
-  let* state, set_state = update_election_state uuid in
+let finish_shuffling s uuid =
+  let* state, set_state = update_election_state s uuid in
   match state with
   | `Shuffling ->
       let@ () =
        fun cont ->
-        let* x = Storage.append uuid [ Event (`EndShuffles, None) ] in
+        let module S = (val s) in
+        let* x = S.append uuid [ Event (`EndShuffles, None) ] in
         match x with
         | true -> cont ()
         | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
       in
-      let* () = Spool.del ~uuid Spool.skipped_shufflers in
+      let* () = Spool.del s uuid Spool.skipped_shufflers in
       let* () = transition_to_encrypted_tally set_state in
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let extract_automatic_data_draft uuid =
-  let* se = Spool.get ~uuid Spool.draft in
+let extract_automatic_data_draft s uuid =
+  let* se = Spool.get s uuid Spool.draft in
   let&* (Draft (_, se)) = se in
   let t =
     Option.value se.se_creation_date ~default:Web_defaults.creation_date
@@ -1209,11 +1233,11 @@ let extract_automatic_data_draft uuid =
   let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
   return_some (`Destroy, uuid, next_t)
 
-let extract_automatic_data_validated uuid =
-  let* election = Public_archive.get_election uuid in
+let extract_automatic_data_validated s uuid =
+  let* election = Public_archive.get_election s uuid in
   let&* _ = election in
-  let* state = get_election_state uuid in
-  let* dates = get_election_dates uuid in
+  let* state = get_election_state s uuid in
+  let* dates = get_election_dates s uuid in
   match state with
   | `Open | `Closed | `Shuffling | `EncryptedTally ->
       let t =
@@ -1230,20 +1254,27 @@ let extract_automatic_data_validated uuid =
       let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
       return_some (`Delete, uuid, next_t)
 
-let try_extract extract x =
-  Lwt.catch (fun () -> extract x) (fun _ -> return_none)
+let try_extract extract s uuid =
+  Lwt.catch (fun () -> extract s uuid) (fun _ -> return_none)
 
 let get_next_actions () =
-  Storage.list_elections ()
-  >>= Lwt_list.filter_map_s (fun x ->
-          let* r = try_extract extract_automatic_data_draft x in
-          match r with
-          | None -> try_extract extract_automatic_data_validated x
-          | x -> return x)
+  let* elections =
+    let@ s = Storage.with_transaction in
+    let module S = (val s) in
+    S.list_elections ()
+  in
+  Lwt_list.filter_map_s
+    (fun uuid ->
+      let@ s = Storage.with_transaction in
+      let* r = try_extract extract_automatic_data_draft s uuid in
+      match r with
+      | None -> try_extract extract_automatic_data_validated s uuid
+      | x -> return x)
+    elections
 
-let set_election_state uuid state =
+let set_election_state s uuid state =
   let* allowed =
-    let* state, set_state = update_election_state uuid in
+    let* state, set_state = update_election_state s uuid in
     match state with
     | `Open | `Closed -> Lwt.return_some set_state
     | _ -> Lwt.return_none
@@ -1254,7 +1285,7 @@ let set_election_state uuid state =
         set_state
           (state : [ `Open | `Closed ] :> Web_serializable_t.election_state)
       in
-      let* dates, set_dates = update_election_dates uuid in
+      let* dates, set_dates = update_election_dates s uuid in
       let* () =
         set_dates { dates with e_auto_open = None; e_auto_close = None }
       in
@@ -1262,36 +1293,37 @@ let set_election_state uuid state =
       Lwt.return_true
   | None -> Lwt.return_false
 
-let open_election uuid = set_election_state uuid `Open
-let close_election uuid = set_election_state uuid `Closed
+let open_election s uuid = set_election_state s uuid `Open
+let close_election s uuid = set_election_state s uuid `Closed
 
-let get_election_automatic_dates uuid =
+let get_election_automatic_dates s uuid =
   let open Belenios_api.Serializable_t in
-  let* d = get_election_dates uuid in
+  let* d = get_election_dates s uuid in
   Lwt.return
     {
       auto_date_open = Option.map Datetime.to_unixfloat d.e_auto_open;
       auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
     }
 
-let set_election_automatic_dates uuid d =
+let set_election_automatic_dates s uuid d =
   let open Belenios_api.Serializable_t in
   let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
   let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
-  let* dates, set = update_election_dates uuid in
+  let* dates, set = update_election_dates s uuid in
   let* () = set { dates with e_auto_open; e_auto_close } in
   clear_elections_by_owner_cache ()
 
-let get_draft_public_credentials uuid =
-  let* x = Spool.get ~uuid Spool.draft_public_credentials in
+let get_draft_public_credentials s uuid =
+  let* x = Spool.get s uuid Spool.draft_public_credentials in
   let&* x = x in
   let x =
     x |> List.map strip_public_credential |> string_of_public_credentials
   in
   Lwt.return_some x
 
-let get_records uuid =
-  let* x = Storage.(get (Election (uuid, Records))) in
+let get_records s uuid =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Election (uuid, Records)) in
   match x with
   | None -> Lwt.return_none
   | Some x -> Lwt.return_some @@ split_lines x
@@ -1329,7 +1361,9 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           let Credential.{ private_creds; public_with_ids; _ } =
             Cred.merge_sub voters x
           in
-          let* se = Spool.update uuid Spool.draft in
+          let@ s = Storage.with_transaction in
+          let module S = (val s) in
+          let* se = Spool.update s uuid Spool.draft in
           match se with
           | None -> Lwt.return_unit
           | Some (Draft (v, se), set) ->
@@ -1337,10 +1371,11 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
                 private_creds |> string_of_private_credentials
               in
               let* () =
-                Storage.(create (Election (uuid, Private_creds)) private_creds)
+                S.create (Election (uuid, Private_creds)) private_creds
               in
               let* () =
-                Spool.create uuid Spool.draft_public_credentials public_with_ids
+                Spool.create s uuid Spool.draft_public_credentials
+                  public_with_ids
               in
               se.se_public_creds_received <- true;
               se.se_pending_credentials <- true;

@@ -117,7 +117,8 @@ struct
       | None -> return ((if is_email name then Some name else None), `Site)
       | Some uuid ->
           let* address =
-            let* x = Web_persist.get_voter uuid name in
+            let@ s = Storage.with_transaction in
+            let* x = Web_persist.get_voter s uuid name in
             match x with
             | None -> Lwt.return_none
             | Some v ->

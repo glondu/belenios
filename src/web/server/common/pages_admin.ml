@@ -2271,7 +2271,7 @@ struct
     let service = election_draft_import_trustees_post in
     election_draft_importer l ~service ~title ~note uuid elections
 
-  let election_draft_confirm uuid (Draft (v, se) as fse) () =
+  let election_draft_confirm s uuid (Draft (v, se) as fse) () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let notok x = span ~a:[ a_style "color: red;" ] [ txt x ] in
@@ -2279,7 +2279,7 @@ struct
     let title =
       s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Validate creation"
     in
-    let* s = Api_drafts.get_draft_status uuid fse in
+    let* s = Api_drafts.get_draft_status s uuid fse in
     let ready = true in
     let ready, name =
       if se.se_questions.t_name = Web_defaults.name then
@@ -2487,14 +2487,14 @@ struct
     let* login_box = login_box () in
     base ~title ~login_box ~content ()
 
-  let election_admin ?shuffle_token ?tally_token election metadata status () =
+  let election_admin ?shuffle_token ?tally_token s election metadata status () =
     let langs = get_languages metadata.e_languages in
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
     let title = template.t_name ^ " — " ^ s_ "Administration" in
     let auto_form () =
-      let* d = Web_persist.get_election_automatic_dates uuid in
+      let* d = Web_persist.get_election_automatic_dates s uuid in
       let format = function
         | None -> ""
         | Some x -> Datetime.format @@ Datetime.from_unixfloat x
@@ -2599,7 +2599,7 @@ struct
                    uuid;
                ]
       | `Shuffling ->
-          let* shuffles = Api_elections.get_shuffles uuid metadata in
+          let* shuffles = Api_elections.get_shuffles s uuid metadata in
           let shufflers = shuffles.shuffles_shufflers in
           let select_disabled =
             List.exists (fun x -> x.shuffler_token <> None) shufflers
@@ -2751,7 +2751,7 @@ struct
                  proceed;
                ])
       | `EncryptedTally ->
-          let* p = Api_elections.get_partial_decryptions uuid metadata in
+          let* p = Api_elections.get_partial_decryptions s uuid metadata in
           let threshold_or_not =
             match p.partial_decryptions_threshold with
             | None -> txt ""
@@ -2830,7 +2830,7 @@ struct
                    return (first_line :: second_line))
           in
           let* release_form =
-            let* hidden = Web_persist.get_election_result_hidden uuid in
+            let* hidden = Web_persist.get_election_result_hidden s uuid in
             match hidden with
             | Some t ->
                 let scheduled =
@@ -3084,7 +3084,7 @@ struct
     let* login_box = login_box ~cont:(ContSiteElection uuid) () in
     base ~title ~login_box ~content ~uuid ()
 
-  let pretty_records election records () =
+  let pretty_records s election records () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
@@ -3100,7 +3100,7 @@ struct
             ])
         records
     in
-    let* voters = Web_persist.get_all_voters uuid in
+    let* voters = Web_persist.get_all_voters s uuid in
     let nvoters = List.length voters in
     let summary =
       div

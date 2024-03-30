@@ -51,6 +51,8 @@ struct
     let* b = Throttle.wait throttle channel in
     if b then
       let* r =
+        let@ s = Storage.with_transaction in
+        let module S = (val s) in
         match uuid with
         | None ->
             let@ file cont =
@@ -62,8 +64,8 @@ struct
             let key : Storage_sig.admin_password_file =
               if is_email name then Address name else Username name
             in
-            Storage.(get (Admin_password (file, key)))
-        | Some uuid -> Storage.(get (Election (uuid, Password name)))
+            S.get (Admin_password (file, key))
+        | Some uuid -> S.get (Election (uuid, Password name))
       in
       let&* r = r in
       let r = password_record_of_string r in
@@ -128,15 +130,16 @@ let get_password_db_fname service =
   in
   find !Web_config.site_auth_config
 
-let do_add_account ~db_fname ~username ~password ~email () =
+let do_add_account s ~db_fname ~username ~password ~email =
+  let module S = (val s : Storage_sig.BACKEND) in
   let@ () =
    fun cont ->
-    let* r = Storage.(get (Admin_password (db_fname, Username username))) in
+    let* r = S.get (Admin_password (db_fname, Username username)) in
     match r with None -> cont () | Some _ -> Lwt.return @@ Error UsernameTaken
   in
   let@ () =
    fun cont ->
-    let* r = Storage.(get (Admin_password (db_fname, Address email))) in
+    let* r = S.get (Admin_password (db_fname, Address email)) in
     match r with None -> cont () | Some _ -> Lwt.return @@ Error AddressTaken
   in
   let salt = generate_token ~length:8 () in
@@ -144,15 +147,15 @@ let do_add_account ~db_fname ~username ~password ~email () =
   let r = { username; salt; hashed; address = Some email } in
   let r = string_of_password_record r in
   Lwt.try_bind
-    (fun () ->
-      Storage.(create (Admin_password (db_fname, Username username)) r))
+    (fun () -> S.create (Admin_password (db_fname, Username username)) r)
     (fun () -> Lwt.return @@ Ok ())
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
-let do_change_password ~db_fname ~username ~password () =
+let do_change_password s ~db_fname ~username ~password =
+  let module S = (val s : Storage_sig.BACKEND) in
   let@ r, set =
    fun cont ->
-    let* r = Storage.(update (Admin_password (db_fname, Username username))) in
+    let* r = S.update (Admin_password (db_fname, Username username)) in
     match r with
     | None ->
         Lwt.fail @@ Failure "password record not found in do_change_password"
@@ -181,9 +184,9 @@ let add_account user ~password ~email =
                    (Printf.sprintf "add_account: unknown domain: %s"
                       user.user_domain))
           | Some db_fname ->
-              Storage.with_lock None
-                (do_add_account ~db_fname ~username:user.user_name ~password
-                   ~email))
+              let@ s = Storage.with_transaction in
+              do_add_account s ~db_fname ~username:user.user_name ~password
+                ~email)
     else return (Error BadUsername)
   else return (Error BadSpaceInPassword)
 
@@ -201,23 +204,25 @@ let change_password user ~password =
                     user.user_domain))
         | Some db_fname ->
             let* () =
-              Storage.with_lock None
-                (do_change_password ~db_fname ~username:user.user_name ~password)
+              let@ s = Storage.with_transaction in
+              do_change_password s ~db_fname ~username:user.user_name ~password
             in
             return (Ok ()))
   else return (Error BadSpaceInPassword)
 
 let lookup_account ~service ~username ~email =
+  let@ s = Storage.with_transaction in
+  let module S = (val s) in
   let&* db_fname = get_password_db_fname service in
   let username = String.trim username in
-  let* r = Storage.(get (Admin_password (db_fname, Username username))) in
+  let* r = S.get (Admin_password (db_fname, Username username)) in
   match r with
   | Some r ->
       let { username; address; _ } = password_record_of_string r in
       Lwt.return_some (username, address)
   | None -> (
       let address = String.trim email in
-      let* r = Storage.(get (Admin_password (db_fname, Address address))) in
+      let* r = S.get (Admin_password (db_fname, Address address)) in
       match r with
       | Some r ->
           let { username; address; _ } = password_record_of_string r in

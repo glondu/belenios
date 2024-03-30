@@ -21,11 +21,19 @@
 
 open Web_serializable_t
 
-val create_account : email:string option -> user -> account Lwt.t
-val get_account_by_id : int -> account option Lwt.t
-val update_account_by_id : int -> account Web_common.updatable option Lwt.t
-val get_account : user -> account option Lwt.t
-val update_account : user -> account Web_common.updatable option Lwt.t
+val create_account :
+  Storage_sig.t -> email:string option -> user -> account Lwt.t
+
+val get_account_by_id : Storage_sig.t -> int -> account option Lwt.t
+
+val update_account_by_id :
+  Storage_sig.t -> int -> account Web_common.updatable option Lwt.t
+
+val get_account : Storage_sig.t -> user -> account option Lwt.t
+
+val update_account :
+  Storage_sig.t -> user -> account Web_common.updatable option Lwt.t
+
 val add_update_hook : (account -> unit Lwt.t) -> unit
 
 type capability = Sudo

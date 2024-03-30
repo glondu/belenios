@@ -24,11 +24,11 @@ open Web_serializable_t
 
 type 'a t
 
-val get : uuid:uuid -> 'a t -> 'a option Lwt.t
-val del : uuid:uuid -> 'a t -> unit Lwt.t
-val update : uuid -> 'a t -> 'a Web_common.updatable option Lwt.t
-val create : uuid -> 'a t -> 'a -> unit Lwt.t
-val ensure : uuid -> 'a t -> 'a -> unit Lwt.t
+val get : ('a t -> 'a option Lwt.t) Storage_sig.u
+val del : ('a t -> unit Lwt.t) Storage_sig.u
+val update : ('a t -> 'a Web_common.updatable option Lwt.t) Storage_sig.u
+val create : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
+val ensure : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
 
 (* draft elections *)
 val draft : Web_common.draft_election t

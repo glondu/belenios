@@ -393,7 +393,7 @@ struct
           ~a:[ a_class [ "result_question_item" ] ]
           [ div [ txt @@ s_ "Unsupported question type" ] ]
 
-  let election_home election state () =
+  let election_home s election state () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let module W = (val election : Site_common_sig.ELECTION) in
@@ -401,8 +401,8 @@ struct
       Belenios.Election.get_questions (Template (W.witness, W.template))
     in
     let uuid = W.uuid in
-    let* metadata = Web_persist.get_election_metadata uuid in
-    let* dates = Web_persist.get_election_dates uuid in
+    let* metadata = Web_persist.get_election_metadata s uuid in
+    let* dates = Web_persist.get_election_dates s uuid in
     let now = Datetime.now () in
     let state_ =
       match state with
@@ -488,13 +488,13 @@ struct
       div ~a:[ a_style "text-align:center;" ] [ div [ button ] ]
     in
     let* middle =
-      let* result = Public_archive.get_result uuid in
+      let* result = Public_archive.get_result s uuid in
       let result =
         Option.map (election_result_of_string W.read_result) result
       in
-      let* hidden = Web_persist.get_election_result_hidden uuid in
+      let* hidden = Web_persist.get_election_result_hidden s uuid in
       let* is_admin =
-        let* metadata = Web_persist.get_election_metadata uuid in
+        let* metadata = Web_persist.get_election_metadata s uuid in
         let* site_user = Eliom_reference.get Web_state.site_user in
         match site_user with
         | Some (_, a, _) -> return @@ Accounts.check a metadata.e_owners
@@ -503,7 +503,7 @@ struct
       match result with
       | Some r when hidden = None || is_admin ->
           let* nballots, total_weight =
-            let* x = Public_archive.get_sized_encrypted_tally uuid in
+            let* x = Public_archive.get_sized_encrypted_tally s uuid in
             match x with
             | None -> assert false
             | Some x ->
@@ -577,7 +577,7 @@ struct
           ]
       else txt ""
     in
-    let* cache = Web_persist.get_audit_cache uuid in
+    let* cache = Web_persist.get_audit_cache s uuid in
     let audit_admin =
       [
         tr
@@ -987,13 +987,13 @@ struct
         div ~a:[ a_class [ "progress__step-separator" ] ] [];
       ]
 
-  let lost_ballot election () =
+  let lost_ballot s election () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
     let title = template.t_name in
     let full_title = title in
-    let* metadata = Web_persist.get_election_metadata uuid in
+    let* metadata = Web_persist.get_election_metadata s uuid in
     let you_must_restart =
       match get_booth_index metadata.e_booth_version with
       | Some i ->
@@ -1102,12 +1102,12 @@ struct
     let full_title = name in
     base ~full_title ~title ~content ~uuid ()
 
-  let pretty_ballots election =
+  let pretty_ballots s election =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let* hashes = Public_archive.get_ballot_hashes uuid in
-    let* audit_cache = Web_persist.get_audit_cache uuid in
+    let* hashes = Public_archive.get_ballot_hashes s uuid in
+    let* audit_cache = Web_persist.get_audit_cache s uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
     let title = template.t_name ^ " — " ^ s_ "Accepted ballots" in
     let nballots = ref 0 in
@@ -1135,7 +1135,7 @@ struct
     in
     let* number =
       let n = !nballots in
-      let* x = Public_archive.get_sized_encrypted_tally uuid in
+      let* x = Public_archive.get_sized_encrypted_tally s uuid in
       let x = Option.map (sized_encrypted_tally_of_string read_hash) x in
       match x with
       | None ->

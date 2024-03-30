@@ -32,8 +32,8 @@ let with_administrator token metadata f =
   | Some a when Accounts.check a metadata.e_owners -> f a
   | _ -> unauthorized
 
-let find_trustee_id uuid token =
-  let* x = Spool.get ~uuid Spool.decryption_tokens in
+let find_trustee_id s uuid token =
+  let* x = Spool.get s uuid Spool.decryption_tokens in
   match x with
   | None -> Lwt.return (int_of_string_opt token)
   | Some tokens ->
@@ -43,11 +43,11 @@ let find_trustee_id uuid token =
       in
       Lwt.return (find 1 tokens)
 
-let find_trustee_private_key uuid trustee_id =
-  let* keys = Spool.get ~uuid Spool.private_keys in
+let find_trustee_private_key s uuid trustee_id =
+  let* keys = Spool.get s uuid Spool.private_keys in
   let&* keys = keys in
   (* there is one Pedersen trustee *)
-  let* trustees = Public_archive.get_trustees uuid in
+  let* trustees = Public_archive.get_trustees s uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
@@ -59,20 +59,20 @@ let find_trustee_private_key uuid trustee_id =
   in
   loop (trustee_id - 1) trustees
 
-let with_tally_trustee token uuid f =
+let with_tally_trustee token s uuid f =
   let@ token = Option.unwrap unauthorized token in
-  let* x = find_trustee_id uuid token in
+  let* x = find_trustee_id s uuid token in
   match x with
   | Some trustee_id ->
       let* tally_trustee_private_key =
-        find_trustee_private_key uuid trustee_id
+        find_trustee_private_key s uuid trustee_id
       in
       f { tally_trustee_private_key }
   | None -> unauthorized
 
-let get_election_status uuid =
-  let* status_state = Web_persist.get_election_state uuid in
-  let* d = Web_persist.get_election_dates uuid in
+let get_election_status s uuid =
+  let* status_state = Web_persist.get_election_state s uuid in
+  let* d = Web_persist.get_election_dates s uuid in
   let status_auto_archive_date =
     match status_state with
     | `Tallied ->
@@ -100,7 +100,7 @@ let get_election_status uuid =
         Datetime.to_unixfloat
         @@ Period.add t (Period.day Web_defaults.days_to_delete)
   in
-  let* postpone = Web_persist.get_election_result_hidden uuid in
+  let* postpone = Web_persist.get_election_result_hidden s uuid in
   Lwt.return
     {
       status_state;
@@ -109,16 +109,16 @@ let get_election_status uuid =
       status_postpone_date = Option.map Datetime.to_unixfloat postpone;
     }
 
-let get_partial_decryptions uuid metadata =
+let get_partial_decryptions s uuid metadata =
   let@ () =
    fun cont ->
-    let* state = Web_persist.get_election_state uuid in
+    let* state = Web_persist.get_election_state s uuid in
     match state with
     | `EncryptedTally -> cont ()
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* pds = Public_archive.get_partial_decryptions uuid in
-  let* trustees = Public_archive.get_trustees uuid in
+  let* pds = Public_archive.get_partial_decryptions s uuid in
+  let* trustees = Public_archive.get_trustees s uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
@@ -151,7 +151,7 @@ let get_partial_decryptions uuid metadata =
     match threshold with
     | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
     | Some _ -> (
-        let* x = Spool.get ~uuid Spool.decryption_tokens in
+        let* x = Spool.get s uuid Spool.decryption_tokens in
         match x with
         | Some x -> Lwt.return x
         | None -> (
@@ -159,7 +159,7 @@ let get_partial_decryptions uuid metadata =
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                 let ts = List.map (fun _ -> generate_token ()) ts in
-                let* () = Spool.create uuid Spool.decryption_tokens ts in
+                let* () = Spool.create s uuid Spool.decryption_tokens ts in
                 Lwt.return ts))
   in
   Lwt.return
@@ -175,7 +175,7 @@ let get_partial_decryptions uuid metadata =
       partial_decryptions_threshold = threshold;
     }
 
-let set_postpone_date uuid date =
+let set_postpone_date s uuid date =
   let@ date cont =
     match date with
     | None -> cont None
@@ -187,22 +187,22 @@ let set_postpone_date uuid date =
         in
         if Datetime.compare t max > 0 then Lwt.return_false else cont (Some t)
   in
-  let* () = Web_persist.set_election_result_hidden uuid date in
+  let* () = Web_persist.set_election_result_hidden s uuid date in
   Lwt.return_true
 
-let get_shuffles uuid metadata =
+let get_shuffles s uuid metadata =
   let@ () =
    fun cont ->
-    let* state = Web_persist.get_election_state uuid in
+    let* state = Web_persist.get_election_state s uuid in
     match state with
     | `Shuffling -> cont ()
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
-  let* shuffles = Public_archive.get_shuffles uuid in
+  let* shuffles = Public_archive.get_shuffles s uuid in
   let shuffles = Option.value shuffles ~default:[] in
-  let* skipped = Spool.get ~uuid Spool.skipped_shufflers in
+  let* skipped = Spool.get s uuid Spool.skipped_shufflers in
   let skipped = Option.value skipped ~default:[] in
-  let* token = Web_persist.get_shuffle_token uuid in
+  let* token = Web_persist.get_shuffle_token s uuid in
   Lwt.return
     {
       shuffles_shufflers =
@@ -235,42 +235,42 @@ let extract_names trustees =
   |> List.flatten
   |> List.mapi (fun i x -> (i + 1, x))
 
-let get_trustee_names uuid =
-  let* trustees = Public_archive.get_trustees uuid in
+let get_trustee_names s uuid =
+  let* trustees = Public_archive.get_trustees s uuid in
   let trustees =
     trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
   in
   Lwt.return (extract_names trustees)
 
-let get_trustee_name uuid metadata trustee =
+let get_trustee_name s uuid metadata trustee =
   match metadata.e_trustees with
   | None -> Lwt.return (1, None)
   | Some xs ->
-      let* names = get_trustee_names uuid in
+      let* names = get_trustee_names s uuid in
       Lwt.return (List.assoc trustee (List.combine xs names))
 
-let skip_shuffler uuid trustee =
-  let* x = Web_persist.get_shuffle_token uuid in
+let skip_shuffler s uuid trustee =
+  let* x = Web_persist.get_shuffle_token s uuid in
   let* () =
     match x with
-    | Some x when x.tk_trustee = trustee -> Spool.del ~uuid Spool.shuffle_token
+    | Some x when x.tk_trustee = trustee -> Spool.del s uuid Spool.shuffle_token
     | None -> Lwt.return_unit
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
   let@ current, set =
    fun cont ->
-    let* x = Spool.update uuid Spool.skipped_shufflers in
+    let* x = Spool.update s uuid Spool.skipped_shufflers in
     match x with
-    | None -> cont ([], Spool.create uuid Spool.skipped_shufflers)
+    | None -> cont ([], Spool.create s uuid Spool.skipped_shufflers)
     | Some x -> cont x
   in
   if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
   else set (trustee :: current)
 
-let select_shuffler uuid metadata trustee =
-  let* trustee_id, name = get_trustee_name uuid metadata trustee in
-  let* () = Spool.del ~uuid Spool.shuffle_token in
-  let* _ = Web_persist.gen_shuffle_token uuid trustee trustee_id name in
+let select_shuffler s uuid metadata trustee =
+  let* trustee_id, name = get_trustee_name s uuid metadata trustee in
+  let* () = Spool.del s uuid Spool.shuffle_token in
+  let* _ = Web_persist.gen_shuffle_token s uuid trustee trustee_id name in
   Lwt.return_unit
 
 let split_voting_record =
@@ -283,31 +283,31 @@ let split_voting_record =
       vr_username = Re.Pcre.get_substring s 3;
     }
 
-let get_records uuid =
-  let* x = Web_persist.get_records uuid in
+let get_records s uuid =
+  let* x = Web_persist.get_records s uuid in
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
-let cast_ballot send_confirmation uuid ~rawballot ~user ~precast_data =
+let cast_ballot send_confirmation s uuid ~rawballot ~user ~precast_data =
   let* email, login, weight =
-    let* x = Web_persist.get_voter uuid user.user_name in
+    let* x = Web_persist.get_voter s uuid user.user_name in
     match x with
     | Some x -> Lwt.return @@ Voter.get x
     | None -> fail UnauthorizedVoter
   in
-  let* show_weight = Web_persist.get_has_explicit_weights uuid in
+  let* show_weight = Web_persist.get_has_explicit_weights s uuid in
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
-  let* state = Web_persist.get_election_state uuid in
+  let* state = Web_persist.get_election_state s uuid in
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
   let* r =
-    Web_persist.cast_ballot uuid ~rawballot ~user:user_s ~weight
+    Web_persist.cast_ballot s uuid ~rawballot ~user:user_s ~weight
       (Datetime.now ()) ~precast_data
   in
   match r with
   | Ok (hash, revote) ->
-      let* success = send_confirmation uuid revote login email oweight hash in
+      let* success = send_confirmation s uuid revote login email oweight hash in
       let () =
         if revote then
           Printf.ksprintf Ocsigen_messages.accesslog
@@ -316,14 +316,15 @@ let cast_ballot send_confirmation uuid ~rawballot ~user ~precast_data =
       Lwt.return (user, hash, revote, weight, success)
   | Error e -> fail (CastError e)
 
-let direct_voter_auth = ref (fun _ _ -> assert false)
+let direct_voter_auth = ref (fun _ _ _ -> assert false)
 (* initialized in Web_main *)
 
-let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
+let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
+    =
   match endpoint with
   | [] -> (
       let get () =
-        let* x = get_election_status uuid in
+        let* x = get_election_status s uuid in
         Lwt.return @@ string_of_election_status x
       in
       match method_ with
@@ -339,7 +340,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                 | `Open -> Web_persist.open_election
                 | `Close -> Web_persist.close_election
               in
-              let* b = doit uuid in
+              let* b = doit s uuid in
               if b then ok else forbidden
           | (`ComputeEncryptedTally | `FinishShuffling) as x ->
               let@ () = handle_generic_error in
@@ -348,29 +349,29 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                 | `ComputeEncryptedTally -> Web_persist.compute_encrypted_tally
                 | `FinishShuffling -> Web_persist.finish_shuffling
               in
-              let* b = doit uuid in
+              let* b = doit s uuid in
               if b then ok else forbidden
           | `ReleaseTally ->
               let@ () = handle_generic_error in
-              let* () = Web_persist.release_tally uuid in
+              let* () = Web_persist.release_tally s uuid in
               ok
           | `Archive ->
               let@ () = handle_generic_error in
-              let* () = Web_persist.archive_election uuid in
+              let* () = Web_persist.archive_election s uuid in
               ok
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in
-              let* b = Web_persist.regen_password uuid metadata user in
+              let* b = Web_persist.regen_password s uuid metadata user in
               if b then ok else not_found
           | `SetPostponeDate date ->
               let@ () = handle_generic_error in
-              let* b = set_postpone_date uuid date in
+              let* b = set_postpone_date s uuid date in
               if b then ok else bad_request)
       | `DELETE ->
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* () = Web_persist.delete_election uuid in
+          let* () = Web_persist.delete_election s uuid in
           ok
       | _ -> method_not_allowed)
   | [ "election" ] -> (
@@ -383,18 +384,18 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       | Some index -> (
           match method_ with
           | `GET -> (
-              let* x = Web_persist.get_salt uuid index in
+              let* x = Web_persist.get_salt s uuid index in
               match x with
               | None -> not_found
               | Some x ->
                   Lwt.return (200, string_of_salt Yojson.Safe.write_json x))
           | _ -> method_not_allowed))
   | [ "trustees" ] -> (
-      let get () = Public_archive.get_trustees uuid in
+      let get () = Public_archive.get_trustees s uuid in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "automatic-dates" ] -> (
       let get () =
-        let* x = Web_persist.get_election_automatic_dates uuid in
+        let* x = Web_persist.get_election_automatic_dates s uuid in
         Lwt.return @@ string_of_election_auto_dates x
       in
       match method_ with
@@ -404,7 +405,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ () = handle_ifmatch ifmatch get in
           let@ d = body.run election_auto_dates_of_string in
           let@ () = handle_generic_error in
-          let* () = Web_persist.set_election_automatic_dates uuid d in
+          let* () = Web_persist.set_election_automatic_dates s uuid d in
           ok
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
@@ -412,7 +413,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       match method_ with
       | `GET -> (
           let@ () = handle_generic_error in
-          let* x = Storage.(get (Election (uuid, Voters))) in
+          let module S = (val s) in
+          let* x = S.get (Election (uuid, Voters)) in
           match x with None -> not_found | Some x -> Lwt.return (200, x))
       | _ -> method_not_allowed)
   | [ "records" ] -> (
@@ -420,7 +422,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
-          let* x = get_records uuid in
+          let* x = get_records s uuid in
           Lwt.return (200, string_of_records x)
       | _ -> method_not_allowed)
   | [ "partial-decryptions" ] -> (
@@ -428,13 +430,13 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       | `GET ->
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* x = get_partial_decryptions uuid metadata in
+          let* x = get_partial_decryptions s uuid metadata in
           Lwt.return (200, string_of_partial_decryptions x)
       | _ -> method_not_allowed)
   | [ "tally-trustee" ] -> (
       match method_ with
       | `GET ->
-          let@ x = with_tally_trustee token uuid in
+          let@ x = with_tally_trustee token s uuid in
           let@ () = handle_generic_error in
           Lwt.return (200, string_of_tally_trustee x)
       | _ -> method_not_allowed)
@@ -443,7 +445,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
       | `GET ->
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* x = get_shuffles uuid metadata in
+          let* x = get_shuffles s uuid metadata in
           Lwt.return (200, string_of_shuffles x)
       | _ -> method_not_allowed)
   | [ "shuffles"; shuffler ] -> (
@@ -454,10 +456,10 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
           let@ () = handle_generic_error in
           match request with
           | `Skip ->
-              let* () = skip_shuffler uuid shuffler in
+              let* () = skip_shuffler s uuid shuffler in
               ok
           | `Select ->
-              let* () = select_shuffler uuid metadata shuffler in
+              let* () = select_shuffler s uuid metadata shuffler in
               ok)
       | _ -> method_not_allowed)
   | [ "ballots" ] -> (
@@ -472,26 +474,26 @@ let dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata =
                   | Ok x -> Yojson.Safe.from_string x
                   | Error (`Msg x) -> failwith x
                 in
-                let* x = !direct_voter_auth uuid json in
+                let* x = !direct_voter_auth s uuid json in
                 cont x)
               (fun _ -> unauthorized)
           in
           let@ rawballot = body.run Fun.id in
           let@ () = handle_generic_error in
-          let send_confirmation _ _ _ _ _ _ = Lwt.return_true in
-          let* x = Web_persist.precast_ballot uuid ~rawballot in
+          let send_confirmation _ _ _ _ _ _ _ = Lwt.return_true in
+          let* x = Web_persist.precast_ballot s uuid ~rawballot in
           match x with
           | Error _ -> bad_request
           | Ok precast_data ->
               let* _ =
-                cast_ballot send_confirmation uuid ~rawballot ~user
+                cast_ballot send_confirmation s uuid ~rawballot ~user
                   ~precast_data
               in
               ok)
       | _ -> method_not_allowed)
   | _ -> not_found
 
-let dispatch ~token ~ifmatch endpoint method_ body =
+let dispatch s ~token ~ifmatch endpoint method_ body =
   match endpoint with
   | [] -> (
       let@ token = Option.unwrap unauthorized token in
@@ -516,7 +518,8 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* raw = Public_archive.get_election uuid in
+      let* raw = Public_archive.get_election s uuid in
       let@ raw = Option.unwrap not_found raw in
-      let* metadata = Web_persist.get_election_metadata uuid in
-      dispatch_election ~token ~ifmatch endpoint method_ body uuid raw metadata
+      let* metadata = Web_persist.get_election_metadata s uuid in
+      dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw
+        metadata

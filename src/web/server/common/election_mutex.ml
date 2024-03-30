@@ -41,8 +41,7 @@ let unlock uuid_s =
       | None -> mutexes := SMap.remove uuid_s !mutexes
       | Some u -> Lwt.wakeup_later u ())
 
-let with_lock uuid f =
-  let uuid_s = match uuid with None -> "" | Some x -> Uuid.unwrap x in
+let with_lock uuid_s f =
   Lwt.bind (lock uuid_s) (fun () ->
       Lwt.finalize f (fun () ->
           unlock uuid_s;

@@ -60,5 +60,5 @@ module type S = sig
     Eliom_registration.Html.result Lwt.t
 
   val get_site_login_handler : string -> result Lwt.t
-  val direct_voter_auth : uuid -> Yojson.Safe.t -> user Lwt.t
+  val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage_sig.u
 end

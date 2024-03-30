@@ -142,6 +142,8 @@ struct
           >>= Eliom_registration.Html.send ~code:401
         in
         if auth_system = a.auth_system then
+          let@ s = Storage.with_transaction in
+          let module S = (val s) in
           let cont = function
             | Some (name, email) ->
                 let@ () =
@@ -149,7 +151,7 @@ struct
                   match List.assoc_opt "allowlist" a.auth_config with
                   | None -> cont ()
                   | Some f ->
-                      let* allowlist = Storage.(get (Auth_db f)) in
+                      let* allowlist = S.get (Auth_db f) in
                       let allowlist =
                         match allowlist with
                         | None -> []
@@ -166,10 +168,10 @@ struct
                   match uuid with
                   | None ->
                       let* account =
-                        let* x = Accounts.update_account user in
+                        let* x = Accounts.update_account s user in
                         match x with
                         | None ->
-                            let* a = Accounts.create_account ~email user in
+                            let* a = Accounts.create_account s ~email user in
                             let* () =
                               Web_persist.clear_elections_by_owner_cache ()
                             in
@@ -217,8 +219,8 @@ struct
     | ({ auth_instance = i; _ } as y) :: _ when i = x -> Some y
     | _ :: xs -> find_auth_instance x xs
 
-  let get_election_auth_configs uuid =
-    let* metadata = Web_persist.get_election_metadata uuid in
+  let get_election_auth_configs s uuid =
+    let* metadata = Web_persist.get_election_metadata s uuid in
     match metadata.e_auth_config with
     | None -> return []
     | Some x ->
@@ -256,10 +258,11 @@ struct
     match (user, uuid) with
     | Some _, None -> get_cont ~extern:false `Login kind ()
     | Some _, Some _ | None, _ -> (
+        let@ storage = Storage.with_transaction in
         let* c =
           match uuid with
           | None -> return !Web_config.site_auth_config
-          | Some uuid -> get_election_auth_configs uuid
+          | Some uuid -> get_election_auth_configs storage uuid
         in
         match service with
         | Some s -> (
@@ -268,7 +271,7 @@ struct
               | None -> return (`Site, `Username)
               | Some uuid ->
                   let* username_or_address =
-                    Web_persist.get_username_or_address uuid
+                    Web_persist.get_username_or_address storage uuid
                   in
                   return (`Election, username_or_address)
             in
@@ -339,10 +342,10 @@ struct
           (`Site (default_admin ContSiteAdmin))
           a
 
-  let direct_voter_auth uuid x =
+  let direct_voter_auth s uuid x =
     let fail () = failwith "invalid direct auth" in
     let* c =
-      let* cs = get_election_auth_configs uuid in
+      let* cs = get_election_auth_configs s uuid in
       match cs with
       | [ c ] -> Lwt.return c
       | _ -> (

@@ -25,9 +25,9 @@ module type S = sig
   val election_not_found : unit -> Eliom_registration.Html.result Lwt.t
 
   val with_election :
-    Web_serializable_t.uuid ->
-    ((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
-    Eliom_registration.Html.result Lwt.t
+    (((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
+    Eliom_registration.Html.result Lwt.t)
+    Storage_sig.u
 
   val redir_preapply :
     ( 'a,

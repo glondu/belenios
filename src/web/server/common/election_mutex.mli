@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
-
-val with_lock : uuid option -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+val lock : string -> unit Lwt.t
+val unlock : string -> unit
+val with_lock : string -> (unit -> 'a Lwt.t) -> 'a Lwt.t

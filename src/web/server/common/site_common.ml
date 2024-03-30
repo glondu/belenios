@@ -21,6 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
+open Belenios
 open Web_common
 
 module Make (X : Pages_sig.S) = struct
@@ -41,8 +42,8 @@ module Make (X : Pages_sig.S) = struct
       ()
     >>= Html.send ~code:404
 
-  let with_election uuid f =
-    Public_archive.with_election uuid ~fallback:election_not_found f
+  let with_election s uuid f =
+    Public_archive.with_election s uuid ~fallback:election_not_found f
 
   let () =
     File.register ~service:source_code ~content_type:"application/x-gzip"
@@ -86,7 +87,9 @@ module Make (X : Pages_sig.S) = struct
   let () =
     Any.register ~service:election_nh_ciphertexts (fun uuid () ->
         Lwt.try_bind
-          (fun () -> Public_archive.get_nh_ciphertexts uuid)
+          (fun () ->
+            let@ s = Storage.with_transaction in
+            Public_archive.get_nh_ciphertexts s uuid)
           (fun x -> String.send (x, "application/json"))
           (function
             | Election_not_found _ -> fail_http `Not_found | e -> Lwt.reraise e))

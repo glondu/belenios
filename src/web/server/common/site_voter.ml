@@ -47,19 +47,21 @@ struct
 
   let () =
     Any.register ~service:election_home (fun (uuid, ()) () ->
-        let@ election = with_election uuid in
+        let@ s = Storage.with_transaction in
+        let@ election = with_election s uuid in
         let* x = Eliom_reference.get Web_state.cast_confirmed in
         let* () = Web_state.discard () in
         match x with
         | Some result ->
             Pages_voter.cast_confirmed election ~result () >>= Html.send
         | None ->
-            let* state = Web_persist.get_election_state uuid in
-            Pages_voter.election_home election state () >>= Html.send)
+            let* state = Web_persist.get_election_state s uuid in
+            Pages_voter.election_home s election state () >>= Html.send)
 
   let () =
     Any.register ~service:election_cast (fun uuid () ->
-        let@ election = with_election uuid in
+        let@ s = Storage.with_transaction in
+        let@ election = with_election s uuid in
         Pages_voter.cast_raw election () >>= Html.send)
 
   let submit_ballot ballot =
@@ -94,9 +96,10 @@ struct
                   (s_ "Ill-formed ballot") ()
                 >>= Html.send
             | uuid ->
+                let@ s = Storage.with_transaction in
                 let@ precast_data cont =
                   Lwt.try_bind
-                    (fun () -> Web_persist.precast_ballot uuid ~rawballot)
+                    (fun () -> Web_persist.precast_ballot s uuid ~rawballot)
                     (function
                       | Ok x -> cont x
                       | Error e ->
@@ -109,7 +112,7 @@ struct
                           >>= Html.send)
                     (function
                       | Election_not_found _ -> (
-                          let* election = Spool.get ~uuid Spool.draft in
+                          let* election = Spool.get s uuid Spool.draft in
                           match election with
                           | Some _ -> redir_preapply election_draft uuid ()
                           | None ->
@@ -124,14 +127,14 @@ struct
                 in
                 redir_preapply election_login ((uuid, ()), None) ()))
 
-  let send_confirmation_email uuid revote user recipient weight hash =
+  let send_confirmation_email s uuid revote user recipient weight hash =
     let@ election =
-      Public_archive.with_election uuid ~fallback:(fun () ->
+      Public_archive.with_election s uuid ~fallback:(fun () ->
           Lwt.fail (Election_not_found (uuid, "send_confirmation_email")))
     in
     let open (val election) in
     let title = template.t_name in
-    let* metadata = Web_persist.get_election_metadata uuid in
+    let* metadata = Web_persist.get_election_metadata s uuid in
     let x = (uuid, ()) in
     let url1 =
       Eliom_uri.make_string_uri ~absolute:true
@@ -160,11 +163,13 @@ struct
 
   let () =
     Any.register ~service:election_cast_confirm (fun uuid () ->
-        let@ election = with_election uuid in
+        let@ s = Storage.with_transaction in
+        let@ election = with_election s uuid in
         let* ballot = Eliom_reference.get Web_state.ballot in
         let* precast_data = Eliom_reference.get Web_state.precast_data in
         match (ballot, precast_data) with
-        | None, _ | _, None -> Pages_voter.lost_ballot election () >>= Html.send
+        | None, _ | _, None ->
+            Pages_voter.lost_ballot s election () >>= Html.send
         | Some rawballot, Some precast_data -> (
             let* () = Eliom_reference.unset Web_state.ballot in
             let* user = Web_state.get_election_user uuid in
@@ -176,7 +181,7 @@ struct
                   Lwt.catch
                     (fun () ->
                       let* hash =
-                        Api_elections.cast_ballot send_confirmation_email uuid
+                        Api_elections.cast_ballot send_confirmation_email s uuid
                           ~rawballot ~user ~precast_data
                       in
                       return (Ok hash))
@@ -190,12 +195,14 @@ struct
 
   let () =
     Any.register ~service:election_pretty_ballots (fun (uuid, ()) () ->
-        let@ election = with_election uuid in
-        Pages_voter.pretty_ballots election >>= Html.send)
+        let@ s = Storage.with_transaction in
+        let@ election = with_election s uuid in
+        Pages_voter.pretty_ballots s election >>= Html.send)
 
   let () =
     Any.register ~service:election_pretty_ballot (fun ((uuid, ()), hash) () ->
-        let* ballot = Public_archive.get_ballot_by_hash uuid hash in
+        let@ s = Storage.with_transaction in
+        let* ballot = Public_archive.get_ballot_by_hash s uuid hash in
         match ballot with
         | None -> fail_http `Not_found
         | Some b ->
@@ -206,7 +213,8 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open Belenios_question in
-    let@ election = with_election uuid in
+    let@ s = Storage.with_transaction in
+    let@ election = with_election s uuid in
     let open (val election) in
     let questions =
       Belenios.Election.get_questions (Template (witness, template))
@@ -216,7 +224,7 @@ struct
       match value with
       | Non_homomorphic.Q q ->
           f l q extra (fun continuation ->
-              let* result = Public_archive.get_result uuid in
+              let* result = Public_archive.get_result s uuid in
               match result with
               | Some result ->
                   (election_result_of_string read_result result).result
@@ -309,17 +317,19 @@ struct
     | ESRecords | ESVoters -> "text/plain"
 
   let handle_pseudo_file ~preload uuid f site_user =
+    let@ s = Storage.with_transaction in
+    let module S = (val s) in
     let* confidential =
       match f with
       | ESRaw | ESETally | ESArchive _ | ESSalts -> return false
       | ESRecords | ESVoters -> return true
       | ESResult -> (
-          let* hidden = Web_persist.get_election_result_hidden uuid in
+          let* hidden = Web_persist.get_election_result_hidden s uuid in
           match hidden with None -> return false | Some _ -> return true)
     in
     let* allowed =
       if confidential then
-        let* metadata = Web_persist.get_election_metadata uuid in
+        let* metadata = Web_persist.get_election_metadata s uuid in
         match site_user with
         | Some (_, a, _) when Accounts.check a metadata.e_owners -> return_true
         | _ -> return_false
@@ -336,25 +346,25 @@ struct
       let ( !? ) x = x >>= return_string in
       match f with
       | ESRaw -> (
-          let* x = Public_archive.get_election uuid in
+          let* x = Public_archive.get_election s uuid in
           match x with
           | Some x ->
               let () =
                 if preload then
                   Lwt.async (fun () ->
-                      let* _ = Web_persist.get_username_or_address uuid in
+                      let* _ = Web_persist.get_username_or_address s uuid in
                       Lwt.return_unit)
               in
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
           | None -> fail_http `Not_found)
-      | ESETally -> !?(Public_archive.get_latest_encrypted_tally uuid)
-      | ESResult -> !?(Public_archive.get_result uuid)
-      | ESVoters -> !?Storage.(get (Election (uuid, Voters)))
-      | ESRecords -> !?Storage.(get (Election (uuid, Records)))
-      | ESSalts -> !?Storage.(get (Election (uuid, Salts)))
+      | ESETally -> !?(Public_archive.get_latest_encrypted_tally s uuid)
+      | ESResult -> !?(Public_archive.get_result s uuid)
+      | ESVoters -> !?(S.get (Election (uuid, Voters)))
+      | ESRecords -> !?(S.get (Election (uuid, Records)))
+      | ESSalts -> !?(S.get (Election (uuid, Salts)))
       | ESArchive u when u = uuid ->
-          let* path = Storage.(get_as_file (Election (uuid, Public_archive))) in
+          let* path = S.get_as_file (Election (uuid, Public_archive)) in
           File.send ~content_type path
       | ESArchive _ -> fail_http `Not_found
     else forbidden ()

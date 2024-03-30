@@ -30,9 +30,32 @@ module type CONFIG = sig
   val accounts_dir : string
 end
 
+module type MUTEXES = sig
+  val lock : uuid option -> unit Lwt.t
+  val unlock : unit -> unit
+end
+
+module MakeMutexes () : MUTEXES = struct
+  let mutexes = ref SSet.empty
+
+  let lock uuid =
+    let uuid_s = match uuid with None -> "" | Some x -> Uuid.unwrap x in
+    match SSet.mem uuid_s !mutexes with
+    | false ->
+        mutexes := SSet.add uuid_s !mutexes;
+        Election_mutex.lock uuid_s
+    | true -> Lwt.return_unit
+
+  let unlock () = SSet.iter Election_mutex.unlock !mutexes
+end
+
+module type S = sig
+  module Make (Mutexes : MUTEXES) : Storage_sig.BACKEND
+end
+
 exception Uninitialized of string
 
-module Make (Config : CONFIG) = struct
+module MakeBackend (Config : CONFIG) : S = struct
   (** {1 Abstract election-specific file operations} *)
 
   type 'key abstract_file_ops = {
@@ -599,8 +622,6 @@ module Make (Config : CONFIG) = struct
         let* x = credential_mappings_cache#find uuid in
         dump_credential_mappings uuid x)
 
-  let with_lock = Election_mutex.with_lock
-
   let init_credential_mapping uuid =
     let* file = get (Election (uuid, Public_creds)) in
     match file with
@@ -947,17 +968,11 @@ module Make (Config : CONFIG) = struct
     Hashtbl.add indexes uuid r;
     Lwt.return r
 
-  let get_index ?(lock = true) ~creat uuid =
+  let get_index ~creat uuid =
     let* r =
       match Hashtbl.find_opt indexes uuid with
       | Some r -> Lwt.return r
-      | None ->
-          if lock then
-            let@ () = with_lock (Some uuid) in
-            match Hashtbl.find_opt indexes uuid with
-            | Some r -> Lwt.return r
-            | None -> do_get_index ~creat ~uuid
-          else do_get_index ~creat ~uuid
+      | None -> do_get_index ~creat ~uuid
     in
     Lwt_timeout.start r.timeout;
     Lwt.return r
@@ -1024,17 +1039,14 @@ module Make (Config : CONFIG) = struct
 
   let () = roots_ops.get <- get_roots
 
-  let append ?(lock = true) uuid ?last ops =
-    let@ () =
-     fun cont -> if lock then with_lock (Some uuid) cont else cont ()
-    in
+  let append uuid ?last ops =
     let@ last cont =
       let* x = get_last_event uuid in
       match last with
       | None -> cont x
       | Some last -> if x = Some last then cont x else Lwt.return_false
     in
-    let* index = get_index ~lock:false ~creat:true uuid in
+    let* index = get_index ~creat:true uuid in
     let event_parent, event_height, pos =
       match last with
       | None -> (None, -1, 1024L (* header size *))
@@ -1072,4 +1084,54 @@ module Make (Config : CONFIG) = struct
     List.iter (fun r -> Hashtbl.add index.map r.Archive.hash r.location) records;
     index.roots <- roots;
     Lwt.return_true
+
+  module Make (Mutexes : MUTEXES) : Storage_sig.BACKEND = struct
+    let with_lock uuid f =
+      let* () = Mutexes.lock uuid in
+      f ()
+
+    let with_lock_file x f =
+      let uuid = match x with Election (uuid, _) -> Some uuid | _ -> None in
+      with_lock uuid f
+
+    let get_as_file f = with_lock_file f (fun () -> get_as_file f)
+    let get f = with_lock_file f (fun () -> get f)
+    let update f = with_lock_file f (fun () -> update f)
+    let create f x = with_lock_file f (fun () -> create f x)
+    let ensure f x = with_lock_file f (fun () -> ensure f x)
+    let del f = with_lock_file f (fun () -> del f)
+    let list_accounts () = with_lock None list_accounts
+    let list_elections () = with_lock None list_elections
+    let new_election () = with_lock None new_election
+
+    let cleanup_election uuid =
+      with_lock (Some uuid) (fun () -> cleanup_election uuid)
+
+    let new_account_id () = with_lock None new_account_id
+
+    let init_credential_mapping uuid =
+      with_lock (Some uuid) (fun () -> init_credential_mapping uuid)
+
+    let delete_sensitive_data uuid =
+      with_lock (Some uuid) (fun () -> delete_sensitive_data uuid)
+
+    let delete_live_data uuid =
+      with_lock (Some uuid) (fun () -> delete_live_data uuid)
+
+    let append uuid ?last ops =
+      with_lock (Some uuid) (fun () -> append uuid ?last ops)
+  end
+end
+
+module Make (Config : CONFIG) : Storage_sig.S = struct
+  module B = MakeBackend (Config)
+
+  let with_transaction f =
+    let module Mutexes = MakeMutexes () in
+    let module Backend = B.Make (Mutexes) in
+    Lwt.finalize
+      (fun () -> f (module Backend : Storage_sig.BACKEND))
+      (fun () ->
+        Mutexes.unlock ();
+        Lwt.return_unit)
 end

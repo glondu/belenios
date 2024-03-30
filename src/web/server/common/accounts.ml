@@ -45,8 +45,9 @@ let add_update_hook f = update_hooks := f :: !update_hooks
 let run_update_hooks account =
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 
-let get_account_by_id id =
-  let* x = Storage.(get (Account id)) in
+let get_account_by_id s id =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.get (Account id) in
   match x with
   | None -> Lwt.return_none
   | Some x -> (
@@ -54,8 +55,9 @@ let get_account_by_id id =
       | exception _ -> Lwt.return_none
       | x -> Lwt.return_some x)
 
-let update_account_by_id id =
-  let* x = Storage.(update (Account id)) in
+let update_account_by_id s id =
+  let module S = (val s : Storage_sig.BACKEND) in
+  let* x = S.update (Account id) in
   match x with
   | None -> Lwt.return_none
   | Some (x, set) -> (
@@ -70,10 +72,11 @@ let update_account_by_id id =
 let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
 
-let create_account ~email user =
+let create_account s ~email user =
+  let module S = (val s : Storage_sig.BACKEND) in
   let@ id, u =
    fun cont ->
-    let* x = Storage.new_account_id () in
+    let* x = S.new_account_id () in
     match x with
     | None -> Lwt.fail (Failure "impossible to create a new account")
     | Some x -> cont x
@@ -101,7 +104,7 @@ let create_account ~email user =
   let* () =
     Lwt.finalize
       (fun () ->
-        let* () = Storage.(create (Account id) (string_of_account account)) in
+        let* () = S.create (Account id) (string_of_account account) in
         run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();
@@ -110,11 +113,12 @@ let create_account ~email user =
   let* () = clear_account_cache () in
   Lwt.return account
 
-let build_account_cache () =
-  Storage.list_accounts ()
+let build_account_cache s =
+  let module S = (val s : Storage_sig.BACKEND) in
+  S.list_accounts ()
   >>= Lwt_list.fold_left_s
         (fun accu id ->
-          let* account = get_account_by_id id in
+          let* account = get_account_by_id s id in
           match account with
           | None -> Lwt.return accu
           | Some account ->
@@ -124,18 +128,18 @@ let build_account_cache () =
               |> Lwt.return)
         UMap.empty
 
-let lookup_by_user lookup_by_id user =
+let lookup_by_user lookup_by_id s user =
   let* cache =
     match !cache with
     | Some x -> Lwt.return x
     | None ->
         let@ () = Lwt_mutex.with_lock cache_mutex in
-        let* x = build_account_cache () in
+        let* x = build_account_cache s in
         cache := Some x;
         Lwt.return x
   in
   let&* id = UMap.find_opt user cache in
-  lookup_by_id id
+  lookup_by_id s id
 
 let get_account = lookup_by_user get_account_by_id
 let update_account = lookup_by_user update_account_by_id

@@ -31,48 +31,54 @@ type 'a file = {
 }
 
 type 'a abstract = {
-  get : uuid -> 'a option Lwt.t;
-  del : uuid -> unit Lwt.t;
-  update : uuid -> 'a updatable option Lwt.t;
-  create : uuid -> 'a -> unit Lwt.t;
-  ensure : uuid -> 'a -> unit Lwt.t;
+  get : 'a option Lwt.t Storage_sig.u;
+  del : unit Lwt.t Storage_sig.u;
+  update : 'a updatable option Lwt.t Storage_sig.u;
+  create : ('a -> unit Lwt.t) Storage_sig.u;
+  ensure : ('a -> unit Lwt.t) Storage_sig.u;
 }
 
 type 'a t = File of 'a file | Abstract of 'a abstract
 
-let get ~uuid file =
+let get s uuid file =
   match file with
   | File file -> (
-      let* x = Storage.(get (Election (uuid, file.filename))) in
+      let module S = (val s : Storage_sig.BACKEND) in
+      let* x = S.get (Election (uuid, file.filename)) in
       let&* x = x in
       try Lwt.return_some (file.of_string x) with _ -> Lwt.return_none)
-  | Abstract a -> a.get uuid
+  | Abstract a -> a.get s uuid
 
-let del ~uuid file =
-  match file with
-  | File file -> Storage.(del (Election (uuid, file.filename)))
-  | Abstract a -> a.del uuid
-
-let update uuid file =
+let del s uuid file =
   match file with
   | File file ->
-      let* x = Storage.(update (Election (uuid, file.filename))) in
+      let module S = (val s : Storage_sig.BACKEND) in
+      S.del (Election (uuid, file.filename))
+  | Abstract a -> a.del s uuid
+
+let update s uuid file =
+  match file with
+  | File file ->
+      let module S = (val s : Storage_sig.BACKEND) in
+      let* x = S.update (Election (uuid, file.filename)) in
       let&* x, set = x in
       let set x = set (file.to_string x) in
       Lwt.return_some (file.of_string x, set)
-  | Abstract a -> a.update uuid
+  | Abstract a -> a.update s uuid
 
-let create uuid file x =
+let create s uuid file x =
   match file with
   | File file ->
-      Storage.(create (Election (uuid, file.filename)) (file.to_string x))
-  | Abstract a -> a.create uuid x
+      let module S = (val s : Storage_sig.BACKEND) in
+      S.create (Election (uuid, file.filename)) (file.to_string x)
+  | Abstract a -> a.create s uuid x
 
-let ensure uuid file x =
+let ensure s uuid file x =
   match file with
   | File file ->
-      Storage.(ensure (Election (uuid, file.filename)) (file.to_string x))
-  | Abstract a -> a.ensure uuid x
+      let module S = (val s : Storage_sig.BACKEND) in
+      S.ensure (Election (uuid, file.filename)) (file.to_string x)
+  | Abstract a -> a.ensure s uuid x
 
 let make_file x = File x
 
@@ -142,23 +148,30 @@ let private_key =
 
 let private_keys =
   let filename = Storage_sig.Private_keys in
-  let get uuid =
-    let* x = Storage.(get (Election (uuid, filename))) in
+  let get s uuid =
+    let module S = (val s : Storage_sig.BACKEND) in
+    let* x = S.get (Election (uuid, filename)) in
     let&* x = x in
     Lwt.return_some @@ split_lines x
   in
-  let del uuid = Storage.(del (Election (uuid, filename))) in
-  let update uuid =
-    let* x = Storage.(update (Election (uuid, filename))) in
+  let del s uuid =
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.del (Election (uuid, filename))
+  in
+  let update s uuid =
+    let module S = (val s : Storage_sig.BACKEND) in
+    let* x = S.update (Election (uuid, filename)) in
     let&* x, set = x in
     let set x = set (join_lines x) in
     Lwt.return_some (split_lines x, set)
   in
-  let create uuid x =
-    Storage.(create (Election (uuid, filename)) (join_lines x))
+  let create s uuid x =
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.create (Election (uuid, filename)) (join_lines x)
   in
-  let ensure uuid x =
-    Storage.(ensure (Election (uuid, filename)) (join_lines x))
+  let ensure s uuid x =
+    let module S = (val s : Storage_sig.BACKEND) in
+    S.ensure (Election (uuid, filename)) (join_lines x)
   in
   Abstract { get; del; update; create; ensure }
 
