@@ -243,14 +243,6 @@ module MakeBackend (Config : CONFIG) : S = struct
                | Some x -> x :: accu))
          [] xs
 
-  let list_elections () =
-    let* xs = files_of_directory Config.spool_dir in
-    Lwt.return
-    @@ List.fold_left
-         (fun accu x ->
-           match Uuid.wrap x with exception _ -> accu | x -> x :: accu)
-         [] xs
-
   type election_file_props =
     | Concrete : string * kind -> election_file_props
     | Abstract : 'key abstract_file_ops * 'key -> election_file_props
@@ -313,6 +305,17 @@ module MakeBackend (Config : CONFIG) : S = struct
     match get_props x with
     | Concrete (path, _) -> Filesystem.file_exists path
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
+
+  let list_elections () =
+    let* xs = files_of_directory Config.spool_dir in
+    Lwt_list.fold_left_s
+      (fun accu x ->
+        match Uuid.wrap x with
+        | exception _ -> Lwt.return accu
+        | uuid ->
+            let* b = file_exists (Election (uuid, Deleted)) in
+            if b then Lwt.return accu else Lwt.return (uuid :: accu))
+      [] xs
 
   let get f =
     match get_props f with
