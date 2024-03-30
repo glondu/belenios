@@ -980,18 +980,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
           let@ () = handle_ifmatch ifmatch get in
           let@ draft = body.run draft_of_string in
           let@ () = handle_generic_error in
-          let update_cache =
-            let (Draft (_, se)) = se in
-            let (Belenios_api.Common.Draft (_, draft)) = draft in
-            draft.draft_questions.t_name <> se.se_questions.t_name
-            || se.se_owners <> draft.draft_owners
-          in
           let se = draft_of_api account uuid se draft in
           let* () = set se in
-          let* () =
-            if update_cache then Web_persist.clear_elections_by_owner_cache ()
-            else Lwt.return_unit
-          in
           ok
       | `POST, `Administrator a ->
           let@ () = handle_ifmatch ifmatch get in
@@ -1155,8 +1145,9 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
   | [] -> (
       let@ token = Option.unwrap unauthorized token in
       let@ account = Option.unwrap unauthorized (lookup_token token) in
+      let module S = (val s : Storage_sig.BACKEND) in
       let get () =
-        let* elections = Web_persist.get_elections_by_owner account.id in
+        let* elections = S.get_elections_by_owner account.id in
         let elections =
           List.fold_left
             (fun accu ({ state; _ } as x) ->

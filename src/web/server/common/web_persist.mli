@@ -118,11 +118,6 @@ val close_election : bool Lwt.t Storage_sig.u
 
 (** {1 Misc} *)
 
-val get_elections_by_owner :
-  int -> Belenios_api.Serializable_t.summary_list Lwt.t
-
-val clear_elections_by_owner_cache : unit -> unit Lwt.t
-
 val get_next_actions :
   unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
 

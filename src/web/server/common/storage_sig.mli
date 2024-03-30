@@ -84,6 +84,10 @@ module type BACKEND = sig
 
   val list_accounts : unit -> int list Lwt.t
   val list_elections : unit -> uuid list Lwt.t
+
+  val get_elections_by_owner :
+    int -> Belenios_api.Serializable_t.summary_list Lwt.t
+
   val new_election : unit -> uuid option Lwt.t
   val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
 

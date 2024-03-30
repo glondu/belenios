@@ -44,8 +44,9 @@ struct
     Any.register ~service:home (fun () () ->
         Redirection.send (Redirection admin))
 
-  let get_elections_by_owner_sorted u =
-    let* elections = Web_persist.get_elections_by_owner u in
+  let get_elections_by_owner_sorted s u =
+    let module S = (val s : Storage_sig.BACKEND) in
+    let* elections = S.get_elections_by_owner u in
     let filter f =
       let open Belenios_api.Serializable_t in
       List.filter (fun ({ state; _ } : summary) -> f state) elections
@@ -150,7 +151,8 @@ struct
             if show then Pages_admin.privacy_notice ContAdmin
             else if a.email = None then Pages_admin.set_email ()
             else
-              let* elections = get_elections_by_owner_sorted a.id in
+              let@ s = Storage.with_transaction in
+              let* elections = get_elections_by_owner_sorted s a.id in
               Pages_admin.admin ~elections)
 
   module SetEmailSender = struct
@@ -501,7 +503,6 @@ struct
         else (
           se.se_questions <-
             { se.se_questions with t_name = name; t_description = description };
-          let* () = Web_persist.clear_elections_by_owner_cache () in
           redir_preapply election_draft uuid ()))
 
   let handle_password account se uuid ~force voters =
@@ -1065,7 +1066,7 @@ struct
         let@ _, account, _ = with_site_user in
         let@ s = Storage.with_transaction in
         let@ se = with_draft ~save:false s uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted account.id in
+        let* _, a, b, c = get_elections_by_owner_sorted s account.id in
         Pages_admin.election_draft_import uuid se (a, b, c) () >>= Html.send)
 
   let () =
@@ -1115,7 +1116,7 @@ struct
         let@ _, account, _ = with_site_user in
         let@ s = Storage.with_transaction in
         let@ se = with_draft ~save:false s uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted account.id in
+        let* _, a, b, c = get_elections_by_owner_sorted s account.id in
         Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
         >>= Html.send)
 

@@ -172,9 +172,6 @@ struct
                         match x with
                         | None ->
                             let* a = Accounts.create_account s ~email user in
-                            let* () =
-                              Web_persist.clear_elections_by_owner_cache ()
-                            in
                             return a
                         | Some (x, set) ->
                             let last_connected = Datetime.now () in

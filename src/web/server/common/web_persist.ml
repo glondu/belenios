@@ -31,14 +31,6 @@ let get_spool_version () =
   let* x = S.get Spool_version in
   match x with Some x -> return @@ int_of_string x | None -> return 0
 
-let elections_by_owner_cache = ref None
-let elections_by_owner_mutex = Lwt_mutex.create ()
-
-let clear_elections_by_owner_cache () =
-  let@ () = Lwt_mutex.with_lock elections_by_owner_mutex in
-  elections_by_owner_cache := None;
-  return_unit
-
 let get_setup_data s uuid =
   let* x =
     let* x = Public_archive.get_roots s uuid in
@@ -257,7 +249,6 @@ let internal_release_tally ~force s uuid set_state =
       let* () = set_dates { dates with e_tally = Some (Datetime.now ()) } in
       let* () = Spool.del s uuid Spool.decryption_tokens in
       let* () = Spool.del s uuid Spool.shuffle_token in
-      let* () = clear_elections_by_owner_cache () in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
@@ -301,10 +292,7 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
   in
   assert (new_state <> `Archived);
   let* () =
-    if update && new_state <> state then
-      let* () = set_state new_state in
-      clear_elections_by_owner_cache ()
-    else return_unit
+    if update && new_state <> state then set_state new_state else return_unit
   in
   return (new_state, set_state)
 
@@ -340,93 +328,6 @@ let add_partial_decryption s uuid (owned_owner, pd) =
   match x with
   | true -> Lwt.return_unit
   | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
-
-let umap_add user x map =
-  let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
-  IMap.add user (x :: xs) map
-
-let build_elections_by_owner_cache () =
-  let* elections =
-    let@ s = Storage.with_transaction in
-    let module S = (val s) in
-    S.list_elections ()
-  in
-  Lwt_list.fold_left_s
-    (fun accu uuid ->
-      Lwt.catch
-        (fun () ->
-          let@ s = Storage.with_transaction in
-          let* election = Spool.get s uuid Spool.draft in
-          match election with
-          | None -> (
-              let* metadata = get_election_metadata s uuid in
-              let ids = metadata.e_owners in
-              let* election = Public_archive.get_election s uuid in
-              match election with
-              | None -> return accu
-              | Some election ->
-                  let* dates = get_election_dates s uuid in
-                  let* state, date =
-                    let* state, _ =
-                      raw_get_election_state ~update:false s uuid
-                    in
-                    match state with
-                    | (`Open | `Closed | `Shuffling | `EncryptedTally) as s ->
-                        let date =
-                          Option.value dates.e_finalization
-                            ~default:Web_defaults.validation_date
-                        in
-                        return (s, date)
-                    | `Tallied ->
-                        let date =
-                          Option.value dates.e_tally
-                            ~default:Web_defaults.tally_date
-                        in
-                        return (`Tallied, date)
-                    | `Archived ->
-                        let date =
-                          Option.value dates.e_archive
-                            ~default:Web_defaults.archive_date
-                        in
-                        return (`Archived, date)
-                  in
-                  let (Template (_, template)) =
-                    Election.template_of_string election
-                  in
-                  let date = Datetime.to_unixfloat date in
-                  let item : Belenios_api.Serializable_t.summary =
-                    { state; uuid; date; name = template.t_name }
-                  in
-                  return
-                  @@ List.fold_left
-                       (fun accu id -> umap_add id item accu)
-                       accu ids)
-          | Some (Draft (_, se)) ->
-              let date =
-                Option.value se.se_creation_date
-                  ~default:Web_defaults.creation_date
-                |> Datetime.to_unixfloat
-              in
-              let ids = se.se_owners in
-              let item : Belenios_api.Serializable_t.summary =
-                { state = `Draft; uuid; date; name = se.se_questions.t_name }
-              in
-              return
-              @@ List.fold_left (fun accu id -> umap_add id item accu) accu ids)
-        (fun _ -> return accu))
-    IMap.empty elections
-
-let get_elections_by_owner user =
-  let* cache =
-    match !elections_by_owner_cache with
-    | Some x -> return x
-    | None ->
-        let@ () = Lwt_mutex.with_lock elections_by_owner_mutex in
-        let* x = build_elections_by_owner_cache () in
-        elections_by_owner_cache := Some x;
-        return x
-  in
-  match IMap.find_opt user cache with None -> return [] | Some xs -> return xs
 
 let check_password s uuid ~user ~password =
   let module S = (val s : Storage_sig.BACKEND) in
@@ -735,7 +636,8 @@ let get_audit_cache s uuid =
 
 let get_admin_context admin_id =
   let@ s = Storage.with_transaction in
-  let* elections = get_elections_by_owner admin_id in
+  let module S = (val s) in
+  let* elections = S.get_elections_by_owner admin_id in
   let* elections =
     let open Belenios_api.Serializable_t in
     Lwt_list.filter_map_s
@@ -762,8 +664,7 @@ let archive_election s uuid =
   let module S = (val s : Storage_sig.BACKEND) in
   let* () = S.delete_sensitive_data uuid in
   let* dates, set = update_election_dates s uuid in
-  let* () = set { dates with e_archive = Some (Datetime.now ()) } in
-  clear_elections_by_owner_cache ()
+  set { dates with e_archive = Some (Datetime.now ()) }
 
 let delete_election s uuid =
   let@ election =
@@ -849,8 +750,7 @@ let delete_election s uuid =
   let* () =
     S.create (Election (uuid, Deleted)) (string_of_deleted_election de)
   in
-  let* () = S.delete_live_data uuid in
-  clear_elections_by_owner_cache ()
+  S.delete_live_data uuid
 
 let dump_passwords s uuid db =
   let module S = (val s : Storage_sig.BACKEND) in
@@ -1155,22 +1055,14 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   (* finish *)
   let* () = Spool.create storage uuid Spool.state `Open in
   let* dates, set = update_election_dates storage uuid in
-  let* () = set { dates with e_finalization = Some (Datetime.now ()) } in
-  clear_elections_by_owner_cache ()
+  set { dates with e_finalization = Some (Datetime.now ()) }
 
 let delete_draft s uuid =
   let module S = (val s : Storage_sig.BACKEND) in
-  let* () = S.delete_election uuid in
-  clear_elections_by_owner_cache ()
+  S.delete_election uuid
 
-let create_draft s uuid se =
-  let* () = Spool.create s uuid Spool.draft se in
-  let* () = clear_elections_by_owner_cache () in
-  Lwt.return_unit
-
-let transition_to_encrypted_tally set_state =
-  let* () = set_state `EncryptedTally in
-  clear_elections_by_owner_cache ()
+let create_draft s uuid se = Spool.create s uuid Spool.draft se
+let transition_to_encrypted_tally set_state = set_state `EncryptedTally
 
 let compute_encrypted_tally s uuid =
   let* state, set_state = update_election_state s uuid in
@@ -1287,7 +1179,6 @@ let set_election_state s uuid state =
       let* () =
         set_dates { dates with e_auto_open = None; e_auto_close = None }
       in
-      let* () = clear_elections_by_owner_cache () in
       Lwt.return_true
   | None -> Lwt.return_false
 
@@ -1308,8 +1199,7 @@ let set_election_automatic_dates s uuid d =
   let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
   let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
   let* dates, set = update_election_dates s uuid in
-  let* () = set { dates with e_auto_open; e_auto_close } in
-  clear_elections_by_owner_cache ()
+  set { dates with e_auto_open; e_auto_close }
 
 let get_draft_public_credentials s uuid =
   let* x = Spool.get s uuid Spool.draft_public_credentials in
