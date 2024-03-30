@@ -232,7 +232,7 @@ struct
   let admin ~elections =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let format_election (uuid, name) =
+    let format_election { uuid; name; _ } =
       let name = if name = "" then s_ "(no title)" else name in
       li
         [
@@ -242,7 +242,7 @@ struct
             uuid;
         ]
     in
-    let format_draft_election (uuid, name) =
+    let format_draft_election { uuid; name; _ } =
       let name = if name = "" then s_ "(no title)" else name in
       li
         [
@@ -2202,7 +2202,7 @@ struct
   let election_draft_importer l ~service ~title ~note uuid
       (elections, tallied, archived) =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    let format_election (from_uuid, name) =
+    let format_election { uuid = from_uuid; name; _ } =
       let from_uuid = Uuid.unwrap from_uuid in
       let form =
         post_form ~service

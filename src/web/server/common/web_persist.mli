@@ -118,17 +118,8 @@ val close_election : bool Lwt.t Storage_sig.u
 
 (** {1 Misc} *)
 
-type election_state =
-  [ `Draft
-  | `Open
-  | `Closed
-  | `Shuffling
-  | `EncryptedTally
-  | `Tallied
-  | `Archived ]
-
 val get_elections_by_owner :
-  int -> (election_state * uuid * datetime * string) list Lwt.t
+  int -> Belenios_api.Serializable_t.summary_list Lwt.t
 
 val clear_elections_by_owner_cache : unit -> unit Lwt.t
 

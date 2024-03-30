@@ -341,15 +341,6 @@ let add_partial_decryption s uuid (owned_owner, pd) =
   | true -> Lwt.return_unit
   | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
 
-type election_state =
-  [ `Draft
-  | `Open
-  | `Closed
-  | `Shuffling
-  | `EncryptedTally
-  | `Tallied
-  | `Archived ]
-
 let umap_add user x map =
   let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
   IMap.add user (x :: xs) map
@@ -402,7 +393,10 @@ let build_elections_by_owner_cache () =
                   let (Template (_, template)) =
                     Election.template_of_string election
                   in
-                  let item = (state, uuid, date, template.t_name) in
+                  let date = Datetime.to_unixfloat date in
+                  let item : Belenios_api.Serializable_t.summary =
+                    { state; uuid; date; name = template.t_name }
+                  in
                   return
                   @@ List.fold_left
                        (fun accu id -> umap_add id item accu)
@@ -411,9 +405,12 @@ let build_elections_by_owner_cache () =
               let date =
                 Option.value se.se_creation_date
                   ~default:Web_defaults.creation_date
+                |> Datetime.to_unixfloat
               in
               let ids = se.se_owners in
-              let item = (`Draft, uuid, date, se.se_questions.t_name) in
+              let item : Belenios_api.Serializable_t.summary =
+                { state = `Draft; uuid; date; name = se.se_questions.t_name }
+              in
               return
               @@ List.fold_left (fun accu id -> umap_add id item accu) accu ids)
         (fun _ -> return accu))
@@ -740,9 +737,10 @@ let get_admin_context admin_id =
   let@ s = Storage.with_transaction in
   let* elections = get_elections_by_owner admin_id in
   let* elections =
+    let open Belenios_api.Serializable_t in
     Lwt_list.filter_map_s
       (function
-        | (`Open | `Closed | `Shuffling | `EncryptedTally), uuid, _, _ ->
+        | { state = `Open | `Closed | `Shuffling | `EncryptedTally; uuid; _ } ->
             let* cache = get_audit_cache s uuid in
             Lwt.return_some cache.cache_checksums.ec_num_voters
         | _ -> Lwt.return_none)

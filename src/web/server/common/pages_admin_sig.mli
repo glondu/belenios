@@ -31,11 +31,7 @@ module type S = sig
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val admin :
-    elections:
-      (uuid * string) list
-      * (uuid * string) list
-      * (uuid * string) list
-      * (uuid * string) list ->
+    elections:summary_list * summary_list * summary_list * summary_list ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val new_election_failure :
@@ -93,14 +89,14 @@ module type S = sig
   val election_draft_import :
     uuid ->
     draft_election ->
-    (uuid * string) list * (uuid * string) list * (uuid * string) list ->
+    summary_list * summary_list * summary_list ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val election_draft_import_trustees :
     uuid ->
     draft_election ->
-    (uuid * string) list * (uuid * string) list * (uuid * string) list ->
+    summary_list * summary_list * summary_list ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

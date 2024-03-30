@@ -47,8 +47,8 @@ struct
   let get_elections_by_owner_sorted u =
     let* elections = Web_persist.get_elections_by_owner u in
     let filter f =
-      List.filter (fun (x, _, _, _) -> f x) elections
-      |> List.map (fun (_, a, b, c) -> (a, b, c))
+      let open Belenios_api.Serializable_t in
+      List.filter (fun ({ state; _ } : summary) -> f state) elections
     in
     let draft = filter (fun x -> x = `Draft) in
     let elections =
@@ -59,8 +59,10 @@ struct
     let tallied = filter (fun x -> x = `Tallied) in
     let archived = filter (fun x -> x = `Archived) in
     let sort l =
-      List.sort (fun (_, x, _) (_, y, _) -> Datetime.compare x y) l
-      |> List.map (fun (x, _, y) -> (x, y))
+      let open Belenios_api.Serializable_t in
+      List.sort
+        (fun ({ date = x; _ } : summary) { date = y; _ } -> Float.compare x y)
+        l
     in
     return (sort draft, sort elections, sort tallied, sort archived)
 
