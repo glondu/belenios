@@ -503,14 +503,13 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
           let* elections = Web_persist.get_elections_by_owner account.id in
           let elections =
             List.fold_left
-              (fun accu (state, summary_uuid, date, summary_name) ->
-                let summary_date = Datetime.to_unixfloat date in
+              (fun accu (state, uuid, date, name) ->
+                let date = Datetime.to_unixfloat date in
                 match state with
                 | `Draft -> accu
                 | ( `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied
-                  | `Archived ) as summary_state ->
-                    { summary_uuid; summary_name; summary_date; summary_state }
-                    :: accu)
+                  | `Archived ) as state ->
+                    { uuid; name; date; state } :: accu)
               [] elections
           in
           Lwt.return (200, string_of_summary_list elections)

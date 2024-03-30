@@ -150,7 +150,7 @@ type summary = {
     name : string;
     date : float;
     state : state;
-} <ocaml field_prefix="summary_">
+}
 
 type summary_list = summary list
 

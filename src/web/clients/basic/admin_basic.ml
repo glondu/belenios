@@ -31,15 +31,13 @@ open Belenios_js.Session
 
 let context = ref `None
 
-let draft_a x =
-  let uuid = Uuid.unwrap x.summary_uuid in
-  a ~href:("#drafts/" ^ uuid)
-    (if x.summary_name = "" then "(no title)" else x.summary_name)
+let draft_a (x : summary) =
+  let uuid = Uuid.unwrap x.uuid in
+  a ~href:("#drafts/" ^ uuid) (if x.name = "" then "(no title)" else x.name)
 
-let election_a x =
-  let uuid = Uuid.unwrap x.summary_uuid in
-  a ~href:("#elections/" ^ uuid)
-    (if x.summary_name = "" then "(no title)" else x.summary_name)
+let election_a (x : summary) =
+  let uuid = Uuid.unwrap x.uuid in
+  a ~href:("#elections/" ^ uuid) (if x.name = "" then "(no title)" else x.name)
 
 let regexps =
   [
@@ -112,7 +110,7 @@ let rec show_root main =
   let@ drafts, ifmatch = with_ok "drafts" x in
   let* drafts =
     drafts
-    |> List.sort (fun a b -> compare b.summary_date a.summary_date)
+    |> List.sort (fun (a : summary) b -> compare b.date a.date)
     |> List.map (fun x -> li [ draft_a x ])
     |> fun xs -> Lwt.return [ ul xs ]
   in
@@ -128,8 +126,8 @@ let rec show_root main =
         Lwt.return (x (), x (), x ())
     | Ok (elections, _) ->
         let make f =
-          List.filter (fun x -> f x.summary_state) elections
-          |> List.sort (fun a b -> compare b.summary_date a.summary_date)
+          List.filter (fun (x : summary) -> f x.state) elections
+          |> List.sort (fun (a : summary) b -> compare b.date a.date)
           |> List.map (fun x -> li [ election_a x ])
           |> fun xs -> [ ul xs ]
         in

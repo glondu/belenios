@@ -78,14 +78,14 @@ let popup_choose_elec handler () =
       let name_uuids =
         elections
         |> List.filter (fun x ->
-               match x.summary_state with
+               match x.state with
                | `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied ->
                    true
                | `Draft | `Archived -> false)
-        |> List.map (fun x ->
+        |> List.map (fun (x : summary) ->
                let but =
                  button
-                   (x.summary_name ^ " (" ^ Uuid.unwrap x.summary_uuid ^ ")")
+                   (x.name ^ " (" ^ Uuid.unwrap x.uuid ^ ")")
                    (fun () ->
                      let* () =
                        let&&* d =
@@ -93,7 +93,7 @@ let popup_choose_elec handler () =
                        in
                        Lwt.return (d##.style##.display := Js.string "none")
                      in
-                     handler (Uuid.unwrap x.summary_uuid))
+                     handler (Uuid.unwrap x.uuid))
                in
                li [ but ])
       in
