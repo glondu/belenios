@@ -21,6 +21,6 @@
 
 type 'a t
 
-val create : 'a Election_mutex.t -> 'a t
+val create : 'a Indexed_mutex.t -> 'a t
 val lock : 'a t -> 'a -> unit Lwt.t
 val unlock : 'a t -> unit

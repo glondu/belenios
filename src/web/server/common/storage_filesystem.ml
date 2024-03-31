@@ -31,7 +31,7 @@ module type CONFIG = sig
 end
 
 module type S = sig
-  val mutexes : uuid option Election_mutex.t
+  val mutexes : uuid option Indexed_mutex.t
 
   val build_elections_by_owner_cache :
     (unit -> Belenios_api.Serializable_t.summary_list IMap.t Lwt.t) ref
@@ -43,7 +43,7 @@ exception Not_implemented of string
 
 module MakeBackend (Config : CONFIG) : S = struct
   (** {1 Mutexes} *)
-  let mutexes = Election_mutex.create ()
+  let mutexes = Indexed_mutex.create ()
 
   (** {1 Elections by owner cache} *)
 
@@ -570,7 +570,7 @@ module MakeBackend (Config : CONFIG) : S = struct
     new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
 
   let extended_records_deferrer =
-    Election_defer.create mutexes (function
+    Indexed_defer.create mutexes (function
       | None -> Lwt.return_unit
       | Some uuid ->
           let* x = extended_records_cache#find uuid in
@@ -591,7 +591,7 @@ module MakeBackend (Config : CONFIG) : S = struct
       |> (fun x -> [ x ])
       |> append_to_file (uuid /// extended_records_filename)
     in
-    Election_defer.defer extended_records_deferrer (Some uuid);
+    Indexed_defer.defer extended_records_deferrer (Some uuid);
     Lwt.return_unit
 
   let () =
@@ -640,7 +640,7 @@ module MakeBackend (Config : CONFIG) : S = struct
     new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
 
   let credential_mappings_deferrer =
-    Election_defer.create mutexes (function
+    Indexed_defer.create mutexes (function
       | None -> Lwt.return_unit
       | Some uuid ->
           let* x = credential_mappings_cache#find uuid in
@@ -681,7 +681,7 @@ module MakeBackend (Config : CONFIG) : S = struct
       |> (fun x -> [ x ])
       |> append_to_file (uuid /// credential_mappings_filename)
     in
-    Election_defer.defer credential_mappings_deferrer (Some uuid);
+    Indexed_defer.defer credential_mappings_deferrer (Some uuid);
     Lwt.return_unit
 
   let () =

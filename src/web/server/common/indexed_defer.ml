@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2023-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,52 +19,47 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
+
 module type S = sig
   type t
 
-  module TMap : Map.S with type key = t
+  module TSet : Set.S with type elt = t
 
-  val mutexes : unit Lwt.u Queue.t TMap.t ref
+  val mutexes : t Indexed_mutex.t
+  val task : t -> unit Lwt.t
+  val deferred : TSet.t ref
 end
 
 type 'a t = (module S with type t = 'a)
 
-let create (type a) () =
+let create (type a) mutexes task =
   let module X = struct
     type t = a
 
-    module TMap = Map.Make (struct
+    module TSet = Set.Make (struct
       type t = a
 
       let compare = Stdlib.compare
     end)
 
-    let mutexes = ref TMap.empty
+    let mutexes = mutexes
+    let task = task
+    let deferred = ref TSet.empty
   end in
   (module X : S with type t = a)
 
-let lock (type a) x key =
+let defer (type a) x key =
   let open (val x : S with type t = a) in
-  match TMap.find_opt key !mutexes with
-  | None ->
-      mutexes := TMap.add key (Queue.create ()) !mutexes;
-      Lwt.return_unit
-  | Some waiters ->
-      let t, u = Lwt.task () in
-      Queue.push u waiters;
-      t
-
-let unlock (type a) x key =
-  let open (val x : S with type t = a) in
-  match TMap.find_opt key !mutexes with
-  | None -> ()
-  | Some waiters -> (
-      match Queue.take_opt waiters with
-      | None -> mutexes := TMap.remove key !mutexes
-      | Some u -> Lwt.wakeup_later u ())
-
-let with_lock x key f =
-  Lwt.bind (lock x key) (fun () ->
-      Lwt.finalize f (fun () ->
-          unlock x key;
-          Lwt.return_unit))
+  match TSet.mem key !deferred with
+  | false ->
+      deferred := TSet.add key !deferred;
+      Lwt.async (fun () ->
+          Lwt.finalize
+            (fun () ->
+              let@ () = Indexed_mutex.with_lock mutexes key in
+              task key)
+            (fun () ->
+              deferred := TSet.remove key !deferred;
+              Lwt.return_unit))
+  | true -> ()

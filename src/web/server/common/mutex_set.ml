@@ -24,7 +24,7 @@ module type S = sig
 
   module TSet : Set.S with type elt = t
 
-  val indexed : t Election_mutex.t
+  val indexed : t Indexed_mutex.t
   val mutexes : TSet.t ref
 end
 
@@ -50,10 +50,10 @@ let lock (type a) x key =
   match TSet.mem key !mutexes with
   | false ->
       mutexes := TSet.add key !mutexes;
-      Election_mutex.lock indexed key
+      Indexed_mutex.lock indexed key
   | true -> Lwt.return_unit
 
 let unlock (type a) x =
   let open (val x : S with type t = a) in
-  TSet.iter (Election_mutex.unlock indexed) !mutexes;
+  TSet.iter (Indexed_mutex.unlock indexed) !mutexes;
   mutexes := TSet.empty

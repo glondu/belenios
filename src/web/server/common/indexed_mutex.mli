@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2023-2023 Inria                                           *)
+(*  Copyright © 2012-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -21,5 +21,7 @@
 
 type 'a t
 
-val create : 'a Election_mutex.t -> ('a -> unit Lwt.t) -> 'a t
-val defer : 'a t -> 'a -> unit
+val create : unit -> 'a t
+val lock : 'a t -> 'a -> unit Lwt.t
+val unlock : 'a t -> 'a -> unit
+val with_lock : 'a t -> 'a -> (unit -> 'b Lwt.t) -> 'b Lwt.t
