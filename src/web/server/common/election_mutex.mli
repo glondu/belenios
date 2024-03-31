@@ -19,6 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val lock : string -> unit Lwt.t
-val unlock : string -> unit
-val with_lock : string -> (unit -> 'a Lwt.t) -> 'a Lwt.t
+type 'a t
+
+val create : unit -> 'a t
+val lock : 'a t -> 'a -> unit Lwt.t
+val unlock : 'a t -> 'a -> unit
+val with_lock : 'a t -> 'a -> (unit -> 'b Lwt.t) -> 'b Lwt.t

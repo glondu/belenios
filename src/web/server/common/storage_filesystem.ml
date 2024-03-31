@@ -30,35 +30,21 @@ module type CONFIG = sig
   val accounts_dir : string
 end
 
-module type MUTEXES = sig
-  val lock : uuid option -> unit Lwt.t
-  val unlock : unit -> unit
-end
-
-module MakeMutexes () : MUTEXES = struct
-  let mutexes = ref SSet.empty
-
-  let lock uuid =
-    let uuid_s = match uuid with None -> "" | Some x -> Uuid.unwrap x in
-    match SSet.mem uuid_s !mutexes with
-    | false ->
-        mutexes := SSet.add uuid_s !mutexes;
-        Election_mutex.lock uuid_s
-    | true -> Lwt.return_unit
-
-  let unlock () = SSet.iter Election_mutex.unlock !mutexes
-end
-
 module type S = sig
+  val mutexes : uuid option Election_mutex.t
+
   val build_elections_by_owner_cache :
     (unit -> Belenios_api.Serializable_t.summary_list IMap.t Lwt.t) ref
 
-  module Make (Mutexes : MUTEXES) : Storage_sig.BACKEND
+  val make : uuid option Mutex_set.t -> (module Storage_sig.BACKEND)
 end
 
 exception Not_implemented of string
 
 module MakeBackend (Config : CONFIG) : S = struct
+  (** {1 Mutexes} *)
+  let mutexes = Election_mutex.create ()
+
   (** {1 Elections by owner cache} *)
 
   let elections_by_owner_cache = ref None
@@ -584,9 +570,11 @@ module MakeBackend (Config : CONFIG) : S = struct
     new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
 
   let extended_records_deferrer =
-    Election_defer.create (fun uuid ->
-        let* x = extended_records_cache#find uuid in
-        dump_extended_records uuid x)
+    Election_defer.create mutexes (function
+      | None -> Lwt.return_unit
+      | Some uuid ->
+          let* x = extended_records_cache#find uuid in
+          dump_extended_records uuid x)
 
   let find_extended_record uuid username =
     let* rs = extended_records_cache#find uuid in
@@ -603,7 +591,7 @@ module MakeBackend (Config : CONFIG) : S = struct
       |> (fun x -> [ x ])
       |> append_to_file (uuid /// extended_records_filename)
     in
-    Election_defer.defer extended_records_deferrer uuid;
+    Election_defer.defer extended_records_deferrer (Some uuid);
     Lwt.return_unit
 
   let () =
@@ -652,9 +640,11 @@ module MakeBackend (Config : CONFIG) : S = struct
     new CredMappingsCache.cache raw_get_credential_mappings ~timer:3600. 10
 
   let credential_mappings_deferrer =
-    Election_defer.create (fun uuid ->
-        let* x = credential_mappings_cache#find uuid in
-        dump_credential_mappings uuid x)
+    Election_defer.create mutexes (function
+      | None -> Lwt.return_unit
+      | Some uuid ->
+          let* x = credential_mappings_cache#find uuid in
+          dump_credential_mappings uuid x)
 
   let init_credential_mapping uuid =
     let* file = get (Election (uuid, Public_creds)) in
@@ -691,7 +681,7 @@ module MakeBackend (Config : CONFIG) : S = struct
       |> (fun x -> [ x ])
       |> append_to_file (uuid /// credential_mappings_filename)
     in
-    Election_defer.defer credential_mappings_deferrer uuid;
+    Election_defer.defer credential_mappings_deferrer (Some uuid);
     Lwt.return_unit
 
   let () =
@@ -1132,54 +1122,56 @@ module MakeBackend (Config : CONFIG) : S = struct
     index.roots <- roots;
     Lwt.return_true
 
-  module Make (Mutexes : MUTEXES) : Storage_sig.BACKEND = struct
+  let make set =
     let with_lock uuid f =
-      let* () = Mutexes.lock uuid in
+      let* () = Mutex_set.lock set uuid in
       f ()
-
+    in
     let with_lock_file x f =
       let uuid = match x with Election (uuid, _) -> Some uuid | _ -> None in
       with_lock uuid f
+    in
+    let module X = struct
+      let get_as_file f = with_lock_file f (fun () -> get_as_file f)
+      let get f = with_lock_file f (fun () -> get f)
+      let update f = with_lock_file f (fun () -> update f)
+      let create f x = with_lock_file f (fun () -> create f x)
+      let ensure f x = with_lock_file f (fun () -> ensure f x)
+      let del f = with_lock_file f (fun () -> del f)
+      let list_accounts () = with_lock None list_accounts
+      let get_elections_by_owner = get_elections_by_owner
+      let list_elections () = with_lock None list_elections
+      let new_election () = with_lock None new_election
+      let new_account_id () = with_lock None new_account_id
 
-    let get_as_file f = with_lock_file f (fun () -> get_as_file f)
-    let get f = with_lock_file f (fun () -> get f)
-    let update f = with_lock_file f (fun () -> update f)
-    let create f x = with_lock_file f (fun () -> create f x)
-    let ensure f x = with_lock_file f (fun () -> ensure f x)
-    let del f = with_lock_file f (fun () -> del f)
-    let list_accounts () = with_lock None list_accounts
-    let get_elections_by_owner = get_elections_by_owner
-    let list_elections () = with_lock None list_elections
-    let new_election () = with_lock None new_election
-    let new_account_id () = with_lock None new_account_id
+      let init_credential_mapping uuid =
+        with_lock (Some uuid) (fun () -> init_credential_mapping uuid)
 
-    let init_credential_mapping uuid =
-      with_lock (Some uuid) (fun () -> init_credential_mapping uuid)
+      let delete_election uuid =
+        with_lock (Some uuid) (fun () -> delete_election uuid)
 
-    let delete_election uuid =
-      with_lock (Some uuid) (fun () -> delete_election uuid)
+      let delete_sensitive_data uuid =
+        with_lock (Some uuid) (fun () -> delete_sensitive_data uuid)
 
-    let delete_sensitive_data uuid =
-      with_lock (Some uuid) (fun () -> delete_sensitive_data uuid)
+      let delete_live_data uuid =
+        with_lock (Some uuid) (fun () -> delete_live_data uuid)
 
-    let delete_live_data uuid =
-      with_lock (Some uuid) (fun () -> delete_live_data uuid)
-
-    let append uuid ?last ops =
-      with_lock (Some uuid) (fun () -> append uuid ?last ops)
-  end
+      let append uuid ?last ops =
+        with_lock (Some uuid) (fun () -> append uuid ?last ops)
+    end in
+    (module X : Storage_sig.BACKEND)
 end
 
 module Make (Config : CONFIG) : Storage_sig.S = struct
   module B = MakeBackend (Config)
 
   let with_transaction f =
-    let module Mutexes = MakeMutexes () in
-    let module Backend = B.Make (Mutexes) in
+    let set = Mutex_set.create B.mutexes in
+    let x = B.make set in
     Lwt.finalize
-      (fun () -> f (module Backend : Storage_sig.BACKEND))
+      (fun () -> f x)
       (fun () ->
-        Mutexes.unlock ();
+        Mutex_set.unlock set;
         Lwt.return_unit)
 
   let get_live_election_summary s uuid =

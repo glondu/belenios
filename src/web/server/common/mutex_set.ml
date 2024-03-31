@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2023-2023 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,7 +19,41 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type 'a t
+module type S = sig
+  type t
 
-val create : 'a Election_mutex.t -> ('a -> unit Lwt.t) -> 'a t
-val defer : 'a t -> 'a -> unit
+  module TSet : Set.S with type elt = t
+
+  val indexed : t Election_mutex.t
+  val mutexes : TSet.t ref
+end
+
+type 'a t = (module S with type t = 'a)
+
+let create (type a) indexed =
+  let module X = struct
+    type t = a
+
+    module TSet = Set.Make (struct
+      type t = a
+
+      let compare = Stdlib.compare
+    end)
+
+    let indexed = indexed
+    let mutexes = ref TSet.empty
+  end in
+  (module X : S with type t = a)
+
+let lock (type a) x key =
+  let open (val x : S with type t = a) in
+  match TSet.mem key !mutexes with
+  | false ->
+      mutexes := TSet.add key !mutexes;
+      Election_mutex.lock indexed key
+  | true -> Lwt.return_unit
+
+let unlock (type a) x =
+  let open (val x : S with type t = a) in
+  TSet.iter (Election_mutex.unlock indexed) !mutexes;
+  mutexes := TSet.empty

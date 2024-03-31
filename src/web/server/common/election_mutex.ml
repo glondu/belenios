@@ -19,30 +19,52 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
+module type S = sig
+  type t
 
-let mutexes = ref SMap.empty
+  module TMap : Map.S with type key = t
 
-let lock uuid_s =
-  match SMap.find_opt uuid_s !mutexes with
+  val mutexes : unit Lwt.u Queue.t TMap.t ref
+end
+
+type 'a t = (module S with type t = 'a)
+
+let create (type a) () =
+  let module X = struct
+    type t = a
+
+    module TMap = Map.Make (struct
+      type t = a
+
+      let compare = Stdlib.compare
+    end)
+
+    let mutexes = ref TMap.empty
+  end in
+  (module X : S with type t = a)
+
+let lock (type a) x key =
+  let open (val x : S with type t = a) in
+  match TMap.find_opt key !mutexes with
   | None ->
-      mutexes := SMap.add uuid_s (Queue.create ()) !mutexes;
+      mutexes := TMap.add key (Queue.create ()) !mutexes;
       Lwt.return_unit
   | Some waiters ->
       let t, u = Lwt.task () in
       Queue.push u waiters;
       t
 
-let unlock uuid_s =
-  match SMap.find_opt uuid_s !mutexes with
+let unlock (type a) x key =
+  let open (val x : S with type t = a) in
+  match TMap.find_opt key !mutexes with
   | None -> ()
   | Some waiters -> (
       match Queue.take_opt waiters with
-      | None -> mutexes := SMap.remove uuid_s !mutexes
+      | None -> mutexes := TMap.remove key !mutexes
       | Some u -> Lwt.wakeup_later u ())
 
-let with_lock uuid_s f =
-  Lwt.bind (lock uuid_s) (fun () ->
+let with_lock x key f =
+  Lwt.bind (lock x key) (fun () ->
       Lwt.finalize f (fun () ->
-          unlock uuid_s;
+          unlock x key;
           Lwt.return_unit))

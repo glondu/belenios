@@ -21,21 +21,45 @@
 
 open Belenios
 
-type t = { task : Uuid.t -> unit Lwt.t; mutable deferred : SSet.t }
+module type S = sig
+  type t
 
-let create task = { task; deferred = SSet.empty }
+  module TSet : Set.S with type elt = t
 
-let defer t uuid =
-  let uuid_s = Uuid.unwrap uuid in
-  match SSet.mem uuid_s t.deferred with
+  val mutexes : t Election_mutex.t
+  val task : t -> unit Lwt.t
+  val deferred : TSet.t ref
+end
+
+type 'a t = (module S with type t = 'a)
+
+let create (type a) mutexes task =
+  let module X = struct
+    type t = a
+
+    module TSet = Set.Make (struct
+      type t = a
+
+      let compare = Stdlib.compare
+    end)
+
+    let mutexes = mutexes
+    let task = task
+    let deferred = ref TSet.empty
+  end in
+  (module X : S with type t = a)
+
+let defer (type a) x key =
+  let open (val x : S with type t = a) in
+  match TSet.mem key !deferred with
   | false ->
-      t.deferred <- SSet.add uuid_s t.deferred;
+      deferred := TSet.add key !deferred;
       Lwt.async (fun () ->
           Lwt.finalize
             (fun () ->
-              let@ () = Election_mutex.with_lock uuid_s in
-              t.task uuid)
+              let@ () = Election_mutex.with_lock mutexes key in
+              task key)
             (fun () ->
-              t.deferred <- SSet.remove uuid_s t.deferred;
+              deferred := TSet.remove key !deferred;
               Lwt.return_unit))
   | true -> ()
