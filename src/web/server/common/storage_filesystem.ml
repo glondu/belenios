@@ -441,8 +441,6 @@ module MakeBackend (Config : CONFIG) : S = struct
     in
     loop 10
 
-  let cleanup_election uuid = rmdir !!(Uuid.unwrap uuid)
-
   let copy_file src dst =
     let open Lwt_io in
     chars_of_file src |> chars_to_file dst
@@ -854,6 +852,11 @@ module MakeBackend (Config : CONFIG) : S = struct
 
   (** {1 Cleaning operations} *)
 
+  let delete_election uuid =
+    let* () = rmdir !!(Uuid.unwrap uuid) in
+    clear_elections_by_owner_cache ();
+    Lwt.return_unit
+
   let delete_sensitive_data uuid =
     let* () =
       Lwt_list.iter_p
@@ -1148,14 +1151,13 @@ module MakeBackend (Config : CONFIG) : S = struct
     let get_elections_by_owner = get_elections_by_owner
     let list_elections () = with_lock None list_elections
     let new_election () = with_lock None new_election
-
-    let delete_election uuid =
-      with_lock (Some uuid) (fun () -> cleanup_election uuid)
-
     let new_account_id () = with_lock None new_account_id
 
     let init_credential_mapping uuid =
       with_lock (Some uuid) (fun () -> init_credential_mapping uuid)
+
+    let delete_election uuid =
+      with_lock (Some uuid) (fun () -> delete_election uuid)
 
     let delete_sensitive_data uuid =
       with_lock (Some uuid) (fun () -> delete_sensitive_data uuid)
