@@ -1,7 +1,7 @@
 (library
  (name belenios_server_core)
  (libraries belenios-platform-native belenios-lib belenios-server.api
-   belenios_ui lwt calendar csv eliom.server gettext-camomile netstring)
+   lwt.unix calendar)
  (modules_without_implementation storage_sig))
 
 (rule

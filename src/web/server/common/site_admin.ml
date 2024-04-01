@@ -853,7 +853,7 @@ struct
     Any.register ~service:election_draft_credentials_post_file
       (fun (uuid, token) creds ->
         let@ () = without_site_user () in
-        let* creds = Filesystem.exhaust_file creds in
+        let* creds = exhaust_file creds in
         wrap_handler (fun () -> handle_credentials_post uuid token creds))
 
   let () =

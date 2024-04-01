@@ -341,3 +341,9 @@ let has_explicit_weights voters =
       let (_, { weight; _ }) : Voter.t = v.sv_id in
       weight <> None)
     voters
+
+let exhaust_file file =
+  let fname = file.Ocsigen_extensions.tmp_filename in
+  let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
+  let* () = Lwt_unix.unlink fname in
+  Lwt.return result

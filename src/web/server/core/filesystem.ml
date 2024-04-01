@@ -54,9 +54,3 @@ let read_file_i18n ~lang f =
     Lwt.return (if b then f' else f)
   in
   read_file f
-
-let exhaust_file file =
-  let fname = file.Ocsigen_extensions.tmp_filename in
-  let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
-  let* () = Lwt_unix.unlink fname in
-  Lwt.return result

@@ -29,4 +29,3 @@ val cleanup_file : string -> unit Lwt.t
 (** {1 Misc} *)
 
 val read_file_i18n : lang:string -> string -> string option Lwt.t
-val exhaust_file : Ocsigen_multipart.file_info -> string Lwt.t
