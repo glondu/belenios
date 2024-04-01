@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
+open Belenios_server_core
 
 let default_lang = "en"
 let devel_lang = "en_devel"

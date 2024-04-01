@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_server_core
 
 val get_roots : roots Lwt.t Storage_sig.u
 val get_data : (hash -> string option Lwt.t) Storage_sig.u

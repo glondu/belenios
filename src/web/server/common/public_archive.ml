@@ -21,8 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
-open Core
+open Belenios_server_core
 
 exception Not_in_cache
 

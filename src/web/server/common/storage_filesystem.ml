@@ -21,8 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
-open Core
+open Belenios_server_core
 open Storage_sig
 
 module type CONFIG = sig
@@ -493,7 +492,7 @@ module MakeBackend (Config : CONFIG) : S = struct
       match state with
       | None -> true
       | Some x -> (
-          match Web_serializable_j.election_state_of_string x with
+          match election_state_of_string x with
           | `Tallied | `Archived -> true
           | _ -> false)
     in
@@ -1216,14 +1215,12 @@ module Make (Config : CONFIG) : Storage_sig.S = struct
       match state with
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
           Lwt.return
-          @@ Option.value dates.e_finalization
-               ~default:Web_defaults.validation_date
+          @@ Option.value dates.e_finalization ~default:Defaults.validation_date
       | `Tallied ->
-          Lwt.return
-          @@ Option.value dates.e_tally ~default:Web_defaults.tally_date
+          Lwt.return @@ Option.value dates.e_tally ~default:Defaults.tally_date
       | `Archived ->
           Lwt.return
-          @@ Option.value dates.e_archive ~default:Web_defaults.archive_date
+          @@ Option.value dates.e_archive ~default:Defaults.archive_date
     in
     let date = Datetime.to_unixfloat date in
     let state = (state :> Belenios_api.Serializable_t.state) in
@@ -1234,7 +1231,7 @@ module Make (Config : CONFIG) : Storage_sig.S = struct
 
   let get_draft_election_summary uuid se =
     let date =
-      Option.value ~default:Web_defaults.creation_date se.se_creation_date
+      Option.value ~default:Defaults.creation_date se.se_creation_date
       |> Datetime.to_unixfloat
     in
     let name = se.se_questions.t_name in

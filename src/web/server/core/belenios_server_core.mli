@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2024-2024 Inria                                           *)
+(*  Copyright © 2012-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,12 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type CONFIG = sig
-  val uuid_length : int
-  val account_id_min : Belenios_platform.Platform.Z.t
-  val account_id_max : Belenios_platform.Platform.Z.t
-  val spool_dir : string
-  val accounts_dir : string
-end
-
-module Make (Config : CONFIG) : Belenios_server_core.Storage_sig.S
+include module type of Web_serializable_j
+include module type of Core
+module Filesystem = Filesystem
+module Storage_sig = Storage_sig
+module Defaults = Defaults

@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Web_serializable_t
+open Belenios_server_core
 
 module type S = sig
   val election_home :

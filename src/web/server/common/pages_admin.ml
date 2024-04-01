@@ -23,9 +23,8 @@ open Lwt
 open Lwt.Syntax
 open Belenios
 open Belenios_api.Serializable_t
-open Web_serializable_j
+open Belenios_server_core
 open Web_common
-open Core
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 
@@ -592,7 +591,7 @@ struct
                 (let value =
                    match se.se_metadata.e_contact with
                    | Some x -> x
-                   | None -> Web_defaults.contact
+                   | None -> Defaults.contact
                  in
                  input ~name:contact ~input_type:`Text ~value
                    ~a:[ a_placeholder (s_ "Name <user@example.org>") ]
@@ -783,9 +782,9 @@ struct
     in
     let form_destroy =
       let t =
-        Option.value se.se_creation_date ~default:Web_defaults.creation_date
+        Option.value se.se_creation_date ~default:Defaults.creation_date
       in
-      let t = Period.add t (Period.day Web_defaults.days_to_delete) in
+      let t = Period.add t (Period.day Defaults.days_to_delete) in
       post_form ~service:election_draft_destroy
         (fun () ->
           [
@@ -2283,12 +2282,12 @@ struct
     let* s = Api_drafts.get_draft_status s uuid fse in
     let ready = true in
     let ready, name =
-      if se.se_questions.t_name = Web_defaults.name then
+      if se.se_questions.t_name = Defaults.name then
         (false, notok (s_ "Not edited"))
       else (ready, ok "OK")
     in
     let ready, description =
-      if se.se_questions.t_description = Web_defaults.description then
+      if se.se_questions.t_description = Defaults.description then
         (false, notok (s_ "Not edited"))
       else (ready, ok "OK")
     in
@@ -2299,7 +2298,7 @@ struct
     let ready, questions =
       if
         Belenios.Election.get_questions (Template (v, se.se_questions))
-        = Web_defaults.questions
+        = Defaults.questions
       then (false, notok (s_ "Not edited"))
       else (ready, ok "OK")
     in
@@ -2865,7 +2864,7 @@ struct
                               (f_
                                  "You may postpone the publication of the \
                                   election result up to %d days in the future.")
-                              Web_defaults.days_to_publish_result;
+                              Defaults.days_to_publish_result;
                           ];
                         div
                           [

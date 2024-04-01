@@ -20,8 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Core
-open Web_serializable_t
+open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
 type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error

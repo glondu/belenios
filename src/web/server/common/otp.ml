@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Core
+open Belenios_server_core
 
 module type SENDER = sig
   type payload

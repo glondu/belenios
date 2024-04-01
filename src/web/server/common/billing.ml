@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios_api.Serializable_j
-open Core
+open Belenios_server_core
 open Api_generic
 module F = Ocsipersist.Functorial
 

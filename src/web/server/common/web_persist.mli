@@ -20,9 +20,8 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_server_core
 open Web_common
-open Core
-open Web_serializable_t
 
 (** {1 Spool version} *)
 

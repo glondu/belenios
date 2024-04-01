@@ -458,8 +458,6 @@ src/web/server/common/api_generic.mli
 src/web/server/common/billing.ml
 src/web/server/common/billing.mli
 src/web/server/common/dune
-src/web/server/common/filesystem.ml
-src/web/server/common/filesystem.mli
 src/web/server/common/indexed_defer.ml
 src/web/server/common/indexed_defer.mli
 src/web/server/common/indexed_mutex.ml
@@ -496,7 +494,6 @@ src/web/server/common/storage.ml
 src/web/server/common/storage.mli
 src/web/server/common/storage_filesystem.ml
 src/web/server/common/storage_filesystem.mli
-src/web/server/common/storage_sig.mli
 src/web/server/common/web_auth.ml
 src/web/server/common/web_auth.mli
 src/web/server/common/web_auth_cas.ml
@@ -519,8 +516,6 @@ src/web/server/common/web_config.mli
 src/web/server/common/web_cont.ml
 src/web/server/common/web_cont.mli
 src/web/server/common/web_cont_sig.mli
-src/web/server/common/web_defaults.ml
-src/web/server/common/web_defaults.mli
 src/web/server/common/web_i18n.ml
 src/web/server/common/web_i18n.mli
 src/web/server/common/web_i18n_sig.mli
@@ -528,7 +523,6 @@ src/web/server/common/web_main.ml
 src/web/server/common/web_main.mli
 src/web/server/common/web_persist.ml
 src/web/server/common/web_persist.mli
-src/web/server/common/web_serializable.atd
 src/web/server/common/web_services.ml
 src/web/server/common/web_services.mli
 src/web/server/common/web_services_sig.mli
@@ -537,8 +531,19 @@ src/web/server/common/web_signup.mli
 src/web/server/common/web_state.ml
 src/web/server/common/web_state.mli
 src/web/server/common/web_state_sig.mli
-src/web/server/common/web_types.ml
-src/web/server/common/web_types.mli
+src/web/server/core/belenios_server_core.ml
+src/web/server/core/belenios_server_core.mli
+src/web/server/core/core.ml
+src/web/server/core/core.mli
+src/web/server/core/defaults.ml
+src/web/server/core/defaults.mli
+src/web/server/core/dune
+src/web/server/core/filesystem.ml
+src/web/server/core/filesystem.mli
+src/web/server/core/storage_sig.mli
+src/web/server/core/web_serializable.atd
+src/web/server/core/web_types.ml
+src/web/server/core/web_types.mli
 src/web/server/executable/dune
 src/web/server/executable/server.ml
 src/web/server/module/dune

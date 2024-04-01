@@ -23,9 +23,8 @@ open Lwt.Syntax
 open Belenios
 open Belenios_api.Serializable_j
 open Belenios_api.Common
-open Web_serializable_j
+open Belenios_server_core
 open Web_common
-open Core
 open Api_generic
 
 let with_administrator token (Draft (_, se)) f =
@@ -116,7 +115,7 @@ let draft_of_api a uuid (Draft (v, se) as fse)
   in
   let@ () =
     assert_ (`Invalid "booth version")
-      (List.mem d.draft_booth Web_defaults.supported_booth_versions)
+      (List.mem d.draft_booth Defaults.supported_booth_versions)
   in
   let@ () =
     assert_ (`Invalid "languages") (List.length d.draft_languages >= 1)
@@ -200,7 +199,7 @@ let post_drafts account s draft =
       t_credential_authority = None;
     }
   in
-  let se_version = Web_defaults.version in
+  let se_version = Defaults.version in
   let (Version v) = Belenios.Election.version_of_int se_version in
   let se =
     {

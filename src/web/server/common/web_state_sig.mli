@@ -20,8 +20,8 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_server_core
 open Web_common
-open Web_serializable_t
 
 type signup_kind = CreateAccount | ChangePassword of { username : string }
 type signup_env = { kind : signup_kind; service : string }

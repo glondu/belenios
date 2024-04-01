@@ -21,10 +21,9 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
+open Belenios_server_core
 open Belenios_api.Serializable_j
 open Web_common
-open Core
 open Api_generic
 
 let with_administrator token metadata f =
@@ -77,29 +76,28 @@ let get_election_status s uuid =
   let status_auto_archive_date =
     match status_state with
     | `Tallied ->
-        let t = Option.value d.e_tally ~default:Web_defaults.tally_date in
+        let t = Option.value d.e_tally ~default:Defaults.tally_date in
         Some
           (Datetime.to_unixfloat
-          @@ Period.add t (Period.day Web_defaults.days_to_archive))
+          @@ Period.add t (Period.day Defaults.days_to_archive))
     | _ -> None
   in
   let status_auto_delete_date =
     match status_state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t =
-          Option.value d.e_finalization ~default:Web_defaults.validation_date
+          Option.value d.e_finalization ~default:Defaults.validation_date
         in
         Datetime.to_unixfloat
-        @@ Period.add t (Period.day Web_defaults.days_to_delete)
+        @@ Period.add t (Period.day Defaults.days_to_delete)
     | `Tallied ->
-        let t = Option.value d.e_tally ~default:Web_defaults.tally_date in
+        let t = Option.value d.e_tally ~default:Defaults.tally_date in
         Datetime.to_unixfloat
-        @@ Period.add t
-             (Period.day Web_defaults.(days_to_archive + days_to_delete))
+        @@ Period.add t (Period.day Defaults.(days_to_archive + days_to_delete))
     | `Archived ->
-        let t = Option.value d.e_archive ~default:Web_defaults.archive_date in
+        let t = Option.value d.e_archive ~default:Defaults.archive_date in
         Datetime.to_unixfloat
-        @@ Period.add t (Period.day Web_defaults.days_to_delete)
+        @@ Period.add t (Period.day Defaults.days_to_delete)
   in
   let* postpone = Web_persist.get_election_result_hidden s uuid in
   Lwt.return
@@ -184,7 +182,7 @@ let set_postpone_date s uuid date =
         let t = Datetime.from_unixfloat t in
         let max =
           Period.add (Datetime.now ())
-            (Period.day Web_defaults.days_to_publish_result)
+            (Period.day Defaults.days_to_publish_result)
         in
         if Datetime.compare t max > 0 then Lwt.return_false else cont (Some t)
   in

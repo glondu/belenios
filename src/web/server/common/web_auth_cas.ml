@@ -23,6 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Eliom_service
 open Belenios
+open Belenios_server_core
 open Web_common
 
 module Make (Web_auth : Web_auth_sig.S) = struct
@@ -126,7 +127,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
   let handler _ a =
     let module X = struct
       let pre_login_handler _ ~state =
-        match List.assoc_opt "server" a.Web_serializable_t.auth_config with
+        match List.assoc_opt "server" a.auth_config with
         | Some server ->
             let cas_login =
               Eliom_service.extern ~prefix:server ~path:[ "login" ]
@@ -153,9 +154,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
       {
         Web_auth.post_login_handler =
           (fun ~data:_ _ a cont ->
-            match
-              (ticket, List.assoc_opt "server" a.Web_serializable_t.auth_config)
-            with
+            match (ticket, List.assoc_opt "server" a.auth_config) with
             | Some x, Some server -> (
                 let* r = get_cas_validation server ~state x in
                 match r with

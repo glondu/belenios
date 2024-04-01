@@ -21,9 +21,8 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
+open Belenios_server_core
 open Web_common
-open Core
 
 type 'a file = {
   of_string : string -> 'a;

@@ -20,9 +20,8 @@
 (**************************************************************************)
 
 open Belenios_api.Serializable_t
-open Web_serializable_t
+open Belenios_server_core
 open Web_common
-open Core
 
 module type S = sig
   val privacy_notice : privacy_cont -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
@@ -110,7 +109,7 @@ module type S = sig
     ?tally_token:string ->
     Storage_sig.t ->
     (module Site_common_sig.ELECTION) ->
-    Web_serializable_j.metadata ->
+    metadata ->
     election_status ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t

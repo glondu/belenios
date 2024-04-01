@@ -22,8 +22,7 @@
 open Lwt.Syntax
 open Lwt.Infix
 open Belenios
-open Core
-open Web_serializable_j
+open Belenios_server_core
 
 module UMap = Map.Make (struct
   type t = user

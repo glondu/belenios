@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Web_serializable_t
+open Belenios_server_core
 
 type 'a t
 
@@ -31,7 +31,7 @@ val create : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
 val ensure : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
 
 (* draft elections *)
-val draft : Core.draft_election t
+val draft : draft_election t
 val draft_public_credentials : public_credentials t
 
 (* sensitive data *)

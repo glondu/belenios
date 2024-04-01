@@ -20,11 +20,10 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Web_serializable_t
 open Belenios
 open Belenios_api.Serializable_j
+open Belenios_server_core
 open Web_common
-open Core
 
 let ( let& ) = Option.bind
 
@@ -98,7 +97,7 @@ let handle_get_option get =
   match x with None -> not_found | Some x -> Lwt.return (200, x)
 
 let get_configuration () =
-  let open Web_defaults in
+  let open Defaults in
   {
     restricted_mode = !Web_config.restricted_mode;
     privacy_policy = !Web_config.gdpr_uri;

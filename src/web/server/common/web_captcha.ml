@@ -21,8 +21,8 @@
 
 open Lwt.Syntax
 open Belenios
+open Belenios_server_core
 open Web_common
-open Core
 
 type captcha = {
   content_type : string;

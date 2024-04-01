@@ -20,23 +20,23 @@
 (**************************************************************************)
 
 open Belenios
-open Web_serializable_t
+open Belenios_server_core
 
 val generate_password_email :
-  Web_serializable_t.metadata ->
+  metadata ->
   string list ->
   string ->
-  Web_serializable_t.uuid ->
+  uuid ->
   Voter.t ->
   bool ->
   (bulk_email * (string * string)) Lwt.t
 
 val generate_credential_email :
-  Web_serializable_t.uuid ->
-  Core.draft_election ->
+  uuid ->
+  draft_election ->
   recipient:string ->
   login:string ->
-  weight:Web_serializable_t.weight ->
+  weight:weight ->
   credential:string ->
   bulk_email Lwt.t
 
@@ -47,7 +47,7 @@ val mail_confirmation :
   (module Belenios_ui.I18n.GETTEXT) ->
   string ->
   string ->
-  Web_serializable_t.weight option ->
+  weight option ->
   string ->
   bool ->
   string ->

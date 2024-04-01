@@ -19,8 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_server_core
 open Web_common
-open Web_serializable_t
 open Belenios_api.Serializable_t
 open Api_generic
 

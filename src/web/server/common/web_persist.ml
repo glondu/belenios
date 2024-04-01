@@ -22,9 +22,8 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
+open Belenios_server_core
 open Web_common
-open Core
 
 let get_spool_version () =
   let@ s = Storage.with_transaction in
@@ -697,7 +696,7 @@ let delete_election s uuid =
         | None -> (
             match dates.e_creation with
             | Some x -> x
-            | None -> Web_defaults.validation_date))
+            | None -> Defaults.validation_date))
   in
   let de_authentication_method =
     match metadata.e_auth_config with
@@ -881,7 +880,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let group = Group.of_string ~version se.se_group in
   let module G = (val group : GROUP) in
   let trustees =
-    let open Web_serializable_j in
+    let open Belenios_server_core in
     se.se_trustees
     |> string_of_draft_trustees Yojson.Safe.write_json
     |> draft_trustees_of_string (sread G.Zq.of_string)
@@ -1118,10 +1117,8 @@ let finish_shuffling s uuid =
 let extract_automatic_data_draft s uuid =
   let* se = Spool.get s uuid Spool.draft in
   let&* (Draft (_, se)) = se in
-  let t =
-    Option.value se.se_creation_date ~default:Web_defaults.creation_date
-  in
-  let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
+  let t = Option.value se.se_creation_date ~default:Defaults.creation_date in
+  let next_t = Period.add t (Period.day Defaults.days_to_delete) in
   return_some (`Destroy, uuid, next_t)
 
 let extract_automatic_data_validated s uuid =
@@ -1132,17 +1129,17 @@ let extract_automatic_data_validated s uuid =
   match state with
   | `Open | `Closed | `Shuffling | `EncryptedTally ->
       let t =
-        Option.value dates.e_finalization ~default:Web_defaults.validation_date
+        Option.value dates.e_finalization ~default:Defaults.validation_date
       in
-      let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
+      let next_t = Period.add t (Period.day Defaults.days_to_delete) in
       return_some (`Delete, uuid, next_t)
   | `Tallied ->
-      let t = Option.value dates.e_tally ~default:Web_defaults.tally_date in
-      let next_t = Period.add t (Period.day Web_defaults.days_to_archive) in
+      let t = Option.value dates.e_tally ~default:Defaults.tally_date in
+      let next_t = Period.add t (Period.day Defaults.days_to_archive) in
       return_some (`Archive, uuid, next_t)
   | `Archived ->
-      let t = Option.value dates.e_archive ~default:Web_defaults.archive_date in
-      let next_t = Period.add t (Period.day Web_defaults.days_to_delete) in
+      let t = Option.value dates.e_archive ~default:Defaults.archive_date in
+      let next_t = Period.add t (Period.day Defaults.days_to_delete) in
       return_some (`Delete, uuid, next_t)
 
 let try_extract extract s uuid =
@@ -1172,10 +1169,7 @@ let set_election_state s uuid state =
   in
   match allowed with
   | Some set_state ->
-      let* () =
-        set_state
-          (state : [ `Open | `Closed ] :> Web_serializable_t.election_state)
-      in
+      let* () = set_state (state : [ `Open | `Closed ] :> election_state) in
       let* dates, set_dates = update_election_dates s uuid in
       let* () =
         set_dates { dates with e_auto_open = None; e_auto_close = None }

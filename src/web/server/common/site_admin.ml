@@ -22,9 +22,8 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
+open Belenios_server_core
 open Web_common
-open Core
 module Pages_admin_root = Pages_admin
 
 module Make
@@ -221,9 +220,9 @@ struct
     let open (val Belenios.Election.get_serializers v) in
     let draft_questions =
       {
-        t_description = Web_defaults.description;
-        t_name = Web_defaults.name;
-        t_questions = Array.map of_concrete Web_defaults.questions;
+        t_description = Defaults.description;
+        t_name = Defaults.name;
+        t_questions = Array.map of_concrete Defaults.questions;
         t_administrator = Some account.name;
         t_credential_authority =
           Some (match cred with `Automatic -> "server" | `Manual -> "");
@@ -234,7 +233,7 @@ struct
     in
     let draft =
       {
-        draft_version = Web_defaults.version;
+        draft_version = Defaults.version;
         draft_owners = [ account.id ];
         draft_questions;
         draft_languages = [ "en"; "fr" ];
@@ -473,7 +472,7 @@ struct
         let@ s = Storage.with_transaction in
         let@ (Draft (_, se)) = with_draft s uuid in
         let contact =
-          if contact = "" || contact = Web_defaults.contact then None
+          if contact = "" || contact = Defaults.contact then None
           else Some contact
         in
         se.se_metadata <- { se.se_metadata with e_contact = contact };
@@ -494,11 +493,11 @@ struct
         let@ (Draft (_, se)) = with_draft s uuid in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        if Stdlib.String.length name > Web_defaults.max_election_name_size then
+        if Stdlib.String.length name > Defaults.max_election_name_size then
           let msg =
             Printf.sprintf
               (f_ "The election name must be %d characters or less!")
-              Web_defaults.max_election_name_size
+              Defaults.max_election_name_size
           in
           Pages_common.generic_page ~title:(s_ "Error") msg () >>= Html.send
         else (
@@ -516,7 +515,7 @@ struct
            (Printf.sprintf
               (f_ "Cannot send passwords, there are too many voters (max is %d)")
               max_voters))
-    else if se.se_questions.t_name = Web_defaults.name then
+    else if se.se_questions.t_name = Defaults.name then
       Lwt.fail (Failure (s_ "The election name has not been edited!"))
     else
       let title = se.se_questions.t_name in
@@ -865,7 +864,7 @@ struct
         let max_voters = Accounts.max_voters account in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        if se.se_questions.t_name = Web_defaults.name then
+        if se.se_questions.t_name = Defaults.name then
           Lwt.fail (Failure (s_ "The election name has not been edited!"))
         else
           let* x = Api_drafts.generate_credentials_on_server account uuid x in
@@ -1199,7 +1198,7 @@ struct
       let msg =
         Printf.sprintf
           (f_ "The date must be less than %d days in the future!")
-          Web_defaults.days_to_publish_result
+          Defaults.days_to_publish_result
       in
       Pages_common.generic_page ~title:(s_ "Error") ~service msg ()
       >>= Html.send

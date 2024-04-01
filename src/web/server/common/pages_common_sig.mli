@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_server_core
+
 module type S = sig
   val direct_a :
     ?target:string ->
@@ -94,7 +96,7 @@ module type S = sig
     content:[< Html_types.div_content_fun ] Eliom_content.Html.elt list ->
     ?footer:Html_types.div_content_fun Eliom_content.Html.elt ->
     ?sticky_footer:Html_types.div_content_fun Eliom_content.Html.elt ->
-    ?uuid:Web_serializable_t.uuid ->
+    ?uuid:uuid ->
     ?static:bool ->
     ?redirect:string ->
     unit ->

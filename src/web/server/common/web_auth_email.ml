@@ -22,7 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
-open Web_serializable_t
+open Belenios_server_core
 open Web_common
 
 type login_env = {

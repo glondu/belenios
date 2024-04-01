@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_t
+open Belenios_server_core
 
 val create_account :
   Storage_sig.t -> email:string option -> user -> account Lwt.t

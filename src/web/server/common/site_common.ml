@@ -22,8 +22,8 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
+open Belenios_server_core
 open Web_common
-open Core
 
 module Make (X : Pages_sig.S) = struct
   open X
