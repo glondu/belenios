@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2012-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -22,35 +22,23 @@
 open Belenios
 open Web_serializable_t
 
-val generate_password_email :
-  Web_serializable_t.metadata ->
-  string list ->
-  string ->
-  Web_serializable_t.uuid ->
-  Voter.t ->
-  bool ->
-  (bulk_email * (string * string)) Lwt.t
+exception Race_condition
+exception Election_not_found of uuid * string
 
-val generate_credential_email :
-  Web_serializable_t.uuid ->
-  Core.draft_election ->
-  recipient:string ->
-  login:string ->
-  weight:Web_serializable_t.weight ->
-  credential:string ->
-  bulk_email Lwt.t
+val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
+val sleep : float -> unit Lwt.t
 
-val submit_bulk_emails : bulk_email list -> unit Lwt.t
-val process_bulk_emails : unit -> unit Lwt.t
+module Datetime = Web_types.Datetime
+module Period = Web_types.Period
+module Random : RANDOM
 
-val mail_confirmation :
-  (module Belenios_ui.I18n.GETTEXT) ->
-  string ->
-  string ->
-  Web_serializable_t.weight option ->
-  string ->
-  bool ->
-  string ->
-  string ->
-  string option ->
-  string
+val generate_numeric : ?length:int -> unit -> string
+val generate_token : ?length:int -> unit -> string
+
+type draft_election =
+  | Draft :
+      'a Belenios.Election.version * 'a raw_draft_election
+      -> draft_election
+
+val draft_election_of_string : string -> draft_election
+val string_of_draft_election : draft_election -> string

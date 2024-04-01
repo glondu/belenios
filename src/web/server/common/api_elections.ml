@@ -24,6 +24,7 @@ open Belenios
 open Web_serializable_j
 open Belenios_api.Serializable_j
 open Web_common
+open Core
 open Api_generic
 
 let with_administrator token metadata f =

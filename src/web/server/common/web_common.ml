@@ -22,38 +22,9 @@
 open Lwt.Syntax
 open Belenios
 open Web_serializable_j
-
-exception Election_not_found of uuid * string
-exception Race_condition
+open Core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
-
-let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
-let sleep = Lwt_unix.sleep
-
-module Datetime = Web_types.Datetime
-module Period = Web_types.Period
-
-module Random = struct
-  open Crypto_primitives
-
-  let init_prng () = lazy (pseudo_rng (random_string secure_rng 16))
-  let prng = ref (init_prng ())
-
-  let () =
-    let rec loop () =
-      let* () = sleep 1800. in
-      prng := init_prng ();
-      loop ()
-    in
-    Lwt.async loop
-
-  let random q =
-    let size = bytes_to_sample q in
-    let r = random_string (Lazy.force !prng) size in
-    Z.(of_bits r mod q)
-end
-
 type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
 exception BeleniosWebError of error
@@ -228,8 +199,6 @@ type add_account_error =
   | BadSpaceInPassword
   | DatabaseError
 
-include MakeGenerateToken (Random)
-
 let format_password x =
   if String.length x = 15 then
     String.sub x 0 5 ^ "-" ^ String.sub x 5 5 ^ "-" ^ String.sub x 10 5
@@ -373,21 +342,3 @@ let has_explicit_weights voters =
       let (_, { weight; _ }) : Voter.t = v.sv_id in
       weight <> None)
     voters
-
-type draft_election =
-  | Draft :
-      'a Belenios.Election.version * 'a raw_draft_election
-      -> draft_election
-
-let draft_election_of_string x =
-  let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
-  let open Belenios.Election in
-  match version_of_int abstract.se_version with
-  | Version v ->
-      let open (val get_serializers v) in
-      let x = raw_draft_election_of_string read_question x in
-      Draft (v, x)
-
-let string_of_draft_election (Draft (v, x)) =
-  let open (val Belenios.Election.get_serializers v) in
-  string_of_raw_draft_election write_question x

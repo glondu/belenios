@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2012-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,38 +19,55 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
-open Web_serializable_t
+open Web_serializable_j
 
-val generate_password_email :
-  Web_serializable_t.metadata ->
-  string list ->
-  string ->
-  Web_serializable_t.uuid ->
-  Voter.t ->
-  bool ->
-  (bulk_email * (string * string)) Lwt.t
+exception Race_condition
+exception Election_not_found of uuid * string
 
-val generate_credential_email :
-  Web_serializable_t.uuid ->
-  Core.draft_election ->
-  recipient:string ->
-  login:string ->
-  weight:Web_serializable_t.weight ->
-  credential:string ->
-  bulk_email Lwt.t
+let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
+let sleep = Lwt_unix.sleep
 
-val submit_bulk_emails : bulk_email list -> unit Lwt.t
-val process_bulk_emails : unit -> unit Lwt.t
+module Datetime = Web_types.Datetime
+module Period = Web_types.Period
 
-val mail_confirmation :
-  (module Belenios_ui.I18n.GETTEXT) ->
-  string ->
-  string ->
-  Web_serializable_t.weight option ->
-  string ->
-  bool ->
-  string ->
-  string ->
-  string option ->
-  string
+module Random = struct
+  open Crypto_primitives
+
+  let init_prng () = lazy (pseudo_rng (random_string secure_rng 16))
+  let prng = ref (init_prng ())
+
+  let () =
+    let rec loop () =
+      let* () = sleep 1800. in
+      prng := init_prng ();
+      loop ()
+    in
+    Lwt.async loop
+
+  let random q =
+    let size = bytes_to_sample q in
+    let r = random_string (Lazy.force !prng) size in
+    Z.(of_bits r mod q)
+end
+
+include MakeGenerateToken (Random)
+
+type draft_election =
+  | Draft :
+      'a Belenios.Election.version * 'a raw_draft_election
+      -> draft_election
+
+let draft_election_of_string x =
+  let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
+  let open Belenios.Election in
+  match version_of_int abstract.se_version with
+  | Version v ->
+      let open (val get_serializers v) in
+      let x = raw_draft_election_of_string read_question x in
+      Draft (v, x)
+
+let string_of_draft_election (Draft (v, x)) =
+  let open (val Belenios.Election.get_serializers v) in
+  string_of_raw_draft_election write_question x

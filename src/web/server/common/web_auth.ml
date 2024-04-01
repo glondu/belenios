@@ -25,6 +25,7 @@ open Eliom_service
 open Belenios
 open Web_serializable_j
 open Web_common
+open Core
 open Web_auth_sig
 
 module Make

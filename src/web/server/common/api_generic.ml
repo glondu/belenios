@@ -24,6 +24,7 @@ open Web_serializable_t
 open Belenios
 open Belenios_api.Serializable_j
 open Web_common
+open Core
 
 let ( let& ) = Option.bind
 

@@ -24,6 +24,7 @@ open Lwt.Syntax
 open Belenios
 open Web_serializable_j
 open Web_common
+open Core
 
 let contact_footer l contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in

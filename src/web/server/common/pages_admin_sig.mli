@@ -22,6 +22,7 @@
 open Belenios_api.Serializable_t
 open Web_serializable_t
 open Web_common
+open Core
 
 module type S = sig
   val privacy_notice : privacy_cont -> [> `Html ] Eliom_content.Html.F.elt Lwt.t

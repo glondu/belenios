@@ -25,6 +25,7 @@ open Belenios
 open Belenios_api.Serializable_t
 open Web_serializable_j
 open Web_common
+open Core
 open Eliom_content.Html.F
 open Eliom_content.Html.F.Form
 

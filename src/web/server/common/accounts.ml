@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Lwt.Infix
 open Belenios
-open Web_common
+open Core
 open Web_serializable_j
 
 module UMap = Map.Make (struct

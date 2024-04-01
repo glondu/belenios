@@ -20,20 +20,10 @@
 (**************************************************************************)
 
 open Belenios
+open Core
 open Web_serializable_t
 
-exception Election_not_found of uuid * string
-exception Race_condition
-
 type 'a updatable = 'a * ('a -> unit Lwt.t)
-
-val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
-val sleep : float -> unit Lwt.t
-
-module Datetime = Web_types.Datetime
-module Period = Web_types.Period
-module Random : RANDOM
-
 type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
 exception BeleniosWebError of error
@@ -108,8 +98,6 @@ type add_account_error =
   | BadSpaceInPassword
   | DatabaseError
 
-val generate_token : ?length:int -> unit -> string
-val generate_numeric : ?length:int -> unit -> string
 val format_password : string -> string
 val string_of_user : user -> string
 
@@ -167,11 +155,3 @@ type credential_record = {
 
 val check_password : password_record -> string -> bool
 val has_explicit_weights : draft_voter list -> bool
-
-type draft_election =
-  | Draft :
-      'a Belenios.Election.version * 'a raw_draft_election
-      -> draft_election
-
-val draft_election_of_string : string -> draft_election
-val string_of_draft_election : draft_election -> string

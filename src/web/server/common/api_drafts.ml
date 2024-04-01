@@ -25,6 +25,7 @@ open Belenios_api.Serializable_j
 open Belenios_api.Common
 open Web_serializable_j
 open Web_common
+open Core
 open Api_generic
 
 let with_administrator token (Draft (_, se)) f =

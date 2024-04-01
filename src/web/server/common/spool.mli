@@ -31,7 +31,7 @@ val create : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
 val ensure : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
 
 (* draft elections *)
-val draft : Web_common.draft_election t
+val draft : Core.draft_election t
 val draft_public_credentials : public_credentials t
 
 (* sensitive data *)

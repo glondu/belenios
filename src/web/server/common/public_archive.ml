@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Web_serializable_j
-open Web_common
+open Core
 
 exception Not_in_cache
 

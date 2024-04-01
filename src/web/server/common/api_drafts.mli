@@ -24,6 +24,7 @@ open Belenios_api.Serializable_t
 open Belenios_api.Common
 open Web_serializable_t
 open Web_common
+open Core
 
 val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election

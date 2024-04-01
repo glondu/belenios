@@ -24,6 +24,7 @@ open Lwt.Syntax
 open Belenios
 open Web_serializable_j
 open Web_common
+open Core
 module Pages_admin_root = Pages_admin
 
 module Make
