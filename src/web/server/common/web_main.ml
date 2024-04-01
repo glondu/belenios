@@ -39,6 +39,9 @@ module Make () = struct
   let default_group_file = ref None
   let nh_group_file = ref None
   let domain = ref None
+  let uuid_length = ref Uuid.min_length
+  let account_id_min = ref (Z.of_int 100000000)
+  let account_id_max = ref (Z.of_int 999999999)
 
   let () =
     Eliom_config.get_config ()
@@ -66,7 +69,7 @@ module Make () = struct
         Web_config.maxmailsatonce := int_of_string limit
     | Element ("uuid", [ ("length", length) ], []) ->
         let length = int_of_string length in
-        if length >= Uuid.min_length then Web_config.uuid_length := Some length
+        if length >= Uuid.min_length then uuid_length := length
         else failwith "UUID length is too small"
     | Element ("contact", [ ("uri", uri) ], []) ->
         Web_config.contact_uri := Some uri
@@ -134,8 +137,8 @@ module Make () = struct
         let min = of_string min and max = of_string max in
         if compare min zero > 0 && compare (max - min) (of_int 4000000) > 0 then (
           (* birthday paradox: room for 2000 accounts *)
-          Web_config.account_id_min := min;
-          Web_config.account_id_max := max)
+          account_id_min := min;
+          account_id_max := max)
         else failwith "account-ids delta is not big enough"
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
@@ -198,6 +201,9 @@ module Make () = struct
 
   let () =
     let module Config = struct
+      let uuid_length = !uuid_length
+      let account_id_min = !account_id_min
+      let account_id_max = !account_id_max
       let spool_dir = spool_dir
       let accounts_dir = accounts_dir
     end in

@@ -26,6 +26,9 @@ open Web_common
 open Storage_sig
 
 module type CONFIG = sig
+  val uuid_length : int
+  val account_id_min : Belenios_platform.Platform.Z.t
+  val account_id_max : Belenios_platform.Platform.Z.t
   val spool_dir : string
   val accounts_dir : string
 end
@@ -422,10 +425,10 @@ module MakeBackend (Config : CONFIG) : S = struct
     Lwt.return_unit
 
   let new_election () =
-    let length = !Web_config.uuid_length in
+    let length = Config.uuid_length in
     let rec loop trials =
       if trials > 0 then
-        let uuid = generate_token ?length () in
+        let uuid = generate_token ~length () in
         Lwt.try_bind
           (fun () -> Lwt_unix.mkdir !!uuid 0o700)
           (fun () -> Lwt.return_some @@ Uuid.wrap uuid)
@@ -514,8 +517,8 @@ module MakeBackend (Config : CONFIG) : S = struct
   let account_id_promise = ref Lwt.return_unit
 
   let new_account_id () =
-    let min = !Web_config.account_id_min in
-    let max = !Web_config.account_id_max in
+    let min = Config.account_id_min in
+    let max = Config.account_id_max in
     let delta = Z.(max - min) in
     let* () = !account_id_promise in
     let t, u = Lwt.task () in

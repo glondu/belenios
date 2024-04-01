@@ -20,6 +20,9 @@
 (**************************************************************************)
 
 module type CONFIG = sig
+  val uuid_length : int
+  val account_id_min : Belenios_platform.Platform.Z.t
+  val account_id_max : Belenios_platform.Platform.Z.t
   val spool_dir : string
   val accounts_dir : string
 end

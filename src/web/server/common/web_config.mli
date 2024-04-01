@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
 open Web_serializable_t
 
 val prefix : string ref
@@ -43,7 +42,6 @@ val logo : (string * string) option ref
 val favicon : (string * string) option ref
 val sealing : (string * string) option ref
 val maxmailsatonce : int ref
-val uuid_length : int option ref
 val default_group : string ref
 val nh_group : string ref
 val domain : string ref
@@ -52,6 +50,4 @@ val deny_newelection : bool ref
 val blacklisted_domains : Belenios.SSet.t ref
 val billing : (string * string) option ref
 val restricted_mode : bool ref
-val account_id_min : Z.t ref
-val account_id_max : Z.t ref
 val storage_backend : (module Storage_sig.S) option ref

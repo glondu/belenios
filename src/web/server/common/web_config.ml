@@ -19,8 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
-
 let prefix = ref ""
 let site_auth_config = ref []
 let exported_auth_config = ref []
@@ -39,7 +37,6 @@ let logo = ref None
 let favicon = ref None
 let sealing = ref None
 let maxmailsatonce = ref 1000
-let uuid_length = ref None
 let default_group = ref ""
 let nh_group = ref ""
 let domain = ref ""
@@ -48,6 +45,4 @@ let deny_newelection = ref false
 let blacklisted_domains = ref Belenios.SSet.empty
 let billing = ref None
 let restricted_mode = ref false
-let account_id_min = ref (Z.of_int 100000000)
-let account_id_max = ref (Z.of_int 999999999)
 let storage_backend = ref None
