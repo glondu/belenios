@@ -36,12 +36,19 @@ module type S = sig
   val build_elections_by_owner_cache :
     (unit -> Belenios_api.Serializable_t.summary_list IMap.t Lwt.t) ref
 
+  val passwords_dbs : SSet.t ref
+  val auth_dbs : SSet.t ref
   val make : uuid option Mutex_set.t -> (module Storage_sig.BACKEND)
 end
 
 exception Not_implemented of string
 
 module MakeBackend (Config : CONFIG) : S = struct
+  (** {1 Global database names} *)
+
+  let passwords_dbs = ref SSet.empty
+  let auth_dbs = ref SSet.empty
+
   (** {1 Mutexes} *)
   let mutexes = Indexed_mutex.create ()
 
@@ -1164,6 +1171,9 @@ end
 
 module Make (Config : CONFIG) : Storage_sig.S = struct
   module B = MakeBackend (Config)
+
+  let register_passwords_db x = B.passwords_dbs := SSet.add x !B.passwords_dbs
+  let register_auth_db x = B.auth_dbs := SSet.add x !B.auth_dbs
 
   let with_transaction f =
     let set = Mutex_set.create B.mutexes in

@@ -194,6 +194,37 @@ module Make () = struct
     | Some d -> d
     | None -> failwith "missing <domain> in configuration"
 
+  (** Set up storage *)
+
+  let () =
+    let module Config = struct
+      let spool_dir = spool_dir
+      let accounts_dir = accounts_dir
+    end in
+    let module Storage = Storage_filesystem.Make (Config) in
+    Web_config.storage_backend := Some (module Storage)
+
+  let register_auth a =
+    let () =
+      match a.auth_system with
+      | "password" ->
+          List.iter
+            (function
+              | "db", file -> Storage.register_passwords_db file | _ -> ())
+            a.auth_config
+      | _ -> ()
+    in
+    List.iter
+      (function "allowlist", file -> Storage.register_auth_db file | _ -> ())
+      a.auth_config
+
+  let () = List.iter register_auth !auth_instances
+
+  let () =
+    List.iter
+      (function `Export a -> register_auth a | _ -> ())
+      !auth_instances_export
+
   (** Build up the site *)
 
   let () = Web_config.source_file := source_file
@@ -203,14 +234,6 @@ module Make () = struct
   let () = Web_config.site_auth_config := List.rev !auth_instances
   let () = Web_config.exported_auth_config := List.rev !auth_instances_export
   let () = Web_config.domain := domain
-
-  let () =
-    let module Config = struct
-      let spool_dir = spool_dir
-      let accounts_dir = accounts_dir
-    end in
-    let module Storage = Storage_filesystem.Make (Config) in
-    Web_config.storage_backend := Some (module Storage)
 
   (** Restricted mode checks *)
 

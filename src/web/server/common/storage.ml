@@ -24,6 +24,14 @@ let get_backend () =
   | None -> failwith "no storage backend set"
   | Some x -> x
 
+let register_passwords_db f =
+  let module X = (val get_backend ()) in
+  X.register_passwords_db f
+
+let register_auth_db f =
+  let module X = (val get_backend ()) in
+  X.register_auth_db f
+
 let with_transaction f =
   let module X = (val get_backend ()) in
   X.with_transaction f
