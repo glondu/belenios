@@ -26,7 +26,7 @@ open Common
 type data_or_event = Data | Event of event
 type record = { typ : data_or_event; hash : hash; location : location }
 
-let block_size = 512
+let block_size = Tar.block_size
 let block_sizeL = Int64.of_int block_size
 
 let new_header () =
@@ -57,8 +57,6 @@ module type ARCHIVE_READER = sig
   val read_record : archive -> record m
 end
 
-let int64_of_octal x = Int64.of_string ("0o" ^ x)
-
 module MakeReader (M : IO_READER) = struct
   type archive = M.file
 
@@ -66,13 +64,7 @@ module MakeReader (M : IO_READER) = struct
 
   let raw_read_header f buffer =
     let* () = M.read_block f buffer in
-    let filename =
-      let i = 0 in
-      let j = Bytes.index_from buffer i '\000' in
-      Bytes.sub_string buffer i (j - i)
-    in
-    let length = Bytes.sub_string buffer 124 11 |> int64_of_octal in
-    M.return (filename, length)
+    M.return @@ Tar.header_of_bytes buffer
 
   let raw_read_body f buffer length =
     assert (length <= Int64.of_int Sys.max_string_length);
@@ -93,9 +85,9 @@ module MakeReader (M : IO_READER) = struct
 
   let read_header f =
     let buffer = Bytes.create block_size in
-    let* filename, length = raw_read_header f buffer in
-    let* header = raw_read_body f buffer length in
-    if filename = "BELENIOS" then
+    let* { name; size; _ } = raw_read_header f buffer in
+    let* header = raw_read_body f buffer size in
+    if name = "BELENIOS" then
       let header = archive_header_of_string header in
       if header.version = 1 then M.return header
       else M.fail (Failure "unsupported archive header")
@@ -103,29 +95,29 @@ module MakeReader (M : IO_READER) = struct
 
   let read_record f =
     let buffer = Bytes.create block_size in
-    let* filename, location_length = raw_read_header f buffer in
+    let* { name; size; _ } = raw_read_header f buffer in
     let* location_offset = M.get_pos f in
     let typ, hash =
       let i = 0 in
-      let j = String.index_from filename i '.' + 1 in
-      let k = String.index_from filename j '.' + 1 in
-      ( (match String.sub filename j (k - j - 1) with
+      let j = String.index_from name i '.' + 1 in
+      let k = String.index_from name j '.' + 1 in
+      ( (match String.sub name j (k - j - 1) with
         | "data" -> `Data
         | "event" -> `Event
         | _ -> assert false),
-        String.sub filename i (j - i - 1) |> Hash.of_hex )
+        String.sub name i (j - i - 1) |> Hash.of_hex )
     in
-    let location = { location_offset; location_length } in
+    let location = { location_offset; location_length = size } in
     let* typ =
       match typ with
       | `Event ->
-          let* body = raw_read_body f buffer location_length in
+          let* body = raw_read_body f buffer size in
           M.return @@ Event (event_of_string body)
       | `Data ->
           let new_pos =
             let open Int64 in
-            let q = div location_length block_sizeL in
-            let r = rem location_length block_sizeL in
+            let q = div size block_sizeL in
+            let r = rem size block_sizeL in
             let blocks = add q (if r = 0L then 0L else 1L) in
             add location_offset (mul blocks block_sizeL)
           in
@@ -154,32 +146,13 @@ module type ARCHIVE_WRITER = sig
     archive -> timestamp:int64 -> data_or_event -> string -> record m
 end
 
-let write_to_bytes buffer pos str =
-  Bytes.blit_string str 0 buffer pos (String.length str)
-
-let compute_checksum x =
-  let sum = ref 0 in
-  for i = 0 to Bytes.length x - 1 do
-    sum := !sum + int_of_char (Bytes.get x i)
-  done;
-  Printf.sprintf "%06o\000 " !sum
-
 module MakeWriter (M : IO_WRITER) = struct
   type archive = M.file
 
   let ( let* ) = M.bind
 
-  let raw_write_header f buffer filename length timestamp =
-    (* pre-condition: buffer is filled with '\000' *)
-    write_to_bytes buffer 0 filename;
-    write_to_bytes buffer 100 "0000644";
-    write_to_bytes buffer 108 "0000000";
-    write_to_bytes buffer 116 "0000000";
-    write_to_bytes buffer 124 (Printf.sprintf "%011Lo" length);
-    write_to_bytes buffer 136 (Printf.sprintf "%011Lo" timestamp);
-    write_to_bytes buffer 148 "        ";
-    write_to_bytes buffer 156 "0";
-    write_to_bytes buffer 148 (compute_checksum buffer);
+  let raw_write_header f x =
+    let buffer = Tar.bytes_of_header x in
     M.write_block f buffer
 
   let raw_write_body f buffer body =
@@ -199,22 +172,28 @@ module MakeWriter (M : IO_WRITER) = struct
     loop 0 (String.length body)
 
   let write_header f header =
+    let bel_header = string_of_archive_header header in
+    let tar_header =
+      let size = String.length bel_header |> Int64.of_int in
+      let timestamp = get_timestamp header in
+      Tar.{ name = "BELENIOS"; size; timestamp }
+    in
+    let* () = raw_write_header f tar_header in
     let buffer = Bytes.make block_size '\000' in
-    let header_s = string_of_archive_header header in
-    let header_n = String.length header_s |> Int64.of_int in
-    let timestamp = get_timestamp header in
-    let* () = raw_write_header f buffer "BELENIOS" header_n timestamp in
-    raw_write_body f buffer header_s
+    raw_write_body f buffer bel_header
 
   let write_record f ~timestamp typ payload =
     let location_length = String.length payload |> Int64.of_int in
     let hash = Hash.hash_string payload in
-    let filename =
-      let typ = match typ with Data -> "data" | Event _ -> "event" in
-      Printf.sprintf "%s.%s.json" (Hash.to_hex hash) typ
+    let tar_header =
+      let name =
+        let typ = match typ with Data -> "data" | Event _ -> "event" in
+        Printf.sprintf "%s.%s.json" (Hash.to_hex hash) typ
+      in
+      Tar.{ name; size = location_length; timestamp }
     in
+    let* () = raw_write_header f tar_header in
     let buffer = Bytes.make block_size '\000' in
-    let* () = raw_write_header f buffer filename location_length timestamp in
     let* location_offset = M.get_pos f in
     let* () = raw_write_body f buffer payload in
     let location = { location_offset; location_length } in

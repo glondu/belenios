@@ -281,6 +281,8 @@ src/lib/core/signatures.ml
 src/lib/core/signatures_core.ml
 src/lib/core/stv.ml
 src/lib/core/stv.mli
+src/lib/core/tar.ml
+src/lib/core/tar.mli
 src/lib/core/trustees_sig.mli
 src/lib/core/util.ml
 src/lib/core/util.mli
