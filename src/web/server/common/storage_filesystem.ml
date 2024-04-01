@@ -24,10 +24,12 @@ open Belenios
 open Belenios_server_core
 open Storage_sig
 
+let () = Stdlib.Random.self_init ()
+
 module type CONFIG = sig
   val uuid_length : int
-  val account_id_min : Belenios_platform.Platform.Z.t
-  val account_id_max : Belenios_platform.Platform.Z.t
+  val account_id_min : int
+  val account_id_max : int
   val spool_dir : string
   val accounts_dir : string
 end
@@ -518,13 +520,13 @@ module MakeBackend (Config : CONFIG) : S = struct
   let new_account_id () =
     let min = Config.account_id_min in
     let max = Config.account_id_max in
-    let delta = Z.(max - min) in
+    let delta = max - min in
     let* () = !account_id_promise in
     let t, u = Lwt.task () in
     account_id_promise := t;
     let rec loop trials =
       if trials > 0 then
-        let id = Z.(to_int (min + Random.random delta)) in
+        let id = min + Stdlib.Random.int delta in
         let* b = file_exists (Account id) in
         if b then loop (trials - 1) else Lwt.return_some (id, u)
       else Lwt.fail Exit

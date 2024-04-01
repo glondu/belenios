@@ -40,8 +40,8 @@ module Make () = struct
   let nh_group_file = ref None
   let domain = ref None
   let uuid_length = ref Uuid.min_length
-  let account_id_min = ref (Z.of_int 100000000)
-  let account_id_max = ref (Z.of_int 999999999)
+  let account_id_min = ref 100000000
+  let account_id_max = ref 999999999
 
   let () =
     Eliom_config.get_config ()
@@ -133,9 +133,8 @@ module Make () = struct
         Web_config.billing := Some (url, callback)
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
     | Element ("account-ids", [ ("min", min); ("max", max) ], []) ->
-        let open Belenios_platform.Platform.Z in
-        let min = of_string min and max = of_string max in
-        if compare min zero > 0 && compare (max - min) (of_int 4000000) > 0 then (
+        let min = int_of_string min and max = int_of_string max in
+        if min > 0 && max - min > 4000000 then (
           (* birthday paradox: room for 2000 accounts *)
           account_id_min := min;
           account_id_max := max)
