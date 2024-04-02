@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.0.1-dev\n"
 
-#: src/web/server/common/pages_common.ml:330
+#: src/web/server/common/pages_common.ml:331
 msgid " (if you forgot it, for example)."
 msgstr " (se per esempio l'ha dimenticata)."
 
@@ -43,7 +43,7 @@ msgstr " scheda(e) accettata(e), e "
 msgid " ballot(s) have been accepted."
 msgstr " scheda(e) accettata(e)."
 
-#: src/web/server/common/web_common.ml:94
+#: src/web/server/common/web_common.ml:67
 msgid " day(s)"
 msgstr " giorno(i)"
 
@@ -59,11 +59,11 @@ msgstr " è stata accettata."
 msgid " have been tallied."
 msgstr " sono state scrutinate."
 
-#: src/web/server/common/web_common.ml:96
+#: src/web/server/common/web_common.ml:69
 msgid " hour(s)"
 msgstr " ora(e)"
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:539
 msgid " in the following box: "
 msgstr " nella casella seguente: "
 
@@ -71,19 +71,19 @@ msgstr " nella casella seguente: "
 msgid " is rejected, because "
 msgstr " è stato rifiutato, perché "
 
-#: src/web/server/common/web_common.ml:97
+#: src/web/server/common/web_common.ml:70
 msgid " minute(s)"
 msgstr " minuto(i)"
 
-#: src/web/server/common/web_common.ml:93
+#: src/web/server/common/web_common.ml:66
 msgid " month(s)"
 msgstr " mese(i)"
 
-#: src/web/server/common/web_common.ml:98
+#: src/web/server/common/web_common.ml:71
 msgid " second(s)"
 msgstr " secondo(i)"
 
-#: src/web/server/common/web_common.ml:92
+#: src/web/server/common/web_common.ml:65
 msgid " year(s)"
 msgstr " anno(i)"
 
@@ -113,7 +113,7 @@ msgstr "%d schede (non bianche) valide"
 msgid "%d valid ballot(s)"
 msgstr "%d schede valide"
 
-#: src/web/server/common/pages_common.ml:326
+#: src/web/server/common/pages_common.ml:327
 msgid ", or "
 msgstr ", o "
 
@@ -133,7 +133,7 @@ msgstr ""
 "Una scheda non è valida se due candidati hanno ricevuto lo stesso ordine di "
 "preferenza o se manca il voto."
 
-#: src/web/server/common/pages_common.ml:439
+#: src/web/server/common/pages_common.ml:440
 msgid "A verification code has been sent to %s."
 msgstr "Un codice di verifica è stato inviato a %s."
 
@@ -153,11 +153,11 @@ msgstr "Schede elettorali accettate"
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Secondo il Giudizio Maggioritario, la classifica è:"
 
-#: src/web/server/common/pages_common.ml:93
+#: src/web/server/common/pages_common.ml:94
 msgid "Administer elections"
 msgstr "Per amministrare elezioni"
 
-#: src/web/server/common/pages_common.ml:97
+#: src/web/server/common/pages_common.ml:98
 msgid "Administer this election"
 msgstr "Amministrare questa elezione"
 
@@ -192,32 +192,32 @@ msgstr "Dati di audit: "
 
 #: src/web/server/common/pages_voter.ml:965
 #. src/web/server/common/pages_voter.ml:960
-#. src/web/server/common/pages_common.ml:463
-#. src/web/server/common/pages_common.ml:394
-#. src/web/server/common/pages_common.ml:303
+#. src/web/server/common/pages_common.ml:464
+#. src/web/server/common/pages_common.ml:395
+#. src/web/server/common/pages_common.ml:304
 msgid "Authenticate"
 msgstr "Autenticarsi"
 
-#: src/web/server/common/pages_common.ml:239
+#: src/web/server/common/pages_common.ml:240
 msgid "Authenticate with %s"
 msgstr "Autenticarsi con %s"
 
-#: src/web/server/common/pages_common.ml:408
+#: src/web/server/common/pages_common.ml:409
 msgid "Authentication failed"
 msgstr "Autenticazione non riuscita"
 
-#: src/web/server/common/pages_common.ml:414
+#: src/web/server/common/pages_common.ml:415
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Autenticazione non riuscita, per uso di nome utente o password sbagliati "
 "oppure per termini di tempo scaduti oppure perché non si ha il permesso di "
 "compiere quest'operazione."
 
-#: src/web/server/common/pages_common.ml:563
+#: src/web/server/common/pages_common.ml:564
 msgid "Authentication impossible"
 msgstr "Autenticazione impossibile"
 
-#: src/web/server/common/pages_common.ml:558
+#: src/web/server/common/pages_common.ml:559
 msgid "Authentication is impossible."
 msgstr "L'autenticazione risulta impossibile."
 
@@ -225,23 +225,23 @@ msgstr "L'autenticazione risulta impossibile."
 msgid "Available methods on this server:"
 msgstr "Metodi disponibili su questo server:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:515
 msgid "Bad e-mail address!"
 msgstr "Indirizzo di posta elettronica non valido!"
 
-#: src/web/server/common/pages_common.ml:513
+#: src/web/server/common/pages_common.ml:514
 msgid "Bad security code!"
 msgstr "Codice di sicurezza non valido!"
 
-#: src/web/server/common/pages_common.ml:497
+#: src/web/server/common/pages_common.ml:498
 msgid "Belenios Server"
 msgstr "Server Belenios"
 
-#: src/web/server/common/pages_common.ml:499
+#: src/web/server/common/pages_common.ml:500
 msgid "Belenios authentication"
 msgstr "Autenticazione su Belenios"
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:493
 msgid "Best regards,"
 msgstr "Cordiali saluti,"
 
@@ -253,7 +253,7 @@ msgstr "Scheda bianca"
 msgid "By using this site, you accept our "
 msgstr "Usando questo sito, accetti la nostra "
 
-#: src/web/server/common/pages_common.ml:573
+#: src/web/server/common/pages_common.ml:574
 msgid "Click here"
 msgstr ""
 
@@ -283,7 +283,7 @@ msgstr "Confermare"
 msgid "Continue"
 msgstr "Proseguire"
 
-#: src/web/server/common/site_voter.ml:86
+#: src/web/server/common/site_voter.ml:88
 msgid "Cookies are blocked"
 msgstr "I cookies sono bloccati"
 
@@ -295,14 +295,14 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:472
+#: src/web/server/common/pages_common.ml:473
 #. src/web/server/common/mails_voter.ml:414
 msgid "Dear %s,"
 msgstr "Car* %s,"
 
-#: src/web/server/common/pages_common.ml:527
-#. src/web/server/common/pages_common.ml:337
-#. src/web/server/common/pages_common.ml:270
+#: src/web/server/common/pages_common.ml:528
+#. src/web/server/common/pages_common.ml:338
+#. src/web/server/common/pages_common.ml:271
 msgid "E-mail address:"
 msgstr "Indirizzo di posta elettronica:"
 
@@ -314,14 +314,14 @@ msgstr "Impronta dell'elezione : "
 msgid "Election server"
 msgstr "Server delle elezioni"
 
-#: src/web/server/common/site_voter.ml:300
-#. src/web/server/common/site_voter.ml:283
-#. src/web/server/common/site_voter.ml:239
-#. src/web/server/common/site_voter.ml:232
-#. src/web/server/common/site_voter.ml:227
-#. src/web/server/common/site_voter.ml:117
-#. src/web/server/common/site_voter.ml:108
-#. src/web/server/common/site_voter.ml:93
+#: src/web/server/common/site_voter.ml:308
+#. src/web/server/common/site_voter.ml:291
+#. src/web/server/common/site_voter.ml:247
+#. src/web/server/common/site_voter.ml:240
+#. src/web/server/common/site_voter.ml:235
+#. src/web/server/common/site_voter.ml:120
+#. src/web/server/common/site_voter.ml:111
+#. src/web/server/common/site_voter.ml:95
 msgid "Error"
 msgstr "Errore"
 
@@ -337,7 +337,7 @@ msgstr "FALLIMENTO !"
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
-#: src/web/server/common/site_common.ml:103
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "Accesso non consentito"
 
@@ -359,7 +359,7 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Se vuole votare, deve "
 
-#: src/web/server/common/site_voter.ml:94
+#: src/web/server/common/site_voter.ml:96
 msgid "Ill-formed ballot"
 msgstr "Scheda mal formata"
 
@@ -387,7 +387,7 @@ msgstr ""
 msgid "Input credential"
 msgstr "Inserire il codice di voto"
 
-#: src/web/server/common/site_voter.ml:240
+#: src/web/server/common/site_voter.ml:248
 msgid "Invalid index for question."
 msgstr "Numero di domanda non valido."
 
@@ -407,18 +407,18 @@ msgstr "Si aprirà in "
 msgid "JSON result"
 msgstr "Risultato in JSON"
 
-#: src/web/server/common/pages_common.ml:163
+#: src/web/server/common/pages_common.ml:164
 msgid "Language:"
 msgstr "Lingua:"
 
-#: src/web/server/common/pages_common.ml:462
-#. src/web/server/common/pages_common.ml:393
-#. src/web/server/common/pages_common.ml:302
-#. src/web/server/common/pages_common.ml:262
+#: src/web/server/common/pages_common.ml:463
+#. src/web/server/common/pages_common.ml:394
+#. src/web/server/common/pages_common.ml:303
+#. src/web/server/common/pages_common.ml:263
 msgid "Log in"
 msgstr "Accedi"
 
-#: src/web/server/common/pages_common.ml:238
+#: src/web/server/common/pages_common.ml:239
 msgid "Log in with %s"
 msgstr "Accedi con %s"
 
@@ -447,7 +447,7 @@ msgstr ""
 "Esistono molte varianti del Voto Singolo Trasferibile: abbiamo documentato "
 "le nostre scelte in "
 
-#: src/web/server/common/pages_common.ml:560
+#: src/web/server/common/pages_common.ml:561
 msgid "Maybe cookies are blocked."
 msgstr "E' possibile che i cookie siano bloccati."
 
@@ -456,7 +456,7 @@ msgstr "E' possibile che i cookie siano bloccati."
 msgid "More information can be found "
 msgstr "Per ulteriori informazioni "
 
-#: src/web/server/common/site_common.ml:37
+#: src/web/server/common/site_common.ml:39
 msgid "Not found"
 msgstr "Non trovato"
 
@@ -496,16 +496,16 @@ msgstr "Ma soltanto l'ultimo voto è preso in considerazione."
 msgid "Page of the election:"
 msgstr "Pagina dell'elezione:"
 
-#: src/web/server/common/pages_common.ml:373
+#: src/web/server/common/pages_common.ml:374
 #. src/web/server/common/mails_voter.ml:65
 msgid "Password:"
 msgstr "Password:"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:537
 msgid "Please enter "
 msgstr "Si prega di digitare "
 
-#: src/web/server/common/pages_common.ml:451
+#: src/web/server/common/pages_common.ml:452
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Inserire il codice di verifica ricevuto via posta elettronica:"
 
@@ -513,7 +513,7 @@ msgstr "Inserire il codice di verifica ricevuto via posta elettronica:"
 msgid "Please find below your login and password for the election"
 msgstr "Trova più in basso il suo nome utente e la password per l'elezione"
 
-#: src/web/server/common/pages_common.ml:256
+#: src/web/server/common/pages_common.ml:257
 msgid "Please log in:"
 msgstr "Accesso:"
 
@@ -547,7 +547,7 @@ msgstr "Opera con "
 msgid "Privacy policy"
 msgstr "Politica sulla privacy"
 
-#: src/web/server/common/pages_common.ml:220
+#: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr "Procedere"
 
@@ -559,7 +559,7 @@ msgstr ""
 msgid "Raw events"
 msgstr "Eventi in grezzo"
 
-#: src/web/server/common/pages_common.ml:576
+#: src/web/server/common/pages_common.ml:577
 msgid "Redirection"
 msgstr ""
 
@@ -580,7 +580,7 @@ msgstr "Riepilogo e cifratura"
 msgid "See accepted ballots"
 msgstr "Consultare le schede elettorali accettate"
 
-#: src/web/server/common/pages_common.ml:170
+#: src/web/server/common/pages_common.ml:171
 msgid "Set"
 msgstr "Impostare"
 
@@ -623,8 +623,8 @@ msgstr "Passo 4"
 msgid "Step 5"
 msgstr "Passo 5"
 
-#: src/web/server/common/pages_common.ml:541
-#. src/web/server/common/pages_common.ml:455
+#: src/web/server/common/pages_common.ml:542
+#. src/web/server/common/pages_common.ml:456
 msgid "Submit"
 msgstr "Inviare"
 
@@ -667,11 +667,11 @@ msgstr ""
 "Il numero delle differenti valutazioni (Eccellente, Molto Buono, ecc.) "
 "variano tipicamente da 5 a 7."
 
-#: src/web/server/common/site_voter.ml:284
+#: src/web/server/common/site_voter.ml:292
 msgid "The number of grades is invalid."
 msgstr "Il numero dei gradi di valutazione non è valido."
 
-#: src/web/server/common/site_voter.ml:301
+#: src/web/server/common/site_voter.ml:309
 msgid "The number of seats is invalid."
 msgstr "Il numero dei seggi non è valido."
 
@@ -685,7 +685,7 @@ msgstr ""
 "Il risultato di questa elezione non è al momento disponibile pubblicamente. "
 "Lo sarà tra %s."
 
-#: src/web/server/common/site_voter.ml:228
+#: src/web/server/common/site_voter.ml:236
 msgid "The result of this election is not available."
 msgstr "Il risultato dell'elezione non è disponibile."
 
@@ -699,7 +699,7 @@ msgstr ""
 msgid "There has been at least one tie."
 msgstr "C'è stata almeno una parità."
 
-#: src/web/server/common/site_common.ml:38
+#: src/web/server/common/site_common.ml:40
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr ""
 "Questa elezione non è presente. Ciò può accadere per elezioni che non sono "
@@ -721,7 +721,7 @@ msgstr "Questa elezione al momento è chiusa."
 msgid "This is a revote."
 msgstr "Questo voto è sostitutivo."
 
-#: src/web/server/common/site_voter.ml:233
+#: src/web/server/common/site_voter.ml:241
 msgid "This question is not non-homomorphic, this method cannot be applied to its result."
 msgstr ""
 
@@ -752,7 +752,7 @@ msgstr "Peso complessivo delle schede accettate:"
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/server/common/site_voter.ml:116
+#: src/web/server/common/site_voter.ml:119
 msgid "Unknown election"
 msgstr "Elezione sconosciuta"
 
@@ -764,12 +764,12 @@ msgstr ""
 msgid "Unsupported question type"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:479
+#: src/web/server/common/pages_common.ml:480
 msgid "Use the following code:"
 msgstr "Utilizzi il seguente codice per confermare il voto:"
 
-#: src/web/server/common/pages_common.ml:336
-#. src/web/server/common/pages_common.ml:269
+#: src/web/server/common/pages_common.ml:337
+#. src/web/server/common/pages_common.ml:270
 #. src/web/server/common/mails_voter.ml:167
 #. src/web/server/common/mails_voter.ml:61
 msgid "Username:"
@@ -787,7 +787,7 @@ msgstr ""
 msgid "Warning:"
 msgstr "Attenzione:"
 
-#: src/web/server/common/pages_common.ml:487
+#: src/web/server/common/pages_common.ml:488
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Attenzione: questo codice è valido per 15 minuti, e i codici inviati in "
@@ -808,7 +808,7 @@ msgstr ""
 "i voti sono trasferiti al successivo candidato, con un coefficiente "
 "proporzionale al numero di voti in esubero."
 
-#: src/web/server/common/pages_common.ml:187
+#: src/web/server/common/pages_common.ml:188
 msgid "Wish to help with translations?"
 msgstr "Vuole dare il suo aiuto per le traduzioni?"
 
@@ -821,15 +821,15 @@ msgstr "Le è consentito votare più volte."
 msgid "You are listed as a voter for the election"
 msgstr "Lei è registrato(a) come elettore(trice) per l'elezione"
 
-#: src/web/server/common/site_common.ml:102
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr "Non è consentito l'accesso a questa pagina!"
 
-#: src/web/server/common/pages_common.ml:420
+#: src/web/server/common/pages_common.ml:421
 msgid "You can "
 msgstr "Lei può "
 
-#: src/web/server/common/pages_common.ml:324
+#: src/web/server/common/pages_common.ml:325
 msgid "You can also "
 msgstr "Lei può anche "
 
@@ -846,7 +846,7 @@ msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Può controllare la presenza del codice di verifica nell'urna, accessibile su"
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:552
 msgid "You cannot log in now. Please try later."
 msgstr ""
 "In questo momento non è possibile accedere. Si prega di provare di nuovo più "
@@ -856,11 +856,11 @@ msgstr ""
 msgid "Your ballot for "
 msgstr "La sua scheda elettorale per "
 
-#: src/web/server/common/site_voter.ml:105
+#: src/web/server/common/site_voter.ml:108
 msgid "Your ballot is rejected because %s."
 msgstr "La sua scheda è stata rifiutata perché %s."
 
-#: src/web/server/common/site_voter.ml:87
+#: src/web/server/common/site_voter.ml:89
 msgid "Your browser seems to block cookies. Please enable them."
 msgstr "Il suo browser non accetta cookies. Si prega di attivarli."
 
@@ -872,7 +872,7 @@ msgstr "Il suo codice di voto per l'elezione %s"
 msgid "Your credential:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:477
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Il suo indirizzo di posta elettronica è stato utilizzato per autenticarsi "
@@ -894,7 +894,7 @@ msgstr "Il suo codice di verifica è "
 msgid "Your vote for election"
 msgstr "La sua scheda per l'elezione"
 
-#: src/web/server/common/site_voter.ml:148
+#: src/web/server/common/site_voter.ml:151
 msgid "Your vote for election %s"
 msgstr "La sua scheda per l'elezione %s"
 
@@ -911,11 +911,11 @@ msgstr "Il peso del suo voto è %s."
 msgid "ballot box"
 msgstr "urna"
 
-#: src/web/server/common/pages_common.ml:328
+#: src/web/server/common/pages_common.ml:329
 msgid "change your password"
 msgstr "cambi la sua password"
 
-#: src/web/server/common/pages_common.ml:325
+#: src/web/server/common/pages_common.ml:326
 msgid "create an account"
 msgstr "creare un'utenza"
 
@@ -948,7 +948,7 @@ msgstr "dati pubblici"
 msgid "raw result"
 msgstr "risultato grezzo"
 
-#: src/web/server/common/web_common.ml:70
+#: src/web/server/common/web_common.ml:43
 msgid "some proofs failed verification"
 msgstr ""
 
@@ -960,55 +960,55 @@ msgstr "cominciare dall'inizio"
 msgid "the Wikipedia page"
 msgstr "la pagina di Wikipedia"
 
-#: src/web/server/common/web_common.ml:63
+#: src/web/server/common/web_common.ml:36
 msgid "the election is closed"
 msgstr "l'elezione è chiusa"
 
-#: src/web/server/common/web_common.ml:77
+#: src/web/server/common/web_common.ml:50
 msgid "this ballot has already been accepted"
 msgstr "questa scheda è stata già acquisita"
 
-#: src/web/server/common/web_common.ml:78
+#: src/web/server/common/web_common.ml:51
 msgid "this ballot has expired"
 msgstr "questa scheda è scaduta"
 
-#: src/web/server/common/pages_common.ml:421
+#: src/web/server/common/pages_common.ml:422
 msgid "try to log in again"
 msgstr "provare ad accedere di nuovo"
 
-#: src/web/server/common/web_common.ml:72
+#: src/web/server/common/web_common.ml:45
 msgid "you are not allowed to revote"
 msgstr "non le è possibile votare di nuovo"
 
-#: src/web/server/common/web_common.ml:64
+#: src/web/server/common/web_common.ml:37
 msgid "you are not allowed to vote"
 msgstr "non le è possibile votare"
 
-#: src/web/server/common/web_common.ml:75
+#: src/web/server/common/web_common.ml:48
 msgid "you are not allowed to vote with this credential"
 msgstr "non le è possibile votare con questo codice di voto"
 
-#: src/web/server/common/web_common.ml:67
+#: src/web/server/common/web_common.ml:40
 msgid "your ballot has a syntax error (%s)"
 msgstr "la sua scheda ha un errore sintattico (%s)"
 
-#: src/web/server/common/web_common.ml:69
+#: src/web/server/common/web_common.ml:42
 msgid "your ballot is not in canonical form"
 msgstr "la sua scheda non è in forma canonica"
 
-#: src/web/server/common/web_common.ml:76
+#: src/web/server/common/web_common.ml:49
 msgid "your credential has a bad weight"
 msgstr ""
 
-#: src/web/server/common/web_common.ml:73
+#: src/web/server/common/web_common.ml:46
 msgid "your credential has already been used"
 msgstr "il suo codice di voto è stato già utilizzato"
 
-#: src/web/server/common/web_common.ml:71
+#: src/web/server/common/web_common.ml:44
 msgid "your credential is invalid"
 msgstr "il suo codice di voto non è valido"
 
-#: src/web/server/common/web_common.ml:79
+#: src/web/server/common/web_common.ml:52
 msgid "your username is wrong"
 msgstr "il suo nome utente è errato"
 
