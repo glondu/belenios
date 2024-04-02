@@ -50,6 +50,7 @@ module Storage = struct
   let register_backend name x = backends := (name, x) :: !backends
 
   let init_backend name config =
-    let x = List.assoc name !backends config in
-    backend := Some x
+    match List.assoc_opt name !backends with
+    | None -> Printf.ksprintf failwith "backend %s not found" name
+    | Some f -> backend := Some (f config)
 end

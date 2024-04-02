@@ -25,8 +25,6 @@ open Belenios
 open Belenios_server_core
 open Web_common
 
-let () = Storage_filesystem.register ()
-
 module Make () = struct
   (** Parse configuration from <eliom> *)
 

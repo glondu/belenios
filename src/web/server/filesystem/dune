@@ -1,0 +1,3 @@
+(library
+ (name belenios_storage_filesystem)
+ (libraries belenios_server_core ocsigenserver csv))
