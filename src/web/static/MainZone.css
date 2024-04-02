@@ -215,6 +215,23 @@ div.del_sym {
     display: inline-block;
 }
 
+
+/* lists elections */
+.answers_list {
+    width: 80%;
+    margin-top: 10px;
+}
+.answers_list input {
+    width: 80%;
+}
+.answers_list .answer_label {
+    width: 20%;
+    display: inline-block;
+}
+.answers_list .answer_list_name input {
+    width: 60%;
+}
+
 #previewbooth {
     text-align: center;
 }

@@ -29,15 +29,16 @@ open Tyxml_js.Html5
 open Belenios_js.Common
 open Common
 
-(* A generic type for question, covering H and NH, with default values for
+(* A generic type for question, covering H, NH and L, with default values for
  * irrelevant parts of the record.
  * This is closer to what is shown to the user.
  *)
 type gen_quest = {
   question : string;
   answers : string array;
+  answers_lists : string array array;
   blank : bool;
-  kind : [ `Select | `Sort | `Grade ];
+  kind : [ `Select | `Sort | `Grade | `Lists ];
   sel_min : int;
   sel_max : int;
   seats : int;
@@ -52,6 +53,7 @@ let new_gen_quest () : gen_quest =
   {
     question = "Question?";
     answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
+    answers_lists = [| [| "List 1"; "Candidate 1"; "Candidate 2" |] |];
     blank = true;
     kind = `Select;
     sel_min = 1;
@@ -76,11 +78,21 @@ let update_question = ref (fun _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let q_to_gen question =
-  let question, answers, blank, kind, sel_min, sel_max, seats, meth, names =
+  let ( question,
+        answers,
+        answers_lists,
+        blank,
+        kind,
+        sel_min,
+        sel_max,
+        seats,
+        meth,
+        names ) =
     match question.value with
     | Homomorphic.Q q ->
         ( q.q_question,
           q.q_answers,
+          [| q.q_answers |],
           Option.value ~default:false q.q_blank,
           `Select,
           q.q_min,
@@ -100,12 +112,33 @@ let q_to_gen question =
               (o.mj_extra_blank, `Grade, o.mj_extra_grades, `MJ, 1)
           | `None -> (false, `Grade, default_grades, `None, 1)
         in
-        (q.q_question, q.q_answers, bk, ki, 1, 1, seats, me, gr)
+        ( q.q_question,
+          q.q_answers,
+          [| q.q_answers |],
+          bk,
+          ki,
+          1,
+          1,
+          seats,
+          me,
+          gr )
+    | Lists.Q q ->
+        ( q.q_question,
+          q.q_answers.(0),
+          q.q_answers,
+          false,
+          `Lists,
+          1,
+          1,
+          1,
+          `None,
+          default_grades )
     | _ -> failwith "q_to_gen"
   in
   {
     question;
     answers;
+    answers_lists;
     blank;
     kind;
     sel_min;
@@ -170,6 +203,10 @@ let gen_to_q q =
       Non_homomorphic.make
         ~value:{ q_question = q.question; q_answers = q.answers }
         ~extra
+  | `Lists ->
+      Lists.make
+        ~value:{ q_question = q.question; q_answers = q.answers_lists }
+        ~extra:None
 
 let delete_or_insert attr handler_d handler_i =
   let del = div ~a:[ a_class [ "del_sym clickable" ] ] [] in
@@ -234,7 +271,7 @@ let q_to_html_inner ind q =
             question = Js.to_string r##.value;
           };
         !update_question !curr_doing);
-  (* type of question, select, sort or grade *)
+  (* type of question, select, sort, grade or lists *)
   let rad_name = "type" ^ string_of_int ind in
   let inp_rad1, _ =
     let attr =
@@ -290,6 +327,22 @@ let q_to_html_inner ind q =
             kind = `Grade;
             count_meth = `MJ;
           };
+        !update_question !curr_doing);
+  let inp_rad4, _ =
+    let attr =
+      [ a_name rad_name; a_id (rad_name ^ "_4"); a_input_type `Radio ]
+    in
+    let attr = if q.kind = `Lists then a_checked () :: attr else attr in
+    let attr =
+      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+    in
+    input ~a:attr ""
+  in
+  let r = Tyxml_js.To_dom.of_input inp_rad4 in
+  r##.onchange :=
+    lwt_handler (fun () ->
+        !all_gen_quest.(!curr_doing) <-
+          { (!all_gen_quest.(!curr_doing)) with kind = `Lists };
         !update_question !curr_doing);
   (* options depending of type of question *)
   let* expand =
@@ -537,6 +590,8 @@ let q_to_html_inner ind q =
         @@ div
              ~a:[ a_class [ "expand_grade" ] ]
              [ div (div [ txt @@ s_ "Proposed grades:" ] :: list_grades) ]
+    | `Lists ->
+        Lwt.return @@ div [] (* lists elections do not have specific settings *)
   in
   (* blank choice *)
   let inp, _ =
@@ -563,67 +618,252 @@ let q_to_html_inner ind q =
           [ txt @@ s_ "Allow blank vote" ];
       ]
   in
+
   (* text of the answers *)
-  let* answers =
-    q.answers |> Array.to_list
-    |> Lwt_list.mapi_s (fun i z ->
-           let inp, _ =
-             input
-               ~a:[ a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i) ]
-               z
-           in
-           let r = Tyxml_js.To_dom.of_input inp in
-           r##.onchange :=
-             lwt_handler (fun _ ->
-                 let new_ans = !all_gen_quest.(!curr_doing).answers in
-                 new_ans.(i) <- Js.to_string r##.value;
+  let* answers_box =
+    match q.kind with
+    | `Lists ->
+        let make_list_box list_i answer_list =
+          let* list_items =
+            answer_list |> Array.to_list
+            |> Lwt_list.mapi_s (fun candidate_i z ->
+                   if candidate_i == 0 then (
+                     (* list name *)
+                     let inp, _ = input z in
+                     let r = Tyxml_js.To_dom.of_input inp in
+                     r##.onchange :=
+                       lwt_handler (fun _ ->
+                           let new_ans =
+                             !all_gen_quest.(!curr_doing).answers_lists
+                           in
+                           new_ans.(list_i).(candidate_i) <-
+                             Js.to_string r##.value;
+                           !all_gen_quest.(!curr_doing) <-
+                             {
+                               (!all_gen_quest.(!curr_doing)) with
+                               answers_lists = new_ans;
+                             };
+                           !update_question !curr_doing);
+                     let* dd =
+                       delete_or_insert
+                         [ a_class [ "d_i_side" ] ]
+                         (fun () ->
+                           (* delete a list*)
+                           let new_a =
+                             q.answers_lists |> Array.to_list
+                             |> List.filteri (fun j _ -> j <> list_i)
+                             |> Array.of_list
+                           in
+                           !all_gen_quest.(!curr_doing) <-
+                             {
+                               (!all_gen_quest.(!curr_doing)) with
+                               answers_lists = new_a;
+                             };
+                           !update_question !curr_doing)
+                         (fun () ->
+                           (* insert a list *)
+                           let list_i = list_i + 1 in
+                           (* insert new list after the current one *)
+                           let len = Array.length q.answers_lists in
+                           let a_beg = Array.sub q.answers_lists 0 list_i in
+                           let a_end =
+                             Array.sub q.answers_lists list_i (len - list_i)
+                           in
+                           let new_a =
+                             Array.concat
+                               [
+                                 a_beg;
+                                 [| [| s_ "New list"; s_ "New candidate" |] |];
+                                 a_end;
+                               ]
+                           in
+                           !all_gen_quest.(!curr_doing) <-
+                             {
+                               (!all_gen_quest.(!curr_doing)) with
+                               answers_lists = new_a;
+                             };
+                           !update_question !curr_doing)
+                     in
+                     let label =
+                       div
+                         ~a:[ a_class [ "answer_label" ] ]
+                         [ txt (s_ "List name:") ]
+                     in
+                     Lwt.return
+                     @@ div
+                          ~a:[ a_class [ "answer"; "answer_list_name" ] ]
+                          [ label; inp; dd ])
+                   else
+                     (* list candidate *)
+                     let inp, _ = input z in
+                     let r = Tyxml_js.To_dom.of_input inp in
+                     r##.onchange :=
+                       lwt_handler (fun _ ->
+                           let new_ans =
+                             !all_gen_quest.(!curr_doing).answers_lists
+                           in
+                           new_ans.(list_i).(candidate_i) <-
+                             Js.to_string r##.value;
+                           !all_gen_quest.(!curr_doing) <-
+                             {
+                               (!all_gen_quest.(!curr_doing)) with
+                               answers_lists = new_ans;
+                             };
+                           !update_question !curr_doing);
+                     let* dd =
+                       delete_or_insert
+                         [ a_class [ "d_i_side" ] ]
+                         (fun () ->
+                           (* delete candidate *)
+                           let new_a =
+                             q.answers_lists |> Array.to_list
+                             |> List.mapi (fun j l ->
+                                    if j <> list_i then l
+                                    else
+                                      l |> Array.to_list
+                                      |> List.filteri (fun j _ ->
+                                             j <> candidate_i)
+                                      |> Array.of_list)
+                             |> Array.of_list
+                           in
+                           !all_gen_quest.(!curr_doing) <-
+                             {
+                               (!all_gen_quest.(!curr_doing)) with
+                               answers_lists = new_a;
+                             };
+                           !update_question !curr_doing)
+                         (fun () ->
+                           (* insert new candidate after the current one *)
+                           let candidate_i = candidate_i + 1 in
+                           let len = Array.length q.answers_lists.(list_i) in
+                           let a_beg =
+                             Array.sub q.answers_lists.(list_i) 0 candidate_i
+                           in
+                           let a_end =
+                             Array.sub q.answers_lists.(list_i) candidate_i
+                               (len - candidate_i)
+                           in
+                           let new_a =
+                             q.answers_lists |> Array.to_list
+                             |> List.mapi (fun j l ->
+                                    if j <> list_i then l
+                                    else
+                                      Array.concat
+                                        [
+                                          a_beg; [| s_ "New candidate" |]; a_end;
+                                        ])
+                             |> Array.of_list
+                           in
+                           !all_gen_quest.(!curr_doing) <-
+                             {
+                               (!all_gen_quest.(!curr_doing)) with
+                               answers_lists = new_a;
+                             };
+                           !update_question !curr_doing)
+                     in
+                     Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
+          in
+          Lwt.return @@ div ~a:[ a_class [ "answers_list" ] ] list_items
+        in
+        let* answers_lists =
+          q.answers_lists |> Array.to_list |> Lwt_list.mapi_s make_list_box
+        in
+        let lists_with_insert =
+          (let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+           let r = Tyxml_js.To_dom.of_div dd in
+           r##.onclick :=
+             lwt_handler (fun () ->
+                 let new_a =
+                   Array.concat
+                     [
+                       [| [| s_ "New list"; s_ "New candidate" |] |];
+                       q.answers_lists;
+                     ]
+                 in
                  !all_gen_quest.(!curr_doing) <-
-                   { (!all_gen_quest.(!curr_doing)) with answers = new_ans };
+                   { (!all_gen_quest.(!curr_doing)) with answers_lists = new_a };
                  !update_question !curr_doing);
-           let* dd =
-             delete_or_insert
-               [ a_class [ "d_i_side" ] ]
-               (fun () ->
+           div
+             ~a:[ a_class [ "fake_answer" ] ]
+             [
+               div [ txt @@ s_ "Insert a list" ];
+               div ~a:[ a_class [ "d_i_side" ] ] [ dd ];
+             ])
+          :: answers_lists
+        in
+        Lwt.return @@ div ~a:[ a_class [ "answers_lists" ] ] lists_with_insert
+    | _ ->
+        (* all types of question except Lists *)
+        let* answers =
+          q.answers |> Array.to_list
+          |> Lwt_list.mapi_s (fun i z ->
+                 let inp, _ =
+                   input
+                     ~a:
+                       [
+                         a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i);
+                       ]
+                     z
+                 in
+                 let r = Tyxml_js.To_dom.of_input inp in
+                 r##.onchange :=
+                   lwt_handler (fun _ ->
+                       let new_ans = !all_gen_quest.(!curr_doing).answers in
+                       new_ans.(i) <- Js.to_string r##.value;
+                       !all_gen_quest.(!curr_doing) <-
+                         {
+                           (!all_gen_quest.(!curr_doing)) with
+                           answers = new_ans;
+                         };
+                       !update_question !curr_doing);
+                 let* dd =
+                   delete_or_insert
+                     [ a_class [ "d_i_side" ] ]
+                     (fun () ->
+                       let new_a =
+                         q.answers |> Array.to_list
+                         |> List.filteri (fun j _ -> j <> i)
+                         |> Array.of_list
+                       in
+                       !all_gen_quest.(!curr_doing) <-
+                         { (!all_gen_quest.(!curr_doing)) with answers = new_a };
+                       !update_question !curr_doing)
+                     (fun () ->
+                       let i = i + 1 in
+                       (* insert new answer after the current *)
+                       let len = Array.length q.answers in
+                       let a_beg = Array.sub q.answers 0 i in
+                       let a_end = Array.sub q.answers i (len - i) in
+                       let new_a =
+                         Array.concat [ a_beg; [| s_ "New answer" |]; a_end ]
+                       in
+                       !all_gen_quest.(!curr_doing) <-
+                         { (!all_gen_quest.(!curr_doing)) with answers = new_a };
+                       !update_question !curr_doing)
+                 in
+                 Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
+        in
+        let answers_with_insert =
+          (let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+           let r = Tyxml_js.To_dom.of_div dd in
+           r##.onclick :=
+             lwt_handler (fun () ->
                  let new_a =
-                   q.answers |> Array.to_list
-                   |> List.filteri (fun j _ -> j <> i)
-                   |> Array.of_list
+                   Array.concat [ [| s_ "New answer" |]; q.answers ]
                  in
                  !all_gen_quest.(!curr_doing) <-
                    { (!all_gen_quest.(!curr_doing)) with answers = new_a };
-                 !update_question !curr_doing)
-               (fun () ->
-                 let i = i + 1 in
-                 (* insert new answer after the current *)
-                 let len = Array.length q.answers in
-                 let a_beg = Array.sub q.answers 0 i in
-                 let a_end = Array.sub q.answers i (len - i) in
-                 let new_a =
-                   Array.concat [ a_beg; [| "New answer" |]; a_end ]
-                 in
-                 !all_gen_quest.(!curr_doing) <-
-                   { (!all_gen_quest.(!curr_doing)) with answers = new_a };
-                 !update_question !curr_doing)
-           in
-           Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
-  in
-  let* answers =
-    Lwt.return
-    @@ (let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
-        let r = Tyxml_js.To_dom.of_div dd in
-        r##.onclick :=
-          lwt_handler (fun () ->
-              let new_a = Array.concat [ [| s_ "New answer" |]; q.answers ] in
-              !all_gen_quest.(!curr_doing) <-
-                { (!all_gen_quest.(!curr_doing)) with answers = new_a };
-              !update_question !curr_doing);
-        div
-          ~a:[ a_class [ "fake_answer" ] ]
-          [
-            div [ txt @@ s_ "Insert an answer" ];
-            div ~a:[ a_class [ "d_i_side" ] ] [ dd ];
-          ])
-       :: answers
+                 !update_question !curr_doing);
+           div
+             ~a:[ a_class [ "fake_answer" ] ]
+             [
+               div [ txt @@ s_ "Insert an answer" ];
+               div ~a:[ a_class [ "d_i_side" ] ] [ dd ];
+             ])
+          :: answers
+        in
+        Lwt.return
+        @@ div [ bk; div ~a:[ a_class [ "answers" ] ] answers_with_insert ]
   in
   (* Put things together *)
   Lwt.return
@@ -645,10 +885,11 @@ let q_to_html_inner ind q =
       label
         ~a:[ a_label_for (rad_name ^ "_3") ]
         [ txt @@ s_ "Grade propositions" ];
+      inp_rad4;
+      label ~a:[ a_label_for (rad_name ^ "_4") ] [ txt @@ s_ "Lists" ];
       expand;
       div ~a:[ a_class [ "qans" ] ] [ txt @@ s_ "Proposed answers:" ];
-      bk;
-      div ~a:[ a_class [ "answers" ] ] answers;
+      answers_box;
     ]
 
 let scroll_to_active_question () =
