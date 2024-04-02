@@ -53,5 +53,6 @@
     "previous_button_label": "Anterior",
     "encrypted_ballot_is": "Voto encriptado:",
     "review_ballot_for_questions": "Su papeleta todavía no está en la urna, y tiene el siguiente contenido:",
-    "question_x_of_y": "Pregunta {{current_question}} de {{number_of_questions}}"
+    "question_x_of_y": "Pregunta {{current_question}} de {{number_of_questions}}",
+    "lists_question_description": "Por favor, seleccione una lista de candidatos y anule la selección de los candidatos que no desee incluir."
 }
