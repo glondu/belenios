@@ -499,7 +499,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       let@ account = Option.unwrap unauthorized (lookup_token token) in
       match method_ with
       | `GET ->
-          let module S = (val s : Storage_sig.BACKEND) in
+          let module S = (val s : Storage.BACKEND) in
           let* elections = S.get_elections_by_owner account.id in
           let elections =
             List.fold_left

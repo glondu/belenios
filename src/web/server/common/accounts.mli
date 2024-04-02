@@ -21,18 +21,16 @@
 
 open Belenios_server_core
 
-val create_account :
-  Storage_sig.t -> email:string option -> user -> account Lwt.t
-
-val get_account_by_id : Storage_sig.t -> int -> account option Lwt.t
+val create_account : Storage.t -> email:string option -> user -> account Lwt.t
+val get_account_by_id : Storage.t -> int -> account option Lwt.t
 
 val update_account_by_id :
-  Storage_sig.t -> int -> account Web_common.updatable option Lwt.t
+  Storage.t -> int -> account Web_common.updatable option Lwt.t
 
-val get_account : Storage_sig.t -> user -> account option Lwt.t
+val get_account : Storage.t -> user -> account option Lwt.t
 
 val update_account :
-  Storage_sig.t -> user -> account Web_common.updatable option Lwt.t
+  Storage.t -> user -> account Web_common.updatable option Lwt.t
 
 val add_update_hook : (account -> unit Lwt.t) -> unit
 

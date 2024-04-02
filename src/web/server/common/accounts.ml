@@ -45,7 +45,7 @@ let run_update_hooks account =
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 
 let get_account_by_id s id =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Account id) in
   match x with
   | None -> Lwt.return_none
@@ -55,7 +55,7 @@ let get_account_by_id s id =
       | x -> Lwt.return_some x)
 
 let update_account_by_id s id =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let* x = S.update (Account id) in
   match x with
   | None -> Lwt.return_none
@@ -72,7 +72,7 @@ let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
 
 let create_account s ~email user =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let@ id, u =
    fun cont ->
     let* x = S.new_account_id () in
@@ -113,7 +113,7 @@ let create_account s ~email user =
   Lwt.return account
 
 let build_account_cache s =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   S.list_accounts ()
   >>= Lwt_list.fold_left_s
         (fun accu id ->

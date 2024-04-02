@@ -22,5 +22,11 @@
 include module type of Web_serializable_j
 include module type of Core
 module Filesystem = Filesystem
-module Storage_sig = Storage_sig
 module Defaults = Defaults
+
+module Storage : sig
+  include module type of Storage_sig
+  include S
+
+  val init_backend : (module S) -> unit
+end

@@ -27,15 +27,15 @@ open Web_common
 type 'a file = {
   of_string : string -> 'a;
   to_string : 'a -> string;
-  filename : Storage_sig.election_file;
+  filename : Storage.election_file;
 }
 
 type 'a abstract = {
-  get : 'a option Lwt.t Storage_sig.u;
-  del : unit Lwt.t Storage_sig.u;
-  update : 'a updatable option Lwt.t Storage_sig.u;
-  create : ('a -> unit Lwt.t) Storage_sig.u;
-  ensure : ('a -> unit Lwt.t) Storage_sig.u;
+  get : 'a option Lwt.t Storage.u;
+  del : unit Lwt.t Storage.u;
+  update : 'a updatable option Lwt.t Storage.u;
+  create : ('a -> unit Lwt.t) Storage.u;
+  ensure : ('a -> unit Lwt.t) Storage.u;
 }
 
 type 'a t = File of 'a file | Abstract of 'a abstract
@@ -43,7 +43,7 @@ type 'a t = File of 'a file | Abstract of 'a abstract
 let get s uuid file =
   match file with
   | File file -> (
-      let module S = (val s : Storage_sig.BACKEND) in
+      let module S = (val s : Storage.BACKEND) in
       let* x = S.get (Election (uuid, file.filename)) in
       let&* x = x in
       try Lwt.return_some (file.of_string x) with _ -> Lwt.return_none)
@@ -52,14 +52,14 @@ let get s uuid file =
 let del s uuid file =
   match file with
   | File file ->
-      let module S = (val s : Storage_sig.BACKEND) in
+      let module S = (val s : Storage.BACKEND) in
       S.del (Election (uuid, file.filename))
   | Abstract a -> a.del s uuid
 
 let update s uuid file =
   match file with
   | File file ->
-      let module S = (val s : Storage_sig.BACKEND) in
+      let module S = (val s : Storage.BACKEND) in
       let* x = S.update (Election (uuid, file.filename)) in
       let&* x, set = x in
       let set x = set (file.to_string x) in
@@ -69,14 +69,14 @@ let update s uuid file =
 let create s uuid file x =
   match file with
   | File file ->
-      let module S = (val s : Storage_sig.BACKEND) in
+      let module S = (val s : Storage.BACKEND) in
       S.create (Election (uuid, file.filename)) (file.to_string x)
   | Abstract a -> a.create s uuid x
 
 let ensure s uuid file x =
   match file with
   | File file ->
-      let module S = (val s : Storage_sig.BACKEND) in
+      let module S = (val s : Storage.BACKEND) in
       S.ensure (Election (uuid, file.filename)) (file.to_string x)
   | Abstract a -> a.ensure s uuid x
 
@@ -94,7 +94,7 @@ let draft_public_credentials =
   {
     of_string = public_credentials_of_string;
     to_string = string_of_public_credentials;
-    filename = Storage_sig.Public_creds;
+    filename = Storage.Public_creds;
   }
   |> make_file
 
@@ -102,7 +102,7 @@ let hide_result =
   {
     of_string = datetime_of_string;
     to_string = string_of_datetime;
-    filename = Storage_sig.Hide_result;
+    filename = Storage.Hide_result;
   }
   |> make_file
 
@@ -110,7 +110,7 @@ let dates =
   {
     of_string = election_dates_of_string;
     to_string = string_of_election_dates;
-    filename = Storage_sig.Dates;
+    filename = Storage.Dates;
   }
   |> make_file
 
@@ -118,7 +118,7 @@ let state =
   {
     of_string = election_state_of_string;
     to_string = string_of_election_state;
-    filename = Storage_sig.State;
+    filename = Storage.State;
   }
   |> make_file
 
@@ -126,7 +126,7 @@ let decryption_tokens =
   {
     of_string = decryption_tokens_of_string;
     to_string = string_of_decryption_tokens;
-    filename = Storage_sig.Decryption_tokens;
+    filename = Storage.Decryption_tokens;
   }
   |> make_file
 
@@ -134,7 +134,7 @@ let metadata =
   {
     of_string = metadata_of_string;
     to_string = string_of_metadata;
-    filename = Storage_sig.Metadata;
+    filename = Storage.Metadata;
   }
   |> make_file
 
@@ -142,35 +142,35 @@ let private_key =
   {
     of_string = Yojson.Safe.from_string;
     to_string = Yojson.Safe.to_string;
-    filename = Storage_sig.Private_key;
+    filename = Storage.Private_key;
   }
   |> make_file
 
 let private_keys =
-  let filename = Storage_sig.Private_keys in
+  let filename = Storage.Private_keys in
   let get s uuid =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     let* x = S.get (Election (uuid, filename)) in
     let&* x = x in
     Lwt.return_some @@ split_lines x
   in
   let del s uuid =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     S.del (Election (uuid, filename))
   in
   let update s uuid =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     let* x = S.update (Election (uuid, filename)) in
     let&* x, set = x in
     let set x = set (join_lines x) in
     Lwt.return_some (split_lines x, set)
   in
   let create s uuid x =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     S.create (Election (uuid, filename)) (join_lines x)
   in
   let ensure s uuid x =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     S.ensure (Election (uuid, filename)) (join_lines x)
   in
   Abstract { get; del; update; create; ensure }
@@ -179,7 +179,7 @@ let skipped_shufflers =
   {
     of_string = skipped_shufflers_of_string;
     to_string = string_of_skipped_shufflers;
-    filename = Storage_sig.Skipped_shufflers;
+    filename = Storage.Skipped_shufflers;
   }
   |> make_file
 
@@ -187,7 +187,7 @@ let shuffle_token =
   {
     of_string = shuffle_token_of_string;
     to_string = string_of_shuffle_token;
-    filename = Storage_sig.Shuffle_token;
+    filename = Storage.Shuffle_token;
   }
   |> make_file
 
@@ -195,7 +195,7 @@ let audit_cache =
   {
     of_string = audit_cache_of_string;
     to_string = string_of_audit_cache;
-    filename = Storage_sig.Audit_cache;
+    filename = Storage.Audit_cache;
   }
   |> make_file
 
@@ -203,7 +203,7 @@ let last_event =
   {
     of_string = last_event_of_string;
     to_string = string_of_last_event;
-    filename = Storage_sig.Last_event;
+    filename = Storage.Last_event;
   }
   |> make_file
 
@@ -211,6 +211,6 @@ let salts =
   {
     of_string = salts_of_string;
     to_string = string_of_salts;
-    filename = Storage_sig.Salts;
+    filename = Storage.Salts;
   }
   |> make_file

@@ -61,7 +61,7 @@ struct
                   Lwt.fail @@ Failure "invalid configuration for admin site"
               | Some x -> cont x
             in
-            let key : Storage_sig.admin_password_file =
+            let key : Storage.admin_password_file =
               if is_email name then Address name else Username name
             in
             S.get (Admin_password (file, key))
@@ -131,7 +131,7 @@ let get_password_db_fname service =
   find !Web_config.site_auth_config
 
 let do_add_account s ~db_fname ~username ~password ~email =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let@ () =
    fun cont ->
     let* r = S.get (Admin_password (db_fname, Username username)) in
@@ -152,7 +152,7 @@ let do_add_account s ~db_fname ~username ~password ~email =
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
 let do_change_password s ~db_fname ~username ~password =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let@ r, set =
    fun cont ->
     let* r = S.update (Admin_password (db_fname, Username username)) in

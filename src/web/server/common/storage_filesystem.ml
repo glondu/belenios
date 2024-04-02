@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_server_core
-open Storage_sig
+open Storage
 
 let () = Stdlib.Random.self_init ()
 
@@ -42,7 +42,7 @@ module type S = sig
 
   val passwords_dbs : SSet.t ref
   val auth_dbs : SSet.t ref
-  val make : uuid option Mutex_set.t -> (module Storage_sig.BACKEND)
+  val make : uuid option Mutex_set.t -> (module Storage.BACKEND)
 end
 
 exception Not_implemented of string
@@ -1170,10 +1170,10 @@ module MakeBackend (Config : CONFIG) : S = struct
       let append uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
     end in
-    (module X : Storage_sig.BACKEND)
+    (module X : Storage.BACKEND)
 end
 
-module Make (Config : CONFIG) : Storage_sig.S = struct
+module Make (Config : CONFIG) : Storage.S = struct
   module B = MakeBackend (Config)
 
   let register_passwords_db x = B.passwords_dbs := SSet.add x !B.passwords_dbs
@@ -1189,7 +1189,7 @@ module Make (Config : CONFIG) : Storage_sig.S = struct
         Lwt.return_unit)
 
   let get_live_election_summary s uuid =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     let* state =
       let* x = S.get (Election (uuid, State)) in
       match x with

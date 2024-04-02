@@ -29,52 +29,52 @@ val get_spool_version : unit -> int Lwt.t
 
 (** {1 Dynamically updated election data} *)
 
-val get_election_state : election_state Lwt.t Storage_sig.u
-val update_election_state : election_state updatable Lwt.t Storage_sig.u
+val get_election_state : election_state Lwt.t Storage.u
+val update_election_state : election_state updatable Lwt.t Storage.u
 
 (** {1 Typed election data from storage} *)
 
-val get_election_dates : election_dates Lwt.t Storage_sig.u
-val update_election_dates : election_dates updatable Lwt.t Storage_sig.u
-val get_election_metadata : metadata Lwt.t Storage_sig.u
-val get_election_result_hidden : datetime option Lwt.t Storage_sig.u
-val set_election_result_hidden : (datetime option -> unit Lwt.t) Storage_sig.u
-val get_private_creds_downloaded : bool Lwt.t Storage_sig.u
-val set_private_creds_downloaded : unit Lwt.t Storage_sig.u
-val get_audit_cache : audit_cache Lwt.t Storage_sig.u
+val get_election_dates : election_dates Lwt.t Storage.u
+val update_election_dates : election_dates updatable Lwt.t Storage.u
+val get_election_metadata : metadata Lwt.t Storage.u
+val get_election_result_hidden : datetime option Lwt.t Storage.u
+val set_election_result_hidden : (datetime option -> unit Lwt.t) Storage.u
+val get_private_creds_downloaded : bool Lwt.t Storage.u
+val set_private_creds_downloaded : unit Lwt.t Storage.u
+val get_audit_cache : audit_cache Lwt.t Storage.u
 
 val get_election_automatic_dates :
-  Belenios_api.Serializable_t.election_auto_dates Lwt.t Storage_sig.u
+  Belenios_api.Serializable_t.election_auto_dates Lwt.t Storage.u
 
 val set_election_automatic_dates :
-  (Belenios_api.Serializable_t.election_auto_dates -> unit Lwt.t) Storage_sig.u
+  (Belenios_api.Serializable_t.election_auto_dates -> unit Lwt.t) Storage.u
 
 (** {1 Voter-specific stuff} *)
 
-val get_all_voters : Voter.t list Lwt.t Storage_sig.u
-val get_draft_public_credentials : string option Lwt.t Storage_sig.u
-val get_records : string list option Lwt.t Storage_sig.u
-val get_salt : (int -> Yojson.Safe.t salt option Lwt.t) Storage_sig.u
-val get_voter : (string -> Voter.t option Lwt.t) Storage_sig.u
+val get_all_voters : Voter.t list Lwt.t Storage.u
+val get_draft_public_credentials : string option Lwt.t Storage.u
+val get_records : string list option Lwt.t Storage.u
+val get_salt : (int -> Yojson.Safe.t salt option Lwt.t) Storage.u
+val get_voter : (string -> Voter.t option Lwt.t) Storage.u
 
 val check_password :
   (user:string -> password:string -> (string * string option) option Lwt.t)
-  Storage_sig.u
+  Storage.u
 
-val regen_password : (metadata -> string -> bool Lwt.t) Storage_sig.u
+val regen_password : (metadata -> string -> bool Lwt.t) Storage.u
 
 (** {1 Derived election data} *)
 
-val get_has_explicit_weights : bool Lwt.t Storage_sig.u
-val get_username_or_address : [ `Username | `Address ] Lwt.t Storage_sig.u
+val get_has_explicit_weights : bool Lwt.t Storage.u
+val get_username_or_address : [ `Username | `Address ] Lwt.t Storage.u
 val is_group_fixed : uuid -> draft_election -> bool
 
 (** {1 Tokens} *)
 
 val gen_shuffle_token :
-  (string -> int -> string option -> shuffle_token Lwt.t) Storage_sig.u
+  (string -> int -> string option -> shuffle_token Lwt.t) Storage.u
 
-val get_shuffle_token : shuffle_token option Lwt.t Storage_sig.u
+val get_shuffle_token : shuffle_token option Lwt.t Storage.u
 
 (** {1 Election actions} *)
 
@@ -83,11 +83,11 @@ val validate_election :
   (draft_election updatable ->
   Belenios_api.Serializable_t.draft_status ->
   unit Lwt.t)
-  Storage_sig.u
+  Storage.u
 
 val precast_ballot :
   (rawballot:string -> (string * credential_record, cast_error) result Lwt.t)
-  Storage_sig.u
+  Storage.u
 
 val cast_ballot :
   (rawballot:string ->
@@ -96,25 +96,25 @@ val cast_ballot :
   datetime ->
   precast_data:string * credential_record ->
   (string * bool, cast_error) result Lwt.t)
-  Storage_sig.u
+  Storage.u
 
 val append_to_shuffles :
-  Storage_sig.t ->
+  Storage.t ->
   (module Site_common_sig.ELECTION) ->
   int ->
   string ->
   string option Lwt.t
 
-val add_partial_decryption : (int * string -> unit Lwt.t) Storage_sig.u
-val release_tally : unit Lwt.t Storage_sig.u
-val archive_election : unit Lwt.t Storage_sig.u
-val delete_election : unit Lwt.t Storage_sig.u
-val delete_draft : unit Lwt.t Storage_sig.u
-val create_draft : (draft_election -> unit Lwt.t) Storage_sig.u
-val compute_encrypted_tally : bool Lwt.t Storage_sig.u
-val finish_shuffling : bool Lwt.t Storage_sig.u
-val open_election : bool Lwt.t Storage_sig.u
-val close_election : bool Lwt.t Storage_sig.u
+val add_partial_decryption : (int * string -> unit Lwt.t) Storage.u
+val release_tally : unit Lwt.t Storage.u
+val archive_election : unit Lwt.t Storage.u
+val delete_election : unit Lwt.t Storage.u
+val delete_draft : unit Lwt.t Storage.u
+val create_draft : (draft_election -> unit Lwt.t) Storage.u
+val compute_encrypted_tally : bool Lwt.t Storage.u
+val finish_shuffling : bool Lwt.t Storage.u
+val open_election : bool Lwt.t Storage.u
+val close_election : bool Lwt.t Storage.u
 
 (** {1 Misc} *)
 

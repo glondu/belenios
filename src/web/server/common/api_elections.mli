@@ -24,19 +24,16 @@ open Web_common
 open Belenios_api.Serializable_t
 open Api_generic
 
-val get_election_status : election_status Lwt.t Storage_sig.u
-val get_records : records Lwt.t Storage_sig.u
-val set_postpone_date : (float option -> bool Lwt.t) Storage_sig.u
-
-val get_partial_decryptions :
-  (metadata -> partial_decryptions Lwt.t) Storage_sig.u
-
-val get_shuffles : (metadata -> shuffles Lwt.t) Storage_sig.u
-val skip_shuffler : (string -> unit Lwt.t) Storage_sig.u
-val select_shuffler : (metadata -> string -> unit Lwt.t) Storage_sig.u
+val get_election_status : election_status Lwt.t Storage.u
+val get_records : records Lwt.t Storage.u
+val set_postpone_date : (float option -> bool Lwt.t) Storage.u
+val get_partial_decryptions : (metadata -> partial_decryptions Lwt.t) Storage.u
+val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
+val skip_shuffler : (string -> unit Lwt.t) Storage.u
+val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
 
 val dispatch :
-  Storage_sig.t ->
+  Storage.t ->
   token:string option ->
   ifmatch:string option ->
   string list ->
@@ -44,13 +41,12 @@ val dispatch :
   body ->
   result Lwt.t
 
-val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage_sig.u ref
+val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
 
 val cast_ballot :
-  (bool -> string -> string -> weight option -> string -> bool Lwt.t)
-  Storage_sig.u ->
+  (bool -> string -> string -> weight option -> string -> bool Lwt.t) Storage.u ->
   (rawballot:string ->
   user:user ->
   precast_data:string * credential_record ->
   (user * string * bool * weight * bool) Lwt.t)
-  Storage_sig.u
+  Storage.u

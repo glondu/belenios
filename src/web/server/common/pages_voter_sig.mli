@@ -24,7 +24,7 @@ open Belenios_server_core
 
 module type S = sig
   val election_home :
-    Storage_sig.t ->
+    Storage.t ->
     (module Site_common_sig.ELECTION) ->
     election_state ->
     unit ->
@@ -36,7 +36,7 @@ module type S = sig
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val lost_ballot :
-    Storage_sig.t ->
+    Storage.t ->
     (module Site_common_sig.ELECTION) ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
@@ -48,7 +48,7 @@ module type S = sig
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val pretty_ballots :
-    Storage_sig.t ->
+    Storage.t ->
     (module Site_common_sig.ELECTION) ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 

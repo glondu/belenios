@@ -22,5 +22,29 @@
 include Web_serializable_j
 include Core
 module Filesystem = Filesystem
-module Storage_sig = Storage_sig
 module Defaults = Defaults
+
+module Storage = struct
+  include Storage_sig
+
+  let storage_backend = ref None
+
+  let get_backend () =
+    match !storage_backend with
+    | None -> failwith "no storage backend set"
+    | Some x -> x
+
+  let register_passwords_db f =
+    let module X = (val get_backend () : S) in
+    X.register_passwords_db f
+
+  let register_auth_db f =
+    let module X = (val get_backend () : S) in
+    X.register_auth_db f
+
+  let with_transaction f =
+    let module X = (val get_backend () : S) in
+    X.with_transaction f
+
+  let init_backend x = storage_backend := Some x
+end

@@ -206,8 +206,8 @@ module Make () = struct
       let spool_dir = spool_dir
       let accounts_dir = accounts_dir
     end in
-    let module Storage = Storage_filesystem.Make (Config) in
-    Web_config.storage_backend := Some (module Storage)
+    let module Backend = Storage_filesystem.Make (Config) in
+    Storage.init_backend (module Backend)
 
   let register_auth a =
     let () =

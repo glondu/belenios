@@ -220,7 +220,7 @@ let post_drafts account s draft =
       se_pending_credentials = false;
     }
   in
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let* uuid = S.new_election () in
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
@@ -716,7 +716,7 @@ let merge_voters a b f =
   loop weights (List.rev a) b
 
 let get_passwords s uuid =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   let* csv = S.get (Election (uuid, Passwords)) in
   let&* csv = csv in
   let* csv =
@@ -925,7 +925,7 @@ let post_draft_status ~admin_id s uuid (Draft (v, se), set) = function
       ok
 
 let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
-  let module S = (val s : Storage_sig.BACKEND) in
+  let module S = (val s : Storage.BACKEND) in
   match endpoint with
   | [ "token" ] -> (
       let@ _ = with_administrator token se in
@@ -1145,7 +1145,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
   | [] -> (
       let@ token = Option.unwrap unauthorized token in
       let@ account = Option.unwrap unauthorized (lookup_token token) in
-      let module S = (val s : Storage_sig.BACKEND) in
+      let module S = (val s : Storage.BACKEND) in
       let get () =
         let* elections = S.get_elections_by_owner account.id in
         let elections =

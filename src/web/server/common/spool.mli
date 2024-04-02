@@ -24,11 +24,11 @@ open Belenios_server_core
 
 type 'a t
 
-val get : ('a t -> 'a option Lwt.t) Storage_sig.u
-val del : ('a t -> unit Lwt.t) Storage_sig.u
-val update : ('a t -> 'a Web_common.updatable option Lwt.t) Storage_sig.u
-val create : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
-val ensure : ('a t -> 'a -> unit Lwt.t) Storage_sig.u
+val get : ('a t -> 'a option Lwt.t) Storage.u
+val del : ('a t -> unit Lwt.t) Storage.u
+val update : ('a t -> 'a Web_common.updatable option Lwt.t) Storage.u
+val create : ('a t -> 'a -> unit Lwt.t) Storage.u
+val ensure : ('a t -> 'a -> unit Lwt.t) Storage.u
 
 (* draft elections *)
 val draft : draft_election t

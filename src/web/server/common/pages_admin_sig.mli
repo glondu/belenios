@@ -102,12 +102,12 @@ module type S = sig
 
   val election_draft_confirm :
     (draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t)
-    Storage_sig.u
+    Storage.u
 
   val election_admin :
     ?shuffle_token:string ->
     ?tally_token:string ->
-    Storage_sig.t ->
+    Storage.t ->
     (module Site_common_sig.ELECTION) ->
     metadata ->
     election_status ->
@@ -117,7 +117,7 @@ module type S = sig
   val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val pretty_records :
-    Storage_sig.t ->
+    Storage.t ->
     (module Site_common_sig.ELECTION) ->
     records ->
     unit ->

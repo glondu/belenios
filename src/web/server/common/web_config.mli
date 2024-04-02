@@ -50,4 +50,3 @@ val deny_newelection : bool ref
 val blacklisted_domains : Belenios.SSet.t ref
 val billing : (string * string) option ref
 val restricted_mode : bool ref
-val storage_backend : (module Storage_sig.S) option ref

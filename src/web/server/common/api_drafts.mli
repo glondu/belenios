@@ -27,7 +27,7 @@ open Web_common
 
 val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election
-val post_drafts : account -> Storage_sig.t -> draft -> uuid option Lwt.t
+val post_drafts : account -> Storage.t -> draft -> uuid option Lwt.t
 val get_draft_voters : draft_election -> voter_list
 val put_draft_voters : draft_election updatable -> voter_list -> unit Lwt.t
 
@@ -44,7 +44,7 @@ val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
 val submit_public_credentials :
-  (draft_election updatable -> public_credentials -> unit Lwt.t) Storage_sig.u
+  (draft_election updatable -> public_credentials -> unit Lwt.t) Storage.u
 
 val generate_server_trustee :
   draft_election -> Yojson.Safe.t draft_trustee Lwt.t
@@ -69,7 +69,7 @@ val get_draft_trustees_mode : draft_election -> [ `Basic | `Threshold of int ]
 val put_draft_trustees_mode :
   draft_election updatable -> [ `Basic | `Threshold of int ] -> unit Lwt.t
 
-val get_draft_status : (draft_election -> draft_status Lwt.t) Storage_sig.u
+val get_draft_status : (draft_election -> draft_status Lwt.t) Storage.u
 
 val merge_voters :
   draft_voter list ->
@@ -87,7 +87,7 @@ val import_voters :
     | `Duplicate of string ] )
   Stdlib.result
   Lwt.t)
-  Storage_sig.u
+  Storage.u
 
 val import_trustees :
   draft_election updatable ->
@@ -97,12 +97,12 @@ val import_trustees :
   )
   Stdlib.result
   Lwt.t)
-  Storage_sig.u
+  Storage.u
 
 open Api_generic
 
 val dispatch :
-  Storage_sig.t ->
+  Storage.t ->
   token:string option ->
   ifmatch:string option ->
   string list ->

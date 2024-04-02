@@ -1,8 +1,7 @@
 (library
  (name belenios_server_core)
  (libraries belenios-platform-native belenios-lib belenios-server.api
-   lwt.unix calendar)
- (modules_without_implementation storage_sig))
+   lwt.unix calendar))
 
 (rule
  (targets web_serializable_t.ml web_serializable_t.mli)

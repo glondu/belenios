@@ -27,4 +27,4 @@ module type CONFIG = sig
   val accounts_dir : string
 end
 
-module Make (Config : CONFIG) : Belenios_server_core.Storage_sig.S
+module Make (Config : CONFIG) : Belenios_server_core.Storage.S

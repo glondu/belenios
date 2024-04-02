@@ -45,7 +45,7 @@ struct
         Redirection.send (Redirection admin))
 
   let get_elections_by_owner_sorted s u =
-    let module S = (val s : Storage_sig.BACKEND) in
+    let module S = (val s : Storage.BACKEND) in
     let* elections = S.get_elections_by_owner u in
     let filter f =
       let open Belenios_api.Serializable_t in
