@@ -25,13 +25,13 @@ open Belenios
 open Belenios_server_core
 open Web_common
 
+let () = Storage_filesystem.register ()
+
 module Make () = struct
   (** Parse configuration from <eliom> *)
 
   let prefix = ref None
   let locales_dir = ref None
-  let spool_dir = ref None
-  let accounts_dir = ref None
   let source_file = ref None
   let auth_instances = ref []
   let auth_instances_export = ref []
@@ -39,9 +39,6 @@ module Make () = struct
   let default_group_file = ref None
   let nh_group_file = ref None
   let domain = ref None
-  let uuid_length = ref Uuid.min_length
-  let account_id_min = ref 100000000
-  let account_id_max = ref 999999999
 
   let () =
     Eliom_config.get_config ()
@@ -67,10 +64,6 @@ module Make () = struct
         nh_group_file := Some (`Group group)
     | Element ("maxmailsatonce", [ ("value", limit) ], []) ->
         Web_config.maxmailsatonce := int_of_string limit
-    | Element ("uuid", [ ("length", length) ], []) ->
-        let length = int_of_string length in
-        if length >= Uuid.min_length then uuid_length := length
-        else failwith "UUID length is too small"
     | Element ("contact", [ ("uri", uri) ], []) ->
         Web_config.contact_uri := Some uri
     | Element ("gdpr", [ ("uri", uri) ], []) -> gdpr_uri := Some uri
@@ -87,8 +80,6 @@ module Make () = struct
         set true "return-path" (fun x -> Web_config.return_path := Some x);
         set false "name" (fun x -> Web_config.server_name := x)
     | Element ("locales", [ ("dir", dir) ], []) -> locales_dir := Some dir
-    | Element ("spool", [ ("dir", dir) ], []) -> spool_dir := Some dir
-    | Element ("accounts", [ ("dir", dir) ], []) -> accounts_dir := Some dir
     | Element ("warning", [ ("file", file) ], []) ->
         Web_config.warning_file := Some file
     | Element ("footer", [ ("file", file) ], []) ->
@@ -132,13 +123,8 @@ module Make () = struct
     | Element ("billing", [ ("url", url); ("callback", callback) ], []) ->
         Web_config.billing := Some (url, callback)
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
-    | Element ("account-ids", [ ("min", min); ("max", max) ], []) ->
-        let min = int_of_string min and max = int_of_string max in
-        if min > 0 && max - min > 4000000 then (
-          (* birthday paradox: room for 2000 accounts *)
-          account_id_min := min;
-          account_id_max := max)
-        else failwith "account-ids delta is not big enough"
+    | Element ("storage", [ ("backend", backend) ], config) ->
+        Storage.init_backend backend config
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag
@@ -169,16 +155,6 @@ module Make () = struct
     | Some d -> d
     | None -> failwith "missing <locales> in configuration"
 
-  let spool_dir =
-    match !spool_dir with
-    | Some d -> d
-    | None -> failwith "missing <spool> in configuration"
-
-  let accounts_dir =
-    match !accounts_dir with
-    | Some d -> d
-    | None -> failwith "missing <accounts> in configuration"
-
   let default_group =
     Lwt_main.run
       (match !default_group_file with
@@ -197,17 +173,6 @@ module Make () = struct
     | None -> failwith "missing <domain> in configuration"
 
   (** Set up storage *)
-
-  let () =
-    let module Config = struct
-      let uuid_length = !uuid_length
-      let account_id_min = !account_id_min
-      let account_id_max = !account_id_max
-      let spool_dir = spool_dir
-      let accounts_dir = accounts_dir
-    end in
-    let module Backend = Storage_filesystem.Make (Config) in
-    Storage.init_backend (module Backend)
 
   let register_auth a =
     let () =

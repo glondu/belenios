@@ -56,7 +56,6 @@
         -->
         <maxrequestbodysizeinmemory value="1048576"/>
         <maxmailsatonce value="1000"/>
-        <uuid length="14"/>
         <gdpr uri="http://www.example.org/privacy_policy.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org" return-path="bounces@example.org" name="Belenios public server"/>
@@ -69,8 +68,11 @@
         <default-group group="Ed25519"/>
         <nh-group group="Ed25519"/>
         <locales dir="_SHAREDIR_/locales"/>
-        <spool dir="_VARDIR_/spool"/>
-        <accounts dir="_VARDIR_/accounts"/>
+        <storage backend="filesystem">
+          <uuid length="14"/>
+          <spool dir="_VARDIR_/spool"/>
+          <accounts dir="_VARDIR_/accounts"/>
+        </storage>
         <admin-home file="_VARDIR_/admin-home.html"/>
         <success-snippet file="_VARDIR_/success-snippet.html"/>
         <warning file="_VARDIR_/warning.html"/>

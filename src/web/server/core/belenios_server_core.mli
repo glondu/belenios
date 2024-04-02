@@ -28,5 +28,6 @@ module Storage : sig
   include module type of Storage_sig
   include S
 
-  val init_backend : (module S) -> unit
+  val register_backend : string -> (Xml.xml list -> (module S)) -> unit
+  val init_backend : string -> Xml.xml list -> unit
 end

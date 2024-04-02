@@ -1274,3 +1274,61 @@ module Make (Config : CONFIG) : Storage.S = struct
 
   let () = B.build_elections_by_owner_cache := build_elections_by_owner_cache
 end
+
+let backend_name = "filesystem"
+
+let make_backend (config : Xml.xml list) =
+  let spool_dir = ref None in
+  let accounts_dir = ref None in
+  let uuid_length = ref Uuid.min_length in
+  let account_id_min = ref 100000000 in
+  let account_id_max = ref 999999999 in
+  let () =
+    config
+    |> List.iter @@ function
+       | Xml.PCData x ->
+           if String.trim x <> "" then
+             Printf.ksprintf failwith "unexpected pcdata in configuration of %s"
+               backend_name
+       | Element ("uuid", [ ("length", length) ], []) ->
+           let length = int_of_string length in
+           if length >= Uuid.min_length then uuid_length := length
+           else failwith "UUID length is too small"
+       | Element ("spool", [ ("dir", dir) ], []) -> spool_dir := Some dir
+       | Element ("accounts", [ ("dir", dir) ], []) -> accounts_dir := Some dir
+       | Element ("account-ids", [ ("min", min); ("max", max) ], []) ->
+           let min = int_of_string min and max = int_of_string max in
+           if min > 0 && max - min > 4000000 then (
+             (* birthday paradox: room for 2000 accounts *)
+             account_id_min := min;
+             account_id_max := max)
+           else failwith "account-ids delta is not big enough"
+       | Element (tag, _, _) ->
+           Printf.ksprintf failwith "unexpected tag <%s> in configuration of %s"
+             tag backend_name
+  in
+  let spool_dir =
+    match !spool_dir with
+    | Some d -> d
+    | None ->
+        Printf.ksprintf failwith "missing <spool> in configuration of %s"
+          backend_name
+  in
+  let accounts_dir =
+    match !accounts_dir with
+    | Some d -> d
+    | None ->
+        Printf.ksprintf failwith "missing <accounts> in configuration of %s"
+          backend_name
+  in
+  let module Config = struct
+    let uuid_length = !uuid_length
+    let account_id_min = !account_id_min
+    let account_id_max = !account_id_max
+    let spool_dir = spool_dir
+    let accounts_dir = accounts_dir
+  end in
+  let module X = Make (Config) in
+  (module X : Storage.S)
+
+let register () = Storage.register_backend backend_name make_backend

@@ -28,3 +28,5 @@ module type CONFIG = sig
 end
 
 module Make (Config : CONFIG) : Belenios_server_core.Storage.S
+
+val register : unit -> unit

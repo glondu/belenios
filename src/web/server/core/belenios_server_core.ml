@@ -27,10 +27,11 @@ module Defaults = Defaults
 module Storage = struct
   include Storage_sig
 
-  let storage_backend = ref None
+  let backends = ref []
+  let backend = ref None
 
   let get_backend () =
-    match !storage_backend with
+    match !backend with
     | None -> failwith "no storage backend set"
     | Some x -> x
 
@@ -46,5 +47,9 @@ module Storage = struct
     let module X = (val get_backend () : S) in
     X.with_transaction f
 
-  let init_backend x = storage_backend := Some x
+  let register_backend name x = backends := (name, x) :: !backends
+
+  let init_backend name config =
+    let x = List.assoc name !backends config in
+    backend := Some x
 end
