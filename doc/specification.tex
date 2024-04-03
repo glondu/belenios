@@ -990,32 +990,42 @@ being:
     \end{array}
   \right\}
   \qquad
-  \begin{array}{ccc}
-    \texttt{question\_nh}&=&\left\{
-      \begin{array}{rcl}
-        \answers&:&\jstring^\ast\\
-        \textsf{question}&:&\jstring
-      \end{array}
-    \right\}\\
-    \texttt{question\_gen}&=&\left\{
-      \begin{array}{rcl}
-        \textsf{type}&:&\jstring\\
-        \textsf{value}&:&\texttt{json}\\
-        ?\textsf{extra}&:&\texttt{json}
-      \end{array}
-    \right\}
-  \end{array}
+  \texttt{question\_nh}=\left\{
+    \begin{array}{rcl}
+      \answers&:&\jstring^\ast\\
+      \textsf{question}&:&\jstring
+    \end{array}
+  \right\}
+\end{gather*}
+
+\begin{gather*}
+  \texttt{question\_l}=\left\{
+    \begin{array}{rcl}
+      \answers&:&\jstring^{\ast\ast}\\
+      \textsf{question}&:&\jstring
+    \end{array}
+  \right\}
+\end{gather*}
+
+\begin{gather*}
+  \texttt{question\_gen}=\left\{
+    \begin{array}{rcl}
+      \textsf{type}&:&\jstring\\
+      \textsf{value}&:&\texttt{json}\\
+      ?\textsf{extra}&:&\texttt{json}
+    \end{array}
+  \right\}
 \end{gather*}
 
 \begin{gather*}
   \question=\texttt{question\_h}\mid\texttt{question\_gen}
 \end{gather*}
 
-There are two types of questions: homomorphic ones and non-homomorphic
-ones. The difference is in the outcome of the election: with a
-homomorphic question, only the pointwise sum of all the answers
-(see~\ref{answers}) will be revealed at the end of the election
-whereas with a non-homomorphic question, each individual answer will
+There are three types of questions: homomorphic (H) ones,
+non-homomorphic (NH) ones and lists (L) ones. A key difference is the
+outcome of the election: with H or L questions, only the pointwise sum
+of all the answers (see~\ref{answers}) will be revealed at the end of
+the election whereas with a NH question, each individual answer will
 be revealed.
 
 \subsubsection{Homomorphic questions}
@@ -1041,6 +1051,20 @@ structure. They are needed when homomorphic questions are not
 suitable, for example when answers represent preferences or are too
 big. An \textsf{extra} field may be present, to give a hint on the
 intended counting method (Majority Judgment, Condorcet, STV, \dots).
+
+\subsubsection{Lists questions}
+
+Lists questions are represented nested in a \texttt{question\_gen}
+structure (second alternative), where the \textsf{type} property is
+set to \verb=Lists=, and the \textsf{value} property is set to a
+\texttt{question\_l} structure. Such questions are suitable to elect
+candidates grouped in lists. Here, $\answers$ is a vector of vectors
+of strings with the shape:
+\[ [[L_1,C_{1,1},\dots],\dots,[L_n,C_{n,1},\dots]] \] where $L_i$ is
+the name of list $i$ and $C_{i,j}$ is the name of candidate $j$ of
+list $i$. The voter is asked to select one list $L_i$ among
+$L_1,\dots,L_n$ and, in this list, at least one candidate among
+$C_{i,1},\dots,C_{i,n_i}$.
 
 \subsection{Elections}
 \label{elections}
@@ -1131,7 +1155,19 @@ Base64 encoding of the \textsf{election} field of
 \end{gather*}
 
 \begin{gather*}
-  \answer=\texttt{answer\_h}\mid\texttt{answer\_nh}
+  \texttt{answer\_l}=\left\{
+    \begin{array}{rcl}
+      \choices&:&\ciphertext^{\ast\ast}\\
+      \iproofs&:&\iproof^{\ast\ast}\\
+      \oproof&:&\proof\\
+      \textsf{list\_proofs}&:&\proof^{\ast\ast}\\
+      \textsf{nonzero\_proof}&:&\texttt{nonzero\_proof}
+    \end{array}
+  \right\}
+\end{gather*}
+
+\begin{gather*}
+  \answer=\texttt{answer\_h}\mid\texttt{answer\_nh}\mid\texttt{answer\_l}
 \end{gather*}
 
 The structure of an answer to a \hyperref[elections]{$\question$}
@@ -1226,6 +1262,73 @@ The proof is verified as follows:
 \begin{enumerate}
 \item compute $A=g^\response\times\alphalabel^\challenge$
 \item check that $\challenge=\Hash_{\textsf{raweg}}(S,y,\alphalabel,\betalabel,A)$
+\end{enumerate}
+
+\subsubsection{Lists answers}
+\label{l-answers}
+
+The plaintext answer to a lists question is a vector of vectors of
+bits \[m=[[L_1,C_{1,1},\dots],\dots,[L_n,C_{n,1},\dots]]\] where:
+\begin{itemize}
+\item $L_i$ represents if list $i$ is selected;
+\item $C_{i,j}$ represents if candidate $j$ of list $i$ is selected.
+\end{itemize}
+The corresponding encrypted answer consists of:
+\begin{itemize}
+\item $\choices$: the pointwise encryptions of bits of $m$,
+  like in homomorphic answers;
+\item $\iproofs$: proofs that $m$ contains only bits ($0$ or $1$),
+  like in homomorphic answers;
+\item $\oproof$: a proof that $\sum_i L_i=1$ (\emph{exactly one list
+    is selected});
+\item $\textsf{list\_proofs}$: a vector of proofs
+  $[\pi_1,\dots,\pi_n]$ where each $\pi_i$ proves that
+  $L_i=1\lor\sum_jC_{i,j}=0$ (\emph{each list is either selected, or
+    all its candidates are not selected});
+\item $\textsf{nonzero\_proof}$: a proof that
+  $\sum_i\sum_jC_{i,j}\neq 0$ (\emph{at least one candidate is
+    selected}).
+\end{itemize}
+
+\paragraph{Encryptions} Each bit $m_{i,j}$ in $m$ is encrypted (in an
+El Gamal-like fashion) into a $\ciphertext$ $c_{i,j}$ as follows:
+\begin{enumerate}
+\item pick a random $r_{i,j}\in\Z_q$
+\item $\alphalabel=g^{r_{i,j}}$
+\item $\betalabel=y^{r_{i,j}}g^{m_{i,j}}$
+\end{enumerate}
+\paragraph{Individual proofs} Each individual proof that
+$m_{i,j}\in\{0,1\}$ is computed by running:
+\[\iprove(S_0,r_{i,j},m,0,1)\]
+Like in homomorphic answers, other proofs in lists answers use a
+string $S$ built as follows:
+\begin{itemize}
+\item let $a$ be $\choices$, where each ciphertext $c$ is replaced by
+  the serialization of its $\alphalabel$ field, a comma, and the
+  serialization of its $\betalabel$ field;
+\item let $b$ be the concatenation of all strings in $a$, separated by
+  commas;
+\item let $S$ be the string $S_0$ followed by a vertical bar and $b$.
+\end{itemize}
+
+\paragraph{Overall proof} The overall proof that
+$\sum_i L_i=1(=\sum_i m_{i,0})$ is computed by running:
+\[\iprove\left(S,\left(\sum_i r_{i,0}\right),\left(\sum_i
+      m_{i,0}\right),1,1\right)\]
+
+\paragraph{List proofs} See section~\ref{list-proofs}.
+
+\paragraph{Non-zero proof} To prove that $\sum_i\sum_jC_{i,j}\neq 0$:
+\begin{enumerate}
+\item compute $r=\sum_i\sum_{j\neq 0}r_{i,j}$,
+  $\alpha=\prod_i\prod_{j\neq 0}\alphalabel(c_{i,j})$ and
+  $\beta=\prod_i\prod_{j\neq 0}\betalabel(c_{i,j})$;
+  \begin{itemize}
+  \item $(\alpha,\beta)$ is the encryption of $\sum_i\sum_jC_{i,j}$
+    with random $r$;
+  \end{itemize}
+\item prove that $(\alpha,\beta)$ encrypts a non-zero value with
+  random $r$ (see section~\ref{nonzero-proof}).
 \end{enumerate}
 
 \subsection{Proofs of interval membership}
@@ -1408,6 +1511,119 @@ $(\pi_0,\pi_1,\dotsc,\pi_k)$ such that the following procedure passes:
   B_j=y^{\response(\pi_j)}\times(\beta_\Sigma/g^{M_j})^{\challenge(\pi_j)}\]
 \item check that
   \[\Hash_{\textsf{bproof1}}(S,A_0,B_0,\dots,A_k,B_k)=\sum_{j=0}^k\challenge(\pi_j)\mod q\]
+\end{enumerate}
+
+\subsection{Proofs of list constraints}
+\label{list-proofs}
+
+\paragraph{Proving}
+For each $i$, the proof of the list constraint that
+$L_i=1\lor\sum_jC_{i,j}=0$ is a pair $\pi_i=(\pi_{i,0},\pi_{i,1})$
+computed as follows:
+\begin{itemize}
+\item let $r_0=r_{i,0}$, $\alpha_0=\alphalabel(c_{i,0})$ and
+  $\beta_0=\betalabel(c_{i,0})$:
+  \begin{itemize}
+  \item $(\alpha_0,\beta_0)$ is the encryption of $L_i$ with random $r_0$;
+  \end{itemize}
+\item compute $r=\sum_{j\neq 0}r_{i,j}$,
+  $\alpha=\prod_{j\neq 0}\alphalabel(c_{i,j})$ and
+  $\beta=\prod_{j\neq 0}\betalabel(c_{i,j})$:
+  \begin{itemize}
+  \item $(\alpha,\beta)$ is the encryption of $\sum_jC_{i,j}$ with random $r$;
+  \end{itemize}
+\item if $L_i=1$:
+  \begin{enumerate}
+  \item pick random $\challenge_1$ and $\response_1$ in $\Z_q$;
+  \item compute $A_1=g^{\response_1}\times\alpha^{\challenge_1}$ and
+    $B_1=y^{\response_1}\times\beta^{\challenge_1}$;
+  \item pick a random $w\in\Z_q$;
+  \item compute $A_0=g^w$ and $B_0=y^w$;
+  \item compute $h=\Hash_{\textsf{lproof}}(S,A_0,B_0,A_1,B_1)$;
+  \item compute $\challenge_0=h-\challenge_1$ and
+    $\response_0=w-r_0\times\challenge_0$;
+  \end{enumerate}
+\item if $\sum_jC_{i,j}=0$:
+  \begin{enumerate}
+  \item pick random $\challenge_0$ and $\response_0$ in $\Z_q$;
+  \item compute $A_0=g^{\response_0}\times\alpha_0^{\challenge_0}$ and
+    $B_0=y^{\response_0}\times(\beta_0/g)^{\challenge_0}$;
+  \item pick a random $w\in\Z_q$;
+  \item compute $A_1=g^w$ and $B_1=y^w$;
+  \item compute $h=\Hash_{\textsf{lproof}}(S,A_0,B_0,A_1,B_1)$;
+  \item compute $\challenge_1=h-\challenge_0$ and
+    $\response_1=w-r\times\challenge_1$;
+  \end{enumerate}
+\item for $k\in\{0,1\}$, build $\pi_{i,k}$ from $\challenge_k$ and
+  $\response_k$.
+\end{itemize}
+In the above, $\Hash_{\textsf{lproof}}$ is computed as follows:
+\[
+  \Hash_{\textsf{lproof}}(\dotsc)=
+  \shatwo(\verb=lproof|=S\verb=|=A_0\verb=,=B_0\verb=,=A_1\verb=,=B_1)\mod
+  q
+\]
+
+\paragraph{Verifying} A proof composed of $\challenge_k$ and
+$\response_k$ can be verified as follows:
+\begin{enumerate}
+\item compute $\alpha_0$, $\beta_0$, $\alpha$ and $\beta$ as above;
+\item compute $A_0=g^{\response_0}\times\alpha_0^{\challenge_0}$ and
+  $B_0=y^{\response_0}\times(\beta_0/g)^{\challenge_0}$;
+\item compute $A_1=g^{\response_1}\times\alpha^{\challenge_1}$ and
+  $B_1=y^{\response_1}\times\beta^{\challenge_1}$;
+\item check that
+  $\Hash_{\textsf{lproof}}(S,A_0,B_0,A_1,B_1) =
+  \challenge_0+\challenge_1$.
+\end{enumerate}
+
+\subsection{Proof of encryption of non-zero}
+\label{nonzero-proof}
+
+\begin{gather*}
+  \texttt{nonzero\_proof}=\left\{
+    \begin{array}{rcl}
+      \textsf{commitment}&:&\G\\
+      \challenge&:&\Z_q\\
+      \response&:&\Z_q\times\Z_q
+    \end{array}
+  \right\}
+\end{gather*}
+
+\paragraph{Proving}
+To prove that $(\alpha,\beta)$ is the encryption of $m\neq 0$ with
+random $r$:
+\begin{enumerate}
+\item pick a random $s\in\Z_q$ such that $s\neq 0$;
+\item compute $A_0=\beta^s\times y^{-s\times r}$:
+  \begin{itemize}
+  \item notice that $m\neq 0$ is equivalent to $A_0\neq 1$;
+  \item we also have $1=\alpha^s\times g^{-s\times r}$;
+  \item hence, we resort to proving that $A_0$ (in base $(\beta,y)$)
+    and $1$ (in base $(\alpha,g)$) have the same representation;
+  \end{itemize}
+\item pick random $w_1$ and $w_2$ in $\Z_q$;
+\item compute $A_1=\alpha^{w_1}\times g^{w_2}$ and
+  $A_2=\beta^{w_1}\times y^{w_2}$;
+\item compute $c=\Hash_{\textsf{nonzero}}(S,A_0,A_1,A_2)$;
+\item compute $t_1=w_1-s\times c$ and $t_2=w_2+s\times r\times c$;
+\item set $\textsf{commitment}$ to $A_0$, $\challenge$ to $c$ and $\response$
+  to $(t_1,t_2)$.
+\end{enumerate}
+In the above, $\Hash_{\textsf{nonzero}}$ is computed as follows:
+\[
+  \Hash_{\textsf{nonzero}}(\dotsc)=
+  \shatwo(\verb=nonzero|=S\verb=|=A_0\verb=,=A_1\verb=,=A_2)\mod
+  q
+\]
+
+\paragraph{Verifying} Following the same notations as above, a proof
+composed of $A_0$, $c$, $t_1$ and $t_2$ can be verified as follows:
+\begin{enumerate}
+\item check that $A_0\neq 1$;
+\item compute $A_1=\alpha^{t_1}\times g^{t_2}$ and
+  $A_2=\beta^{t_1}\times y^{t_2}\times A_0^c$;
+\item check that $\Hash_{\textsf{nonzero}}(S,A_0,A_1,A_2)=c$.
 \end{enumerate}
 
 \subsection{Signatures}
