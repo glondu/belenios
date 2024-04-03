@@ -206,6 +206,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
           { challenge = challenge1; response = response1 };
         |]
 
+  let rec random_nonzero () =
+    let x = random () in
+    if Zq.(x =% zero) then random_nonzero () else x
+
   let verify_list_proof y zkp c proof =
     let c0, cS = split_first eg_combine dummy_ciphertext c in
     G.check c0.alpha && G.check c0.beta && G.check cS.alpha && G.check cS.beta
@@ -224,6 +228,50 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let prefix = Printf.sprintf "lproof|%s|" zkp in
     let h = G.hash prefix commitments in
     Zq.(h =% !total_challenges)
+
+  let create_nonzero_proof y zkp { alpha; beta } r =
+    (* proof of "{ alpha; beta } encrypts something non-zero" *)
+    let s = random_nonzero () in
+    let ncommitment = (beta **~ s) *~ (y **~ Zq.(zero - (s * r))) in
+    if ncommitment =~ one then invalid_arg "create_inequality_proof";
+    let w1 = random () and w2 = random () in
+    let a1 = (alpha **~ w1) *~ (g **~ w2) in
+    let a2 = (beta **~ w1) *~ (y **~ w2) in
+    let prefix = Printf.sprintf "nonzero|%s|" zkp in
+    let nchallenge = G.hash prefix [| ncommitment; a1; a2 |] in
+    let t1 = Zq.(w1 - (s * nchallenge)) in
+    let t2 = Zq.(w2 + (s * r * nchallenge)) in
+    let nresponse = (t1, t2) in
+    { ncommitment; nchallenge; nresponse }
+
+  let verify_nonzero_proof y zkp { alpha; beta } proof =
+    (* check proof of "{ alpha; beta } encrypts something non-zero" *)
+    let { ncommitment; nchallenge; nresponse = t1, t2 } = proof in
+    (not (ncommitment =~ one))
+    &&
+    let a1 = (alpha **~ t1) *~ (g **~ t2) in
+    let a2 = (beta **~ t1) *~ (y **~ t2) *~ (ncommitment **~ nchallenge) in
+    let prefix = Printf.sprintf "nonzero|%s|" zkp in
+    Zq.(nchallenge =% G.hash prefix [| ncommitment; a1; a2 |])
+
+  let combine_except_first f x0 xs =
+    let n = Array.length xs in
+    if n > 1 then
+      let rec loop accu i =
+        if i < n then loop (f accu xs.(i)) (i + 1) else accu
+      in
+      loop x0 1
+    else x0
+
+  let combine_list_items_ciphertexts choices =
+    choices
+    |> Array.map (combine_except_first eg_combine dummy_ciphertext)
+    |> Array.fold_left eg_combine dummy_ciphertext
+
+  let combine_list_items_randoms randoms =
+    randoms
+    |> Array.map (combine_except_first Zq.( + ) Zq.zero)
+    |> Array.fold_left Zq.( + ) Zq.zero
 
   let create_answer q ~public_key:y ~prefix:zkp m =
     let m = unshapify m in
@@ -252,7 +300,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
       p.(0)
     in
     let list_proofs = Array.map3 (create_list_proof y zkp) m r choices in
-    { choices; individual_proofs; overall_proof; list_proofs }
+    let nonzero_proof =
+      let c = combine_list_items_ciphertexts choices in
+      let r = combine_list_items_randoms r in
+      create_nonzero_proof y zkp c r
+    in
+    { choices; individual_proofs; overall_proof; list_proofs; nonzero_proof }
 
   let verify_answer q ~public_key:y ~prefix:zkp a =
     let n = Array.length q.q_answers in
@@ -272,6 +325,9 @@ module Make (M : RANDOM) (G : GROUP) = struct
       dummy_ciphertext a.choices
     |> eg_disj_verify y d1 zkp [| a.overall_proof |]
     && Array.for_all2 (verify_list_proof y zkp) a.choices a.list_proofs
+    &&
+    let c = combine_list_items_ciphertexts a.choices in
+    verify_nonzero_proof y zkp c a.nonzero_proof
 
   let extract_ciphertexts _ a =
     `Array

@@ -28,6 +28,14 @@ type 'a ciphertext <ocaml predef from="Belenios_core.Serializable_core"> = abstr
 type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type 'a disjunctive_proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 
+(** {2 Non-zero proof} *)
+
+type ('a, 'b) nonzero_proof = {
+  commitment : 'a;
+  challenge : 'b;
+  response : ('b * 'b);
+} <ocaml field_prefix="n">
+
 (** {2 Questions and answers} *)
 
 type question = {
@@ -40,6 +48,7 @@ type ('a, 'b) answer = {
   individual_proofs : 'b disjunctive_proof list <ocaml repr="array"> list <ocaml repr="array">;
   overall_proof : 'b proof;
   list_proofs : 'b disjunctive_proof list <ocaml repr="array">;
+  nonzero_proof : ('a, 'b) nonzero_proof;
 }
 
 type result = weight list <ocaml repr="array"> list <ocaml repr="array">
