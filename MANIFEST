@@ -530,10 +530,10 @@ src/web/server/core/defaults.mli
 src/web/server/core/dune
 src/web/server/core/filesystem.ml
 src/web/server/core/filesystem.mli
+src/web/server/core/serializable.atd
 src/web/server/core/storage_sig.ml
-src/web/server/core/web_serializable.atd
-src/web/server/core/web_types.ml
-src/web/server/core/web_types.mli
+src/web/server/core/types.ml
+src/web/server/core/types.mli
 src/web/server/executable/dune
 src/web/server/executable/server.ml
 src/web/server/filesystem/belenios_storage_filesystem.ml

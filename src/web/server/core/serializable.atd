@@ -26,7 +26,7 @@
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
-type datetime = string wrap <ocaml module="Web_types.Datetime">
+type datetime = string wrap <ocaml module="Types.Datetime">
 type 'a proof <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 type election_checksums <ocaml predef from="Belenios_core.Serializable"> = abstract

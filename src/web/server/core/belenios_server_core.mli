@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Web_serializable_j
+include module type of Serializable_j
 include module type of Core
 module Filesystem = Filesystem
 module Defaults = Defaults

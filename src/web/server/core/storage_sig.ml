@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Web_serializable_t
+open Serializable_t
 
 (** {1 Type definitions} *)
 

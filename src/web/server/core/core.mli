@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Web_serializable_t
+open Serializable_t
 
 exception Race_condition
 exception Election_not_found of uuid * string
@@ -28,8 +28,8 @@ exception Election_not_found of uuid * string
 val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val sleep : float -> unit Lwt.t
 
-module Datetime = Web_types.Datetime
-module Period = Web_types.Period
+module Datetime = Types.Datetime
+module Period = Types.Period
 module Random : RANDOM
 
 val generate_numeric : ?length:int -> unit -> string

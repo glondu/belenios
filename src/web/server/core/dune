@@ -4,13 +4,13 @@
    lwt.unix calendar xml-light))
 
 (rule
- (targets web_serializable_t.ml web_serializable_t.mli)
- (deps web_serializable.atd)
+ (targets serializable_t.ml serializable_t.mli)
+ (deps serializable.atd)
  (action
   (run atdgen -t %{deps})))
 
 (rule
- (targets web_serializable_j.ml web_serializable_j.mli)
- (deps web_serializable.atd)
+ (targets serializable_j.ml serializable_j.mli)
+ (deps serializable.atd)
  (action
   (run atdgen -j -j-std %{deps})))

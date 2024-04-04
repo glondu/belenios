@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_j
+open Serializable_j
 
 let version =
   let open Belenios.Election in

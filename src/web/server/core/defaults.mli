@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Web_serializable_t
+open Serializable_t
 
 val version : int
 val contact : string

@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_serializable_j
+open Serializable_j
 
 exception Race_condition
 exception Election_not_found of uuid * string
@@ -29,8 +29,8 @@ exception Election_not_found of uuid * string
 let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
 let sleep = Lwt_unix.sleep
 
-module Datetime = Web_types.Datetime
-module Period = Web_types.Period
+module Datetime = Types.Datetime
+module Period = Types.Period
 
 module Random = struct
   open Crypto_primitives
