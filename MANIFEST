@@ -536,6 +536,8 @@ src/web/server/core/web_types.ml
 src/web/server/core/web_types.mli
 src/web/server/executable/dune
 src/web/server/executable/server.ml
+src/web/server/filesystem/belenios_storage_filesystem.ml
+src/web/server/filesystem/belenios_storage_filesystem.mli
 src/web/server/filesystem/dune
 src/web/server/filesystem/indexed_defer.ml
 src/web/server/filesystem/indexed_defer.mli
