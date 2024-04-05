@@ -19,8 +19,37 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Serializable_j
-include Core
-module Filesystem = Filesystem
-module Defaults = Defaults
-module Storage = Storage
+include Storage_sig
+
+let backends = ref []
+let backend = ref None
+
+let get_backend () =
+  match !backend with None -> failwith "no storage backend set" | Some x -> x
+
+let register_passwords_db f =
+  let module X = (val get_backend () : S) in
+  X.register_passwords_db f
+
+let register_auth_db f =
+  let module X = (val get_backend () : S) in
+  X.register_auth_db f
+
+let with_transaction f =
+  let module X = (val get_backend () : S) in
+  X.with_transaction f
+
+let get_user_id x =
+  let module X = (val get_backend () : S) in
+  X.get_user_id x
+
+let get_elections_by_owner x =
+  let module X = (val get_backend () : S) in
+  X.get_elections_by_owner x
+
+let register_backend name x = backends := (name, x) :: !backends
+
+let init_backend name config =
+  match List.assoc_opt name !backends with
+  | None -> Printf.ksprintf failwith "backend %s not found" name
+  | Some f -> backend := Some (f config)

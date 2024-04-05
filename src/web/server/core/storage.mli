@@ -19,8 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Serializable_j
-include Core
-module Filesystem = Filesystem
-module Defaults = Defaults
-module Storage = Storage
+include module type of Storage_sig
+include S
+
+val register_backend : string -> (Xml.xml list -> (module S)) -> unit
+val init_backend : string -> Xml.xml list -> unit

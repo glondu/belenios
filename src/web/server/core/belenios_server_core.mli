@@ -23,11 +23,4 @@ include module type of Serializable_j
 include module type of Core
 module Filesystem = Filesystem
 module Defaults = Defaults
-
-module Storage : sig
-  include module type of Storage_sig
-  include S
-
-  val register_backend : string -> (Xml.xml list -> (module S)) -> unit
-  val init_backend : string -> Xml.xml list -> unit
-end
+module Storage = Storage

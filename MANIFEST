@@ -531,6 +531,8 @@ src/web/server/core/dune
 src/web/server/core/filesystem.ml
 src/web/server/core/filesystem.mli
 src/web/server/core/serializable.atd
+src/web/server/core/storage.ml
+src/web/server/core/storage.mli
 src/web/server/core/storage_sig.ml
 src/web/server/core/types.ml
 src/web/server/core/types.mli
