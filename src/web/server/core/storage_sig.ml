@@ -70,40 +70,42 @@ type file =
 
 type append_operation = Data of string | Event of event_type * hash option
 
-module type BACKEND = sig
-  (** {1 Generic operations} *)
-
+module type BACKEND_GENERIC = sig
   val get_as_file : file -> string Lwt.t
   val get : file -> string option Lwt.t
   val update : file -> (string * (string -> unit Lwt.t)) option Lwt.t
   val create : file -> string -> unit Lwt.t
   val ensure : file -> string -> unit Lwt.t
   val del : file -> unit Lwt.t
+end
 
-  (** {1 Global operations} *)
+module type BACKEND_ARCHIVE = sig
+  val append : uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+end
 
-  val list_accounts : unit -> int list Lwt.t
+module type BACKEND_ELECTIONS = sig
   val list_elections : unit -> uuid list Lwt.t
 
   val get_elections_by_owner :
     int -> Belenios_api.Serializable_t.summary_list Lwt.t
 
   val new_election : unit -> uuid option Lwt.t
-  val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
-
-  (** {1 Specialized operations} *)
-
   val init_credential_mapping : uuid -> public_credentials Lwt.t
-
-  (** {1 Cleaning operations} *)
-
   val delete_election : uuid -> unit Lwt.t
   val delete_sensitive_data : uuid -> unit Lwt.t
   val delete_live_data : uuid -> unit Lwt.t
+end
 
-  (** {1 Public archive operations} *)
+module type BACKEND_ACCOUNTS = sig
+  val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
+  val get_user_id : user -> int option Lwt.t
+end
 
-  val append : uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+module type BACKEND = sig
+  include BACKEND_GENERIC
+  include BACKEND_ACCOUNTS
+  include BACKEND_ELECTIONS
+  include BACKEND_ARCHIVE
 end
 
 type t = (module BACKEND)

@@ -20,23 +20,8 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Lwt.Infix
 open Belenios
 open Belenios_server_core
-
-module UMap = Map.Make (struct
-  type t = user
-
-  let compare = compare
-end)
-
-let cache = ref None
-let cache_mutex = Lwt_mutex.create ()
-
-let clear_account_cache () =
-  let@ () = Lwt_mutex.with_lock cache_mutex in
-  cache := None;
-  Lwt.return_unit
 
 let update_hooks = ref []
 let add_update_hook f = update_hooks := f :: !update_hooks
@@ -109,35 +94,12 @@ let create_account s ~email user =
         Lwt.wakeup_later u ();
         Lwt.return_unit)
   in
-  let* () = clear_account_cache () in
   Lwt.return account
 
-let build_account_cache s =
-  let module S = (val s : Storage.BACKEND) in
-  S.list_accounts ()
-  >>= Lwt_list.fold_left_s
-        (fun accu id ->
-          let* account = get_account_by_id s id in
-          match account with
-          | None -> Lwt.return accu
-          | Some account ->
-              List.fold_left
-                (fun accu u -> UMap.add u account.id accu)
-                accu account.authentications
-              |> Lwt.return)
-        UMap.empty
-
 let lookup_by_user lookup_by_id s user =
-  let* cache =
-    match !cache with
-    | Some x -> Lwt.return x
-    | None ->
-        let@ () = Lwt_mutex.with_lock cache_mutex in
-        let* x = build_account_cache s in
-        cache := Some x;
-        Lwt.return x
-  in
-  let&* id = UMap.find_opt user cache in
+  let module S = (val s : Storage.BACKEND) in
+  let* id = S.get_user_id user in
+  let&* id = id in
   lookup_by_id s id
 
 let get_account = lookup_by_user get_account_by_id

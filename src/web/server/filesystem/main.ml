@@ -34,6 +34,15 @@ module type CONFIG = sig
   val accounts_dir : string
 end
 
+module type BACKEND0 = sig
+  include BACKEND_GENERIC
+  include BACKEND_ELECTIONS
+  include BACKEND_ARCHIVE
+
+  val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
+  val list_accounts : unit -> int list Lwt.t
+end
+
 module type S = sig
   val mutexes : uuid option Indexed_mutex.t
 
@@ -42,12 +51,13 @@ module type S = sig
 
   val passwords_dbs : SSet.t ref
   val auth_dbs : SSet.t ref
-  val make : uuid option Mutex_set.t -> (module Storage.BACKEND)
+  val make : uuid option Mutex_set.t -> (module BACKEND0)
 end
 
 exception Not_implemented of string
 
-module MakeBackend (Config : CONFIG) : S = struct
+module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
+  S = struct
   (** {1 Global database names} *)
 
   let passwords_dbs = ref SSet.empty
@@ -305,9 +315,10 @@ module MakeBackend (Config : CONFIG) : S = struct
     | Salt key -> Abstract (salts_ops, key)
     | Password key -> Abstract (password_records_ops, key)
 
-  let dirties_cache = function
-    | Election (_, (Draft | State)) -> true
-    | _ -> false
+  let clear_caches = function
+    | Election (_, (Draft | State)) -> clear_elections_by_owner_cache ()
+    | Account _ -> Accounts_cache.clear ()
+    | _ -> ()
 
   let extended_records_filename = "extended_records.jsons"
   let credential_mappings_filename = "credential_mappings.jsons"
@@ -360,7 +371,7 @@ module MakeBackend (Config : CONFIG) : S = struct
     | Concrete (fname, kind) ->
         let data = match kind with Raw -> data | Trim -> data ^ "\n" in
         let* () = Filesystem.write_file fname data in
-        let () = if dirties_cache f then clear_elections_by_owner_cache () in
+        let () = clear_caches f in
         Lwt.return_unit
     | Abstract (ops, uuid, key) -> ops.set uuid key data
     | Admin_password (file, key) -> set_password_record_admin file key data
@@ -1170,11 +1181,25 @@ module MakeBackend (Config : CONFIG) : S = struct
       let append uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
     end in
-    (module X : Storage.BACKEND)
+    (module X : BACKEND0)
+end
+
+module Accounts_input = struct
+  type session = (module BACKEND0)
+
+  let list_accounts s =
+    let module S = (val s : BACKEND0) in
+    S.list_accounts ()
+
+  let get_account_by_id s id =
+    let module S = (val s : BACKEND0) in
+    let* x = S.get (Account id) in
+    Lwt.return @@ Option.map account_of_string x
 end
 
 module Make (Config : CONFIG) : Storage.S = struct
-  module B = MakeBackend (Config)
+  module Accounts_cache = Accounts_cache.Make (Accounts_input) ()
+  module B = MakeBackend (Config) (Accounts_cache.Clear)
 
   let register_passwords_db x = B.passwords_dbs := SSet.add x !B.passwords_dbs
   let register_auth_db x = B.auth_dbs := SSet.add x !B.auth_dbs
@@ -1182,8 +1207,14 @@ module Make (Config : CONFIG) : Storage.S = struct
   let with_transaction f =
     let set = Mutex_set.create B.mutexes in
     let x = B.make set in
+    let module X = (val x) in
+    let module Y : BACKEND = struct
+      include X
+
+      let get_user_id user = Accounts_cache.get_user_id x user
+    end in
     Lwt.finalize
-      (fun () -> f x)
+      (fun () -> f (module Y : BACKEND))
       (fun () ->
         Mutex_set.unlock set;
         Lwt.return_unit)
