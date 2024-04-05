@@ -34,6 +34,7 @@ module type INPUT = sig
 
   val list_accounts : session -> int list Lwt.t
   val get_account_by_id : session -> int -> account option Lwt.t
+  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end
 
 module Make (I : INPUT) () = struct
@@ -44,10 +45,14 @@ module Make (I : INPUT) () = struct
     let clear () = cache := None
   end
 
-  let build_account_cache s =
-    let* accounts = I.list_accounts s in
+  let build_account_cache () =
+    let* accounts =
+      let@ s = I.with_transaction in
+      I.list_accounts s
+    in
     Lwt_list.fold_left_s
       (fun accu id ->
+        let@ s = I.with_transaction in
         let* account = I.get_account_by_id s id in
         match account with
         | None -> Lwt.return accu
@@ -58,13 +63,13 @@ module Make (I : INPUT) () = struct
             |> Lwt.return)
       UMap.empty accounts
 
-  let get_user_id s user =
+  let get_user_id user =
     let* cache =
       match !cache with
       | Some x -> Lwt.return x
       | None ->
           let@ () = Lwt_mutex.with_lock cache_mutex in
-          let* x = build_account_cache s in
+          let* x = build_account_cache () in
           cache := Some x;
           Lwt.return x
     in

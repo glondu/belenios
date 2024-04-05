@@ -85,10 +85,6 @@ end
 
 module type BACKEND_ELECTIONS = sig
   val list_elections : unit -> uuid list Lwt.t
-
-  val get_elections_by_owner :
-    int -> Belenios_api.Serializable_t.summary_list Lwt.t
-
   val new_election : unit -> uuid option Lwt.t
   val init_credential_mapping : uuid -> public_credentials Lwt.t
   val delete_election : uuid -> unit Lwt.t
@@ -98,7 +94,6 @@ end
 
 module type BACKEND_ACCOUNTS = sig
   val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
-  val get_user_id : user -> int option Lwt.t
 end
 
 module type BACKEND = sig
@@ -115,4 +110,8 @@ module type S = sig
   val register_passwords_db : string -> unit
   val register_auth_db : string -> unit
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
+  val get_user_id : user -> int option Lwt.t
+
+  val get_elections_by_owner :
+    int -> Belenios_api.Serializable_t.summary_list Lwt.t
 end

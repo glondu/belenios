@@ -98,7 +98,7 @@ let create_account s ~email user =
 
 let lookup_by_user lookup_by_id s user =
   let module S = (val s : Storage.BACKEND) in
-  let* id = S.get_user_id user in
+  let* id = Storage.get_user_id user in
   let&* id = id in
   lookup_by_id s id
 

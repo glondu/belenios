@@ -637,7 +637,7 @@ let get_audit_cache s uuid =
 let get_admin_context admin_id =
   let@ s = Storage.with_transaction in
   let module S = (val s) in
-  let* elections = S.get_elections_by_owner admin_id in
+  let* elections = Storage.get_elections_by_owner admin_id in
   let* elections =
     let open Belenios_api.Serializable_t in
     Lwt_list.filter_map_s

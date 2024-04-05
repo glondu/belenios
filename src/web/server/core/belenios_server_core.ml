@@ -47,6 +47,14 @@ module Storage = struct
     let module X = (val get_backend () : S) in
     X.with_transaction f
 
+  let get_user_id x =
+    let module X = (val get_backend () : S) in
+    X.get_user_id x
+
+  let get_elections_by_owner x =
+    let module X = (val get_backend () : S) in
+    X.get_elections_by_owner x
+
   let register_backend name x = backends := (name, x) :: !backends
 
   let init_backend name config =

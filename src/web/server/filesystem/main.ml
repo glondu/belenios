@@ -28,17 +28,9 @@ open Types
 let () = Stdlib.Random.self_init ()
 
 module type BACKEND0 = sig
-  include BACKEND_GENERIC
-  include BACKEND_ARCHIVE
+  include BACKEND
 
-  val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
   val list_accounts : unit -> int list Lwt.t
-  val list_elections : unit -> uuid list Lwt.t
-  val new_election : unit -> uuid option Lwt.t
-  val init_credential_mapping : uuid -> public_credentials Lwt.t
-  val delete_election : uuid -> unit Lwt.t
-  val delete_sensitive_data : uuid -> unit Lwt.t
-  val delete_live_data : uuid -> unit Lwt.t
 end
 
 module type S = sig
@@ -1154,31 +1146,31 @@ module MakeBackend
     (module X : BACKEND0)
 end
 
-module Accounts_input = struct
-  type session = (module BACKEND0)
-
-  let list_accounts s =
-    let module S = (val s : BACKEND0) in
-    S.list_accounts ()
-
-  let get_account_by_id s id =
-    let module S = (val s : BACKEND0) in
-    let* x = S.get (Account id) in
-    Lwt.return @@ Option.map account_of_string x
-end
-
 type with_transaction_ref = {
   mutable with_transaction : 'a. ((module BACKEND0) -> 'a Lwt.t) -> 'a Lwt.t;
 }
 
 module Make (Config : CONFIG) : Storage.S = struct
-  module Accounts_cache = Accounts_cache.Make (Accounts_input) ()
-
   let with_transaction_ref =
     {
       with_transaction =
         (fun _ -> Lwt.fail @@ Not_implemented "with_transaction");
     }
+
+  module Accounts_input = struct
+    type session = (module BACKEND0)
+
+    let list_accounts s =
+      let module S = (val s : BACKEND0) in
+      S.list_accounts ()
+
+    let get_account_by_id s id =
+      let module S = (val s : BACKEND0) in
+      let* x = S.get (Account id) in
+      Lwt.return @@ Option.map account_of_string x
+
+    let with_transaction f = with_transaction_ref.with_transaction f
+  end
 
   module Elections_input = struct
     type session = (module BACKEND0)
@@ -1194,6 +1186,7 @@ module Make (Config : CONFIG) : Storage.S = struct
     let with_transaction f = with_transaction_ref.with_transaction f
   end
 
+  module Accounts_cache = Accounts_cache.Make (Accounts_input) ()
   module Elections_cache = Elections_cache.Make (Elections_input) ()
   module B = MakeBackend (Config) (Accounts_cache.Clear) (Elections_cache.Clear)
 
@@ -1209,15 +1202,7 @@ module Make (Config : CONFIG) : Storage.S = struct
         | `Restricted f -> f x
         | `Full f ->
             let module X = (val x) in
-            let module Y : BACKEND = struct
-              include X
-
-              let get_user_id user = Accounts_cache.get_user_id x user
-
-              let get_elections_by_owner id =
-                Elections_cache.get_elections_by_owner id
-            end in
-            f (module Y : BACKEND))
+            f (module X : BACKEND))
       (fun () ->
         Mutex_set.unlock set;
         Lwt.return_unit)
@@ -1227,6 +1212,9 @@ module Make (Config : CONFIG) : Storage.S = struct
   let () =
     with_transaction_ref.with_transaction <-
       (fun f -> with_transaction_generic (`Restricted f))
+
+  let get_user_id = Accounts_cache.get_user_id
+  let get_elections_by_owner = Elections_cache.get_elections_by_owner
 end
 
 let backend_name = "filesystem"

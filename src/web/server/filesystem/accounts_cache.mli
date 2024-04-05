@@ -27,10 +27,11 @@ module type INPUT = sig
 
   val list_accounts : session -> int list Lwt.t
   val get_account_by_id : session -> int -> account option Lwt.t
+  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end
 
 module Make (I : INPUT) () : sig
   module Clear : CLEAR
 
-  val get_user_id : I.session -> user -> int option Lwt.t
+  val get_user_id : user -> int option Lwt.t
 end
