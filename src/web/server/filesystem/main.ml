@@ -23,72 +23,43 @@ open Lwt.Syntax
 open Belenios
 open Belenios_server_core
 open Storage
+open Types
 
 let () = Stdlib.Random.self_init ()
 
-module type CONFIG = sig
-  val uuid_length : int
-  val account_id_min : int
-  val account_id_max : int
-  val spool_dir : string
-  val accounts_dir : string
-end
-
 module type BACKEND0 = sig
   include BACKEND_GENERIC
-  include BACKEND_ELECTIONS
   include BACKEND_ARCHIVE
 
   val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
   val list_accounts : unit -> int list Lwt.t
+  val list_elections : unit -> uuid list Lwt.t
+  val new_election : unit -> uuid option Lwt.t
+  val init_credential_mapping : uuid -> public_credentials Lwt.t
+  val delete_election : uuid -> unit Lwt.t
+  val delete_sensitive_data : uuid -> unit Lwt.t
+  val delete_live_data : uuid -> unit Lwt.t
 end
 
 module type S = sig
   val mutexes : uuid option Indexed_mutex.t
-
-  val build_elections_by_owner_cache :
-    (unit -> Belenios_api.Serializable_t.summary_list IMap.t Lwt.t) ref
-
   val passwords_dbs : SSet.t ref
   val auth_dbs : SSet.t ref
   val make : uuid option Mutex_set.t -> (module BACKEND0)
 end
 
-exception Not_implemented of string
-
-module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
-  S = struct
+module MakeBackend
+    (Config : CONFIG)
+    (Accounts_cache : CLEAR)
+    (Elections_cache : CLEAR) : S = struct
   (** {1 Global database names} *)
 
   let passwords_dbs = ref SSet.empty
   let auth_dbs = ref SSet.empty
 
   (** {1 Mutexes} *)
+
   let mutexes = Indexed_mutex.create ()
-
-  (** {1 Elections by owner cache} *)
-
-  let elections_by_owner_cache = ref None
-  let elections_by_owner_mutex = Lwt_mutex.create ()
-
-  let build_elections_by_owner_cache =
-    ref (fun _ -> Lwt.fail @@ Not_implemented "build_elections_by_owner_cache")
-
-  let get_elections_by_owner user =
-    let* cache =
-      match !elections_by_owner_cache with
-      | Some x -> Lwt.return x
-      | None ->
-          let@ () = Lwt_mutex.with_lock elections_by_owner_mutex in
-          let* x = !build_elections_by_owner_cache () in
-          elections_by_owner_cache := Some x;
-          Lwt.return x
-    in
-    match IMap.find_opt user cache with
-    | None -> Lwt.return []
-    | Some xs -> Lwt.return xs
-
-  let clear_elections_by_owner_cache () = elections_by_owner_cache := None
 
   (** {1 Abstract election-specific file operations} *)
 
@@ -316,7 +287,7 @@ module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
     | Password key -> Abstract (password_records_ops, key)
 
   let clear_caches = function
-    | Election (_, (Draft | State)) -> clear_elections_by_owner_cache ()
+    | Election (_, (Draft | State)) -> Elections_cache.clear ()
     | Account _ -> Accounts_cache.clear ()
     | _ -> ()
 
@@ -866,7 +837,7 @@ module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
 
   let delete_election uuid =
     let* () = rmdir !!(Uuid.unwrap uuid) in
-    clear_elections_by_owner_cache ();
+    Elections_cache.clear ();
     Lwt.return_unit
 
   let delete_sensitive_data uuid =
@@ -880,7 +851,7 @@ module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
         (fun x -> del (Election (uuid, x)))
         [ State; Private_key; Private_keys; Decryption_tokens; Public_creds ]
     in
-    clear_elections_by_owner_cache ();
+    Elections_cache.clear ();
     Lwt.return_unit
 
   let delete_live_data uuid =
@@ -903,7 +874,7 @@ module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
           Confidential_archive;
         ]
     in
-    clear_elections_by_owner_cache ();
+    Elections_cache.clear ();
     Lwt.return_unit
 
   (** {1 Public archive operations} *)
@@ -1161,7 +1132,6 @@ module MakeBackend (Config : CONFIG) (Accounts_cache : Accounts_cache.CLEAR) :
       let ensure f x = with_lock_file f (fun () -> ensure f x)
       let del f = with_lock_file f (fun () -> del f)
       let list_accounts () = with_lock None list_accounts
-      let get_elections_by_owner = get_elections_by_owner
       let list_elections () = with_lock None list_elections
       let new_election () = with_lock None new_election
       let new_account_id () = with_lock None new_account_id
@@ -1197,113 +1167,66 @@ module Accounts_input = struct
     Lwt.return @@ Option.map account_of_string x
 end
 
+type with_transaction_ref = {
+  mutable with_transaction : 'a. ((module BACKEND0) -> 'a Lwt.t) -> 'a Lwt.t;
+}
+
 module Make (Config : CONFIG) : Storage.S = struct
   module Accounts_cache = Accounts_cache.Make (Accounts_input) ()
-  module B = MakeBackend (Config) (Accounts_cache.Clear)
+
+  let with_transaction_ref =
+    {
+      with_transaction =
+        (fun _ -> Lwt.fail @@ Not_implemented "with_transaction");
+    }
+
+  module Elections_input = struct
+    type session = (module BACKEND0)
+
+    let get s f =
+      let module S = (val s : BACKEND0) in
+      S.get f
+
+    let list_elections s =
+      let module S = (val s : BACKEND0) in
+      S.list_elections ()
+
+    let with_transaction f = with_transaction_ref.with_transaction f
+  end
+
+  module Elections_cache = Elections_cache.Make (Elections_input) ()
+  module B = MakeBackend (Config) (Accounts_cache.Clear) (Elections_cache.Clear)
 
   let register_passwords_db x = B.passwords_dbs := SSet.add x !B.passwords_dbs
   let register_auth_db x = B.auth_dbs := SSet.add x !B.auth_dbs
 
-  let with_transaction f =
+  let with_transaction_generic f =
     let set = Mutex_set.create B.mutexes in
     let x = B.make set in
-    let module X = (val x) in
-    let module Y : BACKEND = struct
-      include X
-
-      let get_user_id user = Accounts_cache.get_user_id x user
-    end in
     Lwt.finalize
-      (fun () -> f (module Y : BACKEND))
+      (fun () ->
+        match f with
+        | `Restricted f -> f x
+        | `Full f ->
+            let module X = (val x) in
+            let module Y : BACKEND = struct
+              include X
+
+              let get_user_id user = Accounts_cache.get_user_id x user
+
+              let get_elections_by_owner id =
+                Elections_cache.get_elections_by_owner id
+            end in
+            f (module Y : BACKEND))
       (fun () ->
         Mutex_set.unlock set;
         Lwt.return_unit)
 
-  let get_live_election_summary s uuid =
-    let module S = (val s : Storage.BACKEND) in
-    let* state =
-      let* x = S.get (Election (uuid, State)) in
-      match x with
-      | None -> Lwt.return `Archived
-      | Some x -> Lwt.return @@ election_state_of_string x
-    in
-    let get of_string file =
-      let* x = S.get (Election (uuid, file)) in
-      match x with None -> Lwt.fail Exit | Some x -> Lwt.return @@ of_string x
-    in
-    let* metadata = get metadata_of_string Metadata in
-    let* roots = get roots_of_string Roots in
-    let* name =
-      match roots.roots_setup_data with
-      | None -> Lwt.fail Exit
-      | Some setup_data ->
-          let* setup_data = get setup_data_of_string (Data setup_data) in
-          let* (Template (_, template)) =
-            get Election.template_of_string (Data setup_data.setup_election)
-          in
-          Lwt.return template.t_name
-    in
-    let* date =
-      let* dates = get election_dates_of_string Dates in
-      match state with
-      | `Open | `Closed | `Shuffling | `EncryptedTally ->
-          Lwt.return
-          @@ Option.value dates.e_finalization ~default:Defaults.validation_date
-      | `Tallied ->
-          Lwt.return @@ Option.value dates.e_tally ~default:Defaults.tally_date
-      | `Archived ->
-          Lwt.return
-          @@ Option.value dates.e_archive ~default:Defaults.archive_date
-    in
-    let date = Datetime.to_unixfloat date in
-    let state = (state :> Belenios_api.Serializable_t.state) in
-    let item : Belenios_api.Serializable_t.summary =
-      { uuid; state; date; name }
-    in
-    Lwt.return (metadata.e_owners, item)
+  let with_transaction f = with_transaction_generic (`Full f)
 
-  let get_draft_election_summary uuid se =
-    let date =
-      Option.value ~default:Defaults.creation_date se.se_creation_date
-      |> Datetime.to_unixfloat
-    in
-    let name = se.se_questions.t_name in
-    let item : Belenios_api.Serializable_t.summary =
-      { uuid; date; name; state = `Draft }
-    in
-    (se.se_owners, item)
-
-  let get_election_summary uuid =
-    let@ s = with_transaction in
-    let module S = (val s) in
-    let* draft = S.get (Election (uuid, Draft)) in
-    match draft with
-    | None -> get_live_election_summary s uuid
-    | Some x ->
-        let (Draft (_, se)) = draft_election_of_string x in
-        Lwt.return @@ get_draft_election_summary uuid se
-
-  let umap_add user x map =
-    let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
-    IMap.add user (x :: xs) map
-
-  let build_elections_by_owner_cache () =
-    let* elections =
-      let@ s = with_transaction in
-      let module S = (val s) in
-      S.list_elections ()
-    in
-    Lwt_list.fold_left_s
-      (fun accu uuid ->
-        Lwt.catch
-          (fun () ->
-            let* ids, item = get_election_summary uuid in
-            Lwt.return
-            @@ List.fold_left (fun accu id -> umap_add id item accu) accu ids)
-          (fun _ -> Lwt.return accu))
-      IMap.empty elections
-
-  let () = B.build_elections_by_owner_cache := build_elections_by_owner_cache
+  let () =
+    with_transaction_ref.with_transaction <-
+      (fun f -> with_transaction_generic (`Restricted f))
 end
 
 let backend_name = "filesystem"

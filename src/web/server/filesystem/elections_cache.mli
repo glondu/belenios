@@ -25,12 +25,14 @@ open Types
 module type INPUT = sig
   type session
 
-  val list_accounts : session -> int list Lwt.t
-  val get_account_by_id : session -> int -> account option Lwt.t
+  val get : session -> Storage.file -> string option Lwt.t
+  val list_elections : session -> uuid list Lwt.t
+  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end
 
 module Make (I : INPUT) () : sig
   module Clear : CLEAR
 
-  val get_user_id : I.session -> user -> int option Lwt.t
+  val get_elections_by_owner :
+    int -> Belenios_api.Serializable_t.summary_list Lwt.t
 end

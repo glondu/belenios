@@ -36,10 +36,6 @@ module type INPUT = sig
   val get_account_by_id : session -> int -> account option Lwt.t
 end
 
-module type CLEAR = sig
-  val clear : unit -> unit
-end
-
 module Make (I : INPUT) () = struct
   let cache = ref None
   let cache_mutex = Lwt_mutex.create ()
