@@ -1215,6 +1215,7 @@ module Make (Config : CONFIG) : Storage.S = struct
 
   let get_user_id = Accounts_cache.get_user_id
   let get_elections_by_owner = Elections_cache.get_elections_by_owner
+  let get_next_actions = Elections_cache.get_next_actions
 end
 
 let backend_name = "filesystem"

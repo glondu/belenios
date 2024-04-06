@@ -35,4 +35,7 @@ module Make (I : INPUT) () : sig
 
   val get_elections_by_owner :
     int -> Belenios_api.Serializable_t.summary_list Lwt.t
+
+  val get_next_actions :
+    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
 end

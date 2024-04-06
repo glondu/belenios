@@ -133,4 +133,71 @@ module Make (I : INPUT) () = struct
     match IMap.find_opt user cache with
     | None -> Lwt.return []
     | Some xs -> Lwt.return xs
+
+  let extract_automatic_data_draft s uuid =
+    let* se =
+      let* x = I.get s (Election (uuid, Draft)) in
+      Lwt.return @@ Option.map draft_election_of_string x
+    in
+    let&* (Draft (_, se)) = se in
+    let t = Option.value se.se_creation_date ~default:Defaults.creation_date in
+    let next_t = Period.add t (Period.day Defaults.days_to_delete) in
+    Lwt.return_some (`Destroy, uuid, next_t)
+
+  let default_dates =
+    {
+      e_creation = None;
+      e_finalization = None;
+      e_tally = None;
+      e_archive = None;
+      e_last_mail = None;
+      e_auto_open = None;
+      e_auto_close = None;
+    }
+
+  let extract_automatic_data_validated s uuid =
+    let* state =
+      let* x = I.get s (Election (uuid, State)) in
+      match x with
+      | None -> Lwt.return `Archived
+      | Some x -> Lwt.return @@ election_state_of_string x
+    in
+    let* dates =
+      let* x = I.get s (Election (uuid, Dates)) in
+      match x with
+      | None -> Lwt.return default_dates
+      | Some x -> Lwt.return @@ election_dates_of_string x
+    in
+    match state with
+    | `Open | `Closed | `Shuffling | `EncryptedTally ->
+        let t =
+          Option.value dates.e_finalization ~default:Defaults.validation_date
+        in
+        let next_t = Period.add t (Period.day Defaults.days_to_delete) in
+        Lwt.return_some (`Delete, uuid, next_t)
+    | `Tallied ->
+        let t = Option.value dates.e_tally ~default:Defaults.tally_date in
+        let next_t = Period.add t (Period.day Defaults.days_to_archive) in
+        Lwt.return_some (`Archive, uuid, next_t)
+    | `Archived ->
+        let t = Option.value dates.e_archive ~default:Defaults.archive_date in
+        let next_t = Period.add t (Period.day Defaults.days_to_delete) in
+        Lwt.return_some (`Delete, uuid, next_t)
+
+  let try_extract extract s uuid =
+    Lwt.catch (fun () -> extract s uuid) (fun _ -> Lwt.return_none)
+
+  let get_next_actions () =
+    let* elections =
+      let@ s = I.with_transaction in
+      I.list_elections s
+    in
+    Lwt_list.filter_map_s
+      (fun uuid ->
+        let@ s = I.with_transaction in
+        let* r = try_extract extract_automatic_data_draft s uuid in
+        match r with
+        | None -> try_extract extract_automatic_data_validated s uuid
+        | x -> Lwt.return x)
+      elections
 end

@@ -118,9 +118,6 @@ val close_election : bool Lwt.t Storage.u
 
 (** {1 Misc} *)
 
-val get_next_actions :
-  unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
-
 type credentials_status = [ `None | `Pending of int | `Done ]
 
 val generate_credentials_on_server_async : uuid -> draft_election -> unit

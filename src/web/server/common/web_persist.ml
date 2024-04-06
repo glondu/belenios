@@ -1114,52 +1114,6 @@ let finish_shuffling s uuid =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let extract_automatic_data_draft s uuid =
-  let* se = Spool.get s uuid Spool.draft in
-  let&* (Draft (_, se)) = se in
-  let t = Option.value se.se_creation_date ~default:Defaults.creation_date in
-  let next_t = Period.add t (Period.day Defaults.days_to_delete) in
-  return_some (`Destroy, uuid, next_t)
-
-let extract_automatic_data_validated s uuid =
-  let* election = Public_archive.get_election s uuid in
-  let&* _ = election in
-  let* state = get_election_state s uuid in
-  let* dates = get_election_dates s uuid in
-  match state with
-  | `Open | `Closed | `Shuffling | `EncryptedTally ->
-      let t =
-        Option.value dates.e_finalization ~default:Defaults.validation_date
-      in
-      let next_t = Period.add t (Period.day Defaults.days_to_delete) in
-      return_some (`Delete, uuid, next_t)
-  | `Tallied ->
-      let t = Option.value dates.e_tally ~default:Defaults.tally_date in
-      let next_t = Period.add t (Period.day Defaults.days_to_archive) in
-      return_some (`Archive, uuid, next_t)
-  | `Archived ->
-      let t = Option.value dates.e_archive ~default:Defaults.archive_date in
-      let next_t = Period.add t (Period.day Defaults.days_to_delete) in
-      return_some (`Delete, uuid, next_t)
-
-let try_extract extract s uuid =
-  Lwt.catch (fun () -> extract s uuid) (fun _ -> return_none)
-
-let get_next_actions () =
-  let* elections =
-    let@ s = Storage.with_transaction in
-    let module S = (val s) in
-    S.list_elections ()
-  in
-  Lwt_list.filter_map_s
-    (fun uuid ->
-      let@ s = Storage.with_transaction in
-      let* r = try_extract extract_automatic_data_draft s uuid in
-      match r with
-      | None -> try_extract extract_automatic_data_validated s uuid
-      | x -> return x)
-    elections
-
 let set_election_state s uuid state =
   let* allowed =
     let* state, set_state = update_election_state s uuid in

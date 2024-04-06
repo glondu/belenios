@@ -2106,7 +2106,7 @@ struct
   let rec data_policy_loop () =
     let open Ocsigen_messages in
     let () = accesslog "Data policy process started" in
-    let* elections = Web_persist.get_next_actions () in
+    let* elections = Storage.get_next_actions () in
     let* () = Lwt_list.iter_s process_election_for_data_policy elections in
     let () = accesslog "Data policy process completed" in
     let* () = sleep 3600. in
