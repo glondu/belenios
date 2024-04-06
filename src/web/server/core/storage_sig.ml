@@ -84,7 +84,6 @@ module type BACKEND_ARCHIVE = sig
 end
 
 module type BACKEND_ELECTIONS = sig
-  val list_elections : unit -> uuid list Lwt.t
   val new_election : unit -> uuid option Lwt.t
   val init_credential_mapping : uuid -> public_credentials Lwt.t
   val delete_election : uuid -> unit Lwt.t

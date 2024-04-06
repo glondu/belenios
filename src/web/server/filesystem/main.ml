@@ -31,6 +31,7 @@ module type BACKEND0 = sig
   include BACKEND
 
   val list_accounts : unit -> int list Lwt.t
+  val list_elections : unit -> uuid list Lwt.t
 end
 
 module type S = sig
