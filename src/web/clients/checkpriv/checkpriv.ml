@@ -230,7 +230,7 @@ let onload () =
       let logo = prefix ^ "/LOGO"
       let belenios = Belenios_ui.Links.belenios
       let source_code = prefix ^ "/belenios.tar.gz"
-      let privacy_policy = configuration.privacy_policy
+      let tos = configuration.tos
     end
   end in
   let module Ui = Belenios_ui.Pages_common.Make (UiBase) in

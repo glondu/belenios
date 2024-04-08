@@ -29,7 +29,7 @@ module type BASE = sig
     val logo : Html.uri
     val belenios : Html.uri
     val source_code : Html.uri
-    val privacy_policy : Html.uri
+    val tos : Html.uri
   end
 end
 
@@ -115,9 +115,7 @@ module Make (Base : BASE) = struct
                     ~a:[ a_href Uris.source_code ]
                     [ txt (s_ "Get the source code") ];
                   txt ". ";
-                  a
-                    ~a:[ a_href Uris.privacy_policy ]
-                    [ txt (s_ "Privacy policy") ];
+                  a ~a:[ a_href Uris.tos ] [ txt (s_ "Terms of service") ];
                   txt ". ";
                   administer;
                   txt ".";

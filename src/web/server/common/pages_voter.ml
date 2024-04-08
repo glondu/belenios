@@ -568,7 +568,7 @@ struct
           ~a:[ a_class [ "cookie-disclaimer" ] ]
           [
             txt (s_ "By using this site, you accept our ");
-            direct_a !Web_config.gdpr_uri (s_ "personal data policy");
+            direct_a !Web_config.tos (s_ "terms of service");
             txt ". ";
             a ~service:set_cookie_disclaimer
               ~a:[ a_class [ "nice-button"; "nice-button--default" ] ]

@@ -78,7 +78,7 @@ struct
       let logo = absolute_uri_of_service ~service:logo ()
       let belenios = Eliom_content.Xml.uri_of_string Belenios_ui.Links.belenios
       let source_code = absolute_uri_of_service ~service:source_code ()
-      let privacy_policy = Xml.uri_of_string !Web_config.gdpr_uri
+      let tos = Xml.uri_of_string !Web_config.tos
     end
   end
 

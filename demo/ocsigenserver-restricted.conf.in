@@ -56,7 +56,7 @@
         -->
         <maxrequestbodysizeinmemory value="1048576"/>
         <maxmailsatonce value="1000"/>
-        <gdpr uri="http://www.example.org/privacy_policy.html"/>
+        <tos uri="http://www.example.org/terms-of-service.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org" return-path="bounces@example.org" name="Belenios public server"/>
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->

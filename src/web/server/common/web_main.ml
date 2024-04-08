@@ -33,7 +33,7 @@ module Make () = struct
   let source_file = ref None
   let auth_instances = ref []
   let auth_instances_export = ref []
-  let gdpr_uri = ref None
+  let tos = ref None
   let default_group_file = ref None
   let nh_group_file = ref None
   let domain = ref None
@@ -64,7 +64,7 @@ module Make () = struct
         Web_config.maxmailsatonce := int_of_string limit
     | Element ("contact", [ ("uri", uri) ], []) ->
         Web_config.contact_uri := Some uri
-    | Element ("gdpr", [ ("uri", uri) ], []) -> gdpr_uri := Some uri
+    | Element ("tos", [ ("uri", uri) ], []) -> tos := Some uri
     | Element ("server", attrs, []) ->
         let set check_email attr setter =
           match List.assoc_opt attr attrs with
@@ -133,9 +133,9 @@ module Make () = struct
     | Some x -> Web_config.prefix := x
 
   let () =
-    match !gdpr_uri with
-    | None -> failwith "You must provide a GDPR URI"
-    | Some x -> Web_config.gdpr_uri := x
+    match !tos with
+    | None -> failwith "You must provide a ToS URI"
+    | Some x -> Web_config.tos := x
 
   (** Parse configuration from other sources *)
 

@@ -52,7 +52,7 @@ struct
         div
           [
             txt (s_ "To use this site, you must accept our ");
-            direct_a !Web_config.gdpr_uri (s_ "personal data policy");
+            direct_a !Web_config.tos (s_ "terms of service");
             txt ".";
           ];
         post_form ~service:privacy_notice_accept

@@ -87,7 +87,7 @@ type authentication_system =
 
 type configuration = {
     restricted_mode : bool;
-    privacy_policy : string;
+    tos : string;
     belenios_version : string;
     belenios_build : string;
     spec_version : string;
