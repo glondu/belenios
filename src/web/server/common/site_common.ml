@@ -97,7 +97,10 @@ module Make (X : Pages_sig.S) = struct
 
   let () =
     Any.register ~service:set_language (fun (lang, cont) () ->
-        let* () = Eliom_reference.set Web_state.language (Some lang) in
+        let exp = Unix.gettimeofday () +. (10. *. 365. *. 86400.) in
+        let () =
+          Eliom_state.set_cookie ~exp ~name:"belenios-lang" ~value:lang ()
+        in
         get_cont_state cont ())
 
   let forbidden () =

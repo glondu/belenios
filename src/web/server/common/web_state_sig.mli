@@ -38,7 +38,6 @@ module type S = sig
     (user * string * bool * Weight.t * bool, Web_common.error) result option
     Eliom_reference.eref
 
-  val language : string option Eliom_reference.eref
   val signup_address : string option Eliom_reference.eref
   val signup_env : signup_env option Eliom_reference.eref
   val set_email_env : string option Eliom_reference.eref

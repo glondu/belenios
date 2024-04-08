@@ -237,7 +237,7 @@ module Make () = struct
     module Mails_admin = Belenios_ui.Mails_admin.Make (Web_i18n)
     module Web_state = Web_state.Make ()
     module Web_services = Web_services.Make ()
-    module Web_i18n = Web_i18n.Make (Web_state)
+    module Web_i18n = Web_i18n.Make ()
     module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
 
     module Pages_admin =

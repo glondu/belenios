@@ -115,13 +115,20 @@ let get_preferred_language () =
   | (lang, _) :: _ -> (
       match parse_lang lang with None -> default_lang | Some lang -> lang)
 
-module Make (Web_state : Web_state_sig.S) = struct
+let valid_languages =
+  List.fold_left
+    (fun accu (lang, _) -> SSet.add lang accu)
+    SSet.empty Belenios_ui.Languages.available
+
+let is_valid_language lang = SSet.mem lang valid_languages
+
+module Make () = struct
   let get_preferred_gettext component =
     let* lang =
-      let* x = Eliom_reference.get Web_state.language in
-      match x with
-      | None -> Lwt.return (get_preferred_language ())
-      | Some lang -> Lwt.return lang
+      let cookies = Eliom_request_info.get_cookies () in
+      match Ocsigen_cookie_map.Map_inner.find_opt "belenios-lang" cookies with
+      | Some lang when is_valid_language lang -> Lwt.return lang
+      | _ -> Lwt.return @@ get_preferred_language ()
     in
     get ~component ~lang
 end
