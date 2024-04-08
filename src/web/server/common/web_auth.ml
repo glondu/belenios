@@ -142,8 +142,6 @@ struct
           >>= Eliom_registration.Html.send ~code:401
         in
         if auth_system = a.auth_system then
-          let@ s = Storage.with_transaction in
-          let module S = (val s) in
           let cont = function
             | Some (name, email) ->
                 let@ () =
@@ -151,7 +149,11 @@ struct
                   match List.assoc_opt "allowlist" a.auth_config with
                   | None -> cont ()
                   | Some f ->
-                      let* allowlist = S.get (Auth_db f) in
+                      let* allowlist =
+                        let@ s = Storage.with_transaction in
+                        let module S = (val s) in
+                        S.get (Auth_db f)
+                      in
                       let allowlist =
                         match allowlist with
                         | None -> []
@@ -168,16 +170,23 @@ struct
                   match uuid with
                   | None ->
                       let* account =
-                        let* x = Accounts.update_account s user in
-                        match x with
+                        let* id = Storage.get_user_id user in
+                        match id with
                         | None ->
-                            let* a = Accounts.create_account s ~email user in
-                            return a
-                        | Some (x, set) ->
-                            let last_connected = Datetime.now () in
-                            let x = { x with last_connected } in
-                            let* () = set x in
-                            return x
+                            let@ s = Storage.with_transaction in
+                            Accounts.create_account s ~email user
+                        | Some id -> (
+                            let@ s = Storage.with_transaction in
+                            let* a = Accounts.update_account_by_id s id in
+                            match a with
+                            | None ->
+                                Lwt.fail
+                                @@ Failure "anomaly in post_login_handler"
+                            | Some (x, set) ->
+                                let last_connected = Datetime.now () in
+                                let x = { x with last_connected } in
+                                let* () = set x in
+                                return x)
                       in
                       let* token = Api_generic.new_token account in
                       Eliom_reference.set Web_state.site_user

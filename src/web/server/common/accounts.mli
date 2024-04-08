@@ -27,11 +27,6 @@ val get_account_by_id : Storage.t -> int -> account option Lwt.t
 val update_account_by_id :
   Storage.t -> int -> account Web_common.updatable option Lwt.t
 
-val get_account : Storage.t -> user -> account option Lwt.t
-
-val update_account :
-  Storage.t -> user -> account Web_common.updatable option Lwt.t
-
 val add_update_hook : (account -> unit Lwt.t) -> unit
 
 type capability = Sudo

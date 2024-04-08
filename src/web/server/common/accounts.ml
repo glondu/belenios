@@ -96,15 +96,6 @@ let create_account s ~email user =
   in
   Lwt.return account
 
-let lookup_by_user lookup_by_id s user =
-  let module S = (val s : Storage.BACKEND) in
-  let* id = Storage.get_user_id user in
-  let&* id = id in
-  lookup_by_id s id
-
-let get_account = lookup_by_user get_account_by_id
-let update_account = lookup_by_user update_account_by_id
-
 type capability = Sudo
 
 let mask_of_capability = function Sudo -> 1

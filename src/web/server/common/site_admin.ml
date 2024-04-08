@@ -2030,22 +2030,28 @@ struct
     Any.register ~service:sudo_post (fun () (user_domain, user_name) ->
         let@ token = has_sudo_capability in
         let u = { user_domain; user_name } in
-        let@ s = Storage.with_transaction in
-        let* x = Accounts.get_account s u in
-        match x with
-        | None ->
-            let* l = get_preferred_gettext () in
-            let open (val l) in
-            let msg = s_ "This account does not exist" in
-            let title = s_ "Account not found" in
-            Pages_common.generic_page ~title ~service:sudo msg () >>= Html.send
-        | Some a ->
-            let () = Api_generic.invalidate_token token in
-            let* token = Api_generic.new_token a in
-            let* () =
-              Eliom_reference.set Web_state.site_user (Some (u, a, token))
-            in
-            Redirection.send (Redirection admin))
+        let* id = Storage.get_user_id u in
+        let fail () =
+          let* l = get_preferred_gettext () in
+          let open (val l) in
+          let msg = s_ "This account does not exist" in
+          let title = s_ "Account not found" in
+          Pages_common.generic_page ~title ~service:sudo msg () >>= Html.send
+        in
+        match id with
+        | None -> fail ()
+        | Some id -> (
+            let@ s = Storage.with_transaction in
+            let* a = Accounts.get_account_by_id s id in
+            match a with
+            | None -> fail ()
+            | Some a ->
+                let () = Api_generic.invalidate_token token in
+                let* token = Api_generic.new_token a in
+                let* () =
+                  Eliom_reference.set Web_state.site_user (Some (u, a, token))
+                in
+                Redirection.send (Redirection admin)))
 
   let with_user_and_account f =
     let* x = Eliom_reference.get Web_state.site_user in
