@@ -1,6 +1,15 @@
 # Cookie handling in belenios-server
 
-Cookies are used only by [Eliom's sessions and server-side
+## Preference cookies
+
+Belenios uses the following cookies for storing preferences of
+anonymous visitors:
+- `belenios-lang`: language
+- `belenios-consent`: timestamp of consent
+
+## Session cookies
+
+Cookies are also used by [Eliom's sessions and server-side
 state](https://ocsigen.org/eliom/latest/manual/server-state). Use of
 this feature can be audited by looking at uses of modules
 `Eliom_reference` and `Eliom_state` in the OCaml code.
@@ -38,10 +47,8 @@ reply.
 Each Eliom reference belongs to one scope, and they are all created in
 modules `Web_state` and `Web_auth*`.
 
-The default scope is used only for security-insensitive data related
-to anonymous visitors (e.g. voters): the cookie consent and the
-language. It is never explicitly discarded (but is subject to
-timeout).
+The default scope is actually not used. It is never explicitly
+discarded (but is subject to timeout).
 
 The `belenios-auth*` scopes are used only for the authentication
 process itself, and are discarded at the end of a successful
