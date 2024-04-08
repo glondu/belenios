@@ -1,9 +1,11 @@
 2.6
 ===
 
- * Change in configuration file: `<uuid>`, `<spool>` and `<accounts>`
-   elements are now children of a new `<storage>` element (see example
-   in `demo/ocsigenserver.conf.in`)
+ * Changes in configuration file:
+   + `<uuid>`, `<spool>` and `<accounts>` elements are now children of
+     a new `<storage>` element (see example in
+     `demo/ocsigenserver.conf.in`)
+   + `<gdpr>` has been renamed to `<tos>`
 
 2.2
 ===
