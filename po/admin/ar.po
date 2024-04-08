@@ -104,8 +104,8 @@ msgstr " ناخب (ناخبون) مسجلون"
 msgid " your contribution to decryption."
 msgstr " مساهمتكم في فك التشفير."
 
-#: src/web/server/common/site_admin.ml:671
-#. src/web/server/common/site_admin.ml:666
+#: src/web/server/common/site_admin.ml:669
+#. src/web/server/common/site_admin.ml:664
 msgid "%S is not a valid identity"
 msgstr "%S ليس هوية صالحة"
 
@@ -113,16 +113,16 @@ msgstr "%S ليس هوية صالحة"
 msgid "%d voter(s)"
 msgstr "%d من الناخبين"
 
-#: src/web/server/common/site_admin.ml:572
+#: src/web/server/common/site_admin.ml:570
 msgid "%s is not a registered user for this election."
 msgstr "%s ليس مستخدمًا مسجلاً لهذه الانتخابات."
 
-#: src/web/server/common/site_admin.ml:1219
-#. src/web/server/common/site_admin.ml:1209
+#: src/web/server/common/site_admin.ml:1217
+#. src/web/server/common/site_admin.ml:1207
 msgid "%s is not a valid date!"
 msgstr "%s ليس تاريخًا صالحًا!"
 
-#: src/web/server/common/site_admin.ml:795
+#: src/web/server/common/site_admin.ml:793
 msgid "%s is not a valid e-mail address!"
 msgstr "%s بريد إلكتروني غير صالح!"
 
@@ -229,11 +229,11 @@ msgstr "6. انقر على \"إرسال بيانات الاعتماد العام
 msgid "<div><b>New:</b> try the <a>experimental interface</a> (more ergonomic)</div>"
 msgstr "<div><b>جديد:</b> جرّب <a>الواجهة التجريبية</a> (أكثر راحة)</div>"
 
-#: src/web/server/common/site_admin.ml:566
+#: src/web/server/common/site_admin.ml:564
 msgid "A new password has been mailed to %s."
 msgstr "تم إرسال كلمة المرور الجديدة بالبريد إلى %s."
 
-#: src/web/server/common/site_admin.ml:965
+#: src/web/server/common/site_admin.ml:963
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr "يوجد مفتاح عام من قبل، وقد تم تجاهل المفتاح الذي قمت بتحميله للتو!"
 
@@ -241,8 +241,8 @@ msgstr "يوجد مفتاح عام من قبل، وقد تم تجاهل المف
 msgid "Accept"
 msgstr "قبول"
 
-#: src/web/server/common/site_admin.ml:1980
-#. src/web/server/common/site_admin.ml:1857
+#: src/web/server/common/site_admin.ml:1978
+#. src/web/server/common/site_admin.ml:1855
 msgid "Account creation"
 msgstr "إنشاء حساب"
 
@@ -250,7 +250,7 @@ msgstr "إنشاء حساب"
 msgid "Account management"
 msgstr "ادارة الحساب"
 
-#: src/web/server/common/site_admin.ml:2048
+#: src/web/server/common/site_admin.ml:2046
 msgid "Account not found"
 msgstr "الحساب غير موجود"
 
@@ -337,11 +337,11 @@ msgstr "تم إرسال بريد إلكتروني يتضمن رمزًا إلى %
 msgid "An election with the same UUID already exists."
 msgstr "توجد انتخابات بنفس UUID."
 
-#: src/web/server/common/site_admin.ml:1591
+#: src/web/server/common/site_admin.ml:1589
 msgid "An error occurred while applying the shuffle."
 msgstr "حدث خطأ أثناء الخلط."
 
-#: src/web/server/common/site_admin.ml:1527
+#: src/web/server/common/site_admin.ml:1525
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "حدث خطأ أثناء حساب النتيجة (%s). على الأرجح، هذا يعني أن أحد الأمناء لم يقم "
@@ -447,7 +447,7 @@ msgstr "في انتظار الأمناء…"
 msgid "Back to election preparation page"
 msgstr "العودة إلى صفحة التحضير للانتخابات"
 
-#: src/web/server/common/site_admin.ml:304
+#: src/web/server/common/site_admin.ml:302
 msgid "Bad CAS server!"
 msgstr "خادم CAS غير صالح!"
 
@@ -516,13 +516,13 @@ msgstr "CAS (خادم المصادقة الخارجي، يوفر ضمانات أ
 msgid "Cancel"
 msgstr "إلغاء"
 
-#: src/web/server/common/site_admin.ml:889
+#: src/web/server/common/site_admin.ml:887
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 "لا يمكن إرسال بيانات الاعتماد، هناك عدد كبير جدًا من الناخبين (الحد الأقصى "
 "هو %d)"
 
-#: src/web/server/common/site_admin.ml:516
+#: src/web/server/common/site_admin.ml:514
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr ""
 "لا يمكن إرسال كلمات المرور، هناك عدد كبير جدًا من الناخبين (الحد الأقصى هو "
@@ -532,8 +532,8 @@ msgstr ""
 msgid "Change automatic dates"
 msgstr "تغيير التواريخ التلقائية"
 
-#: src/web/server/common/site_admin.ml:2010
-#. src/web/server/common/site_admin.ml:1898
+#: src/web/server/common/site_admin.ml:2008
+#. src/web/server/common/site_admin.ml:1896
 #. src/web/server/common/pages_admin.ml:3549
 #. src/web/server/common/pages_admin.ml:3417
 msgid "Change password"
@@ -647,11 +647,11 @@ msgstr "اتصل؟"
 msgid "Could not get %s (code %d)!"
 msgstr "لا يمكن الحصول على %s (الرمز %d)!"
 
-#: src/web/server/common/site_admin.ml:1141
+#: src/web/server/common/site_admin.ml:1139
 msgid "Could not retrieve trustees from selected election!"
 msgstr "لا يمكن استرداد الأمناء من الانتخابات المحددة!"
 
-#: src/web/server/common/site_admin.ml:1088
+#: src/web/server/common/site_admin.ml:1086
 msgid "Could not retrieve voter list from election %s"
 msgstr "لا يمكن استردادقائمة الناخبين من انتخابات %s"
 
@@ -685,7 +685,7 @@ msgstr "إنشاء انتخابات جديدة"
 msgid "Create the election"
 msgstr "إنشاء الانتخابات"
 
-#: src/web/server/common/site_admin.ml:256
+#: src/web/server/common/site_admin.ml:254
 msgid "Creating new elections is forbidden on this server!"
 msgstr "إنشاء انتخابات جديدة ممنوع على هذا الخادم!"
 
@@ -733,7 +733,7 @@ msgstr "بيانات الاعتماد للانتخابات %s"
 msgid "Credentials have already been generated!"
 msgstr "لقد تم إنشاء بيانات الاعتماد!"
 
-#: src/web/server/common/site_admin.ml:875
+#: src/web/server/common/site_admin.ml:873
 msgid "Credentials have been generated! They will be e-mailed when the election is validated. You should download private credentials (and store them in a secure location), in case someone loses their credential."
 msgstr ""
 "تم إنشاء بيانات الاعتماد! وسيتم إرسالها بالبريد الإلكتروني عندما يتم التحقق "
@@ -764,7 +764,7 @@ msgstr "قائمة الأصوات الحالية:"
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr "نسبة المشاركة الحالية: %d / %d = %.2f %%"
 
-#: src/web/server/common/site_admin.ml:1597
+#: src/web/server/common/site_admin.ml:1595
 msgid "Data is invalid! (%s)"
 msgstr "البيانات غير صحيحة! (%s)"
 
@@ -881,8 +881,8 @@ msgstr ""
 msgid "Dummy auth (should not be used in production): "
 msgstr "المصادقة الوهمية (لا ينبغي استخدامها في الإنتاج): "
 
-#: src/web/server/common/site_admin.ml:1107
-#. src/web/server/common/site_admin.ml:681
+#: src/web/server/common/site_admin.ml:1105
+#. src/web/server/common/site_admin.ml:679
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
 "ناخب مكرر: %s. هذا غير مسموح به. إذا كان لدى ناخبين نفس العنوان، فاستخدم "
@@ -969,7 +969,7 @@ msgstr "انتخابات قيد الإعداد:"
 msgid "Elections you can administer"
 msgstr "الانتخابات التي يمكنك إدارتها"
 
-#: src/web/server/common/site_admin.ml:1146
+#: src/web/server/common/site_admin.ml:1144
 msgid "Encrypted decryption keys are missing!"
 msgstr "مفاتيح فك التشفير المشفرة مفقودة!"
 
@@ -994,37 +994,37 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "أدخل مفتاحك الخاص:"
 
-#: src/web/server/common/site_admin.ml:1656
-#. src/web/server/common/site_admin.ml:1645
-#. src/web/server/common/site_admin.ml:1595
-#. src/web/server/common/site_admin.ml:1590
-#. src/web/server/common/site_admin.ml:1532
-#. src/web/server/common/site_admin.ml:1510
-#. src/web/server/common/site_admin.ml:1405
-#. src/web/server/common/site_admin.ml:1369
-#. src/web/server/common/site_admin.ml:1260
-#. src/web/server/common/site_admin.ml:1220
-#. src/web/server/common/site_admin.ml:1203
-#. src/web/server/common/site_admin.ml:1149
-#. src/web/server/common/site_admin.ml:1104
-#. src/web/server/common/site_admin.ml:1093
-#. src/web/server/common/site_admin.ml:1085
-#. src/web/server/common/site_admin.ml:983
-#. src/web/server/common/site_admin.ml:969
-#. src/web/server/common/site_admin.ml:933
-#. src/web/server/common/site_admin.ml:798
-#. src/web/server/common/site_admin.ml:570
-#. src/web/server/common/site_admin.ml:502
-#. src/web/server/common/site_admin.ml:465
-#. src/web/server/common/site_admin.ml:447
-#. src/web/server/common/site_admin.ml:434
-#. src/web/server/common/site_admin.ml:370
-#. src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:308
-#. src/web/server/common/site_admin.ml:304
-#. src/web/server/common/site_admin.ml:255
-#. src/web/server/common/site_admin.ml:183
-#. src/web/server/common/site_admin.ml:99
+#: src/web/server/common/site_admin.ml:1654
+#. src/web/server/common/site_admin.ml:1643
+#. src/web/server/common/site_admin.ml:1593
+#. src/web/server/common/site_admin.ml:1588
+#. src/web/server/common/site_admin.ml:1530
+#. src/web/server/common/site_admin.ml:1508
+#. src/web/server/common/site_admin.ml:1403
+#. src/web/server/common/site_admin.ml:1367
+#. src/web/server/common/site_admin.ml:1258
+#. src/web/server/common/site_admin.ml:1218
+#. src/web/server/common/site_admin.ml:1201
+#. src/web/server/common/site_admin.ml:1147
+#. src/web/server/common/site_admin.ml:1102
+#. src/web/server/common/site_admin.ml:1091
+#. src/web/server/common/site_admin.ml:1083
+#. src/web/server/common/site_admin.ml:981
+#. src/web/server/common/site_admin.ml:967
+#. src/web/server/common/site_admin.ml:931
+#. src/web/server/common/site_admin.ml:796
+#. src/web/server/common/site_admin.ml:568
+#. src/web/server/common/site_admin.ml:500
+#. src/web/server/common/site_admin.ml:463
+#. src/web/server/common/site_admin.ml:445
+#. src/web/server/common/site_admin.ml:432
+#. src/web/server/common/site_admin.ml:368
+#. src/web/server/common/site_admin.ml:346
+#. src/web/server/common/site_admin.ml:306
+#. src/web/server/common/site_admin.ml:302
+#. src/web/server/common/site_admin.ml:253
+#. src/web/server/common/site_admin.ml:181
+#. src/web/server/common/site_admin.ml:98
 msgid "Error"
 msgstr "خطأ"
 
@@ -1083,9 +1083,9 @@ msgstr ""
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr "ومن أجل إجراء انتخابات حقيقية، يجب تقاسم المفتاح بين الأمناء المستقلين."
 
-#: src/web/server/common/site_admin.ml:1426
-#. src/web/server/common/site_admin.ml:1422
-#. src/web/server/common/site_admin.ml:1168
+#: src/web/server/common/site_admin.ml:1424
+#. src/web/server/common/site_admin.ml:1420
+#. src/web/server/common/site_admin.ml:1166
 msgid "Forbidden"
 msgstr "ممنوع"
 
@@ -1200,7 +1200,7 @@ msgstr "استرد الناخبين "
 msgid "Import voters from another election"
 msgstr "استيراد الناخبين من انتخابات أخرى"
 
-#: src/web/server/common/site_admin.ml:1143
+#: src/web/server/common/site_admin.ml:1141
 msgid "Imported trustees are invalid for this election!"
 msgstr "الأمناء المستوردون غير صالحين لهذه الانتخابات!"
 
@@ -1214,11 +1214,11 @@ msgstr ""
 "سيكون للناخبين المستوردين نفس كلمة المرور المستخدمة في الانتخابات الأصلية، "
 "ولن يتم إرسال أي بريد إلكتروني جديد."
 
-#: src/web/server/common/site_admin.ml:1144
+#: src/web/server/common/site_admin.ml:1142
 msgid "Inconsistency in imported election!"
 msgstr "تناقض في الانتخابات المستوردة!"
 
-#: src/web/server/common/site_admin.ml:214
+#: src/web/server/common/site_admin.ml:212
 msgid "Incorrect code"
 msgstr "ؤ"
 
@@ -1266,11 +1266,11 @@ msgstr "الحد الأقصى لعدد الخيارات غير صالح"
 msgid "Invalid minimum number of choices"
 msgstr "الحد الأدنى لعدد الخيارات غير صالح"
 
-#: src/web/server/common/site_admin.ml:982
+#: src/web/server/common/site_admin.ml:980
 msgid "Invalid public key!"
 msgstr "المفتاح العام غير صالح!"
 
-#: src/web/server/common/site_admin.ml:421
+#: src/web/server/common/site_admin.ml:419
 msgid "Invalid public name for credential authority!"
 msgstr "الاسم العام غير صالح لمرجع الاعتماد!"
 
@@ -1534,7 +1534,7 @@ msgstr ""
 msgid "No matching public key was found!"
 msgstr "لم يتم العثور على مفتاح عام مطابق!"
 
-#: src/web/server/common/site_admin.ml:466
+#: src/web/server/common/site_admin.ml:464
 msgid "No such language: %s"
 msgstr "لا توجد هذه اللغة: %s"
 
@@ -1542,7 +1542,7 @@ msgstr "لا توجد هذه اللغة: %s"
 msgid "No trustees were set. This means the server will manage the election key by itself."
 msgstr "لم يتم تعيين أمناء. وهذا يعني أن الخادم سيدير مفتاح الإنتخابات بنفسه."
 
-#: src/web/server/common/site_admin.ml:884
+#: src/web/server/common/site_admin.ml:882
 #. src/web/server/common/pages_admin.ml:1702
 msgid "No voters"
 msgstr "لا يوجد ناخبين"
@@ -1551,7 +1551,7 @@ msgstr "لا يوجد ناخبين"
 msgid "Nobody voted!"
 msgstr "لم يصوت أحد!"
 
-#: src/web/server/common/site_admin.ml:309
+#: src/web/server/common/site_admin.ml:307
 msgid "Non-empty CAS server, but CAS authentication not selected!"
 msgstr "خادم CAS غير فارغ، ولكن لم يتم تحديد مصادقة CAS!"
 
@@ -1719,7 +1719,7 @@ msgstr ""
 msgid "Password sent?"
 msgstr "هل تم إرسال كلمة المرور؟"
 
-#: src/web/server/common/site_admin.ml:541
+#: src/web/server/common/site_admin.ml:539
 msgid "Passwords have been generated and mailed!"
 msgstr "تم إنشاء كلمات المرور وإرسالها بالبريد!"
 
@@ -1739,7 +1739,7 @@ msgstr "إشعار معالجة البيانات الشخصية"
 msgid "Please "
 msgstr "من فضلك "
 
-#: src/web/server/common/site_admin.ml:1641
+#: src/web/server/common/site_admin.ml:1639
 msgid "Please add some trustees first!"
 msgstr "الرجاء إضافة بعض الأمناء أولا!"
 
@@ -1850,10 +1850,6 @@ msgstr "معاينة واجهة الناخب"
 #: src/web/clients/admin/preview.ml:47
 msgid "Preview will open in a new tab"
 msgstr "سيتم فتح المعاينة في علامة تبويب جديدة"
-
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "سياسة الخصوصية"
 
 #: src/web/server/common/pages_admin.ml:2435
 msgid "Private credentials?"
@@ -2204,13 +2200,13 @@ msgstr "إرسال المفتاح العام"
 msgid "Submit your public key using the button below."
 msgstr "أرسل مفتاحك العام باستخدام الزر أدناه."
 
-#: src/web/server/common/site_admin.ml:1585
-#. src/web/server/common/site_admin.ml:1502
-#. src/web/server/common/site_admin.ml:990
-#. src/web/server/common/site_admin.ml:874
-#. src/web/server/common/site_admin.ml:565
-#. src/web/server/common/site_admin.ml:540
-#. src/web/server/common/site_admin.ml:431
+#: src/web/server/common/site_admin.ml:1583
+#. src/web/server/common/site_admin.ml:1500
+#. src/web/server/common/site_admin.ml:988
+#. src/web/server/common/site_admin.ml:872
+#. src/web/server/common/site_admin.ml:563
+#. src/web/server/common/site_admin.ml:538
+#. src/web/server/common/site_admin.ml:429
 msgid "Success"
 msgstr "نجاح"
 
@@ -2236,6 +2232,10 @@ msgstr "إحصاء"
 msgid "Tallying: shuffling step"
 msgstr "الإحصاء : خطوة الخلط"
 
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
+msgstr ""
+
 #: src/web/common/mails_admin.ml:310
 msgid "Thank you again for your help,"
 msgstr "شكرا لكم مرة أخرى لمساعدتكم،"
@@ -2258,7 +2258,7 @@ msgstr "معرف UUID غير صالح!"
 msgid "The account creation "
 msgstr "إنشاء الحساب "
 
-#: src/web/server/common/site_admin.ml:1982
+#: src/web/server/common/site_admin.ml:1980
 msgid "The account has been created."
 msgstr "تم إنشاء الحساب."
 
@@ -2266,7 +2266,7 @@ msgstr "تم إنشاء الحساب."
 msgid "The archive can be downloaded at: "
 msgstr "يمكن تنزيل الأرشيف على: "
 
-#: src/web/server/common/site_admin.ml:894
+#: src/web/server/common/site_admin.ml:892
 msgid "The authority is not the server"
 msgstr "السلطة ليست الخادم"
 
@@ -2282,11 +2282,11 @@ msgstr ""
 msgid "The creation failed."
 msgstr "لقد فشل الإنشاء."
 
-#: src/web/server/common/site_admin.ml:883
+#: src/web/server/common/site_admin.ml:881
 msgid "The credentials were already sent"
 msgstr "تم إرسال أوراق الاعتماد"
 
-#: src/web/server/common/site_admin.ml:1200
+#: src/web/server/common/site_admin.ml:1198
 msgid "The date must be less than %d days in the future!"
 msgstr "يجب أن يكون التاريخ أقل من %d يومًا في المستقبل!"
 
@@ -2297,7 +2297,7 @@ msgstr "يجب أن يكون التاريخ أقل من %d يومًا في ال�
 msgid "The election administrator"
 msgstr "مدير الانتخابات"
 
-#: src/web/server/common/site_admin.ml:1425
+#: src/web/server/common/site_admin.ml:1423
 msgid "The election has already been tallied."
 msgstr "لقد تم فرز الانتخابات."
 
@@ -2305,11 +2305,11 @@ msgstr "لقد تم فرز الانتخابات."
 msgid "The election is closed. No one can vote."
 msgstr "الانتخابات مغلقة. لا أحد يستطيع التصويت."
 
-#: src/web/server/common/site_admin.ml:1370
+#: src/web/server/common/site_admin.ml:1368
 msgid "The election is not archived!"
 msgstr "لم يتم أرشفة الانتخابات!"
 
-#: src/web/server/common/site_admin.ml:1418
+#: src/web/server/common/site_admin.ml:1416
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr "الانتخابات ليست جاهزة للفرز. يرجى العودة لاحقا."
 
@@ -2321,12 +2321,12 @@ msgstr "الانتخابات مغلقة الآن."
 msgid "The election is open. Voters can vote."
 msgstr "الانتخابات مفتوحة. يمكن للناخبين التصويت."
 
-#: src/web/server/common/site_admin.ml:868
-#. src/web/server/common/site_admin.ml:519
+#: src/web/server/common/site_admin.ml:866
+#. src/web/server/common/site_admin.ml:517
 msgid "The election name has not been edited!"
 msgstr "لم يتم تعديل اسم الانتخابات!"
 
-#: src/web/server/common/site_admin.ml:499
+#: src/web/server/common/site_admin.ml:497
 msgid "The election name must be %d characters or less!"
 msgstr "يجب أن يتكون اسم الاختيار من %d حرفًا أو أقل!"
 
@@ -2367,11 +2367,11 @@ msgstr "رابط الانتخابات سيكون:"
 msgid "The page also contains instructions for checking the voting record, after the tally."
 msgstr "تحتوي الصفحة أيضًا على تعليمات للتحقق من سجل التصويت بعد فرز الأصوات."
 
-#: src/web/server/common/site_admin.ml:1511
+#: src/web/server/common/site_admin.ml:1509
 msgid "The partial decryption didn't pass validation!"
 msgstr "لم تنجح فحص فك التشفير الجزئي!"
 
-#: src/web/server/common/site_admin.ml:2012
+#: src/web/server/common/site_admin.ml:2010
 msgid "The password has been changed."
 msgstr "تم تغيير كلمة السر."
 
@@ -2379,11 +2379,11 @@ msgstr "تم تغيير كلمة السر."
 msgid "The private key must be downloaded first!"
 msgstr "يجب تنزيل المفتاح الخاص أولاً!"
 
-#: src/web/server/common/site_admin.ml:210
+#: src/web/server/common/site_admin.ml:208
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "الرمز المقدم غير صحيح. الرجاء العودة والمحاولة مجددا."
 
-#: src/web/server/common/site_admin.ml:427
+#: src/web/server/common/site_admin.ml:425
 msgid "The public name of the credential authority has been set successfully!"
 msgstr "تم تعيين الاسم العام لمرجع الاعتماد بنجاح!"
 
@@ -2400,7 +2400,7 @@ msgstr "الصندوق الثاني مليء الآن بمواد التشفير.
 msgid "The server is always one of the trustees"
 msgstr "الخادم هو دائما أحد الأمناء"
 
-#: src/web/server/common/site_admin.ml:1586
+#: src/web/server/common/site_admin.ml:1584
 msgid "The shuffle has been successfully applied!"
 msgstr "لقد تم تطبيق الخلط بنجاح!"
 
@@ -2408,12 +2408,12 @@ msgstr "لقد تم تطبيق الخلط بنجاح!"
 msgid "The threshold mode must be used."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1649
+#: src/web/server/common/site_admin.ml:1647
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr "يجب أن تكون العتبة موجبة وأقل من عدد الأمناء!"
 
-#: src/web/server/common/site_admin.ml:1096
-#. src/web/server/common/site_admin.ml:693
+#: src/web/server/common/site_admin.ml:1094
+#. src/web/server/common/site_admin.ml:691
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 "لا يمكن معالجة الوزن الإجمالي (%s). يجب أن تكون قيمته الموسعة أقل من %s."
@@ -2422,7 +2422,7 @@ msgstr ""
 msgid "The voter has to choose between "
 msgstr "وعلى الناخب أن يختار بين "
 
-#: src/web/server/common/site_admin.ml:701
+#: src/web/server/common/site_admin.ml:699
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr "قائمة الناخبين غير متناسقة (الدخول أو الوزن مفقود)."
 
@@ -2430,7 +2430,7 @@ msgstr "قائمة الناخبين غير متناسقة (الدخول أو ا�
 msgid "There are not enough trustees."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:722
+#: src/web/server/common/site_admin.ml:720
 msgid "There are too many voters (max is %d)"
 msgstr "هناك الكثير من الناخبين (الحد الأقصى هو %d)"
 
@@ -2458,7 +2458,7 @@ msgstr "هناك رابط واحد لكل أمين. قم بإرسال الراب
 msgid "There will be 3 steps."
 msgstr "ستكون هناك 3 خطوات."
 
-#: src/web/server/common/site_admin.ml:2047
+#: src/web/server/common/site_admin.ml:2045
 msgid "This account does not exist"
 msgstr "هذا الحساب غير موجود"
 
@@ -2471,7 +2471,7 @@ msgstr "هذا يسمح باتخاذ الفائز وفقًا لطريقة الع
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "سيتم إضافة هذا الاتصال إلى الرسائل البريدية المرسلة إلى الناخبين."
 
-#: src/web/server/common/site_admin.ml:182
+#: src/web/server/common/site_admin.ml:180
 msgid "This e-mail address is invalid!"
 msgstr "هذا العنوان البريدي غير صالح!"
 
@@ -2514,7 +2514,7 @@ msgstr ""
 msgid "This is the private key of %s."
 msgstr "هذا هو المفتاح الخاص لـ %s."
 
-#: src/web/server/common/site_admin.ml:601
+#: src/web/server/common/site_admin.ml:599
 msgid "This kind of change is not allowed now!"
 msgstr "هذا النوع من التغييرات غير مسموح به الآن!"
 
@@ -2531,7 +2531,7 @@ msgstr "يجب أن تكون هذه القائمة الموافق عليها م�
 msgid "This name will be published on the election result page."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:100
+#: src/web/server/common/site_admin.ml:99
 msgid "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 msgstr ""
 
@@ -2675,7 +2675,7 @@ msgstr ""
 msgid "Unsupported booth version"
 msgstr "إصدار الكشك غير مدعوم"
 
-#: src/web/server/common/site_admin.ml:1147
+#: src/web/server/common/site_admin.ml:1145
 msgid "Unsupported trustees!"
 msgstr ""
 
@@ -2822,7 +2822,7 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1167
+#: src/web/server/common/site_admin.ml:1165
 msgid "You are not allowed to administer this election!"
 msgstr ""
 
@@ -2834,15 +2834,15 @@ msgstr ""
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1899
+#: src/web/server/common/site_admin.ml:1897
 msgid "You cannot change your password now. Please try later."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1858
+#: src/web/server/common/site_admin.ml:1856
 msgid "You cannot create an account now. Please try later."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:416
+#: src/web/server/common/site_admin.ml:414
 msgid "You cannot set the credential authority for this election!"
 msgstr ""
 
@@ -2874,7 +2874,7 @@ msgstr ""
 msgid "You must record this fingerprint and check that it appears on the election result page."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:448
+#: src/web/server/common/site_admin.ml:446
 msgid "You must select at least one language!"
 msgstr ""
 
@@ -2940,19 +2940,19 @@ msgstr ""
 "هي %s. تحقق من أنه تم نشرها من قبل الخادم عندما يكون الانتخاب مفتوحًا. سيتم "
 "الحاجة إلى مفتاحك الخاص لفك تشفير نتيجة الانتخاب."
 
-#: src/web/server/common/site_admin.ml:989
+#: src/web/server/common/site_admin.ml:987
 msgid "Your key has been received and checked!"
 msgstr "تم استلام مفتاحك والتحقق منه!"
 
-#: src/web/server/common/site_admin.ml:1406
+#: src/web/server/common/site_admin.ml:1404
 msgid "Your partial decryption has already been received and checked!"
 msgstr "تم استلام فك تشفيرك الجزئي والتحقق منه بالفعل!"
 
-#: src/web/server/common/site_admin.ml:1503
+#: src/web/server/common/site_admin.ml:1501
 msgid "Your partial decryption has been received and checked!"
 msgstr "تم استلام فك تشفيرك الجزئي والتحقق منه!"
 
-#: src/web/server/common/site_admin.ml:932
+#: src/web/server/common/site_admin.ml:930
 msgid "Your public key has already been received!"
 msgstr "لقد تم استلام مفتاحك العام بالفعل!"
 
@@ -3051,10 +3051,6 @@ msgstr "أو يمكنك ببساطة طباعته وتخزينه في خزنة."
 msgid "out of "
 msgstr "من "
 
-#: src/web/server/common/pages_admin.ml:55
-msgid "personal data policy"
-msgstr "سياسة البيانات الشخصية"
-
 #: src/web/server/common/pages_admin.ml:1833
 msgid "private credentials"
 msgstr "بيانات اعتماد خاصة"
@@ -3124,6 +3120,10 @@ msgid "submitting a large number of credentials using the above form may fail; i
 msgstr ""
 "قد تفشل عملية تقديم عدد كبير من البيانات باستخدام النموذج أعلاه؛ في هذه "
 "الحالة، يجب عليك استخدام أداة سطر الأوامر والنموذج أدناه."
+
+#: src/web/server/common/pages_admin.ml:55
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:1520
 msgid "the after-the-vote procedure will require more steps;"

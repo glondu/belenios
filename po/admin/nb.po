@@ -102,8 +102,8 @@ msgstr " stemmeberettigede registrert"
 msgid " your contribution to decryption."
 msgstr " ditt bidrag til dekryptering."
 
-#: src/web/server/common/site_admin.ml:671
-#. src/web/server/common/site_admin.ml:666
+#: src/web/server/common/site_admin.ml:669
+#. src/web/server/common/site_admin.ml:664
 msgid "%S is not a valid identity"
 msgstr "%S er ikke en gyldig identitet"
 
@@ -111,16 +111,16 @@ msgstr "%S er ikke en gyldig identitet"
 msgid "%d voter(s)"
 msgstr "%d velger(e)"
 
-#: src/web/server/common/site_admin.ml:572
+#: src/web/server/common/site_admin.ml:570
 msgid "%s is not a registered user for this election."
 msgstr "%s er ikke en registrert bruker for dette valget."
 
-#: src/web/server/common/site_admin.ml:1219
-#. src/web/server/common/site_admin.ml:1209
+#: src/web/server/common/site_admin.ml:1217
+#. src/web/server/common/site_admin.ml:1207
 msgid "%s is not a valid date!"
 msgstr "%s er ikke en gyldig dato."
 
-#: src/web/server/common/site_admin.ml:795
+#: src/web/server/common/site_admin.ml:793
 msgid "%s is not a valid e-mail address!"
 msgstr "%s er ikke en gyldig e-postadresse."
 
@@ -229,11 +229,11 @@ msgstr "6. Klikk på «Send inn offentlige identitetsdetaljer»."
 msgid "<div><b>New:</b> try the <a>experimental interface</a> (more ergonomic)</div>"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:566
+#: src/web/server/common/site_admin.ml:564
 msgid "A new password has been mailed to %s."
 msgstr "Et nytt passord har blitt sendt til %s per e-post."
 
-#: src/web/server/common/site_admin.ml:965
+#: src/web/server/common/site_admin.ml:963
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr ""
 "En offentlig nøkkel fantes allerede, nøkkelen du har lastet opp vil bli "
@@ -243,8 +243,8 @@ msgstr ""
 msgid "Accept"
 msgstr "Godta"
 
-#: src/web/server/common/site_admin.ml:1980
-#. src/web/server/common/site_admin.ml:1857
+#: src/web/server/common/site_admin.ml:1978
+#. src/web/server/common/site_admin.ml:1855
 msgid "Account creation"
 msgstr "Kontoopprettelse"
 
@@ -252,7 +252,7 @@ msgstr "Kontoopprettelse"
 msgid "Account management"
 msgstr "Kontohåndtering"
 
-#: src/web/server/common/site_admin.ml:2048
+#: src/web/server/common/site_admin.ml:2046
 msgid "Account not found"
 msgstr "Fant ikke kontoen"
 
@@ -337,11 +337,11 @@ msgstr "En e-post med en kode er sendt til %s."
 msgid "An election with the same UUID already exists."
 msgstr "En avstemming med samme UUID finnes allerede."
 
-#: src/web/server/common/site_admin.ml:1591
+#: src/web/server/common/site_admin.ml:1589
 msgid "An error occurred while applying the shuffle."
 msgstr "Klarte ikke å utføre stokkingen."
 
-#: src/web/server/common/site_admin.ml:1527
+#: src/web/server/common/site_admin.ml:1525
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Det oppstod en feil under beregning av resultatet (%s). Mest sannsynlig "
@@ -448,7 +448,7 @@ msgstr "Venter på betrodde …"
 msgid "Back to election preparation page"
 msgstr "Tilbake til valgforberedelsessiden"
 
-#: src/web/server/common/site_admin.ml:304
+#: src/web/server/common/site_admin.ml:302
 msgid "Bad CAS server!"
 msgstr "Feilaktig CAS-tjener!"
 
@@ -519,12 +519,12 @@ msgstr ""
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: src/web/server/common/site_admin.ml:889
+#: src/web/server/common/site_admin.ml:887
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 "Klarte ikke sende identitetsdetaljer, det er for mange velgere (maksimalt %d)"
 
-#: src/web/server/common/site_admin.ml:516
+#: src/web/server/common/site_admin.ml:514
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr "Klarte ikke sende passord, det er for mange velgere (maksimalt %d)"
 
@@ -532,8 +532,8 @@ msgstr "Klarte ikke sende passord, det er for mange velgere (maksimalt %d)"
 msgid "Change automatic dates"
 msgstr "Endre automatiske datoer"
 
-#: src/web/server/common/site_admin.ml:2010
-#. src/web/server/common/site_admin.ml:1898
+#: src/web/server/common/site_admin.ml:2008
+#. src/web/server/common/site_admin.ml:1896
 #. src/web/server/common/pages_admin.ml:3549
 #. src/web/server/common/pages_admin.ml:3417
 msgid "Change password"
@@ -647,11 +647,11 @@ msgstr "Kontakt?"
 msgid "Could not get %s (code %d)!"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1141
+#: src/web/server/common/site_admin.ml:1139
 msgid "Could not retrieve trustees from selected election!"
 msgstr "Klarte ikke hente betrodde fra utvalgte valget!"
 
-#: src/web/server/common/site_admin.ml:1088
+#: src/web/server/common/site_admin.ml:1086
 msgid "Could not retrieve voter list from election %s"
 msgstr "Klarte ikke hente valgliste fra valget %s"
 
@@ -685,7 +685,7 @@ msgstr "Opprett nytt valg"
 msgid "Create the election"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:256
+#: src/web/server/common/site_admin.ml:254
 msgid "Creating new elections is forbidden on this server!"
 msgstr "Det er forbudt å opprette nye valg på denne serveren!"
 
@@ -733,7 +733,7 @@ msgstr "Identitetsdetaljer for valget %s"
 msgid "Credentials have already been generated!"
 msgstr "Identitetsdetaljer har allerede blitt generert!"
 
-#: src/web/server/common/site_admin.ml:875
+#: src/web/server/common/site_admin.ml:873
 msgid "Credentials have been generated! They will be e-mailed when the election is validated. You should download private credentials (and store them in a secure location), in case someone loses their credential."
 msgstr ""
 
@@ -761,7 +761,7 @@ msgstr "Nåværende liste over valgsedler:"
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1597
+#: src/web/server/common/site_admin.ml:1595
 msgid "Data is invalid! (%s)"
 msgstr "Ugyldig data! (%s)"
 
@@ -878,8 +878,8 @@ msgstr ""
 msgid "Dummy auth (should not be used in production): "
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1107
-#. src/web/server/common/site_admin.ml:681
+#: src/web/server/common/site_admin.ml:1105
+#. src/web/server/common/site_admin.ml:679
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
 "Duplikat velger: %s. Dette er ikke tillatt. Hvis to velgere har samme "
@@ -966,7 +966,7 @@ msgstr ""
 msgid "Elections you can administer"
 msgstr "Valg du kan administrere"
 
-#: src/web/server/common/site_admin.ml:1146
+#: src/web/server/common/site_admin.ml:1144
 msgid "Encrypted decryption keys are missing!"
 msgstr "Krypterte dekrypteringsnøkler mangler!"
 
@@ -992,37 +992,37 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Skriv inn din private nøkkel:"
 
-#: src/web/server/common/site_admin.ml:1656
-#. src/web/server/common/site_admin.ml:1645
-#. src/web/server/common/site_admin.ml:1595
-#. src/web/server/common/site_admin.ml:1590
-#. src/web/server/common/site_admin.ml:1532
-#. src/web/server/common/site_admin.ml:1510
-#. src/web/server/common/site_admin.ml:1405
-#. src/web/server/common/site_admin.ml:1369
-#. src/web/server/common/site_admin.ml:1260
-#. src/web/server/common/site_admin.ml:1220
-#. src/web/server/common/site_admin.ml:1203
-#. src/web/server/common/site_admin.ml:1149
-#. src/web/server/common/site_admin.ml:1104
-#. src/web/server/common/site_admin.ml:1093
-#. src/web/server/common/site_admin.ml:1085
-#. src/web/server/common/site_admin.ml:983
-#. src/web/server/common/site_admin.ml:969
-#. src/web/server/common/site_admin.ml:933
-#. src/web/server/common/site_admin.ml:798
-#. src/web/server/common/site_admin.ml:570
-#. src/web/server/common/site_admin.ml:502
-#. src/web/server/common/site_admin.ml:465
-#. src/web/server/common/site_admin.ml:447
-#. src/web/server/common/site_admin.ml:434
-#. src/web/server/common/site_admin.ml:370
-#. src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:308
-#. src/web/server/common/site_admin.ml:304
-#. src/web/server/common/site_admin.ml:255
-#. src/web/server/common/site_admin.ml:183
-#. src/web/server/common/site_admin.ml:99
+#: src/web/server/common/site_admin.ml:1654
+#. src/web/server/common/site_admin.ml:1643
+#. src/web/server/common/site_admin.ml:1593
+#. src/web/server/common/site_admin.ml:1588
+#. src/web/server/common/site_admin.ml:1530
+#. src/web/server/common/site_admin.ml:1508
+#. src/web/server/common/site_admin.ml:1403
+#. src/web/server/common/site_admin.ml:1367
+#. src/web/server/common/site_admin.ml:1258
+#. src/web/server/common/site_admin.ml:1218
+#. src/web/server/common/site_admin.ml:1201
+#. src/web/server/common/site_admin.ml:1147
+#. src/web/server/common/site_admin.ml:1102
+#. src/web/server/common/site_admin.ml:1091
+#. src/web/server/common/site_admin.ml:1083
+#. src/web/server/common/site_admin.ml:981
+#. src/web/server/common/site_admin.ml:967
+#. src/web/server/common/site_admin.ml:931
+#. src/web/server/common/site_admin.ml:796
+#. src/web/server/common/site_admin.ml:568
+#. src/web/server/common/site_admin.ml:500
+#. src/web/server/common/site_admin.ml:463
+#. src/web/server/common/site_admin.ml:445
+#. src/web/server/common/site_admin.ml:432
+#. src/web/server/common/site_admin.ml:368
+#. src/web/server/common/site_admin.ml:346
+#. src/web/server/common/site_admin.ml:306
+#. src/web/server/common/site_admin.ml:302
+#. src/web/server/common/site_admin.ml:253
+#. src/web/server/common/site_admin.ml:181
+#. src/web/server/common/site_admin.ml:98
 msgid "Error"
 msgstr "Feil"
 
@@ -1081,9 +1081,9 @@ msgstr ""
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr "For virkelige valg, må nøkkelen deles mellom uavhengige betrodde."
 
-#: src/web/server/common/site_admin.ml:1426
-#. src/web/server/common/site_admin.ml:1422
-#. src/web/server/common/site_admin.ml:1168
+#: src/web/server/common/site_admin.ml:1424
+#. src/web/server/common/site_admin.ml:1420
+#. src/web/server/common/site_admin.ml:1166
 msgid "Forbidden"
 msgstr "Forbudt"
 
@@ -1198,7 +1198,7 @@ msgstr ""
 msgid "Import voters from another election"
 msgstr "Importer stemmeberettigede fra et annet valg"
 
-#: src/web/server/common/site_admin.ml:1143
+#: src/web/server/common/site_admin.ml:1141
 msgid "Imported trustees are invalid for this election!"
 msgstr "Importerte betrodde er ugyldige for dette valget!"
 
@@ -1213,11 +1213,11 @@ msgstr ""
 "Importerte velgere får det samme passordet som ved det opprinnelige valget, "
 "og ingen ny e-post blir sendt."
 
-#: src/web/server/common/site_admin.ml:1144
+#: src/web/server/common/site_admin.ml:1142
 msgid "Inconsistency in imported election!"
 msgstr "Det importerte valget er inkonsistent!"
 
-#: src/web/server/common/site_admin.ml:214
+#: src/web/server/common/site_admin.ml:212
 msgid "Incorrect code"
 msgstr "Ugyldig kode"
 
@@ -1265,11 +1265,11 @@ msgstr "Ugyldig maksimalt antall valg"
 msgid "Invalid minimum number of choices"
 msgstr "Ugyldig minimumsantall for valg"
 
-#: src/web/server/common/site_admin.ml:982
+#: src/web/server/common/site_admin.ml:980
 msgid "Invalid public key!"
 msgstr "Ugyldig offentlig nøkkel!"
 
-#: src/web/server/common/site_admin.ml:421
+#: src/web/server/common/site_admin.ml:419
 msgid "Invalid public name for credential authority!"
 msgstr "Ugyldig offentlig navn for sertifikatsmyndighet!"
 
@@ -1531,7 +1531,7 @@ msgstr ""
 msgid "No matching public key was found!"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:466
+#: src/web/server/common/site_admin.ml:464
 msgid "No such language: %s"
 msgstr "Inget slikt språk: %s"
 
@@ -1541,7 +1541,7 @@ msgstr ""
 "Ingen betrodde ble satt. Dette betyr at tjeneren vil håndtere valgnøkkelen "
 "selv."
 
-#: src/web/server/common/site_admin.ml:884
+#: src/web/server/common/site_admin.ml:882
 #. src/web/server/common/pages_admin.ml:1702
 msgid "No voters"
 msgstr "Ingen stemmeberettigede"
@@ -1550,7 +1550,7 @@ msgstr "Ingen stemmeberettigede"
 msgid "Nobody voted!"
 msgstr "Ingen stemte!"
 
-#: src/web/server/common/site_admin.ml:309
+#: src/web/server/common/site_admin.ml:307
 msgid "Non-empty CAS server, but CAS authentication not selected!"
 msgstr "Ikke-tom CAS-server, men CAS-autentisering er ikke valgt!"
 
@@ -1718,7 +1718,7 @@ msgstr ""
 msgid "Password sent?"
 msgstr "Passord sendt?"
 
-#: src/web/server/common/site_admin.ml:541
+#: src/web/server/common/site_admin.ml:539
 msgid "Passwords have been generated and mailed!"
 msgstr "Passord har blitt generert og sendt per e-post."
 
@@ -1738,7 +1738,7 @@ msgstr "Varsel om behandling av personopplysninger"
 msgid "Please "
 msgstr "Vennligst "
 
-#: src/web/server/common/site_admin.ml:1641
+#: src/web/server/common/site_admin.ml:1639
 msgid "Please add some trustees first!"
 msgstr "Legg til noen betrodde først."
 
@@ -1847,10 +1847,6 @@ msgstr ""
 
 #: src/web/clients/admin/preview.ml:47
 msgid "Preview will open in a new tab"
-msgstr ""
-
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
 msgstr ""
 
 #: src/web/server/common/pages_admin.ml:2435
@@ -2199,13 +2195,13 @@ msgstr "Send inn offentlig nøkkel"
 msgid "Submit your public key using the button below."
 msgstr "Send inn din offentlige nøkkel ved bruk av knappen nedenfor."
 
-#: src/web/server/common/site_admin.ml:1585
-#. src/web/server/common/site_admin.ml:1502
-#. src/web/server/common/site_admin.ml:990
-#. src/web/server/common/site_admin.ml:874
-#. src/web/server/common/site_admin.ml:565
-#. src/web/server/common/site_admin.ml:540
-#. src/web/server/common/site_admin.ml:431
+#: src/web/server/common/site_admin.ml:1583
+#. src/web/server/common/site_admin.ml:1500
+#. src/web/server/common/site_admin.ml:988
+#. src/web/server/common/site_admin.ml:872
+#. src/web/server/common/site_admin.ml:563
+#. src/web/server/common/site_admin.ml:538
+#. src/web/server/common/site_admin.ml:429
 msgid "Success"
 msgstr "Vellykket"
 
@@ -2231,6 +2227,10 @@ msgstr ""
 msgid "Tallying: shuffling step"
 msgstr ""
 
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
+msgstr ""
+
 #: src/web/common/mails_admin.ml:310
 msgid "Thank you again for your help,"
 msgstr "Takk igjen for din help,"
@@ -2253,7 +2253,7 @@ msgstr ""
 msgid "The account creation "
 msgstr "Kontoopprettelsen "
 
-#: src/web/server/common/site_admin.ml:1982
+#: src/web/server/common/site_admin.ml:1980
 msgid "The account has been created."
 msgstr "Konto opprettet."
 
@@ -2261,7 +2261,7 @@ msgstr "Konto opprettet."
 msgid "The archive can be downloaded at: "
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:894
+#: src/web/server/common/site_admin.ml:892
 msgid "The authority is not the server"
 msgstr "Autoriteten er ikke tjeneren"
 
@@ -2277,11 +2277,11 @@ msgstr ""
 msgid "The creation failed."
 msgstr "Opprettelse mislyktes."
 
-#: src/web/server/common/site_admin.ml:883
+#: src/web/server/common/site_admin.ml:881
 msgid "The credentials were already sent"
 msgstr "Identitetsdetaljene er allerede sendt"
 
-#: src/web/server/common/site_admin.ml:1200
+#: src/web/server/common/site_admin.ml:1198
 msgid "The date must be less than %d days in the future!"
 msgstr "Datoen må være mindre enn %d dager inn i fremtiden!"
 
@@ -2292,7 +2292,7 @@ msgstr "Datoen må være mindre enn %d dager inn i fremtiden!"
 msgid "The election administrator"
 msgstr "Valgadministratoren"
 
-#: src/web/server/common/site_admin.ml:1425
+#: src/web/server/common/site_admin.ml:1423
 msgid "The election has already been tallied."
 msgstr "Valget er allerede talt opp."
 
@@ -2300,11 +2300,11 @@ msgstr "Valget er allerede talt opp."
 msgid "The election is closed. No one can vote."
 msgstr "Valg over. Ingen kan stemme."
 
-#: src/web/server/common/site_admin.ml:1370
+#: src/web/server/common/site_admin.ml:1368
 msgid "The election is not archived!"
 msgstr "Valget er ikke arkivert!"
 
-#: src/web/server/common/site_admin.ml:1418
+#: src/web/server/common/site_admin.ml:1416
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr "Valget er ikke klart til å telles opp. Kom tilbake senere."
 
@@ -2316,12 +2316,12 @@ msgstr "Valget er nå stengt."
 msgid "The election is open. Voters can vote."
 msgstr "Valget er åpent. Stemmeberettigede kan stemme."
 
-#: src/web/server/common/site_admin.ml:868
-#. src/web/server/common/site_admin.ml:519
+#: src/web/server/common/site_admin.ml:866
+#. src/web/server/common/site_admin.ml:517
 msgid "The election name has not been edited!"
 msgstr "Valgnavnet har ikke blitt endret!"
 
-#: src/web/server/common/site_admin.ml:499
+#: src/web/server/common/site_admin.ml:497
 msgid "The election name must be %d characters or less!"
 msgstr "Valgnavnet må være %d tegn eller mindre."
 
@@ -2364,11 +2364,11 @@ msgstr ""
 "Siden inneholder også instruks om sjekking av avstemmingshistorikken, etter "
 "avstemmingen."
 
-#: src/web/server/common/site_admin.ml:1511
+#: src/web/server/common/site_admin.ml:1509
 msgid "The partial decryption didn't pass validation!"
 msgstr "Den delvise dekrypteringen besto ikke valideringen!"
 
-#: src/web/server/common/site_admin.ml:2012
+#: src/web/server/common/site_admin.ml:2010
 msgid "The password has been changed."
 msgstr "Passord endret."
 
@@ -2376,11 +2376,11 @@ msgstr "Passord endret."
 msgid "The private key must be downloaded first!"
 msgstr "Den private nøkkelen må lastes ned først!"
 
-#: src/web/server/common/site_admin.ml:210
+#: src/web/server/common/site_admin.ml:208
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Den oppgitte koden er feil. Gå tilbake og prøv igjen."
 
-#: src/web/server/common/site_admin.ml:427
+#: src/web/server/common/site_admin.ml:425
 msgid "The public name of the credential authority has been set successfully!"
 msgstr ""
 
@@ -2398,7 +2398,7 @@ msgstr ""
 msgid "The server is always one of the trustees"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1586
+#: src/web/server/common/site_admin.ml:1584
 msgid "The shuffle has been successfully applied!"
 msgstr "Blandingen er vellykket gjennomført!"
 
@@ -2406,12 +2406,12 @@ msgstr "Blandingen er vellykket gjennomført!"
 msgid "The threshold mode must be used."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1649
+#: src/web/server/common/site_admin.ml:1647
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr "Terskelen må være positiv og mindre enn antall betrodde!"
 
-#: src/web/server/common/site_admin.ml:1096
-#. src/web/server/common/site_admin.ml:693
+#: src/web/server/common/site_admin.ml:1094
+#. src/web/server/common/site_admin.ml:691
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 "Totalvekten (%s) kan ikke håndteres. Den utvidede verdien må være mindre enn "
@@ -2421,7 +2421,7 @@ msgstr ""
 msgid "The voter has to choose between "
 msgstr "Velgeren må velge mellom "
 
-#: src/web/server/common/site_admin.ml:701
+#: src/web/server/common/site_admin.ml:699
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr "Valglisten er ikke konsistent (en innlogging eller en vekt mangler)."
 
@@ -2429,7 +2429,7 @@ msgstr "Valglisten er ikke konsistent (en innlogging eller en vekt mangler)."
 msgid "There are not enough trustees."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:722
+#: src/web/server/common/site_admin.ml:720
 msgid "There are too many voters (max is %d)"
 msgstr "Det er for mange velgere (maksimalt antall er %d)"
 
@@ -2459,7 +2459,7 @@ msgstr "Det er en lenke per betrodd. Send hver betrodd den respektive lenken."
 msgid "There will be 3 steps."
 msgstr "Det er tre steg."
 
-#: src/web/server/common/site_admin.ml:2047
+#: src/web/server/common/site_admin.ml:2045
 msgid "This account does not exist"
 msgstr "Denne kontoen eksisterer ikke"
 
@@ -2474,7 +2474,7 @@ msgstr ""
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:182
+#: src/web/server/common/site_admin.ml:180
 msgid "This e-mail address is invalid!"
 msgstr "Denne e-postadressen er ugyldig!"
 
@@ -2515,7 +2515,7 @@ msgstr ""
 msgid "This is the private key of %s."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:601
+#: src/web/server/common/site_admin.ml:599
 msgid "This kind of change is not allowed now!"
 msgstr "Denne typen endring tillates ikke nå."
 
@@ -2532,7 +2532,7 @@ msgstr "Denne listen må være den som er godkjent av valgkommisjonen."
 msgid "This name will be published on the election result page."
 msgstr "Dette navnet vil bli publisert på valgresultatsiden."
 
-#: src/web/server/common/site_admin.ml:100
+#: src/web/server/common/site_admin.ml:99
 msgid "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 msgstr ""
 "Denne siden er ikke tilgjengelig for autentiserte administratorer, fordi den "
@@ -2681,7 +2681,7 @@ msgstr ""
 msgid "Unsupported booth version"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1147
+#: src/web/server/common/site_admin.ml:1145
 msgid "Unsupported trustees!"
 msgstr "Ustøttede betrodde!"
 
@@ -2837,7 +2837,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Ja"
 
-#: src/web/server/common/site_admin.ml:1167
+#: src/web/server/common/site_admin.ml:1165
 msgid "You are not allowed to administer this election!"
 msgstr "Du tillates ikke å administrere dette valget."
 
@@ -2849,15 +2849,15 @@ msgstr "Du har også tilgang til "
 msgid "You can also log in with"
 msgstr "Du kan også logge inn med"
 
-#: src/web/server/common/site_admin.ml:1899
+#: src/web/server/common/site_admin.ml:1897
 msgid "You cannot change your password now. Please try later."
 msgstr "Du kan ikke endre passordet ditt nå. Prøv senere."
 
-#: src/web/server/common/site_admin.ml:1858
+#: src/web/server/common/site_admin.ml:1856
 msgid "You cannot create an account now. Please try later."
 msgstr "Du kan ikke opprette en konto nå. Prøv senere."
 
-#: src/web/server/common/site_admin.ml:416
+#: src/web/server/common/site_admin.ml:414
 msgid "You cannot set the credential authority for this election!"
 msgstr ""
 
@@ -2900,7 +2900,7 @@ msgstr ""
 "Du må registrere dette fingeravtrykket og sjekke at det vises på "
 "valgresultatsiden."
 
-#: src/web/server/common/site_admin.ml:448
+#: src/web/server/common/site_admin.ml:446
 msgid "You must select at least one language!"
 msgstr "Du må velge minst ett språk."
 
@@ -2970,19 +2970,19 @@ msgstr ""
 "verifikasjonsnøkkelen din er %s. Sjekk at den er publisert av tjeneren når "
 "valget er åpent. Din private nøkkel trengs for å dekryptere valgresultatet."
 
-#: src/web/server/common/site_admin.ml:989
+#: src/web/server/common/site_admin.ml:987
 msgid "Your key has been received and checked!"
 msgstr "Din nøkkel er mottatt og sjekket!"
 
-#: src/web/server/common/site_admin.ml:1406
+#: src/web/server/common/site_admin.ml:1404
 msgid "Your partial decryption has already been received and checked!"
 msgstr "Din delvise dekryptering er allerede mottatt og sjekket!"
 
-#: src/web/server/common/site_admin.ml:1503
+#: src/web/server/common/site_admin.ml:1501
 msgid "Your partial decryption has been received and checked!"
 msgstr "Din delvise dekryptering er mottatt og sjekket!"
 
-#: src/web/server/common/site_admin.ml:932
+#: src/web/server/common/site_admin.ml:930
 msgid "Your public key has already been received!"
 msgstr "Din offentlige nøkkel er allerede mottatt!"
 
@@ -3081,10 +3081,6 @@ msgstr "eller du kan enkelthet skrive det ut og lagre det i en safe."
 msgid "out of "
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:55
-msgid "personal data policy"
-msgstr "retningslinjer for personopplysninger"
-
 #: src/web/server/common/pages_admin.ml:1833
 msgid "private credentials"
 msgstr "private identitetsdetaljer"
@@ -3153,6 +3149,10 @@ msgstr ""
 "å sende inn et stort antall identitetsdetaljer ved hjelp av skjemaet ovenfor "
 "kan mislykkes; i så fall må du bruke kommandolinjeverktøyet og skjemaet "
 "nedenfor."
+
+#: src/web/server/common/pages_admin.ml:55
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:1520
 msgid "the after-the-vote procedure will require more steps;"

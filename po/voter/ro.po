@@ -514,10 +514,6 @@ msgstr ""
 msgid "Powered by "
 msgstr "Realizat de "
 
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "Politica de confidentialitate"
-
 #: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr "Continuati"
@@ -599,6 +595,10 @@ msgstr ""
 
 #: src/web/server/common/pages_voter.ml:245
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
+msgstr ""
+
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
 msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1076
@@ -887,10 +887,6 @@ msgstr ""
 msgid "parameters"
 msgstr "parametrii"
 
-#: src/web/server/common/pages_voter.ml:571
-msgid "personal data policy"
-msgstr "politica noastră privind datele personale"
-
 #: src/web/server/common/pages_voter.ml:61
 msgid "public data"
 msgstr ""
@@ -906,6 +902,10 @@ msgstr "unele dovezi sunt invalide"
 #: src/web/server/common/pages_voter.ml:1009
 msgid "start from the beginning"
 msgstr "incepeti de la inceput"
+
+#: src/web/server/common/pages_voter.ml:571
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:178
 msgid "the Wikipedia page"

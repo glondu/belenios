@@ -520,10 +520,6 @@ msgstr ""
 msgid "Powered by "
 msgstr "Працює на "
 
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "Політика конфіденційності"
-
 #: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr "Продовжити"
@@ -605,6 +601,10 @@ msgstr ""
 
 #: src/web/server/common/pages_voter.ml:245
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
+msgstr ""
+
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
 msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1076
@@ -898,10 +898,6 @@ msgstr ""
 msgid "parameters"
 msgstr "параметри"
 
-#: src/web/server/common/pages_voter.ml:571
-msgid "personal data policy"
-msgstr "політика щодо персональних даних"
-
 #: src/web/server/common/pages_voter.ml:61
 msgid "public data"
 msgstr ""
@@ -917,6 +913,10 @@ msgstr "деякі докази не вдалося перевірити"
 #: src/web/server/common/pages_voter.ml:1009
 msgid "start from the beginning"
 msgstr "почати з початку"
+
+#: src/web/server/common/pages_voter.ml:571
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:178
 msgid "the Wikipedia page"

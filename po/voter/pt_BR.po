@@ -535,10 +535,6 @@ msgstr ""
 msgid "Powered by "
 msgstr "Distribuído por "
 
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "Política de privacidade"
-
 #: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr "Continuar"
@@ -625,6 +621,10 @@ msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"T
 msgstr ""
 "Tal candidados são marcados como \"TieWin\" quando eles são eleitos e como "
 "\"TieLose\" se eles perderam."
+
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1076
 msgid "Thank you for voting!"
@@ -924,10 +924,6 @@ msgstr "nosso código de STV (VUT)"
 msgid "parameters"
 msgstr "parâmetros"
 
-#: src/web/server/common/pages_voter.ml:571
-msgid "personal data policy"
-msgstr "política de privacidade de dados pessoais"
-
 #: src/web/server/common/pages_voter.ml:61
 msgid "public data"
 msgstr ""
@@ -943,6 +939,10 @@ msgstr "algumas provas falharam na verificação"
 #: src/web/server/common/pages_voter.ml:1009
 msgid "start from the beginning"
 msgstr "começar do ínicio"
+
+#: src/web/server/common/pages_voter.ml:571
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:178
 msgid "the Wikipedia page"

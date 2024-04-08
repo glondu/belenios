@@ -511,10 +511,6 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr ""
-
 #: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr ""
@@ -596,6 +592,10 @@ msgstr ""
 
 #: src/web/server/common/pages_voter.ml:245
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
+msgstr ""
+
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
 msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1076
@@ -882,10 +882,6 @@ msgstr ""
 msgid "parameters"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:571
-msgid "personal data policy"
-msgstr ""
-
 #: src/web/server/common/pages_voter.ml:61
 msgid "public data"
 msgstr ""
@@ -900,6 +896,10 @@ msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1009
 msgid "start from the beginning"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:571
+msgid "terms of service"
 msgstr ""
 
 #: src/web/server/common/pages_voter.ml:178

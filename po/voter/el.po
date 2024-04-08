@@ -535,10 +535,6 @@ msgstr ""
 msgid "Powered by "
 msgstr "Βασισμένο στο "
 
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "Πολιτική Ιδιωτικότητας"
-
 #: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr "Προχωρήστε"
@@ -625,6 +621,10 @@ msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"T
 msgstr ""
 "Οι υποψήφιοι αυτοί σημειώνονται ως \"TieWin\" όταν εκλεγούν και \"TieLose\" "
 "εαν έχουν χάσει."
+
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1076
 msgid "Thank you for voting!"
@@ -924,10 +924,6 @@ msgstr "ο κώδικας της μεθόδου STV"
 msgid "parameters"
 msgstr "παράμετροι"
 
-#: src/web/server/common/pages_voter.ml:571
-msgid "personal data policy"
-msgstr "πολιτική προσωπικών δεδομένων"
-
 #: src/web/server/common/pages_voter.ml:61
 msgid "public data"
 msgstr ""
@@ -943,6 +939,10 @@ msgstr "κάποιες αποδείξεις απέτυχαν στην επιβε
 #: src/web/server/common/pages_voter.ml:1009
 msgid "start from the beginning"
 msgstr "ξεκινήστε από την αρχή"
+
+#: src/web/server/common/pages_voter.ml:571
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:178
 msgid "the Wikipedia page"

@@ -1,226 +1,172 @@
 (rule
  (target ar.mo)
  (deps ar.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target ar.json)
  (deps ar.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target cs.mo)
  (deps cs.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target cs.json)
  (deps cs.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target de.mo)
  (deps de.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target de.json)
  (deps de.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target el.mo)
  (deps el.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target el.json)
  (deps el.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target en.mo)
  (deps en.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target en.json)
  (deps en.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target es.mo)
  (deps es.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target es.json)
  (deps es.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target es_419.mo)
  (deps es_419.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target es_419.json)
  (deps es_419.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target fr.mo)
  (deps fr.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target fr.json)
  (deps fr.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target it.mo)
  (deps it.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target it.json)
  (deps it.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target ms.mo)
  (deps ms.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target ms.json)
  (deps ms.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target nb.mo)
  (deps nb.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target nb.json)
  (deps nb.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target nl.mo)
  (deps nl.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target nl.json)
  (deps nl.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target oc.mo)
  (deps oc.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target oc.json)
  (deps oc.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target pl.mo)
  (deps pl.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target pl.json)
  (deps pl.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target pt_BR.mo)
  (deps pt_BR.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target pt_BR.json)
  (deps pt_BR.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
  (target ro.mo)
  (deps ro.po)
- (action
-  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
 
 (rule
  (target ro.json)
  (deps ro.mo)
- (action
-  (with-stdout-to
-   %{target}
-   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+
+(rule
+ (target ru.mo)
+ (deps ru.po)
+ (action (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target ru.json)
+ (deps ru.mo)
+ (action (with-stdout-to %{target} (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (install
  (package belenios-server)
@@ -257,4 +203,6 @@
   (pt_BR.mo as locales/admin/pt_BR.mo)
   (pt_BR.json as locales/admin/pt_BR.json)
   (ro.mo as locales/admin/ro.mo)
-  (ro.json as locales/admin/ro.json)))
+  (ro.json as locales/admin/ro.json)
+  (ru.mo as locales/admin/ru.mo)
+  (ru.json as locales/admin/ru.json)))

@@ -102,8 +102,8 @@ msgstr " registrovaných voličů"
 msgid " your contribution to decryption."
 msgstr " můj příspěvek k dešifrování."
 
-#: src/web/server/common/site_admin.ml:671
-#. src/web/server/common/site_admin.ml:666
+#: src/web/server/common/site_admin.ml:669
+#. src/web/server/common/site_admin.ml:664
 msgid "%S is not a valid identity"
 msgstr "%S není platná identita"
 
@@ -111,16 +111,16 @@ msgstr "%S není platná identita"
 msgid "%d voter(s)"
 msgstr "%d – počet voličů"
 
-#: src/web/server/common/site_admin.ml:572
+#: src/web/server/common/site_admin.ml:570
 msgid "%s is not a registered user for this election."
 msgstr "%s není uživatelem s registrací pro tuto volbu."
 
-#: src/web/server/common/site_admin.ml:1219
-#. src/web/server/common/site_admin.ml:1209
+#: src/web/server/common/site_admin.ml:1217
+#. src/web/server/common/site_admin.ml:1207
 msgid "%s is not a valid date!"
 msgstr "%s není platné datum!"
 
-#: src/web/server/common/site_admin.ml:795
+#: src/web/server/common/site_admin.ml:793
 msgid "%s is not a valid e-mail address!"
 msgstr "%s není platná e-mailová adresa!"
 
@@ -233,11 +233,11 @@ msgstr ""
 "<div><b>Novinka:</b> zkus <a>experimentální rozhraní</a> "
 "(ergonomičtější)</div>"
 
-#: src/web/server/common/site_admin.ml:566
+#: src/web/server/common/site_admin.ml:564
 msgid "A new password has been mailed to %s."
 msgstr "Nové heslo bylo zasláno na %s."
 
-#: src/web/server/common/site_admin.ml:965
+#: src/web/server/common/site_admin.ml:963
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr "Veřejný klíč již existuje, klíč, který jste nahrály, byl ignorován!"
 
@@ -245,8 +245,8 @@ msgstr "Veřejný klíč již existuje, klíč, který jste nahrály, byl ignoro
 msgid "Accept"
 msgstr "Přijmout"
 
-#: src/web/server/common/site_admin.ml:1980
-#. src/web/server/common/site_admin.ml:1857
+#: src/web/server/common/site_admin.ml:1978
+#. src/web/server/common/site_admin.ml:1855
 msgid "Account creation"
 msgstr "Vytvoření účtu"
 
@@ -254,7 +254,7 @@ msgstr "Vytvoření účtu"
 msgid "Account management"
 msgstr "Správa účtu"
 
-#: src/web/server/common/site_admin.ml:2048
+#: src/web/server/common/site_admin.ml:2046
 msgid "Account not found"
 msgstr "Účet nenalezen"
 
@@ -341,11 +341,11 @@ msgstr "E-mail s kódem byl poslán na adresu %s."
 msgid "An election with the same UUID already exists."
 msgstr "Volba s tím samým UUID již existuje."
 
-#: src/web/server/common/site_admin.ml:1591
+#: src/web/server/common/site_admin.ml:1589
 msgid "An error occurred while applying the shuffle."
 msgstr "Při míchání došlo k chybě."
 
-#: src/web/server/common/site_admin.ml:1527
+#: src/web/server/common/site_admin.ml:1525
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
 msgstr ""
 "Při počítání výsledku došlo k chybě (%s). Nejpravděpodobněji to znamená, že "
@@ -452,7 +452,7 @@ msgstr "Čeká se na garanty…"
 msgid "Back to election preparation page"
 msgstr "Zpět na stránku přípravy volby"
 
-#: src/web/server/common/site_admin.ml:304
+#: src/web/server/common/site_admin.ml:302
 msgid "Bad CAS server!"
 msgstr "Špatný CAS server!"
 
@@ -523,12 +523,12 @@ msgstr ""
 msgid "Cancel"
 msgstr "Zrušit"
 
-#: src/web/server/common/site_admin.ml:889
+#: src/web/server/common/site_admin.ml:887
 msgid "Cannot send credentials, there are too many voters (max is %d)"
 msgstr ""
 "Nelze rozeslat přístupové kódy, je zadáno příliš mnoho voličů (maximum je %d)"
 
-#: src/web/server/common/site_admin.ml:516
+#: src/web/server/common/site_admin.ml:514
 msgid "Cannot send passwords, there are too many voters (max is %d)"
 msgstr "Nelze rozeslat hesla, je zadáno příliš mnoho voličů (maximum je %d)"
 
@@ -536,8 +536,8 @@ msgstr "Nelze rozeslat hesla, je zadáno příliš mnoho voličů (maximum je %d
 msgid "Change automatic dates"
 msgstr "Změnit automatická datumy"
 
-#: src/web/server/common/site_admin.ml:2010
-#. src/web/server/common/site_admin.ml:1898
+#: src/web/server/common/site_admin.ml:2008
+#. src/web/server/common/site_admin.ml:1896
 #. src/web/server/common/pages_admin.ml:3549
 #. src/web/server/common/pages_admin.ml:3417
 msgid "Change password"
@@ -651,11 +651,11 @@ msgstr "Kontakt?"
 msgid "Could not get %s (code %d)!"
 msgstr "Nepodařilo se získat %s (kód %d)!"
 
-#: src/web/server/common/site_admin.ml:1141
+#: src/web/server/common/site_admin.ml:1139
 msgid "Could not retrieve trustees from selected election!"
 msgstr "Nebylo možné načíst garanta pro vybranou volbu!"
 
-#: src/web/server/common/site_admin.ml:1088
+#: src/web/server/common/site_admin.ml:1086
 msgid "Could not retrieve voter list from election %s"
 msgstr "Nebylo možné načíst seznam voličů pro volbu %s"
 
@@ -689,7 +689,7 @@ msgstr "Vytvořit novou volbu"
 msgid "Create the election"
 msgstr "Vytvoř volbu"
 
-#: src/web/server/common/site_admin.ml:256
+#: src/web/server/common/site_admin.ml:254
 msgid "Creating new elections is forbidden on this server!"
 msgstr "Na tomto serveru je vytváření nových voleb zakázáno!"
 
@@ -737,7 +737,7 @@ msgstr "Přístupové kódy pro volbu %s"
 msgid "Credentials have already been generated!"
 msgstr "Přístupové kódy již byly vytvořeny!"
 
-#: src/web/server/common/site_admin.ml:875
+#: src/web/server/common/site_admin.ml:873
 msgid "Credentials have been generated! They will be e-mailed when the election is validated. You should download private credentials (and store them in a secure location), in case someone loses their credential."
 msgstr ""
 "Přístupové kódy byly vytvořeny! Budou rozeslány e-mailem, jakmile bude volba "
@@ -768,7 +768,7 @@ msgstr "Seznam aktuálních hlasovacích lístků:"
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr "Dosavadní účast: %d / %d = %.2f %%"
 
-#: src/web/server/common/site_admin.ml:1597
+#: src/web/server/common/site_admin.ml:1595
 msgid "Data is invalid! (%s)"
 msgstr "Data jsou neplatná! (%s)"
 
@@ -885,8 +885,8 @@ msgstr ""
 msgid "Dummy auth (should not be used in production): "
 msgstr "Přihlášení nanečisto (nemělo by se používatv produkci): "
 
-#: src/web/server/common/site_admin.ml:1107
-#. src/web/server/common/site_admin.ml:681
+#: src/web/server/common/site_admin.ml:1105
+#. src/web/server/common/site_admin.ml:679
 msgid "Duplicate voter: %s. This is not allowed. If two voters have the same address, use different logins."
 msgstr ""
 "Zdvojený volič: %s. Toto není povoleno. Pokud dva voliči sdílí stejnou e-"
@@ -973,7 +973,7 @@ msgstr "Nastavení volby:"
 msgid "Elections you can administer"
 msgstr "Volby, které můžeš administrovat"
 
-#: src/web/server/common/site_admin.ml:1146
+#: src/web/server/common/site_admin.ml:1144
 msgid "Encrypted decryption keys are missing!"
 msgstr "Zašifrované dešifrovací klíče chybí!"
 
@@ -999,37 +999,37 @@ msgstr ""
 msgid "Enter your private key:"
 msgstr "Zadej svůj soukromý klíč:"
 
-#: src/web/server/common/site_admin.ml:1656
-#. src/web/server/common/site_admin.ml:1645
-#. src/web/server/common/site_admin.ml:1595
-#. src/web/server/common/site_admin.ml:1590
-#. src/web/server/common/site_admin.ml:1532
-#. src/web/server/common/site_admin.ml:1510
-#. src/web/server/common/site_admin.ml:1405
-#. src/web/server/common/site_admin.ml:1369
-#. src/web/server/common/site_admin.ml:1260
-#. src/web/server/common/site_admin.ml:1220
-#. src/web/server/common/site_admin.ml:1203
-#. src/web/server/common/site_admin.ml:1149
-#. src/web/server/common/site_admin.ml:1104
-#. src/web/server/common/site_admin.ml:1093
-#. src/web/server/common/site_admin.ml:1085
-#. src/web/server/common/site_admin.ml:983
-#. src/web/server/common/site_admin.ml:969
-#. src/web/server/common/site_admin.ml:933
-#. src/web/server/common/site_admin.ml:798
-#. src/web/server/common/site_admin.ml:570
-#. src/web/server/common/site_admin.ml:502
-#. src/web/server/common/site_admin.ml:465
-#. src/web/server/common/site_admin.ml:447
-#. src/web/server/common/site_admin.ml:434
-#. src/web/server/common/site_admin.ml:370
-#. src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:308
-#. src/web/server/common/site_admin.ml:304
-#. src/web/server/common/site_admin.ml:255
-#. src/web/server/common/site_admin.ml:183
-#. src/web/server/common/site_admin.ml:99
+#: src/web/server/common/site_admin.ml:1654
+#. src/web/server/common/site_admin.ml:1643
+#. src/web/server/common/site_admin.ml:1593
+#. src/web/server/common/site_admin.ml:1588
+#. src/web/server/common/site_admin.ml:1530
+#. src/web/server/common/site_admin.ml:1508
+#. src/web/server/common/site_admin.ml:1403
+#. src/web/server/common/site_admin.ml:1367
+#. src/web/server/common/site_admin.ml:1258
+#. src/web/server/common/site_admin.ml:1218
+#. src/web/server/common/site_admin.ml:1201
+#. src/web/server/common/site_admin.ml:1147
+#. src/web/server/common/site_admin.ml:1102
+#. src/web/server/common/site_admin.ml:1091
+#. src/web/server/common/site_admin.ml:1083
+#. src/web/server/common/site_admin.ml:981
+#. src/web/server/common/site_admin.ml:967
+#. src/web/server/common/site_admin.ml:931
+#. src/web/server/common/site_admin.ml:796
+#. src/web/server/common/site_admin.ml:568
+#. src/web/server/common/site_admin.ml:500
+#. src/web/server/common/site_admin.ml:463
+#. src/web/server/common/site_admin.ml:445
+#. src/web/server/common/site_admin.ml:432
+#. src/web/server/common/site_admin.ml:368
+#. src/web/server/common/site_admin.ml:346
+#. src/web/server/common/site_admin.ml:306
+#. src/web/server/common/site_admin.ml:302
+#. src/web/server/common/site_admin.ml:253
+#. src/web/server/common/site_admin.ml:181
+#. src/web/server/common/site_admin.ml:98
 msgid "Error"
 msgstr "Chyba"
 
@@ -1088,9 +1088,9 @@ msgstr ""
 msgid "For real elections, the key must be shared among independent trustees."
 msgstr "Pro netestovací volby je nutné, aby klíč sdíleli nezávislí garanti."
 
-#: src/web/server/common/site_admin.ml:1426
-#. src/web/server/common/site_admin.ml:1422
-#. src/web/server/common/site_admin.ml:1168
+#: src/web/server/common/site_admin.ml:1424
+#. src/web/server/common/site_admin.ml:1420
+#. src/web/server/common/site_admin.ml:1166
 msgid "Forbidden"
 msgstr "Zapovězeno"
 
@@ -1205,7 +1205,7 @@ msgstr "Převzít voliče "
 msgid "Import voters from another election"
 msgstr "Převzít voliče z jiné volby"
 
-#: src/web/server/common/site_admin.ml:1143
+#: src/web/server/common/site_admin.ml:1141
 msgid "Imported trustees are invalid for this election!"
 msgstr "Převzatí garanti jsou pro tuto volbu neplatní!"
 
@@ -1219,11 +1219,11 @@ msgstr ""
 "Převzatí voliči budou mít to samé heslo jako v původní volbě a nebude jim "
 "odeslán žádný nový e-mail."
 
-#: src/web/server/common/site_admin.ml:1144
+#: src/web/server/common/site_admin.ml:1142
 msgid "Inconsistency in imported election!"
 msgstr "Nekonzistence v převzaté volbě!"
 
-#: src/web/server/common/site_admin.ml:214
+#: src/web/server/common/site_admin.ml:212
 msgid "Incorrect code"
 msgstr "Nesprávný kód"
 
@@ -1271,11 +1271,11 @@ msgstr "Neplatný maximální počet možností"
 msgid "Invalid minimum number of choices"
 msgstr "Neplatný minimální počet možností"
 
-#: src/web/server/common/site_admin.ml:982
+#: src/web/server/common/site_admin.ml:980
 msgid "Invalid public key!"
 msgstr "Neplatný veřejný klíč!"
 
-#: src/web/server/common/site_admin.ml:421
+#: src/web/server/common/site_admin.ml:419
 msgid "Invalid public name for credential authority!"
 msgstr "Neplatné veřejné jméno pro vydavatele přístupových kódů!"
 
@@ -1542,7 +1542,7 @@ msgstr ""
 msgid "No matching public key was found!"
 msgstr "Nebyl nalezen žádný odpovídající veřejný klíč!"
 
-#: src/web/server/common/site_admin.ml:466
+#: src/web/server/common/site_admin.ml:464
 msgid "No such language: %s"
 msgstr "Takový jazyk neexistuje: %s"
 
@@ -1552,7 +1552,7 @@ msgstr ""
 "Nebyli zadáni žádní garanti. To znamená, že server bude spravovat klíč k "
 "volbám sám."
 
-#: src/web/server/common/site_admin.ml:884
+#: src/web/server/common/site_admin.ml:882
 #. src/web/server/common/pages_admin.ml:1702
 msgid "No voters"
 msgstr "Ještě nebyli zadáni žádní voliči"
@@ -1561,7 +1561,7 @@ msgstr "Ještě nebyli zadáni žádní voliči"
 msgid "Nobody voted!"
 msgstr "Nikdo ještě nevolil!"
 
-#: src/web/server/common/site_admin.ml:309
+#: src/web/server/common/site_admin.ml:307
 msgid "Non-empty CAS server, but CAS authentication not selected!"
 msgstr "CAS server není prázdný, ale přihlašování pomocí CAS není vybráno!"
 
@@ -1731,7 +1731,7 @@ msgstr "Heslo zaslané předem na e-mail (užitečné pro více voleb)"
 msgid "Password sent?"
 msgstr "Heslo zasláno?"
 
-#: src/web/server/common/site_admin.ml:541
+#: src/web/server/common/site_admin.ml:539
 msgid "Passwords have been generated and mailed!"
 msgstr "Hesla byla vytvořena a odeslána e-mailem!"
 
@@ -1751,7 +1751,7 @@ msgstr "Upozornění ohledně ochrany soukromí"
 msgid "Please "
 msgstr "Prosím "
 
-#: src/web/server/common/site_admin.ml:1641
+#: src/web/server/common/site_admin.ml:1639
 msgid "Please add some trustees first!"
 msgstr "Prosím nejprve zadej nějaké garanty!"
 
@@ -1863,10 +1863,6 @@ msgstr "Náhled volebního rozhraní"
 #: src/web/clients/admin/preview.ml:47
 msgid "Preview will open in a new tab"
 msgstr "Náhled se otevře v nové záložce"
-
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "Pravidla ochrany soukromí"
 
 #: src/web/server/common/pages_admin.ml:2435
 msgid "Private credentials?"
@@ -2219,13 +2215,13 @@ msgstr "Zadat veřejný klíč"
 msgid "Submit your public key using the button below."
 msgstr "Zadej svůj veřejný klíč pomocí tlačítka níže."
 
-#: src/web/server/common/site_admin.ml:1585
-#. src/web/server/common/site_admin.ml:1502
-#. src/web/server/common/site_admin.ml:990
-#. src/web/server/common/site_admin.ml:874
-#. src/web/server/common/site_admin.ml:565
-#. src/web/server/common/site_admin.ml:540
-#. src/web/server/common/site_admin.ml:431
+#: src/web/server/common/site_admin.ml:1583
+#. src/web/server/common/site_admin.ml:1500
+#. src/web/server/common/site_admin.ml:988
+#. src/web/server/common/site_admin.ml:872
+#. src/web/server/common/site_admin.ml:563
+#. src/web/server/common/site_admin.ml:538
+#. src/web/server/common/site_admin.ml:429
 msgid "Success"
 msgstr "Úspěch"
 
@@ -2251,6 +2247,10 @@ msgstr "Vyhodnocování"
 msgid "Tallying: shuffling step"
 msgstr "Vyhodnocování: krok míchání"
 
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
+msgstr ""
+
 #: src/web/common/mails_admin.ml:310
 msgid "Thank you again for your help,"
 msgstr "Opět děkujeme za tvou pomoc,"
@@ -2273,7 +2273,7 @@ msgstr "Toto UUID není platné!"
 msgid "The account creation "
 msgstr "Vytvoření účtu "
 
-#: src/web/server/common/site_admin.ml:1982
+#: src/web/server/common/site_admin.ml:1980
 msgid "The account has been created."
 msgstr "Účet byl vytvořen."
 
@@ -2281,7 +2281,7 @@ msgstr "Účet byl vytvořen."
 msgid "The archive can be downloaded at: "
 msgstr "Archiv volby je možné stáhnout: "
 
-#: src/web/server/common/site_admin.ml:894
+#: src/web/server/common/site_admin.ml:892
 msgid "The authority is not the server"
 msgstr "Vydavatelem není server"
 
@@ -2297,11 +2297,11 @@ msgstr ""
 msgid "The creation failed."
 msgstr "Vytvoření selhalo."
 
-#: src/web/server/common/site_admin.ml:883
+#: src/web/server/common/site_admin.ml:881
 msgid "The credentials were already sent"
 msgstr "Přístupové kódy již byly rozeslány"
 
-#: src/web/server/common/site_admin.ml:1200
+#: src/web/server/common/site_admin.ml:1198
 msgid "The date must be less than %d days in the future!"
 msgstr "Datum musí být méně než %d v budoucnosti!"
 
@@ -2312,7 +2312,7 @@ msgstr "Datum musí být méně než %d v budoucnosti!"
 msgid "The election administrator"
 msgstr "Administrátor volby"
 
-#: src/web/server/common/site_admin.ml:1425
+#: src/web/server/common/site_admin.ml:1423
 msgid "The election has already been tallied."
 msgstr "Tato volba již byla vyhodnocena."
 
@@ -2320,11 +2320,11 @@ msgstr "Tato volba již byla vyhodnocena."
 msgid "The election is closed. No one can vote."
 msgstr "Volba skončila. Nikdo již nemůže volit."
 
-#: src/web/server/common/site_admin.ml:1370
+#: src/web/server/common/site_admin.ml:1368
 msgid "The election is not archived!"
 msgstr "Volba není archivována!"
 
-#: src/web/server/common/site_admin.ml:1418
+#: src/web/server/common/site_admin.ml:1416
 msgid "The election is not ready to be tallied. Please come back later."
 msgstr "Volba ještě není připravena k vyhodnocení. Vraťte se prosím později."
 
@@ -2336,12 +2336,12 @@ msgstr "Volba je nyní ukončena."
 msgid "The election is open. Voters can vote."
 msgstr "Volba je zahájena. Voliči mohou volit."
 
-#: src/web/server/common/site_admin.ml:868
-#. src/web/server/common/site_admin.ml:519
+#: src/web/server/common/site_admin.ml:866
+#. src/web/server/common/site_admin.ml:517
 msgid "The election name has not been edited!"
 msgstr "Jméno volby nebylo upraveno!"
 
-#: src/web/server/common/site_admin.ml:499
+#: src/web/server/common/site_admin.ml:497
 msgid "The election name must be %d characters or less!"
 msgstr "Jméno volby musí mít maximálně %d znaků a méně!"
 
@@ -2384,11 +2384,11 @@ msgstr ""
 "Tato stránka také obsahuje pokyny, jak ověřit záznam volby po jejím "
 "vyhodnocení."
 
-#: src/web/server/common/site_admin.ml:1511
+#: src/web/server/common/site_admin.ml:1509
 msgid "The partial decryption didn't pass validation!"
 msgstr "Příspěvek k dešifrování neprošel ověřením!"
 
-#: src/web/server/common/site_admin.ml:2012
+#: src/web/server/common/site_admin.ml:2010
 msgid "The password has been changed."
 msgstr "Heslo bylo změněno."
 
@@ -2396,11 +2396,11 @@ msgstr "Heslo bylo změněno."
 msgid "The private key must be downloaded first!"
 msgstr "Nejprve musí být stažen soukromý klíč!"
 
-#: src/web/server/common/site_admin.ml:210
+#: src/web/server/common/site_admin.ml:208
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Zadaný kód je nesprávný. Vrať se a zkus to znovu."
 
-#: src/web/server/common/site_admin.ml:427
+#: src/web/server/common/site_admin.ml:425
 msgid "The public name of the credential authority has been set successfully!"
 msgstr "Veřejné jméno vydavatele přístupových kódů bylo nastaveno úspěšně!"
 
@@ -2419,7 +2419,7 @@ msgstr ""
 msgid "The server is always one of the trustees"
 msgstr "Server je vždy jedním z garantů"
 
-#: src/web/server/common/site_admin.ml:1586
+#: src/web/server/common/site_admin.ml:1584
 msgid "The shuffle has been successfully applied!"
 msgstr "Zamíchání bylo úspěšně provedeno!"
 
@@ -2427,14 +2427,14 @@ msgstr "Zamíchání bylo úspěšně provedeno!"
 msgid "The threshold mode must be used."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:1649
+#: src/web/server/common/site_admin.ml:1647
 msgid "The threshold must be positive and smaller than the number of trustees!"
 msgstr ""
 "Minimální počet aktivních garantů musí být kladné číslo, které je menší než "
 "celkový počet garantů!"
 
-#: src/web/server/common/site_admin.ml:1096
-#. src/web/server/common/site_admin.ml:693
+#: src/web/server/common/site_admin.ml:1094
+#. src/web/server/common/site_admin.ml:691
 msgid "The total weight (%s) cannot be handled. Its expanded value must be less than %s."
 msgstr ""
 "Součet vah (%s) nelze zpracovat. Jeho expandovaná hodnota musí být menší než "
@@ -2444,7 +2444,7 @@ msgstr ""
 msgid "The voter has to choose between "
 msgstr "Volič si musí vybrat mezi "
 
-#: src/web/server/common/site_admin.ml:701
+#: src/web/server/common/site_admin.ml:699
 msgid "The voter list is not consistent (a login or a weight is missing)."
 msgstr "Seznam voličů není úplný (chybí přihlašovací jméno nebo váha)."
 
@@ -2452,7 +2452,7 @@ msgstr "Seznam voličů není úplný (chybí přihlašovací jméno nebo váha)
 msgid "There are not enough trustees."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:722
+#: src/web/server/common/site_admin.ml:720
 msgid "There are too many voters (max is %d)"
 msgstr "Příliš mnoho voličů (maximum je %d)"
 
@@ -2483,7 +2483,7 @@ msgstr ""
 msgid "There will be 3 steps."
 msgstr "Bude nutné učinit tři kroky."
 
-#: src/web/server/common/site_admin.ml:2047
+#: src/web/server/common/site_admin.ml:2045
 msgid "This account does not exist"
 msgstr "Takový účet neexistuje"
 
@@ -2498,7 +2498,7 @@ msgstr ""
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "Tento kontakt bude přidán od e-mailů rozesýlaných voličům."
 
-#: src/web/server/common/site_admin.ml:182
+#: src/web/server/common/site_admin.ml:180
 msgid "This e-mail address is invalid!"
 msgstr "Tato e-mailová adresa je neplatná!"
 
@@ -2541,7 +2541,7 @@ msgstr ""
 msgid "This is the private key of %s."
 msgstr "Toto je soukromý klíč, které náleží %s."
 
-#: src/web/server/common/site_admin.ml:601
+#: src/web/server/common/site_admin.ml:599
 msgid "This kind of change is not allowed now!"
 msgstr "Tento druh změny nyní není povolen!"
 
@@ -2558,7 +2558,7 @@ msgstr "Tento seznam musí být schválen volební komisí."
 msgid "This name will be published on the election result page."
 msgstr "Toto jméno bude zveřejněno na stránce s výsledkem volby."
 
-#: src/web/server/common/site_admin.ml:100
+#: src/web/server/common/site_admin.ml:99
 msgid "This page is not accessible to authenticated administrators, because it is meant to be used by third parties."
 msgstr ""
 "Tato stránka není dostupná přihlášeným administrátorům, protože ji mají "
@@ -2708,7 +2708,7 @@ msgstr "Neznámé uuid"
 msgid "Unsupported booth version"
 msgstr "Nepodporovaná verze hlasovací místnosti"
 
-#: src/web/server/common/site_admin.ml:1147
+#: src/web/server/common/site_admin.ml:1145
 msgid "Unsupported trustees!"
 msgstr "Nepodporovaní garanti!"
 
@@ -2863,7 +2863,7 @@ msgstr ""
 msgid "Yes"
 msgstr "Ano"
 
-#: src/web/server/common/site_admin.ml:1167
+#: src/web/server/common/site_admin.ml:1165
 msgid "You are not allowed to administer this election!"
 msgstr "Nemáte oprávnění administrovat tuto volbu!"
 
@@ -2875,15 +2875,15 @@ msgstr "Máte také přístup k "
 msgid "You can also log in with"
 msgstr "Můžeš se také přihlásit pomocí"
 
-#: src/web/server/common/site_admin.ml:1899
+#: src/web/server/common/site_admin.ml:1897
 msgid "You cannot change your password now. Please try later."
 msgstr "Neyní nelze změnit vaše heslo. Zkuste to prosím později."
 
-#: src/web/server/common/site_admin.ml:1858
+#: src/web/server/common/site_admin.ml:1856
 msgid "You cannot create an account now. Please try later."
 msgstr "Nyní nelze vytvořit účet. Zkus to prosím později."
 
-#: src/web/server/common/site_admin.ml:416
+#: src/web/server/common/site_admin.ml:414
 msgid "You cannot set the credential authority for this election!"
 msgstr "Nemůžeš nastavit vydavatele přístupových kódů pro tuto volbu!"
 
@@ -2924,7 +2924,7 @@ msgstr ""
 "Musíte si uložit tento jedinečný otisk a ověřit, že se objevil na stránce "
 "volebních výsledků."
 
-#: src/web/server/common/site_admin.ml:448
+#: src/web/server/common/site_admin.ml:446
 msgid "You must select at least one language!"
 msgstr "Musíte vybrat aspoň jeden jazyk!"
 
@@ -2995,19 +2995,19 @@ msgstr ""
 "zveřejněn serverem na stránce volby. Tvůj soukromý klíč bude potřeba pro "
 "dešifrování výsledků voleb."
 
-#: src/web/server/common/site_admin.ml:989
+#: src/web/server/common/site_admin.ml:987
 msgid "Your key has been received and checked!"
 msgstr "Váš klíč byl přijat a ověřen!"
 
-#: src/web/server/common/site_admin.ml:1406
+#: src/web/server/common/site_admin.ml:1404
 msgid "Your partial decryption has already been received and checked!"
 msgstr "Tvůj příspěvek k dešifrování již byl přijat a ověřen!"
 
-#: src/web/server/common/site_admin.ml:1503
+#: src/web/server/common/site_admin.ml:1501
 msgid "Your partial decryption has been received and checked!"
 msgstr "Tvůj příspěvek k dešifrování byl přijat a ověřen!"
 
-#: src/web/server/common/site_admin.ml:932
+#: src/web/server/common/site_admin.ml:930
 msgid "Your public key has already been received!"
 msgstr "Váš veřejný klíč již byl přijat!"
 
@@ -3108,10 +3108,6 @@ msgstr "nebo jej jednoduše můžeš vytisknout a uložit do sejfu."
 msgid "out of "
 msgstr "z "
 
-#: src/web/server/common/pages_admin.ml:55
-msgid "personal data policy"
-msgstr "pravidla ochrany soukromí"
-
 #: src/web/server/common/pages_admin.ml:1833
 msgid "private credentials"
 msgstr "soukromé přístupové kódy"
@@ -3179,6 +3175,10 @@ msgid "submitting a large number of credentials using the above form may fail; i
 msgstr ""
 "zadání velkého množství přístupových kódů tímto způsobem může selhat; v "
 "takovém případě je nutné použít nástroj pro příkazovou řádku a formulář níže."
+
+#: src/web/server/common/pages_admin.ml:55
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:1520
 msgid "the after-the-vote procedure will require more steps;"

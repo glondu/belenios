@@ -543,10 +543,6 @@ msgstr ""
 msgid "Powered by "
 msgstr "Opera con "
 
-#: src/web/common/pages_common.ml:120
-msgid "Privacy policy"
-msgstr "Politica sulla privacy"
-
 #: src/web/server/common/pages_common.ml:221
 msgid "Proceed"
 msgstr "Procedere"
@@ -630,6 +626,10 @@ msgstr "Inviare"
 
 #: src/web/server/common/pages_voter.ml:245
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
+msgstr ""
+
+#: src/web/common/pages_common.ml:118
+msgid "Terms of service"
 msgstr ""
 
 #: src/web/server/common/pages_voter.ml:1076
@@ -936,10 +936,6 @@ msgstr ""
 msgid "parameters"
 msgstr "parametri"
 
-#: src/web/server/common/pages_voter.ml:571
-msgid "personal data policy"
-msgstr "la nostra policy dei dati personali"
-
 #: src/web/server/common/pages_voter.ml:61
 msgid "public data"
 msgstr "dati pubblici"
@@ -955,6 +951,10 @@ msgstr ""
 #: src/web/server/common/pages_voter.ml:1009
 msgid "start from the beginning"
 msgstr "cominciare dall'inizio"
+
+#: src/web/server/common/pages_voter.ml:571
+msgid "terms of service"
+msgstr ""
 
 #: src/web/server/common/pages_voter.ml:178
 msgid "the Wikipedia page"
