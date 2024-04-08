@@ -81,8 +81,13 @@ module Make (X : Pages_sig.S) = struct
     fun () -> Redirection.send redir
 
   let () =
-    Any.register ~service:set_cookie_disclaimer (fun cont () ->
-        let* () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
+    Any.register ~service:set_consent (fun cont () ->
+        let now = Unix.gettimeofday () in
+        let exp = now +. (10. *. 365. *. 86400.) in
+        let () =
+          Eliom_state.set_cookie ~exp ~name:"belenios-consent"
+            ~value:(string_of_float now) ()
+        in
         get_cont_state cont ())
 
   let () =

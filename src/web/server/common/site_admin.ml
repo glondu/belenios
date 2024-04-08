@@ -104,7 +104,6 @@ struct
 
   let () =
     Redirection.register ~service:privacy_notice_accept (fun () cont ->
-        let* () = Eliom_reference.set Web_state.show_cookie_disclaimer false in
         let cont =
           match cont with
           | ContAdmin -> Redirection admin
@@ -133,19 +132,14 @@ struct
               match a.consent with
               | Some _ -> return_false
               | None -> (
-                  let* b =
-                    Eliom_reference.get Web_state.show_cookie_disclaimer
-                  in
-                  if b then return_true
-                  else
-                    let consent = Some (Datetime.now ()) in
-                    let@ s = Storage.with_transaction in
-                    let* x = Accounts.update_account_by_id s a.id in
-                    match x with
-                    | None -> return_true
-                    | Some (a, set) ->
-                        let* () = set { a with consent } in
-                        return_false)
+                  let consent = Some (Datetime.now ()) in
+                  let@ s = Storage.with_transaction in
+                  let* x = Accounts.update_account_by_id s a.id in
+                  match x with
+                  | None -> return_true
+                  | Some (a, set) ->
+                      let* () = set { a with consent } in
+                      return_false)
             in
             if show then Pages_admin.privacy_notice ContAdmin
             else if a.email = None then Pages_admin.set_email ()
@@ -1858,7 +1852,7 @@ struct
 
   let () =
     Html.register ~service:signup_captcha (fun service () ->
-        let* b = Eliom_reference.get Web_state.show_cookie_disclaimer in
+        let b = ask_for_consent () in
         if b then Pages_admin.privacy_notice (ContSignup service)
         else signup_captcha_handler service None "")
 

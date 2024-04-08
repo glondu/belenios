@@ -23,9 +23,7 @@ open Lwt
 open Lwt.Syntax
 
 module Make () = struct
-  let default_scope = Eliom_common.default_session_scope
   let belenios_scope = `Session (Eliom_common.create_scope_hierarchy "belenios")
-  let show_cookie_disclaimer = Eliom_reference.eref ~scope:default_scope true
   let site_user = Eliom_reference.eref ~scope:belenios_scope None
   let election_user = Eliom_reference.eref ~scope:belenios_scope None
 

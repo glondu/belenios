@@ -876,7 +876,7 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
-  val set_cookie_disclaimer :
+  val set_consent :
     ( Web_common.site_cont,
       unit,
       Eliom_service.get,

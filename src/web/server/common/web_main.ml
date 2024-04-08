@@ -64,7 +64,13 @@ module Make () = struct
         Web_config.maxmailsatonce := int_of_string limit
     | Element ("contact", [ ("uri", uri) ], []) ->
         Web_config.contact_uri := Some uri
-    | Element ("tos", [ ("uri", uri) ], []) -> tos := Some uri
+    | Element ("tos", attrs, []) ->
+        let () =
+          match List.assoc_opt "last-update" attrs with
+          | Some x -> Web_config.tos_last_update := float_of_string x
+          | None -> ()
+        in
+        tos := List.assoc_opt "uri" attrs
     | Element ("server", attrs, []) ->
         let set check_email attr setter =
           match List.assoc_opt attr attrs with

@@ -561,7 +561,7 @@ struct
                ]
       | None -> return go_to_the_booth
     in
-    let* scd = Eliom_reference.get Web_state.show_cookie_disclaimer in
+    let scd = ask_for_consent () in
     let cookie_disclaimer =
       if scd then
         div
@@ -570,7 +570,7 @@ struct
             txt (s_ "By using this site, you accept our ");
             direct_a !Web_config.tos (s_ "terms of service");
             txt ". ";
-            a ~service:set_cookie_disclaimer
+            a ~service:set_consent
               ~a:[ a_class [ "nice-button"; "nice-button--default" ] ]
               [ txt (s_ "Accept") ]
               (default_admin (ContSiteElection uuid));

@@ -289,8 +289,7 @@ module Make () = struct
       ~meth:(Get (suffix (uuid "uuid" ** suffix_const "")))
       ()
 
-  let set_cookie_disclaimer =
-    create ~path:No_path ~meth:(Get (site_cont "cont")) ()
+  let set_consent = create ~path:No_path ~meth:(Get (site_cont "cont")) ()
 
   let election_admin =
     create ~path:(Path [ "election"; "admin" ]) ~meth:(Get (uuid "uuid")) ()

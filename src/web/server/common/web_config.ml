@@ -28,6 +28,7 @@ let server_mail = ref "noreply@example.org"
 let return_path = ref None
 let contact_uri = ref None
 let tos = ref ""
+let tos_last_update = ref (Unix.gettimeofday ())
 let warning_file = ref None
 let footer_file = ref None
 let admin_home = ref None
