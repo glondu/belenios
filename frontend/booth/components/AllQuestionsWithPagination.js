@@ -440,13 +440,13 @@ function TranslatableAllQuestionsWithPagination(props) {
         }
       }
     } else if (questionType === QuestionTypeEnum.LISTS) {
-      const numberOfListsSelected = voter_selected_answers_as_uncrypted_ballot[
+      const selectedList = voter_selected_answers_as_uncrypted_ballot[
         current_question_index
-      ].reduce((accumulator, value, _) => {
-        const listSelected = value[0] === 1 ? 1 : 0;
-        return accumulator + listSelected;
-      }, 0);
-      if (numberOfListsSelected < 1) {
+      ].find((v) => v[0] === 1);
+      const atLeastOne = selectedList
+        ? selectedList.slice(1).find((v) => v === 1)
+        : 0;
+      if (!atLeastOne) {
         dispatch_current_alerts_for_all_questions({
           type: "saveAlertForCandidateInQuestion",
           question_index: current_question_index,
