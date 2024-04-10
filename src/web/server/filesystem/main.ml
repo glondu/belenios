@@ -36,8 +36,6 @@ end
 
 module type S = sig
   val mutexes : uuid option Indexed_mutex.t
-  val passwords_dbs : SSet.t ref
-  val auth_dbs : SSet.t ref
   val make : uuid option Mutex_set.t -> (module BACKEND0)
 end
 
@@ -45,11 +43,6 @@ module MakeBackend
     (Config : CONFIG)
     (Accounts_cache : CLEAR)
     (Elections_cache : CLEAR) : S = struct
-  (** {1 Global database names} *)
-
-  let passwords_dbs = ref SSet.empty
-  let auth_dbs = ref SSet.empty
-
   (** {1 Mutexes} *)
 
   let mutexes = Indexed_mutex.create ()
@@ -301,8 +294,9 @@ module MakeBackend
         match get_election_file_props uuid f with
         | Concrete (fname, kind) -> Concrete (uuid /// fname, kind)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Auth_db f -> Concrete (f, Raw)
-    | Admin_password (file, key) -> Admin_password (file, key)
+    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw)
+    | Admin_password (file, key) ->
+        Admin_password (SMap.find file Config.maps, key)
 
   let file_exists x =
     match get_props x with
@@ -1191,9 +1185,6 @@ module Make (Config : CONFIG) : Storage.S = struct
   module Elections_cache = Elections_cache.Make (Elections_input) ()
   module B = MakeBackend (Config) (Accounts_cache.Clear) (Elections_cache.Clear)
 
-  let register_passwords_db x = B.passwords_dbs := SSet.add x !B.passwords_dbs
-  let register_auth_db x = B.auth_dbs := SSet.add x !B.auth_dbs
-
   let with_transaction_generic f =
     let set = Mutex_set.create B.mutexes in
     let x = B.make set in
@@ -1227,6 +1218,7 @@ let make_backend (config : Xml.xml list) =
   let uuid_length = ref Uuid.min_length in
   let account_id_min = ref 100000000 in
   let account_id_max = ref 999999999 in
+  let maps = ref SMap.empty in
   let () =
     config
     |> List.iter @@ function
@@ -1247,6 +1239,8 @@ let make_backend (config : Xml.xml list) =
              account_id_min := min;
              account_id_max := max)
            else failwith "account-ids delta is not big enough"
+       | Element ("map", [ ("from", from); ("to", to_) ], []) ->
+           maps := SMap.add from to_ !maps
        | Element (tag, _, _) ->
            Printf.ksprintf failwith "unexpected tag <%s> in configuration of %s"
              tag backend_name
@@ -1271,6 +1265,7 @@ let make_backend (config : Xml.xml list) =
     let account_id_max = !account_id_max
     let spool_dir = spool_dir
     let accounts_dir = accounts_dir
+    let maps = !maps
   end in
   let module X = Make (Config) in
   (module X : Storage.S)

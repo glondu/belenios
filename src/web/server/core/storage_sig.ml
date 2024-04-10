@@ -106,8 +106,6 @@ type t = (module BACKEND)
 type 'a u = t -> uuid -> 'a
 
 module type S = sig
-  val register_passwords_db : string -> unit
-  val register_auth_db : string -> unit
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
   val get_user_id : user -> int option Lwt.t
 

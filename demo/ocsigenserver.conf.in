@@ -63,9 +63,9 @@
         <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
-        <auth name="demo"><dummy allowlist="demo/dummy_logins.txt"/></auth> <!-- DEMO -->
-        <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
-        <auth name="public"><password db="_VARDIR_/password_db.csv" allowsignups="true"/></auth>
+        <auth name="demo"><dummy allowlist="demo_allowlist"/></auth> <!-- DEMO -->
+        <auth name="local"><password db="local_passwords"/></auth> <!-- DEMO -->
+        <auth name="public"><password db="public_passwords" allowsignups="true"/></auth>
         <auth name="email"><email/></auth> <!-- DEMO -->
         <auth name="captcha"><email use_captcha="true"/></auth> <!-- DEMO -->
         <!-- <auth name="google"><oidc server="https://accounts.google.com" client_id="client-id" client_secret="client-secret"/></auth> -->
@@ -80,6 +80,9 @@
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>
           <accounts dir="_VARDIR_/accounts"/>
+          <map from="demo_allowlist" to="demo/dummy_logins.txt"/>
+          <map from="local_passwords" to="demo/password_db.csv"/>
+          <map from="public_passwords" to="_VARDIR_/password_db.csv"/>
         </storage>
         <admin-home file="_VARDIR_/admin-home.html"/>
         <success-snippet file="_VARDIR_/success-snippet.html"/>

@@ -5,6 +5,8 @@
    + `<uuid>`, `<spool>` and `<accounts>` elements are now children of
      a new `<storage>` element (see example in
      `demo/ocsigenserver.conf.in`)
+   + in `<auth>` children, values of `db` and `allowlist` attributes
+     must be mapped to explicit files in the `<storage>` element
    + `<gdpr>` has been renamed to `<tos>`
 
 2.2

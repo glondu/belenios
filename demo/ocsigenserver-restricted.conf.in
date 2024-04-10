@@ -60,7 +60,7 @@
         <!-- <contact uri="mailto:contact@example.org"/> -->
         <server mail="noreply@example.org" return-path="bounces@example.org" name="Belenios public server"/>
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
-        <auth name="local"><password db="demo/password_db.csv"/></auth> <!-- DEMO -->
+        <auth name="local"><password db="local_passwords"/></auth> <!-- DEMO -->
         <source file="_SHAREDIR_/belenios.tar.gz"/>
         <logo file="_SHAREDIR_/placeholder.png" mime-type="image/png"/>
         <favicon file="_VARDIR_/favicon.ico" mime-type="image/png"/>
@@ -72,6 +72,7 @@
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>
           <accounts dir="_VARDIR_/accounts"/>
+          <map from="local_passwords" to="demo/password_db.csv"/>
         </storage>
         <admin-home file="_VARDIR_/admin-home.html"/>
         <success-snippet file="_VARDIR_/success-snippet.html"/>

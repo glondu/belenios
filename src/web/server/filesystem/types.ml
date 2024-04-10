@@ -19,12 +19,15 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
+
 module type CONFIG = sig
   val uuid_length : int
   val account_id_min : int
   val account_id_max : int
   val spool_dir : string
   val accounts_dir : string
+  val maps : string SMap.t
 end
 
 module type CLEAR = sig

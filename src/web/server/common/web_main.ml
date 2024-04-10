@@ -176,29 +176,6 @@ module Make () = struct
     | Some d -> d
     | None -> failwith "missing <domain> in configuration"
 
-  (** Set up storage *)
-
-  let register_auth a =
-    let () =
-      match a.auth_system with
-      | "password" ->
-          List.iter
-            (function
-              | "db", file -> Storage.register_passwords_db file | _ -> ())
-            a.auth_config
-      | _ -> ()
-    in
-    List.iter
-      (function "allowlist", file -> Storage.register_auth_db file | _ -> ())
-      a.auth_config
-
-  let () = List.iter register_auth !auth_instances
-
-  let () =
-    List.iter
-      (function `Export a -> register_auth a | _ -> ())
-      !auth_instances_export
-
   (** Build up the site *)
 
   let () = Web_config.source_file := source_file
