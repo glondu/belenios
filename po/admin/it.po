@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2024-04-10 13:55+0000\n"
+"PO-Revision-Date: 2024-04-13 11:01+0000\n"
 "Last-Translator: Alfredo Iafolla <alfredoiafolla@aim.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/belenios/admin/"
 "it/>\n"
@@ -91,7 +91,7 @@ msgstr " per inizializzare la chiave dell'elezione."
 
 #: src/web/server/common/pages_admin.ml:1246
 msgid " trustees will be needed to decrypt the result."
-msgstr " sarà necessario che gli enti certificatori decrittino il risultato."
+msgstr " enti certificatori saranno necessari per decrittare il risultato."
 
 #: src/web/server/common/pages_admin.ml:688
 msgid " voter(s) registered"
@@ -2825,7 +2825,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:750
 #: src/web/clients/admin/elections.ml:1431
 msgid "Warning: this will freeze the voter list!"
-msgstr ""
+msgstr "Attenzione: questa azione congela la lista dei votanti!"
 
 #: src/web/common/mails_admin.ml:245 src/web/common/mails_admin.ml:161
 msgid "We suggest two options:"
