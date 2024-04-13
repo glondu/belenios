@@ -625,3 +625,16 @@ tests/tool/templates/questions-mj.json
 tests/tool/templates/questions-nh.json
 tests/tool/templates/questions-stv.json
 tests/tool/templates/questions.json
+tests/webdriver/admin.ml
+tests/webdriver/admin.mli
+tests/webdriver/common.ml
+tests/webdriver/common.mli
+tests/webdriver/dune
+tests/webdriver/emails.ml
+tests/webdriver/emails.mli
+tests/webdriver/main.ml
+tests/webdriver/main.mli
+tests/webdriver/vote.ml
+tests/webdriver/vote.mli
+tests/webdriver/webdriver.ml
+tests/webdriver/webdriver.mli
