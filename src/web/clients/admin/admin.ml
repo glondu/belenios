@@ -281,7 +281,7 @@ let rec page_body () =
   let menus = div ~a:[ a_class [ "main-menu__item-separator" ] ] [] :: menus in
   let but_cr =
     button
-      ~a:[ a_class [ "clickable" ] ]
+      ~a:[ a_id "create_new_election"; a_class [ "clickable" ] ]
       (s_ "Create a new election")
       (fun () ->
         let* x = get summary_list_of_string "drafts" in
@@ -364,7 +364,7 @@ let footer () =
   [
     div
       ~a:[ a_class [ "page-footer" ] ]
-      [ a ~href:"../admin" (s_ "Classical interface") ];
+      [ a ~a:[ a_id "classical" ] ~href:"../admin" (s_ "Classical interface") ];
   ]
 
 let show_root main =

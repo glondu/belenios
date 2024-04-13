@@ -236,8 +236,8 @@ let button ?a label handler =
   r##.onclick := lwt_handler handler;
   elt
 
-let textarea ?(cols = 80) ?(rows = 10) ?placeholder value =
-  let elt = Tyxml_js.Html.textarea (Tyxml_js.Html.txt value) in
+let textarea ?a ?(cols = 80) ?(rows = 10) ?placeholder value =
+  let elt = Tyxml_js.Html.textarea ?a (Tyxml_js.Html.txt value) in
   let r = Tyxml_js.To_dom.of_textarea elt in
   r##.cols := cols;
   r##.rows := rows;

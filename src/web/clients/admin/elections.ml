@@ -202,6 +202,7 @@ let default_handler tab () =
  * they are identified with a name
  * and associated to them is the following data
  *     - string to print in the menu (internationalized)
+ *     - CSS id of the element to click to activate the tab
  *     - function to decide its status (done, doing, todo...)
  *     - function to decide its availability (clicable ?)
  *     - function to compute the onclick handler (or directly the handler?)
@@ -218,6 +219,7 @@ let tabs x =
   match x with
   | Title ->
       ( s_ "Title",
+        "tab_title",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -231,6 +233,7 @@ let tabs x =
         default_handler x )
   | Questions ->
       ( s_ "Questions",
+        "tab_questions",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -245,6 +248,7 @@ let tabs x =
         default_handler x )
   | Voters ->
       ( s_ "Voter list",
+        "tab_voters",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -257,6 +261,7 @@ let tabs x =
         default_handler x )
   | Dates ->
       ( s_ "Dates",
+        "tab_dates",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -267,6 +272,7 @@ let tabs x =
         default_handler x )
   | Language ->
       ( s_ "Languages",
+        "tab_languages",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -277,6 +283,7 @@ let tabs x =
         default_handler x )
   | Contact ->
       ( s_ "Contact",
+        "tab_contact",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -287,6 +294,7 @@ let tabs x =
         default_handler x )
   | Trustees ->
       ( s_ "Decryption trustees",
+        "tab_trustees",
         (fun () ->
           if is_finished then Lwt.return `DDone
           else if is_draft then
@@ -322,6 +330,7 @@ let tabs x =
         default_handler x )
   | CredAuth ->
       ( s_ "Credential authority",
+        "tab_credentials",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -344,6 +353,7 @@ let tabs x =
         default_handler x )
   | VotersPwd ->
       ( s_ "Voter's authentication",
+        "tab_authentication",
         (fun () ->
           if not is_draft then Lwt.return `DDone
           else
@@ -363,6 +373,7 @@ let tabs x =
       ( (if is_draft then s_ "Preview"
          else if is_finished then s_ "Results page"
          else s_ "Election main page"),
+        "tab_page",
         (fun () -> Lwt.return `None),
         (fun () ->
           if not is_draft then Lwt.return true
@@ -380,6 +391,7 @@ let tabs x =
         else fun () -> Preview.goto_mainpage () )
   | CreateOpenClose ->
       ( (if is_draft then s_ "Create the election" else s_ "Open / Close"),
+        "tab_openclose",
         (fun () ->
           Lwt.return (match curr_tab = x with true -> `Doing | false -> `None)),
         (fun () ->
@@ -392,6 +404,7 @@ let tabs x =
         default_handler x )
   | Tally ->
       ( s_ "Tally the election",
+        "tab_tally",
         (fun () -> Lwt.return `None),
         (fun () ->
           if is_draft || is_finished then Lwt.return false
@@ -467,6 +480,7 @@ let tabs x =
                 Lwt.return_unit )
   | Destroy ->
       ( s_ "Delete the election",
+        "tab_delete",
         (fun () -> Lwt.return `None),
         (fun () -> Lwt.return true),
         fun () ->
@@ -507,14 +521,14 @@ let subtab_elt name () =
   let active =
     match !where_am_i with Election { tab; _ } -> tab = name | _ -> false
   in
-  let title, status, available, handler = tabs name in
+  let title, id, status, available, handler = tabs name in
   let* available = available () in
   let classes = [ "main-menu__item"; "noselect" ] in
   let classes =
     if available then "clickable" :: classes else "unavailable" :: classes
   in
   let classes = if active then "active" :: classes else classes in
-  let attr = [ a_class [ String.concat " " classes ] ] in
+  let attr = [ a_id id; a_class [ String.concat " " classes ] ] in
   let title = div ~a:attr [ txt title ] in
   (if available then
      let r = Tyxml_js.To_dom.of_div title in
@@ -618,7 +632,9 @@ let title_content () =
   if is_draft () then (
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
     let name, nameget =
-      textarea ~cols:50 ~rows:3 draft.draft_questions.t_name
+      textarea
+        ~a:[ a_id "election_name_textarea" ]
+        ~cols:50 ~rows:3 draft.draft_questions.t_name
     in
     let r = Tyxml_js.To_dom.of_textarea name in
     r##.onchange :=
@@ -634,7 +650,9 @@ let title_content () =
                  } ));
           update_header ());
     let desc, descget =
-      textarea ~cols:50 ~rows:5 draft.draft_questions.t_description
+      textarea
+        ~a:[ a_id "election_description_textarea" ]
+        ~cols:50 ~rows:5 draft.draft_questions.t_description
     in
     let r = Tyxml_js.To_dom.of_textarea desc in
     r##.onchange :=
@@ -765,7 +783,10 @@ let voters_content () =
         else Lwt.return_unit)
   in
   let add_button =
-    button (s_ "Add") (fun () ->
+    button
+      ~a:[ a_id "add_voters" ]
+      (s_ "Add")
+      (fun () ->
         match Voter.list_of_string @@ ttget () with
         | [] -> Lwt.return_unit
         | newvoters ->

@@ -114,7 +114,11 @@ and update_main () =
     let@ () = show_in container in
     let dec =
       div
-        ~a:[ a_class [ "main-menu__item"; "clickable"; "noselect" ] ]
+        ~a:
+          [
+            a_id "logout";
+            a_class [ "main-menu__item"; "clickable"; "noselect" ];
+          ]
         [ txt @@ s_ "Log out" ]
     in
     let r = Tyxml_js.To_dom.of_div dec in

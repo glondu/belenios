@@ -221,7 +221,7 @@ struct
                 span ~a:[ a_class [ "markup-b" ] ] [ txt x ]
             | Element ("a", [], [ PCData x ]) ->
                 Eliom_content.Html.F.Raw.a
-                  ~a:[ a_href (make_admin_new_uri uuid) ]
+                  ~a:[ a_href (make_admin_new_uri uuid); a_id "experimental" ]
                   [ txt x ]
             | _ -> txt str)
           xs
