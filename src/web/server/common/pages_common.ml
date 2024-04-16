@@ -246,7 +246,12 @@ struct
     let open (val l) in
     let auth_systems =
       auth_systems
-      |> List.map (fun name -> a ~service:(service name) [ txt name ] ())
+      |> List.map (fun name ->
+             a
+               ~a:[ a_id (Printf.sprintf "login_%s" name) ]
+               ~service:(service name)
+               [ txt name ]
+               ())
       |> List.join (txt ", ")
     in
     let content =
