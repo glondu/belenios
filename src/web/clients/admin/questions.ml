@@ -352,7 +352,7 @@ let q_to_html_inner ind q =
           [
             a_input_type `Number;
             a_input_max (`Number (Array.length q.answers));
-            a_input_min (`Number 1);
+            a_input_min (`Number 0);
           ]
         in
         let attr = if ro then a_disabled () :: attr else attr in
