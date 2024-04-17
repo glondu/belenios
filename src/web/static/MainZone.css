@@ -204,14 +204,6 @@ div.del_sym {
 }
 
 .mention .d_i_side, .answer .d_i_side {
-    display: none;
-}
-
-.mention:hover .d_i_side, .d_i_side:hover {
-    display: inline-block;
-}
-
-.answer:hover .d_i_side, .d_i_side:hover {
     display: inline-block;
 }
 
