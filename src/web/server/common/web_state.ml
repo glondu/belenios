@@ -41,4 +41,19 @@ module Make () = struct
   let set_email_env = Eliom_reference.eref ~scope:belenios_scope None
   let billing_env = Eliom_reference.eref ~scope:belenios_scope None
   let discard () = Eliom_state.discard ~scope:belenios_scope ()
+
+  let get_consent_cookie () =
+    let cookies = Eliom_request_info.get_cookies () in
+    match Ocsigen_cookie_map.Map_inner.find_opt "belenios-consent" cookies with
+    | None -> true
+    | Some x -> (
+        match float_of_string x with
+        | exception _ -> true
+        | x -> x < !Web_config.tos_last_update)
+
+  let set_consent_cookie () =
+    let now = Unix.gettimeofday () in
+    let exp = now +. (10. *. 365. *. 86400.) in
+    Eliom_state.set_cookie ~exp ~name:"belenios-consent"
+      ~value:(string_of_float now) ()
 end

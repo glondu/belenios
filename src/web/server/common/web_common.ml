@@ -347,12 +347,3 @@ let exhaust_file file =
   let* result = Lwt_stream.to_string (Lwt_io.chars_of_file fname) in
   let* () = Lwt_unix.unlink fname in
   Lwt.return result
-
-let ask_for_consent () =
-  let cookies = Eliom_request_info.get_cookies () in
-  match Ocsigen_cookie_map.Map_inner.find_opt "belenios-consent" cookies with
-  | None -> true
-  | Some x -> (
-      match float_of_string x with
-      | exception _ -> true
-      | x -> x < !Web_config.tos_last_update)

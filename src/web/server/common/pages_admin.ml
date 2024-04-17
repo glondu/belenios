@@ -44,9 +44,7 @@ struct
   let privacy_notice cont =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title =
-      s_ "Election server" ^ " — " ^ s_ "Personal data processing notice"
-    in
+    let title = s_ "Election server" ^ " — " ^ s_ "Terms of service" in
     let content =
       [
         div

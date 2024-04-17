@@ -104,6 +104,7 @@ struct
 
   let () =
     Redirection.register ~service:privacy_notice_accept (fun () cont ->
+        let () = Web_state.set_consent_cookie () in
         let cont =
           match cont with
           | ContAdmin -> Redirection admin
@@ -130,16 +131,28 @@ struct
         | Some (_, a, _) ->
             let* show =
               match a.consent with
-              | Some _ -> return_false
-              | None -> (
-                  let consent = Some (Datetime.now ()) in
+              | Some x
+                when Datetime.to_unixfloat x >= !Web_config.tos_last_update ->
+                  return_false
+              | _ -> (
                   let@ s = Storage.with_transaction in
                   let* x = Accounts.update_account_by_id s a.id in
                   match x with
                   | None -> return_true
                   | Some (a, set) ->
-                      let* () = set { a with consent } in
-                      return_false)
+                      let current_consent =
+                        match a.consent with
+                        | None -> 0.
+                        | Some x -> Datetime.to_unixfloat x
+                      in
+                      if
+                        current_consent < !Web_config.tos_last_update
+                        && Web_state.get_consent_cookie ()
+                      then return_true
+                      else
+                        let consent = Some (Datetime.now ()) in
+                        let* () = set { a with consent } in
+                        return_false)
             in
             if show then Pages_admin.privacy_notice ContAdmin
             else if a.email = None then Pages_admin.set_email ()
@@ -1852,7 +1865,7 @@ struct
 
   let () =
     Html.register ~service:signup_captcha (fun service () ->
-        let b = ask_for_consent () in
+        let b = Web_state.get_consent_cookie () in
         if b then Pages_admin.privacy_notice (ContSignup service)
         else signup_captcha_handler service None "")
 

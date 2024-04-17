@@ -42,4 +42,6 @@ module type S = sig
   val set_email_env : string option Eliom_reference.eref
   val billing_env : site_cont option Eliom_reference.eref
   val discard : unit -> unit Lwt.t
+  val get_consent_cookie : unit -> bool
+  val set_consent_cookie : unit -> unit
 end

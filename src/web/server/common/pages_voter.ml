@@ -561,7 +561,7 @@ struct
                ]
       | None -> return go_to_the_booth
     in
-    let scd = ask_for_consent () in
+    let scd = Web_state.get_consent_cookie () in
     let cookie_disclaimer =
       if scd then
         div
