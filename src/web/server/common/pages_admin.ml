@@ -60,7 +60,9 @@ struct
                 [
                   input ~input_type:`Hidden ~name:ncont ~value:cont
                     (user string_of_privacy_cont);
-                  input ~input_type:`Submit ~value:(s_ "Accept") string;
+                  input
+                    ~a:[ a_id "accept_tos" ]
+                    ~input_type:`Submit ~value:(s_ "Accept") string;
                 ];
             ])
           ();
