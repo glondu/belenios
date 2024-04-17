@@ -208,11 +208,13 @@ let gen_to_q q =
         ~value:{ q_question = q.question; q_answers = q.answers_lists }
         ~extra:None
 
-let delete_or_insert attr handler_d handler_i =
-  let del = div ~a:[ a_class [ "del_sym clickable" ] ] [] in
+let delete_or_insert item attr handler_d handler_i =
+  let del =
+    div ~a:[ a_class [ "remove_" ^ item; "del_sym"; "clickable" ] ] []
+  in
   let r = Tyxml_js.To_dom.of_div del in
   r##.onclick := lwt_handler handler_d;
-  let ins = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+  let ins = div ~a:[ a_class [ "add_" ^ item; "ins_sym"; "clickable" ] ] [] in
   let r = Tyxml_js.To_dom.of_div ins in
   r##.onclick := lwt_handler handler_i;
   Lwt.return @@ div ~a:attr [ del; ins ]
@@ -489,7 +491,7 @@ let q_to_html_inner ind q =
                          };
                        !update_question !curr_doing);
                  let* dd =
-                   delete_or_insert
+                   delete_or_insert "grade"
                      [ a_class [ "d_i_side" ] ]
                      (fun () ->
                        let new_m =
@@ -522,7 +524,9 @@ let q_to_html_inner ind q =
         let* list_grades =
           Lwt.return @@ list_grades
           @ [
-              (let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+              (let dd =
+                 div ~a:[ a_class [ "add_grade"; "ins_sym"; "clickable" ] ] []
+               in
                let r = Tyxml_js.To_dom.of_div dd in
                r##.onclick :=
                  lwt_handler (fun () ->
@@ -602,7 +606,7 @@ let q_to_html_inner ind q =
                              };
                            !update_question !curr_doing);
                      let* dd =
-                       delete_or_insert
+                       delete_or_insert "list"
                          [ a_class [ "d_i_side" ] ]
                          (fun () ->
                            (* delete a list*)
@@ -668,7 +672,7 @@ let q_to_html_inner ind q =
                              };
                            !update_question !curr_doing);
                      let* dd =
-                       delete_or_insert
+                       delete_or_insert "candidate"
                          [ a_class [ "d_i_side" ] ]
                          (fun () ->
                            (* delete candidate *)
@@ -726,7 +730,9 @@ let q_to_html_inner ind q =
           q.answers_lists |> Array.to_list |> Lwt_list.mapi_s make_list_box
         in
         let lists_with_insert =
-          (let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+          (let dd =
+             div ~a:[ a_class [ "add_list"; "ins_sym"; "clickable" ] ] []
+           in
            let r = Tyxml_js.To_dom.of_div dd in
            r##.onclick :=
              lwt_handler (fun () ->
@@ -774,7 +780,7 @@ let q_to_html_inner ind q =
                          };
                        !update_question !curr_doing);
                  let* dd =
-                   delete_or_insert
+                   delete_or_insert "answer"
                      [ a_class [ "d_i_side" ] ]
                      (fun () ->
                        let new_a =
@@ -801,7 +807,9 @@ let q_to_html_inner ind q =
                  Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
         in
         let answers_with_insert =
-          (let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+          (let dd =
+             div ~a:[ a_class [ "add_answer"; "ins_sym"; "clickable" ] ] []
+           in
            let r = Tyxml_js.To_dom.of_div dd in
            r##.onclick :=
              lwt_handler (fun () ->
@@ -855,7 +863,7 @@ let q_to_html ind q all_ro =
     else
       (* The Delete / Insert icons + handlers *)
       let* d_i =
-        delete_or_insert
+        delete_or_insert "question"
           [ a_class [ "d_i_side_top" ] ]
           (fun () ->
             (* Delete handler *)
@@ -923,7 +931,7 @@ let draft_recompute_main_zone () =
         Lwt.return @@ div ~a:[ a_id ("qq" ^ string_of_int (i + 1)) ] [ dd ])
       (Array.to_list !all_gen_quest)
   in
-  let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
+  let dd = div ~a:[ a_class [ "add_question"; "ins_sym"; "clickable" ] ] [] in
   let r = Tyxml_js.To_dom.of_div dd in
   r##.onclick :=
     lwt_handler (fun () ->
