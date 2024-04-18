@@ -1567,15 +1567,27 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
   let open Belenios_api.Serializable_j in
   let version = se.se_version in
   let uuid_s = Uuid.unwrap uuid in
+  let questions =
+    let x = se.se_questions in
+    let t_administrator =
+      match x.t_administrator with None -> se.se_administrator | x -> x
+    in
+    let t_credential_authority =
+      match x.t_credential_authority with
+      | None -> se.se_metadata.e_cred_authority
+      | x -> x
+    in
+    { x with t_administrator; t_credential_authority }
+  in
   (* convenience tests *)
   let validation_error x = raise (Api_generic.Error (`ValidationError x)) in
   let () =
-    if se.se_questions.t_name = "" then validation_error `NoTitle;
-    if se.se_questions.t_questions = [||] then validation_error `NoQuestions;
-    (match se.se_administrator with
+    if questions.t_name = "" then validation_error `NoTitle;
+    if questions.t_questions = [||] then validation_error `NoQuestions;
+    (match questions.t_administrator with
     | None | Some "" -> validation_error `NoAdministrator
     | _ -> ());
-    match se.se_metadata.e_cred_authority with
+    match questions.t_credential_authority with
     | None | Some "" -> validation_error `NoCredentialAuthority
     | _ -> ()
   in
@@ -1711,7 +1723,7 @@ let validate_election ~admin_id uuid (Draft (v, se)) s =
       e_owners = se.se_owners;
     }
   in
-  let template = Belenios.Election.Template (v, se.se_questions) in
+  let template = Belenios.Election.Template (v, questions) in
   let raw_election =
     let public_key = G.to_string y in
     Election.make_raw_election ~version:se.se_version template ~uuid
