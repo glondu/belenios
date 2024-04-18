@@ -53,5 +53,6 @@
     "previous_button_label": "Wstecz",
     "encrypted_ballot_is": "Zaszyfrowana karta do głosowania:",
     "review_ballot_for_questions": "Twój głos nie został jeszcze oddany. Oto Twoja karta do głosowania:",
-    "question_x_of_y": "Pytanie, (decyzja, uchwała) nr {{current_question}} z {{number_of_questions}}"
+    "question_x_of_y": "Pytanie, (decyzja, uchwała) nr {{current_question}} z {{number_of_questions}}",
+    "lists_question_description": "Wybierz listę kandydatów i odrzuć tych kandydatów z listy, których nie popierasz."
 }
