@@ -273,77 +273,34 @@ let q_to_html_inner ind q =
         !update_question !curr_doing);
   (* type of question, select, sort, grade or lists *)
   let rad_name = "type" ^ string_of_int ind in
-  let inp_rad1, _ =
-    let attr =
-      [ a_name rad_name; a_id (rad_name ^ "_1"); a_input_type `Radio ]
+  let mk_qtype i kind l =
+    let id = Printf.sprintf "%s_%d" rad_name i in
+    let inp_rad, _ =
+      let attr = [ a_name rad_name; a_id id; a_input_type `Radio ] in
+      let attr = if q.kind = kind then a_checked () :: attr else attr in
+      let attr =
+        if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
+      in
+      input ~a:attr ""
     in
-    let attr = if q.kind = `Select then a_checked () :: attr else attr in
-    let attr =
-      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
-    in
-    input ~a:attr ""
+    let r = Tyxml_js.To_dom.of_input inp_rad in
+    r##.onchange :=
+      lwt_handler (fun () ->
+          let current = !all_gen_quest.(!curr_doing) in
+          let count_meth =
+            match kind with
+            | `Sort when current.count_meth = `None -> `Schulze
+            | `Grade -> `MJ
+            | _ -> current.count_meth
+          in
+          !all_gen_quest.(!curr_doing) <- { current with kind; count_meth };
+          !update_question !curr_doing);
+    div [ inp_rad; label ~a:[ a_label_for id ] [ txt l ] ]
   in
-  let r = Tyxml_js.To_dom.of_input inp_rad1 in
-  r##.onchange :=
-    lwt_handler (fun () ->
-        !all_gen_quest.(!curr_doing) <-
-          { (!all_gen_quest.(!curr_doing)) with kind = `Select };
-        !update_question !curr_doing);
-  let inp_rad2, _ =
-    let attr =
-      [ a_name rad_name; a_id (rad_name ^ "_2"); a_input_type `Radio ]
-    in
-    let attr = if q.kind = `Sort then a_checked () :: attr else attr in
-    let attr =
-      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
-    in
-    input ~a:attr ""
-  in
-  let r = Tyxml_js.To_dom.of_input inp_rad2 in
-  r##.onchange :=
-    lwt_handler (fun () ->
-        !all_gen_quest.(!curr_doing) <-
-          { (!all_gen_quest.(!curr_doing)) with kind = `Sort };
-        if !all_gen_quest.(!curr_doing).count_meth = `None then
-          !all_gen_quest.(!curr_doing) <-
-            { (!all_gen_quest.(!curr_doing)) with count_meth = `Schulze };
-        !update_question !curr_doing);
-  let inp_rad3, _ =
-    let attr =
-      [ a_name rad_name; a_id (rad_name ^ "_3"); a_input_type `Radio ]
-    in
-    let attr = if q.kind = `Grade then a_checked () :: attr else attr in
-    let attr =
-      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
-    in
-    input ~a:attr ""
-  in
-  let r = Tyxml_js.To_dom.of_input inp_rad3 in
-  r##.onchange :=
-    lwt_handler (fun () ->
-        !all_gen_quest.(!curr_doing) <-
-          {
-            (!all_gen_quest.(!curr_doing)) with
-            kind = `Grade;
-            count_meth = `MJ;
-          };
-        !update_question !curr_doing);
-  let inp_rad4, _ =
-    let attr =
-      [ a_name rad_name; a_id (rad_name ^ "_4"); a_input_type `Radio ]
-    in
-    let attr = if q.kind = `Lists then a_checked () :: attr else attr in
-    let attr =
-      if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
-    in
-    input ~a:attr ""
-  in
-  let r = Tyxml_js.To_dom.of_input inp_rad4 in
-  r##.onchange :=
-    lwt_handler (fun () ->
-        !all_gen_quest.(!curr_doing) <-
-          { (!all_gen_quest.(!curr_doing)) with kind = `Lists };
-        !update_question !curr_doing);
+  let qtype1 = mk_qtype 1 `Select @@ s_ "Select propositions" in
+  let qtype2 = mk_qtype 2 `Sort @@ s_ "Sort propositions" in
+  let qtype3 = mk_qtype 3 `Grade @@ s_ "Grade propositions" in
+  let qtype4 = mk_qtype 4 `Lists @@ s_ "Lists" in
   (* options depending of type of question *)
   let* expand =
     match q.kind with
@@ -872,21 +829,14 @@ let q_to_html_inner ind q =
         ~a:[ a_class [ "qtitle" ]; a_label_for ("q" ^ string_of_int ind) ]
         [ txt (s_ "Question " ^ string_of_int ind) ];
       inp_tit;
-      div ~a:[ a_class [ "qtype" ] ] [ txt @@ s_ "Type of answer:" ];
-      inp_rad1;
-      label
-        ~a:[ a_label_for (rad_name ^ "_1") ]
-        [ txt @@ s_ "Select propositions" ];
-      inp_rad2;
-      label
-        ~a:[ a_label_for (rad_name ^ "_2") ]
-        [ txt @@ s_ "Sort propositions" ];
-      inp_rad3;
-      label
-        ~a:[ a_label_for (rad_name ^ "_3") ]
-        [ txt @@ s_ "Grade propositions" ];
-      inp_rad4;
-      label ~a:[ a_label_for (rad_name ^ "_4") ] [ txt @@ s_ "Lists" ];
+      div
+        [
+          div ~a:[ a_class [ "qtype" ] ] [ txt @@ s_ "Type of answer:" ];
+          qtype1;
+          qtype2;
+          qtype3;
+          qtype4;
+        ];
       expand;
       div ~a:[ a_class [ "qans" ] ] [ txt @@ s_ "Proposed answers:" ];
       answers_box;
