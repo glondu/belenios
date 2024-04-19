@@ -664,7 +664,8 @@ let get_passwords uuid =
     List.fold_left
       (fun accu line ->
         match line with
-        | [ login; salt; hash ] -> SMap.add login (salt, hash) accu
+        | [ login; salt; hash ] ->
+            SMap.add (String.lowercase_ascii login) (salt, hash) accu
         | _ -> accu)
       SMap.empty csv
   in
