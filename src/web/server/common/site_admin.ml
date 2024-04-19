@@ -1069,9 +1069,9 @@ struct
   let () =
     Any.register ~service:election_draft_import (fun uuid () ->
         let@ _, account, _ = with_site_user in
+        let* _, a, b, c = get_elections_by_owner_sorted account.id in
         let@ s = Storage.with_transaction in
         let@ se = with_draft ~save:false s uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted account.id in
         Pages_admin.election_draft_import uuid se (a, b, c) () >>= Html.send)
 
   let () =
@@ -1119,9 +1119,9 @@ struct
   let () =
     Any.register ~service:election_draft_import_trustees (fun uuid () ->
         let@ _, account, _ = with_site_user in
+        let* _, a, b, c = get_elections_by_owner_sorted account.id in
         let@ s = Storage.with_transaction in
         let@ se = with_draft ~save:false s uuid in
-        let* _, a, b, c = get_elections_by_owner_sorted account.id in
         Pages_admin.election_draft_import_trustees uuid se (a, b, c) ()
         >>= Html.send)
 
