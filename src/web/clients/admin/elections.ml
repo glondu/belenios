@@ -203,10 +203,16 @@ let default_handler tab () =
  * and associated to them is the following data
  *     - string to print in the menu (internationalized)
  *     - CSS id of the element to click to activate the tab
- *     - function to decide its status (done, doing, todo...)
- *     - function to decide its availability (clicable ?)
- *     - function to compute the onclick handler (or directly the handler?)
+ *     - its status (done, doing, todo...)
+ *     - the onclick handler, if any
  *)
+
+type tab_status = {
+  title : string;
+  id : string;
+  status : [ `DDone | `Doing | `Done | `Todo | `Wip | `None ];
+  handler : (unit -> unit Lwt.t) option;
+}
 
 let tabs x =
   let open (val !Belenios_js.I18n.gettext) in
@@ -218,200 +224,226 @@ let tabs x =
   in
   match x with
   | Title ->
-      ( s_ "Title",
-        "tab_title",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
+      let* status =
+        if is_draft then
+          if curr_tab = x then Lwt.return `Doing
           else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false ->
-                let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-                Lwt.return
-                  (if draft.draft_questions.t_name = "" then `Todo else `Done)),
-        (fun () -> Lwt.return true),
-        default_handler x )
+            let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+            Lwt.return
+              (if draft.draft_questions.t_name = "" then `Todo else `Done)
+        else Lwt.return `DDone
+      in
+      {
+        title = s_ "Title";
+        id = "tab_title";
+        status;
+        handler = Some (default_handler x);
+      }
+      |> Lwt.return
   | Questions ->
-      ( s_ "Questions",
-        "tab_questions",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
+      let* status =
+        if is_draft then
+          if curr_tab = x then Lwt.return `Doing
           else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false ->
-                let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-                Lwt.return
-                  (if draft.draft_questions.t_questions = [||] then `Todo
-                   else `Done)),
-        (fun () -> Lwt.return true),
-        default_handler x )
+            let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+            Lwt.return
+              (if draft.draft_questions.t_questions = [||] then `Todo else `Done)
+        else Lwt.return `DDone
+      in
+      {
+        title = s_ "Questions";
+        id = "tab_questions";
+        status;
+        handler = Some (default_handler x);
+      }
+      |> Lwt.return
   | Voters ->
-      ( s_ "Voter list",
-        "tab_voters",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
+      let* status =
+        if is_draft then
+          if curr_tab = x then Lwt.return `Doing
           else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false ->
-                let* voter_list = Cache.get_until_success Cache.voters in
-                Lwt.return (if voter_list = [] then `Todo else `Done)),
-        (fun () -> Lwt.return true),
-        default_handler x )
+            let* voter_list = Cache.get_until_success Cache.voters in
+            Lwt.return (if voter_list = [] then `Todo else `Done)
+        else Lwt.return `DDone
+      in
+      {
+        title = s_ "Voter list";
+        id = "tab_voters";
+        status;
+        handler = Some (default_handler x);
+      }
+      |> Lwt.return
   | Dates ->
-      ( s_ "Dates",
-        "tab_dates",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
-          else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false -> Lwt.return `Done),
-        (fun () -> Lwt.return (is_draft || is_running)),
-        default_handler x )
+      let status =
+        if is_draft then if curr_tab = x then `Doing else `Done else `DDone
+      in
+      {
+        title = s_ "Dates";
+        id = "tab_dates";
+        status;
+        handler =
+          (if is_draft || is_running then Some (default_handler x) else None);
+      }
+      |> Lwt.return
   | Language ->
-      ( s_ "Languages",
-        "tab_languages",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
-          else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false -> Lwt.return `Done),
-        (fun () -> Lwt.return is_draft),
-        default_handler x )
+      let status =
+        if is_draft then if curr_tab = x then `Doing else `Done else `DDone
+      in
+      {
+        title = s_ "Languages";
+        id = "tab_languages";
+        status;
+        handler = (if is_draft then Some (default_handler x) else None);
+      }
+      |> Lwt.return
   | Contact ->
-      ( s_ "Contact",
-        "tab_contact",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
-          else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false -> Lwt.return `Done),
-        (fun () -> Lwt.return is_draft),
-        default_handler x )
+      let status =
+        if is_draft then if curr_tab = x then `Doing else `Done else `DDone
+      in
+      {
+        title = s_ "Contact";
+        id = "tab_contact";
+        status;
+        handler = (if is_draft then Some (default_handler x) else None);
+      }
+      |> Lwt.return
   | Trustees ->
-      ( s_ "Decryption trustees",
-        "tab_trustees",
-        (fun () ->
-          if is_finished then Lwt.return `DDone
-          else if is_draft then
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false ->
-                let* status = Cache.get_until_success Cache.status in
-                if status.trustees_ready && status.trustees_setup_step > 1 then
-                  Lwt.return `Done
-                else Lwt.return `Todo
+      let* status =
+        if is_finished then Lwt.return `DDone
+        else if is_draft then
+          if curr_tab = x then Lwt.return `Doing
           else
-            let* status = Cache.get_until_success Cache.e_status in
-            if
-              status.status_state = `Open
-              || status.status_state = `Closed
-              || status.status_state = `Tallied
-            then Lwt.return `DDone
-            else
-              Lwt.return
-                (match curr_tab = x with
-                | true -> `Doing
-                | false -> `Todo (* TODO: need some info from server *))),
-        (fun () ->
-          if is_draft then Lwt.return true
+            let* status = Cache.get_until_success Cache.status in
+            if status.trustees_ready && status.trustees_setup_step > 1 then
+              Lwt.return `Done
+            else Lwt.return `Todo
+        else
+          let* status = Cache.get_until_success Cache.e_status in
+          if
+            status.status_state = `Open
+            || status.status_state = `Closed
+            || status.status_state = `Tallied
+          then Lwt.return `DDone
           else
-            let* status = Cache.get_until_success Cache.e_status in
-            if
-              status.status_state = `Shuffling
-              || status.status_state = `EncryptedTally
-              || status.status_state = `Tallied
-            then Lwt.return true
-            else Lwt.return false),
-        default_handler x )
+            Lwt.return
+              (if curr_tab = x then `Doing
+               else `Todo (* TODO: need some info from server *))
+      in
+      let* handler =
+        if is_draft then Lwt.return_some (default_handler x)
+        else
+          let* status = Cache.get_until_success Cache.e_status in
+          if
+            status.status_state = `Shuffling
+            || status.status_state = `EncryptedTally
+            || status.status_state = `Tallied
+          then Lwt.return_some (default_handler x)
+          else Lwt.return_none
+      in
+      { title = s_ "Decryption trustees"; id = "tab_trustees"; status; handler }
+      |> Lwt.return
   | CredAuth ->
-      ( s_ "Credential authority",
-        "tab_credentials",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
+      let* status =
+        if is_draft then
+          if curr_tab = x then Lwt.return `Doing
           else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false -> (
-                let* status = Cache.get_until_success Cache.status in
-                if status.credentials_ready then
-                  if
-                    match status.private_credentials_downloaded with
-                    | None -> true
-                    | Some b -> b
-                  then Lwt.return `Done
-                  else Lwt.return `Todo
-                else
-                  match status.credentials_left with
-                  | None -> Lwt.return `Todo
-                  | Some _ -> Lwt.return `Wip)),
-        (fun () -> Lwt.return is_draft),
-        default_handler x )
+            let* status = Cache.get_until_success Cache.status in
+            if status.credentials_ready then
+              if
+                match status.private_credentials_downloaded with
+                | None -> true
+                | Some b -> b
+              then Lwt.return `Done
+              else Lwt.return `Todo
+            else
+              match status.credentials_left with
+              | None -> Lwt.return `Todo
+              | Some _ -> Lwt.return `Wip
+        else Lwt.return `DDone
+      in
+      {
+        title = s_ "Credential authority";
+        id = "tab_credentials";
+        status;
+        handler = (if is_draft then Some (default_handler x) else None);
+      }
+      |> Lwt.return
   | VotersPwd ->
-      ( s_ "Voter's authentication",
-        "tab_authentication",
-        (fun () ->
-          if not is_draft then Lwt.return `DDone
+      let* status =
+        if is_draft then
+          if curr_tab = x then Lwt.return `Doing
           else
-            match curr_tab = x with
-            | true -> Lwt.return `Doing
-            | false ->
-                let* status = Cache.get_until_success Cache.status in
-                if
-                  status.voter_authentication_visited
-                  && (status.passwords_ready = None
-                     || status.passwords_ready = Some true)
-                then Lwt.return `Done
-                else Lwt.return `Todo),
-        (fun () -> Lwt.return is_draft),
-        default_handler x )
+            let* status = Cache.get_until_success Cache.status in
+            if
+              status.voter_authentication_visited
+              && (status.passwords_ready = None
+                 || status.passwords_ready = Some true)
+            then Lwt.return `Done
+            else Lwt.return `Todo
+        else Lwt.return `DDone
+      in
+      {
+        title = s_ "Voter's authentication";
+        id = "tab_authentication";
+        status;
+        handler = (if is_draft then Some (default_handler x) else None);
+      }
+      |> Lwt.return
   | ElectionPage ->
-      ( (if is_draft then s_ "Preview"
-         else if is_finished then s_ "Results page"
-         else s_ "Election main page"),
-        "tab_page",
-        (fun () -> Lwt.return `None),
-        (fun () ->
+      let title =
+        if is_draft then s_ "Preview"
+        else if is_finished then s_ "Results page"
+        else s_ "Election main page"
+      in
+      let* handler =
+        let* b =
           if not is_draft then Lwt.return true
           else
             let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
             Lwt.return
               (draft.draft_questions.t_questions <> [||]
-              && draft.draft_questions.t_name <> "")),
-        if is_archived () then default_handler x
-        else if is_draft then fun () ->
-          let* res = Cache.sync () in
-          match res with
-          | Error msg -> popup_failsync msg
-          | Ok () -> Preview.preview_booth ()
-        else fun () -> Preview.goto_mainpage () )
+              && draft.draft_questions.t_name <> "")
+        in
+        if b then
+          Lwt.return_some
+          @@
+          if is_archived () then default_handler x
+          else if is_draft then fun () ->
+            let* res = Cache.sync () in
+            match res with
+            | Error msg -> popup_failsync msg
+            | Ok () -> Preview.preview_booth ()
+          else fun () -> Preview.goto_mainpage ()
+        else Lwt.return_none
+      in
+      { title; id = "tab_page"; status = `None; handler } |> Lwt.return
   | CreateOpenClose ->
-      ( (if is_draft then s_ "Create the election" else s_ "Open / Close"),
-        "tab_openclose",
-        (fun () ->
-          Lwt.return (match curr_tab = x with true -> `Doing | false -> `None)),
-        (fun () ->
+      let title =
+        if is_draft then s_ "Create the election" else s_ "Open / Close"
+      in
+      let status = match curr_tab = x with true -> `Doing | false -> `None in
+      let* handler =
+        let* b =
           if is_running then
             let* status = Cache.get_until_success Cache.e_status in
             Lwt.return
               (status.status_state == `Open || status.status_state == `Closed)
           else if is_draft then is_ready ()
-          else Lwt.return false),
-        default_handler x )
+          else Lwt.return false
+        in
+        if b then Lwt.return_some (default_handler x) else Lwt.return_none
+      in
+      { title; id = "tab_openclose"; status; handler } |> Lwt.return
   | Tally ->
-      ( s_ "Tally the election",
-        "tab_tally",
-        (fun () -> Lwt.return `None),
-        (fun () ->
+      let* handler =
+        let* b =
           if is_draft || is_finished then Lwt.return false
           else
             let* status = Cache.get_until_success Cache.e_status in
-            Lwt.return (status.status_state = `Closed)),
-        fun () ->
+            Lwt.return (status.status_state = `Closed)
+        in
+        if b then (
+          Lwt.return_some @@ fun () ->
           let uuid = get_current_uuid () in
           let confirm =
             confirm @@ s_ "Are you sure you want to tally this election?"
@@ -477,33 +509,46 @@ let tabs x =
                 !update_election_main ()
             | _ ->
                 alert ("Failed with error code " ^ string_of_int x.code);
-                Lwt.return_unit )
-  | Destroy ->
-      ( s_ "Delete the election",
-        "tab_delete",
-        (fun () -> Lwt.return `None),
-        (fun () -> Lwt.return true),
-        fun () ->
-          let uuid = get_current_uuid () in
-          let confirm =
-            confirm @@ s_ "Are you sure you want to delete this election?"
-          in
-          if confirm then (
-            Cache.invalidate_all ();
-            let* x =
-              delete_with_token
-                (if is_draft then "drafts/%s" else "elections/%s")
-                uuid
-            in
-            match x.code with
-            | 200 ->
-                where_am_i := List_draft;
-                Dom_html.window##.location##.hash := Js.string "";
-                Lwt.return_unit
-            | code ->
-                alert ("Deletion failed with code " ^ string_of_int code);
                 Lwt.return_unit)
-          else Lwt.return_unit )
+        else Lwt.return_none
+      in
+      {
+        title = s_ "Tally the election";
+        id = "tab_tally";
+        status = `None;
+        handler;
+      }
+      |> Lwt.return
+  | Destroy ->
+      let handler () =
+        let uuid = get_current_uuid () in
+        let confirm =
+          confirm @@ s_ "Are you sure you want to delete this election?"
+        in
+        if confirm then (
+          Cache.invalidate_all ();
+          let* x =
+            delete_with_token
+              (if is_draft then "drafts/%s" else "elections/%s")
+              uuid
+          in
+          match x.code with
+          | 200 ->
+              where_am_i := List_draft;
+              Dom_html.window##.location##.hash := Js.string "";
+              Lwt.return_unit
+          | code ->
+              alert ("Deletion failed with code " ^ string_of_int code);
+              Lwt.return_unit)
+        else Lwt.return_unit
+      in
+      {
+        title = s_ "Delete the election";
+        id = "tab_delete";
+        status = `None;
+        handler = Some handler;
+      }
+      |> Lwt.return
 
 let rec insert_sep sep x =
   match x with [] | [ _ ] -> x | a :: b -> a :: sep () :: insert_sep sep b
@@ -521,19 +566,21 @@ let subtab_elt name () =
   let active =
     match !where_am_i with Election { tab; _ } -> tab = name | _ -> false
   in
-  let title, id, status, available, handler = tabs name in
-  let* available = available () in
+  let* { title; id; status; handler } = tabs name in
   let classes = [ "main-menu__item"; "noselect" ] in
   let classes =
-    if available then "clickable" :: classes else "unavailable" :: classes
+    (if handler = None then "unavailable" else "clickable") :: classes
   in
   let classes = if active then "active" :: classes else classes in
-  let attr = [ a_id id; a_class [ String.concat " " classes ] ] in
+  let attr = [ a_id id; a_class classes ] in
   let title = div ~a:attr [ txt title ] in
-  (if available then
-     let r = Tyxml_js.To_dom.of_div title in
-     r##.onclick := lwt_handler handler);
-  let* status = status () in
+  let () =
+    match handler with
+    | None -> ()
+    | Some handler ->
+        let r = Tyxml_js.To_dom.of_div title in
+        r##.onclick := lwt_handler handler
+  in
   let status =
     match status with
     | `DDone -> div ~a:[ a_class [ "main-menu__ddone" ] ] []
