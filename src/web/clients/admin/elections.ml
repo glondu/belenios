@@ -380,13 +380,20 @@ let tabs x =
                  || status.passwords_ready = Some true)
             then Lwt.return `Done
             else Lwt.return `Todo
-        else Lwt.return `DDone
+        else
+          let* status = Cache.get_until_success Cache.e_status in
+          match status.status_authentication with
+          | Some `Password -> Lwt.return `None
+          | _ -> Lwt.return `DDone
+      in
+      let handler =
+        if is_draft || status = `None then Some (default_handler x) else None
       in
       {
         title = s_ "Voter's authentication";
         id = "tab_authentication";
         status;
-        handler = (if is_draft then Some (default_handler x) else None);
+        handler;
       }
       |> Lwt.return
   | ElectionPage ->
@@ -1425,7 +1432,7 @@ let credauth_content () =
   in
   Lwt.return [ div [ h3 [ txt @@ s_ "Management of credentials:" ]; content ] ]
 
-let voterspwd_content () =
+let voterspwd_content_draft () =
   let open (val !Belenios_js.I18n.gettext) in
   let* status = Cache.get_until_success Cache.status in
   let first_visit = not status.voter_authentication_visited in
@@ -1596,6 +1603,49 @@ let voterspwd_content () =
               @ others
         in
         Lwt.return [ h2 [ txt @@ s_ "Voter's authentication:" ]; div ll ]
+
+let voterspwd_content_running () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let username, get_username = input "" in
+  let submit =
+    let@ () = button @@ s_ "Submit" in
+    let uuid = get_current_uuid () in
+    let username = get_username () in
+    let request = `RegeneratePassword username in
+    let* x =
+      post_with_token (string_of_admin_request request) "elections/%s" uuid
+    in
+    match x.code with
+    | 200 ->
+        let msg =
+          Printf.sprintf (f_ "A new password has been mailed to %s.") username
+        in
+        alert msg;
+        !update_election_main ()
+    | 404 ->
+        let msg =
+          Printf.sprintf
+            (f_ "Failure, probably because of an error in the username: %s.")
+            username
+        in
+        alert msg;
+        Lwt.return_unit
+    | _ ->
+        let msg =
+          Printf.sprintf (f_ "Unexpected failure with code %d.") x.code
+        in
+        alert msg;
+        Lwt.return_unit
+  in
+  [
+    h2 [ txt @@ s_ "Regenerate and e-mail a password" ];
+    div [ txt @@ s_ "Username:"; txt " "; username; txt " "; submit ];
+  ]
+  |> Lwt.return
+
+let voterspwd_content () =
+  if is_draft () then voterspwd_content_draft ()
+  else voterspwd_content_running ()
 
 let create_content () =
   let open (val !Belenios_js.I18n.gettext) in
