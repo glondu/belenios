@@ -58,14 +58,18 @@ let with_threshold_trustee token (Draft (_, se)) f =
       | Some x -> f (x, t)
       | None -> not_found)
 
-let get_authentication se =
-  match se.se_metadata.e_auth_config with
-  | Some [ { auth_system = "password"; _ } ] -> `Password
+let authentication_of_auth_config = function
+  | Some [ { auth_system = "password"; _ } ] -> Some `Password
   | Some [ { auth_system = "cas"; auth_config; _ } ] ->
-      `CAS (List.assoc "server" auth_config)
+      Some (`CAS (List.assoc "server" auth_config))
   | Some [ { auth_system = "import"; auth_instance; _ } ] ->
-      `Configured auth_instance
-  | _ -> raise (Error (`Invalid "authentication"))
+      Some (`Configured auth_instance)
+  | _ -> None
+
+let get_authentication se =
+  match authentication_of_auth_config se.se_metadata.e_auth_config with
+  | Some x -> x
+  | None -> raise (Error (`Invalid "authentication"))
 
 let auth_config_of_authentication = function
   | `Password ->

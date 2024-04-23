@@ -73,6 +73,10 @@ let with_tally_trustee token s uuid f =
 let get_election_status s uuid =
   let* status_state = Web_persist.get_election_state s uuid in
   let* d = Web_persist.get_election_dates s uuid in
+  let* status_authentication =
+    let* m = Web_persist.get_election_metadata s uuid in
+    Lwt.return @@ Api_drafts.authentication_of_auth_config m.e_auth_config
+  in
   let status_auto_archive_date =
     match status_state with
     | `Tallied ->
@@ -103,6 +107,7 @@ let get_election_status s uuid =
   Lwt.return
     {
       status_state :> state;
+      status_authentication;
       status_auto_archive_date;
       status_auto_delete_date;
       status_postpone_date = Option.map Datetime.to_unixfloat postpone;

@@ -25,6 +25,9 @@ open Belenios_api.Common
 open Belenios_server_core
 open Web_common
 
+val authentication_of_auth_config :
+  auth_config list option -> authentication option
+
 val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election
 val post_drafts : account -> Storage.t -> draft -> uuid option Lwt.t

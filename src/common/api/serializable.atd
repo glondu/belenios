@@ -218,6 +218,7 @@ type voters_request =
 
 type election_status = {
    state : state;
+   ?authentication : authentication option;
    auto_delete_date : float;
    ?auto_archive_date : float option;
    ?postpone_date : float option;
