@@ -205,8 +205,12 @@ module type PKI = sig
   val verify : public_key -> private_key signed_msg -> bool
   val encrypt : public_key -> string -> public_key encrypted_msg
   val decrypt : private_key -> public_key encrypted_msg -> string
-  val make_cert : sk:private_key -> dk:private_key -> private_key cert
-  val verify_cert : private_key cert -> bool
+
+  val make_cert :
+    sk:private_key -> dk:private_key -> context:context -> private_key cert
+
+  val get_context : private_key cert -> context
+  val verify_cert : context -> private_key cert -> bool
 end
 
 module type CHANNELS = sig
@@ -221,25 +225,27 @@ module type PEDERSEN = sig
   type scalar
   type element
 
-  val step1 : unit -> string * scalar cert
-  val step1_check : scalar cert -> bool
-  val step2 : scalar certs -> unit
-  val step3 : scalar certs -> string -> int -> scalar polynomial
-  val step3_check : scalar certs -> int -> scalar polynomial -> bool
-  val step4 : scalar certs -> scalar polynomial array -> scalar vinput array
+  val step1 : context -> string * scalar cert
+  val step1_check : context -> scalar cert -> bool
+  val step2 : scalar cert array -> int
+  val step3 : scalar cert array -> string -> scalar polynomial
+  val step3_check : scalar cert array -> int -> scalar polynomial -> bool
+
+  val step4 :
+    scalar cert array -> scalar polynomial array -> scalar vinput array
 
   val step5 :
-    scalar certs -> string -> scalar vinput -> (element, scalar) voutput
+    scalar cert array -> string -> scalar vinput -> (element, scalar) voutput
 
   val step5_check :
-    scalar certs ->
+    scalar cert array ->
     int ->
     scalar polynomial array ->
     (element, scalar) voutput ->
     bool
 
   val step6 :
-    scalar certs ->
+    scalar cert array ->
     scalar polynomial array ->
     (element, scalar) voutput array ->
     (element, scalar) threshold_parameters

@@ -54,8 +54,12 @@ let with_threshold_trustee token (Draft (_, se)) f =
   match se.se_trustees with
   | `Basic _ -> not_found
   | `Threshold t -> (
-      match List.find_opt (fun x -> x.stt_token = token) t.dtp_trustees with
-      | Some x -> f (x, t)
+      match
+        List.findi
+          (fun i x -> if x.stt_token = token then Some (i, x) else None)
+          t.dtp_trustees
+      with
+      | Some (i, x) -> f (i + 1, x, t)
       | None -> not_found)
 
 let get_authentication se =
@@ -1048,7 +1052,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
   | "credentials" :: endpoint ->
       dispatch_credentials ~token endpoint method_ body uuid se
   | [ "trustees-pedersen" ] -> (
-      let@ trustee, dtp = with_threshold_trustee token se in
+      let@ index, trustee, dtp = with_threshold_trustee token se in
       let get () =
         let pedersen_certs =
           List.fold_left
@@ -1057,9 +1061,18 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body uuid se =
             [] dtp.dtp_trustees
           |> List.rev |> Array.of_list
         in
+        let (Draft (_, draft)) = se in
+        let pedersen_context =
+          {
+            group = draft.se_group;
+            size = List.length dtp.dtp_trustees;
+            threshold = Option.value ~default:0 dtp.dtp_threshold;
+            index;
+          }
+        in
         let r =
           {
-            pedersen_threshold = Option.value ~default:0 dtp.dtp_threshold;
+            pedersen_context;
             pedersen_step = Option.value ~default:0 trustee.stt_step;
             pedersen_certs;
             pedersen_vinput = trustee.stt_vinput;

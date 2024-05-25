@@ -633,6 +633,7 @@ prefixed by the string \verb/dk|/. The corresponding (public)
 encryption key is $g^{\textsf{dk}}$.
 
 \paragraph{Signing}
+\label{pki-signing}
 
 Signing takes a signing key $\textsf{sk}$ and a \textsf{message} $M$
 (as a $\jstring$), computes a \textsf{signature} and produces a
@@ -701,16 +702,29 @@ To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 
 A certificate is a \texttt{signed\_msg} encapsulating a serialized
 \texttt{cert\_keys} structure, itself filled with the public keys
-generated as described in section~\ref{pki}.
+generated as described in section~\ref{pki}. Each certificate comes
+with a \texttt{context} containing the string description of the
+group, the number of trustees participating in the Pedersen protocol,
+the threshold and the index (starting at 1) of the owner of the
+certificate.
 \begin{gather*}
-  \texttt{cert}=\texttt{signed\_msg}
+  \texttt{context}=\left\{
+    \begin{array}{rcl}
+      \textsf{group}&:&\jstring\\
+      \textsf{size}&:&\I\\
+      \textsf{threshold}&:&\I\\
+      \textsf{index}&:&\I
+    \end{array}
+  \right\}
   \qquad
   \texttt{cert\_keys}=\left\{
     \begin{array}{rcl}
+      \textsf{context}&:&\texttt{context}\\
       \textsf{verification}&:&\G\\
       \textsf{encryption}&:&\G
     \end{array}
-  \right\}
+  \right\}\\
+  \texttt{cert}=\texttt{signed\_msg}
 \end{gather*}
 The message is signed with the signing key associated to
 \textsf{verification}.
@@ -749,7 +763,8 @@ in step 3 of the key establishment protocol.
     \begin{array}{rcl}
       \textsf{polynomial}&:&\jstring\\
       \textsf{secrets}&:&\jstring^\ast\\
-      \textsf{coefexps}&:&\texttt{coefexps}
+      \textsf{coefexps}&:&\texttt{coefexps}\\
+      \textsf{signature}&:&\proof
     \end{array}
   \right\}
 \end{gather*}
@@ -799,6 +814,23 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
     \right\}
   \end{gather*}
   filled with $A_{i0},\dotsc,A_{it}$
+\item the \textsf{signature} field is computed as follows:
+  \begin{enumerate}
+  \item let $M$ be the string \verb=certs_sig|= followed by the
+    compact JSON serialization of the following structure:
+    \begin{gather*}
+      \texttt{certs}=\left\{
+        \begin{array}{rcl}
+          \textsf{certs}&:&\texttt{cert}^\ast\\
+          \textsf{coefexps}&:&\G^\ast
+        \end{array}
+      \right\}
+    \end{gather*}
+    where \textsf{certs} is set to $\Gamma=\gamma_1,\dotsc,\gamma_m$
+    and \textsf{coefexps} is set to $A_{i0},\dotsc,A_{it}$
+  \item the field is set to the \textsf{signature} of $M$ with
+    $\textsf{sk}_i$ as described in~\ref{pki-signing}
+  \end{enumerate}
 \end{itemize}
 
 The sub-key for this protocol run will be:
@@ -818,7 +850,8 @@ trustees. Step 4 can be seen as a routing step.
     \begin{array}{rcl}
       \textsf{polynomial}&:&\jstring\\
       \textsf{secrets}&:&\jstring^\ast\\
-      \textsf{coefexps}&:&\texttt{coefexps}^\ast
+      \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
+      \textsf{signatures}&:&\proof^\ast
     \end{array}
   \right\}
 \end{gather*}
@@ -830,6 +863,8 @@ for trustee $\mathcal{T}_j$. We fill it as follows:
   $\textsf{secret}(P_1)_j,\dotsc,\textsf{secret}(P_m)_j$
 \item the \textsf{coefexps} field is
   $\textsf{coefexps}(P_1),\dotsc,\textsf{coefexps}(P_m)$
+\item the \textsf{signatures} field is
+  $\textsf{signature}(P_1),\dotsc,\textsf{signature}(P_m)$
 \end{itemize}
 Note that the \textsf{coefexps} field is the same for all trustees.
 
@@ -886,6 +921,7 @@ published during the election.
       \textsf{threshold}&:&\I\\
       \textsf{certs}&:&\texttt{cert}^\ast\\
       \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
+      \textsf{signatures}&:&\proof^\ast\\
       \textsf{verification\_keys}&:&\texttt{trustee\_public\_key}^\ast
     \end{array}
   \right\}
@@ -896,6 +932,8 @@ The administrator fills it as follows:
 \item \textsf{certs} is set to $\Gamma=\gamma_1,\dotsc,\gamma_m$
 \item \textsf{coefexps} is set to the same value as the
   \textsf{coefexps} field of \texttt{vinput}s
+\item \textsf{signatures} is set to the same value as the
+  \textsf{signatures} field of \texttt{vinput}s
 \item \textsf{verification\_keys} is set to
   $\textsf{public\_key}(\textsf{vo}_1),\dotsc,\textsf{public\_key}(\textsf{vo}_m)$
 \end{itemize}

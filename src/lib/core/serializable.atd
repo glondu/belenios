@@ -188,16 +188,20 @@ type 'a encrypted_msg = {
 
 (** {2 Threshold decryption support} *)
 
+type context = {
+  group : string;
+  size : int;
+  threshold : int;
+  index : int;
+}
+
 type 'a cert_keys = {
+  ?context : context option;
   verification : 'a;
   encryption : 'a;
 } <ocaml field_prefix="cert_">
 
 type 'a cert = 'a signed_msg (* cert_keys *)
-
-type 'a certs = {
-  certs : 'a cert list <ocaml repr="array">;
-}
 
 type 'a raw_polynomial = {
   polynomial : 'a list <ocaml repr="array">
@@ -209,6 +213,11 @@ type 'a raw_coefexps = {
 
 type 'a coefexps = 'a signed_msg (* raw_coefexps *)
 
+type ('a, 'b) certs = {
+  certs : 'b cert list <ocaml repr="array">;
+  coefexps : 'a list <ocaml repr="array">;
+}
+
 type 'a secret = {
   secret : 'a;
 }
@@ -217,12 +226,14 @@ type 'a polynomial = {
   polynomial : string; (* sent raw_polynomial *)
   secrets : string list <ocaml repr="array">; (* sent secrets *)
   coefexps : 'a coefexps;
+  ?signature : 'a proof option;
 } <ocaml field_prefix="p_">
 
 type 'a vinput = {
   polynomial : string; (* sent raw_polynomial *)
   secrets : string list <ocaml repr="array">; (* sent secrets *)
   coefexps : 'a coefexps list <ocaml repr="array">;
+  ?signatures : 'a proof list <ocaml repr="array"> option;
 } <ocaml field_prefix="vi_">
 
 type 'a partial_decryption_key = {
@@ -238,6 +249,7 @@ type ('a, 'b) threshold_parameters = {
   threshold : int;
   certs : 'b cert list <ocaml repr="array">;
   coefexps : 'b coefexps list <ocaml repr="array">;
+  ?signatures : 'b proof list <ocaml repr="array"> option;
   verification_keys : ('a, 'b) trustee_public_key list <ocaml repr="array">;
 } <ocaml field_prefix="t_">
 

@@ -28,6 +28,8 @@ cd $DIR
 # Common options
 uuid="--uuid $UUID"
 group="--group Ed25519"
+trustees=3
+threshold=2
 
 # Generate credentials
 belenios-tool setup generate-credentials $uuid $group --count 5 | tee generate-credentials.out
@@ -39,20 +41,22 @@ paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-outpu
 ttkeygen () {
     belenios-tool setup generate-trustee-key-threshold $group "$@"
 }
-ttkeygen --step 1
-ttkeygen --step 1
-ttkeygen --step 1
-cat *.cert > certs.jsons
+for i in $(seq $trustees); do
+    ttkeygen --threshold-context $i/$threshold/$trustees --step 1 > $i.trustee
+done
+for i in $(seq $trustees); do cat $(cat $i.trustee).cert; done > certs.jsons
 ttkeygen --certs certs.jsons --step 2
-for u in *.key; do
-    ttkeygen --certs certs.jsons --key $u --step 3 --threshold 2
+for i in $(seq $trustees); do
+    ttkeygen --threshold-context $i/$threshold/$trustees --certs certs.jsons --key $(cat $i.trustee).key --step 3
 done > polynomials.jsons
 ttkeygen --certs certs.jsons --step 4 --polynomials polynomials.jsons
-for u in *.key; do
-    b=${u%.key}
-    ttkeygen --certs certs.jsons --key $u --step 5 < $b.vinput > $b.voutput
+for i in $(seq $trustees); do
+    id=$(cat $i.trustee)
+    ttkeygen --certs certs.jsons --key $id.key --step 5 < $id.vinput > $id.voutput
 done
-cat *.voutput | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
+for i in $(seq $trustees); do
+    cat $(cat $i.trustee).voutput
+done | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
 
 # Generate mandatory (server) key
 belenios-tool setup generate-trustee-key $group
@@ -118,11 +122,10 @@ belenios-tool election verify
 
 header "Perform decryption (threshold)"
 
-trustee_id=2
-for u in *.key; do
-    belenios-tool election decrypt-threshold --key $u --decryption-key ${u%.key}.dkey --trustee-id $trustee_id | belenios-tool archive add-event --type=PartialDecryption
+for i in $(seq $threshold); do
+    id=$(cat $i.trustee)
+    belenios-tool election decrypt-threshold --key $id.key --decryption-key $id.dkey --trustee-id $(( $i + 1 )) | belenios-tool archive add-event --type=PartialDecryption
     echo >&2
-    : $((trustee_id++))
 done
 
 header "Perform decryption (mandatory)"

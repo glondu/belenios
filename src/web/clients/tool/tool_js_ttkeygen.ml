@@ -41,7 +41,7 @@ let set_explain str =
   Dom.appendChild e t;
   Dom.appendChild e (Dom_html.createBr document)
 
-let gen_cert (Draft (_, draft)) e _ =
+let gen_cert context (Draft (_, draft)) e _ =
   let version = draft.draft_version in
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
@@ -50,7 +50,7 @@ let gen_cert (Draft (_, draft)) e _ =
   let module C = Trustees.MakeChannels (G) (Random) (P) in
   let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
   Lwt.async (fun () ->
-      let key, cert = T.step1 () in
+      let key, cert = T.step1 context in
       clear_content e;
       set_download "private_key" "text/plain" "private_key.txt" key;
       set_element_display "key_helper" "block";
@@ -73,8 +73,7 @@ let proceed (Draft (_, draft)) pedersen =
   let$ e = document##getElementById (Js.string "compute_private_key") in
   let$ e = Dom_html.CoerceTo.input e in
   let key = Js.to_string e##.value in
-  let certs = { certs = pedersen.pedersen_certs } in
-  let threshold = pedersen.pedersen_threshold in
+  let certs = pedersen.pedersen_certs in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (Random) in
   let module C = Trustees.MakeChannels (G) (Random) (P) in
@@ -82,7 +81,7 @@ let proceed (Draft (_, draft)) pedersen =
   Lwt.async (fun () ->
       match pedersen.pedersen_step with
       | 3 ->
-          let polynomial = T.step3 certs key threshold in
+          let polynomial = T.step3 certs key in
           set_textarea "compute_data"
             (string_of_polynomial (swrite G.Zq.to_string) polynomial);
           Lwt.return_unit
@@ -136,6 +135,7 @@ let fill_interactivity () =
     in
     match x with Some x -> cont x | None -> fail "(pedersen error)"
   in
+  let context = pedersen.pedersen_context in
   let step = pedersen.pedersen_step in
   let@ () =
    fun cont ->
@@ -192,7 +192,7 @@ let fill_interactivity () =
       let t =
         document##createTextNode (Js.string (s_ "Generate private key"))
       in
-      b##.onclick := Dom_html.handler (gen_cert draft e);
+      b##.onclick := Dom_html.handler (gen_cert context draft e);
       Dom.appendChild b t;
       Dom.appendChild e b
   | 3 | 5 ->
