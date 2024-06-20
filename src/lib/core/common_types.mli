@@ -82,6 +82,7 @@ module Array : sig
     ('a -> 'b -> 'c -> 'd) -> 'a array -> 'b array -> 'c array -> 'd array
 
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
+  val for_alli : (int -> 'a -> bool) -> 'a array -> bool
 end
 
 module Shape : sig

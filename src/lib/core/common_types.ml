@@ -151,6 +151,11 @@ module Array = struct
       else None
     in
     loop 0
+
+  let for_alli f a =
+    let n = Array.length a in
+    let rec loop i = if i < n then f i a.(i) && loop (i + 1) else true in
+    loop 0
 end
 
 module Shape = struct
