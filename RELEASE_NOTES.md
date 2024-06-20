@@ -1,3 +1,12 @@
+2.5.1
+=====
+
+ * This version changes some JSON structures in an incompatible way:
+   old elections won't be checkable by new version. However, old
+   validated elections should be able to survive on a new server,
+   which allows an in-place upgrade. Care must be taken with
+   `belenios-tool`-based monitoring, though.
+
 2.2
 ===
 

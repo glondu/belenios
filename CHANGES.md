@@ -1,3 +1,14 @@
+2.5.1 (2024-06-28)
+==================
+
+ * Strengthen the Pedersen DKG protocol used in threshold mode
+ * Rework random generation to make it more easily explainable
+ * Web server:
+   + Fix administrator and credential authority public names
+     (GitHub issue #85)
+   + Fix import of passwords for voters with uppercase in login
+     (GitLab issue #14)
+
 2.5 (2024-03-08)
 ================
 
