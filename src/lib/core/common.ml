@@ -60,6 +60,14 @@ module List = struct
     | [] -> []
     | [ x ] -> [ x ]
     | x :: xs -> x :: sep :: join sep xs
+
+  let findi f xs =
+    let rec loop i = function
+      | [] -> None
+      | x :: xs -> (
+          match f i x with Some y -> Some y | None -> loop (i + 1) xs)
+    in
+    loop 0 xs
 end
 
 module Option = struct

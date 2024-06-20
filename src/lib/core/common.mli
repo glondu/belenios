@@ -53,6 +53,7 @@ module List : sig
   include module type of List
 
   val join : 'a -> 'a list -> 'a list
+  val findi : (int -> 'a -> 'b option) -> 'a list -> 'b option
 end
 
 module Option : sig
