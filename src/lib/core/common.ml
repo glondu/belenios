@@ -185,11 +185,10 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
   let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
 end
 
-let generate_b58_digit rng =
-  (* 2^16 = 1129*58 + 54 -> by taking a 16-bit number modulo 58, 4
-     digits have lower (but negligible) probability to come up *)
-  let x = Crypto_primitives.random_string rng 2 in
-  b58_digits.[(Char.code x.[0] lsl 8) lor Char.code x.[1] mod 58]
+let rec generate_b58_digit rng =
+  let x = Crypto_primitives.random_string rng 1 in
+  let x = Char.code x.[0] land 63 in
+  if x < 58 then b58_digits.[x] else generate_b58_digit rng
 
 let generate_b58_token ~rng ~length =
   let result = Bytes.create length in
