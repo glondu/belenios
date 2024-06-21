@@ -195,14 +195,7 @@ let rec generate_b58_digit rng =
   if x < 58 then b58_digits.[x] else generate_b58_digit rng
 
 let generate_b58_token ~rng ~length =
-  let result = Bytes.create length in
-  let rec loop i =
-    if i >= 0 then (
-      Bytes.set result i (generate_b58_digit rng);
-      loop (i - 1))
-    else Bytes.to_string result
-  in
-  loop (length - 1)
+  String.init length (fun _ -> generate_b58_digit rng)
 
 let sqrt s =
   (* https://en.wikipedia.org/wiki/Integer_square_root *)

@@ -213,14 +213,7 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
   type public_key = G.t
 
   let random () = G.Zq.random (M.get_rng ())
-
-  let genkey () =
-    let n = 22 and z58 = Z.of_int 58 in
-    let random_b58 () = random_modulo z58 (M.get_rng ()) in
-    String.init n (fun _ ->
-        let x = random_b58 () in
-        b58_digits.[Z.to_int x])
-
+  let genkey () = generate_b58_token ~rng:(M.get_rng ()) ~length:22
   let derive_sk p = G.Zq.reduce_hex (sha256_hex ("sk|" ^ p))
   let derive_dk p = G.Zq.reduce_hex (sha256_hex ("dk|" ^ p))
 
