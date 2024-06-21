@@ -120,7 +120,7 @@ struct
   type private_key = scalar
   type public_key = element
 
-  let random () = M.random Zq.q |> Zq.coerce
+  let random () = Zq.random (M.get_rng ())
   let ( / ) x y = x *~ invert y
 
   type plaintext = int array array

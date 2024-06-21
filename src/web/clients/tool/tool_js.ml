@@ -120,6 +120,12 @@ module Tests = struct
     Printf.ksprintf alert "%d modular exponentiations in %d ms!" n delta;
     Lwt.return_unit
 
+  let bytes_to_sample q =
+    (* we take 128 additional bits of random before the mod q, so that
+       the statistical distance with a uniform distribution in [0,q[ is
+       negligible *)
+    (Z.bit_length q / 8) + 17
+
   let gen n i =
     let j = n * i in
     let xs = Array.init n (fun i -> sha256_hex (string_of_int (j + i))) in

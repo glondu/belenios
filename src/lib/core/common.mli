@@ -76,7 +76,7 @@ module SSet : Set.S with type elt = string
 module SMap : Map.S with type key = string
 module IMap : Map.S with type key = int
 
-val bytes_to_sample : Z.t -> int
+val random_modulo : Z.t -> Crypto_primitives.rng -> Z.t
 val check_modulo : Z.t -> Z.t -> bool
 
 module MakeGenerateToken (R : RANDOM) : sig

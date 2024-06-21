@@ -42,7 +42,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
   let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
-  let random () = M.random Zq.q |> Zq.coerce
+  let random () = Zq.random (M.get_rng ())
 
   let create_answer q ~public_key:y ~prefix m =
     assert (Array.length q.q_answers = Array.length m);

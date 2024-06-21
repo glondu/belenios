@@ -237,7 +237,7 @@ module Z = struct
   let of_hex x = of_string_base 16 x
   let to_hex x = format "%x" x
   let ( =% ) = equal
-  let bit_length x = Stdlib.(String.length (to_bits x) * 8)
+  let bit_length = Z.log2up
   let powm x a m = if Z.compare a Z.zero = 0 then Z.one else powm_sec x a m
   (* Warning: no efforts have been made to be constant time in the
      rest of the code. *)
