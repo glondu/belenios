@@ -68,8 +68,10 @@ and their security proofs is spread across several references.
 The threshold decryption scheme is
 based on a ``folklore'' scheme:
 Pedersen’s~\cite{Pedersen} Distributed Key Generation (DKG) that has several variations.
-The variant considered in Belenios is described in~\cite{wpes2013} and
-proved in~\cite{wpes2013,asiacrypt12}.
+The variant considered in Belenios is proved
+in~\cite{Pereira-proofDKG-eprint2024}.
+%described in~\cite{wpes2013} and
+%proved in~\cite{wpes2013,asiacrypt12}.
 \item Ballots are composed of an ElGamal encryption of the votes and a
   zero-knowledge proof of well-formedness, as for the Helios
   protocol~\cite{Helios}. Compared to Helios, we support blank votes,
@@ -243,6 +245,12 @@ $\gamma$.
 This protocol involves $\mu$ trustees
 $\mathcal{T}_1,\dots,\mathcal{T}_\mu$ such that only a subset of
 $t+1$ of them will be needed to compute the tally.
+The original Pedersen DKG scheme~\cite{Pedersen} assumes a secret and authenticated
+channel between each pair of trustees. Since our trustees do not even
+have a PKI, we first require that each trustee generates a fresh key
+pair, that they then use to encrypt and sign messages for the other
+trustees. All messages are sent and received (encrypted) through the voting server,
+in order to simplify the communication infrastructure.
 \begin{enumerate}
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
@@ -255,17 +263,31 @@ $t+1$ of them will be needed to compute the tally.
   \begin{enumerate}
   \item $\mathcal{S}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
-    sends it to $\mathcal{S}$
+    sends it to $\mathcal{S}$. This corresponds to the actual first
+    step of the Pedersen protocol. Each trustee generates a secret
+    polynomial $f_z$. $P_z$ consists in particular of:
+    \begin{itemize}
+    \item the coefficients of $f_z$, as well as  $\Gamma$,
+      self signed and encrypted, in order to store them for the next
+      step
+    \item the signed exponentiated coefficients of $f_z$,
+      to be sent to all trustees
+    \item the evaluation of the polynomial $s_{z,z'}=f_z(z')$, encrypted for
+      trustee $\mathcal{T}_{z'}$ and signed by $\mathcal{T}_z$, for all $z'$
+    \end{itemize}
   \item $\mathcal{S}$ checks $P_z$
   \end{enumerate}
 \item for $z\in[1\dots \mu]$, $\mathcal{S}$ computes a
-  \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$
+  \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$, that corresponds to
+  the aggregation of the messages encrypted for $z$, collected from
+  all the trustees
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
   \item $\mathcal{S}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{S}$ sends $\textsf{vi}_z$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
-    sends it to $\mathcal{S}$
+    sends it to $\mathcal{S}$. It corresponds to the resulting (signed) public
+    key share of $\mathcal{T}_z$, with a proof of knowledge of the associated secret key.
   \item $\mathcal{S}$ checks $\textsf{vo}_z$
   \end{enumerate}
 \item $\mathcal{S}$ extracts encrypted decryption keys $K_1,\dots,K_\mu$ and
