@@ -65,5 +65,6 @@
     "election_uuid_is_x": "رمز UUID للانتخاب: {{uuid}}",
     "preferential_voting_move_candidate_to": "نقل إلى",
     "ask_for_credential": "الرجاء إدخال بيانات التصويت:",
-    "ask_election_uuid_to_load": "تحميل انتخابات على هذا الخادم عن طريق إعطاء معرف الـ UUID:"
+    "ask_election_uuid_to_load": "تحميل انتخابات على هذا الخادم عن طريق إعطاء معرف الـ UUID:",
+    "lists_question_description": "الرجاء اختيار قائمة من المرشحين وإلغاء تحديد أي مرشحين لا ترغب في تضمينهم."
 }
