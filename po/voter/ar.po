@@ -1,12 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 2.5\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-08 08:07+0000\n"
-"PO-Revision-Date: 2023-12-29 14:08+0000\n"
-"Last-Translator: noreddine belhadj cheikh <noreddine.belhadjcheikh@gmail.com>"
-"\n"
+"PO-Revision-Date: 2024-06-29 23:09+0000\n"
+"Last-Translator: moomen bashtawi <moomenbashtawi@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/belenios/voter/ar/"
 ">\n"
 "Language: ar\n"
@@ -15,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 #: src/web/server/common/pages_common.ml:331
 msgid " (if you forgot it, for example)."
@@ -89,13 +87,13 @@ msgstr " ثانية (ثواني)"
 msgid " year(s)"
 msgstr " سنة (سنوات)"
 
-#: src/web/server/common/pages_voter.ml:137
 #. src/web/server/common/pages_voter.ml:105
+#: src/web/server/common/pages_voter.ml:137
 msgid "%d blank ballot(s)"
 msgstr "%d بطاقة (بطاقات) بدون تصويت"
 
-#: src/web/server/common/pages_voter.ml:204
 #. src/web/server/common/pages_voter.ml:113
+#: src/web/server/common/pages_voter.ml:204
 msgid "%d invalid ballot(s)"
 msgstr "%d بطاقة (بطاقات) غير صالحة"
 
@@ -105,13 +103,13 @@ msgstr ""
 "من بين %d من الحكام (مفاتيح التحقق) [المفاتيح العامة] التالية، يلزم لفك "
 "تشفير نتيجة الانتخاب %d:"
 
-#: src/web/server/common/pages_voter.ml:131
 #. src/web/server/common/pages_voter.ml:99
+#: src/web/server/common/pages_voter.ml:131
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d بطاقة (بطاقات) صالحة (غير فارغة)"
 
-#: src/web/server/common/pages_voter.ml:132
 #. src/web/server/common/pages_voter.ml:100
+#: src/web/server/common/pages_voter.ml:132
 msgid "%d valid ballot(s)"
 msgstr "%d بطاقة (بطاقات) صالحة"
 
@@ -139,7 +137,7 @@ msgstr "تم إرسال رمز التحقق إلى %s."
 
 #: src/web/server/common/pages_voter.ml:753
 msgid "About this election"
-msgstr ""
+msgstr "حول هذه الانتخابات"
 
 #: src/web/server/common/pages_voter.ml:575
 msgid "Accept"
@@ -163,7 +161,7 @@ msgstr "إدارة هذه الانتخابات"
 
 #: src/web/server/common/pages_voter.ml:585
 msgid "Administrator"
-msgstr ""
+msgstr "المسؤول"
 
 #: src/web/server/common/pages_voter.ml:67
 msgid "Advanced mode"
@@ -173,8 +171,8 @@ msgstr "وضع متقدم"
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr "جميع الحكام (مفاتيح التحقق) التالية مطلوبة لفك تشفير النتيجة:"
 
-#: src/web/server/common/pages_voter.ml:917
 #. src/web/server/common/pages_voter.ml:912
+#: src/web/server/common/pages_voter.ml:917
 msgid "Answer to questions"
 msgstr "أجب على الأسئلة"
 
@@ -186,11 +184,11 @@ msgstr "من باب التيسير ، يتم دائمًا تفسير 0 على أ
 msgid "Audit data: "
 msgstr "بيانات التدقيق: "
 
-#: src/web/server/common/pages_voter.ml:965
 #. src/web/server/common/pages_voter.ml:960
 #. src/web/server/common/pages_common.ml:464
 #. src/web/server/common/pages_common.ml:395
 #. src/web/server/common/pages_common.ml:304
+#: src/web/server/common/pages_voter.ml:965
 msgid "Authenticate"
 msgstr "التوثيق"
 
@@ -250,7 +248,7 @@ msgstr "من خلال استخدام هذا الموقع، أنت تقبل "
 
 #: src/web/server/common/pages_common.ml:574
 msgid "Click here"
-msgstr ""
+msgstr "انقر هنا"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:92
 msgid "Compare"
@@ -268,13 +266,13 @@ msgstr "البصمة المحسوبة:"
 msgid "Condorcet-Schulze method"
 msgstr "طريقة كوندورسيه-شولتسي"
 
-#: src/web/server/common/pages_voter.ml:983
 #. src/web/server/common/pages_voter.ml:978
+#: src/web/server/common/pages_voter.ml:983
 msgid "Confirm"
 msgstr "تأكيد"
 
-#: src/web/server/common/pages_voter.ml:1247
 #. src/web/server/common/pages_voter.ml:1185
+#: src/web/server/common/pages_voter.ml:1247
 msgid "Continue"
 msgstr "متابعة"
 
@@ -284,20 +282,20 @@ msgstr "تم حظر ملفات تعريف الارتباط(Cookies) في الم�
 
 #: src/web/server/common/pages_voter.ml:703
 msgid "Credentials authority"
-msgstr ""
+msgstr "سلطة الاعتماد"
 
 #: src/web/server/common/pages_voter.ml:713
 msgid "Credentials fingerprint"
-msgstr ""
+msgstr "بصمة الاعتمادات"
 
-#: src/web/server/common/pages_common.ml:473
 #. src/web/server/common/mails_voter.ml:414
+#: src/web/server/common/pages_common.ml:473
 msgid "Dear %s,"
 msgstr "عزيزي/عزيزتي %s,"
 
-#: src/web/server/common/pages_common.ml:528
 #. src/web/server/common/pages_common.ml:338
 #. src/web/server/common/pages_common.ml:271
+#: src/web/server/common/pages_common.ml:528
 msgid "E-mail address:"
 msgstr "البريد الإلكتروني:"
 
@@ -309,7 +307,6 @@ msgstr "بصمة الانتخاب: "
 msgid "Election server"
 msgstr "خادم الانتخاب"
 
-#: src/web/server/common/site_voter.ml:308
 #. src/web/server/common/site_voter.ml:291
 #. src/web/server/common/site_voter.ml:247
 #. src/web/server/common/site_voter.ml:240
@@ -317,6 +314,7 @@ msgstr "خادم الانتخاب"
 #. src/web/server/common/site_voter.ml:120
 #. src/web/server/common/site_voter.ml:111
 #. src/web/server/common/site_voter.ml:95
+#: src/web/server/common/site_voter.ml:308
 msgid "Error"
 msgstr "خطأ"
 
@@ -330,7 +328,7 @@ msgstr "فشل!"
 
 #: src/web/server/common/pages_voter.ml:742
 msgid "Fingerprint of the encrypted tally"
-msgstr ""
+msgstr "بصمة العد المشفر"
 
 #: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
@@ -340,9 +338,9 @@ msgstr "ممنوع"
 msgid "Get the source code"
 msgstr "احصل على كود المصدر"
 
-#: src/web/server/common/pages_voter.ml:1132
 #. src/web/server/common/pages_voter.ml:1096
 #. src/web/server/common/pages_voter.ml:1026
+#: src/web/server/common/pages_voter.ml:1132
 msgid "Go back to election"
 msgstr "العودة إلى الانتخابات"
 
@@ -373,8 +371,8 @@ msgid "In the context of STV, voters rank candidates by order of preference."
 msgstr ""
 "في سياق النظام النسبي للتصويت، يرتب الناخبون المرشحين حسب ترتيب تفضيلهم."
 
-#: src/web/server/common/pages_voter.ml:893
 #. src/web/server/common/pages_voter.ml:888
+#: src/web/server/common/pages_voter.ml:893
 msgid "Input credential"
 msgstr "إدخال بيانات الاعتماد"
 
@@ -402,10 +400,10 @@ msgstr "النتيجة بصيغة JSON"
 msgid "Language:"
 msgstr "اللغة:"
 
-#: src/web/server/common/pages_common.ml:463
 #. src/web/server/common/pages_common.ml:394
 #. src/web/server/common/pages_common.ml:303
 #. src/web/server/common/pages_common.ml:263
+#: src/web/server/common/pages_common.ml:463
 msgid "Log in"
 msgstr "تسجيل الدخول"
 
@@ -421,8 +419,8 @@ msgstr "انظر إلى الأحداث الأولية للحصول على مزي
 msgid "Majority Judgment"
 msgstr "الحكم بالأغلبية"
 
-#: src/web/server/common/pages_voter.ml:1231
 #. src/web/server/common/pages_voter.ml:1176
+#: src/web/server/common/pages_voter.ml:1231
 msgid "Majority Judgment method"
 msgstr "طريقة الحكم بالأغلبية"
 
@@ -442,8 +440,8 @@ msgstr ""
 msgid "Maybe cookies are blocked."
 msgstr "ربما يتم حجب ملفات تعريف الارتباط (الكوكيز)."
 
-#: src/web/server/common/pages_voter.ml:1264
 #. src/web/server/common/pages_voter.ml:1206
+#: src/web/server/common/pages_voter.ml:1264
 msgid "More information can be found "
 msgstr "يمكن العثور على مزيد من المعلومات "
 
@@ -471,15 +469,15 @@ msgstr "عدد المقاعد:"
 
 #: src/web/server/common/pages_voter.ml:595
 msgid "Number of voters"
-msgstr ""
+msgstr "عدد الناخبين"
 
-#: src/web/server/common/mails_voter.ml:177
 #. src/web/server/common/mails_voter.ml:72
+#: src/web/server/common/mails_voter.ml:177
 msgid "Number of votes:"
 msgstr "عدد الأصوات:"
 
-#: src/web/server/common/mails_voter.ml:184
 #. src/web/server/common/mails_voter.ml:83
+#: src/web/server/common/mails_voter.ml:184
 msgid "Only the last vote counts."
 msgstr "يتم احتساب الصوت الأخير فقط."
 
@@ -487,8 +485,8 @@ msgstr "يتم احتساب الصوت الأخير فقط."
 msgid "Page of the election:"
 msgstr "صفحة التصويت:"
 
-#: src/web/server/common/pages_common.ml:374
 #. src/web/server/common/mails_voter.ml:65
+#: src/web/server/common/pages_common.ml:374
 msgid "Password:"
 msgstr "كلمة المرور:"
 
@@ -546,18 +544,18 @@ msgstr "الأحداث الأولية"
 
 #: src/web/server/common/pages_common.ml:577
 msgid "Redirection"
-msgstr ""
+msgstr "إعادة توجيه"
 
 #: src/web/common/pages_common.ml:48
 msgid "Restricted mode"
-msgstr ""
+msgstr "الوضع المحدود"
 
 #: src/web/server/common/mails_voter.ml:448
 msgid "Results will be published on the election page"
 msgstr "مراجعة وتشفير"
 
-#: src/web/server/common/pages_voter.ml:941
 #. src/web/server/common/pages_voter.ml:936
+#: src/web/server/common/pages_voter.ml:941
 msgid "Review and encrypt"
 msgstr "مراجعة وتشفير"
 
@@ -579,8 +577,8 @@ msgstr ""
 msgid "Single Transferable Vote"
 msgstr "التصويت الفردي القابل للتحويل"
 
-#: src/web/server/common/pages_voter.ml:1290
 #. src/web/server/common/pages_voter.ml:1238
+#: src/web/server/common/pages_voter.ml:1290
 msgid "Single Transferable Vote method"
 msgstr "طريقة التصويت الفردي القابل للتحويل"
 
@@ -608,8 +606,8 @@ msgstr "الخطوة 4"
 msgid "Step 5"
 msgstr "الخطوة 5"
 
-#: src/web/server/common/pages_common.ml:542
 #. src/web/server/common/pages_common.ml:456
+#: src/web/server/common/pages_common.ml:542
 msgid "Submit"
 msgstr "إرسال"
 
@@ -621,7 +619,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:118
 msgid "Terms of service"
-msgstr ""
+msgstr "شروط الخدمة"
 
 #: src/web/server/common/pages_voter.ml:1076
 msgid "Thank you for voting!"
@@ -635,8 +633,8 @@ msgstr "فائزو Schulze هم:"
 msgid "The Single Transferable Vote winners are:"
 msgstr "الفائزون بالصوت الواحد القابل للتحويل هم:"
 
-#: src/web/server/common/pages_voter.ml:446
 #. src/web/server/common/pages_voter.ml:442
+#: src/web/server/common/pages_voter.ml:446
 msgid "The election is closed and being tallied."
 msgstr "تم إغلاق الانتخاب وجاري الفرز."
 
@@ -716,8 +714,8 @@ msgstr "هذا السؤال ليس غير متماثل، ولا يمكن تطب�
 msgid "This vote replaces any previous vote."
 msgstr "يحل هذا التصويت محل أي تصويت سابق."
 
-#: src/web/server/common/pages_voter.ml:155
 #. src/web/server/common/pages_voter.ml:91
+#: src/web/server/common/pages_voter.ml:155
 msgid "Tie:"
 msgstr "تعادل:"
 
@@ -755,20 +753,20 @@ msgstr "نوع السؤال غير مدعوم"
 msgid "Use the following code:"
 msgstr "استخدم الرمز التالي:"
 
-#: src/web/server/common/pages_common.ml:337
 #. src/web/server/common/pages_common.ml:270
 #. src/web/server/common/mails_voter.ml:167
 #. src/web/server/common/mails_voter.ml:61
+#: src/web/server/common/pages_common.ml:337
 msgid "Username:"
 msgstr "اسم المستخدم:"
 
 #: src/web/server/common/pages_voter.ml:600
 msgid "Voter list fingerprint"
-msgstr ""
+msgstr "بصمة قائمة الناخبين"
 
 #: src/web/server/common/pages_voter.ml:618
 msgid "Voters' total weight"
-msgstr ""
+msgstr "إجمالي وزن الناخبين"
 
 #: src/web/server/common/pages_voter.ml:1018
 msgid "Warning:"
@@ -799,8 +797,8 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr "ترغب في المساعدة في الترجمات؟"
 
-#: src/web/server/common/mails_voter.ml:183
 #. src/web/server/common/mails_voter.ml:82
+#: src/web/server/common/mails_voter.ml:183
 msgid "You are allowed to vote several times."
 msgstr "مسموح لك بالتصويت عدة مرات."
 
@@ -885,8 +883,8 @@ msgstr "تصويتك للانتخابات %s"
 msgid "Your vote was not recorded!"
 msgstr "لم يتم تسجيل صوتك!"
 
-#: src/web/server/common/pages_voter.ml:1050
 #. src/web/server/common/mails_voter.ml:428
+#: src/web/server/common/pages_voter.ml:1050
 msgid "Your weight is %s."
 msgstr "وزنك هو %s."
 
@@ -906,8 +904,8 @@ msgstr "إنشاء حساب"
 msgid "has been recorded."
 msgstr "تم تسجيله."
 
-#: src/web/server/common/pages_voter.ml:1266
 #. src/web/server/common/pages_voter.ml:1207
+#: src/web/server/common/pages_voter.ml:1266
 msgid "here"
 msgstr "هنا"
 
@@ -937,7 +935,7 @@ msgstr "ابدأ من البداية"
 
 #: src/web/server/common/pages_voter.ml:571
 msgid "terms of service"
-msgstr ""
+msgstr "شروط الخدمة"
 
 #: src/web/server/common/pages_voter.ml:178
 msgid "the Wikipedia page"
@@ -994,4 +992,3 @@ msgstr "بيانات الاعتماد الخاصة بك غير صالحة"
 #: src/web/server/common/web_common.ml:52
 msgid "your username is wrong"
 msgstr "اسم المستخدم الخاص بك خاطئ"
-
