@@ -1718,6 +1718,11 @@ struct
             | `Threshold x -> x
           in
           let ts = Array.of_list dtp.dtp_trustees in
+          let threshold =
+            match dtp.dtp_threshold with
+            | Some t -> t
+            | None -> failwith "No threshold set"
+          in
           let i, t =
             match
               Array.findi
@@ -1727,16 +1732,21 @@ struct
             | Some (i, t) -> (i, t)
             | None -> failwith "Trustee not found"
           in
+          let context =
+            {
+              group = se.se_group;
+              size = Array.length ts;
+              threshold;
+              index = i + 1;
+            }
+          in
           let get_certs () =
-            let certs =
-              Array.map
-                (fun x ->
-                  match x.stt_cert with
-                  | None -> failwith "Missing certificate"
-                  | Some y -> y)
-                ts
-            in
-            { certs }
+            Array.map
+              (fun x ->
+                match x.stt_cert with
+                | None -> failwith "Missing certificate"
+                | Some y -> y)
+              ts
           in
           let get_polynomials () =
             Array.map
@@ -1754,7 +1764,7 @@ struct
             match t.stt_step with
             | Some 1 ->
                 let cert = cert_of_string (sread G.Zq.of_string) data in
-                if K.step1_check cert then (
+                if K.step1_check context cert then (
                   t.stt_cert <- Some cert;
                   t.stt_step <- Some 2;
                   return_unit)
@@ -1786,7 +1796,8 @@ struct
           let* () =
             if Array.for_all (fun x -> x.stt_step = Some 2) ts then (
               (try
-                 K.step2 (get_certs ());
+                 let threshold = K.step2 (get_certs ()) in
+                 assert (dtp.dtp_threshold = Some threshold);
                  Array.iter (fun x -> x.stt_step <- Some 3) ts
                with e -> dtp.dtp_error <- Some (Printexc.to_string e));
               return_unit)

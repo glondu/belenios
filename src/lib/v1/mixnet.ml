@@ -30,7 +30,7 @@ struct
   module G = W.G
   open G
 
-  let random () = M.random Zq.q |> Zq.coerce
+  let random () = Zq.random (M.get_rng ())
   let randoms n = Array.init n (fun _ -> random ())
 
   let gen_permutation n =
@@ -38,7 +38,7 @@ struct
     let psi = Array.make n 0 in
     let rec loop i =
       if i < n then (
-        let k = M.random (Z.of_int Stdlib.(n - i)) in
+        let k = random_modulo (Z.of_int Stdlib.(n - i)) (M.get_rng ()) in
         let k = Stdlib.(Z.to_int k + i) in
         psi.(i) <- tmp.(k);
         tmp.(k) <- tmp.(i);

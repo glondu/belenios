@@ -46,10 +46,7 @@ module Random = struct
     in
     Lwt.async loop
 
-  let random q =
-    let size = bytes_to_sample q in
-    let r = random_string (Lazy.force !prng) size in
-    Z.(of_bits r mod q)
+  let get_rng () = Lazy.force !prng
 end
 
 include MakeGenerateToken (Random)

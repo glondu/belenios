@@ -68,8 +68,10 @@ and their security proofs is spread across several references.
 The threshold decryption scheme is
 based on a ``folklore'' scheme:
 Pedersen’s~\cite{Pedersen} Distributed Key Generation (DKG) that has several variations.
-The variant considered in Belenios is described in~\cite{wpes2013} and
-proved in~\cite{wpes2013,asiacrypt12}.
+The variant considered in Belenios is proved
+in~\cite{Pereira-proofDKG-eprint2024}.
+%described in~\cite{wpes2013} and
+%proved in~\cite{wpes2013,asiacrypt12}.
 \item Ballots are composed of an ElGamal encryption of the votes and a
   zero-knowledge proof of well-formedness, as for the Helios
   protocol~\cite{Helios}. Compared to Helios, we support blank votes,
@@ -243,6 +245,12 @@ $\gamma$.
 This protocol involves $\mu$ trustees
 $\mathcal{T}_1,\dots,\mathcal{T}_\mu$ such that only a subset of
 $t+1$ of them will be needed to compute the tally.
+The original Pedersen DKG scheme~\cite{Pedersen} assumes a secret and authenticated
+channel between each pair of trustees. Since our trustees do not even
+have a PKI, we first require that each trustee generates a fresh key
+pair, that they then use to encrypt and sign messages for the other
+trustees. All messages are sent and received (encrypted) through the voting server,
+in order to simplify the communication infrastructure.
 \begin{enumerate}
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
@@ -255,17 +263,31 @@ $t+1$ of them will be needed to compute the tally.
   \begin{enumerate}
   \item $\mathcal{S}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ generates a \hyperref[polynomials]{$\poly$} $P_z$ and
-    sends it to $\mathcal{S}$
+    sends it to $\mathcal{S}$. This corresponds to the actual first
+    step of the Pedersen protocol. Each trustee generates a secret
+    polynomial $f_z$. $P_z$ consists in particular of:
+    \begin{itemize}
+    \item the coefficients of $f_z$, as well as  $\Gamma$,
+      self signed and encrypted, in order to store them for the next
+      step
+    \item the signed exponentiated coefficients of $f_z$,
+      to be sent to all trustees
+    \item the evaluation of the polynomial $s_{z,z'}=f_z(z')$, encrypted for
+      trustee $\mathcal{T}_{z'}$ and signed by $\mathcal{T}_z$, for all $z'$
+    \end{itemize}
   \item $\mathcal{S}$ checks $P_z$
   \end{enumerate}
 \item for $z\in[1\dots \mu]$, $\mathcal{S}$ computes a
-  \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$
+  \hyperref[vinputs]{$\vinput$} $\textsf{vi}_z$, that corresponds to
+  the aggregation of the messages encrypted for $z$, collected from
+  all the trustees
 \item for $z\in[1\dots \mu]$,
   \begin{enumerate}
   \item $\mathcal{S}$ sends $\Gamma$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{S}$ sends $\textsf{vi}_z$ to $\mathcal{T}_z$ and $\mathcal{T}_z$ checks it
   \item $\mathcal{T}_z$ computes a \hyperref[voutputs]{$\voutput$} $\textsf{vo}_z$ and
-    sends it to $\mathcal{S}$
+    sends it to $\mathcal{S}$. It corresponds to the resulting (signed) public
+    key share of $\mathcal{T}_z$, with a proof of knowledge of the associated secret key.
   \item $\mathcal{S}$ checks $\textsf{vo}_z$
   \end{enumerate}
 \item $\mathcal{S}$ extracts encrypted decryption keys $K_1,\dots,K_\mu$ and
@@ -633,6 +655,7 @@ prefixed by the string \verb/dk|/. The corresponding (public)
 encryption key is $g^{\textsf{dk}}$.
 
 \paragraph{Signing}
+\label{pki-signing}
 
 Signing takes a signing key $\textsf{sk}$ and a \textsf{message} $M$
 (as a $\jstring$), computes a \textsf{signature} and produces a
@@ -701,16 +724,29 @@ To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 
 A certificate is a \texttt{signed\_msg} encapsulating a serialized
 \texttt{cert\_keys} structure, itself filled with the public keys
-generated as described in section~\ref{pki}.
+generated as described in section~\ref{pki}. Each certificate comes
+with a \texttt{context} containing the string description of the
+group, the number of trustees participating in the Pedersen protocol,
+the threshold and the index (starting at 1) of the owner of the
+certificate.
 \begin{gather*}
-  \texttt{cert}=\texttt{signed\_msg}
+  \texttt{context}=\left\{
+    \begin{array}{rcl}
+      \textsf{group}&:&\jstring\\
+      \textsf{size}&:&\I\\
+      \textsf{threshold}&:&\I\\
+      \textsf{index}&:&\I
+    \end{array}
+  \right\}
   \qquad
   \texttt{cert\_keys}=\left\{
     \begin{array}{rcl}
+      \textsf{context}&:&\texttt{context}\\
       \textsf{verification}&:&\G\\
       \textsf{encryption}&:&\G
     \end{array}
-  \right\}
+  \right\}\\
+  \texttt{cert}=\texttt{signed\_msg}
 \end{gather*}
 The message is signed with the signing key associated to
 \textsf{verification}.
@@ -749,7 +785,8 @@ in step 3 of the key establishment protocol.
     \begin{array}{rcl}
       \textsf{polynomial}&:&\jstring\\
       \textsf{secrets}&:&\jstring^\ast\\
-      \textsf{coefexps}&:&\texttt{coefexps}
+      \textsf{coefexps}&:&\texttt{coefexps}\\
+      \textsf{signature}&:&\proof
     \end{array}
   \right\}
 \end{gather*}
@@ -799,6 +836,23 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
     \right\}
   \end{gather*}
   filled with $A_{i0},\dotsc,A_{it}$
+\item the \textsf{signature} field is computed as follows:
+  \begin{enumerate}
+  \item let $M$ be the string \verb=certs_sig|= followed by the
+    compact JSON serialization of the following structure:
+    \begin{gather*}
+      \texttt{certs}=\left\{
+        \begin{array}{rcl}
+          \textsf{certs}&:&\texttt{cert}^\ast\\
+          \textsf{coefexps}&:&\G^\ast
+        \end{array}
+      \right\}
+    \end{gather*}
+    where \textsf{certs} is set to $\Gamma=\gamma_1,\dotsc,\gamma_m$
+    and \textsf{coefexps} is set to $A_{i0},\dotsc,A_{it}$
+  \item the field is set to the \textsf{signature} of $M$ with
+    $\textsf{sk}_i$ as described in~\ref{pki-signing}
+  \end{enumerate}
 \end{itemize}
 
 The sub-key for this protocol run will be:
@@ -818,7 +872,8 @@ trustees. Step 4 can be seen as a routing step.
     \begin{array}{rcl}
       \textsf{polynomial}&:&\jstring\\
       \textsf{secrets}&:&\jstring^\ast\\
-      \textsf{coefexps}&:&\texttt{coefexps}^\ast
+      \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
+      \textsf{signatures}&:&\proof^\ast
     \end{array}
   \right\}
 \end{gather*}
@@ -830,6 +885,8 @@ for trustee $\mathcal{T}_j$. We fill it as follows:
   $\textsf{secret}(P_1)_j,\dotsc,\textsf{secret}(P_m)_j$
 \item the \textsf{coefexps} field is
   $\textsf{coefexps}(P_1),\dotsc,\textsf{coefexps}(P_m)$
+\item the \textsf{signatures} field is
+  $\textsf{signature}(P_1),\dotsc,\textsf{signature}(P_m)$
 \end{itemize}
 Note that the \textsf{coefexps} field is the same for all trustees.
 
@@ -886,6 +943,7 @@ published during the election.
       \textsf{threshold}&:&\I\\
       \textsf{certs}&:&\texttt{cert}^\ast\\
       \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
+      \textsf{signatures}&:&\proof^\ast\\
       \textsf{verification\_keys}&:&\texttt{trustee\_public\_key}^\ast
     \end{array}
   \right\}
@@ -896,6 +954,8 @@ The administrator fills it as follows:
 \item \textsf{certs} is set to $\Gamma=\gamma_1,\dotsc,\gamma_m$
 \item \textsf{coefexps} is set to the same value as the
   \textsf{coefexps} field of \texttt{vinput}s
+\item \textsf{signatures} is set to the same value as the
+  \textsf{signatures} field of \texttt{vinput}s
 \item \textsf{verification\_keys} is set to
   $\textsf{public\_key}(\textsf{vo}_1),\dotsc,\textsf{public\_key}(\textsf{vo}_m)$
 \end{itemize}

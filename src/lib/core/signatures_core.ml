@@ -52,6 +52,7 @@ module type FIELD = sig
   val ( - ) : t -> t -> t
   val ( * ) : t -> t -> t
   val ( =% ) : t -> t -> bool
+  val random : Crypto_primitives.rng -> t
 end
 
 (** A group suitable for discrete logarithm-based cryptography. *)
@@ -128,6 +129,5 @@ end
 
 (** Random number generation. *)
 module type RANDOM = sig
-  val random : Z.t -> Z.t
-  (** [random q] returns a random number modulo [q]. *)
+  val get_rng : unit -> Crypto_primitives.rng
 end

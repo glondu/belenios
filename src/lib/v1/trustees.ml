@@ -29,14 +29,20 @@ open Common
 exception PedersenFailure of string
 
 module MakeVerificator (G : GROUP) = struct
+  let get_context x =
+    let keys = cert_keys_of_string (sread G.of_string) x.s_message in
+    match keys.cert_context with
+    | Some x -> x
+    | None -> failwith "missing context in certificate"
+
   let verify vk { s_message; s_signature = { challenge; response } } =
     let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
     let prefix = "sigmsg|" ^ s_message ^ "|" in
     G.Zq.(challenge =% G.hash prefix [| commitment |])
 
-  let verify_cert x =
+  let verify_cert context x =
     let keys = cert_keys_of_string (sread G.of_string) x.s_message in
-    verify keys.cert_verification x
+    keys.cert_context = Some context && verify keys.cert_verification x
 
   let compute_verification_keys coefexps =
     let n = Array.length coefexps in
@@ -73,7 +79,12 @@ module MakeCombinator (G : GROUP) = struct
     G.Zq.(challenge =% G.hash zkp [| commitment |])
 
   let check_pedersen t =
-    Array.for_all V.verify_cert t.t_certs
+    let group = G.description in
+    let size = Array.length t.t_certs in
+    let threshold = t.t_threshold in
+    Array.for_alli
+      (fun i c -> V.verify_cert { group; size; threshold; index = i + 1 } c)
+      t.t_certs
     &&
     let certs =
       Array.map
@@ -83,6 +94,26 @@ module MakeCombinator (G : GROUP) = struct
     Array.for_all2
       (fun cert x -> V.verify cert.cert_verification x)
       certs t.t_coefexps
+    && (match t.t_signatures with
+       | None -> false
+       | Some sigs ->
+           let n = Array.length sigs in
+           n = Array.length certs
+           && n = Array.length t.t_coefexps
+           && Array.for_all3
+                (fun cert coefexps s_signature ->
+                  let x =
+                    raw_coefexps_of_string (sread G.of_string)
+                      coefexps.s_message
+                  in
+                  let s_message =
+                    "certs_sig|"
+                    ^ string_of_certs (swrite G.to_string)
+                        (swrite G.Zq.to_string)
+                        { certs = t.t_certs; coefexps = x.coefexps }
+                  in
+                  V.verify cert.cert_verification { s_message; s_signature })
+                certs t.t_coefexps sigs)
     &&
     let coefexps =
       Array.map
@@ -154,7 +185,7 @@ end
 module MakeSimple (G : GROUP) (M : RANDOM) = struct
   open G
 
-  let random () = M.random G.Zq.q |> G.Zq.coerce
+  let random () = G.Zq.random (M.get_rng ())
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of
       knowledge *)
@@ -181,14 +212,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
   type private_key = G.Zq.t
   type public_key = G.t
 
-  let random () = M.random G.Zq.q |> G.Zq.coerce
-
-  let genkey () =
-    let n = 22 and z58 = Z.of_int 58 in
-    String.init n (fun _ ->
-        let x = M.random z58 in
-        b58_digits.[Z.to_int x])
-
+  let random () = G.Zq.random (M.get_rng ())
+  let genkey () = generate_b58_token ~rng:(M.get_rng ()) ~length:22
   let derive_sk p = G.Zq.reduce_hex (sha256_hex ("sk|" ^ p))
   let derive_dk p = G.Zq.reduce_hex (sha256_hex ("dk|" ^ p))
 
@@ -219,9 +244,13 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
     Crypto_primitives.decrypt ~key ~iv ~ciphertext:y_data
 
-  let make_cert ~sk ~dk =
+  let make_cert ~sk ~dk ~context =
     let cert_keys =
-      { cert_verification = G.(g **~ sk); cert_encryption = G.(g **~ dk) }
+      {
+        cert_verification = G.(g **~ sk);
+        cert_encryption = G.(g **~ dk);
+        cert_context = Some context;
+      }
     in
     let cert = string_of_cert_keys (swrite G.to_string) cert_keys in
     sign sk cert
@@ -268,25 +297,30 @@ struct
   module V = MakeVerificator (G)
   module L = MakeCombinator (G)
 
-  let random () = M.random Zq.q |> Zq.coerce
+  let random () = Zq.random (M.get_rng ())
 
-  let step1 () =
+  let step1 context =
     let seed = P.genkey () in
     let sk = P.derive_sk seed in
     let dk = P.derive_dk seed in
-    let cert = P.make_cert ~sk ~dk in
+    let cert = P.make_cert ~sk ~dk ~context in
     (seed, cert)
 
-  let step1_check cert = P.verify_cert cert
+  let step1_check = P.verify_cert
 
-  let step2 { certs } =
+  let step2 certs =
+    assert (Array.length certs > 0);
+    let group = G.description in
+    let size = Array.length certs in
+    let threshold = (P.get_context certs.(0)).threshold in
     Array.iteri
       (fun i cert ->
-        if P.verify_cert cert then ()
+        if P.verify_cert { group; size; threshold; index = i + 1 } cert then ()
         else
           let msg = Printf.sprintf "certificate %d does not validate" (i + 1) in
           raise (PedersenFailure msg))
-      certs
+      certs;
+    threshold
 
   let eval_poly polynomial x =
     let cur = ref Zq.one and res = ref Zq.zero in
@@ -296,15 +330,23 @@ struct
     done;
     !res
 
-  let step3 certs seed threshold =
-    let n = Array.length certs.certs in
-    let () = step2 certs in
+  let step3 certs seed =
+    let n = Array.length certs in
+    let threshold = step2 certs in
+    let sk = P.derive_sk seed and dk = P.derive_dk seed in
+    let mk_signature coefexps =
+      let m =
+        "certs_sig|"
+        ^ string_of_certs (swrite G.to_string) (swrite Zq.to_string)
+            { certs; coefexps }
+      in
+      Some (P.sign sk m).s_signature
+    in
     let certs =
       Array.map
         (fun x -> cert_keys_of_string (sread G.of_string) x.s_message)
-        certs.certs
+        certs
     in
-    let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let vk = g **~ sk and ek = g **~ dk in
     let i =
       Array.findi
@@ -336,6 +378,7 @@ struct
       string_of_encrypted_msg (swrite G.to_string) x
     in
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
+    let p_signature = mk_signature coefexps in
     let coefexps = string_of_raw_coefexps (swrite G.to_string) { coefexps } in
     let p_coefexps = P.sign sk coefexps in
     let p_secrets = Array.make n "" in
@@ -349,29 +392,56 @@ struct
       else ()
     in
     let () = fill_secrets 0 in
-    { p_polynomial; p_secrets; p_coefexps }
+    { p_polynomial; p_secrets; p_coefexps; p_signature }
 
   let step3_check certs i polynomial =
+    let x =
+      raw_coefexps_of_string (sread G.of_string) polynomial.p_coefexps.s_message
+    in
+    let s_message =
+      "certs_sig|"
+      ^ string_of_certs (swrite G.to_string) (swrite Zq.to_string)
+          { certs; coefexps = x.coefexps }
+    in
     let certs =
       Array.map
         (fun x -> cert_keys_of_string (sread G.of_string) x.s_message)
-        certs.certs
+        certs
     in
     P.verify certs.(i).cert_verification polynomial.p_coefexps
+    &&
+    match polynomial.p_signature with
+    | None -> false
+    | Some s_signature ->
+        P.verify certs.(i).cert_verification { s_message; s_signature }
 
   let step4 certs polynomials =
-    let n = Array.length certs.certs in
-    let () = step2 certs in
+    let n = Array.length certs in
+    let threshold = step2 certs in
     assert (n = Array.length polynomials);
     let certs =
       Array.map
         (fun x -> cert_keys_of_string (sread G.of_string) x.s_message)
-        certs.certs
+        certs
+    in
+    let vi_signatures =
+      Some
+        (Array.map
+           (fun x ->
+             match x.p_signature with
+             | None -> raise (PedersenFailure "missing signature in polynomial")
+             | Some y -> y)
+           polynomials)
     in
     let vi_coefexps = Array.map (fun x -> x.p_coefexps) polynomials in
     Array.iteri
       (fun i x ->
-        if P.verify certs.(i).cert_verification x then ()
+        if P.verify certs.(i).cert_verification x then
+          let x = raw_coefexps_of_string (sread G.of_string) x.s_message in
+          if threshold = Array.length x.coefexps then ()
+          else
+            let msg = Printf.sprintf "coefexps %d has wrong length" (i + 1) in
+            raise (PedersenFailure msg)
         else
           let msg = Printf.sprintf "coefexps %d does not validate" (i + 1) in
           raise (PedersenFailure msg))
@@ -381,15 +451,15 @@ struct
         let vi_secrets =
           Array.init n (fun i -> polynomials.(i).p_secrets.(j))
         in
-        { vi_polynomial; vi_secrets; vi_coefexps })
+        { vi_polynomial; vi_secrets; vi_coefexps; vi_signatures })
 
   let step5 certs seed vinput =
-    let n = Array.length certs.certs in
-    let () = step2 certs in
+    let n = Array.length certs in
+    let threshold = step2 certs in
     let certs =
       Array.map
         (fun x -> cert_keys_of_string (sread G.of_string) x.s_message)
-        certs.certs
+        certs
     in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let vk = g **~ sk and ek = g **~ dk in
@@ -412,7 +482,7 @@ struct
       |> C.recv dk vk
       |> raw_polynomial_of_string (sread Zq.of_string)
     in
-    let threshold = Array.length polynomial in
+    assert (threshold = Array.length polynomial);
     assert (n = Array.length vinput.vi_secrets);
     let secrets =
       Array.init n (fun i ->
@@ -461,11 +531,11 @@ struct
     { vo_public_key; vo_private_key }
 
   let step5_check certs i polynomials voutput =
-    let n = Array.length certs.certs in
+    let n = Array.length certs in
     let certs =
       Array.map
         (fun x -> cert_keys_of_string (sread G.of_string) x.s_message)
-        certs.certs
+        certs
     in
     assert (n = Array.length polynomials);
     let coefexps =
@@ -482,9 +552,18 @@ struct
     && voutput.vo_public_key.trustee_public_key =~ computed_vk
 
   let step6 certs polynomials voutputs =
-    let n = Array.length certs.certs in
-    let () = step2 certs in
-    let t_certs = certs.certs in
+    let n = Array.length certs in
+    let t_threshold = step2 certs in
+    let t_certs = certs in
+    let t_signatures =
+      Some
+        (Array.map
+           (fun x ->
+             match x.p_signature with
+             | None -> raise (PedersenFailure "missing signature in polynomial")
+             | Some y -> y)
+           polynomials)
+    in
     let certs =
       Array.map
         (fun x -> cert_keys_of_string (sread G.of_string) x.s_message)
@@ -494,12 +573,18 @@ struct
     assert (n = Array.length voutputs);
     let coefexps =
       Array.init n (fun i ->
-          let x = polynomials.(i).p_coefexps in
-          if not (P.verify certs.(i).cert_verification x) then
+          let fail () =
             raise
               (PedersenFailure
-                 (Printf.sprintf "coefexps %d does not validate" (i + 1)));
-          (raw_coefexps_of_string (sread G.of_string) x.s_message).coefexps)
+                 (Printf.sprintf "coefexps %d does not validate" (i + 1)))
+          in
+          let x = polynomials.(i).p_coefexps in
+          if not (P.verify certs.(i).cert_verification x) then fail ();
+          let r =
+            (raw_coefexps_of_string (sread G.of_string) x.s_message).coefexps
+          in
+          if not (t_threshold = Array.length r) then fail ();
+          r)
     in
     let computed_vks = V.compute_verification_keys coefexps in
     for j = 0 to n - 1 do
@@ -513,9 +598,10 @@ struct
              (Printf.sprintf "verification key %d is incorrect" (j + 1)))
     done;
     {
-      t_threshold = Array.length coefexps.(0);
+      t_threshold;
       t_certs;
       t_coefexps = Array.map (fun x -> x.p_coefexps) polynomials;
+      t_signatures;
       t_verification_keys = Array.map (fun x -> x.vo_public_key) voutputs;
     }
 end

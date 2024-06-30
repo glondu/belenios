@@ -60,6 +60,14 @@ module List = struct
     | [] -> []
     | [ x ] -> [ x ]
     | x :: xs -> x :: sep :: join sep xs
+
+  let findi f xs =
+    let rec loop i = function
+      | [] -> None
+      | x :: xs -> (
+          match f i x with Some y -> Some y | None -> loop (i + 1) xs)
+    in
+    loop 0 xs
 end
 
 module Option = struct
@@ -68,6 +76,17 @@ module Option = struct
   let wrap f x = try Some (f x) with _ -> None
   let unwrap default x f = match x with None -> default | Some x -> f x
 end
+
+let random_modulo q =
+  let bits = Z.bit_length q in
+  let size = ((bits - 1) / 8) + 1 in
+  let mask = Z.(shift_left one bits - one) in
+  let rec loop rng =
+    let r = Crypto_primitives.random_string rng size in
+    let r = Z.(logand (of_bits r) mask) in
+    if Z.compare r q < 0 then r else loop rng
+  in
+  loop
 
 module MakeField (X : sig
   val q : Z.t
@@ -101,6 +120,7 @@ struct
   let ( - ) x y = Z.(erem (x - y) q)
   let ( * ) x y = Z.(erem (x * y) q)
   let ( =% ) x y = compare x y = 0
+  let random = random_modulo q
 end
 
 let sread of_string state buf =
@@ -141,14 +161,6 @@ module SSet = Set.Make (String)
 module SMap = Map.Make (String)
 module IMap = Map.Make (Int)
 
-(** Direct random monad *)
-
-let bytes_to_sample q =
-  (* we take 128 additional bits of random before the mod q, so that
-     the statistical distance with a uniform distribution in [0,q[ is
-     negligible *)
-  (Z.bit_length q / 8) + 17
-
 let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)
 let b10_digits = "0123456789"
 
@@ -171,27 +183,19 @@ module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
       in
       loop (length - 1) x
     in
-    fun () -> R.random modulus |> to_string
+    fun () -> random_modulo modulus (R.get_rng ()) |> to_string
 
   let generate_token ?(length = 14) = generate ~length ~digits:b58_digits
   let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
 end
 
-let generate_b58_digit rng =
-  (* 2^16 = 1129*58 + 54 -> by taking a 16-bit number modulo 58, 4
-     digits have lower (but negligible) probability to come up *)
-  let x = Crypto_primitives.random_string rng 2 in
-  b58_digits.[(Char.code x.[0] lsl 8) lor Char.code x.[1] mod 58]
+let rec generate_b58_digit rng =
+  let x = Crypto_primitives.random_string rng 1 in
+  let x = Char.code x.[0] land 63 in
+  if x < 58 then b58_digits.[x] else generate_b58_digit rng
 
 let generate_b58_token ~rng ~length =
-  let result = Bytes.create length in
-  let rec loop i =
-    if i >= 0 then (
-      Bytes.set result i (generate_b58_digit rng);
-      loop (i - 1))
-    else Bytes.to_string result
-  in
-  loop (length - 1)
+  String.init length (fun _ -> generate_b58_digit rng)
 
 let sqrt s =
   (* https://en.wikipedia.org/wiki/Integer_square_root *)

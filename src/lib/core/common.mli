@@ -53,6 +53,7 @@ module List : sig
   include module type of List
 
   val join : 'a -> 'a list -> 'a list
+  val findi : (int -> 'a -> 'b option) -> 'a list -> 'b option
 end
 
 module Option : sig
@@ -75,7 +76,7 @@ module SSet : Set.S with type elt = string
 module SMap : Map.S with type key = string
 module IMap : Map.S with type key = int
 
-val bytes_to_sample : Z.t -> int
+val random_modulo : Z.t -> Crypto_primitives.rng -> Z.t
 val check_modulo : Z.t -> Z.t -> bool
 
 module MakeGenerateToken (R : RANDOM) : sig
