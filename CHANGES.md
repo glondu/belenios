@@ -1,11 +1,14 @@
 dev
 ===
 
- * Add basic support for "lists" questions
+ * Add support for "lists" questions
  * Web server:
    + Revamp election home page
    + Randomize account ids
    + Big refactoring of storage backend
+   + Change cookie handling for consent and language preference
+   + New admin UI:
+     - Add possibility to regenerate a password
    + Configuration:
      - Drop support for specifying groups by file
      - Remove (unused) security log
