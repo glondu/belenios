@@ -87,7 +87,6 @@ echo "=-=-= Generation of env.sh =-=-="
 echo
 cat >> $BELENIOS_SYSROOT/env.sh <<EOF
 OPAMROOT=$OPAMROOT; export OPAMROOT;
-XDG_CACHE_HOME=$XDG_CACHE_HOME; export XDG_CACHE_HOME;
 eval \$(opam env)
 EOF
 ln -sf $BELENIOS_SYSROOT/env.sh $BELENIOS_SRC/env.sh
