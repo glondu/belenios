@@ -26,7 +26,7 @@ docker run --rm --network host -it belenios
 
 If you are using Linux and have root privileges, you might be
 interested in our documentation on [deploying Belenios using
-systemd-nspawn](doc/nspawn/README.md).
+systemd-nspawn](contrib/nspawn/README.md).
 
 The rest of this file documents other ways to build Belenios on
 standard POSIX systems.

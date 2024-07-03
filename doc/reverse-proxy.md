@@ -40,8 +40,8 @@ Run `systemctl restart nginx.service` (as root).
 ## Configuring Belenios for being behind a reverse-proxy
 
 We suppose Belenios has been compiled and deployed using instructions
-[here](nspawn/README.md). The following are hints to be applied to the
-`ocsigenserver.conf.in` file.
+[here](../contrib/nspawn/README.md). The following are hints to be
+applied to the `ocsigenserver.conf.in` file.
 
 Make sure Belenios listens on `127.0.0.1` only:
 ```
