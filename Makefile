@@ -62,7 +62,7 @@ doc:
 	$(MAKE) doc/specification.pdf
 
 doc/specification.pdf: doc/specification.tex doc/spec_version.tex
-	cd doc && for u in 1 2 3; do pdflatex specification.tex; done
+	cd doc && rubber --pdf specification.tex
 
 release:
 	@if [ `git status --porcelain | grep -v '^?? ' | wc -l ` -eq 0 ]; then \
