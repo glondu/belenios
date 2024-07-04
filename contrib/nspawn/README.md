@@ -14,57 +14,49 @@ takes a few hundreds MB. Several instances can be deployed on the same
 machine. It is expected that these instances listen on localhost, and
 that a reverse-proxy on the host exposes them on different vhosts or
 directories of some vhost, with TLS. Configuring the reverse-proxy is
-documented [here](../reverse-proxy.md).
+documented [here](../../doc/reverse-proxy.md).
 
-This technique requires Linux and root privileges. If you don't trust
+This technique requires a Debian-based Linux (trixie/sid at the time
+of writing) and unprivileged user namespaces. If you don't trust
 something, it is suggested to use a virtual machine.
 
-
-Building the development environment
-------------------------------------
-
-This requires `debootstrap` and `systemd-nspawn` (provided by the
-`systemd-container` package in Debian).
-
-You must also enable and start `systemd-resolved` on the host, with
-the following commands:
-
-   systemctl enable systemd-resolved
-   systemctl start systemd-resolved
-
-The `belenios-stage1.sh` script (which must be run as root) takes a
-directory as argument and bootstraps in it a Debian distribution with
-the appropriate prerequisites and creates a user `belenios`.
-
-One can log into the resulting environment with the command:
-
-    systemd-nspawn --directory=/path/to/development/environment --user=belenios
-
-To work on Belenios inside this environment, the first time, you must:
-- clone Belenios sources (in `/home/belenios/belenios`)
-- go to `/home/belenios/belenios`
-- run `BELENIOS_OPAM_INIT_ARGS=--disable-sandboxing ./opam-bootstrap.sh`
-- run `head -n2 env.sh > ../opam-env.sh && . ../opam-env.sh && opam env >> ../opam-env.sh`
-
-Then, each time you want to build, you must:
-- go to `/home/belenios/belenios`
-- run `. ./env.sh`
-- run `make build-release-server` (or `make build-debug-server`).
+The whole procedure requires (at least) the following Debian packages
+installed on the development host:
+- `mmdebstrap`
+- `uidmap`
+- `bubblewrap`
+- `devscripts`
+- `squashfs-tools-ng`
 
 
-Building the deployment environment
------------------------------------
+Building the image
+------------------
 
-The deployment environment must be built from inside the development
-environment created above. It is a squashfs image of a root file
-system.
+Set `BIGTMP` to a directory with sufficient space (>= 10 GB).
 
-The image is built with the `belenios-stage3.sh` script, which creates
-`/target/rootfs.squashfs`.
+Set `SUITE` to the Debian suite the image will be based on. For
+production, it is recommended to use the latest stable release,
+e.g. `bookworm`.
 
-To run the script from the host, use the following command:
+Set `VERSION` to a suitable version number for the toolchain. This
+number should not matter much, but it is suggested to use
+`0.<opam-snapshot>.0+${SUITE}<suite-snaphot>`, where `<opam-snapshot>`
+is the date (in `YYYYMMDD` format) of the opam snapshot and
+`<suite-snapshot>` is the date of the Debian snapshot.
 
-    systemd-nspawn --directory=/path/to/development/environment /home/belenios/belenios/doc/nspawn/belenios-stage3.sh
+Set `TARGET` to a directory where artifacts will be put.
+
+Run:
+
+    contrib/unshare/setup-build-dir.sh "$SUITE" "$VERSION" "$BIGTMP" "$TARGET"
+
+This will set up `$TARGET` with a `Makefile`. Then, go to this
+directory and run:
+
+    make
+
+The whole process takes at least 25 min, depending on the host and
+Internet connection.
 
 
 Deploying
@@ -72,7 +64,7 @@ Deploying
 
 We assume the deployment server runs Linux, systemd and has
 `systemd-nspawn` installed. We also assume that `systemd-resolved` is
-running, and an [MTA](../mta.md) is installed and listening on
+running, and an [MTA](../../doc/mta.md) is installed and listening on
 localhost.
 
 When deploying on a server for the first time, run:
@@ -84,10 +76,14 @@ When deploying on a server for the first time, run:
 You might want to update `belenios-nspawn` and
 `belenios-container@.service` as Belenios evolves.
 
+Let `SQUASHFS` be the `.squashfs` image, built in the previous
+section.
+
 To deploy an instance named `main`:
 
  * create a directory `/srv/belenios-containers/main`
- * copy there `rootfs.squashfs`
+ * copy there `$SQUASHFS`
+ * make there a symlink `rootfs.squashfs` pointing to `$SQUASHFS`
  * create a `belenios` sub-directory belonging to user 1000 and
    group 1000
  * create there sub-directories `etc` and `var`

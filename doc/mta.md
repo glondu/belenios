@@ -3,7 +3,7 @@
 To be fully operational, Belenios needs a working mail transfer agent
 (MTA). Here, we assume that:
 - Belenios has been compiled and deployed as described
-  [here](nspawn/README.md)
+  [here](../contrib/nspawn/README.md)
 - a reverse-proxy has been set up as described
   [here](reverse-proxy.md)
 - the deployed server has direct access to Internet. In particular,
