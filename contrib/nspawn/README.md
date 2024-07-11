@@ -17,8 +17,9 @@ directories of some vhost, with TLS. Configuring the reverse-proxy is
 documented [here](../../doc/reverse-proxy.md).
 
 This technique requires a Debian-based Linux (trixie/sid at the time
-of writing) and unprivileged user namespaces. If you don't trust
-something, it is suggested to use a virtual machine.
+of writing) and working unprivileged user namespaces. On other (Linux)
+systems, a privileged Docker container can also be used. If you don't
+trust something, it is suggested to use a virtual machine.
 
 The whole procedure requires (at least) the following Debian packages
 installed on the development host:
@@ -27,10 +28,17 @@ installed on the development host:
 - `bubblewrap`
 - `devscripts`
 - `squashfs-tools-ng`
+- `zstd`
+- `git`
 
 
 Building the image
 ------------------
+
+The whole process takes at least 25 min, depending on the host and
+Internet connection.
+
+### On Debian-based systems
 
 Set `BIGTMP` to a directory with sufficient space (>= 10 GB).
 
@@ -55,8 +63,25 @@ directory and run:
 
     make
 
-The whole process takes at least 25 min, depending on the host and
-Internet connection.
+### On non-Debian-based systems (using Docker)
+
+Make sure your `/var/lib/docker` has sufficient space (>= 10 GB).
+
+Build the building environment:
+
+    docker build -f contrib/docker/nspawn-build.Dockerfile -t belenios-nspawn-image .
+
+Enter the building environment:
+
+    docker run --privileged --name belenios-nspawn-container -ti --rm belenios-nspawn-image
+
+From inside the container, build the image:
+
+    make
+
+From another terminal, copy the image outside the container:
+
+    docker cp belenios-nspawn-container:/tmp/build <dest-path>
 
 
 Deploying

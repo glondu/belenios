@@ -21,6 +21,7 @@ belenios.opam
 contrib/docker/demo.Dockerfile
 contrib/docker/gitlab-ci.Dockerfile
 contrib/docker/gitlab-ci.docker-compose.yml
+contrib/docker/nspawn-build.Dockerfile
 contrib/fill_en_po.ml
 contrib/list_live_elections.py
 contrib/monitor_elections.py
