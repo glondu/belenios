@@ -12,7 +12,7 @@ Using containers
 ----------------
 
 In order to quickly run a local instance, a
-[demo Dockerfile](./Dockerfile_belenios_demo) is available. The following
+[demo Dockerfile](contrib/docker/demo.Dockerfile) is available. The following
 commands let you build the image and run it to make the server accessible at
 [localhost:8001](http://localhost:8001). Emails are not sent but only printed
 in a file accessible from
@@ -20,7 +20,7 @@ in a file accessible from
 that this is not meant for production purposes.__
 ```
 make clean # to avoid copying everything in the image
-docker build -f Dockerfile_belenios_demo -t belenios .
+docker build -f contrib/docker/demo.Dockerfile -t belenios .
 docker run --rm --network host -it belenios
 ```
 

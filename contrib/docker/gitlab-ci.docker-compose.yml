@@ -1,0 +1,13 @@
+services:
+  beleniosbase:
+    image: beleniosbase
+    build:
+      context: ../..
+      dockerfile: contrib/docker/gitlab-ci.Dockerfile
+      target: beleniosbase
+  beleniosbase-tests:
+    image: beleniosbase-tests
+    build:
+      context: ../..
+      dockerfile: contrib/docker/gitlab-ci.Dockerfile
+      target: beleniosbase-tests

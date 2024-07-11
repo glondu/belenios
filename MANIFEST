@@ -5,9 +5,6 @@
 AUTHORS
 CHANGES.md
 COPYING
-Dockerfile_base_environment
-Dockerfile_belenios_demo
-Dockerfile_test_scenario_environment
 INSTALL.md
 MANIFEST
 Makefile
@@ -21,6 +18,9 @@ belenios-platform.opam
 belenios-server.opam
 belenios-tool.opam
 belenios.opam
+contrib/docker/demo.Dockerfile
+contrib/docker/gitlab-ci.Dockerfile
+contrib/docker/gitlab-ci.docker-compose.yml
 contrib/fill_en_po.ml
 contrib/list_live_elections.py
 contrib/monitor_elections.py

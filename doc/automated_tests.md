@@ -50,7 +50,7 @@ Note: We cannot run the Belenios server from a folder that is not the git reposi
 
 ## Executing automated tests using Continuous Integration
 
-For this, we run a Docker image (built from `Dockerfile_test_scenario_environment`) that preinstalls compatible versions of `firefox-esr`, `geckodriver`, `python`, and python virtual environment.
+For this, we run a Docker image (built from `contrib/docker/gitlab-ci.Dockerfile`) that preinstalls compatible versions of `firefox-esr`, `geckodriver`, `python`, and python virtual environment.
 
 File `.gitlab-ci.yml` defines a task `build_and_run_automated_test_scenario_1_with_preinstalled_image` that uses this docker image, compiles belenios, creates a python virtual environment, steps into it, installs pip required packages, and then executes the automated test suite.
 
@@ -63,9 +63,11 @@ gitlab-runner exec docker build_and_run_automated_test_scenario_1_with_preinstal
 Note: The Docker image has been built and pushed to Docker Hub using the following commands:
 
 ```
-docker build -t glondu/beleniosbase:20181206-1 -f Dockerfile_base_environment .
-docker build -t glondu/beleniosbase-tests:20181206-1 -f Dockerfile_test_scenario_environment .
-sudo docker push glondu/beleniosbase-tests:20181206-1
+docker-compose -f contrib/docker/gitlab-ci.docker-compose.yml build
+docker tag beleniosbase glondu/beleniosbase:YYYYMMDD-N
+docker tag beleniosbase-tests glondu/beleniosbase-tests:YYYYMMDD-N
+docker push glondu/beleniosbase-tests:YYYYMMDD-N
+docker push glondu/beleniosbase:YYYYMMDD-N
 ```
 
 We use `YYYYMMDD-N` for docker-tagging, where `YYYYMMDD` is the build date, and `N` is a sequence number.

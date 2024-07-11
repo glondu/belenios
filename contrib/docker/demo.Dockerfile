@@ -1,6 +1,8 @@
 FROM glondu/beleniosbase:20240220-1
-# alternatively, run "docker build -f Dockerfile_base_environment -t beleniosbase ." and replace with the line below
-# FROM beleniosbase
+# alternatively, run
+#   docker build -f contrib/docker/gitlab-ci.Dockerfile -t beleniosbase --target beleniosbase ."
+# and replace with the line below
+#   FROM beleniosbase
 
 ADD --chown=belenios . /home/belenios/
 RUN . /home/belenios/.belenios/env.sh \
