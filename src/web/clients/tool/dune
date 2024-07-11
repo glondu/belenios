@@ -8,9 +8,9 @@
  (modes js)
  (modules tool_js_credgen)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios-server.api belenios_tool_common belenios_js)
  (preprocess
@@ -21,9 +21,9 @@
  (modes js)
  (modules tool_js_tkeygen)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios-server.api belenios_tool_common belenios_js)
  (preprocess
@@ -34,9 +34,9 @@
  (modes js)
  (modules tool_js_ttkeygen)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios-server.api belenios_tool_common belenios_js)
  (preprocess
@@ -47,9 +47,9 @@
  (modes js)
  (modules tool_js_pd)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios-server.api belenios_tool_common belenios_js)
  (preprocess
@@ -60,9 +60,9 @@
  (modes js)
  (modules tool_js_questions)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
@@ -73,9 +73,9 @@
  (modes js)
  (modules tool_js_shuffle)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
@@ -86,9 +86,9 @@
  (modes js)
  (modules tool_js_fingerprint)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess
@@ -99,9 +99,9 @@
  (modes js)
  (modules tool_js)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib
    belenios_tool_common belenios_js)
  (preprocess

@@ -73,7 +73,7 @@ Legal
 
 ### Internal code
 
-By "internal code", we mean everything that is not in the `ext/`
+By "internal code", we mean everything that is not in the `vendor/`
 directory.
 
 Copyright © 2012-2023 Inria, CNRS

@@ -1,1 +1,1 @@
-(dirs doc ext files po src tests demo)
+(dirs doc vendor files po src tests demo)

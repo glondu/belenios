@@ -106,7 +106,7 @@ OPAM overlay
 Belenios needs some OPAM packages to be patched. This is done in an
 opam repository overlay that you can add with the following command:
 
-    opam repository add belenios-overlay $PWD/ext/opam-overlay
+    opam repository add belenios-overlay $PWD/vendor/opam-overlay
 
 This is automatically handled by `opam-bootstrap.sh`
 

@@ -1,4 +1,4 @@
-CSS_DEPS := $(wildcard ../ext/css/*.css ../src/web/static/*.css booth/*.css booth/components/*.css)
+CSS_DEPS := $(wildcard ../vendor/css/*.css ../src/web/static/*.css booth/*.css booth/components/*.css)
 
 ifeq "$(BELENIOS_DEBUG)" "1"
     BUNDLE := bundle.development.js

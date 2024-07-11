@@ -2,9 +2,9 @@
  (name belenios_jslib)
  (modes js)
  (js_of_ocaml
-  (javascript_files ../../../../ext/sjcl/sjcl.js
-    ../../../../ext/jsbn/BigIntCompatFull.js
-    ../../../../ext/libsodium/libsodium.js))
+  (javascript_files ../../../../vendor/sjcl/sjcl.js
+    ../../../../vendor/jsbn/BigIntCompatFull.js
+    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib belenios_js
    belenios_ui)
  (preprocess

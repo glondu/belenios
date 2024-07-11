@@ -88,8 +88,8 @@ cd deb
 
 cp "$BOOTSTRAP" .
 
-mkdir ext
-cp -a "$BELDIR/ext/opam-overlay" ext
+mkdir vendor
+cp -a "$BELDIR/vendor/opam-overlay" vendor
 
 mkdir debian
 

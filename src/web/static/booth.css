@@ -1,5 +1,5 @@
-@import "../../../ext/css/style.css";
-@import "../../../ext/css/superfish.css";
+@import "../../../vendor/css/style.css";
+@import "../../../vendor/css/superfish.css";
 @import "./site.css";
 
 #footer #bottom {
