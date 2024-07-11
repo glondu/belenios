@@ -2,7 +2,13 @@
 
 set -e
 
-OPAM_VERSION=2.1.5
+OPAM_REPOSITORY_DATE=20240710
+OPAM_REPOSITORY_REVISION=5125fae236d758142887863f410e29cfbe2deca6
+
+OCAML_VERSION=4.14.2
+OPAM_VERSION=2.2.0
+OPAM_SHA256=39334f36adbe280683487cf204b7b0642080fc5965747f7d6f7cc7b83cd7a192
+
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
 export BELENIOS_SYSROOT="${BELENIOS_SYSROOT:-$HOME/.belenios}"
@@ -25,7 +31,7 @@ mkdir opam-repository
 cd opam-repository
 git init
 git remote add origin https://github.com/ocaml/opam-repository.git
-git fetch --depth=1 origin 3e6901de97616e9a92f23f7844fd7bf30b29d5a5:opam
+git fetch --depth=1 origin $OPAM_REPOSITORY_REVISION:opam
 git checkout opam
 
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
@@ -58,7 +64,7 @@ if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
 
     if which sha256sum >/dev/null; then
         sha256sum --check <<EOF
-09f8d9e410b2f5723c2bfedbf7970e3b305f5017895fcd91759f05e753ddcea5  opam-full-$OPAM_VERSION.tar.gz
+$OPAM_SHA256  opam-full-$OPAM_VERSION.tar.gz
 EOF
     else
         echo "WARNING: sha256sum was not found, checking tarballs is impossible!"
@@ -95,7 +101,7 @@ echo
 echo "=-=-= Initialization of OPAM root =-=-="
 echo
 opam init $BELENIOS_OPAM_INIT_ARGS --bare --no-setup -k git "$BELENIOS_SYSROOT/opam-repository"
-opam switch create 4.14.1 ocaml-base-compiler.4.14.1
+opam switch create $OCAML_VERSION ocaml-base-compiler.$OCAML_VERSION
 eval $(opam env)
 opam repository add --yes belenios-overlay $BELENIOS_SRC/ext/opam-overlay
 
