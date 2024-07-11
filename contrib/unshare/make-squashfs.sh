@@ -192,10 +192,6 @@ ln -sfT /etc/systemd/system/belenios.service /etc/systemd/system/multi-user.targ
 
 mkdir /var/belenios
 chown belenios:belenios /var/belenios
-
-echo "I: removing some unnecessary files..."
-
-rm -rf /usr/share/doc /usr/share/man
 EOF
 
 chmod +x stage1.sh stage3.sh
@@ -216,6 +212,12 @@ DEB_SERVER="$(basename "$DEB_SERVER")"
 cd "$ORIGIN"
 
 mmdebstrap --variant=essential \
+  --dpkgopt='path-exclude=/usr/share/man/*' \
+  --dpkgopt='path-exclude=/usr/share/locale/*' \
+  --dpkgopt='path-include=/usr/share/locale/locale.alias' \
+  --dpkgopt='path-exclude=/usr/share/doc/*' \
+  --dpkgopt='path-include=/usr/share/doc/*/copyright' \
+  --dpkgopt='path-include=/usr/share/doc/*/changelog.Debian.*' \
   --hook-dir=/usr/share/mmdebstrap/hooks/file-mirror-automount \
   --include="passwd systemd dbus msmtp-mta logrotate" \
   --include="$TMP2/$DEB_RUNTIME" \
