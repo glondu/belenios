@@ -9,6 +9,7 @@ check:
 	./demo-stv.sh
 	./demo-l.sh
 	./demo-n-voters.sh
+	./demo-complex.sh
 
 clean:
 	rm -rf data
