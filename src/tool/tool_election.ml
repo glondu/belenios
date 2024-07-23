@@ -285,7 +285,7 @@ module Make (P : PARAMS) () = struct
           | Ok x -> SMap.add G.(g **~ x |> to_string) id accu)
         SMap.empty privcreds
     in
-    let ballots = Lazy.force verified_ballots in
+    let ballots = Lazy.force unverified_ballots in
     List.fold_left
       (fun accu (h, cred, _, _) ->
         match SMap.find_opt cred map with
@@ -301,7 +301,7 @@ module Make (P : PARAMS) () = struct
       | None -> false
       | Some (b, _) -> b
     in
-    Lazy.force verified_ballots
+    Lazy.force unverified_ballots
     |> List.rev_map (fun (bs_hash, _, w, _) ->
            let bs_weight =
              if has_weights then Some w

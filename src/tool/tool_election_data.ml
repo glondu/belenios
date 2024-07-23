@@ -317,7 +317,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let raw_encrypted_tally =
     lazy
       (let ballots =
-         Lazy.force verified_ballots
+         Lazy.force unverified_ballots
          |> List.rev_map (fun (_, _, w, b) -> (w, read_ballot ++ b))
        in
        let sized_total_weight =
