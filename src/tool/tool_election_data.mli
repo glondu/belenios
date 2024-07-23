@@ -34,6 +34,7 @@ module type GETTERS = sig
   val get_salts : unit -> salts option
   val get_public_creds : unit -> string list option
   val get_ballots : unit -> string list option
+  val get_encrypted_tally : unit -> (string * hash sized_encrypted_tally) option
   val get_shuffles : unit -> (hash * hash owned * string) list option
   val get_pds : unit -> (hash * hash owned * string) list option
   val get_result : unit -> string option

@@ -30,6 +30,7 @@ module type GETTERS = sig
   val get_salts : unit -> salts option
   val get_public_creds : unit -> string list option
   val get_ballots : unit -> string list option
+  val get_encrypted_tally : unit -> (string * hash sized_encrypted_tally) option
   val get_shuffles : unit -> (hash * hash owned * string) list option
   val get_pds : unit -> (hash * hash owned * string) list option
   val get_result : unit -> string option
@@ -78,6 +79,14 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
           (Tool_events.fold_on_event_payloads index `Ballot x
              (fun x accu -> x :: accu)
              [])
+
+  let get_encrypted_tally () =
+    let ( let& ) = Option.bind in
+    let& x = roots.roots_encrypted_tally in
+    let& x = get_data x in
+    let x = sized_encrypted_tally_of_string read_hash x in
+    let& y = get_data x.sized_encrypted_tally in
+    Some (y, x)
 
   let get_shuffles () =
     let& x = roots.roots_last_shuffle_event in
@@ -351,12 +360,17 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
 
   let encrypted_tally =
     lazy
-      (let raw_encrypted_tally, ntally = Lazy.force raw_encrypted_tally in
-       match Option.map List.rev (Lazy.force shuffles) with
-       | Some (s :: _) ->
-           ( E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally,
-             ntally )
-       | _ -> (raw_encrypted_tally, ntally))
+      (match get_encrypted_tally () with
+      | None -> failwith "encrypted tally is missing"
+      | Some (x, ntally) -> (
+          let raw_encrypted_tally =
+            encrypted_tally_of_string (sread G.of_string) x
+          in
+          match Option.map List.rev (Lazy.force shuffles) with
+          | Some (s :: _) ->
+              ( E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally,
+                ntally )
+          | _ -> (raw_encrypted_tally, ntally)))
 
   let pds = lazy (get_pds ())
 
