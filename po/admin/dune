@@ -195,6 +195,20 @@
    (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
 
 (rule
+ (target pt.mo)
+ (deps pt.po)
+ (action
+  (run ocaml-gettext --action compile --compile-output %{target} %{deps})))
+
+(rule
+ (target pt.json)
+ (deps pt.mo)
+ (action
+  (with-stdout-to
+   %{target}
+   (run ../../src/scripts/mo2json/mo2json.exe %{deps}))))
+
+(rule
  (target pt_BR.mo)
  (deps pt_BR.po)
  (action
@@ -268,6 +282,8 @@
   (oc.json as locales/admin/oc.json)
   (pl.mo as locales/admin/pl.mo)
   (pl.json as locales/admin/pl.json)
+  (pt.mo as locales/admin/pt.mo)
+  (pt.json as locales/admin/pt.json)
   (pt_BR.mo as locales/admin/pt_BR.mo)
   (pt_BR.json as locales/admin/pt_BR.json)
   (ro.mo as locales/admin/ro.mo)

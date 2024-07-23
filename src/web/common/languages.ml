@@ -38,6 +38,7 @@ let available =
     ("nl", "Nederlands");
     ("oc", "Occitan");
     ("pl", "Polski");
+    ("pt", "Português");
     ("pt_BR", "Português (Brasil)");
     ("ro", "Română");
     ("sk", "Slovenčina");
