@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-04-08 08:25+0000\n"
-"PO-Revision-Date: 2024-07-19 18:09+0000\n"
+"PO-Revision-Date: 2024-07-23 13:09+0000\n"
 "Last-Translator: Magadiel Lopes <magadiel@gmail.com>\n"
 "Language-Team: Portuguese <https://hosted.weblate.org/projects/belenios/"
 "voter/pt/>\n"
@@ -764,7 +764,7 @@ msgstr "Eleição desconhecida"
 
 #: src/web/server/common/pages_voter.ml:486
 msgid "Unsupported booth version"
-msgstr "Versão da cabine de votação não suportada"
+msgstr "Versão da tela de votação não suportada"
 
 #: src/web/server/common/pages_voter.ml:394
 msgid "Unsupported question type"
