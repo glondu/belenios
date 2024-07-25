@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.5.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-28 06:55+0000\n"
-"PO-Revision-Date: 2024-07-19 18:09+0000\n"
+"PO-Revision-Date: 2024-07-25 07:45+0000\n"
 "Last-Translator: blomusti <m.f.varkara@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/belenios/admin/"
 "tr/>\n"
@@ -25,20 +25,20 @@ msgstr ""
 
 #: src/web/clients/tool/tool_js_questions.ml:189
 msgid " and "
-msgstr ""
+msgstr " ve "
 
 #: src/web/server/common/pages_admin.ml:2714
 msgid " and a password: "
-msgstr ""
+msgstr " ve bir şifre: "
 
 #. src/web/server/common/pages_admin.ml:1528
 #: src/web/server/common/pages_admin.ml:1592
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " ve güvenli bir yere kaydedin."
 
 #: src/web/server/common/pages_admin.ml:1430
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " ve dosyayı güvenli bir yere kaydedin."
 
 #: src/web/server/common/pages_admin.ml:1803
 msgid " and save them securely."
@@ -103,7 +103,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:1776
 msgid "%d voter(s)"
-msgstr ""
+msgstr "%d seçmen"
 
 #: src/web/server/common/site_admin.ml:536
 msgid "%s is not a registered user for this election."
@@ -112,15 +112,16 @@ msgstr ""
 #. src/web/server/common/site_admin.ml:1129
 #: src/web/server/common/site_admin.ml:1140
 msgid "%s is not a valid date!"
-msgstr ""
+msgstr "%s geçerli bir tarih değil!"
 
 #: src/web/server/common/site_admin.ml:742
 msgid "%s is not a valid e-mail address!"
-msgstr ""
+msgstr "%s geçerli bir e-posta adresi değil!"
 
 #: src/web/server/common/pages_admin.ml:1919
+#, fuzzy
 msgid "(Warning: This action is irreversible.)"
-msgstr ""
+msgstr "(Uyarı: Bu eylem geri alınamaz.)"
 
 #: src/web/server/common/pages_admin.ml:773
 msgid "(cannot be removed)"
