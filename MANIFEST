@@ -157,6 +157,7 @@ frontend/translations/lt.json
 frontend/translations/nb.json
 frontend/translations/oc.json
 frontend/translations/pl.json
+frontend/translations/pt.json
 frontend/translations/pt_BR.json
 frontend/translations/ro.json
 frontend/translations/uk.json
@@ -182,6 +183,7 @@ po/admin/nb.po
 po/admin/nl.po
 po/admin/oc.po
 po/admin/pl.po
+po/admin/pt.po
 po/admin/pt_BR.po
 po/admin/ro.po
 po/admin/ru.po
@@ -207,6 +209,7 @@ po/voter/nb.po
 po/voter/nl.po
 po/voter/oc.po
 po/voter/pl.po
+po/voter/pt.po
 po/voter/pt_BR.po
 po/voter/ro.po
 po/voter/sk.po
@@ -578,6 +581,7 @@ tests/selenium/vote_with_prepared_ballots.py
 tests/selenium/vote_with_prepared_ballots_direct.py
 tests/tool/.gitignore
 tests/tool/Makefile
+tests/tool/demo-complex.sh
 tests/tool/demo-l.sh
 tests/tool/demo-mj.sh
 tests/tool/demo-n-voters.sh
@@ -585,6 +589,7 @@ tests/tool/demo-nh.sh
 tests/tool/demo-stv.sh
 tests/tool/demo-threshold.sh
 tests/tool/demo.sh
+tests/tool/templates/questions-complex.json
 tests/tool/templates/questions-l.json
 tests/tool/templates/questions-mj.json
 tests/tool/templates/questions-nh.json
