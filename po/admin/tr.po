@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.5.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-28 06:55+0000\n"
-"PO-Revision-Date: 2024-07-25 07:46+0000\n"
+"PO-Revision-Date: 2024-07-25 08:41+0000\n"
 "Last-Translator: blomusti <m.f.varkara@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/belenios/admin/"
 "tr/>\n"
@@ -182,7 +182,7 @@ msgstr ""
 
 #: src/web/common/mails_admin.ml:40
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. Linke tıklayın."
 
 #: src/web/server/common/pages_admin.ml:990
 msgid "1a: action needed from trustee: generate private key"
@@ -217,39 +217,41 @@ msgid "6. Click on \"Submit the public credentials\"."
 msgstr ""
 
 #: src/web/server/common/site_admin.ml:532
+#, fuzzy
 msgid "A new password has been mailed to %s."
-msgstr ""
+msgstr "Yeni bir şifre %s adresine gönderildi."
 
 #: src/web/server/common/site_admin.ml:913
 msgid "A public key already existed, the key you've just uploaded has been ignored!"
 msgstr ""
 
 #: src/web/server/common/pages_admin.ml:66
+#, fuzzy
 msgid "Accept"
-msgstr ""
+msgstr "Kabul et"
 
 #. src/web/server/common/site_admin.ml:1789
 #: src/web/server/common/site_admin.ml:1910
 msgid "Account creation"
-msgstr ""
+msgstr "Hesap oluşturma"
 
 #: src/web/server/common/pages_admin.ml:2678
 msgid "Account management"
-msgstr ""
+msgstr "Hesap yönetimi"
 
 #: src/web/server/common/site_admin.ml:1969
 msgid "Account not found"
-msgstr ""
+msgstr "Hesap bulunamadı"
 
 #: src/web/server/common/pages_admin.ml:2869
 msgid "Account settings"
-msgstr ""
+msgstr "Hesap ayarları"
 
 #. src/web/server/common/pages_admin.ml:883
 #. src/web/server/common/pages_admin.ml:707
 #: src/web/server/common/pages_admin.ml:1270
 msgid "Add"
-msgstr ""
+msgstr "Ekle"
 
 #: src/web/clients/tool/tool_js_questions.ml:486
 msgid "Add a question"
@@ -262,11 +264,11 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:201
 #: src/web/server/common/pages_admin.ml:1941
 msgid "Administration"
-msgstr ""
+msgstr "Yönetim"
 
 #: src/web/server/common/pages_admin.ml:538
 msgid "All passwords have been sent!"
-msgstr ""
+msgstr "Tüm şifreler gönderildi!"
 
 #: src/web/common/mails_admin.ml:128
 msgid "All trustees must have completed one step before you can proceed to the next one."
@@ -314,7 +316,7 @@ msgstr ""
 
 #: src/web/clients/tool/tool_js_questions.ml:146
 msgid "Answer: "
-msgstr ""
+msgstr "Cevap: "
 
 #. src/web/server/common/pages_admin.ml:250
 #: src/web/clients/basic/admin.ml:207 src/web/server/common/pages_admin.ml:1719
