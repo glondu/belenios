@@ -32,8 +32,15 @@ type question =
       answers : string list;
     }
 
+type trustee = { name : string; email : string }
 type auth = Password | Email
-type config = { questions : question list; voters : string list; auth : auth }
+
+type config = {
+  questions : question list;
+  voters : string list;
+  trustees : trustee list;
+  auth : auth;
+}
 
 module type CONFIG = sig
   val webdriver : string
@@ -44,8 +51,10 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
+type election_params = { id : string; private_keys : Yojson.Safe.t list }
+
 module Make (Config : CONFIG) : sig
-  val setup_election : unit -> string Lwt.t
+  val setup_election : unit -> election_params Lwt.t
   val regen_password : election_id:string -> username:string -> string Lwt.t
-  val tally_election : election_id:string -> unit Lwt.t
+  val tally_election : election_params -> unit Lwt.t
 end

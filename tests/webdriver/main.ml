@@ -60,29 +60,40 @@ let questions_of_string = function
       ]
   | _ -> invalid_arg "questions_of_string"
 
+let trustees : Admin.trustee list =
+  [
+    { name = "Alice Trustee"; email = "alice@example.org" };
+    { name = "Bob Trustee"; email = "bob@example.org" };
+  ]
+
+let trustees_of_string = function
+  | "none" -> []
+  | "two" -> trustees
+  | _ -> invalid_arg "trustees_of_string"
+
 let auth_of_string = function
   | "password" -> Admin.Password
   | "email" -> Admin.Email
   | _ -> invalid_arg "auth_of_string"
 
-let scenario admin questions nvoters auth =
+let scenario admin questions nvoters trustees auth =
   let voters = make_voters nvoters in
   let module Config = struct
     include Config
 
-    let config = Admin.{ questions; voters; auth }
+    let config = Admin.{ questions; voters; trustees; auth }
     let admin = admin
     let emails = open_in_gen [ Open_creat ] 0o644 email_file
   end in
   let module Admin = Admin.Make (Config) in
-  let* election_id = Admin.setup_election () in
+  let* e = Admin.setup_election () in
   Printf.printf "  Page of the election: %s/elections/%s/\n" Config.belenios
-    election_id;
+    e.id;
   let emails = Emails.parse Config.emails in
   let module Config = struct
     include Config
 
-    let election_id = election_id
+    let election_id = e.id
   end in
   let module Vote = Vote.Make (Config) in
   let* () =
@@ -108,11 +119,13 @@ let scenario admin questions nvoters auth =
         let voter = List.hd voters in
         let credential = Emails.extract_credential emails voter in
         let credential = Option.value ~default:"N/A" credential in
-        let* password = Admin.regen_password ~election_id ~username:voter in
+        let* password =
+          Admin.regen_password ~election_id:e.id ~username:voter
+        in
         let auth = Vote.auth_password ~username:voter ~password in
         Vote.vote ~voter ~credential ~auth
   in
-  let* () = Admin.tally_election ~election_id in
+  let* () = Admin.tally_election e in
   close_in Config.emails;
   Lwt.return_unit
 
@@ -141,15 +154,16 @@ let with_cmd cmd f =
 
 let rec main = function
   | "run" :: cmd :: xs -> with_cmd cmd (fun () -> main xs)
-  | "scenario" :: admin :: questions :: nvoters :: auth :: xs ->
-      Printf.printf "Running: scenario %s %s %s %s\n%!" admin questions nvoters
-        auth;
+  | "scenario" :: admin :: questions :: nvoters :: trustees :: auth :: xs ->
+      Printf.printf "Running: scenario %s %s %s %s %s\n%!" admin questions
+        nvoters trustees auth;
       let admin = admin_of_string admin in
       let questions = questions_of_string questions in
       let nvoters = int_of_string nvoters in
+      let trustees = trustees_of_string trustees in
       let auth = auth_of_string auth in
       let t1 = Unix.gettimeofday () in
-      let* () = scenario admin questions nvoters auth in
+      let* () = scenario admin questions nvoters trustees auth in
       let t2 = Unix.gettimeofday () in
       Printf.printf "End of scenario in %f s\n%!" (t2 -. t1);
       main xs

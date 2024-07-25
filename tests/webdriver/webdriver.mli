@@ -23,6 +23,8 @@ type session
 type element
 type window
 
+val json_of_element : element -> Yojson.Safe.t
+
 class webdriver : session -> object
   method implicit_wait : unit Lwt.t
   method navigate_to : string -> unit Lwt.t
@@ -41,7 +43,9 @@ class webdriver : session -> object
     ?width:int -> ?height:int -> ?x:int -> ?y:int -> unit -> unit Lwt.t
 
   method close_window : unit Lwt.t
-  method execute : script:string -> args:Yojson.Safe.t list -> unit Lwt.t
+
+  method execute :
+    script:string -> args:Yojson.Safe.t list -> Yojson.Safe.t option Lwt.t
 end
 
 class helpers : session -> object

@@ -35,8 +35,15 @@ type question =
       answers : string list;
     }
 
+type trustee = { name : string; email : string }
 type auth = Password | Email
-type config = { questions : question list; voters : string list; auth : auth }
+
+type config = {
+  questions : question list;
+  voters : string list;
+  trustees : trustee list;
+  auth : auth;
+}
 
 module type CONFIG = sig
   val webdriver : string
@@ -46,6 +53,8 @@ module type CONFIG = sig
   val config : config
   val emails : in_channel
 end
+
+type election_params = { id : string; private_keys : Yojson.Safe.t list }
 
 module Make (Config : CONFIG) = struct
   open Config
@@ -230,12 +239,42 @@ module Make (Config : CONFIG) = struct
     in
     session#click_on ~selector:"#add_voters"
 
-  let set_trustees session =
+  let add_trustee session { name; email } =
+    let* () = session#click_on ~selector:".new_trustee .ins_sym" in
+    let* () = session#fill_with ~selector:"#add_trustee_popup #inp1" email in
+    let* () = session#fill_with ~selector:"#add_trustee_popup #inp2" name in
+    session#click_on ~selector:"#add_trustee_popup button:nth-child(2)"
+
+  let collect_trustee_links nth session =
+    let* elements =
+      let selector = Printf.sprintf "#main_zone td:nth-child(%d) > a" nth in
+      session#get_elements ~selector
+    in
+    let* x =
+      session#execute ~script:"return Array.from(arguments).map((x) => x.href)"
+        ~args:(List.map Webdriver.json_of_element elements)
+    in
+    match x with
+    | Some (`List xs) ->
+        Lwt.return
+        @@ List.map (function `String x -> x | _ -> assert false) xs
+    | _ -> assert false
+
+  let set_trustees session trustees =
     Printf.printf "    Setting trustees...\n%!";
     let* () = session#click_on ~selector:"#tab_trustees" in
-    let* () = session#click_on ~selector:"button" in
+    let* () =
+      match trustees with
+      | [] -> Lwt.return_unit
+      | _ -> Lwt_list.iter_s (add_trustee session) trustees
+    in
+    let* () = session#click_on ~selector:"#trustee_proc_but button" in
     let* () = session#accept in
-    session#accept
+    match trustees with
+    | [] ->
+        let* () = session#accept in
+        Lwt.return_nil
+    | _ -> collect_trustee_links 3 session
 
   let set_credentials session nvoters =
     Printf.printf "    Setting credentials...\n%!";
@@ -266,28 +305,75 @@ module Make (Config : CONFIG) = struct
     let* () = session#click_on ~selector:"#nav_username" in
     session#click_on ~selector:"#logout"
 
-  let setup_election () =
-    let nvoters = List.length config.voters in
+  let setup_trustee link =
+    Printf.printf "    Setting up trustee...\n%!";
+    let@ session = Webdriver.with_session ~headless ~url:webdriver () in
+    let session = new Webdriver.helpers session in
+    let* () = session#navigate_to link in
+    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+    let* () = session#click_on ~selector:"button" in
+    let* x = session#get_elements ~selector:"#private_key" in
+    match x with
+    | [ x ] -> (
+        let* () = session#click x in
+        let* x =
+          session#execute ~script:"return arguments[0].href"
+            ~args:[ Webdriver.json_of_element x ]
+        in
+        match x with
+        | Some (`String x) -> (
+            match String.split_on_char ',' x with
+            | [ "data:application/json"; x ] ->
+                let private_key = Yojson.Safe.from_string @@ Uri.pct_decode x in
+                (* TODO: check fingerprint *)
+                let* () = session#click_on ~selector:"input[type=submit]" in
+                Lwt.return private_key
+            | _ -> assert false)
+        | _ -> assert false)
+    | _ -> assert false
+
+  let with_admin ?id () f =
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let url = Printf.sprintf "%s/admin" belenios in
     let* () = session#navigate_to url in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
     let* () = login session in
-    let* election_id = create_new_election session in
-    Printf.printf "    Election ID: %s\n%!" election_id;
     let* () =
-      set_name_and_description session ~name:"Test election"
-        ~description:"Automatic test election"
+      match id with
+      | None -> Lwt.return_unit
+      | Some id ->
+          let url = Printf.sprintf "%s/static/admin.html#%s" belenios id in
+          session#navigate_to url
     in
-    let* () = set_questions session in
-    let* () = set_voters session config.voters in
-    let* () = set_trustees session in
-    let* () = set_credentials session nvoters in
-    let* () = set_authentication session in
-    let* () = open_election session in
-    let* () = logout session in
-    Lwt.return election_id
+    f session
+
+  let setup_election () =
+    let nvoters = List.length config.voters in
+    let* id, trustee_links =
+      let@ session = with_admin () in
+      let* election_id = create_new_election session in
+      Printf.printf "    Election ID: %s\n%!" election_id;
+      let* () =
+        set_name_and_description session ~name:"Test election"
+          ~description:"Automatic test election"
+      in
+      let* () = set_questions session in
+      let* () = set_voters session config.voters in
+      let* links = set_trustees session config.trustees in
+      let* () = logout session in
+      Lwt.return (election_id, links)
+    in
+    let* private_keys = Lwt_list.map_s setup_trustee trustee_links in
+    let* () =
+      let@ session = with_admin ~id () in
+      let* () = set_credentials session nvoters in
+      let* () = set_authentication session in
+      let* () = open_election session in
+      let* () = logout session in
+      Lwt.return_unit
+    in
+    Lwt.return { id; private_keys }
 
   let regen_password ~election_id ~username =
     Printf.eprintf "  Regenerating password of %s...\n%!" username;
@@ -312,22 +398,38 @@ module Make (Config : CONFIG) = struct
     | Some x -> Lwt.return x
     | None -> Lwt.fail @@ Failure "failed to retrieve new password"
 
-  let tally_election ~election_id =
-    Printf.printf "  Tallying election %s...\n%!" election_id;
+  let do_partial_decryption (private_key, link) =
+    Printf.printf "  Computing partial decryption...\n%!";
+    let private_key = Yojson.Safe.to_string private_key in
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
-    let url = Printf.sprintf "%s/elections/%s/" belenios election_id in
-    let* () = session#navigate_to url in
-    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-    let* () =
-      session#click_on
-        ~selector:(Printf.sprintf "#election_admin_%s" election_id)
+    let* () = session#navigate_to link in
+    let* () = session#fill_with ~selector:"#private_key" private_key in
+    let* () = session#click_on ~selector:"#compute" in
+    let* () = session#click_on ~selector:"input[type=submit]" in
+    Lwt.return_unit
+
+  let tally_election { id; private_keys } =
+    Printf.printf "  Tallying election %s...\n%!" id;
+    let* links =
+      let@ session = with_admin ~id () in
+      let* () = session#click_on ~selector:"#tab_openclose" in
+      let* () = session#click_on ~selector:"button" in
+      let* () = session#click_on ~selector:"#tab_tally" in
+      let* () = session#accept in
+      let* links =
+        match private_keys with
+        | [] -> Lwt.return_nil
+        | _ -> collect_trustee_links 2 session
+      in
+      let* () = logout session in
+      Lwt.return links
     in
-    let* () = login session in
-    let* () = session#click_on ~selector:"#tab_openclose" in
-    let* () = session#click_on ~selector:"button" in
-    let* () = session#click_on ~selector:"#tab_tally" in
-    let* () = session#accept in
+    let* () =
+      Lwt_list.iter_s do_partial_decryption (List.combine private_keys links)
+    in
+    let@ session = with_admin ~id () in
+    let* () = session#click_on ~selector:"#tab_trustees" in
     let* () = session#click_on ~selector:"button" in
     let* () = session#click_on ~selector:"a[target]" in
     let* () =
@@ -352,7 +454,7 @@ module Make (Config : CONFIG) = struct
       | [ w ] -> session#switch_to_window w
       | _ -> Lwt.fail @@ Failure "not exactly 1 window"
     in
-    Printf.printf "  Deleting election %s...\n%!" election_id;
+    Printf.printf "  Deleting election %s...\n%!" id;
     let* () = session#click_on ~selector:"#tab_delete" in
     session#accept
 end

@@ -26,6 +26,9 @@ type session = { implicit_timeout : int; prefix : string; session : string }
 type element = string
 type window = string
 
+let json_of_element x =
+  `Assoc [ ("element-6066-11e4-a52e-4f735466cecf", `String x) ]
+
 let encode_for_send_keys x =
   let b = Buffer.create (String.length x) in
   String.iter
@@ -276,8 +279,8 @@ class webdriver { implicit_timeout; prefix; session } =
         |> Uri.of_string
       in
       let* x = Cohttp_lwt_unix.Client.post ~chunked ~headers ~body url in
-      let* _ = handle_reply "execute" x in
-      Lwt.return_unit
+      let* x = handle_reply "execute" x in
+      Lwt.return @@ get_value x
   end
 
 class helpers session =
