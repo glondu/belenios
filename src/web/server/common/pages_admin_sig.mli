@@ -30,8 +30,6 @@ module type S = sig
     (string -> Web_auth_sig.result Lwt.t) ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val admin : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val election_admin :
     ?shuffle_token:string ->
     ?tally_token:string ->

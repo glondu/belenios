@@ -174,9 +174,7 @@ let scenario admin questions nvoters trustees registrar auth =
         let voter = List.hd voters in
         let credential = Emails.extract_credential emails voter in
         let credential = Option.value ~default:"N/A" credential in
-        let* password =
-          Admin.regen_password ~election_id:e.id ~username:voter
-        in
+        let* password = Admin.regen_password ~id:e.id ~username:voter in
         let auth = Vote.auth_password ~username:voter ~password in
         Vote.vote ~voter ~credential ~auth
   in

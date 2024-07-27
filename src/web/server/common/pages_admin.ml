@@ -225,15 +225,6 @@ struct
           xs
     | _ -> [ txt str ]
 
-  let admin () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let title = s_ "Election server" ^^^ s_ "Administration" in
-    let content = [ div [ try_new_ui l None ] ] in
-    let* login_box = login_box () in
-    let* lang_box = lang_box ContSiteHome in
-    base ~lang_box ~title ~login_box ~content ()
-
   let script_with_lang ~lang file =
     let file = static file in
     let dir = Filename.dirname (string_of_uri file) in

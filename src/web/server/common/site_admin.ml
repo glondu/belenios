@@ -98,10 +98,12 @@ struct
             | None -> fail_http `Not_found))
 
   let () =
-    Html.register ~service:home (fun () () ->
+    Any.register ~service:home (fun () () ->
         let* site_user = Eliom_reference.get Web_state.site_user in
         match site_user with
-        | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
+        | None ->
+            Pages_admin.admin_login Web_auth.get_site_login_handler
+            >>= Html.send
         | Some (_, a, _) ->
             let* show =
               match a.consent with
@@ -128,9 +130,9 @@ struct
                         let* () = set { a with consent } in
                         return_false)
             in
-            if show then Pages_admin.privacy_notice ContAdmin
-            else if a.email = None then Pages_admin.set_email ()
-            else Pages_admin.admin ())
+            if show then Pages_admin.privacy_notice ContAdmin >>= Html.send
+            else if a.email = None then Pages_admin.set_email () >>= Html.send
+            else Redirection.send (Redirection (admin_new ())))
 
   module SetEmailSender = struct
     type payload = unit
