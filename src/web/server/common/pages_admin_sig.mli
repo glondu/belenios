@@ -30,67 +30,7 @@ module type S = sig
     (string -> Web_auth_sig.result Lwt.t) ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val admin :
-    elections:summary_list * summary_list * summary_list * summary_list ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val new_election_failure :
-    [ `Exists | `Exception of exn ] ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_pre : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft :
-    uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_voters :
-    uuid ->
-    draft_election ->
-    int ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_questions :
-    uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_credential_authority :
-    uuid -> draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_credentials_already_generated :
-    unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_trustees :
-    ?token:string ->
-    uuid ->
-    draft_election ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_threshold_trustees :
-    ?token:string ->
-    uuid ->
-    draft_election ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_import :
-    uuid ->
-    draft_election ->
-    summary_list * summary_list * summary_list ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_import_trustees :
-    uuid ->
-    draft_election ->
-    summary_list * summary_list * summary_list ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_confirm :
-    (draft_election -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t)
-    Storage.u
+  val admin : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val election_admin :
     ?shuffle_token:string ->

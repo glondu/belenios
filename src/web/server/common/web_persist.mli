@@ -65,7 +65,6 @@ val regen_password : (metadata -> string -> bool Lwt.t) Storage.u
 
 val get_has_explicit_weights : bool Lwt.t Storage.u
 val get_username_or_address : [ `Username | `Address ] Lwt.t Storage.u
-val is_group_fixed : uuid -> draft_election -> bool
 
 (** {1 Tokens} *)
 

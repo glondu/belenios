@@ -13,7 +13,6 @@
     "/static/site.bundle.css"   : null,
     "/static/tool_js.js"        : null,
     "/static/tool_js_fingerprint.js"    : null,
-    "/static/tool_js_questions.js"      : null,
     "/static/libsodium.wasm"            : null,
     "/static/election.js"               : null,
     "/static/admin.js"                  : null,
