@@ -67,8 +67,9 @@ let trustees : Admin.trustee list =
   ]
 
 let trustees_of_string = function
-  | "none" -> []
-  | "two" -> trustees
+  | "none" -> Admin.{ mode = Basic; trustees = [] }
+  | "basic" -> { mode = Basic; trustees }
+  | "threshold" -> { mode = Threshold 1; trustees }
   | _ -> invalid_arg "trustees_of_string"
 
 let auth_of_string = function

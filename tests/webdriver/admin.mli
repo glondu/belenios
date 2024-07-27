@@ -33,12 +33,14 @@ type question =
     }
 
 type trustee = { name : string; email : string }
+type trustee_mode = Basic | Threshold of int
+type trustees = { mode : trustee_mode; trustees : trustee list }
 type auth = Password | Email
 
 type config = {
   questions : question list;
   voters : string list;
-  trustees : trustee list;
+  trustees : trustees;
   auth : auth;
 }
 
@@ -51,7 +53,7 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
-type election_params = { id : string; private_keys : Yojson.Safe.t list }
+type election_params = { id : string; private_keys : string list }
 
 module Make (Config : CONFIG) : sig
   val setup_election : unit -> election_params Lwt.t

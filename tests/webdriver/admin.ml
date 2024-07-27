@@ -36,12 +36,14 @@ type question =
     }
 
 type trustee = { name : string; email : string }
+type trustee_mode = Basic | Threshold of int
+type trustees = { mode : trustee_mode; trustees : trustee list }
 type auth = Password | Email
 
 type config = {
   questions : question list;
   voters : string list;
-  trustees : trustee list;
+  trustees : trustees;
   auth : auth;
 }
 
@@ -54,7 +56,7 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
-type election_params = { id : string; private_keys : Yojson.Safe.t list }
+type election_params = { id : string; private_keys : string list }
 
 module Make (Config : CONFIG) = struct
   open Config
@@ -260,13 +262,27 @@ module Make (Config : CONFIG) = struct
         @@ List.map (function `String x -> x | _ -> assert false) xs
     | _ -> assert false
 
-  let set_trustees session trustees =
+  let set_trustees session { mode; trustees } =
     Printf.printf "    Setting trustees...\n%!";
     let* () = session#click_on ~selector:"#tab_trustees" in
+    let* () =
+      match mode with
+      | Basic -> Lwt.return_unit
+      | Threshold _ -> session#click_on ~selector:"#thresh"
+    in
     let* () =
       match trustees with
       | [] -> Lwt.return_unit
       | _ -> Lwt_list.iter_s (add_trustee session) trustees
+    in
+    let* () =
+      match mode with
+      | Basic -> Lwt.return_unit
+      | Threshold t ->
+          let* () =
+            session#fill_with ~selector:"#thresh_val" (string_of_int t)
+          in
+          session#click_on ~selector:"#main_zone"
     in
     let* () = session#click_on ~selector:"#trustee_proc_but button" in
     let* () = session#accept in
@@ -311,7 +327,7 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-    let* () = session#click_on ~selector:"button" in
+    let* () = session#click_on ~selector:"button:not(#compute_button)" in
     let* x = session#get_elements ~selector:"#private_key" in
     match x with
     | [ x ] -> (
@@ -323,14 +339,32 @@ module Make (Config : CONFIG) = struct
         match x with
         | Some (`String x) -> (
             match String.split_on_char ',' x with
-            | [ "data:application/json"; x ] ->
-                let private_key = Yojson.Safe.from_string @@ Uri.pct_decode x in
+            | [ _; x ] ->
+                let private_key = Uri.pct_decode x in
                 (* TODO: check fingerprint *)
-                let* () = session#click_on ~selector:"input[type=submit]" in
+                let* () =
+                  let* e =
+                    session#get_elements ~selector:"input[type=submit]"
+                  in
+                  match e with x :: _ -> session#click x | _ -> assert false
+                in
                 Lwt.return private_key
             | _ -> assert false)
         | _ -> assert false)
     | _ -> assert false
+
+  let setup_threshold_trustee step (private_key, link) =
+    Printf.printf "    Setting up trustee (step %d)...\n%!" step;
+    let@ session = Webdriver.with_session ~headless ~url:webdriver () in
+    let session = new Webdriver.helpers session in
+    let* () = session#navigate_to link in
+    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+    let* () = session#fill_with ~selector:"#compute_private_key" private_key in
+    let* () = session#click_on ~selector:"#compute_button" in
+    let* () =
+      session#click_on ~selector:"#data_form_compute input[type=submit]"
+    in
+    Lwt.return_unit
 
   let with_admin ?id () f =
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
@@ -364,7 +398,16 @@ module Make (Config : CONFIG) = struct
       let* () = logout session in
       Lwt.return (election_id, links)
     in
-    let* private_keys = Lwt_list.map_s setup_trustee trustee_links in
+    let* private_keys =
+      match config.trustees.mode with
+      | Basic -> Lwt_list.map_s setup_trustee trustee_links
+      | Threshold _ ->
+          let* private_keys = Lwt_list.map_s setup_trustee trustee_links in
+          let ts = List.combine private_keys trustee_links in
+          let* () = Lwt_list.iter_s (setup_threshold_trustee 2) ts in
+          let* () = Lwt_list.iter_s (setup_threshold_trustee 3) ts in
+          Lwt.return private_keys
+    in
     let* () =
       let@ session = with_admin ~id () in
       let* () = set_credentials session nvoters in
@@ -400,7 +443,6 @@ module Make (Config : CONFIG) = struct
 
   let do_partial_decryption (private_key, link) =
     Printf.printf "  Computing partial decryption...\n%!";
-    let private_key = Yojson.Safe.to_string private_key in
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
