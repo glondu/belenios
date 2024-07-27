@@ -1349,7 +1349,7 @@ let credauth_content () =
                  ~a:[ a_id "cred_link" ]
                  [
                    txt @@ s_ "Here is the link to send to the authority: ";
-                   txt link;
+                   span ~a:[ a_id "cred_link_target" ] [ txt link ];
                  ]
         (* TODO: add a warning about freezing the voter list *)
         (* TODO: maybe add a refresh button *)
