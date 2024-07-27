@@ -1,4 +1,0 @@
-# Tools for automated tests
-selenium==4.14.0
-hypothesis==5.6.0
-urllib3==1.26.19

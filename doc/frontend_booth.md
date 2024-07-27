@@ -38,7 +38,7 @@ Execute `make DESTDIR=../_run/usr/share/belenios-server` to create a build in th
 
 ### React controlled versus uncontrolled components for input fields
 
-In React we chose to use [uncontrolled components](https://en.reactjs.org/docs/uncontrolled-components.html) for input fields (instead of controlled components), so that it remains easy (or feasable) to test the frontend vote application using end-to-end tests which control the browser (we use Selenium for this).
+In React we chose to use [uncontrolled components](https://en.reactjs.org/docs/uncontrolled-components.html) for input fields (instead of controlled components), so that it remains easy (or feasable) to test the frontend vote application using end-to-end tests which control the browser.
 
 ### Extracting translatable strings from Javascript files
 
