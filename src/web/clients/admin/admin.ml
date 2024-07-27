@@ -346,17 +346,26 @@ let nav_menu () =
         alert msg;
         "[no_name]"
   in
+  let classes = a_class [ "nav-menu__item"; "clickable"; "noselect" ] in
   let elt3 =
-    div
-      ~a:[ a_class [ "nav-menu__item"; "clickable"; "noselect" ] ]
-      [
-        div ~a:[ a_id "nav_username" ] [ txt user ];
-        img ~a:[ a_id "avatar" ] ~alt:"Avatar" ~src:"avatar.png" ();
-      ]
+    let r =
+      div ~a:[ classes ]
+        [
+          div ~a:[ a_id "nav_username" ] [ txt user ];
+          img ~a:[ a_id "avatar" ] ~alt:"Avatar" ~src:"avatar.png" ();
+        ]
+    in
+    let dom = Tyxml_js.To_dom.of_div r in
+    dom##.onclick := lwt_handler account_handler;
+    r
   in
-  let r = Tyxml_js.To_dom.of_div elt3 in
-  r##.onclick := lwt_handler account_handler;
-  Lwt.return [ elt1; elt2; elt3 ]
+  let elt4 =
+    let r = div ~a:[ a_id "logout_direct"; classes ] [ txt @@ s_ "Log out" ] in
+    let dom = Tyxml_js.To_dom.of_div r in
+    dom##.onclick := lwt_handler logout;
+    r
+  in
+  Lwt.return [ elt1; elt2; elt3; elt4 ]
 
 let footer configuration =
   let module UiBase = struct

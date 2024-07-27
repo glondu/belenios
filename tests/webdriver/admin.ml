@@ -343,8 +343,7 @@ module Make (Config : CONFIG) = struct
 
   let logout session =
     Printf.printf "  Logging out...\n%!";
-    let* () = session#click_on ~selector:"#nav_username" in
-    session#click_on ~selector:"#logout"
+    session#click_on ~selector:"#logout_direct"
 
   let setup_trustee link =
     Printf.printf "    Setting up trustee...\n%!";
