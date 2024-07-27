@@ -57,10 +57,10 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
       dune exec -- tests/webdriver/main.exe
       run "BELENIOS_SENDMAIL=tests/selenium/tools/sendmail_fake.sh exec demo/run-server.sh"
       run "LC_ALL=C.UTF-8 exec geckodriver --port=4444"
-      scenario local one 3 none email
-      scenario demo two 1 none password
-      scenario demo one 1 basic email
-      scenario demo one 1 threshold email
+      scenario local one 5 none charlie email
+      scenario demo two 1 none none password
+      scenario demo one 1 basic none email
+      scenario demo one 1 threshold none email
     # Create a Python 3 virtual environment, where pip packages will be installed
     - python3 -m venv venv
     # Step into this new virtual environment

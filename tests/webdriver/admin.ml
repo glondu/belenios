@@ -44,6 +44,7 @@ type config = {
   questions : question list;
   voters : string list;
   trustees : trustees;
+  registrar : string option;
   auth : auth;
 }
 
@@ -56,7 +57,11 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
-type election_params = { id : string; private_keys : string list }
+type election_params = {
+  id : string;
+  private_keys : string list;
+  private_creds : Yojson.Safe.t option;
+}
 
 module Make (Config : CONFIG) = struct
   open Config
@@ -295,11 +300,31 @@ module Make (Config : CONFIG) = struct
   let set_credentials session nvoters =
     Printf.printf "    Setting credentials...\n%!";
     let* () = session#click_on ~selector:"#tab_credentials" in
-    let* () = session#click_on ~selector:"#rad_serv" in
-    let* () = session#click_on ~selector:"button" in
-    let* () = Lwt_unix.sleep (float_of_int nvoters *. 0.01) in
-    let* () = session#click_on ~selector:"#tab_credentials" in
-    session#click_on ~selector:"a[download]"
+    match config.registrar with
+    | None ->
+        let* () = session#click_on ~selector:"#rad_serv" in
+        let* () = session#click_on ~selector:"button" in
+        let* () = Lwt_unix.sleep (float_of_int nvoters *. 0.01) in
+        let* () = session#click_on ~selector:"#tab_credentials" in
+        let* () = session#click_on ~selector:"a[download]" in
+        Lwt.return_none
+    | Some registrar -> (
+        let* () = session#click_on ~selector:"#rad_ext" in
+        let* () =
+          session#fill_with ~selector:"#cred_auth_name input" registrar
+        in
+        let* () = session#click_on ~selector:"#main_zone" in
+        let* x = session#get_elements ~selector:"#cred_link_target" in
+        match x with
+        | [ x ] -> (
+            let* x =
+              session#execute ~script:"return arguments[0].textContent"
+                ~args:[ Webdriver.json_of_element x ]
+            in
+            match x with
+            | Some (`String x) -> Lwt.return_some x
+            | _ -> assert false)
+        | _ -> assert false)
 
   let set_authentication session =
     Printf.printf "    Setting authentication...\n%!";
@@ -366,6 +391,40 @@ module Make (Config : CONFIG) = struct
     in
     Lwt.return_unit
 
+  let setup_registrar = function
+    | None -> Lwt.return_none
+    | Some link ->
+        Printf.printf "    Setting up registrar...\n%!";
+        let@ session = Webdriver.with_session ~headless ~url:webdriver () in
+        let session = new Webdriver.helpers session in
+        let* () = session#navigate_to link in
+        let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+        let* () = session#click_on ~selector:"#interactivity button" in
+        let* creds =
+          let* x = session#get_elements ~selector:"#creds" in
+          match x with
+          | [ x ] -> (
+              let* () = session#click x in
+              let* x =
+                session#execute ~script:"return arguments[0].href"
+                  ~args:[ Webdriver.json_of_element x ]
+              in
+              match x with
+              | Some (`String x) -> (
+                  match String.index_opt x ',' with
+                  | None -> assert false
+                  | Some i ->
+                      String.sub x (i + 1) (String.length x - i - 1)
+                      |> Uri.pct_decode |> Yojson.Safe.from_string |> Lwt.return
+                  )
+              | _ -> assert false)
+          | _ -> assert false
+        in
+        let* () =
+          session#click_on ~selector:"#submit_form input[type=submit]"
+        in
+        Lwt.return_some creds
+
   let with_admin ?id () f =
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
@@ -408,15 +467,19 @@ module Make (Config : CONFIG) = struct
           let* () = Lwt_list.iter_s (setup_threshold_trustee 3) ts in
           Lwt.return private_keys
     in
+    let* registrar =
+      let@ session = with_admin ~id () in
+      set_credentials session nvoters
+    in
+    let* private_creds = setup_registrar registrar in
     let* () =
       let@ session = with_admin ~id () in
-      let* () = set_credentials session nvoters in
       let* () = set_authentication session in
       let* () = open_election session in
       let* () = logout session in
       Lwt.return_unit
     in
-    Lwt.return { id; private_keys }
+    Lwt.return { id; private_keys; private_creds }
 
   let regen_password ~election_id ~username =
     Printf.eprintf "  Regenerating password of %s...\n%!" username;
@@ -451,7 +514,7 @@ module Make (Config : CONFIG) = struct
     let* () = session#click_on ~selector:"input[type=submit]" in
     Lwt.return_unit
 
-  let tally_election { id; private_keys } =
+  let tally_election { id; private_keys; _ } =
     Printf.printf "  Tallying election %s...\n%!" id;
     let* links =
       let@ session = with_admin ~id () in

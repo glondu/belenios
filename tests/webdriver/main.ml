@@ -72,17 +72,22 @@ let trustees_of_string = function
   | "threshold" -> { mode = Threshold 1; trustees }
   | _ -> invalid_arg "trustees_of_string"
 
+let registrar_of_string = function
+  | "none" -> None
+  | "charlie" -> Some "Charlie Registrar"
+  | _ -> invalid_arg "registrar_of_string"
+
 let auth_of_string = function
   | "password" -> Admin.Password
   | "email" -> Admin.Email
   | _ -> invalid_arg "auth_of_string"
 
-let scenario admin questions nvoters trustees auth =
+let scenario admin questions nvoters trustees registrar auth =
   let voters = make_voters nvoters in
   let module Config = struct
     include Config
 
-    let config = Admin.{ questions; voters; trustees; auth }
+    let config = Admin.{ questions; voters; trustees; registrar; auth }
     let admin = admin
     let emails = open_in_gen [ Open_creat ] 0o644 email_file
   end in
@@ -100,8 +105,18 @@ let scenario admin questions nvoters trustees auth =
   let* () =
     Lwt_list.iter_s
       (fun voter ->
-        let credential = Emails.extract_credential emails voter in
-        let credential = Option.value ~default:"N/A" credential in
+        let credential =
+          match e.private_creds with
+          | None -> (
+              match Emails.extract_credential emails voter with
+              | Some x -> x
+              | _ -> assert false)
+          | Some (`Assoc o) -> (
+              match List.assoc_opt voter o with
+              | Some (`String x) -> x
+              | _ -> assert false)
+          | _ -> assert false
+        in
         let auth =
           match auth with
           | Password ->
@@ -155,16 +170,18 @@ let with_cmd cmd f =
 
 let rec main = function
   | "run" :: cmd :: xs -> with_cmd cmd (fun () -> main xs)
-  | "scenario" :: admin :: questions :: nvoters :: trustees :: auth :: xs ->
-      Printf.printf "Running: scenario %s %s %s %s %s\n%!" admin questions
-        nvoters trustees auth;
+  | "scenario" :: admin :: questions :: nvoters :: trustees :: registrar :: auth
+    :: xs ->
+      Printf.printf "Running: scenario %s %s %s %s %s %s\n%!" admin questions
+        nvoters trustees registrar auth;
       let admin = admin_of_string admin in
       let questions = questions_of_string questions in
       let nvoters = int_of_string nvoters in
       let trustees = trustees_of_string trustees in
+      let registrar = registrar_of_string registrar in
       let auth = auth_of_string auth in
       let t1 = Unix.gettimeofday () in
-      let* () = scenario admin questions nvoters trustees auth in
+      let* () = scenario admin questions nvoters trustees registrar auth in
       let t2 = Unix.gettimeofday () in
       Printf.printf "End of scenario in %f s\n%!" (t2 -. t1);
       main xs

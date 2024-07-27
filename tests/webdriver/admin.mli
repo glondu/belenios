@@ -41,6 +41,7 @@ type config = {
   questions : question list;
   voters : string list;
   trustees : trustees;
+  registrar : string option;
   auth : auth;
 }
 
@@ -53,7 +54,11 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
-type election_params = { id : string; private_keys : string list }
+type election_params = {
+  id : string;
+  private_keys : string list;
+  private_creds : Yojson.Safe.t option;
+}
 
 module Make (Config : CONFIG) : sig
   val setup_election : unit -> election_params Lwt.t
