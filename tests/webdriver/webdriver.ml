@@ -146,6 +146,7 @@ class webdriver { implicit_timeout; prefix; session } =
                 x :: accu
             | _ -> accu)
           [] l
+        |> List.rev
     | _ -> []
   in
   object (self)
