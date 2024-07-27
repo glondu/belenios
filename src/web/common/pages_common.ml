@@ -42,14 +42,37 @@ module Make (Base : BASE) = struct
   let a_aria_label = Unsafe.string_attrib "aria-label"
   let a_aria_hidden = Unsafe.string_attrib "aria-hidden" "true"
 
-  let base_body l ~full_title ~content ~administer ?(login_box = txt "")
-      ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
-      ?(extra_footer = txt "") ?sticky_footer ?(restricted_mode = false) () =
+  let footer_fragment l ?administer ?footer ?extra_footer ~restricted_mode () =
     let open (val l : I18n.GETTEXT) in
     let restricted_mode =
       if restricted_mode then span [ txt @@ s_ "Restricted mode"; txt ". " ]
       else txt ""
     in
+    let administer =
+      match administer with None -> [] | Some x -> [ txt " "; x; txt "." ]
+    in
+    let get = function None -> [] | Some x -> [ x ] in
+    List.flatten
+      [
+        get footer;
+        [
+          txt (s_ "Powered by ");
+          a ~a:[ a_href Uris.belenios ] [ txt "Belenios" ];
+          Belenios.Version.(Printf.ksprintf txt " %s (%s). " version build);
+          restricted_mode;
+          a ~a:[ a_href Uris.source_code ] [ txt (s_ "Get the source code") ];
+          txt ". ";
+          a ~a:[ a_href Uris.tos ] [ txt (s_ "Terms of service") ];
+          txt ".";
+        ];
+        administer;
+        get extra_footer;
+      ]
+
+  let base_body l ~full_title ~content ~administer ?(login_box = txt "")
+      ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
+      ?(extra_footer = txt "") ?sticky_footer ?(restricted_mode = false) () =
+    let open (val l : I18n.GETTEXT) in
     [
       div
         ~a:[ a_id "vote-app" ]
@@ -106,23 +129,8 @@ module Make (Base : BASE) = struct
                 [ warning; div ~a:[ a_id "main" ] [ lang_box; div content ] ];
               div
                 ~a:[ a_class [ "page-footer" ] ]
-                [
-                  footer;
-                  txt (s_ "Powered by ");
-                  a ~a:[ a_href Uris.belenios ] [ txt "Belenios" ];
-                  Belenios.Version.(
-                    Printf.ksprintf txt " %s (%s). " version build);
-                  restricted_mode;
-                  a
-                    ~a:[ a_href Uris.source_code ]
-                    [ txt (s_ "Get the source code") ];
-                  txt ". ";
-                  a ~a:[ a_href Uris.tos ] [ txt (s_ "Terms of service") ];
-                  txt ". ";
-                  administer;
-                  txt ".";
-                  extra_footer;
-                ];
+                (footer_fragment l ~administer ~footer ~extra_footer
+                   ~restricted_mode ());
             ];
         ];
       (match sticky_footer with

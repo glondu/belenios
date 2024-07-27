@@ -358,18 +358,46 @@ let nav_menu () =
   r##.onclick := lwt_handler account_handler;
   Lwt.return [ elt1; elt2; elt3 ]
 
-let footer () =
-  (* TODO *)
-  let open (val !Belenios_js.I18n.gettext) in
-  [
+let footer configuration =
+  let module UiBase = struct
+    module Xml = Tyxml_js.Xml
+    module Svg = Tyxml_js.Svg
+    module Html = Tyxml_js.Html
+
+    let uris = configuration.uris
+  end in
+  let module Ui = Belenios_ui.Pages_common.Make (UiBase) in
+  let l = !Belenios_js.I18n.gettext in
+  let { restricted_mode; _ } = configuration in
+  let footer =
     div
       ~a:[ a_class [ "page-footer" ] ]
-      [ a ~a:[ a_id "classical" ] ~href:"../admin" (s_ "Classical interface") ];
-  ]
+      (Ui.footer_fragment l ~restricted_mode ())
+  in
+  let dom = Tyxml_js.To_dom.of_div footer in
+  Dom.appendChild dom (document##createTextNode (Js.string " "));
+  let classical =
+    let open (val l) in
+    a ~a:[ a_id "classical" ] ~href:"../admin" (s_ "Classical interface")
+  in
+  Dom.appendChild dom (Tyxml_js.To_dom.of_a classical);
+  [ footer ]
 
 let show_root main =
   let open (val !Belenios_js.I18n.gettext) in
-  main##.innerHTML := Js.string @@ s_ "Loading...";
+  main##.textContent := Js.some @@ Js.string @@ s_ "Loading...";
+  let@ config cont =
+    let* x = Cache.(get config) in
+    match x with
+    | Ok x -> cont x
+    | Error x ->
+        main##.textContent :=
+          Js.some @@ Js.string
+          @@ Printf.sprintf
+               (f_ "Could not get configuration from server! (%s)")
+               x;
+        Lwt.return_unit
+  in
   let@ () = show_in main in
   let* header = header () in
   let* page_body =
@@ -384,7 +412,7 @@ let show_root main =
           div ~a:[ a_class [ "page-header" ]; a_id "header" ] header;
           div ~a:[ a_class [ "nav-menu" ] ] nav_menu;
           div ~a:[ a_class [ "page-body" ]; a_id "main" ] page_body;
-          div ~a:[ a_class [ "footer" ] ] (footer ());
+          div ~a:[ a_class [ "footer" ] ] (footer config);
         ];
       div
         ~a:[ a_id "popup" ]
