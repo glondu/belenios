@@ -25,6 +25,7 @@ open Web_common
 
 module Make () = struct
   let uuid_and_token = uuid "uuid" ** string "token"
+  let banner = create ~path:(Path [ "banner" ]) ~meth:(Get (string "lang")) ()
   let home = create ~path:(Path [ "" ]) ~meth:(Get unit) ()
   let admin = create ~path:(Path [ "admin" ]) ~meth:(Get unit) ()
 

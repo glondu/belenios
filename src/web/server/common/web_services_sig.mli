@@ -29,6 +29,20 @@ module type S = sig
       * [ `One of string ] Eliom_parameter.param_name )
     Eliom_service.params
 
+  val banner :
+    ( string,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
   val home :
     ( unit,
       unit,

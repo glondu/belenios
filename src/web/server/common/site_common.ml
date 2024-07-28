@@ -62,6 +62,17 @@ module Make (X : Pages_sig.S) = struct
         | None -> fail_http `Not_found
         | Some (file, content_type) -> File.send ~content_type file)
 
+  let () =
+    File.register ~content_type:"text/html" ~service:banner (fun lang () ->
+        match !Web_config.warning_file with
+        | None -> fail_http `Not_found
+        | Some file ->
+            if Web_i18n.is_valid_language lang then
+              let f = Printf.sprintf "%s.%s" file lang in
+              let* b = Lwt_unix.file_exists f in
+              Lwt.return (if b then f else file)
+            else Lwt.return file)
+
   let redir_preapply s u () =
     Redirection.send (Redirection (preapply ~service:s u))
 

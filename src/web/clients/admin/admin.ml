@@ -413,12 +413,25 @@ let show_root main =
     match !where_am_i with Election _ -> Lwt.return [] | _ -> page_body ()
   in
   let* nav_menu = nav_menu () in
+  let banner = div ~a:[ a_id "banner" ] [] in
+  let () =
+    let@ () = Lwt.async in
+    let url = Printf.sprintf "../banner?lang=%s" lang in
+    let* x = Js_of_ocaml_lwt.XmlHttpRequest.get url in
+    match x.code with
+    | 200 ->
+        let dom = Tyxml_js.To_dom.of_div banner in
+        dom##.innerHTML := Js.string x.content;
+        Lwt.return_unit
+    | _ -> Lwt.return_unit
+  in
   Lwt.return
     [
       div
         ~a:[ a_class [ "page" ] ]
         [
           div ~a:[ a_class [ "page-header" ]; a_id "header" ] header;
+          banner;
           div ~a:[ a_class [ "nav-menu" ] ] nav_menu;
           div ~a:[ a_class [ "page-body" ]; a_id "main" ] page_body;
           div ~a:[ a_class [ "footer" ] ] (footer config);

@@ -123,6 +123,8 @@ let valid_languages =
 let is_valid_language lang = SSet.mem lang valid_languages
 
 module Make () = struct
+  let is_valid_language = is_valid_language
+
   let get_preferred_gettext component =
     let* lang =
       let cookies = Eliom_request_info.get_cookies () in

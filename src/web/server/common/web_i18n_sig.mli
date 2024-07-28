@@ -20,5 +20,6 @@
 (**************************************************************************)
 
 module type S = sig
+  val is_valid_language : string -> bool
   val get_preferred_gettext : string -> (module Belenios_ui.I18n.GETTEXT) Lwt.t
 end
