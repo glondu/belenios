@@ -86,9 +86,17 @@ type authentication_system =
   | Configured of configured_authentication
   ]
 
+type configuration_uris = {
+    home : string;
+    logo : string;
+    belenios : string;
+    source_code : string;
+    tos : string;
+}
+
 type configuration = {
     restricted_mode : bool;
-    tos : string;
+    uris : configuration_uris;
     belenios_version : string;
     belenios_build : string;
     spec_version : string;

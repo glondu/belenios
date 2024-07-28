@@ -225,13 +225,7 @@ let onload () =
     module Svg = Tyxml_js.Svg
     module Html = Tyxml_js.Html
 
-    module Uris = struct
-      let home = prefix ^ "/"
-      let logo = prefix ^ "/LOGO"
-      let belenios = Belenios_ui.Links.belenios
-      let source_code = prefix ^ "/belenios.tar.gz"
-      let tos = configuration.tos
-    end
+    let uris = configuration.uris
   end in
   let module Ui = Belenios_ui.Pages_common.Make (UiBase) in
   let@ () = show_in document##.body in

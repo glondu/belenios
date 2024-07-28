@@ -96,15 +96,24 @@ let handle_get_option get =
   let* x = get () in
   match x with None -> not_found | Some x -> Lwt.return (200, x)
 
+let get_configuration_uris () =
+  {
+    home = !Web_config.prefix ^ "/";
+    logo = !Web_config.prefix ^ "/LOGO";
+    belenios = Belenios_ui.Links.belenios;
+    source_code = !Web_config.prefix ^ "/belenios.tar.gz";
+    tos = !Web_config.tos;
+  }
+
 let get_configuration () =
   let open Defaults in
   {
     restricted_mode = !Web_config.restricted_mode;
-    tos = !Web_config.tos;
+    uris = get_configuration_uris ();
     belenios_version = Version.version;
     belenios_build = Version.build;
     spec_version = Version.spec;
-    api_version = 4;
+    api_version = 5;
     supported_crypto_versions =
       (let open Belenios.Election in
        List.map

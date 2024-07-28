@@ -43,10 +43,6 @@ struct
     let href = Xml.uri_of_string (Eliom_uri.make_string_uri ~service x) in
     Eliom_content.Html.F.Raw.a ~a:(a_href href :: a) contents
 
-  let absolute_uri_of_service ~service x =
-    Eliom_uri.make_string_uri ~absolute:true ~service x
-    |> rewrite_prefix |> Eliom_content.Xml.uri_of_string
-
   let static x =
     let service =
       Eliom_service.static_dir_with_params
@@ -73,13 +69,7 @@ struct
     module Svg = Eliom_content.Svg.F.Raw'
     module Html = Eliom_content.Html.F.Raw'
 
-    module Uris = struct
-      let home = absolute_uri_of_service ~service:home ()
-      let logo = absolute_uri_of_service ~service:logo ()
-      let belenios = Eliom_content.Xml.uri_of_string Belenios_ui.Links.belenios
-      let source_code = absolute_uri_of_service ~service:source_code ()
-      let tos = Xml.uri_of_string !Web_config.tos
-    end
+    let uris = Api_generic.get_configuration_uris ()
   end
 
   module Ui = Belenios_ui.Pages_common.Make (UiBase)

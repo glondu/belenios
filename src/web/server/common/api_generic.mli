@@ -50,3 +50,4 @@ val handle_get_option : (unit -> string option Lwt.t) -> result Lwt.t
 val get_configuration : unit -> configuration
 val get_account : account -> api_account
 val put_account : account Web_common.updatable -> api_account -> unit Lwt.t
+val get_configuration_uris : unit -> configuration_uris

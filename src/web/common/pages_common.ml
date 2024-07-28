@@ -24,18 +24,20 @@ module type BASE = sig
   module Svg : Svg_sigs.Make(Xml).T
   module Html : Html_sigs.Make(Xml)(Svg).T
 
-  module Uris : sig
-    val home : Html.uri
-    val logo : Html.uri
-    val belenios : Html.uri
-    val source_code : Html.uri
-    val tos : Html.uri
-  end
+  val uris : Belenios_api.Serializable_t.configuration_uris
 end
 
 module Make (Base : BASE) = struct
   open Base
   open Base.Html
+
+  module Uris = struct
+    let home = Xml.uri_of_string uris.home
+    let logo = Xml.uri_of_string uris.logo
+    let belenios = Xml.uri_of_string uris.belenios
+    let source_code = Xml.uri_of_string uris.source_code
+    let tos = Xml.uri_of_string uris.tos
+  end
 
   let a_aria_label = Unsafe.string_attrib "aria-label"
   let a_aria_hidden = Unsafe.string_attrib "aria-hidden" "true"
