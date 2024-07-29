@@ -474,7 +474,7 @@ let onhashchange () =
       (fun t ->
         token := Some t;
         user := `Admin t)
-      ~ui:"new" hash
+      hash
   in
   let* () =
     let* account = Cache.(get account) in

@@ -27,7 +27,7 @@ let token = ref None
 let user = ref (`Admin "")
 
 let logout () =
-  let url = "logout?cont=home@new" in
+  let url = "logout?cont=home" in
   Dom_html.window##.location##assign (Js.string url);
   Lwt.return_unit
 

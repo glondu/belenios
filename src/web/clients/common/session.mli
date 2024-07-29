@@ -26,7 +26,7 @@ open Belenios
 
 val init_api_token :
   (string -> unit) ->
-  ui:string ->
+  ?ui:string ->
   [> `Credentials of 'a * string | `Election of Uuid.t | `Error ] ->
   unit Lwt.t
 

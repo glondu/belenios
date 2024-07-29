@@ -123,14 +123,13 @@ struct
               `R (Redirection (preapply ~service:election_cast_confirm state)))
       | `Site { path = ContSiteHome; admin = admin_ui } -> (
           match admin_ui with
-          | Classic -> `R (Redirection home)
-          | Basic -> `R (Redirection (admin_basic ()))
-          | New -> `R (Redirection (admin_new ())))
+          | Default -> `R (Redirection home)
+          | Basic -> `R (Redirection (admin_basic ())))
       | `Site { path = ContSiteElection uuid; admin = admin_ui } -> (
           match login_or_logout with
           | `Login -> (
               match admin_ui with
-              | Classic ->
+              | Default ->
                   `R (Redirection (preapply ~service:election_admin uuid))
               | Basic ->
                   let base =
@@ -138,12 +137,6 @@ struct
                       ~fragment:
                         (Printf.sprintf "elections/%s" (Uuid.unwrap uuid))
                       ~service:(admin_basic ()) ()
-                  in
-                  `S base
-              | New ->
-                  let base =
-                    make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
-                      ~service:(admin_new ()) ()
                   in
                   `S base)
           | `Logout ->
