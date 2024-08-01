@@ -1025,83 +1025,69 @@ let is_openable () =
     Lwt.return
       (match status.status_state with `Open | `Closed -> true | _ -> false)
 
+let format_date_object x =
+  Printf.ksprintf Js.string "%d-%02d-%02dT%02d:%02d" x##getFullYear
+    (x##getMonth + 1)
+    x##getDate x##getHours x##getMinutes
+
 let dates_content () =
   let open (val !Belenios_js.I18n.gettext) in
+  let header = h2 [ txt @@ s_ "Automatic open/close dates" ] in
   let* is_openable = is_openable () in
   if is_draft () then
     Lwt.return
-      [
-        h2 [ txt @@ s_ "Automatic open/close dates:" ];
-        div [ txt @@ s_ "Not (yet) available for draft elections" ];
-      ]
+      [ header; div [ txt @@ s_ "Not (yet) available for draft elections" ] ]
   else if not is_openable then
     Lwt.return
-      [
-        h2 [ txt @@ s_ "Automatic open/close dates:" ];
-        div [ txt @@ s_ "This election can no longer be opened." ];
-      ]
+      [ header; div [ txt @@ s_ "This election can no longer be opened." ] ]
   else
-    let now = new%js Js.date_now in
-    let off = string_of_int now##getTimezoneOffset in
-    let now = Js.to_string now##toISOString in
     let* dates = Cache.get_until_success Cache.e_dates in
-    let attr = [ a_id "inpocont"; a_input_type `Datetime_local ] in
-    let inpo, inpoget = input ~a:attr "" in
-    let r = Tyxml_js.To_dom.of_input inpo in
-    let () =
-      match dates.auto_date_open with
-      | None -> ()
-      | Some x -> r##.value := Js.string @@ datestring_of_float x
+    let make_div l id get set =
+      let attr = [ a_id id; a_input_type `Datetime_local ] in
+      let inp, inp_get = input ~a:attr "" in
+      let r = Tyxml_js.To_dom.of_input inp in
+      let () =
+        match get dates with
+        | None -> ()
+        | Some x ->
+            r##.value :=
+              format_date_object (new%js Js.date_fromTimeValue (x *. 1000.))
+      in
+      let sync () =
+        let x = inp_get () in
+        let d =
+          if x = "" then None else Some (Js.date##parse (Js.string x) /. 1000.)
+        in
+        let* dates = Cache.get_until_success Cache.e_dates in
+        Cache.set Cache.e_dates (set dates d);
+        Cache.sync_until_success ()
+      in
+      r##.onchange := lwt_handler (fun _ -> sync ());
+      let label = label ~a:[ a_label_for id ] [ txt l ] in
+      let btn_soon =
+        let@ () = button (s_ "In 5 minutes") in
+        let t = (new%js Js.date_now)##valueOf +. 300_000. in
+        r##.value := format_date_object (new%js Js.date_fromTimeValue t);
+        sync ()
+      in
+      let btn_erase =
+        let@ () = button (s_ "Erase") in
+        r##.value := Js.string "";
+        sync ()
+      in
+      div [ label; inp; btn_soon; btn_erase ]
     in
-    r##.onchange :=
-      handler (fun _ ->
-          let newc = inpoget () in
-          let d =
-            if newc = "" then None
-            else Some (Js.date##parse (Js.string newc) /. 1000.)
-          in
-          Cache.set Cache.e_dates { dates with auto_date_open = d });
-    let labelo = label ~a:[ a_label_for "inpocont" ] [ txt "Auto-open: " ] in
-    let attr = [ a_id "inpccont"; a_input_type `Datetime_local ] in
-    let inpc, inpcget = input ~a:attr "" in
-    let r = Tyxml_js.To_dom.of_input inpc in
-    let () =
-      match dates.auto_date_close with
-      | None -> ()
-      | Some x -> r##.value := Js.string @@ datestring_of_float x
+    let open_div =
+      make_div (s_ "Open: ") "inpocont"
+        (fun x -> x.auto_date_open)
+        (fun x y -> { x with auto_date_open = y })
     in
-    r##.onchange :=
-      handler (fun _ ->
-          let newc = inpcget () in
-          let d =
-            if newc = "" then None
-            else Some (Js.date##parse (Js.string newc) /. 1000.)
-          in
-          Cache.set Cache.e_dates { dates with auto_date_close = d });
-    let labelc = label ~a:[ a_label_for "inpccont" ] [ txt "Auto-close: " ] in
-    let phrase =
-      Printf.sprintf
-        (f_ "(Your local time seems to have an offset of %s minutes)")
-        off
+    let close_div =
+      make_div (s_ "Close: ") "inpccont"
+        (fun x -> x.auto_date_close)
+        (fun x y -> { x with auto_date_close = y })
     in
-    Lwt.return
-      [
-        h2 [ txt @@ s_ "Automatic open/close dates:" ];
-        div
-          ~a:[ a_id "warning" ]
-          [
-            div
-              [
-                txt
-                @@ Printf.sprintf
-                     (f_ "Warning, use UTC time (for instance, now is %s).")
-                     now;
-              ];
-            div [ txt phrase ];
-          ];
-        div [ labelo; inpo ];
-        div [ labelc; inpc ];
-      ]
+    Lwt.return [ header; open_div; close_div ]
 
 let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 
