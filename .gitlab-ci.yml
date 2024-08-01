@@ -55,7 +55,7 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
     # Run the OCaml automated test scenarios
     - BELENIOS_HEADLESS=1
       dune exec -- tests/webdriver/main.exe
-      run "BELENIOS_SENDMAIL=tests/selenium/tools/sendmail_fake.sh exec demo/run-server.sh"
+      run "BELENIOS_SENDMAIL=tests/sendmail_fake.sh exec demo/run-server.sh"
       run "LC_ALL=C.UTF-8 exec geckodriver --port=4444"
       scenario local one 5 none charlie email
       scenario demo two 1 none none password
@@ -119,7 +119,7 @@ build_and_run_fuzz_tests_and_monkey_tests_with_preinstalled_image:
     WAIT_TIME_BETWEEN_EACH_STEP: "0.02"
     USE_HEADLESS_BROWSER: "1"
     START_SERVER: "0"
-    BELENIOS_SENDMAIL: "tests/selenium/tools/sendmail_fake_to_static.sh"
+    BELENIOS_SENDMAIL: "tests/sendmail_fake_to_static.sh"
     SENT_EMAILS_TEXT_FILE_RELATIVE_PATH: "_run/usr/share/belenios-server/mail.txt"
     FAKE_SENT_EMAILS_FILE_RELATIVE_URL: "static/mail.txt"
     SENT_EMAILS_TEXT_FILE_ABSOLUTE_PATH: "$CI_PROJECT_DIR/$SENT_EMAILS_TEXT_FILE_RELATIVE_PATH"

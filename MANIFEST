@@ -567,8 +567,6 @@ tests/selenium/test_scenario_2_with_monkeys.py
 tests/selenium/test_scenario_3.py
 tests/selenium/test_scenario_4.py
 tests/selenium/test_smart_monkey.py
-tests/selenium/tools/sendmail_fake.sh
-tests/selenium/tools/sendmail_fake_to_static.sh
 tests/selenium/util/election_test_base.py
 tests/selenium/util/election_testing.py
 tests/selenium/util/execution.py
@@ -579,6 +577,8 @@ tests/selenium/util/selenium_tools.py
 tests/selenium/util/state_machine.py
 tests/selenium/vote_with_prepared_ballots.py
 tests/selenium/vote_with_prepared_ballots_direct.py
+tests/sendmail_fake.sh
+tests/sendmail_fake_to_static.sh
 tests/tool/.gitignore
 tests/tool/Makefile
 tests/tool/demo-complex.sh

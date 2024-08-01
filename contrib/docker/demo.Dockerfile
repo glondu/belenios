@@ -8,5 +8,5 @@ ADD --chown=belenios . /home/belenios/
 RUN . /home/belenios/.belenios/env.sh \
     && make build-debug-server
 
-ENV BELENIOS_SENDMAIL=tests/selenium/tools/sendmail_fake_to_static.sh
+ENV BELENIOS_SENDMAIL=tests/sendmail_fake_to_static.sh
 CMD ./demo/run-server.sh --debug
