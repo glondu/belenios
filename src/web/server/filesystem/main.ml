@@ -744,7 +744,7 @@ module MakeBackend
     type key = uuid
 
     type value = {
-      cred_map : (string * Weight.t) SMap.t;
+      cred_map : (string option * Weight.t) SMap.t;
       salts : Yojson.Safe.t salt array option;
     }
   end
@@ -763,28 +763,41 @@ module MakeBackend
                  { salt; public_credential = `String cred })
           |> Array.of_list |> Lwt.return_some
     in
-    let* x = get (Election (uuid, Public_creds)) in
-    match x with
-    | None -> Lwt.fail (Election_not_found (uuid, "raw_get_credential_cache"))
-    | Some x ->
-        let x = public_credentials_of_string x in
-        let cred_map, creds =
-          List.fold_left
-            (fun (cred_map, creds) x ->
-              let p = parse_public_credential Fun.id x in
-              let username =
-                match p.username with
-                | None -> failwith "raw_get_credential_cache"
-                | Some x -> x
-              in
-              ( SMap.add p.credential
-                  (username, Option.value ~default:Weight.one p.weight)
-                  cred_map,
-                p.credential :: creds ))
-            (SMap.empty, []) x
-        in
-        let* salts = make_salts creds in
-        Lwt.return CredCacheTypes.{ cred_map; salts }
+    let@ public_creds cont =
+      let* x = get (Election (uuid, Public_creds)) in
+      match x with
+      | None ->
+          (* public credentials mapping is no longer available, use
+             the public view from the archive *)
+          let fail () =
+            Lwt.fail (Election_not_found (uuid, "raw_get_credential_cache"))
+          in
+          let ( let& ) x f = match x with None -> fail () | Some x -> f x in
+          let* x = get (Election (uuid, Roots)) in
+          let& x = x in
+          let roots = roots_of_string x in
+          let& h = roots.roots_setup_data in
+          let* x = get (Election (uuid, Data h)) in
+          let& x = x in
+          let setup_data = setup_data_of_string x in
+          let* x = get (Election (uuid, Data setup_data.setup_credentials)) in
+          let& x = x in
+          cont x
+      | Some x -> cont x
+    in
+    let public_creds = public_credentials_of_string public_creds in
+    let cred_map, creds =
+      List.fold_left
+        (fun (cred_map, creds) x ->
+          let p = parse_public_credential Fun.id x in
+          ( SMap.add p.credential
+              (p.username, Option.value ~default:Weight.one p.weight)
+              cred_map,
+            p.credential :: creds ))
+        (SMap.empty, []) public_creds
+    in
+    let* salts = make_salts creds in
+    Lwt.return CredCacheTypes.{ cred_map; salts }
 
   let credential_cache =
     new CredCache.cache raw_get_credential_cache ~timer:3600. 10
@@ -794,7 +807,7 @@ module MakeBackend
       (fun () ->
         let* x = credential_cache#find uuid in
         let&* x, _ = SMap.find_opt cred x.cred_map in
-        Lwt.return_some x)
+        Lwt.return x)
       (fun _ -> Lwt.return_none)
 
   let get_credential_weight uuid cred =
