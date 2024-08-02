@@ -47,6 +47,7 @@ type tab =
   | ElectionPage
   | CreateOpenClose
   | Tally
+  | Status
   | Destroy
 
 type status = Draft | Running | Tallied | Archived

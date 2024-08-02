@@ -486,7 +486,7 @@ let onhashchange () =
             alert @@ s_ "Unknown uuid";
             Lwt.return List_draft
         | Some status ->
-            let tab = match status with Tallied -> Trustees | _ -> Title in
+            let tab = match status with Tallied -> Status | _ -> Title in
             Lwt.return @@ Election { uuid; status; tab })
   in
   where_am_i := where;

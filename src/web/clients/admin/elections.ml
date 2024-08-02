@@ -480,7 +480,7 @@ let tabs x =
                               {
                                 uuid = Uuid.wrap uuid;
                                 status = Tallied;
-                                tab = Trustees;
+                                tab = Status;
                               }
                       | code ->
                           alert ("Failed with code " ^ string_of_int code);
@@ -489,7 +489,7 @@ let tabs x =
                               {
                                 uuid = Uuid.wrap uuid;
                                 status = Running;
-                                tab = Trustees;
+                                tab = Status;
                               });
                       Lwt.return_unit)
                     else Lwt.return_unit
@@ -499,7 +499,7 @@ let tabs x =
                         {
                           uuid = Uuid.wrap uuid;
                           status = Running;
-                          tab = Trustees;
+                          tab = Status;
                         };
                     Lwt.return_unit)
                 in
@@ -514,6 +514,14 @@ let tabs x =
         id = "tab_tally";
         status = `None;
         handler;
+      }
+      |> Lwt.return
+  | Status ->
+      {
+        title = s_ "Status";
+        id = "tab_status";
+        status = `None;
+        handler = Some (default_handler x);
       }
       |> Lwt.return
   | Destroy ->
@@ -637,8 +645,11 @@ let tab_manage () =
   let* tab_electionpage = subtab_elt ElectionPage () in
   let* tab_create = subtab_elt CreateOpenClose () in
   let* tab_tally = subtab_elt Tally () in
+  let* tab_status = subtab_elt Status () in
   let* tab_destroy = subtab_elt Destroy () in
-  let elt = [ tab_electionpage; tab_create; tab_tally; tab_destroy ] in
+  let elt =
+    [ tab_electionpage; tab_create; tab_tally; tab_status; tab_destroy ]
+  in
   Lwt.return
     (title
     :: flatten_with_sep
@@ -1705,21 +1716,95 @@ let open_close_content () =
   in
   Lwt.return [ h2 [ txt curr ]; div [ but ] ]
 
-let result_archived_content () =
+let pretty_timestamp x =
+  let x = new%js Js.date_fromTimeValue (x *. 1000.) in
+  Js.to_string x##toLocaleString
+
+let status_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
-  let link =
-    a ~href:("../../elections/" ^ uuid ^ "/archive.zip") "archive.zip"
+  let@ status, state =
+   fun cont ->
+    let* x = Cache.get Cache.e_status in
+    match x with
+    | Ok status -> cont (Some status, status.status_state)
+    | Error _ -> cont (None, `Draft)
   in
-  let but = button (s_ "Results page") (fun () -> Preview.goto_mainpage ()) in
-  Lwt.return
-    [
-      h2 [ txt (s_ "This election is archived") ];
-      div
-        ~a:[ a_class [ "txt_with_a" ] ]
-        [ txt @@ s_ "The archive can be downloaded at: "; link ];
-      but;
-    ]
+  let automatic =
+    match status with
+    | None -> []
+    | Some s ->
+        let archival =
+          match s.status_auto_archive_date with
+          | None -> []
+          | Some t ->
+              [
+                txt
+                @@ Printf.sprintf
+                     (f_
+                        "This election will be automatically archived after %s.")
+                     (pretty_timestamp t);
+              ]
+        in
+        List.flatten
+          [
+            [ h2 [ txt @@ s_ "Automatic cleaning" ] ];
+            archival;
+            [
+              div
+                [
+                  txt
+                  @@ Printf.sprintf
+                       (f_
+                          "This election will be automatically deleted after \
+                           %s.")
+                       (pretty_timestamp s.status_auto_delete_date);
+                ];
+            ];
+          ]
+  in
+  let* content =
+    let header = h2 [ txt @@ s_ "Election status" ] in
+    match state with
+    | `Draft ->
+        Lwt.return [ header; div [ txt @@ s_ "This election is a draft." ] ]
+    | `Open | `Closed ->
+        Lwt.return [ header; div [ txt @@ s_ "This election is running." ] ]
+    | `EncryptedTally ->
+        Lwt.return
+          [
+            header; div [ txt @@ s_ "The tally for this election has started." ];
+          ]
+    | `Shuffling ->
+        Lwt.return
+          [ header; div [ txt @@ s_ "This election is in shuffling phase." ] ]
+    | `Tallied ->
+        let but =
+          button (s_ "Election main page") (fun () -> Preview.goto_mainpage ())
+        in
+        Lwt.return
+          [
+            h2 [ txt @@ s_ "This election has been tallied" ];
+            div [ txt @@ s_ "Go see the result on the election main page!" ];
+            div [ but ];
+          ]
+    | `Archived ->
+        let link =
+          a ~href:("../../elections/" ^ uuid ^ "/archive.zip") "archive.zip"
+        in
+        let but =
+          button (s_ "Results page") (fun () -> Preview.goto_mainpage ())
+        in
+        Lwt.return
+          [
+            h2 [ txt (s_ "This election is archived") ];
+            div
+              ~a:[ a_class [ "txt_with_a" ] ]
+              [ txt @@ s_ "The archive can be downloaded at: "; link ];
+            but;
+          ]
+  in
+  Lwt.return (content @ automatic)
 
 let update_main_zone () =
   let&&* container = document##getElementById (Js.string "main_zone") in
@@ -1734,9 +1819,9 @@ let update_main_zone () =
     | Election { tab = Trustees; _ } -> Trustees_tab.trustees_content ()
     | Election { tab = CredAuth; _ } -> credauth_content ()
     | Election { tab = VotersPwd; _ } -> voterspwd_content ()
-    | Election { tab = ElectionPage; _ } -> result_archived_content ()
     | Election { tab = CreateOpenClose; _ } ->
         if is_draft () then create_content () else open_close_content ()
+    | Election { tab = Status; _ } -> status_content ()
     | _ -> Lwt.return [ txt "Error: should never print this" ]
   in
   show_in container (fun () -> Lwt.return content)

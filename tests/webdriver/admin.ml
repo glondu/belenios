@@ -521,6 +521,7 @@ module Make (Config : CONFIG) = struct
       let* () = session#click_on ~selector:"button" in
       let* () = session#click_on ~selector:"#tab_tally" in
       let* () = session#accept in
+      let* () = session#click_on ~selector:"#tab_trustees" in
       let* links =
         match private_keys with
         | [] -> Lwt.return_nil
@@ -533,7 +534,7 @@ module Make (Config : CONFIG) = struct
       Lwt_list.iter_s do_partial_decryption (List.combine private_keys links)
     in
     let@ session = with_admin ~id () in
-    let* () = session#click_on ~selector:"#tab_trustees" in
+    let* () = session#click_on ~selector:"#tab_status" in
     let* () = session#click_on ~selector:"button" in
     let* () = session#click_on ~selector:"a[target]" in
     let* () =

@@ -691,18 +691,6 @@ let main_zone_shuffling () =
   in
   Lwt.return [ h2 [ txt @@ s_ "Tallying: shuffling step" ]; content ]
 
-let main_zone_tallied () =
-  let open (val !Belenios_js.I18n.gettext) in
-  let but =
-    button (s_ "Election main page") (fun () -> Preview.goto_mainpage ())
-  in
-  Lwt.return
-    [
-      h2 [ txt @@ s_ "This election has been tallied" ];
-      div [ txt @@ s_ "Go see the result on the election main page!" ];
-      div [ but ];
-    ]
-
 let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
   let checkpriv =
@@ -734,13 +722,12 @@ let recompute_main_zone () =
     else
       let* status = Cache.get_until_success Cache.e_status in
       match status.status_state with
-      | `Tallied -> main_zone_tallied ()
       | `EncryptedTally ->
           let* () = get_trustees_pd () in
           if not (all_pd ()) then main_zone_tallying ()
           else
             let* () = trustee_request `ReleaseTally in
-            main_zone_tallied ()
+            Lwt.return_nil
       | `Shuffling ->
           let* () = get_shuffles () in
           if not (ready_to_decrypt ()) then main_zone_shuffling ()
