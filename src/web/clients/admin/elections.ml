@@ -158,15 +158,12 @@ let is_ready () =
   in
   Lwt.return b
 
-(* TODO: share with get_shuffles () from Trustees *)
 let nb_shufflers () =
   let uuid = get_current_uuid () in
-  let* x = get shuffles_of_string "elections/%s/shuffles" uuid in
+  let* x = Trustees_tab.get_shuffles uuid in
   match x with
-  | Error e ->
-      alert (string_of_error e);
-      Lwt.return 0
-  | Ok (tt, _) -> Lwt.return @@ List.length tt.shuffles_shufflers
+  | None -> Lwt.return 0
+  | Some x -> Lwt.return @@ List.length x.shuffles_shufflers
 
 let default_handler tab () =
   let open (val !Belenios_js.I18n.gettext) in

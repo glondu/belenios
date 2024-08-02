@@ -560,15 +560,21 @@ let main_zone_tallying () =
 
 let shuffles = ref None
 
-let get_shuffles () =
-  let uuid = get_current_uuid () in
+let get_shuffles uuid =
   let* x = get shuffles_of_string "elections/%s/shuffles" uuid in
   match x with
   | Error e ->
       alert (string_of_error e);
-      Lwt.return_unit
-  | Ok (tt, _) ->
-      shuffles := Some tt;
+      Lwt.return_none
+  | Ok (tt, _) -> Lwt.return_some tt
+
+let update_shuffles () =
+  let uuid = get_current_uuid () in
+  let* x = get_shuffles uuid in
+  match x with
+  | None -> Lwt.return_unit
+  | Some x ->
+      shuffles := Some x;
       Lwt.return_unit
 
 let ready_to_decrypt () =
@@ -730,7 +736,7 @@ let recompute_main_zone () =
             let* () = trustee_request `ReleaseTally in
             Lwt.return_nil
       | `Shuffling ->
-          let* () = get_shuffles () in
+          let* () = update_shuffles () in
           if not (ready_to_decrypt ()) then main_zone_shuffling ()
           else
             let* () = trustee_request `FinishShuffling in
