@@ -1329,11 +1329,19 @@ let credauth_content () =
             @@ div
                  ~a:[ a_id "cred_link" ]
                  [
-                   txt @@ s_ "Here is the link to send to the authority: ";
-                   span ~a:[ a_id "cred_link_target" ] [ txt link ];
+                   div
+                     [
+                       txt @@ s_ "Here is the link to send to the authority:";
+                       ul
+                         [
+                           li
+                             [
+                               span ~a:[ a_id "cred_link_target" ] [ txt link ];
+                             ];
+                         ];
+                     ];
+                   div [ txt @@ s_ "Warning: this will freeze the voter list!" ];
                  ]
-        (* TODO: add a warning about freezing the voter list *)
-        (* TODO: maybe add a refresh button *)
       else Lwt.return @@ div []
     in
     let extern_part = div [ rad_ext; lab_ext; extern_name_div; print_link ] in
