@@ -2,6 +2,12 @@ dev
 ===
 
  * Add support for "lists" questions
+ * Add unshare scripts to create squashfs images
+ * Command-line tool:
+   + Use unverified_ballots when computing encrypted tally, voters and
+     summary
+   + Use encrypted tally from archive when computing decryption and
+     result
  * Web server:
    + Revamp election home page
    + Randomize account ids
@@ -9,6 +15,11 @@ dev
    + Change cookie handling for consent and language preference
    + New admin UI:
      - Add possibility to regenerate a password
+     - Use generic footer and show warning banner if any
+     - Fix automatic date handling
+     - Add checkpriv link to trustees tab
+     - Add "Status" tab
+     - Add tests and continuous integration
    + Configuration:
      - Drop support for specifying groups by file
      - Remove (unused) security log
