@@ -329,17 +329,7 @@ let tabs x =
               (if curr_tab = x then `Doing
                else `Todo (* TODO: need some info from server *))
       in
-      let* handler =
-        if is_draft then Lwt.return_some (default_handler x)
-        else
-          let* status = Cache.get_until_success Cache.e_status in
-          if
-            status.status_state = `Shuffling
-            || status.status_state = `EncryptedTally
-            || status.status_state = `Tallied
-          then Lwt.return_some (default_handler x)
-          else Lwt.return_none
-      in
+      let* handler = Lwt.return_some (default_handler x) in
       { title = s_ "Decryption trustees"; id = "tab_trustees"; status; handler }
       |> Lwt.return
   | CredAuth ->

@@ -21,4 +21,4 @@
 
 open Js_of_ocaml_tyxml.Tyxml_js
 
-val trustees_content : unit -> [> `Div | `H2 | `Table ] Html.elt list Lwt.t
+val trustees_content : unit -> Html_types.div_content_fun Html.elt list Lwt.t

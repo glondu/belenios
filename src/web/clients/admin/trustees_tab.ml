@@ -705,21 +705,34 @@ let main_zone_tallied () =
 
 let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
-  if is_draft () then
-    let* () = get_trustees () in
-    let* content =
+  let checkpriv =
+    let uuid = get_current_uuid () in
+    let href = "checkpriv.html#" ^ uuid in
+    let label = s_ "Check private key ownership" in
+    [
+      h2 [ txt label ];
+      div
+        [
+          txt
+          @@ s_
+               "The following link can be used by trustees to check that they \
+                own the right decryption key.";
+        ];
+      ul [ li [ a ~href label ] ];
+    ]
+  in
+  let* content =
+    if is_draft () then (
+      let* () = get_trustees () in
       match !step with
       | 1 -> recompute_main_zone_1 ()
       | 2 -> recompute_main_zone_2 ()
       | 3 -> recompute_main_zone_3 ()
       | _ ->
           alert "Should not get there; aborting.";
-          assert false
-    in
-    Lwt.return content
-  else
-    let* status = Cache.get_until_success Cache.e_status in
-    let* content =
+          assert false)
+    else
+      let* status = Cache.get_until_success Cache.e_status in
       match status.status_state with
       | `Tallied -> main_zone_tallied ()
       | `EncryptedTally ->
@@ -735,11 +748,9 @@ let recompute_main_zone () =
             let* () = trustee_request `FinishShuffling in
             let* () = get_trustees_pd () in
             main_zone_tallying ()
-      | _ ->
-          Lwt.return
-            [ h2 [ txt @@ s_ "Tally" ]; div [ txt "Should not get there" ] ]
-    in
-    Lwt.return content
+      | _ -> Lwt.return_nil
+  in
+  Lwt.return @@ List.flatten [ content; checkpriv ]
 
 let () =
   update_main_zone :=
