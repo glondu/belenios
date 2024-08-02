@@ -281,20 +281,21 @@ let recompute_main_zone_1 () =
     else div [ inp; lab ]
   in
   let proc_but =
-    button (s_ "Proceed to key generation") (fun () ->
-        if match !mode with `Basic -> false | `Threshold i -> i = 0 then (
-          alert "Threshold has not been set";
-          Lwt.return_unit)
-        else
-          (* TODO: are there more consistency checks to do, here? *)
-          let confirm =
-            confirm
-            @@ s_ "Proceed to next step? This will freeze the list of trustees."
-          in
-          if confirm then
-            let* () = send_draft_request @@ `SetTrusteesSetupStep 2 in
-            !update_main_zone ()
-          else Lwt.return_unit)
+    let@ () = button (s_ "Proceed to key generation") in
+    match !mode with
+    | `Threshold 0 ->
+        alert "Threshold has not been set";
+        Lwt.return_unit
+    | _ ->
+        (* TODO: are there more consistency checks to do, here? *)
+        let confirm =
+          confirm
+          @@ s_ "Proceed to next step? This will freeze the list of trustees."
+        in
+        if confirm then
+          let* () = send_draft_request @@ `SetTrusteesSetupStep 2 in
+          !update_main_zone ()
+        else Lwt.return_unit
   in
   Lwt.return
     [

@@ -319,15 +319,12 @@ let tabs x =
             else Lwt.return `Todo
         else
           let* status = Cache.get_until_success Cache.e_status in
-          if
-            status.status_state = `Open
-            || status.status_state = `Closed
-            || status.status_state = `Tallied
-          then Lwt.return `DDone
-          else
-            Lwt.return
-              (if curr_tab = x then `Doing
-               else `Todo (* TODO: need some info from server *))
+          match status.status_state with
+          | `Open | `Closed | `Tallied -> Lwt.return `DDone
+          | _ ->
+              Lwt.return
+                (if curr_tab = x then `Doing
+                 else `Todo (* TODO: need some info from server *))
       in
       let* handler = Lwt.return_some (default_handler x) in
       { title = s_ "Decryption trustees"; id = "tab_trustees"; status; handler }
