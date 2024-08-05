@@ -1057,7 +1057,12 @@ let dates_content () =
         Cache.set Cache.e_dates (set dates d);
         Cache.sync_until_success ()
       in
-      r##.onchange := lwt_handler (fun _ -> sync ());
+      let _ =
+        Dom.addEventListener r
+          (Dom.Event.make "focusout")
+          (lwt_handler (fun _ -> sync ()))
+          Js._false
+      in
       let label = label ~a:[ a_label_for id ] [ txt l ] in
       let btn_soon =
         let@ () = button (s_ "In 5 minutes") in
