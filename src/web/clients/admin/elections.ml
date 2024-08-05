@@ -1027,7 +1027,7 @@ let format_date_object x =
 
 let dates_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  let header = h2 [ txt @@ s_ "Automatic open/close dates" ] in
+  let header = h2 [ txt @@ s_ "Automatic dates" ] in
   let* is_openable = is_openable () in
   if is_draft () then
     Lwt.return
@@ -1082,7 +1082,12 @@ let dates_content () =
         (fun x -> x.auto_date_close)
         (fun x y -> { x with auto_date_close = y })
     in
-    Lwt.return [ header; open_div; close_div ]
+    let publish_div =
+      make_div (s_ "Publish: ") "inppcont"
+        (fun x -> x.auto_date_publish)
+        (fun x y -> { x with auto_date_publish = y })
+    in
+    Lwt.return [ header; open_div; close_div; publish_div ]
 
 let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 

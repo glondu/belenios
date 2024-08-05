@@ -230,12 +230,12 @@ type election_status = {
    ?authentication : authentication option;
    auto_delete_date : float;
    ?auto_archive_date : float option;
-   ?postpone_date : float option;
 } <ocaml field_prefix="status_">
 
 type election_auto_dates = {
     ?open : float option;
     ?close : float option;
+    ?publish : float option;
 } <ocaml field_prefix="auto_date_">
 
 type voting_record = {
@@ -253,7 +253,6 @@ type admin_request =
   | ReleaseTally
   | Archive
   | RegeneratePassword of string
-  | SetPostponeDate of float nullable
   ]
 
 type trustee_pd = {

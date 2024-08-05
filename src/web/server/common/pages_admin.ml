@@ -2493,8 +2493,8 @@ struct
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
     let title = template.t_name ^ " — " ^ s_ "Administration" in
+    let* dates = Web_persist.get_election_automatic_dates s uuid in
     let auto_form () =
-      let* d = Web_persist.get_election_automatic_dates s uuid in
       let format = function
         | None -> ""
         | Some x -> Datetime.format @@ Datetime.from_unixfloat x
@@ -2520,14 +2520,16 @@ struct
                        txt (s_ "Automatically open the election at:");
                        txt " ";
                        input ~name:lopen ~input_type:`Text
-                         ~value:(format d.auto_date_open) string;
+                         ~value:(format dates.auto_date_open)
+                         string;
                      ];
                    div
                      [
                        txt (s_ "Automatically close the election at:");
                        txt " ";
                        input ~name:lclose ~input_type:`Text
-                         ~value:(format d.auto_date_close) string;
+                         ~value:(format dates.auto_date_close)
+                         string;
                      ];
                    div
                      [
@@ -2831,15 +2833,14 @@ struct
                    return (first_line :: second_line))
           in
           let* release_form =
-            let* hidden = Web_persist.get_election_result_hidden s uuid in
-            match hidden with
+            match dates.auto_date_publish with
             | Some t ->
                 let scheduled =
                   div
                     [
                       Printf.sprintf
                         (f_ "The result is scheduled to be published after %s.")
-                        (Datetime.unwrap t)
+                        (Datetime.unwrap (Datetime.from_unixfloat t))
                       |> txt;
                     ]
                 in
@@ -2860,11 +2861,10 @@ struct
                       [
                         div
                           [
-                            Printf.ksprintf txt
-                              (f_
+                            txt
+                              (s_
                                  "You may postpone the publication of the \
-                                  election result up to %d days in the future.")
-                              Defaults.days_to_publish_result;
+                                  election result.");
                           ];
                         div
                           [

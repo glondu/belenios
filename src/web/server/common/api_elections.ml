@@ -103,14 +103,12 @@ let get_election_status s uuid =
         Datetime.to_unixfloat
         @@ Period.add t (Period.day Defaults.days_to_delete)
   in
-  let* postpone = Web_persist.get_election_result_hidden s uuid in
   Lwt.return
     {
       status_state :> state;
       status_authentication;
       status_auto_archive_date;
       status_auto_delete_date;
-      status_postpone_date = Option.map Datetime.to_unixfloat postpone;
     }
 
 let get_partial_decryptions s uuid metadata =
@@ -178,21 +176,6 @@ let get_partial_decryptions s uuid metadata =
                });
       partial_decryptions_threshold = threshold;
     }
-
-let set_postpone_date s uuid date =
-  let@ date cont =
-    match date with
-    | None -> cont None
-    | Some t ->
-        let t = Datetime.from_unixfloat t in
-        let max =
-          Period.add (Datetime.now ())
-            (Period.day Defaults.days_to_publish_result)
-        in
-        if Datetime.compare t max > 0 then Lwt.return_false else cont (Some t)
-  in
-  let* () = Web_persist.set_election_result_hidden s uuid date in
-  Lwt.return_true
 
 let get_shuffles s uuid metadata =
   let@ () =
@@ -366,11 +349,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in
               let* b = Web_persist.regen_password s uuid metadata user in
-              if b then ok else not_found
-          | `SetPostponeDate date ->
-              let@ () = handle_generic_error in
-              let* b = set_postpone_date s uuid date in
-              if b then ok else bad_request)
+              if b then ok else not_found)
       | `DELETE ->
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in

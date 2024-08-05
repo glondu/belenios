@@ -1194,19 +1194,10 @@ struct
 
   let election_set_result_hidden s uuid date =
     let@ _ = with_metadata_check_owner s uuid in
-    let* b = Api_elections.set_postpone_date s uuid date in
-    if b then redir_preapply election_admin uuid ()
-    else
-      let* l = get_preferred_gettext () in
-      let open (val l) in
-      let service = preapply ~service:election_admin uuid in
-      let msg =
-        Printf.sprintf
-          (f_ "The date must be less than %d days in the future!")
-          Defaults.days_to_publish_result
-      in
-      Pages_common.generic_page ~title:(s_ "Error") ~service msg ()
-      >>= Html.send
+    let* dates = Web_persist.get_election_automatic_dates s uuid in
+    let dates = { dates with auto_date_publish = date } in
+    let* () = Web_persist.set_election_automatic_dates s uuid dates in
+    redir_preapply election_admin uuid ()
 
   let parse_datetime_from_post l x =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -1251,9 +1242,10 @@ struct
         in
         match auto_dates with
         | Ok (e_auto_open, e_auto_close) ->
-            let open Belenios_api.Serializable_t in
+            let* dates = Web_persist.get_election_automatic_dates s uuid in
             let dates =
               {
+                dates with
                 auto_date_open = Option.map Datetime.to_unixfloat e_auto_open;
                 auto_date_close = Option.map Datetime.to_unixfloat e_auto_close;
               }
@@ -1321,8 +1313,10 @@ struct
         else
           let@ s = Storage.with_transaction in
           let* hidden =
-            let* x = Web_persist.get_election_result_hidden s uuid in
-            match x with None -> return_false | Some _ -> return_true
+            let* dates = Web_persist.get_election_automatic_dates s uuid in
+            match dates.auto_date_publish with
+            | None -> return_false
+            | Some _ -> return_true
           in
           let* allow =
             if hidden then

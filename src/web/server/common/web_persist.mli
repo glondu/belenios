@@ -37,8 +37,6 @@ val update_election_state : election_state updatable Lwt.t Storage.u
 val get_election_dates : election_dates Lwt.t Storage.u
 val update_election_dates : election_dates updatable Lwt.t Storage.u
 val get_election_metadata : metadata Lwt.t Storage.u
-val get_election_result_hidden : datetime option Lwt.t Storage.u
-val set_election_result_hidden : (datetime option -> unit Lwt.t) Storage.u
 val get_private_creds_downloaded : bool Lwt.t Storage.u
 val set_private_creds_downloaded : unit Lwt.t Storage.u
 val get_audit_cache : audit_cache Lwt.t Storage.u

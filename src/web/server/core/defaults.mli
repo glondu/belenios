@@ -34,7 +34,6 @@ val days_to_archive : int
 val days_to_delete : int
 val days_to_mail : int
 val days_between_mails : int
-val days_to_publish_result : int
 val max_election_name_size : int
 val max_total_weight : int
 val supported_booth_versions : int list

@@ -88,12 +88,14 @@ let rec show main uuid =
     in
     let auto_open = make_input dates.auto_date_open in
     let auto_close = make_input dates.auto_date_close in
+    let auto_publish = make_input dates.auto_date_publish in
     let set_button =
       let@ () = button "Set automatic dates" in
       let dates =
         {
           auto_date_open = get_date auto_open;
           auto_date_close = get_date auto_close;
+          auto_date_publish = get_date auto_publish;
         }
       in
       let* x =
@@ -104,7 +106,7 @@ let rec show main uuid =
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    Lwt.return [ fst auto_open; fst auto_close; set_button ]
+    Lwt.return [ fst auto_open; fst auto_close; fst auto_publish; set_button ]
   in
   let regenpwd =
     let i, iget = input "" in
@@ -120,21 +122,6 @@ let rec show main uuid =
       generic_proceed x (fun () -> show main uuid)
     in
     [ i; set_button ]
-  in
-  let postpone =
-    let i = input "" in
-    let set_button =
-      let@ () = button "Set postpone date" in
-      let request = `SetPostponeDate (get_date i) in
-      let* x =
-        post_with_token ?ifmatch
-          (string_of_admin_request request)
-          "elections/%s" uuid
-      in
-      let@ () = show_in main in
-      generic_proceed x (fun () -> show main uuid)
-    in
-    [ fst i; set_button ]
   in
   let make of_string to_string what =
     let* x = get of_string "elections/%s/%s" uuid what in
@@ -177,7 +164,6 @@ let rec show main uuid =
       div buttons;
       div auto_dates;
       div regenpwd;
-      div postpone;
       h1 [ txt "Voters" ];
       div voters;
       h1 [ txt "Records" ];

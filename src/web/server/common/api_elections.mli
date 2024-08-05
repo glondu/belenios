@@ -26,7 +26,6 @@ open Api_generic
 
 val get_election_status : election_status Lwt.t Storage.u
 val get_records : records Lwt.t Storage.u
-val set_postpone_date : (float option -> bool Lwt.t) Storage.u
 val get_partial_decryptions : (metadata -> partial_decryptions Lwt.t) Storage.u
 val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
 val skip_shuffler : (string -> unit Lwt.t) Storage.u

@@ -1149,16 +1149,20 @@ let close_election s uuid = set_election_state s uuid `Closed
 let get_election_automatic_dates s uuid =
   let open Belenios_api.Serializable_t in
   let* d = get_election_dates s uuid in
+  let* publish = get_election_result_hidden s uuid in
   Lwt.return
     {
       auto_date_open = Option.map Datetime.to_unixfloat d.e_auto_open;
       auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
+      auto_date_publish = Option.map Datetime.to_unixfloat publish;
     }
 
 let set_election_automatic_dates s uuid d =
   let open Belenios_api.Serializable_t in
   let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
   let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
+  let e_auto_publish = Option.map Datetime.from_unixfloat d.auto_date_publish in
+  let* () = set_election_result_hidden s uuid e_auto_publish in
   let* dates, set = update_election_dates s uuid in
   set { dates with e_auto_open; e_auto_close }
 

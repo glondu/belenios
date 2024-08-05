@@ -324,8 +324,10 @@ struct
       | ESRaw | ESETally | ESArchive _ | ESSalts -> return false
       | ESRecords | ESVoters -> return true
       | ESResult -> (
-          let* hidden = Web_persist.get_election_result_hidden s uuid in
-          match hidden with None -> return false | Some _ -> return true)
+          let* dates = Web_persist.get_election_automatic_dates s uuid in
+          match dates.auto_date_publish with
+          | None -> return false
+          | Some _ -> return true)
     in
     let* allowed =
       if confidential then

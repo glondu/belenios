@@ -402,13 +402,22 @@ struct
     in
     let uuid = W.uuid in
     let* metadata = Web_persist.get_election_metadata s uuid in
-    let* dates = Web_persist.get_election_dates s uuid in
+    let* dates = Web_persist.get_election_automatic_dates s uuid in
+    let auto_date_open =
+      Option.map Datetime.from_unixfloat dates.auto_date_open
+    in
+    let auto_date_close =
+      Option.map Datetime.from_unixfloat dates.auto_date_close
+    in
+    let auto_date_publish =
+      Option.map Datetime.from_unixfloat dates.auto_date_publish
+    in
     let now = Datetime.now () in
     let state_ =
       match state with
       | `Closed ->
           let it_will_open =
-            match dates.e_auto_open with
+            match auto_date_open with
             | Some t when Datetime.compare now t < 0 ->
                 span
                   [
@@ -426,7 +435,7 @@ struct
           ]
       | `Open ->
           let it_will_close =
-            match dates.e_auto_close with
+            match auto_date_close with
             | Some t when Datetime.compare now t < 0 ->
                 span
                   [
@@ -492,7 +501,6 @@ struct
       let result =
         Option.map (election_result_of_string W.read_result) result
       in
-      let* hidden = Web_persist.get_election_result_hidden s uuid in
       let* is_admin =
         let* metadata = Web_persist.get_election_metadata s uuid in
         let* site_user = Eliom_reference.get Web_state.site_user in
@@ -501,7 +509,7 @@ struct
         | _ -> return_false
       in
       match result with
-      | Some r when hidden = None || is_admin ->
+      | Some r when auto_date_publish = None || is_admin ->
           let* nballots, total_weight =
             let* x = Public_archive.get_sized_encrypted_tally s uuid in
             match x with
@@ -546,7 +554,7 @@ struct
                ]
       | Some _ ->
           let t =
-            match hidden with
+            match auto_date_publish with
             | Some t -> t
             | None -> failwith "Impossible case in election_admin"
           in
