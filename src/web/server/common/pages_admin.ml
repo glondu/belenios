@@ -44,7 +44,7 @@ struct
   let privacy_notice cont =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let title = s_ "Election server" ^ " — " ^ s_ "Terms of service" in
+    let title = s_ "Election server" ^^^ s_ "Terms of service" in
     let content =
       [
         div
@@ -197,7 +197,7 @@ struct
       read_snippet ~default ~lang !Web_config.admin_home
     in
     let content = [ body; auth_div ] in
-    let title = "Belenios" ^ " — " ^ s_ "Verifiable online voting platform" in
+    let title = "Belenios" ^^^ s_ "Verifiable online voting platform" in
     let* login_box = login_box ~cont:ContSiteAdmin () in
     base ~title ~login_box ~content ()
 
@@ -252,7 +252,7 @@ struct
             uuid;
         ]
     in
-    let title = s_ "Election server" ^ " — " ^ s_ "Administration" in
+    let title = s_ "Election server" ^^^ s_ "Administration" in
     match elections with
     | draft, elections, tallied, archived ->
         let draft =
@@ -2246,8 +2246,8 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
-      s_ "Election " ^ se.se_questions.t_name ^ " — "
-      ^ s_ "Import voters from another election"
+      s_ "Election " ^ se.se_questions.t_name
+      ^^^ s_ "Import voters from another election"
     in
     let note =
       s_
@@ -2261,8 +2261,8 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let title =
-      s_ "Election " ^ se.se_questions.t_name ^ " — "
-      ^ s_ "Import trustees from another election"
+      s_ "Election " ^ se.se_questions.t_name
+      ^^^ s_ "Import trustees from another election"
     in
     let note =
       s_
@@ -2277,7 +2277,7 @@ struct
     let notok x = span ~a:[ a_style "color: red;" ] [ txt x ] in
     let ok x = txt x in
     let title =
-      s_ "Election " ^ se.se_questions.t_name ^ " — " ^ s_ "Validate creation"
+      s_ "Election " ^ se.se_questions.t_name ^^^ s_ "Validate creation"
     in
     let* s = Api_drafts.get_draft_status s uuid fse in
     let ready = true in
@@ -2492,7 +2492,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let title = template.t_name ^ " — " ^ s_ "Administration" in
+    let title = template.t_name ^^^ s_ "Administration" in
     let* dates = Web_persist.get_election_automatic_dates s uuid in
     let auto_form () =
       let format = function
@@ -3089,7 +3089,7 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let title = template.t_name ^ " — " ^ s_ "Records" in
+    let title = template.t_name ^^^ s_ "Records" in
     let nrecords = List.length records in
     let records =
       List.map

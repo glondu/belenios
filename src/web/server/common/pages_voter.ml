@@ -1117,7 +1117,7 @@ struct
     let* hashes = Public_archive.get_ballot_hashes s uuid in
     let* audit_cache = Web_persist.get_audit_cache s uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
-    let title = template.t_name ^ " — " ^ s_ "Accepted ballots" in
+    let title = template.t_name ^^^ s_ "Accepted ballots" in
     let nballots = ref 0 in
     let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
     let ballots =

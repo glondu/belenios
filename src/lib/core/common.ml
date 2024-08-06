@@ -23,6 +23,7 @@ open Belenios_platform
 open Platform
 open Signatures_core
 
+let ( ^^^ ) a b = a ^ " — " ^ b
 let ( let@ ) f x = f x
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
