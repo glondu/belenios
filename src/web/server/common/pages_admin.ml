@@ -197,7 +197,7 @@ struct
       read_snippet ~default ~lang !Web_config.admin_home
     in
     let content = [ body; auth_div ] in
-    let title = "Belenios" ^^^ s_ "Verifiable online voting platform" in
+    let title = !Web_config.vendor ^^^ s_ "Election server" in
     let* login_box = login_box ~cont:ContSiteAdmin () in
     base ~title ~login_box ~content ()
 
@@ -3711,9 +3711,9 @@ let mail_confirmation_link l address code =
   add_newline b;
   add_string b "-- ";
   add_newline b;
-  add_string b (s_ "Belenios Server");
+  add_string b !Web_config.server_name;
   let body = contents b in
-  let subject = s_ "Belenios account creation" in
+  let subject = !Web_config.vendor ^^^ s_ "Create account" in
   (subject, body)
 
 let mail_changepw_link l address code =
@@ -3745,9 +3745,9 @@ let mail_changepw_link l address code =
   add_newline b;
   add_string b "-- ";
   add_newline b;
-  add_string b (s_ "Belenios Server");
+  add_string b !Web_config.server_name;
   let body = contents b in
-  let subject = s_ "Belenios password change" in
+  let subject = !Web_config.vendor ^^^ s_ "Change password" in
   (subject, body)
 
 let mail_set_email l address code =
@@ -3779,7 +3779,7 @@ let mail_set_email l address code =
   add_newline b;
   add_string b "-- ";
   add_newline b;
-  add_string b (s_ "Belenios Server");
+  add_string b !Web_config.server_name;
   let body = contents b in
-  let subject = s_ "Belenios account e-mail address change" in
+  let subject = !Web_config.vendor ^^^ s_ "Change e-mail address" in
   (subject, body)

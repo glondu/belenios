@@ -28,6 +28,7 @@ val exported_auth_config :
   [ `BuiltinPassword | `BuiltinCAS | `Export of auth_config ] list ref
 
 val locales_dir : string ref
+val vendor : string ref
 val server_name : string ref
 val server_mail : string ref
 val return_path : string option ref

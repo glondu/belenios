@@ -71,6 +71,7 @@ module Make () = struct
           | None -> ()
         in
         tos := List.assoc_opt "uri" attrs
+    | Element ("vendor", [ ("name", name) ], []) -> Web_config.vendor := name
     | Element ("server", attrs, []) ->
         let set check_email attr setter =
           match List.assoc_opt attr attrs with

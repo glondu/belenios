@@ -490,9 +490,9 @@ struct
     add_newline b;
     add_string b "-- ";
     add_newline b;
-    add_string b (s_ "Belenios Server");
+    add_string b !Web_config.server_name;
     let body = contents b in
-    let subject = s_ "Belenios authentication" in
+    let subject = !Web_config.vendor ^^^ s_ "Authentication" in
     Lwt.return (subject, body)
 
   let signup_captcha_img challenge =

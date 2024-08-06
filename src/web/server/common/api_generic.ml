@@ -109,6 +109,7 @@ let get_configuration () =
   let open Defaults in
   {
     restricted_mode = !Web_config.restricted_mode;
+    vendor = !Web_config.vendor;
     uris = get_configuration_uris ();
     belenios_version = Version.version;
     belenios_build = Version.build;

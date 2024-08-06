@@ -1864,7 +1864,7 @@ struct
       Pages_admin.signup_captcha ~service error challenge email
     else
       let service = preapply ~service:signup_captcha service in
-      Pages_common.generic_page ~title:(s_ "Account creation") ~service
+      Pages_common.generic_page ~title:(s_ "Create account") ~service
         (s_ "You cannot create an account now. Please try later.")
         ()
 
@@ -1987,7 +1987,7 @@ struct
                     preapply ~service:site_login
                       (Some service, default_admin ContSiteAdmin)
                   in
-                  Pages_common.generic_page ~title:(s_ "Account creation")
+                  Pages_common.generic_page ~title:(s_ "Create account")
                     ~service
                     (s_ "The account has been created.")
                     ()

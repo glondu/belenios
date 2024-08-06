@@ -49,7 +49,7 @@ let parse_hash () =
         | _ -> `Home)
     | _ -> `Home
 
-let header () =
+let header config =
   let open (val !Belenios_js.I18n.gettext) in
   let* title, description =
     match !where_am_i with
@@ -60,7 +60,8 @@ let header () =
             Lwt.return
               ( s_ "Setup: " ^ draft.draft_questions.t_name,
                 draft.draft_questions.t_description )
-        | Error _ -> Lwt.return ("Fail/Belenios administrator page", ""))
+        | Error _ ->
+            Lwt.return (config.vendor ^^^ s_ "Administration" ^^^ "Error", ""))
     | Election { uuid; status = Running | Tallied | Archived; _ } -> (
         let* x =
           get Yojson.Safe.from_string "elections/%s/election" (Uuid.unwrap uuid)
@@ -84,8 +85,9 @@ let header () =
               | _ -> "Fail when parsing election.json"
             in
             Lwt.return (name, description)
-        | Error _ -> Lwt.return ("Fail/Belenios administrator page", ""))
-    | _ -> Lwt.return (s_ "Belenios administrator page", "")
+        | Error _ ->
+            Lwt.return (config.vendor ^^^ s_ "Administration" ^^^ "Error", ""))
+    | _ -> Lwt.return (config.vendor ^^^ s_ "Administration", "")
   in
   Lwt.return
     [
@@ -98,7 +100,7 @@ let header () =
                 a_class [ "page-header__logo__image" ];
                 a_title "Election server";
               ]
-            ~alt:"Belenios logo" ~src:"../LOGO" ();
+            ~alt:"Logo" ~src:"../LOGO" ();
         ];
       div
         ~a:[ a_class [ "page-header__titles" ] ]
@@ -408,7 +410,7 @@ let show_root main =
         Lwt.return_unit
   in
   let@ () = show_in main in
-  let* header = header () in
+  let* header = header config in
   let* page_body =
     match !where_am_i with Election _ -> Lwt.return [] | _ -> page_body ()
   in

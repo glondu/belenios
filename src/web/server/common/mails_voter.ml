@@ -95,7 +95,7 @@ let format_password_email (x : password_email) =
       x.langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
-  let body = body ^ "\n\n-- \nBelenios" in
+  let body = body ^ "\n\n-- \n" ^ !Web_config.vendor in
   let* subject =
     let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd x.langs) in
     let open (val l) in
@@ -197,7 +197,7 @@ let format_credential_email (x : credential_email) =
       x.langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
-  let body = body ^ "\n\n-- \nBelenios" in
+  let body = body ^ "\n\n-- \n" ^ !Web_config.vendor in
   let* subject =
     let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd x.langs) in
     let open (val l) in
@@ -454,5 +454,5 @@ let mail_confirmation l user title weight hash revote url1 url2 contact =
   add_newline b;
   add_string b "-- ";
   add_newline b;
-  add_string b "Belenios";
+  add_string b !Web_config.vendor;
   contents b

@@ -96,6 +96,7 @@ type configuration_uris = {
 
 type configuration = {
     restricted_mode : bool;
+    vendor : string;
     uris : configuration_uris;
     belenios_version : string;
     belenios_build : string;
