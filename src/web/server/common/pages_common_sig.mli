@@ -108,6 +108,7 @@ module type S = sig
 
   val generic_page :
     title:string ->
+    ?uri:Eliom_content.Xml.uri ->
     ?service:
       ( unit,
         unit,

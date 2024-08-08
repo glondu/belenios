@@ -197,13 +197,12 @@ struct
        see https://bugzilla.mozilla.org/show_bug.cgi?id=646552 *)
     direct_a ~target:"_blank" uri contents
 
-  let generic_page ~title ?service message () =
+  let generic_page ~title ?uri ?service message () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let proceed =
-      match service with
-      | None -> txt ""
-      | Some service ->
+      match (uri, service) with
+      | None, Some service ->
           div
             [
               a ~service
@@ -211,6 +210,14 @@ struct
                 [ txt (s_ "Proceed") ]
                 ();
             ]
+      | Some uri, None ->
+          div
+            [
+              Eliom_content.Html.F.Raw.a
+                ~a:[ a_id "generic_proceed_link"; a_href uri ]
+                [ txt (s_ "Proceed") ];
+            ]
+      | _ -> txt ""
     in
     let content = [ p [ txt message ]; proceed ] in
     base ~title ~content ()
