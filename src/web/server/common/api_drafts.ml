@@ -1003,6 +1003,19 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
           let* () = Web_persist.delete_draft s uuid in
           ok
       | _ -> method_not_allowed)
+  | [ "election" ] -> (
+      let get () =
+        let (Draft (v, se)) = se in
+        let version = se.se_version in
+        let group = se.se_group in
+        let module G = (val Group.of_string ~version group : GROUP) in
+        let public_key = G.to_string G.g in
+        Lwt.return
+        @@ Election.make_raw_election ~version
+             (Template (v, se.se_questions))
+             ~uuid ~group ~public_key
+      in
+      match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se in
       let get () =

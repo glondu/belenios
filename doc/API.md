@@ -51,6 +51,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 * `POST`: draft_request -> unit (administrator)
 * `DELETE`: unit -> unit (administrator)
 
+## `drafts/$UUID/election` (anybody)
+
+* `GET`: unit -> json
+
 ## `drafts/$UUID/voters`
 
 * `GET`: unit -> voter_list (administrator or credential authority)
