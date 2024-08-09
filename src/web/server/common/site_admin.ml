@@ -613,22 +613,6 @@ struct
         redir_preapply election_draft uuid ())
 
   let () =
-    Any.register ~service:election_draft_preview (fun (uuid, ()) () ->
-        let@ s = Storage.with_transaction in
-        let@ (Draft (v, se)) = with_draft ~save:false s uuid in
-        let version = se.se_version in
-        let group = se.se_group in
-        let module G = (val Group.of_string ~version group : GROUP) in
-        let public_key = G.to_string G.g in
-        let raw_election =
-          Election.make_raw_election ~version
-            (Template (v, se.se_questions))
-            ~uuid ~group ~public_key
-        in
-        let* x = String.send (raw_election, "application/json") in
-        return @@ Eliom_registration.cast_unknown_content_kind x)
-
-  let () =
     Any.register ~service:election_draft_voters (fun uuid () ->
         let@ s = Storage.with_transaction in
         let@ se = with_draft ~save:false s uuid in
