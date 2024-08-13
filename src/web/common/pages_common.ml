@@ -122,11 +122,13 @@ module Make (Base : BASE) = struct
                         [ txt "" ];
                       (* no description provided? *)
                     ];
-                  div ~a:[ a_class [ "page-header__right" ] ] [ login_box ];
+                  div ~a:[ a_class [ "page-header__right" ] ] [];
                 ];
+              warning;
+              login_box;
               div
                 ~a:[ a_class [ "page-body" ] ]
-                [ warning; div ~a:[ a_id "main" ] [ lang_box; div content ] ];
+                [ div ~a:[ a_id "main" ] [ lang_box; div content ] ];
               div
                 ~a:[ a_class [ "page-footer" ] ]
                 (footer_fragment l ~administer ~footer ~extra_footer

@@ -38,7 +38,6 @@ struct
   open Web_services
   open Pages_common
 
-  let admin_background = " background: #FF9999;"
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
   let privacy_notice cont =
@@ -88,7 +87,6 @@ struct
   let login_box ?cont () =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let style = "float: right; text-align: right;" ^ admin_background in
     let* user = Eliom_reference.get Web_state.site_user in
     let auth_systems =
       List.map (fun x -> x.auth_instance) !Web_config.site_auth_config
@@ -99,45 +97,49 @@ struct
       Eliom_service.preapply ~service:site_login (Some service, cont)
     in
     let logout () = Eliom_service.preapply ~service:logout cont in
+    let home =
+      div
+        ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]
+        [ a ~service:admin [ txt @@ s_ "Home" ] () ]
+    in
+    let blank = div ~a:[ a_class [ "nav-menu__item-blank"; "noselect" ] ] [] in
     let body =
       match user with
       | Some (_, account, _) ->
           [
             div
+              ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]
               [
-                txt (s_ "Logged in as");
-                txt " ";
-                em [ a ~service:Web_services.account [ txt account.name ] () ];
-                txt ".";
+                div
+                  ~a:[ a_id "nav_username" ]
+                  [ a ~service:Web_services.account [ txt account.name ] () ];
+                img
+                  ~a:[ a_id "avatar" ]
+                  ~src:(static "avatar.png") ~alt:"Avatar" ();
               ];
             div
-              [
-                a
-                  ~a:[ a_id "logout" ]
-                  ~service:(logout ())
-                  [ txt (s_ "Log out") ]
-                  ();
-                txt ".";
-              ];
+              ~a:[ a_id "logout"; a_class [ "nav-menu__item"; "noselect" ] ]
+              [ a ~service:(logout ()) [ txt @@ s_ "Log out" ] () ];
           ]
       | None ->
+          let auth_systems =
+            List.map
+              (fun name ->
+                a
+                  ~a:[ a_id ("login_" ^ name) ]
+                  ~service:(login name)
+                  [ txt name ]
+                  ())
+              auth_systems
+            |> List.join (txt ", ")
+          in
           [
-            div [ txt (s_ "Not logged in.") ];
-            (let auth_systems =
-               List.map
-                 (fun name ->
-                   a
-                     ~a:[ a_id ("login_" ^ name) ]
-                     ~service:(login name)
-                     [ txt name ]
-                     ())
-                 auth_systems
-               |> List.join (txt ", ")
-             in
-             div ([ txt (s_ "Log in:"); txt " [" ] @ auth_systems @ [ txt "]" ]));
+            div
+              ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]
+              ([ txt (s_ "Log in:"); txt " [" ] @ auth_systems @ [ txt "]" ]);
           ]
     in
-    return (div ~a:[ a_style style ] body)
+    div ~a:[ a_class [ "nav-menu" ] ] (home :: blank :: body) |> Lwt.return
 
   let admin_login get_handler =
     let* l = get_preferred_gettext () in

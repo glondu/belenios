@@ -32,3 +32,8 @@
     display: inline-block;
     margin-right: 5px;
 }
+
+.nav-menu__item a {
+    text-decoration: none;
+    color: white;
+}

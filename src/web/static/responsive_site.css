@@ -10,6 +10,7 @@
 @import "../../../frontend/booth/components/common.css";
 
 @import "./common.css";
+@import "./NavMenu.css";
 
 #main {
   padding: 10px;
