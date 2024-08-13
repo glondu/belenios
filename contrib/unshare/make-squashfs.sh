@@ -16,6 +16,8 @@ CHANGES="$(readlink -f "$1")"; shift
 TARBALL="$(readlink -f "$1")"; shift
 TARGET="$1"; shift
 
+export SOURCE_DATE_EPOCH="$(git log -1 --pretty=format:%ct)"
+
 BELENIOS_RUNDEPS="netbase ca-certificates zip libgd-securityimage-perl cracklib-runtime"
 BELENIOS_DEVDEPS="$BELENIOS_RUNDEPS libsodium-dev git jq npm"
 
@@ -39,7 +41,7 @@ mkdir debian
 
 DEBNAME="$(git config --get user.name)"
 DEBMAIL="$(git config --get user.email)"
-DEBDATE="$(date -R)"
+DEBDATE="$(date -d@$SOURCE_DATE_EPOCH -R)"
 BDEPS="$(echo "$BELENIOS_DEVDEPS" | sed -r 's/\s+/, /g')"
 BINDEPS="$(echo "$BELENIOS_RUNDEPS" | sed -r 's/\s+/, /g')"
 

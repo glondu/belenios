@@ -15,6 +15,8 @@ SUITE="$1"
 DEB="$2"
 TARGET="$3"
 
+export SOURCE_DATE_EPOCH="$(git log -1 --pretty=format:%ct)"
+
 SUFFIX="$(basename "$DEB")"
 SUFFIX="${SUFFIX#belenios-opam}"
 SUFFIX="${SUFFIX%%_*}"

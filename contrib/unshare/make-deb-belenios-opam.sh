@@ -28,6 +28,8 @@ VERSION="$3"
 ADDITIONAL_OPAM_PACKAGES="$4"
 TARGET="$(readlink -f "$5")"
 
+export SOURCE_DATE_EPOCH="$(git log -1 --pretty=format:%ct)"
+
 if ! [ -d "$TARGET" ]; then
     echo "$TARGET is not a directory"
     exit 1
@@ -95,7 +97,7 @@ mkdir debian
 
 DEBNAME="$(git config --get user.name)"
 DEBMAIL="$(git config --get user.email)"
-DEBDATE="$(date -R)"
+DEBDATE="$(date -d@$SOURCE_DATE_EPOCH -R)"
 DEBDEPS="$(echo "$DEPS" | sed -r 's/\s+/, /g')"
 BINDEPS="$(echo "$DEV_DEPS" | sed -r 's/\s+/, /g')"
 OPAM_BINDEPS="$(echo "$OPAM_DEPS" | sed -r 's/\s+/, /g')"
