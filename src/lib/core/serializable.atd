@@ -36,6 +36,7 @@ type 'a proof <ocaml predef from="Serializable_core"> = abstract
 type ('a, 'b) trustee_public_key = {
   pok : 'b proof;
   public_key : 'a;
+  ?signature : 'b proof option;
   ?name : string option;
 } <ocaml field_prefix="trustee_">
 

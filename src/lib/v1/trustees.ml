@@ -125,9 +125,17 @@ module MakeCombinator (G : GROUP) = struct
     &&
     let computed_vks = V.compute_verification_keys coefexps in
     t.t_threshold = Array.length coefexps.(0)
-    && Array.for_all2
-         G.(fun vk computed_vk -> vk.trustee_public_key =~ computed_vk)
-         t.t_verification_keys computed_vks
+    && Array.for_all3
+         G.(
+           fun cert vk computed_vk ->
+             vk.trustee_public_key =~ computed_vk
+             &&
+             match vk.trustee_signature with
+             | None -> false
+             | Some s_signature ->
+                 V.verify cert.cert_verification
+                   { s_message = to_string computed_vk; s_signature })
+         certs t.t_verification_keys computed_vks
 
   let check trustees =
     trustees
@@ -205,7 +213,12 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
       "pok|" ^ G.description ^ "|" ^ G.to_string trustee_public_key ^ "|"
     in
     let trustee_pok = fs_prove [| g |] x (G.hash zkp) in
-    { trustee_pok; trustee_public_key; trustee_name = None }
+    {
+      trustee_pok;
+      trustee_public_key;
+      trustee_signature = None;
+      trustee_name = None;
+    }
 end
 
 module MakePKI (G : GROUP) (M : RANDOM) = struct
@@ -453,6 +466,10 @@ struct
         in
         { vi_polynomial; vi_secrets; vi_coefexps; vi_signatures })
 
+  let sign_trustee_public_key ~sk x =
+    let signed = P.sign sk (G.to_string x.trustee_public_key) in
+    { x with trustee_signature = Some signed.s_signature }
+
   let step5 certs seed vinput =
     let n = Array.length certs in
     let threshold = step2 certs in
@@ -523,7 +540,9 @@ struct
       string_of_partial_decryption_key (swrite Zq.to_string)
         { pdk_decryption_key }
     in
-    let vo_public_key = K.prove pdk_decryption_key in
+    let vo_public_key =
+      K.prove pdk_decryption_key |> sign_trustee_public_key ~sk
+    in
     let private_key = C.send sk ek pdk in
     let vo_private_key =
       string_of_encrypted_msg (swrite G.to_string) private_key
@@ -548,8 +567,15 @@ struct
           (raw_coefexps_of_string (sread G.of_string) x.s_message).coefexps)
     in
     let computed_vk = (V.compute_verification_keys coefexps).(i) in
-    L.check [ `Single voutput.vo_public_key ]
-    && voutput.vo_public_key.trustee_public_key =~ computed_vk
+    let { vo_public_key; _ } = voutput in
+    L.check [ `Single vo_public_key ]
+    && vo_public_key.trustee_public_key =~ computed_vk
+    &&
+    match vo_public_key.trustee_signature with
+    | None -> false
+    | Some s_signature ->
+        P.verify certs.(i).cert_verification
+          { s_message = G.to_string computed_vk; s_signature }
 
   let step6 certs polynomials voutputs =
     let n = Array.length certs in

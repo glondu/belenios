@@ -599,7 +599,8 @@ described in the following table:
   \tpk=\left\{
     \begin{array}{rcl}
       \pok&:&\proof\\
-      \pklabel&:&\pk
+      \pklabel&:&\pk\\
+      \textsf{?signature}&:&\proof
     \end{array}
   \right\}
 \end{gather*}
@@ -626,6 +627,10 @@ big-endian number. The proof is verified as follows:
 \item compute $A={g^\response}\times{X^\challenge}$
 \item check that $\challenge=\Hash_\pok(X,A)\mod q$
 \end{enumerate}
+
+The \textsf{signature} field is present only in threshold mode, and is
+the signature of $\pklabel$ by its owner, as described in
+section~\ref{pki}.
 
 \subsection{Messages specific to threshold decryption support}
 \label{threshold}
