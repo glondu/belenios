@@ -20,7 +20,6 @@
     "question_x_of_y": "Domanda {{current_question}} di {{number_of_questions}}",
     "alert_question_constraint_no_blank_and_other": "Non è possibile selezionare contemporaneamente scheda bianca e un'altra risposta.",
     "majority_judgment_question_description": "Si prega di valutare ciascun candidato prima di procedere al passo successivo.",
-    "copy_to_clipboard_label": "Copia",
     "preferential_voting_delete_preference_level": "Eliminare il livello di preferenza",
     "review_ballot_for_questions": "La sua scheda, che al momento non è ancora stata inserita nell'urna, ha il seguente contenuto:",
     "encrypted_ballot_is": "Scheda crittografata:",
@@ -50,6 +49,5 @@
     "page_title": "Cabina elettorale virtuale di Belenios",
     "preferential_voting_not_ranked": "Non classificato",
     "preferential_voting_question_description": "Si prega di classificare i candidati per preferenza. I candidati non classificati, se presenti, sono considerati alla pari come non preferiti.",
-    "your_smart_ballot_tracker_has_been_copied": "Il suo codice di verifica è stato copiato negli Appunti del suo dispositivo. Ora può aprire un documento di testo e incollarlo (a seconda del suo dispositivo, si può incollare premendo Ctrl-V o Cmd-V o con un click prolungato e successiva selezione di 'Paste'/'Incolla').",
     "lists_question_description": "Si prega di selezionare una lista di candidati e di deselezionare ogni candidato che non si intende includere."
 }
