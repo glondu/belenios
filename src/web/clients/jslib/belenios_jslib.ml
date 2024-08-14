@@ -50,6 +50,11 @@ class type encryptBallotCallbacks = object
   method failure : Js.js_string Js.t -> unit Js.meth
 end
 
+class type tracker = object
+  method filename : Js.js_string Js.t Js.readonly_prop
+  method contents : Js.js_string Js.t Js.readonly_prop
+end
+
 class type belenios = object
   method setApiRoot : Js.js_string Js.t -> unit Js.meth
   method computeFingerprint : Js.Unsafe.any Js.t -> Js.js_string Js.t Js.meth
@@ -68,6 +73,12 @@ class type belenios = object
 
   method markup :
     renderingFunctions Js.t -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
+
+  method formatTracker :
+    (module ELECTION_WITH_SK) ->
+    Js.js_string Js.t ->
+    Js.js_string Js.t ->
+    tracker Js.t Js.meth
 end
 
 let apiRoot = ref "../../../api"
@@ -170,6 +181,32 @@ let belenios : belenios Js.t =
         let xs = Markup.render pp xs in
         p##result (Js.array @@ Array.of_list xs)
       with _ -> p##error x
+
+    method formatTracker election prefix tracker =
+      let open (val election : ELECTION_WITH_SK) in
+      let uuid_s = Uuid.unwrap uuid in
+      let b = Buffer.create 1024 in
+      Printf.bprintf b "Election: %s\n" template.t_name;
+      Printf.bprintf b "Election URL: %s/elections/%s/\n" (Js.to_string prefix)
+        uuid_s;
+      Printf.bprintf b "Smart ballot tracker: %s\n" (Js.to_string tracker);
+      let contents =
+        match Base64.encode @@ Buffer.contents b with
+        | Ok x ->
+            Printf.sprintf "data:text/plain;charset=UTF-8;base64,%s" x
+            |> Js.string
+        | Error (`Msg msg) -> failwith msg
+      in
+      let filename =
+        Printf.sprintf "%s_%s_tracker.txt"
+          (remove_special_characters template.t_name)
+          uuid_s
+        |> Js.string
+      in
+      object%js
+        val filename = filename
+        val contents = contents
+      end
   end
 
 let () = Js.export "belenios" belenios

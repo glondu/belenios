@@ -296,6 +296,7 @@ function TranslatableVoteApp({
         },
         e(ReviewEncryptSection, {
           electionObject,
+          electionModule,
           uncryptedBallot: uncryptedBallotBeforeReview,
           cryptedBallot: cryptedBallotBeforeReview,
           smartBallotTracker,

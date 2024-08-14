@@ -105,6 +105,7 @@ val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
 val is_username : string -> bool
 val is_email : ?blacklist:SSet.t -> string -> bool
 val map_and_concat_with_commas : ('a -> string) -> 'a array -> string
+val remove_special_characters : string -> string
 
 module Voter : sig
   type t = [ `Plain | `Json ] * Serializable_core_t.voter

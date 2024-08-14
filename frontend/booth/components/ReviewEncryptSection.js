@@ -7,6 +7,7 @@ import LoadingSpinner from "./LoadingSpinner.js";
 
 function TranslatableReviewEncryptSection({
   electionObject = null,
+  electionModule = null,
   uncryptedBallot = [],
   cryptedBallot = null,
   smartBallotTracker = null,
@@ -22,6 +23,17 @@ function TranslatableReviewEncryptSection({
   const encryptedBallotId = "ballot";
   const encryptedBallotName = "encrypted_vote";
 
+  let tracker = {};
+  if (smartBallotTracker) {
+    const currentUrl = window.location.href;
+    const index = currentUrl.lastIndexOf("/static/");
+    const prefix = currentUrl.slice(0, index);
+    tracker = belenios.formatTracker(
+      electionModule.current,
+      prefix,
+      smartBallotTracker,
+    );
+  }
   const contentWhenBallotIsBeingEncrypted = e(
     "div",
     null,
@@ -39,11 +51,6 @@ function TranslatableReviewEncryptSection({
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
-  }
-  function copyToClipboard() {
-    setBrowserSelectionToSmartBallotTracker();
-    document.execCommand("copy");
-    alert(t("your_smart_ballot_tracker_has_been_copied"));
   }
   const contentWhenBallotHasBeenEncrypted = e(
     "div",
@@ -74,8 +81,9 @@ function TranslatableReviewEncryptSection({
         e("span", null, t("ask_to_save_your_smart_ballot_tracker")),
         e(WhiteNiceButton, {
           tagName: "a",
-          label: t("copy_to_clipboard_label"),
-          onClick: copyToClipboard,
+          label: t("download_tracker_label"),
+          href: tracker.contents,
+          download: tracker.filename,
           style: {
             marginLeft: "5px",
           },

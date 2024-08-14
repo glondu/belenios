@@ -381,6 +381,22 @@ let map_and_concat_with_commas f xs =
   let size = Buffer.length res - 1 in
   if size > 0 then Buffer.sub res 0 size else ""
 
+let remove_special_characters x =
+  let n = String.length x in
+  let b = Buffer.create n in
+  let convert = function
+    | ('0' .. '9' | 'A' .. 'Z' | 'a' .. 'z' | '-') as c -> c
+    | _ -> '_'
+  in
+  let rec loop last i =
+    if i < n then (
+      let c = convert x.[i] in
+      if c <> '_' || last <> '_' then Buffer.add_char b c;
+      loop c (i + 1))
+    else Buffer.contents b
+  in
+  loop '\000' 0
+
 module Voter = struct
   type t = [ `Plain | `Json ] * Serializable_core_t.voter
 
