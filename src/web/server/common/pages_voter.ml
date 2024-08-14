@@ -677,11 +677,6 @@ struct
                  [
                    Printf.ksprintf txt "%s " name;
                    code
-                     [
-                       Printf.ksprintf txt "(%s) "
-                         (Hash.to_b64 x.ttc_verification_key);
-                     ];
-                   code
                      [ Printf.ksprintf txt "[%s]" (Hash.to_b64 x.ttc_pki_key) ];
                  ])
              xs)
@@ -694,9 +689,8 @@ struct
                 [
                   Printf.ksprintf txt
                     (f_
-                       "%d of the following %d trustees (verification keys) \
-                        [public keys] are needed to decrypt the election \
-                        result:")
+                       "%d of the following %d trustees [public keys] are \
+                        needed to decrypt the election result:")
                     x.ts_threshold
                     (List.length x.ts_trustees);
                 ];
