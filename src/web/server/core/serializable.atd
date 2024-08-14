@@ -90,13 +90,6 @@ type election_state =
 
 type decryption_tokens = string list
 
-(* The following is a supertype of trustee_public_key *)
-type ('a, 'b) web_trustee_public_key = {
-  pok : 'b proof;
-  public_key : 'a;
-  ?server : bool option;
-} <ocaml field_prefix="web_trustee_">
-
 type audit_cache = {
   voters_hash : hash;
   checksums : election_checksums;

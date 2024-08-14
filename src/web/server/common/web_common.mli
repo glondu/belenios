@@ -119,13 +119,6 @@ val languages_of_string : string -> string list
 val urlize : string -> string
 val unurlize : string -> string
 val markup : string -> [> Html_types.span ] Eliom_content.Html.elt
-
-val webize_trustee_public_key :
-  ('a, 'b) trustee_public_key -> ('a, 'b) web_trustee_public_key
-
-val unwebize_trustee_public_key :
-  ('a, 'b) web_trustee_public_key -> ('a, 'b) trustee_public_key
-
 val get_booth_index : int option -> int option
 
 val compute_hash_link :

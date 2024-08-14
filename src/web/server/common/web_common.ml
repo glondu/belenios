@@ -303,22 +303,6 @@ let markup x =
     span xs
   with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
 
-let webize_trustee_public_key pk =
-  {
-    web_trustee_pok = pk.trustee_pok;
-    web_trustee_public_key = pk.trustee_public_key;
-    web_trustee_server =
-      (if pk.trustee_name = Some "server" then Some true else None);
-  }
-
-let unwebize_trustee_public_key pk =
-  {
-    trustee_pok = pk.web_trustee_pok;
-    trustee_public_key = pk.web_trustee_public_key;
-    trustee_name =
-      (if pk.web_trustee_server = Some true then Some "server" else None);
-  }
-
 let get_booth_index = function Some 2 -> Some 0 | _ -> None
 
 let compute_hash_link ~service ~uuid ~token =
