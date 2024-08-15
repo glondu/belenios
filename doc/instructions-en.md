@@ -93,8 +93,7 @@ of the resulting page has one of the following forms (where PREFIX and
 UUID are as defined above, and TOKEN is a random-looking character
 string):
 
-- `PREFIX/draft/trustee.html#UUID-TOKEN`, or
-- `PREFIX/draft/threshold-trustee.html#UUID-TOKEN` (in threshold mode)
+- `PREFIX/static/trustee.html#generate/UUID/TOKEN`
 
 Moreover, it is expected that the trustee saves:
 

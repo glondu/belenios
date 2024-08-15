@@ -50,6 +50,14 @@ module Make () = struct
     | None -> base
     | Some uuid -> base ^ "#" ^ Belenios.Uuid.unwrap uuid
 
+  let make_trustee_generate_link uuid ~token =
+    Eliom_uri.make_string_uri ~absolute:true
+      ~service:(Eliom_service.static_dir ())
+      [ "static"; "trustee.html" ]
+    |> (fun x ->
+         Printf.sprintf "%s#generate/%s/%s" x (Belenios.Uuid.unwrap uuid) token)
+    |> rewrite_prefix
+
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true
       ~meth:(Post (unit, privacy_cont "cont"))
@@ -187,15 +195,6 @@ module Make () = struct
       ~meth:(Get (suffix uuid_and_token))
       ()
 
-  let election_draft_trustee_static =
-    create ~path:(Path [ "draft"; "trustee.html" ]) ~meth:(Get unit) ()
-
-  let election_draft_trustee_post =
-    create ~csrf_safe:true
-      ~path:(Path [ "draft"; "submit-trustee" ])
-      ~meth:(Post (uuid_and_token, string "public_key"))
-      ()
-
   let election_draft_threshold_trustees =
     create
       ~path:(Path [ "draft"; "threshold-trustees" ])
@@ -206,17 +205,6 @@ module Make () = struct
     create
       ~path:(Path [ "draft"; "threshold-trustee" ])
       ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_draft_threshold_trustee_static =
-    create
-      ~path:(Path [ "draft"; "threshold-trustee.html" ])
-      ~meth:(Get unit) ()
-
-  let election_draft_threshold_trustee_post =
-    create ~csrf_safe:true
-      ~path:(Path [ "draft"; "submit-threshold-trustee" ])
-      ~meth:(Post (uuid_and_token, string "data"))
       ()
 
   let election_draft_threshold_set =

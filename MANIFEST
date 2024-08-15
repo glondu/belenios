@@ -395,8 +395,12 @@ src/web/clients/tool/tool_js_pd.ml
 src/web/clients/tool/tool_js_questions.ml
 src/web/clients/tool/tool_js_shuffle.ml
 src/web/clients/tool/tool_js_shuffle.mli
-src/web/clients/tool/tool_js_tkeygen.ml
-src/web/clients/tool/tool_js_ttkeygen.ml
+src/web/clients/trustee/dune
+src/web/clients/trustee/generate.ml
+src/web/clients/trustee/generate.mli
+src/web/clients/trustee/trustee.html
+src/web/clients/trustee/trustee.ml
+src/web/clients/trustee/trustee.mli
 src/web/clients/worker/belenios_worker.ml
 src/web/clients/worker/belenios_worker.mli
 src/web/clients/worker/dune

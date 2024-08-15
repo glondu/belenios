@@ -98,8 +98,7 @@ lien, et s'assurer que l'URL de la page qu'elle obtient a une des
 formes suivantes (où PREFIXE et UUID sont comme définis ci-dessus, et
 JETON est une chaîne de caractères d'apparence aléatoire) :
 
-- `PREFIXE/draft/trustee.html#UUID-JETON`, ou
-- `PREFIXE/draft/threshold-trustee.html#UUID-JETON` (dans le mode à seuil)
+- `PREFIXE/static/trustee.html#generate/UUID/JETON`
 
 De plus, il est attendu que l'autorité de déchiffrement sauvegarde :
 

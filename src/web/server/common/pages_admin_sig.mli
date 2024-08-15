@@ -80,12 +80,6 @@ module type S = sig
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val election_draft_trustee_static :
-    unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_draft_threshold_trustee_static :
-    unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val election_draft_import :
     uuid ->
     draft_election ->

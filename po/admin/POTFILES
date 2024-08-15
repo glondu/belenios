@@ -4,8 +4,6 @@ src/web/server/common/pages_admin.ml
 src/web/server/common/site_admin.ml
 src/web/clients/tool/tool_js_questions.ml
 src/web/clients/tool/tool_js_credgen.ml
-src/web/clients/tool/tool_js_tkeygen.ml
-src/web/clients/tool/tool_js_ttkeygen.ml
 src/web/clients/tool/tool_js_shuffle.ml
 src/web/clients/tool/tool_js_pd.ml
 src/web/clients/basic/admin_basic.ml
@@ -22,3 +20,5 @@ src/web/clients/admin/elections.ml
 src/web/clients/admin/preview.ml
 src/web/clients/admin/questions.ml
 src/web/clients/admin/trustees_tab.ml
+src/web/clients/trustee/trustee.ml
+src/web/clients/trustee/generate.ml

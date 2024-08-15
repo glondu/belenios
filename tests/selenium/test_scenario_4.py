@@ -187,9 +187,9 @@ The election administrator.\
             election_url_content = election_url_element.get_attribute('innerText').strip()
             assert election_url_content == self.election_page_url
 
-            # He clicks on the "Generate private key" button
-            generate_button_css_selector = "#interactivity button"
-            generate_button_expected_label = "Generate private key"
+            # He clicks on the "Generate a key" button
+            generate_button_css_selector = "#generate_key"
+            generate_button_expected_label = "Generate a key"
             generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
             generate_button_element.click()
 
@@ -215,19 +215,15 @@ The election administrator.\
             wait_a_bit()
 
             # He clicks on the "Submit" button
-            submit_button_expected_label = "Submit"
-            submit_button_css_selector = "#main input[type=submit][value='" + submit_button_expected_label + "']"
+            submit_button_css_selector = "#submit_public_key"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
             wait_a_bit()
 
-            # He checks that the next page shows the expected confirmation sentence (If trustee was the last one in the list, he checks that page contains text "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key.", else he checks for sentence "Waiting for the other trustees... Reload the page to check progress.")
-            if idx == settings.NUMBER_OF_TRUSTEES - 1:
-                expected_confirmation_label = "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
-            else:
-                expected_confirmation_label = "Waiting for the other trustees... Reload the page to check progress."
-            expected_confirmation_css_selector = "#main"
+            # He checks that the next page shows the expected confirmation sentence
+            expected_confirmation_label = "Public key registration succeeded!"
+            expected_confirmation_css_selector = "#success"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
             wait_a_bit()
@@ -304,24 +300,14 @@ The election administrator.\
             proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
             proceed_button_element.click()
 
-            # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
-            data_field_css_selector = "#compute_data"
-            data_field_expected_non_empty_attribute = "value"
-            wait_for_element_exists_and_has_non_empty_attribute(browser, data_field_css_selector, data_field_expected_non_empty_attribute)
-
-            submit_button_expected_label = "Submit"
-            submit_button_css_selector = "#compute_form input[type=submit][value=" + submit_button_expected_label + "]"
+            submit_button_css_selector = "#submit_data"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
             wait_a_bit()
 
-            # If he is not the last trustee in the list, he checks that the next page contains text "Waiting for the other trustees... Reload the page to check progress.". Else, he checks that the next page contains text "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
-            if idx == settings.NUMBER_OF_TRUSTEES - 1:
-                expected_confirmation_label = "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
-            else:
-                expected_confirmation_label = "Waiting for the other trustees... Reload the page to check progress."
-            expected_confirmation_css_selector = "#main"
+            expected_confirmation_label = "Data submission succeeded! Please refresh to proceed."
+            expected_confirmation_css_selector = "#success"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
             wait_a_bit()
@@ -397,21 +383,15 @@ The election administrator.\
             proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
             proceed_button_element.click()
 
-            # He waits until the text field next to "Data:" contains text, and clicks on the "Submit" button
-            data_field_css_selector = "#compute_data"
-            data_field_expected_non_empty_attribute = "value"
-            wait_for_element_exists_and_has_non_empty_attribute(browser, data_field_css_selector, data_field_expected_non_empty_attribute)
-
-            submit_button_expected_label = "Submit"
-            submit_button_css_selector = "#compute_form input[type=submit][value=" + submit_button_expected_label + "]"
+            submit_button_css_selector = "#submit_data"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
             wait_a_bit()
 
             # He checks that the next page contains text "Your job in the key establishment protocol is done!"
-            expected_confirmation_label = "Your job in the key establishment protocol is done!"
-            expected_confirmation_css_selector = "#main"
+            expected_confirmation_label = "Data submission succeeded! Please refresh to proceed."
+            expected_confirmation_css_selector = "#success"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
             wait_a_bit()

@@ -5,10 +5,9 @@
  (package belenios-server))
 
 (install
- (files tool_js.js tool_js_credgen.js tool_js_questions.js tool_js_tkeygen.js
-   tool_js_ttkeygen.js tool_js_pd.js tool_js_shuffle.js
-   tool_js_fingerprint.js admin_basic.js admin.js home.js checkpriv.js
-   belenios_worker.js belenios_jslib.js)
+ (files tool_js.js tool_js_credgen.js tool_js_questions.js tool_js_pd.js
+   tool_js_shuffle.js tool_js_fingerprint.js admin_basic.js admin.js home.js
+   checkpriv.js trustee.js belenios_worker.js belenios_jslib.js)
  (section share)
  (package belenios-server))
 
@@ -31,22 +30,6 @@
 (rule
  (target tool_js_questions.js)
  (deps ../clients/tool/tool_js_questions.bc.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run ./wrap_tool.sh %{deps}))))
-
-(rule
- (target tool_js_tkeygen.js)
- (deps ../clients/tool/tool_js_tkeygen.bc.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run ./wrap_tool.sh %{deps}))))
-
-(rule
- (target tool_js_ttkeygen.js)
- (deps ../clients/tool/tool_js_ttkeygen.bc.js)
  (action
   (with-stdout-to
    %{target}
@@ -119,6 +102,14 @@
 (rule
  (target checkpriv.js)
  (deps ../clients/checkpriv/checkpriv.bc.js)
+ (action
+  (with-stdout-to
+   %{target}
+   (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target trustee.js)
+ (deps ../clients/trustee/trustee.bc.js)
  (action
   (with-stdout-to
    %{target}

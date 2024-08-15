@@ -922,50 +922,7 @@ struct
               let title = s_ "Error" in
               Pages_common.generic_page ~title msg () >>= Html.send ~code:403
             else
-              Printf.sprintf "%s/draft/trustee.html#%s-%s" !Web_config.prefix
-                (Uuid.unwrap uuid) token
-              |> String_redirection.send)
-
-  let () =
-    Html.register ~service:election_draft_trustee_static (fun () () ->
-        Pages_admin.election_draft_trustee_static ())
-
-  let () =
-    Any.register ~service:election_draft_trustee_post
-      (fun (uuid, token) public_key ->
-        let@ () = without_site_user () in
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        if token = "" then forbidden ()
-        else
-          let* x =
-            Lwt.catch
-              (fun () ->
-                let@ s = Storage.with_transaction in
-                let@ x = with_draft_public_update s uuid in
-                let* () = Api_drafts.post_trustee_basic x ~token public_key in
-                let msg = s_ "Your key has been received and checked!" in
-                let title = s_ "Success" in
-                return_some (title, msg, 200))
-              (function
-                | Api_generic.Error `PublicKeyExists ->
-                    let msg =
-                      s_
-                        "A public key already existed, the key you've just \
-                         uploaded has been ignored!"
-                    in
-                    let title = s_ "Error" in
-                    return_some (title, msg, 400)
-                | Api_generic.Error `InvalidPublicKey ->
-                    let msg = s_ "Invalid public key!" in
-                    let title = s_ "Error" in
-                    return_some (title, msg, 400)
-                | e -> Lwt.reraise e)
-          in
-          match x with
-          | None -> forbidden ()
-          | Some (title, msg, code) ->
-              Pages_common.generic_page ~title msg () >>= Html.send ~code)
+              make_trustee_generate_link uuid ~token |> String_redirection.send)
 
   let () =
     Any.register ~service:election_draft_confirm (fun uuid () ->
@@ -1648,27 +1605,7 @@ struct
         match election with
         | None -> fail_http `Not_found
         | Some _ ->
-            Printf.sprintf "%s/draft/threshold-trustee.html#%s-%s"
-              !Web_config.prefix (Uuid.unwrap uuid) token
-            |> String_redirection.send)
-
-  let () =
-    Html.register ~service:election_draft_threshold_trustee_static (fun () () ->
-        Pages_admin.election_draft_threshold_trustee_static ())
-
-  let wrap_handler_without_site_user f =
-    without_site_user () (fun () -> wrap_handler f)
-
-  let () =
-    Any.register ~service:election_draft_threshold_trustee_post
-      (fun (uuid, token) data ->
-        let@ () = wrap_handler_without_site_user in
-        let* () =
-          let@ s = Storage.with_transaction in
-          let@ x = with_draft_public_update s uuid in
-          Api_drafts.post_trustee_threshold x ~token data
-        in
-        redir_preapply election_draft_threshold_trustee (uuid, token) ())
+            make_trustee_generate_link uuid ~token |> String_redirection.send)
 
   module HashedInt = struct
     type t = int

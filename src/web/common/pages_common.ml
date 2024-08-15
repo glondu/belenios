@@ -69,7 +69,44 @@ module Make (Base : BASE) = struct
         get extra_footer;
       ]
 
-  let base_body l ~full_title ~content ~administer ?(login_box = txt "")
+  let lang_box l =
+    let open (val l : I18n.GETTEXT) in
+    let lang = if lang = "en_devel" then "en" else lang in
+    let langs =
+      List.map
+        (fun (l, x) ->
+          let selected = if l = lang then [ a_selected () ] else [] in
+          option ~a:(a_value l :: selected) (txt x))
+        Languages.available
+    in
+    let form =
+      div
+        ~a:[ a_id "lang_form" ]
+        [
+          txt @@ s_ "Language:"; txt " "; select ~a:[ a_id "lang_select" ] langs;
+        ]
+    in
+    Lwt.return
+    @@ div
+         ~a:[ a_class [ "lang_box" ] ]
+         [
+           form;
+           div
+             ~a:
+               [
+                 a_style
+                   "font-size: 80%; font-style: italic; text-align: right;";
+               ]
+             [
+               txt "(";
+               a
+                 ~a:[ a_href (Xml.uri_of_string Links.translation) ]
+                 [ txt @@ s_ "Wish to help with translations?" ];
+               txt ")";
+             ];
+         ]
+
+  let base_body l ~full_title ~content ?administer ?(login_box = txt "")
       ?(warning = txt "") ?(lang_box = txt "") ?(footer = txt "")
       ?(extra_footer = txt "") ?sticky_footer ?(restricted_mode = false) () =
     let open (val l : I18n.GETTEXT) in
@@ -128,10 +165,14 @@ module Make (Base : BASE) = struct
               login_box;
               div
                 ~a:[ a_class [ "page-body" ] ]
-                [ div ~a:[ a_id "main" ] [ lang_box; div content ] ];
+                [
+                  div
+                    ~a:[ a_id "main" ]
+                    [ lang_box; div content; div ~a:[ a_class [ "clear" ] ] [] ];
+                ];
               div
                 ~a:[ a_class [ "page-footer" ] ]
-                (footer_fragment l ~administer ~footer ~extra_footer
+                (footer_fragment l ?administer ~footer ~extra_footer
                    ~restricted_mode ());
             ];
         ];

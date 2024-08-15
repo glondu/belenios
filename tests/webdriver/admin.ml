@@ -351,7 +351,7 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-    let* () = session#click_on ~selector:"button:not(#compute_button)" in
+    let* () = session#click_on ~selector:"#generate_key" in
     let* x = session#get_elements ~selector:"#private_key" in
     match x with
     | [ x ] -> (
@@ -364,10 +364,7 @@ module Make (Config : CONFIG) = struct
         | Some (`String x) ->
             let private_key = decode_data_uri x in
             (* TODO: check fingerprint *)
-            let* () =
-              let* e = session#get_elements ~selector:"input[type=submit]" in
-              match e with x :: _ -> session#click x | _ -> assert false
-            in
+            let* () = session#click_on ~selector:"#submit_public_key" in
             Lwt.return private_key
         | _ -> assert false)
     | _ -> assert false
@@ -380,9 +377,7 @@ module Make (Config : CONFIG) = struct
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
     let* () = session#fill_with ~selector:"#compute_private_key" private_key in
     let* () = session#click_on ~selector:"#compute_button" in
-    let* () =
-      session#click_on ~selector:"#data_form_compute input[type=submit]"
-    in
+    let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
 
   let setup_registrar = function

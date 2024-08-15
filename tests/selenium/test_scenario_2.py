@@ -375,7 +375,7 @@ The election administrator.\
             browser.get(link_for_this_trustee)
 
             # He waits for the "Generate a key" button
-            generate_button_css_selector = "#interactivity button"
+            generate_button_css_selector = "button"
             generate_button_expected_label = "Generate a key"
             generate_button_element = wait_for_element_exists_and_contains_expected_text(browser, generate_button_css_selector, generate_button_expected_label)
 
@@ -406,13 +406,13 @@ The election administrator.\
 
             # He clicks on the "Submit public key" button
             submit_button_expected_label = "Submit public key"
-            submit_button_css_selector = "#main input[type=submit][value='" + submit_button_expected_label + "']"
-            submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
+            submit_button_css_selector = "button"
+            submit_button_element = wait_for_element_exists_and_contains_expected_text(browser, submit_button_css_selector, submit_button_expected_label)
             submit_button_element.click()
 
             # He checks that the next page shows the expected confirmation sentence
-            expected_confirmation_label = "Your key has been received and checked!"
-            expected_confirmation_css_selector = "#main"
+            expected_confirmation_label = "Public key registration succeeded!"
+            expected_confirmation_css_selector = "#success"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
             # He closes the window

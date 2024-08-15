@@ -18,14 +18,12 @@
     "/static/tool_js_pd.js"             : null,
     "/static/tool_js_questions.js"      : null,
     "/static/tool_js_shuffle.js"        : null,
-    "/static/tool_js_tkeygen.js"        : null,
-    "/static/tool_js_ttkeygen.js"       : null,
     "/static/libsodium.wasm"            : null,
     "/static/checkpriv.html"            : null,
     "/static/checkpriv.js"              : null,
+    "/static/trustee.html"              : null,
+    "/static/trustee.js"                : null,
     "/draft/credentials.html"           : null,
-    "/draft/trustee.html"               : null,
-    "/draft/threshold-trustee.html"     : null,
     "/election/trustees.html"           : null,
     "/election/shuffle.html"            : null
 }

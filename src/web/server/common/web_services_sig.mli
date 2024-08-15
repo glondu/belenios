@@ -102,6 +102,7 @@ module type S = sig
     Eliom_service.t
 
   val make_admin_new_uri : uuid option -> Eliom_content.Xml.uri
+  val make_trustee_generate_link : uuid -> token:string -> string
 
   val privacy_notice_accept :
     ( unit,
@@ -575,35 +576,6 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
-  val election_draft_trustee_static :
-    ( unit,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      unit,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val election_draft_trustee_post :
-    ( uuid * string,
-      string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
   val election_draft_threshold_trustees :
     ( uuid,
       unit,
@@ -630,35 +602,6 @@ module type S = sig
       [ `One of uuid ] Eliom_parameter.param_name
       * [ `One of string ] Eliom_parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val election_draft_threshold_trustee_static :
-    ( unit,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      unit,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val election_draft_threshold_trustee_post :
-    ( uuid * string,
-      string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      [ `One of string ] Eliom_parameter.param_name,
       Eliom_service.non_ocaml )
     Eliom_service.t
 
