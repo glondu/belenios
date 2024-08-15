@@ -49,18 +49,21 @@ let with_administrator_or_nobody token (Draft (_, se)) f =
       | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
       | _ -> not_found)
 
-let with_threshold_trustee token (Draft (_, se)) f =
+let with_trustee token (Draft (_, se)) f =
   let@ token = Option.unwrap unauthorized token in
   match se.se_trustees with
-  | `Basic _ -> not_found
+  | `Basic b -> (
+      match List.find_opt (fun x -> x.st_token = token) b.dbp_trustees with
+      | Some x -> f (`Basic x)
+      | None -> unauthorized)
   | `Threshold t -> (
       match
         List.findi
           (fun i x -> if x.stt_token = token then Some (i, x) else None)
           t.dtp_trustees
       with
-      | Some (i, x) -> f (i + 1, x, t)
-      | None -> not_found)
+      | Some (i, x) -> f (`Threshold (i + 1, x, t))
+      | None -> unauthorized)
 
 let authentication_of_auth_config = function
   | Some [ { auth_system = "password"; _ } ] -> Some `Password
@@ -933,6 +936,164 @@ let post_draft_status ~admin_id s uuid (Draft (v, se), set) = function
       in
       ok
 
+let post_trustee_basic ((Draft (_, se) as fse), set) ~token data =
+  let ts =
+    match se.se_trustees with
+    | `Basic x -> x.dbp_trustees
+    | `Threshold _ -> failwith "Wrong trustee mode"
+  in
+  let t =
+    match List.find_opt (fun x -> token = x.st_token) ts with
+    | Some t -> t
+    | None -> failwith "Invalid token"
+  in
+  match t.st_public_key with
+  | "" ->
+      let version = se.se_version in
+      let module G = (val Group.of_string ~version se.se_group : GROUP) in
+      let module Trustees = (val Trustees.get_by_version version) in
+      let pk =
+        trustee_public_key_of_string (sread G.of_string) (sread G.Zq.of_string)
+          data
+      in
+      let module K = Trustees.MakeCombinator (G) in
+      if K.check [ `Single pk ] then (
+        t.st_public_key <-
+          string_of_trustee_public_key (swrite G.to_string)
+            (swrite G.Zq.to_string) pk;
+        set fse)
+      else raise @@ Error `InvalidPublicKey
+  | _ -> raise @@ Error `PublicKeyExists
+
+let post_trustee_threshold ((Draft (_, se) as fse), set) ~token data =
+  let version = se.se_version in
+  let module G = (val Group.of_string ~version se.se_group : GROUP) in
+  let se_trustees =
+    se.se_trustees
+    |> string_of_draft_trustees Yojson.Safe.write_json
+    |> draft_trustees_of_string (sread G.Zq.of_string)
+  in
+  let dtp =
+    match se_trustees with
+    | `Basic _ -> failwith "Wrong trustee mode"
+    | `Threshold x -> x
+  in
+  let ts = Array.of_list dtp.dtp_trustees in
+  let threshold =
+    match dtp.dtp_threshold with
+    | Some t -> t
+    | None -> failwith "No threshold set"
+  in
+  let i, t =
+    match
+      Array.findi
+        (fun i x -> if token = x.stt_token then Some (i, x) else None)
+        ts
+    with
+    | Some (i, t) -> (i, t)
+    | None -> failwith "Trustee not found"
+  in
+  let context =
+    { group = se.se_group; size = Array.length ts; threshold; index = i + 1 }
+  in
+  let get_certs () =
+    Array.map
+      (fun x ->
+        match x.stt_cert with
+        | None -> failwith "Missing certificate"
+        | Some y -> y)
+      ts
+  in
+  let get_polynomials () =
+    Array.map
+      (fun x ->
+        match x.stt_polynomial with
+        | None -> failwith "Missing polynomial"
+        | Some y -> y)
+      ts
+  in
+  let module Trustees = (val Trustees.get_by_version version) in
+  let module P = Trustees.MakePKI (G) (Random) in
+  let module C = Trustees.MakeChannels (G) (Random) (P) in
+  let module K = Trustees.MakePedersen (G) (Random) (P) (C) in
+  let () =
+    match t.stt_step with
+    | Some 1 ->
+        let cert = cert_of_string (sread G.Zq.of_string) data in
+        if K.step1_check context cert then (
+          t.stt_cert <- Some cert;
+          t.stt_step <- Some 2)
+        else failwith "Invalid certificate"
+    | Some 3 ->
+        let certs = get_certs () in
+        let polynomial = polynomial_of_string (sread G.Zq.of_string) data in
+        if K.step3_check certs i polynomial then (
+          t.stt_polynomial <- Some polynomial;
+          t.stt_step <- Some 4)
+        else failwith "Invalid polynomial"
+    | Some 5 ->
+        let certs = get_certs () in
+        let polynomials = get_polynomials () in
+        let voutput =
+          voutput_of_string (sread G.of_string) (sread G.Zq.of_string) data
+        in
+        if K.step5_check certs i polynomials voutput then (
+          t.stt_voutput <-
+            Some
+              (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
+                 voutput);
+          t.stt_step <- Some 6)
+        else failwith "Invalid voutput"
+    | _ -> failwith "Invalid step"
+  in
+  let () =
+    if Array.for_all (fun x -> x.stt_step = Some 2) ts then
+      try
+        let threshold = K.step2 (get_certs ()) in
+        assert (dtp.dtp_threshold = Some threshold);
+        Array.iter (fun x -> x.stt_step <- Some 3) ts
+      with e -> dtp.dtp_error <- Some (Printexc.to_string e)
+  in
+  let () =
+    if Array.for_all (fun x -> x.stt_step = Some 4) ts then
+      try
+        let certs = get_certs () in
+        let polynomials = get_polynomials () in
+        let vinputs = K.step4 certs polynomials in
+        for j = 0 to Array.length ts - 1 do
+          ts.(j).stt_vinput <- Some vinputs.(j)
+        done;
+        Array.iter (fun x -> x.stt_step <- Some 5) ts
+      with e -> dtp.dtp_error <- Some (Printexc.to_string e)
+  in
+  let () =
+    if Array.for_all (fun x -> x.stt_step = Some 6) ts then
+      try
+        let certs = get_certs () in
+        let polynomials = get_polynomials () in
+        let voutputs =
+          Array.map
+            (fun x ->
+              match x.stt_voutput with
+              | None -> failwith "Missing voutput"
+              | Some y ->
+                  voutput_of_string (sread G.of_string) (sread G.Zq.of_string) y)
+            ts
+        in
+        let p = K.step6 certs polynomials voutputs in
+        dtp.dtp_parameters <-
+          Some
+            (string_of_threshold_parameters (swrite G.to_string)
+               (swrite G.Zq.to_string) p);
+        Array.iter (fun x -> x.stt_step <- Some 7) ts
+      with e -> dtp.dtp_error <- Some (Printexc.to_string e)
+  in
+  se.se_trustees <-
+    se_trustees
+    |> string_of_draft_trustees (swrite G.Zq.to_string)
+    |> draft_trustees_of_string Yojson.Safe.read_json;
+  set fse
+
 let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
   let module S = (val s : Storage.BACKEND) in
   match endpoint with
@@ -1076,41 +1237,74 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
       | _ -> method_not_allowed)
   | "credentials" :: endpoint ->
       dispatch_credentials ~token endpoint method_ body s uuid (se, set)
-  | [ "trustees-pedersen" ] -> (
-      let@ index, trustee, dtp = with_threshold_trustee token se in
+  | [ "trustee" ] -> (
+      let@ trustee = with_trustee token se in
       let get () =
-        let pedersen_certs =
-          List.fold_left
-            (fun accu x ->
-              match x.stt_cert with None -> accu | Some c -> c :: accu)
-            [] dtp.dtp_trustees
-          |> List.rev |> Array.of_list
+        let@ () =
+         fun cont ->
+          Lwt.return
+          @@ string_of_trustee_status Yojson.Safe.write_json
+               Yojson.Safe.write_json
+          @@ cont ()
         in
-        let (Draft (_, draft)) = se in
-        let pedersen_context =
-          {
-            group = draft.se_group;
-            size = List.length dtp.dtp_trustees;
-            threshold = Option.value ~default:0 dtp.dtp_threshold;
-            index;
-          }
-        in
-        let r =
-          {
-            pedersen_context;
-            pedersen_step = Option.value ~default:0 trustee.stt_step;
-            pedersen_certs;
-            pedersen_vinput = trustee.stt_vinput;
-            pedersen_voutput =
-              Option.map
-                (voutput_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
-                trustee.stt_voutput;
-          }
-        in
-        Lwt.return
-        @@ string_of_pedersen Yojson.Safe.write_json Yojson.Safe.write_json r
+        match trustee with
+        | `Basic b -> `Basic (if b.st_public_key = "" then `Init else `Done)
+        | `Threshold (index, t, dtp) -> (
+            let@ () = fun cont -> `Threshold (cont ()) in
+            match dtp.dtp_threshold with
+            | None -> `Init
+            | Some threshold -> (
+                let (Draft (_, draft)) = se in
+                let pedersen_context =
+                  {
+                    group = draft.se_group;
+                    size = List.length dtp.dtp_trustees;
+                    threshold;
+                    index;
+                  }
+                in
+                match t.stt_cert with
+                | None -> `WaitingForCertificate pedersen_context
+                | Some _ -> (
+                    try
+                      let pedersen_certs =
+                        List.map
+                          (fun x ->
+                            match x.stt_cert with
+                            | None -> raise Exit
+                            | Some c -> c)
+                          dtp.dtp_trustees
+                        |> Array.of_list
+                      in
+                      `Pedersen
+                        {
+                          pedersen_context;
+                          pedersen_step = Option.value ~default:0 t.stt_step;
+                          pedersen_certs;
+                          pedersen_vinput = t.stt_vinput;
+                          pedersen_voutput =
+                            Option.map
+                              (voutput_of_string Yojson.Safe.read_json
+                                 Yojson.Safe.read_json)
+                              t.stt_voutput;
+                        }
+                    with Exit -> `WaitingForOtherCertificates)))
       in
-      match method_ with `GET -> handle_get get | _ -> method_not_allowed)
+      match method_ with
+      | `GET -> handle_get get
+      | `POST -> (
+          let@ data = body.run Fun.id in
+          let@ () = handle_generic_error in
+          match trustee with
+          | `Basic b ->
+              let* () = post_trustee_basic (se, set) ~token:b.st_token data in
+              ok
+          | `Threshold (_, t, _) ->
+              let* () =
+                post_trustee_threshold (se, set) ~token:t.stt_token data
+              in
+              ok)
+      | _ -> method_not_allowed)
   | [ "trustees" ] -> (
       let@ who = with_administrator_or_nobody token se in
       let get is_admin () =

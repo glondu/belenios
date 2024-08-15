@@ -126,21 +126,26 @@ let fill_interactivity () =
     let* x = get draft_of_string url in
     match x with Some x -> cont x | None -> fail "(token error)"
   in
-  let@ pedersen cont =
-    let url = Printf.sprintf "../api/drafts/%s/trustees-pedersen" uuid in
+  let@ status cont =
+    let url = Printf.sprintf "../api/drafts/%s/trustee" uuid in
     let* x =
       get ~token
-        (pedersen_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
+        (trustee_status_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
         url
     in
-    match x with Some x -> cont x | None -> fail "(pedersen error)"
+    match x with Some (`Threshold x) -> cont x | _ -> fail "(error)"
   in
-  let context = pedersen.pedersen_context in
-  let step = pedersen.pedersen_step in
   let@ () =
    fun cont ->
     cont ();
     Lwt.return_unit
+  in
+  let step =
+    match status with
+    | `Init -> 0
+    | `WaitingForCertificate _ -> 1
+    | `WaitingForOtherCertificates -> 2
+    | `Pedersen p -> p.pedersen_step
   in
   match step with
   | 0 ->
@@ -168,9 +173,13 @@ let fill_interactivity () =
       set_step 3;
       set_element_display "data_form" "none";
       let@ voutput cont =
-        match pedersen.pedersen_voutput with
-        | Some x -> cont x
-        | None -> alert "Unexpected state! (missing voutput)"
+        let fail () = alert "Unexpected state! (missing voutput)" in
+        match status with
+        | `Pedersen pedersen -> (
+            match pedersen.pedersen_voutput with
+            | Some x -> cont x
+            | None -> fail ())
+        | _ -> fail ()
       in
       let pk = Yojson.Safe.to_string voutput.vo_public_key.trustee_public_key in
       let fp = sha256_b64 pk in
@@ -191,6 +200,11 @@ let fill_interactivity () =
       let b = Dom_html.createButton document in
       let t =
         document##createTextNode (Js.string (s_ "Generate private key"))
+      in
+      let context =
+        match status with
+        | `WaitingForCertificate c -> c
+        | _ -> failwith "Unexpected state 1"
       in
       b##.onclick := Dom_html.handler (gen_cert context draft e);
       Dom.appendChild b t;
@@ -213,6 +227,11 @@ let fill_interactivity () =
       set_explain explain;
       set_element_display "compute_form" "block";
       let$ e = document##getElementById (Js.string "compute_button") in
+      let pedersen =
+        match status with
+        | `Pedersen p -> p
+        | _ -> Printf.ksprintf failwith "Unexpected state %d" step
+      in
       e##.onclick :=
         Dom_html.handler (fun _ ->
             proceed draft pedersen;

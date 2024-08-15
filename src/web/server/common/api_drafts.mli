@@ -102,6 +102,12 @@ val import_trustees :
   Lwt.t)
   Storage.u
 
+val post_trustee_basic :
+  draft_election updatable -> token:string -> string -> unit Lwt.t
+
+val post_trustee_threshold :
+  draft_election updatable -> token:string -> string -> unit Lwt.t
+
 open Api_generic
 
 val dispatch :

@@ -67,6 +67,8 @@ type error =
   | Missing of string
   | MissingVoter of string
   | ValidationError of validation_error
+  | InvalidPublicKey
+  | PublicKeyExists
   ]
 
 type request_status = {
@@ -144,6 +146,23 @@ type ('a, 'b) pedersen = {
     ?vinput : 'b vinput option;
     ?voutput : ('a, 'b) voutput option;
 } <ocaml field_prefix="pedersen_">
+
+type trustee_status_basic =
+ [ Init
+ | Done
+ ]
+
+type ('a, 'b) trustee_status_threshold =
+ [ Init
+ | WaitingForCertificate of context
+ | WaitingForOtherCertificates
+ | Pedersen of ('a, 'b) pedersen
+ ]
+
+type ('a, 'b) trustee_status =
+  [ Basic of trustee_status_basic
+  | Threshold of ('a, 'b) trustee_status_threshold
+  ]
 
 type state =
   [ Draft

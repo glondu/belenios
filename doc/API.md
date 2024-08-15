@@ -79,9 +79,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 * `GET`: unit -> private_credentials
 
-## `drafts/$UUID/trustees-pedersen` (trustee)
+## `drafts/$UUID/trustee` (trustee)
 
-* `GET`: unit -> pedersen
+* `GET`: unit -> trustee_status
+* `POST`: json -> unit
 
 ## `drafts/$UUID/trustees`
 

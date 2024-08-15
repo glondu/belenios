@@ -939,45 +939,28 @@ struct
         if token = "" then forbidden ()
         else
           let* x =
-            let@ s = Storage.with_transaction in
-            let@ (Draft (_, se) as fse), set =
-              with_draft_public_update s uuid
-            in
-            let ts =
-              match se.se_trustees with
-              | `Basic x -> x.dbp_trustees
-              | `Threshold _ -> []
-            in
-            let&* t = List.find_opt (fun x -> token = x.st_token) ts in
-            if t.st_public_key <> "" then
-              let msg =
-                s_
-                  "A public key already existed, the key you've just uploaded \
-                   has been ignored!"
-              in
-              let title = s_ "Error" in
-              return_some (title, msg, 400)
-            else
-              let version = se.se_version in
-              let module G = (val Group.of_string ~version se.se_group : GROUP)
-              in
-              let module Trustees = (val Trustees.get_by_version version) in
-              let pk =
-                trustee_public_key_of_string (sread G.of_string)
-                  (sread G.Zq.of_string) public_key
-              in
-              let module K = Trustees.MakeCombinator (G) in
-              if not (K.check [ `Single pk ]) then
-                let msg = s_ "Invalid public key!" in
-                let title = s_ "Error" in
-                return_some (title, msg, 400)
-              else (
-                (* we keep pk as a string because of G.t *)
-                t.st_public_key <- public_key;
-                let* () = set fse in
+            Lwt.catch
+              (fun () ->
+                let@ s = Storage.with_transaction in
+                let@ x = with_draft_public_update s uuid in
+                let* () = Api_drafts.post_trustee_basic x ~token public_key in
                 let msg = s_ "Your key has been received and checked!" in
                 let title = s_ "Success" in
                 return_some (title, msg, 200))
+              (function
+                | Api_generic.Error `PublicKeyExists ->
+                    let msg =
+                      s_
+                        "A public key already existed, the key you've just \
+                         uploaded has been ignored!"
+                    in
+                    let title = s_ "Error" in
+                    return_some (title, msg, 400)
+                | Api_generic.Error `InvalidPublicKey ->
+                    let msg = s_ "Invalid public key!" in
+                    let title = s_ "Error" in
+                    return_some (title, msg, 400)
+                | e -> Lwt.reraise e)
           in
           match x with
           | None -> forbidden ()
@@ -1682,149 +1665,8 @@ struct
         let@ () = wrap_handler_without_site_user in
         let* () =
           let@ s = Storage.with_transaction in
-          let@ Draft (v, se), set = with_draft_public_update s uuid in
-          let version = se.se_version in
-          let module G = (val Group.of_string ~version se.se_group : GROUP) in
-          let se_trustees =
-            se.se_trustees
-            |> string_of_draft_trustees Yojson.Safe.write_json
-            |> draft_trustees_of_string (sread G.Zq.of_string)
-          in
-          let dtp =
-            match se_trustees with
-            | `Basic _ -> failwith "No threshold trustees"
-            | `Threshold x -> x
-          in
-          let ts = Array.of_list dtp.dtp_trustees in
-          let threshold =
-            match dtp.dtp_threshold with
-            | Some t -> t
-            | None -> failwith "No threshold set"
-          in
-          let i, t =
-            match
-              Array.findi
-                (fun i x -> if token = x.stt_token then Some (i, x) else None)
-                ts
-            with
-            | Some (i, t) -> (i, t)
-            | None -> failwith "Trustee not found"
-          in
-          let context =
-            {
-              group = se.se_group;
-              size = Array.length ts;
-              threshold;
-              index = i + 1;
-            }
-          in
-          let get_certs () =
-            Array.map
-              (fun x ->
-                match x.stt_cert with
-                | None -> failwith "Missing certificate"
-                | Some y -> y)
-              ts
-          in
-          let get_polynomials () =
-            Array.map
-              (fun x ->
-                match x.stt_polynomial with
-                | None -> failwith "Missing polynomial"
-                | Some y -> y)
-              ts
-          in
-          let module Trustees = (val Trustees.get_by_version version) in
-          let module P = Trustees.MakePKI (G) (Random) in
-          let module C = Trustees.MakeChannels (G) (Random) (P) in
-          let module K = Trustees.MakePedersen (G) (Random) (P) (C) in
-          let* () =
-            match t.stt_step with
-            | Some 1 ->
-                let cert = cert_of_string (sread G.Zq.of_string) data in
-                if K.step1_check context cert then (
-                  t.stt_cert <- Some cert;
-                  t.stt_step <- Some 2;
-                  return_unit)
-                else failwith "Invalid certificate"
-            | Some 3 ->
-                let certs = get_certs () in
-                let polynomial =
-                  polynomial_of_string (sread G.Zq.of_string) data
-                in
-                if K.step3_check certs i polynomial then (
-                  t.stt_polynomial <- Some polynomial;
-                  t.stt_step <- Some 4;
-                  return_unit)
-                else failwith "Invalid polynomial"
-            | Some 5 ->
-                let certs = get_certs () in
-                let polynomials = get_polynomials () in
-                let voutput =
-                  voutput_of_string (sread G.of_string) (sread G.Zq.of_string)
-                    data
-                in
-                if K.step5_check certs i polynomials voutput then (
-                  t.stt_voutput <- Some data;
-                  t.stt_step <- Some 6;
-                  return_unit)
-                else failwith "Invalid voutput"
-            | _ -> failwith "Unknown step"
-          in
-          let* () =
-            if Array.for_all (fun x -> x.stt_step = Some 2) ts then (
-              (try
-                 let threshold = K.step2 (get_certs ()) in
-                 assert (dtp.dtp_threshold = Some threshold);
-                 Array.iter (fun x -> x.stt_step <- Some 3) ts
-               with e -> dtp.dtp_error <- Some (Printexc.to_string e));
-              return_unit)
-            else return_unit
-          in
-          let* () =
-            if Array.for_all (fun x -> x.stt_step = Some 4) ts then (
-              (try
-                 let certs = get_certs () in
-                 let polynomials = get_polynomials () in
-                 let vinputs = K.step4 certs polynomials in
-                 for j = 0 to Array.length ts - 1 do
-                   ts.(j).stt_vinput <- Some vinputs.(j)
-                 done;
-                 Array.iter (fun x -> x.stt_step <- Some 5) ts
-               with e -> dtp.dtp_error <- Some (Printexc.to_string e));
-              return_unit)
-            else return_unit
-          in
-          let* () =
-            if Array.for_all (fun x -> x.stt_step = Some 6) ts then (
-              (try
-                 let certs = get_certs () in
-                 let polynomials = get_polynomials () in
-                 let voutputs =
-                   Array.map
-                     (fun x ->
-                       match x.stt_voutput with
-                       | None -> failwith "Missing voutput"
-                       | Some y ->
-                           voutput_of_string (sread G.of_string)
-                             (sread G.Zq.of_string) y)
-                     ts
-                 in
-                 let p = K.step6 certs polynomials voutputs in
-                 dtp.dtp_parameters <-
-                   Some
-                     (string_of_threshold_parameters (swrite G.to_string)
-                        (swrite G.Zq.to_string) p);
-                 Array.iter (fun x -> x.stt_step <- Some 7) ts
-               with e -> dtp.dtp_error <- Some (Printexc.to_string e));
-              return_unit)
-            else return_unit
-          in
-          se.se_trustees <-
-            se_trustees
-            |> string_of_draft_trustees (swrite G.Zq.to_string)
-            |> draft_trustees_of_string Yojson.Safe.read_json;
-          set (Draft (v, se))
+          let@ x = with_draft_public_update s uuid in
+          Api_drafts.post_trustee_threshold x ~token data
         in
         redir_preapply election_draft_threshold_trustee (uuid, token) ())
 
