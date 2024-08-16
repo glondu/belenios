@@ -364,23 +364,26 @@ let string_of_state st =
       | Some 7 -> "done"
       | _ -> assert false)
 
-let maillink_of_token prefix tk =
+let maillink_of_token tk =
   let uuid = get_current_uuid () in
-  let link =
+  let prefix = url_prefix () in
+  let href =
     match !mode with
-    | `Basic -> prefix ^ "/trustee/" ^ uuid ^ "/" ^ tk
-    | `Threshold _ -> prefix ^ "/threshold-trustee/" ^ uuid ^ "/" ^ tk
+    | `Basic -> Printf.sprintf "%s/draft/trustee/%s/%s" prefix uuid tk
+    | `Threshold _ ->
+        Printf.sprintf "%s/draft/threshold-trustee/%s/%s" prefix uuid tk
   in
-  a ~href:link "Link"
+  a ~href "Link"
 
 let all_ttee_done () =
   let dd = if !mode = `Basic then Some 1 else Some 7 in
   List.for_all (fun t -> t.trustee_state = dd) !all_trustee
 
-let maillink_of_token_direct prefix tk =
+let maillink_of_token_direct tk =
   let uuid = get_current_uuid () in
-  let link = prefix ^ "/trustees.html#" ^ uuid ^ "-" ^ tk in
-  a ~href:link "Link"
+  let prefix = url_prefix () in
+  let href = Printf.sprintf "%s/election/trustees.html#%s-%s" prefix uuid tk in
+  a ~href "Link"
 
 let recompute_main_zone_2 () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -401,7 +404,6 @@ let recompute_main_zone_2 () =
     step := 3;
     recompute_main_zone_3 ())
   else
-    let prefix = url_prefix () ^ "/draft" in
     (* TODO: put also a mailto link *)
     let header_row =
       tr
@@ -422,7 +424,7 @@ let recompute_main_zone_2 () =
               td [ txt t.trustee_name ];
               td
                 [
-                  maillink_of_token prefix
+                  maillink_of_token
                     (match t.trustee_token with Some x -> x | None -> "");
                 ];
               td [ txt @@ string_of_state t.trustee_state ];
@@ -513,7 +515,6 @@ let main_zone_tallying () =
     | None -> div [ txt @@ s_ "Failed to connect; please reload" ]
     | Some x ->
         let tl = x.partial_decryptions_trustees in
-        let prefix = url_prefix () ^ "/election" in
         let header_row =
           tr
             [
@@ -532,7 +533,7 @@ let main_zone_tallying () =
                   (tr
                      [
                        td [ txt t.trustee_pd_address ];
-                       td [ maillink_of_token_direct prefix t.trustee_pd_token ];
+                       td [ maillink_of_token_direct t.trustee_pd_token ];
                        td [ (txt @@ if t.trustee_pd_done then "yes" else "no") ];
                      ]))
             tl
@@ -586,10 +587,13 @@ let ready_to_decrypt () =
           t.shuffler_address = "server" || t.shuffler_fingerprint <> None)
         sh.shuffles_shufflers
 
-let shuffle_link prefix token =
+let shuffle_link token =
   let uuid = get_current_uuid () in
-  let link = prefix ^ "/shuffle.html#" ^ uuid ^ "-" ^ token in
-  a ~href:link "Link"
+  let prefix = url_prefix () in
+  let href =
+    Printf.sprintf "%s/election/shuffle.html#%s-%s" prefix uuid token
+  in
+  a ~href "Link"
 
 let main_zone_shuffling () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -599,7 +603,6 @@ let main_zone_shuffling () =
     | None -> div [ txt @@ s_ "Failed to connect; please reload" ]
     | Some x ->
         let sl = x.shuffles_shufflers in
-        let prefix = url_prefix () ^ "/election" in
         let header_row =
           tr
             [
@@ -619,7 +622,7 @@ let main_zone_shuffling () =
           List.map
             (fun t ->
               match t.shuffler_token with
-              | Some token -> [ shuffle_link prefix token ]
+              | Some token -> [ shuffle_link token ]
               | _ ->
                   let attr =
                     if sel_exists || t.shuffler_fingerprint <> None then

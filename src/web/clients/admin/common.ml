@@ -86,14 +86,22 @@ let popup_failsync msg =
   alert msg;
   Lwt.return_unit
 
-let url_prefix () =
-  let x = Js.to_string Dom_html.window##.location##.href in
-  let re = Regexp.regexp "^(.*)/static/admin.html(#.*)?$" in
-  match Regexp.string_match re x 0 with
-  | None -> "https://fake_link_please_edit"
-  | Some mat -> (
-      match Regexp.matched_group mat 1 with
-      | None -> "https://fake_link_please_edit"
-      | Some pr -> pr)
+let url_prefix =
+  let dummy = "https://fake_link_please_edit" in
+  let prefix = ref None in
+  fun () ->
+    match !prefix with
+    | Some x -> x
+    | None ->
+        let p =
+          let x = Js.to_string Dom_html.window##.location##.href in
+          let re = Regexp.regexp "^(.*)/static/admin.html(#.*)?$" in
+          match Regexp.string_match re x 0 with
+          | None -> dummy
+          | Some m -> (
+              match Regexp.matched_group m 1 with None -> dummy | Some p -> p)
+        in
+        prefix := Some p;
+        p
 
 let default_version = List.hd Belenios.Election.supported_crypto_versions
