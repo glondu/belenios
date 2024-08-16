@@ -22,3 +22,4 @@
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val make_voters : int -> string list
+val decode_data_uri : string -> string

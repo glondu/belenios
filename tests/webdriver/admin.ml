@@ -361,19 +361,14 @@ module Make (Config : CONFIG) = struct
             ~args:[ Webdriver.json_of_element x ]
         in
         match x with
-        | Some (`String x) -> (
-            match String.split_on_char ',' x with
-            | [ _; x ] ->
-                let private_key = Uri.pct_decode x in
-                (* TODO: check fingerprint *)
-                let* () =
-                  let* e =
-                    session#get_elements ~selector:"input[type=submit]"
-                  in
-                  match e with x :: _ -> session#click x | _ -> assert false
-                in
-                Lwt.return private_key
-            | _ -> assert false)
+        | Some (`String x) ->
+            let private_key = decode_data_uri x in
+            (* TODO: check fingerprint *)
+            let* () =
+              let* e = session#get_elements ~selector:"input[type=submit]" in
+              match e with x :: _ -> session#click x | _ -> assert false
+            in
+            Lwt.return private_key
         | _ -> assert false)
     | _ -> assert false
 
@@ -409,13 +404,8 @@ module Make (Config : CONFIG) = struct
                   ~args:[ Webdriver.json_of_element x ]
               in
               match x with
-              | Some (`String x) -> (
-                  match String.index_opt x ',' with
-                  | None -> assert false
-                  | Some i ->
-                      String.sub x (i + 1) (String.length x - i - 1)
-                      |> Uri.pct_decode |> Yojson.Safe.from_string |> Lwt.return
-                  )
+              | Some (`String x) ->
+                  decode_data_uri x |> Yojson.Safe.from_string |> Lwt.return
               | _ -> assert false)
           | _ -> assert false
         in

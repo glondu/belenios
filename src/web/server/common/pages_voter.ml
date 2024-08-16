@@ -106,7 +106,8 @@ struct
       | None -> txt ""
     in
     let invalid =
-      "data:application/json," ^ string_of_mj_ballots r.mj_invalid
+      string_of_mj_ballots r.mj_invalid
+      |> encode_data_uri ~mime_type:"application/json"
     in
     let invalid =
       direct_a invalid
@@ -196,8 +197,8 @@ struct
       |> List.map (fun l -> li [ txt l ])
     in
     let invalid =
-      ( ( r.stv_invalid |> string_of_mj_ballots |> fun x ->
-          "data:application/json," ^ x )
+      ( r.stv_invalid |> string_of_mj_ballots
+      |> encode_data_uri ~mime_type:"application/json"
       |> fun x ->
         direct_a x
           (Printf.sprintf
@@ -215,8 +216,8 @@ struct
         ]
     in
     let events =
-      ( r.stv_events |> string_of_stv_events |> fun x ->
-        "data:application/json," ^ x )
+      r.stv_events |> string_of_stv_events
+      |> encode_data_uri ~mime_type:"application/json"
       |> fun x -> direct_a x (s_ "Raw events")
     in
     let tie =

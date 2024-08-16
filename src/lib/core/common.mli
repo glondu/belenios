@@ -43,6 +43,7 @@ module Shape = Common_types.Shape
 val sha256_hex : string -> string
 val sha256_b64 : string -> string
 val b58_digits : string
+val encode_data_uri : ?charset:string -> mime_type:string -> string -> string
 
 module String : sig
   include module type of String

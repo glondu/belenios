@@ -30,3 +30,7 @@ let make_voters n =
     else accu
   in
   loop [] n
+
+let decode_data_uri x =
+  let off = String.index x ',' + 1 in
+  match Base64.decode ~off x with Ok x -> x | Error (`Msg x) -> failwith x

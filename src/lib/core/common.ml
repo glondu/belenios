@@ -44,6 +44,14 @@ let sha256_hex = Crypto_primitives.sha256_hex
 let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
 let b58_digits = Common_types.b58_digits
 
+let encode_data_uri ?charset ~mime_type x =
+  let charset =
+    match charset with None -> "" | Some x -> Printf.sprintf "charset=%s;" x
+  in
+  match Base64.encode x with
+  | Ok x -> Printf.sprintf "data:%s;%sbase64,%s" mime_type charset x
+  | Error (`Msg msg) -> failwith msg
+
 module String = struct
   include String
 

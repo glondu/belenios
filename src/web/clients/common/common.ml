@@ -97,15 +97,13 @@ let set_element_display id x =
   let$ e = document##getElementById (Js.string id) in
   e##.style##.display := Js.string x
 
-let set_download id mime fn x =
-  let x =
-    (Js.string ("data:" ^ mime ^ ","))##concat (Js.encodeURI (Js.string x))
-  in
+let set_download id mime_type fn x =
+  let x = encode_data_uri ~mime_type x in
   match Dom_html.getElementById_coerce id Dom_html.CoerceTo.a with
   | None -> ()
   | Some e ->
       e##setAttribute (Js.string "download") (Js.string fn);
-      e##.href := x
+      e##.href := Js.string x
 
 let get_content x =
   Js.Opt.get
@@ -259,7 +257,7 @@ let a_mailto ~recipient ~subject ~body label =
   a ~href label
 
 let a_data ~filename ~mime_type ~data x =
-  let href = Printf.sprintf "data:%s,%s" mime_type (Url.urlencode data) in
+  let href = encode_data_uri ~mime_type data in
   a ~a:[ Tyxml_js.Html.a_download (Some filename) ] ~href x
 
 let scrollIntoViewById id =

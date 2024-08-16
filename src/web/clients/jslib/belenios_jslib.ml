@@ -191,11 +191,9 @@ let belenios : belenios Js.t =
         uuid_s;
       Printf.bprintf b "Smart ballot tracker: %s\n" (Js.to_string tracker);
       let contents =
-        match Base64.encode @@ Buffer.contents b with
-        | Ok x ->
-            Printf.sprintf "data:text/plain;charset=UTF-8;base64,%s" x
-            |> Js.string
-        | Error (`Msg msg) -> failwith msg
+        Buffer.contents b
+        |> encode_data_uri ~charset:"UTF-8" ~mime_type:"text/plain"
+        |> Js.string
       in
       let filename =
         Printf.sprintf "%s_%s_tracker.txt"
