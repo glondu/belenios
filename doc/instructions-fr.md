@@ -118,7 +118,7 @@ de l'élection, demander à chaque autorité de vérifier qu'elle possède
 bien sa clé de déchiffrement. Dans ce cas, l'autorité de déchiffrement
 reçoit une URL de la forme
 
-    PREFIXE/static/checkpriv.html#UUID
+    PREFIXE/static/trustee.html#check/UUID
 
 et est invitée à entrer sa clé de déchiffrement. L'autorité doit
 vérifier que l'`UUID` de l'élection affichée est correcte et que c'est

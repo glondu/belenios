@@ -368,9 +368,6 @@ src/web/clients/basic/credentials.ml
 src/web/clients/basic/drafts.ml
 src/web/clients/basic/dune
 src/web/clients/basic/elections.ml
-src/web/clients/checkpriv/checkpriv.html
-src/web/clients/checkpriv/checkpriv.ml
-src/web/clients/checkpriv/dune
 src/web/clients/common/common.ml
 src/web/clients/common/dune
 src/web/clients/common/i18n.ml
@@ -395,6 +392,8 @@ src/web/clients/tool/tool_js_pd.ml
 src/web/clients/tool/tool_js_questions.ml
 src/web/clients/tool/tool_js_shuffle.ml
 src/web/clients/tool/tool_js_shuffle.mli
+src/web/clients/trustee/check.ml
+src/web/clients/trustee/check.mli
 src/web/clients/trustee/dune
 src/web/clients/trustee/generate.ml
 src/web/clients/trustee/generate.mli

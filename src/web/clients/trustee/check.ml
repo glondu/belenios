@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -24,7 +24,6 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios_api.Serializable_j
-open Belenios_api.Common
 open Belenios
 open Belenios_js.Common
 
@@ -38,58 +37,20 @@ let show_result name =
   alert msg;
   Lwt.return_unit
 
-let perform what f url cont =
-  let open (val !Belenios_js.I18n.gettext) in
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = get url in
-  match x.code with
-  | 200 -> cont (f x.content)
-  | code ->
-      Printf.ksprintf alert (f_ "Could not get %s (code %d)!") what code;
-      Lwt.return_unit
-
-let try_perform what f url cont =
-  let open (val !Belenios_js.I18n.gettext) in
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = get url in
-  match x.code with
-  | 200 -> cont (Some (f x.content))
-  | 404 -> cont None
-  | code ->
-      Printf.ksprintf alert (f_ "Could not get %s (code %d)!") what code;
-      Lwt.return_unit
-
-let compute_prefix url =
-  let l = String.length url in
-  if l > 0 then
-    let rec loop n i =
-      if n > 0 then
-        match String.rindex_from_opt url i '/' with
-        | None -> String.sub url 0 (i + 1)
-        | Some j -> loop (n - 1) (j - 1)
-      else String.sub url 0 (i + 1)
-    in
-    loop 2 (l - 1)
-  else url
-
-let extract_uuid hash =
-  let l = String.length hash in
-  if l > 0 then
-    let i = if hash.[0] = '#' then 1 else 0 in
-    let n = l - i in
-    if n > 0 then Some (String.sub hash i n) else None
-  else None
-
-let prefix = Dom_html.window##.location##.href |> Js.to_string |> compute_prefix
-let uuid = Dom_html.window##.location##.hash |> Js.to_string |> extract_uuid
-
 let do_election uuid election get_private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let module W = (val election : ELECTION) in
-  let@ trustees =
-    perform (s_ "trustee parameters")
-      (trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string))
-      (Printf.sprintf "../api/elections/%s/trustees" uuid)
+  let@ trustees cont =
+    let* x =
+      get
+        (trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string))
+        (Printf.sprintf "../api/elections/%s/trustees" uuid)
+    in
+    match x with
+    | None ->
+        alert @@ s_ "Could not get trustee parameters for this election!";
+        Lwt.return_unit
+    | Some x -> cont x
   in
   let private_key = get_private_key () in
   let find_single =
@@ -131,10 +92,17 @@ let do_draft uuid draft get_private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let version = draft.draft_version in
   let module G = (val Group.of_string ~version draft.draft_group) in
-  let@ trustees =
-    perform (s_ "trustee parameters")
-      (draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
-      (Printf.sprintf "../api/drafts/%s/trustees" uuid)
+  let@ trustees cont =
+    let* x =
+      get
+        (draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
+        (Printf.sprintf "../api/drafts/%s/trustees" uuid)
+    in
+    match x with
+    | None ->
+        alert @@ s_ "Could not get trustee parameters for this election!";
+        Lwt.return_unit
+    | Some x -> cont x
   in
   let private_key = get_private_key () in
   match trustees with
@@ -204,84 +172,69 @@ let make_private_key_input () =
   in
   (elt, fun () -> Js.to_string raw_dom##.value)
 
-let onload () =
-  let lang =
-    Js.Optdef.case
-      Dom_html.window##.navigator##.language
-      (fun () -> "en")
-      Js.to_string
-  in
-  let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
+let check ?uuid () =
   let open (val !Belenios_js.I18n.gettext) in
-  let title = s_ "Check private key ownership" in
-  document##.title := Js.string title;
-  let@ configuration =
-    perform
-      (s_ "server configuration")
-      configuration_of_string "../api/configuration"
-  in
-  let module UiBase = struct
-    module Xml = Tyxml_js.Xml
-    module Svg = Tyxml_js.Svg
-    module Html = Tyxml_js.Html
-
-    let uris = configuration.uris
-  end in
-  let module Ui = Belenios_ui.Pages_common.Make (UiBase) in
-  let@ () = show_in document##.body in
-  let uuid, get_uuid = input (Option.value ~default:"" uuid) in
-  let private_key, get_private_key = make_private_key_input () in
-  let button =
-    let@ () = button @@ s_ "Check private key" in
-    let uuid = get_uuid () in
-    match Uuid.wrap uuid with
-    | exception _ ->
-        alert @@ s_ "The UUID is invalid!";
-        Lwt.return_unit
-    | _ -> (
-        let parse_election x =
-          let module X =
-            Election.Make
-              (struct
-                let raw_election = x
-              end)
-              (Random)
-              ()
-          in
-          (module X : ELECTION)
+  let* body =
+    match uuid with
+    | None ->
+        let uuid_input, get_uuid = input "" in
+        let button =
+          let@ () = button @@ s_ "Proceed" in
+          let uuid = get_uuid () in
+          match Uuid.wrap uuid with
+          | exception _ ->
+              alert @@ s_ "Invalid election ID!";
+              Lwt.return_unit
+          | _ ->
+              Dom_html.window##.location##.hash
+              := Js.string @@ Printf.sprintf "#check/%s" uuid;
+              Lwt.return_unit
         in
-        let@ election =
-          try_perform (s_ "election parameters") parse_election
-            (Printf.sprintf "../api/elections/%s/election" uuid)
-        in
-        match election with
-        | Some election -> do_election uuid election get_private_key
-        | None -> (
-            let@ draft =
-              try_perform
-                (s_ "draft election parameters")
-                draft_of_string
-                (Printf.sprintf "../api/drafts/%s" uuid)
+        Lwt.return
+          [
+            div [ label [ txt @@ s_ "Election ID:"; txt " "; uuid_input ] ];
+            div [ button ];
+          ]
+    | Some uuid -> (
+        match Uuid.wrap uuid with
+        | exception _ -> Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
+        | _ ->
+            let private_key_input, get_private_key =
+              make_private_key_input ()
             in
-            match draft with
-            | None ->
-                Printf.ksprintf alert
-                  (f_ "There is no election with UUID %s on this server!")
-                  uuid;
-                Lwt.return_unit
-            | Some (Draft (_, draft)) -> do_draft uuid draft get_private_key))
+            let button =
+              let@ () = button @@ s_ "Check private key" in
+              let parse_election x =
+                let module X =
+                  Election.Make
+                    (struct
+                      let raw_election = x
+                    end)
+                    (Random)
+                    ()
+                in
+                (module X : ELECTION)
+              in
+              let* election =
+                get parse_election
+                  (Printf.sprintf "../api/elections/%s/election" uuid)
+              in
+              match election with
+              | Some election -> do_election uuid election get_private_key
+              | None -> (
+                  let* draft =
+                    get Belenios_api.Common.draft_of_string
+                      (Printf.sprintf "../api/drafts/%s" uuid)
+                  in
+                  match draft with
+                  | None ->
+                      Printf.ksprintf alert
+                        (f_ "There is no election with ID %s on this server!")
+                        uuid;
+                      Lwt.return_unit
+                  | Some (Draft (_, draft)) ->
+                      do_draft uuid draft get_private_key)
+            in
+            Lwt.return [ private_key_input; div [ button ] ])
   in
-  let content =
-    [
-      div [ label [ txt @@ s_ "UUID of the election:"; txt " "; uuid ] ];
-      private_key;
-      div [ button ];
-    ]
-  in
-  let administer = a ~href:(prefix ^ "/admin") @@ s_ "Administer elections" in
-  Lwt.return
-    (Ui.base_body !Belenios_js.I18n.gettext
-       ~full_title:(span [ txt title ])
-       ~content ~administer ())
-
-let () = Dom_html.window##.onload := lwt_handler onload
+  Lwt.return @@ [ h3 [ txt @@ s_ "Check private key ownership" ]; hr () ] @ body

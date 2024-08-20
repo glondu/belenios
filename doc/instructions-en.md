@@ -114,7 +114,7 @@ election, ask each authority to verify that they have their decryption
 key. In this case, the decryption authority receives a URL of the
 form:
 
-    PREFIX/static/checkpriv.html#UUID
+    PREFIX/static/trustee.html#check/UUID
 
 and is prompted to enter their decryption key. The authority must
 check that the `UUID` of the election displayed is correct and that

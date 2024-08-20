@@ -11,7 +11,6 @@ src/web/clients/basic/common.ml
 src/web/clients/basic/credentials.ml
 src/web/clients/basic/drafts.ml
 src/web/clients/basic/elections.ml
-src/web/clients/checkpriv/checkpriv.ml
 src/web/clients/admin/account.ml
 src/web/clients/admin/admin.ml
 src/web/clients/admin/cache.ml
@@ -22,3 +21,4 @@ src/web/clients/admin/questions.ml
 src/web/clients/admin/trustees_tab.ml
 src/web/clients/trustee/trustee.ml
 src/web/clients/trustee/generate.ml
+src/web/clients/trustee/check.ml

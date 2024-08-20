@@ -7,7 +7,7 @@
 (install
  (files tool_js.js tool_js_credgen.js tool_js_questions.js tool_js_pd.js
    tool_js_shuffle.js tool_js_fingerprint.js admin_basic.js admin.js home.js
-   checkpriv.js trustee.js belenios_worker.js belenios_jslib.js)
+   trustee.js belenios_worker.js belenios_jslib.js)
  (section share)
  (package belenios-server))
 
@@ -94,14 +94,6 @@
 (rule
  (target home.js)
  (deps ../clients/election-home/home.bc.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run ./wrap_tool.sh %{deps}))))
-
-(rule
- (target checkpriv.js)
- (deps ../clients/checkpriv/checkpriv.bc.js)
  (action
   (with-stdout-to
    %{target}

@@ -43,6 +43,12 @@ let onhashchange configuration =
   | [ "generate"; uuid; token ] ->
       let@ () = show_in main_zone in
       Generate.generate configuration ~uuid ~token
+  | [ "check" ] ->
+      let@ () = show_in main_zone in
+      Check.check ()
+  | [ "check"; uuid ] ->
+      let@ () = show_in main_zone in
+      Check.check ~uuid ()
   | _ ->
       let@ () = show_in main_zone in
       Lwt.return [ div [ txt @@ s_ "Error" ] ]

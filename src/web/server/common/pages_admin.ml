@@ -74,11 +74,11 @@ struct
     let uri_base =
       let service = Eliom_service.static_dir () in
       Eliom_uri.make_string_uri ~absolute:true ~service
-        [ "static"; "checkpriv.html" ]
+        [ "static"; "trustee.html" ]
       |> rewrite_prefix
     in
     let uri =
-      uri_base ^ "#" ^ Uuid.unwrap uuid |> Eliom_content.Xml.uri_of_string
+      uri_base ^ "#check/" ^ Uuid.unwrap uuid |> Eliom_content.Xml.uri_of_string
     in
     Eliom_content.Html.F.Raw.a
       ~a:[ a_href uri ]

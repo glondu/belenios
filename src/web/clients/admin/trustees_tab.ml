@@ -702,7 +702,7 @@ let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
   let checkpriv =
     let uuid = get_current_uuid () in
-    let href = "checkpriv.html#" ^ uuid in
+    let href = "trustee.html#check/" ^ uuid in
     let label = s_ "Check private key ownership" in
     [
       h2 [ txt label ];
