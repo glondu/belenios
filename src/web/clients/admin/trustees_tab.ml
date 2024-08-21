@@ -368,10 +368,7 @@ let maillink_of_token tk =
   let uuid = get_current_uuid () in
   let prefix = url_prefix () in
   let href =
-    match !mode with
-    | `Basic -> Printf.sprintf "%s/draft/trustee/%s/%s" prefix uuid tk
-    | `Threshold _ ->
-        Printf.sprintf "%s/draft/threshold-trustee/%s/%s" prefix uuid tk
+    Printf.sprintf "%s/static/trustee.html#generate/%s/%s" prefix uuid tk
   in
   a ~href "Link"
 
