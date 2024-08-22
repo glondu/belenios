@@ -62,13 +62,7 @@ let find_trustee_private_key s uuid trustee_id =
 let with_tally_trustee token s uuid f =
   let@ token = Option.unwrap unauthorized token in
   let* x = find_trustee_id s uuid token in
-  match x with
-  | Some trustee_id ->
-      let* tally_trustee_private_key =
-        find_trustee_private_key s uuid trustee_id
-      in
-      f { tally_trustee_private_key }
-  | None -> unauthorized
+  match x with Some trustee_id -> f trustee_id | None -> unauthorized
 
 let get_election_status s uuid =
   let* status_state = Web_persist.get_election_state s uuid in
@@ -461,12 +455,34 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           Lwt.return (200, string_of_partial_decryptions x)
       | _ -> method_not_allowed)
   | [ "trustee" ] -> (
-      match method_ with
-      | `GET ->
-          let@ x = with_tally_trustee token s uuid in
-          let@ () = handle_generic_error in
-          Lwt.return (200, string_of_tally_trustee x)
-      | _ -> method_not_allowed)
+      let* state = Web_persist.get_election_state s uuid in
+      match state with
+      | `EncryptedTally -> (
+          match method_ with
+          | `GET ->
+              let@ trustee_id = with_tally_trustee token s uuid in
+              let@ () = handle_generic_error in
+              let* tally_trustee_private_key =
+                find_trustee_private_key s uuid trustee_id
+              in
+              Lwt.return
+                (200, string_of_tally_trustee { tally_trustee_private_key })
+          | `POST -> (
+              let@ trustee_id = with_tally_trustee token s uuid in
+              let@ () = handle_generic_error in
+              let@ partial_decryption = body.run Fun.id in
+              let module W = (val Election.of_string (module Random) raw) in
+              let* x =
+                post_partial_decryption s uuid
+                  (module W)
+                  ~trustee_id ~partial_decryption
+              in
+              match x with
+              | Ok () -> ok
+              | Error `AlreadyDone -> conflict
+              | Error `Invalid -> bad_request)
+          | _ -> method_not_allowed)
+      | _ -> precondition_failed)
   | [ "shuffles" ] -> (
       match method_ with
       | `GET ->

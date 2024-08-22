@@ -135,6 +135,7 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 ## `elections/$UUID/trustee` (trustee)
 
 * `GET`: unit -> tally_trustee
+* `POST`: json -> unit
 
 ## `elections/$UUID/shuffles` (administrator)
 

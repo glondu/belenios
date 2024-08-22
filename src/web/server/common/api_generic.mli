@@ -37,6 +37,8 @@ val unauthorized : result Lwt.t
 val forbidden : result Lwt.t
 val not_found : result Lwt.t
 val method_not_allowed : result Lwt.t
+val precondition_failed : result Lwt.t
+val conflict : result Lwt.t
 
 val handle_ifmatch :
   string option ->

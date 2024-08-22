@@ -71,6 +71,7 @@ let forbidden = Lwt.return (403, "\"Forbidden\"")
 let not_found = Lwt.return (404, "\"Not Found\"")
 let method_not_allowed = Lwt.return (405, "\"Method Not Allowed\"")
 let precondition_failed = Lwt.return (412, "\"Precondition Failed\"")
+let conflict = Lwt.return (409, "\"Conflict\"")
 
 let handle_ifmatch ifmatch current cont =
   match ifmatch with
