@@ -31,6 +31,14 @@ val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
 val skip_shuffler : (string -> unit Lwt.t) Storage.u
 val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
 
+val post_partial_decryption :
+  Storage.t ->
+  uuid ->
+  (module Belenios.Election.ELECTION) ->
+  trustee_id:int ->
+  partial_decryption:string ->
+  (unit, [> `AlreadyDone | `Invalid ]) Stdlib.result Lwt.t
+
 val dispatch :
   Storage.t ->
   token:string option ->

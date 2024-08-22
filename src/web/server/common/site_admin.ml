@@ -1375,65 +1375,27 @@ struct
           let* x = find_trustee_id s uuid token in
           match x with Some x -> return x | None -> Lwt.fail TallyEarlyError
         in
-        let* pds = Public_archive.get_partial_decryptions s uuid in
-        let* () =
-          if List.exists (fun x -> x.owned_owner = trustee_id) pds then
-            Lwt.fail TallyEarlyError
-          else return ()
-        in
         let* () = if trustee_id > 0 then return () else fail_http `Not_found in
         let@ election = with_election s uuid in
-        let module W = (val election) in
-        let* pks =
-          let* trustees = Public_archive.get_trustees s uuid in
-          let trustees =
-            trustees_of_string
-              W.(sread G.of_string)
-              W.(sread G.Zq.of_string)
-              trustees
-          in
-          trustees
-          |> List.map (function
-               | `Single x -> [ x ]
-               | `Pedersen t -> Array.to_list t.t_verification_keys)
-          |> List.flatten |> Array.of_list |> return
+        let* x =
+          Api_elections.post_partial_decryption s uuid election ~trustee_id
+            ~partial_decryption
         in
-        let pk = pks.(trustee_id - 1).trustee_public_key in
-        let pd =
-          partial_decryption_of_string
-            W.(sread G.of_string)
-            W.(sread G.Zq.of_string)
-            partial_decryption
-        in
-        let* et =
-          let* x = Public_archive.get_latest_encrypted_tally s uuid in
-          match x with
-          | None -> assert false
-          | Some x ->
-              Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
-        in
-        if
-          string_of_partial_decryption
-            W.(swrite G.to_string)
-            W.(swrite G.Zq.to_string)
-            pd
-          = partial_decryption
-          && W.E.check_factor et pk pd
-        then
-          let pd = (trustee_id, partial_decryption) in
-          let* () = Web_persist.add_partial_decryption s uuid pd in
-          Pages_common.generic_page ~title:(s_ "Success")
-            (s_ "Your partial decryption has been received and checked!")
-            ()
-          >>= Html.send
-        else
-          let service =
-            preapply ~service:election_tally_trustees (uuid, token)
-          in
-          Pages_common.generic_page ~title:(s_ "Error") ~service
-            (s_ "The partial decryption didn't pass validation!")
-            ()
-          >>= Html.send)
+        match x with
+        | Ok () ->
+            Pages_common.generic_page ~title:(s_ "Success")
+              (s_ "Your partial decryption has been received and checked!")
+              ()
+            >>= Html.send
+        | Error `AlreadyDone -> Lwt.fail TallyEarlyError
+        | Error `Invalid ->
+            let service =
+              preapply ~service:election_tally_trustees (uuid, token)
+            in
+            Pages_common.generic_page ~title:(s_ "Error") ~service
+              (s_ "The partial decryption didn't pass validation!")
+              ()
+            >>= Html.send)
 
   let handle_election_tally_release uuid () =
     let@ s = Storage.with_transaction in

@@ -260,6 +260,50 @@ let select_shuffler s uuid metadata trustee =
   let* _ = Web_persist.gen_shuffle_token s uuid trustee trustee_id name in
   Lwt.return_unit
 
+let post_partial_decryption s uuid election ~trustee_id ~partial_decryption =
+  let* pds = Public_archive.get_partial_decryptions s uuid in
+  let@ () =
+   fun cont ->
+    if List.exists (fun x -> x.owned_owner = trustee_id) pds then
+      Lwt.return @@ Stdlib.Error `AlreadyDone
+    else cont ()
+  in
+  let module W = (val election : Election.ELECTION) in
+  let* pks =
+    let* trustees = Public_archive.get_trustees s uuid in
+    trustees
+    |> trustees_of_string W.(sread G.of_string) W.(sread G.Zq.of_string)
+    |> List.map (function
+         | `Single x -> [ x ]
+         | `Pedersen t -> Array.to_list t.t_verification_keys)
+    |> List.flatten |> Array.of_list |> Lwt.return
+  in
+  let pk = pks.(trustee_id - 1).trustee_public_key in
+  let pd =
+    partial_decryption_of_string
+      W.(sread G.of_string)
+      W.(sread G.Zq.of_string)
+      partial_decryption
+  in
+  let* et =
+    let* x = Public_archive.get_latest_encrypted_tally s uuid in
+    match x with
+    | None -> assert false
+    | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
+  in
+  if
+    string_of_partial_decryption
+      W.(swrite G.to_string)
+      W.(swrite G.Zq.to_string)
+      pd
+    = partial_decryption
+    && W.E.check_factor et pk pd
+  then
+    let pd = (trustee_id, partial_decryption) in
+    let* () = Web_persist.add_partial_decryption s uuid pd in
+    Lwt.return @@ Ok ()
+  else Lwt.return @@ Stdlib.Error `Invalid
+
 let split_voting_record =
   let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
   fun x ->
