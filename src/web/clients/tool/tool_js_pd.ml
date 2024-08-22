@@ -69,14 +69,7 @@ let basic_check_private_key s =
 let compute_partial_decryption tally_trustee _ =
   let open (val !Belenios_js.I18n.gettext) in
   let&|&& e = !election in
-  let module P =
-    Election.Make
-      (struct
-        let raw_election = e
-      end)
-      (Random)
-      ()
-  in
+  let module P = (val Election.of_string (module Random) e) in
   let&|&& e = !encrypted_tally in
   let encrypted_tally = encrypted_tally_of_string P.(sread G.of_string) e in
   let&& e = document##getElementById (Js.string "private_key") in

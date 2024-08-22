@@ -104,16 +104,7 @@ let raw_get_election s uuid =
   let* x = get_election s uuid in
   match x with
   | None -> Lwt.fail Not_cachable
-  | Some x ->
-      let module W =
-        Election.Make
-          (struct
-            let raw_election = x
-          end)
-          (Random)
-          ()
-      in
-      Lwt.return (module W : Site_common_sig.ELECTION)
+  | Some x -> Lwt.return @@ Election.of_string (module Random) x
 
 let election_cache = new ElectionCache.cache not_in_cache ~timer:3600. 500
 

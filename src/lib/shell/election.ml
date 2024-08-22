@@ -127,22 +127,23 @@ module type ELECTION = sig
   val witness : question version
 end
 
-module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
-  let x =
-    match get_version R.raw_election with
-    | 1 ->
-        let module X = struct
-          type question = Belenios_v1.Question.t
+let of_string random x =
+  match get_version x with
+  | 1 ->
+      let module R = struct
+        let raw_election = x
+      end in
+      let module M = (val random : RANDOM) in
+      let module X = struct
+        type question = Belenios_v1.Question.t
 
-          include Belenios_v1.Election.Make (R) (M) ()
+        include Belenios_v1.Election.Make (R) (M) ()
 
-          let witness = V1
-        end in
-        (module X : ELECTION)
-    | n -> Printf.ksprintf failwith "Election.Make: unsupported version: %d" n
-
-  include (val x)
-end
+        let witness = V1
+      end in
+      (module X : ELECTION)
+  | n ->
+      Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
 let supported_crypto_versions = [ Version V1 ]
 

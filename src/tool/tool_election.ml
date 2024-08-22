@@ -45,15 +45,7 @@ end
 module Make (P : PARAMS) () = struct
   module Getters = Tool_election_data.MakeGetters (P)
   module R = Random
-
-  module Election =
-    Belenios.Election.Make
-      (struct
-        let raw_election = Getters.raw_election
-      end)
-      (R)
-      ()
-
+  module Election = (val Election.of_string (module R) Getters.raw_election)
   include Election
   include Tool_election_data.Make (Getters) (Election)
 

@@ -39,7 +39,7 @@ let show_result name =
 
 let do_election uuid election get_private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val election : ELECTION) in
+  let module W = (val election : Election.ELECTION) in
   let@ trustees cont =
     let* x =
       get
@@ -204,17 +204,7 @@ let check ?uuid () =
             in
             let button =
               let@ () = button @@ s_ "Check private key" in
-              let parse_election x =
-                let module X =
-                  Election.Make
-                    (struct
-                      let raw_election = x
-                    end)
-                    (Random)
-                    ()
-                in
-                (module X : ELECTION)
-              in
+              let parse_election x = Election.of_string (module Random) x in
               let* election =
                 get parse_election
                   (Printf.sprintf "../api/elections/%s/election" uuid)

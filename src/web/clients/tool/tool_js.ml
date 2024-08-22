@@ -349,14 +349,7 @@ module BuggyPartialDecryption = struct
           alert "Could not get encrypted private key!";
           Lwt.return_unit
     in
-    let module P =
-      Belenios.Election.Make
-        (struct
-          let raw_election = raw_election
-        end)
-        (Random)
-        ()
-    in
+    let module P = (val Election.of_string (module Random) raw_election) in
     let encrypted_tally =
       encrypted_tally |> encrypted_tally_of_string (sread P.G.of_string)
     in

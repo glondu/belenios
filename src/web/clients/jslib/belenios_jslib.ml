@@ -96,10 +96,8 @@ let belenios : belenios Js.t =
           Lwt.catch
             (fun () ->
               let* () = Lwt_js.yield () in
-              let module R = struct
-                let raw_election = Js._JSON##stringify params |> Js.to_string
-              end in
-              let module W = Election.Make (R) (Random) () in
+              let raw = Js._JSON##stringify params |> Js.to_string in
+              let module W = (val Election.of_string (module Random) raw) in
               let* () = Lwt_js.yield () in
               let module Cred =
                 Credential.Make
