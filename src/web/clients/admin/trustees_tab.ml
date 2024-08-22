@@ -379,7 +379,9 @@ let all_ttee_done () =
 let maillink_of_token_direct tk =
   let uuid = get_current_uuid () in
   let prefix = url_prefix () in
-  let href = Printf.sprintf "%s/election/trustees.html#%s-%s" prefix uuid tk in
+  let href =
+    Printf.sprintf "%s/static/trustee.html#decrypt/%s/%s" prefix uuid tk
+  in
   a ~href "Link"
 
 let recompute_main_zone_2 () =

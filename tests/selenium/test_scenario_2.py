@@ -582,20 +582,14 @@ The election administrator.\
                 wait_a_bit()
 
             # He clicks on the "Compute decryption factors" button
-            compute_button_css_selector = "button[id=compute]"
+            compute_button_css_selector = "#compute_factor"
             compute_button_element = wait_for_element_exists(browser, compute_button_css_selector)
             compute_button_element.click()
 
-            # He checks that the text field below (used as visual feedback) now contains text
-            visual_feedback_css_selector = "#pd"
-            visual_feedback_expected_non_empty_attribute = "value"
-            try:
-                wait_for_element_exists_and_has_non_empty_attribute(browser, visual_feedback_css_selector, visual_feedback_expected_non_empty_attribute, 60 * 2)
-            except UnexpectedAlertPresentException as e:
-                raise Exception("An alert was displayed at a moment when no alert should be displayed. Alert displayed probably contains error information about uploaded file contents.") from e
+            wait_a_bit()
 
             # He clicks on the "Submit" button
-            submit_button_css_selector = "#pd_done input[type=submit]"
+            submit_button_css_selector = "#submit_data"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
 
@@ -603,7 +597,7 @@ The election administrator.\
 
             # He checks that next screen contains a confirmation sentence
             confirmation_sentence_expected_text = "Your partial decryption has been received and checked!"
-            confirmation_sentence_css_selector = "#main p"
+            confirmation_sentence_css_selector = "#success"
             wait_for_element_exists_and_contains_expected_text(browser, confirmation_sentence_css_selector, confirmation_sentence_expected_text, settings.EXPLICIT_WAIT_TIMEOUT)
 
             # He closes the window

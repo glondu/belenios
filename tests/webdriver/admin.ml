@@ -494,8 +494,8 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = session#fill_with ~selector:"#private_key" private_key in
-    let* () = session#click_on ~selector:"#compute" in
-    let* () = session#click_on ~selector:"input[type=submit]" in
+    let* () = session#click_on ~selector:"#compute_factor" in
+    let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
 
   let tally_election { id; private_keys; _ } =

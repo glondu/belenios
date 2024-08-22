@@ -121,7 +121,6 @@ module type S = sig
     uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val shuffle_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val tally_trustees_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val signup_captcha :
     service:string ->

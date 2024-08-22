@@ -50,12 +50,15 @@ module Make () = struct
     | None -> base
     | Some uuid -> base ^ "#" ^ Belenios.Uuid.unwrap uuid
 
-  let make_trustee_generate_link uuid ~token =
+  let make_trustee_link uuid kind ~token =
+    let kind =
+      match kind with `Generate -> "generate" | `Decrypt -> "decrypt"
+    in
     Eliom_uri.make_string_uri ~absolute:true
       ~service:(Eliom_service.static_dir ())
       [ "static"; "trustee.html" ]
     |> (fun x ->
-         Printf.sprintf "%s#generate/%s/%s" x (Belenios.Uuid.unwrap uuid) token)
+         Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
     |> rewrite_prefix
 
   let privacy_notice_accept =
@@ -449,15 +452,6 @@ module Make () = struct
     create
       ~path:(Path [ "election"; "trustees" ])
       ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_tally_trustees_static =
-    create ~path:(Path [ "election"; "trustees.html" ]) ~meth:(Get unit) ()
-
-  let election_tally_trustees_post =
-    create ~csrf_safe:true
-      ~path:(Path [ "election"; "submit-partial-decryption" ])
-      ~meth:(Post (uuid_and_token, string "partial_decryption"))
       ()
 
   let election_tally_release =

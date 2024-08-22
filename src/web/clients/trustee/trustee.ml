@@ -43,6 +43,9 @@ let onhashchange configuration =
   | [ "generate"; uuid; token ] ->
       let@ () = show_in main_zone in
       Generate.generate configuration ~uuid ~token
+  | [ "decrypt"; uuid; token ] ->
+      let@ () = show_in main_zone in
+      Decrypt.decrypt ~uuid ~token
   | [ "check" ] ->
       let@ () = show_in main_zone in
       Check.check ()

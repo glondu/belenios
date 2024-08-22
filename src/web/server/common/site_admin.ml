@@ -922,7 +922,7 @@ struct
               let title = s_ "Error" in
               Pages_common.generic_page ~title msg () >>= Html.send ~code:403
             else
-              make_trustee_generate_link uuid ~token |> String_redirection.send)
+              make_trustee_link uuid `Generate ~token |> String_redirection.send)
 
   let () =
     Any.register ~service:election_draft_confirm (fun uuid () ->
@@ -1332,8 +1332,7 @@ struct
                     ()
                   >>= Html.send
                 else
-                  Printf.sprintf "%s/election/trustees.html#%s-%s"
-                    !Web_config.prefix (Uuid.unwrap uuid) token
+                  make_trustee_link uuid `Decrypt ~token
                   |> String_redirection.send
             | None -> forbidden ())
         | `Open | `Closed | `Shuffling ->
@@ -1348,54 +1347,6 @@ struct
             let msg = s_ "The election has already been tallied." in
             Pages_common.generic_page ~title:(s_ "Forbidden") msg ()
             >>= Html.send ~code:403)
-
-  let () =
-    Html.register ~service:election_tally_trustees_static (fun () () ->
-        Pages_admin.tally_trustees_static ())
-
-  exception TallyEarlyError
-
-  let render_tally_early_error_as_forbidden f =
-    Lwt.catch f (function TallyEarlyError -> forbidden () | e -> Lwt.fail e)
-
-  let () =
-    Any.register ~service:election_tally_trustees_post
-      (fun (uuid, token) partial_decryption ->
-        let@ () = render_tally_early_error_as_forbidden in
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        let@ s = Storage.with_transaction in
-        let* () =
-          let* state = Web_persist.get_election_state s uuid in
-          match state with
-          | `EncryptedTally -> return ()
-          | _ -> Lwt.fail TallyEarlyError
-        in
-        let* trustee_id =
-          let* x = find_trustee_id s uuid token in
-          match x with Some x -> return x | None -> Lwt.fail TallyEarlyError
-        in
-        let* () = if trustee_id > 0 then return () else fail_http `Not_found in
-        let@ election = with_election s uuid in
-        let* x =
-          Api_elections.post_partial_decryption s uuid election ~trustee_id
-            ~partial_decryption
-        in
-        match x with
-        | Ok () ->
-            Pages_common.generic_page ~title:(s_ "Success")
-              (s_ "Your partial decryption has been received and checked!")
-              ()
-            >>= Html.send
-        | Error `AlreadyDone -> Lwt.fail TallyEarlyError
-        | Error `Invalid ->
-            let service =
-              preapply ~service:election_tally_trustees (uuid, token)
-            in
-            Pages_common.generic_page ~title:(s_ "Error") ~service
-              (s_ "The partial decryption didn't pass validation!")
-              ()
-            >>= Html.send)
 
   let handle_election_tally_release uuid () =
     let@ s = Storage.with_transaction in
@@ -1567,7 +1518,7 @@ struct
         match election with
         | None -> fail_http `Not_found
         | Some _ ->
-            make_trustee_generate_link uuid ~token |> String_redirection.send)
+            make_trustee_link uuid `Generate ~token |> String_redirection.send)
 
   module HashedInt = struct
     type t = int

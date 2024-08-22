@@ -880,7 +880,7 @@ struct
                   | Some x when x = t.st_token -> true
                   | _ -> false
                 in
-                let uri = make_trustee_generate_link uuid ~token:t.st_token in
+                let uri = make_trustee_link uuid `Generate ~token:t.st_token in
                 let* mail_cell, link_cell =
                   if t.st_token <> "" then
                     if t.st_public_key = "" then
@@ -1101,7 +1101,7 @@ struct
                   | Some 7 -> "done"
                   | _ -> "unknown"
                 in
-                let uri = make_trustee_generate_link uuid ~token:t.stt_token in
+                let uri = make_trustee_link uuid `Generate ~token:t.stt_token in
                 let* mail_cell =
                   let* subject, body =
                     Mails_admin.mail_trustee_generation_threshold langs uri
@@ -2509,8 +2509,7 @@ struct
                      | _ -> false
                    in
                    let uri =
-                     compute_hash_link ~uuid ~token:t.trustee_pd_token
-                       ~service:election_tally_trustees_static
+                     make_trustee_link uuid `Decrypt ~token:t.trustee_pd_token
                    in
                    let* mail, link =
                      if t.trustee_pd_address = "server" then
@@ -2988,104 +2987,6 @@ struct
               ])
             (uuid, token);
           script_with_lang ~lang "tool_js_shuffle.js";
-        ]
-    in
-    base ~title ~content:[ content ] ~static:true ()
-
-  let tally_trustees_static () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let title = s_ "Partial decryption" in
-    let content =
-      div
-        ~a:[ a_id "initially_hidden_content"; a_style "display: none;" ]
-        [
-          p
-            [
-              txt
-                (s_ "It is now time to compute your partial decryption factors.");
-            ];
-          p
-            [
-              txt (s_ "The fingerprint of the encrypted tally is ");
-              b [ span ~a:[ a_id "hash" ] [] ];
-              txt ".";
-            ];
-          hr ();
-          div
-            [
-              b [ txt (s_ "Instructions:") ];
-              ol
-                [
-                  li
-                    [
-                      div
-                        ~a:[ a_id "input_private_key" ]
-                        [
-                          div
-                            [
-                              p [ txt (s_ "Please enter your private key:") ];
-                              input
-                                ~a:[ a_id "private_key"; a_size 80 ]
-                                ~input_type:`Text string;
-                            ];
-                          div
-                            [
-                              p [ txt (s_ "Or load it from a file:") ];
-                              input
-                                ~a:[ a_id "private_key_file" ]
-                                ~input_type:`File string;
-                            ];
-                        ];
-                      br ();
-                    ];
-                  li
-                    [
-                      div
-                        [
-                          button_no_value
-                            ~a:[ a_id "compute" ]
-                            ~button_type:`Button
-                            [
-                              txt
-                                (s_ "Generate your contribution to decryption");
-                            ];
-                        ];
-                      br ();
-                    ];
-                  li
-                    [
-                      div
-                        ~a:[ a_id "pd_done" ]
-                        [
-                          (let uuid = Uuid.wrap "XXXXXXXXXXXXXX"
-                           and token = "XXXXXXXXXXXXXX" in
-                           post_form
-                             ~a:[ a_id "pd_form" ]
-                             ~service:election_tally_trustees_post
-                             (fun pd ->
-                               [
-                                 div
-                                   [
-                                     input ~input_type:`Submit
-                                       ~value:(s_ "Submit") string;
-                                     txt
-                                       (s_ " your contribution to decryption.");
-                                   ];
-                                 div
-                                   [
-                                     txt "Data: ";
-                                     textarea
-                                       ~a:[ a_rows 5; a_cols 40; a_id "pd" ]
-                                       ~name:pd ();
-                                   ];
-                               ])
-                             (uuid, token));
-                        ];
-                    ];
-                ];
-            ];
-          script_with_lang ~lang "tool_js_pd.js";
         ]
     in
     base ~title ~content:[ content ] ~static:true ()

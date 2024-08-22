@@ -154,7 +154,7 @@ l'ouverture de l'urne. Il est attendu que l'autorité de
 déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
-  `PREFIXE/election/trustees.html#UUID-JETON`
+  `PREFIXE/static/trustee.html#decrypt/UUID/JETON`
 - vérifie que  (seulement dans le mode vote alternatif) l'empreinte de
   l'urne mélangée à l'étape précédente : `empreinte de votre mélange`
   apparait sur la page d'accueil de l'élection, à côté du nom de

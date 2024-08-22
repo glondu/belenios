@@ -147,7 +147,7 @@ In all cases, the tally then proceeds with a phase where the trustee uses
 their private key to decrypt the result. It is expected that the trustee:
 
 - check that the URL of the page has the following form:
-  `PREFIX/election/trustees.html#UUID-TOKEN`;
+  `PREFIX/static/trustee.html#decrypt/UUID/TOKEN`;
 - check (only for alternative voting) the fingerprint of their shuffle
   `fingerprint of your shuffle` as saved in the previous step is present
   on the page of the election, next to their name. If this is not the case,
