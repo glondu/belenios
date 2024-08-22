@@ -416,7 +416,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let* x = get_partial_decryptions s uuid metadata in
           Lwt.return (200, string_of_partial_decryptions x)
       | _ -> method_not_allowed)
-  | [ "tally-trustee" ] -> (
+  | [ "trustee" ] -> (
       match method_ with
       | `GET ->
           let@ x = with_tally_trustee token s uuid in

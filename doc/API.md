@@ -132,7 +132,7 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 * `GET`: unit -> records
 
-## `elections/$UUID/tally-trustee` (trustee)
+## `elections/$UUID/trustee` (trustee)
 
 * `GET`: unit -> tally_trustee
 

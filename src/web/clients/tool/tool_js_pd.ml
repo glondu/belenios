@@ -151,12 +151,12 @@ let fill_interactivity () =
   let@ () = redirect_if_admin "trustees" uuid token in
   set_form_target "pd_form" "submit-partial-decryption" uuid token;
   let@ tally_trustee cont =
-    let url = Printf.sprintf "../api/elections/%s/tally-trustee" uuid in
+    let url = Printf.sprintf "../api/elections/%s/trustee" uuid in
     let* x = get ~token tally_trustee_of_string url in
     match x with
     | Some x -> cont x
     | None ->
-        alert "Error while retrieving tally-trustee";
+        alert "Error while retrieving trustee";
         Lwt.return_unit
   in
   let () =

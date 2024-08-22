@@ -341,7 +341,7 @@ module BuggyPartialDecryption = struct
       let* x =
         Printf.ksprintf
           (get ~token tally_trustee_of_string)
-          "%s/api/elections/%s/tally-trustee" root uuid
+          "%s/api/elections/%s/trustee" root uuid
       in
       match x with
       | Some { tally_trustee_private_key = Some x } -> cont x
