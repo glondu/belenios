@@ -143,7 +143,7 @@ dépouillement commence par une phase de mélange.  Pour cette étape, il
 est attendu que l'autorité de déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
-  `PREFIXE/election/shuffle.html#UUID-JETON`
+  `PREFIXE/static/trustee.html#shuffle/UUID/JETON`
 - sauvegarde l'empreinte de l'urne mélangée : `empreinte de votre mélange`;
 - et vérifie immédiatement sa présence sur la page d'accueil de
   l'élection  (pour s'assurer que son mélange n'a pas été ignoré).

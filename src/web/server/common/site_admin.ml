@@ -1389,42 +1389,8 @@ struct
         let* expected_token = Web_persist.get_shuffle_token s uuid in
         match expected_token with
         | Some x when token = x.tk_token ->
-            Printf.sprintf "%s/election/shuffle.html#%s-%s" !Web_config.prefix
-              (Uuid.unwrap uuid) token
-            |> String_redirection.send
+            make_trustee_link uuid `Shuffle ~token |> String_redirection.send
         | _ -> forbidden ())
-
-  let () =
-    Html.register ~service:election_shuffle_link_static (fun () () ->
-        Pages_admin.shuffle_static ())
-
-  let () =
-    Any.register ~service:election_shuffle_post (fun (uuid, token) shuffle ->
-        let@ s = Storage.with_transaction in
-        let@ election = with_election s uuid in
-        let@ () = without_site_user () in
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        let* x = Api_elections.post_shuffle s uuid election ~token ~shuffle in
-        match x with
-        | Ok () ->
-            Pages_common.generic_page ~title:(s_ "Success")
-              (s_ "The shuffle has been successfully applied!")
-              ()
-            >>= Html.send
-        | Error `Failure ->
-            Pages_common.generic_page ~title:(s_ "Error")
-              (s_ "An error occurred while applying the shuffle.")
-              ()
-            >>= Html.send
-        | Error (`Invalid e) ->
-            Pages_common.generic_page ~title:(s_ "Error")
-              (Printf.sprintf
-                 (f_ "Data is invalid! (%s)")
-                 (Printexc.to_string e))
-              ()
-            >>= Html.send
-        | Error `Forbidden -> forbidden ())
 
   let () =
     Any.register ~service:election_shuffler_select (fun () (uuid, trustee) ->

@@ -2376,10 +2376,7 @@ struct
                 let* cell =
                   match x.shuffler_token with
                   | Some token ->
-                      let uri =
-                        compute_hash_link ~uuid ~token
-                          ~service:election_shuffle_link_static
-                      in
+                      let uri = make_trustee_link uuid `Shuffle ~token in
                       let* subject, body = Mails_admin.mail_shuffle langs uri in
                       return
                       @@ div
@@ -2432,10 +2429,7 @@ struct
                 let second_line =
                   match (this_line, x.shuffler_token) with
                   | true, Some token ->
-                      let uri =
-                        compute_hash_link ~uuid ~token
-                          ~service:election_shuffle_link_static
-                      in
+                      let uri = make_trustee_link uuid `Shuffle ~token in
                       [
                         tr
                           [
@@ -2905,91 +2899,6 @@ struct
       ]
     in
     base ~title ~content ()
-
-  let shuffle_static () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let uuid = Uuid.wrap "XXXXXXXXXXXXXX" and token = "XXXXXXXXXXXXXX" in
-    let title = s_ "Shuffle" in
-    let content =
-      div
-        ~a:[ a_id "initially_hidden_content"; a_style "display: none;" ]
-        [
-          div
-            [
-              txt
-                (s_
-                   "As a trustee, your first role is to shuffle the encrypted \
-                    ballots.");
-            ];
-          div
-            [
-              txt (s_ "Current list of ballots:");
-              txt " ";
-              raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
-              txt " ";
-              (let href =
-                 Printf.sprintf "%s/api/elections/%s/nh-ciphertexts"
-                   !Web_config.prefix (Uuid.unwrap uuid)
-                 |> Xml.uri_of_string
-               in
-               Eliom_content.Html.F.Raw.a
-                 ~a:[ a_href href; a_id "nh_ciphertexts_link" ]
-                 [ txt (s_ "Download as a file") ]);
-            ];
-          div
-            ~a:[ a_id "estimation" ]
-            [ txt (s_ "Estimating computation time…") ];
-          div
-            ~a:[ a_id "wait_div" ]
-            [
-              txt (s_ "Please wait… ");
-              img ~src:(static "encrypting.gif") ~alt:(s_ "Loading…") ();
-            ];
-          div
-            ~a:[ a_id "controls_div"; a_style "display: none;" ]
-            [
-              button_no_value ~button_type:`Button
-                ~a:[ a_id "compute_shuffle" ]
-                [ txt (s_ "Compute shuffle") ];
-            ];
-          post_form ~service:election_shuffle_post
-            ~a:[ a_id "submit_form" ]
-            (fun nshuffle ->
-              [
-                div
-                  [
-                    txt (s_ "Shuffled list of ballots:");
-                    txt " ";
-                    textarea
-                      ~a:[ a_rows 5; a_cols 40; a_id "shuffle" ]
-                      ~name:nshuffle ();
-                  ];
-                div
-                  ~a:[ a_id "hash_div"; a_style "display:none;" ]
-                  [
-                    div
-                      [
-                        txt (s_ "The fingerprint of your shuffle is:");
-                        txt " ";
-                        b ~a:[ a_id "hash" ] [];
-                        txt ".";
-                      ];
-                    div
-                      [
-                        txt
-                          (s_
-                             "You must record this fingerprint and check that \
-                              it appears on the election result page.");
-                      ];
-                  ];
-                div [ input ~input_type:`Submit ~value:(s_ "Submit") string ];
-              ])
-            (uuid, token);
-          script_with_lang ~lang "tool_js_shuffle.js";
-        ]
-    in
-    base ~title ~content:[ content ] ~static:true ()
 
   let signup_captcha ~service error challenge email =
     let* l = get_preferred_gettext () in

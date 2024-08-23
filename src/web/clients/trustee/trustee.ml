@@ -43,6 +43,7 @@ let onhashchange configuration =
   match path with
   | [ "generate"; uuid; token ] -> Generate.generate configuration ~uuid ~token
   | [ "decrypt"; uuid; token ] -> Decrypt.decrypt ~uuid ~token
+  | [ "shuffle"; uuid; token ] -> Shuffle.shuffle ~uuid ~token
   | [ "check" ] -> Check.check ()
   | [ "check"; uuid ] -> Check.check ~uuid ()
   | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]

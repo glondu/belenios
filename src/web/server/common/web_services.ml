@@ -52,7 +52,10 @@ module Make () = struct
 
   let make_trustee_link uuid kind ~token =
     let kind =
-      match kind with `Generate -> "generate" | `Decrypt -> "decrypt"
+      match kind with
+      | `Generate -> "generate"
+      | `Decrypt -> "decrypt"
+      | `Shuffle -> "shuffle"
     in
     Eliom_uri.make_string_uri ~absolute:true
       ~service:(Eliom_service.static_dir ())
@@ -412,15 +415,6 @@ module Make () = struct
     create
       ~path:(Path [ "election"; "shuffle" ])
       ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_shuffle_link_static =
-    create ~path:(Path [ "election"; "shuffle.html" ]) ~meth:(Get unit) ()
-
-  let election_shuffle_post =
-    create
-      ~path:(Path [ "election"; "submit-shuffle" ])
-      ~meth:(Post (uuid_and_token, string "shuffle"))
       ()
 
   let election_shuffler_select =

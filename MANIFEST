@@ -389,8 +389,6 @@ src/web/clients/tool/tool_js_credgen.ml
 src/web/clients/tool/tool_js_fingerprint.ml
 src/web/clients/tool/tool_js_i18n.mli
 src/web/clients/tool/tool_js_questions.ml
-src/web/clients/tool/tool_js_shuffle.ml
-src/web/clients/tool/tool_js_shuffle.mli
 src/web/clients/trustee/check.ml
 src/web/clients/trustee/check.mli
 src/web/clients/trustee/decrypt.ml
@@ -398,6 +396,8 @@ src/web/clients/trustee/decrypt.mli
 src/web/clients/trustee/dune
 src/web/clients/trustee/generate.ml
 src/web/clients/trustee/generate.mli
+src/web/clients/trustee/shuffle.ml
+src/web/clients/trustee/shuffle.mli
 src/web/clients/trustee/trustee.html
 src/web/clients/trustee/trustee.ml
 src/web/clients/trustee/trustee.mli

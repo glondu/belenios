@@ -120,8 +120,6 @@ module type S = sig
   val election_shuffler_skip_confirm :
     uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val shuffle_static : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val signup_captcha :
     service:string ->
     captcha_error option ->

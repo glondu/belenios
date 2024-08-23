@@ -21,6 +21,5 @@
     "/static/libsodium.wasm"            : null,
     "/static/trustee.html"              : null,
     "/static/trustee.js"                : null,
-    "/draft/credentials.html"           : null,
-    "/election/shuffle.html"            : null
+    "/draft/credentials.html"           : null
 }

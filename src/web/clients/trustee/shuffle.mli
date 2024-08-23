@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,33 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
-open Web_common
-open Belenios_api.Serializable_t
-open Api_generic
+open Js_of_ocaml_tyxml.Tyxml_js
 
-val get_election_status : election_status Lwt.t Storage.u
-val get_records : records Lwt.t Storage.u
-val get_partial_decryptions : (metadata -> partial_decryptions Lwt.t) Storage.u
-val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
-val skip_shuffler : (string -> unit Lwt.t) Storage.u
-val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
-
-val dispatch :
-  Storage.t ->
-  token:string option ->
-  ifmatch:string option ->
-  string list ->
-  [ `GET | `POST | `PUT | `DELETE ] ->
-  body ->
-  result Lwt.t
-
-val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
-
-val cast_ballot :
-  (bool -> string -> string -> weight option -> string -> bool Lwt.t) Storage.u ->
-  (rawballot:string ->
-  user:user ->
-  precast_data:string * credential_record ->
-  (user * string * bool * weight * bool) Lwt.t)
-  Storage.u
+val shuffle :
+  uuid:string -> token:string -> Html_types.div_content_fun Html.elt list Lwt.t

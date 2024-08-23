@@ -590,7 +590,7 @@ let shuffle_link token =
   let uuid = get_current_uuid () in
   let prefix = url_prefix () in
   let href =
-    Printf.sprintf "%s/election/shuffle.html#%s-%s" prefix uuid token
+    Printf.sprintf "%s/static/trustee.html#shuffle/%s/%s" prefix uuid token
   in
   a ~href "Link"
 

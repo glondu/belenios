@@ -104,7 +104,7 @@ module type S = sig
   val make_admin_new_uri : uuid option -> Eliom_content.Xml.uri
 
   val make_trustee_link :
-    uuid -> [< `Generate | `Decrypt ] -> token:string -> string
+    uuid -> [< `Generate | `Decrypt | `Shuffle ] -> token:string -> string
 
   val privacy_notice_accept :
     ( unit,
@@ -1199,35 +1199,6 @@ module type S = sig
       [ `One of uuid ] Eliom_parameter.param_name
       * [ `One of string ] Eliom_parameter.param_name,
       unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val election_shuffle_link_static :
-    ( unit,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      unit,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val election_shuffle_post :
-    ( uuid * string,
-      string,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of string ] Eliom_parameter.param_name,
-      [ `One of string ] Eliom_parameter.param_name,
       Eliom_service.non_ocaml )
     Eliom_service.t
 

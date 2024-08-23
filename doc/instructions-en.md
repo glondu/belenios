@@ -137,7 +137,7 @@ starts by a shuffle phase. For this, it is expected from the trustee that
 they:
 
 - check that the URL of the page has the following form:
-  `PREFIX/election/shuffle.html#UUID-TOKEN`;
+  `PREFIX/static/trustee.html#shuffle/UUID/TOKEN`;
 - save the fingerprint of the ballot box after their shuffle: `fingerprint
   of your shuffle`;
 - check immediately thereafter that this fingerprint is present on the
