@@ -500,6 +500,19 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               | Error `AlreadyDone -> conflict
               | Error `Invalid -> bad_request)
           | _ -> method_not_allowed)
+      | `Shuffling -> (
+          match method_ with
+          | `POST -> (
+              let@ token = Option.unwrap unauthorized token in
+              let@ () = handle_generic_error in
+              let@ shuffle = body.run Fun.id in
+              let election = Election.of_string (module Random) raw in
+              let* x = post_shuffle s uuid election ~token ~shuffle in
+              match x with
+              | Ok () -> ok
+              | Error `Forbidden -> forbidden
+              | Error _ -> bad_request)
+          | _ -> method_not_allowed)
       | _ -> precondition_failed)
   | [ "nh-ciphertexts" ] -> (
       match method_ with
