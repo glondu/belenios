@@ -31,6 +31,8 @@ module type PARAMS = sig
   val nb_voters : int
   val admin_id : int
   val api_token : string
+  val nh : bool
+  val validate : bool
 end
 
 module Make (P : PARAMS) = struct
@@ -43,17 +45,28 @@ module Make (P : PARAMS) = struct
   let generate_candidates n =
     Array.init n (fun i -> Printf.sprintf "Candidate %d" (i + 1))
 
-  let question =
-    {
-      q_answers = generate_candidates nb_candidates;
-      q_blank = None;
-      q_min = 1;
-      q_max = 1;
-      q_question = "Which candidate do you prefer?";
-    }
-
   let t_questions =
-    [| Belenios_question.Homomorphic.make ~value:question ~extra:None |]
+    if nh then
+      let open Belenios_question.Non_homomorphic in
+      let value : t =
+        {
+          q_answers = generate_candidates nb_candidates;
+          q_question = "Rank the candidates";
+        }
+      in
+      [| make ~value ~extra:None |]
+    else
+      let open Belenios_question.Homomorphic in
+      let value : t =
+        {
+          q_answers = generate_candidates nb_candidates;
+          q_blank = None;
+          q_min = 1;
+          q_max = 1;
+          q_question = "Which candidate do you prefer?";
+        }
+      in
+      [| make ~value ~extra:None |]
 
   let draft_questions =
     {
@@ -198,7 +211,7 @@ module Make (P : PARAMS) = struct
       in
       write f (string_of_private_credentials private_creds)
     in
-    validate_election uuid
+    if validate then validate_election uuid else Lwt.return_unit
 end
 
 open Cmdliner
@@ -220,7 +233,15 @@ let api_token_t =
   Arg.(
     value & opt (some string) None & info [ "api-token" ] ~docv:"API-TOKEN" ~doc)
 
-let main url candidates voters admin_id api_token =
+let nh_t =
+  let doc = "Use a non-homomorphic question." in
+  Arg.(value & flag & info [ "nh-question" ] ~doc)
+
+let validate_t =
+  let doc = "Validate the election." in
+  Arg.(value & flag & info [ "validate" ] ~doc)
+
+let main url candidates voters admin_id api_token nh validate =
   let@ () = wrap_main in
   let module X = Make (struct
     let prefix = get_mandatory "url" url
@@ -228,6 +249,8 @@ let main url candidates voters admin_id api_token =
     let nb_voters = voters
     let admin_id = get_mandatory "admin-id" admin_id
     let api_token = get_mandatory "api-token" api_token
+    let nh = nh
+    let validate = validate
   end) in
   Lwt_main.run (X.main ())
 
@@ -238,4 +261,5 @@ let cmd =
     (Cmd.info "setup" ~doc ~man)
     Term.(
       ret
-        (const main $ url_t $ candidates_t $ voters_t $ admin_id_t $ api_token_t))
+        (const main $ url_t $ candidates_t $ voters_t $ admin_id_t $ api_token_t
+       $ nh_t $ validate_t))

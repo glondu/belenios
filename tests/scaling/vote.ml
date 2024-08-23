@@ -54,6 +54,7 @@ module Make (P : PARAMS) () = struct
     let question = to_concrete W.template.t_questions.(0) in
     match question.value with
     | Belenios_question.Homomorphic.Q q -> Array.length q.q_answers
+    | Belenios_question.Non_homomorphic.Q q -> Array.length q.q_answers
     | _ -> failwith "unexpected question"
 
   let random_choice () =
