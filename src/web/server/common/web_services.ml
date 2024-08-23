@@ -408,12 +408,6 @@ module Make () = struct
     create_attached_post ~csrf_safe:true ~fallback:election_admin
       ~post_params:unit ()
 
-  let election_nh_ciphertexts =
-    create
-      ~path:(Path [ "election"; "nh-ciphertexts" ])
-      ~meth:(Get (uuid "uuid"))
-      ()
-
   let election_shuffle_link =
     create
       ~path:(Path [ "election"; "shuffle" ])

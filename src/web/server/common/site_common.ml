@@ -21,8 +21,6 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios
-open Belenios_server_core
 open Web_common
 
 module Make (X : Pages_sig.S) = struct
@@ -95,16 +93,6 @@ module Make (X : Pages_sig.S) = struct
     Any.register ~service:set_consent (fun cont () ->
         let () = Web_state.set_consent_cookie () in
         get_cont_state cont ())
-
-  let () =
-    Any.register ~service:election_nh_ciphertexts (fun uuid () ->
-        Lwt.try_bind
-          (fun () ->
-            let@ s = Storage.with_transaction in
-            Public_archive.get_nh_ciphertexts s uuid)
-          (fun x -> String.send (x, "application/json"))
-          (function
-            | Election_not_found _ -> fail_http `Not_found | e -> Lwt.reraise e))
 
   let () =
     Any.register ~service:set_language (fun (lang, cont) () ->

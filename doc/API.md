@@ -137,6 +137,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 * `GET`: unit -> tally_trustee
 * `POST`: json -> unit
 
+## `elections/$UUID/nh-ciphertexts` (anybody)
+
+* `GET`: unit -> 'a nh_ciphertexts
+
 ## `elections/$UUID/shuffles` (administrator)
 
 * `GET`: unit -> shuffles

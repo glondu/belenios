@@ -501,6 +501,16 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               | Error `Invalid -> bad_request)
           | _ -> method_not_allowed)
       | _ -> precondition_failed)
+  | [ "nh-ciphertexts" ] -> (
+      match method_ with
+      | `GET ->
+          let@ () = handle_generic_error in
+          Lwt.catch
+            (fun () ->
+              let* x = Public_archive.get_nh_ciphertexts s uuid in
+              Lwt.return (200, x))
+            (function Election_not_found _ -> not_found | e -> Lwt.reraise e)
+      | _ -> method_not_allowed)
   | [ "shuffles" ] -> (
       match method_ with
       | `GET ->

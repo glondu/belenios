@@ -2928,14 +2928,14 @@ struct
               txt " ";
               raw_textarea ~rows:5 ~cols:40 "current_ballots" "";
               txt " ";
-              (let service =
-                 Eliom_service.preapply ~service:election_nh_ciphertexts uuid
+              (let href =
+                 Printf.sprintf "%s/api/elections/%s/nh-ciphertexts"
+                   !Web_config.prefix (Uuid.unwrap uuid)
+                 |> Xml.uri_of_string
                in
-               raw_a
-                 ~a:[ a_id "nh_ciphertexts_link" ]
-                 ~service
-                 [ txt (s_ "Download as a file") ]
-                 ());
+               Eliom_content.Html.F.Raw.a
+                 ~a:[ a_href href; a_id "nh_ciphertexts_link" ]
+                 [ txt (s_ "Download as a file") ]);
             ];
           div
             ~a:[ a_id "estimation" ]

@@ -73,10 +73,7 @@ let shuffle election ciphertexts =
   | _ -> Lwt.fail (Failure "unexpected response from worker")
 
 let set_nh_ciphertexts_link uuid =
-  let href =
-    [ ("uuid", uuid) ] |> Url.encode_arguments |> fun x ->
-    Printf.sprintf "nh-ciphertexts?%s" x
-  in
+  let href = Printf.sprintf "../api/elections/%s/nh-ciphertexts" uuid in
   let$ a = document##getElementById (Js.string "nh_ciphertexts_link") in
   let$ a = Dom_html.CoerceTo.a a in
   a##.href := Js.string href
@@ -100,7 +97,9 @@ let () =
       let open Js_of_ocaml_lwt.XmlHttpRequest in
       let* election = get ("../elections/" ^ uuid ^ "/election.json") in
       let election = String.trim election.content in
-      let* ciphertexts = get ("../election/nh-ciphertexts?uuid=" ^ uuid) in
+      let* ciphertexts =
+        get (Printf.sprintf "../api/elections/%s/nh-ciphertexts" uuid)
+      in
       let ciphertexts = ciphertexts.content in
       set_textarea "current_ballots" ciphertexts;
       set_element_display "controls_div" "block";
