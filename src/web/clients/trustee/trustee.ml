@@ -39,22 +39,13 @@ let onhashchange configuration =
     Dom_html.window##.location##.hash
     |> Js.to_string |> drop_leading_hash |> String.split_on_char '/'
   in
+  let@ () = show_in main_zone in
   match path with
-  | [ "generate"; uuid; token ] ->
-      let@ () = show_in main_zone in
-      Generate.generate configuration ~uuid ~token
-  | [ "decrypt"; uuid; token ] ->
-      let@ () = show_in main_zone in
-      Decrypt.decrypt ~uuid ~token
-  | [ "check" ] ->
-      let@ () = show_in main_zone in
-      Check.check ()
-  | [ "check"; uuid ] ->
-      let@ () = show_in main_zone in
-      Check.check ~uuid ()
-  | _ ->
-      let@ () = show_in main_zone in
-      Lwt.return [ div [ txt @@ s_ "Error" ] ]
+  | [ "generate"; uuid; token ] -> Generate.generate configuration ~uuid ~token
+  | [ "decrypt"; uuid; token ] -> Decrypt.decrypt ~uuid ~token
+  | [ "check" ] -> Check.check ()
+  | [ "check"; uuid ] -> Check.check ~uuid ()
+  | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
 
 let rec main configuration lang =
   let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
