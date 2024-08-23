@@ -634,7 +634,7 @@ msgstr "N'a pas pu récupérer la configuration du serveur ! (%s)"
 
 #: src/web/clients/trustee/check.ml:103 src/web/clients/trustee/check.ml:51
 msgid "Could not get trustee parameters for this election!"
-msgstr ""
+msgstr "N'a pas pu récupérer les paramètres des autorités de déchiffrement de cette élection !"
 
 #: src/web/server/common/site_admin.ml:1070
 msgid "Could not retrieve trustees from selected election!"
@@ -935,7 +935,7 @@ msgstr "Élection "
 
 #: src/web/clients/trustee/check.ml:195
 msgid "Election ID:"
-msgstr ""
+msgstr "Identifiant de l'élection :"
 
 #: src/web/server/common/pages_admin.ml:2774
 msgid "Election home"
@@ -1047,7 +1047,7 @@ msgstr "Erreur dans le format de la clé privée : %s"
 
 #: src/web/clients/trustee/decrypt.ml:95
 msgid "Error while loading election parameters!"
-msgstr ""
+msgstr "Erreur lors du chargement des paramètres de l'élection !"
 
 #: src/web/clients/admin/elections.ml:1452
 msgid "Error while retrieving server configuration: %s"
@@ -1288,7 +1288,7 @@ msgstr "Spécification de la méthode de comptage invalide !"
 
 #: src/web/clients/trustee/check.ml:200 src/web/clients/trustee/check.ml:186
 msgid "Invalid election ID!"
-msgstr ""
+msgstr "Identifiant d'élection invalide !"
 
 #: src/web/clients/tool/tool_js_questions.ml:121
 msgid "Invalid maximum number of choices"
@@ -1742,7 +1742,7 @@ msgstr "Déchiffrement partiel"
 
 #: src/web/clients/trustee/decrypt.ml:158
 msgid "Partial decryption submission failed unexpectedly!"
-msgstr ""
+msgstr "La soumission du déchiffrement partiel a échoué de façon inattendue !"
 
 #: src/web/clients/admin/elections.ml:1568
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
@@ -2486,7 +2486,7 @@ msgstr "Aucune adresse courriel n'est associée à votre compte."
 
 #: src/web/clients/trustee/check.ml:222
 msgid "There is no election with ID %s on this server!"
-msgstr ""
+msgstr "Il n'y a pas d'élection avec l'identifiant %s sur ce serveur !"
 
 #: src/web/server/common/pages_admin.ml:1277
 msgid "There is one link per trustee. Send a link to each trustee."
@@ -2939,7 +2939,7 @@ msgstr ""
 
 #: src/web/clients/trustee/decrypt.ml:157
 msgid "You have already submitted a valid partial decryption!"
-msgstr ""
+msgstr "Vous avez déjà soumis un déchiffrement partiel valide !"
 
 #: src/web/server/common/pages_admin.ml:2635
 msgid "You may force the computation of the result now, if the required number of trustees have done their job, by clicking on the following button."
