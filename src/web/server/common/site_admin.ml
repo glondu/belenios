@@ -1405,36 +1405,26 @@ struct
         let@ () = without_site_user () in
         let* l = get_preferred_gettext () in
         let open (val l) in
-        let* expected_token = Web_persist.get_shuffle_token s uuid in
-        match expected_token with
-        | Some x when token = x.tk_token ->
-            Lwt.catch
-              (fun () ->
-                let* y =
-                  Web_persist.append_to_shuffles s election x.tk_trustee_id
-                    shuffle
-                in
-                match y with
-                | Some _ ->
-                    let* () = Spool.del s uuid Spool.shuffle_token in
-                    let* () = Spool.del s uuid Spool.audit_cache in
-                    Pages_common.generic_page ~title:(s_ "Success")
-                      (s_ "The shuffle has been successfully applied!")
-                      ()
-                    >>= Html.send
-                | None ->
-                    Pages_common.generic_page ~title:(s_ "Error")
-                      (s_ "An error occurred while applying the shuffle.")
-                      ()
-                    >>= Html.send)
-              (fun e ->
-                Pages_common.generic_page ~title:(s_ "Error")
-                  (Printf.sprintf
-                     (f_ "Data is invalid! (%s)")
-                     (Printexc.to_string e))
-                  ()
-                >>= Html.send)
-        | _ -> forbidden ())
+        let* x = Api_elections.post_shuffle s uuid election ~token ~shuffle in
+        match x with
+        | Ok () ->
+            Pages_common.generic_page ~title:(s_ "Success")
+              (s_ "The shuffle has been successfully applied!")
+              ()
+            >>= Html.send
+        | Error `Failure ->
+            Pages_common.generic_page ~title:(s_ "Error")
+              (s_ "An error occurred while applying the shuffle.")
+              ()
+            >>= Html.send
+        | Error (`Invalid e) ->
+            Pages_common.generic_page ~title:(s_ "Error")
+              (Printf.sprintf
+                 (f_ "Data is invalid! (%s)")
+                 (Printexc.to_string e))
+              ()
+            >>= Html.send
+        | Error `Forbidden -> forbidden ())
 
   let () =
     Any.register ~service:election_shuffler_select (fun () (uuid, trustee) ->

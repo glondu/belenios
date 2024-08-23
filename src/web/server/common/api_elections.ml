@@ -298,6 +298,24 @@ let post_partial_decryption s uuid election ~trustee_id ~partial_decryption =
     Lwt.return @@ Ok ()
   else Lwt.return @@ Stdlib.Error `Invalid
 
+let post_shuffle s uuid election ~token ~shuffle =
+  let* expected_token = Web_persist.get_shuffle_token s uuid in
+  match expected_token with
+  | Some x when token = x.tk_token ->
+      Lwt.catch
+        (fun () ->
+          let* y =
+            Web_persist.append_to_shuffles s election x.tk_trustee_id shuffle
+          in
+          match y with
+          | Some _ ->
+              let* () = Spool.del s uuid Spool.shuffle_token in
+              let* () = Spool.del s uuid Spool.audit_cache in
+              Lwt.return @@ Ok ()
+          | None -> Lwt.return @@ Stdlib.Error `Failure)
+        (fun e -> Lwt.return @@ Stdlib.Error (`Invalid e))
+  | _ -> Lwt.return @@ Stdlib.Error `Forbidden
+
 let split_voting_record =
   let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
   fun x ->

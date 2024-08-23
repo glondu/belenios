@@ -31,6 +31,14 @@ val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
 val skip_shuffler : (string -> unit Lwt.t) Storage.u
 val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
 
+val post_shuffle :
+  Storage.t ->
+  uuid ->
+  (module Site_common_sig.ELECTION) ->
+  token:string ->
+  shuffle:string ->
+  (unit, [> `Failure | `Forbidden | `Invalid of exn ]) Stdlib.result Lwt.t
+
 val dispatch :
   Storage.t ->
   token:string option ->
