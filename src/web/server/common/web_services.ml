@@ -64,6 +64,15 @@ module Make () = struct
          Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
     |> rewrite_prefix
 
+  let make_credauth_link uuid kind ~token =
+    let kind = match kind with `Generate -> "generate" in
+    Eliom_uri.make_string_uri ~absolute:true
+      ~service:(Eliom_service.static_dir ())
+      [ "static"; "credauth.html" ]
+    |> (fun x ->
+         Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
+    |> rewrite_prefix
+
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true
       ~meth:(Post (unit, privacy_cont "cont"))
@@ -165,21 +174,6 @@ module Make () = struct
     create
       ~path:(Path [ "draft"; "credentials" ])
       ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_draft_credentials_static =
-    create ~path:(Path [ "draft"; "credentials.html" ]) ~meth:(Get unit) ()
-
-  let election_draft_credentials_post =
-    create ~csrf_safe:true
-      ~path:(Path [ "draft"; "submit-credentials" ])
-      ~meth:(Post (uuid_and_token, string "public_creds"))
-      ()
-
-  let election_draft_credentials_post_file =
-    create ~csrf_safe:true
-      ~path:(Path [ "draft"; "submit-credentials-file" ])
-      ~meth:(Post (uuid_and_token, file "public_creds"))
       ()
 
   let election_draft_credentials_server =

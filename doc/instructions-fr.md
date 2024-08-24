@@ -189,7 +189,7 @@ générer et d'envoyer un code de vote à chaque électeur.
 reçoit un lien privé de la part de l'administrateur de
 l'élection. Elle doit suivre ce lien, et s'assurer que l'URL de la
 page qu'elle obtient a la forme suivante :
-`PREFIXE/draft/credentials.html#UUID-JETON`.
+`PREFIXE/static/credauth.html#generate/UUID/JETON`.
 
 Sur cette page se trouve la liste des électeurs. L'autorité doit
 vérifier avec le comité en charge de l'élection que cette liste est

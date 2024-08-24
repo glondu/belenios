@@ -377,6 +377,12 @@ src/web/clients/common/secondary_ui.ml
 src/web/clients/common/secondary_ui.mli
 src/web/clients/common/session.ml
 src/web/clients/common/session.mli
+src/web/clients/credauth/credauth.html
+src/web/clients/credauth/credauth.ml
+src/web/clients/credauth/credauth.mli
+src/web/clients/credauth/dune
+src/web/clients/credauth/generate.ml
+src/web/clients/credauth/generate.mli
 src/web/clients/election-home/dune
 src/web/clients/election-home/home.ml
 src/web/clients/election-home/home.mli
@@ -387,7 +393,6 @@ src/web/clients/tool/belenios-tool.html
 src/web/clients/tool/dune
 src/web/clients/tool/tool_js.ml
 src/web/clients/tool/tool_js.mli
-src/web/clients/tool/tool_js_credgen.ml
 src/web/clients/tool/tool_js_fingerprint.ml
 src/web/clients/tool/tool_js_i18n.mli
 src/web/clients/tool/tool_js_questions.ml

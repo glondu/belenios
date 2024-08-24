@@ -320,10 +320,6 @@ struct
     let* election = Spool.get s uuid Spool.draft in
     match election with None -> fail_http `Not_found | Some x -> f x
 
-  let with_draft_public_update s uuid f =
-    let* election = Spool.update s uuid Spool.draft in
-    match election with None -> fail_http `Not_found | Some x -> f x
-
   let with_draft ?(save = true) s uuid f =
     let@ _, a, _ = with_site_user in
     let@ (Draft (_, se) as x), set =
@@ -810,40 +806,7 @@ struct
             Pages_admin.election_draft_credentials_already_generated ()
             >>= Html.send
         | `None ->
-            Printf.sprintf "%s/draft/credentials.html#%s-%s" !Web_config.prefix
-              (Uuid.unwrap uuid) token
-            |> String_redirection.send)
-
-  let () =
-    Html.register ~service:election_draft_credentials_static (fun () () ->
-        Pages_admin.election_draft_credentials_static ())
-
-  let handle_credentials_post uuid token creds =
-    let@ s = Storage.with_transaction in
-    let@ (Draft (_, se) as x), set = with_draft_public_update s uuid in
-    if se.se_public_creds <> token then forbidden ()
-    else
-      match Web_persist.get_credentials_status uuid x with
-      | `Done | `Pending _ -> forbidden ()
-      | `None ->
-          let creds = public_credentials_of_string creds in
-          let* () =
-            Api_drafts.submit_public_credentials s uuid (x, set) creds
-          in
-          Pages_admin.election_draft_credentials_done x () >>= Html.send
-
-  let () =
-    Any.register ~service:election_draft_credentials_post
-      (fun (uuid, token) creds ->
-        let@ () = without_site_user () in
-        wrap_handler (fun () -> handle_credentials_post uuid token creds))
-
-  let () =
-    Any.register ~service:election_draft_credentials_post_file
-      (fun (uuid, token) creds ->
-        let@ () = without_site_user () in
-        let* creds = exhaust_file creds in
-        wrap_handler (fun () -> handle_credentials_post uuid token creds))
+            make_credauth_link uuid `Generate ~token |> String_redirection.send)
 
   let () =
     Any.register ~service:election_draft_credentials_server (fun uuid () ->

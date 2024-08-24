@@ -180,7 +180,7 @@ a private credential to each voter.
 **Setup.** During the setup of the election, the credential authority
 first obtains a private link. They must follow the link, and make sure
 the URL of the resulting page has the following form:
-`PREFIX/draft/credentials.html#UUID-TOKEN`.
+`PREFIX/static/credauth.html#generate/UUID/TOKEN`.
 
 On this page, there is the voter list. The credential authority must
 verify with the committee in charge of the election that this list is

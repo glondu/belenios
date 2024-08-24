@@ -212,7 +212,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         self.election_page_url = future_election_link_element.get_attribute('innerText').strip()
 
         # She clicks on the "Generate" button
-        generate_button_css_selector = "#interactivity button"
+        generate_button_css_selector = "#generate"
         generate_button_element = wait_for_element_exists(browser, generate_button_css_selector)
         generate_button_element.click()
 
@@ -234,7 +234,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
         wait_a_bit()
 
         # She clicks on the "Submit public credentials" button
-        submit_button_css_selector = "#submit_form input[type=submit]"
+        submit_button_css_selector = "#submit"
         submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
         submit_button_element.click()
 
@@ -242,7 +242,7 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
 
         # She checks that redirected page shows correct confirmation sentence
         expected_content_text = "Credentials have been received and checked!"
-        expected_content_css_selector = "#main"
+        expected_content_css_selector = "#success"
         wait_for_element_exists_and_contains_expected_text(browser, expected_content_css_selector, expected_content_text)
 
         wait_a_bit()

@@ -388,7 +388,7 @@ module Make (Config : CONFIG) = struct
         let session = new Webdriver.helpers session in
         let* () = session#navigate_to link in
         let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-        let* () = session#click_on ~selector:"#interactivity button" in
+        let* () = session#click_on ~selector:"#generate" in
         let* creds =
           let* x = session#get_elements ~selector:"#creds" in
           match x with
@@ -404,9 +404,7 @@ module Make (Config : CONFIG) = struct
               | _ -> assert false)
           | _ -> assert false
         in
-        let* () =
-          session#click_on ~selector:"#submit_form input[type=submit]"
-        in
+        let* () = session#click_on ~selector:"#submit" in
         Lwt.return_some creds
 
   let with_admin ?id () f =

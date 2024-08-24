@@ -13,11 +13,11 @@
     "/static/placeholder.png"   : null,
     "/static/site.bundle.css"   : null,
     "/static/tool_js.js"        : null,
-    "/static/tool_js_credgen.js"        : null,
     "/static/tool_js_fingerprint.js"    : null,
     "/static/tool_js_questions.js"      : null,
     "/static/libsodium.wasm"            : null,
     "/static/trustee.html"              : null,
     "/static/trustee.js"                : null,
-    "/draft/credentials.html"           : null
+    "/static/credauth.html"             : null,
+    "/static/credauth.js"               : null,
 }

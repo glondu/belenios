@@ -1334,7 +1334,8 @@ let credauth_content () =
         | Ok (token, _) ->
             let* prefix = Cache.get_prefix () in
             let link =
-              Printf.sprintf "%sdraft/credentials.html#%s-%s" prefix uuid token
+              Printf.sprintf "%sstatic/credauth.html#generate/%s/%s" prefix uuid
+                token
             in
             Lwt.return
             @@ div
