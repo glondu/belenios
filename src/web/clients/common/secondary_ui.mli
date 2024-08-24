@@ -19,24 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Js_of_ocaml_tyxml
-open Tyxml_js.Html5
+open Js_of_ocaml_tyxml.Tyxml_js.Html
+open Belenios_api.Serializable_t
 
-module U = struct
-  let router configuration path =
-    let open (val !Belenios_js.I18n.gettext) in
-    match path with
-    | [ "generate"; uuid; token ] ->
-        Generate.generate configuration ~uuid ~token
-    | [ "decrypt"; uuid; token ] -> Decrypt.decrypt ~uuid ~token
-    | [ "shuffle"; uuid; token ] -> Shuffle.shuffle ~uuid ~token
-    | [ "check" ] -> Check.check ()
-    | [ "check"; uuid ] -> Check.check ~uuid ()
-    | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
+module type UI = sig
+  val router :
+    configuration -> string list -> Html_types.div_content_fun elt list Lwt.t
 
-  let title () =
-    let open (val !Belenios_js.I18n.gettext) in
-    s_ "Trustee management"
+  val title : unit -> string
 end
 
-module _ = Belenios_js.Secondary_ui.Make (U) ()
+module Make : functor (U : UI) () -> sig end

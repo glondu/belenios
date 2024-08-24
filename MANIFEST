@@ -373,6 +373,8 @@ src/web/clients/common/dune
 src/web/clients/common/i18n.ml
 src/web/clients/common/i18n.mli
 src/web/clients/common/messages.mli
+src/web/clients/common/secondary_ui.ml
+src/web/clients/common/secondary_ui.mli
 src/web/clients/common/session.ml
 src/web/clients/common/session.mli
 src/web/clients/election-home/dune
