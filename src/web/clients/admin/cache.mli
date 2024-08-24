@@ -42,3 +42,4 @@ val e_voters : voter_list t
 val e_records : records t
 val e_status : election_status t
 val e_dates : election_auto_dates t
+val get_prefix : unit -> string Lwt.t

@@ -366,11 +366,11 @@ let string_of_state st =
 
 let maillink_of_token tk =
   let uuid = get_current_uuid () in
-  let prefix = url_prefix () in
+  let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%s/static/trustee.html#generate/%s/%s" prefix uuid tk
+    Printf.sprintf "%sstatic/trustee.html#generate/%s/%s" prefix uuid tk
   in
-  a ~href "Link"
+  Lwt.return @@ a ~href "Link"
 
 let all_ttee_done () =
   let dd = if !mode = `Basic then Some 1 else Some 7 in
@@ -378,11 +378,11 @@ let all_ttee_done () =
 
 let maillink_of_token_direct tk =
   let uuid = get_current_uuid () in
-  let prefix = url_prefix () in
+  let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%s/static/trustee.html#decrypt/%s/%s" prefix uuid tk
+    Printf.sprintf "%sstatic/trustee.html#decrypt/%s/%s" prefix uuid tk
   in
-  a ~href "Link"
+  Lwt.return @@ a ~href "Link"
 
 let recompute_main_zone_2 () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -414,21 +414,22 @@ let recompute_main_zone_2 () =
           th [];
         ]
     in
-    let rows_of_ttees =
-      List.map
+    let* rows_of_ttees =
+      Lwt_list.map_s
         (fun t ->
+          let* link =
+            maillink_of_token
+              (match t.trustee_token with Some x -> x | None -> "")
+          in
           tr
             [
               td [ txt @@ Option.value ~default:"" t.trustee_address ];
               td [ txt t.trustee_name ];
-              td
-                [
-                  maillink_of_token
-                    (match t.trustee_token with Some x -> x | None -> "");
-                ];
+              td [ link ];
               td [ txt @@ string_of_state t.trustee_state ];
               td [];
-            ])
+            ]
+          |> Lwt.return)
         !all_trustee
     in
     let reset_but =
@@ -509,9 +510,9 @@ let get_trustees_pd () =
 
 let main_zone_tallying () =
   let open (val !Belenios_js.I18n.gettext) in
-  let content =
+  let* content =
     match !part_dec with
-    | None -> div [ txt @@ s_ "Failed to connect; please reload" ]
+    | None -> Lwt.return @@ div [ txt @@ s_ "Failed to connect; please reload" ]
     | Some x ->
         let tl = x.partial_decryptions_trustees in
         let header_row =
@@ -523,18 +524,19 @@ let main_zone_tallying () =
               th [];
             ]
         in
-        let rows_of_ttees =
-          List.filter_map
+        let* rows_of_ttees =
+          Lwt_list.filter_map_s
             (fun t ->
-              if t.trustee_pd_address = "server" then None
+              if t.trustee_pd_address = "server" then Lwt.return_none
               else
-                Some
-                  (tr
+                let* link = maillink_of_token_direct t.trustee_pd_token in
+                Lwt.return_some
+                @@ tr
                      [
                        td [ txt t.trustee_pd_address ];
-                       td [ maillink_of_token_direct t.trustee_pd_token ];
+                       td [ link ];
                        td [ (txt @@ if t.trustee_pd_done then "yes" else "no") ];
-                     ]))
+                     ])
             tl
         in
         let refresh_but =
@@ -549,12 +551,13 @@ let main_zone_tallying () =
                 let* () = trustee_request `ReleaseTally in
                 !update_main_zone ())
         in
-        div
-          [
-            tablex [ tbody (header_row :: rows_of_ttees) ];
-            refresh_but;
-            release_but;
-          ]
+        Lwt.return
+        @@ div
+             [
+               tablex [ tbody (header_row :: rows_of_ttees) ];
+               refresh_but;
+               release_but;
+             ]
   in
   Lwt.return [ h2 [ txt @@ s_ "Tallying" ]; content ]
 
@@ -588,18 +591,18 @@ let ready_to_decrypt () =
 
 let shuffle_link token =
   let uuid = get_current_uuid () in
-  let prefix = url_prefix () in
+  let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%s/static/trustee.html#shuffle/%s/%s" prefix uuid token
+    Printf.sprintf "%sstatic/trustee.html#shuffle/%s/%s" prefix uuid token
   in
-  a ~href "Link"
+  Lwt.return @@ a ~href "Link"
 
 let main_zone_shuffling () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
-  let content =
+  let* content =
     match !shuffles with
-    | None -> div [ txt @@ s_ "Failed to connect; please reload" ]
+    | None -> Lwt.return @@ div [ txt @@ s_ "Failed to connect; please reload" ]
     | Some x ->
         let sl = x.shuffles_shufflers in
         let header_row =
@@ -617,11 +620,13 @@ let main_zone_shuffling () =
             (fun t -> match t.shuffler_token with Some _ -> true | _ -> false)
             sl
         in
-        let sel_but_list =
-          List.map
+        let* sel_but_list =
+          Lwt_list.map_s
             (fun t ->
               match t.shuffler_token with
-              | Some token -> [ shuffle_link token ]
+              | Some token ->
+                  let* link = shuffle_link token in
+                  Lwt.return [ link ]
               | _ ->
                   let attr =
                     if sel_exists || t.shuffler_fingerprint <> None then
@@ -647,7 +652,7 @@ let main_zone_shuffling () =
                   in
                   let but1 = make_but (s_ "Select this trustee") `Select in
                   let but2 = make_but (s_ "Skip") `Skip in
-                  [ but1; but2 ])
+                  Lwt.return [ but1; but2 ])
             sl
         in
         let rows_of_sh =
@@ -691,12 +696,13 @@ let main_zone_shuffling () =
               let* () = trustee_request `FinishShuffling in
               !update_main_zone ())
         in
-        div
-          [
-            tablex [ tbody (header_row :: rows_of_sh) ];
-            div [ refresh_but ];
-            div [ finish_but ];
-          ]
+        Lwt.return
+        @@ div
+             [
+               tablex [ tbody (header_row :: rows_of_sh) ];
+               div [ refresh_but ];
+               div [ finish_but ];
+             ]
   in
   Lwt.return [ h2 [ txt @@ s_ "Tallying: shuffling step" ]; content ]
 

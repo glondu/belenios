@@ -270,3 +270,9 @@ let rec sync_until_success () =
       alert msg;
       sync_until_success ()
   | Ok _ -> Lwt.return_unit
+
+let get_prefix () =
+  let* x = get config in
+  match x with
+  | Ok c -> Lwt.return c.uris.home
+  | Error _ -> Lwt.return "https://fake_link_please_edit/"

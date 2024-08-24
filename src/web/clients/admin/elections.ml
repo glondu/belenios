@@ -1332,8 +1332,9 @@ let credauth_content () =
             alert "Failed to get token";
             Lwt.return @@ div []
         | Ok (token, _) ->
+            let* prefix = Cache.get_prefix () in
             let link =
-              url_prefix () ^ "/draft/credentials.html#" ^ uuid ^ "-" ^ token
+              Printf.sprintf "%sdraft/credentials.html#%s-%s" prefix uuid token
             in
             Lwt.return
             @@ div
@@ -1680,10 +1681,11 @@ let create_content () =
               | status -> (
                   match status.error with
                   | `ValidationError (`MissingBilling id) ->
+                      let* prefix = Cache.get_prefix () in
                       let url =
                         Printf.sprintf
-                          "%s/draft/prebilling?id=%s&cont=elections/%s@new"
-                          (url_prefix ()) id uuid
+                          "%sdraft/prebilling?id=%s&cont=elections/%s@new"
+                          prefix id uuid
                       in
                       Dom_html.window##.location##.href := Js.string url;
                       Lwt.return_unit
