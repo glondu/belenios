@@ -81,7 +81,7 @@ struct
     let open (val l) in
     let administer =
       match uuid with
-      | None -> raw_a ~service:admin [ txt (s_ "Administer elections") ] ()
+      | None -> raw_a ~service:home [ txt (s_ "Administer elections") ] ()
       | Some uuid ->
           raw_a ~service:election_admin
             ~a:[ a_id ("election_admin_" ^ Uuid.unwrap uuid) ]

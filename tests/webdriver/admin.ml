@@ -410,7 +410,7 @@ module Make (Config : CONFIG) = struct
   let with_admin ?id () f =
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
-    let url = Printf.sprintf "%s/admin" belenios in
+    let url = Printf.sprintf "%s" belenios in
     let* () = session#navigate_to url in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
     let* () = login session in
@@ -418,7 +418,7 @@ module Make (Config : CONFIG) = struct
       match id with
       | None -> Lwt.return_unit
       | Some id ->
-          let url = Printf.sprintf "%s/static/admin.html#%s" belenios id in
+          let url = Printf.sprintf "%s/admin#%s" belenios id in
           session#navigate_to url
     in
     f session

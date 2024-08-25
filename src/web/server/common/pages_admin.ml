@@ -72,9 +72,7 @@ struct
   let checkpriv_link l uuid =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
     let uri_base =
-      let service = Eliom_service.static_dir () in
-      Eliom_uri.make_string_uri ~absolute:true ~service
-        [ "static"; "trustee.html" ]
+      Eliom_uri.make_string_uri ~absolute:true ~service:apps "trustee"
       |> rewrite_prefix
     in
     let uri =
@@ -100,7 +98,7 @@ struct
     let home =
       div
         ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]
-        [ a ~service:admin [ txt @@ s_ "Home" ] () ]
+        [ a ~service:home [ txt @@ s_ "Home" ] () ]
     in
     let blank = div ~a:[ a_class [ "nav-menu__item-blank"; "noselect" ] ] [] in
     let body =
@@ -171,7 +169,7 @@ struct
                     txt " ";
                     a ~service:site_login
                       [ txt service ]
-                      (Some service, default_admin ContSiteAdmin);
+                      (Some service, default_admin ContSiteHome);
                     txt ".";
                   ]
           in
@@ -184,7 +182,7 @@ struct
                     txt " ";
                     a ~service:site_login
                       [ txt service ]
-                      (Some service, default_admin ContSiteAdmin);
+                      (Some service, default_admin ContSiteHome);
                     txt ".";
                   ])
               others
@@ -200,7 +198,7 @@ struct
     in
     let content = [ body; auth_div ] in
     let title = !Web_config.vendor ^^^ s_ "Election server" in
-    let* login_box = login_box ~cont:ContSiteAdmin () in
+    let* login_box = login_box ~cont:ContSiteHome () in
     base ~title ~login_box ~content ()
 
   let try_new_ui l uuid =
@@ -313,7 +311,7 @@ struct
           ]
         in
         let* login_box = login_box () in
-        let* lang_box = lang_box ContSiteAdmin in
+        let* lang_box = lang_box ContSiteHome in
         base ~lang_box ~title ~login_box ~content ()
 
   let new_election_failure reason () =

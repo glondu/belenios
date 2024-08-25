@@ -22,7 +22,7 @@
 let prefix = ref ""
 let site_auth_config = ref []
 let exported_auth_config = ref []
-let locales_dir = ref "."
+let share_dir = ref "."
 let vendor = ref "Belenios"
 let server_name = ref "Belenios public server"
 let server_mail = ref "noreply@example.org"

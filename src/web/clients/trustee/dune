@@ -19,6 +19,6 @@
 
 (install
  (files
-  (trustee.html as static/trustee.html))
+  (trustee.html as apps/trustee.html))
  (section share)
  (package belenios-server))

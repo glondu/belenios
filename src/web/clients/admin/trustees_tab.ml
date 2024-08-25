@@ -367,9 +367,7 @@ let string_of_state st =
 let maillink_of_token tk =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
-  let href =
-    Printf.sprintf "%sstatic/trustee.html#generate/%s/%s" prefix uuid tk
-  in
+  let href = Printf.sprintf "%strustee#generate/%s/%s" prefix uuid tk in
   Lwt.return @@ a ~href "Link"
 
 let all_ttee_done () =
@@ -379,9 +377,7 @@ let all_ttee_done () =
 let maillink_of_token_direct tk =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
-  let href =
-    Printf.sprintf "%sstatic/trustee.html#decrypt/%s/%s" prefix uuid tk
-  in
+  let href = Printf.sprintf "%strustee#decrypt/%s/%s" prefix uuid tk in
   Lwt.return @@ a ~href "Link"
 
 let recompute_main_zone_2 () =
@@ -592,9 +588,7 @@ let ready_to_decrypt () =
 let shuffle_link token =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
-  let href =
-    Printf.sprintf "%sstatic/trustee.html#shuffle/%s/%s" prefix uuid token
-  in
+  let href = Printf.sprintf "%strustee#shuffle/%s/%s" prefix uuid token in
   Lwt.return @@ a ~href "Link"
 
 let main_zone_shuffling () =
@@ -710,7 +704,7 @@ let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
   let checkpriv =
     let uuid = get_current_uuid () in
-    let href = "trustee.html#check/" ^ uuid in
+    let href = "trustee#check/" ^ uuid in
     let label = s_ "Check private key ownership" in
     [
       h2 [ txt label ];

@@ -62,7 +62,10 @@ end
 let build_gettext_input component lang =
   (module struct
     let lang = lang
-    let mo_file = !Web_config.locales_dir // component // (lang ^ ".mo")
+
+    let mo_file =
+      !Web_config.share_dir // "static" // "locales" // component
+      // (lang ^ ".mo")
   end : LANG)
 
 let default_gettext component =

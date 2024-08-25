@@ -29,7 +29,7 @@ module Make () = struct
   (** Parse configuration from <eliom> *)
 
   let prefix = ref None
-  let locales_dir = ref None
+  let share_dir = ref None
   let source_file = ref None
   let auth_instances = ref []
   let auth_instances_export = ref []
@@ -84,7 +84,7 @@ module Make () = struct
         set true "mail" (fun x -> Web_config.server_mail := x);
         set true "return-path" (fun x -> Web_config.return_path := Some x);
         set false "name" (fun x -> Web_config.server_name := x)
-    | Element ("locales", [ ("dir", dir) ], []) -> locales_dir := Some dir
+    | Element ("share", [ ("dir", dir) ], []) -> share_dir := Some dir
     | Element ("warning", [ ("file", file) ], []) ->
         Web_config.warning_file := Some file
     | Element ("footer", [ ("file", file) ], []) ->
@@ -155,10 +155,10 @@ module Make () = struct
           else Printf.ksprintf failwith "file %s does not exist" f
       | None -> failwith "missing <source> in configuration")
 
-  let locales_dir =
-    match !locales_dir with
+  let share_dir =
+    match !share_dir with
     | Some d -> d
-    | None -> failwith "missing <locales> in configuration"
+    | None -> failwith "missing <share> in configuration"
 
   let default_group =
     Lwt_main.run
@@ -180,7 +180,7 @@ module Make () = struct
   (** Build up the site *)
 
   let () = Web_config.source_file := source_file
-  let () = Web_config.locales_dir := locales_dir
+  let () = Web_config.share_dir := share_dir
   let () = Web_config.default_group := default_group
   let () = Web_config.nh_group := nh_group
   let () = Web_config.site_auth_config := List.rev !auth_instances

@@ -19,6 +19,6 @@
 
 (install
  (files
-  (credauth.html as static/credauth.html))
+  (credauth.html as apps/credauth.html))
  (section share)
  (package belenios-server))

@@ -100,7 +100,7 @@ let header config =
                 a_class [ "page-header__logo__image" ];
                 a_title "Election server";
               ]
-            ~alt:"Logo" ~src:"../LOGO" ();
+            ~alt:"Logo" ~src:"LOGO" ();
         ];
       div
         ~a:[ a_class [ "page-header__titles" ] ]
@@ -354,7 +354,7 @@ let nav_menu () =
       div ~a:[ classes ]
         [
           div ~a:[ a_id "nav_username" ] [ txt user ];
-          img ~a:[ a_id "avatar" ] ~alt:"Avatar" ~src:"avatar.png" ();
+          img ~a:[ a_id "avatar" ] ~alt:"Avatar" ~src:"static/avatar.png" ();
         ]
     in
     let dom = Tyxml_js.To_dom.of_div r in
@@ -389,7 +389,7 @@ let footer configuration =
   Dom.appendChild dom (document##createTextNode (Js.string " "));
   let classical =
     let open (val l) in
-    a ~a:[ a_id "classical" ] ~href:"../admin" (s_ "Classical interface")
+    a ~a:[ a_id "classical" ] ~href:"home" (s_ "Classical interface")
   in
   Dom.appendChild dom (Tyxml_js.To_dom.of_a classical);
   [ footer ]
@@ -418,7 +418,7 @@ let show_root main =
   let banner = div ~a:[ a_id "banner" ] [] in
   let () =
     let@ () = Lwt.async in
-    let url = Printf.sprintf "../banner?lang=%s" lang in
+    let url = Printf.sprintf "banner?lang=%s" lang in
     let* x = Js_of_ocaml_lwt.XmlHttpRequest.get url in
     match x.code with
     | 200 ->
@@ -510,7 +510,7 @@ let onload () =
       Js.to_string
     |> extract_lang
   in
-  let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
+  let* () = Belenios_js.I18n.init ~dir:"static/" ~component:"admin" ~lang in
   onhashchange ()
 
 let () =

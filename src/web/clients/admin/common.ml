@@ -24,7 +24,7 @@ open Belenios
 open Belenios_js.Common
 
 let logout () =
-  let url = "../logout?cont=admin@new" in
+  let url = "logout?cont=home@new" in
   Dom_html.window##.location##assign (Js.string url);
   Lwt.return_unit
 

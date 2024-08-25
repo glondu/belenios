@@ -131,7 +131,7 @@ let election_file x =
 let uuid x =
   Eliom_parameter.user_type ~of_string:Uuid.wrap ~to_string:Uuid.unwrap x
 
-type site_cont_path = ContSiteHome | ContSiteAdmin | ContSiteElection of uuid
+type site_cont_path = ContSiteHome | ContSiteElection of uuid
 type site_cont_admin = Classic | Basic | New
 type site_cont = { path : site_cont_path; admin : site_cont_admin }
 
@@ -149,7 +149,6 @@ let site_cont_of_string x =
   let path =
     match String.split_on_char '/' path with
     | [ "home" ] -> ContSiteHome
-    | [ "admin" ] -> ContSiteAdmin
     | [ "elections"; uuid ] -> ContSiteElection (Uuid.wrap uuid)
     | _ -> fail ()
   in
@@ -159,7 +158,6 @@ let string_of_site_cont x =
   let path =
     match x.path with
     | ContSiteHome -> "home"
-    | ContSiteAdmin -> "admin"
     | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
   in
   let admin =

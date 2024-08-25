@@ -27,17 +27,14 @@ module Make () = struct
   let uuid_and_token = uuid "uuid" ** string "token"
   let banner = create ~path:(Path [ "banner" ]) ~meth:(Get (string "lang")) ()
   let home = create ~path:(Path [ "" ]) ~meth:(Get unit) ()
-  let admin = create ~path:(Path [ "admin" ]) ~meth:(Get unit) ()
+  let apps = create ~path:(Path []) ~meth:(Get (suffix (string "page"))) ()
 
   let admin_basic () =
     Eliom_service.preapply
       ~service:(Eliom_service.static_dir ())
       [ "static"; "admin_basic.html" ]
 
-  let admin_new () =
-    Eliom_service.preapply
-      ~service:(Eliom_service.static_dir ())
-      [ "static"; "admin.html" ]
+  let admin_new () = Eliom_service.preapply ~service:apps "admin"
 
   let make_admin_new_uri uuid =
     let base =
@@ -57,18 +54,14 @@ module Make () = struct
       | `Decrypt -> "decrypt"
       | `Shuffle -> "shuffle"
     in
-    Eliom_uri.make_string_uri ~absolute:true
-      ~service:(Eliom_service.static_dir ())
-      [ "static"; "trustee.html" ]
+    Eliom_uri.make_string_uri ~absolute:true ~service:apps "trustee"
     |> (fun x ->
          Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
     |> rewrite_prefix
 
   let make_credauth_link uuid kind ~token =
     let kind = match kind with `Generate -> "generate" in
-    Eliom_uri.make_string_uri ~absolute:true
-      ~service:(Eliom_service.static_dir ())
-      [ "static"; "credauth.html" ]
+    Eliom_uri.make_string_uri ~absolute:true ~service:apps "credauth"
     |> (fun x ->
          Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
     |> rewrite_prefix
@@ -94,7 +87,7 @@ module Make () = struct
   let sealing = create ~path:(Path [ "SEALING" ]) ~meth:(Get unit) ()
 
   let election_draft_new =
-    create_attached_post ~csrf_safe:true ~fallback:admin
+    create_attached_post ~csrf_safe:true ~fallback:home
       ~post_params:
         (radio string "credmgmt" ** radio string "auth"
         ** opt (string "cas_server"))
@@ -544,11 +537,11 @@ module Make () = struct
     create ~path:(Path [ "tools"; "compute-fingerprint" ]) ~meth:(Get unit) ()
 
   let set_email_post =
-    create_attached_post ~csrf_safe:true ~fallback:admin
+    create_attached_post ~csrf_safe:true ~fallback:home
       ~post_params:(string "email") ()
 
   let set_email_confirm =
-    create_attached_post ~csrf_safe:true ~fallback:admin
+    create_attached_post ~csrf_safe:true ~fallback:home
       ~post_params:(string "code") ()
 
   let sudo = create ~path:(Path [ "sudo" ]) ~meth:(Get unit) ()

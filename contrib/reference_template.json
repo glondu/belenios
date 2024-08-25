@@ -15,8 +15,9 @@
     "/static/tool_js_fingerprint.js"    : null,
     "/static/tool_js_questions.js"      : null,
     "/static/libsodium.wasm"            : null,
-    "/static/trustee.html"              : null,
     "/static/trustee.js"                : null,
-    "/static/credauth.html"             : null,
     "/static/credauth.js"               : null,
+    "/admin"                            : null,
+    "/trustee"                          : null,
+    "/credauth"                         : null
 }

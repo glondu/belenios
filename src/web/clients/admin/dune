@@ -18,6 +18,6 @@
 
 (install
  (files
-  (admin.html as static/admin.html))
+  (admin.html as apps/admin.html))
  (section share)
  (package belenios-server))

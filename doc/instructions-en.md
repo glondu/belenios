@@ -93,7 +93,7 @@ of the resulting page has one of the following forms (where PREFIX and
 UUID are as defined above, and TOKEN is a random-looking character
 string):
 
-- `PREFIX/static/trustee.html#generate/UUID/TOKEN`
+- `PREFIX/trustee#generate/UUID/TOKEN`
 
 Moreover, it is expected that the trustee saves:
 
@@ -114,7 +114,7 @@ election, ask each authority to verify that they have their decryption
 key. In this case, the decryption authority receives a URL of the
 form:
 
-    PREFIX/static/trustee.html#check/UUID
+    PREFIX/trustee#check/UUID
 
 and is prompted to enter their decryption key. The authority must
 check that the `UUID` of the election displayed is correct and that
@@ -137,7 +137,7 @@ starts by a shuffle phase. For this, it is expected from the trustee that
 they:
 
 - check that the URL of the page has the following form:
-  `PREFIX/static/trustee.html#shuffle/UUID/TOKEN`;
+  `PREFIX/trustee#shuffle/UUID/TOKEN`;
 - save the fingerprint of the ballot box after their shuffle: `fingerprint
   of your shuffle`;
 - check immediately thereafter that this fingerprint is present on the
@@ -147,7 +147,7 @@ In all cases, the tally then proceeds with a phase where the trustee uses
 their private key to decrypt the result. It is expected that the trustee:
 
 - check that the URL of the page has the following form:
-  `PREFIX/static/trustee.html#decrypt/UUID/TOKEN`;
+  `PREFIX/trustee#decrypt/UUID/TOKEN`;
 - check (only for alternative voting) the fingerprint of their shuffle
   `fingerprint of your shuffle` as saved in the previous step is present
   on the page of the election, next to their name. If this is not the case,
@@ -180,7 +180,7 @@ a private credential to each voter.
 **Setup.** During the setup of the election, the credential authority
 first obtains a private link. They must follow the link, and make sure
 the URL of the resulting page has the following form:
-`PREFIX/static/credauth.html#generate/UUID/TOKEN`.
+`PREFIX/credauth#generate/UUID/TOKEN`.
 
 On this page, there is the voter list. The credential authority must
 verify with the committee in charge of the election that this list is

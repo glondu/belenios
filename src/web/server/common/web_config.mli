@@ -27,7 +27,7 @@ val site_auth_config : auth_config list ref
 val exported_auth_config :
   [ `BuiltinPassword | `BuiltinCAS | `Export of auth_config ] list ref
 
-val locales_dir : string ref
+val share_dir : string ref
 val vendor : string ref
 val server_name : string ref
 val server_mail : string ref

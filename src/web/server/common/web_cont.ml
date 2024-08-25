@@ -30,10 +30,9 @@ module Make (Web_services : Web_services_sig.S) = struct
   let exec cont =
     let redir =
       match cont with
-      | { path = ContSiteHome; _ } -> `R (Redirection home)
-      | { path = ContSiteAdmin; admin = admin_ui } -> (
+      | { path = ContSiteHome; admin = admin_ui } -> (
           match admin_ui with
-          | Classic -> `R (Redirection admin)
+          | Classic -> `R (Redirection home)
           | Basic -> `R (Redirection (admin_basic ()))
           | New -> `R (Redirection (admin_new ())))
       | { path = ContSiteElection uuid; admin = admin_ui } -> (

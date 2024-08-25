@@ -98,7 +98,7 @@ lien, et s'assurer que l'URL de la page qu'elle obtient a une des
 formes suivantes (où PREFIXE et UUID sont comme définis ci-dessus, et
 JETON est une chaîne de caractères d'apparence aléatoire) :
 
-- `PREFIXE/static/trustee.html#generate/UUID/JETON`
+- `PREFIXE/trustee#generate/UUID/JETON`
 
 De plus, il est attendu que l'autorité de déchiffrement sauvegarde :
 
@@ -118,7 +118,7 @@ de l'élection, demander à chaque autorité de vérifier qu'elle possède
 bien sa clé de déchiffrement. Dans ce cas, l'autorité de déchiffrement
 reçoit une URL de la forme
 
-    PREFIXE/static/trustee.html#check/UUID
+    PREFIXE/trustee#check/UUID
 
 et est invitée à entrer sa clé de déchiffrement. L'autorité doit
 vérifier que l'`UUID` de l'élection affichée est correcte et que c'est
@@ -143,7 +143,7 @@ dépouillement commence par une phase de mélange.  Pour cette étape, il
 est attendu que l'autorité de déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
-  `PREFIXE/static/trustee.html#shuffle/UUID/JETON`
+  `PREFIXE/trustee#shuffle/UUID/JETON`
 - sauvegarde l'empreinte de l'urne mélangée : `empreinte de votre mélange`;
 - et vérifie immédiatement sa présence sur la page d'accueil de
   l'élection  (pour s'assurer que son mélange n'a pas été ignoré).
@@ -154,7 +154,7 @@ l'ouverture de l'urne. Il est attendu que l'autorité de
 déchiffrement :
 
 - vérifie que l'URL de la page a la forme suivante:
-  `PREFIXE/static/trustee.html#decrypt/UUID/JETON`
+  `PREFIXE/trustee#decrypt/UUID/JETON`
 - vérifie que  (seulement dans le mode vote alternatif) l'empreinte de
   l'urne mélangée à l'étape précédente : `empreinte de votre mélange`
   apparait sur la page d'accueil de l'élection, à côté du nom de
@@ -189,7 +189,7 @@ générer et d'envoyer un code de vote à chaque électeur.
 reçoit un lien privé de la part de l'administrateur de
 l'élection. Elle doit suivre ce lien, et s'assurer que l'URL de la
 page qu'elle obtient a la forme suivante :
-`PREFIXE/static/credauth.html#generate/UUID/JETON`.
+`PREFIXE/credauth#generate/UUID/JETON`.
 
 Sur cette page se trouve la liste des électeurs. L'autorité doit
 vérifier avec le comité en charge de l'élection que cette liste est

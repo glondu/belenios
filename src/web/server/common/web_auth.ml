@@ -84,10 +84,9 @@ struct
       match x with
       | `Election uuid ->
           `R (Redirection (preapply ~service:election_cast_confirm uuid))
-      | `Site { path = ContSiteHome; _ } -> `R (Redirection home)
-      | `Site { path = ContSiteAdmin; admin = admin_ui } -> (
+      | `Site { path = ContSiteHome; admin = admin_ui } -> (
           match admin_ui with
-          | Classic -> `R (Redirection admin)
+          | Classic -> `R (Redirection home)
           | Basic -> `R (Redirection (admin_basic ()))
           | New -> `R (Redirection (admin_new ())))
       | `Site { path = ContSiteElection uuid; admin = admin_ui } -> (
@@ -345,7 +344,7 @@ struct
     | None -> return @@ Html (Eliom_content.Html.F.div [])
     | Some a ->
         get_pre_login_handler None `Username
-          (`Site (default_admin ContSiteAdmin))
+          (`Site (default_admin ContSiteHome))
           a
 
   let direct_voter_auth s uuid x =

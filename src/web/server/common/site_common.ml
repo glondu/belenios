@@ -71,6 +71,14 @@ module Make (X : Pages_sig.S) = struct
               Lwt.return (if b then f else file)
             else Lwt.return file)
 
+  let () =
+    File.register ~content_type:"text/html" ~service:apps (fun page () ->
+        match page with
+        | "admin" | "trustee" | "credauth" ->
+            Lwt.return
+            @@ Printf.sprintf "%s/apps/%s.html" !Web_config.share_dir page
+        | _ -> fail_http `Not_found)
+
   let redir_preapply s u () =
     Redirection.send (Redirection (preapply ~service:s u))
 
@@ -83,7 +91,6 @@ module Make (X : Pages_sig.S) = struct
     let redir =
       match cont.path with
       | ContSiteHome -> Redirection home
-      | ContSiteAdmin -> Redirection admin
       | ContSiteElection uuid ->
           Redirection (preapply ~service:election_home (uuid, ()))
     in

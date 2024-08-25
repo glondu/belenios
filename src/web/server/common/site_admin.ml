@@ -40,10 +40,6 @@ struct
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
 
-  let () =
-    Any.register ~service:home (fun () () ->
-        Redirection.send (Redirection admin))
-
   let get_elections_by_owner_sorted u =
     let* elections = Storage.get_elections_by_owner u in
     let filter f =
@@ -107,7 +103,7 @@ struct
         let () = Web_state.set_consent_cookie () in
         let cont =
           match cont with
-          | ContAdmin -> Redirection admin
+          | ContAdmin -> Redirection home
           | ContSignup service ->
               Redirection (preapply ~service:signup_captcha service)
         in
@@ -124,7 +120,7 @@ struct
             | None -> fail_http `Not_found))
 
   let () =
-    Html.register ~service:admin (fun () () ->
+    Html.register ~service:home (fun () () ->
         let* site_user = Eliom_reference.get Web_state.site_user in
         match site_user with
         | None -> Pages_admin.admin_login Web_auth.get_site_login_handler
@@ -207,7 +203,7 @@ struct
                 in
                 let* () = set { a with email = Some address } in
                 let* () = Web_state.discard () in
-                Redirection.send (Redirection admin)
+                Redirection.send (Redirection home)
             | None ->
                 let* l = get_preferred_gettext () in
                 let open (val l) in
@@ -951,7 +947,7 @@ struct
         let@ s = Storage.with_transaction in
         let@ _ = with_draft ~save:false s uuid in
         let* () = Web_persist.delete_draft s uuid in
-        Redirection.send (Redirection admin))
+        Redirection.send (Redirection home))
 
   let () =
     Any.register ~service:election_draft_import (fun uuid () ->
@@ -1149,7 +1145,7 @@ struct
         let@ s = Storage.with_transaction in
         let@ _ = with_metadata_check_owner s uuid in
         let* () = Web_persist.delete_election s uuid in
-        redir_preapply admin () ())
+        redir_preapply home () ())
 
   let () =
     let rex = Re.Pcre.regexp "\".*\" \".*:(.*)\"" in
@@ -1580,7 +1576,7 @@ struct
                   let* () = Web_state.discard () in
                   let service =
                     preapply ~service:site_login
-                      (Some service, default_admin ContSiteAdmin)
+                      (Some service, default_admin ContSiteHome)
                   in
                   Pages_common.generic_page ~title:(s_ "Create account")
                     ~service
@@ -1610,7 +1606,7 @@ struct
                   let* () = Web_state.discard () in
                   let service =
                     preapply ~service:site_login
-                      (Some service, default_admin ContSiteAdmin)
+                      (Some service, default_admin ContSiteHome)
                   in
                   Pages_common.generic_page ~title:(s_ "Change password")
                     ~service
@@ -1664,7 +1660,7 @@ struct
                 let* () =
                   Eliom_reference.set Web_state.site_user (Some (u, a, token))
                 in
-                Redirection.send (Redirection admin)))
+                Redirection.send (Redirection home)))
 
   let with_user_and_account f =
     let* x = Eliom_reference.get Web_state.site_user in
@@ -1687,7 +1683,7 @@ struct
           | Some x -> cont x
         in
         let* () = set { a with name } in
-        Redirection.send (Redirection admin))
+        Redirection.send (Redirection home))
 
   let () =
     Any.register ~service:api_token (fun () () ->

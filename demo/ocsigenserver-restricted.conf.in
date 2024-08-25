@@ -67,7 +67,7 @@
         <sealing file="demo/sealing.txt" mime-type="text/plain"/>
         <default-group group="Ed25519"/>
         <nh-group group="Ed25519"/>
-        <locales dir="_SHAREDIR_/static/locales"/>
+        <share dir="_SHAREDIR_"/>
         <storage backend="filesystem">
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>

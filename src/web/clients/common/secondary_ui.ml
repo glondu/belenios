@@ -50,7 +50,7 @@ module Make (U : UI) () = struct
     U.router configuration path
 
   let rec main configuration lang =
-    let* () = I18n.init ~dir:"" ~component:"admin" ~lang in
+    let* () = I18n.init ~dir:"static/" ~component:"admin" ~lang in
     let l = !I18n.gettext in
     let title = U.title () in
     document##.title := Js.string title;

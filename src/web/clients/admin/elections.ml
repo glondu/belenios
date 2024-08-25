@@ -1334,8 +1334,7 @@ let credauth_content () =
         | Ok (token, _) ->
             let* prefix = Cache.get_prefix () in
             let link =
-              Printf.sprintf "%sstatic/credauth.html#generate/%s/%s" prefix uuid
-                token
+              Printf.sprintf "%scredauth#generate/%s/%s" prefix uuid token
             in
             Lwt.return
             @@ div
@@ -1804,7 +1803,7 @@ let status_content () =
           ]
     | `Archived ->
         let link =
-          a ~href:("../../elections/" ^ uuid ^ "/archive.zip") "archive.zip"
+          a ~href:("elections/" ^ uuid ^ "/archive.zip") "archive.zip"
         in
         let but =
           button (s_ "Results page") (fun () -> Preview.goto_mainpage ())
