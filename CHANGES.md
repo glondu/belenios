@@ -1,18 +1,23 @@
 dev
 ===
 
- * Add support for "lists" questions
- * Add unshare scripts to create squashfs images
+ * Specification:
+   + Add support for "lists" questions
+   + Add signature to `trustee_public_key` in threshold mode
  * Command-line tool:
    + Use unverified_ballots when computing encrypted tally, voters and
      summary
    + Use encrypted tally from archive when computing decryption and
      result
  * Web server:
-   + Revamp election home page
    + Randomize account ids
    + Big refactoring of storage backend
    + Change cookie handling for consent and language preference
+   + Election home page:
+     - Revamp
+     - Show only the public key of threshold trustees
+   + Booth:
+     - Offer smart ballot tracker for download
    + New admin UI:
      - Add possibility to regenerate a password
      - Use generic footer and show warning banner if any
@@ -20,12 +25,26 @@ dev
      - Add checkpriv link to trustees tab
      - Add "Status" tab
      - Add tests and continuous integration
+   + Convert the trustee UIs (key generation, key check, partial
+     decryption and shuffle) to a single page application (SPA)
+   + Convert the credential authority UIs (credential generation) to a
+     SPA
+   + API:
+     - Bump version to 5
+     - Move "postpone" date to automatic dates and name it "publish"
+       date
+     - Many changes in endpoints to support SPAs
+   + Tests:
+     - Add automatic tests of the new admin UI
+     - Add support for NH question and optional validation in scaling
    + Configuration:
      - Drop support for specifying groups by file
      - Remove (unused) security log
+     - Add configurable vendor name
    + Documention:
      - Nspawn: do not drop capabilities needed by logrotate
      - Reverse-proxy: add a note about samesite=strict cookies
+ * Add unshare scripts to create squashfs images
 
 2.5.1 (2024-06-28)
 ==================
