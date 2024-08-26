@@ -9,7 +9,7 @@ module type QUESTION_KIND = sig
   val read_result : result reader
   val write_result : result writer
 
-  module Make (M : RANDOM) (G : GROUP) :
+  module Make (_ : RANDOM) (G : GROUP) :
     Belenios_core.Question_sigs.QUESTION
       with type element := G.t
        and type question := question

@@ -28,4 +28,4 @@ val get_captcha : challenge:string -> (string * string) Lwt.t
 
 val check_captcha : challenge:string -> response:string -> bool Lwt.t
 
-module Make (Web_services : Web_services_sig.S) : sig end
+module Make (_ : Web_services_sig.S) : sig end

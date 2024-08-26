@@ -20,11 +20,11 @@
 (**************************************************************************)
 
 module Make
-    (Web_state : Web_state_sig.S)
-    (Web_i18n : Web_i18n_sig.S)
-    (Web_services : Web_services_sig.S)
-    (Pages_common : Pages_common_sig.S)
-    (Mails_admin : Belenios_ui.Mails_admin_sig.S) : Pages_admin_sig.S
+    (_ : Web_state_sig.S)
+    (_ : Web_i18n_sig.S)
+    (_ : Web_services_sig.S)
+    (_ : Pages_common_sig.S)
+    (_ : Belenios_ui.Mails_admin_sig.S) : Pages_admin_sig.S
 
 val mail_confirmation_link :
   (module Belenios_ui.I18n.GETTEXT) -> string -> string -> string * string

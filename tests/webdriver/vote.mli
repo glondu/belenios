@@ -30,7 +30,7 @@ end
 
 type authenticator = Webdriver.helpers -> unit Lwt.t
 
-module Make (Config : CONFIG) : sig
+module Make (_ : CONFIG) : sig
   val auth_password : username:string -> password:string -> authenticator
   val auth_email : username:string -> authenticator
 

@@ -24,7 +24,7 @@ open Signatures
 
 module type S = sig
   (** Simple distributed generation of an election public key. *)
-  module MakeSimple (G : GROUP) (M : RANDOM) : sig
+  module MakeSimple (G : GROUP) (_ : RANDOM) : sig
     (** This module implements a simple distributed key generation. Each
       share is a number modulo q, and the secret key is their sum. All
       shares are needed to decrypt, but the decryptions can be done in
@@ -38,12 +38,12 @@ module type S = sig
       knowledge proof of its knowledge. *)
   end
 
-  module MakePKI (G : GROUP) (M : RANDOM) :
+  module MakePKI (G : GROUP) (_ : RANDOM) :
     PKI with type private_key = G.Zq.t and type public_key = G.t
 
   module MakeChannels
       (G : GROUP)
-      (M : RANDOM)
+      (_ : RANDOM)
       (P : PKI with type private_key = G.Zq.t and type public_key = G.t) :
     CHANNELS
       with type private_key = P.private_key
@@ -53,9 +53,9 @@ module type S = sig
 
   module MakePedersen
       (G : GROUP)
-      (M : RANDOM)
-      (P : PKI with type private_key = G.Zq.t and type public_key = G.t)
-      (C : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) :
+      (_ : RANDOM)
+      (_ : PKI with type private_key = G.Zq.t and type public_key = G.t)
+      (_ : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) :
     PEDERSEN with type element = G.t and type scalar = G.Zq.t
 
   module MakeCombinator (G : GROUP) : sig

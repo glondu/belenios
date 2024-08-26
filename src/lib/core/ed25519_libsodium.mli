@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) : sig
+module Make (_ : Belenios_platform.Signatures.LIBSODIUM_STUBS) : sig
   include Signatures.GROUP
 
   val selfcheck : unit -> bool

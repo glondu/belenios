@@ -20,6 +20,6 @@
 (**************************************************************************)
 
 open Types
-module Make (Config : CONFIG) : Belenios_server_core.Storage.S
+module Make (_ : CONFIG) : Belenios_server_core.Storage.S
 
 val register : unit -> unit

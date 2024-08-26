@@ -19,5 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (Web_i18n : Web_i18n_sig.S) (Web_services : Web_services_sig.S) :
-  Pages_common_sig.S
+module Make (_ : Web_i18n_sig.S) (_ : Web_services_sig.S) : Pages_common_sig.S

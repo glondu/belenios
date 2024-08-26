@@ -23,9 +23,9 @@ open Belenios_server_core
 open Web_common
 
 module Make
-    (Web_services : Web_services_sig.S)
-    (Pages_common : Pages_common_sig.S)
-    (Web_auth : Web_auth_sig.S) : sig end
+    (_ : Web_services_sig.S)
+    (_ : Pages_common_sig.S)
+    (_ : Web_auth_sig.S) : sig end
 
 (** Password-protected admin account management *)
 

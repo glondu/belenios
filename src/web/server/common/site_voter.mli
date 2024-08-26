@@ -20,6 +20,6 @@
 (**************************************************************************)
 
 module Make
-    (X : Pages_sig.S)
-    (Site_common : Site_common_sig.S)
-    (Site_admin : Site_admin_sig.S) : sig end
+    (_ : Pages_sig.S)
+    (_ : Site_common_sig.S)
+    (_ : Site_admin_sig.S) : sig end

@@ -1,4 +1,4 @@
-(lang dune 2.7)
+(lang dune 3.11)
 (using menhir 2.0)
 (name belenios)
 (version 2.5.1)
@@ -57,6 +57,7 @@
 (package
  (name belenios)
  (synopsis "Belenios meta-package")
+ (allow_empty)
  (depends
   (belenios-tool (= :version))
   (belenios-server (= :version))))

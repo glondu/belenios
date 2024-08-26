@@ -60,7 +60,7 @@ type election_params = {
   private_creds : Yojson.Safe.t option;
 }
 
-module Make (Config : CONFIG) : sig
+module Make (_ : CONFIG) : sig
   val setup_election : unit -> election_params Lwt.t
   val regen_password : election_id:string -> username:string -> string Lwt.t
   val tally_election : election_params -> unit Lwt.t

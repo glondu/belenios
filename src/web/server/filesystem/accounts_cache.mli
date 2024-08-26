@@ -30,7 +30,7 @@ module type INPUT = sig
   val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end
 
-module Make (I : INPUT) () : sig
+module Make (_ : INPUT) () : sig
   module Clear : CLEAR
 
   val get_user_id : user -> int option Lwt.t

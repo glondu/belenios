@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (I : I18n.S) : Mails_admin_sig.S
+module Make (_ : I18n.S) : Mails_admin_sig.S

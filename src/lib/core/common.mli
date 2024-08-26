@@ -65,7 +65,7 @@ module Option : sig
   val unwrap : 'b -> 'a option -> ('a -> 'b) -> 'b
 end
 
-module MakeField (X : sig
+module MakeField (_ : sig
   val q : Z.t
 end) : FIELD
 
@@ -81,7 +81,7 @@ module IMap : Map.S with type key = int
 val random_modulo : Z.t -> Crypto_primitives.rng -> Z.t
 val check_modulo : Z.t -> Z.t -> bool
 
-module MakeGenerateToken (R : RANDOM) : sig
+module MakeGenerateToken (_ : RANDOM) : sig
   val generate_token : ?length:int -> unit -> string
   val generate_numeric : ?length:int -> unit -> string
 end

@@ -31,7 +31,7 @@ let does_allow_signups c =
   | None -> false
 
 module Channel = struct
-  type t = { uuid : uuid option; name : string }
+  type t = { uuid : uuid option; name : string } [@@warning "-69"]
 
   let equal = Stdlib.( = )
   let hash = Hashtbl.hash

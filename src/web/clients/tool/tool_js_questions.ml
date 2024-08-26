@@ -435,15 +435,6 @@ let rec createQuestion question =
   (* return *)
   container
 
-let createRadioItem name checked label =
-  let container = Dom_html.createLabel document in
-  let radio = Dom_html.createInput ~_type:(Js.string "radio") ~name document in
-  radio##.checked := Js.bool checked;
-  Dom.appendChild container radio;
-  Dom.appendChild container (document##createTextNode (Js.string " "));
-  Dom.appendChild container (document##createTextNode (Js.string label));
-  (radio, container)
-
 let createTemplate (Election.Template (v, template)) =
   let open (val Election.get_serializers v) in
   let open (val !Belenios_js.I18n.gettext) in

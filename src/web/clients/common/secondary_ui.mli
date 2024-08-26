@@ -29,4 +29,4 @@ module type UI = sig
   val title : unit -> string
 end
 
-module Make : functor (U : UI) () -> sig end
+module Make : functor (_ : UI) () -> sig end

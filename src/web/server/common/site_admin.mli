@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 module Make
-    (X : Pages_sig.S)
-    (Site_common : Site_common_sig.S)
-    (Web_cont : Web_cont_sig.S)
-    (Web_auth : Web_auth_sig.S) : Site_admin_sig.S
+    (_ : Pages_sig.S)
+    (_ : Site_common_sig.S)
+    (_ : Web_cont_sig.S)
+    (_ : Web_auth_sig.S) : Site_admin_sig.S

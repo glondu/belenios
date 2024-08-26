@@ -21,4 +21,4 @@ module type S = sig
   val compute_encrypted_tally : unit -> string * string
 end
 
-module Make (P : PARAMS) () : S with type 'a m := 'a
+module Make (_ : PARAMS) () : S with type 'a m := 'a

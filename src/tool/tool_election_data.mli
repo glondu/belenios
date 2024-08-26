@@ -40,7 +40,7 @@ module type GETTERS = sig
   val get_result : unit -> string option
 end
 
-module MakeGetters (X : PARAMS) : GETTERS
+module MakeGetters (_ : PARAMS) : GETTERS
 
 module type ELECTION_DATA = sig
   type s
@@ -82,7 +82,7 @@ module type ELECTION_DATA = sig
   val election_hash : hash
 end
 
-module Make (Getters : GETTERS) (Election : ELECTION) :
+module Make (_ : GETTERS) (Election : ELECTION) :
   ELECTION_DATA
     with type s := Election.G.Zq.t
      and type t := Election.G.t
