@@ -1,5 +1,6 @@
 (install
- (files belenios-tool.html)
+ (files
+  (belenios-tool.html as static/belenios-tool.html))
  (section share)
  (package belenios-server))
 

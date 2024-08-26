@@ -40,7 +40,7 @@
     <host charset="utf-8" hostfilter="*" defaulthostname="localhost">
       <!-- <redirect suburl="^$" dest="http://www.example.org"/> -->
       <site path="static" charset="utf-8">
-        <static dir="_SHAREDIR_" cache="0"/>
+        <static dir="_SHAREDIR_/static" cache="0"/>
       </site>
       <eliom name="belenios">
         <prefix value="http://127.0.0.1:8001"/>
@@ -62,12 +62,12 @@
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
         <auth name="local"><password db="local_passwords"/></auth> <!-- DEMO -->
         <source file="_SHAREDIR_/belenios.tar.gz"/>
-        <logo file="_SHAREDIR_/placeholder.png" mime-type="image/png"/>
+        <logo file="_SHAREDIR_/static/placeholder.png" mime-type="image/png"/>
         <favicon file="_VARDIR_/favicon.ico" mime-type="image/png"/>
         <sealing file="demo/sealing.txt" mime-type="text/plain"/>
         <default-group group="Ed25519"/>
         <nh-group group="Ed25519"/>
-        <locales dir="_SHAREDIR_/locales"/>
+        <locales dir="_SHAREDIR_/static/locales"/>
         <storage backend="filesystem">
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>

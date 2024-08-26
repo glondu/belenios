@@ -18,6 +18,7 @@
   (pps js_of_ocaml-ppx)))
 
 (install
- (files trustee.html)
+ (files
+  (trustee.html as static/trustee.html))
  (section share)
  (package belenios-server))

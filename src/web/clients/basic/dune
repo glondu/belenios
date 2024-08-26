@@ -17,6 +17,7 @@
   (pps js_of_ocaml-ppx)))
 
 (install
- (files admin_basic.html)
+ (files
+  (admin_basic.html as static/admin_basic.html))
  (section share)
  (package belenios-server))

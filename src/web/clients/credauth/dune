@@ -18,6 +18,7 @@
   (pps js_of_ocaml-ppx)))
 
 (install
- (files credauth.html)
+ (files
+  (credauth.html as static/credauth.html))
  (section share)
  (package belenios-server))

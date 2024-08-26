@@ -16,7 +16,7 @@ PUBLIC_INTERNAL_JS_FOLDER := $(DESTDIR)/frontend
 INITIAL_TRANSLATIONS_FOLDER := translations
 PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/frontend/translations
 
-# The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server` to install Belenios.
+# The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server/static` to install Belenios.
 install: site.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth
 	cp *.bundle.css $(DESTDIR)

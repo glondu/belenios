@@ -1,4 +1,5 @@
 (install
- (files encrypting.gif)
+ (files
+  (encrypting.gif as static/encrypting.gif))
  (section share)
  (package belenios-server))

@@ -1,26 +1,11 @@
 (install
  (files
-  placeholder.png
-  app2.css
-  NavMenu.css
-  MainMenu.css
-  MainZone.css
-  avatar.png)
- (section share)
- (package belenios-server))
-
-(install
- (files
-  tool_js.js
-  tool_js_questions.js
-  tool_js_fingerprint.js
-  admin_basic.js
-  admin.js
-  home.js
-  trustee.js
-  credauth.js
-  belenios_worker.js
-  belenios_jslib.js)
+  (glob_files
+   (*.png with_prefix static))
+  (glob_files
+   (*.css with_prefix static))
+  (glob_files
+   (*.js with_prefix static)))
  (section share)
  (package belenios-server))
 
