@@ -1,8 +1,26 @@
 (library
  (name belenios_server)
- (libraries belenios-platform-native belenios-lib belenios-server.api
-   belenios_ui belenios_server_core lwt calendar csv eliom.server
-   gettext-camomile netstring)
- (modules_without_implementation web_i18n_sig web_services_sig web_state_sig
-   pages_common_sig pages_admin_sig pages_voter_sig pages_sig site_common_sig
-   site_admin_sig web_auth_sig web_cont_sig))
+ (libraries
+  belenios-platform-native
+  belenios-lib
+  belenios-server.api
+  belenios_ui
+  belenios_server_core
+  lwt
+  calendar
+  csv
+  eliom.server
+  gettext-camomile
+  netstring)
+ (modules_without_implementation
+  web_i18n_sig
+  web_services_sig
+  web_state_sig
+  pages_common_sig
+  pages_admin_sig
+  pages_voter_sig
+  pages_sig
+  site_common_sig
+  site_admin_sig
+  web_auth_sig
+  web_cont_sig))

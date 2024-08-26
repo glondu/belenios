@@ -2,11 +2,17 @@
  (name admin)
  (modes js)
  (js_of_ocaml
-  (javascript_files ../../../../vendor/sjcl/sjcl.js
-    ../../../../vendor/jsbn/BigIntCompatFull.js
-    ../../../../vendor/libsodium/libsodium.js))
- (libraries js_of_ocaml-lwt js_of_ocaml-tyxml belenios-platform-js
-   belenios-lib belenios-server.api belenios_js)
+  (javascript_files
+   ../../../../vendor/sjcl/sjcl.js
+   ../../../../vendor/jsbn/BigIntCompatFull.js
+   ../../../../vendor/libsodium/libsodium.js))
+ (libraries
+  js_of_ocaml-lwt
+  js_of_ocaml-tyxml
+  belenios-platform-js
+  belenios-lib
+  belenios-server.api
+  belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 

@@ -6,7 +6,7 @@ maintainer: ["stephane.glondu@inria.fr"]
 authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
-  "dune" {>= "2.7"}
+  "dune" {>= "3.11"}
   "js_of_ocaml" {>= "4.0.0"}
   "js_of_ocaml-ppx" {>= "4.0.0"}
   "odoc" {with-doc}

@@ -6,7 +6,7 @@ maintainer: ["stephane.glondu@inria.fr"]
 authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
-  "dune" {>= "2.7"}
+  "dune" {>= "3.11"}
   "belenios-platform-native" {= version}
   "belenios-lib" {= version}
   "lwt" {>= "5.6.1"}
