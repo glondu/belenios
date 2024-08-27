@@ -47,23 +47,26 @@ module Make () = struct
     | None -> base
     | Some uuid -> base ^ "#" ^ Belenios.Uuid.unwrap uuid
 
-  let make_trustee_link uuid kind ~token =
-    let kind =
+  let make_trustee_link uuid kind =
+    let kind, suffix =
       match kind with
-      | `Generate -> "generate"
-      | `Decrypt -> "decrypt"
-      | `Shuffle -> "shuffle"
+      | `Generate token -> ("generate", "/" ^ token)
+      | `Decrypt token -> ("decrypt", "/" ^ token)
+      | `Shuffle token -> ("shuffle", "/" ^ token)
+      | `Check -> ("check", "")
     in
     Eliom_uri.make_string_uri ~absolute:true ~service:apps "trustee"
     |> (fun x ->
-         Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
+         Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix)
     |> rewrite_prefix
 
-  let make_credauth_link uuid kind ~token =
-    let kind = match kind with `Generate -> "generate" in
+  let make_credauth_link uuid kind =
+    let kind, suffix =
+      match kind with `Generate token -> ("generate", "/" ^ token)
+    in
     Eliom_uri.make_string_uri ~absolute:true ~service:apps "credauth"
     |> (fun x ->
-         Printf.sprintf "%s#%s/%s/%s" x kind (Belenios.Uuid.unwrap uuid) token)
+         Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix)
     |> rewrite_prefix
 
   let privacy_notice_accept =

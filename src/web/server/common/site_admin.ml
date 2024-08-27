@@ -802,7 +802,7 @@ struct
             Pages_admin.election_draft_credentials_already_generated ()
             >>= Html.send
         | `None ->
-            make_credauth_link uuid `Generate ~token |> String_redirection.send)
+            make_credauth_link uuid (`Generate token) |> String_redirection.send)
 
   let () =
     Any.register ~service:election_draft_credentials_server (fun uuid () ->
@@ -881,7 +881,8 @@ struct
               let title = s_ "Error" in
               Pages_common.generic_page ~title msg () >>= Html.send ~code:403
             else
-              make_trustee_link uuid `Generate ~token |> String_redirection.send)
+              make_trustee_link uuid (`Generate token)
+              |> String_redirection.send)
 
   let () =
     Any.register ~service:election_draft_confirm (fun uuid () ->
@@ -1291,7 +1292,7 @@ struct
                     ()
                   >>= Html.send
                 else
-                  make_trustee_link uuid `Decrypt ~token
+                  make_trustee_link uuid (`Decrypt token)
                   |> String_redirection.send
             | None -> forbidden ())
         | `Open | `Closed | `Shuffling ->
@@ -1348,7 +1349,7 @@ struct
         let* expected_token = Web_persist.get_shuffle_token s uuid in
         match expected_token with
         | Some x when token = x.tk_token ->
-            make_trustee_link uuid `Shuffle ~token |> String_redirection.send
+            make_trustee_link uuid (`Shuffle token) |> String_redirection.send
         | _ -> forbidden ())
 
   let () =
@@ -1433,7 +1434,7 @@ struct
         match election with
         | None -> fail_http `Not_found
         | Some _ ->
-            make_trustee_link uuid `Generate ~token |> String_redirection.send)
+            make_trustee_link uuid (`Generate token) |> String_redirection.send)
 
   module HashedInt = struct
     type t = int

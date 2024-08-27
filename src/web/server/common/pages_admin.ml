@@ -71,12 +71,8 @@ struct
 
   let checkpriv_link l uuid =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    let uri_base =
-      Eliom_uri.make_string_uri ~absolute:true ~service:apps "trustee"
-      |> rewrite_prefix
-    in
     let uri =
-      uri_base ^ "#check/" ^ Uuid.unwrap uuid |> Eliom_content.Xml.uri_of_string
+      make_trustee_link uuid `Check |> Eliom_content.Xml.uri_of_string
     in
     Eliom_content.Html.F.Raw.a
       ~a:[ a_href uri ]
@@ -878,7 +874,7 @@ struct
                   | Some x when x = t.st_token -> true
                   | _ -> false
                 in
-                let uri = make_trustee_link uuid `Generate ~token:t.st_token in
+                let uri = make_trustee_link uuid (`Generate t.st_token) in
                 let* mail_cell, link_cell =
                   if t.st_token <> "" then
                     if t.st_public_key = "" then
@@ -1099,7 +1095,7 @@ struct
                   | Some 7 -> "done"
                   | _ -> "unknown"
                 in
-                let uri = make_trustee_link uuid `Generate ~token:t.stt_token in
+                let uri = make_trustee_link uuid (`Generate t.stt_token) in
                 let* mail_cell =
                   let* subject, body =
                     Mails_admin.mail_trustee_generation_threshold langs uri
@@ -1326,7 +1322,7 @@ struct
             uuid;
         ]
     in
-    let url = make_credauth_link uuid `Generate ~token:se.se_public_creds in
+    let url = make_credauth_link uuid (`Generate se.se_public_creds) in
     let content =
       [
         back;
@@ -2170,7 +2166,7 @@ struct
                 let* cell =
                   match x.shuffler_token with
                   | Some token ->
-                      let uri = make_trustee_link uuid `Shuffle ~token in
+                      let uri = make_trustee_link uuid (`Shuffle token) in
                       let* subject, body = Mails_admin.mail_shuffle langs uri in
                       return
                       @@ div
@@ -2223,7 +2219,7 @@ struct
                 let second_line =
                   match (this_line, x.shuffler_token) with
                   | true, Some token ->
-                      let uri = make_trustee_link uuid `Shuffle ~token in
+                      let uri = make_trustee_link uuid (`Shuffle token) in
                       [
                         tr
                           [
@@ -2297,7 +2293,7 @@ struct
                      | _ -> false
                    in
                    let uri =
-                     make_trustee_link uuid `Decrypt ~token:t.trustee_pd_token
+                     make_trustee_link uuid (`Decrypt t.trustee_pd_token)
                    in
                    let* mail, link =
                      if t.trustee_pd_address = "server" then

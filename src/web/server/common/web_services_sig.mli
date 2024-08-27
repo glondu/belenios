@@ -104,9 +104,11 @@ module type S = sig
   val make_admin_new_uri : uuid option -> Eliom_content.Xml.uri
 
   val make_trustee_link :
-    uuid -> [< `Generate | `Decrypt | `Shuffle ] -> token:string -> string
+    uuid ->
+    [< `Generate of string | `Decrypt of string | `Shuffle of string | `Check ] ->
+    string
 
-  val make_credauth_link : uuid -> [< `Generate ] -> token:string -> string
+  val make_credauth_link : uuid -> [< `Generate of string ] -> string
 
   val privacy_notice_accept :
     ( unit,
