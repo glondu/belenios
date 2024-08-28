@@ -58,87 +58,6 @@ let datestring_of_float x =
 (* forward declaration of the main function *)
 let update_election_main = ref (fun () -> assert false)
 
-(* open a popup that allows to choose an election uuid from which to
- * import something. handler takes an uuid (as raw_string) in input
- *)
-
-let popup_choose_elec handler () =
-  let open (val !Belenios_js.I18n.gettext) in
-  let* x = get summary_list_of_string "elections" in
-  match x with
-  | Error e ->
-      let msg =
-        Printf.sprintf
-          (f_ "An error occurred while retrieving elections: %s")
-          (string_of_error e)
-      in
-      alert msg;
-      Lwt.return_unit
-  | Ok (elections, _) ->
-      let@ elections cont =
-        let* x = get summary_list_of_string "drafts" in
-        match x with
-        | Error e ->
-            let msg =
-              Printf.sprintf
-                (f_ "An error occurred while retrieving drafts: %s")
-                (string_of_error e)
-            in
-            alert msg;
-            Lwt.return_unit
-        | Ok (drafts, _) -> cont (drafts @ elections)
-      in
-      let name_uuids =
-        elections
-        |> List.map (fun (x : summary) ->
-               let but =
-                 button
-                   (x.name ^ " (" ^ Uuid.unwrap x.uuid ^ ")")
-                   (fun () ->
-                     let* () =
-                       let&&* d =
-                         document##getElementById (Js.string "popup")
-                       in
-                       Lwt.return (d##.style##.display := Js.string "none")
-                     in
-                     handler (Uuid.unwrap x.uuid))
-               in
-               li [ but ])
-      in
-      (* FIXME *)
-      let cancel_but =
-        button (s_ "Cancel") (fun () ->
-            let* () =
-              let&&* d = document##getElementById (Js.string "popup") in
-              Lwt.return (d##.style##.display := Js.string "none")
-            in
-            Lwt.return_unit)
-      in
-      let content =
-        [
-          div
-            [
-              txt
-              @@ s_
-                   "Please select the election from which you want to import \
-                    data:";
-            ];
-          ul name_uuids;
-          cancel_but;
-        ]
-      in
-      let* () =
-        let&&* container =
-          document##getElementById (Js.string "popup-content")
-        in
-        show_in container (fun () -> Lwt.return content)
-      in
-      let* () =
-        let&&* d = document##getElementById (Js.string "popup") in
-        Lwt.return (d##.style##.display := Js.string "block")
-      in
-      Lwt.return_unit
-
 (* FIXME: put a proper regex, here *)
 let is_valid_url s = s <> ""
 
@@ -861,19 +780,17 @@ let voters_content () =
             let* voters = Cache.get_until_success Cache.voters in
             let ifmatch = sha256_b64 @@ string_of_voter_list voters in
             let* () =
-              popup_choose_elec
-                (fun uuid ->
-                  let r = `Import (Uuid.wrap uuid) in
-                  let* x =
-                    post_with_token ~ifmatch
-                      (string_of_voters_request r)
-                      "drafts/%s/voters" (get_current_uuid ())
-                  in
-                  if x.code <> 200 then
-                    alert ("Failed with error code " ^ string_of_int x.code);
-                  Cache.invalidate Cache.voters;
-                  !update_election_main ())
-                ()
+              let@ uuid = popup_choose_elec in
+              let r = `Import (Uuid.wrap uuid) in
+              let* x =
+                post_with_token ~ifmatch
+                  (string_of_voters_request r)
+                  "drafts/%s/voters" (get_current_uuid ())
+              in
+              if x.code <> 200 then
+                Printf.ksprintf alert "Failed with error code %d" x.code;
+              Cache.invalidate Cache.voters;
+              !update_election_main ()
             in
             Lwt.return_unit)
   in

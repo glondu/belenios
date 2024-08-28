@@ -87,3 +87,88 @@ let popup_failsync msg =
   Lwt.return_unit
 
 let default_version = List.hd Belenios.Election.supported_crypto_versions
+
+open Lwt.Syntax
+open Js_of_ocaml_tyxml.Tyxml_js.Html
+open Belenios_api.Serializable_j
+open Belenios_js.Common
+open Belenios_js.Session
+
+(* open a popup that allows to choose an election uuid from which to
+ * import something. handler takes an uuid (as raw_string) in input
+ *)
+
+let popup_choose_elec handler =
+  let open (val !Belenios_js.I18n.gettext) in
+  let* x = get summary_list_of_string "elections" in
+  match x with
+  | Error e ->
+      let msg =
+        Printf.sprintf
+          (f_ "An error occurred while retrieving elections: %s")
+          (string_of_error e)
+      in
+      alert msg;
+      Lwt.return_unit
+  | Ok (elections, _) ->
+      let@ elections cont =
+        let* x = get summary_list_of_string "drafts" in
+        match x with
+        | Error e ->
+            let msg =
+              Printf.sprintf
+                (f_ "An error occurred while retrieving drafts: %s")
+                (string_of_error e)
+            in
+            alert msg;
+            Lwt.return_unit
+        | Ok (drafts, _) -> cont (drafts @ elections)
+      in
+      let name_uuids =
+        elections
+        |> List.map (fun (x : summary) ->
+               let but =
+                 let@ () =
+                   button
+                   @@ Printf.sprintf "%s (%s)" x.name (Uuid.unwrap x.uuid)
+                 in
+                 let* () =
+                   let&&* d = document##getElementById (Js.string "popup") in
+                   Lwt.return (d##.style##.display := Js.string "none")
+                 in
+                 handler (Uuid.unwrap x.uuid)
+               in
+               li [ but ])
+      in
+      let cancel_but =
+        let@ () = button @@ s_ "Cancel" in
+        let* () =
+          let&&* d = document##getElementById (Js.string "popup") in
+          Lwt.return (d##.style##.display := Js.string "none")
+        in
+        Lwt.return_unit
+      in
+      let content =
+        [
+          div
+            [
+              txt
+              @@ s_
+                   "Please select the election from which you want to import \
+                    data:";
+            ];
+          ul name_uuids;
+          cancel_but;
+        ]
+      in
+      let* () =
+        let&&* container =
+          document##getElementById (Js.string "popup-content")
+        in
+        show_in container (fun () -> Lwt.return content)
+      in
+      let* () =
+        let&&* d = document##getElementById (Js.string "popup") in
+        Lwt.return (d##.style##.display := Js.string "block")
+      in
+      Lwt.return_unit

@@ -297,6 +297,25 @@ let recompute_main_zone_1 () =
           !update_main_zone ()
         else Lwt.return_unit
   in
+  let import_but =
+    let@ () = button @@ s_ "Import trustees from another election" in
+    let@ uuid = popup_choose_elec in
+    let r = `Import (Uuid.wrap uuid) in
+    let* x =
+      post_with_token
+        (string_of_trustees_request r)
+        "drafts/%s/trustees" (get_current_uuid ())
+    in
+    match x.code with
+    | 200 ->
+        let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
+        step := 3;
+        Cache.invalidate_all ();
+        !update_main_zone ()
+    | code ->
+        Printf.ksprintf alert "Failed with error code %d" code;
+        !update_main_zone ()
+  in
   Lwt.return
     [
       h2 [ txt @@ s_ "Trustee setup - Step 1: choose the trustees" ];
@@ -304,6 +323,8 @@ let recompute_main_zone_1 () =
       add_symbol;
       thresh;
       div ~a:[ a_id "trustee_proc_but" ] [ proc_but ];
+      h2 [ txt @@ s_ "Import trustees from another election" ];
+      div [ import_but ];
     ]
 
 (* FIXME: This step 3 is just a dumb, now, but in the future, it should be
