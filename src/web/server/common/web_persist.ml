@@ -89,7 +89,13 @@ let empty_metadata =
 
 let get_election_metadata s uuid =
   let* x = Spool.get s uuid Spool.metadata in
-  Lwt.return (Option.value ~default:empty_metadata x)
+  match x with
+  | Some x -> Lwt.return x
+  | None -> (
+      let* x = Spool.get s uuid Spool.draft in
+      match x with
+      | Some (Draft (_, x)) -> Lwt.return x.se_metadata
+      | None -> Lwt.return empty_metadata)
 
 let append_to_shuffles s election owned_owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in

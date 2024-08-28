@@ -75,13 +75,21 @@ let popup_choose_elec handler () =
       alert msg;
       Lwt.return_unit
   | Ok (elections, _) ->
+      let@ elections cont =
+        let* x = get summary_list_of_string "drafts" in
+        match x with
+        | Error e ->
+            let msg =
+              Printf.sprintf
+                (f_ "An error occurred while retrieving drafts: %s")
+                (string_of_error e)
+            in
+            alert msg;
+            Lwt.return_unit
+        | Ok (drafts, _) -> cont (drafts @ elections)
+      in
       let name_uuids =
         elections
-        |> List.filter (fun x ->
-               match x.state with
-               | `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied ->
-                   true
-               | `Draft | `Archived -> false)
         |> List.map (fun (x : summary) ->
                let but =
                  button

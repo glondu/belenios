@@ -745,7 +745,16 @@ let get_passwords s uuid =
   Lwt.return_some res
 
 let import_voters s uuid (Draft (v, se), set) from =
-  let* voters = Web_persist.get_all_voters s from in
+  let@ voters cont =
+    let* x = Web_persist.get_all_voters s from in
+    match x with
+    | [] -> (
+        let* se = Spool.get s from Spool.draft in
+        match se with
+        | None -> Lwt.return @@ Stdlib.Error `NotFound
+        | Some se -> cont @@ get_draft_voters se)
+    | _ -> cont x
+  in
   let* passwords = get_passwords s from in
   let get_password =
     match passwords with
