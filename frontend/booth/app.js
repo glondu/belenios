@@ -280,7 +280,7 @@ function TranslatableVoteApp({
         }),
       );
     } else if (currentStep === 3) {
-      const urlToPostEncryptedBallot = `${relativeServerRootFolder}/election/submit-ballot`;
+      const urlToPostEncryptedBallot = `${relativeServerRootFolder}/actions/submit-ballot`;
       const onClickPrevious = () => {
         setCurrentStep(2);
         setUncryptedBallotBeforeReview(null);

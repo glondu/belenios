@@ -271,10 +271,10 @@ module Make () = struct
   let set_consent = create ~path:No_path ~meth:(Get (site_cont "cont")) ()
 
   let election_admin =
-    create ~path:(Path [ "election"; "admin" ]) ~meth:(Get (uuid "uuid")) ()
+    create ~path:(Path [ "actions"; "admin" ]) ~meth:(Get (uuid "uuid")) ()
 
   let election_regenpwd =
-    create ~path:(Path [ "election"; "regenpwd" ]) ~meth:(Get (uuid "uuid")) ()
+    create ~path:(Path [ "actions"; "regenpwd" ]) ~meth:(Get (uuid "uuid")) ()
 
   let election_regenpwd_post =
     create_attached_post ~csrf_safe:true ~fallback:election_regenpwd
@@ -339,27 +339,25 @@ module Make () = struct
   let booths = [| (Booth booth_v2, "Version 2") |]
 
   let election_cast =
-    create ~path:(Path [ "election"; "cast" ]) ~meth:(Get (uuid "uuid")) ()
+    create ~path:(Path [ "actions"; "cast" ]) ~meth:(Get (uuid "uuid")) ()
 
   let election_submit_ballot =
     create
-      ~path:(Path [ "election"; "submit-ballot" ])
+      ~path:(Path [ "actions"; "submit-ballot" ])
       ~meth:(Post (unit, string "encrypted_vote"))
       ()
 
   let election_submit_ballot_file =
     create
-      ~path:(Path [ "election"; "submit-ballot-file" ])
+      ~path:(Path [ "actions"; "submit-ballot-file" ])
       ~meth:(Post (unit, file "encrypted_vote"))
       ()
 
   let election_submit_ballot_check =
-    create
-      ~path:(Path [ "election"; "submit-ballot-check" ])
-      ~meth:(Get unit) ()
+    create ~path:(Path [ "actions"; "submit-ballot-check" ]) ~meth:(Get unit) ()
 
   let election_cast_confirm =
-    create ~path:(Path [ "election"; "confirm" ]) ~meth:(Get (uuid "uuid")) ()
+    create ~path:(Path [ "actions"; "confirm" ]) ~meth:(Get (uuid "uuid")) ()
 
   let election_pretty_ballots =
     create ~path:(Path [ "elections" ])
@@ -403,7 +401,7 @@ module Make () = struct
 
   let election_shuffle_link =
     create
-      ~path:(Path [ "election"; "shuffle" ])
+      ~path:(Path [ "actions"; "shuffle" ])
       ~meth:(Get (suffix uuid_and_token))
       ()
 
@@ -428,7 +426,7 @@ module Make () = struct
 
   let election_tally_trustees =
     create
-      ~path:(Path [ "election"; "trustees" ])
+      ~path:(Path [ "actions"; "trustees" ])
       ~meth:(Get (suffix uuid_and_token))
       ()
 
