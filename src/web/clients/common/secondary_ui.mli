@@ -27,6 +27,8 @@ module type UI = sig
 end
 
 module type ROUTER = sig
+  val component : string
+
   val router :
     configuration -> string list -> Html_types.div_content_fun elt list Lwt.t
 end

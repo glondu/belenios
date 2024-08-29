@@ -32,6 +32,8 @@ module type UI = sig
 end
 
 module type ROUTER = sig
+  val component : string
+
   val router :
     configuration -> string list -> Html_types.div_content_fun elt list Lwt.t
 end
@@ -65,7 +67,7 @@ module Make (App : APP) () = struct
     A.router configuration path
 
   let rec main configuration lang =
-    let* () = I18n.init ~dir:"static/" ~component:"admin" ~lang in
+    let* () = I18n.init ~dir:"static/" ~component:A.component ~lang in
     let l = !I18n.gettext in
     let module UiBase = struct
       module Xml = Tyxml_js.Xml

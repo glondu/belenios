@@ -24,6 +24,8 @@ open Tyxml_js.Html5
 open Belenios_js.Secondary_ui
 
 module App (U : UI) = struct
+  let component = "admin"
+
   let router configuration path =
     let open (val !Belenios_js.I18n.gettext) in
     U.set_title @@ s_ "Trustee management";
