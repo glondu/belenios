@@ -798,9 +798,10 @@ let import_trustees (Draft (v, se), set) s from metadata =
           let* x =
             match privs with
             | Some privs ->
-                let rec loop ts pubs privs accu =
-                  match (ts, pubs, privs) with
+                let rec loop ts certs pubs privs accu =
+                  match (ts, certs, pubs, privs) with
                   | ( stt_id :: ts,
+                      cert :: certs,
                       (vo_public_key : _ trustee_public_key) :: pubs,
                       vo_private_key :: privs ) ->
                       let stt_name = vo_public_key.trustee_name in
@@ -817,21 +818,32 @@ let import_trustees (Draft (v, se), set) s from metadata =
                           stt_token;
                           stt_voutput;
                           stt_step = Some 7;
-                          stt_cert = None;
+                          stt_cert = Some cert;
                           stt_polynomial = None;
                           stt_vinput = None;
                           stt_name;
                         }
                       in
-                      loop ts pubs privs (stt :: accu)
-                  | [], [], [] -> Lwt.return @@ Ok (List.rev accu)
-                  | _, _, _ -> Lwt.return @@ Stdlib.Error `Inconsistent
+                      loop ts certs pubs privs (stt :: accu)
+                  | [], [], [], [] -> Lwt.return @@ Ok (List.rev accu)
+                  | _ -> Lwt.return @@ Stdlib.Error `Inconsistent
                 in
-                loop names (Array.to_list t.t_verification_keys) privs []
+                loop names (Array.to_list t.t_certs)
+                  (Array.to_list t.t_verification_keys)
+                  privs []
             | None -> Lwt.return @@ Stdlib.Error `MissingPrivateKeys
           in
           match x with
           | Ok se_threshold_trustees ->
+              let se_threshold_trustees =
+                se_threshold_trustees
+                |> List.map (fun x ->
+                       x
+                       |> string_of_draft_threshold_trustee
+                            (swrite G.Zq.to_string)
+                       |> draft_threshold_trustee_of_string
+                            Yojson.Safe.read_json)
+              in
               let dtp =
                 {
                   dtp_threshold = Some t.t_threshold;
