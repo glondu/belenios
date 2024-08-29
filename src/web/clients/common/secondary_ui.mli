@@ -23,10 +23,14 @@ open Js_of_ocaml_tyxml.Tyxml_js.Html
 open Belenios_api.Serializable_t
 
 module type UI = sig
-  val router :
-    configuration -> string list -> Html_types.div_content_fun elt list Lwt.t
-
-  val title : unit -> string
+  val set_title : string -> unit
 end
 
-module Make : functor (_ : UI) () -> sig end
+module type ROUTER = sig
+  val router :
+    configuration -> string list -> Html_types.div_content_fun elt list Lwt.t
+end
+
+module type APP = functor (_ : UI) -> ROUTER
+
+module Make : functor (_ : APP) () -> sig end

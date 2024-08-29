@@ -21,18 +21,16 @@
 
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
+open Belenios_js.Secondary_ui
 
-module U = struct
+module App (U : UI) = struct
   let router configuration path =
     let open (val !Belenios_js.I18n.gettext) in
+    U.set_title @@ s_ "Credential authority management";
     match path with
     | [ "generate"; uuid; token ] ->
         Generate.generate configuration ~uuid ~token
     | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
-
-  let title () =
-    let open (val !Belenios_js.I18n.gettext) in
-    s_ "Credential authority management"
 end
 
-module _ = Belenios_js.Secondary_ui.Make (U) ()
+module _ = Make (App) ()

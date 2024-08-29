@@ -28,18 +28,33 @@ open Belenios
 open Common
 
 module type UI = sig
+  val set_title : string -> unit
+end
+
+module type ROUTER = sig
   val router :
     configuration -> string list -> Html_types.div_content_fun elt list Lwt.t
-
-  val title : unit -> string
 end
+
+module type APP = functor (_ : UI) -> ROUTER
 
 let drop_leading_hash x =
   let n = String.length x in
   if n > 0 && x.[0] = '#' then String.sub x 1 (n - 1) else x
 
-module Make (U : UI) () = struct
+module Make (App : APP) () = struct
+  let full_title = span [ txt "Belenios" ]
   let main_zone = Dom_html.createDiv document
+
+  module Ui = struct
+    let title = Tyxml_js.To_dom.of_span full_title
+
+    let set_title x =
+      document##.title := Js.string x;
+      title##.textContent := Js.some @@ Js.string x
+  end
+
+  module A = App (Ui)
 
   let onhashchange configuration =
     let path =
@@ -47,13 +62,11 @@ module Make (U : UI) () = struct
       |> Js.to_string |> drop_leading_hash |> String.split_on_char '/'
     in
     let@ () = show_in main_zone in
-    U.router configuration path
+    A.router configuration path
 
   let rec main configuration lang =
     let* () = I18n.init ~dir:"static/" ~component:"admin" ~lang in
     let l = !I18n.gettext in
-    let title = U.title () in
-    document##.title := Js.string title;
     let module UiBase = struct
       module Xml = Tyxml_js.Xml
       module Svg = Tyxml_js.Svg
@@ -66,8 +79,7 @@ module Make (U : UI) () = struct
       let@ () = show_in document##.body in
       let* lang_box = Ui.lang_box l in
       let content = [ Tyxml_js.Of_dom.of_div main_zone ] in
-      Ui.base_body l ~lang_box ~full_title:(span [ txt title ]) ~content ()
-      |> Lwt.return
+      Ui.base_body l ~lang_box ~full_title ~content () |> Lwt.return
     in
     let () =
       Js.Opt.iter
