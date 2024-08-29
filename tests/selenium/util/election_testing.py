@@ -80,7 +80,7 @@ def populate_credential_and_password_for_voters_from_sent_emails(fake_sent_email
             raise Exception("Credential not found in credential email for voter " + voter_email_address)
 
         election_page_url = "" # In this scenario, it looks like all voters receive the same election page URL. Maybe in different scenarios, voters will not all receive the same vote URL (for the same election).
-        match = re.search(r'(http.*/elections/[0-9A-Za-z]+/)$', parsed_email, re.MULTILINE)
+        match = re.search(r'(http.*/election#[0-9A-Za-z]+)$', parsed_email, re.MULTILINE)
         if match:
             election_page_url = match.group(1)
         else:
@@ -179,7 +179,7 @@ def repopulate_vote_confirmations_for_voters_from_sent_emails(fake_sent_emails_m
           http://localhost:8001/elections/imkV1i7hUR4dV3/ballots
 
         Results will be published on the election page
-          http://localhost:8001/elections/imkV1i7hUR4dV3/
+          http://localhost:8001/election#imkV1i7hUR4dV3
 
         --=20
 
@@ -275,10 +275,10 @@ def initialize_browser(for_scenario_2=False):
 
 def election_page_url_to_election_id(election_page_url):
     """
-    From an election page URL like `http://localhost:8001/elections/JwCoBvR7thYcBG/`, we extract its UUID like `JwCoBvR7thYcBG`.
+    From an election page URL like `http://localhost:8001/election#JwCoBvR7thYcBG`, we extract its UUID like `JwCoBvR7thYcBG`.
     """
     election_uuid = None
-    match = re.search(r'/elections/(.+)/$', election_page_url)
+    match = re.search(r'/election#(.+)$', election_page_url)
     if match:
         election_uuid = match.group(1)
     else:

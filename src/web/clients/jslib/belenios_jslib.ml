@@ -185,7 +185,7 @@ let belenios : belenios Js.t =
       let uuid_s = Uuid.unwrap uuid in
       let b = Buffer.create 1024 in
       Printf.bprintf b "Election: %s\n" template.t_name;
-      Printf.bprintf b "Election URL: %s/elections/%s/\n" (Js.to_string prefix)
+      Printf.bprintf b "Election URL: %s/election#%s\n" (Js.to_string prefix)
         uuid_s;
       Printf.bprintf b "Smart ballot tracker: %s\n" (Js.to_string tracker);
       let contents =

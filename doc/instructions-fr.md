@@ -24,7 +24,7 @@ l'élection, et `UUID` identifie l'élection dont on parle, parmi les
 autres élections qui sont gérées sur ce serveur. Typiquement, si la page
 principale de l'élection est de la forme
 
-    https://vote.belenios.org/elections/8GVH85AoSyweXG/
+    https://vote.belenios.org/election#8GVH85AoSyweXG
 
 alors `PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
 
@@ -319,7 +319,7 @@ Instructions pour l'auditeur
 
 Tout le monde connaissant l'`url` de l'élection peut être auditeur.
 L'`url` d'une élection est de la forme
-`PREFIXE/elections/UUID/`, où, par exemple,
+`PREFIXE/election#UUID`, où, par exemple,
 `PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
 
 Un auditeur va, en particulier, assurer que :

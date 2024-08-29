@@ -55,8 +55,10 @@ struct
         | Some result ->
             Pages_voter.cast_confirmed election ~result () >>= Html.send
         | None ->
-            let* state = Web_persist.get_election_state s uuid in
-            Pages_voter.election_home s election state () >>= Html.send)
+            Eliom_uri.make_string_uri ~absolute:true ~service:apps "election"
+            |> rewrite_prefix
+            |> (fun x -> Printf.sprintf "%s#%s" x (Uuid.unwrap uuid))
+            |> String_redirection.send)
 
   let () =
     Any.register ~service:election_cast (fun uuid () ->
@@ -208,107 +210,6 @@ struct
         | Some b ->
             String.send (b, "application/json") >>= fun x ->
             return @@ cast_unknown_content_kind x)
-
-  let handle_method uuid question f =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let open Belenios_question in
-    let@ s = Storage.with_transaction in
-    let@ election = with_election s uuid in
-    let open (val election) in
-    let questions =
-      Belenios.Election.get_questions (Template (witness, template))
-    in
-    if 0 <= question && question < Array.length questions then
-      let { value; extra; _ } = questions.(question) in
-      match value with
-      | Non_homomorphic.Q q ->
-          f l q extra (fun continuation ->
-              let* result = Public_archive.get_result s uuid in
-              match result with
-              | Some result ->
-                  (election_result_of_string read_result result).result
-                  |> to_generic_result
-                  |> (fun x -> x.(question))
-                  |> Non_homomorphic.Syntax.result_of_string |> continuation
-              | None ->
-                  Pages_common.generic_page ~title:(s_ "Error")
-                    (s_ "The result of this election is not available.")
-                    ()
-                  >>= Html.send ~code:404)
-      | _ ->
-          Pages_common.generic_page ~title:(s_ "Error")
-            (s_
-               "This question is not non-homomorphic, this method cannot be \
-                applied to its result.")
-            ()
-          >>= Html.send ~code:403
-    else
-      Pages_common.generic_page ~title:(s_ "Error")
-        (s_ "Invalid index for question.")
-        ()
-      >>= Html.send ~code:404
-
-  let () =
-    Any.register ~service:method_schulze (fun (uuid, question) () ->
-        handle_method uuid question (fun _ q extra continuation ->
-            continuation (fun ballots ->
-                let open Belenios_question in
-                let nchoices = Array.length q.q_answers in
-                let blank_allowed =
-                  match get_counting_method extra with
-                  | `Schulze o -> o.schulze_extra_blank
-                  | _ -> false
-                in
-                let schulze =
-                  Methods.Schulze.compute ~nchoices ~blank_allowed ballots
-                in
-                Pages_voter.schulze q schulze >>= Html.send)))
-
-  let () =
-    Any.register ~service:method_mj (fun (uuid, (question, ngrades)) () ->
-        handle_method uuid question (fun l q extra continuation ->
-            let open (val l : Belenios_ui.I18n.GETTEXT) in
-            let open Belenios_question in
-            match ngrades with
-            | None ->
-                Pages_voter.majority_judgment_select uuid question >>= Html.send
-            | Some ngrades ->
-                if ngrades > 0 then
-                  let blank_allowed =
-                    match get_counting_method extra with
-                    | `MajorityJudgment o -> o.mj_extra_blank
-                    | _ -> false
-                  in
-                  continuation (fun ballots ->
-                      let nchoices = Array.length q.q_answers in
-                      let mj =
-                        Methods.Majority_judgment.compute ~nchoices ~ngrades
-                          ~blank_allowed ballots
-                      in
-                      Pages_voter.majority_judgment q mj >>= Html.send)
-                else
-                  Pages_common.generic_page ~title:(s_ "Error")
-                    (s_ "The number of grades is invalid.")
-                    ()
-                  >>= Html.send ~code:400))
-
-  let () =
-    Any.register ~service:method_stv (fun (uuid, (question, nseats)) () ->
-        handle_method uuid question (fun l q _ continuation ->
-            let open (val l : Belenios_ui.I18n.GETTEXT) in
-            match nseats with
-            | None -> Pages_voter.stv_select uuid question >>= Html.send
-            | Some nseats ->
-                if nseats > 0 then
-                  continuation (fun ballots ->
-                      let stv = Methods.Stv.compute ~nseats ballots in
-                      Pages_voter.stv q stv >>= Html.send)
-                else
-                  Pages_common.generic_page ~title:(s_ "Error")
-                    (s_ "The number of seats is invalid.")
-                    ()
-                  >>= Html.send ~code:400))
 
   let content_type_of_file = function
     | ESRaw -> "application/json; charset=utf-8"

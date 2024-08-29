@@ -21,7 +21,7 @@ class BeleniosVoteWithPreparedBallots(unittest.TestCase):
     def cast_all_votes_from_csv(self):
         generated_files_destination_folder = settings.GENERATED_FILES_DESTINATION_FOLDER
         csv_file_path = os.path.join(generated_files_destination_folder, 'all_votes.csv')
-        pat = re.compile(r'^(.+)/elections/([^/]+)/$')
+        pat = re.compile(r'^(.+)/election#([^/]+)$')
         with open(csv_file_path, 'r', newline='') as csvfile:
             csvreader = csv.DictReader(csvfile, delimiter=',', quotechar='|')
             current_row = 0

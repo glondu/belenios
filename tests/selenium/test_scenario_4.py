@@ -36,7 +36,7 @@ class BeleniosTestElectionScenario4(BeleniosTestElectionScenario2Base):
     - voters_email_addresses_who_have_lost_their_password: A list of email addresses (strings). This is all users who have asked for a new password.
     - voters_email_addresses_who_have_voted: A dictionary, indexed by email address (string), where each element value is True
     - voters_data: A dictionary, indexed by email address (string), where each element is a dictionary of fields for the voter who is identified by this email address. This is data about all users who have voted.
-    - election_page_url: The election page URL (string). Example: "http://localhost:8001/elections/H5ecRG3wHZ21cp/"
+    - election_page_url: The election page URL (string). Example: "http://localhost:8001/election#H5ecRG3wHZ21cp"
     - election_id: The election ID (string). Example: "H5ecRG3wHZ21cp"
     - draft_election_administration_page_url: URL of the draft election administration page
     - credential_authority_link

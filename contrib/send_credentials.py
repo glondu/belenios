@@ -42,7 +42,7 @@ Bonjour,
 Nous vous invitons à participer à l'élection du meilleur cookie
 à l'adresse suivante:
 
-  https://vote.belenios.org/elections/$UUID/
+  https://vote.belenios.org/election#$UUID
 
 Vous aurez besoin du code de vote personnel (appelé "credential") que voici :
 
@@ -64,7 +64,7 @@ Hello,
 You are listed as a voter for the election of the best cookie.
 Please visit the following link:
 
-  https://vote.belenios.org/elections/$UUID/
+  https://vote.belenios.org/election#$UUID
 
 You will need the following credential (personal code):
 

@@ -92,7 +92,7 @@ let set_rewrite_prefix ~src ~dst =
   rewrite_fun := f
 
 let get_election_home_url uuid =
-  Printf.sprintf "%s/elections/%s/" !Web_config.prefix (Uuid.unwrap uuid)
+  Printf.sprintf "%s/election#%s" !Web_config.prefix (Uuid.unwrap uuid)
 
 type election_file =
   | ESArchive of uuid

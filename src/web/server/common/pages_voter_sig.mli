@@ -23,13 +23,6 @@ open Belenios
 open Belenios_server_core
 
 module type S = sig
-  val election_home :
-    Storage.t ->
-    (module Site_common_sig.ELECTION) ->
-    election_state ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val cast_raw :
     (module Site_common_sig.ELECTION) ->
     unit ->
@@ -50,25 +43,5 @@ module type S = sig
   val pretty_ballots :
     Storage.t ->
     (module Site_common_sig.ELECTION) ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val schulze :
-    Belenios_question.Non_homomorphic.t ->
-    schulze_result ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val majority_judgment_select :
-    uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val majority_judgment :
-    Belenios_question.Non_homomorphic.t ->
-    mj_result ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val stv_select : uuid -> int -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val stv :
-    Belenios_question.Non_homomorphic.t ->
-    stv_result ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

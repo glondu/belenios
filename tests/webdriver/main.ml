@@ -93,8 +93,7 @@ let scenario admin questions nvoters trustees registrar auth =
   end in
   let module Admin = Admin.Make (Config) in
   let* e = Admin.setup_election () in
-  Printf.printf "  Page of the election: %s/elections/%s/\n" Config.belenios
-    e.id;
+  Printf.printf "  Page of the election: %s/election#%s\n" Config.belenios e.id;
   let emails = Emails.parse Config.emails in
   let module Config = struct
     include Config

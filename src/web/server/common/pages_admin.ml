@@ -2554,9 +2554,9 @@ struct
         try_new_ui l (Some uuid);
         div
           [
-            a ~service:Web_services.election_home
-              [ txt (s_ "Election home") ]
-              (uuid, ());
+            Eliom_content.Html.F.Raw.a
+              ~a:[ a_href @@ Xml.uri_of_string @@ make_election_home uuid ]
+              [ txt (s_ "Election home") ];
           ];
         div
           [ a ~service:election_dir [ txt (s_ "Voter list") ] (uuid, ESVoters) ];

@@ -367,7 +367,7 @@ let generate configuration ~uuid ~token =
   match x with
   | None -> error ()
   | Some (actionable, header) ->
-      let url = Printf.sprintf "%selections/%s/" configuration.uris.home uuid in
+      let url = Printf.sprintf "%selection#%s" configuration.uris.home uuid in
       [
         header;
         hr ();

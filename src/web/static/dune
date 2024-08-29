@@ -66,14 +66,6 @@
    (run ./wrap_tool.sh %{deps}))))
 
 (rule
- (target home.js)
- (deps ../clients/election-home/home.bc.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run ./wrap_tool.sh %{deps}))))
-
-(rule
  (target trustee.js)
  (deps ../clients/trustee/trustee.bc.js)
  (action
@@ -84,6 +76,14 @@
 (rule
  (target credauth.js)
  (deps ../clients/credauth/credauth.bc.js)
+ (action
+  (with-stdout-to
+   %{target}
+   (run ./wrap_tool.sh %{deps}))))
+
+(rule
+ (target election.js)
+ (deps ../clients/election/main.bc.js)
  (action
   (with-stdout-to
    %{target}

@@ -109,6 +109,7 @@ module type S = sig
     string
 
   val make_credauth_link : uuid -> [< `Generate of string ] -> string
+  val make_election_home : uuid -> string
 
   val privacy_notice_accept :
     ( unit,
@@ -1502,53 +1503,6 @@ module type S = sig
       unit,
       [ `One of string ] Eliom_parameter.param_name
       * [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val method_schulze :
-    ( uuid * int,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of int ] Eliom_parameter.param_name,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val method_mj :
-    ( uuid * (int * int option),
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * ([ `One of int ] Eliom_parameter.param_name
-        * [ `One of int ] Eliom_parameter.param_name),
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val method_stv :
-    ( uuid * (int * int option),
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * ([ `One of int ] Eliom_parameter.param_name
-        * [ `One of int ] Eliom_parameter.param_name),
-      unit,
       Eliom_service.non_ocaml )
     Eliom_service.t
 

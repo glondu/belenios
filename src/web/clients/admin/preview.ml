@@ -63,7 +63,7 @@ let goto_mainpage () =
   match res with
   | Error msg -> popup_failsync msg
   | Ok () ->
-      let url = "elections/" ^ Uuid.unwrap (get_current_uuid ()) in
+      let url = "election#" ^ Uuid.unwrap (get_current_uuid ()) in
       let link = a ~a:[ a_target "_belenios_mainpage" ] ~href:url "Ok" in
       let r = Tyxml_js.To_dom.of_a link in
       r##.onclick :=

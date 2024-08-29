@@ -69,6 +69,11 @@ module Make () = struct
          Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix)
     |> rewrite_prefix
 
+  let make_election_home uuid =
+    Eliom_uri.make_string_uri ~absolute:true ~service:apps "election"
+    |> (fun x -> Printf.sprintf "%s#%s" x (Belenios.Uuid.unwrap uuid))
+    |> rewrite_prefix
+
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true
       ~meth:(Post (unit, privacy_cont "cont"))
@@ -514,24 +519,6 @@ module Make () = struct
   let changepw_post =
     create_attached_post ~csrf_safe:true ~fallback:signup
       ~post_params:(string "password" ** string "password2")
-      ()
-
-  let method_schulze =
-    create
-      ~path:(Path [ "methods"; "schulze" ])
-      ~meth:(Get (uuid "uuid" ** int "question"))
-      ()
-
-  let method_mj =
-    create
-      ~path:(Path [ "methods"; "mj" ])
-      ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "ngrades")))
-      ()
-
-  let method_stv =
-    create
-      ~path:(Path [ "methods"; "stv" ])
-      ~meth:(Get (uuid "uuid" ** int "question" ** opt (int "nseats")))
       ()
 
   let compute_fingerprint =

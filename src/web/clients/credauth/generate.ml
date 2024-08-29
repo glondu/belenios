@@ -168,7 +168,7 @@ let generate configuration ~uuid ~token =
   let voters = Voter.list_to_string voters in
   let header = h3 [ txt @@ s_ "Credential generation" ] in
   let link_div =
-    let url = Printf.sprintf "%selections/%s/" configuration.uris.home uuid in
+    let url = Printf.sprintf "%selection#%s" configuration.uris.home uuid in
     div
       [
         txt @@ s_ "The link to the election will be:";

@@ -69,7 +69,7 @@ module Make (Config : CONFIG) = struct
     Printf.printf "  Voter %s votes...\n%!" voter;
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
-    let url = Printf.sprintf "%s/elections/%s/" belenios election_id in
+    let url = Printf.sprintf "%s/election#%s" belenios election_id in
     let* () = session#navigate_to url in
     let* () = session#click_on ~selector:"#start" in
     let* () = session#fill_with ~selector:"#credential" credential in

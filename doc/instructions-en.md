@@ -25,7 +25,7 @@ handling the election, and `UUID` identifies the election we are talking
 about among the possibly many elections which are run on this server.
 Typically, if the main page of the election is of the form
 
-    https://vote.belenios.org/elections/8GVH85AoSyweXG/
+    https://vote.belenios.org/election#8GVH85AoSyweXG
 
 then `PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
 
@@ -261,7 +261,7 @@ expected that the credential authority :
         belenios-tool election compute-voters --privcreds /path/to/creds.json --url https://url/to/election
 
   (where `https://url/to/election` is of the form
-  `PREFIX/elections/UUID`, as explained at the top of this document).
+  `PREFIX/election#UUID`, as explained at the top of this document).
 
   The list output by this command must coincide with the one given by the
   administrator (maybe in a different order).
@@ -308,7 +308,7 @@ Instructions for the auditor
 
 Anyone who knows the `url` of the election can be an auditor.
 The `url` of an election is of the form
-`PREFIX/elections/UUID/`, where, for instance,
+`PREFIX/election#UUID`, where, for instance,
 `PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
 
 An auditor will ensure in particular that:

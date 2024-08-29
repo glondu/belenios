@@ -15,9 +15,11 @@
     "/static/tool_js_fingerprint.js"    : null,
     "/static/tool_js_questions.js"      : null,
     "/static/libsodium.wasm"            : null,
+    "/static/election.js"               : null,
     "/static/admin.js"                  : null,
     "/static/trustee.js"                : null,
     "/static/credauth.js"               : null,
+    "/election"                         : null,
     "/admin"                            : null,
     "/trustee"                          : null,
     "/credauth"                         : null

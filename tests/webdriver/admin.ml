@@ -467,7 +467,7 @@ module Make (Config : CONFIG) = struct
     Printf.eprintf "  Regenerating password of %s...\n%!" username;
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
-    let url = Printf.sprintf "%s/elections/%s/" belenios election_id in
+    let url = Printf.sprintf "%s/election#%s" belenios election_id in
     let* () = session#navigate_to url in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
     let* () =
@@ -529,7 +529,7 @@ module Make (Config : CONFIG) = struct
             let* url = session#get_url in
             if
               String.starts_with url
-                ~prefix:(Printf.sprintf "%s/elections/" belenios)
+                ~prefix:(Printf.sprintf "%s/election#" belenios)
             then Lwt.return_unit
             else loop ws
       in
