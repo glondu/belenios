@@ -23,6 +23,7 @@ open Belenios_platform
 open Platform
 open Signatures_core
 
+let ( >> ) f g x = g (f x)
 let ( ^^^ ) a b = a ^ " — " ^ b
 let ( let@ ) f x = f x
 let ( let& ) = Option.bind
@@ -41,7 +42,7 @@ module Array = Common_types.Array
 module Shape = Common_types.Shape
 
 let sha256_hex = Crypto_primitives.sha256_hex
-let sha256_b64 x = Hash.hash_string x |> Hash.to_b64
+let sha256_b64 = Hash.hash_string >> Hash.to_b64
 let b58_digits = Common_types.b58_digits
 
 let encode_data_uri ?charset ~mime_type x =
@@ -343,8 +344,8 @@ let format_public_credential to_string x =
   | Some w ->
       Printf.sprintf "%s,%s" (to_string x.credential) (Weight.to_string w)
 
-let strip_public_credential x =
-  x |> parse_public_credential Fun.id |> format_public_credential Fun.id
+let strip_public_credential =
+  parse_public_credential Fun.id >> format_public_credential Fun.id
 
 let extract_salt x = (parse_public_credential Fun.id x).salt
 let re_exec_opt ~rex x = try Some (Re.Pcre.exec ~rex x) with Not_found -> None

@@ -1000,7 +1000,7 @@ let questions_content () =
       Lwt.return (Questions (v, elec.t_questions))
   in
   let open (val Election.get_serializers v) in
-  all_gen_quest := Array.map (fun x -> x |> to_concrete |> q_to_gen) qs;
+  all_gen_quest := Array.map (to_concrete >> q_to_gen) qs;
   if !curr_doing < 0 || !curr_doing >= Array.length !all_gen_quest then
     curr_doing := 0;
   let* () =

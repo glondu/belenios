@@ -138,14 +138,13 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let d01 = [| G.one; invg |]
   let d1 = [| invg |]
 
-  let stringify_choices choices =
-    choices
-    |> Array.map (fun xs ->
-           xs
-           |> Array.map (fun { alpha; beta } ->
-                  Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
-           |> Array.to_list |> String.concat ",")
-    |> Array.to_list |> String.concat ","
+  let stringify_choices =
+    Array.map (fun xs ->
+        xs
+        |> Array.map (fun { alpha; beta } ->
+               Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
+        |> Array.to_list |> String.concat ",")
+    >> Array.to_list >> String.concat ","
 
   let unshapify = function
     | `Array xs -> Array.map Shape.to_array xs
@@ -263,15 +262,13 @@ module Make (M : RANDOM) (G : GROUP) = struct
       loop x0 1
     else x0
 
-  let combine_list_items_ciphertexts choices =
-    choices
-    |> Array.map (combine_except_first eg_combine dummy_ciphertext)
-    |> Array.fold_left eg_combine dummy_ciphertext
+  let combine_list_items_ciphertexts =
+    Array.map (combine_except_first eg_combine dummy_ciphertext)
+    >> Array.fold_left eg_combine dummy_ciphertext
 
-  let combine_list_items_randoms randoms =
-    randoms
-    |> Array.map (combine_except_first Zq.( + ) Zq.zero)
-    |> Array.fold_left Zq.( + ) Zq.zero
+  let combine_list_items_randoms =
+    Array.map (combine_except_first Zq.( + ) Zq.zero)
+    >> Array.fold_left Zq.( + ) Zq.zero
 
   let create_answer q ~public_key:y ~prefix:zkp m =
     let m = unshapify m in
@@ -332,15 +329,14 @@ module Make (M : RANDOM) (G : GROUP) = struct
   let extract_ciphertexts _ a =
     `Array
       (Array.map
-         (fun x -> x |> Array.map (fun x -> `Atomic x) |> fun x -> `Array x)
+         (Array.map (fun x -> `Atomic x) >> fun x -> `Array x)
          a.choices)
 
   let process_ciphertexts q es =
     let neutral =
       q.q_answers
-      |> Array.map (fun x ->
-             x |> Array.map (fun _ -> `Atomic dummy_ciphertext) |> fun x ->
-             `Array x)
+      |> Array.map
+           (Array.map (fun _ -> `Atomic dummy_ciphertext) >> fun x -> `Array x)
       |> fun x -> `Array x
     in
     let ( * ) = Shape.map2 eg_combine in
@@ -367,10 +363,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
         | Some x -> x
         | None -> invalid_arg "Cannot compute result"
     in
-    fun x ->
-      unshapify x
-      |> Array.map
-           (Array.map (fun i -> Weight.reduce ~total (log i |> Zq.to_Z)))
+    unshapify
+    >> Array.map (Array.map (fun i -> Weight.reduce ~total (log i |> Zq.to_Z)))
 
   let check_result ~total_weight _ x r =
     Array.for_all2

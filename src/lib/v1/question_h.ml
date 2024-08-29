@@ -318,11 +318,10 @@ module Make (M : RANDOM) (G : GROUP) = struct
     done;
     d
 
-  let stringify_choices choices =
-    choices
-    |> Array.map (fun { alpha; beta } ->
-           Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
-    |> Array.to_list |> String.concat ","
+  let stringify_choices =
+    Array.map (fun { alpha; beta } ->
+        Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
+    >> Array.to_list >> String.concat ","
 
   let create_answer q ~public_key:y ~prefix:zkp m =
     let m = Shape.to_array m in

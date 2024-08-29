@@ -180,12 +180,11 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     lazy
       (let public_keys_with_pok =
          trustees
-         |> Option.map (fun x ->
-                x
-                |> List.map (function
-                     | `Single x -> [ x ]
-                     | `Pedersen t -> Array.to_list t.t_verification_keys)
-                |> List.flatten |> Array.of_list)
+         |> Option.map
+              (List.map (function
+                 | `Single x -> [ x ]
+                 | `Pedersen t -> Array.to_list t.t_verification_keys)
+              >> List.flatten >> Array.of_list)
        in
        let public_keys =
          Option.map

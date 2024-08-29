@@ -129,7 +129,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         Buffer.contents b |> G.Zq.reduce_hex
       else (
         Printf.ksprintf
-          (fun x -> x |> sha256_hex |> Buffer.add_string b)
+          (sha256_hex >> Buffer.add_string b)
           "%s|%d|%s" prefix i seed;
         loop (i + 1))
     in

@@ -837,12 +837,10 @@ let import_trustees (Draft (v, se), set) s from metadata =
           | Ok se_threshold_trustees ->
               let se_threshold_trustees =
                 se_threshold_trustees
-                |> List.map (fun x ->
-                       x
-                       |> string_of_draft_threshold_trustee
-                            (swrite G.Zq.to_string)
-                       |> draft_threshold_trustee_of_string
-                            Yojson.Safe.read_json)
+                |> List.map
+                     (string_of_draft_threshold_trustee (swrite G.Zq.to_string)
+                     >> draft_threshold_trustee_of_string Yojson.Safe.read_json
+                     )
               in
               let dtp =
                 {

@@ -47,16 +47,14 @@ let step = ref 0
 (* Forward decl of update functions *)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let cast_bt_trustee x =
-  x
-  |> string_of_trustee
-       (write_trustee_public_key Yojson.Safe.write_json Yojson.Safe.write_json)
-  |> trustee_of_string Yojson.Safe.read_json
+let cast_bt_trustee =
+  string_of_trustee
+    (write_trustee_public_key Yojson.Safe.write_json Yojson.Safe.write_json)
+  >> trustee_of_string Yojson.Safe.read_json
 
-let cast_tt_trustee x =
-  x
-  |> string_of_trustee (write_cert Yojson.Safe.write_json)
-  |> trustee_of_string Yojson.Safe.read_json
+let cast_tt_trustee =
+  string_of_trustee (write_cert Yojson.Safe.write_json)
+  >> trustee_of_string Yojson.Safe.read_json
 
 let get_trustees () =
   let uuid = get_current_uuid () in

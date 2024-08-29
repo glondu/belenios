@@ -62,8 +62,8 @@ module Parse (R : RAW_ELECTION) () = struct
   let read_question a b = Question.of_concrete (read_question a b)
   let write_question b x = write_question b (Question.to_concrete x)
 
-  let erase_question x =
-    x |> Question.to_concrete |> erase_question |> Question.of_concrete
+  let erase_question =
+    Question.to_concrete >> erase_question >> Question.of_concrete
 
   let j = params_of_string Yojson.Safe.read_json R.raw_election
 

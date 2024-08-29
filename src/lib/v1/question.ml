@@ -69,9 +69,9 @@ let of_concrete (x : Belenios_question.t) : t =
       end in
       (module X)
 
-let wrap x = x |> Belenios_question.wrap |> of_concrete
-let unwrap x = x |> to_concrete |> Belenios_question.unwrap
-let is_nh_question x = is_nh_question (to_concrete x)
+let wrap = Belenios_question.wrap >> of_concrete
+let unwrap = to_concrete >> Belenios_question.unwrap
+let is_nh_question = to_concrete >> is_nh_question
 
 module Make (M : RANDOM) (G : GROUP) = struct
   let read_answer = Yojson.Safe.read_json
