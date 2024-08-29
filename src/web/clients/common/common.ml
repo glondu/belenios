@@ -24,6 +24,9 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
 
+let relative_root = ref ""
+let ( !! ) x = !relative_root ^ x
+let ( !/ ) x = !relative_root ^ "api/" ^ x
 let document = Dom_html.document
 let ( let&& ) = Js.Opt.bind
 let ( let&&* ) x f = Js.Opt.case x (fun () -> Lwt.return_unit) f
@@ -205,7 +208,7 @@ let set_form_target id target uuid token =
 
 let redirect_if_admin target uuid token cont =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = get "../api-token" in
+  let* x = get !!"api-token" in
   if x.code = 200 then (
     let url = Printf.sprintf "%s/%s/%s" target uuid token in
     Dom_html.window##.location##replace (Js.string url);

@@ -335,10 +335,11 @@ let actionable_threshold ~token ~url draft = function
 let generate configuration ~uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let@ draft cont =
-    let* x = Printf.ksprintf (get draft_of_string) "../api/drafts/%s" uuid in
+    let url = !/(Printf.sprintf "drafts/%s" uuid) in
+    let* x = get draft_of_string url in
     match x with None -> error () | Some x -> cont x
   in
-  let url = Printf.sprintf "../api/drafts/%s/trustee" uuid in
+  let url = !/(Printf.sprintf "drafts/%s/trustee" uuid) in
   let* status =
     get ~token
       (trustee_status_of_string Yojson.Safe.read_json Yojson.Safe.read_json)

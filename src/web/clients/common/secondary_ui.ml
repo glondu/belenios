@@ -98,7 +98,7 @@ module Make (App : APP) () = struct
     Dom_html.window##.onload :=
       let@ () = lwt_handler in
       let@ configuration cont =
-        let* x = get configuration_of_string "../api/configuration" in
+        let* x = get configuration_of_string !/"configuration" in
         match x with
         | None ->
             alert "Could not get server configuration!";

@@ -29,7 +29,7 @@ open Belenios_js.Messages
 
 (* We create the worker here, so that its libsodium wasm module
    initializes as soon as possible. *)
-let worker = Worker.create "../static/belenios_worker.js"
+let worker = Worker.create !!"static/belenios_worker.js"
 
 let compute_shuffle ~estimation election ciphertexts =
   let open (val !Belenios_js.I18n.gettext) in
@@ -78,12 +78,12 @@ let shuffle ~uuid ~token =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
   let@ election cont =
-    let url = Printf.sprintf "../api/elections/%s/election" uuid in
+    let url = !/(Printf.sprintf "elections/%s/election" uuid) in
     let* x = get Fun.id url in
     match x with Some x -> cont x | None -> fail ()
   in
   let@ nh_ciphertexts cont =
-    let url = Printf.sprintf "../api/elections/%s/nh-ciphertexts" uuid in
+    let url = !/(Printf.sprintf "elections/%s/nh-ciphertexts" uuid) in
     let* x = get Fun.id url in
     match x with Some x -> cont x | None -> fail ()
   in
@@ -147,7 +147,7 @@ let shuffle ~uuid ~token =
       let@ () = button @@ s_ "Submit" in
       Dom.removeChild container submit_div;
       let contents = `String shuffle_data in
-      let url = Printf.sprintf "../api/elections/%s/trustee" uuid in
+      let url = !/(Printf.sprintf "elections/%s/trustee" uuid) in
       let* x = http_perform ~token ~override_method:`POST ~contents url in
       let msg =
         match x.code with

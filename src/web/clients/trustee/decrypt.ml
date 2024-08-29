@@ -94,18 +94,18 @@ let decrypt ~uuid ~token =
   let fail () =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
-  let url = Printf.sprintf "../api/elections/%s/trustee" uuid in
+  let url = !/(Printf.sprintf "elections/%s/trustee" uuid) in
   let@ trustee cont =
     let* x = get ~token tally_trustee_of_string url in
     match x with Some x -> cont x | None -> fail ()
   in
   let@ election cont =
-    let url = Printf.sprintf "../elections/%s/election.json" uuid in
+    let url = !!(Printf.sprintf "elections/%s/election.json" uuid) in
     let* x = get String.trim url in
     match x with Some x -> cont x | None -> fail ()
   in
   let@ encrypted_tally cont =
-    let url = Printf.sprintf "../elections/%s/encrypted_tally.json" uuid in
+    let url = !!(Printf.sprintf "elections/%s/encrypted_tally.json" uuid) in
     let* x = get String.trim url in
     match x with Some x -> cont x | None -> fail ()
   in

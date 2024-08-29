@@ -253,5 +253,6 @@ let onload () =
   show hash document##.body
 
 let () =
+  relative_root := "../";
   Dom_html.window##.onload := lwt_handler onload;
   Dom_html.window##.onhashchange := lwt_handler onhashchange

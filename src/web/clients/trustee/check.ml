@@ -44,7 +44,7 @@ let do_election uuid election get_private_key =
     let* x =
       get
         (trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string))
-        (Printf.sprintf "../api/elections/%s/trustees" uuid)
+        !/(Printf.sprintf "elections/%s/trustees" uuid)
     in
     match x with
     | None ->
@@ -96,7 +96,7 @@ let do_draft uuid draft get_private_key =
     let* x =
       get
         (draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
-        (Printf.sprintf "../api/drafts/%s/trustees" uuid)
+        !/(Printf.sprintf "drafts/%s/trustees" uuid)
     in
     match x with
     | None ->
@@ -207,14 +207,14 @@ let check ?uuid () =
               let parse_election x = Election.of_string (module Random) x in
               let* election =
                 get parse_election
-                  (Printf.sprintf "../api/elections/%s/election" uuid)
+                  !/(Printf.sprintf "elections/%s/election" uuid)
               in
               match election with
               | Some election -> do_election uuid election get_private_key
               | None -> (
                   let* draft =
                     get Belenios_api.Common.draft_of_string
-                      (Printf.sprintf "../api/drafts/%s" uuid)
+                      !/(Printf.sprintf "drafts/%s" uuid)
                   in
                   match draft with
                   | None ->

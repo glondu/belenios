@@ -62,7 +62,7 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
     in
     Dom.removeChild container submit_div;
     let contents = `String (string_of_public_credentials c.public_with_ids) in
-    let url = Printf.sprintf "../api/drafts/%s/credentials/public" uuid in
+    let url = !/(Printf.sprintf "drafts/%s/credentials/public" uuid) in
     let* x = http_perform ~token ~override_method:`POST ~contents url in
     let msg =
       match x.code with
@@ -156,12 +156,12 @@ let error () =
 let generate configuration ~uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let@ draft cont =
-    let url = Printf.sprintf "../api/drafts/%s" uuid in
+    let url = !/(Printf.sprintf "drafts/%s" uuid) in
     let* x = get draft_of_string url in
     match x with None -> error () | Some x -> cont x
   in
   let@ voters cont =
-    let url = Printf.sprintf "../api/drafts/%s/voters" uuid in
+    let url = !/(Printf.sprintf "drafts/%s/voters" uuid) in
     let* x = get ~token voter_list_of_string url in
     match x with None -> error () | Some x -> cont x
   in

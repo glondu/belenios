@@ -24,9 +24,9 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
 open Belenios_api.Serializable_j
+open Common
 
 let api_token = ref ""
-let api_root = "../api/"
 
 let init_api_token ~ui hash =
   match hash with
@@ -36,7 +36,7 @@ let init_api_token ~ui hash =
   | `Error -> Lwt.return_unit
   | _ ->
       let open Js_of_ocaml_lwt.XmlHttpRequest in
-      let* x = get "../api-token" in
+      let* x = get !!"api-token" in
       if x.code = 200 then (
         api_token := x.content;
         Lwt.return_unit)
@@ -67,7 +67,7 @@ let delete_with_token ?ifmatch url =
   in
   let headers = ("Authorization", "Bearer " ^ !api_token) :: ifmatch in
   Printf.ksprintf
-    (fun x -> perform_raw_url ~headers ~override_method:`DELETE (api_root ^ x))
+    (fun x -> perform_raw_url ~headers ~override_method:`DELETE !/x)
     url
 
 let put_with_token ~ifmatch x url =
@@ -77,8 +77,7 @@ let put_with_token ~ifmatch x url =
   in
   let contents = `String x in
   Printf.ksprintf
-    (fun x ->
-      perform_raw_url ~headers ~contents ~override_method:`PUT (api_root ^ x))
+    (fun x -> perform_raw_url ~headers ~contents ~override_method:`PUT !/x)
     url
 
 let post_with_token ?ifmatch x url =
@@ -89,8 +88,7 @@ let post_with_token ?ifmatch x url =
   let headers = ("Authorization", "Bearer " ^ !api_token) :: ifmatch in
   let contents = `String x in
   Printf.ksprintf
-    (fun x ->
-      perform_raw_url ~headers ~contents ~override_method:`POST (api_root ^ x))
+    (fun x -> perform_raw_url ~headers ~contents ~override_method:`POST !/x)
     url
 
 let bad_result = Lwt.return (Error BadResult)
@@ -102,7 +100,7 @@ let get ?(notoken = false) of_string url =
   in
   Printf.ksprintf
     (fun x ->
-      let* x = perform_raw_url ?headers (api_root ^ x) in
+      let* x = perform_raw_url ?headers !/x in
       match x.code with
       | 200 ->
           let ifmatch = sha256_b64 x.content in
