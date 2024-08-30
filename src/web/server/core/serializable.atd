@@ -29,7 +29,6 @@ type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type datetime = string wrap <ocaml module="Types.Datetime">
 type 'a proof <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
-type election_checksums <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a polynomial <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -89,12 +88,6 @@ type election_state =
   ]
 
 type decryption_tokens = string list
-
-type audit_cache = {
-  voters_hash : hash;
-  checksums : election_checksums;
-  ?threshold : int option;
-} <ocaml field_prefix="cache_">
 
 (** {1 Types related to elections being prepared} *)
 

@@ -162,6 +162,12 @@ type election_checksums = {
   ?encrypted_tally : hash option;
 } <ocaml field_prefix="ec_">
 
+type audit_cache = {
+  voters_hash : hash;
+  checksums : election_checksums;
+  ?threshold : int option;
+} <ocaml field_prefix="cache_">
+
 type ballot_summary_item = {
   hash : hash;
   ?weight : weight option;
