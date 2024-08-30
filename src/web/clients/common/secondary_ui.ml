@@ -83,12 +83,25 @@ module Make (App : APP) () = struct
 
       let uris = configuration.uris
     end in
+    let warning = div ~a:[ a_id "banner" ] [] in
+    let () =
+      let@ () = Lwt.async in
+      let url = Printf.sprintf "banner?lang=%s" lang in
+      let* x = Js_of_ocaml_lwt.XmlHttpRequest.get url in
+      match x.code with
+      | 200 ->
+          let dom = Tyxml_js.To_dom.of_div warning in
+          dom##.innerHTML := Js.string x.content;
+          Lwt.return_unit
+      | _ -> Lwt.return_unit
+    in
     let module Ui = Belenios_ui.Pages_common.Make (UiBase) in
     let* () =
       let@ () = show_in document##.body in
       let* lang_box = Ui.lang_box l in
       let content = [ Tyxml_js.Of_dom.of_div main_zone ] in
-      Ui.base_body l ~lang_box ~full_title ~content ~footer () |> Lwt.return
+      Ui.base_body l ~lang_box ~full_title ~content ~footer ~warning ()
+      |> Lwt.return
     in
     let () =
       Js.Opt.iter
