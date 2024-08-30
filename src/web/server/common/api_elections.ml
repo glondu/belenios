@@ -413,6 +413,12 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let* () = Web_persist.delete_election s uuid in
           ok
       | _ -> method_not_allowed)
+  | [ "audit-cache" ] -> (
+      let get () =
+        let* x = Web_persist.get_audit_cache s uuid in
+        Lwt.return @@ string_of_audit_cache x
+      in
+      match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "election" ] -> (
       match method_ with
       | `GET -> Lwt.return (200, raw)

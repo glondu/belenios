@@ -107,6 +107,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 * `POST`: admin_request -> unit (administrator)
 * `DELETE`: unit -> unit (administrator)
 
+## `elections/$UUID/audit-cache` (anybody)
+
+* `GET`: unit -> audit_cache
+
 ## `elections/$UUID/election` (anybody)
 
 * `GET`: unit -> json
