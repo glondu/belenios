@@ -29,6 +29,7 @@ open Common
 
 module type UI = sig
   val set_title : string -> unit
+  val set_footer : Html_types.div_content_fun elt list -> unit
 end
 
 module type ROUTER = sig
@@ -47,13 +48,19 @@ let drop_leading_hash x =
 module Make (App : APP) () = struct
   let full_title = span [ txt "Belenios" ]
   let main_zone = Dom_html.createDiv document
+  let footer = div []
 
   module Ui = struct
     let title = Tyxml_js.To_dom.of_span full_title
+    let footer = Tyxml_js.To_dom.of_div footer
 
     let set_title x =
       document##.title := Js.string x;
       title##.textContent := Js.some @@ Js.string x
+
+    let set_footer x =
+      footer##.innerHTML := Js.string "";
+      List.iter (fun x -> Dom.appendChild footer (Tyxml_js.To_dom.of_node x)) x
   end
 
   module A = App (Ui)
@@ -81,7 +88,7 @@ module Make (App : APP) () = struct
       let@ () = show_in document##.body in
       let* lang_box = Ui.lang_box l in
       let content = [ Tyxml_js.Of_dom.of_div main_zone ] in
-      Ui.base_body l ~lang_box ~full_title ~content () |> Lwt.return
+      Ui.base_body l ~lang_box ~full_title ~content ~footer () |> Lwt.return
     in
     let () =
       Js.Opt.iter

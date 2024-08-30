@@ -24,6 +24,7 @@ open Belenios_api.Serializable_t
 
 module type UI = sig
   val set_title : string -> unit
+  val set_footer : Html_types.div_content_fun elt list -> unit
 end
 
 module type ROUTER = sig
