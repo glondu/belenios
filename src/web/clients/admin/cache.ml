@@ -21,7 +21,7 @@
 
 open Js_of_ocaml
 open Belenios_api.Serializable_j
-open Belenios_api.Common
+open Belenios_api
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session

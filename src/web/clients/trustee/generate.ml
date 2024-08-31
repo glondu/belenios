@@ -25,7 +25,7 @@ open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios_api.Serializable_j
 open Belenios
-open Belenios_api.Common
+open Belenios_api
 open Belenios_js.Common
 
 type keypair = {

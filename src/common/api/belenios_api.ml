@@ -19,8 +19,21 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+module Serializable_t = Serializable_t
+module Serializable_j = Serializable_j
+
 type draft =
   | Draft : 'a Belenios.Election.version * 'a Serializable_t.draft -> draft
 
-val draft_of_string : string -> draft
-val string_of_draft : draft -> string
+let draft_of_string x =
+  let abstract = Serializable_j.draft_of_string Yojson.Safe.read_json x in
+  let open Belenios.Election in
+  match version_of_int abstract.draft_version with
+  | Version v ->
+      let open (val get_serializers v) in
+      let x = Serializable_j.draft_of_string read_question x in
+      Draft (v, x)
+
+let string_of_draft (Draft (v, x)) =
+  let open (val Belenios.Election.get_serializers v) in
+  Serializable_j.string_of_draft write_question x

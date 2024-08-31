@@ -33,7 +33,7 @@ val get_until_success : 'a t -> 'a Lwt.t
 val sync : unit -> (unit, string) result Lwt.t
 val sync_until_success : unit -> unit Lwt.t
 val config : configuration t
-val draft : Belenios_api.Common.draft t
+val draft : Belenios_api.draft t
 val voters : voter_list t
 val status : draft_status t
 val account : api_account t

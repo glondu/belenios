@@ -246,7 +246,7 @@ struct
     in
     let* uuid =
       let@ s = Storage.with_transaction in
-      Api_drafts.post_drafts account s (Belenios_api.Common.Draft (v, draft))
+      Api_drafts.post_drafts account s (Belenios_api.Draft (v, draft))
     in
     match uuid with
     | Some uuid -> redir_preapply election_draft uuid ()

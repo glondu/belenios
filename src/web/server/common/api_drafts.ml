@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_api.Serializable_j
-open Belenios_api.Common
+open Belenios_api
 open Belenios_server_core
 open Web_common
 open Api_generic
@@ -100,7 +100,7 @@ let api_of_draft (Draft (v, se)) =
     }
   in
   Lwt.return
-    (Belenios_api.Common.Draft
+    (Belenios_api.Draft
        ( v,
          {
            draft_version = se.se_version;
@@ -115,8 +115,7 @@ let api_of_draft (Draft (v, se)) =
 
 let assert_ msg b f = if b then f () else raise (Error msg)
 
-let draft_of_api a uuid (Draft (v, se) as fse)
-    (Belenios_api.Common.Draft (v', d)) =
+let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_api.Draft (v', d)) =
   let version = se.se_version in
   let@ Refl =
    fun cont ->

@@ -213,7 +213,7 @@ let check ?uuid () =
               | Some election -> do_election uuid election get_private_key
               | None -> (
                   let* draft =
-                    get Belenios_api.Common.draft_of_string
+                    get Belenios_api.draft_of_string
                       !/(Printf.sprintf "drafts/%s" uuid)
                   in
                   match draft with

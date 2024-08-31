@@ -216,8 +216,8 @@ po/voter/sk.po
 po/voter/uk.po
 po/voter/zh_Hans.po
 requirements.txt
-src/common/api/common.ml
-src/common/api/common.mli
+src/common/api/belenios_api.ml
+src/common/api/belenios_api.mli
 src/common/api/dune
 src/common/api/serializable.atd
 src/common/tool/dune

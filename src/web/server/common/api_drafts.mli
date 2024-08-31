@@ -21,7 +21,7 @@
 
 open Belenios
 open Belenios_api.Serializable_t
-open Belenios_api.Common
+open Belenios_api
 open Belenios_server_core
 open Web_common
 
