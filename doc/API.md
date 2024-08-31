@@ -157,6 +157,18 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 * `GET`: unit -> partial_decryptions (administrator)
 
+## `elections/$UUID/objects/$HASH` (anybody)
+
+* `GET`: unit -> json
+
+## `elections/$UUID/last-event` (anybody)
+
+* `GET`: unit -> last_event
+
+## `elections/$UUID/roots` (anybody)
+
+* `GET`: unit -> roots
+
 ## `elections/$UUID/ballots`
 
 Experimental!

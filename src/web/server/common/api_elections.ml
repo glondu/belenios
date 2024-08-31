@@ -581,6 +581,29 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               in
               ok)
       | _ -> method_not_allowed)
+  | [ "objects"; hash ] -> (
+      match method_ with
+      | `GET -> (
+          let@ () = handle_generic_error in
+          let* x = Public_archive.get_data s uuid (Hash.of_hex hash) in
+          match x with Some x -> Lwt.return (200, x) | None -> not_found)
+      | _ -> method_not_allowed)
+  | [ "last-event" ] -> (
+      match method_ with
+      | `GET -> (
+          let@ () = handle_generic_error in
+          let* x = Spool.get s uuid Spool.last_event in
+          match x with
+          | Some x -> Lwt.return (200, string_of_last_event x)
+          | None -> not_found)
+      | _ -> method_not_allowed)
+  | [ "roots" ] -> (
+      match method_ with
+      | `GET ->
+          let@ () = handle_generic_error in
+          let* x = Public_archive.get_roots s uuid in
+          Lwt.return (200, string_of_roots x)
+      | _ -> method_not_allowed)
   | _ -> not_found
 
 let dispatch s ~token ~ifmatch endpoint method_ body =
