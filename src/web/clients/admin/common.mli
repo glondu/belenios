@@ -53,7 +53,7 @@ type context =
   | Profile
 
 val where_am_i : context ref
-val get_current_uuid : unit -> string
+val get_current_uuid : unit -> uuid
 val is_draft : unit -> bool
 val is_running : unit -> bool
 val is_archived : unit -> bool
@@ -63,4 +63,4 @@ val is_finished : unit -> bool
 
 val popup_failsync : string -> unit Lwt.t
 val default_version : Belenios.Election.some_version
-val popup_choose_elec : (string -> unit Lwt.t) -> unit Lwt.t
+val popup_choose_elec : (uuid -> unit Lwt.t) -> unit Lwt.t

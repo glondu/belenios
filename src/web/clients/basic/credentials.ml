@@ -31,23 +31,23 @@ open Belenios_js.Session
 
 let show main uuid =
   let@ () = show_in main in
-  let* x = get ~notoken:true draft_of_string "drafts/%s" uuid in
+  let* x = Api.(get ~notoken:true (draft uuid)) in
   match x with
   | Error e ->
       let msg =
-        Printf.sprintf "An error occurred while retrieving draft %s: %s" uuid
-          (string_of_error e)
+        Printf.sprintf "An error occurred while retrieving draft %s: %s"
+          (Uuid.unwrap uuid) (string_of_error e)
       in
       Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
   | Ok (Draft (_, draft), _) ->
       let* voters =
-        let* x = get voter_list_of_string "drafts/%s/voters" uuid in
+        let* x = Api.(get (draft_voters uuid)) in
         match x with
         | Error e ->
             let msg =
               Printf.sprintf
-                "An error occurred while retrieving voters of draft %s: %s" uuid
-                (string_of_error e)
+                "An error occurred while retrieving voters of draft %s: %s"
+                (Uuid.unwrap uuid) (string_of_error e)
             in
             Lwt.return @@ div [ txt msg ]
         | Ok (xs, _) ->
@@ -75,21 +75,20 @@ let show main uuid =
                     let return = Lwt.return
                     let bind = Lwt.bind
                     let pause = Lwt.pause
-                    let uuid = Uuid.wrap uuid
+                    let uuid = uuid
                     let get_salt _ = Lwt.return_none
                   end)
               in
               let* Credential.{ public_creds; private_creds; _ } =
                 Cred.generate xs
               in
-              let op = string_of_public_credentials public_creds in
               let t, _ =
                 textarea (string_of_private_credentials private_creds)
               in
               let button_container = div [] |> Tyxml_js.To_dom.of_div in
               let b =
                 let@ () = button "Send public credentials to server" in
-                let* x = post_with_token op "drafts/%s/credentials" uuid in
+                let* x = Api.(post (draft_credentials uuid) public_creds) in
                 let@ () = show_in button_container in
                 let msg =
                   match x.code with

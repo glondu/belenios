@@ -63,8 +63,7 @@ type context =
 let where_am_i : context ref = ref List_draft
 
 let get_current_uuid () =
-  (match !where_am_i with Election { uuid; _ } -> uuid | _ -> Uuid.dummy)
-  |> Uuid.unwrap
+  match !where_am_i with Election { uuid; _ } -> uuid | _ -> Uuid.dummy
 
 let is_draft () =
   match !where_am_i with Election { status = Draft; _ } -> true | _ -> false
@@ -100,7 +99,7 @@ open Belenios_js.Session
 
 let popup_choose_elec handler =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = get summary_list_of_string "elections" in
+  let* x = Api.(get elections) in
   match x with
   | Error e ->
       let msg =
@@ -112,7 +111,7 @@ let popup_choose_elec handler =
       Lwt.return_unit
   | Ok (elections, _) ->
       let@ elections cont =
-        let* x = get summary_list_of_string "drafts" in
+        let* x = Api.(get drafts) in
         match x with
         | Error e ->
             let msg =
@@ -136,7 +135,7 @@ let popup_choose_elec handler =
                    let&&* d = document##getElementById (Js.string "popup") in
                    Lwt.return (d##.style##.display := Js.string "none")
                  in
-                 handler (Uuid.unwrap x.uuid)
+                 handler x.uuid
                in
                li [ but ])
       in

@@ -31,7 +31,7 @@ open Common
 
 let send_draft_request req =
   let uuid = get_current_uuid () in
-  let* x = post_with_token (string_of_draft_request req) "drafts/%s" uuid in
+  let* x = Api.(post (draft uuid) req) in
   if x.code <> 200 then
     alert ("Draft request failed with error code " ^ string_of_int x.code);
   Cache.invalidate Cache.status;
@@ -60,11 +60,7 @@ let get_trustees () =
   let uuid = get_current_uuid () in
   let* status = Cache.get_until_success Cache.status in
   step := status.trustees_setup_step;
-  let* x =
-    get
-      (draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
-      "drafts/%s/trustees" uuid
-  in
+  let* x = Api.(get (draft_trustees uuid)) in
   ifmatch_tt := get_ifmatch x;
   match x with
   | Error e ->
@@ -85,16 +81,11 @@ let recompute_main_zone_1 () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
   let erase_trustee_elt t =
-    let encoded_trustee =
-      t |> Js.string |> Js.encodeURIComponent |> Js.to_string
-    in
     let elt = div ~a:[ a_class [ "del_sym" ] ] [] in
     let r = Tyxml_js.To_dom.of_div elt in
     r##.onclick :=
       lwt_handler (fun () ->
-          let* x =
-            delete_with_token "drafts/%s/trustees/%s" uuid encoded_trustee
-          in
+          let* x = Api.(delete (draft_trustee uuid t)) in
           match x.code with
           | 200 -> !update_main_zone ()
           | code ->
@@ -162,11 +153,8 @@ let recompute_main_zone_1 () =
             }
           in
           let r = `Add t in
-          let* x =
-            post_with_token ?ifmatch:!ifmatch_tt
-              (string_of_trustees_request r)
-              "drafts/%s/trustees" uuid
-          in
+          let ifmatch = !ifmatch_tt in
+          let* x = Api.(post ?ifmatch (draft_trustees uuid) r) in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
           match x.code with
@@ -226,12 +214,9 @@ let recompute_main_zone_1 () =
           in
           if ok then (
             let with_thr = not with_thr in
-            let mm =
-              string_of_trustees_request
-                (if with_thr then `SetThreshold 0 else `SetBasic)
-            in
+            let mm = if with_thr then `SetThreshold 0 else `SetBasic in
             let ifmatch = !ifmatch_tt in
-            let* x = post_with_token ?ifmatch mm "drafts/%s/trustees" uuid in
+            let* x = Api.(post ?ifmatch (draft_trustees uuid) mm) in
             match x.code with
             | 200 -> !update_main_zone ()
             | _ ->
@@ -259,9 +244,9 @@ let recompute_main_zone_1 () =
       r##.onchange :=
         lwt_handler (fun _ ->
             let vv = int_of_string (Js.to_string r##.value) in
-            let mm = string_of_trustees_request (`SetThreshold vv) in
+            let mm = `SetThreshold vv in
             let ifmatch = !ifmatch_tt in
-            let* x = post_with_token ?ifmatch mm "drafts/%s/trustees" uuid in
+            let* x = Api.(post ?ifmatch (draft_trustees uuid) mm) in
             match x.code with
             | 200 -> !update_main_zone ()
             | _ ->
@@ -298,12 +283,8 @@ let recompute_main_zone_1 () =
   let import_but =
     let@ () = button @@ s_ "Import trustees from another election" in
     let@ uuid = popup_choose_elec in
-    let r = `Import (Uuid.wrap uuid) in
-    let* x =
-      post_with_token
-        (string_of_trustees_request r)
-        "drafts/%s/trustees" (get_current_uuid ())
-    in
+    let r = `Import uuid in
+    let* x = Api.(post (draft_trustees uuid) r) in
     match x.code with
     | 200 ->
         let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
@@ -386,7 +367,9 @@ let string_of_state st =
 let maillink_of_token tk =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
-  let href = Printf.sprintf "%strustee#generate/%s/%s" prefix uuid tk in
+  let href =
+    Printf.sprintf "%strustee#generate/%s/%s" prefix (Uuid.unwrap uuid) tk
+  in
   Lwt.return @@ a ~href "Link"
 
 let all_ttee_done () =
@@ -396,7 +379,9 @@ let all_ttee_done () =
 let maillink_of_token_direct tk =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
-  let href = Printf.sprintf "%strustee#decrypt/%s/%s" prefix uuid tk in
+  let href =
+    Printf.sprintf "%strustee#decrypt/%s/%s" prefix (Uuid.unwrap uuid) tk
+  in
   Lwt.return @@ a ~href "Link"
 
 let recompute_main_zone_2 () =
@@ -474,9 +459,7 @@ let trustee_request req =
   Cache.invalidate Cache.e_status;
   let* status = Cache.get_until_success Cache.e_status in
   let ifmatch = Some (sha256_b64 @@ string_of_election_status status) in
-  let* x =
-    post_with_token ?ifmatch (string_of_admin_request req) "elections/%s" uuid
-  in
+  let* x = Api.(post ?ifmatch (election_status uuid) req) in
   match x.code with
   | 200 ->
       Cache.invalidate Cache.e_status;
@@ -512,9 +495,7 @@ let enough_pd () =
 
 let get_trustees_pd () =
   let uuid = get_current_uuid () in
-  let* x =
-    get partial_decryptions_of_string "elections/%s/partial-decryptions" uuid
-  in
+  let* x = Api.(get (election_partial_decryptions uuid)) in
   match x with
   | Error e ->
       alert (string_of_error e);
@@ -579,7 +560,7 @@ let main_zone_tallying () =
 let shuffles = ref None
 
 let get_shuffles uuid =
-  let* x = get shuffles_of_string "elections/%s/shuffles" uuid in
+  let* x = Api.(get (election_shuffles uuid)) in
   match x with
   | Error e ->
       alert (string_of_error e);
@@ -607,7 +588,9 @@ let ready_to_decrypt () =
 let shuffle_link token =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
-  let href = Printf.sprintf "%strustee#shuffle/%s/%s" prefix uuid token in
+  let href =
+    Printf.sprintf "%strustee#shuffle/%s/%s" prefix (Uuid.unwrap uuid) token
+  in
   Lwt.return @@ a ~href "Link"
 
 let main_zone_shuffling () =
@@ -648,14 +631,9 @@ let main_zone_shuffling () =
                   in
                   let make_but lab req =
                     button ~a:attr lab (fun () ->
-                        let encoded =
-                          t.shuffler_address |> Js.string
-                          |> Js.encodeURIComponent |> Js.to_string
-                        in
                         let* x =
-                          post_with_token
-                            (string_of_shuffler_request req)
-                            "elections/%s/shuffles/%s" uuid encoded
+                          Api.(
+                            post (election_shuffle uuid t.shuffler_address) req)
                         in
                         match x.code with
                         | 200 -> !update_main_zone ()
@@ -723,7 +701,7 @@ let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
   let checkpriv =
     let uuid = get_current_uuid () in
-    let href = "trustee#check/" ^ uuid in
+    let href = "trustee#check/" ^ Uuid.unwrap uuid in
     let label = s_ "Check private key ownership" in
     [
       h2 [ txt label ];

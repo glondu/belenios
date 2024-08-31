@@ -46,17 +46,17 @@ let regexps =
         "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees|status))?$",
       fun r ->
         match (Regexp.matched_group r 1, Regexp.matched_group r 3) with
-        | Some uuid, None -> `Draft (uuid, `Draft)
-        | Some uuid, Some "voters" -> `Draft (uuid, `Voters)
-        | Some uuid, Some "passwords" -> `Draft (uuid, `Passwords)
-        | Some uuid, Some "credentials" -> `Draft (uuid, `Credentials)
-        | Some uuid, Some "trustees" -> `Draft (uuid, `Trustees)
-        | Some uuid, Some "status" -> `Draft (uuid, `Status)
+        | Some uuid, None -> `Draft (Uuid.wrap uuid, `Draft)
+        | Some uuid, Some "voters" -> `Draft (Uuid.wrap uuid, `Voters)
+        | Some uuid, Some "passwords" -> `Draft (Uuid.wrap uuid, `Passwords)
+        | Some uuid, Some "credentials" -> `Draft (Uuid.wrap uuid, `Credentials)
+        | Some uuid, Some "trustees" -> `Draft (Uuid.wrap uuid, `Trustees)
+        | Some uuid, Some "status" -> `Draft (Uuid.wrap uuid, `Status)
         | _ -> `Error );
     ( Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
       fun r ->
         match (Regexp.matched_group r 1, Regexp.matched_group r 2) with
-        | Some uuid, Some token -> `Credentials (uuid, token)
+        | Some uuid, Some token -> `Credentials (Uuid.wrap uuid, token)
         | _ -> `Error );
     ( Regexp.regexp "^#elections/([0-9A-Za-z]+)$",
       fun r ->
@@ -83,18 +83,18 @@ let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
   let* configuration, configuration_opt =
-    let* x = get configuration_of_string "configuration" in
+    let* x = Api.(get ~notoken:true configuration) in
     let@ c, _ = with_ok_opt "configuration" x in
     Lwt.return [ txt (string_of_configuration c) ]
   in
   let* account, account_opt =
-    let* x = get api_account_of_string "account" in
+    let* x = Api.(get account) in
     let@ account, ifmatch = with_ok_opt "account" x in
     let account_str = string_of_api_account account in
     let t, tget = textarea ~rows:2 account_str in
     let b =
       let@ () = button "Save changes" in
-      let* x = put_with_token ~ifmatch (tget ()) "account" in
+      let* x = Api.(put ~ifmatch account (api_account_of_string (tget ()))) in
       let@ () = show_in main in
       let msg =
         match x.code with
@@ -106,7 +106,7 @@ let rec show_root main =
     in
     Lwt.return [ div [ t ]; div [ b ] ]
   in
-  let* x = get summary_list_of_string "drafts" in
+  let* x = Api.(get drafts) in
   let@ drafts, ifmatch = with_ok "drafts" x in
   let* drafts =
     drafts
@@ -115,7 +115,7 @@ let rec show_root main =
     |> fun xs -> Lwt.return [ ul xs ]
   in
   let* validated, tallied, archived =
-    let* x = get summary_list_of_string "elections" in
+    let* x = Api.(get elections) in
     match x with
     | Error e ->
         let msg =
@@ -183,7 +183,8 @@ let rec show_root main =
     let b =
       let@ () = button "Create new draft" in
       let* x =
-        post_with_token ~ifmatch (tget ()) "drafts" |> wrap uuid_of_string
+        Api.(post ~ifmatch drafts (draft_of_string (tget ())))
+        |> wrap uuid_of_string
       in
       match x with
       | Ok uuid ->
@@ -230,7 +231,7 @@ let show hash main =
   | `Draft (uuid, tab) -> Drafts.show main uuid tab context
   | `Election uuid ->
       context := `None;
-      Elections.show main (Uuid.unwrap uuid)
+      Elections.show main uuid
   | `Credentials (uuid, _) ->
       context := `None;
       Credentials.show main uuid

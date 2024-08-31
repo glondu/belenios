@@ -60,7 +60,7 @@ type ('a, 'b) xhr_helper = ('a, unit, string, 'b Lwt.t) format4 -> 'a
 type 'a raw_xhr_helper =
   ('a, Js_of_ocaml_lwt.XmlHttpRequest.http_frame) xhr_helper
 
-let delete_with_token ?ifmatch url =
+let raw_delete_with_token ?ifmatch url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
     match ifmatch with Some x -> [ ("If-Match", x) ] | None -> []
@@ -70,7 +70,7 @@ let delete_with_token ?ifmatch url =
     (fun x -> perform_raw_url ~headers ~override_method:`DELETE !/x)
     url
 
-let put_with_token ~ifmatch x url =
+let raw_put_with_token ~ifmatch x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers =
     [ ("Authorization", "Bearer " ^ !api_token); ("If-Match", ifmatch) ]
@@ -80,7 +80,7 @@ let put_with_token ~ifmatch x url =
     (fun x -> perform_raw_url ~headers ~contents ~override_method:`PUT !/x)
     url
 
-let post_with_token ?ifmatch x url =
+let raw_post_with_token ?ifmatch x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
     match ifmatch with Some x -> [ ("If-Match", x) ] | None -> []
@@ -93,7 +93,7 @@ let post_with_token ?ifmatch x url =
 
 let bad_result = Lwt.return (Error BadResult)
 
-let get ?(notoken = false) of_string url =
+let raw_get_with_token ?(notoken = false) of_string url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers =
     if notoken then None else Some [ ("Authorization", "Bearer " ^ !api_token) ]
@@ -114,6 +114,18 @@ let get ?(notoken = false) of_string url =
           in
           Lwt.return @@ Error x)
     url
+
+module Api = struct
+  include Belenios_api.Endpoints
+
+  let get ?notoken e = raw_get_with_token ?notoken e.of_string "%s" e.path
+  let put ~ifmatch e x = raw_put_with_token ~ifmatch (e.to_string x) "%s" e.path
+
+  let post ?ifmatch e x =
+    raw_post_with_token ?ifmatch (e.to_string_post x) "%s" e.path
+
+  let delete ?ifmatch e = raw_delete_with_token ?ifmatch "%s" e.path
+end
 
 let string_of_error = function
   | BadResult -> "bad result"

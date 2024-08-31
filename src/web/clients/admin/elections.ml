@@ -372,9 +372,7 @@ let tabs x =
             let ifmatch = sha256_b64 @@ string_of_election_status status in
             let ifmatch = Some ifmatch in
             let* x =
-              post_with_token ?ifmatch
-                (string_of_admin_request `ComputeEncryptedTally)
-                "elections/%s" uuid
+              Api.(post ?ifmatch (election_status uuid) `ComputeEncryptedTally)
             in
             match x.code with
             | 200 ->
@@ -389,39 +387,23 @@ let tabs x =
                         Some (sha256_b64 @@ string_of_election_status status)
                       in
                       let* x =
-                        post_with_token ?ifmatch
-                          (string_of_admin_request `FinishShuffling)
-                          "elections/%s" uuid
+                        Api.(
+                          post ?ifmatch (election_status uuid) `FinishShuffling)
                       in
                       (match x.code with
                       | 200 ->
                           Cache.invalidate Cache.e_status;
                           where_am_i :=
-                            Election
-                              {
-                                uuid = Uuid.wrap uuid;
-                                status = Tallied;
-                                tab = Status;
-                              }
+                            Election { uuid; status = Tallied; tab = Status }
                       | code ->
                           alert ("Failed with code " ^ string_of_int code);
                           where_am_i :=
-                            Election
-                              {
-                                uuid = Uuid.wrap uuid;
-                                status = Running;
-                                tab = Status;
-                              });
+                            Election { uuid; status = Running; tab = Status });
                       Lwt.return_unit)
                     else Lwt.return_unit
                   else (
                     where_am_i :=
-                      Election
-                        {
-                          uuid = Uuid.wrap uuid;
-                          status = Running;
-                          tab = Status;
-                        };
+                      Election { uuid; status = Running; tab = Status };
                     Lwt.return_unit)
                 in
                 !update_election_main ()
@@ -454,9 +436,8 @@ let tabs x =
         if confirm then (
           Cache.invalidate_all ();
           let* x =
-            delete_with_token
-              (if is_draft then "drafts/%s" else "elections/%s")
-              uuid
+            if is_draft then Api.(delete (draft uuid))
+            else Api.(delete (election uuid))
           in
           match x.code with
           | 200 ->
@@ -781,12 +762,8 @@ let voters_content () =
             let ifmatch = sha256_b64 @@ string_of_voter_list voters in
             let* () =
               let@ uuid = popup_choose_elec in
-              let r = `Import (Uuid.wrap uuid) in
-              let* x =
-                post_with_token ~ifmatch
-                  (string_of_voters_request r)
-                  "drafts/%s/voters" (get_current_uuid ())
-              in
+              let r = `Import uuid in
+              let* x = Api.(post ~ifmatch (draft_voters uuid) r) in
               if x.code <> 200 then
                 Printf.ksprintf alert "Failed with error code %d" x.code;
               Cache.invalidate Cache.voters;
@@ -1123,7 +1100,7 @@ let contact_content () =
 
 let send_draft_request req =
   let uuid = get_current_uuid () in
-  let* x = post_with_token (string_of_draft_request req) "drafts/%s" uuid in
+  let* x = Api.(post (draft uuid) req) in
   if x.code <> 200 then
     alert ("Draft request failed with error code " ^ string_of_int x.code);
   Lwt.return_unit
@@ -1185,8 +1162,7 @@ let credauth_content () =
     in
     let generate_but =
       button (s_ "Generate and send the credentials") (fun () ->
-          let op = string_of_public_credentials [] in
-          let* res = post_with_token op "drafts/%s/credentials/public" uuid in
+          let* res = Api.(post (draft_public_credentials uuid) []) in
           match res.code with
           | 200 -> !update_election_main ()
           | _ ->
@@ -1251,7 +1227,7 @@ let credauth_content () =
     in
     let* print_link =
       if has_name then
-        let* x = get (fun x -> x) "drafts/%s/credentials/token" uuid in
+        let* x = Api.(get (draft_credentials_token uuid)) in
         match x with
         | Error _ ->
             alert "Failed to get token";
@@ -1259,7 +1235,8 @@ let credauth_content () =
         | Ok (token, _) ->
             let* prefix = Cache.get_prefix () in
             let link =
-              Printf.sprintf "%scredauth#generate/%s/%s" prefix uuid token
+              Printf.sprintf "%scredauth#generate/%s/%s" prefix
+                (Uuid.unwrap uuid) token
             in
             Lwt.return
             @@ div
@@ -1287,9 +1264,7 @@ let credauth_content () =
   in
   (* The page content, when server is definitely chosen *)
   let* server_content =
-    let* priv =
-      get private_credentials_of_string "drafts/%s/credentials/private" uuid
-    in
+    let* priv = Api.(get (draft_private_credentials uuid)) in
     match priv with
     | Error _ -> Lwt.return @@ div [ txt "Error" ]
     | Ok (p, _) ->
@@ -1304,11 +1279,7 @@ let credauth_content () =
         let r = Tyxml_js.To_dom.of_a link in
         r##.onclick :=
           lwt_handler (fun () ->
-              let* x =
-                post_with_token
-                  (string_of_draft_request `SetDownloaded)
-                  "drafts/%s" uuid
-              in
+              let* x = Api.(post (draft uuid) `SetDownloaded) in
               match x.code with
               | 200 -> !update_election_main ()
               | _ ->
@@ -1437,9 +1408,8 @@ let voterspwd_content_draft () =
                                in
                                let ifmatch = sha256_b64 "[]" in
                                let* _ =
-                                 post_with_token ~ifmatch
-                                   (string_of_voter_list voters)
-                                   "drafts/%s/passwords" uuid
+                                 Api.(
+                                   post ~ifmatch (draft_passwords uuid) voters)
                                in
                                !update_election_main ())
                      in
@@ -1536,9 +1506,7 @@ let voterspwd_content_running () =
     let uuid = get_current_uuid () in
     let username = get_username () in
     let request = `RegeneratePassword username in
-    let* x =
-      post_with_token (string_of_admin_request request) "elections/%s" uuid
-    in
+    let* x = Api.(post (election_status uuid) request) in
     match x.code with
     | 200 ->
         let msg =
@@ -1581,11 +1549,7 @@ let create_content () =
     let uuid = get_current_uuid () in
     let but =
       button (s_ "Create") (fun () ->
-          let* x =
-            post_with_token
-              (string_of_draft_request `ValidateElection)
-              "drafts/%s" uuid
-          in
+          let* x = Api.(post (draft uuid) `ValidateElection) in
           let fail () =
             alert ("Failed with error code " ^ string_of_int x.code);
             Lwt.return_unit
@@ -1593,12 +1557,7 @@ let create_content () =
           match x.code with
           | 200 ->
               where_am_i :=
-                Election
-                  {
-                    uuid = Uuid.wrap uuid;
-                    status = Running;
-                    tab = CreateOpenClose;
-                  };
+                Election { uuid; status = Running; tab = CreateOpenClose };
               !update_election_main ()
           | 400 -> (
               match request_status_of_string x.content with
@@ -1610,7 +1569,7 @@ let create_content () =
                       let url =
                         Printf.sprintf
                           "%sdraft/prebilling?id=%s&cont=elections/%s@new"
-                          prefix id uuid
+                          prefix id (Uuid.unwrap uuid)
                       in
                       Dom_html.window##.location##.href := Js.string url;
                       Lwt.return_unit
@@ -1639,11 +1598,7 @@ let open_close_content () =
   in
   let but =
     button action (fun () ->
-        let* x =
-          post_with_token ?ifmatch
-            (string_of_admin_request request)
-            "elections/%s" uuid
-        in
+        let* x = Api.(post ?ifmatch (election_status uuid) request) in
         match x.code with
         | 200 ->
             Cache.invalidate Cache.e_status;
@@ -1728,7 +1683,9 @@ let status_content () =
           ]
     | `Archived ->
         let link =
-          a ~href:("elections/" ^ uuid ^ "/archive.zip") "archive.zip"
+          a
+            ~href:("elections/" ^ Uuid.unwrap uuid ^ "/archive.zip")
+            "archive.zip"
         in
         let but =
           button (s_ "Results page") (fun () -> Preview.goto_mainpage ())

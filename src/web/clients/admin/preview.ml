@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
+open Belenios
 open Belenios_js.Common
 open Common
 
@@ -33,7 +34,8 @@ let preview_booth () =
   | Error msg -> popup_failsync msg
   | Ok () ->
       let href =
-        "static/frontend/booth/vote.html#uuid=" ^ get_current_uuid ()
+        "static/frontend/booth/vote.html#uuid="
+        ^ Uuid.unwrap (get_current_uuid ())
         ^ "&draft=2"
       in
       let link = a ~a:[ a_target "_belenios_preview" ] ~href "Ok" in
@@ -61,7 +63,7 @@ let goto_mainpage () =
   match res with
   | Error msg -> popup_failsync msg
   | Ok () ->
-      let url = "elections/" ^ get_current_uuid () in
+      let url = "elections/" ^ Uuid.unwrap (get_current_uuid ()) in
       let link = a ~a:[ a_target "_belenios_mainpage" ] ~href:url "Ok" in
       let r = Tyxml_js.To_dom.of_a link in
       r##.onclick :=

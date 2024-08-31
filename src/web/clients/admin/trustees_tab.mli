@@ -22,5 +22,5 @@
 open Js_of_ocaml_tyxml.Tyxml_js
 open Belenios_api.Serializable_t
 
-val get_shuffles : string -> shuffles option Lwt.t
+val get_shuffles : uuid -> shuffles option Lwt.t
 val trustees_content : unit -> Html_types.div_content_fun Html.elt list Lwt.t

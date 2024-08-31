@@ -54,7 +54,7 @@ let header config =
   let* title, description =
     match !where_am_i with
     | Election { uuid; status = Draft; _ } -> (
-        let* x = get draft_of_string "drafts/%s" (Uuid.unwrap uuid) in
+        let* x = Api.(get (draft uuid)) in
         match x with
         | Ok (Draft (_, draft), _) ->
             Lwt.return
@@ -63,11 +63,10 @@ let header config =
         | Error _ ->
             Lwt.return (config.vendor ^^^ s_ "Administration" ^^^ "Error", ""))
     | Election { uuid; status = Running | Tallied | Archived; _ } -> (
-        let* x =
-          get Yojson.Safe.from_string "elections/%s/election" (Uuid.unwrap uuid)
-        in
+        let* x = Api.(get (election uuid)) in
         match x with
         | Ok (election, _) ->
+            let election = Yojson.Safe.from_string election in
             let name =
               match election with
               | `Assoc o -> (
@@ -133,7 +132,7 @@ let newdraft () =
     | Ok c -> Lwt.return @@ Some c
   in
   let* account_opt =
-    let* x = get api_account_of_string "account" in
+    let* x = Api.(get account) in
     match x with
     | Error e ->
         alert ("Failed to retrieve account info: " ^ string_of_error e);
@@ -189,7 +188,7 @@ let election_a2 (x : summary) status =
 
 let list_draft () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = get summary_list_of_string "drafts" in
+  let* x = Api.(get drafts) in
   let@ drafts, _ = with_ok "drafts" x in
   drafts
   |> List.sort (fun (a : summary) b -> compare b.date a.date)
@@ -204,7 +203,7 @@ let status_of_state = function
 
 let list_elec () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = get summary_list_of_string "elections" in
+  let* x = Api.(get elections) in
   match x with
   | Error e ->
       let msg =
@@ -286,7 +285,7 @@ let rec page_body () =
       ~a:[ a_id "create_new_election"; a_class [ "clickable" ] ]
       (s_ "Create a new election")
       (fun () ->
-        let* x = get summary_list_of_string "drafts" in
+        let* x = Api.(get drafts) in
         let ifmatch = get_ifmatch x in
         let (Version v) = default_version in
         let* dr = newdraft () in
@@ -295,9 +294,8 @@ let rec page_body () =
             alert "Creation failed: could not get config from server";
             Lwt.return_unit
         | Some d -> (
-            let dr = string_of_draft (Draft (v, d)) in
             let* x =
-              post_with_token ?ifmatch dr "drafts" |> wrap uuid_of_string
+              Api.(post ?ifmatch drafts (Draft (v, d))) |> wrap uuid_of_string
             in
             match x with
             | Ok uuid ->
@@ -448,7 +446,7 @@ let show_root main =
 
 let find_status uuid =
   let* is_draft =
-    let* x = get summary_list_of_string "drafts" in
+    let* x = Api.(get drafts) in
     match x with
     | Error _ -> Lwt.return false
     | Ok (drafts, _) ->
@@ -456,7 +454,7 @@ let find_status uuid =
   in
   if is_draft then Lwt.return (Some Draft)
   else
-    let* x = get summary_list_of_string "elections" in
+    let* x = Api.(get elections) in
     match x with
     | Error _ -> Lwt.return None
     | Ok (elecs, _) -> (

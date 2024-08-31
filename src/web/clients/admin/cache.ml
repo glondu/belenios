@@ -56,9 +56,10 @@ let get x =
       let url =
         match x.endpoint with
         | Plain x -> x
-        | WithUuid { fmt } -> Printf.sprintf fmt (get_current_uuid ())
+        | WithUuid { fmt } ->
+            Printf.sprintf fmt (Uuid.unwrap (get_current_uuid ()))
       in
-      let* content = get (fun x -> x) "%s" url in
+      let* content = raw_get_with_token Fun.id "%s" url in
       match content with
       | Error e -> (
           match e with
@@ -102,9 +103,10 @@ let sync_one x =
         let url =
           match x.endpoint with
           | Plain x -> x
-          | WithUuid { fmt } -> Printf.sprintf fmt (get_current_uuid ())
+          | WithUuid { fmt } ->
+              Printf.sprintf fmt (Uuid.unwrap (get_current_uuid ()))
         in
-        let* y = put_with_token ~ifmatch content_str "%s" url in
+        let* y = raw_put_with_token ~ifmatch content_str "%s" url in
         match y.code with
         | 200 ->
             x.dirty <- false;
