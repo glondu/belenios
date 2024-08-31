@@ -389,7 +389,7 @@ let footer configuration =
   Dom.appendChild dom (document##createTextNode (Js.string " "));
   let classical =
     let open (val l) in
-    a ~a:[ a_id "classical" ] ~href:"home" (s_ "Classical interface")
+    a ~a:[ a_id "classical" ] ~href:"." (s_ "Classical interface")
   in
   Dom.appendChild dom (Tyxml_js.To_dom.of_a classical);
   [ footer ]
