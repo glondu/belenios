@@ -189,14 +189,6 @@ let extract_uuid_and_token x =
   let token = String.sub x (j + 1) (n - j - 1) in
   Some (uuid, token)
 
-let build_election_url href uuid =
-  let base =
-    match String.split_on_char '/' href |> List.rev with
-    | _ :: _ :: base -> String.concat "/" (List.rev base)
-    | _ -> href
-  in
-  Printf.sprintf "%s/elections/%s/" base uuid
-
 let set_form_target id target uuid token =
   let action =
     [ ("uuid", uuid); ("token", token) ] |> Url.encode_arguments |> fun x ->
