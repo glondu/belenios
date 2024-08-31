@@ -45,6 +45,31 @@ let drop_leading_hash x =
   let n = String.length x in
   if n > 0 && x.[0] = '#' then String.sub x 1 (n - 1) else x
 
+let make_cookie_disclaimer configuration =
+  let open (val !I18n.gettext) in
+  let handler _ =
+    let xs = document##getElementsByClassName (Js.string "cookie-disclaimer") in
+    for i = 0 to xs##.length - 1 do
+      let@ x = Js.Opt.iter (xs##item i) in
+      let@ p = Js.Opt.iter x##.parentNode in
+      Dom.removeChild p x
+    done;
+    false
+  in
+  div
+    ~a:[ a_class [ "cookie-disclaimer" ] ]
+    [
+      txt @@ s_ "By using this site, you accept our ";
+      a ~href:configuration.uris.tos (s_ "terms of service");
+      txt ". ";
+      a ~href:""
+        ~a:
+          [
+            a_class [ "nice-button"; "nice-button--default" ]; a_onclick handler;
+          ]
+        (s_ "Close");
+    ]
+
 module Make (App : APP) () = struct
   let full_title = span [ txt "Belenios" ]
   let main_zone = Dom_html.createDiv document
@@ -100,7 +125,9 @@ module Make (App : APP) () = struct
       let@ () = show_in document##.body in
       let* lang_box = Ui.lang_box l in
       let content = [ Tyxml_js.Of_dom.of_div main_zone ] in
-      Ui.base_body l ~lang_box ~full_title ~content ~footer ~warning ()
+      let sticky_footer = make_cookie_disclaimer configuration in
+      Ui.base_body l ~lang_box ~full_title ~content ~footer ~warning
+        ~sticky_footer ()
       |> Lwt.return
     in
     let () =
