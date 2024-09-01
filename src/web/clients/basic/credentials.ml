@@ -28,10 +28,11 @@ open Belenios_api
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
+open Common
 
 let show main uuid =
   let@ () = show_in main in
-  let* x = Api.(get ~notoken:true (draft uuid)) in
+  let* x = Api.(get (draft uuid) `Nobody) in
   match x with
   | Error e ->
       let msg =
@@ -41,7 +42,7 @@ let show main uuid =
       Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
   | Ok (Draft (_, draft), _) ->
       let* voters =
-        let* x = Api.(get (draft_voters uuid)) in
+        let* x = Api.(get (draft_voters uuid) !user) in
         match x with
         | Error e ->
             let msg =
@@ -89,7 +90,7 @@ let show main uuid =
               let b =
                 let@ () = button "Send public credentials to server" in
                 let* x =
-                  Api.(post (draft_public_credentials uuid) public_creds)
+                  Api.(post (draft_public_credentials uuid) !user public_creds)
                 in
                 let@ () = show_in button_container in
                 let msg =

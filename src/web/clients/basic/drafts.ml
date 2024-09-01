@@ -37,14 +37,16 @@ let show_draft_main show_all uuid draft container =
   let ifmatch = sha256_b64 draft_str in
   let button_save =
     let@ () = button "Save changes" in
-    let* x = Api.(put ~ifmatch (draft uuid) (draft_of_string (tget ()))) in
+    let* x =
+      Api.(put ~ifmatch (draft uuid) !user (draft_of_string (tget ())))
+    in
     let@ () = show_in container in
     generic_proceed x show_all
   in
   let button_delete =
     let@ () = button "Delete draft" in
     if confirm "Are you sure?" then (
-      let* x = Api.(delete (draft uuid)) in
+      let* x = Api.(delete (draft uuid) !user) in
       let@ () = show_in container in
       let@ () = generic_proceed x in
       Dom_html.window##.location##.hash := Js.string "";
@@ -55,14 +57,15 @@ let show_draft_main show_all uuid draft container =
 
 let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
-  let* x = Api.(get (draft_voters uuid)) in
+  let* x = Api.(get (draft_voters uuid) !user) in
   let@ voters, ifmatch = with_ok "voters" x in
   let voters_str = string_of_voter_list voters in
   let t, tget = textarea voters_str in
   let b =
     let@ () = button "Save changes" in
     let* x =
-      Api.(put ~ifmatch (draft_voters uuid) (voter_list_of_string (tget ())))
+      Api.(
+        put ~ifmatch (draft_voters uuid) !user (voter_list_of_string (tget ())))
     in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
@@ -72,7 +75,7 @@ let rec show_draft_voters uuid draft container =
     let b =
       let@ () = button "Import voters" in
       let r = `Import (Uuid.wrap (iget ())) in
-      let* x = Api.(post ~ifmatch (draft_voters uuid) r) in
+      let* x = Api.(post ~ifmatch (draft_voters uuid) !user r) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
     in
@@ -82,9 +85,9 @@ let rec show_draft_voters uuid draft container =
 
 let rec show_draft_passwords uuid container =
   let@ () = show_in container in
-  let* x = Api.(get (draft_voters uuid)) in
+  let* x = Api.(get (draft_voters uuid) !user) in
   let@ voters, _ = with_ok "voters" x in
-  let* x = Api.(get (draft_passwords uuid)) in
+  let* x = Api.(get (draft_passwords uuid) !user) in
   let@ x, ifmatch = with_ok "passwords" x in
   let missing =
     let x =
@@ -104,7 +107,8 @@ let rec show_draft_passwords uuid container =
     let@ () = button "Generate and send passwords" in
     let* x =
       Api.(
-        post ~ifmatch (draft_passwords uuid) (voter_list_of_string (t2get ())))
+        post ~ifmatch (draft_passwords uuid) !user
+          (voter_list_of_string (t2get ())))
     in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_passwords uuid container)
@@ -113,17 +117,17 @@ let rec show_draft_passwords uuid container =
 
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
-  let* x = Api.(get (draft_public_credentials uuid)) in
+  let* x = Api.(get (draft_public_credentials uuid) !user) in
   let@ x = with_ok_not_found "credentials" x in
   match x with
   | None -> (
-      let* x = Api.(get (draft_credentials_token uuid)) in
+      let* x = Api.(get (draft_credentials_token uuid) !user) in
       let@ x = with_ok_not_found "token" x in
       match x with
       | None ->
           let b =
             let@ () = button "Generate on server" in
-            let* x = Api.(post (draft_public_credentials uuid) []) in
+            let* x = Api.(post (draft_public_credentials uuid) !user []) in
             let@ () = show_in container in
             generic_proceed x (fun () -> show_draft_credentials uuid container)
           in
@@ -154,7 +158,7 @@ type trustee_with_writer =
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
-  let* x = Api.(get (draft_trustees uuid)) in
+  let* x = Api.(get (draft_trustees uuid) !user) in
   let@ trustees, ifmatch = with_ok "trustees" x in
   let trustees =
     draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json
@@ -185,7 +189,7 @@ let rec show_draft_trustees uuid container =
             alert "Unrecognized mode";
             Lwt.return_unit
       in
-      let* x = Api.(post ~ifmatch (draft_trustees uuid) request) in
+      let* x = Api.(post ~ifmatch (draft_trustees uuid) !user request) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
@@ -207,7 +211,7 @@ let rec show_draft_trustees uuid container =
         let content =
           let b =
             let@ () = button "Delete" in
-            let* x = Api.(delete (draft_trustee uuid trustee_address)) in
+            let* x = Api.(delete (draft_trustee uuid trustee_address) !user) in
             let@ () = show_in container in
             generic_proceed x (fun () -> show_draft_trustees uuid container)
           in
@@ -221,7 +225,7 @@ let rec show_draft_trustees uuid container =
   let b =
     let@ () = button "Add trustee" in
     let r = `Add (trustee_of_string Yojson.Safe.read_json (t2get ())) in
-    let* x = Api.(post ~ifmatch (draft_trustees uuid) r) in
+    let* x = Api.(post ~ifmatch (draft_trustees uuid) !user r) in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
@@ -230,7 +234,7 @@ let rec show_draft_trustees uuid container =
     let b =
       let@ () = button "Import trustees" in
       let r = `Import (Uuid.wrap (iget ())) in
-      let* x = Api.(post ~ifmatch (draft_trustees uuid) r) in
+      let* x = Api.(post ~ifmatch (draft_trustees uuid) !user r) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
     in
@@ -241,12 +245,12 @@ let rec show_draft_trustees uuid container =
 
 let rec show_draft_status uuid container =
   let@ () = show_in container in
-  let* x = Api.(get (draft_status uuid)) in
+  let* x = Api.(get (draft_status uuid) !user) in
   let@ status, _ = with_ok "status" x in
   let t, _ = textarea (string_of_draft_status status) in
   let b label r =
     let@ () = button label in
-    let* x = Api.(post (draft uuid) r) in
+    let* x = Api.(post (draft uuid) !user r) in
     let@ () = show_in container in
     let@ () = generic_proceed x in
     match (r, x.code) with
@@ -295,7 +299,7 @@ let a_draft_tab uuid tab =
 
 let show main uuid tab context =
   let rec show_all () =
-    let* x = Api.(get (draft uuid)) in
+    let* x = Api.(get (draft uuid) `Nobody) in
     match x with
     | Error e ->
         let@ () = show_in main in

@@ -146,7 +146,7 @@ module Make (App : APP) () = struct
     Dom_html.window##.onload :=
       let@ () = lwt_handler in
       let@ configuration cont =
-        let* x = Api.(get ~notoken:true configuration) in
+        let* x = Api.(get configuration `Nobody) in
         match x with
         | Error _ ->
             alert "Could not get server configuration!";

@@ -59,7 +59,7 @@ let get x =
         | WithUuid { fmt } ->
             Printf.sprintf fmt (Uuid.unwrap (get_current_uuid ()))
       in
-      let* content = raw_get_with_token Fun.id "%s" url in
+      let* content = raw_get_with_token ~token:!token Fun.id "%s" url in
       match content with
       | Error e -> (
           match e with
@@ -106,7 +106,9 @@ let sync_one x =
           | WithUuid { fmt } ->
               Printf.sprintf fmt (Uuid.unwrap (get_current_uuid ()))
         in
-        let* y = raw_put_with_token ~ifmatch content_str "%s" url in
+        let* y =
+          raw_put_with_token ~ifmatch ~token:!token content_str "%s" url
+        in
         match y.code with
         | 200 ->
             x.dirty <- false;

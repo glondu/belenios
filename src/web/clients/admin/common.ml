@@ -23,6 +23,9 @@ open Js_of_ocaml
 open Belenios
 open Belenios_js.Common
 
+let token = ref None
+let user = ref (`Admin "")
+
 let logout () =
   let url = "logout?cont=home@new" in
   Dom_html.window##.location##assign (Js.string url);
@@ -99,7 +102,7 @@ open Belenios_js.Session
 
 let popup_choose_elec handler =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = Api.(get elections) in
+  let* x = Api.(get elections !user) in
   match x with
   | Error e ->
       let msg =
@@ -111,7 +114,7 @@ let popup_choose_elec handler =
       Lwt.return_unit
   | Ok (elections, _) ->
       let@ elections cont =
-        let* x = Api.(get drafts) in
+        let* x = Api.(get drafts !user) in
         match x with
         | Error e ->
             let msg =

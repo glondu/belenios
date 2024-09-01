@@ -54,7 +54,7 @@ let header config =
   let* title, description =
     match !where_am_i with
     | Election { uuid; status = Draft; _ } -> (
-        let* x = Api.(get (draft uuid)) in
+        let* x = Api.(get (draft uuid) `Nobody) in
         match x with
         | Ok (Draft (_, draft), _) ->
             Lwt.return
@@ -63,7 +63,7 @@ let header config =
         | Error _ ->
             Lwt.return (config.vendor ^^^ s_ "Administration" ^^^ "Error", ""))
     | Election { uuid; status = Running | Tallied | Archived; _ } -> (
-        let* x = Api.(get (election uuid)) in
+        let* x = Api.(get (election uuid) `Nobody) in
         match x with
         | Ok (election, _) ->
             let election = Yojson.Safe.from_string election in
@@ -132,7 +132,7 @@ let newdraft () =
     | Ok c -> Lwt.return @@ Some c
   in
   let* account_opt =
-    let* x = Api.(get account) in
+    let* x = Api.(get account !user) in
     match x with
     | Error e ->
         alert ("Failed to retrieve account info: " ^ string_of_error e);
@@ -188,7 +188,7 @@ let election_a2 (x : summary) status =
 
 let list_draft () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = Api.(get drafts) in
+  let* x = Api.(get drafts !user) in
   let@ drafts, _ = with_ok "drafts" x in
   drafts
   |> List.sort (fun (a : summary) b -> compare b.date a.date)
@@ -203,7 +203,7 @@ let status_of_state = function
 
 let list_elec () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = Api.(get elections) in
+  let* x = Api.(get elections !user) in
   match x with
   | Error e ->
       let msg =
@@ -285,7 +285,7 @@ let rec page_body () =
       ~a:[ a_id "create_new_election"; a_class [ "clickable" ] ]
       (s_ "Create a new election")
       (fun () ->
-        let* x = Api.(get drafts) in
+        let* x = Api.(get drafts !user) in
         let ifmatch = get_ifmatch x in
         let (Version v) = default_version in
         let* dr = newdraft () in
@@ -295,7 +295,8 @@ let rec page_body () =
             Lwt.return_unit
         | Some d -> (
             let* x =
-              Api.(post ?ifmatch drafts (Draft (v, d))) |> wrap uuid_of_string
+              Api.(post ?ifmatch drafts !user (Draft (v, d)))
+              |> wrap uuid_of_string
             in
             match x with
             | Ok uuid ->
@@ -446,7 +447,7 @@ let show_root main =
 
 let find_status uuid =
   let* is_draft =
-    let* x = Api.(get drafts) in
+    let* x = Api.(get drafts !user) in
     match x with
     | Error _ -> Lwt.return false
     | Ok (drafts, _) ->
@@ -454,7 +455,7 @@ let find_status uuid =
   in
   if is_draft then Lwt.return (Some Draft)
   else
-    let* x = Api.(get elections) in
+    let* x = Api.(get elections !user) in
     match x with
     | Error _ -> Lwt.return None
     | Ok (elecs, _) -> (
@@ -468,7 +469,13 @@ let onhashchange () =
   let* () = Cache.sync_until_success () in
   Cache.invalidate_all ();
   let hash = parse_hash () in
-  let* () = init_api_token ~ui:"new" hash in
+  let* () =
+    init_api_token
+      (fun t ->
+        token := Some t;
+        user := `Admin t)
+      ~ui:"new" hash
+  in
   let* () =
     let* account = Cache.(get account) in
     match account with

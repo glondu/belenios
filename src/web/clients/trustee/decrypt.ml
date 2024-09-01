@@ -96,16 +96,15 @@ let decrypt uuid ~token =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
   let@ trustee cont =
-    Api.set_token token;
-    let* x = Api.(get (trustee_election uuid)) in
+    let* x = Api.(get (trustee_election uuid) (`Trustee token)) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ election cont =
-    let* x = Api.(get ~notoken:true (election uuid)) in
+    let* x = Api.(get (election uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ encrypted_tally cont =
-    let* x = Api.(get ~notoken:true (election_encrypted_tally uuid)) in
+    let* x = Api.(get (election_encrypted_tally uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
@@ -147,8 +146,9 @@ let decrypt uuid ~token =
   let partial_decryption = ref "" in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in
-    let () = Api.set_token token in
-    let* x = Api.(post (trustee_election uuid) !partial_decryption) in
+    let* x =
+      Api.(post (trustee_election uuid) (`Trustee token) !partial_decryption)
+    in
     let msg =
       match x.code with
       | 200 -> s_ "Your partial decryption has been received and checked!"

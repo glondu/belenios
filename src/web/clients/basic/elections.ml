@@ -31,21 +31,21 @@ open Common
 
 let rec show main uuid =
   let@ () = show_in main in
-  let* x = Api.(get (election uuid)) in
+  let* x = Api.(get (election uuid) `Nobody) in
   let@ raw_election, _ = with_ok "election" x in
-  let* x = Api.(get (election_status uuid)) in
+  let* x = Api.(get (election_status uuid) `Nobody) in
   let ifmatch = get_ifmatch x in
   let@ status, _ = with_ok "status" x in
   let make label request =
     let@ () = button label in
-    let* x = Api.(post ?ifmatch (election_status uuid) request) in
+    let* x = Api.(post ?ifmatch (election_status uuid) !user request) in
     let@ () = show_in main in
     generic_proceed x (fun () -> show main uuid)
   in
   let button_delete =
     let@ () = button "Delete election" in
     if confirm "Are you sure?" then (
-      let* x = Api.(delete (election uuid)) in
+      let* x = Api.(delete (election uuid) !user) in
       let@ () = show_in main in
       let@ () = generic_proceed x in
       Dom_html.window##.location##.hash := Js.string "";
@@ -68,7 +68,7 @@ let rec show main uuid =
     if y = "" then None else Some (Js.date##parse (Js.string y) /. 1000.)
   in
   let* auto_dates =
-    let* x = Api.(get (election_auto_dates uuid)) in
+    let* x = Api.(get (election_auto_dates uuid) `Nobody) in
     let@ dates, ifmatch = with_ok "automatic-dates" x in
     let make_input d =
       let value =
@@ -92,7 +92,7 @@ let rec show main uuid =
           auto_date_publish = get_date auto_publish;
         }
       in
-      let* x = Api.(put ~ifmatch (election_auto_dates uuid) dates) in
+      let* x = Api.(put ~ifmatch (election_auto_dates uuid) !user dates) in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
@@ -103,14 +103,14 @@ let rec show main uuid =
     let set_button =
       let@ () = button "Regenerate a password" in
       let request = `RegeneratePassword (iget ()) in
-      let* x = Api.(post ?ifmatch (election_status uuid) request) in
+      let* x = Api.(post ?ifmatch (election_status uuid) !user request) in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
     [ i; set_button ]
   in
   let make what e =
-    let* x = Api.get e in
+    let* x = Api.get e !user in
     let@ voters, _ = with_ok what x in
     let t, _ = textarea (e.to_string voters) in
     Lwt.return [ t ]
@@ -125,7 +125,7 @@ let rec show main uuid =
     let i, iget = input "" in
     let make label request =
       let@ () = button label in
-      let* x = Api.(post (election_shuffle uuid (iget ())) request) in
+      let* x = Api.(post (election_shuffle uuid (iget ())) !user request) in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in

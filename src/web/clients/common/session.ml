@@ -26,19 +26,17 @@ open Belenios
 open Belenios_api.Serializable_j
 open Common
 
-let api_token = ref ""
-
-let init_api_token ~ui hash =
+let init_api_token set_api_token ~ui hash =
   match hash with
   | `Credentials (_, token) ->
-      api_token := token;
+      set_api_token token;
       Lwt.return_unit
   | `Error -> Lwt.return_unit
   | _ ->
       let open Js_of_ocaml_lwt.XmlHttpRequest in
       let* x = get !!"api-token" in
       if x.code = 200 then (
-        api_token := x.content;
+        set_api_token x.content;
         Lwt.return_unit)
       else
         let target =
@@ -60,32 +58,43 @@ type ('a, 'b) xhr_helper = ('a, unit, string, 'b Lwt.t) format4 -> 'a
 type 'a raw_xhr_helper =
   ('a, Js_of_ocaml_lwt.XmlHttpRequest.http_frame) xhr_helper
 
-let raw_delete_with_token ?ifmatch url =
+let raw_delete_with_token ?ifmatch ~token url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
     match ifmatch with Some x -> [ ("If-Match", x) ] | None -> []
   in
-  let headers = ("Authorization", "Bearer " ^ !api_token) :: ifmatch in
+  let headers =
+    match token with
+    | None -> ifmatch
+    | Some token -> ("Authorization", "Bearer " ^ token) :: ifmatch
+  in
   Printf.ksprintf
     (fun x -> perform_raw_url ~headers ~override_method:`DELETE !/x)
     url
 
-let raw_put_with_token ~ifmatch x url =
+let raw_put_with_token ~ifmatch ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let ifmatch = [ ("If-Match", ifmatch) ] in
   let headers =
-    [ ("Authorization", "Bearer " ^ !api_token); ("If-Match", ifmatch) ]
+    match token with
+    | None -> ifmatch
+    | Some token -> ("Authorization", "Bearer " ^ token) :: ifmatch
   in
   let contents = `String x in
   Printf.ksprintf
     (fun x -> perform_raw_url ~headers ~contents ~override_method:`PUT !/x)
     url
 
-let raw_post_with_token ?ifmatch x url =
+let raw_post_with_token ?ifmatch ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
     match ifmatch with Some x -> [ ("If-Match", x) ] | None -> []
   in
-  let headers = ("Authorization", "Bearer " ^ !api_token) :: ifmatch in
+  let headers =
+    match token with
+    | None -> ifmatch
+    | Some token -> ("Authorization", "Bearer " ^ token) :: ifmatch
+  in
   let contents = `String x in
   Printf.ksprintf
     (fun x -> perform_raw_url ~headers ~contents ~override_method:`POST !/x)
@@ -93,10 +102,12 @@ let raw_post_with_token ?ifmatch x url =
 
 let bad_result = Lwt.return (Error BadResult)
 
-let raw_get_with_token ?(notoken = false) of_string url =
+let raw_get_with_token ~token of_string url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let headers =
-    if notoken then None else Some [ ("Authorization", "Bearer " ^ !api_token) ]
+    match token with
+    | None -> None
+    | Some token -> Some [ ("Authorization", "Bearer " ^ token) ]
   in
   Printf.ksprintf
     (fun x ->
@@ -118,14 +129,23 @@ let raw_get_with_token ?(notoken = false) of_string url =
 module Api = struct
   include Belenios_api.Endpoints
 
-  let set_token x = api_token := x
-  let get ?notoken e = raw_get_with_token ?notoken e.of_string "%s" e.path
-  let put ~ifmatch e x = raw_put_with_token ~ifmatch (e.to_string x) "%s" e.path
+  let get_token = function
+    | `Nobody -> None
+    | `Admin token -> Some token
+    | `Credauth token -> Some token
+    | `Trustee token -> Some token
 
-  let post ?ifmatch e x =
-    raw_post_with_token ?ifmatch (e.to_string_post x) "%s" e.path
+  let get e u = raw_get_with_token ~token:(get_token u) e.of_string "%s" e.path
 
-  let delete ?ifmatch e = raw_delete_with_token ?ifmatch "%s" e.path
+  let put ~ifmatch e u x =
+    raw_put_with_token ~ifmatch ~token:(get_token u) (e.to_string x) "%s" e.path
+
+  let post ?ifmatch e u x =
+    raw_post_with_token ?ifmatch ~token:(get_token u) (e.to_string_post x) "%s"
+      e.path
+
+  let delete ?ifmatch e u =
+    raw_delete_with_token ?ifmatch ~token:(get_token u) "%s" e.path
 end
 
 let string_of_error = function

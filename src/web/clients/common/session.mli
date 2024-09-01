@@ -25,6 +25,7 @@ open Belenios
 (** Session management *)
 
 val init_api_token :
+  (string -> unit) ->
   ui:string ->
   [> `Credentials of 'a * string | `Election of Uuid.t | `Error ] ->
   unit Lwt.t
@@ -41,36 +42,40 @@ type ('a, 'b) xhr_helper = ('a, unit, string, 'b Lwt.t) format4 -> 'a
 type 'a raw_xhr_helper =
   ('a, Js_of_ocaml_lwt.XmlHttpRequest.http_frame) xhr_helper
 
-val raw_put_with_token : ifmatch:string -> string -> 'a raw_xhr_helper
+val raw_put_with_token :
+  ifmatch:string -> token:string option -> string -> 'a raw_xhr_helper
 
 val raw_get_with_token :
-  ?notoken:bool ->
+  token:string option ->
   (string -> 'a) ->
   ('b, ('a * string, xhr_result) result) xhr_helper
 
 module Api : sig
   include module type of Belenios_api.Endpoints
 
-  val set_token : string -> unit
-
   val get :
-    ?notoken:bool -> ('a, 'b) t -> ('a * string, xhr_result) result Lwt.t
+    (([< user ] as 'user), 'a, 'b) t ->
+    'user ->
+    ('a * string, xhr_result) result Lwt.t
 
   val put :
     ifmatch:string ->
-    ('a, 'b) t ->
+    (([< user ] as 'user), 'a, 'b) t ->
+    'user ->
     'a ->
     Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t
 
   val post :
     ?ifmatch:string ->
-    ('a, 'b) t ->
+    (([< user ] as 'user), 'a, 'b) t ->
+    'user ->
     'b ->
     Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t
 
   val delete :
     ?ifmatch:string ->
-    ('a, 'b) t ->
+    (([< user ] as 'user), 'a, 'b) t ->
+    'user ->
     Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t
 end
 

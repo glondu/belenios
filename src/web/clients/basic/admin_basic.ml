@@ -28,6 +28,7 @@ open Belenios_api
 open Tyxml_js.Html5
 open Belenios_js.Common
 open Belenios_js.Session
+open Common
 
 let context = ref `None
 
@@ -83,18 +84,20 @@ let rec show_root main =
   main##.innerHTML := Js.string "Loading...";
   let@ () = show_in main in
   let* configuration, configuration_opt =
-    let* x = Api.(get ~notoken:true configuration) in
+    let* x = Api.(get configuration `Nobody) in
     let@ c, _ = with_ok_opt "configuration" x in
     Lwt.return [ txt (string_of_configuration c) ]
   in
   let* account, account_opt =
-    let* x = Api.(get account) in
+    let* x = Api.(get account !user) in
     let@ account, ifmatch = with_ok_opt "account" x in
     let account_str = string_of_api_account account in
     let t, tget = textarea ~rows:2 account_str in
     let b =
       let@ () = button "Save changes" in
-      let* x = Api.(put ~ifmatch account (api_account_of_string (tget ()))) in
+      let* x =
+        Api.(put ~ifmatch account !user (api_account_of_string (tget ())))
+      in
       let@ () = show_in main in
       let msg =
         match x.code with
@@ -106,7 +109,7 @@ let rec show_root main =
     in
     Lwt.return [ div [ t ]; div [ b ] ]
   in
-  let* x = Api.(get drafts) in
+  let* x = Api.(get drafts !user) in
   let@ drafts, ifmatch = with_ok "drafts" x in
   let* drafts =
     drafts
@@ -115,7 +118,7 @@ let rec show_root main =
     |> fun xs -> Lwt.return [ ul xs ]
   in
   let* validated, tallied, archived =
-    let* x = Api.(get elections) in
+    let* x = Api.(get elections !user) in
     match x with
     | Error e ->
         let msg =
@@ -183,7 +186,7 @@ let rec show_root main =
     let b =
       let@ () = button "Create new draft" in
       let* x =
-        Api.(post ~ifmatch drafts (draft_of_string (tget ())))
+        Api.(post ~ifmatch drafts !user (draft_of_string (tget ())))
         |> wrap uuid_of_string
       in
       match x with
@@ -236,9 +239,11 @@ let show hash main =
       context := `None;
       Credentials.show main uuid
 
+let set_api_token t = user := `Admin t
+
 let onhashchange () =
   let hash = parse_hash () in
-  let* () = init_api_token ~ui:"basic" hash in
+  let* () = init_api_token set_api_token ~ui:"basic" hash in
   show hash document##.body
 
 let onload () =
@@ -250,7 +255,7 @@ let onload () =
   in
   let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
   let hash = parse_hash () in
-  let* () = init_api_token ~ui:"basic" hash in
+  let* () = init_api_token set_api_token ~ui:"basic" hash in
   show hash document##.body
 
 let () =

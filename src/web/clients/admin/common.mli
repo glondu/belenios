@@ -23,6 +23,8 @@ open Belenios
 
 (** Session management *)
 
+val token : string option ref
+val user : Belenios_api.Endpoints.admin ref
 val logout : unit -> unit Lwt.t
 
 (** Context *)

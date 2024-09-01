@@ -31,7 +31,7 @@ open Common
 
 let send_draft_request req =
   let uuid = get_current_uuid () in
-  let* x = Api.(post (draft uuid) req) in
+  let* x = Api.(post (draft uuid) !user req) in
   if x.code <> 200 then
     alert ("Draft request failed with error code " ^ string_of_int x.code);
   Cache.invalidate Cache.status;
@@ -60,7 +60,7 @@ let get_trustees () =
   let uuid = get_current_uuid () in
   let* status = Cache.get_until_success Cache.status in
   step := status.trustees_setup_step;
-  let* x = Api.(get (draft_trustees uuid)) in
+  let* x = Api.(get (draft_trustees uuid) !user) in
   ifmatch_tt := get_ifmatch x;
   match x with
   | Error e ->
@@ -87,7 +87,7 @@ let recompute_main_zone_1 () =
     let r = Tyxml_js.To_dom.of_div elt in
     r##.onclick :=
       lwt_handler (fun () ->
-          let* x = Api.(delete (draft_trustee uuid t)) in
+          let* x = Api.(delete (draft_trustee uuid t) !user) in
           match x.code with
           | 200 -> !update_main_zone ()
           | code ->
@@ -156,7 +156,7 @@ let recompute_main_zone_1 () =
           in
           let r = `Add t in
           let ifmatch = !ifmatch_tt in
-          let* x = Api.(post ?ifmatch (draft_trustees uuid) r) in
+          let* x = Api.(post ?ifmatch (draft_trustees uuid) !user r) in
           let&&* d = document##getElementById (Js.string "popup") in
           d##.style##.display := Js.string "none";
           match x.code with
@@ -218,7 +218,7 @@ let recompute_main_zone_1 () =
             let with_thr = not with_thr in
             let mm = if with_thr then `SetThreshold 0 else `SetBasic in
             let ifmatch = !ifmatch_tt in
-            let* x = Api.(post ?ifmatch (draft_trustees uuid) mm) in
+            let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
             match x.code with
             | 200 -> !update_main_zone ()
             | _ ->
@@ -248,7 +248,7 @@ let recompute_main_zone_1 () =
             let vv = int_of_string (Js.to_string r##.value) in
             let mm = `SetThreshold vv in
             let ifmatch = !ifmatch_tt in
-            let* x = Api.(post ?ifmatch (draft_trustees uuid) mm) in
+            let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
             match x.code with
             | 200 -> !update_main_zone ()
             | _ ->
@@ -286,7 +286,7 @@ let recompute_main_zone_1 () =
     let@ () = button @@ s_ "Import trustees from another election" in
     let@ uuid = popup_choose_elec in
     let r = `Import uuid in
-    let* x = Api.(post (draft_trustees uuid) r) in
+    let* x = Api.(post (draft_trustees uuid) !user r) in
     match x.code with
     | 200 ->
         let* () = send_draft_request @@ `SetTrusteesSetupStep 3 in
@@ -461,7 +461,7 @@ let trustee_request req =
   Cache.invalidate Cache.e_status;
   let* status = Cache.get_until_success Cache.e_status in
   let ifmatch = Some (sha256_b64 @@ string_of_election_status status) in
-  let* x = Api.(post ?ifmatch (election_status uuid) req) in
+  let* x = Api.(post ?ifmatch (election_status uuid) !user req) in
   match x.code with
   | 200 ->
       Cache.invalidate Cache.e_status;
@@ -497,7 +497,7 @@ let enough_pd () =
 
 let get_trustees_pd () =
   let uuid = get_current_uuid () in
-  let* x = Api.(get (election_partial_decryptions uuid)) in
+  let* x = Api.(get (election_partial_decryptions uuid) !user) in
   match x with
   | Error e ->
       alert (string_of_error e);
@@ -562,7 +562,7 @@ let main_zone_tallying () =
 let shuffles = ref None
 
 let get_shuffles uuid =
-  let* x = Api.(get (election_shuffles uuid)) in
+  let* x = Api.(get (election_shuffles uuid) !user) in
   match x with
   | Error e ->
       alert (string_of_error e);
@@ -635,7 +635,9 @@ let main_zone_shuffling () =
                     button ~a:attr lab (fun () ->
                         let* x =
                           Api.(
-                            post (election_shuffle uuid t.shuffler_address) req)
+                            post
+                              (election_shuffle uuid t.shuffler_address)
+                              !user req)
                         in
                         match x.code with
                         | 200 -> !update_main_zone ()

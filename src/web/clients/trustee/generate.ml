@@ -123,8 +123,7 @@ let generate_key ~token ~url generate =
           r##.onclick :=
             let@ () = lwt_handler in
             Dom.removeChild container r;
-            let () = Api.set_token token in
-            let* x = Api.(post url p.public_key) in
+            let* x = Api.(post url (`Trustee token) p.public_key) in
             let msg =
               match x.code with
               | 200 -> s_ "Public key registration succeeded!"
@@ -244,8 +243,7 @@ let compute_threshold_step ~token ~url draft pedersen =
               r##.onclick :=
                 let@ () = lwt_handler in
                 Dom.removeChild container r;
-                let () = Api.set_token token in
-                let* x = Api.(post url data) in
+                let* x = Api.(post url (`Trustee token) data) in
                 let msg =
                   match x.code with
                   | 200 ->
@@ -334,12 +332,11 @@ let actionable_threshold ~token ~url draft = function
 let generate configuration uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let@ draft cont =
-    let* x = Api.(get ~notoken:true (draft uuid)) in
+    let* x = Api.(get (draft uuid) `Nobody) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let () = Api.set_token token in
   let url = Api.trustee_draft uuid in
-  let* status = Api.(get url) in
+  let* status = Api.(get url (`Trustee token)) in
   let status =
     match status with
     | Error _ -> None

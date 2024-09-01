@@ -42,7 +42,7 @@ let do_election uuid election get_private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let module W = (val election : Election.ELECTION) in
   let@ trustees cont =
-    let* x = Api.(get ~notoken:true (election_trustees uuid)) in
+    let* x = Api.(get (election_trustees uuid) `Nobody) in
     match x with
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
@@ -92,7 +92,7 @@ let do_draft uuid draft get_private_key =
   let version = draft.draft_version in
   let module G = (val Group.of_string ~version draft.draft_group) in
   let@ trustees cont =
-    let* x = Api.(get ~notoken:true (draft_trustees uuid)) in
+    let* x = Api.(get (draft_trustees uuid) `Nobody) in
     match x with
     | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
@@ -201,13 +201,13 @@ let check ?uuid () =
             in
             let button =
               let@ () = button @@ s_ "Check private key" in
-              let* election = Api.(get ~notoken:true (election uuid)) in
+              let* election = Api.(get (election uuid) `Nobody) in
               match election with
               | Ok (election, _) ->
                   let election = Election.of_string (module Random) election in
                   do_election uuid election get_private_key
               | Error _ -> (
-                  let* draft = Api.(get ~notoken:true (draft uuid)) in
+                  let* draft = Api.(get (draft uuid) `Nobody) in
                   match draft with
                   | Error _ ->
                       Printf.ksprintf alert

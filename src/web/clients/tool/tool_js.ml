@@ -317,7 +317,7 @@ module BuggyPartialDecryption = struct
           Lwt.return_unit
     in
     let@ raw_election cont =
-      let* x = Api.(get ~notoken:true (election uuid)) in
+      let* x = Api.(get (election uuid) `Nobody) in
       match x with
       | Error _ ->
           Printf.ksprintf alert "Election %s could not be found!"
@@ -326,7 +326,7 @@ module BuggyPartialDecryption = struct
       | Ok (x, _) -> cont x
     in
     let@ encrypted_tally cont =
-      let* x = Api.(get ~notoken:true (election_encrypted_tally uuid)) in
+      let* x = Api.(get (election_encrypted_tally uuid) `Nobody) in
       match x with
       | Error _ ->
           Printf.ksprintf alert "Could not get encrypted tally of election %s!"
@@ -335,8 +335,7 @@ module BuggyPartialDecryption = struct
       | Ok (x, _) -> cont x
     in
     let@ epk cont =
-      let () = Api.set_token token in
-      let* x = Api.(get (trustee_election uuid)) in
+      let* x = Api.(get (trustee_election uuid) (`Trustee token)) in
       match x with
       | Ok ({ tally_trustee_private_key = Some x }, _) -> cont x
       | _ ->

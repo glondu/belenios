@@ -79,11 +79,11 @@ let shuffle uuid ~token =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
   let@ election cont =
-    let* x = Api.(get ~notoken:true (election uuid)) in
+    let* x = Api.(get (election uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ nh_ciphertexts cont =
-    let* x = Api.(get ~notoken:true (election_nh_ciphertexts uuid)) in
+    let* x = Api.(get (election_nh_ciphertexts uuid) `Nobody) in
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
@@ -145,8 +145,9 @@ let shuffle uuid ~token =
     let submit_btn =
       let@ () = button @@ s_ "Submit" in
       Dom.removeChild container submit_div;
-      let () = Api.set_token token in
-      let* x = Api.(post (trustee_election uuid) shuffle_data) in
+      let* x =
+        Api.(post (trustee_election uuid) (`Trustee token) shuffle_data)
+      in
       let msg =
         match x.code with
         | 200 -> s_ "The shuffle has been successfully applied!"

@@ -62,8 +62,10 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
       @@ s_ "Submit public credentials"
     in
     Dom.removeChild container submit_div;
-    let () = Api.set_token token in
-    let* x = Api.(post (draft_public_credentials uuid) c.public_with_ids) in
+    let* x =
+      Api.(
+        post (draft_public_credentials uuid) (`Credauth token) c.public_with_ids)
+    in
     let msg =
       match x.code with
       | 200 -> s_ "Credentials have been received and checked!"
@@ -156,12 +158,11 @@ let error () =
 let generate configuration uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let@ draft cont =
-    let* x = Api.(get ~notoken:true (draft uuid)) in
+    let* x = Api.(get (draft uuid) `Nobody) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
   let@ voters cont =
-    let () = Api.set_token token in
-    let* x = Api.(get (draft_voters uuid)) in
+    let* x = Api.(get (draft_voters uuid) (`Credauth token)) in
     match x with Error _ -> error () | Ok (x, _) -> cont x
   in
   let voters = Voter.list_to_string voters in

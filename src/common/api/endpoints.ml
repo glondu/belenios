@@ -26,12 +26,18 @@ open Common
 let string_of_unit () = ""
 let unit_of_string _ = ()
 
-type ('a, 'b) t = {
+type ('user, 'get, 'post) t = {
   path : string;
-  of_string : string -> 'a;
-  to_string : 'a -> string;
-  to_string_post : 'b -> string;
+  of_string : string -> 'get;
+  to_string : 'get -> string;
+  to_string_post : 'post -> string;
 }
+
+type nobody = [ `Nobody ]
+type admin = [ `Admin of string ]
+type credauth = [ `Credauth of string ]
+type trustee = [ `Trustee of string ]
+type user = [ nobody | admin | credauth | trustee ]
 
 let configuration =
   {

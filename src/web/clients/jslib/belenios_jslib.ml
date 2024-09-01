@@ -112,7 +112,7 @@ let belenios : belenios Js.t =
                     let uuid = W.uuid
 
                     let get_salt i =
-                      let* x = Api.(get ~notoken:true (election_salt uuid i)) in
+                      let* x = Api.(get (election_salt uuid i) `Nobody) in
                       match x with
                       | Ok (x, _) ->
                           Lwt.return_some
