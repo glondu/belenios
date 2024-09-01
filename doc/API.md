@@ -145,6 +145,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 * `GET`: unit -> 'a nh_ciphertexts
 
+## `elections/$UUID/encrypted-tally` (anybody)
+
+* `GET`: unit -> 'a encrypted_tally
+
 ## `elections/$UUID/shuffles` (administrator)
 
 * `GET`: unit -> shuffles
