@@ -36,7 +36,7 @@ type credauth = [ `Credauth of string ]
 type trustee = [ `Trustee of string ]
 type user = [ nobody | admin | credauth | trustee ]
 
-val configuration : (nobody, configuration, unit) t
+val configuration : ([< nobody | admin ], configuration, unit) t
 val account : (admin, api_account, unit) t
 val drafts : (admin, summary_list, draft) t
 val draft : uuid -> ([< nobody | admin ], draft, draft_request) t

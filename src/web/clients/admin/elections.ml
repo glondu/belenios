@@ -636,7 +636,8 @@ let title_content () =
       ])
   else
     (* not is_draft, i.e. running *)
-    let* (Template (_, elec)) = Cache.get_until_success Cache.e_elec in
+    let* x = Cache.get_until_success Cache.e_elec in
+    let (Template (_, elec)) = Belenios.Election.template_of_string x in
     let tit = elec.t_name in
     let desc = elec.t_description in
     Lwt.return

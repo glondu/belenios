@@ -21,21 +21,18 @@
 
 open Js_of_ocaml
 open Belenios_api.Serializable_j
-open Belenios_api
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
 open Common
 open Lwt.Syntax
 
-type endpoint =
-  | Plain of string
-  | WithUuid of { fmt : 'a 'b 'c. (string -> 'a, 'b, 'c, 'a) format4 }
+type _ endpoint =
+  | Plain : (Api.admin, 'a, 'b) Api.t -> 'a endpoint
+  | WithUuid : (uuid -> (Api.admin, 'a, 'b) Api.t) -> 'a endpoint
 
 type 'a t = {
-  endpoint : endpoint;
-  of_string : string -> 'a;
-  to_string : 'a -> string;
+  endpoint : 'a endpoint;
   readonly : bool;
   mutable content : 'a option;
   mutable ifmatch : string;
@@ -53,13 +50,12 @@ let invalidate x =
 let get x =
   match x.content with
   | None -> (
-      let url =
+      let get x = Api.get x !user in
+      let* content =
         match x.endpoint with
-        | Plain x -> x
-        | WithUuid { fmt } ->
-            Printf.sprintf fmt (Uuid.unwrap (get_current_uuid ()))
+        | Plain x -> get x
+        | WithUuid f -> get (f (get_current_uuid ()))
       in
-      let* content = raw_get_with_token ~token:!token Fun.id "%s" url in
       match content with
       | Error e -> (
           match e with
@@ -76,8 +72,7 @@ let get x =
               @@ Error
                    (Printf.sprintf "Got structured error from server, code %d"
                       e.code))
-      | Ok (content_str, ifmatch) ->
-          let content = x.of_string content_str in
+      | Ok (content, ifmatch) ->
           x.dirty <- false;
           x.content <- Some content;
           x.ifmatch <- ifmatch;
@@ -98,21 +93,20 @@ let sync_one x =
     match x.content with
     | None -> assert false
     | Some content -> (
-        let content_str = x.to_string content in
         let ifmatch = x.ifmatch in
-        let url =
-          match x.endpoint with
-          | Plain x -> x
-          | WithUuid { fmt } ->
-              Printf.sprintf fmt (Uuid.unwrap (get_current_uuid ()))
+        let put x =
+          let* y = Api.put ~ifmatch x !user content in
+          Lwt.return (y, fun () -> sha256_b64 @@ x.to_string content)
         in
-        let* y =
-          raw_put_with_token ~ifmatch ~token:!token content_str "%s" url
+        let* y, ifmatch' =
+          match x.endpoint with
+          | Plain x -> put x
+          | WithUuid f -> put (f (get_current_uuid ()))
         in
         match y.code with
         | 200 ->
             x.dirty <- false;
-            x.ifmatch <- sha256_b64 content_str;
+            x.ifmatch <- ifmatch' ();
             Lwt.return @@ Ok ()
         | code ->
             Lwt.return
@@ -123,9 +117,7 @@ let sync_one x =
 
 let config =
   {
-    endpoint = Plain "configuration";
-    of_string = configuration_of_string;
-    to_string = string_of_configuration;
+    endpoint = Plain Api.configuration;
     readonly = true;
     content = None;
     dirty = true;
@@ -134,9 +126,7 @@ let config =
 
 let draft =
   {
-    endpoint = WithUuid { fmt = "drafts/%s" };
-    of_string = draft_of_string;
-    to_string = string_of_draft;
+    endpoint = WithUuid Api.draft;
     readonly = false;
     content = None;
     dirty = true;
@@ -145,9 +135,7 @@ let draft =
 
 let voters =
   {
-    endpoint = WithUuid { fmt = "drafts/%s/voters" };
-    of_string = voter_list_of_string;
-    to_string = string_of_voter_list;
+    endpoint = WithUuid Api.draft_voters;
     readonly = false;
     content = None;
     dirty = true;
@@ -156,9 +144,7 @@ let voters =
 
 let status =
   {
-    endpoint = WithUuid { fmt = "drafts/%s/status" };
-    of_string = draft_status_of_string;
-    to_string = string_of_draft_status;
+    endpoint = WithUuid Api.draft_status;
     readonly = true;
     content = None;
     dirty = true;
@@ -167,9 +153,7 @@ let status =
 
 let account =
   {
-    endpoint = Plain "account";
-    of_string = api_account_of_string;
-    to_string = string_of_api_account;
+    endpoint = Plain Api.account;
     readonly = false;
     content = None;
     dirty = true;
@@ -178,9 +162,7 @@ let account =
 
 let e_dates =
   {
-    endpoint = WithUuid { fmt = "elections/%s/automatic-dates" };
-    of_string = election_auto_dates_of_string;
-    to_string = string_of_election_auto_dates;
+    endpoint = WithUuid Api.election_auto_dates;
     readonly = false;
     content = None;
     dirty = true;
@@ -189,9 +171,7 @@ let e_dates =
 
 let e_voters =
   {
-    endpoint = WithUuid { fmt = "elections/%s/voters" };
-    of_string = Voter.list_of_string;
-    to_string = string_of_voter_list;
+    endpoint = WithUuid Api.election_voters;
     readonly = true;
     content = None;
     dirty = true;
@@ -200,9 +180,7 @@ let e_voters =
 
 let e_records =
   {
-    endpoint = WithUuid { fmt = "elections/%s/records" };
-    of_string = records_of_string;
-    to_string = string_of_records;
+    endpoint = WithUuid Api.election_records;
     readonly = true;
     content = None;
     dirty = true;
@@ -211,9 +189,7 @@ let e_records =
 
 let e_status =
   {
-    endpoint = WithUuid { fmt = "elections/%s" };
-    of_string = election_status_of_string;
-    to_string = string_of_election_status;
+    endpoint = WithUuid Api.election_status;
     readonly = true;
     content = None;
     dirty = true;
@@ -222,9 +198,7 @@ let e_status =
 
 let e_elec =
   {
-    endpoint = WithUuid { fmt = "elections/%s/election" };
-    of_string = Belenios.Election.template_of_string;
-    to_string = Belenios.Election.string_of_template;
+    endpoint = WithUuid Api.election;
     readonly = true;
     content = None;
     dirty = true;

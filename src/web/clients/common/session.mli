@@ -37,19 +37,6 @@ type xhr_result =
   | BadStatus of int * string
   | RequestStatus of Belenios_api.Serializable_t.request_status
 
-type ('a, 'b) xhr_helper = ('a, unit, string, 'b Lwt.t) format4 -> 'a
-
-type 'a raw_xhr_helper =
-  ('a, Js_of_ocaml_lwt.XmlHttpRequest.http_frame) xhr_helper
-
-val raw_put_with_token :
-  ifmatch:string -> token:string option -> string -> 'a raw_xhr_helper
-
-val raw_get_with_token :
-  token:string option ->
-  (string -> 'a) ->
-  ('b, ('a * string, xhr_result) result) xhr_helper
-
 module Api : sig
   include module type of Belenios_api.Endpoints
 

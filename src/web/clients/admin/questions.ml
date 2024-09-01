@@ -996,7 +996,8 @@ let questions_content () =
       let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
       Lwt.return (Questions (v, draft.draft_questions.t_questions))
     else
-      let* (Template (v, elec)) = Cache.get_until_success Cache.e_elec in
+      let* x = Cache.get_until_success Cache.e_elec in
+      let (Template (v, elec)) = Belenios.Election.template_of_string x in
       Lwt.return (Questions (v, elec.t_questions))
   in
   let open (val Election.get_serializers v) in

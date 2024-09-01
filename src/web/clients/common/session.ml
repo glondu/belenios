@@ -53,11 +53,6 @@ type xhr_result =
   | BadStatus of int * string
   | RequestStatus of Belenios_api.Serializable_t.request_status
 
-type ('a, 'b) xhr_helper = ('a, unit, string, 'b Lwt.t) format4 -> 'a
-
-type 'a raw_xhr_helper =
-  ('a, Js_of_ocaml_lwt.XmlHttpRequest.http_frame) xhr_helper
-
 let raw_delete_with_token ?ifmatch ~token url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
