@@ -142,10 +142,8 @@ module Endpoints = struct
   let draft_trustees uuid =
     {
       path = Printf.sprintf "drafts/%s/trustees" (Uuid.unwrap uuid);
-      of_string =
-        draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json;
-      to_string =
-        string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json;
+      of_string = Fun.id;
+      to_string = Fun.id;
       to_string_post = string_of_trustees_request;
     }
 
@@ -159,6 +157,22 @@ module Endpoints = struct
       to_string_post = string_of_unit;
     }
 
+  let trustee_draft uuid =
+    {
+      path = Printf.sprintf "drafts/%s/trustee" (Uuid.unwrap uuid);
+      of_string = Fun.id;
+      to_string = Fun.id;
+      to_string_post = Fun.id;
+    }
+
+  let trustee_election uuid =
+    {
+      path = Printf.sprintf "elections/%s/trustee" (Uuid.unwrap uuid);
+      of_string = tally_trustee_of_string;
+      to_string = string_of_tally_trustee;
+      to_string_post = Fun.id;
+    }
+
   let elections =
     {
       path = "elections";
@@ -170,6 +184,14 @@ module Endpoints = struct
   let election uuid =
     {
       path = Printf.sprintf "elections/%s/election" (Uuid.unwrap uuid);
+      of_string = Fun.id;
+      to_string = Fun.id;
+      to_string_post = string_of_unit;
+    }
+
+  let election_trustees uuid =
+    {
+      path = Printf.sprintf "elections/%s/trustees" (Uuid.unwrap uuid);
       of_string = Fun.id;
       to_string = Fun.id;
       to_string_post = string_of_unit;
@@ -199,11 +221,35 @@ module Endpoints = struct
       to_string_post = string_of_unit;
     }
 
+  let election_salt uuid i =
+    {
+      path = Printf.sprintf "elections/%s/salts/%d" (Uuid.unwrap uuid) i;
+      of_string = Fun.id;
+      to_string = Fun.id;
+      to_string_post = string_of_unit;
+    }
+
   let election_records uuid =
     {
       path = Printf.sprintf "elections/%s/records" (Uuid.unwrap uuid);
       of_string = records_of_string;
       to_string = string_of_records;
+      to_string_post = string_of_unit;
+    }
+
+  let election_nh_ciphertexts uuid =
+    {
+      path = Printf.sprintf "elections/%s/nh-ciphertexts" (Uuid.unwrap uuid);
+      of_string = Fun.id;
+      to_string = Fun.id;
+      to_string_post = string_of_unit;
+    }
+
+  let election_encrypted_tally uuid =
+    {
+      path = Printf.sprintf "elections/%s/encrypted-tally" (Uuid.unwrap uuid);
+      of_string = Fun.id;
+      to_string = Fun.id;
       to_string_post = string_of_unit;
     }
 
@@ -232,5 +278,31 @@ module Endpoints = struct
       of_string = unit_of_string;
       to_string = string_of_unit;
       to_string_post = string_of_shuffler_request;
+    }
+
+  let election_roots uuid =
+    {
+      path = Printf.sprintf "elections/%s/roots" (Uuid.unwrap uuid);
+      of_string = roots_of_string;
+      to_string = string_of_roots;
+      to_string_post = string_of_unit;
+    }
+
+  let election_object uuid x =
+    {
+      path =
+        Printf.sprintf "elections/%s/objects/%s" (Uuid.unwrap uuid)
+          (Hash.to_hex x);
+      of_string = Fun.id;
+      to_string = Fun.id;
+      to_string_post = string_of_unit;
+    }
+
+  let election_audit_cache uuid =
+    {
+      path = Printf.sprintf "elections/%s/audit-cache" (Uuid.unwrap uuid);
+      of_string = audit_cache_of_string;
+      to_string = string_of_audit_cache;
+      to_string_post = string_of_unit;
     }
 end

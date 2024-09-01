@@ -25,6 +25,7 @@ open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
 open Belenios_js.Common
+open Belenios_js.Session
 open Belenios_js.Messages
 
 (* We create the worker here, so that its libsodium wasm module
@@ -72,20 +73,18 @@ let compute_shuffle ~estimation election ciphertexts =
   | ShuffleResult result -> Lwt.return result
   | _ -> failwith "unexpected response from worker"
 
-let shuffle ~uuid ~token =
+let shuffle uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let fail () =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
   let@ election cont =
-    let url = !/(Printf.sprintf "elections/%s/election" uuid) in
-    let* x = get Fun.id url in
-    match x with Some x -> cont x | None -> fail ()
+    let* x = Api.(get ~notoken:true (election uuid)) in
+    match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ nh_ciphertexts cont =
-    let url = !/(Printf.sprintf "elections/%s/nh-ciphertexts" uuid) in
-    let* x = get Fun.id url in
-    match x with Some x -> cont x | None -> fail ()
+    let* x = Api.(get ~notoken:true (election_nh_ciphertexts uuid)) in
+    match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
   let () =
@@ -146,9 +145,8 @@ let shuffle ~uuid ~token =
     let submit_btn =
       let@ () = button @@ s_ "Submit" in
       Dom.removeChild container submit_div;
-      let contents = `String shuffle_data in
-      let url = !/(Printf.sprintf "elections/%s/trustee" uuid) in
-      let* x = http_perform ~token ~override_method:`POST ~contents url in
+      let () = Api.set_token token in
+      let* x = Api.(post (trustee_election uuid) shuffle_data) in
       let msg =
         match x.code with
         | 200 -> s_ "The shuffle has been successfully applied!"

@@ -118,6 +118,7 @@ let raw_get_with_token ?(notoken = false) of_string url =
 module Api = struct
   include Belenios_api.Endpoints
 
+  let set_token x = api_token := x
   let get ?notoken e = raw_get_with_token ?notoken e.of_string "%s" e.path
   let put ~ifmatch e x = raw_put_with_token ~ifmatch (e.to_string x) "%s" e.path
 

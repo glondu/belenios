@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml_tyxml.Tyxml_js
+open Belenios
 
 val shuffle :
-  uuid:string -> token:string -> Html_types.div_content_fun Html.elt list Lwt.t
+  uuid -> token:string -> Html_types.div_content_fun Html.elt list Lwt.t

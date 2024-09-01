@@ -21,6 +21,7 @@
 
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
+open Belenios
 open Belenios_js.Secondary_ui
 
 module App (U : UI) = struct
@@ -31,7 +32,7 @@ module App (U : UI) = struct
     U.set_title @@ s_ "Credential authority management";
     match path with
     | [ "generate"; uuid; token ] ->
-        Generate.generate configuration ~uuid ~token
+        Generate.generate configuration (Uuid.wrap uuid) ~token
     | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
 end
 

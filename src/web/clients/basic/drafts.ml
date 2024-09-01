@@ -156,6 +156,10 @@ let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* x = Api.(get (draft_trustees uuid)) in
   let@ trustees, ifmatch = with_ok "trustees" x in
+  let trustees =
+    draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json
+      trustees
+  in
   let mode =
     match trustees with
     | `Basic _ -> "basic"

@@ -21,6 +21,7 @@
 
 module Serializable_t = Serializable_t
 module Serializable_j = Serializable_j
+open Belenios
 open Serializable_t
 
 type draft =
@@ -51,18 +52,24 @@ module Endpoints : sig
 
   val draft_private_credentials : uuid -> (private_credentials, unit) t
   val draft_credentials_token : uuid -> (string, unit) t
-
-  val draft_trustees :
-    uuid -> ((Yojson.Safe.t, Yojson.Safe.t) draft_trustees, trustees_request) t
-
+  val draft_trustees : uuid -> (string, trustees_request) t
   val draft_trustee : uuid -> string -> (unit, unit) t
+  val trustee_draft : uuid -> (string, string) t
+  val trustee_election : uuid -> (tally_trustee, string) t
   val elections : (summary_list, unit) t
   val election : uuid -> (string, unit) t
+  val election_trustees : uuid -> (string, unit) t
   val election_status : uuid -> (election_status, admin_request) t
   val election_auto_dates : uuid -> (election_auto_dates, unit) t
   val election_voters : uuid -> (voter_list, unit) t
+  val election_salt : uuid -> int -> (string, unit) t
   val election_records : uuid -> (records, unit) t
+  val election_nh_ciphertexts : uuid -> (string, unit) t
+  val election_encrypted_tally : uuid -> (string, unit) t
   val election_partial_decryptions : uuid -> (partial_decryptions, unit) t
   val election_shuffles : uuid -> (shuffles, unit) t
   val election_shuffle : uuid -> string -> (unit, shuffler_request) t
+  val election_roots : uuid -> (roots, unit) t
+  val election_object : uuid -> hash -> (string, unit) t
+  val election_audit_cache : uuid -> (audit_cache, unit) t
 end

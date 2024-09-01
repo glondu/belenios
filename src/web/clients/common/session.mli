@@ -51,6 +51,8 @@ val raw_get_with_token :
 module Api : sig
   include module type of Belenios_api.Endpoints
 
+  val set_token : string -> unit
+
   val get :
     ?notoken:bool -> ('a, 'b) t -> ('a * string, xhr_result) result Lwt.t
 

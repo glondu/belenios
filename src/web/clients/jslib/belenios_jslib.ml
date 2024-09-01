@@ -24,6 +24,7 @@ open Js_of_ocaml
 open Js_of_ocaml_lwt
 open Belenios
 open Belenios_js.Common
+open Belenios_js.Session
 
 class type renderingFunctions = object
   method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
@@ -111,9 +112,12 @@ let belenios : belenios Js.t =
                     let uuid = W.uuid
 
                     let get_salt i =
-                      Printf.ksprintf
-                        (get (salt_of_string (sread W.G.of_string)))
-                        "%s/elections/%s/salts/%d" !apiRoot (Uuid.unwrap uuid) i
+                      let* x = Api.(get ~notoken:true (election_salt uuid i)) in
+                      match x with
+                      | Ok (x, _) ->
+                          Lwt.return_some
+                          @@ salt_of_string (sread W.G.of_string) x
+                      | Error _ -> Lwt.return_none
                   end)
               in
               let* x = Cred.derive (Js.to_string cred) in

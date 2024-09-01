@@ -24,6 +24,6 @@ open Belenios_api.Serializable_t
 
 val generate :
   configuration ->
-  uuid:string ->
+  uuid ->
   token:string ->
   Html_types.div_content_fun Html.elt list Lwt.t

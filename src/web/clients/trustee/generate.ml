@@ -27,6 +27,7 @@ open Belenios_api.Serializable_j
 open Belenios
 open Belenios_api
 open Belenios_js.Common
+open Belenios_js.Session
 
 type keypair = {
   private_key : string;
@@ -122,8 +123,8 @@ let generate_key ~token ~url generate =
           r##.onclick :=
             let@ () = lwt_handler in
             Dom.removeChild container r;
-            let contents = `String p.public_key in
-            let* x = http_perform ~token ~override_method:`POST ~contents url in
+            let () = Api.set_token token in
+            let* x = Api.(post url p.public_key) in
             let msg =
               match x.code with
               | 200 -> s_ "Public key registration succeeded!"
@@ -243,10 +244,8 @@ let compute_threshold_step ~token ~url draft pedersen =
               r##.onclick :=
                 let@ () = lwt_handler in
                 Dom.removeChild container r;
-                let contents = `String data in
-                let* x =
-                  http_perform ~token ~override_method:`POST ~contents url
-                in
+                let () = Api.set_token token in
+                let* x = Api.(post url data) in
                 let msg =
                   match x.code with
                   | 200 ->
@@ -332,18 +331,22 @@ let actionable_threshold ~token ~url draft = function
   | `WaitingForOtherCertificates -> waiting_for_other_trustees ()
   | `Pedersen p -> compute_threshold_step ~token ~url draft p
 
-let generate configuration ~uuid ~token =
+let generate configuration uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let@ draft cont =
-    let url = !/(Printf.sprintf "drafts/%s" uuid) in
-    let* x = get draft_of_string url in
-    match x with None -> error () | Some x -> cont x
+    let* x = Api.(get ~notoken:true (draft uuid)) in
+    match x with Error _ -> error () | Ok (x, _) -> cont x
   in
-  let url = !/(Printf.sprintf "drafts/%s/trustee" uuid) in
-  let* status =
-    get ~token
-      (trustee_status_of_string Yojson.Safe.read_json Yojson.Safe.read_json)
-      url
+  let () = Api.set_token token in
+  let url = Api.trustee_draft uuid in
+  let* status = Api.(get url) in
+  let status =
+    match status with
+    | Error _ -> None
+    | Ok (x, _) ->
+        Some
+          (trustee_status_of_string Yojson.Safe.read_json Yojson.Safe.read_json
+             x)
   in
   let* x =
     match status with
@@ -367,7 +370,10 @@ let generate configuration ~uuid ~token =
   match x with
   | None -> error ()
   | Some (actionable, header) ->
-      let url = Printf.sprintf "%selection#%s" configuration.uris.home uuid in
+      let url =
+        Printf.sprintf "%selection#%s" configuration.uris.home
+          (Uuid.unwrap uuid)
+      in
       [
         header;
         hr ();

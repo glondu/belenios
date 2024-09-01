@@ -67,7 +67,9 @@ let get_trustees () =
       alert (string_of_error e);
       Lwt.return_unit
   | Ok (tt, _) -> (
-      match tt with
+      match
+        draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json tt
+      with
       | `Basic x ->
           all_trustee := List.map cast_bt_trustee x.bt_trustees;
           mode := `Basic;

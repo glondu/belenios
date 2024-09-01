@@ -28,6 +28,7 @@ open Belenios_api.Serializable_j
 open Belenios
 open Belenios_api
 open Belenios_js.Common
+open Belenios_js.Session
 
 let do_generate uuid (Draft (_, draft)) ~voters =
   let voters = Voter.list_of_string voters in
@@ -61,9 +62,8 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
       @@ s_ "Submit public credentials"
     in
     Dom.removeChild container submit_div;
-    let contents = `String (string_of_public_credentials c.public_with_ids) in
-    let url = !/(Printf.sprintf "drafts/%s/credentials/public" uuid) in
-    let* x = http_perform ~token ~override_method:`POST ~contents url in
+    let () = Api.set_token token in
+    let* x = Api.(post (draft_public_credentials uuid) c.public_with_ids) in
     let msg =
       match x.code with
       | 200 -> s_ "Credentials have been received and checked!"
@@ -153,22 +153,23 @@ let error () =
   let open (val !Belenios_js.I18n.gettext) in
   Lwt.return [ txt @@ s_ "Error" ]
 
-let generate configuration ~uuid ~token =
+let generate configuration uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let@ draft cont =
-    let url = !/(Printf.sprintf "drafts/%s" uuid) in
-    let* x = get draft_of_string url in
-    match x with None -> error () | Some x -> cont x
+    let* x = Api.(get ~notoken:true (draft uuid)) in
+    match x with Error _ -> error () | Ok (x, _) -> cont x
   in
   let@ voters cont =
-    let url = !/(Printf.sprintf "drafts/%s/voters" uuid) in
-    let* x = get ~token voter_list_of_string url in
-    match x with None -> error () | Some x -> cont x
+    let () = Api.set_token token in
+    let* x = Api.(get (draft_voters uuid)) in
+    match x with Error _ -> error () | Ok (x, _) -> cont x
   in
   let voters = Voter.list_to_string voters in
   let header = h3 [ txt @@ s_ "Credential generation" ] in
   let link_div =
-    let url = Printf.sprintf "%selection#%s" configuration.uris.home uuid in
+    let url =
+      Printf.sprintf "%selection#%s" configuration.uris.home (Uuid.unwrap uuid)
+    in
     div
       [
         txt @@ s_ "The link to the election will be:";
@@ -196,7 +197,7 @@ let generate configuration ~uuid ~token =
   let generate_btn =
     let@ () = button ~a:[ a_id "generate" ] @@ s_ "Generate" in
     Dom.removeChild container generate_div;
-    let* c = do_generate (Uuid.wrap uuid) draft ~voters in
+    let* c = do_generate uuid draft ~voters in
     Dom.appendChild container @@ Tyxml_js.To_dom.of_div
     @@ make_submit_credentials_div ~uuid ~token ~voters c;
     Lwt.return_unit

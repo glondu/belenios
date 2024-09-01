@@ -26,6 +26,7 @@ open Tyxml_js.Html5
 open Belenios_api.Serializable_j
 open Belenios
 open Common
+open Session
 
 module type UI = sig
   val set_title : string -> unit
@@ -145,12 +146,12 @@ module Make (App : APP) () = struct
     Dom_html.window##.onload :=
       let@ () = lwt_handler in
       let@ configuration cont =
-        let* x = get configuration_of_string !/"configuration" in
+        let* x = Api.(get ~notoken:true configuration) in
         match x with
-        | None ->
+        | Error _ ->
             alert "Could not get server configuration!";
             Lwt.return_unit
-        | Some x -> cont x
+        | Ok (x, _) -> cont x
       in
       let lang =
         Js.Optdef.case

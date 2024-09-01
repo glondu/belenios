@@ -26,6 +26,7 @@ open Tyxml_js.Html
 open Belenios
 open Belenios_api.Serializable_j
 open Belenios_js.Common
+open Belenios_js.Session
 open Belenios_js.Secondary_ui
 
 let format_period x =
@@ -620,32 +621,23 @@ let error x = { title = "Error"; contents = [ txt x ]; footer = [] }
 let page configuration ?credential uuid =
   let open (val !Belenios_js.I18n.gettext) in
   let@ status cont =
-    let* x =
-      get election_status_of_string !/(Printf.sprintf "elections/%s" uuid)
-    in
+    let* x = Api.(get ~notoken:true (election_status uuid)) in
     match x with
-    | None -> Lwt.return @@ error "Could not get election status!"
-    | Some x -> cont x
+    | Error _ -> Lwt.return @@ error "Could not get election status!"
+    | Ok (x, _) -> cont x
   in
   let@ election cont =
-    let* x =
-      get
-        (Election.of_string (module Random))
-        !/(Printf.sprintf "elections/%s/election" uuid)
-    in
+    let* x = Api.(get ~notoken:true (election uuid)) in
     match x with
-    | None -> Lwt.return @@ error "Could not get election parameters!"
-    | Some x -> cont x
+    | Error _ -> Lwt.return @@ error "Could not get election parameters!"
+    | Ok (x, _) -> cont @@ Election.of_string (module Random) x
   in
   let module W = (val election) in
   let@ dates cont =
-    let* x =
-      get election_auto_dates_of_string
-        !/(Printf.sprintf "elections/%s/automatic-dates" uuid)
-    in
+    let* x = Api.(get ~notoken:true (election_auto_dates uuid)) in
     match x with
-    | None -> Lwt.return @@ error "Could not get automatic dates!"
-    | Some x -> cont x
+    | Error _ -> Lwt.return @@ error "Could not get automatic dates!"
+    | Ok (x, _) -> cont x
   in
   let now = (new%js Js.date_now)##valueOf in
   let state =
@@ -696,7 +688,8 @@ let page configuration ?credential uuid =
           match credential with None -> [] | Some c -> [ ("credential", c) ]
         in
         let params =
-          ("uuid", uuid) :: ("lang", lang) :: params |> Url.encode_arguments
+          ("uuid", Uuid.unwrap uuid) :: ("lang", lang) :: params
+          |> Url.encode_arguments
         in
         let href = Printf.sprintf "%s#%s" uri params in
         Dom_html.window##.location##.href := Js.string href;
@@ -717,11 +710,9 @@ let page configuration ?credential uuid =
     in
     let ( let& ) x f =
       let* x = x in
-      match x with None -> fail () | Some x -> f x
+      match x with Error _ -> fail () | Ok (x, _) -> f x
     in
-    let& roots =
-      get roots_of_string !/(Printf.sprintf "elections/%s/roots" uuid)
-    in
+    let& roots = Api.(get ~notoken:true (election_roots uuid)) in
     match roots.roots_result with
     | None -> Lwt.return @@ go_to_the_booth ()
     | Some result -> (
@@ -729,19 +720,14 @@ let page configuration ?credential uuid =
         | None -> fail ()
         | Some t ->
             let& result =
-              get Fun.id
-                !/(Printf.sprintf "elections/%s/objects/%s" uuid
-                     (Hash.to_hex result))
+              Api.(get ~notoken:true (election_object uuid result))
             in
-            let& t =
-              get
-                (sized_encrypted_tally_of_string read_hash)
-                !/(Printf.sprintf "elections/%s/objects/%s" uuid (Hash.to_hex t))
-            in
+            let& t = Api.(get ~notoken:true (election_object uuid t)) in
+            let t = sized_encrypted_tally_of_string read_hash t in
             Lwt.return @@ make_result_div election t ~result)
   in
   let ballots_link =
-    let href = !!(Printf.sprintf "elections/%s/ballots" uuid) in
+    let href = !!(Printf.sprintf "elections/%s/ballots" (Uuid.unwrap uuid)) in
     p
       ~a:[ a_style "text-align:center;" ]
       [
@@ -755,13 +741,11 @@ let page configuration ?credential uuid =
       ]
   in
   let* audit_div =
-    let* x =
-      get audit_cache_of_string
-        !/(Printf.sprintf "elections/%s/audit-cache" uuid)
-    in
+    let* x = Api.(get ~notoken:true (election_audit_cache uuid)) in
     match x with
-    | None -> Lwt.return @@ div [ txt @@ s_ "Could not retrieve audit data!" ]
-    | Some audit_cache -> Lwt.return @@ make_audit_div W.template audit_cache
+    | Error _ ->
+        Lwt.return @@ div [ txt @@ s_ "Could not retrieve audit data!" ]
+    | Ok (audit_cache, _) -> Lwt.return @@ make_audit_div W.template audit_cache
   in
   let contents =
     [
@@ -788,7 +772,7 @@ module App (U : UI) = struct
     | [ "" ] -> Lwt.return []
     | uuid :: credential ->
         let credential = match credential with [ c ] -> Some c | _ -> None in
-        let* p = page configuration ?credential uuid in
+        let* p = page configuration ?credential (Uuid.wrap uuid) in
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents

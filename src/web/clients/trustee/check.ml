@@ -26,6 +26,7 @@ open Tyxml_js.Html5
 open Belenios_api.Serializable_j
 open Belenios
 open Belenios_js.Common
+open Belenios_js.Session
 
 let show_result name =
   let open (val !Belenios_js.I18n.gettext) in
@@ -41,16 +42,14 @@ let do_election uuid election get_private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let module W = (val election : Election.ELECTION) in
   let@ trustees cont =
-    let* x =
-      get
-        (trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string))
-        !/(Printf.sprintf "elections/%s/trustees" uuid)
-    in
+    let* x = Api.(get ~notoken:true (election_trustees uuid)) in
     match x with
-    | None ->
+    | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
-    | Some x -> cont x
+    | Ok (x, _) ->
+        cont
+        @@ trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string) x
   in
   let private_key = get_private_key () in
   let find_single =
@@ -93,16 +92,14 @@ let do_draft uuid draft get_private_key =
   let version = draft.draft_version in
   let module G = (val Group.of_string ~version draft.draft_group) in
   let@ trustees cont =
-    let* x =
-      get
-        (draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
-        !/(Printf.sprintf "drafts/%s/trustees" uuid)
-    in
+    let* x = Api.(get ~notoken:true (draft_trustees uuid)) in
     match x with
-    | None ->
+    | Error _ ->
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
-    | Some x -> cont x
+    | Ok (x, _) ->
+        cont
+        @@ draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string) x
   in
   let private_key = get_private_key () in
   match trustees with
@@ -198,31 +195,26 @@ let check ?uuid () =
     | Some uuid -> (
         match Uuid.wrap uuid with
         | exception _ -> Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
-        | _ ->
+        | uuid ->
             let private_key_input, get_private_key =
               make_private_key_input ()
             in
             let button =
               let@ () = button @@ s_ "Check private key" in
-              let parse_election x = Election.of_string (module Random) x in
-              let* election =
-                get parse_election
-                  !/(Printf.sprintf "elections/%s/election" uuid)
-              in
+              let* election = Api.(get ~notoken:true (election uuid)) in
               match election with
-              | Some election -> do_election uuid election get_private_key
-              | None -> (
-                  let* draft =
-                    get Belenios_api.draft_of_string
-                      !/(Printf.sprintf "drafts/%s" uuid)
-                  in
+              | Ok (election, _) ->
+                  let election = Election.of_string (module Random) election in
+                  do_election uuid election get_private_key
+              | Error _ -> (
+                  let* draft = Api.(get ~notoken:true (draft uuid)) in
                   match draft with
-                  | None ->
+                  | Error _ ->
                       Printf.ksprintf alert
                         (f_ "There is no election with ID %s on this server!")
-                        uuid;
+                        (Uuid.unwrap uuid);
                       Lwt.return_unit
-                  | Some (Draft (_, draft)) ->
+                  | Ok (Draft (_, draft), _) ->
                       do_draft uuid draft get_private_key)
             in
             Lwt.return [ private_key_input; div [ button ] ])

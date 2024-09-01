@@ -26,6 +26,7 @@ open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios
 open Belenios_js.Common
+open Belenios_js.Session
 open Belenios_api.Serializable_j
 
 let basic_check_private_key s =
@@ -89,25 +90,23 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
        (swrite W.G.Zq.to_string)
   |> Lwt.return
 
-let decrypt ~uuid ~token =
+let decrypt uuid ~token =
   let open (val !Belenios_js.I18n.gettext) in
   let fail () =
     Lwt.return [ div [ txt @@ s_ "Error while loading election parameters!" ] ]
   in
-  let url = !/(Printf.sprintf "elections/%s/trustee" uuid) in
   let@ trustee cont =
-    let* x = get ~token tally_trustee_of_string url in
-    match x with Some x -> cont x | None -> fail ()
+    Api.set_token token;
+    let* x = Api.(get (trustee_election uuid)) in
+    match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ election cont =
-    let url = !!(Printf.sprintf "elections/%s/election.json" uuid) in
-    let* x = get String.trim url in
-    match x with Some x -> cont x | None -> fail ()
+    let* x = Api.(get ~notoken:true (election uuid)) in
+    match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let@ encrypted_tally cont =
-    let url = !!(Printf.sprintf "elections/%s/encrypted_tally.json" uuid) in
-    let* x = get String.trim url in
-    match x with Some x -> cont x | None -> fail ()
+    let* x = Api.(get ~notoken:true (election_encrypted_tally uuid)) in
+    match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
   let encrypted_tally_hash = sha256_b64 encrypted_tally in
@@ -148,8 +147,8 @@ let decrypt ~uuid ~token =
   let partial_decryption = ref "" in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in
-    let contents = `String !partial_decryption in
-    let* x = http_perform ~token ~override_method:`POST ~contents url in
+    let () = Api.set_token token in
+    let* x = Api.(post (trustee_election uuid) !partial_decryption) in
     let msg =
       match x.code with
       | 200 -> s_ "Your partial decryption has been received and checked!"

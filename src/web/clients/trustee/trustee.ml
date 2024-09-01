@@ -21,6 +21,7 @@
 
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
+open Belenios
 open Belenios_js.Secondary_ui
 
 module App (U : UI) = struct
@@ -31,9 +32,9 @@ module App (U : UI) = struct
     U.set_title @@ s_ "Trustee management";
     match path with
     | [ "generate"; uuid; token ] ->
-        Generate.generate configuration ~uuid ~token
-    | [ "decrypt"; uuid; token ] -> Decrypt.decrypt ~uuid ~token
-    | [ "shuffle"; uuid; token ] -> Shuffle.shuffle ~uuid ~token
+        Generate.generate configuration (Uuid.wrap uuid) ~token
+    | [ "decrypt"; uuid; token ] -> Decrypt.decrypt (Uuid.wrap uuid) ~token
+    | [ "shuffle"; uuid; token ] -> Shuffle.shuffle (Uuid.wrap uuid) ~token
     | [ "check" ] -> Check.check ()
     | [ "check"; uuid ] -> Check.check ~uuid ()
     | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]

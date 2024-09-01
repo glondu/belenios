@@ -24,8 +24,9 @@ open Js_of_ocaml
 open Belenios
 open Belenios_tool_common
 open Belenios_js.Common
+open Belenios_js.Session
 
-let root = ".."
+let () = relative_root := "../"
 
 let install_handler (id, handler) =
   let f _ =
@@ -310,41 +311,34 @@ module BuggyPartialDecryption = struct
     let@ uuid, token =
      fun cont ->
       match String.split_on_char '-' hash with
-      | [ uuid; token ] -> cont (uuid, token)
+      | [ uuid; token ] -> cont (Uuid.wrap uuid, token)
       | _ ->
           Printf.ksprintf alert "%s is not a valid access code" hash;
           Lwt.return_unit
     in
     let@ raw_election cont =
-      let* x =
-        Printf.ksprintf (get Fun.id) "%s/elections/%s/election.json" root uuid
-      in
+      let* x = Api.(get ~notoken:true (election uuid)) in
       match x with
-      | None ->
-          Printf.ksprintf alert "Election %s could not be found!" uuid;
+      | Error _ ->
+          Printf.ksprintf alert "Election %s could not be found!"
+            (Uuid.unwrap uuid);
           Lwt.return_unit
-      | Some x -> cont x
+      | Ok (x, _) -> cont x
     in
     let@ encrypted_tally cont =
-      let* x =
-        Printf.ksprintf (get Fun.id) "%s/elections/%s/encrypted_tally.json" root
-          uuid
-      in
+      let* x = Api.(get ~notoken:true (election_encrypted_tally uuid)) in
       match x with
-      | None ->
+      | Error _ ->
           Printf.ksprintf alert "Could not get encrypted tally of election %s!"
-            uuid;
+            (Uuid.unwrap uuid);
           Lwt.return_unit
-      | Some x -> cont x
+      | Ok (x, _) -> cont x
     in
     let@ epk cont =
-      let* x =
-        Printf.ksprintf
-          (get ~token tally_trustee_of_string)
-          "%s/api/elections/%s/trustee" root uuid
-      in
+      let () = Api.set_token token in
+      let* x = Api.(get (trustee_election uuid)) in
       match x with
-      | Some { tally_trustee_private_key = Some x } -> cont x
+      | Ok ({ tally_trustee_private_key = Some x }, _) -> cont x
       | _ ->
           alert "Could not get encrypted private key!";
           Lwt.return_unit

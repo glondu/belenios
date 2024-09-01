@@ -162,25 +162,6 @@ module Random : RANDOM = struct
   let get_rng () = Lazy.force prng
 end
 
-let get ?token of_string url =
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers =
-    let& token = token in
-    Some [ ("Authorization", "Bearer " ^ token) ]
-  in
-  let* x = perform_raw_url ?headers url in
-  match x.code with
-  | 200 -> Lwt.return @@ Option.wrap of_string x.content
-  | _ -> Lwt.return_none
-
-let http_perform ?token ?override_method ?contents url =
-  let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let headers =
-    let& token = token in
-    Some [ ("Authorization", "Bearer " ^ token) ]
-  in
-  perform_raw_url ?headers ?override_method ?contents url
-
 let extract_uuid_and_token x =
   let n = String.length x in
   let i = if n > 1 && x.[0] = '#' then 1 else 0 in
