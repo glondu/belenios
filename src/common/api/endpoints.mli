@@ -37,7 +37,6 @@ val draft : uuid -> (draft, draft_request) t
 val draft_status : uuid -> (draft_status, unit) t
 val draft_voters : uuid -> (voter_list, voters_request) t
 val draft_passwords : uuid -> (string_list, voter_list) t
-val draft_credentials : uuid -> (unit, public_credentials) t
 
 val draft_public_credentials :
   uuid -> (public_credentials, public_credentials) t

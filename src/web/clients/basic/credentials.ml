@@ -88,7 +88,9 @@ let show main uuid =
               let button_container = div [] |> Tyxml_js.To_dom.of_div in
               let b =
                 let@ () = button "Send public credentials to server" in
-                let* x = Api.(post (draft_credentials uuid) public_creds) in
+                let* x =
+                  Api.(post (draft_public_credentials uuid) public_creds)
+                in
                 let@ () = show_in button_container in
                 let msg =
                   match x.code with

@@ -123,7 +123,7 @@ let rec show_draft_credentials uuid container =
       | None ->
           let b =
             let@ () = button "Generate on server" in
-            let* x = Api.(post (draft_credentials uuid) []) in
+            let* x = Api.(post (draft_public_credentials uuid) []) in
             let@ () = show_in container in
             generic_proceed x (fun () -> show_draft_credentials uuid container)
           in
