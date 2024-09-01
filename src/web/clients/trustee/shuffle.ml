@@ -151,8 +151,8 @@ let shuffle ~uuid ~token =
       let* x = http_perform ~token ~override_method:`POST ~contents url in
       let msg =
         match x.code with
-        | 200 -> s_ "Your shuffle has been received and checked!"
-        | _ -> s_ "An error occurred while processing the shuffle!"
+        | 200 -> s_ "The shuffle has been successfully applied!"
+        | _ -> s_ "An error occurred while applying the shuffle."
       in
       let element = div ~a:[ a_id "success" ] [ txt msg ] in
       Dom.appendChild container (Tyxml_js.To_dom.of_div element);
