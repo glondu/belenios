@@ -327,7 +327,7 @@ msgstr "Une élection avec le même UUID existe déjà."
 
 #: src/web/clients/trustee/shuffle.ml:155
 msgid "An error occurred while applying the shuffle."
-msgstr ""
+msgstr "Une erreur est survenue lors de l'application du mélange."
 
 #: src/web/server/common/site_admin.ml:1323
 msgid "An error occurred while computing the result (%s). Most likely, it means that some trustee has not done his/her job."
@@ -338,7 +338,7 @@ msgstr ""
 
 #: src/web/clients/admin/common.ml:119
 msgid "An error occurred while retrieving drafts: %s"
-msgstr ""
+msgstr "Une erreur est survenue lors de la récupération des brouillons : %s"
 
 #: src/web/clients/admin/common.ml:107
 msgid "An error occurred while retrieving elections: %s"
@@ -346,7 +346,7 @@ msgstr "Une erreur s'est produite lors de la récupération des élections : %s"
 
 #: src/web/clients/credauth/generate.ml:70
 msgid "An error occurred while submitting credentials!"
-msgstr ""
+msgstr "Une erreur est survenue lors de l'envoi des codes de vote !"
 
 #: src/web/clients/admin/elections.ml:849
 #. src/web/server/common/pages_admin.ml:1531
@@ -489,7 +489,7 @@ msgstr "Par notre serveur (pas idéal pour la sécurité décentralisée)"
 
 #: src/web/clients/common/secondary_ui.ml:62
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "En utilisant ce site, vous acceptez nos "
 
 #: src/web/clients/admin/elections.ml:1425
 #. src/web/server/common/pages_admin.ml:362
@@ -708,7 +708,7 @@ msgstr "Lien pour l’autorité de codes de vote"
 
 #: src/web/clients/credauth/credauth.ml:31
 msgid "Credential authority management"
-msgstr ""
+msgstr "Gestion de l'autorité de codes de vote"
 
 #: src/web/server/common/pages_admin.ml:1958
 msgid "Credential authority?"
@@ -1826,7 +1826,7 @@ msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:112
 msgid "Please wait…"
-msgstr ""
+msgstr "Veuillez patienter…"
 
 #: src/web/clients/trustee/shuffle.ml:111
 msgid "Please wait… "
@@ -2416,7 +2416,7 @@ msgstr "Le serveur est toujours l'une des autorités de déchiffrement."
 
 #: src/web/clients/trustee/shuffle.ml:154
 msgid "The shuffle has been successfully applied!"
-msgstr ""
+msgstr "Le mélange a été appliqué avec succès !"
 
 #: src/web/clients/admin/elections.ml:1669
 msgid "The tally for this election has started."

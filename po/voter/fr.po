@@ -233,7 +233,7 @@ msgstr "Cliquez ici"
 
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:92
 msgid "Compare"
@@ -258,11 +258,11 @@ msgstr "Les cookies sont bloqués"
 
 #: src/web/clients/election/main.ml:716
 msgid "Could not get election data!"
-msgstr ""
+msgstr "N'a pas pu récupérer les données de l'élection !"
 
 #: src/web/clients/election/main.ml:763
 msgid "Could not retrieve audit data!"
-msgstr ""
+msgstr "N'a pas pu récupérer les données d'audit !"
 
 #: src/web/clients/election/main.ml:191
 msgid "Credentials authority"
@@ -289,7 +289,7 @@ msgstr "Empreinte de l'élection : "
 
 #: src/web/clients/election/main.ml:786
 msgid "Election home"
-msgstr ""
+msgstr "Page d'accueil de l'élection"
 
 #: src/web/common/pages_common.ml:139 src/web/common/pages_common.ml:130
 msgid "Election server"
