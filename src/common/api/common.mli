@@ -19,7 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Serializable_t = Serializable_t
-module Serializable_j = Serializable_j
-include module type of Common
-module Endpoints = Endpoints
+type draft =
+  | Draft : 'a Belenios.Election.version * 'a Serializable_t.draft -> draft
+
+val draft_of_string : string -> draft
+val string_of_draft : draft -> string
