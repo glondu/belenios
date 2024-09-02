@@ -213,7 +213,7 @@ struct
 
   let content_type_of_file = function
     | ESRaw -> "application/json; charset=utf-8"
-    | ESETally | ESResult | ESSalts -> "application/json"
+    | ESResult | ESSalts -> "application/json"
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
@@ -222,7 +222,7 @@ struct
     let module S = (val s) in
     let* confidential =
       match f with
-      | ESRaw | ESETally | ESArchive _ | ESSalts -> return false
+      | ESRaw | ESArchive _ | ESSalts -> return false
       | ESRecords | ESVoters -> return true
       | ESResult -> (
           let* dates = Web_persist.get_election_automatic_dates s uuid in
@@ -261,7 +261,6 @@ struct
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
           | None -> fail_http `Not_found)
-      | ESETally -> !?(Public_archive.get_latest_encrypted_tally s uuid)
       | ESResult -> !?(Public_archive.get_result s uuid)
       | ESVoters -> !?(S.get (Election (uuid, Voters)))
       | ESRecords -> !?(S.get (Election (uuid, Records)))

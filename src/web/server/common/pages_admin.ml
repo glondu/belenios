@@ -2437,17 +2437,22 @@ struct
                 in
                 div [ postpone_form; hr (); release_form ] |> return
           in
+          let encrypted_tally =
+            let x = Belenios_api.Endpoints.election_encrypted_tally uuid in
+            let href = Printf.sprintf "%s/api/%s" !Web_config.prefix x.path in
+            div
+              [
+                txt (s_ "The ");
+                Eliom_content.Html.F.Raw.a
+                  ~a:[ a_href @@ Xml.uri_of_string href ]
+                  [ txt (s_ "encrypted tally") ];
+                txt (s_ " has been computed.");
+              ]
+          in
           return
           @@ div
                [
-                 div
-                   [
-                     txt (s_ "The ");
-                     a ~service:election_dir
-                       [ txt (s_ "encrypted tally") ]
-                       (uuid, ESETally);
-                     txt (s_ " has been computed.");
-                   ];
+                 encrypted_tally;
                  div
                    [
                      div [ txt (s_ "Awaiting trustees…"); threshold_or_not ];

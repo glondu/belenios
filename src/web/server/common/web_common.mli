@@ -40,7 +40,6 @@ type election_file =
   | ESRaw
   | ESVoters
   | ESRecords
-  | ESETally
   | ESResult
   | ESSalts
 

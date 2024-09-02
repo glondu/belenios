@@ -99,7 +99,6 @@ type election_file =
   | ESRaw
   | ESVoters
   | ESRecords
-  | ESETally
   | ESResult
   | ESSalts
 
@@ -107,7 +106,6 @@ let election_file_of_string = function
   | "election.json" -> ESRaw
   | "records" -> ESRecords
   | "voters.txt" -> ESVoters
-  | "encrypted_tally.json" -> ESETally
   | "result.json" -> ESResult
   | "salts.json" -> ESSalts
   | x -> (
@@ -120,7 +118,6 @@ let string_of_election_file = function
   | ESRaw -> "election.json"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"
-  | ESETally -> "encrypted_tally.json"
   | ESResult -> "result.json"
   | ESSalts -> "salts.json"
 
