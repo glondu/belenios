@@ -25,6 +25,7 @@ module type S = sig
   val set_rewrite_prefix : src:string -> dst:string -> unit
 
   val make_absolute_string_uri :
+    ?fragment:string ->
     service:
       ( 'a,
         unit,

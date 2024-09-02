@@ -55,8 +55,8 @@ struct
         | Some result ->
             Pages_voter.cast_confirmed election ~result () >>= Html.send
         | None ->
-            make_absolute_string_uri ~service:apps "election"
-            |> (fun x -> Printf.sprintf "%s#%s" x (Uuid.unwrap uuid))
+            make_absolute_string_uri ~fragment:(Uuid.unwrap uuid) ~service:apps
+              "election"
             |> String_redirection.send)
 
   let () =

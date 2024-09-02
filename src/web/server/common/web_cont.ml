@@ -40,12 +40,17 @@ module Make (Web_services : Web_services_sig.S) = struct
           | Classic -> `R (Redirection (preapply ~service:election_admin uuid))
           | Basic ->
               let base =
-                make_absolute_string_uri ~service:(admin_basic ()) ()
+                make_absolute_string_uri
+                  ~fragment:(Printf.sprintf "elections/%s" (Uuid.unwrap uuid))
+                  ~service:(admin_basic ()) ()
               in
-              `S (Printf.sprintf "%s#elections/%s" base (Uuid.unwrap uuid))
+              `S base
           | New ->
-              let base = make_absolute_string_uri ~service:(admin_new ()) () in
-              `S (Printf.sprintf "%s#%s" base (Uuid.unwrap uuid)))
+              let base =
+                make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
+                  ~service:(admin_new ()) ()
+              in
+              `S base)
     in
     match redir with
     | `R r -> Redirection.send r

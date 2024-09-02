@@ -97,14 +97,18 @@ struct
                   `R (Redirection (preapply ~service:election_admin uuid))
               | Basic ->
                   let base =
-                    make_absolute_string_uri ~service:(admin_basic ()) ()
+                    make_absolute_string_uri
+                      ~fragment:
+                        (Printf.sprintf "elections/%s" (Uuid.unwrap uuid))
+                      ~service:(admin_basic ()) ()
                   in
-                  `S (Printf.sprintf "%s#elections/%s" base (Uuid.unwrap uuid))
+                  `S base
               | New ->
                   let base =
-                    make_absolute_string_uri ~service:(admin_new ()) ()
+                    make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
+                      ~service:(admin_new ()) ()
                   in
-                  `S (Printf.sprintf "%s#%s" base (Uuid.unwrap uuid)))
+                  `S base)
           | `Logout ->
               `R (Redirection (preapply ~service:election_home (uuid, ()))))
     in

@@ -114,13 +114,13 @@ struct
         ()
     in
     let booths =
-      let hash =
+      let fragment =
         Netencoding.Url.mk_url_encoded_parameters
           [ ("uuid", Uuid.unwrap uuid); ("lang", lang) ]
       in
       let make ~service =
-        make_absolute_string_uri ~service () |> fun uri ->
-        direct_a (uri ^ "#" ^ hash) "direct link"
+        make_absolute_string_uri ~fragment ~service () |> fun uri ->
+        direct_a uri "direct link"
       in
       Web_services.booths |> Array.to_list
       |> List.map (fun (Booth service, name) ->

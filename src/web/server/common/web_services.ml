@@ -50,8 +50,12 @@ module Make () = struct
     in
     rewrite_fun := f
 
-  let make_absolute_string_uri ~service x =
+  let make_absolute_string_uri ?fragment ~service x =
+    (* We assume fragment is already encoded, that's why we don't use
+       the labelled argument of Eliom_uri.make_string_uri. *)
     Eliom_uri.make_string_uri ~absolute:true ~service x |> !rewrite_fun
+    |> fun x ->
+    match fragment with None -> x | Some y -> String.concat "#" [ x; y ]
 
   let admin_basic () =
     Eliom_service.preapply
@@ -61,30 +65,28 @@ module Make () = struct
   let admin_new () = Eliom_service.preapply ~service:apps "admin"
 
   let make_admin_new_uri uuid =
-    let base = make_absolute_string_uri ~service:(admin_new ()) () in
-    Eliom_content.Xml.uri_of_string
-    @@
-    match uuid with
-    | None -> base
-    | Some uuid -> base ^ "#" ^ Belenios.Uuid.unwrap uuid
+    let fragment = Option.map Belenios.Uuid.unwrap uuid in
+    let base = make_absolute_string_uri ?fragment ~service:(admin_new ()) () in
+    Eliom_content.Xml.uri_of_string base
 
   let make_trustee_link uuid kind =
-    let kind, suffix =
+    let uuid = Belenios.Uuid.unwrap uuid in
+    let fragment =
       match kind with
-      | `Generate token -> ("generate", "/" ^ token)
-      | `Decrypt token -> ("decrypt", "/" ^ token)
-      | `Shuffle token -> ("shuffle", "/" ^ token)
-      | `Check -> ("check", "")
+      | `Generate token -> Printf.sprintf "generate/%s/%s" uuid token
+      | `Decrypt token -> Printf.sprintf "decrypt/%s/%s" uuid token
+      | `Shuffle token -> Printf.sprintf "shuffle/%s/%s" uuid token
+      | `Check -> Printf.sprintf "check/%s" uuid
     in
-    make_absolute_string_uri ~service:apps "trustee" |> fun x ->
-    Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix
+    make_absolute_string_uri ~fragment ~service:apps "trustee"
 
   let make_credauth_link uuid kind =
-    let kind, suffix =
-      match kind with `Generate token -> ("generate", "/" ^ token)
+    let uuid = Belenios.Uuid.unwrap uuid in
+    let fragment =
+      match kind with
+      | `Generate token -> Printf.sprintf "generate/%s/%s" uuid token
     in
-    make_absolute_string_uri ~service:apps "credauth" |> fun x ->
-    Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix
+    make_absolute_string_uri ~fragment ~service:apps "credauth"
 
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true

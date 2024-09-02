@@ -459,15 +459,17 @@ struct
 
   let preview_booth l uuid metadata =
     let open (val l : Belenios_ui.I18n.GETTEXT) in
-    let hash =
+    let fragment =
       Netencoding.Url.mk_url_encoded_parameters
         [ ("uuid", Uuid.unwrap uuid); ("lang", lang); ("draft", "1") ]
     in
     match get_booth_index metadata.e_booth_version with
     | Some i ->
         let (Booth election_vote) = fst booths.(i) in
-        let service = make_absolute_string_uri ~service:(election_vote ()) () in
-        span [ direct_a (service ^ "#" ^ hash) (s_ "Preview booth") ]
+        let service =
+          make_absolute_string_uri ~fragment ~service:(election_vote ()) ()
+        in
+        span [ direct_a service (s_ "Preview booth") ]
     | None -> span [ txt @@ s_ "Unsupported booth version" ]
 
   let election_draft uuid (Draft (_, se) as fse) () =
