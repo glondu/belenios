@@ -109,7 +109,6 @@ module type S = sig
     string
 
   val make_credauth_link : uuid -> [< `Generate of string ] -> string
-  val make_election_home : uuid -> string
 
   val privacy_notice_accept :
     ( unit,

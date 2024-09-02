@@ -2560,7 +2560,7 @@ struct
         div
           [
             Eliom_content.Html.F.Raw.a
-              ~a:[ a_href @@ Xml.uri_of_string @@ make_election_home uuid ]
+              ~a:[ a_href @@ Xml.uri_of_string @@ get_election_home_url uuid ]
               [ txt (s_ "Election home") ];
           ];
         div

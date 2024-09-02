@@ -69,11 +69,6 @@ module Make () = struct
          Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix)
     |> rewrite_prefix
 
-  let make_election_home uuid =
-    Eliom_uri.make_string_uri ~absolute:true ~service:apps "election"
-    |> (fun x -> Printf.sprintf "%s#%s" x (Belenios.Uuid.unwrap uuid))
-    |> rewrite_prefix
-
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true
       ~meth:(Post (unit, privacy_cont "cont"))
