@@ -55,8 +55,7 @@ struct
         | Some result ->
             Pages_voter.cast_confirmed election ~result () >>= Html.send
         | None ->
-            Eliom_uri.make_string_uri ~absolute:true ~service:apps "election"
-            |> rewrite_prefix
+            make_absolute_string_uri ~service:apps "election"
             |> (fun x -> Printf.sprintf "%s#%s" x (Uuid.unwrap uuid))
             |> String_redirection.send)
 
@@ -139,15 +138,9 @@ struct
     let* metadata = Web_persist.get_election_metadata s uuid in
     let x = (uuid, ()) in
     let url1 =
-      Eliom_uri.make_string_uri ~absolute:true
-        ~service:Web_services.election_pretty_ballots x
-      |> rewrite_prefix
+      make_absolute_string_uri ~service:Web_services.election_pretty_ballots x
     in
-    let url2 =
-      Eliom_uri.make_string_uri ~absolute:true
-        ~service:Web_services.election_home x
-      |> rewrite_prefix
-    in
+    let url2 = get_election_home_url uuid in
     let* l = get_preferred_gettext () in
     let open (val l) in
     let subject = Printf.sprintf (f_ "Your vote for election %s") title in

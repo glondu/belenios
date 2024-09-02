@@ -38,7 +38,6 @@ module Make () = struct
     else x
 
   let rewrite_fun = ref default_rewrite_prefix
-  let rewrite_prefix x = !rewrite_fun x
 
   let set_rewrite_prefix ~src ~dst =
     let prefix = if String.ends_with ~suffix:"/" src then src else src ^ "/" in
@@ -51,6 +50,9 @@ module Make () = struct
     in
     rewrite_fun := f
 
+  let make_absolute_string_uri ~service x =
+    Eliom_uri.make_string_uri ~absolute:true ~service x |> !rewrite_fun
+
   let admin_basic () =
     Eliom_service.preapply
       ~service:(Eliom_service.static_dir ())
@@ -59,10 +61,7 @@ module Make () = struct
   let admin_new () = Eliom_service.preapply ~service:apps "admin"
 
   let make_admin_new_uri uuid =
-    let base =
-      Eliom_uri.make_string_uri ~absolute:true ~service:(admin_new ()) ()
-      |> rewrite_prefix
-    in
+    let base = make_absolute_string_uri ~service:(admin_new ()) () in
     Eliom_content.Xml.uri_of_string
     @@
     match uuid with
@@ -77,19 +76,15 @@ module Make () = struct
       | `Shuffle token -> ("shuffle", "/" ^ token)
       | `Check -> ("check", "")
     in
-    Eliom_uri.make_string_uri ~absolute:true ~service:apps "trustee"
-    |> (fun x ->
-         Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix)
-    |> rewrite_prefix
+    make_absolute_string_uri ~service:apps "trustee" |> fun x ->
+    Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix
 
   let make_credauth_link uuid kind =
     let kind, suffix =
       match kind with `Generate token -> ("generate", "/" ^ token)
     in
-    Eliom_uri.make_string_uri ~absolute:true ~service:apps "credauth"
-    |> (fun x ->
-         Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix)
-    |> rewrite_prefix
+    make_absolute_string_uri ~service:apps "credauth" |> fun x ->
+    Printf.sprintf "%s#%s/%s%s" x kind (Belenios.Uuid.unwrap uuid) suffix
 
   let privacy_notice_accept =
     create ~path:No_path ~csrf_safe:true

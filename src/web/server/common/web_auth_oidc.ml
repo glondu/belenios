@@ -36,10 +36,9 @@ struct
 
   let oidc_self =
     lazy
-      (Eliom_uri.make_string_uri ~absolute:true
+      (Web_services.make_absolute_string_uri
          ~service:(preapply ~service:login_oidc [])
-         ()
-      |> Web_services.rewrite_prefix)
+         ())
 
   let oidc_get_userinfo ocfg info =
     try
@@ -112,10 +111,7 @@ struct
                 ( Lazy.force oidc_self,
                   ("code", (client_id, ("openid email", (state, "consent")))) )
             in
-            let url =
-              Eliom_uri.make_string_uri ~service ~absolute:true ()
-              |> Web_services.rewrite_prefix
-            in
+            let url = Web_services.make_absolute_string_uri ~service () in
             return (Web_auth_sig.Redirection url, Data_oidc ocfg)
         | _ -> failwith "oidc_login_handler invoked with bad config"
 

@@ -466,11 +466,7 @@ struct
     match get_booth_index metadata.e_booth_version with
     | Some i ->
         let (Booth election_vote) = fst booths.(i) in
-        let service =
-          Eliom_uri.make_string_uri ~service:(election_vote ()) ~absolute:true
-            ()
-          |> rewrite_prefix
-        in
+        let service = make_absolute_string_uri ~service:(election_vote ()) () in
         span [ direct_a (service ^ "#" ^ hash) (s_ "Preview booth") ]
     | None -> span [ txt @@ s_ "Unsupported booth version" ]
 

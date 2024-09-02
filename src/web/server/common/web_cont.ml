@@ -40,17 +40,11 @@ module Make (Web_services : Web_services_sig.S) = struct
           | Classic -> `R (Redirection (preapply ~service:election_admin uuid))
           | Basic ->
               let base =
-                Eliom_uri.make_string_uri ~service:(admin_basic ())
-                  ~absolute:true ()
-                |> rewrite_prefix
+                make_absolute_string_uri ~service:(admin_basic ()) ()
               in
               `S (Printf.sprintf "%s#elections/%s" base (Uuid.unwrap uuid))
           | New ->
-              let base =
-                Eliom_uri.make_string_uri ~service:(admin_new ()) ~absolute:true
-                  ()
-                |> rewrite_prefix
-              in
+              let base = make_absolute_string_uri ~service:(admin_new ()) () in
               `S (Printf.sprintf "%s#%s" base (Uuid.unwrap uuid)))
     in
     match redir with

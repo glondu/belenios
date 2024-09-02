@@ -49,9 +49,8 @@ struct
         ~get_params:(Eliom_parameter.string "version")
         ()
     in
-    Eliom_uri.make_string_uri ~absolute:true ~service
-      ([ "static"; x ], Version.build)
-    |> rewrite_prefix |> Eliom_content.Xml.uri_of_string
+    make_absolute_string_uri ~service ([ "static"; x ], Version.build)
+    |> Eliom_content.Xml.uri_of_string
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
 

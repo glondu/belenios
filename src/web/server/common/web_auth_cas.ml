@@ -39,10 +39,9 @@ struct
       ()
 
   let cas_self ~state =
-    Eliom_uri.make_string_uri ~absolute:true
+    Web_services.make_absolute_string_uri
       ~service:(preapply ~service:login_cas (state, None))
       ()
-    |> Web_services.rewrite_prefix
 
   let extract tag xs =
     let rec loop = function
@@ -136,10 +135,7 @@ struct
                 ()
             in
             let service = preapply ~service:cas_login (cas_self ~state) in
-            let url =
-              Eliom_uri.make_string_uri ~service ~absolute:true ()
-              |> Web_services.rewrite_prefix
-            in
+            let url = Web_services.make_absolute_string_uri ~service () in
             return (Web_auth_sig.Redirection url, Web_auth.No_data)
         | _ -> failwith "cas_login_handler invoked with bad config"
 

@@ -119,8 +119,8 @@ struct
           [ ("uuid", Uuid.unwrap uuid); ("lang", lang) ]
       in
       let make ~service =
-        Eliom_uri.make_string_uri ~service ~absolute:true () |> rewrite_prefix
-        |> fun uri -> direct_a (uri ^ "#" ^ hash) "direct link"
+        make_absolute_string_uri ~service () |> fun uri ->
+        direct_a (uri ^ "#" ^ hash) "direct link"
       in
       Web_services.booths |> Array.to_list
       |> List.map (fun (Booth service, name) ->

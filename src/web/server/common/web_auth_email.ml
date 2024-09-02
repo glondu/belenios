@@ -79,10 +79,7 @@ struct
               let env = { username_or_address; state; auth_instance } in
               let* () = Eliom_reference.set login_env (Some env) in
               let service = Web_services.email_election_login in
-              let url =
-                Eliom_uri.make_string_uri ~service ~absolute:true ()
-                |> Web_services.rewrite_prefix
-              in
+              let url = Web_services.make_absolute_string_uri ~service () in
               return (Web_auth_sig.Redirection url, Web_auth.No_data)
             else
               let* fragment =
