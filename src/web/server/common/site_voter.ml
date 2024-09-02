@@ -212,17 +212,16 @@ struct
             return @@ cast_unknown_content_kind x)
 
   let content_type_of_file = function
-    | ESRaw -> "application/json; charset=utf-8"
     | ESSalts -> "application/json"
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
-  let handle_pseudo_file ~preload uuid f site_user =
+  let handle_pseudo_file uuid f site_user =
     let@ s = Storage.with_transaction in
     let module S = (val s) in
     let* confidential =
       match f with
-      | ESRaw | ESArchive _ | ESSalts -> return false
+      | ESArchive _ | ESSalts -> return false
       | ESRecords | ESVoters -> return true
     in
     let* allowed =
@@ -243,19 +242,6 @@ struct
       in
       let ( !? ) x = x >>= return_string in
       match f with
-      | ESRaw -> (
-          let* x = Public_archive.get_election s uuid in
-          match x with
-          | Some x ->
-              let () =
-                if preload then
-                  Lwt.async (fun () ->
-                      let* _ = Web_persist.get_username_or_address s uuid in
-                      Lwt.return_unit)
-              in
-              let* x = String.send (x, content_type) in
-              return @@ cast_unknown_content_kind x
-          | None -> fail_http `Not_found)
       | ESVoters -> !?(S.get (Election (uuid, Voters)))
       | ESRecords -> !?(S.get (Election (uuid, Records)))
       | ESSalts -> !?(S.get (Election (uuid, Salts)))
@@ -267,12 +253,6 @@ struct
 
   let () =
     Any.register ~service:election_dir (fun (uuid, f) () ->
-        let preload =
-          let ri = Eliom_request_info.get_ri () in
-          match Ocsigen_request.header ri Ocsigen_header.Name.referer with
-          | None -> false
-          | Some referer -> Stdlib.String.ends_with ~suffix:"/vote.html" referer
-        in
         let* site_user = Eliom_reference.get Web_state.site_user in
-        handle_pseudo_file ~preload uuid f site_user)
+        handle_pseudo_file uuid f site_user)
 end

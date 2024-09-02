@@ -35,12 +35,7 @@ val rewrite_prefix : string -> string
 val set_rewrite_prefix : src:string -> dst:string -> unit
 val get_election_home_url : uuid -> string
 
-type election_file =
-  | ESArchive of uuid
-  | ESRaw
-  | ESVoters
-  | ESRecords
-  | ESSalts
+type election_file = ESArchive of uuid | ESVoters | ESRecords | ESSalts
 
 val election_file_of_string : string -> election_file
 val string_of_election_file : election_file -> string

@@ -94,15 +94,9 @@ let set_rewrite_prefix ~src ~dst =
 let get_election_home_url uuid =
   Printf.sprintf "%s/election#%s" !Web_config.prefix (Uuid.unwrap uuid)
 
-type election_file =
-  | ESArchive of uuid
-  | ESRaw
-  | ESVoters
-  | ESRecords
-  | ESSalts
+type election_file = ESArchive of uuid | ESVoters | ESRecords | ESSalts
 
 let election_file_of_string = function
-  | "election.json" -> ESRaw
   | "records" -> ESRecords
   | "voters.txt" -> ESVoters
   | "salts.json" -> ESSalts
@@ -113,7 +107,6 @@ let election_file_of_string = function
 
 let string_of_election_file = function
   | ESArchive x -> Uuid.unwrap x ^ ".bel"
-  | ESRaw -> "election.json"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"
   | ESSalts -> "salts.json"

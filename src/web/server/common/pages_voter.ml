@@ -43,6 +43,13 @@ struct
     let open (val election : Site_common_sig.ELECTION) in
     let* l = get_preferred_gettext () in
     let open (val l) in
+    let parameters =
+      let x = Belenios_api.Endpoints.election uuid in
+      let href = Printf.sprintf "%s/api/%s" !Web_config.prefix x.path in
+      Eliom_content.Html.F.Raw.a
+        ~a:[ a_href @@ Xml.uri_of_string href ]
+        [ txt (s_ "parameters") ]
+    in
     return
     @@ div
          ~a:[ a_style "line-height:1.5em;" ]
@@ -54,7 +61,7 @@ struct
                div
                  [
                    txt (s_ "Audit data: ");
-                   a ~service:(file uuid ESRaw) [ txt (s_ "parameters") ] ();
+                   parameters;
                    txt ", ";
                    a
                      ~service:(file uuid (ESArchive uuid))
