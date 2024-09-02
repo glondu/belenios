@@ -53,7 +53,7 @@ Make Belenios aware of its public address:
     <host charset="utf-8" hostfilter="*" defaulthostname="vote.example.org">
       ...
       <eliom name="belenios">
-        <public-url prefix="https://vote.example.org" rewrite="http://vote.example.org:8001"/>
+        <public-url prefix="https://vote.example.org"/>
         ...
       </eliom>
     </host>
