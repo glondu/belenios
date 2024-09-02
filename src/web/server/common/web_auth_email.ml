@@ -81,7 +81,7 @@ struct
               let service = Web_services.email_election_login in
               let url =
                 Eliom_uri.make_string_uri ~service ~absolute:true ()
-                |> rewrite_prefix
+                |> Web_services.rewrite_prefix
               in
               return (Web_auth_sig.Redirection url, Web_auth.No_data)
             else

@@ -29,6 +29,28 @@ module Make () = struct
   let home = create ~path:(Path [ "" ]) ~meth:(Get unit) ()
   let apps = create ~path:(Path []) ~meth:(Get (suffix (string "page"))) ()
 
+  let default_rewrite_prefix x =
+    let prefix = Eliom_uri.make_string_uri ~absolute:true ~service:home () in
+    let nprefix = String.length prefix in
+    if String.starts_with ~prefix x then
+      String.concat "/"
+        [ !Web_config.prefix; String.sub x nprefix (String.length x - nprefix) ]
+    else x
+
+  let rewrite_fun = ref default_rewrite_prefix
+  let rewrite_prefix x = !rewrite_fun x
+
+  let set_rewrite_prefix ~src ~dst =
+    let prefix = if String.ends_with ~suffix:"/" src then src else src ^ "/" in
+    let dst = if String.ends_with ~suffix:"/" dst then dst else dst ^ "/" in
+    let nprefix = String.length prefix in
+    let f x =
+      if String.starts_with ~prefix x then
+        dst ^ String.sub x nprefix (String.length x - nprefix)
+      else x
+    in
+    rewrite_fun := f
+
   let admin_basic () =
     Eliom_service.preapply
       ~service:(Eliom_service.static_dir ())

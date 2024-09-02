@@ -22,6 +22,9 @@
 open Belenios_server_core
 
 module type S = sig
+  val rewrite_prefix : string -> string
+  val set_rewrite_prefix : src:string -> dst:string -> unit
+
   val uuid_and_token :
     ( uuid * string,
       [ `WithoutSuffix ],

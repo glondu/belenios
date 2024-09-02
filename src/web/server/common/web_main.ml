@@ -23,12 +23,12 @@ open Lwt
 open Lwt.Syntax
 open Belenios
 open Belenios_server_core
-open Web_common
 
 module Make () = struct
   (** Parse configuration from <eliom> *)
 
   let prefix = ref None
+  let rewrite_prefix = ref None
   let share_dir = ref None
   let source_file = ref None
   let auth_instances = ref []
@@ -51,7 +51,7 @@ module Make () = struct
         let rewrite = List.assoc_opt "rewrite" attrs in
         let () =
           match (prefix_, rewrite) with
-          | Some dst, Some src -> set_rewrite_prefix ~src ~dst
+          | Some dst, Some src -> rewrite_prefix := Some (src, dst)
           | _ -> ()
         in
         prefix := prefix_
@@ -233,6 +233,12 @@ module Make () = struct
     module Mails_admin = Belenios_ui.Mails_admin.Make (Web_i18n)
     module Web_state = Web_state.Make ()
     module Web_services = Web_services.Make ()
+
+    let () =
+      match !rewrite_prefix with
+      | None -> ()
+      | Some (src, dst) -> Web_services.set_rewrite_prefix ~src ~dst
+
     module Web_i18n = Web_i18n.Make ()
     module Pages_common = Pages_common.Make (Web_i18n) (Web_services)
 
@@ -261,8 +267,8 @@ module Make () = struct
     Web_auth_email.Make (X.Web_state) (X.Web_services) (X.Pages_common)
       (Web_auth)
 
-  module Web_auth_cas = Web_auth_cas.Make (Web_auth)
-  module Web_auth_oidc = Web_auth_oidc.Make (Web_auth)
+  module Web_auth_cas = Web_auth_cas.Make (X.Web_services) (Web_auth)
+  module Web_auth_oidc = Web_auth_oidc.Make (X.Web_services) (Web_auth)
   module Site_common = Site_common.Make (X)
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_cont) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)

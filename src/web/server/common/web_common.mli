@@ -31,8 +31,6 @@ val fail : error -> 'a Lwt.t
 val explain_error : (module Belenios_ui.I18n.GETTEXT) -> error -> string
 val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
-val rewrite_prefix : string -> string
-val set_rewrite_prefix : src:string -> dst:string -> unit
 val get_election_home_url : uuid -> string
 
 type election_file = ESArchive of uuid | ESVoters | ESRecords | ESSalts
@@ -113,24 +111,6 @@ val urlize : string -> string
 val unurlize : string -> string
 val markup : string -> [> Html_types.span ] Eliom_content.Html.elt
 val get_booth_index : int option -> int option
-
-val compute_hash_link :
-  service:
-    ( unit,
-      unit,
-      Eliom_service.get,
-      'a,
-      'b,
-      'c,
-      'd,
-      [ `WithoutSuffix ],
-      'e,
-      unit,
-      'f )
-    Eliom_service.t ->
-  uuid:uuid ->
-  token:string ->
-  string
 
 type credential_record = {
   cr_ballot : string option;

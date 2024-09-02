@@ -78,20 +78,6 @@ let fail_http status =
   Lwt.fail
     (Ocsigen_extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
 
-let rewrite_fun = ref Fun.id
-let rewrite_prefix x = !rewrite_fun x
-
-let set_rewrite_prefix ~src ~dst =
-  let prefix = if String.ends_with ~suffix:"/" src then src else src ^ "/" in
-  let dst = if String.ends_with ~suffix:"/" dst then dst else dst ^ "/" in
-  let nprefix = String.length prefix in
-  let f x =
-    if String.starts_with ~prefix x then
-      dst ^ String.sub x nprefix (String.length x - nprefix)
-    else x
-  in
-  rewrite_fun := f
-
 let get_election_home_url uuid =
   Printf.sprintf "%s/election#%s" !Web_config.prefix (Uuid.unwrap uuid)
 
@@ -290,11 +276,6 @@ let markup x =
   with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
 
 let get_booth_index = function Some 2 -> Some 0 | _ -> None
-
-let compute_hash_link ~service ~uuid ~token =
-  Eliom_uri.make_string_uri ~absolute:true ~service ()
-  |> (fun x -> Printf.sprintf "%s#%s-%s" x (Uuid.unwrap uuid) token)
-  |> rewrite_prefix
 
 type credential_record = {
   cr_ballot : string option;

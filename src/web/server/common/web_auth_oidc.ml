@@ -25,7 +25,8 @@ open Eliom_service
 open Belenios_server_core
 open Web_common
 
-module Make (Web_auth : Web_auth_sig.S) = struct
+module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
+struct
   type Web_auth_sig.data += Data_oidc of oidc_configuration
 
   let login_oidc =
@@ -38,7 +39,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
       (Eliom_uri.make_string_uri ~absolute:true
          ~service:(preapply ~service:login_oidc [])
          ()
-      |> rewrite_prefix)
+      |> Web_services.rewrite_prefix)
 
   let oidc_get_userinfo ocfg info =
     try
@@ -113,7 +114,7 @@ module Make (Web_auth : Web_auth_sig.S) = struct
             in
             let url =
               Eliom_uri.make_string_uri ~service ~absolute:true ()
-              |> rewrite_prefix
+              |> Web_services.rewrite_prefix
             in
             return (Web_auth_sig.Redirection url, Data_oidc ocfg)
         | _ -> failwith "oidc_login_handler invoked with bad config"

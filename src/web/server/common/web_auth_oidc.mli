@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (_ : Web_auth_sig.S) : sig end
+module Make (_ : Web_services_sig.S) (_ : Web_auth_sig.S) : sig end
