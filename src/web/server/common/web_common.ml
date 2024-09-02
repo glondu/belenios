@@ -99,14 +99,12 @@ type election_file =
   | ESRaw
   | ESVoters
   | ESRecords
-  | ESResult
   | ESSalts
 
 let election_file_of_string = function
   | "election.json" -> ESRaw
   | "records" -> ESRecords
   | "voters.txt" -> ESVoters
-  | "result.json" -> ESResult
   | "salts.json" -> ESSalts
   | x -> (
       match Filename.chop_suffix_opt ~suffix:".bel" x with
@@ -118,7 +116,6 @@ let string_of_election_file = function
   | ESRaw -> "election.json"
   | ESRecords -> "records"
   | ESVoters -> "voters.txt"
-  | ESResult -> "result.json"
   | ESSalts -> "salts.json"
 
 let election_file x =

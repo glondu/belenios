@@ -213,7 +213,7 @@ struct
 
   let content_type_of_file = function
     | ESRaw -> "application/json; charset=utf-8"
-    | ESResult | ESSalts -> "application/json"
+    | ESSalts -> "application/json"
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
@@ -224,11 +224,6 @@ struct
       match f with
       | ESRaw | ESArchive _ | ESSalts -> return false
       | ESRecords | ESVoters -> return true
-      | ESResult -> (
-          let* dates = Web_persist.get_election_automatic_dates s uuid in
-          match dates.auto_date_publish with
-          | None -> return false
-          | Some _ -> return true)
     in
     let* allowed =
       if confidential then
@@ -261,7 +256,6 @@ struct
               let* x = String.send (x, content_type) in
               return @@ cast_unknown_content_kind x
           | None -> fail_http `Not_found)
-      | ESResult -> !?(Public_archive.get_result s uuid)
       | ESVoters -> !?(S.get (Election (uuid, Voters)))
       | ESRecords -> !?(S.get (Election (uuid, Records)))
       | ESSalts -> !?(S.get (Election (uuid, Salts)))

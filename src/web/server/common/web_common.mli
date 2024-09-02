@@ -40,7 +40,6 @@ type election_file =
   | ESRaw
   | ESVoters
   | ESRecords
-  | ESResult
   | ESSalts
 
 val election_file_of_string : string -> election_file
