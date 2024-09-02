@@ -130,10 +130,10 @@ site. Available authentication methods:
    `<auth name="example"><cas server="https://cas.example.com/cas"/></auth>`
 
    If the web server is behind a reverse-proxy, it might be needed to
-   rewrite URLs passed to the CAS server. This can be done with the
-   following directive:
+   rewrite URLs passed to the CAS server. This can be done by adjusting
+   the `<public-url>` directive:
 
-   `<rewrite-prefix src="https://backend-server" dst="https://frontend-server/belenios"/>`
+   `<public-url prefix="https://frontend-server/belenios" rewrite="http://backend-server"/>`
 
  * `<oidc>`: authenticate with an [OpenID Connect](http://openid.net/connect/)
    server. For example:
@@ -143,7 +143,7 @@ site. Available authentication methods:
    In the above, `client-id` and `client-secret` must be replaced by
    valid credentials issued by the OpenID Connect provider.
 
-   The `<rewrite-prefix>` directive also applies to this authentication
+   The `<public-url>` directive also applies to this authentication
    scheme.
 
 The `<source>` element gives the path to the source tarball. Note that

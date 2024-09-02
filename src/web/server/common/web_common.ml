@@ -78,15 +78,16 @@ let fail_http status =
   Lwt.fail
     (Ocsigen_extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
 
-let rewrite_fun = ref (fun x -> x)
+let rewrite_fun = ref Fun.id
 let rewrite_prefix x = !rewrite_fun x
 
 let set_rewrite_prefix ~src ~dst =
-  let nsrc = String.length src in
+  let prefix = if String.ends_with ~suffix:"/" src then src else src ^ "/" in
+  let dst = if String.ends_with ~suffix:"/" dst then dst else dst ^ "/" in
+  let nprefix = String.length prefix in
   let f x =
-    let n = String.length x in
-    if n >= nsrc && String.sub x 0 nsrc = src then
-      dst ^ String.sub x nsrc (n - nsrc)
+    if String.starts_with ~prefix x then
+      dst ^ String.sub x nprefix (String.length x - nprefix)
     else x
   in
   rewrite_fun := f

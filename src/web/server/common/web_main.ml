@@ -46,7 +46,15 @@ module Make () = struct
     | PCData x ->
         Ocsigen_extensions.Configuration.ignore_blank_pcdata ~in_tag:"belenios"
           x
-    | Element ("prefix", [ ("value", x) ], []) -> prefix := Some x
+    | Element ("public-url", attrs, []) ->
+        let prefix_ = List.assoc_opt "prefix" attrs in
+        let rewrite = List.assoc_opt "rewrite" attrs in
+        let () =
+          match (prefix_, rewrite) with
+          | Some dst, Some src -> set_rewrite_prefix ~src ~dst
+          | _ -> ()
+        in
+        prefix := prefix_
     | Element ("maxrequestbodysizeinmemory", [ ("value", m) ], []) ->
         Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
     | Element ("source", [ ("file", file) ], []) -> source_file := Some file
@@ -93,8 +101,6 @@ module Make () = struct
         Web_config.admin_home := Some file
     | Element ("success-snippet", [ ("file", file) ], []) ->
         Web_config.success_snippet := Some file
-    | Element ("rewrite-prefix", [ ("src", src); ("dst", dst) ], []) ->
-        set_rewrite_prefix ~src ~dst
     | Element
         ( "auth",
           [ ("name", auth_instance) ],
@@ -136,8 +142,14 @@ module Make () = struct
 
   let () =
     match !prefix with
-    | None -> failwith "missing <prefix> in configuration"
-    | Some x -> Web_config.prefix := x
+    | None -> failwith "missing <public-url> in configuration"
+    | Some x ->
+        let x =
+          if String.ends_with ~suffix:"/" x then
+            String.sub x 0 (String.length x - 1)
+          else x
+        in
+        Web_config.prefix := x
 
   let () =
     match !tos with

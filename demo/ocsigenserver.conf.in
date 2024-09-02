@@ -43,7 +43,7 @@
         <static dir="_SHAREDIR_/static" cache="0"/>
       </site>
       <eliom name="belenios">
-        <prefix value="http://127.0.0.1:8001"/>
+        <public-url prefix="http://127.0.0.1:8001"/>
         <!-- Domain name used in Message-ID -->
         <domain name="belenios.example.org"/>
         <!--
