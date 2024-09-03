@@ -30,27 +30,12 @@ module type S = sig
     (string -> Web_auth_sig.result Lwt.t) ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val election_admin :
-    ?shuffle_token:string ->
-    ?tally_token:string ->
-    Storage.t ->
-    (module Site_common_sig.ELECTION) ->
-    metadata ->
-    election_status ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val regenpwd : uuid -> unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val pretty_records :
     Storage.t ->
     (module Site_common_sig.ELECTION) ->
     records ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val election_shuffler_skip_confirm :
-    uuid -> string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val signup_captcha :
     service:string ->

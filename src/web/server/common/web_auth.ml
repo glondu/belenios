@@ -130,7 +130,11 @@ struct
           | `Login -> (
               match admin_ui with
               | Default ->
-                  `R (Redirection (preapply ~service:election_admin uuid))
+                  let base =
+                    make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
+                      ~service:(admin_new ()) ()
+                  in
+                  `S base
               | Basic ->
                   let base =
                     make_absolute_string_uri

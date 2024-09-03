@@ -24,7 +24,6 @@ open Web_common
 
 module Make (Web_services : Web_services_sig.S) = struct
   open Web_services
-  open Eliom_service
   open Eliom_registration
 
   let exec cont =
@@ -36,7 +35,12 @@ module Make (Web_services : Web_services_sig.S) = struct
           | Basic -> `R (Redirection (admin_basic ())))
       | { path = ContSiteElection uuid; admin = admin_ui } -> (
           match admin_ui with
-          | Default -> `R (Redirection (preapply ~service:election_admin uuid))
+          | Default ->
+              let base =
+                make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
+                  ~service:(admin_new ()) ()
+              in
+              `S base
           | Basic ->
               let base =
                 make_absolute_string_uri

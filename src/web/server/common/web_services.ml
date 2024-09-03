@@ -118,16 +118,6 @@ module Make () = struct
 
   let set_consent = create ~path:No_path ~meth:(Get (site_cont "cont")) ()
 
-  let election_admin =
-    create ~path:(Path [ "actions"; "admin" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_regenpwd =
-    create ~path:(Path [ "actions"; "regenpwd" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_regenpwd_post =
-    create_attached_post ~csrf_safe:true ~fallback:election_regenpwd
-      ~post_params:(string "user") ()
-
   let election_login =
     create
       ~path:(Path [ "actions"; "voter-login" ])
@@ -139,31 +129,6 @@ module Make () = struct
       ~path:(Path [ "actions"; "voter-login-done" ])
       ~meth:(Get (uuid "uuid" ** string "state"))
       ()
-
-  let election_open =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_close =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_hide_result =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:(string "date") ()
-
-  let election_show_result =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_auto_post =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:(string "open" ** string "close")
-      ()
-
-  let election_delete =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
 
   let booth_v2 () =
     Eliom_service.preapply
@@ -221,45 +186,6 @@ module Make () = struct
     create ~path:(Path [ "elections" ])
       ~meth:(Get (suffix (uuid "uuid" ** suffix_const "archive.zip")))
       ()
-
-  let election_compute_encrypted_tally =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_shuffle_link =
-    create
-      ~path:(Path [ "actions"; "shuffle" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_shuffler_select =
-    create ~csrf_safe:true ~path:No_path
-      ~meth:(Post (unit, uuid "uuid" ** string "trustee"))
-      ()
-
-  let election_shuffler_skip_confirm =
-    create ~csrf_safe:true ~path:No_path
-      ~meth:(Post (unit, uuid "uuid" ** string "trustee"))
-      ()
-
-  let election_shuffler_skip =
-    create ~csrf_safe:true ~path:No_path
-      ~meth:(Post (unit, uuid "uuid" ** string "trustee"))
-      ()
-
-  let election_decrypt =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_tally_trustees =
-    create
-      ~path:(Path [ "actions"; "trustees" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_tally_release =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
 
   let dummy_post =
     create ~csrf_safe:true ~path:No_path
