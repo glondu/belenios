@@ -106,22 +106,7 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
-  val admin_new :
-    unit ->
-    ( unit,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.non_reg,
-      [ `WithoutSuffix ],
-      unit,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val make_admin_new_uri : uuid option -> Eliom_content.Xml.uri
+  val make_admin_link : uuid option -> string
 
   val make_trustee_link :
     uuid ->

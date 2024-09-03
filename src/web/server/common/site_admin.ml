@@ -115,7 +115,7 @@ struct
             in
             if show then Pages_admin.privacy_notice ContAdmin >>= Html.send
             else if a.email = None then Pages_admin.set_email () >>= Html.send
-            else Redirection.send (Redirection (admin_new ())))
+            else String_redirection.send (make_admin_link None))
 
   module SetEmailSender = struct
     type payload = unit

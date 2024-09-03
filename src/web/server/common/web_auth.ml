@@ -129,12 +129,7 @@ struct
           match login_or_logout with
           | `Login -> (
               match admin_ui with
-              | Default ->
-                  let base =
-                    make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
-                      ~service:(admin_new ()) ()
-                  in
-                  `S base
+              | Default -> `S (make_admin_link (Some uuid))
               | Basic ->
                   let base =
                     make_absolute_string_uri

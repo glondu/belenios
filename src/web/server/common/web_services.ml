@@ -62,12 +62,9 @@ module Make () = struct
       ~service:(Eliom_service.static_dir ())
       [ "static"; "admin_basic.html" ]
 
-  let admin_new () = Eliom_service.preapply ~service:apps "admin"
-
-  let make_admin_new_uri uuid =
+  let make_admin_link uuid =
     let fragment = Option.map Belenios.Uuid.unwrap uuid in
-    let base = make_absolute_string_uri ?fragment ~service:(admin_new ()) () in
-    Eliom_content.Xml.uri_of_string base
+    make_absolute_string_uri ?fragment ~service:apps "admin"
 
   let make_trustee_link uuid kind =
     let uuid = Belenios.Uuid.unwrap uuid in

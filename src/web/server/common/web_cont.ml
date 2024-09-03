@@ -35,12 +35,7 @@ module Make (Web_services : Web_services_sig.S) = struct
           | Basic -> `R (Redirection (admin_basic ())))
       | { path = ContSiteElection uuid; admin = admin_ui } -> (
           match admin_ui with
-          | Default ->
-              let base =
-                make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
-                  ~service:(admin_new ()) ()
-              in
-              `S base
+          | Default -> `S (make_admin_link (Some uuid))
           | Basic ->
               let base =
                 make_absolute_string_uri
