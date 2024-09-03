@@ -68,9 +68,7 @@ let download dir url =
       None)
     else Some file
   in
-  match perform file with
-  | None -> None
-  | Some file -> Some (file, perform "salts.json")
+  perform file
 
 let rm_rf dir =
   let files = Sys.readdir dir in

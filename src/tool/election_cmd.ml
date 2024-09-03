@@ -37,12 +37,9 @@ let main url dir action =
     | _, Some d -> (d, false)
   in
   Printf.eprintf "I: using directory %s\n%!" dir;
-  let file, salts_file =
+  let file =
     match url with
-    | None ->
-        ( find_bel_in_dir dir,
-          let f = dir // "salts.json" in
-          if Sys.file_exists f then Some f else None )
+    | None -> find_bel_in_dir dir
     | Some u -> (
         match download dir u with
         | Some x -> x
@@ -52,7 +49,6 @@ let main url dir action =
     Make
       (struct
         let file = dir // file
-        let salts_file = Option.map (fun x -> dir // x) salts_file
       end)
       ()
   in

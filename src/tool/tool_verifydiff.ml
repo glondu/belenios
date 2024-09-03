@@ -55,7 +55,6 @@ let verifydiff dir1 dir2 =
     Tool_election.Make
       (struct
         let file = file2
-        let salts_file = None
       end)
       ()
   in

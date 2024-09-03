@@ -205,7 +205,6 @@ struct
             return @@ cast_unknown_content_kind x)
 
   let content_type_of_file = function
-    | ESSalts -> "application/json"
     | ESArchive _ -> "application/x-belenios"
     | ESRecords | ESVoters -> "text/plain"
 
@@ -214,7 +213,7 @@ struct
     let module S = (val s) in
     let* confidential =
       match f with
-      | ESArchive _ | ESSalts -> return false
+      | ESArchive _ -> return false
       | ESRecords | ESVoters -> return true
     in
     let* allowed =
@@ -237,7 +236,6 @@ struct
       match f with
       | ESVoters -> !?(S.get (Election (uuid, Voters)))
       | ESRecords -> !?(S.get (Election (uuid, Records)))
-      | ESSalts -> !?(S.get (Election (uuid, Salts)))
       | ESArchive u when u = uuid ->
           let* path = S.get_as_file (Election (uuid, Public_archive)) in
           File.send ~content_type path

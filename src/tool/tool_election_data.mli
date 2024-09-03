@@ -23,7 +23,6 @@ open Belenios
 
 module type PARAMS = sig
   val file : string
-  val salts_file : string option
 end
 
 module type GETTERS = sig
@@ -31,7 +30,6 @@ module type GETTERS = sig
   val setup_data : setup_data
   val raw_election : string
   val get_trustees : unit -> string option
-  val get_salts : unit -> salts option
   val get_public_creds : unit -> string list option
   val get_ballots : unit -> string list option
   val get_encrypted_tally : unit -> (string * hash sized_encrypted_tally) option

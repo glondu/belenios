@@ -33,7 +33,7 @@ val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val get_election_home_url : uuid -> string
 
-type election_file = ESArchive of uuid | ESVoters | ESRecords | ESSalts
+type election_file = ESArchive of uuid | ESVoters | ESRecords
 
 val election_file_of_string : string -> election_file
 val string_of_election_file : election_file -> string
