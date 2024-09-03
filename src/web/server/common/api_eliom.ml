@@ -27,6 +27,36 @@ open Api_generic
 
 let ( let& ) = Option.bind
 
+module Api_result = Eliom_mkreg.Make (struct
+  type page = Api_generic.result
+  type options = unit
+  type result = Ocsigen_response.t
+
+  let result_of_http_result = Fun.id
+  let send_appl_content = Eliom_service.XNever
+
+  let send ?options:_ ?charset:_ ?code:_ ?content_type:_ ?headers:_ response =
+    let headers = Cohttp.Header.of_list [ ("cache-control", "no-cache") ] in
+    match response with
+    | `Json (code, body) ->
+        let status = `Code code in
+        let headers =
+          Cohttp.Header.add headers "content-type" "application/json"
+        in
+        let* response, body =
+          Cohttp_lwt_unix.Server.respond_string ~headers ~status ~body ()
+        in
+        Lwt.return @@ Ocsigen_response.make ~body response
+    | `Bel fname ->
+        let headers =
+          Cohttp.Header.add headers "content-type" "application/x-belenios"
+        in
+        let* response, body =
+          Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
+        in
+        Lwt.return @@ Ocsigen_response.make ~body response
+end)
+
 module Make () = struct
   let dispatch endpoint method_ _params body =
     let sp = Eliom_common.get_sp () in
@@ -52,42 +82,39 @@ module Make () = struct
       }
     in
     let@ s = Storage.with_transaction in
-    let* code, response =
-      match endpoint with
-      | [ "configuration" ] -> (
-          match method_ with
-          | `GET ->
-              let x = Api_generic.get_configuration () in
-              Lwt.return (200, string_of_configuration x)
-          | _ -> method_not_allowed)
-      | [ "account" ] -> (
-          let@ token = Option.unwrap unauthorized token in
-          let@ account = Option.unwrap unauthorized (lookup_token token) in
-          let get () =
-            let x = Api_generic.get_account account in
-            Lwt.return @@ string_of_api_account x
-          in
-          match method_ with
-          | `GET -> handle_get get
-          | `PUT ->
-              let@ () = handle_ifmatch ifmatch get in
-              let@ x = body.run api_account_of_string in
-              let@ () = handle_generic_error in
-              let@ s = Storage.with_transaction in
-              let* account = Accounts.update_account_by_id s account.id in
-              let@ account = Option.unwrap unauthorized account in
-              let* () = Api_generic.put_account account x in
-              ok
-          | _ -> method_not_allowed)
-      | "drafts" :: endpoint ->
-          Api_drafts.dispatch s ~token ~ifmatch endpoint method_ body
-      | "elections" :: endpoint ->
-          Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
-      | "billing" :: endpoint ->
-          Billing.dispatch ~token ~ifmatch endpoint method_ body
-      | _ -> not_found
-    in
-    Eliom_registration.String.send ~code (response, "application/json")
+    match endpoint with
+    | [ "configuration" ] -> (
+        match method_ with
+        | `GET ->
+            let x = Api_generic.get_configuration () in
+            return_json 200 (string_of_configuration x)
+        | _ -> method_not_allowed)
+    | [ "account" ] -> (
+        let@ token = Option.unwrap unauthorized token in
+        let@ account = Option.unwrap unauthorized (lookup_token token) in
+        let get () =
+          let x = Api_generic.get_account account in
+          Lwt.return @@ string_of_api_account x
+        in
+        match method_ with
+        | `GET -> handle_get get
+        | `PUT ->
+            let@ () = handle_ifmatch ifmatch get in
+            let@ x = body.run api_account_of_string in
+            let@ () = handle_generic_error in
+            let@ s = Storage.with_transaction in
+            let* account = Accounts.update_account_by_id s account.id in
+            let@ account = Option.unwrap unauthorized account in
+            let* () = Api_generic.put_account account x in
+            ok
+        | _ -> method_not_allowed)
+    | "drafts" :: endpoint ->
+        Api_drafts.dispatch s ~token ~ifmatch endpoint method_ body
+    | "elections" :: endpoint ->
+        Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
+    | "billing" :: endpoint ->
+        Billing.dispatch ~token ~ifmatch endpoint method_ body
+    | _ -> not_found
 
   open Eliom_service
   open Eliom_parameter
@@ -112,21 +139,19 @@ module Make () = struct
       ~meth:(Delete (suffix_prod (all_suffix "endpoint") any))
       ()
 
-  open Eliom_registration.Any
-
   let () =
-    register ~service:api_get (fun (endpoint, params) () ->
+    Api_result.register ~service:api_get (fun (endpoint, params) () ->
         dispatch endpoint `GET params None)
 
   let () =
-    register ~service:api_post (fun (endpoint, params) x ->
+    Api_result.register ~service:api_post (fun (endpoint, params) x ->
         dispatch endpoint `POST params (Some x))
 
   let () =
-    register ~service:api_put (fun (endpoint, params) x ->
+    Api_result.register ~service:api_put (fun (endpoint, params) x ->
         dispatch endpoint `PUT params (Some x))
 
   let () =
-    register ~service:api_delete (fun (endpoint, params) x ->
+    Api_result.register ~service:api_delete (fun (endpoint, params) x ->
         dispatch endpoint `DELETE params (Some x))
 end

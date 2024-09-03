@@ -55,6 +55,7 @@ val trustee_draft : uuid -> (trustee, string, string) t
 val trustee_election : uuid -> (trustee, tally_trustee, string) t
 val elections : (admin, summary_list, unit) t
 val election : uuid -> ([< nobody | admin ], string, unit) t
+val election_archive : uuid -> (nobody, string, unit) t
 val election_trustees : uuid -> (nobody, string, unit) t
 
 val election_status :

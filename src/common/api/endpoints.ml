@@ -169,6 +169,14 @@ let election uuid =
     to_string_post = string_of_unit;
   }
 
+let election_archive uuid =
+  {
+    path = Printf.sprintf "elections/%s/archive" (Uuid.unwrap uuid);
+    of_string = Fun.id;
+    to_string = Fun.id;
+    to_string_post = string_of_unit;
+  }
+
 let election_trustees uuid =
   {
     path = Printf.sprintf "elections/%s/trustees" (Uuid.unwrap uuid);

@@ -53,7 +53,7 @@ let make_audit_footer election =
   let open (val election : Election.ELECTION) in
   let uuid = Uuid.unwrap uuid in
   let parameters = !/(Printf.sprintf "elections/%s/election" uuid) in
-  let public_data = !!(Printf.sprintf "elections/%s/%s.bel" uuid uuid) in
+  let public_data = !/(Printf.sprintf "elections/%s/archive" uuid) in
   let advanced = !!(Printf.sprintf "actions/cast?uuid=%s" uuid) in
   let administer = !!(Printf.sprintf "actions/admin?uuid=%s" uuid) in
   div

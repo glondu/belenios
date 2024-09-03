@@ -1379,7 +1379,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_draft_status s uuid se in
-          Lwt.return (200, string_of_draft_status x)
+          return_json 200 (string_of_draft_status x)
       | _ -> method_not_allowed)
   | _ -> not_found
 
@@ -1406,7 +1406,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
           let@ () = handle_generic_error in
           let* uuid = post_drafts account s draft in
           match uuid with
-          | Some uuid -> Lwt.return (200, string_of_uuid uuid)
+          | Some uuid -> return_json 200 (string_of_uuid uuid)
           | None -> forbidden)
       | _ -> method_not_allowed)
   | uuid :: endpoint ->

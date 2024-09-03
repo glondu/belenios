@@ -420,8 +420,13 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "election" ] -> (
+      match method_ with `GET -> return_json 200 raw | _ -> method_not_allowed)
+  | [ "archive" ] -> (
       match method_ with
-      | `GET -> Lwt.return (200, raw)
+      | `GET ->
+          let module S = (val s) in
+          let* path = S.get_as_file (Election (uuid, Public_archive)) in
+          Lwt.return @@ `Bel path
       | _ -> method_not_allowed)
   | [ "salts"; index ] -> (
       match int_of_string_opt index with
@@ -433,7 +438,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               match x with
               | None -> not_found
               | Some x ->
-                  Lwt.return (200, string_of_salt Yojson.Safe.write_json x))
+                  return_json 200 (string_of_salt Yojson.Safe.write_json x))
           | _ -> method_not_allowed))
   | [ "trustees" ] -> (
       let get () = Public_archive.get_trustees s uuid in
@@ -460,7 +465,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ () = handle_generic_error in
           let module S = (val s) in
           let* x = S.get (Election (uuid, Voters)) in
-          match x with None -> not_found | Some x -> Lwt.return (200, x))
+          match x with None -> not_found | Some x -> return_json 200 x)
       | _ -> method_not_allowed)
   | [ "records" ] -> (
       let@ _ = with_administrator token metadata in
@@ -468,7 +473,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       | `GET ->
           let@ () = handle_generic_error in
           let* x = get_records s uuid in
-          Lwt.return (200, string_of_records x)
+          return_json 200 (string_of_records x)
       | _ -> method_not_allowed)
   | [ "partial-decryptions" ] -> (
       match method_ with
@@ -476,7 +481,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let* x = get_partial_decryptions s uuid metadata in
-          Lwt.return (200, string_of_partial_decryptions x)
+          return_json 200 (string_of_partial_decryptions x)
       | _ -> method_not_allowed)
   | [ "trustee" ] -> (
       let* state = Web_persist.get_election_state s uuid in
@@ -489,8 +494,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               let* tally_trustee_private_key =
                 find_trustee_private_key s uuid trustee_id
               in
-              Lwt.return
-                (200, string_of_tally_trustee { tally_trustee_private_key })
+              return_json 200
+                (string_of_tally_trustee { tally_trustee_private_key })
           | `POST -> (
               let@ trustee_id = with_tally_trustee token s uuid in
               let@ () = handle_generic_error in
@@ -527,7 +532,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           Lwt.catch
             (fun () ->
               let* x = Public_archive.get_nh_ciphertexts s uuid in
-              Lwt.return (200, x))
+              return_json 200 x)
             (function Election_not_found _ -> not_found | e -> Lwt.reraise e)
       | _ -> method_not_allowed)
   | [ "encrypted-tally" ] -> (
@@ -537,7 +542,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           Lwt.catch
             (fun () ->
               let* x = Public_archive.get_latest_encrypted_tally s uuid in
-              match x with None -> not_found | Some x -> Lwt.return (200, x))
+              match x with None -> not_found | Some x -> return_json 200 x)
             (function Election_not_found _ -> not_found | e -> Lwt.reraise e)
       | _ -> method_not_allowed)
   | [ "shuffles" ] -> (
@@ -546,7 +551,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
           let* x = get_shuffles s uuid metadata in
-          Lwt.return (200, string_of_shuffles x)
+          return_json 200 (string_of_shuffles x)
       | _ -> method_not_allowed)
   | [ "shuffles"; shuffler ] -> (
       match method_ with
@@ -596,7 +601,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       | `GET -> (
           let@ () = handle_generic_error in
           let* x = Public_archive.get_data s uuid (Hash.of_hex hash) in
-          match x with Some x -> Lwt.return (200, x) | None -> not_found)
+          match x with Some x -> return_json 200 x | None -> not_found)
       | _ -> method_not_allowed)
   | [ "last-event" ] -> (
       match method_ with
@@ -604,7 +609,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ () = handle_generic_error in
           let* x = Spool.get s uuid Spool.last_event in
           match x with
-          | Some x -> Lwt.return (200, string_of_last_event x)
+          | Some x -> return_json 200 (string_of_last_event x)
           | None -> not_found)
       | _ -> method_not_allowed)
   | [ "roots" ] -> (
@@ -612,7 +617,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       | `GET ->
           let@ () = handle_generic_error in
           let* x = Public_archive.get_roots s uuid in
-          Lwt.return (200, string_of_roots x)
+          return_json 200 (string_of_roots x)
       | _ -> method_not_allowed)
   | _ -> not_found
 
@@ -634,7 +639,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
                     x :: accu)
               [] elections
           in
-          Lwt.return (200, string_of_summary_list elections)
+          return_json 200 (string_of_summary_list elections)
       | _ -> method_not_allowed)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in

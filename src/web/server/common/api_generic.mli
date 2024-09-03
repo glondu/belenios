@@ -28,9 +28,10 @@ val invalidate_token : string -> unit
 
 exception Error of error
 
-type result = int * string
+type result = [ `Json of int * string | `Bel of string ]
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
+val return_json : int -> string -> result Lwt.t
 val ok : result Lwt.t
 val bad_request : result Lwt.t
 val unauthorized : result Lwt.t

@@ -84,6 +84,6 @@ let dispatch ~token:_ ~ifmatch:_ endpoint method_ _body =
       match method_ with
       | `GET -> (
           let* x = lookup id in
-          match x with None -> not_found | Some x -> Lwt.return (200, x))
+          match x with None -> not_found | Some x -> return_json 200 x)
       | _ -> method_not_allowed)
   | _ -> not_found

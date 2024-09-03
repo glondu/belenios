@@ -61,17 +61,18 @@ let () =
 
 exception Error of Belenios_api.Serializable_t.error
 
-type result = int * string
+type result = [ `Json of int * string | `Bel of string ]
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
-let ok = Lwt.return (200, "{}")
-let bad_request = Lwt.return (400, "\"Bad Request\"")
-let unauthorized = Lwt.return (401, "\"Unauthorized\"")
-let forbidden = Lwt.return (403, "\"Forbidden\"")
-let not_found = Lwt.return (404, "\"Not Found\"")
-let method_not_allowed = Lwt.return (405, "\"Method Not Allowed\"")
-let precondition_failed = Lwt.return (412, "\"Precondition Failed\"")
-let conflict = Lwt.return (409, "\"Conflict\"")
+let return_json code x = Lwt.return @@ `Json (code, x)
+let ok = return_json 200 "{}"
+let bad_request = return_json 400 {|"Bad Request"|}
+let unauthorized = return_json 401 {|"Unauthorized"|}
+let forbidden = return_json 403 {|"Forbidden"|}
+let not_found = return_json 404 {|"Not Found"|}
+let method_not_allowed = return_json 405 {|"Method Not Allowed"|}
+let precondition_failed = return_json 412 {|"Precondition Failed"|}
+let conflict = return_json 409 {|"Conflict"|}
 
 let handle_ifmatch ifmatch current cont =
   match ifmatch with
@@ -84,18 +85,18 @@ let handle_generic_error f =
   Lwt.catch f (function
     | Error error ->
         let request_status = { code = 400; status = "Bad Request"; error } in
-        Lwt.return (400, string_of_request_status request_status)
+        return_json 400 (string_of_request_status request_status)
     | _ -> bad_request)
 
 let handle_get get =
   let@ () = handle_generic_error in
   let* x = get () in
-  Lwt.return (200, x)
+  return_json 200 x
 
 let handle_get_option get =
   let@ () = handle_generic_error in
   let* x = get () in
-  match x with None -> not_found | Some x -> Lwt.return (200, x)
+  match x with None -> not_found | Some x -> return_json 200 x
 
 let get_configuration_uris () =
   {
