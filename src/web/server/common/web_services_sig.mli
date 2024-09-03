@@ -1270,21 +1270,6 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
-  val election_dir :
-    ( uuid * Web_common.election_file,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of Web_common.election_file ] Eliom_parameter.param_name,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
   val dummy_post :
     ( unit,
       string * string,

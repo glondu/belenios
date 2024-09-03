@@ -453,11 +453,6 @@ module Make () = struct
     create_attached_post ~csrf_safe:true ~fallback:election_admin
       ~post_params:unit ()
 
-  let election_dir =
-    create ~path:(Path [ "elections" ])
-      ~meth:(Get (suffix (uuid "uuid" ** election_file "file")))
-      ()
-
   let dummy_post =
     create ~csrf_safe:true ~path:No_path
       ~meth:(Post (unit, string "state" ** string "username"))

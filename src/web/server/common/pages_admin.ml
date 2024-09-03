@@ -2436,16 +2436,11 @@ struct
                 div [ postpone_form; hr (); release_form ] |> return
           in
           let encrypted_tally =
-            let x = Belenios_api.Endpoints.election_encrypted_tally uuid in
-            let href = Printf.sprintf "%s/api/%s" !Web_config.prefix x.path in
-            div
-              [
-                txt (s_ "The ");
-                Eliom_content.Html.F.Raw.a
-                  ~a:[ a_href @@ Xml.uri_of_string href ]
-                  [ txt (s_ "encrypted tally") ];
-                txt (s_ " has been computed.");
-              ]
+            let link =
+              api_a Belenios_api.Endpoints.election_encrypted_tally uuid
+                [ txt (s_ "encrypted tally") ]
+            in
+            div [ txt (s_ "The "); link; txt (s_ " has been computed.") ]
           in
           return
           @@ div
@@ -2552,6 +2547,10 @@ struct
           ]
       else txt ""
     in
+    let voters =
+      api_a Belenios_api.Endpoints.election_voters uuid
+        [ txt (s_ "Voter list") ]
+    in
     let content =
       [
         try_new_ui l (Some uuid);
@@ -2561,8 +2560,7 @@ struct
               ~a:[ a_href @@ Xml.uri_of_string @@ get_election_home_url uuid ]
               [ txt (s_ "Election home") ];
           ];
-        div
-          [ a ~service:election_dir [ txt (s_ "Voter list") ] (uuid, ESVoters) ];
+        voters;
         div
           [
             a ~service:election_pretty_records
@@ -2645,14 +2643,12 @@ struct
                 :: records);
             ]
     in
+    let raw_data =
+      api_a Belenios_api.Endpoints.election_records uuid [ txt (s_ "raw data") ]
+    in
     let content =
       [
-        div
-          [
-            txt (s_ "You can also access the ");
-            a ~service:election_dir [ txt (s_ "raw data") ] (uuid, ESRecords);
-            txt ".";
-          ];
+        div [ txt (s_ "You can also access the "); raw_data; txt "." ];
         summary;
         table;
       ]

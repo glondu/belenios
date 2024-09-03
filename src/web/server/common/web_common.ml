@@ -81,21 +81,6 @@ let fail_http status =
 let get_election_home_url uuid =
   Printf.sprintf "%s/election#%s" !Web_config.prefix (Uuid.unwrap uuid)
 
-type election_file = ESVoters | ESRecords
-
-let election_file_of_string = function
-  | "records" -> ESRecords
-  | "voters.txt" -> ESVoters
-  | x -> invalid_arg ("election_dir_item: " ^ x)
-
-let string_of_election_file = function
-  | ESRecords -> "records"
-  | ESVoters -> "voters.txt"
-
-let election_file x =
-  Eliom_parameter.user_type ~of_string:election_file_of_string
-    ~to_string:string_of_election_file x
-
 let uuid x =
   Eliom_parameter.user_type ~of_string:Uuid.wrap ~to_string:Uuid.unwrap x
 

@@ -47,6 +47,12 @@ module type S = sig
     'a ->
     [> 'h Html_types.a ] Eliom_content.Html.elt
 
+  val api_a :
+    (uuid -> _ Belenios_api.Endpoints.t) ->
+    uuid ->
+    'a Eliom_content.Html.elt list ->
+    [> 'a Html_types.a ] Eliom_content.Html.elt
+
   val make_a_with_hash :
     service:
       ( unit,

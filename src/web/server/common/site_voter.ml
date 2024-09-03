@@ -203,37 +203,4 @@ struct
         | Some b ->
             String.send (b, "application/json") >>= fun x ->
             return @@ cast_unknown_content_kind x)
-
-  let content_type_of_file = function ESRecords | ESVoters -> "text/plain"
-
-  let handle_pseudo_file uuid f site_user =
-    let@ s = Storage.with_transaction in
-    let module S = (val s) in
-    let* confidential = match f with ESRecords | ESVoters -> return true in
-    let* allowed =
-      if confidential then
-        let* metadata = Web_persist.get_election_metadata s uuid in
-        match site_user with
-        | Some (_, a, _) when Accounts.check a metadata.e_owners -> return_true
-        | _ -> return_false
-      else return_true
-    in
-    if allowed then
-      let content_type = content_type_of_file f in
-      let return_string = function
-        | Some x ->
-            let* x = String.send (x, content_type) in
-            return @@ cast_unknown_content_kind x
-        | None -> fail_http `Not_found
-      in
-      let ( !? ) x = x >>= return_string in
-      match f with
-      | ESVoters -> !?(S.get (Election (uuid, Voters)))
-      | ESRecords -> !?(S.get (Election (uuid, Records)))
-    else forbidden ()
-
-  let () =
-    Any.register ~service:election_dir (fun (uuid, f) () ->
-        let* site_user = Eliom_reference.get Web_state.site_user in
-        handle_pseudo_file uuid f site_user)
 end

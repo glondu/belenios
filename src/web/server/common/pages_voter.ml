@@ -43,17 +43,10 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let parameters =
-      let x = Belenios_api.Endpoints.election uuid in
-      let href = Printf.sprintf "%s/api/%s" !Web_config.prefix x.path in
-      Eliom_content.Html.F.Raw.a
-        ~a:[ a_href @@ Xml.uri_of_string href ]
-        [ txt (s_ "parameters") ]
+      api_a Belenios_api.Endpoints.election uuid [ txt (s_ "parameters") ]
     in
     let public_data =
-      let x = Belenios_api.Endpoints.election_archive uuid in
-      let href = Printf.sprintf "%s/api/%s" !Web_config.prefix x.path in
-      Eliom_content.Html.F.Raw.a
-        ~a:[ a_href @@ Xml.uri_of_string href ]
+      api_a Belenios_api.Endpoints.election_archive uuid
         [ txt (s_ "public data") ]
     in
     return

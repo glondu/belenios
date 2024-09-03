@@ -33,18 +33,6 @@ val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val get_election_home_url : uuid -> string
 
-type election_file = ESVoters | ESRecords
-
-val election_file_of_string : string -> election_file
-val string_of_election_file : election_file -> string
-
-val election_file :
-  string ->
-  ( election_file,
-    [ `WithoutSuffix ],
-    [ `One of election_file ] Eliom_parameter.param_name )
-  Eliom_parameter.params_type
-
 val uuid :
   string ->
   ( uuid,
