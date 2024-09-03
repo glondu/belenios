@@ -204,18 +204,12 @@ struct
             String.send (b, "application/json") >>= fun x ->
             return @@ cast_unknown_content_kind x)
 
-  let content_type_of_file = function
-    | ESArchive _ -> "application/x-belenios"
-    | ESRecords | ESVoters -> "text/plain"
+  let content_type_of_file = function ESRecords | ESVoters -> "text/plain"
 
   let handle_pseudo_file uuid f site_user =
     let@ s = Storage.with_transaction in
     let module S = (val s) in
-    let* confidential =
-      match f with
-      | ESArchive _ -> return false
-      | ESRecords | ESVoters -> return true
-    in
+    let* confidential = match f with ESRecords | ESVoters -> return true in
     let* allowed =
       if confidential then
         let* metadata = Web_persist.get_election_metadata s uuid in
@@ -236,10 +230,6 @@ struct
       match f with
       | ESVoters -> !?(S.get (Election (uuid, Voters)))
       | ESRecords -> !?(S.get (Election (uuid, Records)))
-      | ESArchive u when u = uuid ->
-          let* path = S.get_as_file (Election (uuid, Public_archive)) in
-          File.send ~content_type path
-      | ESArchive _ -> fail_http `Not_found
     else forbidden ()
 
   let () =

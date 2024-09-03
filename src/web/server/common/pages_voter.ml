@@ -37,7 +37,6 @@ struct
   open Pages_common
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
-  let file uuid x = Eliom_service.preapply ~service:election_dir (uuid, x)
 
   let audit_footer election =
     let open (val election : Site_common_sig.ELECTION) in
@@ -49,6 +48,13 @@ struct
       Eliom_content.Html.F.Raw.a
         ~a:[ a_href @@ Xml.uri_of_string href ]
         [ txt (s_ "parameters") ]
+    in
+    let public_data =
+      let x = Belenios_api.Endpoints.election_archive uuid in
+      let href = Printf.sprintf "%s/api/%s" !Web_config.prefix x.path in
+      Eliom_content.Html.F.Raw.a
+        ~a:[ a_href @@ Xml.uri_of_string href ]
+        [ txt (s_ "public data") ]
     in
     return
     @@ div
@@ -63,10 +69,7 @@ struct
                    txt (s_ "Audit data: ");
                    parameters;
                    txt ", ";
-                   a
-                     ~service:(file uuid (ESArchive uuid))
-                     [ txt (s_ "public data") ]
-                     ();
+                   public_data;
                    txt ". ";
                    a
                      ~service:
