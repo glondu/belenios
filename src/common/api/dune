@@ -1,6 +1,6 @@
 (library
  (name belenios_api)
- (public_name belenios-server.api)
+ (public_name belenios-lib.api)
  (libraries uri belenios-lib))
 
 (rule

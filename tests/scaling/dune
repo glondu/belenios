@@ -5,4 +5,4 @@
   cmdliner
   belenios-platform-native
   belenios-lib
-  belenios-server.api))
+  belenios-lib.api))

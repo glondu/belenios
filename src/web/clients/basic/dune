@@ -11,7 +11,7 @@
   js_of_ocaml-tyxml
   belenios-platform-js
   belenios-lib
-  belenios-server.api
+  belenios-lib.api
   belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))

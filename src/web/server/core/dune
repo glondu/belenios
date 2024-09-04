@@ -3,7 +3,7 @@
  (libraries
   belenios-platform-native
   belenios-lib
-  belenios-server.api
+  belenios-lib.api
   lwt.unix
   calendar
   xml-light))

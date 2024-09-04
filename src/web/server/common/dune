@@ -3,7 +3,7 @@
  (libraries
   belenios-platform-native
   belenios-lib
-  belenios-server.api
+  belenios-lib.api
   belenios_ui
   belenios_server_core
   lwt

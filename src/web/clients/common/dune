@@ -7,7 +7,7 @@
   belenios-platform
   belenios-lib
   belenios_ui
-  belenios-server.api)
+  belenios-lib.api)
  (modules_without_implementation messages)
  (preprocess
   (pps js_of_ocaml-ppx)))
