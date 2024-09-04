@@ -24,8 +24,9 @@ open Common
 open Tool_election
 open Cmdliner
 
-let main url dir action =
+let main uuid url dir action =
   let@ () = wrap_main in
+  let uuid = Option.map Uuid.wrap uuid in
   let dir, cleanup =
     match (url, dir) with
     | Some _, None ->
@@ -39,9 +40,10 @@ let main url dir action =
   Printf.eprintf "I: using directory %s\n%!" dir;
   let file =
     match url with
-    | None -> find_bel_in_dir dir
+    | None -> find_bel_in_dir ?uuid dir
     | Some u -> (
-        match download dir u with
+        let uuid = get_mandatory_opt "--uuid" uuid in
+        match Lwt_main.run @@ download dir u uuid with
         | Some x -> x
         | None -> failwith "error while downloading")
   in
@@ -144,14 +146,14 @@ let vote_cmd =
     @ common_man
   in
   let main =
-    Term.const (fun u d p c ->
+    Term.const (fun uuid u d p c ->
         let p = get_mandatory_opt "--privcred" p in
         let c = get_mandatory_opt "--choice" c in
-        main u d (`Vote (p, c)))
+        main uuid u d (`Vote (p, c)))
   in
   Cmd.v
     (Cmd.info "generate-ballot" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t $ privcred_t $ choice_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ privcred_t $ choice_t))
 
 let verify_ballot_cmd =
   let doc = "verify a single ballot" in
@@ -163,13 +165,13 @@ let verify_ballot_cmd =
     @ common_man
   in
   let main =
-    Term.const (fun u d b ->
+    Term.const (fun uuid u d b ->
         let b = get_mandatory_opt "--encrypted-ballot" b in
-        main u d (`VerifyBallot b))
+        main uuid u d (`VerifyBallot b))
   in
   Cmd.v
     (Cmd.info "verify-ballot" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t $ ballot_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ ballot_t))
 
 let verify_cmd =
   let doc = "verify election data" in
@@ -177,10 +179,10 @@ let verify_cmd =
     [ `S "DESCRIPTION"; `P "This command performs all possible verifications." ]
     @ common_man
   in
-  let main = Term.const (fun u d s -> main u d (`Verify s)) in
+  let main = Term.const (fun uuid u d s -> main uuid u d (`Verify s)) in
   Cmd.v
     (Cmd.info "verify" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t $ skip_ballot_check_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ skip_ballot_check_t))
 
 let decrypt_man =
   [
@@ -192,27 +194,27 @@ let decrypt_man =
 let decrypt_cmd =
   let doc = "perform partial decryption" in
   let main =
-    Term.const (fun u d i p ->
+    Term.const (fun uuid u d i p ->
         let i = get_mandatory_opt "--trustee-id" i in
         let p = get_mandatory_opt "--privkey" p in
-        main u d (`Decrypt (i, p)))
+        main uuid u d (`Decrypt (i, p)))
   in
   Cmd.v
     (Cmd.info "decrypt" ~doc ~man:decrypt_man)
-    Term.(ret (main $ url_t $ optdir_t $ trustee_id_t $ privkey_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ trustee_id_t $ privkey_t))
 
 let tdecrypt_cmd =
   let doc = "perform partial decryption (threshold version)" in
   let main =
-    Term.const (fun u d i k pdk ->
+    Term.const (fun uuid u d i k pdk ->
         let i = get_mandatory_opt "--trustee-id" i in
         let k = get_mandatory_opt "--key" k in
         let pdk = get_mandatory_opt "--decryption-key" pdk in
-        main u d (`TDecrypt (i, k, pdk)))
+        main uuid u d (`TDecrypt (i, k, pdk)))
   in
   Cmd.v
     (Cmd.info "decrypt-threshold" ~doc ~man:decrypt_man)
-    Term.(ret (main $ url_t $ optdir_t $ trustee_id_t $ key_t $ pdk_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ trustee_id_t $ key_t $ pdk_t))
 
 let compute_result_cmd =
   let doc = "computes the result of an election" in
@@ -228,7 +230,7 @@ let compute_result_cmd =
   in
   Cmd.v
     (Cmd.info "compute-result" ~doc ~man)
-    Term.(ret (const main $ url_t $ optdir_t $ const `ComputeResult))
+    Term.(ret (const main $ uuid_t $ url_t $ optdir_t $ const `ComputeResult))
 
 let shuffle_cmd =
   let doc = "shuffle ciphertexts" in
@@ -242,13 +244,13 @@ let shuffle_cmd =
     @ common_man
   in
   let main =
-    Term.const (fun u d i ->
+    Term.const (fun uuid u d i ->
         let i = get_mandatory_opt "--trustee-id" i in
-        main u d (`Shuffle i))
+        main uuid u d (`Shuffle i))
   in
   Cmd.v
     (Cmd.info "shuffle" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t $ trustee_id_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ trustee_id_t))
 
 let checksums_cmd =
   let doc = "compute checksums" in
@@ -261,7 +263,7 @@ let checksums_cmd =
   in
   Cmd.v
     (Cmd.info "compute-checksums" ~doc ~man)
-    Term.(ret (const main $ url_t $ optdir_t $ const `Checksums))
+    Term.(ret (const main $ uuid_t $ url_t $ optdir_t $ const `Checksums))
 
 let compute_voters_cmd =
   let doc = "compute actual voters" in
@@ -275,16 +277,16 @@ let compute_voters_cmd =
     @ common_man
   in
   let main =
-    Term.const (fun u d privcreds ->
+    Term.const (fun uuid u d privcreds ->
         let privcreds =
           get_mandatory_opt "--privcreds" privcreds
           |> string_of_file |> Yojson.Safe.from_string |> key_value_list_of_json
         in
-        main u d (`ComputeVoters privcreds))
+        main uuid u d (`ComputeVoters privcreds))
   in
   Cmd.v
     (Cmd.info "compute-voters" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t $ privcreds_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t $ privcreds_t))
 
 let compute_ballot_summary_cmd =
   let doc = "compute ballot summary" in
@@ -299,7 +301,8 @@ let compute_ballot_summary_cmd =
   in
   Cmd.v
     (Cmd.info "compute-ballot-summary" ~doc ~man)
-    Term.(ret (const main $ url_t $ optdir_t $ const `ComputeBallotSummary))
+    Term.(
+      ret (const main $ uuid_t $ url_t $ optdir_t $ const `ComputeBallotSummary))
 
 let compute_encrypted_tally_cmd =
   let doc = "compute encrypted tally" in
@@ -310,10 +313,12 @@ let compute_encrypted_tally_cmd =
     ]
     @ common_man
   in
-  let main = Term.const (fun u d -> main u d `ComputeEncryptedTally) in
+  let main =
+    Term.const (fun uuid u d -> main uuid u d `ComputeEncryptedTally)
+  in
   Cmd.v
     (Cmd.info "compute-encrypted-tally" ~doc ~man)
-    Term.(ret (main $ url_t $ optdir_t))
+    Term.(ret (main $ uuid_t $ url_t $ optdir_t))
 
 module Verifydiff : CMDLINER_MODULE = struct
   open Tool_verifydiff

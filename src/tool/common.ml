@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 
 let print_endline2 (a, b) =
@@ -45,30 +46,24 @@ let chars_of_stdin () =
   loop ();
   Buffer.contents buf
 
-let download dir url =
-  let url, file =
-    match String.split_on_char '/' url |> List.rev with
-    | "" :: uuid :: _ -> (url, uuid ^ ".bel")
-    | last :: rest -> (
-        match Filename.chop_suffix_opt ~suffix:".bel" last with
-        | None -> (url ^ "/", last ^ ".bel")
-        | Some uuid -> (String.concat "/" (List.rev ("" :: rest)), uuid ^ ".bel")
-        )
-    | _ -> failwith "bad url"
-  in
-  let perform file =
-    Printf.eprintf "I: downloading %s%s...\n%!" url file;
-    let target = dir // file in
-    let command =
-      Printf.sprintf "curl --silent --fail \"%s%s\" > \"%s\"" url file target
-    in
-    let r = Sys.command command in
-    if r <> 0 then (
-      Sys.remove target;
-      None)
-    else Some file
-  in
-  perform file
+let download dir url uuid =
+  let url = if String.ends_with ~suffix:"/" url then url else url ^ "/" in
+  let x = Belenios_api.Endpoints.election_archive uuid in
+  let url = Printf.sprintf "%sapi/%s" url x.path in
+  let file = Printf.sprintf "%s.bel" (Uuid.unwrap uuid) in
+  let* () = Lwt_io.eprintf "I: downloading %s to %s...\n" url file in
+  let* () = Lwt_io.(flush stderr) in
+  let* response, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
+  match Cohttp.Code.code_of_status response.status with
+  | 200 ->
+      let target = dir // file in
+      let body = Cohttp_lwt.Body.to_stream body in
+      let* () =
+        let@ oc = Lwt_io.with_file ~mode:Output target in
+        Lwt_stream.iter_s (Lwt_io.write oc) body
+      in
+      Lwt.return_some file
+  | _ -> Lwt.return_none
 
 let rm_rf dir =
   let files = Sys.readdir dir in
@@ -113,15 +108,18 @@ let load_from_file of_string filename =
     Some (lines_of_file filename |> List.rev_map of_string))
   else None
 
-let find_bel_in_dir dir =
-  match
-    Sys.readdir dir |> Array.to_list
-    |> List.filter (fun x -> Filename.check_suffix x ".bel")
-  with
-  | [ file ] -> file
-  | _ ->
-      Printf.ksprintf failwith "directory %s must contain a single .bel file"
-        dir
+let find_bel_in_dir ?uuid dir =
+  match uuid with
+  | Some uuid -> Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
+  | None -> (
+      match
+        Sys.readdir dir |> Array.to_list
+        |> List.filter (fun x -> Filename.check_suffix x ".bel")
+      with
+      | [ file ] -> file
+      | _ ->
+          Printf.ksprintf failwith
+            "directory %s must contain a single .bel file" dir)
 
 let wrap_main f =
   match f () with
@@ -150,6 +148,11 @@ let dir_t, optdir_t =
   let the_info = Arg.info [ "dir" ] ~docv:"DIR" ~doc in
   ( Arg.(value & opt dir Filename.current_dir_name the_info),
     Arg.(value & opt (some dir) None the_info) )
+
+let uuid_t =
+  let doc = "Election UUID." in
+  let the_info = Arg.info [ "uuid" ] ~docv:"UUID" ~doc in
+  Arg.(value & opt (some string) None the_info)
 
 let url_t =
   let doc = "Download election files from $(docv)." in

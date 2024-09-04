@@ -5,6 +5,8 @@
  (libraries
   str
   cmdliner
+  cohttp-lwt-unix
   belenios-platform-native
   belenios-lib
+  belenios-lib.api
   belenios_tool_common))
