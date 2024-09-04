@@ -387,8 +387,11 @@ src/web/clients/credauth/credauth.mli
 src/web/clients/credauth/dune
 src/web/clients/credauth/generate.ml
 src/web/clients/credauth/generate.mli
+src/web/clients/election/common.ml
 src/web/clients/election/dune
 src/web/clients/election/election.html
+src/web/clients/election/home.ml
+src/web/clients/election/home.mli
 src/web/clients/election/main.ml
 src/web/clients/election/main.mli
 src/web/clients/jslib/belenios_jslib.ml

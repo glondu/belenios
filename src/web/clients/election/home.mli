@@ -19,27 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt.Syntax
-open Js_of_ocaml_tyxml
-open Tyxml_js.Html
-open Belenios
-open Belenios_js.Secondary_ui
+open Belenios_api.Serializable_t
+open Common
 
-module App (U : UI) = struct
-  let component = "voter"
-
-  let router configuration path =
-    let open (val !Belenios_js.I18n.gettext) in
-    U.set_title @@ s_ "Election home";
-    match path with
-    | [ "" ] -> Lwt.return []
-    | uuid :: credential ->
-        let credential = match credential with [ c ] -> Some c | _ -> None in
-        let* p = Home.home configuration ?credential (Uuid.wrap uuid) in
-        U.set_title p.title;
-        U.set_footer p.footer;
-        Lwt.return p.contents
-    | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
-end
-
-module _ = Make (App) ()
+val home : configuration -> ?credential:string -> uuid -> page Lwt.t

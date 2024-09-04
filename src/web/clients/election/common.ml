@@ -19,27 +19,46 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt.Syntax
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
-open Belenios_js.Secondary_ui
+open Belenios_js.Common
 
-module App (U : UI) = struct
-  let component = "voter"
+type page = {
+  title : string;
+  contents : Html_types.div_content_fun elt list;
+  footer : Html_types.div_content_fun elt list;
+}
 
-  let router configuration path =
-    let open (val !Belenios_js.I18n.gettext) in
-    U.set_title @@ s_ "Election home";
-    match path with
-    | [ "" ] -> Lwt.return []
-    | uuid :: credential ->
-        let credential = match credential with [ c ] -> Some c | _ -> None in
-        let* p = Home.home configuration ?credential (Uuid.wrap uuid) in
-        U.set_title p.title;
-        U.set_footer p.footer;
-        Lwt.return p.contents
-    | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
-end
+let error x = { title = "Error"; contents = [ txt x ]; footer = [] }
 
-module _ = Make (App) ()
+let make_audit_footer election =
+  let open (val !Belenios_js.I18n.gettext) in
+  let open (val election : Election.ELECTION) in
+  let uuid = Uuid.unwrap uuid in
+  let parameters = !/(Printf.sprintf "elections/%s/election" uuid) in
+  let public_data = !/(Printf.sprintf "elections/%s/archive" uuid) in
+  let advanced = !!(Printf.sprintf "actions/cast?uuid=%s" uuid) in
+  let administer = !!(Printf.sprintf "actions/admin?uuid=%s" uuid) in
+  div
+    ~a:[ a_style "line-height:1.5em;" ]
+    [
+      div
+        [
+          div [ txt @@ s_ "Election fingerprint: "; code [ txt fingerprint ] ];
+          div
+            [
+              txt @@ s_ "Audit data: ";
+              a ~href:parameters (s_ "parameters");
+              txt ", ";
+              a ~href:public_data (s_ "public data");
+              txt ". ";
+              a ~href:advanced (s_ "Advanced mode");
+              txt ". ";
+              a ~href:administer
+                ~a:[ a_id @@ Printf.sprintf "election_admin_%s" uuid ]
+                (s_ "Administer this election");
+              txt ".";
+            ];
+        ];
+    ]
