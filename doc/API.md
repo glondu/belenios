@@ -32,157 +32,157 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `configuration` (anybody)
 
-* `GET`: unit -> configuration
+### `GET`: unit -> configuration
 
 ## `account` (administrator)
 
-* `GET`: unit -> api_account
-* `PUT`: api_account -> unit
+### `GET`: unit -> api_account
+### `PUT`: api_account -> unit
 
 ## `drafts` (administrator)
 
-* `GET`: unit -> summary_list
-* `POST`: draft -> uuid
+### `GET`: unit -> summary_list
+### `POST`: draft -> uuid
 
 ## `drafts/$UUID`
 
-* `GET`: unit -> draft (anybody)
-* `PUT`: draft -> unit (administrator)
-* `POST`: draft_request -> unit (administrator)
-* `DELETE`: unit -> unit (administrator)
+### `GET`: unit -> draft (anybody)
+### `PUT`: draft -> unit (administrator)
+### `POST`: draft_request -> unit (administrator)
+### `DELETE`: unit -> unit (administrator)
 
 ## `drafts/$UUID/election` (anybody)
 
-* `GET`: unit -> json
+### `GET`: unit -> json
 
 ## `drafts/$UUID/voters`
 
-* `GET`: unit -> voter_list (administrator or credential authority)
-* `PUT`: voter_list -> unit (administrator)
-* `POST`: voters_request -> unit (administrator)
+### `GET`: unit -> voter_list (administrator or credential authority)
+### `PUT`: voter_list -> unit (administrator)
+### `POST`: voters_request -> unit (administrator)
 
 ## `drafts/$UUID/passwords` (administrator)
 
-* `GET`: unit -> string_list
-* `POST`: string_list -> unit
+### `GET`: unit -> string_list
+### `POST`: string_list -> unit
 
 ## `drafts/$UUID/credentials/token` (administrator)
 
-* `GET`: unit -> string
+### `GET`: unit -> string
 
 ## `drafts/$UUID/credentials/public`
 
-* `GET`: unit -> public_credentials (anybody)
-* `POST`: public_credentials -> unit (credential authority)
+### `GET`: unit -> public_credentials (anybody)
+### `POST`: public_credentials -> unit (credential authority)
 
 ## `drafts/$UUID/credentials/private` (administrator)
 
-* `GET`: unit -> private_credentials
+### `GET`: unit -> private_credentials
 
 ## `drafts/$UUID/trustee` (trustee)
 
-* `GET`: unit -> trustee_status
-* `POST`: json -> unit
+### `GET`: unit -> trustee_status
+### `POST`: json -> unit
 
 ## `drafts/$UUID/trustees`
 
-* `GET`: unit -> draft_trustees (administrator or nobody)
-* `POST`: trustees_request -> unit (administrator)
+### `GET`: unit -> draft_trustees (administrator or nobody)
+### `POST`: trustees_request -> unit (administrator)
 
 ## `drafts/$UUID/trustees/$ADDRESS` (administrator)
 
-* `DELETE`: unit -> unit
+### `DELETE`: unit -> unit
 
 ## `drafts/$UUID/status` (administrator)
 
-* `GET`: unit -> draft_status
+### `GET`: unit -> draft_status
 
 ## `elections` (administrator)
 
-* `GET`: unit -> summary_list
+### `GET`: unit -> summary_list
 
 ## `elections/$UUID`
 
-* `GET`: unit -> election_status (anybody)
-* `POST`: admin_request -> unit (administrator)
-* `DELETE`: unit -> unit (administrator)
+### `GET`: unit -> election_status (anybody)
+### `POST`: admin_request -> unit (administrator)
+### `DELETE`: unit -> unit (administrator)
 
 ## `elections/$UUID/audit-cache` (anybody)
 
-* `GET`: unit -> audit_cache
+### `GET`: unit -> audit_cache
 
 ## `elections/$UUID/election` (anybody)
 
-* `GET`: unit -> json
+### `GET`: unit -> json
 
 ## `elections/$UUID/archive` (anybody)
 
-* `GET`: unit -> bel
+### `GET`: unit -> bel
 
 ## `elections/$UUID/salts/$INDEX` (anybody)
 
-* `GET` : unit -> 'a salt
+### `GET` : unit -> 'a salt
 
 ## `elections/$UUID/trustees` (anybody)
 
-* `GET`: unit -> 'a trustees
+### `GET`: unit -> 'a trustees
 
 ## `elections/$UUID/automatic-dates`
 
-* `GET`: unit -> election_auto_dates
-* `PUT`: election_auto_dates -> unit (administrator)
+### `GET`: unit -> election_auto_dates
+### `PUT`: election_auto_dates -> unit (administrator)
 
 ## `elections/$UUID/voters` (administrator)
 
-* `GET`: unit -> voter_list
+### `GET`: unit -> voter_list
 
 ## `elections/$UUID/records` (administrator)
 
-* `GET`: unit -> records
+### `GET`: unit -> records
 
 ## `elections/$UUID/trustee` (trustee)
 
-* `GET`: unit -> tally_trustee
-* `POST`: json -> unit
+### `GET`: unit -> tally_trustee
+### `POST`: json -> unit
 
 ## `elections/$UUID/nh-ciphertexts` (anybody)
 
-* `GET`: unit -> 'a nh_ciphertexts
+### `GET`: unit -> 'a nh_ciphertexts
 
 ## `elections/$UUID/encrypted-tally` (anybody)
 
-* `GET`: unit -> 'a encrypted_tally
+### `GET`: unit -> 'a encrypted_tally
 
 ## `elections/$UUID/shuffles` (administrator)
 
-* `GET`: unit -> shuffles
+### `GET`: unit -> shuffles
 
 ## `elections/$UUID/shuffles/$ADDRESS` (administrator)
 
-* `POST`: shuffler_request -> unit
+### `POST`: shuffler_request -> unit
 
 ## `elections/$UUID/partial-decryptions`
 
-* `GET`: unit -> partial_decryptions (administrator)
+### `GET`: unit -> partial_decryptions (administrator)
 
 ## `elections/$UUID/objects/$HASH` (anybody)
 
-* `GET`: unit -> json
+### `GET`: unit -> json
 
 ## `elections/$UUID/last-event` (anybody)
 
-* `GET`: unit -> last_event
+### `GET`: unit -> last_event
 
 ## `elections/$UUID/roots` (anybody)
 
-* `GET`: unit -> roots
+### `GET`: unit -> roots
 
 ## `elections/$UUID/ballots`
+
+### `POST`: ballot -> unit (voter)
 
 Experimental!
 
 Voters using this endpoint must use a Base64-encoded JSON structure as
 API token. The structure depends on the authentication mode (only
 dummy and password are supported at the moment).
-
-* `POST`: ballot -> unit (voter)
