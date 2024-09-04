@@ -27,6 +27,7 @@ module Config = struct
   let webdriver = "http://127.0.0.1:4444"
   let belenios = "http://127.0.0.1:8001"
   let email_file = "/tmp/sendmail_fake"
+  let tmpdir = ref None
 end
 
 let admin_of_string = function
@@ -82,6 +83,42 @@ let auth_of_string = function
   | "email" -> Admin.Email
   | _ -> invalid_arg "auth_of_string"
 
+let monitor x =
+  match !Config.tmpdir with
+  | None -> Lwt.return_unit
+  | Some tmpdir -> (
+      let wdir = Filename.concat tmpdir "belenios-monitoring" in
+      let* () =
+        let* b = Lwt_unix.file_exists wdir in
+        if not b then Lwt_unix.mkdir wdir 0o755 else Lwt.return_unit
+      in
+      let cmd = "contrib/monitor_elections.py" in
+      let args =
+        match x with
+        | `Make_reference ->
+            [|
+              cmd;
+              Printf.sprintf "--url=%s" Config.belenios;
+              Printf.sprintf "--wdir=%s" wdir;
+              "--checkhash=yes";
+              "--hashref=contrib/reference_template.json";
+              Printf.sprintf "--outputref=%s/reference.json" wdir;
+            |]
+        | `Monitor uuid ->
+            [|
+              cmd;
+              Printf.sprintf "--url=%s" Config.belenios;
+              Printf.sprintf "--wdir=%s" wdir;
+              "--checkhash=yes";
+              Printf.sprintf "--hashref=%s/reference.json" wdir;
+              Printf.sprintf "--uuid=%s" uuid;
+            |]
+      in
+      let* x = Lwt_process.exec (cmd, args) in
+      match x with
+      | WEXITED 0 -> Lwt.return_unit
+      | _ -> failwith "monitoring failed")
+
 let scenario admin questions nvoters trustees registrar auth =
   let voters = make_voters nvoters in
   let module Config = struct
@@ -93,6 +130,8 @@ let scenario admin questions nvoters trustees registrar auth =
   end in
   let module Admin = Admin.Make (Config) in
   let* e = Admin.setup_election () in
+  let check () = monitor (`Monitor e.id) in
+  let* () = check () in
   Printf.printf "  Page of the election: %s/election#%s\n" Config.belenios e.id;
   let emails = Emails.parse Config.emails in
   let module Config = struct
@@ -124,7 +163,8 @@ let scenario admin questions nvoters trustees registrar auth =
               Vote.auth_password ~username:voter ~password
           | Email -> Vote.auth_email ~username:voter
         in
-        Vote.vote ~voter ~credential ~auth)
+        let* () = Vote.vote ~voter ~credential ~auth in
+        check ())
       voters
   in
   let* () =
@@ -140,7 +180,7 @@ let scenario admin questions nvoters trustees registrar auth =
         let auth = Vote.auth_password ~username:voter ~password in
         Vote.vote ~voter ~credential ~auth
   in
-  let* () = Admin.tally_election e in
+  let* () = Admin.tally_election check e in
   close_in Config.emails;
   Lwt.return_unit
 
@@ -168,6 +208,11 @@ let with_cmd cmd f =
       Lwt.fail @@ Failure msg
 
 let rec main = function
+  | "tmpdir" :: dir :: xs ->
+      Printf.printf "Setting tmpdir to %s\n%!" dir;
+      Config.tmpdir := Some dir;
+      let* () = monitor `Make_reference in
+      main xs
   | "run" :: cmd :: xs -> with_cmd cmd (fun () -> main xs)
   | "scenario" :: admin :: questions :: nvoters :: trustees :: registrar :: auth
     :: xs ->

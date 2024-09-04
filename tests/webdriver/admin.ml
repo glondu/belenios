@@ -496,7 +496,7 @@ module Make (Config : CONFIG) = struct
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
 
-  let tally_election { id; private_keys; _ } =
+  let tally_election check { id; private_keys; _ } =
     Printf.printf "  Tallying election %s...\n%!" id;
     let* links =
       let@ session = with_admin ~id () in
@@ -542,6 +542,7 @@ module Make (Config : CONFIG) = struct
       | [ w ] -> session#switch_to_window w
       | _ -> Lwt.fail @@ Failure "not exactly 1 window"
     in
+    let* () = check () in
     Printf.printf "  Deleting election %s...\n%!" id;
     let* () = session#click_on ~selector:"#tab_delete" in
     session#accept
