@@ -250,8 +250,10 @@ module Make (P : PARAMS) () = struct
       Some (List.map (fun (_, x, _) -> x) x)
     in
     let encrypted_tally =
-      let _, x = Lazy.force encrypted_tally in
-      Some x.sized_encrypted_tally
+      try
+        let _, x = Lazy.force encrypted_tally in
+        Some x.sized_encrypted_tally
+      with _ -> None
     in
     let trustees =
       match trustees_as_string with
