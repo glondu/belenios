@@ -54,8 +54,14 @@ build_and_run_automated_test_scenarios_with_preinstalled_image:
     - make build-release-server
     # Run the OCaml automated test scenarios
     - BELENIOS_HEADLESS=1
+      PATH=$PWD/_run/usr/bin:$PATH
+      GIT_AUTHOR_NAME="Continuous Integration"
+      GIT_AUTHOR_EMAIL="ci@example.org"
+      GIT_COMMITTER_NAME="Continuous Integration"
+      GIT_COMMITTER_EMAIL="ci@example.org"
       dune exec -- tests/webdriver/main.exe
       run "BELENIOS_SENDMAIL=tests/sendmail_fake.sh exec demo/run-server.sh"
+      tmpdir /tmp
       run "LC_ALL=C.UTF-8 exec geckodriver --port=4444"
       scenario local one 5 none charlie email
       scenario demo two 1 none none password
