@@ -569,6 +569,10 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       | _ -> method_not_allowed)
   | [ "ballots" ] -> (
       match method_ with
+      | `GET ->
+          let@ () = handle_generic_error in
+          let* x = Public_archive.get_ballot_hashes s uuid in
+          return_json 200 (string_of_ballots_with_weights x)
       | `POST -> (
           let@ token = Option.unwrap unauthorized token in
           let@ user cont =

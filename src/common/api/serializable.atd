@@ -22,6 +22,8 @@
 <doc text="API-specific serializable datatypes">
 
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
+type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type context <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -304,6 +306,8 @@ type shuffler_request =
   [ Skip
   | Select
   ]
+
+type ballots_with_weights = (hash * weight) list <json repr="object">
 
 type billing_context = {
     email : string;

@@ -179,6 +179,8 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `elections/$UUID/ballots`
 
+### `GET`: unit -> ballots_with_weights (anybody)
+
 ### `POST`: ballot -> unit (voter)
 
 Experimental!
