@@ -25,7 +25,6 @@ open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
 open Belenios_js.Common
-open Belenios_js.Session
 open Common
 
 let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
@@ -77,38 +76,27 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
 let ballots uuid =
   let open (val !Belenios_js.I18n.gettext) in
   let@ election cont =
-    let* x = Api.(get (election uuid) `Nobody) in
+    let* x = get_election uuid in
     match x with
-    | Error _ -> Lwt.return @@ error "Could not get election parameters!"
-    | Ok (x, _) -> cont @@ Election.of_string (module Random) x
+    | None -> Lwt.return @@ error "Could not get election parameters!"
+    | Some x -> cont x
   in
   let@ audit_cache cont =
-    let* x = Api.(get (election_audit_cache uuid) `Nobody) in
+    let* x = get_audit_cache uuid in
     match x with
-    | Error _ -> Lwt.return @@ error "Could not retrieve audit data!"
-    | Ok (audit_cache, _) -> cont audit_cache
+    | None -> Lwt.return @@ error "Could not retrieve audit data!"
+    | Some audit_cache -> cont audit_cache
   in
-  let@ sized_encrypted_tally cont =
-    let ( let& ) x f =
-      let* x = x in
-      match x with Error _ -> cont None | Ok (x, _) -> f x
-    in
-    let& roots = Api.(get (election_roots uuid) `Nobody) in
-    match roots.roots_encrypted_tally with
-    | None -> cont None
-    | Some t ->
-        let& t = Api.(get (election_object uuid t) `Nobody) in
-        cont @@ Some (sized_encrypted_tally_of_string read_hash t)
-  in
+  let* sized_encrypted_tally = get_sized_encrypted_tally uuid in
   let show_weights = audit_cache.cache_checksums.ec_weights <> None in
   let container = div [ txt @@ s_ "Loading..." ] in
   let () =
     let@ () = Lwt.async in
-    let* x = Api.(get (election_ballots uuid) `Nobody) in
+    let* x = get_ballots uuid in
     let contents =
       match x with
-      | Error _ -> [ txt @@ s_ "Error while loading ballots!" ]
-      | Ok (ballots, _) ->
+      | None -> [ txt @@ s_ "Error while loading ballots!" ]
+      | Some ballots ->
           make_ballots_contents uuid show_weights sized_encrypted_tally ballots
     in
     let container = Tyxml_js.To_dom.of_div container in

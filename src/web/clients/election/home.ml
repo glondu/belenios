@@ -26,7 +26,6 @@ open Tyxml_js.Html
 open Belenios
 open Belenios_api.Serializable_j
 open Belenios_js.Common
-open Belenios_js.Session
 open Common
 
 let format_period x =
@@ -582,23 +581,23 @@ let make_result_div election t ~result =
 let home configuration ?credential uuid =
   let open (val !Belenios_js.I18n.gettext) in
   let@ status cont =
-    let* x = Api.(get (election_status uuid) `Nobody) in
+    let* x = get_status uuid in
     match x with
-    | Error _ -> Lwt.return @@ error "Could not get election status!"
-    | Ok (x, _) -> cont x
+    | None -> Lwt.return @@ error "Could not get election status!"
+    | Some x -> cont x
   in
   let@ election cont =
-    let* x = Api.(get (election uuid) `Nobody) in
+    let* x = get_election uuid in
     match x with
-    | Error _ -> Lwt.return @@ error "Could not get election parameters!"
-    | Ok (x, _) -> cont @@ Election.of_string (module Random) x
+    | None -> Lwt.return @@ error "Could not get election parameters!"
+    | Some x -> cont x
   in
   let module W = (val election) in
   let@ dates cont =
-    let* x = Api.(get (election_auto_dates uuid) `Nobody) in
+    let* x = get_dates uuid in
     match x with
-    | Error _ -> Lwt.return @@ error "Could not get automatic dates!"
-    | Ok (x, _) -> cont x
+    | None -> Lwt.return @@ error "Could not get automatic dates!"
+    | Some x -> cont x
   in
   let now = (new%js Js.date_now)##valueOf in
   let state =
@@ -666,24 +665,11 @@ let home configuration ?credential uuid =
     div ~a:[ a_style "text-align:center;" ] [ div [ button ] ]
   in
   let* middle =
-    let fail () =
-      Lwt.return @@ div [ txt @@ s_ "Could not get election data!" ]
-    in
-    let ( let& ) x f =
-      let* x = x in
-      match x with Error _ -> fail () | Ok (x, _) -> f x
-    in
-    let& roots = Api.(get (election_roots uuid) `Nobody) in
-    match roots.roots_result with
-    | None -> Lwt.return @@ go_to_the_booth ()
-    | Some result -> (
-        match roots.roots_encrypted_tally with
-        | None -> fail ()
-        | Some t ->
-            let& result = Api.(get (election_object uuid result) `Nobody) in
-            let& t = Api.(get (election_object uuid t) `Nobody) in
-            let t = sized_encrypted_tally_of_string read_hash t in
-            Lwt.return @@ make_result_div election t ~result)
+    let* result = get_result uuid in
+    let* t = get_sized_encrypted_tally uuid in
+    match (result, t) with
+    | Some result, Some t -> Lwt.return @@ make_result_div election t ~result
+    | _ -> Lwt.return @@ go_to_the_booth ()
   in
   let ballots_link =
     let href = Printf.sprintf "#%s/ballots" (Uuid.unwrap uuid) in
@@ -700,11 +686,10 @@ let home configuration ?credential uuid =
       ]
   in
   let* audit_div =
-    let* x = Api.(get (election_audit_cache uuid) `Nobody) in
+    let* x = get_audit_cache uuid in
     match x with
-    | Error _ ->
-        Lwt.return @@ div [ txt @@ s_ "Could not retrieve audit data!" ]
-    | Ok (audit_cache, _) -> Lwt.return @@ make_audit_div W.template audit_cache
+    | None -> Lwt.return @@ div [ txt @@ s_ "Could not retrieve audit data!" ]
+    | Some audit_cache -> Lwt.return @@ make_audit_div W.template audit_cache
   in
   let contents =
     [
