@@ -170,9 +170,11 @@ let get_ballot_weight s election ballot =
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))
 
+module HMap = Map.Make (Hash)
+
 module BallotsCacheTypes = struct
   type key = uuid
-  type value = Weight.t SMap.t
+  type value = Weight.t HMap.t
 end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
@@ -204,14 +206,14 @@ let fold_on_ballots_weeded s election f accu =
 
 let raw_get_ballots s uuid =
   let@ election =
-    with_election s uuid ~fallback:(fun () -> Lwt.return SMap.empty)
+    with_election s uuid ~fallback:(fun () -> Lwt.return HMap.empty)
   in
   fold_on_ballots_weeded s election
     (fun b accu ->
-      let hash = sha256_b64 b in
+      let hash = Hash.hash_string b in
       let* weight = get_ballot_weight s election b in
-      Lwt.return (SMap.add hash weight accu))
-    SMap.empty
+      Lwt.return (HMap.add hash weight accu))
+    HMap.empty
 
 let ballots_cache = new BallotsCache.cache not_in_cache ~timer:3600. 10
 
@@ -225,7 +227,7 @@ let ballots_cache_find s uuid =
 
 let get_ballot_hashes s uuid =
   let* ballots = ballots_cache_find s uuid in
-  SMap.bindings ballots |> Lwt.return
+  HMap.bindings ballots |> Lwt.return
 
 let get_ballot_by_hash s uuid hash =
   Lwt.catch

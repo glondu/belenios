@@ -59,6 +59,8 @@ end
 module Hash = struct
   type t = string
 
+  let compare = String.compare
+
   let check x =
     String.length x = 64
     && String.for_all

@@ -398,6 +398,7 @@ struct
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
     let* hashes = Public_archive.get_ballot_hashes s uuid in
+    let hashes = List.map (fun (h, w) -> (Hash.to_b64 h, w)) hashes in
     let* audit_cache = Web_persist.get_audit_cache s uuid in
     let show_weights = audit_cache.cache_checksums.ec_weights <> None in
     let title = template.t_name ^^^ s_ "Accepted ballots" in

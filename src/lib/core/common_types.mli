@@ -42,6 +42,7 @@ end
 module Hash : sig
   type t
 
+  val compare : t -> t -> int
   val wrap : string -> t
   val unwrap : t -> string
   val of_hex : string -> t
