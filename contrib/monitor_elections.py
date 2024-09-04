@@ -76,10 +76,9 @@ def check_or_create_dir(wdir, uuid):
         open(os.path.join(p, "fresh"), "w").close()
 
 # List of audit files.
-# When no ballot have been cast yet, ballots.jsons does not exist.
-# We also put here a fake filename, for the hash of the voterlist
+# We put here a fake filename for the hash of the voterlist
 # and for the list of all ballot hashs.
-audit_files=['election.json', 'ballots', 'index.html', 'election.bel']
+audit_files=['election.json', 'ballots', 'audit-cache', 'election.bel']
 optional_audit_files=['hash_voterlist','all_ballot_hashs']
 
 def shuffle(l):
@@ -88,17 +87,17 @@ def shuffle(l):
     return result
 
 def download_audit_data(url, uuid):
-    link = url + '/elections/' + uuid
+    link = url + '/api/elections/' + uuid
     data = dict()
     status = Status(False, b"")
     fail = False
     msg = ""
     for f in shuffle(audit_files):
         try:
-            if f == 'index.html':
-                l = link + '/'
+            if f == 'election.json':
+                l = link + '/election'
             elif f == 'election.bel':
-                l = link + '/' + uuid + '.bel'
+                l = link + '/archive'
             else:
                 l = link + '/' + f
             resp = urllib.request.urlopen(l)
@@ -208,6 +207,9 @@ def write_and_verify_new_data(wdir, uuid, data):
 
     # extract new archive
     with tarfile.open(archive_filename) as bel:
+        if hasattr(tarfile, "data_filter"):
+            # Handle tarfile filters that were added in Python 3.12
+            bel.extraction_filter = tarfile.data_filter
         members = bel.getmembers()
         data["members"] = [x.name for x in members]
         if bel.extractfile(members[1]).read() != data["election.json"]:
@@ -223,33 +225,13 @@ def write_and_verify_new_data(wdir, uuid, data):
 # Verify that the hash of the ballots shown on the ballot-box web page
 # are consistent with the json file.
 def check_hash_ballots(data):
-    dom = xml.dom.minidom.parseString(data['ballots'])
-    list_ballots = dom.getElementsByTagName("li")
-    if len(list_ballots) == 0:
-        return Status(False, b"")
-    if len(list_ballots[0].childNodes) == 2:
-        has_weight = True
-    else:
-        has_weight = False
+    ballots1 = json.loads(data['ballots'])
 
-    list_hash = [ x.firstChild.firstChild.data for x in list_ballots ]
-    if has_weight:
-        list_weights = [ x.childNodes[1].data for x in list_ballots ]
-        list_weights = [ x[2:-1] for x in list_weights ]
-
-    list_hash2 = []
-    list_weights2 = []
+    ballots2 = {}
     for x in json.loads(data['ballot_summary']):
-        h = b64_of_hex(x["hash"])
-        list_hash2.append(h)
-        if has_weight:
-            list_weights2.append(str(x["weight"]))
-    if has_weight:
-        list_hash = [ (list_hash[i],list_weights[i]) for i in range(len(list_hash)) ]
-        list_hash2 = [ (list_hash2[i],list_weights2[i]) for i in range(len(list_hash2)) ]
-    list_hash.sort()
-    list_hash2.sort()
-    if (not list_hash == list_hash2):
+        ballots2[x["hash"]] = x.get("weight", 1)
+
+    if ballots1 != ballots2:
         msg = b"Error: hash of ballots do not correspond!\n"
         return Status(True, msg)
     else:
@@ -258,165 +240,26 @@ def check_hash_ballots(data):
 
 # Verify that the data printed on the page of the election is
 # consistent with the other audit files.
-def check_index_html(data):
-    # when the election is closed, there is a "disabled" attributed
-    # without value that the xml parser does not like. We remove it.
-    st = data['index.html'].decode().replace('disabled>Start', '>Start')
-    # also, the &lang in the link makes the parser crazy.
-    st = st.replace('&lang', 'lang')
-    dom = xml.dom.minidom.parseString(st)
+def check_audit_cache(data):
     fail = False
     msg = b""
 
-    logme("Checking index.html of {} ...".format(uuid))
+    audit_cache = json.loads(data['audit-cache'])
+
+    logme("Checking audit cache of {} ...".format(uuid))
 
     # load checksums computed by belenios-tool
-    checksums = json.loads(data["checksums"])
+    checksums1 = json.loads(data["checksums"])
+    checksums2 = audit_cache["checksums"]
 
-    # fingerprint of the election vs election.json
-    h = b64_of_hex(checksums["election"])
-    h2 = dom.getElementsByTagName("code")[0].firstChild.data
-    if (not h == h2):
-        msg = "Error: Wrong fingerprint of election {}\n".format(uuid).encode()
+    if checksums1 != checksums2:
+        msg += "Error: Checksums mismatch in election {}\n".format(uuid).encode()
         fail = True
-    else:
-        logme("  election fingerprint ok")
 
-    # credential fingerprint
-    h = b64_of_hex(checksums["public_credentials"])
-    node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "credentials" ]
-    assert len(node) == 1
-    h2 = node[0].data.split(' ')[-1].strip('.')
-    if (not h == h2):
-        msg = msg + "Error: Wrong credential fingerprint of election {}\n".format(uuid).encode()
-        fail = True
-    else:
-        logme("  cred fingerprint ok")
-
-    # if weights, check the total/min/max
-    if "weights" in checksums:
-        weights = checksums["weights"]
-        node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "weights" ]
-        if len(node) == 1:
-            pat = re.compile(r'The total weight is (\d+) \(min: (\d+), max: (\d+)\)')
-            mat = pat.match(node[0].data)
-            w_tot = int(mat.group(1))
-            w_min = int(mat.group(2))
-            w_max = int(mat.group(3))
-            c_tot = int(weights["total"])
-            c_min = int(weights["min"])
-            c_max = int(weights["max"])
-            if (c_tot != w_tot) or (c_min != w_min) or (c_max != w_max):
-                msg = msg + "Error: Wrong stats of weights in election {}\n".format(uuid).encode()
-                logme(" " + str(c_tot) + " " + str(c_min) + " " + str(c_max))
-                fail = True
-            else:
-                logme("  stats of weights ok")
-        else:
-            msg += "Error: missing weights in election {}\n".format(uuid).encode()
-            fail = True
-
-    # check that the printed number of voters is consistent with number
-    # of credentials
-    node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "voters" ]
-    assert len(node) == 1
-    pat = re.compile(r'The voter list has (\d+) voter\(s\) and fingerprint ([\w/+]+).')
-    mat = pat.match(node[0].data)
-    nb_voters = int(mat.group(1))
-    data['hash_voterlist'] = mat.group(2).encode() # for further checks
-    nb_creds = checksums["num_voters"]
-    if (nb_voters != nb_creds):
-        msg = msg + "Error: Number of voters different from number of credentials for election {}\n".format(uuid).encode()
-        logme(" " + str(nb_voters) + " " + str(nb_creds))
-        fail = True
-    else:
-        logme("  number of voters ok")
-
-    # trustees fingerprint vs trustees.json
-    names = []
-    pks = []
-    certs = []
-
-    for trustee in checksums["trustees"]:
-        if "name" in trustee:
-            names.append(trustee["name"])
-        else:
-            names.append("N/A")
-        pks.append(b64_of_hex(trustee["checksum"]))
-        certs.append(None)
-
-    for tset in checksums["trustees_threshold"]:
-        for trustee in tset["trustees"]:
-            if "name" in trustee:
-                names.append(trustee["name"])
-            else:
-                names.append("N/A")
-            pks.append(b64_of_hex(trustee["verification_key"]))
-            certs.append(b64_of_hex(trustee["pki_key"]))
-
-    names2 = []
-    pks2 = []
-    certs2 = []
-    # in index.html, the non-threshold trustees are in the ul list with id "trustees"
-    arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('id') == 'trustees' ]
-    if arr != []:
-        pat = re.compile(r'(^.*) \(([\w+/]*)\)$')
-        for trustee in arr[0].getElementsByTagName("li"):
-            s = trustee.firstChild.data
-            mat = pat.match(s)
-            names2.append(mat.group(1))
-            pks2.append(mat.group(2))
-            certs2.append(None)
-    # the threshold trustees are in the ul list with class "trustees_threshold"
-    arr = [ x for x in dom.getElementsByTagName("ul") if x.getAttribute('class') == 'trustees_threshold' ]
-    if arr != []:
-        pat = re.compile(r'(^.*) \(([\w+/]*)\) \[([\w+/]*)\]$')
-        for trustee in arr[0].getElementsByTagName("li"):
-            s = trustee.firstChild.data
-            mat = pat.match(s)
-            names2.append(mat.group(1))
-            pks2.append(mat.group(2))
-            certs2.append(mat.group(3))
-
-    if ((not names == names2) or (not pks == pks2) or (not certs == certs2)):
-        msg = msg + "Error: Wrong trustees fingerprint of election {}\n".format(uuid).encode()
-        fail = True
-    else:
-        logme("  trustees fingerprints ok")
-
-    # check consistency of encrypted tally
-    if "encrypted_tally" in checksums:
-        h = b64_of_hex(checksums['encrypted_tally'])
-        node = [ x.firstChild for x in dom.getElementsByTagName("div") if x.getAttribute("id") == "encrypted_tally" ]
-        assert len(node) <= 1
-        if len(node) == 1:
-            h2 = node[0].data.split(' ')[-1].strip('.')
-            if (not h == h2):
-                msg = msg + "Error: Wrong encrypted tally fingerprint of election {}\n".format(uuid).encode()
-                fail = True
-            else:
-                logme("  encrypted tally fingerprint ok")
-
-    # check consistency of shuffles
-    if "shuffles" in checksums:
-        hashs = [b64_of_hex(x["checksum"]) for x in checksums["shuffles"]]
-        hashs2 = []
-        # in index.html, the shuffles are in the ul with id 'shuffles'
-        for shuf in [ x for x in dom.getElementsByTagName("ul") if
-                x.getAttribute('id') == 'shuffles'
-                ][0].getElementsByTagName("li"):
-            s = shuf.firstChild.data
-            pat = re.compile(r'(^.*) \(([\w+/]*)\)$')
-            mat = pat.match(s)
-            hashs2.append(mat.group(2))
-        if (not hashs == hashs2):
-            msg = msg + "Error: Wrong shuffles fingerprint of election {}\n".format(uuid).encode()
-            fail = True
-        else:
-            logme("  shuffles fingerprints ok")
+    data['hash_voterlist'] = audit_cache['voters_hash'].encode() # for further checks
 
     if not fail:
-        logme("Successfully checked index.html of {}".format(uuid))
+        logme("Successfully checked audit cache of {}".format(uuid))
     return Status(fail, msg)
 
 
@@ -470,20 +313,6 @@ def check_noreplay(uuid, path_to_all_ballot_hashs, new_hashs):
 
 ##################################
 ## Helper functions for monitoring static files
-
-def hash_votefile(link, lang):
-    try:
-        head = { 'Accept-Language' : lang }
-        req = urllib.request.Request(link, headers=head)
-        resp = urllib.request.urlopen(req)
-        data = resp.read()
-    except:
-        print("Failed to download {} in lang {}.  Aborting".format(link, lang))
-        sys.exit(1)
-    m = hashlib.sha256()
-    m.update(data)
-    h = m.hexdigest()
-    return h
 
 def hash_file(link):
     try:
@@ -629,25 +458,11 @@ if args.checkhash == True:
             reference[f] = descr
     new_reference = {}
     for f, descr in shuffle(reference.items()):
-        if type(descr) == dict:
-            new_reference[f] = {}
-            if len(descr) == 0:
-                if len(langs) == 0:
-                    langs = get_all_available_languages(args.beleniospath)
-                for lang in langs:
-                    descr[lang] = None
-            for lang, descr in shuffle(descr.items()):
-                h = hash_votefile(url + f, lang)
-                new_reference[f][lang] = h
-                if h != descr:
-                    hashfile_changed = True
-                    print("Different hash of {} in {}: got {} but expected {}".format(f, lang, h, descr))
-        else:
-            h = hash_file(url + f)
-            new_reference[f] = h
-            if h != descr:
-                hashfile_changed = True
-                print("Different hash of static file {}: got {} but expected {}".format(f, h, descr))
+        h = hash_file(url + f)
+        new_reference[f] = h
+        if h != descr:
+            hashfile_changed = True
+            print("Different hash of static file {}: got {} but expected {}".format(f, h, descr))
 
     if hashfile_changed:
         logme("Hash of static files have changed")
@@ -697,7 +512,7 @@ for uuid in uuids:
         stat = check_hash_ballots(data)
         status.merge(stat)
 
-        stat = check_index_html(data)
+        stat = check_audit_cache(data)
         status.merge(stat)
         # create the hash_voterlist file, with the value read from index.html
         # or check that its value is consistent
