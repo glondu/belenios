@@ -288,7 +288,7 @@ module Credgen : CMDLINER_MODULE = struct
         (struct
           type 'a t = 'a
 
-          let return x = x
+          let return = Fun.id
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
@@ -404,7 +404,7 @@ module SubCredgen : CMDLINER_MODULE = struct
         (struct
           type 'a t = 'a
 
-          let return x = x
+          let return = Fun.id
           let bind x f = f x
           let pause () = ()
           let uuid = uuid

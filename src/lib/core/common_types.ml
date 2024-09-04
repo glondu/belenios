@@ -52,7 +52,7 @@ module Uuid = struct
     if check x then x
     else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
-  let unwrap x = x
+  let unwrap = Fun.id
   let dummy = wrap (String.make min_length '1')
 end
 
@@ -69,7 +69,7 @@ module Hash = struct
     if check x then x
     else Printf.ksprintf invalid_arg "%S is not a valid hex-encoded hash" x
 
-  let to_hex x = x
+  let to_hex = Fun.id
 
   let of_b64 x =
     match Base64.decode ~pad:true (x ^ "=") with

@@ -109,7 +109,7 @@ struct
   let to_int x = Z.to_int x
   let zero = of_int 0
   let one = of_int 1
-  let to_Z x = x
+  let to_Z = Fun.id
   let reduce x = Z.erem x q
   let reduce_hex x = Z.(erem (of_hex x) q)
 

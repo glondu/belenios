@@ -27,8 +27,8 @@ let components = Hashtbl.create 2
 
 module Default = struct
   let lang = "en_devel"
-  let s_ x = x
-  let f_ x = x
+  let s_ = Fun.id
+  let f_ = Fun.id
 end
 
 let default = (module Default : Belenios_ui.I18n.GETTEXT)

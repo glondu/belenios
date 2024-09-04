@@ -36,7 +36,7 @@ type index = {
 module DirectMonad = struct
   type 'a t = 'a
 
-  let return x = x
+  let return = Fun.id
   let bind x f = f x
   let fail x = raise x
   let yield () = ()

@@ -1440,7 +1440,7 @@ struct
     type t = int
 
     let equal = ( = )
-    let hash x = x
+    let hash = Fun.id
   end
 
   module Captcha_throttle = Lwt_throttle.Make (HashedInt)
