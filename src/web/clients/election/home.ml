@@ -686,7 +686,7 @@ let home configuration ?credential uuid =
             Lwt.return @@ make_result_div election t ~result)
   in
   let ballots_link =
-    let href = !!(Printf.sprintf "elections/%s/ballots" (Uuid.unwrap uuid)) in
+    let href = Printf.sprintf "#%s/ballots" (Uuid.unwrap uuid) in
     p
       ~a:[ a_style "text-align:center;" ]
       [

@@ -344,6 +344,14 @@ struct
                 ]
             else txt ""
           in
+          let ballot_box =
+            let href =
+              Xml.uri_of_string (get_election_home_url uuid ^ "/ballots")
+            in
+            Eliom_content.Html.F.Raw.a
+              ~a:[ a_href href ]
+              [ txt (s_ "ballot box") ]
+          in
           ( [
               txt (s_ " as user ");
               em [ txt user.user_name ];
@@ -355,9 +363,7 @@ struct
               b ~a:[ a_id "ballot_tracker" ] [ txt hash ];
               txt ". ";
               txt (s_ "You can check its presence in the ");
-              a ~service:election_pretty_ballots
-                [ txt (s_ "ballot box") ]
-                (uuid, ());
+              ballot_box;
               txt (s_ " anytime during the election.");
               txt
                 (if email then s_ " A confirmation e-mail has been sent to you."
@@ -392,66 +398,4 @@ struct
     let title = name in
     let full_title = name in
     base ~full_title ~title ~content ~uuid ()
-
-  let pretty_ballots s election =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let open (val election : Site_common_sig.ELECTION) in
-    let* hashes = Public_archive.get_ballot_hashes s uuid in
-    let hashes = List.map (fun (h, w) -> (Hash.to_b64 h, w)) hashes in
-    let* audit_cache = Web_persist.get_audit_cache s uuid in
-    let show_weights = audit_cache.cache_checksums.ec_weights <> None in
-    let title = template.t_name ^^^ s_ "Accepted ballots" in
-    let nballots = ref 0 in
-    let hashes = List.sort (fun (a, _) (b, _) -> compare_b64 a b) hashes in
-    let ballots =
-      List.map
-        (fun (h, w) ->
-          incr nballots;
-          li
-            [
-              a ~service:election_pretty_ballot [ txt h ] ((uuid, ()), h);
-              (if show_weights then
-                 Printf.ksprintf txt " (%s)" (Weight.to_string w)
-               else txt "");
-            ])
-        hashes
-    in
-    let links =
-      p
-        [
-          a ~service:Web_services.election_home
-            [ txt (s_ "Go back to election") ]
-            (uuid, ());
-        ]
-    in
-    let* number =
-      let n = !nballots in
-      let* x = Public_archive.get_sized_encrypted_tally s uuid in
-      let x = Option.map (sized_encrypted_tally_of_string read_hash) x in
-      match x with
-      | None ->
-          div
-            [
-              txt (string_of_int n);
-              txt (s_ " ballot(s) have been accepted so far.");
-            ]
-          |> Lwt.return
-      | Some x when x.sized_num_tallied = n ->
-          div
-            [ txt (string_of_int n); txt (s_ " ballot(s) have been accepted.") ]
-          |> Lwt.return
-      | Some x ->
-          (* should not happen *)
-          div
-            [
-              txt (string_of_int n);
-              txt (s_ " ballot(s) have been accepted, and ");
-              txt (string_of_int x.sized_num_tallied);
-              txt (s_ " have been tallied.");
-            ]
-          |> Lwt.return
-    in
-    let content = [ number; ul ballots; links ] in
-    base ~title ~content ~uuid ()
 end

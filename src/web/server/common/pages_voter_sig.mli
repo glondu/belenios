@@ -39,9 +39,4 @@ module type S = sig
     result:(user * string * bool * Weight.t * bool, Web_common.error) result ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val pretty_ballots :
-    Storage.t ->
-    (module Site_common_sig.ELECTION) ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

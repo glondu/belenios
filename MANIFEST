@@ -387,6 +387,8 @@ src/web/clients/credauth/credauth.mli
 src/web/clients/credauth/dune
 src/web/clients/credauth/generate.ml
 src/web/clients/credauth/generate.mli
+src/web/clients/election/ballots.ml
+src/web/clients/election/ballots.mli
 src/web/clients/election/common.ml
 src/web/clients/election/dune
 src/web/clients/election/election.html

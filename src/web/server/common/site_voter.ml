@@ -136,11 +136,8 @@ struct
     let open (val election) in
     let title = template.t_name in
     let* metadata = Web_persist.get_election_metadata s uuid in
-    let x = (uuid, ()) in
-    let url1 =
-      make_absolute_string_uri ~service:Web_services.election_pretty_ballots x
-    in
     let url2 = get_election_home_url uuid in
+    let url1 = url2 ^ "/ballots" in
     let* l = get_preferred_gettext () in
     let open (val l) in
     let subject = Printf.sprintf (f_ "Your vote for election %s") title in
@@ -187,20 +184,4 @@ struct
                   Eliom_reference.set Web_state.cast_confirmed (Some result)
                 in
                 redir_preapply election_home (uuid, ()) ()))
-
-  let () =
-    Any.register ~service:election_pretty_ballots (fun (uuid, ()) () ->
-        let@ s = Storage.with_transaction in
-        let@ election = with_election s uuid in
-        Pages_voter.pretty_ballots s election >>= Html.send)
-
-  let () =
-    Any.register ~service:election_pretty_ballot (fun ((uuid, ()), hash) () ->
-        let@ s = Storage.with_transaction in
-        let* ballot = Public_archive.get_ballot_by_hash s uuid hash in
-        match ballot with
-        | None -> fail_http `Not_found
-        | Some b ->
-            String.send (b, "application/json") >>= fun x ->
-            return @@ cast_unknown_content_kind x)
 end

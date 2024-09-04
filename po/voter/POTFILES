@@ -9,4 +9,5 @@ src/web/clients/common/secondary_ui.ml
 src/web/clients/tool/tool_js_fingerprint.ml
 src/web/clients/election/common.ml
 src/web/clients/election/home.ml
+src/web/clients/election/ballots.ml
 src/web/clients/election/main.ml

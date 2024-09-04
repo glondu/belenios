@@ -378,18 +378,6 @@ module Make () = struct
   let election_cast_confirm =
     create ~path:(Path [ "actions"; "confirm" ]) ~meth:(Get (uuid "uuid")) ()
 
-  let election_pretty_ballots =
-    create ~path:(Path [ "elections" ])
-      ~meth:(Get (suffix (uuid "uuid" ** suffix_const "ballots")))
-      ()
-
-  let election_pretty_ballot =
-    create ~path:(Path [ "elections" ])
-      ~meth:
-        (Get
-           (suffix_prod (uuid "uuid" ** suffix_const "ballot") (string "hash")))
-      ()
-
   let election_pretty_records =
     create ~path:(Path [ "elections" ])
       ~meth:(Get (suffix (uuid "uuid" ** suffix_const "pretty-records")))
