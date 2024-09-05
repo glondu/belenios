@@ -25,9 +25,7 @@ open Js_of_ocaml_tyxml
 let make_private_key_input () =
   let open (val !Belenios_js.I18n.gettext) in
   let open Tyxml_js.Html in
-  let raw_elt =
-    input ~a:[ a_id "private_key"; a_input_type `Text; a_size 80 ] ()
-  in
+  let raw_elt = input ~a:[ a_id "private_key"; a_input_type `Hidden ] () in
   let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
   let file_elt = input ~a:[ a_id "private_key_file"; a_input_type `File ] () in
   let file_dom = Tyxml_js.To_dom.of_input file_elt in
@@ -50,8 +48,10 @@ let make_private_key_input () =
     div
       ~a:[ a_id "input_private_key" ]
       [
-        div [ txt @@ s_ "Please enter your private key:"; txt " "; raw_elt ];
-        div [ txt @@ s_ "Or load it from a file:"; txt " "; file_elt ];
+        txt @@ s_ "Please load your private key from a file:";
+        txt " ";
+        file_elt;
+        raw_elt;
       ]
   in
   (elt, fun () -> Js.to_string raw_dom##.value)

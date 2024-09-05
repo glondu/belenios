@@ -284,14 +284,7 @@ The election administrator.\
             expected_confirmation_css_selector = "#main"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
-            # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
-            private_key_storage_label = "private key"
-            private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address][private_key_storage_label]
-            private_key_css_selector = "#private_key"
-            private_key_element = wait_for_element_exists(browser, private_key_css_selector)
-            private_key_element.clear()
-            with open(private_key_file) as myfile:
-                private_key_element.send_keys(myfile.read())
+            self.set_private_key(trustee_email_address)
 
             wait_a_bit()
 
@@ -367,14 +360,7 @@ The election administrator.\
             expected_confirmation_css_selector = "#main"
             wait_for_element_exists_and_contains_expected_text(browser, expected_confirmation_css_selector, expected_confirmation_label)
 
-            # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
-            private_key_storage_label = "private key"
-            private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address][private_key_storage_label]
-            private_key_css_selector = "#private_key"
-            private_key_element = wait_for_element_exists(browser, private_key_css_selector)
-            private_key_element.clear()
-            with open(private_key_file) as myfile:
-                private_key_element.send_keys(myfile.read())
+            self.set_private_key(trustee_email_address)
 
             wait_a_bit()
 

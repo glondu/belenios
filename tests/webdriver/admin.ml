@@ -369,13 +369,25 @@ module Make (Config : CONFIG) = struct
         | _ -> assert false)
     | _ -> assert false
 
+  let set_private_key session private_key =
+    let script =
+      {|
+        document.getElementById("private_key").value = arguments[0];
+        return true;
+      |}
+    in
+    let* x = session#execute ~script ~args:[ `String private_key ] in
+    match x with
+    | Some (`Bool true) -> Lwt.return_unit
+    | _ -> failwith "setting #private_key failed"
+
   let setup_threshold_trustee step (private_key, link) =
     Printf.printf "    Setting up trustee (step %d)...\n%!" step;
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-    let* () = session#fill_with ~selector:"#private_key" private_key in
+    let* () = set_private_key session private_key in
     let* () = session#click_on ~selector:"#compute_button" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
@@ -491,7 +503,7 @@ module Make (Config : CONFIG) = struct
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
-    let* () = session#fill_with ~selector:"#private_key" private_key in
+    let* () = set_private_key session private_key in
     let* () = session#click_on ~selector:"#compute_factor" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
