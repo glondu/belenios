@@ -409,6 +409,8 @@ src/web/clients/tool/tool_js_i18n.mli
 src/web/clients/tool/tool_js_questions.ml
 src/web/clients/trustee/check.ml
 src/web/clients/trustee/check.mli
+src/web/clients/trustee/common.ml
+src/web/clients/trustee/common.mli
 src/web/clients/trustee/decrypt.ml
 src/web/clients/trustee/decrypt.mli
 src/web/clients/trustee/dune

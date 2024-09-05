@@ -287,7 +287,7 @@ The election administrator.\
             # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
             private_key_storage_label = "private key"
             private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address][private_key_storage_label]
-            private_key_css_selector = "#compute_private_key"
+            private_key_css_selector = "#private_key"
             private_key_element = wait_for_element_exists(browser, private_key_css_selector)
             private_key_element.clear()
             with open(private_key_file) as myfile:
@@ -370,7 +370,7 @@ The election administrator.\
             # In field next to "Enter your private key:", he types the content of the `private_key.txt` file he downloaded
             private_key_storage_label = "private key"
             private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address][private_key_storage_label]
-            private_key_css_selector = "#compute_private_key"
+            private_key_css_selector = "#private_key"
             private_key_element = wait_for_element_exists(browser, private_key_css_selector)
             private_key_element.clear()
             with open(private_key_file) as myfile:

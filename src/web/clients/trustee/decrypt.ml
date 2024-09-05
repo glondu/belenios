@@ -21,13 +21,13 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
-open Js_of_ocaml_lwt
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
 open Belenios_api.Serializable_j
+open Common
 
 let basic_check_private_key s =
   let open (val !Belenios_js.I18n.gettext) in
@@ -109,40 +109,7 @@ let decrypt uuid ~token =
   in
   let container = Dom_html.createDiv document in
   let encrypted_tally_hash = sha256_b64 encrypted_tally in
-  let input_private_key, get_private_key =
-    let raw_elt =
-      Tyxml_js.Html.input
-        ~a:[ a_id "private_key"; a_input_type `Text; a_size 80 ]
-        ()
-    in
-    let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
-    let file_elt =
-      Tyxml_js.Html.input ~a:[ a_id "private_key_file"; a_input_type `File ] ()
-    in
-    let file_dom = Tyxml_js.To_dom.of_input file_elt in
-    let onchange _ =
-      let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
-      let ( let$ ) x f = Js.Optdef.case x (fun () -> Js._false) f in
-      let$ files = file_dom##.files in
-      let& file = files##item 0 in
-      let reader = new%js File.fileReader in
-      reader##.onload :=
-        Dom.handler (fun _ ->
-            let& content = File.CoerceTo.string reader##.result in
-            raw_dom##.value := content;
-            Js._false);
-      reader##readAsText file;
-      Js._false
-    in
-    file_dom##.onchange := Dom_html.handler onchange;
-    ( div
-        ~a:[ a_id "input_private_key" ]
-        [
-          div [ p [ txt @@ s_ "Please enter your private key:" ]; raw_elt ];
-          div [ p [ txt @@ s_ "Or load it from a file:" ]; file_elt ];
-        ],
-      fun () -> Js.to_string raw_dom##.value )
-  in
+  let input_private_key, get_private_key = make_private_key_input () in
   let partial_decryption = ref "" in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in

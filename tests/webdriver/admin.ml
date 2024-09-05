@@ -375,7 +375,7 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-    let* () = session#fill_with ~selector:"#compute_private_key" private_key in
+    let* () = session#fill_with ~selector:"#private_key" private_key in
     let* () = session#click_on ~selector:"#compute_button" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit

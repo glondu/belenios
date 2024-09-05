@@ -27,6 +27,7 @@ open Belenios_api.Serializable_j
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
+open Common
 
 let show_result name =
   let open (val !Belenios_js.I18n.gettext) in
@@ -137,37 +138,6 @@ let do_draft uuid draft get_private_key =
           trustees
       in
       show_result name
-
-let make_private_key_input () =
-  let open (val !Belenios_js.I18n.gettext) in
-  let open Tyxml_js.Html in
-  let raw_elt = input ~a:[ a_input_type `Text; a_size 80 ] () in
-  let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
-  let file_elt = input ~a:[ a_input_type `File ] () in
-  let file_dom = Tyxml_js.To_dom.of_input file_elt in
-  let onchange _ =
-    let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
-    let ( let$ ) x f = Js.Optdef.case x (fun () -> Js._false) f in
-    let$ files = file_dom##.files in
-    let& file = files##item 0 in
-    let reader = new%js File.fileReader in
-    reader##.onload :=
-      Dom.handler (fun _ ->
-          let& content = File.CoerceTo.string reader##.result in
-          raw_dom##.value := content;
-          Js._false);
-    reader##readAsText file;
-    Js._false
-  in
-  file_dom##.onchange := Dom_html.handler onchange;
-  let elt =
-    div
-      [
-        div [ txt @@ s_ "Please enter your private key:"; txt " "; raw_elt ];
-        div [ txt @@ s_ "Or load it from a file:"; txt " "; file_elt ];
-      ]
-  in
-  (elt, fun () -> Js.to_string raw_dom##.value)
 
 let check ?uuid () =
   let open (val !Belenios_js.I18n.gettext) in

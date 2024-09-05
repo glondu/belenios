@@ -28,6 +28,7 @@ open Belenios
 open Belenios_api
 open Belenios_js.Common
 open Belenios_js.Session
+open Common
 
 type keypair = {
   private_key : string;
@@ -223,9 +224,7 @@ let compute_threshold_step ~token ~url draft pedersen =
   | 3 | 5 ->
       let container = Dom_html.createDiv document in
       let input_private_key_div = Dom_html.createDiv document in
-      let input_private_key, get_private_key =
-        input ~a:[ a_id "compute_private_key" ] ""
-      in
+      let input_private_key, get_private_key = make_private_key_input () in
       let compute = Dom_html.createButton document in
       compute##.id := Js.string "compute_button";
       compute##.textContent := Js.some @@ Js.string @@ s_ "Proceed";
@@ -279,8 +278,7 @@ let compute_threshold_step ~token ~url draft pedersen =
         [
           div [ txt explain ];
           hr ();
-          div
-            [ txt @@ s_ "Enter your private key:"; txt " "; input_private_key ];
+          input_private_key;
           div [ Tyxml_js.Of_dom.of_button compute ];
         ]
       in
