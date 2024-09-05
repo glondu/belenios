@@ -440,7 +440,7 @@ let tabs x =
           Cache.invalidate_all ();
           let* x =
             if is_draft then Api.(delete (draft uuid) !user)
-            else Api.(delete (election uuid) !user)
+            else Api.(delete (election_status uuid) !user)
           in
           match x.code with
           | 200 ->
