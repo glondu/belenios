@@ -127,12 +127,10 @@ let decrypt uuid ~token =
     Dom.appendChild container (Tyxml_js.To_dom.of_div element);
     Lwt.return_unit
   in
-  let compute =
-    let@ () =
-      button ~a:[ a_id "compute_factor" ]
-      @@ s_ "Generate your contribution to decryption"
-    in
-    let private_key = get_private_key () in
+  let compute = txt @@ s_ "Generate your contribution to decryption" in
+  let () =
+    let@ () = Lwt.async in
+    let* private_key = get_private_key in
     let* pd =
       compute_partial_decryption trustee ~election ~encrypted_tally ~private_key
     in

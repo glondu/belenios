@@ -372,7 +372,9 @@ module Make (Config : CONFIG) = struct
   let set_private_key session private_key =
     let script =
       {|
-        document.getElementById("private_key").value = arguments[0];
+        const x = document.getElementById("private_key");
+        x.value = arguments[0];
+        x.dispatchEvent(new Event("change"));
         return true;
       |}
     in
@@ -388,7 +390,6 @@ module Make (Config : CONFIG) = struct
     let* () = session#navigate_to link in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
     let* () = set_private_key session private_key in
-    let* () = session#click_on ~selector:"#compute_button" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
 
@@ -504,7 +505,6 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = set_private_key session private_key in
-    let* () = session#click_on ~selector:"#compute_factor" in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
 

@@ -225,41 +225,37 @@ let compute_threshold_step ~token ~url draft pedersen =
       let container = Dom_html.createDiv document in
       let input_private_key_div = Dom_html.createDiv document in
       let input_private_key, get_private_key = make_private_key_input () in
-      let compute = Dom_html.createButton document in
-      compute##.id := Js.string "compute_button";
-      compute##.textContent := Js.some @@ Js.string @@ s_ "Proceed";
       let () =
-        compute##.onclick :=
-          let@ () = lwt_handler in
-          let private_key = get_private_key () in
-          Dom.removeChild container input_private_key_div;
-          let* data = threshold_step draft pedersen ~private_key in
-          let submit =
-            let r = Dom_html.createButton document in
-            r##.id := Js.string "submit_data";
-            r##.textContent := Js.some @@ Js.string @@ s_ "Submit data";
-            let () =
-              r##.onclick :=
-                let@ () = lwt_handler in
-                Dom.removeChild container r;
-                let* x = Api.(post url (`Trustee token) data) in
-                let msg =
-                  match x.code with
-                  | 200 ->
-                      s_ "Data submission succeeded! Please refresh to proceed."
-                  | _ ->
-                      s_
-                        "Data submission failed! Please refresh and/or restart \
-                         from the beginning."
-                in
-                let element = div ~a:[ a_id "success" ] [ txt msg ] in
-                Dom.appendChild container (Tyxml_js.To_dom.of_div element);
-                Lwt.return_unit
-            in
-            r
+        let@ () = Lwt.async in
+        let* private_key = get_private_key in
+        Dom.removeChild container input_private_key_div;
+        let* data = threshold_step draft pedersen ~private_key in
+        let submit =
+          let r = Dom_html.createButton document in
+          r##.id := Js.string "submit_data";
+          r##.textContent := Js.some @@ Js.string @@ s_ "Submit data";
+          let () =
+            r##.onclick :=
+              let@ () = lwt_handler in
+              Dom.removeChild container r;
+              let* x = Api.(post url (`Trustee token) data) in
+              let msg =
+                match x.code with
+                | 200 ->
+                    s_ "Data submission succeeded! Please refresh to proceed."
+                | _ ->
+                    s_
+                      "Data submission failed! Please refresh and/or restart \
+                       from the beginning."
+              in
+              let element = div ~a:[ a_id "success" ] [ txt msg ] in
+              Dom.appendChild container (Tyxml_js.To_dom.of_div element);
+              Lwt.return_unit
           in
-          Dom.appendChild container submit;
-          Lwt.return_unit
+          r
+        in
+        Dom.appendChild container submit;
+        Lwt.return_unit
       in
       let explain =
         match pedersen.pedersen_step with
@@ -274,14 +270,7 @@ let compute_threshold_step ~token ~url draft pedersen =
                validated."
         | _ -> s_ "Inconsistent state!"
       in
-      let elements =
-        [
-          div [ txt explain ];
-          hr ();
-          input_private_key;
-          div [ Tyxml_js.Of_dom.of_button compute ];
-        ]
-      in
+      let elements = [ div [ txt explain ]; hr (); input_private_key ] in
       List.iter
         (fun x ->
           Dom.appendChild input_private_key_div (Tyxml_js.To_dom.of_node x))

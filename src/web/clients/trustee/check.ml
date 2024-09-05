@@ -39,7 +39,7 @@ let show_result name =
   alert msg;
   Lwt.return_unit
 
-let do_election uuid election get_private_key =
+let do_election uuid election private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let module W = (val election : Election.ELECTION) in
   let@ trustees cont =
@@ -52,7 +52,6 @@ let do_election uuid election get_private_key =
         cont
         @@ trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string) x
   in
-  let private_key = get_private_key () in
   let find_single =
     try
       match Yojson.Safe.from_string private_key with
@@ -88,7 +87,7 @@ let do_election uuid election get_private_key =
     trustees
   |> show_result
 
-let do_draft uuid draft get_private_key =
+let do_draft uuid draft private_key =
   let open (val !Belenios_js.I18n.gettext) in
   let version = draft.draft_version in
   let module G = (val Group.of_string ~version draft.draft_group) in
@@ -102,7 +101,6 @@ let do_draft uuid draft get_private_key =
         cont
         @@ draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string) x
   in
-  let private_key = get_private_key () in
   match trustees with
   | `Basic x ->
       let trustees = x.bt_trustees in
@@ -169,13 +167,14 @@ let check ?uuid () =
             let private_key_input, get_private_key =
               make_private_key_input ()
             in
-            let button =
-              let@ () = button @@ s_ "Check private key" in
+            let () =
+              let@ () = Lwt.async in
+              let* private_key = get_private_key in
               let* election = Api.(get (election uuid) `Nobody) in
               match election with
               | Ok (election, _) ->
                   let election = Election.of_string (module Random) election in
-                  do_election uuid election get_private_key
+                  do_election uuid election private_key
               | Error _ -> (
                   let* draft = Api.(get (draft uuid) `Nobody) in
                   match draft with
@@ -184,9 +183,8 @@ let check ?uuid () =
                         (f_ "There is no election with ID %s on this server!")
                         (Uuid.unwrap uuid);
                       Lwt.return_unit
-                  | Ok (Draft (_, draft), _) ->
-                      do_draft uuid draft get_private_key)
+                  | Ok (Draft (_, draft), _) -> do_draft uuid draft private_key)
             in
-            Lwt.return [ private_key_input; div [ button ] ])
+            Lwt.return [ private_key_input ])
   in
   Lwt.return @@ [ h3 [ txt @@ s_ "Check private key ownership" ]; hr () ] @ body

@@ -288,11 +288,6 @@ The election administrator.\
 
             wait_a_bit()
 
-            # He clicks on the "Proceed" button
-            proceed_button_css_selector = "#compute_button"
-            proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
-            proceed_button_element.click()
-
             submit_button_css_selector = "#submit_data"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)
             submit_button_element.click()
@@ -363,11 +358,6 @@ The election administrator.\
             self.set_private_key(trustee_email_address)
 
             wait_a_bit()
-
-            # He clicks on the "Proceed" button
-            proceed_button_css_selector = "#compute_button"
-            proceed_button_element = wait_for_element_exists(browser, proceed_button_css_selector)
-            proceed_button_element.click()
 
             submit_button_css_selector = "#submit_data"
             submit_button_element = wait_for_element_exists(browser, submit_button_css_selector)

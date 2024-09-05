@@ -98,7 +98,11 @@ class BeleniosTestElectionScenario2Base(BeleniosElectionTestBase):
 
 
     def set_private_key(self, trustee_email_address):
-        script = 'document.getElementById("private_key").value = arguments[0];'
+        script = '''
+          const x = document.getElementById("private_key");
+          x.value = arguments[0];
+          x.dispatchEvent(new Event("change"));
+        '''
         private_key_file = self.downloaded_files_paths_per_trustee[trustee_email_address]["private key"]
         with open(private_key_file) as myfile:
             private_key = myfile.read()
@@ -572,11 +576,6 @@ The election administrator.\
             assert private_key_field_element.get_attribute('value') == ""
 
             self.set_private_key(trustee_email_address)
-
-            # He clicks on the "Compute decryption factors" button
-            compute_button_css_selector = "#compute_factor"
-            compute_button_element = wait_for_element_exists(browser, compute_button_css_selector)
-            compute_button_element.click()
 
             wait_a_bit()
 

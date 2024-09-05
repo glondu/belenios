@@ -25,8 +25,14 @@ open Js_of_ocaml_tyxml
 let make_private_key_input () =
   let open (val !Belenios_js.I18n.gettext) in
   let open Tyxml_js.Html in
+  let t, u = Lwt.task () in
   let raw_elt = input ~a:[ a_id "private_key"; a_input_type `Hidden ] () in
   let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
+  let onchange _ =
+    Lwt.wakeup_later u (Js.to_string raw_dom##.value);
+    Js._false
+  in
+  raw_dom##.onchange := Dom_html.handler onchange;
   let file_elt = input ~a:[ a_id "private_key_file"; a_input_type `File ] () in
   let file_dom = Tyxml_js.To_dom.of_input file_elt in
   let onchange _ =
@@ -38,7 +44,7 @@ let make_private_key_input () =
     reader##.onload :=
       Dom.handler (fun _ ->
           let& content = File.CoerceTo.string reader##.result in
-          raw_dom##.value := content;
+          Lwt.wakeup_later u (Js.to_string content);
           Js._false);
     reader##readAsText file;
     Js._false
@@ -54,4 +60,4 @@ let make_private_key_input () =
         raw_elt;
       ]
   in
-  (elt, fun () -> Js.to_string raw_dom##.value)
+  (elt, t)
