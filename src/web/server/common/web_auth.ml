@@ -66,7 +66,7 @@ struct
 
   let add_auth_env ~auth_config ~kind ~extern =
     let now = Unix.gettimeofday () in
-    let timeout = now +. 600. in
+    let timeout = now +. 900. in
     let a = SMap.filter (fun _ x -> x.timeout > now) !auth_env in
     let rec find_state () =
       let state = generate_token ~length:22 () in
