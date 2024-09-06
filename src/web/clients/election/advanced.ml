@@ -1,0 +1,182 @@
+(**************************************************************************)
+(*                                BELENIOS                                *)
+(*                                                                        *)
+(*  Copyright © 2024-2024 Inria                                           *)
+(*                                                                        *)
+(*  This program is free software: you can redistribute it and/or modify  *)
+(*  it under the terms of the GNU Affero General Public License as        *)
+(*  published by the Free Software Foundation, either version 3 of the    *)
+(*  License, or (at your option) any later version, with the additional   *)
+(*  exemption that compiling, linking, and/or using OpenSSL is allowed.   *)
+(*                                                                        *)
+(*  This program is distributed in the hope that it will be useful, but   *)
+(*  WITHOUT ANY WARRANTY; without even the implied warranty of            *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU     *)
+(*  Affero General Public License for more details.                       *)
+(*                                                                        *)
+(*  You should have received a copy of the GNU Affero General Public      *)
+(*  License along with this program.  If not, see                         *)
+(*  <http://www.gnu.org/licenses/>.                                       *)
+(**************************************************************************)
+
+open Lwt.Syntax
+open Js_of_ocaml
+open Js_of_ocaml_tyxml
+open Tyxml_js.Html
+open Belenios
+open Belenios_js.Common
+open Belenios_js.Session
+open Common
+
+let booths = [ ("Version 2", "static/frontend/booth/vote.html") ]
+
+let make_login_target ~state =
+  let params = Url.encode_arguments [ ("state", state) ] in
+  !!(Printf.sprintf "actions/voter-login?%s" params)
+
+let submit_ballot uuid ~ballot =
+  let* x = Api.(post (election_ballots uuid) `Nobody (String.trim ballot)) in
+  match x.code with
+  | 401 -> (
+      match Yojson.Safe.from_string x.content with
+      | `Assoc o -> (
+          match List.assoc_opt "state" o with
+          | Some (`String state) -> Lwt.return_some state
+          | _ -> Lwt.return_none)
+      | _ -> Lwt.return_none)
+  | _ -> Lwt.return_none
+
+let handle_ballot uuid ~ballot =
+  let open (val !Belenios_js.I18n.gettext) in
+  let* x = submit_ballot uuid ~ballot in
+  match x with
+  | None ->
+      alert @@ s_ "Unexpected response from server";
+      Lwt.return_unit
+  | Some state ->
+      let target = make_login_target ~state in
+      Dom_html.window##.location##.href := Js.string target;
+      Lwt.return_unit
+
+let advanced uuid =
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ election cont =
+    let* x = get_election uuid in
+    match x with
+    | None -> Lwt.return @@ error "Could not get election parameters!"
+    | Some x -> cont x
+  in
+  let module W = (val election) in
+  let title = W.template.t_name ^^^ s_ "Advanced mode" in
+  let footer = [ make_audit_footer election ] in
+  let form_rawballot =
+    let t, tget =
+      textarea ~rows:10 ~cols:40
+        ~placeholder:(s_ "Encrypted ballot in JSON format")
+        ""
+    in
+    let b =
+      let@ () = button @@ s_ "Submit" in
+      handle_ballot uuid ~ballot:(tget ())
+    in
+    div
+      [
+        div
+          [
+            txt
+            @@ s_
+                 "Please paste your encrypted ballot in JSON format in the \
+                  following box:";
+          ];
+        div [ t ];
+        div [ b ];
+      ]
+  in
+  let form_upload =
+    let t = Tyxml_js.Html.input ~a:[ a_input_type `File ] () in
+    let ballot = ref "" in
+    let () =
+      let dom = Tyxml_js.To_dom.of_input t in
+      let onchange _ =
+        let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
+        let ( let$ ) x f = Js.Optdef.case x (fun () -> Js._false) f in
+        let$ files = dom##.files in
+        let& file = files##item 0 in
+        let reader = new%js File.fileReader in
+        reader##.onload :=
+          Dom.handler (fun _ ->
+              let& content = File.CoerceTo.string reader##.result in
+              ballot := Js.to_string content;
+              Js._false);
+        reader##readAsText file;
+        Js._false
+      in
+      dom##.onchange := Dom_html.handler onchange
+    in
+    let b =
+      let@ () = button @@ s_ "Submit" in
+      handle_ballot uuid ~ballot:!ballot
+    in
+    div
+      [
+        div
+          [
+            txt
+            @@ s_
+                 "Alternatively, you can also upload a file containing your \
+                  ballot:";
+          ];
+        div [ txt @@ s_ "File:"; txt " "; t ];
+        div [ b ];
+      ]
+  in
+  let booths =
+    let fragment =
+      Url.encode_arguments [ ("uuid", Uuid.unwrap uuid); ("lang", lang) ]
+    in
+    let make uri =
+      let href = Printf.sprintf "%s#%s" uri fragment in
+      a ~href (s_ "direct link")
+    in
+    booths
+    |> List.map (fun (name, base) ->
+           let href = !!base in
+           li [ a ~href name; txt " ("; make href; txt ")" ])
+  in
+  let intro =
+    div
+      [
+        div
+          [
+            txt
+            @@ s_
+                 "You can create an encrypted ballot by using the command-line \
+                  tool ";
+            txt @@ s_ "(available in the ";
+            a ~href:!!"belenios.tar.gz" (s_ "sources");
+            txt @@ s_ "), or any compatible booth.";
+            txt " ";
+            txt
+            @@ s_
+                 "A specification of encrypted ballots is also available in \
+                  the sources.";
+          ];
+        div [ txt @@ s_ "Booths available on this server:"; ul booths ];
+        div
+          [
+            a
+              ~href:(Printf.sprintf "#%s" (Uuid.unwrap uuid))
+              (s_ "Back to election home");
+          ];
+      ]
+  in
+  let contents =
+    [
+      intro;
+      h3 [ txt @@ s_ "Submit by copy/paste" ];
+      form_rawballot;
+      h3 [ txt @@ s_ "Submit by file" ];
+      form_upload;
+    ]
+  in
+  Lwt.return { title; contents; footer }

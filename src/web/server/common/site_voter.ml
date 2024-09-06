@@ -60,12 +60,6 @@ struct
               "election"
             |> String_redirection.send)
 
-  let () =
-    Any.register ~service:election_cast (fun uuid () ->
-        let@ s = Storage.with_transaction in
-        let@ election = with_election s uuid in
-        Pages_voter.cast_raw election () >>= Html.send)
-
   let submit_ballot ~ballot =
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -108,11 +102,6 @@ struct
 
   let () =
     Any.register ~service:election_submit_ballot (fun () ballot ->
-        submit_ballot ~ballot)
-
-  let () =
-    Any.register ~service:election_submit_ballot_file (fun () ballot ->
-        let* ballot = exhaust_file ballot in
         submit_ballot ~ballot)
 
   let send_confirmation_email s uuid revote user recipient weight hash =

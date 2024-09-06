@@ -23,11 +23,6 @@ open Belenios
 open Belenios_server_core
 
 module type S = sig
-  val cast_raw :
-    (module Site_common_sig.ELECTION) ->
-    unit ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
   val lost_ballot :
     Storage.t ->
     (module Site_common_sig.ELECTION) ->

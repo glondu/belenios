@@ -19,13 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt
 open Lwt.Syntax
 open Belenios
 open Belenios_server_core
 open Web_common
 open Eliom_content.Html.F
-open Eliom_content.Html.F.Form
 
 module Make
     (Web_state : Web_state_sig.S)
@@ -37,130 +35,6 @@ struct
   open Pages_common
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
-
-  let audit_footer election =
-    let open (val election : Site_common_sig.ELECTION) in
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let parameters =
-      api_a Belenios_api.Endpoints.election uuid [ txt (s_ "parameters") ]
-    in
-    let public_data =
-      api_a Belenios_api.Endpoints.election_archive uuid
-        [ txt (s_ "public data") ]
-    in
-    return
-    @@ div
-         ~a:[ a_style "line-height:1.5em;" ]
-         [
-           div
-             [
-               div
-                 [ txt (s_ "Election fingerprint: "); code [ txt fingerprint ] ];
-               div
-                 [
-                   txt (s_ "Audit data: ");
-                   parameters;
-                   txt ", ";
-                   public_data;
-                   txt ". ";
-                   a
-                     ~service:
-                       (Eliom_service.preapply ~service:election_cast uuid)
-                     [ txt (s_ "Advanced mode") ]
-                     ();
-                   txt ".";
-                 ];
-             ];
-         ]
-
-  let cast_raw election () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let module W = (val election : Site_common_sig.ELECTION) in
-    let uuid = W.uuid in
-    let form_rawballot =
-      post_form ~service:election_submit_ballot
-        (fun name ->
-          [
-            div
-              [
-                txt
-                  "Please paste your encrypted ballot in JSON format in the \
-                   following box:";
-              ];
-            div [ textarea ~a:[ a_rows 10; a_cols 40 ] ~name () ];
-            div [ input ~input_type:`Submit ~value:"Submit" string ];
-          ])
-        ()
-    in
-    let form_upload =
-      post_form ~service:election_submit_ballot_file
-        (fun name ->
-          [
-            div
-              [
-                txt
-                  "Alternatively, you can also upload a file containing your \
-                   ballot:";
-              ];
-            div [ txt "File: "; file_input ~name () ];
-            div [ input ~input_type:`Submit ~value:"Submit" string ];
-          ])
-        ()
-    in
-    let booths =
-      let fragment =
-        Netencoding.Url.mk_url_encoded_parameters
-          [ ("uuid", Uuid.unwrap uuid); ("lang", lang) ]
-      in
-      let make ~service =
-        make_absolute_string_uri ~fragment ~service () |> fun uri ->
-        direct_a uri "direct link"
-      in
-      Web_services.booths |> Array.to_list
-      |> List.map (fun (Booth service, name) ->
-             let service = service () in
-             li [ a ~service [ txt name ] (); txt " ("; make ~service; txt ")" ])
-    in
-    let intro =
-      div
-        [
-          div
-            [
-              txt
-                "You can create an encrypted ballot by using the command-line \
-                 tool ";
-              txt "(available in the ";
-              a ~service:source_code [ txt "sources" ] ();
-              txt "), or any compatible booth.";
-              txt " ";
-              txt
-                "A specification of encrypted ballots is also available in the \
-                 sources.";
-            ];
-          div [ txt "Booths available on this server:"; ul booths ];
-          div
-            [
-              a ~service:Web_services.election_home
-                [ txt "Back to election home" ]
-                (uuid, ());
-            ];
-        ]
-    in
-    let content =
-      [
-        intro;
-        h3 [ txt "Submit by copy/paste" ];
-        form_rawballot;
-        h3 [ txt "Submit by file" ];
-        form_upload;
-      ]
-    in
-    let* footer = audit_footer election in
-    let title = W.template.t_name in
-    let full_title = title in
-    base ~full_title ~title ~content ~uuid ~footer ()
 
   let progress_responsive_step5 l =
     let open (val l : Belenios_ui.I18n.GETTEXT) in

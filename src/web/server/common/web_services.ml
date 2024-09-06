@@ -354,19 +354,10 @@ module Make () = struct
 
   let booths = [| (Booth booth_v2, "Version 2") |]
 
-  let election_cast =
-    create ~path:(Path [ "actions"; "cast" ]) ~meth:(Get (uuid "uuid")) ()
-
   let election_submit_ballot =
     create
       ~path:(Path [ "actions"; "submit-ballot" ])
       ~meth:(Post (unit, string "encrypted_vote"))
-      ()
-
-  let election_submit_ballot_file =
-    create
-      ~path:(Path [ "actions"; "submit-ballot-file" ])
-      ~meth:(Post (unit, file "encrypted_vote"))
       ()
 
   let election_cast_confirm =

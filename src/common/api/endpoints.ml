@@ -298,5 +298,5 @@ let election_ballots uuid =
     path = Printf.sprintf "elections/%s/ballots" (Uuid.unwrap uuid);
     of_string = ballots_with_weights_of_string;
     to_string = string_of_ballots_with_weights;
-    to_string_post = string_of_unit;
+    to_string_post = Fun.id;
   }

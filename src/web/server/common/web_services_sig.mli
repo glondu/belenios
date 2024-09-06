@@ -989,20 +989,6 @@ module type S = sig
 
   val booths : (booth * string) array
 
-  val election_cast :
-    ( uuid,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
   val election_submit_ballot :
     ( unit,
       string,
@@ -1014,20 +1000,6 @@ module type S = sig
       [ `WithoutSuffix ],
       unit,
       [ `One of string ] Eliom_parameter.param_name,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
-  val election_submit_ballot_file :
-    ( unit,
-      Ocsigen_multipart.file_info,
-      Eliom_service.post,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      unit,
-      [ `One of Ocsigen_multipart.file_info ] Eliom_parameter.param_name,
       Eliom_service.non_ocaml )
     Eliom_service.t
 
