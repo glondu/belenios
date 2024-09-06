@@ -69,7 +69,7 @@ struct
     let timeout = now +. 600. in
     let a = SMap.filter (fun _ x -> x.timeout > now) !auth_env in
     let rec find_state () =
-      let state = generate_token () in
+      let state = generate_token ~length:22 () in
       if SMap.mem state a then find_state () else state
     in
     let state = find_state () in
