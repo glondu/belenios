@@ -280,6 +280,7 @@ module Make () = struct
     | _ -> Lwt.fail (Failure "unknown spool version")
 
   let () = Api_elections.direct_voter_auth := Web_auth.direct_voter_auth
+  let () = Api_elections.state_module := Some (module Web_auth.State)
   let () = Lwt_main.run @@ check_spool_version ()
   let () = Lwt.async Site_admin.data_policy_loop
   let () = Lwt.async Mails_voter.process_bulk_emails

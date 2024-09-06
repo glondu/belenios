@@ -362,6 +362,9 @@ let cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data =
 let direct_voter_auth = ref (fun _ _ _ -> assert false)
 (* initialized in Web_main *)
 
+let state_module = ref None
+(* initialized in Web_main *)
+
 let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
     =
   match endpoint with
@@ -574,26 +577,45 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let* x = Public_archive.get_ballot_hashes s uuid in
           return_json 200 (string_of_ballots_with_weights x)
       | `POST -> (
-          let@ token = Option.unwrap unauthorized token in
-          let@ user cont =
-            Lwt.catch
-              (fun () ->
-                let json =
-                  match Base64.decode token with
-                  | Ok x -> Yojson.Safe.from_string x
-                  | Error (`Msg x) -> failwith x
-                in
-                let* x = !direct_voter_auth s uuid json in
-                cont x)
-              (fun _ -> unauthorized)
-          in
-          let@ ballot = body.run Fun.id in
           let@ () = handle_generic_error in
-          let send_confirmation _ _ _ _ _ _ _ = Lwt.return_true in
-          let* x = Web_persist.precast_ballot s uuid ~ballot in
-          match x with
-          | Error _ -> bad_request
-          | Ok precast_data ->
+          let@ state_module cont =
+            match !state_module with
+            | None -> failwith "anomaly: state_module not initialized"
+            | Some x -> cont x
+          in
+          let module State = (val state_module : Web_auth_sig.STATE) in
+          let@ ballot = body.run Fun.id in
+          let@ precast_data cont =
+            Lwt.try_bind
+              (fun () -> Web_persist.precast_ballot s uuid ~ballot)
+              (function
+                | Ok x -> cont x | Error e -> raise @@ Error (`CastError e))
+              (function
+                | Election_not_found _ -> not_found | e -> Lwt.reraise e)
+          in
+          match token with
+          | None ->
+              let* state = State.create s uuid { ballot; precast_data } in
+              let json =
+                match state with
+                | None -> `Assoc []
+                | Some state -> `Assoc [ ("state", `String state) ]
+              in
+              return_json 401 (Yojson.Safe.to_string json)
+          | Some token ->
+              let@ user cont =
+                Lwt.catch
+                  (fun () ->
+                    let json =
+                      match Base64.decode token with
+                      | Ok x -> Yojson.Safe.from_string x
+                      | Error (`Msg x) -> failwith x
+                    in
+                    let* x = !direct_voter_auth s uuid json in
+                    cont x)
+                  (fun _ -> unauthorized)
+              in
+              let send_confirmation _ _ _ _ _ _ _ = Lwt.return_true in
               let* _ =
                 cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data
               in
