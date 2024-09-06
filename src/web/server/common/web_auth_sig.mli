@@ -20,8 +20,10 @@
 (**************************************************************************)
 
 open Belenios_server_core
+open Web_common
 
 type data = ..
+type state = { ballot : string; precast_data : string * credential_record }
 
 type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result
@@ -38,6 +40,14 @@ type auth_system = {
   handler : uuid option -> auth_config -> (module AUTH_SYSTEM);
   extern : bool;
 }
+
+type env = { uuid : uuid; state : state option; user : user option }
+
+module type STATE = sig
+  val create : Storage.t -> uuid -> state -> string option Lwt.t
+  val get : state:string -> env option
+  val del : state:string -> unit
+end
 
 module type S = sig
   type data += No_data
@@ -61,4 +71,6 @@ module type S = sig
 
   val get_site_login_handler : string -> result Lwt.t
   val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u
+
+  module State : STATE
 end

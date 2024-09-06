@@ -271,7 +271,7 @@ module Make () = struct
   module Web_auth_oidc = Web_auth_oidc.Make (X.Web_services) (Web_auth)
   module Site_common = Site_common.Make (X)
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_cont) (Web_auth)
-  module Site_voter = Site_voter.Make (X) (Site_common) (Site_admin)
+  module Site_voter = Site_voter.Make (X) (Web_auth) (Site_common) (Site_admin)
 
   let check_spool_version () =
     let* x = Web_persist.get_spool_version () in

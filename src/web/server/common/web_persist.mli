@@ -84,11 +84,11 @@ val validate_election :
   Storage.u
 
 val precast_ballot :
-  (rawballot:string -> (string * credential_record, cast_error) result Lwt.t)
+  (ballot:string -> (string * credential_record, cast_error) result Lwt.t)
   Storage.u
 
 val cast_ballot :
-  (rawballot:string ->
+  (ballot:string ->
   user:string ->
   weight:Weight.t ->
   datetime ->

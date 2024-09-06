@@ -145,7 +145,13 @@ struct
             Pages_common.authentication_impossible ()
             >>= Eliom_registration.Html.send
         | Some { username_or_address; state; auth_instance } -> (
-            let* precast_data = Eliom_reference.get Web_state.precast_data in
+            let@ precast_data cont =
+              let x = Web_auth.State.get ~state in
+              match x with
+              | Some { state = Some { precast_data; _ }; _ } ->
+                  cont (Some precast_data)
+              | _ -> cont None
+            in
             match precast_data with
             | Some (_, { cr_username = Some name; _ }) ->
                 handle_email_post ~show_email_address:true ~state name true

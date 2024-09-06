@@ -857,17 +857,15 @@ module type S = sig
     Eliom_service.t
 
   val election_login :
-    ( (uuid * unit) * string option,
+    ( string,
       unit,
       Eliom_service.get,
       Eliom_service.att,
       Eliom_service.non_co,
       Eliom_service.non_ext,
       Eliom_service.reg,
-      [ `WithSuffix ],
-      ([ `One of uuid ] Eliom_parameter.param_name
-      * [ `One of unit ] Eliom_parameter.param_name)
-      * [ `One of string ] Eliom_parameter.param_name,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom_parameter.param_name,
       unit,
       Eliom_service.non_ocaml )
     Eliom_service.t
@@ -1033,22 +1031,8 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
-  val election_submit_ballot_check :
-    ( unit,
-      unit,
-      Eliom_service.get,
-      Eliom_service.att,
-      Eliom_service.non_co,
-      Eliom_service.non_ext,
-      Eliom_service.reg,
-      [ `WithoutSuffix ],
-      unit,
-      unit,
-      Eliom_service.non_ocaml )
-    Eliom_service.t
-
   val election_cast_confirm :
-    ( uuid,
+    ( string,
       unit,
       Eliom_service.get,
       Eliom_service.att,
@@ -1056,7 +1040,7 @@ module type S = sig
       Eliom_service.non_ext,
       Eliom_service.reg,
       [ `WithoutSuffix ],
-      [ `One of uuid ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom_parameter.param_name,
       unit,
       Eliom_service.non_ocaml )
     Eliom_service.t

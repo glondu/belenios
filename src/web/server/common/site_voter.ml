@@ -27,6 +27,7 @@ open Web_common
 
 module Make
     (X : Pages_sig.S)
+    (Web_auth : Web_auth_sig.S)
     (Site_common : Site_common_sig.S)
     (Site_admin : Site_admin_sig.S) =
 struct
@@ -65,68 +66,54 @@ struct
         let@ election = with_election s uuid in
         Pages_voter.cast_raw election () >>= Html.send)
 
-  let submit_ballot ballot =
+  let submit_ballot ~ballot =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
     let ballot = Stdlib.String.trim ballot in
-    let* () = Eliom_reference.set Web_state.ballot (Some ballot) in
-    redir_preapply election_submit_ballot_check () ()
+    match Election.election_uuid_of_string_ballot ballot with
+    | exception _ ->
+        Pages_common.generic_page ~title:(s_ "Error") (s_ "Ill-formed ballot")
+          ()
+        >>= Html.send
+    | uuid -> (
+        let@ s = Storage.with_transaction in
+        let@ precast_data cont =
+          Lwt.try_bind
+            (fun () -> Web_persist.precast_ballot s uuid ~ballot)
+            (function
+              | Ok x -> cont x
+              | Error e ->
+                  let msg =
+                    Printf.sprintf
+                      (f_ "Your ballot is rejected because %s.")
+                      (explain_error l (CastError e))
+                  in
+                  Pages_common.generic_page ~title:(s_ "Error") msg ()
+                  >>= Html.send)
+            (function
+              | Election_not_found _ -> (
+                  let* election = Spool.get s uuid Spool.draft in
+                  match election with
+                  | Some _ -> redir_preapply election_draft uuid ()
+                  | None ->
+                      let msg = s_ "Unknown election" in
+                      Pages_common.generic_page ~title:(s_ "Error") msg ()
+                      >>= Html.send)
+              | e -> Lwt.reraise e)
+        in
+        let* x = Web_auth.State.create s uuid { ballot; precast_data } in
+        match x with
+        | None -> fail_http `Forbidden
+        | Some state -> redir_preapply election_login state ())
 
   let () =
     Any.register ~service:election_submit_ballot (fun () ballot ->
-        submit_ballot ballot)
+        submit_ballot ~ballot)
 
   let () =
     Any.register ~service:election_submit_ballot_file (fun () ballot ->
         let* ballot = exhaust_file ballot in
-        submit_ballot ballot)
-
-  let () =
-    Any.register ~service:election_submit_ballot_check (fun () () ->
-        let* l = get_preferred_gettext () in
-        let open (val l) in
-        let* ballot = Eliom_reference.get Web_state.ballot in
-        match ballot with
-        | None ->
-            Pages_common.generic_page ~title:(s_ "Cookies are blocked")
-              (s_ "Your browser seems to block cookies. Please enable them.")
-              ()
-            >>= Html.send
-        | Some rawballot -> (
-            match Election.election_uuid_of_string_ballot rawballot with
-            | exception _ ->
-                Pages_common.generic_page ~title:(s_ "Error")
-                  (s_ "Ill-formed ballot") ()
-                >>= Html.send
-            | uuid ->
-                let@ s = Storage.with_transaction in
-                let@ precast_data cont =
-                  Lwt.try_bind
-                    (fun () -> Web_persist.precast_ballot s uuid ~rawballot)
-                    (function
-                      | Ok x -> cont x
-                      | Error e ->
-                          let msg =
-                            Printf.sprintf
-                              (f_ "Your ballot is rejected because %s.")
-                              (explain_error l (CastError e))
-                          in
-                          Pages_common.generic_page ~title:(s_ "Error") msg ()
-                          >>= Html.send)
-                    (function
-                      | Election_not_found _ -> (
-                          let* election = Spool.get s uuid Spool.draft in
-                          match election with
-                          | Some _ -> redir_preapply election_draft uuid ()
-                          | None ->
-                              let msg = s_ "Unknown election" in
-                              Pages_common.generic_page ~title:(s_ "Error") msg
-                                ()
-                              >>= Html.send)
-                      | e -> Lwt.reraise e)
-                in
-                let* () =
-                  Eliom_reference.set Web_state.precast_data (Some precast_data)
-                in
-                redir_preapply election_login ((uuid, ()), None) ()))
+        submit_ballot ~ballot)
 
   let send_confirmation_email s uuid revote user recipient weight hash =
     let@ election =
@@ -154,27 +141,27 @@ struct
       (fun _ -> Lwt.return false)
 
   let () =
-    Any.register ~service:election_cast_confirm (fun uuid () ->
+    Any.register ~service:election_cast_confirm (fun state () ->
+        let@ env cont =
+          let x = Web_auth.State.get ~state in
+          match x with Some x -> cont x | None -> fail_http `Forbidden
+        in
+        let uuid = env.uuid in
         let@ s = Storage.with_transaction in
         let@ election = with_election s uuid in
-        let* ballot = Eliom_reference.get Web_state.ballot in
-        let* precast_data = Eliom_reference.get Web_state.precast_data in
-        match (ballot, precast_data) with
-        | None, _ | _, None ->
-            Pages_voter.lost_ballot s election () >>= Html.send
-        | Some rawballot, Some precast_data -> (
-            let* () = Eliom_reference.unset Web_state.ballot in
-            let* user = Web_state.get_election_user uuid in
-            match user with
+        match env.state with
+        | None -> Pages_voter.lost_ballot s election () >>= Html.send
+        | Some { ballot; precast_data } -> (
+            match env.user with
             | None -> forbidden ()
             | Some user ->
-                let* () = Eliom_reference.unset Web_state.election_user in
+                let () = Web_auth.State.del ~state in
                 let* result =
                   Lwt.catch
                     (fun () ->
                       let* hash =
                         Api_elections.cast_ballot send_confirmation_email s uuid
-                          ~rawballot ~user ~precast_data
+                          ~ballot ~user ~precast_data
                       in
                       return (Ok hash))
                     (function

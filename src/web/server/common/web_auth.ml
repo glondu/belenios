@@ -49,11 +49,15 @@ struct
   type kind = [ `Election of uuid | `Site of site_cont ]
 
   type auth_env = {
+    handler : uuid option -> auth_config -> (module AUTH_SYSTEM);
+    username_or_address : [ `Username | `Address ];
     extern : bool;
     timeout : float;
     auth_config : auth_config;
     kind : kind;
+    state : state option;
     mutable data : data option;
+    mutable user : user option;
   }
 
   let auth_env = ref SMap.empty
@@ -64,7 +68,8 @@ struct
     auth_env := a;
     SMap.find_opt state a
 
-  let add_auth_env ~auth_config ~kind ~extern =
+  let add_auth_env ?state ?user ~auth_config ~kind ~extern ~handler
+      ~username_or_address () =
     let now = Unix.gettimeofday () in
     let timeout = now +. 900. in
     let a = SMap.filter (fun _ x -> x.timeout > now) !auth_env in
@@ -72,19 +77,34 @@ struct
       let state = generate_token ~length:22 () in
       if SMap.mem state a then find_state () else state
     in
+    let x =
+      {
+        handler;
+        extern;
+        timeout;
+        auth_config;
+        kind;
+        state;
+        data = None;
+        user;
+        username_or_address;
+      }
+    in
     let state = find_state () in
-    let x = { extern; timeout; auth_config; kind; data = None } in
     auth_env := SMap.add state x a;
     (state, x)
 
   let del_auth_env ~state = auth_env := SMap.remove state !auth_env
 
-  let get_cont ~extern login_or_logout x =
+  let get_cont ~extern login_or_logout ?state x =
     let open Eliom_registration in
     let redir =
       match x with
-      | `Election uuid ->
-          `R (Redirection (preapply ~service:election_cast_confirm uuid))
+      | `Election _ -> (
+          match state with
+          | None -> `E `Forbidden
+          | Some state ->
+              `R (Redirection (preapply ~service:election_cast_confirm state)))
       | `Site { path = ContSiteHome; admin = admin_ui } -> (
           match admin_ui with
           | Classic -> `R (Redirection home)
@@ -115,28 +135,30 @@ struct
     in
     fun () ->
       if extern then
-        let uri =
+        let* uri =
           match redir with
-          | `R (Redirection service) -> make_absolute_string_uri ~service ()
-          | `S s -> s
+          | `R (Redirection service) ->
+              Lwt.return @@ make_absolute_string_uri ~service ()
+          | `S s -> Lwt.return s
+          | `E e -> fail_http e
         in
         Pages_common.html_redirection uri >>= Html.send
       else
         match redir with
         | `R r -> Redirection.send r
         | `S s -> String_redirection.send s
+        | `E e -> fail_http e
 
-  let restart_login service = function
-    | `Election uuid ->
-        preapply ~service:election_login ((uuid, ()), Some service)
+  let restart_login service ~state = function
+    | `Election _ -> preapply ~service:election_login state
     | `Site cont -> preapply ~service:site_login (Some service, cont)
 
   let run_post_login_handler ~auth_system ~state { post_login_handler } =
     match get_auth_env ~state with
-    | Some { extern; auth_config = a; kind; data = Some data; _ } ->
+    | Some ({ extern; auth_config = a; kind; data = Some data; _ } as env) ->
         let uuid = match kind with `Site _ -> None | `Election u -> Some u in
         let restart_login () =
-          let service = restart_login a.auth_instance kind in
+          let service = restart_login a.auth_instance kind ~state in
           Pages_common.login_failed ~service ()
           >>= Eliom_registration.Html.send ~code:401
         in
@@ -161,10 +183,10 @@ struct
                       if List.mem name allowlist then cont ()
                       else restart_login ()
                 in
-                let () = del_auth_env ~state in
                 let user =
                   { user_domain = a.auth_instance; user_name = name }
                 in
+                let () = env.user <- Some user in
                 let* () =
                   match uuid with
                   | None ->
@@ -190,11 +212,9 @@ struct
                       let* token = Api_generic.new_token account in
                       Eliom_reference.set Web_state.site_user
                         (Some (user, account, token))
-                  | Some uuid ->
-                      Eliom_reference.set Web_state.election_user
-                        (Some (uuid, user))
+                  | Some _ -> Lwt.return_unit
                 in
-                get_cont ~extern `Login kind ()
+                get_cont ~extern `Login kind ~state ()
             | None -> restart_login ()
           in
           post_login_handler ~data uuid a cont
@@ -205,16 +225,13 @@ struct
 
   let auth_systems = ref ([] : (string * auth_system) list)
 
-  let get_pre_login_handler username_or_address kind a =
+  let get_pre_login_handler ~state env =
+    let { kind; handler; auth_config; username_or_address; _ } = env in
     let uuid = match kind with `Site _ -> None | `Election u -> Some u in
-    match List.assoc_opt a.auth_system !auth_systems with
-    | Some { handler; extern } ->
-        let state, env = add_auth_env ~auth_config:a ~kind ~extern in
-        let module X = (val handler uuid a) in
-        let* result, data = X.pre_login_handler username_or_address ~state in
-        env.data <- Some data;
-        Lwt.return result
-    | None -> fail_http `Not_found
+    let module X = (val handler uuid auth_config) in
+    let* result, data = X.pre_login_handler username_or_address ~state in
+    env.data <- Some data;
+    Lwt.return result
 
   let register ~auth_system handler =
     auth_systems := (auth_system, handler) :: !auth_systems;
@@ -244,75 +261,68 @@ struct
              | x -> [ x ])
         |> List.flatten |> return
 
-  let login_handler service kind =
+  let login_handler x =
+    let@ state, env =
+     fun cont ->
+      match x with
+      | `Election state -> (
+          match get_auth_env ~state with
+          | None -> fail_http `Gone
+          | Some env -> cont (state, env))
+      | `Site (service, site_cont) -> (
+          let* user =
+            let* x = Eliom_reference.get Web_state.site_user in
+            let&* a, _, _ = x in
+            Lwt.return_some a
+          in
+          let kind = `Site site_cont in
+          let@ auth_config cont2 =
+            let c = !Web_config.site_auth_config in
+            match service with
+            | Some s -> (
+                match find_auth_instance s c with
+                | Some x -> cont2 x
+                | None -> fail_http `Not_found)
+            | None -> (
+                match c with
+                | [ s ] -> cont2 s
+                | _ ->
+                    let builder s =
+                      preapply ~service:Web_services.site_login
+                        (Some s, site_cont)
+                    in
+                    let* page =
+                      Pages_common.login_choose
+                        (List.map (fun x -> x.auth_instance) c)
+                        builder ()
+                    in
+                    Eliom_registration.Html.send page)
+          in
+          match List.assoc_opt auth_config.auth_system !auth_systems with
+          | Some { extern; handler; _ } ->
+              add_auth_env ?user ~auth_config ~kind ~extern ~handler
+                ~username_or_address:`Username ()
+              |> cont
+          | None -> fail_http `Not_found)
+    in
+    let { kind; user; auth_config; _ } = env in
     let uuid = match kind with `Site _ -> None | `Election u -> Some u in
-    let myself service =
-      match kind with
-      | `Site cont -> preapply ~service:site_login (service, cont)
-      | `Election uuid -> preapply ~service:election_login ((uuid, ()), service)
-    in
-    let* user =
-      match uuid with
-      | None ->
-          let* x = Eliom_reference.get Web_state.site_user in
-          let&* a, _, _ = x in
-          return_some a
-      | Some uuid -> Web_state.get_election_user uuid
-    in
     match (user, uuid) with
-    | Some _, None -> get_cont ~extern:false `Login kind ()
+    | Some _, None -> get_cont ~extern:false `Login kind ~state ()
     | Some _, Some _ | None, _ -> (
-        let@ storage = Storage.with_transaction in
-        let* c =
-          match uuid with
-          | None -> return !Web_config.site_auth_config
-          | Some uuid -> get_election_auth_configs storage uuid
+        let site_or_election =
+          match uuid with None -> `Site | Some _ -> `Election
         in
-        match service with
-        | Some s -> (
-            let* site_or_election, username_or_address =
-              match uuid with
-              | None -> return (`Site, `Username)
-              | Some uuid ->
-                  let* username_or_address =
-                    Web_persist.get_username_or_address storage uuid
-                  in
-                  return (`Election, username_or_address)
+        let* x = get_pre_login_handler ~state env in
+        match x with
+        | Html x ->
+            let* title =
+              Pages_common.login_title site_or_election
+                auth_config.auth_instance
             in
-            let* a =
-              match find_auth_instance s c with
-              | Some x -> return x
-              | None -> fail_http `Not_found
-            in
-            let* x = get_pre_login_handler username_or_address kind a in
-            match x with
-            | Html x ->
-                let* title =
-                  Pages_common.login_title site_or_election a.auth_instance
-                in
-                Pages_common.base ~title ~content:[ x ] ()
-                >>= Eliom_registration.Html.send
-            | Redirection x -> Eliom_registration.String_redirection.send x)
-        | None -> (
-            match c with
-            | [ s ] ->
-                Eliom_registration.(
-                  Redirection.send (Redirection (myself (Some s.auth_instance))))
-            | _ ->
-                let builder =
-                  match kind with
-                  | `Site cont ->
-                      fun s ->
-                        preapply ~service:Web_services.site_login (Some s, cont)
-                  | `Election uuid ->
-                      fun s ->
-                        preapply ~service:Web_services.election_login
-                          ((uuid, ()), Some s)
-                in
-                Pages_common.login_choose
-                  (List.map (fun x -> x.auth_instance) c)
-                  builder ()
-                >>= Eliom_registration.Html.send))
+            let* page = Pages_common.base ~title ~content:[ x ] () in
+            Eliom_registration.Html.send page
+        | Redirection x -> Eliom_registration.String_redirection.send x)
 
   let logout_handler cont =
     let* () =
@@ -327,22 +337,30 @@ struct
     get_cont ~extern:false `Logout (`Site cont) ()
 
   let () =
-    Eliom_registration.Any.register ~service:site_login
-      (fun (service, cont) () -> login_handler service (`Site cont))
+    Eliom_registration.Any.register ~service:site_login (fun x () ->
+        login_handler (`Site x))
 
   let () =
     Eliom_registration.Any.register ~service:logout (fun cont () ->
         logout_handler cont)
 
   let () =
-    Eliom_registration.Any.register ~service:election_login
-      (fun ((uuid, ()), service) () -> login_handler service (`Election uuid))
+    Eliom_registration.Any.register ~service:election_login (fun x () ->
+        login_handler (`Election x))
 
   let get_site_login_handler service =
     match find_auth_instance service !Web_config.site_auth_config with
     | None -> return @@ Html (Eliom_content.Html.F.div [])
-    | Some a ->
-        get_pre_login_handler `Username (`Site (default_admin ContSiteHome)) a
+    | Some auth_config -> (
+        match List.assoc_opt auth_config.auth_system !auth_systems with
+        | Some { extern; handler; _ } ->
+            let kind = `Site (default_admin ContSiteHome) in
+            let state, env =
+              add_auth_env ~auth_config ~kind ~extern ~handler
+                ~username_or_address:`Username ()
+            in
+            get_pre_login_handler ~state env
+        | None -> return @@ Html (Eliom_content.Html.F.div []))
 
   let direct_voter_auth s uuid x =
     let fail () = failwith "invalid direct auth" in
@@ -367,4 +385,35 @@ struct
         let* user_name = X.direct x in
         Lwt.return { user_name; user_domain = c.auth_instance }
     | None -> fail ()
+
+  module State = struct
+    let create storage uuid state =
+      let kind = `Election uuid in
+      let* c, username_or_address =
+        let* c = get_election_auth_configs storage uuid in
+        let* username_or_address =
+          Web_persist.get_username_or_address storage uuid
+        in
+        Lwt.return (c, username_or_address)
+      in
+      match c with
+      | [ auth_config ] -> (
+          match List.assoc_opt auth_config.auth_system !auth_systems with
+          | Some { extern; handler; _ } ->
+              let state, _ =
+                add_auth_env ~state ~auth_config ~kind ~extern ~handler
+                  ~username_or_address ()
+              in
+              Lwt.return_some state
+          | None -> Lwt.return_none)
+      | _ -> Lwt.return_none
+
+    let get ~state =
+      let@ { state; user; kind; _ } = Option.bind (get_auth_env ~state) in
+      match kind with
+      | `Election uuid -> Some Web_auth_sig.{ state; user; uuid }
+      | _ -> None
+
+    let del = del_auth_env
+  end
 end

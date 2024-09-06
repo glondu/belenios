@@ -19,22 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt
-open Lwt.Syntax
-
 module Make () = struct
   let belenios_scope = `Session (Eliom_common.create_scope_hierarchy "belenios")
   let site_user = Eliom_reference.eref ~scope:belenios_scope None
-  let election_user = Eliom_reference.eref ~scope:belenios_scope None
-
-  let get_election_user uuid =
-    let* user = Eliom_reference.get election_user in
-    match user with
-    | Some (u, x) when u = uuid -> return_some x
-    | _ -> return_none
-
-  let ballot = Eliom_reference.eref ~scope:belenios_scope None
-  let precast_data = Eliom_reference.eref ~scope:belenios_scope None
   let cast_confirmed = Eliom_reference.eref ~scope:belenios_scope None
   let signup_address = Eliom_reference.eref ~scope:belenios_scope None
   let signup_env = Eliom_reference.eref ~scope:belenios_scope None

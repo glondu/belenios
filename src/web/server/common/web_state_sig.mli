@@ -28,10 +28,6 @@ type signup_env = { kind : signup_kind; service : string }
 
 module type S = sig
   val site_user : (user * account * string) option Eliom_reference.eref
-  val election_user : (uuid * user) option Eliom_reference.eref
-  val get_election_user : uuid -> user option Lwt.t
-  val ballot : string option Eliom_reference.eref
-  val precast_data : (string * credential_record) option Eliom_reference.eref
 
   val cast_confirmed :
     (user * string * bool * Weight.t * bool, Web_common.error) result option

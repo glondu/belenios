@@ -331,7 +331,7 @@ let get_records s uuid =
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
-let cast_ballot send_confirmation s uuid ~rawballot ~user ~precast_data =
+let cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data =
   let* email, login, weight =
     let* x = Web_persist.get_voter s uuid user.user_name in
     match x with
@@ -345,7 +345,7 @@ let cast_ballot send_confirmation s uuid ~rawballot ~user ~precast_data =
   let voting_open = state = `Open in
   let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
   let* r =
-    Web_persist.cast_ballot s uuid ~rawballot ~user:user_s ~weight
+    Web_persist.cast_ballot s uuid ~ballot ~user:user_s ~weight
       (Datetime.now ()) ~precast_data
   in
   match r with
@@ -587,16 +587,15 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
                 cont x)
               (fun _ -> unauthorized)
           in
-          let@ rawballot = body.run Fun.id in
+          let@ ballot = body.run Fun.id in
           let@ () = handle_generic_error in
           let send_confirmation _ _ _ _ _ _ _ = Lwt.return_true in
-          let* x = Web_persist.precast_ballot s uuid ~rawballot in
+          let* x = Web_persist.precast_ballot s uuid ~ballot in
           match x with
           | Error _ -> bad_request
           | Ok precast_data ->
               let* _ =
-                cast_ballot send_confirmation s uuid ~rawballot ~user
-                  ~precast_data
+                cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data
               in
               ok)
       | _ -> method_not_allowed)

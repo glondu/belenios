@@ -491,7 +491,7 @@ let get_credential_record s uuid credential =
   let* cr_weight = get_credential_weight s uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
 
-let precast_ballot s uuid ~rawballot =
+let precast_ballot s uuid ~ballot =
   let@ election =
     Public_archive.with_election s uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "precast_ballot")))
@@ -499,14 +499,14 @@ let precast_ballot s uuid ~rawballot =
   let module W = (val election) in
   let@ () =
    fun cont ->
-    let hash = Hash.hash_string rawballot in
+    let hash = Hash.hash_string ballot in
     let* x = Public_archive.get_data s uuid hash in
     match x with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error `DuplicateBallot
   in
   let@ rc cont =
-    match W.E.check_rawballot rawballot with
+    match W.E.check_rawballot ballot with
     | Error _ as x -> Lwt.return x
     | Ok rc -> cont rc
   in
@@ -519,7 +519,7 @@ let precast_ballot s uuid ~rawballot =
   if rc.rc_check () then Lwt.return @@ Ok (rc.rc_credential, cr)
   else Lwt.return @@ Error `InvalidBallot
 
-let do_cast_ballot s election ~rawballot ~user ~weight date ~precast_data =
+let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
   let module S = (val s : Storage.BACKEND) in
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
@@ -574,12 +574,12 @@ let do_cast_ballot s election ~rawballot ~user ~weight date ~precast_data =
        fun cont ->
         match old with
         | None ->
-            let* h = add_ballot s election last rawballot in
+            let* h = add_ballot s election last ballot in
             cont (h, false)
         | Some _ ->
             if !Web_config.deny_revote then return @@ Error `RevoteNotAllowed
             else
-              let* h = add_ballot s election last rawballot in
+              let* h = add_ballot s election last ballot in
               cont (h, true)
       in
       let* () =
@@ -593,12 +593,12 @@ let do_cast_ballot s election ~rawballot ~user ~weight date ~precast_data =
       in
       return (Ok (hash, revote))
 
-let cast_ballot s uuid ~rawballot ~user ~weight date ~precast_data =
+let cast_ballot s uuid ~ballot ~user ~weight date ~precast_data =
   let@ election =
     Public_archive.with_election s uuid ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "cast_ballot")))
   in
-  do_cast_ballot s election ~rawballot ~user ~weight date ~precast_data
+  do_cast_ballot s election ~ballot ~user ~weight date ~precast_data
 
 let compute_audit_cache s uuid =
   let* election = Public_archive.get_election s uuid in

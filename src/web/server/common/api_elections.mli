@@ -44,7 +44,7 @@ val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
 
 val cast_ballot :
   (bool -> string -> string -> weight option -> string -> bool Lwt.t) Storage.u ->
-  (rawballot:string ->
+  (ballot:string ->
   user:user ->
   precast_data:string * credential_record ->
   (user * string * bool * weight * bool) Lwt.t)

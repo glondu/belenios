@@ -300,12 +300,9 @@ module Make () = struct
       ~post_params:(string "user") ()
 
   let election_login =
-    create ~path:(Path [ "elections" ])
-      ~meth:
-        (Get
-           (suffix_prod
-              (uuid "uuid" ** suffix_const "login")
-              (opt (string "service"))))
+    create
+      ~path:(Path [ "actions"; "voter-login" ])
+      ~meth:(Get (string "state"))
       ()
 
   let election_open =
@@ -372,11 +369,8 @@ module Make () = struct
       ~meth:(Post (unit, file "encrypted_vote"))
       ()
 
-  let election_submit_ballot_check =
-    create ~path:(Path [ "actions"; "submit-ballot-check" ]) ~meth:(Get unit) ()
-
   let election_cast_confirm =
-    create ~path:(Path [ "actions"; "confirm" ]) ~meth:(Get (uuid "uuid")) ()
+    create ~path:(Path [ "actions"; "confirm" ]) ~meth:(Get (string "state")) ()
 
   let election_pretty_records =
     create ~path:(Path [ "elections" ])
