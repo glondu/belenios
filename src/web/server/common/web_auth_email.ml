@@ -153,7 +153,7 @@ struct
               | _ -> cont None
             in
             match precast_data with
-            | Some (_, { cr_username = Some name; _ }) ->
+            | Some { credential_record = { cr_username = Some name; _ }; _ } ->
                 handle_email_post ~show_email_address:true ~state name true
             | _ ->
                 let* fragment =

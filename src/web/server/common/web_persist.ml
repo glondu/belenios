@@ -491,6 +491,11 @@ let get_credential_record s uuid credential =
   let* cr_weight = get_credential_weight s uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
 
+type precast_data = {
+  credential : string;
+  credential_record : credential_record;
+}
+
 let precast_ballot s uuid ~ballot =
   let@ election =
     Public_archive.with_election s uuid ~fallback:(fun () ->
@@ -510,13 +515,14 @@ let precast_ballot s uuid ~ballot =
     | Error _ as x -> Lwt.return x
     | Ok rc -> cont rc
   in
-  let@ cr cont =
-    let* x = get_credential_record s uuid rc.rc_credential in
+  let credential = rc.rc_credential in
+  let@ credential_record cont =
+    let* x = get_credential_record s uuid credential in
     match x with
     | None -> Lwt.return @@ Error `InvalidCredential
     | Some cr -> cont cr
   in
-  if rc.rc_check () then Lwt.return @@ Ok (rc.rc_credential, cr)
+  if rc.rc_check () then Lwt.return @@ Ok { credential; credential_record }
   else Lwt.return @@ Error `InvalidBallot
 
 let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
@@ -539,7 +545,7 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
     return_some r_credential
   in
   let@ x cont =
-    let credential, cr = precast_data in
+    let { credential; credential_record = cr } = precast_data in
     let@ () =
      fun cont2 ->
       if Weight.compare cr.cr_weight weight <> 0 then cont @@ Error `WrongWeight

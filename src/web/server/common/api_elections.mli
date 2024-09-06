@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_server_core
-open Web_common
 open Belenios_api.Serializable_t
 open Api_generic
 
@@ -47,6 +46,6 @@ val cast_ballot :
   (bool -> string -> string -> weight option -> string -> bool Lwt.t) Storage.u ->
   (ballot:string ->
   user:user ->
-  precast_data:string * credential_record ->
+  precast_data:Web_persist.precast_data ->
   (user * string * bool * weight * bool) Lwt.t)
   Storage.u

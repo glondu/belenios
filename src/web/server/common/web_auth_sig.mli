@@ -20,10 +20,9 @@
 (**************************************************************************)
 
 open Belenios_server_core
-open Web_common
 
 type data = ..
-type state = { ballot : string; precast_data : string * credential_record }
+type state = { ballot : string; precast_data : Web_persist.precast_data }
 
 type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result
