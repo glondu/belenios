@@ -46,12 +46,13 @@ struct
       'a Lwt.t;
   }
 
+  type kind = [ `Election of uuid | `Site of site_cont ]
+
   type auth_env = {
     extern : bool;
     timeout : float;
-    uuid : uuid option;
     auth_config : auth_config;
-    kind : [ `Election of Uuid.t | `Site of site_cont ];
+    kind : kind;
     mutable data : data option;
   }
 
@@ -63,7 +64,7 @@ struct
     auth_env := a;
     SMap.find_opt state a
 
-  let add_auth_env ~uuid ~auth_config ~kind ~extern =
+  let add_auth_env ~auth_config ~kind ~extern =
     let now = Unix.gettimeofday () in
     let timeout = now +. 600. in
     let a = SMap.filter (fun _ x -> x.timeout > now) !auth_env in
@@ -72,7 +73,7 @@ struct
       if SMap.mem state a then find_state () else state
     in
     let state = find_state () in
-    let x = { extern; timeout; uuid; auth_config; kind; data = None } in
+    let x = { extern; timeout; auth_config; kind; data = None } in
     auth_env := SMap.add state x a;
     (state, x)
 
@@ -132,7 +133,8 @@ struct
 
   let run_post_login_handler ~auth_system ~state { post_login_handler } =
     match get_auth_env ~state with
-    | Some { extern; uuid; auth_config = a; kind; data = Some data; _ } ->
+    | Some { extern; auth_config = a; kind; data = Some data; _ } ->
+        let uuid = match kind with `Site _ -> None | `Election u -> Some u in
         let restart_login () =
           let service = restart_login a.auth_instance kind in
           Pages_common.login_failed ~service ()
@@ -203,10 +205,11 @@ struct
 
   let auth_systems = ref ([] : (string * auth_system) list)
 
-  let get_pre_login_handler uuid username_or_address kind a =
+  let get_pre_login_handler username_or_address kind a =
+    let uuid = match kind with `Site _ -> None | `Election u -> Some u in
     match List.assoc_opt a.auth_system !auth_systems with
     | Some { handler; extern } ->
-        let state, env = add_auth_env ~uuid ~auth_config:a ~kind ~extern in
+        let state, env = add_auth_env ~auth_config:a ~kind ~extern in
         let module X = (val handler uuid a) in
         let* result, data = X.pre_login_handler username_or_address ~state in
         env.data <- Some data;
@@ -242,9 +245,7 @@ struct
         |> List.flatten |> return
 
   let login_handler service kind =
-    let uuid =
-      match kind with `Site _ -> None | `Election uuid -> Some uuid
-    in
+    let uuid = match kind with `Site _ -> None | `Election u -> Some u in
     let myself service =
       match kind with
       | `Site cont -> preapply ~service:site_login (service, cont)
@@ -283,7 +284,7 @@ struct
               | Some x -> return x
               | None -> fail_http `Not_found
             in
-            let* x = get_pre_login_handler uuid username_or_address kind a in
+            let* x = get_pre_login_handler username_or_address kind a in
             match x with
             | Html x ->
                 let* title =
@@ -341,9 +342,7 @@ struct
     match find_auth_instance service !Web_config.site_auth_config with
     | None -> return @@ Html (Eliom_content.Html.F.div [])
     | Some a ->
-        get_pre_login_handler None `Username
-          (`Site (default_admin ContSiteHome))
-          a
+        get_pre_login_handler `Username (`Site (default_admin ContSiteHome)) a
 
   let direct_voter_auth s uuid x =
     let fail () = failwith "invalid direct auth" in
