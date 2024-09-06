@@ -212,7 +212,7 @@ struct
     match
       ballot_of_string (sread G.of_string) (sread G.Zq.of_string) rawballot
     with
-    | exception e -> Error (`SerializationError e)
+    | exception e -> Error (`SerializationError (Printexc.to_string e))
     | ballot ->
         if
           string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string) ballot

@@ -231,8 +231,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let raw_ballots = lazy (get_ballots ())
 
   let string_of_cast_error = function
-    | `SerializationError e ->
-        Printf.sprintf "ill-formed ballot: %s" (Printexc.to_string e)
+    | `SerializationError e -> Printf.sprintf "ill-formed ballot: %s" e
     | `NonCanonical -> "ballot not in canonical form"
     | `InvalidBallot -> "invalid ballot"
     | `InvalidCredential -> "invalid credential"

@@ -55,6 +55,22 @@ type ff_params = {
 }
 <doc text="Parameters for a multiplicative subgroup of a finite field.">
 
+(** {2 Errors} *)
+
+type cast_error =
+  [ DuplicateBallot
+  | ExpiredBallot
+  | InvalidBallot
+  | InvalidCredential
+  | NonCanonical
+  | RevoteNotAllowed
+  | SerializationError of string
+  | UsedCredential
+  | WrongCredential
+  | WrongUsername
+  | WrongWeight
+  ]
+
 (** {2 Elections} *)
 
 type voter = abstract wrap <ocaml module="Common.Voter">

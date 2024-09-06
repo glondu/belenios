@@ -36,9 +36,7 @@ let explain_error l e =
   | ElectionClosed -> s_ "the election is closed"
   | UnauthorizedVoter -> s_ "you are not allowed to vote"
   | CastError (`SerializationError e) ->
-      Printf.sprintf
-        (f_ "your ballot has a syntax error (%s)")
-        (Printexc.to_string e)
+      Printf.sprintf (f_ "your ballot has a syntax error (%s)") e
   | CastError `NonCanonical -> s_ "your ballot is not in canonical form"
   | CastError `InvalidBallot -> s_ "some proofs failed verification"
   | CastError `InvalidCredential -> s_ "your credential is invalid"

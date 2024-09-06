@@ -26,6 +26,7 @@ type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type cast_error <ocaml predef from="Belenios_core.Serializable"> = abstract
 type context <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -71,6 +72,7 @@ type error =
   | ValidationError of validation_error
   | InvalidPublicKey
   | PublicKeyExists
+  | CastError of cast_error
   ]
 
 type request_status = {

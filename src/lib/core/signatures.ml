@@ -75,19 +75,6 @@ module type RAW_ELECTION = sig
   val raw_election : string
 end
 
-type cast_error =
-  [ `SerializationError of exn
-  | `NonCanonical
-  | `InvalidBallot
-  | `InvalidCredential
-  | `WrongCredential
-  | `WrongWeight
-  | `UsedCredential
-  | `RevoteNotAllowed
-  | `DuplicateBallot
-  | `ExpiredBallot
-  | `WrongUsername ]
-
 type rawballot_check = { rc_credential : string; rc_check : unit -> bool }
 
 (** Cryptographic primitives for an election with homomorphic tally. *)
