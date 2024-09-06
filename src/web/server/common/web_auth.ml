@@ -58,17 +58,25 @@ struct
     state : state option;
     mutable data : data option;
     mutable user : user option;
+    credential : string option;
   }
 
   let auth_env = ref SMap.empty
+  let cred_env = ref SMap.empty
 
   let get_auth_env ~state =
     let now = Unix.gettimeofday () in
-    let a = SMap.filter (fun _ x -> x.timeout > now) !auth_env in
+    let a, b = SMap.partition (fun _ x -> x.timeout > now) !auth_env in
     auth_env := a;
+    SMap.iter
+      (fun _ e ->
+        match e.credential with
+        | None -> ()
+        | Some c -> cred_env := SMap.remove c !cred_env)
+      b;
     SMap.find_opt state a
 
-  let add_auth_env ?state ?user ~auth_config ~kind ~extern ~handler
+  let add_auth_env ?state ?user ?credential ~auth_config ~kind ~extern ~handler
       ~username_or_address () =
     let now = Unix.gettimeofday () in
     let timeout = now +. 900. in
@@ -88,13 +96,19 @@ struct
         data = None;
         user;
         username_or_address;
+        credential;
       }
     in
     let state = find_state () in
     auth_env := SMap.add state x a;
     (state, x)
 
-  let del_auth_env ~state = auth_env := SMap.remove state !auth_env
+  let del_auth_env ~state =
+    let e = get_auth_env ~state in
+    auth_env := SMap.remove state !auth_env;
+    match e with
+    | Some { credential = Some c; _ } -> cred_env := SMap.remove c !cred_env
+    | _ -> ()
 
   let get_cont ~extern login_or_logout ?state x =
     let open Eliom_registration in
@@ -388,6 +402,12 @@ struct
 
   module State = struct
     let create storage uuid state =
+      let credential = state.precast_data.credential in
+      let () =
+        match SMap.find_opt credential !cred_env with
+        | None -> ()
+        | Some state -> del_auth_env ~state
+      in
       let kind = `Election uuid in
       let* c, username_or_address =
         let* c = get_election_auth_configs storage uuid in
@@ -402,7 +422,7 @@ struct
           | Some { extern; handler; _ } ->
               let state, _ =
                 add_auth_env ~state ~auth_config ~kind ~extern ~handler
-                  ~username_or_address ()
+                  ~username_or_address ~credential ()
               in
               Lwt.return_some state
           | None -> Lwt.return_none)
