@@ -19,16 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
 open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
-type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
-exception BeleniosWebError of error
+exception BeleniosWebError of Belenios_ui.Confirmation.error
 
-val fail : error -> 'a Lwt.t
-val explain_error : (module Belenios_ui.I18n.GETTEXT) -> error -> string
+val fail : Belenios_ui.Confirmation.error -> 'a Lwt.t
 val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val get_election_home_url : uuid -> string
@@ -97,7 +94,6 @@ val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
 val urlize : string -> string
 val unurlize : string -> string
-val markup : string -> [> Html_types.span ] Eliom_content.Html.elt
 val get_booth_index : int option -> int option
 
 type credential_record = {

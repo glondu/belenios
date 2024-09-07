@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,27 +19,25 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
-open Web_common
+open Belenios_api.Serializable_t
 
-type signup_kind = CreateAccount | ChangePassword of { username : string }
-type signup_env = { kind : signup_kind; service : string }
+type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
-module type S = sig
-  val site_user : (user * account * string) option Eliom_reference.eref
-
-  val cast_confirmed :
-    ( Belenios_api.Serializable_t.confirmation,
-      Belenios_ui.Confirmation.error )
-    result
-    option
-    Eliom_reference.eref
-
-  val signup_address : string option Eliom_reference.eref
-  val signup_env : signup_env option Eliom_reference.eref
-  val set_email_env : string option Eliom_reference.eref
-  val billing_env : site_cont option Eliom_reference.eref
-  val discard : unit -> unit Lwt.t
-  val get_consent_cookie : unit -> bool
-  val set_consent_cookie : unit -> unit
-end
+let explain_error l e =
+  let open (val l : I18n.GETTEXT) in
+  match e with
+  | ElectionClosed -> s_ "the election is closed"
+  | UnauthorizedVoter -> s_ "you are not allowed to vote"
+  | CastError (`SerializationError e) ->
+      Printf.sprintf (f_ "your ballot has a syntax error (%s)") e
+  | CastError `NonCanonical -> s_ "your ballot is not in canonical form"
+  | CastError `InvalidBallot -> s_ "some proofs failed verification"
+  | CastError `InvalidCredential -> s_ "your credential is invalid"
+  | CastError `RevoteNotAllowed -> s_ "you are not allowed to revote"
+  | CastError `UsedCredential -> s_ "your credential has already been used"
+  | CastError `WrongCredential ->
+      s_ "you are not allowed to vote with this credential"
+  | CastError `WrongWeight -> s_ "your credential has a bad weight"
+  | CastError `DuplicateBallot -> s_ "this ballot has already been accepted"
+  | CastError `ExpiredBallot -> s_ "this ballot has expired"
+  | CastError `WrongUsername -> s_ "your username is wrong"

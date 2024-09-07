@@ -426,6 +426,8 @@ src/web/clients/trustee/trustee.mli
 src/web/clients/worker/belenios_worker.ml
 src/web/clients/worker/belenios_worker.mli
 src/web/clients/worker/dune
+src/web/common/confirmation.ml
+src/web/common/confirmation.mli
 src/web/common/dune
 src/web/common/i18n.ml
 src/web/common/i18n.mli

@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
+
 module type BASE = sig
   module Xml : Xml_sigs.NoWrap
   module Svg : Svg_sigs.Make(Xml).T
@@ -180,5 +182,96 @@ module Make (Base : BASE) = struct
       | Some sticky_footer ->
           div ~a:[ a_class [ "sticky-footer" ] ] [ sticky_footer ]
       | None -> txt "");
+    ]
+
+  let markup x =
+    let p =
+      {
+        Markup.bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
+        text = (fun _ x -> txt x);
+        br = (fun _ -> br ());
+        italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
+      }
+    in
+    try
+      let lexbuf = Lexing.from_string x in
+      let xs = Markup_parser.full Markup_lexer.token lexbuf in
+      let xs = Markup.render p xs in
+      span xs
+    with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
+
+  let confirmation_fragment l ~snippet ~progress election result =
+    let open (val l : I18n.GETTEXT) in
+    let open (val election : Belenios.Election.ELECTION) in
+    let name = template.t_name in
+    let result, step_title =
+      match result with
+      | Ok
+          ({ user; hash; revote; weight; email; _ } :
+            Belenios_api.Serializable_t.confirmation) ->
+          let this_is_a_revote =
+            if revote then span [ txt @@ s_ "This is a revote."; txt " " ]
+            else txt ""
+          in
+          let your_weight_is =
+            match weight with
+            | Some weight ->
+                span
+                  [
+                    txt
+                      (Printf.sprintf (f_ "Your weight is %s.")
+                         (Weight.to_string weight));
+                    txt " ";
+                  ]
+            | None -> txt ""
+          in
+          let ballot_box =
+            let href =
+              Printf.sprintf "%selection#%s/ballots" uris.home
+                (Uuid.unwrap uuid)
+            in
+            a ~a:[ a_href @@ Xml.uri_of_string href ] [ txt (s_ "ballot box") ]
+          in
+          ( [
+              txt (s_ " as user ");
+              em [ txt user ];
+              txt (s_ " has been accepted.");
+              txt " ";
+              this_is_a_revote;
+              your_weight_is;
+              txt (s_ "Your smart ballot tracker is ");
+              b ~a:[ a_id "ballot_tracker" ] [ txt @@ Hash.to_b64 hash ];
+              txt ". ";
+              txt (s_ "You can check its presence in the ");
+              ballot_box;
+              txt (s_ " anytime during the election.");
+              txt
+                (if email then s_ " A confirmation e-mail has been sent to you."
+                 else "");
+            ],
+            s_ "Thank you for voting!" )
+      | Error e ->
+          ( [
+              txt (s_ " is rejected, because ");
+              txt (Confirmation.explain_error l e);
+              txt ".";
+            ],
+            s_ "FAIL!" )
+    in
+    [
+      progress;
+      div ~a:[ a_class [ "current_step" ] ] [ txt step_title ];
+      p ([ txt (s_ "Your ballot for "); em [ markup name ] ] @ result);
+      snippet;
+      p
+        [
+          a
+            ~a:
+              [
+                a_href @@ Xml.uri_of_string
+                @@ Printf.sprintf "%selection#%s" uris.home (Uuid.unwrap uuid);
+              ]
+            [ txt (s_ "Go back to election") ];
+        ];
     ]
 end

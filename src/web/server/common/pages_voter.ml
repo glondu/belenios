@@ -200,77 +200,10 @@ struct
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
     let name = template.t_name in
-    let result, snippet, step_title =
-      match result with
-      | Ok
-          ({ user; hash; revote; weight; email; _ } :
-            Belenios_api.Serializable_t.confirmation) ->
-          let this_is_a_revote =
-            if revote then span [ txt @@ s_ "This is a revote."; txt " " ]
-            else txt ""
-          in
-          let your_weight_is =
-            match weight with
-            | Some weight ->
-                span
-                  [
-                    txt
-                      (Printf.sprintf (f_ "Your weight is %s.")
-                         (Weight.to_string weight));
-                    txt " ";
-                  ]
-            | None -> txt ""
-          in
-          let ballot_box =
-            let href =
-              Xml.uri_of_string (get_election_home_url uuid ^ "/ballots")
-            in
-            Eliom_content.Html.F.Raw.a
-              ~a:[ a_href href ]
-              [ txt (s_ "ballot box") ]
-          in
-          ( [
-              txt (s_ " as user ");
-              em [ txt user ];
-              txt (s_ " has been accepted.");
-              txt " ";
-              this_is_a_revote;
-              your_weight_is;
-              txt (s_ "Your smart ballot tracker is ");
-              b ~a:[ a_id "ballot_tracker" ] [ txt @@ Hash.to_b64 hash ];
-              txt ". ";
-              txt (s_ "You can check its presence in the ");
-              ballot_box;
-              txt (s_ " anytime during the election.");
-              txt
-                (if email then s_ " A confirmation e-mail has been sent to you."
-                 else "");
-            ],
-            read_snippet ~lang !Web_config.success_snippet,
-            s_ "Thank you for voting!" )
-      | Error e ->
-          ( [
-              txt (s_ " is rejected, because ");
-              txt (Web_common.explain_error l e);
-              txt ".";
-            ],
-            Lwt.return (txt ""),
-            s_ "FAIL!" )
-    in
-    let* snippet = snippet in
+    let* snippet = read_snippet ~lang !Web_config.success_snippet in
+    let progress = progress_responsive_step5 l in
     let content =
-      [
-        progress_responsive_step5 l;
-        div ~a:[ a_class [ "current_step" ] ] [ txt step_title ];
-        p ([ txt (s_ "Your ballot for "); em [ markup name ] ] @ result);
-        snippet;
-        p
-          [
-            a ~service:Web_services.election_home
-              [ txt (s_ "Go back to election") ]
-              (uuid, ());
-          ];
-      ]
+      Pages_common.confirmation_fragment l ~snippet ~progress election result
     in
     let title = name in
     let full_title = name in

@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,27 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
-open Web_common
+open Belenios_api.Serializable_t
 
-type signup_kind = CreateAccount | ChangePassword of { username : string }
-type signup_env = { kind : signup_kind; service : string }
+type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
-module type S = sig
-  val site_user : (user * account * string) option Eliom_reference.eref
-
-  val cast_confirmed :
-    ( Belenios_api.Serializable_t.confirmation,
-      Belenios_ui.Confirmation.error )
-    result
-    option
-    Eliom_reference.eref
-
-  val signup_address : string option Eliom_reference.eref
-  val signup_env : signup_env option Eliom_reference.eref
-  val set_email_env : string option Eliom_reference.eref
-  val billing_env : site_cont option Eliom_reference.eref
-  val discard : unit -> unit Lwt.t
-  val get_consent_cookie : unit -> bool
-  val set_consent_cookie : unit -> unit
-end
+val explain_error : (module I18n.GETTEXT) -> error -> string

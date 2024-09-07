@@ -24,30 +24,10 @@ open Belenios
 open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
-type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
 
-exception BeleniosWebError of error
+exception BeleniosWebError of Belenios_ui.Confirmation.error
 
 let fail e = Lwt.fail (BeleniosWebError e)
-
-let explain_error l e =
-  let open (val l : Belenios_ui.I18n.GETTEXT) in
-  match e with
-  | ElectionClosed -> s_ "the election is closed"
-  | UnauthorizedVoter -> s_ "you are not allowed to vote"
-  | CastError (`SerializationError e) ->
-      Printf.sprintf (f_ "your ballot has a syntax error (%s)") e
-  | CastError `NonCanonical -> s_ "your ballot is not in canonical form"
-  | CastError `InvalidBallot -> s_ "some proofs failed verification"
-  | CastError `InvalidCredential -> s_ "your credential is invalid"
-  | CastError `RevoteNotAllowed -> s_ "you are not allowed to revote"
-  | CastError `UsedCredential -> s_ "your credential has already been used"
-  | CastError `WrongCredential ->
-      s_ "you are not allowed to vote with this credential"
-  | CastError `WrongWeight -> s_ "your credential has a bad weight"
-  | CastError `DuplicateBallot -> s_ "this ballot has already been accepted"
-  | CastError `ExpiredBallot -> s_ "this ballot has expired"
-  | CastError `WrongUsername -> s_ "your username is wrong"
 
 let decompose_seconds s =
   let s = float_of_int s in
@@ -233,25 +213,6 @@ let string_of_languages xs = String.concat " " (get_languages xs)
 let languages_of_string x = Re.Pcre.(split ~rex:(regexp "\\s+") x)
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)
 let unurlize = String.map (function '-' -> '+' | '_' -> '/' | c -> c)
-
-let markup x =
-  let open Eliom_content.Html.F in
-  let open Belenios_ui in
-  let p =
-    {
-      Markup.bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
-      text = (fun _ x -> txt x);
-      br = (fun _ -> br ());
-      italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
-    }
-  in
-  try
-    let lexbuf = Lexing.from_string x in
-    let xs = Markup_parser.full Markup_lexer.token lexbuf in
-    let xs = Markup.render p xs in
-    span xs
-  with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
-
 let get_booth_index = function Some 2 -> Some 0 | _ -> None
 
 type credential_record = {

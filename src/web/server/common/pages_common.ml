@@ -78,6 +78,9 @@ struct
 
   module Ui = Belenios_ui.Pages_common.Make (UiBase)
 
+  let markup = Ui.markup
+  let confirmation_fragment = Ui.confirmation_fragment
+
   let base ~title ?full_title ?(login_box = txt "") ?lang_box ~content
       ?(footer = txt "") ?sticky_footer ?uuid ?static:(static_page = false)
       ?redirect () =

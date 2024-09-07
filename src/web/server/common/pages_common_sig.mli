@@ -108,6 +108,16 @@ module type S = sig
     unit ->
     [> Html_types.html ] Eliom_content.Html.elt Lwt.t
 
+  val confirmation_fragment :
+    (module Belenios_ui.I18n.GETTEXT) ->
+    snippet:'a Eliom_content.Html.elt ->
+    progress:'a Eliom_content.Html.elt ->
+    (module Belenios.Election.ELECTION) ->
+    ( Belenios_api.Serializable_t.confirmation,
+      Belenios_ui.Confirmation.error )
+    result ->
+    ([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt list
+
   val lang_box :
     Web_common.site_cont_path ->
     [> Html_types.div ] Eliom_content.Html.elt Lwt.t
