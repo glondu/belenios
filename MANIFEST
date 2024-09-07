@@ -381,6 +381,8 @@ src/web/clients/common/secondary_ui.ml
 src/web/clients/common/secondary_ui.mli
 src/web/clients/common/session.ml
 src/web/clients/common/session.mli
+src/web/clients/common/window_messages.ml
+src/web/clients/common/window_messages.mli
 src/web/clients/credauth/credauth.html
 src/web/clients/credauth/credauth.ml
 src/web/clients/credauth/credauth.mli
