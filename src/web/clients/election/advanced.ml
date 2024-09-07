@@ -27,11 +27,10 @@ open Tyxml_js.Html
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
+open Belenios_js.Window_messages
 open Common
 
 let booths = [ ("Version 2", "static/frontend/booth/vote.html") ]
-
-module Message = Belenios_js.Window_messages
 
 let make_login_target ~state =
   let params = Url.encode_arguments [ ("state", state) ] in
@@ -57,25 +56,17 @@ let finally x cont =
 
 let post_ballot uuid ~get_ballot _ =
   let open (val !Belenios_js.I18n.gettext) in
-  let x =
+  let window =
     let submit = Printf.sprintf "#%s/advanced/submit" (Uuid.unwrap uuid) in
     Dom_html.window##open_ (Js.string submit) (Js.string "_blank") Js.null
   in
   let@ () = finally false in
-  let@ window = Js.Opt.iter x in
+  let@ window = Js.Opt.iter window in
   let window = coerce_window window in
-  let id = ref None in
-  let handler =
-    let@ event = Dom_html.handler in
-    let ready = Message.getReady event in
-    let@ () = finally Js._false in
-    if ready then (
-      Option.iter Dom_html.removeEventListener !id;
-      Message.postBallot window ~ballot:(get_ballot ()))
-  in
-  id :=
-    Some
-      (Dom_html.addEventListener Dom_html.window Event.message handler Js._false)
+  let@ () = Lwt.async in
+  let* _ = waitReady () in
+  postBallot window (get_ballot ());
+  Lwt.return_unit
 
 let advanced uuid =
   let open (val !Belenios_js.I18n.gettext) in
@@ -200,7 +191,6 @@ let advanced uuid =
   in
   Lwt.return { title; contents; footer }
 
-let message_listener = ref None
 let status = ref `Waiting
 
 let explain () =
@@ -223,33 +213,25 @@ let submit uuid =
   let container = div [ txt @@ explain () ] in
   let contents = [ container ] in
   let () =
-    let dom = Tyxml_js.To_dom.of_div container in
-    match !message_listener with
-    | Some _ -> ()
-    | None ->
-        let handler =
-          let@ event = Dom_html.handler in
-          let ballot = Message.getBallot event in
-          let@ () = finally Js._false in
-          match ballot with
-          | None -> ()
-          | Some ballot -> (
-              let@ () = Lwt.async in
-              let* x = submit_ballot uuid ~ballot in
-              match x with
-              | None ->
-                  status := `Unexpected;
-                  dom##.textContent := Js.some @@ Js.string @@ explain ();
-                  Lwt.return_unit
-              | Some state ->
-                  let target = make_login_target ~state in
-                  window##.location##.href := Js.string target;
-                  Lwt.return_unit)
+    match !status with
+    | `Waiting ->
+        let dom = Tyxml_js.To_dom.of_div container in
+        let () =
+          let@ () = Lwt.async in
+          let* ballot = waitBallot () in
+          let* x = submit_ballot uuid ~ballot in
+          match x with
+          | None ->
+              status := `Unexpected;
+              dom##.textContent := Js.some @@ Js.string @@ explain ();
+              Lwt.return_unit
+          | Some state ->
+              let target = make_login_target ~state in
+              window##.location##.href := Js.string target;
+              Lwt.return_unit
         in
-        message_listener :=
-          Some
-            (Dom_html.addEventListener window Event.message handler Js._false);
         let@ window = Js.Opt.iter window##.opener in
-        Message.postReady window ()
+        postReady window true
+    | _ -> ()
   in
   Lwt.return { title; contents; footer }

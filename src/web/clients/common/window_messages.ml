@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Belenios
 open Common
 
 let check_origin =
@@ -48,7 +49,7 @@ class type wrapped_message = object
   method belenios : message Js.t Js.optdef Js.readonly_prop
 end
 
-let postBallot (window : window Js.t) ~ballot =
+let postBallot (window : window Js.t) ballot =
   let message : message Js.t =
     object%js
       val ballot = Js.Optdef.return (Js.string ballot)
@@ -62,11 +63,11 @@ let postBallot (window : window Js.t) ~ballot =
   in
   window##postMessage wrapped_message targetOrigin
 
-let postReady (window : window Js.t) () =
+let postReady (window : window Js.t) ready =
   let message : message Js.t =
     object%js
       val ballot = Js.undefined
-      val ready = Js.Optdef.return Js._true
+      val ready = Js.Optdef.return (Js.bool ready)
     end
   in
   let wrapped_message : wrapped_message Js.t =
@@ -80,19 +81,33 @@ let getMessage x =
   let x : wrapped_message Js.t = Js.Unsafe.coerce x##.data in
   x##.belenios
 
-let getBallot e =
+let get getter cast e =
   if check_origin e then
     Js.Optdef.case (getMessage e)
       (fun () -> None)
       (fun x ->
-        Js.Optdef.case x##.ballot
-          (fun () -> None)
-          (fun x -> Some (Js.to_string x)))
+        Js.Optdef.case (getter x) (fun () -> None) (fun x -> Some (cast x)))
   else None
 
-let getReady e =
-  if check_origin e then
-    Js.Optdef.case (getMessage e)
-      (fun () -> false)
-      (fun x -> Js.Optdef.case x##.ready (fun () -> false) Js.to_bool)
-  else false
+let getBallot e = get (fun x -> x##.ballot) Js.to_string e
+let getReady e = get (fun x -> x##.ready) Js.to_bool e
+
+let wait get =
+  let t, u = Lwt.task () in
+  let id = ref None in
+  let handler =
+    let@ event = Dom_html.handler in
+    match get event with
+    | Some x ->
+        Option.iter Dom_html.removeEventListener !id;
+        Lwt.wakeup_later u x;
+        Js._false
+    | None -> Js._false
+  in
+  id :=
+    Some
+      (Dom_html.addEventListener Dom_html.window Event.message handler Js._false);
+  t
+
+let waitBallot () = wait getBallot
+let waitReady () = wait getReady
