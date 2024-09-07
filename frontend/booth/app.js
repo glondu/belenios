@@ -83,6 +83,7 @@ function TranslatableVoteApp({
   uuid = null,
   votingCredential = null,
   draft,
+  lang,
   t,
 }) {
   const [currentStep, setCurrentStep] = React.useState(
@@ -102,19 +103,41 @@ function TranslatableVoteApp({
   const [cryptedBallotBeforeReview, setCryptedBallotBeforeReview] =
     React.useState(null);
   const [smartBallotTracker, setSmartBallotTracker] = React.useState(null);
+  const [confirmation, setConfirmation] = React.useState(false);
+
+  React.useEffect(() => {
+    if (confirmation) {
+      const container = document.getElementById("authentication-done");
+      if (container) {
+        belenios.renderConfirmation(container);
+      }
+    }
+  }, [confirmation]);
 
   const processElectionData = (inputElectionData) => {
-    setElectionData(inputElectionData);
-    try {
-      let election = new Election(inputElectionData);
-      setElectionObject(election);
-    } catch (error) {
+    const onfailure = (error) => {
       setElectionLoadingErrorMessage(error);
       setElectionLoadingStatus(2);
-      return;
-    }
-    setElectionFingerprint(belenios.computeFingerprint(inputElectionData));
-    setElectionLoadingStatus(1);
+    };
+    const onsuccess = () => {
+      setElectionData(inputElectionData);
+      try {
+        let election = new Election(inputElectionData);
+        setElectionObject(election);
+      } catch (error) {
+        onfailure(error);
+        return;
+      }
+      setElectionFingerprint(belenios.computeFingerprint(inputElectionData));
+      setElectionLoadingStatus(1);
+    };
+    belenios.init({
+      root: relativeServerRootFolder,
+      stateful: true,
+      lang,
+      onsuccess,
+      onfailure,
+    });
   };
 
   const loadElectionDataFromUuid = (uuid, draft) => {
@@ -281,12 +304,20 @@ function TranslatableVoteApp({
         }),
       );
     } else if (currentStep === 3) {
-      const urlToPostEncryptedBallot = `${relativeServerRootFolder}actions/submit-ballot`;
       const onClickPrevious = () => {
         setCurrentStep(2);
         setUncryptedBallotBeforeReview(null);
         setCryptedBallotBeforeReview(null);
         setSmartBallotTracker(null);
+      };
+      const onClickNext = () => {
+        setCurrentStep(4);
+        belenios.submitBallot({
+          finished: () => {
+            setCurrentStep(5);
+            setConfirmation(true);
+          },
+        });
       };
       return e(
         VotePage,
@@ -302,9 +333,25 @@ function TranslatableVoteApp({
           cryptedBallot: cryptedBallotBeforeReview,
           smartBallotTracker,
           onClickPrevious,
-          urlToPostEncryptedBallot,
+          onClickNext,
           draft,
         }),
+      );
+    } else if (currentStep === 4) {
+      return e(VotePage, {
+        electionObject,
+        electionFingerprint,
+        currentStep,
+      });
+    } else if (currentStep === 5) {
+      return e(
+        VotePage,
+        {
+          electionObject,
+          electionFingerprint,
+          currentStep,
+        },
+        e("div", { id: "authentication-done" }),
       );
     }
   }
@@ -325,6 +372,7 @@ const afterI18nInitialized = (uuid, lang, credential, draft) => {
         votingCredential: credential,
         uuid: uuid,
         draft,
+        lang,
       }),
     );
   };

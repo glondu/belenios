@@ -22,6 +22,7 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_lwt
+open Js_of_ocaml_tyxml
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
@@ -37,13 +38,17 @@ class type renderingFunctions = object
 end
 
 module type ELECTION_WITH_SK = sig
-  include ELECTION
+  include Election.ELECTION
 
   val sk : G.Zq.t
 end
 
 class type initParams = object
   method root : Js.js_string Js.t Js.readonly_prop
+  method stateful : bool Js.t Js.optdef Js.readonly_prop
+  method lang : Js.js_string Js.t Js.optdef Js.readonly_prop
+  method onsuccess : unit Js.meth
+  method onfailure : Js.js_string Js.t -> unit Js.meth
 end
 
 class type checkCredentialCallbacks = object
@@ -54,6 +59,10 @@ end
 class type encryptBallotCallbacks = object
   method success : Js.js_string Js.t -> Js.js_string Js.t -> unit Js.meth
   method failure : Js.js_string Js.t -> unit Js.meth
+end
+
+class type submitBallotCallbacks = object
+  method finished : unit Js.meth
 end
 
 class type tracker = object
@@ -83,15 +92,50 @@ class type belenios = object
   method formatTracker :
     (module ELECTION_WITH_SK) -> Js.js_string Js.t -> tracker Js.t Js.meth
 
+  method submitBallot : submitBallotCallbacks Js.t -> unit Js.meth
+  method renderConfirmation : Dom_html.divElement Js.t -> unit Js.meth
   method initiateLogin : unit Js.meth
   method finalizeLogin : Js.Unsafe.any -> unit Js.meth
 end
+
+let stateful = ref false
+let global_configuration = ref None
+let election_and_ballot = ref None
+let global_result = ref None
 
 let belenios : belenios Js.t =
   object%js
     method init (p : initParams Js.t) =
       let root = Js.to_string p##.root in
-      relative_root := root
+      relative_root := root;
+      let dir = root ^ "static/" in
+      let () =
+        Js.Optdef.iter p##.stateful (fun x -> stateful := Js.to_bool x)
+      in
+      let@ () = Lwt.async in
+      let* () =
+        Js.Optdef.case p##.lang
+          (fun () -> Lwt.return_unit)
+          (fun lang ->
+            let lang = Js.to_string lang in
+            Belenios_js.I18n.init ~dir ~component:"voter" ~lang)
+      in
+      let* () =
+        if !stateful then (
+          let* x = Api.(get configuration `Nobody) in
+          match x with
+          | Ok (x, _) ->
+              global_configuration := Some x;
+              Lwt.return_unit
+          | Error _ ->
+              let open (val !Belenios_js.I18n.gettext) in
+              p##onfailure
+                (Js.string @@ s_ "Could not get server configuration!");
+              Lwt.return_unit)
+        else Lwt.return_unit
+      in
+      p##onsuccess;
+      Lwt.return_unit
 
     method computeFingerprint x =
       Js._JSON##stringify x |> Js.to_string |> sha256_b64 |> Js.string
@@ -165,6 +209,7 @@ let belenios : belenios Js.t =
               let* () = Lwt_js.yield () in
               let b = E.create_ballot ~sk plaintext in
               let ballot = write_ballot -- b in
+              if !stateful then election_and_ballot := Some (election, ballot);
               let tracker = sha256_b64 ballot in
               callbacks##success (Js.string ballot) (Js.string tracker);
               Lwt.return_unit)
@@ -235,6 +280,53 @@ let belenios : belenios Js.t =
         val filename = filename
         val contents = contents
       end
+
+    method submitBallot (callbacks : submitBallotCallbacks Js.t) =
+      match !election_and_ballot with
+      | None -> failwith "submitBallot not available in non-stateful mode"
+      | Some (election, ballot) -> (
+          let window =
+            window##open_
+              (Js.string !!"actions/voter-login")
+              (Js.string "_blank") Js.null
+          in
+          let@ window = Js.Opt.iter window in
+          let window = coerce_window window in
+          let open (val election) in
+          let@ () = Lwt.async in
+          let@ () =
+           fun cont ->
+            let* result = cont () in
+            global_result := Some result;
+            callbacks##finished;
+            Lwt.return_unit
+          in
+          let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
+          match x with
+          | Ok state -> (
+              let* _ = Messages.(wait ready) () in
+              Messages.(post state) window state;
+              let* confirmation = Messages.(wait confirmation) () in
+              Messages.(post ready) window true;
+              match
+                Belenios_api.Serializable_j.cast_result_of_string
+                  (Js.to_string confirmation)
+              with
+              | exception _ -> Lwt.return @@ `Error `UnexpectedResponse
+              | result -> Lwt.return result)
+          | Error e ->
+              window##close;
+              Lwt.return @@ `Error e)
+
+    method renderConfirmation container =
+      match (!global_configuration, !election_and_ballot, !global_result) with
+      | Some configuration, Some (election, _), Some result ->
+          let module W = (val election) in
+          container##.innerHTML := Js.string "";
+          List.iter
+            (fun x -> Dom.appendChild container (Tyxml_js.To_dom.of_node x))
+            (Belenios_js.Cast.confirmation configuration (module W) result)
+      | _ -> ()
 
     method initiateLogin =
       let () =

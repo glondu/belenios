@@ -12,7 +12,7 @@ function TranslatableReviewEncryptSection({
   cryptedBallot = null,
   smartBallotTracker = null,
   onClickPrevious = null,
-  urlToPostEncryptedBallot = "",
+  onClickNext = null,
   draft = null,
   t,
 }) {
@@ -110,7 +110,7 @@ function TranslatableReviewEncryptSection({
           window.close();
           return false;
         }
-      : null;
+      : onClickNext;
   const paginationWhenBallotHasBeenEncrypted = e(
     "div",
     {
@@ -120,18 +120,14 @@ function TranslatableReviewEncryptSection({
       },
     },
     previousButton,
-    e(
-      // this Next button submits the form
-      BlueNiceButton,
-      {
-        onClick: nextOnClick,
-        label: t("next_button_label"),
-        style: {
-          ...navigationButtonStyle,
-          marginLeft: "20px",
-        },
+    e(BlueNiceButton, {
+      onClick: nextOnClick,
+      label: t("next_button_label"),
+      style: {
+        ...navigationButtonStyle,
+        marginLeft: "20px",
       },
-    ),
+    }),
   );
   const paginationWhenBallotIsBeingEncrypted = e(
     "div",
@@ -170,12 +166,9 @@ function TranslatableReviewEncryptSection({
       id: ballotContainerId,
     },
     e(
-      "form",
+      "div",
       {
         id: ballotFormId,
-        method: "POST",
-        action: urlToPostEncryptedBallot,
-        encType: "multipart/form-data",
       },
       encryptedBallotField,
       e(
