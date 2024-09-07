@@ -28,6 +28,31 @@ open Belenios
 open Common
 open Session
 
+let show_consent = ref true
+let dummy_client_configuration = { consent = None; lang = None }
+let label_client_configuration = Js.string "belenios.client.configuration"
+
+let get_client_configuration () =
+  Js.Optdef.case
+    Dom_html.window##.localStorage
+    (fun () -> dummy_client_configuration)
+    (fun s ->
+      Js.Opt.case
+        (s##getItem label_client_configuration)
+        (fun () -> dummy_client_configuration)
+        (fun c ->
+          match client_configuration_of_string (Js.to_string c) with
+          | exception _ -> dummy_client_configuration
+          | x -> x))
+
+let set_client_configuration x =
+  Js.Optdef.iter Dom_html.window##.localStorage (fun s ->
+      if x = dummy_client_configuration then
+        s##removeItem label_client_configuration
+      else
+        s##setItem label_client_configuration
+          (Js.string (string_of_client_configuration x)))
+
 module type UI = sig
   val set_title : string -> unit
   val set_footer : Html_types.div_content_fun elt list -> unit
@@ -47,8 +72,13 @@ let drop_leading_hash x =
   if n > 0 && x.[0] = '#' then String.sub x 1 (n - 1) else x
 
 let make_cookie_disclaimer configuration =
+  let@ () = fun cont -> if !show_consent then cont () else div [] in
   let open (val !I18n.gettext) in
   let handler _ =
+    let now = (new%js Js.date_now)##valueOf /. 1000. in
+    let c = get_client_configuration () in
+    set_client_configuration { c with consent = Some now };
+    show_consent := false;
     let xs = document##getElementsByClassName (Js.string "cookie-disclaimer") in
     for i = 0 to xs##.length - 1 do
       let@ x = Js.Opt.iter (xs##item i) in
@@ -138,7 +168,10 @@ module Make (App : APP) () = struct
           Js.Opt.iter (Dom_html.CoerceTo.select e) (fun e ->
               e##.onchange :=
                 let@ () = lwt_handler in
-                main configuration (Js.to_string e##.value)))
+                let lang = Js.to_string e##.value in
+                let c = get_client_configuration () in
+                set_client_configuration { c with lang = Some lang };
+                main configuration lang))
     in
     onhashchange configuration
 
@@ -153,14 +186,24 @@ module Make (App : APP) () = struct
             Lwt.return_unit
         | Ok (x, _) -> cont x
       in
+      let client_configuration = get_client_configuration () in
       let lang =
-        Js.Optdef.case
-          Dom_html.window##.navigator##.language
-          (fun () -> "en")
-          (fun x ->
-            match String.split_on_char '-' (Js.to_string x) with
-            | x :: _ -> x
-            | _ -> "en")
+        match client_configuration.lang with
+        | None ->
+            Js.Optdef.case
+              Dom_html.window##.navigator##.language
+              (fun () -> "en")
+              (fun x ->
+                match String.split_on_char '-' (Js.to_string x) with
+                | x :: _ -> x
+                | _ -> "en")
+        | Some x -> x
+      in
+      let () =
+        match client_configuration.consent with
+        | Some t when t >= configuration.tos_last_update ->
+            show_consent := false
+        | _ -> ()
       in
       let () =
         Dom_html.window##.onhashchange

@@ -103,6 +103,7 @@ type configuration_uris = {
 type configuration = {
     restricted_mode : bool;
     vendor : string;
+    tos_last_update : float;
     uris : configuration_uris;
     belenios_version : string;
     belenios_build : string;
@@ -323,4 +324,9 @@ type billing_request = {
     uuid : uuid;
     nb_voters : int;
     ?context : billing_context option;
+}
+
+type client_configuration = {
+    ?consent : float option;
+    ?lang : string option;
 }

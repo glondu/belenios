@@ -112,6 +112,7 @@ let get_configuration () =
   {
     restricted_mode = !Web_config.restricted_mode;
     vendor = !Web_config.vendor;
+    tos_last_update = !Web_config.tos_last_update;
     uris = get_configuration_uris ();
     belenios_version = Version.version;
     belenios_build = Version.build;
