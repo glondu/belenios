@@ -104,7 +104,7 @@ struct
     Any.register ~service:election_submit_ballot (fun () ballot ->
         submit_ballot ~ballot)
 
-  let send_confirmation_email s uuid revote user recipient weight hash =
+  let send_confirmation_email s uuid confirmation =
     let@ election =
       Public_archive.with_election s uuid ~fallback:(fun () ->
           Lwt.fail (Election_not_found (uuid, "send_confirmation_email")))
@@ -118,13 +118,13 @@ struct
     let open (val l) in
     let subject = Printf.sprintf (f_ "Your vote for election %s") title in
     let body =
-      Mails_voter.mail_confirmation l user title weight hash revote url1 url2
-        metadata.e_contact
+      Mails_voter.mail_confirmation l confirmation url1 url2 metadata.e_contact
     in
     Lwt.catch
       (fun () ->
         let* () =
-          send_email (MailConfirmation uuid) ~recipient ~subject ~body
+          send_email (MailConfirmation uuid) ~recipient:confirmation.recipient
+            ~subject ~body
         in
         Lwt.return true)
       (fun _ -> Lwt.return false)
@@ -150,7 +150,7 @@ struct
                     (fun () ->
                       let* hash =
                         Api_elections.cast_ballot send_confirmation_email s uuid
-                          ~ballot ~user ~precast_data
+                          election ~ballot ~user ~precast_data
                       in
                       return (Ok hash))
                     (function

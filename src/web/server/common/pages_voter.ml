@@ -202,21 +202,24 @@ struct
     let name = template.t_name in
     let result, snippet, step_title =
       match result with
-      | Ok (user, hash, revote, weight, email) ->
+      | Ok
+          ({ user; hash; revote; weight; email; _ } :
+            Belenios_api.Serializable_t.confirmation) ->
           let this_is_a_revote =
             if revote then span [ txt @@ s_ "This is a revote."; txt " " ]
             else txt ""
           in
           let your_weight_is =
-            if not Weight.(is_int weight 1) then
-              span
-                [
-                  txt
-                    (Printf.sprintf (f_ "Your weight is %s.")
-                       (Weight.to_string weight));
-                  txt " ";
-                ]
-            else txt ""
+            match weight with
+            | Some weight ->
+                span
+                  [
+                    txt
+                      (Printf.sprintf (f_ "Your weight is %s.")
+                         (Weight.to_string weight));
+                    txt " ";
+                  ]
+            | None -> txt ""
           in
           let ballot_box =
             let href =
@@ -228,13 +231,13 @@ struct
           in
           ( [
               txt (s_ " as user ");
-              em [ txt user.user_name ];
+              em [ txt user ];
               txt (s_ " has been accepted.");
               txt " ";
               this_is_a_revote;
               your_weight_is;
               txt (s_ "Your smart ballot tracker is ");
-              b ~a:[ a_id "ballot_tracker" ] [ txt hash ];
+              b ~a:[ a_id "ballot_tracker" ] [ txt @@ Hash.to_b64 hash ];
               txt ". ";
               txt (s_ "You can check its presence in the ");
               ballot_box;

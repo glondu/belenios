@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
 open Belenios_server_core
 
 module type S = sig
@@ -31,7 +30,7 @@ module type S = sig
 
   val cast_confirmed :
     (module Site_common_sig.ELECTION) ->
-    result:(user * string * bool * Weight.t * bool, Web_common.error) result ->
+    result:(Belenios_api.Serializable_t.confirmation, Web_common.error) result ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

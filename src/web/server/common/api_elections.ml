@@ -331,7 +331,8 @@ let get_records s uuid =
   let x = Option.value x ~default:[] in
   Lwt.return @@ List.map split_voting_record x
 
-let cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data =
+let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
+  let module W = (val election : Election.ELECTION) in
   let* email, login, weight =
     let* x = Web_persist.get_voter s uuid user.user_name in
     match x with
@@ -350,13 +351,24 @@ let cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data =
   in
   match r with
   | Ok (hash, revote) ->
-      let* success = send_confirmation s uuid revote login email oweight hash in
+      let confirmation : confirmation =
+        {
+          user = login;
+          recipient = email;
+          hash;
+          revote;
+          weight = oweight;
+          email = false;
+          title = W.template.t_name;
+        }
+      in
+      let* email = send_confirmation s uuid confirmation in
       let () =
         if revote then
           Printf.ksprintf Ocsigen_messages.accesslog
             "Someone revoted in election %s" (Uuid.unwrap uuid)
       in
-      Lwt.return (user, hash, revote, weight, success)
+      Lwt.return { confirmation with email }
   | Error e -> fail (CastError e)
 
 let direct_voter_auth = ref (fun _ _ _ -> assert false)
@@ -615,9 +627,11 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
                     cont x)
                   (fun _ -> unauthorized)
               in
-              let send_confirmation _ _ _ _ _ _ _ = Lwt.return_true in
+              let send_confirmation _ _ _ = Lwt.return_false in
               let* _ =
-                cast_ballot send_confirmation s uuid ~ballot ~user ~precast_data
+                let election = Election.of_string (module Random) raw in
+                cast_ballot send_confirmation s uuid election ~ballot ~user
+                  ~precast_data
               in
               ok)
       | _ -> method_not_allowed)

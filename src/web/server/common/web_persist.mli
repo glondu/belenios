@@ -97,7 +97,7 @@ val cast_ballot :
   weight:Weight.t ->
   datetime ->
   precast_data:precast_data ->
-  (string * bool, cast_error) result Lwt.t)
+  (hash * bool, cast_error) result Lwt.t)
   Storage.u
 
 val append_to_shuffles :

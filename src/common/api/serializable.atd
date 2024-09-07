@@ -330,3 +330,13 @@ type client_configuration = {
     ?consent : float option;
     ?lang : string option;
 }
+
+type confirmation = {
+    title : string;
+    user : string;
+    recipient : string;
+    hash : hash;
+    revote : bool;
+    weight : weight option;
+    email : bool;
+}

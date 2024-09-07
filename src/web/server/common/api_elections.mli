@@ -43,9 +43,10 @@ val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
 val state_module : (module Web_auth_sig.STATE) option ref
 
 val cast_ballot :
-  (bool -> string -> string -> weight option -> string -> bool Lwt.t) Storage.u ->
-  (ballot:string ->
+  (confirmation -> bool Lwt.t) Storage.u ->
+  ((module Belenios.Election.ELECTION) ->
+  ballot:string ->
   user:user ->
   precast_data:Web_persist.precast_data ->
-  (user * string * bool * weight * bool) Lwt.t)
+  confirmation Lwt.t)
   Storage.u

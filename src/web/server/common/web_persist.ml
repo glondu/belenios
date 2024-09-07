@@ -400,11 +400,10 @@ let get_salt s uuid i =
 let add_ballot s election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
-  let hash = sha256_b64 ballot in
+  let hash = Hash.hash_string ballot in
   let* x =
     let module S = (val s : Storage.BACKEND) in
-    S.append uuid ~last
-      [ Data ballot; Event (`Ballot, Some (Hash.hash_string ballot)) ]
+    S.append uuid ~last [ Data ballot; Event (`Ballot, Some hash) ]
   in
   match x with
   | true ->
@@ -589,7 +588,9 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
               cont (h, true)
       in
       let* () =
-        S.create (Election (uuid, Credential_mapping credential)) hash
+        S.create
+          (Election (uuid, Credential_mapping credential))
+          (Hash.to_b64 hash)
       in
       let* () =
         S.create

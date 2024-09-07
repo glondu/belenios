@@ -407,7 +407,11 @@ let submit_bulk_emails jobs =
   Lwt.async process_bulk_emails;
   Lwt.return_unit
 
-let mail_confirmation l user title weight hash revote url1 url2 contact =
+let mail_confirmation l x url1 url2 contact =
+  let ({ user; title; weight; hash; revote; _ }
+        : Belenios_api.Serializable_t.confirmation) =
+    x
+  in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -431,7 +435,7 @@ let mail_confirmation l user title weight hash revote url1 url2 contact =
   add_newline b;
   add_newline b;
   add_string b "  ";
-  add_string b hash;
+  add_string b (Hash.to_b64 hash);
   add_newline b;
   if revote then (
     add_newline b;

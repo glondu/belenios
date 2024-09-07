@@ -45,11 +45,7 @@ val process_bulk_emails : unit -> unit Lwt.t
 
 val mail_confirmation :
   (module Belenios_ui.I18n.GETTEXT) ->
-  string ->
-  string ->
-  weight option ->
-  string ->
-  bool ->
+  Belenios_api.Serializable_j.confirmation ->
   string ->
   string ->
   string option ->

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
 open Belenios_server_core
 open Web_common
 
@@ -30,7 +29,7 @@ module type S = sig
   val site_user : (user * account * string) option Eliom_reference.eref
 
   val cast_confirmed :
-    (user * string * bool * Weight.t * bool, Web_common.error) result option
+    (Belenios_api.Serializable_t.confirmation, Web_common.error) result option
     Eliom_reference.eref
 
   val signup_address : string option Eliom_reference.eref
