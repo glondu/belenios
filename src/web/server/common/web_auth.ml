@@ -160,7 +160,7 @@ struct
         | `E e -> fail_http e
 
   let restart_login service ~state = function
-    | `Election _ -> preapply ~service:election_login state
+    | `Election _ -> preapply ~service:election_login (Some state)
     | `Site cont -> preapply ~service:site_login (Some service, cont)
 
   let run_post_login_handler ~auth_system ~state { post_login_handler } =
@@ -356,7 +356,17 @@ struct
 
   let () =
     Eliom_registration.Any.register ~service:election_login (fun x () ->
-        login_handler (`Election x))
+        match x with
+        | None ->
+            let page =
+              Pages_common.html_js_exec
+                {|
+                  belenios.init({root: "../"});
+                  belenios.initiateLogin();
+                |}
+            in
+            Eliom_registration.Html.send page
+        | Some x -> login_handler (`Election x))
 
   let get_site_login_handler service =
     match find_auth_instance service !Web_config.site_auth_config with

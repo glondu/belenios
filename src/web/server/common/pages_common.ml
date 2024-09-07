@@ -586,4 +586,15 @@ struct
     in
     let title = s_ "Redirection" in
     base ~title ~content ~redirect:uri ()
+
+  let make_unsafe_script x = Printf.ksprintf Unsafe.data "<script>%s</script>" x
+
+  let html_js_exec x =
+    html
+      (head (title (txt "Belenios")) [])
+      (body
+         [
+           script ~a:[ a_src (static "belenios_jslib.js") ] (txt "");
+           make_unsafe_script x;
+         ])
 end

@@ -56,14 +56,25 @@ struct
 
   let () =
     Any.register ~service:election_login_done (fun (uuid, state) () ->
-        let x = Web_auth.State.get_result ~state in
-        match x with
-        | Some result ->
+        let env = Web_auth.State.get ~state in
+        let result = Web_auth.State.get_result ~state in
+        match (env, result) with
+        | Some { state = Some { api_request = true; _ }; _ }, Some result ->
+            let page =
+              Printf.ksprintf Pages_common.html_js_exec
+                {|
+                  belenios.init({root: "../"});
+                  belenios.finalizeLogin(%s);
+                |}
+                (Belenios_api.Serializable_j.string_of_cast_result result)
+            in
+            Html.send page
+        | _, Some result ->
             let@ s = Storage.with_transaction in
             let@ election = with_election s uuid in
             let* page = Pages_voter.cast_confirmed election ~result () in
             Html.send page
-        | None ->
+        | _, None ->
             let page =
               make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
                 ~service:apps "election"
@@ -107,7 +118,7 @@ struct
         in
         match x with
         | None -> fail_http `Forbidden
-        | Some state -> redir_preapply election_login state ())
+        | Some state -> redir_preapply election_login (Some state) ())
 
   let () =
     Any.register ~service:election_submit_ballot (fun () ballot ->

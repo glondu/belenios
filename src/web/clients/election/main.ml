@@ -47,7 +47,7 @@ module App (U : UI) = struct
         U.set_footer p.footer;
         Lwt.return p.contents
     | [ uuid; "advanced"; "submit" ] ->
-        let* p = Advanced.submit (Uuid.wrap uuid) in
+        let* p = Advanced.submit configuration (Uuid.wrap uuid) in
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents

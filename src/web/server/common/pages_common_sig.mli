@@ -225,4 +225,6 @@ module type S = sig
 
   val html_redirection :
     string -> [> Html_types.html ] Eliom_content.Html.F.elt Lwt.t
+
+  val html_js_exec : string -> [> Html_types.html ] Eliom_content.Html.F.elt
 end

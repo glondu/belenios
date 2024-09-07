@@ -25,6 +25,7 @@ open Js_of_ocaml_lwt
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
+module Messages = Belenios_js.Window_messages
 
 class type renderingFunctions = object
   method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
@@ -39,6 +40,10 @@ module type ELECTION_WITH_SK = sig
   include ELECTION
 
   val sk : G.Zq.t
+end
+
+class type initParams = object
+  method root : Js.js_string Js.t Js.readonly_prop
 end
 
 class type checkCredentialCallbacks = object
@@ -57,7 +62,7 @@ class type tracker = object
 end
 
 class type belenios = object
-  method setApiRoot : Js.js_string Js.t -> unit Js.meth
+  method init : initParams Js.t -> unit Js.meth
   method computeFingerprint : Js.Unsafe.any Js.t -> Js.js_string Js.t Js.meth
 
   method checkCredential :
@@ -80,13 +85,16 @@ class type belenios = object
     Js.js_string Js.t ->
     Js.js_string Js.t ->
     tracker Js.t Js.meth
-end
 
-let apiRoot = ref "../../../api"
+  method initiateLogin : unit Js.meth
+  method finalizeLogin : Js.Unsafe.any -> unit Js.meth
+end
 
 let belenios : belenios Js.t =
   object%js
-    method setApiRoot x = apiRoot := Js.to_string x
+    method init (p : initParams Js.t) =
+      let root = Js.to_string p##.root in
+      relative_root := root
 
     method computeFingerprint x =
       Js._JSON##stringify x |> Js.to_string |> sha256_b64 |> Js.string
@@ -207,6 +215,27 @@ let belenios : belenios Js.t =
         val filename = filename
         val contents = contents
       end
+
+    method initiateLogin =
+      let () =
+        let@ () = Lwt.async in
+        let* state = Messages.(wait state) () in
+        let target = make_login_target ~state in
+        window##.location##.href := Js.string target;
+        Lwt.return_unit
+      in
+      let@ window = Js.Opt.iter window##.opener in
+      Messages.(post ready) window true
+
+    method finalizeLogin confirmation =
+      let () =
+        let@ () = Lwt.async in
+        let* _ = Messages.(wait ready) () in
+        window##close;
+        Lwt.return_unit
+      in
+      let@ window = Js.Opt.iter window##.opener in
+      Messages.(post confirmation) window (Js._JSON##stringify confirmation)
   end
 
 let () = Js.export "belenios" belenios

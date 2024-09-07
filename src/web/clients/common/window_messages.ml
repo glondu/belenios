@@ -99,4 +99,5 @@ let make what to_js of_js =
 let post t = t.post
 let wait t = t.wait
 let ready = make "ready" Js.bool Js.to_bool
-let ballot = make "ballot" Js.string Js.to_string
+let state = make "state" Js.string Js.to_string
+let confirmation = make "confirmation" Fun.id Fun.id

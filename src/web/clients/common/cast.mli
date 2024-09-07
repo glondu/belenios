@@ -19,13 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Js_of_ocaml
-open Common
+open Js_of_ocaml_tyxml
+open Belenios
+open Belenios_api.Serializable_t
 
-type 'a t
+val post_ballot : uuid -> ballot:string -> (string, cast_error) result Lwt.t
 
-val post : 'a t -> window Js.t -> 'a -> unit
-val wait : 'a t -> unit -> 'a Lwt.t
-val ready : bool t
-val state : string t
-val confirmation : Js.js_string Js.t t
+val confirmation :
+  configuration ->
+  (module Election.ELECTION) ->
+  cast_result ->
+  [> `Div | `PCDATA ] Tyxml_js.Html.elt list

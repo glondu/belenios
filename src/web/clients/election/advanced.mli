@@ -23,4 +23,4 @@ open Belenios_api.Serializable_t
 open Common
 
 val advanced : uuid -> page Lwt.t
-val submit : uuid -> page Lwt.t
+val submit : configuration -> uuid -> page Lwt.t

@@ -118,7 +118,7 @@ module Make () = struct
   let election_login =
     create
       ~path:(Path [ "actions"; "voter-login" ])
-      ~meth:(Get (string "state"))
+      ~meth:(Get (opt (string "state")))
       ()
 
   let election_login_done =
