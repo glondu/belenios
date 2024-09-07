@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
@@ -29,6 +30,83 @@ open Belenios_js.Session
 open Common
 
 let booths = [ ("Version 2", "static/frontend/booth/vote.html") ]
+
+let check_origin =
+  let open Regexp in
+  let rex = regexp "^(https?://[^/]+)(/.*)?$" in
+  let prefix =
+    match string_match rex (Js.to_string window##.location##.href) 0 with
+    | None -> ""
+    | Some m -> ( match matched_group m 1 with None -> "" | Some x -> x)
+  in
+  fun x -> String.starts_with ~prefix (Js.to_string x##.origin)
+
+let targetOrigin =
+  match
+    String.split_on_char '#' (Js.to_string Dom_html.window##.location##.href)
+  with
+  | x :: _ -> Js.string x
+  | [] -> Js.string "*"
+
+module Message = struct
+  class type message = object
+    method ballot : Js.js_string Js.t Js.optdef Js.readonly_prop
+    method ready : bool Js.t Js.optdef Js.readonly_prop
+  end
+
+  class type wrapped_message = object
+    method belenios : message Js.t Js.optdef Js.readonly_prop
+  end
+
+  let postBallot (window : window Js.t) ~ballot =
+    let message : message Js.t =
+      object%js
+        val ballot = Js.Optdef.return (Js.string ballot)
+        val ready = Js.undefined
+      end
+    in
+    let wrapped_message : wrapped_message Js.t =
+      object%js
+        val belenios = Js.Optdef.return message
+      end
+    in
+    window##postMessage wrapped_message targetOrigin
+
+  let postReady (window : window Js.t) () =
+    let message : message Js.t =
+      object%js
+        val ballot = Js.undefined
+        val ready = Js.Optdef.return Js._true
+      end
+    in
+    let wrapped_message : wrapped_message Js.t =
+      object%js
+        val belenios = Js.Optdef.return message
+      end
+    in
+    window##postMessage wrapped_message targetOrigin
+
+  let getMessage x =
+    let x : wrapped_message Js.t = Js.Unsafe.coerce x##.data in
+    x##.belenios
+
+  let getBallot e =
+    if check_origin e then
+      Js.Optdef.case (getMessage e)
+        (fun () -> None)
+        (fun x ->
+          Js.Optdef.case x##.ballot
+            (fun () -> None)
+            (fun x -> Some (Js.to_string x)))
+    else None
+
+  let getReady e =
+    if check_origin e then
+      Js.Optdef.case (getMessage e)
+        (fun () -> false)
+        (fun x -> Js.Optdef.case x##.ready (fun () -> false) Js.to_bool)
+    else false
+end
 
 let make_login_target ~state =
   let params = Url.encode_arguments [ ("state", state) ] in
@@ -44,33 +122,35 @@ let submit_ballot uuid ~ballot =
           | Some (`String state) -> Lwt.return_some state
           | _ -> Lwt.return_none)
       | _ -> Lwt.return_none)
-  | _ -> Lwt.return_none
+  | _ ->
+      Firebug.console##log_2 (Js.string "Submitting ballot returned") x;
+      Lwt.return_none
 
-let handle_ballot uuid ~get_ballot _ =
+let finally x cont =
+  cont ();
+  x
+
+let post_ballot uuid ~get_ballot _ =
   let open (val !Belenios_js.I18n.gettext) in
   let x =
-    Dom_html.window##open_ (Js.string "about:blank") (Js.string "_blank")
-      Js.null
+    let submit = Printf.sprintf "#%s/advanced/submit" (Uuid.unwrap uuid) in
+    Dom_html.window##open_ (Js.string submit) (Js.string "_blank") Js.null
   in
-  Js.Opt.case x
-    (fun () ->
-      alert @@ s_ "Could not open authentication in another tab!";
-      false)
-    (fun window ->
-      let () =
-        let@ () = Lwt.async in
-        let* x = submit_ballot uuid ~ballot:(get_ballot ()) in
-        match x with
-        | None ->
-            window##close;
-            alert @@ s_ "Unexpected response from server";
-            Lwt.return_unit
-        | Some state ->
-            let target = make_login_target ~state in
-            window##.location##.href := Js.string target;
-            Lwt.return_unit
-      in
-      false)
+  let@ () = finally false in
+  let@ window = Js.Opt.iter x in
+  let window = coerce_window window in
+  let id = ref None in
+  let handler =
+    let@ event = Dom_html.handler in
+    let ready = Message.getReady event in
+    let@ () = finally Js._false in
+    if ready then (
+      Option.iter Dom_html.removeEventListener !id;
+      Message.postBallot window ~ballot:(get_ballot ()))
+  in
+  id :=
+    Some
+      (Dom_html.addEventListener Dom_html.window Event.message handler Js._false)
 
 let advanced uuid =
   let open (val !Belenios_js.I18n.gettext) in
@@ -90,7 +170,7 @@ let advanced uuid =
         ""
     in
     let b =
-      let handler = handle_ballot uuid ~get_ballot in
+      let handler = post_ballot uuid ~get_ballot in
       Tyxml_js.Html.button ~a:[ a_onclick handler ] [ txt @@ s_ "Submit" ]
     in
     div
@@ -128,7 +208,7 @@ let advanced uuid =
       dom##.onchange := Dom_html.handler onchange
     in
     let b =
-      let handler = handle_ballot uuid ~get_ballot:(fun () -> !ballot) in
+      let handler = post_ballot uuid ~get_ballot:(fun () -> !ballot) in
       Tyxml_js.Html.button ~a:[ a_onclick handler ] [ txt @@ s_ "Submit" ]
     in
     div
@@ -192,5 +272,59 @@ let advanced uuid =
       h3 [ txt @@ s_ "Submit by file" ];
       form_upload;
     ]
+  in
+  Lwt.return { title; contents; footer }
+
+let message_listener = ref None
+let status = ref `Waiting
+
+let explain () =
+  let open (val !Belenios_js.I18n.gettext) in
+  match !status with
+  | `Waiting -> s_ "Please wait while your ballot is being processed..."
+  | `Unexpected -> s_ "Unexpected response from server!"
+
+let submit uuid =
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ election cont =
+    let* x = get_election uuid in
+    match x with
+    | None -> Lwt.return @@ error "Could not get election parameters!"
+    | Some x -> cont x
+  in
+  let module W = (val election) in
+  let title = W.template.t_name ^^^ s_ "Processing ballot" in
+  let footer = [ make_audit_footer election ] in
+  let container = div [ txt @@ explain () ] in
+  let contents = [ container ] in
+  let () =
+    let dom = Tyxml_js.To_dom.of_div container in
+    match !message_listener with
+    | Some _ -> ()
+    | None ->
+        let handler =
+          let@ event = Dom_html.handler in
+          let ballot = Message.getBallot event in
+          let@ () = finally Js._false in
+          match ballot with
+          | None -> ()
+          | Some ballot -> (
+              let@ () = Lwt.async in
+              let* x = submit_ballot uuid ~ballot in
+              match x with
+              | None ->
+                  status := `Unexpected;
+                  dom##.textContent := Js.some @@ Js.string @@ explain ();
+                  Lwt.return_unit
+              | Some state ->
+                  let target = make_login_target ~state in
+                  window##.location##.href := Js.string target;
+                  Lwt.return_unit)
+        in
+        message_listener :=
+          Some
+            (Dom_html.addEventListener window Event.message handler Js._false);
+        let@ window = Js.Opt.iter window##.opener in
+        Message.postReady window ()
   in
   Lwt.return { title; contents; footer }

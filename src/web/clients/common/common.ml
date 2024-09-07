@@ -253,3 +253,27 @@ let scrollIntoViewById id =
       end)
   in
   Lwt.return_unit
+
+open Js
+
+class type window = object
+  inherit Dom_html.window
+  method opener : window t opt readonly_prop
+  method postMessage : 'a -> js_string t -> unit meth
+end
+
+class type messageEvent = object
+  inherit Dom_html.event
+  method origin : js_string t readonly_prop
+  method data : Js.Unsafe.any readonly_prop
+  method source : window t readonly_prop
+end
+
+module Event = struct
+  open Dom_html.Event
+
+  let message : messageEvent Js.t typ = make "message"
+end
+
+let coerce_window : Dom_html.window t -> window t = Js.Unsafe.coerce
+let window = coerce_window Dom_html.window

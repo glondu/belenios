@@ -43,6 +43,11 @@ module App (U : UI) = struct
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents
+    | [ uuid; "advanced"; "submit" ] ->
+        let* p = Advanced.submit (Uuid.wrap uuid) in
+        U.set_title p.title;
+        U.set_footer p.footer;
+        Lwt.return p.contents
     | uuid :: credential ->
         let credential = match credential with [ c ] -> Some c | _ -> None in
         let* p = Home.home configuration ?credential (Uuid.wrap uuid) in
