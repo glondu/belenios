@@ -46,17 +46,31 @@ let submit_ballot uuid ~ballot =
       | _ -> Lwt.return_none)
   | _ -> Lwt.return_none
 
-let handle_ballot uuid ~ballot =
+let handle_ballot uuid ~get_ballot _ =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = submit_ballot uuid ~ballot in
-  match x with
-  | None ->
-      alert @@ s_ "Unexpected response from server";
-      Lwt.return_unit
-  | Some state ->
-      let target = make_login_target ~state in
-      Dom_html.window##.location##.href := Js.string target;
-      Lwt.return_unit
+  let x =
+    Dom_html.window##open_ (Js.string "about:blank") (Js.string "_blank")
+      Js.null
+  in
+  Js.Opt.case x
+    (fun () ->
+      alert @@ s_ "Could not open authentication in another tab!";
+      false)
+    (fun window ->
+      let () =
+        let@ () = Lwt.async in
+        let* x = submit_ballot uuid ~ballot:(get_ballot ()) in
+        match x with
+        | None ->
+            window##close;
+            alert @@ s_ "Unexpected response from server";
+            Lwt.return_unit
+        | Some state ->
+            let target = make_login_target ~state in
+            window##.location##.href := Js.string target;
+            Lwt.return_unit
+      in
+      false)
 
 let advanced uuid =
   let open (val !Belenios_js.I18n.gettext) in
@@ -70,14 +84,14 @@ let advanced uuid =
   let title = W.template.t_name ^^^ s_ "Advanced mode" in
   let footer = [ make_audit_footer election ] in
   let form_rawballot =
-    let t, tget =
+    let t, get_ballot =
       textarea ~rows:10 ~cols:40
         ~placeholder:(s_ "Encrypted ballot in JSON format")
         ""
     in
     let b =
-      let@ () = button @@ s_ "Submit" in
-      handle_ballot uuid ~ballot:(tget ())
+      let handler = handle_ballot uuid ~get_ballot in
+      Tyxml_js.Html.button ~a:[ a_onclick handler ] [ txt @@ s_ "Submit" ]
     in
     div
       [
@@ -114,8 +128,8 @@ let advanced uuid =
       dom##.onchange := Dom_html.handler onchange
     in
     let b =
-      let@ () = button @@ s_ "Submit" in
-      handle_ballot uuid ~ballot:!ballot
+      let handler = handle_ballot uuid ~get_ballot:(fun () -> !ballot) in
+      Tyxml_js.Html.button ~a:[ a_onclick handler ] [ txt @@ s_ "Submit" ]
     in
     div
       [
