@@ -59,6 +59,7 @@ struct
     mutable data : data option;
     mutable user : user option;
     credential : string option;
+    mutable result : Belenios_api.Serializable_t.cast_result option;
   }
 
   let auth_env = ref SMap.empty
@@ -97,6 +98,7 @@ struct
         user;
         username_or_address;
         credential;
+        result = None;
       }
     in
     let state = find_state () in
@@ -145,7 +147,9 @@ struct
                   in
                   `S base)
           | `Logout ->
-              `R (Redirection (preapply ~service:election_home (uuid, ()))))
+              `R
+                (Redirection
+                   (preapply ~service:election_home_redirect (uuid, ()))))
     in
     fun () ->
       if extern then
@@ -435,5 +439,15 @@ struct
       | _ -> None
 
     let del = del_auth_env
+
+    let get_result ~state =
+      let@ { result; _ } = Option.bind (get_auth_env ~state) in
+      let@ result = Option.bind result in
+      Some result
+
+    let set_result ~state x =
+      match get_auth_env ~state with
+      | None -> ()
+      | Some env -> env.result <- Some x
   end
 end

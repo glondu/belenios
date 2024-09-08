@@ -22,7 +22,6 @@
 module Make () = struct
   let belenios_scope = `Session (Eliom_common.create_scope_hierarchy "belenios")
   let site_user = Eliom_reference.eref ~scope:belenios_scope None
-  let cast_confirmed = Eliom_reference.eref ~scope:belenios_scope None
   let signup_address = Eliom_reference.eref ~scope:belenios_scope None
   let signup_env = Eliom_reference.eref ~scope:belenios_scope None
   let set_email_env = Eliom_reference.eref ~scope:belenios_scope None

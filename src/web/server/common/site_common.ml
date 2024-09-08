@@ -92,7 +92,7 @@ module Make (X : Pages_sig.S) = struct
       match cont.path with
       | ContSiteHome -> Redirection home
       | ContSiteElection uuid ->
-          Redirection (preapply ~service:election_home (uuid, ()))
+          Redirection (preapply ~service:election_home_redirect (uuid, ()))
     in
     fun () -> Redirection.send redir
 

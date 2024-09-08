@@ -44,21 +44,31 @@ struct
 
   let () =
     Redirection.register ~service:election_home_dir (fun uuid () ->
-        return (Redirection (preapply ~service:election_home (uuid, ()))))
+        return
+          (Redirection (preapply ~service:election_home_redirect (uuid, ()))))
 
   let () =
-    Any.register ~service:election_home (fun (uuid, ()) () ->
-        let@ s = Storage.with_transaction in
-        let@ election = with_election s uuid in
-        let* x = Eliom_reference.get Web_state.cast_confirmed in
+    Any.register ~service:election_home_redirect (fun (uuid, ()) () ->
         let* () = Web_state.discard () in
+        make_absolute_string_uri ~fragment:(Uuid.unwrap uuid) ~service:apps
+          "election"
+        |> String_redirection.send)
+
+  let () =
+    Any.register ~service:election_login_done (fun (uuid, state) () ->
+        let x = Web_auth.State.get_result ~state in
         match x with
         | Some result ->
-            Pages_voter.cast_confirmed election ~result () >>= Html.send
+            let@ s = Storage.with_transaction in
+            let@ election = with_election s uuid in
+            let* page = Pages_voter.cast_confirmed election ~result () in
+            Html.send page
         | None ->
-            make_absolute_string_uri ~fragment:(Uuid.unwrap uuid) ~service:apps
-              "election"
-            |> String_redirection.send)
+            let page =
+              make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
+                ~service:apps "election"
+            in
+            String_redirection.send page)
 
   let submit_ballot ~ballot =
     let* l = get_preferred_gettext () in
@@ -144,7 +154,6 @@ struct
             match env.user with
             | None -> forbidden ()
             | Some user ->
-                let () = Web_auth.State.del ~state in
                 let* result =
                   Lwt.catch
                     (fun () ->
@@ -157,8 +166,6 @@ struct
                       | BeleniosWebError e -> return (`Error e)
                       | e -> Lwt.fail e)
                 in
-                let* () =
-                  Eliom_reference.set Web_state.cast_confirmed (Some result)
-                in
-                redir_preapply election_home (uuid, ()) ()))
+                let () = Web_auth.State.set_result ~state result in
+                redir_preapply election_login_done (uuid, state) ()))
 end

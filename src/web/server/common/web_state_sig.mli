@@ -27,10 +27,6 @@ type signup_env = { kind : signup_kind; service : string }
 
 module type S = sig
   val site_user : (user * account * string) option Eliom_reference.eref
-
-  val cast_confirmed :
-    Belenios_api.Serializable_t.cast_result option Eliom_reference.eref
-
   val signup_address : string option Eliom_reference.eref
   val signup_env : signup_env option Eliom_reference.eref
   val set_email_env : string option Eliom_reference.eref

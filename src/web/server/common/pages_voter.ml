@@ -187,7 +187,7 @@ struct
         you_must_restart;
         div
           [
-            a ~service:Web_services.election_home
+            a ~service:Web_services.election_home_redirect
               [ txt (s_ "Go back to election") ]
               (uuid, ());
           ];

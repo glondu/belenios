@@ -282,7 +282,7 @@ module Make () = struct
   let election_home_dir =
     create ~path:(Path [ "elections" ]) ~meth:(Get (suffix (uuid "uuid"))) ()
 
-  let election_home =
+  let election_home_redirect =
     create ~path:(Path [ "elections" ])
       ~meth:(Get (suffix (uuid "uuid" ** suffix_const "")))
       ()
@@ -303,6 +303,12 @@ module Make () = struct
     create
       ~path:(Path [ "actions"; "voter-login" ])
       ~meth:(Get (string "state"))
+      ()
+
+  let election_login_done =
+    create
+      ~path:(Path [ "actions"; "voter-login-done" ])
+      ~meth:(Get (uuid "uuid" ** string "state"))
       ()
 
   let election_open =

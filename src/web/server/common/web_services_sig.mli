@@ -785,7 +785,7 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
-  val election_home :
+  val election_home_redirect :
     ( uuid * unit,
       unit,
       Eliom_service.get,
@@ -866,6 +866,21 @@ module type S = sig
       Eliom_service.reg,
       [ `WithoutSuffix ],
       [ `One of string ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
+  val election_login_done :
+    ( uuid * string,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      [ `One of uuid ] Eliom_parameter.param_name
+      * [ `One of string ] Eliom_parameter.param_name,
       unit,
       Eliom_service.non_ocaml )
     Eliom_service.t

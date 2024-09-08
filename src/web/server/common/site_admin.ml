@@ -1316,7 +1316,7 @@ struct
     Lwt.catch
       (fun () ->
         let* () = Web_persist.release_tally s uuid in
-        redir_preapply election_home (uuid, ()) ())
+        redir_preapply election_home_redirect (uuid, ()) ())
       (fun e ->
         let msg =
           Printf.sprintf
