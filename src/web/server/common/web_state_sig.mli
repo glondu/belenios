@@ -29,11 +29,7 @@ module type S = sig
   val site_user : (user * account * string) option Eliom_reference.eref
 
   val cast_confirmed :
-    ( Belenios_api.Serializable_t.confirmation,
-      Belenios_api.Serializable_t.cast_error )
-    result
-    option
-    Eliom_reference.eref
+    Belenios_api.Serializable_t.cast_result option Eliom_reference.eref
 
   val signup_address : string option Eliom_reference.eref
   val signup_env : signup_env option Eliom_reference.eref

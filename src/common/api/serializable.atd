@@ -340,3 +340,8 @@ type confirmation = {
     weight : weight option;
     email : bool;
 }
+
+type cast_result =
+  [ Ok of confirmation
+  | Error of cast_error
+  ]

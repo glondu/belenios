@@ -30,10 +30,7 @@ module type S = sig
 
   val cast_confirmed :
     (module Site_common_sig.ELECTION) ->
-    result:
-      ( Belenios_api.Serializable_t.confirmation,
-        Belenios_api.Serializable_t.cast_error )
-      result ->
+    result:Belenios_api.Serializable_t.cast_result ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

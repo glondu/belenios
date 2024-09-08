@@ -152,9 +152,10 @@ struct
                         Api_elections.cast_ballot send_confirmation_email s uuid
                           election ~ballot ~user ~precast_data
                       in
-                      return (Ok hash))
+                      return (`Ok hash))
                     (function
-                      | BeleniosWebError e -> return (Error e) | e -> Lwt.fail e)
+                      | BeleniosWebError e -> return (`Error e)
+                      | e -> Lwt.fail e)
                 in
                 let* () =
                   Eliom_reference.set Web_state.cast_confirmed (Some result)
