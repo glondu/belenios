@@ -49,12 +49,9 @@ class type wrapped_message = object
   method belenios : message Js.t Js.optdef Js.readonly_prop
 end
 
-let postBallot (window : window Js.t) ballot =
+let post what cast (window : window Js.t) x =
   let message : message Js.t =
-    object%js
-      val ballot = Js.Optdef.return (Js.string ballot)
-      val ready = Js.undefined
-    end
+    Js.Unsafe.obj [| (what, Js.Unsafe.inject @@ cast x) |]
   in
   let wrapped_message : wrapped_message Js.t =
     object%js
@@ -63,19 +60,8 @@ let postBallot (window : window Js.t) ballot =
   in
   window##postMessage wrapped_message targetOrigin
 
-let postReady (window : window Js.t) ready =
-  let message : message Js.t =
-    object%js
-      val ballot = Js.undefined
-      val ready = Js.Optdef.return (Js.bool ready)
-    end
-  in
-  let wrapped_message : wrapped_message Js.t =
-    object%js
-      val belenios = Js.Optdef.return message
-    end
-  in
-  window##postMessage wrapped_message targetOrigin
+let postBallot w x = post "ballot" Js.string w x
+let postReady w x = post "ready" Js.bool w x
 
 let getMessage x =
   let x : wrapped_message Js.t = Js.Unsafe.coerce x##.data in
