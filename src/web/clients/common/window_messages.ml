@@ -42,10 +42,7 @@ let targetOrigin =
   | x :: _ -> Js.string x
   | [] -> Js.string "*"
 
-class type message = object
-  method ballot : Js.js_string Js.t Js.optdef Js.readonly_prop
-  method ready : bool Js.t Js.optdef Js.readonly_prop
-end
+type message
 
 class type wrapped_message = object
   method belenios : message Js.t Js.optdef Js.readonly_prop
@@ -66,12 +63,14 @@ let getMessage x =
   let x : wrapped_message Js.t = Js.Unsafe.coerce x##.data in
   x##.belenios
 
-let get getter cast e =
+let get what cast e =
   if check_origin e then
     Js.Optdef.case (getMessage e)
       (fun () -> None)
       (fun x ->
-        Js.Optdef.case (getter x) (fun () -> None) (fun x -> Some (cast x)))
+        Js.Optdef.case (Js.Unsafe.get x what)
+          (fun () -> None)
+          (fun x -> Some (cast x)))
   else None
 
 let wait get =
@@ -91,13 +90,13 @@ let wait get =
       (Dom_html.addEventListener Dom_html.window Event.message handler Js._false);
   t
 
-let make what getter to_js of_js =
-  let get e = get getter of_js e in
+let make what to_js of_js =
+  let get e = get what of_js e in
   let post w x = post what to_js w x in
   let wait () = wait get in
   { post; wait }
 
 let post t = t.post
 let wait t = t.wait
-let ready = make "ready" (fun x -> x##.ready) Js.bool Js.to_bool
-let ballot = make "ballot" (fun x -> x##.ballot) Js.string Js.to_string
+let ready = make "ready" Js.bool Js.to_bool
+let ballot = make "ballot" Js.string Js.to_string
