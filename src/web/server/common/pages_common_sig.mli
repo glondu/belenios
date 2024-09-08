@@ -114,7 +114,7 @@ module type S = sig
     progress:'a Eliom_content.Html.elt ->
     (module Belenios.Election.ELECTION) ->
     ( Belenios_api.Serializable_t.confirmation,
-      Belenios_ui.Confirmation.error )
+      Belenios_api.Serializable_t.cast_error )
     result ->
     ([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt list
 

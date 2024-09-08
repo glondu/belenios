@@ -32,7 +32,7 @@ module type S = sig
     (module Site_common_sig.ELECTION) ->
     result:
       ( Belenios_api.Serializable_t.confirmation,
-        Belenios_ui.Confirmation.error )
+        Belenios_api.Serializable_t.cast_error )
       result ->
     unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t

@@ -337,14 +337,14 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
     let* x = Web_persist.get_voter s uuid user.user_name in
     match x with
     | Some x -> Lwt.return @@ Voter.get x
-    | None -> fail UnauthorizedVoter
+    | None -> fail `UnauthorizedVoter
   in
   let* show_weight = Web_persist.get_has_explicit_weights s uuid in
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state s uuid in
   let voting_open = state = `Open in
-  let* () = if not voting_open then fail ElectionClosed else Lwt.return_unit in
+  let* () = if not voting_open then fail `ElectionClosed else Lwt.return_unit in
   let* r =
     Web_persist.cast_ballot s uuid ~ballot ~user:user_s ~weight
       (Datetime.now ()) ~precast_data
@@ -369,7 +369,7 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
             "Someone revoted in election %s" (Uuid.unwrap uuid)
       in
       Lwt.return { confirmation with email }
-  | Error e -> fail (CastError e)
+  | Error e -> fail e
 
 let direct_voter_auth = ref (fun _ _ _ -> assert false)
 (* initialized in Web_main *)

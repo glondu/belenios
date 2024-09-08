@@ -21,6 +21,4 @@
 
 open Belenios_api.Serializable_t
 
-type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
-
-val explain_error : (module I18n.GETTEXT) -> error -> string
+val explain_cast_error : (module I18n.GETTEXT) -> cast_error -> string

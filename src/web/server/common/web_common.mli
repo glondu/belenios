@@ -23,9 +23,9 @@ open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
 
-exception BeleniosWebError of Belenios_ui.Confirmation.error
+exception BeleniosWebError of Belenios_api.Serializable_t.cast_error
 
-val fail : Belenios_ui.Confirmation.error -> 'a Lwt.t
+val fail : Belenios_api.Serializable_t.cast_error -> 'a Lwt.t
 val format_period : (module Belenios_ui.I18n.GETTEXT) -> Period.t -> string
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val get_election_home_url : uuid -> string

@@ -80,7 +80,7 @@ struct
                   let msg =
                     Printf.sprintf
                       (f_ "Your ballot is rejected because %s.")
-                      (Belenios_ui.Confirmation.explain_error l (CastError e))
+                      (Belenios_ui.Confirmation.explain_cast_error l e)
                   in
                   Pages_common.generic_page ~title:(s_ "Error") msg ()
                   >>= Html.send)

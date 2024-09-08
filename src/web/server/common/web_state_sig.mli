@@ -30,7 +30,7 @@ module type S = sig
 
   val cast_confirmed :
     ( Belenios_api.Serializable_t.confirmation,
-      Belenios_ui.Confirmation.error )
+      Belenios_api.Serializable_t.cast_error )
     result
     option
     Eliom_reference.eref

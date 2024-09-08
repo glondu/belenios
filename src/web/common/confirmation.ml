@@ -19,25 +19,20 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_api.Serializable_t
-
-type error = ElectionClosed | UnauthorizedVoter | CastError of cast_error
-
-let explain_error l e =
+let explain_cast_error l e =
   let open (val l : I18n.GETTEXT) in
   match e with
-  | ElectionClosed -> s_ "the election is closed"
-  | UnauthorizedVoter -> s_ "you are not allowed to vote"
-  | CastError (`SerializationError e) ->
+  | `ElectionClosed -> s_ "the election is closed"
+  | `UnauthorizedVoter -> s_ "you are not allowed to vote"
+  | `SerializationError e ->
       Printf.sprintf (f_ "your ballot has a syntax error (%s)") e
-  | CastError `NonCanonical -> s_ "your ballot is not in canonical form"
-  | CastError `InvalidBallot -> s_ "some proofs failed verification"
-  | CastError `InvalidCredential -> s_ "your credential is invalid"
-  | CastError `RevoteNotAllowed -> s_ "you are not allowed to revote"
-  | CastError `UsedCredential -> s_ "your credential has already been used"
-  | CastError `WrongCredential ->
-      s_ "you are not allowed to vote with this credential"
-  | CastError `WrongWeight -> s_ "your credential has a bad weight"
-  | CastError `DuplicateBallot -> s_ "this ballot has already been accepted"
-  | CastError `ExpiredBallot -> s_ "this ballot has expired"
-  | CastError `WrongUsername -> s_ "your username is wrong"
+  | `NonCanonical -> s_ "your ballot is not in canonical form"
+  | `InvalidBallot -> s_ "some proofs failed verification"
+  | `InvalidCredential -> s_ "your credential is invalid"
+  | `RevoteNotAllowed -> s_ "you are not allowed to revote"
+  | `UsedCredential -> s_ "your credential has already been used"
+  | `WrongCredential -> s_ "you are not allowed to vote with this credential"
+  | `WrongWeight -> s_ "your credential has a bad weight"
+  | `DuplicateBallot -> s_ "this ballot has already been accepted"
+  | `ExpiredBallot -> s_ "this ballot has expired"
+  | `WrongUsername -> s_ "your username is wrong"

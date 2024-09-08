@@ -69,6 +69,8 @@ type cast_error =
   | WrongCredential
   | WrongUsername
   | WrongWeight
+  | UnauthorizedVoter
+  | ElectionClosed
   ]
 
 (** {2 Elections} *)

@@ -253,7 +253,7 @@ module Make (Base : BASE) = struct
       | Error e ->
           ( [
               txt (s_ " is rejected, because ");
-              txt (Confirmation.explain_error l e);
+              txt (Confirmation.explain_cast_error l e);
               txt ".";
             ],
             s_ "FAIL!" )
