@@ -128,7 +128,8 @@ struct
     let open (val l) in
     let subject = Printf.sprintf (f_ "Your vote for election %s") title in
     let body =
-      Mails_voter.mail_confirmation l confirmation url1 url2 metadata.e_contact
+      Mails_voter.mail_confirmation l election confirmation url1 url2
+        metadata.e_contact
     in
     Lwt.catch
       (fun () ->

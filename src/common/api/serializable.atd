@@ -332,7 +332,6 @@ type client_configuration = {
 }
 
 type confirmation = {
-    title : string;
     user : string;
     recipient : string;
     hash : hash;

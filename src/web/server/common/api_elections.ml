@@ -359,7 +359,6 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
           revote;
           weight = oweight;
           email = false;
-          title = W.template.t_name;
         }
       in
       let* email = send_confirmation s uuid confirmation in

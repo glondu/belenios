@@ -407,11 +407,12 @@ let submit_bulk_emails jobs =
   Lwt.async process_bulk_emails;
   Lwt.return_unit
 
-let mail_confirmation l x url1 url2 contact =
-  let ({ user; title; weight; hash; revote; _ }
+let mail_confirmation l election x url1 url2 contact =
+  let ({ user; weight; hash; revote; _ }
         : Belenios_api.Serializable_t.confirmation) =
     x
   in
+  let module W = (val election : Election.ELECTION) in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -422,7 +423,7 @@ let mail_confirmation l x url1 url2 contact =
   add_newline b;
   add_newline b;
   add_string b "  ";
-  add_string b title;
+  add_string b W.template.t_name;
   add_newline b;
   add_newline b;
   add_sentence b (s_ "has been recorded.");
