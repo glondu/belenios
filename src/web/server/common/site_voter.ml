@@ -105,7 +105,10 @@ struct
                       >>= Html.send)
               | e -> Lwt.reraise e)
         in
-        let* x = Web_auth.State.create s uuid { ballot; precast_data } in
+        let* x =
+          Web_auth.State.create s uuid
+            { ballot; precast_data; api_request = false }
+        in
         match x with
         | None -> fail_http `Forbidden
         | Some state -> redir_preapply election_login state ())
@@ -151,7 +154,7 @@ struct
         let@ election = with_election s uuid in
         match env.state with
         | None -> Pages_voter.lost_ballot s election () >>= Html.send
-        | Some { ballot; precast_data } -> (
+        | Some { ballot; precast_data; _ } -> (
             match env.user with
             | None -> forbidden ()
             | Some user ->
