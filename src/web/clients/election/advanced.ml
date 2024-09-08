@@ -27,8 +27,8 @@ open Tyxml_js.Html
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
-open Belenios_js.Window_messages
 open Common
+module Messages = Belenios_js.Window_messages
 
 let booths = [ ("Version 2", "static/frontend/booth/vote.html") ]
 
@@ -64,8 +64,8 @@ let post_ballot uuid ~get_ballot _ =
   let@ window = Js.Opt.iter window in
   let window = coerce_window window in
   let@ () = Lwt.async in
-  let* _ = waitReady () in
-  postBallot window (get_ballot ());
+  let* _ = Messages.(wait ready ()) in
+  Messages.(post ballot window (get_ballot ()));
   Lwt.return_unit
 
 let advanced uuid =
@@ -218,7 +218,7 @@ let submit uuid =
         let dom = Tyxml_js.To_dom.of_div container in
         let () =
           let@ () = Lwt.async in
-          let* ballot = waitBallot () in
+          let* ballot = Messages.(wait ballot ()) in
           let* x = submit_ballot uuid ~ballot in
           match x with
           | None ->
@@ -231,7 +231,7 @@ let submit uuid =
               Lwt.return_unit
         in
         let@ window = Js.Opt.iter window##.opener in
-        postReady window true
+        Messages.(post ready window true)
     | _ -> ()
   in
   Lwt.return { title; contents; footer }

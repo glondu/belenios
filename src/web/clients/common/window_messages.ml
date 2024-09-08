@@ -23,6 +23,8 @@ open Js_of_ocaml
 open Belenios
 open Common
 
+type 'a t = { post : window Js.t -> 'a -> unit; wait : unit -> 'a Lwt.t }
+
 let check_origin =
   let open Regexp in
   let rex = regexp "^(https?://[^/]+)(/.*)?$" in
@@ -60,9 +62,6 @@ let post what cast (window : window Js.t) x =
   in
   window##postMessage wrapped_message targetOrigin
 
-let postBallot w x = post "ballot" Js.string w x
-let postReady w x = post "ready" Js.bool w x
-
 let getMessage x =
   let x : wrapped_message Js.t = Js.Unsafe.coerce x##.data in
   x##.belenios
@@ -74,9 +73,6 @@ let get getter cast e =
       (fun x ->
         Js.Optdef.case (getter x) (fun () -> None) (fun x -> Some (cast x)))
   else None
-
-let getBallot e = get (fun x -> x##.ballot) Js.to_string e
-let getReady e = get (fun x -> x##.ready) Js.to_bool e
 
 let wait get =
   let t, u = Lwt.task () in
@@ -95,5 +91,13 @@ let wait get =
       (Dom_html.addEventListener Dom_html.window Event.message handler Js._false);
   t
 
-let waitBallot () = wait getBallot
-let waitReady () = wait getReady
+let make what getter to_js of_js =
+  let get e = get getter of_js e in
+  let post w x = post what to_js w x in
+  let wait () = wait get in
+  { post; wait }
+
+let post t = t.post
+let wait t = t.wait
+let ready = make "ready" (fun x -> x##.ready) Js.bool Js.to_bool
+let ballot = make "ballot" (fun x -> x##.ballot) Js.string Js.to_string

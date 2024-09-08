@@ -22,7 +22,9 @@
 open Js_of_ocaml
 open Common
 
-val postBallot : window Js.t -> string -> unit
-val postReady : window Js.t -> bool -> unit
-val waitBallot : unit -> string Lwt.t
-val waitReady : unit -> bool Lwt.t
+type 'a t
+
+val post : 'a t -> window Js.t -> 'a -> unit
+val wait : 'a t -> unit -> 'a Lwt.t
+val ready : bool t
+val ballot : string t
