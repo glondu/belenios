@@ -33,8 +33,8 @@ TMP="$(mktemp --tmpdir --directory tmp.belenios.XXXXXXXXXX)"
 trap "rm -rf $TMP" EXIT
 echo "I: using directory $TMP..."
 
-git archive --prefix=belenios/ HEAD | tar -x -C "$TMP"
-
+contrib/make-tarball.sh - | tar -x -C "$TMP"
+mv "$TMP"/belenios-* "$TMP/belenios"
 cd "$TMP/belenios"
 
 mkdir debian
