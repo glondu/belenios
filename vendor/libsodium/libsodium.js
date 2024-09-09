@@ -10,20 +10,16 @@ function memset(dst, c, n) {
 }
 
 function compute_base(uri) {
-    var n = uri.length;
-    // For pages below static/, base is the directory just above
-    for (var i = n - 1; i >= 0; i--) {
-        if (uri[i] === "/") {
-            if (uri.slice(i + 1, n) === "static") {
-                return uri.slice(0, i);
-            } else {
-                n = i;
-            }
-        }
+    var i = uri.lastIndexOf("/static/");
+    i = (i >= 0) ? i : uri.lastIndexOf("/actions/");
+    if (i >= 0) {
+        // For pages below /static/ or /actions/, base is the directory
+        // just above
+        return uri.slice(0, i + 1);
+    } else {
+        // We assume that other pages are directly at the root
+        return "";
     }
-    // We assume that pages that are not below static/ are
-    // server-generated and one level below the root
-    return "..";
 }
 
 const base = compute_base(location.href);
@@ -31,7 +27,7 @@ const base = compute_base(location.href);
 if (typeof WebAssembly !== "undefined" && WebAssembly.instantiateStreaming) {
     var env = {memset: memset};
     var importObject = {env: env};
-    WebAssembly.instantiateStreaming(fetch(base + "/static/libsodium.wasm"), importObject).then(function (obj) {
+    WebAssembly.instantiateStreaming(fetch(base + "static/libsodium.wasm"), importObject).then(function (obj) {
         var raw = obj.instance.exports;
         var base = 0x10000 * raw.memory.grow(1);
         var buffer = new Uint8Array(raw.memory.buffer);
