@@ -56,8 +56,9 @@ let fail_http status =
   Lwt.fail
     (Ocsigen_extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
 
-let get_election_home_url uuid =
-  Printf.sprintf "%s/election#%s" !Web_config.prefix (Uuid.unwrap uuid)
+let get_election_home_url ?credential uuid =
+  let suffix = match credential with None -> "" | Some x -> "/" ^ x in
+  Printf.sprintf "%s/election#%s%s" !Web_config.prefix (Uuid.unwrap uuid) suffix
 
 let uuid x =
   Eliom_parameter.user_type ~of_string:Uuid.wrap ~to_string:Uuid.unwrap x

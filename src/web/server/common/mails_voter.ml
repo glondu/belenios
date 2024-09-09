@@ -126,7 +126,7 @@ let generate_password_email metadata langs title uuid v show_weight =
   in
   return (`Password x, (salt, hashed))
 
-let mail_credential l has_passwords title ~login cred weight url metadata =
+let mail_credential l (x : credential_email) =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -140,17 +140,17 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   add_newline b;
   add_newline b;
   add_string b "  ";
-  add_string b title;
+  add_string b x.title;
   add_newline b;
   add_newline b;
   add_sentence b (s_ "Please vote here using your personal link:");
   add_newline b;
   add_newline b;
   add_string b "  ";
-  add_string b (Printf.sprintf "%s#c=%s" url cred);
+  add_string b (get_election_home_url ~credential:x.credential x.uuid);
   add_newline b;
   add_newline b;
-  if has_passwords then (
+  if x.has_passwords then (
     add_sentence b
       (s_
          "To cast a vote, you will also need a password, sent in a separate \
@@ -162,17 +162,17 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   add_newline b;
   add_string b (s_ "Public page of the election:");
   add_string b " ";
-  add_string b url;
+  add_string b (get_election_home_url x.uuid);
   add_newline b;
   add_string b (s_ "Username:");
   add_string b " ";
-  add_string b login;
+  add_string b x.login;
   add_newline b;
   add_string b (s_ "Your credential:");
   add_string b " ";
-  add_string b cred;
+  add_string b x.credential;
   add_newline b;
-  (match weight with
+  (match x.weight with
   | Some weight ->
       add_string b (s_ "Number of votes:");
       add_string b " ";
@@ -182,18 +182,15 @@ let mail_credential l has_passwords title ~login cred weight url metadata =
   add_newline b;
   add_sentence b (s_ "You are allowed to vote several times.");
   add_sentence b (s_ "Only the last vote counts.");
-  contact_footer l metadata b;
+  contact_footer l x.contact b;
   contents b
 
 let format_credential_email (x : credential_email) =
-  let url = get_election_home_url x.uuid in
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
-        return
-          (mail_credential l x.has_passwords x.title ~login:x.login x.credential
-             x.weight url x.contact))
+        return (mail_credential l x))
       x.langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
