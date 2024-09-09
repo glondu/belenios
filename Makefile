@@ -7,11 +7,8 @@ export BELENIOS_BUILD
 minimal:
 	dune build -p belenios-platform,belenios-platform-native,belenios-lib,belenios-tool
 
-MANIFEST:
-	git ls-files > $@
-
-$(BELENIOS_SRC): MANIFEST
-	tar -czf $@ --transform='s,^,belenios/,' --verbatim-files-from --files-from=$<
+$(BELENIOS_SRC):
+	contrib/make-tarball.sh $@
 
 build-debug-server:
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
