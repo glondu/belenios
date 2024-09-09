@@ -20,10 +20,13 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
 open Belenios_js.Secondary_ui
+
+let credential = ref None
 
 module App (U : UI) = struct
   let component = "voter"
@@ -48,8 +51,13 @@ module App (U : UI) = struct
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents
-    | uuid :: credential ->
-        let credential = match credential with [ c ] -> Some c | _ -> None in
+    | [ uuid; credential_ ] ->
+        credential := Some credential_;
+        let safe_hash = Printf.sprintf "#%s" uuid in
+        Dom_html.window##.location##replace (Js.string safe_hash);
+        Lwt.return []
+    | [ uuid ] ->
+        let credential = !credential in
         let* p = Home.home configuration ?credential (Uuid.wrap uuid) in
         U.set_title p.title;
         U.set_footer p.footer;

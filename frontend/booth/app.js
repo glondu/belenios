@@ -17,6 +17,7 @@ const relativeServerRootFolder = "../../..";
 
 function getHashParametersFromURL() {
   const url_hash_parameters = window.location.hash.substr(1);
+  window.location.replace("#");
   return url_hash_parameters.split("&").reduce(function (result, item) {
     const parts = item.split("=");
     result[parts[0]] = parts[1];
