@@ -90,10 +90,11 @@ struct
       match uuid with
       | None -> raw_a ~service:home [ txt (s_ "Administer elections") ] ()
       | Some uuid ->
-          raw_a ~service:election_admin
-            ~a:[ a_id ("election_admin_" ^ Uuid.unwrap uuid) ]
+          let uri = Xml.uri_of_string @@ make_admin_link (Some uuid) in
+          let id = Printf.sprintf "election_admin_%s" (Uuid.unwrap uuid) in
+          Eliom_content.Html.F.Raw.a
+            ~a:[ a_id id; a_href uri ]
             [ txt (s_ "Administer this election") ]
-            uuid
     in
     let lang_box =
       match lang_box with

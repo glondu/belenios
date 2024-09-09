@@ -1573,8 +1573,8 @@ let create_content () =
                       let* prefix = Cache.get_prefix () in
                       let url =
                         Printf.sprintf
-                          "%sdraft/prebilling?id=%s&cont=elections/%s@new"
-                          prefix id (Uuid.unwrap uuid)
+                          "%sdraft/prebilling?id=%s&cont=elections/%s" prefix id
+                          (Uuid.unwrap uuid)
                       in
                       Dom_html.window##.location##.href := Js.string url;
                       Lwt.return_unit

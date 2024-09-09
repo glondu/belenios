@@ -18,14 +18,6 @@
    (run ./wrap_tool.sh %{deps}))))
 
 (rule
- (target tool_js_questions.js)
- (deps ../clients/tool/tool_js_questions.bc.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run ./wrap_tool.sh %{deps}))))
-
-(rule
  (target tool_js_fingerprint.js)
  (deps ../clients/tool/tool_js_fingerprint.bc.js)
  (action

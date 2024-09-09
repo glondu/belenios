@@ -384,13 +384,6 @@ let footer configuration =
       ~a:[ a_class [ "page-footer" ] ]
       (Ui.footer_fragment l ~restricted_mode ())
   in
-  let dom = Tyxml_js.To_dom.of_div footer in
-  Dom.appendChild dom (document##createTextNode (Js.string " "));
-  let classical =
-    let open (val l) in
-    a ~a:[ a_id "classical" ] ~href:"." (s_ "Classical interface")
-  in
-  Dom.appendChild dom (Tyxml_js.To_dom.of_a classical);
   [ footer ]
 
 let show_root main =
@@ -474,7 +467,7 @@ let onhashchange () =
       (fun t ->
         token := Some t;
         user := `Admin t)
-      ~ui:"new" hash
+      hash
   in
   let* () =
     let* account = Cache.(get account) in

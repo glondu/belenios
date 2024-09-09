@@ -26,7 +26,7 @@ open Belenios
 open Belenios_api.Serializable_j
 open Common
 
-let init_api_token set_api_token ~ui hash =
+let init_api_token set_api_token ?ui hash =
   match hash with
   | `Credentials (_, token) ->
       set_api_token token;
@@ -39,11 +39,12 @@ let init_api_token set_api_token ~ui hash =
         set_api_token x.content;
         Lwt.return_unit)
       else
+        let ui = match ui with None -> "" | Some x -> "@" ^ x in
         let target =
           match hash with
           | `Election uuid ->
-              Printf.sprintf "login?cont=elections/%s@%s" (Uuid.unwrap uuid) ui
-          | _ -> Printf.sprintf "login?cont=home@%s" ui
+              Printf.sprintf "login?cont=elections/%s%s" (Uuid.unwrap uuid) ui
+          | _ -> Printf.sprintf "login?cont=home%s" ui
         in
         Dom_html.window##.location##assign (Js.string target);
         Lwt.return_unit

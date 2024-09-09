@@ -1253,10 +1253,3 @@ let get_credentials_status uuid (Draft (_, se)) =
   match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with
   | Some p -> `Pending (p ())
   | None -> if se.se_public_creds_received then `Done else `None
-
-let is_group_fixed uuid (Draft (_, se) as fse) =
-  get_credentials_status uuid fse <> `None
-  ||
-  match se.se_trustees with
-  | `Basic x -> x.dbp_trustees <> []
-  | `Threshold x -> x.dtp_trustees <> []

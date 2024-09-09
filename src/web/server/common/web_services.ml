@@ -62,12 +62,9 @@ module Make () = struct
       ~service:(Eliom_service.static_dir ())
       [ "static"; "admin_basic.html" ]
 
-  let admin_new () = Eliom_service.preapply ~service:apps "admin"
-
-  let make_admin_new_uri uuid =
+  let make_admin_link uuid =
     let fragment = Option.map Belenios.Uuid.unwrap uuid in
-    let base = make_absolute_string_uri ?fragment ~service:(admin_new ()) () in
-    Eliom_content.Xml.uri_of_string base
+    make_absolute_string_uri ?fragment ~service:apps "admin"
 
   let make_trustee_link uuid kind =
     let uuid = Belenios.Uuid.unwrap uuid in
@@ -108,177 +105,6 @@ module Make () = struct
   let favicon = create ~path:(Path [ "favicon.ico" ]) ~meth:(Get unit) ()
   let sealing = create ~path:(Path [ "SEALING" ]) ~meth:(Get unit) ()
 
-  let election_draft_new =
-    create_attached_post ~csrf_safe:true ~fallback:home
-      ~post_params:
-        (radio string "credmgmt" ** radio string "auth"
-        ** opt (string "cas_server"))
-      ()
-
-  let election_draft_pre =
-    create ~path:(Path [ "draft"; "new" ]) ~meth:(Get unit) ()
-
-  let election_draft =
-    create ~path:(Path [ "draft"; "election" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_draft_questions =
-    create ~path:(Path [ "draft"; "questions" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_draft_questions_post =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft_questions
-      ~post_params:(string "questions" ** int "booth_version")
-      ()
-
-  let election_draft_description =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:(string "name" ** string "description")
-      ()
-
-  let election_draft_languages =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:(string "languages") ()
-
-  let election_draft_contact =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:(string "contact") ()
-
-  let election_draft_admin_name =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:(string "name") ()
-
-  let election_draft_voters =
-    create ~path:(Path [ "draft"; "voters" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_draft_voters_add =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft_voters
-      ~post_params:(string "voters") ()
-
-  let election_draft_voters_remove =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft_voters
-      ~post_params:(string "voter") ()
-
-  let election_draft_voters_remove_all =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft_voters
-      ~post_params:unit ()
-
-  let election_draft_voters_passwd =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft_voters
-      ~post_params:(string "voter") ()
-
-  let election_draft_trustee_add =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:(string "id" ** string "name")
-      ()
-
-  let election_draft_trustee_del =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:(string "address") ()
-
-  let election_draft_credential_authority =
-    create
-      ~path:(Path [ "draft"; "credential-authority" ])
-      ~meth:(Get (uuid "uuid"))
-      ()
-
-  let election_draft_set_credential_authority =
-    create_attached_post ~csrf_safe:true
-      ~fallback:election_draft_credential_authority ~post_params:(string "name")
-      ()
-
-  let election_draft_credentials =
-    create
-      ~path:(Path [ "draft"; "credentials" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_draft_credentials_server =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:unit ()
-
-  let election_draft_credentials_get =
-    create
-      ~path:(Path [ "draft"; "get-credentials" ])
-      ~meth:(Get (uuid "uuid"))
-      ()
-
-  let election_draft_trustees =
-    create ~path:(Path [ "draft"; "trustees" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_draft_trustee =
-    create
-      ~path:(Path [ "draft"; "trustee" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_draft_threshold_trustees =
-    create
-      ~path:(Path [ "draft"; "threshold-trustees" ])
-      ~meth:(Get (uuid "uuid"))
-      ()
-
-  let election_draft_threshold_trustee =
-    create
-      ~path:(Path [ "draft"; "threshold-trustee" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_draft_threshold_set =
-    create_attached_post ~csrf_safe:true
-      ~fallback:election_draft_threshold_trustees ~post_params:(int "threshold")
-      ()
-
-  let election_draft_threshold_trustee_add =
-    create_attached_post ~csrf_safe:true
-      ~fallback:election_draft_threshold_trustees
-      ~post_params:(string "id" ** string "name")
-      ()
-
-  let election_draft_threshold_trustee_del =
-    create_attached_post ~csrf_safe:true
-      ~fallback:election_draft_threshold_trustees
-      ~post_params:(string "address") ()
-
-  let election_draft_confirm =
-    create ~path:(Path [ "draft"; "confirm" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_draft_prebilling =
-    create
-      ~path:(Path [ "draft"; "prebilling" ])
-      ~meth:(Get (string "id" ** site_cont "cont"))
-      ()
-
-  let election_draft_postbilling =
-    create ~path:(Path [ "draft"; "postbilling" ]) ~meth:(Get unit) ()
-
-  let election_draft_create =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:unit ()
-
-  let election_draft_destroy =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:unit ()
-
-  let election_draft_auth_genpwd =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft
-      ~post_params:unit ()
-
-  let election_draft_import =
-    create ~path:(Path [ "draft"; "import" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_draft_import_post =
-    create_attached_post ~csrf_safe:true ~fallback:election_draft_import
-      ~post_params:(string "from") ()
-
-  let election_draft_import_trustees =
-    create
-      ~path:(Path [ "draft"; "import-trustees" ])
-      ~meth:(Get (uuid "uuid"))
-      ()
-
-  let election_draft_import_trustees_post =
-    create_attached_post ~csrf_safe:true
-      ~fallback:election_draft_import_trustees ~post_params:(string "from") ()
-
   let election_home_dir =
     create ~path:(Path [ "elections" ]) ~meth:(Get (suffix (uuid "uuid"))) ()
 
@@ -288,16 +114,6 @@ module Make () = struct
       ()
 
   let set_consent = create ~path:No_path ~meth:(Get (site_cont "cont")) ()
-
-  let election_admin =
-    create ~path:(Path [ "actions"; "admin" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_regenpwd =
-    create ~path:(Path [ "actions"; "regenpwd" ]) ~meth:(Get (uuid "uuid")) ()
-
-  let election_regenpwd_post =
-    create_attached_post ~csrf_safe:true ~fallback:election_regenpwd
-      ~post_params:(string "user") ()
 
   let election_login =
     create
@@ -310,31 +126,6 @@ module Make () = struct
       ~path:(Path [ "actions"; "voter-login-done" ])
       ~meth:(Get (uuid "uuid" ** string "state"))
       ()
-
-  let election_open =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_close =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_hide_result =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:(string "date") ()
-
-  let election_show_result =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_auto_post =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:(string "open" ** string "close")
-      ()
-
-  let election_delete =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
 
   let booth_v2 () =
     Eliom_service.preapply
@@ -392,45 +183,6 @@ module Make () = struct
     create ~path:(Path [ "elections" ])
       ~meth:(Get (suffix (uuid "uuid" ** suffix_const "archive.zip")))
       ()
-
-  let election_compute_encrypted_tally =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_shuffle_link =
-    create
-      ~path:(Path [ "actions"; "shuffle" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_shuffler_select =
-    create ~csrf_safe:true ~path:No_path
-      ~meth:(Post (unit, uuid "uuid" ** string "trustee"))
-      ()
-
-  let election_shuffler_skip_confirm =
-    create ~csrf_safe:true ~path:No_path
-      ~meth:(Post (unit, uuid "uuid" ** string "trustee"))
-      ()
-
-  let election_shuffler_skip =
-    create ~csrf_safe:true ~path:No_path
-      ~meth:(Post (unit, uuid "uuid" ** string "trustee"))
-      ()
-
-  let election_decrypt =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
-
-  let election_tally_trustees =
-    create
-      ~path:(Path [ "actions"; "trustees" ])
-      ~meth:(Get (suffix uuid_and_token))
-      ()
-
-  let election_tally_release =
-    create_attached_post ~csrf_safe:true ~fallback:election_admin
-      ~post_params:unit ()
 
   let dummy_post =
     create ~csrf_safe:true ~path:No_path

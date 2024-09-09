@@ -95,14 +95,10 @@ struct
                   Pages_common.generic_page ~title:(s_ "Error") msg ()
                   >>= Html.send)
             (function
-              | Election_not_found _ -> (
-                  let* election = Spool.get s uuid Spool.draft in
-                  match election with
-                  | Some _ -> redir_preapply election_draft uuid ()
-                  | None ->
-                      let msg = s_ "Unknown election" in
-                      Pages_common.generic_page ~title:(s_ "Error") msg ()
-                      >>= Html.send)
+              | Election_not_found _ ->
+                  let msg = s_ "Unknown election" in
+                  Pages_common.generic_page ~title:(s_ "Error") msg ()
+                  >>= Html.send
               | e -> Lwt.reraise e)
         in
         let* x =

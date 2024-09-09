@@ -38,7 +38,7 @@ val uuid :
   Eliom_parameter.params_type
 
 type site_cont_path = ContSiteHome | ContSiteElection of uuid
-type site_cont_admin = Classic | Basic | New
+type site_cont_admin = Default | Basic
 type site_cont = { path : site_cont_path; admin : site_cont_admin }
 
 val default_admin : site_cont_path -> site_cont

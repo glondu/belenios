@@ -10,10 +10,10 @@ USER belenios
 WORKDIR /home/belenios
 RUN BELENIOS_OPAM_INIT_ARGS=--disable-sandboxing ./opam-bootstrap.sh
 
-# Testing environment, for running firefox/selenium tests
+# Testing environment, for running firefox/webdriver tests
 FROM beleniosbase AS beleniosbase-tests
 USER root
-RUN apt-get install -y -qq firefox-esr python3 python3-venv
+RUN apt-get install -y -qq firefox-esr
 ENV GECKODRIVER_VERSION 0.34.0
 RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz && rm -rf /opt/geckodriver && tar -C /opt -zxf /tmp/geckodriver.tar.gz && rm /tmp/geckodriver.tar.gz && mv /opt/geckodriver /opt/geckodriver-$GECKODRIVER_VERSION && chmod 755 /opt/geckodriver-$GECKODRIVER_VERSION && ln -fs /opt/geckodriver-$GECKODRIVER_VERSION /usr/bin/geckodriver
 USER belenios

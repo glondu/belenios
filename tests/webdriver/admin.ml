@@ -82,7 +82,7 @@ module Make (Config : CONFIG) = struct
     let* () = session#fill_with ~selector:"#password" password in
     let* () = session#click_on ~selector:"input[type=submit]" in
     let* () = accept_tos_if_needed session in
-    session#click_on ~selector:"#experimental"
+    Lwt.return_unit
 
   let demo_login session ~username =
     Printf.printf "  Logging in %s as demo:%s...\n%!" belenios username;
@@ -93,29 +93,26 @@ module Make (Config : CONFIG) = struct
       accept_tos_if_needed session
     in
     let* () = do_login () in
-    let* () =
-      let* elements = session#get_elements ~selector:"input[type=text]" in
-      match elements with
-      | [ e ] ->
-          Printf.printf "    Setting email address after first login...\n%!";
-          let address = "admin@example.org" in
-          let* () = session#clear e in
-          let* () = session#send_keys e address in
-          let* () = session#click_on ~selector:"input[type=submit]" in
-          let* () = Lwt_unix.sleep 1. in
-          let emails = Emails.parse emails in
-          let code =
-            match Emails.extract_code emails address with
-            | None ->
-                failwith @@ Printf.sprintf "could not find code for %s" address
-            | Some x -> x
-          in
-          let* () = session#fill_with ~selector:"input[type=text]" code in
-          let* () = session#click_on ~selector:"input[type=submit]" in
-          do_login ()
-      | _ -> Lwt.return_unit
-    in
-    session#click_on ~selector:"#experimental"
+    let* elements = session#get_elements ~selector:"input[type=text]" in
+    match elements with
+    | [ e ] ->
+        Printf.printf "    Setting email address after first login...\n%!";
+        let address = "admin@example.org" in
+        let* () = session#clear e in
+        let* () = session#send_keys e address in
+        let* () = session#click_on ~selector:"input[type=submit]" in
+        let* () = Lwt_unix.sleep 1. in
+        let emails = Emails.parse emails in
+        let code =
+          match Emails.extract_code emails address with
+          | None ->
+              failwith @@ Printf.sprintf "could not find code for %s" address
+          | Some x -> x
+        in
+        let* () = session#fill_with ~selector:"input[type=text]" code in
+        let* () = session#click_on ~selector:"input[type=submit]" in
+        do_login ()
+    | _ -> Lwt.return_unit
 
   let login session =
     match admin with
@@ -476,18 +473,9 @@ module Make (Config : CONFIG) = struct
     in
     Lwt.return { id; private_keys; private_creds }
 
-  let regen_password ~election_id ~username =
+  let regen_password ~id ~username =
     Printf.eprintf "  Regenerating password of %s...\n%!" username;
-    let@ session = Webdriver.with_session ~headless ~url:webdriver () in
-    let session = new Webdriver.helpers session in
-    let url = Printf.sprintf "%s/election#%s" belenios election_id in
-    let* () = session#navigate_to url in
-    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
-    let* () =
-      session#click_on
-        ~selector:(Printf.sprintf "#election_admin_%s" election_id)
-    in
-    let* () = login session in
+    let@ session = with_admin ~id () in
     let* () = session#click_on ~selector:"#tab_authentication" in
     let* () = session#fill_with ~selector:"input" username in
     let* () = session#click_on ~selector:"button" in
