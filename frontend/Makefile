@@ -12,16 +12,16 @@ ifeq "$(DESTDIR)" ""
 	DESTDIR := ./build
 endif
 
-PUBLIC_INTERNAL_JS_FOLDER := $(DESTDIR)/frontend
+PUBLIC_INTERNAL_JS_FOLDER := $(DESTDIR)/static/frontend
 INITIAL_TRANSLATIONS_FOLDER := translations
-PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/frontend/translations
+PUBLIC_TRANSLATIONS_FOLDER := $(DESTDIR)/static/frontend/translations
 
 # The `DESTDIR` variable is used as in [https://www.gnu.org/prep/standards/html_node/DESTDIR.html]. Use value `../_run/usr/share/belenios-server/static` to install Belenios.
 install: site.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
 	mkdir -p $(PUBLIC_INTERNAL_JS_FOLDER)/booth
-	cp *.bundle.css $(DESTDIR)
+	cp *.bundle.css $(DESTDIR)/static
 	cp -r booth/bundle.js booth/app.bundle.css $(PUBLIC_INTERNAL_JS_FOLDER)/booth/
-	cp -r booth/$(VOTE_PAGE) $(PUBLIC_INTERNAL_JS_FOLDER)/booth/vote.html
+	cp -r booth/$(VOTE_PAGE) $(DESTDIR)/apps
 	mkdir -p $(PUBLIC_TRANSLATIONS_FOLDER)
 	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
 

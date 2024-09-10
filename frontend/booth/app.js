@@ -13,7 +13,7 @@ import ReviewEncryptSection from "./components/ReviewEncryptSection.js";
 import { PageFooter, EmptyPageFooter } from "./components/PageFooter.js";
 import { Election } from "./election_utils.js";
 
-const relativeServerRootFolder = "../../..";
+const relativeServerRootFolder = "";
 
 function getHashParametersFromURL() {
   const url_hash_parameters = window.location.hash.substr(1);
@@ -119,8 +119,8 @@ function TranslatableVoteApp({
 
   const loadElectionDataFromUuid = (uuid, draft) => {
     const url = draft
-      ? `${relativeServerRootFolder}/api/drafts/${uuid}/election`
-      : `${relativeServerRootFolder}/api/elections/${uuid}/election`;
+      ? `${relativeServerRootFolder}api/drafts/${uuid}/election`
+      : `${relativeServerRootFolder}api/elections/${uuid}/election`;
     fetch(url).then((response) => {
       if (!response.ok) {
         setElectionLoadingErrorMessage(
@@ -281,7 +281,7 @@ function TranslatableVoteApp({
         }),
       );
     } else if (currentStep === 3) {
-      const urlToPostEncryptedBallot = `${relativeServerRootFolder}/actions/submit-ballot`;
+      const urlToPostEncryptedBallot = `${relativeServerRootFolder}actions/submit-ballot`;
       const onClickPrevious = () => {
         setCurrentStep(2);
         setUncryptedBallotBeforeReview(null);

@@ -30,7 +30,7 @@ open Belenios_js.Session
 open Common
 module Messages = Belenios_js.Window_messages
 
-let booths = [ ("Version 2", "static/frontend/booth/vote.html") ]
+let booths = [ ("Version 2", "vote") ]
 
 let make_login_target ~state =
   let params = Url.encode_arguments [ ("state", state) ] in

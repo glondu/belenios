@@ -642,7 +642,7 @@ let home configuration ?credential uuid =
       match status.status_state with `Open -> [] | _ -> [ a_disabled () ]
     in
     let button =
-      let uri = configuration.uris.home ^ "static/frontend/booth/vote.html" in
+      let uri = configuration.uris.home ^ "vote" in
       let handler _ =
         let params =
           match credential with None -> [] | Some c -> [ ("credential", c) ]

@@ -9,7 +9,7 @@ function i18n_init(
 ) {
   const translationsBackendOptions = {
     // these are options to i18nextHttpBackend plugin of i18next
-    loadPath: "../translations/{{lng}}.json",
+    loadPath: "static/frontend/translations/{{lng}}.json",
   };
 
   i18next

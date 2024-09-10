@@ -127,10 +127,7 @@ module Make () = struct
       ~meth:(Get (uuid "uuid" ** string "state"))
       ()
 
-  let booth_v2 () =
-    Eliom_service.preapply
-      ~service:(Eliom_service.static_dir ())
-      [ "static"; "frontend"; "booth"; "vote.html" ]
+  let booth_v2 () = Eliom_service.preapply ~service:apps "vote"
 
   type booth =
     | Booth :
