@@ -261,9 +261,9 @@ module Make (Base : BASE) = struct
     [
       progress;
       div ~a:[ a_class [ "current_step" ] ] [ txt step_title ];
-      p ([ txt (s_ "Your ballot for "); em [ markup name ] ] @ result);
+      div ([ txt (s_ "Your ballot for "); em [ markup name ] ] @ result);
       snippet;
-      p
+      div
         [
           a
             ~a:
