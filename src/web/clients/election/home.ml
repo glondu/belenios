@@ -47,8 +47,23 @@ let format_period x =
   |> List.filter (fun x -> x <> "")
   |> String.concat " "
 
-let make_audit_div template cache =
+let make_audit_div election cache =
   let open (val !Belenios_js.I18n.gettext) in
+  let open (val election : Election.ELECTION) in
+  let audit_election =
+    [
+      tr
+        [
+          td [ txt @@ s_ "Election identifier" ];
+          td [ code [ txt @@ Uuid.unwrap uuid ] ];
+        ];
+      tr
+        [
+          td [ txt @@ s_ "Election fingerprint" ];
+          td [ code [ txt fingerprint ] ];
+        ];
+    ]
+  in
   let audit_admin =
     [
       tr
@@ -208,6 +223,7 @@ let make_audit_div template cache =
       table
         (List.concat
            [
+             audit_election;
              audit_admin;
              audit_voters;
              audit_voter_weight;
@@ -689,7 +705,7 @@ let home configuration ?credential uuid =
     let* x = get_audit_cache uuid in
     match x with
     | None -> Lwt.return @@ div [ txt @@ s_ "Could not retrieve audit data!" ]
-    | Some audit_cache -> Lwt.return @@ make_audit_div W.template audit_cache
+    | Some audit_cache -> Lwt.return @@ make_audit_div election audit_cache
   in
   let contents =
     [

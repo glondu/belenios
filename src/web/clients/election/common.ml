@@ -48,7 +48,6 @@ let make_audit_footer election =
     [
       div
         [
-          div [ txt @@ s_ "Election fingerprint: "; code [ txt fingerprint ] ];
           div
             [
               txt @@ s_ "Audit data: ";
