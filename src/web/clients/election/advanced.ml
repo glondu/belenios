@@ -32,10 +32,6 @@ module Messages = Belenios_js.Window_messages
 
 let booths = [ ("Version 2", "vote") ]
 
-let make_login_target ~state =
-  let params = Url.encode_arguments [ ("state", state) ] in
-  !!(Printf.sprintf "actions/voter-login?%s" params)
-
 let submit_ballot uuid ~ballot =
   let* x = Api.(post (election_ballots uuid) `Nobody (String.trim ballot)) in
   match x.code with

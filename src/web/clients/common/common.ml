@@ -277,3 +277,7 @@ end
 
 let coerce_window : Dom_html.window t -> window t = Js.Unsafe.coerce
 let window = coerce_window Dom_html.window
+
+let make_login_target ~state =
+  let params = Url.encode_arguments [ ("state", state) ] in
+  !!(Printf.sprintf "actions/voter-login?%s" params)
