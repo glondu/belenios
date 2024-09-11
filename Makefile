@@ -11,6 +11,7 @@ $(BELENIOS_SRC):
 	contrib/make-tarball.sh $@
 
 build-debug-server:
+	@echo "Building Belenios server $(BELENIOS_BUILD) in debug mode..."
 	BELENIOS_DEBUG=1 dune build $(DUNE_DEBUG_ARGS)
 	BELENIOS_DEBUG=1 dune exec $(DUNE_DEBUG_ARGS) -- \
 	  src/scripts/checki18next/checki18next.exe --dir frontend/translations \
@@ -22,6 +23,7 @@ build-debug-server:
 
 build-release-server:
 	$(MAKE) clean
+	@echo "Building Belenios server $(BELENIOS_BUILD) in release mode..."
 	BELENIOS_DEBUG= dune build --release
 	BELENIOS_DEBUG= dune exec $(DUNE_DEBUG_ARGS) -- \
 	  src/scripts/checki18next/checki18next.exe --dir frontend/translations \
