@@ -2,7 +2,7 @@ include Makefile.config
 
 CHANGES := belenios-opam_$(TOOLCHAIN_VERSION)_$(ARCH).changes
 ROOTFS := rootfs_$(TOOLCHAIN_VERSION)_$(ARCH).tar.zst
-VERSION := $(shell git -C "$(BELENIOS_SOURCES)" describe)
+VERSION := $(shell cd "$(BELENIOS_SOURCES)" && ./src/platform/version/get_build.sh)
 SQUASHFS := belenios_$(VERSION)_$(ARCH).squashfs
 
 all: $(SQUASHFS)
