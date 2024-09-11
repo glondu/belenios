@@ -26,7 +26,7 @@ if [ "$(git status --porcelain | grep -v '^?? ' | wc -l)" -ne 0 ]; then
     exit 1
 fi
 
-VERSION="$(git describe)"
+VERSION="$(./src/platform/version/get_build.sh)"
 echo "I: building version $VERSION"
 
 TMP="$(mktemp --tmpdir --directory tmp.belenios.XXXXXXXXXX)"

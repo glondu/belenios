@@ -65,11 +65,10 @@ doc/specification.pdf: doc/specification.tex doc/spec_version.tex
 
 release:
 	@if [ `git status --porcelain | grep -v '^?? ' | wc -l ` -eq 0 ]; then \
-	  COMMIT_ID=`git describe --tags`; \
 	  VERSION=`cat VERSION`; \
 	  mkdir -p _releases; \
-	  if [ "$$(printf $$COMMIT_ID | head -c$$(printf $$VERSION | wc -c))" = "$$VERSION" ]; then \
-	    git archive --prefix=belenios-$$COMMIT_ID/ $$COMMIT_ID | gzip -9n > _releases/belenios-$$COMMIT_ID.tar.gz; \
+	  if [ "$$(printf $(BELENIOS_BUILD) | head -c$$(printf $$VERSION | wc -c))" = "$$VERSION" ]; then \
+	    git archive --prefix=belenios-$(BELENIOS_BUILD)/ $(BELENIOS_BUILD) | gzip -9n > _releases/belenios-$(BELENIOS_BUILD).tar.gz; \
 	  else \
 	    echo "VERSION is not up-to-date!"; exit 1; \
 	  fi; \
