@@ -71,6 +71,7 @@ type cast_error =
   | WrongWeight
   | UnauthorizedVoter
   | ElectionClosed
+  | UnexpectedResponse
   ]
 
 (** {2 Elections} *)

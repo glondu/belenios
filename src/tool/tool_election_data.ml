@@ -244,6 +244,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     | `DuplicateBallot -> "duplicate ballot"
     | `ExpiredBallot -> "expired ballot"
     | `WrongUsername -> "wrong username"
+    | `UnexpectedResponse -> "unexpected response"
 
   let pre_cast ?(skip_ballot_check = false) ballot_box rawballot =
     let hash = Hash.hash_string rawballot in

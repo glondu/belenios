@@ -36,3 +36,4 @@ let explain_cast_error l e =
   | `DuplicateBallot -> s_ "this ballot has already been accepted"
   | `ExpiredBallot -> s_ "this ballot has expired"
   | `WrongUsername -> s_ "your username is wrong"
+  | `UnexpectedResponse -> s_ "the server responded unexpectedly"
