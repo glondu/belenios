@@ -59,7 +59,6 @@ module type ELECTION_DATA = sig
   val raw_ballots : string list option Lazy.t
   val verified_ballots : (hash * string * weight * string) list Lazy.t
   val unverified_ballots : (hash * string * weight * string) list Lazy.t
-  val string_of_cast_error : cast_error -> string
 
   val pre_cast :
     ?skip_ballot_check:bool ->

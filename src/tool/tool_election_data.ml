@@ -133,7 +133,6 @@ module type ELECTION_DATA = sig
   val raw_ballots : string list option Lazy.t
   val verified_ballots : (hash * string * weight * string) list Lazy.t
   val unverified_ballots : (hash * string * weight * string) list Lazy.t
-  val string_of_cast_error : cast_error -> string
 
   val pre_cast :
     ?skip_ballot_check:bool ->
@@ -229,22 +228,6 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
 
   let public_creds = lazy (Lazy.force public_creds_weights |> Option.map snd)
   let raw_ballots = lazy (get_ballots ())
-
-  let string_of_cast_error = function
-    | `ElectionClosed -> "closed election"
-    | `UnauthorizedVoter -> "unauthorized voter"
-    | `SerializationError e -> Printf.sprintf "ill-formed ballot: %s" e
-    | `NonCanonical -> "ballot not in canonical form"
-    | `InvalidBallot -> "invalid ballot"
-    | `InvalidCredential -> "invalid credential"
-    | `WrongCredential -> "wrong credential"
-    | `WrongWeight -> "wrong weight"
-    | `UsedCredential -> "used credential"
-    | `RevoteNotAllowed -> "revote not allowed"
-    | `DuplicateBallot -> "duplicate ballot"
-    | `ExpiredBallot -> "expired ballot"
-    | `WrongUsername -> "wrong username"
-    | `UnexpectedResponse -> "unexpected response"
 
   let pre_cast ?(skip_ballot_check = false) ballot_box rawballot =
     let hash = Hash.hash_string rawballot in
