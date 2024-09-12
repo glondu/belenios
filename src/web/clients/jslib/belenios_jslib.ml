@@ -81,10 +81,7 @@ class type belenios = object
     renderingFunctions Js.t -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
 
   method formatTracker :
-    (module ELECTION_WITH_SK) ->
-    Js.js_string Js.t ->
-    Js.js_string Js.t ->
-    tracker Js.t Js.meth
+    (module ELECTION_WITH_SK) -> Js.js_string Js.t -> tracker Js.t Js.meth
 
   method initiateLogin : unit Js.meth
   method finalizeLogin : Js.Unsafe.any -> unit Js.meth
@@ -192,22 +189,45 @@ let belenios : belenios Js.t =
         p##result (Js.array @@ Array.of_list xs)
       with _ -> p##error x
 
-    method formatTracker election prefix tracker =
-      let open (val election : ELECTION_WITH_SK) in
-      let uuid_s = Uuid.unwrap uuid in
-      let b = Buffer.create 1024 in
-      Printf.bprintf b "Election: %s\n" template.t_name;
-      Printf.bprintf b "Election URL: %s/election#%s\n" (Js.to_string prefix)
-        uuid_s;
-      Printf.bprintf b "Smart ballot tracker: %s\n" (Js.to_string tracker);
+    method formatTracker election tracker =
+      let open (val !Belenios_js.I18n.gettext) in
+      let module W = (val election : ELECTION_WITH_SK) in
+      let uuid_s = Uuid.unwrap W.uuid in
+      let url = Printf.sprintf "%selection#%s\n" (compute_prefix ()) uuid_s in
+      let page =
+        let open Tyxml.Html in
+        html
+          (head
+             (title (txt @@ W.template.t_name ^^^ s_ "Smart ballot tracker"))
+             [])
+          (body
+             [
+               h1 [ txt W.template.t_name ];
+               table
+                 [
+                   tr
+                     [
+                       th [ txt @@ s_ "Election public URL" ];
+                       td [ a ~a:[ a_href url ] [ txt url ] ];
+                     ];
+                   tr
+                     [
+                       th [ txt @@ s_ "Smart ballot tracker" ];
+                       td [ code [ txt @@ Js.to_string tracker ] ];
+                     ];
+                 ];
+             ])
+      in
       let contents =
+        let b = Buffer.create 1024 in
+        Tyxml.Html.pp () (Format.formatter_of_buffer b) page;
         Buffer.contents b
-        |> encode_data_uri ~charset:"UTF-8" ~mime_type:"text/plain"
+        |> encode_data_uri ~charset:"UTF-8" ~mime_type:"text/html"
         |> Js.string
       in
       let filename =
-        Printf.sprintf "%s_%s_tracker.txt"
-          (remove_special_characters template.t_name)
+        Printf.sprintf "%s_%s_tracker.html"
+          (remove_special_characters W.template.t_name)
           uuid_s
         |> Js.string
       in

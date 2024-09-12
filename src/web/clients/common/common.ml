@@ -281,3 +281,15 @@ let window = coerce_window Dom_html.window
 let make_login_target ~state =
   let params = Url.encode_arguments [ ("state", state) ] in
   !!(Printf.sprintf "actions/voter-login?%s" params)
+
+let compute_prefix () =
+  let open Uri in
+  let base = of_string (Js.to_string window##.location##.href) in
+  let base = with_fragment base None in
+  let path = path base in
+  let path =
+    match String.rindex_opt path '/' with
+    | None -> path
+    | Some i -> String.sub path 0 i
+  in
+  path ^ "/" ^ !relative_root |> with_path base |> canonicalize |> to_string

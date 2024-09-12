@@ -25,12 +25,8 @@ function TranslatableReviewEncryptSection({
 
   let tracker = {};
   if (smartBallotTracker) {
-    const currentUrl = window.location.href;
-    const index = currentUrl.lastIndexOf("/static/");
-    const prefix = currentUrl.slice(0, index);
     tracker = belenios.formatTracker(
       electionModule.current,
-      prefix,
       smartBallotTracker,
     );
   }
