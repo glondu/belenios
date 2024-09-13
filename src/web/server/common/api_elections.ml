@@ -475,11 +475,11 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
   | [ "voters" ] -> (
       let@ _ = with_administrator token metadata in
       match method_ with
-      | `GET -> (
+      | `GET ->
           let@ () = handle_generic_error in
           let module S = (val s) in
-          let* x = S.get (Election (uuid, Voters)) in
-          match x with None -> not_found | Some x -> return_json 200 x)
+          let* x = Web_persist.get_all_voters s uuid in
+          return_json 200 (string_of_voter_list x)
       | _ -> method_not_allowed)
   | [ "records" ] -> (
       let@ _ = with_administrator token metadata in
