@@ -5,7 +5,7 @@
  (flags -linkall)
  (libraries
   ocsigenserver
-  ocsipersist.sqlite
+  ocsipersist-sqlite-config
   ocsigenserver.ext.redirectmod
   ocsigenserver.ext.staticmod
   eliom.server
