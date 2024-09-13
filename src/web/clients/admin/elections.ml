@@ -675,7 +675,11 @@ let voters_content () =
   let* records =
     if is_draft then Lwt.return [] else Cache.get_until_success Cache.e_records
   in
-  let reco = List.map (fun r -> r.vr_username) records in
+  let reco =
+    List.fold_left
+      (fun accu r -> SSet.add r.vr_username accu)
+      SSet.empty records
+  in
   let with_login, with_weight =
     let rec loop ((with_login, with_weight) as accu) = function
       | [] -> accu
@@ -712,7 +716,7 @@ let voters_content () =
              else []);
             (if is_draft then [ td ~a:[ a_class [ "clickable" ] ] (erv v ()) ]
              else
-               let voted = List.mem login reco in
+               let voted = SSet.mem login reco in
                [ td [ txt (if voted then "X" else "—") ] ]);
           ]
         |> tr)
