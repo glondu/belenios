@@ -23,7 +23,7 @@ SUFFIX="${SUFFIX%%_*}"
 
 echo "I: SUFFIX is \"$SUFFIX\""
 
-BELENIOS_DEVDEPS="debhelper netbase libsodium-dev zip libgd-securityimage-perl cracklib-runtime git jq npm"
+BELENIOS_DEVDEPS="debhelper netbase libsodium-dev zip libgd-securityimage-perl cracklib-runtime git jq npm texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra lmodern texlive-science rubber pandoc"
 
 if ! [ -f "$DEB" ]; then
     echo "$DEB does not exist"

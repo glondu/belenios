@@ -81,6 +81,7 @@ cat > debian/rules <<EOF
 
 override_dh_auto_build:
 	BELENIOS_BUILD=$VERSION \$(MAKE) build-release-server
+	\$(MAKE) install-doc DESTDIR=_run/usr/share/belenios-server/static
 
 override_dh_auto_install:
 	mkdir -p debian/belenios-server/opt/belenios
