@@ -697,32 +697,35 @@ let voters_content () =
         [ th [ txt @@ s_ "Identity" ] ];
         (if with_login then [ th [ txt @@ s_ "Login" ] ] else []);
         (if with_weight then [ th [ txt @@ s_ "Weight" ] ] else []);
-        (if is_draft then [ th [] ] else [ th [ txt @@ s_ "voted?" ] ]);
+        (if is_draft then [] else [ th [ txt @@ s_ "voted?" ] ]);
+        [ th [] ];
       ]
     |> tr
   in
   let erv v () =
     if is_draft && not is_frozen then [ erase_voter_elt v () ] else []
   in
-  let rows_of_voters =
-    List.map
-      (fun v ->
-        let address, login, weight = Voter.get v in
-        List.flatten
-          [
-            [ td [ txt address ] ];
-            (if with_login then [ td [ txt login ] ] else []);
-            (if with_weight then [ td [ txt @@ Weight.to_string weight ] ]
-             else []);
-            (if is_draft then [ td ~a:[ a_class [ "clickable" ] ] (erv v ()) ]
-             else
-               let voted = SSet.mem login reco in
-               [ td [ txt (if voted then "X" else "—") ] ]);
-          ]
-        |> tr)
-      voters
-  in
-  let rows_of_voters =
+  let make_rows_of_voters show_only_missing =
+    let rows_of_voters =
+      List.filter_map
+        (fun v ->
+          let address, login, weight = Voter.get v in
+          let voted = SSet.mem login reco in
+          if show_only_missing && voted then None
+          else
+            List.flatten
+              [
+                [ td [ txt address ] ];
+                (if with_login then [ td [ txt login ] ] else []);
+                (if with_weight then [ td [ txt @@ Weight.to_string weight ] ]
+                 else []);
+                (if is_draft then []
+                 else [ td [ txt (if voted then "X" else "—") ] ]);
+                [ td ~a:[ a_class [ "clickable" ] ] (erv v ()) ];
+              ]
+            |> fun x -> Some (tr x))
+        voters
+    in
     if rows_of_voters = [] then
       [ tr [ td [ em [ txt @@ s_ "empty list" ] ]; td [] ] ]
     else rows_of_voters
@@ -817,7 +820,7 @@ let voters_content () =
                   credentials are created. Voters with invalid e-mail \
                   addresses won't be able to vote.");
           ];
-        tablex [ tbody (header_row :: rows_of_voters) ];
+        tablex [ tbody (header_row :: make_rows_of_voters false) ];
         (if is_frozen then div []
          else
            let max =
@@ -907,10 +910,32 @@ let voters_content () =
         n nv
         (100. *. (float_of_int n /. float_of_int nv))
     in
+    let voter_table =
+      let tbody_elt = tbody [] in
+      let check_elt = Tyxml_js.Html.input ~a:[ a_input_type `Checkbox ] () in
+      let tbody_dom = Tyxml_js.To_dom.of_tbody tbody_elt in
+      let check_dom = Tyxml_js.To_dom.of_input check_elt in
+      let update () =
+        tbody_dom##.innerHTML := Js.string "";
+        List.iter
+          (fun x -> Dom.appendChild tbody_dom (Tyxml_js.To_dom.of_node x))
+          (header_row :: make_rows_of_voters (Js.to_bool check_dom##.checked))
+      in
+      check_dom##.onchange :=
+        Dom.handler (fun _ ->
+            update ();
+            Js._false);
+      update ();
+      div
+        [
+          tablex [ tbody_elt ];
+          label [ check_elt; txt " "; txt @@ s_ "Show only missing voters" ];
+        ]
+    in
     Lwt.return
       [
         h2 [ txt @@ s_ "Voter list (not editable):" ];
-        tablex [ tbody (header_row :: rows_of_voters) ];
+        voter_table;
         div [ txt turnout ];
         div
           ~a:[ a_class [ "txt_with_a" ] ]
