@@ -4,7 +4,7 @@ stages:
 build_and_test_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase:20240711-1
+  image: glondu/beleniosbase:20240913-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -44,7 +44,7 @@ build_and_test_with_debian_image:
 build_and_run_automated_test_scenarios_with_preinstalled_image:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase-tests:20240711-1
+  image: glondu/beleniosbase-tests:20240913-1
   script:
     # Initialize environment
     - source ~/env.sh

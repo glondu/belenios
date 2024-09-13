@@ -1,4 +1,4 @@
-FROM glondu/beleniosbase:20240711-1
+FROM glondu/beleniosbase:20240913-1
 # alternatively, run
 #   docker build -f contrib/docker/gitlab-ci.Dockerfile -t beleniosbase --target beleniosbase ."
 # and replace with the line below

@@ -2,12 +2,12 @@
 
 set -e
 
-OPAM_REPOSITORY_DATE=20240710
-OPAM_REPOSITORY_REVISION=5125fae236d758142887863f410e29cfbe2deca6
+OPAM_REPOSITORY_DATE=20240913
+OPAM_REPOSITORY_REVISION=4093222dece7c1c8f93dc2fd8dd7eec15fa80fed
 
 OCAML_VERSION=4.14.2
-OPAM_VERSION=2.2.0
-OPAM_SHA256=39334f36adbe280683487cf204b7b0642080fc5965747f7d6f7cc7b83cd7a192
+OPAM_VERSION=2.2.1
+OPAM_SHA256=07ad3887f61e0bc61a0923faae16fcc141285ece5b248a9e2cd4f902523cc121
 
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
@@ -108,7 +108,7 @@ opam repository add --yes belenios-overlay $BELENIOS_SRC/vendor/opam-overlay
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes base64 hex dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite eliom=10.4.1 gettext-camomile ocamlnet "$@"
+opam install --yes base64 hex dune atdgen zarith cryptokit calendar cmdliner sqlite3 csv ocsipersist-sqlite-config eliom gettext-camomile ocamlnet ocamlformat "$@"
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
