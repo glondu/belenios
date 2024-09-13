@@ -3,12 +3,12 @@ import { markup } from "../shortcuts.js";
 import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
 
 function CandidateList({
-  name,
-  id,
-  value,
-  listName,
-  listCandidates,
-  dispatchUpdateUserVoteForCandidateInQuestion,
+  name = "input-choice",
+  id = "input_1",
+  value = 0,
+  listName = "list 1",
+  listCandidates = ["candidate 1"],
+  dispatchUpdateUserVoteForCandidateInQuestion = () => {},
   identifierPrefix,
   ...props
 }) {
@@ -69,15 +69,6 @@ function CandidateList({
     selected ? e("div", null, ...candidates) : null,
   );
 }
-
-CandidateList.defaultProps = {
-  name: "input-choice",
-  id: "input_1",
-  value: 0,
-  listName: "list 1",
-  listCandidates: ["candidate 1"],
-  dispatchUpdateUserVoteForCandidateInQuestion: () => {},
-};
 
 export { CandidateList };
 export default CandidateList;

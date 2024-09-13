@@ -402,13 +402,15 @@ function TranslatablePreferentialVotingBigCandidatesList({
 }
 
 function TranslatablePreferentialVotingCandidatesList({
-  identifierPrefix,
-  candidates,
-  blankVoteIsAllowed,
+  identifierPrefix = "question_1",
+  candidates = ["Candidate 1", "Candidate 2", "Candidate 3"],
+  blankVoteIsAllowed = false,
   currentUserVoteForQuestion,
-  currentCandidatesHavingAlertsForQuestion,
-  dispatchUpdateUserVoteForQuestion,
-  t,
+  currentCandidatesHavingAlertsForQuestion = [],
+  dispatchUpdateUserVoteForQuestion = () => {},
+  t = (s) => {
+    return s;
+  },
 }) {
   let renderedBlankVoteComponent = null;
   const candidateIndex = candidates.length;
@@ -472,17 +474,6 @@ function TranslatablePreferentialVotingCandidatesList({
     }),
   );
 }
-
-TranslatablePreferentialVotingCandidatesList.defaultProps = {
-  identifierPrefix: "question_1",
-  candidates: ["Candidate 1", "Candidate 2", "Candidate 3"],
-  blankVoteIsAllowed: false,
-  t: function (s) {
-    return s;
-  },
-  currentCandidatesHavingAlertsForQuestion: [],
-  dispatchUpdateUserVoteForQuestion: () => {},
-};
 
 const PreferentialVotingCandidatesList = withTranslation()(
   TranslatablePreferentialVotingCandidatesList,

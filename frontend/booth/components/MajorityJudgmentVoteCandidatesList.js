@@ -8,14 +8,16 @@ import { majorityJudgmentGradeIndexToCssColor } from "../majority_judgment_color
 import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
 
 function TranslatableMajorityJudgmentVoteCandidatesList({
-  identifierPrefix,
-  availableGrades,
-  candidates,
-  blankVoteIsAllowed,
+  identifierPrefix = "question_1",
+  availableGrades = ["Poor", "Good", "Excellent"],
+  candidates = ["Candidate 1", "Candidate 2", "Candidate 3"],
+  blankVoteIsAllowed = false,
   currentUserVoteForQuestion,
-  currentCandidatesHavingAlertsForQuestion,
-  dispatchUpdateUserVoteForQuestion,
-  t,
+  currentCandidatesHavingAlertsForQuestion = [],
+  dispatchUpdateUserVoteForQuestion = () => {},
+  t = (s) => {
+    return s;
+  },
 }) {
   const availableGradesCssColors = React.useMemo(() => {
     return availableGrades.map((grade, index) => {
@@ -92,18 +94,6 @@ function TranslatableMajorityJudgmentVoteCandidatesList({
     }),
   );
 }
-
-TranslatableMajorityJudgmentVoteCandidatesList.defaultProps = {
-  identifierPrefix: "question_1",
-  availableGrades: ["Poor", "Good", "Excellent"],
-  candidates: ["Candidate 1", "Candidate 2", "Candidate 3"],
-  blankVoteIsAllowed: false,
-  t: function (s) {
-    return s;
-  },
-  currentCandidatesHavingAlertsForQuestion: [],
-  dispatchUpdateUserVote: () => {},
-};
 
 const MajorityJudgmentVoteCandidatesList = withTranslation()(
   TranslatableMajorityJudgmentVoteCandidatesList,

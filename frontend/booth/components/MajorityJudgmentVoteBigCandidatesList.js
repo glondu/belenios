@@ -2,14 +2,14 @@ import React, { createElement as e } from "react";
 import { markup } from "../shortcuts.js";
 
 function MajorityJudgmentVoteBigCandidateAvailableGrade({
-  name,
-  id,
-  checked = null,
-  gradeLabel,
-  availableGrades,
-  gradeIndex,
-  dispatchUserVoteForCandidateInQuestion,
-  availableGradesCssColors,
+  name = "radion-button-choice",
+  id = "radio-button_1",
+  checked = false,
+  gradeLabel = "Excellent",
+  availableGrades = ["Poor", "Good", "Excellent"],
+  gradeIndex = 2,
+  dispatchUserVoteForCandidateInQuestion = (selection_grade_index) => {},
+  availableGradesCssColors = ["red", "yellow", "green"],
   ...props
 }) {
   const checkedValue = checked ? "checked" : null;
@@ -57,17 +57,6 @@ function MajorityJudgmentVoteBigCandidateAvailableGrade({
     ),
   );
 }
-
-MajorityJudgmentVoteBigCandidateAvailableGrade.defaultProps = {
-  name: "radio-button-choice",
-  id: "radio-button_1",
-  checked: false,
-  gradeLabel: "Excellent",
-  availableGrades: ["Poor", "Good", "Excellent"],
-  gradeIndex: 2,
-  dispatchUserVoteForCandidateInQuestion: (selected_grade_index) => {},
-  availableGradesCssColors: ["red", "yellow", "green"],
-};
 
 function TranslatableMajorityJudgmentVoteBigCandidate({
   candidateInfo,

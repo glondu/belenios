@@ -24,11 +24,6 @@ function TranslatablePageFooter({ electionUuid, electionFingerprint, t }) {
   );
 }
 
-TranslatablePageFooter.defaultProps = {
-  electionUuid: "aaa",
-  electionFingerprint: "aaaaa",
-};
-
 const PageFooter = withTranslation()(TranslatablePageFooter);
 
 function EmptyPageFooter(props) {

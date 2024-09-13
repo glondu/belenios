@@ -31,7 +31,7 @@ function TranslatableAllQuestionsWithPagination(props) {
 
   // Definition of state for current question index
   const [current_question_index, set_current_question_index] = React.useState(
-    props.current_question_index,
+    props.current_question_index || 0,
   );
 
   // Definition of state for current alerts for all questions
@@ -335,7 +335,11 @@ function TranslatableAllQuestionsWithPagination(props) {
   // - else:
   //   - display validity errors on current screen
   const onClickNext = (event) => {
-    const t = props.t;
+    const t =
+      props.t ||
+      ((s) => {
+        return s;
+      });
     const current_question_data =
       props.electionObject.questions[current_question_index];
     const voter_selected_answers_as_uncrypted_ballot =
@@ -508,15 +512,6 @@ function TranslatableAllQuestionsWithPagination(props) {
   });
   return e(React.Fragment, null, ...renderedQuestions, renderedPagination);
 }
-
-TranslatableAllQuestionsWithPagination.defaultProps = {
-  current_question_index: 0,
-  electionObject: null,
-  onVoteSubmit: null,
-  t: function (s) {
-    return s;
-  },
-};
 
 const AllQuestionsWithPagination = withTranslation()(
   TranslatableAllQuestionsWithPagination,

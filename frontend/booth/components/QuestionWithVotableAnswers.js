@@ -12,12 +12,12 @@ import { QuestionTypeEnum, detectQuestionType } from "../election_utils.js";
 
 function TranslatableQuestionWithVotableAnswers({
   question,
-  identifierPrefix,
-  visible,
-  currentUserVoteForQuestion,
-  currentAlertsTextsForQuestion,
-  currentCandidatesHavingAlertsForQuestion,
-  dispatchUpdateUserVoteForQuestion,
+  identifierPrefix = "question_1_",
+  visible = true,
+  currentUserVoteForQuestion = [],
+  currentAlertsTextsForQuestion = [],
+  currentCandidatesHavingAlertsForQuestion = [],
+  dispatchUpdateUserVoteForQuestion = () => {},
   t,
 }) {
   let description;
@@ -151,15 +151,6 @@ function TranslatableQuestionWithVotableAnswers({
     ),
   );
 }
-
-TranslatableQuestionWithVotableAnswers.defaultProps = {
-  identifierPrefix: "question_1_",
-  visible: true,
-  currentUserVoteForQuestion: [],
-  currentAlertsTextsForQuestion: [],
-  currentCandidatesHavingAlertsForQuestion: [],
-  dispatchUpdateUserVoteForQuestion: () => {},
-};
 
 const QuestionWithVotableAnswers = withTranslation()(
   TranslatableQuestionWithVotableAnswers,

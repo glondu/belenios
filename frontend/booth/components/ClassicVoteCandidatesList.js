@@ -8,14 +8,16 @@ import CandidateWithRadio from "./CandidateWithRadio.js";
 Displays a list of candidates represented using instances of component CandidateWithCheckbox or CandidateWithRadio, depending on value of "type" prop.
 */
 function TranslatableClassicVoteCandidatesList({
-  type,
-  candidates,
-  identifierPrefix,
-  blankVoteIsAllowed,
-  currentUserVoteForQuestion,
-  currentCandidatesHavingAlertsForQuestion,
-  dispatchUpdateUserVoteForQuestion,
-  t,
+  type = "checkbox",
+  candidates = ["Answer 1", "Answer 2", "Answer 3"],
+  identifierPrefix = "question_1",
+  blankVoteIsAllowed = false,
+  currentUserVoteForQuestion = [],
+  currentCandidatesHavingAlertsForQuestion = [],
+  dispatchUpdateUserVoteForQuestion = () => {},
+  t = (s) => {
+    return s;
+  },
 }) {
   const candidate_constructor =
     type == "checkbox" ? CandidateWithCheckbox : CandidateWithRadio;
@@ -96,19 +98,6 @@ function TranslatableClassicVoteCandidatesList({
     ...renderedCandidates,
   );
 }
-
-TranslatableClassicVoteCandidatesList.defaultProps = {
-  type: "checkbox",
-  identifierPrefix: "question_1",
-  candidates: ["Answer 1", "Answer 2", "Answer 3"],
-  blankVoteIsAllowed: false,
-  currentUserVoteForQuestion: [],
-  currentCandidatesHavingAlertsForQuestion: [],
-  dispatchUpdateUserVoteForQuestion: () => {},
-  t: (s) => {
-    return s;
-  },
-};
 
 const ClassicVoteCandidatesList = withTranslation()(
   TranslatableClassicVoteCandidatesList,

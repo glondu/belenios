@@ -2,7 +2,11 @@ import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
 import { markup } from "../shortcuts.js";
 
-function TranslatablePageHeader({ title, subTitle, t }) {
+function TranslatablePageHeader({
+  title = "Title of election",
+  subTitle = "Subtitle of election",
+  t,
+}) {
   return e(
     "div",
     {
@@ -49,12 +53,6 @@ function TranslatablePageHeader({ title, subTitle, t }) {
     }),
   );
 }
-
-TranslatablePageHeader.defaultProps = {
-  title: "Title of election",
-  subTitle: "Subtitle of election",
-  logoAlt: "Election server",
-};
 
 const PageHeader = withTranslation()(TranslatablePageHeader);
 

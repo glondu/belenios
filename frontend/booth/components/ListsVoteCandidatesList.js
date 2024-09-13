@@ -5,11 +5,19 @@ import CandidateList from "./CandidateList.js";
 import { NiceButton } from "./NiceButton.js";
 
 function TranslatableListsVoteCandidatesList({
-  lists,
-  identifierPrefix,
-  currentUserVoteForQuestion,
-  dispatchUpdateUserVoteForQuestion,
-  t,
+  lists = [
+    ["List 1", "Candidate 1-1"],
+    ["List 2", "Candidate 2-1", "Candidate 2-2"],
+  ],
+  identifierPrefix = "question_1",
+  currentUserVoteForQuestion = [
+    [0, 0],
+    [0, 0, 0],
+  ],
+  dispatchUpdateUserVoteForQuestion = () => {},
+  t = (s) => {
+    return s;
+  },
 }) {
   const renderedLists = lists.map((list, listIndex) => {
     const identifier = `${identifierPrefix}_choice_${listIndex}`;
@@ -53,22 +61,6 @@ function TranslatableListsVoteCandidatesList({
     ...renderedLists,
   );
 }
-
-TranslatableListsVoteCandidatesList.defaultProps = {
-  identifierPrefix: "question_1",
-  lists: [
-    ["List 1", "Candidate 1-1"],
-    ["List 2", "Candidate 2-1", "Candidate 2-2"],
-  ],
-  currentUserVoteForQuestion: [
-    [0, 0],
-    [0, 0, 0],
-  ],
-  dispatchUpdateUserVoteForQuestion: () => {},
-  t: (s) => {
-    return s;
-  },
-};
 
 const ListsVoteCandidatesList = withTranslation()(
   TranslatableListsVoteCandidatesList,

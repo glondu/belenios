@@ -251,14 +251,16 @@ PreferentialVotingWithoutEqualityApp.defaultProps = {
 };
 
 function TranslatablePreferentialVotingWithoutEqualityBigCandidatesList({
-  identifierPrefix,
-  candidates,
-  blankVoteIsAllowed,
+  identifierPrefix = "question_1",
+  candidates = ["Candidate 1", "Candidate 2", "Candidate 3"],
+  blankVoteIsAllowed = false,
   renderedBlankVoteComponent,
   currentUserVoteForQuestion,
-  currentCandidatesHavingAlertsForQuestion,
-  dispatchUpdateUserVoteForQuestion,
-  t,
+  currentCandidatesHavingAlertsForQuestion = [],
+  dispatchUpdateUserVoteForQuestion = () => {},
+  t = (s) => {
+    return s;
+  },
 }) {
   /*
   TODO:
@@ -394,17 +396,6 @@ function TranslatablePreferentialVotingWithoutEqualityCandidatesList({
     }),
   );
 }
-
-TranslatablePreferentialVotingWithoutEqualityCandidatesList.defaultProps = {
-  identifierPrefix: "question_1",
-  candidates: ["Candidate 1", "Candidate 2", "Candidate 3"],
-  blankVoteIsAllowed: false,
-  t: function (s) {
-    return s;
-  },
-  currentCandidatesHavingAlertsForQuestion: [],
-  dispatchUpdateUserVoteForQuestion: () => {},
-};
 
 const PreferentialVotingWithoutEqualityCandidatesList = withTranslation()(
   TranslatablePreferentialVotingWithoutEqualityCandidatesList,

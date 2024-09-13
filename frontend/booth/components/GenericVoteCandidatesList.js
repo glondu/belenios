@@ -4,12 +4,14 @@ import { withTranslation } from "react-i18next";
 import CandidateWithInput from "./CandidateWithInput.js";
 
 function TranslatableGenericVoteCandidatesList({
-  candidates,
-  identifierPrefix,
-  currentUserVoteForQuestion,
-  currentCandidatesHavingAlertsForQuestion,
-  dispatchUpdateUserVoteForQuestion,
-  t,
+  candidates = ["Answer 1", "Answer 2", "Answer 3"],
+  identifierPrefix = "question_1",
+  currentUserVoteForQuestion = [],
+  currentCandidatesHavingAlertsForQuestion = [],
+  dispatchUpdateUserVoteForQuestion = () => {},
+  t = (s) => {
+    return s;
+  },
 }) {
   const renderedCandidates = candidates.map((candidate, candidateIndex) => {
     const identifier = `${identifierPrefix}_choice_${candidateIndex}`;
@@ -48,17 +50,6 @@ function TranslatableGenericVoteCandidatesList({
     ...renderedCandidates,
   );
 }
-
-TranslatableGenericVoteCandidatesList.defaultProps = {
-  identifierPrefix: "question_1",
-  candidates: ["Answer 1", "Answer 2", "Answer 3"],
-  currentUserVoteForQuestion: [],
-  currentCandidatesHavingAlertsForQuestion: [],
-  dispatchUpdateUserVoteForQuestion: () => {},
-  t: (s) => {
-    return s;
-  },
-};
 
 const GenericVoteCandidatesList = withTranslation()(
   TranslatableGenericVoteCandidatesList,

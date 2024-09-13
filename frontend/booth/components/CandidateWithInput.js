@@ -2,12 +2,12 @@ import React, { createElement as e } from "react";
 import { markup } from "../shortcuts.js";
 
 function CandidateWithInput({
-  name,
-  id,
-  value,
-  candidateInfo,
-  dispatchUpdateUserVoteForCandidateInQuestion,
-  currentAlertsForCandidateInQuestion,
+  name = "input-choice",
+  id = "input_1",
+  value = 0,
+  candidateInfo = "choice 1",
+  dispatchUpdateUserVoteForCandidateInQuestion = () => {},
+  currentAlertsForCandidateInQuestion = undefined,
   ...props
 }) {
   const onChange = (event) => {
@@ -45,15 +45,6 @@ function CandidateWithInput({
     ),
   );
 }
-
-CandidateWithInput.defaultProps = {
-  name: "input-choice",
-  id: "input_1",
-  value: 0,
-  candidateInfo: "choice 1",
-  dispatchUpdateUserVoteForCandidateInQuestion: () => {},
-  currentAlertsForCandidateInQuestion: undefined,
-};
 
 export { CandidateWithInput };
 export default CandidateWithInput;

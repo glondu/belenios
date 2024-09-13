@@ -2,12 +2,12 @@ import React, { createElement as e } from "react";
 import { markup } from "../shortcuts.js";
 
 function CandidateWithCheckbox({
-  name,
-  id,
-  checked,
-  candidateInfo,
-  dispatchUpdateUserVoteForCandidateInQuestion,
-  currentAlertsForCandidateInQuestion,
+  name = "radio-button-choice",
+  id = "checkbox_1",
+  checked = false,
+  candidateInfo = "choice 1",
+  dispatchUpdateUserVoteForCandidateInQuestion = () => {},
+  currentAlertsForCandidateInQuestion = undefined,
   ...props
 }) {
   const checkedValue = checked ? true : false;
@@ -51,15 +51,6 @@ function CandidateWithCheckbox({
     ),
   );
 }
-
-CandidateWithCheckbox.defaultProps = {
-  name: "radio-button-choice",
-  id: "checkbox_1",
-  checked: false,
-  candidateInfo: "choice 1",
-  dispatchUpdateUserVoteForCandidateInQuestion: () => {},
-  currentAlertsForCandidateInQuestion: undefined,
-};
 
 export { CandidateWithCheckbox };
 export default CandidateWithCheckbox;

@@ -64,19 +64,6 @@ function Progress({ currentStep = 1, ...props }) {
   );
 }
 
-Progress.defaultProps = {
-  steps: [
-    {
-      title: "Title of step 1",
-      shortTitle: "Step 1",
-    },
-    {
-      title: "Title of step 2",
-      shortTitle: "Step 2",
-    },
-  ],
-};
-
 function TranslatableVoteProgress({ t, ...props }) {
   let voteProgressSteps = [
     {
