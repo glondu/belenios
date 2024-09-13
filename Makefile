@@ -1,6 +1,7 @@
 BELENIOS_BUILD := $(shell ./src/platform/version/get_build.sh)
 DUNE_DEBUG_ARGS :=
 BELENIOS_SRC := _run/usr/share/belenios-server/belenios.tar.gz
+DOCUMENTATION := doc/specification.pdf doc/instructions-en.html doc/instructions-fr.html
 
 export BELENIOS_BUILD
 
@@ -58,10 +59,20 @@ clean:
 
 .PHONY: doc
 doc:
-	$(MAKE) doc/specification.pdf
+	$(MAKE) $(DOCUMENTATION)
+
+install-doc: doc
+ifeq ($(DESTDIR),)
+	$(error Please define DESTDIR)
+else
+	cp $(DOCUMENTATION) $(DESTDIR)
+endif
 
 doc/specification.pdf: doc/specification.tex doc/spec_version.tex
 	cd doc && rubber --pdf specification.tex
+
+%.html: %.md
+	pandoc -o $@ $<
 
 release:
 	@if [ `git status --porcelain | grep -v '^?? ' | wc -l ` -eq 0 ]; then \

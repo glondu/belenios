@@ -164,12 +164,12 @@ administrator's guide](doc/web.md) for more information on how to use it.
 Documentation
 -------------
 
-You will need LaTeX to compile the specification.
+You will need LaTeX, rubber and pandoc to compile the documention.
 
 On Debian-based systems, you can install the dependencies needed to
 compile the documentation with:
 
-    sudo apt install texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra lmodern texlive-science
+    sudo apt install texlive-latex-extra texlive-fonts-recommended texlive-fonts-extra lmodern texlive-science rubber pandoc
 
 Once all the dependencies have been installed, the documentation can
 be compiled with:
