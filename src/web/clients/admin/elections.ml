@@ -688,11 +688,14 @@ let voters_content () =
     loop (false, false) voters
   in
   let header_row =
-    let row = [ th [] ] in
-    let row = if is_draft then row else th [ txt (s_ "voted?") ] :: row in
-    let row = if with_weight then th [ txt @@ s_ "Weight" ] :: row else row in
-    let row = if with_login then th [ txt @@ s_ "Login" ] :: row else row in
-    tr (th [ txt @@ s_ "Identity" ] :: row)
+    List.flatten
+      [
+        [ th [ txt @@ s_ "Identity" ] ];
+        (if with_login then [ th [ txt @@ s_ "Login" ] ] else []);
+        (if with_weight then [ th [ txt @@ s_ "Weight" ] ] else []);
+        (if is_draft then [ th [] ] else [ th [ txt @@ s_ "voted?" ] ]);
+      ]
+    |> tr
   in
   let erv v () =
     if is_draft && not is_frozen then [ erase_voter_elt v () ] else []
@@ -700,25 +703,19 @@ let voters_content () =
   let rows_of_voters =
     List.map
       (fun v ->
-        tr
-          (List.flatten
-             [
-               (let address, login, weight = Voter.get v in
-                let row =
-                  if is_draft then []
-                  else
-                    let voted = List.mem login reco in
-                    [ td [ txt (if voted then "X" else "—") ] ]
-                in
-                let row =
-                  if with_weight then
-                    td [ txt @@ Weight.to_string weight ] :: row
-                  else row
-                in
-                let row = if with_login then td [ txt login ] :: row else row in
-                td [ txt address ] :: row);
-               [ td ~a:[ a_class [ "clickable" ] ] (erv v ()) ];
-             ]))
+        let address, login, weight = Voter.get v in
+        List.flatten
+          [
+            [ td [ txt address ] ];
+            (if with_login then [ td [ txt login ] ] else []);
+            (if with_weight then [ td [ txt @@ Weight.to_string weight ] ]
+             else []);
+            (if is_draft then [ td ~a:[ a_class [ "clickable" ] ] (erv v ()) ]
+             else
+               let voted = List.mem login reco in
+               [ td [ txt (if voted then "X" else "—") ] ]);
+          ]
+        |> tr)
       voters
   in
   let rows_of_voters =
