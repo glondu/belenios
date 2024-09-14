@@ -1268,13 +1268,19 @@ let credauth_content () =
               Printf.sprintf "%scredauth#generate/%s/%s" prefix
                 (Uuid.unwrap uuid) token
             in
+            let module X = Belenios_ui.Mails_admin.Make (Belenios_js.I18n) in
+            let subject, body =
+              X.mail_credential_authority !Belenios_js.I18n.gettext link
+            in
             Lwt.return
             @@ div
                  ~a:[ a_id "cred_link" ]
                  [
                    div
                      [
-                       txt @@ s_ "Here is the link to send to the authority:";
+                       a_mailto ~recipient:"" ~subject ~body
+                         (s_ "Send an e-mail to the credential authority");
+                       txt @@ s_ " or send them manually this link:";
                        ul
                          [
                            li
