@@ -303,7 +303,7 @@ msgstr "Adresse courriel :"
 
 #: src/web/clients/election/home.ml:62
 msgid "Election fingerprint"
-msgstr ""
+msgstr "Empreinte de l'élection"
 
 #: src/web/clients/election/main.ml:36
 msgid "Election home"
@@ -311,7 +311,7 @@ msgstr "Page d'accueil de l'élection"
 
 #: src/web/clients/election/home.ml:57
 msgid "Election identifier"
-msgstr ""
+msgstr "Identifiant de l'élection"
 
 #: src/web/common/pages_common.ml:141 src/web/common/pages_common.ml:132
 msgid "Election server"
@@ -749,7 +749,7 @@ msgstr "Vous souhaitez aider avec les traductions ?"
 
 #: src/web/clients/election/advanced.ml:244
 msgid "You are about to submit a ballot with smart ballot tracker %s."
-msgstr ""
+msgstr "Vous êtes sur le point de soumettre un bulletin avec numéro de suivi %s."
 
 #: src/web/server/common/mails_voter.ml:183
 #. src/web/server/common/mails_voter.ml:82
@@ -903,7 +903,7 @@ msgstr "l'élection est fermée"
 
 #: src/web/common/confirmation.ml:39
 msgid "the server responded unexpectedly"
-msgstr ""
+msgstr "le serveur a répondu de façon inattendue"
 
 #: src/web/common/confirmation.ml:36
 msgid "this ballot has already been accepted"

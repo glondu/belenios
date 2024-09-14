@@ -1244,7 +1244,7 @@ msgstr "Préparation : "
 
 #: src/web/clients/admin/elections.ml:932
 msgid "Show only missing voters"
-msgstr ""
+msgstr "N'afficher que les électeurs manquants"
 
 #: src/web/clients/trustee/shuffle.ml:166
 msgid "Shuffle"
