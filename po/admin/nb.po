@@ -35,7 +35,7 @@ msgstr " og lagre det på en sikker plass."
 msgid " and save the file to a secure location."
 msgstr " og lagre filen på en sikker plass."
 
-#: src/web/clients/admin/elections.ml:1297
+#: src/web/clients/admin/elections.ml:1323
 msgid " and save them in a secure location."
 msgstr ""
 
@@ -65,7 +65,7 @@ msgstr ""
 msgid " in the following box: "
 msgstr " i følgende stemmeurne: "
 
-#: src/web/clients/admin/elections.ml:919 src/web/clients/admin/elections.ml:916
+#: src/web/clients/admin/elections.ml:945 src/web/clients/admin/elections.ml:942
 msgid " in txt format."
 msgstr ""
 
@@ -122,7 +122,7 @@ msgstr ""
 msgid "6. Click on \"Submit the public credentials\"."
 msgstr "6. Klikk på «Send inn offentlige identitetsdetaljer»."
 
-#: src/web/clients/admin/elections.ml:1518
+#: src/web/clients/admin/elections.ml:1544
 msgid "A new password has been mailed to %s."
 msgstr "Et nytt passord har blitt sendt til %s per e-post."
 
@@ -142,7 +142,7 @@ msgstr "Fant ikke kontoen"
 msgid "Account settings"
 msgstr "Kontoinnstillinger"
 
-#: src/web/clients/admin/elections.ml:749
+#: src/web/clients/admin/elections.ml:753
 msgid "Add"
 msgstr "Legg til"
 
@@ -192,7 +192,7 @@ msgstr ""
 msgid "An error occurred while submitting credentials!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:853
+#: src/web/clients/admin/elections.ml:857
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 "En identitet er enten \"adresse\" eller \"adresse,brukernavn\" eller "
@@ -233,11 +233,11 @@ msgstr "Som betrodd, er din første rolle å stokke de krypterte stemmesedlene."
 msgid "Authentication methods:"
 msgstr "Metoder for bekreftelse av identitet:"
 
-#: src/web/clients/admin/elections.ml:1649
+#: src/web/clients/admin/elections.ml:1675
 msgid "Automatic cleaning"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:936
+#: src/web/clients/admin/elections.ml:962
 msgid "Automatic dates"
 msgstr ""
 
@@ -251,11 +251,11 @@ msgstr "Nedenfor vil du finne en lenke til å stokke de krypterte stemmene."
 msgid "Best regards,"
 msgstr "Hilsen,"
 
-#: src/web/clients/admin/elections.ml:1206
+#: src/web/clients/admin/elections.ml:1232
 msgid "By a third-party of your choice"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1165
+#: src/web/clients/admin/elections.ml:1191
 msgid "By our server (not ideal for decentralized security)"
 msgstr ""
 
@@ -263,7 +263,7 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1430
+#: src/web/clients/admin/elections.ml:1456
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
 "CAS (ekstern tjener for bekreftelse av identitet, gir bedre "
@@ -305,16 +305,16 @@ msgstr "Klikk på «Send inn» for å sende din bekreftelsesnøkkel."
 msgid "Click on the link."
 msgstr "Klikk på lenken."
 
-#: src/web/clients/admin/elections.ml:1601
+#: src/web/clients/admin/elections.ml:1627
 #. src/web/clients/common/secondary_ui.ml:101
 msgid "Close"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:992
+#: src/web/clients/admin/elections.ml:1018
 msgid "Close: "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1031
+#: src/web/clients/admin/elections.ml:1057
 msgid "Code"
 msgstr ""
 
@@ -342,7 +342,7 @@ msgstr "Dato for samtykke:"
 msgid "Contact"
 msgstr "Kontakt"
 
-#: src/web/clients/admin/elections.ml:1087
+#: src/web/clients/admin/elections.ml:1113
 msgid "Contact:"
 msgstr "Kontakt:"
 
@@ -354,7 +354,7 @@ msgstr ""
 msgid "Could not get trustee parameters for this election!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1556
+#: src/web/clients/admin/elections.ml:1582
 msgid "Create"
 msgstr ""
 
@@ -393,7 +393,7 @@ msgstr ""
 msgid "Credential generation"
 msgstr "Generering av identitetsdetaljer"
 
-#: src/web/clients/admin/elections.ml:1315
+#: src/web/clients/admin/elections.ml:1341
 msgid "Credentials are being generated on the server."
 msgstr ""
 
@@ -401,11 +401,11 @@ msgstr ""
 msgid "Credentials have been received and checked!"
 msgstr "Identitetsdetaljer har blitt mottatt og sjekket!"
 
-#: src/web/clients/admin/elections.ml:1306
+#: src/web/clients/admin/elections.ml:1332
 msgid "Credentials have been received from the external credential authority."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:905
+#: src/web/clients/admin/elections.ml:909
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr ""
 
@@ -445,11 +445,11 @@ msgstr "Kjære betrodde,"
 msgid "Decryption trustees"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1498
+#: src/web/clients/admin/elections.ml:1524
 msgid "Default mode:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:738
+#: src/web/clients/admin/elections.ml:742
 msgid "Delete all"
 msgstr ""
 
@@ -485,7 +485,7 @@ msgstr ""
 "Last ned din private nøkkel. Du må LAGRE DEN for å kunne telle opp "
 "avstemmingen, ellers vil den bli kansellert."
 
-#: src/web/clients/admin/elections.ml:1452
+#: src/web/clients/admin/elections.ml:1478
 msgid "Dummy auth (should not be used in production): "
 msgstr ""
 
@@ -507,15 +507,15 @@ msgstr ""
 msgid "Election ID:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1602
+#: src/web/clients/admin/elections.ml:1628
 msgid "Election is currently closed"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1601
+#: src/web/clients/admin/elections.ml:1627
 msgid "Election is currently open"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1681 src/web/clients/admin/elections.ml:314
+#: src/web/clients/admin/elections.ml:1707 src/web/clients/admin/elections.ml:314
 msgid "Election main page"
 msgstr ""
 
@@ -526,7 +526,7 @@ msgstr ""
 msgid "Election server"
 msgstr "Valg-tjener"
 
-#: src/web/clients/admin/elections.ml:1665
+#: src/web/clients/admin/elections.ml:1691
 msgid "Election status"
 msgstr ""
 
@@ -548,7 +548,7 @@ msgstr ""
 "Skriv inn din private dekrypteringsnøkkel i den første boksen og klikk på "
 "\"Generer ditt bidrag til dekryptering\"."
 
-#: src/web/clients/admin/elections.ml:980
+#: src/web/clients/admin/elections.ml:1006
 msgid "Erase"
 msgstr ""
 
@@ -569,7 +569,7 @@ msgstr "Feil i format på privat nøkkel: %s"
 msgid "Error while loading election parameters!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1353
+#: src/web/clients/admin/elections.ml:1379
 msgid "Error while retrieving server configuration: %s"
 msgstr ""
 
@@ -590,7 +590,7 @@ msgstr ""
 msgid "Failed to connect; please reload"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1525
+#: src/web/clients/admin/elections.ml:1551
 msgid "Failure, probably because of an error in the username: %s."
 msgstr ""
 
@@ -622,7 +622,7 @@ msgstr "Generer"
 msgid "Generate a key"
 msgstr "Generer en nøkkel"
 
-#: src/web/clients/admin/elections.ml:1168
+#: src/web/clients/admin/elections.ml:1194
 msgid "Generate and send the credentials"
 msgstr ""
 
@@ -638,7 +638,7 @@ msgstr ""
 msgid "Go back to election"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1686
+#: src/web/clients/admin/elections.ml:1712
 msgid "Go see the result on the election main page!"
 msgstr ""
 
@@ -654,7 +654,7 @@ msgstr "Her er instruksjonene:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Her er lenken for å fortsette opptelling:"
 
-#: src/web/clients/admin/elections.ml:1251
+#: src/web/clients/admin/elections.ml:1277
 msgid "Here is the link to send to the authority:"
 msgstr ""
 
@@ -666,7 +666,7 @@ msgstr ""
 msgid "ID: "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:695
+#: src/web/clients/admin/elections.ml:697
 msgid "Identity"
 msgstr "Identitet"
 
@@ -687,11 +687,11 @@ msgstr "Utgi deg for å være en bruker"
 msgid "Import trustees from another election"
 msgstr "Importer betrodde fra et annet valg"
 
-#: src/web/clients/admin/elections.ml:870
+#: src/web/clients/admin/elections.ml:874
 msgid "Import voters "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:974
+#: src/web/clients/admin/elections.ml:1000
 msgid "In 5 minutes"
 msgstr ""
 
@@ -731,7 +731,7 @@ msgstr ""
 msgid "It is now time to compute your partial decryption factors."
 msgstr "Det er nå på tide å beregne dine delvise dekrypteringsfaktorer."
 
-#: src/web/clients/admin/elections.ml:1031
+#: src/web/clients/admin/elections.ml:1057
 msgid "Language"
 msgstr "Språk"
 
@@ -747,7 +747,7 @@ msgstr ""
 msgid "Languages"
 msgstr "Språk"
 
-#: src/web/clients/admin/elections.ml:1037
+#: src/web/clients/admin/elections.ml:1063
 msgid "Languages:"
 msgstr "Språk:"
 
@@ -768,7 +768,7 @@ msgstr "Lenke til omstokking av krypterte stemmer"
 msgid "Link to tally the election"
 msgstr "Lenke til opptelling av avstemmingen"
 
-#: src/web/clients/admin/elections.ml:919 src/web/clients/admin/elections.ml:916
+#: src/web/clients/admin/elections.ml:945 src/web/clients/admin/elections.ml:942
 msgid "Link to the "
 msgstr ""
 
@@ -776,7 +776,7 @@ msgstr ""
 msgid "List name:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1053
+#: src/web/clients/admin/elections.ml:1079
 msgid "List of available languages, with their code:"
 msgstr ""
 
@@ -801,11 +801,11 @@ msgstr "Logg inn:"
 msgid "Log out"
 msgstr "Logg ut"
 
-#: src/web/clients/admin/elections.ml:694
+#: src/web/clients/admin/elections.ml:698
 msgid "Login"
 msgstr ""
 
-#: src/web/clients/admin/preview.ml:76
+#: src/web/clients/admin/preview.ml:74
 msgid "Main election page will open in a new tab."
 msgstr ""
 
@@ -813,7 +813,7 @@ msgstr ""
 msgid "Management"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1332
+#: src/web/clients/admin/elections.ml:1358
 msgid "Management of credentials:"
 msgstr ""
 
@@ -853,7 +853,7 @@ msgstr ""
 msgid "My running elections"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1218
+#: src/web/clients/admin/elections.ml:1244
 msgid "Name of the credential authority"
 msgstr ""
 
@@ -898,7 +898,7 @@ msgstr ""
 msgid "Nobody voted!"
 msgstr "Ingen stemte!"
 
-#: src/web/clients/admin/elections.ml:940
+#: src/web/clients/admin/elections.ml:966
 msgid "Not (yet) available for draft elections"
 msgstr ""
 
@@ -914,7 +914,7 @@ msgstr ""
 "Alle de betrodde har generert sin hemmelige del av nøkkelen. Fortsett til de "
 "siste kontrollene slik at valget kan valideres."
 
-#: src/web/clients/admin/elections.ml:1317
+#: src/web/clients/admin/elections.ml:1343
 msgid "Number of credentials left: %d."
 msgstr ""
 
@@ -954,7 +954,7 @@ msgstr ""
 "Når valget er åpent, må du sjekke at de stemmer overens med det som er "
 "publisert av tjeneren."
 
-#: src/web/clients/admin/elections.ml:1602
+#: src/web/clients/admin/elections.ml:1628
 msgid "Open"
 msgstr ""
 
@@ -962,11 +962,11 @@ msgstr ""
 msgid "Open / Close"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:987
+#: src/web/clients/admin/elections.ml:1013
 msgid "Open: "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1500
+#: src/web/clients/admin/elections.ml:1526
 msgid "Other authentication modes:"
 msgstr ""
 
@@ -978,11 +978,11 @@ msgstr "Delvis dekryptering"
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1469
+#: src/web/clients/admin/elections.ml:1495
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1387
+#: src/web/clients/admin/elections.ml:1413
 msgid "Password sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
 
@@ -994,7 +994,7 @@ msgstr "Velg et passord: "
 msgid "Please choose a username: "
 msgstr "Velg et brukernavn: "
 
-#: src/web/clients/admin/elections.ml:1295
+#: src/web/clients/admin/elections.ml:1321
 msgid "Please download "
 msgstr ""
 
@@ -1007,7 +1007,7 @@ msgstr "Skriv inn "
 msgid "Please enter the code here:"
 msgstr "Skriv inn koden her:"
 
-#: src/web/clients/admin/elections.ml:837
+#: src/web/clients/admin/elections.ml:841
 msgid "Please enter the identities of voters to add, one per line (max %s)."
 msgstr ""
 
@@ -1015,7 +1015,7 @@ msgstr ""
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Skriv inn verifikasjonskoden du har mottatt på e-post:"
 
-#: src/web/clients/admin/elections.ml:1343
+#: src/web/clients/admin/elections.ml:1369
 msgid "Please fill-in the voter list first."
 msgstr ""
 
@@ -1027,7 +1027,7 @@ msgstr ""
 msgid "Please provide one:"
 msgstr "Oppgi en:"
 
-#: src/web/clients/admin/elections.ml:1400
+#: src/web/clients/admin/elections.ml:1426
 msgid "Please select password authentication first"
 msgstr ""
 
@@ -1059,7 +1059,7 @@ msgstr ""
 msgid "Preview voter's interface"
 msgstr ""
 
-#: src/web/clients/admin/preview.ml:50
+#: src/web/clients/admin/preview.ml:48
 msgid "Preview will open in a new tab"
 msgstr ""
 
@@ -1097,15 +1097,15 @@ msgstr ""
 msgid "Public key registration succeeded!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1100
+#: src/web/clients/admin/elections.ml:1126
 msgid "Public name of the administrator:"
 msgstr "Offentlig navn på administrator"
 
-#: src/web/clients/admin/elections.ml:1093
+#: src/web/clients/admin/elections.ml:1119
 msgid "Public name of the administrator: "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:997
+#: src/web/clients/admin/elections.ml:1023
 msgid "Publish: "
 msgstr ""
 
@@ -1125,7 +1125,7 @@ msgstr "Spørsmål"
 msgid "Questions (non editable):"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1586
+#: src/web/clients/admin/elections.ml:1612
 msgid "Ready to create:"
 msgstr ""
 
@@ -1143,7 +1143,7 @@ msgstr ""
 msgid "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it in a secure location (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1538
+#: src/web/clients/admin/elections.ml:1564
 msgid "Regenerate and e-mail a password"
 msgstr "Regenerere og sende et passord via e-post"
 
@@ -1159,7 +1159,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1696 src/web/clients/admin/elections.ml:313
+#: src/web/clients/admin/elections.ml:1722 src/web/clients/admin/elections.ml:313
 msgid "Results page"
 msgstr ""
 
@@ -1202,12 +1202,16 @@ msgstr "Velg denne betrodde"
 msgid "Selecting CAS authentication requires setting a valid CAS server"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1394
+#: src/web/clients/admin/elections.ml:1420
 msgid "Send passwords to voters"
 msgstr ""
 
 #: src/web/clients/admin/elections.ml:585 src/web/clients/admin/admin.ml:61
 msgid "Setup: "
+msgstr ""
+
+#: src/web/clients/admin/elections.ml:932
+msgid "Show only missing voters"
 msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:166
@@ -1226,7 +1230,7 @@ msgstr "Hopp over"
 msgid "Skip all remaining trustees"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1022
+#: src/web/clients/admin/elections.ml:1048
 msgid "Some language in the list is not available"
 msgstr ""
 
@@ -1249,7 +1253,7 @@ msgid "Step %d/3"
 msgstr "Steg %d/3"
 
 #: src/web/clients/trustee/shuffle.ml:146 src/web/clients/trustee/decrypt.ml:115
-#. src/web/clients/admin/elections.ml:1510
+#. src/web/clients/admin/elections.ml:1536
 #. src/web/server/common/pages_admin.ml:573
 #. src/web/server/common/pages_admin.ml:440
 #. src/web/server/common/pages_admin.ml:384
@@ -1321,7 +1325,7 @@ msgstr "Kontoopprettelsen "
 msgid "The account has been created."
 msgstr "Konto opprettet."
 
-#: src/web/clients/admin/elections.ml:1703
+#: src/web/clients/admin/elections.ml:1729
 msgid "The archive can be downloaded at: "
 msgstr ""
 
@@ -1397,7 +1401,7 @@ msgstr ""
 msgid "The shuffle has been successfully applied!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1674
+#: src/web/clients/admin/elections.ml:1700
 msgid "The tally for this election has started."
 msgstr ""
 
@@ -1423,7 +1427,7 @@ msgstr "Det er tre steg."
 msgid "This account does not exist"
 msgstr "Denne kontoen eksisterer ikke"
 
-#: src/web/clients/admin/elections.ml:1090
+#: src/web/clients/admin/elections.ml:1116
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
 
@@ -1431,35 +1435,35 @@ msgstr ""
 msgid "This e-mail address is invalid!"
 msgstr "Denne e-postadressen er ugyldig!"
 
-#: src/web/clients/admin/elections.ml:943
+#: src/web/clients/admin/elections.ml:969
 msgid "This election can no longer be opened."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1685
+#: src/web/clients/admin/elections.ml:1711
 msgid "This election has been tallied"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1668
+#: src/web/clients/admin/elections.ml:1694
 msgid "This election is a draft."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1700
+#: src/web/clients/admin/elections.ml:1726
 msgid "This election is archived"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1678
+#: src/web/clients/admin/elections.ml:1704
 msgid "This election is in shuffling phase."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1670
+#: src/web/clients/admin/elections.ml:1696
 msgid "This election is running."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1642
+#: src/web/clients/admin/elections.ml:1668
 msgid "This election will be automatically archived after %s."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1656
+#: src/web/clients/admin/elections.ml:1682
 msgid "This election will be automatically deleted after %s."
 msgstr ""
 
@@ -1467,7 +1471,7 @@ msgstr ""
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1044
+#: src/web/clients/admin/elections.ml:1070
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
 
@@ -1479,11 +1483,11 @@ msgstr ""
 msgid "This list must be the one approved by the election commission."
 msgstr "Denne listen må være den som er godkjent av valgkommisjonen."
 
-#: src/web/clients/admin/elections.ml:1095
+#: src/web/clients/admin/elections.ml:1121
 msgid "This name will be published on the election result page."
 msgstr "Dette navnet vil bli publisert på valgresultatsiden."
 
-#: src/web/clients/admin/elections.ml:1346
+#: src/web/clients/admin/elections.ml:1372
 msgid "This task is completed. Passwords have been sent."
 msgstr ""
 
@@ -1573,7 +1577,7 @@ msgstr ""
 msgid "Type the password again: "
 msgstr "Skriv inn passordet igjen: "
 
-#: src/web/clients/admin/elections.ml:1532
+#: src/web/clients/admin/elections.ml:1558
 msgid "Unexpected failure with code %d."
 msgstr ""
 
@@ -1581,7 +1585,7 @@ msgstr ""
 msgid "Unknown uuid"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:782
+#: src/web/clients/admin/elections.ml:786
 msgid "Upload voter file"
 msgstr ""
 
@@ -1589,24 +1593,24 @@ msgstr ""
 msgid "Username"
 msgstr "Brukernavn"
 
-#: src/web/clients/admin/elections.ml:1539
+#: src/web/clients/admin/elections.ml:1565
 msgid "Username:"
 msgstr "Brukernavn:"
 
-#: src/web/clients/admin/elections.ml:899 src/web/clients/admin/elections.ml:194
+#: src/web/clients/admin/elections.ml:903 src/web/clients/admin/elections.ml:194
 msgid "Voter list"
 msgstr "Valgliste"
 
-#: src/web/clients/admin/elections.ml:799
+#: src/web/clients/admin/elections.ml:803
 msgid "Voter list (not editable):"
 msgstr ""
 
 #: src/web/clients/credauth/generate.ml:187
-#. src/web/clients/admin/elections.ml:800
+#. src/web/clients/admin/elections.ml:804
 msgid "Voter list:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:911
+#: src/web/clients/admin/elections.ml:937
 msgid "Voter list (not editable):"
 msgstr ""
 
@@ -1614,12 +1618,12 @@ msgstr ""
 msgid "Voter's authentication"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1504
-#. src/web/clients/admin/elections.ml:1358
+#: src/web/clients/admin/elections.ml:1530
+#. src/web/clients/admin/elections.ml:1384
 msgid "Voter's authentication:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:894
+#: src/web/clients/admin/elections.ml:898
 msgid "Voting records"
 msgstr "Stemmeposter"
 
@@ -1634,7 +1638,7 @@ msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
 "Venter på de andre betrodde ... Last siden på nytt for å sjekke fremdriften."
 
-#: src/web/clients/admin/elections.ml:739
+#: src/web/clients/admin/elections.ml:743
 msgid "Warning, this action is irreversible"
 msgstr ""
 
@@ -1642,7 +1646,7 @@ msgstr ""
 msgid "Warning, this will delete the current list of trustees"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:805
+#: src/web/clients/admin/elections.ml:809
 msgid "Warning:"
 msgstr "Advarsel:"
 
@@ -1654,13 +1658,13 @@ msgstr ""
 "Advarsel: Denne koden er gyldig i et kvarter, og koder tidligere sendt til "
 "denne adressen er ikke lenger gyldige."
 
-#: src/web/clients/admin/elections.ml:1587
+#: src/web/clients/admin/elections.ml:1613
 msgid "Warning: this is irreversible!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1405
-#. src/web/clients/admin/elections.ml:1260
-#. src/web/clients/admin/elections.ml:1181
+#: src/web/clients/admin/elections.ml:1431
+#. src/web/clients/admin/elections.ml:1286
+#. src/web/clients/admin/elections.ml:1207
 msgid "Warning: this will freeze the voter list!"
 msgstr "Advarsel: Dette vil fryse valglisten!"
 
@@ -1668,7 +1672,7 @@ msgstr "Advarsel: Dette vil fryse valglisten!"
 msgid "We suggest two options:"
 msgstr "Vi foreslår to alternativer:"
 
-#: src/web/clients/admin/elections.ml:693
+#: src/web/clients/admin/elections.ml:699
 msgid "Weight"
 msgstr ""
 
@@ -1750,7 +1754,7 @@ msgstr "Du vil bruke den til å dekryptere sluttresultatet."
 msgid "You will use it to send credentials to voters."
 msgstr "Du vil bruke den til å sende identitetsdetaljer til velgerne."
 
-#: src/web/clients/admin/elections.ml:814
+#: src/web/clients/admin/elections.ml:818
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
 
@@ -1817,7 +1821,7 @@ msgstr "kontakte oss"
 msgid "done"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:726
+#: src/web/clients/admin/elections.ml:730
 msgid "empty list"
 msgstr ""
 
@@ -1826,11 +1830,11 @@ msgstr ""
 msgid "failed"
 msgstr "mislyktes"
 
-#: src/web/clients/admin/elections.ml:876
+#: src/web/clients/admin/elections.ml:880
 msgid "from a file: "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:760
+#: src/web/clients/admin/elections.ml:764
 msgid "from another election"
 msgstr ""
 
@@ -1916,7 +1920,7 @@ msgstr "passordet er for svakt (%s)"
 msgid "the password starts or ends with a space"
 msgstr "passordet starter eller slutter med et mellomrom"
 
-#: src/web/clients/admin/elections.ml:1281
+#: src/web/clients/admin/elections.ml:1307
 msgid "the private parts of the credentials"
 msgstr ""
 
@@ -1941,11 +1945,11 @@ msgstr "det finnes allerede en konto med denne e-postadressen"
 msgid "there is an error in the database"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:730
+#: src/web/clients/admin/elections.ml:734
 msgid "typical use"
 msgstr "typisk bruk"
 
-#: src/web/clients/admin/elections.ml:692
+#: src/web/clients/admin/elections.ml:700
 msgid "voted?"
 msgstr ""
 
@@ -1953,11 +1957,11 @@ msgstr ""
 msgid "voter list"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:732
+#: src/web/clients/admin/elections.ml:736
 msgid "when a login is needed, e.g. CAS"
 msgstr "når en pålogging er nødvendig, f.eks. CAS"
 
-#: src/web/clients/admin/elections.ml:734
+#: src/web/clients/admin/elections.ml:738
 msgid "when some voters have several votes"
 msgstr "når noen velgere har flere stemmer"
 
@@ -1965,7 +1969,7 @@ msgstr "når noen velgere har flere stemmer"
 msgid "yes"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:808
+#: src/web/clients/admin/elections.ml:812
 msgid "you have to make sure that the e-mail addresses are valid."
 msgstr ""
 
