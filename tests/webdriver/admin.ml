@@ -249,9 +249,9 @@ module Make (Config : CONFIG) = struct
     let* () = session#fill_with ~selector:"#add_trustee_popup #inp2" name in
     session#click_on ~selector:"#add_trustee_popup button:nth-child(2)"
 
-  let collect_trustee_links nth session =
+  let collect_links_by_className className session =
     let* elements =
-      let selector = Printf.sprintf "#main_zone td:nth-child(%d) > a" nth in
+      let selector = Printf.sprintf ".%s" className in
       session#get_elements ~selector
     in
     let* x =
@@ -292,7 +292,7 @@ module Make (Config : CONFIG) = struct
     | [] ->
         let* () = session#accept in
         Lwt.return_nil
-    | _ -> collect_trustee_links 3 session
+    | _ -> collect_links_by_className "trustee-generate-link" session
 
   let set_credentials session nvoters =
     Printf.printf "    Setting credentials...\n%!";
@@ -508,7 +508,7 @@ module Make (Config : CONFIG) = struct
       let* links =
         match private_keys with
         | [] -> Lwt.return_nil
-        | _ -> collect_trustee_links 2 session
+        | _ -> collect_links_by_className "trustee-decrypt-link" session
       in
       let* () = logout session in
       Lwt.return links
