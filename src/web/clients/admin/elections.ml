@@ -1401,10 +1401,10 @@ let voterspwd_content_draft () =
         in
         let set_onchange e get =
           let e = Tyxml_js.To_dom.of_input e in
-          let draft_authentication = get () in
           e##.onchange :=
             lwt_handler (fun _ ->
                 let* () = send_draft_request `SetVoterAuthenticationVisited in
+                let draft_authentication = get () in
                 Cache.set Cache.draft
                   (Draft (v, { draft with draft_authentication }));
                 !update_election_main ())
