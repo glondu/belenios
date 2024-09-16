@@ -1465,7 +1465,9 @@ let voterspwd_content_draft () =
                          ()
                      in
                      let inp2, get2 =
-                       input ~a:[ a_placeholder "https://cas.inria.fr" ] casname
+                       input
+                         ~a:[ a_placeholder "https://cas.inria.fr/cas" ]
+                         casname
                      in
                      let get () = `CAS (get2 ()) in
                      set_onchange inp get;
