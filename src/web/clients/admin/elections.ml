@@ -771,7 +771,9 @@ let voters_content () =
             let* () =
               let@ uuid = popup_choose_elec in
               let r = `Import uuid in
-              let* x = Api.(post ~ifmatch (draft_voters uuid) !user r) in
+              let* x =
+                Api.(post ~ifmatch (draft_voters (get_current_uuid ())) !user r)
+              in
               if x.code <> 200 then
                 Printf.ksprintf alert "Failed with error code %d" x.code;
               Cache.invalidate Cache.voters;
