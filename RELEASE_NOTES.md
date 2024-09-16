@@ -8,6 +8,8 @@
    + in `<auth>` children, values of `db` and `allowlist` attributes
      must be mapped to explicit files in the `<storage>` element
    + `<gdpr>` has been renamed to `<tos>`
+   + Replace `<prefix>` and `<rewrite-prefix>` by a single
+     `<public-url>` tag
 
 2.5.1
 =====

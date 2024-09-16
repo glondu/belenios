@@ -1,14 +1,16 @@
-dev
-===
+3.0~dev
+=======
 
  * Specification:
    + Add support for "lists" questions
    + Add signature to `trustee_public_key` in threshold mode
+   + Embed the specification in squashfs images
  * Command-line tool:
    + Use unverified_ballots when computing encrypted tally, voters and
      summary
    + Use encrypted tally from archive when computing decryption and
      result
+   + Use cohttp (instead of curl) for downloading election files
  * Web server:
    + Randomize account ids
    + Big refactoring of storage backend
@@ -16,15 +18,18 @@ dev
    + Election home page:
      - Revamp
      - Show only the public key of threshold trustees
+     - Turn it into a SPA
+     - Incorporate ballot box browsing and advanced mode
    + Booth:
      - Offer smart ballot tracker for download
+     - Turn it into a SPA
+     - Change in authentication workflow
+   + Avoid credential being saved in browser history
    + New admin UI:
-     - Add possibility to regenerate a password
-     - Use generic footer and show warning banner if any
-     - Fix automatic date handling
-     - Add checkpriv link to trustees tab
-     - Add "Status" tab
+     - Many bugfixes and improvements to bring it in line with the
+       classical admin UI
      - Add tests and continuous integration
+   + Remove classical admin UI
    + Convert the trustee UIs (key generation, key check, partial
      decryption and shuffle) to a single page application (SPA)
    + Convert the credential authority UIs (credential generation) to a
@@ -34,13 +39,16 @@ dev
      - Move "postpone" date to automatic dates and name it "publish"
        date
      - Many changes in endpoints to support SPAs
-   + Tests:
+   + Tests and continuous integration:
      - Add automatic tests of the new admin UI
      - Add support for NH question and optional validation in scaling
+     - Add automatic test of monitoring
    + Configuration:
      - Drop support for specifying groups by file
      - Remove (unused) security log
      - Add configurable vendor name
+     - Replace `<prefix>` and `<rewrite-prefix>` by a single
+       `<public-url>` tag
    + Documention:
      - Nspawn: do not drop capabilities needed by logrotate
      - Reverse-proxy: add a note about samesite=strict cookies
