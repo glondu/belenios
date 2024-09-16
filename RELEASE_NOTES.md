@@ -1,4 +1,4 @@
-2.6
+3.0
 ===
 
  * Changes in configuration file:

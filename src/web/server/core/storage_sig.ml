@@ -62,7 +62,7 @@ type admin_password_file = Username of string | Address of string
 
 type file =
   | Spool_version
-  | Account_counter (* obsolete as of 2.6 *)
+  | Account_counter (* obsolete as of 3.0 *)
   | Account of int
   | Election of uuid * election_file
   | Auth_db of string
