@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.5.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2024-09-11 12:09+0000\n"
+"PO-Revision-Date: 2024-09-17 03:33+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -375,7 +375,7 @@ msgstr "Crear nuevas elecciones"
 #. src/web/server/common/site_admin.ml:305
 #. src/web/server/common/pages_admin.ml:612
 msgid "Create account"
-msgstr "Crear una cuenta"
+msgstr "Crear cuenta"
 
 #: src/web/server/common/pages_admin.ml:389
 #. src/web/server/common/pages_admin.ml:280
@@ -1254,7 +1254,7 @@ msgstr "Configuración: "
 
 #: src/web/clients/admin/elections.ml:934
 msgid "Show only missing voters"
-msgstr ""
+msgstr "Mostrar solo los votantes que faltan"
 
 #: src/web/clients/trustee/shuffle.ml:166
 msgid "Shuffle"
@@ -1609,12 +1609,12 @@ msgstr "Correo electrónico del administrador "
 
 #: src/web/clients/admin/trustees_tab.ml:442
 msgid "Trustee's name"
-msgstr "Nombre del administrador"
+msgstr "Nombre del fideicomisario"
 
 #: src/web/clients/admin/trustees_tab.ml:319
 #. src/web/clients/admin/trustees_tab.ml:102
 msgid "Trustee's public name"
-msgstr "Nombre del administrador"
+msgstr "Nombre público del administrador"
 
 #: src/web/clients/admin/trustees_tab.ml:135
 msgid "Trustee's public name "

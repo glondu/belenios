@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: belenios 2.5.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2024-09-11 12:09+0000\n"
+"PO-Revision-Date: 2024-09-17 03:33+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -303,7 +303,7 @@ msgstr "Dirección de correo electrónico:"
 
 #: src/web/clients/election/home.ml:62
 msgid "Election fingerprint"
-msgstr ""
+msgstr "Huella digital electoral"
 
 #: src/web/clients/election/main.ml:36
 msgid "Election home"
@@ -311,7 +311,7 @@ msgstr "Página principal de la elección"
 
 #: src/web/clients/election/home.ml:57
 msgid "Election identifier"
-msgstr ""
+msgstr "Identificador electoral"
 
 #: src/web/common/pages_common.ml:141 src/web/common/pages_common.ml:132
 msgid "Election server"
@@ -748,6 +748,8 @@ msgstr "¿Quieres ayudar con las traducciones?"
 #: src/web/clients/election/advanced.ml:244
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
+"Está a punto de enviar una papeleta con el rastreador inteligente de "
+"papeletas %s."
 
 #: src/web/server/common/mails_voter.ml:183
 #. src/web/server/common/mails_voter.ml:82
@@ -900,7 +902,7 @@ msgstr "la elección está cerrada"
 
 #: src/web/common/confirmation.ml:39
 msgid "the server responded unexpectedly"
-msgstr ""
+msgstr "el servidor respondió inesperadamente"
 
 #: src/web/common/confirmation.ml:36
 msgid "this ballot has already been accepted"
