@@ -204,7 +204,7 @@ DEB_RUNTIME="$(dcmd --deb "$CHANGES" | grep '/belenios-opam-runtime_')"
 DEB_SERVER="$(dcmd --deb *.changes | grep '^belenios-server_')"
 
 TMP2="$(mktemp --tmpdir=/tmp --directory tmp.belenios.XXXXXXXXXX)"
-trap "rm -rf $TMP2" EXIT
+trap "rm -rf $TMP $TMP2" EXIT
 
 chmod a+rx "$TMP2"
 cp "$DEB_RUNTIME" "$TMP2"
