@@ -75,7 +75,7 @@ msgstr " est refusé, parce que "
 
 #: src/web/clients/admin/elections.ml:1285
 msgid " or send them manually this link:"
-msgstr ""
+msgstr " ou envoyez-lui manuellement ce lien :"
 
 #: src/web/server/common/pages_admin.ml:294
 msgid " or username: "
@@ -505,7 +505,7 @@ msgstr "Authentification faible (ne doit pas être utilisée en production) : "
 #. src/web/clients/admin/trustees_tab.ml:410
 #. src/web/clients/admin/trustees_tab.ml:390
 msgid "E-mail"
-msgstr ""
+msgstr "Courriel"
 
 #: src/web/server/common/pages_admin.ml:546
 #. src/web/server/common/pages_admin.ml:291
@@ -770,7 +770,7 @@ msgstr "Langues :"
 #. src/web/clients/admin/trustees_tab.ml:408
 #. src/web/clients/admin/trustees_tab.ml:388
 msgid "Link"
-msgstr ""
+msgstr "Lien"
 
 #: src/web/common/mails_admin.ml:265 src/web/common/mails_admin.ml:181
 msgid "Link to generate the decryption key"
@@ -1248,7 +1248,7 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:1284
 msgid "Send an e-mail to the credential authority"
-msgstr ""
+msgstr "Envoyer un courriel à l'autorité de codes de vote"
 
 #: src/web/clients/admin/elections.ml:1428
 msgid "Send passwords to voters"
