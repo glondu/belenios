@@ -22,29 +22,17 @@
 open Lwt.Syntax
 open Belenios
 
-let print_endline2 (a, b) =
-  print_endline a;
-  print_endline b
+let printl1 x =
+  let* x = x in
+  Lwt_io.printl x
 
-let lines_of_stdin () =
-  let rec loop accu =
-    match input_line stdin with
-    | line -> loop (line :: accu)
-    | exception End_of_file -> List.rev accu
-  in
-  loop []
+let printl2 x =
+  let* a, b = x in
+  let* () = Lwt_io.printl a in
+  Lwt_io.printl b
 
-let chars_of_stdin () =
-  let buf = Buffer.create 1024 in
-  let rec loop () =
-    match input_char stdin with
-    | c ->
-        Buffer.add_char buf c;
-        loop ()
-    | exception End_of_file -> ()
-  in
-  loop ();
-  Buffer.contents buf
+let lines_of_stdin () = Lwt_io.(read_lines stdin) |> Lwt_stream.to_list
+let chars_of_stdin () = Lwt_io.(read stdin)
 
 let download dir url uuid =
   let url = if String.ends_with ~suffix:"/" url then url else url ^ "/" in
@@ -65,11 +53,6 @@ let download dir url uuid =
       Lwt.return_some file
   | _ -> Lwt.return_none
 
-let rm_rf dir =
-  let files = Sys.readdir dir in
-  Array.iter (fun f -> Unix.unlink (dir // f)) files;
-  Unix.rmdir dir
-
 exception Cmdline_error of string
 
 let failcmd fmt = Printf.ksprintf (fun x -> raise (Cmdline_error x)) fmt
@@ -89,40 +72,35 @@ let key_value_list_of_json = function
   | json ->
       failcmd "%s is not a proper JSON object" (Yojson.Safe.to_string json)
 
-let lines_of_file fname =
-  let ic = open_in fname in
-  let rec loop accu =
-    match input_line ic with
-    | line -> loop (line :: accu)
-    | exception End_of_file ->
-        close_in ic;
-        List.rev accu
-  in
-  loop []
+let lines_of_file fname = Lwt_io.lines_of_file fname |> Lwt_stream.to_list
 
-let string_of_file f = lines_of_file f |> String.concat "\n"
+let string_of_file f =
+  let open Lwt_io in
+  let@ ic = with_file ~mode:Input f in
+  let* contents = read ic in
+  Lwt.return @@ String.trim contents
 
 let load_from_file of_string filename =
-  if Sys.file_exists filename then (
-    Printf.eprintf "I: loading %s...\n%!" (Filename.basename filename);
-    Some (lines_of_file filename |> List.rev_map of_string))
-  else None
+  let* b = Lwt_unix.file_exists filename in
+  if b then
+    let* () = Lwt_io.eprintlf "I: loading %s..." (Filename.basename filename) in
+    let* lines = lines_of_file filename in
+    Lwt.return_some @@ List.map of_string lines
+  else Lwt.return_none
 
 let find_bel_in_dir ?uuid dir =
   match uuid with
-  | Some uuid -> Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
+  | Some uuid -> Lwt.return @@ Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
   | None -> (
-      match
-        Sys.readdir dir |> Array.to_list
-        |> List.filter (fun x -> Filename.check_suffix x ".bel")
-      with
-      | [ file ] -> file
+      let* files = Lwt_stream.to_list @@ Lwt_unix.files_of_directory dir in
+      match List.filter (fun x -> Filename.check_suffix x ".bel") files with
+      | [ file ] -> Lwt.return file
       | _ ->
           Printf.ksprintf failwith
             "directory %s must contain a single .bel file" dir)
 
 let wrap_main f =
-  match f () with
+  match Lwt_main.run @@ f () with
   | () -> `Ok ()
   | exception Cmdline_error e -> `Error (true, e)
   | exception Failure e -> `Error (false, e)

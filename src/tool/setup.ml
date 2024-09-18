@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 open Belenios_tool_common
 open Common
@@ -38,6 +39,18 @@ let uuid_t =
   let doc = "UUID of the election." in
   Arg.(value & opt (some string) None & info [ "uuid" ] ~docv:"UUID" ~doc)
 
+let save (descr, filename, perm, thing) =
+  let* () =
+    let open Lwt_io in
+    let@ oc =
+      with_file ~flags:[ O_WRONLY; O_CREAT ] ~perm ~mode:Output filename
+    in
+    write_line oc thing
+  in
+  let* () = Lwt_io.eprintlf "I: %s saved to %s" descr filename in
+  (* set permissions in the unlikely case where the file already existed *)
+  Lwt_unix.chmod filename perm
+
 module Tkeygen : CMDLINER_MODULE = struct
   open Tool_tkeygen
 
@@ -50,19 +63,11 @@ module Tkeygen : CMDLINER_MODULE = struct
     let module R = Make (P) (Random) () in
     let kp = R.trustee_keygen () in
     Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
-    let pubkey = ("public", kp.R.id ^ ".pubkey", 0o444, kp.R.pub) in
-    let privkey = ("private", kp.R.id ^ ".privkey", 0o400, kp.R.priv) in
-    let save (kind, filename, perm, thing) =
-      let oc = open_out_gen [ Open_wronly; Open_creat ] perm filename in
-      output_string oc thing;
-      output_char oc '\n';
-      close_out oc;
-      Printf.printf "I: %s key saved to %s\n%!" kind filename;
-      (* set permissions in the unlikely case where the file already existed *)
-      Unix.chmod filename perm
-    in
-    save pubkey;
-    save privkey
+    let pubkey = ("public key", kp.R.id ^ ".pubkey", 0o444, kp.R.pub) in
+    let privkey = ("private key", kp.R.id ^ ".privkey", 0o400, kp.R.priv) in
+    let* () = save pubkey in
+    let* () = save privkey in
+    Lwt.return_unit
 
   let cmd =
     let doc = "generate a trustee key" in
@@ -113,17 +118,19 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
     let get_certs () =
       let certs = get_mandatory_opt "--certs" certs in
-      match load_from_file (cert_of_string (sread G.Zq.of_string)) certs with
+      let* x = load_from_file (cert_of_string (sread G.Zq.of_string)) certs in
+      match x with
       | None -> Printf.ksprintf failwith "%s does not exist" certs
-      | Some l -> Array.of_list (List.rev l)
+      | Some l -> Lwt.return @@ Array.of_list l
     in
     let get_polynomials () =
       let polynomials = get_mandatory_opt "--polynomials" polynomials in
-      match
+      let* x =
         load_from_file (polynomial_of_string (sread G.Zq.of_string)) polynomials
-      with
+      in
+      match x with
       | None -> Printf.ksprintf failwith "%s does not exist" polynomials
-      | Some l -> Array.of_list (List.rev l)
+      | Some l -> Lwt.return @@ Array.of_list l
     in
     match step with
     | 1 ->
@@ -137,76 +144,83 @@ module Ttkeygen : CMDLINER_MODULE = struct
             string_of_cert (swrite G.Zq.to_string) cert )
         in
         let prv = ("private key", id ^ ".key", 0o400, key) in
-        let save (descr, filename, perm, thing) =
-          let oc = open_out_gen [ Open_wronly; Open_creat ] perm filename in
-          output_string oc thing;
-          output_char oc '\n';
-          close_out oc;
-          Printf.eprintf "I: %s saved to %s\n%!" descr filename;
-          (* set permissions in the unlikely case where the file already existed *)
-          Unix.chmod filename perm
-        in
-        save pub;
-        save prv;
-        Printf.printf "%s\n" id
+        let* () = save pub in
+        let* () = save prv in
+        Lwt_io.printl id
     | 2 ->
-        let certs = get_certs () in
+        let* certs = get_certs () in
         let _ = T.step2 certs in
-        Printf.eprintf "I: certificates are valid\n%!"
+        Lwt_io.eprintl "I: certificates are valid"
     | 3 ->
-        let certs = get_certs () in
-        let key = get_mandatory_opt "--key" key |> string_of_file in
+        let* certs = get_certs () in
+        let* key = get_mandatory_opt "--key" key |> string_of_file in
         let polynomial = T.step3 certs key in
-        Printf.printf "%s\n%!"
-          (string_of_polynomial (swrite G.Zq.to_string) polynomial)
+        Lwt_io.printl (string_of_polynomial (swrite G.Zq.to_string) polynomial)
     | 4 ->
-        let certs = get_certs () in
+        let* certs = get_certs () in
         let n = Array.length certs in
-        let polynomials = get_polynomials () in
+        let* polynomials = get_polynomials () in
         assert (n = Array.length polynomials);
         let vinputs = T.step4 certs polynomials in
         assert (n = Array.length vinputs);
-        for i = 0 to n - 1 do
-          let id = sha256_hex certs.(i).s_message in
-          let fn = id ^ ".vinput" in
-          let oc = open_out_gen [ Open_wronly; Open_creat ] 0o444 fn in
-          output_string oc
-            (string_of_vinput (swrite G.Zq.to_string) vinputs.(i));
-          output_char oc '\n';
-          close_out oc;
-          Printf.eprintf "I: wrote %s\n%!" fn
-        done
+        let rec loop i =
+          if i < n then
+            let id = sha256_hex certs.(i).s_message in
+            let fn = id ^ ".vinput" in
+            let* () =
+              let open Lwt_io in
+              let@ oc =
+                with_file ~flags:[ O_WRONLY; O_CREAT ] ~perm:0o444 ~mode:Output
+                  fn
+              in
+              write_line oc
+                (string_of_vinput (swrite G.Zq.to_string) vinputs.(i))
+            in
+            let* () = Lwt_io.eprintlf "I: wrote %s" fn in
+            loop (i + 1)
+          else Lwt.return_unit
+        in
+        loop 0
     | 5 ->
-        let certs = get_certs () in
-        let key = get_mandatory_opt "--key" key |> string_of_file in
+        let* certs = get_certs () in
+        let* key = get_mandatory_opt "--key" key |> string_of_file in
         let vinput = read_line () |> vinput_of_string (sread G.Zq.of_string) in
         let voutput = T.step5 certs key vinput in
-        Printf.printf "%s\n%!"
+        Lwt_io.printl
           (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
              voutput)
     | 6 ->
-        let certs = get_certs () in
+        let* certs = get_certs () in
         let n = Array.length certs in
-        let polynomials = get_polynomials () in
+        let* polynomials = get_polynomials () in
         assert (n = Array.length polynomials);
+        let* lines = lines_of_stdin () in
         let voutputs =
-          lines_of_stdin ()
+          lines
           |> List.map
                (voutput_of_string (sread G.of_string) (sread G.Zq.of_string))
           |> Array.of_list
         in
         assert (n = Array.length voutputs);
         let tparams = T.step6 certs polynomials voutputs in
-        for i = 0 to n - 1 do
-          let id = sha256_hex certs.(i).s_message in
-          let fn = id ^ ".dkey" in
-          let oc = open_out_gen [ Open_wronly; Open_creat ] 0o400 fn in
-          output_string oc voutputs.(i).vo_private_key;
-          output_char oc '\n';
-          close_out oc;
-          Printf.eprintf "I: wrote %s\n%!" fn
-        done;
-        Printf.printf "%s\n%!"
+        let rec loop i =
+          if i < n then
+            let id = sha256_hex certs.(i).s_message in
+            let fn = id ^ ".dkey" in
+            let* () =
+              let open Lwt_io in
+              let@ oc =
+                with_file ~flags:[ O_WRONLY; O_CREAT ] ~perm:0o400 ~mode:Output
+                  fn
+              in
+              write_line oc voutputs.(i).vo_private_key
+            in
+            let* () = Lwt_io.eprintlf "I: wrote %s" fn in
+            loop (i + 1)
+          else Lwt.return_unit
+        in
+        let* () = loop 0 in
+        Lwt_io.printl
           (string_of_threshold_parameters (swrite G.to_string)
              (swrite G.Zq.to_string) tparams)
     | _ -> failwith "invalid step"
@@ -256,29 +270,32 @@ module Credgen : CMDLINER_MODULE = struct
 
   let save (info, ext, perm) basename f =
     let fname = basename ^ ext in
-    let oc = open_out_gen [ Open_wronly; Open_creat; Open_excl ] perm fname in
-    let count = f oc in
-    close_out oc;
-    Printf.printf "%d %s saved to %s\n%!" count info fname
+    let* count =
+      Lwt_io.with_file
+        ~flags:[ O_WRONLY; O_CREAT; O_EXCL ]
+        ~perm ~mode:Output fname f
+    in
+    Lwt_io.printlf "%d %s saved to %s" count info fname
 
   let as_json to_string things oc =
-    output_string oc (to_string things);
-    List.length things
+    let* () = Lwt_io.write oc (to_string things) in
+    Lwt.return @@ List.length things
 
   let main version group dir uuid count jobs file derive =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
     let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
     let () = if jobs <= 0 then failcmd "--jobs must be positive" in
-    let action =
+    let* action =
       match (count, file, derive) with
       | Some n, None, None ->
           if n < 1 then
             failcmd "the argument of --count must be a positive number"
-          else `Generate (Voter.generate n)
+          else Lwt.return @@ `Generate (Voter.generate n)
       | None, Some f, None ->
-          `Generate (string_of_file f |> Voter.list_of_string)
-      | None, None, Some c -> `Derive c
+          let* x = string_of_file f in
+          Lwt.return @@ `Generate (x |> Voter.list_of_string)
+      | None, None, Some c -> Lwt.return @@ `Derive c
       | _, _, _ -> failcmd "--count, --file and --derive are mutually exclusive"
     in
     let module G = (val Group.of_string ~version group : GROUP) in
@@ -298,17 +315,21 @@ module Credgen : CMDLINER_MODULE = struct
     let save (c : Credential.batch) =
       let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
       let base = dir // timestamp in
-      save params_priv base
-        (as_json string_of_private_credentials c.private_creds);
-      save params_pub base
-        (as_json string_of_public_credentials c.public_with_ids);
+      let* () =
+        save params_priv base
+          (as_json string_of_private_credentials c.private_creds)
+      in
+      let* () =
+        save params_pub base
+          (as_json string_of_public_credentials c.public_with_ids)
+      in
       let h = sha256_b64 (string_of_public_credentials c.public_creds) in
-      Printf.printf "The fingerprint of public credentials is %s\n%!" h
+      Lwt_io.printlf "The fingerprint of public credentials is %s" h
     in
     match action with
     | `Derive c -> (
         match Cred.derive c with
-        | Ok x -> print_endline G.(g **~ x |> to_string)
+        | Ok x -> Lwt_io.printl G.(g **~ x |> to_string)
         | Error _ -> failcmd "invalid credential")
     | `Generate ids when jobs = 1 -> save (Cred.generate ids)
     | `Generate ids ->
@@ -412,7 +433,7 @@ module SubCredgen : CMDLINER_MODULE = struct
         end)
     in
     let x, _ = Cred.generate_sub count in
-    print_endline (string_of_sub_batch x)
+    Lwt_io.printl (string_of_sub_batch x)
 
   let count_t =
     let doc = "Generate $(docv) credentials." in
@@ -439,43 +460,51 @@ module Mktrustees : CMDLINER_MODULE = struct
   let main dir =
     let@ () = wrap_main in
     let get_public_keys () =
-      Some (lines_of_file (dir // "public_keys.jsons"))
+      let* lines = lines_of_file (dir // "public_keys.jsons") in
+      Lwt.return_some lines
     in
     let get_threshold () =
       let fn = dir // "threshold.json" in
-      if Sys.file_exists fn then Some (string_of_file fn) else None
+      let* b = Lwt_unix.file_exists fn in
+      if b then
+        let* x = string_of_file fn in
+        Lwt.return_some x
+      else Lwt.return_none
     in
     let get_trustees () =
-      let singles =
-        match get_public_keys () with
-        | None -> []
+      let* singles =
+        let* x = get_public_keys () in
+        match x with
+        | None -> Lwt.return_nil
         | Some t ->
             t
             |> List.map
                  (trustee_public_key_of_string Yojson.Safe.read_json
                     Yojson.Safe.read_json)
             |> List.map (fun x -> `Single x)
+            |> Lwt.return
       in
-      let pedersens =
-        match get_threshold () with
-        | None -> []
+      let* pedersens =
+        let* x = get_threshold () in
+        match x with
+        | None -> Lwt.return_nil
         | Some t ->
             t
             |> threshold_parameters_of_string Yojson.Safe.read_json
                  Yojson.Safe.read_json
-            |> fun x -> [ `Pedersen x ]
+            |> fun x -> Lwt.return [ `Pedersen x ]
       in
       match singles @ pedersens with
       | [] -> failwith "trustees are missing"
       | trustees ->
           string_of_trustees Yojson.Safe.write_json Yojson.Safe.write_json
             trustees
+          |> Lwt.return
     in
-    let trustees = get_trustees () in
-    let oc = open_out (dir // "trustees.json") in
-    output_string oc trustees;
-    output_char oc '\n';
-    close_out oc
+    let* trustees = get_trustees () in
+    let open Lwt_io in
+    let@ oc = with_file ~mode:Output (dir // "trustees.json") in
+    write_line oc trustees
 
   let cmd =
     let doc = "create a trustee parameter file" in
@@ -496,23 +525,31 @@ module Mkelection : CMDLINER_MODULE = struct
 
   let main dir group version uuid template =
     let@ () = wrap_main in
+    let* template = get_mandatory_opt "--template" template |> string_of_file in
+    let* trustees =
+      let fn = dir // "trustees.json" in
+      let* b = Lwt_unix.file_exists fn in
+      if b then
+        let* x = string_of_file fn in
+        Lwt.return_some x
+      else Lwt.return_none
+    in
     let module P = struct
       let version = version
       let group = get_mandatory_opt "--group" group
       let uuid = get_mandatory_opt "--uuid" uuid
-      let template = get_mandatory_opt "--template" template |> string_of_file
+      let template = template
 
       let get_trustees () =
-        let fn = dir // "trustees.json" in
-        if Sys.file_exists fn then string_of_file fn
-        else failwith "trustees are missing"
+        match trustees with
+        | Some x -> x
+        | None -> failwith "trustees are missing"
     end in
     let module R = (val make (module P : PARAMS) : S) in
     let params = R.mkelection () in
-    let oc = open_out (dir // "election.json") in
-    output_string oc params;
-    output_char oc '\n';
-    close_out oc
+    let open Lwt_io in
+    let@ oc = with_file ~mode:Output (dir // "election.json") in
+    write_line oc params
 
   let template_t =
     let doc = "Read election template from file $(docv)." in
@@ -541,7 +578,7 @@ module GenerateToken : CMDLINER_MODULE = struct
   let main length =
     let@ () = wrap_main in
     let module X = MakeGenerateToken (Random) in
-    X.generate_token ~length () |> print_endline
+    X.generate_token ~length () |> Lwt_io.printl
 
   let length_t =
     let doc = "Token length." in

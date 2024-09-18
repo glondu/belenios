@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 open Common
 
@@ -36,26 +37,25 @@ let () =
     | _ -> None)
 
 let verifydiff dir1 dir2 =
-  let file1 = dir1 // find_bel_in_dir dir1 in
-  let file2 = dir2 // find_bel_in_dir dir2 in
-  let () =
+  let* bel1 = find_bel_in_dir dir1 in
+  let* bel2 = find_bel_in_dir dir2 in
+  let file1 = dir1 // bel1 in
+  let file2 = dir2 // bel2 in
+  let* () =
     let open Tool_events in
-    let index1 = get_index ~file:file1 in
-    let index2 = get_index ~file:file2 in
-    if
-      try
-        fsck index1;
-        false
-      with _ -> true
-    then raise (VerifydiffError ErrorInFirst);
+    let* index1 = get_index ~file:file1 in
+    let* index2 = get_index ~file:file2 in
+    let* b =
+      Lwt.try_bind
+        (fun () -> fsck index1)
+        (fun () -> Lwt.return_false)
+        (fun _ -> Lwt.return_true)
+    in
+    if b then raise (VerifydiffError ErrorInFirst);
     if not (starts_with ~prefix:index1 index2) then
-      raise (VerifydiffError NotPrefix)
+      raise (VerifydiffError NotPrefix);
+    Lwt.return_unit
   in
-  let module X =
-    Tool_election.Make
-      (struct
-        let file = file2
-      end)
-      ()
-  in
+  let* x = Tool_election.make file2 in
+  let module X = (val x) in
   X.verify ()

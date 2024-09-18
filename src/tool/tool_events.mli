@@ -23,32 +23,34 @@ open Belenios
 
 type index
 
-val get_index : file:string -> index
-val get_data : index -> hash -> string option
-val get_event : index -> hash -> event option
+val get_index : file:string -> index Lwt.t
+val get_data : index -> hash -> string option Lwt.t
+val get_event : index -> hash -> event option Lwt.t
 val get_roots : index -> roots
 
 val fold_on_event_payload_hashes :
-  index -> event_type -> hash -> (hash -> 'a -> 'a) -> 'a -> 'a
+  index -> event_type -> hash -> (hash -> 'a -> 'a Lwt.t) -> 'a -> 'a Lwt.t
 
 val fold_on_event_payloads :
-  index -> event_type -> hash -> (string -> 'a -> 'a) -> 'a -> 'a
+  index -> event_type -> hash -> (string -> 'a -> 'a Lwt.t) -> 'a -> 'a Lwt.t
 
-val fsck : index -> unit
+val fsck : index -> unit Lwt.t
 val starts_with : prefix:index -> index -> bool
 
 type append_operation = Data of string | Event of event_type * hash option
 
-val append : index -> append_operation list -> unit
+val append : index -> append_operation list -> unit Lwt.t
 
 val init :
   file:string ->
   election:string ->
   trustees:string ->
   public_creds:string ->
-  index
+  index Lwt.t
 
-module DirectMonad : MONAD with type 'a t = 'a
+module LwtMonad : MONAD with type 'a t = 'a Lwt.t
+
+type file = { mutable pos : int64; fd : Lwt_unix.file_descr }
 
 module Writer :
-  Archive.ARCHIVE_WRITER with type 'a m := 'a and type archive = out_channel
+  Archive.ARCHIVE_WRITER with type 'a m := 'a Lwt.t and type archive = file

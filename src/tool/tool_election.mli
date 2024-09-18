@@ -5,19 +5,17 @@ module type PARAMS = sig
 end
 
 module type S = sig
-  type 'a m
-
-  val vote : string option -> int Shape.t array -> string m
-  val decrypt : int -> string -> (string * string) m
-  val tdecrypt : int -> string -> string -> (string * string) m
-  val compute_result : unit -> string m
-  val verify_ballot : string -> unit m
-  val verify : ?skip_ballot_check:bool -> unit -> unit m
-  val shuffle_ciphertexts : int -> (string * string) m
-  val checksums : unit -> string
-  val compute_voters : (string * string) list -> string list
-  val compute_ballot_summary : unit -> string
-  val compute_encrypted_tally : unit -> string * string
+  val vote : string option -> int Shape.t array -> string Lwt.t
+  val decrypt : int -> string -> (string * string) Lwt.t
+  val tdecrypt : int -> string -> string -> (string * string) Lwt.t
+  val compute_result : unit -> string Lwt.t
+  val verify_ballot : string -> unit Lwt.t
+  val verify : ?skip_ballot_check:bool -> unit -> unit Lwt.t
+  val shuffle_ciphertexts : int -> (string * string) Lwt.t
+  val checksums : unit -> string Lwt.t
+  val compute_voters : (string * string) list -> string list Lwt.t
+  val compute_ballot_summary : unit -> string Lwt.t
+  val compute_encrypted_tally : unit -> (string * string) Lwt.t
 end
 
-module Make (_ : PARAMS) () : S with type 'a m := 'a
+val make : string -> (module S) Lwt.t

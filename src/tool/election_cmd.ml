@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 open Common
 open Tool_election
@@ -27,72 +28,81 @@ open Cmdliner
 let main uuid url dir action =
   let@ () = wrap_main in
   let uuid = Option.map Uuid.wrap uuid in
-  let dir, cleanup =
-    match (url, dir) with
-    | Some _, None ->
-        let tmp = Filename.temp_file "belenios" "" in
-        Unix.unlink tmp;
-        Unix.mkdir tmp 0o700;
-        (tmp, true)
-    | None, None -> (Filename.current_dir_name, false)
-    | _, Some d -> (d, false)
+  let@ dir cont =
+    let* dir, cleanup =
+      match (url, dir) with
+      | Some _, None ->
+          let* tmp = Lwt_io.create_temp_dir ~perm:0o700 ~prefix:"belenios" () in
+          Lwt.return (tmp, true)
+      | None, None -> Lwt.return (Filename.current_dir_name, false)
+      | _, Some d -> Lwt.return (d, false)
+    in
+    Lwt.finalize
+      (fun () -> cont dir)
+      (fun () ->
+        if cleanup then Lwt_io.delete_recursively dir else Lwt.return_unit)
   in
-  Printf.eprintf "I: using directory %s\n%!" dir;
-  let file =
+  let* () = Lwt_io.eprintlf "I: using directory %s" dir in
+  let* file =
     match url with
     | None -> find_bel_in_dir ?uuid dir
     | Some u -> (
         let uuid = get_mandatory_opt "--uuid" uuid in
-        match Lwt_main.run @@ download dir u uuid with
-        | Some x -> x
+        let* x = download dir u uuid in
+        match x with
+        | Some x -> Lwt.return x
         | None -> failwith "error while downloading")
   in
-  let module X =
-    Make
-      (struct
-        let file = dir // file
-      end)
-      ()
-  in
-  (match action with
+  let* x = make (dir // file) in
+  let module X = (val x) in
+  match action with
   | `Vote (privcred, choice) ->
-      let choice =
-        match load_from_file plaintext_of_string choice with
-        | Some [ c ] -> c
+      let* choice =
+        let* x = load_from_file plaintext_of_string choice in
+        match x with
+        | Some [ c ] -> Lwt.return c
         | _ -> failwith "invalid choice file"
-      and privcred =
-        match load_from_file (fun x -> x) privcred with
-        | Some [ cred ] -> cred
+      in
+      let* privcred =
+        let* x = load_from_file Fun.id privcred in
+        match x with
+        | Some [ cred ] -> Lwt.return cred
         | _ -> failwith "invalid credential"
       in
-      print_endline (X.vote (Some privcred) choice)
+      X.vote (Some privcred) choice |> printl1
   | `Decrypt (i, privkey) ->
-      let privkey =
-        match load_from_file (fun x -> x) privkey with
-        | Some [ privkey ] -> privkey
+      let* privkey =
+        let* x = load_from_file Fun.id privkey in
+        match x with
+        | Some [ privkey ] -> Lwt.return privkey
         | _ -> failwith "invalid private key"
       in
-      print_endline2 (X.decrypt i privkey)
+      X.decrypt i privkey |> printl2
   | `TDecrypt (i, key, pdk) ->
-      let key = string_of_file key in
-      let pdk = string_of_file pdk in
-      print_endline2 (X.tdecrypt i key pdk)
+      let* key = string_of_file key in
+      let* pdk = string_of_file pdk in
+      X.tdecrypt i key pdk |> printl2
   | `VerifyBallot b ->
-      let ballot =
-        match load_from_file (fun x -> x) b with
-        | Some [ ballot ] -> ballot
+      let* ballot =
+        let* x = load_from_file Fun.id b in
+        match x with
+        | Some [ ballot ] -> Lwt.return ballot
         | _ -> failwith "invalid ballot file"
       in
       X.verify_ballot ballot
   | `Verify skip_ballot_check -> X.verify ~skip_ballot_check ()
-  | `ComputeResult -> print_endline (X.compute_result ())
-  | `Shuffle trustee_id -> print_endline2 (X.shuffle_ciphertexts trustee_id)
-  | `Checksums -> X.checksums () |> print_endline
+  | `ComputeResult -> X.compute_result () |> printl1
+  | `Shuffle trustee_id -> X.shuffle_ciphertexts trustee_id |> printl2
+  | `Checksums -> X.checksums () |> printl1
   | `ComputeVoters privcreds ->
-      X.compute_voters privcreds |> List.iter print_endline
-  | `ComputeBallotSummary -> X.compute_ballot_summary () |> print_endline
-  | `ComputeEncryptedTally -> print_endline2 (X.compute_encrypted_tally ()));
-  if cleanup then rm_rf dir
+      let* privcreds = string_of_file privcreds in
+      let privcreds =
+        privcreds |> Yojson.Safe.from_string |> key_value_list_of_json
+      in
+      let* voters = X.compute_voters privcreds in
+      voters |> Lwt_list.iter_s Lwt_io.printl
+  | `ComputeBallotSummary -> X.compute_ballot_summary () |> printl1
+  | `ComputeEncryptedTally -> X.compute_encrypted_tally () |> printl2
 
 let privcred_t =
   let doc = "Read private credential from file $(docv)." in
@@ -278,10 +288,7 @@ let compute_voters_cmd =
   in
   let main =
     Term.const (fun uuid u d privcreds ->
-        let privcreds =
-          get_mandatory_opt "--privcreds" privcreds
-          |> string_of_file |> Yojson.Safe.from_string |> key_value_list_of_json
-        in
+        let privcreds = get_mandatory_opt "--privcreds" privcreds in
         main uuid u d (`ComputeVoters privcreds))
   in
   Cmd.v

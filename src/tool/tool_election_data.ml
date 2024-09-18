@@ -19,20 +19,24 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 open Common
 
 module type GETTERS = sig
-  val fsck : unit -> unit
-  val setup_data : setup_data
-  val raw_election : string
-  val get_trustees : unit -> string option
-  val get_public_creds : unit -> string list option
-  val get_ballots : unit -> string list option
-  val get_encrypted_tally : unit -> (string * hash sized_encrypted_tally) option
-  val get_shuffles : unit -> (hash * hash owned * string) list option
-  val get_pds : unit -> (hash * hash owned * string) list option
-  val get_result : unit -> string option
+  val fsck : unit -> unit Lwt.t
+  val setup_data : setup_data Lwt.t
+  val raw_election : string Lwt.t
+  val get_trustees : unit -> string option Lwt.t
+  val get_public_creds : unit -> string list option Lwt.t
+  val get_ballots : unit -> string list option Lwt.t
+
+  val get_encrypted_tally :
+    unit -> (string * hash sized_encrypted_tally) option Lwt.t
+
+  val get_shuffles : unit -> (hash * hash owned * string) list option Lwt.t
+  val get_pds : unit -> (hash * hash owned * string) list option Lwt.t
+  val get_result : unit -> string option Lwt.t
 end
 
 module type PARAMS = sig
@@ -41,75 +45,115 @@ end
 
 module MakeGetters (X : PARAMS) : GETTERS = struct
   let index = Tool_events.get_index ~file:X.file
-  let roots = Tool_events.get_roots index
-  let get_data x = Tool_events.get_data index x
-  let fsck () = Tool_events.fsck index
+
+  let roots =
+    let* index = index in
+    Lwt.return @@ Tool_events.get_roots index
+
+  let get_data x =
+    let* index = index in
+    Tool_events.get_data index x
+
+  let fsck () =
+    let* index = index in
+    Tool_events.fsck index
 
   let setup_data =
+    let* roots = roots in
     match roots.roots_setup_data with
     | None -> failcmd "setup data are missing"
     | Some x -> (
-        match get_data x with
+        let* x = get_data x in
+        match x with
         | None -> failcmd "could not get setup data"
-        | Some x -> setup_data_of_string x)
+        | Some x -> Lwt.return @@ setup_data_of_string x)
 
   let raw_election =
-    match get_data setup_data.setup_election with
+    let* setup_data = setup_data in
+    let* x = get_data setup_data.setup_election in
+    match x with
     | None -> failcmd "could not get election"
-    | Some x -> x
+    | Some x -> Lwt.return x
 
   let get_public_creds () =
-    get_data setup_data.setup_credentials
-    |> Option.map public_credentials_of_string
+    let* setup_data = setup_data in
+    let* x = get_data setup_data.setup_credentials in
+    Lwt.return @@ Option.map public_credentials_of_string x
 
-  let get_trustees () = get_data setup_data.setup_trustees
+  let get_trustees () =
+    let* setup_data = setup_data in
+    get_data setup_data.setup_trustees
 
   let get_ballots () =
+    let* roots = roots in
+    let* index = index in
     match roots.roots_last_ballot_event with
-    | None -> Some []
+    | None -> Lwt.return_some []
     | Some x ->
-        Some
-          (Tool_events.fold_on_event_payloads index `Ballot x
-             (fun x accu -> x :: accu)
-             [])
+        let* x =
+          Tool_events.fold_on_event_payloads index `Ballot x
+            (fun x accu -> Lwt.return @@ (x :: accu))
+            []
+        in
+        Lwt.return_some x
+
+  let ( let& ) x f = match x with None -> Lwt.return_none | Some x -> f x
 
   let get_encrypted_tally () =
-    let ( let& ) = Option.bind in
+    let* roots = roots in
+    let ( let*& ) x f =
+      let* x = x in
+      let& x = x in
+      f x
+    in
     let& x = roots.roots_encrypted_tally in
-    let& x = get_data x in
+    let*& x = get_data x in
     let x = sized_encrypted_tally_of_string read_hash x in
-    let& y = get_data x.sized_encrypted_tally in
-    Some (y, x)
+    let*& y = get_data x.sized_encrypted_tally in
+    Lwt.return_some (y, x)
 
   let get_shuffles () =
+    let* roots = roots in
+    let* index = index in
     let& x = roots.roots_last_shuffle_event in
-    Tool_events.fold_on_event_payload_hashes index `Shuffle x
-      (fun x accu ->
-        match get_data x with
-        | None -> failwith "could not get shuffle"
-        | Some y -> (
-            let owned = owned_of_string read_hash y in
-            match get_data owned.owned_payload with
-            | None -> failwith "could not get shuffle payload"
-            | Some z -> (x, owned, z) :: accu))
-      []
-    |> fun x -> Some x
+    let* x =
+      Tool_events.fold_on_event_payload_hashes index `Shuffle x
+        (fun x accu ->
+          let* xx = get_data x in
+          match xx with
+          | None -> failwith "could not get shuffle"
+          | Some y -> (
+              let owned = owned_of_string read_hash y in
+              let* xx = get_data owned.owned_payload in
+              match xx with
+              | None -> failwith "could not get shuffle payload"
+              | Some z -> Lwt.return @@ ((x, owned, z) :: accu)))
+        []
+    in
+    Lwt.return_some x
 
   let get_pds () =
+    let* roots = roots in
+    let* index = index in
     let& x = roots.roots_last_pd_event in
-    Tool_events.fold_on_event_payload_hashes index `PartialDecryption x
-      (fun x accu ->
-        match get_data x with
-        | None -> failwith "could not get partial decryption"
-        | Some y -> (
-            let owned = owned_of_string read_hash y in
-            match get_data owned.owned_payload with
-            | None -> failwith "could not get partial decryption payload"
-            | Some z -> (x, owned, z) :: accu))
-      []
-    |> fun x -> Some x
+    let* x =
+      Tool_events.fold_on_event_payload_hashes index `PartialDecryption x
+        (fun x accu ->
+          let* xx = get_data x in
+          match xx with
+          | None -> failwith "could not get partial decryption"
+          | Some y -> (
+              let owned = owned_of_string read_hash y in
+              let* xx = get_data owned.owned_payload in
+              match xx with
+              | None -> failwith "could not get partial decryption payload"
+              | Some z -> Lwt.return @@ ((x, owned, z) :: accu)))
+        []
+    in
+    Lwt.return_some x
 
   let get_result () =
+    let* roots = roots in
     let& x = roots.roots_result in
     get_data x
 end
@@ -125,32 +169,35 @@ module type ELECTION_DATA = sig
        and type public_key := t
        and type 'a m := 'a
 
-  val trustees_as_string : string option
-  val trustees : (t, s) trustees option
-  val pks : t array Lazy.t
-  val raw_public_creds : string list option Lazy.t
-  val public_creds_weights : (bool * weight SMap.t) option Lazy.t
-  val raw_ballots : string list option Lazy.t
-  val verified_ballots : (hash * string * weight * string) list Lazy.t
-  val unverified_ballots : (hash * string * weight * string) list Lazy.t
+  val trustees_as_string : string option Lwt.t
+  val trustees : (t, s) trustees option Lwt.t
+  val pks : t array Lwt.t Lazy.t
+  val raw_public_creds : string list option Lwt.t Lazy.t
+  val public_creds_weights : (bool * weight SMap.t) option Lwt.t Lazy.t
+  val raw_ballots : string list option Lwt.t Lazy.t
+  val verified_ballots : (hash * string * weight * string) list Lwt.t Lazy.t
+  val unverified_ballots : (hash * string * weight * string) list Lwt.t Lazy.t
 
   val pre_cast :
     ?skip_ballot_check:bool ->
     SSet.t ->
     string ->
-    (hash * (string * weight * string), cast_error) result
+    (hash * (string * weight * string), cast_error) result Lwt.t
 
   val raw_encrypted_tally :
-    (t encrypted_tally * hash sized_encrypted_tally) Lazy.t
+    (t encrypted_tally * hash sized_encrypted_tally) Lwt.t Lazy.t
 
-  val raw_shuffles : (hash * hash owned * string) list option Lazy.t
-  val shuffles : (t, s) shuffle list option Lazy.t
-  val shuffles_hash : string list option Lazy.t
-  val encrypted_tally : (t encrypted_tally * hash sized_encrypted_tally) Lazy.t
-  val pds : (hash * hash owned * string) list option Lazy.t
-  val result : r election_result option Lazy.t
-  val fsck : unit -> unit
-  val election_hash : hash
+  val raw_shuffles : (hash * hash owned * string) list option Lwt.t Lazy.t
+  val shuffles : (t, s) shuffle list option Lwt.t Lazy.t
+  val shuffles_hash : string list option Lwt.t Lazy.t
+
+  val encrypted_tally :
+    (t encrypted_tally * hash sized_encrypted_tally) Lwt.t Lazy.t
+
+  val pds : (hash * hash owned * string) list option Lwt.t Lazy.t
+  val result : r election_result option Lwt.t Lazy.t
+  val fsck : unit -> unit Lwt.t
+  val election_hash : hash Lwt.t
 end
 
 module Make (Getters : GETTERS) (Election : ELECTION) :
@@ -164,13 +211,16 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let trustees_as_string = get_trustees ()
 
   let trustees =
-    Option.map
-      (trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
-      trustees_as_string
+    let* trustees_as_string = trustees_as_string in
+    Lwt.return
+    @@ Option.map
+         (trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
+         trustees_as_string
 
   let pks =
     lazy
-      (let public_keys_with_pok =
+      (let* trustees = trustees in
+       let public_keys_with_pok =
          trustees
          |> Option.map
               (List.map (function
@@ -184,7 +234,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
            public_keys_with_pok
        in
        match public_keys with
-       | Some pks -> pks
+       | Some pks -> Lwt.return pks
        | None -> failwith "missing public keys")
 
   let raw_public_creds = lazy (get_public_creds ())
@@ -208,54 +258,62 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
 
   let public_creds_weights =
     lazy
-      (Lazy.force raw_public_creds
-      |> Option.map
-           (List.fold_left
-              (fun (has_weights, accu) x ->
-                let has_weights =
-                  has_weights || String.index_opt x ',' <> None
-                in
-                match Cred.parse_public_credential x with
-                | Some (w, y) ->
-                    let y = G.to_string y in
-                    if SMap.mem y accu then
-                      Printf.ksprintf failwith "duplicate credential: %s" y
-                    else (has_weights, SMap.add y w accu)
-                | None ->
-                    Printf.ksprintf failwith
-                      "%s is not a valid public credential" x)
-              (false, SMap.empty)))
+      (let* x = Lazy.force raw_public_creds in
+       x
+       |> Option.map
+            (List.fold_left
+               (fun (has_weights, accu) x ->
+                 let has_weights =
+                   has_weights || String.index_opt x ',' <> None
+                 in
+                 match Cred.parse_public_credential x with
+                 | Some (w, y) ->
+                     let y = G.to_string y in
+                     if SMap.mem y accu then
+                       Printf.ksprintf failwith "duplicate credential: %s" y
+                     else (has_weights, SMap.add y w accu)
+                 | None ->
+                     Printf.ksprintf failwith
+                       "%s is not a valid public credential" x)
+               (false, SMap.empty))
+       |> Lwt.return)
 
-  let public_creds = lazy (Lazy.force public_creds_weights |> Option.map snd)
+  let public_creds =
+    lazy
+      (let* x = Lazy.force public_creds_weights in
+       x |> Option.map snd |> Lwt.return)
+
   let raw_ballots = lazy (get_ballots ())
 
   let pre_cast ?(skip_ballot_check = false) ballot_box rawballot =
     let hash = Hash.hash_string rawballot in
     let ballot_id = Hash.to_b64 hash in
     let@ creds cont =
-      match Lazy.force public_creds with
+      let* x = Lazy.force public_creds in
+      match x with
       | None -> failwith "missing public credentials"
       | Some creds -> cont creds
     in
     let is_duplicate = SSet.mem ballot_id ballot_box in
     let@ rc cont =
       match (is_duplicate, E.check_rawballot rawballot) with
-      | true, _ -> Error `DuplicateBallot
-      | _, (Error _ as e) -> e
+      | true, _ -> Lwt.return @@ Error `DuplicateBallot
+      | _, (Error _ as e) -> Lwt.return e
       | _, Ok rc -> cont rc
     in
     match SMap.find_opt rc.rc_credential creds with
-    | None -> Error `InvalidCredential
+    | None -> Lwt.return @@ Error `InvalidCredential
     | Some w when skip_ballot_check || rc.rc_check () ->
-        Ok (hash, (rc.rc_credential, w, rawballot))
-    | Some _ -> Error `InvalidBallot
+        Lwt.return @@ Ok (hash, (rc.rc_credential, w, rawballot))
+    | Some _ -> Lwt.return @@ Error `InvalidBallot
 
   let collect_ballots ?(skip_ballot_check = false) () =
-    let ballot_box =
+    let* ballot_box =
       let rec cast_all accu seen = function
-        | [] -> accu
+        | [] -> Lwt.return accu
         | b :: bs -> (
-            match pre_cast seen b ~skip_ballot_check with
+            let* x = pre_cast seen b ~skip_ballot_check in
+            match x with
             | Error e ->
                 Printf.ksprintf failwith "error while casting ballot %s: %s"
                   (sha256_b64 b) (string_of_cast_error e)
@@ -263,8 +321,9 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
                 let ballot_id = Hash.to_b64 hash in
                 cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
       in
-      match Lazy.force raw_ballots with
-      | None -> []
+      let* x = Lazy.force raw_ballots in
+      match x with
+      | None -> Lwt.return_nil
       | Some bs -> cast_all [] SSet.empty bs
     in
     List.fold_left
@@ -272,65 +331,83 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
         if SSet.mem credential seen then accu
         else (SSet.add credential seen, (h, credential, w, b) :: bs))
       (SSet.empty, []) ballot_box
-    |> snd
+    |> snd |> Lwt.return
 
   let verified_ballots = lazy (collect_ballots ())
   let unverified_ballots = lazy (collect_ballots ~skip_ballot_check:true ())
 
   let raw_encrypted_tally =
     lazy
-      (let ballots =
-         Lazy.force unverified_ballots
+      (let* ballots =
+         let* x = Lazy.force unverified_ballots in
+         x
          |> List.rev_map (fun (_, _, w, b) -> (w, read_ballot ++ b))
+         |> Lwt.return
        in
        let sized_total_weight =
          let open Weight in
          List.fold_left (fun accu (w, _) -> accu + w) zero ballots
        in
        let encrypted_tally = E.process_ballots ballots in
-       ( encrypted_tally,
-         {
-           sized_num_tallied = List.length ballots;
-           sized_total_weight;
-           sized_encrypted_tally =
-             Hash.hash_string
-               (string_of_encrypted_tally (swrite G.to_string) encrypted_tally);
-         } ))
+       Lwt.return
+         ( encrypted_tally,
+           {
+             sized_num_tallied = List.length ballots;
+             sized_total_weight;
+             sized_encrypted_tally =
+               Hash.hash_string
+                 (string_of_encrypted_tally (swrite G.to_string) encrypted_tally);
+           } ))
 
   let raw_shuffles = lazy (get_shuffles ())
 
   let shuffles_as_text =
-    lazy (Lazy.force raw_shuffles |> Option.map (List.map (fun (_, _, x) -> x)))
+    lazy
+      (let* x = Lazy.force raw_shuffles in
+       x |> Option.map (List.map (fun (_, _, x) -> x)) |> Lwt.return)
 
   let shuffles =
     lazy
-      (Lazy.force shuffles_as_text
-      |> Option.map
-           (List.map
-              (shuffle_of_string (sread G.of_string) (sread G.Zq.of_string))))
+      (let* x = Lazy.force shuffles_as_text in
+       x
+       |> Option.map
+            (List.map
+               (shuffle_of_string (sread G.of_string) (sread G.Zq.of_string)))
+       |> Lwt.return)
 
   let shuffles_hash =
-    lazy (Lazy.force shuffles_as_text |> Option.map (List.map sha256_b64))
+    lazy
+      (let* x = Lazy.force shuffles_as_text in
+       x |> Option.map (List.map sha256_b64) |> Lwt.return)
 
   let encrypted_tally =
     lazy
-      (match get_encrypted_tally () with
-      | None -> failwith "encrypted tally is missing"
-      | Some (x, ntally) -> (
-          let raw_encrypted_tally =
-            encrypted_tally_of_string (sread G.of_string) x
-          in
-          match Option.map List.rev (Lazy.force shuffles) with
-          | Some (s :: _) ->
-              ( E.merge_nh_ciphertexts s.shuffle_ciphertexts raw_encrypted_tally,
-                ntally )
-          | _ -> (raw_encrypted_tally, ntally)))
+      (let* x = get_encrypted_tally () in
+       match x with
+       | None -> failwith "encrypted tally is missing"
+       | Some (x, ntally) -> (
+           let raw_encrypted_tally =
+             encrypted_tally_of_string (sread G.of_string) x
+           in
+           let* x = Lazy.force shuffles in
+           match Option.map List.rev x with
+           | Some (s :: _) ->
+               Lwt.return
+                 ( E.merge_nh_ciphertexts s.shuffle_ciphertexts
+                     raw_encrypted_tally,
+                   ntally )
+           | _ -> Lwt.return (raw_encrypted_tally, ntally)))
 
   let pds = lazy (get_pds ())
 
   let result =
-    lazy (get_result () |> Option.map (election_result_of_string read_result))
+    lazy
+      (let* x = get_result () in
+       x |> Option.map (election_result_of_string read_result) |> Lwt.return)
 
   let fsck = fsck
-  let election_hash = setup_data.setup_election
+
+  let election_hash =
+    let* setup_data = setup_data in
+    Lwt.return setup_data.setup_election
 end

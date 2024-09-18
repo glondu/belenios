@@ -26,16 +26,19 @@ module type PARAMS = sig
 end
 
 module type GETTERS = sig
-  val fsck : unit -> unit
-  val setup_data : setup_data
-  val raw_election : string
-  val get_trustees : unit -> string option
-  val get_public_creds : unit -> string list option
-  val get_ballots : unit -> string list option
-  val get_encrypted_tally : unit -> (string * hash sized_encrypted_tally) option
-  val get_shuffles : unit -> (hash * hash owned * string) list option
-  val get_pds : unit -> (hash * hash owned * string) list option
-  val get_result : unit -> string option
+  val fsck : unit -> unit Lwt.t
+  val setup_data : setup_data Lwt.t
+  val raw_election : string Lwt.t
+  val get_trustees : unit -> string option Lwt.t
+  val get_public_creds : unit -> string list option Lwt.t
+  val get_ballots : unit -> string list option Lwt.t
+
+  val get_encrypted_tally :
+    unit -> (string * hash sized_encrypted_tally) option Lwt.t
+
+  val get_shuffles : unit -> (hash * hash owned * string) list option Lwt.t
+  val get_pds : unit -> (hash * hash owned * string) list option Lwt.t
+  val get_result : unit -> string option Lwt.t
 end
 
 module MakeGetters (_ : PARAMS) : GETTERS
@@ -51,32 +54,35 @@ module type ELECTION_DATA = sig
        and type public_key := t
        and type 'a m := 'a
 
-  val trustees_as_string : string option
-  val trustees : (t, s) trustees option
-  val pks : t array Lazy.t
-  val raw_public_creds : string list option Lazy.t
-  val public_creds_weights : (bool * weight SMap.t) option Lazy.t
-  val raw_ballots : string list option Lazy.t
-  val verified_ballots : (hash * string * weight * string) list Lazy.t
-  val unverified_ballots : (hash * string * weight * string) list Lazy.t
+  val trustees_as_string : string option Lwt.t
+  val trustees : (t, s) trustees option Lwt.t
+  val pks : t array Lwt.t Lazy.t
+  val raw_public_creds : string list option Lwt.t Lazy.t
+  val public_creds_weights : (bool * weight SMap.t) option Lwt.t Lazy.t
+  val raw_ballots : string list option Lwt.t Lazy.t
+  val verified_ballots : (hash * string * weight * string) list Lwt.t Lazy.t
+  val unverified_ballots : (hash * string * weight * string) list Lwt.t Lazy.t
 
   val pre_cast :
     ?skip_ballot_check:bool ->
     SSet.t ->
     string ->
-    (hash * (string * weight * string), cast_error) result
+    (hash * (string * weight * string), cast_error) result Lwt.t
 
   val raw_encrypted_tally :
-    (t encrypted_tally * hash sized_encrypted_tally) Lazy.t
+    (t encrypted_tally * hash sized_encrypted_tally) Lwt.t Lazy.t
 
-  val raw_shuffles : (hash * hash owned * string) list option Lazy.t
-  val shuffles : (t, s) shuffle list option Lazy.t
-  val shuffles_hash : string list option Lazy.t
-  val encrypted_tally : (t encrypted_tally * hash sized_encrypted_tally) Lazy.t
-  val pds : (hash * hash owned * string) list option Lazy.t
-  val result : r election_result option Lazy.t
-  val fsck : unit -> unit
-  val election_hash : hash
+  val raw_shuffles : (hash * hash owned * string) list option Lwt.t Lazy.t
+  val shuffles : (t, s) shuffle list option Lwt.t Lazy.t
+  val shuffles_hash : string list option Lwt.t Lazy.t
+
+  val encrypted_tally :
+    (t encrypted_tally * hash sized_encrypted_tally) Lwt.t Lazy.t
+
+  val pds : (hash * hash owned * string) list option Lwt.t Lazy.t
+  val result : r election_result option Lwt.t Lazy.t
+  val fsck : unit -> unit Lwt.t
+  val election_hash : hash Lwt.t
 end
 
 module Make (_ : GETTERS) (Election : ELECTION) :

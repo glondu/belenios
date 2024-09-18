@@ -24,4 +24,4 @@ type verifydiff_error = NotPrefix | ErrorInFirst
 exception VerifydiffError of verifydiff_error
 
 val explain_error : verifydiff_error -> string
-val verifydiff : string -> string -> unit
+val verifydiff : string -> string -> unit Lwt.t

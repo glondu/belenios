@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 open Common
 open Cmdliner
@@ -49,7 +50,7 @@ module Bench : CMDLINER_MODULE = struct
     ignore (Array.fold_left G.( *~ ) G.one ys);
     let stop = Unix.gettimeofday () in
     let delta_mul = stop -. start in
-    Printf.printf "Bench result (size %d): %.3f s (exp), %.3f s (mul)!\n" n
+    Lwt_io.printlf "Bench result (size %d): %.3f s (exp), %.3f s (mul)!" n
       delta_exp delta_mul
 
   let group_t =
@@ -91,7 +92,9 @@ end
 
 module Shasum : CMDLINER_MODULE = struct
   let main () =
-    wrap_main (fun () -> chars_of_stdin () |> sha256_b64 |> print_endline)
+    let@ () = wrap_main in
+    let* input = chars_of_stdin () in
+    Lwt_io.printl @@ sha256_b64 input
 
   let cmd =
     let doc =
@@ -116,11 +119,11 @@ end
 module Events : CMDLINER_MODULE = struct
   let init dir election trustees public_creds =
     let@ () = wrap_main in
-    let election = string_of_file election in
-    let trustees = string_of_file trustees in
+    let* election = string_of_file election in
+    let* trustees = string_of_file trustees in
+    let* public_creds = string_of_file public_creds in
     let public_creds =
-      string_of_file public_creds
-      |> public_credentials_of_string
+      public_creds |> public_credentials_of_string
       |> List.map strip_public_credential
       |> string_of_public_credentials
     in
@@ -128,17 +131,19 @@ module Events : CMDLINER_MODULE = struct
       let uuid = Election.get_uuid election in
       (dir // Uuid.unwrap uuid) ^ ".bel"
     in
-    ignore (Tool_events.init ~file ~election ~trustees ~public_creds)
+    let* _ = Tool_events.init ~file ~election ~trustees ~public_creds in
+    Lwt.return_unit
 
   let add_event dir event_typ =
     let@ () = wrap_main in
-    let file = dir // find_bel_in_dir dir in
-    let index = Tool_events.get_index ~file in
+    let* bel = find_bel_in_dir dir in
+    let file = dir // bel in
+    let* index = Tool_events.get_index ~file in
     let event_typ =
       get_mandatory_opt "--type" event_typ
       |> Printf.sprintf "%S" |> event_type_of_string
     in
-    let payloads = lines_of_stdin () in
+    let* payloads = lines_of_stdin () in
     let payload =
       match List.rev payloads with
       | x :: _ -> Some (Hash.hash_string x)
@@ -210,7 +215,8 @@ end
 module Methods : CMDLINER_MODULE = struct
   let schulze nchoices blank_allowed =
     let@ () = wrap_main in
-    let ballots = chars_of_stdin () |> condorcet_ballots_of_string in
+    let* ballots = chars_of_stdin () in
+    let ballots = condorcet_ballots_of_string ballots in
     let nchoices =
       if nchoices = 0 then
         if Array.length ballots > 0 then Array.length ballots.(0) else 0
@@ -226,11 +232,12 @@ module Methods : CMDLINER_MODULE = struct
       in
       ballots
       |> Methods.Schulze.compute ~nchoices ~blank_allowed
-      |> string_of_schulze_result |> print_endline
+      |> string_of_schulze_result |> Lwt_io.printl
 
   let mj nchoices ngrades blank_allowed =
     let@ () = wrap_main in
-    let ballots = chars_of_stdin () |> mj_ballots_of_string in
+    let* ballots = chars_of_stdin () in
+    let ballots = mj_ballots_of_string ballots in
     let nchoices =
       if nchoices = 0 then
         if Array.length ballots > 0 then Array.length ballots.(0) else 0
@@ -251,7 +258,7 @@ module Methods : CMDLINER_MODULE = struct
       in
       ballots
       |> Methods.Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
-      |> string_of_mj_result |> print_endline
+      |> string_of_mj_result |> Lwt_io.printl
 
   let stv nseats =
     let@ () = wrap_main in
@@ -260,9 +267,10 @@ module Methods : CMDLINER_MODULE = struct
       | None -> failcmd "--nseats is missing"
       | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
     in
-    chars_of_stdin () |> stv_raw_ballots_of_string
+    let* ballots = chars_of_stdin () in
+    ballots |> stv_raw_ballots_of_string
     |> Methods.Stv.compute ~nseats
-    |> string_of_stv_result |> print_endline
+    |> string_of_stv_result |> Lwt_io.printl
 
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in

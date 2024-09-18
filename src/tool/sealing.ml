@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios
 open Common
 
@@ -35,25 +36,34 @@ let find_ign cfg path =
 
 let rec measure full cfg ign path =
   let make name x = if SSet.mem name ign then None else Some x in
-  let st = Unix.LargeFile.lstat path in
-  let st_contents =
-    if SSet.mem "contents" ign then None
+  let* st = Lwt_unix.LargeFile.lstat path in
+  let* st_contents =
+    if SSet.mem "contents" ign then Lwt.return_none
     else
       match st.st_kind with
-      | S_CHR | S_BLK | S_FIFO | S_SOCK -> None
-      | S_REG -> Some (`REG (Hash.hash_string (string_of_file path)))
-      | S_LNK -> Some (`LNK (Unix.readlink path))
+      | S_CHR | S_BLK | S_FIFO | S_SOCK -> Lwt.return_none
+      | S_REG ->
+          let* contents = string_of_file path in
+          Lwt.return_some @@ `REG (Hash.hash_string contents)
+      | S_LNK ->
+          let* contents = Lwt_unix.readlink path in
+          Lwt.return_some @@ `LNK contents
       | S_DIR ->
+          let* files = Lwt_unix.files_of_directory path |> Lwt_stream.to_list in
           let files =
-            Sys.readdir path |> Array.to_list
+            files
             |> List.filter (fun x -> x <> "." && x <> "..")
             |> List.sort String.compare
-            |> List.map (fun x ->
+          in
+          let* files =
+            files
+            |> Lwt_list.map_s (fun x ->
                    let path = path // x in
                    let ign = find_ign cfg path in
-                   ((if full then path else x), measure full cfg ign path))
+                   let* r = measure full cfg ign path in
+                   Lwt.return ((if full then path else x), r))
           in
-          Some (`DIR files)
+          Lwt.return_some @@ `DIR files
   in
   let kind =
     match st.st_kind with
@@ -80,15 +90,21 @@ let rec measure full cfg ign path =
     st_ctime = make "ctime" st.st_ctime;
     st_contents;
   }
+  |> Lwt.return
 
 let main full cfg path =
-  let cfg =
-    match cfg with None -> [] | Some x -> parse_config (string_of_file x)
+  let@ () = wrap_main in
+  let* cfg =
+    match cfg with
+    | None -> Lwt.return_nil
+    | Some x ->
+        let* x = string_of_file x in
+        Lwt.return @@ parse_config x
   in
   let ign = find_ign cfg path in
-  let x = measure full cfg ign path in
-  print_endline (string_of_stats x);
-  `Ok ()
+  let* x = measure full cfg ign path in
+  let* () = Lwt_io.printl (string_of_stats x) in
+  Lwt.return_unit
 
 open Cmdliner
 
