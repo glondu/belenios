@@ -10,7 +10,7 @@ ocamlformat:
     # (Re-)format everything
     - dune fmt
 
-build_and_test_with_preinstalled_image:
+basic_tests:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
   image: glondu/beleniosbase:20240913-1
@@ -28,7 +28,7 @@ build_and_test_with_preinstalled_image:
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
 
-build_and_test_with_debian_image:
+opam-bootstrap:
   stage: test
   image: ocaml/opam:debian-12-ocaml-4.14
   script:
@@ -50,7 +50,7 @@ build_and_test_with_debian_image:
     - echo $first_access_index_page_output
     - if [ "$(echo \"$first_access_index_page_output\" | grep '>Belenios</a>' | wc -l)" != "1" ]; then echo "[First page access] First page access does not show a single '>Belenios</a>' text, but it should" && exit 1; else echo "[First page access] First page access shows a single '>Belenios</a>' text, as expected"; fi
 
-build_and_run_automated_test_scenarios_with_preinstalled_image:
+scenarios:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
   image: glondu/beleniosbase-tests:20240913-1
