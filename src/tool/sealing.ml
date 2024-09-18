@@ -26,15 +26,15 @@ open Common
 let parse_config x =
   sealing_config_of_string x
   |> List.map (fun (r, i) ->
-         (Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
+         (Re.Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
 
 let find_ign cfg path =
   List.filter_map
-    (fun (r, i) -> if Str.string_match r path 0 then Some i else None)
+    (fun (r, i) -> if Re.Str.string_match r path 0 then Some i else None)
     cfg
   |> List.fold_left SSet.union SSet.empty
 
-let rec measure full cfg ign path =
+let rec measure pool full cfg ign path =
   let make name x = if SSet.mem name ign then None else Some x in
   let* st = Lwt_unix.LargeFile.lstat path in
   let* st_contents =
@@ -43,13 +43,20 @@ let rec measure full cfg ign path =
       match st.st_kind with
       | S_CHR | S_BLK | S_FIFO | S_SOCK -> Lwt.return_none
       | S_REG ->
-          let* contents = string_of_file path in
+          let* contents =
+            let@ () = Lwt_pool.use pool in
+            let@ ic = Lwt_io.with_file ~mode:Input path in
+            Lwt_io.read ic
+          in
           Lwt.return_some @@ `REG (Hash.hash_string contents)
       | S_LNK ->
           let* contents = Lwt_unix.readlink path in
           Lwt.return_some @@ `LNK contents
       | S_DIR ->
-          let* files = Lwt_unix.files_of_directory path |> Lwt_stream.to_list in
+          let* files =
+            let@ () = Lwt_pool.use pool in
+            Lwt_unix.files_of_directory path |> Lwt_stream.to_list
+          in
           let files =
             files
             |> List.filter (fun x -> x <> "." && x <> "..")
@@ -57,10 +64,10 @@ let rec measure full cfg ign path =
           in
           let* files =
             files
-            |> Lwt_list.map_s (fun x ->
+            |> Lwt_list.map_p (fun x ->
                    let path = path // x in
                    let ign = find_ign cfg path in
-                   let* r = measure full cfg ign path in
+                   let* r = measure pool full cfg ign path in
                    Lwt.return ((if full then path else x), r))
           in
           Lwt.return_some @@ `DIR files
@@ -102,7 +109,8 @@ let main full cfg path =
         Lwt.return @@ parse_config x
   in
   let ign = find_ign cfg path in
-  let* x = measure full cfg ign path in
+  let pool = Lwt_pool.create 1000 (fun () -> Lwt.return_unit) in
+  let* x = measure pool full cfg ign path in
   let* () = Lwt_io.printl (string_of_stats x) in
   Lwt.return_unit
 
