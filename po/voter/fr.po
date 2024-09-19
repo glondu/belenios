@@ -17,7 +17,7 @@ msgstr ""
 
 #: src/web/server/common/pages_common.ml:341
 msgid " (if you forgot it, for example)."
-msgstr " (si vous l'oubliez, par exemple)."
+msgstr " (si vous l'avez oublié, par exemple)."
 
 #: src/web/common/pages_common.ml:249
 msgid " A confirmation e-mail has been sent to you."
@@ -851,7 +851,7 @@ msgstr "urne"
 
 #: src/web/server/common/pages_common.ml:339
 msgid "change your password"
-msgstr "changez votre mot de passe"
+msgstr "changer votre mot de passe"
 
 #: src/web/server/common/pages_common.ml:336
 msgid "create an account"
