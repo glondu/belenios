@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_tool_common
 open Common
 open Cmdliner
 
@@ -52,19 +51,26 @@ let save (descr, filename, perm, thing) =
   Lwt_unix.chmod filename perm
 
 module Tkeygen : CMDLINER_MODULE = struct
-  open Tool_tkeygen
-
   let main group version =
     let@ () = wrap_main in
-    let module P = struct
-      let group = get_mandatory_opt "--group" group
-      let version = version
-    end in
-    let module R = Make (P) (Random) () in
-    let kp = R.trustee_keygen () in
-    Printf.printf "I: keypair %s has been generated\n%!" kp.R.id;
-    let pubkey = ("public key", kp.R.id ^ ".pubkey", 0o444, kp.R.pub) in
-    let privkey = ("private key", kp.R.id ^ ".privkey", 0o400, kp.R.priv) in
+    let group = get_mandatory_opt "--group" group in
+    let module G = (val Group.of_string ~version group) in
+    let module Trustees = (val Trustees.get_by_version version) in
+    let module KG = Trustees.MakeSimple (G) (Random) in
+    let private_key = KG.generate () in
+    let public_key = KG.prove private_key in
+    let id =
+      String.sub (sha256_hex (G.to_string public_key.trustee_public_key)) 0 8
+      |> String.uppercase_ascii
+    in
+    let priv = string_of_number @@ G.Zq.to_Z private_key in
+    let pub =
+      string_of_trustee_public_key (swrite G.to_string) (swrite G.Zq.to_string)
+        public_key
+    in
+    Printf.printf "I: keypair %s has been generated\n%!" id;
+    let pubkey = ("public key", id ^ ".pubkey", 0o444, pub) in
+    let privkey = ("private key", id ^ ".privkey", 0o400, priv) in
     let* () = save pubkey in
     let* () = save privkey in
     Lwt.return_unit
@@ -521,32 +527,28 @@ module Mktrustees : CMDLINER_MODULE = struct
 end
 
 module Mkelection : CMDLINER_MODULE = struct
-  open Tool_mkelection
-
   let main dir group version uuid template =
     let@ () = wrap_main in
     let* template = get_mandatory_opt "--template" template |> string_of_file in
-    let* trustees =
-      let fn = dir // "trustees.json" in
-      let* b = Lwt_unix.file_exists fn in
-      if b then
-        let* x = string_of_file fn in
-        Lwt.return_some x
-      else Lwt.return_none
+    let group = get_mandatory_opt "--group" group in
+    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
+    let* trustees = dir // "trustees.json" |> string_of_file in
+    let module G = (val Group.of_string ~version group) in
+    let module Trustees = (val Trustees.get_by_version version) in
+    let module K = Trustees.MakeCombinator (G) in
+    let template =
+      let (Version v) = Election.version_of_int version in
+      let open (val Election.get_serializers v) in
+      Election.Template (v, template_of_string read_question template)
     in
-    let module P = struct
-      let version = version
-      let group = get_mandatory_opt "--group" group
-      let uuid = get_mandatory_opt "--uuid" uuid
-      let template = template
-
-      let get_trustees () =
-        match trustees with
-        | Some x -> x
-        | None -> failwith "trustees are missing"
-    end in
-    let module R = (val make (module P : PARAMS) : S) in
-    let params = R.mkelection () in
+    let trustees =
+      trustees_of_string (sread G.of_string) (sread G.Zq.of_string) trustees
+    in
+    let y = K.combine_keys trustees in
+    let public_key = G.to_string y in
+    let params =
+      Election.make_raw_election ~version template ~uuid ~group ~public_key
+    in
     let open Lwt_io in
     let@ oc = with_file ~mode:Output (dir // "election.json") in
     write_line oc params
