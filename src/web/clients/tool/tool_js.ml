@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Js_of_ocaml
 open Belenios
-open Belenios_tool_common
 open Belenios_js.Common
 open Belenios_js.Session
 
@@ -170,25 +169,6 @@ module Tests = struct
     ]
 end
 
-module Tkeygen = struct
-  open Tool_tkeygen
-
-  let tkeygen () =
-    let module P : PARAMS = struct
-      let group = get_textarea "election_group"
-      let version = get_textarea "version" |> int_of_string
-    end in
-    let module X = Make (P) (Random) () in
-    let open X in
-    let { id; priv; pub } = trustee_keygen () in
-    set_textarea "tkeygen_id" id;
-    set_textarea "tkeygen_secret" priv;
-    set_textarea "tkeygen_public" pub;
-    Lwt.return_unit
-
-  let cmds = [ ("do_tkeygen", tkeygen) ]
-end
-
 module Credgen = struct
   let derive () =
     let version = get_textarea "version" |> int_of_string in
@@ -253,32 +233,6 @@ module Credgen = struct
       ("do_credgen_generate", generate_n);
       ("do_credgen_ids", generate_ids);
     ]
-end
-
-module Mkelection = struct
-  open Tool_mkelection
-
-  let mkelection () =
-    let module P : PARAMS = struct
-      let version = get_textarea "version" |> int_of_string
-      let uuid = get_textarea "election_uuid"
-      let group = get_textarea "election_group"
-      let template = get_textarea "mkelection_template"
-
-      let get_trustees () =
-        get_textarea "mkelection_pks"
-        |> split_lines
-        |> List.map
-             (trustee_public_key_of_string Yojson.Safe.read_json
-                Yojson.Safe.read_json)
-        |> List.map (fun x -> `Single x)
-        |> string_of_trustees Yojson.Safe.write_json Yojson.Safe.write_json
-    end in
-    let module X = (val make (module P : PARAMS) : S) in
-    set_textarea "mkelection_output" (X.mkelection ());
-    Lwt.return_unit
-
-  let cmds = [ ("do_mkelection", mkelection) ]
 end
 
 let new_uuid () =
@@ -372,8 +326,7 @@ end
 
 let cmds =
   [ ("new_uuid", new_uuid) ]
-  @ Tests.cmds @ Tkeygen.cmds @ Credgen.cmds @ Mkelection.cmds @ Schulze.cmds
-  @ BuggyPartialDecryption.cmds
+  @ Tests.cmds @ Credgen.cmds @ Schulze.cmds @ BuggyPartialDecryption.cmds
 
 let () =
   Lwt.async (fun () ->

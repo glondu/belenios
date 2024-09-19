@@ -13,12 +13,7 @@
    ../../../../vendor/sjcl/sjcl.js
    ../../../../vendor/jsbn/BigIntCompatFull.js
    ../../../../vendor/libsodium/libsodium.js))
- (libraries
-  js_of_ocaml-lwt
-  belenios-platform-js
-  belenios-lib
-  belenios_tool_common
-  belenios_js)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 
@@ -31,11 +26,6 @@
    ../../../../vendor/sjcl/sjcl.js
    ../../../../vendor/jsbn/BigIntCompatFull.js
    ../../../../vendor/libsodium/libsodium.js))
- (libraries
-  js_of_ocaml-lwt
-  belenios-platform-js
-  belenios-lib
-  belenios_tool_common
-  belenios_js)
+ (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
