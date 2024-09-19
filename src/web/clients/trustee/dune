@@ -12,7 +12,6 @@
   belenios-platform-js
   belenios-lib
   belenios-lib.api
-  belenios_tool_common
   belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
