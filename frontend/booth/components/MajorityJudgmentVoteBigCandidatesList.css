@@ -15,11 +15,96 @@
 }
 
 .majority-judgment-vote-big-candidate {
-  --border-radius-size: 6px;
+  --border-radius-size: 10px;
   display: flex;
-  background: #eeeeee;
+  background: #f8f9fa;
   border-radius: var(--border-radius-size);
   margin: 18px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Ajout d'ombre pour un effet surélevé */
+  transition: transform 0.2s ease;
+}
+
+.majority-judgment-vote-big-candidate:hover {
+  transform: translateY(-3px);
+  /* Effet de survol qui soulève légèrement l'élément */
+}
+
+.majority-judgment-vote-big-candidate__candidate-info {
+  min-width: 120px;
+  width: 160px;
+  /* Légèrement plus large pour plus de lisibilité */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Centre le texte horizontalement */
+  font-size: 16px;
+  /* Augmente légèrement la taille de la police */
+  font-weight: 600;
+  /* Utilise une police semi-gras pour un aspect plus élégant */
+  padding: 12px;
+  /* Un peu plus d'espace intérieur */
+  background-color: #f7f7f7;
+  /* Un gris très clair pour plus de subtilité */
+  color: #333;
+  /* Un gris foncé pour le texte pour un contraste agréable */
+  border-radius: var(--border-radius-size) 0 0 var(--border-radius-size);
+  border-left: 3px solid #f25116;
+  /* Ajoute une bordure fine orange pour un effet visuel */
+}
+
+.majority-judgment-vote-big-candidate__available-grades {
+  flex-grow: 1;
+  display: flex;
+}
+
+.majority-judgment-vote-big-candidate__grade {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 0 var(--border-radius-size) var(--border-radius-size) 0;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.majority-judgment-vote-big-candidate__grade:hover {
+  background-color: ;
+  /* Couleur orange au survol */
+  transform: translateY(-2px);
+  /* Soulève légèrement l'option au survol */
+  color: white;
+}
+
+.majority-judgment-vote-big-candidate__grade__input {
+  opacity: 0;
+  width: 1em;
+  height: 1em;
+  position: absolute;
+  left: -100px;
+}
+
+.majority-judgment-vote-big-candidate__grade__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+
+.majority-judgment-vote-big-candidate__grade__label__label {
+  padding: 5px 10px;
+  color: var(--majority-judgment-available-grade-color);
+  transition: color 0.3s ease;
+}
+
+.majority-judgment-vote-big-candidate__grade__input:checked~.majority-judgment-vote-big-candidate__grade__label {
+  background-color: var(--majority-judgment-available-grade-color);
+  border-radius: 8px;
+  color: #fff;
 }
 
 .majority-judgment-vote-candidates-list--blank-vote-is-selected
@@ -78,8 +163,10 @@
 }
 
 .majority-judgment-vote-big-candidate__grade__label:hover {
-  border: 1px solid #aaa;
-  border-radius: initial;
+  border: 2px solid #e04a14;
+  /* Pas de bordure visible, ou définir une couleur transparente */
+  border-radius: var(--border-radius-size);
+  /* Garde les bordures arrondies */
 }
 
 .majority-judgment-vote-big-candidate__grade:last-child
