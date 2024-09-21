@@ -478,7 +478,7 @@ if args.checkhash == True:
     if args.sighashref:
         resp = urllib.request.urlopen(args.sighashref)
         sig = resp.read()
-        gpgrun = subprocess.run(["gpg", "--keyring", args.keyring, "--decrypt"],
+        gpgrun = subprocess.run(["gpg", "--no-default-keyring", "--keyring", args.keyring, "--decrypt"],
                 input=sig,
                 capture_output=True)
         if gpgrun.returncode != 0:
