@@ -99,7 +99,7 @@ let rec measure pool full cfg ign path =
   }
   |> Lwt.return
 
-let main full cfg path =
+let main full cfg path jobs =
   let@ () = wrap_main in
   let* cfg =
     match cfg with
@@ -109,7 +109,7 @@ let main full cfg path =
         Lwt.return @@ parse_config x
   in
   let ign = find_ign cfg path in
-  let pool = Lwt_pool.create 1000 (fun () -> Lwt.return_unit) in
+  let pool = Lwt_pool.create jobs (fun () -> Lwt.return_unit) in
   let* x = measure pool full cfg ign path in
   let* () = Lwt_io.printl (string_of_stats x) in
   Lwt.return_unit
@@ -137,6 +137,11 @@ let path_t =
   let the_info = Arg.info [ "path" ] ~docv:"PATH" ~doc in
   Arg.(value & opt file Filename.current_dir_name the_info)
 
+let jobs_t =
+  let doc = "Use up to $(docv) parallel I/O jobs" in
+  let the_info = Arg.info [ "jobs" ] ~docv:"JOBS" ~doc in
+  Arg.(value & opt int 1 the_info)
+
 let cmd =
   let doc = "measure a directory" in
   let man =
@@ -152,4 +157,4 @@ let cmd =
   in
   Cmd.v
     (Cmd.info "measure" ~doc ~man)
-    Term.(ret (const main $ full_t $ cfg_t $ path_t))
+    Term.(ret (const main $ full_t $ cfg_t $ path_t $ jobs_t))
