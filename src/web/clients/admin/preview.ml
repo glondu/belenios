@@ -34,7 +34,9 @@ let preview_booth () =
   | Error msg -> popup_failsync msg
   | Ok () ->
       let href =
-        "vote#uuid=" ^ Uuid.unwrap (get_current_uuid ()) ^ "&draft=2"
+        Printf.sprintf "vote#uuid=%s&draft=2&lang=%s"
+          (Uuid.unwrap (get_current_uuid ()))
+          lang
       in
       let link = a ~a:[ a_target "_belenios_preview" ] ~href "Ok" in
       let r = Tyxml_js.To_dom.of_a link in
