@@ -746,7 +746,7 @@ let main_zone_shuffling () =
 
 let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
-  let checkpriv =
+  let checkpriv () =
     let uuid = get_current_uuid () in
     let href = "trustee#check/" ^ Uuid.unwrap uuid in
     let label = s_ "Check private key ownership" in
@@ -762,9 +762,14 @@ let recompute_main_zone () =
       ul [ li [ a ~href label ] ];
     ]
   in
-  let* content =
+  let* content, show_checkpriv =
     if is_draft () then (
       let* () = get_trustees () in
+      let@ () =
+       fun cont ->
+        let* r = cont () in
+        Lwt.return (r, !step >= 3)
+      in
       match !step with
       | 1 -> recompute_main_zone_1 ()
       | 2 -> recompute_main_zone_2 ()
@@ -777,19 +782,25 @@ let recompute_main_zone () =
       match status.status_state with
       | `EncryptedTally ->
           let* () = get_trustees_pd () in
-          if not (all_pd ()) then main_zone_tallying ()
-          else
+          if all_pd () then
             let* () = trustee_request `ReleaseTally in
-            Lwt.return_nil
+            Lwt.return ([], false)
+          else
+            let* r = main_zone_tallying () in
+            Lwt.return (r, false)
       | `Shuffling ->
           let* () = update_shuffles () in
-          if not (ready_to_decrypt ()) then main_zone_shuffling ()
-          else
+          if ready_to_decrypt () then
             let* () = trustee_request `FinishShuffling in
             let* () = get_trustees_pd () in
-            main_zone_tallying ()
-      | _ -> Lwt.return_nil
+            let* r = main_zone_tallying () in
+            Lwt.return (r, false)
+          else
+            let* r = main_zone_shuffling () in
+            Lwt.return (r, true)
+      | _ -> Lwt.return ([], true)
   in
+  let checkpriv = if show_checkpriv then checkpriv () else [] in
   Lwt.return @@ List.flatten [ content; checkpriv ]
 
 let () =
