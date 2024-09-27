@@ -769,11 +769,10 @@ let voters_content () =
             let* voters = Cache.get_until_success Cache.voters in
             let ifmatch = sha256_b64 @@ string_of_voter_list voters in
             let* () =
-              let@ uuid = popup_choose_elec in
-              let r = `Import uuid in
-              let* x =
-                Api.(post ~ifmatch (draft_voters (get_current_uuid ())) !user r)
-              in
+              let target_uuid = get_current_uuid () in
+              let@ from_uuid = popup_choose_elec target_uuid in
+              let r = `Import from_uuid in
+              let* x = Api.(post ~ifmatch (draft_voters target_uuid) !user r) in
               if x.code <> 200 then
                 Printf.ksprintf alert "Failed with error code %d" x.code;
               Cache.invalidate Cache.voters;

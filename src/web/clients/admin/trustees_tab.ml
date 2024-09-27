@@ -284,8 +284,8 @@ let recompute_main_zone_1 () =
   in
   let import_but =
     let@ () = button @@ s_ "Import trustees from another election" in
-    let@ uuid = popup_choose_elec in
-    let r = `Import uuid in
+    let@ from_uuid = popup_choose_elec uuid in
+    let r = `Import from_uuid in
     let* x = Api.(post (draft_trustees uuid) !user r) in
     match x.code with
     | 200 ->

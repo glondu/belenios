@@ -100,7 +100,7 @@ open Belenios_js.Session
  * import something. handler takes an uuid (as raw_string) in input
  *)
 
-let popup_choose_elec handler =
+let popup_choose_elec uuid handler =
   let open (val !Belenios_js.I18n.gettext) in
   let* x = Api.(get elections !user) in
   match x with
@@ -124,7 +124,11 @@ let popup_choose_elec handler =
             in
             alert msg;
             Lwt.return_unit
-        | Ok (drafts, _) -> cont (drafts @ elections)
+        | Ok (drafts, _) ->
+            let drafts =
+              List.filter (fun (x : summary) -> x.uuid <> uuid) drafts
+            in
+            cont (drafts @ elections)
       in
       let name_uuids =
         elections

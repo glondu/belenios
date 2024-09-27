@@ -65,4 +65,4 @@ val is_finished : unit -> bool
 
 val popup_failsync : string -> unit Lwt.t
 val default_version : Belenios.Election.some_version
-val popup_choose_elec : (uuid -> unit Lwt.t) -> unit Lwt.t
+val popup_choose_elec : uuid -> (uuid -> unit Lwt.t) -> unit Lwt.t
