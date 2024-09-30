@@ -382,32 +382,40 @@ let tabs x =
                 (* in Shuffle mode, if there is no external trustee, then FinishShuffle *)
                 let* status = Cache.get_until_success Cache.e_status in
                 let* () =
-                  if status.status_state = `Shuffling then
-                    let* nb_shufflers = nb_shufflers () in
-                    if nb_shufflers = 1 then (
-                      let ifmatch =
-                        Some (sha256_b64 @@ string_of_election_status status)
-                      in
-                      let* x =
-                        Api.(
-                          post ?ifmatch (election_status uuid) !user
-                            `FinishShuffling)
-                      in
-                      (match x.code with
-                      | 200 ->
-                          Cache.invalidate Cache.e_status;
-                          where_am_i :=
-                            Election { uuid; status = Tallied; tab = Status }
-                      | code ->
-                          alert ("Failed with code " ^ string_of_int code);
-                          where_am_i :=
-                            Election { uuid; status = Running; tab = Status });
-                      Lwt.return_unit)
-                    else Lwt.return_unit
-                  else (
-                    where_am_i :=
-                      Election { uuid; status = Running; tab = Status };
-                    Lwt.return_unit)
+                  match status.status_state with
+                  | `Shuffling ->
+                      let* nb_shufflers = nb_shufflers () in
+                      if nb_shufflers = 1 then (
+                        let ifmatch =
+                          Some (sha256_b64 @@ string_of_election_status status)
+                        in
+                        let* x =
+                          Api.(
+                            post ?ifmatch (election_status uuid) !user
+                              `FinishShuffling)
+                        in
+                        (match x.code with
+                        | 200 ->
+                            Cache.invalidate Cache.e_status;
+                            where_am_i :=
+                              Election { uuid; status = Tallied; tab = Status }
+                        | code ->
+                            alert ("Failed with code " ^ string_of_int code);
+                            where_am_i :=
+                              Election { uuid; status = Running; tab = Status });
+                        Lwt.return_unit)
+                      else (
+                        where_am_i :=
+                          Election { uuid; status = Running; tab = Trustees };
+                        Lwt.return_unit)
+                  | `EncryptedTally ->
+                      where_am_i :=
+                        Election { uuid; status = Running; tab = Trustees };
+                      Lwt.return_unit
+                  | _ ->
+                      where_am_i :=
+                        Election { uuid; status = Running; tab = Status };
+                      Lwt.return_unit
                 in
                 !update_election_main ()
             | _ ->
