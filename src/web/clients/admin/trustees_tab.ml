@@ -480,6 +480,17 @@ let recompute_main_zone_2 () =
     Lwt.return
       [
         h2 [ txt @@ s_ "Trustee setup - Step 2: key generation" ];
+        div
+          [
+            em
+              [
+                txt
+                @@ s_
+                     "You must send each trustee their link (from the table \
+                      below) so that they initialize their key for this \
+                      election.";
+              ];
+          ];
         tablex [ tbody (header_row :: rows_of_ttees) ];
         div [ refresh_but ];
         div [ reset_but ];
@@ -585,6 +596,17 @@ let main_zone_tallying () =
         Lwt.return
         @@ div
              [
+               div
+                 [
+                   em
+                     [
+                       txt
+                       @@ s_
+                            "You must send each trustee their link (from the \
+                             table below) so that they perform their share of \
+                             the decryption.";
+                     ];
+                 ];
                tablex [ tbody (header_row :: rows_of_ttees) ];
                refresh_but;
                release_but;
@@ -737,6 +759,18 @@ let main_zone_shuffling () =
         Lwt.return
         @@ div
              [
+               div
+                 [
+                   em
+                     [
+                       txt
+                       @@ s_
+                            "You must select each trustee in turn, and send \
+                             them a link so that they perform their shuffle. \
+                             You can also skip a trustee, but keep in mind \
+                             that this reduces security.";
+                     ];
+                 ];
                tablex [ tbody (header_row :: rows_of_sh) ];
                div [ refresh_but ];
                div [ finish_but ];
