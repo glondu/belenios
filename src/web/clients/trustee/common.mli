@@ -21,4 +21,5 @@
 
 open Js_of_ocaml_tyxml.Tyxml_js
 
-val make_private_key_input : unit -> [> Html_types.div ] Html.elt * string Lwt.t
+val make_private_key_input :
+  (string -> unit Lwt.t) -> [> Html_types.div ] Html.elt

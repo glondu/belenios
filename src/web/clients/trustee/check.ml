@@ -164,12 +164,7 @@ let check ?uuid () =
         match Uuid.wrap uuid with
         | exception _ -> Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
         | uuid ->
-            let private_key_input, get_private_key =
-              make_private_key_input ()
-            in
-            let () =
-              let@ () = Lwt.async in
-              let* private_key = get_private_key in
+            let handle_private_key private_key =
               let* election = Api.(get (election uuid) `Nobody) in
               match election with
               | Ok (election, _) ->
@@ -185,6 +180,7 @@ let check ?uuid () =
                       Lwt.return_unit
                   | Ok (Draft (_, draft), _) -> do_draft uuid draft private_key)
             in
+            let private_key_input = make_private_key_input handle_private_key in
             Lwt.return [ private_key_input ])
   in
   Lwt.return @@ [ h3 [ txt @@ s_ "Check private key ownership" ]; hr () ] @ body

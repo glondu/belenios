@@ -224,10 +224,7 @@ let compute_threshold_step ~token ~url draft pedersen =
   | 3 | 5 ->
       let container = Dom_html.createDiv document in
       let input_private_key_div = Dom_html.createDiv document in
-      let input_private_key, get_private_key = make_private_key_input () in
-      let () =
-        let@ () = Lwt.async in
-        let* private_key = get_private_key in
+      let handle_private_key private_key =
         Dom.removeChild container input_private_key_div;
         let* data = threshold_step draft pedersen ~private_key in
         let submit =
@@ -257,6 +254,7 @@ let compute_threshold_step ~token ~url draft pedersen =
         Dom.appendChild container submit;
         Lwt.return_unit
       in
+      let input_private_key = make_private_key_input handle_private_key in
       let explain =
         match pedersen.pedersen_step with
         | 3 ->

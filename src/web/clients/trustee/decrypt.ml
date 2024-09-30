@@ -109,7 +109,6 @@ let decrypt uuid ~token =
   in
   let container = Dom_html.createDiv document in
   let encrypted_tally_hash = sha256_b64 encrypted_tally in
-  let input_private_key, get_private_key = make_private_key_input () in
   let partial_decryption = ref "" in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in
@@ -127,10 +126,7 @@ let decrypt uuid ~token =
     Dom.appendChild container (Tyxml_js.To_dom.of_div element);
     Lwt.return_unit
   in
-  let compute = txt @@ s_ "Generate your contribution to decryption" in
-  let () =
-    let@ () = Lwt.async in
-    let* private_key = get_private_key in
+  let handle_private_key private_key =
     let* pd =
       compute_partial_decryption trustee ~election ~encrypted_tally ~private_key
     in
@@ -139,6 +135,8 @@ let decrypt uuid ~token =
     r##.disabled := Js._false;
     Lwt.return_unit
   in
+  let input_private_key = make_private_key_input handle_private_key in
+  let compute = txt @@ s_ "Generate your contribution to decryption" in
   let title = h3 [ txt @@ s_ "Partial decryption" ] in
   let contents =
     [

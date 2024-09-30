@@ -21,15 +21,28 @@
 
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
+open Belenios
+open Belenios_js.Common
 
-let make_private_key_input () =
+let wrap_handler handler x =
+  let@ () = Lwt.async in
+  Lwt.catch
+    (fun () -> handler x)
+    (fun _ ->
+      let open (val !Belenios_js.I18n.gettext) in
+      alert
+      @@ s_
+           "Error while processing the private key. Did you load the right \
+            file?";
+      Lwt.return_unit)
+
+let make_private_key_input handler =
   let open (val !Belenios_js.I18n.gettext) in
   let open Tyxml_js.Html in
-  let t, u = Lwt.task () in
   let raw_elt = input ~a:[ a_id "private_key"; a_input_type `Hidden ] () in
   let raw_dom = Tyxml_js.To_dom.of_input raw_elt in
   let onchange _ =
-    Lwt.wakeup_later u (Js.to_string raw_dom##.value);
+    wrap_handler handler (Js.to_string raw_dom##.value);
     Js._false
   in
   raw_dom##.onchange := Dom_html.handler onchange;
@@ -44,20 +57,17 @@ let make_private_key_input () =
     reader##.onload :=
       Dom.handler (fun _ ->
           let& content = File.CoerceTo.string reader##.result in
-          Lwt.wakeup_later u (Js.to_string content);
+          wrap_handler handler (Js.to_string content);
           Js._false);
     reader##readAsText file;
     Js._false
   in
   file_dom##.onchange := Dom_html.handler onchange;
-  let elt =
-    div
-      ~a:[ a_id "input_private_key" ]
-      [
-        txt @@ s_ "Please load your private key from a file:";
-        txt " ";
-        file_elt;
-        raw_elt;
-      ]
-  in
-  (elt, t)
+  div
+    ~a:[ a_id "input_private_key" ]
+    [
+      txt @@ s_ "Please load your private key from a file:";
+      txt " ";
+      file_elt;
+      raw_elt;
+    ]
