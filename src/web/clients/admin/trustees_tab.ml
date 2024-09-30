@@ -768,7 +768,7 @@ let recompute_main_zone () =
       let@ () =
        fun cont ->
         let* r = cont () in
-        Lwt.return (r, !step >= 3)
+        Lwt.return (r, !step >= 3 && !all_trustee <> [])
       in
       match !step with
       | 1 -> recompute_main_zone_1 ()
@@ -797,8 +797,8 @@ let recompute_main_zone () =
             Lwt.return (r, false)
           else
             let* r = main_zone_shuffling () in
-            Lwt.return (r, true)
-      | _ -> Lwt.return ([], true)
+            Lwt.return (r, false)
+      | _ -> Lwt.return ([], false)
   in
   let checkpriv = if show_checkpriv then checkpriv () else [] in
   Lwt.return @@ List.flatten [ content; checkpriv ]
