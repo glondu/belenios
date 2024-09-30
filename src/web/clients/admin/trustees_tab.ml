@@ -834,8 +834,22 @@ let recompute_main_zone () =
             Lwt.return (r, false)
       | _ -> Lwt.return ([], false)
   in
-  let checkpriv = if show_checkpriv then checkpriv () else [] in
-  Lwt.return @@ List.flatten [ content; checkpriv ]
+  match content with
+  | [] ->
+      Lwt.return
+      @@ [
+           div
+             [
+               em
+                 [
+                   txt
+                   @@ s_ "Nothing to show here. Try going to the Status tab.";
+                 ];
+             ];
+         ]
+  | _ ->
+      let checkpriv = if show_checkpriv then checkpriv () else [] in
+      Lwt.return @@ List.flatten [ content; checkpriv ]
 
 let () =
   update_main_zone :=
