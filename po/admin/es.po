@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 2.5.1\n"
@@ -50,8 +51,8 @@ msgstr " durante las elecciones."
 msgid " as user "
 msgstr " como usuario "
 
-#. src/web/server/common/pages_admin.ml:360
 #: src/web/server/common/pages_admin.ml:411
+#. src/web/server/common/pages_admin.ml:360
 msgid " because "
 msgstr " porque "
 
@@ -59,8 +60,8 @@ msgstr " porque "
 msgid " has been accepted."
 msgstr " se ha aceptado."
 
-#. src/web/server/common/pages_admin.ml:271
 #: src/web/server/common/pages_admin.ml:304
+#. src/web/server/common/pages_admin.ml:271
 msgid " in the following box: "
 msgstr " en la siguiente casilla: "
 
@@ -80,7 +81,7 @@ msgstr " o envíales manualmente este enlace:"
 msgid " or username: "
 msgstr " o nombre de usuario: "
 
-#: src/web/clients/trustee/decrypt.ml:174
+#: src/web/clients/trustee/decrypt.ml:172
 msgid " your contribution to decryption."
 msgstr " su contribución al descifrado."
 
@@ -92,8 +93,8 @@ msgstr "(no hay título)"
 msgid "(none)"
 msgstr "(ninguno)"
 
-#. src/web/server/common/pages_admin.ml:362
 #: src/web/server/common/pages_admin.ml:413
+#. src/web/server/common/pages_admin.ml:362
 msgid ". Please try again with a different one."
 msgstr ". Porfavor inténtelo de nuevo con una contraseña diferente."
 
@@ -153,13 +154,13 @@ msgstr "Agregar"
 msgid "Add a grade"
 msgstr "Añadir una valoración"
 
-#. src/web/clients/admin/trustees_tab.ml:147
 #: src/web/clients/admin/trustees_tab.ml:193
+#. src/web/clients/admin/trustees_tab.ml:147
 msgid "Add a trustee"
 msgstr "Agregar un fideicomisario"
 
-#. src/web/clients/admin/admin.ml:64
 #: src/web/clients/admin/admin.ml:89 src/web/clients/admin/admin.ml:88
+#. src/web/clients/admin/admin.ml:64
 msgid "Administration"
 msgstr "Administración"
 
@@ -222,7 +223,7 @@ msgstr "¿Estás seguro de que quieres borrar esta elección?"
 msgid "Are you sure you want to delete this question?"
 msgstr "¿Seguro que quieres borrar esta pregunta?"
 
-#: src/web/clients/admin/trustees_tab.ml:470
+#: src/web/clients/admin/trustees_tab.ml:480
 msgid "Are you sure you want to restart from scratch?"
 msgstr "¿Estás seguro de que quieres volver a empezar desde cero?"
 
@@ -252,9 +253,9 @@ msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr ""
 "A continuación encontrará el enlace para mezclar las papeletas encriptadas."
 
+#: src/web/server/common/pages_admin.ml:673
 #. src/web/server/common/pages_admin.ml:639
 #. src/web/server/common/pages_admin.ml:605
-#: src/web/server/common/pages_admin.ml:673
 msgid "Best regards,"
 msgstr "Atentamente,"
 
@@ -284,15 +285,15 @@ msgstr "Cancelar"
 msgid "Change e-mail address"
 msgstr "Cambiar dirección de correo electrónico"
 
+#: src/web/server/common/site_admin.ml:458
 #. src/web/server/common/site_admin.ml:346
 #. src/web/server/common/pages_admin.ml:646
 #. src/web/server/common/pages_admin.ml:445
 #. src/web/server/common/pages_admin.ml:313
-#: src/web/server/common/site_admin.ml:458
 msgid "Change password"
 msgstr "Cambiar la contraseña"
 
-#: src/web/clients/trustee/check.ml:190 src/web/clients/admin/trustees_tab.ml:786
+#: src/web/clients/trustee/check.ml:186 src/web/clients/admin/trustees_tab.ml:801
 msgid "Check private key ownership"
 msgstr "Verificar la propiedad de la clave privada"
 
@@ -312,8 +313,8 @@ msgstr "Hacer clic en \"Enviar\" para enviar su clave de verificación."
 msgid "Click on the link."
 msgstr "Haga clic en el enlace."
 
-#. src/web/clients/common/secondary_ui.ml:101
 #: src/web/clients/admin/elections.ml:1644
+#. src/web/clients/common/secondary_ui.ml:101
 msgid "Close"
 msgstr "Cerrar"
 
@@ -325,7 +326,7 @@ msgstr "Cerrar: "
 msgid "Code"
 msgstr "Código"
 
-#: src/web/clients/trustee/generate.ml:350
+#: src/web/clients/trustee/generate.ml:348
 msgid "Collaborative key generation"
 msgstr "Generación de clave colaborativa"
 
@@ -370,14 +371,14 @@ msgstr "Crear"
 msgid "Create a new election"
 msgstr "Crear nuevas elecciones"
 
+#: src/web/server/common/site_admin.ml:428
 #. src/web/server/common/site_admin.ml:305
 #. src/web/server/common/pages_admin.ml:612
-#: src/web/server/common/site_admin.ml:428
 msgid "Create account"
 msgstr "Crear cuenta"
 
-#. src/web/server/common/pages_admin.ml:280
 #: src/web/server/common/pages_admin.ml:389
+#. src/web/server/common/pages_admin.ml:280
 msgid "Create an account"
 msgstr "Crear una cuenta"
 
@@ -418,11 +419,11 @@ msgstr ""
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr "Participación actual: %d / %d = %.2f %%"
 
-#: src/web/clients/trustee/generate.ml:247
+#: src/web/clients/trustee/generate.ml:244
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
 msgstr "¡Error al enviar los datos! Actualiza y/o reiniza desde el principio."
 
-#: src/web/clients/trustee/generate.ml:245
+#: src/web/clients/trustee/generate.ml:242
 msgid "Data submission succeeded! Please refresh to proceed."
 msgstr "¡El envío de datos se realizó correctamente! Actualiza para continuar."
 
@@ -434,9 +435,9 @@ msgstr "Fecha / hora (UTC)"
 msgid "Dates"
 msgstr "Fechas"
 
+#: src/web/server/common/pages_admin.ml:653
 #. src/web/server/common/pages_admin.ml:619
 #. src/web/server/common/pages_admin.ml:585
-#: src/web/server/common/pages_admin.ml:653
 msgid "Dear %s,"
 msgstr "Estimado/a %s,"
 
@@ -444,9 +445,9 @@ msgstr "Estimado/a %s,"
 msgid "Dear credential authority,"
 msgstr "Estimado/a autoridad de credenciales,"
 
+#: src/web/common/mails_admin.ml:333 src/web/common/mails_admin.ml:281
 #. src/web/common/mails_admin.ml:197
 #. src/web/common/mails_admin.ml:117
-#: src/web/common/mails_admin.ml:333 src/web/common/mails_admin.ml:281
 msgid "Dear trustee,"
 msgstr "Estimada(o) fedataria(o),"
 
@@ -470,17 +471,23 @@ msgstr "Borrar la selección"
 msgid "Description:"
 msgstr "Descripción:"
 
+#: src/web/clients/admin/trustees_tab.ml:669
+#. src/web/clients/admin/trustees_tab.ml:416
+#. src/web/clients/admin/trustees_tab.ml:391
+msgid "Direct link"
+msgstr ""
+
 #: src/web/common/mails_admin.ml:218
 msgid "Don't forget to save:"
 msgstr "No olvide guardar:"
 
-#. src/web/clients/admin/trustees_tab.ml:562
-#: src/web/clients/admin/trustees_tab.ml:675
+#: src/web/clients/admin/trustees_tab.ml:690
+#. src/web/clients/admin/trustees_tab.ml:572
 msgid "Done?"
 msgstr "¿Hecho?"
 
-#. src/web/clients/credauth/generate.ml:115
 #: src/web/clients/credauth/generate.ml:123
+#. src/web/clients/credauth/generate.ml:115
 msgid "Download "
 msgstr "Descargar "
 
@@ -499,15 +506,9 @@ msgstr ""
 msgid "Dummy auth (should not be used in production): "
 msgstr "Autenticación ficticia (no debe usarse en producción): "
 
-#. src/web/clients/admin/trustees_tab.ml:410
-#. src/web/clients/admin/trustees_tab.ml:390
-#: src/web/clients/admin/trustees_tab.ml:658
-msgid "E-mail"
-msgstr "Correo electrónico"
-
+#: src/web/server/common/pages_admin.ml:546
 #. src/web/server/common/pages_admin.ml:291
 #. src/web/server/common/pages_admin.ml:261
-#: src/web/server/common/pages_admin.ml:546
 msgid "E-mail address:"
 msgstr "Dirección de correo electrónico:"
 
@@ -535,10 +536,10 @@ msgstr "Las elecciones están actualmente abiertas"
 msgid "Election main page"
 msgstr "Página principal de las elecciones"
 
+#: src/web/server/common/pages_admin.ml:187
 #. src/web/server/common/pages_admin.ml:46
 #. src/web/common/pages_common.ml:141
 #. src/web/common/pages_common.ml:132
-#: src/web/server/common/pages_admin.ml:187
 msgid "Election server"
 msgstr "Servidor de elecciones"
 
@@ -568,12 +569,12 @@ msgstr ""
 msgid "Erase"
 msgstr "Borrar"
 
+#: src/web/clients/credauth/generate.ml:156
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:219
 #. src/web/clients/trustee/trustee.ml:40
 #. src/web/server/common/site_admin.ml:279
 #. src/web/server/common/site_admin.ml:145
-#: src/web/clients/credauth/generate.ml:156
 msgid "Error"
 msgstr "Error"
 
@@ -584,6 +585,10 @@ msgstr "Error en el formato de la clave privada: %s"
 #: src/web/clients/trustee/shuffle.ml:79 src/web/clients/trustee/decrypt.ml:96
 msgid "Error while loading election parameters!"
 msgstr "¡Error al cargar los parámetros electorales!"
+
+#: src/web/clients/trustee/common.ml:34
+msgid "Error while processing the private key. Did you load the right file?"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1394
 msgid "Error while retrieving server configuration: %s"
@@ -601,8 +606,8 @@ msgstr "Estimando el tiempo de cómputo …"
 msgid "FAIL!"
 msgstr "¡FALLO!"
 
-#. src/web/clients/admin/trustees_tab.ml:554
-#: src/web/clients/admin/trustees_tab.ml:666
+#: src/web/clients/admin/trustees_tab.ml:681
+#. src/web/clients/admin/trustees_tab.ml:564
 msgid "Failed to connect; please reload"
 msgstr "No se ha podido conectar; por favor vuelve a actualizar"
 
@@ -642,7 +647,7 @@ msgstr "Generar una clave"
 msgid "Generate and send the credentials"
 msgstr "Generar y enviar las credenciales"
 
-#: src/web/clients/trustee/decrypt.ml:130
+#: src/web/clients/trustee/decrypt.ml:139
 msgid "Generate your contribution to decryption"
 msgstr "Generar su contribución al descifrado"
 
@@ -694,8 +699,8 @@ msgstr "Caracter ilegal: %c"
 msgid "Impersonate a user"
 msgstr "Suplantar a un usuario"
 
-#. src/web/clients/admin/trustees_tab.ml:286
 #: src/web/clients/admin/trustees_tab.ml:307
+#. src/web/clients/admin/trustees_tab.ml:286
 msgid "Import trustees from another election"
 msgstr "Importar fedatarios desde otra elección"
 
@@ -707,7 +712,7 @@ msgstr "Importar a los votantes "
 msgid "In 5 minutes"
 msgstr "En 5 minutos"
 
-#: src/web/clients/trustee/generate.ml:271
+#: src/web/clients/trustee/generate.ml:269
 msgid "Inconsistent state!"
 msgstr "¡Estado incoherente!"
 
@@ -727,11 +732,11 @@ msgstr "Introducir una pregunta"
 msgid "Insert an answer"
 msgstr "Introducir una respuesta"
 
-#. src/web/clients/trustee/decrypt.ml:158
+#: src/web/clients/credauth/generate.ml:110
+#. src/web/clients/trustee/decrypt.ml:156
 #. src/web/clients/trustee/generate.ml:166
 #. src/web/common/mails_admin.ml:344
 #. src/web/common/mails_admin.ml:292
-#: src/web/clients/credauth/generate.ml:110
 msgid "Instructions:"
 msgstr "instrucciones:"
 
@@ -739,7 +744,7 @@ msgstr "instrucciones:"
 msgid "Invalid election ID!"
 msgstr "¡Identificación electoral no válida!"
 
-#: src/web/clients/trustee/decrypt.ml:147
+#: src/web/clients/trustee/decrypt.ml:145
 msgid "It is now time to compute your partial decryption factors."
 msgstr "Es momento de procesar su contribución parcial al descifrado."
 
@@ -763,18 +768,12 @@ msgstr "Idiomas"
 msgid "Languages:"
 msgstr "Idiomas:"
 
-#. src/web/clients/admin/trustees_tab.ml:408
-#. src/web/clients/admin/trustees_tab.ml:388
-#: src/web/clients/admin/trustees_tab.ml:656
-msgid "Link"
-msgstr "Enlace"
-
 #: src/web/common/mails_admin.ml:265 src/web/common/mails_admin.ml:181
 msgid "Link to generate the decryption key"
 msgstr "Enlace para generar la clave de descifrado"
 
-#. src/web/clients/admin/trustees_tab.ml:443
-#: src/web/clients/admin/trustees_tab.ml:561
+#: src/web/clients/admin/trustees_tab.ml:571
+#. src/web/clients/admin/trustees_tab.ml:453
 msgid "Link to send"
 msgstr "Enlace para enviar"
 
@@ -814,8 +813,8 @@ msgstr "Iniciar con"
 msgid "Log in:"
 msgstr "Usuario:"
 
-#. src/web/server/common/pages_admin.ml:107
 #: src/web/clients/admin/admin.ml:364 src/web/clients/admin/account.ml:122
+#. src/web/server/common/pages_admin.ml:107
 msgid "Log out"
 msgstr "Salir"
 
@@ -891,8 +890,8 @@ msgstr "Navegador por defecto"
 msgid "New answer"
 msgstr "Nueva respuesta"
 
-#. src/web/clients/admin/questions.ml:637
 #: src/web/clients/admin/questions.ml:742 src/web/clients/admin/questions.ml:714
+#. src/web/clients/admin/questions.ml:637
 msgid "New candidate"
 msgstr "Nuevo candidat@"
 
@@ -904,7 +903,7 @@ msgstr "Nueva calificación"
 msgid "New list"
 msgstr "Lista nueva"
 
-#: src/web/clients/admin/trustees_tab.ml:418
+#: src/web/clients/admin/trustees_tab.ml:428
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
 "No se ha establecido ningún administrador externo. ¿ConfirmaS que confías en "
@@ -922,17 +921,17 @@ msgstr "¡Nadie ha votado!"
 msgid "Not (yet) available for draft elections"
 msgstr "No disponible (aún) para el proyecto de las elecciones"
 
-#: src/web/clients/admin/trustees_tab.ml:846
+#: src/web/clients/admin/trustees_tab.ml:861
 msgid "Nothing to show here. Try going to the Status tab."
 msgstr "No hay nada que mostrar aquí. Intente ir a la pestaña Estado."
 
-#: src/web/clients/trustee/generate.ml:263
+#: src/web/clients/trustee/generate.ml:261
 msgid "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
 msgstr ""
 "Todos los certificados de los fedatarios han sido generados. Proceda a "
 "generar su parte de la clave de descifrado."
 
-#: src/web/clients/trustee/generate.ml:267
+#: src/web/clients/trustee/generate.ml:265
 msgid "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
 msgstr ""
 "Todos los fedatarios han generado sus claves secretas. Proceda a las "
@@ -995,11 +994,11 @@ msgstr "Abrir: "
 msgid "Other authentication modes:"
 msgstr "Otros métodos para la autenticación:"
 
-#: src/web/clients/trustee/decrypt.ml:142
+#: src/web/clients/trustee/decrypt.ml:140
 msgid "Partial decryption"
 msgstr "Desencriptado parcial"
 
-#: src/web/clients/trustee/decrypt.ml:124
+#: src/web/clients/trustee/decrypt.ml:123
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr "¡El envío de descifrado parcial falló inesperadamente!"
 
@@ -1027,8 +1026,8 @@ msgstr "Por favor elija un nombre de usuario: "
 msgid "Please download "
 msgstr "Por favor, descargar "
 
-#. src/web/server/common/pages_admin.ml:269
 #: src/web/server/common/pages_admin.ml:302
+#. src/web/server/common/pages_admin.ml:269
 msgid "Please enter "
 msgstr "Por favor escriba "
 
@@ -1051,7 +1050,7 @@ msgstr ""
 msgid "Please fill-in the voter list first."
 msgstr "Por favor, rellena primero la lista de votantes."
 
-#: src/web/clients/trustee/common.ml:57
+#: src/web/clients/trustee/common.ml:69
 msgid "Please load your private key from a file:"
 msgstr "Por favor, carga tu clave privada desde un archivo:"
 
@@ -1095,9 +1094,9 @@ msgstr "Vista previa de la interfaz del votante"
 msgid "Preview will open in a new tab"
 msgstr "La vista previa se abrirá en una nueva pestaña"
 
+#: src/web/clients/trustee/check.ml:147 src/web/server/common/pages_admin.ml:521
 #. src/web/server/common/pages_admin.ml:499
 #. src/web/server/common/pages_admin.ml:473
-#: src/web/clients/trustee/check.ml:147 src/web/server/common/pages_admin.ml:521
 msgid "Proceed"
 msgstr "Proceder"
 
@@ -1168,9 +1167,9 @@ msgstr "Preparado para crear:"
 msgid "Records"
 msgstr "Registros"
 
-#. src/web/clients/admin/trustees_tab.ml:585
-#. src/web/clients/admin/trustees_tab.ml:478
-#: src/web/clients/admin/trustees_tab.ml:750
+#: src/web/clients/admin/trustees_tab.ml:765
+#. src/web/clients/admin/trustees_tab.ml:595
+#. src/web/clients/admin/trustees_tab.ml:488
 msgid "Refresh status"
 msgstr "Actualizar el estado"
 
@@ -1186,11 +1185,11 @@ msgstr ""
 msgid "Regenerate and e-mail a password"
 msgstr "Regenerar y enviar por correo electrónico una contraseña"
 
-#: src/web/clients/admin/trustees_tab.ml:592
+#: src/web/clients/admin/trustees_tab.ml:602
 msgid "Release tally"
 msgstr "Recuento de las papeletas"
 
-#: src/web/clients/admin/trustees_tab.ml:468
+#: src/web/clients/admin/trustees_tab.ml:478
 msgid "Reset and start from scratch"
 msgstr "Reiniciar y empezar de cero"
 
@@ -1233,7 +1232,7 @@ msgstr "Seguridad"
 msgid "Select propositions"
 msgstr "Seleccionar las propuestas"
 
-#: src/web/clients/admin/trustees_tab.ml:713
+#: src/web/clients/admin/trustees_tab.ml:728
 msgid "Select this trustee"
 msgstr "Seleccione a esta(e) fedataria(o)"
 
@@ -1242,6 +1241,12 @@ msgid "Selecting CAS authentication requires setting a valid CAS server"
 msgstr ""
 "La selección de la autenticación CAS requiere la configuración de un "
 "servidor CAS válido"
+
+#: src/web/clients/admin/trustees_tab.ml:673
+#. src/web/clients/admin/trustees_tab.ml:420
+#. src/web/clients/admin/trustees_tab.ml:395
+msgid "Send an e-mail"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1291
 msgid "Send an e-mail to the credential authority"
@@ -1263,15 +1268,15 @@ msgstr "Mostrar solo los votantes que faltan"
 msgid "Shuffle"
 msgstr "Mezclar"
 
-#: src/web/clients/admin/trustees_tab.ml:672
+#: src/web/clients/admin/trustees_tab.ml:687
 msgid "Shuffler's e-mail"
 msgstr "Correo electrónico de Shuffler"
 
-#: src/web/clients/admin/trustees_tab.ml:714
+#: src/web/clients/admin/trustees_tab.ml:729
 msgid "Skip"
 msgstr "Ignorar"
 
-#: src/web/clients/admin/trustees_tab.ml:755
+#: src/web/clients/admin/trustees_tab.ml:770
 msgid "Skip all remaining trustees"
 msgstr "Saltar a todos los fideicomisarios restantes"
 
@@ -1289,15 +1294,16 @@ msgstr ""
 msgid "Sort propositions"
 msgstr "Ordenar las propuestas"
 
+#: src/web/clients/admin/trustees_tab.ml:454
 #. src/web/clients/admin/elections.ml:435
-#: src/web/clients/admin/trustees_tab.ml:444
 msgid "Status"
 msgstr "Situación"
 
-#: src/web/clients/trustee/generate.ml:349
+#: src/web/clients/trustee/generate.ml:347
 msgid "Step %d/3"
 msgstr "Paso %d/3"
 
+#: src/web/clients/trustee/shuffle.ml:146 src/web/clients/trustee/decrypt.ml:114
 #. src/web/clients/admin/elections.ml:1553
 #. src/web/server/common/pages_admin.ml:573
 #. src/web/server/common/pages_admin.ml:440
@@ -1305,11 +1311,10 @@ msgstr "Paso %d/3"
 #. src/web/server/common/pages_admin.ml:329
 #. src/web/server/common/pages_admin.ml:307
 #. src/web/server/common/pages_admin.ml:274
-#: src/web/clients/trustee/shuffle.ml:146 src/web/clients/trustee/decrypt.ml:115
 msgid "Submit"
 msgstr "Enviar"
 
-#: src/web/clients/trustee/generate.ml:236
+#: src/web/clients/trustee/generate.ml:233
 msgid "Submit data"
 msgstr "Enviar datos"
 
@@ -1337,11 +1342,11 @@ msgstr "Elecciones escrutadas"
 msgid "Tally the election"
 msgstr "Recuento de las elecciones"
 
-#: src/web/clients/admin/trustees_tab.ml:615
+#: src/web/clients/admin/trustees_tab.ml:625
 msgid "Tallying"
 msgstr "Recontando"
 
-#: src/web/clients/admin/trustees_tab.ml:779
+#: src/web/clients/admin/trustees_tab.ml:794
 msgid "Tallying: shuffling step"
 msgstr "Recuento: no barajar"
 
@@ -1357,9 +1362,9 @@ msgstr "Gracias de nuevo por su ayuda,"
 msgid "Thank you for voting!"
 msgstr "¡Gracias por su voto!"
 
+#: src/web/common/mails_admin.ml:362 src/web/common/mails_admin.ml:258
 #. src/web/common/mails_admin.ml:174
 #. src/web/common/mails_admin.ml:103
-#: src/web/common/mails_admin.ml:362 src/web/common/mails_admin.ml:258
 msgid "Thank you for your help,"
 msgstr "Gracias por su ayuda,"
 
@@ -1379,10 +1384,10 @@ msgstr "El archivo puede descargarse en: "
 msgid "The change "
 msgstr "El cambio "
 
+#: src/web/common/mails_admin.ml:378 src/web/common/mails_admin.ml:326
 #. src/web/common/mails_admin.ml:274
 #. src/web/common/mails_admin.ml:190
 #. src/web/common/mails_admin.ml:108
-#: src/web/common/mails_admin.ml:378 src/web/common/mails_admin.ml:326
 msgid "The election administrator"
 msgstr "El administrador de elecciones"
 
@@ -1394,7 +1399,7 @@ msgstr "¡La elección no está archivada!"
 msgid "The election is now closed."
 msgstr "La elección está cerrada en este momento."
 
-#: src/web/clients/trustee/decrypt.ml:151
+#: src/web/clients/trustee/decrypt.ml:149
 msgid "The fingerprint of the encrypted tally is "
 msgstr "La huella digital del escrutinio cifrado es "
 
@@ -1406,14 +1411,14 @@ msgstr "La huella digital de su mezcla es:"
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr "Aparecerá la huella digital de su mezcla. Guárdela."
 
-#: src/web/clients/admin/trustees_tab.ml:792
+#: src/web/clients/admin/trustees_tab.ml:807
 msgid "The following link can be used by trustees to check that they own the right decryption key."
 msgstr ""
 "Los fideicomisarios pueden utilizar el siguiente enlace para comprobar que "
 "poseen la clave de descifrado correcta."
 
-#. src/web/clients/trustee/generate.ml:366
 #: src/web/clients/credauth/generate.ml:176
+#. src/web/clients/trustee/generate.ml:364
 msgid "The link to the election will be:"
 msgstr "El enlace a la elección será:"
 
@@ -1423,7 +1428,7 @@ msgstr ""
 "La página también contiene instrucciones para verificar el registro de "
 "votación, después del escrutinio."
 
-#: src/web/clients/trustee/decrypt.ml:122
+#: src/web/clients/trustee/decrypt.ml:121
 msgid "The partial decryption didn't pass validation!"
 msgstr "¡El descifrado parcial no pasó la validación!"
 
@@ -1442,8 +1447,8 @@ msgstr ""
 "La segunda casiila ahora está con material criptográfico. Por favor presione "
 "el botón \"Enviar\"."
 
-#. src/web/clients/admin/trustees_tab.ml:111
 #: src/web/clients/admin/trustees_tab.ml:328
+#. src/web/clients/admin/trustees_tab.ml:111
 msgid "The server is always one of the trustees"
 msgstr "El servidor es siempre uno de los fideicomisarios"
 
@@ -1465,7 +1470,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr "No hay ninguna dirección de correo electrónico asociada a su cuenta."
 
-#: src/web/clients/trustee/check.ml:183
+#: src/web/clients/trustee/check.ml:178
 msgid "There is no election with ID %s on this server!"
 msgstr "¡No hay ninguna elección con el ID %s en este servidor!"
 
@@ -1565,8 +1570,8 @@ msgstr "Para administrar una elección, debe iniciar sesión."
 msgid "To confirm this creation, please use the following code:"
 msgstr "Para confirmar que se crea la cuenta utilice el siguiente código:"
 
-#. src/web/server/common/pages_admin.ml:626
 #: src/web/server/common/pages_admin.ml:660
+#. src/web/server/common/pages_admin.ml:626
 msgid "To confirm this, please use the following code:"
 msgstr "Para confirmar esto, utilice el siguiente código:"
 
@@ -1578,7 +1583,7 @@ msgstr "Para utilizar este sitio, debe aceptar nuestra "
 msgid "Too short"
 msgstr "Demasiado corta"
 
-#: src/web/clients/trustee/generate.ml:339
+#: src/web/clients/trustee/generate.ml:337
 msgid "Trustee key generation"
 msgstr "Generación de claves de fedatarios"
 
@@ -1595,14 +1600,14 @@ msgid "Trustee setup - Step 1: choose the trustees"
 msgstr ""
 "Configuración de los fideicomisarios - Paso 1: elegir a los fideicomisarios"
 
-#: src/web/clients/admin/trustees_tab.ml:482
+#: src/web/clients/admin/trustees_tab.ml:492
 msgid "Trustee setup - Step 2: key generation"
 msgstr "Configuración de los fideicomisarios - Paso 2: generación de las claves"
 
-#. src/web/clients/admin/trustees_tab.ml:441
+#: src/web/clients/admin/trustees_tab.ml:570
+#. src/web/clients/admin/trustees_tab.ml:451
 #. src/web/clients/admin/trustees_tab.ml:318
 #. src/web/clients/admin/trustees_tab.ml:101
-#: src/web/clients/admin/trustees_tab.ml:560
 msgid "Trustee's e-mail"
 msgstr "Correo electrónico del administrador"
 
@@ -1610,12 +1615,12 @@ msgstr "Correo electrónico del administrador"
 msgid "Trustee's e-mail "
 msgstr "Correo electrónico del administrador "
 
-#: src/web/clients/admin/trustees_tab.ml:442
+#: src/web/clients/admin/trustees_tab.ml:452
 msgid "Trustee's name"
 msgstr "Nombre del fideicomisario"
 
-#. src/web/clients/admin/trustees_tab.ml:102
 #: src/web/clients/admin/trustees_tab.ml:319
+#. src/web/clients/admin/trustees_tab.ml:102
 msgid "Trustee's public name"
 msgstr "Nombre público del administrador"
 
@@ -1627,8 +1632,8 @@ msgstr "Nombre público del administrador "
 msgid "Type of answer:"
 msgstr "Tipo de la respuesta:"
 
-#. src/web/server/common/pages_admin.ml:380
 #: src/web/server/common/pages_admin.ml:436
+#. src/web/server/common/pages_admin.ml:380
 msgid "Type the password again: "
 msgstr "Escriba la contraseña nuevamente: "
 
@@ -1660,8 +1665,8 @@ msgstr "Lista de electores"
 msgid "Voter list (not editable):"
 msgstr "Censo electoral (no editable):"
 
-#. src/web/clients/admin/elections.ml:813
 #: src/web/clients/credauth/generate.ml:187
+#. src/web/clients/admin/elections.ml:813
 msgid "Voter list:"
 msgstr "Lista de votantes:"
 
@@ -1673,8 +1678,8 @@ msgstr "Censo electoral (no editable):"
 msgid "Voter's authentication"
 msgstr "Autenticación del votante"
 
-#. src/web/clients/admin/elections.ml:1399
 #: src/web/clients/admin/elections.ml:1547
+#. src/web/clients/admin/elections.ml:1399
 msgid "Voter's authentication:"
 msgstr "Autentificación del votante:"
 
@@ -1682,7 +1687,7 @@ msgstr "Autentificación del votante:"
 msgid "Voting records"
 msgstr "Registros de la votación"
 
-#: src/web/clients/trustee/generate.ml:309
+#: src/web/clients/trustee/generate.ml:307
 msgid "Waiting for the election administrator to set the threshold... Reload the page to check progress."
 msgstr ""
 "Esperando que el administrador electoral establezca el umbral ... Vuelva a "
@@ -1706,9 +1711,9 @@ msgstr "Atención, esto borrará la lista actual de administradores"
 msgid "Warning:"
 msgstr "Advertencia:"
 
+#: src/web/server/common/pages_admin.ml:668
 #. src/web/server/common/pages_admin.ml:634
 #. src/web/server/common/pages_admin.ml:600
-#: src/web/server/common/pages_admin.ml:668
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Advertencia: este código es válido por 15 minutos y los códigos enviados "
@@ -1718,9 +1723,9 @@ msgstr ""
 msgid "Warning: this is irreversible!"
 msgstr "Advertencia: ¡es irreversible!"
 
+#: src/web/clients/admin/elections.ml:1446
 #. src/web/clients/admin/elections.ml:1301
 #. src/web/clients/admin/elections.ml:1216
-#: src/web/clients/admin/elections.ml:1446
 msgid "Warning: this will freeze the voter list!"
 msgstr "Advertencia: ¡esto congelará la lista de electores!"
 
@@ -1762,7 +1767,7 @@ msgstr "No puede cambiar su contraseña ahora. Por favor intente mas tarde."
 msgid "You cannot create an account now. Please try later."
 msgstr "No puede crear una cuenta ahora. Por favor intente mas tarde."
 
-#: src/web/clients/trustee/decrypt.ml:123
+#: src/web/clients/trustee/decrypt.ml:122
 msgid "You have already submitted a valid partial decryption!"
 msgstr "¡Ya has enviado un descifrado parcial válido!"
 
@@ -1784,20 +1789,20 @@ msgstr ""
 "Debe registrar esta huella digital y verificar que aparezca en la página de "
 "resultados de la elección."
 
-#: src/web/clients/admin/trustees_tab.ml:767
+#: src/web/clients/admin/trustees_tab.ml:782
 msgid "You must select each trustee in turn, and send them a link so that they perform their shuffle. You can also skip a trustee, but keep in mind that this reduces security."
 msgstr ""
 "Debes seleccionar a cada administrador por turno y enviarle un enlace para "
 "que realice su barajada. También puedes omitir a un administrador, pero ten "
 "en cuenta que esto reduce la seguridad."
 
-#: src/web/clients/admin/trustees_tab.ml:488
+#: src/web/clients/admin/trustees_tab.ml:498
 msgid "You must send each trustee their link (from the table below) so that they initialize their key for this election."
 msgstr ""
 "Debe enviar a cada administrador su enlace (de la tabla siguiente) para que "
 "inicialice su clave para esta elección."
 
-#: src/web/clients/admin/trustees_tab.ml:604
+#: src/web/clients/admin/trustees_tab.ml:614
 msgid "You must send each trustee their link (from the table below) so that they perform their share of the decryption."
 msgstr ""
 "Debes enviar a cada administrador su enlace (de la tabla siguiente) para que "
@@ -1840,8 +1845,8 @@ msgstr ""
 msgid "Your ballot for "
 msgstr "Su voto para "
 
-#. src/web/server/common/pages_admin.ml:478
 #: src/web/server/common/pages_admin.ml:504
+#. src/web/server/common/pages_admin.ml:478
 msgid "Your e-mail address"
 msgstr "Su dirección de correo electrónico"
 
@@ -1855,17 +1860,17 @@ msgstr ""
 msgid "Your e-mail address is: "
 msgstr "Su dirección de correo electrónico es: "
 
-#: src/web/clients/trustee/generate.ml:287
+#: src/web/clients/trustee/generate.ml:285
 msgid "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result."
 msgstr ""
 "¡Tu trabajo en el protocolo de establecimiento de claves ha concluido!. Tu "
 "clave privada será necesaria para descifrar el resultado de la elección."
 
-#: src/web/clients/trustee/decrypt.ml:121
+#: src/web/clients/trustee/decrypt.ml:120
 msgid "Your partial decryption has been received and checked!"
 msgstr "¡Su descifrado parcial ha sido recibido y verificado!"
 
-#: src/web/clients/trustee/generate.ml:299
+#: src/web/clients/trustee/generate.ml:297
 msgid "Your public key has already been registered!"
 msgstr "¡Tu clave pública ya ha sido registrada!"
 
@@ -1905,8 +1910,8 @@ msgstr "hecho"
 msgid "empty list"
 msgstr "lista vacía"
 
-#. src/web/server/common/pages_admin.ml:359
 #: src/web/server/common/pages_admin.ml:410
+#. src/web/server/common/pages_admin.ml:359
 msgid "failed"
 msgstr "falló"
 
@@ -1918,8 +1923,8 @@ msgstr "desde un archivo: "
 msgid "from another election"
 msgstr "desde otra elección"
 
-#. src/web/clients/admin/trustees_tab.ml:355
 #: src/web/clients/admin/trustees_tab.ml:361
+#. src/web/clients/admin/trustees_tab.ml:355
 msgid "none"
 msgstr "ninguno"
 
@@ -1947,11 +1952,11 @@ msgstr "clave privada"
 msgid "raw data"
 msgstr "datos sin procesar"
 
-#: src/web/clients/admin/trustees_tab.ml:726
+#: src/web/clients/admin/trustees_tab.ml:741
 msgid "server (has already shuffled)"
 msgstr "servidor (ya se ha barajado)"
 
-#: src/web/clients/admin/trustees_tab.ml:741
+#: src/web/clients/admin/trustees_tab.ml:756
 msgid "skipped"
 msgstr "omitido"
 
@@ -1971,8 +1976,8 @@ msgstr "paso 2 / 3"
 msgid "step 3 / 3"
 msgstr "paso 3 / 3"
 
-#. src/web/server/common/pages_admin.ml:52
 #: src/web/clients/common/secondary_ui.ml:94
+#. src/web/server/common/pages_admin.ml:52
 msgid "terms of service"
 msgstr "condiciones de uso"
 
@@ -2004,8 +2009,8 @@ msgstr "la contraseña empieza o acaba con un espacio"
 msgid "the private parts of the credentials"
 msgstr "las partes privadas de las credenciales"
 
-#. src/web/server/common/pages_admin.ml:351
 #: src/web/server/common/pages_admin.ml:400
+#. src/web/server/common/pages_admin.ml:351
 msgid "the two passwords are not the same"
 msgstr "las dos contraseñas no son idénticas"
 
@@ -2045,7 +2050,7 @@ msgstr "cuando el inicio de sesión sea necesario, por ejemplo CAS"
 msgid "when some voters have several votes"
 msgstr "cuando algunos electores poseen varios votos"
 
-#: src/web/clients/admin/trustees_tab.ml:742
+#: src/web/clients/admin/trustees_tab.ml:757
 msgid "yes"
 msgstr "sí"
 
@@ -2064,3 +2069,4 @@ msgid "your private key. Make sure you SAVE IT properly otherwise you will not b
 msgstr ""
 "su clave privada. Asegúrese de GUARDARLA correctamente, de lo contrario no "
 "podrá participar en el escrutinio y la elección podría cancelarse;"
+
