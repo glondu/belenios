@@ -216,11 +216,11 @@ struct
     let u = Zq.(Array.fold_left ( * ) one uu) in
     let c_hat = (if n = 0 then h else cc_hat.(pred n)) *~ invert (h **~ u) in
     let c_tilde = Array.fold_left ( *~ ) one (Array.map2 ( **~ ) cc uu) in
-    let a' =
-      Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.beta **~ u) ee uu)
-    in
-    let b' =
+    let alpha' =
       Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.alpha **~ u) ee uu)
+    in
+    let beta' =
+      Array.fold_left ( *~ ) one (Array.map2 (fun x u -> x.beta **~ u) ee uu)
     in
     let t1' = invert (c_bar **~ c) *~ (g **~ s1) in
     let t2' = invert (c_hat **~ c) *~ (g **~ s2) in
@@ -230,12 +230,12 @@ struct
     in
     let t41' =
       Array.fold_left ( *~ )
-        (invert ((a' **~ c) *~ (y **~ s4)))
+        (invert ((beta' **~ c) *~ (y **~ s4)))
         (Array.map2 (fun x s -> x.beta **~ s) ee' ss')
     in
     let t42' =
       Array.fold_left ( *~ )
-        (invert ((b' **~ c) *~ (g **~ s4)))
+        (invert ((alpha' **~ c) *~ (g **~ s4)))
         (Array.map2 (fun x s -> x.alpha **~ s) ee' ss')
     in
     let tt'_hat =
