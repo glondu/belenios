@@ -384,10 +384,15 @@ let trustee_generate_link kind =
     let* subject, body = generate_mail [ lang ] href in
     Lwt.return
     @@ span
+         ~a:[ a_class [ "trustee-links" ] ]
          [
-           a ~a:[ a_class [ "trustee-generate-link" ] ] ~href (s_ "Link");
-           txt " ";
-           a_mailto ~recipient ~subject ~body (s_ "E-mail");
+           a
+             ~a:[ a_class [ "trustee-link"; "trustee-generate-link" ] ]
+             ~href (s_ "Direct link");
+           br ();
+           a_mailto
+             ~a:[ a_class [ "trustee-link" ] ]
+             ~recipient ~subject ~body (s_ "Send an e-mail");
          ]
 
 let all_ttee_done () =
@@ -404,10 +409,15 @@ let trustee_decrypt_link ~token ~recipient =
   let* subject, body = Mails.mail_trustee_tally [ lang ] href in
   Lwt.return
   @@ span
+       ~a:[ a_class [ "trustee-links" ] ]
        [
-         a ~a:[ a_class [ "trustee-decrypt-link" ] ] ~href (s_ "Link");
-         txt " ";
-         a_mailto ~recipient ~subject ~body (s_ "E-mail");
+         a
+           ~a:[ a_class [ "trustee-link"; "trustee-decrypt-link" ] ]
+           ~href (s_ "Direct link");
+         br ();
+         a_mailto
+           ~a:[ a_class [ "trustee-link" ] ]
+           ~recipient ~subject ~body (s_ "Send an e-mail");
        ]
 
 let recompute_main_zone_2 () =
@@ -652,10 +662,15 @@ let trustee_shuffle_link ~token ~recipient =
   let* subject, body = Mails.mail_shuffle [ lang ] href in
   Lwt.return
   @@ span
+       ~a:[ a_class [ "trustee-links" ] ]
        [
-         a ~a:[ a_class [ "trustee-shuffle-link" ] ] ~href (s_ "Link");
-         txt " ";
-         a_mailto ~recipient ~subject ~body (s_ "E-mail");
+         a
+           ~a:[ a_class [ "trustee-link"; "trustee-shuffle-link" ] ]
+           ~href (s_ "Direct link");
+         br ();
+         a_mailto
+           ~a:[ a_class [ "trustee-link" ] ]
+           ~recipient ~subject ~body (s_ "Send an e-mail");
        ]
 
 let main_zone_shuffling () =

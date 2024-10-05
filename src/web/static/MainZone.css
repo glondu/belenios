@@ -356,3 +356,19 @@ table {
     background-color:black;
     color:white;
 }
+
+.trustee-link {
+    border: solid 2px;
+    border-radius: 0.5em;
+    border-color: black;
+    white-space: nowrap;
+}
+
+.trustee-link:hover {
+    background-color: black !important;
+    color: white !important;
+}
+
+.trustee-links {
+    line-height: 3ex;
+}

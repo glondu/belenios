@@ -232,13 +232,13 @@ let a ?a ~href label =
   r##.href := Js.string href;
   elt
 
-let a_mailto ~recipient ~subject ~body label =
+let a_mailto ?a:attributes ~recipient ~subject ~body label =
   let params = Url.encode_arguments [ ("subject", subject); ("body", body) ] in
   let recipient =
     recipient |> Js.string |> Js.encodeURIComponent |> Js.to_string
   in
   let href = Printf.sprintf "mailto:%s?%s" recipient params in
-  a ~href label
+  a ?a:attributes ~href label
 
 let a_data ~filename ~mime_type ~data x =
   let href = encode_data_uri ~mime_type data in
