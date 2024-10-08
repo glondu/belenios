@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: belenios 2.5.1\n"
+"Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-11-28 06:55+0000\n"
 "PO-Revision-Date: 2024-07-25 08:41+0000\n"
