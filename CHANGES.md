@@ -1,5 +1,5 @@
-3.0~dev
-=======
+3.0 (2024-10-08)
+================
 
  * Specification:
    + Add support for "lists" questions
