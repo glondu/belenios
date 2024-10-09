@@ -1063,7 +1063,7 @@ let language_content () =
     tablex
       [
         tbody
-          (tr [ th [ txt @@ s_ "Code" ]; th [ txt @@ s_ "Language" ]; th [] ]
+          (tr [ th [ txt @@ s_ "Code" ]; th [ txt @@ s_ "Language" ] ]
           :: avail_lang);
       ]
   in
