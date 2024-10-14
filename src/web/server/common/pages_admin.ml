@@ -85,7 +85,13 @@ struct
     let home =
       div
         ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]
-        [ a ~service:home [ txt @@ s_ "Home" ] () ]
+        [
+          a
+            ~a:[ a_class [ "nav-menu__link" ] ]
+            ~service:home
+            [ txt @@ s_ "Home" ]
+            ();
+        ]
     in
     let blank = div ~a:[ a_class [ "nav-menu__item-blank"; "noselect" ] ] [] in
     let body =
@@ -111,7 +117,7 @@ struct
             List.map
               (fun name ->
                 a
-                  ~a:[ a_id ("login_" ^ name) ]
+                  ~a:[ a_id ("login_" ^ name); a_class [ "nav-menu__link" ] ]
                   ~service:(login name)
                   [ txt name ]
                   ())

@@ -330,6 +330,7 @@ struct
     let signup =
       if allowsignups then
         div
+          ~a:[ a_class [ "signup-actions" ] ]
           [
             br ();
             txt (s_ "You can also ");
