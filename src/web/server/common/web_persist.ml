@@ -468,7 +468,7 @@ let raw_compute_encrypted_tally s election =
       ]
   in
   match x with
-  | true -> return_unit
+  | true -> Spool.del s uuid Spool.audit_cache
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
 let get_shuffle_token s uuid = Spool.get s uuid Spool.shuffle_token
@@ -1114,9 +1114,7 @@ let compute_encrypted_tally s uuid =
         let* x = append_to_shuffles s election 1 shuffle in
         match x with
         | None -> Lwt.fail (Failure "server-side shuffle failed")
-        | Some _ ->
-            let* () = Spool.del s uuid Spool.audit_cache in
-            Lwt.return_true
+        | Some _ -> Lwt.return_true
       else
         let* () = transition_to_encrypted_tally set_state in
         Lwt.return_true
