@@ -27,35 +27,45 @@ open Belenios_js.Session
 open Common
 open Lwt.Syntax
 
-type _ endpoint =
-  | Plain : (Api.admin, 'a, 'b) Api.t -> 'a endpoint
-  | WithUuid : (uuid -> (Api.admin, 'a, 'b) Api.t) -> 'a endpoint
+type (_, _) endpoint =
+  | Plain : (Api.admin, 'a, 'b) Api.t -> ('a, unit) endpoint
+  | WithUuid : (uuid -> (Api.admin, 'a, 'b) Api.t) -> ('a, uuid) endpoint
 
-type 'a t = {
-  endpoint : 'a endpoint;
+type ('a, 'b) u = {
+  endpoint : ('a, 'b) endpoint;
   readonly : bool;
-  mutable content : 'a option;
+  mutable content : ('a * 'b) option;
   mutable ifmatch : string;
   mutable dirty : bool;
 }
 
-let modified x = match x.content with None -> false | Some _ -> x.dirty
+type 'a t = Cache : ('a, 'b) u -> 'a t
 
-let invalidate x =
+let modified (Cache x) =
+  match x.content with None -> false | Some _ -> x.dirty
+
+let invalidate (Cache x) =
   x.content <- None;
   x.dirty <- true;
   x.ifmatch <- "";
   Dom_html.window##.onbeforeunload := Dom_html.no_handler
 
-let get x =
+let do_get (type a b) (x : (a, b) u) :
+    ((a * string, xhr_result) result * b) Lwt.t =
+  let get x = Api.get x !user in
+  match x.endpoint with
+  | Plain x ->
+      let* x = get x in
+      Lwt.return (x, ())
+  | WithUuid f ->
+      let uuid = get_current_uuid () in
+      let* x = get (f uuid) in
+      Lwt.return (x, uuid)
+
+let get (Cache x) =
   match x.content with
   | None -> (
-      let get x = Api.get x !user in
-      let* content =
-        match x.endpoint with
-        | Plain x -> get x
-        | WithUuid f -> get (f (get_current_uuid ()))
-      in
+      let* content, uuid = do_get x in
       match content with
       | Error e -> (
           match e with
@@ -74,10 +84,10 @@ let get x =
                       e.code))
       | Ok (content, ifmatch) ->
           x.dirty <- false;
-          x.content <- Some content;
+          x.content <- Some (content, uuid);
           x.ifmatch <- ifmatch;
           Lwt.return @@ Ok content)
-  | Some content -> Lwt.return @@ Ok content
+  | Some content -> Lwt.return @@ Ok (fst content)
 
 let rec get_until_success x =
   let* result = get x in
@@ -87,21 +97,19 @@ let rec get_until_success x =
       get_until_success x
   | Ok xx -> Lwt.return xx
 
-let sync_one x =
+let sync_one (Cache x) =
   if x.readonly then Lwt.return @@ Ok ()
   else
     match x.content with
     | None -> assert false
-    | Some content -> (
+    | Some (content, uuid) -> (
         let ifmatch = x.ifmatch in
         let put x =
           let* y = Api.put ~ifmatch x !user content in
           Lwt.return (y, fun () -> sha256_b64 @@ x.to_string content)
         in
         let* y, ifmatch' =
-          match x.endpoint with
-          | Plain x -> put x
-          | WithUuid f -> put (f (get_current_uuid ()))
+          match x.endpoint with Plain x -> put x | WithUuid f -> put (f uuid)
         in
         match y.code with
         | 200 ->
@@ -116,94 +124,104 @@ let sync_one x =
 (***********************************)
 
 let config =
-  {
-    endpoint = Plain Api.configuration;
-    readonly = true;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = Plain Api.configuration;
+      readonly = true;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let draft =
-  {
-    endpoint = WithUuid Api.draft;
-    readonly = false;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.draft;
+      readonly = false;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let voters =
-  {
-    endpoint = WithUuid Api.draft_voters;
-    readonly = false;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.draft_voters;
+      readonly = false;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let status =
-  {
-    endpoint = WithUuid Api.draft_status;
-    readonly = true;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.draft_status;
+      readonly = true;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let account =
-  {
-    endpoint = Plain Api.account;
-    readonly = false;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = Plain Api.account;
+      readonly = false;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let e_dates =
-  {
-    endpoint = WithUuid Api.election_auto_dates;
-    readonly = false;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.election_auto_dates;
+      readonly = false;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let e_voters =
-  {
-    endpoint = WithUuid Api.election_voters;
-    readonly = true;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.election_voters;
+      readonly = true;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let e_records =
-  {
-    endpoint = WithUuid Api.election_records;
-    readonly = true;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.election_records;
+      readonly = true;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let e_status =
-  {
-    endpoint = WithUuid Api.election_status;
-    readonly = true;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.election_status;
+      readonly = true;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 let e_elec =
-  {
-    endpoint = WithUuid Api.election;
-    readonly = true;
-    content = None;
-    dirty = true;
-    ifmatch = "";
-  }
+  Cache
+    {
+      endpoint = WithUuid Api.election;
+      readonly = true;
+      content = None;
+      dirty = true;
+      ifmatch = "";
+    }
 
 (***********************************)
 
@@ -226,7 +244,8 @@ let sync () =
   let* list_items =
     Lwt_list.map_s
       (fun (AA x) ->
-        if x.dirty && x.content <> None then sync_one x else Lwt.return @@ Ok ())
+        let (Cache y) = x in
+        if y.dirty && y.content <> None then sync_one x else Lwt.return @@ Ok ())
       list_items
   in
   Lwt_list.fold_left_s
@@ -236,10 +255,18 @@ let sync () =
 
 let invalidate_all () = List.iter (fun (AA x) -> invalidate x) list_items
 
-let set x y =
+let get_unit_or_uuid (type a b) (x : (a, b) u) : b =
+  match x.endpoint with
+  | Plain _ -> ()
+  | WithUuid _ -> (
+      match x.content with
+      | None -> get_current_uuid ()
+      | Some (_, uuid) -> uuid)
+
+let set (Cache x) y =
   assert (not x.readonly);
   x.dirty <- true;
-  x.content <- Some y
+  x.content <- Some (y, get_unit_or_uuid x)
 
 let rec sync_until_success () =
   let* result = sync () in
