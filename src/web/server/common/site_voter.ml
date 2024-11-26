@@ -81,49 +81,6 @@ struct
             in
             String_redirection.send page)
 
-  let submit_ballot ~ballot =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let ballot = Stdlib.String.trim ballot in
-    match Election.election_uuid_of_string_ballot ballot with
-    | exception _ ->
-        Pages_common.generic_page ~title:(s_ "Error") (s_ "Ill-formed ballot")
-          ()
-        >>= Html.send
-    | uuid -> (
-        let@ s = Storage.with_transaction in
-        let@ precast_data cont =
-          Lwt.try_bind
-            (fun () -> Web_persist.precast_ballot s uuid ~ballot)
-            (function
-              | Ok x -> cont x
-              | Error e ->
-                  let msg =
-                    Printf.sprintf
-                      (f_ "Your ballot is rejected because %s.")
-                      (Belenios_ui.Confirmation.explain_cast_error l e)
-                  in
-                  Pages_common.generic_page ~title:(s_ "Error") msg ()
-                  >>= Html.send)
-            (function
-              | Election_not_found _ ->
-                  let msg = s_ "Unknown election" in
-                  Pages_common.generic_page ~title:(s_ "Error") msg ()
-                  >>= Html.send
-              | e -> Lwt.reraise e)
-        in
-        let* x =
-          Web_auth.State.create s uuid
-            { ballot; precast_data; api_request = false }
-        in
-        match x with
-        | None -> fail_http `Forbidden
-        | Some state -> redir_preapply election_login (Some state) ())
-
-  let () =
-    Any.register ~service:election_submit_ballot (fun () ballot ->
-        submit_ballot ~ballot)
-
   let send_confirmation_email s uuid confirmation =
     let@ election =
       Public_archive.with_election s uuid ~fallback:(fun () ->

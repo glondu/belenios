@@ -148,33 +148,8 @@ module Make () = struct
 
   let booths = [| (Booth booth_v2, "Version 2") |]
 
-  let election_submit_ballot =
-    create
-      ~path:(Path [ "actions"; "submit-ballot" ])
-      ~meth:(Post (unit, string "encrypted_vote"))
-      ()
-
   let election_cast_confirm =
     create ~path:(Path [ "actions"; "confirm" ]) ~meth:(Get (string "state")) ()
-
-  let election_pretty_records =
-    create ~path:(Path [ "elections" ])
-      ~meth:(Get (suffix (uuid "uuid" ** suffix_const "pretty-records")))
-      ()
-
-  let election_project_result =
-    create ~path:(Path [ "elections" ])
-      ~meth:
-        (Get
-           (suffix_prod
-              (uuid "uuid" ** suffix_const "project-result")
-              (int "index")))
-      ()
-
-  let election_missing_voters =
-    create ~path:(Path [ "elections" ])
-      ~meth:(Get (suffix (uuid "uuid" ** suffix_const "missing")))
-      ()
 
   let election_download_archive =
     create ~path:(Path [ "elections" ])
