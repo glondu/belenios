@@ -22,12 +22,7 @@
 open Belenios_server_core
 
 type data = ..
-
-type state = {
-  ballot : string;
-  precast_data : Web_persist.precast_data;
-  api_request : bool;
-}
+type state = { ballot : string; precast_data : Web_persist.precast_data }
 
 type result =
   | Html : Html_types.div Eliom_content.Html.elt -> result

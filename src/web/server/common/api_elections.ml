@@ -606,9 +606,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           in
           match token with
           | None ->
-              let* state =
-                State.create s uuid { ballot; precast_data; api_request = true }
-              in
+              let* state = State.create s uuid { ballot; precast_data } in
               let json =
                 match state with
                 | None -> `Assoc []
