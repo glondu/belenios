@@ -236,7 +236,7 @@ let make_audit_div election cache =
     ]
 
 let markup =
-  let module M = Belenios_ui.Markup.Make (Tyxml_js) in
+  let module M = Belenios_ui.Markup_light.Make (Tyxml_js) in
   M.markup
 
 let majority_judgment_content q r =

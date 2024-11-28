@@ -185,7 +185,7 @@ module Make (Base : BASE) = struct
     ]
 
   let markup =
-    let module M = Markup.Make (Base) in
+    let module M = Markup_light.Make (Base) in
     M.markup
 
   let confirmation_fragment l ~snippet ~progress election result =

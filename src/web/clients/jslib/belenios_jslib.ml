@@ -219,9 +219,9 @@ let belenios : belenios Js.t =
 
     method markup (p : renderingFunctions Js.t) x =
       let open Belenios_ui in
-      let pp =
+      let pp : _ Markup_light.rendering_functions =
         {
-          Markup.text = (fun key x -> p##text key (Js.string x));
+          text = (fun key x -> p##text key (Js.string x));
           br = (fun key -> p##br key);
           italic = (fun key xs -> p##italic key (Js.array @@ Array.of_list xs));
           bold = (fun key xs -> p##bold key (Js.array @@ Array.of_list xs));
@@ -230,7 +230,7 @@ let belenios : belenios Js.t =
       try
         let lexbuf = Lexing.from_string (Js.to_string x) in
         let xs = Markup_parser.full Markup_lexer.token lexbuf in
-        let xs = Markup.render pp xs in
+        let xs = Markup_light.render pp xs in
         p##result (Js.array @@ Array.of_list xs)
       with _ -> p##error x
 
