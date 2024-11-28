@@ -34,6 +34,27 @@ and render_item p i = function
   | Bold xs -> p.bold i (render p xs)
   | Italic xs -> p.italic i (render p xs)
 
+exception Unsupported of string
+
+let parse_html x =
+  let open Markup in
+  parse_html
+    ~report:(fun location e ->
+      raise @@ Unsupported (Markup.Error.to_string ~location e))
+    ~context:(`Fragment "span") (string x)
+  |> signals
+  |> trees
+       ~text:(fun x -> Markup_types.Text (String.concat "" x))
+       ~element:(fun (_, name) _attrs children ->
+         match name with
+         | "br" -> Br
+         | "b" -> Bold children
+         | "i" -> Italic children
+         | name ->
+             raise
+             @@ Unsupported (Printf.sprintf "unsupported element: %s" name))
+  |> to_list
+
 module type BASE = sig
   module Xml : Xml_sigs.NoWrap
   module Svg : Svg_sigs.Make(Xml).T
@@ -53,8 +74,7 @@ module Make (Base : BASE) = struct
       }
     in
     try
-      let lexbuf = Lexing.from_string x in
-      let xs = Markup_parser.full Markup_lexer.token lexbuf in
+      let xs = parse_html x in
       let xs = render p xs in
       span xs
     with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]

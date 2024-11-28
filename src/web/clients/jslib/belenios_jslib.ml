@@ -228,8 +228,7 @@ let belenios : belenios Js.t =
         }
       in
       try
-        let lexbuf = Lexing.from_string (Js.to_string x) in
-        let xs = Markup_parser.full Markup_lexer.token lexbuf in
+        let xs = Markup_light.parse_html (Js.to_string x) in
         let xs = Markup_light.render pp xs in
         p##result (Js.array @@ Array.of_list xs)
       with _ -> p##error x
