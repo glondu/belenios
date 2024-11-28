@@ -235,22 +235,9 @@ let make_audit_div election cache =
            ]);
     ]
 
-let markup x =
-  let open Belenios_ui in
-  let p =
-    {
-      Markup.bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
-      text = (fun _ x -> txt x);
-      br = (fun _ -> br ());
-      italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
-    }
-  in
-  try
-    let lexbuf = Lexing.from_string x in
-    let xs = Markup_parser.full Markup_lexer.token lexbuf in
-    let xs = Markup.render p xs in
-    span xs
-  with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
+let markup =
+  let module M = Belenios_ui.Markup.Make (Tyxml_js) in
+  M.markup
 
 let majority_judgment_content q r =
   let open (val !Belenios_js.I18n.gettext) in

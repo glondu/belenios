@@ -184,21 +184,9 @@ module Make (Base : BASE) = struct
       | None -> txt "");
     ]
 
-  let markup x =
-    let p =
-      {
-        Markup.bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
-        text = (fun _ x -> txt x);
-        br = (fun _ -> br ());
-        italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
-      }
-    in
-    try
-      let lexbuf = Lexing.from_string x in
-      let xs = Markup_parser.full Markup_lexer.token lexbuf in
-      let xs = Markup.render p xs in
-      span xs
-    with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
+  let markup =
+    let module M = Markup.Make (Base) in
+    M.markup
 
   let confirmation_fragment l ~snippet ~progress election result =
     let open (val l : I18n.GETTEXT) in

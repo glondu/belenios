@@ -33,3 +33,29 @@ and render_item p i = function
   | Br -> p.br i
   | Bold xs -> p.bold i (render p xs)
   | Italic xs -> p.italic i (render p xs)
+
+module type BASE = sig
+  module Xml : Xml_sigs.NoWrap
+  module Svg : Svg_sigs.Make(Xml).T
+  module Html : Html_sigs.Make(Xml)(Svg).T
+end
+
+module Make (Base : BASE) = struct
+  open Base.Html
+
+  let markup x =
+    let p : _ rendering_functions =
+      {
+        bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
+        text = (fun _ x -> txt x);
+        br = (fun _ -> br ());
+        italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
+      }
+    in
+    try
+      let lexbuf = Lexing.from_string x in
+      let xs = Markup_parser.full Markup_lexer.token lexbuf in
+      let xs = render p xs in
+      span xs
+    with _ -> span ~a:[ a_class [ "markup-error" ] ] [ txt x ]
+end
