@@ -24,6 +24,7 @@ module Syntax = Question_nh_j
 type t = Syntax.question
 type Types.raw_question += Q of t
 
+let extract = function Q x -> Some x | _ -> None
 let type_ = "NonHomomorphic"
 let make ~value ~extra = Types.{ type_; value = Q value; extra }
 
