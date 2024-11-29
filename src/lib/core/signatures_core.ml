@@ -55,6 +55,8 @@ module type FIELD = sig
   val random : Crypto_primitives.rng -> t
 end
 
+type vector_encoding_error = [ `No_encoding | `Vector_size | `Int_size ]
+
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
   (** The following interface is redundant: it is assumed, but not
@@ -94,7 +96,13 @@ module type GROUP = sig
   val of_string : string -> t
   (** Conversion from string. *)
 
-  val of_ints : int array -> t
+  val max_ints : int
+  (** The maximum size of arrays in {of,to}_ints below. *)
+
+  val bits_per_int : int
+  (** The maximum number of bits in each element of arrays in {of,to}_ints below. *)
+
+  val of_ints : int array -> (t, vector_encoding_error) result
   (** Convert an int array to a group element. *)
 
   val to_ints : int -> t -> int array

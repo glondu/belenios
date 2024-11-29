@@ -48,7 +48,12 @@ module Make (M : RANDOM) (G : GROUP) = struct
     let m = Shape.to_array m in
     assert (Array.length q.q_answers = Array.length m);
     let r = random () in
-    let alpha = g **~ r and beta = (y **~ r) *~ G.of_ints m in
+    let@ m cont =
+      match G.of_ints m with
+      | Ok m -> cont m
+      | Error _ -> invalid_arg "encoding error"
+    in
+    let alpha = g **~ r and beta = (y **~ r) *~ m in
     let w = random () in
     let commitment = g **~ w in
     let zkp =

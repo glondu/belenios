@@ -197,6 +197,7 @@ let of_string s =
 
 let padding = 14
 let bits_per_int = 8
+let max_ints = (255 - padding) / bits_per_int
 
 let of_ints =
   let mask_per_int = pred (1 lsl bits_per_int) in
@@ -204,11 +205,17 @@ let of_ints =
     (* Koblitz method *)
     let open Z in
     let n = Array.length xs in
+    let@ () =
+     fun cont -> if n > max_ints then Error `Vector_size else cont ()
+    in
     let rec encode_int i accu =
       if i < n then
         let x = xs.(i) land mask_per_int in
+        let@ () =
+         fun cont -> if x <> xs.(i) then Error `Int_size else cont ()
+        in
         encode_int (succ i) (shift_left accu bits_per_int + of_int x)
-      else shift_left accu padding
+      else Ok (shift_left accu padding)
     in
     let rec find_element accu =
       match uncompress accu with
@@ -217,7 +224,9 @@ let of_ints =
           let p = of_coordinates p in
           if check p then p else find_element Z.(accu + one)
     in
-    find_element (encode_int 0 Z.zero)
+    match encode_int 0 Z.zero with
+    | Error _ as e -> e
+    | Ok x -> Ok (find_element x)
 
 let to_ints =
   let open Z in

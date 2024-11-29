@@ -59,23 +59,37 @@ let make description ff_params =
     let to_string = Z.to_string
     let of_string = Z.of_string
 
+    let max_ints, bits_per_int =
+      match embedding with
+      | None -> (0, 0)
+      | Some { padding; bits_per_int } ->
+          (Stdlib.((Z.bit_length p - padding) / bits_per_int), bits_per_int)
+
     let of_ints =
       match embedding with
-      | None -> fun _ -> failwith "Group_field.of_bits: missing parameters"
-      | Some { padding; bits_per_int } ->
+      | None -> fun _ -> Error `No_encoding
+      | Some { padding; bits_per_int } -> (
           let mask_per_int = pred (1 lsl bits_per_int) in
           fun xs ->
             let n = Array.length xs in
+            let@ () =
+             fun cont -> if n > max_ints then Error `Vector_size else cont ()
+            in
             let rec encode_int i accu =
               if i < n then
                 let x = xs.(i) land mask_per_int in
+                let@ () =
+                 fun cont -> if x <> xs.(i) then Error `Int_size else cont ()
+                in
                 encode_int (succ i) (Z.shift_left accu bits_per_int + of_int x)
-              else Z.shift_left accu padding
+              else Ok (Z.shift_left accu padding)
             in
             let rec find_element accu =
               if check accu then accu else find_element (accu + one)
             in
-            find_element (encode_int 0 zero)
+            match encode_int 0 zero with
+            | Error _ as e -> e
+            | Ok x -> Ok (find_element x))
 
     let to_ints =
       match embedding with

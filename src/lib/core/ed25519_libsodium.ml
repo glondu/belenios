@@ -138,8 +138,13 @@ module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
   let invert p = make_from_pure G.(invert (get_as_pure p))
   let to_string p = E.string_of_point (get_as_nacl p)
   let of_string s = make_from_nacl (E.point_of_string s)
+  let max_ints = G.max_ints
+  let bits_per_int = G.bits_per_int
   let to_ints n p = G.to_ints n (get_as_pure p)
-  let of_ints xs = make_from_pure (G.of_ints xs)
+
+  let of_ints xs =
+    match G.of_ints xs with Error _ as e -> e | Ok x -> Ok (make_from_pure x)
+
   let get_generator i = make_from_pure (G.get_generator i)
 
   let hash prefix xs =
