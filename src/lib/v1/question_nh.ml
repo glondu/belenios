@@ -34,6 +34,7 @@ let type_ = type_
 let of_concrete x = match x.value with Q x -> Some x | _ -> None
 let read_result = read_result
 let write_result = write_result
+let get_complexity _ = { nb_ciphertexts = 1; nb_zkps = 1 }
 
 module Make (M : RANDOM) (G : GROUP) = struct
   open G

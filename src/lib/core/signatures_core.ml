@@ -139,3 +139,5 @@ end
 module type RANDOM = sig
   val get_rng : unit -> Crypto_primitives.rng
 end
+
+type complexity = { nb_ciphertexts : int; nb_zkps : int }

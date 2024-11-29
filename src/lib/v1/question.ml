@@ -73,6 +73,10 @@ let wrap = Belenios_question.wrap >> of_concrete
 let unwrap = to_concrete >> Belenios_question.unwrap
 let is_nh_question = to_concrete >> is_nh_question
 
+let get_complexity (x : t) =
+  let module X = (val x) in
+  X.Kind.get_complexity X.abstract
+
 module Make (M : RANDOM) (G : GROUP) = struct
   let read_answer = Yojson.Safe.read_json
   let write_answer = Yojson.Safe.write_json

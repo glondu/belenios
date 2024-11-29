@@ -42,6 +42,13 @@ let write_result = write_result
 let question_length q =
   Array.length q.q_answers + match q.q_blank with Some true -> 1 | _ -> 0
 
+let get_complexity q =
+  let allowBlank = q.q_blank = Some true in
+  let nb_ciphertexts = Array.length q.q_answers + if allowBlank then 1 else 0 in
+  let nb_extra_zkps = q.q_max - q.q_min + 1 + if allowBlank then 3 else 0 in
+  let nb_zkps = (2 * nb_ciphertexts) + nb_extra_zkps in
+  { nb_ciphertexts; nb_zkps }
+
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 

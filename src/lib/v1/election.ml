@@ -28,6 +28,17 @@ open Signatures
 open Common
 open Belenios_question
 
+let get_complexity qs =
+  Array.fold_left
+    (fun accu q ->
+      let { nb_ciphertexts; nb_zkps } = Question.get_complexity q in
+      {
+        nb_ciphertexts = accu.nb_ciphertexts + nb_ciphertexts;
+        nb_zkps = accu.nb_zkps + nb_zkps;
+      })
+    { nb_ciphertexts = 0; nb_zkps = 0 }
+    qs
+
 let template_of_string x =
   let open PSerializable_j in
   let params = params_of_string Yojson.Safe.read_json x in

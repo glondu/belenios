@@ -31,6 +31,7 @@ module type QUESTION_SIG = sig
   val wrap : Yojson.Safe.t -> t
   val unwrap : t -> Yojson.Safe.t
   val is_nh_question : t -> bool
+  val get_complexity : t -> complexity
 
   module Make (_ : RANDOM) (G : GROUP) :
     Question_sigs.QUESTION
@@ -53,6 +54,7 @@ end
 module type ELECTION_SIG = sig
   type question
 
+  val get_complexity : question array -> complexity
   val template_of_string : string -> question Serializable_t.template
 
   val make_raw_election :

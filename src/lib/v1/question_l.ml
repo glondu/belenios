@@ -39,6 +39,13 @@ let write_result = write_result
 
 (** Helper functions *)
 
+let get_complexity q =
+  let nb_ciphertexts =
+    Array.fold_left (fun accu l -> accu + 1 + Array.length l) 0 q.q_answers
+  in
+  let nb_zkps = (2 * nb_ciphertexts) + 1 + (2 * Array.length q.q_answers) + 1 in
+  { nb_ciphertexts; nb_zkps }
+
 module Make (M : RANDOM) (G : GROUP) = struct
   open G
 
