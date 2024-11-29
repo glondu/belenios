@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_api.Serializable_t
 
 (** Session management *)
 
@@ -54,6 +55,7 @@ type context =
   | List_old
   | Profile
 
+val server_configuration : configuration option ref
 val where_am_i : context ref
 val get_current_uuid : unit -> uuid
 val is_draft : unit -> bool
