@@ -43,3 +43,41 @@ let unwrap (q : Types.question) =
 
 let erase (q : t) : t =
   { q_answers = Array.map (fun _ -> "") q.q_answers; q_question = "" }
+
+type counting_method =
+  [ `None
+  | `MajorityJudgment of Question_nh_t.mj_extra
+  | `Schulze of Question_nh_t.schulze_extra
+  | `STV of Question_nh_t.stv_extra ]
+
+let get_counting_method extra =
+  let open Question_nh_j in
+  match extra with
+  | Some (`Assoc o as extra) -> (
+      match List.assoc_opt "method" o with
+      | Some (`String "MajorityJudgment") -> (
+          match extra |> Yojson.Safe.to_string |> mj_extra_of_string with
+          | x -> `MajorityJudgment x
+          | exception _ -> `None)
+      | Some (`String "Schulze") -> (
+          match extra |> Yojson.Safe.to_string |> schulze_extra_of_string with
+          | x -> `Schulze x
+          | exception _ -> `None)
+      | Some (`String "STV") -> (
+          match extra |> Yojson.Safe.to_string |> stv_extra_of_string with
+          | x -> `STV x
+          | exception _ -> `None)
+      | _ -> `None)
+  | _ -> `None
+
+let check group (q : t Types.generic_question) =
+  let module G = (val Lazy.force group : Belenios_core.Signatures.GROUP) in
+  let n = Array.length q.value.q_answers in
+  if n > G.max_ints then Error `Vector_size
+  else
+    match get_counting_method q.extra with
+    | `None -> Ok ()
+    | `Schulze _ | `STV _ ->
+        if n < 1 lsl G.bits_per_int then Ok () else Error `Int_size
+    | `MajorityJudgment { mj_extra_grades = g; _ } ->
+        if Array.length g < 1 lsl G.bits_per_int then Ok () else Error `Int_size

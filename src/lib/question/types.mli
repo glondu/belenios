@@ -1,10 +1,14 @@
+open Belenios_core.Signatures
+
 type raw_question = ..
 
-type question = {
+type 'a generic_question = {
   type_ : string;
-  value : raw_question;
+  value : 'a;
   extra : Yojson.Safe.t option;
 }
+
+type question = raw_question generic_question
 
 module type QUESTION = sig
   type t
@@ -16,6 +20,11 @@ module type QUESTION = sig
   val wrap : value:Yojson.Safe.t -> extra:Yojson.Safe.t option -> question
   val unwrap : question -> Yojson.Safe.t option
   val erase : t -> t
+
+  val check :
+    (module GROUP) Lazy.t ->
+    t generic_question ->
+    (unit, vector_encoding_error) result
 end
 
 module type PACK = sig

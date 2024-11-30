@@ -31,7 +31,10 @@ type nonrec question = question
 type nonrec result = result
 
 let type_ = type_
-let of_concrete x = match x.value with Q x -> Some x | _ -> None
+
+let of_concrete (x : Belenios_question.t) =
+  match x.value with Q x -> Some x | _ -> None
+
 let read_result = read_result
 let write_result = write_result
 let get_complexity _ = { nb_ciphertexts = 1; nb_zkps = 1 }

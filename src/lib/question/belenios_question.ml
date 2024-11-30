@@ -24,11 +24,7 @@ module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
 module Lists = Lists
 
-type t = Types.question = {
-  type_ : string;
-  value : Types.raw_question;
-  extra : Yojson.Safe.t option;
-}
+type t = Types.question
 
 let types : (module Types.QUESTION) list =
   [ (module Homomorphic); (module Non_homomorphic); (module Lists) ]
@@ -64,7 +60,7 @@ let wrap = function
           X.wrap ~value ~extra)
   | _ -> invalid_arg "read_question: object expected"
 
-let unwrap q =
+let unwrap (q : t) =
   match lookup_type q.type_ with
   | None ->
       Printf.ksprintf invalid_arg "write_question: unsupported type %s" q.type_
@@ -75,36 +71,10 @@ let unwrap q =
 let read_question a b = Yojson.Safe.read_json a b |> wrap
 let write_question b x = unwrap x |> Yojson.Safe.write_json b
 
-type counting_method =
-  [ `None
-  | `MajorityJudgment of Question_nh_t.mj_extra
-  | `Schulze of Question_nh_t.schulze_extra
-  | `STV of Question_nh_t.stv_extra ]
-
-let get_counting_method extra =
-  let open Question_nh_j in
-  match extra with
-  | Some (`Assoc o as extra) -> (
-      match List.assoc_opt "method" o with
-      | Some (`String "MajorityJudgment") -> (
-          match extra |> Yojson.Safe.to_string |> mj_extra_of_string with
-          | x -> `MajorityJudgment x
-          | exception _ -> `None)
-      | Some (`String "Schulze") -> (
-          match extra |> Yojson.Safe.to_string |> schulze_extra_of_string with
-          | x -> `Schulze x
-          | exception _ -> `None)
-      | Some (`String "STV") -> (
-          match extra |> Yojson.Safe.to_string |> stv_extra_of_string with
-          | x -> `STV x
-          | exception _ -> `None)
-      | _ -> `None)
-  | _ -> `None
-
-let is_nh_question x =
+let is_nh_question (x : t) =
   match x.value with Non_homomorphic.Q _ -> true | _ -> false
 
-let extract x =
+let extract (x : t) =
   match lookup_type x.type_ with
   | None -> None
   | Some q -> (
@@ -125,3 +95,10 @@ let erase_question x =
   | Some p ->
       let module P = (val p) in
       { x with value = P.Ops.Q (P.Ops.erase P.it) }
+
+let check_question group x =
+  match extract x with
+  | None -> Ok ()
+  | Some p ->
+      let module P = (val p) in
+      P.Ops.check group { x with value = P.it }

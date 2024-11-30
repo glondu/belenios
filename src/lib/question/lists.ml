@@ -45,3 +45,5 @@ let erase (q : t) : t =
     q_answers = Array.map (Array.map (fun _ -> "")) q.q_answers;
     q_question = "";
   }
+
+let check _ _ = Ok ()

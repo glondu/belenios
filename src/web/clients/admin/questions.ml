@@ -77,7 +77,7 @@ let curr_doing = ref (-1)
 let update_question = ref (fun _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
-let q_to_gen question =
+let q_to_gen (question : Belenios_question.t) =
   let ( question,
         answers,
         answers_lists,
@@ -101,7 +101,7 @@ let q_to_gen question =
           `None,
           default_grades )
     | Non_homomorphic.Q q ->
-        let me = get_counting_method question.extra in
+        let me = Non_homomorphic.get_counting_method question.extra in
         let bk, ki, gr, me, seats =
           match me with
           | `Schulze o ->

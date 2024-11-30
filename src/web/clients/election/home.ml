@@ -423,7 +423,7 @@ let stv_content q r =
     div [ invalid ];
   ]
 
-let format_question_result r question =
+let format_question_result r (question : Belenios_question.t) =
   let open (val !Belenios_js.I18n.gettext) in
   let open Belenios_question in
   match question.value with
@@ -460,7 +460,7 @@ let format_question_result r question =
       let open Non_homomorphic.Syntax in
       let ballots = result_of_string r in
       let applied_counting_method, show_others =
-        match get_counting_method question.extra with
+        match Non_homomorphic.get_counting_method question.extra with
         | `None -> (txt "", true)
         | `MajorityJudgment o ->
             let ngrades = Array.length o.mj_extra_grades in

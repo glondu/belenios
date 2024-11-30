@@ -52,3 +52,5 @@ let erase (q : t) : t =
     q_max = q.q_max;
     q_question = "";
   }
+
+let check _ _ = Ok ()

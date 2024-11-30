@@ -24,23 +24,15 @@ module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
 module Lists = Lists
 
-type t = Types.question = {
-  type_ : string;
-  value : Types.raw_question;
-  extra : Yojson.Safe.t option;
-}
+type t = Types.question
 
 val wrap : Yojson.Safe.t -> t
 val unwrap : t -> Yojson.Safe.t
 val read_question : t reader
 val write_question : t writer
-
-type counting_method =
-  [ `None
-  | `MajorityJudgment of Question_nh_t.mj_extra
-  | `Schulze of Question_nh_t.schulze_extra
-  | `STV of Question_nh_t.stv_extra ]
-
-val get_counting_method : Yojson.Safe.t option -> counting_method
 val erase_question : t -> t
+
+val check_question :
+  (module GROUP) Lazy.t -> t -> (unit, vector_encoding_error) result
+
 val is_nh_question : t -> bool
