@@ -39,3 +39,9 @@ let unwrap (q : Types.question) =
       let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
       Some (`Assoc (("type", `String type_) :: ("value", value) :: o))
   | _ -> None
+
+let erase (q : t) : t =
+  {
+    q_answers = Array.map (Array.map (fun _ -> "")) q.q_answers;
+    q_question = "";
+  }

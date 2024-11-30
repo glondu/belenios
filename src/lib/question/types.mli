@@ -15,6 +15,7 @@ module type QUESTION = sig
   val make : value:t -> extra:Yojson.Safe.t option -> question
   val wrap : value:Yojson.Safe.t -> extra:Yojson.Safe.t option -> question
   val unwrap : question -> Yojson.Safe.t option
+  val erase : t -> t
 end
 
 module type PACK = sig

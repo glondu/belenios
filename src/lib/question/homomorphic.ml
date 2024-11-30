@@ -43,3 +43,12 @@ let unwrap (q : Types.question) =
           Some
             (`Assoc (("type", `String "Homomorphic") :: ("value", value) :: o)))
   | _ -> None
+
+let erase (q : t) : t =
+  {
+    q_answers = Array.map (fun _ -> "") q.q_answers;
+    q_blank = q.q_blank;
+    q_min = q.q_min;
+    q_max = q.q_max;
+    q_question = "";
+  }

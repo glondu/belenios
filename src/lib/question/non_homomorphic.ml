@@ -40,3 +40,6 @@ let unwrap (q : Types.question) =
       Some
         (`Assoc (("type", `String "NonHomomorphic") :: ("value", value) :: o))
   | _ -> None
+
+let erase (q : t) : t =
+  { q_answers = Array.map (fun _ -> "") q.q_answers; q_question = "" }

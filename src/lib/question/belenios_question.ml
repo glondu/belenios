@@ -101,36 +101,27 @@ let get_counting_method extra =
       | _ -> `None)
   | _ -> `None
 
-let erase_question x =
-  match x.value with
-  | Homomorphic.Q q ->
-      let open Question_h_t in
-      let q =
-        {
-          q_answers = Array.map (fun _ -> "") q.q_answers;
-          q_blank = q.q_blank;
-          q_min = q.q_min;
-          q_max = q.q_max;
-          q_question = "";
-        }
-      in
-      { x with value = Homomorphic.Q q }
-  | Non_homomorphic.Q q ->
-      let open Question_nh_t in
-      let q =
-        { q_answers = Array.map (fun _ -> "") q.q_answers; q_question = "" }
-      in
-      { x with value = Non_homomorphic.Q q }
-  | Lists.Q q ->
-      let open Question_l_t in
-      let q =
-        {
-          q_answers = Array.map (Array.map (fun _ -> "")) q.q_answers;
-          q_question = "";
-        }
-      in
-      { x with value = Lists.Q q }
-  | _ -> failwith "erase_question"
-
 let is_nh_question x =
   match x.value with Non_homomorphic.Q _ -> true | _ -> false
+
+let extract x =
+  match lookup_type x.type_ with
+  | None -> None
+  | Some q -> (
+      let module Ops = (val q) in
+      match Ops.extract x.value with
+      | None -> None
+      | Some x ->
+          let module X = struct
+            module Ops = Ops
+
+            let it = x
+          end in
+          Some (module X : Types.PACK))
+
+let erase_question x =
+  match extract x with
+  | None -> failwith "erase_question"
+  | Some p ->
+      let module P = (val p) in
+      { x with value = P.Ops.Q (P.Ops.erase P.it) }
