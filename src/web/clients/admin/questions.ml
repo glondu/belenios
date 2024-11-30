@@ -232,6 +232,21 @@ let local_save () =
       | Some c -> c.default_nh_group
     else draft.draft_group
   in
+  let () =
+    let open (val !Belenios_js.I18n.gettext) in
+    let version = draft.draft_version in
+    let group = lazy (Group.of_string ~version group) in
+    Array.iteri
+      (fun i q ->
+        match Belenios_question.check_question group q with
+        | Ok () -> ()
+        | Error _ ->
+            alert
+            @@ Printf.sprintf
+                 (f_ "Question #%d has too many choices, voting will fail!")
+                 (i + 1))
+      qq
+  in
   let open (val Election.get_serializers v) in
   let qq = Array.map of_concrete qq in
   Cache.set Cache.draft
