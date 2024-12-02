@@ -10,5 +10,10 @@
     "next_button_label": "Próximo",
     "election_server": "Servidor de eleições",
     "ask_to_wait_during_ballot_encryption": "Por favor espere enquanto sua cédula está sendo criptografada…",
-    "previous_button_label": "Anterior"
+    "previous_button_label": "Anterior",
+    "election_uuid_is_x": "UUID da eleição: {{uuid}}",
+    "majority_judgment_grade_select": "Por favor selecione uma opção",
+    "ask_election_uuid_to_load": "Carregue uma eleição neste servidor fornecendo seu UUID:",
+    "load_election_from_uuid_label": "Carregar do UUID",
+    "load_election_from_parameters_label": "Carregar dos parâmetros"
 }
