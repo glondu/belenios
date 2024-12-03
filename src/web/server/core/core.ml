@@ -27,6 +27,11 @@ exception Race_condition
 exception Election_not_found of uuid * string
 
 let ( let&* ) x f = match x with None -> Lwt.return_none | Some x -> f x
+
+let ( let*& ) x f =
+  let* x = x in
+  match x with None -> Lwt.return_none | Some x -> f x
+
 let sleep = Lwt_unix.sleep
 
 module Datetime = Types.Datetime

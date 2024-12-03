@@ -220,11 +220,8 @@ let lookup_account ~service ~username ~email =
   | Some r ->
       let { username; address; _ } = password_record_of_string r in
       Lwt.return_some (username, address)
-  | None -> (
+  | None ->
       let address = String.trim email in
-      let* r = S.get (Admin_password (db_fname, Address address)) in
-      match r with
-      | Some r ->
-          let { username; address; _ } = password_record_of_string r in
-          Lwt.return_some (username, address)
-      | None -> Lwt.return_none)
+      let*& r = S.get (Admin_password (db_fname, Address address)) in
+      let { username; address; _ } = password_record_of_string r in
+      Lwt.return_some (username, address)

@@ -31,27 +31,21 @@ let run_update_hooks account =
 
 let get_account_by_id s id =
   let module S = (val s : Storage.BACKEND) in
-  let* x = S.get (Account id) in
-  match x with
-  | None -> Lwt.return_none
-  | Some x -> (
-      match account_of_string x with
-      | exception _ -> Lwt.return_none
-      | x -> Lwt.return_some x)
+  let*& x = S.get (Account id) in
+  match account_of_string x with
+  | exception _ -> Lwt.return_none
+  | x -> Lwt.return_some x
 
 let update_account_by_id s id =
   let module S = (val s : Storage.BACKEND) in
-  let* x = S.update (Account id) in
-  match x with
-  | None -> Lwt.return_none
-  | Some (x, set) -> (
-      let set x =
-        let* () = set (string_of_account x) in
-        run_update_hooks x
-      in
-      match account_of_string x with
-      | exception _ -> Lwt.return_none
-      | x -> Lwt.return (Some (x, set)))
+  let*& x, set = S.update (Account id) in
+  let set x =
+    let* () = set (string_of_account x) in
+    run_update_hooks x
+  in
+  match account_of_string x with
+  | exception _ -> Lwt.return_none
+  | x -> Lwt.return_some (x, set)
 
 let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i

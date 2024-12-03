@@ -337,13 +337,10 @@ let add_partial_decryption s uuid (owned_owner, pd) =
 
 let check_password s uuid ~user ~password =
   let module S = (val s : Storage.BACKEND) in
-  let* x = S.get (Election (uuid, Password user)) in
-  match x with
-  | None -> Lwt.return_none
-  | Some r ->
-      let ({ username; address; _ } as r) = password_record_of_string r in
-      if check_password r password then Lwt.return_some (username, address)
-      else Lwt.return_none
+  let*& r = S.get (Election (uuid, Password user)) in
+  let ({ username; address; _ } as r) = password_record_of_string r in
+  if check_password r password then Lwt.return_some (username, address)
+  else Lwt.return_none
 
 let get_all_voters s uuid =
   let module S = (val s : Storage.BACKEND) in
@@ -1187,10 +1184,8 @@ let get_draft_public_credentials s uuid =
 
 let get_records s uuid =
   let module S = (val s : Storage.BACKEND) in
-  let* x = S.get (Election (uuid, Records)) in
-  match x with
-  | None -> Lwt.return_none
-  | Some x -> Lwt.return_some @@ split_lines x
+  let*& x = S.get (Election (uuid, Records)) in
+  Lwt.return_some @@ split_lines x
 
 type credentials_status = [ `None | `Pending of int | `Done ]
 

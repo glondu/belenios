@@ -44,17 +44,14 @@ let get_event s uuid x =
 
 let get_from_data s uuid f =
   let* x = get_roots s uuid in
-  match f x with None -> Lwt.return_none | Some x -> get_data s uuid x
+  let&* x = f x in
+  get_data s uuid x
 
 let get_from_setup_data s uuid f =
   let* x = get_roots s uuid in
-  match x.roots_setup_data with
-  | None -> Lwt.return_none
-  | Some x -> (
-      let* x = get_data s uuid x in
-      match x with
-      | None -> Lwt.return_none
-      | Some x -> get_data s uuid (f (setup_data_of_string x)))
+  let&* x = x.roots_setup_data in
+  let*& x = get_data s uuid x in
+  get_data s uuid (f (setup_data_of_string x))
 
 let fold_on_event_payload_hashes s uuid typ last_event f accu =
   let rec loop e accu =
@@ -238,16 +235,13 @@ let get_ballot_by_hash s uuid hash =
 
 let get_owned_shuffles s uuid =
   let* x = get_roots s uuid in
-  match x.roots_last_shuffle_event with
-  | None -> Lwt.return_none
-  | Some x ->
-      let* x =
-        fold_on_event_payloads s uuid `Shuffle x
-          (fun h x accu ->
-            Lwt.return @@ ((h, owned_of_string read_hash x) :: accu))
-          []
-      in
-      Lwt.return_some x
+  let&* x = x.roots_last_shuffle_event in
+  let* x =
+    fold_on_event_payloads s uuid `Shuffle x
+      (fun h x accu -> Lwt.return @@ ((h, owned_of_string read_hash x) :: accu))
+      []
+  in
+  Lwt.return_some x
 
 let raw_get_shuffles s uuid x =
   let* x =
@@ -319,11 +313,9 @@ let get_shuffles s uuid =
 
 let get_sized_encrypted_tally s uuid =
   let* roots = get_roots s uuid in
-  match roots.roots_encrypted_tally with
-  | None -> Lwt.return_none
-  | Some x -> (
-      let* x = get_data s uuid x in
-      match x with None -> assert false | Some x -> Lwt.return_some x)
+  let&* x = roots.roots_encrypted_tally in
+  let* x = get_data s uuid x in
+  match x with None -> assert false | Some x -> Lwt.return_some x
 
 let get_latest_encrypted_tally s uuid =
   let@ election =
@@ -333,19 +325,16 @@ let get_latest_encrypted_tally s uuid =
   let module W = (val election) in
   let* roots = get_roots s uuid in
   let@ tally cont =
-    match roots.roots_encrypted_tally with
-    | None -> Lwt.return_none
+    let&* x = roots.roots_encrypted_tally in
+    let* x = get_data s uuid x in
+    match x with
+    | None -> assert false
     | Some x -> (
-        let* x = get_data s uuid x in
+        let x = sized_encrypted_tally_of_string read_hash x in
+        let* x = get_data s uuid x.sized_encrypted_tally in
         match x with
         | None -> assert false
-        | Some x -> (
-            let x = sized_encrypted_tally_of_string read_hash x in
-            let* x = get_data s uuid x.sized_encrypted_tally in
-            match x with
-            | None -> assert false
-            | Some x ->
-                cont @@ encrypted_tally_of_string W.(sread G.of_string) x))
+        | Some x -> cont @@ encrypted_tally_of_string W.(sread G.of_string) x)
   in
   let* nh = get_nh_ciphertexts s uuid in
   let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in

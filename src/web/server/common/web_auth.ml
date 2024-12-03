@@ -423,15 +423,15 @@ struct
         Lwt.return (c, username_or_address)
       in
       match c with
-      | [ auth_config ] -> (
-          match List.assoc_opt auth_config.auth_system !auth_systems with
-          | Some { extern; handler; _ } ->
-              let state, _ =
-                add_auth_env ~state ~auth_config ~kind ~extern ~handler
-                  ~username_or_address ~credential ()
-              in
-              Lwt.return_some state
-          | None -> Lwt.return_none)
+      | [ auth_config ] ->
+          let&* { extern; handler; _ } =
+            List.assoc_opt auth_config.auth_system !auth_systems
+          in
+          let state, _ =
+            add_auth_env ~state ~auth_config ~kind ~extern ~handler
+              ~username_or_address ~credential ()
+          in
+          Lwt.return_some state
       | _ -> Lwt.return_none
 
     let get ~state =

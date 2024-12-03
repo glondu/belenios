@@ -577,12 +577,9 @@ module MakeBackend
   let () =
     extended_records_ops.get <-
       (fun uuid r_username ->
-        let* x = find_extended_record uuid r_username in
-        match x with
-        | Some (r_date, r_credential) ->
-            Lwt.return_some
-            @@ string_of_extended_record { r_username; r_date; r_credential }
-        | None -> Lwt.return_none);
+        let*& r_date, r_credential = find_extended_record uuid r_username in
+        Lwt.return_some
+        @@ string_of_extended_record { r_username; r_date; r_credential });
     extended_records_ops.set <-
       (fun uuid username data ->
         let { r_username; r_date; r_credential } =
@@ -753,15 +750,12 @@ module MakeBackend
 
   let raw_get_credential_cache uuid =
     let make_salts creds =
-      let* x = get (Election (uuid, Salts)) in
-      match x with
-      | None -> Lwt.return_none
-      | Some salts ->
-          let salts = salts_of_string salts in
-          List.combine salts (List.rev creds)
-          |> List.map (fun (salt, cred) ->
-                 { salt; public_credential = `String cred })
-          |> Array.of_list |> Lwt.return_some
+      let*& salts = get (Election (uuid, Salts)) in
+      let salts = salts_of_string salts in
+      List.combine salts (List.rev creds)
+      |> List.map (fun (salt, cred) ->
+             { salt; public_credential = `String cred })
+      |> Array.of_list |> Lwt.return_some
     in
     let@ public_creds cont =
       let* x = get (Election (uuid, Public_creds)) in
@@ -880,10 +874,8 @@ module MakeBackend
   (** {1 Public archive operations} *)
 
   let get_last_event uuid =
-    let* x = get (Election (uuid, Last_event)) in
-    match x with
-    | None -> Lwt.return_none
-    | Some x -> Lwt.return_some @@ last_event_of_string x
+    let*& x = get (Election (uuid, Last_event)) in
+    Lwt.return_some @@ last_event_of_string x
 
   let set_last_event uuid x =
     set (Election (uuid, Last_event)) (string_of_last_event x)
