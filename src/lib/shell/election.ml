@@ -121,6 +121,9 @@ let has_nh_questions (Template (V1, e)) =
 let get_questions (Template (V1, e)) =
   Array.map Belenios_v1.Question.to_concrete e.t_questions
 
+let get_complexity (Template (V1, e)) =
+  Belenios_v1.Election.get_complexity e.t_questions
+
 module type ELECTION = sig
   include ELECTION
 

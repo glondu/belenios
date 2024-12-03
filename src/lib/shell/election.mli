@@ -58,6 +58,7 @@ val string_of_template : versioned_template -> string
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : versioned_template -> bool
 val get_questions : versioned_template -> Belenios_question.t array
+val get_complexity : versioned_template -> complexity
 
 val make_raw_election :
   version:int ->

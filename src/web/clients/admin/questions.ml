@@ -219,6 +219,8 @@ let delete_or_insert item attr handler_d handler_i =
   r##.onclick := lwt_handler handler_i;
   Lwt.return @@ div ~a:attr [ del; ins ]
 
+let set_complexity = ref (fun _ -> ())
+
 (* save current state of questions in the cache, to be synchronized
  * with the server at some point.
  *)
@@ -251,6 +253,9 @@ let local_save () =
                  (f_ "Question #%d has too many choices, voting will fail!")
                  (i + 1))
       qq
+  in
+  let () =
+    !set_complexity @@ Election.get_complexity @@ Template (v, draft_questions)
   in
   Cache.set Cache.draft (Draft (v, { draft with draft_questions; draft_group }));
   Lwt.return_unit
@@ -944,6 +949,23 @@ let draft_recompute_main_zone () =
         Lwt.return @@ div ~a:[ a_id ("qq" ^ string_of_int (i + 1)) ] [ dd ])
       (Array.to_list !all_gen_quest)
   in
+  let* complexity =
+    let complexity_elt = span [] in
+    let () =
+      let container = Tyxml_js.To_dom.of_span complexity_elt in
+      set_complexity :=
+        fun c ->
+          container##.textContent :=
+            Js.some @@ Js.string
+            @@ Printf.sprintf "%d+%d" c.nb_ciphertexts c.nb_zkps
+    in
+    let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+    let () =
+      !set_complexity @@ Election.get_complexity
+      @@ Template (v, draft.draft_questions)
+    in
+    Lwt.return @@ div [ txt @@ s_ "Total complexity:"; txt " "; complexity_elt ]
+  in
   let dd = div ~a:[ a_class [ "add_question"; "ins_sym"; "clickable" ] ] [] in
   let r = Tyxml_js.To_dom.of_div dd in
   r##.onclick :=
@@ -969,7 +991,7 @@ let draft_recompute_main_zone () =
     :: q_show
   in
   let q_show = q_show @ [ prev ] in
-  Lwt.return (h2 [ txt @@ s_ "Questions:" ] :: q_show)
+  Lwt.return (h2 [ txt @@ s_ "Questions:" ] :: complexity :: q_show)
 
 let () =
   update_main_zone :=
