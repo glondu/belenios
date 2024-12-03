@@ -225,8 +225,13 @@ let delete_or_insert item attr handler_d handler_i =
 let local_save () =
   let qq = Array.map gen_to_q !all_gen_quest in
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-  let group =
-    if Election.has_nh_questions (Template (v, draft.draft_questions)) then
+  let draft_questions =
+    let open (val Election.get_serializers v) in
+    let t_questions = Array.map of_concrete qq in
+    { draft.draft_questions with t_questions }
+  in
+  let draft_group =
+    if Election.has_nh_questions (Template (v, draft_questions)) then
       match !server_configuration with
       | None -> draft.draft_group
       | Some c -> c.default_nh_group
@@ -235,7 +240,7 @@ let local_save () =
   let () =
     let open (val !Belenios_js.I18n.gettext) in
     let version = draft.draft_version in
-    let group = lazy (Group.of_string ~version group) in
+    let group = lazy (Group.of_string ~version draft_group) in
     Array.iteri
       (fun i q ->
         match Belenios_question.check_question group q with
@@ -247,16 +252,7 @@ let local_save () =
                  (i + 1))
       qq
   in
-  let open (val Election.get_serializers v) in
-  let qq = Array.map of_concrete qq in
-  Cache.set Cache.draft
-    (Draft
-       ( v,
-         {
-           draft with
-           draft_questions = { draft.draft_questions with t_questions = qq };
-           draft_group = group;
-         } ));
+  Cache.set Cache.draft (Draft (v, { draft with draft_questions; draft_group }));
   Lwt.return_unit
 
 let insert_new_q ind =
