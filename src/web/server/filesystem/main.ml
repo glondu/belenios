@@ -951,9 +951,16 @@ module MakeBackend
       else
         let header = Archive.new_header () in
         let* () = write_header ~filename ~header in
-        Lwt.return (r, Events.empty_roots, Archive.get_timestamp header)
+        Lwt.return_some (r, Events.empty_roots, Archive.get_timestamp header)
     in
-    let* fd = Lwt_unix.openfile filename [ Unix.O_RDONLY ] 0o644 in
+    let@ fd cont =
+      Lwt.try_bind
+        (fun () -> Lwt_unix.openfile filename [ Unix.O_RDONLY ] 0o644)
+        cont
+        (function
+          | Unix.Unix_error (ENOENT, _, _) -> Lwt.return_none
+          | e -> Lwt.reraise e)
+    in
     let open Lwt_io in
     let ic = of_fd ~mode:Input fd in
     let* header = Reader.read_header ic in
@@ -968,7 +975,7 @@ module MakeBackend
         in
         Hashtbl.add r record.hash record.location;
         loop accu)
-      else Lwt.return (r, accu, Archive.get_timestamp header)
+      else Lwt.return_some (r, accu, Archive.get_timestamp header)
     in
     Lwt.finalize (fun () -> loop Events.empty_roots) (fun () -> close ic)
 
@@ -983,21 +990,21 @@ module MakeBackend
       | Some x -> (x.last_height + 100, x.last_pos)
     in
     let* filename = get_as_file (Election (uuid, Public_archive)) in
-    let* map, roots, timestamp = build_roots ~size ~pos filename in
+    let*& map, roots, timestamp = build_roots ~size ~pos filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
     let r = { timeout; map; roots; timestamp } in
     Hashtbl.add indexes uuid r;
-    Lwt.return r
+    Lwt.return_some r
 
   let get_index ~creat uuid =
-    let* r =
+    let*& r =
       match Hashtbl.find_opt indexes uuid with
-      | Some r -> Lwt.return r
+      | Some r -> Lwt.return_some r
       | None -> do_get_index ~creat ~uuid
     in
     Lwt_timeout.start r.timeout;
-    Lwt.return r
+    Lwt.return_some r
 
   let raw_append ~filename ~timestamp offset xs =
     let open Lwt_unix in
@@ -1025,26 +1032,32 @@ module MakeBackend
       (fun () -> close fd)
 
   let gethash ~index ~filename x =
-    match Hashtbl.find_opt index x with
-    | None -> Lwt.return_none
-    | Some i ->
-        let open Lwt_unix in
-        let* fd = openfile filename [ O_RDONLY ] 0o644 in
-        Lwt.finalize
-          (fun () ->
-            let* _ = LargeFile.lseek fd i.location_offset SEEK_SET in
-            assert (i.location_length <= Int64.of_int Sys.max_string_length);
-            let length = Int64.to_int i.location_length in
-            let buffer = Bytes.create length in
-            let ic = Lwt_io.of_fd ~mode:Input fd in
-            let* () = Lwt_io.read_into_exactly ic buffer 0 length in
-            Lwt.return_some @@ Bytes.to_string buffer)
-          (fun () -> close fd)
+    let&* i = Hashtbl.find_opt index x in
+    let open Lwt_unix in
+    let@ fd cont =
+      Lwt.try_bind
+        (fun () -> openfile filename [ O_RDONLY ] 0o644)
+        cont
+        (function
+          | Unix.Unix_error (ENOENT, _, _) -> Lwt.return_none
+          | e -> Lwt.reraise e)
+    in
+    Lwt.finalize
+      (fun () ->
+        let* _ = LargeFile.lseek fd i.location_offset SEEK_SET in
+        assert (i.location_length <= Int64.of_int Sys.max_string_length);
+        let length = Int64.to_int i.location_length in
+        let buffer = Bytes.create length in
+        let ic = Lwt_io.of_fd ~mode:Input fd in
+        let* () = Lwt_io.read_into_exactly ic buffer 0 length in
+        Lwt.return_some @@ Bytes.to_string buffer)
+      (fun () -> close fd)
 
   let get_data uuid x =
     Lwt.try_bind
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
+        let&* r = r in
         let* filename = get_as_file (Election (uuid, Public_archive)) in
         gethash ~index:r.map ~filename x)
       (function
@@ -1055,7 +1068,9 @@ module MakeBackend
   let get_roots uuid () =
     Lwt.try_bind
       (fun () -> get_index ~creat:false uuid)
-      (fun r -> Lwt.return_some @@ string_of_roots r.roots)
+      (fun r ->
+        let&* r = r in
+        Lwt.return_some @@ string_of_roots r.roots)
       (function
         | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
 
@@ -1068,7 +1083,10 @@ module MakeBackend
       | None -> cont x
       | Some last -> if x = Some last then cont x else Lwt.return_false
     in
-    let* index = get_index ~creat:true uuid in
+    let@ index cont =
+      let* i = get_index ~creat:true uuid in
+      match i with Some i -> cont i | None -> Lwt.return_false
+    in
     let event_parent, event_height, pos =
       match last with
       | None -> (None, -1, 1024L (* header size *))
