@@ -1318,7 +1318,13 @@ let credauth_content () =
             string_of_private_credentials p
             |> encode_data_uri ~mime_type:"text/plain"
           in
-          a ~a:[ a_download (Some "codes.txt") ] ~href
+          a
+            ~a:
+              [
+                a_download
+                  (Some (Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid)));
+              ]
+            ~href
           @@ s_ "the private parts of the credentials"
         in
         let r = Tyxml_js.To_dom.of_a link in

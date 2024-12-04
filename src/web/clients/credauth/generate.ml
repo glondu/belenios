@@ -83,7 +83,12 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
       true
     in
     a
-      ~a:[ a_id "creds"; a_download @@ Some "creds.txt"; a_onclick handler ]
+      ~a:
+        [
+          a_id "creds";
+          a_download @@ Some (Printf.sprintf "creds-%s.txt" (Uuid.unwrap uuid));
+          a_onclick handler;
+        ]
       ~href:(encode_data_uri ~mime_type:"text/plain" private_credentials)
       (s_ "private credentials")
   in
@@ -122,7 +127,13 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
                 [
                   txt @@ s_ "Download ";
                   a
-                    ~a:[ a_id "voters_txt"; a_download @@ Some "voters.txt" ]
+                    ~a:
+                      [
+                        a_id "voters_txt";
+                        a_download
+                        @@ Some
+                             (Printf.sprintf "voters-%s.txt" (Uuid.unwrap uuid));
+                      ]
                     ~href:(encode_data_uri ~mime_type:"text/plain" voters)
                     (s_ "voter list");
                   txt ".";

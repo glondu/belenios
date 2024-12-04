@@ -35,7 +35,7 @@ type keypair = {
   public_key : string;
   fingerprint : string;
   mime_type : string;
-  filename : string;
+  filename : uuid -> string;
 }
 
 let generate_basic (Draft (_, draft)) () =
@@ -57,7 +57,8 @@ let generate_basic (Draft (_, draft)) () =
     |> (fun x -> x.trustee_public_key)
     |> Yojson.Safe.to_string |> sha256_b64
   in
-  let mime_type = "application/json" and filename = "private_key.json" in
+  let mime_type = "application/json"
+  and filename uuid = Printf.sprintf "private_key-%s.json" (Uuid.unwrap uuid) in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
 let generate_threshold (Draft (_, draft)) context () =
@@ -71,7 +72,8 @@ let generate_threshold (Draft (_, draft)) context () =
   let private_key, cert = T.step1 context in
   let fingerprint = sha256_b64 cert.s_message in
   let public_key = string_of_cert (swrite G.Zq.to_string) cert in
-  let mime_type = "text/plain" and filename = "private_key.txt" in
+  let mime_type = "text/plain"
+  and filename uuid = Printf.sprintf "private_key-%s.txt" (Uuid.unwrap uuid) in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
 let threshold_step (Draft (_, draft)) pedersen ~private_key =
@@ -104,7 +106,7 @@ let threshold_step (Draft (_, draft)) pedersen ~private_key =
       |> Lwt.return
   | _ -> failwith "Unexpected state!"
 
-let generate_key ~token ~url generate =
+let generate_key ~uuid ~token ~url generate =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
   let doit = Dom_html.createButton document in
@@ -143,7 +145,7 @@ let generate_key ~token ~url generate =
         let href = encode_data_uri ~mime_type:p.mime_type p.private_key in
         let element =
           a ~href
-            ~a:[ a_id "private_key"; a_download (Some p.filename) ]
+            ~a:[ a_id "private_key"; a_download (Some (p.filename uuid)) ]
             (s_ "private key")
         in
         let r = Tyxml_js.To_dom.of_a element in
@@ -289,14 +291,14 @@ let compute_threshold_step ~token ~url draft pedersen =
         ]
   | _ -> error ()
 
-let actionable_basic ~token ~url draft = function
-  | `Init -> generate_key ~token ~url (generate_basic draft)
+let actionable_basic ~uuid ~token ~url draft = function
+  | `Init -> generate_key ~uuid ~token ~url (generate_basic draft)
   | `Done ->
       let open (val !Belenios_js.I18n.gettext) in
       Lwt.return
         [ div [ txt @@ s_ "Your public key has already been registered!" ] ]
 
-let actionable_threshold ~token ~url draft = function
+let actionable_threshold ~uuid ~token ~url draft = function
   | `Init ->
       let open (val !Belenios_js.I18n.gettext) in
       Lwt.return
@@ -310,7 +312,7 @@ let actionable_threshold ~token ~url draft = function
             ];
         ]
   | `WaitingForCertificate context ->
-      generate_key ~token ~url (generate_threshold draft context)
+      generate_key ~uuid ~token ~url (generate_threshold draft context)
   | `WaitingForOtherCertificates -> waiting_for_other_trustees ()
   | `Pedersen p -> compute_threshold_step ~token ~url draft p
 
@@ -333,11 +335,11 @@ let generate configuration uuid ~token =
   let* x =
     match status with
     | Some (`Basic s) ->
-        let* a = actionable_basic ~token ~url draft s in
+        let* a = actionable_basic ~uuid ~token ~url draft s in
         let h = h3 [ txt @@ s_ "Trustee key generation" ] in
         Lwt.return_some (a, h)
     | Some (`Threshold s) ->
-        let* a = actionable_threshold ~token ~url draft s in
+        let* a = actionable_threshold ~uuid ~token ~url draft s in
         let step =
           match s with
           | `Init -> 0
