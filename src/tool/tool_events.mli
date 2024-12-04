@@ -26,6 +26,7 @@ type index
 val get_index : file:string -> index Lwt.t
 val get_data : index -> hash -> string option Lwt.t
 val get_event : index -> hash -> event option Lwt.t
+val get_last_event : index -> hash option
 val get_roots : index -> roots
 
 val fold_on_event_payload_hashes :

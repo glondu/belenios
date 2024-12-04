@@ -298,8 +298,9 @@ let make file =
         | None -> failwith "missing credentials"
         | Some x -> Lwt.return x
       in
+      let* final = Getters.get_final () in
       Belenios.Election.compute_checksums ~election ~shuffles ~encrypted_tally
-        ~trustees ~public_credentials
+        ~trustees ~public_credentials ~final
       |> string_of_election_checksums |> Lwt.return
 
     let compute_voters privcreds =

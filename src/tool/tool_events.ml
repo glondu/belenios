@@ -151,6 +151,9 @@ let get_event i x =
   let* x = gethash ~index:i.map ~filename:i.file x in
   Lwt.return @@ Option.map event_of_string x
 
+let get_last_event i =
+  i.last_event |> Option.map (string_of_event >> Hash.hash_string)
+
 let get_roots i = i.roots
 
 let fold_on_event_payload_hashes index typ last_event f accu =

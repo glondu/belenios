@@ -629,8 +629,14 @@ let compute_audit_cache s uuid =
         let* setup_data = get_setup_data s uuid in
         let election = setup_data.setup_election in
         let* public_credentials = Public_archive.get_public_creds s uuid in
+        let* final =
+          let* roots = Public_archive.get_roots s uuid in
+          let&* _ = roots.roots_result in
+          let* last_event = Spool.get s uuid Spool.last_event in
+          Lwt.return @@ Option.map (fun x -> x.last_hash) last_event
+        in
         Election.compute_checksums ~election ~shuffles ~encrypted_tally
-          ~trustees ~public_credentials
+          ~trustees ~public_credentials ~final
         |> Lwt.return
       in
       return { cache_voters_hash; cache_checksums; cache_threshold = None }

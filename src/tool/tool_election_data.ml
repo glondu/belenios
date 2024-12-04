@@ -37,6 +37,7 @@ module type GETTERS = sig
   val get_shuffles : unit -> (hash * hash owned * string) list option Lwt.t
   val get_pds : unit -> (hash * hash owned * string) list option Lwt.t
   val get_result : unit -> string option Lwt.t
+  val get_final : unit -> hash option Lwt.t
 end
 
 module type PARAMS = sig
@@ -156,6 +157,12 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
     let* roots = roots in
     let& x = roots.roots_result in
     get_data x
+
+  let get_final () =
+    let* roots = roots in
+    let& _ = roots.roots_result in
+    let* index = index in
+    Lwt.return @@ Tool_events.get_last_event index
 end
 
 module type ELECTION_DATA = sig

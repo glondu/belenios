@@ -39,6 +39,7 @@ module type GETTERS = sig
   val get_shuffles : unit -> (hash * hash owned * string) list option Lwt.t
   val get_pds : unit -> (hash * hash owned * string) list option Lwt.t
   val get_result : unit -> string option Lwt.t
+  val get_final : unit -> hash option Lwt.t
 end
 
 module MakeGetters (_ : PARAMS) : GETTERS

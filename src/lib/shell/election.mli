@@ -83,4 +83,5 @@ val compute_checksums :
   public_credentials:string list ->
   shuffles:hash owned list option ->
   encrypted_tally:hash option ->
+  final:hash option ->
   election_checksums

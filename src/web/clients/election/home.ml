@@ -214,6 +214,18 @@ let make_audit_div election cache =
             ];
         ]
   in
+  let audit_final =
+    match checksums.ec_final with
+    | None -> []
+    | Some x ->
+        [
+          tr
+            [
+              td [ txt @@ s_ "Final fingerprint" ];
+              td [ code [ txt @@ Hash.to_b64 x ] ];
+            ];
+        ]
+  in
   div
     ~a:[ a_class [ "home-audit" ] ]
     [
@@ -232,6 +244,7 @@ let make_audit_div election cache =
              audit_credentials;
              audit_shuffles;
              audit_tally;
+             audit_final;
            ]);
     ]
 

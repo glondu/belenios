@@ -179,6 +179,7 @@ type election_checksums = {
   public_credentials : hash;
   ?shuffles : trustee_checksum list option;
   ?encrypted_tally : hash option;
+  ?final : hash option;
 } <ocaml field_prefix="ec_">
 
 type audit_cache = {
