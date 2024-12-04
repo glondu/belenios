@@ -47,10 +47,15 @@ let format_period x =
   |> List.filter (fun x -> x <> "")
   |> String.concat " "
 
+let make_object_link uuid h =
+  let href = !/Belenios_api.Endpoints.((election_object uuid h).path) in
+  a ~href (Hash.to_b64 h)
+
 let make_audit_div election cache =
   let open (val !Belenios_js.I18n.gettext) in
   let open (val election : Election.ELECTION) in
   let audit_election =
+    let h = Hash.of_b64 fingerprint in
     [
       tr
         [
@@ -60,7 +65,7 @@ let make_audit_div election cache =
       tr
         [
           td [ txt @@ s_ "Election fingerprint" ];
-          td [ code [ txt fingerprint ] ];
+          td [ code [ make_object_link uuid h ] ];
         ];
     ]
   in
@@ -182,7 +187,7 @@ let make_audit_div election cache =
         ~a:[ a_id "credentials" ]
         [
           td [ txt @@ s_ "Credentials fingerprint" ];
-          td [ code [ txt @@ Hash.to_b64 checksums.ec_public_credentials ] ];
+          td [ code [ make_object_link uuid checksums.ec_public_credentials ] ];
         ];
     ]
   in
@@ -210,7 +215,7 @@ let make_audit_div election cache =
           tr
             [
               td [ txt @@ s_ "Fingerprint of the encrypted tally" ];
-              td [ code [ txt @@ Hash.to_b64 x ] ];
+              td [ code [ make_object_link uuid x ] ];
             ];
         ]
   in
@@ -222,7 +227,7 @@ let make_audit_div election cache =
           tr
             [
               td [ txt @@ s_ "Final fingerprint" ];
-              td [ code [ txt @@ Hash.to_b64 x ] ];
+              td [ code [ make_object_link uuid x ] ];
             ];
         ]
   in
