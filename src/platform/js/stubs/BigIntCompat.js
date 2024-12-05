@@ -1,6 +1,5 @@
 // BELENIOS
-// Copyright © 2012-2023 Inria, uses JSBN by Tom Wu
-// See "LICENSE" for details.
+// Copyright © 2012-2024 Inria
 
 // The following is an implementation of big integer operations needed by Belenios
 
@@ -87,37 +86,10 @@ function getNative () {
     };
 }
 
-function getJsbn () {
-    return {
-        ZERO: BigInteger.ZERO,
-        ONE: BigInteger.ONE,
-        ofInt: function(n) { return new BigInteger(n.toString()); },
-        ofString: function(n) { return new BigInteger(n); },
-        ofHex: function(n) { return new BigInteger(n, 16); },
-        add: function(a, b) { return a.add(b); },
-        subtract: function(a, b) { return a.subtract(b); },
-        multiply: function(a, b) { return a.multiply(b); },
-        divide: function(a, b) { return a.divide(b); },
-        mod: function(a, b) { return a.mod(b); },
-        toInt: function(n) { return n.intValue(); },
-        toString: function(n) { return n.toString(); },
-        toHex: function(n) { return n.toString(16); },
-        compare: function(a, b) { return a.compareTo(b); },
-        modPow: function(a, e, m) { return a.modPow(e, m); },
-        modInverse: function(a, m) { return a.modInverse(m); },
-        bitLength: function(n) { return n.bitLength(); },
-        shiftLeft: function(a, b) { return a.shiftLeft(b); },
-        shiftRight: function(a, b) { return a.shiftRight(b); },
-        and: function(a, b) { return a.and(b); },
-        or: function(a, b) { return a.or(b); },
-        xor: function(a, b) { return a.xor(b); }
-    };
-}
-
 var hasNativeBigInt = typeof BigInt !== 'undefined';
 
 if (hasNativeBigInt) {
     belenios.BigIntCompat = getNative();
 } else {
-    belenios.BigIntCompat = getJsbn();
+    alert("Missing BigInt feature!");
 }

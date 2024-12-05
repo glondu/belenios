@@ -1,7 +1,0 @@
-(rule
- (target BigIntCompatFull.js)
- (deps jsbn.js jsbn2.js BigIntCompat.js)
- (action
-  (with-stdout-to
-   %{target}
-   (run cat %{deps}))))

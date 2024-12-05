@@ -4,7 +4,6 @@
  (js_of_ocaml
   (javascript_files
    ../../../../vendor/sjcl/sjcl.js
-   ../../../../vendor/jsbn/BigIntCompatFull.js
    ../../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml belenios-platform-js belenios-lib belenios_js)
  (preprocess
