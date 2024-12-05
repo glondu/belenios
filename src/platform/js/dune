@@ -3,7 +3,10 @@
  (public_name belenios-platform-js)
  (implements belenios_platform)
  (js_of_ocaml
-  (javascript_files stubs/BigIntCompat.js))
+  (javascript_files
+   stubs/BigIntCompat.js
+   ../../../vendor/sjcl/sjcl.js
+   ../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml)
  (preprocess
   (pps js_of_ocaml-ppx)))
