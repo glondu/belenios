@@ -64,7 +64,6 @@ module Z : sig
   val ( =% ) : t -> t -> bool
   val powm : t -> t -> t -> t
   val invert : t -> t -> t
-  val probab_prime : t -> int -> int
   val bit_length : t -> int
   val of_bits : string -> t
   val shift_left : t -> int -> t

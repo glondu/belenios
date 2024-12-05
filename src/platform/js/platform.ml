@@ -172,7 +172,6 @@ module BigIntCompat = struct
     method modPow : bigint -> bigint -> bigint -> bigint meth
     method modInverse : bigint -> bigint -> bigint meth
     method bitLength : bigint -> int meth
-    method isProbablePrime : bigint -> int -> int meth
     method shiftLeft : bigint -> int -> bigint meth
     method shiftRight : bigint -> int -> bigint meth
     method _and : bigint -> bigint -> bigint meth
@@ -211,7 +210,6 @@ module Z = struct
     let r = x mod y in
     if compare r zero < 0 then r + y else r
 
-  let probab_prime x n = lib##isProbablePrime x n
   let z256 = of_int 256
 
   let of_bits x =

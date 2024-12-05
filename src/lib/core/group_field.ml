@@ -25,16 +25,6 @@ open Common
 
 (** Finite field arithmetic *)
 
-let check_params { p; q; g; embedding } =
-  (match embedding with
-  | None -> true
-  | Some { padding; bits_per_int } ->
-      padding > 0 && bits_per_int > 0 && bits_per_int < 32)
-  && Z.probab_prime p 20 > 0
-  && Z.probab_prime q 20 > 0
-  && check_modulo p g && check_modulo p q
-  && Z.(powm g q p =% one)
-
 module type GROUP = Signatures.GROUP with type t = Z.t
 
 let make description ff_params =

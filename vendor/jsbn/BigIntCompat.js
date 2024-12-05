@@ -5,8 +5,6 @@
 // The following is an implementation of big integer operations needed by Belenios
 
 function getNative () {
-    function toJSBN(a) { return new BigInteger(a.toString()); }
-    function ofJSBN(a) { return BigInt(a.toString()); }
     var ZERO = BigInt(0);
     var ONE = BigInt(1);
     var windowsize = 6;
@@ -80,9 +78,6 @@ function getNative () {
             var r = b[1] % m; if (r < ZERO) r += m;
             return r;
         },
-        isProbablePrime: function(n, p) {
-            return toJSBN(n).isProbablePrime(p);
-        },
         bitLength: bitLength,
         shiftLeft: function(a, b) { return a << BigInt(b); },
         shiftRight: function(a, b) { return a >> BigInt(b); },
@@ -110,7 +105,6 @@ function getJsbn () {
         compare: function(a, b) { return a.compareTo(b); },
         modPow: function(a, e, m) { return a.modPow(e, m); },
         modInverse: function(a, m) { return a.modInverse(m); },
-        isProbablePrime: function(n, p) { return n.isProbablePrime(p); },
         bitLength: function(n) { return n.bitLength(); },
         shiftLeft: function(a, b) { return a.shiftLeft(b); },
         shiftRight: function(a, b) { return a.shiftRight(b); },

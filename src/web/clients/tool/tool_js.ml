@@ -70,7 +70,6 @@ module Tests = struct
     check "erem" (fun () -> Z.to_int Z.(erem (zero - (c * d)) m) = 151062487);
     check "powm" (fun () -> Z.to_int (Z.powm c d m) = 81171525);
     check "invert" (fun () -> Z.to_int (Z.invert c m) = 54455411);
-    check "prime" (fun () -> Z.probab_prime m 5 > 0);
     check "eq" (fun () -> Z.(c =% c));
     check "neq" (fun () -> Z.(not (c =% d)));
     check "geq" (fun () -> Z.compare c d >= 0);
