@@ -1,0 +1,912 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-05 08:44+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ta\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: src/web/server/common/pages_common.ml:341
+msgid " (if you forgot it, for example)."
+msgstr ""
+
+#: src/web/common/pages_common.ml:249
+msgid " A confirmation e-mail has been sent to you."
+msgstr ""
+
+#: src/web/common/pages_common.ml:247
+msgid " anytime during the election."
+msgstr ""
+
+#: src/web/common/pages_common.ml:236
+msgid " as user "
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:59
+msgid " ballot(s) have been accepted so far."
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:69
+msgid " ballot(s) have been accepted, and "
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:63
+msgid " ballot(s) have been accepted."
+msgstr ""
+
+#: src/web/clients/election/home.ml:42 src/web/server/common/web_common.ml:45
+msgid " day(s)"
+msgstr ""
+
+#: src/web/clients/election/home.ml:358
+msgid " for more information."
+msgstr ""
+
+#: src/web/common/pages_common.ml:238
+msgid " has been accepted."
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:71
+msgid " have been tallied."
+msgstr ""
+
+#: src/web/clients/election/home.ml:43 src/web/server/common/web_common.ml:47
+msgid " hour(s)"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:549
+msgid " in the following box: "
+msgstr ""
+
+#: src/web/common/pages_common.ml:255
+msgid " is rejected, because "
+msgstr ""
+
+#: src/web/clients/election/home.ml:44 src/web/server/common/web_common.ml:48
+msgid " minute(s)"
+msgstr ""
+
+#: src/web/server/common/web_common.ml:44
+msgid " month(s)"
+msgstr ""
+
+#: src/web/clients/election/home.ml:45 src/web/server/common/web_common.ml:49
+msgid " second(s)"
+msgstr ""
+
+#: src/web/server/common/web_common.ml:43
+msgid " year(s)"
+msgstr ""
+
+#: src/web/clients/election/home.ml:318 src/web/clients/election/home.ml:285
+msgid "%d blank ballot(s)"
+msgstr ""
+
+#: src/web/clients/election/home.ml:383 src/web/clients/election/home.ml:294
+msgid "%d invalid ballot(s)"
+msgstr ""
+
+#: src/web/clients/election/home.ml:161
+msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:312 src/web/clients/election/home.ml:279
+msgid "%d valid (non-blank) ballot(s)"
+msgstr ""
+
+#: src/web/clients/election/home.ml:313 src/web/clients/election/home.ml:280
+msgid "%d valid ballot(s)"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:144
+msgid "(available in the "
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:146
+msgid "), or any compatible booth."
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:337
+msgid ", or "
+msgstr ""
+
+#: src/web/clients/election/home.ml:346
+msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
+msgstr ""
+
+#: src/web/clients/election/home.ml:391
+msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:149
+msgid "A specification of encrypted ballots is also available in the sources."
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:450
+msgid "A verification code has been sent to %s."
+msgstr ""
+
+#: src/web/clients/election/home.ml:222
+msgid "About this election"
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:110
+msgid "Accepted ballots"
+msgstr ""
+
+#: src/web/clients/election/home.ml:300
+msgid "According to Majority Judgment, the ranking is:"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:91
+msgid "Administer elections"
+msgstr ""
+
+#: src/web/clients/election/common.ml:62 src/web/server/common/pages_common.ml:97
+msgid "Administer this election"
+msgstr ""
+
+#: src/web/clients/election/home.ml:71
+msgid "Administrator"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+msgid "Advanced mode"
+msgstr ""
+
+#: src/web/clients/election/home.ml:132
+msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:114
+msgid "Alternatively, you can also upload a file containing your ballot:"
+msgstr ""
+
+#. src/web/server/common/pages_voter.ml:77
+#: src/web/server/common/pages_voter.ml:82
+msgid "Answer to questions"
+msgstr ""
+
+#: src/web/clients/election/common.ml:53
+msgid "Audit data: "
+msgstr ""
+
+#. src/web/server/common/pages_voter.ml:125
+#. src/web/server/common/pages_common.ml:474
+#. src/web/server/common/pages_common.ml:405
+#. src/web/server/common/pages_common.ml:314
+#: src/web/server/common/pages_voter.ml:130
+msgid "Authenticate"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:245
+msgid "Authenticate with %s"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:510
+msgid "Authentication"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:419
+msgid "Authentication failed"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:425
+msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:574
+msgid "Authentication impossible"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:569
+msgid "Authentication is impossible."
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:158
+msgid "Back to election home"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:525
+msgid "Bad e-mail address!"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:524
+msgid "Bad security code!"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:503
+msgid "Best regards,"
+msgstr ""
+
+#: src/web/clients/election/home.ml:449
+msgid "Blank vote"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:153
+msgid "Booths available on this server:"
+msgstr ""
+
+#: src/web/clients/common/secondary_ui.ml:93
+msgid "By using this site, you accept our "
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:584
+msgid "Click here"
+msgstr ""
+
+#: src/web/clients/common/secondary_ui.ml:101
+msgid "Close"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:92
+msgid "Compare"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:74
+msgid "Compute fingerprint"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:35
+msgid "Computed fingerprint:"
+msgstr ""
+
+#. src/web/server/common/pages_voter.ml:143
+#: src/web/server/common/pages_voter.ml:148
+msgid "Confirm"
+msgstr ""
+
+#: src/web/clients/election/home.ml:707
+msgid "Could not retrieve audit data!"
+msgstr ""
+
+#: src/web/clients/election/home.ml:175
+msgid "Credentials authority"
+msgstr ""
+
+#: src/web/clients/election/home.ml:184
+msgid "Credentials fingerprint"
+msgstr ""
+
+#. src/web/server/common/mails_voter.ml:416
+#: src/web/server/common/pages_common.ml:483
+msgid "Dear %s,"
+msgstr ""
+
+#. src/web/server/common/pages_common.ml:348
+#. src/web/server/common/pages_common.ml:281
+#: src/web/server/common/pages_common.ml:538
+msgid "E-mail address:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:62
+msgid "Election fingerprint"
+msgstr ""
+
+#: src/web/clients/election/main.ml:36
+msgid "Election home"
+msgstr ""
+
+#: src/web/clients/election/home.ml:57
+msgid "Election identifier"
+msgstr ""
+
+#: src/web/common/pages_common.ml:141 src/web/common/pages_common.ml:132
+msgid "Election server"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:64
+msgid "Encrypted ballot in JSON format"
+msgstr ""
+
+#. src/web/server/common/site_voter.ml:106
+#. src/web/server/common/site_voter.ml:90
+#: src/web/clients/election/main.ml:65 src/web/server/common/site_voter.ml:111
+msgid "Error"
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:98
+msgid "Error while loading ballots!"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:83
+msgid "Expected fingerprint:"
+msgstr ""
+
+#: src/web/common/pages_common.ml:259
+msgid "FAIL!"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:118
+msgid "File:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:212
+msgid "Fingerprint of the encrypted tally"
+msgstr ""
+
+#: src/web/server/common/site_common.ml:116
+msgid "Forbidden"
+msgstr ""
+
+#: src/web/common/pages_common.ml:65
+msgid "Get the source code"
+msgstr ""
+
+#. src/web/server/common/pages_voter.ml:191
+#. src/web/common/pages_common.ml:274
+#: src/web/clients/election/ballots.ml:50
+msgid "Go back to election"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:160
+msgid "If the above link does not work:"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:172
+msgid "If you want to vote, you must "
+msgstr ""
+
+#: src/web/server/common/site_voter.ml:90
+msgid "Ill-formed ballot"
+msgstr ""
+
+#: src/web/clients/election/home.ml:417
+msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
+msgstr ""
+
+#. src/web/server/common/pages_voter.ml:53
+#: src/web/server/common/pages_voter.ml:58
+msgid "Input credential"
+msgstr ""
+
+#: src/web/clients/election/home.ml:521
+msgid "It contains all submitted ballots in clear, in random order."
+msgstr ""
+
+#: src/web/clients/election/home.ml:504
+msgid "It is up to you to apply your favorite counting method."
+msgstr ""
+
+#: src/web/clients/election/home.ml:629
+msgid "It will open in "
+msgstr ""
+
+#: src/web/clients/election/home.ml:518
+msgid "JSON result"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:162 src/web/common/pages_common.ml:88
+msgid "Language:"
+msgstr ""
+
+#: src/web/clients/election/ballots.ml:92
+msgid "Loading..."
+msgstr ""
+
+#. src/web/server/common/pages_common.ml:404
+#. src/web/server/common/pages_common.ml:313
+#. src/web/server/common/pages_common.ml:273
+#: src/web/server/common/pages_common.ml:473
+msgid "Log in"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:244
+msgid "Log in with %s"
+msgstr ""
+
+#: src/web/clients/election/home.ml:428
+msgid "Look at the raw events for more details."
+msgstr ""
+
+#: src/web/clients/election/home.ml:412
+msgid "Many variants of STV exist, depending for example on how to break ties."
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:571
+msgid "Maybe cookies are blocked."
+msgstr ""
+
+#: src/web/server/common/site_common.ml:37
+msgid "Not found"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:56
+msgid "Note that you also need a credential, sent in a separate email, to start voting."
+msgstr ""
+
+#: src/web/clients/election/home.ml:586
+msgid "Number of accepted ballots: "
+msgstr ""
+
+#: src/web/clients/election/home.ml:81
+msgid "Number of voters"
+msgstr ""
+
+#. src/web/server/common/mails_voter.ml:72
+#: src/web/server/common/mails_voter.ml:177
+msgid "Number of votes:"
+msgstr ""
+
+#. src/web/server/common/mails_voter.ml:83
+#: src/web/server/common/mails_voter.ml:184
+msgid "Only the last vote counts."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:77
+msgid "Page of the election:"
+msgstr ""
+
+#. src/web/server/common/mails_voter.ml:65
+#: src/web/server/common/pages_common.ml:384
+msgid "Password:"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:547
+msgid "Please enter "
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:462
+msgid "Please enter the verification code received by e-mail:"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:48
+msgid "Please find below your login and password for the election"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:267
+msgid "Please log in:"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:61
+msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:76
+msgid "Please paste your encrypted ballot in JSON format in the following box:"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:146
+msgid "Please vote here using your personal link:"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:262
+msgid "Please wait while your ballot is being processed..."
+msgstr ""
+
+#: src/web/common/pages_common.ml:61
+msgid "Powered by "
+msgstr ""
+
+#. src/web/server/common/pages_common.ml:226
+#. src/web/server/common/pages_common.ml:218
+#: src/web/clients/election/advanced.ml:253
+msgid "Proceed"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:200
+msgid "Processing ballot"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:163
+msgid "Public page of the election:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:399
+msgid "Raw events"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:587
+msgid "Redirection"
+msgstr ""
+
+#: src/web/common/pages_common.ml:50
+msgid "Restricted mode"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:450
+msgid "Results will be published on the election page"
+msgstr ""
+
+#. src/web/server/common/pages_voter.ml:101
+#: src/web/server/common/pages_voter.ml:106
+msgid "Review and encrypt"
+msgstr ""
+
+#: src/web/clients/election/home.ml:701
+msgid "See accepted ballots"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:169
+msgid "Set"
+msgstr ""
+
+#: src/web/clients/election/home.ml:351
+msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
+msgstr ""
+
+#: src/web/clients/election/home.ml:679
+msgid "Start"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:60
+msgid "Step 1"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:84
+msgid "Step 2"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:108
+msgid "Step 3"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:132
+msgid "Step 4"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:150
+msgid "Step 5"
+msgstr ""
+
+#. src/web/clients/election/advanced.ml:69
+#. src/web/server/common/pages_common.ml:552
+#. src/web/server/common/pages_common.ml:466
+#: src/web/clients/election/advanced.ml:107
+msgid "Submit"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:165
+msgid "Submit by copy/paste"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:167
+msgid "Submit by file"
+msgstr ""
+
+#: src/web/clients/election/home.ml:424
+msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
+msgstr ""
+
+#: src/web/common/pages_common.ml:67
+msgid "Terms of service"
+msgstr ""
+
+#: src/web/common/pages_common.ml:252
+msgid "Thank you for voting!"
+msgstr ""
+
+#: src/web/clients/election/home.ml:363
+msgid "The Schulze winners are:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:433
+msgid "The Single Transferable Vote winners are:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:652 src/web/clients/election/home.ml:650
+msgid "The election is closed and being tallied."
+msgstr ""
+
+#: src/web/clients/election/home.ml:642
+msgid "The election will close in "
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:47
+msgid "The fingerprints differ!"
+msgstr ""
+
+#: src/web/clients/tool/tool_js_fingerprint.ml:46
+msgid "The fingerprints match!"
+msgstr ""
+
+#: src/web/clients/election/home.ml:515
+msgid "The raw results can be viewed in the "
+msgstr ""
+
+#: src/web/clients/election/home.ml:409
+msgid "There has been at least one tie."
+msgstr ""
+
+#: src/web/server/common/site_common.ml:38
+msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
+msgstr ""
+
+#: src/web/clients/election/home.ml:653
+msgid "This election has been tallied."
+msgstr ""
+
+#: src/web/clients/election/home.ml:654
+msgid "This election is archived."
+msgstr ""
+
+#: src/web/clients/election/home.ml:635
+msgid "This election is currently closed."
+msgstr ""
+
+#: src/web/common/pages_common.ml:213
+msgid "This is a revote."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:440
+msgid "This vote replaces any previous vote."
+msgstr ""
+
+#: src/web/clients/election/home.ml:336 src/web/clients/election/home.ml:272
+msgid "Tie:"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:155
+msgid "To cast a vote, you will also need a password, sent in a separate email."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:37
+msgid "To get more information, please contact:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:570
+msgid "Total weight of accepted ballots:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:199
+msgid "Trustees shuffled the ballots in the following order:"
+msgstr ""
+
+#: src/web/server/common/site_voter.ml:110
+msgid "Unknown election"
+msgstr ""
+
+#: src/web/clients/election/home.ml:557
+msgid "Unsupported question type"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:490
+msgid "Use the following code:"
+msgstr ""
+
+#. src/web/server/common/pages_common.ml:280
+#. src/web/server/common/mails_voter.ml:167
+#. src/web/server/common/mails_voter.ml:61
+#: src/web/server/common/pages_common.ml:347
+msgid "Username:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:86
+msgid "Voter list fingerprint"
+msgstr ""
+
+#: src/web/clients/election/home.ml:97
+msgid "Voters' total weight"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:183
+msgid "Warning:"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:498
+msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:134
+msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
+msgstr ""
+
+#: src/web/clients/election/home.ml:355
+msgid "We use here the Schulze method and we refer voters to "
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:186 src/web/common/pages_common.ml:106
+msgid "Wish to help with translations?"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:244
+msgid "You are about to submit a ballot with smart ballot tracker %s."
+msgstr ""
+
+#. src/web/server/common/mails_voter.ml:82
+#: src/web/server/common/mails_voter.ml:183
+msgid "You are allowed to vote several times."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:139
+msgid "You are listed as a voter for the election"
+msgstr ""
+
+#: src/web/server/common/site_common.ml:115
+msgid "You are not allowed to access this page!"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:431
+msgid "You can "
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:335
+msgid "You can also "
+msgstr ""
+
+#: src/web/clients/election/home.ml:591
+msgid "You can also download the "
+msgstr ""
+
+#: src/web/common/pages_common.ml:245
+msgid "You can check its presence in the "
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:444
+msgid "You can check its presence in the ballot box, accessible at"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:141
+msgid "You can create an encrypted ballot by using the command-line tool "
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:562
+msgid "You cannot log in now. Please try later."
+msgstr ""
+
+#: src/web/common/pages_common.ml:264
+msgid "Your ballot for "
+msgstr ""
+
+#: src/web/server/common/site_voter.ml:103
+msgid "Your ballot is rejected because %s."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:201
+msgid "Your credential for election %s"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:171
+msgid "Your credential:"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:487
+msgid "Your e-mail address has been used to authenticate with our Belenios server."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:102
+msgid "Your password for election %s"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:432
+msgid "Your smart ballot tracker is"
+msgstr ""
+
+#: src/web/common/pages_common.ml:242
+msgid "Your smart ballot tracker is "
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:419
+msgid "Your vote for election"
+msgstr ""
+
+#: src/web/server/common/site_voter.ml:139
+msgid "Your vote for election %s"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:185
+msgid "Your vote was not recorded!"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:430 src/web/common/pages_common.ml:222
+msgid "Your weight is %s."
+msgstr ""
+
+#: src/web/common/pages_common.ml:233
+msgid "ballot box"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:339
+msgid "change your password"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:336
+msgid "create an account"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:128
+msgid "direct link"
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:426
+msgid "has been recorded."
+msgstr ""
+
+#: src/web/clients/election/common.ml:54
+msgid "parameters"
+msgstr ""
+
+#: src/web/clients/election/common.ml:56
+msgid "public data"
+msgstr ""
+
+#: src/web/clients/election/home.ml:592
+msgid "raw result"
+msgstr ""
+
+#: src/web/common/confirmation.ml:30
+msgid "some proofs failed verification"
+msgstr ""
+
+#: src/web/clients/election/advanced.ml:145
+msgid "sources"
+msgstr ""
+
+#: src/web/server/common/pages_voter.ml:174
+msgid "start from the beginning"
+msgstr ""
+
+#: src/web/clients/common/secondary_ui.ml:94
+msgid "terms of service"
+msgstr ""
+
+#: src/web/clients/election/home.ml:357
+msgid "the Wikipedia page"
+msgstr ""
+
+#: src/web/common/confirmation.ml:25
+msgid "the election is closed"
+msgstr ""
+
+#: src/web/common/confirmation.ml:39
+msgid "the server responded unexpectedly"
+msgstr ""
+
+#: src/web/common/confirmation.ml:36
+msgid "this ballot has already been accepted"
+msgstr ""
+
+#: src/web/common/confirmation.ml:37
+msgid "this ballot has expired"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:432
+msgid "try to log in again"
+msgstr ""
+
+#: src/web/common/confirmation.ml:32
+msgid "you are not allowed to revote"
+msgstr ""
+
+#: src/web/common/confirmation.ml:26
+msgid "you are not allowed to vote"
+msgstr ""
+
+#: src/web/common/confirmation.ml:34
+msgid "you are not allowed to vote with this credential"
+msgstr ""
+
+#: src/web/common/confirmation.ml:28
+msgid "your ballot has a syntax error (%s)"
+msgstr ""
+
+#: src/web/common/confirmation.ml:29
+msgid "your ballot is not in canonical form"
+msgstr ""
+
+#: src/web/common/confirmation.ml:35
+msgid "your credential has a bad weight"
+msgstr ""
+
+#: src/web/common/confirmation.ml:33
+msgid "your credential has already been used"
+msgstr ""
+
+#: src/web/common/confirmation.ml:31
+msgid "your credential is invalid"
+msgstr ""
+
+#: src/web/common/confirmation.ml:38
+msgid "your username is wrong"
+msgstr ""
