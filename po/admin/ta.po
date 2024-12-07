@@ -8,269 +8,281 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-05 08:44+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2024-12-08 14:00+0000\n"
+"Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
+"Language-Team: Tamil <https://hosted.weblate.org/projects/belenios/admin/ta/>"
+"\n"
 "Language: ta\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.9-dev\n"
 
 #: src/web/clients/admin/trustees_tab.ml:262
 msgid " (server is not counted)"
-msgstr ""
+msgstr " (சேவையகம் கணக்கிடப்படவில்லை)"
 
 #: src/web/common/pages_common.ml:249
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " உறுதிப்படுத்தல் மின்னஞ்சல் உங்களுக்கு அனுப்பப்பட்டுள்ளது."
 
 #: src/web/server/common/pages_admin.ml:374
 msgid " and a password: "
-msgstr ""
+msgstr " மற்றும் கடவுச்சொல்: "
 
 #: src/web/clients/trustee/generate.ml:173
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " அதை ஒரு பாதுகாப்பான இடத்திற்கு சேமிக்கவும்."
 
 #: src/web/clients/credauth/generate.ml:117
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " கோப்பை பாதுகாப்பான இடத்திற்கு சேமிக்கவும்."
 
 #: src/web/clients/admin/elections.ml:1338
 msgid " and save them in a secure location."
-msgstr ""
+msgstr " அவற்றை பாதுகாப்பான இடத்தில் சேமிக்கவும்."
 
 #: src/web/server/common/pages_admin.ml:424
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " உங்கள் மின்னஞ்சல் முகவரி: "
 
 #: src/web/common/pages_common.ml:247
 msgid " anytime during the election."
-msgstr ""
+msgstr " தேர்தலின் போது எப்போது வேண்டுமானாலும்."
 
 #: src/web/common/pages_common.ml:236
 msgid " as user "
-msgstr ""
+msgstr " பயனராக "
 
 #. src/web/server/common/pages_admin.ml:360
 #: src/web/server/common/pages_admin.ml:411
 msgid " because "
-msgstr ""
+msgstr " ஏனெனில் "
 
 #: src/web/common/pages_common.ml:238
 msgid " has been accepted."
-msgstr ""
+msgstr " ஏற்றுக்கொள்ளப்பட்டுள்ளது."
 
 #. src/web/server/common/pages_admin.ml:271
 #: src/web/server/common/pages_admin.ml:304
 msgid " in the following box: "
-msgstr ""
+msgstr " பின்வரும் பெட்டியில்: "
 
 #: src/web/clients/admin/elections.ml:954 src/web/clients/admin/elections.ml:951
 msgid " in txt format."
-msgstr ""
+msgstr " TXT வடிவத்தில்."
 
 #: src/web/common/pages_common.ml:255
 msgid " is rejected, because "
-msgstr ""
+msgstr " நிராகரிக்கப்படுகிறது, ஏனெனில் "
 
 #: src/web/clients/admin/elections.ml:1292
 msgid " or send them manually this link:"
-msgstr ""
+msgstr " அல்லது இந்த இணைப்பை அவர்களுக்கு கைமுறையாக அனுப்புங்கள்:"
 
 #: src/web/server/common/pages_admin.ml:294
 msgid " or username: "
-msgstr ""
+msgstr " அல்லது பயனர்பெயர்: "
 
 #: src/web/clients/trustee/decrypt.ml:172
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " மறைகுறியாக்கத்திற்கான உங்கள் பங்களிப்பு."
 
 #: src/web/clients/admin/admin.ml:183
 msgid "(no title)"
-msgstr ""
+msgstr "(தலைப்பு இல்லை)"
 
 #: src/web/server/common/pages_admin.ml:570
 msgid "(none)"
-msgstr ""
+msgstr "(எதுவுமில்லை)"
 
 #. src/web/server/common/pages_admin.ml:362
 #: src/web/server/common/pages_admin.ml:413
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". தயவுசெய்து வேறு ஒன்றைக் கொண்டு மீண்டும் முயற்சிக்கவும்."
 
 #: src/web/common/mails_admin.ml:46
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. இணைப்பைக் சொடுக்கு செய்க."
 
 #: src/web/common/mails_admin.ml:48
 msgid "2. Click on \"Generate\"."
-msgstr ""
+msgstr "2. \"உருவாக்கு\" என்பதைக் சொடுக்கு செய்க."
 
 #: src/web/common/mails_admin.ml:51
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
 msgstr ""
+"3. தனியார் நற்சான்றிதழ்களை (greds.txt) பதிவிறக்கம் செய்து கோப்பை பாதுகாப்பான இடத்திற்கு சேமிக்கவும்."
 
 #: src/web/common/mails_admin.ml:57
 msgid "4. Download the list of voters (voters.txt)."
-msgstr ""
+msgstr "4. வாக்காளர்களின் பட்டியலைப் பதிவிறக்குங்கள் (வாக்காளர்கள். TXT)."
 
 #: src/web/common/mails_admin.ml:63
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
 msgstr ""
+"5. இரண்டு கைரேகைகளைச் சேமிக்கவும்: வாக்காளர்களின் கைரேகை மற்றும் பொது சான்றுகளின் கைரேகை"
 
 #: src/web/common/mails_admin.ml:72
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr ""
+msgstr "6. \"பொது சான்றுகளை சமர்ப்பிக்கவும்\" என்பதைக் சொடுக்கு செய்க."
 
 #: src/web/clients/admin/elections.ml:1561
 msgid "A new password has been mailed to %s."
-msgstr ""
+msgstr "புதிய கடவுச்சொல் %s க்கு அனுப்பப்பட்டுள்ளது."
 
 #: src/web/server/common/pages_admin.ml:64
 msgid "Accept"
-msgstr ""
+msgstr "ஏற்றுக்கொள்"
 
 #: src/web/server/common/pages_admin.ml:334
 msgid "Account management"
-msgstr ""
+msgstr "கணக்கு மேலாண்மை"
 
 #: src/web/server/common/site_admin.ml:494
 msgid "Account not found"
-msgstr ""
+msgstr "கணக்கு காணப்படவில்லை"
 
 #: src/web/server/common/pages_admin.ml:532
 msgid "Account settings"
-msgstr ""
+msgstr "கணக்கு அமைப்புகள்"
 
 #: src/web/clients/admin/elections.ml:761
 msgid "Add"
-msgstr ""
+msgstr "கூட்டு"
 
 #: src/web/clients/admin/questions.ml:545
 msgid "Add a grade"
-msgstr ""
+msgstr "ஒரு தரத்தைச் சேர்க்கவும்"
 
 #. src/web/clients/admin/trustees_tab.ml:147
 #: src/web/clients/admin/trustees_tab.ml:193
 msgid "Add a trustee"
-msgstr ""
+msgstr "ஒரு அறங்காவலர் சேர்க்கவும்"
 
 #. src/web/clients/admin/admin.ml:64
 #: src/web/clients/admin/admin.ml:89 src/web/clients/admin/admin.ml:88
 msgid "Administration"
-msgstr ""
+msgstr "நிர்வாகம்"
 
 #: src/web/clients/admin/account.ml:76
 msgid "Administrator's profile: "
-msgstr ""
+msgstr "நிர்வாகியின் சுயவிவரம்: "
 
 #: src/web/common/mails_admin.ml:213
 msgid "All trustees must have completed one step before you can proceed to the next one."
 msgstr ""
+"அனைத்து அறங்காவலர்களும் நீங்கள் அடுத்த இடத்திற்குச் செல்வதற்கு முன்பு ஒரு படி முடித்திருக்க வேண்டும்."
 
 #: src/web/clients/admin/questions.ml:579
 msgid "Allow blank vote"
-msgstr ""
+msgstr "வெற்று வாக்குகளை அனுமதிக்கவும்"
 
 #: src/web/server/common/pages_admin.ml:492
 msgid "An e-mail with a code has been sent to %s."
-msgstr ""
+msgstr "ஒரு குறியீட்டைக் கொண்ட ஒரு மின்னஞ்சல் %s க்கு அனுப்பப்பட்டுள்ளது."
 
 #: src/web/clients/trustee/shuffle.ml:154
 msgid "An error occurred while applying the shuffle."
-msgstr ""
+msgstr "கலக்கலைப் பயன்படுத்தும்போது பிழை ஏற்பட்டது."
 
 #: src/web/clients/admin/common.ml:122
 msgid "An error occurred while retrieving drafts: %s"
-msgstr ""
+msgstr "வரைவுகளை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது: %s"
 
 #: src/web/clients/admin/common.ml:110
 msgid "An error occurred while retrieving elections: %s"
-msgstr ""
+msgstr "தேர்தல்களை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது: %s"
 
 #: src/web/clients/credauth/generate.ml:72
 msgid "An error occurred while submitting credentials!"
-msgstr ""
+msgstr "சான்றுகளை சமர்ப்பிக்கும் போது பிழை ஏற்பட்டது!"
 
 #: src/web/clients/admin/elections.ml:866
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
+"ஒரு அடையாளம் என்பது \"முகவரி\", அல்லது \"முகவரி, பயனர்பெயர்\" அல்லது \"முகவரி, பயனர்பெயர், எடை\" "
+"அல்லது \"முகவரி ,, எடை\" என்பது \"முகவரி\" என்பது ஒரு மின்னஞ்சல் முகவரி, \"பயனர்பெயர்\" அதனுடன் "
+"தொடர்புடைய பயனர் பெயர் ஏற்பு, மற்றும் \"எடை\" என்பது வாக்காளரின் வாக்குகளின் எண்ணிக்கையாகும் (வாக்காளர்களுக்கு ஒரே "
+"எண்ணிக்கையிலான வாக்குகள் இல்லையென்றால்)."
 
 #: src/web/clients/basic/admin_basic.ml:220
 msgid "Archived elections"
-msgstr ""
+msgstr "காப்பகப்படுத்தப்பட்ட தேர்தல்கள்"
 
 #: src/web/clients/admin/admin.ml:228
 msgid "Archived elections:"
-msgstr ""
+msgstr "காப்பகப்படுத்தப்பட்ட தேர்தல்கள்:"
 
 #: src/web/clients/admin/elections.ml:445
 msgid "Are you sure you want to delete this election?"
-msgstr ""
+msgstr "இந்தத் தேர்தலை நீக்க விரும்புகிறீர்களா?"
 
 #: src/web/clients/admin/questions.ml:871
 msgid "Are you sure you want to delete this question?"
-msgstr ""
+msgstr "இந்த கேள்வியை நீக்க விரும்புகிறீர்களா?"
 
 #: src/web/clients/admin/trustees_tab.ml:480
 msgid "Are you sure you want to restart from scratch?"
-msgstr ""
+msgstr "புதிதாக மறுதொடக்கம் செய்ய விரும்புகிறீர்களா?"
 
 #: src/web/clients/admin/elections.ml:367
 msgid "Are you sure you want to tally this election?"
-msgstr ""
+msgstr "இந்தத் தேர்தலை நீங்கள் கணக்கிட விரும்புகிறீர்களா?"
 
 #: src/web/clients/trustee/shuffle.ml:95
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr ""
+"ஒரு அறங்காவலராக, உங்கள் முதல் பங்கு மறைகுறியாக்கப்பட்ட வாக்குகளை மாற்றுவதாகும்."
 
 #: src/web/server/common/pages_admin.ml:552
 msgid "Authentication methods:"
-msgstr ""
+msgstr "அங்கீகார முறைகள்:"
 
 #: src/web/clients/admin/elections.ml:1692
 msgid "Automatic cleaning"
-msgstr ""
+msgstr "தானியங்கி தூய்மை"
 
 #: src/web/clients/admin/elections.ml:971
 msgid "Automatic dates"
-msgstr ""
+msgstr "தானியங்கி தேதிகள்"
 
 #: src/web/common/mails_admin.ml:337
 msgid "Below you will find the link to shuffle encrypted ballots."
-msgstr ""
+msgstr "சஃபிள் மறைகுறியாக்கப்பட்ட வாக்குகளுக்கான இணைப்பை கீழே காணலாம்."
 
 #. src/web/server/common/pages_admin.ml:639
 #. src/web/server/common/pages_admin.ml:605
 #: src/web/server/common/pages_admin.ml:673
 msgid "Best regards,"
-msgstr ""
+msgstr "வாழ்த்துக்கள்,"
 
 #: src/web/clients/admin/elections.ml:1241
 msgid "By a third-party of your choice"
-msgstr ""
+msgstr "நீங்கள் விரும்பும் மூன்றாம் தரப்பு மூலம்"
 
 #: src/web/clients/admin/elections.ml:1200
 msgid "By our server (not ideal for decentralized security)"
-msgstr ""
+msgstr "எங்கள் சேவையகத்தால் (பரவலாக்கப்பட்ட பாதுகாப்புக்கு ஏற்றது அல்ல)"
 
 #: src/web/clients/common/secondary_ui.ml:93
 msgid "By using this site, you accept our "
 msgstr ""
+"இந்த தளத்தைப் பயன்படுத்துவதன் மூலம், நீங்கள் எங்கள் ஏற்றுக்கொள்கிறீர்கள் "
 
 #: src/web/clients/admin/elections.ml:1471
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
+"CAS (வெளிப்புற அங்கீகார சேவையகம், பொருந்தும் போது சிறந்த பாதுகாப்பு உத்தரவாதங்களை வழங்குகிறது)"
 
 #: src/web/clients/admin/trustees_tab.ml:139 src/web/clients/admin/common.ml:150
 msgid "Cancel"
-msgstr ""
+msgstr "ரத்துசெய்"
 
 #: src/web/server/common/pages_admin.ml:680
 msgid "Change e-mail address"
-msgstr ""
+msgstr "மின்னஞ்சல் முகவரியை மாற்றவும்"
 
 #. src/web/server/common/site_admin.ml:346
 #. src/web/server/common/pages_admin.ml:646
@@ -278,276 +290,282 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:313
 #: src/web/server/common/site_admin.ml:458
 msgid "Change password"
-msgstr ""
+msgstr "கடவுச்சொல்லை மாற்றவும்"
 
 #: src/web/clients/trustee/check.ml:186 src/web/clients/admin/trustees_tab.ml:801
 msgid "Check private key ownership"
-msgstr ""
+msgstr "தனிப்பட்ட முக்கிய உரிமையை சரிபார்க்கவும்"
 
 #: src/web/common/mails_admin.ml:350
 msgid "Click on \"Compute shuffle\"."
-msgstr ""
+msgstr "\"கலக்கு கணக்கிடு\" என்பதைக் சொடுக்குக."
 
 #: src/web/common/mails_admin.ml:136
 msgid "Click on \"Generate a new key pair\"."
-msgstr ""
+msgstr "\"புதிய விசை சோடியை உருவாக்கு\" என்பதைக் சொடுக்கு செய்க."
 
 #: src/web/common/mails_admin.ml:152
 msgid "Click on \"Submit\" to send your verification key."
-msgstr ""
+msgstr "உங்கள் சரிபார்ப்பு விசையை அனுப்ப \"சமர்ப்பி\" என்பதைக் சொடுக்கு செய்க."
 
 #: src/web/common/mails_admin.ml:133
 msgid "Click on the link."
-msgstr ""
+msgstr "இணைப்பைக் சொடுக்கு செய்க."
 
 #. src/web/clients/common/secondary_ui.ml:101
 #: src/web/clients/admin/elections.ml:1644
 msgid "Close"
-msgstr ""
+msgstr "மூடு"
 
 #: src/web/clients/admin/elections.ml:1027
 msgid "Close: "
-msgstr ""
+msgstr "மூடு: "
 
 #: src/web/clients/admin/elections.ml:1066
 msgid "Code"
-msgstr ""
+msgstr "குறியீடு"
 
 #: src/web/clients/trustee/generate.ml:348
 msgid "Collaborative key generation"
-msgstr ""
+msgstr "கூட்டு விசை தலைமுறை"
 
 #: src/web/server/common/pages_admin.ml:456
 msgid "Compute fingerprint"
-msgstr ""
+msgstr "கைரேகை கணக்கிடுங்கள்"
 
 #: src/web/clients/trustee/shuffle.ml:102
 msgid "Compute shuffle"
-msgstr ""
+msgstr "கலக்குதல்"
 
 #: src/web/clients/admin/questions.ml:457
 msgid "Condorcet-Schulze method"
-msgstr ""
+msgstr "காண்டோர்செட்-சுல்ச் முறை"
 
 #: src/web/server/common/pages_admin.ml:566
 msgid "Consent date:"
-msgstr ""
+msgstr "ஒப்புதல் தேதி:"
 
 #: src/web/clients/admin/elections.ml:228
 msgid "Contact"
-msgstr ""
+msgstr "தொடர்பு"
 
 #: src/web/clients/admin/elections.ml:1122
 msgid "Contact:"
-msgstr ""
+msgstr "தொடர்பு:"
 
 #: src/web/clients/admin/admin.ml:400
 msgid "Could not get configuration from server! (%s)"
-msgstr ""
+msgstr "சேவையகத்திலிருந்து உள்ளமைவைப் பெற முடியவில்லை! (%s)"
 
 #: src/web/clients/trustee/check.ml:98 src/web/clients/trustee/check.ml:49
 msgid "Could not get trustee parameters for this election!"
-msgstr ""
+msgstr "இந்த தேர்தலுக்கான அறங்காவலர் அளவுருக்கள் பெற முடியவில்லை!"
 
 #: src/web/clients/admin/elections.ml:1599
 msgid "Create"
-msgstr ""
+msgstr "உருவாக்கு"
 
 #: src/web/clients/admin/admin.ml:286
 msgid "Create a new election"
-msgstr ""
+msgstr "ஒரு புதிய தேர்தலை உருவாக்கவும்"
 
 #. src/web/server/common/site_admin.ml:305
 #. src/web/server/common/pages_admin.ml:612
 #: src/web/server/common/site_admin.ml:428
 msgid "Create account"
-msgstr ""
+msgstr "கணக்கை உருவாக்கவும்"
 
 #. src/web/server/common/pages_admin.ml:280
 #: src/web/server/common/pages_admin.ml:389
 msgid "Create an account"
-msgstr ""
+msgstr "ஒரு கணக்கை உருவாக்கவும்"
 
 #: src/web/clients/admin/elections.ml:340
 msgid "Create the election"
-msgstr ""
+msgstr "தேர்தலை உருவாக்கவும்"
 
 #: src/web/clients/admin/elections.ml:276
 msgid "Credential authority"
-msgstr ""
+msgstr "நற்சான்றிதழ் அதிகாரம்"
 
 #: src/web/common/mails_admin.ml:110
 msgid "Credential authority link"
-msgstr ""
+msgstr "நற்சான்றிதழ் அதிகார இணைப்பு"
 
 #: src/web/clients/credauth/credauth.ml:32
 msgid "Credential authority management"
-msgstr ""
+msgstr "நற்சான்றிதழ் ஆணையம் மேலாண்மை"
 
 #: src/web/clients/credauth/generate.ml:169
 msgid "Credential generation"
-msgstr ""
+msgstr "நற்சான்றிதழ் தலைமுறை"
 
 #: src/web/clients/admin/elections.ml:1356
 msgid "Credentials are being generated on the server."
-msgstr ""
+msgstr "சேவையகத்தில் நற்சான்றிதழ்கள் உருவாக்கப்படுகின்றன."
 
 #: src/web/clients/credauth/generate.ml:71
 msgid "Credentials have been received and checked!"
-msgstr ""
+msgstr "நற்சான்றிதழ்கள் பெறப்பட்டு சரிபார்க்கப்பட்டுள்ளன!"
 
 #: src/web/clients/admin/elections.ml:1347
 msgid "Credentials have been received from the external credential authority."
 msgstr ""
+"வெளிப்புற நற்சான்றிதழ் அதிகாரத்திடமிருந்து நற்சான்றிதழ்கள் பெறப்பட்டுள்ளன."
 
 #: src/web/clients/admin/elections.ml:918
 msgid "Current turnout: %d / %d = %.2f %%"
-msgstr ""
+msgstr "தற்போதைய வாக்குப்பதிவு: %d / %d = %.2f %%"
 
 #: src/web/clients/trustee/generate.ml:244
 msgid "Data submission failed! Please refresh and/or restart from the beginning."
 msgstr ""
+"தரவு சமர்ப்பிப்பு தோல்வியடைந்தது! தயவுசெய்து புதுப்பிக்கவும்/அல்லது ஆரம்பத்தில் இருந்தே மறுதொடக்கம் செய்யவும்."
 
 #: src/web/clients/trustee/generate.ml:242
 msgid "Data submission succeeded! Please refresh to proceed."
-msgstr ""
+msgstr "தரவு சமர்ப்பிப்பு செய் பெற்றது! தொடர புதுப்பிக்கவும்."
 
 #: src/web/server/common/pages_admin.ml:233
 msgid "Date/Time (UTC)"
-msgstr ""
+msgstr "தேதி/நேரம் (UTC)"
 
 #: src/web/clients/admin/elections.ml:205
 msgid "Dates"
-msgstr ""
+msgstr "தேதிகள்"
 
 #. src/web/server/common/pages_admin.ml:619
 #. src/web/server/common/pages_admin.ml:585
 #: src/web/server/common/pages_admin.ml:653
 msgid "Dear %s,"
-msgstr ""
+msgstr "அன்புள்ள %s,"
 
 #: src/web/common/mails_admin.ml:31
 msgid "Dear credential authority,"
-msgstr ""
+msgstr "அன்புள்ள நற்சான்றிதழ் அதிகாரம்,"
 
 #. src/web/common/mails_admin.ml:197
 #. src/web/common/mails_admin.ml:117
 #: src/web/common/mails_admin.ml:333 src/web/common/mails_admin.ml:281
 msgid "Dear trustee,"
-msgstr ""
+msgstr "அன்புள்ள அறங்காவலர்,"
 
 #: src/web/clients/admin/elections.ml:254
 msgid "Decryption trustees"
-msgstr ""
+msgstr "மறைகுறியாக்க அறங்காவலர்கள்"
 
 #: src/web/clients/admin/elections.ml:1541
 msgid "Default mode:"
-msgstr ""
+msgstr "இயல்புநிலை பயன்முறை:"
 
 #: src/web/clients/admin/elections.ml:750
 msgid "Delete all"
-msgstr ""
+msgstr "அனைத்தையும் நீக்கு"
 
 #: src/web/clients/admin/elections.ml:464
 msgid "Delete the election"
-msgstr ""
+msgstr "தேர்தலை நீக்கு"
 
 #: src/web/clients/admin/elections.ml:655 src/web/clients/admin/elections.ml:642
 msgid "Description:"
-msgstr ""
+msgstr "விளக்கம்:"
 
 #. src/web/clients/admin/trustees_tab.ml:416
 #. src/web/clients/admin/trustees_tab.ml:391
 #: src/web/clients/admin/trustees_tab.ml:669
 msgid "Direct link"
-msgstr ""
+msgstr "நேரடி இணைப்பு"
 
 #: src/web/common/mails_admin.ml:218
 msgid "Don't forget to save:"
-msgstr ""
+msgstr "சேமிக்க மறக்காதீர்கள்:"
 
 #. src/web/clients/admin/trustees_tab.ml:572
 #: src/web/clients/admin/trustees_tab.ml:690
 msgid "Done?"
-msgstr ""
+msgstr "முடிந்தது?"
 
 #. src/web/clients/credauth/generate.ml:115
 #: src/web/clients/credauth/generate.ml:123
 msgid "Download "
-msgstr ""
+msgstr "பதிவிறக்கவும் "
 
 #: src/web/clients/trustee/generate.ml:171
 msgid "Download your "
-msgstr ""
+msgstr "உங்கள் பதிவிறக்க "
 
 #: src/web/common/mails_admin.ml:140
 msgid "Download your private key. Make sure you SAVE IT properly otherwise it will not be possible to tally and the election will be canceled."
 msgstr ""
+"உங்கள் தனிப்பட்ட விசையைப் பதிவிறக்கவும். நீங்கள் அதை சரியாகச் சேமிக்கிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள், "
+"இல்லையெனில் கணக்கிட முடியாது, தேர்தல் ரத்து செய்யப்படும்."
 
 #: src/web/clients/admin/elections.ml:1495
 msgid "Dummy auth (should not be used in production): "
-msgstr ""
+msgstr "போலி ஏற்பு (உற்பத்தியில் பயன்படுத்தக்கூடாது): "
 
 #. src/web/server/common/pages_admin.ml:291
 #. src/web/server/common/pages_admin.ml:261
 #: src/web/server/common/pages_admin.ml:546
 msgid "E-mail address:"
-msgstr ""
+msgstr "மின்னஞ்சல் முகவரி:"
 
 #: src/web/clients/admin/account.ml:83
 msgid "E-mail: "
-msgstr ""
+msgstr "மின்னஞ்சல்: "
 
 #: src/web/clients/admin/account.ml:135
 msgid "Edit profile"
-msgstr ""
+msgstr "சுயவிவரத்தைத் திருத்து"
 
 #: src/web/clients/trustee/check.ml:160
 msgid "Election ID:"
-msgstr ""
+msgstr "தேர்தல் ஐடி:"
 
 #: src/web/clients/admin/elections.ml:1645
 msgid "Election is currently closed"
-msgstr ""
+msgstr "தேர்தல் தற்போது மூடப்பட்டுள்ளது"
 
 #: src/web/clients/admin/elections.ml:1644
 msgid "Election is currently open"
-msgstr ""
+msgstr "தேர்தல் தற்போது திறந்திருக்கும்"
 
 #: src/web/clients/admin/elections.ml:1724 src/web/clients/admin/elections.ml:314
 msgid "Election main page"
-msgstr ""
+msgstr "தேர்தல் முதன்மையான பக்கம்"
 
 #. src/web/server/common/pages_admin.ml:46
 #. src/web/common/pages_common.ml:141
 #. src/web/common/pages_common.ml:132
 #: src/web/server/common/pages_admin.ml:187
 msgid "Election server"
-msgstr ""
+msgstr "தேர்தல் சேவையகம்"
 
 #: src/web/clients/admin/elections.ml:1708
 msgid "Election status"
-msgstr ""
+msgstr "தேர்தல் நிலை"
 
 #: src/web/clients/basic/admin_basic.ml:214
 msgid "Elections being prepared"
-msgstr ""
+msgstr "தேர்தல்கள் தயாரிக்கப்படுகின்றன"
 
 #: src/web/clients/admin/admin.ml:196
 msgid "Elections being setup:"
-msgstr ""
+msgstr "தேர்தல்கள் அமைக்கப்பட்டன:"
 
 #: src/web/clients/basic/admin_basic.ml:216
 msgid "Elections you can administer"
-msgstr ""
+msgstr "நீங்கள் நிர்வகிக்கக்கூடிய தேர்தல்கள்"
 
 #: src/web/common/mails_admin.ml:299
 msgid "Enter your private decryption key in the first box and click on \"Generate your contribution to decryption\"."
 msgstr ""
+"முதல் பெட்டியில் உங்கள் தனிப்பட்ட மறைகுறியாக்க விசையை உள்ளிட்டு, \"மறைகுறியாக்கத்திற்கான உங்கள் பங்களிப்பை உருவாக்கு\" "
+"என்பதைக் சொடுக்கு செய்க."
 
 #: src/web/clients/admin/elections.ml:1015
 msgid "Erase"
-msgstr ""
+msgstr "அழிக்கவும்"
 
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:219
@@ -556,161 +574,161 @@ msgstr ""
 #. src/web/server/common/site_admin.ml:145
 #: src/web/clients/credauth/generate.ml:156
 msgid "Error"
-msgstr ""
+msgstr "பிழை"
 
 #: src/web/clients/trustee/decrypt.ml:85
 msgid "Error in format of private key: %s"
-msgstr ""
+msgstr "தனியார் விசையின் வடிவத்தில் பிழை: %s"
 
 #: src/web/clients/trustee/shuffle.ml:79 src/web/clients/trustee/decrypt.ml:96
 msgid "Error while loading election parameters!"
-msgstr ""
+msgstr "தேர்தல் அளவுருக்களை ஏற்றும்போது பிழை!"
 
 #: src/web/clients/trustee/common.ml:34
 msgid "Error while processing the private key. Did you load the right file?"
-msgstr ""
+msgstr "தனிப்பட்ட விசையை செயலாக்கும்போது பிழை. சரியான கோப்பை ஏற்றினீர்களா?"
 
 #: src/web/clients/admin/elections.ml:1394
 msgid "Error while retrieving server configuration: %s"
-msgstr ""
+msgstr "சேவையக உள்ளமைவை மீட்டெடுக்கும் போது பிழை: %s"
 
 #: src/web/clients/trustee/shuffle.ml:64
 msgid "Estimated remaining time: %d second(s)"
-msgstr ""
+msgstr "மதிப்பிடப்பட்ட மீதமுள்ள நேரம்: %d இரண்டாவது (கள்)"
 
 #: src/web/clients/trustee/shuffle.ml:105
 msgid "Estimating computation time…"
-msgstr ""
+msgstr "கணக்கீட்டு நேரத்தை மதிப்பிடுதல்…"
 
 #: src/web/common/pages_common.ml:259
 msgid "FAIL!"
-msgstr ""
+msgstr "தோல்வி!"
 
 #. src/web/clients/admin/trustees_tab.ml:564
 #: src/web/clients/admin/trustees_tab.ml:681
 msgid "Failed to connect; please reload"
-msgstr ""
+msgstr "இணைக்கத் தவறிவிட்டது; மீண்டும் ஏற்றவும்"
 
 #: src/web/clients/admin/elections.ml:1568
 msgid "Failure, probably because of an error in the username: %s."
-msgstr ""
+msgstr "தோல்வி, பயனர்பெயரில் பிழை காரணமாக இருக்கலாம்: %s."
 
 #: src/web/clients/credauth/generate.ml:102
 msgid "Fingerprint of public credentials:"
-msgstr ""
+msgstr "பொது சான்றுகளின் கைரேகை:"
 
 #: src/web/clients/trustee/generate.ml:160
 msgid "Fingerprint of the verification key:"
-msgstr ""
+msgstr "சரிபார்ப்பு விசையின் கைரேகை:"
 
 #: src/web/clients/credauth/generate.ml:194
 msgid "Fingerprint of voters:"
-msgstr ""
+msgstr "வாக்காளர்களின் கைரேகை:"
 
 #: src/web/common/mails_admin.ml:210
 msgid "Follow the instructions."
-msgstr ""
+msgstr "வழிமுறைகளைப் பின்பற்றவும்."
 
 #: src/web/common/mails_admin.ml:347 src/web/common/mails_admin.ml:295
 msgid "Follow the link."
-msgstr ""
+msgstr "இணைப்பைப் பின்தொடரவும்."
 
 #: src/web/clients/credauth/generate.ml:199
 msgid "Generate"
-msgstr ""
+msgstr "இயற்று"
 
 #: src/web/clients/trustee/generate.ml:112
 msgid "Generate a key"
-msgstr ""
+msgstr "ஒரு விசையை உருவாக்குங்கள்"
 
 #: src/web/clients/admin/elections.ml:1203
 msgid "Generate and send the credentials"
-msgstr ""
+msgstr "நற்சான்றிதழ்களை உருவாக்கி அனுப்புங்கள்"
 
 #: src/web/clients/trustee/decrypt.ml:139
 msgid "Generate your contribution to decryption"
-msgstr ""
+msgstr "மறைகுறியாக்க உங்கள் பங்களிப்பை உருவாக்குங்கள்"
 
 #: src/web/common/pages_common.ml:65
 msgid "Get the source code"
-msgstr ""
+msgstr "மூலக் குறியீட்டைப் பெறுங்கள்"
 
 #: src/web/common/pages_common.ml:274
 msgid "Go back to election"
-msgstr ""
+msgstr "தேர்தலுக்குச் செல்லுங்கள்"
 
 #: src/web/clients/admin/elections.ml:1729
 msgid "Go see the result on the election main page!"
-msgstr ""
+msgstr "தேர்தல் முதன்மையான பக்கத்தில் முடிவைப் பார்க்கவும்!"
 
 #: src/web/clients/admin/questions.ml:304
 msgid "Grade propositions"
-msgstr ""
+msgstr "தர முன்மொழிவுகள்"
 
 #: src/web/common/mails_admin.ml:130 src/web/common/mails_admin.ml:44
 msgid "Here are the instructions:"
-msgstr ""
+msgstr "இங்கே அறிவுறுத்தல்கள்:"
 
 #: src/web/common/mails_admin.ml:285
 msgid "Here is the link to proceed to tally:"
-msgstr ""
+msgstr "எண்ணிக்கையில் தொடர இங்கே இணைப்பு உள்ளது:"
 
 #: src/web/clients/admin/admin.ml:337 src/web/server/common/pages_admin.ml:88
 msgid "Home"
-msgstr ""
+msgstr "வீடு"
 
 #: src/web/clients/admin/account.ml:79
 msgid "ID: "
-msgstr ""
+msgstr "ஐடி: "
 
 #: src/web/clients/admin/elections.ml:705
 msgid "Identity"
-msgstr ""
+msgstr "முற்றொருமை"
 
 #: src/web/server/common/pages_admin.ml:138
 msgid "If you do not have any account, you may "
-msgstr ""
+msgstr "உங்களிடம் கணக்கு இல்லையென்றால், நீங்கள் இருக்கலாம் "
 
 #: src/web/clients/trustee/decrypt.ml:56
 msgid "Illegal character: %c"
-msgstr ""
+msgstr "சட்டவிரோத தன்மை: %சி"
 
 #: src/web/server/common/pages_admin.ml:526
 msgid "Impersonate a user"
-msgstr ""
+msgstr "ஒரு பயனருக்கு ஆள்மாறாட்டம் செய்யுங்கள்"
 
 #. src/web/clients/admin/trustees_tab.ml:286
 #: src/web/clients/admin/trustees_tab.ml:307
 msgid "Import trustees from another election"
-msgstr ""
+msgstr "மற்றொரு தேர்தலில் இருந்து அறங்காவலர்களை இறக்குமதி செய்யுங்கள்"
 
 #: src/web/clients/admin/elections.ml:883
 msgid "Import voters "
-msgstr ""
+msgstr "இறக்குமதி வாக்காளர்கள் "
 
 #: src/web/clients/admin/elections.ml:1009
 msgid "In 5 minutes"
-msgstr ""
+msgstr "5 நிமிடங்களில்"
 
 #: src/web/clients/trustee/generate.ml:269
 msgid "Inconsistent state!"
-msgstr ""
+msgstr "சீரற்ற நிலை!"
 
 #: src/web/server/common/site_admin.ml:176
 msgid "Incorrect code"
-msgstr ""
+msgstr "தவறான குறியீடு"
 
 #: src/web/clients/admin/questions.ml:752
 msgid "Insert a list"
-msgstr ""
+msgstr "ஒரு பட்டியலைச் செருகவும்"
 
 #: src/web/clients/admin/questions.ml:953
 msgid "Insert a question"
-msgstr ""
+msgstr "ஒரு கேள்வியைச் செருகவும்"
 
 #: src/web/clients/admin/questions.ml:825
 msgid "Insert an answer"
-msgstr ""
+msgstr "ஒரு பதிலைச் செருகவும்"
 
 #. src/web/clients/trustee/decrypt.ml:156
 #. src/web/clients/trustee/generate.ml:166
@@ -718,534 +736,557 @@ msgstr ""
 #. src/web/common/mails_admin.ml:292
 #: src/web/clients/credauth/generate.ml:110
 msgid "Instructions:"
-msgstr ""
+msgstr "வழிமுறைகள்:"
 
 #: src/web/clients/trustee/check.ml:165 src/web/clients/trustee/check.ml:151
 msgid "Invalid election ID!"
-msgstr ""
+msgstr "தவறான தேர்தல் ஐடி!"
 
 #: src/web/clients/trustee/decrypt.ml:145
 msgid "It is now time to compute your partial decryption factors."
-msgstr ""
+msgstr "உங்கள் பகுதி மறைகுறியாக்க காரணிகளைக் கணக்கிடுவதற்கான நேரம் இது."
 
 #: src/web/clients/admin/elections.ml:1066
 msgid "Language"
-msgstr ""
+msgstr "மொழி"
 
 #: src/web/clients/admin/account.ml:94
 msgid "Language for administrator interface:"
-msgstr ""
+msgstr "நிர்வாகி இடைமுகத்திற்கான மொழி:"
 
 #: src/web/common/pages_common.ml:88
 msgid "Language:"
-msgstr ""
+msgstr "மொழி:"
 
 #: src/web/clients/admin/elections.ml:217
 msgid "Languages"
-msgstr ""
+msgstr "மொழிகள்"
 
 #: src/web/clients/admin/elections.ml:1072
 msgid "Languages:"
-msgstr ""
+msgstr "மொழிகள்:"
 
 #: src/web/common/mails_admin.ml:265 src/web/common/mails_admin.ml:181
 msgid "Link to generate the decryption key"
-msgstr ""
+msgstr "மறைகுறியாக்க விசையை உருவாக்க இணைப்பு"
 
 #. src/web/clients/admin/trustees_tab.ml:453
 #: src/web/clients/admin/trustees_tab.ml:571
 msgid "Link to send"
-msgstr ""
+msgstr "அனுப்ப இணைப்பு"
 
 #: src/web/common/mails_admin.ml:369
 msgid "Link to shuffle encrypted ballots"
-msgstr ""
+msgstr "மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டிற்கான இணைப்பு"
 
 #: src/web/common/mails_admin.ml:317
 msgid "Link to tally the election"
-msgstr ""
+msgstr "தேர்தலை கணக்கிடுங்கள்"
 
 #: src/web/clients/admin/elections.ml:954 src/web/clients/admin/elections.ml:951
 msgid "Link to the "
-msgstr ""
+msgstr "இணைப்பு "
 
 #: src/web/clients/admin/questions.ml:651
 msgid "List name:"
-msgstr ""
+msgstr "பட்டியல் பெயர்:"
 
 #: src/web/clients/admin/elections.ml:1088
 msgid "List of available languages, with their code:"
-msgstr ""
+msgstr "கிடைக்கக்கூடிய மொழிகளின் பட்டியல், அவற்றின் குறியீட்டைக் கொண்டு:"
 
 #: src/web/clients/admin/questions.ml:305
 msgid "Lists"
-msgstr ""
+msgstr "பட்டியல்கள்"
 
 #: src/web/clients/admin/admin.ml:391
 msgid "Loading..."
-msgstr ""
+msgstr "ஏற்றுகிறது ..."
 
 #: src/web/server/common/pages_admin.ml:155
 msgid "Log in with"
-msgstr ""
+msgstr "உள்நுழைக"
 
 #: src/web/server/common/pages_admin.ml:124
 msgid "Log in:"
-msgstr ""
+msgstr "உள்நுழைக:"
 
 #. src/web/server/common/pages_admin.ml:107
 #: src/web/clients/admin/admin.ml:364 src/web/clients/admin/account.ml:122
 msgid "Log out"
-msgstr ""
+msgstr "விடுபதிகை"
 
 #: src/web/clients/admin/elections.ml:706
 msgid "Login"
-msgstr ""
+msgstr "புகுபதிவு"
 
 #: src/web/clients/admin/preview.ml:76
 msgid "Main election page will open in a new tab."
-msgstr ""
+msgstr "முதன்மையான தேர்தல் பக்கம் புதிய தாவலில் திறக்கப்படும்."
 
 #: src/web/clients/admin/elections.ml:557
 msgid "Management"
-msgstr ""
+msgstr "மேலாண்மை"
 
 #: src/web/clients/admin/elections.ml:1373
 msgid "Management of credentials:"
-msgstr ""
+msgstr "நற்சான்றிதழ்களின் மேலாண்மை:"
 
 #: src/web/clients/admin/questions.ml:358
 msgid "Maximal number of choices to select"
-msgstr ""
+msgstr "தேர்ந்தெடுக்க அதிகபட்ச தேர்வுகளின் எண்ணிக்கை"
 
 #: src/web/clients/admin/questions.ml:351
 msgid "Minimal number of choices to select"
-msgstr ""
+msgstr "தேர்ந்தெடுக்க குறைந்த எண்ணிக்கையிலான தேர்வுகள்"
 
 #: src/web/clients/trustee/decrypt.ml:57 src/web/clients/trustee/decrypt.ml:55
 msgid "Must end with a double quote"
-msgstr ""
+msgstr "இரட்டை மேற்கோளுடன் முடிவடைய வேண்டும்"
 
 #: src/web/clients/trustee/decrypt.ml:49
 msgid "Must have at least one digit"
-msgstr ""
+msgstr "குறைந்தது ஒரு இலக்கத்தையாவது கொண்டிருக்க வேண்டும்"
 
 #: src/web/clients/trustee/decrypt.ml:41
 msgid "Must start with a double quote (character given was another character)"
 msgstr ""
+"இரட்டை மேற்கோளுடன் தொடங்க வேண்டும் (கொடுக்கப்பட்ட எழுத்து மற்றொரு எழுத்து)"
 
 #: src/web/clients/trustee/decrypt.ml:44
 msgid "Must start with a double quote (empty string given)"
-msgstr ""
+msgstr "இரட்டை மேற்கோளுடன் தொடங்க வேண்டும் (கொடுக்கப்பட்ட வெற்று சரம்)"
 
 #: src/web/clients/admin/admin.ml:260
 msgid "My archived elections"
-msgstr ""
+msgstr "எனது காப்பக தேர்தல்கள்"
 
 #: src/web/clients/admin/admin.ml:258
 msgid "My draft elections"
-msgstr ""
+msgstr "எனது வரைவு தேர்தல்கள்"
 
 #: src/web/clients/admin/admin.ml:259
 msgid "My running elections"
-msgstr ""
+msgstr "எனது இயங்கும் தேர்தல்கள்"
 
 #: src/web/clients/admin/elections.ml:1253
 msgid "Name of the credential authority"
-msgstr ""
+msgstr "நற்சான்றிதழ் அதிகாரத்தின் பெயர்"
 
 #: src/web/server/common/pages_admin.ml:540
 msgid "Name:"
-msgstr ""
+msgstr "பெயர்:"
 
 #: src/web/clients/admin/account.ml:87
 msgid "Name: "
-msgstr ""
+msgstr "பெயர்: "
 
 #: src/web/clients/admin/account.ml:59
 msgid "Navigator's default"
-msgstr ""
+msgstr "நேவிகேட்டரின் இயல்புநிலை"
 
 #: src/web/clients/admin/questions.ml:817 src/web/clients/admin/questions.ml:801
 msgid "New answer"
-msgstr ""
+msgstr "புதிய பதில்"
 
 #. src/web/clients/admin/questions.ml:637
 #: src/web/clients/admin/questions.ml:742 src/web/clients/admin/questions.ml:714
 msgid "New candidate"
-msgstr ""
+msgstr "புதிய வேட்பாளர்"
 
 #: src/web/clients/admin/questions.ml:534 src/web/clients/admin/questions.ml:513
 msgid "New grade"
-msgstr ""
+msgstr "புதிய தகுதி"
 
 #: src/web/clients/admin/questions.ml:742 src/web/clients/admin/questions.ml:637
 msgid "New list"
-msgstr ""
+msgstr "புதிய பட்டியல்"
 
 #: src/web/clients/admin/trustees_tab.ml:428
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
+"வெளிப்புற அறங்காவலர் எதுவும் அமைக்கப்படவில்லை. தனியுரிமைக்காக சேவையகத்தை நம்புகிறீர்கள் என்பதை உறுதிப்படுத்துகிறீர்களா?"
 
 #: src/web/clients/trustee/check.ml:36
 msgid "No matching public key was found!"
-msgstr ""
+msgstr "பொருந்தக்கூடிய பொது விசை எதுவும் கிடைக்கவில்லை!"
 
 #: src/web/server/common/pages_admin.ml:226
 msgid "Nobody voted!"
-msgstr ""
+msgstr "யாரும் வாக்களிக்கவில்லை!"
 
 #: src/web/clients/admin/elections.ml:975
 msgid "Not (yet) available for draft elections"
-msgstr ""
+msgstr "வரைவு தேர்தல்களுக்கு (இன்னும்) கிடைக்கவில்லை"
 
 #: src/web/clients/admin/trustees_tab.ml:861
 msgid "Nothing to show here. Try going to the Status tab."
-msgstr ""
+msgstr "இங்கே காட்ட எதுவும் இல்லை. நிலை தாவலுக்கு செல்ல முயற்சிக்கவும்."
 
 #: src/web/clients/trustee/generate.ml:261
 msgid "Now, all the certificates of the trustees have been generated. Proceed to generate your share of the decryption key."
 msgstr ""
+"இப்போது, அறங்காவலர்களின் அனைத்து சான்றிதழ்களும் உருவாக்கப்பட்டுள்ளன. மறைகுறியாக்க விசையின் உங்கள் பங்கை உருவாக்க "
+"தொடரவும்."
 
 #: src/web/clients/trustee/generate.ml:265
 msgid "Now, all the trustees have generated their secret shares. Proceed to the final checks so that the election can be validated."
 msgstr ""
+"Now, அனைத்தும் the trustees have generated their secret shares. இறுதி காசோலைகளுக்குச் "
+"செல்லுங்கள், இதனால் தேர்தலை சரிபார்க்க முடியும்."
 
 #: src/web/clients/admin/elections.ml:1358
 msgid "Number of credentials left: %d."
-msgstr ""
+msgstr "நற்சான்றிதழ்களின் எண்ணிக்கை: %d."
 
 #: src/web/server/common/pages_admin.ml:222
 msgid "Number of records: %d/%d"
-msgstr ""
+msgstr "பதிவுகளின் எண்ணிக்கை: %d/ %d"
 
 #: src/web/clients/admin/questions.ml:394
 msgid "Number of seats:"
-msgstr ""
+msgstr "இருக்கைகளின் எண்ணிக்கை:"
 
 #: src/web/common/mails_admin.ml:255 src/web/common/mails_admin.ml:171
 msgid "Of course, more cryptographic solutions are welcome as well."
-msgstr ""
+msgstr "நிச்சயமாக, மேலும் கிரிப்டோகிராஃபிக் தீர்வுகளும் வரவேற்கப்படுகின்றன."
 
 #: src/web/common/mails_admin.ml:98
 msgid "Once the election is finished and validated, you are expected to destroy the file creds.txt for stronger privacy guarantees."
 msgstr ""
+"தேர்தல் முடிந்ததும் சரிபார்க்கப்பட்டதும், வலுவான தனியுரிமை உத்தரவாதங்களுக்கான கோப்பு வரவுகளை அழிக்க வேண்டும் என்று "
+"எதிர்பார்க்கப்படுகிறது."
 
 #: src/web/clients/trustee/generate.ml:182
 msgid "Once the election is open, you must check that it is present in the set of public keys published by the server."
 msgstr ""
+"தேர்தல் திறந்ததும், சேவையகத்தால் வெளியிடப்பட்ட பொது விசைகளின் தொகுப்பில் அது உள்ளதா என்பதை நீங்கள் சரிபார்க்க வேண்டும்."
 
 #: src/web/common/mails_admin.ml:233
 msgid "Once the election is open, you must check that the fingerprints of your two keys are present in the set of keys published by the server."
 msgstr ""
+"தேர்தல் திறந்ததும், உங்கள் இரண்டு விசைகளின் கைரேகைகள் சேவையகத்தால் வெளியிடப்பட்ட விசைகளின் தொகுப்பில் உள்ளதா என்பதை "
+"நீங்கள் சரிபார்க்க வேண்டும்."
 
 #: src/web/clients/credauth/generate.ml:140 src/web/common/mails_admin.ml:68
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr ""
+"தேர்தல் திறந்ததும், அவை சேவையகத்தால் வெளியிடப்பட்டவற்றுடன் பொருந்துமா என்பதை நீங்கள் சரிபார்க்க வேண்டும்."
 
 #: src/web/clients/admin/elections.ml:1645
 msgid "Open"
-msgstr ""
+msgstr "திற"
 
 #: src/web/clients/admin/elections.ml:340
 msgid "Open / Close"
-msgstr ""
+msgstr "திறந்த / மூடு"
 
 #: src/web/clients/admin/elections.ml:1022
 msgid "Open: "
-msgstr ""
+msgstr "திறந்த: "
 
 #: src/web/clients/admin/elections.ml:1543
 msgid "Other authentication modes:"
-msgstr ""
+msgstr "பிற அங்கீகார முறைகள்:"
 
 #: src/web/clients/trustee/decrypt.ml:140
 msgid "Partial decryption"
-msgstr ""
+msgstr "பகுதி மறைகுறியாக்கம்"
 
 #: src/web/clients/trustee/decrypt.ml:123
 msgid "Partial decryption submission failed unexpectedly!"
-msgstr ""
+msgstr "பகுதி மறைகுறியாக்க சமர்ப்பிப்பு எதிர்பாராத விதமாக தோல்வியடைந்தது!"
 
 #: src/web/clients/admin/elections.ml:1512
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
+"வாக்களிக்கும் போது மின்னஞ்சல் அனுப்பிய கடவுச்சொல் (ஒரு குறுகிய கடவுச்சொல், ஒவ்வொரு வாக்குகளுக்கும் புதுப்பிக்கப்பட்டது)"
 
 #: src/web/clients/admin/elections.ml:1428
 msgid "Password sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
+"கடவுச்சொல் முன்கூட்டியே மின்னஞ்சல் மூலம் அனுப்பப்பட்டது (பல தேர்தல்களுக்கு பயனுள்ளதாக இருக்கும்)"
 
 #: src/web/server/common/pages_admin.ml:430
 msgid "Please choose a password: "
-msgstr ""
+msgstr "கடவுச்சொல்லைத் தேர்வுசெய்க: "
 
 #: src/web/server/common/pages_admin.ml:372
 msgid "Please choose a username: "
-msgstr ""
+msgstr "பயனர்பெயரைத் தேர்வுசெய்க: "
 
 #: src/web/clients/admin/elections.ml:1336
 msgid "Please download "
-msgstr ""
+msgstr "தயவுசெய்து பதிவிறக்கவும் "
 
 #. src/web/server/common/pages_admin.ml:269
 #: src/web/server/common/pages_admin.ml:302
 msgid "Please enter "
-msgstr ""
+msgstr "தயவுசெய்து உள்ளிடவும் "
 
 #: src/web/server/common/pages_admin.ml:495
 msgid "Please enter the code here:"
-msgstr ""
+msgstr "குறியீட்டை இங்கே உள்ளிடவும்:"
 
 #: src/web/clients/admin/elections.ml:850
 msgid "Please enter the identities of voters to add, one per line (max %s)."
 msgstr ""
+"சேர்க்க வாக்காளர்களின் அடையாளங்களை உள்ளிடவும், ஒரு வரிக்கு ஒன்று (அதிகபட்சம் %s)."
 
 #: src/web/server/common/pages_admin.ml:325
 msgid "Please enter the verification code received by e-mail:"
-msgstr ""
+msgstr "மின்னஞ்சல் மூலம் பெறப்பட்ட சரிபார்ப்புக் குறியீட்டை உள்ளிடவும்:"
 
 #: src/web/clients/admin/elections.ml:1384
 msgid "Please fill-in the voter list first."
-msgstr ""
+msgstr "முதலில் வாக்காளர் பட்டியலை நிரப்பவும்."
 
 #: src/web/clients/trustee/common.ml:69
 msgid "Please load your private key from a file:"
-msgstr ""
+msgstr "உங்கள் தனிப்பட்ட விசையை ஒரு கோப்பிலிருந்து ஏற்றவும்:"
 
 #: src/web/server/common/pages_admin.ml:469
 msgid "Please provide one:"
-msgstr ""
+msgstr "தயவுசெய்து ஒன்றை வழங்கவும்:"
 
 #: src/web/clients/admin/elections.ml:1441
 msgid "Please select password authentication first"
-msgstr ""
+msgstr "முதலில் கடவுச்சொல் அங்கீகாரத்தைத் தேர்ந்தெடுக்கவும்"
 
 #: src/web/clients/admin/common.ml:162
 msgid "Please select the election from which you want to import data:"
-msgstr ""
+msgstr "நீங்கள் தரவை இறக்குமதி செய்ய விரும்பும் தேர்தலைத் தேர்ந்தெடுக்கவும்:"
 
 #: src/web/clients/trustee/shuffle.ml:111
 msgid "Please wait…"
-msgstr ""
+msgstr "தயவுசெய்து காத்திருங்கள்…"
 
 #: src/web/clients/trustee/shuffle.ml:110
 msgid "Please wait… "
-msgstr ""
+msgstr "தயவுசெய்து காத்திருங்கள்… "
 
 #: src/web/clients/admin/elections.ml:524
 msgid "Poll"
-msgstr ""
+msgstr "வாக்கெடுப்பு"
 
 #: src/web/common/pages_common.ml:61
 msgid "Powered by "
-msgstr ""
+msgstr "மூலம் இயக்கப்படுகிறது "
 
 #: src/web/clients/admin/elections.ml:312
 msgid "Preview"
-msgstr ""
+msgstr "முன்னோட்டம்"
 
 #: src/web/clients/admin/questions.ml:943
 msgid "Preview voter's interface"
-msgstr ""
+msgstr "வாக்காளரின் இடைமுகத்தை முன்னோட்டமிடுங்கள்"
 
 #: src/web/clients/admin/preview.ml:50
 msgid "Preview will open in a new tab"
-msgstr ""
+msgstr "முன்னோட்டம் புதிய தாவலில் திறக்கப்படும்"
 
 #. src/web/server/common/pages_admin.ml:499
 #. src/web/server/common/pages_admin.ml:473
 #: src/web/clients/trustee/check.ml:147 src/web/server/common/pages_admin.ml:521
 msgid "Proceed"
-msgstr ""
+msgstr "தொடரவும்"
 
 #: src/web/clients/admin/trustees_tab.ml:269
 msgid "Proceed to key generation"
-msgstr ""
+msgstr "முக்கிய தலைமுறைக்குச் செல்லுங்கள்"
 
 #: src/web/clients/admin/trustees_tab.ml:278
 msgid "Proceed to next step? This will freeze the list of trustees."
-msgstr ""
+msgstr "அடுத்த கட்டத்திற்குச் செல்லவா? இது அறங்காவலர்களின் பட்டியலை முடக்கும்."
 
 #: src/web/clients/admin/questions.ml:849
 msgid "Proposed answers:"
-msgstr ""
+msgstr "முன்மொழியப்பட்ட பதில்கள்:"
 
 #: src/web/clients/admin/questions.ml:553
 msgid "Proposed grades:"
-msgstr ""
+msgstr "முன்மொழியப்பட்ட தரங்கள்:"
 
 #: src/web/clients/credauth/generate.ml:93
 msgid "Public credentials:"
-msgstr ""
+msgstr "பொது நற்சான்றிதழ்கள்:"
 
 #: src/web/clients/trustee/generate.ml:132
 msgid "Public key registration failed! Please refresh and/or restart from the beginning."
 msgstr ""
+"பொது முக்கிய பதிவு தோல்வியடைந்தது! தயவுசெய்து புதுப்பிக்கவும்/அல்லது ஆரம்பத்தில் இருந்தே மறுதொடக்கம் செய்யவும்."
 
 #: src/web/clients/trustee/generate.ml:130
 msgid "Public key registration succeeded!"
-msgstr ""
+msgstr "பொது முக்கிய பதிவு செய் பெற்றது!"
 
 #: src/web/clients/admin/elections.ml:1135
 msgid "Public name of the administrator:"
-msgstr ""
+msgstr "நிர்வாகியின் பொது பெயர்:"
 
 #: src/web/clients/admin/elections.ml:1128
 msgid "Public name of the administrator: "
-msgstr ""
+msgstr "நிர்வாகியின் பொது பெயர்: "
 
 #: src/web/clients/admin/elections.ml:1032
 msgid "Publish: "
-msgstr ""
+msgstr "வெளியிடு: "
 
 #: src/web/clients/admin/questions.ml:838
 msgid "Question "
-msgstr ""
+msgstr "கேள்வி "
 
 #: src/web/clients/admin/elections.ml:178
 msgid "Questions"
-msgstr ""
+msgstr "கேள்விகள்"
 
 #: src/web/clients/admin/questions.ml:959
 msgid "Questions:"
-msgstr ""
+msgstr "கேள்விகள்:"
 
 #: src/web/clients/admin/questions.ml:980
 msgid "Questions (non editable):"
-msgstr ""
+msgstr "கேள்விகள் (திருத்த முடியாதவை):"
 
 #: src/web/clients/admin/elections.ml:1629
 msgid "Ready to create:"
-msgstr ""
+msgstr "உருவாக்க தயாராக உள்ளது:"
 
 #: src/web/server/common/pages_admin.ml:206
 msgid "Records"
-msgstr ""
+msgstr "பதிவுகள்"
 
 #. src/web/clients/admin/trustees_tab.ml:595
 #. src/web/clients/admin/trustees_tab.ml:488
 #: src/web/clients/admin/trustees_tab.ml:765
 msgid "Refresh status"
-msgstr ""
+msgstr "நிலையை புதுப்பிக்கவும்"
 
 #: src/web/common/mails_admin.ml:240 src/web/common/mails_admin.ml:156
 msgid "Regarding your private key, it is crucial you save it (otherwise the election will be canceled) and store it in a secure location (if your private key is known together with the private keys of the other trustees, then vote privacy is no longer guaranteed)."
 msgstr ""
+"உங்கள் தனிப்பட்ட விசையைப் பொறுத்தவரை, நீங்கள் அதை சேமிப்பது முதன்மை (இல்லையெனில் தேர்தல் ரத்து செய்யப்படும்) மற்றும் அதை"
+" பாதுகாப்பான இடத்தில் சேமித்து வைக்கவும் (உங்கள் தனிப்பட்ட விசை மற்ற அறங்காவலர்களின் தனிப்பட்ட விசைகளுடன் தெரிந்தால், "
+"வாக்களிக்கும் தனியுரிமை இனி பொறுப்பு அளிக்காது )."
 
 #: src/web/clients/admin/elections.ml:1581
 msgid "Regenerate and e-mail a password"
-msgstr ""
+msgstr "கடவுச்சொல்லை மீண்டும் உருவாக்கி மின்னஞ்சல் அனுப்புங்கள்"
 
 #: src/web/clients/admin/trustees_tab.ml:602
 msgid "Release tally"
-msgstr ""
+msgstr "வெளியீடு"
 
 #: src/web/clients/admin/trustees_tab.ml:478
 msgid "Reset and start from scratch"
-msgstr ""
+msgstr "மீட்டமைத்து புதிதாக தொடங்கவும்"
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
-msgstr ""
+msgstr "தடைசெய்யப்பட்ட பயன்முறை"
 
 #: src/web/clients/admin/elections.ml:1739 src/web/clients/admin/elections.ml:313
 msgid "Results page"
-msgstr ""
+msgstr "முடிவுகள் பக்கம்"
 
 #: src/web/clients/admin/admin.ml:224
 msgid "Running or finished elections:"
-msgstr ""
+msgstr "தேர்தல் அல்லது முடிக்கப்பட்ட தேர்தல்கள்:"
 
 #: src/web/clients/admin/questions.ml:464
 msgid "STV method"
-msgstr ""
+msgstr "எச்.டி.வி முறை"
 
 #: src/web/clients/trustee/generate.ml:179
 msgid "Save the fingerprint above."
-msgstr ""
+msgstr "மேலே கைரேகையை சேமிக்கவும்."
 
 #: src/web/common/mails_admin.ml:146
 msgid "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server."
 msgstr ""
+"உங்கள் சரிபார்ப்பு விசையின் கைரேகையை சேமிக்கவும். தேர்தல் திறந்ததும், சேவையகத்தால் வெளியிடப்பட்ட சரிபார்ப்பு விசைகளின் "
+"தொகுப்பில் அது உள்ளதா என்பதை நீங்கள் சரிபார்க்க வேண்டும்."
 
 #: src/web/clients/credauth/generate.ml:137
 msgid "Save the two fingerprints above."
-msgstr ""
+msgstr "மேலே இரண்டு கைரேகைகளை சேமிக்கவும்."
 
 #: src/web/clients/admin/elections.ml:544
 msgid "Security"
-msgstr ""
+msgstr "பாதுகாப்பு"
 
 #: src/web/clients/admin/questions.ml:302
 msgid "Select propositions"
-msgstr ""
+msgstr "முன்மொழிவுகளைத் தேர்ந்தெடுக்கவும்"
 
 #: src/web/clients/admin/trustees_tab.ml:728
 msgid "Select this trustee"
-msgstr ""
+msgstr "இந்த அறங்காவலரைத் தேர்ந்தெடுக்கவும்"
 
 #: src/web/clients/admin/elections.ml:104
 msgid "Selecting CAS authentication requires setting a valid CAS server"
 msgstr ""
+"CAS அங்கீகாரத்தைத் தேர்ந்தெடுப்பதற்கு செல்லுபடியாகும் CAS சேவையகத்தை அமைக்க வேண்டும்"
 
 #. src/web/clients/admin/trustees_tab.ml:420
 #. src/web/clients/admin/trustees_tab.ml:395
 #: src/web/clients/admin/trustees_tab.ml:673
 msgid "Send an e-mail"
-msgstr ""
+msgstr "ஒரு மின்னஞ்சல் அனுப்பவும்"
 
 #: src/web/clients/admin/elections.ml:1291
 msgid "Send an e-mail to the credential authority"
-msgstr ""
+msgstr "நற்சான்றிதழ் அதிகாரத்திற்கு ஒரு மின்னஞ்சல் அனுப்பவும்"
 
 #: src/web/clients/admin/elections.ml:1435
 msgid "Send passwords to voters"
-msgstr ""
+msgstr "கடவுச்சொற்களை வாக்காளர்களுக்கு அனுப்புங்கள்"
 
 #: src/web/clients/admin/elections.ml:593 src/web/clients/admin/admin.ml:61
 msgid "Setup: "
-msgstr ""
+msgstr "அமைவு: "
 
 #: src/web/clients/admin/elections.ml:941
 msgid "Show only missing voters"
-msgstr ""
+msgstr "காணாமல் போன வாக்காளர்களை மட்டுமே காட்டு"
 
 #: src/web/clients/trustee/shuffle.ml:166
 msgid "Shuffle"
-msgstr ""
+msgstr "கலக்கு"
 
 #: src/web/clients/admin/trustees_tab.ml:687
 msgid "Shuffler's e-mail"
-msgstr ""
+msgstr "சஃப்லரின் மின்னஞ்சல்"
 
 #: src/web/clients/admin/trustees_tab.ml:729
 msgid "Skip"
-msgstr ""
+msgstr "தவிர்"
 
 #: src/web/clients/admin/trustees_tab.ml:770
 msgid "Skip all remaining trustees"
-msgstr ""
+msgstr "மீதமுள்ள அனைத்து அறங்காவலர்களையும் தவிர்க்கவும்"
 
 #: src/web/clients/admin/elections.ml:1057
 msgid "Some language in the list is not available"
-msgstr ""
+msgstr "பட்டியலில் சில மொழி கிடைக்கவில்லை"
 
 #: src/web/server/common/pages_admin.ml:657
 msgid "Someone is trying to associate your e-mail address to an account on our Belenios server."
 msgstr ""
+"எங்கள் பெலெனியோச் சேவையகத்தில் ஒரு கணக்கில் உங்கள் மின்னஞ்சல் முகவரியை யாராவது இணைக்க முயற்சிக்கிறார்கள்."
 
 #: src/web/clients/admin/questions.ml:303
 msgid "Sort propositions"
-msgstr ""
+msgstr "முன்மொழிவுகளை வரிசைப்படுத்துங்கள்"
 
 #. src/web/clients/admin/elections.ml:435
 #: src/web/clients/admin/trustees_tab.ml:454
 msgid "Status"
-msgstr ""
+msgstr "நிலை"
 
 #: src/web/clients/trustee/generate.ml:347
 msgid "Step %d/3"
-msgstr ""
+msgstr "படி %d/3"
 
 #. src/web/clients/admin/elections.ml:1553
 #. src/web/server/common/pages_admin.ml:573
@@ -1256,708 +1297,741 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:274
 #: src/web/clients/trustee/shuffle.ml:146 src/web/clients/trustee/decrypt.ml:114
 msgid "Submit"
-msgstr ""
+msgstr "சமர்ப்பிக்கவும்"
 
 #: src/web/clients/trustee/generate.ml:233
 msgid "Submit data"
-msgstr ""
+msgstr "தரவைச் சமர்ப்பிக்கவும்"
 
 #: src/web/clients/credauth/generate.ml:62
 msgid "Submit public credentials"
-msgstr ""
+msgstr "பொது சான்றுகளை சமர்ப்பிக்கவும்"
 
 #: src/web/clients/credauth/generate.ml:146
 msgid "Submit public credentials using the button below."
-msgstr ""
+msgstr "கீழே உள்ள பொத்தானைப் பயன்படுத்தி பொது சான்றுகளை சமர்ப்பிக்கவும்."
 
 #: src/web/clients/trustee/generate.ml:122
 msgid "Submit public key"
-msgstr ""
+msgstr "பொது விசையை சமர்ப்பிக்கவும்"
 
 #: src/web/clients/trustee/generate.ml:189
 msgid "Submit your public key using the button below."
-msgstr ""
+msgstr "கீழே உள்ள பொத்தானைப் பயன்படுத்தி உங்கள் பொது விசையை சமர்ப்பிக்கவும்."
 
 #: src/web/clients/basic/admin_basic.ml:218
 msgid "Tallied elections"
-msgstr ""
+msgstr "தேர்தல்கள்"
 
 #: src/web/clients/admin/elections.ml:427
 msgid "Tally the election"
-msgstr ""
+msgstr "தேர்தல் எண்ணிக்கை"
 
 #: src/web/clients/admin/trustees_tab.ml:625
 msgid "Tallying"
-msgstr ""
+msgstr "கணக்கீடு"
 
 #: src/web/clients/admin/trustees_tab.ml:794
 msgid "Tallying: shuffling step"
-msgstr ""
+msgstr "கணக்கீடு: கலக்குதல் படி"
 
 #: src/web/server/common/pages_admin.ml:46 src/web/common/pages_common.ml:67
 msgid "Terms of service"
-msgstr ""
+msgstr "பணி விதிமுறைகள்"
 
 #: src/web/common/mails_admin.ml:310
 msgid "Thank you again for your help,"
-msgstr ""
+msgstr "உங்கள் உதவிக்கு மீண்டும் நன்றி,"
 
 #: src/web/common/pages_common.ml:252
 msgid "Thank you for voting!"
-msgstr ""
+msgstr "வாக்களித்ததற்கு நன்றி!"
 
 #. src/web/common/mails_admin.ml:174
 #. src/web/common/mails_admin.ml:103
 #: src/web/common/mails_admin.ml:362 src/web/common/mails_admin.ml:258
 msgid "Thank you for your help,"
-msgstr ""
+msgstr "உங்கள் உதவிக்கு நன்றி,"
 
 #: src/web/server/common/pages_admin.ml:358
 msgid "The account creation "
-msgstr ""
+msgstr "கணக்கு உருவாக்கம் "
 
 #: src/web/server/common/site_admin.ml:430
 msgid "The account has been created."
-msgstr ""
+msgstr "கணக்கு உருவாக்கப்பட்டுள்ளது."
 
 #: src/web/clients/admin/elections.ml:1746
 msgid "The archive can be downloaded at: "
-msgstr ""
+msgstr "காப்பகத்தை பதிவிறக்கம் செய்யலாம்: "
 
 #: src/web/server/common/pages_admin.ml:409
 msgid "The change "
-msgstr ""
+msgstr "மாற்றம் "
 
 #. src/web/common/mails_admin.ml:274
 #. src/web/common/mails_admin.ml:190
 #. src/web/common/mails_admin.ml:108
 #: src/web/common/mails_admin.ml:378 src/web/common/mails_admin.ml:326
 msgid "The election administrator"
-msgstr ""
+msgstr "தேர்தல் நிர்வாகி"
 
 #: src/web/server/common/site_admin.ml:280
 msgid "The election is not archived!"
-msgstr ""
+msgstr "தேர்தல் காப்பகப்படுத்தப்படவில்லை!"
 
 #: src/web/common/mails_admin.ml:284
 msgid "The election is now closed."
-msgstr ""
+msgstr "தேர்தல் இப்போது மூடப்பட்டுள்ளது."
 
 #: src/web/clients/trustee/decrypt.ml:149
 msgid "The fingerprint of the encrypted tally is "
-msgstr ""
+msgstr "மறைகுறியாக்கப்பட்ட எண்ணிக்கையின் கைரேகை "
 
 #: src/web/clients/trustee/shuffle.ml:130
 msgid "The fingerprint of your shuffle is:"
-msgstr ""
+msgstr "உங்கள் கலக்கத்தின் கைரேகை:"
 
 #: src/web/common/mails_admin.ml:353
 msgid "The fingerprint of your shuffle will appear. Save it."
-msgstr ""
+msgstr "உங்கள் கலக்கத்தின் கைரேகை தோன்றும். அதை சேமிக்கவும்."
 
 #: src/web/clients/admin/trustees_tab.ml:807
 msgid "The following link can be used by trustees to check that they own the right decryption key."
 msgstr ""
+"சரியான மறைகுறியாக்க விசையை அவர்கள் வைத்திருக்கிறார்களா என்பதை சரிபார்க்க பின்வரும் இணைப்பை அறங்காவலர்கள் பயன்படுத்தலாம்."
 
 #. src/web/clients/trustee/generate.ml:364
 #: src/web/clients/credauth/generate.ml:176
 msgid "The link to the election will be:"
-msgstr ""
+msgstr "தேர்தலுக்கான இணைப்பு:"
 
 #: src/web/common/mails_admin.ml:88
 msgid "The page also contains instructions for checking the voting record, after the tally."
 msgstr ""
+"இந்த பக்கத்தில் வாக்களிப்பு பதிவைச் சரிபார்ப்பதற்கான வழிமுறைகளும் உள்ளன."
 
 #: src/web/clients/trustee/decrypt.ml:121
 msgid "The partial decryption didn't pass validation!"
-msgstr ""
+msgstr "பகுதி மறைகுறியாக்கம் சரிபார்ப்பைக் கடக்கவில்லை!"
 
 #: src/web/server/common/site_admin.ml:460
 msgid "The password has been changed."
-msgstr ""
+msgstr "கடவுச்சொல் மாற்றப்பட்டுள்ளது."
 
 #: src/web/server/common/site_admin.ml:172
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr ""
+"வழங்கப்பட்ட குறியீடு தவறானது. தயவுசெய்து திரும்பிச் சென்று மீண்டும் முயற்சிக்கவும்."
 
 #: src/web/common/mails_admin.ml:305
 msgid "The second box is now filled with crypto material. Please press the button \"Submit\"."
 msgstr ""
+"இரண்டாவது பெட்டி இப்போது மறையீட்டு பொருளால் நிரப்பப்பட்டுள்ளது. \"சமர்ப்பி\" என்ற பொத்தானை அழுத்தவும்."
 
 #. src/web/clients/admin/trustees_tab.ml:111
 #: src/web/clients/admin/trustees_tab.ml:328
 msgid "The server is always one of the trustees"
-msgstr ""
+msgstr "சேவையகம் எப்போதும் அறங்காவலர்களில் ஒன்றாகும்"
 
 #: src/web/clients/trustee/shuffle.ml:153
 msgid "The shuffle has been successfully applied!"
-msgstr ""
+msgstr "கலக்கு வெற்றிகரமாக பயன்படுத்தப்பட்டுள்ளது!"
 
 #: src/web/clients/admin/elections.ml:1717
 msgid "The tally for this election has started."
-msgstr ""
+msgstr "இந்த தேர்தலுக்கான எண்ணிக்கை தொடங்கியது."
 
 #: src/web/server/common/pages_admin.ml:623
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr ""
+"எங்கள் பெலெனியோச் சேவையகத்தில் உங்கள் கணக்கின் கடவுச்சொல்லை மாற்ற ஒரு கோரிக்கை வந்துள்ளது."
 
 #: src/web/server/common/pages_admin.ml:467
 msgid "There is no e-mail address attached to your account."
-msgstr ""
+msgstr "உங்கள் கணக்கில் எந்த மின்னஞ்சல் முகவரி இணைக்கப்படவில்லை."
 
 #: src/web/clients/trustee/check.ml:178
 msgid "There is no election with ID %s on this server!"
-msgstr ""
+msgstr "இந்த சேவையகத்தில் ஐடி %s உடன் தேர்தல் இல்லை!"
 
 #: src/web/common/mails_admin.ml:211
 msgid "There will be 3 steps."
-msgstr ""
+msgstr "3 படிகள் இருக்கும்."
 
 #: src/web/server/common/site_admin.ml:493
 msgid "This account does not exist"
-msgstr ""
+msgstr "இந்த கணக்கு இல்லை"
 
 #: src/web/clients/admin/elections.ml:1125
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
+"இந்த தொடர்பு வாக்காளர்களுக்கு அனுப்பப்படும் மின்னஞ்சல்களில் சேர்க்கப்படும்."
 
 #: src/web/server/common/site_admin.ml:144
 msgid "This e-mail address is invalid!"
-msgstr ""
+msgstr "இந்த மின்னஞ்சல் முகவரி தவறானது!"
 
 #: src/web/clients/admin/elections.ml:978
 msgid "This election can no longer be opened."
-msgstr ""
+msgstr "இந்த தேர்தலை இனி திறக்க முடியாது."
 
 #: src/web/clients/admin/elections.ml:1728
 msgid "This election has been tallied"
-msgstr ""
+msgstr "இந்த தேர்தல் உயர்த்தப்பட்டுள்ளது"
 
 #: src/web/clients/admin/elections.ml:1711
 msgid "This election is a draft."
-msgstr ""
+msgstr "இந்த தேர்தல் ஒரு வரைவு."
 
 #: src/web/clients/admin/elections.ml:1743
 msgid "This election is archived"
-msgstr ""
+msgstr "இந்த தேர்தல் காப்பகப்படுத்தப்பட்டுள்ளது"
 
 #: src/web/clients/admin/elections.ml:1721
 msgid "This election is in shuffling phase."
-msgstr ""
+msgstr "இந்த தேர்தல் கலக்க கட்டத்தில் உள்ளது."
 
 #: src/web/clients/admin/elections.ml:1713
 msgid "This election is running."
-msgstr ""
+msgstr "இந்த தேர்தல் இயங்கி வருகிறது."
 
 #: src/web/clients/admin/elections.ml:1685
 msgid "This election will be automatically archived after %s."
-msgstr ""
+msgstr "இந்தத் தேர்தல் %s க்குப் பிறகு தானாகவே காப்பகப்படுத்தப்படும்."
 
 #: src/web/clients/admin/elections.ml:1699
 msgid "This election will be automatically deleted after %s."
-msgstr ""
+msgstr "இந்த தேர்தல் %s க்குப் பிறகு தானாக நீக்கப்படும்."
 
 #: src/web/common/pages_common.ml:213
 msgid "This is a revote."
-msgstr ""
+msgstr "இது ஒரு மறுபிரவேசம்."
 
 #: src/web/clients/admin/elections.ml:1079
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
+"இது சேவையகத்தால் அனுப்பப்பட்ட மின்னஞ்சல்களில் பயன்படுத்தப்படும் மொழிகளின் இடத்தால் பிரிக்கப்பட்ட பட்டியல்."
 
 #: src/web/clients/trustee/check.ml:37
 msgid "This is the private key of %s."
-msgstr ""
+msgstr "இது %s இன் தனிப்பட்ட விசை."
 
 #: src/web/clients/credauth/generate.ml:131 src/web/common/mails_admin.ml:60
 msgid "This list must be the one approved by the election commission."
-msgstr ""
+msgstr "இந்த பட்டியல் தேர்தல் ஆணையத்தால் அங்கீகரிக்கப்பட்டதாக இருக்க வேண்டும்."
 
 #: src/web/clients/admin/elections.ml:1130
 msgid "This name will be published on the election result page."
-msgstr ""
+msgstr "இந்த பெயர் தேர்தல் முடிவு பக்கத்தில் வெளியிடப்படும்."
 
 #: src/web/clients/admin/elections.ml:1387
 msgid "This task is completed. Passwords have been sent."
-msgstr ""
+msgstr "இந்த பணி முடிந்தது. கடவுச்சொற்கள் அனுப்பப்பட்டுள்ளன."
 
 #: src/web/clients/admin/trustees_tab.ml:231
 msgid "Threshold mode"
-msgstr ""
+msgstr "வாசல் பயன்முறை"
 
 #: src/web/clients/admin/elections.ml:161
 msgid "Title"
-msgstr ""
+msgstr "தலைப்பு"
 
 #: src/web/clients/admin/elections.ml:653 src/web/clients/admin/elections.ml:640
 msgid "Title:"
-msgstr ""
+msgstr "தலைப்பு:"
 
 #: src/web/server/common/pages_admin.ml:182
 msgid "To administer an election, you need to log in."
-msgstr ""
+msgstr "ஒரு தேர்தலை நிர்வகிக்க, நீங்கள் உள்நுழைய வேண்டும்."
 
 #: src/web/server/common/pages_admin.ml:592
 msgid "To confirm this creation, please use the following code:"
-msgstr ""
+msgstr "இந்த படைப்பை உறுதிப்படுத்த, பின்வரும் குறியீட்டைப் பயன்படுத்தவும்:"
 
 #. src/web/server/common/pages_admin.ml:626
 #: src/web/server/common/pages_admin.ml:660
 msgid "To confirm this, please use the following code:"
-msgstr ""
+msgstr "இதை உறுதிப்படுத்த, பின்வரும் குறியீட்டைப் பயன்படுத்தவும்:"
 
 #: src/web/server/common/pages_admin.ml:51
 msgid "To use this site, you must accept our "
-msgstr ""
+msgstr "இந்த தளத்தைப் பயன்படுத்த, நீங்கள் எங்கள் ஏற்றுக்கொள்ள வேண்டும் "
 
 #: src/web/clients/trustee/decrypt.ml:50
 msgid "Too short"
-msgstr ""
+msgstr "மிகக் குறுகிய"
 
 #: src/web/clients/trustee/generate.ml:337
 msgid "Trustee key generation"
-msgstr ""
+msgstr "அறங்காவலர் முக்கிய தலைமுறை"
 
 #: src/web/clients/trustee/trustee.ml:32
 msgid "Trustee management"
-msgstr ""
+msgstr "அறங்காவலர் மேலாண்மை"
 
 #: src/web/clients/admin/trustees_tab.ml:343
 msgid "Trustee setup - Done"
-msgstr ""
+msgstr "அறங்காவலர் அமைப்பு - முடிந்தது"
 
 #: src/web/clients/admin/trustees_tab.ml:302
 msgid "Trustee setup - Step 1: choose the trustees"
-msgstr ""
+msgstr "அறங்காவலர் அமைப்பு - படி 1: அறங்காவலர்களைத் தேர்வுசெய்க"
 
 #: src/web/clients/admin/trustees_tab.ml:492
 msgid "Trustee setup - Step 2: key generation"
-msgstr ""
+msgstr "அறங்காவலர் அமைப்பு - படி 2: முக்கிய தலைமுறை"
 
 #. src/web/clients/admin/trustees_tab.ml:451
 #. src/web/clients/admin/trustees_tab.ml:318
 #. src/web/clients/admin/trustees_tab.ml:101
 #: src/web/clients/admin/trustees_tab.ml:570
 msgid "Trustee's e-mail"
-msgstr ""
+msgstr "அறங்காவலரின் மின்னஞ்சல்"
 
 #: src/web/clients/admin/trustees_tab.ml:131
 msgid "Trustee's e-mail "
-msgstr ""
+msgstr "அறங்காவலரின் மின்னஞ்சல் "
 
 #: src/web/clients/admin/trustees_tab.ml:452
 msgid "Trustee's name"
-msgstr ""
+msgstr "அறங்காவலரின் பெயர்"
 
 #. src/web/clients/admin/trustees_tab.ml:102
 #: src/web/clients/admin/trustees_tab.ml:319
 msgid "Trustee's public name"
-msgstr ""
+msgstr "அறங்காவலரின் பொது பெயர்"
 
 #: src/web/clients/admin/trustees_tab.ml:135
 msgid "Trustee's public name "
-msgstr ""
+msgstr "அறங்காவலரின் பொது பெயர் "
 
 #: src/web/clients/admin/questions.ml:842
 msgid "Type of answer:"
-msgstr ""
+msgstr "பதில் வகை:"
 
 #. src/web/server/common/pages_admin.ml:380
 #: src/web/server/common/pages_admin.ml:436
 msgid "Type the password again: "
-msgstr ""
+msgstr "கடவுச்சொல்லை மீண்டும் தட்டச்சு செய்க: "
 
 #: src/web/clients/admin/elections.ml:1575
 msgid "Unexpected failure with code %d."
-msgstr ""
+msgstr "குறியீடு %d உடன் எதிர்பாராத தோல்வி."
 
 #: src/web/clients/admin/admin.ml:486
 msgid "Unknown uuid"
-msgstr ""
+msgstr "தெரியாத uuid"
 
 #: src/web/clients/admin/elections.ml:795
 msgid "Upload voter file"
-msgstr ""
+msgstr "வாக்காளர் கோப்பைப் பதிவேற்றவும்"
 
 #: src/web/server/common/pages_admin.ml:234
 msgid "Username"
-msgstr ""
+msgstr "பயனர்பெயர்"
 
 #: src/web/clients/admin/elections.ml:1582
 msgid "Username:"
-msgstr ""
+msgstr "பயனர்பெயர்:"
 
 #: src/web/clients/admin/elections.ml:912 src/web/clients/admin/elections.ml:194
 msgid "Voter list"
-msgstr ""
+msgstr "வாக்காளர் பட்டியல்"
 
 #: src/web/clients/admin/elections.ml:812
 msgid "Voter list (not editable):"
-msgstr ""
+msgstr "வாக்காளர் பட்டியல் (திருத்தக்கூடியது அல்ல):"
 
 #. src/web/clients/admin/elections.ml:813
 #: src/web/clients/credauth/generate.ml:187
 msgid "Voter list:"
-msgstr ""
+msgstr "வாக்காளர் பட்டியல்:"
 
 #: src/web/clients/admin/elections.ml:946
 msgid "Voter list (not editable):"
-msgstr ""
+msgstr "வாக்காளர் பட்டியல் (திருத்தக்கூடியது அல்ல):"
 
 #: src/web/clients/admin/elections.ml:304
 msgid "Voter's authentication"
-msgstr ""
+msgstr "வாக்காளரின் ஏற்பு"
 
 #. src/web/clients/admin/elections.ml:1399
 #: src/web/clients/admin/elections.ml:1547
 msgid "Voter's authentication:"
-msgstr ""
+msgstr "வாக்காளரின் அங்கீகாரம்:"
 
 #: src/web/clients/admin/elections.ml:907
 msgid "Voting records"
-msgstr ""
+msgstr "வாக்களிக்கும் பதிவுகள்"
 
 #: src/web/clients/trustee/generate.ml:307
 msgid "Waiting for the election administrator to set the threshold... Reload the page to check progress."
 msgstr ""
+"தேர்தல் நிர்வாகி வாசலை அமைக்கக் காத்திருக்கிறார் ... முன்னேற்றத்தை சரிபார்க்க பக்கத்தை மீண்டும் ஏற்றவும்."
 
 #: src/web/clients/trustee/generate.ml:211
 msgid "Waiting for the other trustees... Reload the page to check progress."
 msgstr ""
+"மற்ற அறங்காவலர்களுக்காக காத்திருக்கிறது ... முன்னேற்றத்தை சரிபார்க்க பக்கத்தை மீண்டும் ஏற்றவும்."
 
 #: src/web/clients/admin/elections.ml:751
 msgid "Warning, this action is irreversible"
-msgstr ""
+msgstr "எச்சரிக்கை, இந்த நடவடிக்கை மீளமுடியாதது"
 
 #: src/web/clients/admin/trustees_tab.ml:212
 msgid "Warning, this will delete the current list of trustees"
-msgstr ""
+msgstr "எச்சரிக்கை, இது அறங்காவலர்களின் தற்போதைய பட்டியலை நீக்கும்"
 
 #: src/web/clients/admin/elections.ml:818
 msgid "Warning:"
-msgstr ""
+msgstr "எச்சரிக்கை:"
 
 #. src/web/server/common/pages_admin.ml:634
 #. src/web/server/common/pages_admin.ml:600
 #: src/web/server/common/pages_admin.ml:668
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
+"எச்சரிக்கை: இந்த குறியீடு 15 நிமிடங்களுக்கு செல்லுபடியாகும், மேலும் இந்த முகவரிக்கு அனுப்பப்படும் முந்தைய குறியீடுகள் இனி"
+" செல்லுபடியாகாது."
 
 #: src/web/clients/admin/elections.ml:1630
 msgid "Warning: this is irreversible!"
-msgstr ""
+msgstr "எச்சரிக்கை: இது மாற்ற முடியாதது!"
 
 #. src/web/clients/admin/elections.ml:1301
 #. src/web/clients/admin/elections.ml:1216
 #: src/web/clients/admin/elections.ml:1446
 msgid "Warning: this will freeze the voter list!"
-msgstr ""
+msgstr "எச்சரிக்கை: இது வாக்காளர் பட்டியலை முடக்கும்!"
 
 #: src/web/common/mails_admin.ml:245 src/web/common/mails_admin.ml:161
 msgid "We suggest two options:"
-msgstr ""
+msgstr "இரண்டு விருப்பங்களை நாங்கள் பரிந்துரைக்கிறோம்:"
 
 #: src/web/clients/admin/elections.ml:707
 msgid "Weight"
-msgstr ""
+msgstr "எடை"
 
 #: src/web/common/mails_admin.ml:357
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
 msgstr ""
+"தேர்தல் முடிவு வெளியிடப்படும் போது, உங்கள் கலக்கத்தின் கைரேகை முடிவு பக்கத்தில் தோன்றும் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்."
 
 #: src/web/common/pages_common.ml:106
 msgid "Wish to help with translations?"
-msgstr ""
+msgstr "மொழிபெயர்ப்புகளுக்கு உதவ விரும்புகிறீர்களா?"
 
 #: src/web/server/common/pages_admin.ml:244
 msgid "You can also access the "
-msgstr ""
+msgstr "நீங்கள் அணுகலாம் "
 
 #: src/web/server/common/pages_admin.ml:168
 msgid "You can also log in with"
-msgstr ""
+msgstr "நீங்கள் உள்நுழையலாம்"
 
 #: src/web/common/pages_common.ml:245
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "அதன் இருப்பை நீங்கள் சரிபார்க்கலாம் "
 
 #: src/web/server/common/site_admin.ml:347
 msgid "You cannot change your password now. Please try later."
-msgstr ""
+msgstr "உங்கள் கடவுச்சொல்லை இப்போது மாற்ற முடியாது. தயவுசெய்து முயற்சிக்கவும்."
 
 #: src/web/server/common/site_admin.ml:306
 msgid "You cannot create an account now. Please try later."
 msgstr ""
+"நீங்கள் இப்போது ஒரு கணக்கை உருவாக்க முடியாது. தயவுசெய்து முயற்சிக்கவும்."
 
 #: src/web/clients/trustee/decrypt.ml:122
 msgid "You have already submitted a valid partial decryption!"
-msgstr ""
+msgstr "நீங்கள் ஏற்கனவே செல்லுபடியாகும் பகுதி மறைகுறியலை சமர்ப்பித்துள்ளீர்கள்!"
 
 #: src/web/common/mails_admin.ml:94
 msgid "You may need to resend credentials to voters who have lost them."
 msgstr ""
+"அவர்களை இழந்த வாக்காளர்களுக்கு நீங்கள் நற்சான்றிதழ்களை மறுபரிசீலனை செய்ய வேண்டியிருக்கலாம்."
 
 #: src/web/common/mails_admin.ml:81
 msgid "You may use a script of your own or the one provided in the Belenios distribution, see instructions here:"
 msgstr ""
+"உங்களுடைய சொந்த ச்கிரிப்டை அல்லது பெலெனியோச் விநியோகத்தில் வழங்கப்பட்டதைப் பயன்படுத்தலாம், இங்கே வழிமுறைகளைப் பார்க்கவும்:"
 
 #: src/web/clients/trustee/shuffle.ml:138
 msgid "You must record this fingerprint and check that it appears on the election result page."
 msgstr ""
+"இந்த கைரேகையை நீங்கள் பதிவுசெய்து, அது தேர்தல் முடிவு பக்கத்தில் தோன்றுகிறதா என்பதை சரிபார்க்க வேண்டும்."
 
 #: src/web/clients/admin/trustees_tab.ml:782
 msgid "You must select each trustee in turn, and send them a link so that they perform their shuffle. You can also skip a trustee, but keep in mind that this reduces security."
 msgstr ""
+"நீங்கள் ஒவ்வொரு அறங்காவலரைத் தேர்ந்தெடுத்து, அவர்களுக்கு ஒரு இணைப்பை அனுப்ப வேண்டும், இதனால் அவர்கள் தங்கள் கலக்கத்தை"
+" செய்கிறார்கள். நீங்கள் ஒரு அறங்காவலரைத் தவிர்க்கலாம், ஆனால் இது பாதுகாப்பைக் குறைக்கிறது என்பதை நினைவில் கொள்ளுங்கள்."
 
 #: src/web/clients/admin/trustees_tab.ml:498
 msgid "You must send each trustee their link (from the table below) so that they initialize their key for this election."
 msgstr ""
+"ஒவ்வொரு அறங்காவலருக்கும் அவர்களின் இணைப்பை (கீழே உள்ள அட்டவணையில் இருந்து) அனுப்ப வேண்டும், இதன்மூலம் இந்தத் "
+"தேர்தலுக்கான விசையைத் துவக்க வேண்டும்."
 
 #: src/web/clients/admin/trustees_tab.ml:614
 msgid "You must send each trustee their link (from the table below) so that they perform their share of the decryption."
 msgstr ""
+"ஒவ்வொரு அறங்காவலருக்கும் அவர்களின் இணைப்பை (கீழே உள்ள அட்டவணையில் இருந்து) அனுப்ப வேண்டும், இதன்மூலம் அவர்கள் "
+"மறைகுறியாக்கத்தின் பங்கைச் செய்கிறார்கள்."
 
 #: src/web/common/mails_admin.ml:35
 msgid "You will find below the link to generate the voters' credentials, one for each voter."
 msgstr ""
+"ஒவ்வொரு வாக்காளருக்கும் ஒன்று, வாக்காளர்களின் நற்சான்றிதழ்களை உருவாக்க இணைப்புக்கு கீழே நீங்கள் காண்பீர்கள்."
 
 #: src/web/common/mails_admin.ml:201 src/web/common/mails_admin.ml:121
 msgid "You will find below the link to generate your private decryption key, used to tally the election."
 msgstr ""
+"தேர்தலை கணக்கிடப் பயன்படும் உங்கள் தனிப்பட்ட மறைகுறியாக்க விசையை உருவாக்க இணைப்புக்கு கீழே காண்பீர்கள்."
 
 #: src/web/common/mails_admin.ml:76
 msgid "You will then need to send (typically by email) each private credential to the associated voter as written in the file creds.txt."
 msgstr ""
+"ஒவ்வொரு தனியார் நற்சான்றிதழையும் தொடர்புடைய வாக்காளருக்கு (பொதுவாக மின்னஞ்சல் மூலம்) அனுப்ப வேண்டும்."
 
 #: src/web/clients/trustee/generate.ml:175
 msgid "You will use it to decrypt the final result."
-msgstr ""
+msgstr "இறுதி முடிவை மறைகுறியாக்க நீங்கள் இதைப் பயன்படுத்துவீர்கள்."
 
 #: src/web/clients/credauth/generate.ml:119 src/web/common/mails_admin.ml:55
 msgid "You will use it to send credentials to voters."
-msgstr ""
+msgstr "வாக்காளர்களுக்கு சான்றுகளை அனுப்ப இதைப் பயன்படுத்துவீர்கள்."
 
 #: src/web/clients/admin/elections.ml:827
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
+"நற்சான்றிதழ்கள் உருவாக்கப்பட்டவுடன் நீங்கள் மின்னஞ்சல் முகவரிகளை மாற்ற முடியாது. தவறான மின்னஞ்சல் முகவரிகளைக் கொண்ட "
+"வாக்காளர்கள் வாக்களிக்க முடியாது."
 
 #: src/web/common/pages_common.ml:264
 msgid "Your ballot for "
-msgstr ""
+msgstr "உங்கள் வாக்குச்சீட்டு "
 
 #. src/web/server/common/pages_admin.ml:478
 #: src/web/server/common/pages_admin.ml:504
 msgid "Your e-mail address"
-msgstr ""
+msgstr "உங்கள் மின்னஞ்சல் முகவரி"
 
 #: src/web/server/common/pages_admin.ml:589
 msgid "Your e-mail address has been used to create an account on our Belenios server."
 msgstr ""
+"எங்கள் பெலெனியோச் சேவையகத்தில் ஒரு கணக்கை உருவாக்க உங்கள் மின்னஞ்சல் முகவரி பயன்படுத்தப்பட்டுள்ளது."
 
 #: src/web/server/common/pages_admin.ml:369
 msgid "Your e-mail address is: "
-msgstr ""
+msgstr "உங்கள் மின்னஞ்சல் முகவரி: "
 
 #: src/web/clients/trustee/generate.ml:285
 msgid "Your job in the key establishment protocol is done! Your private key will be needed to decrypt the election result."
 msgstr ""
+"முக்கிய ச்தாபன நெறிமுறையில் உங்கள் வேலை முடிந்தது! தேர்தல் முடிவை மறைகுறியாக்க உங்கள் தனிப்பட்ட விசை தேவைப்படும்."
 
 #: src/web/clients/trustee/decrypt.ml:120
 msgid "Your partial decryption has been received and checked!"
-msgstr ""
+msgstr "உங்கள் பகுதி மறைகுறியாக்கம் பெறப்பட்டு சரிபார்க்கப்பட்டது!"
 
 #: src/web/clients/trustee/generate.ml:297
 msgid "Your public key has already been registered!"
-msgstr ""
+msgstr "உங்கள் பொது விசை ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!"
 
 #: src/web/common/pages_common.ml:242
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "உங்கள் அறிவுள்ள வாக்கு டிராக்கர் "
 
 #: src/web/server/common/pages_admin.ml:422
 msgid "Your username is: "
-msgstr ""
+msgstr "உங்கள் பயனர்பெயர்: "
 
 #: src/web/common/pages_common.ml:222
 msgid "Your weight is %s."
-msgstr ""
+msgstr "உங்கள் எடை %s."
 
 #: src/web/clients/admin/trustees_tab.ml:356
 msgid "action required"
-msgstr ""
+msgstr "நடவடிக்கை தேவை"
 
 #: src/web/clients/trustee/check.ml:80 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
-msgstr ""
+msgstr "அநாமதேய அறங்காவலர்"
 
 #: src/web/common/pages_common.ml:233
 msgid "ballot box"
-msgstr ""
+msgstr "வாக்குப் பெட்டி"
 
 #: src/web/server/common/pages_admin.ml:139
 msgid "contact us"
-msgstr ""
+msgstr "எங்களை தொடர்புகொள்"
 
 #: src/web/clients/admin/trustees_tab.ml:357
 msgid "done"
-msgstr ""
+msgstr "முடிந்தது"
 
 #: src/web/clients/admin/elections.ml:738
 msgid "empty list"
-msgstr ""
+msgstr "வெற்று பட்டியல்"
 
 #. src/web/server/common/pages_admin.ml:359
 #: src/web/server/common/pages_admin.ml:410
 msgid "failed"
-msgstr ""
+msgstr "தோல்வியுற்றது"
 
 #: src/web/clients/admin/elections.ml:889
 msgid "from a file: "
-msgstr ""
+msgstr "ஒரு கோப்பிலிருந்து: "
 
 #: src/web/clients/admin/elections.ml:772
 msgid "from another election"
-msgstr ""
+msgstr "மற்றொரு தேர்தலில் இருந்து"
 
 #. src/web/clients/admin/trustees_tab.ml:355
 #: src/web/clients/admin/trustees_tab.ml:361
 msgid "none"
-msgstr ""
+msgstr "எதுவுமில்லை"
 
 #: src/web/server/common/pages_admin.ml:405
 msgid "of an unknown reason"
-msgstr ""
+msgstr "அறியப்படாத காரணம்"
 
 #: src/web/common/mails_admin.ml:252 src/web/common/mails_admin.ml:168
 msgid "or you may simply print it and store it in a safe."
-msgstr ""
+msgstr "அல்லது நீங்கள் அதை அச்சிட்டு பாதுகாப்பாக சேமிக்கலாம்."
 
 #: src/web/clients/admin/trustees_tab.ml:261
 msgid "out of "
-msgstr ""
+msgstr "வெளியே "
 
 #: src/web/clients/credauth/generate.ml:88
 msgid "private credentials"
-msgstr ""
+msgstr "தனியார் நற்சான்றிதழ்கள்"
 
 #: src/web/clients/trustee/generate.ml:147
 msgid "private key"
-msgstr ""
+msgstr "தனிப்பட்ட விசை"
 
 #: src/web/server/common/pages_admin.ml:240
 msgid "raw data"
-msgstr ""
+msgstr "மூல தரவு"
 
 #: src/web/clients/admin/trustees_tab.ml:741
 msgid "server (has already shuffled)"
-msgstr ""
+msgstr "சேவையகம் (ஏற்கனவே மாற்றப்பட்டுள்ளது)"
 
 #: src/web/clients/admin/trustees_tab.ml:756
 msgid "skipped"
-msgstr ""
+msgstr "தவிர்க்கப்பட்டது"
 
 #: src/web/clients/admin/trustees_tab.ml:362
 msgid "step 0?"
-msgstr ""
+msgstr "படி 0?"
 
 #: src/web/clients/admin/trustees_tab.ml:363
 msgid "step 1 / 3"
-msgstr ""
+msgstr "படி 1/3"
 
 #: src/web/clients/admin/trustees_tab.ml:364
 msgid "step 2 / 3"
-msgstr ""
+msgstr "படி 2/3"
 
 #: src/web/clients/admin/trustees_tab.ml:365
 msgid "step 3 / 3"
-msgstr ""
+msgstr "படி 3/3"
 
 #. src/web/server/common/pages_admin.ml:52
 #: src/web/clients/common/secondary_ui.ml:94
 msgid "terms of service"
-msgstr ""
+msgstr "பணி விதிமுறைகள்"
 
 #: src/web/common/mails_admin.ml:228
 msgid "the fingerprint of your public key;"
-msgstr ""
+msgstr "உங்கள் பொது விசையின் கைரேகை;"
 
 #: src/web/common/mails_admin.ml:229
 msgid "the fingerprint of your verification key."
-msgstr ""
+msgstr "உங்கள் சரிபார்ப்பு விசையின் கைரேகை."
 
 #: src/web/server/common/pages_admin.ml:402
 msgid "the new password is too weak (%s)"
-msgstr ""
+msgstr "புதிய கடவுச்சொல் மிகவும் பலவீனமாக உள்ளது (%s)"
 
 #: src/web/server/common/pages_admin.ml:404
 msgid "the new password starts or ends with a space"
-msgstr ""
+msgstr "புதிய கடவுச்சொல் ஒரு இடத்துடன் தொடங்குகிறது அல்லது முடிகிறது"
 
 #: src/web/server/common/pages_admin.ml:350
 msgid "the password is too weak (%s)"
-msgstr ""
+msgstr "கடவுச்சொல் மிகவும் பலவீனமாக உள்ளது (%s)"
 
 #: src/web/server/common/pages_admin.ml:353
 msgid "the password starts or ends with a space"
-msgstr ""
+msgstr "கடவுச்சொல் ஒரு இடத்துடன் தொடங்குகிறது அல்லது முடிகிறது"
 
 #: src/web/clients/admin/elections.ml:1322
 msgid "the private parts of the credentials"
-msgstr ""
+msgstr "நற்சான்றிதழ்களின் தனிப்பட்ட பகுதிகள்"
 
 #. src/web/server/common/pages_admin.ml:351
 #: src/web/server/common/pages_admin.ml:400
 msgid "the two passwords are not the same"
-msgstr ""
+msgstr "இரண்டு கடவுச்சொற்கள் ஒன்றல்ல"
 
 #: src/web/server/common/pages_admin.ml:345
 msgid "the username is already taken"
-msgstr ""
+msgstr "பயனர்பெயர் ஏற்கனவே எடுக்கப்பட்டுள்ளது"
 
 #: src/web/server/common/pages_admin.ml:348
 msgid "the username is invalid"
-msgstr ""
+msgstr "பயனர்பெயர் தவறானது"
 
 #: src/web/server/common/pages_admin.ml:347
 msgid "there is already an account with this e-mail address"
-msgstr ""
+msgstr "இந்த மின்னஞ்சல் முகவரியுடன் ஏற்கனவே ஒரு கணக்கு உள்ளது"
 
 #: src/web/server/common/pages_admin.ml:354
 msgid "there is an error in the database"
-msgstr ""
+msgstr "தரவுத்தளத்தில் பிழை உள்ளது"
 
 #: src/web/clients/admin/elections.ml:742
 msgid "typical use"
-msgstr ""
+msgstr "வழக்கமான பயன்பாடு"
 
 #: src/web/clients/admin/elections.ml:708
 msgid "voted?"
-msgstr ""
+msgstr "வாக்களித்தாரா?"
 
 #: src/web/clients/credauth/generate.ml:127
 msgid "voter list"
-msgstr ""
+msgstr "வாக்காளர் பட்டியல்"
 
 #: src/web/clients/admin/elections.ml:744
 msgid "when a login is needed, e.g. CAS"
-msgstr ""
+msgstr "உள்நுழைவு தேவைப்படும்போது, எ.கா. கேச்"
 
 #: src/web/clients/admin/elections.ml:746
 msgid "when some voters have several votes"
-msgstr ""
+msgstr "சில வாக்காளர்களுக்கு பல வாக்குகள் இருக்கும்போது"
 
 #: src/web/clients/admin/trustees_tab.ml:757
 msgid "yes"
-msgstr ""
+msgstr "ஆம்"
 
 #: src/web/clients/admin/elections.ml:821
 msgid "you have to make sure that the e-mail addresses are valid."
 msgstr ""
+"மின்னஞ்சல் முகவரிகள் செல்லுபடியாகும் என்பதை நீங்கள் உறுதிப்படுத்த வேண்டும்."
 
 #: src/web/common/mails_admin.ml:249 src/web/common/mails_admin.ml:165
 msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr ""
+"நீங்கள் ஒரு யூ.எச்.பி குச்சியில் சாவியை சேமித்து பாதுகாப்பாக சேமிக்கலாம்;"
 
 #: src/web/common/mails_admin.ml:222
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
 msgstr ""
+"உங்கள் தனிப்பட்ட விசை. நீங்கள் அதை சரியாகச் சேமிக்கிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள், இல்லையெனில் நீங்கள் "
+"எண்ணிக்கையில் பங்கேற்க முடியாது, தேர்தல் ரத்து செய்யப்படலாம்;"
