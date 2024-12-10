@@ -691,7 +691,7 @@ msgstr "உங்களிடம் கணக்கு இல்லையென�
 
 #: src/web/clients/trustee/decrypt.ml:56
 msgid "Illegal character: %c"
-msgstr "சட்டவிரோத தன்மை: %சி"
+msgstr "சட்டவிரோத தன்மை: %cசி"
 
 #: src/web/server/common/pages_admin.ml:526
 msgid "Impersonate a user"
