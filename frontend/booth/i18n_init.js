@@ -40,6 +40,7 @@ function i18n_init(
           "pt_BR",
           "pt",
           "ro",
+          "ta",
           "uk",
         ],
         fallbackLng: {
