@@ -973,9 +973,6 @@ let dates_content () =
   if is_draft () then
     Lwt.return
       [ header; div [ txt @@ s_ "Not (yet) available for draft elections" ] ]
-  else if not is_openable then
-    Lwt.return
-      [ header; div [ txt @@ s_ "This election can no longer be opened." ] ]
   else
     let* dates = Cache.get_until_success Cache.e_dates in
     let make_div l id get set =
@@ -1018,22 +1015,24 @@ let dates_content () =
       in
       div [ label; inp; btn_soon; btn_erase ]
     in
-    let open_div =
-      make_div (s_ "Open: ") "inpocont"
-        (fun x -> x.auto_date_open)
-        (fun x y -> { x with auto_date_open = y })
-    in
-    let close_div =
-      make_div (s_ "Close: ") "inpccont"
-        (fun x -> x.auto_date_close)
-        (fun x y -> { x with auto_date_close = y })
+    let open_close_divs =
+      if is_openable then
+        [
+          make_div (s_ "Open: ") "inpocont"
+            (fun x -> x.auto_date_open)
+            (fun x y -> { x with auto_date_open = y });
+          make_div (s_ "Close: ") "inpccont"
+            (fun x -> x.auto_date_close)
+            (fun x y -> { x with auto_date_close = y });
+        ]
+      else []
     in
     let publish_div =
       make_div (s_ "Publish: ") "inppcont"
         (fun x -> x.auto_date_publish)
         (fun x y -> { x with auto_date_publish = y })
     in
-    Lwt.return [ header; open_div; close_div; publish_div ]
+    Lwt.return @@ List.flatten [ [ header ]; open_close_divs; [ publish_div ] ]
 
 let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 
