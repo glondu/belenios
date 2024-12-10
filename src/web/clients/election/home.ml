@@ -620,7 +620,7 @@ let home configuration ?credential uuid =
     | None -> Lwt.return @@ error "Could not get automatic dates!"
     | Some x -> cont x
   in
-  let now = (new%js Js.date_now)##valueOf in
+  let now = (new%js Js.date_now)##valueOf /. 1000. in
   let state =
     match status.status_state with
     | `Draft -> assert false
