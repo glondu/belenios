@@ -25,17 +25,17 @@ open Signatures
 module type S = sig
   (** Simple distributed generation of an election public key. *)
   module MakeSimple (G : GROUP) (_ : RANDOM) : sig
-    (** This module implements a simple distributed key generation. Each
-      share is a number modulo q, and the secret key is their sum. All
-      shares are needed to decrypt, but the decryptions can be done in
-      a distributed fashion. *)
+    (** This module implements a simple distributed key generation. Each share
+        is a number modulo q, and the secret key is their sum. All shares are
+        needed to decrypt, but the decryptions can be done in a distributed
+        fashion. *)
 
     val generate : unit -> G.Zq.t
     (** [generate ()] generates a new private key. *)
 
     val prove : G.Zq.t -> (G.t, G.Zq.t) trustee_public_key
-    (** [prove x] returns the public key associated to [x] and a zero-
-      knowledge proof of its knowledge. *)
+    (** [prove x] returns the public key associated to [x] and a zero- knowledge
+        proof of its knowledge. *)
   end
 
   module MakePKI (G : GROUP) (_ : RANDOM) :

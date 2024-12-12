@@ -29,8 +29,7 @@ module Json = Atdgen_runtime.Util.Json
 type 'a reader = 'a Json.reader
 type 'a writer = 'a Json.writer
 
-(** A finite integer field, suitable for scalar operations of a
-    group. *)
+(** A finite integer field, suitable for scalar operations of a group. *)
 module type FIELD = sig
   type t
 
@@ -59,15 +58,15 @@ type vector_encoding_error = [ `No_encoding | `Vector_size | `Int_size ]
 
 (** A group suitable for discrete logarithm-based cryptography. *)
 module type GROUP = sig
-  (** The following interface is redundant: it is assumed, but not
-      checked, that usual mathematical relations hold. *)
+  (** The following interface is redundant: it is assumed, but not checked, that
+      usual mathematical relations hold. *)
 
   module Zq : FIELD
   (** The type of scalars. *)
 
   type t
-  (** The type of elements. Note that it may be larger than the group
-      itself, hence the [check] function below. *)
+  (** The type of elements. Note that it may be larger than the group itself,
+      hence the [check] function below. *)
 
   val check : t -> bool
   (** Check group membership. *)
@@ -97,21 +96,22 @@ module type GROUP = sig
   (** Conversion from string. *)
 
   val max_ints : int
-  (** The maximum size of arrays in {of,to}_ints below. *)
+  (** The maximum size of arrays in [{of,to}_ints] below. *)
 
   val bits_per_int : int
-  (** The maximum number of bits in each element of arrays in {of,to}_ints below. *)
+  (** The maximum number of bits in each element of arrays in [{of,to}_ints]
+      below. *)
 
   val of_ints : int array -> (t, vector_encoding_error) result
   (** Convert an int array to a group element. *)
 
   val to_ints : int -> t -> int array
-  (** Convert a group element to an int array. The first argument is
-     the size of the array. *)
+  (** Convert a group element to an int array. The first argument is the size of
+      the array. *)
 
   val hash : string -> t array -> Zq.t
-  (** Hash an array of elements into a scalar. The string
-      argument is a string that is prepended before computing the hash. *)
+  (** Hash an array of elements into a scalar. The string argument is a string
+      that is prepended before computing the hash. *)
 
   val hash_to_int : t -> int
   (** Hash an element to a small integer. *)

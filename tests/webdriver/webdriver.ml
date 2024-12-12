@@ -287,8 +287,8 @@ class helpers session =
   object (self)
     inherit webdriver session
 
-    method with_single_element
-        : 'a. selector:string -> unit -> (element -> 'a Lwt.t) -> 'a Lwt.t =
+    method with_single_element :
+        'a. selector:string -> unit -> (element -> 'a Lwt.t) -> 'a Lwt.t =
       fun ~selector () f ->
         let* x = self#get_elements ~selector in
         match x with

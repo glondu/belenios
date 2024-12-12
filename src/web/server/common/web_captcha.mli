@@ -20,8 +20,8 @@
 (**************************************************************************)
 
 val create_captcha : unit -> string Lwt.t
-(** Returns a challenge string, used to identify the captcha in
-   following functions. *)
+(** Returns a challenge string, used to identify the captcha in following
+    functions. *)
 
 val get_captcha : challenge:string -> (string * string) Lwt.t
 (** Returns the image associated to a challenge. *)

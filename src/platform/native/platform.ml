@@ -71,11 +71,10 @@ module Crypto_primitives = struct
   let pbkdf2_utf8 = pbkdf2_generic (fun x -> x)
 
   let aes_raw ~key ~data =
-    begin
+    begin [@alert "-crypto"]
       let open Cryptokit in
       transform_string Cipher.(aes ~mode:ECB key Encrypt) data
     end
-    [@alert "-crypto"]
   (* OK for a single block *)
 
   let aes_hex ~key ~data =
