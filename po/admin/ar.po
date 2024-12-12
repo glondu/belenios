@@ -286,7 +286,7 @@ msgstr ""
 msgid "Change password"
 msgstr "تغيير كلمة المرور"
 
-#: src/web/clients/trustee/check.ml:186 src/web/clients/admin/trustees_tab.ml:801
+#: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:801
 msgid "Check private key ownership"
 msgstr "التحقق من ملكية المفتاح الخاص"
 
@@ -351,7 +351,7 @@ msgstr "اتصل ب:"
 msgid "Could not get configuration from server! (%s)"
 msgstr ""
 
-#: src/web/clients/trustee/check.ml:98 src/web/clients/trustee/check.ml:49
+#: src/web/clients/trustee/check.ml:99 src/web/clients/trustee/check.ml:49
 msgid "Could not get trustee parameters for this election!"
 msgstr ""
 
@@ -510,7 +510,7 @@ msgstr "بريد إلكتروني: "
 msgid "Edit profile"
 msgstr "تعديل الملف الشخصي"
 
-#: src/web/clients/trustee/check.ml:160
+#: src/web/clients/trustee/check.ml:161
 msgid "Election ID:"
 msgstr ""
 
@@ -734,7 +734,7 @@ msgstr "أدخل إجابة"
 msgid "Instructions:"
 msgstr "تعليمات:"
 
-#: src/web/clients/trustee/check.ml:165 src/web/clients/trustee/check.ml:151
+#: src/web/clients/trustee/check.ml:166 src/web/clients/trustee/check.ml:152
 msgid "Invalid election ID!"
 msgstr ""
 
@@ -1081,7 +1081,7 @@ msgstr "معاينة واجهة الناخب"
 msgid "Preview will open in a new tab"
 msgstr "سيتم فتح المعاينة في علامة تبويب جديدة"
 
-#: src/web/clients/trustee/check.ml:147 src/web/clients/trustee/generate.ml:279
+#: src/web/clients/trustee/check.ml:148 src/web/clients/trustee/generate.ml:279
 #. src/web/server/common/pages_admin.ml:527
 #. src/web/server/common/pages_admin.ml:505
 #. src/web/server/common/pages_admin.ml:479
@@ -1447,7 +1447,7 @@ msgstr "تم تلقي طلب لتغيير كلمة مرور حسابك على خ
 msgid "There is no e-mail address attached to your account."
 msgstr "لا يوجد عنوان بريد إلكتروني مرتبط بحسابك."
 
-#: src/web/clients/trustee/check.ml:178
+#: src/web/clients/trustee/check.ml:179
 msgid "There is no election with ID %s on this server!"
 msgstr ""
 
@@ -1837,7 +1837,7 @@ msgstr ""
 msgid "action required"
 msgstr "الإجراء مطلوب"
 
-#: src/web/clients/trustee/check.ml:80 src/web/clients/trustee/check.ml:64
+#: src/web/clients/trustee/check.ml:81 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
 msgstr "أمين مجهول"
 

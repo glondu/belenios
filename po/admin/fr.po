@@ -294,7 +294,7 @@ msgstr "Changer l'adresse de courriel"
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
-#: src/web/clients/trustee/check.ml:186 src/web/clients/admin/trustees_tab.ml:801
+#: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:801
 msgid "Check private key ownership"
 msgstr "Vérifier la possession de la clé privée"
 
@@ -359,7 +359,7 @@ msgstr "Contact :"
 msgid "Could not get configuration from server! (%s)"
 msgstr "N'a pas pu récupérer la configuration du serveur ! (%s)"
 
-#: src/web/clients/trustee/check.ml:98 src/web/clients/trustee/check.ml:49
+#: src/web/clients/trustee/check.ml:99 src/web/clients/trustee/check.ml:49
 msgid "Could not get trustee parameters for this election!"
 msgstr "N'a pas pu récupérer les paramètres des autorités de déchiffrement de cette élection !"
 
@@ -520,7 +520,7 @@ msgstr "Courriel : "
 msgid "Edit profile"
 msgstr "Éditer le profil"
 
-#: src/web/clients/trustee/check.ml:160
+#: src/web/clients/trustee/check.ml:161
 msgid "Election ID:"
 msgstr "Identifiant de l'élection :"
 
@@ -746,7 +746,7 @@ msgstr "Insérer une réponse"
 msgid "Instructions:"
 msgstr "Instructions :"
 
-#: src/web/clients/trustee/check.ml:165 src/web/clients/trustee/check.ml:151
+#: src/web/clients/trustee/check.ml:166 src/web/clients/trustee/check.ml:152
 msgid "Invalid election ID!"
 msgstr "Identifiant d'élection invalide !"
 
@@ -1103,7 +1103,7 @@ msgstr "Aperçu de l'interface de l'électeur"
 msgid "Preview will open in a new tab"
 msgstr "L'aperçu s'ouvrira dans un nouvel onglet"
 
-#: src/web/clients/trustee/check.ml:147 src/web/clients/trustee/generate.ml:279
+#: src/web/clients/trustee/check.ml:148 src/web/clients/trustee/generate.ml:279
 #. src/web/server/common/pages_admin.ml:527
 #. src/web/server/common/pages_admin.ml:505
 #. src/web/server/common/pages_admin.ml:479
@@ -1487,7 +1487,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr "Aucune adresse courriel n'est associée à votre compte."
 
-#: src/web/clients/trustee/check.ml:178
+#: src/web/clients/trustee/check.ml:179
 msgid "There is no election with ID %s on this server!"
 msgstr "Il n'y a pas d'élection avec l'identifiant %s sur ce serveur !"
 
@@ -1907,7 +1907,7 @@ msgstr "Votre poids est %s."
 msgid "action required"
 msgstr "action requise"
 
-#: src/web/clients/trustee/check.ml:80 src/web/clients/trustee/check.ml:64
+#: src/web/clients/trustee/check.ml:81 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
 msgstr "autorité de déchiffrement anonyme"
 

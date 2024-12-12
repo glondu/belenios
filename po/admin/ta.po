@@ -288,7 +288,7 @@ msgstr "மின்னஞ்சல் முகவரியை மாற்ற�
 msgid "Change password"
 msgstr "கடவுச்சொல்லை மாற்றவும்"
 
-#: src/web/clients/trustee/check.ml:186 src/web/clients/admin/trustees_tab.ml:801
+#: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:801
 msgid "Check private key ownership"
 msgstr "தனிப்பட்ட முக்கிய உரிமையை சரிபார்க்கவும்"
 
@@ -353,7 +353,7 @@ msgstr "தொடர்பு:"
 msgid "Could not get configuration from server! (%s)"
 msgstr "சேவையகத்திலிருந்து உள்ளமைவைப் பெற முடியவில்லை! (%s)"
 
-#: src/web/clients/trustee/check.ml:98 src/web/clients/trustee/check.ml:49
+#: src/web/clients/trustee/check.ml:99 src/web/clients/trustee/check.ml:49
 msgid "Could not get trustee parameters for this election!"
 msgstr "இந்த தேர்தலுக்கான அறங்காவலர் அளவுருக்கள் பெற முடியவில்லை!"
 
@@ -514,7 +514,7 @@ msgstr "மின்னஞ்சல்: "
 msgid "Edit profile"
 msgstr "சுயவிவரத்தைத் திருத்து"
 
-#: src/web/clients/trustee/check.ml:160
+#: src/web/clients/trustee/check.ml:161
 msgid "Election ID:"
 msgstr "தேர்தல் ஐடி:"
 
@@ -738,7 +738,7 @@ msgstr "ஒரு பதிலைச் செருகவும்"
 msgid "Instructions:"
 msgstr "வழிமுறைகள்:"
 
-#: src/web/clients/trustee/check.ml:165 src/web/clients/trustee/check.ml:151
+#: src/web/clients/trustee/check.ml:166 src/web/clients/trustee/check.ml:152
 msgid "Invalid election ID!"
 msgstr "தவறான தேர்தல் ஐடி!"
 
@@ -1085,7 +1085,7 @@ msgstr "வாக்காளரின் இடைமுகத்தை மு�
 msgid "Preview will open in a new tab"
 msgstr "முன்னோட்டம் புதிய தாவலில் திறக்கப்படும்"
 
-#: src/web/clients/trustee/check.ml:147 src/web/clients/trustee/generate.ml:279
+#: src/web/clients/trustee/check.ml:148 src/web/clients/trustee/generate.ml:279
 #. src/web/server/common/pages_admin.ml:527
 #. src/web/server/common/pages_admin.ml:505
 #. src/web/server/common/pages_admin.ml:479
@@ -1457,7 +1457,7 @@ msgstr ""
 msgid "There is no e-mail address attached to your account."
 msgstr "உங்கள் கணக்கில் எந்த மின்னஞ்சல் முகவரி இணைக்கப்படவில்லை."
 
-#: src/web/clients/trustee/check.ml:178
+#: src/web/clients/trustee/check.ml:179
 msgid "There is no election with ID %s on this server!"
 msgstr "இந்த சேவையகத்தில் ஐடி %s உடன் தேர்தல் இல்லை!"
 
@@ -1860,7 +1860,7 @@ msgstr "உங்கள் எடை %s."
 msgid "action required"
 msgstr "நடவடிக்கை தேவை"
 
-#: src/web/clients/trustee/check.ml:80 src/web/clients/trustee/check.ml:64
+#: src/web/clients/trustee/check.ml:81 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
 msgstr "அநாமதேய அறங்காவலர்"
 
