@@ -1,3 +1,29 @@
+3.1~dev
+=======
+
+ * Software stack:
+   + Use OCaml 5.2.1
+   + Use `markup` for HTML parsing
+   + Regenerate `libsodium.wasm`
+   + Stop vendoring JSBN
+ * Add safety checks in vector encoding into group element for NH
+   questions
+ * Web server:
+   + Notable bugfixes:
+     - Allow setting publish date during tallying
+     - Fix countdown to automatic opening/closing (GitHub issue #89)
+   + Add uuid to downloaded filenames
+   + Admin UI:
+     - In question editor, check safety and show complexity
+   + Trustee UI:
+     - Do not force page reloads during threshold key generation
+       protocol
+   + Election homepage:
+     - Add final event hash to audit box
+     - Add links to objects in audit box
+   + Translations:
+     - Add Tamil
+
 3.0 (2024-10-08)
 ================
 
