@@ -762,11 +762,17 @@ let voters_content () =
       (fun () ->
         match Voter.list_of_string @@ ttget () with
         | [] -> Lwt.return_unit
-        | newvoters ->
+        | newvoters -> (
             let* voters = Cache.get_until_success Cache.voters in
             let newvoters = voters @ newvoters in
             let () = Cache.set Cache.voters newvoters in
-            !update_election_main ())
+            let* r = Cache.sync () in
+            match r with
+            | Ok () -> !update_election_main ()
+            | Error _ ->
+                alert @@ s_ "There is an error in the voter list!";
+                Cache.set Cache.voters voters;
+                !update_election_main ()))
   in
   let import_but =
     button (s_ "from another election") (fun () ->
