@@ -138,8 +138,7 @@ struct
   type nonrec ballot = (element, scalar) ballot
   type weighted_ballot = Weight.t * ballot
 
-  (** Fiat-Shamir non-interactive zero-knowledge proofs of
-      knowledge *)
+  (** Fiat-Shamir non-interactive zero-knowledge proofs of knowledge *)
 
   let fs_prove gs x oracle =
     let w = random () in

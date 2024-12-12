@@ -1,0 +1,66 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Tue, 18 Jun 2024 06:24:35 +0200
+Subject: Fix compilation with OCaml 5.x
+
+---
+ src/lib/gettext-stub/gettextStubCompat_stubs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/lib/gettext-stub/gettextStubCompat_stubs.c b/src/lib/gettext-stub/gettextStubCompat_stubs.c
+index 2c6cb29..c68e340 100644
+--- a/src/lib/gettext-stub/gettextStubCompat_stubs.c
++++ b/src/lib/gettext-stub/gettextStubCompat_stubs.c
+@@ -76,7 +76,7 @@ CAMLprim value gettextStubCompat_gettext(
+ 	value v_msgid)
+ {
+   CAMLparam1(v_msgid);
+-  CAMLreturn(copy_string(gettext(String_val(v_msgid))));
++  CAMLreturn(caml_copy_string(gettext(String_val(v_msgid))));
+ }
+ 
+ CAMLprim value gettextStubCompat_dgettext(
+@@ -85,7 +85,7 @@ CAMLprim value gettextStubCompat_dgettext(
+ {
+   CAMLparam2(v_domainname, v_msgid);
+   CAMLreturn(
+-      copy_string(
++      caml_copy_string(
+         dgettext(
+           String_val(v_domainname),
+           String_val(v_msgid))));
+@@ -98,7 +98,7 @@ CAMLprim value gettextStubCompat_dcgettext(
+ {
+   CAMLparam3(v_domainname, v_msgid, v_category);
+   CAMLreturn(
+-      copy_string(
++      caml_copy_string(
+         dcgettext(
+           String_val(v_domainname),
+           String_val(v_msgid),
+@@ -112,7 +112,7 @@ CAMLprim value gettextStubCompat_ngettext(
+ {
+   CAMLparam3(v_msgid1, v_msgid2, v_n);
+   CAMLreturn(
+-      copy_string(
++      caml_copy_string(
+         ngettext(
+           String_val(v_msgid1),
+           String_val(v_msgid2),
+@@ -127,7 +127,7 @@ CAMLprim value gettextStubCompat_dngettext(
+ {
+   CAMLparam4(v_domainname, v_msgid1, v_msgid2, v_n);
+   CAMLreturn(
+-      copy_string(
++      caml_copy_string(
+         dngettext(
+           String_val(v_domainname),
+           String_val(v_msgid1),
+@@ -158,7 +158,7 @@ CAMLprim value gettextStubCompat_dcngettext(
+         "NULL string not expected at "STRINGIFY(__LINE__)" in "__FILE__);
+   };
+ 
+-  CAMLreturn(copy_string(res));
++  CAMLreturn(caml_copy_string(res));
+ }
+ 
+ CAMLprim value gettextStubCompat_textdomain(

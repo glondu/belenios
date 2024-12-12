@@ -291,9 +291,9 @@ let put_draft_voters (Draft (v, se), set) voters =
       Lwt.fail
       @@ Error
            (`GenericError
-             (Printf.sprintf "expanded total weight too big: %s/%s"
-                (Z.to_string expanded)
-                (Z.to_string Weight.max_expanded_weight)))
+              (Printf.sprintf "expanded total weight too big: %s/%s"
+                 (Z.to_string expanded)
+                 (Z.to_string Weight.max_expanded_weight)))
     else Lwt.return_unit
   in
   let se = { se with se_voters } in

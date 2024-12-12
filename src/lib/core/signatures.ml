@@ -81,10 +81,10 @@ type rawballot_check = { rc_credential : string; rc_check : unit -> bool }
 module type ELECTION_OPS = sig
   (** {2 Election parameters} *)
 
-  (** Ballots are encrypted using public-key cryptography secured by
-      the discrete logarithm problem. Here, we suppose private keys
-      are integers modulo a large prime number. Public keys are
-      members of a suitably chosen group. *)
+  (** Ballots are encrypted using public-key cryptography secured by the
+      discrete logarithm problem. Here, we suppose private keys are integers
+      modulo a large prime number. Public keys are members of a suitably chosen
+      group. *)
 
   type element
   type scalar
@@ -94,25 +94,23 @@ module type ELECTION_OPS = sig
   (** {2 Ballots} *)
 
   type plaintext = Serializable_t.plaintext
-  (** The plaintext equivalent of [ciphertext], i.e. the contents of a
-      ballot. When [x] is such a value, [x.(i).(j)] is the weight (0
-      or 1) given to answer [j] in question [i]. *)
+  (** The plaintext equivalent of [ciphertext], i.e. the contents of a ballot.
+      When [x] is such a value, [x.(i).(j)] is the weight (0 or 1) given to
+      answer [j] in question [i]. *)
 
   type ballot
-  (** A ballot ready to be transmitted, containing the encrypted
-      answers and cryptographic proofs that they satisfy the election
-      constraints. *)
+  (** A ballot ready to be transmitted, containing the encrypted answers and
+      cryptographic proofs that they satisfy the election constraints. *)
 
   type weighted_ballot = Weight.t * ballot
 
   val create_ballot : sk:private_key -> plaintext -> ballot
-  (** [create_ballot r answers] creates a ballot, or raises
-      [Invalid_argument] if [answers] doesn't satisfy the election
-      constraints. *)
+  (** [create_ballot r answers] creates a ballot, or raises [Invalid_argument]
+      if [answers] doesn't satisfy the election constraints. *)
 
   val check_ballot : ballot -> bool
-  (** [check_ballot b] checks all the cryptographic proofs in [b]. All
-      ballots produced by [create_ballot] should pass this check. *)
+  (** [check_ballot b] checks all the cryptographic proofs in [b]. All ballots
+      produced by [create_ballot] should pass this check. *)
 
   val check_rawballot : string -> (rawballot_check, cast_error) Stdlib.result
 
@@ -132,35 +130,35 @@ module type ELECTION_OPS = sig
   (** {2 Partial decryptions} *)
 
   type factor = (element, scalar) partial_decryption
-  (** A decryption share. It is computed by a trustee from his or her
-      private key share and the encrypted tally, and contains a
-      cryptographic proof that he or she didn't cheat. *)
+  (** A decryption share. It is computed by a trustee from his or her private
+      key share and the encrypted tally, and contains a cryptographic proof that
+      he or she didn't cheat. *)
 
   val compute_factor :
     element Serializable_t.ciphertext shape -> private_key -> factor
 
   val check_factor :
     element Serializable_t.ciphertext shape -> public_key -> factor -> bool
-  (** [check_factor c pk f] checks that [f], supposedly submitted by a
-      trustee whose public_key is [pk], is valid with respect to the
-      encrypted tally [c]. *)
+  (** [check_factor c pk f] checks that [f], supposedly submitted by a trustee
+      whose public_key is [pk], is valid with respect to the encrypted tally
+      [c]. *)
 
   (** {2 Result} *)
 
   type result_type
 
   type result = result_type Serializable_t.election_result
-  (** The election result. It contains the needed data to validate the
-      result from the encrypted tally. *)
+  (** The election result. It contains the needed data to validate the result
+      from the encrypted tally. *)
 
   val compute_result :
     element encrypted_tally sized_encrypted_tally ->
     factor owned list ->
     (element, scalar) trustees ->
     (result, combination_error) Stdlib.result
-  (** Combine the encrypted tally and the factors from all trustees to
-      produce the election result. The first argument is the number of
-      tallied ballots. May raise [Invalid_argument]. *)
+  (** Combine the encrypted tally and the factors from all trustees to produce
+      the election result. The first argument is the number of tallied ballots.
+      May raise [Invalid_argument]. *)
 
   val check_result :
     element encrypted_tally sized_encrypted_tally ->

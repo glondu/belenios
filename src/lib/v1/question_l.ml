@@ -70,8 +70,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
 
   let dummy_proof = { challenge = Zq.zero; response = Zq.zero }
 
-  (** Fiat-Shamir non-interactive zero-knowledge proofs of
-      knowledge *)
+  (** Fiat-Shamir non-interactive zero-knowledge proofs of knowledge *)
 
   let fs_prove gs x oracle =
     let w = random () in

@@ -195,8 +195,7 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
 
   let random () = G.Zq.random (M.get_rng ())
 
-  (** Fiat-Shamir non-interactive zero-knowledge proofs of
-      knowledge *)
+  (** Fiat-Shamir non-interactive zero-knowledge proofs of knowledge *)
 
   let fs_prove gs x oracle =
     let w = random () in

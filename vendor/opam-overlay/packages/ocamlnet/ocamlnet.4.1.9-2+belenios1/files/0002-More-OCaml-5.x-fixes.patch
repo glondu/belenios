@@ -1,0 +1,143 @@
+From 7ad8c269eb0bb10f3cdae94cf1903c26f1bb4034 Mon Sep 17 00:00:00 2001
+From: Stephane Glondu <steph@glondu.net>
+Date: Mon, 17 Jun 2024 15:05:42 +0200
+Subject: [PATCH 2/3] More OCaml 5.x fixes
+
+Origin: https://src.fedoraproject.org/rpms/ocaml-ocamlnet/raw/rawhide/f/ocaml-ocamlnet-ocaml5.patch
+---
+ src/equeue-tcl/tclqueue.c     | 16 ++++++++--------
+ src/netcgi2-apache/handler.c  | 10 +++++-----
+ src/netsys/netsys_c_fadvise.c |  4 ++--
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/src/equeue-tcl/tclqueue.c b/src/equeue-tcl/tclqueue.c
+index 5b89e88..3136f80 100644
+--- a/src/equeue-tcl/tclqueue.c
++++ b/src/equeue-tcl/tclqueue.c
+@@ -31,7 +31,7 @@ static void file_proc(ClientData cdata, int mask) {
+     
+     h = (filehandler *) cdata;
+ 
+-    r = callback_exn(h->callback_fn, Val_int(0));
++    r = caml_callback_exn(h->callback_fn, Val_int(0));
+     if (Is_exception_result(r)) {
+ 	fprintf(stderr, "In file_proc: Uncaught Ocaml exception\n");
+     };
+@@ -45,10 +45,10 @@ value caml_Tcl_CreateFileHandler(value callback_fn,
+     int m, tcl_m;
+     CAMLparam3(callback_fn, file_descriptor, mask);
+ 
+-    h = (filehandler *) (stat_alloc(sizeof(filehandler)));
++    h = (filehandler *) (caml_stat_alloc(sizeof(filehandler)));
+     /* This must be a malloc'ed data block. */
+ 
+-    register_global_root(&(h->callback_fn));
++    caml_register_global_root(&(h->callback_fn));
+     h->callback_fn = callback_fn;
+     h->fd = Int_val(file_descriptor);
+ 
+@@ -75,7 +75,7 @@ value caml_Tcl_DeleteFileHandler(value descriptor) {
+     h = (filehandler *) descriptor;
+     Tcl_DeleteFileHandler(h->fd);
+ 
+-    remove_global_root(&(h->callback_fn));
++    caml_remove_global_root(&(h->callback_fn));
+ 
+     free(h);
+ 
+@@ -89,7 +89,7 @@ static void timer_proc(ClientData cdata) {
+     
+     h = (timerhandler *) cdata;
+ 
+-    r = callback_exn(h->callback_fn, Val_int(0));
++    r = caml_callback_exn(h->callback_fn, Val_int(0));
+     if (Is_exception_result(r)) {
+ 	fprintf(stderr, "In timer_proc: Uncaught Ocaml exception\n");
+     };
+@@ -101,10 +101,10 @@ value caml_Tcl_CreateTimerHandler(value callback_fn,
+     timerhandler *h;
+     CAMLparam2(callback_fn, milliseconds);
+ 
+-    h = (timerhandler *) (stat_alloc(sizeof(timerhandler)));
++    h = (timerhandler *) (caml_stat_alloc(sizeof(timerhandler)));
+     /* This must be a malloc'ed data block. */
+ 
+-    register_global_root(&(h->callback_fn));
++    caml_register_global_root(&(h->callback_fn));
+     h->callback_fn = callback_fn;
+     h->token = 
+ 	Tcl_CreateTimerHandler(Int_val(milliseconds),
+@@ -122,7 +122,7 @@ value caml_Tcl_DeleteTimerHandler(value descriptor) {
+     h = (timerhandler *) descriptor;
+     Tcl_DeleteTimerHandler(h->token);
+ 
+-    remove_global_root(&(h->callback_fn));
++    caml_remove_global_root(&(h->callback_fn));
+ 
+     free(h);
+ 
+diff --git a/src/netcgi2-apache/handler.c b/src/netcgi2-apache/handler.c
+index cc0901c..cf2384d 100644
+--- a/src/netcgi2-apache/handler.c
++++ b/src/netcgi2-apache/handler.c
+@@ -154,7 +154,7 @@ static void module_init (server_rec *s, pool *p)
+ #if APACHE2
+ static int remove_root_value (void *vp)
+ {
+-  remove_global_root ((value *) vp);
++  caml_remove_global_root ((value *) vp);
+   return OK;
+ }
+ #endif
+@@ -163,12 +163,12 @@ static value * alloc_root_value (apr_pool_t *p)
+ {
+   value *v = (value *) apr_palloc(p, sizeof (value));
+   *v = Val_unit;
+-  register_global_root (v);
++  caml_register_global_root (v);
+ #if APACHE2
+   apr_pool_cleanup_register (p, v, remove_root_value, apr_pool_cleanup_null);
+ #else
+   ap_register_cleanup (p, v,
+-		       (void (*)(void *)) remove_global_root, ap_null_cleanup);
++		       (void (*)(void *)) caml_remove_global_root, ap_null_cleanup);
+ #endif
+   return v;
+ }
+@@ -249,7 +249,7 @@ static int name (request_rec *r)				\
+   if (f == NULL) f = caml_named_value("netcgi2_apache_" #name);	\
+   assert(f);							\
+   arg = Val_request_rec(r);					\
+-  rv = callback_exn(*f, arg);					\
++  rv = caml_callback_exn(*f, arg);					\
+   if (Is_exception_result(rv))					\
+     return exception_in_handler(Extract_exception(rv), __func__); \
+   return(Int_val(rv));                                          \
+@@ -278,7 +278,7 @@ name (cmd_parms *parms, void *dummy, const char *strarg)               \
+   value arg = copy_string (strarg);                                    \
+   value exn;                                                           \
+   if (f == NULL) f = caml_named_value("netcgi2_apache_" #name);        \
+-  exn = callback_exn(*f, arg);                                         \
++  exn = caml_callback_exn(*f, arg);                                         \
+   if (Is_exception_result (exn))                                       \
+     /* FIXME: ap_pstrdup into pool? */                                 \
+     return caml_format_exception (Extract_exception (exn));            \
+diff --git a/src/netsys/netsys_c_fadvise.c b/src/netsys/netsys_c_fadvise.c
+index da465e0..0d0a270 100644
+--- a/src/netsys/netsys_c_fadvise.c
++++ b/src/netsys/netsys_c_fadvise.c
+@@ -42,9 +42,9 @@ CAMLprim value netsys_fadvise(value fd, value start, value len, value adv) {
+     len_int = Int64_val(len);
+ 
+     if ( ((int64_t) ((off_t) start_int)) != start_int )
+-	failwith("Netsys.fadvise: large files not supported on this OS");
++	caml_failwith("Netsys.fadvise: large files not supported on this OS");
+     if ( ((int64_t) ((off_t) len_int)) != len_int )
+-	failwith("Netsys.fadvise: large files not supported on this OS");
++	caml_failwith("Netsys.fadvise: large files not supported on this OS");
+ 
+     start_off = start_int;
+     len_off = len_int;
+-- 
+2.45.2
+

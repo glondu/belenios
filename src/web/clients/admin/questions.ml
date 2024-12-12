@@ -167,20 +167,20 @@ let gen_to_q q =
         | `Schulze ->
             Some
               (`Assoc
-                [
-                  ("type", `String "PreferentialVoting");
-                  ("blank", `Bool q.blank);
-                  ("method", `String "Schulze");
-                ])
+                 [
+                   ("type", `String "PreferentialVoting");
+                   ("blank", `Bool q.blank);
+                   ("method", `String "Schulze");
+                 ])
         | `STV ->
             Some
               (`Assoc
-                [
-                  ("type", `String "PreferentialVoting");
-                  ("blank", `Bool q.blank);
-                  ("seats", `Int q.seats);
-                  ("method", `String "STV");
-                ])
+                 [
+                   ("type", `String "PreferentialVoting");
+                   ("blank", `Bool q.blank);
+                   ("seats", `Int q.seats);
+                   ("method", `String "STV");
+                 ])
         | _ -> None
       in
       Non_homomorphic.make
@@ -190,15 +190,15 @@ let gen_to_q q =
       let extra =
         Some
           (`Assoc
-            [
-              ("type", `String "ScoreVoting");
-              ("blank", `Bool q.blank);
-              ("method", `String "MajorityJudgment");
-              ( "grades",
-                `List
-                  (q.grade_names |> Array.to_list
-                  |> List.map (fun x -> `String x)) );
-            ])
+             [
+               ("type", `String "ScoreVoting");
+               ("blank", `Bool q.blank);
+               ("method", `String "MajorityJudgment");
+               ( "grades",
+                 `List
+                   (q.grade_names |> Array.to_list
+                   |> List.map (fun x -> `String x)) );
+             ])
       in
       Non_homomorphic.make
         ~value:{ q_question = q.question; q_answers = q.answers }

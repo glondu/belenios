@@ -99,7 +99,7 @@ let format_password_email (x : password_email) =
   let* subject =
     let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd x.langs) in
     let open (val l) in
-    Printf.kprintf return (f_ "Your password for election %s") x.title
+    Printf.ksprintf return (f_ "Your password for election %s") x.title
   in
   Lwt.return (subject, body)
 

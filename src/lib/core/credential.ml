@@ -120,7 +120,10 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
   let ( let* ) = E.bind
 
   let derive_full seed =
-    let output_length = 128 (* 512 bits *) in
+    let output_length =
+      128
+      (* 512 bits *)
+    in
     (* TODO: get rid of uuid in the following line (when the formal proof is done) *)
     let prefix = Printf.sprintf "derive_credential|%s" (Uuid.unwrap E.uuid) in
     let b = Buffer.create output_length in

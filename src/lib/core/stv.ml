@@ -22,9 +22,9 @@
 open Serializable_t
 open Common
 
-(** Transform a ballot in belenios format (e.g. [4,1,2,5,3]) into a
-   list of choices (represented as their index in the vector) in
-   preference order (e.g. [1,2,4,0,3]) *)
+(** Transform a ballot in belenios format (e.g. [4,1,2,5,3]) into a list of
+    choices (represented as their index in the vector) in preference order (e.g.
+    [1,2,4,0,3]) *)
 let process ballot =
   let nchoices = Array.length ballot in
   let used = Array.make nchoices false in
@@ -50,10 +50,10 @@ let process ballot =
   in
   if check 0 then Some preference_list else None
 
-(** Here, [choices] is a map from choices to ballots that has them as
-   first choice. This function updates [choices] with a new ballot: it
-   assigns the ballot to its first choice, and makes sure all other
-   choices also exist in [choices]. *)
+(** Here, [choices] is a map from choices to ballots that has them as first
+    choice. This function updates [choices] with a new ballot: it assigns the
+    ballot to its first choice, and makes sure all other choices also exist in
+    [choices]. *)
 let assign choices ((_, ballot) as b) =
   let prepend ballots choices x =
     match IMap.find_opt x choices with
@@ -64,10 +64,9 @@ let assign choices ((_, ballot) as b) =
   | [] -> choices
   | x :: xs -> List.fold_left (prepend []) (prepend [ b ] choices x) xs
 
-(** Here, [scores] is an association list mapping from choices to
-   ballots and total score. This function collects all the ballots,
-   filters out [i] from them, and multiplies [i]'s ballots by
-   [coef]. *)
+(** Here, [scores] is an association list mapping from choices to ballots and
+    total score. This function collects all the ballots, filters out [i] from
+    them, and multiplies [i]'s ballots by [coef]. *)
 let transfer coef i scores =
   List.fold_left
     (fun accu (ai, (ab, _)) ->
@@ -79,10 +78,10 @@ let transfer coef i scores =
         accu ab)
     [] scores
 
-(** This function performs a round of the STV algorithm. It
-   tail-recursively calls itself until [nseats] is [0] or there is not
-   enough remaining choices, and returns the list of events
-   (Win|Lose|TieWin|TieLose) that occured during the process. *)
+(** This function performs a round of the STV algorithm. It tail-recursively
+    calls itself until [nseats] is [0] or there is not enough remaining choices,
+    and returns the list of events (Win|Lose|TieWin|TieLose) that occured during
+    the process. *)
 let rec run quota ballots events nseats =
   if nseats > 0 then
     let choices = List.fold_left assign IMap.empty ballots in

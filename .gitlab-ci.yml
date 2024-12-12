@@ -3,7 +3,7 @@ stages:
 
 ocamlformat:
   stage: test
-  image: glondu/beleniosbase:20240913-1
+  image: glondu/beleniosbase:20241212-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -13,7 +13,7 @@ ocamlformat:
 basic_tests:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase:20240913-1
+  image: glondu/beleniosbase:20241212-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -53,7 +53,7 @@ opam-bootstrap:
 scenarios:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase-tests:20240913-1
+  image: glondu/beleniosbase-tests:20241212-1
   script:
     # Initialize environment
     - source ~/env.sh

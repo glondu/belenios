@@ -19,9 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** A module for computing the Schulze method using both winning and
-   losing votes (losing votes are purely secondary in the
-   ordering). *)
+(** A module for computing the Schulze method using both winning and losing
+    votes (losing votes are purely secondary in the ordering). *)
 
 (* References:
    For the theory, see
@@ -54,8 +53,8 @@ module Beat = struct
   let max x y = if compare x y > 0 then x else y
 end
 
-(** [compute_raw n ballots] computes the raw preference matrix [m],
-   where [m.(i).(j)] is the number of ballots where [i] beats [j]. *)
+(** [compute_raw n ballots] computes the raw preference matrix [m], where
+    [m.(i).(j)] is the number of ballots where [i] beats [j]. *)
 let compute_raw nchoices ballots =
   let result = Array.make_matrix nchoices nchoices 0 in
   List.iter
@@ -82,14 +81,13 @@ let compute_raw nchoices ballots =
    beatpaths from A to B is stronger than the max of all the beatpaths
    from B to A, then A is ranked above B. *)
 
-(** [compute_initial_matrix m] returns a matrix which is the initial
-   starting point for the Floyd-Warshall algorithm.  Input [m] is a
-   reference to an n-by-n matrix.  For any given pair of elements ij
-   and ji in [m], at most one is initialized to something other than
-   (0,0): the one that contains a larger value in [m]. That element is
-   initialized to a pair containing the larger and the smaller of the
-   two values.  Thus, diagonal elements are initialized to (0,0); if
-   m_ij=m_ji, both are initialized to (0,0).  *)
+(** [compute_initial_matrix m] returns a matrix which is the initial starting
+    point for the Floyd-Warshall algorithm. Input [m] is a reference to an
+    n-by-n matrix. For any given pair of elements ij and ji in [m], at most one
+    is initialized to something other than (0,0): the one that contains a larger
+    value in [m]. That element is initialized to a pair containing the larger
+    and the smaller of the two values. Thus, diagonal elements are initialized
+    to (0,0); if m_ij=m_ji, both are initialized to (0,0). *)
 let compute_initial_matrix m =
   let n = Array.length m in
   let r = Array.make_matrix n n (0, 0) in
@@ -101,14 +99,14 @@ let compute_initial_matrix m =
   done;
   r
 
-(** [transitive_closure m] computes the transitive (beatpath) closure
-   of the square matrix referenced by $m.  Result is destructively
-   returned in $m itself.
+(** [transitive_closure m] computes the transitive (beatpath) closure of the
+    square matrix referenced by $m. Result is destructively returned in $m
+    itself.
 
- Implementation: Computes the transitive closure with ratings, using
-   the Floyd-Warshall algorithm, but with min = max, + = min.  This
-   gives the necessary commutative semiring. Run time is O(n^3).  A
-   classic of dynamic programming.  *)
+    Implementation: Computes the transitive closure with ratings, using the
+    Floyd-Warshall algorithm, but with min = max, + = min. This gives the
+    necessary commutative semiring. Run time is O(n^3). A classic of dynamic
+    programming. *)
 let compute_transitive_closure m =
   let n = Array.length m in
   for k = 0 to n - 1 do
@@ -120,11 +118,10 @@ let compute_transitive_closure m =
     done
   done
 
-(** [winner m ignore] returns the winners, according to the transitive
-   beatpath closure in [m]. These are the choices that are
-   unbeaten. Choices whose corresponding entry in [ignore] is [true]
-   are ignored, others are considered both as possible winners and as
-   beaters.  *)
+(** [winner m ignore] returns the winners, according to the transitive beatpath
+    closure in [m]. These are the choices that are unbeaten. Choices whose
+    corresponding entry in [ignore] is [true] are ignored, others are considered
+    both as possible winners and as beaters. *)
 let compute_winners m ignore =
   let n = Array.length m in
   let winners = ref [] in
@@ -143,8 +140,8 @@ let compute_winners m ignore =
   done;
   List.rev !winners
 
-(** [rank_candidates raw] ranks the choices using the raw information
-   in [raw], according to the beatpath winner criterion. *)
+(** [rank_candidates raw] ranks the choices using the raw information in [raw],
+    according to the beatpath winner criterion. *)
 let rank_candidates raw =
   let n = Array.length raw in
   let beatpaths = compute_initial_matrix raw in
