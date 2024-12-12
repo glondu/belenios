@@ -1,0 +1,21 @@
+From: Hilko Bengen <bengen@debian.org>
+Date: Fri, 14 Aug 2015 21:36:27 +0200
+Subject: Do not mark ml2c_lc as inline due to changed semantics in GCC 5
+
+---
+ src/lib/gettext-stub/gettextStubCompat_stubs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lib/gettext-stub/gettextStubCompat_stubs.c b/src/lib/gettext-stub/gettextStubCompat_stubs.c
+index fc10be1..2c6cb29 100644
+--- a/src/lib/gettext-stub/gettextStubCompat_stubs.c
++++ b/src/lib/gettext-stub/gettextStubCompat_stubs.c
+@@ -55,7 +55,7 @@ int ml2c_lc_tab[7] = {
+   LC_ALL
+ };
+ 
+-inline int ml2c_lc(value v)
++int ml2c_lc(value v)
+ {
+   return ml2c_lc_tab[Int_val(v)];
+ }

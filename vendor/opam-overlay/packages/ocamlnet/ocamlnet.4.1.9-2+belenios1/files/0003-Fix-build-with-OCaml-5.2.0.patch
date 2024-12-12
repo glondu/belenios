@@ -1,0 +1,630 @@
+From eb4a036ee7877da256358355226fd6298032e533 Mon Sep 17 00:00:00 2001
+From: Stephane Glondu <steph@glondu.net>
+Date: Mon, 17 Jun 2024 15:59:03 +0200
+Subject: [PATCH 3/3] Fix build with OCaml 5.2.0
+
+---
+ configure                                  |  10 +-
+ src/netcgi2-apache/apache.c                | 134 ++++++++++-----------
+ src/netcgi2-apache/handler.c               |  34 +++---
+ src/netcgi2-apache/netcgi_apache_mod.ml.in |   5 +-
+ src/netcgi2-apache/wrappers.c              |   6 +-
+ src/netsys/netsys_c.h                      |   2 +-
+ 6 files changed, 93 insertions(+), 98 deletions(-)
+
+diff --git a/configure b/configure
+index 24f10e6..5e23a4a 100755
+--- a/configure
++++ b/configure
+@@ -615,7 +615,7 @@ fi
+ ######################################################################
+ 
+ printf "Checking for immutable strings... "
+-if ocamlc -safe-string >/dev/null 2>/dev/null; then
++if true || ocamlc -safe-string >/dev/null 2>/dev/null; then
+     istring=1
+     echo "yes"
+ else
+@@ -1098,11 +1098,7 @@ if [ $enable_apache -gt 0 ]; then
+ may prevent the build\n    of the apache module on platforms \
+ where PIC code differs from non-PIC\n    such as x86_64, hppa,..."
+ 	fi
+-	# at some point libstr.a was renamed to libcamlstr.a
+-	libstr="str"
+-	if [ -f "$apache_ocamllibdir/libcamlstr.a" ]; then
+-	    libstr="camlstr"
+-	fi
++	libstr="camlstr"
+     else
+ 	enable_apache=0
+ 	echo "apxs or apache not found"
+@@ -1307,7 +1303,7 @@ GTK_EXTRA_DEFINES = $gtk2_io_add_watch_supports_lists
+ # For -enable-apache
+ APACHE_MAJOR = $apache_major
+ APACHE_LIBDIR = $apache_libdir
+-APACHE_OCAMLLIBS = -l$apache_camlrun -ltermcap -lunix -l$libstr
++APACHE_OCAMLLIBS = -l$apache_camlrun -ltermcap -lunixbyt -l${libstr}byt
+ APACHE_INCDIR = $apache_incdir
+ APACHE_CONFDIR = $apache_confdir
+ APACHE_LDFLAGS_SHLIB = $apache_ldflags_shlib
+diff --git a/src/netcgi2-apache/apache.c b/src/netcgi2-apache/apache.c
+index 5e21c45..1718215 100644
+--- a/src/netcgi2-apache/apache.c
++++ b/src/netcgi2-apache/apache.c
+@@ -78,9 +78,9 @@ netcgi2_apache_table_get (value tv, value str)
+   table *t = Table_val (tv);
+   const char *res = apr_table_get(t, String_val (str));
+   if (res)
+-    CAMLreturn (copy_string (res));
++    CAMLreturn (caml_copy_string (res));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ static int
+@@ -88,8 +88,8 @@ netcgi2_apache_table_get_loop(void *res, const char *key, const char *val)
+ {
+   CAMLparam0();
+   CAMLlocal1(cons); /* head cell of new list */
+-  cons = alloc(2, 0); /* :: */
+-  Store_field(cons, 0, copy_string(val)); /* value :: */
++  cons = caml_alloc(2, 0); /* :: */
++  Store_field(cons, 0, caml_copy_string(val)); /* value :: */
+   Store_field(cons, 1, *((value *) res)); /* :: previous list */
+   *((value *) res) = cons;
+   CAMLreturn(1);
+@@ -101,7 +101,7 @@ netcgi2_apache_table_get_all(value tv, value str)
+   CAMLparam2(tv, str);
+   CAMLlocal1(res); /* list */
+   table *t = Table_val(tv);
+-  char *key = String_val(str);
++  char *key = Bytes_val(str);
+   res = Val_int(0); /* empty list [] */
+ 
+   /* Only iterates over values associated with [key]. */
+@@ -116,11 +116,11 @@ netcgi2_apache_table_fields_loop(void *res, const char *key, const char *val)
+ {
+   CAMLparam0();
+   CAMLlocal2(cons, pair);
+-  pair = alloc_tuple(2); /* (,) */
+-  Store_field(pair, 0, copy_string(key));
+-  Store_field(pair, 1, copy_string(val));
++  pair = caml_alloc_tuple(2); /* (,) */
++  Store_field(pair, 0, caml_copy_string(key));
++  Store_field(pair, 1, caml_copy_string(val));
+ /*   fprintf(stderr, "(%s, %s)\n", key, val); /\* DEBUG *\/ */
+-  cons = alloc(2, 0); /* :: */
++  cons = caml_alloc(2, 0); /* :: */
+   Store_field(cons, 0, pair); /* pair :: */
+   Store_field(cons, 1, *((value *) res)); /* :: list */
+   *((value *) res) = cons;
+@@ -176,9 +176,9 @@ netcgi2_apache_server_hostname (value sv)
+   CAMLparam1(sv);
+   server_rec *s = Server_rec_val(sv);
+   if (s->server_hostname)
+-    CAMLreturn(copy_string(s->server_hostname));
++    CAMLreturn(caml_copy_string(s->server_hostname));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -187,9 +187,9 @@ netcgi2_apache_server_admin(value sv)
+   CAMLparam1(sv);
+   server_rec *s = Server_rec_val(sv);
+   if (s->server_admin)
+-    CAMLreturn(copy_string(s->server_admin));
++    CAMLreturn(caml_copy_string(s->server_admin));
+   else
+-    raise_not_found();
++    caml_raise_not_found();
+ }
+ 
+ CAMLprim value
+@@ -209,9 +209,9 @@ netcgi2_apache_connection_ ## suffix (value cv)        \
+   CAMLparam1 (cv);                              \
+   conn_rec *c = Conn_rec_val (cv);              \
+   if (c->field)                                 \
+-    CAMLreturn (copy_string (c->field));        \
++    CAMLreturn (caml_copy_string (c->field));        \
+   else                                          \
+-    raise_not_found ();                         \
++    caml_raise_not_found ();                         \
+ }
+ 
+ #if AP_SERVER_MAJORVERSION_NUMBER == 1
+@@ -258,7 +258,7 @@ netcgi2_apache_request_next (value rv)
+   if (rr)
+     CAMLreturn (Val_request_rec (rr));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -269,7 +269,7 @@ netcgi2_apache_request_prev (value rv)
+   if (rr)
+     CAMLreturn (Val_request_rec (rr));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -280,7 +280,7 @@ netcgi2_apache_request_main (value rv)
+   if (rr)
+     CAMLreturn (Val_request_rec (rr));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -289,9 +289,9 @@ netcgi2_apache_request_the_request (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->the_request)
+-    CAMLreturn (copy_string (r->the_request));
++    CAMLreturn (caml_copy_string (r->the_request));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -316,9 +316,9 @@ netcgi2_apache_request_protocol (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->protocol)
+-    CAMLreturn (copy_string (r->protocol));
++    CAMLreturn (caml_copy_string (r->protocol));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -335,9 +335,9 @@ netcgi2_apache_request_hostname (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->hostname)
+-    CAMLreturn (copy_string (r->hostname));
++    CAMLreturn (caml_copy_string (r->hostname));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -345,7 +345,7 @@ netcgi2_apache_request_request_time (value rv)
+ {
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+-  CAMLreturn (copy_double ((double) r->request_time));
++  CAMLreturn (caml_copy_double ((double) r->request_time));
+ }
+ 
+ CAMLprim value
+@@ -354,9 +354,9 @@ netcgi2_apache_request_status_line (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->status_line)
+-    CAMLreturn (copy_string (r->status_line));
++    CAMLreturn (caml_copy_string (r->status_line));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -390,7 +390,7 @@ netcgi2_apache_request_method (value rv)
+ {
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+-  CAMLreturn (copy_string (r->method));
++  CAMLreturn (caml_copy_string (r->method));
+ }
+ 
+ CAMLprim value
+@@ -447,9 +447,9 @@ netcgi2_apache_request_content_type (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->content_type)
+-    CAMLreturn (copy_string (r->content_type));
++    CAMLreturn (caml_copy_string (r->content_type));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -468,13 +468,13 @@ netcgi2_apache_request_user (value rv)
+   request_rec *r = Request_rec_val (rv);
+ #if APACHE2
+   if (r->user)
+-    CAMLreturn (copy_string (r->user));
++    CAMLreturn (caml_copy_string (r->user));
+ #else
+   if (r->connection->user)
+-    CAMLreturn (copy_string (r->connection->user));
++    CAMLreturn (caml_copy_string (r->connection->user));
+ #endif
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -483,9 +483,9 @@ netcgi2_apache_request_uri (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->uri)
+-    CAMLreturn (copy_string (r->uri));
++    CAMLreturn (caml_copy_string (r->uri));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -513,9 +513,9 @@ netcgi2_apache_request_filename (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->filename)
+-    CAMLreturn (copy_string (r->filename));
++    CAMLreturn (caml_copy_string (r->filename));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -533,9 +533,9 @@ netcgi2_apache_request_path_info (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->path_info)
+-    CAMLreturn (copy_string (r->path_info));
++    CAMLreturn (caml_copy_string (r->path_info));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -553,9 +553,9 @@ netcgi2_apache_request_args (value rv)
+   CAMLparam1 (rv);
+   request_rec *r = Request_rec_val (rv);
+   if (r->args)
+-    CAMLreturn (copy_string (r->args));
++    CAMLreturn (caml_copy_string (r->args));
+   else
+-    raise_not_found ();
++    caml_raise_not_found ();
+ }
+ 
+ CAMLprim value
+@@ -595,16 +595,16 @@ CAMLprim value netcgi2_apache_request_finfo (value rv)
+   if (r->finfo.filetype != APR_NOFILE) /* Some statbuf */
+     {
+       atime = (r->finfo.valid & APR_FINFO_ATIME) ?
+-	copy_double ((double) apr_time_sec (r->finfo.atime)) :
+-	copy_double (0.);
++	caml_copy_double ((double) apr_time_sec (r->finfo.atime)) :
++	caml_copy_double (0.);
+       mtime = (r->finfo.valid & APR_FINFO_MTIME) ?
+-	copy_double ((double) apr_time_sec (r->finfo.mtime)) :
+-	copy_double (0.);
++	caml_copy_double ((double) apr_time_sec (r->finfo.mtime)) :
++	caml_copy_double (0.);
+       ctime = (r->finfo.valid & APR_FINFO_CTIME) ?
+-	copy_double ((double) apr_time_sec (r->finfo.ctime)) :
+-	copy_double (0.);
++	caml_copy_double ((double) apr_time_sec (r->finfo.ctime)) :
++	caml_copy_double (0.);
+ 
+-      sb = alloc_small (12, 0);
++      sb = caml_alloc_small (12, 0);
+       Field (sb, 0) = Val_int (r->finfo.device);
+       Field (sb, 1) = Val_int (r->finfo.inode);
+       Field (sb, 2) =
+@@ -621,7 +621,7 @@ CAMLprim value netcgi2_apache_request_finfo (value rv)
+       Field (sb, 10) = mtime;
+       Field (sb, 11) = ctime;
+ 
+-      v = alloc (1, 0);		/* The "Some" block. */
++      v = caml_alloc (1, 0);		/* The "Some" block. */
+       Field (v, 0) = sb;
+     }
+ else
+@@ -632,11 +632,11 @@ else
+   if (r->finfo.st_mode)		/* Some statbuf */
+     {
+       /* This code copied and modified from otherlibs/unix/stat.c. */
+-      atime = copy_double ((double) r->finfo.st_atime);
+-      mtime = copy_double ((double) r->finfo.st_mtime);
+-      ctime = copy_double ((double) r->finfo.st_ctime);
++      atime = caml_copy_double ((double) r->finfo.st_atime);
++      mtime = caml_copy_double ((double) r->finfo.st_mtime);
++      ctime = caml_copy_double ((double) r->finfo.st_ctime);
+ 
+-      sb = alloc_small (12, 0);
++      sb = caml_alloc_small (12, 0);
+       Field (sb, 0) = Val_int (r->finfo.st_dev);
+       Field (sb, 1) = Val_int (r->finfo.st_ino);
+       Field (sb, 2) =
+@@ -652,7 +652,7 @@ else
+       Field (sb, 10) = mtime;
+       Field (sb, 11) = ctime;
+ 
+-      v = alloc (1, 0);		/* The "Some" block. */
++      v = caml_alloc (1, 0);		/* The "Some" block. */
+       Field (v, 0) = sb;
+     }
+   else
+@@ -718,8 +718,8 @@ netcgi2_apache_request_get_client_block (value rv)
+     caml_failwith("ap_get_client_block");
+   }
+ 
+-  str = alloc_string (i);
+-  memcpy (String_val (str), buffer, i);
++  str = caml_alloc_string (i);
++  memcpy (Bytes_val (str), buffer, i);
+ 
+   CAMLreturn (str);
+ }
+@@ -734,7 +734,7 @@ netcgi2_apache_request_get_client_block_buffered(value rv, value bufv,
+   int len = Int_val(lenv);
+   int i;
+ 
+-  i = ap_get_client_block (r, String_val(bufv) + ofs, len);
++  i = ap_get_client_block (r, Bytes_val(bufv) + ofs, len);
+   /* Error dealt with on the Caml side. */
+   CAMLreturn(Val_int(i));
+ }
+@@ -755,13 +755,13 @@ CAMLprim value netcgi2_apache_auth_type(value rv)
+   request_rec *r = Request_rec_val(rv);
+ #if APACHE2
+   if (r->ap_auth_type)
+-    CAMLreturn(copy_string(r->ap_auth_type));
++    CAMLreturn(caml_copy_string(r->ap_auth_type));
+ #else
+   if (r->connection->ap_auth_type)
+-    CAMLreturn(copy_string(r->connection->ap_auth_type));
++    CAMLreturn(caml_copy_string(r->connection->ap_auth_type));
+ #endif
+   else
+-    raise_not_found();
++    caml_raise_not_found();
+ }
+ 
+ 
+@@ -803,7 +803,7 @@ netcgi2_apache_request_get_basic_auth_pw (value rv)
+   /* Return [i] as the first component of a couple so we can deal with
+    * the possible errors on the Caml side. */
+   if (i == DECLINED) pw = NULL;	/* FIXME */
+-  c = alloc_tuple (2);
++  c = caml_alloc_tuple (2);
+   Store_field(c, 0, Val_int(i));
+   Store_field(c, 1, Val_optstring(pw));
+   CAMLreturn (c);
+@@ -834,7 +834,7 @@ netcgi2_apache_request_print_char (value rv, value cv)
+   request_rec *r = Request_rec_val (rv);
+   int c = Int_val (cv);
+   if (ap_rputc (c, r) == EOF)
+-    raise_sys_error(copy_string("Netcgi_mod#out_channel#output_char"));
++    caml_raise_sys_error(caml_copy_string("Netcgi_mod#out_channel#output_char"));
+   CAMLreturn (Val_unit);
+ }
+ 
+@@ -855,8 +855,8 @@ run_cleanup (void *fv)
+ {
+   value f = *(value *) fv;
+ 
+-  callback (f, Val_unit);
+-  remove_global_root ((value *) fv);
++  caml_callback (f, Val_unit);
++  caml_remove_global_root ((value *) fv);
+   return OK;
+ }
+ 
+@@ -868,7 +868,7 @@ netcgi2_apache_request_register_cleanup (value rv, value f)
+   value *v = (value *) apr_palloc (r->pool, sizeof (value));
+ 
+   *v = f;
+-  register_global_root (v);
++  caml_register_global_root (v);
+ 
+ #if APACHE2
+   apr_pool_cleanup_register (r->pool, v, run_cleanup, apr_pool_cleanup_null);
+@@ -894,7 +894,7 @@ netcgi2_apache_get_server_config (value rv)
+     else goto not_found;
+   } else
+   not_found:
+-    raise_not_found ();
++    caml_raise_not_found ();
+   CAMLreturn (config);
+ }
+ 
+@@ -910,6 +910,6 @@ netcgi2_apache_get_dir_config (value rv)
+     else goto not_found;
+   } else
+   not_found:
+-    raise_not_found ();
++    caml_raise_not_found ();
+   CAMLreturn (config);
+ }
+diff --git a/src/netcgi2-apache/handler.c b/src/netcgi2-apache/handler.c
+index cf2384d..f1561fa 100644
+--- a/src/netcgi2-apache/handler.c
++++ b/src/netcgi2-apache/handler.c
+@@ -177,10 +177,10 @@ static void * create_dir_config (apr_pool_t *p, char *dirname)
+ {
+   value arg = Val_optstring (dirname);
+   value *v = alloc_root_value (p);
+-  static value *f = NULL;
++  static const value *f = NULL;
+ 
+   if(f == NULL) f = caml_named_value("netcgi2_apache_create_dir_config");
+-  *v = callback(*f, arg);
++  *v = caml_callback(*f, arg);
+   return v;
+ }
+ 
+@@ -188,10 +188,10 @@ static void *
+ merge_dir_config (apr_pool_t *p, void *base, void *add)
+ {
+   value *v = alloc_root_value (p);
+-  static value *f = NULL;
++  static const value *f = NULL;
+ 
+   if(f == NULL) f = caml_named_value("netcgi2_apache_merge_dir_config");
+-  *v = callback2(*f, *(value *) base, *(value *) add);
++  *v = caml_callback2(*f, *(value *) base, *(value *) add);
+   return v;
+ }
+ 
+@@ -200,10 +200,10 @@ create_server_config (apr_pool_t *p, server_rec *s)
+ {
+   value arg = Val_server_rec (s);
+   value *v = alloc_root_value (p);
+-  static value *f = NULL;
++  static const value *f = NULL;
+ 
+   if(f == NULL) f = caml_named_value("netcgi2_apache_create_server_config");
+-  *v = callback(*f, arg);
++  *v = caml_callback(*f, arg);
+   return v;
+ }
+ 
+@@ -211,10 +211,10 @@ static void *
+ merge_server_config (apr_pool_t *p, void *base, void *add)
+ {
+   value *v = alloc_root_value (p);
+-  static value *f = NULL;
++  static const value *f = NULL;
+ 
+   if(f == NULL) f = caml_named_value("netcgi2_apache_merge_server_config");
+-  *v = callback2(*f, *(value *) base, *(value *) add);
++  *v = caml_callback2(*f, *(value *) base, *(value *) add);
+   return v;
+ }
+ 
+@@ -244,7 +244,7 @@ static int exception_in_handler (value exn, const char *function_name)
+ #define MAKE_HANDLER(name)					\
+ static int name (request_rec *r)				\
+ {								\
+-  static value *f = NULL;					\
++  static const value *f = NULL;					\
+   value rv, arg;						\
+   if (f == NULL) f = caml_named_value("netcgi2_apache_" #name);	\
+   assert(f);							\
+@@ -274,8 +274,8 @@ MAKE_HANDLER(ocaml_bytecode_handler)
+ static const char *                                                    \
+ name (cmd_parms *parms, void *dummy, const char *strarg)               \
+ {                                                                      \
+-  static value *f = NULL;                                              \
+-  value arg = copy_string (strarg);                                    \
++  static const value *f = NULL;                                              \
++  value arg = caml_copy_string (strarg);                                    \
+   value exn;                                                           \
+   if (f == NULL) f = caml_named_value("netcgi2_apache_" #name);        \
+   exn = caml_callback_exn(*f, arg);                                         \
+@@ -296,11 +296,11 @@ cmd_translate_handler (cmd_parms *parms, void *dummy, const char *name)
+ {
+   value *sconfig = (value *)
+     ap_get_module_config (parms->server->module_config, &netcgi_module);
+-  static value *f = NULL;
+-  value arg = copy_string(name);
++  static const value *f = NULL;
++  value arg = caml_copy_string(name);
+   value exn;
+   if (f == NULL) f = caml_named_value("netcgi2_apache_cmd_translate_handler");
+-  exn = callback2_exn(*f, *sconfig, arg);
++  exn = caml_callback2_exn(*f, *sconfig, arg);
+   if (Is_exception_result (exn))
+     /* FIXME: ap_pstrdup into pool? */
+     return caml_format_exception (Extract_exception (exn));
+@@ -312,11 +312,11 @@ cmd_translate_handler (cmd_parms *parms, void *dummy, const char *name)
+ static const char *						\
+ name (cmd_parms *parms, void *dconfig, const char *name)	\
+ {								\
+-  value *f = NULL;						\
+-  value arg = copy_string(name);				\
++  const value *f = NULL;						\
++  value arg = caml_copy_string(name);				\
+   value exn;							\
+   if (f == NULL) f = caml_named_value("netcgi2_apache_" #name);	\
+-  exn = callback2_exn(*f, *(value *) dconfig, arg);		\
++  exn = caml_callback2_exn(*f, *(value *) dconfig, arg);		\
+   if (Is_exception_result (exn))				\
+     /* FIXME: ap_pstrdup into pool? */				\
+     return caml_format_exception (Extract_exception (exn));	\
+diff --git a/src/netcgi2-apache/netcgi_apache_mod.ml.in b/src/netcgi2-apache/netcgi_apache_mod.ml.in
+index 026a05a..607ce0d 100644
+--- a/src/netcgi2-apache/netcgi_apache_mod.ml.in
++++ b/src/netcgi2-apache/netcgi_apache_mod.ml.in
+@@ -462,7 +462,7 @@ struct
+       if Filename.is_relative filename then
+         Filename.concat Conf.ocaml_libdir filename
+       else filename in
+-    reg_module_name := Some(String.capitalize(Filename.chop_extension
++    reg_module_name := Some(String.capitalize_ascii(Filename.chop_extension
+                                                (Filename.basename filename)));
+     try  Dynlink.loadfile filename;
+     with Dynlink.Error(e) ->
+@@ -520,7 +520,7 @@ struct
+ 		 (fun arch -> 
+ 		    let arch' = Findlib.resolve_path ~base:d arch in
+ 		    reg_module_name := 
+-		      Some(String.capitalize(Filename.chop_extension
++		      Some(String.capitalize_ascii(Filename.chop_extension
+ 					       (Filename.basename arch')));
+ 		    try Dynlink.loadfile arch';
+ 		    with Dynlink.Error(e) ->
+@@ -624,4 +624,3 @@ let _lazy_force_ = Lazy.force
+ let _lexing_lexeme_ = Lexing.lexeme
+ let _queue_create_ = Queue.create
+ let _stack_create_ = Stack.create
+-let _stream_sempty_ = Stream.sempty
+diff --git a/src/netcgi2-apache/wrappers.c b/src/netcgi2-apache/wrappers.c
+index 6df2483..25903f1 100644
+--- a/src/netcgi2-apache/wrappers.c
++++ b/src/netcgi2-apache/wrappers.c
+@@ -28,7 +28,7 @@
+ value
+ Val_voidptr (void *ptr)
+ {
+-  value rv = alloc (1, Abstract_tag); /* XXX Is this correct? */
++  value rv = caml_alloc (1, Abstract_tag); /* XXX Is this correct? */
+   Field(rv, 0) = (value) ptr;
+   return rv;
+ }
+@@ -40,8 +40,8 @@ Val_optstring (const char *str)
+     {
+       CAMLparam0();
+       CAMLlocal2(rv, s);
+-      s = copy_string (str);
+-      rv = alloc_small (1, 0);
++      s = caml_copy_string (str);
++      rv = caml_alloc_small (1, 0);
+       Field(rv, 0) = s;
+       CAMLreturn(rv);
+     }
+diff --git a/src/netsys/netsys_c.h b/src/netsys/netsys_c.h
+index cf6ff27..a98aa74 100644
+--- a/src/netsys/netsys_c.h
++++ b/src/netsys/netsys_c.h
+@@ -104,7 +104,7 @@
+ int caml_page_table_add(int kind, void * start, void * end);
+ int caml_page_table_remove(int kind, void * start, void * end);
+ 
+-#ifdef HAVE_NEW_MODIFY
++#if defined(HAVE_NEW_MODIFY) && OCAML_VERSION < 50000
+ 
+ /* need full memory.h support */
+ 
+-- 
+2.45.2
+
