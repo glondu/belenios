@@ -419,7 +419,7 @@ module Voter = struct
 
   let of_string x =
     match Serializable_core_j.voter_of_string x with
-    | exception _ -> wrap (`String x)
+    | exception _ -> wrap (`String (String.trim x))
     | o -> (`Json, o)
 
   let to_string ((typ, o) : t) =
