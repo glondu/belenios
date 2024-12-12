@@ -80,7 +80,7 @@ useradd belenios
 cp -a /build/deb /tmp
 chown belenios:belenios -R /tmp/deb
 cd /tmp/deb
-runuser -u belenios -- dpkg-buildpackage -b
+runuser -u belenios -- dpkg-buildpackage -b || bash
 EOF
 
 chmod +x *.sh
