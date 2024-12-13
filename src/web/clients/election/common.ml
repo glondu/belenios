@@ -44,7 +44,7 @@ let make_audit_footer election =
   let advanced = Printf.sprintf "#%s/advanced" uuid in
   let administer = !!(Printf.sprintf "admin#%s" uuid) in
   div
-    ~a:[ a_style "line-height:1.5em;" ]
+    ~a:[ a_id "audit-footer" ]
     [
       div
         [

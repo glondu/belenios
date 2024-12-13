@@ -99,7 +99,7 @@ struct
     let lang_box =
       match lang_box with
       | None -> txt ""
-      | Some x -> div [ x; div ~a:[ a_style "clear: both;" ] [] ]
+      | Some x -> div [ x; div ~a:[ a_class [ "separator--clear" ] ] [] ]
     in
     let maybe_static x =
       if static_page then Lwt.return @@ txt "" else read_snippet ~lang x
@@ -175,11 +175,7 @@ struct
          [
            form;
            div
-             ~a:
-               [
-                 a_style
-                   "font-size: 80%; font-style: italic; text-align: right;";
-               ]
+             ~a:[ a_class [ "contribute-to-translations" ] ]
              [
                txt "(";
                direct_a Belenios_ui.Links.translation
@@ -188,12 +184,11 @@ struct
              ];
          ]
 
-  let make_a_with_hash ~service ?hash ?style contents =
+  let make_a_with_hash ~service ?hash contents =
     let uri = Eliom_uri.make_string_uri ~service () in
     let uri = match hash with None -> uri | Some x -> uri ^ "#" ^ x in
     let href = [ a_href (Xml.uri_of_string uri) ] in
-    let style = match style with None -> [] | Some x -> [ a_style x ] in
-    Eliom_content.Html.F.Raw.a ~a:(href @ style) [ txt contents ]
+    Eliom_content.Html.F.Raw.a ~a:href [ txt contents ]
 
   let a_mailto ?(dest = "") ~subject ~body contents =
     let uri =
@@ -398,7 +393,7 @@ struct
                   ];
               ];
             div
-              ~a:[ a_style "text-align: center;" ]
+              ~a:[ a_class [ "container--center" ] ]
               [
                 (let value =
                    match site_or_election with
@@ -525,7 +520,7 @@ struct
           | BadCaptcha -> s_ "Bad security code!"
           | BadAddress -> s_ "Bad e-mail address!"
         in
-        div ~a:[ a_style "color: red;" ] [ txt msg ]
+        div ~a:[ a_class [ "status--failure" ] ] [ txt msg ]
 
   let login_email_captcha ~state error challenge email =
     let* l = get_preferred_gettext () in

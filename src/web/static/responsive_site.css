@@ -61,3 +61,33 @@ body {
   text-align: center;
   border-top: 1px solid black;
 }
+
+.container--center {
+    text-align: center;
+}
+
+.separator--clear {
+    clear: both;
+}
+
+.status--failure {
+    color: red;
+}
+
+#audit-footer {
+    line-height: 1.5em;
+}
+
+#start {
+    font-size: 35px;
+}
+
+#see-accepted-ballots {
+    font-size: 25px;
+}
+
+.contribute-to-translations {
+    font-size: 80%;
+    font-style: italic;
+    text-align: right;
+}

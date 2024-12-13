@@ -362,7 +362,7 @@ struct
           div
             [
               txt (s_ "The account creation ");
-              span ~a:[ a_style "color: red;" ] [ txt (s_ "failed") ];
+              span ~a:[ a_class [ "status--failure" ] ] [ txt (s_ "failed") ];
               txt (s_ " because ");
               txt msg;
               txt (s_ ". Please try again with a different one.");
@@ -413,7 +413,7 @@ struct
           div
             [
               txt (s_ "The change ");
-              span ~a:[ a_style "color: red;" ] [ txt (s_ "failed") ];
+              span ~a:[ a_class [ "status--failure" ] ] [ txt (s_ "failed") ];
               txt (s_ " because ");
               txt reason;
               txt (s_ ". Please try again with a different one.");

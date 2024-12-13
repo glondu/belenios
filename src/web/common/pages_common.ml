@@ -94,11 +94,7 @@ module Make (Base : BASE) = struct
          [
            form;
            div
-             ~a:
-               [
-                 a_style
-                   "font-size: 80%; font-style: italic; text-align: right;";
-               ]
+             ~a:[ a_class [ "contribute-to-translations" ] ]
              [
                txt "(";
                a

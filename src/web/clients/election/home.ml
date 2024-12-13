@@ -679,11 +679,11 @@ let home configuration ?credential uuid =
       let a =
         a_id "start" :: a_onclick handler
         :: a_class [ "nice-button"; "nice-button--blue" ]
-        :: a_style "font-size:35px;" :: disabled
+        :: disabled
       in
       Tyxml_js.Html.button ~a [ txt @@ s_ "Start" ]
     in
-    div ~a:[ a_style "text-align:center;" ] [ div [ button ] ]
+    div ~a:[ a_class [ "container--center" ] ] [ div [ button ] ]
   in
   let* middle =
     let* result = get_result uuid in
@@ -695,12 +695,12 @@ let home configuration ?credential uuid =
   let ballots_link =
     let href = Printf.sprintf "#%s/ballots" (Uuid.unwrap uuid) in
     p
-      ~a:[ a_style "text-align:center;" ]
+      ~a:[ a_class [ "container--center" ] ]
       [
         a ~href
           ~a:
             [
-              a_style "font-size:25px;";
+              a_id "see-accepted-ballots";
               a_class [ "nice-button"; "nice-button--grey" ];
             ]
           (s_ "See accepted ballots");

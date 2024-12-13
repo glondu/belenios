@@ -68,7 +68,6 @@ module type S = sig
         'f )
       Eliom_service.t ->
     ?hash:string ->
-    ?style:string ->
     string ->
     [> [> Html_types.txt ] Html_types.a ] Eliom_content.Html.elt
 
