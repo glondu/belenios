@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-20 06:40+0000\n"
-"PO-Revision-Date: 2024-11-10 17:00+0000\n"
+"PO-Revision-Date: 2024-12-19 20:52+0000\n"
 "Last-Translator: Mateusz Hołysz <kancelaria@holysz.com.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/belenios/voter/pl/"
 ">\n"
@@ -14,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.8.2\n"
+"X-Generator: Weblate 5.9.2-dev\n"
 
 #: src/web/server/common/pages_common.ml:342
 msgid " (if you forgot it, for example)."
@@ -190,9 +189,9 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Dane audytu: "
 
-#: src/web/server/common/pages_common.ml:475
 #. src/web/server/common/pages_common.ml:406
 #. src/web/server/common/pages_common.ml:314
+#: src/web/server/common/pages_common.ml:475
 msgid "Authenticate"
 msgstr "Uwierzytelnij"
 
@@ -282,14 +281,14 @@ msgstr "Administrator kodów głosowania"
 msgid "Credentials fingerprint"
 msgstr "Cyfrowy odcisk (hasz) kodów głosowania"
 
-#: src/web/server/common/pages_common.ml:484
 #. src/web/server/common/mails_voter.ml:416
+#: src/web/server/common/pages_common.ml:484
 msgid "Dear %s,"
 msgstr "Dzień dobry %s,"
 
-#: src/web/server/common/pages_common.ml:539
 #. src/web/server/common/pages_common.ml:349
 #. src/web/server/common/pages_common.ml:281
+#: src/web/server/common/pages_common.ml:539
 msgid "E-mail address:"
 msgstr "Adres e-mail:"
 
@@ -335,7 +334,7 @@ msgstr "Plik:"
 
 #: src/web/clients/election/home.ml:229
 msgid "Final fingerprint"
-msgstr ""
+msgstr "Definitywny, cyfrowy odcisk (hasz)"
 
 #: src/web/clients/election/home.ml:217
 msgid "Fingerprint of the encrypted tally"
@@ -349,8 +348,8 @@ msgstr "Zabronione"
 msgid "Get the source code"
 msgstr "Pobierz kod źródłowy"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:75
 #. src/web/common/pages_common.ml:262
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:75
 msgid "Go back to election"
 msgstr "Wróć do głosowania"
 
@@ -395,10 +394,10 @@ msgstr "Język:"
 msgid "Loading..."
 msgstr "Wczytuję..."
 
-#: src/web/server/common/pages_common.ml:474
 #. src/web/server/common/pages_common.ml:405
 #. src/web/server/common/pages_common.ml:313
 #. src/web/server/common/pages_common.ml:273
+#: src/web/server/common/pages_common.ml:474
 msgid "Log in"
 msgstr "Zaloguj się"
 
@@ -438,13 +437,13 @@ msgstr "Liczba oddanych kart do głosowania: "
 msgid "Number of voters"
 msgstr "Liczba uprawnionych do głosowania"
 
-#: src/web/server/common/mails_voter.ml:177
 #. src/web/server/common/mails_voter.ml:72
+#: src/web/server/common/mails_voter.ml:177
 msgid "Number of votes:"
 msgstr "Liczba głosów (waga głosu):"
 
-#: src/web/server/common/mails_voter.ml:184
 #. src/web/server/common/mails_voter.ml:83
+#: src/web/server/common/mails_voter.ml:184
 msgid "Only the last vote counts."
 msgstr "Uwaga: tylko ostatni głos się liczy i zostanie policzony."
 
@@ -452,8 +451,8 @@ msgstr "Uwaga: tylko ostatni głos się liczy i zostanie policzony."
 msgid "Page of the election:"
 msgstr "Strona głosowania:"
 
-#: src/web/server/common/pages_common.ml:385
 #. src/web/server/common/mails_voter.ml:65
+#: src/web/server/common/pages_common.ml:385
 msgid "Password:"
 msgstr "Hasło:"
 
@@ -493,9 +492,9 @@ msgstr "Poczekaj. Twoja karta do głosowania jest przetwarzana..."
 msgid "Powered by "
 msgstr "System oparty na "
 
-#: src/web/clients/election/advanced.ml:253
 #. src/web/server/common/pages_common.ml:226
 #. src/web/server/common/pages_common.ml:218
+#: src/web/clients/election/advanced.ml:253
 msgid "Proceed"
 msgstr "Kontynuuj"
 
@@ -542,10 +541,10 @@ msgstr ""
 msgid "Start"
 msgstr "Rozpocznij"
 
-#: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
 #. src/web/server/common/pages_common.ml:553
 #. src/web/server/common/pages_common.ml:467
+#: src/web/clients/election/advanced.ml:107
 msgid "Submit"
 msgstr "Prześlij"
 
@@ -660,10 +659,10 @@ msgstr "Niewspierany typ pytania (uchwały, decyzji)"
 msgid "Use the following code:"
 msgstr "Użyj kodu:"
 
-#: src/web/server/common/pages_common.ml:348
 #. src/web/server/common/pages_common.ml:280
 #. src/web/server/common/mails_voter.ml:167
 #. src/web/server/common/mails_voter.ml:61
+#: src/web/server/common/pages_common.ml:348
 msgid "Username:"
 msgstr "Nazwa użytkownika:"
 
@@ -703,8 +702,8 @@ msgstr "Chcesz pomóc w tłumaczeniu?"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "Zamierzasz przesłać kartę do głosowania nr %s."
 
-#: src/web/server/common/mails_voter.ml:183
 #. src/web/server/common/mails_voter.ml:82
+#: src/web/server/common/mails_voter.ml:183
 msgid "You are allowed to vote several times."
 msgstr "Możesz zagłosować wiele razy, ale tylko ostatni głos się liczy."
 
@@ -902,4 +901,3 @@ msgstr "Twój kod głosowania nie jest prawidłowy"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "błędna nazwa użytkownika"
-
