@@ -31,33 +31,33 @@ module Sender = struct
     gettext : (module Belenios_ui.I18n.GETTEXT);
   }
 
-  let send ~context ~address ~code =
+  let send ~context ~recipient ~code =
     match context.kind with
     | CreateAccount ->
         let subject, body =
-          Pages_admin.mail_confirmation_link context.gettext address code
+          Pages_admin.mail_confirmation_link context.gettext ~recipient code
         in
-        send_email MailAccountCreation ~recipient:address ~subject ~body
+        send_email MailAccountCreation ~recipient ~subject ~body
     | ChangePassword _ ->
         let subject, body =
-          Pages_admin.mail_changepw_link context.gettext address code
+          Pages_admin.mail_changepw_link context.gettext ~recipient code
         in
-        send_email MailPasswordChange ~recipient:address ~subject ~body
+        send_email MailPasswordChange ~recipient ~subject ~body
 end
 
 module Otp = Otp.Make (Sender) ()
 
-let send_confirmation_code gettext ~service address =
+let send_confirmation_code gettext ~service ~recipient =
   let kind = Web_state_sig.CreateAccount in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in
-  Otp.generate ~payload ~context ~address
+  Otp.generate ~payload ~context ~recipient
 
-let send_changepw_code gettext ~service ~address ~username =
-  let kind = Web_state_sig.ChangePassword { username } in
+let send_changepw_code gettext ~service ~recipient =
+  let kind = Web_state_sig.ChangePassword { username = fst recipient } in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in
-  Otp.generate ~payload ~context ~address
+  Otp.generate ~payload ~context ~recipient
 
 let confirm_code = Otp.check
 

@@ -87,7 +87,11 @@ type mail_kind =
   | MailSetEmail
 
 val send_email :
-  mail_kind -> recipient:string -> subject:string -> body:string -> unit Lwt.t
+  mail_kind ->
+  recipient:string * string ->
+  subject:string ->
+  body:string ->
+  unit Lwt.t
 
 val get_languages : string list option -> string list
 val string_of_languages : string list option -> string

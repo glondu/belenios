@@ -471,12 +471,12 @@ struct
     in
     base ~title ~content ()
 
-  let email_email ~address ~code =
+  let email_email ~recipient ~code =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open Belenios_ui.Mail_formatter in
     let b = create () in
-    add_sentence b (Printf.sprintf (f_ "Dear %s,") address);
+    add_sentence b (Printf.sprintf (f_ "Dear %s,") (fst recipient));
     add_newline b;
     add_newline b;
     add_sentence b

@@ -121,22 +121,25 @@ struct
     type payload = unit
     type context = unit
 
-    let send ~context:() ~address ~code =
+    let send ~context:() ~recipient ~code =
       let* l = get_preferred_gettext () in
-      let subject, body = Pages_admin_root.mail_set_email l address code in
-      send_email ~subject ~recipient:address ~body MailSetEmail
+      let subject, body = Pages_admin_root.mail_set_email l ~recipient code in
+      send_email ~subject ~recipient ~body MailSetEmail
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()
 
   let () =
     Any.register ~service:set_email_post (fun () address ->
-        let@ _ = with_site_user in
+        let@ _, account, _ = with_site_user in
         if is_email ~blacklist:!Web_config.blacklisted_domains address then
           let* () =
             Eliom_reference.set Web_state.set_email_env (Some address)
           in
-          let* () = SetEmailOtp.generate ~context:() ~address ~payload:() in
+          let* () =
+            SetEmailOtp.generate ~context:() ~recipient:(account.name, address)
+              ~payload:()
+          in
           Pages_admin.set_email_confirm ~address >>= Html.send
         else
           let* l = get_preferred_gettext () in
@@ -241,7 +244,10 @@ struct
         in
         match error with
         | None ->
-            let* () = Web_signup.send_confirmation_code l ~service email in
+            let* () =
+              Web_signup.send_confirmation_code l ~service
+                ~recipient:(email, email)
+            in
             let* () =
               Eliom_reference.set Web_state.signup_address (Some email)
             in
@@ -285,7 +291,8 @@ struct
                   let* () =
                     Eliom_reference.set Web_state.signup_address (Some address)
                   in
-                  Web_signup.send_changepw_code l ~service ~address ~username
+                  Web_signup.send_changepw_code l ~service
+                    ~recipient:(username, address)
               | _ ->
                   return
                     (Printf.ksprintf Ocsigen_messages.warning

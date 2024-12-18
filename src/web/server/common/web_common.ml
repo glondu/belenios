@@ -169,8 +169,8 @@ let send_email kind ~recipient ~subject ~body =
   let contents =
     Netsendmail.compose
       ~from_addr:(!Web_config.server_name, !Web_config.server_mail)
-      ~to_addrs:[ (recipient, recipient) ]
-      ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8 ~subject body
+      ~to_addrs:[ recipient ] ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
+      ~subject body
   in
   let headers, _ = contents in
   let token = generate_token ~length:6 () in
@@ -198,8 +198,8 @@ let send_email kind ~recipient ~subject ~body =
             loop (retry - 1)
         | e ->
             let msg =
-              Printf.sprintf "Failed to send an e-mail to %s: %s" recipient
-                (Printexc.to_string e)
+              Printf.sprintf "Failed to send an e-mail to %s: %s"
+                (snd recipient) (Printexc.to_string e)
             in
             Ocsigen_messages.errlog msg;
             Lwt.return_unit)

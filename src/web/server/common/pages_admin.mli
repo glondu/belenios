@@ -27,10 +27,19 @@ module Make
     (_ : Belenios_ui.Mails_admin_sig.S) : Pages_admin_sig.S
 
 val mail_confirmation_link :
-  (module Belenios_ui.I18n.GETTEXT) -> string -> string -> string * string
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  string ->
+  string * string
 
 val mail_changepw_link :
-  (module Belenios_ui.I18n.GETTEXT) -> string -> string -> string * string
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  string ->
+  string * string
 
 val mail_set_email :
-  (module Belenios_ui.I18n.GETTEXT) -> string -> string -> string * string
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  string ->
+  string * string

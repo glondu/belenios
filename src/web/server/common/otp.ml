@@ -26,7 +26,8 @@ module type SENDER = sig
   type payload
   type context
 
-  val send : context:context -> address:string -> code:string -> unit Lwt.t
+  val send :
+    context:context -> recipient:string * string -> code:string -> unit Lwt.t
 end
 
 module type S = sig
@@ -34,7 +35,10 @@ module type S = sig
   type context
 
   val generate :
-    context:context -> address:string -> payload:payload -> unit Lwt.t
+    context:context ->
+    recipient:string * string ->
+    payload:payload ->
+    unit Lwt.t
 
   val check : address:string -> code:string -> payload option
 end
@@ -58,16 +62,16 @@ module Make (I : SENDER) () = struct
         Datetime.compare now expiration_time <= 0)
       table
 
-  let generate ~context ~address ~payload =
+  let generate ~context ~recipient ~payload =
     let now = Datetime.now () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
     let expiration_time = Period.add now (Period.second 900) in
     codes :=
-      SMap.add address
+      SMap.add (snd recipient)
         { code; payload; expiration_time; trials_left = 10 }
         codes_;
-    I.send ~context ~address ~code
+    I.send ~context ~recipient ~code
 
   let check ~address ~code =
     let now = Datetime.now () in

@@ -99,9 +99,9 @@ struct
     type payload = unit
     type context = unit
 
-    let send ~context:() ~address ~code =
-      let* subject, body = Pages_common.email_email ~address ~code in
-      send_email ~subject ~body ~recipient:address MailLogin
+    let send ~context:() ~recipient ~code =
+      let* subject, body = Pages_common.email_email ~recipient ~code in
+      send_email ~subject ~body ~recipient MailLogin
   end
 
   module Otp = Otp.Make (Sender) ()
@@ -123,7 +123,9 @@ struct
     in
     match (ok, address) with
     | true, Some address ->
-        let* () = Otp.generate ~context:() ~address ~payload:() in
+        let* () =
+          Otp.generate ~context:() ~recipient:(name, address) ~payload:()
+        in
         let* () = Eliom_reference.set env (Some (state, name, address)) in
         let* () = Eliom_reference.unset uuid_ref in
         let address = if show_email_address then Some address else None in

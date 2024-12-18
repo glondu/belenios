@@ -23,7 +23,8 @@ module type SENDER = sig
   type payload
   type context
 
-  val send : context:context -> address:string -> code:string -> unit Lwt.t
+  val send :
+    context:context -> recipient:string * string -> code:string -> unit Lwt.t
 end
 
 module type S = sig
@@ -31,7 +32,10 @@ module type S = sig
   type context
 
   val generate :
-    context:context -> address:string -> payload:payload -> unit Lwt.t
+    context:context ->
+    recipient:string * string ->
+    payload:payload ->
+    unit Lwt.t
 
   val check : address:string -> code:string -> payload option
 end

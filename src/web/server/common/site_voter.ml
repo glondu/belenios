@@ -95,7 +95,8 @@ struct
     Lwt.catch
       (fun () ->
         let* () =
-          send_email (MailConfirmation uuid) ~recipient:confirmation.recipient
+          send_email (MailConfirmation uuid)
+            ~recipient:(confirmation.user, confirmation.recipient)
             ~subject ~body
         in
         Lwt.return true)
