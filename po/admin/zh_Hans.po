@@ -8,269 +8,281 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-10-05 08:44+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2024-12-13 14:00+0000\n"
+"Last-Translator: David Zhuang <i@dz.ax>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/belenios/admin/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.9-dev\n"
 
 #: src/web/clients/admin/trustees_tab.ml:262
 msgid " (server is not counted)"
-msgstr ""
+msgstr " (未计算服务器)"
 
 #: src/web/common/pages_common.ml:249
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " 确认电子邮件已发送给您。"
 
 #: src/web/server/common/pages_admin.ml:374
 msgid " and a password: "
-msgstr ""
+msgstr " 和一个密码: "
 
 #: src/web/clients/trustee/generate.ml:173
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " 并将其保留到安全地点."
 
 #: src/web/clients/credauth/generate.ml:117
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " 并将文件保存到安全地点."
 
 #: src/web/clients/admin/elections.ml:1338
 msgid " and save them in a secure location."
-msgstr ""
+msgstr " 并将它们保存到安全地点."
 
 #: src/web/server/common/pages_admin.ml:424
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " 您的电子邮件地址是: "
 
 #: src/web/common/pages_common.ml:247
+#, fuzzy
 msgid " anytime during the election."
-msgstr ""
+msgstr " 在选举期间的任何时候。"
 
 #: src/web/common/pages_common.ml:236
+#, fuzzy
 msgid " as user "
-msgstr ""
+msgstr " 以用户身份 "
 
 #. src/web/server/common/pages_admin.ml:360
 #: src/web/server/common/pages_admin.ml:411
 msgid " because "
-msgstr ""
+msgstr " 因为 "
 
 #: src/web/common/pages_common.ml:238
 msgid " has been accepted."
-msgstr ""
+msgstr " 已被接受."
 
 #. src/web/server/common/pages_admin.ml:271
 #: src/web/server/common/pages_admin.ml:304
 msgid " in the following box: "
-msgstr ""
+msgstr " 在以下方框中: "
 
 #: src/web/clients/admin/elections.ml:954 src/web/clients/admin/elections.ml:951
 msgid " in txt format."
-msgstr ""
+msgstr " 以txt格式."
 
 #: src/web/common/pages_common.ml:255
 msgid " is rejected, because "
-msgstr ""
+msgstr " 被驳回,因为 "
 
 #: src/web/clients/admin/elections.ml:1292
 msgid " or send them manually this link:"
-msgstr ""
+msgstr " 或者以人工方式发送这条链接:"
 
 #: src/web/server/common/pages_admin.ml:294
 msgid " or username: "
-msgstr ""
+msgstr " 或用户名: "
 
 #: src/web/clients/trustee/decrypt.ml:172
 msgid " your contribution to decryption."
-msgstr ""
+msgstr " 您对解密的贡献."
 
 #: src/web/clients/admin/admin.ml:183
 msgid "(no title)"
-msgstr ""
+msgstr "(无标题)"
 
 #: src/web/server/common/pages_admin.ml:570
 msgid "(none)"
-msgstr ""
+msgstr "(无)"
 
 #. src/web/server/common/pages_admin.ml:362
 #: src/web/server/common/pages_admin.ml:413
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". 请换一个尝试."
 
 #: src/web/common/mails_admin.ml:46
 msgid "1. Click on the link."
-msgstr ""
+msgstr "1. 点击链接."
 
 #: src/web/common/mails_admin.ml:48
 msgid "2. Click on \"Generate\"."
-msgstr ""
+msgstr "2. 点击\"生成\"."
 
 #: src/web/common/mails_admin.ml:51
 msgid "3. Download the private credentials (creds.txt) and save the file to a secure location."
-msgstr ""
+msgstr "3. 下载私人证书（creds.txt）并将文件保存到安全位置."
 
 #: src/web/common/mails_admin.ml:57
 msgid "4. Download the list of voters (voters.txt)."
-msgstr ""
+msgstr "4. 下载选民名单 (voters.txt)。"
 
 #: src/web/common/mails_admin.ml:63
 msgid "5. Save the two fingerprints: fingerprint of voters and fingerprint of public credentials"
-msgstr ""
+msgstr "5. 保存两个指纹：选民指纹和公共证书指纹"
 
 #: src/web/common/mails_admin.ml:72
 msgid "6. Click on \"Submit the public credentials\"."
-msgstr ""
+msgstr "6. 点击 “提交公共证书”。"
 
 #: src/web/clients/admin/elections.ml:1561
 msgid "A new password has been mailed to %s."
-msgstr ""
+msgstr "新密码已发送至 %s。"
 
 #: src/web/server/common/pages_admin.ml:64
 msgid "Accept"
-msgstr ""
+msgstr "同意"
 
 #: src/web/server/common/pages_admin.ml:334
 msgid "Account management"
-msgstr ""
+msgstr "账户管理"
 
 #: src/web/server/common/site_admin.ml:494
 msgid "Account not found"
-msgstr ""
+msgstr "账户未找到"
 
 #: src/web/server/common/pages_admin.ml:532
 msgid "Account settings"
-msgstr ""
+msgstr "账户设置"
 
 #: src/web/clients/admin/elections.ml:761
 msgid "Add"
-msgstr ""
+msgstr "添加"
 
 #: src/web/clients/admin/questions.ml:545
+#, fuzzy
 msgid "Add a grade"
-msgstr ""
+msgstr "添加等级"
 
 #. src/web/clients/admin/trustees_tab.ml:147
 #: src/web/clients/admin/trustees_tab.ml:193
 msgid "Add a trustee"
-msgstr ""
+msgstr "添加受托人"
 
 #. src/web/clients/admin/admin.ml:64
 #: src/web/clients/admin/admin.ml:89 src/web/clients/admin/admin.ml:88
 msgid "Administration"
-msgstr ""
+msgstr "管理"
 
 #: src/web/clients/admin/account.ml:76
+#, fuzzy
 msgid "Administrator's profile: "
-msgstr ""
+msgstr "管理员简介: "
 
 #: src/web/common/mails_admin.ml:213
 msgid "All trustees must have completed one step before you can proceed to the next one."
-msgstr ""
+msgstr "所有受托人必须先完成一个步骤，然后才能进行到下一个步骤。"
 
 #: src/web/clients/admin/questions.ml:579
 msgid "Allow blank vote"
-msgstr ""
+msgstr "允许空白票"
 
 #: src/web/server/common/pages_admin.ml:492
 msgid "An e-mail with a code has been sent to %s."
-msgstr ""
+msgstr "已向 %s 发送带有代码的电子邮件。"
 
 #: src/web/clients/trustee/shuffle.ml:154
 msgid "An error occurred while applying the shuffle."
-msgstr ""
+msgstr "应用随机排序时出错。"
 
 #: src/web/clients/admin/common.ml:122
 msgid "An error occurred while retrieving drafts: %s"
-msgstr ""
+msgstr "检索草稿时发生错误：%s"
 
 #: src/web/clients/admin/common.ml:110
 msgid "An error occurred while retrieving elections: %s"
-msgstr ""
+msgstr "检索选举时发生错误：%s"
 
 #: src/web/clients/credauth/generate.ml:72
 msgid "An error occurred while submitting credentials!"
-msgstr ""
+msgstr "提交凭证时发生错误！"
 
 #: src/web/clients/admin/elections.ml:866
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
+"身份可以是 “地址”，或 “地址,用户名”，或 “地址,用户名,权重”，或 “地址,,权重”，"
+"其中 “地址 ”是电子邮件地址，“用户名 ”是用于身份验证的相关用户名，“权重 "
+"”是投票者的票数（以防投票者的票数不尽相同）。"
 
 #: src/web/clients/basic/admin_basic.ml:220
 msgid "Archived elections"
-msgstr ""
+msgstr "已存档选举"
 
 #: src/web/clients/admin/admin.ml:228
 msgid "Archived elections:"
-msgstr ""
+msgstr "已存档选举："
 
 #: src/web/clients/admin/elections.ml:445
 msgid "Are you sure you want to delete this election?"
-msgstr ""
+msgstr "您确定要删除这次选举吗？"
 
 #: src/web/clients/admin/questions.ml:871
 msgid "Are you sure you want to delete this question?"
-msgstr ""
+msgstr "您确定要删除这个问题吗？"
 
 #: src/web/clients/admin/trustees_tab.ml:480
 msgid "Are you sure you want to restart from scratch?"
-msgstr ""
+msgstr "您确定要从头开始吗？"
 
 #: src/web/clients/admin/elections.ml:367
 msgid "Are you sure you want to tally this election?"
-msgstr ""
+msgstr "您确定要统计这次选举的结果吗？"
 
 #: src/web/clients/trustee/shuffle.ml:95
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
-msgstr ""
+msgstr "作为受托人，您的第一个任务是对加密选票进行混淆。"
 
 #: src/web/server/common/pages_admin.ml:552
 msgid "Authentication methods:"
-msgstr ""
+msgstr "认证方法："
 
 #: src/web/clients/admin/elections.ml:1692
+#, fuzzy
 msgid "Automatic cleaning"
-msgstr ""
+msgstr "自动清洗"
 
 #: src/web/clients/admin/elections.ml:971
+#, fuzzy
 msgid "Automatic dates"
-msgstr ""
+msgstr "自动日期"
 
 #: src/web/common/mails_admin.ml:337
 msgid "Below you will find the link to shuffle encrypted ballots."
-msgstr ""
+msgstr "您可以在下方找到混淆加密选票的链接。"
 
 #. src/web/server/common/pages_admin.ml:639
 #. src/web/server/common/pages_admin.ml:605
 #: src/web/server/common/pages_admin.ml:673
 msgid "Best regards,"
-msgstr ""
+msgstr "致以最诚挚的问候，"
 
 #: src/web/clients/admin/elections.ml:1241
+#, fuzzy
 msgid "By a third-party of your choice"
-msgstr ""
+msgstr "由您选择的第三方"
 
 #: src/web/clients/admin/elections.ml:1200
 msgid "By our server (not ideal for decentralized security)"
-msgstr ""
+msgstr "由我们的服务器提供（对于分散式安全来说并不理想）"
 
 #: src/web/clients/common/secondary_ui.ml:93
 msgid "By using this site, you accept our "
-msgstr ""
+msgstr "使用本网站即表示您接受我们的 "
 
 #: src/web/clients/admin/elections.ml:1471
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
-msgstr ""
+msgstr "CAS（外部身份验证服务器，在适用时提供更好的安全保障）"
 
 #: src/web/clients/admin/trustees_tab.ml:139 src/web/clients/admin/common.ml:150
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: src/web/server/common/pages_admin.ml:680
 msgid "Change e-mail address"
-msgstr ""
+msgstr "更改电子邮件地址"
 
 #. src/web/server/common/site_admin.ml:346
 #. src/web/server/common/pages_admin.ml:646
@@ -278,27 +290,28 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:313
 #: src/web/server/common/site_admin.ml:458
 msgid "Change password"
-msgstr ""
+msgstr "更改密码"
 
 #: src/web/clients/trustee/check.ml:186 src/web/clients/admin/trustees_tab.ml:801
 msgid "Check private key ownership"
-msgstr ""
+msgstr "检查私钥所有权"
 
 #: src/web/common/mails_admin.ml:350
+#, fuzzy
 msgid "Click on \"Compute shuffle\"."
-msgstr ""
+msgstr "点击“重新排列”。"
 
 #: src/web/common/mails_admin.ml:136
 msgid "Click on \"Generate a new key pair\"."
-msgstr ""
+msgstr "点击 “生成新的密钥对”。"
 
 #: src/web/common/mails_admin.ml:152
 msgid "Click on \"Submit\" to send your verification key."
-msgstr ""
+msgstr "点击 “提交 ”发送验证密钥。"
 
 #: src/web/common/mails_admin.ml:133
 msgid "Click on the link."
-msgstr ""
+msgstr "点击链接。"
 
 #. src/web/clients/common/secondary_ui.ml:101
 #: src/web/clients/admin/elections.ml:1644
