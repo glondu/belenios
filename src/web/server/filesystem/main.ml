@@ -68,7 +68,6 @@ module MakeBackend
   let voters_ops = make_uninitialized_ops "voters_ops"
   let credential_weights_ops = make_uninitialized_ops "credential_weights_ops"
   let credential_users_ops = make_uninitialized_ops "credential_users_ops"
-  let salts_ops = make_uninitialized_ops "salts_ops"
   let password_records_ops = make_uninitialized_ops "password_records_ops"
 
   let get_password_file =
@@ -253,7 +252,6 @@ module MakeBackend
     | Shuffle_token -> Concrete ("shuffle_token.json", Trim)
     | Audit_cache -> Concrete ("audit_cache.json", Trim)
     | Last_event -> Concrete ("last_event.json", Trim)
-    | Salts -> Concrete ("salts.json", Trim)
     | Deleted -> Concrete ("deleted.json", Trim)
     | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
     | Passwords -> Concrete ("passwords.csv", Raw)
@@ -269,7 +267,6 @@ module MakeBackend
     | Voter key -> Abstract (voters_ops, key)
     | Credential_weight key -> Abstract (credential_weights_ops, key)
     | Credential_user key -> Abstract (credential_users_ops, key)
-    | Salt key -> Abstract (salts_ops, key)
     | Password key -> Abstract (password_records_ops, key)
 
   let clear_caches = function
@@ -739,24 +736,12 @@ module MakeBackend
 
   module CredCacheTypes = struct
     type key = uuid
-
-    type value = {
-      cred_map : (string option * Weight.t) SMap.t;
-      salts : Yojson.Safe.t salt array option;
-    }
+    type value = { cred_map : (string option * Weight.t) SMap.t }
   end
 
   module CredCache = Ocsigen_cache.Make (CredCacheTypes)
 
   let raw_get_credential_cache uuid =
-    let make_salts creds =
-      let*& salts = get (Election (uuid, Salts)) in
-      let salts = salts_of_string salts in
-      List.combine salts (List.rev creds)
-      |> List.map (fun (salt, cred) ->
-             { salt; public_credential = `String cred })
-      |> Array.of_list |> Lwt.return_some
-    in
     let@ public_creds cont =
       let* x = get (Election (uuid, Public_creds)) in
       match x with
@@ -780,18 +765,16 @@ module MakeBackend
       | Some x -> cont x
     in
     let public_creds = public_credentials_of_string public_creds in
-    let cred_map, creds =
+    let cred_map =
       List.fold_left
-        (fun (cred_map, creds) x ->
+        (fun cred_map x ->
           let p = parse_public_credential Fun.id x in
-          ( SMap.add p.credential
-              (p.username, Option.value ~default:Weight.one p.weight)
-              cred_map,
-            p.credential :: creds ))
-        (SMap.empty, []) public_creds
+          SMap.add p.credential
+            (p.username, Option.value ~default:Weight.one p.weight)
+            cred_map)
+        SMap.empty public_creds
     in
-    let* salts = make_salts creds in
-    Lwt.return CredCacheTypes.{ cred_map; salts }
+    Lwt.return CredCacheTypes.{ cred_map }
 
   let credential_cache =
     new CredCache.cache raw_get_credential_cache ~timer:3600. 10
@@ -812,20 +795,9 @@ module MakeBackend
         Lwt.return_some @@ Weight.to_string x)
       (fun _ -> Lwt.return_none)
 
-  let get_salt uuid i =
-    Lwt.catch
-      (fun () ->
-        let* x = credential_cache#find uuid in
-        let&* salts = x.salts in
-        if 0 <= i && i < Array.length salts then
-          Lwt.return_some @@ string_of_salt Yojson.Safe.write_json salts.(i)
-        else Lwt.return_none)
-      (fun _ -> Lwt.return_none)
-
   let () =
     credential_users_ops.get <- get_credential_user;
-    credential_weights_ops.get <- get_credential_weight;
-    salts_ops.get <- get_salt
+    credential_weights_ops.get <- get_credential_weight
 
   (** {1 Cleaning operations} *)
 
@@ -860,7 +832,6 @@ module MakeBackend
           Hide_result;
           Shuffle_token;
           Skipped_shufflers;
-          Salts;
           Public_archive;
           Passwords;
           Records;

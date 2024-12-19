@@ -315,7 +315,6 @@ module Credgen : CMDLINER_MODULE = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-          let get_salt _ = None
         end)
     in
     let save (c : Credential.batch) =
@@ -435,7 +434,6 @@ module SubCredgen : CMDLINER_MODULE = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-          let get_salt _ = None
         end)
     in
     let x, _ = Cred.generate_sub count in

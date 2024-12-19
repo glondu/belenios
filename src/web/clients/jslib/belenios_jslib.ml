@@ -159,14 +159,6 @@ let belenios : belenios Js.t =
                     let bind = Lwt.bind
                     let pause = Lwt.pause
                     let uuid = W.uuid
-
-                    let get_salt i =
-                      let* x = Api.(get (election_salt uuid i) `Nobody) in
-                      match x with
-                      | Ok (x, _) ->
-                          Lwt.return_some
-                          @@ salt_of_string (sread W.G.of_string) x
-                      | Error _ -> Lwt.return_none
                   end)
               in
               let* x = Cred.derive (Js.to_string cred) in
@@ -185,8 +177,6 @@ let belenios : belenios Js.t =
                     callbacks##failure (Js.string "MAYBE_PASSWORD") Js.null
                 | Error `Wrong ->
                     callbacks##failure (Js.string "WRONG_CREDENTIAL") Js.null
-                | Error `MissingSalt ->
-                    callbacks##failure (Js.string "MISSING_SALT") Js.null
               in
               Lwt.return_unit)
             (fun e ->

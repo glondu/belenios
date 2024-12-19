@@ -45,7 +45,6 @@ let do_generate uuid (Draft (_, draft)) ~voters =
         let bind = Lwt.bind
         let pause = Lwt_js.yield
         let uuid = uuid
-        let get_salt _ = Lwt.return_none
       end)
   in
   Cred.generate voters

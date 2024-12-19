@@ -388,12 +388,6 @@ let get_credential_user s uuid cred =
            (Printf.sprintf "could not find credential record of %s/%s"
               (Uuid.unwrap uuid) cred))
 
-let get_salt s uuid i =
-  let module S = (val s : Storage.BACKEND) in
-  let* x = S.get (Election (uuid, Salt i)) in
-  let&* x = x in
-  Lwt.return_some @@ salt_of_string Yojson.Safe.read_json x
-
 let add_ballot s election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
@@ -1216,7 +1210,6 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
             let bind = Lwt.bind
             let pause = Lwt.pause
             let uuid = uuid
-            let get_salt _ = Lwt.return_none
           end)
       in
       let t, p = Cred.generate_sub (List.length voters) in

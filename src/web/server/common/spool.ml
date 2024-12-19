@@ -206,11 +206,3 @@ let last_event =
     filename = Storage.Last_event;
   }
   |> make_file
-
-let salts =
-  {
-    of_string = salts_of_string;
-    to_string = string_of_salts;
-    filename = Storage.Salts;
-  }
-  |> make_file

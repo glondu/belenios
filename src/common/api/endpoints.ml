@@ -209,14 +209,6 @@ let election_voters uuid =
     to_string_post = string_of_unit;
   }
 
-let election_salt uuid i =
-  {
-    path = Printf.sprintf "elections/%s/salts/%d" (Uuid.unwrap uuid) i;
-    of_string = Fun.id;
-    to_string = Fun.id;
-    to_string_post = string_of_unit;
-  }
-
 let election_records uuid =
   {
     path = Printf.sprintf "elections/%s/records" (Uuid.unwrap uuid);

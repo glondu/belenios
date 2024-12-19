@@ -260,7 +260,6 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
         let bind x f = f x
         let pause () = ()
         let uuid = uuid
-        let get_salt _ = None
       end)
 
   let public_creds_weights =

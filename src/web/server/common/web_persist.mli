@@ -52,7 +52,6 @@ val set_election_automatic_dates :
 val get_all_voters : Voter.t list Lwt.t Storage.u
 val get_draft_public_credentials : string option Lwt.t Storage.u
 val get_records : string list option Lwt.t Storage.u
-val get_salt : (int -> Yojson.Safe.t salt option Lwt.t) Storage.u
 val get_voter : (string -> Voter.t option Lwt.t) Storage.u
 
 val check_password :

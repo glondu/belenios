@@ -67,12 +67,6 @@ let parse_raw x =
   | [ _; _; _ ] as xs when List.for_all (fun x -> String.length x = 5) xs ->
       (* maybe a password, e.g. XXXXX-XXXXX-XXXXX *)
       `MaybePassword
-  | [ a; b; c; d; e ] when List.for_all2 check [ a; b; c; d ] [ 3; 4; 3; 4 ]
-    -> (
-      (* new style credential with index, e.g. XXX-XXXX-XXX-XXXX-NNNN *)
-      match int_of_string_opt e with
-      | Some e -> `Valid (String.concat "" [ a; b; c; d ], e)
-      | None -> `Invalid)
   | [ a; b; c; d ] when List.for_all2 check [ a; b; c; d ] [ 5; 6; 5; 6 ] ->
       (* full style credential, e.g. XXXXX-XXXXXX-XXXXX-XXXXXX *)
       `Valid_full
@@ -94,7 +88,6 @@ module type ELECTION = sig
   val bind : 'a t -> ('a -> 'b t) -> 'b t
   val pause : unit -> unit t
   val uuid : Uuid.t
-  val get_salt : int -> public_key salt option t
 end
 
 module type S = sig
@@ -107,9 +100,7 @@ module type S = sig
   val merge_sub : Voter.t list -> sub_batch -> batch
 
   val derive :
-    string ->
-    (private_key, [ `Wrong | `Invalid | `MaybePassword | `MissingSalt ]) result
-    m
+    string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m
 
   val parse_public_credential : string -> (Weight.t * public_key) option
 end
@@ -138,11 +129,6 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     in
     loop 0
 
-  let derive_raw ~salt x =
-    let salt = Uuid.unwrap E.uuid ^ salt in
-    let derived = pbkdf2_utf8 ~iterations:100000 ~salt ~size:2 x in
-    G.Zq.reduce_hex derived
-
   let generate_one rng =
     (* we generate only full style credentials *)
     let private_credential =
@@ -159,14 +145,6 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         let r = G.Zq.reduce_hex derived in
         E.return (Ok r)
     | `Valid_full -> E.return (Ok (derive_full x))
-    | `Valid (raw, index) -> (
-        let* salt = E.get_salt index in
-        match salt with
-        | None -> E.return (Error `MissingSalt)
-        | Some { salt; public_credential } ->
-            let x = derive_raw ~salt raw in
-            if G.(compare (g **~ x) public_credential = 0) then E.return (Ok x)
-            else E.return (Error `Wrong))
     | `Invalid -> E.return (Error `Invalid)
     | `MaybePassword -> E.return (Error `MaybePassword)
 
@@ -215,9 +193,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         let* () = E.pause () in
         let { private_credential; private_key } = generate_one rng in
         let sub_public = G.(g **~ private_key |> to_string) in
-        let x =
-          { sub_base = private_credential; sub_salt = None; sub_public }
-        in
+        let x = { sub_base = private_credential; sub_public } in
         decr n;
         loop (x :: accu))
       else E.return accu

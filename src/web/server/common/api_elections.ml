@@ -442,18 +442,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let* path = S.get_as_file (Election (uuid, Public_archive)) in
           Lwt.return @@ `Bel path
       | _ -> method_not_allowed)
-  | [ "salts"; index ] -> (
-      match int_of_string_opt index with
-      | None -> bad_request
-      | Some index -> (
-          match method_ with
-          | `GET -> (
-              let* x = Web_persist.get_salt s uuid index in
-              match x with
-              | None -> not_found
-              | Some x ->
-                  return_json 200 (string_of_salt Yojson.Safe.write_json x))
-          | _ -> method_not_allowed))
   | [ "trustees" ] -> (
       let get () = Public_archive.get_trustees s uuid in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)

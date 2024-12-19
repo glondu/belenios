@@ -382,9 +382,9 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
         else SMap.add username (weight, ref false) accu)
       SMap.empty se.se_voters
   in
-  let _, _, _, salts =
+  let _, _ =
     List.fold_left
-      (fun (i, creds, saltset, salts) x ->
+      (fun (i, creds) x ->
         let invalid fmt =
           Printf.ksprintf
             (fun x ->
@@ -407,26 +407,14 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
               else if Weight.compare w weight <> 0 then
                 invalid "differing weight"
               else if SSet.mem cred_s creds then invalid "duplicate credential"
-              else if
-                match p.salt with None -> false | Some s -> SSet.mem s saltset
-              then invalid "duplicate salt"
               else if not (G.check p.credential) then
                 invalid "public credential"
               else used := true
         in
-        match p.salt with
-        | None -> (i + 1, SSet.add cred_s creds, saltset, salts)
-        | Some s ->
-            (i + 1, SSet.add cred_s creds, SSet.add s saltset, s :: salts))
-      (0, SSet.empty, SSet.empty, [])
-      credentials
+        (i + 1, SSet.add cred_s creds))
+      (0, SSet.empty) credentials
   in
-  let salts = List.rev salts in
   let* () = Spool.create s uuid Spool.draft_public_credentials credentials in
-  let* () =
-    if salts <> [] then Spool.create s uuid Spool.salts salts
-    else Lwt.return_unit
-  in
   se.se_public_creds_received <- true;
   set (Draft (v, se))
 

@@ -41,7 +41,6 @@ type election_file =
   | Draft
   | Public_creds
   | Private_creds
-  | Salts (* obsolete as of 2.4 *)
   | Public_archive
   | Passwords
   | Records
@@ -55,7 +54,6 @@ type election_file =
   | Voter of string
   | Credential_weight of string
   | Credential_user of string
-  | Salt of int
   | Password of string
 
 type admin_password_file = Username of string | Address of string

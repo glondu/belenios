@@ -37,7 +37,6 @@ module type ELECTION = sig
   val bind : 'a t -> ('a -> 'b t) -> 'b t
   val pause : unit -> unit t
   val uuid : Uuid.t
-  val get_salt : int -> public_key salt option t
 end
 
 module type S = sig
@@ -50,9 +49,7 @@ module type S = sig
   val merge_sub : Voter.t list -> sub_batch -> batch
 
   val derive :
-    string ->
-    (private_key, [ `Wrong | `Invalid | `MaybePassword | `MissingSalt ]) result
-    m
+    string -> (private_key, [ `Wrong | `Invalid | `MaybePassword ]) result m
 
   val parse_public_credential : string -> (Weight.t * public_key) option
 end

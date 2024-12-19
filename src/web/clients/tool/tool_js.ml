@@ -184,7 +184,6 @@ module Credgen = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-          let get_salt _ = None
         end)
     in
     let cred = get_textarea "credgen_derive_input" in
@@ -210,7 +209,6 @@ module Credgen = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-          let get_salt _ = None
         end)
     in
     let c = Cred.generate ids in

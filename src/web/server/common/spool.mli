@@ -48,4 +48,3 @@ val audit_cache : audit_cache t
 val hide_result : datetime t
 val shuffle_token : shuffle_token t
 val skipped_shufflers : skipped_shufflers t
-val salts : salts t

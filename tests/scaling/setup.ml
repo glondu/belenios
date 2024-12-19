@@ -157,7 +157,6 @@ module Make (P : PARAMS) = struct
           let bind = Lwt.bind
           let pause = Lwt.pause
           let uuid = uuid
-          let get_salt _ = Lwt.return_none
         end)
     in
     let* x = Cred.generate voters in

@@ -46,7 +46,6 @@ module Make (P : PARAMS) () = struct
         let bind = Lwt.bind
         let pause = Lwt.pause
         let uuid = W.uuid
-        let get_salt _ = Lwt.return_none
       end)
 
   let nb_candidates =

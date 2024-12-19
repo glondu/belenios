@@ -84,16 +84,8 @@ type public_credentials = string list
 
 type private_credentials = (string * string) list <json repr="object">
 
-type salts = string list
-
-type 'a salt = {
-    salt : string;
-    public_credential : 'a;
-}
-
 type sub_batch_item = {
     base : string;
-    ?salt : string option;
     public : string;
 } <ocaml field_prefix="sub_">
 
