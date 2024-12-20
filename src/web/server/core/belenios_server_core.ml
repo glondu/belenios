@@ -21,6 +21,7 @@
 
 include Serializable_j
 include Core
+include Types
 module Filesystem = Filesystem
 module Defaults = Defaults
 module Storage = Storage

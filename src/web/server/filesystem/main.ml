@@ -526,7 +526,7 @@ module MakeBackend
               e_date_publish = Some t;
             }
       | Some d, e_date_publish ->
-          let d = election_dates_of_string (String.trim d) in
+          let d = Serializable_j.election_dates_of_string (String.trim d) in
           Some
             {
               e_date_creation = Option.map Datetime.to_unixfloat d.e_creation;
@@ -554,7 +554,7 @@ module MakeBackend
           Filesystem.write_file filename (t ^ "\n")
     in
     let filename = uuid /// raw_dates_filename in
-    let dates =
+    let dates : Serializable_t.election_dates =
       {
         e_creation = Option.map Datetime.from_unixfloat d.e_date_creation;
         e_finalization =
@@ -566,7 +566,8 @@ module MakeBackend
         e_auto_close = Option.map Datetime.from_unixfloat d.e_date_auto_close;
       }
     in
-    Filesystem.write_file filename (string_of_election_dates dates ^ "\n")
+    Filesystem.write_file filename
+      (Serializable_j.string_of_election_dates dates ^ "\n")
 
   let () =
     dates_ops.get <- get_dates;

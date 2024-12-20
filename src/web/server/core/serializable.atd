@@ -57,16 +57,6 @@ type metadata = {
   ?billing_request : string option;
 } <ocaml field_prefix="e_">
 
-type election_dates = {
-  ?creation : datetime option;
-  ?finalization : datetime option;
-  ?tally : datetime option;
-  ?archive : datetime option;
-  ?last_mail : datetime option;
-  ?auto_open : datetime option;
-  ?auto_close : datetime option;
-} <ocaml field_prefix="e_">
-
 type extended_record = {
   username : string;
   date : datetime;

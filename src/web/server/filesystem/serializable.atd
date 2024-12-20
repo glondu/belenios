@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,9 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Serializable_j
-include module type of Core
-include module type of Types
-module Filesystem = Filesystem
-module Defaults = Defaults
-module Storage = Storage
+type datetime = string wrap <ocaml module="Belenios_server_core.Datetime">
+
+type election_dates = {
+  ?creation : datetime option;
+  ?finalization : datetime option;
+  ?tally : datetime option;
+  ?archive : datetime option;
+  ?last_mail : datetime option;
+  ?auto_open : datetime option;
+  ?auto_close : datetime option;
+} <ocaml field_prefix="e_">
