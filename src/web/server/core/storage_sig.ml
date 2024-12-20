@@ -26,8 +26,7 @@ open Serializable_t
 
 type election_file =
   | State
-  | Hide_result
-  | Dates
+  | Dates_full
   | Decryption_tokens
   | Metadata
   | Private_key
@@ -111,5 +110,5 @@ module type S = sig
     int -> Belenios_api.Serializable_t.summary_list Lwt.t
 
   val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
+    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
 end

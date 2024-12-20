@@ -34,8 +34,11 @@ val update_election_state : election_state updatable Lwt.t Storage.u
 
 (** {1 Typed election data from storage} *)
 
-val get_election_dates : election_dates Lwt.t Storage.u
-val update_election_dates : election_dates updatable Lwt.t Storage.u
+val get_election_dates : Belenios_storage_api.election_dates Lwt.t Storage.u
+
+val update_election_dates :
+  Belenios_storage_api.election_dates updatable Lwt.t Storage.u
+
 val get_election_metadata : metadata Lwt.t Storage.u
 val get_private_creds_downloaded : bool Lwt.t Storage.u
 val set_private_creds_downloaded : unit Lwt.t Storage.u

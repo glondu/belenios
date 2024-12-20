@@ -98,19 +98,12 @@ let draft_public_credentials =
   }
   |> make_file
 
-let hide_result =
-  {
-    of_string = datetime_of_string;
-    to_string = string_of_datetime;
-    filename = Storage.Hide_result;
-  }
-  |> make_file
-
-let dates =
+let dates_full =
+  let open Belenios_storage_api in
   {
     of_string = election_dates_of_string;
     to_string = string_of_election_dates;
-    filename = Storage.Dates;
+    filename = Storage.Dates_full;
   }
   |> make_file
 

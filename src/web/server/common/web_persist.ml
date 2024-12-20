@@ -41,38 +41,18 @@ let get_setup_data s uuid =
   | None -> assert false
   | Some x -> Lwt.return (setup_data_of_string x)
 
-let set_election_result_hidden s uuid hidden =
-  match hidden with
-  | None -> Spool.del s uuid Spool.hide_result
-  | Some d -> Spool.ensure s uuid Spool.hide_result d
-
-let get_election_result_hidden s uuid =
-  let* t = Spool.get s uuid Spool.hide_result in
-  let&* t = t in
-  if Datetime.compare (Datetime.now ()) t < 0 then return_some t
-  else
-    let* () = set_election_result_hidden s uuid None in
-    return_none
-
-let default_dates =
-  {
-    e_creation = None;
-    e_finalization = None;
-    e_tally = None;
-    e_archive = None;
-    e_last_mail = None;
-    e_auto_open = None;
-    e_auto_close = None;
-  }
-
 let get_election_dates s uuid =
-  let* x = Spool.get s uuid Spool.dates in
-  Lwt.return (Option.value ~default:default_dates x)
+  let* x = Spool.get s uuid Spool.dates_full in
+  Lwt.return
+    (Option.value ~default:Belenios_storage_api.default_election_dates x)
 
 let update_election_dates s uuid =
-  let* x = Spool.update s uuid Spool.dates in
+  let* x = Spool.update s uuid Spool.dates_full in
   match x with
-  | None -> Lwt.return (default_dates, Spool.create s uuid Spool.dates)
+  | None ->
+      Lwt.return
+        ( Belenios_storage_api.default_election_dates,
+          Spool.create s uuid Spool.dates_full )
   | Some x -> Lwt.return x
 
 let empty_metadata =
@@ -252,7 +232,9 @@ let internal_release_tally ~force s uuid set_state =
       let* () = Spool.del s uuid Spool.audit_cache in
       let* () = set_state `Tallied in
       let* dates, set_dates = update_election_dates s uuid in
-      let* () = set_dates { dates with e_tally = Some (Datetime.now ()) } in
+      let* () =
+        set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
+      in
       let* () = Spool.del s uuid Spool.decryption_tokens in
       let* () = Spool.del s uuid Spool.shuffle_token in
       Lwt.return_true
@@ -268,16 +250,15 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
         return
           (`Archived, fun _ -> Lwt.fail @@ Failure "cannot get out of Archived")
   in
-  let now = Datetime.now () in
+  let now = Unix.gettimeofday () in
   let* dates = get_election_dates s uuid in
-  let past = function None -> false | Some t -> Datetime.compare t now < 0 in
+  let past = function None -> false | Some t -> t < now in
   let@ () =
    fun cont ->
     match state with
     | `EncryptedTally when update -> (
-        let* hidden = get_election_result_hidden s uuid in
-        match hidden with
-        | Some _ when not (past hidden) -> cont ()
+        match dates.e_date_publish with
+        | Some _ when not (past dates.e_date_publish) -> cont ()
         | _ ->
             let@ () =
              fun cont2 ->
@@ -289,11 +270,13 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
     | _ -> cont ()
   in
   let new_state =
-    match state with `Closed when past dates.e_auto_open -> `Open | x -> x
+    match state with
+    | `Closed when past dates.e_date_auto_open -> `Open
+    | x -> x
   in
   let new_state =
     match new_state with
-    | `Open when past dates.e_auto_close -> `Closed
+    | `Open when past dates.e_date_auto_close -> `Closed
     | x -> x
   in
   assert (new_state <> `Archived);
@@ -674,7 +657,7 @@ let archive_election s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* () = S.delete_sensitive_data uuid in
   let* dates, set = update_election_dates s uuid in
-  set { dates with e_archive = Some (Datetime.now ()) }
+  set { dates with e_date_archive = Some (Unix.gettimeofday ()) }
 
 let delete_election s uuid =
   let@ election =
@@ -698,13 +681,13 @@ let delete_election s uuid =
   let de_owners = metadata.e_owners in
   let* dates = get_election_dates s uuid in
   let de_date =
-    match dates.e_tally with
+    match dates.e_date_tally with
     | Some x -> x
     | None -> (
-        match dates.e_finalization with
+        match dates.e_date_finalization with
         | Some x -> x
         | None -> (
-            match dates.e_creation with
+            match dates.e_date_creation with
             | Some x -> x
             | None -> Defaults.validation_date))
   in
@@ -749,7 +732,7 @@ let delete_election s uuid =
       de_owners;
       de_nb_voters;
       de_nb_ballots = List.length ballots;
-      de_date;
+      de_date = Datetime.from_unixfloat de_date;
       de_tallied = result <> None;
       de_authentication_method;
       de_credential_method;
@@ -1077,7 +1060,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   (* finish *)
   let* () = Spool.create storage uuid Spool.state `Open in
   let* dates, set = update_election_dates storage uuid in
-  set { dates with e_finalization = Some (Datetime.now ()) }
+  set { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
 
 let delete_draft s uuid =
   let module S = (val s : Storage.BACKEND) in
@@ -1146,7 +1129,8 @@ let set_election_state s uuid state =
       let* () = set_state (state : [ `Open | `Closed ] :> election_state) in
       let* dates, set_dates = update_election_dates s uuid in
       let* () =
-        set_dates { dates with e_auto_open = None; e_auto_close = None }
+        set_dates
+          { dates with e_date_auto_open = None; e_date_auto_close = None }
       in
       Lwt.return_true
   | None -> Lwt.return_false
@@ -1157,22 +1141,20 @@ let close_election s uuid = set_election_state s uuid `Closed
 let get_election_automatic_dates s uuid =
   let open Belenios_api.Serializable_t in
   let* d = get_election_dates s uuid in
-  let* publish = get_election_result_hidden s uuid in
   Lwt.return
     {
-      auto_date_open = Option.map Datetime.to_unixfloat d.e_auto_open;
-      auto_date_close = Option.map Datetime.to_unixfloat d.e_auto_close;
-      auto_date_publish = Option.map Datetime.to_unixfloat publish;
+      auto_date_open = d.e_date_auto_open;
+      auto_date_close = d.e_date_auto_close;
+      auto_date_publish = d.e_date_publish;
     }
 
 let set_election_automatic_dates s uuid d =
   let open Belenios_api.Serializable_t in
-  let e_auto_open = Option.map Datetime.from_unixfloat d.auto_date_open in
-  let e_auto_close = Option.map Datetime.from_unixfloat d.auto_date_close in
-  let e_auto_publish = Option.map Datetime.from_unixfloat d.auto_date_publish in
-  let* () = set_election_result_hidden s uuid e_auto_publish in
+  let e_date_auto_open = d.auto_date_open in
+  let e_date_auto_close = d.auto_date_close in
+  let e_date_publish = d.auto_date_publish in
   let* dates, set = update_election_dates s uuid in
-  set { dates with e_auto_open; e_auto_close }
+  set { dates with e_date_auto_open; e_date_auto_close; e_date_publish }
 
 let get_draft_public_credentials s uuid =
   let* x = Spool.get s uuid Spool.draft_public_credentials in

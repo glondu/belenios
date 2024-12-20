@@ -465,7 +465,7 @@ struct
 
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = Uuid.unwrap uuid in
-    let now = Datetime.now () in
+    let now = Unix.gettimeofday () in
     let action, comment =
       match action with
       | `Destroy -> (Web_persist.delete_draft, "destroyed")
@@ -473,7 +473,7 @@ struct
       | `Archive -> (Web_persist.archive_election, "archived")
     in
     let@ s = Storage.with_transaction in
-    if Datetime.compare now next_t > 0 then
+    if now > next_t then
       let* () = action s uuid in
       return
         (Printf.ksprintf Ocsigen_messages.warning

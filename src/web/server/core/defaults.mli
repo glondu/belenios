@@ -19,21 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
-
 val version : int
 val contact : string
 val questions : Belenios_question.t array
 val name : string
 val description : string
-val creation_date : datetime
-val validation_date : datetime
-val tally_date : datetime
-val archive_date : datetime
-val days_to_archive : int
-val days_to_delete : int
-val days_to_mail : int
-val days_between_mails : int
+val creation_date : float
+val validation_date : float
+val tally_date : float
+val archive_date : float
+val days_to_archive : float
+val days_to_delete : float
+val days_to_mail : float
+val days_between_mails : float
 val max_election_name_size : int
 val max_total_weight : int
 val supported_booth_versions : int list

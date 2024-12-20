@@ -42,9 +42,8 @@ val decryption_tokens : decryption_tokens t
 
 (* other data *)
 val last_event : last_event t
-val dates : election_dates t
+val dates_full : Belenios_storage_api.election_dates t
 val metadata : metadata t
 val audit_cache : audit_cache t
-val hide_result : datetime t
 val shuffle_token : shuffle_token t
 val skipped_shufflers : skipped_shufflers t

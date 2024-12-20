@@ -6,6 +6,7 @@
   belenios-lib.api
   belenios_ui
   belenios_server_core
+  belenios_storage_api
   lwt
   calendar
   csv

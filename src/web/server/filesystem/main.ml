@@ -60,6 +60,7 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
+  let dates_ops = make_uninitialized_ops "dates_ops"
   let extended_records_ops = make_uninitialized_ops "extended_records_ops"
   let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
   let data_ops = make_uninitialized_ops "data_ops"
@@ -242,8 +243,7 @@ module MakeBackend
     | State -> Concrete ("state.json", Trim)
     | Public_creds -> Concrete ("public_creds.json", Trim)
     | Private_creds -> Concrete ("private_creds.txt", Raw)
-    | Hide_result -> Concrete ("hide_result", Trim)
-    | Dates -> Concrete ("dates.json", Trim)
+    | Dates_full -> Abstract (dates_ops, ())
     | Decryption_tokens -> Concrete ("decryption_tokens.json", Trim)
     | Metadata -> Concrete ("metadata.json", Trim)
     | Private_key -> Concrete ("private_key.json", Trim)
@@ -504,6 +504,73 @@ module MakeBackend
         Lwt.return_none)
 
   (** {1 Views} *)
+
+  let raw_dates_filename = "dates.json"
+  let hide_result_filename = "hide_result"
+
+  let get_dates uuid () =
+    let* raw_dates = Filesystem.read_file (uuid /// raw_dates_filename) in
+    let* hide_result = Filesystem.read_file (uuid /// hide_result_filename) in
+    let hide_result =
+      Option.map
+        (String.trim >> datetime_of_string >> Datetime.to_unixfloat)
+        hide_result
+    in
+    let dates =
+      match (raw_dates, hide_result) with
+      | None, None -> None
+      | None, Some t ->
+          Some
+            {
+              Belenios_storage_api.default_election_dates with
+              e_date_publish = Some t;
+            }
+      | Some d, e_date_publish ->
+          let d = election_dates_of_string (String.trim d) in
+          Some
+            {
+              e_date_creation = Option.map Datetime.to_unixfloat d.e_creation;
+              e_date_finalization =
+                Option.map Datetime.to_unixfloat d.e_finalization;
+              e_date_tally = Option.map Datetime.to_unixfloat d.e_tally;
+              e_date_archive = Option.map Datetime.to_unixfloat d.e_archive;
+              e_date_last_mail = Option.map Datetime.to_unixfloat d.e_last_mail;
+              e_date_auto_open = Option.map Datetime.to_unixfloat d.e_auto_open;
+              e_date_auto_close =
+                Option.map Datetime.to_unixfloat d.e_auto_close;
+              e_date_publish;
+            }
+    in
+    Lwt.return @@ Option.map Belenios_storage_api.string_of_election_dates dates
+
+  let set_dates uuid () dates =
+    let d = Belenios_storage_api.election_dates_of_string dates in
+    let* () =
+      let filename = uuid /// hide_result_filename in
+      match d.e_date_publish with
+      | None -> Filesystem.cleanup_file filename
+      | Some t ->
+          let t = t |> Datetime.from_unixfloat |> string_of_datetime in
+          Filesystem.write_file filename (t ^ "\n")
+    in
+    let filename = uuid /// raw_dates_filename in
+    let dates =
+      {
+        e_creation = Option.map Datetime.from_unixfloat d.e_date_creation;
+        e_finalization =
+          Option.map Datetime.from_unixfloat d.e_date_finalization;
+        e_tally = Option.map Datetime.from_unixfloat d.e_date_tally;
+        e_archive = Option.map Datetime.from_unixfloat d.e_date_archive;
+        e_last_mail = Option.map Datetime.from_unixfloat d.e_date_last_mail;
+        e_auto_open = Option.map Datetime.from_unixfloat d.e_date_auto_open;
+        e_auto_close = Option.map Datetime.from_unixfloat d.e_date_auto_close;
+      }
+    in
+    Filesystem.write_file filename (string_of_election_dates dates ^ "\n")
+
+  let () =
+    dates_ops.get <- get_dates;
+    dates_ops.set <- set_dates
 
   module ExtendedRecordsCacheTypes = struct
     type key = uuid
@@ -826,10 +893,8 @@ module MakeBackend
         (fun x -> del (Election (uuid, x)))
         [
           Last_event;
-          Dates;
           Metadata;
           Audit_cache;
-          Hide_result;
           Shuffle_token;
           Skipped_shufflers;
           Public_archive;
@@ -838,6 +903,11 @@ module MakeBackend
           Voters;
           Confidential_archive;
         ]
+    in
+    let* () =
+      Lwt_list.iter_p
+        (fun x -> Filesystem.cleanup_file (uuid /// x))
+        [ raw_dates_filename; hide_result_filename ]
     in
     Elections_cache.clear ();
     Lwt.return_unit

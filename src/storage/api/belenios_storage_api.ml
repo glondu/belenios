@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,40 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
+include Serializable_j
 
-let version =
-  let open Belenios.Election in
-  let (Version v) = List.hd supported_crypto_versions in
-  int_of_version v
-
-let name = ""
-let description = ""
-let contact = ""
-
-let questions =
-  [|
-    Belenios_question.Homomorphic.make
-      ~value:
-        {
-          q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
-          q_blank = None;
-          q_min = 1;
-          q_max = 1;
-          q_question = "Question 1?";
-        }
-      ~extra:None;
-  |]
-
-let convert x = x |> datetime_of_string |> Types.Datetime.to_unixfloat
-let creation_date = convert {|"2018-11-26 00:00:00.000000"|}
-let validation_date = convert {|"2015-10-01 00:00:00.000000"|}
-let tally_date = convert {|"2018-11-26 00:00:00.000000"|}
-let archive_date = convert {|"2018-11-26 00:00:00.000000"|}
-let days_to_archive = 7.
-let days_to_delete = 365.
-let days_to_mail = 30.
-let days_between_mails = 7.
-let max_election_name_size = 80
-let max_total_weight = 100_000
-let supported_booth_versions = [ 2 ]
+let default_election_dates =
+  {
+    e_date_creation = None;
+    e_date_finalization = None;
+    e_date_tally = None;
+    e_date_archive = None;
+    e_date_last_mail = None;
+    e_date_auto_open = None;
+    e_date_auto_close = None;
+    e_date_publish = None;
+  }

@@ -37,5 +37,5 @@ module Make (_ : INPUT) () : sig
     int -> Belenios_api.Serializable_t.summary_list Lwt.t
 
   val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * datetime) list Lwt.t
+    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
 end

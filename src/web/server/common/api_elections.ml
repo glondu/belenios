@@ -74,28 +74,23 @@ let get_election_status s uuid =
   let status_auto_archive_date =
     match status_state with
     | `Tallied ->
-        let t = Option.value d.e_tally ~default:Defaults.tally_date in
-        Some
-          (Datetime.to_unixfloat
-          @@ Period.add t (Period.day Defaults.days_to_archive))
+        let t = Option.value d.e_date_tally ~default:Defaults.tally_date in
+        Some (t +. (86400. *. Defaults.days_to_archive))
     | _ -> None
   in
   let status_auto_delete_date =
     match status_state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t =
-          Option.value d.e_finalization ~default:Defaults.validation_date
+          Option.value d.e_date_finalization ~default:Defaults.validation_date
         in
-        Datetime.to_unixfloat
-        @@ Period.add t (Period.day Defaults.days_to_delete)
+        t +. (86400. *. Defaults.days_to_delete)
     | `Tallied ->
-        let t = Option.value d.e_tally ~default:Defaults.tally_date in
-        Datetime.to_unixfloat
-        @@ Period.add t (Period.day Defaults.(days_to_archive + days_to_delete))
+        let t = Option.value d.e_date_tally ~default:Defaults.tally_date in
+        t +. (86400. *. Defaults.(days_to_archive +. days_to_delete))
     | `Archived ->
-        let t = Option.value d.e_archive ~default:Defaults.archive_date in
-        Datetime.to_unixfloat
-        @@ Period.add t (Period.day Defaults.days_to_delete)
+        let t = Option.value d.e_date_archive ~default:Defaults.archive_date in
+        t +. (86400. *. Defaults.days_to_delete)
   in
   Lwt.return
     {

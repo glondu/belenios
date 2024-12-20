@@ -63,18 +63,21 @@ module Make (I : INPUT) () = struct
           Lwt.return template.t_name
     in
     let* date =
-      let* dates = get election_dates_of_string Dates in
+      let* dates =
+        get Belenios_storage_api.election_dates_of_string Dates_full
+      in
       match state with
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
           Lwt.return
-          @@ Option.value dates.e_finalization ~default:Defaults.validation_date
+          @@ Option.value dates.e_date_finalization
+               ~default:Defaults.validation_date
       | `Tallied ->
-          Lwt.return @@ Option.value dates.e_tally ~default:Defaults.tally_date
+          Lwt.return
+          @@ Option.value dates.e_date_tally ~default:Defaults.tally_date
       | `Archived ->
           Lwt.return
-          @@ Option.value dates.e_archive ~default:Defaults.archive_date
+          @@ Option.value dates.e_date_archive ~default:Defaults.archive_date
     in
-    let date = Datetime.to_unixfloat date in
     let state = (state :> Belenios_api.Serializable_t.state) in
     let item : Belenios_api.Serializable_t.summary =
       { uuid; state; date; name }
@@ -83,8 +86,8 @@ module Make (I : INPUT) () = struct
 
   let get_draft_election_summary uuid se =
     let date =
-      Option.value ~default:Defaults.creation_date se.se_creation_date
-      |> Datetime.to_unixfloat
+      Option.map Datetime.to_unixfloat se.se_creation_date
+      |> Option.value ~default:Defaults.creation_date
     in
     let name = se.se_questions.t_name in
     let item : Belenios_api.Serializable_t.summary =
@@ -140,20 +143,12 @@ module Make (I : INPUT) () = struct
       Lwt.return @@ Option.map draft_election_of_string x
     in
     let&* (Draft (_, se)) = se in
-    let t = Option.value se.se_creation_date ~default:Defaults.creation_date in
-    let next_t = Period.add t (Period.day Defaults.days_to_delete) in
+    let t =
+      Option.map Datetime.to_unixfloat se.se_creation_date
+      |> Option.value ~default:Defaults.creation_date
+    in
+    let next_t = t +. (86400. *. Defaults.days_to_delete) in
     Lwt.return_some (`Destroy, uuid, next_t)
-
-  let default_dates =
-    {
-      e_creation = None;
-      e_finalization = None;
-      e_tally = None;
-      e_archive = None;
-      e_last_mail = None;
-      e_auto_open = None;
-      e_auto_close = None;
-    }
 
   let extract_automatic_data_validated s uuid =
     let* state =
@@ -163,25 +158,28 @@ module Make (I : INPUT) () = struct
       | Some x -> Lwt.return @@ election_state_of_string x
     in
     let* dates =
-      let* x = I.get s (Election (uuid, Dates)) in
+      let* x = I.get s (Election (uuid, Dates_full)) in
       match x with
-      | None -> Lwt.return default_dates
-      | Some x -> Lwt.return @@ election_dates_of_string x
+      | None -> Lwt.return Belenios_storage_api.default_election_dates
+      | Some x -> Lwt.return @@ Belenios_storage_api.election_dates_of_string x
     in
     match state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t =
-          Option.value dates.e_finalization ~default:Defaults.validation_date
+          Option.value dates.e_date_finalization
+            ~default:Defaults.validation_date
         in
-        let next_t = Period.add t (Period.day Defaults.days_to_delete) in
+        let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Delete, uuid, next_t)
     | `Tallied ->
-        let t = Option.value dates.e_tally ~default:Defaults.tally_date in
-        let next_t = Period.add t (Period.day Defaults.days_to_archive) in
+        let t = Option.value dates.e_date_tally ~default:Defaults.tally_date in
+        let next_t = t +. (86400. *. Defaults.days_to_archive) in
         Lwt.return_some (`Archive, uuid, next_t)
     | `Archived ->
-        let t = Option.value dates.e_archive ~default:Defaults.archive_date in
-        let next_t = Period.add t (Period.day Defaults.days_to_delete) in
+        let t =
+          Option.value dates.e_date_archive ~default:Defaults.archive_date
+        in
+        let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Delete, uuid, next_t)
 
   let try_extract extract s uuid =
