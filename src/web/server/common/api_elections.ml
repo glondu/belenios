@@ -311,20 +311,11 @@ let post_shuffle s uuid election ~token ~shuffle =
         (fun e -> Lwt.return @@ Stdlib.Error (`Invalid e))
   | _ -> Lwt.return @@ Stdlib.Error `Forbidden
 
-let split_voting_record =
-  let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
-  fun x ->
-    let s = Re.Pcre.exec ~rex x in
-    {
-      vr_date =
-        Datetime.to_unixfloat @@ Datetime.wrap @@ Re.Pcre.get_substring s 1;
-      vr_username = Re.Pcre.get_substring s 3;
-    }
-
 let get_records s uuid =
   let* x = Web_persist.get_records s uuid in
-  let x = Option.value x ~default:[] in
-  Lwt.return @@ List.map split_voting_record x
+  Option.value ~default:[] x
+  |> List.map (fun (vr_username, vr_date) -> { vr_date; vr_username })
+  |> Lwt.return
 
 let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   let module W = (val election : Election.ELECTION) in

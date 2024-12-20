@@ -1166,8 +1166,8 @@ let get_draft_public_credentials s uuid =
 
 let get_records s uuid =
   let module S = (val s : Storage.BACKEND) in
-  let*& x = S.get (Election (uuid, Records)) in
-  Lwt.return_some @@ split_lines x
+  let*& x = S.get (Election (uuid, Records_new)) in
+  Lwt.return_some @@ Belenios_storage_api.election_records_of_string x
 
 type credentials_status = [ `None | `Pending of int | `Done ]
 

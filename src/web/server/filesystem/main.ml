@@ -61,6 +61,7 @@ module MakeBackend
   (** {1 Forward references} *)
 
   let dates_ops = make_uninitialized_ops "dates_ops"
+  let records_ops = make_uninitialized_ops "records_ops"
   let extended_records_ops = make_uninitialized_ops "extended_records_ops"
   let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
   let data_ops = make_uninitialized_ops "data_ops"
@@ -255,7 +256,7 @@ module MakeBackend
     | Deleted -> Concrete ("deleted.json", Trim)
     | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
     | Passwords -> Concrete ("passwords.csv", Raw)
-    | Records -> Concrete ("records", Raw)
+    | Records_new -> Abstract (records_ops, ())
     | Voters -> Concrete ("voters.txt", Raw)
     | Confidential_archive -> Concrete ("archive.zip", Raw)
     | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)
@@ -573,6 +574,26 @@ module MakeBackend
     dates_ops.get <- get_dates;
     dates_ops.set <- set_dates
 
+  let records_filename = "records"
+
+  let split_voting_record =
+    let rex = Re.Pcre.regexp "\"(.*)(\\..*)?\" \".*:(.*)\"" in
+    fun x ->
+      let s = Re.Pcre.exec ~rex x in
+      let date =
+        Datetime.to_unixfloat @@ Datetime.wrap @@ Re.Pcre.get_substring s 1
+      in
+      let username = Re.Pcre.get_substring s 3 in
+      (username, date)
+
+  let get_records uuid () =
+    let*& raw_records = Filesystem.read_file (uuid /// records_filename) in
+    raw_records |> split_lines
+    |> List.map split_voting_record
+    |> Belenios_storage_api.string_of_election_records |> Lwt.return_some
+
+  let () = records_ops.get <- get_records
+
   module ExtendedRecordsCacheTypes = struct
     type key = uuid
     type value = (datetime * string) SMap.t
@@ -599,9 +620,9 @@ module MakeBackend
       |> join_lines
     in
     let records =
-      List.map
-        (fun (u, (d, _)) -> Printf.sprintf "%s %S" (string_of_datetime d) u)
-        rs
+      rs
+      |> List.map (fun (u, (d, _)) ->
+             Printf.sprintf "%s %S" (string_of_datetime d) u)
       |> join_lines
     in
     let* () =
@@ -609,7 +630,7 @@ module MakeBackend
         (uuid /// extended_records_filename)
         extended_records
     in
-    set (Election (uuid, Records)) records
+    Filesystem.write_file (uuid /// records_filename) records
 
   let extended_records_cache =
     new ExtendedRecordsCache.cache raw_get_extended_records ~timer:3600. 10
@@ -900,7 +921,6 @@ module MakeBackend
           Skipped_shufflers;
           Public_archive;
           Passwords;
-          Records;
           Voters;
           Confidential_archive;
         ]
@@ -908,7 +928,7 @@ module MakeBackend
     let* () =
       Lwt_list.iter_p
         (fun x -> Filesystem.cleanup_file (uuid /// x))
-        [ raw_dates_filename; hide_result_filename ]
+        [ raw_dates_filename; hide_result_filename; records_filename ]
     in
     Elections_cache.clear ();
     Lwt.return_unit

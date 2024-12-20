@@ -42,7 +42,7 @@ type election_file =
   | Private_creds
   | Public_archive
   | Passwords
-  | Records
+  | Records_new
   | Voters
   | Confidential_archive
   | Extended_record of string
