@@ -282,7 +282,7 @@ module MakeBackend
         Concrete ("decryption_tokens.json", Trim, decryption_tokens_of_string)
     | Metadata -> Concrete ("metadata.json", Trim, metadata_of_string)
     | Private_key -> Concrete ("private_key.json", Trim, Yojson.Safe.from_string)
-    | Private_keys -> Concrete ("private_keys.jsons", Raw, Fun.id)
+    | Private_keys -> Concrete ("private_keys.jsons", Raw, split_lines)
     | Skipped_shufflers ->
         Concrete ("skipped_shufflers.json", Trim, skipped_shufflers_of_string)
     | Shuffle_token ->

@@ -1045,7 +1045,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
           |> Lopt.some_string Yojson.Safe.from_string
           |> S.create (Election (uuid, Private_key))
         in
-        join_lines y |> Lopt.some_value Fun.id
+        y |> Lopt.some_value join_lines
         |> S.create (Election (uuid, Private_keys))
   in
   (* send private credentials, if any *)
