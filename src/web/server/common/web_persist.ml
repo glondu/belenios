@@ -29,7 +29,7 @@ let get_spool_version () =
   let@ s = Storage.with_transaction in
   let module S = (val s) in
   let* x = S.get Spool_version in
-  match x with Some x -> return @@ int_of_string x | None -> return 0
+  match Lopt.get_value x with Some x -> return x | None -> return 0
 
 let get_setup_data s uuid =
   let* x =
@@ -320,17 +320,15 @@ let add_partial_decryption s uuid (owned_owner, pd) =
 
 let check_password s uuid ~user ~password =
   let module S = (val s : Storage.BACKEND) in
-  let*& r = S.get (Election (uuid, Password user)) in
-  let ({ username; address; _ } as r) = password_record_of_string r in
+  let* r = S.get (Election (uuid, Password user)) in
+  let&* ({ username; address; _ } as r) = Lopt.get_value r in
   if check_password r password then Lwt.return_some (username, address)
   else Lwt.return_none
 
 let get_all_voters s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Voters)) in
-  match x with
-  | None -> Lwt.return []
-  | Some x -> Lwt.return (Voter.list_of_string x)
+  match Lopt.get_value x with None -> Lwt.return [] | Some x -> Lwt.return x
 
 let dummy_voters_config =
   {
@@ -342,9 +340,9 @@ let dummy_voters_config =
 let get_voters_config s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Voters_config)) in
-  match x with
+  match Lopt.get_value x with
   | None -> Lwt.return dummy_voters_config
-  | Some x -> Lwt.return @@ voters_config_of_string x
+  | Some x -> Lwt.return x
 
 let get_has_explicit_weights s uuid =
   let* { has_explicit_weights; _ } = get_voters_config s uuid in
@@ -357,13 +355,13 @@ let get_username_or_address s uuid =
 let get_voter s uuid id =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Voter id)) in
-  let&* x = x in
-  Lwt.return_some @@ Voter.of_string x
+  let&* x = Lopt.get_value x in
+  Lwt.return_some x
 
 let get_credential_user s uuid cred =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Credential_user cred)) in
-  match x with
+  match Lopt.get_value x with
   | Some x -> Lwt.return_some x
   | None ->
       Lwt.fail
@@ -388,9 +386,9 @@ let add_ballot s election last ballot =
 let get_credential_weight s uuid credential =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Credential_weight credential)) in
-  match x with
+  match Lopt.get_value x with
   | None -> Lwt.return Weight.one
-  | Some x -> Lwt.return @@ Weight.of_string x
+  | Some x -> Lwt.return x
 
 let raw_compute_encrypted_tally s election =
   let module W = (val election : Site_common_sig.ELECTION) in
@@ -458,7 +456,7 @@ let get_credential_record s uuid credential =
     let module S = (val s : Storage.BACKEND) in
     S.get (Election (uuid, Credential_mapping credential))
   in
-  let&* cr_ballot = cr_ballot in
+  let&* cr_ballot = Lopt.get_value cr_ballot in
   let cr_ballot = if cr_ballot = "" then None else Some cr_ballot in
   let* cr_username = get_credential_user s uuid credential in
   let* cr_weight = get_credential_weight s uuid credential in
@@ -513,8 +511,7 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
   in
   let get_user_record user =
     let* x = S.get (Election (uuid, Extended_record user)) in
-    let&* x = x in
-    let { r_credential; _ } = extended_record_of_string x in
+    let&* { r_credential; _ } = Lopt.get_value x in
     return_some r_credential
   in
   let@ x cont =
@@ -564,13 +561,13 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
       let* () =
         S.create
           (Election (uuid, Credential_mapping credential))
-          (Hash.to_b64 hash)
+          (hash |> Hash.to_b64 |> Lopt.some_string Fun.id)
       in
       let* () =
         S.create
           (Election (uuid, Extended_record user))
-          (string_of_extended_record
-             { r_username = user; r_date = date; r_credential = credential })
+          ({ r_username = user; r_date = date; r_credential = credential }
+          |> Lopt.some_value string_of_extended_record)
       in
       return (Ok (hash, revote))
 
@@ -717,12 +714,9 @@ let delete_election s uuid =
   let* result = Public_archive.get_result s uuid in
   let* de_nb_voters, de_has_weights =
     let* x = S.get (Election (uuid, Voters_config)) in
-    match x with
+    match Lopt.get_value x with
     | None -> Lwt.return (0, false)
-    | Some x ->
-        let { has_explicit_weights; nb_voters; _ } =
-          voters_config_of_string x
-        in
+    | Some { has_explicit_weights; nb_voters; _ } ->
         Lwt.return (nb_voters, has_explicit_weights)
   in
   let de =
@@ -741,14 +735,17 @@ let delete_election s uuid =
     }
   in
   let* () =
-    S.create (Election (uuid, Deleted)) (string_of_deleted_election de)
+    de
+    |> Lopt.some_value string_of_deleted_election
+    |> S.create (Election (uuid, Deleted))
   in
   S.delete_live_data uuid
 
 let dump_passwords s uuid db =
   let module S = (val s : Storage.BACKEND) in
-  List.map (fun line -> String.concat "," line) db
-  |> join_lines
+  db
+  |> List.map (fun line -> String.concat "," line)
+  |> join_lines |> Lopt.some_value Fun.id
   |> S.create (Election (uuid, Passwords))
 
 let regen_password s uuid metadata user =
@@ -763,17 +760,21 @@ let regen_password s uuid metadata user =
   let* show_weight = get_has_explicit_weights s uuid in
   let* x = S.get (Election (uuid, Voter user)) in
   let* y = S.update (Election (uuid, Password user)) in
-  match (x, y) with
+  match (Lopt.get_value x, y) with
   | Some id, Some (r, set) ->
-      let id = Voter.of_string id in
-      let r = password_record_of_string r in
+      let@ r cont =
+        match Lopt.get_value r with
+        | None -> Lwt.return_false
+        | Some r -> cont r
+      in
       let langs = get_languages metadata.e_languages in
       let* email, (salt, hashed) =
         Mails_voter.generate_password_email metadata langs title uuid id
           show_weight
       in
-      let r = { r with salt; hashed } in
-      let r = string_of_password_record r in
+      let r =
+        { r with salt; hashed } |> Lopt.some_value string_of_password_record
+      in
       let* () = set r in
       let* () = Mails_voter.submit_bulk_emails [ email ] in
       Lwt.return_true
@@ -782,11 +783,14 @@ let regen_password s uuid metadata user =
 let get_private_creds_downloaded s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Private_creds_downloaded)) in
-  match x with None -> Lwt.return_false | Some _ -> Lwt.return_true
+  match Lopt.get_value x with
+  | None -> Lwt.return_false
+  | Some _ -> Lwt.return_true
 
 let set_private_creds_downloaded s uuid =
   let module S = (val s : Storage.BACKEND) in
-  S.ensure (Election (uuid, Private_creds_downloaded)) ""
+  "" |> Lopt.some_value Fun.id
+  |> S.ensure (Election (uuid, Private_creds_downloaded))
 
 let clear_private_creds_downloaded s uuid =
   let module S = (val s : Storage.BACKEND) in
@@ -799,9 +803,7 @@ let send_credentials s uuid (Draft (v, se)) =
   in
   let@ private_creds cont =
     let* x = S.get (Election (uuid, Private_creds)) in
-    match x with
-    | None -> Lwt.return_unit
-    | Some x -> cont @@ private_credentials_of_string x
+    match Lopt.get_value x with None -> Lwt.return_unit | Some x -> cont x
   in
   let voter_map =
     List.fold_left
@@ -993,9 +995,15 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   in
   (* write election files to disk *)
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
-  let* () = S.create (Election (uuid, Voters)) (Voter.list_to_string voters) in
   let* () =
-    S.create (Election (uuid, Metadata)) (string_of_metadata metadata)
+    voters
+    |> Lopt.some_value Voter.list_to_string
+    |> S.create (Election (uuid, Voters))
+  in
+  let* () =
+    metadata
+    |> Lopt.some_value string_of_metadata
+    |> S.create (Election (uuid, Metadata))
   in
   (* initialize credentials *)
   let* public_creds = S.init_credential_mapping uuid in
@@ -1028,12 +1036,17 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let* () =
     match private_keys with
     | `KEY x ->
-        S.create (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x)
+        swrite G.Zq.to_string -- x
+        |> Lopt.some_string Yojson.Safe.from_string
+        |> S.create (Election (uuid, Private_key))
     | `KEYS (x, y) ->
         let* () =
-          S.create (Election (uuid, Private_key)) (swrite G.Zq.to_string -- x)
+          swrite G.Zq.to_string -- x
+          |> Lopt.some_string Yojson.Safe.from_string
+          |> S.create (Election (uuid, Private_key))
         in
-        S.create (Election (uuid, Private_keys)) (join_lines y)
+        join_lines y |> Lopt.some_value Fun.id
+        |> S.create (Election (uuid, Private_keys))
   in
   (* send private credentials, if any *)
   let* () = send_credentials storage uuid (Draft (v, se)) in
@@ -1166,8 +1179,9 @@ let get_draft_public_credentials s uuid =
 
 let get_records s uuid =
   let module S = (val s : Storage.BACKEND) in
-  let*& x = S.get (Election (uuid, Records_new)) in
-  Lwt.return_some @@ Belenios_storage_api.election_records_of_string x
+  let* x = S.get (Election (uuid, Records_new)) in
+  let&* x = Lopt.get_value x in
+  Lwt.return_some x
 
 type credentials_status = [ `None | `Pending of int | `Done ]
 
@@ -1207,11 +1221,10 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           match se with
           | None -> Lwt.return_unit
           | Some (Draft (v, se), set) ->
-              let private_creds =
-                private_creds |> string_of_private_credentials
-              in
               let* () =
-                S.create (Election (uuid, Private_creds)) private_creds
+                private_creds
+                |> Lopt.some_value string_of_private_credentials
+                |> S.create (Election (uuid, Private_creds))
               in
               let* () =
                 Spool.create s uuid Spool.draft_public_credentials

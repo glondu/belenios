@@ -186,7 +186,7 @@ struct
                         S.get (Auth_db f)
                       in
                       let allowlist =
-                        match allowlist with
+                        match Lopt.get_value allowlist with
                         | None -> []
                         | Some x -> split_lines x
                       in

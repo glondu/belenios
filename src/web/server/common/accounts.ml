@@ -31,21 +31,18 @@ let run_update_hooks account =
 
 let get_account_by_id s id =
   let module S = (val s : Storage.BACKEND) in
-  let*& x = S.get (Account id) in
-  match account_of_string x with
-  | exception _ -> Lwt.return_none
-  | x -> Lwt.return_some x
+  let* x = S.get (Account id) in
+  x |> Lopt.get_value |> Lwt.return
 
 let update_account_by_id s id =
   let module S = (val s : Storage.BACKEND) in
   let*& x, set = S.update (Account id) in
+  let&* x = Lopt.get_value x in
   let set x =
-    let* () = set (string_of_account x) in
+    let* () = set (x |> Lopt.some_value string_of_account) in
     run_update_hooks x
   in
-  match account_of_string x with
-  | exception _ -> Lwt.return_none
-  | x -> Lwt.return_some (x, set)
+  Lwt.return_some (x, set)
 
 let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
@@ -82,7 +79,9 @@ let create_account s ~email user =
   let* () =
     Lwt.finalize
       (fun () ->
-        let* () = S.create (Account id) (string_of_account account) in
+        let* () =
+          account |> Lopt.some_value string_of_account |> S.create (Account id)
+        in
         run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();

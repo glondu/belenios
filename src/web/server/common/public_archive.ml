@@ -30,17 +30,18 @@ let not_in_cache _ = Lwt.fail Not_in_cache
 let get_roots s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Roots)) in
-  match x with
+  match Lopt.get_value x with
   | None -> Lwt.return Events.empty_roots
-  | Some x -> Lwt.return @@ roots_of_string x
+  | Some x -> Lwt.return x
 
 let get_data s uuid x =
   let module S = (val s : Storage.BACKEND) in
-  S.get (Election (uuid, Data x))
+  let* x = S.get (Election (uuid, Data x)) in
+  x |> Lopt.get_value |> Lwt.return
 
 let get_event s uuid x =
   let* x = get_data s uuid x in
-  Lwt.return @@ Option.map event_of_string x
+  x |> Option.map event_of_string |> Lwt.return
 
 let get_from_data s uuid f =
   let* x = get_roots s uuid in
@@ -146,8 +147,8 @@ let get_public_creds s uuid =
 let get_credential_weight s uuid cred =
   let module S = (val s : Storage.BACKEND) in
   let* x = S.get (Election (uuid, Credential_weight cred)) in
-  match x with
-  | Some x -> Lwt.return @@ Weight.of_string x
+  match Lopt.get_value x with
+  | Some x -> Lwt.return x
   | None ->
       Lwt.fail
         (Failure

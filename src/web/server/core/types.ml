@@ -64,3 +64,27 @@ module Period = struct
   let sub = Calendar.Precise.sub
   let ymds = Calendar.Precise.Period.ymds
 end
+
+module Lopt = struct
+  type 'a t =
+    | Value of { value : 'a option; string : string option Lazy.t }
+    | String of { string : string option; value : 'a option Lazy.t }
+
+  let get_string = function
+    | String { string; _ } -> string
+    | Value { string; _ } -> Lazy.force string
+
+  let get_value = function
+    | String { value; _ } -> Lazy.force value
+    | Value { value; _ } -> value
+
+  let none = Value { value = None; string = Lazy.from_val None }
+  let none_lwt = Lwt.return none
+
+  let some_string of_string x =
+    let value = lazy (try Some (of_string x) with _ -> None) in
+    String { string = Some x; value }
+
+  let some_value to_string x =
+    Value { value = Some x; string = lazy (Some (to_string x)) }
+end

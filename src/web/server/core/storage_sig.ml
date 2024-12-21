@@ -24,56 +24,58 @@ open Serializable_t
 
 (** {1 Type definitions} *)
 
-type election_file =
-  | State
-  | Dates_full
-  | Decryption_tokens
-  | Metadata
-  | Private_key
-  | Private_keys
-  | Skipped_shufflers
-  | Shuffle_token
-  | Audit_cache
-  | Last_event
-  | Deleted
-  | Private_creds_downloaded
-  | Draft
-  | Public_creds
-  | Private_creds
-  | Public_archive
-  | Passwords
-  | Records_new
-  | Voters
-  | Confidential_archive
-  | Extended_record of string
-  | Credential_mapping of string
-  | Data of hash
-  | Roots
-  | Voters_config
-  | Voter of string
-  | Credential_weight of string
-  | Credential_user of string
-  | Password of string
+type 'a v = 'a Types.Lopt.t
+
+type _ election_file =
+  | State : election_state election_file
+  | Dates_full : Belenios_storage_api.election_dates election_file
+  | Decryption_tokens : decryption_tokens election_file
+  | Metadata : metadata election_file
+  | Private_key : Yojson.Safe.t election_file
+  | Private_keys : string election_file
+  | Skipped_shufflers : skipped_shufflers election_file
+  | Shuffle_token : shuffle_token election_file
+  | Audit_cache : audit_cache election_file
+  | Last_event : last_event election_file
+  | Deleted : deleted_election election_file
+  | Private_creds_downloaded : string election_file
+  | Draft : Core.draft_election election_file
+  | Public_creds : public_credentials election_file
+  | Private_creds : private_credentials election_file
+  | Public_archive : string election_file
+  | Passwords : string election_file
+  | Records_new : Belenios_storage_api.election_records election_file
+  | Voters : Voter.t list election_file
+  | Confidential_archive : string election_file
+  | Extended_record : string -> extended_record election_file
+  | Credential_mapping : string -> string election_file
+  | Data : hash -> string election_file
+  | Roots : roots election_file
+  | Voters_config : voters_config election_file
+  | Voter : string -> Voter.t election_file
+  | Credential_weight : string -> Weight.t election_file
+  | Credential_user : string -> string election_file
+  | Password : string -> password_record election_file
 
 type admin_password_file = Username of string | Address of string
 
-type file =
-  | Spool_version
-  | Account_counter (* obsolete as of 3.0 *)
-  | Account of int
-  | Election of uuid * election_file
-  | Auth_db of string
-  | Admin_password of string * admin_password_file
+type _ file =
+  | Spool_version : int file
+  | Account_counter : int file (* obsolete as of 3.0 *)
+  | Account : int -> account file
+  | Election : uuid * 'a election_file -> 'a file
+  | Auth_db : string -> string file
+  | Admin_password : string * admin_password_file -> password_record file
 
 type append_operation = Data of string | Event of event_type * hash option
 
 module type BACKEND_GENERIC = sig
-  val get_as_file : file -> string Lwt.t
-  val get : file -> string option Lwt.t
-  val update : file -> (string * (string -> unit Lwt.t)) option Lwt.t
-  val create : file -> string -> unit Lwt.t
-  val ensure : file -> string -> unit Lwt.t
-  val del : file -> unit Lwt.t
+  val get_as_file : 'a file -> string Lwt.t
+  val get : 'a file -> 'a v Lwt.t
+  val update : 'a file -> ('a v * ('a v -> unit Lwt.t)) option Lwt.t
+  val create : 'a file -> 'a v -> unit Lwt.t
+  val ensure : 'a file -> 'a v -> unit Lwt.t
+  val del : 'a file -> unit Lwt.t
 end
 
 module type BACKEND_ARCHIVE = sig

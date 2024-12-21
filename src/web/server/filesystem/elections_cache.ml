@@ -26,7 +26,7 @@ open Belenios_server_core
 module type INPUT = sig
   type session
 
-  val get : session -> Storage.file -> string option Lwt.t
+  val get : session -> 'a Storage.file -> 'a Lopt.t Lwt.t
   val list_elections : session -> uuid list Lwt.t
   val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end
@@ -42,16 +42,18 @@ module Make (I : INPUT) () = struct
   let get_live_election_summary s uuid =
     let* state =
       let* x = I.get s (Election (uuid, State)) in
-      match x with
+      match Lopt.get_value x with
       | None -> Lwt.return `Archived
-      | Some x -> Lwt.return @@ election_state_of_string x
+      | Some x -> Lwt.return x
     in
     let get of_string file =
       let* x = I.get s (Election (uuid, file)) in
-      match x with None -> Lwt.fail Exit | Some x -> Lwt.return @@ of_string x
+      match Lopt.get_value x with
+      | None -> Lwt.fail Exit
+      | Some x -> x |> of_string |> Lwt.return
     in
-    let* metadata = get metadata_of_string Metadata in
-    let* roots = get roots_of_string Roots in
+    let* metadata = get Fun.id Metadata in
+    let* roots = get Fun.id Roots in
     let* name =
       match roots.roots_setup_data with
       | None -> Lwt.fail Exit
@@ -63,9 +65,7 @@ module Make (I : INPUT) () = struct
           Lwt.return template.t_name
     in
     let* date =
-      let* dates =
-        get Belenios_storage_api.election_dates_of_string Dates_full
-      in
+      let* dates = get Fun.id Dates_full in
       match state with
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
           Lwt.return
@@ -97,11 +97,9 @@ module Make (I : INPUT) () = struct
 
   let get_election_summary s uuid =
     let* draft = I.get s (Election (uuid, Draft)) in
-    match draft with
+    match Lopt.get_value draft with
     | None -> get_live_election_summary s uuid
-    | Some x ->
-        let (Draft (_, se)) = draft_election_of_string x in
-        Lwt.return @@ get_draft_election_summary uuid se
+    | Some (Draft (_, se)) -> Lwt.return @@ get_draft_election_summary uuid se
 
   let umap_add user x map =
     let xs = match IMap.find_opt user map with None -> [] | Some xs -> xs in
@@ -140,7 +138,8 @@ module Make (I : INPUT) () = struct
   let extract_automatic_data_draft s uuid =
     let* se =
       let* x = I.get s (Election (uuid, Draft)) in
-      Lwt.return @@ Option.map draft_election_of_string x
+      let&* x = Lopt.get_value x in
+      Lwt.return_some x
     in
     let&* (Draft (_, se)) = se in
     let t =
@@ -153,15 +152,15 @@ module Make (I : INPUT) () = struct
   let extract_automatic_data_validated s uuid =
     let* state =
       let* x = I.get s (Election (uuid, State)) in
-      match x with
+      match Lopt.get_value x with
       | None -> Lwt.return `Archived
-      | Some x -> Lwt.return @@ election_state_of_string x
+      | Some x -> Lwt.return x
     in
     let* dates =
       let* x = I.get s (Election (uuid, Dates_full)) in
-      match x with
+      match Lopt.get_value x with
       | None -> Lwt.return Belenios_storage_api.default_election_dates
-      | Some x -> Lwt.return @@ Belenios_storage_api.election_dates_of_string x
+      | Some x -> Lwt.return x
     in
     match state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->

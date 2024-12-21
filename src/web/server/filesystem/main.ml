@@ -26,6 +26,7 @@ open Storage
 open Types
 
 let () = Stdlib.Random.self_init ()
+let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
 
 module type BACKEND0 = sig
   include BACKEND
@@ -49,9 +50,9 @@ module MakeBackend
 
   (** {1 Abstract election-specific file operations} *)
 
-  type 'key abstract_file_ops = {
-    mutable get : uuid -> 'key -> string option Lwt.t;
-    mutable set : uuid -> 'key -> string -> unit Lwt.t;
+  type ('key, 'a) abstract_file_ops = {
+    mutable get : uuid -> 'key -> 'a v Lwt.t;
+    mutable set : uuid -> 'key -> 'a v -> unit Lwt.t;
   }
 
   let make_uninitialized_ops what =
@@ -60,16 +61,37 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
-  let dates_ops = make_uninitialized_ops "dates_ops"
-  let records_ops = make_uninitialized_ops "records_ops"
-  let extended_records_ops = make_uninitialized_ops "extended_records_ops"
-  let credential_mappings_ops = make_uninitialized_ops "credential_mappings_ops"
-  let data_ops = make_uninitialized_ops "data_ops"
-  let roots_ops = make_uninitialized_ops "roots_ops"
-  let voters_config_ops = make_uninitialized_ops "voters_config_ops"
-  let voters_ops = make_uninitialized_ops "voters_ops"
-  let credential_weights_ops = make_uninitialized_ops "credential_weights_ops"
-  let credential_users_ops = make_uninitialized_ops "credential_users_ops"
+  let dates_ops : (_, Belenios_storage_api.election_dates) abstract_file_ops =
+    make_uninitialized_ops "dates_ops"
+
+  let records_ops : (_, Belenios_storage_api.election_records) abstract_file_ops
+      =
+    make_uninitialized_ops "records_ops"
+
+  let extended_records_ops : (_, extended_record) abstract_file_ops =
+    make_uninitialized_ops "extended_records_ops"
+
+  let credential_mappings_ops : (_, string) abstract_file_ops =
+    make_uninitialized_ops "credential_mappings_ops"
+
+  let data_ops : (_, string) abstract_file_ops =
+    make_uninitialized_ops "data_ops"
+
+  let roots_ops : (_, roots) abstract_file_ops =
+    make_uninitialized_ops "roots_ops"
+
+  let voters_config_ops : (_, voters_config) abstract_file_ops =
+    make_uninitialized_ops "voters_config_ops"
+
+  let voters_ops : (_, Voter.t) abstract_file_ops =
+    make_uninitialized_ops "voters_ops"
+
+  let credential_weights_ops : (_, Weight.t) abstract_file_ops =
+    make_uninitialized_ops "credential_weights_ops"
+
+  let credential_users_ops : (_, string) abstract_file_ops =
+    make_uninitialized_ops "credential_users_ops"
+
   let password_records_ops = make_uninitialized_ops "password_records_ops"
 
   let get_password_file =
@@ -132,9 +154,9 @@ module MakeBackend
         let key, map =
           match who with Username u' -> (u', u) | Address a' -> (a', a)
         in
-        let r = SMap.find_opt (String.lowercase_ascii key) map in
-        Lwt.return @@ Option.map string_of_password_record r)
-      (function Password_db_not_found -> Lwt.return_none | e -> Lwt.reraise e)
+        let&** r = SMap.find_opt (String.lowercase_ascii key) map in
+        r |> Lopt.some_value string_of_password_record |> Lwt.return)
+      (function Password_db_not_found -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let get_password_record_admin file who =
     get_password_record_generic (Admin file) who
@@ -190,24 +212,30 @@ module MakeBackend
     write csv
 
   let set_password_record_admin file key data =
-    let* () =
-      set_password_record_generic
-        (fun () -> Filesystem.read_file file)
-        (fun x -> Filesystem.write_file file x)
-        key data
-    in
-    password_records_cache#remove (Admin file);
-    Lwt.return_unit
+    match Lopt.get_string data with
+    | None -> assert false
+    | Some data ->
+        let* () =
+          set_password_record_generic
+            (fun () -> Filesystem.read_file file)
+            (fun x -> Filesystem.write_file file x)
+            key data
+        in
+        password_records_cache#remove (Admin file);
+        Lwt.return_unit
 
   let set_password_record_election uuid who data =
-    let* () =
-      set_password_record_generic
-        (fun () -> !get_password_file uuid)
-        (fun x -> !set_password_file uuid x)
-        (Username who) data
-    in
-    password_records_cache#remove (Election uuid);
-    Lwt.return_unit
+    match Lopt.get_string data with
+    | None -> assert false
+    | Some data ->
+        let* () =
+          set_password_record_generic
+            (fun () -> !get_password_file uuid)
+            (fun x -> !set_password_file uuid x)
+            (Username who) data
+        in
+        password_records_cache#remove (Election uuid);
+        Lwt.return_unit
 
   let () =
     password_records_ops.get <- get_password_record_election;
@@ -235,31 +263,40 @@ module MakeBackend
                | Some x -> x :: accu))
          [] xs
 
-  type election_file_props =
-    | Concrete : string * kind -> election_file_props
-    | Abstract : 'key abstract_file_ops * 'key -> election_file_props
+  type _ election_file_props =
+    | Concrete : string * kind * (string -> 'a) -> 'a election_file_props
+    | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
-  let get_election_file_props uuid = function
-    | Draft -> Concrete ("draft.json", Trim)
-    | State -> Concrete ("state.json", Trim)
-    | Public_creds -> Concrete ("public_creds.json", Trim)
-    | Private_creds -> Concrete ("private_creds.txt", Raw)
+  let get_election_file_props uuid (type t) :
+      t election_file -> t election_file_props = function
+    | Draft ->
+        Concrete
+          ("draft.json", Trim, Belenios_server_core.draft_election_of_string)
+    | State -> Concrete ("state.json", Trim, election_state_of_string)
+    | Public_creds ->
+        Concrete ("public_creds.json", Trim, public_credentials_of_string)
+    | Private_creds ->
+        Concrete ("private_creds.txt", Raw, private_credentials_of_string)
     | Dates_full -> Abstract (dates_ops, ())
-    | Decryption_tokens -> Concrete ("decryption_tokens.json", Trim)
-    | Metadata -> Concrete ("metadata.json", Trim)
-    | Private_key -> Concrete ("private_key.json", Trim)
-    | Private_keys -> Concrete ("private_keys.jsons", Raw)
-    | Skipped_shufflers -> Concrete ("skipped_shufflers.json", Trim)
-    | Shuffle_token -> Concrete ("shuffle_token.json", Trim)
-    | Audit_cache -> Concrete ("audit_cache.json", Trim)
-    | Last_event -> Concrete ("last_event.json", Trim)
-    | Deleted -> Concrete ("deleted.json", Trim)
-    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
-    | Passwords -> Concrete ("passwords.csv", Raw)
+    | Decryption_tokens ->
+        Concrete ("decryption_tokens.json", Trim, decryption_tokens_of_string)
+    | Metadata -> Concrete ("metadata.json", Trim, metadata_of_string)
+    | Private_key -> Concrete ("private_key.json", Trim, Yojson.Safe.from_string)
+    | Private_keys -> Concrete ("private_keys.jsons", Raw, Fun.id)
+    | Skipped_shufflers ->
+        Concrete ("skipped_shufflers.json", Trim, skipped_shufflers_of_string)
+    | Shuffle_token ->
+        Concrete ("shuffle_token.json", Trim, shuffle_token_of_string)
+    | Audit_cache -> Concrete ("audit_cache.json", Trim, audit_cache_of_string)
+    | Last_event -> Concrete ("last_event.json", Trim, last_event_of_string)
+    | Deleted -> Concrete ("deleted.json", Trim, deleted_election_of_string)
+    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, Fun.id)
+    | Passwords -> Concrete ("passwords.csv", Raw, Fun.id)
     | Records_new -> Abstract (records_ops, ())
-    | Voters -> Concrete ("voters.txt", Raw)
-    | Confidential_archive -> Concrete ("archive.zip", Raw)
-    | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)
+    | Voters -> Concrete ("voters.txt", Raw, Voter.list_of_string)
+    | Confidential_archive -> Concrete ("archive.zip", Raw, Fun.id)
+    | Private_creds_downloaded ->
+        Concrete ("private_creds.downloaded", Raw, Fun.id)
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
     | Data key -> Abstract (data_ops, key)
@@ -270,7 +307,7 @@ module MakeBackend
     | Credential_user key -> Abstract (credential_users_ops, key)
     | Password key -> Abstract (password_records_ops, key)
 
-  let clear_caches = function
+  let clear_caches (type t) : t file -> _ = function
     | Election (_, (Draft | State)) -> Elections_cache.clear ()
     | Account _ -> Accounts_cache.clear ()
     | _ -> ()
@@ -278,27 +315,34 @@ module MakeBackend
   let extended_records_filename = "extended_records.jsons"
   let credential_mappings_filename = "credential_mappings.jsons"
 
-  type file_props =
-    | Concrete : string * kind -> file_props
-    | Abstract : 'key abstract_file_ops * uuid * 'key -> file_props
-    | Admin_password : string * admin_password_file -> file_props
+  type _ file_props =
+    | Concrete : string * kind * (string -> 'a) -> 'a file_props
+    | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
+    | Admin_password :
+        string * admin_password_file
+        -> password_record file_props
 
-  let get_props = function
-    | Spool_version -> Concrete (!!"version", Trim)
-    | Account_counter -> Concrete (Config.accounts_dir // "counter", Trim)
+  let get_props (type t) : t file -> t file_props = function
+    | Spool_version -> Concrete (!!"version", Trim, int_of_string)
+    | Account_counter ->
+        Concrete (Config.accounts_dir // "counter", Trim, int_of_string)
     | Account id ->
-        Concrete (Config.accounts_dir // Printf.sprintf "%d.json" id, Trim)
+        Concrete
+          ( Config.accounts_dir // Printf.sprintf "%d.json" id,
+            Trim,
+            account_of_string )
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
-        | Concrete (fname, kind) -> Concrete (uuid /// fname, kind)
+        | Concrete (fname, kind, of_string) ->
+            Concrete (uuid /// fname, kind, of_string)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw)
+    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw, Fun.id)
     | Admin_password (file, key) ->
         Admin_password (SMap.find file Config.maps, key)
 
-  let file_exists x =
+  let file_exists (type t) (x : t file) =
     match get_props x with
-    | Concrete (path, _) -> Filesystem.file_exists path
+    | Concrete (path, _, _) -> Filesystem.file_exists path
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
   let list_elections () =
@@ -312,31 +356,42 @@ module MakeBackend
             if b then Lwt.return accu else Lwt.return (uuid :: accu))
       [] xs
 
-  let get f =
+  let get (type t) (f : t file) : t v Lwt.t =
     match get_props f with
-    | Concrete (path, kind) -> (
+    | Concrete (path, kind, of_string) ->
         let* x = Filesystem.read_file path in
-        match kind with
-        | Raw -> Lwt.return x
-        | Trim -> Lwt.return @@ Option.map String.trim x)
+        let&** x = x in
+        (match kind with Raw -> x | Trim -> String.trim x)
+        |> Lopt.some_string of_string |> Lwt.return
     | Abstract (ops, uuid, key) -> ops.get uuid key
     | Admin_password (file, key) -> get_password_record_admin file key
 
-  let set f data =
+  let set (type t) (f : t file) (data : t v) =
     match get_props f with
-    | Concrete (fname, kind) ->
-        let data = match kind with Raw -> data | Trim -> data ^ "\n" in
-        let* () = Filesystem.write_file fname data in
-        let () = clear_caches f in
-        Lwt.return_unit
+    | Concrete (fname, kind, _) -> (
+        match Lopt.get_string data with
+        | None -> assert false
+        | Some data ->
+            let data = match kind with Raw -> data | Trim -> data ^ "\n" in
+            let* () = Filesystem.write_file fname data in
+            let () = clear_caches f in
+            Lwt.return_unit)
     | Abstract (ops, uuid, key) -> ops.set uuid key data
     | Admin_password (file, key) -> set_password_record_admin file key data
 
-  let () = get_password_file := fun uuid -> get (Election (uuid, Passwords))
-  let () = set_password_file := fun uuid x -> set (Election (uuid, Passwords)) x
+  let () =
+    get_password_file :=
+      fun uuid ->
+        let* x = get (Election (uuid, Passwords)) in
+        let&* x = Lopt.get_value x in
+        Lwt.return_some x
+
+  let () =
+    set_password_file :=
+      fun uuid x -> set (Election (uuid, Passwords)) (Lopt.some_string Fun.id x)
 
   module HashedFile = struct
-    type t = file
+    type t = File : 'a file -> t
 
     let equal = ( = )
     let hash = Hashtbl.hash
@@ -361,10 +416,9 @@ module MakeBackend
         TxId.add txids_cells f x;
         x
 
-  let update f =
+  let update (type t) (f : t file) =
     let* x = get f in
-    let&* x = x in
-    let txid_cell = get_txid_cell f in
+    let txid_cell = get_txid_cell (File f) in
     let txid = gen_txid () in
     txid_cell := txid;
     let set x =
@@ -382,9 +436,9 @@ module MakeBackend
     in
     Lwt_list.iter_s (write_line oc) lines
 
-  let del f =
+  let del (type t) (f : t file) =
     match get_props f with
-    | Concrete (f, _) -> Filesystem.cleanup_file f
+    | Concrete (f, _, _) -> Filesystem.cleanup_file f
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let rmdir dir =
@@ -458,26 +512,23 @@ module MakeBackend
   let get_archive uuid =
     let* state = get (Election (uuid, State)) in
     let final =
-      match state with
-      | None -> true
-      | Some x -> (
-          match election_state_of_string x with
-          | `Tallied | `Archived -> true
-          | _ -> false)
+      match Lopt.get_value state with
+      | None | Some (`Tallied | `Archived) -> true
+      | _ -> false
     in
     if final then
       let archive_name = Election (uuid, Confidential_archive) in
       let* b = file_exists archive_name in
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
-      | Concrete (f, _) -> Lwt.return f
+      | Concrete (f, _, _) -> Lwt.return f
       | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
-  let get_as_file = function
-    | Election (_, (Public_archive | Private_creds)) as x -> (
+  let get_as_file (type t) : t file -> _ = function
+    | Election (_, (Public_archive | Private_creds : t election_file)) as x -> (
         match get_props x with
-        | Concrete (f, _) -> Lwt.return f
+        | Concrete (f, _, _) -> Lwt.return f
         | _ -> Lwt.fail @@ Not_implemented "get_as_file")
     | Election (uuid, Confidential_archive) -> get_archive uuid
     | _ -> Lwt.fail Not_found
@@ -517,7 +568,7 @@ module MakeBackend
         (String.trim >> datetime_of_string >> Datetime.to_unixfloat)
         hide_result
     in
-    let dates =
+    let&** dates =
       match (raw_dates, hide_result) with
       | None, None -> None
       | None, Some t ->
@@ -542,10 +593,16 @@ module MakeBackend
               e_date_publish;
             }
     in
-    Lwt.return @@ Option.map Belenios_storage_api.string_of_election_dates dates
+    dates
+    |> Lopt.some_value Belenios_storage_api.string_of_election_dates
+    |> Lwt.return
 
   let set_dates uuid () dates =
-    let d = Belenios_storage_api.election_dates_of_string dates in
+    let@ d cont =
+      match Lopt.get_value dates with
+      | None -> assert false
+      | Some d -> cont (d : Belenios_storage_api.election_dates)
+    in
     let* () =
       let filename = uuid /// hide_result_filename in
       match d.e_date_publish with
@@ -587,10 +644,12 @@ module MakeBackend
       (username, date)
 
   let get_records uuid () =
-    let*& raw_records = Filesystem.read_file (uuid /// records_filename) in
+    let* raw_records = Filesystem.read_file (uuid /// records_filename) in
+    let&** raw_records = raw_records in
     raw_records |> split_lines
     |> List.map split_voting_record
-    |> Belenios_storage_api.string_of_election_records |> Lwt.return_some
+    |> Lopt.some_value Belenios_storage_api.string_of_election_records
+    |> Lwt.return
 
   let () = records_ops.get <- get_records
 
@@ -663,17 +722,19 @@ module MakeBackend
   let () =
     extended_records_ops.get <-
       (fun uuid r_username ->
-        let*& r_date, r_credential = find_extended_record uuid r_username in
-        Lwt.return_some
-        @@ string_of_extended_record { r_username; r_date; r_credential });
+        let* x = find_extended_record uuid r_username in
+        let&** r_date, r_credential = x in
+        { r_username; r_date; r_credential }
+        |> Lopt.some_value string_of_extended_record
+        |> Lwt.return);
     extended_records_ops.set <-
       (fun uuid username data ->
-        let { r_username; r_date; r_credential } =
-          extended_record_of_string data
-        in
-        if username = r_username then
-          add_extended_record uuid username (r_date, r_credential)
-        else Lwt.fail @@ Not_implemented "extended_records_ops.set")
+        match Lopt.get_value data with
+        | None -> assert false
+        | Some { r_username; r_date; r_credential } ->
+            if username = r_username then
+              add_extended_record uuid username (r_date, r_credential)
+            else Lwt.fail @@ Not_implemented "extended_records_ops.set")
 
   module CredMappingsCacheTypes = struct
     type key = uuid
@@ -711,11 +772,9 @@ module MakeBackend
 
   let init_credential_mapping uuid =
     let* file = get (Election (uuid, Public_creds)) in
-    match file with
+    match Lopt.get_value file with
     | Some x ->
-        let public_credentials =
-          public_credentials_of_string x |> List.map strip_public_credential
-        in
+        let public_credentials = x |> List.map strip_public_credential in
         let xs =
           List.fold_left
             (fun accu x ->
@@ -751,12 +810,15 @@ module MakeBackend
     credential_mappings_ops.get <-
       (fun uuid cred ->
         let* x = find_credential_mapping uuid cred in
-        let&* x = x in
-        Lwt.return_some @@ Option.value ~default:"" x);
+        let&** x = x in
+        x |> Option.value ~default:"" |> Lopt.some_string Fun.id |> Lwt.return);
     credential_mappings_ops.set <-
       (fun uuid cred data ->
-        let mapping = if data = "" then None else Some data in
-        add_credential_mapping uuid cred mapping)
+        match Lopt.get_string data with
+        | None -> assert false
+        | Some data ->
+            let mapping = if data = "" then None else Some data in
+            add_credential_mapping uuid cred mapping)
 
   type voters = {
     has_explicit_weights : bool;
@@ -773,9 +835,7 @@ module MakeBackend
 
   let get_all_voters uuid =
     let* x = get (Election (uuid, Voters)) in
-    match x with
-    | None -> Lwt.return []
-    | Some x -> Lwt.return (Voter.list_of_string x)
+    match Lopt.get_value x with None -> Lwt.return [] | Some x -> Lwt.return x
 
   let raw_get_voter_cache uuid =
     let* voters = get_all_voters uuid in
@@ -806,18 +866,18 @@ module MakeBackend
 
   let get_voters_config uuid () =
     let* x = get_voters uuid in
-    let&* { has_explicit_weights; username_or_address; voter_map } = x in
+    let&** { has_explicit_weights; username_or_address; voter_map } = x in
     let nb_voters = SMap.cardinal voter_map in
     let x : voters_config =
       { has_explicit_weights; username_or_address; nb_voters }
     in
-    Lwt.return_some @@ string_of_voters_config x
+    x |> Lopt.some_value string_of_voters_config |> Lwt.return
 
   let get_voter uuid id =
     let* x = get_voters uuid in
-    let&* { voter_map; _ } = x in
-    let&* x = SMap.find_opt (String.lowercase_ascii id) voter_map in
-    Lwt.return_some @@ Voter.to_string x
+    let&** { voter_map; _ } = x in
+    let&** x = SMap.find_opt (String.lowercase_ascii id) voter_map in
+    x |> Lopt.some_value Voter.to_string |> Lwt.return
 
   let () =
     voters_config_ops.get <- get_voters_config;
@@ -833,7 +893,7 @@ module MakeBackend
   let raw_get_credential_cache uuid =
     let@ public_creds cont =
       let* x = get (Election (uuid, Public_creds)) in
-      match x with
+      match Lopt.get_value x with
       | None ->
           (* public credentials mapping is no longer available, use
              the public view from the archive *)
@@ -842,18 +902,16 @@ module MakeBackend
           in
           let ( let& ) x f = match x with None -> fail () | Some x -> f x in
           let* x = get (Election (uuid, Roots)) in
-          let& x = x in
-          let roots = roots_of_string x in
+          let& roots = Lopt.get_value x in
           let& h = roots.roots_setup_data in
           let* x = get (Election (uuid, Data h)) in
-          let& x = x in
-          let setup_data = setup_data_of_string x in
+          let& x = Lopt.get_value x in
+          let setup_data = x |> setup_data_of_string in
           let* x = get (Election (uuid, Data setup_data.setup_credentials)) in
-          let& x = x in
-          cont x
+          let& x = Lopt.get_value x in
+          x |> public_credentials_of_string |> cont
       | Some x -> cont x
     in
-    let public_creds = public_credentials_of_string public_creds in
     let cred_map =
       List.fold_left
         (fun cred_map x ->
@@ -872,17 +930,18 @@ module MakeBackend
     Lwt.catch
       (fun () ->
         let* x = credential_cache#find uuid in
-        let&* x, _ = SMap.find_opt cred x.cred_map in
-        Lwt.return x)
-      (fun _ -> Lwt.return_none)
+        let&** x, _ = SMap.find_opt cred x.cred_map in
+        let&** x = x in
+        x |> Lopt.some_value Fun.id |> Lwt.return)
+      (fun _ -> Lopt.none_lwt)
 
   let get_credential_weight uuid cred =
     Lwt.catch
       (fun () ->
         let* x = credential_cache#find uuid in
-        let&* _, x = SMap.find_opt cred x.cred_map in
-        Lwt.return_some @@ Weight.to_string x)
-      (fun _ -> Lwt.return_none)
+        let&** _, x = SMap.find_opt cred x.cred_map in
+        x |> Lopt.some_value Weight.to_string |> Lwt.return)
+      (fun _ -> Lopt.none_lwt)
 
   let () =
     credential_users_ops.get <- get_credential_user;
@@ -895,6 +954,8 @@ module MakeBackend
     Elections_cache.clear ();
     Lwt.return_unit
 
+  type generic_election_file = F : 'a election_file -> generic_election_file
+
   let delete_sensitive_data uuid =
     let* () =
       Lwt_list.iter_p
@@ -903,8 +964,14 @@ module MakeBackend
     in
     let* () =
       Lwt_list.iter_p
-        (fun x -> del (Election (uuid, x)))
-        [ State; Private_key; Private_keys; Decryption_tokens; Public_creds ]
+        (fun (F x) -> del (Election (uuid, x)))
+        [
+          F State;
+          F Private_key;
+          F Private_keys;
+          F Decryption_tokens;
+          F Public_creds;
+        ]
     in
     Elections_cache.clear ();
     Lwt.return_unit
@@ -912,17 +979,17 @@ module MakeBackend
   let delete_live_data uuid =
     let* () =
       Lwt_list.iter_p
-        (fun x -> del (Election (uuid, x)))
+        (fun (F x) -> del (Election (uuid, x)))
         [
-          Last_event;
-          Metadata;
-          Audit_cache;
-          Shuffle_token;
-          Skipped_shufflers;
-          Public_archive;
-          Passwords;
-          Voters;
-          Confidential_archive;
+          F Last_event;
+          F Metadata;
+          F Audit_cache;
+          F Shuffle_token;
+          F Skipped_shufflers;
+          F Public_archive;
+          F Passwords;
+          F Voters;
+          F Confidential_archive;
         ]
     in
     let* () =
@@ -936,11 +1003,14 @@ module MakeBackend
   (** {1 Public archive operations} *)
 
   let get_last_event uuid =
-    let*& x = get (Election (uuid, Last_event)) in
-    Lwt.return_some @@ last_event_of_string x
+    let* x = get (Election (uuid, Last_event)) in
+    let&* x = Lopt.get_value x in
+    Lwt.return_some x
 
   let set_last_event uuid x =
-    set (Election (uuid, Last_event)) (string_of_last_event x)
+    x
+    |> Lopt.some_value string_of_last_event
+    |> set (Election (uuid, Last_event))
 
   let block_size = Archive.block_size
   let block_sizeL = Int64.of_int block_size
@@ -1094,15 +1164,14 @@ module MakeBackend
       (fun () -> close fd)
 
   let gethash ~index ~filename x =
-    let&* i = Hashtbl.find_opt index x in
+    let&** i = Hashtbl.find_opt index x in
     let open Lwt_unix in
     let@ fd cont =
       Lwt.try_bind
         (fun () -> openfile filename [ O_RDONLY ] 0o644)
         cont
         (function
-          | Unix.Unix_error (ENOENT, _, _) -> Lwt.return_none
-          | e -> Lwt.reraise e)
+          | Unix.Unix_error (ENOENT, _, _) -> Lopt.none_lwt | e -> Lwt.reraise e)
     in
     Lwt.finalize
       (fun () ->
@@ -1112,18 +1181,17 @@ module MakeBackend
         let buffer = Bytes.create length in
         let ic = Lwt_io.of_fd ~mode:Input fd in
         let* () = Lwt_io.read_into_exactly ic buffer 0 length in
-        Lwt.return_some @@ Bytes.to_string buffer)
+        Bytes.to_string buffer |> Lopt.some_value Fun.id |> Lwt.return)
       (fun () -> close fd)
 
   let get_data uuid x =
     Lwt.try_bind
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
-        let&* r = r in
+        let&** r = r in
         let* filename = get_as_file (Election (uuid, Public_archive)) in
         gethash ~index:r.map ~filename x)
-      (function
-        | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
+      (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = data_ops.get <- get_data
 
@@ -1131,10 +1199,9 @@ module MakeBackend
     Lwt.try_bind
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
-        let&* r = r in
-        Lwt.return_some @@ string_of_roots r.roots)
-      (function
-        | Creation_not_requested -> Lwt.return_none | e -> Lwt.reraise e)
+        let&** r = r in
+        r.roots |> Lopt.some_value string_of_roots |> Lwt.return)
+      (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = roots_ops.get <- get_roots
 
@@ -1247,7 +1314,7 @@ module Make (Config : CONFIG) : Storage.S = struct
     let get_account_by_id s id =
       let module S = (val s : BACKEND0) in
       let* x = S.get (Account id) in
-      Lwt.return @@ Option.map account_of_string x
+      x |> Lopt.get_value |> Lwt.return
 
     let with_transaction f = with_transaction_ref.with_transaction f
   end

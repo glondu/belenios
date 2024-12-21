@@ -716,7 +716,7 @@ let merge_voters a b f =
 let get_passwords s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* csv = S.get (Election (uuid, Passwords)) in
-  let&* csv = csv in
+  let&* csv = Lopt.get_value csv in
   let* csv =
     Lwt_preemptive.detach (fun db -> Csv.(input_all (of_string db))) csv
   in
@@ -1112,7 +1112,9 @@ let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
       let@ _ = with_administrator token se in
       match method_ with
       | `GET ->
-          handle_get_option (fun () -> S.get (Election (uuid, Private_creds)))
+          let@ () = handle_get_option in
+          let* x = S.get (Election (uuid, Private_creds)) in
+          x |> Lopt.get_string |> Lwt.return
       | _ -> method_not_allowed)
   | [ "public" ] -> (
       match method_ with

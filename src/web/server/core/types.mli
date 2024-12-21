@@ -40,3 +40,14 @@ module Period : sig
   val sub : Datetime.t -> Datetime.t -> t
   val ymds : t -> int * int * int * int
 end
+
+module Lopt : sig
+  type 'a t
+
+  val get_string : 'a t -> string option
+  val get_value : 'a t -> 'a option
+  val none : 'a t
+  val none_lwt : 'a t Lwt.t
+  val some_string : (string -> 'a) -> string -> 'a t
+  val some_value : ('a -> string) -> 'a -> 'a t
+end
