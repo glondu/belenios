@@ -414,7 +414,7 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Spool.create s uuid Spool.draft_public_credentials credentials in
+  let* () = Spool.create s uuid Public_creds credentials in
   se.se_public_creds_received <- true;
   set (Draft (v, se))
 
@@ -733,7 +733,7 @@ let import_voters s uuid (Draft (v, se), set) from =
     let* x = Web_persist.get_all_voters s from in
     match x with
     | [] -> (
-        let* se = Spool.get s from Spool.draft in
+        let* se = Spool.get s from Draft in
         match se with
         | None -> Lwt.return @@ Stdlib.Error `NotFound
         | Some se -> cont @@ get_draft_voters se)
@@ -778,7 +778,7 @@ let import_trustees (Draft (v, se), set) s from metadata =
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
-          let* privs = Spool.get s from Spool.private_keys in
+          let* privs = Spool.get s from Private_keys in
           let* x =
             match privs with
             | Some privs ->
@@ -1398,6 +1398,6 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* se = Spool.update s uuid Spool.draft in
+      let* se = Spool.update s uuid Draft in
       let@ se = Option.unwrap not_found se in
       dispatch_draft ~token ~ifmatch endpoint method_ body s uuid se

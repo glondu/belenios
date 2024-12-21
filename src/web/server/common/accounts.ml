@@ -39,7 +39,7 @@ let update_account_by_id s id =
   let*& x, set = S.update (Account id) in
   let&* x = Lopt.get_value x in
   let set x =
-    let* () = set (x |> Lopt.some_value string_of_account) in
+    let* () = set Value x in
     run_update_hooks x
   in
   Lwt.return_some (x, set)
@@ -79,9 +79,7 @@ let create_account s ~email user =
   let* () =
     Lwt.finalize
       (fun () ->
-        let* () =
-          account |> Lopt.some_value string_of_account |> S.create (Account id)
-        in
+        let* () = S.create (Account id) Value account in
         run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();

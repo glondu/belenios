@@ -150,9 +150,7 @@ let do_add_account s ~db_fname ~username ~password ~email =
   let r = { username; salt; hashed; address = Some email } in
   Lwt.try_bind
     (fun () ->
-      r
-      |> Lopt.some_value string_of_password_record
-      |> S.create (Admin_password (db_fname, Username username)))
+      r |> S.create (Admin_password (db_fname, Username username)) Value)
     (fun () -> Lwt.return @@ Ok ())
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
@@ -171,11 +169,9 @@ let do_change_password s ~db_fname ~username ~password =
   in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in
-  let r =
-    { r with salt; hashed } |> Lopt.some_value string_of_password_record
-  in
+  let r = { r with salt; hashed } in
   Lwt.try_bind
-    (fun () -> set r)
+    (fun () -> set Value r)
     (fun () -> Lwt.return_unit)
     (fun _ -> Lwt.fail @@ Failure "database error")
 

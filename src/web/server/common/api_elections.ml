@@ -33,7 +33,7 @@ let with_administrator token metadata f =
   | _ -> unauthorized
 
 let find_trustee_id s uuid token =
-  let* x = Spool.get s uuid Spool.decryption_tokens in
+  let* x = Spool.get s uuid Decryption_tokens in
   match x with
   | None -> Lwt.return (int_of_string_opt token)
   | Some tokens ->
@@ -44,7 +44,7 @@ let find_trustee_id s uuid token =
       Lwt.return (find 1 tokens)
 
 let find_trustee_private_key s uuid trustee_id =
-  let* keys = Spool.get s uuid Spool.private_keys in
+  let* keys = Spool.get s uuid Private_keys in
   let&* keys = keys in
   (* there is one Pedersen trustee *)
   let* trustees = Public_archive.get_trustees s uuid in
@@ -142,7 +142,7 @@ let get_partial_decryptions s uuid metadata =
     match threshold with
     | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
     | Some _ -> (
-        let* x = Spool.get s uuid Spool.decryption_tokens in
+        let* x = Spool.get s uuid Decryption_tokens in
         match x with
         | Some x -> Lwt.return x
         | None -> (
@@ -150,7 +150,7 @@ let get_partial_decryptions s uuid metadata =
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                 let ts = List.map (fun _ -> generate_token ()) ts in
-                let* () = Spool.create s uuid Spool.decryption_tokens ts in
+                let* () = Spool.create s uuid Decryption_tokens ts in
                 Lwt.return ts))
   in
   Lwt.return
@@ -176,7 +176,7 @@ let get_shuffles s uuid metadata =
   in
   let* shuffles = Public_archive.get_shuffles s uuid in
   let shuffles = Option.value shuffles ~default:[] in
-  let* skipped = Spool.get s uuid Spool.skipped_shufflers in
+  let* skipped = Spool.get s uuid Skipped_shufflers in
   let skipped = Option.value skipped ~default:[] in
   let* token = Web_persist.get_shuffle_token s uuid in
   Lwt.return
@@ -229,15 +229,15 @@ let skip_shuffler s uuid trustee =
   let* x = Web_persist.get_shuffle_token s uuid in
   let* () =
     match x with
-    | Some x when x.tk_trustee = trustee -> Spool.del s uuid Spool.shuffle_token
+    | Some x when x.tk_trustee = trustee -> Spool.del s uuid Shuffle_token
     | None -> Lwt.return_unit
     | _ -> Lwt.fail @@ Error `NotInExpectedState
   in
   let@ current, set =
    fun cont ->
-    let* x = Spool.update s uuid Spool.skipped_shufflers in
+    let* x = Spool.update s uuid Skipped_shufflers in
     match x with
-    | None -> cont ([], Spool.create s uuid Spool.skipped_shufflers)
+    | None -> cont ([], Spool.create s uuid Skipped_shufflers)
     | Some x -> cont x
   in
   if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
@@ -245,7 +245,7 @@ let skip_shuffler s uuid trustee =
 
 let select_shuffler s uuid metadata trustee =
   let* trustee_id, name = get_trustee_name s uuid metadata trustee in
-  let* () = Spool.del s uuid Spool.shuffle_token in
+  let* () = Spool.del s uuid Shuffle_token in
   let* _ = Web_persist.gen_shuffle_token s uuid trustee trustee_id name in
   Lwt.return_unit
 
@@ -304,8 +304,8 @@ let post_shuffle s uuid election ~token ~shuffle =
           in
           match y with
           | Some _ ->
-              let* () = Spool.del s uuid Spool.shuffle_token in
-              let* () = Spool.del s uuid Spool.audit_cache in
+              let* () = Spool.del s uuid Shuffle_token in
+              let* () = Spool.del s uuid Audit_cache in
               Lwt.return @@ Ok ()
           | None -> Lwt.return @@ Stdlib.Error `Failure)
         (fun e -> Lwt.return @@ Stdlib.Error (`Invalid e))
@@ -619,7 +619,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       match method_ with
       | `GET -> (
           let@ () = handle_generic_error in
-          let* x = Spool.get s uuid Spool.last_event in
+          let* x = Spool.get s uuid Last_event in
           match x with
           | Some x -> return_json 200 (string_of_last_event x)
           | None -> not_found)

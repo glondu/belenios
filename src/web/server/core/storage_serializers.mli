@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,12 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
+open Storage_sig
 
-type 'a t = 'a Storage.election_file
-
-val get : ('a t -> 'a option Lwt.t) Storage.u
-val del : ('a t -> unit Lwt.t) Storage.u
-val update : ('a t -> 'a Web_common.updatable option Lwt.t) Storage.u
-val create : ('a t -> 'a -> unit Lwt.t) Storage.u
-val ensure : ('a t -> 'a -> unit Lwt.t) Storage.u
+val some : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> 'a Types.Lopt.t

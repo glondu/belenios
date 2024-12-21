@@ -70,12 +70,20 @@ type _ file =
 
 type append_operation = Data of string | Event of event_type * hash option
 
+type (_, _) string_or_value_spec =
+  | String : ('a, string) string_or_value_spec
+  | Value : ('a, 'a) string_or_value_spec
+
 module type BACKEND_GENERIC = sig
   val get_as_file : 'a file -> string Lwt.t
   val get : 'a file -> 'a v Lwt.t
-  val update : 'a file -> ('a v * ('a v -> unit Lwt.t)) option Lwt.t
-  val create : 'a file -> 'a v -> unit Lwt.t
-  val ensure : 'a file -> 'a v -> unit Lwt.t
+
+  val update :
+    'a file ->
+    ('a v * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t)) option Lwt.t
+
+  val create : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
+  val ensure : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
   val del : 'a file -> unit Lwt.t
 end
 

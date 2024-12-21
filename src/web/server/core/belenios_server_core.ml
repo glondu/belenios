@@ -25,3 +25,5 @@ include Types
 module Filesystem = Filesystem
 module Defaults = Defaults
 module Storage = Storage
+
+let some_string_or_value = Storage_serializers.some

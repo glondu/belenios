@@ -260,47 +260,31 @@ module MakeBackend
          [] xs
 
   type _ election_file_props =
-    | Concrete : string * kind * (string -> 'a) -> 'a election_file_props
+    | Concrete : string * kind -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
   let get_election_file_props uuid (type t) :
       t election_file -> t election_file_props = function
-    | Draft ->
-        Concrete
-          ("draft.json", Trim, Belenios_server_core.draft_election_of_string)
-    | State -> Concrete ("state.json", Trim, election_state_of_string)
-    | Public_creds ->
-        Concrete ("public_creds.json", Trim, public_credentials_of_string)
-    | Private_creds ->
-        Concrete ("private_creds.txt", Raw, private_credentials_of_string)
+    | Draft -> Concrete ("draft.json", Trim)
+    | State -> Concrete ("state.json", Trim)
+    | Public_creds -> Concrete ("public_creds.json", Trim)
+    | Private_creds -> Concrete ("private_creds.txt", Raw)
     | Dates_full -> Abstract (dates_ops, ())
-    | Decryption_tokens ->
-        Concrete ("decryption_tokens.json", Trim, decryption_tokens_of_string)
-    | Metadata -> Concrete ("metadata.json", Trim, metadata_of_string)
-    | Private_key -> Concrete ("private_key.json", Trim, Yojson.Safe.from_string)
-    | Private_keys -> Concrete ("private_keys.jsons", Raw, split_lines)
-    | Skipped_shufflers ->
-        Concrete ("skipped_shufflers.json", Trim, skipped_shufflers_of_string)
-    | Shuffle_token ->
-        Concrete ("shuffle_token.json", Trim, shuffle_token_of_string)
-    | Audit_cache -> Concrete ("audit_cache.json", Trim, audit_cache_of_string)
-    | Last_event -> Concrete ("last_event.json", Trim, last_event_of_string)
-    | Deleted -> Concrete ("deleted.json", Trim, deleted_election_of_string)
-    | Public_archive ->
-        Concrete
-          ( Uuid.unwrap uuid ^ ".bel",
-            Raw,
-            fun _ -> raise @@ Not_implemented "Public_archive" )
-    | Passwords -> Concrete ("passwords.csv", Raw, csv_of_string)
+    | Decryption_tokens -> Concrete ("decryption_tokens.json", Trim)
+    | Metadata -> Concrete ("metadata.json", Trim)
+    | Private_key -> Concrete ("private_key.json", Trim)
+    | Private_keys -> Concrete ("private_keys.jsons", Raw)
+    | Skipped_shufflers -> Concrete ("skipped_shufflers.json", Trim)
+    | Shuffle_token -> Concrete ("shuffle_token.json", Trim)
+    | Audit_cache -> Concrete ("audit_cache.json", Trim)
+    | Last_event -> Concrete ("last_event.json", Trim)
+    | Deleted -> Concrete ("deleted.json", Trim)
+    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
+    | Passwords -> Concrete ("passwords.csv", Raw)
     | Records_new -> Abstract (records_ops, ())
-    | Voters -> Concrete ("voters.txt", Raw, Voter.list_of_string)
-    | Confidential_archive ->
-        Concrete
-          ( "archive.zip",
-            Raw,
-            fun _ -> raise @@ Not_implemented "Confidential_archive" )
-    | Private_creds_downloaded ->
-        Concrete ("private_creds.downloaded", Raw, fun _ -> ())
+    | Voters -> Concrete ("voters.txt", Raw)
+    | Confidential_archive -> Concrete ("archive.zip", Raw)
+    | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
     | Data key -> Abstract (data_ops, key)
@@ -320,33 +304,28 @@ module MakeBackend
   let credential_mappings_filename = "credential_mappings.jsons"
 
   type _ file_props =
-    | Concrete : string * kind * (string -> 'a) -> 'a file_props
+    | Concrete : string * kind -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
     | Admin_password :
         string * admin_password_file
         -> password_record file_props
 
   let get_props (type t) : t file -> t file_props = function
-    | Spool_version -> Concrete (!!"version", Trim, int_of_string)
-    | Account_counter ->
-        Concrete (Config.accounts_dir // "counter", Trim, int_of_string)
+    | Spool_version -> Concrete (!!"version", Trim)
+    | Account_counter -> Concrete (Config.accounts_dir // "counter", Trim)
     | Account id ->
-        Concrete
-          ( Config.accounts_dir // Printf.sprintf "%d.json" id,
-            Trim,
-            account_of_string )
+        Concrete (Config.accounts_dir // Printf.sprintf "%d.json" id, Trim)
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
-        | Concrete (fname, kind, of_string) ->
-            Concrete (uuid /// fname, kind, of_string)
+        | Concrete (fname, kind) -> Concrete (uuid /// fname, kind)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw, split_lines)
+    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw)
     | Admin_password (file, key) ->
         Admin_password (SMap.find file Config.maps, key)
 
   let file_exists (type t) (x : t file) =
     match get_props x with
-    | Concrete (path, _, _) -> Filesystem.file_exists path
+    | Concrete (path, _) -> Filesystem.file_exists path
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
   let list_elections () =
@@ -362,17 +341,20 @@ module MakeBackend
 
   let get (type t) (f : t file) : t v Lwt.t =
     match get_props f with
-    | Concrete (path, kind, of_string) ->
+    | Concrete (path, kind) ->
         let* x = Filesystem.read_file path in
         let&** x = x in
         (match kind with Raw -> x | Trim -> String.trim x)
-        |> Lopt.some_string of_string |> Lwt.return
+        |> some_string_or_value f String
+        |> Lwt.return
     | Abstract (ops, uuid, key) -> ops.get uuid key
     | Admin_password (file, key) -> get_password_record_admin file key
 
-  let set (type t) (f : t file) (data : t v) =
+  let set (type t u) (f : t file) (spec : (t, u) string_or_value_spec)
+      (data : u) =
+    let data = some_string_or_value f spec data in
     match get_props f with
-    | Concrete (fname, kind, _) -> (
+    | Concrete (fname, kind) -> (
         match Lopt.get_string data with
         | None -> assert false
         | Some data ->
@@ -391,9 +373,7 @@ module MakeBackend
         Lwt.return_some x
 
   let () =
-    set_password_file :=
-      fun uuid x ->
-        x |> Lopt.some_value string_of_csv |> set (Election (uuid, Passwords))
+    set_password_file := fun uuid x -> set (Election (uuid, Passwords)) Value x
 
   module HashedFile = struct
     type t = File : 'a file -> t
@@ -426,8 +406,8 @@ module MakeBackend
     let txid_cell = get_txid_cell (File f) in
     let txid = gen_txid () in
     txid_cell := txid;
-    let set x =
-      if !txid_cell = txid then set f x else Lwt.fail Race_condition
+    let set spec x =
+      if !txid_cell = txid then set f spec x else Lwt.fail Race_condition
     in
     Lwt.return_some (x, set)
 
@@ -443,7 +423,7 @@ module MakeBackend
 
   let del (type t) (f : t file) =
     match get_props f with
-    | Concrete (f, _, _) -> Filesystem.cleanup_file f
+    | Concrete (f, _) -> Filesystem.cleanup_file f
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let rmdir dir =
@@ -526,14 +506,14 @@ module MakeBackend
       let* b = file_exists archive_name in
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
-      | Concrete (f, _, _) -> Lwt.return f
+      | Concrete (f, _) -> Lwt.return f
       | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
   let get_as_file (type t) : t file -> _ = function
     | Election (_, (Public_archive | Private_creds : t election_file)) as x -> (
         match get_props x with
-        | Concrete (f, _, _) -> Lwt.return f
+        | Concrete (f, _) -> Lwt.return f
         | _ -> Lwt.fail @@ Not_implemented "get_as_file")
     | Election (uuid, Confidential_archive) -> get_archive uuid
     | _ -> Lwt.fail Not_found
@@ -1014,11 +994,7 @@ module MakeBackend
     let&* x = Lopt.get_value x in
     Lwt.return_some x
 
-  let set_last_event uuid x =
-    x
-    |> Lopt.some_value string_of_last_event
-    |> set (Election (uuid, Last_event))
-
+  let set_last_event uuid x = set (Election (uuid, Last_event)) Value x
   let block_size = Archive.block_size
   let block_sizeL = Int64.of_int block_size
 
@@ -1274,8 +1250,8 @@ module MakeBackend
       let get_as_file f = with_lock_file f (fun () -> get_as_file f)
       let get f = with_lock_file f (fun () -> get f)
       let update f = with_lock_file f (fun () -> update f)
-      let create f x = with_lock_file f (fun () -> create f x)
-      let ensure f x = with_lock_file f (fun () -> ensure f x)
+      let create f s x = with_lock_file f (fun () -> create f s x)
+      let ensure f s x = with_lock_file f (fun () -> ensure f s x)
       let del f = with_lock_file f (fun () -> del f)
       let list_accounts () = with_lock None list_accounts
       let list_elections () = with_lock None list_elections

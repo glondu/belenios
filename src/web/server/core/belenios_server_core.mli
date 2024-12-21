@@ -25,3 +25,6 @@ include module type of Types
 module Filesystem = Filesystem
 module Defaults = Defaults
 module Storage = Storage
+
+val some_string_or_value :
+  'a Storage.file -> ('a, 'b) Storage.string_or_value_spec -> 'b -> 'a Lopt.t

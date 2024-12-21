@@ -29,6 +29,11 @@ module Json = Atdgen_runtime.Util.Json
 type 'a reader = 'a Json.reader
 type 'a writer = 'a Json.writer
 
+type 'a string_serializers = {
+  of_string : string -> 'a;
+  to_string : 'a -> string;
+}
+
 (** A finite integer field, suitable for scalar operations of a group. *)
 module type FIELD = sig
   type t
