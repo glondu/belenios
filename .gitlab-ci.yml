@@ -30,7 +30,7 @@ basic_tests:
 
 opam-bootstrap:
   stage: test
-  image: ocaml/opam:debian-12-ocaml-4.14
+  image: ocaml/opam:debian-12-ocaml-5.2
   script:
     # Install required packages
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm rsync
