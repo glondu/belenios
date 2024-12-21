@@ -717,9 +717,6 @@ let get_passwords s uuid =
   let module S = (val s : Storage.BACKEND) in
   let* csv = S.get (Election (uuid, Passwords)) in
   let&* csv = Lopt.get_value csv in
-  let* csv =
-    Lwt_preemptive.detach (fun db -> Csv.(input_all (of_string db))) csv
-  in
   let res =
     List.fold_left
       (fun accu line ->

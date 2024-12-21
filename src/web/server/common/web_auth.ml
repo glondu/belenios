@@ -188,7 +188,7 @@ struct
                       let allowlist =
                         match Lopt.get_value allowlist with
                         | None -> []
-                        | Some x -> split_lines x
+                        | Some x -> x
                       in
                       if List.mem name allowlist then cont ()
                       else restart_login ()

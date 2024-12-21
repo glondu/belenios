@@ -73,3 +73,10 @@ let draft_election_of_string x =
 let string_of_draft_election (Draft (v, x)) =
   let open (val Belenios.Election.get_serializers v) in
   string_of_raw_draft_election write_question x
+
+let csv_of_string = Csv.(of_string >> input_all)
+
+let string_of_csv csv =
+  let b = Buffer.create 1024 in
+  Csv.(output_all (to_buffer b) csv);
+  Buffer.contents b

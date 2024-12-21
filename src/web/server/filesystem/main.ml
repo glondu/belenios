@@ -71,7 +71,7 @@ module MakeBackend
   let extended_records_ops : (_, extended_record) abstract_file_ops =
     make_uninitialized_ops "extended_records_ops"
 
-  let credential_mappings_ops : (_, string) abstract_file_ops =
+  let credential_mappings_ops : (_, credential_mapping) abstract_file_ops =
     make_uninitialized_ops "credential_mappings_ops"
 
   let data_ops : (_, string) abstract_file_ops =
@@ -114,14 +114,16 @@ module MakeBackend
   let raw_get_password_records (key : PasswordRecordsCacheTypes.key) =
     let* csv =
       match key with
-      | Admin file -> Filesystem.read_file file
+      | Admin file ->
+          let*& csv = Filesystem.read_file file in
+          let* csv = Lwt_preemptive.detach csv_of_string csv in
+          Lwt.return_some csv
       | Election uuid -> !get_password_file uuid
     in
     let* csv =
       match csv with
       | None -> Lwt.fail Password_db_not_found
-      | Some x ->
-          Lwt_preemptive.detach (fun x -> Csv.(input_all (of_string x))) x
+      | Some x -> Lwt.return x
     in
     Lwt_list.fold_left_s
       (fun ((username_indexed, address_indexed) as accu) r ->
@@ -181,9 +183,6 @@ module MakeBackend
       | None -> Lwt.fail (Failure "missing password database")
       | Some x -> cont x
     in
-    let* csv =
-      Lwt_preemptive.detach (fun csv -> Csv.(input_all (of_string csv))) csv
-    in
     let rec update_by_username x accu = function
       | (u :: _ as r) :: rs when String.lowercase_ascii u = x ->
           List.rev_append (update r :: accu) rs
@@ -201,14 +200,6 @@ module MakeBackend
       | Username u -> update_by_username (String.lowercase_ascii u) [] csv
       | Address u -> update_by_address (String.lowercase_ascii u) [] csv
     in
-    let* csv =
-      Lwt_preemptive.detach
-        (fun csv ->
-          let b = Buffer.create 1024 in
-          Csv.(output_all (to_buffer b) csv);
-          Buffer.contents b)
-        csv
-    in
     write csv
 
   let set_password_record_admin file key data =
@@ -217,8 +208,13 @@ module MakeBackend
     | Some data ->
         let* () =
           set_password_record_generic
-            (fun () -> Filesystem.read_file file)
-            (fun x -> Filesystem.write_file file x)
+            (fun () ->
+              let*& csv = Filesystem.read_file file in
+              let* csv = Lwt_preemptive.detach csv_of_string csv in
+              Lwt.return_some csv)
+            (fun csv ->
+              let* csv = Lwt_preemptive.detach string_of_csv csv in
+              Filesystem.write_file file csv)
             key data
         in
         password_records_cache#remove (Admin file);
@@ -290,13 +286,21 @@ module MakeBackend
     | Audit_cache -> Concrete ("audit_cache.json", Trim, audit_cache_of_string)
     | Last_event -> Concrete ("last_event.json", Trim, last_event_of_string)
     | Deleted -> Concrete ("deleted.json", Trim, deleted_election_of_string)
-    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, Fun.id)
-    | Passwords -> Concrete ("passwords.csv", Raw, Fun.id)
+    | Public_archive ->
+        Concrete
+          ( Uuid.unwrap uuid ^ ".bel",
+            Raw,
+            fun _ -> raise @@ Not_implemented "Public_archive" )
+    | Passwords -> Concrete ("passwords.csv", Raw, csv_of_string)
     | Records_new -> Abstract (records_ops, ())
     | Voters -> Concrete ("voters.txt", Raw, Voter.list_of_string)
-    | Confidential_archive -> Concrete ("archive.zip", Raw, Fun.id)
+    | Confidential_archive ->
+        Concrete
+          ( "archive.zip",
+            Raw,
+            fun _ -> raise @@ Not_implemented "Confidential_archive" )
     | Private_creds_downloaded ->
-        Concrete ("private_creds.downloaded", Raw, Fun.id)
+        Concrete ("private_creds.downloaded", Raw, fun _ -> ())
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
     | Data key -> Abstract (data_ops, key)
@@ -336,7 +340,7 @@ module MakeBackend
         | Concrete (fname, kind, of_string) ->
             Concrete (uuid /// fname, kind, of_string)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw, Fun.id)
+    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw, split_lines)
     | Admin_password (file, key) ->
         Admin_password (SMap.find file Config.maps, key)
 
@@ -388,7 +392,8 @@ module MakeBackend
 
   let () =
     set_password_file :=
-      fun uuid x -> set (Election (uuid, Passwords)) (Lopt.some_string Fun.id x)
+      fun uuid x ->
+        x |> Lopt.some_value string_of_csv |> set (Election (uuid, Passwords))
 
   module HashedFile = struct
     type t = File : 'a file -> t
@@ -808,10 +813,12 @@ module MakeBackend
 
   let () =
     credential_mappings_ops.get <-
-      (fun uuid cred ->
-        let* x = find_credential_mapping uuid cred in
-        let&** x = x in
-        x |> Option.value ~default:"" |> Lopt.some_string Fun.id |> Lwt.return);
+      (fun uuid c_credential ->
+        let* x = find_credential_mapping uuid c_credential in
+        let&** c_ballot = x in
+        { c_credential; c_ballot }
+        |> Lopt.some_value string_of_credential_mapping
+        |> Lwt.return);
     credential_mappings_ops.set <-
       (fun uuid cred data ->
         match Lopt.get_string data with

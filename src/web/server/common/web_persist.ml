@@ -452,12 +452,11 @@ let gen_shuffle_token s uuid tk_trustee tk_trustee_id tk_name =
   return t
 
 let get_credential_record s uuid credential =
-  let* cr_ballot =
+  let* credential_mapping =
     let module S = (val s : Storage.BACKEND) in
     S.get (Election (uuid, Credential_mapping credential))
   in
-  let&* cr_ballot = Lopt.get_value cr_ballot in
-  let cr_ballot = if cr_ballot = "" then None else Some cr_ballot in
+  let&* { c_ballot = cr_ballot; _ } = Lopt.get_value credential_mapping in
   let* cr_username = get_credential_user s uuid credential in
   let* cr_weight = get_credential_weight s uuid credential in
   return_some { cr_ballot; cr_weight; cr_username }
@@ -559,9 +558,10 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
               cont (h, true)
       in
       let* () =
-        S.create
-          (Election (uuid, Credential_mapping credential))
-          (hash |> Hash.to_b64 |> Lopt.some_string Fun.id)
+        hash |> Hash.to_b64
+        |> (fun ballot -> { c_ballot = Some ballot; c_credential = credential })
+        |> Lopt.some_value string_of_credential_mapping
+        |> S.create (Election (uuid, Credential_mapping credential))
       in
       let* () =
         S.create
@@ -743,10 +743,7 @@ let delete_election s uuid =
 
 let dump_passwords s uuid db =
   let module S = (val s : Storage.BACKEND) in
-  db
-  |> List.map (fun line -> String.concat "," line)
-  |> join_lines |> Lopt.some_value Fun.id
-  |> S.create (Election (uuid, Passwords))
+  db |> Lopt.some_value string_of_csv |> S.create (Election (uuid, Passwords))
 
 let regen_password s uuid metadata user =
   let user = String.lowercase_ascii user in
@@ -789,7 +786,8 @@ let get_private_creds_downloaded s uuid =
 
 let set_private_creds_downloaded s uuid =
   let module S = (val s : Storage.BACKEND) in
-  "" |> Lopt.some_value Fun.id
+  ()
+  |> Lopt.some_value (fun () -> "")
   |> S.ensure (Election (uuid, Private_creds_downloaded))
 
 let clear_private_creds_downloaded s uuid =

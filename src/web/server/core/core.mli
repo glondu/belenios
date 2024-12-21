@@ -43,3 +43,5 @@ type draft_election =
 
 val draft_election_of_string : string -> draft_election
 val string_of_draft_election : draft_election -> string
+val csv_of_string : string -> string list list
+val string_of_csv : string list list -> string
