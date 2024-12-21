@@ -61,6 +61,10 @@ module MakeBackend
 
   (** {1 Forward references} *)
 
+  let state_state_ops : (_, Belenios_storage_api.state_state) abstract_file_ops
+      =
+    make_uninitialized_ops "state_state_ops"
+
   let dates_ops : (_, Belenios_storage_api.election_dates) abstract_file_ops =
     make_uninitialized_ops "dates_ops"
 
@@ -242,6 +246,9 @@ module MakeBackend
   let ( !! ) x = Config.spool_dir // x
   let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
 
+  let cleanup_files uuid xs =
+    Lwt_list.iter_p (fun x -> Filesystem.cleanup_file (uuid /// x)) xs
+
   type kind = Raw | Trim
 
   let files_of_directory d = Lwt_unix.files_of_directory d |> Lwt_stream.to_list
@@ -267,15 +274,13 @@ module MakeBackend
       t election_file -> t election_file_props = function
     | Draft -> Concrete ("draft.json", Trim)
     | State -> Concrete ("state.json", Trim)
+    | State_state -> Abstract (state_state_ops, ())
     | Public_creds -> Concrete ("public_creds.json", Trim)
     | Private_creds -> Concrete ("private_creds.txt", Raw)
     | Dates_full -> Abstract (dates_ops, ())
-    | Decryption_tokens -> Concrete ("decryption_tokens.json", Trim)
     | Metadata -> Concrete ("metadata.json", Trim)
     | Private_key -> Concrete ("private_key.json", Trim)
     | Private_keys -> Concrete ("private_keys.jsons", Raw)
-    | Skipped_shufflers -> Concrete ("skipped_shufflers.json", Trim)
-    | Shuffle_token -> Concrete ("shuffle_token.json", Trim)
     | Audit_cache -> Concrete ("audit_cache.json", Trim)
     | Last_event -> Concrete ("last_event.json", Trim)
     | Deleted -> Concrete ("deleted.json", Trim)
@@ -541,6 +546,80 @@ module MakeBackend
         Lwt.return_none)
 
   (** {1 Views} *)
+
+  let decryption_tokens_filename = "decryption_tokens.json"
+  let skipped_shufflers_filename = "skipped_shufflers.json"
+  let shuffle_token_filename = "shuffle_token.json"
+
+  let get_state_state uuid () =
+    let* state = get (Election (uuid, State)) in
+    match Lopt.get_value state with
+    | Some `EncryptedTally ->
+        let* x = Filesystem.read_file (uuid /// decryption_tokens_filename) in
+        let&** x = x in
+        x |> String.trim |> Belenios_storage_api.decryption_tokens_of_string
+        |> (fun x -> Some (`Decryption x))
+        |> Lopt.some_value Belenios_storage_api.string_of_state_state
+        |> Lwt.return
+    | Some `Shuffling ->
+        let* skipped =
+          Filesystem.read_file (uuid /// skipped_shufflers_filename)
+        in
+        let skipped =
+          skipped
+          |> Option.map
+               (String.trim >> Belenios_storage_api.skipped_shufflers_of_string)
+          |> Option.value ~default:[]
+        in
+        let* token = Filesystem.read_file (uuid /// shuffle_token_filename) in
+        let token =
+          token
+          |> Option.map
+               (String.trim >> Belenios_storage_api.shuffle_token_of_string)
+        in
+        Some (`Shuffle { skipped; token })
+        |> Lopt.some_value Belenios_storage_api.string_of_state_state
+        |> Lwt.return
+    | _ -> Lopt.none_lwt
+
+  let set_state_state uuid () (x : Belenios_storage_api.state_state Lopt.t) =
+    match Lopt.get_value x with
+    | None -> assert false
+    | Some None ->
+        cleanup_files uuid
+          [
+            decryption_tokens_filename;
+            skipped_shufflers_filename;
+            shuffle_token_filename;
+          ]
+    | Some (Some (`Shuffle { skipped; token })) ->
+        let* () = cleanup_files uuid [ decryption_tokens_filename ] in
+        let* () =
+          skipped |> Belenios_storage_api.string_of_skipped_shufflers
+          |> (fun x -> x ^ "\n")
+          |> Filesystem.write_file (uuid /// skipped_shufflers_filename)
+        in
+        let* () =
+          match token with
+          | None -> cleanup_files uuid [ shuffle_token_filename ]
+          | Some token ->
+              token |> Belenios_storage_api.string_of_shuffle_token
+              |> (fun x -> x ^ "\n")
+              |> Filesystem.write_file (uuid /// shuffle_token_filename)
+        in
+        Lwt.return_unit
+    | Some (Some (`Decryption tokens)) ->
+        let* () =
+          cleanup_files uuid
+            [ skipped_shufflers_filename; shuffle_token_filename ]
+        in
+        tokens |> Belenios_storage_api.string_of_decryption_tokens
+        |> (fun x -> x ^ "\n")
+        |> Filesystem.write_file (uuid /// decryption_tokens_filename)
+
+  let () =
+    state_state_ops.get <- get_state_state;
+    state_state_ops.set <- set_state_state
 
   let raw_dates_filename = "dates.json"
   let hide_result_filename = "hide_result"
@@ -945,20 +1024,17 @@ module MakeBackend
 
   let delete_sensitive_data uuid =
     let* () =
-      Lwt_list.iter_p
-        (fun x -> Filesystem.cleanup_file (uuid /// x))
-        [ extended_records_filename; credential_mappings_filename ]
+      cleanup_files uuid
+        [
+          extended_records_filename;
+          credential_mappings_filename;
+          decryption_tokens_filename;
+        ]
     in
     let* () =
       Lwt_list.iter_p
         (fun (F x) -> del (Election (uuid, x)))
-        [
-          F State;
-          F Private_key;
-          F Private_keys;
-          F Decryption_tokens;
-          F Public_creds;
-        ]
+        [ F State; F Private_key; F Private_keys; F Public_creds ]
     in
     Elections_cache.clear ();
     Lwt.return_unit
@@ -971,8 +1047,6 @@ module MakeBackend
           F Last_event;
           F Metadata;
           F Audit_cache;
-          F Shuffle_token;
-          F Skipped_shufflers;
           F Public_archive;
           F Passwords;
           F Voters;
@@ -980,9 +1054,14 @@ module MakeBackend
         ]
     in
     let* () =
-      Lwt_list.iter_p
-        (fun x -> Filesystem.cleanup_file (uuid /// x))
-        [ raw_dates_filename; hide_result_filename; records_filename ]
+      cleanup_files uuid
+        [
+          raw_dates_filename;
+          hide_result_filename;
+          records_filename;
+          skipped_shufflers_filename;
+          shuffle_token_filename;
+        ]
     in
     Elections_cache.clear ();
     Lwt.return_unit

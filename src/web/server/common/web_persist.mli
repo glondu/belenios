@@ -68,13 +68,6 @@ val regen_password : (metadata -> string -> bool Lwt.t) Storage.u
 val get_has_explicit_weights : bool Lwt.t Storage.u
 val get_username_or_address : [ `Username | `Address ] Lwt.t Storage.u
 
-(** {1 Tokens} *)
-
-val gen_shuffle_token :
-  (string -> int -> string option -> shuffle_token Lwt.t) Storage.u
-
-val get_shuffle_token : shuffle_token option Lwt.t Storage.u
-
 (** {1 Election actions} *)
 
 val validate_election :

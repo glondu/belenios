@@ -235,8 +235,10 @@ let internal_release_tally ~force s uuid set_state =
       let* () =
         set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
       in
-      let* () = Spool.del s uuid Decryption_tokens in
-      let* () = Spool.del s uuid Shuffle_token in
+      let* () =
+        let* x = Spool.update s uuid State_state in
+        match x with None -> Lwt.return_unit | Some (_, set) -> set None
+      in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
@@ -442,14 +444,6 @@ let raw_compute_encrypted_tally s election =
   match x with
   | true -> Spool.del s uuid Audit_cache
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
-
-let get_shuffle_token s uuid = Spool.get s uuid Shuffle_token
-
-let gen_shuffle_token s uuid tk_trustee tk_trustee_id tk_name =
-  let tk_token = generate_token () in
-  let t = { tk_trustee; tk_token; tk_trustee_id; tk_name } in
-  let* () = Spool.create s uuid Shuffle_token t in
-  return t
 
 let get_credential_record s uuid credential =
   let* credential_mapping =
@@ -1101,7 +1095,10 @@ let finish_shuffling s uuid =
         | true -> cont ()
         | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
       in
-      let* () = Spool.del s uuid Skipped_shufflers in
+      let* () =
+        let* x = Spool.update s uuid State_state in
+        match x with None -> Lwt.return_unit | Some (_, set) -> set None
+      in
       let* () = transition_to_encrypted_tally set_state in
       Lwt.return_true
   | _ -> Lwt.return_false

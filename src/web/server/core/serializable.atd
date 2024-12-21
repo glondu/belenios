@@ -77,8 +77,6 @@ type election_state =
   | Archived
   ]
 
-type decryption_tokens = string list
-
 (** {1 Types related to elections being prepared} *)
 
 type voter <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -140,17 +138,6 @@ type 'question raw_draft_election = {
   ~trustees_setup_step <ocaml default="1" mutable> : int;
   ~pending_credentials <ocaml default="false" mutable> : bool;
 } <ocaml field_prefix="se_">
-
-(** {1 Types related to elections being tallied} *)
-
-type skipped_shufflers = string list
-
-type shuffle_token = {
-    trustee : string;
-    token : string;
-    trustee_id : int;
-    ?name : string option;
-} <ocaml field_prefix="tk_">
 
 (** {1 Types related to deleted elections} *)
 

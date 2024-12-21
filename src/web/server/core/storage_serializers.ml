@@ -30,32 +30,20 @@ let get_election_file_serializers (type t) :
         of_string = election_state_of_string;
         to_string = string_of_election_state;
       }
+  | State_state ->
+      Belenios_storage_api.
+        { of_string = state_state_of_string; to_string = string_of_state_state }
   | Dates_full ->
       Belenios_storage_api.
         {
           of_string = election_dates_of_string;
           to_string = string_of_election_dates;
         }
-  | Decryption_tokens ->
-      {
-        of_string = decryption_tokens_of_string;
-        to_string = string_of_decryption_tokens;
-      }
   | Metadata ->
       { of_string = metadata_of_string; to_string = string_of_metadata }
   | Private_key ->
       { of_string = Yojson.Safe.from_string; to_string = Yojson.Safe.to_string }
   | Private_keys -> { of_string = split_lines; to_string = join_lines }
-  | Skipped_shufflers ->
-      {
-        of_string = skipped_shufflers_of_string;
-        to_string = string_of_skipped_shufflers;
-      }
-  | Shuffle_token ->
-      {
-        of_string = shuffle_token_of_string;
-        to_string = string_of_shuffle_token;
-      }
   | Audit_cache ->
       { of_string = audit_cache_of_string; to_string = string_of_audit_cache }
   | Last_event ->
