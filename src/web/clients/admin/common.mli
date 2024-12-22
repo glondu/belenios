@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_api.Serializable_t
+open Belenios_api
 
 (** Session management *)
 

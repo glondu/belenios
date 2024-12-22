@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_api.Serializable_t
+open Belenios_api
 
 val explain_cast_error : (module I18n.GETTEXT) -> cast_error -> string

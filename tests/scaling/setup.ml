@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_question.Homomorphic.Syntax
-open Belenios_api.Serializable_j
+open Belenios_api
 open Common
 
 module type PARAMS = sig
@@ -95,7 +95,7 @@ module Make (P : PARAMS) = struct
 
   let create_draft () =
     let body =
-      write_draft Belenios_question.write_question -- draft
+      write_raw_draft Belenios_question.write_question -- draft
       |> Cohttp_lwt.Body.of_string
     in
     let* response, x =

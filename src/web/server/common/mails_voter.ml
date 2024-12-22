@@ -408,10 +408,7 @@ let submit_bulk_emails jobs =
   Lwt.return_unit
 
 let mail_confirmation l election x url1 url2 contact =
-  let ({ user; weight; hash; revote; _ }
-        : Belenios_api.Serializable_t.confirmation) =
-    x
-  in
+  let ({ user; weight; hash; revote; _ } : Belenios_api.confirmation) = x in
   let module W = (val election : Election.ELECTION) in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in

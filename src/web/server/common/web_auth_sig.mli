@@ -47,12 +47,8 @@ module type STATE = sig
   val create : Storage.t -> uuid -> state -> string option Lwt.t
   val get : state:string -> env option
   val del : state:string -> unit
-
-  val get_result :
-    state:string -> Belenios_api.Serializable_t.cast_result option
-
-  val set_result :
-    state:string -> Belenios_api.Serializable_t.cast_result -> unit
+  val get_result : state:string -> Belenios_api.cast_result option
+  val set_result : state:string -> Belenios_api.cast_result -> unit
 end
 
 module type S = sig

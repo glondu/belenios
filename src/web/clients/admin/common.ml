@@ -94,7 +94,7 @@ let default_version = List.hd Belenios.Election.supported_crypto_versions
 
 open Lwt.Syntax
 open Js_of_ocaml_tyxml.Tyxml_js.Html
-open Belenios_api.Serializable_j
+open Belenios_api
 open Belenios_js.Common
 open Belenios_js.Session
 

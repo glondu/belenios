@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 type draft =
-  | Draft : 'a Belenios.Election.version * 'a Serializable_t.draft -> draft
+  | Draft : 'a Belenios.Election.version * 'a Serializable_t.raw_draft -> draft
 
 val draft_of_string : string -> draft
 val string_of_draft : draft -> string

@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_api.Serializable_t
 open Belenios_api
 open Belenios_storage_api
 open Belenios_server_core
@@ -56,7 +55,7 @@ val generate_server_trustee :
 val get_draft_trustees :
   is_admin:bool ->
   draft_election ->
-  (Yojson.Safe.t, Yojson.Safe.t) Belenios_api.Serializable_t.draft_trustees
+  (Yojson.Safe.t, Yojson.Safe.t) Belenios_api.draft_trustees
 
 val post_draft_trustees :
   draft_election updatable -> Yojson.Safe.t trustee -> unit Lwt.t

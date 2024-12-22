@@ -23,7 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
-open Belenios_api.Serializable_j
+open Belenios_api
 open Session
 
 let post_ballot uuid ~ballot =
@@ -43,7 +43,7 @@ let post_ballot uuid ~ballot =
           | _ -> fail ())
       | _ | (exception _) -> fail ())
   | 400 -> (
-      match Belenios_api.Serializable_j.request_status_of_string x.content with
+      match Belenios_api.request_status_of_string x.content with
       | { error = `CastError e; _ } -> Lwt.return @@ Error e
       | _ | (exception _) -> fail ())
   | _ -> fail ()

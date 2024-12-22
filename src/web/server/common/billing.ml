@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_api.Serializable_j
+open Belenios_api
 open Belenios_server_core
 open Api_generic
 module F = Ocsipersist.Functorial

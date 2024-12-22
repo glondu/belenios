@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_api.Serializable_j
+open Belenios_api
 open Belenios
 
 type 'a t

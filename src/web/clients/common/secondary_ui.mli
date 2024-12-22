@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml_tyxml.Tyxml_js.Html
-open Belenios_api.Serializable_t
+open Belenios_api
 
 module type UI = sig
   val set_title : string -> unit

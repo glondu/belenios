@@ -35,7 +35,7 @@ val init_api_token :
 type xhr_result =
   | BadResult
   | BadStatus of int * string
-  | RequestStatus of Belenios_api.Serializable_t.request_status
+  | RequestStatus of Belenios_api.request_status
 
 module Api : sig
   include module type of Belenios_api.Endpoints

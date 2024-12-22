@@ -298,8 +298,7 @@ let belenios : belenios Js.t =
               let* confirmation = Messages.(wait confirmation) () in
               Messages.(post ready) window true;
               match
-                Belenios_api.Serializable_j.cast_result_of_string
-                  (Js.to_string confirmation)
+                Belenios_api.cast_result_of_string (Js.to_string confirmation)
               with
               | exception _ -> Lwt.return @@ `Error `UnexpectedResponse
               | result -> Lwt.return result)

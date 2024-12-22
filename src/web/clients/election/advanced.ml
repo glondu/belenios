@@ -175,9 +175,7 @@ let wait_confirmation window =
   Messages.(post ready) window true;
   Lwt.return
   @@
-  try
-    Belenios_api.Serializable_j.cast_result_of_string
-      (Js.to_string confirmation)
+  try Belenios_api.cast_result_of_string (Js.to_string confirmation)
   with _ -> `Error `UnexpectedResponse
 
 let process_result configuration election container result =

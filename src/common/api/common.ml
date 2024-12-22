@@ -20,17 +20,17 @@
 (**************************************************************************)
 
 type draft =
-  | Draft : 'a Belenios.Election.version * 'a Serializable_t.draft -> draft
+  | Draft : 'a Belenios.Election.version * 'a Serializable_t.raw_draft -> draft
 
 let draft_of_string x =
-  let abstract = Serializable_j.draft_of_string Yojson.Safe.read_json x in
+  let abstract = Serializable_j.raw_draft_of_string Yojson.Safe.read_json x in
   let open Belenios.Election in
   match version_of_int abstract.draft_version with
   | Version v ->
       let open (val get_serializers v) in
-      let x = Serializable_j.draft_of_string read_question x in
+      let x = Serializable_j.raw_draft_of_string read_question x in
       Draft (v, x)
 
 let string_of_draft (Draft (v, x)) =
   let open (val Belenios.Election.get_serializers v) in
-  Serializable_j.string_of_draft write_question x
+  Serializable_j.string_of_raw_draft write_question x

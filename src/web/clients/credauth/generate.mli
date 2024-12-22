@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml_tyxml.Tyxml_js
-open Belenios_api.Serializable_t
+open Belenios_api
 
 val generate :
   configuration ->

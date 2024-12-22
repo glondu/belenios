@@ -22,7 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
-open Belenios_api.Serializable_t
+open Belenios_api
 open Belenios_storage_api
 open Web_common
 open Eliom_content.Html.F

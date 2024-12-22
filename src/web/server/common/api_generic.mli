@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_storage_api
-open Belenios_api.Serializable_t
+open Belenios_api
 
 val new_token : account -> string Lwt.t
 val lookup_token : string -> account option

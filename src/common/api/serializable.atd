@@ -133,7 +133,7 @@ type authentication =
   | Configured of string
   ]
 
-type 'a draft = {
+type 'a raw_draft = {
     version : int;
     owners : int list;
     questions : 'a template;

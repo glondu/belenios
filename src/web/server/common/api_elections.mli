@@ -21,7 +21,7 @@
 
 open Belenios_storage_api
 open Belenios_server_core
-open Belenios_api.Serializable_t
+open Belenios_api
 open Api_generic
 
 val get_election_status : election_status Lwt.t Storage.u

@@ -79,10 +79,8 @@ module Make (I : INPUT) () = struct
           Lwt.return
           @@ Option.value dates.e_date_archive ~default:Defaults.archive_date
     in
-    let state = (state :> Belenios_api.Serializable_t.state) in
-    let item : Belenios_api.Serializable_t.summary =
-      { uuid; state; date; name }
-    in
+    let state = (state :> Belenios_api.state) in
+    let item : Belenios_api.summary = { uuid; state; date; name } in
     Lwt.return (metadata.e_owners, item)
 
   let get_draft_election_summary uuid se =
@@ -91,9 +89,7 @@ module Make (I : INPUT) () = struct
       |> Option.value ~default:Defaults.creation_date
     in
     let name = se.se_questions.t_name in
-    let item : Belenios_api.Serializable_t.summary =
-      { uuid; date; name; state = `Draft }
-    in
+    let item : Belenios_api.summary = { uuid; date; name; state = `Draft } in
     (se.se_owners, item)
 
   let get_election_summary s uuid =

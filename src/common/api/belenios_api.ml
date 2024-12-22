@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Serializable_t = Serializable_t
-module Serializable_j = Serializable_j
+include Serializable_j
 include Common
 module Endpoints = Endpoints

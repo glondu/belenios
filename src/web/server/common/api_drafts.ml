@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_api.Serializable_j
 open Belenios_api
 open Belenios_storage_api
 open Belenios_server_core
@@ -1314,7 +1313,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
   | [ "trustees" ] -> (
       let@ who = with_administrator_or_nobody token se in
       let get is_admin () =
-        let open Belenios_api.Serializable_j in
+        let open Belenios_api in
         let x = get_draft_trustees ~is_admin se in
         Lwt.return
         @@ string_of_draft_trustees Yojson.Safe.write_json
