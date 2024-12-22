@@ -52,7 +52,7 @@ let update_election_dates s uuid =
   | None ->
       Lwt.return
         ( Belenios_storage_api.default_election_dates,
-          Spool.create s uuid Dates_full )
+          Spool.set s uuid Dates_full )
   | Some x -> Lwt.return x
 
 let empty_metadata =
@@ -554,11 +554,11 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
       let* () =
         hash |> Hash.to_b64
         |> (fun ballot -> { c_ballot = Some ballot; c_credential = credential })
-        |> S.create (Election (uuid, Credential_mapping credential)) Value
+        |> S.set (Election (uuid, Credential_mapping credential)) Value
       in
       let* () =
         { r_username = user; r_date = date; r_credential = credential }
-        |> S.create (Election (uuid, Extended_record user)) Value
+        |> S.set (Election (uuid, Extended_record user)) Value
       in
       return (Ok (hash, revote))
 
@@ -612,7 +612,7 @@ let get_audit_cache s uuid =
   | Some x -> return x
   | None ->
       let* cache = compute_audit_cache s uuid in
-      let* () = Spool.create s uuid Audit_cache cache in
+      let* () = Spool.set s uuid Audit_cache cache in
       return cache
 
 let get_admin_context admin_id =
@@ -725,12 +725,12 @@ let delete_election s uuid =
       de_has_weights;
     }
   in
-  let* () = de |> S.create (Election (uuid, Deleted)) Value in
+  let* () = de |> S.set (Election (uuid, Deleted)) Value in
   S.delete_live_data uuid
 
 let dump_passwords s uuid db =
   let module S = (val s : Storage.BACKEND) in
-  db |> S.create (Election (uuid, Passwords)) Value
+  db |> S.set (Election (uuid, Passwords)) Value
 
 let regen_password s uuid metadata user =
   let user = String.lowercase_ascii user in
@@ -771,7 +771,7 @@ let get_private_creds_downloaded s uuid =
 
 let set_private_creds_downloaded s uuid =
   let module S = (val s : Storage.BACKEND) in
-  () |> S.ensure (Election (uuid, Private_creds_downloaded)) Value
+  () |> S.set (Election (uuid, Private_creds_downloaded)) Value
 
 let clear_private_creds_downloaded s uuid =
   let module S = (val s : Storage.BACKEND) in
@@ -976,8 +976,8 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   in
   (* write election files to disk *)
   let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
-  let* () = voters |> S.create (Election (uuid, Voters)) Value in
-  let* () = metadata |> S.create (Election (uuid, Metadata)) Value in
+  let* () = voters |> S.set (Election (uuid, Voters)) Value in
+  let* () = metadata |> S.set (Election (uuid, Metadata)) Value in
   (* initialize credentials *)
   let* public_creds = S.init_credential_mapping uuid in
   (* initialize events *)
@@ -1010,13 +1010,13 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
     match private_keys with
     | `KEY x ->
         swrite G.Zq.to_string -- x
-        |> S.create (Election (uuid, Private_key)) String
+        |> S.set (Election (uuid, Private_key)) String
     | `KEYS (x, y) ->
         let* () =
           swrite G.Zq.to_string -- x
-          |> S.create (Election (uuid, Private_key)) String
+          |> S.set (Election (uuid, Private_key)) String
         in
-        y |> S.create (Election (uuid, Private_keys)) Value
+        y |> S.set (Election (uuid, Private_keys)) Value
   in
   (* send private credentials, if any *)
   let* () = send_credentials storage uuid (Draft (v, se)) in
@@ -1041,7 +1041,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
     | _ -> Lwt.return_unit
   in
   (* finish *)
-  let* () = Spool.create storage uuid State `Open in
+  let* () = Spool.set storage uuid State `Open in
   let* dates, set = update_election_dates storage uuid in
   set { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
 
@@ -1049,7 +1049,7 @@ let delete_draft s uuid =
   let module S = (val s : Storage.BACKEND) in
   S.delete_election uuid
 
-let create_draft s uuid se = Spool.create s uuid Draft se
+let create_draft s uuid se = Spool.set s uuid Draft se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally
 
 let compute_encrypted_tally s uuid =
@@ -1195,9 +1195,9 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           | None -> Lwt.return_unit
           | Some (Draft (v, se), set) ->
               let* () =
-                private_creds |> S.create (Election (uuid, Private_creds)) Value
+                private_creds |> S.set (Election (uuid, Private_creds)) Value
               in
-              let* () = Spool.create s uuid Public_creds public_with_ids in
+              let* () = Spool.set s uuid Public_creds public_with_ids in
               se.se_public_creds_received <- true;
               se.se_pending_credentials <- true;
               let* () = set (Draft (v, se)) in

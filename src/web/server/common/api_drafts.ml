@@ -414,7 +414,7 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Spool.create s uuid Public_creds credentials in
+  let* () = Spool.set s uuid Public_creds credentials in
   se.se_public_creds_received <- true;
   set (Draft (v, se))
 

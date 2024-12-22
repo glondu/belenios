@@ -42,10 +42,6 @@ let update s uuid (type a) file =
   let set x = set Value x in
   Lwt.return_some (x, set)
 
-let create s uuid file x =
+let set s uuid file x =
   let module S = (val s : Storage.BACKEND) in
-  S.create (Election (uuid, file)) Value x
-
-let ensure s uuid file x =
-  let module S = (val s : Storage.BACKEND) in
-  S.ensure (Election (uuid, file)) Value x
+  S.set (Election (uuid, file)) Value x

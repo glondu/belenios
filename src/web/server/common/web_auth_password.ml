@@ -149,8 +149,7 @@ let do_add_account s ~db_fname ~username ~password ~email =
   let hashed = sha256_hex (salt ^ password) in
   let r = { username; salt; hashed; address = Some email } in
   Lwt.try_bind
-    (fun () ->
-      r |> S.create (Admin_password (db_fname, Username username)) Value)
+    (fun () -> r |> S.set (Admin_password (db_fname, Username username)) Value)
     (fun () -> Lwt.return @@ Ok ())
     (fun _ -> Lwt.return @@ Error DatabaseError)
 

@@ -26,5 +26,4 @@ type 'a t = 'a Storage.election_file
 val get : ('a t -> 'a option Lwt.t) Storage.u
 val del : ('a t -> unit Lwt.t) Storage.u
 val update : ('a t -> 'a Web_common.updatable option Lwt.t) Storage.u
-val create : ('a t -> 'a -> unit Lwt.t) Storage.u
-val ensure : ('a t -> 'a -> unit Lwt.t) Storage.u
+val set : ('a t -> 'a -> unit Lwt.t) Storage.u

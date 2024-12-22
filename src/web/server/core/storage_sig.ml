@@ -75,14 +75,12 @@ type (_, _) string_or_value_spec =
 module type BACKEND_GENERIC = sig
   val get_unixfilename : 'a file -> string Lwt.t
   val get : 'a file -> 'a v Lwt.t
+  val set : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
+  val del : 'a file -> unit Lwt.t
 
   val update :
     'a file ->
     ('a v * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t)) option Lwt.t
-
-  val create : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
-  val ensure : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
-  val del : 'a file -> unit Lwt.t
 end
 
 module type BACKEND_ARCHIVE = sig

@@ -158,7 +158,7 @@ let get_partial_decryptions s uuid metadata =
             | Some ts ->
                 let ts = List.map (fun _ -> generate_token ()) ts in
                 let* () =
-                  Spool.create s uuid State_state (Some (`Decryption ts))
+                  Spool.set s uuid State_state (Some (`Decryption ts))
                 in
                 Lwt.return ts))
   in
@@ -246,7 +246,7 @@ let skip_shuffler s uuid trustee =
       | _ -> false
     in
     match x with
-    | None -> ([], Spool.create s uuid State_state)
+    | None -> ([], Spool.set s uuid State_state)
     | Some (Some (`Shuffle { skipped; token }), set) when ok token ->
         (skipped, set)
     | _ -> raise @@ Error `NotInExpectedState
@@ -260,7 +260,7 @@ let select_shuffler s uuid metadata tk_trustee =
     let* x = Spool.update s uuid State_state in
     match x with
     | Some (Some (`Shuffle { skipped; _ }), set) -> Lwt.return (skipped, set)
-    | _ -> Lwt.return ([], Spool.create s uuid State_state)
+    | _ -> Lwt.return ([], Spool.set s uuid State_state)
   in
   let tk_token = generate_token () in
   let t : Belenios_storage_api.shuffle_token =

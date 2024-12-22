@@ -416,9 +416,6 @@ module MakeBackend
     in
     Lwt.return_some (x, set)
 
-  let create = set
-  let ensure = set
-
   let append_to_file fname lines =
     let open Lwt_io in
     let@ oc =
@@ -1316,9 +1313,9 @@ module MakeBackend
     index.roots <- roots;
     Lwt.return_true
 
-  let make set =
+  let make set_ =
     let with_lock uuid f =
-      let* () = Mutex_set.lock set uuid in
+      let* () = Mutex_set.lock set_ uuid in
       f ()
     in
     let with_lock_file x f =
@@ -1328,10 +1325,9 @@ module MakeBackend
     let module X = struct
       let get_unixfilename f = with_lock_file f (fun () -> get_unixfilename f)
       let get f = with_lock_file f (fun () -> get f)
-      let update f = with_lock_file f (fun () -> update f)
-      let create f s x = with_lock_file f (fun () -> create f s x)
-      let ensure f s x = with_lock_file f (fun () -> ensure f s x)
+      let set f s x = with_lock_file f (fun () -> set f s x)
       let del f = with_lock_file f (fun () -> del f)
+      let update f = with_lock_file f (fun () -> update f)
       let list_accounts () = with_lock None list_accounts
       let list_elections () = with_lock None list_elections
       let new_election () = with_lock None new_election

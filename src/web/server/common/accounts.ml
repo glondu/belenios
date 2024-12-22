@@ -79,7 +79,7 @@ let create_account s ~email user =
   let* () =
     Lwt.finalize
       (fun () ->
-        let* () = S.create (Account id) Value account in
+        let* () = S.set (Account id) Value account in
         run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();
