@@ -23,7 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Belenios_js.Common
 open Belenios_js.Session
 

@@ -46,10 +46,10 @@ val set_private_creds_downloaded : unit Lwt.t Storage.u
 val get_audit_cache : audit_cache Lwt.t Storage.u
 
 val get_election_automatic_dates :
-  Belenios_api.election_auto_dates Lwt.t Storage.u
+  Belenios_web_api.election_auto_dates Lwt.t Storage.u
 
 val set_election_automatic_dates :
-  (Belenios_api.election_auto_dates -> unit Lwt.t) Storage.u
+  (Belenios_web_api.election_auto_dates -> unit Lwt.t) Storage.u
 
 (** {1 Voter-specific stuff} *)
 
@@ -73,7 +73,7 @@ val get_username_or_address : [ `Username | `Address ] Lwt.t Storage.u
 
 val validate_election :
   admin_id:int ->
-  (draft_election updatable -> Belenios_api.draft_status -> unit Lwt.t)
+  (draft_election updatable -> Belenios_web_api.draft_status -> unit Lwt.t)
   Storage.u
 
 type precast_data = {

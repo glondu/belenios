@@ -60,7 +60,7 @@ struct
     mutable data : data option;
     mutable user : user option;
     credential : string option;
-    mutable result : Belenios_api.cast_result option;
+    mutable result : Belenios_web_api.cast_result option;
   }
 
   let auth_env = ref SMap.empty

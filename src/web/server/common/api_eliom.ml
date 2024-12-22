@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_server_core
-open Belenios_api
+open Belenios_web_api
 open Api_generic
 
 let ( let& ) = Option.bind

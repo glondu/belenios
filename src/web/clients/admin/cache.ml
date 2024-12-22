@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
-open Belenios_api
+open Belenios_web_api
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session

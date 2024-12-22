@@ -22,7 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Belenios_storage_api
 open Web_common
 open Eliom_content.Html.F
@@ -243,7 +243,8 @@ struct
             ]
     in
     let raw_data =
-      api_a Belenios_api.Endpoints.election_records uuid [ txt (s_ "raw data") ]
+      api_a Belenios_web_api.Endpoints.election_records uuid
+        [ txt (s_ "raw data") ]
     in
     let content =
       [

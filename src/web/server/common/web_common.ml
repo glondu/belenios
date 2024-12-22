@@ -26,7 +26,7 @@ open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
 
-exception BeleniosWebError of Belenios_api.cast_error
+exception BeleniosWebError of Belenios_web_api.cast_error
 
 let fail e = Lwt.fail (BeleniosWebError e)
 

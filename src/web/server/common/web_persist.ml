@@ -620,7 +620,7 @@ let get_admin_context admin_id =
   let module S = (val s) in
   let* elections = Storage.get_elections_by_owner admin_id in
   let* elections =
-    let open Belenios_api in
+    let open Belenios_web_api in
     Lwt_list.filter_map_s
       (function
         | { state = `Open | `Closed | `Shuffling | `EncryptedTally; uuid; _ } ->
@@ -637,7 +637,7 @@ let get_admin_context admin_id =
   in
   let nb_elections = List.length elections in
   let total_voters = List.fold_left ( + ) 0 elections in
-  Lwt.return Belenios_api.{ email; nb_elections; total_voters }
+  Lwt.return Belenios_web_api.{ email; nb_elections; total_voters }
 
 let () = Billing.set_get_admin_context get_admin_context
 
@@ -810,7 +810,7 @@ let send_credentials s uuid (Draft (v, se)) =
 
 let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let module S = (val storage : Storage.BACKEND) in
-  let open Belenios_api in
+  let open Belenios_web_api in
   let version = se.se_version in
   let questions =
     let x = se.se_questions in
@@ -1125,7 +1125,7 @@ let open_election s uuid = set_election_state s uuid `Open
 let close_election s uuid = set_election_state s uuid `Closed
 
 let get_election_automatic_dates s uuid =
-  let open Belenios_api in
+  let open Belenios_web_api in
   let* d = get_election_dates s uuid in
   Lwt.return
     {
@@ -1135,7 +1135,7 @@ let get_election_automatic_dates s uuid =
     }
 
 let set_election_automatic_dates s uuid d =
-  let open Belenios_api in
+  let open Belenios_web_api in
   let e_date_auto_open = d.auto_date_open in
   let e_date_auto_close = d.auto_date_close in
   let e_date_publish = d.auto_date_publish in

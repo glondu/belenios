@@ -26,7 +26,7 @@ module type BASE = sig
   module Svg : Svg_sigs.Make(Xml).T
   module Html : Html_sigs.Make(Xml)(Svg).T
 
-  val uris : Belenios_api.configuration_uris
+  val uris : Belenios_web_api.configuration_uris
 end
 
 module Make (Base : BASE) = struct
@@ -191,8 +191,8 @@ module Make (Base : BASE) = struct
     let result, step_title =
       match result with
       | `Ok
-          ({ user; hash; revote; weight; email; _ } : Belenios_api.confirmation)
-        ->
+          ({ user; hash; revote; weight; email; _ } :
+            Belenios_web_api.confirmation) ->
           let this_is_a_revote =
             if revote then span [ txt @@ s_ "This is a revote."; txt " " ]
             else txt ""

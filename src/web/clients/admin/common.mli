@@ -20,12 +20,12 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_api
+open Belenios_web_api
 
 (** Session management *)
 
 val token : string option ref
-val user : Belenios_api.Endpoints.admin ref
+val user : Belenios_web_api.Endpoints.admin ref
 val logout : unit -> unit Lwt.t
 
 (** Context *)

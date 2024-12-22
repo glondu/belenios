@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_api
+open Belenios_web_api
 open Common
 
 val home : configuration -> ?credential:string -> uuid -> page Lwt.t

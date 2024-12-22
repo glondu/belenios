@@ -22,7 +22,7 @@
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
-open Belenios_api
+open Belenios_web_api
 
 type page = {
   title : string;

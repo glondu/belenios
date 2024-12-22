@@ -36,7 +36,7 @@ let chars_of_stdin () = Lwt_io.(read stdin)
 
 let download dir url uuid =
   let url = if String.ends_with ~suffix:"/" url then url else url ^ "/" in
-  let x = Belenios_api.Endpoints.election_archive uuid in
+  let x = Belenios_web_api.Endpoints.election_archive uuid in
   let url = Printf.sprintf "%sapi/%s" url x.path in
   let file = Printf.sprintf "%s.bel" (Uuid.unwrap uuid) in
   let* () = Lwt_io.eprintf "I: downloading %s to %s...\n" url file in

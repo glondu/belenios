@@ -1,5 +1,5 @@
 (library
- (name belenios_api)
+ (name belenios_web_api)
  (public_name belenios-lib.api)
  (libraries uri belenios-lib))
 

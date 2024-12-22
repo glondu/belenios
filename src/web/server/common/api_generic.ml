@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Belenios_storage_api
 open Belenios_server_core
 open Web_common
@@ -60,7 +60,7 @@ let () =
   tokens := SMap.map f !tokens;
   Lwt.return_unit
 
-exception Error of Belenios_api.error
+exception Error of Belenios_web_api.error
 
 type result = [ `Json of int * string | `Bel of string ]
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }

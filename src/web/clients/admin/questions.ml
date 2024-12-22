@@ -21,7 +21,7 @@
 
 open Belenios
 open Belenios_question
-open Belenios_api
+open Belenios_web_api
 open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml

@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Belenios_storage_api
 open Belenios_server_core
 open Web_common
@@ -100,7 +100,7 @@ let api_of_draft (Draft (v, se)) =
     }
   in
   Lwt.return
-    (Belenios_api.Draft
+    (Belenios_web_api.Draft
        ( v,
          {
            draft_version = se.se_version;
@@ -115,7 +115,8 @@ let api_of_draft (Draft (v, se)) =
 
 let assert_ msg b f = if b then f () else raise (Error msg)
 
-let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_api.Draft (v', d)) =
+let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
+    =
   let version = se.se_version in
   let@ Refl =
    fun cont ->
@@ -1313,7 +1314,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
   | [ "trustees" ] -> (
       let@ who = with_administrator_or_nobody token se in
       let get is_admin () =
-        let open Belenios_api in
+        let open Belenios_web_api in
         let x = get_draft_trustees ~is_admin se in
         Lwt.return
         @@ string_of_draft_trustees Yojson.Safe.write_json

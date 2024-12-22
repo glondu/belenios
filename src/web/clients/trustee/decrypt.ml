@@ -26,7 +26,7 @@ open Tyxml_js.Html5
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
-open Belenios_api
+open Belenios_web_api
 open Common
 
 let basic_check_private_key s =

@@ -23,7 +23,7 @@ open Js_of_ocaml_tyxml
 open Tyxml_js.Html5
 open Belenios_js.Common
 
-let user = ref (`Admin "" : Belenios_api.Endpoints.admin)
+let user = ref (`Admin "" : Belenios_web_api.Endpoints.admin)
 
 let generic_proceed x handler =
   let msg =

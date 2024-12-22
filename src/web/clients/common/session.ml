@@ -23,7 +23,7 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Common
 
 let init_api_token set_api_token ?ui hash =
@@ -52,7 +52,7 @@ let init_api_token set_api_token ?ui hash =
 type xhr_result =
   | BadResult
   | BadStatus of int * string
-  | RequestStatus of Belenios_api.request_status
+  | RequestStatus of Belenios_web_api.request_status
 
 let raw_delete_with_token ?ifmatch ~token url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
@@ -114,7 +114,7 @@ let raw_get_with_token ~token of_string url =
       Lwt.return @@ Error x
 
 module Api = struct
-  include Belenios_api.Endpoints
+  include Belenios_web_api.Endpoints
 
   let get_token = function
     | `Nobody -> None

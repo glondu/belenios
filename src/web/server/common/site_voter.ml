@@ -65,7 +65,7 @@ struct
                   belenios.init({root: "../"});
                   belenios.finalizeLogin(%s);
                 |}
-                (Belenios_api.string_of_cast_result result)
+                (Belenios_web_api.string_of_cast_result result)
             in
             Html.send page
         | None ->

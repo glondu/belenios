@@ -254,7 +254,7 @@ module Schulze = struct
 end
 
 module BuggyPartialDecryption = struct
-  open Belenios_api
+  open Belenios_web_api
 
   let compute () =
     let hash = get_input "buggy_pd_hash" in

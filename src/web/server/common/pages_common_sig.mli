@@ -48,7 +48,7 @@ module type S = sig
     [> 'h Html_types.a ] Eliom_content.Html.elt
 
   val api_a :
-    (uuid -> _ Belenios_api.Endpoints.t) ->
+    (uuid -> _ Belenios_web_api.Endpoints.t) ->
     uuid ->
     'a Eliom_content.Html.elt list ->
     [> 'a Html_types.a ] Eliom_content.Html.elt
@@ -112,7 +112,7 @@ module type S = sig
     snippet:'a Eliom_content.Html.elt ->
     progress:'a Eliom_content.Html.elt ->
     (module Belenios.Election.ELECTION) ->
-    Belenios_api.cast_result ->
+    Belenios_web_api.cast_result ->
     ([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt list
 
   val lang_box :

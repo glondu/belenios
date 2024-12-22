@@ -24,7 +24,7 @@ open Js_of_ocaml
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Belenios_js.Common
 open Common
 
@@ -48,7 +48,7 @@ let format_period x =
   |> String.concat " "
 
 let make_object_link uuid h =
-  let href = !/Belenios_api.Endpoints.((election_object uuid h).path) in
+  let href = !/Belenios_web_api.Endpoints.((election_object uuid h).path) in
   a ~href (Hash.to_b64 h)
 
 let make_audit_div election cache =

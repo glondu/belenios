@@ -35,7 +35,7 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
     |> List.sort (fun (a, _, _) (b, _, _) -> compare_b64 a b)
     |> List.map (fun (b, h, w) ->
            let href =
-             !/Belenios_api.Endpoints.((election_object uuid h).path)
+             !/Belenios_web_api.Endpoints.((election_object uuid h).path)
            in
            li
              [

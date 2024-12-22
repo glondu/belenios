@@ -24,7 +24,9 @@ open Api_generic
 
 val create : admin_id:int -> uuid:Uuid.t -> nb_voters:int -> string Lwt.t
 val check : url:string -> id:string -> bool Lwt.t
-val set_get_admin_context : (int -> Belenios_api.billing_context Lwt.t) -> unit
+
+val set_get_admin_context :
+  (int -> Belenios_web_api.billing_context Lwt.t) -> unit
 
 val dispatch :
   token:string option ->

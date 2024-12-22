@@ -21,7 +21,7 @@
 
 open Js_of_ocaml_tyxml
 open Belenios
-open Belenios_api
+open Belenios_web_api
 
 val post_ballot : uuid -> ballot:string -> (string, cast_error) result Lwt.t
 

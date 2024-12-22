@@ -44,7 +44,7 @@ struct
     Eliom_content.Html.F.Raw.a ~a:(a_href href :: a) contents
 
   let api_a endpoint uuid contents =
-    let path = (endpoint uuid).Belenios_api.Endpoints.path in
+    let path = (endpoint uuid).Belenios_web_api.Endpoints.path in
     let href = Printf.sprintf "%s/api/%s" !Web_config.prefix path in
     Eliom_content.Html.F.Raw.a ~a:[ a_href @@ Xml.uri_of_string href ] contents
 

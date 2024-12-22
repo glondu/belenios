@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_api
+open Belenios_web_api
 open Common
 
 module type PARAMS = sig

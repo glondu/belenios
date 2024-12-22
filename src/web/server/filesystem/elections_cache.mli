@@ -33,7 +33,7 @@ end
 module Make (_ : INPUT) () : sig
   module Clear : CLEAR
 
-  val get_elections_by_owner : int -> Belenios_api.summary_list Lwt.t
+  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
 
   val get_next_actions :
     unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t

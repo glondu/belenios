@@ -23,7 +23,7 @@ open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
 open Belenios_server_core
-open Belenios_api
+open Belenios_web_api
 open Web_common
 open Api_generic
 
