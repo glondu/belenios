@@ -30,7 +30,7 @@ type abstract
 type _ election_file =
   | State : election_state election_file
   | State_state : Belenios_storage_api.state_state election_file
-  | Dates_full : Belenios_storage_api.election_dates election_file
+  | Dates : Belenios_storage_api.election_dates election_file
   | Metadata : metadata election_file
   | Private_key : Yojson.Safe.t election_file
   | Private_keys : string list election_file

@@ -42,17 +42,16 @@ let get_setup_data s uuid =
   | Some x -> Lwt.return (setup_data_of_string x)
 
 let get_election_dates s uuid =
-  let* x = Spool.get s uuid Dates_full in
+  let* x = Spool.get s uuid Dates in
   Lwt.return
     (Option.value ~default:Belenios_storage_api.default_election_dates x)
 
 let update_election_dates s uuid =
-  let* x = Spool.update s uuid Dates_full in
+  let* x = Spool.update s uuid Dates in
   match x with
   | None ->
       Lwt.return
-        ( Belenios_storage_api.default_election_dates,
-          Spool.set s uuid Dates_full )
+        (Belenios_storage_api.default_election_dates, Spool.set s uuid Dates)
   | Some x -> Lwt.return x
 
 let empty_metadata =

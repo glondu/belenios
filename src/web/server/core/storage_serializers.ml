@@ -33,7 +33,7 @@ let get_election_file_serializers (type t) :
   | State_state ->
       Belenios_storage_api.
         { of_string = state_state_of_string; to_string = string_of_state_state }
-  | Dates_full ->
+  | Dates ->
       Belenios_storage_api.
         {
           of_string = election_dates_of_string;

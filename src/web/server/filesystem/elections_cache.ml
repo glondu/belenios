@@ -65,7 +65,7 @@ module Make (I : INPUT) () = struct
           Lwt.return template.t_name
     in
     let* date =
-      let* dates = get Fun.id Dates_full in
+      let* dates = get Fun.id Dates in
       match state with
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
           Lwt.return
@@ -157,7 +157,7 @@ module Make (I : INPUT) () = struct
       | Some x -> Lwt.return x
     in
     let* dates =
-      let* x = I.get s (Election (uuid, Dates_full)) in
+      let* x = I.get s (Election (uuid, Dates)) in
       match Lopt.get_value x with
       | None -> Lwt.return Belenios_storage_api.default_election_dates
       | Some x -> Lwt.return x

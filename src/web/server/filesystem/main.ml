@@ -277,7 +277,7 @@ module MakeBackend
     | State_state -> Abstract (state_state_ops, ())
     | Public_creds -> Concrete ("public_creds.json", Trim)
     | Private_creds -> Concrete ("private_creds.txt", Raw)
-    | Dates_full -> Abstract (dates_ops, ())
+    | Dates -> Abstract (dates_ops, ())
     | Metadata -> Concrete ("metadata.json", Trim)
     | Private_key -> Concrete ("private_key.json", Trim)
     | Private_keys -> Concrete ("private_keys.jsons", Raw)
