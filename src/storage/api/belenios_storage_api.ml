@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+include Core
 include Serializable_j
 
 let default_election_dates =

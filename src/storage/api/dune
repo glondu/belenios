@@ -1,6 +1,6 @@
 (library
  (name belenios_storage_api)
- (libraries yojson atdgen-runtime))
+ (libraries calendar belenios-lib.core))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

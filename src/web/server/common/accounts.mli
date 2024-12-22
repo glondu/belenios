@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_storage_api
 open Belenios_server_core
 
 val create_account : Storage.t -> email:string option -> user -> account Lwt.t

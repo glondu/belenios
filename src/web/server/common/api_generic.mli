@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
+open Belenios_storage_api
 open Belenios_api.Serializable_t
 
 val new_token : account -> string Lwt.t

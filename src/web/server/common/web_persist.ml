@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
+open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 
@@ -867,7 +868,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let group = Group.of_string ~version se.se_group in
   let module G = (val group : GROUP) in
   let trustees =
-    let open Belenios_server_core in
+    let open Belenios_storage_api in
     se.se_trustees
     |> string_of_draft_trustees Yojson.Safe.write_json
     |> draft_trustees_of_string (sread G.Zq.of_string)

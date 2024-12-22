@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_server_core
 open Web_common
 open Eliom_content.Html.F
 

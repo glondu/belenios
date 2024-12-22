@@ -19,35 +19,48 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Belenios_server_core
-open Belenios_api.Serializable_t
-open Api_generic
+module Datetime = struct
+  open CalendarLib
 
-val get_election_status : election_status Lwt.t Storage.u
-val get_records : records Lwt.t Storage.u
-val get_partial_decryptions : (metadata -> partial_decryptions Lwt.t) Storage.u
-val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
-val skip_shuffler : (string -> unit Lwt.t) Storage.u
-val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
+  let datetime_format = "%Y-%m-%d %H:%M:%S"
 
-val dispatch :
-  Storage.t ->
-  token:string option ->
-  ifmatch:string option ->
-  string list ->
-  [ `GET | `POST | `PUT | `DELETE ] ->
-  body ->
-  result Lwt.t
+  type t = Calendar.Precise.t
 
-val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
-val state_module : (module Web_auth_sig.STATE) option ref
+  let now () = Calendar.Precise.now ()
 
-val cast_ballot :
-  (confirmation -> bool Lwt.t) Storage.u ->
-  ((module Belenios.Election.ELECTION) ->
-  ballot:string ->
-  user:user ->
-  precast_data:Web_persist.precast_data ->
-  confirmation Lwt.t)
-  Storage.u
+  let unwrap n =
+    let n = Calendar.Precise.to_gmt n in
+    Printer.Precise_Calendar.sprint datetime_format n
+
+  let wrap s =
+    match String.index_opt s '.' with
+    | None ->
+        let l = Printer.Precise_Calendar.from_fstring datetime_format s in
+        Calendar.Precise.from_gmt l
+    | Some i ->
+        let l =
+          Printer.Precise_Calendar.from_fstring datetime_format
+            (String.sub s 0 i)
+        in
+        let l = Calendar.Precise.from_gmt l in
+        let r = float_of_string ("0" ^ String.sub s i (String.length s - i)) in
+        let r = int_of_float (Float.round r) in
+        Calendar.Precise.add l (Calendar.Precise.Period.second r)
+
+  let compare = Calendar.Precise.compare
+  let format ?(fmt = datetime_format) a = Printer.Precise_Calendar.sprint fmt a
+  let to_unixfloat a = Calendar.Precise.to_unixfloat a |> Float.round
+  let from_unixfloat t = Calendar.Precise.from_unixfloat t
+end
+
+module Period = struct
+  open CalendarLib
+
+  type t = Calendar.Precise.Period.t
+
+  let day = Calendar.Precise.Period.day
+  let second = Calendar.Precise.Period.second
+  let add = Calendar.Precise.add
+  let sub = Calendar.Precise.sub
+  let ymds = Calendar.Precise.Period.ymds
+end

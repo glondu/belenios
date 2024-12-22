@@ -21,144 +21,8 @@
 
 <doc text="Web-specific serializable datatypes">
 
-(** {1 Predefined types} *)
-
-type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
-type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
-type datetime = string wrap <ocaml module="Types.Datetime">
-type 'a proof <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a polynomial <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
-
-(** {1 Web-specific types} *)
-
-type user = {
-  domain : string;
-  name : string;
-} <ocaml field_prefix="user_">
-
-type auth_config = {
-  auth_system : string;
-  auth_instance : string;
-  auth_config : (string * string) list;
-}
-
-type metadata = {
-  owners: int list;
-  ?auth_config: auth_config list option;
-  ?cred_authority : string option;
-  ?trustees : string list option;
-  ?languages : string list option;
-  ?contact : string option;
-  ?booth_version : int option;
-  ?billing_request : string option;
-} <ocaml field_prefix="e_">
-
-type extended_record = {
-  username : string;
-  date : datetime;
-  credential : string;
-} <ocaml field_prefix="r_">
-
-type credential_mapping = {
-  credential : string;
-  ?ballot : string option;
-} <ocaml field_prefix="c_">
-
-type election_state =
-  [ Open
-  | Closed
-  | Shuffling
-  | EncryptedTally
-  | Tallied
-  | Archived
-  ]
-
-(** {1 Types related to elections being prepared} *)
-
-type voter <ocaml predef from="Belenios_core.Serializable"> = abstract
-
-type draft_voter = {
-  id <ocaml mutable> : voter;
-  ?password <ocaml mutable> : (string * string) option;
-} <ocaml field_prefix="sv_">
-
-type 'a draft_trustee = {
-  id : string;
-  token : string;
-  public_key <ocaml mutable> : string;
-  ?private_key : 'a option;
-  ?name : string option;
-} <ocaml field_prefix="st_">
-
-type 'a draft_threshold_trustee = {
-  id : string;
-  token : string;
-  ?step <ocaml mutable> : int option;
-  ?cert <ocaml mutable> : 'a cert option;
-  ?polynomial <ocaml mutable> : 'a polynomial option;
-  ?vinput <ocaml mutable> : 'a vinput option;
-  ?voutput <ocaml mutable> : string option;
-  ?name : string option;
-} <ocaml field_prefix="stt_">
-
-type 'a draft_basic_params = {
-  trustees <ocaml mutable> : 'a draft_trustee list;
-} <ocaml field_prefix="dbp_">
-
-type 'a draft_threshold_params = {
-  ?threshold <ocaml mutable> : int option;
-  trustees <ocaml mutable> : 'a draft_threshold_trustee list;
-  ?parameters <ocaml mutable> : string option;
-  ?error <ocaml mutable> : string option;
-} <ocaml field_prefix="dtp_">
-
-type 'a draft_trustees =
-  [ Basic of 'a draft_basic_params
-  | Threshold of 'a draft_threshold_params
-  ]
-
-type 'question raw_draft_election = {
-  version : int;
-  owners : int list;
-  group <ocaml mutable> : string;
-  voters <ocaml mutable> : draft_voter list;
-  questions <ocaml mutable> : 'question template;
-  trustees <ocaml mutable> : abstract draft_trustees;
-  metadata <ocaml mutable> : metadata;
-  public_creds : string;
-  public_creds_received <ocaml mutable> : bool;
-  ?creation_date : datetime option;
-  ?administrator <ocaml mutable> : string option;
-  ~credential_authority_visited <ocaml default="false" mutable> : bool;
-  ~voter_authentication_visited <ocaml default="false" mutable> : bool;
-  ~trustees_setup_step <ocaml default="1" mutable> : int;
-  ~pending_credentials <ocaml default="false" mutable> : bool;
-} <ocaml field_prefix="se_">
-
-(** {1 Types related to deleted elections} *)
-
-type authentication_method = [ CAS of string | Password | Unknown ]
-type credential_method = [ Automatic | Manual ]
-
-type deleted_trustee = [ Single | Pedersen of (int * int) ]
-
-type deleted_election = {
-  uuid : uuid;
-  template : abstract template;
-  owners : int list;
-  nb_voters : int;
-  nb_ballots : int;
-  date : datetime;
-  tallied : bool;
-  authentication_method : authentication_method;
-  credential_method : credential_method;
-  trustees : deleted_trustee list;
-  has_weights : bool;
-} <ocaml field_prefix="de_">
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 
 (** {1 OpenID Connect-related types} *)
 
@@ -178,22 +42,6 @@ type oidc_userinfo = {
   sub : string;
   ?email : string option;
 } <ocaml field_prefix="oidc_">
-
-(** {1 Administrator accounts} *)
-
-type account = {
-    id : int;
-    name : string;
-    ?email : string option;
-    last_connected : datetime;
-    authentications : user list;
-    ?consent : datetime option;
-    ?capabilities : int option;
-    ?language : string option;
-    ~default_voter_languages <ocaml default="[]"> : string list;
-    ~default_contact <ocaml default="\"\""> : string;
-    ?voters_limit : int option;
-}
 
 (** {1 Bulk emails} *)
 
@@ -233,20 +81,3 @@ type bulk_processed = {
     mode : bulk_mode;
     processed : int;
   }
-
-(** {1 Views} *)
-
-type username_or_address = [ Username | Address ]
-
-type voters_config = {
-  has_explicit_weights : bool;
-  username_or_address : username_or_address;
-  nb_voters : int;
-}
-
-type password_record = {
-  username : string;
-  salt : string;
-  hashed : string;
-  ?address : string option;
-}

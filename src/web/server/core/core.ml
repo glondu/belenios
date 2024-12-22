@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
+open Belenios_storage_api
 open Serializable_j
 
 exception Race_condition
@@ -33,9 +34,6 @@ let ( let*& ) x f =
   match x with None -> Lwt.return_none | Some x -> f x
 
 let sleep = Lwt_unix.sleep
-
-module Datetime = Types.Datetime
-module Period = Types.Period
 
 module Random = struct
   open Crypto_primitives

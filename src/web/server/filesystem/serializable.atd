@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type datetime = string wrap <ocaml module="Belenios_server_core.Datetime">
+type datetime = string wrap <ocaml module="Belenios_storage_api.Datetime">
 
 type election_dates = {
   ?creation : datetime option;

@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
+open Belenios_storage_api
 open Belenios_server_core
 
 module Make () = struct

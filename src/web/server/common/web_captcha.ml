@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_server_core
+open Belenios_storage_api
 open Web_common
 
 type captcha = {

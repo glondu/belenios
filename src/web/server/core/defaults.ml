@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
+open Belenios_storage_api
 
 let version =
   let open Belenios.Election in
@@ -44,7 +44,7 @@ let questions =
       ~extra:None;
   |]
 
-let convert x = x |> datetime_of_string |> Types.Datetime.to_unixfloat
+let convert x = x |> datetime_of_string |> Datetime.to_unixfloat
 let creation_date = convert {|"2018-11-26 00:00:00.000000"|}
 let validation_date = convert {|"2015-10-01 00:00:00.000000"|}
 let tally_date = convert {|"2018-11-26 00:00:00.000000"|}

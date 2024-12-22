@@ -19,35 +19,24 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Belenios_server_core
-open Belenios_api.Serializable_t
-open Api_generic
+module Datetime : sig
+  type t
 
-val get_election_status : election_status Lwt.t Storage.u
-val get_records : records Lwt.t Storage.u
-val get_partial_decryptions : (metadata -> partial_decryptions Lwt.t) Storage.u
-val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
-val skip_shuffler : (string -> unit Lwt.t) Storage.u
-val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
+  val now : unit -> t
+  val wrap : string -> t
+  val unwrap : t -> string
+  val compare : t -> t -> int
+  val format : ?fmt:string -> t -> string
+  val to_unixfloat : t -> float
+  val from_unixfloat : float -> t
+end
 
-val dispatch :
-  Storage.t ->
-  token:string option ->
-  ifmatch:string option ->
-  string list ->
-  [ `GET | `POST | `PUT | `DELETE ] ->
-  body ->
-  result Lwt.t
+module Period : sig
+  type t
 
-val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
-val state_module : (module Web_auth_sig.STATE) option ref
-
-val cast_ballot :
-  (confirmation -> bool Lwt.t) Storage.u ->
-  ((module Belenios.Election.ELECTION) ->
-  ballot:string ->
-  user:user ->
-  precast_data:Web_persist.precast_data ->
-  confirmation Lwt.t)
-  Storage.u
+  val day : int -> t
+  val second : int -> t
+  val add : Datetime.t -> t -> Datetime.t
+  val sub : Datetime.t -> Datetime.t -> t
+  val ymds : t -> int * int * int * int
+end

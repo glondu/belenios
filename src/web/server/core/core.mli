@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_storage_api
 open Serializable_t
 
 exception Race_condition
@@ -29,8 +30,6 @@ val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val ( let*& ) : 'a option Lwt.t -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val sleep : float -> unit Lwt.t
 
-module Datetime = Types.Datetime
-module Period = Types.Period
 module Random : RANDOM
 
 val generate_numeric : ?length:int -> unit -> string

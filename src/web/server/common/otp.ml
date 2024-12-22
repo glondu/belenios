@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_storage_api
 open Belenios_server_core
 
 module type SENDER = sig

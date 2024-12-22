@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable_j
+open Belenios_storage_api
 open Storage_sig
 
 let get_election_file_serializers (type t) :

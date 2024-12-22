@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
+open Belenios_storage_api
 
 val prefix : string ref
 val site_auth_config : auth_config list ref

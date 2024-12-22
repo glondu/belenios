@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_storage_api
 open Belenios_server_core
 
 val generate_password_email :

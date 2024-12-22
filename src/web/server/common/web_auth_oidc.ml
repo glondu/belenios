@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
+open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 

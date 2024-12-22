@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_storage_api
 open Serializable_t
 
 (** {1 Type definitions} *)
@@ -29,8 +30,8 @@ type abstract
 
 type _ election_file =
   | State : election_state election_file
-  | State_state : Belenios_storage_api.state_state election_file
-  | Dates : Belenios_storage_api.election_dates election_file
+  | State_state : state_state election_file
+  | Dates : election_dates election_file
   | Metadata : metadata election_file
   | Private_key : Yojson.Safe.t election_file
   | Private_keys : string list election_file
@@ -43,7 +44,7 @@ type _ election_file =
   | Private_creds : private_credentials election_file
   | Public_archive : abstract election_file
   | Passwords : string list list election_file
-  | Records : Belenios_storage_api.election_records election_file
+  | Records : election_records election_file
   | Voters : Voter.t list election_file
   | Confidential_archive : abstract election_file
   | Extended_record : string -> extended_record election_file

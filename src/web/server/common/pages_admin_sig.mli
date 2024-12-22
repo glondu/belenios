@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_api.Serializable_t
+open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 

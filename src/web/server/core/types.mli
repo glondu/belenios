@@ -19,28 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Datetime : sig
-  type t
-
-  val now : unit -> t
-  val wrap : string -> t
-  val unwrap : t -> string
-  val compare : t -> t -> int
-  val format : ?fmt:string -> t -> string
-  val to_unixfloat : t -> float
-  val from_unixfloat : float -> t
-end
-
-module Period : sig
-  type t
-
-  val day : int -> t
-  val second : int -> t
-  val add : Datetime.t -> t -> Datetime.t
-  val sub : Datetime.t -> Datetime.t -> t
-  val ymds : t -> int * int * int * int
-end
-
 module Lopt : sig
   type 'a t
 
