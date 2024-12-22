@@ -188,7 +188,7 @@ struct
         Lwt.try_bind
           (fun () ->
             let module S = (val s) in
-            S.get_as_file (Election (uuid, Confidential_archive)))
+            S.get_unixfilename (Election (uuid, Confidential_archive)))
           (fun archive_name ->
             File.send ~content_type:"application/zip" archive_name)
           (function

@@ -515,7 +515,7 @@ module MakeBackend
       | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
-  let get_as_file (type t) : t file -> _ = function
+  let get_unixfilename (type t) : t file -> _ = function
     | Election (_, (Public_archive | Private_creds : t election_file)) as x -> (
         match get_props x with
         | Concrete (f, _) -> Lwt.return f
@@ -1183,7 +1183,7 @@ module MakeBackend
       | None -> raise Creation_not_requested
       | Some x -> (x.last_height + 100, x.last_pos)
     in
-    let* filename = get_as_file (Election (uuid, Public_archive)) in
+    let* filename = get_unixfilename (Election (uuid, Public_archive)) in
     let*& map, roots, timestamp = build_roots ~size ~pos filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
@@ -1251,7 +1251,7 @@ module MakeBackend
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
         let&** r = r in
-        let* filename = get_as_file (Election (uuid, Public_archive)) in
+        let* filename = get_unixfilename (Election (uuid, Public_archive)) in
         gethash ~index:r.map ~filename x)
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
@@ -1308,7 +1308,7 @@ module MakeBackend
     let last_hash = match last_hash with None -> assert false | Some x -> x in
     let items = List.rev items in
     let* last_pos, records =
-      let* filename = get_as_file (Election (uuid, Public_archive)) in
+      let* filename = get_unixfilename (Election (uuid, Public_archive)) in
       raw_append ~filename ~timestamp:index.timestamp pos items
     in
     let* () = set_last_event uuid { last_hash; last_height; last_pos } in
@@ -1326,7 +1326,7 @@ module MakeBackend
       with_lock uuid f
     in
     let module X = struct
-      let get_as_file f = with_lock_file f (fun () -> get_as_file f)
+      let get_unixfilename f = with_lock_file f (fun () -> get_unixfilename f)
       let get f = with_lock_file f (fun () -> get f)
       let update f = with_lock_file f (fun () -> update f)
       let create f s x = with_lock_file f (fun () -> create f s x)

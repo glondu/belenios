@@ -445,7 +445,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       match method_ with
       | `GET ->
           let module S = (val s) in
-          let* path = S.get_as_file (Election (uuid, Public_archive)) in
+          let* path = S.get_unixfilename (Election (uuid, Public_archive)) in
           Lwt.return @@ `Bel path
       | _ -> method_not_allowed)
   | [ "trustees" ] -> (
