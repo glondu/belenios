@@ -286,7 +286,7 @@ module MakeBackend
     | Deleted -> Concrete ("deleted.json", Trim)
     | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
     | Passwords -> Concrete ("passwords.csv", Raw)
-    | Records_new -> Abstract (records_ops, ())
+    | Records -> Abstract (records_ops, ())
     | Voters -> Concrete ("voters.txt", Raw)
     | Confidential_archive -> Concrete ("archive.zip", Raw)
     | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)

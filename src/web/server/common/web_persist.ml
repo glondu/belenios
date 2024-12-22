@@ -1152,7 +1152,7 @@ let get_draft_public_credentials s uuid =
 
 let get_records s uuid =
   let module S = (val s : Storage.BACKEND) in
-  let* x = S.get (Election (uuid, Records_new)) in
+  let* x = S.get (Election (uuid, Records)) in
   let&* x = Lopt.get_value x in
   Lwt.return_some x
 

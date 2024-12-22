@@ -77,7 +77,7 @@ let get_election_file_serializers (type t) :
         to_string = (fun _ -> invalid_arg "Public_archive.to_string");
       }
   | Passwords -> Core.{ of_string = csv_of_string; to_string = string_of_csv }
-  | Records_new ->
+  | Records ->
       Belenios_storage_api.
         {
           of_string = election_records_of_string;

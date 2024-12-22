@@ -43,7 +43,7 @@ type _ election_file =
   | Private_creds : private_credentials election_file
   | Public_archive : abstract election_file
   | Passwords : string list list election_file
-  | Records_new : Belenios_storage_api.election_records election_file
+  | Records : Belenios_storage_api.election_records election_file
   | Voters : Voter.t list election_file
   | Confidential_archive : abstract election_file
   | Extended_record : string -> extended_record election_file
