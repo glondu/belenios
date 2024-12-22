@@ -19,6 +19,13 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Storage_sig
+include module type of Core
+include module type of Serializable_j
+include module type of Extra
 
-val some : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> 'a Types.Lopt.t
+type 'a election_file = 'a File.u
+type 'a file = 'a File.t
+type admin_password_file = File.kind
+
+val get_file_serializers : 'a file -> 'a Belenios.string_serializers
+val default_election_dates : election_dates

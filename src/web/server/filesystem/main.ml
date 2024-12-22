@@ -159,7 +159,9 @@ module MakeBackend
       (fun () -> password_records_cache#find where)
       (fun (u, a) ->
         let key, map =
-          match who with Username u' -> (u', u) | Address a' -> (a', a)
+          match (who : admin_password_file) with
+          | Username u' -> (u', u)
+          | Address a' -> (a', a)
         in
         let&** r = SMap.find_opt (String.lowercase_ascii key) map in
         r |> Lopt.some_value string_of_password_record |> Lwt.return)
@@ -201,7 +203,7 @@ module MakeBackend
       | [] -> List.rev_append (update [] :: accu) []
     in
     let csv =
-      match key with
+      match (key : admin_password_file) with
       | Username u -> update_by_username (String.lowercase_ascii u) [] csv
       | Address u -> update_by_address (String.lowercase_ascii u) [] csv
     in
@@ -505,7 +507,7 @@ module MakeBackend
       | _ -> false
     in
     if final then
-      let archive_name = Election (uuid, Confidential_archive) in
+      let archive_name : _ file = Election (uuid, Confidential_archive) in
       let* b = file_exists archive_name in
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
@@ -1320,7 +1322,9 @@ module MakeBackend
       f ()
     in
     let with_lock_file x f =
-      let uuid = match x with Election (uuid, _) -> Some uuid | _ -> None in
+      let uuid =
+        match (x : _ file) with Election (uuid, _) -> Some uuid | _ -> None
+      in
       with_lock uuid f
     in
     let module X = struct

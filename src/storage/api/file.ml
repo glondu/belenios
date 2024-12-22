@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,23 +19,47 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Belenios_server_core
-open Types
+open Belenios
+open Serializable_t
+open Extra
 
-module type INPUT = sig
-  type session
+type abstract
 
-  val get : session -> 'a file -> 'a Lopt.t Lwt.t
-  val list_elections : session -> uuid list Lwt.t
-  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
-end
+type _ u =
+  | State : election_state u
+  | State_state : state_state u
+  | Dates : election_dates u
+  | Metadata : metadata u
+  | Private_key : Yojson.Safe.t u
+  | Private_keys : string list u
+  | Audit_cache : audit_cache u
+  | Last_event : last_event u
+  | Deleted : deleted_election u
+  | Private_creds_downloaded : unit u
+  | Draft : draft_election u
+  | Public_creds : public_credentials u
+  | Private_creds : private_credentials u
+  | Public_archive : abstract u
+  | Passwords : string list list u
+  | Records : election_records u
+  | Voters : Voter.t list u
+  | Confidential_archive : abstract u
+  | Extended_record : string -> extended_record u
+  | Credential_mapping : string -> credential_mapping u
+  | Data : hash -> string u
+  | Roots : roots u
+  | Voters_config : voters_config u
+  | Voter : string -> Voter.t u
+  | Credential_weight : string -> Weight.t u
+  | Credential_user : string -> string u
+  | Password : string -> password_record u
 
-module Make (_ : INPUT) () : sig
-  module Clear : CLEAR
+type kind = Username of string | Address of string
 
-  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-
-  val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
-end
+type _ t =
+  | Spool_version : int t
+  | Account_counter : int t (* obsolete as of 3.0 *)
+  | Account : int -> account t
+  | Election : uuid * 'a u -> 'a t
+  | Auth_db : string -> string list t
+  | Admin_password : string * kind -> password_record t

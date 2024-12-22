@@ -27,7 +27,7 @@ open Belenios_server_core
 module type INPUT = sig
   type session
 
-  val get : session -> 'a Storage.file -> 'a Lopt.t Lwt.t
+  val get : session -> 'a file -> 'a Lopt.t Lwt.t
   val list_elections : session -> uuid list Lwt.t
   val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
 end

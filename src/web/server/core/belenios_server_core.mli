@@ -27,4 +27,7 @@ module Defaults = Defaults
 module Storage = Storage
 
 val some_string_or_value :
-  'a Storage.file -> ('a, 'b) Storage.string_or_value_spec -> 'b -> 'a Lopt.t
+  'a Belenios_storage_api.file ->
+  ('a, 'b) Storage.string_or_value_spec ->
+  'b ->
+  'a Lopt.t

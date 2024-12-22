@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,23 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Belenios_server_core
-open Types
+type draft_election =
+  | Draft :
+      'a Belenios.Election.version * 'a Serializable_t.raw_draft_election
+      -> draft_election
 
-module type INPUT = sig
-  type session
-
-  val get : session -> 'a file -> 'a Lopt.t Lwt.t
-  val list_elections : session -> uuid list Lwt.t
-  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
-end
-
-module Make (_ : INPUT) () : sig
-  module Clear : CLEAR
-
-  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-
-  val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
-end
+val draft_election_of_string : string -> draft_election
+val string_of_draft_election : draft_election -> string
+val csv_of_string : string -> string list list
+val string_of_csv : string list list -> string

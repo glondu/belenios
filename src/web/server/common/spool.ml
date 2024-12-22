@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios_server_core
 
-type 'a t = 'a Storage.election_file
+type 'a t = 'a Belenios_storage_api.election_file
 
 let get s uuid file =
   let module S = (val s : Storage.BACKEND) in

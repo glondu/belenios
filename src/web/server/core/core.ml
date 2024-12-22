@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_storage_api
 open Serializable_j
 
 exception Race_condition
@@ -53,28 +52,3 @@ module Random = struct
 end
 
 include MakeGenerateToken (Random)
-
-type draft_election =
-  | Draft :
-      'a Belenios.Election.version * 'a raw_draft_election
-      -> draft_election
-
-let draft_election_of_string x =
-  let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
-  let open Belenios.Election in
-  match version_of_int abstract.se_version with
-  | Version v ->
-      let open (val get_serializers v) in
-      let x = raw_draft_election_of_string read_question x in
-      Draft (v, x)
-
-let string_of_draft_election (Draft (v, x)) =
-  let open (val Belenios.Election.get_serializers v) in
-  string_of_raw_draft_election write_question x
-
-let csv_of_string = Csv.(of_string >> input_all)
-
-let string_of_csv csv =
-  let b = Buffer.create 1024 in
-  Csv.(output_all (to_buffer b) csv);
-  Buffer.contents b

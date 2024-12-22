@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_storage_api
 open Serializable_t
 
 exception Race_condition
@@ -34,13 +33,3 @@ module Random : RANDOM
 
 val generate_numeric : ?length:int -> unit -> string
 val generate_token : ?length:int -> unit -> string
-
-type draft_election =
-  | Draft :
-      'a Belenios.Election.version * 'a raw_draft_election
-      -> draft_election
-
-val draft_election_of_string : string -> draft_election
-val string_of_draft_election : draft_election -> string
-val csv_of_string : string -> string list list
-val string_of_csv : string list list -> string

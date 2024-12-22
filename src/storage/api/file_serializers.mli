@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,23 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Belenios_server_core
-open Types
-
-module type INPUT = sig
-  type session
-
-  val get : session -> 'a file -> 'a Lopt.t Lwt.t
-  val list_elections : session -> uuid list Lwt.t
-  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
-end
-
-module Make (_ : INPUT) () : sig
-  module Clear : CLEAR
-
-  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-
-  val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
-end
+val get : 'a File.t -> 'a Belenios.string_serializers

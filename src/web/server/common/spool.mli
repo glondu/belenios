@@ -21,7 +21,7 @@
 
 open Belenios_server_core
 
-type 'a t = 'a Storage.election_file
+type 'a t = 'a Belenios_storage_api.election_file
 
 val get : ('a t -> 'a option Lwt.t) Storage.u
 val del : ('a t -> unit Lwt.t) Storage.u

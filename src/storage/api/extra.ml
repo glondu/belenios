@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2024-2024 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,23 +19,30 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
-open Belenios_server_core
-open Types
+open Belenios
+open Serializable_j
 
-module type INPUT = sig
-  type session
+type draft_election =
+  | Draft :
+      'a Belenios.Election.version * 'a raw_draft_election
+      -> draft_election
 
-  val get : session -> 'a file -> 'a Lopt.t Lwt.t
-  val list_elections : session -> uuid list Lwt.t
-  val with_transaction : (session -> 'a Lwt.t) -> 'a Lwt.t
-end
+let draft_election_of_string x =
+  let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
+  let open Belenios.Election in
+  match version_of_int abstract.se_version with
+  | Version v ->
+      let open (val get_serializers v) in
+      let x = raw_draft_election_of_string read_question x in
+      Draft (v, x)
 
-module Make (_ : INPUT) () : sig
-  module Clear : CLEAR
+let string_of_draft_election (Draft (v, x)) =
+  let open (val Belenios.Election.get_serializers v) in
+  string_of_raw_draft_election write_question x
 
-  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
+let csv_of_string = Csv.(of_string >> input_all)
 
-  val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
-end
+let string_of_csv csv =
+  let b = Buffer.create 1024 in
+  Csv.(output_all (to_buffer b) csv);
+  Buffer.contents b

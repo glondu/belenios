@@ -20,25 +20,23 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_storage_api
-open Storage_sig
+open Serializable_j
+open Extra
 
-let get_election_file_serializers (type t) :
-    t election_file -> t string_serializers = function
+let get_election_file_serializers (type t) : t File.u -> t string_serializers =
+  function
   | State ->
       {
         of_string = election_state_of_string;
         to_string = string_of_election_state;
       }
   | State_state ->
-      Belenios_storage_api.
-        { of_string = state_state_of_string; to_string = string_of_state_state }
+      { of_string = state_state_of_string; to_string = string_of_state_state }
   | Dates ->
-      Belenios_storage_api.
-        {
-          of_string = election_dates_of_string;
-          to_string = string_of_election_dates;
-        }
+      {
+        of_string = election_dates_of_string;
+        to_string = string_of_election_dates;
+      }
   | Metadata ->
       { of_string = metadata_of_string; to_string = string_of_metadata }
   | Private_key ->
@@ -56,11 +54,10 @@ let get_election_file_serializers (type t) :
   | Private_creds_downloaded ->
       { of_string = (fun _ -> ()); to_string = (fun () -> "") }
   | Draft ->
-      Core.
-        {
-          of_string = draft_election_of_string;
-          to_string = string_of_draft_election;
-        }
+      {
+        of_string = draft_election_of_string;
+        to_string = string_of_draft_election;
+      }
   | Public_creds ->
       {
         of_string = public_credentials_of_string;
@@ -76,13 +73,12 @@ let get_election_file_serializers (type t) :
         of_string = (fun _ -> invalid_arg "Public_archive.of_string");
         to_string = (fun _ -> invalid_arg "Public_archive.to_string");
       }
-  | Passwords -> Core.{ of_string = csv_of_string; to_string = string_of_csv }
+  | Passwords -> { of_string = csv_of_string; to_string = string_of_csv }
   | Records ->
-      Belenios_storage_api.
-        {
-          of_string = election_records_of_string;
-          to_string = string_of_election_records;
-        }
+      {
+        of_string = election_records_of_string;
+        to_string = string_of_election_records;
+      }
   | Voters ->
       { of_string = Voter.list_of_string; to_string = Voter.list_to_string }
   | Confidential_archive ->
@@ -117,7 +113,7 @@ let get_election_file_serializers (type t) :
         to_string = string_of_password_record;
       }
 
-let get_file_serializers (type t) : t file -> t string_serializers = function
+let get (type t) : t File.t -> t string_serializers = function
   | Spool_version -> { of_string = int_of_string; to_string = string_of_int }
   | Account_counter -> { of_string = int_of_string; to_string = string_of_int }
   | Account _ ->
@@ -129,9 +125,3 @@ let get_file_serializers (type t) : t file -> t string_serializers = function
         of_string = password_record_of_string;
         to_string = string_of_password_record;
       }
-
-let some (type a b) (f : a file) (spec : (a, b) string_or_value_spec) (x : b) =
-  let s = get_file_serializers f in
-  match spec with
-  | String -> Types.Lopt.some_string s.of_string x
-  | Value -> Types.Lopt.some_value s.to_string x

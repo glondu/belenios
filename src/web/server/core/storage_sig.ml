@@ -26,47 +26,6 @@ open Serializable_t
 (** {1 Type definitions} *)
 
 type 'a v = 'a Types.Lopt.t
-type abstract
-
-type _ election_file =
-  | State : election_state election_file
-  | State_state : state_state election_file
-  | Dates : election_dates election_file
-  | Metadata : metadata election_file
-  | Private_key : Yojson.Safe.t election_file
-  | Private_keys : string list election_file
-  | Audit_cache : audit_cache election_file
-  | Last_event : last_event election_file
-  | Deleted : deleted_election election_file
-  | Private_creds_downloaded : unit election_file
-  | Draft : Core.draft_election election_file
-  | Public_creds : public_credentials election_file
-  | Private_creds : private_credentials election_file
-  | Public_archive : abstract election_file
-  | Passwords : string list list election_file
-  | Records : election_records election_file
-  | Voters : Voter.t list election_file
-  | Confidential_archive : abstract election_file
-  | Extended_record : string -> extended_record election_file
-  | Credential_mapping : string -> credential_mapping election_file
-  | Data : hash -> string election_file
-  | Roots : roots election_file
-  | Voters_config : voters_config election_file
-  | Voter : string -> Voter.t election_file
-  | Credential_weight : string -> Weight.t election_file
-  | Credential_user : string -> string election_file
-  | Password : string -> password_record election_file
-
-type admin_password_file = Username of string | Address of string
-
-type _ file =
-  | Spool_version : int file
-  | Account_counter : int file (* obsolete as of 3.0 *)
-  | Account : int -> account file
-  | Election : uuid * 'a election_file -> 'a file
-  | Auth_db : string -> string list file
-  | Admin_password : string * admin_password_file -> password_record file
-
 type append_operation = Data of string | Event of event_type * hash option
 
 type (_, _) string_or_value_spec =

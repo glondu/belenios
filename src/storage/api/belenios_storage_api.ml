@@ -21,6 +21,13 @@
 
 include Core
 include Serializable_j
+include Extra
+
+type 'a election_file = 'a File.u
+type 'a file = 'a File.t
+type admin_password_file = File.kind
+
+let get_file_serializers = File_serializers.get
 
 let default_election_dates =
   {
