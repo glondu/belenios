@@ -9,7 +9,6 @@
   belenios_storage_api
   lwt
   calendar
-  csv
   eliom.server
   gettext-camomile
   netstring)

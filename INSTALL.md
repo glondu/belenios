@@ -145,11 +145,10 @@ The web server has the following additional dependencies:
 
  * [Calendar](http://calendar.forge.ocamlcore.org/)
  * [Eliom](http://ocsigen.org/eliom/)
- * [Csv](https://github.com/Chris00/ocaml-csv)
 
 With OPAM, you can install them with:
 
-    opam install calendar eliom csv
+    opam install calendar eliom
 
 Once all the dependencies have been installed, the Eliom module can be
 compiled with:

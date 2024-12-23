@@ -50,7 +50,6 @@
   (belenios-lib (= :version))
   (lwt (>= 5.6.1))
   (calendar (>= 2.04))
-  (csv (>= 2.4))
   (eliom (>= 10.0.0))
   (ocamlnet (>= 4.1.9-1))))
 

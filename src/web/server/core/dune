@@ -7,7 +7,6 @@
   belenios_storage_api
   lwt.unix
   calendar
-  csv
   xml-light))
 
 (rule

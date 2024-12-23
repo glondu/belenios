@@ -185,7 +185,7 @@ $ sha256sum ./opam-bootstrap.sh
 efa5df3049f736dd34eb8289da730dd709eb99939f6511fa93ae0080a61ce4fb  ./opam-bootstrap.sh
 $ docker container run -ti ocaml/opam2:debian-9 /bin/bash
 $ sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev
-$ opam install --yes atdgen zarith cryptokit calendar cmdliner sqlite3 eliom=6.3.0 csv
+$ opam install --yes atdgen zarith cryptokit calendar cmdliner sqlite3 eliom=6.3.0
 $ exit
 $ docker container ls -a
 $ docker container commit <CONTAINER_ID>

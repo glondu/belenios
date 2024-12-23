@@ -1,6 +1,6 @@
 (library
  (name belenios_storage_filesystem)
- (libraries belenios_server_core belenios_storage_api ocsigenserver csv))
+ (libraries belenios_server_core belenios_storage_api ocsigenserver))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)
