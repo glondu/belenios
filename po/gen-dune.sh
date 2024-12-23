@@ -25,10 +25,10 @@ echo -n "(install
  (section share)
  (files"
 
-for LANG in $LANGS; do
-    echo -n "
-  ($LANG.mo as locales/$COMPONENT/$LANG.mo)
-  ($LANG.json as locales/$COMPONENT/$LANG.json)"
-done
+echo -n "
+  (glob_files
+   (*.mo with_prefix static/locales/$COMPONENT))
+  (glob_files
+   (*.json with_prefix static/locales/$COMPONENT))"
 
 echo "))"

@@ -7,6 +7,7 @@ all: dune $(POFILES)
 
 dune: LINGUAS
 	../gen-dune.sh admin < $^ > $@
+	dune fmt
 
 clean:
 	rm -f *.bak
