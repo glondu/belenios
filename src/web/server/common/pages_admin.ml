@@ -100,9 +100,7 @@ struct
             div
               ~a:[ a_class [ "nav-menu__item"; "noselect" ] ]
               [
-                div
-                  ~a:[ a_id "nav_username" ]
-                  [ a ~service:Web_services.account [ txt account.name ] () ];
+                div ~a:[ a_id "nav_username" ] [ txt account.name ];
                 img
                   ~a:[ a_id "avatar" ]
                   ~src:(static "avatar.png") ~alt:"Avatar" ();
@@ -479,57 +477,6 @@ struct
     in
     let content = [ form ] in
     let title = s_ "Impersonate a user" in
-    base ~title ~content ()
-
-  let account account =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let title = s_ "Account settings" in
-    let content =
-      [
-        post_form ~service:account_post
-          (fun name ->
-            [
-              div
-                [
-                  txt (s_ "Name:");
-                  txt " ";
-                  input ~input_type:`Text ~name ~value:account.name string;
-                ];
-              div
-                [
-                  txt (s_ "E-mail address:");
-                  txt " ";
-                  txt @@ Option.value ~default:"(none)" account.email;
-                ];
-              div
-                [
-                  txt (s_ "Authentication methods:");
-                  txt " ";
-                  ul
-                    (List.map
-                       (fun u ->
-                         li
-                           [
-                             Printf.ksprintf txt "%s:%s" u.user_domain
-                               u.user_name;
-                           ])
-                       account.authentications);
-                ];
-              div
-                [
-                  txt (s_ "Consent date:");
-                  txt " ";
-                  txt
-                    (match account.consent with
-                    | None -> s_ "(none)"
-                    | Some t -> Datetime.format t);
-                ];
-              div [ input ~input_type:`Submit ~value:(s_ "Submit") string ];
-            ])
-          ();
-      ]
-    in
     base ~title ~content ()
 end
 

@@ -251,11 +251,5 @@ module Make () = struct
       ~post_params:(string "domain" ** string "name")
       ()
 
-  let account = create ~path:(Path [ "account" ]) ~meth:(Get unit) ()
-
-  let account_post =
-    create_attached_post ~csrf_safe:true ~fallback:account
-      ~post_params:(string "name") ()
-
   let api_token = create ~path:(Path [ "api-token" ]) ~meth:(Get unit) ()
 end

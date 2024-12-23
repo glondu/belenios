@@ -431,29 +431,6 @@ struct
                 in
                 Redirection.send (Redirection home)))
 
-  let with_user_and_account f =
-    let* x = Eliom_reference.get Web_state.site_user in
-    match x with Some x -> f x | None -> forbidden ()
-
-  let () =
-    Any.register ~service:account (fun () () ->
-        let@ _, a, _ = with_user_and_account in
-        Pages_admin.account a >>= Html.send)
-
-  let () =
-    Any.register ~service:account_post (fun () name ->
-        let@ _, a, _ = with_user_and_account in
-        let@ s = Storage.with_transaction in
-        let@ a, set =
-         fun cont ->
-          let* x = Accounts.update_account_by_id s a.id in
-          match x with
-          | None -> Lwt.fail @@ Failure "account_post"
-          | Some x -> cont x
-        in
-        let* () = set { a with name } in
-        Redirection.send (Redirection home))
-
   let () =
     Any.register ~service:api_token (fun () () ->
         let* x = Eliom_reference.get Web_state.site_user in

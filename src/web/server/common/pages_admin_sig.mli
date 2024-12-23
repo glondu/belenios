@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
 open Web_common
 
 module type S = sig
@@ -65,5 +64,4 @@ module type S = sig
     address:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val sudo : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
-  val account : account -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end
