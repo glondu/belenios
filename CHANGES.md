@@ -8,13 +8,17 @@
    + Stop vendoring JSBN
  * Add safety checks in vector encoding into group element for NH
    questions
+ * Remove support for salt-based credentials (they have been obsolete
+   since version 2.4)
  * Web server:
    + Notable bugfixes:
      - Allow setting publish date during tallying
      - Fix countdown to automatic opening/closing (GitHub issue #89)
    + Add uuid to downloaded filenames
+   + Use username (when available) in "To" header of sent e-mails
    + Admin UI:
      - In question editor, check safety and show complexity
+     - Handle better errors in voter list (GitLab issue #15)
    + Trustee UI:
      - Do not force page reloads during threshold key generation
        protocol
