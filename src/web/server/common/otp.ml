@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_storage_api
 open Belenios_server_core
 
 module type SENDER = sig
@@ -51,23 +50,20 @@ module Make (I : SENDER) () = struct
   type code = {
     code : string;
     payload : payload;
-    expiration_time : Datetime.t;
+    expiration_time : float;
     mutable trials_left : int;
   }
 
   let codes = ref SMap.empty
 
   let filter_codes_by_time now table =
-    SMap.filter
-      (fun _ { expiration_time; _ } ->
-        Datetime.compare now expiration_time <= 0)
-      table
+    SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
 
   let generate ~context ~recipient ~payload =
-    let now = Datetime.now () in
+    let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
-    let expiration_time = Period.add now (Period.second 900) in
+    let expiration_time = now +. 900. in
     codes :=
       SMap.add (snd recipient)
         { code; payload; expiration_time; trials_left = 10 }
@@ -75,7 +71,7 @@ module Make (I : SENDER) () = struct
     I.send ~context ~recipient ~code
 
   let check ~address ~code =
-    let now = Datetime.now () in
+    let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
     codes := codes_;
     match SMap.find_opt address codes_ with

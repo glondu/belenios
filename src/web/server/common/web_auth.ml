@@ -215,7 +215,7 @@ struct
                                 Lwt.fail
                                 @@ Failure "anomaly in post_login_handler"
                             | Some (x, set) ->
-                                let last_connected = Datetime.now () in
+                                let last_connected = Unix.gettimeofday () in
                                 let x = { x with last_connected } in
                                 let* () = set x in
                                 return x)

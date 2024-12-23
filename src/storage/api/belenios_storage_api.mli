@@ -19,7 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Core
+module Atd_t = Serializable_t
+module Atd_j = Serializable_j
 include module type of Serializable_j
 include module type of Extra
 

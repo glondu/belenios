@@ -354,7 +354,7 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   let* () = if not voting_open then fail `ElectionClosed else Lwt.return_unit in
   let* r =
     Web_persist.cast_ballot s uuid ~ballot ~user:user_s ~weight
-      (Datetime.now ()) ~precast_data
+      (Unix.gettimeofday ()) ~precast_data
   in
   match r with
   | Ok (hash, revote) ->

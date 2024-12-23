@@ -57,7 +57,7 @@ let create_account s ~email user =
     | None -> Lwt.fail (Failure "impossible to create a new account")
     | Some x -> cont x
   in
-  let last_connected = Datetime.now () in
+  let last_connected = Unix.gettimeofday () in
   let name =
     let x = drop_after_at user.user_name in
     if x = "" then Printf.sprintf "User #%d" id else x

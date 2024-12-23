@@ -85,8 +85,7 @@ module Make (I : INPUT) () = struct
 
   let get_draft_election_summary uuid se =
     let date =
-      Option.map Datetime.to_unixfloat se.se_creation_date
-      |> Option.value ~default:Defaults.creation_date
+      se.se_creation_date |> Option.value ~default:Defaults.creation_date
     in
     let name = se.se_questions.t_name in
     let item : Belenios_web_api.summary =
@@ -142,8 +141,7 @@ module Make (I : INPUT) () = struct
     in
     let&* (Draft (_, se)) = se in
     let t =
-      Option.map Datetime.to_unixfloat se.se_creation_date
-      |> Option.value ~default:Defaults.creation_date
+      se.se_creation_date |> Option.value ~default:Defaults.creation_date
     in
     let next_t = t +. (86400. *. Defaults.days_to_delete) in
     Lwt.return_some (`Destroy, uuid, next_t)

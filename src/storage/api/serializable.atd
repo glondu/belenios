@@ -24,7 +24,6 @@
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
-type datetime = string wrap <ocaml module="Core.Datetime">
 type 'a proof <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -57,7 +56,7 @@ type metadata = {
 
 type extended_record = {
   username : string;
-  date : datetime;
+  date : float;
   credential : string;
 } <ocaml field_prefix="r_">
 
@@ -129,7 +128,7 @@ type 'question raw_draft_election = {
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
-  ?creation_date : datetime option;
+  ?creation_date : float option;
   ?administrator <ocaml mutable> : string option;
   ~credential_authority_visited <ocaml default="false" mutable> : bool;
   ~voter_authentication_visited <ocaml default="false" mutable> : bool;
@@ -150,7 +149,7 @@ type deleted_election = {
   owners : int list;
   nb_voters : int;
   nb_ballots : int;
-  date : datetime;
+  date : float;
   tallied : bool;
   authentication_method : authentication_method;
   credential_method : credential_method;
@@ -164,9 +163,9 @@ type account = {
     id : int;
     name : string;
     ?email : string option;
-    last_connected : datetime;
+    last_connected : float;
     authentications : user list;
-    ?consent : datetime option;
+    ?consent : float option;
     ?capabilities : int option;
     ?language : string option;
     ~default_voter_languages <ocaml default="[]"> : string list;

@@ -25,6 +25,7 @@ open Belenios_storage_api
 open Belenios_server_core
 open Storage
 open Types
+open Serializable_j
 
 let () = Stdlib.Random.self_init ()
 let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
@@ -73,7 +74,8 @@ module MakeBackend
       =
     make_uninitialized_ops "records_ops"
 
-  let extended_records_ops : (_, extended_record) abstract_file_ops =
+  let extended_records_ops :
+      (_, Belenios_storage_api.extended_record) abstract_file_ops =
     make_uninitialized_ops "extended_records_ops"
 
   let credential_mappings_ops : (_, credential_mapping) abstract_file_ops =
@@ -270,29 +272,33 @@ module MakeBackend
          [] xs
 
   type _ election_file_props =
-    | Concrete : string * kind -> 'a election_file_props
+    | Concrete :
+        string * kind * 'a Converters.t option
+        -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
   let get_election_file_props uuid (type t) :
       t election_file -> t election_file_props = function
-    | Draft -> Concrete ("draft.json", Trim)
-    | State -> Concrete ("state.json", Trim)
+    | Draft -> Concrete ("draft.json", Trim, Some Converters.draft_election)
+    | State -> Concrete ("state.json", Trim, None)
     | State_state -> Abstract (state_state_ops, ())
-    | Public_creds -> Concrete ("public_creds.json", Trim)
-    | Private_creds -> Concrete ("private_creds.txt", Raw)
+    | Public_creds -> Concrete ("public_creds.json", Trim, None)
+    | Private_creds -> Concrete ("private_creds.txt", Raw, None)
     | Dates -> Abstract (dates_ops, ())
-    | Metadata -> Concrete ("metadata.json", Trim)
-    | Private_key -> Concrete ("private_key.json", Trim)
-    | Private_keys -> Concrete ("private_keys.jsons", Raw)
-    | Audit_cache -> Concrete ("audit_cache.json", Trim)
-    | Last_event -> Concrete ("last_event.json", Trim)
-    | Deleted -> Concrete ("deleted.json", Trim)
-    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw)
-    | Passwords -> Concrete ("passwords.csv", Raw)
+    | Metadata -> Concrete ("metadata.json", Trim, None)
+    | Private_key -> Concrete ("private_key.json", Trim, None)
+    | Private_keys -> Concrete ("private_keys.jsons", Raw, None)
+    | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
+    | Last_event -> Concrete ("last_event.json", Trim, None)
+    | Deleted ->
+        Concrete ("deleted.json", Trim, Some Converters.deleted_election)
+    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, None)
+    | Passwords -> Concrete ("passwords.csv", Raw, None)
     | Records -> Abstract (records_ops, ())
-    | Voters -> Concrete ("voters.txt", Raw)
-    | Confidential_archive -> Concrete ("archive.zip", Raw)
-    | Private_creds_downloaded -> Concrete ("private_creds.downloaded", Raw)
+    | Voters -> Concrete ("voters.txt", Raw, None)
+    | Confidential_archive -> Concrete ("archive.zip", Raw, None)
+    | Private_creds_downloaded ->
+        Concrete ("private_creds.downloaded", Raw, None)
     | Extended_record key -> Abstract (extended_records_ops, key)
     | Credential_mapping key -> Abstract (credential_mappings_ops, key)
     | Data key -> Abstract (data_ops, key)
@@ -312,28 +318,32 @@ module MakeBackend
   let credential_mappings_filename = "credential_mappings.jsons"
 
   type _ file_props =
-    | Concrete : string * kind -> 'a file_props
+    | Concrete : string * kind * 'a Converters.t option -> 'a file_props
     | Abstract : ('key, 'a) abstract_file_ops * uuid * 'key -> 'a file_props
     | Admin_password :
         string * admin_password_file
         -> password_record file_props
 
   let get_props (type t) : t file -> t file_props = function
-    | Spool_version -> Concrete (!!"version", Trim)
-    | Account_counter -> Concrete (Config.accounts_dir // "counter", Trim)
+    | Spool_version -> Concrete (!!"version", Trim, None)
+    | Account_counter -> Concrete (Config.accounts_dir // "counter", Trim, None)
     | Account id ->
-        Concrete (Config.accounts_dir // Printf.sprintf "%d.json" id, Trim)
+        Concrete
+          ( Config.accounts_dir // Printf.sprintf "%d.json" id,
+            Trim,
+            Some Converters.account )
     | Election (uuid, f) -> (
         match get_election_file_props uuid f with
-        | Concrete (fname, kind) -> Concrete (uuid /// fname, kind)
+        | Concrete (fname, kind, convert) ->
+            Concrete (uuid /// fname, kind, convert)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw)
+    | Auth_db f -> Concrete (SMap.find f Config.maps, Raw, None)
     | Admin_password (file, key) ->
         Admin_password (SMap.find file Config.maps, key)
 
   let file_exists (type t) (x : t file) =
     match get_props x with
-    | Concrete (path, _) -> Filesystem.file_exists path
+    | Concrete (path, _, _) -> Filesystem.file_exists path
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
   let list_elections () =
@@ -349,11 +359,13 @@ module MakeBackend
 
   let get (type t) (f : t file) : t v Lwt.t =
     match get_props f with
-    | Concrete (path, kind) ->
+    | Concrete (path, kind, convert) ->
         let* x = Filesystem.read_file path in
         let&** x = x in
         (match kind with Raw -> x | Trim -> String.trim x)
-        |> some_string_or_value f String
+        |> (match convert with
+           | None -> some_string_or_value f String
+           | Some { of_string; _ } -> of_string >> some_string_or_value f Value)
         |> Lwt.return
     | Abstract (ops, uuid, key) -> ops.get uuid key
     | Admin_password (file, key) -> get_password_record_admin file key
@@ -362,8 +374,12 @@ module MakeBackend
       (data : u) =
     let data = some_string_or_value f spec data in
     match get_props f with
-    | Concrete (fname, kind) -> (
-        match Lopt.get_string data with
+    | Concrete (fname, kind, convert) -> (
+        match
+          match convert with
+          | None -> Lopt.get_string data
+          | Some { to_string; _ } -> Lopt.get_value data |> Option.map to_string
+        with
         | None -> assert false
         | Some data ->
             let data = match kind with Raw -> data | Trim -> data ^ "\n" in
@@ -428,7 +444,7 @@ module MakeBackend
 
   let del (type t) (f : t file) =
     match get_props f with
-    | Concrete (f, _) -> Filesystem.cleanup_file f
+    | Concrete (f, _, _) -> Filesystem.cleanup_file f
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "del"
 
   let rmdir dir =
@@ -511,14 +527,14 @@ module MakeBackend
       let* b = file_exists archive_name in
       let* () = if not b then make_archive uuid else Lwt.return_unit in
       match get_props archive_name with
-      | Concrete (f, _) -> Lwt.return f
+      | Concrete (f, _, _) -> Lwt.return f
       | _ -> Lwt.fail @@ Not_implemented "get_archive"
     else Lwt.fail Not_found
 
   let get_unixfilename (type t) : t file -> _ = function
     | Election (_, (Public_archive | Private_creds : t election_file)) as x -> (
         match get_props x with
-        | Concrete (f, _) -> Lwt.return f
+        | Concrete (f, _, _) -> Lwt.return f
         | _ -> Lwt.fail @@ Not_implemented "get_as_file")
     | Election (uuid, Confidential_archive) -> get_archive uuid
     | _ -> Lwt.fail Not_found
@@ -719,7 +735,7 @@ module MakeBackend
 
   module ExtendedRecordsCacheTypes = struct
     type key = uuid
-    type value = (datetime * string) SMap.t
+    type value = (float * string) SMap.t
   end
 
   module ExtendedRecordsCache = Ocsigen_cache.Make (ExtendedRecordsCacheTypes)
@@ -730,7 +746,10 @@ module MakeBackend
     Lwt_list.fold_left_s
       (fun accu x ->
         let x = extended_record_of_string x in
-        Lwt.return @@ SMap.add x.r_username (x.r_date, x.r_credential) accu)
+        Lwt.return
+        @@ SMap.add x.r_username
+             (Datetime.to_unixfloat x.r_date, x.r_credential)
+             accu)
       SMap.empty x
 
   let dump_extended_records uuid rs =
@@ -738,6 +757,7 @@ module MakeBackend
     let extended_records =
       List.map
         (fun (r_username, (r_date, r_credential)) ->
+          let r_date = Datetime.from_unixfloat r_date in
           { r_username; r_date; r_credential } |> string_of_extended_record)
         rs
       |> join_lines
@@ -745,7 +765,9 @@ module MakeBackend
     let records =
       rs
       |> List.map (fun (u, (d, _)) ->
-             Printf.sprintf "%s %S" (string_of_datetime d) u)
+             Printf.sprintf "%s %S"
+               (d |> Datetime.from_unixfloat |> string_of_datetime)
+               u)
       |> join_lines
     in
     let* () =
@@ -775,6 +797,7 @@ module MakeBackend
     extended_records_cache#add uuid rs;
     let* () =
       let r_date, r_credential = r in
+      let r_date = Datetime.from_unixfloat r_date in
       { r_username = username; r_date; r_credential }
       |> string_of_extended_record
       |> (fun x -> [ x ])
@@ -788,6 +811,7 @@ module MakeBackend
       (fun uuid r_username ->
         let* x = find_extended_record uuid r_username in
         let&** r_date, r_credential = x in
+        let open Belenios_storage_api in
         { r_username; r_date; r_credential }
         |> Lopt.some_value string_of_extended_record
         |> Lwt.return);

@@ -88,7 +88,7 @@ val cast_ballot :
   (ballot:string ->
   user:string ->
   weight:Weight.t ->
-  datetime ->
+  float ->
   precast_data:precast_data ->
   (hash * bool, cast_error) result Lwt.t)
   Storage.u

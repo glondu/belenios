@@ -28,21 +28,19 @@ open Web_common
 
 let ( let& ) = Option.bind
 
-type token = { expiration : datetime; account : account }
+type token = { expiration : float; account : account }
 
 let tokens = ref SMap.empty
 
 let new_token account =
   let token = generate_token ~length:22 () in
-  let expiration = Period.add (Datetime.now ()) (Period.day 1) in
+  let expiration = Unix.gettimeofday () +. 86400. in
   tokens := SMap.add token { expiration; account } !tokens;
   Lwt.return token
 
 let filter tokens =
-  let now = Datetime.now () in
-  SMap.filter
-    (fun _ { expiration; _ } -> Datetime.compare now expiration < 0)
-    tokens
+  let now = Unix.gettimeofday () in
+  SMap.filter (fun _ { expiration; _ } -> now < expiration) tokens
 
 let lookup_token token =
   tokens := filter !tokens;

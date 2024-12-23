@@ -717,7 +717,7 @@ let delete_election s uuid =
       de_owners;
       de_nb_voters;
       de_nb_ballots = List.length ballots;
-      de_date = Datetime.from_unixfloat de_date;
+      de_date;
       de_tallied = result <> None;
       de_authentication_method;
       de_credential_method;

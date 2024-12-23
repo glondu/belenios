@@ -19,7 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type datetime = string wrap <ocaml module="Belenios_storage_api.Datetime">
+type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
+type datetime = string wrap <ocaml module="Datetime">
+type user <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type metadata <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type authentication_method <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type credential_method <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type draft_voter <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type deleted_trustee <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type 'a template <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type 'a draft_trustees <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 
 type election_dates = {
   ?creation : datetime option;
@@ -30,3 +39,55 @@ type election_dates = {
   ?auto_open : datetime option;
   ?auto_close : datetime option;
 } <ocaml field_prefix="e_">
+
+type extended_record = {
+  username : string;
+  date : datetime;
+  credential : string;
+} <ocaml field_prefix="r_">
+
+type 'question raw_draft_election = {
+  version : int;
+  owners : int list;
+  group <ocaml mutable> : string;
+  voters <ocaml mutable> : draft_voter list;
+  questions <ocaml mutable> : 'question template;
+  trustees <ocaml mutable> : abstract draft_trustees;
+  metadata <ocaml mutable> : metadata;
+  public_creds : string;
+  public_creds_received <ocaml mutable> : bool;
+  ?creation_date : datetime option;
+  ?administrator <ocaml mutable> : string option;
+  ~credential_authority_visited <ocaml default="false" mutable> : bool;
+  ~voter_authentication_visited <ocaml default="false" mutable> : bool;
+  ~trustees_setup_step <ocaml default="1" mutable> : int;
+  ~pending_credentials <ocaml default="false" mutable> : bool;
+} <ocaml field_prefix="se_">
+
+type deleted_election = {
+  uuid : uuid;
+  template : abstract template;
+  owners : int list;
+  nb_voters : int;
+  nb_ballots : int;
+  date : datetime;
+  tallied : bool;
+  authentication_method : authentication_method;
+  credential_method : credential_method;
+  trustees : deleted_trustee list;
+  has_weights : bool;
+} <ocaml field_prefix="de_">
+
+type account = {
+    id : int;
+    name : string;
+    ?email : string option;
+    last_connected : datetime;
+    authentications : user list;
+    ?consent : datetime option;
+    ?capabilities : int option;
+    ?language : string option;
+    ~default_voter_languages <ocaml default="[]"> : string list;
+    ~default_contact <ocaml default="\"\""> : string;
+    ?voters_limit : int option;
+}

@@ -30,29 +30,6 @@ exception BeleniosWebError of Belenios_web_api.cast_error
 
 let fail e = Lwt.fail (BeleniosWebError e)
 
-let decompose_seconds s =
-  let s = float_of_int s in
-  let h = int_of_float (s /. 3600.) in
-  let s = s -. (float_of_int h *. 3600.) in
-  let m = int_of_float (s /. 60.) in
-  let s = s -. (float_of_int m *. 60.) in
-  (h, m, int_of_float s)
-
-let format_period l x =
-  let open (val l : Belenios_ui.I18n.GETTEXT) in
-  let y, m, d, s = Period.ymds x in
-  let y = if y = 0 then "" else string_of_int y ^ s_ " year(s)" in
-  let m = if m = 0 then "" else string_of_int m ^ s_ " month(s)" in
-  let d = if d = 0 then "" else string_of_int d ^ s_ " day(s)" in
-  let hrs, min, sec = decompose_seconds s in
-  let hrs = if hrs = 0 then "" else string_of_int hrs ^ s_ " hour(s)" in
-  let min = if min = 0 then "" else string_of_int min ^ s_ " minute(s)" in
-  let sec = if sec = 0 then "" else string_of_int sec ^ s_ " second(s)" in
-  let approx =
-    String.concat " " (List.filter (fun x -> x <> "") [ y; m; d; hrs; min ])
-  in
-  if approx = "" then sec else approx
-
 let fail_http status =
   Lwt.fail
     (Ocsigen_extensions.Ocsigen_http_error (Ocsigen_cookie_map.empty, status))
@@ -175,8 +152,8 @@ let send_email kind ~recipient ~subject ~body =
   in
   let headers, _ = contents in
   let token = generate_token ~length:6 () in
-  let date = Datetime.format ~fmt:"%Y%m%d%H%M%S" (Datetime.now ()) in
-  let message_id = Printf.sprintf "<%s.%s@%s>" date token !Web_config.domain in
+  let date = Unix.gettimeofday () |> Float.round |> Float.to_string in
+  let message_id = Printf.sprintf "<%s%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
   headers#update_field "Belenios-Domain" !Web_config.domain;
   let reason, uuid = stringuuid_of_mail_kind kind in

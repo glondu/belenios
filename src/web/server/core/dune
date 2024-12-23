@@ -6,7 +6,6 @@
   belenios-lib.api
   belenios_storage_api
   lwt.unix
-  calendar
   xml-light))
 
 (rule
