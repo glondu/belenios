@@ -22,7 +22,6 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
-open Belenios_web_api
 open Belenios_storage_api
 open Web_common
 open Eliom_content.Html.F
@@ -204,57 +203,6 @@ struct
           (dir ^ "/");
         script ~a:[ a_src file ] (txt "");
       ]
-
-  let pretty_records s election records () =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let open (val election : Site_common_sig.ELECTION) in
-    let title = template.t_name ^^^ s_ "Records" in
-    let nrecords = List.length records in
-    let records =
-      List.map
-        (fun { vr_date; vr_username } ->
-          tr
-            [
-              td [ txt @@ Datetime.format @@ Datetime.from_unixfloat vr_date ];
-              td [ txt vr_username ];
-            ])
-        records
-    in
-    let* voters = Web_persist.get_all_voters s uuid in
-    let nvoters = List.length voters in
-    let summary =
-      div
-        [ Printf.ksprintf txt (f_ "Number of records: %d/%d") nrecords nvoters ]
-    in
-    let table =
-      match records with
-      | [] -> div [ txt (s_ "Nobody voted!") ]
-      | _ ->
-          div
-            [
-              table
-                (tr
-                   [
-                     th [ txt (s_ "Date/Time (UTC)") ];
-                     th [ txt (s_ "Username") ];
-                   ]
-                :: records);
-            ]
-    in
-    let raw_data =
-      api_a Belenios_web_api.Endpoints.election_records uuid
-        [ txt (s_ "raw data") ]
-    in
-    let content =
-      [
-        div [ txt (s_ "You can also access the "); raw_data; txt "." ];
-        summary;
-        table;
-      ]
-    in
-    let* login_box = login_box ~cont:(ContSiteElection uuid) () in
-    base ~title ~login_box ~content ()
 
   let signup_captcha ~service error challenge email =
     let* l = get_preferred_gettext () in

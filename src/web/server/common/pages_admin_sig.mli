@@ -19,9 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_web_api
 open Belenios_storage_api
-open Belenios_server_core
 open Web_common
 
 module type S = sig
@@ -29,13 +27,6 @@ module type S = sig
 
   val admin_login :
     (string -> Web_auth_sig.result Lwt.t) ->
-    [> `Html ] Eliom_content.Html.F.elt Lwt.t
-
-  val pretty_records :
-    Storage.t ->
-    (module Site_common_sig.ELECTION) ->
-    records ->
-    unit ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val signup_captcha :
