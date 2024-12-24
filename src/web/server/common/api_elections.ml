@@ -440,8 +440,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
         Lwt.return @@ string_of_audit_cache x
       in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)
-  | [ "election" ] -> (
-      match method_ with `GET -> return_json 200 raw | _ -> method_not_allowed)
   | [ "archive" ] -> (
       match method_ with
       | `GET ->
@@ -674,6 +672,33 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
           | Some uuid -> return_json 200 (string_of_uuid uuid)
           | None -> forbidden)
       | _ -> method_not_allowed)
+  | [ uuid; "election" ] -> (
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let* raw = Public_archive.get_election s uuid in
+      match raw with
+      | Some raw -> (
+          match method_ with
+          | `GET -> return_json 200 raw
+          | _ -> method_not_allowed)
+      | None -> (
+          let* se = Spool.get s uuid Draft in
+          match se with
+          | None -> not_found
+          | Some se -> (
+              let get () =
+                let (Draft (v, se)) = se in
+                let version = se.se_version in
+                let group = se.se_group in
+                let module G = (val Group.of_string ~version group : GROUP) in
+                let public_key = G.to_string G.g in
+                Lwt.return
+                @@ Election.make_raw_election ~version
+                     (Template (v, se.se_questions))
+                     ~uuid ~group ~public_key
+              in
+              match method_ with
+              | `GET -> handle_get get
+              | _ -> method_not_allowed)))
   | uuid :: "draft" :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let* se = Spool.update s uuid Draft in
