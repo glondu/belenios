@@ -29,8 +29,7 @@ type record = { typ : data_or_event; hash : hash; location : location }
 let block_size = Tar.block_size
 let block_sizeL = Int64.of_int block_size
 
-let new_header () =
-  let timestamp = Unix.time () |> Int64.of_float in
+let new_header ~timestamp =
   { version = 1; timestamp = `String (Int64.to_string timestamp) }
 
 let get_timestamp header =

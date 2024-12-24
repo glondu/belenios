@@ -301,7 +301,8 @@ let append index ops =
 let init ~file ~election ~trustees ~public_creds =
   let* b = Lwt_unix.file_exists file in
   if b then Printf.ksprintf failwith "%s already exists" file;
-  let header = Archive.new_header () in
+  let timestamp = Unix.time () |> Int64.of_float in
+  let header = Archive.new_header ~timestamp in
   let index =
     {
       map = Hashtbl.create 1000;

@@ -1167,7 +1167,8 @@ module MakeBackend
      fun cont ->
       if pos > 0L then cont ()
       else
-        let header = Archive.new_header () in
+        let timestamp = Unix.time () |> Int64.of_float in
+        let header = Archive.new_header ~timestamp in
         let* () = write_header ~filename ~header in
         Lwt.return_some (r, Events.empty_roots, Archive.get_timestamp header)
     in
