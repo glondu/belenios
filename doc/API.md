@@ -39,67 +39,63 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 ### `GET`: unit -> api_account
 ### `PUT`: api_account -> unit
 
-## `drafts` (administrator)
+## `elections` (administrator)
 
 ### `GET`: unit -> summary_list
 ### `POST`: draft -> uuid
 
-## `drafts/$UUID`
+## `elections/$UUID/draft`
 
 ### `GET`: unit -> draft (anybody)
 ### `PUT`: draft -> unit (administrator)
 ### `POST`: draft_request -> unit (administrator)
 ### `DELETE`: unit -> unit (administrator)
 
-## `drafts/$UUID/election` (anybody)
+## `elections/$UUID/draft/election` (anybody)
 
 ### `GET`: unit -> json
 
-## `drafts/$UUID/voters`
+## `elections/$UUID/draft/voters`
 
 ### `GET`: unit -> voter_list (administrator or credential authority)
 ### `PUT`: voter_list -> unit (administrator)
 ### `POST`: voters_request -> unit (administrator)
 
-## `drafts/$UUID/passwords` (administrator)
+## `elections/$UUID/draft/passwords` (administrator)
 
 ### `GET`: unit -> string_list
 ### `POST`: string_list -> unit
 
-## `drafts/$UUID/credentials/token` (administrator)
+## `elections/$UUID/draft/credentials/token` (administrator)
 
 ### `GET`: unit -> string
 
-## `drafts/$UUID/credentials/public`
+## `elections/$UUID/draft/credentials/public`
 
 ### `GET`: unit -> public_credentials (anybody)
 ### `POST`: public_credentials -> unit (credential authority)
 
-## `drafts/$UUID/credentials/private` (administrator)
+## `elections/$UUID/draft/credentials/private` (administrator)
 
 ### `GET`: unit -> private_credentials
 
-## `drafts/$UUID/trustee` (trustee)
+## `elections/$UUID/draft/trustee` (trustee)
 
 ### `GET`: unit -> trustee_status
 ### `POST`: json -> unit
 
-## `drafts/$UUID/trustees`
+## `elections/$UUID/draft/trustees`
 
 ### `GET`: unit -> draft_trustees (administrator or nobody)
 ### `POST`: trustees_request -> unit (administrator)
 
-## `drafts/$UUID/trustees/$ADDRESS` (administrator)
+## `elections/$UUID/draft/trustees/$ADDRESS` (administrator)
 
 ### `DELETE`: unit -> unit
 
-## `drafts/$UUID/status` (administrator)
+## `elections/$UUID/draft/status` (administrator)
 
 ### `GET`: unit -> draft_status
-
-## `elections` (administrator)
-
-### `GET`: unit -> summary_list
 
 ## `elections/$UUID`
 

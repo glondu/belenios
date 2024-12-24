@@ -38,7 +38,6 @@ type user = [ nobody | admin | credauth | trustee ]
 
 val configuration : ([< nobody | admin ], configuration, unit) t
 val account : (admin, api_account, unit) t
-val drafts : (admin, summary_list, draft) t
 val draft : uuid -> ([< nobody | admin ], draft, draft_request) t
 val draft_status : uuid -> (admin, draft_status, unit) t
 val draft_voters : uuid -> ([< admin | credauth ], voter_list, voters_request) t
@@ -53,7 +52,7 @@ val draft_trustees : uuid -> ([< nobody | admin ], string, trustees_request) t
 val draft_trustee : uuid -> string -> (admin, unit, unit) t
 val trustee_draft : uuid -> (trustee, string, string) t
 val trustee_election : uuid -> (trustee, tally_trustee, string) t
-val elections : (admin, summary_list, unit) t
+val elections : (admin, summary_list, draft) t
 val election : uuid -> ([< nobody | admin ], string, unit) t
 val election_archive : uuid -> (nobody, string, unit) t
 val election_trustees : uuid -> (nobody, string, unit) t

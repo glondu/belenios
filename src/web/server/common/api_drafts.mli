@@ -110,11 +110,13 @@ val post_trustee_threshold :
 
 open Api_generic
 
-val dispatch :
-  Storage.t ->
+val dispatch_draft :
   token:string option ->
   ifmatch:string option ->
   string list ->
   [ `GET | `POST | `PUT | `DELETE ] ->
   body ->
+  Storage.t ->
+  uuid ->
+  draft_election updatable ->
   result Lwt.t

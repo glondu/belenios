@@ -108,15 +108,7 @@ let rec show_root main =
     in
     Lwt.return [ div [ t ]; div [ b ] ]
   in
-  let* x = Api.(get drafts !user) in
-  let@ drafts, ifmatch = with_ok "drafts" x in
-  let* drafts =
-    drafts
-    |> List.sort (fun (a : summary) b -> compare b.date a.date)
-    |> List.map (fun x -> li [ draft_a x ])
-    |> fun xs -> Lwt.return [ ul xs ]
-  in
-  let* validated, tallied, archived =
+  let* drafts, validated, tallied, archived =
     let* x = Api.(get elections !user) in
     match x with
     | Error e ->
@@ -125,21 +117,26 @@ let rec show_root main =
             (string_of_error e)
         in
         let x () = [ txt msg ] in
-        Lwt.return (x (), x (), x ())
+        Lwt.return (x (), x (), x (), x ())
     | Ok (elections, _) ->
-        let make f =
+        let make a f =
           List.filter (fun (x : summary) -> f x.state) elections
           |> List.sort (fun (a : summary) b -> compare b.date a.date)
-          |> List.map (fun x -> li [ election_a x ])
+          |> List.map (fun x -> li [ a x ])
           |> fun xs -> [ ul xs ]
         in
+        let is_draft x = x = `Draft in
         let is_validated = function
           | `Open | `Closed | `Shuffling | `EncryptedTally -> true
           | _ -> false
         in
         let is_tallied x = x = `Tallied in
         let is_archived x = x = `Archived in
-        Lwt.return (make is_validated, make is_tallied, make is_archived)
+        Lwt.return
+          ( make draft_a is_draft,
+            make election_a is_validated,
+            make election_a is_tallied,
+            make election_a is_archived )
   in
   let template =
     match (configuration_opt, account_opt) with
@@ -185,7 +182,7 @@ let rec show_root main =
     let b =
       let@ () = button "Create new draft" in
       let* x =
-        Api.(post ~ifmatch drafts !user (draft_of_string (tget ())))
+        Api.(post elections !user (draft_of_string (tget ())))
         |> wrap uuid_of_string
       in
       match x with

@@ -142,7 +142,7 @@ function TranslatableVoteApp({
 
   const loadElectionDataFromUuid = (uuid, draft) => {
     const url = draft
-      ? `${relativeServerRootFolder}api/drafts/${uuid}/election`
+      ? `${relativeServerRootFolder}api/elections/${uuid}/draft/election`
       : `${relativeServerRootFolder}api/elections/${uuid}/election`;
     fetch(url).then((response) => {
       if (!response.ok) {

@@ -100,7 +100,7 @@ module Make (P : PARAMS) = struct
     in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
-        (Printf.ksprintf Uri.of_string "%s/drafts" api_root)
+        (Printf.ksprintf Uri.of_string "%s/elections" api_root)
     in
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status response.status with
@@ -122,7 +122,7 @@ module Make (P : PARAMS) = struct
     let body = voters |> string_of_voter_list |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body
-        (Printf.ksprintf Uri.of_string "%s/drafts/%s/voters" api_root
+        (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/voters" api_root
            (Uuid.unwrap uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
@@ -134,8 +134,8 @@ module Make (P : PARAMS) = struct
   let get_credentials_token uuid =
     let* response, x =
       Cohttp_lwt_unix.Client.get ~headers
-        (Printf.ksprintf Uri.of_string "%s/drafts/%s/credentials/token" api_root
-           (Uuid.unwrap uuid))
+        (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/credentials/token"
+           api_root (Uuid.unwrap uuid))
     in
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status response.status with
@@ -171,8 +171,9 @@ module Make (P : PARAMS) = struct
     in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
-        (Printf.ksprintf Uri.of_string "%s/drafts/%s/credentials/public"
-           api_root (Uuid.unwrap uuid))
+        (Printf.ksprintf Uri.of_string
+           "%s/elections/%s/draft/credentials/public" api_root
+           (Uuid.unwrap uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
     match Cohttp.Code.code_of_status response.status with
@@ -187,7 +188,7 @@ module Make (P : PARAMS) = struct
     in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
-        (Printf.ksprintf Uri.of_string "%s/drafts/%s" api_root
+        (Printf.ksprintf Uri.of_string "%s/elections/%s/draft" api_root
            (Uuid.unwrap uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in

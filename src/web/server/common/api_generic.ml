@@ -116,7 +116,7 @@ let get_configuration () =
     belenios_version = Version.version;
     belenios_build = Version.build;
     spec_version = Version.spec;
-    api_version = 5;
+    api_version = 6;
     supported_crypto_versions =
       (let open Belenios.Election in
        List.map

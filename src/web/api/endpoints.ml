@@ -55,17 +55,9 @@ let account =
     to_string_post = string_of_unit;
   }
 
-let drafts =
-  {
-    path = "drafts";
-    of_string = summary_list_of_string;
-    to_string = string_of_summary_list;
-    to_string_post = string_of_draft;
-  }
-
 let draft uuid =
   {
-    path = Printf.sprintf "drafts/%s" (Uuid.unwrap uuid);
+    path = Printf.sprintf "elections/%s/draft" (Uuid.unwrap uuid);
     of_string = draft_of_string;
     to_string = string_of_draft;
     to_string_post = string_of_draft_request;
@@ -73,7 +65,7 @@ let draft uuid =
 
 let draft_status uuid =
   {
-    path = Printf.sprintf "drafts/%s/status" (Uuid.unwrap uuid);
+    path = Printf.sprintf "elections/%s/draft/status" (Uuid.unwrap uuid);
     of_string = draft_status_of_string;
     to_string = string_of_draft_status;
     to_string_post = string_of_unit;
@@ -81,7 +73,7 @@ let draft_status uuid =
 
 let draft_voters uuid =
   {
-    path = Printf.sprintf "drafts/%s/voters" (Uuid.unwrap uuid);
+    path = Printf.sprintf "elections/%s/draft/voters" (Uuid.unwrap uuid);
     of_string = voter_list_of_string;
     to_string = string_of_voter_list;
     to_string_post = string_of_voters_request;
@@ -89,7 +81,7 @@ let draft_voters uuid =
 
 let draft_passwords uuid =
   {
-    path = Printf.sprintf "drafts/%s/passwords" (Uuid.unwrap uuid);
+    path = Printf.sprintf "elections/%s/draft/passwords" (Uuid.unwrap uuid);
     of_string = string_list_of_string;
     to_string = string_of_string_list;
     to_string_post = string_of_voter_list;
@@ -97,7 +89,8 @@ let draft_passwords uuid =
 
 let draft_public_credentials uuid =
   {
-    path = Printf.sprintf "drafts/%s/credentials/public" (Uuid.unwrap uuid);
+    path =
+      Printf.sprintf "elections/%s/draft/credentials/public" (Uuid.unwrap uuid);
     of_string = public_credentials_of_string;
     to_string = string_of_public_credentials;
     to_string_post = string_of_public_credentials;
@@ -105,7 +98,8 @@ let draft_public_credentials uuid =
 
 let draft_private_credentials uuid =
   {
-    path = Printf.sprintf "drafts/%s/credentials/private" (Uuid.unwrap uuid);
+    path =
+      Printf.sprintf "elections/%s/draft/credentials/private" (Uuid.unwrap uuid);
     of_string = private_credentials_of_string;
     to_string = string_of_private_credentials;
     to_string_post = string_of_unit;
@@ -113,7 +107,8 @@ let draft_private_credentials uuid =
 
 let draft_credentials_token uuid =
   {
-    path = Printf.sprintf "drafts/%s/credentials/token" (Uuid.unwrap uuid);
+    path =
+      Printf.sprintf "elections/%s/draft/credentials/token" (Uuid.unwrap uuid);
     of_string = Fun.id;
     to_string = Fun.id;
     to_string_post = string_of_unit;
@@ -121,7 +116,7 @@ let draft_credentials_token uuid =
 
 let draft_trustees uuid =
   {
-    path = Printf.sprintf "drafts/%s/trustees" (Uuid.unwrap uuid);
+    path = Printf.sprintf "elections/%s/draft/trustees" (Uuid.unwrap uuid);
     of_string = Fun.id;
     to_string = Fun.id;
     to_string_post = string_of_trustees_request;
@@ -130,7 +125,7 @@ let draft_trustees uuid =
 let draft_trustee uuid x =
   {
     path =
-      Printf.sprintf "drafts/%s/trustees/%s" (Uuid.unwrap uuid)
+      Printf.sprintf "elections/%s/draft/trustees/%s" (Uuid.unwrap uuid)
         (Uri.pct_encode x);
     of_string = unit_of_string;
     to_string = string_of_unit;
@@ -139,7 +134,7 @@ let draft_trustee uuid x =
 
 let trustee_draft uuid =
   {
-    path = Printf.sprintf "drafts/%s/trustee" (Uuid.unwrap uuid);
+    path = Printf.sprintf "elections/%s/draft/trustee" (Uuid.unwrap uuid);
     of_string = Fun.id;
     to_string = Fun.id;
     to_string_post = Fun.id;
@@ -158,7 +153,7 @@ let elections =
     path = "elections";
     of_string = summary_list_of_string;
     to_string = string_of_summary_list;
-    to_string_post = string_of_unit;
+    to_string_post = string_of_draft;
   }
 
 let election uuid =

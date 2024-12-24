@@ -659,21 +659,26 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
   | [] -> (
       let@ token = Option.unwrap unauthorized token in
       let@ account = Option.unwrap unauthorized (lookup_token token) in
+      let get () =
+        let* elections = Storage.get_elections_by_owner account.id in
+        Lwt.return @@ string_of_summary_list elections
+      in
       match method_ with
-      | `GET ->
-          let* elections = Storage.get_elections_by_owner account.id in
-          let elections =
-            List.fold_left
-              (fun accu ({ state; _ } as x) ->
-                match state with
-                | `Draft -> accu
-                | `Open | `Closed | `Shuffling | `EncryptedTally | `Tallied
-                | `Archived ->
-                    x :: accu)
-              [] elections
-          in
-          return_json 200 (string_of_summary_list elections)
+      | `GET -> handle_get get
+      | `POST -> (
+          let@ () = handle_ifmatch ifmatch get in
+          let@ draft = body.run draft_of_string in
+          let@ () = handle_generic_error in
+          let* uuid = Api_drafts.post_drafts account s draft in
+          match uuid with
+          | Some uuid -> return_json 200 (string_of_uuid uuid)
+          | None -> forbidden)
       | _ -> method_not_allowed)
+  | uuid :: "draft" :: endpoint ->
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let* se = Spool.update s uuid Draft in
+      let@ se = Option.unwrap not_found se in
+      Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid se
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let* raw = Public_archive.get_election s uuid in

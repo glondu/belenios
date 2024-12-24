@@ -108,8 +108,6 @@ module Make () = struct
             let* () = Api_generic.put_account account x in
             ok
         | _ -> method_not_allowed)
-    | "drafts" :: endpoint ->
-        Api_drafts.dispatch s ~token ~ifmatch endpoint method_ body
     | "elections" :: endpoint ->
         Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
     | "billing" :: endpoint ->

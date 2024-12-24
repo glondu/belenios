@@ -188,9 +188,10 @@ let election_a2 (x : summary) status =
 
 let list_draft () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* x = Api.(get drafts !user) in
-  let@ drafts, _ = with_ok "drafts" x in
+  let* x = Api.(get elections !user) in
+  let@ drafts, _ = with_ok "elections" x in
   drafts
+  |> List.filter (fun (a : summary) -> a.state = `Draft)
   |> List.sort (fun (a : summary) b -> compare b.date a.date)
   |> List.map (fun x -> li [ election_a2 x Draft ])
   |> fun xs -> Lwt.return [ h2 [ txt @@ s_ "Elections being setup:" ]; ul xs ]
@@ -285,7 +286,7 @@ let rec page_body () =
       ~a:[ a_id "create_new_election"; a_class [ "clickable" ] ]
       (s_ "Create a new election")
       (fun () ->
-        let* x = Api.(get drafts !user) in
+        let* x = Api.(get elections !user) in
         let ifmatch = get_ifmatch x in
         let (Version v) = default_version in
         let* dr = newdraft () in
@@ -295,7 +296,7 @@ let rec page_body () =
             Lwt.return_unit
         | Some d -> (
             let* x =
-              Api.(post ?ifmatch drafts !user (Draft (v, d)))
+              Api.(post ?ifmatch elections !user (Draft (v, d)))
               |> wrap uuid_of_string
             in
             match x with
@@ -439,23 +440,14 @@ let show_root main =
     ]
 
 let find_status uuid =
-  let* is_draft =
-    let* x = Api.(get drafts !user) in
-    match x with
-    | Error _ -> Lwt.return false
-    | Ok (drafts, _) ->
-        Lwt.return @@ List.exists (fun (x : summary) -> x.uuid = uuid) drafts
-  in
-  if is_draft then Lwt.return (Some Draft)
-  else
-    let* x = Api.(get elections !user) in
-    match x with
-    | Error _ -> Lwt.return None
-    | Ok (elecs, _) -> (
-        let e = List.find_opt (fun (x : summary) -> x.uuid = uuid) elecs in
-        match e with
-        | None -> Lwt.return None
-        | Some ee -> Lwt.return_some @@ status_of_state ee.state)
+  let* x = Api.(get elections !user) in
+  match x with
+  | Error _ -> Lwt.return None
+  | Ok (elecs, _) -> (
+      let e = List.find_opt (fun (x : summary) -> x.uuid = uuid) elecs in
+      match e with
+      | None -> Lwt.return None
+      | Some ee -> Lwt.return_some @@ status_of_state ee.state)
 
 let onhashchange () =
   let open (val !Belenios_js.I18n.gettext) in
