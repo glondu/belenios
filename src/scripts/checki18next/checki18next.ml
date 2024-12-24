@@ -64,8 +64,8 @@ let make_reference = function
   | _ -> assert false
 
 let check_substring ~substring s =
-  let regexp = Str.regexp_string substring in
-  match Str.search_forward regexp s 0 with
+  let regexp = Re.Str.regexp_string substring in
+  match Re.Str.search_forward regexp s 0 with
   | _ -> ()
   | exception Not_found ->
       Printf.ksprintf failwith "%S does not appear in %S" substring s
