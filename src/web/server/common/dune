@@ -1,12 +1,8 @@
 (library
  (name belenios_server)
  (libraries
-  belenios-platform-native
-  belenios-lib
-  belenios-lib.api
   belenios_ui
   belenios_server_core
-  belenios_storage_api
   lwt
   eliom.server
   gettext-camomile

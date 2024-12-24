@@ -4,5 +4,4 @@
   cohttp-lwt-unix
   cmdliner
   belenios-platform-native
-  belenios-lib
   belenios-lib.api))

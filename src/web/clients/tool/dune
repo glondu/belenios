@@ -8,7 +8,7 @@
  (name tool_js_fingerprint)
  (modes js)
  (modules tool_js_fingerprint)
- (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib belenios_js)
+ (libraries belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))
 
@@ -16,6 +16,6 @@
  (name tool_js)
  (modes js)
  (modules tool_js)
- (libraries js_of_ocaml-lwt belenios-platform-js belenios-lib belenios_js)
+ (libraries belenios_js)
  (preprocess
   (pps js_of_ocaml-ppx)))

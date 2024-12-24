@@ -1,12 +1,6 @@
 (library
  (name belenios_server_core)
- (libraries
-  belenios-platform-native
-  belenios-lib
-  belenios-lib.api
-  belenios_storage_api
-  lwt.unix
-  xml-light))
+ (libraries belenios-lib.api belenios_storage_api lwt.unix xml-light))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)
