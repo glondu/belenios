@@ -72,7 +72,7 @@ val get_draft_trustees_mode : draft_election -> [ `Basic | `Threshold of int ]
 val put_draft_trustees_mode :
   draft_election updatable -> [ `Basic | `Threshold of int ] -> unit Lwt.t
 
-val get_draft_status : (draft_election -> draft_status Lwt.t) Storage.u
+val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
 
 val merge_voters :
   draft_voter list ->

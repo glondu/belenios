@@ -20,106 +20,91 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_storage_api
 
 type 'a t = 'a string_serializers
 
-let draft_election =
+let raw_draft_election_of_concrete x se_private_creds_downloaded =
+  let open Serializable_j in
+  let {
+    se_version;
+    se_owners;
+    se_group;
+    se_voters;
+    se_questions;
+    se_trustees;
+    se_metadata;
+    se_public_creds;
+    se_public_creds_received;
+    se_creation_date;
+    se_administrator;
+    se_credential_authority_visited;
+    se_voter_authentication_visited;
+    se_trustees_setup_step;
+    se_pending_credentials;
+  } =
+    x
+  in
+  let open Belenios_storage_api in
   {
-    of_string =
-      (fun x ->
-        let open Serializable_j in
-        let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
-        match Election.version_of_int abstract.se_version with
-        | Version v ->
-            let open (val Election.get_serializers v) in
-            let {
-              se_version;
-              se_owners;
-              se_group;
-              se_voters;
-              se_questions;
-              se_trustees;
-              se_metadata;
-              se_public_creds;
-              se_public_creds_received;
-              se_creation_date;
-              se_administrator;
-              se_credential_authority_visited;
-              se_voter_authentication_visited;
-              se_trustees_setup_step;
-              se_pending_credentials;
-            } =
-              raw_draft_election_of_string read_question x
-            in
-            let open Belenios_storage_api in
-            let x =
-              {
-                se_version;
-                se_owners;
-                se_group;
-                se_voters;
-                se_questions;
-                se_trustees;
-                se_metadata;
-                se_public_creds;
-                se_public_creds_received;
-                se_creation_date =
-                  Option.map Datetime.to_unixfloat se_creation_date;
-                se_administrator;
-                se_credential_authority_visited;
-                se_voter_authentication_visited;
-                se_trustees_setup_step;
-                se_pending_credentials;
-              }
-            in
-            Draft (v, x));
-    to_string =
-      (fun (Draft (v, x)) ->
-        let open (val Election.get_serializers v) in
-        let open Belenios_storage_api in
-        let {
-          se_version;
-          se_owners;
-          se_group;
-          se_voters;
-          se_questions;
-          se_trustees;
-          se_metadata;
-          se_public_creds;
-          se_public_creds_received;
-          se_creation_date;
-          se_administrator;
-          se_credential_authority_visited;
-          se_voter_authentication_visited;
-          se_trustees_setup_step;
-          se_pending_credentials;
-        } =
-          x
-        in
-        let open Serializable_j in
-        let x =
-          {
-            se_version;
-            se_owners;
-            se_group;
-            se_voters;
-            se_questions;
-            se_trustees;
-            se_metadata;
-            se_public_creds;
-            se_public_creds_received;
-            se_creation_date =
-              Option.map Datetime.from_unixfloat se_creation_date;
-            se_administrator;
-            se_credential_authority_visited;
-            se_voter_authentication_visited;
-            se_trustees_setup_step;
-            se_pending_credentials;
-          }
-        in
-        string_of_raw_draft_election write_question x);
+    se_version;
+    se_owners;
+    se_group;
+    se_voters;
+    se_questions;
+    se_trustees;
+    se_metadata;
+    se_public_creds;
+    se_public_creds_received;
+    se_creation_date = Option.map Datetime.to_unixfloat se_creation_date;
+    se_administrator;
+    se_credential_authority_visited;
+    se_voter_authentication_visited;
+    se_trustees_setup_step;
+    se_pending_credentials;
+    se_private_creds_downloaded;
   }
+
+let raw_draft_election_to_concrete x =
+  let open Belenios_storage_api in
+  let {
+    se_version;
+    se_owners;
+    se_group;
+    se_voters;
+    se_questions;
+    se_trustees;
+    se_metadata;
+    se_public_creds;
+    se_public_creds_received;
+    se_creation_date;
+    se_administrator;
+    se_credential_authority_visited;
+    se_voter_authentication_visited;
+    se_trustees_setup_step;
+    se_pending_credentials;
+    se_private_creds_downloaded;
+  } =
+    x
+  in
+  let open Serializable_j in
+  ( {
+      se_version;
+      se_owners;
+      se_group;
+      se_voters;
+      se_questions;
+      se_trustees;
+      se_metadata;
+      se_public_creds;
+      se_public_creds_received;
+      se_creation_date = Option.map Datetime.from_unixfloat se_creation_date;
+      se_administrator;
+      se_credential_authority_visited;
+      se_voter_authentication_visited;
+      se_trustees_setup_step;
+      se_pending_credentials;
+    },
+    se_private_creds_downloaded )
 
 let deleted_election =
   {

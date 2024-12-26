@@ -134,6 +134,7 @@ type 'question raw_draft_election = {
   ~voter_authentication_visited <ocaml default="false" mutable> : bool;
   ~trustees_setup_step <ocaml default="1" mutable> : int;
   ~pending_credentials <ocaml default="false" mutable> : bool;
+  ~private_creds_downloaded <ocaml default="false" mutable> : bool;
 } <ocaml field_prefix="se_">
 
 (** {1 Types related to deleted elections} *)

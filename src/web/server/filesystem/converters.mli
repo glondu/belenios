@@ -24,6 +24,11 @@ open Belenios_storage_api
 
 type 'a t = 'a string_serializers
 
-val draft_election : draft_election t
+val raw_draft_election_of_concrete :
+  'a Serializable_t.raw_draft_election -> bool -> 'a raw_draft_election
+
+val raw_draft_election_to_concrete :
+  'a raw_draft_election -> 'a Serializable_t.raw_draft_election * bool
+
 val deleted_election : deleted_election t
 val account : account t

@@ -51,8 +51,6 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
         of_string = deleted_election_of_string;
         to_string = string_of_deleted_election;
       }
-  | Private_creds_downloaded ->
-      { of_string = (fun _ -> ()); to_string = (fun () -> "") }
   | Draft ->
       {
         of_string = draft_election_of_string;

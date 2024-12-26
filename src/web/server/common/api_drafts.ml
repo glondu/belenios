@@ -229,6 +229,7 @@ let post_drafts account s draft =
       se_voter_authentication_visited = false;
       se_trustees_setup_step = 1;
       se_pending_credentials = false;
+      se_private_creds_downloaded = false;
     }
   in
   let module S = (val s : Storage.BACKEND) in
@@ -628,11 +629,10 @@ let put_draft_trustees_mode (Draft (v, se), set) mode =
           Lwt.fail (Error (`GenericError "threshold out of bounds")))
   | _, _ -> Lwt.fail (Error (`GenericError "change not allowed"))
 
-let get_draft_status s uuid (Draft (v, se)) =
+let get_draft_status uuid (Draft (v, se)) =
   let* private_credentials_downloaded =
     if se.se_metadata.e_cred_authority = Some "server" then
-      let* b = Web_persist.get_private_creds_downloaded s uuid in
-      Lwt.return_some b
+      Lwt.return_some se.se_private_creds_downloaded
     else Lwt.return_none
   in
   let credentials_ready, credentials_left =
@@ -902,10 +902,15 @@ let check_owner account s uuid cont =
 
 let post_draft_status ~admin_id s uuid (Draft (v, se), set) = function
   | `SetDownloaded ->
-      let* () = Web_persist.set_private_creds_downloaded s uuid in
+      let* () =
+        if se.se_private_creds_downloaded then Lwt.return_unit
+        else (
+          se.se_private_creds_downloaded <- true;
+          set (Draft (v, se)))
+      in
       ok
   | `ValidateElection ->
-      let* status = get_draft_status s uuid (Draft (v, se)) in
+      let* status = get_draft_status uuid (Draft (v, se)) in
       let* () =
         Web_persist.validate_election ~admin_id s uuid
           (Draft (v, se), set)
@@ -1353,7 +1358,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
-          let* x = get_draft_status s uuid se in
+          let* x = get_draft_status uuid se in
           return_json 200 (string_of_draft_status x)
       | _ -> method_not_allowed)
   | _ -> not_found

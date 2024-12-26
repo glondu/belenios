@@ -756,21 +756,6 @@ let regen_password s uuid metadata user =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let get_private_creds_downloaded s uuid =
-  let module S = (val s : Storage.BACKEND) in
-  let* x = S.get (Election (uuid, Private_creds_downloaded)) in
-  match Lopt.get_value x with
-  | None -> Lwt.return_false
-  | Some _ -> Lwt.return_true
-
-let set_private_creds_downloaded s uuid =
-  let module S = (val s : Storage.BACKEND) in
-  () |> S.set (Election (uuid, Private_creds_downloaded)) Value
-
-let clear_private_creds_downloaded s uuid =
-  let module S = (val s : Storage.BACKEND) in
-  S.del (Election (uuid, Private_creds_downloaded))
-
 let send_credentials s uuid (Draft (v, se)) =
   let module S = (val s : Storage.BACKEND) in
   let@ () =
@@ -1018,7 +1003,6 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let* () = Spool.del storage uuid Draft in
   (* clean up private credentials, if any *)
   let* () = S.del (Election (uuid, Private_creds)) in
-  let* () = clear_private_creds_downloaded storage uuid in
   (* write passwords *)
   let* () =
     match metadata.e_auth_config with
