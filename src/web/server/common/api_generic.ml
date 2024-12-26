@@ -85,7 +85,12 @@ let handle_generic_error f =
     | Error error ->
         let request_status = { code = 400; status = "Bad Request"; error } in
         return_json 400 (string_of_request_status request_status)
-    | _ -> bad_request)
+    | exn ->
+        let error = `GenericError (Printexc.to_string exn) in
+        let request_status =
+          { code = 500; status = "Internal Server Error"; error }
+        in
+        return_json 500 (string_of_request_status request_status))
 
 let handle_get get =
   let@ () = handle_generic_error in
