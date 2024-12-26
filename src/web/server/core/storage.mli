@@ -22,5 +22,5 @@
 include module type of Storage_sig
 include S
 
-val register_backend : string -> (Xml.xml list -> (module S)) -> unit
-val init_backend : string -> Xml.xml list -> unit
+val register_backend : string -> (Xml.xml list -> (module S) Lwt.t) -> unit
+val init_backend : string -> Xml.xml list -> unit Lwt.t

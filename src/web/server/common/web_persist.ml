@@ -26,12 +26,6 @@ open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 
-let get_spool_version () =
-  let@ s = Storage.with_transaction in
-  let module S = (val s) in
-  let* x = S.get Spool_version in
-  match Lopt.get_value x with Some x -> return x | None -> return 0
-
 let get_setup_data s uuid =
   let* x =
     let* x = Public_archive.get_roots s uuid in

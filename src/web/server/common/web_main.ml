@@ -136,7 +136,7 @@ module Make () = struct
         Web_config.billing := Some (url, callback)
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
     | Element ("storage", [ ("backend", backend) ], config) ->
-        Storage.init_backend backend config
+        Lwt_main.run (Storage.init_backend backend config)
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag
@@ -274,15 +274,8 @@ module Make () = struct
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_cont) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Web_auth) (Site_common) (Site_admin)
 
-  let check_spool_version () =
-    let* x = Web_persist.get_spool_version () in
-    match x with
-    | 1 -> Lwt.return_unit
-    | _ -> Lwt.fail (Failure "unknown spool version")
-
   let () = Api_elections.direct_voter_auth := Web_auth.direct_voter_auth
   let () = Api_elections.state_module := Some (module Web_auth.State)
-  let () = Lwt_main.run @@ check_spool_version ()
   let () = Lwt.async Site_admin.data_policy_loop
   let () = Lwt.async Mails_voter.process_bulk_emails
 end

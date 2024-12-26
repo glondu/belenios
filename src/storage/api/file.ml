@@ -57,7 +57,6 @@ type _ u =
 type kind = Username of string | Address of string
 
 type _ t =
-  | Spool_version : int t
   | Account_counter : int t (* obsolete as of 3.0 *)
   | Account : int -> account t
   | Election : uuid * 'a u -> 'a t

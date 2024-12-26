@@ -114,7 +114,6 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
       }
 
 let get (type t) : t File.t -> t string_serializers = function
-  | Spool_version -> { of_string = int_of_string; to_string = string_of_int }
   | Account_counter -> { of_string = int_of_string; to_string = string_of_int }
   | Account _ ->
       { of_string = account_of_string; to_string = string_of_account }

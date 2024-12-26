@@ -325,7 +325,6 @@ module MakeBackend
         -> password_record file_props
 
   let get_props (type t) : t file -> t file_props = function
-    | Spool_version -> Concrete (!!"version", Trim, None)
     | Account_counter -> Concrete (Config.accounts_dir // "counter", Trim, None)
     | Account id ->
         Concrete
@@ -1507,7 +1506,13 @@ let make_backend (config : Xml.xml list) =
     let accounts_dir = accounts_dir
     let maps = !maps
   end in
+  let* () =
+    let* x = Filesystem.read_file (spool_dir // "version") in
+    match x with
+    | Some x when String.trim x = "1" -> Lwt.return_unit
+    | _ -> failwith "unknown spool version"
+  in
   let module X = Make (Config) in
-  (module X : Storage.S)
+  Lwt.return (module X : Storage.S)
 
 let register () = Storage.register_backend backend_name make_backend

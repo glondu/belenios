@@ -24,10 +24,6 @@ open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 
-(** {1 Spool version} *)
-
-val get_spool_version : unit -> int Lwt.t
-
 (** {1 Dynamically updated election data} *)
 
 val get_election_state : election_state Lwt.t Storage.u
