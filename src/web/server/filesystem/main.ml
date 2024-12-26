@@ -325,7 +325,6 @@ module MakeBackend
         -> password_record file_props
 
   let get_props (type t) : t file -> t file_props = function
-    | Account_counter -> Concrete (Config.accounts_dir // "counter", Trim, None)
     | Account id ->
         Concrete
           ( Config.accounts_dir // Printf.sprintf "%d.json" id,
