@@ -1293,6 +1293,13 @@ module MakeBackend
     | None -> delete_draft_election uuid
     | Some roots -> delete_live_election uuid roots
 
+  let archive_election uuid =
+    let* () = delete_sensitive_data uuid in
+    let* x = update (Election (uuid, Dates)) in
+    let&! dates, set = x in
+    let&! dates = Lopt.get_value dates in
+    set Value { dates with e_date_archive = Some (Unix.gettimeofday ()) }
+
   (** {1 Public archive operations} *)
 
   let get_last_event uuid =
@@ -1569,14 +1576,11 @@ module MakeBackend
       let init_credential_mapping uuid =
         with_lock (Some uuid) (fun () -> init_credential_mapping uuid)
 
+      let archive_election uuid =
+        with_lock (Some uuid) (fun () -> archive_election uuid)
+
       let delete_election uuid =
         with_lock (Some uuid) (fun () -> delete_election uuid)
-
-      let delete_sensitive_data uuid =
-        with_lock (Some uuid) (fun () -> delete_sensitive_data uuid)
-
-      let delete_live_data uuid =
-        with_lock (Some uuid) (fun () -> delete_live_data uuid)
 
       let append uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)

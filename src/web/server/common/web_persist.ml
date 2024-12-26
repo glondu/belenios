@@ -635,12 +635,6 @@ let get_admin_context admin_id =
 
 let () = Billing.set_get_admin_context get_admin_context
 
-let archive_election s uuid =
-  let module S = (val s : Storage.BACKEND) in
-  let* () = S.delete_sensitive_data uuid in
-  let* dates, set = update_election_dates s uuid in
-  set { dates with e_date_archive = Some (Unix.gettimeofday ()) }
-
 let dump_passwords s uuid db =
   let module S = (val s : Storage.BACKEND) in
   db |> S.set (Election (uuid, Passwords)) Value

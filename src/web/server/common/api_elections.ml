@@ -419,7 +419,10 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               ok
           | `Archive ->
               let@ () = handle_generic_error in
-              let* () = Web_persist.archive_election s uuid in
+              let* () =
+                let module S = (val s) in
+                S.archive_election uuid
+              in
               ok
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in

@@ -96,7 +96,6 @@ val append_to_shuffles :
 
 val add_partial_decryption : (int * string -> unit Lwt.t) Storage.u
 val release_tally : unit Lwt.t Storage.u
-val archive_election : unit Lwt.t Storage.u
 val create_draft : (draft_election -> unit Lwt.t) Storage.u
 val compute_encrypted_tally : bool Lwt.t Storage.u
 val finish_shuffling : bool Lwt.t Storage.u
