@@ -1111,7 +1111,7 @@ module MakeBackend
 
   (** {1 Cleaning operations} *)
 
-  let delete_election uuid =
+  let delete_draft_election uuid =
     let* () = rmdir !!(Uuid.unwrap uuid) in
     Elections_cache.clear ();
     Lwt.return_unit
@@ -1161,6 +1161,137 @@ module MakeBackend
     in
     Elections_cache.clear ();
     Lwt.return_unit
+
+  let ( let&! ) x f = match x with None -> Lwt.return_unit | Some x -> f x
+
+  let delete_live_election uuid roots =
+    let ( let&? ) x f =
+      let* x = get (Election (uuid, x)) in
+      let&! x = Lopt.get_value x in
+      f x
+    in
+    let@ setup_data cont =
+      let&! x = roots.roots_setup_data in
+      let&? x = Data x in
+      cont (setup_data_of_string x)
+    in
+    let@ election cont =
+      let&? x = Data setup_data.setup_election in
+      cont (Election.of_string (module Random) x)
+    in
+    let@ trustees cont =
+      let&? x = Data setup_data.setup_trustees in
+      cont (trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json x)
+    in
+    let module W = (val election) in
+    let module CredSet = Set.Make (W.G) in
+    let&? metadata = Metadata in
+    let&? dates = Dates in
+    let* () = delete_sensitive_data uuid in
+    let de_template =
+      {
+        t_description = "";
+        t_name = W.template.t_name;
+        t_questions = Array.map W.erase_question W.template.t_questions;
+        t_administrator = None;
+        t_credential_authority = None;
+      }
+      |> string_of_template W.write_question
+      |> template_of_string Yojson.Safe.read_json
+    in
+    let de_owners = metadata.e_owners in
+    let de_date =
+      match dates.e_date_tally with
+      | Some x -> x
+      | None -> (
+          match dates.e_date_finalization with
+          | Some x -> x
+          | None -> dates.e_date_creation)
+    in
+    let de_authentication_method =
+      match metadata.e_auth_config with
+      | Some [ { auth_system = "cas"; auth_config; _ } ] ->
+          let server = List.assoc "server" auth_config in
+          `CAS server
+      | Some [ { auth_system = "password"; _ } ] -> `Password
+      | _ -> `Unknown
+    in
+    let de_credential_method =
+      match metadata.e_cred_authority with
+      | Some "server" -> `Automatic
+      | _ -> `Manual
+    in
+    let* de_trustees =
+      trustees
+      |> List.map (function
+           | `Single _ -> `Single
+           | `Pedersen t ->
+               `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
+      |> Lwt.return
+    in
+    let* de_nb_ballots =
+      match roots.roots_last_ballot_event with
+      | None -> Lwt.return 0
+      | Some e ->
+          let rec loop seen accu e =
+            let@ event cont =
+              let* x = get (Election (uuid, Data e)) in
+              match Lopt.get_value x with
+              | None -> Lwt.return accu
+              | Some x -> cont (event_of_string x)
+            in
+            match
+              (event.event_typ, event.event_payload, event.event_parent)
+            with
+            | `Ballot, Some b, Some p ->
+                let@ ballot cont =
+                  let* x = get (Election (uuid, Data b)) in
+                  match Lopt.get_value x with
+                  | None -> Lwt.return accu
+                  | Some b -> cont (W.read_ballot ++ b)
+                in
+                let@ credential cont =
+                  match W.get_credential ballot with
+                  | None -> loop seen (accu + 1) p
+                  | Some c -> cont c
+                in
+                if CredSet.mem credential seen then loop seen accu p
+                else loop (CredSet.add credential seen) (accu + 1) p
+            | _ -> Lwt.return accu
+          in
+          loop CredSet.empty 0 e
+    in
+    let* de_nb_voters, de_has_weights =
+      let* x = get (Election (uuid, Voters_config)) in
+      match Lopt.get_value x with
+      | None -> Lwt.return (0, false)
+      | Some { has_explicit_weights; nb_voters; _ } ->
+          Lwt.return (nb_voters, has_explicit_weights)
+    in
+    let de =
+      Belenios_storage_api.
+        {
+          de_uuid = uuid;
+          de_template;
+          de_owners;
+          de_nb_voters;
+          de_nb_ballots;
+          de_date;
+          de_tallied = roots.roots_result <> None;
+          de_authentication_method;
+          de_credential_method;
+          de_trustees;
+          de_has_weights;
+        }
+    in
+    let* () = de |> set (Election (uuid, Deleted)) Value in
+    delete_live_data uuid
+
+  let delete_election uuid =
+    let* x = get (Election (uuid, Roots)) in
+    match Lopt.get_value x with
+    | None -> delete_draft_election uuid
+    | Some roots -> delete_live_election uuid roots
 
   (** {1 Public archive operations} *)
 

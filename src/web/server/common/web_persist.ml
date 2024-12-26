@@ -641,84 +641,6 @@ let archive_election s uuid =
   let* dates, set = update_election_dates s uuid in
   set { dates with e_date_archive = Some (Unix.gettimeofday ()) }
 
-let delete_election s uuid =
-  let@ election =
-    Public_archive.with_election s uuid ~fallback:(fun () -> Lwt.return_unit)
-  in
-  let module S = (val s) in
-  let module W = (val election) in
-  let* metadata = get_election_metadata s uuid in
-  let* () = S.delete_sensitive_data uuid in
-  let de_template =
-    {
-      t_description = "";
-      t_name = W.template.t_name;
-      t_questions = Array.map W.erase_question W.template.t_questions;
-      t_administrator = None;
-      t_credential_authority = None;
-    }
-    |> string_of_template W.write_question
-    |> template_of_string Yojson.Safe.read_json
-  in
-  let de_owners = metadata.e_owners in
-  let* dates = get_election_dates s uuid in
-  let de_date =
-    match dates.e_date_tally with
-    | Some x -> x
-    | None -> (
-        match dates.e_date_finalization with
-        | Some x -> x
-        | None -> dates.e_date_creation)
-  in
-  let de_authentication_method =
-    match metadata.e_auth_config with
-    | Some [ { auth_system = "cas"; auth_config; _ } ] ->
-        let server = List.assoc "server" auth_config in
-        `CAS server
-    | Some [ { auth_system = "password"; _ } ] -> `Password
-    | _ -> `Unknown
-  in
-  let de_credential_method =
-    match metadata.e_cred_authority with
-    | Some "server" -> `Automatic
-    | _ -> `Manual
-  in
-  let* de_trustees =
-    let* trustees = Public_archive.get_trustees s uuid in
-    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
-    |> List.map (function
-         | `Single _ -> `Single
-         | `Pedersen t ->
-             `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
-    |> Lwt.return
-  in
-  let* ballots = Public_archive.get_ballot_hashes s uuid in
-  let* result = Public_archive.get_result s uuid in
-  let* de_nb_voters, de_has_weights =
-    let* x = S.get (Election (uuid, Voters_config)) in
-    match Lopt.get_value x with
-    | None -> Lwt.return (0, false)
-    | Some { has_explicit_weights; nb_voters; _ } ->
-        Lwt.return (nb_voters, has_explicit_weights)
-  in
-  let de =
-    {
-      de_uuid = uuid;
-      de_template;
-      de_owners;
-      de_nb_voters;
-      de_nb_ballots = List.length ballots;
-      de_date;
-      de_tallied = result <> None;
-      de_authentication_method;
-      de_credential_method;
-      de_trustees;
-      de_has_weights;
-    }
-  in
-  let* () = de |> S.set (Election (uuid, Deleted)) Value in
-  S.delete_live_data uuid
-
 let dump_passwords s uuid db =
   let module S = (val s : Storage.BACKEND) in
   db |> S.set (Election (uuid, Passwords)) Value
@@ -1019,10 +941,6 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let* () = Spool.set storage uuid State `Open in
   let* dates, set = update_election_dates storage uuid in
   set { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
-
-let delete_draft s uuid =
-  let module S = (val s : Storage.BACKEND) in
-  S.delete_election uuid
 
 let create_draft s uuid se = Spool.set s uuid Draft se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally

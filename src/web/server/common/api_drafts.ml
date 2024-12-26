@@ -1169,11 +1169,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
           let@ x = body.run draft_request_of_string in
           let@ () = handle_generic_error in
           post_draft_status ~admin_id:a.id s uuid (se, set) x
-      | `DELETE, `Administrator _ ->
-          let@ () = handle_ifmatch ifmatch get in
-          let@ () = handle_generic_error in
-          let* () = Web_persist.delete_draft s uuid in
-          ok
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ who = with_administrator_or_credential_authority token se in

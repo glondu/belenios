@@ -446,10 +446,7 @@ let tabs x =
         in
         if confirm then (
           Cache.invalidate_all ();
-          let* x =
-            if is_draft then Api.(delete (draft uuid) !user)
-            else Api.(delete (election_status uuid) !user)
-          in
+          let* x = Api.(delete (election_status uuid) !user) in
           match x.code with
           | 200 ->
               where_am_i := List_draft;

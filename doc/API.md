@@ -49,7 +49,6 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 ### `GET`: unit -> draft (anybody)
 ### `PUT`: draft -> unit (administrator)
 ### `POST`: draft_request -> unit (administrator)
-### `DELETE`: unit -> unit (administrator)
 
 ## `elections/$UUID/draft/election` (anybody)
 

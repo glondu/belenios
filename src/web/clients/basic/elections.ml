@@ -45,7 +45,7 @@ let rec show main uuid =
   let button_delete =
     let@ () = button "Delete election" in
     if confirm "Are you sure?" then (
-      let* x = Api.(delete (election uuid) !user) in
+      let* x = Api.(delete (election_status uuid) !user) in
       let@ () = show_in main in
       let@ () = generic_proceed x in
       Dom_html.window##.location##.hash := Js.string "";

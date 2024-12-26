@@ -429,7 +429,10 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* () = Web_persist.delete_election s uuid in
+          let* () =
+            let module S = (val s) in
+            S.delete_election uuid
+          in
           ok
       | _ -> method_not_allowed)
   | [ "audit-cache" ] -> (

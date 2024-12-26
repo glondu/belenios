@@ -440,10 +440,14 @@ struct
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = Uuid.unwrap uuid in
     let now = Unix.gettimeofday () in
+    let delete s uuid =
+      let module S = (val s : Storage.BACKEND) in
+      S.delete_election uuid
+    in
     let action, comment =
       match action with
-      | `Destroy -> (Web_persist.delete_draft, "destroyed")
-      | `Delete -> (Web_persist.delete_election, "deleted")
+      | `Destroy -> (delete, "destroyed")
+      | `Delete -> (delete, "deleted")
       | `Archive -> (Web_persist.archive_election, "archived")
     in
     let@ s = Storage.with_transaction in
