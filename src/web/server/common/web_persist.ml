@@ -668,10 +668,7 @@ let delete_election s uuid =
     | None -> (
         match dates.e_date_finalization with
         | Some x -> x
-        | None -> (
-            match dates.e_date_creation with
-            | Some x -> x
-            | None -> Defaults.validation_date))
+        | None -> dates.e_date_creation)
   in
   let de_authentication_method =
     match metadata.e_auth_config with

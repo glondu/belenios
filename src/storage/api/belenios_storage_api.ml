@@ -32,7 +32,7 @@ let get_file_serializers = File_serializers.get
 
 let default_election_dates =
   {
-    e_date_creation = None;
+    e_date_creation = 0.;
     e_date_finalization = None;
     e_date_tally = None;
     e_date_archive = None;

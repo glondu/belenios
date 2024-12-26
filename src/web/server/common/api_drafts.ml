@@ -223,7 +223,7 @@ let post_drafts account s draft =
       se_metadata;
       se_public_creds = token;
       se_public_creds_received = false;
-      se_creation_date = Some (Unix.gettimeofday ());
+      se_creation_date = Unix.gettimeofday ();
       se_administrator = None;
       se_credential_authority_visited = false;
       se_voter_authentication_visited = false;

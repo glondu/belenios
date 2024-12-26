@@ -24,7 +24,6 @@ val contact : string
 val questions : Belenios_question.t array
 val name : string
 val description : string
-val creation_date : float
 val validation_date : float
 val tally_date : float
 val archive_date : float

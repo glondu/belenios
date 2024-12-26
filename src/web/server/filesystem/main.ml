@@ -733,7 +733,7 @@ module MakeBackend
           let d = Serializable_j.election_dates_of_string (String.trim d) in
           Some
             {
-              e_date_creation = Option.map Datetime.to_unixfloat d.e_creation;
+              e_date_creation = Datetime.to_unixfloat d.e_creation;
               e_date_finalization =
                 Option.map Datetime.to_unixfloat d.e_finalization;
               e_date_tally = Option.map Datetime.to_unixfloat d.e_tally;
@@ -766,7 +766,7 @@ module MakeBackend
     let filename = uuid /// raw_dates_filename in
     let dates : Serializable_t.election_dates =
       {
-        e_creation = Option.map Datetime.from_unixfloat d.e_date_creation;
+        e_creation = Datetime.from_unixfloat d.e_date_creation;
         e_finalization =
           Option.map Datetime.from_unixfloat d.e_date_finalization;
         e_tally = Option.map Datetime.from_unixfloat d.e_date_tally;

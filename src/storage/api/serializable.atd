@@ -128,7 +128,7 @@ type 'question raw_draft_election = {
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
-  ?creation_date : float option;
+  creation_date : float;
   ?administrator <ocaml mutable> : string option;
   ~credential_authority_visited <ocaml default="false" mutable> : bool;
   ~voter_authentication_visited <ocaml default="false" mutable> : bool;
@@ -194,7 +194,7 @@ type password_record = {
 (** {1 Running elections} *)
 
 type election_dates = {
-  ?creation : float option;
+  creation : float;
   ?finalization : float option;
   ?tally : float option;
   ?archive : float option;

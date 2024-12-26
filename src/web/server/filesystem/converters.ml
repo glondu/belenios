@@ -55,7 +55,7 @@ let raw_draft_election_of_concrete x se_private_creds_downloaded =
     se_metadata;
     se_public_creds;
     se_public_creds_received;
-    se_creation_date = Option.map Datetime.to_unixfloat se_creation_date;
+    se_creation_date = Datetime.to_unixfloat se_creation_date;
     se_administrator;
     se_credential_authority_visited;
     se_voter_authentication_visited;
@@ -97,7 +97,7 @@ let raw_draft_election_to_concrete x =
       se_metadata;
       se_public_creds;
       se_public_creds_received;
-      se_creation_date = Option.map Datetime.from_unixfloat se_creation_date;
+      se_creation_date = Datetime.from_unixfloat se_creation_date;
       se_administrator;
       se_credential_authority_visited;
       se_voter_authentication_visited;
