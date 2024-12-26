@@ -71,13 +71,13 @@ module Make (I : INPUT) () = struct
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
           Lwt.return
           @@ Option.value dates.e_date_finalization
-               ~default:Defaults.validation_date
+               ~default:dates.e_date_creation
       | `Tallied ->
           Lwt.return
-          @@ Option.value dates.e_date_tally ~default:Defaults.tally_date
+          @@ Option.value dates.e_date_tally ~default:dates.e_date_creation
       | `Archived ->
           Lwt.return
-          @@ Option.value dates.e_date_archive ~default:Defaults.archive_date
+          @@ Option.value dates.e_date_archive ~default:dates.e_date_creation
     in
     let state = (state :> Belenios_web_api.state) in
     let item : Belenios_web_api.summary = { uuid; state; date; name } in
@@ -158,18 +158,19 @@ module Make (I : INPUT) () = struct
     match state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t =
-          Option.value dates.e_date_finalization
-            ~default:Defaults.validation_date
+          Option.value dates.e_date_finalization ~default:dates.e_date_creation
         in
         let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Delete, uuid, next_t)
     | `Tallied ->
-        let t = Option.value dates.e_date_tally ~default:Defaults.tally_date in
+        let t =
+          Option.value dates.e_date_tally ~default:dates.e_date_creation
+        in
         let next_t = t +. (86400. *. Defaults.days_to_archive) in
         Lwt.return_some (`Archive, uuid, next_t)
     | `Archived ->
         let t =
-          Option.value dates.e_date_archive ~default:Defaults.archive_date
+          Option.value dates.e_date_archive ~default:dates.e_date_creation
         in
         let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Delete, uuid, next_t)

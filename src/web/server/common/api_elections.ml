@@ -75,22 +75,20 @@ let get_election_status s uuid =
   let status_auto_archive_date =
     match status_state with
     | `Tallied ->
-        let t = Option.value d.e_date_tally ~default:Defaults.tally_date in
+        let t = Option.value d.e_date_tally ~default:d.e_date_creation in
         Some (t +. (86400. *. Defaults.days_to_archive))
     | _ -> None
   in
   let status_auto_delete_date =
     match status_state with
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
-        let t =
-          Option.value d.e_date_finalization ~default:Defaults.validation_date
-        in
+        let t = Option.value d.e_date_finalization ~default:d.e_date_creation in
         t +. (86400. *. Defaults.days_to_delete)
     | `Tallied ->
-        let t = Option.value d.e_date_tally ~default:Defaults.tally_date in
+        let t = Option.value d.e_date_tally ~default:d.e_date_creation in
         t +. (86400. *. Defaults.(days_to_archive +. days_to_delete))
     | `Archived ->
-        let t = Option.value d.e_date_archive ~default:Defaults.archive_date in
+        let t = Option.value d.e_date_archive ~default:d.e_date_creation in
         t +. (86400. *. Defaults.days_to_delete)
   in
   Lwt.return

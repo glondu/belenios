@@ -42,9 +42,6 @@ let questions =
       ~extra:None;
   |]
 
-let validation_date = 1443657600. (* 2015-10-01 00:00:00.000000 *)
-let tally_date = 1543190400. (* 2018-11-26 00:00:00.000000 *)
-let archive_date = 1543190400. (* 2018-11-26 00:00:00.000000 *)
 let days_to_archive = 7.
 let days_to_delete = 365.
 let days_to_mail = 30.
