@@ -46,11 +46,6 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
       { of_string = audit_cache_of_string; to_string = string_of_audit_cache }
   | Last_event ->
       { of_string = last_event_of_string; to_string = string_of_last_event }
-  | Deleted ->
-      {
-        of_string = deleted_election_of_string;
-        to_string = string_of_deleted_election;
-      }
   | Draft ->
       {
         of_string = draft_election_of_string;

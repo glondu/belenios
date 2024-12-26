@@ -137,27 +137,6 @@ type 'question raw_draft_election = {
   ~private_creds_downloaded <ocaml default="false" mutable> : bool;
 } <ocaml field_prefix="se_">
 
-(** {1 Types related to deleted elections} *)
-
-type authentication_method = [ CAS of string | Password | Unknown ]
-type credential_method = [ Automatic | Manual ]
-
-type deleted_trustee = [ Single | Pedersen of (int * int) ]
-
-type deleted_election = {
-  uuid : uuid;
-  template : abstract template;
-  owners : int list;
-  nb_voters : int;
-  nb_ballots : int;
-  date : float;
-  tallied : bool;
-  authentication_method : authentication_method;
-  credential_method : credential_method;
-  trustees : deleted_trustee list;
-  has_weights : bool;
-} <ocaml field_prefix="de_">
-
 (** {1 Administrator accounts} *)
 
 type account = {

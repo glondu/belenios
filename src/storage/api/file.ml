@@ -34,7 +34,6 @@ type _ u =
   | Private_keys : string list u
   | Audit_cache : audit_cache u
   | Last_event : last_event u
-  | Deleted : deleted_election u
   | Draft : draft_election u
   | Public_creds : public_credentials u
   | Private_creds : private_credentials u

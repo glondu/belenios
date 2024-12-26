@@ -298,8 +298,6 @@ module MakeBackend
     | Private_keys -> Concrete ("private_keys.jsons", Raw, None)
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
     | Last_event -> Concrete ("last_event.json", Trim, None)
-    | Deleted ->
-        Concrete ("deleted.json", Trim, Some Converters.deleted_election)
     | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, None)
     | Passwords -> Concrete ("passwords.csv", Raw, None)
     | Records -> Abstract (records_ops, ())
@@ -350,6 +348,8 @@ module MakeBackend
     | Concrete (path, _, _) -> Filesystem.file_exists path
     | Abstract _ | Admin_password _ -> Lwt.fail @@ Not_implemented "file_exists"
 
+  let deleted_filename = "deleted.json"
+
   let list_elections () =
     let* xs = files_of_directory Config.spool_dir in
     Lwt_list.fold_left_s
@@ -357,7 +357,7 @@ module MakeBackend
         match Uuid.wrap x with
         | exception _ -> Lwt.return accu
         | uuid ->
-            let* b = file_exists (Election (uuid, Deleted)) in
+            let* b = Filesystem.file_exists (uuid /// deleted_filename) in
             if b then Lwt.return accu else Lwt.return (uuid :: accu))
       [] xs
 
@@ -1269,22 +1269,25 @@ module MakeBackend
           Lwt.return (nb_voters, has_explicit_weights)
     in
     let de =
-      Belenios_storage_api.
-        {
-          de_uuid = uuid;
-          de_template;
-          de_owners;
-          de_nb_voters;
-          de_nb_ballots;
-          de_date;
-          de_tallied = roots.roots_result <> None;
-          de_authentication_method;
-          de_credential_method;
-          de_trustees;
-          de_has_weights;
-        }
+      {
+        de_uuid = uuid;
+        de_template;
+        de_owners;
+        de_nb_voters;
+        de_nb_ballots;
+        de_date = Datetime.from_unixfloat de_date;
+        de_tallied = roots.roots_result <> None;
+        de_authentication_method;
+        de_credential_method;
+        de_trustees;
+        de_has_weights;
+      }
     in
-    let* () = de |> set (Election (uuid, Deleted)) Value in
+    let* () =
+      de |> string_of_deleted_election
+      |> (fun x -> x ^ "\n")
+      |> Filesystem.write_file (uuid /// deleted_filename)
+    in
     delete_live_data uuid
 
   let delete_election uuid =

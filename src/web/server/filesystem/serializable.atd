@@ -23,10 +23,7 @@ type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type datetime = string wrap <ocaml module="Datetime">
 type user <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type metadata <ocaml predef from="Belenios_storage_api.Atd"> = abstract
-type authentication_method <ocaml predef from="Belenios_storage_api.Atd"> = abstract
-type credential_method <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type draft_voter <ocaml predef from="Belenios_storage_api.Atd"> = abstract
-type deleted_trustee <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type 'a template <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type 'a draft_trustees <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 
@@ -63,6 +60,10 @@ type 'question raw_draft_election = {
   ~trustees_setup_step <ocaml default="1" mutable> : int;
   ~pending_credentials <ocaml default="false" mutable> : bool;
 } <ocaml field_prefix="se_">
+
+type authentication_method = [ CAS of string | Password | Unknown ]
+type credential_method = [ Automatic | Manual ]
+type deleted_trustee = [ Single | Pedersen of (int * int) ]
 
 type deleted_election = {
   uuid : uuid;
