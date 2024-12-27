@@ -905,12 +905,15 @@ let voters_content () =
         (fun x -> datestring_of_float x.vr_date ^ " " ^ x.vr_username)
         records
     in
+    let uuid = get_current_uuid () |> Uuid.unwrap in
     let link =
-      a_data ~filename:"records.txt" ~mime_type:"text/plain"
-        ~data:(lines_to_file data) (s_ "Voting records")
+      let filename = Printf.sprintf "records-%s.txt" uuid in
+      a_data ~filename ~mime_type:"text/plain" ~data:(lines_to_file data)
+        (s_ "Voting records")
     in
     let link2 =
-      a_data ~filename:"voters.txt" ~mime_type:"text/plain"
+      let filename = Printf.sprintf "voters-%s.txt" uuid in
+      a_data ~filename ~mime_type:"text/plain"
         ~data:(Voter.list_to_string voters)
         (s_ "Voter list")
     in
