@@ -205,8 +205,7 @@ let tabs x =
         title = s_ "Dates";
         id = "tab_dates";
         status;
-        handler =
-          (if is_draft || is_running then Some (default_handler x) else None);
+        handler = Some (default_handler x);
       }
       |> Lwt.return
   | Language ->
@@ -961,7 +960,7 @@ let voters_content () =
       ]
 
 let is_openable () =
-  if is_draft () then Lwt.return false
+  if is_draft () then Lwt.return_true
   else
     let* status = Cache.get_until_success Cache.e_status in
     Lwt.return
@@ -976,69 +975,65 @@ let dates_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let header = h2 [ txt @@ s_ "Automatic dates" ] in
   let* is_openable = is_openable () in
-  if is_draft () then
-    Lwt.return
-      [ header; div [ txt @@ s_ "Not (yet) available for draft elections" ] ]
-  else
-    let* dates = Cache.get_until_success Cache.e_dates in
-    let make_div l id get set =
-      let attr = [ a_id id; a_input_type `Datetime_local ] in
-      let inp, inp_get = input ~a:attr "" in
-      let r = Tyxml_js.To_dom.of_input inp in
-      let () =
-        match get dates with
-        | None -> ()
-        | Some x ->
-            r##.value :=
-              format_date_object (new%js Js.date_fromTimeValue (x *. 1000.))
-      in
-      let sync () =
-        let x = inp_get () in
-        let d =
-          if x = "" then None else Some (Js.date##parse (Js.string x) /. 1000.)
-        in
-        let* dates = Cache.get_until_success Cache.e_dates in
-        Cache.set Cache.e_dates (set dates d);
-        Cache.sync_until_success ()
-      in
-      let _ =
-        Dom.addEventListener r
-          (Dom.Event.make "focusout")
-          (lwt_handler (fun _ -> sync ()))
-          Js._false
-      in
-      let label = label ~a:[ a_label_for id ] [ txt l ] in
-      let btn_soon =
-        let@ () = button (s_ "In 5 minutes") in
-        let t = (new%js Js.date_now)##valueOf +. 300_000. in
-        r##.value := format_date_object (new%js Js.date_fromTimeValue t);
-        sync ()
-      in
-      let btn_erase =
-        let@ () = button (s_ "Erase") in
-        r##.value := Js.string "";
-        sync ()
-      in
-      div [ label; inp; btn_soon; btn_erase ]
+  let* dates = Cache.get_until_success Cache.e_dates in
+  let make_div l id get set =
+    let attr = [ a_id id; a_input_type `Datetime_local ] in
+    let inp, inp_get = input ~a:attr "" in
+    let r = Tyxml_js.To_dom.of_input inp in
+    let () =
+      match get dates with
+      | None -> ()
+      | Some x ->
+          r##.value :=
+            format_date_object (new%js Js.date_fromTimeValue (x *. 1000.))
     in
-    let open_close_divs =
-      if is_openable then
-        [
-          make_div (s_ "Open: ") "inpocont"
-            (fun x -> x.auto_date_open)
-            (fun x y -> { x with auto_date_open = y });
-          make_div (s_ "Close: ") "inpccont"
-            (fun x -> x.auto_date_close)
-            (fun x y -> { x with auto_date_close = y });
-        ]
-      else []
+    let sync () =
+      let x = inp_get () in
+      let d =
+        if x = "" then None else Some (Js.date##parse (Js.string x) /. 1000.)
+      in
+      let* dates = Cache.get_until_success Cache.e_dates in
+      Cache.set Cache.e_dates (set dates d);
+      Cache.sync_until_success ()
     in
-    let publish_div =
-      make_div (s_ "Publish: ") "inppcont"
-        (fun x -> x.auto_date_publish)
-        (fun x y -> { x with auto_date_publish = y })
+    let _ =
+      Dom.addEventListener r
+        (Dom.Event.make "focusout")
+        (lwt_handler (fun _ -> sync ()))
+        Js._false
     in
-    Lwt.return @@ List.flatten [ [ header ]; open_close_divs; [ publish_div ] ]
+    let label = label ~a:[ a_label_for id ] [ txt l ] in
+    let btn_soon =
+      let@ () = button (s_ "In 5 minutes") in
+      let t = (new%js Js.date_now)##valueOf +. 300_000. in
+      r##.value := format_date_object (new%js Js.date_fromTimeValue t);
+      sync ()
+    in
+    let btn_erase =
+      let@ () = button (s_ "Erase") in
+      r##.value := Js.string "";
+      sync ()
+    in
+    div [ label; inp; btn_soon; btn_erase ]
+  in
+  let open_close_divs =
+    if is_openable then
+      [
+        make_div (s_ "Open: ") "inpocont"
+          (fun x -> x.auto_date_open)
+          (fun x y -> { x with auto_date_open = y });
+        make_div (s_ "Close: ") "inpccont"
+          (fun x -> x.auto_date_close)
+          (fun x y -> { x with auto_date_close = y });
+      ]
+    else []
+  in
+  let publish_div =
+    make_div (s_ "Publish: ") "inppcont"
+      (fun x -> x.auto_date_publish)
+      (fun x y -> { x with auto_date_publish = y })
+  in
+  Lwt.return @@ List.flatten [ [ header ]; open_close_divs; [ publish_div ] ]
 
 let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 

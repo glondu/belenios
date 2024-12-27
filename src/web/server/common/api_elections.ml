@@ -454,21 +454,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
   | [ "trustees" ] -> (
       let get () = Public_archive.get_trustees s uuid in
       match method_ with `GET -> handle_get get | _ -> method_not_allowed)
-  | [ "automatic-dates" ] -> (
-      let get () =
-        let* x = Web_persist.get_election_automatic_dates s uuid in
-        Lwt.return @@ string_of_election_auto_dates x
-      in
-      match method_ with
-      | `GET -> handle_get get
-      | `PUT ->
-          let@ _ = with_administrator token metadata in
-          let@ () = handle_ifmatch ifmatch get in
-          let@ d = body.run election_auto_dates_of_string in
-          let@ () = handle_generic_error in
-          let* () = Web_persist.set_election_automatic_dates s uuid d in
-          ok
-      | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ _ = with_administrator token metadata in
       match method_ with
@@ -703,6 +688,32 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
               match method_ with
               | `GET -> handle_get get
               | _ -> method_not_allowed)))
+  | [ uuid; "automatic-dates" ] -> (
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let get () =
+        let* x = Web_persist.get_election_automatic_dates s uuid in
+        Lwt.return @@ string_of_election_auto_dates x
+      in
+      match method_ with
+      | `GET -> handle_get get
+      | `PUT ->
+          let@ metadata cont =
+            let* draft = Spool.get s uuid Draft in
+            match draft with
+            | Some (Draft (_, se)) -> cont se.se_metadata
+            | None ->
+                let* raw = Public_archive.get_election s uuid in
+                let@ _ = Option.unwrap not_found raw in
+                let* metadata = Web_persist.get_election_metadata s uuid in
+                cont metadata
+          in
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_ifmatch ifmatch get in
+          let@ d = body.run election_auto_dates_of_string in
+          let@ () = handle_generic_error in
+          let* () = Web_persist.set_election_automatic_dates s uuid d in
+          ok
+      | _ -> method_not_allowed)
   | uuid :: "draft" :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let* se = Spool.update s uuid Draft in
