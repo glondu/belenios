@@ -635,10 +635,6 @@ let get_admin_context admin_id =
 
 let () = Billing.set_get_admin_context get_admin_context
 
-let dump_passwords s uuid db =
-  let module S = (val s : Storage.BACKEND) in
-  db |> S.set (Election (uuid, Passwords)) Value
-
 let regen_password s uuid metadata user =
   let user = String.lowercase_ascii user in
   let@ election =
@@ -669,14 +665,14 @@ let regen_password s uuid metadata user =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let send_credentials s uuid (Draft (v, se)) =
-  let module S = (val s : Storage.BACKEND) in
+let send_credentials uuid (Draft (v, se)) private_creds =
+  let@ private_creds cont =
+    match Lopt.get_value private_creds with
+    | None -> Lwt.return_unit
+    | Some x -> cont x
+  in
   let@ () =
    fun cont -> if se.se_pending_credentials then cont () else Lwt.return_unit
-  in
-  let@ private_creds cont =
-    let* x = S.get (Election (uuid, Private_creds)) in
-    match Lopt.get_value x with None -> Lwt.return_unit | Some x -> cont x
   in
   let voter_map =
     List.fold_left
@@ -703,7 +699,6 @@ let send_credentials s uuid (Draft (v, se)) =
 let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   let module S = (val storage : Storage.BACKEND) in
   let open Belenios_web_api in
-  let version = se.se_version in
   let questions =
     let x = se.se_questions in
     let t_administrator =
@@ -756,185 +751,13 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
         let* b = Billing.check ~url ~id in
         if b then Lwt.return_unit else validation_error (`MissingBilling id)
   in
-  (* trustees *)
-  let group = Group.of_string ~version se.se_group in
-  let module G = (val group : GROUP) in
-  let trustees =
-    let open Belenios_storage_api in
-    se.se_trustees
-    |> string_of_draft_trustees Yojson.Safe.write_json
-    |> draft_trustees_of_string (sread G.Zq.of_string)
-  in
-  let module Trustees = (val Trustees.get_by_version version) in
-  let module K = Trustees.MakeCombinator (G) in
-  let module KG = Trustees.MakeSimple (G) (Random) in
-  let* trustee_names, trustees, private_keys =
-    match trustees with
-    | `Basic x ->
-        let ts = x.dbp_trustees in
-        let* trustee_names, trustees, private_key =
-          match ts with
-          | [] ->
-              let private_key = KG.generate () in
-              let public_key = KG.prove private_key in
-              let public_key =
-                { public_key with trustee_name = Some "server" }
-              in
-              Lwt.return ([ "server" ], [ `Single public_key ], `KEY private_key)
-          | _ :: _ ->
-              let private_key =
-                List.fold_left
-                  (fun accu { st_private_key; _ } ->
-                    match st_private_key with
-                    | Some x -> x :: accu
-                    | None -> accu)
-                  [] ts
-              in
-              let private_key =
-                match private_key with
-                | [ x ] -> `KEY x
-                | _ -> validation_error `NotSinglePrivateKey
-              in
-              Lwt.return
-                ( List.map (fun { st_id; _ } -> st_id) ts,
-                  List.map
-                    (fun { st_public_key; st_name; _ } ->
-                      let pk =
-                        trustee_public_key_of_string (sread G.of_string)
-                          (sread G.Zq.of_string) st_public_key
-                      in
-                      let pk = { pk with trustee_name = st_name } in
-                      `Single pk)
-                    ts,
-                  private_key )
-        in
-        Lwt.return (trustee_names, trustees, private_key)
-    | `Threshold x -> (
-        let ts = x.dtp_trustees in
-        match x.dtp_parameters with
-        | None -> validation_error `KeyEstablishmentNotFinished
-        | Some tp ->
-            let tp =
-              threshold_parameters_of_string (sread G.of_string)
-                (sread G.Zq.of_string) tp
-            in
-            let named =
-              List.combine (Array.to_list tp.t_verification_keys) ts
-              |> List.map (fun ((k : _ trustee_public_key), t) ->
-                     { k with trustee_name = t.stt_name })
-              |> Array.of_list
-            in
-            let tp = { tp with t_verification_keys = named } in
-            let trustee_names = List.map (fun { stt_id; _ } -> stt_id) ts in
-            let private_keys =
-              List.map
-                (fun { stt_voutput; _ } ->
-                  match stt_voutput with
-                  | Some v ->
-                      let voutput =
-                        voutput_of_string (sread G.of_string)
-                          (sread G.Zq.of_string) v
-                      in
-                      voutput.vo_private_key
-                  | None ->
-                      raise
-                        (Api_generic.Error (`GenericError "inconsistent state")))
-                ts
-            in
-            let server_private_key = KG.generate () in
-            let server_public_key = KG.prove server_private_key in
-            let server_public_key =
-              { server_public_key with trustee_name = Some "server" }
-            in
-            Lwt.return
-              ( "server" :: trustee_names,
-                [ `Single server_public_key; `Pedersen tp ],
-                `KEYS (server_private_key, private_keys) ))
-  in
-  let y = K.combine_keys trustees in
-  (* election parameters *)
-  let metadata =
-    {
-      se.se_metadata with
-      e_trustees = Some trustee_names;
-      e_owners = se.se_owners;
-    }
-  in
-  let template = Belenios.Election.Template (v, questions) in
-  let raw_election =
-    let public_key = G.to_string y in
-    Election.make_raw_election ~version:se.se_version template ~uuid
-      ~group:se.se_group ~public_key
-  in
-  (* write election files to disk *)
-  let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
-  let* () = voters |> S.set (Election (uuid, Voters)) Value in
-  let* () = metadata |> S.set (Election (uuid, Metadata)) Value in
-  (* initialize credentials *)
-  let* public_creds = S.init_credential_mapping uuid in
-  (* initialize events *)
-  let* () =
-    let raw_trustees =
-      string_of_trustees (swrite G.to_string) (swrite G.Zq.to_string) trustees
-    in
-    let raw_public_creds = string_of_public_credentials public_creds in
-    let setup_election = Hash.hash_string raw_election in
-    let setup_trustees = Hash.hash_string raw_trustees in
-    let setup_credentials = Hash.hash_string raw_public_creds in
-    let setup_data = { setup_election; setup_trustees; setup_credentials } in
-    let setup_data_s = string_of_setup_data setup_data in
-    let* x =
-      S.append uuid
-        [
-          Data raw_election;
-          Data raw_trustees;
-          Data raw_public_creds;
-          Data setup_data_s;
-          Event (`Setup, Some (Hash.hash_string setup_data_s));
-        ]
-    in
-    match x with
-    | true -> Lwt.return_unit
-    | false -> Lwt.fail @@ Failure "race condition in validate_election"
-  in
-  (* create file with private keys, if any *)
-  let* () =
-    match private_keys with
-    | `KEY x ->
-        swrite G.Zq.to_string -- x
-        |> S.set (Election (uuid, Private_key)) String
-    | `KEYS (x, y) ->
-        let* () =
-          swrite G.Zq.to_string -- x
-          |> S.set (Election (uuid, Private_key)) String
-        in
-        y |> S.set (Election (uuid, Private_keys)) Value
-  in
-  (* send private credentials, if any *)
-  let* () = send_credentials storage uuid (Draft (v, se)) in
-  (* clean up draft *)
-  let* () = Spool.del storage uuid Draft in
-  (* clean up private credentials, if any *)
-  let* () = S.del (Election (uuid, Private_creds)) in
-  (* write passwords *)
-  let* () =
-    match metadata.e_auth_config with
-    | Some [ { auth_system = "password"; _ } ] ->
-        let db =
-          List.filter_map
-            (fun v ->
-              let _, login, _ = Voter.get v.sv_id in
-              let& salt, hashed = v.sv_password in
-              Some [ login; salt; hashed ])
-            se.se_voters
-        in
-        if db <> [] then dump_passwords storage uuid db else Lwt.return_unit
-    | _ -> Lwt.return_unit
-  in
-  (* finish *)
-  let* () = Spool.set storage uuid State `Open in
-  let* dates, set = update_election_dates storage uuid in
-  set { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
+  (* private credentials *)
+  let* private_creds = S.get (Election (uuid, Private_creds)) in
+  (* the validation itself *)
+  let* x = S.validate_election uuid in
+  match x with
+  | Ok () -> send_credentials uuid (Draft (v, se)) private_creds
+  | Error e -> validation_error e
 
 let create_draft s uuid se = Spool.set s uuid Draft se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally

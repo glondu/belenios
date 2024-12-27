@@ -1562,6 +1562,216 @@ module MakeBackend
     index.roots <- roots;
     Lwt.return_true
 
+  exception Validation_error of Belenios_web_api.validation_error
+
+  let validate_election_exn uuid =
+    let@ draft cont =
+      let* x = get (Election (uuid, Draft)) in
+      match Lopt.get_value x with None -> raise Not_found | Some x -> cont x
+    in
+    let (Draft (v, se)) = draft in
+    let version = se.se_version in
+    let questions =
+      let x = se.se_questions in
+      let t_administrator =
+        match x.t_administrator with None -> se.se_administrator | x -> x
+      in
+      let t_credential_authority =
+        match x.t_credential_authority with
+        | None -> se.se_metadata.e_cred_authority
+        | x -> x
+      in
+      { x with t_administrator; t_credential_authority }
+    in
+    (* trustees *)
+    let group = Group.of_string ~version se.se_group in
+    let module G = (val group : GROUP) in
+    let trustees =
+      let open Belenios_storage_api in
+      se.se_trustees
+      |> string_of_draft_trustees Yojson.Safe.write_json
+      |> draft_trustees_of_string (sread G.Zq.of_string)
+    in
+    let module Trustees = (val Trustees.get_by_version version) in
+    let module K = Trustees.MakeCombinator (G) in
+    let module KG = Trustees.MakeSimple (G) (Random) in
+    let* trustee_names, trustees, private_keys =
+      match trustees with
+      | `Basic x -> (
+          let ts = x.dbp_trustees in
+          match ts with
+          | [] ->
+              let private_key = KG.generate () in
+              let public_key = KG.prove private_key in
+              let public_key =
+                { public_key with trustee_name = Some "server" }
+              in
+              Lwt.return ([ "server" ], [ `Single public_key ], `KEY private_key)
+          | _ :: _ ->
+              let private_key =
+                List.fold_left
+                  (fun accu { st_private_key; _ } ->
+                    match st_private_key with
+                    | Some x -> x :: accu
+                    | None -> accu)
+                  [] ts
+              in
+              let private_key =
+                match private_key with
+                | [ x ] -> `KEY x
+                | _ -> raise @@ Validation_error `NotSinglePrivateKey
+              in
+              Lwt.return
+                ( List.map (fun { st_id; _ } -> st_id) ts,
+                  List.map
+                    (fun { st_public_key; st_name; _ } ->
+                      let pk =
+                        trustee_public_key_of_string (sread G.of_string)
+                          (sread G.Zq.of_string) st_public_key
+                      in
+                      let pk = { pk with trustee_name = st_name } in
+                      `Single pk)
+                    ts,
+                  private_key ))
+      | `Threshold x -> (
+          let ts = x.dtp_trustees in
+          match x.dtp_parameters with
+          | None -> raise @@ Validation_error `KeyEstablishmentNotFinished
+          | Some tp ->
+              let tp =
+                threshold_parameters_of_string (sread G.of_string)
+                  (sread G.Zq.of_string) tp
+              in
+              let named =
+                List.combine (Array.to_list tp.t_verification_keys) ts
+                |> List.map (fun ((k : _ trustee_public_key), t) ->
+                       { k with trustee_name = t.stt_name })
+                |> Array.of_list
+              in
+              let tp = { tp with t_verification_keys = named } in
+              let trustee_names = List.map (fun { stt_id; _ } -> stt_id) ts in
+              let private_keys =
+                List.map
+                  (fun { stt_voutput; _ } ->
+                    match stt_voutput with
+                    | Some v ->
+                        let voutput =
+                          voutput_of_string (sread G.of_string)
+                            (sread G.Zq.of_string) v
+                        in
+                        voutput.vo_private_key
+                    | None -> failwith "inconsistent state")
+                  ts
+              in
+              let server_private_key = KG.generate () in
+              let server_public_key = KG.prove server_private_key in
+              let server_public_key =
+                { server_public_key with trustee_name = Some "server" }
+              in
+              Lwt.return
+                ( "server" :: trustee_names,
+                  [ `Single server_public_key; `Pedersen tp ],
+                  `KEYS (server_private_key, private_keys) ))
+    in
+    let y = K.combine_keys trustees in
+    (* election parameters *)
+    let metadata =
+      {
+        se.se_metadata with
+        e_trustees = Some trustee_names;
+        e_owners = se.se_owners;
+      }
+    in
+    let template = Belenios.Election.Template (v, questions) in
+    let raw_election =
+      let public_key = G.to_string y in
+      Election.make_raw_election ~version:se.se_version template ~uuid
+        ~group:se.se_group ~public_key
+    in
+    (* write election files to disk *)
+    let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
+    let* () = voters |> set (Election (uuid, Voters)) Value in
+    let* () = metadata |> set (Election (uuid, Metadata)) Value in
+    (* initialize credentials *)
+    let* public_creds = init_credential_mapping uuid in
+    (* initialize events *)
+    let* () =
+      let raw_trustees =
+        string_of_trustees (swrite G.to_string) (swrite G.Zq.to_string) trustees
+      in
+      let raw_public_creds = string_of_public_credentials public_creds in
+      let setup_election = Hash.hash_string raw_election in
+      let setup_trustees = Hash.hash_string raw_trustees in
+      let setup_credentials = Hash.hash_string raw_public_creds in
+      let setup_data = { setup_election; setup_trustees; setup_credentials } in
+      let setup_data_s = string_of_setup_data setup_data in
+      let* x =
+        append uuid
+          [
+            Data raw_election;
+            Data raw_trustees;
+            Data raw_public_creds;
+            Data setup_data_s;
+            Event (`Setup, Some (Hash.hash_string setup_data_s));
+          ]
+      in
+      match x with
+      | true -> Lwt.return_unit
+      | false -> failwith "race condition in validate_election"
+    in
+    (* create file with private keys, if any *)
+    let* () =
+      match private_keys with
+      | `KEY x ->
+          swrite G.Zq.to_string -- x
+          |> set (Election (uuid, Private_key)) String
+      | `KEYS (x, y) ->
+          let* () =
+            swrite G.Zq.to_string -- x
+            |> set (Election (uuid, Private_key)) String
+          in
+          y |> set (Election (uuid, Private_keys)) Value
+    in
+    (* clean up draft *)
+    let* dates, set_dates =
+      let* x = update (Election (uuid, Dates)) in
+      match x with
+      | None -> assert false
+      | Some (dates, set) -> (
+          match Lopt.get_value dates with
+          | None -> assert false
+          | Some dates -> Lwt.return (dates, set))
+    in
+    let* () = del (Election (uuid, Draft)) in
+    (* clean up private credentials, if any *)
+    let* () = del (Election (uuid, Private_creds)) in
+    (* write passwords *)
+    let* () =
+      match metadata.e_auth_config with
+      | Some [ { auth_system = "password"; _ } ] ->
+          let db =
+            List.filter_map
+              (fun v ->
+                let _, login, _ = Voter.get v.sv_id in
+                let& salt, hashed = v.sv_password in
+                Some [ login; salt; hashed ])
+              se.se_voters
+          in
+          if db <> [] then set (Election (uuid, Passwords)) Value db
+          else Lwt.return_unit
+      | _ -> Lwt.return_unit
+    in
+    (* finish *)
+    let* () = set (Election (uuid, State)) Value `Open in
+    set_dates Value
+      { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
+
+  let validate_election uuid =
+    Lwt.try_bind
+      (fun () -> validate_election_exn uuid)
+      Lwt_result.return
+      (function Validation_error e -> Lwt_result.fail e | e -> Lwt.reraise e)
+
   let make set_ =
     let with_lock uuid f =
       let* () = Mutex_set.lock set_ uuid in
@@ -1592,6 +1802,9 @@ module MakeBackend
 
       let delete_election uuid =
         with_lock (Some uuid) (fun () -> delete_election uuid)
+
+      let validate_election uuid =
+        with_lock (Some uuid) (fun () -> validate_election uuid)
 
       let append uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)

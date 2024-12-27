@@ -52,6 +52,9 @@ module type BACKEND_ELECTIONS = sig
   val init_credential_mapping : uuid -> public_credentials Lwt.t
   val archive_election : uuid -> unit Lwt.t
   val delete_election : uuid -> unit Lwt.t
+
+  val validate_election :
+    uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
 module type BACKEND_ACCOUNTS = sig
