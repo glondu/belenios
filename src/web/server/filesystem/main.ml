@@ -715,23 +715,30 @@ module MakeBackend
   let get_dates uuid () =
     let* raw_dates = Filesystem.read_file (uuid /// raw_dates_filename) in
     let* hide_result = Filesystem.read_file (uuid /// hide_result_filename) in
-    let hide_result =
+    let e_date_publish =
       Option.map
         (String.trim >> datetime_of_string >> Datetime.to_unixfloat)
         hide_result
     in
-    let&** dates =
-      match (raw_dates, hide_result) with
-      | None, None -> None
-      | None, Some t ->
-          Some
+    let* dates =
+      match raw_dates with
+      | None ->
+          let@ draft cont =
+            let* x = get_draft uuid () in
+            match Lopt.get_value x with
+            | None -> Lwt.return_none
+            | Some x -> cont x
+          in
+          let (Draft (_, se)) = draft in
+          Lwt.return_some
             {
               Belenios_storage_api.default_election_dates with
-              e_date_publish = Some t;
+              e_date_creation = se.se_creation_date;
+              e_date_publish;
             }
-      | Some d, e_date_publish ->
+      | Some d ->
           let d = Serializable_j.election_dates_of_string (String.trim d) in
-          Some
+          Lwt.return_some
             {
               e_date_creation = Datetime.to_unixfloat d.e_creation;
               e_date_finalization =
@@ -745,6 +752,7 @@ module MakeBackend
               e_date_publish;
             }
     in
+    let&** dates = dates in
     dates
     |> Lopt.some_value Belenios_storage_api.string_of_election_dates
     |> Lwt.return
