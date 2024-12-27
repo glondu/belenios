@@ -336,6 +336,7 @@ module Make (Config : CONFIG) = struct
   let open_election session =
     Printf.printf "  Opening election...\n%!";
     let* () = session#click_on ~selector:"#tab_openclose" in
+    let* () = session#click_on ~selector:"button" in
     session#click_on ~selector:"button"
 
   let logout session =

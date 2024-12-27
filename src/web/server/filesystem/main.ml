@@ -1762,7 +1762,7 @@ module MakeBackend
       | _ -> Lwt.return_unit
     in
     (* finish *)
-    let* () = set (Election (uuid, State)) Value `Open in
+    let* () = set (Election (uuid, State)) Value `Closed in
     set_dates Value
       { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
 
