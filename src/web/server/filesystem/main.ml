@@ -1657,7 +1657,42 @@ module Make (Config : CONFIG) : Storage.S = struct
 
   let get_user_id = Accounts_cache.get_user_id
   let get_elections_by_owner = Elections_cache.get_elections_by_owner
-  let get_next_actions = Elections_cache.get_next_actions
+
+  let process_election_for_data_policy (action, uuid, next_t) =
+    let uuid_s = Uuid.unwrap uuid in
+    let now = Unix.gettimeofday () in
+    let archive s uuid =
+      let module S = (val s : Storage.BACKEND) in
+      S.archive_election uuid
+    in
+    let delete s uuid =
+      let module S = (val s : Storage.BACKEND) in
+      S.delete_election uuid
+    in
+    let action, comment =
+      match action with
+      | `Destroy -> (delete, "destroyed")
+      | `Delete -> (delete, "deleted")
+      | `Archive -> (archive, "archived")
+    in
+    let@ s = with_transaction in
+    if now > next_t then
+      let* () = action s uuid in
+      Lwt.return
+        (Printf.ksprintf Ocsigen_messages.warning
+           "Election %s has been automatically %s" uuid_s comment)
+    else Lwt.return_unit
+
+  let rec data_policy_loop () =
+    let open Ocsigen_messages in
+    let () = accesslog "Data policy process started" in
+    let* elections = Elections_cache.get_next_actions () in
+    let* () = Lwt_list.iter_s process_election_for_data_policy elections in
+    let () = accesslog "Data policy process completed" in
+    let* () = sleep 3600. in
+    data_policy_loop ()
+
+  let () = Lwt.async data_policy_loop
 end
 
 let backend_name = "filesystem"

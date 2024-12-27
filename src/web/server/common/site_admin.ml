@@ -436,38 +436,4 @@ struct
           | Some (_, _, token) -> (200, token)
         in
         String.send ~code (content, "text/plain"))
-
-  let process_election_for_data_policy (action, uuid, next_t) =
-    let uuid_s = Uuid.unwrap uuid in
-    let now = Unix.gettimeofday () in
-    let archive s uuid =
-      let module S = (val s : Storage.BACKEND) in
-      S.archive_election uuid
-    in
-    let delete s uuid =
-      let module S = (val s : Storage.BACKEND) in
-      S.delete_election uuid
-    in
-    let action, comment =
-      match action with
-      | `Destroy -> (delete, "destroyed")
-      | `Delete -> (delete, "deleted")
-      | `Archive -> (archive, "archived")
-    in
-    let@ s = Storage.with_transaction in
-    if now > next_t then
-      let* () = action s uuid in
-      return
-        (Printf.ksprintf Ocsigen_messages.warning
-           "Election %s has been automatically %s" uuid_s comment)
-    else return_unit
-
-  let rec data_policy_loop () =
-    let open Ocsigen_messages in
-    let () = accesslog "Data policy process started" in
-    let* elections = Storage.get_next_actions () in
-    let* () = Lwt_list.iter_s process_election_for_data_policy elections in
-    let () = accesslog "Data policy process completed" in
-    let* () = sleep 3600. in
-    data_policy_loop ()
 end

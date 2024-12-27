@@ -28,8 +28,7 @@ open Web_common
 module Make
     (X : Pages_sig.S)
     (Web_auth : Web_auth_sig.S)
-    (Site_common : Site_common_sig.S)
-    (Site_admin : Site_admin_sig.S) =
+    (Site_common : Site_common_sig.S) =
 struct
   open X
   open Web_services
@@ -38,9 +37,6 @@ struct
   open Eliom_registration
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
-
-  (* Make sure this module is loaded after Site_admin *)
-  let _ignored = Site_admin.data_policy_loop
 
   let () =
     Redirection.register ~service:election_home_dir (fun uuid () ->

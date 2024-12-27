@@ -272,11 +272,10 @@ module Make () = struct
   module Web_auth_oidc = Web_auth_oidc.Make (X.Web_services) (Web_auth)
   module Site_common = Site_common.Make (X)
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_cont) (Web_auth)
-  module Site_voter = Site_voter.Make (X) (Web_auth) (Site_common) (Site_admin)
+  module Site_voter = Site_voter.Make (X) (Web_auth) (Site_common)
 
   let () = Api_elections.direct_voter_auth := Web_auth.direct_voter_auth
   let () = Api_elections.state_module := Some (module Web_auth.State)
-  let () = Lwt.async Site_admin.data_policy_loop
   let () = Lwt.async Mails_voter.process_bulk_emails
 end
 

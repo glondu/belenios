@@ -72,7 +72,4 @@ module type S = sig
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
   val get_user_id : user -> int option Lwt.t
   val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-
-  val get_next_actions :
-    unit -> ([> `Archive | `Delete | `Destroy ] * uuid * float) list Lwt.t
 end

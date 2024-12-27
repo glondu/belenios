@@ -40,10 +40,6 @@ let get_elections_by_owner x =
   let module X = (val get_backend () : S) in
   X.get_elections_by_owner x
 
-let get_next_actions x =
-  let module X = (val get_backend () : S) in
-  X.get_next_actions x
-
 let register_backend name x = backends := (name, x) :: !backends
 
 let init_backend name config =

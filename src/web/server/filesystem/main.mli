@@ -19,7 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Types
-module Make (_ : CONFIG) : Belenios_server_core.Storage.S
-
 val register : unit -> unit
