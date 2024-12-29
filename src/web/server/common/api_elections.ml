@@ -34,8 +34,9 @@ let with_administrator token metadata f =
   | _ -> unauthorized
 
 let find_trustee_id s uuid token =
-  let* x = Spool.get s uuid State_state in
-  match x with
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.get (Election (uuid, State_state)) in
+  match Lopt.get_value x with
   | Some (Some (`Decryption tokens)) ->
       let rec find i = function
         | [] -> None
@@ -45,8 +46,9 @@ let find_trustee_id s uuid token =
   | _ -> Lwt.return (int_of_string_opt token)
 
 let find_trustee_private_key s uuid trustee_id =
-  let* keys = Spool.get s uuid Private_keys in
-  let&* keys = keys in
+  let module S = (val s : Storage.BACKEND) in
+  let* keys = S.get (Election (uuid, Private_keys)) in
+  let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
   let* trustees = Public_archive.get_trustees s uuid in
   let trustees =
@@ -137,27 +139,33 @@ let get_partial_decryptions s uuid metadata =
     match metadata.e_trustees with None -> loop 1 [] | Some ts -> loop 1 ts
   in
   let rec seq i j = if i >= j then [] else i :: seq (i + 1) j in
+  let module S = (val s : Storage.BACKEND) in
   let* trustee_tokens =
     match threshold with
     | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
     | Some _ -> (
-        let* x = Spool.update s uuid State_state in
+        let* x = S.update (Election (uuid, State_state)) in
         match x with
-        | Some (Some (`Decryption x), _) -> Lwt.return x
-        | Some (_, set) -> (
-            match metadata.e_trustees with
-            | None -> failwith "missing trustees in get_tokens_decrypt"
-            | Some ts ->
-                let ts = List.map (fun _ -> generate_token ()) ts in
-                let* () = set (Some (`Decryption ts)) in
-                Lwt.return ts)
+        | Some (x, set) -> (
+            match Lopt.get_value x with
+            | Some (Some (`Decryption x)) -> Lwt.return x
+            | _ -> (
+                match metadata.e_trustees with
+                | None -> failwith "missing trustees in get_tokens_decrypt"
+                | Some ts ->
+                    let ts = List.map (fun _ -> generate_token ()) ts in
+                    let* () = set Value (Some (`Decryption ts)) in
+                    Lwt.return ts))
         | None -> (
             match metadata.e_trustees with
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
                 let ts = List.map (fun _ -> generate_token ()) ts in
                 let* () =
-                  Spool.set s uuid State_state (Some (`Decryption ts))
+                  S.set
+                    (Election (uuid, State_state))
+                    Value
+                    (Some (`Decryption ts))
                 in
                 Lwt.return ts))
   in
@@ -185,8 +193,9 @@ let get_shuffles s uuid metadata =
   let* shuffles = Public_archive.get_shuffles s uuid in
   let shuffles = Option.value shuffles ~default:[] in
   let* skipped, token =
-    let* x = Spool.get s uuid State_state in
-    match x with
+    let module S = (val s) in
+    let* x = S.get (Election (uuid, State_state)) in
+    match Lopt.get_value x with
     | Some (Some (`Shuffle { skipped; token })) -> Lwt.return (skipped, token)
     | _ -> Lwt.return ([], None)
   in
@@ -237,7 +246,8 @@ let get_trustee_name s uuid metadata trustee =
       Lwt.return (List.assoc trustee (List.combine xs names))
 
 let skip_shuffler s uuid trustee =
-  let* x = Spool.update s uuid State_state in
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.update (Election (uuid, State_state)) in
   let current, set =
     let ok : Belenios_storage_api.shuffle_token option -> _ = function
       | None -> true
@@ -245,21 +255,28 @@ let skip_shuffler s uuid trustee =
       | _ -> false
     in
     match x with
-    | None -> ([], Spool.set s uuid State_state)
-    | Some (Some (`Shuffle { skipped; token }), set) when ok token ->
-        (skipped, set)
-    | _ -> raise @@ Error `NotInExpectedState
+    | None -> ([], S.set (Election (uuid, State_state)) Value)
+    | Some (x, set) -> (
+        match Lopt.get_value x with
+        | Some (Some (`Shuffle { skipped; token })) when ok token ->
+            (skipped, set Value)
+        | _ -> raise @@ Error `NotInExpectedState)
   in
   if List.mem trustee current then Lwt.fail @@ Error `NotInExpectedState
   else set (Some (`Shuffle { skipped = trustee :: current; token = None }))
 
 let select_shuffler s uuid metadata tk_trustee =
+  let module S = (val s : Storage.BACKEND) in
   let* tk_trustee_id, tk_name = get_trustee_name s uuid metadata tk_trustee in
   let* skipped, set =
-    let* x = Spool.update s uuid State_state in
+    let* x = S.update (Election (uuid, State_state)) in
     match x with
-    | Some (Some (`Shuffle { skipped; _ }), set) -> Lwt.return (skipped, set)
-    | _ -> Lwt.return ([], Spool.set s uuid State_state)
+    | Some (x, set) -> (
+        match Lopt.get_value x with
+        | Some (Some (`Shuffle { skipped; _ })) ->
+            Lwt.return (skipped, set Value)
+        | _ -> Lwt.return ([], set Value))
+    | None -> Lwt.return ([], S.set (Election (uuid, State_state)) Value)
   in
   let tk_token = generate_token () in
   let t : Belenios_storage_api.shuffle_token =
@@ -312,23 +329,30 @@ let post_partial_decryption s uuid election ~trustee_id ~partial_decryption =
   else Lwt.return @@ Stdlib.Error `Invalid
 
 let post_shuffle s uuid election ~token ~shuffle =
-  let* x = Spool.update s uuid State_state in
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.update (Election (uuid, State_state)) in
   match x with
-  | Some (Some (`Shuffle { skipped; token = Some x }), set)
-    when token = x.tk_token ->
-      Lwt.catch
-        (fun () ->
-          let* y =
-            Web_persist.append_to_shuffles s election x.tk_trustee_id shuffle
-          in
-          match y with
-          | Some _ ->
-              let* () = set (Some (`Shuffle { skipped; token = None })) in
-              let* () = Spool.del s uuid Audit_cache in
-              Lwt.return @@ Ok ()
-          | None -> Lwt.return @@ Stdlib.Error `Failure)
-        (fun e -> Lwt.return @@ Stdlib.Error (`Invalid e))
-  | _ -> Lwt.return @@ Stdlib.Error `Forbidden
+  | Some (x, set) -> (
+      match Lopt.get_value x with
+      | Some (Some (`Shuffle { skipped; token = Some x }))
+        when token = x.tk_token ->
+          Lwt.catch
+            (fun () ->
+              let* y =
+                Web_persist.append_to_shuffles s election x.tk_trustee_id
+                  shuffle
+              in
+              match y with
+              | Some _ ->
+                  let* () =
+                    set Value (Some (`Shuffle { skipped; token = None }))
+                  in
+                  let* () = S.del (Election (uuid, Audit_cache)) in
+                  Lwt.return @@ Ok ()
+              | None -> Lwt.return @@ Stdlib.Error `Failure)
+            (fun e -> Lwt.return @@ Stdlib.Error (`Invalid e))
+      | _ -> Lwt.return @@ Stdlib.Error `Forbidden)
+  | None -> Lwt.return @@ Stdlib.Error `Forbidden
 
 let get_records s uuid =
   let* x = Web_persist.get_records s uuid in
@@ -383,6 +407,7 @@ let state_module = ref None
 
 let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
     =
+  let module S = (val s : Storage.BACKEND) in
   match endpoint with
   | [] -> (
       let get () =
@@ -419,10 +444,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               ok
           | `Archive ->
               let@ () = handle_generic_error in
-              let* () =
-                let module S = (val s) in
-                S.archive_election uuid
-              in
+              let* () = S.archive_election uuid in
               ok
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in
@@ -432,10 +454,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ () = handle_ifmatch ifmatch get in
           let@ _ = with_administrator token metadata in
           let@ () = handle_generic_error in
-          let* () =
-            let module S = (val s) in
-            S.delete_election uuid
-          in
+          let* () = S.delete_election uuid in
           ok
       | _ -> method_not_allowed)
   | [ "audit-cache" ] -> (
@@ -447,7 +466,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
   | [ "archive" ] -> (
       match method_ with
       | `GET ->
-          let module S = (val s) in
           let* path = S.get_unixfilename (Election (uuid, Public_archive)) in
           Lwt.return @@ `Bel path
       | _ -> method_not_allowed)
@@ -459,7 +477,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       match method_ with
       | `GET ->
           let@ () = handle_generic_error in
-          let module S = (val s) in
           let* x = Web_persist.get_all_voters s uuid in
           return_json 200 (string_of_voter_list x)
       | _ -> method_not_allowed)
@@ -627,9 +644,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
       match method_ with
       | `GET -> (
           let@ () = handle_generic_error in
-          let* x = Spool.get s uuid Last_event in
-          match x with
-          | Some x -> return_json 200 (string_of_last_event x)
+          let* x = S.get (Election (uuid, Last_event)) in
+          match Lopt.get_string x with
+          | Some x -> return_json 200 x
           | None -> not_found)
       | _ -> method_not_allowed)
   | [ "roots" ] -> (
@@ -642,6 +659,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
   | _ -> not_found
 
 let dispatch s ~token ~ifmatch endpoint method_ body =
+  let module S = (val s : Storage.BACKEND) in
   match endpoint with
   | [] -> (
       let@ token = Option.unwrap unauthorized token in
@@ -670,8 +688,8 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
           | `GET -> return_json 200 raw
           | _ -> method_not_allowed)
       | None -> (
-          let* se = Spool.get s uuid Draft in
-          match se with
+          let* se = S.get (Election (uuid, Draft)) in
+          match Lopt.get_value se with
           | None -> not_found
           | Some se -> (
               let get () =
@@ -698,8 +716,8 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       | `GET -> handle_get get
       | `PUT ->
           let@ metadata cont =
-            let* draft = Spool.get s uuid Draft in
-            match draft with
+            let* draft = S.get (Election (uuid, Draft)) in
+            match Lopt.get_value draft with
             | Some (Draft (_, se)) -> cont se.se_metadata
             | None ->
                 let* raw = Public_archive.get_election s uuid in
@@ -716,9 +734,11 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: "draft" :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* se = Spool.update s uuid Draft in
-      let@ se = Option.unwrap not_found se in
-      Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid se
+      let* se = S.update (Election (uuid, Draft)) in
+      let@ se, set = Option.unwrap not_found se in
+      let@ se = Option.unwrap not_found (Lopt.get_value se) in
+      Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
+        (se, set Value)
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let* raw = Public_archive.get_election s uuid in

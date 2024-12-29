@@ -416,7 +416,8 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Spool.set s uuid Public_creds credentials in
+  let module S = (val s : Storage.BACKEND) in
+  let* () = S.set (Election (uuid, Public_creds)) Value credentials in
   se.se_public_creds_received <- true;
   set (Draft (v, se))
 
@@ -734,8 +735,9 @@ let import_voters s uuid (Draft (v, se), set) from =
     let* x = Web_persist.get_all_voters s from in
     match x with
     | [] -> (
-        let* se = Spool.get s from Draft in
-        match se with
+        let module S = (val s : Storage.BACKEND) in
+        let* se = S.get (Election (from, Draft)) in
+        match Lopt.get_value se with
         | None -> Lwt.return @@ Stdlib.Error `NotFound
         | Some se -> cont @@ get_draft_voters se)
     | _ -> cont x
@@ -779,9 +781,10 @@ let import_trustees (Draft (v, se), set) s from metadata =
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
-          let* privs = Spool.get s from Private_keys in
+          let module S = (val s : Storage.BACKEND) in
+          let* privs = S.get (Election (from, Private_keys)) in
           let* x =
-            match privs with
+            match Lopt.get_value privs with
             | Some privs ->
                 let rec loop ts certs pubs privs accu =
                   match (ts, certs, pubs, privs) with

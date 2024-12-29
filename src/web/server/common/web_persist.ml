@@ -37,17 +37,25 @@ let get_setup_data s uuid =
   | Some x -> Lwt.return (setup_data_of_string x)
 
 let get_election_dates s uuid =
-  let* x = Spool.get s uuid Dates in
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.get (Election (uuid, Dates)) in
   Lwt.return
-    (Option.value ~default:Belenios_storage_api.default_election_dates x)
+    (Option.value ~default:Belenios_storage_api.default_election_dates
+       (Lopt.get_value x))
 
 let update_election_dates s uuid =
-  let* x = Spool.update s uuid Dates in
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.update (Election (uuid, Dates)) in
   match x with
   | None ->
       Lwt.return
-        (Belenios_storage_api.default_election_dates, Spool.set s uuid Dates)
-  | Some x -> Lwt.return x
+        ( Belenios_storage_api.default_election_dates,
+          S.set (Election (uuid, Dates)) Value )
+  | Some (x, set) ->
+      Lwt.return
+        ( Option.value ~default:Belenios_storage_api.default_election_dates
+            (Lopt.get_value x),
+          set Value )
 
 let empty_metadata =
   {
@@ -62,21 +70,23 @@ let empty_metadata =
   }
 
 let get_election_metadata s uuid =
-  let* x = Spool.get s uuid Metadata in
-  match x with
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.get (Election (uuid, Metadata)) in
+  match Lopt.get_value x with
   | Some x -> Lwt.return x
   | None -> (
-      let* x = Spool.get s uuid Draft in
-      match x with
+      let* x = S.get (Election (uuid, Draft)) in
+      match Lopt.get_value x with
       | Some (Draft (_, x)) -> Lwt.return x.se_metadata
       | None -> Lwt.return empty_metadata)
 
 let append_to_shuffles s election owned_owner shuffle_s =
+  let module S = (val s : Storage.BACKEND) in
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Spool.get s uuid Last_event in
-    match x with None -> assert false | Some x -> cont x
+    let* x = S.get (Election (uuid, Last_event)) in
+    match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let shuffle =
     shuffle_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) shuffle_s
@@ -111,9 +121,10 @@ let make_result_transaction write_result result =
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
 let internal_release_tally ~force s uuid set_state =
+  let module S = (val s : Storage.BACKEND) in
   let@ last cont =
-    let* x = Spool.get s uuid Last_event in
-    match x with None -> assert false | Some x -> cont x
+    let* x = S.get (Election (uuid, Last_event)) in
+    match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* metadata = get_election_metadata s uuid in
   let trustees_with_ids =
@@ -171,8 +182,8 @@ let internal_release_tally ~force s uuid set_state =
         pds
     in
     let decrypt owned_owner =
-      let* x = Spool.get s uuid Private_key in
-      match x with
+      let* x = S.get (Election (uuid, Private_key)) in
+      match Lopt.get_value x with
       | Some (`String sk) ->
           let sk = W.G.Zq.of_string sk in
           let pd = W.E.compute_factor tally sk in
@@ -223,25 +234,31 @@ let internal_release_tally ~force s uuid set_state =
         | false ->
             Lwt.fail @@ Failure "race condition in internal_release_tally"
       in
-      let* () = Spool.del s uuid Audit_cache in
+      let* () = S.del (Election (uuid, Audit_cache)) in
       let* () = set_state `Tallied in
       let* dates, set_dates = update_election_dates s uuid in
       let* () =
         set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
       in
       let* () =
-        let* x = Spool.update s uuid State_state in
-        match x with None -> Lwt.return_unit | Some (_, set) -> set None
+        let* x = S.update (Election (uuid, State_state)) in
+        match x with None -> Lwt.return_unit | Some (_, set) -> set Value None
       in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
 let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
+  let module S = (val s : Storage.BACKEND) in
   let@ state, set_state =
    fun cont ->
-    let* x = Spool.update s uuid State in
+    let* x = S.update (Election (uuid, State)) in
     match x with
-    | Some x -> cont x
+    | Some (x, set) -> (
+        match Lopt.get_value x with
+        | Some x -> cont (x, set Value)
+        | None ->
+            return
+              (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived"))
     | None ->
         return
           (`Archived, fun _ -> Lwt.fail @@ Failure "cannot get out of Archived")
@@ -387,12 +404,13 @@ let get_credential_weight s uuid credential =
   | Some x -> Lwt.return x
 
 let raw_compute_encrypted_tally s election =
+  let module S = (val s : Storage.BACKEND) in
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GMap = Map.Make (W.G) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Spool.get s uuid Last_event in
-    match x with None -> assert false | Some x -> cont x
+    let* x = S.get (Election (uuid, Last_event)) in
+    match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* ballots =
     Public_archive.fold_on_ballots s uuid
@@ -426,7 +444,6 @@ let raw_compute_encrypted_tally s election =
     |> string_of_sized_encrypted_tally write_hash
   in
   let* x =
-    let module S = (val s : Storage.BACKEND) in
     S.append uuid ~last
       [
         Event (`EndBallots, None);
@@ -436,7 +453,7 @@ let raw_compute_encrypted_tally s election =
       ]
   in
   match x with
-  | true -> Spool.del s uuid Audit_cache
+  | true -> S.del (Election (uuid, Audit_cache))
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
 let get_credential_record s uuid credential =
@@ -488,8 +505,8 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Spool.get s uuid Last_event in
-    match x with None -> assert false | Some x -> cont x
+    let* x = S.get (Election (uuid, Last_event)) in
+    match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let get_username user =
     match String.index_opt user ':' with
@@ -564,6 +581,7 @@ let cast_ballot s uuid ~ballot ~user ~weight date ~precast_data =
   do_cast_ballot s election ~ballot ~user ~weight date ~precast_data
 
 let compute_audit_cache s uuid =
+  let module S = (val s : Storage.BACKEND) in
   let* election = Public_archive.get_election s uuid in
   match election with
   | None ->
@@ -591,8 +609,9 @@ let compute_audit_cache s uuid =
         let* final =
           let* roots = Public_archive.get_roots s uuid in
           let&* _ = roots.roots_result in
-          let* last_event = Spool.get s uuid Last_event in
-          Lwt.return @@ Option.map (fun x -> x.last_hash) last_event
+          let* last_event = S.get (Election (uuid, Last_event)) in
+          Lwt.return
+          @@ Option.map (fun x -> x.last_hash) (Lopt.get_value last_event)
         in
         Election.compute_checksums ~election ~shuffles ~encrypted_tally
           ~trustees ~public_credentials ~final
@@ -601,12 +620,13 @@ let compute_audit_cache s uuid =
       return { cache_voters_hash; cache_checksums; cache_threshold = None }
 
 let get_audit_cache s uuid =
-  let* cache = Spool.get s uuid Audit_cache in
-  match cache with
+  let module S = (val s : Storage.BACKEND) in
+  let* cache = S.get (Election (uuid, Audit_cache)) in
+  match Lopt.get_value cache with
   | Some x -> return x
   | None ->
       let* cache = compute_audit_cache s uuid in
-      let* () = Spool.set s uuid Audit_cache cache in
+      let* () = S.set (Election (uuid, Audit_cache)) Value cache in
       return cache
 
 let get_admin_context admin_id =
@@ -759,7 +779,10 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
   | Ok () -> send_credentials uuid (Draft (v, se)) private_creds
   | Error e -> validation_error e
 
-let create_draft s uuid se = Spool.set s uuid Draft se
+let create_draft s uuid se =
+  let module S = (val s : Storage.BACKEND) in
+  S.set (Election (uuid, Draft)) Value se
+
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally
 
 let compute_encrypted_tally s uuid =
@@ -794,6 +817,7 @@ let compute_encrypted_tally s uuid =
   | _ -> Lwt.return_false
 
 let finish_shuffling s uuid =
+  let module S = (val s : Storage.BACKEND) in
   let* state, set_state = update_election_state s uuid in
   match state with
   | `Shuffling ->
@@ -806,8 +830,8 @@ let finish_shuffling s uuid =
         | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
       in
       let* () =
-        let* x = Spool.update s uuid State_state in
-        match x with None -> Lwt.return_unit | Some (_, set) -> set None
+        let* x = S.update (Election (uuid, State_state)) in
+        match x with None -> Lwt.return_unit | Some (_, set) -> set Value None
       in
       let* () = transition_to_encrypted_tally set_state in
       Lwt.return_true
@@ -853,8 +877,9 @@ let set_election_automatic_dates s uuid d =
   set { dates with e_date_auto_open; e_date_auto_close; e_date_publish }
 
 let get_draft_public_credentials s uuid =
-  let* x = Spool.get s uuid Public_creds in
-  let&* x = x in
+  let module S = (val s : Storage.BACKEND) in
+  let* x = S.get (Election (uuid, Public_creds)) in
+  let&* x = Lopt.get_value x in
   let x =
     x |> List.map strip_public_credential |> string_of_public_credentials
   in
@@ -900,19 +925,25 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           in
           let@ s = Storage.with_transaction in
           let module S = (val s) in
-          let* se = Spool.update s uuid Draft in
+          let* se = S.update (Election (uuid, Draft)) in
           match se with
           | None -> Lwt.return_unit
-          | Some (Draft (v, se), set) ->
-              let* () =
-                private_creds |> S.set (Election (uuid, Private_creds)) Value
-              in
-              let* () = Spool.set s uuid Public_creds public_with_ids in
-              se.se_public_creds_received <- true;
-              se.se_pending_credentials <- true;
-              let* () = set (Draft (v, se)) in
-              pending_generations := SMap.remove uuid_s !pending_generations;
-              Lwt.return_unit)
+          | Some (se, set) -> (
+              match Lopt.get_value se with
+              | Some (Draft (v, se)) ->
+                  let* () =
+                    private_creds
+                    |> S.set (Election (uuid, Private_creds)) Value
+                  in
+                  let* () =
+                    S.set (Election (uuid, Public_creds)) Value public_with_ids
+                  in
+                  se.se_public_creds_received <- true;
+                  se.se_pending_credentials <- true;
+                  let* () = set Value (Draft (v, se)) in
+                  pending_generations := SMap.remove uuid_s !pending_generations;
+                  Lwt.return_unit
+              | None -> Lwt.return_unit))
 
 let get_credentials_status uuid (Draft (_, se)) =
   match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with
