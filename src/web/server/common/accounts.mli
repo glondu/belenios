@@ -26,7 +26,9 @@ val create_account : Storage.t -> email:string option -> user -> account Lwt.t
 val get_account_by_id : Storage.t -> int -> account option Lwt.t
 
 val update_account_by_id :
-  Storage.t -> int -> account Web_common.updatable option Lwt.t
+  Storage.t ->
+  int ->
+  (account Lopt.t * (account -> unit Lwt.t), 'r) Web_common.with_lwt_cont
 
 val add_update_hook : (account -> unit Lwt.t) -> unit
 

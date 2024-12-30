@@ -23,6 +23,7 @@ open Belenios_storage_api
 open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
+type ('a, 'r) with_lwt_cont = ('a -> 'r Lwt.t) -> 'r Lwt.t
 
 exception BeleniosWebError of Belenios_web_api.cast_error
 

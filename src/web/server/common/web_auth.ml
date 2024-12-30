@@ -209,12 +209,12 @@ struct
                             Accounts.create_account s ~email user
                         | Some id -> (
                             let@ s = Storage.with_transaction in
-                            let* a = Accounts.update_account_by_id s id in
-                            match a with
+                            let@ a, set = Accounts.update_account_by_id s id in
+                            match Lopt.get_value a with
                             | None ->
                                 Lwt.fail
                                 @@ Failure "anomaly in post_login_handler"
-                            | Some (x, set) ->
+                            | Some x ->
                                 let last_connected = Unix.gettimeofday () in
                                 let x = { x with last_connected } in
                                 let* () = set x in

@@ -144,7 +144,7 @@ let get_partial_decryptions s uuid metadata =
     match threshold with
     | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
     | Some _ -> (
-        let* x, set = S.update (Election (uuid, State_state)) in
+        let@ x, set = S.update (Election (uuid, State_state)) in
         match Lopt.get_value x with
         | Some (Some (`Decryption x)) -> Lwt.return x
         | _ -> (
@@ -233,7 +233,7 @@ let get_trustee_name s uuid metadata trustee =
 
 let skip_shuffler s uuid trustee =
   let module S = (val s : Storage.BACKEND) in
-  let* x, set = S.update (Election (uuid, State_state)) in
+  let@ x, set = S.update (Election (uuid, State_state)) in
   let current, set =
     let ok : Belenios_storage_api.shuffle_token option -> _ = function
       | None -> true
@@ -252,8 +252,8 @@ let skip_shuffler s uuid trustee =
 let select_shuffler s uuid metadata tk_trustee =
   let module S = (val s : Storage.BACKEND) in
   let* tk_trustee_id, tk_name = get_trustee_name s uuid metadata tk_trustee in
+  let@ x, set = S.update (Election (uuid, State_state)) in
   let* skipped, set =
-    let* x, set = S.update (Election (uuid, State_state)) in
     match Lopt.get_value x with
     | Some (Some (`Shuffle { skipped; _ })) -> Lwt.return (skipped, set Value)
     | _ -> Lwt.return ([], set Value)
@@ -310,7 +310,7 @@ let post_partial_decryption s uuid election ~trustee_id ~partial_decryption =
 
 let post_shuffle s uuid election ~token ~shuffle =
   let module S = (val s : Storage.BACKEND) in
-  let* x, set = S.update (Election (uuid, State_state)) in
+  let@ x, set = S.update (Election (uuid, State_state)) in
   match Lopt.get_value x with
   | Some (Some (`Shuffle { skipped; token = Some x })) when token = x.tk_token
     ->
@@ -708,7 +708,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: "draft" :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* se, set = S.update (Election (uuid, Draft)) in
+      let@ se, set = S.update (Election (uuid, Draft)) in
       let@ se = Option.unwrap not_found (Lopt.get_value se) in
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         (se, set Value)

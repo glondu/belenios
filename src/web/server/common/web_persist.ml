@@ -43,10 +43,10 @@ let get_election_dates s uuid =
     (Option.value ~default:Belenios_storage_api.default_election_dates
        (Lopt.get_value x))
 
-let update_election_dates s uuid =
+let update_election_dates s uuid cont =
   let module S = (val s : Storage.BACKEND) in
-  let* x, set = S.update (Election (uuid, Dates)) in
-  Lwt.return
+  let@ x, set = S.update (Election (uuid, Dates)) in
+  cont
     ( Option.value ~default:Belenios_storage_api.default_election_dates
         (Lopt.get_value x),
       set Value )
@@ -230,7 +230,7 @@ let internal_release_tally ~force s uuid set_state =
       in
       let* () = S.del (Election (uuid, Audit_cache)) in
       let* () = set_state `Tallied in
-      let* dates, set_dates = update_election_dates s uuid in
+      let@ dates, set_dates = update_election_dates s uuid in
       let* () =
         set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
       in
@@ -238,11 +238,12 @@ let internal_release_tally ~force s uuid set_state =
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
-let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
+let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid
+    return =
   let module S = (val s : Storage.BACKEND) in
   let@ state, set_state =
    fun cont ->
-    let* x, set = S.update (Election (uuid, State)) in
+    let@ x, set = S.update (Election (uuid, State)) in
     match Lopt.get_value x with
     | Some x -> cont (x, set Value)
     | None ->
@@ -283,14 +284,14 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
   in
   return (new_state, set_state)
 
-let update_election_state s uuid = raw_get_election_state s uuid
+let update_election_state s uuid cont = raw_get_election_state s uuid cont
 
 let get_election_state s uuid =
-  let* x, _ = update_election_state s uuid in
+  let@ x, _ = update_election_state s uuid in
   Lwt.return x
 
 let release_tally s uuid =
-  let* state, set_state = update_election_state s uuid in
+  let@ state, set_state = update_election_state s uuid in
   match state with
   | `EncryptedTally ->
       let* b = internal_release_tally ~force:true s uuid set_state in
@@ -651,7 +652,7 @@ let regen_password s uuid metadata user =
   let title = W.template.t_name in
   let* show_weight = get_has_explicit_weights s uuid in
   let* x = S.get (Election (uuid, Voter user)) in
-  let* y = S.update (Election (uuid, Password user)) in
+  let@ y = S.update (Election (uuid, Password user)) in
   match (Lopt.get_value x, y) with
   | Some id, (r, set) ->
       let@ r cont =
@@ -771,7 +772,7 @@ let create_draft s uuid se =
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally
 
 let compute_encrypted_tally s uuid =
-  let* state, set_state = update_election_state s uuid in
+  let@ state, set_state = update_election_state s uuid in
   match state with
   | `Closed ->
       let@ election =
@@ -803,7 +804,7 @@ let compute_encrypted_tally s uuid =
 
 let finish_shuffling s uuid =
   let module S = (val s : Storage.BACKEND) in
-  let* state, set_state = update_election_state s uuid in
+  let@ state, set_state = update_election_state s uuid in
   match state with
   | `Shuffling ->
       let@ () =
@@ -820,16 +821,16 @@ let finish_shuffling s uuid =
   | _ -> Lwt.return_false
 
 let set_election_state s uuid state =
+  let@ state', set_state = update_election_state s uuid in
   let* allowed =
-    let* state, set_state = update_election_state s uuid in
-    match state with
+    match state' with
     | `Open | `Closed -> Lwt.return_some set_state
     | _ -> Lwt.return_none
   in
   match allowed with
   | Some set_state ->
       let* () = set_state (state : [ `Open | `Closed ] :> election_state) in
-      let* dates, set_dates = update_election_dates s uuid in
+      let@ dates, set_dates = update_election_dates s uuid in
       let* () =
         set_dates
           { dates with e_date_auto_open = None; e_date_auto_close = None }
@@ -855,7 +856,7 @@ let set_election_automatic_dates s uuid d =
   let e_date_auto_open = d.auto_date_open in
   let e_date_auto_close = d.auto_date_close in
   let e_date_publish = d.auto_date_publish in
-  let* dates, set = update_election_dates s uuid in
+  let@ dates, set = update_election_dates s uuid in
   set { dates with e_date_auto_open; e_date_auto_close; e_date_publish }
 
 let get_draft_public_credentials s uuid =
@@ -907,7 +908,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           in
           let@ s = Storage.with_transaction in
           let module S = (val s) in
-          let* se, set = S.update (Election (uuid, Draft)) in
+          let@ se, set = S.update (Election (uuid, Draft)) in
           match Lopt.get_value se with
           | Some (Draft (v, se)) ->
               let* () =

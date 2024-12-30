@@ -35,15 +35,14 @@ let get_account_by_id s id =
   let* x = S.get (Account id) in
   x |> Lopt.get_value |> Lwt.return
 
-let update_account_by_id s id =
+let update_account_by_id s id cont =
   let module S = (val s : Storage.BACKEND) in
-  let* x, set = S.update (Account id) in
-  let&* x = Lopt.get_value x in
+  let@ x, set = S.update (Account id) in
   let set x =
     let* () = set Value x in
     run_update_hooks x
   in
-  Lwt.return_some (x, set)
+  cont (x, set)
 
 let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i

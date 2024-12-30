@@ -410,7 +410,7 @@ module MakeBackend
     let hash = Hashtbl.hash
   end
 
-  module TxId = Ephemeron.K1.Make (HashedFile)
+  module TxId = Hashtbl.Make (HashedFile)
 
   let txids_cells = TxId.create 1000
 
@@ -419,25 +419,29 @@ module MakeBackend
     fun () ->
       let x = !counter in
       counter := Int64.add x 1L;
+      assert (!counter > 0L);
       x
 
   let get_txid_cell f =
     match TxId.find_opt txids_cells f with
     | Some x -> x
     | None ->
-        let x = ref (-1L) in
+        let x = gen_txid () in
         TxId.add txids_cells f x;
         x
 
-  let update (type t) (f : t file) =
+  let del_txid_cell f = TxId.remove txids_cells f
+
+  let update (type t) (f : t file) g =
     let* x = get f in
-    let txid_cell = get_txid_cell (File f) in
-    let txid = gen_txid () in
-    txid_cell := txid;
+    let get_txid () = get_txid_cell (File f) in
+    let txid = get_txid () in
     let set spec x =
-      if !txid_cell = txid then set f spec x else Lwt.fail Race_condition
+      if get_txid () = txid then set f spec x else Lwt.fail Race_condition
     in
-    Lwt.return (x, set)
+    let* r = g (x, set) in
+    del_txid_cell (File f);
+    Lwt.return r
 
   let append_to_file fname lines =
     let open Lwt_io in
@@ -1306,7 +1310,7 @@ module MakeBackend
 
   let archive_election uuid =
     let* () = delete_sensitive_data uuid in
-    let* dates, set = update (Election (uuid, Dates)) in
+    let@ dates, set = update (Election (uuid, Dates)) in
     let&! dates = Lopt.get_value dates in
     set Value { dates with e_date_archive = Some (Unix.gettimeofday ()) }
 
@@ -1732,11 +1736,12 @@ module MakeBackend
           y |> set (Election (uuid, Private_keys)) Value
     in
     (* clean up draft *)
-    let* dates, set_dates =
-      let* dates, set = update (Election (uuid, Dates)) in
+    let@ dates, set_dates =
+     fun cont ->
+      let@ dates, set = update (Election (uuid, Dates)) in
       match Lopt.get_value dates with
       | None -> assert false
-      | Some dates -> Lwt.return (dates, set)
+      | Some dates -> cont (dates, set)
     in
     let* () = del (Election (uuid, Draft)) in
     (* clean up private credentials, if any *)
@@ -1784,7 +1789,7 @@ module MakeBackend
       let get f = with_lock_file f (fun () -> get f)
       let set f s x = with_lock_file f (fun () -> set f s x)
       let del f = with_lock_file f (fun () -> del f)
-      let update f = with_lock_file f (fun () -> update f)
+      let update f g = with_lock_file f (fun () -> update f g)
       let list_accounts () = with_lock None list_accounts
       let list_elections () = with_lock None list_elections
       let new_election () = with_lock None new_election

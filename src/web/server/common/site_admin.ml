@@ -94,10 +94,10 @@ struct
               | Some x when x >= !Web_config.tos_last_update -> return_false
               | _ -> (
                   let@ s = Storage.with_transaction in
-                  let* x = Accounts.update_account_by_id s a.id in
-                  match x with
+                  let@ x, set = Accounts.update_account_by_id s a.id in
+                  match Lopt.get_value x with
                   | None -> return_true
-                  | Some (a, set) ->
+                  | Some a ->
                       let current_consent =
                         match a.consent with None -> 0. | Some x -> x
                       in
@@ -157,10 +157,10 @@ struct
                 let@ s = Storage.with_transaction in
                 let@ a, set =
                  fun cont ->
-                  let* x = Accounts.update_account_by_id s a.id in
-                  match x with
+                  let@ x, set = Accounts.update_account_by_id s a.id in
+                  match Lopt.get_value x with
                   | None -> Lwt.fail @@ Failure "set_email_confirm"
-                  | Some x -> cont x
+                  | Some x -> cont (x, set)
                 in
                 let* () = set { a with email = Some address } in
                 let* () = Web_state.discard () in

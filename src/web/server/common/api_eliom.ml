@@ -103,9 +103,11 @@ module Make () = struct
             let@ x = body.run api_account_of_string in
             let@ () = handle_generic_error in
             let@ s = Storage.with_transaction in
-            let* account = Accounts.update_account_by_id s account.id in
-            let@ account = Option.unwrap unauthorized account in
-            let* () = Api_generic.put_account account x in
+            let@ account, set = Accounts.update_account_by_id s account.id in
+            let@ account =
+              Option.unwrap unauthorized (Lopt.get_value account)
+            in
+            let* () = Api_generic.put_account (account, set) x in
             ok
         | _ -> method_not_allowed)
     | "elections" :: endpoint ->
