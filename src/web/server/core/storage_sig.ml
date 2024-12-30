@@ -40,7 +40,7 @@ module type BACKEND_GENERIC = sig
 
   val update :
     'a file ->
-    ('a v * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t)) option Lwt.t
+    ('a v * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t)) Lwt.t
 end
 
 module type BACKEND_ARCHIVE = sig

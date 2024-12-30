@@ -37,7 +37,7 @@ let get_account_by_id s id =
 
 let update_account_by_id s id =
   let module S = (val s : Storage.BACKEND) in
-  let*& x, set = S.update (Account id) in
+  let* x, set = S.update (Account id) in
   let&* x = Lopt.get_value x in
   let set x =
     let* () = set Value x in

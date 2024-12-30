@@ -161,11 +161,8 @@ let do_change_password s ~db_fname ~username ~password =
     let fail () =
       Lwt.fail @@ Failure "password record not found in do_change_password"
     in
-    let* r = S.update (Admin_password (db_fname, Username username)) in
-    match r with
-    | None -> fail ()
-    | Some (r, set) -> (
-        match Lopt.get_value r with None -> fail () | Some r -> cont (r, set))
+    let* r, set = S.update (Admin_password (db_fname, Username username)) in
+    match Lopt.get_value r with None -> fail () | Some r -> cont (r, set)
   in
   let salt = generate_token ~length:8 () in
   let hashed = sha256_hex (salt ^ password) in

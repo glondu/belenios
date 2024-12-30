@@ -45,17 +45,11 @@ let get_election_dates s uuid =
 
 let update_election_dates s uuid =
   let module S = (val s : Storage.BACKEND) in
-  let* x = S.update (Election (uuid, Dates)) in
-  match x with
-  | None ->
-      Lwt.return
-        ( Belenios_storage_api.default_election_dates,
-          S.set (Election (uuid, Dates)) Value )
-  | Some (x, set) ->
-      Lwt.return
-        ( Option.value ~default:Belenios_storage_api.default_election_dates
-            (Lopt.get_value x),
-          set Value )
+  let* x, set = S.update (Election (uuid, Dates)) in
+  Lwt.return
+    ( Option.value ~default:Belenios_storage_api.default_election_dates
+        (Lopt.get_value x),
+      set Value )
 
 let empty_metadata =
   {
@@ -240,10 +234,7 @@ let internal_release_tally ~force s uuid set_state =
       let* () =
         set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
       in
-      let* () =
-        let* x = S.update (Election (uuid, State_state)) in
-        match x with None -> Lwt.return_unit | Some (_, set) -> set Value None
-      in
+      let* () = S.set (Election (uuid, State_state)) Value None in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
@@ -251,17 +242,11 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid =
   let module S = (val s : Storage.BACKEND) in
   let@ state, set_state =
    fun cont ->
-    let* x = S.update (Election (uuid, State)) in
-    match x with
-    | Some (x, set) -> (
-        match Lopt.get_value x with
-        | Some x -> cont (x, set Value)
-        | None ->
-            return
-              (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived"))
+    let* x, set = S.update (Election (uuid, State)) in
+    match Lopt.get_value x with
+    | Some x -> cont (x, set Value)
     | None ->
-        return
-          (`Archived, fun _ -> Lwt.fail @@ Failure "cannot get out of Archived")
+        return (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived")
   in
   let now = Unix.gettimeofday () in
   let* dates = get_election_dates s uuid in
@@ -668,7 +653,7 @@ let regen_password s uuid metadata user =
   let* x = S.get (Election (uuid, Voter user)) in
   let* y = S.update (Election (uuid, Password user)) in
   match (Lopt.get_value x, y) with
-  | Some id, Some (r, set) ->
+  | Some id, (r, set) ->
       let@ r cont =
         match Lopt.get_value r with
         | None -> Lwt.return_false
@@ -829,10 +814,7 @@ let finish_shuffling s uuid =
         | true -> cont ()
         | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
       in
-      let* () =
-        let* x = S.update (Election (uuid, State_state)) in
-        match x with None -> Lwt.return_unit | Some (_, set) -> set Value None
-      in
+      let* () = S.set (Election (uuid, State_state)) Value None in
       let* () = transition_to_encrypted_tally set_state in
       Lwt.return_true
   | _ -> Lwt.return_false
@@ -925,25 +907,21 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           in
           let@ s = Storage.with_transaction in
           let module S = (val s) in
-          let* se = S.update (Election (uuid, Draft)) in
-          match se with
-          | None -> Lwt.return_unit
-          | Some (se, set) -> (
-              match Lopt.get_value se with
-              | Some (Draft (v, se)) ->
-                  let* () =
-                    private_creds
-                    |> S.set (Election (uuid, Private_creds)) Value
-                  in
-                  let* () =
-                    S.set (Election (uuid, Public_creds)) Value public_with_ids
-                  in
-                  se.se_public_creds_received <- true;
-                  se.se_pending_credentials <- true;
-                  let* () = set Value (Draft (v, se)) in
-                  pending_generations := SMap.remove uuid_s !pending_generations;
-                  Lwt.return_unit
-              | None -> Lwt.return_unit))
+          let* se, set = S.update (Election (uuid, Draft)) in
+          match Lopt.get_value se with
+          | Some (Draft (v, se)) ->
+              let* () =
+                private_creds |> S.set (Election (uuid, Private_creds)) Value
+              in
+              let* () =
+                S.set (Election (uuid, Public_creds)) Value public_with_ids
+              in
+              se.se_public_creds_received <- true;
+              se.se_pending_credentials <- true;
+              let* () = set Value (Draft (v, se)) in
+              pending_generations := SMap.remove uuid_s !pending_generations;
+              Lwt.return_unit
+          | None -> Lwt.return_unit)
 
 let get_credentials_status uuid (Draft (_, se)) =
   match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with

@@ -437,7 +437,7 @@ module MakeBackend
     let set spec x =
       if !txid_cell = txid then set f spec x else Lwt.fail Race_condition
     in
-    Lwt.return_some (x, set)
+    Lwt.return (x, set)
 
   let append_to_file fname lines =
     let open Lwt_io in
@@ -1306,8 +1306,7 @@ module MakeBackend
 
   let archive_election uuid =
     let* () = delete_sensitive_data uuid in
-    let* x = update (Election (uuid, Dates)) in
-    let&! dates, set = x in
+    let* dates, set = update (Election (uuid, Dates)) in
     let&! dates = Lopt.get_value dates in
     set Value { dates with e_date_archive = Some (Unix.gettimeofday ()) }
 
@@ -1734,13 +1733,10 @@ module MakeBackend
     in
     (* clean up draft *)
     let* dates, set_dates =
-      let* x = update (Election (uuid, Dates)) in
-      match x with
+      let* dates, set = update (Election (uuid, Dates)) in
+      match Lopt.get_value dates with
       | None -> assert false
-      | Some (dates, set) -> (
-          match Lopt.get_value dates with
-          | None -> assert false
-          | Some dates -> Lwt.return (dates, set))
+      | Some dates -> Lwt.return (dates, set)
     in
     let* () = del (Election (uuid, Draft)) in
     (* clean up private credentials, if any *)
