@@ -1795,9 +1795,6 @@ module MakeBackend
       let new_election () = with_lock None new_election
       let new_account_id () = with_lock None new_account_id
 
-      let init_credential_mapping uuid =
-        with_lock (Some uuid) (fun () -> init_credential_mapping uuid)
-
       let archive_election uuid =
         with_lock (Some uuid) (fun () -> archive_election uuid)
 

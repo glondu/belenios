@@ -50,7 +50,6 @@ end
 
 module type BACKEND_ELECTIONS = sig
   val new_election : unit -> uuid option Lwt.t
-  val init_credential_mapping : uuid -> public_credentials Lwt.t
   val archive_election : uuid -> unit Lwt.t
   val delete_election : uuid -> unit Lwt.t
 
