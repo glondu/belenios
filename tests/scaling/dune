@@ -1,7 +1,7 @@
 (executable
  (name main)
  (libraries
-  cohttp-lwt-unix
+  belenios_cohttp
   cmdliner
   belenios-platform-native
   belenios-lib.api))

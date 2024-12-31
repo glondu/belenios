@@ -1,6 +1,14 @@
 (library
  (name belenios_storage_filesystem)
- (libraries belenios_server_core calendar ocsigenserver))
+ (libraries
+  belenios_server_core
+  belenios_storage_api
+  calendar
+  ocsigenserver.baselib
+  ocsigenserver
+  lwt
+  lwt.unix
+  xml-light))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

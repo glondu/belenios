@@ -3,8 +3,18 @@
  (libraries
   belenios_ui
   belenios_server_core
-  lwt
+  cryptokit
+  xml-light
+  tyxml.functor
+  ocsipersist
+  ocsipersist-lib
+  ocsigenserver
+  ocsigenserver.baselib
+  ocsigenserver.cookies
+  ocsigenserver.http
   eliom.server
+  gettext.base
+  gettext.extension
   gettext-camomile
   netstring)
  (modules_without_implementation

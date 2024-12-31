@@ -1,0 +1,9 @@
+(library
+ (name belenios_cohttp)
+ (libraries
+  (re_export unix)
+  (re_export lwt)
+  (re_export lwt.unix)
+  (re_export cohttp)
+  (re_export cohttp-lwt)
+  (re_export cohttp-lwt-unix)))

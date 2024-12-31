@@ -1,6 +1,10 @@
 (library
  (name belenios_server_core)
- (libraries belenios-lib.api belenios_storage_api lwt.unix xml-light))
+ (libraries
+  (re_export belenios-lib.api)
+  (re_export belenios_storage_api)
+  (re_export belenios_cohttp)
+  xml-light))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

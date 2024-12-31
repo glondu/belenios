@@ -5,8 +5,10 @@
  (flags -linkall)
  (libraries
   ocsipersist-sqlite-config
+  ocsigenserver
   ocsigenserver.ext.redirectmod
   ocsigenserver.ext.staticmod
+  eliom.server
   belenios-platform-native
   belenios_server
   belenios_storage_filesystem))

@@ -1,7 +1,9 @@
 (library
  (name belenios_web_api)
  (public_name belenios-lib.api)
- (libraries uri belenios-lib))
+ (libraries
+  (re_export uri)
+  (re_export belenios-lib)))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

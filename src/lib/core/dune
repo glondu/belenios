@@ -1,7 +1,14 @@
 (library
  (name belenios_core)
  (public_name belenios-lib.core)
- (libraries base64 hex yojson atdgen-runtime re belenios-platform)
+ (libraries
+  (re_export base64)
+  hex
+  (re_export yojson)
+  biniou
+  (re_export atdgen-runtime)
+  (re_export re)
+  (re_export belenios-platform))
  (modules_without_implementation question_sigs trustees_sig versioned_sig))
 
 (rule

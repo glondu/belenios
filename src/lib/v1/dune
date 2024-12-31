@@ -2,7 +2,7 @@
  (name belenios_v1)
  (public_name belenios-lib.v1)
  (modules_without_implementation types)
- (libraries belenios-lib.question))
+ (libraries belenios-lib.core belenios-lib.question))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

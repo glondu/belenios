@@ -4,6 +4,7 @@
 (version 3.0)
 
 (generate_opam_files true)
+(implicit_transitive_deps false)
 
 (license AGPL-3)
 (authors "Stéphane Glondu")

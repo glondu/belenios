@@ -4,6 +4,6 @@
  (package belenios-tool)
  (libraries
   cmdliner
-  cohttp-lwt-unix
+  belenios_cohttp
   belenios-platform-native
   belenios-lib.api))

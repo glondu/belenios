@@ -1,3 +1,3 @@
 (executable
  (name main)
- (libraries cohttp-lwt-unix yojson base64))
+ (libraries uri re belenios_cohttp yojson base64))

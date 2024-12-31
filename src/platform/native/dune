@@ -6,4 +6,4 @@
   (language c)
   (names libsodium_stubs))
  (c_library_flags (-lsodium))
- (libraries cryptokit))
+ (libraries cryptokit zarith))
