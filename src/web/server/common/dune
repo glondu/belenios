@@ -3,7 +3,6 @@
  (libraries
   belenios_ui
   belenios_server_core
-  cryptokit
   xml-light
   tyxml.functor
   ocsipersist
