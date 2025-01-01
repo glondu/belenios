@@ -25,7 +25,7 @@ open Serializable_t
 
 (** {1 Type definitions} *)
 
-type 'a v = 'a Types.Lopt.t
+type 'a v = 'a Lopt.t
 type append_operation = Data of string | Event of event_type * hash option
 
 type (_, _) string_or_value_spec =

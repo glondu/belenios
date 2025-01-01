@@ -21,7 +21,6 @@
 
 include Serializable_j
 include Core
-include Types
 module Filesystem = Filesystem
 module Defaults = Defaults
 module Storage = Storage
@@ -31,5 +30,5 @@ let some_string_or_value (type a b) (f : a file)
     (spec : (a, b) Storage.string_or_value_spec) (x : b) =
   let s = get_file_serializers f in
   match spec with
-  | String -> Types.Lopt.some_string s.of_string x
-  | Value -> Types.Lopt.some_value s.to_string x
+  | String -> Lopt.some_string s.of_string x
+  | Value -> Lopt.some_value s.to_string x

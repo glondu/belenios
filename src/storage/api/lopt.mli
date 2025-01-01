@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2024-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,13 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Lopt : sig
-  type 'a t
+type 'a t
 
-  val get_string : 'a t -> string option
-  val get_value : 'a t -> 'a option
-  val none : 'a t
-  val none_lwt : 'a t Lwt.t
-  val some_string : (string -> 'a) -> string -> 'a t
-  val some_value : ('a -> string) -> 'a -> 'a t
-end
+val get_string : 'a t -> string option
+val get_value : 'a t -> 'a option
+val none : 'a t
+val none_lwt : 'a t Lwt.t
+val some_string : (string -> 'a) -> string -> 'a t
+val some_value : ('a -> string) -> 'a -> 'a t

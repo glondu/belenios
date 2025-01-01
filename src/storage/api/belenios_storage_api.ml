@@ -21,6 +21,7 @@
 
 module Atd_t = Serializable_t
 module Atd_j = Serializable_j
+module Lopt = Lopt
 include Serializable_j
 include Extra
 
