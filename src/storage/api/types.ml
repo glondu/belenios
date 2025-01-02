@@ -35,46 +35,54 @@ type (_, _) string_or_value_spec =
   | Value : ('a, 'a) string_or_value_spec
 
 module type BACKEND_GENERIC = sig
-  val get_unixfilename : 'a file -> string Lwt.t
-  val get : 'a file -> 'a lopt Lwt.t
-  val set : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
-  val del : 'a file -> unit Lwt.t
+  type t
+
+  val get_unixfilename : t -> 'a file -> string Lwt.t
+  val get : t -> 'a file -> 'a lopt Lwt.t
+  val set : t -> 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
+  val del : t -> 'a file -> unit Lwt.t
 
   val update :
+    t ->
     'a file ->
     ('a lopt * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t) -> 'r Lwt.t) ->
     'r Lwt.t
 end
 
 module type BACKEND_ARCHIVE = sig
-  val append : uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+  type t
+
+  val append :
+    t -> uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
 end
 
 module type BACKEND_ELECTIONS = sig
-  val new_election : unit -> uuid option Lwt.t
-  val archive_election : uuid -> unit Lwt.t
-  val delete_election : uuid -> unit Lwt.t
+  type t
+
+  val new_election : t -> uuid option Lwt.t
+  val archive_election : t -> uuid -> unit Lwt.t
+  val delete_election : t -> uuid -> unit Lwt.t
 
   val validate_election :
-    uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
+    t -> uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
 module type BACKEND_ACCOUNTS = sig
-  val new_account_id : unit -> (int * unit Lwt.u) option Lwt.t
-end
+  type t
 
-module type BACKEND = sig
-  include BACKEND_GENERIC
-  include BACKEND_ACCOUNTS
-  include BACKEND_ELECTIONS
-  include BACKEND_ARCHIVE
+  val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
 end
 
 module type STORAGE = sig
-  type t = (module BACKEND)
+  type t
   type 'a u = t -> uuid -> 'a
 
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
   val get_user_id : user -> int option Lwt.t
   val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
+
+  include BACKEND_GENERIC with type t := t
+  include BACKEND_ARCHIVE with type t := t
+  include BACKEND_ELECTIONS with type t := t
+  include BACKEND_ACCOUNTS with type t := t
 end

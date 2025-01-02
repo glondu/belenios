@@ -29,15 +29,13 @@ exception Not_in_cache
 let not_in_cache _ = Lwt.fail Not_in_cache
 
 let get_roots s uuid =
-  let module S = (val s : BACKEND) in
-  let* x = S.get (Election (uuid, Roots)) in
+  let* x = Storage.get s (Election (uuid, Roots)) in
   match Lopt.get_value x with
   | None -> Lwt.return Events.empty_roots
   | Some x -> Lwt.return x
 
 let get_data s uuid x =
-  let module S = (val s : BACKEND) in
-  let* x = S.get (Election (uuid, Data x)) in
+  let* x = Storage.get s (Election (uuid, Data x)) in
   x |> Lopt.get_value |> Lwt.return
 
 let get_event s uuid x =
@@ -146,8 +144,7 @@ let get_public_creds s uuid =
   | Some x -> Lwt.return @@ public_credentials_of_string x
 
 let get_credential_weight s uuid cred =
-  let module S = (val s : BACKEND) in
-  let* x = S.get (Election (uuid, Credential_weight cred)) in
+  let* x = Storage.get s (Election (uuid, Credential_weight cred)) in
   match Lopt.get_value x with
   | Some x -> Lwt.return x
   | None ->

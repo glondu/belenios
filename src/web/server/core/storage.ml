@@ -20,9 +20,16 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios
 open Belenios_storage_api
 
-type t = (module BACKEND)
+module type TX = sig
+  module S : STORAGE
+
+  val tx : S.t
+end
+
+type t = (module TX)
 type 'a u = t -> uuid -> 'a
 
 let backends = ref []
@@ -32,8 +39,14 @@ let get_backend () : (module STORAGE) =
   match !backend with None -> failwith "no storage backend set" | Some x -> x
 
 let with_transaction f =
-  let module X = (val get_backend ()) in
-  X.with_transaction f
+  let module S = (val get_backend ()) in
+  let@ tx = S.with_transaction in
+  let module T = struct
+    module S = S
+
+    let tx = tx
+  end in
+  f (module T : TX)
 
 let get_user_id x =
   let module X = (val get_backend ()) in
@@ -52,3 +65,47 @@ let init_backend name config =
       let* b = f config in
       backend := Some b;
       Lwt.return_unit
+
+let get_unixfilename tx f =
+  let module T = (val tx : TX) in
+  T.S.get_unixfilename T.tx f
+
+let get tx f =
+  let module T = (val tx : TX) in
+  T.S.get T.tx f
+
+let set tx f k x =
+  let module T = (val tx : TX) in
+  T.S.set T.tx f k x
+
+let del tx f =
+  let module T = (val tx : TX) in
+  T.S.del T.tx f
+
+let update tx f set =
+  let module T = (val tx : TX) in
+  T.S.update T.tx f set
+
+let append tx u ?last ops =
+  let module T = (val tx : TX) in
+  T.S.append T.tx u ?last ops
+
+let new_election tx =
+  let module T = (val tx : TX) in
+  T.S.new_election T.tx
+
+let archive_election tx u =
+  let module T = (val tx : TX) in
+  T.S.archive_election T.tx u
+
+let delete_election tx u =
+  let module T = (val tx : TX) in
+  T.S.delete_election T.tx u
+
+let validate_election tx u =
+  let module T = (val tx : TX) in
+  T.S.validate_election T.tx u
+
+let new_account_id tx =
+  let module T = (val tx : TX) in
+  T.S.new_account_id T.tx

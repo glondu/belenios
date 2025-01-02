@@ -29,6 +29,13 @@ open Serializable_j
 let () = Stdlib.Random.self_init ()
 let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
 
+module type BACKEND = sig
+  include BACKEND_GENERIC with type t := unit
+  include BACKEND_ARCHIVE with type t := unit
+  include BACKEND_ELECTIONS with type t := unit
+  include BACKEND_ACCOUNTS with type t := unit
+end
+
 module type BACKEND0 = sig
   include BACKEND
 
@@ -1784,26 +1791,28 @@ module MakeBackend
       with_lock uuid f
     in
     let module X = struct
-      let get_unixfilename f = with_lock_file f (fun () -> get_unixfilename f)
-      let get f = with_lock_file f (fun () -> get f)
-      let set f s x = with_lock_file f (fun () -> set f s x)
-      let del f = with_lock_file f (fun () -> del f)
-      let update f g = with_lock_file f (fun () -> update f g)
+      let get_unixfilename () f =
+        with_lock_file f (fun () -> get_unixfilename f)
+
+      let get () f = with_lock_file f (fun () -> get f)
+      let set () f s x = with_lock_file f (fun () -> set f s x)
+      let del () f = with_lock_file f (fun () -> del f)
+      let update () f g = with_lock_file f (fun () -> update f g)
       let list_accounts () = with_lock None list_accounts
       let list_elections () = with_lock None list_elections
       let new_election () = with_lock None new_election
       let new_account_id () = with_lock None new_account_id
 
-      let archive_election uuid =
+      let archive_election () uuid =
         with_lock (Some uuid) (fun () -> archive_election uuid)
 
-      let delete_election uuid =
+      let delete_election () uuid =
         with_lock (Some uuid) (fun () -> delete_election uuid)
 
-      let validate_election uuid =
+      let validate_election () uuid =
         with_lock (Some uuid) (fun () -> validate_election uuid)
 
-      let append uuid ?last ops =
+      let append () uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
     end in
     (module X : BACKEND0)
@@ -1832,7 +1841,7 @@ module Make (Config : CONFIG) : STORAGE = struct
 
     let get_account_by_id s id =
       let module S = (val s : BACKEND0) in
-      let* x = S.get (Account id) in
+      let* x = S.get () (Account id) in
       x |> Lopt.get_value |> Lwt.return
 
     let with_transaction f = with_transaction_ref.with_transaction f
@@ -1843,7 +1852,7 @@ module Make (Config : CONFIG) : STORAGE = struct
 
     let get s f =
       let module S = (val s : BACKEND0) in
-      S.get f
+      S.get () f
 
     let list_elections s =
       let module S = (val s : BACKEND0) in
@@ -1879,16 +1888,60 @@ module Make (Config : CONFIG) : STORAGE = struct
   let get_user_id = Accounts_cache.get_user_id
   let get_elections_by_owner = Elections_cache.get_elections_by_owner
 
+  let get_unixfilename tx f =
+    let module T = (val tx : BACKEND) in
+    T.get_unixfilename () f
+
+  let get tx f =
+    let module T = (val tx : BACKEND) in
+    T.get () f
+
+  let set tx f k x =
+    let module T = (val tx : BACKEND) in
+    T.set () f k x
+
+  let del tx f =
+    let module T = (val tx : BACKEND) in
+    T.del () f
+
+  let update tx f set =
+    let module T = (val tx : BACKEND) in
+    T.update () f set
+
+  let append tx u ?last ops =
+    let module T = (val tx : BACKEND) in
+    T.append () u ?last ops
+
+  let new_election tx =
+    let module T = (val tx : BACKEND) in
+    T.new_election ()
+
+  let archive_election tx u =
+    let module T = (val tx : BACKEND) in
+    T.archive_election () u
+
+  let delete_election tx u =
+    let module T = (val tx : BACKEND) in
+    T.delete_election () u
+
+  let validate_election tx u =
+    let module T = (val tx : BACKEND) in
+    T.validate_election () u
+
+  let new_account_id tx =
+    let module T = (val tx : BACKEND) in
+    T.new_account_id ()
+
   let process_election_for_data_policy (action, uuid, next_t) =
     let uuid_s = Uuid.unwrap uuid in
     let now = Unix.gettimeofday () in
     let archive s uuid =
       let module S = (val s : BACKEND) in
-      S.archive_election uuid
+      S.archive_election () uuid
     in
     let delete s uuid =
       let module S = (val s : BACKEND) in
-      S.delete_election uuid
+      S.delete_election () uuid
     in
     let action, comment =
       match action with

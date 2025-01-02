@@ -22,6 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
+open Belenios_server_core
 
 let update_hooks = ref []
 let add_update_hook f = update_hooks := f :: !update_hooks
@@ -30,13 +31,11 @@ let run_update_hooks account =
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 
 let get_account_by_id s id =
-  let module S = (val s : BACKEND) in
-  let* x = S.get (Account id) in
+  let* x = Storage.get s (Account id) in
   x |> Lopt.get_value |> Lwt.return
 
 let update_account_by_id s id cont =
-  let module S = (val s : BACKEND) in
-  let@ x, set = S.update (Account id) in
+  let@ x, set = Storage.update s (Account id) in
   let set x =
     let* () = set Value x in
     run_update_hooks x
@@ -47,10 +46,9 @@ let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
 
 let create_account s ~email user =
-  let module S = (val s : BACKEND) in
   let@ id, u =
    fun cont ->
-    let* x = S.new_account_id () in
+    let* x = Storage.new_account_id s in
     match x with
     | None -> Lwt.fail (Failure "impossible to create a new account")
     | Some x -> cont x
@@ -78,7 +76,7 @@ let create_account s ~email user =
   let* () =
     Lwt.finalize
       (fun () ->
-        let* () = S.set (Account id) Value account in
+        let* () = Storage.set s (Account id) Value account in
         run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();

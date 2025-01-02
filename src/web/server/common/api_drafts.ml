@@ -232,8 +232,7 @@ let post_drafts account s draft =
       se_private_creds_downloaded = false;
     }
   in
-  let module S = (val s : BACKEND) in
-  let* uuid = S.new_election () in
+  let* uuid = Storage.new_election s in
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () = Web_persist.create_draft s uuid se in
@@ -416,8 +415,7 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let module S = (val s : BACKEND) in
-  let* () = S.set (Election (uuid, Public_creds)) Value credentials in
+  let* () = Storage.set s (Election (uuid, Public_creds)) Value credentials in
   se.se_public_creds_received <- true;
   set (Draft (v, se))
 
@@ -716,8 +714,7 @@ let merge_voters a b f =
   loop weights (List.rev a) b
 
 let get_passwords s uuid =
-  let module S = (val s : BACKEND) in
-  let* csv = S.get (Election (uuid, Passwords)) in
+  let* csv = Storage.get s (Election (uuid, Passwords)) in
   let&* csv = Lopt.get_value csv in
   let res =
     List.fold_left
@@ -735,8 +732,7 @@ let import_voters s uuid (Draft (v, se), set) from =
     let* x = Web_persist.get_all_voters s from in
     match x with
     | [] -> (
-        let module S = (val s : BACKEND) in
-        let* se = S.get (Election (from, Draft)) in
+        let* se = Storage.get s (Election (from, Draft)) in
         match Lopt.get_value se with
         | None -> Lwt.return @@ Stdlib.Error `NotFound
         | Some se -> cont @@ get_draft_voters se)
@@ -781,8 +777,7 @@ let import_trustees (Draft (v, se), set) s from metadata =
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
-          let module S = (val s : BACKEND) in
-          let* privs = S.get (Election (from, Private_keys)) in
+          let* privs = Storage.get s (Election (from, Private_keys)) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
@@ -1107,7 +1102,6 @@ let post_trustee_threshold ((Draft (_, se) as fse), set) ~token data =
   set fse
 
 let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
-  let module S = (val s : BACKEND) in
   match endpoint with
   | [ "token" ] -> (
       let@ _ = with_administrator token se in
@@ -1119,7 +1113,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
       match method_ with
       | `GET ->
           let@ () = handle_get_option in
-          let* x = S.get (Election (uuid, Private_creds)) in
+          let* x = Storage.get s (Election (uuid, Private_creds)) in
           x |> Lopt.get_string |> Lwt.return
       | _ -> method_not_allowed)
   | [ "public" ] -> (

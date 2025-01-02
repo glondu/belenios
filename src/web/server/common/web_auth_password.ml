@@ -53,7 +53,6 @@ struct
     if b then
       let* r =
         let@ s = Storage.with_transaction in
-        let module S = (val s) in
         match uuid with
         | None ->
             let@ file cont =
@@ -65,8 +64,8 @@ struct
             let key : admin_password_file =
               if is_email name then Address name else Username name
             in
-            S.get (Admin_password (file, key))
-        | Some uuid -> S.get (Election (uuid, Password name))
+            Storage.get s (Admin_password (file, key))
+        | Some uuid -> Storage.get s (Election (uuid, Password name))
       in
       let&* r = Lopt.get_value r in
       if check_password r password then Lwt.return_some r else Lwt.return_none
@@ -131,17 +130,16 @@ let get_password_db_fname service =
   find !Web_config.site_auth_config
 
 let do_add_account s ~db_fname ~username ~password ~email =
-  let module S = (val s : BACKEND) in
   let@ () =
    fun cont ->
-    let* r = S.get (Admin_password (db_fname, Username username)) in
+    let* r = Storage.get s (Admin_password (db_fname, Username username)) in
     match Lopt.get_value r with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error UsernameTaken
   in
   let@ () =
    fun cont ->
-    let* r = S.get (Admin_password (db_fname, Address email)) in
+    let* r = Storage.get s (Admin_password (db_fname, Address email)) in
     match Lopt.get_value r with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error AddressTaken
@@ -150,18 +148,20 @@ let do_add_account s ~db_fname ~username ~password ~email =
   let hashed = sha256_hex (salt ^ password) in
   let r = { username; salt; hashed; address = Some email } in
   Lwt.try_bind
-    (fun () -> r |> S.set (Admin_password (db_fname, Username username)) Value)
+    (fun () ->
+      r |> Storage.set s (Admin_password (db_fname, Username username)) Value)
     (fun () -> Lwt.return @@ Ok ())
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
 let do_change_password s ~db_fname ~username ~password =
-  let module S = (val s : BACKEND) in
   let@ r, set =
    fun cont ->
     let fail () =
       Lwt.fail @@ Failure "password record not found in do_change_password"
     in
-    let@ r, set = S.update (Admin_password (db_fname, Username username)) in
+    let@ r, set =
+      Storage.update s (Admin_password (db_fname, Username username))
+    in
     match Lopt.get_value r with None -> fail () | Some r -> cont (r, set)
   in
   let salt = generate_token ~length:8 () in
@@ -214,14 +214,13 @@ let change_password user ~password =
 
 let lookup_account ~service ~username ~email =
   let@ s = Storage.with_transaction in
-  let module S = (val s) in
   let&* db_fname = get_password_db_fname service in
   let username = String.trim username in
-  let* r = S.get (Admin_password (db_fname, Username username)) in
+  let* r = Storage.get s (Admin_password (db_fname, Username username)) in
   match Lopt.get_value r with
   | Some { username; address; _ } -> Lwt.return_some (username, address)
   | None ->
       let address = String.trim email in
-      let* r = S.get (Admin_password (db_fname, Address address)) in
+      let* r = Storage.get s (Admin_password (db_fname, Address address)) in
       let&* { username; address; _ } = Lopt.get_value r in
       Lwt.return_some (username, address)
