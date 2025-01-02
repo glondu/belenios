@@ -27,7 +27,4 @@ module Storage = Storage
 open Belenios_storage_api
 
 val some_string_or_value :
-  'a Belenios_storage_api.file ->
-  ('a, 'b) Storage.string_or_value_spec ->
-  'b ->
-  'a Lopt.t
+  'a file -> ('a, 'b) string_or_value_spec -> 'b -> 'a Lopt.t

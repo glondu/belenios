@@ -131,7 +131,7 @@ let get_password_db_fname service =
   find !Web_config.site_auth_config
 
 let do_add_account s ~db_fname ~username ~password ~email =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let@ () =
    fun cont ->
     let* r = S.get (Admin_password (db_fname, Username username)) in
@@ -155,7 +155,7 @@ let do_add_account s ~db_fname ~username ~password ~email =
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
 let do_change_password s ~db_fname ~username ~password =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let@ r, set =
    fun cont ->
     let fail () =

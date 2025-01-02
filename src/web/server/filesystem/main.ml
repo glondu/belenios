@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
 open Belenios_server_core
-open Storage
 open Types
 open Serializable_j
 
@@ -53,8 +52,8 @@ module MakeBackend
   (** {1 Abstract election-specific file operations} *)
 
   type ('key, 'a) abstract_file_ops = {
-    mutable get : uuid -> 'key -> 'a v Lwt.t;
-    mutable set : uuid -> 'key -> 'a v -> unit Lwt.t;
+    mutable get : uuid -> 'key -> 'a lopt Lwt.t;
+    mutable set : uuid -> 'key -> 'a lopt -> unit Lwt.t;
     mutable del : uuid -> 'key -> unit Lwt.t;
   }
 
@@ -361,7 +360,7 @@ module MakeBackend
             if b then Lwt.return accu else Lwt.return (uuid :: accu))
       [] xs
 
-  let get (type t) (f : t file) : t v Lwt.t =
+  let get (type t) (f : t file) : t lopt Lwt.t =
     match get_props f with
     | Concrete (path, kind, convert) ->
         let* x = Filesystem.read_file path in
@@ -1814,7 +1813,10 @@ type with_transaction_ref = {
   mutable with_transaction : 'a. ((module BACKEND0) -> 'a Lwt.t) -> 'a Lwt.t;
 }
 
-module Make (Config : CONFIG) : Storage.S = struct
+module Make (Config : CONFIG) : STORAGE = struct
+  type t = (module BACKEND)
+  type 'a u = t -> uuid -> 'a
+
   let with_transaction_ref =
     {
       with_transaction =
@@ -1881,11 +1883,11 @@ module Make (Config : CONFIG) : Storage.S = struct
     let uuid_s = Uuid.unwrap uuid in
     let now = Unix.gettimeofday () in
     let archive s uuid =
-      let module S = (val s : Storage.BACKEND) in
+      let module S = (val s : BACKEND) in
       S.archive_election uuid
     in
     let delete s uuid =
-      let module S = (val s : Storage.BACKEND) in
+      let module S = (val s : BACKEND) in
       S.delete_election uuid
     in
     let action, comment =
@@ -1978,6 +1980,6 @@ let make_backend (config : Xml.xml list) =
     | _ -> failwith "unknown spool version"
   in
   let module X = Make (Config) in
-  Lwt.return (module X : Storage.S)
+  Lwt.return (module X : STORAGE)
 
 let register () = Storage.register_backend backend_name make_backend

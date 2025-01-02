@@ -24,10 +24,7 @@ module Atd_j = Serializable_j
 module Lopt = Lopt
 include module type of Serializable_j
 include module type of Extra
-
-type 'a election_file = 'a File.u
-type 'a file = 'a File.t
-type admin_password_file = File.kind
+include module type of Types
 
 val get_file_serializers : 'a file -> 'a Belenios.string_serializers
 val default_election_dates : election_dates

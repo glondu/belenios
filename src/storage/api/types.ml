@@ -20,12 +20,14 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_storage_api
 open Serializable_t
 
 (** {1 Type definitions} *)
 
-type 'a v = 'a Lopt.t
+type 'a election_file = 'a File.u
+type 'a file = 'a File.t
+type admin_password_file = File.kind
+type 'a lopt = 'a Lopt.t
 type append_operation = Data of string | Event of event_type * hash option
 
 type (_, _) string_or_value_spec =
@@ -34,13 +36,13 @@ type (_, _) string_or_value_spec =
 
 module type BACKEND_GENERIC = sig
   val get_unixfilename : 'a file -> string Lwt.t
-  val get : 'a file -> 'a v Lwt.t
+  val get : 'a file -> 'a lopt Lwt.t
   val set : 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
   val del : 'a file -> unit Lwt.t
 
   val update :
     'a file ->
-    ('a v * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t) -> 'r Lwt.t) ->
+    ('a lopt * (('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t) -> 'r Lwt.t) ->
     'r Lwt.t
 end
 
@@ -68,10 +70,10 @@ module type BACKEND = sig
   include BACKEND_ARCHIVE
 end
 
-type t = (module BACKEND)
-type 'a u = t -> uuid -> 'a
+module type STORAGE = sig
+  type t = (module BACKEND)
+  type 'a u = t -> uuid -> 'a
 
-module type S = sig
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
   val get_user_id : user -> int option Lwt.t
   val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t

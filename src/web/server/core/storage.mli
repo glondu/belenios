@@ -19,8 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Storage_sig
-include S
+open Belenios_storage_api
+include STORAGE
 
-val register_backend : string -> (Xml.xml list -> (module S) Lwt.t) -> unit
+val register_backend :
+  string -> (Xml.xml list -> (module STORAGE) Lwt.t) -> unit
+
 val init_backend : string -> Xml.xml list -> unit Lwt.t

@@ -34,7 +34,7 @@ let with_administrator token metadata f =
   | _ -> unauthorized
 
 let find_trustee_id s uuid token =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let* x = S.get (Election (uuid, State_state)) in
   match Lopt.get_value x with
   | Some (Some (`Decryption tokens)) ->
@@ -46,7 +46,7 @@ let find_trustee_id s uuid token =
   | _ -> Lwt.return (int_of_string_opt token)
 
 let find_trustee_private_key s uuid trustee_id =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let* keys = S.get (Election (uuid, Private_keys)) in
   let&* keys = Lopt.get_value keys in
   (* there is one Pedersen trustee *)
@@ -139,7 +139,7 @@ let get_partial_decryptions s uuid metadata =
     match metadata.e_trustees with None -> loop 1 [] | Some ts -> loop 1 ts
   in
   let rec seq i j = if i >= j then [] else i :: seq (i + 1) j in
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let* trustee_tokens =
     match threshold with
     | None -> Lwt.return @@ List.map string_of_int (seq 1 (npks + 1))
@@ -232,7 +232,7 @@ let get_trustee_name s uuid metadata trustee =
       Lwt.return (List.assoc trustee (List.combine xs names))
 
 let skip_shuffler s uuid trustee =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let@ x, set = S.update (Election (uuid, State_state)) in
   let current, set =
     let ok : Belenios_storage_api.shuffle_token option -> _ = function
@@ -250,7 +250,7 @@ let skip_shuffler s uuid trustee =
   else set (Some (`Shuffle { skipped = trustee :: current; token = None }))
 
 let select_shuffler s uuid metadata tk_trustee =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let* tk_trustee_id, tk_name = get_trustee_name s uuid metadata tk_trustee in
   let@ x, set = S.update (Election (uuid, State_state)) in
   let* skipped, set =
@@ -309,7 +309,7 @@ let post_partial_decryption s uuid election ~trustee_id ~partial_decryption =
   else Lwt.return @@ Stdlib.Error `Invalid
 
 let post_shuffle s uuid election ~token ~shuffle =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   let@ x, set = S.update (Election (uuid, State_state)) in
   match Lopt.get_value x with
   | Some (Some (`Shuffle { skipped; token = Some x })) when token = x.tk_token
@@ -381,7 +381,7 @@ let state_module = ref None
 
 let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
     =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   match endpoint with
   | [] -> (
       let get () =
@@ -633,7 +633,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
   | _ -> not_found
 
 let dispatch s ~token ~ifmatch endpoint method_ body =
-  let module S = (val s : Storage.BACKEND) in
+  let module S = (val s : BACKEND) in
   match endpoint with
   | [] -> (
       let@ token = Option.unwrap unauthorized token in

@@ -1,6 +1,6 @@
 (library
  (name belenios_storage_api)
- (libraries lwt belenios-lib))
+ (libraries lwt belenios-lib.api))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

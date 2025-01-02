@@ -24,10 +24,7 @@ module Atd_j = Serializable_j
 module Lopt = Lopt
 include Serializable_j
 include Extra
-
-type 'a election_file = 'a File.u
-type 'a file = 'a File.t
-type admin_password_file = File.kind
+include Types
 
 let get_file_serializers = File_serializers.get
 
