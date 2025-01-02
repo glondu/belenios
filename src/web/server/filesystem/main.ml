@@ -1180,146 +1180,6 @@ module MakeBackend
     Elections_cache.clear ();
     Lwt.return_unit
 
-  let ( let&! ) x f = match x with None -> Lwt.return_unit | Some x -> f x
-
-  let delete_live_election uuid roots =
-    let ( let&? ) x f =
-      let* x = get (Election (uuid, x)) in
-      let&! x = Lopt.get_value x in
-      f x
-    in
-    let@ setup_data cont =
-      let&! x = roots.roots_setup_data in
-      let&? x = Data x in
-      cont (setup_data_of_string x)
-    in
-    let@ election cont =
-      let&? x = Data setup_data.setup_election in
-      cont (Election.of_string (module Random) x)
-    in
-    let@ trustees cont =
-      let&? x = Data setup_data.setup_trustees in
-      cont (trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json x)
-    in
-    let module W = (val election) in
-    let module CredSet = Set.Make (W.G) in
-    let&? metadata = Metadata in
-    let&? dates = Dates in
-    let* () = delete_sensitive_data uuid in
-    let de_template =
-      {
-        t_description = "";
-        t_name = W.template.t_name;
-        t_questions = Array.map W.erase_question W.template.t_questions;
-        t_administrator = None;
-        t_credential_authority = None;
-      }
-      |> string_of_template W.write_question
-      |> template_of_string Yojson.Safe.read_json
-    in
-    let de_owners = metadata.e_owners in
-    let de_date =
-      match dates.e_date_tally with
-      | Some x -> x
-      | None -> (
-          match dates.e_date_finalization with
-          | Some x -> x
-          | None -> dates.e_date_creation)
-    in
-    let de_authentication_method =
-      match metadata.e_auth_config with
-      | Some [ { auth_system = "cas"; auth_config; _ } ] ->
-          let server = List.assoc "server" auth_config in
-          `CAS server
-      | Some [ { auth_system = "password"; _ } ] -> `Password
-      | _ -> `Unknown
-    in
-    let de_credential_method =
-      match metadata.e_cred_authority with
-      | Some "server" -> `Automatic
-      | _ -> `Manual
-    in
-    let* de_trustees =
-      trustees
-      |> List.map (function
-           | `Single _ -> `Single
-           | `Pedersen t ->
-               `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
-      |> Lwt.return
-    in
-    let* de_nb_ballots =
-      match roots.roots_last_ballot_event with
-      | None -> Lwt.return 0
-      | Some e ->
-          let rec loop seen accu e =
-            let@ event cont =
-              let* x = get (Election (uuid, Data e)) in
-              match Lopt.get_value x with
-              | None -> Lwt.return accu
-              | Some x -> cont (event_of_string x)
-            in
-            match
-              (event.event_typ, event.event_payload, event.event_parent)
-            with
-            | `Ballot, Some b, Some p ->
-                let@ ballot cont =
-                  let* x = get (Election (uuid, Data b)) in
-                  match Lopt.get_value x with
-                  | None -> Lwt.return accu
-                  | Some b -> cont (W.read_ballot ++ b)
-                in
-                let@ credential cont =
-                  match W.get_credential ballot with
-                  | None -> loop seen (accu + 1) p
-                  | Some c -> cont c
-                in
-                if CredSet.mem credential seen then loop seen accu p
-                else loop (CredSet.add credential seen) (accu + 1) p
-            | _ -> Lwt.return accu
-          in
-          loop CredSet.empty 0 e
-    in
-    let* de_nb_voters, de_has_weights =
-      let* x = get (Election (uuid, Voters_config)) in
-      match Lopt.get_value x with
-      | None -> Lwt.return (0, false)
-      | Some { has_explicit_weights; nb_voters; _ } ->
-          Lwt.return (nb_voters, has_explicit_weights)
-    in
-    let de =
-      {
-        de_uuid = uuid;
-        de_template;
-        de_owners;
-        de_nb_voters;
-        de_nb_ballots;
-        de_date = Datetime.from_unixfloat de_date;
-        de_tallied = roots.roots_result <> None;
-        de_authentication_method;
-        de_credential_method;
-        de_trustees;
-        de_has_weights;
-      }
-    in
-    let* () =
-      de |> string_of_deleted_election
-      |> (fun x -> x ^ "\n")
-      |> Filesystem.write_file (uuid /// deleted_filename)
-    in
-    delete_live_data uuid
-
-  let delete_election uuid =
-    let* x = get (Election (uuid, Roots)) in
-    match Lopt.get_value x with
-    | None -> delete_draft_election uuid
-    | Some roots -> delete_live_election uuid roots
-
-  let archive_election uuid =
-    let* () = delete_sensitive_data uuid in
-    let@ dates, set = update (Election (uuid, Dates)) in
-    let&! dates = Lopt.get_value dates in
-    set Value { dates with e_date_archive = Some (Unix.gettimeofday ()) }
-
   (** {1 Public archive operations} *)
 
   let get_last_event uuid =
@@ -1571,213 +1431,25 @@ module MakeBackend
     index.roots <- roots;
     Lwt.return_true
 
-  exception Validation_error of Belenios_web_api.validation_error
+  module Backend : Election_ops.BACKEND = struct
+    let get_unixfilename = get_unixfilename
+    let get = get
+    let set = set
+    let del = del
+    let update = update
+    let append = append
+    let new_election = new_election
+    let delete_sensitive_data = delete_sensitive_data
+    let delete_live_data = delete_live_data
 
-  let validate_election_exn uuid =
-    let@ draft cont =
-      let* x = get (Election (uuid, Draft)) in
-      match Lopt.get_value x with None -> raise Not_found | Some x -> cont x
-    in
-    let (Draft (v, se)) = draft in
-    let version = se.se_version in
-    let questions =
-      let x = se.se_questions in
-      let t_administrator =
-        match x.t_administrator with None -> se.se_administrator | x -> x
-      in
-      let t_credential_authority =
-        match x.t_credential_authority with
-        | None -> se.se_metadata.e_cred_authority
-        | x -> x
-      in
-      { x with t_administrator; t_credential_authority }
-    in
-    (* trustees *)
-    let group = Group.of_string ~version se.se_group in
-    let module G = (val group : GROUP) in
-    let trustees =
-      let open Belenios_storage_api in
-      se.se_trustees
-      |> string_of_draft_trustees Yojson.Safe.write_json
-      |> draft_trustees_of_string (sread G.Zq.of_string)
-    in
-    let module Trustees = (val Trustees.get_by_version version) in
-    let module K = Trustees.MakeCombinator (G) in
-    let module KG = Trustees.MakeSimple (G) (Random) in
-    let* trustee_names, trustees, private_keys =
-      match trustees with
-      | `Basic x -> (
-          let ts = x.dbp_trustees in
-          match ts with
-          | [] ->
-              let private_key = KG.generate () in
-              let public_key = KG.prove private_key in
-              let public_key =
-                { public_key with trustee_name = Some "server" }
-              in
-              Lwt.return ([ "server" ], [ `Single public_key ], `KEY private_key)
-          | _ :: _ ->
-              let private_key =
-                List.fold_left
-                  (fun accu { st_private_key; _ } ->
-                    match st_private_key with
-                    | Some x -> x :: accu
-                    | None -> accu)
-                  [] ts
-              in
-              let private_key =
-                match private_key with
-                | [ x ] -> `KEY x
-                | _ -> raise @@ Validation_error `NotSinglePrivateKey
-              in
-              Lwt.return
-                ( List.map (fun { st_id; _ } -> st_id) ts,
-                  List.map
-                    (fun { st_public_key; st_name; _ } ->
-                      let pk =
-                        trustee_public_key_of_string (sread G.of_string)
-                          (sread G.Zq.of_string) st_public_key
-                      in
-                      let pk = { pk with trustee_name = st_name } in
-                      `Single pk)
-                    ts,
-                  private_key ))
-      | `Threshold x -> (
-          let ts = x.dtp_trustees in
-          match x.dtp_parameters with
-          | None -> raise @@ Validation_error `KeyEstablishmentNotFinished
-          | Some tp ->
-              let tp =
-                threshold_parameters_of_string (sread G.of_string)
-                  (sread G.Zq.of_string) tp
-              in
-              let named =
-                List.combine (Array.to_list tp.t_verification_keys) ts
-                |> List.map (fun ((k : _ trustee_public_key), t) ->
-                       { k with trustee_name = t.stt_name })
-                |> Array.of_list
-              in
-              let tp = { tp with t_verification_keys = named } in
-              let trustee_names = List.map (fun { stt_id; _ } -> stt_id) ts in
-              let private_keys =
-                List.map
-                  (fun { stt_voutput; _ } ->
-                    match stt_voutput with
-                    | Some v ->
-                        let voutput =
-                          voutput_of_string (sread G.of_string)
-                            (sread G.Zq.of_string) v
-                        in
-                        voutput.vo_private_key
-                    | None -> failwith "inconsistent state")
-                  ts
-              in
-              let server_private_key = KG.generate () in
-              let server_public_key = KG.prove server_private_key in
-              let server_public_key =
-                { server_public_key with trustee_name = Some "server" }
-              in
-              Lwt.return
-                ( "server" :: trustee_names,
-                  [ `Single server_public_key; `Pedersen tp ],
-                  `KEYS (server_private_key, private_keys) ))
-    in
-    let y = K.combine_keys trustees in
-    (* election parameters *)
-    let metadata =
-      {
-        se.se_metadata with
-        e_trustees = Some trustee_names;
-        e_owners = se.se_owners;
-      }
-    in
-    let template = Belenios.Election.Template (v, questions) in
-    let raw_election =
-      let public_key = G.to_string y in
-      Election.make_raw_election ~version:se.se_version template ~uuid
-        ~group:se.se_group ~public_key
-    in
-    (* write election files to disk *)
-    let voters = se.se_voters |> List.map (fun x -> x.sv_id) in
-    let* () = voters |> set (Election (uuid, Voters)) Value in
-    let* () = metadata |> set (Election (uuid, Metadata)) Value in
-    (* initialize credentials *)
-    let* public_creds = init_credential_mapping uuid in
-    (* initialize events *)
-    let* () =
-      let raw_trustees =
-        string_of_trustees (swrite G.to_string) (swrite G.Zq.to_string) trustees
-      in
-      let raw_public_creds = string_of_public_credentials public_creds in
-      let setup_election = Hash.hash_string raw_election in
-      let setup_trustees = Hash.hash_string raw_trustees in
-      let setup_credentials = Hash.hash_string raw_public_creds in
-      let setup_data = { setup_election; setup_trustees; setup_credentials } in
-      let setup_data_s = string_of_setup_data setup_data in
-      let* x =
-        append uuid
-          [
-            Data raw_election;
-            Data raw_trustees;
-            Data raw_public_creds;
-            Data setup_data_s;
-            Event (`Setup, Some (Hash.hash_string setup_data_s));
-          ]
-      in
-      match x with
-      | true -> Lwt.return_unit
-      | false -> failwith "race condition in validate_election"
-    in
-    (* create file with private keys, if any *)
-    let* () =
-      match private_keys with
-      | `KEY x ->
-          swrite G.Zq.to_string -- x
-          |> set (Election (uuid, Private_key)) String
-      | `KEYS (x, y) ->
-          let* () =
-            swrite G.Zq.to_string -- x
-            |> set (Election (uuid, Private_key)) String
-          in
-          y |> set (Election (uuid, Private_keys)) Value
-    in
-    (* clean up draft *)
-    let@ dates, set_dates =
-     fun cont ->
-      let@ dates, set = update (Election (uuid, Dates)) in
-      match Lopt.get_value dates with
-      | None -> assert false
-      | Some dates -> cont (dates, set)
-    in
-    let* () = del (Election (uuid, Draft)) in
-    (* clean up private credentials, if any *)
-    let* () = del (Election (uuid, Private_creds)) in
-    (* write passwords *)
-    let* () =
-      match metadata.e_auth_config with
-      | Some [ { auth_system = "password"; _ } ] ->
-          let db =
-            List.filter_map
-              (fun v ->
-                let _, login, _ = Voter.get v.sv_id in
-                let& salt, hashed = v.sv_password in
-                Some [ login; salt; hashed ])
-              se.se_voters
-          in
-          if db <> [] then set (Election (uuid, Passwords)) Value db
-          else Lwt.return_unit
-      | _ -> Lwt.return_unit
-    in
-    (* finish *)
-    let* () = set (Election (uuid, State)) Value `Closed in
-    set_dates Value
-      { dates with e_date_finalization = Some (Unix.gettimeofday ()) }
+    let write_deleted_file uuid de =
+      de |> string_of_deleted_election
+      |> (fun x -> x ^ "\n")
+      |> Filesystem.write_file (uuid /// deleted_filename)
 
-  let validate_election uuid =
-    Lwt.try_bind
-      (fun () -> validate_election_exn uuid)
-      Lwt_result.return
-      (function Validation_error e -> Lwt_result.fail e | e -> Lwt.reraise e)
+    let delete_draft_election = delete_draft_election
+    let init_credential_mapping = init_credential_mapping
+  end
 
   let make set_ =
     let with_lock uuid f =
@@ -1804,13 +1476,16 @@ module MakeBackend
       let new_account_id () = with_lock None new_account_id
 
       let archive_election () uuid =
-        with_lock (Some uuid) (fun () -> archive_election uuid)
+        with_lock (Some uuid) (fun () ->
+            Election_ops.archive_election (module Backend) uuid)
 
       let delete_election () uuid =
-        with_lock (Some uuid) (fun () -> delete_election uuid)
+        with_lock (Some uuid) (fun () ->
+            Election_ops.delete_election (module Backend) uuid)
 
       let validate_election () uuid =
-        with_lock (Some uuid) (fun () -> validate_election uuid)
+        with_lock (Some uuid) (fun () ->
+            Election_ops.validate_election (module Backend) uuid)
 
       let append () uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
