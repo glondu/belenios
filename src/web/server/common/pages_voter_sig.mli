@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
+open Belenios_storage_api
 
 module type S = sig
   val lost_ballot :

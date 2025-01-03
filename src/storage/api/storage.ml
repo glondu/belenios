@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_storage_api
+open Types
 
 module type TX = sig
   module S : STORAGE

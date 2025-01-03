@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_storage_api
-open Belenios_server_core
 open Belenios_web_api
 open Api_generic
 

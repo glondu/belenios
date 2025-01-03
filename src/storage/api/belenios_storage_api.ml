@@ -22,6 +22,7 @@
 module Atd_t = Serializable_t
 module Atd_j = Serializable_j
 module Lopt = Lopt
+module Storage = Storage
 include Serializable_j
 include Extra
 include Types

@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
+open Types
 include STORAGE
 
 val register_backend :

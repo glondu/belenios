@@ -27,7 +27,7 @@ module type S = sig
   val with_election :
     (((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
     Eliom_registration.Html.result Lwt.t)
-    Belenios_server_core.Storage.u
+    Belenios_storage_api.Storage.u
 
   val redir_preapply :
     ( 'a,

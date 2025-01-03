@@ -3,8 +3,7 @@
  (libraries
   (re_export belenios-lib.api)
   (re_export belenios_storage_api)
-  (re_export belenios_cohttp)
-  xml-light))
+  (re_export belenios_cohttp)))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

@@ -23,7 +23,6 @@ include Serializable_j
 include Core
 module Filesystem = Filesystem
 module Defaults = Defaults
-module Storage = Storage
 open Belenios_storage_api
 
 let some_string_or_value (type a b) (f : a file)

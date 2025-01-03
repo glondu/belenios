@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 
 let update_hooks = ref []
 let add_update_hook f = update_hooks := f :: !update_hooks

@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_storage_api
-open Belenios_server_core
 
 val create_account : Storage.t -> email:string option -> user -> account Lwt.t
 val get_account_by_id : Storage.t -> int -> account option Lwt.t
