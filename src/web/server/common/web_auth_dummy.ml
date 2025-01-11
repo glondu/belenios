@@ -38,7 +38,7 @@ struct
         in
         return (Web_auth_sig.Html page, Web_auth.No_data)
 
-      let direct x =
+      let direct _ x =
         let fail () = failwith "invalid direct dummy authentication" in
         match x with
         | `Assoc x -> (
