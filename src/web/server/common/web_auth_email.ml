@@ -89,7 +89,8 @@ struct
               in
               return (Web_auth_sig.Html fragment, Web_auth.No_data)
 
-      let direct _ = failwith "direct authentication not implemented for email"
+      let direct _ _ =
+        failwith "direct authentication not implemented for email"
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
