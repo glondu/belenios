@@ -9,6 +9,7 @@ _build-debug
 _releases
 _run
 _testdata
+_docker
 venv
 __pycache__
 .hypothesis

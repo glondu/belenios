@@ -24,6 +24,8 @@ install: site.bundle.css booth/bundle.js booth/app.bundle.css booth/$(VOTE_PAGE)
 	cp -r booth/$(VOTE_PAGE) $(DESTDIR)/apps
 	mkdir -p $(PUBLIC_TRANSLATIONS_FOLDER)
 	cp -r $(INITIAL_TRANSLATIONS_FOLDER)/* $(PUBLIC_TRANSLATIONS_FOLDER)/
+	mkdir -p $(DESTDIR)/sbom
+	npm list --all > $(DESTDIR)/sbom/npm-packages.txt
 
 format:
 	npx prettier ./booth --write
@@ -44,7 +46,12 @@ booth/app.bundle.css: package-lock.json $(CSS_DEPS)
 	NODE_PATH=$(CURDIR)/node_modules nodejs ./bundle-css.js booth/app.css > $@
 
 package-lock.json: package.json
+ifeq "$(BELENIOS_NPM_OFFLINE_CACHE)" ""
 	npm install
+else
+	cp $(BELENIOS_NPM_OFFLINE_CACHE)/package-lock.json .
+	npm ci --cache $(BELENIOS_NPM_OFFLINE_CACHE) --offline
+endif
 
 .PHONY: install clean
 

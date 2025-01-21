@@ -9,8 +9,8 @@ This file documents a technique with a (relatively) small runtime
 footprint on the deployment server. With this technique, the
 "development" and the "deployment" environments are distinguished and
 can be on different machines. The benefit is that the development
-environment takes more than 3.5 GB while the deployment environment
-takes a few hundreds MB. Several instances can be deployed on the same
+environment takes several gigabytes while the deployment environment
+takes less than 100 MB. Several instances can be deployed on the same
 machine. It is expected that these instances listen on localhost, and
 that a reverse-proxy on the host exposes them on different vhosts or
 directories of some vhost, with TLS. Configuring the reverse-proxy is
@@ -30,33 +30,24 @@ installed on the development host:
 - `squashfs-tools-ng`
 - `zstd`
 - `git`
+- `sbuild`
 
 
 Building the image
 ------------------
 
-The whole process takes at least 25 min, depending on the host and
+The whole process takes approx. 15 min, depending on the host and
 Internet connection.
 
 ### On Debian-based systems
 
-Set `BIGTMP` to a directory with sufficient space (>= 10 GB).
-
-Set `SUITE` to the Debian suite the image will be based on. For
-production, it is recommended to use the latest stable release,
-e.g. `bookworm`.
-
-Set `VERSION` to a suitable version number for the toolchain. This
-number should not matter much, but it is suggested to use
-`0.<opam-snapshot>.0+${SUITE}<suite-snaphot>`, where `<opam-snapshot>`
-is the date (in `YYYYMMDD` format) of the opam snapshot and
-`<suite-snapshot>` is the date of the Debian snapshot.
+Set `TMPDIR` to a directory with sufficient space (>= 10 GB).
 
 Set `TARGET` to a directory where artifacts will be put.
 
 Run:
 
-    contrib/unshare/setup-build-dir.sh "$SUITE" "$VERSION" "$BIGTMP" "$TARGET"
+    contrib/debian/setup-build-dir.sh "$TARGET"
 
 This will set up `$TARGET` with a `Makefile`. Then, go to this
 directory and run:
@@ -71,17 +62,14 @@ Build the building environment:
 
     docker build -f contrib/docker/nspawn-build.Dockerfile -t belenios-nspawn-image .
 
-Enter the building environment:
+Prepare the directory on the host where images will be built:
 
-    docker run --privileged --name belenios-nspawn-container -ti --rm belenios-nspawn-image
+    mkdir -p _docker
+    docker run --rm belenios-nspawn-image tar -C /tmp -c build | tar -C _docker -x
 
-From inside the container, build the image:
+Build the image:
 
-    make
-
-From another terminal, copy the image outside the container:
-
-    docker cp belenios-nspawn-container:/tmp/build <dest-path>
+    docker run --privileged --tty --rm --volume=$PWD:/tmp/belenios --volume=$PWD/_docker/build:/tmp/build belenios-nspawn-image make
 
 
 Deploying
@@ -142,9 +130,9 @@ the name of your instance):
     machinectl shell belenios-main
 
 The systemd unit running the web server (inside the container) is
-called `belenios.service` so you can, for example, run:
+called `belenios-server.service` so you can, for example, run:
 
-    systemctl status belenios
+    systemctl status belenios-server
 
 to see if the unit is running and debug it if needed. You can also use
 `journalctl` or read Belenios-specific logs in `/var/belenios/log`.
