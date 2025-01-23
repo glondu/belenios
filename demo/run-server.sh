@@ -14,6 +14,12 @@ if [ -e .git ]; then
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
     : ${BELENIOS_BINDIR:=_run/usr/bin}
     : ${BELENIOS_SHAREDIR:=_run/usr/share/belenios-server}
+else
+    : ${BELENIOS_CONFIG:=/etc/belenios/ocsigenserver.conf.in}
+    : ${BELENIOS_VARDIR:=/var/belenios}
+    : ${BELENIOS_RUNDIR:=/run/belenios}
+    : ${BELENIOS_BINDIR:=/usr/bin}
+    : ${BELENIOS_SHAREDIR:=/usr/share/belenios-server}
 fi
 
 check_nonempty_var () {

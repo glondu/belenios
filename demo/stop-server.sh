@@ -10,6 +10,8 @@ fi
 
 if [ -e .git ]; then
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
+else
+    : ${BELENIOS_RUNDIR:=/run/belenios}
 fi
 
 echo shutdown 10 > $BELENIOS_RUNDIR/ocsigenserver_command
