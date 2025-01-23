@@ -13,7 +13,6 @@ if [ -e .git ]; then
     : ${BELENIOS_VARDIR:=_run}
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
     : ${BELENIOS_BINDIR:=_run/usr/bin}
-    : ${BELENIOS_LIBDIR:=_run/usr/lib}
     : ${BELENIOS_SHAREDIR:=_run/usr/share/belenios-server}
 fi
 
@@ -33,7 +32,6 @@ fi
 check_nonempty_var BELENIOS_VARDIR
 check_nonempty_var BELENIOS_RUNDIR
 check_nonempty_var BELENIOS_BINDIR
-check_nonempty_var BELENIOS_LIBDIR
 check_nonempty_var BELENIOS_SHAREDIR
 
 mkdir -p \
@@ -54,7 +52,6 @@ touch $BELENIOS_VARDIR/password_db.csv
 sed \
     -e "s@_VARDIR_@$BELENIOS_VARDIR@g" \
     -e "s@_RUNDIR_@$BELENIOS_RUNDIR@g" \
-    -e "s@_LIBDIR_@$BELENIOS_LIBDIR@g" \
     -e "s@_SHAREDIR_@$BELENIOS_SHAREDIR@g" \
     $BELENIOS_CONFIG > $BELENIOS_VARDIR/etc/ocsigenserver.conf
 

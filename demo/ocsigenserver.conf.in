@@ -26,8 +26,6 @@
 
     <charset>utf-8</charset>
 
-    <findlib path="_LIBDIR_"/>
-
     <extension name="staticmod"/>
     <extension name="redirectmod"/>
 

@@ -172,7 +172,6 @@ BELENIOS_CONFIG=/etc/belenios/ocsigenserver.conf.in
 BELENIOS_VARDIR=/var/belenios
 BELENIOS_RUNDIR=/tmp/belenios
 BELENIOS_BINDIR=/opt/belenios/bin
-BELENIOS_LIBDIR=/opt/belenios/lib
 BELENIOS_SHAREDIR=/opt/belenios/share/belenios-server
 XOF
 
