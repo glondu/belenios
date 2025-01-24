@@ -141,11 +141,12 @@ let generate_key ~uuid ~token ~url generate continue =
         r
       in
       let download =
-        let href = encode_data_uri ~mime_type:p.mime_type p.private_key in
         let element =
-          a ~href
-            ~a:[ a_id "private_key"; a_download (Some (p.filename uuid)) ]
-            (s_ "private key")
+          a_data
+            ~a:[ a_id "private_key" ]
+            ~mime_type:p.mime_type ~filename:(p.filename uuid)
+            ~data:p.private_key
+          @@ s_ "private_key"
         in
         let r = Tyxml_js.To_dom.of_a element in
         r##.onclick :=

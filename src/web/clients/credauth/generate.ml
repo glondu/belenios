@@ -80,15 +80,12 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
       r##.disabled := Js._false;
       true
     in
-    a
-      ~a:
-        [
-          a_id "creds";
-          a_download @@ Some (Printf.sprintf "creds-%s.txt" (Uuid.unwrap uuid));
-          a_onclick handler;
-        ]
-      ~href:(encode_data_uri ~mime_type:"text/plain" private_credentials)
-      (s_ "private credentials")
+    a_data
+      ~a:[ a_id "creds"; a_onclick handler ]
+      ~mime_type:"text/plain"
+      ~filename:(Printf.sprintf "creds-%s.txt" (Uuid.unwrap uuid))
+      ~data:private_credentials
+    @@ s_ "private credentials"
   in
   List.iter
     (fun x -> Dom.appendChild container @@ Tyxml_js.To_dom.of_node x)
@@ -124,16 +121,13 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
               li
                 [
                   txt @@ s_ "Download ";
-                  a
-                    ~a:
-                      [
-                        a_id "voters_txt";
-                        a_download
-                        @@ Some
-                             (Printf.sprintf "voters-%s.txt" (Uuid.unwrap uuid));
-                      ]
-                    ~href:(encode_data_uri ~mime_type:"text/plain" voters)
-                    (s_ "voter list");
+                  a_data
+                    ~a:[ a_id "voters_txt" ]
+                    ~mime_type:"text/plain"
+                    ~filename:
+                      (Printf.sprintf "voters-%s.txt" (Uuid.unwrap uuid))
+                    ~data:voters
+                  @@ s_ "voter list";
                   txt ".";
                   br ();
                   txt

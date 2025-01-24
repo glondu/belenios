@@ -257,7 +257,7 @@ let markup =
   let module M = Belenios_ui.Markup_light.Make (Tyxml_js) in
   M.markup
 
-let majority_judgment_content q r =
+let majority_judgment_content uuid q r =
   let open (val !Belenios_js.I18n.gettext) in
   let explicit_winners =
     let open Belenios_question.Non_homomorphic.Syntax in
@@ -291,12 +291,10 @@ let majority_judgment_content q r =
     | None -> txt ""
   in
   let invalid =
-    string_of_mj_ballots r.mj_invalid
-    |> encode_data_uri ~mime_type:"application/json"
-  in
-  let invalid =
-    a ~href:invalid
-      (Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid))
+    a_data ~mime_type:"application/json"
+      ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.unwrap uuid))
+      ~data:(string_of_mj_ballots r.mj_invalid)
+    @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)
   in
   let invalid = div [ invalid ] in
   [
@@ -371,7 +369,7 @@ let schulze_content q r =
     blank;
   ]
 
-let stv_content q r =
+let stv_content uuid q r =
   let open (val !Belenios_js.I18n.gettext) in
   let winners =
     let open Belenios_question.Non_homomorphic.Syntax in
@@ -380,13 +378,12 @@ let stv_content q r =
     |> List.map (fun l -> li [ txt l ])
   in
   let invalid =
-    ( r.stv_invalid |> string_of_mj_ballots
-    |> encode_data_uri ~mime_type:"application/json"
-    |> fun href ->
-      a ~href
-        (Printf.sprintf
-           (f_ "%d invalid ballot(s)")
-           (Array.length r.stv_invalid)) )
+    ( r.stv_invalid |> string_of_mj_ballots |> fun data ->
+      a_data ~mime_type:"application/json"
+        ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.unwrap uuid))
+        ~data
+      @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.stv_invalid)
+    )
     |> fun x ->
     div
       [
@@ -399,9 +396,11 @@ let stv_content q r =
       ]
   in
   let events =
-    r.stv_events |> string_of_stv_events
-    |> encode_data_uri ~mime_type:"application/json"
-    |> fun href -> a ~href (s_ "Raw events")
+    r.stv_events |> string_of_stv_events |> fun data ->
+    a_data ~mime_type:"application/json"
+      ~filename:(Printf.sprintf "raw_stv_events-%s.json" (Uuid.unwrap uuid))
+      ~data
+    @@ s_ "Raw events"
   in
   let tie =
     if
@@ -441,7 +440,7 @@ let stv_content q r =
     div [ invalid ];
   ]
 
-let format_question_result r (question : Belenios_question.t) =
+let format_question_result uuid r (question : Belenios_question.t) =
   let open (val !Belenios_js.I18n.gettext) in
   let open Belenios_question in
   match question.value with
@@ -488,7 +487,7 @@ let format_question_result r (question : Belenios_question.t) =
               Methods.Majority_judgment.compute ~nchoices ~ngrades
                 ~blank_allowed ballots
             in
-            let contents = majority_judgment_content q mj in
+            let contents = majority_judgment_content uuid q mj in
             (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
         | `Schulze o ->
             let nchoices = Array.length q.q_answers in
@@ -499,7 +498,7 @@ let format_question_result r (question : Belenios_question.t) =
         | `STV o ->
             let nseats = o.stv_extra_seats in
             let r = Methods.Stv.compute ~nseats ballots in
-            let contents = stv_content q r in
+            let contents = stv_content uuid q r in
             (div ~a:[ a_class [ "stv_result" ] ] contents, false)
       in
       let others =
@@ -518,9 +517,11 @@ let format_question_result r (question : Belenios_question.t) =
           div
             [
               txt (s_ "The raw results can be viewed in the ");
-              a
-                ~href:(encode_data_uri ~mime_type:"application/json" r)
-                (s_ "JSON result");
+              a_data ~mime_type:"application/json"
+                ~filename:
+                  (Printf.sprintf "raw_result-%s.json" (Uuid.unwrap uuid))
+                ~data:r
+              @@ s_ "JSON result";
               txt ". ";
               txt
                 (s_
@@ -578,11 +579,17 @@ let make_result_div election t ~result =
         ]
     else txt ""
   in
-  let raw_result = encode_data_uri ~mime_type:"application/json" result in
+  let raw_result =
+    a_data ~mime_type:"application/json"
+      ~filename:(Printf.sprintf "raw_result-%s.json" (Uuid.unwrap uuid))
+      ~data:result
+    @@ s_ "raw result"
+  in
   div
     [
       ul
-        (Array.map2 format_question_result
+        (Array.map2
+           (format_question_result uuid)
            (to_generic_result r.result)
            questions
         |> Array.to_list);
@@ -591,12 +598,7 @@ let make_result_div election t ~result =
           txt @@ s_ "Number of accepted ballots: "; txt (string_of_int nballots);
         ];
       div_total_weight;
-      div
-        [
-          txt @@ s_ "You can also download the ";
-          a ~href:raw_result (s_ "raw result");
-          txt ".";
-        ];
+      div [ txt @@ s_ "You can also download the "; raw_result; txt "." ];
     ]
 
 let home configuration ?credential uuid =

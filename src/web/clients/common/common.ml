@@ -240,9 +240,13 @@ let a_mailto ?a:attributes ~recipient ~subject ~body label =
   let href = Printf.sprintf "mailto:%s?%s" recipient params in
   a ?a:attributes ~href label
 
-let a_data ~filename ~mime_type ~data x =
+let a_data ?a:attributes ~filename ~mime_type ~data x =
   let href = encode_data_uri ~mime_type data in
-  a ~a:[ Tyxml_js.Html.a_download (Some filename) ] ~href x
+  let attributes =
+    Tyxml_js.Html.a_download (Some filename)
+    :: Option.value ~default:[] attributes
+  in
+  a ~a:attributes ~href x
 
 let scrollIntoViewById id =
   let&&* d = document##getElementById (Js.string id) in

@@ -1314,17 +1314,9 @@ let credauth_content () =
     | Error _ -> Lwt.return @@ div [ txt "Error" ]
     | Ok (p, _) ->
         let link =
-          let href =
-            string_of_private_credentials p
-            |> encode_data_uri ~mime_type:"text/plain"
-          in
-          a
-            ~a:
-              [
-                a_download
-                  (Some (Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid)));
-              ]
-            ~href
+          a_data ~mime_type:"text/plain"
+            ~data:(string_of_private_credentials p)
+            ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid))
           @@ s_ "the private parts of the credentials"
         in
         let r = Tyxml_js.To_dom.of_a link in
