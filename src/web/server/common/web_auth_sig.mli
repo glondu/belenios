@@ -33,7 +33,7 @@ module type AUTH_SYSTEM = sig
   val pre_login_handler :
     [ `Username | `Address ] -> state:string -> (result * data) Lwt.t
 
-  val direct : Yojson.Safe.t -> string Lwt.t
+  val direct : Storage.t -> Yojson.Safe.t -> string Lwt.t
 end
 
 type auth_system = {

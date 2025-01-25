@@ -116,7 +116,7 @@ struct
             return (Web_auth_sig.Redirection url, Data_oidc ocfg)
         | _ -> failwith "oidc_login_handler invoked with bad config"
 
-      let direct _ =
+      let direct _ _ =
         failwith "direct authentication not implemented for OpenID Connect"
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
