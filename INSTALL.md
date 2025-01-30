@@ -126,21 +126,6 @@ This is automatically handled by `opam-bootstrap.sh`
 Command-line tool
 -----------------
 
-To compile the command-line tool, you will need:
-
- * [OCaml](https://ocaml.org/)
- * [Dune](https://dune.build/)
- * [Zarith](https://github.com/ocaml/Zarith)
- * [Cryptokit](https://github.com/xavierleroy/cryptokit)
- * [Atdgen](https://github.com/ahrefs/atd)
- * [Yojson](https://github.com/ocaml-community/yojson)
- * [Cmdliner](http://erratique.ch/software/cmdliner)
-
-With OPAM, these dependencies can be installed with the following
-command:
-
-    opam install dune atdgen zarith cryptokit cmdliner
-
 Once all the dependencies have been installed, the command-line tool
 can be compiled with:
 
@@ -154,16 +139,7 @@ full path.
 Web server
 ----------
 
-The web server has the following additional dependencies:
-
- * [Calendar](http://calendar.forge.ocamlcore.org/)
- * [Eliom](http://ocsigen.org/eliom/)
-
-With OPAM, you can install them with:
-
-    opam install calendar eliom
-
-Once all the dependencies have been installed, the Eliom module can be
+Once all the dependencies have been installed, the web server can be
 compiled with:
 
     make build-release-server
@@ -187,42 +163,6 @@ Once all the dependencies have been installed, the documentation can
 be compiled with:
 
     make doc
-
-Compiling on Windows using Cygwin
----------------------------------
-
-Windows is not yet a fully supported platform, but you can compile at
-least the command-line tool on Windows + 32-bit
-[Cygwin](http://cygwin.com/index.html). You might need the following
-packages:
-
- * curl
- * dos2unix
- * flexdll
- * gcc-core
- * gcc-g++
- * git
- * gmp
- * libgmp-devel
- * libsodium-devel
- * libncursesw-devel
- * libsqlite3-devel
- * m4
- * make
- * ocaml
- * ocaml-base
- * ocaml-camlp4
- * ocaml-compiler-libs
- * openssh
- * patch
- * pkg-config
- * zlib-devel
-
-With these packages installed, you should be able to install OPAM by
-following its [installation instructions from
-sources](http://opam.ocaml.org/doc/Install.html#FromSources).
-Once OPAM is installed, follow the instructions in the _Command-line
-tool_ section above.
 
 Troubleshooting
 ---------------
@@ -280,14 +220,6 @@ This can be worked around with the following steps:
  * resume the installation by running again the `opam install` command
    found in `opam-bootstrap.sh`;
  * follow the instructions given at the end of `opam-bootstrap.sh`.
-
-### Errors while compiling ocsigenserver
-
-If ocsigenserver fails to install because of a SSL-related error:
-
- * edit `opam-bootstrap.sh` by adding ` ssl=0.5.2` to the `opam
-   install` call;
- * run `./opam-bootstrap.sh`.
 
 ### Errors while compiling Belenios itself
 
