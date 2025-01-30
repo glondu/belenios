@@ -31,6 +31,19 @@ systemd-nspawn](contrib/nspawn/README.md).
 The rest of this file documents other ways to build Belenios on
 standard POSIX systems.
 
+On Debian sid
+-------------
+
+The preferred developing environment for Belenios is Debian sid. Most
+of the time, testing can be used as well. All dependencies can be
+installed with the script
+[contrib/debian/install-deps.sh](contrib/debian/install-deps.sh).
+
+Backports of all OCaml packages from Debian testing to stable are
+periodically built, in order to make nspawn images based on Debian
+stable, but with more recent OCaml packages. The details can be found
+in [contrib/debian/config.sh](contrib/debian/config.sh).
+
 The easy way
 ------------
 
