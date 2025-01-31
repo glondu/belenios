@@ -166,7 +166,10 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({
   if (shouldDisplayWideMode) {
     cssClasses += " majority-judgment-vote-big-candidates-list--wide";
   }
-  const approximateCandidatesListHeight = 100 * candidates.length;
+  let approximateCandidatesListHeight = 100 * candidates.length;
+  if (blankVoteIsAllowed) {
+    approximateCandidatesListHeight += 100;
+  }
   let afterCandidatesList = [];
   if (shouldDisplayWideMode) {
     afterCandidatesList = [
