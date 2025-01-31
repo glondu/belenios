@@ -41,6 +41,7 @@ let available =
     ("pt", "Português");
     ("pt_BR", "Português (Brasil)");
     ("ro", "Română");
+    ("ru", "Русский");
     ("sk", "Slovenčina");
     ("ta", "தமிழ்");
     ("uk", "Українська");
