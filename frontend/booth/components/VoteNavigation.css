@@ -43,7 +43,7 @@
   align-items: center;
   text-align: center;
   color: #424242;
-  font-weight: bold
+  font-weight: bold;
 }
 
 .vote-navigation__previous-button-container,
@@ -53,9 +53,9 @@
 }
 
 .vote-navigation__previous-button::before {
-    content: "<\a0\a0"
+  content: "<\a0\a0";
 }
 
 .vote-navigation__next-button::after {
-    content: "\a0\a0>"
+  content: "\a0\a0>";
 }

@@ -67,12 +67,12 @@
   font-weight: 700;
   font-size: 12px;
   border-radius: 0 var(--border-radius-size) var(--border-radius-size) 0;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
 }
 
 .majority-judgment-vote-big-candidate__grade:hover {
-  background-color: ;
-  /* Couleur orange au survol */
   transform: translateY(-2px);
   /* Soulève légèrement l'option au survol */
   color: white;
@@ -101,7 +101,8 @@
   transition: color 0.3s ease;
 }
 
-.majority-judgment-vote-big-candidate__grade__input:checked~.majority-judgment-vote-big-candidate__grade__label {
+.majority-judgment-vote-big-candidate__grade__input:checked
+  ~ .majority-judgment-vote-big-candidate__grade__label {
   background-color: var(--majority-judgment-available-grade-color);
   border-radius: 8px;
   color: #fff;
