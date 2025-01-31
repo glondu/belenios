@@ -29,23 +29,36 @@ open Belenios_js.Common
 open Common
 
 let format_period x =
-  let open (val !Belenios_js.I18n.gettext) in
   let ( // ) x m =
     let r = Float.floor (x /. m) in
     (x -. (r *. m), r)
   in
   let x, days = x // 86400. in
   let x, hours = x // 3600. in
-  let x, minutes = x // 60. in
-  let seconds = Float.round x in
-  let ( ++ ) x s = if x = 0. then "" else Printf.sprintf "%g%s" x s in
-  let days = days ++ s_ " day(s)" in
-  let hours = hours ++ s_ " hour(s)" in
-  let minutes = minutes ++ s_ " minute(s)" in
-  let seconds = seconds ++ s_ " second(s)" in
-  [ days; hours; minutes; seconds ]
-  |> List.filter (fun x -> x <> "")
-  |> String.concat " "
+  let seconds, minutes = x // 60. in
+  let b = Buffer.create 16 in
+  let () = if days > 0. then Printf.bprintf b "%g:" days in
+  let () = if days > 0. || hours > 0. then Printf.bprintf b "%02g:" hours in
+  let () = Printf.bprintf b "%02g:%02g" minutes seconds in
+  Buffer.contents b
+
+let countdown fmt end_ =
+  let endf =
+    let t = new%js Js.date_fromTimeValue (end_ *. 1000.) in
+    Js.to_string t##toLocaleString
+  in
+  let elt = span [] in
+  let dom = Tyxml_js.To_dom.of_span elt in
+  let timer () =
+    let delta = Float.ceil (end_ -. ((new%js Js.date_now)##valueOf /. 1000.)) in
+    if delta >= 0. then
+      dom##.textContent :=
+        Js.some (Js.string (Printf.sprintf fmt endf (format_period delta)))
+    else Dom_html.window##.location##reload
+  in
+  timer ();
+  let _interval = Dom_html.window##setInterval (Js.wrap_callback timer) 500. in
+  elt
 
 let make_object_link uuid h =
   let href = !/Belenios_web_api.Endpoints.((election_object uuid h).path) in
@@ -630,13 +643,7 @@ let home configuration ?credential uuid =
         let it_will_open =
           match dates.auto_date_open with
           | Some t when now < t ->
-              span
-                [
-                  txt " ";
-                  txt @@ s_ "It will open in ";
-                  txt @@ format_period (t -. now);
-                  txt ".";
-                ]
+              div [ countdown (f_ "It will open at %s (time left: %s).") t ]
           | _ -> txt ""
         in
         [ b [ txt @@ s_ "This election is currently closed." ]; it_will_open ]
@@ -644,11 +651,11 @@ let home configuration ?credential uuid =
         let it_will_close =
           match dates.auto_date_close with
           | Some t when now < t ->
-              span
+              div
                 [
-                  txt @@ s_ "The election will close in ";
-                  txt @@ format_period (t -. now);
-                  txt ".";
+                  countdown
+                    (f_ "The election will close at %s (time left: %s).")
+                    t;
                 ]
           | _ -> txt ""
         in
@@ -717,7 +724,7 @@ let home configuration ?credential uuid =
   let contents =
     [
       div ~a:[ a_class [ "clear" ] ] [];
-      p state;
+      div state;
       br ();
       middle;
       br ();
