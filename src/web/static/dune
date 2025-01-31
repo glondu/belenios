@@ -3,7 +3,7 @@
   (glob_files
    (*.png with_prefix static))
   (glob_files
-   (*.css with_prefix static))
+   (*.css with_prefix static/css))
   (glob_files
    (*.js with_prefix static)))
  (section share)

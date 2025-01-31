@@ -54,7 +54,7 @@ struct
         ~get_params:(Eliom_parameter.string "version")
         ()
     in
-    make_absolute_string_uri ~service ([ "static"; x ], Version.build)
+    make_absolute_string_uri ~service ("static" :: x, Version.build)
     |> Eliom_content.Xml.uri_of_string
 
   let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
@@ -130,7 +130,9 @@ struct
           [ a_name "viewport"; a_content "width=device-width, initial-scale=1" ]
         ()
       :: script (txt "window.onbeforeunload = function () {};")
-      :: link ~rel:[ `Stylesheet ] ~href:(static "site.bundle.css") ()
+      :: link ~rel:[ `Stylesheet ]
+           ~href:(static [ "css"; "site.bundle.css" ])
+           ()
       :: head_content
     in
     Lwt.return
@@ -590,7 +592,7 @@ struct
       (head (title (txt "Belenios")) [])
       (body
          [
-           script ~a:[ a_src (static "belenios_jslib.js") ] (txt "");
+           script ~a:[ a_src (static [ "belenios_jslib.js" ]) ] (txt "");
            make_unsafe_script x;
          ])
 end

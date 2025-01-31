@@ -103,7 +103,7 @@ struct
                 div ~a:[ a_id "nav_username" ] [ txt account.name ];
                 img
                   ~a:[ a_id "avatar" ]
-                  ~src:(static "avatar.png") ~alt:"Avatar" ();
+                  ~src:(static [ "avatar.png" ]) ~alt:"Avatar" ();
               ];
             div
               ~a:[ a_id "logout"; a_class [ "nav-menu__item"; "noselect" ] ]
@@ -403,7 +403,7 @@ struct
     let interactivity =
       div
         ~a:[ a_id "interactivity" ]
-        [ script_with_lang ~lang "tool_js_fingerprint.js" ]
+        [ script_with_lang ~lang [ "tool_js_fingerprint.js" ] ]
     in
     let content = [ interactivity ] in
     base ~title:(s_ "Compute fingerprint") ~content ()

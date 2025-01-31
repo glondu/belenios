@@ -85,7 +85,7 @@ module type S = sig
     string ->
     [> `Textarea ] Eliom_content.Html.elt
 
-  val static : string -> Eliom_content.Xml.uri
+  val static : string list -> Eliom_content.Xml.uri
 
   val read_snippet :
     ?default:([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt ->
