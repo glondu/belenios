@@ -1,11 +1,13 @@
 3.1~dev
 =======
 
+ * Add a contributing policy
  * Software stack:
-   + Use OCaml 5.2.1
+   + Support OCaml >= 5.2
    + Use `markup` for HTML parsing
    + Regenerate `libsodium.wasm`
    + Stop vendoring JSBN
+   + Document Debian Sid as the preferred developing environment
  * Add safety checks in vector encoding into group element for NH
    questions
  * Remove support for salt-based credentials (they have been obsolete
@@ -14,19 +16,26 @@
    + Notable bugfixes:
      - Allow setting publish date during tallying
      - Fix countdown to automatic opening/closing (GitHub issue #89)
-   + Add uuid to downloaded filenames
+     - Always provide a download attribute when linking to a data URI
+     - Fix display bug in MJ booth with large grades and blank vote
+   + Many changes in the web API
+   + Add uuid to downloadable file names
    + Use username (when available) in "To" header of sent e-mails
+   + Serve CSS files from a dedicated directory
    + Admin UI:
      - In question editor, check safety and show complexity
      - Handle better errors in voter list (GitLab issue #15)
+     - Allow setting automatic dates for draft elections as well
+     - Start elections in closed state
    + Trustee UI:
      - Do not force page reloads during threshold key generation
        protocol
    + Election homepage:
      - Add final event hash to audit box
      - Add links to objects in audit box
+     - Change display of automatic opening/closing times
    + Translations:
-     - Add Tamil
+     - Add Tamil, Russian
 
 3.0 (2024-10-08)
 ================
