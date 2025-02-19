@@ -29,8 +29,6 @@ module Crypto_primitives : sig
   val pbkdf2_utf8 :
     iterations:int -> salt:string -> size:int -> string -> string
 
-  val aes_hex : key:string -> data:string -> string
-
   val encrypt : key:string -> iv:string -> plaintext:string -> string
   (** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
 

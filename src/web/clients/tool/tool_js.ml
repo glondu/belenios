@@ -83,8 +83,6 @@ module Tests = struct
       "0000000000000000000000000000000000000000000000000000000000000000"
     in
     let iv = "00000000000000000000000000000000" in
-    check "AES" (fun () ->
-        aes_hex ~key ~data:iv = "dc95c078a2408989ad48a21492842087");
     let plaintext =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
     in

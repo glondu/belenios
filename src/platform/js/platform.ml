@@ -116,13 +116,6 @@ module Crypto_primitives = struct
 
   let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
 
-  let aes_hex ~key ~data =
-    let key = hex_toBits key in
-    let data = hex_toBits data in
-    let cipher = new%js Sjcl.aes key in
-    let output = cipher##encrypt data in
-    hex_fromBits output
-
   let encrypt ~key ~iv ~plaintext =
     let key = hex_toBits key in
     let iv = hex_toBits iv in

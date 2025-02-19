@@ -77,13 +77,6 @@ module Crypto_primitives = struct
     end
   (* OK for a single block *)
 
-  let aes_hex ~key ~data =
-    let open Cryptokit in
-    let key = transform_string (Hexa.decode ()) key in
-    let data = transform_string (Hexa.decode ()) data in
-    let output = aes_raw ~key ~data in
-    transform_string (Hexa.encode ()) output
-
   let read_i32 str i =
     let open Int32 in
     let ( ! ) x = of_int (int_of_char str.[i + x]) in
