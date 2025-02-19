@@ -89,8 +89,10 @@ module Tests = struct
     let ciphertext =
       "91f136cd65db6fa83b4943395e388089d4a8d0531b43a24a6498a1433559039ce5a18734752e13418718be1c2da5cca3d89e6e62fb729a81ec1cb3d1174e770c"
     in
-    check "AES-CCM-encrypt" (fun () -> encrypt ~key ~iv ~plaintext = ciphertext);
-    check "AES-CCM-decrypt" (fun () -> decrypt ~key ~iv ~ciphertext = plaintext);
+    check "AES-CCM-encrypt" (fun () ->
+        AES_CCM.encrypt ~key ~iv ~plaintext = ciphertext);
+    check "AES-CCM-decrypt" (fun () ->
+        AES_CCM.decrypt ~key ~iv ~ciphertext = plaintext);
     Printf.ksprintf alert "%d tests were successful!" !ntests;
     Lwt.return_unit
 

@@ -246,7 +246,7 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let y_beta = G.((y **~ r) *~ key) in
     let key = sha256_hex ("key|" ^ G.to_string key) in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    let y_data = Crypto_primitives.encrypt ~key ~iv ~plaintext in
+    let y_data = Crypto_primitives.AES_CCM.encrypt ~key ~iv ~plaintext in
     { y_alpha; y_beta; y_data }
 
   let decrypt x { y_alpha; y_beta; y_data } =
@@ -254,7 +254,7 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
       sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x)))
     in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    Crypto_primitives.decrypt ~key ~iv ~ciphertext:y_data
+    Crypto_primitives.AES_CCM.decrypt ~key ~iv ~ciphertext:y_data
 
   let make_cert ~sk ~dk ~context =
     let cert_keys =

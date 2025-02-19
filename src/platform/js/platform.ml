@@ -85,26 +85,28 @@ module Belenios_js_crypto = struct
 end
 
 module Crypto_primitives = struct
-  let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
-  let hex_toBits x = Sjcl.hex##toBits (Js.string x)
-  let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
-  let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
+  module AES_CCM = struct
+    let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
+    let hex_toBits x = Sjcl.hex##toBits (Js.string x)
+    let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
+    let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
 
-  let encrypt ~key ~iv ~plaintext =
-    let key = hex_toBits key in
-    let iv = hex_toBits iv in
-    let plaintext = utf8String_toBits plaintext in
-    let prf = new%js Sjcl.aes key in
-    let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
-    hex_fromBits ciphertext
+    let encrypt ~key ~iv ~plaintext =
+      let key = hex_toBits key in
+      let iv = hex_toBits iv in
+      let plaintext = utf8String_toBits plaintext in
+      let prf = new%js Sjcl.aes key in
+      let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
+      hex_fromBits ciphertext
 
-  let decrypt ~key ~iv ~ciphertext =
-    let key = hex_toBits key in
-    let iv = hex_toBits iv in
-    let ciphertext = hex_toBits ciphertext in
-    let prf = new%js Sjcl.aes key in
-    let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
-    utf8String_fromBits plaintext
+    let decrypt ~key ~iv ~ciphertext =
+      let key = hex_toBits key in
+      let iv = hex_toBits iv in
+      let ciphertext = hex_toBits ciphertext in
+      let prf = new%js Sjcl.aes key in
+      let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
+      utf8String_fromBits plaintext
+  end
 
   type rng = unit
 

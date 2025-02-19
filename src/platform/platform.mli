@@ -24,10 +24,12 @@ module Debug : sig
 end
 
 module Crypto_primitives : sig
-  val encrypt : key:string -> iv:string -> plaintext:string -> string
-  (** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
+  module AES_CCM : sig
+    val encrypt : key:string -> iv:string -> plaintext:string -> string
+    (** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
 
-  val decrypt : key:string -> iv:string -> ciphertext:string -> string
+    val decrypt : key:string -> iv:string -> ciphertext:string -> string
+  end
 
   type rng
 
