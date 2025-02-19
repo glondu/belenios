@@ -220,6 +220,7 @@ struct
                                 return x)
                       in
                       let* token = Api_generic.new_token account in
+                      let* () = Web_state.discard () in
                       Eliom_reference.set Web_state.site_user
                         (Some (user, account, token))
                   | Some _ -> Lwt.return_unit
