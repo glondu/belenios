@@ -85,7 +85,12 @@ module Belenios_js_crypto = struct
 end
 
 module Crypto_primitives = struct
-  module AES_CCM = struct
+  module type ENDECRYPT = sig
+    val encrypt : key:string -> iv:string -> plaintext:string -> string
+    val decrypt : key:string -> iv:string -> ciphertext:string -> string
+  end
+
+  module AES_CCM : ENDECRYPT = struct
     let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
     let hex_toBits x = Sjcl.hex##toBits (Js.string x)
     let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string

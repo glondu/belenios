@@ -24,7 +24,12 @@ module Debug = struct
 end
 
 module Crypto_primitives = struct
-  module AES_CCM = struct
+  module type ENDECRYPT = sig
+    val encrypt : key:string -> iv:string -> plaintext:string -> string
+    val decrypt : key:string -> iv:string -> ciphertext:string -> string
+  end
+
+  module AES_CCM : ENDECRYPT = struct
     let aes_raw ~key ~data =
       begin [@alert "-crypto"]
         let open Cryptokit in
