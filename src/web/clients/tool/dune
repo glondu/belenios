@@ -16,6 +16,6 @@
  (name tool_js)
  (modes js)
  (modules tool_js)
- (libraries belenios_js)
+ (libraries belenios_js hex)
  (preprocess
   (pps js_of_ocaml-ppx)))

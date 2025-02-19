@@ -96,6 +96,19 @@ module Tests = struct
       check "AES-CCM-decrypt" (fun () -> t_plaintext = Some plaintext);
       Lwt.return_unit
     in
+    let* () =
+      let key = "00000000000000000000000000000000" in
+      let iv = "000000000000000000000000" in
+      let plaintext = Hex.to_string (`Hex "00000000000000000000000000000000") in
+      let ciphertext =
+        "0388dace60b6a392f328c2b971b2fe78ab6e47d42cec13bdf53a67b21257bddf"
+      in
+      let* t_ciphertext = AES_GCM.encrypt ~key ~iv ~plaintext in
+      check "AES-GCM-encrypt" (fun () -> t_ciphertext = ciphertext);
+      let* t_plaintext = AES_GCM.decrypt ~key ~iv ~ciphertext in
+      check "AES-GCM-decrypt" (fun () -> t_plaintext = Some plaintext);
+      Lwt.return_unit
+    in
     Printf.ksprintf alert "%d tests were successful!" !ntests;
     Lwt.return_unit
 
