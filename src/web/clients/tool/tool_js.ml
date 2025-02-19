@@ -148,21 +148,11 @@ module Tests = struct
       n delta_exp delta_mul;
     Lwt.return_unit
 
-  let bench_pbkdf2 () =
-    let iterations = get_input "bench_pbkdf2_nb" |> int_of_string in
-    let start = new%js Js.date_now in
-    ignore (pbkdf2_utf8 ~iterations ~salt:"SALT" ~size:1 "INPUT");
-    let stop = new%js Js.date_now in
-    let delta = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
-    Printf.ksprintf alert "Bench result (side %d): %d ms!\n" iterations delta;
-    Lwt.return_unit
-
   let cmds =
     [
       ("do_unit_tests", unit_tests);
       ("bench_powm", bench_powm);
       ("bench_group", bench_group);
-      ("bench_pbkdf2", bench_pbkdf2);
     ]
 end
 

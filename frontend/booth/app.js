@@ -382,7 +382,7 @@ function main() {
   const uuid = hash_parameters["uuid"];
   const draft = hash_parameters["draft"];
   const credential = draft
-    ? "123-456-789-abc-deN"
+    ? "XXXXX-XXXXXX-XXXXX-XXXXXX"
     : hash_parameters["credential"];
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";

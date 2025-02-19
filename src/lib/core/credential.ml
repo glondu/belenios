@@ -25,32 +25,12 @@ open Signatures
 open Serializable_t
 open Common
 
-let token_length = 14
 let salt_length = 22 (* > 128 bits of entropy *)
-let n58 = Z.of_int 58
-let n53 = Z.of_int 53
 
 let format_full x =
   assert (String.length x = salt_length);
   Printf.sprintf "%s-%s-%s-%s" (String.sub x 0 5) (String.sub x 5 6)
     (String.sub x 11 5) (String.sub x 16 6)
-
-let check_old_raw x =
-  String.length x = token_length + 1
-  &&
-  let rec loop i accu =
-    if i < token_length then
-      let& digit = String.index_opt b58_digits x.[i] in
-      loop (i + 1) Z.((n58 * accu) + of_int digit)
-    else Some accu
-  in
-  match (loop 0 Z.zero, String.index_opt b58_digits x.[token_length]) with
-  | Some n, Some checksum -> Z.((n + of_int checksum) mod n53 =% zero)
-  | _, _ -> false
-
-let check_old xs =
-  List.for_all (fun x -> String.length x = 3) xs
-  && check_old_raw (String.concat "" xs)
 
 let check x n =
   String.length x = n
@@ -58,12 +38,6 @@ let check x n =
 
 let parse_raw x =
   match String.split_on_char '-' x with
-  | [ a ] when check_old_raw a ->
-      (* very old style credential with no "-", e.g. 123456789abcdeN *)
-      `Valid_old
-  | [ _; _; _; _; _ ] as xs when check_old xs ->
-      (* old style credential with "-", e.g. 123-456-789-abc-deN *)
-      `Valid_old
   | [ _; _; _ ] as xs when List.for_all (fun x -> String.length x = 5) xs ->
       (* maybe a password, e.g. XXXXX-XXXXX-XXXXX *)
       `MaybePassword
@@ -139,11 +113,6 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
 
   let derive x =
     match parse_raw x with
-    | `Valid_old ->
-        let salt = Uuid.unwrap E.uuid in
-        let derived = pbkdf2_utf8 ~iterations:1000 ~salt ~size:1 x in
-        let r = G.Zq.reduce_hex derived in
-        E.return (Ok r)
     | `Valid_full -> E.return (Ok (derive_full x))
     | `Invalid -> E.return (Error `Invalid)
     | `MaybePassword -> E.return (Error `MaybePassword)

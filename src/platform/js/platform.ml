@@ -60,15 +60,10 @@ module Sjcl = struct
     method ccm : mode t readonly_prop
   end
 
-  class type misc = object
-    method pbkdf2 : js_string t -> bits -> int -> int -> bits meth
-  end
-
   class type sjcl = object
     method codec : codecs t readonly_prop
     method cipher : ciphers t readonly_prop
     method mode : modes t readonly_prop
-    method misc : misc t readonly_prop
   end
 
   let sjcl : sjcl t = belenios##.sjcl
@@ -94,15 +89,6 @@ module Crypto_primitives = struct
   let hex_toBits x = Sjcl.hex##toBits (Js.string x)
   let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
   let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
-
-  let pbkdf2_generic toBits ~iterations ~salt ~size x =
-    let salt = toBits salt in
-    let derived =
-      Sjcl.sjcl##.misc##pbkdf2 (Js.string x) salt iterations (256 * size)
-    in
-    hex_fromBits derived
-
-  let pbkdf2_utf8 = pbkdf2_generic utf8String_toBits
 
   let encrypt ~key ~iv ~plaintext =
     let key = hex_toBits key in
