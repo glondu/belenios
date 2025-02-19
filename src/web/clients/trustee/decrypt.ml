@@ -64,7 +64,7 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
   let encrypted_tally =
     encrypted_tally_of_string (sread W.G.of_string) encrypted_tally
   in
-  let private_key =
+  let* private_key =
     match trustee.tally_trustee_private_key with
     | Some epk ->
         let module Trustees = (val Trustees.get_by_version W.version) in
@@ -72,13 +72,16 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
         let module C = Trustees.MakeChannels (W.G) (Random) (PKI) in
         let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
         let vk = W.G.(g **~ sk) in
-        let epk =
+        let* epk =
           C.recv dk vk (encrypted_msg_of_string (sread W.G.of_string) epk)
         in
-        (partial_decryption_key_of_string (sread W.G.Zq.of_string) epk)
-          .pdk_decryption_key
+        Lwt.return
+        @@ (partial_decryption_key_of_string (sread W.G.Zq.of_string) epk)
+             .pdk_decryption_key
     | None -> (
         basic_check_private_key private_key;
+        Lwt.return
+        @@
         try sread W.G.Zq.of_string ++ private_key
         with e ->
           Printf.ksprintf failwith

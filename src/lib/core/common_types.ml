@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios_platform.Platform
 
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -158,6 +159,21 @@ module Array = struct
     let n = Array.length a in
     let rec loop i = if i < n then f i a.(i) && loop (i + 1) else true in
     loop 0
+
+  let init_lwt n f =
+    if n = 0 then Lwt.return [||]
+    else
+      let* x = f 0 in
+      let r = Array.make n x in
+      let rec loop i =
+        if i < n then (
+          let* x = f i in
+          r.(i) <- x;
+          loop (i + 1))
+        else Lwt.return_unit
+      in
+      let* () = loop 1 in
+      Lwt.return r
 end
 
 module Shape = struct

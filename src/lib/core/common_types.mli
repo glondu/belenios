@@ -84,6 +84,7 @@ module Array : sig
 
   val findi : (int -> 'a -> 'b option) -> 'a array -> 'b option
   val for_alli : (int -> 'a -> bool) -> 'a array -> bool
+  val init_lwt : int -> (int -> 'a Lwt.t) -> 'a array Lwt.t
 end
 
 module Shape : sig

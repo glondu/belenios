@@ -188,8 +188,8 @@ module type PKI = sig
   val derive_dk : string -> private_key
   val sign : private_key -> string -> private_key signed_msg
   val verify : public_key -> private_key signed_msg -> bool
-  val encrypt : public_key -> string -> public_key encrypted_msg
-  val decrypt : private_key -> public_key encrypted_msg -> string option
+  val encrypt : public_key -> string -> public_key encrypted_msg Lwt.t
+  val decrypt : private_key -> public_key encrypted_msg -> string option Lwt.t
 
   val make_cert :
     sk:private_key -> dk:private_key -> context:context -> private_key cert
@@ -202,8 +202,11 @@ module type CHANNELS = sig
   type private_key
   type public_key
 
-  val send : private_key -> public_key -> string -> public_key encrypted_msg
-  val recv : private_key -> public_key -> public_key encrypted_msg -> string
+  val send :
+    private_key -> public_key -> string -> public_key encrypted_msg Lwt.t
+
+  val recv :
+    private_key -> public_key -> public_key encrypted_msg -> string Lwt.t
 end
 
 module type PEDERSEN = sig
@@ -213,14 +216,17 @@ module type PEDERSEN = sig
   val step1 : context -> string * scalar cert
   val step1_check : context -> scalar cert -> bool
   val step2 : scalar cert array -> int
-  val step3 : scalar cert array -> string -> scalar polynomial
+  val step3 : scalar cert array -> string -> scalar polynomial Lwt.t
   val step3_check : scalar cert array -> int -> scalar polynomial -> bool
 
   val step4 :
     scalar cert array -> scalar polynomial array -> scalar vinput array
 
   val step5 :
-    scalar cert array -> string -> scalar vinput -> (element, scalar) voutput
+    scalar cert array ->
+    string ->
+    scalar vinput ->
+    (element, scalar) voutput Lwt.t
 
   val step5_check :
     scalar cert array ->

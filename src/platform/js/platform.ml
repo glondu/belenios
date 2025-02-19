@@ -86,8 +86,10 @@ end
 
 module Crypto_primitives = struct
   module type ENDECRYPT = sig
-    val encrypt : key:string -> iv:string -> plaintext:string -> string
-    val decrypt : key:string -> iv:string -> ciphertext:string -> string option
+    val encrypt : key:string -> iv:string -> plaintext:string -> string Lwt.t
+
+    val decrypt :
+      key:string -> iv:string -> ciphertext:string -> string option Lwt.t
   end
 
   module AES_CCM : ENDECRYPT = struct
@@ -102,7 +104,7 @@ module Crypto_primitives = struct
       let plaintext = utf8String_toBits plaintext in
       let prf = new%js Sjcl.aes key in
       let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
-      hex_fromBits ciphertext
+      Lwt.return @@ hex_fromBits ciphertext
 
     let decrypt ~key ~iv ~ciphertext =
       let key = hex_toBits key in
@@ -110,7 +112,7 @@ module Crypto_primitives = struct
       let ciphertext = hex_toBits ciphertext in
       let prf = new%js Sjcl.aes key in
       let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
-      Some (utf8String_fromBits plaintext)
+      Lwt.return @@ Some (utf8String_fromBits plaintext)
   end
 
   type rng = unit

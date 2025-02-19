@@ -118,7 +118,7 @@ let make file =
     let tdecrypt owned_owner key pdk =
       let sk = P.derive_sk key and dk = P.derive_dk key in
       let vk = G.(g **~ sk) in
-      let pdk =
+      let* pdk =
         C.recv dk vk (encrypted_msg_of_string (sread G.of_string) pdk)
       in
       let pdk =

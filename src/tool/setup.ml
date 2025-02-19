@@ -160,7 +160,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
     | 3 ->
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
-        let polynomial = T.step3 certs key in
+        let* polynomial = T.step3 certs key in
         Lwt_io.printl (string_of_polynomial (swrite G.Zq.to_string) polynomial)
     | 4 ->
         let* certs = get_certs () in
@@ -191,7 +191,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let vinput = read_line () |> vinput_of_string (sread G.Zq.of_string) in
-        let voutput = T.step5 certs key vinput in
+        let* voutput = T.step5 certs key vinput in
         Lwt_io.printl
           (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
              voutput)

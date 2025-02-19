@@ -89,10 +89,10 @@ module Tests = struct
     let ciphertext =
       "91f136cd65db6fa83b4943395e388089d4a8d0531b43a24a6498a1433559039ce5a18734752e13418718be1c2da5cca3d89e6e62fb729a81ec1cb3d1174e770c"
     in
-    check "AES-CCM-encrypt" (fun () ->
-        AES_CCM.encrypt ~key ~iv ~plaintext = ciphertext);
-    check "AES-CCM-decrypt" (fun () ->
-        AES_CCM.decrypt ~key ~iv ~ciphertext = Some plaintext);
+    let* t_ciphertext = AES_CCM.encrypt ~key ~iv ~plaintext in
+    check "AES-CCM-encrypt" (fun () -> t_ciphertext = ciphertext);
+    let* t_plaintext = AES_CCM.decrypt ~key ~iv ~ciphertext in
+    check "AES-CCM-decrypt" (fun () -> t_plaintext = Some plaintext);
     Printf.ksprintf alert "%d tests were successful!" !ntests;
     Lwt.return_unit
 
@@ -287,20 +287,20 @@ module BuggyPartialDecryption = struct
     let encrypted_tally =
       encrypted_tally |> encrypted_tally_of_string (sread P.G.of_string)
     in
-    let private_key =
+    let* private_key =
       let module Trustees = (val Belenios.Trustees.get_by_version P.version) in
       let module PKI = Trustees.MakePKI (P.G) (Random) in
       let module C = Trustees.MakeChannels (P.G) (Random) (PKI) in
       let sk = PKI.derive_sk seed and dk = PKI.derive_dk seed in
       let vk = P.G.(g **~ sk) in
-      let epk =
-        epk
-        |> encrypted_msg_of_string P.(sread G.of_string)
-        |> C.recv dk vk
-        |> partial_decryption_key_of_string (sread Z.of_string)
+      let* epk =
+        let* x =
+          epk |> encrypted_msg_of_string P.(sread G.of_string) |> C.recv dk vk
+        in
+        Lwt.return @@ partial_decryption_key_of_string (sread Z.of_string) x
       in
       let buggy = epk.pdk_decryption_key in
-      P.G.Zq.reduce buggy
+      Lwt.return @@ P.G.Zq.reduce buggy
     in
     let factor = P.E.compute_factor encrypted_tally private_key in
     set_textarea "buggy_pd_output"

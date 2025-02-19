@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
 open Belenios_platform.Platform
 open Belenios_core
 open Serializable_core_t
@@ -246,8 +247,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let y_beta = G.((y **~ r) *~ key) in
     let key = sha256_hex ("key|" ^ G.to_string key) in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    let y_data = Crypto_primitives.AES_CCM.encrypt ~key ~iv ~plaintext in
-    { y_alpha; y_beta; y_data }
+    let* y_data = Crypto_primitives.AES_CCM.encrypt ~key ~iv ~plaintext in
+    Lwt.return { y_alpha; y_beta; y_data }
 
   let decrypt x { y_alpha; y_beta; y_data } =
     let key =
@@ -285,7 +286,8 @@ struct
     P.encrypt c_recipient (string_of_signed_msg (swrite G.Zq.to_string) msg)
 
   let recv dk vk msg =
-    match P.decrypt dk msg with
+    let* x = P.decrypt dk msg in
+    match x with
     | None -> failwith "invalid ciphertext in received message"
     | Some msg ->
         let msg = signed_msg_of_string (sread G.Zq.of_string) msg in
@@ -295,7 +297,7 @@ struct
         let { c_recipient; c_message } = msg in
         if not G.(c_recipient =~ g **~ dk) then
           failwith "invalid recipient on received message";
-        c_message
+        Lwt.return c_message
 end
 
 module MakePedersen
@@ -385,12 +387,12 @@ struct
       else ()
     in
     let () = fill_polynomial 0 in
-    let p_polynomial =
-      let x =
+    let* p_polynomial =
+      let* x =
         C.send sk ek
           (string_of_raw_polynomial (swrite Zq.to_string) { polynomial })
       in
-      string_of_encrypted_msg (swrite G.to_string) x
+      Lwt.return @@ string_of_encrypted_msg (swrite G.to_string) x
     in
     let coefexps = Array.map (fun x -> g **~ x) polynomial in
     let p_signature = mk_signature coefexps in
@@ -401,13 +403,13 @@ struct
       if j < n then (
         let secret = eval_poly polynomial (Zq.of_int (j + 1)) in
         let secret = string_of_secret (swrite Zq.to_string) { secret } in
-        let x = C.send sk certs.(j).cert_encryption secret in
+        let* x = C.send sk certs.(j).cert_encryption secret in
         p_secrets.(j) <- string_of_encrypted_msg (swrite G.to_string) x;
         fill_secrets (j + 1))
-      else ()
+      else Lwt.return_unit
     in
-    let () = fill_secrets 0 in
-    { p_polynomial; p_secrets; p_coefexps; p_signature }
+    let* () = fill_secrets 0 in
+    Lwt.return { p_polynomial; p_secrets; p_coefexps; p_signature }
 
   let step3_check certs i polynomial =
     let x =
@@ -495,21 +497,25 @@ struct
       | None -> raise (PedersenFailure "could not find my certificate")
       | Some i -> Zq.of_int i
     in
-    let { polynomial } =
-      vinput.vi_polynomial
-      |> encrypted_msg_of_string (sread G.of_string)
-      |> C.recv dk vk
-      |> raw_polynomial_of_string (sread Zq.of_string)
+    let* { polynomial } =
+      let* x =
+        vinput.vi_polynomial
+        |> encrypted_msg_of_string (sread G.of_string)
+        |> C.recv dk vk
+      in
+      Lwt.return @@ raw_polynomial_of_string (sread Zq.of_string) x
     in
     assert (threshold = Array.length polynomial);
     assert (n = Array.length vinput.vi_secrets);
-    let secrets =
-      Array.init n (fun i ->
-          vinput.vi_secrets.(i)
-          |> encrypted_msg_of_string (sread G.of_string)
-          |> C.recv dk certs.(i).cert_verification
-          |> secret_of_string (sread Zq.of_string)
-          |> fun x -> x.secret)
+    let* secrets =
+      Array.init_lwt n (fun i ->
+          let* x =
+            vinput.vi_secrets.(i)
+            |> encrypted_msg_of_string (sread G.of_string)
+            |> C.recv dk certs.(i).cert_verification
+          in
+          let { secret } = secret_of_string (sread Zq.of_string) x in
+          Lwt.return secret)
     in
     assert (n = Array.length vinput.vi_coefexps);
     let coefexps =
@@ -545,11 +551,11 @@ struct
     let vo_public_key =
       K.prove pdk_decryption_key |> sign_trustee_public_key ~sk
     in
-    let private_key = C.send sk ek pdk in
+    let* private_key = C.send sk ek pdk in
     let vo_private_key =
       string_of_encrypted_msg (swrite G.to_string) private_key
     in
-    { vo_public_key; vo_private_key }
+    Lwt.return { vo_public_key; vo_private_key }
 
   let step5_check certs i polynomials voutput =
     let n = Array.length certs in

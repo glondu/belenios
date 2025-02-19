@@ -91,18 +91,17 @@ let threshold_step (Draft (_, draft)) pedersen ~private_key =
   let module T = Trustees.MakePedersen (G) (Random) (P) (C) in
   match pedersen.pedersen_step with
   | 3 ->
-      T.step3 certs private_key
-      |> string_of_polynomial (swrite G.Zq.to_string)
-      |> Lwt.return
+      let* x = T.step3 certs private_key in
+      Lwt.return @@ string_of_polynomial (swrite G.Zq.to_string) x
   | 5 ->
       let@ vinput cont =
         match pedersen.pedersen_vinput with
         | Some x -> cont x
         | None -> failwith "Unexpected state! (missing vinput)"
       in
-      T.step5 certs private_key vinput
-      |> string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
-      |> Lwt.return
+      let* x = T.step5 certs private_key vinput in
+      Lwt.return
+      @@ string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string) x
   | _ -> failwith "Unexpected state!"
 
 let generate_key ~uuid ~token ~url generate continue =

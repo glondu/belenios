@@ -25,10 +25,11 @@ end
 
 module Crypto_primitives : sig
   module type ENDECRYPT = sig
-    val encrypt : key:string -> iv:string -> plaintext:string -> string
+    val encrypt : key:string -> iv:string -> plaintext:string -> string Lwt.t
     (** [key] and [iv] in hex, [plaintext] UTF8 string, [ciphertext] in hex *)
 
-    val decrypt : key:string -> iv:string -> ciphertext:string -> string option
+    val decrypt :
+      key:string -> iv:string -> ciphertext:string -> string option Lwt.t
   end
 
   module AES_CCM : ENDECRYPT

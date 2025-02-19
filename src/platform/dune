@@ -1,6 +1,8 @@
 (library
  (name belenios_platform)
  (public_name belenios-platform)
+ (libraries
+  (re_export lwt))
  (modules_without_implementation signatures)
  (virtual_modules platform))
 
