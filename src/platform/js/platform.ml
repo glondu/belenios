@@ -43,14 +43,6 @@ module Sjcl = struct
     method base64 : codec t readonly_prop
   end
 
-  class type hash = object
-    method hash : js_string t -> bits meth
-  end
-
-  class type hashes = object
-    method sha256 : hash t readonly_prop
-  end
-
   class type cipher = object
     method encrypt : bits -> bits meth
   end
@@ -74,7 +66,6 @@ module Sjcl = struct
 
   class type sjcl = object
     method codec : codecs t readonly_prop
-    method hash : hashes t readonly_prop
     method cipher : ciphers t readonly_prop
     method mode : modes t readonly_prop
     method misc : misc t readonly_prop
@@ -83,7 +74,6 @@ module Sjcl = struct
   let sjcl : sjcl t = belenios##.sjcl
   let hex = sjcl##.codec##.hex
   let utf8String = sjcl##.codec##.utf8String
-  let sha256 = sjcl##.hash##.sha256
   let aes = sjcl##.cipher##.aes
   let ccm = sjcl##.mode##.ccm
 end
@@ -104,8 +94,6 @@ module Crypto_primitives = struct
   let hex_toBits x = Sjcl.hex##toBits (Js.string x)
   let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
   let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
-  let sha256 x = Sjcl.sha256##hash (Js.string x)
-  let sha256_hex x = hex_fromBits (sha256 x)
 
   let pbkdf2_generic toBits ~iterations ~salt ~size x =
     let salt = toBits salt in

@@ -41,7 +41,7 @@ module Weight = Common_types.Weight
 module Array = Common_types.Array
 module Shape = Common_types.Shape
 
-let sha256_hex = Crypto_primitives.sha256_hex
+let sha256_hex = Digestif.SHA256.(digest_string >> to_hex)
 let sha256_b64 = Hash.hash_string >> Hash.to_b64
 let b58_digits = Common_types.b58_digits
 

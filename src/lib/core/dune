@@ -4,6 +4,7 @@
  (libraries
   (re_export base64)
   hex
+  digestif
   (re_export yojson)
   biniou
   (re_export atdgen-runtime)

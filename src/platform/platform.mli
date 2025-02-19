@@ -24,8 +24,6 @@ module Debug : sig
 end
 
 module Crypto_primitives : sig
-  val sha256_hex : string -> string
-
   val pbkdf2_utf8 :
     iterations:int -> salt:string -> size:int -> string -> string
 

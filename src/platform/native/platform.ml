@@ -24,10 +24,6 @@ module Debug = struct
 end
 
 module Crypto_primitives = struct
-  let sha256_hex x =
-    Cryptokit.(
-      x |> hash_string (Hash.sha256 ()) |> transform_string (Hexa.encode ()))
-
   let int_msb i =
     let result = Bytes.create 4 in
     Bytes.set result 0 (char_of_int (i lsr 24));
