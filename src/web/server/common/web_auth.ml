@@ -402,7 +402,7 @@ struct
     match List.assoc_opt c.auth_system !auth_systems with
     | Some { handler; _ } ->
         let module X = (val handler (Some uuid) c) in
-        let* user_name = X.direct x in
+        let* user_name = X.direct s x in
         Lwt.return { user_name; user_domain = c.auth_instance }
     | None -> fail ()
 

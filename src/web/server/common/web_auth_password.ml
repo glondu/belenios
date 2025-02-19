@@ -47,12 +47,11 @@ module Make
 struct
   let throttle = Throttle.create ~rate:1 ~max:5 ~n:!Web_config.maxmailsatonce
 
-  let check uuid a name password =
+  let check s uuid a name password =
     let channel = Channel.{ uuid; name } in
     let* b = Throttle.wait throttle channel in
     if b then
       let* r =
-        let@ s = Storage.with_transaction in
         match uuid with
         | None ->
             let@ file cont =
@@ -83,7 +82,7 @@ struct
           ~service ~allowsignups ~state
         >>= fun x -> return (Web_auth_sig.Html x, Web_auth.No_data)
 
-      let direct x =
+      let direct s x =
         let fail () = failwith "invalid direct password authentication" in
         match x with
         | `Assoc x -> (
@@ -91,7 +90,7 @@ struct
               (List.assoc_opt "username" x, List.assoc_opt "password" x)
             with
             | Some (`String username), Some (`String password) -> (
-                let* x = check uuid a username password in
+                let* x = check s uuid a username password in
                 match x with
                 | Some { username; _ } -> Lwt.return username
                 | None -> fail ())
@@ -108,10 +107,16 @@ struct
       {
         Web_auth.post_login_handler =
           (fun ~data:_ uuid a cont ->
-            let* x = check uuid a name password in
-            match x with
-            | None -> cont None
-            | Some { username; address; _ } -> cont @@ Some (username, address));
+            let* result =
+              let@ s = Storage.with_transaction in
+              let* x = check s uuid a name password in
+              (* NB: This is required to finalize the transaction being held *)
+              Lwt.return
+                (match x with
+                | None -> None
+                | Some { username; address; _ } -> Some (username, address))
+            in
+            cont result);
       }
 
   let () =
