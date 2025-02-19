@@ -38,14 +38,7 @@ module Make
     (Pages_common : Pages_common_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
-  module HashedInt = struct
-    type t = int
-
-    let equal = ( = )
-    let hash = Fun.id
-  end
-
-  module Captcha_throttle = Lwt_throttle.Make (HashedInt)
+  module Captcha_throttle = Lwt_throttle.Make (Int)
 
   let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
