@@ -5,6 +5,7 @@
  (js_of_ocaml
   (javascript_files
    stubs/BigIntCompat.js
+   stubs/crypto.js
    ../../../vendor/sjcl/sjcl.js
    ../../../vendor/libsodium/libsodium.js))
  (libraries js_of_ocaml)

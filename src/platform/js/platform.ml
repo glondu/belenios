@@ -68,10 +68,6 @@ module Sjcl = struct
     method ccm : mode t readonly_prop
   end
 
-  class type random = object
-    method randomWords : int -> bits meth
-  end
-
   class type misc = object
     method pbkdf2 : js_string t -> bits -> int -> int -> bits meth
   end
@@ -81,7 +77,6 @@ module Sjcl = struct
     method hash : hashes t readonly_prop
     method cipher : ciphers t readonly_prop
     method mode : modes t readonly_prop
-    method random : random t readonly_prop
     method misc : misc t readonly_prop
   end
 
@@ -91,6 +86,17 @@ module Sjcl = struct
   let sha256 = sjcl##.hash##.sha256
   let aes = sjcl##.cipher##.aes
   let ccm = sjcl##.mode##.ccm
+end
+
+module Belenios_js_crypto = struct
+  open Js
+  open Typed_array
+
+  class type lib = object
+    method getRandomBytes : int -> uint8Array t meth
+  end
+
+  let lib : lib t = belenios##.crypto
 end
 
 module Crypto_primitives = struct
@@ -138,15 +144,8 @@ module Crypto_primitives = struct
   let secure_rng = ()
   let pseudo_rng _ = ()
 
-  let string_of_hex hex n =
-    String.init n (fun i ->
-        let c = int_of_string ("0x" ^ String.sub hex (2 * i) 2) in
-        char_of_int c)
-
   let random_string () n =
-    let words = Sjcl.sjcl##.random##randomWords ((n / 4) + 1) in
-    let hex_words = hex_fromBits words in
-    string_of_hex hex_words n
+    Belenios_js_crypto.lib##getRandomBytes n |> Typed_array.String.of_uint8Array
 end
 
 module BigIntCompat = struct
