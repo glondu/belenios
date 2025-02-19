@@ -26,7 +26,7 @@ end
 module Crypto_primitives = struct
   module type ENDECRYPT = sig
     val encrypt : key:string -> iv:string -> plaintext:string -> string
-    val decrypt : key:string -> iv:string -> ciphertext:string -> string
+    val decrypt : key:string -> iv:string -> ciphertext:string -> string option
   end
 
   module AES_CCM : ENDECRYPT = struct
@@ -171,7 +171,7 @@ module Crypto_primitives = struct
       let ciphertext = transform_string (Hexa.decode ()) ciphertext in
       let prf data = aes_raw ~key ~data in
       let plaintext = ccm_decrypt prf ciphertext iv "" 64 in
-      plaintext
+      Some plaintext
   end
 
   type rng = Cryptokit.Random.rng

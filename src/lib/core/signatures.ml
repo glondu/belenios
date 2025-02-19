@@ -189,7 +189,7 @@ module type PKI = sig
   val sign : private_key -> string -> private_key signed_msg
   val verify : public_key -> private_key signed_msg -> bool
   val encrypt : public_key -> string -> public_key encrypted_msg
-  val decrypt : private_key -> public_key encrypted_msg -> string
+  val decrypt : private_key -> public_key encrypted_msg -> string option
 
   val make_cert :
     sk:private_key -> dk:private_key -> context:context -> private_key cert

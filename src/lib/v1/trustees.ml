@@ -285,14 +285,17 @@ struct
     P.encrypt c_recipient (string_of_signed_msg (swrite G.Zq.to_string) msg)
 
   let recv dk vk msg =
-    let msg = P.decrypt dk msg |> signed_msg_of_string (sread G.Zq.of_string) in
-    if not (P.verify vk msg) then
-      failwith "invalid signature on received message";
-    let msg = channel_msg_of_string (sread G.of_string) msg.s_message in
-    let { c_recipient; c_message } = msg in
-    if not G.(c_recipient =~ g **~ dk) then
-      failwith "invalid recipient on received message";
-    c_message
+    match P.decrypt dk msg with
+    | None -> failwith "invalid ciphertext in received message"
+    | Some msg ->
+        let msg = signed_msg_of_string (sread G.Zq.of_string) msg in
+        if not (P.verify vk msg) then
+          failwith "invalid signature on received message";
+        let msg = channel_msg_of_string (sread G.of_string) msg.s_message in
+        let { c_recipient; c_message } = msg in
+        if not G.(c_recipient =~ g **~ dk) then
+          failwith "invalid recipient on received message";
+        c_message
 end
 
 module MakePedersen

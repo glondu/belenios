@@ -92,7 +92,7 @@ module Tests = struct
     check "AES-CCM-encrypt" (fun () ->
         AES_CCM.encrypt ~key ~iv ~plaintext = ciphertext);
     check "AES-CCM-decrypt" (fun () ->
-        AES_CCM.decrypt ~key ~iv ~ciphertext = plaintext);
+        AES_CCM.decrypt ~key ~iv ~ciphertext = Some plaintext);
     Printf.ksprintf alert "%d tests were successful!" !ntests;
     Lwt.return_unit
 
