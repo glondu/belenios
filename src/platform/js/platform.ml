@@ -77,8 +77,27 @@ module Belenios_js_crypto = struct
   open Js
   open Typed_array
 
+  class type endecrypt = object
+    method encrypt :
+      uint8Array t ->
+      uint8Array t ->
+      uint8Array t ->
+      (arrayBuffer t -> unit) callback ->
+      (unit -> unit) callback ->
+      unit meth
+
+    method decrypt :
+      uint8Array t ->
+      uint8Array t ->
+      uint8Array t ->
+      (arrayBuffer t -> unit) callback ->
+      (unit -> unit) callback ->
+      unit meth
+  end
+
   class type lib = object
     method getRandomBytes : int -> uint8Array t meth
+    method aesgcm : endecrypt t prop
   end
 
   let lib : lib t = belenios##.crypto
@@ -113,6 +132,39 @@ module Crypto_primitives = struct
       let prf = new%js Sjcl.aes key in
       let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
       Lwt.return @@ Some (utf8String_fromBits plaintext)
+  end
+
+  module AES_GCM : ENDECRYPT = struct
+    let encrypt ~key ~iv ~plaintext =
+      let key = Hex.to_bytes (`Hex key) |> Typed_array.Bytes.to_uint8Array in
+      let iv = Hex.to_bytes (`Hex iv) |> Typed_array.Bytes.to_uint8Array in
+      let data =
+        plaintext |> Bytes.of_string |> Typed_array.Bytes.to_uint8Array
+      in
+      let t, u = Lwt.task () in
+      Belenios_js_crypto.lib##.aesgcm##encrypt
+        key iv data
+        ( Js.wrap_callback @@ fun x ->
+          let (`Hex x) = Typed_array.Bytes.of_arrayBuffer x |> Hex.of_bytes in
+          Lwt.wakeup_later u x )
+        ( Js.wrap_callback @@ fun () ->
+          Lwt.wakeup_later_exn u (Failure "AES_GCM.encrypt") );
+      t
+
+    let decrypt ~key ~iv ~ciphertext =
+      let key = Hex.to_bytes (`Hex key) |> Typed_array.Bytes.to_uint8Array in
+      let iv = Hex.to_bytes (`Hex iv) |> Typed_array.Bytes.to_uint8Array in
+      let data =
+        Hex.to_bytes (`Hex ciphertext) |> Typed_array.Bytes.to_uint8Array
+      in
+      let t, u = Lwt.task () in
+      Belenios_js_crypto.lib##.aesgcm##decrypt
+        key iv data
+        ( Js.wrap_callback @@ fun x ->
+          let x = Typed_array.String.of_arrayBuffer x in
+          Lwt.wakeup_later u (Some x) )
+        (Js.wrap_callback @@ fun () -> Lwt.wakeup_later u None);
+      t
   end
 
   type rng = unit

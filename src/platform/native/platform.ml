@@ -176,6 +176,26 @@ module Crypto_primitives = struct
       Lwt.return @@ Some plaintext
   end
 
+  module AES_GCM : ENDECRYPT = struct
+    let encrypt ~key ~iv ~plaintext =
+      let open Cryptokit in
+      let key = transform_string (Hexa.decode ()) key in
+      let iv = transform_string (Hexa.decode ()) iv in
+      let transform = AEAD.aes_gcm ~iv key Encrypt in
+      let ciphertext = auth_transform_string transform plaintext in
+      Lwt.return @@ transform_string (Hexa.encode ()) ciphertext
+
+    let decrypt ~key ~iv ~ciphertext =
+      let open Cryptokit in
+      let key = transform_string (Hexa.decode ()) key in
+      let iv = transform_string (Hexa.decode ()) iv in
+      let transform = AEAD.aes_gcm ~iv key Decrypt in
+      let ciphertext = transform_string (Hexa.decode ()) ciphertext in
+      match auth_check_transform_string transform ciphertext with
+      | x -> Lwt.return x
+      | exception Error _ -> Lwt.return_none
+  end
+
   type rng = Cryptokit.Random.rng
 
   let secure_rng =

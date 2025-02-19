@@ -8,6 +8,6 @@
    stubs/crypto.js
    ../../../vendor/sjcl/sjcl.js
    ../../../vendor/libsodium/libsodium.js))
- (libraries lwt js_of_ocaml digestif.ocaml)
+ (libraries lwt js_of_ocaml digestif.ocaml hex)
  (preprocess
   (pps js_of_ocaml-ppx)))

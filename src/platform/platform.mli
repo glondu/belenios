@@ -33,6 +33,7 @@ module Crypto_primitives : sig
   end
 
   module AES_CCM : ENDECRYPT
+  module AES_GCM : ENDECRYPT
 
   type rng
 
