@@ -78,7 +78,7 @@ struct
       b;
     SMap.find_opt state a
 
-  let add_auth_env ?state ?user ?credential ~auth_config ~kind ~extern ~handler
+  let add_auth_env ?state ?credential ~auth_config ~kind ~extern ~handler
       ~username_or_address () =
     let now = Unix.gettimeofday () in
     let timeout = now +. 900. in
@@ -96,7 +96,7 @@ struct
         kind;
         state;
         data = None;
-        user;
+        user = None;
         username_or_address;
         credential;
         result = None;
