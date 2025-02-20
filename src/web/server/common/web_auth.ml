@@ -281,12 +281,14 @@ struct
           | None -> fail_http `Gone
           | Some env -> cont (state, env))
       | `Site (service, site_cont) -> (
-          let* user =
-            let* x = Eliom_reference.get Web_state.site_user in
-            let&* a, _, _ = x in
-            Lwt.return_some a
-          in
           let kind = `Site site_cont in
+          let@ () =
+           fun cont ->
+            let* x = Eliom_reference.get Web_state.site_user in
+            match x with
+            | None -> cont ()
+            | Some _ -> get_cont ~extern:false `Login kind ()
+          in
           let@ auth_config cont2 =
             let c = !Web_config.site_auth_config in
             match service with
@@ -311,29 +313,24 @@ struct
           in
           match List.assoc_opt auth_config.auth_system !auth_systems with
           | Some { extern; handler; _ } ->
-              add_auth_env ?user ~auth_config ~kind ~extern ~handler
+              add_auth_env ~auth_config ~kind ~extern ~handler
                 ~username_or_address:`Username ()
               |> cont
           | None -> fail_http `Not_found)
     in
-    let { kind; user; auth_config; _ } = env in
-    let uuid = match kind with `Site _ -> None | `Election u -> Some u in
-    match (user, uuid) with
-    | Some _, None -> get_cont ~extern:false `Login kind ~state ()
-    | Some _, Some _ | None, _ -> (
-        let site_or_election =
-          match uuid with None -> `Site | Some _ -> `Election
+    let { kind; auth_config; _ } = env in
+    let site_or_election =
+      match kind with `Site _ -> `Site | `Election _ -> `Election
+    in
+    let* x = get_pre_login_handler ~state env in
+    match x with
+    | Html x ->
+        let* title =
+          Pages_common.login_title site_or_election auth_config.auth_instance
         in
-        let* x = get_pre_login_handler ~state env in
-        match x with
-        | Html x ->
-            let* title =
-              Pages_common.login_title site_or_election
-                auth_config.auth_instance
-            in
-            let* page = Pages_common.base ~title ~content:[ x ] () in
-            Eliom_registration.Html.send page
-        | Redirection x -> Eliom_registration.String_redirection.send x)
+        let* page = Pages_common.base ~title ~content:[ x ] () in
+        Eliom_registration.Html.send page
+    | Redirection x -> Eliom_registration.String_redirection.send x
 
   let logout_handler cont =
     let* () =
