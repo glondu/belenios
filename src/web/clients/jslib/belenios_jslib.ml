@@ -43,12 +43,16 @@ module type ELECTION_WITH_SK = sig
   val sk : G.Zq.t
 end
 
+class type initCallbacks = object
+  method onsuccess : unit Js.meth
+  method onfailure : Js.js_string Js.t -> unit Js.meth
+end
+
 class type initParams = object
   method root : Js.js_string Js.t Js.readonly_prop
   method stateful : bool Js.t Js.optdef Js.readonly_prop
   method lang : Js.js_string Js.t Js.optdef Js.readonly_prop
-  method onsuccess : unit Js.meth
-  method onfailure : Js.js_string Js.t -> unit Js.meth
+  method callbacks : initCallbacks Js.t Js.optdef Js.readonly_prop
 end
 
 class type checkCredentialCallbacks = object
@@ -129,12 +133,13 @@ let belenios : belenios Js.t =
               Lwt.return_unit
           | Error _ ->
               let open (val !Belenios_js.I18n.gettext) in
-              p##onfailure
-                (Js.string @@ s_ "Could not get server configuration!");
+              Js.Optdef.iter p##.callbacks (fun cb ->
+                  cb##onfailure
+                    (Js.string @@ s_ "Could not get server configuration!"));
               Lwt.return_unit)
         else Lwt.return_unit
       in
-      p##onsuccess;
+      Js.Optdef.iter p##.callbacks (fun cb -> cb##onsuccess);
       Lwt.return_unit
 
     method computeFingerprint x =

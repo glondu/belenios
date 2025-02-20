@@ -135,8 +135,7 @@ function TranslatableVoteApp({
       root: relativeServerRootFolder,
       stateful: true,
       lang,
-      onsuccess,
-      onfailure,
+      callbacks: { onsuccess, onfailure },
     });
   };
 
