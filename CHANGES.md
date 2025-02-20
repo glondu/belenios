@@ -7,11 +7,14 @@
    + Use `markup` for HTML parsing
    + Regenerate `libsodium.wasm`
    + Stop vendoring JSBN
+   + Reduce usage of SJCL. Now, it is used only for compatibility with
+     existing elections and will be removed in a future release.
    + Document Debian Sid as the preferred developing environment
  * Add safety checks in vector encoding into group element for NH
    questions
  * Remove support for salt-based credentials (they have been obsolete
-   since version 2.4)
+   since version 2.4), and old-style credentials (obsolete since 2.3)
+ * Use AES-GCM for PKI operations (in threshold trustee setup)
  * Web server:
    + Notable bugfixes:
      - Allow setting publish date during tallying
@@ -22,6 +25,8 @@
    + Add uuid to downloadable file names
    + Use username (when available) in "To" header of sent e-mails
    + Serve CSS files from a dedicated directory
+   + Throttle all email authentication attempts
+   + Reset authentication cookie after a successful login
    + Admin UI:
      - In question editor, check safety and show complexity
      - Handle better errors in voter list (GitLab issue #15)
