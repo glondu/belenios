@@ -25,10 +25,9 @@
    + Add uuid to downloadable file names
    + Use username (when available) in "To" header of sent e-mails
    + Serve CSS files from a dedicated directory
-   + Throttle all email authentication attempts
    + Reset authentication cookie after a successful login
    + Admin UI:
-     - In question editor, check safety and show complexity
+     - In question editor, check safety
      - Handle better errors in voter list (GitLab issue #15)
      - Allow setting automatic dates for draft elections as well
      - Start elections in closed state
