@@ -964,7 +964,10 @@ let draft_recompute_main_zone () =
       !set_complexity @@ Election.get_complexity
       @@ Template (v, draft.draft_questions)
     in
-    Lwt.return @@ div [ txt @@ s_ "Total complexity:"; txt " "; complexity_elt ]
+    Lwt.return
+    @@ div
+         ~a:[ a_style "display: none;" ]
+         [ txt @@ s_ "Total complexity:"; txt " "; complexity_elt ]
   in
   let dd = div ~a:[ a_class [ "add_question"; "ins_sym"; "clickable" ] ] [] in
   let r = Tyxml_js.To_dom.of_div dd in
