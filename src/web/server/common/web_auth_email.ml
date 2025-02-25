@@ -38,9 +38,9 @@ module Make
     (Pages_common : Pages_common_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
-  module Throttle = Lwt_throttle.Make (String)
+  module Captcha_throttle = Lwt_throttle.Make (Int)
 
-  let throttle = Throttle.create ~rate:1 ~max:5 ~n:1000
+  let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
   let scope =
     `Session (Eliom_common.create_scope_hierarchy "belenios-auth-email")
@@ -56,30 +56,18 @@ struct
         let site_or_election =
           match uuid with None -> `Site | Some _ -> `Election
         in
-        let@ () =
-         fun cont ->
-          let remote_ip =
-            let sp = Eliom_common.get_sp () in
-            let ri = sp.sp_request.request_info in
-            match
-              Ocsigen_request.header ri Ocsigen_header.Name.x_forwarded_for
-            with
-            | None -> Ocsigen_request.remote_ip ri
-            | Some x -> x
-          in
-          let* b = Throttle.wait throttle remote_ip in
-          if b then cont ()
-          else
-            let* fragment = Pages_common.login_email_not_now () in
-            return (Web_auth_sig.Html fragment, Web_auth.No_data)
-        in
         match List.assoc_opt "use_captcha" auth_config with
         | Some "true" ->
-            let* challenge = Web_captcha.create_captcha () in
-            let* fragment =
-              Pages_common.login_email_captcha ~state None challenge ""
-            in
-            return (Web_auth_sig.Html fragment, Web_auth.No_data)
+            let* b = Captcha_throttle.wait captcha_throttle 0 in
+            if b then
+              let* challenge = Web_captcha.create_captcha () in
+              let* fragment =
+                Pages_common.login_email_captcha ~state None challenge ""
+              in
+              return @@ (Web_auth_sig.Html fragment, Web_auth.No_data)
+            else
+              let* fragment = Pages_common.login_email_not_now () in
+              return (Web_auth_sig.Html fragment, Web_auth.No_data)
         | _ ->
             if site_or_election = `Election then
               let env = { username_or_address; state; auth_instance } in
