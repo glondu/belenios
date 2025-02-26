@@ -108,6 +108,8 @@ val is_email : ?blacklist:SSet.t -> string -> bool
 val map_and_concat_with_commas : ('a -> string) -> 'a array -> string
 val remove_special_characters : string -> string
 
+exception Invalid_identity of string
+
 module Voter : sig
   type t = [ `Plain | `Json ] * Serializable_core_t.voter
 

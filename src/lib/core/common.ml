@@ -346,6 +346,8 @@ let is_email =
             let domain = Re.Pcre.get_substring g 1 |> String.lowercase_ascii in
             not (SSet.mem domain blacklist))
 
+exception Invalid_identity of string
+
 let split_identity_opt x =
   match String.split_on_char ',' x with
   | [ address ] -> (address, None, None)
@@ -355,7 +357,7 @@ let split_identity_opt x =
       ( address,
         (if login = "" then None else Some login),
         Some (Weight.of_string weight) )
-  | _ -> failwith "Common.split_identity_opt"
+  | _ -> raise @@ Invalid_identity x
 
 let map_and_concat_with_commas f xs =
   let n = Array.length xs in

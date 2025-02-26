@@ -757,6 +757,21 @@ let voters_content () =
       (s_ "Add")
       (fun () ->
         match Voter.list_of_string @@ ttget () with
+        | exception Invalid_identity id ->
+            let detail = Printf.sprintf (f_ "invalid identity: %s") id in
+            let msg =
+              Printf.sprintf
+                (f_ "There is an error in the voter list! (%s)")
+                detail
+            in
+            alert msg;
+            Lwt.return_unit
+        | exception _ ->
+            let msg =
+              s_ "There is an unexpected syntax error in the voter list!"
+            in
+            alert msg;
+            Lwt.return_unit
         | [] -> Lwt.return_unit
         | newvoters -> (
             let* voters = Cache.get_until_success Cache.voters in
@@ -765,8 +780,30 @@ let voters_content () =
             let* r = Cache.sync () in
             match r with
             | Ok () -> !update_election_main ()
+            | Error (`Structured { code = 400; error = `VoterListError e; _ })
+              ->
+                let detail =
+                  match e with
+                  | `FormatMix -> s_ "all voters must be in the same format"
+                  | `Duplicate login ->
+                      Printf.sprintf (f_ "duplicate voter: %s") login
+                  | `Identity id ->
+                      Printf.sprintf (f_ "invalid identity: %s") id
+                  | `TotalWeightTooBig (x, y) ->
+                      Printf.sprintf
+                        (f_ "total weight too big: %s/%s")
+                        (Z.to_string x) (Z.to_string y)
+                in
+                let msg =
+                  Printf.sprintf
+                    (f_ "There is an error in the voter list! (%s)")
+                    detail
+                in
+                alert msg;
+                Cache.set Cache.voters voters;
+                !update_election_main ()
             | Error _ ->
-                alert @@ s_ "There is an error in the voter list!";
+                alert @@ s_ "There is an unexpected error in the voter list!";
                 Cache.set Cache.voters voters;
                 !update_election_main ()))
   in
