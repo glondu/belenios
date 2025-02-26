@@ -30,7 +30,11 @@ val modified : 'a t -> bool
 val set : 'a t -> 'a -> unit
 val get : 'a t -> ('a, string) result Lwt.t
 val get_until_success : 'a t -> 'a Lwt.t
-val sync : unit -> (unit, string) result Lwt.t
+
+val sync :
+  unit ->
+  (unit, [ `Raw of int * string | `Structured of request_status ]) result Lwt.t
+
 val sync_until_success : unit -> unit Lwt.t
 val config : configuration t
 val draft : Belenios_web_api.draft t

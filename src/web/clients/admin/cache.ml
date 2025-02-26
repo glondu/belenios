@@ -116,10 +116,11 @@ let sync_one (Cache x) =
             x.dirty <- false;
             x.ifmatch <- ifmatch' ();
             Lwt.return @@ Ok ()
-        | code ->
-            Lwt.return
-            @@ Error
-                 (Printf.sprintf "Failed to sync data to server, code %d" code))
+        | code -> (
+            let c = y.content in
+            match request_status_of_string c with
+            | s -> Lwt.return @@ Error (`Structured s)
+            | exception _ -> Lwt.return @@ Error (`Raw (code, c))))
 
 (***********************************)
 
@@ -272,7 +273,7 @@ let rec sync_until_success () =
   let* result = sync () in
   match result with
   | Error msg ->
-      alert msg;
+      let* () = popup_failsync msg in
       sync_until_success ()
   | Ok _ -> Lwt.return_unit
 

@@ -65,6 +65,8 @@ val is_finished : unit -> bool
 
 (** Misc *)
 
-val popup_failsync : string -> unit Lwt.t
+val popup_failsync :
+  [ `Raw of int * string | `Structured of request_status ] -> unit Lwt.t
+
 val default_version : Belenios.Election.some_version
 val popup_choose_elec : uuid -> (uuid -> unit Lwt.t) -> unit Lwt.t

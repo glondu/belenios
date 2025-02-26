@@ -87,7 +87,12 @@ let is_tallied () =
 let is_finished () = is_archived () || is_tallied ()
 
 let popup_failsync msg =
-  alert msg;
+  let code =
+    match msg with
+    | `Raw (x, _) -> x
+    | `Structured (x : Belenios_web_api.request_status) -> x.code
+  in
+  Printf.ksprintf alert "Failed to sync data to server, code %d" code;
   Lwt.return_unit
 
 let default_version = List.hd Belenios.Election.supported_crypto_versions
