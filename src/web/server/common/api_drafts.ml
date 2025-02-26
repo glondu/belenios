@@ -242,6 +242,7 @@ let get_draft_voters (Draft (_, se)) =
   se.se_voters |> List.map (fun x -> x.sv_id)
 
 let put_draft_voters (Draft (v, se), set) voters =
+  let fail e = raise @@ Error (`VoterListError e) in
   let existing_voters =
     List.fold_left
       (fun accu v ->
@@ -252,7 +253,8 @@ let put_draft_voters (Draft (v, se), set) voters =
   let se_voters =
     List.map
       (fun voter ->
-        if not (Voter.validate voter) then raise @@ Error (`Invalid "identity");
+        if not (Voter.validate voter) then
+          fail @@ `Identity (Voter.to_string voter);
         let _, login, _ = Voter.get voter in
         match SMap.find_opt (String.lowercase_ascii login) existing_voters with
         | None -> { sv_id = voter; sv_password = None }
@@ -272,14 +274,13 @@ let put_draft_voters (Draft (v, se), set) voters =
             | `Json -> `Json
           in
           match shape with
-          | Some x when x <> shape' -> raise @@ Error (`Invalid "format mix")
+          | Some x when x <> shape' -> fail `FormatMix
           | _ -> Some shape'
         in
         let _, login, weight = Voter.get v.sv_id in
         let login = String.lowercase_ascii login in
         let* voters =
-          if SSet.mem login voters then
-            Lwt.fail @@ Error (`Invalid "duplicate login")
+          if SSet.mem login voters then fail @@ `Duplicate login
           else Lwt.return (SSet.add login voters)
         in
         Lwt.return (Weight.(total_weight + weight), shape, voters))
@@ -289,12 +290,7 @@ let put_draft_voters (Draft (v, se), set) voters =
   let* () =
     let expanded = Weight.expand ~total:total_weight total_weight in
     if Z.compare expanded Weight.max_expanded_weight > 0 then
-      Lwt.fail
-      @@ Error
-           (`GenericError
-              (Printf.sprintf "expanded total weight too big: %s/%s"
-                 (Z.to_string expanded)
-                 (Z.to_string Weight.max_expanded_weight)))
+      fail @@ `TotalWeightTooBig (expanded, Weight.max_expanded_weight)
     else Lwt.return_unit
   in
   let se = { se with se_voters } in

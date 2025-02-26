@@ -21,6 +21,7 @@
 
 <doc text="API-specific serializable datatypes">
 
+type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
@@ -61,6 +62,13 @@ type validation_error =
   | RestrictedMode of restricted_mode_error
   ]
 
+type voter_list_error =
+  [ FormatMix
+  | Identity of string
+  | Duplicate of string
+  | TotalWeightTooBig of (number * number)
+  ]
+
 type error =
   [ GenericError of string
   | NotInExpectedState
@@ -73,6 +81,7 @@ type error =
   | InvalidPublicKey
   | PublicKeyExists
   | CastError of cast_error
+  | VoterListError of voter_list_error
   ]
 
 type request_status = {
