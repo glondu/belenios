@@ -423,7 +423,7 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let url = Printf.sprintf "%s" belenios in
     let* () = session#navigate_to url in
-    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+    let* () = session#set_window_rect ~width:800 ~height:600 () in
     let* () = login session in
     let* () =
       match id with
