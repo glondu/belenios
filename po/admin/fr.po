@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2025-02-27 07:30+0000\n"
+"PO-Revision-Date: 2025-02-27 07:36+0000\n"
 "Last-Translator: Stéphane Glondu <steph@glondu.net>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/admin/fr/"
 ">\n"
@@ -694,7 +694,7 @@ msgstr "État incohérent !"
 
 #: src/web/clients/trustee/generate.ml:392
 msgid "Inconsistent state. Please refresh the page."
-msgstr ""
+msgstr "État incohérent. Veuillez rafraîchir la page."
 
 #: src/web/server/common/site_admin.ml:175
 msgid "Incorrect code"
@@ -1118,7 +1118,7 @@ msgstr "Question "
 
 #: src/web/clients/admin/questions.ml:253
 msgid "Question #%d has too many choices, voting will fail!"
-msgstr ""
+msgstr "La question n°%d a trop de choix, il sera impossible de voter !"
 
 #: src/web/clients/admin/elections.ml:178
 msgid "Questions"
@@ -1438,15 +1438,15 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:799 src/web/clients/admin/elections.ml:764
 msgid "There is an error in the voter list! (%s)"
-msgstr ""
+msgstr "Il y a une erreur dans la liste électorale ! (%s)"
 
 #: src/web/clients/admin/elections.ml:806
 msgid "There is an unexpected error in the voter list!"
-msgstr ""
+msgstr "Il y a une erreur inattendue dans la liste électorale !"
 
 #: src/web/clients/admin/elections.ml:771
 msgid "There is an unexpected syntax error in the voter list!"
-msgstr ""
+msgstr "Il y a une erreur de syntaxe inattendue dans la liste électorale !"
 
 #: src/web/server/common/pages_admin.ml:420
 msgid "There is no e-mail address attached to your account."
@@ -1562,7 +1562,7 @@ msgstr "Trop court"
 
 #: src/web/clients/admin/questions.ml:970
 msgid "Total complexity:"
-msgstr ""
+msgstr "Complexité totale :"
 
 #: src/web/clients/trustee/generate.ml:410
 msgid "Trustee key generation"
@@ -1667,11 +1667,11 @@ msgstr "Liste d'émargement"
 
 #: src/web/clients/trustee/generate.ml:351
 msgid "Waiting for the election administrator to set the threshold..."
-msgstr ""
+msgstr "En attente que l'administrateur de l'élection définisse un seuil..."
 
 #: src/web/clients/trustee/generate.ml:226
 msgid "Waiting for the other trustees..."
-msgstr ""
+msgstr "En attente des autres autorités de déchiffrement..."
 
 #: src/web/clients/admin/elections.ml:747
 msgid "Warning, this action is irreversible"
@@ -1866,7 +1866,7 @@ msgstr "action requise"
 
 #: src/web/clients/admin/elections.ml:787
 msgid "all voters must be in the same format"
-msgstr ""
+msgstr "tous les électeurs doivent être dans le même format"
 
 #: src/web/clients/trustee/check.ml:81 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
@@ -1886,7 +1886,7 @@ msgstr "fait"
 
 #: src/web/clients/admin/elections.ml:789
 msgid "duplicate voter: %s"
-msgstr ""
+msgstr "électeur en double : %s"
 
 #: src/web/clients/admin/elections.ml:734
 msgid "empty list"
@@ -1907,7 +1907,7 @@ msgstr "d'une autre élection"
 
 #: src/web/clients/admin/elections.ml:791 src/web/clients/admin/elections.ml:761
 msgid "invalid identity: %s"
-msgstr ""
+msgstr "identité invalide : %s"
 
 #. src/web/clients/admin/trustees_tab.ml:355
 #: src/web/clients/admin/trustees_tab.ml:361
@@ -1933,7 +1933,7 @@ msgstr "parties privées des codes de vote"
 
 #: src/web/clients/trustee/generate.ml:148
 msgid "private_key"
-msgstr ""
+msgstr "clé privée"
 
 #: src/web/clients/admin/trustees_tab.ml:741
 msgid "server (has already shuffled)"
@@ -2015,7 +2015,7 @@ msgstr "il y a une erreur dans la base de données"
 
 #: src/web/clients/admin/elections.ml:794
 msgid "total weight too big: %s/%s"
-msgstr ""
+msgstr "le poids total est trop gros : %s/%s"
 
 #: src/web/clients/admin/elections.ml:738
 msgid "typical use"
