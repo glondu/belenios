@@ -15,19 +15,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.5-dev\n"
 
-#: src/web/server/common/pages_common.ml:342
+#: src/web/server/common/pages_common.ml:339
 msgid " (if you forgot it, for example)."
 msgstr " (se per esempio l'ha dimenticata)."
 
-#: src/web/common/pages_common.ml:237
+#: src/web/common/pages_common.ml:233
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Le è stata inviata un'e-mail di conferma."
 
-#: src/web/common/pages_common.ml:235
+#: src/web/common/pages_common.ml:231
 msgid " anytime during the election."
 msgstr " in ogni momento durante l'elezione."
 
-#: src/web/common/pages_common.ml:224
+#: src/web/common/pages_common.ml:220
 msgid " as user "
 msgstr " come utente "
 
@@ -43,15 +43,11 @@ msgstr " scheda(e) accettata(e), e "
 msgid " ballot(s) have been accepted."
 msgstr " scheda(e) accettata(e)."
 
-#: src/web/clients/election/home.ml:42 src/web/server/common/web_common.ml:45
-msgid " day(s)"
-msgstr " giorno(i)"
-
-#: src/web/clients/election/home.ml:363
+#: src/web/clients/election/home.ml:374
 msgid " for more information."
 msgstr " per ulteriori informazioni."
 
-#: src/web/common/pages_common.ml:226
+#: src/web/common/pages_common.ml:222
 msgid " has been accepted."
 msgstr " è stata accettata."
 
@@ -59,51 +55,31 @@ msgstr " è stata accettata."
 msgid " have been tallied."
 msgstr " sono state scrutinate."
 
-#: src/web/clients/election/home.ml:43 src/web/server/common/web_common.ml:47
-msgid " hour(s)"
-msgstr " ora(e)"
-
-#: src/web/server/common/pages_common.ml:550
+#: src/web/server/common/pages_common.ml:547
 msgid " in the following box: "
 msgstr " nella casella seguente: "
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:239
 msgid " is rejected, because "
 msgstr " è stato rifiutato, perché "
 
-#: src/web/clients/election/home.ml:44 src/web/server/common/web_common.ml:48
-msgid " minute(s)"
-msgstr " minuto(i)"
-
-#: src/web/server/common/web_common.ml:44
-msgid " month(s)"
-msgstr " mese(i)"
-
-#: src/web/clients/election/home.ml:45 src/web/server/common/web_common.ml:49
-msgid " second(s)"
-msgstr " secondo(i)"
-
-#: src/web/server/common/web_common.ml:43
-msgid " year(s)"
-msgstr " anno(i)"
-
-#: src/web/clients/election/home.ml:323 src/web/clients/election/home.ml:290
+#: src/web/clients/election/home.ml:334 src/web/clients/election/home.ml:303
 msgid "%d blank ballot(s)"
 msgstr "%d scheda/e bianca/e"
 
-#: src/web/clients/election/home.ml:388 src/web/clients/election/home.ml:299
+#: src/web/clients/election/home.ml:398 src/web/clients/election/home.ml:310
 msgid "%d invalid ballot(s)"
 msgstr "%d scheda(e) non valida(e)"
 
-#: src/web/clients/election/home.ml:166
+#: src/web/clients/election/home.ml:179
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:317 src/web/clients/election/home.ml:284
+#: src/web/clients/election/home.ml:328 src/web/clients/election/home.ml:297
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d schede (non bianche) valide"
 
-#: src/web/clients/election/home.ml:318 src/web/clients/election/home.ml:285
+#: src/web/clients/election/home.ml:329 src/web/clients/election/home.ml:298
 msgid "%d valid ballot(s)"
 msgstr "%d schede valide"
 
@@ -115,17 +91,17 @@ msgstr ""
 msgid "), or any compatible booth."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:338
+#: src/web/server/common/pages_common.ml:335
 msgid ", or "
 msgstr ", o "
 
-#: src/web/clients/election/home.ml:351
+#: src/web/clients/election/home.ml:362
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "Un vincitore Condorcet è un candidato che è preferito su ogni altro "
 "candidato."
 
-#: src/web/clients/election/home.ml:396
+#: src/web/clients/election/home.ml:406
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Una scheda non è valida se due candidati hanno ricevuto lo stesso ordine di "
@@ -135,11 +111,11 @@ msgstr ""
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:451
+#: src/web/server/common/pages_common.ml:448
 msgid "A verification code has been sent to %s."
 msgstr "Un codice di verifica è stato inviato a %s."
 
-#: src/web/clients/election/home.ml:239
+#: src/web/clients/election/home.ml:252
 msgid "About this election"
 msgstr "Su questa elezione"
 
@@ -147,7 +123,7 @@ msgstr "Su questa elezione"
 msgid "Accepted ballots"
 msgstr "Schede elettorali accettate"
 
-#: src/web/clients/election/home.ml:305
+#: src/web/clients/election/home.ml:316
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Secondo il Giudizio Maggioritario, la classifica è:"
 
@@ -159,7 +135,7 @@ msgstr "Per amministrare elezioni"
 msgid "Administer this election"
 msgstr "Amministrare questa elezione"
 
-#: src/web/clients/election/home.ml:76
+#: src/web/clients/election/home.ml:89
 msgid "Administrator"
 msgstr "Amministratore"
 
@@ -167,7 +143,7 @@ msgstr "Amministratore"
 msgid "Advanced mode"
 msgstr "Modalità avanzata"
 
-#: src/web/clients/election/home.ml:137
+#: src/web/clients/election/home.ml:150
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 "Tutti i seguenti fiduciari (chiavi di verifica) sono necessari per "
@@ -181,36 +157,36 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Dati di audit: "
 
-#: src/web/server/common/pages_common.ml:475
-#. src/web/server/common/pages_common.ml:406
-#. src/web/server/common/pages_common.ml:314
+#: src/web/server/common/pages_common.ml:472
+#. src/web/server/common/pages_common.ml:403
+#. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
 msgstr "Autenticarsi"
 
-#: src/web/server/common/pages_common.ml:245
+#: src/web/server/common/pages_common.ml:242
 msgid "Authenticate with %s"
 msgstr "Autenticarsi con %s"
 
-#: src/web/server/common/pages_common.ml:511
+#: src/web/server/common/pages_common.ml:508
 msgid "Authentication"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:420
+#: src/web/server/common/pages_common.ml:417
 msgid "Authentication failed"
 msgstr "Autenticazione non riuscita"
 
-#: src/web/server/common/pages_common.ml:426
+#: src/web/server/common/pages_common.ml:423
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Autenticazione non riuscita, per uso di nome utente o password sbagliati "
 "oppure per termini di tempo scaduti oppure perché non si ha il permesso di "
 "compiere quest'operazione."
 
-#: src/web/server/common/pages_common.ml:575
+#: src/web/server/common/pages_common.ml:572
 msgid "Authentication impossible"
 msgstr "Autenticazione impossibile"
 
-#: src/web/server/common/pages_common.ml:570
+#: src/web/server/common/pages_common.ml:567
 msgid "Authentication is impossible."
 msgstr "L'autenticazione risulta impossibile."
 
@@ -218,19 +194,19 @@ msgstr "L'autenticazione risulta impossibile."
 msgid "Back to election home"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:526
+#: src/web/server/common/pages_common.ml:523
 msgid "Bad e-mail address!"
 msgstr "Indirizzo di posta elettronica non valido!"
 
-#: src/web/server/common/pages_common.ml:525
+#: src/web/server/common/pages_common.ml:522
 msgid "Bad security code!"
 msgstr "Codice di sicurezza non valido!"
 
-#: src/web/server/common/pages_common.ml:504
+#: src/web/server/common/pages_common.ml:501
 msgid "Best regards,"
 msgstr "Cordiali saluti,"
 
-#: src/web/clients/election/home.ml:454
+#: src/web/clients/election/home.ml:466
 msgid "Blank vote"
 msgstr "Scheda bianca"
 
@@ -242,7 +218,7 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr "Usando questo sito, accetti la nostra "
 
-#: src/web/server/common/pages_common.ml:585
+#: src/web/server/common/pages_common.ml:582
 msgid "Click here"
 msgstr "Cliccare qui"
 
@@ -262,30 +238,30 @@ msgstr "Calcolare l'impronta digitale"
 msgid "Computed fingerprint:"
 msgstr "Impronta calcolata:"
 
-#: src/web/clients/election/home.ml:712
+#: src/web/clients/election/home.ml:721
 msgid "Could not retrieve audit data!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:180
+#: src/web/clients/election/home.ml:193
 msgid "Credentials authority"
 msgstr ""
 
-#: src/web/clients/election/home.ml:189
+#: src/web/clients/election/home.ml:202
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:484
+#: src/web/server/common/pages_common.ml:481
 #. src/web/server/common/mails_voter.ml:416
 msgid "Dear %s,"
 msgstr "Car* %s,"
 
-#: src/web/server/common/pages_common.ml:539
-#. src/web/server/common/pages_common.ml:349
-#. src/web/server/common/pages_common.ml:281
+#: src/web/server/common/pages_common.ml:536
+#. src/web/server/common/pages_common.ml:346
+#. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
 msgstr "Indirizzo di posta elettronica:"
 
-#: src/web/clients/election/home.ml:67
+#: src/web/clients/election/home.ml:80
 msgid "Election fingerprint"
 msgstr ""
 
@@ -293,11 +269,11 @@ msgstr ""
 msgid "Election home"
 msgstr ""
 
-#: src/web/clients/election/home.ml:62
+#: src/web/clients/election/home.ml:75
 msgid "Election identifier"
 msgstr ""
 
-#: src/web/common/pages_common.ml:141 src/web/common/pages_common.ml:132
+#: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
 msgid "Election server"
 msgstr "Server delle elezioni"
 
@@ -317,7 +293,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "Impronta attesa:"
 
-#: src/web/common/pages_common.ml:247
+#: src/web/common/pages_common.ml:243
 msgid "FAIL!"
 msgstr "FALLIMENTO !"
 
@@ -325,11 +301,11 @@ msgstr "FALLIMENTO !"
 msgid "File:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:229
+#: src/web/clients/election/home.ml:242
 msgid "Final fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:217
+#: src/web/clients/election/home.ml:230
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
@@ -341,43 +317,43 @@ msgstr "Accesso non consentito"
 msgid "Get the source code"
 msgstr "Scaricare il codice sorgente"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:75
-#. src/web/common/pages_common.ml:262
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:258
 msgid "Go back to election"
 msgstr "Per tornare alla pagina iniziale dell'elezione"
 
-#: src/web/server/common/mails_voter.ml:160
+#: src/web/server/common/mails_voter.ml:161
 msgid "If the above link does not work:"
 msgstr "Se il link qui sopra non funziona:"
 
-#: src/web/server/common/pages_voter.ml:56
+#: src/web/server/common/pages_voter.ml:55
 msgid "If you want to vote, you must "
 msgstr "Se vuole votare, deve "
 
-#: src/web/clients/election/home.ml:422
+#: src/web/clients/election/home.ml:434
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "Nella nostra implementazione, quando più candidati hanno lo stesso numero di "
 "voti quando sono pronti per essere eletti o eliminati, seguiamo l'ordine in "
 "cui i candidati sono stati elencati nel'elezione."
 
-#: src/web/clients/election/home.ml:526
+#: src/web/clients/election/home.ml:540
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr "Contiene in chiaro tutte le schede trasmesse, in ordine casuale."
 
-#: src/web/clients/election/home.ml:509
+#: src/web/clients/election/home.ml:521
 msgid "It is up to you to apply your favorite counting method."
 msgstr "E' compito dell'utente applicare il metodo di conteggio preferito."
 
-#: src/web/clients/election/home.ml:634
-msgid "It will open in "
-msgstr "Si aprirà in "
+#: src/web/clients/election/home.ml:646
+msgid "It will open at %s (time left: %s)."
+msgstr ""
 
-#: src/web/clients/election/home.ml:523
+#: src/web/clients/election/home.ml:537
 msgid "JSON result"
 msgstr "Risultato in JSON"
 
-#: src/web/server/common/pages_common.ml:162 src/web/common/pages_common.ml:88
+#: src/web/server/common/pages_common.ml:164 src/web/common/pages_common.ml:88
 msgid "Language:"
 msgstr "Lingua:"
 
@@ -385,28 +361,28 @@ msgstr "Lingua:"
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:474
-#. src/web/server/common/pages_common.ml:405
-#. src/web/server/common/pages_common.ml:313
-#. src/web/server/common/pages_common.ml:273
+#: src/web/server/common/pages_common.ml:471
+#. src/web/server/common/pages_common.ml:402
+#. src/web/server/common/pages_common.ml:310
+#. src/web/server/common/pages_common.ml:270
 msgid "Log in"
 msgstr "Accedi"
 
-#: src/web/server/common/pages_common.ml:244
+#: src/web/server/common/pages_common.ml:241
 msgid "Log in with %s"
 msgstr "Accedi con %s"
 
-#: src/web/clients/election/home.ml:433
+#: src/web/clients/election/home.ml:445
 msgid "Look at the raw events for more details."
 msgstr "Vedi eventi in grezzo per più dettagli."
 
-#: src/web/clients/election/home.ml:417
+#: src/web/clients/election/home.ml:429
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Esistono molte varianti del Voto Singolo Trasferibile, che dipendono per "
 "esempio dal modo in cui si gestisce la parità."
 
-#: src/web/server/common/pages_common.ml:572
+#: src/web/server/common/pages_common.ml:569
 msgid "Maybe cookies are blocked."
 msgstr "E' possibile che i cookie siano bloccati."
 
@@ -414,52 +390,52 @@ msgstr "E' possibile che i cookie siano bloccati."
 msgid "Not found"
 msgstr "Non trovato"
 
-#: src/web/server/common/mails_voter.ml:56
+#: src/web/server/common/mails_voter.ml:57
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 "Nota che hai anche bisogno di una credenziale, inviata in un'e-mail "
 "separata, per iniziare a votare."
 
-#: src/web/clients/election/home.ml:591
+#: src/web/clients/election/home.ml:611
 msgid "Number of accepted ballots: "
 msgstr "Numero di schede accettate: "
 
-#: src/web/clients/election/home.ml:86
+#: src/web/clients/election/home.ml:99
 msgid "Number of voters"
 msgstr "Numero dei votanti"
 
-#: src/web/server/common/mails_voter.ml:177
-#. src/web/server/common/mails_voter.ml:72
+#: src/web/server/common/mails_voter.ml:178
+#. src/web/server/common/mails_voter.ml:73
 msgid "Number of votes:"
 msgstr "Numero di voti:"
 
-#: src/web/server/common/mails_voter.ml:184
-#. src/web/server/common/mails_voter.ml:83
+#: src/web/server/common/mails_voter.ml:185
+#. src/web/server/common/mails_voter.ml:84
 msgid "Only the last vote counts."
 msgstr "Ma soltanto l'ultimo voto è preso in considerazione."
 
-#: src/web/server/common/mails_voter.ml:77
+#: src/web/server/common/mails_voter.ml:78
 msgid "Page of the election:"
 msgstr "Pagina dell'elezione:"
 
-#: src/web/server/common/pages_common.ml:385
-#. src/web/server/common/mails_voter.ml:65
+#: src/web/server/common/pages_common.ml:382
+#. src/web/server/common/mails_voter.ml:66
 msgid "Password:"
 msgstr "Password:"
 
-#: src/web/server/common/pages_common.ml:548
+#: src/web/server/common/pages_common.ml:545
 msgid "Please enter "
 msgstr "Si prega di digitare "
 
-#: src/web/server/common/pages_common.ml:463
+#: src/web/server/common/pages_common.ml:460
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Inserire il codice di verifica ricevuto via posta elettronica:"
 
-#: src/web/server/common/mails_voter.ml:48
+#: src/web/server/common/mails_voter.ml:49
 msgid "Please find below your login and password for the election"
 msgstr "Trova più in basso il suo nome utente e la password per l'elezione"
 
-#: src/web/server/common/pages_common.ml:267
+#: src/web/server/common/pages_common.ml:264
 msgid "Please log in:"
 msgstr "Si prega di effettuare l'accesso:"
 
@@ -473,11 +449,11 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:146
+#: src/web/server/common/mails_voter.ml:147
 msgid "Please vote here using your personal link:"
 msgstr "Si prega di votare utilizzando il vostro link personale:"
 
-#: src/web/clients/election/advanced.ml:262
+#: src/web/clients/election/advanced.ml:260
 msgid "Please wait while your ballot is being processed..."
 msgstr ""
 
@@ -485,25 +461,25 @@ msgstr ""
 msgid "Powered by "
 msgstr "Opera con "
 
-#: src/web/clients/election/advanced.ml:253
-#. src/web/server/common/pages_common.ml:226
-#. src/web/server/common/pages_common.ml:218
+#: src/web/clients/election/advanced.ml:251
+#. src/web/server/common/pages_common.ml:223
+#. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "Procedere"
 
-#: src/web/clients/election/advanced.ml:200
+#: src/web/clients/election/advanced.ml:198
 msgid "Processing ballot"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:163
+#: src/web/server/common/mails_voter.ml:164
 msgid "Public page of the election:"
 msgstr "Pagina pubblica dell'elezione:"
 
-#: src/web/clients/election/home.ml:404
+#: src/web/clients/election/home.ml:416
 msgid "Raw events"
 msgstr "Eventi in grezzo"
 
-#: src/web/server/common/pages_common.ml:588
+#: src/web/server/common/pages_common.ml:585
 msgid "Redirection"
 msgstr ""
 
@@ -515,28 +491,28 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr "I risultati saranno pubblicati sulla pagina dell'elezione"
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:715
 msgid "See accepted ballots"
 msgstr "Consultare le schede elettorali accettate"
 
-#: src/web/server/common/pages_common.ml:169
+#: src/web/server/common/pages_common.ml:171
 msgid "Set"
 msgstr "Impostare"
 
-#: src/web/clients/election/home.ml:356
+#: src/web/clients/election/home.ml:367
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "Esistono diverse tecniche per decidere quale candidato eleggere quando non "
 "c'è un vincitore secondo Condorcet."
 
-#: src/web/clients/election/home.ml:684
+#: src/web/clients/election/home.ml:693
 msgid "Start"
 msgstr "Avviare"
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:553
-#. src/web/server/common/pages_common.ml:467
+#. src/web/server/common/pages_common.ml:550
+#. src/web/server/common/pages_common.ml:464
 msgid "Submit"
 msgstr "Inviare"
 
@@ -548,7 +524,7 @@ msgstr ""
 msgid "Submit by file"
 msgstr ""
 
-#: src/web/clients/election/home.ml:429
+#: src/web/clients/election/home.ml:441
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 
@@ -556,25 +532,25 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Termini del servizio"
 
-#: src/web/common/pages_common.ml:240
+#: src/web/common/pages_common.ml:236
 msgid "Thank you for voting!"
 msgstr "La ringraziamo per la sua partecipazione!"
 
-#: src/web/clients/election/home.ml:368
+#: src/web/clients/election/home.ml:379
 msgid "The Schulze winners are:"
 msgstr "I vincitori secondo Schulze sono:"
 
-#: src/web/clients/election/home.ml:438
+#: src/web/clients/election/home.ml:450
 msgid "The Single Transferable Vote winners are:"
 msgstr "I vincitori secondo il Voto Singolo Trasferibile sono:"
 
-#: src/web/clients/election/home.ml:657 src/web/clients/election/home.ml:655
+#: src/web/clients/election/home.ml:666 src/web/clients/election/home.ml:664
 msgid "The election is closed and being tallied."
 msgstr "L'elezione è chiusa ed il conteggio è in corso."
 
-#: src/web/clients/election/home.ml:647
-msgid "The election will close in "
-msgstr "L'elezione terminerà entro "
+#: src/web/clients/election/home.ml:657
+msgid "The election will close at %s (time left: %s)."
+msgstr ""
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:47
 msgid "The fingerprints differ!"
@@ -584,11 +560,11 @@ msgstr "Le impronte differiscono!"
 msgid "The fingerprints match!"
 msgstr "Le impronte coincidono!"
 
-#: src/web/clients/election/home.ml:520
+#: src/web/clients/election/home.ml:532
 msgid "The raw results can be viewed in the "
 msgstr "I risultati grezzi possono essere visualizzati nel "
 
-#: src/web/clients/election/home.ml:414
+#: src/web/clients/election/home.ml:426
 msgid "There has been at least one tie."
 msgstr "C'è stata almeno una parità."
 
@@ -598,19 +574,19 @@ msgstr ""
 "Questa elezione non è presente. Ciò può accadere per elezioni che non sono "
 "ancora state avviate o che sono state cancellate."
 
-#: src/web/clients/election/home.ml:658
+#: src/web/clients/election/home.ml:667
 msgid "This election has been tallied."
 msgstr "Questa elezione è stata scrutinata."
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:668
 msgid "This election is archived."
 msgstr "Questa elezione è stata archiviata."
 
-#: src/web/clients/election/home.ml:640
+#: src/web/clients/election/home.ml:649
 msgid "This election is currently closed."
 msgstr "Questa elezione al momento è chiusa."
 
-#: src/web/common/pages_common.ml:201
+#: src/web/common/pages_common.ml:197
 msgid "This is a revote."
 msgstr "Questo voto è sostitutivo."
 
@@ -618,85 +594,85 @@ msgstr "Questo voto è sostitutivo."
 msgid "This vote replaces any previous vote."
 msgstr "Questo voto sostituisce ogni voto precedente."
 
-#: src/web/clients/election/home.ml:341 src/web/clients/election/home.ml:277
+#: src/web/clients/election/home.ml:352 src/web/clients/election/home.ml:290
 msgid "Tie:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:155
+#: src/web/server/common/mails_voter.ml:156
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "Per presentare una scheda elettorale, avrà bisogno di una password, spedita "
 "in un'e-mail separata."
 
-#: src/web/server/common/mails_voter.ml:37
+#: src/web/server/common/mails_voter.ml:38
 msgid "To get more information, please contact:"
 msgstr "Per maggiori informazioni si prega di contattare:"
 
-#: src/web/clients/election/home.ml:575
+#: src/web/clients/election/home.ml:589
 msgid "Total weight of accepted ballots:"
 msgstr "Peso complessivo delle schede accettate:"
 
-#: src/web/clients/election/home.ml:204
+#: src/web/clients/election/home.ml:217
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:562
+#: src/web/clients/election/home.ml:576
 msgid "Unsupported question type"
 msgstr "Tipologia di domanda non supportata"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:488
 msgid "Use the following code:"
 msgstr "Utilizzi il seguente codice per confermare il voto:"
 
-#: src/web/server/common/pages_common.ml:348
-#. src/web/server/common/pages_common.ml:280
-#. src/web/server/common/mails_voter.ml:167
-#. src/web/server/common/mails_voter.ml:61
+#: src/web/server/common/pages_common.ml:345
+#. src/web/server/common/pages_common.ml:277
+#. src/web/server/common/mails_voter.ml:168
+#. src/web/server/common/mails_voter.ml:62
 msgid "Username:"
 msgstr "Nome utente:"
 
-#: src/web/clients/election/home.ml:91
+#: src/web/clients/election/home.ml:104
 msgid "Voter list fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:102
+#: src/web/clients/election/home.ml:115
 msgid "Voters' total weight"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:67
+#: src/web/server/common/pages_voter.ml:66
 msgid "Warning:"
 msgstr "Attenzione:"
 
-#: src/web/server/common/pages_common.ml:499
+#: src/web/server/common/pages_common.ml:496
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Attenzione: questo codice è valido per 15 minuti, e i codici inviati in "
 "precedenza a questo indirizzo non sono più validi."
 
-#: src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:135
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "Attenzione: questa e-mail contiene materiale personale e confidenziale e non "
 "dovrebbe essere ulteriormente inoltrata."
 
-#: src/web/clients/election/home.ml:360
+#: src/web/clients/election/home.ml:371
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:186 src/web/common/pages_common.ml:106
+#: src/web/server/common/pages_common.ml:184 src/web/common/pages_common.ml:102
 msgid "Wish to help with translations?"
 msgstr "Vuole dare il suo aiuto per le traduzioni?"
 
-#: src/web/clients/election/advanced.ml:244
+#: src/web/clients/election/advanced.ml:242
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:183
-#. src/web/server/common/mails_voter.ml:82
+#: src/web/server/common/mails_voter.ml:184
+#. src/web/server/common/mails_voter.ml:83
 msgid "You are allowed to vote several times."
 msgstr "Le è consentito votare più volte."
 
-#: src/web/server/common/mails_voter.ml:139
+#: src/web/server/common/mails_voter.ml:140
 msgid "You are listed as a voter for the election"
 msgstr "Lei è registrato(a) come elettore(trice) per l'elezione"
 
@@ -704,19 +680,19 @@ msgstr "Lei è registrato(a) come elettore(trice) per l'elezione"
 msgid "You are not allowed to access this page!"
 msgstr "Non è consentito l'accesso a questa pagina!"
 
-#: src/web/server/common/pages_common.ml:432
+#: src/web/server/common/pages_common.ml:429
 msgid "You can "
 msgstr "Lei può "
 
-#: src/web/server/common/pages_common.ml:336
+#: src/web/server/common/pages_common.ml:333
 msgid "You can also "
 msgstr "Lei può anche "
 
-#: src/web/clients/election/home.ml:596
+#: src/web/clients/election/home.ml:614
 msgid "You can also download the "
 msgstr "È possibile scaricare il "
 
-#: src/web/common/pages_common.ml:233
+#: src/web/common/pages_common.ml:229
 msgid "You can check its presence in the "
 msgstr "Può controllare la presenza del codice di verifica nell' "
 
@@ -729,31 +705,31 @@ msgstr ""
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:563
+#: src/web/server/common/pages_common.ml:560
 msgid "You cannot log in now. Please try later."
 msgstr ""
 "In questo momento non è possibile accedere. Si prega di provare di nuovo più "
 "tardi."
 
-#: src/web/common/pages_common.ml:252
+#: src/web/common/pages_common.ml:248
 msgid "Your ballot for "
 msgstr "La sua scheda elettorale per "
 
-#: src/web/server/common/mails_voter.ml:201
+#: src/web/server/common/mails_voter.ml:202
 msgid "Your credential for election %s"
 msgstr "Il suo codice di voto per l'elezione %s"
 
-#: src/web/server/common/mails_voter.ml:171
+#: src/web/server/common/mails_voter.ml:172
 msgid "Your credential:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:488
+#: src/web/server/common/pages_common.ml:485
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Il suo indirizzo di posta elettronica è stato utilizzato per autenticarsi "
 "con il nostro server Belenios."
 
-#: src/web/server/common/mails_voter.ml:102
+#: src/web/server/common/mails_voter.ml:103
 msgid "Your password for election %s"
 msgstr "La sua password per l'elezione %s"
 
@@ -761,7 +737,7 @@ msgstr "La sua password per l'elezione %s"
 msgid "Your smart ballot tracker is"
 msgstr "Il suo codice di verifica è"
 
-#: src/web/common/pages_common.ml:230
+#: src/web/common/pages_common.ml:226
 msgid "Your smart ballot tracker is "
 msgstr "Il suo codice di verifica è "
 
@@ -769,27 +745,27 @@ msgstr "Il suo codice di verifica è "
 msgid "Your vote for election"
 msgstr "La sua scheda per l'elezione"
 
-#: src/web/server/common/site_voter.ml:90
+#: src/web/server/common/site_voter.ml:87
 msgid "Your vote for election %s"
 msgstr "La sua scheda per l'elezione %s"
 
-#: src/web/server/common/pages_voter.ml:69
+#: src/web/server/common/pages_voter.ml:68
 msgid "Your vote was not recorded!"
 msgstr "Il suo voto non è stato registrato!"
 
-#: src/web/server/common/mails_voter.ml:430 src/web/common/pages_common.ml:210
+#: src/web/server/common/mails_voter.ml:430 src/web/common/pages_common.ml:206
 msgid "Your weight is %s."
 msgstr "Il peso del suo voto è %s."
 
-#: src/web/common/pages_common.ml:221
+#: src/web/common/pages_common.ml:217
 msgid "ballot box"
 msgstr "urna"
 
-#: src/web/server/common/pages_common.ml:340
+#: src/web/server/common/pages_common.ml:337
 msgid "change your password"
 msgstr "cambi la sua password"
 
-#: src/web/server/common/pages_common.ml:337
+#: src/web/server/common/pages_common.ml:334
 msgid "create an account"
 msgstr "creare un'utenza"
 
@@ -809,7 +785,7 @@ msgstr "parametri"
 msgid "public data"
 msgstr "dati pubblici"
 
-#: src/web/clients/election/home.ml:597
+#: src/web/clients/election/home.ml:599
 msgid "raw result"
 msgstr "risultato grezzo"
 
@@ -821,7 +797,7 @@ msgstr ""
 msgid "sources"
 msgstr ""
 
-#: src/web/server/common/pages_voter.ml:58
+#: src/web/server/common/pages_voter.ml:57
 msgid "start from the beginning"
 msgstr "cominciare dall'inizio"
 
@@ -829,7 +805,7 @@ msgstr "cominciare dall'inizio"
 msgid "terms of service"
 msgstr "termini del servizio"
 
-#: src/web/clients/election/home.ml:362
+#: src/web/clients/election/home.ml:373
 msgid "the Wikipedia page"
 msgstr "la pagina di Wikipedia"
 
@@ -849,7 +825,7 @@ msgstr "questa scheda è stata già acquisita"
 msgid "this ballot has expired"
 msgstr "questa scheda è scaduta"
 
-#: src/web/server/common/pages_common.ml:433
+#: src/web/server/common/pages_common.ml:430
 msgid "try to log in again"
 msgstr "provare ad accedere di nuovo"
 
