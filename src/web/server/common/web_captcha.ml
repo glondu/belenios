@@ -50,7 +50,7 @@ let create_captcha () =
   | content_type :: response :: contents ->
       let content_type = format_content_type content_type in
       let contents =
-        match String.concat "\n" contents |> Base64.decode with
+        match String.concat "" contents |> Base64.decode with
         | Ok x -> x
         | Error (`Msg msg) -> failwith msg
       in
