@@ -983,7 +983,11 @@ let draft_recompute_main_zone () =
   let prev = div ~a:[ a_id "previewbooth" ] [ prev_but ] in
   (if Array.length !all_gen_quest > 0 then
      let r = Tyxml_js.To_dom.of_div prev_but in
-     r##.onclick := lwt_handler (fun () -> Preview.preview_booth ()));
+     r##.onclick :=
+       lwt_handler (fun () ->
+           let* () = local_save () in
+           let* () = Cache.sync_until_success () in
+           Preview.preview_booth ()));
   let q_show =
     div
       ~a:[ a_class [ "fake_question" ] ]
