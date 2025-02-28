@@ -624,6 +624,11 @@ let put_draft_trustees_mode (Draft (v, se), set) mode =
           Lwt.fail (Error (`GenericError "threshold out of bounds")))
   | _, _ -> Lwt.fail (Error (`GenericError "change not allowed"))
 
+let reset_draft_trustees (Draft (v, se), set) =
+  se.se_trustees <- `Basic { dbp_trustees = [] };
+  se.se_trustees_setup_step <- 1;
+  set (Draft (v, se))
+
 let get_draft_status uuid (Draft (v, se)) =
   let* private_credentials_downloaded =
     if se.se_metadata.e_cred_authority = Some "server" then
@@ -1316,6 +1321,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
               ok
           | `SetThreshold t ->
               let* () = put_draft_trustees_mode (se, set) (`Threshold t) in
+              ok
+          | `Reset ->
+              let* () = reset_draft_trustees (se, set) in
               ok
           | `Import from -> (
               let@ metadata = check_owner account s from in

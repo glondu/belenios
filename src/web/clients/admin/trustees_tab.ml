@@ -308,6 +308,20 @@ let recompute_main_zone_1 () =
       div [ import_but ];
     ]
 
+let reset_but () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let@ () = button @@ s_ "Reset and start from scratch" in
+  let confir = confirm @@ s_ "Are you sure you want to restart from scratch?" in
+  if confir then (
+    let uuid = get_current_uuid () in
+    let* x = Api.(post (draft_trustees uuid) !user `Reset) in
+    match x.code with
+    | 200 -> !update_main_zone ()
+    | code ->
+        Printf.ksprintf alert "Reset failed with code %d" code;
+        Lwt.return_unit)
+  else Lwt.return_unit
+
 (* FIXME: This step 3 is just a dumb, now, but in the future, it should be
  * a page to check that the trustees have their secret key *)
 let recompute_main_zone_3 () =
@@ -342,6 +356,7 @@ let recompute_main_zone_3 () =
     [
       h2 [ txt @@ s_ "Trustee setup - Done" ];
       tablex [ tbody (header_row :: rows_of_ttees) ];
+      div [ reset_but () ];
     ]
 
 (* trustee status is just an int. Conversion to a meaningful status
@@ -474,16 +489,6 @@ let recompute_main_zone_2 () =
           |> Lwt.return)
         !all_trustee
     in
-    let reset_but =
-      button (s_ "Reset and start from scratch") (fun () ->
-          let confir =
-            confirm @@ s_ "Are you sure you want to restart from scratch?"
-          in
-          if confir then
-            let* () = send_draft_request @@ `SetTrusteesSetupStep 1 in
-            !update_main_zone ()
-          else Lwt.return_unit)
-    in
     let refresh_but =
       button (s_ "Refresh status") (fun () -> !update_main_zone ())
     in
@@ -503,7 +508,7 @@ let recompute_main_zone_2 () =
           ];
         tablex [ tbody (header_row :: rows_of_ttees) ];
         div [ refresh_but ];
-        div [ reset_but ];
+        div [ reset_but () ];
       ]
 
 (* This function will be used with `FinishShuffling and `ReleaseTally *)

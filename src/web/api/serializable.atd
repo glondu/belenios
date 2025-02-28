@@ -253,6 +253,7 @@ type trustees_request =
   | Import of uuid
   | SetBasic
   | SetThreshold of int
+  | Reset
   ]
 
 type voters_request =
