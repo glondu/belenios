@@ -123,6 +123,7 @@ let decrypt uuid ~token =
       | 200 -> s_ "Your partial decryption has been received and checked!"
       | 400 -> s_ "The partial decryption didn't pass validation!"
       | 409 -> s_ "You have already submitted a valid partial decryption!"
+      | 412 -> s_ "The election result is already published!"
       | _ -> s_ "Partial decryption submission failed unexpectedly!"
     in
     let element = div ~a:[ a_id "success" ] [ txt msg ] in
