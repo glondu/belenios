@@ -437,9 +437,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           in
           Lwt.return @@ `Bel path
       | _ -> method_not_allowed)
-  | [ "trustees" ] -> (
-      let get () = Public_archive.get_trustees s uuid in
-      match method_ with `GET -> handle_get get | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ _ = with_administrator token metadata in
       match method_ with
@@ -673,6 +670,59 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
               match method_ with
               | `GET -> handle_get get
               | _ -> method_not_allowed)))
+  | [ uuid; "trustees" ] -> (
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      match method_ with
+      | `GET ->
+          Lwt.try_bind
+            (fun () -> Public_archive.get_trustees s uuid)
+            (fun raw -> return_json 200 raw)
+            (fun _ ->
+              let* se = Storage.get s (Election (uuid, Draft)) in
+              match Lopt.get_value se with
+              | None -> not_found
+              | Some (Draft (_, se)) ->
+                  let@ trustees cont =
+                    match se.se_trustees with
+                    | `Basic x ->
+                        let ts = x.dbp_trustees in
+                        cont
+                        @@ List.map
+                             (fun { st_public_key; st_name; _ } ->
+                               let pk =
+                                 trustee_public_key_of_string
+                                   Yojson.Safe.read_json Yojson.Safe.read_json
+                                   st_public_key
+                               in
+                               let pk = { pk with trustee_name = st_name } in
+                               `Single pk)
+                             ts
+                    | `Threshold x -> (
+                        let ts = x.dtp_trustees in
+                        match x.dtp_parameters with
+                        | None -> precondition_failed
+                        | Some tp ->
+                            let tp =
+                              threshold_parameters_of_string
+                                Yojson.Safe.read_json Yojson.Safe.read_json tp
+                            in
+                            let named =
+                              List.combine
+                                (Array.to_list tp.t_verification_keys)
+                                ts
+                              |> List.map
+                                   (fun ((k : _ trustee_public_key), t) ->
+                                     { k with trustee_name = t.stt_name })
+                              |> Array.of_list
+                            in
+                            let tp = { tp with t_verification_keys = named } in
+                            cont [ `Pedersen tp ])
+                  in
+                  trustees
+                  |> string_of_trustees Yojson.Safe.write_json
+                       Yojson.Safe.write_json
+                  |> return_json 200)
+      | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let get () =
