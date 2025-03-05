@@ -375,9 +375,7 @@ let string_of_state st =
       match st with
       | None -> s_ "none"
       | Some 0 -> s_ "step 0?" (* should not occur if threshold is set *)
-      | Some 1 | Some 2 -> s_ "step 1 / 3"
-      | Some 3 | Some 4 -> s_ "step 2 / 3"
-      | Some 5 | Some 6 -> s_ "step 3 / 3"
+      | Some ((1 | 2 | 3 | 4 | 5 | 6) as s) -> Printf.sprintf (f_ "step %d/7") s
       | Some 7 -> "done"
       | _ -> assert false)
 

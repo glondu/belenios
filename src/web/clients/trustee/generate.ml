@@ -277,35 +277,31 @@ let compute_threshold_step ~token ~url draft private_key_ref pedersen =
         | Some p ->
             div [ button (s_ "Proceed") (fun () -> handle_private_key p) ]
       in
-      let step, explain =
+      let explain =
         match pedersen.pedersen_step with
         | 3 ->
-            ( 2,
-              s_
-                "Now, all the certificates of the trustees have been \
-                 generated. Proceed to generate your share of the decryption \
-                 key." )
+            s_
+              "Now, all the certificates of the trustees have been generated. \
+               Proceed to generate your share of the decryption key."
         | 5 ->
-            ( 3,
-              s_
-                "Now, all the trustees have generated their secret shares. \
-                 Proceed to the final checks so that the election can be \
-                 validated." )
-        | _ -> (0, s_ "Inconsistent state!")
+            s_
+              "Now, all the trustees have generated their secret shares. \
+               Proceed to the final checks so that the election can be \
+               validated."
+        | _ -> s_ "Inconsistent state!"
       in
       let* () =
         let@ () = show_in input_private_key_div in
         [ div [ txt explain ]; hr (); input_private_key ] |> Lwt.return
       in
       Dom.appendChild container input_private_key_div;
-      Lwt.return (step, [ Tyxml_js.Of_dom.of_div container ], Some t)
+      Lwt.return ([ Tyxml_js.Of_dom.of_div container ], Some t)
   | 4 ->
       let contents, t = wait_for_other_trustees () in
-      Lwt.return (2, contents, t)
+      Lwt.return (contents, t)
   | 6 | 7 ->
       Lwt.return
-        ( 3,
-          [
+        ( [
             div
               [
                 txt
@@ -318,7 +314,7 @@ let compute_threshold_step ~token ~url draft private_key_ref pedersen =
           None )
   | _ ->
       let* contents = error () in
-      Lwt.return (0, contents, None)
+      Lwt.return (contents, None)
 
 let actionable_basic ~uuid ~token ~url draft = function
   | `Init -> generate_key ~uuid ~token ~url (generate_basic draft) (fun _ -> [])
@@ -371,7 +367,11 @@ let actionable_threshold ~uuid ~token ~url draft set_step s =
     | `WaitingForOtherCertificates ->
         let contents, t = wait_for_other_trustees () in
         Lwt.return (1, contents, t)
-    | `Pedersen p -> compute_threshold_step ~token ~url draft private_key p
+    | `Pedersen p ->
+        let* contents, t =
+          compute_threshold_step ~token ~url draft private_key p
+        in
+        Lwt.return (p.pedersen_step, contents, t)
   in
   let rec loop s =
     let* step, contents, continue = get_contents s in
@@ -415,7 +415,7 @@ let generate configuration uuid ~token =
           let container = Tyxml_js.To_dom.of_h3 h in
           ( h,
             fun step ->
-              let step = Printf.sprintf (f_ "Step %d/3") step in
+              let step = Printf.sprintf (f_ "Step %d/7") step in
               container##.textContent :=
                 Js.some @@ Js.string
                 @@ s_ "Collaborative key generation"
