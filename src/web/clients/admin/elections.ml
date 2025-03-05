@@ -1065,7 +1065,27 @@ let dates_content () =
       (fun x -> x.auto_date_publish)
       (fun x y -> { x with auto_date_publish = y })
   in
-  Lwt.return @@ List.flatten [ [ header ]; open_close_divs; [ publish_div ] ]
+  Lwt.return
+  @@ List.flatten
+       [
+         [ header ];
+         open_close_divs;
+         [ br () ];
+         [
+           div
+             [
+               publish_div;
+               em
+                 [
+                   txt
+                   @@ s_
+                        "Defining this date will block finalization of the \
+                         tallying process until this date. By default, when \
+                         not set, results are published as soon as possible.";
+                 ];
+             ];
+         ];
+       ]
 
 let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 
