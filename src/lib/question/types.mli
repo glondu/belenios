@@ -22,9 +22,7 @@ module type QUESTION = sig
   val erase : t -> t
 
   val check :
-    (module GROUP) Lazy.t ->
-    t generic_question ->
-    (unit, vector_encoding_error) result
+    (module GROUP) Lazy.t -> t generic_question -> (unit, question_error) result
 end
 
 module type PACK = sig

@@ -247,7 +247,14 @@ let local_save () =
       (fun i q ->
         match Belenios_question.check_question group q with
         | Ok () -> ()
-        | Error _ ->
+        | Error `Min_max ->
+            alert
+            @@ Printf.sprintf
+                 (f_
+                    "The min of question #%d is greater than its max, voting \
+                     will be impossible!")
+                 (i + 1)
+        | Error (`Int_size | `Vector_size | `No_encoding) ->
             alert
             @@ Printf.sprintf
                  (f_ "Question #%d has too many choices, voting will fail!")

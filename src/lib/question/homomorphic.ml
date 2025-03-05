@@ -53,4 +53,6 @@ let erase (q : t) : t =
     q_question = "";
   }
 
-let check _ _ = Ok ()
+let check _ (q : t Types.generic_question) =
+  let q = q.value in
+  if q.q_min <= q.q_max then Ok () else Error `Min_max

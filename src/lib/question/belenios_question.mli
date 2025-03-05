@@ -31,8 +31,5 @@ val unwrap : t -> Yojson.Safe.t
 val read_question : t reader
 val write_question : t writer
 val erase_question : t -> t
-
-val check_question :
-  (module GROUP) Lazy.t -> t -> (unit, vector_encoding_error) result
-
+val check_question : (module GROUP) Lazy.t -> t -> (unit, question_error) result
 val is_nh_question : t -> bool
