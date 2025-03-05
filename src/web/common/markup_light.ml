@@ -30,7 +30,7 @@ let rec render p xs = List.mapi (render_item p) xs
 
 and render_item p i = function
   | Markup_types.Text s -> p.text i s
-  | Br -> p.br i
+  | Br -> p.text i " | "
   | Bold xs -> p.bold i (render p xs)
   | Italic xs -> p.italic i (render p xs)
 
