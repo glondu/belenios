@@ -74,7 +74,7 @@ let curr_doing = ref (-1)
 
 (* Forward decl of update functions *)
 
-let update_question = ref (fun _ -> Lwt.return_unit)
+let update_question = ref (fun ?save:_ _ -> Lwt.return_unit)
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let q_to_gen (question : Belenios_question.t) =
@@ -239,33 +239,48 @@ let local_save () =
       | Some c -> c.default_nh_group
     else draft.draft_group
   in
-  let () =
-    let open (val !Belenios_js.I18n.gettext) in
-    let version = draft.draft_version in
-    let group = lazy (Group.of_string ~version draft_group) in
-    Array.iteri
-      (fun i q ->
-        match Belenios_question.check_question group q with
-        | Ok () -> ()
-        | Error `Min_max ->
-            alert
-            @@ Printf.sprintf
-                 (f_
-                    "The min of question #%d is greater than its max, voting \
-                     will be impossible!")
-                 (i + 1)
-        | Error (`Int_size | `Vector_size | `No_encoding) ->
-            alert
-            @@ Printf.sprintf
-                 (f_ "Question #%d has too many choices, voting will fail!")
-                 (i + 1))
-      qq
-  in
-  let () =
-    !set_complexity @@ Election.get_complexity @@ Template (v, draft_questions)
-  in
-  Cache.set Cache.draft (Draft (v, { draft with draft_questions; draft_group }));
-  Lwt.return_unit
+  let exception Question_error of int * string in
+  try
+    let () =
+      let open (val !Belenios_js.I18n.gettext) in
+      let version = draft.draft_version in
+      let group = lazy (Group.of_string ~version draft_group) in
+      Array.iteri
+        (fun i q ->
+          match Belenios_question.check_question group q with
+          | Ok () -> ()
+          | Error `Min_max ->
+              raise
+                (Question_error
+                   ( i,
+                     Printf.sprintf
+                       (f_
+                          "The min of question #%d is greater than its max, \
+                           voting will be impossible!")
+                       (i + 1) ))
+          | Error (`Int_size | `Vector_size | `No_encoding) ->
+              raise
+                (Question_error
+                   ( i,
+                     Printf.sprintf
+                       (f_
+                          "Question #%d has too many choices, voting will fail!")
+                       (i + 1) )))
+        qq
+    in
+    let () =
+      !set_complexity @@ Election.get_complexity @@ Template (v, draft_questions)
+    in
+    Cache.set Cache.draft
+      (Draft (v, { draft with draft_questions; draft_group }));
+    Lwt.return_unit
+  with Question_error (i, msg) ->
+    alert msg;
+    (* restore cache state *)
+    let qs = draft.draft_questions.t_questions in
+    let open (val Election.get_serializers v) in
+    !all_gen_quest.(i) <- (to_concrete >> q_to_gen) qs.(i);
+    !update_question ~save:false (i + 1)
 
 let insert_new_q ind =
   let ind = ind + 1 in
@@ -939,8 +954,8 @@ let q_to_html ind q all_ro =
 
 let () =
   update_question :=
-    fun i ->
-      let* () = local_save () in
+    fun ?(save = true) i ->
+      let* () = if save then local_save () else Lwt.return_unit in
       let&&* container =
         document##getElementById (Js.string ("qq" ^ string_of_int (i + 1)))
       in
