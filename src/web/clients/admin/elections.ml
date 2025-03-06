@@ -1060,32 +1060,50 @@ let dates_content () =
       ]
     else []
   in
-  let publish_div =
-    make_div (s_ "Publish: ") "inppcont"
-      (fun x -> x.auto_date_publish)
-      (fun x y -> { x with auto_date_publish = y })
+  let* is_publishable =
+    if is_draft () then Lwt.return_true
+    else
+      let* status = Cache.get_until_success Cache.e_status in
+      match status.status_state with
+      | `Tallied | `Archived -> Lwt.return_false
+      | `Open | `Closed | `Draft | `Shuffling | `EncryptedTally ->
+          Lwt.return_true
   in
-  Lwt.return
-  @@ List.flatten
-       [
-         [ header ];
-         open_close_divs;
-         [ br () ];
-         [
-           div
-             [
-               publish_div;
-               em
-                 [
-                   txt
-                   @@ s_
-                        "Defining this date will block finalization of the \
-                         tallying process until this date. By default, when \
-                         not set, results are published as soon as possible.";
-                 ];
-             ];
-         ];
-       ]
+  let publish_divs =
+    if is_publishable then
+      let publish_div =
+        make_div (s_ "Publish: ") "inppcont"
+          (fun x -> x.auto_date_publish)
+          (fun x y -> { x with auto_date_publish = y })
+      in
+      [
+        div
+          [
+            publish_div;
+            em
+              [
+                txt
+                @@ s_
+                     "Defining this date will block finalization of the \
+                      tallying process until this date. By default, when not \
+                      set, results are published as soon as possible.";
+              ];
+          ];
+      ]
+    else []
+  in
+  let contents =
+    if is_openable || is_publishable then
+      open_close_divs @ [ br () ] @ publish_divs
+    else
+      [
+        div
+          [
+            em [ txt @@ s_ "Dates can no longer be defined for this election." ];
+          ];
+      ]
+  in
+  Lwt.return @@ List.flatten [ [ header ]; contents ]
 
 let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 
