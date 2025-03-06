@@ -40,7 +40,7 @@ let finally x cont =
 
 let post_ballot uuid ~get_ballot _ =
   global_ballot := Some (get_ballot ());
-  window##.location##.href
+  Dom_html.window##.location##.href
   := Js.string @@ Printf.sprintf "#%s/advanced/submit" (Uuid.unwrap uuid);
   false
 
@@ -206,13 +206,13 @@ let submit configuration uuid =
         | None -> (
             match !global_ballot with
             | None ->
-                window##.location##replace
+                Dom_html.window##.location##replace
                   (Js.string @@ Printf.sprintf "#%s/advanced" (Uuid.unwrap uuid));
                 []
             | Some ballot ->
                 let handler _ =
                   let window =
-                    window##open_
+                    Dom_html.window##open_
                       (Js.string !!"actions/voter-login")
                       (Js.string "_blank") Js.null
                   in

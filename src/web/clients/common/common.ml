@@ -280,7 +280,6 @@ module Event = struct
 end
 
 let coerce_window : Dom_html.window t -> window t = Js.Unsafe.coerce
-let window = coerce_window Dom_html.window
 
 let make_login_target ~state =
   let params = Url.encode_arguments [ ("state", state) ] in
@@ -288,7 +287,7 @@ let make_login_target ~state =
 
 let compute_prefix () =
   let open Uri in
-  let base = of_string (Js.to_string window##.location##.href) in
+  let base = of_string (Js.to_string Dom_html.window##.location##.href) in
   let base = with_fragment base None in
   let path = path base in
   let path =

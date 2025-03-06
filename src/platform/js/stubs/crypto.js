@@ -3,15 +3,15 @@
 
 // The following is an implementation of crypto operations needed by Belenios
 
-if (window.crypto) {
+if (crypto) {
   belenios.crypto = {
     getRandomBytes: function(len) {
       const buf = new Uint8Array(len);
-      window.crypto.getRandomValues(buf);
+      crypto.getRandomValues(buf);
       return buf;
     }
   }
-  const subtle = window.crypto.subtle;
+  const subtle = crypto.subtle;
   if (subtle) {
     belenios.crypto.aesgcm = {
       encrypt: function(keyData, iv, data, onFulfilled, onRejected) {
@@ -30,8 +30,18 @@ if (window.crypto) {
       }
     }
   } else {
-    window.alert("SubtleCrypto object is missing. You must use a more recent browser!");
+    const msg = "SubtleCrypto object is missing. You must use a more recent browser!";
+    if (window) {
+      window.alert(msg);
+    } else {
+      console.log(msg);
+    }
   }
 } else {
-  window.alert("Crypto object is missing. You must use a more recent browser!");
+  const msg = "Crypto object is missing. You must use a more recent browser!";
+  if (window) {
+    window.alert(msg);
+  } else {
+    console.log(msg);
+  }
 }

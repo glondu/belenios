@@ -29,7 +29,9 @@ let check_origin =
   let open Regexp in
   let rex = regexp "^(https?://[^/]+)(/.*)?$" in
   let prefix =
-    match string_match rex (Js.to_string window##.location##.href) 0 with
+    match
+      string_match rex (Js.to_string Dom_html.window##.location##.href) 0
+    with
     | None -> ""
     | Some m -> ( match matched_group m 1 with None -> "" | Some x -> x)
   in

@@ -280,7 +280,7 @@ let belenios : belenios Js.t =
       | None -> failwith "submitBallot not available in non-stateful mode"
       | Some (election, ballot) -> (
           let window =
-            window##open_
+            Dom_html.window##open_
               (Js.string !!"actions/voter-login")
               (Js.string "_blank") Js.null
           in
@@ -327,20 +327,20 @@ let belenios : belenios Js.t =
         let@ () = Lwt.async in
         let* state = Messages.(wait state) () in
         let target = make_login_target ~state in
-        window##.location##.href := Js.string target;
+        Dom_html.window##.location##.href := Js.string target;
         Lwt.return_unit
       in
-      let@ window = Js.Opt.iter window##.opener in
+      let@ window = Js.Opt.iter (coerce_window Dom_html.window)##.opener in
       Messages.(post ready) window true
 
     method finalizeLogin confirmation =
       let () =
         let@ () = Lwt.async in
         let* _ = Messages.(wait ready) () in
-        window##close;
+        Dom_html.window##close;
         Lwt.return_unit
       in
-      let@ window = Js.Opt.iter window##.opener in
+      let@ window = Js.Opt.iter (coerce_window Dom_html.window)##.opener in
       Messages.(post confirmation) window (Js._JSON##stringify confirmation)
   end
 
