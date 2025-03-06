@@ -82,3 +82,7 @@ input[type="text"] {
   font-size: 28px;
   padding-bottom: 28px;
 }
+
+#authentication-done {
+  padding: 1em;
+}
