@@ -416,12 +416,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               let@ () = handle_generic_error in
               let* b = Web_persist.regen_password s uuid metadata user in
               if b then ok else not_found)
-      | `DELETE ->
-          let@ () = handle_ifmatch ifmatch get in
-          let@ _ = with_administrator token metadata in
-          let@ () = handle_generic_error in
-          let* () = Storage.delete_election s uuid in
-          ok
       | _ -> method_not_allowed)
   | [ "audit-cache" ] -> (
       let get () =
@@ -755,6 +749,22 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       let@ se = Option.unwrap not_found (Lopt.get_value se) in
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         (se, set Value)
+  | [ uuid ] when method_ = `DELETE ->
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ metadata cont =
+        let* draft = Storage.get s (Election (uuid, Draft)) in
+        match Lopt.get_value draft with
+        | Some (Draft (_, se)) -> cont se.se_metadata
+        | None ->
+            let* raw = Public_archive.get_election s uuid in
+            let@ _ = Option.unwrap not_found raw in
+            let* metadata = Web_persist.get_election_metadata s uuid in
+            cont metadata
+      in
+      let@ _ = with_administrator token metadata in
+      let@ () = handle_generic_error in
+      let* () = Storage.delete_election s uuid in
+      ok
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let* raw = Public_archive.get_election s uuid in
