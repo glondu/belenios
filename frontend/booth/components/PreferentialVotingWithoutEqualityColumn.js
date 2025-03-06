@@ -1,6 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { Draggable, Droppable } from "react-beautiful-dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 
 const TranslatableMoveCandidateHandle = ({ t, tReady, ...props }) => {
   // the icon visual is made using CSS

@@ -1,6 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DragDropContext } from "@hello-pangea/dnd";
 
 import CandidateWithCheckbox from "./CandidateWithCheckbox.js";
 import PreferentialVotingWithoutEqualityColumn from "./PreferentialVotingWithoutEqualityColumn.js";

@@ -1,6 +1,6 @@
 import React, { createElement as e } from "react";
 import { withTranslation } from "react-i18next";
-import { Draggable, Droppable } from "react-beautiful-dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { markup } from "../shortcuts.js";
 
 import { WhiteNiceButton } from "./NiceButton.js";
