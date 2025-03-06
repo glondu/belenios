@@ -1256,9 +1256,14 @@ let credauth_content () =
           let* res = Api.(post (draft_public_credentials uuid) !user []) in
           match res.code with
           | 200 -> !update_election_main ()
-          | _ ->
-              alert ("Failed with error code " ^ string_of_int res.code);
-              Lwt.return_unit)
+          | code -> (
+              match request_status_of_string res.content with
+              | { error = `ValidationError `NoVoters; _ } ->
+                  alert @@ s_ "The voter list is empty!";
+                  Lwt.return_unit
+              | _ | (exception _) ->
+                  Printf.ksprintf alert "Failed with error code %d" code;
+                  Lwt.return_unit))
     in
     let generate_part =
       div
