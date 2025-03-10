@@ -60,6 +60,8 @@ val election_trustees : uuid -> (nobody, string, unit) t
 val election_status :
   uuid -> ([< nobody | admin ], election_status, admin_request) t
 
+val election_sealing_log : uuid -> (admin, string, unit) t
+
 val election_auto_dates :
   uuid -> ([< nobody | admin ], election_auto_dates, unit) t
 

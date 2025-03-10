@@ -60,7 +60,7 @@ let () =
 
 exception Error of Belenios_web_api.error
 
-type result = [ `Json of int * string | `Bel of string ]
+type result = [ `Json of int * string | `Bel of string | `Sealing_log of string ]
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 let return_json code x = Lwt.return @@ `Json (code, x)

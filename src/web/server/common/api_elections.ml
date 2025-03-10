@@ -68,9 +68,11 @@ let with_tally_trustee token s uuid f =
 let get_election_status s uuid =
   let* status_state = Web_persist.get_election_state s uuid in
   let* d = Web_persist.get_election_dates s uuid in
-  let* status_authentication =
+  let* status_authentication, status_sealed =
     let* m = Web_persist.get_election_metadata s uuid in
-    Lwt.return @@ Api_drafts.authentication_of_auth_config m.e_auth_config
+    Lwt.return
+      ( Api_drafts.authentication_of_auth_config m.e_auth_config,
+        m.e_sealed = Some true )
   in
   let status_auto_archive_date =
     match status_state with
@@ -97,6 +99,7 @@ let get_election_status s uuid =
       status_authentication;
       status_auto_archive_date;
       status_auto_delete_date;
+      status_sealed;
     }
 
 let get_partial_decryptions s uuid metadata =
@@ -415,7 +418,11 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in
               let* b = Web_persist.regen_password s uuid metadata user in
-              if b then ok else not_found)
+              if b then ok else not_found
+          | `Seal seal ->
+              let@ () = handle_generic_error in
+              let* () = Web_persist.seal_election s uuid seal in
+              ok)
       | _ -> method_not_allowed)
   | [ "audit-cache" ] -> (
       let get () =
@@ -430,6 +437,15 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
             Storage.get_unixfilename s (Election (uuid, Public_archive))
           in
           Lwt.return @@ `Bel path
+      | _ -> method_not_allowed)
+  | [ "sealing-log" ] -> (
+      let@ _ = with_administrator token metadata in
+      match method_ with
+      | `GET ->
+          let* path =
+            Storage.get_unixfilename s (Election (uuid, Sealing_log))
+          in
+          Lwt.return @@ `Sealing_log path
       | _ -> method_not_allowed)
   | [ "voters" ] -> (
       let@ _ = with_administrator token metadata in
@@ -737,6 +753,10 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
                 cont metadata
           in
           let@ _ = with_administrator token metadata in
+          let@ () =
+           fun cont ->
+            if metadata.e_sealed = Some true then forbidden else cont ()
+          in
           let@ () = handle_ifmatch ifmatch get in
           let@ d = body.run election_auto_dates_of_string in
           let@ () = handle_generic_error in

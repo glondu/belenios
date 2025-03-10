@@ -106,6 +106,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> audit_cache
 
+## `elections/$UUID/sealing-log` (administrator)
+
+### `GET`: unit -> json-stream
+
 ## `elections/$UUID/election` (anybody)
 
 ### `GET`: unit -> json

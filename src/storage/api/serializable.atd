@@ -43,6 +43,21 @@ type auth_config = {
   auth_config : (string * string) list;
 }
 
+type sealed = {
+  ?date_open : float option;
+  ?date_close : float option;
+  ?date_publish : float option;
+}
+
+type sealing_op =
+  [ Seal of sealed
+  | Unseal ]
+
+type sealing_event = {
+  date : float;
+  op : sealing_op;
+}
+
 type metadata = {
   owners: int list;
   ?auth_config: auth_config list option;
@@ -52,6 +67,7 @@ type metadata = {
   ?contact : string option;
   ?booth_version : int option;
   ?billing_request : string option;
+  ?sealed : bool option;
 } <ocaml field_prefix="e_">
 
 type extended_record = {

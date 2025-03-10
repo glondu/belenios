@@ -54,6 +54,8 @@ module type BACKEND_ARCHIVE = sig
 
   val append :
     t -> uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+
+  val append_sealing : t -> uuid -> sealing_event -> bool Lwt.t
 end
 
 module type BACKEND_ELECTIONS = sig

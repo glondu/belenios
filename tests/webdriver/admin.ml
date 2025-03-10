@@ -518,8 +518,7 @@ module Make (Config : CONFIG) = struct
       Lwt_list.iter_s do_partial_decryption (List.combine private_keys links)
     in
     let@ session = with_admin ~id () in
-    let* () = session#click_on ~selector:"#tab_status" in
-    let* () = session#click_on ~selector:"button" in
+    let* () = session#click_on ~selector:"#tab_page" in
     let* () = session#click_on ~selector:"a[target]" in
     let* () =
       let* windows = session#get_windows in

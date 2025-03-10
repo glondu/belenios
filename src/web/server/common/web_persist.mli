@@ -39,6 +39,7 @@ val update_election_dates :
   (Belenios_storage_api.election_dates updatable, 'r) with_lwt_cont Storage.u
 
 val get_election_metadata : metadata Lwt.t Storage.u
+val seal_election : (bool -> unit Lwt.t) Storage.u
 val get_audit_cache : audit_cache Lwt.t Storage.u
 
 val get_election_automatic_dates :

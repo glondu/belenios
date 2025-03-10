@@ -106,6 +106,18 @@ let make_audit_div election cache =
         ];
     ]
   in
+  let audit_sealing =
+    match cache.cache_sealing_log with
+    | None -> []
+    | Some h ->
+        [
+          tr
+            [
+              td [ txt @@ s_ "Sealing log fingerprint" ];
+              td [ code [ txt @@ Hash.to_b64 h ] ];
+            ];
+        ]
+  in
   let audit_voter_weight =
     match cache.cache_checksums.ec_weights with
     | Some { w_total; w_min; w_max } ->
@@ -263,6 +275,7 @@ let make_audit_div election cache =
              audit_shuffles;
              audit_tally;
              audit_final;
+             audit_sealing;
            ]);
     ]
 

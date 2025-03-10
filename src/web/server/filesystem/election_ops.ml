@@ -37,6 +37,7 @@ module type BACKEND = sig
     'r Lwt.t
 
   val append : uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
+  val append_sealing : uuid -> sealing_event -> bool Lwt.t
   val new_election : unit -> uuid option Lwt.t
   val delete_sensitive_data : uuid -> unit Lwt.t
   val delete_live_data : uuid -> unit Lwt.t

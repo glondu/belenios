@@ -178,6 +178,7 @@ type audit_cache = {
   voters_hash : hash;
   checksums : election_checksums;
   ?threshold : int option;
+  ?sealing_log : hash option;
 } <ocaml field_prefix="cache_">
 
 type ballot_summary_item = {

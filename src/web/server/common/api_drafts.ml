@@ -199,6 +199,7 @@ let post_drafts account s draft =
       e_contact = None;
       e_booth_version = None;
       e_billing_request = None;
+      e_sealed = None;
     }
   in
   let se_questions =

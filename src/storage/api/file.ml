@@ -38,6 +38,7 @@ type _ u =
   | Public_creds : public_credentials u
   | Private_creds : private_credentials u
   | Public_archive : abstract u
+  | Sealing_log : string u
   | Passwords : string list list u
   | Records : election_records u
   | Voters : Voter.t list u

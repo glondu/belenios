@@ -188,6 +188,14 @@ let election_status uuid =
     to_string_post = string_of_admin_request;
   }
 
+let election_sealing_log uuid =
+  {
+    path = Printf.sprintf "elections/%s/sealing-log" (Uuid.unwrap uuid);
+    of_string = Fun.id;
+    to_string = Fun.id;
+    to_string_post = string_of_unit;
+  }
+
 let election_auto_dates uuid =
   {
     path = Printf.sprintf "elections/%s/automatic-dates" (Uuid.unwrap uuid);

@@ -1734,6 +1734,12 @@ let pretty_timestamp x =
   let x = new%js Js.date_fromTimeValue (x *. 1000.) in
   Js.to_string x##toLocaleString
 
+let replace_contents container contents =
+  container##.innerHTML := Js.string "";
+  List.iter
+    (fun x -> Dom.appendChild container (Tyxml_js.To_dom.of_node x))
+    contents
+
 let status_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
@@ -1743,6 +1749,70 @@ let status_content () =
     match x with
     | Ok status -> cont (Some status, status.status_state)
     | Error _ -> cont (None, `Draft)
+  in
+  let sealing =
+    match status with
+    | None -> []
+    | Some s ->
+        let container = Dom_html.createDiv Dom_html.document in
+        let rec contents sealed =
+          let explain, label =
+            if sealed then (s_ "This election is sealed.", s_ "Unseal")
+            else (s_ "The election is not sealed.", s_ "Seal")
+          in
+          let perform =
+            let@ () = button label in
+            let sealed' = not sealed in
+            let req = `Seal sealed' in
+            let* x = Api.(post (election_status uuid) !user req) in
+            match x.code with
+            | 200 ->
+                replace_contents container (contents sealed');
+                Lwt.return_unit
+            | code ->
+                Printf.ksprintf alert "Failed with code %d!" code;
+                Lwt.return_unit
+          in
+          let download =
+            let@ () = button @@ s_ "Download sealing log" in
+            let* x = Api.(get (election_sealing_log uuid) !user) in
+            match x with
+            | Ok (data, _) ->
+                let filename =
+                  Printf.sprintf "sealing-%s.log" (Uuid.unwrap uuid)
+                in
+                let a = a_data ~filename ~mime_type:"text/plain" ~data "" in
+                (Tyxml_js.To_dom.of_a a)##click;
+                Lwt.return_unit
+            | Error _ ->
+                alert "Error while retreiving sealing log!";
+                Lwt.return_unit
+          in
+          [
+            h2 [ txt @@ s_ "Sealing" ];
+            div
+              [
+                em
+                  [
+                    txt
+                    @@ s_
+                         "Sealing allows you to freeze some election \
+                          properties such as automatic dates.";
+                    txt " ";
+                    txt
+                    @@ s_
+                         "Sealing/unsealing operations are logged, and the log \
+                          fingerprint is published on the election homepage \
+                          for everyone (e.g. independent auditors) to see.";
+                  ];
+              ];
+            br ();
+            div [ txt explain; txt " "; perform ];
+            div [ download ];
+          ]
+        in
+        replace_contents container (contents s.status_sealed);
+        [ Tyxml_js.Of_dom.of_div container ]
   in
   let automatic =
     match status with
@@ -1820,7 +1890,7 @@ let status_content () =
             but;
           ]
   in
-  Lwt.return (content @ automatic)
+  Lwt.return (content @ sealing @ automatic)
 
 let update_main_zone () =
   let&&* container = document##getElementById (Js.string "main_zone") in

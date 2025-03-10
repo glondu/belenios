@@ -66,6 +66,7 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
         of_string = (fun _ -> invalid_arg "Public_archive.of_string");
         to_string = (fun _ -> invalid_arg "Public_archive.to_string");
       }
+  | Sealing_log -> { of_string = Fun.id; to_string = Fun.id }
   | Passwords -> { of_string = csv_of_string; to_string = string_of_csv }
   | Records ->
       {

@@ -59,6 +59,7 @@ let empty_metadata =
     e_contact = None;
     e_booth_version = None;
     e_billing_request = None;
+    e_sealed = None;
   }
 
 let get_election_metadata s uuid =
@@ -70,6 +71,32 @@ let get_election_metadata s uuid =
       match Lopt.get_value x with
       | Some (Draft (_, x)) -> Lwt.return x.se_metadata
       | None -> Lwt.return empty_metadata)
+
+let seal_election s uuid seal =
+  let@ x, set = Storage.update s (Election (uuid, Metadata)) in
+  match Lopt.get_value x with
+  | None -> raise Not_found
+  | Some metadata -> (
+      let* x = Storage.get s (Election (uuid, Dates)) in
+      match Lopt.get_value x with
+      | None -> raise Not_found
+      | Some dates ->
+          let op, e_sealed =
+            if seal then
+              ( `Seal
+                  {
+                    date_open = dates.e_date_auto_open;
+                    date_close = dates.e_date_auto_close;
+                    date_publish = dates.e_date_publish;
+                  },
+                Some true )
+            else (`Unseal, None)
+          in
+          let date = Unix.gettimeofday () in
+          let* b = Storage.append_sealing s uuid { date; op } in
+          let* () = Storage.del s (Election (uuid, Audit_cache)) in
+          if b then set Value { metadata with e_sealed }
+          else failwith "sealing error")
 
 let append_to_shuffles s election owned_owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
@@ -582,7 +609,19 @@ let compute_audit_cache s uuid =
           ~trustees ~public_credentials ~final
         |> Lwt.return
       in
-      return { cache_voters_hash; cache_checksums; cache_threshold = None }
+      let* cache_sealing_log =
+        let* x = Storage.get s (Election (uuid, Sealing_log)) in
+        match Lopt.get_value x with
+        | None -> Lwt.return_none
+        | Some x -> Lwt.return_some @@ Hash.hash_string x
+      in
+      return
+        {
+          cache_voters_hash;
+          cache_checksums;
+          cache_threshold = None;
+          cache_sealing_log;
+        }
 
 let get_audit_cache s uuid =
   let* cache = Storage.get s (Election (uuid, Audit_cache)) in

@@ -90,6 +90,10 @@ let append tx u ?last ops =
   let module T = (val tx : TX) in
   T.S.append T.tx u ?last ops
 
+let append_sealing tx sealing =
+  let module T = (val tx : TX) in
+  T.S.append_sealing T.tx sealing
+
 let new_election tx =
   let module T = (val tx : TX) in
   T.S.new_election T.tx

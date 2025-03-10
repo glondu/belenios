@@ -305,6 +305,7 @@ module MakeBackend
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
     | Last_event -> Concrete ("last_event.json", Trim, None)
     | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, None)
+    | Sealing_log -> Concrete ("sealing.log", Raw, None)
     | Passwords -> Concrete ("passwords.csv", Raw, None)
     | Records -> Abstract (records_ops, ())
     | Voters -> Concrete ("voters.txt", Raw, None)
@@ -547,7 +548,9 @@ module MakeBackend
     else Lwt.fail Not_found
 
   let get_unixfilename (type t) : t file -> _ = function
-    | Election (_, (Public_archive | Private_creds : t election_file)) as x -> (
+    | Election
+        (_, (Public_archive | Private_creds | Sealing_log : t election_file)) as
+      x -> (
         match get_props x with
         | Concrete (f, _, _) -> Lwt.return f
         | _ -> Lwt.fail @@ Not_implemented "get_as_file")
@@ -1431,6 +1434,21 @@ module MakeBackend
     index.roots <- roots;
     Lwt.return_true
 
+  let append_sealing uuid event =
+    let open Lwt_unix in
+    let* filename = get_unixfilename (Election (uuid, Sealing_log)) in
+    let* fd = openfile filename [ O_CREAT; O_WRONLY; O_APPEND ] 0o644 in
+    Lwt.catch
+      (fun () ->
+        Lwt.finalize
+          (fun () ->
+            let oc = Lwt_io.of_fd ~mode:Output fd in
+            let* () = Lwt_io.write_line oc (string_of_sealing_event event) in
+            let* () = Lwt_io.flush oc in
+            Lwt.return_true)
+          (fun () -> close fd))
+      (fun _ -> Lwt.return_false)
+
   module Backend : Election_ops.BACKEND = struct
     let get_unixfilename = get_unixfilename
     let get = get
@@ -1438,6 +1456,7 @@ module MakeBackend
     let del = del
     let update = update
     let append = append
+    let append_sealing = append_sealing
     let new_election = new_election
     let delete_sensitive_data = delete_sensitive_data
     let delete_live_data = delete_live_data
@@ -1489,6 +1508,9 @@ module MakeBackend
 
       let append () uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
+
+      let append_sealing () uuid event =
+        with_lock (Some uuid) (fun () -> append_sealing uuid event)
     end in
     (module X : BACKEND0)
 end
@@ -1586,6 +1608,10 @@ module Make (Config : CONFIG) : STORAGE = struct
   let append tx u ?last ops =
     let module T = (val tx : BACKEND) in
     T.append () u ?last ops
+
+  let append_sealing tx u event =
+    let module T = (val tx : BACKEND) in
+    T.append_sealing () u event
 
   let new_election tx =
     let module T = (val tx : BACKEND) in
