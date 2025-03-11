@@ -9,6 +9,7 @@
    + Stop vendoring JSBN
    + Reduce usage of SJCL. Now, it is used only for compatibility with
      existing elections and will be removed in a future release.
+   + Use @hello-pangea/dnd instead of deprecated react-beautiful-dnd
    + Document Debian Sid as the preferred developing environment
  * Add safety checks in vector encoding into group element for NH
    questions
@@ -26,6 +27,8 @@
    + Use username (when available) in "To" header of sent e-mails
    + Serve CSS files from a dedicated directory
    + Reset authentication cookie after a successful login
+   + Replace `<br>` by ` | ` to avoid content layout abuse
+   + Add an additional notion of sealing for validated elections
    + Admin UI:
      - In question editor, check safety
      - Handle better errors in voter list (GitLab issue #15)
