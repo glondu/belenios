@@ -23,6 +23,7 @@ type 'a rendering_functions = {
   text : int -> string -> 'a;
   bold : int -> 'a list -> 'a;
   italic : int -> 'a list -> 'a;
+  link : int -> target:string -> label:string -> 'a;
 }
 
 let rec render p xs = List.mapi (render_item p) xs
@@ -31,8 +32,14 @@ and render_item p i = function
   | Markup_types.Text s -> p.text i s
   | Bold xs -> p.bold i (render p xs)
   | Italic xs -> p.italic i (render p xs)
+  | Link { target; label } -> p.link i ~target ~label
 
 exception Unsupported of string
+
+let rec attr_assoc attr = function
+  | [] -> None
+  | ((_, name), value) :: _ when name = attr -> Some value
+  | _ :: xs -> attr_assoc attr xs
 
 let parse_html x =
   let open Markup in
@@ -43,11 +50,25 @@ let parse_html x =
   |> signals
   |> trees
        ~text:(fun x -> Markup_types.Text (String.concat "" x))
-       ~element:(fun (_, name) _attrs children ->
+       ~element:(fun (_, name) attrs children ->
          match name with
          | "br" -> Text " | "
          | "b" -> Bold children
          | "i" -> Italic children
+         | "a" ->
+             let target =
+               match attr_assoc "href" attrs with
+               | Some x -> x
+               | None -> raise @@ Unsupported "missing href attribute in <a>"
+             in
+             let label =
+               children
+               |> List.map (function
+                    | Markup_types.Text x -> x
+                    | _ -> raise @@ Unsupported "forbidden content in <a>")
+               |> String.concat ""
+             in
+             Link { target; label }
          | name ->
              raise
              @@ Unsupported (Printf.sprintf "unsupported element: %s" name))
@@ -68,6 +89,11 @@ module Make (Base : BASE) = struct
         bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
         text = (fun _ x -> txt x);
         italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
+        link =
+          (fun _ ~target ~label ->
+            a
+              ~a:[ a_href @@ Xml.uri_of_string target; a_target "_blank" ]
+              [ txt label ]);
       }
     in
     try

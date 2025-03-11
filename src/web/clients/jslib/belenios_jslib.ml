@@ -32,6 +32,10 @@ class type renderingFunctions = object
   method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
   method bold : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
   method italic : int -> Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
+
+  method link :
+    int -> Js.js_string Js.t -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
+
   method result : Js.Unsafe.any Js.js_array Js.t -> Js.Unsafe.any Js.meth
   method error : Js.js_string Js.t -> Js.Unsafe.any Js.meth
 end
@@ -218,6 +222,9 @@ let belenios : belenios Js.t =
           text = (fun key x -> p##text key (Js.string x));
           italic = (fun key xs -> p##italic key (Js.array @@ Array.of_list xs));
           bold = (fun key xs -> p##bold key (Js.array @@ Array.of_list xs));
+          link =
+            (fun key ~target ~label ->
+              p##link key (Js.string target) (Js.string label));
         }
       in
       try
