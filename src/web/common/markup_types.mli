@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type t = Text of string | Br | Bold of t list | Italic of t list
+type t = Text of string | Bold of t list | Italic of t list

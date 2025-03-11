@@ -21,7 +21,6 @@
 
 type 'a rendering_functions = {
   text : int -> string -> 'a;
-  br : int -> 'a;
   bold : int -> 'a list -> 'a;
   italic : int -> 'a list -> 'a;
 }
@@ -30,7 +29,6 @@ let rec render p xs = List.mapi (render_item p) xs
 
 and render_item p i = function
   | Markup_types.Text s -> p.text i s
-  | Br -> p.text i " | "
   | Bold xs -> p.bold i (render p xs)
   | Italic xs -> p.italic i (render p xs)
 
@@ -47,7 +45,7 @@ let parse_html x =
        ~text:(fun x -> Markup_types.Text (String.concat "" x))
        ~element:(fun (_, name) _attrs children ->
          match name with
-         | "br" -> Br
+         | "br" -> Text " | "
          | "b" -> Bold children
          | "i" -> Italic children
          | name ->
@@ -69,7 +67,6 @@ module Make (Base : BASE) = struct
       {
         bold = (fun _ xs -> span ~a:[ a_class [ "markup-b" ] ] xs);
         text = (fun _ x -> txt x);
-        br = (fun _ -> br ());
         italic = (fun _ xs -> span ~a:[ a_class [ "markup-i" ] ] xs);
       }
     in
