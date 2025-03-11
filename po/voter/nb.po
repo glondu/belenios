@@ -43,7 +43,7 @@ msgstr " stemme(r) har blitt godtatt, og "
 msgid " ballot(s) have been accepted."
 msgstr " stemme(r) har blitt godtatt."
 
-#: src/web/clients/election/home.ml:374
+#: src/web/clients/election/home.ml:387
 msgid " for more information."
 msgstr " for mer info."
 
@@ -63,23 +63,23 @@ msgstr " i følgende stemmeurne: "
 msgid " is rejected, because "
 msgstr " har blitt avslått, fordi "
 
-#: src/web/clients/election/home.ml:334 src/web/clients/election/home.ml:303
+#: src/web/clients/election/home.ml:347 src/web/clients/election/home.ml:316
 msgid "%d blank ballot(s)"
 msgstr "%d blank(e) stemme(r)"
 
-#: src/web/clients/election/home.ml:398 src/web/clients/election/home.ml:310
+#: src/web/clients/election/home.ml:411 src/web/clients/election/home.ml:323
 msgid "%d invalid ballot(s)"
 msgstr "%d ugyldig(e) stemme(r)"
 
-#: src/web/clients/election/home.ml:179
+#: src/web/clients/election/home.ml:191
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:328 src/web/clients/election/home.ml:297
+#: src/web/clients/election/home.ml:341 src/web/clients/election/home.ml:310
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d gyldige (ikke-blanke) stemmesedler"
 
-#: src/web/clients/election/home.ml:329 src/web/clients/election/home.ml:298
+#: src/web/clients/election/home.ml:342 src/web/clients/election/home.ml:311
 msgid "%d valid ballot(s)"
 msgstr "%d gyldige stemmesedler"
 
@@ -95,13 +95,13 @@ msgstr ""
 msgid ", or "
 msgstr ", eller "
 
-#: src/web/clients/election/home.ml:362
+#: src/web/clients/election/home.ml:375
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "En Condorcet-vinner er en kandidat som foretrekkes over alle andre "
 "kandidater."
 
-#: src/web/clients/election/home.ml:406
+#: src/web/clients/election/home.ml:419
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "En stemmeseddel er ugyldig hvis to kandidater har blitt gitt samme "
@@ -115,7 +115,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr ""
 
-#: src/web/clients/election/home.ml:252
+#: src/web/clients/election/home.ml:264
 msgid "About this election"
 msgstr ""
 
@@ -123,7 +123,7 @@ msgstr ""
 msgid "Accepted ballots"
 msgstr "Godtatte stemmer"
 
-#: src/web/clients/election/home.ml:316
+#: src/web/clients/election/home.ml:329
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Sortert etter flertallsdom er rekkefølgen:"
 
@@ -143,7 +143,7 @@ msgstr ""
 msgid "Advanced mode"
 msgstr "Avansert modus"
 
-#: src/web/clients/election/home.ml:150
+#: src/web/clients/election/home.ml:162
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 "Alle de følgende betrodde (bekreftelsesnøkler) trengs for å dekryptere "
@@ -205,7 +205,7 @@ msgstr "Feil sikkerhetskode!"
 msgid "Best regards,"
 msgstr "Hilsen,"
 
-#: src/web/clients/election/home.ml:466
+#: src/web/clients/election/home.ml:479
 msgid "Blank vote"
 msgstr "Blank stemme"
 
@@ -237,15 +237,15 @@ msgstr "Regn ut fingeravtrykk"
 msgid "Computed fingerprint:"
 msgstr "Utregnet fingeravtrykk:"
 
-#: src/web/clients/election/home.ml:721
+#: src/web/clients/election/home.ml:734
 msgid "Could not retrieve audit data!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:193
+#: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr ""
 
-#: src/web/clients/election/home.ml:202
+#: src/web/clients/election/home.ml:214
 msgid "Credentials fingerprint"
 msgstr ""
 
@@ -300,11 +300,11 @@ msgstr "FEIL!"
 msgid "File:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:242
+#: src/web/clients/election/home.ml:254
 msgid "Final fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:230
+#: src/web/clients/election/home.ml:242
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
@@ -329,25 +329,25 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Hvis du ønsker å stemme, må du "
 
-#: src/web/clients/election/home.ml:434
+#: src/web/clients/election/home.ml:447
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "I vår implementasjon følges rekkefølgen kandidater listes opp i avstemmingen "
 "når kandidater får samme antall stemmer og skal velges eller elimineres."
 
-#: src/web/clients/election/home.ml:540
+#: src/web/clients/election/home.ml:553
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr "Inneholder alle innsendte stemmer i klartekst, i tilfeldig rekkefølge."
 
-#: src/web/clients/election/home.ml:521
+#: src/web/clients/election/home.ml:534
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Det er opp til deg å velge din favoritt-tellemetode."
 
-#: src/web/clients/election/home.ml:646
+#: src/web/clients/election/home.ml:659
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
-#: src/web/clients/election/home.ml:537
+#: src/web/clients/election/home.ml:550
 msgid "JSON result"
 msgstr "JSON-resultat"
 
@@ -370,11 +370,11 @@ msgstr "Logg inn"
 msgid "Log in with %s"
 msgstr "Logg inn med %s"
 
-#: src/web/clients/election/home.ml:445
+#: src/web/clients/election/home.ml:458
 msgid "Look at the raw events for more details."
 msgstr "Sjekk rå-hendelsene for flere detaljer."
 
-#: src/web/clients/election/home.ml:429
+#: src/web/clients/election/home.ml:442
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Mange varianter av STV finnes, avhengig for eksempel av hvordan uavgjorte "
@@ -394,7 +394,7 @@ msgstr ""
 "Merk at du også trenger en identitetsdetalj (sendt i egen e-post) for å "
 "begynne avstemming."
 
-#: src/web/clients/election/home.ml:611
+#: src/web/clients/election/home.ml:624
 msgid "Number of accepted ballots: "
 msgstr "Antall godtatte stemmer: "
 
@@ -473,7 +473,7 @@ msgstr ""
 msgid "Public page of the election:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:416
+#: src/web/clients/election/home.ml:429
 msgid "Raw events"
 msgstr "Rå-hendelser"
 
@@ -489,7 +489,11 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
-#: src/web/clients/election/home.ml:715
+#: src/web/clients/election/home.ml:116
+msgid "Sealing log fingerprint"
+msgstr ""
+
+#: src/web/clients/election/home.ml:728
 msgid "See accepted ballots"
 msgstr "Se godkjente stemmer"
 
@@ -497,13 +501,13 @@ msgstr "Se godkjente stemmer"
 msgid "Set"
 msgstr "Sett"
 
-#: src/web/clients/election/home.ml:367
+#: src/web/clients/election/home.ml:380
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "Flere teknikker finnes for å avgjøre en vinner når det ikke er en Condorcet-"
 "vinner."
 
-#: src/web/clients/election/home.ml:693
+#: src/web/clients/election/home.ml:706
 msgid "Start"
 msgstr "Start"
 
@@ -522,7 +526,7 @@ msgstr ""
 msgid "Submit by file"
 msgstr ""
 
-#: src/web/clients/election/home.ml:441
+#: src/web/clients/election/home.ml:454
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Slike kandidater markeres som «TieWin» når de velges, og «TieLose» når de "
@@ -536,19 +540,19 @@ msgstr ""
 msgid "Thank you for voting!"
 msgstr "Takk for at du stemte!"
 
-#: src/web/clients/election/home.ml:379
+#: src/web/clients/election/home.ml:392
 msgid "The Schulze winners are:"
 msgstr "Schulze-vinnerne er:"
 
-#: src/web/clients/election/home.ml:450
+#: src/web/clients/election/home.ml:463
 msgid "The Single Transferable Vote winners are:"
 msgstr "Vinnerne av det enkle overførbare valget er:"
 
-#: src/web/clients/election/home.ml:666 src/web/clients/election/home.ml:664
+#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
 msgid "The election is closed and being tallied."
 msgstr "Valget er over og blir nå opptalt."
 
-#: src/web/clients/election/home.ml:657
+#: src/web/clients/election/home.ml:670
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -560,11 +564,11 @@ msgstr "Fingeravtrykkene stemmer ikke overens!"
 msgid "The fingerprints match!"
 msgstr "Fingeravtrykkene stemmer overens."
 
-#: src/web/clients/election/home.ml:532
+#: src/web/clients/election/home.ml:545
 msgid "The raw results can be viewed in the "
 msgstr "Rådataresultatene er å finne på "
 
-#: src/web/clients/election/home.ml:426
+#: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr ""
 "Det har oppstått minst ett uavgjort resultat. Sjekk rå-hendelsene for flere "
@@ -576,15 +580,15 @@ msgstr ""
 "Dette valget finnes ikke. Dette kan skje for valg som ikke har blitt åpnet "
 "enda, eller har blitt slettet."
 
-#: src/web/clients/election/home.ml:667
+#: src/web/clients/election/home.ml:680
 msgid "This election has been tallied."
 msgstr "Valget har blitt opptalt."
 
-#: src/web/clients/election/home.ml:668
+#: src/web/clients/election/home.ml:681
 msgid "This election is archived."
 msgstr "Dette valget har blitt arkivert."
 
-#: src/web/clients/election/home.ml:649
+#: src/web/clients/election/home.ml:662
 msgid "This election is currently closed."
 msgstr "Dette valget er for tiden lukket."
 
@@ -596,7 +600,7 @@ msgstr ""
 msgid "This vote replaces any previous vote."
 msgstr "Denne stemmen erstatter min tidligere stemme."
 
-#: src/web/clients/election/home.ml:352 src/web/clients/election/home.ml:290
+#: src/web/clients/election/home.ml:365 src/web/clients/election/home.ml:303
 msgid "Tie:"
 msgstr "Uavgjort:"
 
@@ -609,15 +613,15 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr "For mer info, kontakt:"
 
-#: src/web/clients/election/home.ml:589
+#: src/web/clients/election/home.ml:602
 msgid "Total weight of accepted ballots:"
 msgstr "Total vekting av godkjente stemmesedler:"
 
-#: src/web/clients/election/home.ml:217
+#: src/web/clients/election/home.ml:229
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "De betrodde stokket stemmesedlene i følgende rekkefølge:"
 
-#: src/web/clients/election/home.ml:576
+#: src/web/clients/election/home.ml:589
 msgid "Unsupported question type"
 msgstr ""
 
@@ -636,7 +640,7 @@ msgstr "Brukernavn:"
 msgid "Voter list fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:115
+#: src/web/clients/election/home.ml:127
 msgid "Voters' total weight"
 msgstr ""
 
@@ -654,7 +658,7 @@ msgstr ""
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 
-#: src/web/clients/election/home.ml:371
+#: src/web/clients/election/home.ml:384
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Her brukes Schulze-metoden, og stemmeberettigede blir henvendt til "
 
@@ -687,7 +691,7 @@ msgstr "Du kan "
 msgid "You can also "
 msgstr "Du kan også "
 
-#: src/web/clients/election/home.ml:614
+#: src/web/clients/election/home.ml:627
 msgid "You can also download the "
 msgstr "Du kan også laste ned "
 
@@ -781,7 +785,7 @@ msgstr "parameter"
 msgid "public data"
 msgstr ""
 
-#: src/web/clients/election/home.ml:599
+#: src/web/clients/election/home.ml:612
 msgid "raw result"
 msgstr ""
 
@@ -801,7 +805,7 @@ msgstr "start fra begynnelsen"
 msgid "terms of service"
 msgstr ""
 
-#: src/web/clients/election/home.ml:373
+#: src/web/clients/election/home.ml:386
 msgid "the Wikipedia page"
 msgstr "Wikipedia-siden"
 

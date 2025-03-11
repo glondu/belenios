@@ -43,7 +43,7 @@ msgstr " ψήφος(ι) έχουν γίνει αποδεκτές, και "
 msgid " ballot(s) have been accepted."
 msgstr " ψήφος(ι) έχουν γίνει αποδεκτές."
 
-#: src/web/clients/election/home.ml:374
+#: src/web/clients/election/home.ml:387
 msgid " for more information."
 msgstr " για περισσότερες πληροφορίες."
 
@@ -63,23 +63,23 @@ msgstr " στο ακόλουθο πεδίο: "
 msgid " is rejected, because "
 msgstr " απορρίφθηκε, επειδή "
 
-#: src/web/clients/election/home.ml:334 src/web/clients/election/home.ml:303
+#: src/web/clients/election/home.ml:347 src/web/clients/election/home.ml:316
 msgid "%d blank ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/home.ml:398 src/web/clients/election/home.ml:310
+#: src/web/clients/election/home.ml:411 src/web/clients/election/home.ml:323
 msgid "%d invalid ballot(s)"
 msgstr "%d άκυρες ψήφοι"
 
-#: src/web/clients/election/home.ml:179
+#: src/web/clients/election/home.ml:191
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:328 src/web/clients/election/home.ml:297
+#: src/web/clients/election/home.ml:341 src/web/clients/election/home.ml:310
 msgid "%d valid (non-blank) ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/home.ml:329 src/web/clients/election/home.ml:298
+#: src/web/clients/election/home.ml:342 src/web/clients/election/home.ml:311
 msgid "%d valid ballot(s)"
 msgstr ""
 
@@ -95,13 +95,13 @@ msgstr ""
 msgid ", or "
 msgstr ", ή "
 
-#: src/web/clients/election/home.ml:362
+#: src/web/clients/election/home.ml:375
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "Ένας νικητής τύπου Condorcet είναι ένας υποψήφιος που προτιμήθηκε από όλους "
 "τους άλλους υποψηφίους."
 
-#: src/web/clients/election/home.ml:406
+#: src/web/clients/election/home.ml:419
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Μία ψήφος είναι άκυρη εαν δύο υποψήφιοι έχουν την ίδια σειρά προτίμησης ή "
@@ -115,7 +115,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr ""
 
-#: src/web/clients/election/home.ml:252
+#: src/web/clients/election/home.ml:264
 msgid "About this election"
 msgstr ""
 
@@ -123,7 +123,7 @@ msgstr ""
 msgid "Accepted ballots"
 msgstr "Αποδεκτές ψήφοι"
 
-#: src/web/clients/election/home.ml:316
+#: src/web/clients/election/home.ml:329
 msgid "According to Majority Judgment, the ranking is:"
 msgstr ""
 
@@ -143,7 +143,7 @@ msgstr ""
 msgid "Advanced mode"
 msgstr "Προηγμένη λειτουργία"
 
-#: src/web/clients/election/home.ml:150
+#: src/web/clients/election/home.ml:162
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 "Όλοι οι κάτωθι ελεγκτές (κλειδιά επιβεβαίωσης) χρειάζονται για να "
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/election/home.ml:466
+#: src/web/clients/election/home.ml:479
 msgid "Blank vote"
 msgstr "Λευκή ψήφος"
 
@@ -237,15 +237,15 @@ msgstr "Υπολογισμός αποτυπώματος"
 msgid "Computed fingerprint:"
 msgstr "Υπολογισμένο αποτύπωμα:"
 
-#: src/web/clients/election/home.ml:721
+#: src/web/clients/election/home.ml:734
 msgid "Could not retrieve audit data!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:193
+#: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr ""
 
-#: src/web/clients/election/home.ml:202
+#: src/web/clients/election/home.ml:214
 msgid "Credentials fingerprint"
 msgstr ""
 
@@ -300,11 +300,11 @@ msgstr "ΑΠΟΤΥΧΙΑ!"
 msgid "File:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:242
+#: src/web/clients/election/home.ml:254
 msgid "Final fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:230
+#: src/web/clients/election/home.ml:242
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
@@ -329,26 +329,26 @@ msgstr ""
 msgid "If you want to vote, you must "
 msgstr "Εαν θέλετε να ψηφίσετε, πρέπει να "
 
-#: src/web/clients/election/home.ml:434
+#: src/web/clients/election/home.ml:447
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "Στην εκτέλεσή μας, όταν αρκετοί υποψήφιοι έχουν τον ίδιο αριθμό ψήφων όταν "
 "είναι έτοιμοι να εκλεγούν ή να αποκλειστούν, ακολουθούμε την σειρά με την "
 "οποία οι υποψήφιοι ανακοινώθηκαν στην ψηφοφορία."
 
-#: src/web/clients/election/home.ml:540
+#: src/web/clients/election/home.ml:553
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 
-#: src/web/clients/election/home.ml:521
+#: src/web/clients/election/home.ml:534
 msgid "It is up to you to apply your favorite counting method."
 msgstr ""
 
-#: src/web/clients/election/home.ml:646
+#: src/web/clients/election/home.ml:659
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
-#: src/web/clients/election/home.ml:537
+#: src/web/clients/election/home.ml:550
 msgid "JSON result"
 msgstr "Αποτέλεσμα JSON"
 
@@ -371,11 +371,11 @@ msgstr "Είσοδος"
 msgid "Log in with %s"
 msgstr "Είσοδος με %s"
 
-#: src/web/clients/election/home.ml:445
+#: src/web/clients/election/home.ml:458
 msgid "Look at the raw events for more details."
 msgstr "Δείτε στα μη επεξεργασμένα γεγονότα για περισσότερες πληροφορίες."
 
-#: src/web/clients/election/home.ml:429
+#: src/web/clients/election/home.ml:442
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Υπάρχουν διάφορες παραλλαγές της STV , ανάλογα για παράδειγμα με το πώς "
@@ -393,7 +393,7 @@ msgstr "Δεν βρέθηκε"
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 
-#: src/web/clients/election/home.ml:611
+#: src/web/clients/election/home.ml:624
 msgid "Number of accepted ballots: "
 msgstr "Αριθμός αποδεκτών ψηφοδελτίων: "
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Public page of the election:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:416
+#: src/web/clients/election/home.ml:429
 msgid "Raw events"
 msgstr "Μη επεξεργασμένα συμβάντα"
 
@@ -488,7 +488,11 @@ msgstr ""
 msgid "Results will be published on the election page"
 msgstr "Τα αποτελέσματα θα αναρτηθούν στην σελίδα της ψηφοφορίας"
 
-#: src/web/clients/election/home.ml:715
+#: src/web/clients/election/home.ml:116
+msgid "Sealing log fingerprint"
+msgstr ""
+
+#: src/web/clients/election/home.ml:728
 msgid "See accepted ballots"
 msgstr "Δείτε τα αποδεκτά ψηφοδέλτια"
 
@@ -496,13 +500,13 @@ msgstr "Δείτε τα αποδεκτά ψηφοδέλτια"
 msgid "Set"
 msgstr "Ορισμός"
 
-#: src/web/clients/election/home.ml:367
+#: src/web/clients/election/home.ml:380
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "Διάφορες τεχνικές υπάρχουν για να αποφασιστεί ποια υποψηφιότητα θα επιλεγεί "
 "όταν δεν υπάρχει νικητής Condorcet."
 
-#: src/web/clients/election/home.ml:693
+#: src/web/clients/election/home.ml:706
 msgid "Start"
 msgstr "Έναρξη"
 
@@ -521,7 +525,7 @@ msgstr ""
 msgid "Submit by file"
 msgstr ""
 
-#: src/web/clients/election/home.ml:441
+#: src/web/clients/election/home.ml:454
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Οι υποψήφιοι αυτοί σημειώνονται ως \"TieWin\" όταν εκλεγούν και \"TieLose\" "
@@ -535,19 +539,19 @@ msgstr ""
 msgid "Thank you for voting!"
 msgstr "Σας ευχαριστούμε για την συμμετοχή σας στην ψηφοφορία!"
 
-#: src/web/clients/election/home.ml:379
+#: src/web/clients/election/home.ml:392
 msgid "The Schulze winners are:"
 msgstr "Οι νικητές βάσει μεθόδου Schulze είναι:"
 
-#: src/web/clients/election/home.ml:450
+#: src/web/clients/election/home.ml:463
 msgid "The Single Transferable Vote winners are:"
 msgstr "Οι νικητές βάσει μεθόδου Μοναδικής Μεταβιβάσιμης Ψήφου είναι:"
 
-#: src/web/clients/election/home.ml:666 src/web/clients/election/home.ml:664
+#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
 msgid "The election is closed and being tallied."
 msgstr "Η ψηφοφορία έχει κλείσει και διενεργείται καταμέτρηση."
 
-#: src/web/clients/election/home.ml:657
+#: src/web/clients/election/home.ml:670
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -559,11 +563,11 @@ msgstr "Τα αποτυπώματα διαφέρουν!"
 msgid "The fingerprints match!"
 msgstr "Τα αποτυπώματα ταιριάζουν!"
 
-#: src/web/clients/election/home.ml:532
+#: src/web/clients/election/home.ml:545
 msgid "The raw results can be viewed in the "
 msgstr "Τα ακατέργαστα αποτελέσματα μπορούν να βρεθούν στο "
 
-#: src/web/clients/election/home.ml:426
+#: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr "Υπάρχει τουλάχιστον μια ισοψηφία."
 
@@ -573,15 +577,15 @@ msgstr ""
 "Η ψηφοφορία δεν υπάρχει. Αυτό μπορεί να συμβεί για ψηφοφορίες που δεν έχουν "
 "ακόμα ανοίξει ή που έχουν διαγραφεί."
 
-#: src/web/clients/election/home.ml:667
+#: src/web/clients/election/home.ml:680
 msgid "This election has been tallied."
 msgstr "Η ψηφοφορία έχει καταμετρηθεί."
 
-#: src/web/clients/election/home.ml:668
+#: src/web/clients/election/home.ml:681
 msgid "This election is archived."
 msgstr "Η ψηφοφορία έχει αρχειοθετηθεί."
 
-#: src/web/clients/election/home.ml:649
+#: src/web/clients/election/home.ml:662
 msgid "This election is currently closed."
 msgstr "Η ψηφοφορία είναι κλειστή αυτή την στιγμή."
 
@@ -593,7 +597,7 @@ msgstr ""
 msgid "This vote replaces any previous vote."
 msgstr "Η ψήφος αυτή αντικαθιστά προηγούμενες ψήφους."
 
-#: src/web/clients/election/home.ml:352 src/web/clients/election/home.ml:290
+#: src/web/clients/election/home.ml:365 src/web/clients/election/home.ml:303
 msgid "Tie:"
 msgstr "Ισοπαλία:"
 
@@ -607,15 +611,15 @@ msgstr ""
 msgid "To get more information, please contact:"
 msgstr "Για περισσότερες πληροφορίες, παρακαλούμε επικοινωνήστε με:"
 
-#: src/web/clients/election/home.ml:589
+#: src/web/clients/election/home.ml:602
 msgid "Total weight of accepted ballots:"
 msgstr "Συνολική βαρύτητα αποδεκτών ψήφων:"
 
-#: src/web/clients/election/home.ml:217
+#: src/web/clients/election/home.ml:229
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Η επιτροπή ανακάτεψε τα ψηφοδέλτια με την εξής σειρά:"
 
-#: src/web/clients/election/home.ml:576
+#: src/web/clients/election/home.ml:589
 msgid "Unsupported question type"
 msgstr ""
 
@@ -634,7 +638,7 @@ msgstr "Όνομα χρήστη:"
 msgid "Voter list fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:115
+#: src/web/clients/election/home.ml:127
 msgid "Voters' total weight"
 msgstr ""
 
@@ -650,7 +654,7 @@ msgstr ""
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 
-#: src/web/clients/election/home.ml:371
+#: src/web/clients/election/home.ml:384
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 "Εδώ χρησιμοποιούμε την μέθοδο Schulze και παραπέμπουμε τους ψηφοφόρους στο "
@@ -684,7 +688,7 @@ msgstr "Μπορείτε να "
 msgid "You can also "
 msgstr "Μπορείτε επίσης να "
 
-#: src/web/clients/election/home.ml:614
+#: src/web/clients/election/home.ml:627
 msgid "You can also download the "
 msgstr "Μπορείτε επίσης να κατεβάσετε το "
 
@@ -776,7 +780,7 @@ msgstr "παράμετροι"
 msgid "public data"
 msgstr ""
 
-#: src/web/clients/election/home.ml:599
+#: src/web/clients/election/home.ml:612
 msgid "raw result"
 msgstr ""
 
@@ -796,7 +800,7 @@ msgstr "ξεκινήστε από την αρχή"
 msgid "terms of service"
 msgstr ""
 
-#: src/web/clients/election/home.ml:373
+#: src/web/clients/election/home.ml:386
 msgid "the Wikipedia page"
 msgstr "η σελίδα της Wikipedia"
 
