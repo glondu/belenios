@@ -46,7 +46,7 @@ gpg --clearsign < Release > InRelease
     files, ...)
  7. Build and publish new docker images:
 ```
-docker-compose -f contrib/docker/gitlab-ci.docker-compose.yml build
+docker compose -f contrib/docker/gitlab-ci.docker-compose.yml build
 docker tag beleniosbase glondu/beleniosbase:YYYYMMDD-N
 docker tag beleniosbase-tests glondu/beleniosbase-tests:YYYYMMDD-N
 docker push glondu/beleniosbase-tests:YYYYMMDD-N
