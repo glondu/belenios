@@ -391,6 +391,10 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           let@ request = body.run admin_request_of_string in
           match request with
           | (`Open | `Close) as x ->
+              let@ () =
+               fun cont ->
+                if metadata.e_sealed = Some true then forbidden else cont ()
+              in
               let doit =
                 match x with
                 | `Open -> Web_persist.open_election
