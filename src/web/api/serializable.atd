@@ -125,6 +125,7 @@ type configuration = {
     default_nh_group : string;
     max_voters : int;
     languages : (string * string) list <json repr="object">;
+    election_sealing : bool;
 }
 
 type api_account = {

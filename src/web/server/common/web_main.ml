@@ -135,6 +135,8 @@ module Make () = struct
     | Element ("billing", [ ("url", url); ("callback", callback) ], []) ->
         Web_config.billing := Some (url, callback)
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
+    | Element ("election-sealing", [], []) ->
+        Web_config.election_sealing := true
     | Element ("storage", [ ("backend", backend) ], config) ->
         Lwt_main.run (Storage.init_backend backend config)
     | Element (tag, _, _) ->

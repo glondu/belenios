@@ -144,6 +144,7 @@ let get_configuration () =
     default_nh_group = !Web_config.nh_group;
     max_voters = !Web_config.maxmailsatonce;
     languages = Belenios_ui.Languages.available;
+    election_sealing = !Web_config.election_sealing;
   }
 
 let get_account (a : account) =

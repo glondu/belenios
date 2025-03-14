@@ -1751,9 +1751,8 @@ let status_content () =
     | Error _ -> cont (None, `Draft)
   in
   let sealing =
-    match status with
-    | None -> []
-    | Some s ->
+    match (status, !server_configuration) with
+    | Some s, Some { election_sealing = true; _ } ->
         let container = Dom_html.createDiv Dom_html.document in
         let rec contents sealed =
           let explain, label =
@@ -1813,6 +1812,7 @@ let status_content () =
         in
         replace_contents container (contents s.status_sealed);
         [ Tyxml_js.Of_dom.of_div container ]
+    | _ -> []
   in
   let automatic =
     match status with
