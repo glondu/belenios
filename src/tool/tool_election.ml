@@ -228,6 +228,17 @@ let make file =
         | None -> Lwt_io.eprintl "I: no ballots to check"
       in
       let* () =
+        let* x = Getters.get_encrypted_tally () in
+        match x with
+        | Some (_, x) ->
+            let* _, y = Lazy.force raw_encrypted_tally in
+            if x.sized_encrypted_tally = y.sized_encrypted_tally then
+              Lwt_io.eprintlf "I: fingerprint of encrypted tally is %s"
+                (Hash.to_b64 x.sized_encrypted_tally)
+            else failwith "encrypted tally failed verification"
+        | None -> Lwt.return_unit
+      in
+      let* () =
         let* x = Lazy.force shuffles in
         match x with
         | Some shuffles ->
