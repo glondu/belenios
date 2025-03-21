@@ -407,7 +407,9 @@ always record at least the last audited board. Then:
   of hashed ballots in $\hat{B}$ corresponds to the pretty ballots
   $PB$;
   \item she checks that $D$ is correctly chained, that is, each event correctly
-    refers to the hash of its parent's event.
+    refers to the hash of its parent's event;
+    \item she checks that her view is consistent with the fingerprints
+      displayed on the election main page.
   \end{itemize}
 \item she retrieves the previously recorded election data $D'$ (if it
   exists) and gets the hash $h$ of the last event in $D'$.
@@ -420,7 +422,7 @@ There is no tool support on the web interface for these checks,
 instead the command line tools \texttt{election verify} and
 \texttt{election verify-diff} can be used.
 
-\subsubsection{After the tally}
+\subsubsection{During and after the tally}
 The auditor retrieves the public data $D$ and in particular the list
 $B$ of ballots, the list $\Sigma$ of \hyperref[shuffles]{shuffles} (if
 any), the list $\Delta$ of \hyperref[partial-decryptions]{partial
@@ -434,8 +436,12 @@ any), the list $\Delta$ of \hyperref[partial-decryptions]{partial
     the checks described at step 2 of section~\ref{sec:audit-voting};
     \item she computes $\hat{B}=\textsf{last}(B)$, that is, she keeps
       only the last ballots (see section~\ref{tallied-ballots});
- \item she checks that the proofs in $\Sigma$ and $\Delta$, and the result $r$, are valid
-    w.r.t. $\hat{B}$.
+      \item she checks that the   \hyperref[tally]{$\etally$}
+        corresponds to $\hat{B}$;
+ \item as soon as they are available, she checks that the proofs in $\Sigma$ and $\Delta$, and the result $r$, are valid
+   w.r.t. $\hat{B}$;
+      \item she checks that her view is consistent with the fingerprints
+      displayed on the election main page.
 \end{enumerate}
 To ease verification of the trustees and the credential authorities,
 it is possible to display the hash of their public data (e.g. the
