@@ -707,6 +707,7 @@ as a $\jstring$. We use an El Gamal-like system.
 \begin{gather*}
   \texttt{encrypted\_msg}=\left\{
     \begin{array}{rcl}
+      \textsf{?algorithm}&:&\jstring\\
       \textsf{alpha}&:&\G\\
       \textsf{beta}&:&\G\\
       \textsf{data}&:&\jstring
@@ -718,10 +719,11 @@ To compute the \texttt{encrypted\_msg}:
 \item pick random $r,s\in\Z_q$
 \item compute $\textsf{alpha}=g^r$
 \item compute $\textsf{beta}=\textsf{ek}^r\times g^s$
-\item compute $\textsf{data}$ as the hexadecimal encoding of the (symmetric)
-  encryption of $M$ using AES in CCM mode with
-  $\textsf{SHA256}(\texttt{key|}g^s)$ as the key and $\textsf{SHA256}(\texttt{iv|}g^r)$ as the
-  initialization vector
+\item compute $\textsf{data}$ as the hexadecimal encoding of the
+  (symmetric) encryption of $M$ using $\textsf{algorithm}$
+  (\texttt{AES-CCM} by default, can also be \texttt{AES-GCM}) with
+  $\textsf{SHA256}(\texttt{key|}g^s)$ as the key and
+  $\textsf{SHA256}(\texttt{iv|}g^r)$ as the initialization vector
 \end{enumerate}
 To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 \begin{enumerate}
