@@ -3,7 +3,7 @@
 
  * Add a contributing policy
  * Software stack:
-   + Support OCaml >= 5.2
+   + Support OCaml 5.3
    + Use `markup` for HTML parsing
    + Regenerate `libsodium.wasm`
    + Stop vendoring JSBN
@@ -16,6 +16,8 @@
  * Remove support for salt-based credentials (they have been obsolete
    since version 2.4), and old-style credentials (obsolete since 2.3)
  * Use AES-GCM for PKI operations (in threshold trustee setup)
+ * Add a missing check of encrypted tally in `belenios-tool` and
+   specification
  * Web server:
    + Notable bugfixes:
      - Allow setting publish date during tallying
@@ -28,7 +30,9 @@
    + Serve CSS files from a dedicated directory
    + Reset authentication cookie after a successful login
    + Replace `<br>` by ` | ` to avoid content layout abuse
-   + Add an additional notion of sealing for validated elections
+   + Add support for `<a>` markup
+   + Add an additional notion of sealing for validated elections,
+     optionally enabled by a server configuration directive
    + Admin UI:
      - In question editor, check safety
      - Handle better errors in voter list (GitLab issue #15)
