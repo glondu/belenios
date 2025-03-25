@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2025-03-25 10:28+0000\n"
+"PO-Revision-Date: 2025-03-26 11:00+0000\n"
 "Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -188,11 +188,12 @@ msgstr "¡Se produjo un error al enviar las credenciales!"
 #: src/web/clients/admin/elections.ml:900
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
-"Una identidad es \"correo\" o \"correo, nombre_de_usuario\" o \"correo"
-",nombre_de_usuario, peso\" o \"correo,, peso\" donde \"correo\" es una "
-"dirección de correo electrónico, \"nombre_de_usuario\" el nombre de usuario "
-"asociado para autenticación, y \"peso\" es el número de votos del votante ("
-"en caso de que los electores no tengan el mismo número de votos)."
+"Una identidad es \"correo\" o \"correo, nombre_de_usuario\" o "
+"\"correo,nombre_de_usuario, peso\" o \"correo,,ponderación\" donde \"correo\""
+" es una dirección de correo electrónico, \"nombre_de_usuario\" el nombre de "
+"usuario asociado para autenticación, y \"ponderación\" es el número de votos "
+"del votante (en caso de que los electores no tengan el mismo número de "
+"votos)."
 
 #: src/web/clients/basic/admin_basic.ml:216
 msgid "Archived elections"
@@ -479,7 +480,7 @@ msgstr "Descargar "
 
 #: src/web/clients/admin/elections.ml:1777
 msgid "Download sealing log"
-msgstr ""
+msgstr "Descargar boletín de sello"
 
 #: src/web/clients/trustee/generate.ml:172
 msgid "Download your "
@@ -1205,11 +1206,11 @@ msgstr "Guarde ambas huellas digitales."
 
 #: src/web/clients/admin/elections.ml:1761
 msgid "Seal"
-msgstr ""
+msgstr "Sello"
 
 #: src/web/clients/admin/elections.ml:1792
 msgid "Sealing"
-msgstr ""
+msgstr "Sellar"
 
 #: src/web/clients/admin/elections.ml:1798
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
@@ -1220,6 +1221,9 @@ msgstr ""
 #: src/web/clients/admin/elections.ml:1803
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
+"Operaciones de poner/quitar sello están registradas, y la huella del boletín "
+"está publicado en la página inicial de la elección para todo el mundo ("
+"p.ej., auditores independientes) para verlo."
 
 #: src/web/clients/admin/elections.ml:540
 msgid "Security"
@@ -1263,11 +1267,11 @@ msgstr "Mostrar solo los votantes que faltan"
 
 #: src/web/clients/trustee/shuffle.ml:166
 msgid "Shuffle"
-msgstr "Mezclar"
+msgstr "Combinar"
 
 #: src/web/clients/admin/trustees_tab.ml:690
 msgid "Shuffler's e-mail"
-msgstr "Correo electrónico de Shuffler"
+msgstr "Correo-e de Shuffler"
 
 #: src/web/clients/admin/trustees_tab.ml:732
 msgid "Skip"
@@ -1429,6 +1433,7 @@ msgstr "El enlace a la elección será:"
 #: src/web/clients/admin/questions.ml:257
 msgid "The min of question #%d is greater than its max, voting will be impossible!"
 msgstr ""
+"El mínimo de pregunta nº %d es mayor que su máximo, el voto será imposible."
 
 #: src/web/common/mails_admin.ml:88
 msgid "The page also contains instructions for checking the voting record, after the tally."
@@ -1480,15 +1485,15 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:702 src/web/clients/admin/elections.ml:672
 msgid "There is an error in the voter list! (%s)"
-msgstr ""
+msgstr "Hay un error en el listado del votante. (%s)"
 
 #: src/web/clients/admin/elections.ml:709
 msgid "There is an unexpected error in the voter list!"
-msgstr ""
+msgstr "¡Hay un error inesperado en el listado del votante!"
 
 #: src/web/clients/admin/elections.ml:677
 msgid "There is an unexpected syntax error in the voter list!"
-msgstr ""
+msgstr "Hay un error sintáctico inesperado en el listado de votantes."
 
 #: src/web/server/common/pages_admin.ml:420
 msgid "There is no e-mail address attached to your account."
@@ -1650,7 +1655,7 @@ msgstr "Nombre del fideicomisario"
 #. src/web/clients/admin/trustees_tab.ml:102
 #: src/web/clients/admin/trustees_tab.ml:333
 msgid "Trustee's public name"
-msgstr "Nombre público del administrador"
+msgstr "Nombre público del fideicomisario"
 
 #: src/web/clients/admin/trustees_tab.ml:135
 msgid "Trustee's public name "
@@ -1675,15 +1680,15 @@ msgstr "Uuid desconocido"
 
 #: src/web/clients/admin/elections.ml:1760
 msgid "Unseal"
-msgstr ""
+msgstr "Sin sello"
 
 #: src/web/clients/admin/elections.ml:831
 msgid "Upload voter file"
-msgstr "Cargar el archivo del censo"
+msgstr "Subir el archivo del censo"
 
 #: src/web/clients/admin/elections.ml:1655
 msgid "Username:"
-msgstr "Nombre de usuario:"
+msgstr "ID de usuario:"
 
 #: src/web/clients/admin/elections.ml:949 src/web/clients/admin/elections.ml:194
 msgid "Voter list"
@@ -1759,7 +1764,7 @@ msgstr "Sugerimos dos opciones:"
 
 #: src/web/clients/admin/elections.ml:750
 msgid "Weight"
-msgstr "Peso"
+msgstr "Ponderación"
 
 #: src/web/common/mails_admin.ml:357
 msgid "When the election result is published, make sure that the fingerprint of your shuffle appears in the result page."
@@ -1896,15 +1901,15 @@ msgstr "¡Tu clave pública ya ha sido registrada!"
 
 #: src/web/common/pages_common.ml:226
 msgid "Your smart ballot tracker is "
-msgstr "Tu rastreador de papeletas inteligente es "
+msgstr "Tu seguimiento de papeletas inteligente es "
 
 #: src/web/server/common/pages_admin.ml:375
 msgid "Your username is: "
-msgstr "Su nombre de usuario es: "
+msgstr "Su identificador es: "
 
 #: src/web/common/pages_common.ml:206
 msgid "Your weight is %s."
-msgstr "Tu peso es %s."
+msgstr "Tu ponderación es %s."
 
 #: src/web/clients/admin/trustees_tab.ml:371
 msgid "action required"
@@ -1912,7 +1917,7 @@ msgstr "acción requerida"
 
 #: src/web/clients/admin/elections.ml:691
 msgid "all voters must be in the same format"
-msgstr ""
+msgstr "todos los votantes deben estar en el mismo formato"
 
 #: src/web/clients/trustee/check.ml:81 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
@@ -1932,7 +1937,7 @@ msgstr "hecho"
 
 #: src/web/clients/admin/elections.ml:693
 msgid "duplicate voter: %s"
-msgstr ""
+msgstr "votante duplicado: %s"
 
 #: src/web/clients/admin/elections.ml:781
 msgid "empty list"
@@ -1953,7 +1958,7 @@ msgstr "desde otra elección"
 
 #: src/web/clients/admin/elections.ml:694 src/web/clients/admin/elections.ml:670
 msgid "invalid identity: %s"
-msgstr ""
+msgstr "identidad no válida: %s"
 
 #. src/web/clients/admin/trustees_tab.ml:370
 #: src/web/clients/admin/trustees_tab.ml:376
@@ -1978,7 +1983,7 @@ msgstr "acreditaciones privadas"
 
 #: src/web/clients/trustee/generate.ml:148
 msgid "private_key"
-msgstr ""
+msgstr "llave_privada"
 
 #: src/web/clients/admin/trustees_tab.ml:744
 msgid "server (has already shuffled)"
@@ -1990,7 +1995,7 @@ msgstr "omitido"
 
 #: src/web/clients/admin/trustees_tab.ml:378
 msgid "step %d/7"
-msgstr ""
+msgstr "paso %d/7"
 
 #: src/web/clients/admin/trustees_tab.ml:377
 msgid "step 0?"
@@ -2052,7 +2057,7 @@ msgstr "hay un error en la base de datos"
 
 #: src/web/clients/admin/elections.ml:697
 msgid "total weight too big: %s/%s"
-msgstr ""
+msgstr "ponderación total demasiado grande: %s/%s"
 
 #: src/web/clients/admin/elections.ml:785
 msgid "typical use"
