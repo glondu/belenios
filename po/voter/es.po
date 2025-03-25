@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2025-03-25 10:28+0000\n"
+"PO-Revision-Date: 2025-03-26 11:00+0000\n"
 "Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -641,7 +641,7 @@ msgstr "Utilice el siguiente código:"
 #. src/web/server/common/mails_voter.ml:62
 #: src/web/server/common/pages_common.ml:345
 msgid "Username:"
-msgstr "Nombre de usuario:"
+msgstr "ID de usuario:"
 
 #: src/web/clients/election/home.ml:104
 msgid "Voter list fingerprint"
@@ -752,7 +752,7 @@ msgstr "Su número de rastreo de boleta es"
 
 #: src/web/common/pages_common.ml:226
 msgid "Your smart ballot tracker is "
-msgstr "Tu rastreador de papeletas inteligente es "
+msgstr "Tu seguimiento de papeletas inteligente es "
 
 #: src/web/server/common/mails_voter.ml:419
 msgid "Your vote for election"
@@ -768,7 +768,7 @@ msgstr "¡Su voto no ha sido registrado!"
 
 #: src/web/server/common/mails_voter.ml:430 src/web/common/pages_common.ml:206
 msgid "Your weight is %s."
-msgstr "Tu peso es %s."
+msgstr "Tu ponderación es %s."
 
 #: src/web/common/pages_common.ml:217
 msgid "ballot box"
