@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2025-03-26 11:00+0000\n"
+"PO-Revision-Date: 2025-04-04 14:06+0000\n"
 "Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
@@ -1433,7 +1433,7 @@ msgstr "El enlace a la elección será:"
 #: src/web/clients/admin/questions.ml:257
 msgid "The min of question #%d is greater than its max, voting will be impossible!"
 msgstr ""
-"El mínimo de pregunta nº %d es mayor que su máximo, el voto será imposible."
+"El mínimo de pregunta nº %d es mayor que su máximo, ¡el voto será imposible!"
 
 #: src/web/common/mails_admin.ml:88
 msgid "The page also contains instructions for checking the voting record, after the tally."
