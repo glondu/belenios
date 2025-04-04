@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2025-03-26 11:00+0000\n"
+"PO-Revision-Date: 2025-04-04 14:06+0000\n"
 "Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -40,7 +40,7 @@ msgstr " boleta(s) han sido aceptadas, y "
 
 #: src/web/clients/election/ballots.ml:63
 msgid " ballot(s) have been accepted."
-msgstr " La(s) papeleta(s) ha(n) sido aceptada(s)."
+msgstr " papeleta(s) ha(n) sido aceptada(s)."
 
 #: src/web/clients/election/home.ml:387
 msgid " for more information."
@@ -350,7 +350,7 @@ msgstr "Depende de usted aplicar su método de conteo favorito."
 
 #: src/web/clients/election/home.ml:659
 msgid "It will open at %s (time left: %s)."
-msgstr ""
+msgstr "Abrirá en %s (tiempo restante: %s)."
 
 #: src/web/clients/election/home.ml:550
 msgid "JSON result"
@@ -562,7 +562,7 @@ msgstr "La elección se ha cerrado y se está realizando el escrutinio."
 
 #: src/web/clients/election/home.ml:670
 msgid "The election will close at %s (time left: %s)."
-msgstr ""
+msgstr "La elección cerrará en %s (tiempo que queda: %s)."
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:47
 msgid "The fingerprints differ!"
