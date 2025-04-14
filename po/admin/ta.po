@@ -470,7 +470,7 @@ msgstr "முடிந்தது?"
 msgid "Download "
 msgstr "பதிவிறக்கவும் "
 
-#: src/web/clients/admin/elections.ml:1777
+#: src/web/clients/admin/elections.ml:1776
 msgid "Download sealing log"
 msgstr ""
 
@@ -1184,19 +1184,19 @@ msgstr ""
 msgid "Save the two fingerprints above."
 msgstr "மேலே இரண்டு கைரேகைகளை சேமிக்கவும்."
 
-#: src/web/clients/admin/elections.ml:1761
+#: src/web/clients/admin/elections.ml:1760
 msgid "Seal"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1792
+#: src/web/clients/admin/elections.ml:1791
 msgid "Sealing"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1798
+#: src/web/clients/admin/elections.ml:1797
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1803
+#: src/web/clients/admin/elections.ml:1802
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 
@@ -1368,7 +1368,7 @@ msgstr "தேர்தல் நிர்வாகி"
 msgid "The election is not archived!"
 msgstr "தேர்தல் காப்பகப்படுத்தப்படவில்லை!"
 
-#: src/web/clients/admin/elections.ml:1761
+#: src/web/clients/admin/elections.ml:1760
 msgid "The election is not sealed."
 msgstr ""
 
@@ -1508,7 +1508,7 @@ msgstr "இந்த தேர்தல் கலக்க கட்டத்த
 msgid "This election is running."
 msgstr "இந்த தேர்தல் இயங்கி வருகிறது."
 
-#: src/web/clients/admin/elections.ml:1760
+#: src/web/clients/admin/elections.ml:1759
 msgid "This election is sealed."
 msgstr ""
 
@@ -1643,7 +1643,7 @@ msgstr "குறியீடு %d உடன் எதிர்பாராத 
 msgid "Unknown uuid"
 msgstr "தெரியாத uuid"
 
-#: src/web/clients/admin/elections.ml:1760
+#: src/web/clients/admin/elections.ml:1759
 msgid "Unseal"
 msgstr ""
 

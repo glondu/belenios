@@ -458,7 +458,7 @@ msgstr "Done?"
 msgid "Download "
 msgstr "Download "
 
-#: src/web/clients/admin/elections.ml:1777
+#: src/web/clients/admin/elections.ml:1776
 msgid "Download sealing log"
 msgstr ""
 
@@ -1147,19 +1147,19 @@ msgstr "Save the fingerprint of your verification key. Once the election is open
 msgid "Save the two fingerprints above."
 msgstr "Save the two fingerprints above."
 
-#: src/web/clients/admin/elections.ml:1761
+#: src/web/clients/admin/elections.ml:1760
 msgid "Seal"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1792
+#: src/web/clients/admin/elections.ml:1791
 msgid "Sealing"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1798
+#: src/web/clients/admin/elections.ml:1797
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1803
+#: src/web/clients/admin/elections.ml:1802
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 
@@ -1329,7 +1329,7 @@ msgstr "The election administrator"
 msgid "The election is not archived!"
 msgstr "The election is not archived!"
 
-#: src/web/clients/admin/elections.ml:1761
+#: src/web/clients/admin/elections.ml:1760
 msgid "The election is not sealed."
 msgstr ""
 
@@ -1463,7 +1463,7 @@ msgstr ""
 msgid "This election is running."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1760
+#: src/web/clients/admin/elections.ml:1759
 msgid "This election is sealed."
 msgstr ""
 
@@ -1597,7 +1597,7 @@ msgstr ""
 msgid "Unknown uuid"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1760
+#: src/web/clients/admin/elections.ml:1759
 msgid "Unseal"
 msgstr ""
 
