@@ -367,6 +367,10 @@ let submit_public_credentials s uuid (Draft (v, se), set) credentials =
   let () =
     if se.se_voters = [] then raise (Error (`ValidationError `NoVoters))
   in
+  let () =
+    if not (List.length se.se_voters = List.length credentials) then
+      raise (Error (`ValidationError `WrongLength))
+  in
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let usernames =

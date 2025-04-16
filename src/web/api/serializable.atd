@@ -52,6 +52,7 @@ type validation_error =
   | NoCredentialAuthority
   | NoVoters
   | TooManyVoters
+  | WrongLength
   | MissingPasswords
   | MissingPublicCredentials
   | TrusteesNotReady
