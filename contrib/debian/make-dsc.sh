@@ -142,5 +142,5 @@ fi
 #DEBHELPER#
 EOF
 
-dpkg-buildpackage --no-sign -S
+dpkg-buildpackage --no-sign -S -nc
 dcmd cp ../belenios-server_*.dsc $TARGET
