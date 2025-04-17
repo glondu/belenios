@@ -32,6 +32,8 @@ grep -v "^Build-Date: " "$BELENIOS_SERVER_BUILDINFO" > "$TMP/buildinfo.txt"
 BELENIOS_SERVER_BUILDINFO="$TMP/buildinfo.txt"
 
 
+cp "$KEYRING" "$TMP"
+
 cat > "$TMP/ocaml.pref" <<EOF
 Package: *
 Pin: release a=$BACKPORTS_SUITE
@@ -39,7 +41,7 @@ Pin-Priority: 1000
 EOF
 
 cat > "$TMP/ocaml.list" <<EOF
-deb $BACKPORTS_MIRROR/pool ./
+deb [signed-by=$TMP/${KEYRING##*/}] $BACKPORTS_MIRROR/pool ./
 EOF
 
 cat > "$TMP/sources.list" <<EOF
@@ -84,6 +86,8 @@ EOF
 chmod +x "$TMP/postinst.sh"
 
 mmdebstrap --variant=essential \
+  --setup-hook='mkdir -p "$1"'"$TMP" \
+  --setup-hook='copy-in "'"$KEYRING"'" "'"$TMP"'"' \
   --setup-hook='mkdir -p "$1"/etc/apt/trusted.gpg.d' \
   --setup-hook='copy-in "'"$KEYRING"'" /etc/apt/trusted.gpg.d' \
   --setup-hook='copy-in "'"$TMP"'"/ocaml.pref /etc/apt/preferences.d' \
@@ -101,4 +105,6 @@ mmdebstrap --variant=essential \
   --customize-hook='copy-in "'"$TMP"'/postinst.sh" /tmp' \
   --customize-hook='chroot "$1" /tmp/postinst.sh' \
   --customize-hook='chroot "$1" rm /tmp/postinst.sh' \
+  --customize-hook='chroot "$1" rm -rf '"$TMP" \
+  --customize-hook='chroot "$1" sed -i -r '\''s/(\[.*\]) //'\'' /etc/apt/sources.list.d/ocaml.list' \
   "$STABLE_SUITE" "$TARGET" "$TMP/sources.list"
