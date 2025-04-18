@@ -28,7 +28,7 @@ type 'a template <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type 'a draft_trustees <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 
 type election_dates = {
-  creation : datetime;
+  ~creation <ocaml default="datetime_of_string {|\"2018-11-26 00:00:00.000000\"|}"> : datetime;
   ?finalization : datetime option;
   ?tally : datetime option;
   ?archive : datetime option;
