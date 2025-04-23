@@ -1,3 +1,12 @@
+3.1
+===
+
+ * `_LIBDIR_` is no longer substituted in `ocsigenserver.conf.in`. If
+   your configuration file is based on the demo one, think about
+   removing `<findlib>`.
+ * If you update a running instance in place, you must remove all
+   `audit_cache.json` files from the spool.
+
 3.0
 ===
 
