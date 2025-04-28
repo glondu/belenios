@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2025-04-28 08:39+0000\n"
+"PO-Revision-Date: 2025-04-28 08:40+0000\n"
 "Last-Translator: Stéphane Glondu <steph@glondu.net>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/belenios/voter/fr/"
 ">\n"
@@ -558,7 +558,6 @@ msgid "The Single Transferable Vote winners are:"
 msgstr "Les gagnants selon la méthode Single Transferable Vote sont :"
 
 #: src/web/clients/election/home.ml:659
-#, fuzzy
 msgid "The election is being prepared. Please come back later."
 msgstr "L'élection est en cours de préparation. Revenez plus tard."
 
