@@ -118,7 +118,7 @@ msgstr "تم إرسال رمز التحقق إلى %s."
 msgid "About this election"
 msgstr "حول هذه الانتخابات"
 
-#: src/web/clients/election/ballots.ml:110
+#: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
 msgstr "البطاقات المقبولة"
 
@@ -148,6 +148,10 @@ msgstr "جميع الحكام (مفاتيح التحقق) التالية مطل�
 
 #: src/web/clients/election/advanced.ml:114
 msgid "Alternatively, you can also upload a file containing your ballot:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:741
+msgid "Audit data not available."
 msgstr ""
 
 #: src/web/clients/election/common.ml:53
@@ -234,10 +238,6 @@ msgstr "حساب بصمة"
 msgid "Computed fingerprint:"
 msgstr "البصمة المحسوبة:"
 
-#: src/web/clients/election/home.ml:734
-msgid "Could not retrieve audit data!"
-msgstr ""
-
 #: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr "سلطة الاعتماد"
@@ -281,7 +281,7 @@ msgstr ""
 msgid "Error"
 msgstr "خطأ"
 
-#: src/web/clients/election/ballots.ml:98
+#: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
 msgstr ""
 
@@ -340,7 +340,7 @@ msgstr "يحتوي على جميع بطاقات الإقتراع المقدمة 
 msgid "It is up to you to apply your favorite counting method."
 msgstr "الأمر متروك لك لتطبيق طريقة العد المفضلة لديك."
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:666
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
@@ -352,7 +352,7 @@ msgstr "النتيجة بصيغة JSON"
 msgid "Language:"
 msgstr "اللغة:"
 
-#: src/web/clients/election/ballots.ml:92
+#: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
 msgstr ""
 
@@ -489,7 +489,7 @@ msgstr "مراجعة وتشفير"
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:728
+#: src/web/clients/election/home.ml:735
 msgid "See accepted ballots"
 msgstr "عرض بطاقات الإقتراع المقبولة"
 
@@ -503,7 +503,7 @@ msgstr ""
 "توجد عدة تقنيات لتحديد المرشح الذي سيتم انتخابه في حالة عدم وجود فائز من "
 "كوندورسيه."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:713
 msgid "Start"
 msgstr "ابدأ"
 
@@ -544,11 +544,15 @@ msgstr "فائزو Schulze هم:"
 msgid "The Single Transferable Vote winners are:"
 msgstr "الفائزون بالصوت الواحد القابل للتحويل هم:"
 
-#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:659
+msgid "The election is being prepared. Please come back later."
+msgstr ""
+
+#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
 msgid "The election is closed and being tallied."
 msgstr "تم إغلاق الانتخاب وجاري الفرز."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:677
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -574,15 +578,15 @@ msgstr ""
 "هذا الانتخاب لا يوجد. قد يحدث ذلك للانتخابات التي لم يتم فتحها بعد أو تم "
 "حذفها."
 
-#: src/web/clients/election/home.ml:680
+#: src/web/clients/election/home.ml:687
 msgid "This election has been tallied."
 msgstr "تم فرز هذا الانتخاب."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:688
 msgid "This election is archived."
 msgstr "تم أرشفة هذا الانتخاب."
 
-#: src/web/clients/election/home.ml:662
+#: src/web/clients/election/home.ml:669
 msgid "This election is currently closed."
 msgstr "هذا الانتخاب مغلق حاليًا."
 

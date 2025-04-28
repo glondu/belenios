@@ -116,7 +116,7 @@ msgstr ""
 msgid "About this election"
 msgstr ""
 
-#: src/web/clients/election/ballots.ml:110
+#: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
 msgstr "Buletinele de vot acceptate"
 
@@ -146,6 +146,10 @@ msgstr ""
 
 #: src/web/clients/election/advanced.ml:114
 msgid "Alternatively, you can also upload a file containing your ballot:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:741
+msgid "Audit data not available."
 msgstr ""
 
 #: src/web/clients/election/common.ml:53
@@ -232,10 +236,6 @@ msgstr ""
 msgid "Computed fingerprint:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:734
-msgid "Could not retrieve audit data!"
-msgstr ""
-
 #: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr ""
@@ -279,7 +279,7 @@ msgstr ""
 msgid "Error"
 msgstr "Eroare"
 
-#: src/web/clients/election/ballots.ml:98
+#: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
 msgstr ""
 
@@ -336,7 +336,7 @@ msgstr ""
 msgid "It is up to you to apply your favorite counting method."
 msgstr ""
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:666
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
@@ -348,7 +348,7 @@ msgstr "rezultat JSON"
 msgid "Language:"
 msgstr ""
 
-#: src/web/clients/election/ballots.ml:92
+#: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
 msgstr ""
 
@@ -480,7 +480,7 @@ msgstr "Rezultatele vor fi publicate pe pagina alegerii"
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:728
+#: src/web/clients/election/home.ml:735
 msgid "See accepted ballots"
 msgstr "Consultă buletinele de vot acceptate"
 
@@ -492,7 +492,7 @@ msgstr ""
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:713
 msgid "Start"
 msgstr "Incepeti"
 
@@ -531,11 +531,15 @@ msgstr "Castigatorii, dupa metoda Schulze, sunt:"
 msgid "The Single Transferable Vote winners are:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:659
+msgid "The election is being prepared. Please come back later."
+msgstr ""
+
+#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
 msgid "The election is closed and being tallied."
 msgstr "Alegerea este închisă și în curs de contorizare."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:677
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -561,15 +565,15 @@ msgstr ""
 "Aceasta alegere nu exista. Asta se poate intampla pentru alegeri care nu au "
 "inceput inca sau au fost sterse."
 
-#: src/web/clients/election/home.ml:680
+#: src/web/clients/election/home.ml:687
 msgid "This election has been tallied."
 msgstr "Această alegere a fost contorizata."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:688
 msgid "This election is archived."
 msgstr "Această alegere este arhivată."
 
-#: src/web/clients/election/home.ml:662
+#: src/web/clients/election/home.ml:669
 msgid "This election is currently closed."
 msgstr "Această alegere este în prezent închisă."
 

@@ -119,7 +119,7 @@ msgstr "Ověřovací klíč byl zaslán na %s."
 msgid "About this election"
 msgstr ""
 
-#: src/web/clients/election/ballots.ml:110
+#: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
 msgstr "Akceptované volební lístky"
 
@@ -151,6 +151,10 @@ msgstr ""
 
 #: src/web/clients/election/advanced.ml:114
 msgid "Alternatively, you can also upload a file containing your ballot:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:741
+msgid "Audit data not available."
 msgstr ""
 
 #: src/web/clients/election/common.ml:53
@@ -237,10 +241,6 @@ msgstr "Spočítat jedinečný otisk"
 msgid "Computed fingerprint:"
 msgstr "Vypočítaný jedinečný otisk:"
 
-#: src/web/clients/election/home.ml:734
-msgid "Could not retrieve audit data!"
-msgstr ""
-
 #: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr ""
@@ -284,7 +284,7 @@ msgstr ""
 msgid "Error"
 msgstr "Chyba"
 
-#: src/web/clients/election/ballots.ml:98
+#: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
 msgstr ""
 
@@ -346,7 +346,7 @@ msgstr ""
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Je na tobě použít tvoji oblíbenou metodu vyhodnocení."
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:666
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
@@ -358,7 +358,7 @@ msgstr "Výsledky ve formátu JSON"
 msgid "Language:"
 msgstr "Jazyk:"
 
-#: src/web/clients/election/ballots.ml:92
+#: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
 msgstr ""
 
@@ -496,7 +496,7 @@ msgstr "Výsledky budou zveřejněny na stránce volby"
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:728
+#: src/web/clients/election/home.ml:735
 msgid "See accepted ballots"
 msgstr "Podívej se na odevzdané volební lístky"
 
@@ -510,7 +510,7 @@ msgstr ""
 "V případě, že z voleb nevzešel žádný Condorcetův vítěz, existuje několik "
 "způsobů, jak určit vítězného kandidáta."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:713
 msgid "Start"
 msgstr "Start"
 
@@ -551,11 +551,15 @@ msgstr "Vítězové Schulze jsou:"
 msgid "The Single Transferable Vote winners are:"
 msgstr "Vítězi volby jedním přenosným hlasem jsou:"
 
-#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:659
+msgid "The election is being prepared. Please come back later."
+msgstr ""
+
+#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
 msgid "The election is closed and being tallied."
 msgstr "Volba byla uzavřena a probíhá její vyhodnocení."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:677
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -579,15 +583,15 @@ msgstr "Došlo alespoň k jednomu patu."
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr "Tato volba není dostupná: buď ještě nebyla zahájena, nebo byla smazána."
 
-#: src/web/clients/election/home.ml:680
+#: src/web/clients/election/home.ml:687
 msgid "This election has been tallied."
 msgstr "Tato volba byla právě vyhodnocena."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:688
 msgid "This election is archived."
 msgstr "Tato volba je archivována."
 
-#: src/web/clients/election/home.ml:662
+#: src/web/clients/election/home.ml:669
 msgid "This election is currently closed."
 msgstr "Tato volba je v tuto chvíli uzavřena."
 

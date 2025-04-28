@@ -122,7 +122,7 @@ msgstr "Код підтвердження надіслано на адресу %
 msgid "About this election"
 msgstr "Про ці вибори"
 
-#: src/web/clients/election/ballots.ml:110
+#: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
 msgstr "Прийняті бюлетені"
 
@@ -155,6 +155,10 @@ msgstr ""
 #: src/web/clients/election/advanced.ml:114
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "Крім того, ви також можете завантажити файл із вашим голосуванням:"
+
+#: src/web/clients/election/home.ml:741
+msgid "Audit data not available."
+msgstr ""
 
 #: src/web/clients/election/common.ml:53
 msgid "Audit data: "
@@ -240,10 +244,6 @@ msgstr "Обчислити відбиток пальця"
 msgid "Computed fingerprint:"
 msgstr "Обчислений відбиток пальця:"
 
-#: src/web/clients/election/home.ml:734
-msgid "Could not retrieve audit data!"
-msgstr "Не вдалося отримати дані аудиту!"
-
 #: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr "Орган повноважень"
@@ -287,7 +287,7 @@ msgstr "Зашифрований бюлетень у форматі JSON"
 msgid "Error"
 msgstr "Помилка"
 
-#: src/web/clients/election/ballots.ml:98
+#: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
 msgstr "Помилка під час завантаження бюлетенів!"
 
@@ -348,7 +348,7 @@ msgstr ""
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Ви вирішуєте застосувати свій улюблений метод підрахунку."
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:666
 msgid "It will open at %s (time left: %s)."
 msgstr "Він відкриється о %s (залишився час: %s)."
 
@@ -360,7 +360,7 @@ msgstr "Результат JSON"
 msgid "Language:"
 msgstr "Мова:"
 
-#: src/web/clients/election/ballots.ml:92
+#: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
 msgstr "Завантаження..."
 
@@ -498,7 +498,7 @@ msgstr "Результати будуть опубліковані на стор
 msgid "Sealing log fingerprint"
 msgstr "Відбиток журналу запечатування"
 
-#: src/web/clients/election/home.ml:728
+#: src/web/clients/election/home.ml:735
 msgid "See accepted ballots"
 msgstr "Переглянути прийняті бюлетені"
 
@@ -512,7 +512,7 @@ msgstr ""
 "Існує кілька методів, щоб вирішити, якого кандидата обрати, коли немає "
 "переможця Кондорсе."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:713
 msgid "Start"
 msgstr "Почати"
 
@@ -553,11 +553,15 @@ msgstr "Переможцями по Шульце стали:"
 msgid "The Single Transferable Vote winners are:"
 msgstr "Переможцями в категорії «Єдиний передаваний голос» є:"
 
-#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:659
+msgid "The election is being prepared. Please come back later."
+msgstr ""
+
+#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
 msgid "The election is closed and being tallied."
 msgstr "Вибори закриті і підраховуються."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:677
 msgid "The election will close at %s (time left: %s)."
 msgstr "Вибори завершаться о %s (залишився час: %s)."
 
@@ -583,15 +587,15 @@ msgstr ""
 "Цих виборів не існує. Це може статися для виборів, які ще не були відкриті "
 "або були видалені."
 
-#: src/web/clients/election/home.ml:680
+#: src/web/clients/election/home.ml:687
 msgid "This election has been tallied."
 msgstr "Ці вибори були підраховані."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:688
 msgid "This election is archived."
 msgstr "Ці вибори заархівовані."
 
-#: src/web/clients/election/home.ml:662
+#: src/web/clients/election/home.ml:669
 msgid "This election is currently closed."
 msgstr "Наразі ці вибори закриті."
 

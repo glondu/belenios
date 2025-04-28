@@ -123,7 +123,7 @@ msgstr "Se ha enviado un código de comprobación a %s."
 msgid "About this election"
 msgstr "Sobre esta elección"
 
-#: src/web/clients/election/ballots.ml:110
+#: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
 msgstr "Boletas aceptadas"
 
@@ -156,6 +156,10 @@ msgstr ""
 #: src/web/clients/election/advanced.ml:114
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "También puede cargar un archivo con su papeleta:"
+
+#: src/web/clients/election/home.ml:741
+msgid "Audit data not available."
+msgstr ""
 
 #: src/web/clients/election/common.ml:53
 msgid "Audit data: "
@@ -242,10 +246,6 @@ msgstr "Procesar huella digital"
 msgid "Computed fingerprint:"
 msgstr "Procesar huella digital:"
 
-#: src/web/clients/election/home.ml:734
-msgid "Could not retrieve audit data!"
-msgstr "¡No se pudieron recuperar los datos de la auditoría!"
-
 #: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr "Certificadora"
@@ -289,7 +289,7 @@ msgstr "Papeleta cifrada en formato JSON"
 msgid "Error"
 msgstr "Error"
 
-#: src/web/clients/election/ballots.ml:98
+#: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
 msgstr "¡Error al cargar las papeletas!"
 
@@ -349,7 +349,7 @@ msgstr "Contiene todas las boletas enviadas en orden claro y aleatorio."
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Depende de usted aplicar su método de conteo favorito."
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:666
 msgid "It will open at %s (time left: %s)."
 msgstr "Abrirá en %s (tiempo restante: %s)."
 
@@ -361,7 +361,7 @@ msgstr "resultados JSON"
 msgid "Language:"
 msgstr "Idioma:"
 
-#: src/web/clients/election/ballots.ml:92
+#: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
 msgstr "Cargando..."
 
@@ -502,7 +502,7 @@ msgstr "Los resultados serán publicados en la página de la elección"
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:728
+#: src/web/clients/election/home.ml:735
 msgid "See accepted ballots"
 msgstr "Ver las boletas aceptadas"
 
@@ -516,7 +516,7 @@ msgstr ""
 "Existen varias técnicas para decidir qué candidato elegir cuando no hay un "
 "ganador de Condorcet."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:713
 msgid "Start"
 msgstr "Iniciar"
 
@@ -557,11 +557,15 @@ msgstr "Los ganadores con el método Schulze son:"
 msgid "The Single Transferable Vote winners are:"
 msgstr "Los ganadores por voto único transferible son:"
 
-#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:659
+msgid "The election is being prepared. Please come back later."
+msgstr ""
+
+#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
 msgid "The election is closed and being tallied."
 msgstr "La elección se ha cerrado y se está realizando el escrutinio."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:677
 msgid "The election will close at %s (time left: %s)."
 msgstr "La elección cerrará en %s (tiempo que queda: %s)."
 
@@ -587,15 +591,15 @@ msgstr ""
 "Esta elección no existe. Esto puede suceder cuando la elección aún no ha "
 "sido abierta, o cuando ha sido suprimida."
 
-#: src/web/clients/election/home.ml:680
+#: src/web/clients/election/home.ml:687
 msgid "This election has been tallied."
 msgstr "Esta elección ha sido escrutada."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:688
 msgid "This election is archived."
 msgstr "Esta elección está archivada."
 
-#: src/web/clients/election/home.ml:662
+#: src/web/clients/election/home.ml:669
 msgid "This election is currently closed."
 msgstr "Esta elección está cerrada ahora."
 

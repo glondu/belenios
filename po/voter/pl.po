@@ -125,7 +125,7 @@ msgstr "Kod weryfikacyjny został wysłany do %s."
 msgid "About this election"
 msgstr "O tym głosowaniu"
 
-#: src/web/clients/election/ballots.ml:110
+#: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
 msgstr "Oddane karty do głosowania"
 
@@ -161,6 +161,10 @@ msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 "Alternatywnie, możesz również wczytać plik zawierający Twoją kartę do "
 "głosowania:"
+
+#: src/web/clients/election/home.ml:741
+msgid "Audit data not available."
+msgstr ""
 
 #: src/web/clients/election/common.ml:53
 msgid "Audit data: "
@@ -246,10 +250,6 @@ msgstr "Oblicz cyfrowy odcisk (hasz)"
 msgid "Computed fingerprint:"
 msgstr "Obliczony cyfrowy odcisk (hasz):"
 
-#: src/web/clients/election/home.ml:734
-msgid "Could not retrieve audit data!"
-msgstr "Nie mogę przetworzyć danych audytu!"
-
 #: src/web/clients/election/home.ml:205
 msgid "Credentials authority"
 msgstr "Administrator kodów głosowania"
@@ -293,7 +293,7 @@ msgstr "Zaszyfrowana karta do głosowania w formacie JSON"
 msgid "Error"
 msgstr "Błąd"
 
-#: src/web/clients/election/ballots.ml:98
+#: src/web/clients/election/ballots.ml:97
 msgid "Error while loading ballots!"
 msgstr "Błąd przy wczytywaniu kart do głosowania!"
 
@@ -355,7 +355,7 @@ msgstr ""
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Zastosuj wybraną metodę ustalania wyniku głosowania."
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:666
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
@@ -367,7 +367,7 @@ msgstr "wynik JSON"
 msgid "Language:"
 msgstr "Język:"
 
-#: src/web/clients/election/ballots.ml:92
+#: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
 msgstr "Wczytuję..."
 
@@ -503,7 +503,7 @@ msgstr "Wyniki zostaną wyświetlone na stronie głosowania"
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:728
+#: src/web/clients/election/home.ml:735
 msgid "See accepted ballots"
 msgstr "Pokaż oddane karty do głosowania"
 
@@ -518,7 +518,7 @@ msgstr ""
 "wybrać w przypadku gdy zgodnie z systemem Condorceta nie można wskazać "
 "zwycięzcy."
 
-#: src/web/clients/election/home.ml:706
+#: src/web/clients/election/home.ml:713
 msgid "Start"
 msgstr "Rozpocznij"
 
@@ -559,11 +559,15 @@ msgstr "Zwycięzcy w systemie Schulzego to:"
 msgid "The Single Transferable Vote winners are:"
 msgstr "Zwycięzcy w systemie pojedynczego głosu przechodniego (STV) to:"
 
-#: src/web/clients/election/home.ml:679 src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:659
+msgid "The election is being prepared. Please come back later."
+msgstr ""
+
+#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
 msgid "The election is closed and being tallied."
 msgstr "Głosowanie zakończyło się. Zostanie ustalony wynik głosowania."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:677
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -589,15 +593,15 @@ msgstr ""
 "Głosowanie nie jest dostępne. Głosowanie nie zostało jeszcze otwarte, albo "
 "zostało już usunięte."
 
-#: src/web/clients/election/home.ml:680
+#: src/web/clients/election/home.ml:687
 msgid "This election has been tallied."
 msgstr "Ustalono wynik głosowania."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:688
 msgid "This election is archived."
 msgstr "Głosowanie zostało zarchiwizowane."
 
-#: src/web/clients/election/home.ml:662
+#: src/web/clients/election/home.ml:669
 msgid "This election is currently closed."
 msgstr "Głosowanie zakończyło się."
 
