@@ -40,7 +40,7 @@ val update_election_dates :
 
 val get_election_metadata : metadata Lwt.t Storage.u
 val seal_election : (bool -> unit Lwt.t) Storage.u
-val get_audit_cache : audit_cache Lwt.t Storage.u
+val get_audit_cache : audit_cache option Lwt.t Storage.u
 
 val get_election_automatic_dates :
   Belenios_web_api.election_auto_dates Lwt.t Storage.u

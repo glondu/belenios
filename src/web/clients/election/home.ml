@@ -651,7 +651,14 @@ let home configuration ?credential uuid =
   let now = (new%js Js.date_now)##valueOf /. 1000. in
   let state =
     match status.status_state with
-    | `Draft -> assert false
+    | `Draft ->
+        [
+          b
+            [
+              txt
+              @@ s_ "The election is being prepared. Please come back later.";
+            ];
+        ]
     | `Closed ->
         let it_will_open =
           match dates.auto_date_open with
@@ -731,7 +738,7 @@ let home configuration ?credential uuid =
   let* audit_div =
     let* x = get_audit_cache uuid in
     match x with
-    | None -> Lwt.return @@ div [ txt @@ s_ "Could not retrieve audit data!" ]
+    | None -> Lwt.return @@ div [ txt @@ s_ "Audit data not available." ]
     | Some audit_cache -> Lwt.return @@ make_audit_div election audit_cache
   in
   let contents =

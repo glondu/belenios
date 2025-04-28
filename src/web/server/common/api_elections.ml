@@ -83,6 +83,9 @@ let get_election_status s uuid =
   in
   let status_auto_delete_date =
     match status_state with
+    | `Draft ->
+        let t = d.e_date_creation in
+        t +. (86400. *. Defaults.days_to_delete)
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t = Option.value d.e_date_finalization ~default:d.e_date_creation in
         t +. (86400. *. Defaults.days_to_delete)
@@ -375,8 +378,7 @@ let direct_voter_auth = ref (fun _ _ _ -> assert false)
 let state_module = ref None
 (* initialized in Web_main *)
 
-let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
-    =
+let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
   match endpoint with
   | [] -> (
       let get () =
@@ -429,11 +431,12 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               ok)
       | _ -> method_not_allowed)
   | [ "audit-cache" ] -> (
-      let get () =
-        let* x = Web_persist.get_audit_cache s uuid in
-        Lwt.return @@ string_of_audit_cache x
-      in
-      match method_ with `GET -> handle_get get | _ -> method_not_allowed)
+      match method_ with
+      | `GET ->
+          let* x = Web_persist.get_audit_cache s uuid in
+          let@ x = Option.unwrap not_found x in
+          return_json 200 @@ string_of_audit_cache x
+      | _ -> method_not_allowed)
   | [ "archive" ] -> (
       match method_ with
       | `GET ->
@@ -492,6 +495,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               let@ trustee_id = with_tally_trustee token s uuid in
               let@ () = handle_generic_error in
               let@ partial_decryption = body.run Fun.id in
+              let* raw = Public_archive.get_election s uuid in
+              let@ raw = Option.unwrap not_found raw in
               let module W = (val Election.of_string (module Random) raw) in
               let* x =
                 post_partial_decryption s uuid
@@ -509,6 +514,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
               let@ token = Option.unwrap unauthorized token in
               let@ () = handle_generic_error in
               let@ shuffle = body.run Fun.id in
+              let* raw = Public_archive.get_election s uuid in
+              let@ raw = Option.unwrap not_found raw in
               let election = Election.of_string (module Random) raw in
               let* x = post_shuffle s uuid election ~token ~shuffle in
               match x with
@@ -567,6 +574,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw metadata
           return_json 200 (string_of_ballots_with_weights x)
       | `POST -> (
           let@ () = handle_generic_error in
+          let* raw = Public_archive.get_election s uuid in
+          let@ raw = Option.unwrap not_found raw in
           let@ state_module cont =
             match !state_module with
             | None -> failwith "anomaly: state_module not initialized"
@@ -791,8 +800,5 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
       ok
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let* raw = Public_archive.get_election s uuid in
-      let@ raw = Option.unwrap not_found raw in
       let* metadata = Web_persist.get_election_metadata s uuid in
-      dispatch_election ~token ~ifmatch endpoint method_ body s uuid raw
-        metadata
+      dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata

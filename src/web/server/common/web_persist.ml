@@ -264,8 +264,15 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid
     let@ x, set = Storage.update s (Election (uuid, State)) in
     match Lopt.get_value x with
     | Some x -> cont (x, set Value)
-    | None ->
-        return (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived")
+    | None -> (
+        let* x = Storage.get s (Election (uuid, Draft)) in
+        match Lopt.get_value x with
+        | Some _ ->
+            return
+              (`Draft, fun _ -> Lwt.fail_with "cannot get out of Draft this way")
+        | None ->
+            return
+              (`Archived, fun _ -> Lwt.fail_with "cannot get out of Archived"))
   in
   let now = Unix.gettimeofday () in
   let* dates = get_election_dates s uuid in
@@ -576,9 +583,7 @@ let cast_ballot s uuid ~ballot ~user ~weight date ~precast_data =
 let compute_audit_cache s uuid =
   let* election = Public_archive.get_election s uuid in
   match election with
-  | None ->
-      Printf.ksprintf failwith "compute_cache: %s does not exist"
-        (Uuid.unwrap uuid)
+  | None -> Lwt.return_none
   | Some _ ->
       let* voters = get_all_voters s uuid in
       let cache_voters_hash = Hash.hash_string (Voter.list_to_string voters) in
@@ -615,7 +620,7 @@ let compute_audit_cache s uuid =
         | None -> Lwt.return_none
         | Some x -> Lwt.return_some @@ Hash.hash_string x
       in
-      return
+      return_some
         {
           cache_voters_hash;
           cache_checksums;
@@ -626,11 +631,14 @@ let compute_audit_cache s uuid =
 let get_audit_cache s uuid =
   let* cache = Storage.get s (Election (uuid, Audit_cache)) in
   match Lopt.get_value cache with
-  | Some x -> return x
-  | None ->
+  | Some x -> return_some x
+  | None -> (
       let* cache = compute_audit_cache s uuid in
-      let* () = Storage.set s (Election (uuid, Audit_cache)) Value cache in
-      return cache
+      match cache with
+      | None -> return_none
+      | Some cache ->
+          let* () = Storage.set s (Election (uuid, Audit_cache)) Value cache in
+          return_some cache)
 
 let get_admin_context admin_id =
   let@ s = Storage.with_transaction in
@@ -639,9 +647,12 @@ let get_admin_context admin_id =
     let open Belenios_web_api in
     Lwt_list.filter_map_s
       (function
-        | { state = `Open | `Closed | `Shuffling | `EncryptedTally; uuid; _ } ->
+        | { state = `Open | `Closed | `Shuffling | `EncryptedTally; uuid; _ }
+          -> (
             let* cache = get_audit_cache s uuid in
-            Lwt.return_some cache.cache_checksums.ec_num_voters
+            match cache with
+            | None -> Lwt.return_none
+            | Some cache -> Lwt.return_some cache.cache_checksums.ec_num_voters)
         | _ -> Lwt.return_none)
       elections
   in

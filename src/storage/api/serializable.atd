@@ -82,7 +82,8 @@ type credential_mapping = {
 } <ocaml field_prefix="c_">
 
 type election_state =
-  [ Open
+  [ Draft
+  | Open
   | Closed
   | Shuffling
   | EncryptedTally

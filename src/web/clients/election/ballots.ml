@@ -81,14 +81,13 @@ let ballots uuid =
     | None -> Lwt.return @@ error "Could not get election parameters!"
     | Some x -> cont x
   in
-  let@ audit_cache cont =
+  let* show_weights =
     let* x = get_audit_cache uuid in
     match x with
-    | None -> Lwt.return @@ error "Could not retrieve audit data!"
-    | Some audit_cache -> cont audit_cache
+    | None -> Lwt.return_false
+    | Some x -> Lwt.return (x.cache_checksums.ec_weights <> None)
   in
   let* sized_encrypted_tally = get_sized_encrypted_tally uuid in
-  let show_weights = audit_cache.cache_checksums.ec_weights <> None in
   let container = div [ txt @@ s_ "Loading..." ] in
   let () =
     let@ () = Lwt.async in

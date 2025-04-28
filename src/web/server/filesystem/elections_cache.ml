@@ -44,7 +44,11 @@ module Make (I : INPUT) () = struct
     let* state =
       let* x = I.get s (Election (uuid, State)) in
       match Lopt.get_value x with
-      | None -> Lwt.return `Archived
+      | None -> (
+          let* x = I.get s (Election (uuid, Draft)) in
+          match Lopt.get_value x with
+          | Some _ -> Lwt.return `Draft
+          | None -> Lwt.return `Archived)
       | Some x -> Lwt.return x
     in
     let get of_string file =
@@ -68,6 +72,7 @@ module Make (I : INPUT) () = struct
     let* date =
       let* dates = get Fun.id Dates in
       match state with
+      | `Draft -> Lwt.return dates.e_date_creation
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
           Lwt.return
           @@ Option.value dates.e_date_finalization
@@ -156,6 +161,10 @@ module Make (I : INPUT) () = struct
       | Some x -> Lwt.return x
     in
     match state with
+    | `Draft ->
+        let t = dates.e_date_creation in
+        let next_t = t +. (86400. *. Defaults.days_to_delete) in
+        Lwt.return_some (`Destroy, uuid, next_t)
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
         let t =
           Option.value dates.e_date_finalization ~default:dates.e_date_creation
