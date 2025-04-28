@@ -21,7 +21,7 @@ function TranslatablePageHeader({
       },
       e("img", {
         className: "page-header__logo__image",
-        src: "../../../LOGO",
+        src: "LOGO",
         alt: t("election_server"),
         title: t("election_server"),
       }),
