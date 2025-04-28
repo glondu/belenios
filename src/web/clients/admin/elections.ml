@@ -1750,9 +1750,10 @@ let status_content () =
     | Ok status -> cont (Some status, status.status_state)
     | Error _ -> cont (None, `Draft)
   in
+  let* server_configuration = Cache.get Cache.config in
   let sealing =
-    match (status, !server_configuration) with
-    | Some s, Some { election_sealing = true; _ } ->
+    match (status, server_configuration) with
+    | Some s, Ok { election_sealing = true; _ } ->
         let container = Dom_html.createDiv Dom_html.document in
         let rec contents sealed =
           let explain, label =

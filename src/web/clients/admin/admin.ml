@@ -142,7 +142,6 @@ let newdraft () =
   @@
   match (configuration_opt, account_opt) with
   | Some c, Some a ->
-      server_configuration := Some c;
       let address =
         match a.address with None -> "" | Some x -> Printf.sprintf " <%s>" x
       in

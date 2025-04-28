@@ -232,11 +232,12 @@ let local_save () =
     let t_questions = Array.map of_concrete qq in
     { draft.draft_questions with t_questions }
   in
+  let* server_configuration = Cache.get Cache.config in
   let draft_group =
     if Election.has_nh_questions (Template (v, draft_questions)) then
-      match !server_configuration with
-      | None -> draft.draft_group
-      | Some c -> c.default_nh_group
+      match server_configuration with
+      | Error _ -> draft.draft_group
+      | Ok c -> c.default_nh_group
     else draft.draft_group
   in
   let exception Question_error of int * string in

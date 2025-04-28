@@ -64,7 +64,6 @@ type context =
 
 (* Global variables *)
 
-let server_configuration = ref None
 let where_am_i : context ref = ref List_draft
 
 let get_current_uuid () =
