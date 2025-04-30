@@ -64,6 +64,11 @@ module Make (I : SENDER) () = struct
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
     let expiration_time = now +. 900. in
+    let () =
+      let x = { recipient = snd recipient; code; expiration_time } in
+      let msg = Printf.sprintf "Sending OTP %s" (string_of_otp_record x) in
+      Ocsigen_messages.accesslog msg
+    in
     codes :=
       SMap.add (snd recipient)
         { code; payload; expiration_time; trials_left = 10 }
