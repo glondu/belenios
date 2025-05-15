@@ -57,7 +57,7 @@ let make_private_key_input handler =
     reader##.onload :=
       Dom.handler (fun _ ->
           let& content = File.CoerceTo.string reader##.result in
-          wrap_handler handler (Js.to_string content);
+          wrap_handler handler (String.trim (Js.to_string content));
           Js._false);
     reader##readAsText file;
     Js._false
