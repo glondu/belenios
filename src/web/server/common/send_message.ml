@@ -36,22 +36,16 @@ let sendmail ?return_path message =
   in
   Netsendmail.sendmail ~mailer message
 
+type code_message = {
+  lang : string;
+  recipient : string * string;
+  code : string;
+}
+
 type t =
-  | Account_create of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Account_change_password of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Account_set_email of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
+  | Account_create of code_message
+  | Account_change_password of code_message
+  | Account_set_email of code_message
   | Voter_password of password_email
   | Voter_credential of credential_email
   | Vote_confirmation of {
@@ -61,7 +55,7 @@ type t =
       contact : string option;
       confirmation : Belenios_web_api.confirmation;
     }
-  | Mail_login of { lang : string; recipient : string * string; code : string }
+  | Mail_login of code_message
 
 let send msg =
   let* reason, uuid, recipient, subject, body =
