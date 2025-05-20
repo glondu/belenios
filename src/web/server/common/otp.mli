@@ -27,7 +27,7 @@ module type SENDER = sig
     context:context ->
     recipient:Belenios_web_api.recipient ->
     code:string ->
-    unit Lwt.t
+    (string, unit) result Lwt.t
 end
 
 module type S = sig
@@ -38,7 +38,7 @@ module type S = sig
     context:context ->
     recipient:Belenios_web_api.recipient ->
     payload:payload ->
-    unit Lwt.t
+    (string, unit) result Lwt.t
 
   val check : address:string -> code:string -> payload option
 end

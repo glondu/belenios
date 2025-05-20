@@ -120,12 +120,12 @@ struct
     in
     match (ok, address) with
     | true, Some address ->
-        let* () =
+        let* r =
           Otp.generate ~context:() ~recipient:{ name; address } ~payload:()
         in
         let* () = Eliom_reference.set env (Some (state, name, address)) in
         let* () = Eliom_reference.unset uuid_ref in
-        let address = if show_email_address then Some address else None in
+        let address = if show_email_address then Some r else None in
         Pages_common.email_login ?address site_or_election
         >>= Eliom_registration.Html.send
     | _ ->

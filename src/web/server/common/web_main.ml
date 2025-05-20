@@ -134,6 +134,8 @@ module Make () = struct
         Web_config.blacklisted_domains := loop !Web_config.blacklisted_domains
     | Element ("billing", [ ("url", url); ("callback", callback) ], []) ->
         Web_config.billing := Some (url, callback)
+    | Element ("external-send-message", [ ("url", url); ("key", key) ], []) ->
+        Web_config.send_message := Some (url, key)
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
     | Element ("election-sealing", [], []) ->
         Web_config.election_sealing := true

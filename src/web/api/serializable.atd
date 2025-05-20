@@ -410,3 +410,9 @@ type message =
   | Vote_confirmation of confirmation_message
   | Mail_login of code_message
   ]
+
+type message_payload = {
+  timestamp : float;
+  message : message;
+  ?hmac : hash option;
+}

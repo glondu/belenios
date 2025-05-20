@@ -265,25 +265,36 @@ struct
     let content = [ error; form ] in
     base ~title:(s_ "Change password") ~content ()
 
-  let signup_login () =
+  let signup_login address =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let form =
-      post_form ~service:signup_login_post
-        (fun lcode ->
+    let content =
+      match address with
+      | Ok address ->
           [
-            div
-              [
-                txt
-                  (s_ "Please enter the verification code received by e-mail:");
-                txt " ";
-                input ~input_type:`Text ~name:lcode string;
-              ];
-            div [ input ~input_type:`Submit ~value:(s_ "Submit") string ];
-          ])
-        ()
+            post_form ~service:signup_login_post
+              (fun lcode ->
+                [
+                  div
+                    [
+                      txt
+                      @@ Printf.sprintf
+                           (f_ "A verification code has been sent to %s.")
+                           address;
+                      txt " ";
+                      txt
+                        (s_
+                           "Please enter the verification code received by \
+                            e-mail:");
+                      txt " ";
+                      input ~input_type:`Text ~name:lcode string;
+                    ];
+                  div [ input ~input_type:`Submit ~value:(s_ "Submit") string ];
+                ])
+              ();
+          ]
+      | Error () -> [ div [ txt @@ s_ "You cannot sign up right now." ] ]
     in
-    let content = [ form ] in
     base ~title:(s_ "Account management") ~content ()
 
   let signup address error username =
@@ -431,29 +442,36 @@ struct
     let title = s_ "Your e-mail address" in
     base ~title ~content ()
 
-  let set_email_confirm ~address =
+  let set_email_confirm address =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let form =
-      post_form ~service:set_email_confirm
-        (fun name ->
+    let content =
+      match address with
+      | Ok address ->
           [
-            div
-              [
-                txt
-                  (Printf.sprintf
-                     (f_ "An e-mail with a code has been sent to %s.")
-                     address);
-                txt " ";
-                txt (s_ "Please enter the code here:");
-                txt " ";
-                input ~input_type:`Text ~name string;
-              ];
-            div [ input ~input_type:`Submit ~value:(s_ "Proceed") string ];
-          ])
-        ()
+            post_form ~service:set_email_confirm
+              (fun name ->
+                [
+                  div
+                    [
+                      txt
+                        (Printf.sprintf
+                           (f_ "An e-mail with a code has been sent to %s.")
+                           address);
+                      txt " ";
+                      txt (s_ "Please enter the code here:");
+                      txt " ";
+                      input ~input_type:`Text ~name string;
+                    ];
+                  div [ input ~input_type:`Submit ~value:(s_ "Proceed") string ];
+                ])
+              ();
+          ]
+      | Error () ->
+          [
+            div [ txt @@ s_ "You cannot change your e-mail address right now." ];
+          ]
     in
-    let content = [ form ] in
     let title = s_ "Your e-mail address" in
     base ~title ~content ()
 

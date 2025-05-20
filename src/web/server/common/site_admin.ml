@@ -132,12 +132,12 @@ struct
           let* () =
             Eliom_reference.set Web_state.set_email_env (Some address)
           in
-          let* () =
+          let* r =
             SetEmailOtp.generate ~context:()
               ~recipient:{ name = account.name; address }
               ~payload:()
           in
-          Pages_admin.set_email_confirm ~address >>= Html.send
+          Pages_admin.set_email_confirm r >>= Html.send
         else
           let* l = get_preferred_gettext () in
           let open (val l) in
@@ -240,14 +240,14 @@ struct
         in
         match error with
         | None ->
-            let* () =
+            let* r =
               Web_signup.send_confirmation_code l ~service
                 ~recipient:{ name = email; address = email }
             in
             let* () =
               Eliom_reference.set Web_state.signup_address (Some email)
             in
-            Pages_admin.signup_login ()
+            Pages_admin.signup_login r
         | _ -> signup_captcha_handler service error email)
 
   let changepw_captcha_handler service error email username =
@@ -278,7 +278,7 @@ struct
         in
         match error with
         | None ->
-            let* () =
+            let* r =
               let* x =
                 Web_auth_password.lookup_account ~service ~email ~username
               in
@@ -290,13 +290,15 @@ struct
                   Web_signup.send_changepw_code l ~service
                     ~recipient:{ name = username; address }
               | _ ->
-                  return
-                    (Printf.ksprintf Ocsigen_messages.warning
-                       "Unsuccessful attempt to change the password of %S (%S) \
-                        for service %s"
-                       username email service)
+                  let () =
+                    Printf.ksprintf Ocsigen_messages.warning
+                      "Unsuccessful attempt to change the password of %S (%S) \
+                       for service %s"
+                      username email service
+                  in
+                  Lwt.return_error ()
             in
-            Pages_admin.signup_login ()
+            Pages_admin.signup_login r
         | _ -> changepw_captcha_handler service error email username)
 
   let () =

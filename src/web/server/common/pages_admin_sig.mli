@@ -43,7 +43,8 @@ module type S = sig
     string ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val signup_login : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+  val signup_login :
+    (string, unit) result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val signup :
     string ->
@@ -61,7 +62,7 @@ module type S = sig
   val set_email : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val set_email_confirm :
-    address:string -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+    (string, unit) result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val sudo : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

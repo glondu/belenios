@@ -84,13 +84,13 @@ struct
     let open (val l) in
     Lwt.catch
       (fun () ->
-        let* () =
+        let* r =
           Send_message.send
           @@ `Vote_confirmation
                { lang; uuid; title; confirmation; contact = metadata.e_contact }
         in
-        Lwt.return true)
-      (fun _ -> Lwt.return false)
+        match r with Ok _ -> Lwt.return_true | Error () -> Lwt.return_false)
+      (fun _ -> Lwt.return_false)
 
   let () =
     Any.register ~service:election_cast_confirm (fun state () ->

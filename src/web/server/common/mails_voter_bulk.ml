@@ -178,7 +178,7 @@ module Ocsipersist_bulk = struct
     let* p, current = get_queue () in
     let i = p.processed in
     if i < Array.length current then
-      let* () = send_bulk_email current.(i) in
+      let* _ = send_bulk_email current.(i) in
       let* () = Processed.set { p with processed = i + 1 } in
       Lwt.return_true
     else Lwt.return_false

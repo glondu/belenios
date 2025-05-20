@@ -36,7 +36,37 @@ let sendmail ?return_path message =
   in
   Netsendmail.sendmail ~mailer message
 
+let hmac ~key x =
+  let open Cryptokit in
+  hash_string (MAC.hmac_sha256 key) x
+  |> transform_string (Hexa.encode ())
+  |> Belenios.Hash.of_hex
+
+let wrap_message ~key (message : Belenios_web_api.message) =
+  let timestamp = Unix.gettimeofday () in
+  { timestamp; message; hmac = None }
+  |> Belenios_web_api.string_of_message_payload |> hmac ~key
+  |> fun x ->
+  ({ timestamp; message; hmac = Some x } : Belenios_web_api.message_payload)
+
 let send (msg : Belenios_web_api.message) =
+  let@ () =
+   fun cont ->
+    match !Web_config.send_message with
+    | None -> cont ()
+    | Some (url, key) -> (
+        let body =
+          msg |> wrap_message ~key |> Belenios_web_api.string_of_message_payload
+          |> Cohttp_lwt.Body.of_string
+        in
+        let* response, x =
+          Cohttp_lwt_unix.Client.post ~body (Uri.of_string url)
+        in
+        let* hint = Cohttp_lwt.Body.to_string x in
+        match Cohttp.Code.code_of_status response.status with
+        | 200 -> Lwt.return_ok hint
+        | _ -> Lwt.return_error ())
+  in
   let* reason, uuid, recipient, subject, body =
     match msg with
     | `Account_create { lang; recipient; code } ->
@@ -101,7 +131,9 @@ let send (msg : Belenios_web_api.message) =
   let sendmail = sendmail ?return_path in
   let rec loop retry =
     Lwt.catch
-      (fun () -> Lwt_preemptive.detach sendmail contents)
+      (fun () ->
+        let* () = Lwt_preemptive.detach sendmail contents in
+        Lwt.return_ok recipient.address)
       (function
         | Unix.Unix_error (Unix.EAGAIN, _, _) when retry > 0 ->
             Ocsigen_messages.warning
@@ -114,6 +146,6 @@ let send (msg : Belenios_web_api.message) =
                 recipient.address (Printexc.to_string e)
             in
             Ocsigen_messages.errlog msg;
-            Lwt.return_unit)
+            Lwt.return_error ())
   in
   loop 2

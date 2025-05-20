@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val send : Belenios_web_api.message -> unit Lwt.t
+val send : Belenios_web_api.message -> (string, unit) result Lwt.t

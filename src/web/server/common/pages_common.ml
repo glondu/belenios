@@ -437,19 +437,7 @@ struct
   let email_login ?address site_or_election =
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let address =
-      match address with
-      | None -> txt ""
-      | Some address ->
-          div
-            [
-              txt
-              @@ Printf.sprintf
-                   (f_ "A verification code has been sent to %s.")
-                   address;
-            ]
-    in
-    let form =
+    let form address =
       post_form ~service:email_login_post
         (fun lcode ->
           [
@@ -465,7 +453,23 @@ struct
           ])
         ()
     in
-    let content = [ form ] in
+    let content =
+      match address with
+      | None -> [ form (txt "") ]
+      | Some (Ok address) ->
+          let address =
+            div
+              [
+                txt
+                @@ Printf.sprintf
+                     (f_ "A verification code has been sent to %s.")
+                     address;
+              ]
+          in
+          [ form address ]
+      | Some (Error ()) ->
+          [ div [ txt @@ s_ "You cannot authenticate right now." ] ]
+    in
     let title =
       match site_or_election with
       | `Site -> s_ "Log in"

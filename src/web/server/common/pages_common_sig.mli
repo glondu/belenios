@@ -197,7 +197,7 @@ module type S = sig
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val email_login :
-    ?address:string ->
+    ?address:(string, unit) result ->
     [ `Site | `Election ] ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
