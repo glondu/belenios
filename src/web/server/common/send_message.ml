@@ -56,7 +56,20 @@ let stringuuid_of_mail_kind = function
   | MailLogin -> ("login", None)
   | MailSetEmail -> ("set-email", None)
 
-let send_email kind ~recipient ~subject ~body =
+type t =
+  | Generic of {
+      kind : mail_kind;
+      recipient : string * string;
+      subject : string;
+      body : string;
+    }
+
+let send msg =
+  let kind, recipient, subject, body =
+    match msg with
+    | Generic { kind; recipient; subject; body } ->
+        (kind, recipient, subject, body)
+  in
   let contents =
     Netsendmail.compose
       ~from_addr:(!Web_config.server_name, !Web_config.server_mail)

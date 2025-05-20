@@ -232,12 +232,24 @@ let generate_credential_email uuid (Draft (_, se)) =
 let send_bulk_email = function
   | `Password x ->
       let* subject, body = format_password_email x in
-      Send_message.send_email (MailPassword x.uuid)
-        ~recipient:(x.login, x.recipient) ~subject ~body
+      Send_message.send
+      @@ Generic
+           {
+             kind = MailPassword x.uuid;
+             recipient = (x.login, x.recipient);
+             subject;
+             body;
+           }
   | `Credential x ->
       let* subject, body = format_credential_email x in
-      Send_message.send_email (MailCredential x.uuid)
-        ~recipient:(x.login, x.recipient) ~subject ~body
+      Send_message.send
+      @@ Generic
+           {
+             kind = MailCredential x.uuid;
+             recipient = (x.login, x.recipient);
+             subject;
+             body;
+           }
 
 module Bulk_processor = struct
   type t = {

@@ -96,7 +96,8 @@ struct
 
     let send ~context:() ~recipient ~code =
       let* subject, body = Pages_common.email_email ~recipient ~code in
-      Send_message.send_email ~subject ~body ~recipient MailLogin
+      Send_message.send
+      @@ Generic { subject; body; recipient; kind = MailLogin }
   end
 
   module Otp = Otp.Make (Sender) ()

@@ -31,9 +31,12 @@ type mail_kind =
   | MailLogin
   | MailSetEmail
 
-val send_email :
-  mail_kind ->
-  recipient:string * string ->
-  subject:string ->
-  body:string ->
-  unit Lwt.t
+type t =
+  | Generic of {
+      kind : mail_kind;
+      recipient : string * string;
+      subject : string;
+      body : string;
+    }
+
+val send : t -> unit Lwt.t

@@ -92,9 +92,14 @@ struct
     Lwt.catch
       (fun () ->
         let* () =
-          Send_message.send_email (MailConfirmation uuid)
-            ~recipient:(confirmation.user, confirmation.recipient)
-            ~subject ~body
+          Send_message.send
+          @@ Generic
+               {
+                 kind = MailConfirmation uuid;
+                 recipient = (confirmation.user, confirmation.recipient);
+                 subject;
+                 body;
+               }
         in
         Lwt.return true)
       (fun _ -> Lwt.return false)
