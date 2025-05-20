@@ -40,7 +40,6 @@ type mail_kind =
   | MailCredential of uuid
   | MailPassword of uuid
   | MailConfirmation of uuid
-  | MailAutomaticWarning of uuid
   | MailAccountCreation
   | MailPasswordChange
   | MailLogin
@@ -50,7 +49,6 @@ let stringuuid_of_mail_kind = function
   | MailCredential uuid -> ("credential", Some uuid)
   | MailPassword uuid -> ("password", Some uuid)
   | MailConfirmation uuid -> ("confirmation", Some uuid)
-  | MailAutomaticWarning uuid -> ("autowarning", Some uuid)
   | MailAccountCreation -> ("account-creation", None)
   | MailPasswordChange -> ("password-change", None)
   | MailLogin -> ("login", None)
@@ -82,12 +80,6 @@ type t =
       confirmation : Belenios_web_api.confirmation;
     }
   | Mail_login of { lang : string; recipient : string * string; code : string }
-  | Generic of {
-      kind : mail_kind;
-      recipient : string * string;
-      subject : string;
-      body : string;
-    }
 
 let send msg =
   let* kind, recipient, subject, body =
@@ -126,8 +118,6 @@ let send msg =
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let subject, body = Mails_voter.email_login l ~recipient ~code in
         Lwt.return (MailLogin, recipient, subject, body)
-    | Generic { kind; recipient; subject; body } ->
-        Lwt.return (kind, recipient, subject, body)
   in
   let contents =
     Netsendmail.compose

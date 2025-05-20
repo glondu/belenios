@@ -21,16 +21,6 @@
 
 open Belenios_server_core
 
-type mail_kind =
-  | MailCredential of uuid
-  | MailPassword of uuid
-  | MailConfirmation of uuid
-  | MailAutomaticWarning of uuid
-  | MailAccountCreation
-  | MailPasswordChange
-  | MailLogin
-  | MailSetEmail
-
 type t =
   | Account_create of {
       lang : string;
@@ -57,11 +47,5 @@ type t =
       confirmation : Belenios_web_api.confirmation;
     }
   | Mail_login of { lang : string; recipient : string * string; code : string }
-  | Generic of {
-      kind : mail_kind;
-      recipient : string * string;
-      subject : string;
-      body : string;
-    }
 
 val send : t -> unit Lwt.t
