@@ -22,3 +22,5 @@
 include module type of Serializable_j
 include module type of Common
 module Endpoints = Endpoints
+module Serializable_t = Serializable_t
+module Serializable_j = Serializable_j

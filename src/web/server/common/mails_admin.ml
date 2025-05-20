@@ -21,11 +21,11 @@
 
 open Belenios
 
-let mail_confirmation_link l ~recipient code =
+let mail_confirmation_link l ~(recipient : Belenios_web_api.recipient) code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") (fst recipient));
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") recipient.name);
   add_newline b;
   add_newline b;
   add_sentence b
@@ -55,11 +55,11 @@ let mail_confirmation_link l ~recipient code =
   let subject = !Web_config.vendor ^^^ s_ "Create account" in
   (subject, body)
 
-let mail_changepw_link l ~recipient code =
+let mail_changepw_link l ~(recipient : Belenios_web_api.recipient) code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") (fst recipient));
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") recipient.name);
   add_newline b;
   add_newline b;
   add_sentence b
@@ -89,11 +89,11 @@ let mail_changepw_link l ~recipient code =
   let subject = !Web_config.vendor ^^^ s_ "Change password" in
   (subject, body)
 
-let mail_set_email l ~recipient code =
+let mail_set_email l ~(recipient : Belenios_web_api.recipient) code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") (fst recipient));
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") recipient.name);
   add_newline b;
   add_newline b;
   add_sentence b

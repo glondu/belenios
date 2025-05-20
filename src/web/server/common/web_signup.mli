@@ -22,13 +22,13 @@
 val send_confirmation_code :
   (module Belenios_ui.I18n.GETTEXT) ->
   service:string ->
-  recipient:string * string ->
+  recipient:Belenios_web_api.recipient ->
   unit Lwt.t
 
 val send_changepw_code :
   (module Belenios_ui.I18n.GETTEXT) ->
   service:string ->
-  recipient:string * string ->
+  recipient:Belenios_web_api.recipient ->
   unit Lwt.t
 
 val confirm_code :

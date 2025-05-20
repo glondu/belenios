@@ -21,18 +21,18 @@
 
 val mail_confirmation_link :
   (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:string * string ->
+  recipient:Belenios_web_api.recipient ->
   string ->
   string * string
 
 val mail_changepw_link :
   (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:string * string ->
+  recipient:Belenios_web_api.recipient ->
   string ->
   string * string
 
 val mail_set_email :
   (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:string * string ->
+  recipient:Belenios_web_api.recipient ->
   string ->
   string * string

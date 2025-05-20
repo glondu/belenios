@@ -85,7 +85,7 @@ let mail_password l title login password weight url contact =
   contact_footer l contact b;
   contents b
 
-let format_password_email (x : password_email) =
+let format_password_email (x : password_message) =
   let url = get_election_home_url x.uuid in
   let* bodies =
     Lwt_list.map_s
@@ -113,7 +113,7 @@ let generate_password_email metadata langs title uuid v show_weight =
     return (format_password x)
   in
   let hashed = sha256_hex (salt ^ password) in
-  let x : password_email =
+  let x : password_message =
     {
       uuid;
       title;
@@ -127,7 +127,7 @@ let generate_password_email metadata langs title uuid v show_weight =
   in
   return (`Password x, (salt, hashed))
 
-let mail_credential l (x : credential_email) =
+let mail_credential l (x : credential_message) =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -186,7 +186,7 @@ let mail_credential l (x : credential_email) =
   contact_footer l x.contact b;
   contents b
 
-let format_credential_email (x : credential_email) =
+let format_credential_email (x : credential_message) =
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
@@ -214,7 +214,7 @@ let generate_credential_email uuid (Draft (_, se)) =
   let langs = get_languages se.se_metadata.e_languages in
   fun ~recipient ~login ~weight ~credential ->
     let oweight = if show_weight then Some weight else None in
-    let x : credential_email =
+    let x : credential_message =
       {
         uuid;
         title;
@@ -283,11 +283,11 @@ let mail_confirmation l uuid ~title x contact =
   add_string b !Web_config.vendor;
   (subject, contents b)
 
-let email_login l ~recipient ~code =
+let email_login l ~(recipient : Belenios_web_api.recipient) ~code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") (fst recipient));
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") recipient.name);
   add_newline b;
   add_newline b;
   add_sentence b

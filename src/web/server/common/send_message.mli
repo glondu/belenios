@@ -19,27 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
-
-type code_message = {
-  lang : string;
-  recipient : string * string;
-  code : string;
-}
-
-type t =
-  | Account_create of code_message
-  | Account_change_password of code_message
-  | Account_set_email of code_message
-  | Voter_password of password_email
-  | Voter_credential of credential_email
-  | Vote_confirmation of {
-      lang : string;
-      uuid : uuid;
-      title : string;
-      contact : string option;
-      confirmation : Belenios_web_api.confirmation;
-    }
-  | Mail_login of code_message
-
-val send : t -> unit Lwt.t
+val send : Belenios_web_api.message -> unit Lwt.t

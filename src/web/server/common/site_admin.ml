@@ -120,7 +120,7 @@ struct
     let send ~context:() ~recipient ~code =
       let* l = get_preferred_gettext () in
       let open (val l) in
-      Send_message.send @@ Account_set_email { lang; recipient; code }
+      Send_message.send @@ `Account_set_email { lang; recipient; code }
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()
@@ -133,7 +133,8 @@ struct
             Eliom_reference.set Web_state.set_email_env (Some address)
           in
           let* () =
-            SetEmailOtp.generate ~context:() ~recipient:(account.name, address)
+            SetEmailOtp.generate ~context:()
+              ~recipient:{ name = account.name; address }
               ~payload:()
           in
           Pages_admin.set_email_confirm ~address >>= Html.send
@@ -241,7 +242,7 @@ struct
         | None ->
             let* () =
               Web_signup.send_confirmation_code l ~service
-                ~recipient:(email, email)
+                ~recipient:{ name = email; address = email }
             in
             let* () =
               Eliom_reference.set Web_state.signup_address (Some email)
@@ -287,7 +288,7 @@ struct
                     Eliom_reference.set Web_state.signup_address (Some address)
                   in
                   Web_signup.send_changepw_code l ~service
-                    ~recipient:(username, address)
+                    ~recipient:{ name = username; address }
               | _ ->
                   return
                     (Printf.ksprintf Ocsigen_messages.warning

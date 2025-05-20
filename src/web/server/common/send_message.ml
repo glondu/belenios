@@ -36,64 +36,45 @@ let sendmail ?return_path message =
   in
   Netsendmail.sendmail ~mailer message
 
-type code_message = {
-  lang : string;
-  recipient : string * string;
-  code : string;
-}
-
-type t =
-  | Account_create of code_message
-  | Account_change_password of code_message
-  | Account_set_email of code_message
-  | Voter_password of password_email
-  | Voter_credential of credential_email
-  | Vote_confirmation of {
-      lang : string;
-      uuid : uuid;
-      title : string;
-      contact : string option;
-      confirmation : Belenios_web_api.confirmation;
-    }
-  | Mail_login of code_message
-
-let send msg =
+let send (msg : Belenios_web_api.message) =
   let* reason, uuid, recipient, subject, body =
     match msg with
-    | Account_create { lang; recipient; code } ->
+    | `Account_create { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body =
           Mails_admin.mail_confirmation_link l ~recipient code
         in
         Lwt.return ("account-creation", None, recipient, subject, body)
-    | Account_change_password { lang; recipient; code } ->
+    | `Account_change_password { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body = Mails_admin.mail_changepw_link l ~recipient code in
         Lwt.return ("password-change", None, recipient, subject, body)
-    | Account_set_email { lang; recipient; code } ->
+    | `Account_set_email { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body = Mails_admin.mail_set_email l ~recipient code in
         Lwt.return ("set-email", None, recipient, subject, body)
-    | Voter_password x ->
+    | `Voter_password x ->
+        let recipient : Belenios_web_api.recipient =
+          { name = x.login; address = x.recipient }
+        in
         let* subject, body = Mails_voter.format_password_email x in
-        Lwt.return
-          ("password", Some x.uuid, (x.login, x.recipient), subject, body)
-    | Voter_credential x ->
+        Lwt.return ("password", Some x.uuid, recipient, subject, body)
+    | `Voter_credential x ->
+        let recipient : Belenios_web_api.recipient =
+          { name = x.login; address = x.recipient }
+        in
         let* subject, body = Mails_voter.format_credential_email x in
-        Lwt.return
-          ("credential", Some x.uuid, (x.login, x.recipient), subject, body)
-    | Vote_confirmation { lang; uuid; title; confirmation; contact } ->
+        Lwt.return ("credential", Some x.uuid, recipient, subject, body)
+    | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
+        let recipient : Belenios_web_api.recipient =
+          { name = confirmation.user; address = confirmation.recipient }
+        in
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let subject, body =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
-        Lwt.return
-          ( "confirmation",
-            Some uuid,
-            (confirmation.user, confirmation.recipient),
-            subject,
-            body )
-    | Mail_login { lang; recipient; code } ->
+        Lwt.return ("confirmation", Some uuid, recipient, subject, body)
+    | `Mail_login { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let subject, body = Mails_voter.email_login l ~recipient ~code in
         Lwt.return ("login", None, recipient, subject, body)
@@ -101,8 +82,8 @@ let send msg =
   let contents =
     Netsendmail.compose
       ~from_addr:(!Web_config.server_name, !Web_config.server_mail)
-      ~to_addrs:[ recipient ] ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8
-      ~subject body
+      ~to_addrs:[ (recipient.name, recipient.address) ]
+      ~in_charset:`Enc_utf8 ~out_charset:`Enc_utf8 ~subject body
   in
   let headers, _ = contents in
   let token = generate_token ~length:6 () in
@@ -130,7 +111,7 @@ let send msg =
         | e ->
             let msg =
               Printf.sprintf "Failed to send an e-mail to %s: %s"
-                (snd recipient) (Printexc.to_string e)
+                recipient.address (Printexc.to_string e)
             in
             Ocsigen_messages.errlog msg;
             Lwt.return_unit)

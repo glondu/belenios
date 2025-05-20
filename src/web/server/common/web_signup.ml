@@ -34,9 +34,9 @@ module Sender = struct
     let open (val context.gettext) in
     match context.kind with
     | CreateAccount ->
-        Send_message.send @@ Account_create { lang; recipient; code }
+        Send_message.send @@ `Account_create { lang; recipient; code }
     | ChangePassword _ ->
-        Send_message.send @@ Account_change_password { lang; recipient; code }
+        Send_message.send @@ `Account_change_password { lang; recipient; code }
 end
 
 module Otp = Otp.Make (Sender) ()
@@ -47,8 +47,9 @@ let send_confirmation_code gettext ~service ~recipient =
   let context = Sender.{ kind; gettext } in
   Otp.generate ~payload ~context ~recipient
 
-let send_changepw_code gettext ~service ~recipient =
-  let kind = Web_state_sig.ChangePassword { username = fst recipient } in
+let send_changepw_code gettext ~service
+    ~(recipient : Belenios_web_api.recipient) =
+  let kind = Web_state_sig.ChangePassword { username = recipient.name } in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in
   Otp.generate ~payload ~context ~recipient

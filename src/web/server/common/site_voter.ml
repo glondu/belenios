@@ -86,7 +86,7 @@ struct
       (fun () ->
         let* () =
           Send_message.send
-          @@ Vote_confirmation
+          @@ `Vote_confirmation
                { lang; uuid; title; confirmation; contact = metadata.e_contact }
         in
         Lwt.return true)

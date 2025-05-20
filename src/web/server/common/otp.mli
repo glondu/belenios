@@ -24,7 +24,10 @@ module type SENDER = sig
   type context
 
   val send :
-    context:context -> recipient:string * string -> code:string -> unit Lwt.t
+    context:context ->
+    recipient:Belenios_web_api.recipient ->
+    code:string ->
+    unit Lwt.t
 end
 
 module type S = sig
@@ -33,7 +36,7 @@ module type S = sig
 
   val generate :
     context:context ->
-    recipient:string * string ->
+    recipient:Belenios_web_api.recipient ->
     payload:payload ->
     unit Lwt.t
 

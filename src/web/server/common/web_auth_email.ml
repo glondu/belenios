@@ -98,7 +98,7 @@ struct
     let send ~context:() ~recipient ~code =
       let* l = Web_i18n.get_preferred_gettext "voter" in
       let open (val l) in
-      Send_message.send @@ Mail_login { lang; recipient; code }
+      Send_message.send @@ `Mail_login { lang; recipient; code }
   end
 
   module Otp = Otp.Make (Sender) ()
@@ -121,7 +121,7 @@ struct
     match (ok, address) with
     | true, Some address ->
         let* () =
-          Otp.generate ~context:() ~recipient:(name, address) ~payload:()
+          Otp.generate ~context:() ~recipient:{ name; address } ~payload:()
         in
         let* () = Eliom_reference.set env (Some (state, name, address)) in
         let* () = Eliom_reference.unset uuid_ref in

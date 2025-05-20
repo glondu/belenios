@@ -358,3 +358,55 @@ type cast_result =
   [ Ok of confirmation
   | Error of cast_error
   ]
+
+type recipient = {
+  name : string;
+  address : string;
+}
+
+type password_message = {
+  recipient : string;
+  uuid : uuid;
+  title : string;
+  login : string;
+  password : string;
+  ?weight : weight option;
+  ?contact : string option;
+  langs : string list;
+}
+
+type credential_message = {
+  recipient : string;
+  uuid : uuid;
+  title : string;
+  login : string;
+  credential : string;
+  ?weight : weight option;
+  ?contact : string option;
+  langs : string list;
+  has_passwords : bool;
+}
+
+type code_message = {
+  lang : string;
+  recipient : recipient;
+  code : string;
+}
+
+type confirmation_message = {
+  lang : string;
+  uuid : uuid;
+  title : string;
+  contact : string option;
+  confirmation : confirmation;
+}
+
+type message =
+  [ Account_create of code_message
+  | Account_change_password of code_message
+  | Account_set_email of code_message
+  | Voter_password of password_message
+  | Voter_credential of credential_message
+  | Vote_confirmation of confirmation_message
+  | Mail_login of code_message
+  ]

@@ -27,7 +27,10 @@ module type SENDER = sig
   type context
 
   val send :
-    context:context -> recipient:string * string -> code:string -> unit Lwt.t
+    context:context ->
+    recipient:Belenios_web_api.recipient ->
+    code:string ->
+    unit Lwt.t
 end
 
 module type S = sig
@@ -36,7 +39,7 @@ module type S = sig
 
   val generate :
     context:context ->
-    recipient:string * string ->
+    recipient:Belenios_web_api.recipient ->
     payload:payload ->
     unit Lwt.t
 
@@ -59,18 +62,18 @@ module Make (I : SENDER) () = struct
   let filter_codes_by_time now table =
     SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
 
-  let generate ~context ~recipient ~payload =
+  let generate ~context ~(recipient : Belenios_web_api.recipient) ~payload =
     let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
     let expiration_time = now +. 900. in
     let () =
-      let x = { recipient = snd recipient; code; expiration_time } in
+      let x = { recipient = recipient.address; code; expiration_time } in
       let msg = Printf.sprintf "Sending OTP %s" (string_of_otp_record x) in
       Ocsigen_messages.accesslog msg
     in
     codes :=
-      SMap.add (snd recipient)
+      SMap.add recipient.address
         { code; payload; expiration_time; trials_left = 10 }
         codes_;
     I.send ~context ~recipient ~code
