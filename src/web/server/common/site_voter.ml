@@ -80,26 +80,14 @@ struct
     let open (val election) in
     let title = template.t_name in
     let* metadata = Web_persist.get_election_metadata s uuid in
-    let url2 = get_election_home_url uuid in
-    let url1 = url2 ^ "/ballots" in
     let* l = get_preferred_gettext () in
     let open (val l) in
-    let subject = Printf.sprintf (f_ "Your vote for election %s") title in
-    let body =
-      Mails_voter.mail_confirmation l election confirmation url1 url2
-        metadata.e_contact
-    in
     Lwt.catch
       (fun () ->
         let* () =
           Send_message.send
-          @@ Generic
-               {
-                 kind = MailConfirmation uuid;
-                 recipient = (confirmation.user, confirmation.recipient);
-                 subject;
-                 body;
-               }
+          @@ Vote_confirmation
+               { lang; uuid; title; confirmation; contact = metadata.e_contact }
         in
         Lwt.return true)
       (fun _ -> Lwt.return false)

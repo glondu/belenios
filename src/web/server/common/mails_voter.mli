@@ -23,6 +23,8 @@ open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 
+val format_password_email : password_email -> (string * string) Lwt.t
+
 val generate_password_email :
   metadata ->
   string list ->
@@ -31,6 +33,8 @@ val generate_password_email :
   Voter.t ->
   bool ->
   (bulk_email * (string * string)) Lwt.t
+
+val format_credential_email : credential_email -> (string * string) Lwt.t
 
 val generate_credential_email :
   uuid ->
@@ -41,14 +45,10 @@ val generate_credential_email :
   credential:string ->
   bulk_email Lwt.t
 
-val submit_bulk_emails : bulk_email list -> unit Lwt.t
-val process_bulk_emails : unit -> unit Lwt.t
-
 val mail_confirmation :
   (module Belenios_ui.I18n.GETTEXT) ->
-  (module Election.ELECTION) ->
+  uuid ->
+  title:string ->
   Belenios_web_api.confirmation ->
-  string ->
-  string ->
   string option ->
-  string
+  string * string

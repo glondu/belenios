@@ -21,44 +21,5 @@
 
 open Belenios_server_core
 
-type mail_kind =
-  | MailCredential of uuid
-  | MailPassword of uuid
-  | MailConfirmation of uuid
-  | MailAutomaticWarning of uuid
-  | MailAccountCreation
-  | MailPasswordChange
-  | MailLogin
-  | MailSetEmail
-
-type t =
-  | Account_create of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Account_change_password of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Account_set_email of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Vote_confirmation of {
-      lang : string;
-      uuid : uuid;
-      title : string;
-      contact : string option;
-      confirmation : Belenios_web_api.confirmation;
-    }
-  | Generic of {
-      kind : mail_kind;
-      recipient : string * string;
-      subject : string;
-      body : string;
-    }
-
-val send : t -> unit Lwt.t
+val submit_bulk_emails : bulk_email list -> unit Lwt.t
+val process_bulk_emails : unit -> unit Lwt.t

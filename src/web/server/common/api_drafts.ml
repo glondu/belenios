@@ -1228,7 +1228,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
                 show_weight
           in
           let* jobs = post_draft_passwords account generate (se, set) voters in
-          let* () = Mails_voter.submit_bulk_emails jobs in
+          let* () = Mails_voter_bulk.submit_bulk_emails jobs in
           ok
       | _ -> method_not_allowed)
   | "credentials" :: endpoint ->

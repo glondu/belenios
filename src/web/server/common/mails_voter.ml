@@ -229,200 +229,12 @@ let generate_credential_email uuid (Draft (_, se)) =
     in
     Lwt.return @@ `Credential x
 
-let send_bulk_email = function
-  | `Password x ->
-      let* subject, body = format_password_email x in
-      Send_message.send
-      @@ Generic
-           {
-             kind = MailPassword x.uuid;
-             recipient = (x.login, x.recipient);
-             subject;
-             body;
-           }
-  | `Credential x ->
-      let* subject, body = format_credential_email x in
-      Send_message.send
-      @@ Generic
-           {
-             kind = MailCredential x.uuid;
-             recipient = (x.login, x.recipient);
-             subject;
-             body;
-           }
-
-module Bulk_processor = struct
-  type t = {
-    mutable locked : bool;
-    mutable queue : bulk_emails option;
-    submitters : unit Lwt.u Queue.t;
-    processors : unit Lwt.u Queue.t;
-  }
-
-  let create () =
-    {
-      locked = false;
-      queue = None;
-      submitters = Queue.create ();
-      processors = Queue.create ();
-    }
-
-  let lock ~is_submitter m =
-    if m.locked then (
-      let q = if is_submitter then m.submitters else m.processors in
-      let t, u = Lwt.wait () in
-      Queue.push u q;
-      t)
-    else (
-      m.locked <- true;
-      Lwt.return_unit)
-
-  let unlock m =
-    if m.locked then
-      match Queue.take_opt m.submitters with
-      | None -> (
-          match Queue.take_opt m.processors with
-          | None -> m.locked <- false
-          | Some u -> Lwt.wakeup_later u ())
-      | Some u -> Lwt.wakeup_later u ()
-
-  let with_lock ~is_submitter m f =
-    let* () = lock ~is_submitter m in
-    Lwt.finalize f (fun () ->
-        unlock m;
-        Lwt.return_unit)
-end
-
-module Ocsipersist_bulk = struct
-  module F = Ocsipersist.Functorial
-
-  module T =
-    F.Table
-      (struct
-        let name = "belenios_bulk_emails"
-      end)
-      (F.Column.String)
-      (F.Column.String)
-
-  module type SerializableInput = sig
-    type t
-
-    val name : string
-    val default : t
-    val of_string : string -> t
-    val to_string : t -> string
-  end
-
-  module type SerializableOutput = sig
-    type t
-
-    val get : unit -> t Lwt.t
-    val set : t -> unit Lwt.t
-  end
-
-  module MakeSerializable (I : SerializableInput) :
-    SerializableOutput with type t := I.t = struct
-    let default = I.to_string I.default
-    let var = T.Variable.make ~name:I.name ~default
-
-    let get () =
-      let* x = T.Variable.get var in
-      Lwt.return (I.of_string x)
-
-    let set x = T.Variable.set var (I.to_string x)
-  end
-
-  module PrimaryQueueInput = struct
-    type t = bulk_emails
-
-    let name = "primary_queue"
-    let default = [||]
-    let of_string = bulk_emails_of_string
-    let to_string x = string_of_bulk_emails x
-  end
-
-  module SecondaryQueueInput = struct
-    type t = bulk_emails
-
-    let name = "secondary_queue"
-    let default = [||]
-    let of_string = bulk_emails_of_string
-    let to_string x = string_of_bulk_emails x
-  end
-
-  module ProcessedInput = struct
-    type t = bulk_processed
-
-    let name = "processed"
-    let default = { mode = `Primary; processed = 0 }
-    let of_string = bulk_processed_of_string
-    let to_string x = string_of_bulk_processed x
-  end
-
-  module PrimaryQueue = MakeSerializable (PrimaryQueueInput)
-  module SecondaryQueue = MakeSerializable (SecondaryQueueInput)
-  module Processed = MakeSerializable (ProcessedInput)
-
-  let m = Bulk_processor.create ()
-
-  let get_queue () =
-    let* p = Processed.get () in
-    match m.queue with
-    | Some x -> Lwt.return (p, x)
-    | None ->
-        let* x =
-          match p.mode with
-          | `Primary -> PrimaryQueue.get ()
-          | `Secondary -> SecondaryQueue.get ()
-        in
-        m.queue <- Some x;
-        Lwt.return (p, x)
-
-  let submit jobs =
-    let jobs = Array.of_list jobs in
-    let@ () = Bulk_processor.with_lock ~is_submitter:true m in
-    let* p, current = get_queue () in
-    let newset, newmode, oldset =
-      match p.mode with
-      | `Primary -> (SecondaryQueue.set, `Secondary, PrimaryQueue.set)
-      | `Secondary -> (PrimaryQueue.set, `Primary, SecondaryQueue.set)
-    in
-    let current =
-      Array.sub current p.processed (Array.length current - p.processed)
-    in
-    let newqueue = Array.append current jobs in
-    let* () = newset newqueue in
-    let* () = Processed.set { mode = newmode; processed = 0 } in
-    m.queue <- Some newqueue;
-    let* () = oldset [||] in
-    Lwt.return_unit
-
-  let process_one () =
-    let@ () = Bulk_processor.with_lock ~is_submitter:false m in
-    let* p, current = get_queue () in
-    let i = p.processed in
-    if i < Array.length current then
-      let* () = send_bulk_email current.(i) in
-      let* () = Processed.set { p with processed = i + 1 } in
-      Lwt.return_true
-    else Lwt.return_false
-
-  let rec process () =
-    let* continue = process_one () in
-    if continue then process () else submit []
-end
-
-let process_bulk_emails = Ocsipersist_bulk.process
-
-let submit_bulk_emails jobs =
-  let* () = Ocsipersist_bulk.submit jobs in
-  Lwt.async process_bulk_emails;
-  Lwt.return_unit
-
-let mail_confirmation l election x url1 url2 contact =
+let mail_confirmation l uuid ~title x contact =
+  let url2 = Web_common.get_election_home_url uuid in
+  let url1 = url2 ^ "/ballots" in
   let ({ user; weight; hash; revote; _ } : Belenios_web_api.confirmation) = x in
-  let module W = (val election : Election.ELECTION) in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
+  let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
   add_sentence b (Printf.sprintf (f_ "Dear %s,") user);
@@ -432,7 +244,7 @@ let mail_confirmation l election x url1 url2 contact =
   add_newline b;
   add_newline b;
   add_string b "  ";
-  add_string b W.template.t_name;
+  add_string b title;
   add_newline b;
   add_newline b;
   add_sentence b (s_ "has been recorded.");
@@ -469,4 +281,4 @@ let mail_confirmation l election x url1 url2 contact =
   add_string b "-- ";
   add_newline b;
   add_string b !Web_config.vendor;
-  contents b
+  (subject, contents b)

@@ -693,7 +693,7 @@ let regen_password s uuid metadata user =
       in
       let r = { r with salt; hashed } in
       let* () = set Value r in
-      let* () = Mails_voter.submit_bulk_emails [ email ] in
+      let* () = Mails_voter_bulk.submit_bulk_emails [ email ] in
       Lwt.return_true
   | _ -> Lwt.return_false
 
@@ -724,7 +724,7 @@ let send_credentials uuid (Draft (v, se)) private_creds =
             Lwt.return (job :: jobs))
       [] private_creds
   in
-  let* () = Mails_voter.submit_bulk_emails jobs in
+  let* () = Mails_voter_bulk.submit_bulk_emails jobs in
   se.se_pending_credentials <- false;
   Lwt.return_unit
 

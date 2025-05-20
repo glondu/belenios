@@ -278,7 +278,7 @@ module Make () = struct
 
   let () = Api_elections.direct_voter_auth := Web_auth.direct_voter_auth
   let () = Api_elections.state_module := Some (module Web_auth.State)
-  let () = Lwt.async Mails_voter.process_bulk_emails
+  let () = Lwt.async Mails_voter_bulk.process_bulk_emails
 end
 
 let main () =
