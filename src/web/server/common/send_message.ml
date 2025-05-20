@@ -36,24 +36,6 @@ let sendmail ?return_path message =
   in
   Netsendmail.sendmail ~mailer message
 
-type mail_kind =
-  | MailCredential of uuid
-  | MailPassword of uuid
-  | MailConfirmation of uuid
-  | MailAccountCreation
-  | MailPasswordChange
-  | MailLogin
-  | MailSetEmail
-
-let stringuuid_of_mail_kind = function
-  | MailCredential uuid -> ("credential", Some uuid)
-  | MailPassword uuid -> ("password", Some uuid)
-  | MailConfirmation uuid -> ("confirmation", Some uuid)
-  | MailAccountCreation -> ("account-creation", None)
-  | MailPasswordChange -> ("password-change", None)
-  | MailLogin -> ("login", None)
-  | MailSetEmail -> ("set-email", None)
-
 type t =
   | Account_create of {
       lang : string;
@@ -82,42 +64,45 @@ type t =
   | Mail_login of { lang : string; recipient : string * string; code : string }
 
 let send msg =
-  let* kind, recipient, subject, body =
+  let* reason, uuid, recipient, subject, body =
     match msg with
     | Account_create { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body =
           Mails_admin.mail_confirmation_link l ~recipient code
         in
-        Lwt.return (MailAccountCreation, recipient, subject, body)
+        Lwt.return ("account-creation", None, recipient, subject, body)
     | Account_change_password { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body = Mails_admin.mail_changepw_link l ~recipient code in
-        Lwt.return (MailPasswordChange, recipient, subject, body)
+        Lwt.return ("password-change", None, recipient, subject, body)
     | Account_set_email { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body = Mails_admin.mail_set_email l ~recipient code in
-        Lwt.return (MailSetEmail, recipient, subject, body)
+        Lwt.return ("set-email", None, recipient, subject, body)
     | Voter_password x ->
         let* subject, body = Mails_voter.format_password_email x in
-        Lwt.return (MailPassword x.uuid, (x.login, x.recipient), subject, body)
+        Lwt.return
+          ("password", Some x.uuid, (x.login, x.recipient), subject, body)
     | Voter_credential x ->
         let* subject, body = Mails_voter.format_credential_email x in
-        Lwt.return (MailCredential x.uuid, (x.login, x.recipient), subject, body)
+        Lwt.return
+          ("credential", Some x.uuid, (x.login, x.recipient), subject, body)
     | Vote_confirmation { lang; uuid; title; confirmation; contact } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let subject, body =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
         Lwt.return
-          ( MailConfirmation uuid,
+          ( "confirmation",
+            Some uuid,
             (confirmation.user, confirmation.recipient),
             subject,
             body )
     | Mail_login { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let subject, body = Mails_voter.email_login l ~recipient ~code in
-        Lwt.return (MailLogin, recipient, subject, body)
+        Lwt.return ("login", None, recipient, subject, body)
   in
   let contents =
     Netsendmail.compose
@@ -131,7 +116,6 @@ let send msg =
   let message_id = Printf.sprintf "<%s%s@%s>" date token !Web_config.domain in
   headers#update_field "Message-ID" message_id;
   headers#update_field "Belenios-Domain" !Web_config.domain;
-  let reason, uuid = stringuuid_of_mail_kind kind in
   headers#update_field "Belenios-Reason" reason;
   let () =
     match uuid with
