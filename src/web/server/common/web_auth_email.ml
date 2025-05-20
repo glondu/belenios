@@ -33,6 +33,7 @@ type login_env = {
 }
 
 module Make
+    (Web_i18n : Web_i18n_sig.S)
     (Web_state : Web_state_sig.S)
     (Web_services : Web_services_sig.S)
     (Pages_common : Pages_common_sig.S)
@@ -95,9 +96,9 @@ struct
     type context = unit
 
     let send ~context:() ~recipient ~code =
-      let* subject, body = Pages_common.email_email ~recipient ~code in
-      Send_message.send
-      @@ Generic { subject; body; recipient; kind = MailLogin }
+      let* l = Web_i18n.get_preferred_gettext "voter" in
+      let open (val l) in
+      Send_message.send @@ Mail_login { lang; recipient; code }
   end
 
   module Otp = Otp.Make (Sender) ()

@@ -54,6 +54,7 @@ type t =
       contact : string option;
       confirmation : Belenios_web_api.confirmation;
     }
+  | Mail_login of { lang : string; recipient : string * string; code : string }
   | Generic of {
       kind : mail_kind;
       recipient : string * string;

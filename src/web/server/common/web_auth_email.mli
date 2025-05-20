@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 module Make
+    (_ : Web_i18n_sig.S)
     (_ : Web_state_sig.S)
     (_ : Web_services_sig.S)
     (_ : Pages_common_sig.S)

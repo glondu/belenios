@@ -79,6 +79,7 @@ type t =
       contact : string option;
       confirmation : Belenios_web_api.confirmation;
     }
+  | Mail_login of { lang : string; recipient : string * string; code : string }
   | Generic of {
       kind : mail_kind;
       recipient : string * string;
@@ -113,6 +114,10 @@ let send msg =
             (confirmation.user, confirmation.recipient),
             subject,
             body )
+    | Mail_login { lang; recipient; code } ->
+        let* l = Web_i18n.get ~component:"voter" ~lang in
+        let subject, body = Mails_voter.email_login l ~recipient ~code in
+        Lwt.return (MailLogin, recipient, subject, body)
     | Generic { kind; recipient; subject; body } ->
         Lwt.return (kind, recipient, subject, body)
   in

@@ -52,3 +52,9 @@ val mail_confirmation :
   Belenios_web_api.confirmation ->
   string option ->
   string * string
+
+val email_login :
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  code:string ->
+  string * string

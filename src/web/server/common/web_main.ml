@@ -267,7 +267,8 @@ module Make () = struct
     Web_auth_password.Make (X.Web_services) (X.Pages_common) (Web_auth)
 
   module Web_auth_email =
-    Web_auth_email.Make (X.Web_state) (X.Web_services) (X.Pages_common)
+    Web_auth_email.Make (X.Web_i18n) (X.Web_state) (X.Web_services)
+      (X.Pages_common)
       (Web_auth)
 
   module Web_auth_cas = Web_auth_cas.Make (X.Web_services) (Web_auth)

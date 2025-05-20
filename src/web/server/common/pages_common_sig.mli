@@ -201,9 +201,6 @@ module type S = sig
     [ `Site | `Election ] ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
-  val email_email :
-    recipient:string * string -> code:string -> (string * string) Lwt.t
-
   val signup_captcha_img : string -> [> Html_types.img ] Eliom_content.Html.elt
 
   val format_captcha_error :

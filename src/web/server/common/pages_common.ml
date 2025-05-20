@@ -473,41 +473,6 @@ struct
     in
     base ~title ~content ()
 
-  let email_email ~recipient ~code =
-    let* l = get_preferred_gettext () in
-    let open (val l) in
-    let open Belenios_ui.Mail_formatter in
-    let b = create () in
-    add_sentence b (Printf.sprintf (f_ "Dear %s,") (fst recipient));
-    add_newline b;
-    add_newline b;
-    add_sentence b
-      (s_
-         "Your e-mail address has been used to authenticate with our Belenios \
-          server.");
-    add_sentence b (s_ "Use the following code:");
-    add_newline b;
-    add_newline b;
-    add_string b "  ";
-    add_string b code;
-    add_newline b;
-    add_newline b;
-    add_sentence b
-      (s_
-         "Warning: this code is valid for 15 minutes, and previous codes sent \
-          to this address are no longer valid.");
-    add_newline b;
-    add_newline b;
-    add_sentence b (s_ "Best regards,");
-    add_newline b;
-    add_newline b;
-    add_string b "-- ";
-    add_newline b;
-    add_string b !Web_config.server_name;
-    let body = contents b in
-    let subject = !Web_config.vendor ^^^ s_ "Authentication" in
-    Lwt.return (subject, body)
-
   let signup_captcha_img challenge =
     let src = make_uri ~service:signup_captcha_img challenge in
     img ~src ~alt:"CAPTCHA" ()
