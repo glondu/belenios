@@ -119,9 +119,8 @@ struct
 
     let send ~context:() ~recipient ~code =
       let* l = get_preferred_gettext () in
-      let subject, body = Pages_admin_root.mail_set_email l ~recipient code in
-      Send_message.send
-      @@ Generic { subject; recipient; body; kind = MailSetEmail }
+      let open (val l) in
+      Send_message.send @@ Account_set_email { lang; recipient; code }
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()

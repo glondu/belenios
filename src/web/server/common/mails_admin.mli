@@ -19,39 +19,20 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
+val mail_confirmation_link :
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  string ->
+  string * string
 
-type mail_kind =
-  | MailCredential of uuid
-  | MailPassword of uuid
-  | MailConfirmation of uuid
-  | MailAutomaticWarning of uuid
-  | MailAccountCreation
-  | MailPasswordChange
-  | MailLogin
-  | MailSetEmail
+val mail_changepw_link :
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  string ->
+  string * string
 
-type t =
-  | Account_create of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Account_change_password of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Account_set_email of {
-      lang : string;
-      recipient : string * string;
-      code : string;
-    }
-  | Generic of {
-      kind : mail_kind;
-      recipient : string * string;
-      subject : string;
-      body : string;
-    }
-
-val send : t -> unit Lwt.t
+val mail_set_email :
+  (module Belenios_ui.I18n.GETTEXT) ->
+  recipient:string * string ->
+  string ->
+  string * string

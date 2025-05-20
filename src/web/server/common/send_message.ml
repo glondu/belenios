@@ -57,6 +57,21 @@ let stringuuid_of_mail_kind = function
   | MailSetEmail -> ("set-email", None)
 
 type t =
+  | Account_create of {
+      lang : string;
+      recipient : string * string;
+      code : string;
+    }
+  | Account_change_password of {
+      lang : string;
+      recipient : string * string;
+      code : string;
+    }
+  | Account_set_email of {
+      lang : string;
+      recipient : string * string;
+      code : string;
+    }
   | Generic of {
       kind : mail_kind;
       recipient : string * string;
@@ -65,10 +80,24 @@ type t =
     }
 
 let send msg =
-  let kind, recipient, subject, body =
+  let* kind, recipient, subject, body =
     match msg with
+    | Account_create { lang; recipient; code } ->
+        let* l = Web_i18n.get ~component:"admin" ~lang in
+        let subject, body =
+          Mails_admin.mail_confirmation_link l ~recipient code
+        in
+        Lwt.return (MailAccountCreation, recipient, subject, body)
+    | Account_change_password { lang; recipient; code } ->
+        let* l = Web_i18n.get ~component:"admin" ~lang in
+        let subject, body = Mails_admin.mail_changepw_link l ~recipient code in
+        Lwt.return (MailPasswordChange, recipient, subject, body)
+    | Account_set_email { lang; recipient; code } ->
+        let* l = Web_i18n.get ~component:"admin" ~lang in
+        let subject, body = Mails_admin.mail_set_email l ~recipient code in
+        Lwt.return (MailSetEmail, recipient, subject, body)
     | Generic { kind; recipient; subject; body } ->
-        (kind, recipient, subject, body)
+        Lwt.return (kind, recipient, subject, body)
   in
   let contents =
     Netsendmail.compose

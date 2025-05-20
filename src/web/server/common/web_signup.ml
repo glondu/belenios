@@ -31,19 +31,12 @@ module Sender = struct
   }
 
   let send ~context ~recipient ~code =
+    let open (val context.gettext) in
     match context.kind with
     | CreateAccount ->
-        let subject, body =
-          Pages_admin.mail_confirmation_link context.gettext ~recipient code
-        in
-        Send_message.send
-        @@ Generic { kind = MailAccountCreation; recipient; subject; body }
+        Send_message.send @@ Account_create { lang; recipient; code }
     | ChangePassword _ ->
-        let subject, body =
-          Pages_admin.mail_changepw_link context.gettext ~recipient code
-        in
-        Send_message.send
-        @@ Generic { kind = MailPasswordChange; recipient; subject; body }
+        Send_message.send @@ Account_change_password { lang; recipient; code }
 end
 
 module Otp = Otp.Make (Sender) ()

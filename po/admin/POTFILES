@@ -1,6 +1,7 @@
 src/web/common/pages_common.ml
 src/web/common/mails_admin.ml
 src/web/server/common/pages_admin.ml
+src/web/server/common/mails_admin.ml
 src/web/server/common/site_admin.ml
 src/web/clients/common/secondary_ui.ml
 src/web/clients/basic/admin_basic.ml
