@@ -47,6 +47,8 @@ type t =
       recipient : string * string;
       code : string;
     }
+  | Voter_password of password_email
+  | Voter_credential of credential_email
   | Vote_confirmation of {
       lang : string;
       uuid : uuid;

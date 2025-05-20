@@ -22,29 +22,10 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_server_core
-open Mails_voter
 
 let send_bulk_email = function
-  | `Password x ->
-      let* subject, body = format_password_email x in
-      Send_message.send
-      @@ Generic
-           {
-             kind = MailPassword x.uuid;
-             recipient = (x.login, x.recipient);
-             subject;
-             body;
-           }
-  | `Credential x ->
-      let* subject, body = format_credential_email x in
-      Send_message.send
-      @@ Generic
-           {
-             kind = MailCredential x.uuid;
-             recipient = (x.login, x.recipient);
-             subject;
-             body;
-           }
+  | `Password x -> Send_message.send @@ Voter_password x
+  | `Credential x -> Send_message.send @@ Voter_credential x
 
 module Bulk_processor = struct
   type t = {

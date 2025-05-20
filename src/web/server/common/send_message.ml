@@ -72,6 +72,8 @@ type t =
       recipient : string * string;
       code : string;
     }
+  | Voter_password of password_email
+  | Voter_credential of credential_email
   | Vote_confirmation of {
       lang : string;
       uuid : uuid;
@@ -104,6 +106,12 @@ let send msg =
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let subject, body = Mails_admin.mail_set_email l ~recipient code in
         Lwt.return (MailSetEmail, recipient, subject, body)
+    | Voter_password x ->
+        let* subject, body = Mails_voter.format_password_email x in
+        Lwt.return (MailPassword x.uuid, (x.login, x.recipient), subject, body)
+    | Voter_credential x ->
+        let* subject, body = Mails_voter.format_credential_email x in
+        Lwt.return (MailCredential x.uuid, (x.login, x.recipient), subject, body)
     | Vote_confirmation { lang; uuid; title; confirmation; contact } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let subject, body =
