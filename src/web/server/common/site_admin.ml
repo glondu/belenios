@@ -120,7 +120,7 @@ struct
     let send ~context:() ~recipient ~code =
       let* l = get_preferred_gettext () in
       let subject, body = Pages_admin_root.mail_set_email l ~recipient code in
-      send_email ~subject ~recipient ~body MailSetEmail
+      Send_message.send_email ~subject ~recipient ~body MailSetEmail
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()

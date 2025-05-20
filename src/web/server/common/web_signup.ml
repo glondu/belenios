@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Web_common
 
 module Sender = struct
   type payload = Web_state_sig.signup_env
@@ -37,12 +36,12 @@ module Sender = struct
         let subject, body =
           Pages_admin.mail_confirmation_link context.gettext ~recipient code
         in
-        send_email MailAccountCreation ~recipient ~subject ~body
+        Send_message.send_email MailAccountCreation ~recipient ~subject ~body
     | ChangePassword _ ->
         let subject, body =
           Pages_admin.mail_changepw_link context.gettext ~recipient code
         in
-        send_email MailPasswordChange ~recipient ~subject ~body
+        Send_message.send_email MailPasswordChange ~recipient ~subject ~body
 end
 
 module Otp = Otp.Make (Sender) ()

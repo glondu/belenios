@@ -76,24 +76,6 @@ type add_account_error =
 
 val format_password : string -> string
 val string_of_user : user -> string
-
-type mail_kind =
-  | MailCredential of uuid
-  | MailPassword of uuid
-  | MailConfirmation of uuid
-  | MailAutomaticWarning of uuid
-  | MailAccountCreation
-  | MailPasswordChange
-  | MailLogin
-  | MailSetEmail
-
-val send_email :
-  mail_kind ->
-  recipient:string * string ->
-  subject:string ->
-  body:string ->
-  unit Lwt.t
-
 val get_languages : string list option -> string list
 val string_of_languages : string list option -> string
 val languages_of_string : string -> string list
