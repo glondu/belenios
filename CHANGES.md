@@ -24,6 +24,8 @@
      - Fix countdown to automatic opening/closing (GitHub issue #89)
      - Always provide a download attribute when linking to a data URI
      - Fix display bug in MJ booth with large grades and blank vote
+     - Check the length of the public credentials list sent by
+       registrar
    + Many changes in the web API
    + Add uuid to downloadable file names
    + Use username (when available) in "To" header of sent e-mails
@@ -33,6 +35,7 @@
    + Add support for `<a>` markup
    + Add an additional notion of sealing for validated elections,
      optionally enabled by a server configuration directive
+   + Log sent OTP codes in access log
    + Admin UI:
      - In question editor, check safety
      - Handle better errors in voter list (GitLab issue #15)
@@ -41,10 +44,12 @@
    + Trustee UI:
      - Do not force page reloads during threshold key generation
        protocol
+     - Tolerate trailing white spaces in secret key file
    + Election homepage:
      - Add final event hash to audit box
      - Add links to objects in audit box
      - Change display of automatic opening/closing times
+     - Show a meaningful page when the election is in Draft state
    + Translations:
      - Add Tamil, Russian
 
