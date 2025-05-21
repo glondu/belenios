@@ -85,14 +85,15 @@ let mail_password l title login password weight url contact =
   contact_footer l contact b;
   contents b
 
-let format_password_email (x : password_message) =
+let format_password_email (x : material_message) =
   let url = get_election_home_url x.uuid in
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         return
-          (mail_password l x.title x.login x.password x.weight url x.contact))
+          (mail_password l x.title x.recipient.name x.material x.weight url
+             x.contact))
       x.langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
@@ -113,21 +114,26 @@ let generate_password_email metadata langs title uuid v show_weight =
     return (format_password x)
   in
   let hashed = sha256_hex (salt ^ password) in
-  let x : password_message =
+  let has_passwords =
+    match metadata.e_auth_config with
+    | Some [ { auth_system = "password"; _ } ] -> true
+    | _ -> false
+  in
+  let x : material_message =
     {
       uuid;
       title;
-      login = Option.value login ~default:address;
-      password;
+      recipient = { name = Option.value login ~default:address; address };
+      material = password;
       weight;
       contact = metadata.e_contact;
+      has_passwords;
       langs;
-      recipient = address;
     }
   in
   return (`Password x, (salt, hashed))
 
-let mail_credential l (x : credential_message) =
+let mail_credential l (x : material_message) =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -148,7 +154,7 @@ let mail_credential l (x : credential_message) =
   add_newline b;
   add_newline b;
   add_string b "  ";
-  add_string b (get_election_home_url ~credential:x.credential x.uuid);
+  add_string b (get_election_home_url ~credential:x.material x.uuid);
   add_newline b;
   add_newline b;
   if x.has_passwords then (
@@ -167,11 +173,11 @@ let mail_credential l (x : credential_message) =
   add_newline b;
   add_string b (s_ "Username:");
   add_string b " ";
-  add_string b x.login;
+  add_string b x.recipient.name;
   add_newline b;
   add_string b (s_ "Your credential:");
   add_string b " ";
-  add_string b x.credential;
+  add_string b x.material;
   add_newline b;
   (match x.weight with
   | Some weight ->
@@ -186,7 +192,7 @@ let mail_credential l (x : credential_message) =
   contact_footer l x.contact b;
   contents b
 
-let format_credential_email (x : credential_message) =
+let format_credential_email (x : material_message) =
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
@@ -214,17 +220,16 @@ let generate_credential_email uuid (Draft (_, se)) =
   let langs = get_languages se.se_metadata.e_languages in
   fun ~recipient ~login ~weight ~credential ->
     let oweight = if show_weight then Some weight else None in
-    let x : credential_message =
+    let x : material_message =
       {
         uuid;
         title;
-        login;
-        credential;
+        recipient = { name = login; address = recipient };
+        material = credential;
         weight = oweight;
         contact = se.se_metadata.e_contact;
-        langs;
         has_passwords;
-        recipient;
+        langs;
       }
     in
     Lwt.return @@ `Credential x

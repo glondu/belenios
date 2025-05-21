@@ -45,12 +45,11 @@ type oidc_userinfo = {
 
 (** {1 Bulk emails} *)
 
-type password_message <ocaml predef from="Belenios_web_api.Serializable"> = abstract
-type credential_message <ocaml predef from="Belenios_web_api.Serializable"> = abstract
+type material_message <ocaml predef from="Belenios_web_api.Serializable"> = abstract
 
 type bulk_email =
-  [ Password of password_message
-  | Credential of credential_message
+  [ Password of material_message
+  | Credential of material_message
   ]
 
 type bulk_emails = bulk_email list <ocaml repr="array">

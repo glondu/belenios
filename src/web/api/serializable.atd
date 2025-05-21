@@ -364,27 +364,15 @@ type recipient = {
   address : string;
 }
 
-type password_message = {
-  recipient : string;
+type material_message = {
+  recipient : recipient;
+  material : string;
   uuid : uuid;
   title : string;
-  login : string;
-  password : string;
   ?weight : weight option;
   ?contact : string option;
-  langs : string list;
-}
-
-type credential_message = {
-  recipient : string;
-  uuid : uuid;
-  title : string;
-  login : string;
-  credential : string;
-  ?weight : weight option;
-  ?contact : string option;
-  langs : string list;
   has_passwords : bool;
+  langs : string list;
 }
 
 type code_message = {
@@ -405,8 +393,8 @@ type message =
   [ Account_create of code_message
   | Account_change_password of code_message
   | Account_set_email of code_message
-  | Voter_password of password_message
-  | Voter_credential of credential_message
+  | Voter_password of material_message
+  | Voter_credential of material_message
   | Vote_confirmation of confirmation_message
   | Mail_login of code_message
   ]

@@ -91,17 +91,11 @@ let send ?internal (msg : Belenios_web_api.message) =
         let subject, body = Mails_admin.mail_set_email l ~recipient code in
         Lwt.return ("set-email", None, recipient, subject, body)
     | `Voter_password x ->
-        let recipient : Belenios_web_api.recipient =
-          { name = x.login; address = x.recipient }
-        in
         let* subject, body = Mails_voter.format_password_email x in
-        Lwt.return ("password", Some x.uuid, recipient, subject, body)
+        Lwt.return ("password", Some x.uuid, x.recipient, subject, body)
     | `Voter_credential x ->
-        let recipient : Belenios_web_api.recipient =
-          { name = x.login; address = x.recipient }
-        in
         let* subject, body = Mails_voter.format_credential_email x in
-        Lwt.return ("credential", Some x.uuid, recipient, subject, body)
+        Lwt.return ("credential", Some x.uuid, x.recipient, subject, body)
     | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
         let recipient : Belenios_web_api.recipient =
           { name = confirmation.user; address = confirmation.recipient }
