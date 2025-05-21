@@ -19,4 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val send : Belenios_web_api.message -> (string, unit) result Lwt.t
+val check_message : key:string -> Belenios_web_api.message_payload -> bool
+
+val send :
+  ?internal:bool -> Belenios_web_api.message -> (string, unit) result Lwt.t

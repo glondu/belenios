@@ -34,6 +34,18 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> configuration
 
+## `send-message/internal` (anybody)
+
+### `POST`: message_payload -> json
+
+## `send-message/external` (anybody)
+
+### `POST`: message_payload -> json
+
+## `send-message/default` (anybody)
+
+### `POST`: message_payload -> json
+
 ## `account` (administrator)
 
 ### `GET`: unit -> api_account

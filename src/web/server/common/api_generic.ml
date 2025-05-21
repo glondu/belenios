@@ -72,6 +72,7 @@ let not_found = return_json 404 {|"Not Found"|}
 let method_not_allowed = return_json 405 {|"Method Not Allowed"|}
 let precondition_failed = return_json 412 {|"Precondition Failed"|}
 let conflict = return_json 409 {|"Conflict"|}
+let service_unavailable = return_json 503 {|"Service Unavailable"|}
 
 let handle_ifmatch ifmatch current cont =
   match ifmatch with
@@ -170,3 +171,30 @@ let put_account ((a, set) : account updatable) (b : api_account) =
     }
   in
   set a
+
+module HMap = Map.Make (Hash)
+
+let msgcache = ref HMap.empty
+
+let filter_msgcache ~now cache =
+  HMap.filter (fun _ timestamp -> now < timestamp +. 600.) cache
+
+let post_send_message ?internal ~key (m : Belenios_web_api.message_payload) =
+  let now = Unix.gettimeofday () in
+  let cache = filter_msgcache ~now !msgcache in
+  msgcache := cache;
+  if now < m.timestamp +. 600. then
+    match m.hmac with
+    | Some hmac ->
+        if HMap.mem hmac cache then forbidden
+        else if Send_message.check_message ~key m then
+          let* r = Send_message.send ?internal m.message in
+          match r with
+          | Ok hint ->
+              let cache = HMap.add hmac m.timestamp cache in
+              msgcache := cache;
+              `String hint |> Yojson.Safe.to_string |> return_json 200
+          | Error () -> service_unavailable
+        else forbidden
+    | None -> forbidden
+  else forbidden

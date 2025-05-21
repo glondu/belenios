@@ -49,12 +49,19 @@ let wrap_message ~key (message : Belenios_web_api.message) =
   |> fun x ->
   ({ timestamp; message; hmac = Some x } : Belenios_web_api.message_payload)
 
-let send (msg : Belenios_web_api.message) =
+let check_message ~key (message : Belenios_web_api.message_payload) =
+  { message with hmac = None }
+  |> Belenios_web_api.string_of_message_payload |> hmac ~key
+  |> fun x -> message.hmac = Some x
+
+let send ?internal (msg : Belenios_web_api.message) =
   let@ () =
    fun cont ->
-    match !Web_config.send_message with
-    | None -> cont ()
-    | Some (url, key) -> (
+    match (internal, !Web_config.send_message) with
+    | None, None -> cont ()
+    | Some true, _ -> cont ()
+    | Some false, None -> Lwt.return_error ()
+    | (None | Some false), Some (url, key) -> (
         let body =
           msg |> wrap_message ~key |> Belenios_web_api.string_of_message_payload
           |> Cohttp_lwt.Body.of_string

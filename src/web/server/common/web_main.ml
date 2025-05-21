@@ -136,6 +136,8 @@ module Make () = struct
         Web_config.billing := Some (url, callback)
     | Element ("external-send-message", [ ("url", url); ("key", key) ], []) ->
         Web_config.send_message := Some (url, key)
+    | Element ("internal-send-message", [ ("key", key) ], []) ->
+        Web_config.internal_send_message := Some key
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
     | Element ("election-sealing", [], []) ->
         Web_config.election_sealing := true

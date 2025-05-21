@@ -49,3 +49,4 @@ let billing = ref None
 let restricted_mode = ref false
 let election_sealing = ref false
 let send_message = ref None
+let internal_send_message = ref None

@@ -95,6 +95,21 @@ module Make () = struct
             let x = Api_generic.get_configuration () in
             return_json 200 (string_of_configuration x)
         | _ -> method_not_allowed)
+    | [ "send-message"; kind ] -> (
+        let@ internal =
+         fun cont ->
+          match kind with
+          | "internal" -> cont (Some true)
+          | "external" -> cont (Some false)
+          | "default" -> cont None
+          | _ -> not_found
+        in
+        match (method_, !Web_config.internal_send_message) with
+        | `POST, Some key ->
+            let@ x = body.run Belenios_web_api.message_payload_of_string in
+            let@ () = handle_generic_error in
+            Api_generic.post_send_message ?internal ~key x
+        | _ -> method_not_allowed)
     | [ "account" ] -> (
         let@ token = Option.unwrap unauthorized token in
         let@ account = Option.unwrap unauthorized (lookup_token token) in
