@@ -8,7 +8,7 @@
 
 (license AGPL-3)
 (authors "Stéphane Glondu")
-(maintainers "stephane.glondu@inria.fr")
+(maintainers "stephane.glondu@vcast.vote")
 
 (package
  (name belenios-platform-native)
