@@ -2,7 +2,7 @@
 opam-version: "2.0"
 version: "3.0"
 synopsis: "JavaScript implementation of the Belenios platform"
-maintainer: ["stephane.glondu@inria.fr"]
+maintainer: ["stephane.glondu@vcast.vote"]
 authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
