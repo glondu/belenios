@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2025 Inria                                           *)
+(*  Copyright © 2025-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,20 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val mail_confirmation_link :
-  (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:Belenios_web_api.recipient ->
-  code:string ->
-  Mails_common.text_message
-
-val mail_changepw_link :
-  (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:Belenios_web_api.recipient ->
-  code:string ->
-  Mails_common.text_message
-
-val mail_set_email :
-  (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:Belenios_web_api.recipient ->
-  code:string ->
-  Mails_common.text_message
+type text_message = {
+  recipient : Belenios_web_api.recipient;
+  subject : string;
+  body : string;
+}

@@ -74,41 +74,36 @@ let send ?internal (msg : Belenios_web_api.message) =
         | 200 -> Lwt.return_ok hint
         | _ -> Lwt.return_error ())
   in
-  let* reason, uuid, recipient, subject, body =
+  let* reason, uuid, { recipient; subject; body } =
     match msg with
     | `Account_create { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
-        let subject, body =
-          Mails_admin.mail_confirmation_link l ~recipient code
-        in
-        Lwt.return ("account-creation", None, recipient, subject, body)
+        let t = Mails_admin.mail_confirmation_link l ~recipient ~code in
+        Lwt.return ("account-creation", None, t)
     | `Account_change_password { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
-        let subject, body = Mails_admin.mail_changepw_link l ~recipient code in
-        Lwt.return ("password-change", None, recipient, subject, body)
+        let t = Mails_admin.mail_changepw_link l ~recipient ~code in
+        Lwt.return ("password-change", None, t)
     | `Account_set_email { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
-        let subject, body = Mails_admin.mail_set_email l ~recipient code in
-        Lwt.return ("set-email", None, recipient, subject, body)
+        let t = Mails_admin.mail_set_email l ~recipient ~code in
+        Lwt.return ("set-email", None, t)
     | `Voter_password x ->
-        let* subject, body = Mails_voter.format_password_email x in
-        Lwt.return ("password", Some x.uuid, x.recipient, subject, body)
+        let* t = Mails_voter.format_password_email x in
+        Lwt.return ("password", Some x.uuid, t)
     | `Voter_credential x ->
-        let* subject, body = Mails_voter.format_credential_email x in
-        Lwt.return ("credential", Some x.uuid, x.recipient, subject, body)
+        let* t = Mails_voter.format_credential_email x in
+        Lwt.return ("credential", Some x.uuid, t)
     | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
-        let recipient : Belenios_web_api.recipient =
-          { name = confirmation.user; address = confirmation.recipient }
-        in
         let* l = Web_i18n.get ~component:"voter" ~lang in
-        let subject, body =
+        let t =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
-        Lwt.return ("confirmation", Some uuid, recipient, subject, body)
+        Lwt.return ("confirmation", Some uuid, t)
     | `Mail_login { lang; recipient; code } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
-        let subject, body = Mails_voter.email_login l ~recipient ~code in
-        Lwt.return ("login", None, recipient, subject, body)
+        let t = Mails_voter.email_login l ~recipient ~code in
+        Lwt.return ("login", None, t)
   in
   let contents =
     Netsendmail.compose

@@ -23,7 +23,7 @@ open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 
-val format_password_email : material_message -> (string * string) Lwt.t
+val format_password_email : material_message -> Mails_common.text_message Lwt.t
 
 val generate_password_email :
   metadata ->
@@ -34,7 +34,8 @@ val generate_password_email :
   bool ->
   (bulk_email * (string * string)) Lwt.t
 
-val format_credential_email : material_message -> (string * string) Lwt.t
+val format_credential_email :
+  material_message -> Mails_common.text_message Lwt.t
 
 val generate_credential_email :
   uuid ->
@@ -51,10 +52,10 @@ val mail_confirmation :
   title:string ->
   Belenios_web_api.confirmation ->
   string option ->
-  string * string
+  Mails_common.text_message
 
 val email_login :
   (module Belenios_ui.I18n.GETTEXT) ->
   recipient:Belenios_web_api.recipient ->
   code:string ->
-  string * string
+  Mails_common.text_message
