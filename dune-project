@@ -1,7 +1,7 @@
 (lang dune 3.11)
 (using menhir 2.0)
 (name belenios)
-(version 3.0)
+(version 3.1)
 
 (generate_opam_files true)
 (implicit_transitive_deps false)
