@@ -56,6 +56,7 @@ val put_account : account Web_common.updatable -> api_account -> unit Lwt.t
 val get_configuration_uris : unit -> configuration_uris
 
 val post_send_message :
+  Storage.t ->
   ?internal:bool ->
   key:string ->
   Belenios_web_api.message_payload ->

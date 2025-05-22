@@ -120,7 +120,8 @@ struct
     let send ~context:() ~recipient ~code =
       let* l = get_preferred_gettext () in
       let open (val l) in
-      Send_message.send @@ `Account_set_email { lang; recipient; code }
+      let@ s = Storage.with_transaction in
+      Send_message.send s @@ `Account_set_email { lang; recipient; code }
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()

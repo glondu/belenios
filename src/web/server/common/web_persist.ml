@@ -668,14 +668,8 @@ let get_admin_context admin_id =
 
 let () = Billing.set_get_admin_context get_admin_context
 
-let regen_password s uuid metadata user =
+let regen_password s uuid user =
   let user = String.lowercase_ascii user in
-  let@ election =
-    Public_archive.with_election s uuid ~fallback:(fun () ->
-        Lwt.fail (Election_not_found (uuid, "regen_password")))
-  in
-  let module W = (val election) in
-  let title = W.template.t_name in
   let* show_weight = get_has_explicit_weights s uuid in
   let* x = Storage.get s (Election (uuid, Voter user)) in
   let@ y = Storage.update s (Election (uuid, Password user)) in
@@ -686,10 +680,8 @@ let regen_password s uuid metadata user =
         | None -> Lwt.return_false
         | Some r -> cont r
       in
-      let langs = get_languages metadata.e_languages in
       let* email, (salt, hashed) =
-        Mails_voter.generate_password_email metadata langs title uuid id
-          show_weight
+        Mails_voter.generate_password_email uuid id show_weight
       in
       let r = { r with salt; hashed } in
       let* () = set Value r in

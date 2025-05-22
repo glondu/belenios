@@ -32,11 +32,13 @@ module Sender = struct
 
   let send ~context ~recipient ~code =
     let open (val context.gettext) in
+    let@ s = Belenios_storage_api.Storage.with_transaction in
     match context.kind with
     | CreateAccount ->
-        Send_message.send @@ `Account_create { lang; recipient; code }
+        Send_message.send s @@ `Account_create { lang; recipient; code }
     | ChangePassword _ ->
-        Send_message.send @@ `Account_change_password { lang; recipient; code }
+        Send_message.send s
+        @@ `Account_change_password { lang; recipient; code }
 end
 
 module Otp = Otp.Make (Sender) ()

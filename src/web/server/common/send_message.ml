@@ -54,7 +54,7 @@ let check_message ~key (message : Belenios_web_api.message_payload) =
   |> Belenios_web_api.string_of_message_payload |> hmac ~key
   |> fun x -> message.hmac = Some x
 
-let send ?internal (msg : Belenios_web_api.message) =
+let send s ?internal (msg : Belenios_web_api.message) =
   let@ () =
    fun cont ->
     match (internal, !Web_config.send_message) with
@@ -89,10 +89,10 @@ let send ?internal (msg : Belenios_web_api.message) =
         let t = Mails_admin.mail_set_email l ~recipient ~code in
         Lwt.return ("set-email", None, t)
     | `Voter_password x ->
-        let* t = Mails_voter.format_password_email x in
+        let* t = Mails_voter.format_password_email s x in
         Lwt.return ("password", Some x.uuid, t)
     | `Voter_credential x ->
-        let* t = Mails_voter.format_credential_email x in
+        let* t = Mails_voter.format_credential_email s x in
         Lwt.return ("credential", Some x.uuid, t)
     | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in

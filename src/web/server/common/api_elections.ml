@@ -423,7 +423,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
               ok
           | `RegeneratePassword user ->
               let@ () = handle_generic_error in
-              let* b = Web_persist.regen_password s uuid metadata user in
+              let* b = Web_persist.regen_password s uuid user in
               if b then ok else not_found
           | `Seal seal ->
               let@ () = handle_generic_error in

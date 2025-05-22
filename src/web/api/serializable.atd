@@ -368,11 +368,7 @@ type material_message = {
   recipient : recipient;
   material : string;
   uuid : uuid;
-  title : string;
   ?weight : weight option;
-  ?contact : string option;
-  has_passwords : bool;
-  langs : string list;
 }
 
 type code_message = {

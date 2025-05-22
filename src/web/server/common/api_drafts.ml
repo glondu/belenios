@@ -329,7 +329,7 @@ let post_draft_passwords account generate (Draft (v, se), set) voters =
   let* jobs =
     Lwt_list.fold_left_s
       (fun jobs v ->
-        let* job, x = generate se.se_metadata v.sv_id in
+        let* job, x = generate v.sv_id in
         v.sv_password <- Some x;
         Lwt.return (job :: jobs))
       [] voters
@@ -1220,12 +1220,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
           let@ () = handle_generic_error in
           let generate =
             let (Draft (_, se)) = se in
-            let title = se.se_questions.t_name in
-            let langs = get_languages se.se_metadata.e_languages in
             let show_weight = has_explicit_weights se.se_voters in
-            fun metadata id ->
-              Mails_voter.generate_password_email metadata langs title uuid id
-                show_weight
+            fun id -> Mails_voter.generate_password_email uuid id show_weight
           in
           let* jobs = post_draft_passwords account generate (se, set) voters in
           let* () = Mails_voter_bulk.submit_bulk_emails jobs in

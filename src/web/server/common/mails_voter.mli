@@ -23,19 +23,14 @@ open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 
-val format_password_email : material_message -> Mails_common.text_message Lwt.t
+val format_password_email :
+  Storage.t -> material_message -> Mails_common.text_message Lwt.t
 
 val generate_password_email :
-  metadata ->
-  string list ->
-  string ->
-  uuid ->
-  Voter.t ->
-  bool ->
-  (bulk_email * (string * string)) Lwt.t
+  uuid -> Voter.t -> bool -> (bulk_email * (string * string)) Lwt.t
 
 val format_credential_email :
-  material_message -> Mails_common.text_message Lwt.t
+  Storage.t -> material_message -> Mails_common.text_message Lwt.t
 
 val generate_credential_email :
   uuid ->

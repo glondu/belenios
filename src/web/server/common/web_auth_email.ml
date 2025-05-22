@@ -98,7 +98,8 @@ struct
     let send ~context:() ~recipient ~code =
       let* l = Web_i18n.get_preferred_gettext "voter" in
       let open (val l) in
-      Send_message.send @@ `Mail_login { lang; recipient; code }
+      let@ s = Storage.with_transaction in
+      Send_message.send s @@ `Mail_login { lang; recipient; code }
   end
 
   module Otp = Otp.Make (Sender) ()
