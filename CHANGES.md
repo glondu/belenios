@@ -1,5 +1,5 @@
-3.1~dev
-=======
+3.1 (2025-05-22)
+================
 
  * Add a contributing policy
  * Software stack:
