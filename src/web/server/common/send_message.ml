@@ -76,18 +76,18 @@ let send s ?internal (msg : Belenios_web_api.message) =
   in
   let* reason, uuid, { recipient; subject; body } =
     match msg with
-    | `Account_create { lang; recipient; code } ->
+    | `Account_create { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_confirmation_link l ~recipient ~code in
-        Lwt.return ("account-creation", None, t)
-    | `Account_change_password { lang; recipient; code } ->
+        Lwt.return ("account-creation", uuid, t)
+    | `Account_change_password { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_changepw_link l ~recipient ~code in
-        Lwt.return ("password-change", None, t)
-    | `Account_set_email { lang; recipient; code } ->
+        Lwt.return ("password-change", uuid, t)
+    | `Account_set_email { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_set_email l ~recipient ~code in
-        Lwt.return ("set-email", None, t)
+        Lwt.return ("set-email", uuid, t)
     | `Voter_password x ->
         let* t = Mails_voter.format_password_email s x in
         Lwt.return ("password", Some x.uuid, t)
@@ -100,10 +100,10 @@ let send s ?internal (msg : Belenios_web_api.message) =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
         Lwt.return ("confirmation", Some uuid, t)
-    | `Mail_login { lang; recipient; code } ->
+    | `Mail_login { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t = Mails_voter.email_login l ~recipient ~code in
-        Lwt.return ("login", None, t)
+        Lwt.return ("login", uuid, t)
   in
   let contents =
     Netsendmail.compose

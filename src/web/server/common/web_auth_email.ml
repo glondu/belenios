@@ -93,21 +93,22 @@ struct
 
   module Sender = struct
     type payload = unit
-    type context = unit
+    type context = uuid option
 
-    let send ~context:() ~recipient ~code =
+    let send ~context ~recipient ~code =
       let* l = Web_i18n.get_preferred_gettext "voter" in
       let open (val l) in
       let@ s = Storage.with_transaction in
-      Send_message.send s @@ `Mail_login { lang; recipient; code }
+      Send_message.send s
+      @@ `Mail_login { lang; recipient; code; uuid = context }
   end
 
   module Otp = Otp.Make (Sender) ()
 
   let handle_email_post ~state ?(show_email_address = false) name ok =
     let name = String.trim name in
+    let* uuid = Eliom_reference.get uuid_ref in
     let* address, site_or_election =
-      let* uuid = Eliom_reference.get uuid_ref in
       match uuid with
       | None -> return ((if is_email name then Some name else None), `Site)
       | Some uuid ->
@@ -122,7 +123,7 @@ struct
     match (ok, address) with
     | true, Some address ->
         let* r =
-          Otp.generate ~context:() ~recipient:{ name; address } ~payload:()
+          Otp.generate ~context:uuid ~recipient:{ name; address } ~payload:()
         in
         let* () = Eliom_reference.set env (Some (state, name, address)) in
         let* () = Eliom_reference.unset uuid_ref in

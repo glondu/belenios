@@ -374,6 +374,7 @@ type material_message = {
 type code_message = {
   lang : string;
   recipient : recipient;
+  ?uuid : uuid option;
   code : string;
 }
 
