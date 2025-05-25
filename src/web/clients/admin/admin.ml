@@ -72,7 +72,7 @@ let header config =
                   match List.assoc_opt "name" o with
                   | Some (`String x) -> x
                   | _ -> "Invalid name")
-              | _ -> "Fail when parsing election.json"
+              | _ -> "Failure when parsing election.json"
             in
             let description =
               match election with
@@ -80,7 +80,7 @@ let header config =
                   match List.assoc_opt "description" o with
                   | Some (`String x) -> x
                   | _ -> "Invalid name")
-              | _ -> "Fail when parsing election.json"
+              | _ -> "Failure when parsing election.json"
             in
             Lwt.return (name, description)
         | Error _ ->
