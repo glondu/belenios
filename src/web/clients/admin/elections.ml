@@ -584,51 +584,57 @@ let update_header () =
 
 let title_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  if is_draft () then (
+  if is_draft () then
     let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-    let name, nameget =
+    let name, _ =
+      let onchange r =
+        let@ () = Lwt.async in
+        let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+        Cache.set Cache.draft
+          (Draft
+             ( v,
+               {
+                 draft with
+                 draft_questions =
+                   {
+                     draft.draft_questions with
+                     t_name = Js.to_string r##.value;
+                   };
+               } ));
+        update_header ()
+      in
       textarea
         ~a:[ a_id "election_name_textarea" ]
-        ~cols:50 ~rows:3 draft.draft_questions.t_name
+        ~onchange ~cols:50 ~rows:3 draft.draft_questions.t_name
     in
-    let r = Tyxml_js.To_dom.of_textarea name in
-    r##.onchange :=
-      lwt_handler (fun _ ->
-          let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-          Cache.set Cache.draft
-            (Draft
-               ( v,
-                 {
-                   draft with
-                   draft_questions =
-                     { draft.draft_questions with t_name = nameget () };
-                 } ));
-          update_header ());
-    let desc, descget =
+    let desc, _ =
+      let onchange r =
+        let@ () = Lwt.async in
+        let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+        Cache.set Cache.draft
+          (Draft
+             ( v,
+               {
+                 draft with
+                 draft_questions =
+                   {
+                     draft.draft_questions with
+                     t_description = Js.to_string r##.value;
+                   };
+               } ));
+        update_header ()
+      in
       textarea
         ~a:[ a_id "election_description_textarea" ]
-        ~cols:50 ~rows:5 draft.draft_questions.t_description
+        ~onchange ~cols:50 ~rows:5 draft.draft_questions.t_description
     in
-    let r = Tyxml_js.To_dom.of_textarea desc in
-    r##.onchange :=
-      lwt_handler (fun _ ->
-          let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-          Cache.set Cache.draft
-            (Draft
-               ( v,
-                 {
-                   draft with
-                   draft_questions =
-                     { draft.draft_questions with t_description = descget () };
-                 } ));
-          update_header ());
     Lwt.return
       [
         h2 [ txt @@ s_ "Title:" ];
         div [ name ];
         h2 [ txt @@ s_ "Description:" ];
         div [ desc ];
-      ])
+      ]
   else
     (* not is_draft, i.e. running *)
     let* x = Cache.get_until_success Cache.e_elec in

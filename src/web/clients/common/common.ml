@@ -239,16 +239,19 @@ let button ?a label handler =
   let a = a_onclick_lwt handler :: Option.value ~default:[] a in
   Tyxml_js.Html.button ~a [ Tyxml_js.Html.txt label ]
 
-let textarea ?a ?(cols = 80) ?(rows = 10) ?placeholder value =
+let textarea ?a ?(cols = 80) ?(rows = 10) ?placeholder ?onchange value =
   let elt = Tyxml_js.Html.textarea ?a (Tyxml_js.Html.txt value) in
   let r = Tyxml_js.To_dom.of_textarea elt in
   r##.cols := cols;
   r##.rows := rows;
-  let () =
-    match placeholder with
-    | None -> ()
-    | Some x -> r##.placeholder := Js.string x
-  in
+  Option.iter (fun x -> r##.placeholder := Js.string x) placeholder;
+  Option.iter
+    (fun h ->
+      r##.onchange :=
+        Dom_html.handler (fun _ ->
+            h r;
+            Js._true))
+    onchange;
   (elt, fun () -> Js.to_string r##.value)
 
 let a ?a ~href label =
