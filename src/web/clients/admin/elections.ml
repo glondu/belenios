@@ -570,11 +570,6 @@ let all_tabs () =
 (*****************************************************)
 (* The main zone *)
 
-let handler f =
-  Dom_html.handler (fun e ->
-      f e;
-      Js._false)
-
 let update_header () =
   let open (val !Belenios_js.I18n.gettext) in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
@@ -1107,18 +1102,17 @@ let language_content () =
   let* config = Cache.get_until_success Cache.config in
   let lang = draft.draft_languages in
   let strlang = String.concat " " lang in
-  let inp, langet = input ~a:[ a_id "inplang" ] ~value:strlang () in
-  let r = Tyxml_js.To_dom.of_input inp in
-  r##.onchange :=
-    handler (fun _ ->
-        let newlist = String.split_on_char ' ' (langet ()) in
-        if
-          check_lang_choice newlist
-            (List.map (fun (x, _) -> x) config.languages)
-        then
-          Cache.set Cache.draft
-            (Draft (v, { draft with draft_languages = newlist }))
-        else alert @@ s_ "Some language in the list is not available");
+  let inp, _ =
+    let onchange r =
+      let newlist = String.split_on_char ' ' (Js.to_string r##.value) in
+      if check_lang_choice newlist (List.map (fun (x, _) -> x) config.languages)
+      then
+        Cache.set Cache.draft
+          (Draft (v, { draft with draft_languages = newlist }))
+      else alert @@ s_ "Some language in the list is not available"
+    in
+    input ~a:[ a_id "inplang" ] ~onchange ~value:strlang ()
+  in
   let avail_lang =
     config.languages
     |> List.map (fun (x, y) -> tr [ td [ txt x ]; td [ txt y ] ])
@@ -1158,29 +1152,31 @@ let contact_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let contact = Option.value ~default:"" draft.draft_contact in
-  let inp, contget = input ~a:[ a_id "inpcont" ] ~value:contact () in
-  let r = Tyxml_js.To_dom.of_input inp in
-  r##.onchange :=
-    handler (fun _ ->
-        let newc = contget () in
-        Cache.set Cache.draft
-          (Draft (v, { draft with draft_contact = Some newc })));
+  let inp, _ =
+    let onchange r =
+      let newc = Js.to_string r##.value in
+      Cache.set Cache.draft
+        (Draft (v, { draft with draft_contact = Some newc }))
+    in
+    input ~a:[ a_id "inpcont" ] ~onchange ~value:contact ()
+  in
   (* The default set by the server is the name of the administrator;
    * no need to do it on our side. In case this changes, we default to "" *)
   let admin = Option.value ~default:"" draft.draft_questions.t_administrator in
-  let inpA, adminget = input ~a:[ a_id "admincont" ] ~value:admin () in
-  let r = Tyxml_js.To_dom.of_input inpA in
-  r##.onchange :=
-    handler (fun _ ->
-        let newA = adminget () in
-        Cache.set Cache.draft
-          (Draft
-             ( v,
-               {
-                 draft with
-                 draft_questions =
-                   { draft.draft_questions with t_administrator = Some newA };
-               } )));
+  let inpA, _ =
+    let onchange r =
+      let newA = Js.to_string r##.value in
+      Cache.set Cache.draft
+        (Draft
+           ( v,
+             {
+               draft with
+               draft_questions =
+                 { draft.draft_questions with t_administrator = Some newA };
+             } ))
+    in
+    input ~a:[ a_id "admincont" ] ~onchange ~value:admin ()
+  in
   Lwt.return
     [
       h2 [ txt @@ s_ "Contact:" ];
@@ -1327,16 +1323,15 @@ let credauth_content () =
           | _ -> ("none", false)
         else ("", false)
       in
-      let inp_ext, get_ext =
+      let inp_ext, _ =
+        let onchange r =
+          let name = Js.to_string r##.value in
+          Lwt.async (fun () -> change_credauth_name name)
+        in
         input
           ~a:[ a_placeholder @@ s_ "Name of the credential authority" ]
-          ~value ()
+          ~onchange ~value ()
       in
-      let r = Tyxml_js.To_dom.of_input inp_ext in
-      r##.onchange :=
-        lwt_handler (fun () ->
-            let name = get_ext () in
-            change_credauth_name name);
       let dd = div ~a:[ a_id "cred_auth_name" ] [ lab_ext; inp_ext ] in
       let ddd = Tyxml_js.To_dom.of_div dd in
       if !currsel <> `Extern then ddd##.style##.display := Js.string "none"

@@ -33,19 +33,21 @@ let rec update_main_zone () =
   match ac with
   | Ok acc ->
       let input_name =
-        let inp, nameset = input ~a:[ a_id "inpname" ] ~value:acc.name () in
-        let r = Tyxml_js.To_dom.of_input inp in
-        r##.onchange :=
-          lwt_handler (fun _ ->
-              let newname = nameset () in
-              Cache.set Cache.account { acc with name = newname };
-              let* () =
-                let&&* container =
-                  document##getElementById (Js.string "nav_username")
-                in
-                show_in container (fun () -> Lwt.return [ txt newname ])
+        let inp, _ =
+          let onchange r =
+            let newname = Js.to_string r##.value in
+            Cache.set Cache.account { acc with name = newname };
+            let@ () = Lwt.async in
+            let* () =
+              let&&* container =
+                document##getElementById (Js.string "nav_username")
               in
-              update_main ());
+              show_in container (fun () -> Lwt.return [ txt newname ])
+            in
+            update_main ()
+          in
+          input ~a:[ a_id "inpname" ] ~onchange ~value:acc.name ()
+        in
         inp
       in
       let input_language =

@@ -199,37 +199,37 @@ let recompute_main_zone_1 () =
       [ a_id "thresh"; a_class [ "clickable" ]; a_input_type `Checkbox ]
     in
     let attr = if with_thr then a_checked () :: attr else attr in
-    let inp, _ = input ~a:attr () in
-    let r = Tyxml_js.To_dom.of_input inp in
-    r##.onchange :=
-      lwt_handler (fun _ ->
-          (* FIXME: the API should allow to change the mode without resetting the trustee list *)
-          let ok =
-            if !all_trustee <> [] then
-              let confirm =
-                confirm
-                @@ s_ "Warning, this will delete the current list of trustees"
-              in
-              if not confirm then false else true
-            else true
-          in
-          if ok then (
-            let with_thr = not with_thr in
-            let mm = if with_thr then `SetThreshold 0 else `SetBasic in
-            let ifmatch = !ifmatch_tt in
-            let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
-            match x.code with
-            | 200 -> !update_main_zone ()
-            | _ ->
-                alert "Error";
-                Lwt.return_unit)
-          else (
-            r##.checked := Js.bool with_thr;
-            Lwt.return_unit));
+    let inp, _ =
+      let onchange r =
+        (* FIXME: the API should allow to change the mode without resetting the trustee list *)
+        let ok =
+          if !all_trustee <> [] then
+            let confirm =
+              confirm
+              @@ s_ "Warning, this will delete the current list of trustees"
+            in
+            if not confirm then false else true
+          else true
+        in
+        if ok then (
+          let@ () = Lwt.async in
+          let with_thr = not with_thr in
+          let mm = if with_thr then `SetThreshold 0 else `SetBasic in
+          let ifmatch = !ifmatch_tt in
+          let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
+          match x.code with
+          | 200 -> !update_main_zone ()
+          | _ ->
+              alert "Error";
+              Lwt.return_unit)
+        else r##.checked := Js.bool with_thr
+      in
+      input ~a:attr ~onchange ()
+    in
     let lab =
       label ~a:[ a_label_for "thresh" ] [ txt @@ s_ "Threshold mode" ]
     in
-    if with_thr then (
+    if with_thr then
       let nth = List.length !all_trustee in
       let attr =
         [
@@ -240,19 +240,21 @@ let recompute_main_zone_1 () =
         ]
       in
       let v = match !mode with `Basic -> assert false | `Threshold i -> i in
-      let inp_thval, _ = input ~a:attr ~value:(string_of_int v) () in
-      let r = Tyxml_js.To_dom.of_input inp_thval in
-      r##.onchange :=
-        lwt_handler (fun _ ->
-            let vv = int_of_string (Js.to_string r##.value) in
-            let mm = `SetThreshold vv in
-            let ifmatch = !ifmatch_tt in
-            let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
-            match x.code with
-            | 200 -> !update_main_zone ()
-            | _ ->
-                alert "Error";
-                Lwt.return_unit);
+      let inp_thval, _ =
+        let onchange r =
+          let vv = int_of_string (Js.to_string r##.value) in
+          let mm = `SetThreshold vv in
+          let ifmatch = !ifmatch_tt in
+          let@ () = Lwt.async in
+          let* x = Api.(post ?ifmatch (draft_trustees uuid) !user mm) in
+          match x.code with
+          | 200 -> !update_main_zone ()
+          | _ ->
+              alert "Error";
+              Lwt.return_unit
+        in
+        input ~a:attr ~onchange ~value:(string_of_int v) ()
+      in
       let lab_thval =
         label
           ~a:[ a_label_for "thresh_val" ]
@@ -261,7 +263,7 @@ let recompute_main_zone_1 () =
             ^ s_ " (server is not counted)";
           ]
       in
-      div [ inp; lab; inp_thval; lab_thval ])
+      div [ inp; lab; inp_thval; lab_thval ]
     else div [ inp; lab ]
   in
   let proc_but =

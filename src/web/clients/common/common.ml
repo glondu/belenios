@@ -209,10 +209,17 @@ let show_in container f =
   List.iter (Dom.appendChild container) content;
   Lwt.return_unit
 
-let input ?a ?value () =
+let input ?a ?onchange ?value () =
   let elt = Tyxml_js.Html.input ?a () in
   let r = Tyxml_js.To_dom.of_input elt in
   Option.iter (fun x -> r##.value := Js.string x) value;
+  Option.iter
+    (fun h ->
+      r##.onchange :=
+        Dom_html.handler (fun _ ->
+            h r;
+            Js._true))
+    onchange;
   (elt, fun () -> Js.to_string r##.value)
 
 let button ?a label handler =

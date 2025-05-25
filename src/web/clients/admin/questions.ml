@@ -313,17 +313,17 @@ let q_to_html_inner ind q =
   let inp_tit, _ =
     let attr = [ a_class [ "qtit" ]; a_id ("q" ^ string_of_int ind) ] in
     let attr = if ro then a_readonly () :: attr else attr in
-    input ~a:attr ~value:q.question ()
+    let onchange r =
+      !all_gen_quest.(!curr_doing) <-
+        {
+          (!all_gen_quest.(!curr_doing)) with
+          question = Js.to_string r##.value;
+        };
+      let@ () = Lwt.async in
+      !update_question !curr_doing
+    in
+    input ~a:attr ~onchange ~value:q.question ()
   in
-  let r = Tyxml_js.To_dom.of_input inp_tit in
-  r##.onchange :=
-    lwt_handler (fun _ ->
-        !all_gen_quest.(!curr_doing) <-
-          {
-            (!all_gen_quest.(!curr_doing)) with
-            question = Js.to_string r##.value;
-          };
-        !update_question !curr_doing);
   (* type of question, select, sort, grade or lists *)
   let rad_name = "type" ^ string_of_int ind in
   let mk_qtype i kind l =
@@ -334,20 +334,20 @@ let q_to_html_inner ind q =
       let attr =
         if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
       in
-      input ~a:attr ()
+      let onchange _ =
+        let current = !all_gen_quest.(!curr_doing) in
+        let count_meth =
+          match kind with
+          | `Sort when current.count_meth = `None -> `Schulze
+          | `Grade -> `MJ
+          | _ -> current.count_meth
+        in
+        !all_gen_quest.(!curr_doing) <- { current with kind; count_meth };
+        let@ () = Lwt.async in
+        !update_question !curr_doing
+      in
+      input ~a:attr ~onchange ()
     in
-    let r = Tyxml_js.To_dom.of_input inp_rad in
-    r##.onchange :=
-      lwt_handler (fun () ->
-          let current = !all_gen_quest.(!curr_doing) in
-          let count_meth =
-            match kind with
-            | `Sort when current.count_meth = `None -> `Schulze
-            | `Grade -> `MJ
-            | _ -> current.count_meth
-          in
-          !all_gen_quest.(!curr_doing) <- { current with kind; count_meth };
-          !update_question !curr_doing);
     div [ inp_rad; label ~a:[ a_label_for id ] [ txt l ] ]
   in
   let qtype1 = mk_qtype 1 `Select @@ s_ "Select propositions" in
@@ -368,30 +368,30 @@ let q_to_html_inner ind q =
         let attr = if ro then a_disabled () :: attr else attr in
         let inp_selm, _ =
           let attr1 = a_id ("selm" ^ string_of_int ind) :: attr in
-          input ~a:attr1
+          let onchange r =
+            let value = int_of_string (Js.to_string r##.value) in
+            !all_gen_quest.(!curr_doing) <-
+              { (!all_gen_quest.(!curr_doing)) with sel_min = value };
+            let@ () = Lwt.async in
+            !update_question !curr_doing
+          in
+          input ~a:attr1 ~onchange
             ~value:(string_of_int !all_gen_quest.(ind - 1).sel_min)
             ()
         in
-        let r = Tyxml_js.To_dom.of_input inp_selm in
-        r##.onchange :=
-          lwt_handler (fun () ->
-              let value = int_of_string (Js.to_string r##.value) in
-              !all_gen_quest.(!curr_doing) <-
-                { (!all_gen_quest.(!curr_doing)) with sel_min = value };
-              !update_question !curr_doing);
         let inp_selM, _ =
           let attr2 = a_id ("selM" ^ string_of_int ind) :: attr in
-          input ~a:attr2
+          let onchange r =
+            let value = int_of_string (Js.to_string r##.value) in
+            !all_gen_quest.(!curr_doing) <-
+              { (!all_gen_quest.(!curr_doing)) with sel_max = value };
+            let@ () = Lwt.async in
+            !update_question !curr_doing
+          in
+          input ~a:attr2 ~onchange
             ~value:(string_of_int !all_gen_quest.(ind - 1).sel_max)
             ()
         in
-        let r = Tyxml_js.To_dom.of_input inp_selM in
-        r##.onchange :=
-          lwt_handler (fun () ->
-              let value = int_of_string (Js.to_string r##.value) in
-              !all_gen_quest.(!curr_doing) <-
-                { (!all_gen_quest.(!curr_doing)) with sel_max = value };
-              !update_question !curr_doing);
         Lwt.return
         @@ div
              ~a:[ a_class [ "expand_select" ] ]
@@ -432,15 +432,17 @@ let q_to_html_inner ind q =
             ]
           in
           let attr = if ro then a_disabled () :: attr else attr in
-          input ~a:attr ~value:(string_of_int !all_gen_quest.(ind - 1).seats) ()
+          let onchange r =
+            let value = int_of_string (Js.to_string r##.value) in
+            !all_gen_quest.(!curr_doing) <-
+              { (!all_gen_quest.(!curr_doing)) with seats = value };
+            let@ () = Lwt.async in
+            !update_question !curr_doing
+          in
+          input ~a:attr ~onchange
+            ~value:(string_of_int !all_gen_quest.(ind - 1).seats)
+            ()
         in
-        let r = Tyxml_js.To_dom.of_input inp_seats in
-        r##.onchange :=
-          lwt_handler (fun () ->
-              let value = int_of_string (Js.to_string r##.value) in
-              !all_gen_quest.(!curr_doing) <-
-                { (!all_gen_quest.(!curr_doing)) with seats = value };
-              !update_question !curr_doing);
         let div_seats =
           div
             [
@@ -467,16 +469,16 @@ let q_to_html_inner ind q =
             if ro then a_disabled () :: attr
             else a_class [ "clickable" ] :: attr
           in
-          input ~a:attr ()
+          let onchange r =
+            let checked = Js.to_bool r##.checked in
+            let display = if checked then "none" else "block" in
+            dom_seats##.style##.display := Js.string display;
+            let count_meth = if checked then `Schulze else `STV in
+            let@ () = Lwt.async in
+            update_count_meth count_meth
+          in
+          input ~a:attr ~onchange ()
         in
-        let r = Tyxml_js.To_dom.of_input inp_sort_rad1 in
-        r##.onchange :=
-          lwt_handler (fun () ->
-              let checked = Js.to_bool r##.checked in
-              let display = if checked then "none" else "block" in
-              dom_seats##.style##.display := Js.string display;
-              let count_meth = if checked then `Schulze else `STV in
-              update_count_meth count_meth);
         let inp_sort_rad2, _ =
           let attr =
             [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_2") ]
@@ -488,16 +490,16 @@ let q_to_html_inner ind q =
             if ro then a_disabled () :: attr
             else a_class [ "clickable" ] :: attr
           in
-          input ~a:attr ()
+          let onchange r =
+            let checked = Js.to_bool r##.checked in
+            let display = if checked then "block" else "none" in
+            dom_seats##.style##.display := Js.string display;
+            let count_meth = if checked then `STV else `Schulze in
+            let@ () = Lwt.async in
+            update_count_meth count_meth
+          in
+          input ~a:attr ~onchange ()
         in
-        let r = Tyxml_js.To_dom.of_input inp_sort_rad2 in
-        r##.onchange :=
-          lwt_handler (fun () ->
-              let checked = Js.to_bool r##.checked in
-              let display = if checked then "block" else "none" in
-              dom_seats##.style##.display := Js.string display;
-              let count_meth = if checked then `STV else `Schulze in
-              update_count_meth count_meth);
         Lwt.return
         @@ div
              ~a:[ a_class [ "expand_sort" ] ]
@@ -526,25 +528,25 @@ let q_to_html_inner ind q =
           q.grade_names |> Array.to_list
           |> Lwt_list.mapi_s (fun i z ->
                  let inp, _ =
+                   let onchange r =
+                     let new_ment = q.grade_names in
+                     new_ment.(i) <- Js.to_string r##.value;
+                     !all_gen_quest.(!curr_doing) <-
+                       {
+                         (!all_gen_quest.(!curr_doing)) with
+                         grade_names = new_ment;
+                       };
+                     let@ () = Lwt.async in
+                     !update_question !curr_doing
+                   in
                    input
                      ~a:
                        [
                          a_id
                            ("ment" ^ string_of_int ind ^ "_" ^ string_of_int i);
                        ]
-                     ~value:z ()
+                     ~onchange ~value:z ()
                  in
-                 let r = Tyxml_js.To_dom.of_input inp in
-                 r##.onchange :=
-                   lwt_handler (fun _ ->
-                       let new_ment = q.grade_names in
-                       new_ment.(i) <- Js.to_string r##.value;
-                       !all_gen_quest.(!curr_doing) <-
-                         {
-                           (!all_gen_quest.(!curr_doing)) with
-                           grade_names = new_ment;
-                         };
-                       !update_question !curr_doing);
                  let* dd =
                    delete_or_insert "grade"
                      [ a_class [ "d_i_side" ] ]
@@ -618,14 +620,14 @@ let q_to_html_inner ind q =
     let attr =
       if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
     in
-    input ~a:attr ()
+    let onchange _ =
+      !all_gen_quest.(!curr_doing) <-
+        { (!all_gen_quest.(!curr_doing)) with blank = not q.blank };
+      let@ () = Lwt.async in
+      !update_question !curr_doing
+    in
+    input ~a:attr ~onchange ()
   in
-  let r = Tyxml_js.To_dom.of_input inp in
-  r##.onchange :=
-    lwt_handler (fun _ ->
-        !all_gen_quest.(!curr_doing) <-
-          { (!all_gen_quest.(!curr_doing)) with blank = not q.blank };
-        !update_question !curr_doing);
   let bk =
     div
       ~a:[ a_class [ "blank_choice" ] ]
@@ -645,23 +647,25 @@ let q_to_html_inner ind q =
           let* list_items =
             answer_list |> Array.to_list
             |> Lwt_list.mapi_s (fun candidate_i z ->
-                   if candidate_i == 0 then (
+                   if candidate_i == 0 then
                      (* list name *)
-                     let inp, _ = input ~value:z () in
-                     let r = Tyxml_js.To_dom.of_input inp in
-                     r##.onchange :=
-                       lwt_handler (fun _ ->
-                           let new_ans =
-                             !all_gen_quest.(!curr_doing).answers_lists
-                           in
-                           new_ans.(list_i).(candidate_i) <-
-                             Js.to_string r##.value;
-                           !all_gen_quest.(!curr_doing) <-
-                             {
-                               (!all_gen_quest.(!curr_doing)) with
-                               answers_lists = new_ans;
-                             };
-                           !update_question !curr_doing);
+                     let inp, _ =
+                       let onchange r =
+                         let new_ans =
+                           !all_gen_quest.(!curr_doing).answers_lists
+                         in
+                         new_ans.(list_i).(candidate_i) <-
+                           Js.to_string r##.value;
+                         !all_gen_quest.(!curr_doing) <-
+                           {
+                             (!all_gen_quest.(!curr_doing)) with
+                             answers_lists = new_ans;
+                           };
+                         let@ () = Lwt.async in
+                         !update_question !curr_doing
+                       in
+                       input ~onchange ~value:z ()
+                     in
                      let* dd =
                        delete_or_insert "list"
                          [ a_class [ "d_i_side" ] ]
@@ -710,24 +714,26 @@ let q_to_html_inner ind q =
                      Lwt.return
                      @@ div
                           ~a:[ a_class [ "answer"; "answer_list_name" ] ]
-                          [ label; inp; dd ])
+                          [ label; inp; dd ]
                    else
                      (* list candidate *)
-                     let inp, _ = input ~value:z () in
-                     let r = Tyxml_js.To_dom.of_input inp in
-                     r##.onchange :=
-                       lwt_handler (fun _ ->
-                           let new_ans =
-                             !all_gen_quest.(!curr_doing).answers_lists
-                           in
-                           new_ans.(list_i).(candidate_i) <-
-                             Js.to_string r##.value;
-                           !all_gen_quest.(!curr_doing) <-
-                             {
-                               (!all_gen_quest.(!curr_doing)) with
-                               answers_lists = new_ans;
-                             };
-                           !update_question !curr_doing);
+                     let inp, _ =
+                       let onchange r =
+                         let new_ans =
+                           !all_gen_quest.(!curr_doing).answers_lists
+                         in
+                         new_ans.(list_i).(candidate_i) <-
+                           Js.to_string r##.value;
+                         !all_gen_quest.(!curr_doing) <-
+                           {
+                             (!all_gen_quest.(!curr_doing)) with
+                             answers_lists = new_ans;
+                           };
+                         let@ () = Lwt.async in
+                         !update_question !curr_doing
+                       in
+                       input ~value:z ~onchange ()
+                     in
                      let* dd =
                        delete_or_insert "candidate"
                          [ a_class [ "d_i_side" ] ]
@@ -823,24 +829,21 @@ let q_to_html_inner ind q =
           q.answers |> Array.to_list
           |> Lwt_list.mapi_s (fun i z ->
                  let inp, _ =
+                   let onchange r =
+                     let new_ans = !all_gen_quest.(!curr_doing).answers in
+                     new_ans.(i) <- Js.to_string r##.value;
+                     !all_gen_quest.(!curr_doing) <-
+                       { (!all_gen_quest.(!curr_doing)) with answers = new_ans };
+                     let@ () = Lwt.async in
+                     !update_question !curr_doing
+                   in
                    input
                      ~a:
                        [
                          a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i);
                        ]
-                     ~value:z ()
+                     ~onchange ~value:z ()
                  in
-                 let r = Tyxml_js.To_dom.of_input inp in
-                 r##.onchange :=
-                   lwt_handler (fun _ ->
-                       let new_ans = !all_gen_quest.(!curr_doing).answers in
-                       new_ans.(i) <- Js.to_string r##.value;
-                       !all_gen_quest.(!curr_doing) <-
-                         {
-                           (!all_gen_quest.(!curr_doing)) with
-                           answers = new_ans;
-                         };
-                       !update_question !curr_doing);
                  let* dd =
                    delete_or_insert "answer"
                      [ a_class [ "d_i_side" ] ]
