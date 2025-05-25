@@ -222,6 +222,19 @@ let input ?a ?onchange ?value () =
     onchange;
   (elt, fun () -> Js.to_string r##.value)
 
+let select ?a ?onchange ?value options =
+  let elt = Tyxml_js.Html.select ?a options in
+  let r = Tyxml_js.To_dom.of_select elt in
+  Option.iter (fun x -> r##.value := Js.string x) value;
+  Option.iter
+    (fun h ->
+      r##.onchange :=
+        Dom_html.handler (fun _ ->
+            h r;
+            Js._true))
+    onchange;
+  elt
+
 let button ?a label handler =
   let a = a_onclick_lwt handler :: Option.value ~default:[] a in
   Tyxml_js.Html.button ~a [ Tyxml_js.Html.txt label ]

@@ -60,18 +60,16 @@ let rec update_main_zone () =
         let options =
           option ~a:[ a_value "" ] (txt @@ s_ "Navigator's default") :: options
         in
-        let select = select ~a:[ a_id "inplang" ] options in
-        let r = Tyxml_js.To_dom.of_select select in
-        r##.value := Js.string current;
-        r##.onchange :=
-          lwt_handler (fun _ ->
-              let language =
-                match Js.to_string r##.value with "" -> None | x -> Some x
-              in
-              Cache.set Cache.account { acc with language };
-              let* () = Belenios_js.I18n.set ~language in
-              update_main ());
-        select
+        let onchange r =
+          let language =
+            match Js.to_string r##.value with "" -> None | x -> Some x
+          in
+          Cache.set Cache.account { acc with language };
+          let@ () = Lwt.async in
+          let* () = Belenios_js.I18n.set ~language in
+          update_main ()
+        in
+        select ~a:[ a_id "inplang" ] ~onchange ~value:current options
       in
       let content =
         [
