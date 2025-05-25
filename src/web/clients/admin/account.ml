@@ -118,11 +118,10 @@ and update_main () =
           [
             a_id "logout";
             a_class [ "main-menu__item"; "clickable"; "noselect" ];
+            a_onclick_lwt logout;
           ]
         [ txt @@ s_ "Log out" ]
     in
-    let r = Tyxml_js.To_dom.of_div dec in
-    r##.onclick := lwt_handler logout;
     Lwt.return
       [
         div

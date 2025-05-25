@@ -486,15 +486,11 @@ let subtab_elt name () =
     (if handler = None then "unavailable" else "clickable") :: classes
   in
   let classes = if active then "active" :: classes else classes in
-  let attr = [ a_id id; a_class classes ] in
-  let title = div ~a:attr [ txt title ] in
-  let () =
-    match handler with
-    | None -> ()
-    | Some handler ->
-        let r = Tyxml_js.To_dom.of_div title in
-        r##.onclick := lwt_handler handler
+  let attr =
+    match handler with None -> [] | Some handler -> [ a_onclick_lwt handler ]
   in
+  let attr = [ a_id id; a_class classes ] @ attr in
+  let title = div ~a:attr [ txt title ] in
   let status =
     match status with
     | `DDone -> div ~a:[ a_class [ "main-menu__ddone" ] ] []
@@ -653,15 +649,13 @@ let title_content () =
       ]
 
 let erase_voter_elt v () =
-  let elt = div ~a:[ a_class [ "del_sym" ] ] [] in
-  let r = Tyxml_js.To_dom.of_div elt in
-  r##.onclick :=
-    lwt_handler (fun () ->
-        let* voters = Cache.get_until_success Cache.voters in
-        let voters = List.filter (fun x -> x <> v) voters in
-        let () = Cache.set Cache.voters voters in
-        !update_election_main ());
-  elt
+  let onclick () =
+    let* voters = Cache.get_until_success Cache.voters in
+    let voters = List.filter (fun x -> x <> v) voters in
+    let () = Cache.set Cache.voters voters in
+    !update_election_main ()
+  in
+  div ~a:[ a_class [ "del_sym" ]; a_onclick_lwt onclick ] []
 
 let try_voters voters =
   let open (val !Belenios_js.I18n.gettext) in
@@ -1247,23 +1241,27 @@ let credauth_content () =
   let* changeable_content =
     (* server ? *)
     let attr =
-      [ a_id "rad_serv"; a_name "rad_credauth"; a_input_type `Radio ]
+      let onclick () =
+        let* () = change_credauth_name "server" in
+        currsel := `Server;
+        let* () =
+          let&&* d = document##getElementById (Js.string "cred_auth_name") in
+          d##.style##.display := Js.string "none";
+          Lwt.return_unit
+        in
+        let&&* d = document##getElementById (Js.string "cred_gen_serv") in
+        d##.style##.visibility := Js.string "visible";
+        Lwt.return_unit
+      in
+      [
+        a_id "rad_serv";
+        a_name "rad_credauth";
+        a_input_type `Radio;
+        a_onclick_lwt onclick;
+      ]
     in
     let attr = if !currsel = `Server then a_checked () :: attr else attr in
     let rad_serv, _ = input ~a:attr "" in
-    let r = Tyxml_js.To_dom.of_input rad_serv in
-    r##.onclick :=
-      lwt_handler (fun () ->
-          let* () = change_credauth_name "server" in
-          currsel := `Server;
-          let* () =
-            let&&* d = document##getElementById (Js.string "cred_auth_name") in
-            d##.style##.display := Js.string "none";
-            Lwt.return_unit
-          in
-          let&&* d = document##getElementById (Js.string "cred_gen_serv") in
-          d##.style##.visibility := Js.string "visible";
-          Lwt.return_unit);
     let lab_serv =
       label
         ~a:[ a_label_for "rad_serv" ]
@@ -1295,21 +1293,27 @@ let credauth_content () =
     if !currsel <> `Server then dd##.style##.visibility := Js.string "hidden";
     let serv_part = div [ rad_serv; lab_serv; generate_part ] in
     (* extern ? *)
-    let attr = [ a_id "rad_ext"; a_name "rad_credauth"; a_input_type `Radio ] in
+    let attr =
+      let onclick () =
+        currsel := `Extern;
+        let* () =
+          let&&* d = document##getElementById (Js.string "cred_auth_name") in
+          d##.style##.display := Js.string "block";
+          Lwt.return_unit
+        in
+        let&&* d = document##getElementById (Js.string "cred_gen_serv") in
+        d##.style##.visibility := Js.string "hidden";
+        Lwt.return_unit
+      in
+      [
+        a_id "rad_ext";
+        a_name "rad_credauth";
+        a_input_type `Radio;
+        a_onclick_lwt onclick;
+      ]
+    in
     let attr = if !currsel = `Extern then a_checked () :: attr else attr in
     let rad_ext, _ = input ~a:attr "" in
-    let r = Tyxml_js.To_dom.of_input rad_ext in
-    r##.onclick :=
-      lwt_handler (fun () ->
-          currsel := `Extern;
-          let* () =
-            let&&* d = document##getElementById (Js.string "cred_auth_name") in
-            d##.style##.display := Js.string "block";
-            Lwt.return_unit
-          in
-          let&&* d = document##getElementById (Js.string "cred_gen_serv") in
-          d##.style##.visibility := Js.string "hidden";
-          Lwt.return_unit);
     let lab_ext =
       label
         ~a:[ a_label_for "rad_ext" ]
@@ -1389,20 +1393,21 @@ let credauth_content () =
     | Error _ -> Lwt.return @@ div [ txt "Error" ]
     | Ok (p, _) ->
         let link =
-          a_data ~mime_type:"text/plain"
+          let onclick () =
+            let* x = Api.(post (draft uuid) !user `SetDownloaded) in
+            match x.code with
+            | 200 -> !update_election_main ()
+            | _ ->
+                alert ("Failed with error code " ^ string_of_int x.code);
+                Lwt.return_unit
+          in
+          a_data
+            ~a:[ a_onclick_lwt onclick ]
+            ~mime_type:"text/plain"
             ~data:(string_of_private_credentials p)
             ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid))
           @@ s_ "the private parts of the credentials"
         in
-        let r = Tyxml_js.To_dom.of_a link in
-        r##.onclick :=
-          lwt_handler (fun () ->
-              let* x = Api.(post (draft uuid) !user `SetDownloaded) in
-              match x.code with
-              | 200 -> !update_election_main ()
-              | _ ->
-                  alert ("Failed with error code " ^ string_of_int x.code);
-                  Lwt.return_unit);
         div
           ~a:[ a_class [ "txt_with_a" ] ]
           [

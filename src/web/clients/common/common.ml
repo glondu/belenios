@@ -195,6 +195,13 @@ let lwt_handler f =
       Lwt.async f;
       Js._true)
 
+let a_lwt a_maker f =
+  a_maker (fun _ ->
+      Lwt.async f;
+      true)
+
+let a_onclick_lwt = a_lwt Tyxml_js.Html.a_onclick
+
 let show_in container f =
   let* content = f () in
   let content = List.map Tyxml_js.To_dom.of_node content in
@@ -209,10 +216,8 @@ let input ?a value =
   (elt, fun () -> Js.to_string r##.value)
 
 let button ?a label handler =
-  let elt = Tyxml_js.Html.button ?a [ Tyxml_js.Html.txt label ] in
-  let r = Tyxml_js.To_dom.of_button elt in
-  r##.onclick := lwt_handler handler;
-  elt
+  let a = a_onclick_lwt handler :: Option.value ~default:[] a in
+  Tyxml_js.Html.button ~a [ Tyxml_js.Html.txt label ]
 
 let textarea ?a ?(cols = 80) ?(rows = 10) ?placeholder value =
   let elt = Tyxml_js.Html.textarea ?a (Tyxml_js.Html.txt value) in

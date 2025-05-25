@@ -210,13 +210,23 @@ let gen_to_q q =
 
 let delete_or_insert item attr handler_d handler_i =
   let del =
-    div ~a:[ a_class [ "remove_" ^ item; "del_sym"; "clickable" ] ] []
+    div
+      ~a:
+        [
+          a_class [ "remove_" ^ item; "del_sym"; "clickable" ];
+          a_onclick_lwt handler_d;
+        ]
+      []
   in
-  let r = Tyxml_js.To_dom.of_div del in
-  r##.onclick := lwt_handler handler_d;
-  let ins = div ~a:[ a_class [ "add_" ^ item; "ins_sym"; "clickable" ] ] [] in
-  let r = Tyxml_js.To_dom.of_div ins in
-  r##.onclick := lwt_handler handler_i;
+  let ins =
+    div
+      ~a:
+        [
+          a_class [ "add_" ^ item; "ins_sym"; "clickable" ];
+          a_onclick_lwt handler_i;
+        ]
+      []
+  in
   Lwt.return @@ div ~a:attr [ del; ins ]
 
 let set_complexity = ref (fun _ -> ())
@@ -566,20 +576,22 @@ let q_to_html_inner ind q =
           Lwt.return @@ list_grades
           @ [
               (let dd =
-                 div ~a:[ a_class [ "add_grade"; "ins_sym"; "clickable" ] ] []
+                 let onclick () =
+                   let new_a =
+                     Array.concat [ q.grade_names; [| s_ "New grade" |] ]
+                   in
+                   !all_gen_quest.(!curr_doing) <-
+                     { (!all_gen_quest.(!curr_doing)) with grade_names = new_a };
+                   !update_question !curr_doing
+                 in
+                 div
+                   ~a:
+                     [
+                       a_class [ "add_grade"; "ins_sym"; "clickable" ];
+                       a_onclick_lwt onclick;
+                     ]
+                   []
                in
-               let r = Tyxml_js.To_dom.of_div dd in
-               r##.onclick :=
-                 lwt_handler (fun () ->
-                     let new_a =
-                       Array.concat [ q.grade_names; [| s_ "New grade" |] ]
-                     in
-                     !all_gen_quest.(!curr_doing) <-
-                       {
-                         (!all_gen_quest.(!curr_doing)) with
-                         grade_names = new_a;
-                       };
-                     !update_question !curr_doing);
                div
                  ~a:[ a_class [ "fake_mention" ] ]
                  [
@@ -772,21 +784,26 @@ let q_to_html_inner ind q =
         in
         let lists_with_insert =
           (let dd =
-             div ~a:[ a_class [ "add_list"; "ins_sym"; "clickable" ] ] []
+             let onclick () =
+               let new_a =
+                 Array.concat
+                   [
+                     [| [| s_ "New list"; s_ "New candidate" |] |];
+                     q.answers_lists;
+                   ]
+               in
+               !all_gen_quest.(!curr_doing) <-
+                 { (!all_gen_quest.(!curr_doing)) with answers_lists = new_a };
+               !update_question !curr_doing
+             in
+             div
+               ~a:
+                 [
+                   a_class [ "add_list"; "ins_sym"; "clickable" ];
+                   a_onclick_lwt onclick;
+                 ]
+               []
            in
-           let r = Tyxml_js.To_dom.of_div dd in
-           r##.onclick :=
-             lwt_handler (fun () ->
-                 let new_a =
-                   Array.concat
-                     [
-                       [| [| s_ "New list"; s_ "New candidate" |] |];
-                       q.answers_lists;
-                     ]
-                 in
-                 !all_gen_quest.(!curr_doing) <-
-                   { (!all_gen_quest.(!curr_doing)) with answers_lists = new_a };
-                 !update_question !curr_doing);
            div
              ~a:[ a_class [ "fake_answer" ] ]
              [
@@ -849,17 +866,20 @@ let q_to_html_inner ind q =
         in
         let answers_with_insert =
           (let dd =
-             div ~a:[ a_class [ "add_answer"; "ins_sym"; "clickable" ] ] []
+             let onclick () =
+               let new_a = Array.concat [ [| s_ "New answer" |]; q.answers ] in
+               !all_gen_quest.(!curr_doing) <-
+                 { (!all_gen_quest.(!curr_doing)) with answers = new_a };
+               !update_question !curr_doing
+             in
+             div
+               ~a:
+                 [
+                   a_class [ "add_answer"; "ins_sym"; "clickable" ];
+                   a_onclick_lwt onclick;
+                 ]
+               []
            in
-           let r = Tyxml_js.To_dom.of_div dd in
-           r##.onclick :=
-             lwt_handler (fun () ->
-                 let new_a =
-                   Array.concat [ [| s_ "New answer" |]; q.answers ]
-                 in
-                 !all_gen_quest.(!curr_doing) <-
-                   { (!all_gen_quest.(!curr_doing)) with answers = new_a };
-                 !update_question !curr_doing);
            div
              ~a:[ a_class [ "fake_answer" ] ]
              [
@@ -931,27 +951,25 @@ let q_to_html ind q all_ro =
   in
   (* Show the non-active questions in background, and make then clickable *)
   let ro = all_ro || not (!curr_doing = ind) in
-  let attr =
+  let classes =
     if ro then
       if all_ro then [ "question"; "qro" ] else [ "question"; "qro"; "blur" ]
     else [ "question"; "qdoing" ]
   in
-  let dd = div ~a:[ a_class attr ] inner in
-  (if ro then
-     let r = Tyxml_js.To_dom.of_div dd in
-     r##.onclick :=
-       lwt_handler (fun _ ->
-           if all_ro then Lwt.return_unit
-           else
-             (* Changing the focus of the question implies a sync to server *)
-             let* () = local_save () in
-             let* () = Cache.sync_until_success () in
-             let old_curr = !curr_doing in
-             curr_doing := ind;
-             let* () = !update_question old_curr in
-             let* () = !update_question !curr_doing in
-             scroll_to_active_question ()));
-  Lwt.return dd
+  let onclick () =
+    if all_ro then Lwt.return_unit
+    else
+      (* Changing the focus of the question implies a sync to server *)
+      let* () = local_save () in
+      let* () = Cache.sync_until_success () in
+      let old_curr = !curr_doing in
+      curr_doing := ind;
+      let* () = !update_question old_curr in
+      let* () = !update_question !curr_doing in
+      scroll_to_active_question ()
+  in
+  let a = a_class classes :: (if ro then [ a_onclick_lwt onclick ] else []) in
+  Lwt.return @@ div ~a inner
 
 let () =
   update_question :=
@@ -992,25 +1010,35 @@ let draft_recompute_main_zone () =
          ~a:[ a_style "display: none;" ]
          [ txt @@ s_ "Total complexity:"; txt " "; complexity_elt ]
   in
-  let dd = div ~a:[ a_class [ "add_question"; "ins_sym"; "clickable" ] ] [] in
-  let r = Tyxml_js.To_dom.of_div dd in
-  r##.onclick :=
-    lwt_handler (fun () ->
-        all_gen_quest := Array.concat [ [| new_gen_quest () |]; !all_gen_quest ];
-        curr_doing := 0;
-        let* () = local_save () in
-        !update_main_zone ());
+  let dd =
+    let onclick () =
+      all_gen_quest := Array.concat [ [| new_gen_quest () |]; !all_gen_quest ];
+      curr_doing := 0;
+      let* () = local_save () in
+      !update_main_zone ()
+    in
+    div
+      ~a:
+        [
+          a_class [ "add_question"; "ins_sym"; "clickable" ];
+          a_onclick_lwt onclick;
+        ]
+      []
+  in
   let prev_but =
-    div ~a:[ a_class [ "clickable" ] ] [ txt @@ s_ "Preview voter's interface" ]
+    let onclick () =
+      let* () = local_save () in
+      let* () = Cache.sync_until_success () in
+      Preview.preview_booth ()
+    in
+    let a =
+      a_class [ "clickable" ]
+      ::
+      (if Array.length !all_gen_quest > 0 then [ a_onclick_lwt onclick ] else [])
+    in
+    div ~a [ txt @@ s_ "Preview voter's interface" ]
   in
   let prev = div ~a:[ a_id "previewbooth" ] [ prev_but ] in
-  (if Array.length !all_gen_quest > 0 then
-     let r = Tyxml_js.To_dom.of_div prev_but in
-     r##.onclick :=
-       lwt_handler (fun () ->
-           let* () = local_save () in
-           let* () = Cache.sync_until_success () in
-           Preview.preview_booth ()));
   let q_show =
     div
       ~a:[ a_class [ "fake_question" ] ]

@@ -83,17 +83,15 @@ let recompute_main_zone_1 () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in
   let erase_trustee_elt t =
-    let elt = div ~a:[ a_class [ "del_sym" ] ] [] in
-    let r = Tyxml_js.To_dom.of_div elt in
-    r##.onclick :=
-      lwt_handler (fun () ->
-          let* x = Api.(delete (draft_trustee uuid t) !user) in
-          match x.code with
-          | 200 -> !update_main_zone ()
-          | code ->
-              alert ("Deletion failed with code " ^ string_of_int code);
-              Lwt.return_unit);
-    elt
+    let onclick () =
+      let* x = Api.(delete (draft_trustee uuid t) !user) in
+      match x.code with
+      | 200 -> !update_main_zone ()
+      | code ->
+          alert ("Deletion failed with code " ^ string_of_int code);
+          Lwt.return_unit
+    in
+    div ~a:[ a_class [ "del_sym" ]; a_onclick_lwt onclick ] []
   in
   let header_row =
     tr
@@ -172,21 +170,22 @@ let recompute_main_zone_1 () =
     ]
   in
   let add_symbol =
-    let dd = div ~a:[ a_class [ "ins_sym clickable" ] ] [] in
-    let r = Tyxml_js.To_dom.of_div dd in
-    r##.onclick :=
-      lwt_handler (fun () ->
-          let* () =
-            let&&* container =
-              document##getElementById (Js.string "popup-content")
-            in
-            show_in container (fun () -> Lwt.return add_form)
-          in
-          let* () =
-            let&&* d = document##getElementById (Js.string "popup") in
-            Lwt.return (d##.style##.display := Js.string "block")
-          in
-          Lwt.return_unit);
+    let onclick () =
+      let* () =
+        let&&* container =
+          document##getElementById (Js.string "popup-content")
+        in
+        show_in container (fun () -> Lwt.return add_form)
+      in
+      let* () =
+        let&&* d = document##getElementById (Js.string "popup") in
+        Lwt.return (d##.style##.display := Js.string "block")
+      in
+      Lwt.return_unit
+    in
+    let dd =
+      div ~a:[ a_class [ "ins_sym clickable" ]; a_onclick_lwt onclick ] []
+    in
     div
       ~a:[ a_class [ "new_trustee" ] ]
       [

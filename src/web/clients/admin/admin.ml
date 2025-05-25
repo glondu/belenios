@@ -178,11 +178,10 @@ let election_a2 (x : summary) status =
   let uuid = x.uuid in
   let elt =
     a
+      ~a:[ a_onclick_lwt (choose_election_handler uuid status) ]
       ~href:("#" ^ Uuid.unwrap uuid)
       (if x.name = "" then s_ "(no title)" else x.name)
   in
-  let r = Tyxml_js.To_dom.of_a elt in
-  r##.onclick := lwt_handler (choose_election_handler uuid status);
   div ~a:[ a_class [ "txt_with_a" ] ] [ elt ]
 
 let list_draft () =
@@ -249,7 +248,13 @@ let rec page_body () =
            let classes =
              if active then "active" :: classes else "clickable" :: classes
            in
-           let attr = [ a_class [ String.concat " " classes ] ] in
+           let onclick () =
+             where_am_i := x;
+             update_page_body ()
+           in
+           let attr =
+             [ a_class [ String.concat " " classes ]; a_onclick_lwt onclick ]
+           in
            let title =
              div ~a:attr
                [
@@ -261,11 +266,6 @@ let rec page_body () =
                    | _ -> assert false);
                ]
            in
-           let r = Tyxml_js.To_dom.of_div title in
-           r##.onclick :=
-             lwt_handler (fun () ->
-                 where_am_i := x;
-                 update_page_body ());
            let title =
              if active then
                [
@@ -333,11 +333,13 @@ let nav_menu () =
   let open (val !Belenios_js.I18n.gettext) in
   let elt1 =
     div
-      ~a:[ a_class [ "nav-menu__item"; "clickable"; "noselect" ] ]
+      ~a:
+        [
+          a_class [ "nav-menu__item"; "clickable"; "noselect" ];
+          a_onclick_lwt home_handler;
+        ]
       [ txt @@ s_ "Home" ]
   in
-  let r = Tyxml_js.To_dom.of_div elt1 in
-  r##.onclick := lwt_handler home_handler;
   let elt2 = div ~a:[ a_class [ "nav-menu__item-blank"; "noselect" ] ] [] in
   let* ac = Cache.get Cache.account in
   let user =
@@ -349,22 +351,17 @@ let nav_menu () =
   in
   let classes = a_class [ "nav-menu__item"; "clickable"; "noselect" ] in
   let elt3 =
-    let r =
-      div ~a:[ classes ]
-        [
-          div ~a:[ a_id "nav_username" ] [ txt user ];
-          img ~a:[ a_id "avatar" ] ~alt:"Avatar" ~src:"static/avatar.png" ();
-        ]
-    in
-    let dom = Tyxml_js.To_dom.of_div r in
-    dom##.onclick := lwt_handler account_handler;
-    r
+    div
+      ~a:[ classes; a_onclick_lwt account_handler ]
+      [
+        div ~a:[ a_id "nav_username" ] [ txt user ];
+        img ~a:[ a_id "avatar" ] ~alt:"Avatar" ~src:"static/avatar.png" ();
+      ]
   in
   let elt4 =
-    let r = div ~a:[ a_id "logout_direct"; classes ] [ txt @@ s_ "Log out" ] in
-    let dom = Tyxml_js.To_dom.of_div r in
-    dom##.onclick := lwt_handler logout;
-    r
+    div
+      ~a:[ a_id "logout_direct"; classes; a_onclick_lwt logout ]
+      [ txt @@ s_ "Log out" ]
   in
   Lwt.return [ elt1; elt2; elt3; elt4 ]
 

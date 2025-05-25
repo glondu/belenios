@@ -38,13 +38,12 @@ let preview_booth () =
           (Uuid.unwrap (get_current_uuid ()))
           lang
       in
-      let link = a ~a:[ a_target "_blank" ] ~href "Ok" in
-      let r = Tyxml_js.To_dom.of_a link in
-      r##.onclick :=
-        lwt_handler (fun _ ->
-            let&&* d = document##getElementById (Js.string "popup") in
-            d##.style##.display := Js.string "none";
-            Lwt.return_unit);
+      let onclick () =
+        let&&* d = document##getElementById (Js.string "popup") in
+        d##.style##.display := Js.string "none";
+        Lwt.return_unit
+      in
+      let link = a ~a:[ a_target "_blank"; a_onclick_lwt onclick ] ~href "Ok" in
       let content =
         [
           div [ txt @@ s_ "Preview will open in a new tab" ];
@@ -64,13 +63,16 @@ let goto_mainpage () =
   | Error msg -> popup_failsync msg
   | Ok () ->
       let url = "election#" ^ Uuid.unwrap (get_current_uuid ()) in
-      let link = a ~a:[ a_target "_belenios_mainpage" ] ~href:url "Ok" in
-      let r = Tyxml_js.To_dom.of_a link in
-      r##.onclick :=
-        lwt_handler (fun _ ->
-            let&&* d = document##getElementById (Js.string "popup") in
-            d##.style##.display := Js.string "none";
-            Lwt.return_unit);
+      let onclick () =
+        let&&* d = document##getElementById (Js.string "popup") in
+        d##.style##.display := Js.string "none";
+        Lwt.return_unit
+      in
+      let link =
+        a
+          ~a:[ a_target "_belenios_mainpage"; a_onclick_lwt onclick ]
+          ~href:url "Ok"
+      in
       let content =
         [
           div [ txt @@ s_ "Main election page will open in a new tab." ];
