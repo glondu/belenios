@@ -33,7 +33,7 @@ let rec update_main_zone () =
   match ac with
   | Ok acc ->
       let input_name =
-        let inp, nameset = input ~a:[ a_id "inpname" ] acc.name in
+        let inp, nameset = input ~a:[ a_id "inpname" ] ~value:acc.name () in
         let r = Tyxml_js.To_dom.of_input inp in
         r##.onchange :=
           lwt_handler (fun _ ->

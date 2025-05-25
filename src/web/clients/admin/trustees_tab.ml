@@ -128,11 +128,11 @@ let recompute_main_zone_1 () =
     let lab1 =
       label ~a:[ a_label_for "inp1" ] [ txt @@ s_ "Trustee's e-mail " ]
     in
-    let inp1, inp1_get = input ~a:[ a_id "inp1" ] "" in
+    let inp1, inp1_get = input ~a:[ a_id "inp1" ] () in
     let lab2 =
       label ~a:[ a_label_for "inp2" ] [ txt @@ s_ "Trustee's public name " ]
     in
-    let inp2, inp2_get = input ~a:[ a_id "inp2" ] "" in
+    let inp2, inp2_get = input ~a:[ a_id "inp2" ] () in
     let cancel_but =
       button (s_ "Cancel") (fun () ->
           let* () =
@@ -199,7 +199,7 @@ let recompute_main_zone_1 () =
       [ a_id "thresh"; a_class [ "clickable" ]; a_input_type `Checkbox ]
     in
     let attr = if with_thr then a_checked () :: attr else attr in
-    let inp, _ = input ~a:attr "" in
+    let inp, _ = input ~a:attr () in
     let r = Tyxml_js.To_dom.of_input inp in
     r##.onchange :=
       lwt_handler (fun _ ->
@@ -240,7 +240,7 @@ let recompute_main_zone_1 () =
         ]
       in
       let v = match !mode with `Basic -> assert false | `Threshold i -> i in
-      let inp_thval, _ = input ~a:attr (string_of_int v) in
+      let inp_thval, _ = input ~a:attr ~value:(string_of_int v) () in
       let r = Tyxml_js.To_dom.of_input inp_thval in
       r##.onchange :=
         lwt_handler (fun _ ->

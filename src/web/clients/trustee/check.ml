@@ -143,7 +143,7 @@ let check ?uuid () =
   let* body =
     match uuid with
     | None ->
-        let uuid_input, get_uuid = input "" in
+        let uuid_input, get_uuid = input () in
         let button =
           let@ () = button @@ s_ "Proceed" in
           let uuid = get_uuid () in

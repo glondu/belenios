@@ -72,13 +72,13 @@ let rec show main uuid =
     let@ dates, ifmatch = with_ok "automatic-dates" x in
     let make_input d =
       let value =
-        match d with
-        | None -> ""
-        | Some x ->
+        Option.map
+          (fun x ->
             let x = new%js Js.date_fromTimeValue (x *. 1000.) in
-            Js.to_string x##toISOString
+            Js.to_string x##toISOString)
+          d
       in
-      input value
+      input ?value ()
     in
     let auto_open = make_input dates.auto_date_open in
     let auto_close = make_input dates.auto_date_close in
@@ -99,7 +99,7 @@ let rec show main uuid =
     Lwt.return [ fst auto_open; fst auto_close; fst auto_publish; set_button ]
   in
   let regenpwd =
-    let i, iget = input "" in
+    let i, iget = input () in
     let set_button =
       let@ () = button "Regenerate a password" in
       let request = `RegeneratePassword (iget ()) in
@@ -122,7 +122,7 @@ let rec show main uuid =
   in
   let* shuffles = make "shuffles" (Api.election_shuffles uuid) in
   let shuffle =
-    let i, iget = input "" in
+    let i, iget = input () in
     let make label request =
       let@ () = button label in
       let* x = Api.(post (election_shuffle uuid (iget ())) !user request) in

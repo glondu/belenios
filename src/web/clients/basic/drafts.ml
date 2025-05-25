@@ -70,7 +70,7 @@ let rec show_draft_voters uuid draft container =
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
   in
   let import =
-    let i, iget = input "" in
+    let i, iget = input () in
     let b =
       let@ () = button "Import voters" in
       let r = `Import (Uuid.wrap (iget ())) in
@@ -229,7 +229,7 @@ let rec show_draft_trustees uuid container =
     generic_proceed x (fun () -> show_draft_trustees uuid container)
   in
   let import =
-    let i, iget = input "" in
+    let i, iget = input () in
     let b =
       let@ () = button "Import trustees" in
       let r = `Import (Uuid.wrap (iget ())) in

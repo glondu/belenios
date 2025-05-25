@@ -819,7 +819,7 @@ let voters_content () =
             Lwt.return_unit)
   in
   let upload_input, _get_filename =
-    input ~a:[ a_input_type `File; a_name "fileupload"; a_id "fileupload" ] ""
+    input ~a:[ a_input_type `File; a_name "fileupload"; a_id "fileupload" ] ()
   in
   let upload_button =
     button (s_ "Upload voter file") (fun () ->
@@ -1004,7 +1004,7 @@ let dates_content () =
   let* dates = Cache.get_until_success Cache.e_dates in
   let make_div l id get set =
     let attr = [ a_id id; a_input_type `Datetime_local ] in
-    let inp, inp_get = input ~a:attr "" in
+    let inp, inp_get = input ~a:attr () in
     let r = Tyxml_js.To_dom.of_input inp in
     let () =
       match get dates with
@@ -1107,7 +1107,7 @@ let language_content () =
   let* config = Cache.get_until_success Cache.config in
   let lang = draft.draft_languages in
   let strlang = String.concat " " lang in
-  let inp, langet = input ~a:[ a_id "inplang" ] strlang in
+  let inp, langet = input ~a:[ a_id "inplang" ] ~value:strlang () in
   let r = Tyxml_js.To_dom.of_input inp in
   r##.onchange :=
     handler (fun _ ->
@@ -1158,7 +1158,7 @@ let contact_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let contact = Option.value ~default:"" draft.draft_contact in
-  let inp, contget = input ~a:[ a_id "inpcont" ] contact in
+  let inp, contget = input ~a:[ a_id "inpcont" ] ~value:contact () in
   let r = Tyxml_js.To_dom.of_input inp in
   r##.onchange :=
     handler (fun _ ->
@@ -1168,7 +1168,7 @@ let contact_content () =
   (* The default set by the server is the name of the administrator;
    * no need to do it on our side. In case this changes, we default to "" *)
   let admin = Option.value ~default:"" draft.draft_questions.t_administrator in
-  let inpA, adminget = input ~a:[ a_id "admincont" ] admin in
+  let inpA, adminget = input ~a:[ a_id "admincont" ] ~value:admin () in
   let r = Tyxml_js.To_dom.of_input inpA in
   r##.onchange :=
     handler (fun _ ->
@@ -1261,7 +1261,7 @@ let credauth_content () =
       ]
     in
     let attr = if !currsel = `Server then a_checked () :: attr else attr in
-    let rad_serv, _ = input ~a:attr "" in
+    let rad_serv, _ = input ~a:attr () in
     let lab_serv =
       label
         ~a:[ a_label_for "rad_serv" ]
@@ -1313,7 +1313,7 @@ let credauth_content () =
       ]
     in
     let attr = if !currsel = `Extern then a_checked () :: attr else attr in
-    let rad_ext, _ = input ~a:attr "" in
+    let rad_ext, _ = input ~a:attr () in
     let lab_ext =
       label
         ~a:[ a_label_for "rad_ext" ]
@@ -1330,7 +1330,7 @@ let credauth_content () =
       let inp_ext, get_ext =
         input
           ~a:[ a_placeholder @@ s_ "Name of the credential authority" ]
-          value
+          ~value ()
       in
       let r = Tyxml_js.To_dom.of_input inp_ext in
       r##.onchange :=
@@ -1482,7 +1482,7 @@ let voterspwd_content_draft () =
           let attr =
             if (not first_visit) && sel then a_checked () :: attr else attr
           in
-          let inp, _ = input ~a:attr "" in
+          let inp, _ = input ~a:attr () in
           let lab = label ~a:[ a_label_for id ] [ txt text ] in
           (inp, lab)
         in
@@ -1554,7 +1554,7 @@ let voterspwd_content_draft () =
                      let inp2, get2 =
                        input
                          ~a:[ a_placeholder "https://cas.example.com/cas" ]
-                         casname
+                         ~value:casname ()
                      in
                      let get () = `CAS (get2 ()) in
                      set_onchange inp get;
@@ -1626,7 +1626,7 @@ let voterspwd_content_draft () =
 
 let voterspwd_content_running () =
   let open (val !Belenios_js.I18n.gettext) in
-  let username, get_username = input "" in
+  let username, get_username = input () in
   let submit =
     let@ () = button @@ s_ "Submit" in
     let uuid = get_current_uuid () in

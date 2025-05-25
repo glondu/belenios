@@ -313,7 +313,7 @@ let q_to_html_inner ind q =
   let inp_tit, _ =
     let attr = [ a_class [ "qtit" ]; a_id ("q" ^ string_of_int ind) ] in
     let attr = if ro then a_readonly () :: attr else attr in
-    input ~a:attr q.question
+    input ~a:attr ~value:q.question ()
   in
   let r = Tyxml_js.To_dom.of_input inp_tit in
   r##.onchange :=
@@ -334,7 +334,7 @@ let q_to_html_inner ind q =
       let attr =
         if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
       in
-      input ~a:attr ""
+      input ~a:attr ()
     in
     let r = Tyxml_js.To_dom.of_input inp_rad in
     r##.onchange :=
@@ -368,7 +368,9 @@ let q_to_html_inner ind q =
         let attr = if ro then a_disabled () :: attr else attr in
         let inp_selm, _ =
           let attr1 = a_id ("selm" ^ string_of_int ind) :: attr in
-          input ~a:attr1 (string_of_int !all_gen_quest.(ind - 1).sel_min)
+          input ~a:attr1
+            ~value:(string_of_int !all_gen_quest.(ind - 1).sel_min)
+            ()
         in
         let r = Tyxml_js.To_dom.of_input inp_selm in
         r##.onchange :=
@@ -379,7 +381,9 @@ let q_to_html_inner ind q =
               !update_question !curr_doing);
         let inp_selM, _ =
           let attr2 = a_id ("selM" ^ string_of_int ind) :: attr in
-          input ~a:attr2 (string_of_int !all_gen_quest.(ind - 1).sel_max)
+          input ~a:attr2
+            ~value:(string_of_int !all_gen_quest.(ind - 1).sel_max)
+            ()
         in
         let r = Tyxml_js.To_dom.of_input inp_selM in
         r##.onchange :=
@@ -428,7 +432,7 @@ let q_to_html_inner ind q =
             ]
           in
           let attr = if ro then a_disabled () :: attr else attr in
-          input ~a:attr (string_of_int !all_gen_quest.(ind - 1).seats)
+          input ~a:attr ~value:(string_of_int !all_gen_quest.(ind - 1).seats) ()
         in
         let r = Tyxml_js.To_dom.of_input inp_seats in
         r##.onchange :=
@@ -463,7 +467,7 @@ let q_to_html_inner ind q =
             if ro then a_disabled () :: attr
             else a_class [ "clickable" ] :: attr
           in
-          input ~a:attr ""
+          input ~a:attr ()
         in
         let r = Tyxml_js.To_dom.of_input inp_sort_rad1 in
         r##.onchange :=
@@ -484,7 +488,7 @@ let q_to_html_inner ind q =
             if ro then a_disabled () :: attr
             else a_class [ "clickable" ] :: attr
           in
-          input ~a:attr ""
+          input ~a:attr ()
         in
         let r = Tyxml_js.To_dom.of_input inp_sort_rad2 in
         r##.onchange :=
@@ -528,7 +532,7 @@ let q_to_html_inner ind q =
                          a_id
                            ("ment" ^ string_of_int ind ^ "_" ^ string_of_int i);
                        ]
-                     z
+                     ~value:z ()
                  in
                  let r = Tyxml_js.To_dom.of_input inp in
                  r##.onchange :=
@@ -614,7 +618,7 @@ let q_to_html_inner ind q =
     let attr =
       if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
     in
-    input ~a:attr ""
+    input ~a:attr ()
   in
   let r = Tyxml_js.To_dom.of_input inp in
   r##.onchange :=
@@ -643,7 +647,7 @@ let q_to_html_inner ind q =
             |> Lwt_list.mapi_s (fun candidate_i z ->
                    if candidate_i == 0 then (
                      (* list name *)
-                     let inp, _ = input z in
+                     let inp, _ = input ~value:z () in
                      let r = Tyxml_js.To_dom.of_input inp in
                      r##.onchange :=
                        lwt_handler (fun _ ->
@@ -709,7 +713,7 @@ let q_to_html_inner ind q =
                           [ label; inp; dd ])
                    else
                      (* list candidate *)
-                     let inp, _ = input z in
+                     let inp, _ = input ~value:z () in
                      let r = Tyxml_js.To_dom.of_input inp in
                      r##.onchange :=
                        lwt_handler (fun _ ->
@@ -824,7 +828,7 @@ let q_to_html_inner ind q =
                        [
                          a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i);
                        ]
-                     z
+                     ~value:z ()
                  in
                  let r = Tyxml_js.To_dom.of_input inp in
                  r##.onchange :=
