@@ -67,11 +67,17 @@ let send s ?internal (msg : Belenios_web_api.message) =
           |> Cohttp_lwt.Body.of_string
         in
         let* response, x =
-          Cohttp_lwt_unix.Client.post ~body (Uri.of_string url)
+          let headers =
+            Cohttp.Header.init_with "content-type" "application/json"
+          in
+          Cohttp_lwt_unix.Client.post ~headers ~body (Uri.of_string url)
         in
         let* hint = Cohttp_lwt.Body.to_string x in
         match Cohttp.Code.code_of_status response.status with
-        | 200 -> Lwt.return_ok hint
+        | 200 -> (
+            match Yojson.Safe.from_string hint with
+            | `String hint -> Lwt.return_ok hint
+            | _ | (exception _) -> Lwt.return_error ())
         | _ -> Lwt.return_error ())
   in
   let* reason, uuid, { recipient; subject; body } =
