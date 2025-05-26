@@ -100,8 +100,7 @@ def download_audit_data(url, uuid):
                 l = link + '/archive'
             else:
                 l = link + '/' + f
-            resp = urllib.request.urlopen(l)
-            data[f]=resp.read()
+            data[f] = get_url(l)
         except urllib.error.URLError as e:
             fail = True
             msg = msg + "Download {} failed with ret code \"{}\" for election {}\n".format(f, e, uuid)
@@ -316,8 +315,7 @@ def check_noreplay(uuid, path_to_all_ballot_hashs, new_hashs):
 
 def hash_file(link):
     try:
-        resp = urllib.request.urlopen(link)
-        data = resp.read()
+        data = get_url(link)
     except:
         print("Failed to download {}. Aborting".format(link))
         sys.exit(1)
@@ -384,10 +382,28 @@ parser.add_argument("--keyring", help="keyring to check the signature");
 parser.add_argument("--beleniospath", default=".", help="path to Belenios sources")
 # other arguments
 parser.add_argument("--logfile", help="file to write the non-error logs")
+parser.add_argument("--useragents", help="file with user-agents to use for http requests")
 
 args = parser.parse_args()
 
 ########### Check arguments
+
+useragents = []
+if args.useragents:
+    with open(args.useragents) as f:
+        useragents = [ x.rstrip() for x in f.readlines() ]
+
+def get_user_agent():
+    if useragents:
+        random.shuffle(useragents)
+        return {"User-Agent": useragents[0]}
+    else:
+        return {}
+
+def get_url(url):
+    req = urllib.request.Request(url, headers=get_user_agent())
+    f = urllib.request.urlopen(req)
+    return f.read()
 
 # Set logfile; check permissions
 if args.logfile:
@@ -476,8 +492,7 @@ if args.checkhash == True:
 
     # If we can check signature, do it
     if args.sighashref:
-        resp = urllib.request.urlopen(args.sighashref)
-        sig = resp.read()
+        sig = get_url(args.sighashref)
         gpgrun = subprocess.run(["gpg", "--no-default-keyring", "--keyring", args.keyring, "--decrypt"],
                 input=sig,
                 capture_output=True)
