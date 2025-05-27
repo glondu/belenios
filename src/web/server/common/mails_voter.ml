@@ -262,12 +262,14 @@ let generate_credential_email uuid (Draft (_, se)) =
 let mail_confirmation l uuid ~title x contact =
   let url2 = Web_common.get_election_home_url uuid in
   let url1 = url2 ^ "/ballots" in
-  let ({ user; weight; hash; revote; _ } : Belenios_web_api.confirmation) = x in
+  let ({ recipient; weight; hash; revote; _ } : Belenios_web_api.confirmation) =
+    x
+  in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let subject = Printf.sprintf (f_ "Your vote for election %s") title in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
-  add_sentence b (Printf.sprintf (f_ "Dear %s,") user);
+  add_sentence b (Printf.sprintf (f_ "Dear %s,") recipient.name);
   add_newline b;
   add_newline b;
   add_sentence b (s_ "Your vote for election");
@@ -311,11 +313,7 @@ let mail_confirmation l uuid ~title x contact =
   add_string b "-- ";
   add_newline b;
   add_string b !Web_config.vendor;
-  ({
-     recipient = { name = x.user; address = x.recipient };
-     subject;
-     body = contents b;
-   }
+  ({ recipient = x.recipient; subject; body = contents b }
     : Mails_common.text_message)
 
 let email_login l ~(recipient : Belenios_web_api.recipient) ~code =

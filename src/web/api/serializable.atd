@@ -345,9 +345,13 @@ type client_configuration = {
     ?lang : string option;
 }
 
+type recipient = {
+  name : string;
+  address : string;
+}
+
 type confirmation = {
-    user : string;
-    recipient : string;
+    recipient : recipient;
     hash : hash;
     revote : bool;
     weight : weight option;
@@ -358,11 +362,6 @@ type cast_result =
   [ Ok of confirmation
   | Error of cast_error
   ]
-
-type recipient = {
-  name : string;
-  address : string;
-}
 
 type material_message = {
   recipient : recipient;

@@ -355,8 +355,7 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   | Ok (hash, revote) ->
       let confirmation : confirmation =
         {
-          user = login;
-          recipient = email;
+          recipient = { name = login; address = email };
           hash;
           revote;
           weight = oweight;
