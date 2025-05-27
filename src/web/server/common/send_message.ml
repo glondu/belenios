@@ -28,11 +28,36 @@ let mailer =
   | None -> "/usr/lib/sendmail"
   | Some x -> x
 
-let sendmail ?return_path message =
+let split_address =
+  let open Re in
+  let rex = Pcre.regexp "^(.*)@([^@]+)$" in
+  fun x ->
+    match exec rex x with
+    | exception Not_found -> Printf.ksprintf failwith "bad e-mail address: %s" x
+    | g -> (Group.get g 1, Group.get g 2)
+
+let sendmail ~recipient ~uuid message =
+  let base_address =
+    Option.value ~default:!Web_config.server_mail !Web_config.return_path
+  in
+  let envelope_from =
+    match !Web_config.encode_recipient with
+    | false -> base_address
+    | true ->
+        let recipient =
+          let local, domain = split_address recipient in
+          Printf.sprintf "%s%%%s" local domain
+        in
+        let uuid =
+          match uuid with
+          | None -> ""
+          | Some x -> Printf.sprintf "+%s" (Uuid.unwrap x)
+        in
+        let local, domain = split_address base_address in
+        Printf.sprintf "%s+%s%s@%s" local recipient uuid domain
+  in
   let mailer =
-    match return_path with
-    | None -> mailer
-    | Some x -> Printf.sprintf "%s -f %s" mailer x
+    Printf.sprintf "%s -f %s" mailer (Filename.quote envelope_from)
   in
   Netsendmail.sendmail ~mailer message
 
@@ -129,8 +154,7 @@ let send s ?internal (msg : Belenios_web_api.message) =
     | None -> ()
     | Some uuid -> headers#update_field "Belenios-UUID" (Uuid.unwrap uuid)
   in
-  let return_path = !Web_config.return_path in
-  let sendmail = sendmail ?return_path in
+  let sendmail = sendmail ~uuid ~recipient:recipient.address in
   let rec loop retry =
     Lwt.catch
       (fun () ->

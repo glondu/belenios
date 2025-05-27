@@ -92,6 +92,8 @@ module Make () = struct
         in
         set true "mail" (fun x -> Web_config.server_mail := x);
         set true "return-path" (fun x -> Web_config.return_path := Some x);
+        set false "encode-recipient" (fun _ ->
+            Web_config.encode_recipient := true);
         set false "name" (fun x -> Web_config.server_name := x)
     | Element ("share", [ ("dir", dir) ], []) -> share_dir := Some dir
     | Element ("warning", [ ("file", file) ], []) ->

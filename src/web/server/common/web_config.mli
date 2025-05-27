@@ -55,3 +55,4 @@ val restricted_mode : bool ref
 val election_sealing : bool ref
 val send_message : (string * string) option ref
 val internal_send_message : string option ref
+val encode_recipient : bool ref
