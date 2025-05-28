@@ -56,7 +56,19 @@
         <maxmailsatonce value="1000"/>
         <tos uri="http://www.example.org/terms-of-service.html"/>
         <!-- <contact uri="mailto:contact@example.org"/> -->
-        <server mail="noreply@example.org" return-path="bounces@example.org" name="Belenios public server"/>
+        <!--
+            The attribute encode-recipient="true" provokes
+            plus-encoding of recipient address in the From
+            envelope. Remove it if your e-mail provider does not
+            support it.
+        -->
+        <server
+            mail="noreply@example.org"
+            return-path="bounces@example.org"
+            encode-recipient="true"
+            name="Belenios public server"
+            senderid="beleniosexample"
+            />
         <auth-export name="builtin-password"/>
         <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
