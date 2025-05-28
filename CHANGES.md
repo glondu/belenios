@@ -1,3 +1,14 @@
+3.2~dev
+=======
+
+ * Web server:
+   + Add support for external send_message service
+   + Add send-message endpoints to API
+   + Add support for encoding recipient in bouncing address
+   + Possibly add Feedback-ID header to outbound e-mails
+ * Monitoring:
+   + Randomize User-Agent in monitor_elections.py
+
 3.1 (2025-05-22)
 ================
 
