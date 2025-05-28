@@ -154,6 +154,16 @@ let send s ?internal (msg : Belenios_web_api.message) =
     | None -> ()
     | Some uuid -> headers#update_field "Belenios-UUID" (Uuid.unwrap uuid)
   in
+  let () =
+    match !Web_config.fbl_senderid with
+    | None -> ()
+    | Some senderid ->
+        let uuid =
+          match uuid with None -> "" | Some uuid -> Uuid.unwrap uuid
+        in
+        headers#update_field "Feedback-ID"
+          (Printf.sprintf "%s::%s:%s" uuid reason senderid)
+  in
   let sendmail = sendmail ~uuid ~recipient:recipient.address in
   let rec loop retry =
     Lwt.catch

@@ -94,6 +94,7 @@ module Make () = struct
         set true "return-path" (fun x -> Web_config.return_path := Some x);
         set false "encode-recipient" (fun _ ->
             Web_config.encode_recipient := true);
+        set false "senderid" (fun x -> Web_config.fbl_senderid := Some x);
         set false "name" (fun x -> Web_config.server_name := x)
     | Element ("share", [ ("dir", dir) ], []) -> share_dir := Some dir
     | Element ("warning", [ ("file", file) ], []) ->

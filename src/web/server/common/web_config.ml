@@ -51,3 +51,4 @@ let election_sealing = ref false
 let send_message = ref None
 let internal_send_message = ref None
 let encode_recipient = ref false
+let fbl_senderid = ref None
