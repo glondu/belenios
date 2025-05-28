@@ -105,36 +105,36 @@ let send s ?internal (msg : Belenios_web_api.message) =
             | _ | (exception _) -> Lwt.return_error ())
         | _ -> Lwt.return_error ())
   in
-  let* reason, uuid, { recipient; subject; body } =
+  let* reason, admin_id, uuid, { recipient; subject; body } =
     match msg with
     | `Account_create { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_confirmation_link l ~recipient ~code in
-        Lwt.return ("account-creation", uuid, t)
+        Lwt.return ("account-creation", "", uuid, t)
     | `Account_change_password { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_changepw_link l ~recipient ~code in
-        Lwt.return ("password-change", uuid, t)
+        Lwt.return ("password-change", "", uuid, t)
     | `Account_set_email { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_set_email l ~recipient ~code in
-        Lwt.return ("set-email", uuid, t)
+        Lwt.return ("set-email", "", uuid, t)
     | `Voter_password x ->
         let* t = Mails_voter.format_password_email s x in
-        Lwt.return ("password", Some x.uuid, t)
+        Lwt.return ("password", string_of_int x.admin_id, Some x.uuid, t)
     | `Voter_credential x ->
         let* t = Mails_voter.format_credential_email s x in
-        Lwt.return ("credential", Some x.uuid, t)
+        Lwt.return ("credential", string_of_int x.admin_id, Some x.uuid, t)
     | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
-        Lwt.return ("confirmation", Some uuid, t)
+        Lwt.return ("confirmation", "", Some uuid, t)
     | `Mail_login { lang; recipient; code; uuid } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t = Mails_voter.email_login l ~recipient ~code in
-        Lwt.return ("login", uuid, t)
+        Lwt.return ("login", "", uuid, t)
   in
   let contents =
     Netsendmail.compose
@@ -162,7 +162,7 @@ let send s ?internal (msg : Belenios_web_api.message) =
           match uuid with None -> "" | Some uuid -> Uuid.unwrap uuid
         in
         headers#update_field "Feedback-ID"
-          (Printf.sprintf "%s::%s:%s" uuid reason senderid)
+          (Printf.sprintf "%s:%s:%s:%s" uuid admin_id reason senderid)
   in
   let sendmail = sendmail ~uuid ~recipient:recipient.address in
   let rec loop retry =

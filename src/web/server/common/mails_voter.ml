@@ -148,7 +148,7 @@ let format_password_email s (x : material_message) =
   Lwt.return
     ({ recipient = x.recipient; subject; body } : Mails_common.text_message)
 
-let generate_password_email uuid v show_weight =
+let generate_password_email uuid ~admin_id v show_weight =
   let (_, { address; login; weight }) : Voter.t = v in
   let weight = if show_weight then weight else None in
   let salt = generate_token () in
@@ -159,6 +159,7 @@ let generate_password_email uuid v show_weight =
   let hashed = sha256_hex (salt ^ password) in
   let x : material_message =
     {
+      admin_id;
       uuid;
       recipient = { name = Option.value login ~default:address; address };
       material = password;
@@ -245,12 +246,13 @@ let format_credential_email s (x : material_message) =
   return
     ({ recipient = x.recipient; subject; body } : Mails_common.text_message)
 
-let generate_credential_email uuid (Draft (_, se)) =
+let generate_credential_email uuid ~admin_id (Draft (_, se)) =
   let show_weight = has_explicit_weights se.se_voters in
   fun ~recipient ~login ~weight ~credential ->
     let oweight = if show_weight then Some weight else None in
     let x : material_message =
       {
+        admin_id;
         uuid;
         recipient = { name = login; address = recipient };
         material = credential;

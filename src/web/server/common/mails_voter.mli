@@ -27,13 +27,18 @@ val format_password_email :
   Storage.t -> material_message -> Mails_common.text_message Lwt.t
 
 val generate_password_email :
-  uuid -> Voter.t -> bool -> (bulk_email * (string * string)) Lwt.t
+  uuid ->
+  admin_id:int ->
+  Voter.t ->
+  bool ->
+  (bulk_email * (string * string)) Lwt.t
 
 val format_credential_email :
   Storage.t -> material_message -> Mails_common.text_message Lwt.t
 
 val generate_credential_email :
   uuid ->
+  admin_id:int ->
   draft_election ->
   recipient:string ->
   login:string ->

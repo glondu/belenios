@@ -59,7 +59,7 @@ val check_password :
   (user:string -> password:string -> (string * string option) option Lwt.t)
   Storage.u
 
-val regen_password : (string -> bool Lwt.t) Storage.u
+val regen_password : (admin_id:int -> string -> bool Lwt.t) Storage.u
 
 (** {1 Derived election data} *)
 

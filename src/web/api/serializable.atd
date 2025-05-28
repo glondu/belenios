@@ -365,6 +365,7 @@ type cast_result =
 
 type material_message = {
   recipient : recipient;
+  ~admin_id <ocaml default="-1"> : int;
   material : string;
   uuid : uuid;
   ?weight : weight option;
