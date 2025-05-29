@@ -19,20 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_messages
+
 val mail_confirmation_link :
   (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:Belenios_web_api.recipient ->
+  recipient:recipient ->
   code:string ->
-  Mails_common.text_message
+  text_message
 
 val mail_changepw_link :
   (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:Belenios_web_api.recipient ->
+  recipient:recipient ->
   code:string ->
-  Mails_common.text_message
+  text_message
 
 val mail_set_email :
   (module Belenios_ui.I18n.GETTEXT) ->
-  recipient:Belenios_web_api.recipient ->
+  recipient:recipient ->
   code:string ->
-  Mails_common.text_message
+  text_message

@@ -22,6 +22,7 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_server_core
+open Belenios_messages
 
 let mailer =
   match Sys.getenv_opt "BELENIOS_SENDMAIL" with
@@ -61,25 +62,7 @@ let sendmail ~recipient ~uuid message =
   in
   Netsendmail.sendmail ~mailer message
 
-let hmac ~key x =
-  let open Cryptokit in
-  hash_string (MAC.hmac_sha256 key) x
-  |> transform_string (Hexa.encode ())
-  |> Belenios.Hash.of_hex
-
-let wrap_message ~key (message : Belenios_web_api.message) =
-  let timestamp = Unix.gettimeofday () in
-  { timestamp; message; hmac = None }
-  |> Belenios_web_api.string_of_message_payload |> hmac ~key
-  |> fun x ->
-  ({ timestamp; message; hmac = Some x } : Belenios_web_api.message_payload)
-
-let check_message ~key (message : Belenios_web_api.message_payload) =
-  { message with hmac = None }
-  |> Belenios_web_api.string_of_message_payload |> hmac ~key
-  |> fun x -> message.hmac = Some x
-
-let send s ?internal (msg : Belenios_web_api.message) =
+let send s ?internal (msg : message) =
   let@ () =
    fun cont ->
     match (internal, !Web_config.send_message) with
@@ -88,7 +71,7 @@ let send s ?internal (msg : Belenios_web_api.message) =
     | Some false, None -> Lwt.return_error ()
     | (None | Some false), Some (url, key) -> (
         let body =
-          msg |> wrap_message ~key |> Belenios_web_api.string_of_message_payload
+          msg |> wrap_message ~key |> string_of_message_payload
           |> Cohttp_lwt.Body.of_string
         in
         let* response, x =

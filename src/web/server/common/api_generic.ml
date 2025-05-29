@@ -179,7 +179,7 @@ let msgcache = ref HMap.empty
 let filter_msgcache ~now cache =
   HMap.filter (fun _ timestamp -> now < timestamp +. 600.) cache
 
-let post_send_message s ?internal ~key (m : Belenios_web_api.message_payload) =
+let post_send_message s ?internal ~key (m : Belenios_messages.message_payload) =
   let now = Unix.gettimeofday () in
   let cache = filter_msgcache ~now !msgcache in
   msgcache := cache;
@@ -187,7 +187,7 @@ let post_send_message s ?internal ~key (m : Belenios_web_api.message_payload) =
     match m.hmac with
     | Some hmac ->
         if HMap.mem hmac cache then forbidden
-        else if Send_message.check_message ~key m then
+        else if Belenios_messages.check_message ~key m then
           let* r = Send_message.send s ?internal m.message in
           match r with
           | Ok hint ->

@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2025-2025 Inria                                           *)
+(*  Copyright © 2012-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,8 +19,47 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type text_message = {
-  recipient : Belenios_web_api.recipient;
-  subject : string;
-  body : string;
+type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
+type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
+type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
+type recipient <ocaml predef from="Belenios_web_api.Serializable"> = abstract
+type confirmation <ocaml predef from="Belenios_web_api.Serializable"> = abstract
+
+type material_message = {
+  recipient : recipient;
+  ~admin_id <ocaml default="-1"> : int;
+  material : string;
+  uuid : uuid;
+  ?weight : weight option;
+}
+
+type code_message = {
+  lang : string;
+  recipient : recipient;
+  ?uuid : uuid option;
+  code : string;
+}
+
+type confirmation_message = {
+  lang : string;
+  uuid : uuid;
+  title : string;
+  contact : string option;
+  confirmation : confirmation;
+}
+
+type message =
+  [ Account_create of code_message
+  | Account_change_password of code_message
+  | Account_set_email of code_message
+  | Voter_password of material_message
+  | Voter_credential of material_message
+  | Vote_confirmation of confirmation_message
+  | Mail_login of code_message
+  ]
+
+type message_payload = {
+  timestamp : float;
+  message : message;
+  ?hmac : hash option;
 }

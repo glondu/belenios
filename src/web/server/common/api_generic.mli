@@ -59,5 +59,5 @@ val post_send_message :
   Storage.t ->
   ?internal:bool ->
   key:string ->
-  Belenios_web_api.message_payload ->
+  Belenios_messages.message_payload ->
   result Lwt.t

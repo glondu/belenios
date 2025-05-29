@@ -106,7 +106,7 @@ module Make () = struct
         in
         match (method_, !Web_config.internal_send_message) with
         | `POST, Some key ->
-            let@ x = body.run Belenios_web_api.message_payload_of_string in
+            let@ x = body.run Belenios_messages.message_payload_of_string in
             let@ () = handle_generic_error in
             Api_generic.post_send_message s ?internal ~key x
         | _ -> method_not_allowed)

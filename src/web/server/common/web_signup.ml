@@ -51,7 +51,7 @@ let send_confirmation_code gettext ~service ~recipient =
   Otp.generate ~payload ~context ~recipient
 
 let send_changepw_code gettext ~service
-    ~(recipient : Belenios_web_api.recipient) =
+    ~(recipient : Belenios_messages.recipient) =
   let kind = Web_state_sig.ChangePassword { username = recipient.name } in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in

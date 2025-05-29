@@ -19,10 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val check_message : key:string -> Belenios_web_api.message_payload -> bool
-
 val send :
   Belenios_storage_api.Storage.t ->
   ?internal:bool ->
-  Belenios_web_api.message ->
+  Belenios_messages.message ->
   (string, unit) result Lwt.t

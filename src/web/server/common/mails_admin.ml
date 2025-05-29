@@ -20,8 +20,9 @@
 (**************************************************************************)
 
 open Belenios
+open Belenios_messages
 
-let mail_confirmation_link l ~(recipient : Belenios_web_api.recipient) ~code =
+let mail_confirmation_link l ~(recipient : recipient) ~code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -53,9 +54,9 @@ let mail_confirmation_link l ~(recipient : Belenios_web_api.recipient) ~code =
   add_string b !Web_config.server_name;
   let body = contents b in
   let subject = !Web_config.vendor ^^^ s_ "Create account" in
-  ({ recipient; subject; body } : Mails_common.text_message)
+  ({ recipient; subject; body } : text_message)
 
-let mail_changepw_link l ~(recipient : Belenios_web_api.recipient) ~code =
+let mail_changepw_link l ~(recipient : recipient) ~code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -87,9 +88,9 @@ let mail_changepw_link l ~(recipient : Belenios_web_api.recipient) ~code =
   add_string b !Web_config.server_name;
   let body = contents b in
   let subject = !Web_config.vendor ^^^ s_ "Change password" in
-  ({ recipient; subject; body } : Mails_common.text_message)
+  ({ recipient; subject; body } : text_message)
 
-let mail_set_email l ~(recipient : Belenios_web_api.recipient) ~code =
+let mail_set_email l ~(recipient : recipient) ~code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -121,4 +122,4 @@ let mail_set_email l ~(recipient : Belenios_web_api.recipient) ~code =
   add_string b !Web_config.server_name;
   let body = contents b in
   let subject = !Web_config.vendor ^^^ s_ "Change e-mail address" in
-  ({ recipient; subject; body } : Mails_common.text_message)
+  ({ recipient; subject; body } : text_message)

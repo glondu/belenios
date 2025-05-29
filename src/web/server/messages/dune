@@ -1,10 +1,7 @@
 (library
- (name belenios_server_core)
- (libraries
-  (re_export belenios-lib.messages)
-  (re_export belenios-lib.api)
-  (re_export belenios_storage_api)
-  (re_export belenios_cohttp)))
+ (name belenios_messages)
+ (public_name belenios-lib.messages)
+ (libraries unix cryptokit belenios-lib.api))
 
 (rule
  (targets serializable_t.ml serializable_t.mli)

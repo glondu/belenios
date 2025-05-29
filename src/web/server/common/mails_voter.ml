@@ -146,7 +146,8 @@ let format_password_email s (x : material_message) =
     Printf.ksprintf return (f_ "Your password for election %s") metadata.title
   in
   Lwt.return
-    ({ recipient = x.recipient; subject; body } : Mails_common.text_message)
+    ({ recipient = x.recipient; subject; body }
+      : Belenios_messages.text_message)
 
 let generate_password_email uuid ~admin_id v show_weight =
   let (_, { address; login; weight }) : Voter.t = v in
@@ -244,7 +245,8 @@ let format_credential_email s (x : material_message) =
     Printf.ksprintf return (f_ "Your credential for election %s") metadata.title
   in
   return
-    ({ recipient = x.recipient; subject; body } : Mails_common.text_message)
+    ({ recipient = x.recipient; subject; body }
+      : Belenios_messages.text_message)
 
 let generate_credential_email uuid ~admin_id (Draft (_, se)) =
   let show_weight = has_explicit_weights se.se_voters in
@@ -316,7 +318,7 @@ let mail_confirmation l uuid ~title x contact =
   add_newline b;
   add_string b !Web_config.vendor;
   ({ recipient = x.recipient; subject; body = contents b }
-    : Mails_common.text_message)
+    : Belenios_messages.text_message)
 
 let email_login l ~(recipient : Belenios_web_api.recipient) ~code =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -350,4 +352,4 @@ let email_login l ~(recipient : Belenios_web_api.recipient) ~code =
   add_string b !Web_config.server_name;
   let body = contents b in
   let subject = !Web_config.vendor ^^^ s_ "Authentication" in
-  ({ recipient; subject; body } : Mails_common.text_message)
+  ({ recipient; subject; body } : Belenios_messages.text_message)

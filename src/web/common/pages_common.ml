@@ -192,7 +192,7 @@ module Make (Base : BASE) = struct
       match result with
       | `Ok
           ({ recipient; hash; revote; weight; email; _ } :
-            Belenios_web_api.confirmation) ->
+            Belenios_messages.confirmation) ->
           let this_is_a_revote =
             if revote then span [ txt @@ s_ "This is a revote."; txt " " ]
             else txt ""
