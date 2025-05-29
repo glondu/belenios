@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -15,7 +16,7 @@ msgstr ""
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Weblate 5.12-dev\n"
 
-#: src/web/clients/admin/trustees_tab.ml:262
+#: src/web/clients/admin/trustees_tab.ml:263
 msgid " (server is not counted)"
 msgstr " (сервер не враховується)"
 
@@ -23,7 +24,7 @@ msgstr " (сервер не враховується)"
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Вам було надіслано електронний лист із підтвердженням."
 
-#: src/web/server/common/pages_admin.ml:327
+#: src/web/server/common/pages_admin.ml:338
 msgid " and a password: "
 msgstr " і пароль: "
 
@@ -35,11 +36,11 @@ msgstr " і збережіть його в безпечному місці."
 msgid " and save the file to a secure location."
 msgstr " і збережіть файл у безпечному місці."
 
-#: src/web/clients/admin/elections.ml:1411
+#: src/web/clients/admin/elections.ml:1417
 msgid " and save them in a secure location."
 msgstr " і збережіть їх у безпечному місці."
 
-#: src/web/server/common/pages_admin.ml:377
+#: src/web/server/common/pages_admin.ml:388
 msgid " and your e-mail address is: "
 msgstr " і ваша адреса електронної пошти: "
 
@@ -51,8 +52,8 @@ msgstr " будь-коли під час виборів."
 msgid " as user "
 msgstr " як користувач "
 
-#. src/web/server/common/pages_admin.ml:313
-#: src/web/server/common/pages_admin.ml:364
+#: src/web/server/common/pages_admin.ml:375
+#. src/web/server/common/pages_admin.ml:324
 msgid " because "
 msgstr " тому що "
 
@@ -60,12 +61,12 @@ msgstr " тому що "
 msgid " has been accepted."
 msgstr " було прийнято."
 
-#. src/web/server/common/pages_admin.ml:224
 #: src/web/server/common/pages_admin.ml:257
+#. src/web/server/common/pages_admin.ml:224
 msgid " in the following box: "
 msgstr " у наступному полі: "
 
-#: src/web/clients/admin/elections.ml:991 src/web/clients/admin/elections.ml:988
+#: src/web/clients/admin/elections.ml:986 src/web/clients/admin/elections.ml:983
 msgid " in txt format."
 msgstr " у форматі txt."
 
@@ -73,7 +74,7 @@ msgstr " у форматі txt."
 msgid " is rejected, because "
 msgstr " відхиляється, тому що "
 
-#: src/web/clients/admin/elections.ml:1367
+#: src/web/clients/admin/elections.ml:1372
 msgid " or send them manually this link:"
 msgstr " або надішліть їх вручну за цим посиланням:"
 
@@ -89,8 +90,8 @@ msgstr " ваш внесок у дешифрування."
 msgid "(no title)"
 msgstr "(без назви)"
 
-#. src/web/server/common/pages_admin.ml:315
-#: src/web/server/common/pages_admin.ml:366
+#: src/web/server/common/pages_admin.ml:377
+#. src/web/server/common/pages_admin.ml:326
 msgid ". Please try again with a different one."
 msgstr ". Спробуйте ще раз з іншим."
 
@@ -122,37 +123,41 @@ msgstr ""
 msgid "6. Click on \"Submit the public credentials\"."
 msgstr "6. Натисніть «Надіслати публічні облікові дані»."
 
-#: src/web/clients/admin/elections.ml:1634
+#: src/web/clients/admin/elections.ml:1640
 msgid "A new password has been mailed to %s."
 msgstr "Новий пароль надіслано на адресу %s."
+
+#: src/web/server/common/pages_admin.ml:282
+msgid "A verification code has been sent to %s."
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:63
 msgid "Accept"
 msgstr "Прийняти"
 
-#: src/web/server/common/pages_admin.ml:287
+#: src/web/server/common/pages_admin.ml:298
 msgid "Account management"
 msgstr "Управління обліковим записом"
 
-#: src/web/server/common/site_admin.ml:410
+#: src/web/server/common/site_admin.ml:415
 msgid "Account not found"
 msgstr "Обліковий запис не знайдено"
 
-#: src/web/clients/admin/elections.ml:804
+#: src/web/clients/admin/elections.ml:799
 msgid "Add"
 msgstr "додати"
 
-#: src/web/clients/admin/questions.ml:585
+#: src/web/clients/admin/questions.ml:604
 msgid "Add a grade"
 msgstr "Додайте оцінку"
 
-#. src/web/clients/admin/trustees_tab.ml:147
-#: src/web/clients/admin/trustees_tab.ml:193
+#: src/web/clients/admin/trustees_tab.ml:192
+#. src/web/clients/admin/trustees_tab.ml:145
 msgid "Add a trustee"
 msgstr "Додайте довірену особу"
 
-#. src/web/clients/admin/admin.ml:63
 #: src/web/clients/admin/admin.ml:88 src/web/clients/admin/admin.ml:87
+#. src/web/clients/admin/admin.ml:63
 msgid "Administration"
 msgstr "Адміністрація"
 
@@ -166,11 +171,11 @@ msgstr ""
 "Усі довірені особи мають виконати один крок, перш ніж ви зможете перейти до "
 "наступного."
 
-#: src/web/clients/admin/questions.ml:619
+#: src/web/clients/admin/questions.ml:638
 msgid "Allow blank vote"
 msgstr "Дозволити порожнє голосування"
 
-#: src/web/server/common/pages_admin.ml:445
+#: src/web/server/common/pages_admin.ml:459
 msgid "An e-mail with a code has been sent to %s."
 msgstr "Електронний лист із кодом надіслано на адресу %s."
 
@@ -178,7 +183,7 @@ msgstr "Електронний лист із кодом надіслано на 
 msgid "An error occurred while applying the shuffle."
 msgstr "Під час застосування перемішування сталася помилка."
 
-#: src/web/clients/admin/common.ml:117
+#: src/web/clients/admin/common.ml:116
 msgid "An error occurred while retrieving elections: %s"
 msgstr "Під час отримання виборів сталася помилка: %s"
 
@@ -186,7 +191,7 @@ msgstr "Під час отримання виборів сталася поми�
 msgid "An error occurred while submitting credentials!"
 msgstr "Під час подання облікових даних сталася помилка!"
 
-#: src/web/clients/admin/elections.ml:900
+#: src/web/clients/admin/elections.ml:895
 msgid "An identity is either \"address\", or \"address,username\", or \"address,username,weight\", or \"address,,weight\" where \"address\" is an e-mail address, \"username\" the associated user name for authentication, and \"weight\" is the number of votes of the voter (in case voters don't have all the same number of votes)."
 msgstr ""
 "Ідентичність – це або «адреса», або «адреса, ім’я користувача», або «адреса, "
@@ -199,7 +204,7 @@ msgstr ""
 msgid "Archived elections"
 msgstr "Вибори в архіві"
 
-#: src/web/clients/admin/admin.ml:229
+#: src/web/clients/admin/admin.ml:227
 msgid "Archived elections:"
 msgstr "Вибори в архіві:"
 
@@ -207,11 +212,11 @@ msgstr "Вибори в архіві:"
 msgid "Are you sure you want to delete this election?"
 msgstr "Ви впевнені, що хочете видалити ці вибори??"
 
-#: src/web/clients/admin/questions.ml:911
+#: src/web/clients/admin/questions.ml:939
 msgid "Are you sure you want to delete this question?"
 msgstr "Ви впевнені, що хочете видалити це запитання?"
 
-#: src/web/clients/admin/trustees_tab.ml:314
+#: src/web/clients/admin/trustees_tab.ml:315
 msgid "Are you sure you want to restart from scratch?"
 msgstr "Ви впевнені, що хочете перезапустити з нуля??"
 
@@ -223,11 +228,11 @@ msgstr "Ви впевнені, що хочете підрахувати ці в�
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr "Як довірена особа, ваша перша роль — перетасувати зашифровані бюлетені."
 
-#: src/web/clients/admin/elections.ml:1835
+#: src/web/clients/admin/elections.ml:1842
 msgid "Automatic cleaning"
 msgstr "Автоматичне очищення"
 
-#: src/web/clients/admin/elections.ml:1008
+#: src/web/clients/admin/elections.ml:1003
 msgid "Automatic dates"
 msgstr "Автоматичні дати"
 
@@ -235,13 +240,13 @@ msgstr "Автоматичні дати"
 msgid "Below you will find the link to shuffle encrypted ballots."
 msgstr "Нижче ви знайдете посилання для перетасування зашифрованих бюлетенів."
 
-#. src/web/server/common/pages_admin.ml:541
-#. src/web/server/common/pages_admin.ml:507
-#: src/web/server/common/pages_admin.ml:575
+#: src/web/server/common/mails_admin.ml:117
+#. src/web/server/common/mails_admin.ml:83
+#. src/web/server/common/mails_admin.ml:49
 msgid "Best regards,"
 msgstr "З повагою,"
 
-#: src/web/clients/admin/elections.ml:1316
+#: src/web/clients/admin/elections.ml:1322
 msgid "By a third-party of your choice"
 msgstr "Третьою стороною на ваш вибір"
 
@@ -253,29 +258,29 @@ msgstr "На нашому сервері (не ідеально підходит
 msgid "By using this site, you accept our "
 msgstr "Використовуючи цей сайт, ви приймаєте наші "
 
-#: src/web/clients/admin/elections.ml:1544
+#: src/web/clients/admin/elections.ml:1550
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
 "CAS (зовнішній сервер автентифікації, пропонує кращі гарантії безпеки, якщо "
 "це можливо)"
 
-#: src/web/clients/admin/trustees_tab.ml:139 src/web/clients/admin/common.ml:143
+#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:142
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: src/web/server/common/pages_admin.ml:582
+#: src/web/server/common/mails_admin.ml:124
 msgid "Change e-mail address"
 msgstr "Змінити адресу електронної пошти"
 
-#. src/web/server/common/site_admin.ml:261
-#. src/web/server/common/pages_admin.ml:548
-#. src/web/server/common/pages_admin.ml:398
+#: src/web/server/common/site_admin.ml:379
+#. src/web/server/common/site_admin.ml:264
+#. src/web/server/common/mails_admin.ml:90
+#. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
-#: src/web/server/common/site_admin.ml:374
 msgid "Change password"
 msgstr "Змінити пароль"
 
-#: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:804
+#: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:805
 msgid "Check private key ownership"
 msgstr "Перевірте право власності на закритий ключ"
 
@@ -295,16 +300,16 @@ msgstr "Натисніть «Надіслати», щоб надіслати к�
 msgid "Click on the link."
 msgstr "Натисніть на посилання."
 
+#: src/web/clients/admin/elections.ml:1723
 #. src/web/clients/common/secondary_ui.ml:101
-#: src/web/clients/admin/elections.ml:1717
 msgid "Close"
 msgstr "Зачинено"
 
-#: src/web/clients/admin/elections.ml:1057
+#: src/web/clients/admin/elections.ml:1052
 msgid "Close: "
 msgstr "Закрити: "
 
-#: src/web/clients/admin/elections.ml:1136
+#: src/web/clients/admin/elections.ml:1130
 msgid "Code"
 msgstr "Код"
 
@@ -312,7 +317,7 @@ msgstr "Код"
 msgid "Collaborative key generation"
 msgstr "Спільна генерація ключів"
 
-#: src/web/server/common/pages_admin.ml:409
+#: src/web/server/common/pages_admin.ml:420
 msgid "Compute fingerprint"
 msgstr "Обчислити відбиток пальця"
 
@@ -320,7 +325,7 @@ msgstr "Обчислити відбиток пальця"
 msgid "Compute shuffle"
 msgstr "Перемішування обчислень"
 
-#: src/web/clients/admin/questions.ml:497
+#: src/web/clients/admin/questions.ml:514
 msgid "Condorcet-Schulze method"
 msgstr "Метод Кондорсе-Шульце"
 
@@ -328,11 +333,11 @@ msgstr "Метод Кондорсе-Шульце"
 msgid "Contact"
 msgstr "Контакт"
 
-#: src/web/clients/admin/elections.ml:1192
+#: src/web/clients/admin/elections.ml:1188
 msgid "Contact:"
 msgstr "Контакт:"
 
-#: src/web/clients/admin/admin.ml:401
+#: src/web/clients/admin/admin.ml:397
 msgid "Could not get configuration from server! (%s)"
 msgstr "Не вдалося отримати конфігурацію з сервера! (%s)"
 
@@ -340,22 +345,22 @@ msgstr "Не вдалося отримати конфігурацію з сер�
 msgid "Could not get trustee parameters for this election!"
 msgstr "Не вдалося отримати параметри довіреної особи для цих виборів!"
 
-#: src/web/clients/admin/elections.ml:1672
+#: src/web/clients/admin/elections.ml:1678
 msgid "Create"
 msgstr "Створити"
 
-#: src/web/clients/admin/admin.ml:287
+#: src/web/clients/admin/admin.ml:286
 msgid "Create a new election"
 msgstr "Створіть нові вибори"
 
-#. src/web/server/common/site_admin.ml:217
-#. src/web/server/common/pages_admin.ml:514
-#: src/web/server/common/site_admin.ml:344
+#: src/web/server/common/site_admin.ml:349
+#. src/web/server/common/site_admin.ml:220
+#. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr "Створити акаунт"
 
+#: src/web/server/common/pages_admin.ml:353
 #. src/web/server/common/pages_admin.ml:233
-#: src/web/server/common/pages_admin.ml:342
 msgid "Create an account"
 msgstr "Створіть обліковий запис"
 
@@ -379,7 +384,7 @@ msgstr "Керування повноваженнями"
 msgid "Credential generation"
 msgstr "Генерація облікових даних"
 
-#: src/web/clients/admin/elections.ml:1429
+#: src/web/clients/admin/elections.ml:1435
 msgid "Credentials are being generated on the server."
 msgstr "Облікові дані генеруються на сервері."
 
@@ -387,11 +392,11 @@ msgstr "Облікові дані генеруються на сервері."
 msgid "Credentials have been received and checked!"
 msgstr "Облікові дані отримані та перевірені!"
 
-#: src/web/clients/admin/elections.ml:1420
+#: src/web/clients/admin/elections.ml:1426
 msgid "Credentials have been received from the external credential authority."
 msgstr "Облікові дані отримано від зовнішнього центру ідентифікації."
 
-#: src/web/clients/admin/elections.ml:955
+#: src/web/clients/admin/elections.ml:950
 msgid "Current turnout: %d / %d = %.2f %%"
 msgstr "Поточна явка: %d / %d = %.2f %%"
 
@@ -408,13 +413,13 @@ msgstr "Дані надіслано!"
 msgid "Dates"
 msgstr "Дати"
 
-#: src/web/clients/admin/elections.ml:1102
+#: src/web/clients/admin/elections.ml:1097
 msgid "Dates can no longer be defined for this election."
 msgstr "Дати цих виборів більше не можуть бути визначені."
 
-#. src/web/server/common/pages_admin.ml:521
-#. src/web/server/common/pages_admin.ml:487
-#: src/web/server/common/pages_admin.ml:555
+#: src/web/server/common/mails_admin.ml:97
+#. src/web/server/common/mails_admin.ml:63
+#. src/web/server/common/mails_admin.ml:29
 msgid "Dear %s,"
 msgstr "Шановний %s,"
 
@@ -422,9 +427,9 @@ msgstr "Шановний %s,"
 msgid "Dear credential authority,"
 msgstr "Шановний центр довіри,"
 
+#: src/web/common/mails_admin.ml:333 src/web/common/mails_admin.ml:281
 #. src/web/common/mails_admin.ml:197
 #. src/web/common/mails_admin.ml:117
-#: src/web/common/mails_admin.ml:333 src/web/common/mails_admin.ml:281
 msgid "Dear trustee,"
 msgstr "Шановна довірена особа,"
 
@@ -432,17 +437,17 @@ msgstr "Шановна довірена особа,"
 msgid "Decryption trustees"
 msgstr "Розшифровка довірених осіб"
 
-#: src/web/clients/admin/elections.ml:1614
+#: src/web/clients/admin/elections.ml:1620
 msgid "Default mode:"
 msgstr "Режим за замовчуванням:"
 
-#: src/web/clients/admin/elections.ml:1086
+#: src/web/clients/admin/elections.ml:1081
 msgid "Defining this date will block finalization of the tallying process until this date. By default, when not set, results are published as soon as possible."
 msgstr ""
 "Визначення цієї дати заблокує завершення процесу підрахунку до цієї дати. За "
 "умовчанням, якщо не встановлено, результати публікуються якнайшвидше."
 
-#: src/web/clients/admin/elections.ml:793
+#: src/web/clients/admin/elections.ml:788
 msgid "Delete all"
 msgstr "Видалити все"
 
@@ -450,13 +455,13 @@ msgstr "Видалити все"
 msgid "Delete the election"
 msgstr "Видалити вибори"
 
-#: src/web/clients/admin/elections.ml:651 src/web/clients/admin/elections.ml:638
+#: src/web/clients/admin/elections.ml:648 src/web/clients/admin/elections.ml:635
 msgid "Description:"
 msgstr "Опис:"
 
-#. src/web/clients/admin/trustees_tab.ml:429
-#. src/web/clients/admin/trustees_tab.ml:404
-#: src/web/clients/admin/trustees_tab.ml:672
+#: src/web/clients/admin/trustees_tab.ml:673
+#. src/web/clients/admin/trustees_tab.ml:430
+#. src/web/clients/admin/trustees_tab.ml:405
 msgid "Direct link"
 msgstr "Пряме посилання"
 
@@ -464,17 +469,17 @@ msgstr "Пряме посилання"
 msgid "Don't forget to save:"
 msgstr "Не забудьте зберегти:"
 
-#. src/web/clients/admin/trustees_tab.ml:575
-#: src/web/clients/admin/trustees_tab.ml:693
+#: src/web/clients/admin/trustees_tab.ml:694
+#. src/web/clients/admin/trustees_tab.ml:576
 msgid "Done?"
 msgstr "Готово?"
 
-#. src/web/clients/credauth/generate.ml:115
 #: src/web/clients/credauth/generate.ml:123
+#. src/web/clients/credauth/generate.ml:115
 msgid "Download "
 msgstr "Завантажити "
 
-#: src/web/clients/admin/elections.ml:1776
+#: src/web/clients/admin/elections.ml:1783
 msgid "Download sealing log"
 msgstr "Завантажити журнал пломбування"
 
@@ -488,12 +493,12 @@ msgstr ""
 "Завантажте свій закритий ключ. Переконайтеся, що ви ЗБЕРЕГЛИ ЙОГО належним "
 "чином, інакше підрахунок буде неможливим, і вибори будуть скасовані."
 
-#: src/web/clients/admin/elections.ml:1568
+#: src/web/clients/admin/elections.ml:1574
 msgid "Dummy auth (should not be used in production): "
 msgstr "Фіктивна автентифікація (не слід використовувати у виробництві): "
 
-#. src/web/server/common/pages_admin.ml:214
 #: src/web/server/common/pages_admin.ml:244
+#. src/web/server/common/pages_admin.ml:214
 msgid "E-mail address:"
 msgstr "Адреса електронної пошти:"
 
@@ -501,7 +506,7 @@ msgstr "Адреса електронної пошти:"
 msgid "E-mail: "
 msgstr "Електронна пошта: "
 
-#: src/web/clients/admin/account.ml:135
+#: src/web/clients/admin/account.ml:134
 msgid "Edit profile"
 msgstr "Редагувати профіль"
 
@@ -509,26 +514,26 @@ msgstr "Редагувати профіль"
 msgid "Election ID:"
 msgstr "ID виборців:"
 
-#: src/web/clients/admin/elections.ml:1718
+#: src/web/clients/admin/elections.ml:1724
 msgid "Election is currently closed"
 msgstr "Наразі вибори закрито"
 
-#: src/web/clients/admin/elections.ml:1717
+#: src/web/clients/admin/elections.ml:1723
 msgid "Election is currently open"
 msgstr "Вибори наразі відкриті"
 
-#: src/web/clients/admin/elections.ml:1867 src/web/clients/admin/elections.ml:313
+#: src/web/clients/admin/elections.ml:1874 src/web/clients/admin/elections.ml:313
 msgid "Election main page"
 msgstr "Головна сторінка виборів"
 
+#: src/web/server/common/pages_admin.ml:190
 #. src/web/server/common/pages_admin.ml:45
 #. src/web/common/pages_common.ml:137
 #. src/web/common/pages_common.ml:128
-#: src/web/server/common/pages_admin.ml:190
 msgid "Election server"
 msgstr "Виборчий сервер"
 
-#: src/web/clients/admin/elections.ml:1851
+#: src/web/clients/admin/elections.ml:1858
 msgid "Election status"
 msgstr "Статус виборів"
 
@@ -536,7 +541,7 @@ msgstr "Статус виборів"
 msgid "Elections being prepared"
 msgstr "Готуються вибори"
 
-#: src/web/clients/admin/admin.ml:197
+#: src/web/clients/admin/admin.ml:195
 msgid "Elections being setup:"
 msgstr "Призначаються вибори:"
 
@@ -550,16 +555,16 @@ msgstr ""
 "Введіть свій приватний ключ дешифрування в перше поле та натисніть «"
 "Згенерувати свій внесок у дешифрування»."
 
-#: src/web/clients/admin/elections.ml:1045
+#: src/web/clients/admin/elections.ml:1040
 msgid "Erase"
 msgstr "Стерти"
 
+#: src/web/clients/credauth/generate.ml:159
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:233
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:191
-#. src/web/server/common/site_admin.ml:144
-#: src/web/clients/credauth/generate.ml:159
+#. src/web/server/common/site_admin.ml:194
+#. src/web/server/common/site_admin.ml:147
 msgid "Error"
 msgstr "Помилка"
 
@@ -576,7 +581,7 @@ msgid "Error while processing the private key. Did you load the right file?"
 msgstr ""
 "Помилка під час обробки закритого ключа. Ви завантажили правильний файл?"
 
-#: src/web/clients/admin/elections.ml:1467
+#: src/web/clients/admin/elections.ml:1473
 msgid "Error while retrieving server configuration: %s"
 msgstr "Помилка під час отримання конфігурації сервера: %s"
 
@@ -592,12 +597,12 @@ msgstr "Оцінка часу обчислення…"
 msgid "FAIL!"
 msgstr "НЕВДАЧА!"
 
-#. src/web/clients/admin/trustees_tab.ml:567
-#: src/web/clients/admin/trustees_tab.ml:684
+#: src/web/clients/admin/trustees_tab.ml:685
+#. src/web/clients/admin/trustees_tab.ml:568
 msgid "Failed to connect; please reload"
 msgstr "Не вдалося підключитися; будь ласка, перезавантажте"
 
-#: src/web/clients/admin/elections.ml:1641
+#: src/web/clients/admin/elections.ml:1647
 msgid "Failure, probably because of an error in the username: %s."
 msgstr "Помилка, ймовірно, через помилку в імені користувача: %s."
 
@@ -645,11 +650,11 @@ msgstr "Отримати вихідний код"
 msgid "Go back to election"
 msgstr "Поверніться до виборів"
 
-#: src/web/clients/admin/elections.ml:1872
+#: src/web/clients/admin/elections.ml:1879
 msgid "Go see the result on the election main page!"
 msgstr "Дивіться результати виборів на головній сторінці!"
 
-#: src/web/clients/admin/questions.ml:344
+#: src/web/clients/admin/questions.ml:355
 msgid "Grade propositions"
 msgstr "Пропозиції оцінок"
 
@@ -661,7 +666,7 @@ msgstr "Ось інструкції:"
 msgid "Here is the link to proceed to tally:"
 msgstr "Ось посилання для переходу:"
 
-#: src/web/clients/admin/admin.ml:338 src/web/server/common/pages_admin.ml:91
+#: src/web/clients/admin/admin.ml:341 src/web/server/common/pages_admin.ml:91
 msgid "Home"
 msgstr "Додому"
 
@@ -669,7 +674,7 @@ msgstr "Додому"
 msgid "ID: "
 msgstr "ID: "
 
-#: src/web/clients/admin/elections.ml:748
+#: src/web/clients/admin/elections.ml:743
 msgid "Identity"
 msgstr "Ідентичність"
 
@@ -681,20 +686,20 @@ msgstr "Якщо у вас немає облікового запису, ви м
 msgid "Illegal character: %c"
 msgstr "Неприпустимий символ: %c"
 
-#: src/web/server/common/pages_admin.ml:479
+#: src/web/server/common/pages_admin.ml:497
 msgid "Impersonate a user"
 msgstr "Видавати себе за користувача"
 
-#. src/web/clients/admin/trustees_tab.ml:286
-#: src/web/clients/admin/trustees_tab.ml:307
+#: src/web/clients/admin/trustees_tab.ml:308
+#. src/web/clients/admin/trustees_tab.ml:287
 msgid "Import trustees from another election"
 msgstr "Імпорт довірених осіб з інших виборів"
 
-#: src/web/clients/admin/elections.ml:917
+#: src/web/clients/admin/elections.ml:912
 msgid "Import voters "
 msgstr "Імпорт виборців "
 
-#: src/web/clients/admin/elections.ml:1039
+#: src/web/clients/admin/elections.ml:1034
 msgid "In 5 minutes"
 msgstr "Через 5 хвилин"
 
@@ -706,27 +711,27 @@ msgstr "Непослідовний стан!"
 msgid "Inconsistent state. Please refresh the page."
 msgstr "Неузгоджений стан. Будь ласка, оновіть сторінку."
 
-#: src/web/server/common/site_admin.ml:175
+#: src/web/server/common/site_admin.ml:178
 msgid "Incorrect code"
 msgstr "Невірний код"
 
-#: src/web/clients/admin/questions.ml:792
+#: src/web/clients/admin/questions.ml:820
 msgid "Insert a list"
 msgstr "Вставте список"
 
-#: src/web/clients/admin/questions.ml:1017
+#: src/web/clients/admin/questions.ml:1053
 msgid "Insert a question"
 msgstr "Вставте запитання"
 
-#: src/web/clients/admin/questions.ml:865
+#: src/web/clients/admin/questions.ml:893
 msgid "Insert an answer"
 msgstr "Вставте відповідь"
 
+#: src/web/clients/credauth/generate.ml:110
 #. src/web/clients/trustee/decrypt.ml:160
 #. src/web/clients/trustee/generate.ml:167
 #. src/web/common/mails_admin.ml:344
 #. src/web/common/mails_admin.ml:292
-#: src/web/clients/credauth/generate.ml:110
 msgid "Instructions:"
 msgstr "Інструкції:"
 
@@ -738,7 +743,7 @@ msgstr "Недійсне виборче посвідчення!"
 msgid "It is now time to compute your partial decryption factors."
 msgstr "Настав час обчислити часткові коефіцієнти дешифрування."
 
-#: src/web/clients/admin/elections.ml:1136
+#: src/web/clients/admin/elections.ml:1130
 msgid "Language"
 msgstr "Мова"
 
@@ -754,7 +759,7 @@ msgstr "Мова:"
 msgid "Languages"
 msgstr "Мови"
 
-#: src/web/clients/admin/elections.ml:1142
+#: src/web/clients/admin/elections.ml:1136
 msgid "Languages:"
 msgstr "Мови:"
 
@@ -762,8 +767,8 @@ msgstr "Мови:"
 msgid "Link to generate the decryption key"
 msgstr "Посилання для створення ключа дешифрування"
 
-#. src/web/clients/admin/trustees_tab.ml:466
-#: src/web/clients/admin/trustees_tab.ml:574
+#: src/web/clients/admin/trustees_tab.ml:575
+#. src/web/clients/admin/trustees_tab.ml:467
 msgid "Link to send"
 msgstr "Посилання для відправки"
 
@@ -775,23 +780,23 @@ msgstr "Посилання для перетасування зашифрова�
 msgid "Link to tally the election"
 msgstr "Посилання на підрахунок виборів"
 
-#: src/web/clients/admin/elections.ml:991 src/web/clients/admin/elections.ml:988
+#: src/web/clients/admin/elections.ml:986 src/web/clients/admin/elections.ml:983
 msgid "Link to the "
 msgstr "Посилання на "
 
-#: src/web/clients/admin/questions.ml:691
+#: src/web/clients/admin/questions.ml:712
 msgid "List name:"
 msgstr "Назва списку:"
 
-#: src/web/clients/admin/elections.ml:1158
+#: src/web/clients/admin/elections.ml:1152
 msgid "List of available languages, with their code:"
 msgstr "Список доступних мов з їх кодом:"
 
-#: src/web/clients/admin/questions.ml:345
+#: src/web/clients/admin/questions.ml:356
 msgid "Lists"
 msgstr "Списки"
 
-#: src/web/clients/admin/admin.ml:392
+#: src/web/clients/admin/admin.ml:388
 msgid "Loading..."
 msgstr "Завантаження..."
 
@@ -803,32 +808,32 @@ msgstr "Увійти за допомогою"
 msgid "Log in:"
 msgstr "Увійти:"
 
+#: src/web/clients/admin/admin.ml:364 src/web/clients/admin/account.ml:123
 #. src/web/server/common/pages_admin.ml:110
-#: src/web/clients/admin/admin.ml:365 src/web/clients/admin/account.ml:122
 msgid "Log out"
 msgstr "Вийти"
 
-#: src/web/clients/admin/elections.ml:749
+#: src/web/clients/admin/elections.ml:744
 msgid "Login"
 msgstr "Логін"
 
-#: src/web/clients/admin/preview.ml:76
+#: src/web/clients/admin/preview.ml:78
 msgid "Main election page will open in a new tab."
 msgstr "Головна сторінка виборів відкриється в новій вкладці."
 
-#: src/web/clients/admin/elections.ml:553
+#: src/web/clients/admin/elections.ml:549
 msgid "Management"
 msgstr "управління"
 
-#: src/web/clients/admin/elections.ml:1446
+#: src/web/clients/admin/elections.ml:1452
 msgid "Management of credentials:"
 msgstr "Управління обліковими даними:"
 
-#: src/web/clients/admin/questions.ml:398
+#: src/web/clients/admin/questions.ml:413
 msgid "Maximal number of choices to select"
 msgstr "Максимальна кількість варіантів для вибору"
 
-#: src/web/clients/admin/questions.ml:391
+#: src/web/clients/admin/questions.ml:406
 msgid "Minimal number of choices to select"
 msgstr "Мінімальна кількість варіантів для вибору"
 
@@ -848,19 +853,19 @@ msgstr "Має починатися з подвійних лапок (вказа
 msgid "Must start with a double quote (empty string given)"
 msgstr "Має починатися з подвійних лапок (вказано порожній рядок)"
 
-#: src/web/clients/admin/admin.ml:261
+#: src/web/clients/admin/admin.ml:265
 msgid "My archived elections"
 msgstr "Мої архівні вибори"
 
-#: src/web/clients/admin/admin.ml:259
+#: src/web/clients/admin/admin.ml:263
 msgid "My draft elections"
 msgstr "Мій проект виборів"
 
-#: src/web/clients/admin/admin.ml:260
+#: src/web/clients/admin/admin.ml:264
 msgid "My running elections"
 msgstr "Мої вибори"
 
-#: src/web/clients/admin/elections.ml:1328
+#: src/web/clients/admin/elections.ml:1338
 msgid "Name of the credential authority"
 msgstr "Назва центру повноважень"
 
@@ -868,28 +873,28 @@ msgstr "Назва центру повноважень"
 msgid "Name: "
 msgstr "Ім'я: "
 
-#: src/web/clients/admin/account.ml:59
+#: src/web/clients/admin/account.ml:61
 msgid "Navigator's default"
 msgstr "Навігатор за замовчуванням"
 
-#: src/web/clients/admin/questions.ml:857 src/web/clients/admin/questions.ml:841
+#: src/web/clients/admin/questions.ml:877 src/web/clients/admin/questions.ml:866
 msgid "New answer"
 msgstr "Нова відповідь"
 
-#. src/web/clients/admin/questions.ml:677
-#: src/web/clients/admin/questions.ml:782 src/web/clients/admin/questions.ml:754
+#: src/web/clients/admin/questions.ml:801 src/web/clients/admin/questions.ml:777
+#. src/web/clients/admin/questions.ml:698
 msgid "New candidate"
 msgstr "Новий кандидат"
 
-#: src/web/clients/admin/questions.ml:574 src/web/clients/admin/questions.ml:553
+#: src/web/clients/admin/questions.ml:587 src/web/clients/admin/questions.ml:570
 msgid "New grade"
 msgstr "Новий сорт"
 
-#: src/web/clients/admin/questions.ml:782 src/web/clients/admin/questions.ml:677
+#: src/web/clients/admin/questions.ml:801 src/web/clients/admin/questions.ml:698
 msgid "New list"
 msgstr "Новий список"
 
-#: src/web/clients/admin/trustees_tab.ml:441
+#: src/web/clients/admin/trustees_tab.ml:442
 msgid "No external trustee were set. Do you confirm that you trust the server for privacy?"
 msgstr ""
 "Зовнішня довірена особа не встановлена. Ви підтверджуєте, що довіряєте "
@@ -899,7 +904,7 @@ msgstr ""
 msgid "No matching public key was found!"
 msgstr "Відповідного відкритого ключа не знайдено!"
 
-#: src/web/clients/admin/trustees_tab.ml:864
+#: src/web/clients/admin/trustees_tab.ml:865
 msgid "Nothing to show here. Try going to the Status tab."
 msgstr "Тут нічого не показувати. Спробуйте перейти на вкладку Статус."
 
@@ -915,11 +920,11 @@ msgstr ""
 "Тепер усі довірені особи створили свої секретні акції. Перейдіть до "
 "остаточних перевірок, щоб вибори могли бути дійсними."
 
-#: src/web/clients/admin/elections.ml:1431
+#: src/web/clients/admin/elections.ml:1437
 msgid "Number of credentials left: %d."
 msgstr "Залишилася кількість облікових даних: %d."
 
-#: src/web/clients/admin/questions.ml:434
+#: src/web/clients/admin/questions.ml:451
 msgid "Number of seats:"
 msgstr "Кількість місць:"
 
@@ -951,7 +956,7 @@ msgstr ""
 "Коли вибори відкрито, ви повинні перевірити, чи вони збігаються з тим, що "
 "опубліковано сервером."
 
-#: src/web/clients/admin/elections.ml:1718
+#: src/web/clients/admin/elections.ml:1724
 msgid "Open"
 msgstr "Відчинено"
 
@@ -959,11 +964,11 @@ msgstr "Відчинено"
 msgid "Open / Close"
 msgstr "Відкрити / Закрити"
 
-#: src/web/clients/admin/elections.ml:1054
+#: src/web/clients/admin/elections.ml:1049
 msgid "Open: "
 msgstr "Відчинено: "
 
-#: src/web/clients/admin/elections.ml:1616
+#: src/web/clients/admin/elections.ml:1622
 msgid "Other authentication modes:"
 msgstr "Інші режими аутентифікації:"
 
@@ -975,50 +980,50 @@ msgstr "Часткова розшифровка"
 msgid "Partial decryption submission failed unexpectedly!"
 msgstr "Несподівана помилка надсилання часткового розшифрування!"
 
-#: src/web/clients/admin/elections.ml:1585
+#: src/web/clients/admin/elections.ml:1591
 msgid "Password sent by e-mail when voting (a short password, renewed for each vote)"
 msgstr ""
 "Пароль, який надсилається на електронну пошту під час голосування (короткий "
 "пароль, оновлюється при кожному голосуванні)"
 
-#: src/web/clients/admin/elections.ml:1501
+#: src/web/clients/admin/elections.ml:1507
 msgid "Password sent in advance by e-mail (useful for multiple elections)"
 msgstr ""
 "Пароль, надісланий заздалегідь електронною поштою (корисно для кількох "
 "виборів)"
 
-#: src/web/server/common/pages_admin.ml:383
+#: src/web/server/common/pages_admin.ml:394
 msgid "Please choose a password: "
 msgstr "Виберіть пароль: "
 
-#: src/web/server/common/pages_admin.ml:325
+#: src/web/server/common/pages_admin.ml:336
 msgid "Please choose a username: "
 msgstr "Виберіть ім'я користувача: "
 
-#: src/web/clients/admin/elections.ml:1409
+#: src/web/clients/admin/elections.ml:1415
 msgid "Please download "
 msgstr "Будь ласка, завантажте "
 
-#. src/web/server/common/pages_admin.ml:222
 #: src/web/server/common/pages_admin.ml:255
+#. src/web/server/common/pages_admin.ml:222
 msgid "Please enter "
 msgstr "Будь ласка, введіть "
 
-#: src/web/server/common/pages_admin.ml:448
+#: src/web/server/common/pages_admin.ml:462
 msgid "Please enter the code here:"
 msgstr "Будь ласка, введіть код тут:"
 
-#: src/web/clients/admin/elections.ml:884
+#: src/web/clients/admin/elections.ml:879
 msgid "Please enter the identities of voters to add, one per line (max %s)."
 msgstr ""
 "Введіть імена виборців, яких потрібно додати, по одному на рядок (максимум "
 "%s)."
 
-#: src/web/server/common/pages_admin.ml:278
+#: src/web/server/common/pages_admin.ml:286
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Будь ласка, введіть код підтвердження, отриманий електронною поштою:"
 
-#: src/web/clients/admin/elections.ml:1457
+#: src/web/clients/admin/elections.ml:1463
 msgid "Please fill-in the voter list first."
 msgstr "Спочатку заповніть список виборців."
 
@@ -1026,15 +1031,15 @@ msgstr "Спочатку заповніть список виборців."
 msgid "Please load your private key from a file:"
 msgstr "Завантажте свій закритий ключ із файлу:"
 
-#: src/web/server/common/pages_admin.ml:422
+#: src/web/server/common/pages_admin.ml:433
 msgid "Please provide one:"
 msgstr "Будь ласка, надайте один:"
 
-#: src/web/clients/admin/elections.ml:1514
+#: src/web/clients/admin/elections.ml:1520
 msgid "Please select password authentication first"
 msgstr "Спочатку виберіть автентифікацію за паролем"
 
-#: src/web/clients/admin/common.ml:155
+#: src/web/clients/admin/common.ml:154
 msgid "Please select the election from which you want to import data:"
 msgstr "Виберіть вибори, з яких потрібно імпортувати дані:"
 
@@ -1046,7 +1051,7 @@ msgstr "Будь ласка, зачекайте…"
 msgid "Please wait… "
 msgstr "Будь ласка, зачекайте… "
 
-#: src/web/clients/admin/elections.ml:520
+#: src/web/clients/admin/elections.ml:516
 msgid "Poll"
 msgstr "Опитування"
 
@@ -1058,34 +1063,34 @@ msgstr "На основі "
 msgid "Preview"
 msgstr "Попередній перегляд"
 
-#: src/web/clients/admin/questions.ml:1003
+#: src/web/clients/admin/questions.ml:1046
 msgid "Preview voter's interface"
 msgstr "Попередній перегляд інтерфейсу виборця"
 
-#: src/web/clients/admin/preview.ml:50
+#: src/web/clients/admin/preview.ml:49
 msgid "Preview will open in a new tab"
 msgstr "Попередній перегляд відкриється в новій вкладці"
 
-#. src/web/server/common/pages_admin.ml:474
-#. src/web/server/common/pages_admin.ml:452
-#. src/web/server/common/pages_admin.ml:426
 #: src/web/clients/trustee/check.ml:148 src/web/clients/trustee/generate.ml:278
+#. src/web/server/common/pages_admin.ml:492
+#. src/web/server/common/pages_admin.ml:466
+#. src/web/server/common/pages_admin.ml:437
 msgid "Proceed"
 msgstr "Продовжуйте"
 
-#: src/web/clients/admin/trustees_tab.ml:269
+#: src/web/clients/admin/trustees_tab.ml:270
 msgid "Proceed to key generation"
 msgstr "Перейти до генерації ключів"
 
-#: src/web/clients/admin/trustees_tab.ml:278
+#: src/web/clients/admin/trustees_tab.ml:279
 msgid "Proceed to next step? This will freeze the list of trustees."
 msgstr "Перейти до наступного кроку? Це заморозить список довірених осіб."
 
-#: src/web/clients/admin/questions.ml:889
+#: src/web/clients/admin/questions.ml:917
 msgid "Proposed answers:"
 msgstr "Пропоновані відповіді:"
 
-#: src/web/clients/admin/questions.ml:593
+#: src/web/clients/admin/questions.ml:612
 msgid "Proposed grades:"
 msgstr "Пропоновані оцінки:"
 
@@ -1103,23 +1108,23 @@ msgstr ""
 msgid "Public key registration succeeded!"
 msgstr "Реєстрація відкритого ключа пройшла успішно!"
 
-#: src/web/clients/admin/elections.ml:1205
+#: src/web/clients/admin/elections.ml:1201
 msgid "Public name of the administrator:"
 msgstr "Публічне ім'я адміністратора:"
 
-#: src/web/clients/admin/elections.ml:1198
+#: src/web/clients/admin/elections.ml:1194
 msgid "Public name of the administrator: "
 msgstr "Публічне ім'я адміністратора: "
 
-#: src/web/clients/admin/elections.ml:1075
+#: src/web/clients/admin/elections.ml:1070
 msgid "Publish: "
 msgstr "Опублікувати: "
 
-#: src/web/clients/admin/questions.ml:878
+#: src/web/clients/admin/questions.ml:906
 msgid "Question "
 msgstr "Питання "
 
-#: src/web/clients/admin/questions.ml:266
+#: src/web/clients/admin/questions.ml:277
 msgid "Question #%d has too many choices, voting will fail!"
 msgstr "У питанні #%d забагато варіантів, голосування не вдасться!"
 
@@ -1127,22 +1132,22 @@ msgstr "У питанні #%d забагато варіантів, голосу�
 msgid "Questions"
 msgstr "Питання"
 
-#: src/web/clients/admin/questions.ml:1023
+#: src/web/clients/admin/questions.ml:1059
 msgid "Questions:"
 msgstr "Питання:"
 
-#: src/web/clients/admin/questions.ml:1044
+#: src/web/clients/admin/questions.ml:1080
 msgid "Questions (non editable):"
 msgstr "Питання (не редагуються):"
 
-#: src/web/clients/admin/elections.ml:1702
+#: src/web/clients/admin/elections.ml:1708
 msgid "Ready to create:"
 msgstr "Готовий до створення:"
 
-#. src/web/clients/admin/trustees_tab.ml:768
-#. src/web/clients/admin/trustees_tab.ml:598
-#. src/web/clients/admin/trustees_tab.ml:491
 #: src/web/clients/trustee/generate.ml:216
+#. src/web/clients/admin/trustees_tab.ml:769
+#. src/web/clients/admin/trustees_tab.ml:599
+#. src/web/clients/admin/trustees_tab.ml:492
 msgid "Refresh status"
 msgstr "Оновити статус"
 
@@ -1154,15 +1159,15 @@ msgstr ""
 "ключ відомий разом із приватними ключами інших довірених осіб, "
 "конфіденційність голосування більше не гарантується )."
 
-#: src/web/clients/admin/elections.ml:1654
+#: src/web/clients/admin/elections.ml:1660
 msgid "Regenerate and e-mail a password"
 msgstr "Повторно згенеруйте та надішліть пароль електронною поштою"
 
-#: src/web/clients/admin/trustees_tab.ml:605
+#: src/web/clients/admin/trustees_tab.ml:606
 msgid "Release tally"
 msgstr "Підрахунок випуску"
 
-#: src/web/clients/admin/trustees_tab.ml:313
+#: src/web/clients/admin/trustees_tab.ml:314
 msgid "Reset and start from scratch"
 msgstr "Скинути та почати з нуля"
 
@@ -1170,15 +1175,15 @@ msgstr "Скинути та почати з нуля"
 msgid "Restricted mode"
 msgstr "Обмежений режим"
 
-#: src/web/clients/admin/elections.ml:1882 src/web/clients/admin/elections.ml:312
+#: src/web/clients/admin/elections.ml:1889 src/web/clients/admin/elections.ml:312
 msgid "Results page"
 msgstr "Сторінка результатів"
 
-#: src/web/clients/admin/admin.ml:225
+#: src/web/clients/admin/admin.ml:223
 msgid "Running or finished elections:"
 msgstr "Вибори, що тривають або закінчилися:"
 
-#: src/web/clients/admin/questions.ml:504
+#: src/web/clients/admin/questions.ml:521
 msgid "STV method"
 msgstr "Метод СТВ"
 
@@ -1197,36 +1202,36 @@ msgstr ""
 msgid "Save the two fingerprints above."
 msgstr "Збережіть два відбитки пальців вище."
 
-#: src/web/clients/admin/elections.ml:1760
+#: src/web/clients/admin/elections.ml:1767
 msgid "Seal"
 msgstr "Печатка"
 
-#: src/web/clients/admin/elections.ml:1791
+#: src/web/clients/admin/elections.ml:1798
 msgid "Sealing"
 msgstr "Пломбування"
 
-#: src/web/clients/admin/elections.ml:1797
+#: src/web/clients/admin/elections.ml:1804
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 "Запечатування дозволяє заморозити деякі властивості виборів, наприклад "
 "автоматичні дати."
 
-#: src/web/clients/admin/elections.ml:1802
+#: src/web/clients/admin/elections.ml:1809
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 "Операції опечатування/розпечатування реєструються, а відбиток журналу "
 "публікується на домашній сторінці виборів для перегляду всіма (наприклад, "
 "незалежними аудиторами)."
 
-#: src/web/clients/admin/elections.ml:540
+#: src/web/clients/admin/elections.ml:536
 msgid "Security"
 msgstr "Безпека"
 
-#: src/web/clients/admin/questions.ml:342
+#: src/web/clients/admin/questions.ml:353
 msgid "Select propositions"
 msgstr "Виберіть пропозиції"
 
-#: src/web/clients/admin/trustees_tab.ml:731
+#: src/web/clients/admin/trustees_tab.ml:732
 msgid "Select this trustee"
 msgstr "Виберіть цю довірену особу"
 
@@ -1234,25 +1239,25 @@ msgstr "Виберіть цю довірену особу"
 msgid "Selecting CAS authentication requires setting a valid CAS server"
 msgstr "Для вибору автентифікації CAS потрібно встановити дійсний сервер CAS"
 
-#. src/web/clients/admin/trustees_tab.ml:433
-#. src/web/clients/admin/trustees_tab.ml:408
-#: src/web/clients/admin/trustees_tab.ml:676
+#: src/web/clients/admin/trustees_tab.ml:677
+#. src/web/clients/admin/trustees_tab.ml:434
+#. src/web/clients/admin/trustees_tab.ml:409
 msgid "Send an e-mail"
 msgstr "Надіслати електронний лист"
 
-#: src/web/clients/admin/elections.ml:1366
+#: src/web/clients/admin/elections.ml:1371
 msgid "Send an e-mail to the credential authority"
 msgstr "Надішліть електронний лист до центру облікових даних"
 
-#: src/web/clients/admin/elections.ml:1508
+#: src/web/clients/admin/elections.ml:1514
 msgid "Send passwords to voters"
 msgstr "Надішліть паролі виборцям"
 
-#: src/web/clients/admin/elections.ml:589 src/web/clients/admin/admin.ml:60
+#: src/web/clients/admin/elections.ml:580 src/web/clients/admin/admin.ml:60
 msgid "Setup: "
 msgstr "Налаштування: "
 
-#: src/web/clients/admin/elections.ml:978
+#: src/web/clients/admin/elections.ml:973
 msgid "Show only missing voters"
 msgstr "Показати лише відсутніх виборців"
 
@@ -1260,34 +1265,34 @@ msgstr "Показати лише відсутніх виборців"
 msgid "Shuffle"
 msgstr "Перетасувати"
 
-#: src/web/clients/admin/trustees_tab.ml:690
+#: src/web/clients/admin/trustees_tab.ml:691
 msgid "Shuffler's e-mail"
 msgstr "Електронна пошта шафлера"
 
-#: src/web/clients/admin/trustees_tab.ml:732
+#: src/web/clients/admin/trustees_tab.ml:733
 msgid "Skip"
 msgstr "Пропустити"
 
-#: src/web/clients/admin/trustees_tab.ml:773
+#: src/web/clients/admin/trustees_tab.ml:774
 msgid "Skip all remaining trustees"
 msgstr "Пропустити всіх довірених осіб, що залишилися"
 
-#: src/web/clients/admin/elections.ml:1127
+#: src/web/clients/admin/elections.ml:1118
 msgid "Some language in the list is not available"
 msgstr "Деякі мови в списку недоступні"
 
-#: src/web/server/common/pages_admin.ml:559
+#: src/web/server/common/mails_admin.ml:101
 msgid "Someone is trying to associate your e-mail address to an account on our Belenios server."
 msgstr ""
 "Хтось намагається пов’язати вашу адресу електронної пошти з обліковим "
 "записом на нашому сервері Belenios."
 
-#: src/web/clients/admin/questions.ml:343
+#: src/web/clients/admin/questions.ml:354
 msgid "Sort propositions"
 msgstr "Сортування пропозицій"
 
+#: src/web/clients/admin/trustees_tab.ml:468
 #. src/web/clients/admin/elections.ml:434
-#: src/web/clients/admin/trustees_tab.ml:467
 msgid "Status"
 msgstr "Статус"
 
@@ -1295,13 +1300,13 @@ msgstr "Статус"
 msgid "Step %d/7"
 msgstr "Крок %d/7"
 
-#. src/web/clients/admin/elections.ml:1626
-#. src/web/server/common/pages_admin.ml:393
-#. src/web/server/common/pages_admin.ml:337
-#. src/web/server/common/pages_admin.ml:282
+#: src/web/clients/trustee/shuffle.ml:146 src/web/clients/trustee/decrypt.ml:117
+#. src/web/clients/admin/elections.ml:1632
+#. src/web/server/common/pages_admin.ml:404
+#. src/web/server/common/pages_admin.ml:348
+#. src/web/server/common/pages_admin.ml:292
 #. src/web/server/common/pages_admin.ml:260
 #. src/web/server/common/pages_admin.ml:227
-#: src/web/clients/trustee/shuffle.ml:146 src/web/clients/trustee/decrypt.ml:117
 msgid "Submit"
 msgstr "Надіслати"
 
@@ -1333,11 +1338,11 @@ msgstr "Підсумки виборів"
 msgid "Tally the election"
 msgstr "Підрахуйте вибори"
 
-#: src/web/clients/admin/trustees_tab.ml:628
+#: src/web/clients/admin/trustees_tab.ml:629
 msgid "Tallying"
 msgstr "Підрахунок"
 
-#: src/web/clients/admin/trustees_tab.ml:797
+#: src/web/clients/admin/trustees_tab.ml:798
 msgid "Tallying: shuffling step"
 msgstr "Підрахунок: тасування кроком"
 
@@ -1353,40 +1358,40 @@ msgstr "Ще раз дякую за допомогу,"
 msgid "Thank you for voting!"
 msgstr "Дякуємо за голосування!"
 
+#: src/web/common/mails_admin.ml:362 src/web/common/mails_admin.ml:258
 #. src/web/common/mails_admin.ml:174
 #. src/web/common/mails_admin.ml:103
-#: src/web/common/mails_admin.ml:362 src/web/common/mails_admin.ml:258
 msgid "Thank you for your help,"
 msgstr "Дякуємо за допомогу,"
 
-#: src/web/server/common/pages_admin.ml:311
+#: src/web/server/common/pages_admin.ml:322
 msgid "The account creation "
 msgstr "Створення облікового запису "
 
-#: src/web/server/common/site_admin.ml:346
+#: src/web/server/common/site_admin.ml:351
 msgid "The account has been created."
 msgstr "Обліковий запис створено."
 
-#: src/web/clients/admin/elections.ml:1889
+#: src/web/clients/admin/elections.ml:1896
 msgid "The archive can be downloaded at: "
 msgstr "Архів можна завантажити за адресою: "
 
-#: src/web/server/common/pages_admin.ml:362
+#: src/web/server/common/pages_admin.ml:373
 msgid "The change "
 msgstr "Зміна "
 
+#: src/web/common/mails_admin.ml:378 src/web/common/mails_admin.ml:326
 #. src/web/common/mails_admin.ml:274
 #. src/web/common/mails_admin.ml:190
 #. src/web/common/mails_admin.ml:108
-#: src/web/common/mails_admin.ml:378 src/web/common/mails_admin.ml:326
 msgid "The election administrator"
 msgstr "Адміністратор виборів"
 
-#: src/web/server/common/site_admin.ml:192
+#: src/web/server/common/site_admin.ml:195
 msgid "The election is not archived!"
 msgstr "Вибори не архівуються!"
 
-#: src/web/clients/admin/elections.ml:1760
+#: src/web/clients/admin/elections.ml:1767
 msgid "The election is not sealed."
 msgstr "Вибори не закриті."
 
@@ -1410,18 +1415,18 @@ msgstr "Відбиток вашого перемішування:"
 msgid "The fingerprint of your shuffle will appear. Save it."
 msgstr "З’явиться відбиток вашого перемішування. Збережіть його."
 
-#: src/web/clients/admin/trustees_tab.ml:810
+#: src/web/clients/admin/trustees_tab.ml:811
 msgid "The following link can be used by trustees to check that they own the right decryption key."
 msgstr ""
 "Довірені особи можуть використати наступне посилання, щоб перевірити, чи "
 "володіють вони правильним ключем дешифрування."
 
-#. src/web/clients/trustee/generate.ml:440
 #: src/web/clients/credauth/generate.ml:179
+#. src/web/clients/trustee/generate.ml:440
 msgid "The link to the election will be:"
 msgstr "Посилання на вибори буде таким:"
 
-#: src/web/clients/admin/questions.ml:257
+#: src/web/clients/admin/questions.ml:268
 msgid "The min of question #%d is greater than its max, voting will be impossible!"
 msgstr ""
 "Мінімальна кількість запитання #%d більша за максимальну, голосування буде "
@@ -1437,11 +1442,11 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Часткове розшифрування не пройшло перевірку!"
 
-#: src/web/server/common/site_admin.ml:376
+#: src/web/server/common/site_admin.ml:381
 msgid "The password has been changed."
 msgstr "Пароль змінено."
 
-#: src/web/server/common/site_admin.ml:171
+#: src/web/server/common/site_admin.ml:174
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Наданий код неправильний. Будь ласка, поверніться та спробуйте ще раз."
 
@@ -1451,8 +1456,8 @@ msgstr ""
 "Друга коробка тепер заповнена криптографічним матеріалом. Будь ласка, "
 "натисніть кнопку «Надіслати»."
 
-#. src/web/clients/admin/trustees_tab.ml:111
-#: src/web/clients/admin/trustees_tab.ml:342
+#: src/web/clients/admin/trustees_tab.ml:343
+#. src/web/clients/admin/trustees_tab.ml:109
 msgid "The server is always one of the trustees"
 msgstr "Сервер завжди є одним із довірених осіб"
 
@@ -1460,7 +1465,7 @@ msgstr "Сервер завжди є одним із довірених осіб
 msgid "The shuffle has been successfully applied!"
 msgstr "Перемішування успішно застосовано!"
 
-#: src/web/clients/admin/elections.ml:1860
+#: src/web/clients/admin/elections.ml:1867
 msgid "The tally for this election has started."
 msgstr "Підрахунок голосів на цих виборах розпочався."
 
@@ -1468,25 +1473,25 @@ msgstr "Підрахунок голосів на цих виборах розп�
 msgid "The voter list is empty!"
 msgstr "Список виборців порожній!"
 
-#: src/web/server/common/pages_admin.ml:525
+#: src/web/server/common/mails_admin.ml:67
 msgid "There has been a request to change the password of your account on our Belenios server."
 msgstr ""
 "Був запит на зміну пароля вашого облікового запису на нашому сервері "
 "Belenios."
 
-#: src/web/clients/admin/elections.ml:702 src/web/clients/admin/elections.ml:672
+#: src/web/clients/admin/elections.ml:697 src/web/clients/admin/elections.ml:667
 msgid "There is an error in the voter list! (%s)"
 msgstr "У списку виборців помилка! (%s)"
 
-#: src/web/clients/admin/elections.ml:709
+#: src/web/clients/admin/elections.ml:704
 msgid "There is an unexpected error in the voter list!"
 msgstr "У списку виборців сталася несподівана помилка!"
 
-#: src/web/clients/admin/elections.ml:677
+#: src/web/clients/admin/elections.ml:672
 msgid "There is an unexpected syntax error in the voter list!"
 msgstr "У списку виборців неочікувана синтаксична помилка!"
 
-#: src/web/server/common/pages_admin.ml:420
+#: src/web/server/common/pages_admin.ml:431
 msgid "There is no e-mail address attached to your account."
 msgstr "До вашого облікового запису не прикріплено адресу електронної пошти."
 
@@ -1498,47 +1503,47 @@ msgstr "На цьому сервері немає виборів з іденти
 msgid "There will be 3 steps."
 msgstr "Буде 3 кроки."
 
-#: src/web/server/common/site_admin.ml:409
+#: src/web/server/common/site_admin.ml:414
 msgid "This account does not exist"
 msgstr "Цей обліковий запис не існує"
 
-#: src/web/clients/admin/elections.ml:1195
+#: src/web/clients/admin/elections.ml:1191
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "Цей контакт буде додано до електронних листів, надісланих виборцям."
 
-#: src/web/server/common/site_admin.ml:143
+#: src/web/server/common/site_admin.ml:146
 msgid "This e-mail address is invalid!"
 msgstr "Ця адреса електронної пошти недійсна!"
 
-#: src/web/clients/admin/elections.ml:1871
+#: src/web/clients/admin/elections.ml:1878
 msgid "This election has been tallied"
 msgstr "Ці вибори підраховано"
 
-#: src/web/clients/admin/elections.ml:1854
+#: src/web/clients/admin/elections.ml:1861
 msgid "This election is a draft."
 msgstr "Ці вибори є проектом."
 
-#: src/web/clients/admin/elections.ml:1886
+#: src/web/clients/admin/elections.ml:1893
 msgid "This election is archived"
 msgstr "Ці вибори заархівовано"
 
-#: src/web/clients/admin/elections.ml:1864
+#: src/web/clients/admin/elections.ml:1871
 msgid "This election is in shuffling phase."
 msgstr "Ці вибори перебувають у фазі перестановки."
 
-#: src/web/clients/admin/elections.ml:1856
+#: src/web/clients/admin/elections.ml:1863
 msgid "This election is running."
 msgstr "Ці вибори проходять."
 
-#: src/web/clients/admin/elections.ml:1759
+#: src/web/clients/admin/elections.ml:1766
 msgid "This election is sealed."
 msgstr "Ці вибори закриті."
 
-#: src/web/clients/admin/elections.ml:1828
+#: src/web/clients/admin/elections.ml:1835
 msgid "This election will be automatically archived after %s."
 msgstr "Ці вибори буде автоматично заархівовано через %s."
 
-#: src/web/clients/admin/elections.ml:1842
+#: src/web/clients/admin/elections.ml:1849
 msgid "This election will be automatically deleted after %s."
 msgstr "Ці вибори буде автоматично видалено через %s."
 
@@ -1546,7 +1551,7 @@ msgstr "Ці вибори буде автоматично видалено че�
 msgid "This is a revote."
 msgstr "Це переголосування."
 
-#: src/web/clients/admin/elections.ml:1149
+#: src/web/clients/admin/elections.ml:1143
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
 "Це розділений пробілами список мов, які використовуватимуться в електронних "
@@ -1560,15 +1565,15 @@ msgstr "Це приватний ключ %s."
 msgid "This list must be the one approved by the election commission."
 msgstr "Цей список має бути затверджений виборчою комісією."
 
-#: src/web/clients/admin/elections.ml:1200
+#: src/web/clients/admin/elections.ml:1196
 msgid "This name will be published on the election result page."
 msgstr "Це ім’я буде опубліковано на сторінці результатів виборів."
 
-#: src/web/clients/admin/elections.ml:1460
+#: src/web/clients/admin/elections.ml:1466
 msgid "This task is completed. Passwords have been sent."
 msgstr "Це завдання виконано. Паролі надіслано."
 
-#: src/web/clients/admin/trustees_tab.ml:231
+#: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
 msgstr "Пороговий режим"
 
@@ -1576,7 +1581,7 @@ msgstr "Пороговий режим"
 msgid "Title"
 msgstr "Назва"
 
-#: src/web/clients/admin/elections.ml:649 src/web/clients/admin/elections.ml:636
+#: src/web/clients/admin/elections.ml:646 src/web/clients/admin/elections.ml:633
 msgid "Title:"
 msgstr "Назва:"
 
@@ -1584,12 +1589,12 @@ msgstr "Назва:"
 msgid "To administer an election, you need to log in."
 msgstr "Для адміністрування виборів вам потрібно авторизуватися."
 
-#: src/web/server/common/pages_admin.ml:494
+#: src/web/server/common/mails_admin.ml:36
 msgid "To confirm this creation, please use the following code:"
 msgstr "Щоб підтвердити це створення, використовуйте наступний код:"
 
-#. src/web/server/common/pages_admin.ml:528
-#: src/web/server/common/pages_admin.ml:562
+#: src/web/server/common/mails_admin.ml:104
+#. src/web/server/common/mails_admin.ml:70
 msgid "To confirm this, please use the following code:"
 msgstr "Щоб підтвердити це, використовуйте наступний код:"
 
@@ -1601,7 +1606,7 @@ msgstr "Щоб використовувати цей сайт, ви "
 msgid "Too short"
 msgstr "Занадто короткий"
 
-#: src/web/clients/admin/questions.ml:992
+#: src/web/clients/admin/questions.ml:1018
 msgid "Total complexity:"
 msgstr "Загальна складність:"
 
@@ -1613,85 +1618,85 @@ msgstr "Генерація ключа довіреної особи"
 msgid "Trustee management"
 msgstr "Довірче управління"
 
-#: src/web/clients/admin/trustees_tab.ml:357
+#: src/web/clients/admin/trustees_tab.ml:358
 msgid "Trustee setup - Done"
 msgstr "Налаштування довіреної особи – зроблено"
 
-#: src/web/clients/admin/trustees_tab.ml:302
+#: src/web/clients/admin/trustees_tab.ml:303
 msgid "Trustee setup - Step 1: choose the trustees"
 msgstr "Налаштування довіреної особи - Крок 1: виберіть довірених осіб"
 
-#: src/web/clients/admin/trustees_tab.ml:495
+#: src/web/clients/admin/trustees_tab.ml:496
 msgid "Trustee setup - Step 2: key generation"
 msgstr "Налаштування довіреної особи – Крок 2: генерація ключа"
 
-#. src/web/clients/admin/trustees_tab.ml:464
-#. src/web/clients/admin/trustees_tab.ml:332
-#. src/web/clients/admin/trustees_tab.ml:101
-#: src/web/clients/admin/trustees_tab.ml:573
+#: src/web/clients/admin/trustees_tab.ml:574
+#. src/web/clients/admin/trustees_tab.ml:465
+#. src/web/clients/admin/trustees_tab.ml:333
+#. src/web/clients/admin/trustees_tab.ml:99
 msgid "Trustee's e-mail"
 msgstr "Електронна пошта довіреної особи"
 
-#: src/web/clients/admin/trustees_tab.ml:131
+#: src/web/clients/admin/trustees_tab.ml:129
 msgid "Trustee's e-mail "
 msgstr "Електронна пошта довіреної особи "
 
-#: src/web/clients/admin/trustees_tab.ml:465
+#: src/web/clients/admin/trustees_tab.ml:466
 msgid "Trustee's name"
 msgstr "Ім'я довіреної особи"
 
-#. src/web/clients/admin/trustees_tab.ml:102
-#: src/web/clients/admin/trustees_tab.ml:333
+#: src/web/clients/admin/trustees_tab.ml:334
+#. src/web/clients/admin/trustees_tab.ml:100
 msgid "Trustee's public name"
 msgstr "Публічне ім'я довіреної особи"
 
-#: src/web/clients/admin/trustees_tab.ml:135
+#: src/web/clients/admin/trustees_tab.ml:133
 msgid "Trustee's public name "
 msgstr "Публічне ім'я довіреної особи "
 
-#: src/web/clients/admin/questions.ml:882
+#: src/web/clients/admin/questions.ml:910
 msgid "Type of answer:"
 msgstr "Тип відповіді:"
 
-#. src/web/server/common/pages_admin.ml:333
-#: src/web/server/common/pages_admin.ml:389
+#: src/web/server/common/pages_admin.ml:400
+#. src/web/server/common/pages_admin.ml:344
 msgid "Type the password again: "
 msgstr "Введіть пароль ще раз: "
 
-#: src/web/clients/admin/elections.ml:1648
+#: src/web/clients/admin/elections.ml:1654
 msgid "Unexpected failure with code %d."
 msgstr "Неочікувана помилка з кодом %d."
 
-#: src/web/clients/admin/admin.ml:478
+#: src/web/clients/admin/admin.ml:474
 msgid "Unknown uuid"
 msgstr "Невідомий uuid"
 
-#: src/web/clients/admin/elections.ml:1759
+#: src/web/clients/admin/elections.ml:1766
 msgid "Unseal"
 msgstr "Розпечатати"
 
-#: src/web/clients/admin/elections.ml:831
+#: src/web/clients/admin/elections.ml:826
 msgid "Upload voter file"
 msgstr "Завантажте файл виборців"
 
-#: src/web/clients/admin/elections.ml:1655
+#: src/web/clients/admin/elections.ml:1661
 msgid "Username:"
 msgstr "Ім'я користувача:"
 
-#: src/web/clients/admin/elections.ml:949 src/web/clients/admin/elections.ml:194
+#: src/web/clients/admin/elections.ml:944 src/web/clients/admin/elections.ml:194
 msgid "Voter list"
 msgstr "Список виборців"
 
-#: src/web/clients/admin/elections.ml:846
+#: src/web/clients/admin/elections.ml:841
 msgid "Voter list (not editable):"
 msgstr "Список виборців (не підлягає редагуванню):"
 
-#. src/web/clients/admin/elections.ml:847
 #: src/web/clients/credauth/generate.ml:190
+#. src/web/clients/admin/elections.ml:842
 msgid "Voter list:"
 msgstr "Список виборців:"
 
-#: src/web/clients/admin/elections.ml:983
+#: src/web/clients/admin/elections.ml:978
 msgid "Voter list (not editable):"
 msgstr "Список виборців (не редагується):"
 
@@ -1699,12 +1704,12 @@ msgstr "Список виборців (не редагується):"
 msgid "Voter's authentication"
 msgstr "Аутентифікація виборця"
 
-#. src/web/clients/admin/elections.ml:1472
-#: src/web/clients/admin/elections.ml:1620
+#: src/web/clients/admin/elections.ml:1626
+#. src/web/clients/admin/elections.ml:1478
 msgid "Voter's authentication:"
 msgstr "Автентифікація виборця:"
 
-#: src/web/clients/admin/elections.ml:943
+#: src/web/clients/admin/elections.ml:938
 msgid "Voting records"
 msgstr "Протоколи голосування"
 
@@ -1716,33 +1721,33 @@ msgstr "Чекаємо, поки виборчий адміністратор в�
 msgid "Waiting for the other trustees..."
 msgstr "Чекаємо на інших довірених осіб..."
 
-#: src/web/clients/admin/elections.ml:794
+#: src/web/clients/admin/elections.ml:789
 msgid "Warning, this action is irreversible"
 msgstr "Попередження, ця дія незворотна"
 
-#: src/web/clients/admin/trustees_tab.ml:212
+#: src/web/clients/admin/trustees_tab.ml:209
 msgid "Warning, this will delete the current list of trustees"
 msgstr "Попередження, це призведе до видалення поточного списку довірених осіб"
 
-#: src/web/clients/admin/elections.ml:852
+#: src/web/clients/admin/elections.ml:847
 msgid "Warning:"
 msgstr "УВАГА:"
 
-#. src/web/server/common/pages_admin.ml:536
-#. src/web/server/common/pages_admin.ml:502
-#: src/web/server/common/pages_admin.ml:570
+#: src/web/server/common/mails_admin.ml:112
+#. src/web/server/common/mails_admin.ml:78
+#. src/web/server/common/mails_admin.ml:44
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Попередження: цей код дійсний протягом 15 хвилин, попередні коди, надіслані "
 "на цю адресу, більше не дійсні."
 
-#: src/web/clients/admin/elections.ml:1703
+#: src/web/clients/admin/elections.ml:1709
 msgid "Warning: this is irreversible!"
 msgstr "Попередження: це незворотньо!"
 
-#. src/web/clients/admin/elections.ml:1376
+#: src/web/clients/admin/elections.ml:1525
+#. src/web/clients/admin/elections.ml:1381
 #. src/web/clients/admin/elections.ml:1291
-#: src/web/clients/admin/elections.ml:1519
 msgid "Warning: this will freeze the voter list!"
 msgstr "Попередження: це заморозить список виборців!"
 
@@ -1750,7 +1755,7 @@ msgstr "Попередження: це заморозить список виб�
 msgid "We suggest two options:"
 msgstr "Пропонуємо два варіанти:"
 
-#: src/web/clients/admin/elections.ml:750
+#: src/web/clients/admin/elections.ml:745
 msgid "Weight"
 msgstr "Вага"
 
@@ -1772,13 +1777,21 @@ msgstr "Ви також можете увійти за допомогою"
 msgid "You can check its presence in the "
 msgstr "Перевірити його наявність можна в "
 
-#: src/web/server/common/site_admin.ml:262
+#: src/web/server/common/pages_admin.ml:472
+msgid "You cannot change your e-mail address right now."
+msgstr ""
+
+#: src/web/server/common/site_admin.ml:265
 msgid "You cannot change your password now. Please try later."
 msgstr "Ви не можете зараз змінити свій пароль. Спробуйте пізніше."
 
-#: src/web/server/common/site_admin.ml:218
+#: src/web/server/common/site_admin.ml:221
 msgid "You cannot create an account now. Please try later."
 msgstr "Ви не можете створити обліковий запис зараз. Спробуйте пізніше."
+
+#: src/web/server/common/pages_admin.ml:296
+msgid "You cannot sign up right now."
+msgstr ""
 
 #: src/web/clients/trustee/decrypt.ml:125
 msgid "You have already submitted a valid partial decryption!"
@@ -1802,20 +1815,20 @@ msgstr ""
 "Ви повинні записати цей відбиток пальця та переконатися, що він "
 "відображається на сторінці результатів виборів."
 
-#: src/web/clients/admin/trustees_tab.ml:785
+#: src/web/clients/admin/trustees_tab.ml:786
 msgid "You must select each trustee in turn, and send them a link so that they perform their shuffle. You can also skip a trustee, but keep in mind that this reduces security."
 msgstr ""
 "Ви повинні вибрати кожного опікуна по черзі та надіслати їм посилання, щоб "
 "вони здійснили перемішування. Ви також можете пропустити довірену особу, але "
 "майте на увазі, що це знижує безпеку."
 
-#: src/web/clients/admin/trustees_tab.ml:501
+#: src/web/clients/admin/trustees_tab.ml:502
 msgid "You must send each trustee their link (from the table below) so that they initialize their key for this election."
 msgstr ""
 "Ви повинні надіслати кожному довіреному особі своє посилання (з таблиці "
 "нижче), щоб вони ініціалізували свій ключ для цього вибору."
 
-#: src/web/clients/admin/trustees_tab.ml:617
+#: src/web/clients/admin/trustees_tab.ml:618
 msgid "You must send each trustee their link (from the table below) so that they perform their share of the decryption."
 msgstr ""
 "Ви повинні надіслати кожному довіреному особі своє посилання (з таблиці "
@@ -1848,7 +1861,7 @@ msgstr "Ви будете використовувати його для роз�
 msgid "You will use it to send credentials to voters."
 msgstr "Ви використовуватимете його для надсилання повноважень виборцям."
 
-#: src/web/clients/admin/elections.ml:861
+#: src/web/clients/admin/elections.ml:856
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
 "Ви не зможете змінити адреси електронної пошти після створення облікових "
@@ -1859,18 +1872,18 @@ msgstr ""
 msgid "Your ballot for "
 msgstr "Ваш бюлетень за "
 
-#. src/web/server/common/pages_admin.ml:431
-#: src/web/server/common/pages_admin.ml:457
+#: src/web/server/common/pages_admin.ml:475
+#. src/web/server/common/pages_admin.ml:442
 msgid "Your e-mail address"
 msgstr "Ваша адреса електронної пошти"
 
-#: src/web/server/common/pages_admin.ml:491
+#: src/web/server/common/mails_admin.ml:33
 msgid "Your e-mail address has been used to create an account on our Belenios server."
 msgstr ""
 "Ваша адреса електронної пошти була використана для створення облікового "
 "запису на нашому сервері Belenios."
 
-#: src/web/server/common/pages_admin.ml:322
+#: src/web/server/common/pages_admin.ml:333
 msgid "Your e-mail address is: "
 msgstr "Ваша електронна адреса: "
 
@@ -1892,7 +1905,7 @@ msgstr "Ваш відкритий ключ уже зареєстровано!"
 msgid "Your smart ballot tracker is "
 msgstr "Ваш розумний трекер для голосування "
 
-#: src/web/server/common/pages_admin.ml:375
+#: src/web/server/common/pages_admin.ml:386
 msgid "Your username is: "
 msgstr "Ваше ім'я користувача: "
 
@@ -1900,11 +1913,11 @@ msgstr "Ваше ім'я користувача: "
 msgid "Your weight is %s."
 msgstr "Ваша вага %s."
 
-#: src/web/clients/admin/trustees_tab.ml:371
+#: src/web/clients/admin/trustees_tab.ml:372
 msgid "action required"
 msgstr "необхідні дії"
 
-#: src/web/clients/admin/elections.ml:691
+#: src/web/clients/admin/elections.ml:686
 msgid "all voters must be in the same format"
 msgstr "всі голосуючі мають бути в одному форматі"
 
@@ -1920,41 +1933,41 @@ msgstr "урна для голосування"
 msgid "contact us"
 msgstr "зв'яжіться з нами"
 
-#: src/web/clients/admin/trustees_tab.ml:372
+#: src/web/clients/admin/trustees_tab.ml:373
 msgid "done"
 msgstr "зроблено"
 
-#: src/web/clients/admin/elections.ml:693
+#: src/web/clients/admin/elections.ml:688
 msgid "duplicate voter: %s"
 msgstr "дублікат виборця: %s"
 
-#: src/web/clients/admin/elections.ml:781
+#: src/web/clients/admin/elections.ml:776
 msgid "empty list"
 msgstr "порожній список"
 
-#. src/web/server/common/pages_admin.ml:312
-#: src/web/server/common/pages_admin.ml:363
+#: src/web/server/common/pages_admin.ml:374
+#. src/web/server/common/pages_admin.ml:323
 msgid "failed"
 msgstr "не вдалося"
 
-#: src/web/clients/admin/elections.ml:923
+#: src/web/clients/admin/elections.ml:918
 msgid "from a file: "
 msgstr "з файлу: "
 
-#: src/web/clients/admin/elections.ml:808
+#: src/web/clients/admin/elections.ml:803
 msgid "from another election"
 msgstr "з інших виборів"
 
-#: src/web/clients/admin/elections.ml:694 src/web/clients/admin/elections.ml:670
+#: src/web/clients/admin/elections.ml:689 src/web/clients/admin/elections.ml:665
 msgid "invalid identity: %s"
 msgstr "недійсна ідентифікація: %s"
 
-#. src/web/clients/admin/trustees_tab.ml:370
-#: src/web/clients/admin/trustees_tab.ml:376
+#: src/web/clients/admin/trustees_tab.ml:377
+#. src/web/clients/admin/trustees_tab.ml:371
 msgid "none"
 msgstr "немає"
 
-#: src/web/server/common/pages_admin.ml:358
+#: src/web/server/common/pages_admin.ml:369
 msgid "of an unknown reason"
 msgstr "з невідомої причини"
 
@@ -1962,7 +1975,7 @@ msgstr "з невідомої причини"
 msgid "or you may simply print it and store it in a safe."
 msgstr "або ви можете просто роздрукувати його та зберігати в сейфі."
 
-#: src/web/clients/admin/trustees_tab.ml:261
+#: src/web/clients/admin/trustees_tab.ml:262
 msgid "out of "
 msgstr "з "
 
@@ -1974,24 +1987,24 @@ msgstr "приватні облікові дані"
 msgid "private_key"
 msgstr "приватний_ключ"
 
-#: src/web/clients/admin/trustees_tab.ml:744
+#: src/web/clients/admin/trustees_tab.ml:745
 msgid "server (has already shuffled)"
 msgstr "сервер (вже перемішано)"
 
-#: src/web/clients/admin/trustees_tab.ml:759
+#: src/web/clients/admin/trustees_tab.ml:760
 msgid "skipped"
 msgstr "пропущено"
 
-#: src/web/clients/admin/trustees_tab.ml:378
+#: src/web/clients/admin/trustees_tab.ml:379
 msgid "step %d/7"
 msgstr "крок %d/7"
 
-#: src/web/clients/admin/trustees_tab.ml:377
+#: src/web/clients/admin/trustees_tab.ml:378
 msgid "step 0?"
 msgstr "крок 0?"
 
-#. src/web/server/common/pages_admin.ml:51
 #: src/web/clients/common/secondary_ui.ml:94
+#. src/web/server/common/pages_admin.ml:51
 msgid "terms of service"
 msgstr "умови обслуговування"
 
@@ -2003,56 +2016,56 @@ msgstr "відбиток вашого відкритого ключа;"
 msgid "the fingerprint of your verification key."
 msgstr "відбиток вашого ключа підтвердження."
 
-#: src/web/server/common/pages_admin.ml:355
+#: src/web/server/common/pages_admin.ml:366
 msgid "the new password is too weak (%s)"
 msgstr "новий пароль занадто слабкий (%s)"
 
-#: src/web/server/common/pages_admin.ml:357
+#: src/web/server/common/pages_admin.ml:368
 msgid "the new password starts or ends with a space"
 msgstr "новий пароль починається або закінчується пробілом"
 
-#: src/web/server/common/pages_admin.ml:303
+#: src/web/server/common/pages_admin.ml:314
 msgid "the password is too weak (%s)"
 msgstr "пароль занадто слабкий (%s)"
 
-#: src/web/server/common/pages_admin.ml:306
+#: src/web/server/common/pages_admin.ml:317
 msgid "the password starts or ends with a space"
 msgstr "пароль починається або закінчується пробілом"
 
-#: src/web/clients/admin/elections.ml:1395
+#: src/web/clients/admin/elections.ml:1410
 msgid "the private parts of the credentials"
 msgstr "приватні частини облікових даних"
 
-#. src/web/server/common/pages_admin.ml:304
-#: src/web/server/common/pages_admin.ml:353
+#: src/web/server/common/pages_admin.ml:364
+#. src/web/server/common/pages_admin.ml:315
 msgid "the two passwords are not the same"
 msgstr "два паролі не однакові"
 
-#: src/web/server/common/pages_admin.ml:298
+#: src/web/server/common/pages_admin.ml:309
 msgid "the username is already taken"
 msgstr "ім'я користувача вже зайняте"
 
-#: src/web/server/common/pages_admin.ml:301
+#: src/web/server/common/pages_admin.ml:312
 msgid "the username is invalid"
 msgstr "ім'я користувача недійсне"
 
-#: src/web/server/common/pages_admin.ml:300
+#: src/web/server/common/pages_admin.ml:311
 msgid "there is already an account with this e-mail address"
 msgstr "вже існує обліковий запис із цією адресою електронної пошти"
 
-#: src/web/server/common/pages_admin.ml:307
+#: src/web/server/common/pages_admin.ml:318
 msgid "there is an error in the database"
 msgstr "є помилка в базі даних"
 
-#: src/web/clients/admin/elections.ml:697
+#: src/web/clients/admin/elections.ml:692
 msgid "total weight too big: %s/%s"
 msgstr "загальна вага занадто велика: %s/%s"
 
-#: src/web/clients/admin/elections.ml:785
+#: src/web/clients/admin/elections.ml:780
 msgid "typical use"
 msgstr "типове використання"
 
-#: src/web/clients/admin/elections.ml:751
+#: src/web/clients/admin/elections.ml:746
 msgid "voted?"
 msgstr "проголосував?"
 
@@ -2060,19 +2073,19 @@ msgstr "проголосував?"
 msgid "voter list"
 msgstr "список виборців"
 
-#: src/web/clients/admin/elections.ml:787
+#: src/web/clients/admin/elections.ml:782
 msgid "when a login is needed, e.g. CAS"
 msgstr "коли потрібен логін, напр. CAS"
 
-#: src/web/clients/admin/elections.ml:789
+#: src/web/clients/admin/elections.ml:784
 msgid "when some voters have several votes"
 msgstr "коли деякі виборці мають декілька голосів"
 
-#: src/web/clients/admin/trustees_tab.ml:760
+#: src/web/clients/admin/trustees_tab.ml:761
 msgid "yes"
 msgstr "так"
 
-#: src/web/clients/admin/elections.ml:855
+#: src/web/clients/admin/elections.ml:850
 msgid "you have to make sure that the e-mail addresses are valid."
 msgstr "ви повинні переконатися, що адреси електронної пошти дійсні."
 
@@ -2086,3 +2099,4 @@ msgstr ""
 "ваш закритий ключ. Переконайтеся, що ви ЗБЕРЕГЛИ ЙОГО належним чином, інакше "
 "ви не зможете брати участь у підрахунку голосів і вибори можуть бути "
 "скасовані;"
+
