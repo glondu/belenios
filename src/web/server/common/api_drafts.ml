@@ -242,7 +242,7 @@ let post_drafts account s draft =
 let get_draft_voters (Draft (_, se)) =
   se.se_voters |> List.map (fun x -> x.sv_id)
 
-let put_draft_voters (Draft (v, se), set) voters =
+let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
   let fail e = raise @@ Error (`VoterListError e) in
   let existing_voters =
     List.fold_left
@@ -306,7 +306,8 @@ let get_draft_passwords (Draft (_, se)) =
              login)
            x.sv_password)
 
-let post_draft_passwords account generate (Draft (v, se), set) voters =
+let post_draft_passwords account generate
+    ((Draft (v, se), set) : _ updatable_with_billing) voters =
   let se_voters =
     List.fold_left
       (fun accu v ->
@@ -363,7 +364,8 @@ let exn_of_generate_credentials_on_server_error = function
   | `Already -> Error (`GenericError "already done")
   | `NoServer -> Error (`GenericError "credential authority is not the server")
 
-let submit_public_credentials s uuid (Draft (v, se), set) credentials =
+let submit_public_credentials s uuid
+    ((Draft (v, se), set) : _ updatable_with_billing) credentials =
   let () =
     if se.se_voters = [] then raise (Error (`ValidationError `NoVoters))
   in
@@ -496,7 +498,7 @@ let generate_server_trustee (Draft (_, se)) =
   let st_name = Some "server" in
   Lwt.return { st_id; st_token; st_public_key; st_private_key; st_name }
 
-let post_draft_trustees (Draft (v, se), set) t =
+let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) t =
   let address =
     match t.trustee_address with
     | Some x ->
@@ -562,7 +564,8 @@ let rec filter_out_first f = function
         let touched, xs = filter_out_first f xs in
         (touched, x :: xs)
 
-let delete_draft_trustee (Draft (v, se), set) trustee =
+let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
+    trustee =
   match se.se_trustees with
   | `Basic x ->
       let ts = x.dbp_trustees in
@@ -581,7 +584,7 @@ let delete_draft_trustee (Draft (v, se), set) trustee =
         Lwt.return_true)
       else Lwt.return_false
 
-let set_threshold (Draft (v, se), set) threshold =
+let set_threshold ((Draft (v, se), set) : _ updatable_with_billing) threshold =
   match se.se_trustees with
   | `Basic _ -> Lwt.return @@ Stdlib.Error `NoTrustees
   | `Threshold x when x.dtp_trustees = [] ->
@@ -603,7 +606,8 @@ let get_draft_trustees_mode (Draft (_, se)) =
   | `Basic _ -> `Basic
   | `Threshold x -> `Threshold (Option.value x.dtp_threshold ~default:0)
 
-let put_draft_trustees_mode (Draft (v, se), set) mode =
+let put_draft_trustees_mode ((Draft (v, se), set) : _ updatable_with_billing)
+    mode =
   match (get_draft_trustees_mode (Draft (v, se)), mode) with
   | a, b when a = b -> Lwt.return_unit
   | _, `Basic ->
@@ -629,7 +633,7 @@ let put_draft_trustees_mode (Draft (v, se), set) mode =
           Lwt.fail (Error (`GenericError "threshold out of bounds")))
   | _, _ -> Lwt.fail (Error (`GenericError "change not allowed"))
 
-let reset_draft_trustees (Draft (v, se), set) =
+let reset_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) =
   se.se_trustees <- `Basic { dbp_trustees = [] };
   se.se_trustees_setup_step <- 1;
   set (Draft (v, se))
@@ -733,7 +737,8 @@ let get_passwords s uuid =
   in
   Lwt.return_some res
 
-let import_voters s uuid (Draft (v, se), set) from =
+let import_voters s uuid ((Draft (v, se), set) : _ updatable_with_billing) from
+    =
   let@ voters cont =
     let* x = Web_persist.get_all_voters s from in
     match x with
@@ -768,7 +773,8 @@ let import_voters s uuid (Draft (v, se), set) from =
         let _, login, _ = Voter.get x in
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
-let import_trustees (Draft (v, se), set) s from metadata =
+let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
+    metadata =
   match metadata.e_trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
   | Some names -> (
@@ -904,7 +910,8 @@ let check_owner account s uuid cont =
   if Accounts.check account metadata.e_owners then cont metadata
   else unauthorized
 
-let post_draft_status ~admin_id s uuid (Draft (v, se), set) = function
+let post_draft_status ~admin_id s uuid
+    ((Draft (v, se), set) : _ updatable_with_billing) = function
   | `SetDownloaded ->
       let* () =
         if se.se_private_creds_downloaded then Lwt.return_unit
@@ -949,7 +956,8 @@ let post_draft_status ~admin_id s uuid (Draft (v, se), set) = function
       in
       ok
 
-let post_trustee_basic ((Draft (_, se) as fse), set) ~token data =
+let post_trustee_basic
+    (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
   let ts =
     match se.se_trustees with
     | `Basic x -> x.dbp_trustees
@@ -978,7 +986,8 @@ let post_trustee_basic ((Draft (_, se) as fse), set) ~token data =
       else raise @@ Error `InvalidPublicKey
   | _ -> raise @@ Error `PublicKeyExists
 
-let post_trustee_threshold ((Draft (_, se) as fse), set) ~token data =
+let post_trustee_threshold
+    (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let se_trustees =
@@ -1107,7 +1116,8 @@ let post_trustee_threshold ((Draft (_, se) as fse), set) ~token data =
     |> draft_trustees_of_string Yojson.Safe.read_json;
   set fse
 
-let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
+let dispatch_credentials ~token endpoint method_ body s uuid
+    ((se, set) : _ updatable_with_billing) =
   match endpoint with
   | [ "token" ] -> (
       let@ _ = with_administrator token se in
@@ -1150,7 +1160,8 @@ let dispatch_credentials ~token endpoint method_ body s uuid (se, set) =
       | _ -> method_not_allowed)
   | _ -> not_found
 
-let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid (se, set) =
+let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
+    ((se, set) : _ updatable_with_billing) =
   match endpoint with
   | [] -> (
       let@ who = with_administrator_or_nobody token se in

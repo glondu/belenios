@@ -70,7 +70,9 @@ val get_username_or_address : [ `Username | `Address ] Lwt.t Storage.u
 
 val validate_election :
   admin_id:int ->
-  (draft_election updatable -> Belenios_web_api.draft_status -> unit Lwt.t)
+  (draft_election updatable_with_billing ->
+  Belenios_web_api.draft_status ->
+  unit Lwt.t)
   Storage.u
 
 type precast_data = {

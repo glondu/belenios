@@ -32,7 +32,9 @@ val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election
 val post_drafts : account -> Storage.t -> draft -> uuid option Lwt.t
 val get_draft_voters : draft_election -> voter_list
-val put_draft_voters : draft_election updatable -> voter_list -> unit Lwt.t
+
+val put_draft_voters :
+  draft_election updatable_with_billing -> voter_list -> unit Lwt.t
 
 type generate_credentials_on_server_error =
   [ `NoVoters | `TooManyVoters | `Already | `NoServer ]
@@ -47,7 +49,8 @@ val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
 val submit_public_credentials :
-  (draft_election updatable -> public_credentials -> unit Lwt.t) Storage.u
+  (draft_election updatable_with_billing -> public_credentials -> unit Lwt.t)
+  Storage.u
 
 val generate_server_trustee :
   draft_election -> Yojson.Safe.t draft_trustee Lwt.t
@@ -58,19 +61,22 @@ val get_draft_trustees :
   (Yojson.Safe.t, Yojson.Safe.t) Belenios_web_api.draft_trustees
 
 val post_draft_trustees :
-  draft_election updatable -> Yojson.Safe.t trustee -> unit Lwt.t
+  draft_election updatable_with_billing -> Yojson.Safe.t trustee -> unit Lwt.t
 
-val delete_draft_trustee : draft_election updatable -> string -> bool Lwt.t
+val delete_draft_trustee :
+  draft_election updatable_with_billing -> string -> bool Lwt.t
 
 val set_threshold :
-  draft_election updatable ->
+  draft_election updatable_with_billing ->
   int ->
   (unit, [ `NoTrustees | `OutOfBounds ]) Stdlib.result Lwt.t
 
 val get_draft_trustees_mode : draft_election -> [ `Basic | `Threshold of int ]
 
 val put_draft_trustees_mode :
-  draft_election updatable -> [ `Basic | `Threshold of int ] -> unit Lwt.t
+  draft_election updatable_with_billing ->
+  [ `Basic | `Threshold of int ] ->
+  unit Lwt.t
 
 val get_draft_status : uuid -> draft_election -> draft_status Lwt.t
 
@@ -81,7 +87,7 @@ val merge_voters :
   (draft_voter list * weight, Voter.t) Stdlib.result
 
 val import_voters :
-  (draft_election updatable ->
+  (draft_election updatable_with_billing ->
   uuid ->
   ( unit,
     [ `Forbidden
@@ -93,7 +99,7 @@ val import_voters :
   Storage.u
 
 val import_trustees :
-  draft_election updatable ->
+  draft_election updatable_with_billing ->
   (metadata ->
   ( [> `Basic | `Threshold ],
     [> `Inconsistent | `Invalid | `MissingPrivateKeys | `None | `Unsupported ]
@@ -103,10 +109,10 @@ val import_trustees :
   Storage.u
 
 val post_trustee_basic :
-  draft_election updatable -> token:string -> string -> unit Lwt.t
+  draft_election updatable_with_billing -> token:string -> string -> unit Lwt.t
 
 val post_trustee_threshold :
-  draft_election updatable -> token:string -> string -> unit Lwt.t
+  draft_election updatable_with_billing -> token:string -> string -> unit Lwt.t
 
 open Api_generic
 
@@ -118,5 +124,5 @@ val dispatch_draft :
   body ->
   Storage.t ->
   uuid ->
-  draft_election updatable ->
+  draft_election updatable_with_billing ->
   result Lwt.t

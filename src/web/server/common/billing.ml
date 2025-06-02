@@ -51,6 +51,11 @@ let create ~admin_id ~uuid ~nb_voters =
   let* () = Request_table.add id r in
   Lwt.return id
 
+let remove ~id =
+  Lwt.catch
+    (fun () -> Request_table.remove id)
+    (function Not_found -> Lwt.return_unit | e -> Lwt.fail e)
+
 let check ~url ~id =
   Lwt.catch
     (fun () ->

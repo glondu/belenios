@@ -720,7 +720,8 @@ let send_credentials uuid ~admin_id (Draft (v, se)) private_creds =
   se.se_pending_credentials <- false;
   Lwt.return_unit
 
-let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
+let validate_election ~admin_id storage uuid
+    ((Draft (v, se), set) : _ updatable_with_billing) s =
   let open Belenios_web_api in
   let questions =
     let x = se.se_questions in
@@ -768,7 +769,7 @@ let validate_election ~admin_id storage uuid (Draft (v, se), set) s =
         let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
         let se_metadata = { se.se_metadata with e_billing_request = Some id } in
         let se = { se with se_metadata } in
-        let* () = set (Draft (v, se) : draft_election) in
+        let* () = set ~billing:true (Draft (v, se) : draft_election) in
         validation_error (`MissingBilling id)
     | Some (url, _), Some id ->
         let* b = Billing.check ~url ~id in

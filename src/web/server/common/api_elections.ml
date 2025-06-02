@@ -780,9 +780,19 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
   | uuid :: "draft" :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let@ se, set = Storage.update s (Election (uuid, Draft)) in
+      let set ?(billing = false) ((Draft (_, se) : draft_election) as x) =
+        let* () =
+          match (billing, se.se_metadata.e_billing_request) with
+          | true, _ | _, None -> Lwt.return_unit
+          | false, Some id ->
+              se.se_metadata <- { se.se_metadata with e_billing_request = None };
+              Billing.remove ~id
+        in
+        set Value x
+      in
       let@ se = Option.unwrap not_found (Lopt.get_value se) in
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
-        (se, set Value)
+        (se, set)
   | [ uuid ] when method_ = `DELETE ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
       let@ metadata cont =
