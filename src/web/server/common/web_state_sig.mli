@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_storage_api
-open Web_common
 
 type signup_kind = CreateAccount | ChangePassword of { username : string }
 type signup_env = { kind : signup_kind; service : string }
@@ -30,7 +29,6 @@ module type S = sig
   val signup_address : string option Eliom_reference.eref
   val signup_env : signup_env option Eliom_reference.eref
   val set_email_env : string option Eliom_reference.eref
-  val billing_env : site_cont option Eliom_reference.eref
   val discard : unit -> unit Lwt.t
   val get_consent_cookie : unit -> bool
   val set_consent_cookie : unit -> unit

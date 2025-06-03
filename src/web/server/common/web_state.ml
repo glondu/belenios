@@ -25,7 +25,6 @@ module Make () = struct
   let signup_address = Eliom_reference.eref ~scope:belenios_scope None
   let signup_env = Eliom_reference.eref ~scope:belenios_scope None
   let set_email_env = Eliom_reference.eref ~scope:belenios_scope None
-  let billing_env = Eliom_reference.eref ~scope:belenios_scope None
   let discard () = Eliom_state.discard ~scope:belenios_scope ()
 
   let get_consent_cookie () =
