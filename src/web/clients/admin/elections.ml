@@ -1690,15 +1690,30 @@ let create_content () =
               match request_status_of_string x.content with
               | exception _ -> fail ()
               | status -> (
-                  match status.error with
-                  | `ValidationError (`MissingBilling id) ->
-                      let* prefix = Cache.get_prefix () in
-                      let url =
-                        Printf.sprintf
-                          "%sdraft/prebilling?id=%s&cont=elections/%s" prefix id
-                          (Uuid.unwrap uuid)
+                  match (status.error, !token) with
+                  | ( `ValidationError (`MissingBilling { url; id; callback }),
+                      Some token ) ->
+                      let form =
+                        let open Tyxml_js.Html in
+                        let input name value =
+                          input
+                            ~a:
+                              [
+                                a_input_type `Hidden; a_name name; a_value value;
+                              ]
+                            ()
+                        in
+                        form
+                          ~a:[ a_action (url ^ "/pre"); a_method `Post ]
+                          [
+                            input "id" id;
+                            input "callback" callback;
+                            input "token" token;
+                          ]
+                        |> Tyxml_js.To_dom.of_form
                       in
-                      Dom_html.window##.location##.href := Js.string url;
+                      Dom.appendChild document##.body form;
+                      form##submit;
                       Lwt.return_unit
                   | _ -> fail ()))
           | _ -> fail ())

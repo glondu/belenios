@@ -737,15 +737,16 @@ let validate_election ~admin_id storage uuid
   let* () =
     match (!Web_config.billing, se.se_metadata.e_billing_request) with
     | None, _ -> Lwt.return_unit
-    | Some _, None ->
+    | Some (url, callback), None ->
         let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
         let se_metadata = { se.se_metadata with e_billing_request = Some id } in
         let se = { se with se_metadata } in
         let* () = set ~billing:true (Draft (v, se) : draft_election) in
-        validation_error (`MissingBilling id)
-    | Some (url, _), Some id ->
+        validation_error (`MissingBilling { url; id; callback })
+    | Some (url, callback), Some id ->
         let* b = Billing.check ~url ~id in
-        if b then Lwt.return_unit else validation_error (`MissingBilling id)
+        if b then Lwt.return_unit
+        else validation_error (`MissingBilling { url; id; callback })
   in
   (* private credentials *)
   let* private_creds = Storage.get storage (Election (uuid, Private_creds)) in

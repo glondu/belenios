@@ -45,6 +45,12 @@ type restricted_mode_error =
   | BadGroup
   ]
 
+type missing_billing = {
+  url : string;
+  id : string;
+  callback : string;
+}
+
 type validation_error =
   [ NoTitle
   | NoQuestions
@@ -59,7 +65,7 @@ type validation_error =
   | WeightsAreIncompatibleWithNH
   | NotSinglePrivateKey
   | KeyEstablishmentNotFinished
-  | MissingBilling of string
+  | MissingBilling of missing_billing
   | RestrictedMode of restricted_mode_error
   ]
 
