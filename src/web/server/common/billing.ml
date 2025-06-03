@@ -35,10 +35,7 @@ module Request_table =
 
 let create ~admin_id ~uuid ~nb_voters =
   let date = Unix.gettimeofday () in
-  let r =
-    { admin_id; date; uuid; nb_voters; context = None }
-    |> string_of_billing_request
-  in
+  let r = { admin_id; date; uuid; nb_voters } |> string_of_billing_request in
   let rec find_id () =
     let id = generate_token ~length:22 () in
     Lwt.catch
@@ -67,20 +64,12 @@ let check ~url ~id =
       | _ -> Lwt.return_false)
     (fun _ -> Lwt.return_false)
 
-(* Forward reference *)
-let get_admin_context = ref (fun _ -> assert false)
-
-(* Called once in Web_persist *)
-let set_get_admin_context f = get_admin_context := f
-
 let lookup id =
   Lwt.catch
     (fun () ->
       let* x = Request_table.find id in
       let r = billing_request_of_string x in
-      let* c = !get_admin_context r.admin_id in
-      let x = { r with context = Some c } |> string_of_billing_request in
-      Lwt.return_some x)
+      Lwt.return_some @@ string_of_billing_request r)
     (function Not_found -> Lwt.return_none | e -> Lwt.fail e)
 
 let dispatch ~token:_ ~ifmatch:_ endpoint method_ _body =

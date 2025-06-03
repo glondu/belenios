@@ -326,18 +326,11 @@ type shuffler_request =
 
 type ballots_with_weights = (hash * weight) list <json repr="object">
 
-type billing_context = {
-    email : string;
-    nb_elections : int;
-    total_voters : int;
-}
-
 type billing_request = {
     admin_id : int;
     date : float;
     uuid : uuid;
     nb_voters : int;
-    ?context : billing_context option;
 }
 
 type client_configuration = {

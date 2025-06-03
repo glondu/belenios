@@ -640,34 +640,6 @@ let get_audit_cache s uuid =
           let* () = Storage.set s (Election (uuid, Audit_cache)) Value cache in
           return_some cache)
 
-let get_admin_context admin_id =
-  let@ s = Storage.with_transaction in
-  let* elections = Storage.get_elections_by_owner admin_id in
-  let* elections =
-    let open Belenios_web_api in
-    Lwt_list.filter_map_s
-      (function
-        | { state = `Open | `Closed | `Shuffling | `EncryptedTally; uuid; _ }
-          -> (
-            let* cache = get_audit_cache s uuid in
-            match cache with
-            | None -> Lwt.return_none
-            | Some cache -> Lwt.return_some cache.cache_checksums.ec_num_voters)
-        | _ -> Lwt.return_none)
-      elections
-  in
-  let* account = Accounts.get_account_by_id s admin_id in
-  let email =
-    match account with
-    | Some { email = Some x; _ } -> x
-    | _ -> !Web_config.server_mail
-  in
-  let nb_elections = List.length elections in
-  let total_voters = List.fold_left ( + ) 0 elections in
-  Lwt.return Belenios_web_api.{ email; nb_elections; total_voters }
-
-let () = Billing.set_get_admin_context get_admin_context
-
 let regen_password s uuid ~admin_id user =
   let user = String.lowercase_ascii user in
   let* show_weight = get_has_explicit_weights s uuid in
