@@ -25,6 +25,7 @@ open Api_generic
 val create : admin_id:int -> uuid:Uuid.t -> nb_voters:int -> string Lwt.t
 val remove : id:string -> unit Lwt.t
 val check : url:string -> id:string -> bool Lwt.t
+val validate : (admin_id:int -> uuid -> result Lwt.t) ref
 
 val dispatch :
   token:string option ->

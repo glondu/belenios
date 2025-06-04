@@ -956,6 +956,17 @@ let post_draft_status ~admin_id s uuid
       in
       ok
 
+let () =
+  Billing.validate :=
+    fun ~admin_id uuid ->
+      let@ s = Storage.with_transaction in
+      let@ se, set = Storage.update s (Election (uuid, Draft)) in
+      match Lopt.get_value se with
+      | None -> not_found
+      | Some se ->
+          let set ?billing:_ x = set Value x in
+          post_draft_status ~admin_id s uuid (se, set) `ValidateElection
+
 let post_trustee_basic
     (((Draft (_, se) as fse), set) : _ updatable_with_billing) ~token data =
   let ts =

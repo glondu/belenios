@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios
 open Belenios_web_api
 open Belenios_server_core
 open Api_generic
@@ -68,16 +69,30 @@ let lookup id =
   Lwt.catch
     (fun () ->
       let* x = Request_table.find id in
-      let r = billing_request_of_string x in
-      Lwt.return_some @@ string_of_billing_request r)
+      Lwt.return_some @@ billing_request_of_string x)
     (function Not_found -> Lwt.return_none | e -> Lwt.fail e)
+
+(* Forward reference set in Api_drafts *)
+let validate = ref (fun ~admin_id:_ _uuid -> failwith "Billing.validate")
 
 let dispatch ~token:_ ~ifmatch:_ endpoint method_ _body =
   match endpoint with
   | [ "requests"; id ] -> (
       match method_ with
       | `GET -> (
+          let@ () = handle_generic_error in
           let* x = lookup id in
-          match x with None -> not_found | Some x -> return_json 200 x)
+          match x with
+          | None -> not_found
+          | Some x -> return_json 200 (string_of_billing_request x))
+      | _ -> method_not_allowed)
+  | [ "requests"; id; "validate" ] -> (
+      match method_ with
+      | `POST -> (
+          let@ () = handle_generic_error in
+          let* x = lookup id in
+          match x with
+          | None -> not_found
+          | Some { admin_id; uuid; _ } -> !validate ~admin_id uuid)
       | _ -> method_not_allowed)
   | _ -> not_found

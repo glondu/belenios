@@ -1690,9 +1690,8 @@ let create_content () =
               match request_status_of_string x.content with
               | exception _ -> fail ()
               | status -> (
-                  match (status.error, !token) with
-                  | ( `ValidationError (`MissingBilling { url; id; callback }),
-                      Some token ) ->
+                  match status.error with
+                  | `ValidationError (`MissingBilling { url; id; callback }) ->
                       let form =
                         let open Tyxml_js.Html in
                         let input name value =
@@ -1704,12 +1703,8 @@ let create_content () =
                             ()
                         in
                         form
-                          ~a:[ a_action (url ^ "/pre"); a_method `Post ]
-                          [
-                            input "id" id;
-                            input "callback" callback;
-                            input "token" token;
-                          ]
+                          ~a:[ a_action (url ^ "/bill"); a_method `Post ]
+                          [ input "id" id; input "callback" callback ]
                         |> Tyxml_js.To_dom.of_form
                       in
                       Dom.appendChild document##.body form;
