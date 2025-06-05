@@ -1,5 +1,19 @@
 # External authentication protocols supported by Belenios
 
+## Belenios Connect
+
+```mermaid
+sequenceDiagram
+    Browser->>+Belenios: login()
+    Belenios->>+Browser: auth_url, belenios_url, state
+    Browser->>+Auth: login(belenios_url, state)
+    Auth->>+Browser: belenios_url, code, state
+    Browser->>+Belenios: confirm_login(code, state)
+    Belenios-->>+Auth: validate(code)
+    Auth-->>+Belenios: user_info
+    Belenios->>+Browser: ok
+```
+
 ## CAS
 
 ```mermaid
