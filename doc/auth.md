@@ -9,8 +9,8 @@ sequenceDiagram
     Browser->>+Auth: login(belenios_url)
     Auth->>+Browser: ticket, belenios_url
     Browser->>+Belenios: confirm_login(ticket)
-    Belenios-->>+Auth: validate(ticket)
-    Auth-->>+Belenios: data
+    Belenios-->>+Auth: validate(belenios_url, ticket)
+    Auth-->>+Belenios: user_info
     Belenios->>+Browser: ok
 ```
 
@@ -25,7 +25,9 @@ sequenceDiagram
     Browser->>+Auth: login(belenios_url, client_id, state)
     Auth->>+Browser: belenios_url, code, state
     Browser->>+Belenios: confirm_login(code, state)
-    Belenios-->>+Auth: validate(client_id, client_secret, code)
-    Auth-->>+Belenios: data
+    Belenios-->>+Auth: get_token(belenios_url, client_id, client_secret, code)
+    Auth-->>+Belenios: token
+    Belenios-->>+Auth: get_user_info(token)
+    Auth-->>+Belenios: user_info
     Belenios->>+Browser: ok
 ```
