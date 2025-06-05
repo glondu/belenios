@@ -39,6 +39,16 @@ module Make () = struct
   let nh_group_file = ref None
   let domain = ref None
 
+  let parse_connect config =
+    let open Xml in
+    config
+    |> List.map (function
+         | PCData _ -> []
+         | Element (callback, [ ("address", address) ], []) ->
+             [ (callback, address) ]
+         | _ -> failwith "invalid <connect> configuration")
+    |> List.flatten
+
   let () =
     Eliom_config.get_config ()
     |>
@@ -146,6 +156,8 @@ module Make () = struct
         Web_config.election_sealing := true
     | Element ("storage", [ ("backend", backend) ], config) ->
         Lwt_main.run (Storage.init_backend backend config)
+    | Element ("connect", [], config) ->
+        Web_config.connect := parse_connect config
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag

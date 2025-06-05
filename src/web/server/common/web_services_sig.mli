@@ -673,4 +673,48 @@ module type S = sig
       unit,
       Eliom_service.non_ocaml )
     Eliom_service.t
+
+  val connect_login :
+    ( string * string,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom_parameter.param_name
+      * [ `One of string ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
+  val connect_consent :
+    ( string * string,
+      unit,
+      Eliom_service.post,
+      Eliom_service.att,
+      Eliom_service.co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom_parameter.param_name
+      * [ `One of string ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
+  val connect_validate :
+    ( string,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithoutSuffix ],
+      [ `One of string ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
 end

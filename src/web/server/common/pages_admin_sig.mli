@@ -65,4 +65,11 @@ module type S = sig
     (string, unit) result -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val sudo : unit -> [> `Html ] Eliom_content.Html.F.elt Lwt.t
+
+  val connect_consent :
+    account:Belenios_storage_api.account ->
+    callback:string ->
+    address:string ->
+    state:string ->
+    [> `Html ] Eliom_content.Html.F.elt Lwt.t
 end

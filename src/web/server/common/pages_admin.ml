@@ -496,4 +496,38 @@ struct
     let content = [ form ] in
     let title = s_ "Impersonate a user" in
     base ~title ~content ()
+
+  let connect_consent ~account ~callback ~address ~state =
+    let* l = get_preferred_gettext () in
+    let open (val l) in
+    let form =
+      post_form ~service:connect_consent
+        (fun () -> [ input ~input_type:`Submit ~value:(s_ "Proceed") string ])
+        (callback, state)
+    in
+    let msg =
+      [
+        txt @@ s_ "By proceeding, you authorize:";
+        ul [ li [ txt callback; txt " ("; txt address; txt ")" ] ];
+        txt @@ s_ "to access:";
+        ul
+          [
+            li
+              [
+                txt @@ s_ "your account id:";
+                txt " ";
+                txt @@ string_of_int account.id;
+              ];
+            li
+              [
+                txt @@ s_ "your e-mail address:";
+                txt " ";
+                txt @@ Option.value ~default:"(none)" account.email;
+              ];
+          ];
+      ]
+    in
+    let content = [ div msg; form ] in
+    let title = "Belenios Connect" in
+    base ~title ~content ()
 end

@@ -252,4 +252,17 @@ module Make () = struct
       ()
 
   let api_token = create ~path:(Path [ "api-token" ]) ~meth:(Get unit) ()
+
+  let connect_login =
+    create
+      ~path:(Path [ "connect"; "login" ])
+      ~meth:(Get (string "callback" ** string "state"))
+      ()
+
+  let connect_consent =
+    create_attached_post ~csrf_safe:true ~fallback:connect_login
+      ~post_params:unit ()
+
+  let connect_validate =
+    create ~path:(Path [ "connect"; "validate" ]) ~meth:(Get (string "code")) ()
 end

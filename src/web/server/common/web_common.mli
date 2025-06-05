@@ -39,7 +39,11 @@ val uuid :
     [ `One of uuid ] Eliom_parameter.param_name )
   Eliom_parameter.params_type
 
-type site_cont_path = ContSiteHome | ContSiteElection of uuid
+type site_cont_path =
+  | ContSiteHome
+  | ContSiteElection of uuid
+  | ContSiteConnect of string * string
+
 type site_cont_admin = Default | Basic
 type site_cont = { path : site_cont_path; admin : site_cont_admin }
 

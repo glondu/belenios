@@ -143,6 +143,12 @@ struct
               `R
                 (Redirection
                    (preapply ~service:election_home_redirect (uuid, ()))))
+      | `Site { path = ContSiteConnect (callback, state); _ } -> (
+          match login with
+          | true ->
+              let service = preapply ~service:connect_login (callback, state) in
+              `R (Redirection service)
+          | _ -> `R (Redirection home))
     in
     if extern then
       let* uri =

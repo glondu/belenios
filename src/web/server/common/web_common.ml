@@ -43,7 +43,11 @@ let get_election_home_url ?credential uuid =
 let uuid x =
   Eliom_parameter.user_type ~of_string:Uuid.wrap ~to_string:Uuid.unwrap x
 
-type site_cont_path = ContSiteHome | ContSiteElection of uuid
+type site_cont_path =
+  | ContSiteHome
+  | ContSiteElection of uuid
+  | ContSiteConnect of string * string
+
 type site_cont_admin = Default | Basic
 type site_cont = { path : site_cont_path; admin : site_cont_admin }
 
@@ -61,6 +65,7 @@ let site_cont_of_string x =
     match String.split_on_char '/' path with
     | [ "home" ] -> ContSiteHome
     | [ "elections"; uuid ] -> ContSiteElection (Uuid.wrap uuid)
+    | [ "connect"; callback; state ] -> ContSiteConnect (callback, state)
     | _ -> fail ()
   in
   { path; admin }
@@ -70,6 +75,8 @@ let string_of_site_cont x =
     match x.path with
     | ContSiteHome -> "home"
     | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
+    | ContSiteConnect (callback, state) ->
+        Printf.sprintf "connect/%s/%s" callback state
   in
   let admin = match x.admin with Default -> "" | Basic -> "@basic" in
   path ^ admin

@@ -438,4 +438,85 @@ struct
           | Some (_, _, token) -> (200, token)
         in
         String.send ~code (content, "text/plain"))
+
+  type connect_code = {
+    timeout : float;
+    user_info : Belenios_web_api.user_info;
+  }
+
+  let connect_codes = ref SMap.empty
+
+  let get_codes ~now =
+    !connect_codes |> SMap.filter (fun _ { timeout; _ } -> now < timeout)
+
+  let add_code ~now code x = connect_codes := get_codes ~now |> SMap.add code x
+
+  let consume_code ~now code =
+    let codes = get_codes ~now in
+    let r = SMap.find_opt code codes in
+    connect_codes := SMap.remove code codes;
+    r
+
+  let () =
+    Any.register ~service:connect_login (fun (callback, state) () ->
+        match List.assoc_opt callback !Web_config.connect with
+        | None -> fail_http `Bad_request
+        | Some address -> (
+            let* x = Eliom_reference.get Web_state.site_user in
+            match x with
+            | None ->
+                Redirection.send
+                  (Redirection
+                     (preapply ~service:site_login
+                        (None, default_admin (ContSiteConnect (callback, state)))))
+            | Some (_, account, _) ->
+                let* page =
+                  Pages_admin.connect_consent ~account ~callback ~address ~state
+                in
+                Html.send page))
+
+  let split_prefix_path url =
+    let open Stdlib in
+    let n = String.length url in
+    let i = String.rindex url '/' in
+    (String.sub url 0 i, [ String.sub url (i + 1) (n - i - 1) ])
+
+  let () =
+    Any.register ~service:connect_consent (fun (callback, state) () ->
+        match List.assoc_opt callback !Web_config.connect with
+        | None -> fail_http `Bad_request
+        | Some address -> (
+            let* x = Eliom_reference.get Web_state.site_user in
+            match x with
+            | None -> fail_http `Forbidden
+            | Some (_, a, _) ->
+                let user_info : Belenios_web_api.user_info =
+                  { login = string_of_int a.id; address = a.email }
+                in
+                let now = Unix.gettimeofday () in
+                let timeout = now +. 60. in
+                let code = Belenios_server_core.generate_token ~length:22 () in
+                add_code ~now code { timeout; user_info };
+                let service =
+                  let prefix, path = split_prefix_path address in
+                  let service =
+                    Eliom_service.extern ~prefix ~path
+                      ~meth:
+                        (Eliom_service.Get
+                           Eliom_parameter.(string "code" ** string "state"))
+                      ()
+                  in
+                  preapply ~service (code, state)
+                in
+                Redirection.send (Redirection service)))
+
+  let () =
+    Any.register ~service:connect_validate (fun code () ->
+        let now = Unix.gettimeofday () in
+        match consume_code ~now code with
+        | Some { user_info; _ } ->
+            String.send
+              ( Belenios_web_api.string_of_user_info user_info,
+                "application/json" )
+        | _ -> fail_http `Forbidden)
 end
