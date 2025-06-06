@@ -19,4 +19,4 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make (_ : Pages_sig.S) : Site_common_sig.S
+module Make (_ : Pages_sig.S) (_ : Web_auth_sig.S) : Site_common_sig.S

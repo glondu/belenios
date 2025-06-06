@@ -23,7 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Web_common
 
-module Make (X : Pages_sig.S) = struct
+module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
   open X
   open Web_services
   open Eliom_service
@@ -87,19 +87,10 @@ module Make (X : Pages_sig.S) = struct
         Pages_common.generic_page ~title:"Error" (Printexc.to_string e) ()
         >>= Html.send)
 
-  let get_cont_state cont =
-    let redir =
-      match cont.path with
-      | ContSiteHome -> Redirection home
-      | ContSiteElection uuid ->
-          Redirection (preapply ~service:election_home_redirect (uuid, ()))
-    in
-    fun () -> Redirection.send redir
-
   let () =
     Any.register ~service:set_consent (fun cont () ->
         let () = Web_state.set_consent_cookie () in
-        get_cont_state cont ())
+        Web_auth.get_cont ~extern:false `Logout (`Site cont) ())
 
   let () =
     Any.register ~service:set_language (fun (lang, cont) () ->
@@ -107,7 +98,7 @@ module Make (X : Pages_sig.S) = struct
         let () =
           Eliom_state.set_cookie ~exp ~name:"belenios-lang" ~value:lang ()
         in
-        get_cont_state cont ())
+        Web_auth.get_cont ~extern:false `Logout (`Site cont) ())
 
   let forbidden () =
     let* l = get_preferred_gettext () in

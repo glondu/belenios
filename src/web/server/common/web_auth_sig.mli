@@ -74,5 +74,13 @@ module type S = sig
   val get_site_login_handler : string -> result Lwt.t
   val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u
 
+  val get_cont :
+    extern:bool ->
+    [< `Login | `Logout ] ->
+    ?state:string ->
+    [< `Election of uuid | `Site of Web_common.site_cont ] ->
+    unit ->
+    Eliom_registration.Html.result Lwt.t
+
   module State : STATE
 end
