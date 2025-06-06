@@ -90,7 +90,7 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
   let () =
     Any.register ~service:set_consent (fun cont () ->
         let () = Web_state.set_consent_cookie () in
-        Web_auth.get_cont ~extern:false `Logout (`Site cont) ())
+        Web_auth.exec @@ `Site cont)
 
   let () =
     Any.register ~service:set_language (fun (lang, cont) () ->
@@ -98,7 +98,7 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
         let () =
           Eliom_state.set_cookie ~exp ~name:"belenios-lang" ~value:lang ()
         in
-        Web_auth.get_cont ~extern:false `Logout (`Site cont) ())
+        Web_auth.exec @@ `Site cont)
 
   let forbidden () =
     let* l = get_preferred_gettext () in

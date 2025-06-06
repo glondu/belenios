@@ -113,7 +113,7 @@ struct
     | Some { credential = Some c; _ } -> cred_env := SMap.remove c !cred_env
     | _ -> ()
 
-  let get_cont ~extern login_or_logout ?state x =
+  let exec ?(extern = false) ?(login = false) ?state x =
     let open Eliom_registration in
     let redir =
       match x with
@@ -127,8 +127,8 @@ struct
           | Default -> `R (Redirection home)
           | Basic -> `R (Redirection (admin_basic ())))
       | `Site { path = ContSiteElection uuid; admin = admin_ui } -> (
-          match login_or_logout with
-          | `Login -> (
+          match login with
+          | true -> (
               match admin_ui with
               | Default -> `S (make_admin_link (Some uuid))
               | Basic ->
@@ -139,26 +139,25 @@ struct
                       ~service:(admin_basic ()) ()
                   in
                   `S base)
-          | `Logout ->
+          | false ->
               `R
                 (Redirection
                    (preapply ~service:election_home_redirect (uuid, ()))))
     in
-    fun () ->
-      if extern then
-        let* uri =
-          match redir with
-          | `R (Redirection service) ->
-              Lwt.return @@ make_absolute_string_uri ~service ()
-          | `S s -> Lwt.return s
-          | `E e -> fail_http e
-        in
-        Pages_common.html_redirection uri >>= Html.send
-      else
+    if extern then
+      let* uri =
         match redir with
-        | `R r -> Redirection.send r
-        | `S s -> String_redirection.send s
+        | `R (Redirection service) ->
+            Lwt.return @@ make_absolute_string_uri ~service ()
+        | `S s -> Lwt.return s
         | `E e -> fail_http e
+      in
+      Pages_common.html_redirection uri >>= Html.send
+    else
+      match redir with
+      | `R r -> Redirection.send r
+      | `S s -> String_redirection.send s
+      | `E e -> fail_http e
 
   let restart_login service ~state = function
     | `Election _ -> preapply ~service:election_login (Some state)
@@ -225,7 +224,7 @@ struct
                         (Some (user, account, token))
                   | Some _ -> Lwt.return_unit
                 in
-                get_cont ~extern `Login kind ~state ()
+                exec ~extern ~login:true ~state kind
             | None -> restart_login ()
           in
           post_login_handler ~data uuid a cont
@@ -285,9 +284,7 @@ struct
           let@ () =
            fun cont ->
             let* x = Eliom_reference.get Web_state.site_user in
-            match x with
-            | None -> cont ()
-            | Some _ -> get_cont ~extern:false `Login kind ()
+            match x with None -> cont () | Some _ -> exec ~login:true kind
           in
           let@ auth_config cont2 =
             let c = !Web_config.site_auth_config in
@@ -342,7 +339,7 @@ struct
           Lwt.return_unit
     in
     let* () = Web_state.discard () in
-    get_cont ~extern:false `Logout (`Site cont) ()
+    exec (`Site cont)
 
   let () =
     Eliom_registration.Any.register ~service:site_login (fun x () ->
