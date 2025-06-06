@@ -51,5 +51,7 @@
     "question_x_of_y": "Otázka {{current_question}} z {{number_of_questions}}",
     "preferential_voting_without_equality_move_candidate_above_position_x": "Nad pozicí {{index}}",
     "preferential_voting_without_equality_move_candidate_below_position_x": "Pod pozicí {{index}}",
-    "preferential_voting_ranked": "Pořadí přiřazeno"
+    "preferential_voting_ranked": "Pořadí přiřazeno",
+    "download_tracker_label": "Stáhnout",
+    "lists_question_description": "Vyberte seznam kandidátů a zrušte výběr kandidátů, které nechcete zahrnout."
 }
