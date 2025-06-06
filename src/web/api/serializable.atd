@@ -361,3 +361,8 @@ type cast_result =
   [ Ok of confirmation
   | Error of cast_error
   ]
+
+type user_info = {
+  login : string;
+  ?address : string option;
+}

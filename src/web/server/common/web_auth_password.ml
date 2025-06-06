@@ -114,7 +114,11 @@ struct
               Lwt.return
                 (match x with
                 | None -> None
-                | Some { username; address; _ } -> Some (username, address))
+                | Some { username; address; _ } ->
+                    let info : Belenios_web_api.user_info =
+                      { login = username; address }
+                    in
+                    Some info)
             in
             cont result);
       }

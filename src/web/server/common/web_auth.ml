@@ -43,7 +43,7 @@ struct
       data:Web_auth_sig.data ->
       uuid option ->
       auth_config ->
-      ((string * string option) option -> 'a Lwt.t) ->
+      (Belenios_web_api.user_info option -> 'a Lwt.t) ->
       'a Lwt.t;
   }
 
@@ -173,8 +173,8 @@ struct
           >>= Eliom_registration.Html.send ~code:401
         in
         if auth_system = a.auth_system then
-          let cont = function
-            | Some (name, email) ->
+          let cont : Belenios_web_api.user_info option -> _ = function
+            | Some { login; address } ->
                 let@ () =
                  fun cont ->
                   match List.assoc_opt "allowlist" a.auth_config with
@@ -189,11 +189,11 @@ struct
                         | None -> []
                         | Some x -> x
                       in
-                      if List.mem name allowlist then cont ()
+                      if List.mem login allowlist then cont ()
                       else restart_login ()
                 in
                 let user =
-                  { user_domain = a.auth_instance; user_name = name }
+                  { user_domain = a.auth_instance; user_name = login }
                 in
                 let () = env.user <- Some user in
                 let* () =
@@ -204,7 +204,7 @@ struct
                         match id with
                         | None ->
                             let@ s = Storage.with_transaction in
-                            Accounts.create_account s ~email user
+                            Accounts.create_account s ~email:address user
                         | Some id -> (
                             let@ s = Storage.with_transaction in
                             let@ a, set = Accounts.update_account_by_id s id in

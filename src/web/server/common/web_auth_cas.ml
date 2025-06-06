@@ -63,11 +63,12 @@ struct
         >>= extract "cas:serviceResponse"
         >>= extract "cas:authenticationSuccess"
       in
-      let* user = extract "cas:user" info >>= extract_pcdata in
-      let mail =
+      let* login = extract "cas:user" info >>= extract_pcdata in
+      let address =
         extract "cas:attributes" info >>= extract "cas:mail" >>= extract_pcdata
       in
-      Some (user, mail)
+      let info : Belenios_web_api.user_info = { login; address } in
+      Some info
     with _ -> None
 
   let get_cas_validation_v2 server ~state ticket =
@@ -95,7 +96,10 @@ struct
         | "yes" ->
             let x =
               let& j = next_lf info (i + 1) in
-              Some (String.sub info (i + 1) (j - i - 1), None)
+              let info : Belenios_web_api.user_info =
+                { login = String.sub info (i + 1) (j - i - 1); address = None }
+              in
+              Some info
             in
             `Yes x
         | "no" -> `No

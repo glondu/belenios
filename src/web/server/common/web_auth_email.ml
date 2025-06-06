@@ -177,7 +177,7 @@ struct
         let code = String.trim code in
         let* x = Eliom_reference.get env in
         match x with
-        | Some (state, name, address) ->
+        | Some (state, login, address) ->
             run_post_login_handler ~state
               {
                 Web_auth.post_login_handler =
@@ -186,7 +186,10 @@ struct
                       match Otp.check ~address ~code with
                       | Some () ->
                           let* () = Eliom_state.discard ~scope () in
-                          return_some (name, Some address)
+                          let info : Belenios_web_api.user_info =
+                            { login; address = Some address }
+                          in
+                          return_some info
                       | None -> return_none
                     in
                     cont ok);

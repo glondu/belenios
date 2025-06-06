@@ -53,10 +53,12 @@ struct
       let* info = Cohttp_lwt.Body.to_string body in
       try
         let x = oidc_userinfo_of_string info in
-        return_some
-          (match x.oidc_email with
-          | Some x -> (x, Some x)
-          | None -> (x.oidc_sub, None))
+        let info : Belenios_web_api.user_info =
+          match x.oidc_email with
+          | Some x -> { login = x; address = Some x }
+          | None -> { login = x.oidc_sub; address = None }
+        in
+        return_some info
       with _ -> return_none
     with _ -> return_none
 

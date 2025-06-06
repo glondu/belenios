@@ -54,10 +54,14 @@ struct
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.dummy_post
-      (fun () (state, name) ->
+      (fun () (state, login) ->
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              (fun ~data:_ _ _ cont -> cont (Some (name, None)));
+              (fun ~data:_ _ _ cont ->
+                let info : Belenios_web_api.user_info =
+                  { login; address = None }
+                in
+                cont (Some info));
           })
 end
