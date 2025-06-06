@@ -29,7 +29,6 @@ module Pages_admin_root = Pages_admin
 module Make
     (X : Pages_sig.S)
     (Site_common : Site_common_sig.S)
-    (Web_cont : Web_cont_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
   open X

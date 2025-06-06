@@ -26,5 +26,4 @@
   pages_voter_sig
   pages_sig
   site_common_sig
-  web_auth_sig
-  web_cont_sig))
+  web_auth_sig))

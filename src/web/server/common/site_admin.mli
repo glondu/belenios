@@ -22,5 +22,4 @@
 module Make
     (_ : Pages_sig.S)
     (_ : Site_common_sig.S)
-    (_ : Web_cont_sig.S)
     (_ : Web_auth_sig.S) : sig end
