@@ -445,6 +445,13 @@ struct
             div
               [
                 txt
+                @@ s_
+                     "This code is composed of 6 digits. It can take up to 15 \
+                      minutes to be delivered, please be patient.";
+              ];
+            div
+              [
+                txt
                   (s_ "Please enter the verification code received by e-mail:");
                 txt " ";
                 input ~input_type:`Text ~name:lcode string;
