@@ -37,6 +37,10 @@ let split_address =
     | exception Not_found -> Printf.ksprintf failwith "bad e-mail address: %s" x
     | g -> (Group.get g 1, Group.get g 2)
 
+let encode_address address =
+  address |> String.split_on_char '=' |> String.concat "=="
+  |> String.split_on_char '@' |> String.concat "="
+
 let sendmail ~recipient ~uuid message =
   let base_address =
     Option.value ~default:!Web_config.server_mail !Web_config.return_path
@@ -45,10 +49,7 @@ let sendmail ~recipient ~uuid message =
     match !Web_config.encode_recipient with
     | false -> base_address
     | true ->
-        let recipient =
-          let local, domain = split_address recipient in
-          Printf.sprintf "%s%%%s" local domain
-        in
+        let recipient = encode_address recipient in
         let uuid =
           match uuid with
           | None -> ""
