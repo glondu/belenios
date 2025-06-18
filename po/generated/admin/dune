@@ -1,0 +1,10 @@
+(dynamic_include ../admin.inc)
+
+(install
+ (package belenios-server)
+ (section share)
+ (files
+  (glob_files
+   (*.mo with_prefix static/locales/admin))
+  (glob_files
+   (*.json with_prefix static/locales/admin))))

@@ -1,0 +1,19 @@
+(rule
+ (target admin.inc)
+ (deps gen-dune.sh ../admin/LINGUAS)
+ (action
+  (with-stdin-from
+   ../admin/LINGUAS
+   (with-stdout-to
+    %{target}
+    (run ./gen-dune.sh admin)))))
+
+(rule
+ (target voter.inc)
+ (deps gen-dune.sh ../voter/LINGUAS)
+ (action
+  (with-stdin-from
+   ../voter/LINGUAS
+   (with-stdout-to
+    %{target}
+    (run ./gen-dune.sh voter < ../voter/LINGUAS)))))

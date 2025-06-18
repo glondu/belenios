@@ -3,11 +3,7 @@ LINGUAS := $(shell cat LINGUAS)
 POFILES=$(addsuffix .po,$(LINGUAS))
 POTFILE=messages.pot
 
-all: dune $(POFILES)
-
-dune: LINGUAS
-	../gen-dune.sh admin < $^ > $@
-	dune fmt
+all: $(POFILES)
 
 clean:
 	rm -f *.bak
