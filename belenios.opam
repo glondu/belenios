@@ -6,7 +6,7 @@ maintainer: ["stephane.glondu@vcast.vote"]
 authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [
-  "dune" {>= "3.11"}
+  "dune" {>= "3.14"}
   "belenios-tool" {= version}
   "belenios-server" {= version}
   "odoc" {with-doc}

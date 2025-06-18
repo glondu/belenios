@@ -1,4 +1,4 @@
-(lang dune 3.11)
+(lang dune 3.14)
 (using menhir 2.0)
 (name belenios)
 (version 3.1)
