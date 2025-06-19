@@ -56,7 +56,7 @@ msgstr " został zaakceptowany."
 msgid " have been tallied."
 msgstr " zostało policzonych."
 
-#: src/web/server/common/pages_common.ml:516
+#: src/web/server/common/pages_common.ml:523
 msgid " in the following box: "
 msgstr " w poniższym polu: "
 
@@ -117,7 +117,7 @@ msgstr ""
 "Specyfikacja zaszyfrowanych kart do głosowania jest dostępna również w "
 "kodzie źródłowym."
 
-#: src/web/server/common/pages_common.ml:465
+#: src/web/server/common/pages_common.ml:472
 msgid "A verification code has been sent to %s."
 msgstr "Kod weryfikacyjny został wysłany do %s."
 
@@ -170,7 +170,7 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Dane audytu: "
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
@@ -194,11 +194,11 @@ msgstr ""
 "Uwierzytelnienie nie powiodło się (błędna nazwa użytkownika, hasło, albo z "
 "braku uprawnień do wykonania operacji)."
 
-#: src/web/server/common/pages_common.ml:541
+#: src/web/server/common/pages_common.ml:548
 msgid "Authentication impossible"
 msgstr "Uwierzytelnienie niemożliwe"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:543
 msgid "Authentication is impossible."
 msgstr "Uwierzytelnienie nie jest możliwe."
 
@@ -206,11 +206,11 @@ msgstr "Uwierzytelnienie nie jest możliwe."
 msgid "Back to election home"
 msgstr "Wróć do strony głównej"
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:499
 msgid "Bad e-mail address!"
 msgstr "Błędny adres e-mail!"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:498
 msgid "Bad security code!"
 msgstr "Błędny kod bezpieczeństwa!"
 
@@ -230,7 +230,7 @@ msgstr "Kabiny do głosowania dostępne na tym serwerze:"
 msgid "By using this site, you accept our "
 msgstr "Korzystając z tej strony, akceptujesz nasze "
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:558
 msgid "Click here"
 msgstr "Kliknij tutaj"
 
@@ -263,7 +263,7 @@ msgstr "Cyfrowy odcisk (hasz) kodów głosowania"
 msgid "Dear %s,"
 msgstr "Dzień dobry %s,"
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
@@ -317,7 +317,7 @@ msgstr "Definitywny, cyfrowy odcisk (hasz)"
 msgid "Fingerprint of the encrypted tally"
 msgstr "Cyfrowy odcisk (hasz) zaszyfrowanego wyniku głosowania"
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "Zabronione"
 
@@ -371,7 +371,7 @@ msgstr "Język:"
 msgid "Loading..."
 msgstr "Wczytuję..."
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
@@ -392,7 +392,7 @@ msgstr ""
 "Występuje wiele wariantów systemu pojedynczego głosu przechodniego (STV), "
 "zróżnicowanych ze względu na sposób rozstrzygania remisów."
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:545
 msgid "Maybe cookies are blocked."
 msgstr "Być może ciasteczka są zablokowane."
 
@@ -433,11 +433,11 @@ msgstr "Strona głosowania:"
 msgid "Password:"
 msgstr "Hasło:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:521
 msgid "Please enter "
 msgstr "Wprowadź "
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:455
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Wprowadź kod weryfikacyjny, który otrzymałeś na e-mail:"
 
@@ -487,7 +487,7 @@ msgstr "Strona głosowania:"
 msgid "Raw events"
 msgstr "Nieprzetworzone dane"
 
-#: src/web/server/common/pages_common.ml:554
+#: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
 msgstr "Przekierowanie"
 
@@ -524,8 +524,8 @@ msgstr "Rozpocznij"
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:519
-#. src/web/server/common/pages_common.ml:452
+#. src/web/server/common/pages_common.ml:526
+#. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Prześlij"
 
@@ -586,6 +586,10 @@ msgstr "Nieprzetworzone dane można obejrzeć tutaj: "
 #: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr "Wystąpił przynajmniej jeden remis pomiędzy kandydatami (opcjami)."
+
+#: src/web/server/common/pages_common.ml:448
+msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
+msgstr ""
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -696,7 +700,7 @@ msgstr "Możesz zagłosować wiele razy, ale tylko ostatni głos się liczy."
 msgid "You are listed as a voter for the election"
 msgstr "Jesteś na liście uprawnionych do głosowania w głosowaniu"
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr "Nie masz dostępu do tej strony!"
 
@@ -729,11 +733,11 @@ msgstr ""
 "Możesz utworzyć zaszyfrowaną kartę do głosowania korzystając z narzędzia "
 "korzystającego z wiersza poleceń "
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:529
+#: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
 msgstr "Nie możesz się teraz zalogować. Spróbuj później."
 

@@ -55,7 +55,7 @@ msgstr " is geaccepteerd."
 msgid " have been tallied."
 msgstr " zijn geteld."
 
-#: src/web/server/common/pages_common.ml:516
+#: src/web/server/common/pages_common.ml:523
 msgid " in the following box: "
 msgstr " in het volgende vak: "
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:465
+#: src/web/server/common/pages_common.ml:472
 msgid "A verification code has been sent to %s."
 msgstr "Er werd een verificatiecode gestuurd naar %s."
 
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Data controleren: "
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
@@ -186,11 +186,11 @@ msgstr ""
 "wachtwoord, of omdat je niet de juiste machtiging hebt om deze actie uit te "
 "voeren."
 
-#: src/web/server/common/pages_common.ml:541
+#: src/web/server/common/pages_common.ml:548
 msgid "Authentication impossible"
 msgstr "Authenticeren onmogelijk"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:543
 msgid "Authentication is impossible."
 msgstr "Authenticeren is onmogelijk."
 
@@ -198,11 +198,11 @@ msgstr "Authenticeren is onmogelijk."
 msgid "Back to election home"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:499
 msgid "Bad e-mail address!"
 msgstr "Verkeerd e-mailadres!"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:498
 msgid "Bad security code!"
 msgstr "Verkeerde beveiligingscode!"
 
@@ -222,7 +222,7 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr "Door het gebruik van deze site ga je akkoord met onze "
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:558
 msgid "Click here"
 msgstr "Klik hier"
 
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Dear %s,"
 msgstr "Beste %s,"
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
@@ -309,7 +309,7 @@ msgstr ""
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "Verboden"
 
@@ -363,7 +363,7 @@ msgstr "Taal:"
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
@@ -384,7 +384,7 @@ msgstr ""
 "Er bestaan meerdere varianten van enkelvoudige overdraagbare stem, "
 "afhankelijk van hoe wordt omgegaan met ex-aequo."
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:545
 msgid "Maybe cookies are blocked."
 msgstr "Misschien zijn cookies geblokkeerd."
 
@@ -425,11 +425,11 @@ msgstr "Pagina van de verkiezing:"
 msgid "Password:"
 msgstr "Wachtwoord:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:521
 msgid "Please enter "
 msgstr "Voer in "
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:455
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Voer de verificatiecode in die u ontvangen hebt via e-mail:"
 
@@ -481,7 +481,7 @@ msgstr ""
 msgid "Raw events"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:554
+#: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
 msgstr ""
 
@@ -515,8 +515,8 @@ msgstr ""
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:519
-#. src/web/server/common/pages_common.ml:452
+#. src/web/server/common/pages_common.ml:526
+#. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr ""
 
@@ -574,6 +574,10 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:448
+msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
 msgstr ""
 
 #: src/web/server/common/site_common.ml:38
@@ -676,7 +680,7 @@ msgstr ""
 msgid "You are listed as a voter for the election"
 msgstr ""
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr ""
 
@@ -704,11 +708,11 @@ msgstr ""
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:529
+#: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
 msgstr ""
 

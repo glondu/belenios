@@ -55,7 +55,7 @@ msgstr " on vastaanotettu."
 msgid " have been tallied."
 msgstr " on laskettu."
 
-#: src/web/server/common/pages_common.ml:516
+#: src/web/server/common/pages_common.ml:523
 msgid " in the following box: "
 msgstr " seuraavaan laatikkoob: "
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr "Myös salattujen äänestyslippujen erittely on saatavilla lähteistä."
 
-#: src/web/server/common/pages_common.ml:465
+#: src/web/server/common/pages_common.ml:472
 msgid "A verification code has been sent to %s."
 msgstr "Vahvistuskoodi on lähetetty kohteeseen %s."
 
@@ -163,7 +163,7 @@ msgstr "Tarkastusdataa ei ole saatavilla."
 msgid "Audit data: "
 msgstr "Kirjausketju (audit trail): "
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
@@ -188,11 +188,11 @@ msgstr ""
 "käyttäjätunnuksesta tai salasanasta; sinulla ei välttämättä ole oikeuksia "
 "käyttää tätä toimintoa."
 
-#: src/web/server/common/pages_common.ml:541
+#: src/web/server/common/pages_common.ml:548
 msgid "Authentication impossible"
 msgstr "Todennus mahdotonta"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:543
 msgid "Authentication is impossible."
 msgstr "Todennus on mahdotonta."
 
@@ -200,11 +200,11 @@ msgstr "Todennus on mahdotonta."
 msgid "Back to election home"
 msgstr "Takaisin vaalitaloon"
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:499
 msgid "Bad e-mail address!"
 msgstr "Väärä sähköpostiosoite!"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:498
 msgid "Bad security code!"
 msgstr "Väärä turvakoodi!"
 
@@ -224,7 +224,7 @@ msgstr "Tällä palvelimella saatavilla olevat kopit:"
 msgid "By using this site, you accept our "
 msgstr "Käyttämällä sivustoa hyväksyt "
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:558
 msgid "Click here"
 msgstr "Klikkaa tästä"
 
@@ -257,7 +257,7 @@ msgstr "Valtuutuskoodien sormenjälki"
 msgid "Dear %s,"
 msgstr "Hyvä %s,"
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
@@ -311,7 +311,7 @@ msgstr "Lopullinen sormenjälki"
 msgid "Fingerprint of the encrypted tally"
 msgstr "Salatun laskentatuloksen sormenjälki"
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "Kielletty"
 
@@ -364,7 +364,7 @@ msgstr "Kieli:"
 msgid "Loading..."
 msgstr "Ladataan..."
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
@@ -385,7 +385,7 @@ msgstr ""
 "STV-vaalitavasta on monia muunnelmia, esimerkiksi liittyen tasatilanteiden "
 "ratkaisemiseen."
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:545
 msgid "Maybe cookies are blocked."
 msgstr "Ehkä evästeet on estetty."
 
@@ -426,11 +426,11 @@ msgstr "Vaalien sivu:"
 msgid "Password:"
 msgstr "Salasana:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:521
 msgid "Please enter "
 msgstr "Ole hyvä ja syötä "
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:455
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Syötä sähköpostilla saamasi vahvistuskoodi:"
 
@@ -481,7 +481,7 @@ msgstr "Vaalien julkinen sivu:"
 msgid "Raw events"
 msgstr "Raa'at tapahtumat"
 
-#: src/web/server/common/pages_common.ml:554
+#: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
 msgstr "Uudelleenohjaus"
 
@@ -517,8 +517,8 @@ msgstr "Aloita"
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:519
-#. src/web/server/common/pages_common.ml:452
+#. src/web/server/common/pages_common.ml:526
+#. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Lähetä"
 
@@ -579,6 +579,10 @@ msgstr "Raakatuloksia voi tarkastella täällä "
 #: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr "Laskennassa löydettiin ainakin yksi tasatilanne."
+
+#: src/web/server/common/pages_common.ml:448
+msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
+msgstr ""
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -687,7 +691,7 @@ msgstr "Saat äänestää useamman kerran."
 msgid "You are listed as a voter for the election"
 msgstr "Olet äänestyksen äänestäjäluettelossa"
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr "Sinulla ei ole käyttöoikeutta tälle sivulle!"
 
@@ -715,11 +719,11 @@ msgstr "Voit tarkistaa, onko se läsnä vaaliuurnassa, joka sijaitsee"
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr "Voit luoda salatun äänestyslipun komentorivityökalulla "
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:529
+#: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
 msgstr "Et voi kirjautua sisään juuri nyt. Yritä myöhemmin uudelleen."
 

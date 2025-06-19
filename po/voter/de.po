@@ -55,7 +55,7 @@ msgstr " wurde angenommen."
 msgid " have been tallied."
 msgstr " wurden ausgezählt."
 
-#: src/web/server/common/pages_common.ml:516
+#: src/web/server/common/pages_common.ml:523
 msgid " in the following box: "
 msgstr " in das folgende Feld ein: "
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:465
+#: src/web/server/common/pages_common.ml:472
 msgid "A verification code has been sent to %s."
 msgstr "Es wurde ein Verifizierungscode an %s gesendet."
 
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Auditdaten: "
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
@@ -185,11 +185,11 @@ msgstr ""
 "Authentifizierung fehlgeschlagen, vermutlich falscher Benutzername oder "
 "Passwort, oder Sie dürfen diese Operation nicht durchführen."
 
-#: src/web/server/common/pages_common.ml:541
+#: src/web/server/common/pages_common.ml:548
 msgid "Authentication impossible"
 msgstr "Authentifizierung unmöglich"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:543
 msgid "Authentication is impossible."
 msgstr "Authentifizierung ist unmöglich."
 
@@ -197,11 +197,11 @@ msgstr "Authentifizierung ist unmöglich."
 msgid "Back to election home"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:499
 msgid "Bad e-mail address!"
 msgstr "Falsche E-Mail-Adresse!"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:498
 msgid "Bad security code!"
 msgstr "Ungültiger Sicherheitscode!"
 
@@ -221,7 +221,7 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr "Wenn Sie diese Seite benutzen akzeptieren sie unsere "
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:558
 msgid "Click here"
 msgstr ""
 
@@ -254,7 +254,7 @@ msgstr ""
 msgid "Dear %s,"
 msgstr "Hallo %s,"
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
@@ -308,7 +308,7 @@ msgstr ""
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "Verboten"
 
@@ -363,7 +363,7 @@ msgstr "Sprache:"
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
@@ -384,7 +384,7 @@ msgstr ""
 "Es gibt viele Varianten von STV, die zum Beispiel davon abhängen, wie die "
 "Stimmengleichheit zu lösen ist."
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:545
 msgid "Maybe cookies are blocked."
 msgstr "Vielleicht sind Cookies blockiert."
 
@@ -426,11 +426,11 @@ msgstr "Website der Abstimmung:"
 msgid "Password:"
 msgstr "Passwort:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:521
 msgid "Please enter "
 msgstr "Bitte geben Sie "
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:455
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Bitte geben Sie den per E-Mail erhaltenen Bestätigungscode ein:"
 
@@ -482,7 +482,7 @@ msgstr ""
 msgid "Raw events"
 msgstr "Unverarbeitete Ereignisse"
 
-#: src/web/server/common/pages_common.ml:554
+#: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
 msgstr ""
 
@@ -518,8 +518,8 @@ msgstr "Start"
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:519
-#. src/web/server/common/pages_common.ml:452
+#. src/web/server/common/pages_common.ml:526
+#. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Absenden"
 
@@ -580,6 +580,10 @@ msgstr "Die unverarbeiteten Ergebnisse finden Sie in der "
 #: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr "Es gab mindestens ein Unentschieden."
+
+#: src/web/server/common/pages_common.ml:448
+msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
+msgstr ""
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -688,7 +692,7 @@ msgstr "Sie dürfen mehrmals abstimmen."
 msgid "You are listed as a voter for the election"
 msgstr "Sie sind für die folgende Abstimmung als Wähler eingetragen"
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr "Sie sind nicht berechtigt, auf diese Seite zuzugreifen!"
 
@@ -718,11 +722,11 @@ msgstr ""
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:529
+#: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
 msgstr "Sie können sich jetzt nicht anmelden. Bitte versuchen Sie es später."
 

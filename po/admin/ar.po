@@ -136,7 +136,7 @@ msgstr "قبول"
 msgid "Account management"
 msgstr "ادارة الحساب"
 
-#: src/web/server/common/site_admin.ml:415
+#: src/web/server/common/site_admin.ml:414
 msgid "Account not found"
 msgstr "الحساب غير موجود"
 
@@ -224,7 +224,7 @@ msgstr "هل أنت متأكد من رغبتك في إحصاء هذه الانت
 msgid "As a trustee, your first role is to shuffle the encrypted ballots."
 msgstr "باعتبارك أمينا، فإن دورك الأول هو خلط أوراق الاقتراع المشفرة."
 
-#: src/web/clients/admin/elections.ml:1842
+#: src/web/clients/admin/elections.ml:1852
 msgid "Automatic cleaning"
 msgstr ""
 
@@ -250,6 +250,10 @@ msgstr "بواسطة طرف ثالث من اختيارك"
 msgid "By our server (not ideal for decentralized security)"
 msgstr "بواسطة خادمنا (ليس مثاليًا للأمان اللامركزي)"
 
+#: src/web/server/common/pages_admin.ml:510
+msgid "By proceeding, you authorize:"
+msgstr ""
+
 #: src/web/clients/common/secondary_ui.ml:93
 msgid "By using this site, you accept our "
 msgstr ""
@@ -266,8 +270,8 @@ msgstr "إلغاء"
 msgid "Change e-mail address"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:379
-#. src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:378
+#. src/web/server/common/site_admin.ml:263
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -294,7 +298,7 @@ msgstr "اضغط على \"إرسال\" لإرسال مفتاح التحقق ال
 msgid "Click on the link."
 msgstr "اضغط على الرابط."
 
-#: src/web/clients/admin/elections.ml:1723
+#: src/web/clients/admin/elections.ml:1733
 #. src/web/clients/common/secondary_ui.ml:101
 msgid "Close"
 msgstr "اغلق"
@@ -347,8 +351,8 @@ msgstr "إنشاء"
 msgid "Create a new election"
 msgstr "إنشاء انتخابات جديدة"
 
-#: src/web/server/common/site_admin.ml:349
-#. src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:348
+#. src/web/server/common/site_admin.ml:219
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr ""
@@ -470,7 +474,7 @@ msgstr "انتهى؟"
 msgid "Download "
 msgstr "تحميل "
 
-#: src/web/clients/admin/elections.ml:1783
+#: src/web/clients/admin/elections.ml:1793
 msgid "Download sealing log"
 msgstr ""
 
@@ -505,15 +509,15 @@ msgstr "تعديل الملف الشخصي"
 msgid "Election ID:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1724
+#: src/web/clients/admin/elections.ml:1734
 msgid "Election is currently closed"
 msgstr "الانتخابات مغلقة حاليا"
 
-#: src/web/clients/admin/elections.ml:1723
+#: src/web/clients/admin/elections.ml:1733
 msgid "Election is currently open"
 msgstr "الانتخابات مفتوحة حاليا"
 
-#: src/web/clients/admin/elections.ml:1874 src/web/clients/admin/elections.ml:313
+#: src/web/clients/admin/elections.ml:1884 src/web/clients/admin/elections.ml:313
 msgid "Election main page"
 msgstr "الصفحة الرئيسية للانتخابات"
 
@@ -524,7 +528,7 @@ msgstr "الصفحة الرئيسية للانتخابات"
 msgid "Election server"
 msgstr "خادم الانتخاب"
 
-#: src/web/clients/admin/elections.ml:1858
+#: src/web/clients/admin/elections.ml:1868
 msgid "Election status"
 msgstr ""
 
@@ -554,8 +558,8 @@ msgstr ""
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:233
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:194
-#. src/web/server/common/site_admin.ml:147
+#. src/web/server/common/site_admin.ml:193
+#. src/web/server/common/site_admin.ml:146
 msgid "Error"
 msgstr "خطأ"
 
@@ -640,7 +644,7 @@ msgstr "احصل على كود المصدر"
 msgid "Go back to election"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1879
+#: src/web/clients/admin/elections.ml:1889
 msgid "Go see the result on the election main page!"
 msgstr "اذهب لرؤية النتيجة على الصفحة الرئيسية للانتخابات!"
 
@@ -701,7 +705,7 @@ msgstr ""
 msgid "Inconsistent state. Please refresh the page."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:178
+#: src/web/server/common/site_admin.ml:177
 msgid "Incorrect code"
 msgstr "ؤ"
 
@@ -943,7 +947,7 @@ msgid "Once the election is open, you must check that they match with what is pu
 msgstr ""
 "وبمجرد فتح باب الانتخابات، يجب عليك التأكد من مطابقتها لما ينشره الخادم."
 
-#: src/web/clients/admin/elections.ml:1724
+#: src/web/clients/admin/elections.ml:1734
 msgid "Open"
 msgstr "افتح"
 
@@ -1057,6 +1061,7 @@ msgid "Preview will open in a new tab"
 msgstr "سيتم فتح المعاينة في علامة تبويب جديدة"
 
 #: src/web/clients/trustee/check.ml:148 src/web/clients/trustee/generate.ml:278
+#. src/web/server/common/pages_admin.ml:505
 #. src/web/server/common/pages_admin.ml:492
 #. src/web/server/common/pages_admin.ml:466
 #. src/web/server/common/pages_admin.ml:437
@@ -1123,7 +1128,7 @@ msgstr "أسئلة:"
 msgid "Questions (non editable):"
 msgstr "الأسئلة (غير قابلة للتعديل):"
 
-#: src/web/clients/admin/elections.ml:1708
+#: src/web/clients/admin/elections.ml:1718
 msgid "Ready to create:"
 msgstr "جاهز للإنشاء:"
 
@@ -1157,7 +1162,7 @@ msgstr "إعادة الضبط والبدء من الصفر"
 msgid "Restricted mode"
 msgstr "الوضع المحدود"
 
-#: src/web/clients/admin/elections.ml:1889 src/web/clients/admin/elections.ml:312
+#: src/web/clients/admin/elections.ml:1899 src/web/clients/admin/elections.ml:312
 msgid "Results page"
 msgstr "صفحة النتائج"
 
@@ -1183,19 +1188,19 @@ msgstr ""
 msgid "Save the two fingerprints above."
 msgstr "احفظ البصمتين أعلاه."
 
-#: src/web/clients/admin/elections.ml:1767
+#: src/web/clients/admin/elections.ml:1777
 msgid "Seal"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1798
+#: src/web/clients/admin/elections.ml:1808
 msgid "Sealing"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1804
+#: src/web/clients/admin/elections.ml:1814
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1809
+#: src/web/clients/admin/elections.ml:1819
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 
@@ -1344,11 +1349,11 @@ msgstr "شكرا لمساعدتكم،"
 msgid "The account creation "
 msgstr "إنشاء الحساب "
 
-#: src/web/server/common/site_admin.ml:351
+#: src/web/server/common/site_admin.ml:350
 msgid "The account has been created."
 msgstr "تم إنشاء الحساب."
 
-#: src/web/clients/admin/elections.ml:1896
+#: src/web/clients/admin/elections.ml:1906
 msgid "The archive can be downloaded at: "
 msgstr "يمكن تنزيل الأرشيف على: "
 
@@ -1363,11 +1368,11 @@ msgstr "التغيير "
 msgid "The election administrator"
 msgstr "مدير الانتخابات"
 
-#: src/web/server/common/site_admin.ml:195
+#: src/web/server/common/site_admin.ml:194
 msgid "The election is not archived!"
 msgstr "لم يتم أرشفة الانتخابات!"
 
-#: src/web/clients/admin/elections.ml:1767
+#: src/web/clients/admin/elections.ml:1777
 msgid "The election is not sealed."
 msgstr ""
 
@@ -1412,11 +1417,11 @@ msgstr "تحتوي الصفحة أيضًا على تعليمات للتحقق م
 msgid "The partial decryption didn't pass validation!"
 msgstr "لم تنجح فحص فك التشفير الجزئي!"
 
-#: src/web/server/common/site_admin.ml:381
+#: src/web/server/common/site_admin.ml:380
 msgid "The password has been changed."
 msgstr "تم تغيير كلمة السر."
 
-#: src/web/server/common/site_admin.ml:174
+#: src/web/server/common/site_admin.ml:173
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "الرمز المقدم غير صحيح. الرجاء العودة والمحاولة مجددا."
 
@@ -1433,7 +1438,7 @@ msgstr "الخادم هو دائما أحد الأمناء"
 msgid "The shuffle has been successfully applied!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1867
+#: src/web/clients/admin/elections.ml:1877
 msgid "The tally for this election has started."
 msgstr ""
 
@@ -1469,7 +1474,7 @@ msgstr ""
 msgid "There will be 3 steps."
 msgstr "ستكون هناك 3 خطوات."
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:413
 msgid "This account does not exist"
 msgstr "هذا الحساب غير موجود"
 
@@ -1477,39 +1482,39 @@ msgstr "هذا الحساب غير موجود"
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "سيتم إضافة هذا الاتصال إلى الرسائل البريدية المرسلة إلى الناخبين."
 
-#: src/web/server/common/site_admin.ml:146
+#: src/web/server/common/site_admin.ml:145
 msgid "This e-mail address is invalid!"
 msgstr "هذا العنوان البريدي غير صالح!"
 
-#: src/web/clients/admin/elections.ml:1878
+#: src/web/clients/admin/elections.ml:1888
 msgid "This election has been tallied"
 msgstr "تم احتساب هذا الانتخاب"
 
-#: src/web/clients/admin/elections.ml:1861
+#: src/web/clients/admin/elections.ml:1871
 msgid "This election is a draft."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1893
+#: src/web/clients/admin/elections.ml:1903
 msgid "This election is archived"
 msgstr "تم أرشفة هذا الانتخاب"
 
-#: src/web/clients/admin/elections.ml:1871
+#: src/web/clients/admin/elections.ml:1881
 msgid "This election is in shuffling phase."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1863
+#: src/web/clients/admin/elections.ml:1873
 msgid "This election is running."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1766
+#: src/web/clients/admin/elections.ml:1776
 msgid "This election is sealed."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1835
+#: src/web/clients/admin/elections.ml:1845
 msgid "This election will be automatically archived after %s."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1849
+#: src/web/clients/admin/elections.ml:1859
 msgid "This election will be automatically deleted after %s."
 msgstr ""
 
@@ -1637,7 +1642,7 @@ msgstr ""
 msgid "Unknown uuid"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1766
+#: src/web/clients/admin/elections.ml:1776
 msgid "Unseal"
 msgstr ""
 
@@ -1707,7 +1712,7 @@ msgstr ""
 "تحذير: هذا الرمز صالح لمدة 15 دقيقة، والرموز السابقة التي تم إرسالها إلى هذا "
 "العنوان لم تعد صالحة."
 
-#: src/web/clients/admin/elections.ml:1709
+#: src/web/clients/admin/elections.ml:1719
 msgid "Warning: this is irreversible!"
 msgstr ""
 
@@ -1745,11 +1750,11 @@ msgstr ""
 msgid "You cannot change your e-mail address right now."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:265
+#: src/web/server/common/site_admin.ml:264
 msgid "You cannot change your password now. Please try later."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:221
+#: src/web/server/common/site_admin.ml:220
 msgid "You cannot create an account now. Please try later."
 msgstr ""
 
@@ -1999,6 +2004,10 @@ msgstr "هناك حساب بالفعل مرتبط بهذا العنوان الب
 msgid "there is an error in the database"
 msgstr ""
 
+#: src/web/server/common/pages_admin.ml:512
+msgid "to access:"
+msgstr ""
+
 #: src/web/clients/admin/elections.ml:692
 msgid "total weight too big: %s/%s"
 msgstr ""
@@ -2034,6 +2043,14 @@ msgstr "يجب عليك التأكد من صحة عناوين البريد ال�
 #: src/web/common/mails_admin.ml:249 src/web/common/mails_admin.ml:165
 msgid "you may store the key on a USB stick and store it in a safe;"
 msgstr "يمكنك تخزين المفتاح على وحدة USB وتخزينه في خزنة;"
+
+#: src/web/server/common/pages_admin.ml:517
+msgid "your account id:"
+msgstr ""
+
+#: src/web/server/common/pages_admin.ml:523
+msgid "your e-mail address:"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:222
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"

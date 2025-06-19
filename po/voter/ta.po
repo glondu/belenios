@@ -55,7 +55,7 @@ msgstr ""
 msgid " have been tallied."
 msgstr " உயர்த்தப்பட்டுள்ளது."
 
-#: src/web/server/common/pages_common.ml:516
+#: src/web/server/common/pages_common.ml:523
 msgid " in the following box: "
 msgstr ""
 
@@ -112,7 +112,7 @@ msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 "மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டின் விவரக்குறிப்பு மூலங்களிலும் கிடைக்கிறது."
 
-#: src/web/server/common/pages_common.ml:465
+#: src/web/server/common/pages_common.ml:472
 msgid "A verification code has been sent to %s."
 msgstr "சரிபார்ப்பு குறியீடு %s க்கு அனுப்பப்பட்டுள்ளது."
 
@@ -160,7 +160,7 @@ msgstr ""
 msgid "Audit data: "
 msgstr "தணிக்கை தரவு: "
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
@@ -184,11 +184,11 @@ msgstr ""
 "ஏற்பு தோல்வியுற்றது, அநேகமாக மோசமான பயனர்பெயர் அல்லது கடவுச்சொல் காரணமாக இருக்கலாம் அல்லது இந்த செயல்பாட்டைச் செய்"
 "ய உங்களுக்கு இசைவு இல்லை."
 
-#: src/web/server/common/pages_common.ml:541
+#: src/web/server/common/pages_common.ml:548
 msgid "Authentication impossible"
 msgstr "ஏற்பு சாத்தியமற்றது"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:543
 msgid "Authentication is impossible."
 msgstr "ஏற்பு சாத்தியமற்றது."
 
@@ -196,11 +196,11 @@ msgstr "ஏற்பு சாத்தியமற்றது."
 msgid "Back to election home"
 msgstr "தேர்தல் வீட்டிற்கு திரும்பவும்"
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:499
 msgid "Bad e-mail address!"
 msgstr "மோசமான மின்னஞ்சல் முகவரி!"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:498
 msgid "Bad security code!"
 msgstr "மோசமான பாதுகாப்பு குறியீடு!"
 
@@ -220,7 +220,7 @@ msgstr "இந்த சேவையகத்தில் சாவடிகள�
 msgid "By using this site, you accept our "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:558
 msgid "Click here"
 msgstr "இங்கே சொடுக்கு செய்க"
 
@@ -253,7 +253,7 @@ msgstr "நற்சான்றிதழ்கள் கைரேகை"
 msgid "Dear %s,"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
@@ -307,7 +307,7 @@ msgstr ""
 msgid "Fingerprint of the encrypted tally"
 msgstr "மறைகுறியாக்கப்பட்ட எண்ணிக்கையின் கைரேகை"
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "தடைசெய்யப்பட்டுள்ளது"
 
@@ -359,7 +359,7 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
@@ -379,7 +379,7 @@ msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "எச்.டி.வி.யின் பல வகைகள் உள்ளன, எடுத்துக்காட்டாக உறவுகளை எவ்வாறு உடைப்பது என்பதைப் பொறுத்து."
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:545
 msgid "Maybe cookies are blocked."
 msgstr "ஒருவேளை குக்கீகள் தடுக்கப்பட்டிருக்கலாம்."
 
@@ -419,11 +419,11 @@ msgstr "தேர்தலின் பக்கம்:"
 msgid "Password:"
 msgstr "கடவுச்சொல்:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:521
 msgid "Please enter "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:455
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
@@ -475,7 +475,7 @@ msgstr "தேர்தலின் பொது பக்கம்:"
 msgid "Raw events"
 msgstr "மூல நிகழ்வுகள்"
 
-#: src/web/server/common/pages_common.ml:554
+#: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
 msgstr "திசை திருப்புதல்"
 
@@ -510,8 +510,8 @@ msgstr "தொடங்கு"
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:519
-#. src/web/server/common/pages_common.ml:452
+#. src/web/server/common/pages_common.ml:526
+#. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr ""
 
@@ -572,6 +572,10 @@ msgstr "மூல முடிவுகளை காணலாம் "
 #: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr "குறைந்தது ஒரு டை உள்ளது."
+
+#: src/web/server/common/pages_common.ml:448
+msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
+msgstr ""
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -678,7 +682,7 @@ msgstr "நீங்கள் பல முறை வாக்களிக்க
 msgid "You are listed as a voter for the election"
 msgstr "நீங்கள் தேர்தலுக்கான வாக்காளராக பட்டியலிடப்பட்டுள்ளீர்கள்"
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr "இந்த பக்கத்தை அணுக உங்களுக்கு இசைவு இல்லை!"
 
@@ -707,11 +711,11 @@ msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 "கட்டளை-வரி கருவியைப் பயன்படுத்தி மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டை உருவாக்கலாம் "
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:529
+#: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
 msgstr "நீங்கள் இப்போது உள்நுழைய முடியாது. தயவுசெய்து முயற்சிக்கவும்."
 

@@ -55,7 +55,7 @@ msgstr " foi aceite."
 msgid " have been tallied."
 msgstr " foram contados."
 
-#: src/web/server/common/pages_common.ml:516
+#: src/web/server/common/pages_common.ml:523
 msgid " in the following box: "
 msgstr " na caixa seguinte: "
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:465
+#: src/web/server/common/pages_common.ml:472
 msgid "A verification code has been sent to %s."
 msgstr "Um código de verificação foi enviado para %s."
 
@@ -161,7 +161,7 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Dados de auditoria: "
 
-#: src/web/server/common/pages_common.ml:476
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 msgid "Authenticate"
@@ -185,11 +185,11 @@ msgstr ""
 "Falha na autenticação, provavelmente devido a login errado ou palavra-passe "
 "errada, ou você não está autorizado a realizar esta Operação."
 
-#: src/web/server/common/pages_common.ml:541
+#: src/web/server/common/pages_common.ml:548
 msgid "Authentication impossible"
 msgstr "Não é possível autenticar"
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:543
 msgid "Authentication is impossible."
 msgstr "A autenticação não é possível."
 
@@ -197,11 +197,11 @@ msgstr "A autenticação não é possível."
 msgid "Back to election home"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:492
+#: src/web/server/common/pages_common.ml:499
 msgid "Bad e-mail address!"
 msgstr "Endereço de e-mail errado!"
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:498
 msgid "Bad security code!"
 msgstr "Código de segurança ruim!"
 
@@ -221,7 +221,7 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr "Ao usar este site, você concorda com o nosso "
 
-#: src/web/server/common/pages_common.ml:551
+#: src/web/server/common/pages_common.ml:558
 msgid "Click here"
 msgstr "Clique aqui"
 
@@ -254,7 +254,7 @@ msgstr "Impressão digital de credenciais"
 msgid "Dear %s,"
 msgstr "Caro %s,"
 
-#: src/web/server/common/pages_common.ml:505
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 msgid "E-mail address:"
@@ -308,7 +308,7 @@ msgstr ""
 msgid "Fingerprint of the encrypted tally"
 msgstr "Impressão digital do resultado criptografado"
 
-#: src/web/server/common/site_common.ml:116
+#: src/web/server/common/site_common.ml:107
 msgid "Forbidden"
 msgstr "Proibido"
 
@@ -361,7 +361,7 @@ msgstr "Idioma:"
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:475
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
@@ -382,7 +382,7 @@ msgstr ""
 "Existem muitas variantes do VUT, que dependem, por exemplo, da forma de "
 "gerir casos de igualdade."
 
-#: src/web/server/common/pages_common.ml:538
+#: src/web/server/common/pages_common.ml:545
 msgid "Maybe cookies are blocked."
 msgstr "Os cookies podem estar bloqueados."
 
@@ -423,11 +423,11 @@ msgstr "Página de eleição:"
 msgid "Password:"
 msgstr "palavra-passe:"
 
-#: src/web/server/common/pages_common.ml:514
+#: src/web/server/common/pages_common.ml:521
 msgid "Please enter "
 msgstr "Por favor, digite "
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:455
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Por favor, insira o código de verificação recebido por e-mail:"
 
@@ -481,7 +481,7 @@ msgstr "Página pública da eleição:"
 msgid "Raw events"
 msgstr "Eventos brutos"
 
-#: src/web/server/common/pages_common.ml:554
+#: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
 msgstr "Redirecionar"
 
@@ -517,8 +517,8 @@ msgstr "Introdução"
 
 #: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
-#. src/web/server/common/pages_common.ml:519
-#. src/web/server/common/pages_common.ml:452
+#. src/web/server/common/pages_common.ml:526
+#. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Enviar"
 
@@ -579,6 +579,10 @@ msgstr "Os resultados brutos podem ser visualizados no "
 #: src/web/clients/election/home.ml:439
 msgid "There has been at least one tie."
 msgstr "Houve pelo menos um empate."
+
+#: src/web/server/common/pages_common.ml:448
+msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
+msgstr ""
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -692,7 +696,7 @@ msgstr "Você tem o direito de votar mais de uma vez."
 msgid "You are listed as a voter for the election"
 msgstr "Você está registrado como eleitor para a eleição"
 
-#: src/web/server/common/site_common.ml:115
+#: src/web/server/common/site_common.ml:106
 msgid "You are not allowed to access this page!"
 msgstr "Você não tem o direito de acessar esta página!"
 
@@ -720,11 +724,11 @@ msgstr "Você pode verificar sua presença na urna, acessível em"
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:529
+#: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
 msgstr "Não é possível fazer login agora. Por favor, tente mais tarde."
 
