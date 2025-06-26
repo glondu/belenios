@@ -33,6 +33,8 @@ sequenceDiagram
     Browser->>+Belenios: login()
     Belenios->>+Browser: auth_url, belenios_url, state
     Browser->>+Auth: login(belenios_url, state)
+    Auth-->>+Belenios: get_context(state)
+    Belenios-->>+Auth: context
     Auth->>+Browser: belenios_url, code, state
     Browser->>+Belenios: confirm_login(code, state)
     Belenios-->>+Auth: validate(code)
@@ -41,8 +43,13 @@ sequenceDiagram
 ```
 
 This protocol is a simplified OpenID Connect tailored for
-Belenios. Its configuration (`...` inside the `<auth>` or
-`<auth-export>` above) has the following format:
+Belenios. Moreover, the optional `get_context` RPC allows the identity
+provider to get contextual information about the authentication
+request, such as whether the request is for an administrator or a
+voter, and for which user if they are known.
+
+Its configuration (`...` inside the `<auth>` or `<auth-export>` above)
+has the following format:
 
 ```xml
 <belenios server="..." callback="..."/>

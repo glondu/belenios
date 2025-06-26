@@ -497,7 +497,7 @@ struct
     let title = s_ "Impersonate a user" in
     base ~title ~content ()
 
-  let connect_consent ~account ~callback ~address ~state =
+  let connect_consent ?uuid ~account ~callback ~server ~state () =
     let* l = get_preferred_gettext () in
     let open (val l) in
     let form =
@@ -505,10 +505,19 @@ struct
         (fun () -> [ input ~input_type:`Submit ~value:(s_ "Proceed") string ])
         (callback, state)
     in
+    let for_election =
+      match uuid with
+      | None -> txt @@ s_ "as an administrator."
+      | Some uuid ->
+          txt
+          @@ Printf.sprintf
+               (f_ "as a voter for election %s.")
+               (Uuid.unwrap uuid)
+    in
     let msg =
       [
         txt @@ s_ "By proceeding, you authorize:";
-        ul [ li [ txt callback; txt " ("; txt address; txt ")" ] ];
+        ul [ li [ txt callback; txt " ("; txt server; txt ")" ] ];
         txt @@ s_ "to access:";
         ul
           [
@@ -525,6 +534,7 @@ struct
                 txt @@ Option.value ~default:"(none)" account.email;
               ];
           ];
+        for_election;
       ]
     in
     let content = [ div msg; form ] in

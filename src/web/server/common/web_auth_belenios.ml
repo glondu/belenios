@@ -27,9 +27,32 @@ open Web_common
 
 module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
 struct
+  let get_context =
+    let open Eliom_service in
+    create
+      ~path:(Path [ "auth"; "belenios"; "get-context" ])
+      ~meth:(Get Eliom_parameter.(string "state"))
+      ()
+
+  let () =
+    let open Eliom_registration in
+    Any.register ~service:get_context (fun state () ->
+        let context : Belenios_web_api.connect_context =
+          match Web_auth.State.get ~state with
+          | Some x ->
+              let username =
+                match x.user with None -> None | Some x -> Some x.user_name
+              in
+              { kind = `Election x.uuid; username }
+          | None -> { kind = `Site; username = None }
+        in
+        String.send
+          ( Belenios_web_api.string_of_connect_context context,
+            "application/json" ))
+
   let login_belenios =
     Eliom_service.create
-      ~path:(Eliom_service.Path [ "auth"; "belenios" ])
+      ~path:(Eliom_service.Path [ "auth"; "belenios"; "return" ])
       ~meth:(Eliom_service.Get Eliom_parameter.any) ()
 
   let belenios_get_info ~server ~code =

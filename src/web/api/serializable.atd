@@ -366,3 +366,13 @@ type user_info = {
   login : string;
   ?address : string option;
 }
+
+type connect_kind =
+  [ Site
+  | Election of uuid
+  ]
+
+type connect_context = {
+  kind : connect_kind;
+  ?username : string option;
+}

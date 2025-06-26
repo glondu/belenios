@@ -457,35 +457,69 @@ struct
     connect_codes := SMap.remove code codes;
     r
 
+  let get_context ~server ~state =
+    let url =
+      let service =
+        Eliom_service.extern ~prefix:server ~path:[ "get-context" ]
+          ~meth:(Get Eliom_parameter.(string "state"))
+          ()
+      in
+      let service = preapply ~service state in
+      Eliom_uri.make_string_uri ~absolute:true ~service ()
+    in
+    let* x, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
+    let* context = Cohttp_lwt.Body.to_string body in
+    match Cohttp.Code.code_of_status x.status with
+    | 200 -> (
+        match Belenios_web_api.connect_context_of_string context with
+        | x -> Lwt.return_some x
+        | exception _ -> Lwt.return_none)
+    | _ -> Lwt.return_none
+
+  let connect_auth ?uuid ~callback ~server ~state () =
+    let* x = Eliom_reference.get Web_state.site_user in
+    match x with
+    | None ->
+        Redirection.send
+          (Redirection
+             (preapply ~service:site_login
+                (None, default_admin (ContSiteConnect (callback, state)))))
+    | Some (_, account, _) ->
+        let* () = Eliom_reference.unset Web_state.connect_context in
+        let* page =
+          Pages_admin.connect_consent ?uuid ~account ~callback ~server ~state ()
+        in
+        Html.send page
+
   let () =
     Any.register ~service:connect_login (fun (callback, state) () ->
         match List.assoc_opt callback !Web_config.connect with
         | None -> fail_http `Bad_request
-        | Some address -> (
-            let* x = Eliom_reference.get Web_state.site_user in
-            match x with
-            | None ->
-                Redirection.send
-                  (Redirection
-                     (preapply ~service:site_login
-                        (None, default_admin (ContSiteConnect (callback, state)))))
-            | Some (_, account, _) ->
-                let* page =
-                  Pages_admin.connect_consent ~account ~callback ~address ~state
-                in
-                Html.send page))
-
-  let split_prefix_path url =
-    let open Stdlib in
-    let n = String.length url in
-    let i = String.rindex url '/' in
-    (String.sub url 0 i, [ String.sub url (i + 1) (n - i - 1) ])
+        | Some server -> (
+            let* context =
+              let* x = Eliom_reference.get Web_state.connect_context in
+              match x with
+              | None ->
+                  let* x = get_context ~server ~state in
+                  let* () =
+                    Eliom_reference.set Web_state.connect_context (Some x)
+                  in
+                  Lwt.return x
+              | Some x -> Lwt.return x
+            in
+            match context with
+            | None -> connect_auth ~callback ~server ~state ()
+            | Some context -> (
+                match context.kind with
+                | `Site -> connect_auth ~callback ~server ~state ()
+                | `Election uuid ->
+                    connect_auth ~callback ~server ~state ~uuid ())))
 
   let () =
     Any.register ~service:connect_consent (fun (callback, state) () ->
         match List.assoc_opt callback !Web_config.connect with
         | None -> fail_http `Bad_request
-        | Some address -> (
+        | Some server -> (
             let* x = Eliom_reference.get Web_state.site_user in
             match x with
             | None -> fail_http `Forbidden
@@ -498,9 +532,8 @@ struct
                 let code = Belenios_server_core.generate_token ~length:22 () in
                 add_code ~now code { timeout; user_info };
                 let service =
-                  let prefix, path = split_prefix_path address in
                   let service =
-                    Eliom_service.extern ~prefix ~path
+                    Eliom_service.extern ~prefix:server ~path:[ "return" ]
                       ~meth:
                         (Eliom_service.Get
                            Eliom_parameter.(string "code" ** string "state"))
