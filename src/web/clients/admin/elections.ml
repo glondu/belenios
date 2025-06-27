@@ -755,7 +755,9 @@ let voters_content () =
     let rows_of_voters =
       List.filter_map
         (fun v ->
-          let address, login, weight = Voter.get v in
+          let login = Voter.get v in
+          let weight = Voter.get_weight v in
+          let address = Option.value ~default:"" (snd v).address in
           let voted = SSet.mem login reco in
           if show_only_missing && voted then None
           else

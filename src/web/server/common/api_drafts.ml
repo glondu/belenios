@@ -247,7 +247,7 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
   let existing_voters =
     List.fold_left
       (fun accu v ->
-        let _, login, _ = Voter.get v.sv_id in
+        let login = Voter.get v.sv_id in
         SMap.add (String.lowercase_ascii login) v accu)
       SMap.empty se.se_voters
   in
@@ -256,7 +256,7 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
       (fun voter ->
         if not (Voter.validate voter) then
           fail @@ `Identity (Voter.to_string voter);
-        let _, login, _ = Voter.get voter in
+        let login = Voter.get voter in
         match SMap.find_opt (String.lowercase_ascii login) existing_voters with
         | None -> { sv_id = voter; sv_password = None }
         | Some v ->
@@ -278,7 +278,8 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
           | Some x when x <> shape' -> fail `FormatMix
           | _ -> Some shape'
         in
-        let _, login, weight = Voter.get v.sv_id in
+        let login = Voter.get v.sv_id in
+        let weight = Voter.get_weight v.sv_id in
         let login = String.lowercase_ascii login in
         let* voters =
           if SSet.mem login voters then fail @@ `Duplicate login
@@ -302,7 +303,7 @@ let get_draft_passwords (Draft (_, se)) =
   |> List.filter_map (fun x ->
          Option.map
            (fun _ ->
-             let _, login, _ = Voter.get x.sv_id in
+             let login = Voter.get x.sv_id in
              login)
            x.sv_password)
 
@@ -311,7 +312,7 @@ let post_draft_passwords account generate
   let se_voters =
     List.fold_left
       (fun accu v ->
-        let _, login, _ = Voter.get v.sv_id in
+        let login = Voter.get v.sv_id in
         SMap.add (String.lowercase_ascii login) v accu)
       SMap.empty se.se_voters
   in
@@ -378,7 +379,8 @@ let submit_public_credentials s uuid
   let usernames =
     List.fold_left
       (fun accu { sv_id; _ } ->
-        let _, username, weight = Voter.get sv_id in
+        let username = Voter.get sv_id in
+        let weight = Voter.get_weight sv_id in
         if SMap.mem username accu then
           raise
             (Error
@@ -703,8 +705,8 @@ let merge_voters a b f =
   let weights =
     List.fold_left
       (fun accu sv ->
-        let _, login, weight = Voter.get sv.sv_id in
-        let login = String.lowercase_ascii login in
+        let login = Voter.get sv.sv_id |> String.lowercase_ascii in
+        let weight = Voter.get_weight sv.sv_id in
         SMap.add login weight accu)
       SMap.empty a
   in
@@ -712,8 +714,8 @@ let merge_voters a b f =
     | [] ->
         Ok (List.rev accu, Weight.(SMap.fold (fun _ x y -> x + y) weights zero))
     | sv_id :: xs ->
-        let _, login, weight = Voter.get sv_id in
-        let login = String.lowercase_ascii login in
+        let login = Voter.get sv_id |> String.lowercase_ascii in
+        let weight = Voter.get_weight sv_id in
         if SMap.mem login weights then Stdlib.Error sv_id
         else
           loop
@@ -755,7 +757,7 @@ let import_voters s uuid ((Draft (v, se), set) : _ updatable_with_billing) from
     | None -> fun _ -> None
     | Some p ->
         fun sv_id ->
-          let _, login, _ = Voter.get sv_id in
+          let login = Voter.get sv_id in
           SMap.find_opt (String.lowercase_ascii login) p
   in
   if Web_persist.get_credentials_status uuid (Draft (v, se)) <> `None then
@@ -770,7 +772,7 @@ let import_voters s uuid ((Draft (v, se), set) : _ updatable_with_billing) from
           Lwt.return @@ Ok ())
         else Lwt.return @@ Stdlib.Error (`TotalWeightTooBig total_weight)
     | Error x ->
-        let _, login, _ = Voter.get x in
+        let login = Voter.get x in
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
 let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from

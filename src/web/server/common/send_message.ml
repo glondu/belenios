@@ -120,6 +120,10 @@ let send s ?internal (msg : message) =
         let t = Mails_voter.email_login l ~recipient ~code in
         Lwt.return ("login", "", uuid, t)
   in
+  let@ _check_recipient cont =
+    if String.contains recipient.address '@' then cont ()
+    else Lwt.return_error ()
+  in
   let contents =
     Netsendmail.compose
       ~from_addr:(!Web_config.server_name, !Web_config.server_mail)

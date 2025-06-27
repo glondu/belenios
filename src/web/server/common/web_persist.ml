@@ -673,7 +673,12 @@ let send_credentials uuid ~admin_id (Draft (v, se)) private_creds =
   let voter_map =
     List.fold_left
       (fun accu v ->
-        let recipient, login, weight = Voter.get v.sv_id in
+        let login = Voter.get v.sv_id in
+        let weight = Voter.get_weight v.sv_id in
+        let recipient =
+          match v.sv_id with
+          | _, { address; _ } -> Option.value ~default:login address
+        in
         SMap.add login (recipient, weight) accu)
       SMap.empty se.se_voters
   in

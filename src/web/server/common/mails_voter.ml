@@ -150,8 +150,8 @@ let format_password_email s (x : material_message) =
       : Belenios_messages.text_message)
 
 let generate_password_email uuid ~admin_id v show_weight =
-  let (_, { address; login; weight }) : Voter.t = v in
-  let weight = if show_weight then weight else None in
+  let recipient = Voter.get_recipient v in
+  let weight = if show_weight then (snd v).weight else None in
   let salt = generate_token () in
   let* password =
     let x = generate_token ~length:15 () in
@@ -159,13 +159,7 @@ let generate_password_email uuid ~admin_id v show_weight =
   in
   let hashed = sha256_hex (salt ^ password) in
   let x : material_message =
-    {
-      admin_id;
-      uuid;
-      recipient = { name = Option.value login ~default:address; address };
-      material = password;
-      weight;
-    }
+    { admin_id; uuid; recipient; material = password; weight }
   in
   return (`Password x, (salt, hashed))
 

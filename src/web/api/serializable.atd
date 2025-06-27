@@ -25,6 +25,7 @@ type number = string wrap <ocaml module="Belenios_core.Common_types.Number">
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
+type recipient <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type cast_error <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -342,11 +343,6 @@ type billing_request = {
 type client_configuration = {
     ?consent : float option;
     ?lang : string option;
-}
-
-type recipient = {
-  name : string;
-  address : string;
 }
 
 type confirmation = {

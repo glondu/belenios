@@ -368,7 +368,7 @@ let validate_election_exn s uuid =
         let db =
           List.filter_map
             (fun v ->
-              let _, login, _ = Voter.get v.sv_id in
+              let login = Voter.get v.sv_id in
               let& salt, hashed = v.sv_password in
               Some [ login; salt; hashed ])
             se.se_voters

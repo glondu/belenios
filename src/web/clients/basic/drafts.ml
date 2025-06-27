@@ -96,7 +96,7 @@ let rec show_draft_passwords uuid container =
     in
     List.filter_map
       (fun v ->
-        let _, login, _ = Voter.get v in
+        let login = Voter.get v in
         if SSet.mem (String.lowercase_ascii login) x then None else Some login)
       voters
   in

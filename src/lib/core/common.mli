@@ -119,7 +119,9 @@ module Voter : sig
   val of_string : string -> t
   val list_to_string : t list -> string
   val list_of_string : string -> t list
-  val get : t -> string * string * Weight.t
+  val get : t -> string
+  val get_weight : t -> Weight.t
+  val get_recipient : t -> Serializable_core_t.recipient
   val validate : t -> bool
   val generate : int -> t list
   val has_explicit_weights : t list -> bool

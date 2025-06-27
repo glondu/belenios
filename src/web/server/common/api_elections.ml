@@ -335,10 +335,10 @@ let get_records s uuid =
 
 let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   let module W = (val election : Election.ELECTION) in
-  let* email, login, weight =
+  let* recipient, weight =
     let* x = Web_persist.get_voter s uuid user.user_name in
     match x with
-    | Some x -> Lwt.return @@ Voter.get x
+    | Some x -> Lwt.return Voter.(get_recipient x, get_weight x)
     | None -> fail `UnauthorizedVoter
   in
   let* show_weight = Web_persist.get_has_explicit_weights s uuid in
@@ -354,13 +354,7 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   match r with
   | Ok (hash, revote) ->
       let confirmation : confirmation =
-        {
-          recipient = { name = login; address = email };
-          hash;
-          revote;
-          weight = oweight;
-          email = false;
-        }
+        { recipient; hash; revote; weight = oweight; email = false }
       in
       let* email = send_confirmation s uuid confirmation in
       let () =

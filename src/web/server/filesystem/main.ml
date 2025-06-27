@@ -1025,7 +1025,7 @@ module MakeBackend
     let voter_map =
       List.fold_left
         (fun accu x ->
-          let _, login, _ = Voter.get x in
+          let login = Voter.get x in
           SMap.add (String.lowercase_ascii login) x accu)
         SMap.empty voters
     in

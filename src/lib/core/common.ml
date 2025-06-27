@@ -348,14 +348,17 @@ let is_email =
 
 exception Invalid_identity of string
 
+let option_of_string = function "" -> None | x -> Some x
+let string_of_option = function None -> "" | Some x -> x
+
 let split_identity_opt x =
   match String.split_on_char ',' x with
-  | [ address ] -> (address, None, None)
+  | [ address ] -> (option_of_string address, None, None)
   | [ address; login ] ->
-      (address, (if login = "" then None else Some login), None)
+      (option_of_string address, option_of_string login, None)
   | [ address; login; weight ] ->
-      ( address,
-        (if login = "" then None else Some login),
+      ( option_of_string address,
+        option_of_string login,
         Some (Weight.of_string weight) )
   | _ -> raise @@ Invalid_identity x
 
@@ -406,13 +409,13 @@ module Voter = struct
     | `Json -> Serializable_core_j.string_of_voter o
     | `Plain -> (
         match o with
-        | { address; login = None; weight = None } -> address
-        | { address; login = None; weight = Some weight } ->
-            address ^ ",," ^ Weight.to_string weight
-        | { address; login = Some login; weight = None } ->
-            address ^ "," ^ login
-        | { address; login = Some login; weight = Some weight } ->
-            address ^ "," ^ login ^ "," ^ Weight.to_string weight)
+        | { address; login = None; weight = None } -> string_of_option address
+        | { address; login; weight = None } ->
+            Printf.sprintf "%s,%s" (string_of_option address)
+              (string_of_option login)
+        | { address; login; weight = Some weight } ->
+            Printf.sprintf "%s,%s,%s" (string_of_option address)
+              (string_of_option login) (Weight.to_string weight))
 
   let unwrap ((typ, o) as x : t) =
     match typ with
@@ -438,14 +441,29 @@ module Voter = struct
     | voters -> List.map (fun x -> (`Json, x)) voters
     | exception _ -> rev_split_lines x |> List.rev_map of_string
 
-  let get ((_, { address; login; weight }) : t) =
-    ( address,
-      Option.value login ~default:address,
-      Option.value weight ~default:Weight.one )
+  let get ((_, { address; login; _ }) : t) =
+    match (login, address) with
+    | None, None -> invalid_arg "Voter.get"
+    | Some x, _ -> x
+    | _, Some x -> x
+
+  let get_weight ((_, { weight; _ }) : t) =
+    Option.value ~default:Weight.one weight
+
+  let get_recipient ((_, { address; login; _ }) : t) :
+      Serializable_core_t.recipient =
+    match (login, address) with
+    | None, None -> invalid_arg "Voter.get_recipient"
+    | Some name, None -> { name; address = name }
+    | None, Some address -> { name = address; address }
+    | Some name, Some address -> { name; address }
 
   let validate ((_, { address; login; _ }) : t) =
-    is_email address
-    && match login with None -> true | Some login -> is_username login
+    match (address, login) with
+    | None, None -> false
+    | Some x, None -> is_email x
+    | None, Some y -> is_username y
+    | Some x, Some y -> is_email x && is_username y
 
   let int_length n = string_of_int n |> String.length
 
@@ -460,8 +478,8 @@ module Voter = struct
     let rec loop last accu =
       if last < first then accu
       else
-        let address = string_of_int last in
-        let x : t = (`Plain, { address; login = None; weight = None }) in
+        let login = Some (string_of_int last) in
+        let x : t = (`Plain, { address = None; login; weight = None }) in
         loop (last - 1) (x :: accu)
     in
     loop last []
