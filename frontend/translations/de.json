@@ -34,7 +34,7 @@
     "preferential_voting_without_equality_move_candidate_above_position_x": "Über Position {{index}}",
     "preferential_voting_without_equality_move_candidate_below_position_x": "Unter Position {{index}}",
     "majority_judgment_question_description": "Bitte bewerten Sie alle Kandidaten bevor Sie mit dem nächsten Schritt fortfahren.",
-    "preferential_voting_question_description": "Bitte ordnen Sie die Kandidaten nach Präferenz.",
+    "preferential_voting_question_description": "Bitte ordnen Sie die Kandidaten nach Präferenz. Bitte bewerten Sie die Kandidaten nach Präferenz. Kandidaten ohne Präferenz (sofern vorhanden) gelten als weniger bevorzugt.",
     "ask_to_select_x_answers": "Bitte {{count}} Antwort auswählen.",
     "ask_to_select_x_answers_plural": "Bitte {{count}} Antworten auswählen.",
     "ask_to_select_between_x_and_y_answers": "Bitte zwischen {{min}} und {{count}} Antwort auswählen.",
@@ -46,5 +46,8 @@
     "previous_button_label": "Zurück",
     "encrypted_ballot_is": "Verschlüsselter Wahlzettel:",
     "review_ballot_for_questions": "Ihr Wahlzettel ist noch nicht in der Wahlurne und hat den folgenden Inhalt:",
-    "question_x_of_y": "Frage {{current_question}} von {{number_of_questions}}"
+    "question_x_of_y": "Frage {{current_question}} von {{number_of_questions}}",
+    "lists_question_description": "Bitte treffen Sie eine Auswahl an Kandidaten und entfernen Sie die Auswahl bei denen, die Sie nicht berücksichtigen möchten.",
+    "download_tracker_label": "Herunterladen",
+    "preferential_voting_ranked": "Mit Rangfolge"
 }
