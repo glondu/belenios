@@ -42,11 +42,11 @@ msgstr " و فایل را در یک مکان امن ذخیره کنید."
 
 #: src/web/clients/admin/elections.ml:1417
 msgid " and save them in a secure location."
-msgstr " and save them in a secure location."
+msgstr " و آنان را در جایگاهی امن نگه داریم."
 
 #: src/web/server/common/pages_admin.ml:388
 msgid " and your e-mail address is: "
-msgstr ""
+msgstr " و آدرس ایمیل شما این است: "
 
 #: src/web/common/pages_common.ml:231
 msgid " anytime during the election."
@@ -54,7 +54,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:220
 msgid " as user "
-msgstr ""
+msgstr " به عنوان کاربر "
 
 #. src/web/server/common/pages_admin.ml:324
 #: src/web/server/common/pages_admin.ml:375
