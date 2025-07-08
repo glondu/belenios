@@ -26,23 +26,23 @@ msgstr " سرور محاسبه نشده است)."
 
 #: src/web/common/pages_common.ml:233
 msgid " A confirmation e-mail has been sent to you."
-msgstr " .ایمیل تایید برای شما ارسال شده است ‮"
+msgstr " یک ایمیل تایید برای شما ارسال شده است."
 
 #: src/web/server/common/pages_admin.ml:338
 msgid " and a password: "
-msgstr ""
+msgstr " و یک رمز عبور: "
 
 #: src/web/clients/trustee/generate.ml:174
 msgid " and save it to a secure location."
-msgstr ""
+msgstr " و آن را در جایگاهی امن نگه داریم."
 
 #: src/web/clients/credauth/generate.ml:117
 msgid " and save the file to a secure location."
-msgstr ""
+msgstr " و فایل را در یک مکان امن ذخیره کنید."
 
 #: src/web/clients/admin/elections.ml:1417
 msgid " and save them in a secure location."
-msgstr ""
+msgstr " and save them in a secure location."
 
 #: src/web/server/common/pages_admin.ml:388
 msgid " and your e-mail address is: "
