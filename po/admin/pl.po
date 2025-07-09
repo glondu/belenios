@@ -453,9 +453,9 @@ msgstr "Tryb domyślny:"
 #: src/web/clients/admin/elections.ml:1081
 msgid "Defining this date will block finalization of the tallying process until this date. By default, when not set, results are published as soon as possible."
 msgstr ""
-"Zdefiniowanie tej daty blokuje zakończenie procesu ustalenia wyniku "
-"głosowania do tej daty. Domyślnie, gdy data nie została ustawiona, wyniki "
-"zostały opublikowane tak szybko jak to możliwe."
+"Zdefiniowanie tej daty zablokuje zakończenie procesu ustalenia wyniku "
+"głosowania do ustawionej daty. Domyślnie, gdy data nie została ustawiona, "
+"wyniki głosowania zostały opublikowane tak szybko jak to możliwe."
 
 #: src/web/clients/admin/elections.ml:788
 msgid "Delete all"
@@ -491,7 +491,7 @@ msgstr "Pobierz "
 
 #: src/web/clients/admin/elections.ml:1793
 msgid "Download sealing log"
-msgstr ""
+msgstr "Pobierz log z pieczętowania głosowania"
 
 #: src/web/clients/trustee/generate.ml:172
 msgid "Download your "
@@ -1220,15 +1220,18 @@ msgstr "Zapisz powyższe dwa cyfrowe odciski (hasze)."
 
 #: src/web/clients/admin/elections.ml:1777
 msgid "Seal"
-msgstr ""
+msgstr "Zapieczętuj"
 
 #: src/web/clients/admin/elections.ml:1808
 msgid "Sealing"
-msgstr ""
+msgstr "Pieczętowanie"
 
 #: src/web/clients/admin/elections.ml:1814
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
+"Zapieczętowanie głosowania blokuje możliwość zmiany niektórych właściwości "
+"głosowania (np. takich jak daty automatycznego otwarcia i zamknięcia "
+"głosowania)"
 
 #: src/web/clients/admin/elections.ml:1819
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
