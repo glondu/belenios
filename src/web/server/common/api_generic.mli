@@ -39,6 +39,7 @@ type result =
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 val return_json : int -> string -> result Lwt.t
+val return_yojson : int -> Yojson.Safe.t -> result Lwt.t
 val return_generic : generic -> result Lwt.t
 val ok : result Lwt.t
 val bad_request : result Lwt.t

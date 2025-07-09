@@ -38,3 +38,6 @@ val mail_set_email :
   recipient:recipient ->
   code:string ->
   text_message
+
+val mail_credentials_seed :
+  (module Belenios_ui.I18n.GETTEXT) -> credentials_seed_message -> text_message

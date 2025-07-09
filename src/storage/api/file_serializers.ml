@@ -106,6 +106,26 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
         of_string = password_record_of_string;
         to_string = string_of_password_record;
       }
+  | Credentials_params ->
+      {
+        of_string = credentials_params_of_string;
+        to_string = string_of_credentials_params;
+      }
+  | Credentials_metadata ->
+      {
+        of_string = Belenios_web_api.message_metadata_of_string;
+        to_string = Belenios_web_api.string_of_message_metadata;
+      }
+  | Credentials_seed ->
+      {
+        of_string = credentials_seed_of_string;
+        to_string = string_of_credentials_seed;
+      }
+  | Credentials_records ->
+      {
+        of_string = credentials_records_of_string;
+        to_string = string_of_credentials_records;
+      }
 
 let get (type t) : t File.t -> t string_serializers = function
   | Account _ ->

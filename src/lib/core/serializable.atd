@@ -84,6 +84,15 @@ type public_credentials = string list
 
 type private_credentials = (string * string) list <json repr="object">
 
+type ('a, 'b) credentials_certificate = {
+  uuid : uuid;
+  voter_list_length : int;
+  public_creds_hash : hash;
+  verification_key : 'a;
+  encryption_key : 'a;
+  ?signature : 'b signed_msg option;
+}
+
 type sub_batch_item = {
     base : string;
     public : string;
@@ -355,6 +364,7 @@ type setup_data = {
   election : hash;
   trustees : hash;
   credentials : hash;
+  ?credentials_certificate : hash option;
 } <ocaml field_prefix="setup_">
 
 type event = {

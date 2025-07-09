@@ -26,6 +26,7 @@ type metadata <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type draft_voter <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type 'a template <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type 'a draft_trustees <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type ('a, 'b) credentials_certificate <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 
 type election_dates = {
   ~creation <ocaml default="datetime_of_string {|\"2018-11-26 00:00:00.000000\"|}"> : datetime;
@@ -54,6 +55,7 @@ type 'question raw_draft_election = {
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
+  ?public_creds_certificate <ocaml mutable> : (abstract, abstract) credentials_certificate option;
   ~creation_date <ocaml default="datetime_of_string {|\"2018-11-26 00:00:00.000000\"|}">: datetime;
   ?administrator <ocaml mutable> : string option;
   ~credential_authority_visited <ocaml default="false" mutable> : bool;

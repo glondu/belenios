@@ -321,17 +321,35 @@ let validate_election_exn s uuid =
     let setup_election = Hash.hash_string raw_election in
     let setup_trustees = Hash.hash_string raw_trustees in
     let setup_credentials = Hash.hash_string raw_public_creds in
-    let setup_data = { setup_election; setup_trustees; setup_credentials } in
+    let raw_certificate, setup_credentials_certificate =
+      match se.se_public_creds_certificate with
+      | None -> ([], None)
+      | Some c ->
+          let raw =
+            c
+            |> string_of_credentials_certificate Yojson.Safe.write_json
+                 Yojson.Safe.write_json
+          in
+          ([ Data raw ], Some (Hash.hash_string raw))
+    in
+    let setup_data =
+      {
+        setup_election;
+        setup_trustees;
+        setup_credentials;
+        setup_credentials_certificate;
+      }
+    in
     let setup_data_s = string_of_setup_data setup_data in
     let* x =
-      S.append uuid
+      [
+        [ Data raw_election; Data raw_trustees; Data raw_public_creds ];
+        raw_certificate;
         [
-          Data raw_election;
-          Data raw_trustees;
-          Data raw_public_creds;
-          Data setup_data_s;
-          Event (`Setup, Some (Hash.hash_string setup_data_s));
-        ]
+          Data setup_data_s; Event (`Setup, Some (Hash.hash_string setup_data_s));
+        ];
+      ]
+      |> List.flatten |> S.append uuid
     in
     match x with
     | true -> Lwt.return_unit

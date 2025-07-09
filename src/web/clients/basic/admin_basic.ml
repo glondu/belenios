@@ -169,6 +169,7 @@ let rec show_root main =
               | `CAS :: _ -> `CAS ""
               | `Configured x :: _ -> `Configured x.configured_instance);
             draft_group = c.default_group;
+            draft_cred_authority_info = None;
           }
         in
         Some (Draft (v, draft))

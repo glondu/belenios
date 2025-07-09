@@ -49,7 +49,11 @@ val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
 val submit_public_credentials :
-  (draft_election updatable_with_billing -> public_credentials -> unit Lwt.t)
+  (draft_election updatable_with_billing ->
+  ?certificate:
+    (Yojson.Safe.t, Yojson.Safe.t) Belenios_web_api.credentials_certificate ->
+  public_credentials ->
+  unit Lwt.t)
   Storage.u
 
 val generate_server_trustee :

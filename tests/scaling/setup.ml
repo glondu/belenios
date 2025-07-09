@@ -87,6 +87,7 @@ module Make (P : PARAMS) = struct
       draft_booth = 2;
       draft_authentication = `Configured "demo";
       draft_group = group;
+      draft_cred_authority_info = None;
     }
 
   let headers =

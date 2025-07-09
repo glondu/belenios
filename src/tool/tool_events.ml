@@ -318,7 +318,14 @@ let init ~file ~election ~trustees ~public_creds =
   let setup_election = Hash.hash_string election in
   let setup_trustees = Hash.hash_string trustees in
   let setup_credentials = Hash.hash_string public_creds in
-  let setup_data = { setup_election; setup_trustees; setup_credentials } in
+  let setup_data =
+    {
+      setup_election;
+      setup_trustees;
+      setup_credentials;
+      setup_credentials_certificate = None;
+    }
+  in
   let setup_data_s = string_of_setup_data setup_data in
   let* () =
     append index

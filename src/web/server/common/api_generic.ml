@@ -71,6 +71,7 @@ type result =
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 let return_json code x = Lwt.return @@ `Json (code, x)
+let return_yojson code x = return_json code (Yojson.Safe.to_string x)
 let return_generic x = Lwt.return @@ `Generic x
 let ok = return_json 200 "{}"
 let bad_request = return_json 400 {|"Bad Request"|}

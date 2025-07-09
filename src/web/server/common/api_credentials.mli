@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2025-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,25 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Belenios_platform.Platform
-include module type of Belenios_core.Common
-include module type of Belenios_core.Serializable_j
-include module type of Belenios_core.Signatures
-module Version = Belenios_platform.Version
-module Election = Election
-module Group = Group
-module Pki = Belenios_core.Pki
-module Trustees = Trustees
-module Credential = Belenios_core.Credential
-module Events = Belenios_core.Events
-module Archive = Belenios_core.Archive
+open Belenios_storage_api
+open Api_generic
 
-module Methods : sig
-  module Schulze = Belenios_core.Schulze
-  module Stv = Belenios_core.Stv
-  module Majority_judgment = Belenios_core.Majority_judgment
-end
-
-module Credentials_certificate (G : GROUP) : sig
-  val check : (G.t, G.Zq.t) credentials_certificate -> bool
-end
+val dispatch :
+  Storage.t ->
+  string list ->
+  [ `GET | `POST | `PUT | `DELETE ] ->
+  body ->
+  result Lwt.t

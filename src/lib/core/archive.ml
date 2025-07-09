@@ -284,13 +284,29 @@ struct
                     M.fail (Failure msg)
               | `Setup ->
                   let* payload = get_payload event in
-                  let setup_data = setup_data_of_string payload in
-                  let* election = get_hash setup_data.setup_election in
-                  let* trustees = get_hash setup_data.setup_trustees in
-                  let* credentials = get_hash setup_data.setup_credentials in
+                  let {
+                    setup_election;
+                    setup_trustees;
+                    setup_credentials;
+                    setup_credentials_certificate;
+                  } =
+                    setup_data_of_string payload
+                  in
+                  let* election = get_hash setup_election in
+                  let* trustees = get_hash setup_trustees in
+                  let* credentials = get_hash setup_credentials in
+                  let write_credentials_certificate () =
+                    match setup_credentials_certificate with
+                    | None -> M.return ()
+                    | Some h ->
+                        let* o = get_hash h in
+                        let* _ = W.write_record archive ~timestamp Data o in
+                        M.return ()
+                  in
                   let* _ = W.write_record archive ~timestamp Data election in
                   let* _ = W.write_record archive ~timestamp Data trustees in
                   let* _ = W.write_record archive ~timestamp Data credentials in
+                  let* () = write_credentials_certificate () in
                   let* _ = W.write_record archive ~timestamp Data payload in
                   let* _ =
                     W.write_record archive ~timestamp (Event event) event_s

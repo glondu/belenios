@@ -140,6 +140,8 @@ module Make () = struct
         | _ -> method_not_allowed)
     | "elections" :: endpoint ->
         Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
+    | "credentials" :: endpoint ->
+        Api_credentials.dispatch s endpoint method_ body
     | "billing" :: endpoint ->
         Billing.dispatch ~token ~ifmatch endpoint method_ body
     | _ -> not_found

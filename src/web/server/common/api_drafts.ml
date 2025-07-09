@@ -111,6 +111,7 @@ let api_of_draft (Draft (v, se)) =
            draft_booth = Option.value se.se_metadata.e_booth_version ~default:1;
            draft_authentication = get_authentication se;
            draft_group = se.se_group;
+           draft_cred_authority_info = se.se_metadata.e_cred_authority_info;
          } ))
 
 let assert_ msg b f = if b then f () else raise (Error msg)
@@ -141,6 +142,12 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
         && (old = Some "server" || e_cred_authority = Some "server")
       then raise (Error (`CannotChange "credential authority"))
   in
+  let e_cred_authority_info = d.draft_cred_authority_info in
+  let () =
+    let old = se.se_metadata.e_cred_authority_info in
+    if e_cred_authority_info <> old && se.se_public_creds_received then
+      raise (Error (`CannotChange "credential authority info"))
+  in
   let se_group = d.draft_group in
   let () =
     let old = se.se_group in
@@ -169,6 +176,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
       e_languages = Some d.draft_languages;
       e_booth_version = Some d.draft_booth;
       e_cred_authority;
+      e_cred_authority_info;
       e_auth_config =
         Some [ auth_config_of_authentication d.draft_authentication ];
     }
@@ -194,6 +202,7 @@ let post_drafts account s draft =
       e_owners = owners;
       e_auth_config = None;
       e_cred_authority = None;
+      e_cred_authority_info = None;
       e_trustees = None;
       e_languages = None;
       e_contact = None;
@@ -225,6 +234,7 @@ let post_drafts account s draft =
       se_metadata;
       se_public_creds = token;
       se_public_creds_received = false;
+      se_public_creds_certificate = None;
       se_creation_date = Unix.gettimeofday ();
       se_administrator = None;
       se_credential_authority_visited = false;
@@ -367,7 +377,7 @@ let exn_of_generate_credentials_on_server_error = function
   | `NoServer -> Error (`GenericError "credential authority is not the server")
 
 let submit_public_credentials s uuid
-    ((Draft (v, se), set) : _ updatable_with_billing) credentials =
+    ((Draft (v, se), set) : _ updatable_with_billing) ?certificate credentials =
   let () =
     if se.se_voters = [] then raise (Error (`ValidationError `NoVoters))
   in
@@ -377,6 +387,33 @@ let submit_public_credentials s uuid
   in
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
+  let () =
+    match certificate with
+    | None -> ()
+    | Some certificate ->
+        let public_creds_ok =
+          let public_creds_hash =
+            List.map strip_public_credential credentials
+            |> string_of_public_credentials |> Hash.hash_string
+          in
+          public_creds_hash = certificate.public_creds_hash
+        in
+        let certificate_ok =
+          match
+            certificate
+            |> string_of_credentials_certificate Yojson.Safe.write_json
+                 Yojson.Safe.write_json
+            |> credentials_certificate_of_string (sread G.of_string)
+                 (sread G.Zq.of_string)
+          with
+          | x ->
+              let module C = Credentials_certificate (G) in
+              C.check x
+          | exception _ -> false
+        in
+        if not (public_creds_ok && certificate_ok) then
+          raise (Error (`GenericError "bad certificate"))
+  in
   let usernames =
     List.fold_left
       (fun accu { sv_id; _ } ->
@@ -423,6 +460,7 @@ let submit_public_credentials s uuid
   in
   let* () = Storage.set s (Election (uuid, Public_creds)) Value credentials in
   se.se_public_creds_received <- true;
+  se.se_public_creds_certificate <- certificate;
   set (Draft (v, se))
 
 let get_draft_trustees ~is_admin (Draft (_, se)) =
@@ -913,6 +951,33 @@ let check_owner account s uuid cont =
   if Accounts.check account metadata.e_owners then cont metadata
   else unauthorized
 
+let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
+  let body =
+    `NewRequest
+      { belenios_url = !Web_config.prefix ^ "/"; uuid; info; token; admin_id }
+    |> Belenios_web_api.string_of_draft_credentials_request
+    |> Cohttp_lwt.Body.of_string
+  in
+  let prefix =
+    Printf.sprintf "initiate_credential_authority_protocol[%s]%s"
+      (Uuid.unwrap uuid)
+      (string_of_cred_authority_info info)
+  in
+  Lwt.catch
+    (fun () ->
+      let* x, body =
+        Cohttp_lwt_unix.Client.post ~body (Uri.of_string info.cred_server)
+      in
+      let* () = Cohttp_lwt.Body.drain_body body in
+      let code = Cohttp.Code.code_of_status x.status in
+      let msg = Printf.sprintf "%s: %d" prefix code in
+      Ocsigen_messages.warning msg;
+      Lwt.return_unit)
+    (fun e ->
+      let msg = Printf.sprintf "%s: %s" prefix (Printexc.to_string e) in
+      Ocsigen_messages.errlog msg;
+      Lwt.return_unit)
+
 let post_draft_status ~admin_id s uuid
     ((Draft (v, se), set) : _ updatable_with_billing) = function
   | `SetDownloaded ->
@@ -958,6 +1023,14 @@ let post_draft_status ~admin_id s uuid
         else Lwt.return_unit
       in
       ok
+  | `InitiateCredentialAuthorityProtocol -> (
+      match se.se_metadata.e_cred_authority_info with
+      | Some info when not se.se_public_creds_received ->
+          Lwt.async
+            (initiate_credential_authority_protocol ~uuid ~info ~admin_id
+               ~token:se.se_public_creds);
+          ok
+      | _ -> forbidden)
 
 let () =
   Billing.validate :=

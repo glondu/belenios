@@ -58,10 +58,14 @@ type sealing_event = {
   op : sealing_op;
 }
 
+type cred_authority_info <ocaml predef from="Belenios_web_api.Serializable"> = abstract
+type ('a, 'b) credentials_certificate <ocaml predef from="Belenios_web_api.Serializable"> = abstract
+
 type metadata = {
   owners: int list;
   ?auth_config: auth_config list option;
   ?cred_authority : string option;
+  ?cred_authority_info : cred_authority_info option;
   ?trustees : string list option;
   ?languages : string list option;
   ?contact : string option;
@@ -146,6 +150,7 @@ type 'question raw_draft_election = {
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;
+  ?public_creds_certificate <ocaml mutable> : (abstract, abstract) credentials_certificate option;
   creation_date : float;
   ?administrator <ocaml mutable> : string option;
   ~credential_authority_visited <ocaml default="false" mutable> : bool;
@@ -226,3 +231,27 @@ type some_state_state =
   ]
 
 type state_state = some_state_state nullable
+
+type credentials_seed = {
+    seed : string;
+    token : string;
+}
+
+type credentials_params = {
+    belenios_url : string;
+    version : int;
+    group : string;
+    certificate : (abstract, abstract) credentials_certificate;
+}
+
+type 'a encrypted_msg <ocaml predef from="Belenios_core.Serializable"> = abstract
+
+type 'a credentials_record = {
+    credential : 'a;
+    ?address : string option;
+    ?weight : weight option;
+}
+
+type credentials_records =
+  (string * abstract encrypted_msg credentials_record) list
+  <json repr="object">

@@ -52,6 +52,10 @@ type _ u =
   | Credential_weight : string -> Weight.t u
   | Credential_user : string -> string u
   | Password : string -> password_record u
+  | Credentials_params : credentials_params u
+  | Credentials_metadata : Belenios_web_api.message_metadata u
+  | Credentials_seed : credentials_seed u
+  | Credentials_records : credentials_records u
 
 type kind = Username of string | Address of string
 

@@ -78,6 +78,7 @@ type validation_error =
   | KeyEstablishmentNotFinished
   | MissingBilling of missing_billing
   | RestrictedMode of restricted_mode_error
+  | CredentialServerError of int
   ]
 
 type voter_list_error =
@@ -163,6 +164,11 @@ type authentication =
   | Configured of string
   ]
 
+type cred_authority_info = {
+  server : string;
+  operator : string;
+} <ocaml field_prefix="cred_">
+
 type 'a raw_draft = {
     version : int;
     owners : int list;
@@ -172,6 +178,7 @@ type 'a raw_draft = {
     booth : int;
     authentication : authentication;
     group : string;
+    ?cred_authority_info : cred_authority_info option;
 } <ocaml field_prefix="draft_">
 
 type ('a, 'b) pedersen = {
@@ -267,7 +274,35 @@ type draft_request =
   | SetCredentialAuthorityVisited
   | SetVoterAuthenticationVisited
   | SetTrusteesSetupStep of int
+  | InitiateCredentialAuthorityProtocol
   ]
+
+type draft_credentials_new_request = {
+  belenios_url : string;
+  uuid : uuid;
+  info : cred_authority_info;
+  token : string;
+  admin_id : int;
+}
+
+type draft_credentials_validate = {
+  uuid : uuid;
+  token : string;
+  metadata : message_metadata;
+}
+
+type draft_credentials_request =
+  [ NewRequest of draft_credentials_new_request
+  | Validate of draft_credentials_validate
+  ]
+
+type ('a, 'b) credentials_certificate <ocaml predef from="Belenios_core.Serializable"> = abstract
+
+type draft_credentials_response = {
+  certificate : (abstract, abstract) credentials_certificate;
+  token : string;
+  public_credentials : public_credentials;
+}
 
 type trustees_request =
   [ Add of abstract trustee

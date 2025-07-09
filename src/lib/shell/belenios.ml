@@ -37,3 +37,20 @@ module Methods = struct
   module Stv = Belenios_core.Stv
   module Majority_judgment = Belenios_core.Majority_judgment
 end
+
+module Credentials_certificate (G : GROUP) = struct
+  let check certificate =
+    let@ signature cont =
+      match certificate.signature with None -> false | Some x -> cont x
+    in
+    let hash =
+      { certificate with signature = None }
+      |> string_of_credentials_certificate (swrite G.to_string)
+           (swrite G.Zq.to_string)
+      |> Hash.hash_string
+    in
+    Hash.to_hex hash = signature.s_message
+    &&
+    let module P = Pki.Make (G) (Dummy_random) in
+    P.verify certificate.verification_key signature
+end

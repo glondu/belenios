@@ -16,6 +16,7 @@
   gettext.extension
   gettext-camomile
   cryptokit
+  hex
   netstring)
  (modules_without_implementation
   web_i18n_sig

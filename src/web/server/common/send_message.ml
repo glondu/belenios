@@ -121,6 +121,10 @@ let send ?internal (msg : message) =
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t = Mails_voter.email_login l ~recipient ~code in
         Lwt.return ("login", "", uuid, t)
+    | `Credentials_seed m ->
+        let* l = Web_i18n.get ~component:"admin" ~lang:m.lang in
+        let t = Mails_admin.mail_credentials_seed l m in
+        Lwt.return ("credentials-seed", string_of_int m.admin_id, Some m.uuid, t)
   in
   let@ _check_recipient cont =
     if String.contains recipient.address '@' then cont ()

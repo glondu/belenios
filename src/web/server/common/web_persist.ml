@@ -54,6 +54,7 @@ let empty_metadata =
     e_owners = [];
     e_auth_config = None;
     e_cred_authority = None;
+    e_cred_authority_info = None;
     e_trustees = None;
     e_languages = None;
     e_contact = None;
@@ -699,6 +700,31 @@ let send_credentials s uuid ~admin_id (Draft (_, se)) private_creds =
   se.se_pending_credentials <- false;
   Lwt.return_unit
 
+let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
+    ~metadata () =
+  let prefix =
+    Printf.sprintf "validate_on_credential_server[%s]" (Uuid.unwrap uuid)
+  in
+  let body =
+    `Validate { uuid; token; metadata }
+    |> Belenios_web_api.string_of_draft_credentials_request
+    |> Cohttp_lwt.Body.of_string
+  in
+  Lwt.catch
+    (fun () ->
+      let* x, body =
+        Cohttp_lwt_unix.Client.post ~body (Uri.of_string info.cred_server)
+      in
+      let* () = Cohttp_lwt.Body.drain_body body in
+      let code = Cohttp.Code.code_of_status x.status in
+      let msg = Printf.sprintf "%s: %d" prefix code in
+      Ocsigen_messages.warning msg;
+      Lwt.return_unit)
+    (fun e ->
+      let msg = Printf.sprintf "%s: %s" prefix (Printexc.to_string e) in
+      Ocsigen_messages.errlog msg;
+      Lwt.return_unit)
+
 let validate_election ~admin_id storage uuid
     ((Draft (v, se), set) : _ updatable_with_billing) s =
   let open Belenios_web_api in
@@ -755,14 +781,24 @@ let validate_election ~admin_id storage uuid
         if b then Lwt.return_unit
         else validation_error (`MissingBilling { url; id; callback })
   in
-  (* private credentials *)
-  let* private_creds = Storage.get storage (Election (uuid, Private_creds)) in
+  (* send private credentials *)
+  let* () =
+    match se.se_metadata.e_cred_authority_info with
+    | None ->
+        let* private_creds =
+          Storage.get storage (Election (uuid, Private_creds))
+        in
+        send_credentials storage uuid ~admin_id (Draft (v, se)) private_creds
+    | Some info ->
+        let* metadata = Mails_voter.get_metadata storage ~admin_id uuid in
+        Lwt.async
+          (validate_on_credential_server ~uuid ~info ~token:se.se_public_creds
+             ~metadata);
+        Lwt.return_unit
+  in
   (* the validation itself *)
   let* x = Storage.validate_election storage uuid in
-  match x with
-  | Ok () ->
-      send_credentials storage uuid ~admin_id (Draft (v, se)) private_creds
-  | Error e -> validation_error e
+  match x with Ok () -> Lwt.return_unit | Error e -> validation_error e
 
 let create_draft s uuid se = Storage.set s (Election (uuid, Draft)) Value se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally

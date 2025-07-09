@@ -77,3 +77,4 @@ val election_last_event : uuid -> (nobody, last_event, unit) t
 val election_object : uuid -> hash -> (nobody, string, unit) t
 val election_audit_cache : uuid -> (nobody, audit_cache, unit) t
 val election_ballots : uuid -> (nobody, ballots_with_weights, string) t
+val credentials_server : (nobody, unit, draft_credentials_request) t

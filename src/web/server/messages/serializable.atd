@@ -48,6 +48,17 @@ type confirmation_message = {
   confirmation : confirmation;
 }
 
+type cred_authority_info <ocaml predef from="Belenios_web_api.Serializable"> = abstract
+
+type credentials_seed_message = {
+  uuid : uuid;
+  admin_id : int;
+  lang : string;
+  belenios_url : string;
+  cred_authority_info : cred_authority_info;
+  seed : string;
+}
+
 type message =
   [ Account_create of code_message
   | Account_change_password of code_message
@@ -56,6 +67,7 @@ type message =
   | Voter_credential of material_message
   | Vote_confirmation of confirmation_message
   | Mail_login of code_message
+  | Credentials_seed of credentials_seed_message
   ]
 
 type message_payload = {
