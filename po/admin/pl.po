@@ -260,7 +260,7 @@ msgstr "Przez nasz serwer (brak decentralizacji bezpieczeństwa)"
 
 #: src/web/server/common/pages_admin.ml:510
 msgid "By proceeding, you authorize:"
-msgstr ""
+msgstr "Kontynuując, uwierzytelniasz:"
 
 #: src/web/clients/common/secondary_ui.ml:93
 msgid "By using this site, you accept our "
@@ -1231,11 +1231,14 @@ msgid "Sealing allows you to freeze some election properties such as automatic d
 msgstr ""
 "Zapieczętowanie głosowania blokuje możliwość zmiany niektórych właściwości "
 "głosowania (np. takich jak daty automatycznego otwarcia i zamknięcia "
-"głosowania)"
+"głosowania)."
 
 #: src/web/clients/admin/elections.ml:1819
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
+"Zapieczętowanie i odpieczętowanie głosowania są zapisywane a cyfrowy odcisk "
+"(hasz) loga z tymi zapisami jest publikowany na stronie głosowania. Log jest "
+"dostępny dla każdego (np. dla audytora głosowania)."
 
 #: src/web/clients/admin/elections.ml:536
 msgid "Security"
@@ -1312,7 +1315,7 @@ msgstr "Status"
 
 #: src/web/clients/trustee/generate.ml:418
 msgid "Step %d/7"
-msgstr ""
+msgstr "Krok %d/7"
 
 #. src/web/clients/admin/elections.ml:1632
 #. src/web/server/common/pages_admin.ml:404
@@ -1408,7 +1411,7 @@ msgstr "Głosowanie nie zostało zarchiwizowane!"
 
 #: src/web/clients/admin/elections.ml:1777
 msgid "The election is not sealed."
-msgstr ""
+msgstr "Głosowanie nie zostało zapieczętowane."
 
 #: src/web/common/mails_admin.ml:284
 msgid "The election is now closed."
@@ -1416,7 +1419,7 @@ msgstr "Głosowanie zostało zamknięte."
 
 #: src/web/clients/trustee/decrypt.ml:126
 msgid "The election result is already published!"
-msgstr ""
+msgstr "Wyniki głosowania zostały już opublikowane!"
 
 #: src/web/clients/trustee/decrypt.ml:153
 msgid "The fingerprint of the encrypted tally is "
@@ -1445,6 +1448,8 @@ msgstr "Link do głosowania to:"
 #: src/web/clients/admin/questions.ml:268
 msgid "The min of question #%d is greater than its max, voting will be impossible!"
 msgstr ""
+"Minimalna liczba opcji wyboru dla pytania #%d jest większa niż maksymalna "
+"liczba opcji wyboru, oddanie głosu nie będzie możliwe!"
 
 #: src/web/common/mails_admin.ml:88
 msgid "The page also contains instructions for checking the voting record, after the tally."
@@ -1485,7 +1490,7 @@ msgstr "Ustalanie wyniku głosowania rozpoczęło się."
 
 #: src/web/clients/admin/elections.ml:1280
 msgid "The voter list is empty!"
-msgstr ""
+msgstr "Lista uprawnionych do głosowania jest pusta!"
 
 #: src/web/server/common/mails_admin.ml:67
 msgid "There has been a request to change the password of your account on our Belenios server."
@@ -1495,15 +1500,16 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:697 src/web/clients/admin/elections.ml:667
 msgid "There is an error in the voter list! (%s)"
-msgstr ""
+msgstr "Wystąpił błąd w liście uprawnionych do głosowania! (%s)"
 
 #: src/web/clients/admin/elections.ml:704
 msgid "There is an unexpected error in the voter list!"
-msgstr ""
+msgstr "Wystąpił nieprzewidziany błąd w liście uprawnionych do głosowania!"
 
 #: src/web/clients/admin/elections.ml:672
 msgid "There is an unexpected syntax error in the voter list!"
 msgstr ""
+"Wystąpił nieprzewidziany błąd w składni w liście uprawnionych do głosowania!"
 
 #: src/web/server/common/pages_admin.ml:431
 msgid "There is no e-mail address attached to your account."
@@ -1551,7 +1557,7 @@ msgstr "To głosowanie trwa."
 
 #: src/web/clients/admin/elections.ml:1776
 msgid "This election is sealed."
-msgstr ""
+msgstr "Głosowanie zostało zapieczętowane."
 
 #: src/web/clients/admin/elections.ml:1845
 msgid "This election will be automatically archived after %s."
@@ -1690,7 +1696,7 @@ msgstr "Nieznany uuid"
 
 #: src/web/clients/admin/elections.ml:1776
 msgid "Unseal"
-msgstr ""
+msgstr "Odpieczętuj"
 
 #: src/web/clients/admin/elections.ml:826
 msgid "Upload voter file"
@@ -1737,7 +1743,7 @@ msgstr ""
 
 #: src/web/clients/trustee/generate.ml:226
 msgid "Waiting for the other trustees..."
-msgstr ""
+msgstr "Czekam na pozostałych mężów (osoby) zaufania..."
 
 #: src/web/clients/admin/elections.ml:789
 msgid "Warning, this action is irreversible"
@@ -1798,7 +1804,7 @@ msgstr "Możesz sprawdzić czy Twoja karta do głosowania jest w "
 
 #: src/web/server/common/pages_admin.ml:472
 msgid "You cannot change your e-mail address right now."
-msgstr ""
+msgstr "Zmiana adresu e-mail nie jest możliwa w tym momencie."
 
 #: src/web/server/common/site_admin.ml:264
 msgid "You cannot change your password now. Please try later."
@@ -1810,7 +1816,7 @@ msgstr "Nie możesz teraz utworzyć konta. Proszę spróbuj później."
 
 #: src/web/server/common/pages_admin.ml:296
 msgid "You cannot sign up right now."
-msgstr ""
+msgstr "Nie możesz się zarejestrować w tym momencie."
 
 #: src/web/clients/trustee/decrypt.ml:125
 msgid "You have already submitted a valid partial decryption!"
@@ -1940,7 +1946,7 @@ msgstr "wymagane działanie"
 
 #: src/web/clients/admin/elections.ml:686
 msgid "all voters must be in the same format"
-msgstr ""
+msgstr "wszyscy uprawnieni do głosowania muszą mieć ten sam format"
 
 #: src/web/clients/trustee/check.ml:81 src/web/clients/trustee/check.ml:64
 msgid "anonymous trustee"
@@ -1960,7 +1966,7 @@ msgstr "gotowe"
 
 #: src/web/clients/admin/elections.ml:688
 msgid "duplicate voter: %s"
-msgstr ""
+msgstr "duplikat wpisu uprawnionego do głosowania: %s"
 
 #: src/web/clients/admin/elections.ml:776
 msgid "empty list"
@@ -1981,7 +1987,7 @@ msgstr "z innego głosowania"
 
 #: src/web/clients/admin/elections.ml:689 src/web/clients/admin/elections.ml:665
 msgid "invalid identity: %s"
-msgstr ""
+msgstr "nieprawidłowy wpis uprawnionego do głosowania: %s"
 
 #. src/web/clients/admin/trustees_tab.ml:371
 #: src/web/clients/admin/trustees_tab.ml:377
@@ -2007,7 +2013,7 @@ msgstr "prywatne części kodów głosowania"
 
 #: src/web/clients/trustee/generate.ml:148
 msgid "private_key"
-msgstr ""
+msgstr "klucz_prywatny"
 
 #: src/web/clients/admin/trustees_tab.ml:745
 msgid "server (has already shuffled)"
@@ -2019,7 +2025,7 @@ msgstr "pominięty"
 
 #: src/web/clients/admin/trustees_tab.ml:379
 msgid "step %d/7"
-msgstr ""
+msgstr "krok %d/7"
 
 #: src/web/clients/admin/trustees_tab.ml:378
 msgid "step 0?"
@@ -2081,11 +2087,11 @@ msgstr "wystąpił błąd w bazie danych"
 
 #: src/web/server/common/pages_admin.ml:512
 msgid "to access:"
-msgstr ""
+msgstr "aby mieć dostęp do:"
 
 #: src/web/clients/admin/elections.ml:692
 msgid "total weight too big: %s/%s"
-msgstr ""
+msgstr "całkowita waga głosów zbyt duża: %s/%s"
 
 #: src/web/clients/admin/elections.ml:780
 msgid "typical use"
@@ -2122,11 +2128,11 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:517
 msgid "your account id:"
-msgstr ""
+msgstr "id Twojego konta:"
 
 #: src/web/server/common/pages_admin.ml:523
 msgid "your e-mail address:"
-msgstr ""
+msgstr "Twój adres e-mail:"
 
 #: src/web/common/mails_admin.ml:222
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
