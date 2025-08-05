@@ -209,7 +209,8 @@ module Events : CMDLINER_MODULE = struct
     let doc = "manage archives" in
     let man = common_man in
     let info = Cmd.info "archive" ~doc ~man in
-    Cmd.group info [ init_cmd; add_event_cmd; Tool_mkarchive.cmd ]
+    Cmd.group info
+      [ init_cmd; add_event_cmd; Tool_mkarchive.cmd; Tool_archive_pull.cmd ]
 end
 
 module Methods : CMDLINER_MODULE = struct
