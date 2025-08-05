@@ -91,6 +91,8 @@ let mkarchive base url fd =
   in
   Archiver.write_archive oc header last_event
 
+let () = download_archive := fun url oc -> mkarchive None url oc
+
 let main base_archive base_dir url uuid =
   let@ () = wrap_main in
   let base =

@@ -34,24 +34,31 @@ let printl2 x =
 let lines_of_stdin () = Lwt_io.(read_lines stdin) |> Lwt_stream.to_list
 let chars_of_stdin () = Lwt_io.(read stdin)
 
+let download_archive =
+  (* forward reference set in Tool_archive_pull *)
+  ref (fun _ _ -> Lwt.return_unit)
+
 let download dir url uuid =
   let url = if String.ends_with ~suffix:"/" url then url else url ^ "/" in
-  let x = Belenios_web_api.Endpoints.election_archive uuid in
-  let url = Printf.sprintf "%sapi/%s" url x.path in
   let file = Printf.sprintf "%s.bel" (Uuid.unwrap uuid) in
-  let* () = Lwt_io.eprintf "I: downloading %s to %s...\n" url file in
+  let* () =
+    Lwt_io.eprintf "I: downloading %s from %s to %s...\n" (Uuid.unwrap uuid) url
+      file
+  in
   let* () = Lwt_io.(flush stderr) in
-  let* response, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
-  match Cohttp.Code.code_of_status response.status with
-  | 200 ->
-      let target = dir // file in
-      let body = Cohttp_lwt.Body.to_stream body in
-      let* () =
-        let@ oc = Lwt_io.with_file ~mode:Output target in
-        Lwt_stream.iter_s (Lwt_io.write oc) body
-      in
-      Lwt.return_some file
-  | _ -> Lwt.return_none
+  let* oc =
+    Lwt_unix.openfile (dir // file) [ O_WRONLY; O_CREAT; O_TRUNC ] 0o644
+  in
+  Lwt.catch
+    (fun () ->
+      let url = Printf.sprintf "%sapi/elections/%s" url (Uuid.unwrap uuid) in
+      let* () = !download_archive url oc in
+      let* () = Lwt_unix.close oc in
+      Lwt.return_some file)
+    (fun e ->
+      let* () = Lwt_unix.close oc in
+      let* () = Lwt_io.eprintf "E: %s\n" (Printexc.to_string e) in
+      Lwt.return_none)
 
 exception Cmdline_error of string
 

@@ -86,7 +86,20 @@ def shuffle(l):
     random.shuffle(result)
     return result
 
-def download_audit_data(url, uuid):
+def get_archive(wdir, url, uuid):
+    path = os.path.join(wdir, uuid)
+    process = subprocess.run(
+        [
+            "belenios-tool", "archive", "pull",
+            "--base-dir={}".format(path),
+            "--url={}/".format(url),
+            "--uuid={}".format(uuid)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if process.returncode != 0:
+        raise urllib.error.URLError(process.stderr)
+    return process.stdout
+
+def download_audit_data(wdir, url, uuid):
     link = url + '/api/elections/' + uuid
     data = dict()
     status = Status(False, b"")
@@ -95,12 +108,11 @@ def download_audit_data(url, uuid):
     for f in shuffle(audit_files):
         try:
             if f == 'election.json':
-                l = link + '/election'
+                data[f] = get_url(link + '/election')
             elif f == 'election.bel':
-                l = link + '/archive'
+                data[f] = get_archive(wdir, url, uuid)
             else:
-                l = link + '/' + f
-            data[f] = get_url(l)
+                data[f] = get_url (link + '/' + f)
         except urllib.error.URLError as e:
             fail = True
             msg = msg + "Download {} failed with ret code \"{}\" for election {}\n".format(f, e, uuid)
@@ -517,7 +529,7 @@ for uuid in uuids:
 
     check_or_create_dir(args.wdir, uuid)
 
-    status, data = download_audit_data(args.url.strip("/"), uuid)
+    status, data = download_audit_data(args.wdir, args.url.strip("/"), uuid)
 
     # if we managed to download stuff, then check what we can
     if not status.fail:

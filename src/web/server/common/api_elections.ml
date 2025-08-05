@@ -432,14 +432,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
           let@ x = Option.unwrap not_found x in
           return_json 200 @@ string_of_audit_cache x
       | _ -> method_not_allowed)
-  | [ "archive" ] -> (
-      match method_ with
-      | `GET ->
-          let* path =
-            Storage.get_unixfilename s (Election (uuid, Public_archive))
-          in
-          Lwt.return @@ `Bel path
-      | _ -> method_not_allowed)
   | [ "sealing-log" ] -> (
       let@ _ = with_administrator token metadata in
       match method_ with

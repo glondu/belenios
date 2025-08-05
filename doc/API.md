@@ -126,10 +126,6 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> json
 
-## `elections/$UUID/archive` (anybody)
-
-### `GET`: unit -> bel
-
 ## `elections/$UUID/trustees` (anybody)
 
 ### `GET`: unit -> 'a trustees
