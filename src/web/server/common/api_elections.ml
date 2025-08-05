@@ -623,6 +623,15 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
           let* x = Public_archive.get_data s uuid (Hash.of_hex hash) in
           match x with Some x -> return_json 200 x | None -> not_found)
       | _ -> method_not_allowed)
+  | [ "archive-header" ] -> (
+      match method_ with
+      | `GET -> (
+          let@ () = handle_generic_error in
+          let* x = Storage.get s (Election (uuid, Archive_header)) in
+          match Lopt.get_string x with
+          | Some x -> return_json 200 x
+          | None -> not_found)
+      | _ -> method_not_allowed)
   | [ "last-event" ] -> (
       match method_ with
       | `GET -> (

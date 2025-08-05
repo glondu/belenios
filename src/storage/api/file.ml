@@ -33,6 +33,7 @@ type _ u =
   | Private_key : Yojson.Safe.t u
   | Private_keys : string list u
   | Audit_cache : audit_cache u
+  | Archive_header : archive_header u
   | Last_event : last_event u
   | Draft : draft_election u
   | Public_creds : public_credentials u

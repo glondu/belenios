@@ -84,6 +84,9 @@ module MakeBackend
   let dates_ops : (_, Belenios_storage_api.election_dates) abstract_file_ops =
     make_uninitialized_ops "dates_ops"
 
+  let archive_header_ops : (_, archive_header) abstract_file_ops =
+    make_uninitialized_ops "archive_header_ops"
+
   let records_ops : (_, Belenios_storage_api.election_records) abstract_file_ops
       =
     make_uninitialized_ops "records_ops"
@@ -303,6 +306,7 @@ module MakeBackend
     | Private_key -> Concrete ("private_key.json", Trim, None)
     | Private_keys -> Concrete ("private_keys.jsons", Raw, None)
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
+    | Archive_header -> Abstract (archive_header_ops, ())
     | Last_event -> Concrete ("last_event.json", Trim, None)
     | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, None)
     | Sealing_log -> Concrete ("sealing.log", Raw, None)
@@ -1374,6 +1378,14 @@ module MakeBackend
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = data_ops.get <- get_data
+
+  let get_archive_header uuid () =
+    let* filename = get_unixfilename (Election (uuid, Public_archive)) in
+    let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
+    let* header = Reader.read_header ic in
+    Lwt.return @@ Lopt.some_value string_of_archive_header header
+
+  let () = archive_header_ops.get <- get_archive_header
 
   let get_roots uuid () =
     Lwt.try_bind

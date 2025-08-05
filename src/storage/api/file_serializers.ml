@@ -44,6 +44,11 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
   | Private_keys -> { of_string = split_lines; to_string = join_lines }
   | Audit_cache ->
       { of_string = audit_cache_of_string; to_string = string_of_audit_cache }
+  | Archive_header ->
+      {
+        of_string = archive_header_of_string;
+        to_string = string_of_archive_header;
+      }
   | Last_event ->
       { of_string = last_event_of_string; to_string = string_of_last_event }
   | Draft ->

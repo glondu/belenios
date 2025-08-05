@@ -176,6 +176,10 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> json
 
+## `elections/$UUID/archive-header` (anybody)
+
+### `GET`: unit -> archive_header
+
 ## `elections/$UUID/last-event` (anybody)
 
 ### `GET`: unit -> last_event
