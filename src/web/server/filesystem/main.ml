@@ -28,6 +28,7 @@ open Serializable_j
 
 let () = Stdlib.Random.self_init ()
 let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
+let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
 
 module type BACKEND = sig
   include BACKEND_GENERIC with type t := unit
@@ -294,7 +295,7 @@ module MakeBackend
         -> 'a election_file_props
     | Abstract : ('key, 'a) abstract_file_ops * 'key -> 'a election_file_props
 
-  let get_election_file_props uuid (type t) :
+  let get_election_file_props _uuid (type t) :
       t election_file -> t election_file_props = function
     | Draft -> Abstract (draft_ops, ())
     | State -> Concrete ("state.json", Trim, None)
@@ -308,7 +309,6 @@ module MakeBackend
     | Audit_cache -> Concrete ("audit_cache.json", Trim, None)
     | Archive_header -> Abstract (archive_header_ops, ())
     | Last_event -> Concrete ("last_event.json", Trim, None)
-    | Public_archive -> Concrete (Uuid.unwrap uuid ^ ".bel", Raw, None)
     | Sealing_log -> Concrete ("sealing.log", Raw, None)
     | Passwords -> Concrete ("passwords.csv", Raw, None)
     | Records -> Abstract (records_ops, ())
@@ -552,9 +552,7 @@ module MakeBackend
     else Lwt.fail Not_found
 
   let get_unixfilename (type t) : t file -> _ = function
-    | Election
-        (_, (Public_archive | Private_creds | Sealing_log : t election_file)) as
-      x -> (
+    | Election (_, (Private_creds | Sealing_log : t election_file)) as x -> (
         match get_props x with
         | Concrete (f, _, _) -> Lwt.return f
         | _ -> Lwt.fail @@ Not_implemented "get_as_file")
@@ -1168,7 +1166,6 @@ module MakeBackend
           F Last_event;
           F Metadata;
           F Audit_cache;
-          F Public_archive;
           F Passwords;
           F Voters;
           F Confidential_archive;
@@ -1182,6 +1179,7 @@ module MakeBackend
           records_filename;
           skipped_shufflers_filename;
           shuffle_token_filename;
+          archive_filename uuid;
         ]
     in
     Elections_cache.clear ();
@@ -1305,7 +1303,7 @@ module MakeBackend
       | None -> raise Creation_not_requested
       | Some x -> (x.last_height + 100, x.last_pos)
     in
-    let* filename = get_unixfilename (Election (uuid, Public_archive)) in
+    let filename = archive_filename uuid in
     let*& map, roots, timestamp = build_roots ~size ~pos filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
@@ -1373,14 +1371,14 @@ module MakeBackend
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
         let&** r = r in
-        let* filename = get_unixfilename (Election (uuid, Public_archive)) in
+        let filename = archive_filename uuid in
         gethash ~index:r.map ~filename x)
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = data_ops.get <- get_data
 
   let get_archive_header uuid () =
-    let* filename = get_unixfilename (Election (uuid, Public_archive)) in
+    let filename = archive_filename uuid in
     let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
     let* header = Reader.read_header ic in
     Lwt.return @@ Lopt.some_value string_of_archive_header header
@@ -1438,7 +1436,7 @@ module MakeBackend
     let last_hash = match last_hash with None -> assert false | Some x -> x in
     let items = List.rev items in
     let* last_pos, records =
-      let* filename = get_unixfilename (Election (uuid, Public_archive)) in
+      let filename = archive_filename uuid in
       raw_append ~filename ~timestamp:index.timestamp pos items
     in
     let* () = set_last_event uuid { last_hash; last_height; last_pos } in
