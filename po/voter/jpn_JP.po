@@ -1,19 +1,18 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-23 08:37+0000\n"
-"PO-Revision-Date: 2023-03-26 11:37+0000\n"
-"Last-Translator: Hayakawa Akira <campbeak@tcd.ie>\n"
+"PO-Revision-Date: 2025-09-14 10:02+0000\n"
+"Last-Translator: Kris Ueno <vurcmf79bs@liamekaens.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/belenios/voter/"
-"jpn_JP/>\n"
+"ja/>\n"
 "Language: jpn_JP\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.17-dev\n"
+"X-Generator: Weblate 5.14-dev\n"
 
 #: src/web/server/common/pages_common.ml:339
 msgid " (if you forgot it, for example)."
@@ -45,7 +44,7 @@ msgstr " {{count}}個の投票が受理されました。"
 
 #: src/web/clients/election/home.ml:387
 msgid " for more information."
-msgstr " より詳しく知るには"
+msgstr " にはより詳しく書かれています。"
 
 #: src/web/common/pages_common.ml:222
 msgid " has been accepted."
@@ -155,9 +154,9 @@ msgstr ""
 msgid "Audit data: "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
+#: src/web/server/common/pages_common.ml:483
 msgid "Authenticate"
 msgstr ""
 
@@ -241,14 +240,14 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:327
 #. src/web/server/common/mails_voter.ml:276
+#: src/web/server/common/mails_voter.ml:327
 msgid "Dear %s,"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
+#: src/web/server/common/pages_common.ml:512
 msgid "E-mail address:"
 msgstr ""
 
@@ -308,8 +307,8 @@ msgstr ""
 msgid "Get the source code"
 msgstr ""
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:258
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
 msgstr ""
 
@@ -349,10 +348,10 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
+#: src/web/server/common/pages_common.ml:482
 msgid "Log in"
 msgstr ""
 
@@ -388,13 +387,13 @@ msgstr ""
 msgid "Number of voters"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:220
 #. src/web/server/common/mails_voter.ml:115
+#: src/web/server/common/mails_voter.ml:220
 msgid "Number of votes:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:227
 #. src/web/server/common/mails_voter.ml:126
+#: src/web/server/common/mails_voter.ml:227
 msgid "Only the last vote counts."
 msgstr ""
 
@@ -402,8 +401,8 @@ msgstr ""
 msgid "Page of the election:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:382
 #. src/web/server/common/mails_voter.ml:108
+#: src/web/server/common/pages_common.ml:382
 msgid "Password:"
 msgstr ""
 
@@ -443,9 +442,9 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:251
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
+#: src/web/clients/election/advanced.ml:251
 msgid "Proceed"
 msgstr ""
 
@@ -493,10 +492,10 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:107
 #. src/web/clients/election/advanced.ml:69
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
+#: src/web/clients/election/advanced.ml:107
 msgid "Submit"
 msgstr ""
 
@@ -612,10 +611,10 @@ msgstr ""
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:345
 #. src/web/server/common/pages_common.ml:277
 #. src/web/server/common/mails_voter.ml:210
 #. src/web/server/common/mails_voter.ml:104
+#: src/web/server/common/pages_common.ml:345
 msgid "Username:"
 msgstr ""
 
@@ -651,8 +650,8 @@ msgstr ""
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:226
 #. src/web/server/common/mails_voter.ml:125
+#: src/web/server/common/mails_voter.ml:226
 msgid "You are allowed to vote several times."
 msgstr ""
 
@@ -847,4 +846,3 @@ msgstr ""
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr ""
-
