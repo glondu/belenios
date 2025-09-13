@@ -21,6 +21,17 @@
 
 include Serializable_j
 
+let dummy_metadata : metadata =
+  {
+    uuid = Belenios.Uuid.dummy;
+    admin_id = -1;
+    title = "Belenios election";
+    contact = None;
+    has_weights = true;
+    has_passwords = false;
+    langs = [ "en" ];
+  }
+
 type text_message = { recipient : recipient; subject : string; body : string }
 
 let hmac ~key x =

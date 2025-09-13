@@ -642,7 +642,6 @@ let get_audit_cache s uuid =
 
 let regen_password s uuid ~admin_id user =
   let user = String.lowercase_ascii user in
-  let* show_weight = get_has_explicit_weights s uuid in
   let* x = Storage.get s (Election (uuid, Voter user)) in
   let@ y = Storage.update s (Election (uuid, Password user)) in
   match (Lopt.get_value x, y) with
@@ -652,8 +651,9 @@ let regen_password s uuid ~admin_id user =
         | None -> Lwt.return_false
         | Some r -> cont r
       in
+      let* metadata = Mails_voter.get_metadata s ~admin_id uuid in
       let* email, (salt, hashed) =
-        Mails_voter.generate_password_email ~admin_id uuid id show_weight
+        Mails_voter.generate_password_email metadata id
       in
       let r = { r with salt; hashed } in
       let* () = set Value r in
@@ -661,7 +661,7 @@ let regen_password s uuid ~admin_id user =
       Lwt.return_true
   | _ -> Lwt.return_false
 
-let send_credentials uuid ~admin_id (Draft (v, se)) private_creds =
+let send_credentials s uuid ~admin_id (Draft (_, se)) private_creds =
   let@ private_creds cont =
     match Lopt.get_value private_creds with
     | None -> Lwt.return_unit
@@ -682,14 +682,15 @@ let send_credentials uuid ~admin_id (Draft (v, se)) private_creds =
         SMap.add login (recipient, weight) accu)
       SMap.empty se.se_voters
   in
-  let send = Mails_voter.generate_credential_email uuid (Draft (v, se)) in
+  let* metadata = Mails_voter.get_metadata s ~admin_id uuid in
+  let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
     Lwt_list.fold_left_s
       (fun jobs (login, credential) ->
         match SMap.find_opt login voter_map with
         | None -> Lwt.return jobs
         | Some (recipient, weight) ->
-            let* job = send ~admin_id ~recipient ~login ~weight ~credential in
+            let* job = send ~recipient ~login ~weight ~credential in
             Lwt.return (job :: jobs))
       [] private_creds
   in
@@ -758,7 +759,8 @@ let validate_election ~admin_id storage uuid
   (* the validation itself *)
   let* x = Storage.validate_election storage uuid in
   match x with
-  | Ok () -> send_credentials uuid ~admin_id (Draft (v, se)) private_creds
+  | Ok () ->
+      send_credentials storage uuid ~admin_id (Draft (v, se)) private_creds
   | Error e -> validation_error e
 
 let create_draft s uuid se = Storage.set s (Election (uuid, Draft)) Value se

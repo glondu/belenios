@@ -20,7 +20,4 @@
 (**************************************************************************)
 
 val send :
-  Belenios_storage_api.Storage.t ->
-  ?internal:bool ->
-  Belenios_messages.message ->
-  (string, unit) result Lwt.t
+  ?internal:bool -> Belenios_messages.message -> (string, unit) result Lwt.t

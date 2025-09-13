@@ -63,7 +63,7 @@ let sendmail ~recipient ~uuid message =
   in
   Netsendmail.sendmail ~mailer message
 
-let send s ?internal (msg : message) =
+let send ?internal (msg : message) =
   let@ () =
    fun cont ->
     match (internal, !Web_config.send_message) with
@@ -104,11 +104,13 @@ let send s ?internal (msg : message) =
         let t = Mails_admin.mail_set_email l ~recipient ~code in
         Lwt.return ("set-email", "", uuid, t)
     | `Voter_password x ->
-        let* t = Mails_voter.format_password_email s x in
-        Lwt.return ("password", string_of_int x.admin_id, Some x.uuid, t)
+        let* t = Mails_voter.format_password_email x in
+        let m = Option.value ~default:dummy_metadata x.metadata in
+        Lwt.return ("password", string_of_int m.admin_id, Some m.uuid, t)
     | `Voter_credential x ->
-        let* t = Mails_voter.format_credential_email s x in
-        Lwt.return ("credential", string_of_int x.admin_id, Some x.uuid, t)
+        let* t = Mails_voter.format_credential_email x in
+        let m = Option.value ~default:dummy_metadata x.metadata in
+        Lwt.return ("credential", string_of_int m.admin_id, Some m.uuid, t)
     | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t =

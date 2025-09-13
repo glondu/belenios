@@ -1242,13 +1242,10 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_ifmatch ifmatch get in
           let@ voters = body.run string_list_of_string in
           let@ () = handle_generic_error in
-          let generate =
-            let (Draft (_, se)) = se in
-            let show_weight = has_explicit_weights se.se_voters in
-            fun id ->
-              Mails_voter.generate_password_email uuid ~admin_id:account.id id
-                show_weight
+          let* metadata =
+            Mails_voter.get_metadata s ~admin_id:account.id uuid
           in
+          let generate id = Mails_voter.generate_password_email metadata id in
           let* jobs = post_draft_passwords account generate (se, set) voters in
           let* () = Mails_voter_bulk.submit_bulk_emails jobs in
           ok

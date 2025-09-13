@@ -23,9 +23,9 @@ open Lwt.Syntax
 open Belenios
 open Belenios_server_core
 
-let send_bulk_email s = function
-  | `Password x -> Send_message.send s @@ `Voter_password x
-  | `Credential x -> Send_message.send s @@ `Voter_credential x
+let send_bulk_email = function
+  | `Password x -> Send_message.send @@ `Voter_password x
+  | `Credential x -> Send_message.send @@ `Voter_credential x
 
 module Bulk_processor = struct
   type t = {
@@ -178,8 +178,7 @@ module Ocsipersist_bulk = struct
     let* p, current = get_queue () in
     let i = p.processed in
     if i < Array.length current then
-      let@ s = Belenios_storage_api.Storage.with_transaction in
-      let* _ = send_bulk_email s current.(i) in
+      let* _ = send_bulk_email current.(i) in
       let* () = Processed.set { p with processed = i + 1 } in
       Lwt.return_true
     else Lwt.return_false

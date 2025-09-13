@@ -108,7 +108,7 @@ module Make () = struct
         | `POST, Some key ->
             let@ x = body.run Belenios_messages.message_payload_of_string in
             let@ () = handle_generic_error in
-            Api_generic.post_send_message s ?internal ~key x
+            Api_generic.post_send_message ?internal ~key x
         | _ -> method_not_allowed)
     | [ "account" ] -> (
         let@ token = Option.unwrap unauthorized token in

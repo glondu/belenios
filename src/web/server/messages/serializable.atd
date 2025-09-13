@@ -25,12 +25,21 @@ type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type recipient <ocaml predef from="Belenios_web_api.Serializable"> = abstract
 type confirmation <ocaml predef from="Belenios_web_api.Serializable"> = abstract
 
+type metadata = {
+  uuid : uuid;
+  admin_id : int;
+  title : string;
+  contact : string option;
+  has_weights : bool;
+  has_passwords : bool;
+  langs : string list;
+}
+
 type material_message = {
   recipient : recipient;
-  ~admin_id <ocaml default="-1"> : int;
   material : string;
-  uuid : uuid;
   ?weight : weight option;
+  ?metadata : metadata option;
 }
 
 type code_message = {

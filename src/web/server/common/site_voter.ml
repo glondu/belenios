@@ -85,7 +85,7 @@ struct
     Lwt.catch
       (fun () ->
         let* r =
-          Send_message.send s
+          Send_message.send
           @@ `Vote_confirmation
                { lang; uuid; title; confirmation; contact = metadata.e_contact }
         in

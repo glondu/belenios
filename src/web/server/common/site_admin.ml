@@ -119,8 +119,7 @@ struct
     let send ~context:() ~recipient ~code =
       let* l = get_preferred_gettext () in
       let open (val l) in
-      let@ s = Storage.with_transaction in
-      Send_message.send s
+      Send_message.send
       @@ `Account_set_email { lang; recipient; code; uuid = None }
   end
 
