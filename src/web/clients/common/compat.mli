@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2024-2024 Inria                                           *)
+(*  Copyright © 2025-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,44 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt.Syntax
 open Js_of_ocaml
-open Js_of_ocaml_tyxml
-open Belenios
-open Belenios_web_api
-open Session
 
-let post_ballot uuid ~ballot =
-  let* x = Api.(post (election_ballots uuid) `Nobody ballot) in
-  let fail () =
-    Compat.log_4
-      (Js.string "Submitting ballot")
-      (Js.string ballot) (Js.string "returned") x;
-    Lwt.return @@ Error `UnexpectedResponse
-  in
-  match x.code with
-  | 401 -> (
-      match Yojson.Safe.from_string x.content with
-      | `Assoc o -> (
-          match List.assoc_opt "state" o with
-          | Some (`String state) -> Lwt.return @@ Ok state
-          | _ -> fail ())
-      | _ | (exception _) -> fail ())
-  | 400 -> (
-      match Belenios_web_api.request_status_of_string x.content with
-      | { error = `CastError e; _ } -> Lwt.return @@ Error e
-      | _ | (exception _) -> fail ())
-  | _ -> fail ()
-
-let confirmation configuration election result =
-  let module B = struct
-    module Xml = Tyxml_js.Xml
-    module Svg = Tyxml_js.Svg
-    module Html = Tyxml_js.Html
-
-    let uris = configuration.uris
-  end in
-  let module U = Belenios_ui.Pages_common.Make (B) in
-  let open B.Html in
-  U.confirmation_fragment !I18n.gettext ~snippet:(txt "") ~progress:(txt "")
-    election result
+val navigator_language : string
+val scroll : int -> int -> unit
+val get_file : #Dom_html.inputElement Js.t -> File.file Js.t option
+val log_4 : 'a -> 'b -> 'c -> 'd -> unit

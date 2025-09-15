@@ -19,12 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+[%%import "../config.mlh"]
+
 open Js_of_ocaml
 
 let belenios = Js.Unsafe.pure_js_expr "belenios"
 
 module Debug = struct
+  [%%if jsoo_version < (6, 0, 0)]
+
   let debug x = Firebug.console##log (Js.string x)
+
+  [%%else]
+
+  let debug x = Console.console##log (Js.string x)
+
+  [%%endif]
 end
 
 module Sjcl = struct

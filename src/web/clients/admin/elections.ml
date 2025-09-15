@@ -30,12 +30,6 @@ open Belenios_js.Common
 open Belenios_js.Session
 open Common
 
-(* Syntaxic helper for Js.Optdef...
- * Warning: this is lazy and if something goes wrong, what follows the
- * failed assignement will be ignored.
- *)
-let ( let^ ) x f = Js.Optdef.case x (fun () -> Lwt.return_unit) f
-
 let read_full file =
   let t, u = Lwt.task () in
   let reader = new%js File.fileReader in
@@ -828,8 +822,11 @@ let voters_content () =
     button (s_ "Upload voter file") (fun () ->
         let&&* d = document##getElementById (Js.string "fileupload") in
         let&&* d = Dom_html.CoerceTo.input d in
-        let^ f = d##.files in
-        let&&* file = f##item 0 in
+        let@ file cont =
+          match Belenios_js.Compat.get_file d with
+          | None -> Lwt.return_unit
+          | Some x -> cont x
+        in
         let* text = read_full file in
         try_voters @@ Js.to_string text)
   in

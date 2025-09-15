@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2024-2024 Inria                                           *)
+(*  Copyright © 2025-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,44 +19,44 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Lwt.Syntax
+[%%import "../../../platform/config.mlh"]
+
 open Js_of_ocaml
-open Js_of_ocaml_tyxml
-open Belenios
-open Belenios_web_api
-open Session
 
-let post_ballot uuid ~ballot =
-  let* x = Api.(post (election_ballots uuid) `Nobody ballot) in
-  let fail () =
-    Compat.log_4
-      (Js.string "Submitting ballot")
-      (Js.string ballot) (Js.string "returned") x;
-    Lwt.return @@ Error `UnexpectedResponse
-  in
-  match x.code with
-  | 401 -> (
-      match Yojson.Safe.from_string x.content with
-      | `Assoc o -> (
-          match List.assoc_opt "state" o with
-          | Some (`String state) -> Lwt.return @@ Ok state
-          | _ -> fail ())
-      | _ | (exception _) -> fail ())
-  | 400 -> (
-      match Belenios_web_api.request_status_of_string x.content with
-      | { error = `CastError e; _ } -> Lwt.return @@ Error e
-      | _ | (exception _) -> fail ())
-  | _ -> fail ()
+[%%if jsoo_version < (6, 0, 0)]
 
-let confirmation configuration election result =
-  let module B = struct
-    module Xml = Tyxml_js.Xml
-    module Svg = Tyxml_js.Svg
-    module Html = Tyxml_js.Html
+let navigator_language_raw =
+  Js.Optdef.to_option Dom_html.window##.navigator##.language
 
-    let uris = configuration.uris
-  end in
-  let module U = Belenios_ui.Pages_common.Make (B) in
-  let open B.Html in
-  U.confirmation_fragment !I18n.gettext ~snippet:(txt "") ~progress:(txt "")
-    election result
+let scroll x y = Dom_html.window##scroll x y
+
+let get_file (x : #Dom_html.inputElement Js.t) =
+  Js.Optdef.case x##.files
+    (fun () -> None)
+    (fun x -> Js.Opt.to_option (x##item 0))
+
+let log_4 a b c d = Firebug.console##log_4 a b c d
+
+[%%else]
+
+let navigator_language_raw =
+  Js.Opt.to_option Dom_html.window##.navigator##.language
+
+let scroll x y =
+  Dom_html.window##scroll (Js.float (float x)) (Js.float (float y))
+
+let get_file (x : #Dom_html.inputElement Js.t) =
+  let files = x##.files in
+  Js.Opt.to_option (files##item 0)
+
+let log_4 a b c d = Console.console##log_4 a b c d
+
+[%%endif]
+
+let navigator_language =
+  match navigator_language_raw with
+  | None -> "en"
+  | Some x -> (
+      match String.split_on_char '-' (Js.to_string x) with
+      | x :: _ -> x
+      | _ -> "en")

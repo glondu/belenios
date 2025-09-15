@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2024-2024 Inria                                           *)
+(*  Copyright © 2025-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -20,43 +20,24 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Js_of_ocaml
-open Js_of_ocaml_tyxml
-open Belenios
-open Belenios_web_api
-open Session
 
-let post_ballot uuid ~ballot =
-  let* x = Api.(post (election_ballots uuid) `Nobody ballot) in
-  let fail () =
-    Compat.log_4
-      (Js.string "Submitting ballot")
-      (Js.string ballot) (Js.string "returned") x;
-    Lwt.return @@ Error `UnexpectedResponse
+let jsoo_version () =
+  let cmd = ("js_of_ocaml", [| "js_of_ocaml"; "--version" |]) in
+  Lwt_process.pread_line cmd
+
+let main () =
+  let* jsoo_version =
+    let* v = jsoo_version () in
+    match String.split_on_char '.' v with
+    | a :: b :: c :: _ ->
+        let a = Option.value ~default:0 (int_of_string_opt a) in
+        let b = Option.value ~default:0 (int_of_string_opt b) in
+        let c = Option.value ~default:0 (int_of_string_opt c) in
+        Lwt.return
+          [ Printf.sprintf "[%%%%define jsoo_version (%d, %d, %d)]" a b c ]
+    | _ -> Lwt.return_nil
   in
-  match x.code with
-  | 401 -> (
-      match Yojson.Safe.from_string x.content with
-      | `Assoc o -> (
-          match List.assoc_opt "state" o with
-          | Some (`String state) -> Lwt.return @@ Ok state
-          | _ -> fail ())
-      | _ | (exception _) -> fail ())
-  | 400 -> (
-      match Belenios_web_api.request_status_of_string x.content with
-      | { error = `CastError e; _ } -> Lwt.return @@ Error e
-      | _ | (exception _) -> fail ())
-  | _ -> fail ()
+  [ jsoo_version ] |> List.flatten |> Lwt_stream.of_list
+  |> Lwt_io.(write_lines stdout)
 
-let confirmation configuration election result =
-  let module B = struct
-    module Xml = Tyxml_js.Xml
-    module Svg = Tyxml_js.Svg
-    module Html = Tyxml_js.Html
-
-    let uris = configuration.uris
-  end in
-  let module U = Belenios_ui.Pages_common.Make (B) in
-  let open B.Html in
-  U.confirmation_fragment !I18n.gettext ~snippet:(txt "") ~progress:(txt "")
-    election result
+let () = main () |> Lwt_main.run

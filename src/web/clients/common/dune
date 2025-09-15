@@ -10,5 +10,6 @@
   (re_export belenios-lib.api)
   (re_export belenios_ui))
  (modules_without_implementation messages)
+ (preprocessor_deps ../../../platform/config.mlh)
  (preprocess
-  (pps js_of_ocaml-ppx)))
+  (pps js_of_ocaml-ppx ppx_optcomp)))

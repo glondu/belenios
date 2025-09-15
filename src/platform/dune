@@ -7,3 +7,10 @@
  (virtual_modules platform))
 
 (copy_files version/version.ml)
+
+(rule
+ (target config.mlh)
+ (action
+  (with-stdout-to
+   %{target}
+   (run config/gen_config.exe))))

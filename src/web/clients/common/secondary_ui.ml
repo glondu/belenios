@@ -189,14 +189,7 @@ module Make (App : APP) () = struct
       let client_configuration = get_client_configuration () in
       let lang =
         match client_configuration.lang with
-        | None ->
-            Js.Optdef.case
-              Dom_html.window##.navigator##.language
-              (fun () -> "en")
-              (fun x ->
-                match String.split_on_char '-' (Js.to_string x) with
-                | x :: _ -> x
-                | _ -> "en")
+        | None -> Compat.navigator_language
         | Some x -> x
       in
       let () =

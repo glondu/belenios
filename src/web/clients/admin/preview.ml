@@ -50,7 +50,7 @@ let preview_booth () =
           div ~a:[ a_id "prev_lk" ] [ link ];
         ]
       in
-      Dom_html.window##scroll 0 0;
+      Belenios_js.Compat.scroll 0 0;
       let&&* d = document##getElementById (Js.string "popup") in
       d##.style##.display := Js.string "block";
       let&&* container = document##getElementById (Js.string "popup-content") in

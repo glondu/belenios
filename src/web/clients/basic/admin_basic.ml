@@ -243,12 +243,7 @@ let onhashchange () =
   show hash document##.body
 
 let onload () =
-  let lang =
-    Js.Optdef.case
-      Dom_html.window##.navigator##.language
-      (fun () -> "en")
-      Js.to_string
-  in
+  let lang = Belenios_js.Compat.navigator_language in
   let* () = Belenios_js.I18n.init ~dir:"" ~component:"admin" ~lang in
   let hash = parse_hash () in
   let* () = init_api_token set_api_token ~ui:"basic" hash in

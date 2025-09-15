@@ -88,9 +88,8 @@ let advanced uuid =
       let dom = Tyxml_js.To_dom.of_input t in
       let onchange _ =
         let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
-        let ( let$ ) x f = Js.Optdef.case x (fun () -> Js._false) f in
-        let$ files = dom##.files in
-        let& file = files##item 0 in
+        let ( let$ ) x f = match x with None -> Js._false | Some x -> f x in
+        let$ file = Belenios_js.Compat.get_file dom in
         let reader = new%js File.fileReader in
         reader##.onload :=
           Dom.handler (fun _ ->

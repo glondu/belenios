@@ -9,5 +9,6 @@
    ../../../vendor/sjcl/sjcl.js
    ../../../vendor/libsodium/libsodium.js))
  (libraries lwt js_of_ocaml digestif.ocaml hex)
+ (preprocessor_deps ../config.mlh)
  (preprocess
-  (pps js_of_ocaml-ppx)))
+  (pps js_of_ocaml-ppx ppx_optcomp)))

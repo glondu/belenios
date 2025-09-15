@@ -50,9 +50,8 @@ let make_private_key_input handler =
   let file_dom = Tyxml_js.To_dom.of_input file_elt in
   let onchange _ =
     let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
-    let ( let$ ) x f = Js.Optdef.case x (fun () -> Js._false) f in
-    let$ files = file_dom##.files in
-    let& file = files##item 0 in
+    let ( let$ ) x f = match x with None -> Js._false | Some x -> f x in
+    let$ file = Belenios_js.Compat.get_file file_dom in
     let reader = new%js File.fileReader in
     reader##.onload :=
       Dom.handler (fun _ ->

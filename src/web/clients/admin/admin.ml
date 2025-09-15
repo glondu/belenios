@@ -485,17 +485,8 @@ let onhashchange () =
   | Profile -> Account.update_main ()
   | _ -> Lwt.return_unit
 
-let extract_lang x =
-  match String.index_opt x '-' with None -> x | Some i -> String.sub x 0 i
-
 let onload () =
-  let lang =
-    Js.Optdef.case
-      Dom_html.window##.navigator##.language
-      (fun () -> "en")
-      Js.to_string
-    |> extract_lang
-  in
+  let lang = Belenios_js.Compat.navigator_language in
   let* () = Belenios_js.I18n.init ~dir:"static/" ~component:"admin" ~lang in
   onhashchange ()
 
