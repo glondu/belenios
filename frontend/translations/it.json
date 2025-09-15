@@ -49,5 +49,9 @@
     "page_title": "Cabina elettorale virtuale di Belenios",
     "preferential_voting_not_ranked": "Non classificato",
     "preferential_voting_question_description": "Si prega di classificare i candidati per preferenza. I candidati non classificati, se presenti, sono considerati alla pari come non preferiti.",
-    "lists_question_description": "Si prega di selezionare una lista di candidati e di deselezionare ogni candidato che non si intende includere."
+    "lists_question_description": "Si prega di selezionare una lista di candidati e di deselezionare ogni candidato che non si intende includere.",
+    "download_tracker_label": "Download",
+    "preferential_votign_add_preference_level": "+ Aggiungi un livello di preferenza qui",
+    "preferential_voting_without_equality_move_candidate_above_position_x": "Posizione superiore {{index}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x": "Posizione inferiore {{index}}"
 }
