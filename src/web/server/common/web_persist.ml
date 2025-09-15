@@ -690,7 +690,7 @@ let send_credentials s uuid ~admin_id (Draft (_, se)) private_creds =
         match SMap.find_opt login voter_map with
         | None -> Lwt.return jobs
         | Some (recipient, weight) ->
-            let* job = send ~recipient ~login ~weight ~credential in
+            let* job = send ~recipient ~login ~weight credential in
             Lwt.return (job :: jobs))
       [] private_creds
   in

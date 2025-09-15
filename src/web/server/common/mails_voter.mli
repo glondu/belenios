@@ -34,10 +34,10 @@ val format_credential_email : material_message -> text_message Lwt.t
 
 val generate_credential_email :
   metadata ->
-  recipient:string ->
+  ?recipient:string ->
+  ?weight:weight ->
   login:string ->
-  weight:weight ->
-  credential:string ->
+  string ->
   bulk_email Lwt.t
 
 val mail_confirmation :

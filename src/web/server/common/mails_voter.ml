@@ -258,13 +258,13 @@ let format_credential_email (x : material_message) =
       : Belenios_messages.text_message)
 
 let generate_credential_email (metadata : Belenios_messages.metadata) =
- fun ~recipient ~login ~weight ~credential ->
-  let oweight = if metadata.has_weights then Some weight else None in
+ fun ?recipient ?weight ~login credential ->
+  let recipient = Option.value ~default:login recipient in
   let x : material_message =
     {
       recipient = { name = login; address = recipient };
       material = credential;
-      weight = oweight;
+      weight;
       metadata = Some metadata;
     }
   in
