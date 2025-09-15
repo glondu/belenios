@@ -54,16 +54,18 @@ let compute_shuffle ~estimation election ciphertexts =
     let* x = t1 in
     match x with
     | ShuffleEstimate eta ->
-        let start = (new%js Js.date_now)##valueOf in
+        let start = Js.to_float (new%js Js.date_now)##valueOf in
         let stop = start +. (float_of_int eta *. 1000.) in
         let update () =
-          let now = (new%js Js.date_now)##valueOf in
+          let now = Js.to_float (new%js Js.date_now)##valueOf in
           let eta = max 0 (int_of_float (ceil ((stop -. now) /. 1000.))) in
           estimation##.textContent :=
             Js.some @@ Js.string
             @@ Printf.sprintf (f_ "Estimated remaining time: %d second(s)") eta
         in
-        let id = Dom_html.window##setInterval (Js.wrap_callback update) 500. in
+        let id =
+          Dom_html.window##setInterval (Js.wrap_callback update) (Js.float 500.)
+        in
         let* x = t2 in
         Dom_html.window##clearInterval id;
         cont x

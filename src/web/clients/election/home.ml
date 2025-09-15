@@ -44,20 +44,24 @@ let format_period x =
 
 let countdown fmt end_ =
   let endf =
-    let t = new%js Js.date_fromTimeValue (end_ *. 1000.) in
+    let t = new%js Js.date_fromTimeValue (Js.float (end_ *. 1000.)) in
     Js.to_string t##toLocaleString
   in
   let elt = span [] in
   let dom = Tyxml_js.To_dom.of_span elt in
   let timer () =
-    let delta = Float.ceil (end_ -. ((new%js Js.date_now)##valueOf /. 1000.)) in
+    let delta =
+      Float.ceil (end_ -. (Js.to_float (new%js Js.date_now)##valueOf /. 1000.))
+    in
     if delta >= 0. then
       dom##.textContent :=
         Js.some (Js.string (Printf.sprintf fmt endf (format_period delta)))
     else Dom_html.window##.location##reload
   in
   timer ();
-  let _interval = Dom_html.window##setInterval (Js.wrap_callback timer) 500. in
+  let _interval =
+    Dom_html.window##setInterval (Js.wrap_callback timer) (Js.float 500.)
+  in
   elt
 
 let make_object_link uuid h =
@@ -648,7 +652,7 @@ let home configuration ?credential uuid =
     | None -> Lwt.return @@ error "Could not get automatic dates!"
     | Some x -> cont x
   in
-  let now = (new%js Js.date_now)##valueOf /. 1000. in
+  let now = Js.to_float (new%js Js.date_now)##valueOf /. 1000. in
   let state =
     match status.status_state with
     | `Draft ->

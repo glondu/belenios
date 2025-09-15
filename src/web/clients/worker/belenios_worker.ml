@@ -42,7 +42,9 @@ let handle_shuffle { election; ciphertexts } =
       let start = new%js Js.date_now in
       let _ = W.E.shuffle_ciphertexts sub in
       let stop = new%js Js.date_now in
-      let delta = (stop##valueOf -. start##valueOf) /. 1000. in
+      let delta =
+        (Js.to_float stop##valueOf -. Js.to_float start##valueOf) /. 1000.
+      in
       let eta =
         int_of_float
           (ceil (float_of_int nballots *. delta /. float_of_int threshold))

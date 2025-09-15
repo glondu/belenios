@@ -51,7 +51,7 @@ let read_full file =
 
 (* FIXME: get timezone offset from browser *)
 let datestring_of_float x =
-  let x = new%js Js.date_fromTimeValue (x *. 1000.) in
+  let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
   let res = Js.to_string x##toISOString in
   String.sub res 0 (String.length res - 5)
 
@@ -1014,12 +1014,14 @@ let dates_content () =
       | None -> ()
       | Some x ->
           r##.value :=
-            format_date_object (new%js Js.date_fromTimeValue (x *. 1000.))
+            format_date_object
+              (new%js Js.date_fromTimeValue (Js.float (x *. 1000.)))
     in
     let sync () =
       let x = inp_get () in
       let d =
-        if x = "" then None else Some (Js.date##parse (Js.string x) /. 1000.)
+        if x = "" then None
+        else Some (Js.to_float (Js.date##parse (Js.string x)) /. 1000.)
       in
       let* dates = Cache.get_until_success Cache.e_dates in
       Cache.set Cache.e_dates (set dates d);
@@ -1034,8 +1036,9 @@ let dates_content () =
     let label = label ~a:[ a_label_for id ] [ txt l ] in
     let btn_soon =
       let@ () = button (s_ "In 5 minutes") in
-      let t = (new%js Js.date_now)##valueOf +. 300_000. in
-      r##.value := format_date_object (new%js Js.date_fromTimeValue t);
+      let t = Js.to_float (new%js Js.date_now)##valueOf +. 300_000. in
+      r##.value :=
+        format_date_object (new%js Js.date_fromTimeValue (Js.float t));
       sync ()
     in
     let btn_erase =
@@ -1749,7 +1752,7 @@ let open_close_content () =
   Lwt.return [ h2 [ txt curr ]; div [ but ] ]
 
 let pretty_timestamp x =
-  let x = new%js Js.date_fromTimeValue (x *. 1000.) in
+  let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
   Js.to_string x##toLocaleString
 
 let replace_contents container contents =

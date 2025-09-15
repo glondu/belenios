@@ -131,7 +131,10 @@ module Tests = struct
       ignore (Z.powm a b p)
     done;
     let stop = new%js Js.date_now in
-    let delta = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
+    let delta =
+      int_of_float
+        (ceil (Js.to_float stop##valueOf -. Js.to_float start##valueOf))
+    in
     Printf.ksprintf alert "%d modular exponentiations in %d ms!" n delta;
     Lwt.return_unit
 
@@ -157,11 +160,17 @@ module Tests = struct
     let start = new%js Js.date_now in
     let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = new%js Js.date_now in
-    let delta_exp = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
+    let delta_exp =
+      int_of_float
+        (ceil (Js.to_float stop##valueOf -. Js.to_float start##valueOf))
+    in
     let start = new%js Js.date_now in
     ignore (Array.fold_left G.( *~ ) G.one ys);
     let stop = new%js Js.date_now in
-    let delta_mul = int_of_float (ceil (stop##valueOf -. start##valueOf)) in
+    let delta_mul =
+      int_of_float
+        (ceil (Js.to_float stop##valueOf -. Js.to_float start##valueOf))
+    in
     Printf.ksprintf alert "Bench result (size %d): %d ms (exp), %d ms (mul)!\n"
       n delta_exp delta_mul;
     Lwt.return_unit

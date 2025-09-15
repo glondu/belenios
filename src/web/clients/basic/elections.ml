@@ -65,7 +65,8 @@ let rec show main uuid =
   in
   let get_date (_, get) =
     let y = get () in
-    if y = "" then None else Some (Js.date##parse (Js.string y) /. 1000.)
+    if y = "" then None
+    else Some (Js.to_float (Js.date##parse (Js.string y)) /. 1000.)
   in
   let* auto_dates =
     let* x = Api.(get (election_auto_dates uuid) `Nobody) in
@@ -74,7 +75,7 @@ let rec show main uuid =
       let value =
         Option.map
           (fun x ->
-            let x = new%js Js.date_fromTimeValue (x *. 1000.) in
+            let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
             Js.to_string x##toISOString)
           d
       in
