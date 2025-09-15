@@ -21,6 +21,8 @@
 
 include Serializable_j
 
+type metadata = message_metadata
+
 let dummy_metadata : metadata =
   {
     uuid = Belenios.Uuid.dummy;

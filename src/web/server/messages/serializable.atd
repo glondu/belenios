@@ -24,22 +24,13 @@ type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type recipient <ocaml predef from="Belenios_web_api.Serializable"> = abstract
 type confirmation <ocaml predef from="Belenios_web_api.Serializable"> = abstract
-
-type metadata = {
-  uuid : uuid;
-  admin_id : int;
-  title : string;
-  contact : string option;
-  has_weights : bool;
-  has_passwords : bool;
-  langs : string list;
-}
+type message_metadata <ocaml predef from="Belenios_web_api.Serializable"> = abstract
 
 type material_message = {
   recipient : recipient;
   material : string;
   ?weight : weight option;
-  ?metadata : metadata option;
+  ?metadata : message_metadata option;
 }
 
 type code_message = {
