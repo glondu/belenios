@@ -50,6 +50,7 @@ function TranslatablePageHeader({
     ),
     e("div", {
       className: "page-header__right",
+      id: "election_logo",
     }),
   );
 }

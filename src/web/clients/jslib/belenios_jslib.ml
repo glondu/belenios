@@ -103,6 +103,7 @@ class type belenios = object
   method renderConfirmation : Dom_html.divElement Js.t -> unit Js.meth
   method initiateLogin : unit Js.meth
   method finalizeLogin : Js.Unsafe.any -> unit Js.meth
+  method setLogo : Js.js_string Js.t -> unit Js.meth
 end
 
 let stateful = ref false
@@ -347,6 +348,8 @@ let belenios : belenios Js.t =
       in
       let@ window = Js.Opt.iter (coerce_window Dom_html.window)##.opener in
       Messages.(post confirmation) window (Js._JSON##stringify confirmation)
+
+    method setLogo uuid = set_logo (Uuid.wrap (Js.to_string uuid))
   end
 
 let () = Js.export "belenios" belenios
