@@ -622,12 +622,83 @@ let title_content () =
         ~a:[ a_id "election_description_textarea" ]
         ~onchange ~cols:50 ~rows:5 draft.draft_questions.t_description
     in
+    let div_logo =
+      let uuid = get_current_uuid () in
+      let src = !/((Api.election_logo uuid).path) in
+      let logo_elt = div [] in
+      let logo_dom = Tyxml_js.To_dom.of_div logo_elt in
+      let rec upload_logo () =
+        clear_content logo_dom;
+        let file_elt = Tyxml_js.Html.input ~a:[ a_input_type `File ] () in
+        let file_dom = Tyxml_js.To_dom.of_input file_elt in
+        let onchange _ =
+          let ( let& ) x f = Js.Opt.case x (fun () -> Js._false) f in
+          let ( let$ ) x f = match x with None -> Js._false | Some x -> f x in
+          let$ file = Belenios_js.Compat.get_file file_dom in
+          let reader = new%js File.fileReader in
+          let onload _ =
+            let& content = File.CoerceTo.arrayBuffer reader##.result in
+            let () =
+              let@ () = Lwt.async in
+              let* y = Api.put_blob (Api.election_logo uuid) !user content in
+              let () =
+                match y.code with
+                | 200 -> set_logo ()
+                | 413 ->
+                    alert @@ s_ "The file is too large! It must be < 10 KB.";
+                    upload_logo ()
+                | _ -> upload_logo ()
+              in
+              Lwt.return_unit
+            in
+            Js._false
+          in
+          reader##.onload := Dom.handler onload;
+          reader##readAsArrayBuffer file;
+          Js._false
+        in
+        file_dom##.onchange := Dom_html.handler onchange;
+        List.iter
+          (fun x -> Dom.appendChild logo_dom (Tyxml_js.To_dom.of_node x))
+          [
+            div [ txt @@ s_ "No logo set." ];
+            div [ txt @@ s_ "Set a logo (.png, max. 10 KB): "; file_elt ];
+          ]
+      and onerror _ =
+        upload_logo ();
+        false
+      and set_logo () =
+        clear_content logo_dom;
+        List.iter
+          (fun x -> Dom.appendChild logo_dom (Tyxml_js.To_dom.of_node x))
+          [
+            img
+              ~a:[ a_onerror onerror; a_class [ "page-header__logo__image" ] ]
+              ~src ~alt:"election logo" ();
+            Tyxml_js.Html.button
+              ~a:[ a_onclick clear_logo ]
+              [ txt @@ s_ "Clear logo" ];
+          ]
+      and clear_logo _ =
+        let () =
+          let@ () = Lwt.async in
+          let* _ = Api.delete (Api.election_logo uuid) !user in
+          upload_logo ();
+          Lwt.return_unit
+        in
+        false
+      in
+      set_logo ();
+      logo_elt
+    in
     Lwt.return
       [
         h2 [ txt @@ s_ "Title:" ];
         div [ name ];
         h2 [ txt @@ s_ "Description:" ];
         div [ desc ];
+        h2 [ txt @@ s_ "Logo:" ];
+        div_logo;
       ]
   else
     (* not is_draft, i.e. running *)

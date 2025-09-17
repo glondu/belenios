@@ -52,6 +52,12 @@ module Api : sig
     'a ->
     Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t
 
+  val put_blob :
+    (([< user ] as 'user), 'a, 'b) t ->
+    'user ->
+    Js_of_ocaml.Typed_array.arrayBuffer Js_of_ocaml.Js.t ->
+    Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t
+
   val post :
     ?ifmatch:string ->
     (([< user ] as 'user), 'a, 'b) t ->

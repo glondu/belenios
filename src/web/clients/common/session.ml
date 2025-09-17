@@ -77,6 +77,18 @@ let raw_put_with_token ~ifmatch ~token x url =
   let contents = `String x in
   perform_raw_url ~headers ~contents ~override_method:`PUT !/url
 
+let raw_put_blob_with_token ~token x url =
+  let open Js_of_ocaml_lwt.XmlHttpRequest in
+  let headers =
+    match token with
+    | None -> []
+    | Some token -> [ ("Authorization", "Bearer " ^ token) ]
+  in
+  let contents =
+    `Blob (File.blob_from_any ~contentType:"image/png" [ `arrayBuffer x ])
+  in
+  perform_raw_url ~headers ~contents ~override_method:`PUT !/url
+
 let raw_post_with_token ?ifmatch ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
@@ -126,6 +138,8 @@ module Api = struct
 
   let put ~ifmatch e u x =
     raw_put_with_token ~ifmatch ~token:(get_token u) (e.to_string x) e.path
+
+  let put_blob e u x = raw_put_blob_with_token ~token:(get_token u) x e.path
 
   let post ?ifmatch e u x =
     raw_post_with_token ?ifmatch ~token:(get_token u) (e.to_string_post x)
