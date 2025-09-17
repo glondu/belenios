@@ -640,6 +640,51 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
           let* x = Public_archive.get_roots s uuid in
           return_json 200 (string_of_roots x)
       | _ -> method_not_allowed)
+  | [ "logo" ] -> (
+      let set_logo e_logo =
+        match metadata.e_sealed with
+        | Some true -> forbidden
+        | _ ->
+            let@ x, set = Storage.update s (Election (uuid, Metadata)) in
+            let* () =
+              match Lopt.get_value x with
+              | Some x -> set Value { x with e_logo }
+              | None -> (
+                  let@ x, set = Storage.update s (Election (uuid, Draft)) in
+                  match Lopt.get_value x with
+                  | Some (Draft (v, x)) ->
+                      let se_metadata = { x.se_metadata with e_logo } in
+                      set Value (Draft (v, { x with se_metadata }))
+                  | None -> Lwt.return_unit)
+            in
+            ok
+      in
+      match method_ with
+      | `GET ->
+          let@ () = handle_generic_error in
+          let@ logo cont =
+            match metadata.e_logo with None -> not_found | Some x -> cont x
+          in
+          let@ content cont =
+            match Base64.decode logo with
+            | Ok x -> cont x
+            | Error _ -> not_found
+          in
+          return_generic { mime = "image/png"; content }
+      | `PUT ->
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_generic_error in
+          let@ logo = body.run Fun.id in
+          if String.length logo <= 10240 then
+            match Base64.encode logo with
+            | Ok x -> set_logo (Some x)
+            | Error _ -> bad_request
+          else request_entity_too_large
+      | `DELETE ->
+          let@ _ = with_administrator token metadata in
+          let@ () = handle_generic_error in
+          set_logo None
+      | _ -> method_not_allowed)
   | _ -> not_found
 
 let dispatch s ~token ~ifmatch endpoint method_ body =

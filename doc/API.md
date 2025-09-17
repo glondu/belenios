@@ -126,6 +126,11 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> json
 
+## `elections/$UUID/logo`
+
+### `GET`: unit -> image/png (anybody)
+### `PUT`: image/png -> unit (administrator)
+
 ## `elections/$UUID/trustees` (anybody)
 
 ### `GET`: unit -> 'a trustees

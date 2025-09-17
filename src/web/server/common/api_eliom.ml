@@ -61,6 +61,13 @@ module Api_result = Eliom_mkreg.Make (struct
           Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
         in
         Lwt.return @@ Ocsigen_response.make ~body response
+    | `Generic x ->
+        let headers = Cohttp.Header.add headers "content-type" x.mime in
+        let* response, body =
+          Cohttp_lwt_unix.Server.respond_string ~headers ~body:x.content
+            ~status:`OK ()
+        in
+        Lwt.return @@ Ocsigen_response.make ~body response
 end)
 
 module Make () = struct

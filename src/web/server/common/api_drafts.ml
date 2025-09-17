@@ -200,6 +200,7 @@ let post_drafts account s draft =
       e_booth_version = None;
       e_billing_request = None;
       e_sealed = None;
+      e_logo = None;
     }
   in
   let se_questions =

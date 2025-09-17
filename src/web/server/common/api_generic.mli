@@ -28,10 +28,18 @@ val invalidate_token : string -> unit
 
 exception Error of error
 
-type result = [ `Json of int * string | `Bel of string | `Sealing_log of string ]
+type generic = { mime : string; content : string }
+
+type result =
+  [ `Json of int * string
+  | `Bel of string
+  | `Sealing_log of string
+  | `Generic of generic ]
+
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 val return_json : int -> string -> result Lwt.t
+val return_generic : generic -> result Lwt.t
 val ok : result Lwt.t
 val bad_request : result Lwt.t
 val unauthorized : result Lwt.t
@@ -39,6 +47,7 @@ val forbidden : result Lwt.t
 val not_found : result Lwt.t
 val method_not_allowed : result Lwt.t
 val precondition_failed : result Lwt.t
+val request_entity_too_large : result Lwt.t
 val conflict : result Lwt.t
 
 val handle_ifmatch :

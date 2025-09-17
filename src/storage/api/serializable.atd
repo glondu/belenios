@@ -68,6 +68,7 @@ type metadata = {
   ?booth_version : int option;
   ?billing_request : string option;
   ?sealed : bool option;
+  ?logo : string option;
 } <ocaml field_prefix="e_">
 
 type extended_record = {

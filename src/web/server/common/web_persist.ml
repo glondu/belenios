@@ -60,6 +60,7 @@ let empty_metadata =
     e_booth_version = None;
     e_billing_request = None;
     e_sealed = None;
+    e_logo = None;
   }
 
 let get_election_metadata s uuid =

@@ -60,10 +60,18 @@ let () =
 
 exception Error of Belenios_web_api.error
 
-type result = [ `Json of int * string | `Bel of string | `Sealing_log of string ]
+type generic = { mime : string; content : string }
+
+type result =
+  [ `Json of int * string
+  | `Bel of string
+  | `Sealing_log of string
+  | `Generic of generic ]
+
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 let return_json code x = Lwt.return @@ `Json (code, x)
+let return_generic x = Lwt.return @@ `Generic x
 let ok = return_json 200 "{}"
 let bad_request = return_json 400 {|"Bad Request"|}
 let unauthorized = return_json 401 {|"Unauthorized"|}
@@ -72,6 +80,7 @@ let not_found = return_json 404 {|"Not Found"|}
 let method_not_allowed = return_json 405 {|"Method Not Allowed"|}
 let precondition_failed = return_json 412 {|"Precondition Failed"|}
 let conflict = return_json 409 {|"Conflict"|}
+let request_entity_too_large = return_json 413 {|"Request Entity Too Large"|}
 let service_unavailable = return_json 503 {|"Service Unavailable"|}
 
 let handle_ifmatch ifmatch current cont =
