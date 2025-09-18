@@ -31,7 +31,9 @@ function VotePage({
   currentStep,
   children,
 }) {
-  React.useEffect(() => { belenios.setLogo(electionObject.uuid); });
+  React.useEffect(() => {
+    belenios.setLogo(electionObject.uuid);
+  });
   return e(
     "div",
     {
