@@ -1,11 +1,20 @@
 3.2~dev
 =======
 
+ * Command-line tool:
+   + Add "archive pull"
  * Web server:
+   + Add support for per-election logo
+   + Remove direct download of full election archive (its content is
+     accessible via the API and with "belenios-tool archive pull")
    + Add support for external send_message service
+   + Make voter address optional
    + Add send-message endpoints to API
    + Add support for encoding recipient in bouncing address
    + Possibly add Feedback-ID header to outbound e-mails
+   + Add support for a new "Belenios Connect" authentication protocol
+   + Document authentication protocols
+   + Change and document billing protocol
  * Monitoring:
    + Randomize User-Agent in monitor_elections.py
 
