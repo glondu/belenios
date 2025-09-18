@@ -138,12 +138,7 @@ let set_content_with_br id x =
   let$ e = document##getElementById (Js.string id) in
   append_with_br e x
 
-let clear_content (e : #Dom.node Js.t) =
-  while Js.to_bool e##hasChildNodes do
-    let$ x = e##.firstChild in
-    let _ = e##removeChild x in
-    ()
-  done
+let clear_content (e : #Dom.node Js.t) = e##.innerHTML := Js.string ""
 
 let clear_content_by_id id =
   let$ e = document##getElementById (Js.string id) in
