@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (நீங்கள் அதை மறந்துவிட்டால், எடுத்துக்காட்டாக)."
 
-#: src/web/common/pages_common.ml:233
+#: src/web/common/pages_common.ml:236
 msgid " A confirmation e-mail has been sent to you."
 msgstr ""
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:234
 msgid " anytime during the election."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:223
 msgid " as user "
 msgstr ""
 
@@ -43,11 +43,11 @@ msgstr " வாக்குப்பதிவு (கள்) ஏற்றுக�
 msgid " ballot(s) have been accepted."
 msgstr " வாக்குப்பதிவு (கள்) ஏற்றுக்கொள்ளப்பட்டுள்ளன."
 
-#: src/web/clients/election/home.ml:387
+#: src/web/clients/election/home.ml:391
 msgid " for more information."
 msgstr " மேலும் தகவலுக்கு."
 
-#: src/web/common/pages_common.ml:222
+#: src/web/common/pages_common.ml:225
 msgid " has been accepted."
 msgstr ""
 
@@ -59,36 +59,36 @@ msgstr " உயர்த்தப்பட்டுள்ளது."
 msgid " in the following box: "
 msgstr ""
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:242
 msgid " is rejected, because "
 msgstr ""
 
-#: src/web/clients/election/home.ml:347 src/web/clients/election/home.ml:316
+#: src/web/clients/election/home.ml:351 src/web/clients/election/home.ml:320
 msgid "%d blank ballot(s)"
 msgstr "%d வெற்று வாக்குச்சீட்டு (கள்)"
 
-#: src/web/clients/election/home.ml:411 src/web/clients/election/home.ml:323
+#: src/web/clients/election/home.ml:415 src/web/clients/election/home.ml:327
 msgid "%d invalid ballot(s)"
 msgstr "%d தவறான வாக்குப்பதிவு (கள்)"
 
-#: src/web/clients/election/home.ml:191
+#: src/web/clients/election/home.ml:195
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 "தேர்தல் முடிவை மறைகுறியாக்க பின்வரும் %d அறங்காவலர்களின் [பொது விசைகள்] %d தேவைப்படுகிறது:"
 
-#: src/web/clients/election/home.ml:341 src/web/clients/election/home.ml:310
+#: src/web/clients/election/home.ml:345 src/web/clients/election/home.ml:314
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d செல்லுபடியாகும் (வெற்று அல்லாத) வாக்குப்பதிவு (கள்)"
 
-#: src/web/clients/election/home.ml:342 src/web/clients/election/home.ml:311
+#: src/web/clients/election/home.ml:346 src/web/clients/election/home.ml:315
 msgid "%d valid ballot(s)"
 msgstr "%d சரியான வாக்குச்சீட்டு (கள்)"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:143
 msgid "(available in the "
 msgstr "(கிடைக்கிறது "
 
-#: src/web/clients/election/advanced.ml:146
+#: src/web/clients/election/advanced.ml:145
 msgid "), or any compatible booth."
 msgstr "), அல்லது ஏதேனும் இணக்கமான சாவடி."
 
@@ -96,18 +96,18 @@ msgstr "), அல்லது ஏதேனும் இணக்கமான ச
 msgid ", or "
 msgstr ", அல்லது "
 
-#: src/web/clients/election/home.ml:375
+#: src/web/clients/election/home.ml:379
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "ஒரு காண்டோர்செட் வெற்றியாளர் ஒரு வேட்பாளர், இது மற்ற அனைத்து வேட்பாளர்களையும் விட விரும்பப்படுகிறது."
 
-#: src/web/clients/election/home.ml:419
+#: src/web/clients/election/home.ml:423
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "இரண்டு வேட்பாளர்களுக்கு ஒரே முன்னுரிமை ஆணை வழங்கப்பட்டிருந்தால் அல்லது ஒரு தரவரிசை காணவில்லை என்றால் ஒரு வாக்குச்சீட்டு "
 "தவறானது."
 
-#: src/web/clients/election/advanced.ml:149
+#: src/web/clients/election/advanced.ml:148
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 "மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டின் விவரக்குறிப்பு மூலங்களிலும் கிடைக்கிறது."
@@ -116,7 +116,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr "சரிபார்ப்பு குறியீடு %s க்கு அனுப்பப்பட்டுள்ளது."
 
-#: src/web/clients/election/home.ml:264
+#: src/web/clients/election/home.ml:268
 msgid "About this election"
 msgstr "இந்த தேர்தல் பற்றி"
 
@@ -124,7 +124,7 @@ msgstr "இந்த தேர்தல் பற்றி"
 msgid "Accepted ballots"
 msgstr "ஏற்றுக்கொள்ளப்பட்ட வாக்குகள்"
 
-#: src/web/clients/election/home.ml:329
+#: src/web/clients/election/home.ml:333
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "பெரும்பான்மை தீர்ப்பின்படி, தரவரிசை:"
 
@@ -136,7 +136,7 @@ msgstr "தேர்தல்களை நிர்வகிக்கவும�
 msgid "Administer this election"
 msgstr "இந்த தேர்தலை நிர்வகிக்கவும்"
 
-#: src/web/clients/election/home.ml:89
+#: src/web/clients/election/home.ml:93
 msgid "Administrator"
 msgstr "நிர்வாகி"
 
@@ -144,15 +144,15 @@ msgstr "நிர்வாகி"
 msgid "Advanced mode"
 msgstr "மேம்பட்ட பயன்முறை"
 
-#: src/web/clients/election/home.ml:162
+#: src/web/clients/election/home.ml:166
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr "முடிவை மறைகுறியாக்க பின்வரும் அறங்காவலர்கள் (சரிபார்ப்பு விசைகள்) தேவை:"
 
-#: src/web/clients/election/advanced.ml:114
+#: src/web/clients/election/advanced.ml:113
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "மாற்றாக, உங்கள் வாக்குச்சீட்டைக் கொண்ட ஒரு கோப்பையும் பதிவேற்றலாம்:"
 
-#: src/web/clients/election/home.ml:741
+#: src/web/clients/election/home.ml:745
 msgid "Audit data not available."
 msgstr ""
 
@@ -170,7 +170,7 @@ msgstr "அங்கீகரிக்கவும்"
 msgid "Authenticate with %s"
 msgstr "%s உடன் அங்கீகரிக்கவும்"
 
-#: src/web/server/common/mails_voter.ml:354
+#: src/web/server/common/mails_voter.ml:361
 msgid "Authentication"
 msgstr "ஏற்பு"
 
@@ -192,7 +192,7 @@ msgstr "ஏற்பு சாத்தியமற்றது"
 msgid "Authentication is impossible."
 msgstr "ஏற்பு சாத்தியமற்றது."
 
-#: src/web/clients/election/advanced.ml:158
+#: src/web/clients/election/advanced.ml:157
 msgid "Back to election home"
 msgstr "தேர்தல் வீட்டிற்கு திரும்பவும்"
 
@@ -204,15 +204,15 @@ msgstr "மோசமான மின்னஞ்சல் முகவரி!"
 msgid "Bad security code!"
 msgstr "மோசமான பாதுகாப்பு குறியீடு!"
 
-#: src/web/server/common/mails_voter.ml:347
+#: src/web/server/common/mails_voter.ml:354
 msgid "Best regards,"
 msgstr ""
 
-#: src/web/clients/election/home.ml:479
+#: src/web/clients/election/home.ml:483
 msgid "Blank vote"
 msgstr "வெற்று வாக்கு"
 
-#: src/web/clients/election/advanced.ml:153
+#: src/web/clients/election/advanced.ml:152
 msgid "Booths available on this server:"
 msgstr "இந்த சேவையகத்தில் சாவடிகள் கிடைக்கின்றன:"
 
@@ -240,16 +240,16 @@ msgstr ""
 msgid "Computed fingerprint:"
 msgstr "கணக்கிடப்பட்ட கைரேகை:"
 
-#: src/web/clients/election/home.ml:205
+#: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr "நற்சான்றிதழ்கள் அதிகாரம்"
 
-#: src/web/clients/election/home.ml:214
+#: src/web/clients/election/home.ml:218
 msgid "Credentials fingerprint"
 msgstr "நற்சான்றிதழ்கள் கைரேகை"
 
-#: src/web/server/common/mails_voter.ml:327
-#. src/web/server/common/mails_voter.ml:276
+#: src/web/server/common/mails_voter.ml:334
+#. src/web/server/common/mails_voter.ml:283
 msgid "Dear %s,"
 msgstr ""
 
@@ -259,7 +259,7 @@ msgstr ""
 msgid "E-mail address:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:80
+#: src/web/clients/election/home.ml:84
 msgid "Election fingerprint"
 msgstr "தேர்தல் கைரேகை"
 
@@ -267,7 +267,7 @@ msgstr "தேர்தல் கைரேகை"
 msgid "Election home"
 msgstr "தேர்தல் வீடு"
 
-#: src/web/clients/election/home.ml:75
+#: src/web/clients/election/home.ml:79
 msgid "Election identifier"
 msgstr "தேர்தல் அடையாளங்காட்டி"
 
@@ -279,7 +279,7 @@ msgstr ""
 msgid "Encrypted ballot in JSON format"
 msgstr "சாதொபொகு வடிவத்தில் மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டு"
 
-#: src/web/clients/election/main.ml:65
+#: src/web/clients/election/main.ml:70
 msgid "Error"
 msgstr ""
 
@@ -291,19 +291,19 @@ msgstr "வாக்குச்சீட்டுகளை ஏற்றும�
 msgid "Expected fingerprint:"
 msgstr "எதிர்பார்க்கப்படும் கைரேகை:"
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:246
 msgid "FAIL!"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:118
+#: src/web/clients/election/advanced.ml:117
 msgid "File:"
 msgstr "கோப்பு:"
 
-#: src/web/clients/election/home.ml:254
+#: src/web/clients/election/home.ml:258
 msgid "Final fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:242
+#: src/web/clients/election/home.ml:246
 msgid "Fingerprint of the encrypted tally"
 msgstr "மறைகுறியாக்கப்பட்ட எண்ணிக்கையின் கைரேகை"
 
@@ -316,11 +316,11 @@ msgid "Get the source code"
 msgstr ""
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:258
+#. src/web/common/pages_common.ml:261
 msgid "Go back to election"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:203
+#: src/web/server/common/mails_voter.ml:210
 msgid "If the above link does not work:"
 msgstr "மேலே உள்ள இணைப்பு வேலை செய்யவில்லை என்றால்:"
 
@@ -328,26 +328,26 @@ msgstr "மேலே உள்ள இணைப்பு வேலை செய�
 msgid "If you want to vote, you must "
 msgstr "நீங்கள் வாக்களிக்க விரும்பினால், நீங்கள் வேண்டும் "
 
-#: src/web/clients/election/home.ml:447
+#: src/web/clients/election/home.ml:451
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "எங்கள் செயல்பாட்டில், பல வேட்பாளர்கள் தேர்ந்தெடுக்கப்படவோ அல்லது அகற்றவோ தயாராக இருக்கும்போது ஒரே எண்ணிக்கையிலான "
 "வாக்குகள் இருக்கும்போது, தேர்தலில் வேட்பாளர்கள் பட்டியலிடப்பட்ட உத்தரவைப் பின்பற்றுகிறோம்."
 
-#: src/web/clients/election/home.ml:553
+#: src/web/clients/election/home.ml:557
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 "இது சமர்ப்பிக்கப்பட்ட அனைத்து வாக்குச்சீட்டுகளையும் சீரற்ற வரிசையில் தெளிவாகக் கொண்டுள்ளது."
 
-#: src/web/clients/election/home.ml:534
+#: src/web/clients/election/home.ml:538
 msgid "It is up to you to apply your favorite counting method."
 msgstr "உங்களுக்கு பிடித்த எண்ணும் முறையைப் பயன்படுத்துவது உங்களுடையது."
 
-#: src/web/clients/election/home.ml:666
+#: src/web/clients/election/home.ml:670
 msgid "It will open at %s (time left: %s)."
 msgstr ""
 
-#: src/web/clients/election/home.ml:550
+#: src/web/clients/election/home.ml:554
 msgid "JSON result"
 msgstr "சாதொபொகு முடிவு"
 
@@ -370,11 +370,11 @@ msgstr "புகுபதிகை"
 msgid "Log in with %s"
 msgstr "%s உடன் உள்நுழைக"
 
-#: src/web/clients/election/home.ml:458
+#: src/web/clients/election/home.ml:462
 msgid "Look at the raw events for more details."
 msgstr "மேலும் விவரங்களுக்கு மூல நிகழ்வுகளைப் பாருங்கள்."
 
-#: src/web/clients/election/home.ml:442
+#: src/web/clients/election/home.ml:446
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "எச்.டி.வி.யின் பல வகைகள் உள்ளன, எடுத்துக்காட்டாக உறவுகளை எவ்வாறு உடைப்பது என்பதைப் பொறுத்து."
@@ -387,35 +387,35 @@ msgstr "ஒருவேளை குக்கீகள் தடுக்கப�
 msgid "Not found"
 msgstr "கண்டுபிடிக்கப்படவில்லை"
 
-#: src/web/server/common/mails_voter.ml:99
+#: src/web/server/common/mails_voter.ml:107
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 "வாக்களிக்கத் தொடங்க உங்களுக்கு ஒரு நற்சான்றிதழ் தேவை என்பதை நினைவில் கொள்க."
 
-#: src/web/clients/election/home.ml:624
+#: src/web/clients/election/home.ml:628
 msgid "Number of accepted ballots: "
 msgstr "ஏற்றுக்கொள்ளப்பட்ட வாக்குகளின் எண்ணிக்கை: "
 
-#: src/web/clients/election/home.ml:99
+#: src/web/clients/election/home.ml:103
 msgid "Number of voters"
 msgstr "வாக்காளர்களின் எண்ணிக்கை"
 
-#: src/web/server/common/mails_voter.ml:220
-#. src/web/server/common/mails_voter.ml:115
+#: src/web/server/common/mails_voter.ml:227
+#. src/web/server/common/mails_voter.ml:123
 msgid "Number of votes:"
 msgstr "வாக்குகளின் எண்ணிக்கை:"
 
-#: src/web/server/common/mails_voter.ml:227
-#. src/web/server/common/mails_voter.ml:126
+#: src/web/server/common/mails_voter.ml:234
+#. src/web/server/common/mails_voter.ml:134
 msgid "Only the last vote counts."
 msgstr "கடைசி வாக்கு மட்டுமே கணக்கிடப்படுகிறது."
 
-#: src/web/server/common/mails_voter.ml:120
+#: src/web/server/common/mails_voter.ml:128
 msgid "Page of the election:"
 msgstr "தேர்தலின் பக்கம்:"
 
 #: src/web/server/common/pages_common.ml:382
-#. src/web/server/common/mails_voter.ml:108
+#. src/web/server/common/mails_voter.ml:116
 msgid "Password:"
 msgstr "கடவுச்சொல்:"
 
@@ -427,7 +427,7 @@ msgstr ""
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:91
+#: src/web/server/common/mails_voter.ml:99
 msgid "Please find below your login and password for the election"
 msgstr "தேர்தலுக்கான உங்கள் உள்நுழைவு மற்றும் கடவுச்சொல்லை கீழே காணலாம்"
 
@@ -445,11 +445,11 @@ msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 "உங்கள் மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டை சாதொபொகு வடிவத்தில் பின்வரும் பெட்டியில் ஒட்டவும்:"
 
-#: src/web/server/common/mails_voter.ml:189
+#: src/web/server/common/mails_voter.ml:196
 msgid "Please vote here using your personal link:"
 msgstr "உங்கள் தனிப்பட்ட இணைப்பைப் பயன்படுத்தி இங்கே வாக்களிக்கவும்:"
 
-#: src/web/clients/election/advanced.ml:260
+#: src/web/clients/election/advanced.ml:259
 msgid "Please wait while your ballot is being processed..."
 msgstr "உங்கள் வாக்குச்சீட்டு செயலாக்கப்படும்போது காத்திருங்கள் ..."
 
@@ -457,21 +457,21 @@ msgstr "உங்கள் வாக்குச்சீட்டு செய�
 msgid "Powered by "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:251
+#: src/web/clients/election/advanced.ml:250
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:198
+#: src/web/clients/election/advanced.ml:197
 msgid "Processing ballot"
 msgstr "வாக்குச்சீட்டை செயலாக்குகிறது"
 
-#: src/web/server/common/mails_voter.ml:206
+#: src/web/server/common/mails_voter.ml:213
 msgid "Public page of the election:"
 msgstr "தேர்தலின் பொது பக்கம்:"
 
-#: src/web/clients/election/home.ml:429
+#: src/web/clients/election/home.ml:433
 msgid "Raw events"
 msgstr "மூல நிகழ்வுகள்"
 
@@ -483,15 +483,15 @@ msgstr "திசை திருப்புதல்"
 msgid "Restricted mode"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:310
+#: src/web/server/common/mails_voter.ml:317
 msgid "Results will be published on the election page"
 msgstr "முடிவுகள் தேர்தல் பக்கத்தில் வெளியிடப்படும்"
 
-#: src/web/clients/election/home.ml:116
+#: src/web/clients/election/home.ml:120
 msgid "Sealing log fingerprint"
 msgstr ""
 
-#: src/web/clients/election/home.ml:735
+#: src/web/clients/election/home.ml:739
 msgid "See accepted ballots"
 msgstr "ஏற்றுக்கொள்ளப்பட்ட வாக்குகளைப் பார்க்கவும்"
 
@@ -499,31 +499,31 @@ msgstr "ஏற்றுக்கொள்ளப்பட்ட வாக்க�
 msgid "Set"
 msgstr "கணம்"
 
-#: src/web/clients/election/home.ml:380
+#: src/web/clients/election/home.ml:384
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "காண்டோர்செட் வெற்றியாளர் இல்லாதபோது எந்த வேட்பாளரைத் தேர்ந்தெடுப்பது என்பதை தீர்மானிக்க பல நுட்பங்கள் உள்ளன."
 
-#: src/web/clients/election/home.ml:713
+#: src/web/clients/election/home.ml:717
 msgid "Start"
 msgstr "தொடங்கு"
 
-#: src/web/clients/election/advanced.ml:107
+#: src/web/clients/election/advanced.ml:106
 #. src/web/clients/election/advanced.ml:69
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:165
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by copy/paste"
 msgstr "நகல்/பேச்ட் மூலம் சமர்ப்பிக்கவும்"
 
-#: src/web/clients/election/advanced.ml:167
+#: src/web/clients/election/advanced.ml:166
 msgid "Submit by file"
 msgstr "கோப்பு மூலம் சமர்ப்பிக்கவும்"
 
-#: src/web/clients/election/home.ml:454
+#: src/web/clients/election/home.ml:458
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "அத்தகைய வேட்பாளர்கள் தேர்ந்தெடுக்கப்பட்டால் \"டைவின்\" என்றும், அவர்கள் தோற்றால் \"டைலோச்\" என்றும் "
@@ -533,27 +533,27 @@ msgstr ""
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:239
 msgid "Thank you for voting!"
 msgstr ""
 
-#: src/web/clients/election/home.ml:392
+#: src/web/clients/election/home.ml:396
 msgid "The Schulze winners are:"
 msgstr "சுல்ச் வெற்றியாளர்கள்:"
 
-#: src/web/clients/election/home.ml:463
+#: src/web/clients/election/home.ml:467
 msgid "The Single Transferable Vote winners are:"
 msgstr "மாற்றத்தக்க வாக்கு வெற்றியாளர்கள்:"
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:663
 msgid "The election is being prepared. Please come back later."
 msgstr ""
 
-#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
+#: src/web/clients/election/home.ml:690 src/web/clients/election/home.ml:688
 msgid "The election is closed and being tallied."
 msgstr "தேர்தல் மூடப்பட்டு உயர்த்தப்பட்டுள்ளது."
 
-#: src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:681
 msgid "The election will close at %s (time left: %s)."
 msgstr ""
 
@@ -565,11 +565,11 @@ msgstr "கைரேகைகள் வேறுபடுகின்றன!"
 msgid "The fingerprints match!"
 msgstr "கைரேகைகள் பொருந்துகின்றன!"
 
-#: src/web/clients/election/home.ml:545
+#: src/web/clients/election/home.ml:549
 msgid "The raw results can be viewed in the "
 msgstr "மூல முடிவுகளை காணலாம் "
 
-#: src/web/clients/election/home.ml:439
+#: src/web/clients/election/home.ml:443
 msgid "There has been at least one tie."
 msgstr "குறைந்தது ஒரு டை உள்ளது."
 
@@ -582,67 +582,67 @@ msgid "This election does not exist. This may happen for elections that have not
 msgstr ""
 "இந்த தேர்தல் இல்லை. இதுவரை திறக்கப்படாத அல்லது நீக்கப்பட்ட தேர்தல்களுக்கு இது நிகழலாம்."
 
-#: src/web/clients/election/home.ml:687
+#: src/web/clients/election/home.ml:691
 msgid "This election has been tallied."
 msgstr "இந்த தேர்தல் உயர்த்தப்பட்டுள்ளது."
 
-#: src/web/clients/election/home.ml:688
+#: src/web/clients/election/home.ml:692
 msgid "This election is archived."
 msgstr "இந்த தேர்தல் காப்பகப்படுத்தப்பட்டுள்ளது."
 
-#: src/web/clients/election/home.ml:669
+#: src/web/clients/election/home.ml:673
 msgid "This election is currently closed."
 msgstr "இந்த தேர்தல் தற்போது மூடப்பட்டுள்ளது."
 
-#: src/web/common/pages_common.ml:197
+#: src/web/common/pages_common.ml:200
 msgid "This is a revote."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:300
+#: src/web/server/common/mails_voter.ml:307
 msgid "This vote replaces any previous vote."
 msgstr "இந்த வாக்கு முந்தைய வாக்குகளை மாற்றுகிறது."
 
-#: src/web/clients/election/home.ml:365 src/web/clients/election/home.ml:303
+#: src/web/clients/election/home.ml:369 src/web/clients/election/home.ml:307
 msgid "Tie:"
 msgstr "டை:"
 
-#: src/web/server/common/mails_voter.ml:198
+#: src/web/server/common/mails_voter.ml:205
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "வாக்களிக்க, உங்களுக்கு கடவுச்சொல் தேவைப்படும், இது ஒரு தனி மின்னஞ்சலில் அனுப்பப்படும்."
 
-#: src/web/server/common/mails_voter.ml:80
+#: src/web/server/common/mails_voter.ml:87
 msgid "To get more information, please contact:"
 msgstr "மேலும் தகவலைப் பெற, தயவுசெய்து தொடர்பு கொள்ளவும்:"
 
-#: src/web/clients/election/home.ml:602
+#: src/web/clients/election/home.ml:606
 msgid "Total weight of accepted ballots:"
 msgstr "ஏற்றுக்கொள்ளப்பட்ட வாக்குகளின் மொத்த எடை:"
 
-#: src/web/clients/election/home.ml:229
+#: src/web/clients/election/home.ml:233
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "அறங்காவலர்கள் பின்வரும் வரிசையில் வாக்குகளை மாற்றினர்:"
 
-#: src/web/clients/election/home.ml:589
+#: src/web/clients/election/home.ml:593
 msgid "Unsupported question type"
 msgstr "ஆதரிக்கப்படாத கேள்வி வகை"
 
-#: src/web/server/common/mails_voter.ml:334
+#: src/web/server/common/mails_voter.ml:341
 msgid "Use the following code:"
 msgstr "பின்வரும் குறியீட்டைப் பயன்படுத்தவும்:"
 
 #: src/web/server/common/pages_common.ml:345
 #. src/web/server/common/pages_common.ml:277
-#. src/web/server/common/mails_voter.ml:210
-#. src/web/server/common/mails_voter.ml:104
+#. src/web/server/common/mails_voter.ml:217
+#. src/web/server/common/mails_voter.ml:112
 msgid "Username:"
 msgstr ""
 
-#: src/web/clients/election/home.ml:104
+#: src/web/clients/election/home.ml:108
 msgid "Voter list fingerprint"
 msgstr "வாக்காளர் பட்டியல் கைரேகை"
 
-#: src/web/clients/election/home.ml:127
+#: src/web/clients/election/home.ml:131
 msgid "Voters' total weight"
 msgstr "வாக்காளர்களின் மொத்த எடை"
 
@@ -650,16 +650,16 @@ msgstr "வாக்காளர்களின் மொத்த எடை"
 msgid "Warning:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:342
+#: src/web/server/common/mails_voter.ml:349
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:177
+#: src/web/server/common/mails_voter.ml:184
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "எச்சரிக்கை: இந்த மின்னஞ்சல் தனிப்பட்ட மற்றும் ரகசியமான பொருளைக் கொண்டுள்ளது, மேலும் அவை கடத்தப்படக்கூடாது."
 
-#: src/web/clients/election/home.ml:384
+#: src/web/clients/election/home.ml:388
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 "நாங்கள் இங்கே சூல்ச் முறையைப் பயன்படுத்துகிறோம், நாங்கள் வாக்காளர்களைக் குறிப்பிடுகிறோம் "
@@ -668,17 +668,17 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:242
+#: src/web/clients/election/advanced.ml:241
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "அறிவுள்ள வாக்கு டிராக்கர் %s மூலம் வாக்குச்சீட்டை சமர்ப்பிக்க உள்ளீர்கள்."
 
-#: src/web/server/common/mails_voter.ml:226
-#. src/web/server/common/mails_voter.ml:125
+#: src/web/server/common/mails_voter.ml:233
+#. src/web/server/common/mails_voter.ml:133
 msgid "You are allowed to vote several times."
 msgstr "நீங்கள் பல முறை வாக்களிக்க அனுமதிக்கப்படுகிறீர்கள்."
 
-#: src/web/server/common/mails_voter.ml:182
+#: src/web/server/common/mails_voter.ml:189
 msgid "You are listed as a voter for the election"
 msgstr "நீங்கள் தேர்தலுக்கான வாக்காளராக பட்டியலிடப்பட்டுள்ளீர்கள்"
 
@@ -694,19 +694,19 @@ msgstr "உங்களால் முடியும் "
 msgid "You can also "
 msgstr "நீங்களும் செய்யலாம் "
 
-#: src/web/clients/election/home.ml:627
+#: src/web/clients/election/home.ml:631
 msgid "You can also download the "
 msgstr "நீங்கள் பதிவிறக்கம் செய்யலாம் "
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:232
 msgid "You can check its presence in the "
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:304
+#: src/web/server/common/mails_voter.ml:311
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "வாக்குப் பெட்டியில் அதன் இருப்பை நீங்கள் சரிபார்க்கலாம், அணுகலாம்"
 
-#: src/web/clients/election/advanced.ml:141
+#: src/web/clients/election/advanced.ml:140
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 "கட்டளை-வரி கருவியைப் பயன்படுத்தி மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டை உருவாக்கலாம் "
@@ -719,40 +719,40 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr "நீங்கள் இப்போது உள்நுழைய முடியாது. தயவுசெய்து முயற்சிக்கவும்."
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:251
 msgid "Your ballot for "
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:245
+#: src/web/server/common/mails_voter.ml:254
 msgid "Your credential for election %s"
 msgstr "தேர்தல் %s உங்கள் நற்சான்றிதழ்"
 
-#: src/web/server/common/mails_voter.ml:214
+#: src/web/server/common/mails_voter.ml:221
 msgid "Your credential:"
 msgstr "உங்கள் நற்சான்றிதழ்:"
 
-#: src/web/server/common/mails_voter.ml:331
+#: src/web/server/common/mails_voter.ml:338
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "எங்கள் பெலெனியோச் சேவையகத்துடன் அங்கீகரிக்க உங்கள் மின்னஞ்சல் முகவரி பயன்படுத்தப்பட்டுள்ளது."
 
-#: src/web/server/common/mails_voter.ml:146
+#: src/web/server/common/mails_voter.ml:156
 msgid "Your password for election %s"
 msgstr "தேர்தலுக்கான உங்கள் கடவுச்சொல் %s"
 
-#: src/web/server/common/mails_voter.ml:292
+#: src/web/server/common/mails_voter.ml:299
 msgid "Your smart ballot tracker is"
 msgstr "உங்கள் அறிவுள்ள வாக்கு டிராக்கர்"
 
-#: src/web/common/pages_common.ml:226
+#: src/web/common/pages_common.ml:229
 msgid "Your smart ballot tracker is "
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:279
+#: src/web/server/common/mails_voter.ml:286
 msgid "Your vote for election"
 msgstr "தேர்தலுக்கான உங்கள் வாக்கு"
 
-#: src/web/server/common/mails_voter.ml:273
+#: src/web/server/common/mails_voter.ml:280
 msgid "Your vote for election %s"
 msgstr "தேர்தலுக்கான உங்கள் வாக்கு %s"
 
@@ -760,11 +760,11 @@ msgstr "தேர்தலுக்கான உங்கள் வாக்க�
 msgid "Your vote was not recorded!"
 msgstr "உங்கள் வாக்கு பதிவு செய்யப்படவில்லை!"
 
-#: src/web/server/common/mails_voter.ml:290 src/web/common/pages_common.ml:206
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:217
+#: src/web/common/pages_common.ml:220
 msgid "ballot box"
 msgstr ""
 
@@ -776,11 +776,11 @@ msgstr "உங்கள் கடவுச்சொல்லை மாற்ற�
 msgid "create an account"
 msgstr "ஒரு கணக்கை உருவாக்கவும்"
 
-#: src/web/clients/election/advanced.ml:128
+#: src/web/clients/election/advanced.ml:127
 msgid "direct link"
 msgstr "நேரடி இணைப்பு"
 
-#: src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:293
 msgid "has been recorded."
 msgstr "பதிவு செய்யப்பட்டுள்ளது."
 
@@ -792,7 +792,7 @@ msgstr "அளவுருக்கள்"
 msgid "public data"
 msgstr "பொது தரவு"
 
-#: src/web/clients/election/home.ml:612
+#: src/web/clients/election/home.ml:616
 msgid "raw result"
 msgstr "மூல முடிவு"
 
@@ -800,7 +800,7 @@ msgstr "மூல முடிவு"
 msgid "some proofs failed verification"
 msgstr "சில சான்றுகள் சரிபார்ப்பில் தோல்வியுற்றன"
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:144
 msgid "sources"
 msgstr "மூலங்கள்"
 
@@ -812,7 +812,7 @@ msgstr "ஆரம்பத்தில் இருந்தே தொடங்�
 msgid "terms of service"
 msgstr ""
 
-#: src/web/clients/election/home.ml:386
+#: src/web/clients/election/home.ml:390
 msgid "the Wikipedia page"
 msgstr "விக்கிபீடியா பக்கம்"
 

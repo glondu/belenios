@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
@@ -19,15 +20,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (наприклад, якщо ви забули)."
 
-#: src/web/common/pages_common.ml:233
+#: src/web/common/pages_common.ml:236
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Вам було надіслано електронний лист із підтвердженням."
 
-#: src/web/common/pages_common.ml:231
+#: src/web/common/pages_common.ml:234
 msgid " anytime during the election."
 msgstr " будь-коли під час виборів."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:223
 msgid " as user "
 msgstr " як користувач "
 
@@ -43,11 +44,11 @@ msgstr " бюлетень(-і) було прийнято та "
 msgid " ballot(s) have been accepted."
 msgstr " бюлетень(-і) було прийнято."
 
-#: src/web/clients/election/home.ml:387
+#: src/web/clients/election/home.ml:391
 msgid " for more information."
 msgstr " для додаткової інформації."
 
-#: src/web/common/pages_common.ml:222
+#: src/web/common/pages_common.ml:225
 msgid " has been accepted."
 msgstr " було прийнято."
 
@@ -59,37 +60,37 @@ msgstr " було підраховано."
 msgid " in the following box: "
 msgstr " у наступному полі: "
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:242
 msgid " is rejected, because "
 msgstr " відхилено, тому що "
 
-#: src/web/clients/election/home.ml:347 src/web/clients/election/home.ml:316
+#: src/web/clients/election/home.ml:351 src/web/clients/election/home.ml:320
 msgid "%d blank ballot(s)"
 msgstr "%d чистий бюлетень(и)"
 
-#: src/web/clients/election/home.ml:411 src/web/clients/election/home.ml:323
+#: src/web/clients/election/home.ml:415 src/web/clients/election/home.ml:327
 msgid "%d invalid ballot(s)"
 msgstr "%d недійсних бюлетень(-ів)"
 
-#: src/web/clients/election/home.ml:191
+#: src/web/clients/election/home.ml:195
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 "%d з наступних %d довірених осіб [відкриті ключі] потрібні для розшифровки "
 "результатів виборів:"
 
-#: src/web/clients/election/home.ml:341 src/web/clients/election/home.ml:310
+#: src/web/clients/election/home.ml:345 src/web/clients/election/home.ml:314
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d дійсний (непорожній) бюлетень(и)"
 
-#: src/web/clients/election/home.ml:342 src/web/clients/election/home.ml:311
+#: src/web/clients/election/home.ml:346 src/web/clients/election/home.ml:315
 msgid "%d valid ballot(s)"
 msgstr "%d дійсних бюлетенів"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:143
 msgid "(available in the "
 msgstr "(доступний у "
 
-#: src/web/clients/election/advanced.ml:146
+#: src/web/clients/election/advanced.ml:145
 msgid "), or any compatible booth."
 msgstr "), або будь-який сумісний стенд."
 
@@ -97,19 +98,19 @@ msgstr "), або будь-який сумісний стенд."
 msgid ", or "
 msgstr ", або "
 
-#: src/web/clients/election/home.ml:375
+#: src/web/clients/election/home.ml:379
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "Переможець за методом Кондорсе - кандидат, якому надають перевагу над усіма "
 "іншими кандидатами."
 
-#: src/web/clients/election/home.ml:419
+#: src/web/clients/election/home.ml:423
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Бюлетень недійсний, якщо двом кандидатам було надано однаковий порядок "
 "уподобань або якщо ранг відсутній."
 
-#: src/web/clients/election/advanced.ml:149
+#: src/web/clients/election/advanced.ml:148
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr "Специфікація зашифрованих бюлетенів також доступна в джерелах."
 
@@ -117,7 +118,7 @@ msgstr "Специфікація зашифрованих бюлетенів т�
 msgid "A verification code has been sent to %s."
 msgstr "Код підтвердження надіслано на %s."
 
-#: src/web/clients/election/home.ml:264
+#: src/web/clients/election/home.ml:268
 msgid "About this election"
 msgstr "Про ці вибори"
 
@@ -125,7 +126,7 @@ msgstr "Про ці вибори"
 msgid "Accepted ballots"
 msgstr "Прийняті бюлетені"
 
-#: src/web/clients/election/home.ml:329
+#: src/web/clients/election/home.ml:333
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Згідно з рішенням більшості, рейтинг такий:"
 
@@ -137,7 +138,7 @@ msgstr "Керувати виборами"
 msgid "Administer this election"
 msgstr "Керувати цими виборами"
 
-#: src/web/clients/election/home.ml:89
+#: src/web/clients/election/home.ml:93
 msgid "Administrator"
 msgstr "Адміністратор"
 
@@ -145,17 +146,17 @@ msgstr "Адміністратор"
 msgid "Advanced mode"
 msgstr "Розширений режим"
 
-#: src/web/clients/election/home.ml:162
+#: src/web/clients/election/home.ml:166
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 "Для розшифровки результату потрібні всі наступні довірені особи (ключі "
 "перевірки):"
 
-#: src/web/clients/election/advanced.ml:114
+#: src/web/clients/election/advanced.ml:113
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "Крім того, ви також можете завантажити файл із вашим голосуванням:"
 
-#: src/web/clients/election/home.ml:741
+#: src/web/clients/election/home.ml:745
 msgid "Audit data not available."
 msgstr "Дані аудиту недоступні."
 
@@ -163,9 +164,9 @@ msgstr "Дані аудиту недоступні."
 msgid "Audit data: "
 msgstr "Дані аудиту: "
 
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
-#: src/web/server/common/pages_common.ml:483
 msgid "Authenticate"
 msgstr "Аутентифікувати"
 
@@ -173,7 +174,7 @@ msgstr "Аутентифікувати"
 msgid "Authenticate with %s"
 msgstr "Автентифікація за допомогою %s"
 
-#: src/web/server/common/mails_voter.ml:354
+#: src/web/server/common/mails_voter.ml:361
 msgid "Authentication"
 msgstr "Аутентифікація"
 
@@ -195,7 +196,7 @@ msgstr "Автентифікація неможлива"
 msgid "Authentication is impossible."
 msgstr "Автентифікація неможлива."
 
-#: src/web/clients/election/advanced.ml:158
+#: src/web/clients/election/advanced.ml:157
 msgid "Back to election home"
 msgstr "Назад до виборчого будинку"
 
@@ -207,15 +208,15 @@ msgstr "Неправильна адреса електронної пошти!"
 msgid "Bad security code!"
 msgstr "Поганий код безпеки!"
 
-#: src/web/server/common/mails_voter.ml:347
+#: src/web/server/common/mails_voter.ml:354
 msgid "Best regards,"
 msgstr "З повагою,"
 
-#: src/web/clients/election/home.ml:479
+#: src/web/clients/election/home.ml:483
 msgid "Blank vote"
 msgstr "Протестний голос"
 
-#: src/web/clients/election/advanced.ml:153
+#: src/web/clients/election/advanced.ml:152
 msgid "Booths available on this server:"
 msgstr "Кабінки, доступні на цьому сервері:"
 
@@ -243,26 +244,26 @@ msgstr "Обчислити відбиток пальця"
 msgid "Computed fingerprint:"
 msgstr "Обчислений відбиток пальця:"
 
-#: src/web/clients/election/home.ml:205
+#: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr "Орган повноважень"
 
-#: src/web/clients/election/home.ml:214
+#: src/web/clients/election/home.ml:218
 msgid "Credentials fingerprint"
 msgstr "Відбиток облікових даних"
 
-#. src/web/server/common/mails_voter.ml:276
-#: src/web/server/common/mails_voter.ml:327
+#: src/web/server/common/mails_voter.ml:334
+#. src/web/server/common/mails_voter.ml:283
 msgid "Dear %s,"
 msgstr "Шановний(-а) %s,"
 
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
-#: src/web/server/common/pages_common.ml:512
 msgid "E-mail address:"
 msgstr "Адреса електронної пошти:"
 
-#: src/web/clients/election/home.ml:80
+#: src/web/clients/election/home.ml:84
 msgid "Election fingerprint"
 msgstr "Виборчий відбиток"
 
@@ -270,7 +271,7 @@ msgstr "Виборчий відбиток"
 msgid "Election home"
 msgstr "Виборчий будинок"
 
-#: src/web/clients/election/home.ml:75
+#: src/web/clients/election/home.ml:79
 msgid "Election identifier"
 msgstr "Виборчий ідентифікатор"
 
@@ -282,7 +283,7 @@ msgstr "Виборчий сервер"
 msgid "Encrypted ballot in JSON format"
 msgstr "Зашифрований бюлетень у форматі JSON"
 
-#: src/web/clients/election/main.ml:65
+#: src/web/clients/election/main.ml:70
 msgid "Error"
 msgstr "Помилка"
 
@@ -294,19 +295,19 @@ msgstr "Помилка під час завантаження бюлетенів
 msgid "Expected fingerprint:"
 msgstr "Очікуваний відбиток пальця:"
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:246
 msgid "FAIL!"
 msgstr "Помилка!"
 
-#: src/web/clients/election/advanced.ml:118
+#: src/web/clients/election/advanced.ml:117
 msgid "File:"
 msgstr "Файл:"
 
-#: src/web/clients/election/home.ml:254
+#: src/web/clients/election/home.ml:258
 msgid "Final fingerprint"
 msgstr "Остаточний відбиток пальця"
 
-#: src/web/clients/election/home.ml:242
+#: src/web/clients/election/home.ml:246
 msgid "Fingerprint of the encrypted tally"
 msgstr "Відбиток зашифрованого рахунку"
 
@@ -318,12 +319,12 @@ msgstr "Заборонено"
 msgid "Get the source code"
 msgstr "Отримати вихідний код"
 
-#. src/web/common/pages_common.ml:258
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:261
 msgid "Go back to election"
 msgstr "Повернутися до виборів"
 
-#: src/web/server/common/mails_voter.ml:203
+#: src/web/server/common/mails_voter.ml:210
 msgid "If the above link does not work:"
 msgstr "Якщо посилання вище не працює:"
 
@@ -331,27 +332,27 @@ msgstr "Якщо посилання вище не працює:"
 msgid "If you want to vote, you must "
 msgstr "Якщо ви хочете проголосувати, ви повинні "
 
-#: src/web/clients/election/home.ml:447
+#: src/web/clients/election/home.ml:451
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "У нашій реалізації, коли кілька кандидатів мають однакову кількість голосів, "
 "коли вони готові бути обраними або виключеними, ми дотримуємося порядку, у "
 "якому кандидати були перелічені під час виборів."
 
-#: src/web/clients/election/home.ml:553
+#: src/web/clients/election/home.ml:557
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 "Він містить усі подані бюлетені в чіткому порядку, у довільному порядку."
 
-#: src/web/clients/election/home.ml:534
+#: src/web/clients/election/home.ml:538
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Ви вирішуєте застосувати свій улюблений метод підрахунку."
 
-#: src/web/clients/election/home.ml:666
+#: src/web/clients/election/home.ml:670
 msgid "It will open at %s (time left: %s)."
 msgstr "Він відкриється о %s (залишився час: %s)."
 
-#: src/web/clients/election/home.ml:550
+#: src/web/clients/election/home.ml:554
 msgid "JSON result"
 msgstr "Результат JSON"
 
@@ -363,10 +364,10 @@ msgstr "Мова:"
 msgid "Loading..."
 msgstr "Завантаження..."
 
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
-#: src/web/server/common/pages_common.ml:482
 msgid "Log in"
 msgstr "Вхід"
 
@@ -374,11 +375,11 @@ msgstr "Вхід"
 msgid "Log in with %s"
 msgstr "Увійдіть за допомогою %s"
 
-#: src/web/clients/election/home.ml:458
+#: src/web/clients/election/home.ml:462
 msgid "Look at the raw events for more details."
 msgstr "Дивіться необроблені події, щоб дізнатися більше."
 
-#: src/web/clients/election/home.ml:442
+#: src/web/clients/election/home.ml:446
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Існує багато варіантів STV, залежно, наприклад, від того, як розірвати "
@@ -392,36 +393,36 @@ msgstr "Можливо, файли cookie заблоковані."
 msgid "Not found"
 msgstr "Не знайдено"
 
-#: src/web/server/common/mails_voter.ml:99
+#: src/web/server/common/mails_voter.ml:107
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 "Зауважте, що вам також потрібні облікові дані, надіслані окремою електронною "
 "поштою, щоб розпочати голосування."
 
-#: src/web/clients/election/home.ml:624
+#: src/web/clients/election/home.ml:628
 msgid "Number of accepted ballots: "
 msgstr "Кількість прийнятих бюлетенів: "
 
-#: src/web/clients/election/home.ml:99
+#: src/web/clients/election/home.ml:103
 msgid "Number of voters"
 msgstr "Кількість виборців"
 
-#. src/web/server/common/mails_voter.ml:115
-#: src/web/server/common/mails_voter.ml:220
+#: src/web/server/common/mails_voter.ml:227
+#. src/web/server/common/mails_voter.ml:123
 msgid "Number of votes:"
 msgstr "Кількість голосів:"
 
-#. src/web/server/common/mails_voter.ml:126
-#: src/web/server/common/mails_voter.ml:227
+#: src/web/server/common/mails_voter.ml:234
+#. src/web/server/common/mails_voter.ml:134
 msgid "Only the last vote counts."
 msgstr "Тільки останній голос враховується."
 
-#: src/web/server/common/mails_voter.ml:120
+#: src/web/server/common/mails_voter.ml:128
 msgid "Page of the election:"
 msgstr "Сторінка виборів:"
 
-#. src/web/server/common/mails_voter.ml:108
 #: src/web/server/common/pages_common.ml:382
+#. src/web/server/common/mails_voter.ml:116
 msgid "Password:"
 msgstr "Пароль:"
 
@@ -433,7 +434,7 @@ msgstr "Будь ласка, введіть "
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Будь ласка, введіть код підтвердження, отриманий електронною поштою:"
 
-#: src/web/server/common/mails_voter.ml:91
+#: src/web/server/common/mails_voter.ml:99
 msgid "Please find below your login and password for the election"
 msgstr "Нижче наведено Ваш логін і пароль для участі у виборах"
 
@@ -451,11 +452,11 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "Вставте свій зашифрований бюлетень у форматі JSON у таке поле:"
 
-#: src/web/server/common/mails_voter.ml:189
+#: src/web/server/common/mails_voter.ml:196
 msgid "Please vote here using your personal link:"
 msgstr "Будь ласка, проголосуйте тут за особистим посиланням:"
 
-#: src/web/clients/election/advanced.ml:260
+#: src/web/clients/election/advanced.ml:259
 msgid "Please wait while your ballot is being processed..."
 msgstr "Будь ласка, зачекайте, поки ваш бюлетень обробляється..."
 
@@ -463,21 +464,21 @@ msgstr "Будь ласка, зачекайте, поки ваш бюлетен�
 msgid "Powered by "
 msgstr "Працює на "
 
+#: src/web/clients/election/advanced.ml:250
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
-#: src/web/clients/election/advanced.ml:251
 msgid "Proceed"
 msgstr "Продовжити"
 
-#: src/web/clients/election/advanced.ml:198
+#: src/web/clients/election/advanced.ml:197
 msgid "Processing ballot"
 msgstr "Обробка бюлетеня"
 
-#: src/web/server/common/mails_voter.ml:206
+#: src/web/server/common/mails_voter.ml:213
 msgid "Public page of the election:"
 msgstr "Публічна сторінка виборів:"
 
-#: src/web/clients/election/home.ml:429
+#: src/web/clients/election/home.ml:433
 msgid "Raw events"
 msgstr "Необроблені події"
 
@@ -489,15 +490,15 @@ msgstr "Перенаправлення"
 msgid "Restricted mode"
 msgstr "Обмежений режим"
 
-#: src/web/server/common/mails_voter.ml:310
+#: src/web/server/common/mails_voter.ml:317
 msgid "Results will be published on the election page"
 msgstr "Результати будуть опубліковані на сторінці виборів"
 
-#: src/web/clients/election/home.ml:116
+#: src/web/clients/election/home.ml:120
 msgid "Sealing log fingerprint"
 msgstr "Відбиток журналу запечатування"
 
-#: src/web/clients/election/home.ml:735
+#: src/web/clients/election/home.ml:739
 msgid "See accepted ballots"
 msgstr "Переглянути прийняті бюлетені"
 
@@ -505,32 +506,32 @@ msgstr "Переглянути прийняті бюлетені"
 msgid "Set"
 msgstr "Встановити"
 
-#: src/web/clients/election/home.ml:380
+#: src/web/clients/election/home.ml:384
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "Існує кілька методів, щоб вирішити, якого кандидата обрати, коли немає "
 "переможця Кондорсе."
 
-#: src/web/clients/election/home.ml:713
+#: src/web/clients/election/home.ml:717
 msgid "Start"
 msgstr "Почати"
 
+#: src/web/clients/election/advanced.ml:106
 #. src/web/clients/election/advanced.ml:69
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
-#: src/web/clients/election/advanced.ml:107
 msgid "Submit"
 msgstr "Надіслати"
 
-#: src/web/clients/election/advanced.ml:165
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by copy/paste"
 msgstr "Надіслати шляхом копіювання/вставки"
 
-#: src/web/clients/election/advanced.ml:167
+#: src/web/clients/election/advanced.ml:166
 msgid "Submit by file"
 msgstr "Надсилайте файлами"
 
-#: src/web/clients/election/home.ml:454
+#: src/web/clients/election/home.ml:458
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Такі кандидати позначаються як «TieWin», коли вони обрані, і як «TieLose», "
@@ -540,27 +541,27 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Умови обслуговування"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:239
 msgid "Thank you for voting!"
 msgstr "Дякуємо за голосування!"
 
-#: src/web/clients/election/home.ml:392
+#: src/web/clients/election/home.ml:396
 msgid "The Schulze winners are:"
 msgstr "Переможцями по Шульце стали:"
 
-#: src/web/clients/election/home.ml:463
+#: src/web/clients/election/home.ml:467
 msgid "The Single Transferable Vote winners are:"
 msgstr "Переможцями в категорії «Єдиний передаваний голос» є:"
 
-#: src/web/clients/election/home.ml:659
+#: src/web/clients/election/home.ml:663
 msgid "The election is being prepared. Please come back later."
 msgstr "Вибори готуються. Будь ласка, поверніться пізніше."
 
-#: src/web/clients/election/home.ml:686 src/web/clients/election/home.ml:684
+#: src/web/clients/election/home.ml:690 src/web/clients/election/home.ml:688
 msgid "The election is closed and being tallied."
 msgstr "Вибори закриті і підраховуються."
 
-#: src/web/clients/election/home.ml:677
+#: src/web/clients/election/home.ml:681
 msgid "The election will close at %s (time left: %s)."
 msgstr "Вибори завершаться о %s (залишився час: %s)."
 
@@ -572,11 +573,11 @@ msgstr "Відбитки пальців відрізняються!"
 msgid "The fingerprints match!"
 msgstr "Відбитки пальців збігаються!"
 
-#: src/web/clients/election/home.ml:545
+#: src/web/clients/election/home.ml:549
 msgid "The raw results can be viewed in the "
 msgstr "Необроблені результати можна переглянути в "
 
-#: src/web/clients/election/home.ml:439
+#: src/web/clients/election/home.ml:443
 msgid "There has been at least one tie."
 msgstr "Була принаймні одна нічия."
 
@@ -592,68 +593,68 @@ msgstr ""
 "Цих виборів не існує. Це може статися для виборів, які ще не були відкриті "
 "або були видалені."
 
-#: src/web/clients/election/home.ml:687
+#: src/web/clients/election/home.ml:691
 msgid "This election has been tallied."
 msgstr "Ці вибори були підраховані."
 
-#: src/web/clients/election/home.ml:688
+#: src/web/clients/election/home.ml:692
 msgid "This election is archived."
 msgstr "Ці вибори заархівовані."
 
-#: src/web/clients/election/home.ml:669
+#: src/web/clients/election/home.ml:673
 msgid "This election is currently closed."
 msgstr "Наразі ці вибори закриті."
 
-#: src/web/common/pages_common.ml:197
+#: src/web/common/pages_common.ml:200
 msgid "This is a revote."
 msgstr "Це переголосування."
 
-#: src/web/server/common/mails_voter.ml:300
+#: src/web/server/common/mails_voter.ml:307
 msgid "This vote replaces any previous vote."
 msgstr "Цей голос замінює будь-який попередній голос."
 
-#: src/web/clients/election/home.ml:365 src/web/clients/election/home.ml:303
+#: src/web/clients/election/home.ml:369 src/web/clients/election/home.ml:307
 msgid "Tie:"
 msgstr "Нічия:"
 
-#: src/web/server/common/mails_voter.ml:198
+#: src/web/server/common/mails_voter.ml:205
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "Щоб проголосувати, вам також знадобиться посвідчення, надіслане в окремому "
 "електронному листі."
 
-#: src/web/server/common/mails_voter.ml:80
+#: src/web/server/common/mails_voter.ml:87
 msgid "To get more information, please contact:"
 msgstr "Для отримання додаткової інформації, будь ласка, зв'яжіться з:"
 
-#: src/web/clients/election/home.ml:602
+#: src/web/clients/election/home.ml:606
 msgid "Total weight of accepted ballots:"
 msgstr "Загальна вага прийнятих бюлетенів:"
 
-#: src/web/clients/election/home.ml:229
+#: src/web/clients/election/home.ml:233
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr "Довірені особи перетасували бюлетені в такому порядку:"
 
-#: src/web/clients/election/home.ml:589
+#: src/web/clients/election/home.ml:593
 msgid "Unsupported question type"
 msgstr "Непідтримуваний тип запитання"
 
-#: src/web/server/common/mails_voter.ml:334
+#: src/web/server/common/mails_voter.ml:341
 msgid "Use the following code:"
 msgstr "Використовуйте наступний код:"
 
-#. src/web/server/common/pages_common.ml:277
-#. src/web/server/common/mails_voter.ml:210
-#. src/web/server/common/mails_voter.ml:104
 #: src/web/server/common/pages_common.ml:345
+#. src/web/server/common/pages_common.ml:277
+#. src/web/server/common/mails_voter.ml:217
+#. src/web/server/common/mails_voter.ml:112
 msgid "Username:"
 msgstr "Ім'я користувача:"
 
-#: src/web/clients/election/home.ml:104
+#: src/web/clients/election/home.ml:108
 msgid "Voter list fingerprint"
 msgstr "Відбиток списку виборців"
 
-#: src/web/clients/election/home.ml:127
+#: src/web/clients/election/home.ml:131
 msgid "Voters' total weight"
 msgstr "Загальна вага виборців"
 
@@ -661,19 +662,19 @@ msgstr "Загальна вага виборців"
 msgid "Warning:"
 msgstr "Увага:"
 
-#: src/web/server/common/mails_voter.ml:342
+#: src/web/server/common/mails_voter.ml:349
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Попередження: цей код дійсний протягом 15 хвилин, попередні коди, надіслані "
 "на цю адресу, більше не дійсні."
 
-#: src/web/server/common/mails_voter.ml:177
+#: src/web/server/common/mails_voter.ml:184
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "Попередження: цей електронний лист містить особисті та конфіденційні "
 "матеріали, тому його не можна пересилати."
 
-#: src/web/clients/election/home.ml:384
+#: src/web/clients/election/home.ml:388
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Ми використовуємо тут метод Шульце і посилаємося на виборців "
 
@@ -681,18 +682,18 @@ msgstr "Ми використовуємо тут метод Шульце і по
 msgid "Wish to help with translations?"
 msgstr "Хочете допомогти з перекладами?"
 
-#: src/web/clients/election/advanced.ml:242
+#: src/web/clients/election/advanced.ml:241
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "Ви збираєтеся подати бюлетень за допомогою розумного засобу відстеження "
 "бюлетенів %s."
 
-#. src/web/server/common/mails_voter.ml:125
-#: src/web/server/common/mails_voter.ml:226
+#: src/web/server/common/mails_voter.ml:233
+#. src/web/server/common/mails_voter.ml:133
 msgid "You are allowed to vote several times."
 msgstr "Ви можете голосувати кілька разів."
 
-#: src/web/server/common/mails_voter.ml:182
+#: src/web/server/common/mails_voter.ml:189
 msgid "You are listed as a voter for the election"
 msgstr "Вас внесли до списку виборців на ціх виборах"
 
@@ -708,20 +709,20 @@ msgstr "Ви можете "
 msgid "You can also "
 msgstr "Ви також можете "
 
-#: src/web/clients/election/home.ml:627
+#: src/web/clients/election/home.ml:631
 msgid "You can also download the "
 msgstr "Ви також можете завантажити "
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:232
 msgid "You can check its presence in the "
 msgstr "Перевірити його наявність можна в "
 
-#: src/web/server/common/mails_voter.ml:304
+#: src/web/server/common/mails_voter.ml:311
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Ви можете перевірити його наявність у виборчій скриньці, доступній за адресою"
 
-#: src/web/clients/election/advanced.ml:141
+#: src/web/clients/election/advanced.ml:140
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 "Ви можете створити зашифрований бюлетень за допомогою інструмента командного "
@@ -735,41 +736,41 @@ msgstr "Ви не можете зараз автентифікуватися."
 msgid "You cannot log in now. Please try later."
 msgstr "Ви не можете увійти зараз. Спробуйте пізніше."
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:251
 msgid "Your ballot for "
 msgstr "Ваш бюлетень за "
 
-#: src/web/server/common/mails_voter.ml:245
+#: src/web/server/common/mails_voter.ml:254
 msgid "Your credential for election %s"
 msgstr "Ваші облікові дані для виборів %s"
 
-#: src/web/server/common/mails_voter.ml:214
+#: src/web/server/common/mails_voter.ml:221
 msgid "Your credential:"
 msgstr "Ваш обліковий запис:"
 
-#: src/web/server/common/mails_voter.ml:331
+#: src/web/server/common/mails_voter.ml:338
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Ваша адреса електронної пошти була використана для автентифікації на нашому "
 "сервері Belenios."
 
-#: src/web/server/common/mails_voter.ml:146
+#: src/web/server/common/mails_voter.ml:156
 msgid "Your password for election %s"
 msgstr "Ваш пароль для виборів %s"
 
-#: src/web/server/common/mails_voter.ml:292
+#: src/web/server/common/mails_voter.ml:299
 msgid "Your smart ballot tracker is"
 msgstr "Ваш смарт-трекер бюлетеню"
 
-#: src/web/common/pages_common.ml:226
+#: src/web/common/pages_common.ml:229
 msgid "Your smart ballot tracker is "
 msgstr "Ваш розумний трекер для голосування "
 
-#: src/web/server/common/mails_voter.ml:279
+#: src/web/server/common/mails_voter.ml:286
 msgid "Your vote for election"
 msgstr "Ваш голос на виборах"
 
-#: src/web/server/common/mails_voter.ml:273
+#: src/web/server/common/mails_voter.ml:280
 msgid "Your vote for election %s"
 msgstr "Ваш голос на виборах %s"
 
@@ -777,11 +778,11 @@ msgstr "Ваш голос на виборах %s"
 msgid "Your vote was not recorded!"
 msgstr "Ваш голос не був записаний!"
 
-#: src/web/server/common/mails_voter.ml:290 src/web/common/pages_common.ml:206
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
 msgid "Your weight is %s."
 msgstr "Ваша вага %s."
 
-#: src/web/common/pages_common.ml:217
+#: src/web/common/pages_common.ml:220
 msgid "ballot box"
 msgstr "урна для голосування"
 
@@ -793,11 +794,11 @@ msgstr "змінити ваш пароль"
 msgid "create an account"
 msgstr "створити обліковий запис"
 
-#: src/web/clients/election/advanced.ml:128
+#: src/web/clients/election/advanced.ml:127
 msgid "direct link"
 msgstr "пряме посилання"
 
-#: src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:293
 msgid "has been recorded."
 msgstr "було записано."
 
@@ -809,7 +810,7 @@ msgstr "параметри"
 msgid "public data"
 msgstr "публічні дані"
 
-#: src/web/clients/election/home.ml:612
+#: src/web/clients/election/home.ml:616
 msgid "raw result"
 msgstr "необроблений результат"
 
@@ -817,7 +818,7 @@ msgstr "необроблений результат"
 msgid "some proofs failed verification"
 msgstr "деякі докази не вдалося перевірити"
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:144
 msgid "sources"
 msgstr "джерела"
 
@@ -829,7 +830,7 @@ msgstr "почати з початку"
 msgid "terms of service"
 msgstr "умови обслуговування"
 
-#: src/web/clients/election/home.ml:386
+#: src/web/clients/election/home.ml:390
 msgid "the Wikipedia page"
 msgstr "сторінку Вікіпедії"
 
@@ -888,3 +889,4 @@ msgstr "ваше посвідчення недійсне"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "ваше ім'я користувача неправильне"
+
