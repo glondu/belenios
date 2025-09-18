@@ -33,7 +33,7 @@ function VotePage({
 }) {
   React.useEffect(() => {
     belenios.setLogo(electionObject.uuid);
-  });
+  }, [electionObject]);
   return e(
     "div",
     {
