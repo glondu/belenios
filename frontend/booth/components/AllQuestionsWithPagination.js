@@ -50,19 +50,16 @@ function TranslatableAllQuestionsWithPagination(props) {
           candidate_indexes: action.candidates_indexes,
         };
         return updatedAlertsForAllQuestions;
-        break;
       case "resetAlertInQuestion":
         updatedAlertsForAllQuestions = deepCloneArray(state);
         delete updatedAlertsForAllQuestions[action.question_index][
           action.alert_id
         ];
         return updatedAlertsForAllQuestions;
-        break;
       case "resetAllAlertsInQuestion":
         updatedAlertsForAllQuestions = deepCloneArray(state);
         updatedAlertsForAllQuestions[action.question_index] = {};
         return updatedAlertsForAllQuestions;
-        break;
       default:
         throw new Error();
     }
@@ -141,7 +138,6 @@ function TranslatableAllQuestionsWithPagination(props) {
           question_index: action.question_index,
         });
         return updatedVoteToAllQuestions;
-        break;
       case "saveVoteForAllCandidatesInQuestion":
         updatedVoteToAllQuestions = deepCloneArray(state);
         updatedVoteToAllQuestions[action.question_index] =
@@ -151,14 +147,12 @@ function TranslatableAllQuestionsWithPagination(props) {
           question_index: action.question_index,
         });
         return updatedVoteToAllQuestions;
-        break;
       case "saveBlankVoteInQuestion":
         updatedVoteToAllQuestions = deepCloneArray(state);
         updatedVoteToAllQuestions[action.question_index][
           props.electionObject.questions[action.question_index].answers.length
         ] = action.blankVoteIsChecked ? 1 : 0;
         return updatedVoteToAllQuestions;
-        break;
       case "saveVoteForCandidateInQuestionAndResetOthers":
         updatedVoteToAllQuestions = deepCloneArray(state);
         updatedVoteToAllQuestions[action.question_index] =
@@ -173,7 +167,6 @@ function TranslatableAllQuestionsWithPagination(props) {
           question_index: action.question_index,
         });
         return updatedVoteToAllQuestions;
-        break;
       default:
         throw new Error();
     }
