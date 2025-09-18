@@ -319,3 +319,19 @@ let compute_prefix () =
     | Some i -> String.sub path 0 i
   in
   path ^ "/" ^ !relative_root |> with_path base |> canonicalize |> to_string
+
+let set_logo uuid =
+  let$ e = document##getElementById (Js.string "election_logo") in
+  clear_content e;
+  let src = !/((Belenios_web_api.Endpoints.election_logo uuid).path) in
+  let handler _ =
+    clear_content e;
+    true
+  in
+  let img =
+    let open Tyxml_js.Html in
+    img
+      ~a:[ a_onerror handler; a_class [ "page-header__logo__image" ] ]
+      ~src ~alt:"election logo" ()
+  in
+  Dom.appendChild e (Tyxml_js.To_dom.of_img img)

@@ -34,6 +34,11 @@ module App (U : UI) = struct
   let router configuration path =
     let open (val !Belenios_js.I18n.gettext) in
     U.set_title @@ s_ "Election home";
+    let () =
+      match path with
+      | [] -> ()
+      | uuid :: _ -> Belenios_js.Common.set_logo (Uuid.wrap uuid)
+    in
     match path with
     | [ "" ] -> Lwt.return []
     | [ uuid; "ballots" ] ->

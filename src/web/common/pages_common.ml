@@ -157,7 +157,10 @@ module Make (Base : BASE) = struct
                         [ txt "" ];
                       (* no description provided? *)
                     ];
-                  div ~a:[ a_class [ "page-header__right" ] ] [];
+                  div
+                    ~a:
+                      [ a_class [ "page-header__right" ]; a_id "election_logo" ]
+                    [];
                 ];
               warning;
               login_box;
