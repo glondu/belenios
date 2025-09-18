@@ -32,8 +32,7 @@ module Crypto_primitives : sig
       key:string -> iv:string -> ciphertext:string -> string option Lwt.t
   end
 
-  module AES_CCM : ENDECRYPT
-  module AES_GCM : ENDECRYPT
+  val get_endecrypt : string -> (module ENDECRYPT)
 
   type rng
 

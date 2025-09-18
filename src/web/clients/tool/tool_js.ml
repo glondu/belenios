@@ -80,6 +80,7 @@ module Tests = struct
     let k = Z.of_string "956173156978067279948673" in
     check "of_bits" (fun () -> Z.(j =% k));
     let* () =
+      let module E = (val get_endecrypt "AES-CCM") in
       let key =
         "0000000000000000000000000000000000000000000000000000000000000000"
       in
@@ -90,22 +91,23 @@ module Tests = struct
       let ciphertext =
         "91f136cd65db6fa83b4943395e388089d4a8d0531b43a24a6498a1433559039ce5a18734752e13418718be1c2da5cca3d89e6e62fb729a81ec1cb3d1174e770c"
       in
-      let* t_ciphertext = AES_CCM.encrypt ~key ~iv ~plaintext in
+      let* t_ciphertext = E.encrypt ~key ~iv ~plaintext in
       check "AES-CCM-encrypt" (fun () -> t_ciphertext = ciphertext);
-      let* t_plaintext = AES_CCM.decrypt ~key ~iv ~ciphertext in
+      let* t_plaintext = E.decrypt ~key ~iv ~ciphertext in
       check "AES-CCM-decrypt" (fun () -> t_plaintext = Some plaintext);
       Lwt.return_unit
     in
     let* () =
+      let module E = (val get_endecrypt "AES-GCM") in
       let key = "00000000000000000000000000000000" in
       let iv = "000000000000000000000000" in
       let plaintext = Hex.to_string (`Hex "00000000000000000000000000000000") in
       let ciphertext =
         "0388dace60b6a392f328c2b971b2fe78ab6e47d42cec13bdf53a67b21257bddf"
       in
-      let* t_ciphertext = AES_GCM.encrypt ~key ~iv ~plaintext in
+      let* t_ciphertext = E.encrypt ~key ~iv ~plaintext in
       check "AES-GCM-encrypt" (fun () -> t_ciphertext = ciphertext);
-      let* t_plaintext = AES_GCM.decrypt ~key ~iv ~ciphertext in
+      let* t_plaintext = E.decrypt ~key ~iv ~ciphertext in
       check "AES-GCM-decrypt" (fun () -> t_plaintext = Some plaintext);
       Lwt.return_unit
     in

@@ -240,6 +240,8 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     { s_message; s_signature }
 
   let encrypt y plaintext =
+    let y_algorithm = "AES-GCM" in
+    let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
     let r = random () in
     let key = random () in
     let key = G.(g **~ key) in
@@ -247,21 +249,16 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let y_beta = G.((y **~ r) *~ key) in
     let key = sha256_hex ("key|" ^ G.to_string key) in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    let* y_data = Crypto_primitives.AES_GCM.encrypt ~key ~iv ~plaintext in
-    Lwt.return { y_algorithm = "AES-GCM"; y_alpha; y_beta; y_data }
+    let* y_data = E.encrypt ~key ~iv ~plaintext in
+    Lwt.return { y_algorithm; y_alpha; y_beta; y_data }
 
   let decrypt x { y_algorithm; y_alpha; y_beta; y_data } =
-    let decrypt =
-      match y_algorithm with
-      | "AES-CCM" -> Crypto_primitives.AES_CCM.decrypt
-      | "AES-GCM" -> Crypto_primitives.AES_GCM.decrypt
-      | x -> Printf.ksprintf failwith "unsupported algorithm in decrypt: %s" x
-    in
+    let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
     let key =
       sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x)))
     in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    decrypt ~key ~iv ~ciphertext:y_data
+    E.decrypt ~key ~iv ~ciphertext:y_data
 
   let make_cert ~sk ~dk ~context =
     let cert_keys =

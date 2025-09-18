@@ -177,6 +177,11 @@ module Crypto_primitives = struct
       t
   end
 
+  let get_endecrypt = function
+    | "AES-CCM" -> (module AES_CCM : ENDECRYPT)
+    | "AES-GCM" -> (module AES_GCM : ENDECRYPT)
+    | x -> Printf.ksprintf failwith "unknown algorithm: %s" x
+
   type rng = unit
 
   let secure_rng = ()

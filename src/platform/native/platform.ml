@@ -196,6 +196,11 @@ module Crypto_primitives = struct
       | exception Error _ -> Lwt.return_none
   end
 
+  let get_endecrypt = function
+    | "AES-CCM" -> (module AES_CCM : ENDECRYPT)
+    | "AES-GCM" -> (module AES_GCM : ENDECRYPT)
+    | x -> Printf.ksprintf failwith "unknown algorithm: %s" x
+
   type rng = Cryptokit.Random.rng
 
   let secure_rng =
