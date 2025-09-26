@@ -18,10 +18,14 @@
  (targets serializable_core_t.ml serializable_core_t.mli)
  (deps serializable_core.atd)
  (action
-  (run atdgen -t %{deps})))
+  (chdir
+   %{workspace_root}
+   (run atdgen -t %{deps}))))
 
 (rule
  (targets serializable_core_j.ml serializable_core_j.mli)
  (deps serializable_core.atd)
  (action
-  (run atdgen -j -j-std %{deps})))
+  (chdir
+   %{workspace_root}
+   (run atdgen -j -j-std %{deps}))))
