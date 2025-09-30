@@ -1,6 +1,6 @@
 {
     "page_title": "ベレニオス記載台",
-    "alert_invalid_credential": "無効な認証情報！",
+    "alert_invalid_credential": "無効な認証情報です！",
     "majority_judgment_alert_grade_is_mandatory_for_candidate_x": "{{candidate}}候補のグレードを選んでください。",
     "alert_question_constraint_no_blank_and_other": "白紙投票と別の解答は確認できません。",
     "progress_input_credential": "認証情報を入力",
