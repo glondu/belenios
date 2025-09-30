@@ -1303,7 +1303,7 @@ module MakeBackend
       | None -> raise Creation_not_requested
       | Some x -> (x.last_height + 100, x.last_pos)
     in
-    let filename = archive_filename uuid in
+    let filename = uuid /// archive_filename uuid in
     let*& map, roots, timestamp = build_roots ~size ~pos filename in
     let remove () = Hashtbl.remove indexes uuid in
     let timeout = Lwt_timeout.create 3600 remove in
@@ -1371,14 +1371,14 @@ module MakeBackend
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
         let&** r = r in
-        let filename = archive_filename uuid in
+        let filename = uuid /// archive_filename uuid in
         gethash ~index:r.map ~filename x)
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = data_ops.get <- get_data
 
   let get_archive_header uuid () =
-    let filename = archive_filename uuid in
+    let filename = uuid /// archive_filename uuid in
     let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
     let* header = Reader.read_header ic in
     Lwt.return @@ Lopt.some_value string_of_archive_header header
@@ -1436,7 +1436,7 @@ module MakeBackend
     let last_hash = match last_hash with None -> assert false | Some x -> x in
     let items = List.rev items in
     let* last_pos, records =
-      let filename = archive_filename uuid in
+      let filename = uuid /// archive_filename uuid in
       raw_append ~filename ~timestamp:index.timestamp pos items
     in
     let* () = set_last_event uuid { last_hash; last_height; last_pos } in
