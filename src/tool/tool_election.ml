@@ -50,8 +50,8 @@ let make file =
   let open Election in
   let open Tool_election_data.Make (Getters) (Election) in
   let module Trustees = (val Belenios.Trustees.get_by_version version) in
-  let module P = Trustees.MakePKI (G) (R) in
-  let module C = Trustees.MakeChannels (P) in
+  let module P = Pki.Make (G) (R) in
+  let module C = Pki.MakeChannels (P) in
   let module K = Trustees.MakeCombinator (G) in
   (* Check trustee keys, if present *)
   let* () =

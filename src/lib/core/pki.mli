@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2012-2025 Inria                                           *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,21 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Belenios_platform.Platform
-include module type of Belenios_core.Common
-include module type of Belenios_core.Serializable_j
-include module type of Belenios_core.Signatures
-module Version = Belenios_platform.Version
-module Election = Election
-module Group = Group
-module Pki = Belenios_core.Pki
-module Trustees = Trustees
-module Credential = Belenios_core.Credential
-module Events = Belenios_core.Events
-module Archive = Belenios_core.Archive
+open Signatures
 
-module Methods : sig
-  module Schulze = Belenios_core.Schulze
-  module Stv = Belenios_core.Stv
-  module Majority_judgment = Belenios_core.Majority_judgment
-end
+module Make (G : GROUP) (R : RANDOM) :
+  PKI with module Group = G and module Random = R
+
+module MakeChannels (P : PKI) : CHANNELS with module Pki = P

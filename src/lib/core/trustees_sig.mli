@@ -38,11 +38,6 @@ module type S = sig
         proof of its knowledge. *)
   end
 
-  module MakePKI (G : GROUP) (R : RANDOM) :
-    PKI with module Group = G and module Random = R
-
-  module MakeChannels (P : PKI) : CHANNELS with module Pki = P
-
   exception PedersenFailure of string
 
   module MakePedersen (C : CHANNELS) : PEDERSEN with module Channels = C

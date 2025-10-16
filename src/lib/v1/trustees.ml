@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_platform.Platform
 open Belenios_core
 open Serializable_core_t
 open Serializable_j
@@ -242,82 +241,6 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
       trustee_signature = None;
       trustee_name = None;
     }
-end
-
-module MakePKI (G : GROUP) (M : RANDOM) = struct
-  module Group = G
-  module Random = M
-
-  type private_key = G.Zq.t
-  type public_key = G.t
-
-  let random () = G.Zq.random (M.get_rng ())
-  let genkey () = generate_b58_token ~rng:(M.get_rng ()) ~length:22
-  let derive_sk p = G.Zq.reduce_hex (sha256_hex ("sk|" ^ p))
-  let derive_dk p = G.Zq.reduce_hex (sha256_hex ("dk|" ^ p))
-
-  let sign sk s_message =
-    let w = random () in
-    let commitment = G.(g **~ w) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    let challenge = G.hash prefix [| commitment |] in
-    let response = G.Zq.(w - (sk * challenge)) in
-    let s_signature = { challenge; response } in
-    { s_message; s_signature }
-
-  let verify vk { s_message; s_signature = { challenge; response } } =
-    let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    G.Zq.(challenge =% G.hash prefix [| commitment |])
-
-  let encrypt y plaintext =
-    let y_algorithm = "AES-GCM" in
-    let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
-    let r = random () in
-    let key = random () in
-    let key = G.(g **~ key) in
-    let y_alpha = G.(g **~ r) in
-    let y_beta = G.((y **~ r) *~ key) in
-    let key = sha256_hex ("key|" ^ G.to_string key) in
-    let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    let* y_data = E.encrypt ~key ~iv ~plaintext in
-    Lwt.return { y_algorithm; y_alpha; y_beta; y_data }
-
-  let decrypt x { y_algorithm; y_alpha; y_beta; y_data } =
-    let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
-    let key =
-      sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x)))
-    in
-    let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
-    E.decrypt ~key ~iv ~ciphertext:y_data
-end
-
-module MakeChannels (P : PKI) = struct
-  module Pki = P
-  module G = P.Group
-
-  type private_key = P.private_key
-  type public_key = P.public_key
-
-  let send sk c_recipient c_message =
-    let msg = { c_recipient; c_message } in
-    let msg = string_of_channel_msg (swrite G.to_string) msg in
-    let msg = P.sign sk msg in
-    P.encrypt c_recipient (string_of_signed_msg (swrite G.Zq.to_string) msg)
-
-  let recv dk vk msg =
-    let* x = P.decrypt dk msg in
-    match x with
-    | None -> failwith "invalid ciphertext in received message"
-    | Some msg ->
-        let msg = signed_msg_of_string (sread G.Zq.of_string) msg in
-        if not (P.verify vk msg) then
-          failwith "invalid signature on received message";
-        let msg = channel_msg_of_string (sread G.of_string) msg.s_message in
-        let { c_recipient; c_message } = msg in
-        if not G.(c_recipient =~ g **~ dk) then
-          failwith "invalid recipient on received message";
-        Lwt.return c_message
 end
 
 module MakePedersen (C : CHANNELS) = struct
@@ -663,8 +586,8 @@ module MakePedersen (C : CHANNELS) = struct
 end
 
 module MakeCombinator (G : GROUP) = struct
-  module Pki = MakePKI (G) (Dummy_random)
-  module Channels = MakeChannels (Pki)
-  module Cert = MakeCert (Pki)
-  include MakeComb (Pki) (Cert)
+  module P = Pki.Make (G) (Dummy_random)
+  module Channels = Pki.MakeChannels (P)
+  module Cert = MakeCert (P)
+  include MakeComb (P) (Cert)
 end

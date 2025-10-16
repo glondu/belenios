@@ -316,8 +316,8 @@ module BuggyPartialDecryption = struct
     in
     let* private_key =
       let module Trustees = (val Belenios.Trustees.get_by_version P.version) in
-      let module PKI = Trustees.MakePKI (P.G) (Random) in
-      let module C = Trustees.MakeChannels (PKI) in
+      let module PKI = Pki.Make (P.G) (Random) in
+      let module C = Pki.MakeChannels (PKI) in
       let sk = PKI.derive_sk seed and dk = PKI.derive_dk seed in
       let vk = P.G.(g **~ sk) in
       let* epk =

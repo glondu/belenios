@@ -26,6 +26,7 @@ include Belenios_core.Signatures
 module Version = Belenios_platform.Version
 module Election = Election
 module Group = Group
+module Pki = Belenios_core.Pki
 module Trustees = Trustees
 module Credential = Belenios_core.Credential
 module Events = Belenios_core.Events
