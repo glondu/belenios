@@ -35,6 +35,10 @@ type (_, _) eq = Refl : ('a, 'a) eq
 
 let cast (type t u) (e : (t, u) eq) (x : t) : u = match e with Refl -> x
 
+module Dummy_random : RANDOM = struct
+  let get_rng () = failwith "dummy random not implemented"
+end
+
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight

@@ -193,12 +193,6 @@ module type PKI = sig
   val verify : public_key -> private_key signed_msg -> bool
   val encrypt : public_key -> string -> public_key encrypted_msg Lwt.t
   val decrypt : private_key -> public_key encrypted_msg -> string option Lwt.t
-
-  val make_cert :
-    sk:private_key -> dk:private_key -> context:context -> private_key cert
-
-  val get_context : private_key cert -> context
-  val verify_cert : context -> private_key cert -> bool
 end
 
 module type CHANNELS = sig

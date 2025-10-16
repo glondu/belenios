@@ -35,6 +35,7 @@ type (_, _) eq = Refl : ('a, 'a) eq
 
 val cast : ('a, 'b) eq -> 'a -> 'b
 
+module Dummy_random : RANDOM
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight

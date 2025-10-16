@@ -29,22 +29,43 @@ open Common
 
 exception PedersenFailure of string
 
-module MakeVerificator (G : GROUP) = struct
+module type VERIFY_CERT = sig
+  module Group : GROUP
+
+  type private_key = Group.Zq.t
+
+  val verify_cert : context -> private_key cert -> bool
+end
+
+module MakeCert (P : PKI) = struct
+  module Group = P.Group
+  module G = Group
+
+  type private_key = G.Zq.t
+
+  let make_cert ~sk ~dk ~context =
+    let cert_keys =
+      {
+        cert_verification = G.(g **~ sk);
+        cert_encryption = G.(g **~ dk);
+        cert_context = Some context;
+      }
+    in
+    let cert = string_of_cert_keys (swrite G.to_string) cert_keys in
+    P.sign sk cert
+
   let get_context x =
     let keys = cert_keys_of_string (sread G.of_string) x.s_message in
     match keys.cert_context with
     | Some x -> x
     | None -> failwith "missing context in certificate"
 
-  let verify vk { s_message; s_signature = { challenge; response } } =
-    let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    G.Zq.(challenge =% G.hash prefix [| commitment |])
-
   let verify_cert context x =
     let keys = cert_keys_of_string (sread G.of_string) x.s_message in
-    keys.cert_context = Some context && verify keys.cert_verification x
+    keys.cert_context = Some context && P.verify keys.cert_verification x
+end
 
+module MakeVerificator (G : GROUP) = struct
   let compute_verification_keys coefexps =
     let n = Array.length coefexps in
     assert (n > 0);
@@ -68,7 +89,9 @@ module MakeVerificator (G : GROUP) = struct
         loop_compute_vk 0 G.one)
 end
 
-module MakeCombinator (G : GROUP) = struct
+module MakeComb (P : PKI) (C : VERIFY_CERT with module Group = P.Group) = struct
+  module Group = P.Group
+  module G = Group
   module V = MakeVerificator (G)
 
   let check_single { trustee_pok; trustee_public_key = y; _ } =
@@ -84,7 +107,7 @@ module MakeCombinator (G : GROUP) = struct
     let size = Array.length t.t_certs in
     let threshold = t.t_threshold in
     Array.for_alli
-      (fun i c -> V.verify_cert { group; size; threshold; index = i + 1 } c)
+      (fun i c -> C.verify_cert { group; size; threshold; index = i + 1 } c)
       t.t_certs
     &&
     let certs =
@@ -93,7 +116,7 @@ module MakeCombinator (G : GROUP) = struct
         t.t_certs
     in
     Array.for_all2
-      (fun cert x -> V.verify cert.cert_verification x)
+      (fun cert x -> P.verify cert.cert_verification x)
       certs t.t_coefexps
     && (match t.t_signatures with
        | None -> false
@@ -113,7 +136,7 @@ module MakeCombinator (G : GROUP) = struct
                         (swrite G.Zq.to_string)
                         { certs = t.t_certs; coefexps = x.coefexps }
                   in
-                  V.verify cert.cert_verification { s_message; s_signature })
+                  P.verify cert.cert_verification { s_message; s_signature })
                 certs t.t_coefexps sigs)
     &&
     let coefexps =
@@ -134,7 +157,7 @@ module MakeCombinator (G : GROUP) = struct
              match vk.trustee_signature with
              | None -> false
              | Some s_signature ->
-                 V.verify cert.cert_verification
+                 P.verify cert.cert_verification
                    { s_message = to_string computed_vk; s_signature })
          certs t.t_verification_keys computed_vks
 
@@ -242,6 +265,11 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     let s_signature = { challenge; response } in
     { s_message; s_signature }
 
+  let verify vk { s_message; s_signature = { challenge; response } } =
+    let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
+    let prefix = "sigmsg|" ^ s_message ^ "|" in
+    G.Zq.(challenge =% G.hash prefix [| commitment |])
+
   let encrypt y plaintext =
     let y_algorithm = "AES-GCM" in
     let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
@@ -262,19 +290,6 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
     in
     let iv = sha256_hex ("iv|" ^ G.to_string y_alpha) in
     E.decrypt ~key ~iv ~ciphertext:y_data
-
-  let make_cert ~sk ~dk ~context =
-    let cert_keys =
-      {
-        cert_verification = G.(g **~ sk);
-        cert_encryption = G.(g **~ dk);
-        cert_context = Some context;
-      }
-    in
-    let cert = string_of_cert_keys (swrite G.to_string) cert_keys in
-    sign sk cert
-
-  include MakeVerificator (G)
 end
 
 module MakeChannels (P : PKI) = struct
@@ -314,10 +329,11 @@ module MakePedersen (C : CHANNELS) = struct
   type scalar = G.Zq.t
   type element = G.t
 
+  module Cert = MakeCert (P)
+  module Comb = MakeComb (P) (Cert)
   open G
   module K = MakeSimple (G) (M)
   module V = MakeVerificator (G)
-  module L = MakeCombinator (G)
 
   let random () = Zq.random (M.get_rng ())
 
@@ -325,19 +341,20 @@ module MakePedersen (C : CHANNELS) = struct
     let seed = P.genkey () in
     let sk = P.derive_sk seed in
     let dk = P.derive_dk seed in
-    let cert = P.make_cert ~sk ~dk ~context in
+    let cert = Cert.make_cert ~sk ~dk ~context in
     (seed, cert)
 
-  let step1_check = P.verify_cert
+  let step1_check = Cert.verify_cert
 
   let step2 certs =
     assert (Array.length certs > 0);
     let group = G.description in
     let size = Array.length certs in
-    let threshold = (P.get_context certs.(0)).threshold in
+    let threshold = (Cert.get_context certs.(0)).threshold in
     Array.iteri
       (fun i cert ->
-        if P.verify_cert { group; size; threshold; index = i + 1 } cert then ()
+        if Cert.verify_cert { group; size; threshold; index = i + 1 } cert then
+          ()
         else
           let msg = Printf.sprintf "certificate %d does not validate" (i + 1) in
           raise (PedersenFailure msg))
@@ -581,7 +598,7 @@ module MakePedersen (C : CHANNELS) = struct
     in
     let computed_vk = (V.compute_verification_keys coefexps).(i) in
     let { vo_public_key; _ } = voutput in
-    L.check [ `Single vo_public_key ]
+    Comb.check [ `Single vo_public_key ]
     && vo_public_key.trustee_public_key =~ computed_vk
     &&
     match vo_public_key.trustee_signature with
@@ -628,7 +645,7 @@ module MakePedersen (C : CHANNELS) = struct
     let computed_vks = V.compute_verification_keys coefexps in
     for j = 0 to n - 1 do
       let voutput = voutputs.(j) in
-      if not (L.check [ `Single voutput.vo_public_key ]) then
+      if not (Comb.check [ `Single voutput.vo_public_key ]) then
         raise
           (PedersenFailure (Printf.sprintf "pok %d does not validate" (j + 1)));
       if not (voutput.vo_public_key.trustee_public_key =~ computed_vks.(j)) then
@@ -643,4 +660,11 @@ module MakePedersen (C : CHANNELS) = struct
       t_signatures;
       t_verification_keys = Array.map (fun x -> x.vo_public_key) voutputs;
     }
+end
+
+module MakeCombinator (G : GROUP) = struct
+  module Pki = MakePKI (G) (Dummy_random)
+  module Channels = MakeChannels (Pki)
+  module Cert = MakeCert (Pki)
+  include MakeComb (Pki) (Cert)
 end
