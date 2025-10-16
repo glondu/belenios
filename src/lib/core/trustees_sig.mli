@@ -38,25 +38,17 @@ module type S = sig
         proof of its knowledge. *)
   end
 
-  module MakePKI (G : GROUP) (_ : RANDOM) :
-    PKI with type private_key = G.Zq.t and type public_key = G.t
+  module MakePKI (G : GROUP) (R : RANDOM) :
+    PKI with module Group = G and module Random = R
 
-  module MakeChannels
-      (G : GROUP)
-      (_ : RANDOM)
-      (P : PKI with type private_key = G.Zq.t and type public_key = G.t) :
-    CHANNELS
-      with type private_key = P.private_key
-       and type public_key = P.public_key
+  module MakeChannels (P : PKI) : CHANNELS with module Pki = P
 
   exception PedersenFailure of string
 
-  module MakePedersen
-      (G : GROUP)
-      (_ : RANDOM)
-      (_ : PKI with type private_key = G.Zq.t and type public_key = G.t)
-      (_ : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) :
-    PEDERSEN with type element = G.t and type scalar = G.Zq.t
+  module MakePedersen (C : CHANNELS) :
+    PEDERSEN
+      with type element = C.Pki.Group.t
+       and type scalar = C.Pki.Group.Zq.t
 
   module MakeCombinator (G : GROUP) : sig
     val check : (G.t, G.Zq.t) trustees -> bool

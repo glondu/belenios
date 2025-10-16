@@ -1050,8 +1050,8 @@ let post_trustee_threshold
   in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Trustees.MakePKI (G) (Random) in
-  let module C = Trustees.MakeChannels (G) (Random) (P) in
-  let module K = Trustees.MakePedersen (G) (Random) (P) (C) in
+  let module C = Trustees.MakeChannels (P) in
+  let module K = Trustees.MakePedersen (C) in
   let () =
     match t.stt_step with
     | Some 1 ->

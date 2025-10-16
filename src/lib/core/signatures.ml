@@ -180,8 +180,11 @@ module type ELECTION = sig
 end
 
 module type PKI = sig
-  type private_key
-  type public_key
+  module Group : GROUP
+  module Random : RANDOM
+
+  type private_key = Group.Zq.t
+  type public_key = Group.t
 
   val genkey : unit -> string
   val derive_sk : string -> private_key
@@ -199,8 +202,10 @@ module type PKI = sig
 end
 
 module type CHANNELS = sig
-  type private_key
-  type public_key
+  module Pki : PKI
+
+  type private_key = Pki.private_key
+  type public_key = Pki.public_key
 
   val send :
     private_key -> public_key -> string -> public_key encrypted_msg Lwt.t

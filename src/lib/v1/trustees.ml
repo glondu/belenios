@@ -222,6 +222,9 @@ module MakeSimple (G : GROUP) (M : RANDOM) = struct
 end
 
 module MakePKI (G : GROUP) (M : RANDOM) = struct
+  module Group = G
+  module Random = M
+
   type private_key = G.Zq.t
   type public_key = G.t
 
@@ -274,11 +277,10 @@ module MakePKI (G : GROUP) (M : RANDOM) = struct
   include MakeVerificator (G)
 end
 
-module MakeChannels
-    (G : GROUP)
-    (M : RANDOM)
-    (P : PKI with type private_key = G.Zq.t and type public_key = G.t) =
-struct
+module MakeChannels (P : PKI) = struct
+  module Pki = P
+  module G = P.Group
+
   type private_key = P.private_key
   type public_key = P.public_key
 
@@ -303,12 +305,11 @@ struct
         Lwt.return c_message
 end
 
-module MakePedersen
-    (G : GROUP)
-    (M : RANDOM)
-    (P : PKI with type private_key = G.Zq.t and type public_key = G.t)
-    (C : CHANNELS with type private_key = G.Zq.t and type public_key = G.t) =
-struct
+module MakePedersen (C : CHANNELS) = struct
+  module P = C.Pki
+  module G = P.Group
+  module M = P.Random
+
   type scalar = G.Zq.t
   type element = G.t
 

@@ -69,7 +69,7 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
     | Some epk ->
         let module Trustees = (val Trustees.get_by_version W.version) in
         let module PKI = Trustees.MakePKI (W.G) (Random) in
-        let module C = Trustees.MakeChannels (W.G) (Random) (PKI) in
+        let module C = Trustees.MakeChannels (PKI) in
         let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
         let vk = W.G.(g **~ sk) in
         let* epk =
