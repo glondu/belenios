@@ -306,6 +306,7 @@ module MakeChannels (P : PKI) = struct
 end
 
 module MakePedersen (C : CHANNELS) = struct
+  module Channels = C
   module P = C.Pki
   module G = P.Group
   module M = P.Random

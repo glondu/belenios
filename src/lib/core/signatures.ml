@@ -215,8 +215,10 @@ module type CHANNELS = sig
 end
 
 module type PEDERSEN = sig
-  type scalar
-  type element
+  module Channels : CHANNELS
+
+  type scalar = Channels.Pki.Group.Zq.t
+  type element = Channels.Pki.Group.t
 
   val step1 : context -> string * scalar cert
   val step1_check : context -> scalar cert -> bool

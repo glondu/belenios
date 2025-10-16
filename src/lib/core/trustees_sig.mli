@@ -45,10 +45,7 @@ module type S = sig
 
   exception PedersenFailure of string
 
-  module MakePedersen (C : CHANNELS) :
-    PEDERSEN
-      with type element = C.Pki.Group.t
-       and type scalar = C.Pki.Group.Zq.t
+  module MakePedersen (C : CHANNELS) : PEDERSEN with module Channels = C
 
   module MakeCombinator (G : GROUP) : sig
     val check : (G.t, G.Zq.t) trustees -> bool
