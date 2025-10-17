@@ -43,6 +43,7 @@ let available =
     ("ro", "Română");
     ("ru", "Русский");
     ("sk", "Slovenčina");
+    ("sl", "Slovenščina");
     ("ta", "தமிழ்");
     ("uk", "Українська");
   ]
