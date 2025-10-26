@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
 "PO-Revision-Date: 2025-10-27 22:03+0000\n"
-"Last-Translator: Feike Donia <feikedonia@proton.me>\n"
+"Last-Translator: Kiara Grouwstra <kiara.grouwstra@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/belenios/voter/nl/>"
 "\n"
 "Language: nl\n"
@@ -66,11 +66,11 @@ msgstr " werd geweigerd, omdat "
 
 #: src/web/clients/election/home.ml:351 src/web/clients/election/home.ml:320
 msgid "%d blank ballot(s)"
-msgstr "%d blanco stembiljet(ten)"
+msgstr "%d blanco stemmen"
 
 #: src/web/clients/election/home.ml:415 src/web/clients/election/home.ml:327
 msgid "%d invalid ballot(s)"
-msgstr "%d ongeldige stembiljet(ten)"
+msgstr "%d ongeldige stemmen"
 
 #: src/web/clients/election/home.ml:195
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
