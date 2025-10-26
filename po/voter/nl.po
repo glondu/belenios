@@ -1,11 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2024-03-24 04:24+0000\n"
-"Last-Translator: Elias Storme <elias.storme@gmail.com>\n"
+"PO-Revision-Date: 2025-10-27 22:03+0000\n"
+"Last-Translator: Feike Donia <feikedonia@proton.me>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/belenios/voter/nl/>"
 "\n"
 "Language: nl\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.14.1-dev\n"
 
 #: src/web/server/common/pages_common.ml:339
 msgid " (if you forgot it, for example)."
@@ -21,9 +20,10 @@ msgstr " (bijvoorbeeld als je het vergeten bent)."
 
 #: src/web/common/pages_common.ml:236
 msgid " A confirmation e-mail has been sent to you."
-msgstr " Een bevestigingse-mail is verstuurd."
+msgstr " Er is u een bevestigingsmail is gestuurd."
 
 #: src/web/common/pages_common.ml:234
+#, fuzzy
 msgid " anytime during the election."
 msgstr " op ieder moment tijdens de stemming."
 
@@ -56,6 +56,7 @@ msgid " have been tallied."
 msgstr " zijn geteld."
 
 #: src/web/server/common/pages_common.ml:523
+#, fuzzy
 msgid " in the following box: "
 msgstr " in het volgende vak: "
 
@@ -77,11 +78,11 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:345 src/web/clients/election/home.ml:314
 msgid "%d valid (non-blank) ballot(s)"
-msgstr "%d geldige (niet blanco) stem(men)"
+msgstr "%d geldige (niet-blanco) stemmen"
 
 #: src/web/clients/election/home.ml:346 src/web/clients/election/home.ml:315
 msgid "%d valid ballot(s)"
-msgstr "%d geldige stem(men)"
+msgstr "%d geldige stemmen"
 
 #: src/web/clients/election/advanced.ml:143
 msgid "(available in the "
@@ -112,12 +113,13 @@ msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
 #: src/web/server/common/pages_common.ml:472
+#, fuzzy
 msgid "A verification code has been sent to %s."
-msgstr "Er werd een verificatiecode gestuurd naar %s."
+msgstr "Er is een bevestigingscode naar %s gestuurd."
 
 #: src/web/clients/election/home.ml:268
 msgid "About this election"
-msgstr ""
+msgstr "Over deze verkiezing"
 
 #: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
@@ -137,7 +139,7 @@ msgstr "Beheer deze verkiezing"
 
 #: src/web/clients/election/home.ml:93
 msgid "Administrator"
-msgstr ""
+msgstr "Beheerder"
 
 #: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
@@ -161,9 +163,9 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Data controleren: "
 
-#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
+#: src/web/server/common/pages_common.ml:483
 msgid "Authenticate"
 msgstr "Authenticeren"
 
@@ -208,7 +210,7 @@ msgstr "Verkeerde beveiligingscode!"
 
 #: src/web/server/common/mails_voter.ml:354
 msgid "Best regards,"
-msgstr "Met vriendelijke groeten,"
+msgstr "Met vriendelijke groet,"
 
 #: src/web/clients/election/home.ml:483
 msgid "Blank vote"
@@ -250,14 +252,14 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:334
 #. src/web/server/common/mails_voter.ml:283
+#: src/web/server/common/mails_voter.ml:334
 msgid "Dear %s,"
 msgstr "Beste %s,"
 
-#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
+#: src/web/server/common/pages_common.ml:512
 msgid "E-mail address:"
 msgstr "E-mailadres:"
 
@@ -317,8 +319,8 @@ msgstr "Verboden"
 msgid "Get the source code"
 msgstr "Verkrijg de broncode"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:261
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
 msgstr "Teruggaan naar de verkiezing"
 
@@ -363,10 +365,10 @@ msgstr "Taal:"
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
+#: src/web/server/common/pages_common.ml:482
 msgid "Log in"
 msgstr "Inloggen"
 
@@ -406,13 +408,13 @@ msgstr "Aantal geaccepteerde stembiljetten: "
 msgid "Number of voters"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:227
 #. src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:227
 msgid "Number of votes:"
 msgstr "Aantal stemmen:"
 
-#: src/web/server/common/mails_voter.ml:234
 #. src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:234
 msgid "Only the last vote counts."
 msgstr "Enkel de laatste stem telt."
 
@@ -420,8 +422,8 @@ msgstr "Enkel de laatste stem telt."
 msgid "Page of the election:"
 msgstr "Pagina van de verkiezing:"
 
-#: src/web/server/common/pages_common.ml:382
 #. src/web/server/common/mails_voter.ml:116
+#: src/web/server/common/pages_common.ml:382
 msgid "Password:"
 msgstr "Wachtwoord:"
 
@@ -463,9 +465,9 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:250
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
+#: src/web/clients/election/advanced.ml:250
 msgid "Proceed"
 msgstr ""
 
@@ -513,10 +515,10 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:106
 #. src/web/clients/election/advanced.ml:69
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
+#: src/web/clients/election/advanced.ml:106
 msgid "Submit"
 msgstr ""
 
@@ -632,10 +634,10 @@ msgstr ""
 msgid "Use the following code:"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:345
 #. src/web/server/common/pages_common.ml:277
 #. src/web/server/common/mails_voter.ml:217
 #. src/web/server/common/mails_voter.ml:112
+#: src/web/server/common/pages_common.ml:345
 msgid "Username:"
 msgstr ""
 
@@ -671,8 +673,8 @@ msgstr ""
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:233
 #. src/web/server/common/mails_voter.ml:133
+#: src/web/server/common/mails_voter.ml:233
 msgid "You are allowed to vote several times."
 msgstr ""
 
@@ -867,4 +869,3 @@ msgstr ""
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr ""
-
