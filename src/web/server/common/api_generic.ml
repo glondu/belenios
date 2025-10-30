@@ -155,6 +155,7 @@ let get_configuration () =
     max_voters = !Web_config.maxmailsatonce;
     languages = Belenios_ui.Languages.available;
     election_sealing = !Web_config.election_sealing;
+    grace_period = !Web_config.grace_period;
   }
 
 let get_account (a : account) =

@@ -1064,49 +1064,48 @@ let is_openable () =
       (match status.status_state with `Open | `Closed -> true | _ -> false)
 
 let format_date_object x =
-  Printf.ksprintf Js.string "%d-%02d-%02dT%02d:%02d" x##getFullYear
+  Printf.sprintf "%d-%02d-%02dT%02d:%02d" x##getFullYear
     (x##getMonth + 1)
     x##getDate x##getHours x##getMinutes
+
+type input_kind = {
+  input_type : [ `Datetime_local | `Number ];
+  to_float : string -> float;
+  of_float : float -> string;
+  template : (float -> unit Lwt.t) -> Html_types.div_content_fun elt;
+}
 
 let dates_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let header = h2 [ txt @@ s_ "Automatic dates" ] in
   let* is_openable = is_openable () in
   let* dates = Cache.get_until_success Cache.e_dates in
-  let make_div l id get set =
-    let attr = [ a_id id; a_input_type `Datetime_local ] in
+  let make_div l id k get set =
+    let attr = [ a_id id; a_input_type k.input_type ] in
     let inp, inp_get = input ~a:attr () in
     let r = Tyxml_js.To_dom.of_input inp in
     let () =
       match get dates with
       | None -> ()
-      | Some x ->
-          r##.value :=
-            format_date_object
-              (new%js Js.date_fromTimeValue (Js.float (x *. 1000.)))
+      | Some x -> r##.value := Js.string (k.of_float x)
     in
     let sync () =
       let x = inp_get () in
-      let d =
-        if x = "" then None
-        else Some (Js.to_float (Js.date##parse (Js.string x)) /. 1000.)
-      in
-      let* dates = Cache.get_until_success Cache.e_dates in
-      Cache.set Cache.e_dates (set dates d);
-      Cache.sync_until_success ()
+      let d = if x = "" then None else Some (k.to_float x) in
+      let* dates = Cache.get Cache.e_dates in
+      match dates with
+      | Error msg ->
+          alert msg;
+          Lwt.return_unit
+      | Ok dates ->
+          Cache.set Cache.e_dates (set dates d);
+          Cache.sync_until_success ()
     in
-    let _ =
-      Dom.addEventListener r
-        (Dom.Event.make "focusout")
-        (lwt_handler (fun _ -> sync ()))
-        Js._false
-    in
+    r##.onchange := lwt_handler sync;
     let label = label ~a:[ a_label_for id ] [ txt l ] in
-    let btn_soon =
-      let@ () = button (s_ "In 5 minutes") in
-      let t = Js.to_float (new%js Js.date_now)##valueOf +. 300_000. in
-      r##.value :=
-        format_date_object (new%js Js.date_fromTimeValue (Js.float t));
+    let btn_template =
+      let@ x = k.template in
+      r##.value := Js.string (k.of_float x);
       sync ()
     in
     let btn_erase =
@@ -1114,18 +1113,59 @@ let dates_content () =
       r##.value := Js.string "";
       sync ()
     in
-    div [ label; inp; btn_soon; btn_erase ]
+    div [ label; inp; btn_template; btn_erase ]
+  in
+  let datetime_local =
+    {
+      input_type = `Datetime_local;
+      to_float = (fun x -> Js.to_float (Js.date##parse (Js.string x)) /. 1000.);
+      of_float =
+        (fun x ->
+          format_date_object
+            (new%js Js.date_fromTimeValue (Js.float (x *. 1000.))));
+      template =
+        (fun set ->
+          let@ () = button (s_ "In 5 minutes") in
+          set @@ ((Js.to_float (new%js Js.date_now)##valueOf /. 1000.) +. 300.));
+    }
+  in
+  let grace_period =
+    {
+      input_type = `Number;
+      to_float = float_of_string;
+      of_float = int_of_float >> string_of_int;
+      template =
+        (fun set ->
+          let@ () = button (s_ "30 minutes") in
+          set 1800.);
+    }
+  in
+  let* grace_period_enabled =
+    let* x = Cache.get Cache.config in
+    match x with
+    | Error _ -> Lwt.return_false
+    | Ok x -> Lwt.return x.grace_period
   in
   let open_close_divs =
     if is_openable then
+      let grace =
+        if grace_period_enabled then
+          [
+            make_div (s_ "Grace period: ") "inpgcont" grace_period
+              (fun x -> x.auto_date_grace_period)
+              (fun x y -> { x with auto_date_grace_period = y });
+          ]
+        else []
+      in
       [
-        make_div (s_ "Open: ") "inpocont"
+        make_div (s_ "Open: ") "inpocont" datetime_local
           (fun x -> x.auto_date_open)
           (fun x y -> { x with auto_date_open = y });
-        make_div (s_ "Close: ") "inpccont"
+        make_div (s_ "Close: ") "inpccont" datetime_local
           (fun x -> x.auto_date_close)
           (fun x y -> { x with auto_date_close = y });
       ]
+      @ grace
     else []
   in
   let* is_publishable =
@@ -1140,7 +1180,7 @@ let dates_content () =
   let publish_divs =
     if is_publishable then
       let publish_div =
-        make_div (s_ "Publish: ") "inppcont"
+        make_div (s_ "Publish: ") "inppcont" datetime_local
           (fun x -> x.auto_date_publish)
           (fun x y -> { x with auto_date_publish = y })
       in

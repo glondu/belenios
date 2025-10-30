@@ -67,7 +67,9 @@ struct
       let address =
         extract "cas:attributes" info >>= extract "cas:mail" >>= extract_pcdata
       in
-      let info : Belenios_web_api.user_info = { login; address } in
+      let info : Belenios_web_api.user_info =
+        { login; address; timestamp = None }
+      in
       Some info
     with _ -> None
 
@@ -97,7 +99,11 @@ struct
             let x =
               let& j = next_lf info (i + 1) in
               let info : Belenios_web_api.user_info =
-                { login = String.sub info (i + 1) (j - i - 1); address = None }
+                {
+                  login = String.sub info (i + 1) (j - i - 1);
+                  address = None;
+                  timestamp = None;
+                }
               in
               Some info
             in

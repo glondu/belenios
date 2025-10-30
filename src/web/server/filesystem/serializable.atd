@@ -35,6 +35,7 @@ type election_dates = {
   ?last_mail : datetime option;
   ?auto_open : datetime option;
   ?auto_close : datetime option;
+  ?grace_period : float option;
 } <ocaml field_prefix="e_">
 
 type extended_record = {

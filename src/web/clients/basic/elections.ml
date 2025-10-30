@@ -29,6 +29,20 @@ open Belenios_js.Common
 open Belenios_js.Session
 open Common
 
+type input_kind = { of_float : float -> string; to_float : string -> float }
+
+let date_kind =
+  {
+    of_float =
+      (fun x ->
+        Js.to_string
+          (new%js Js.date_fromTimeValue (Js.float (x *. 1000.)))##toISOString);
+    to_float = (fun x -> Js.to_float (Js.date##parse (Js.string x)) /. 1000.);
+  }
+
+let period_kind =
+  { of_float = int_of_float >> string_of_int; to_float = float_of_string }
+
 let rec show main uuid =
   let@ () = show_in main in
   let* x = Api.(get (election uuid) `Nobody) in
@@ -63,41 +77,43 @@ let rec show main uuid =
       button_delete;
     ]
   in
-  let get_date (_, get) =
+  let get_date k (_, get) =
     let y = get () in
-    if y = "" then None
-    else Some (Js.to_float (Js.date##parse (Js.string y)) /. 1000.)
+    if y = "" then None else Some (k.to_float y)
   in
   let* auto_dates =
     let* x = Api.(get (election_auto_dates uuid) `Nobody) in
     let@ dates, ifmatch = with_ok "automatic-dates" x in
-    let make_input d =
-      let value =
-        Option.map
-          (fun x ->
-            let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
-            Js.to_string x##toISOString)
-          d
-      in
+    let make_input k d =
+      let value = Option.map k.of_float d in
       input ?value ()
     in
-    let auto_open = make_input dates.auto_date_open in
-    let auto_close = make_input dates.auto_date_close in
-    let auto_publish = make_input dates.auto_date_publish in
+    let auto_open = make_input date_kind dates.auto_date_open in
+    let auto_close = make_input date_kind dates.auto_date_close in
+    let auto_publish = make_input date_kind dates.auto_date_publish in
+    let auto_grace = make_input period_kind dates.auto_date_grace_period in
     let set_button =
       let@ () = button "Set automatic dates" in
       let dates =
         {
-          auto_date_open = get_date auto_open;
-          auto_date_close = get_date auto_close;
-          auto_date_publish = get_date auto_publish;
+          auto_date_open = get_date date_kind auto_open;
+          auto_date_close = get_date date_kind auto_close;
+          auto_date_publish = get_date date_kind auto_publish;
+          auto_date_grace_period = get_date period_kind auto_grace;
         }
       in
       let* x = Api.(put ~ifmatch (election_auto_dates uuid) !user dates) in
       let@ () = show_in main in
       generic_proceed x (fun () -> show main uuid)
     in
-    Lwt.return [ fst auto_open; fst auto_close; fst auto_publish; set_button ]
+    Lwt.return
+      [
+        fst auto_open;
+        fst auto_close;
+        fst auto_grace;
+        fst auto_publish;
+        set_button;
+      ]
   in
   let regenpwd =
     let i, iget = input () in

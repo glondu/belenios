@@ -144,6 +144,7 @@ type configuration = {
     max_voters : int;
     languages : (string * string) list <json repr="object">;
     election_sealing : bool;
+    grace_period : bool;
 }
 
 type api_account = {
@@ -291,6 +292,7 @@ type election_auto_dates = {
     ?open : float option;
     ?close : float option;
     ?publish : float option;
+    ?grace_period : float option;
 } <ocaml field_prefix="auto_date_">
 
 type voting_record = {
@@ -371,6 +373,7 @@ type cast_result =
 type user_info = {
   login : string;
   ?address : string option;
+  ?timestamp : float option;
 }
 
 type connect_kind =

@@ -41,7 +41,9 @@ struct
           match Web_auth.State.get ~state with
           | Some x ->
               let username =
-                match x.user with None -> None | Some x -> Some x.user_name
+                match x.user with
+                | None -> None
+                | Some x -> Some x.user.user_name
               in
               { kind = `Election x.uuid; username }
           | None -> { kind = `Site; username = None }

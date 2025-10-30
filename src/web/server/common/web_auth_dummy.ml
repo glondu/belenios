@@ -60,7 +60,7 @@ struct
             Web_auth.post_login_handler =
               (fun ~data:_ _ _ cont ->
                 let info : Belenios_web_api.user_info =
-                  { login; address = None }
+                  { login; address = None; timestamp = None }
                 in
                 cont (Some info));
           })

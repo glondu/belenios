@@ -189,7 +189,7 @@ struct
                       | Some () ->
                           let* () = Eliom_state.discard ~scope () in
                           let info : Belenios_web_api.user_info =
-                            { login; address = Some address }
+                            { login; address = Some address; timestamp = None }
                           in
                           return_some info
                       | None -> return_none

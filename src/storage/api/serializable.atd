@@ -199,6 +199,7 @@ type election_dates = {
   ?auto_open : float option;
   ?auto_close : float option;
   ?publish : float option;
+  ?grace_period : float option;
 } <ocaml field_prefix="e_date_">
 
 type election_records = (string * float) list <json repr="object">

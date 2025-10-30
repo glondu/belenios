@@ -843,6 +843,7 @@ let get_election_automatic_dates s uuid =
       auto_date_open = d.e_date_auto_open;
       auto_date_close = d.e_date_auto_close;
       auto_date_publish = d.e_date_publish;
+      auto_date_grace_period = d.e_date_grace_period;
     }
 
 let set_election_automatic_dates s uuid d =
@@ -850,8 +851,16 @@ let set_election_automatic_dates s uuid d =
   let e_date_auto_open = d.auto_date_open in
   let e_date_auto_close = d.auto_date_close in
   let e_date_publish = d.auto_date_publish in
+  let e_date_grace_period = d.auto_date_grace_period in
   let@ dates, set = update_election_dates s uuid in
-  set { dates with e_date_auto_open; e_date_auto_close; e_date_publish }
+  set
+    {
+      dates with
+      e_date_auto_open;
+      e_date_auto_close;
+      e_date_publish;
+      e_date_grace_period;
+    }
 
 let get_draft_public_credentials s uuid =
   let* x = Storage.get s (Election (uuid, Public_creds)) in

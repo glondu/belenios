@@ -46,7 +46,7 @@ val cast_ballot :
   (confirmation -> bool Lwt.t) Storage.u ->
   ((module Belenios.Election.ELECTION) ->
   ballot:string ->
-  user:user ->
+  user:Web_auth_sig.timestamped_user ->
   precast_data:Web_persist.precast_data ->
   confirmation Lwt.t)
   Storage.u

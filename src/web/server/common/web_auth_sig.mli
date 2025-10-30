@@ -41,7 +41,8 @@ type auth_system = {
   extern : bool;
 }
 
-type env = { uuid : uuid; state : state option; user : user option }
+type timestamped_user = { user : user; timestamp : float option }
+type env = { uuid : uuid; state : state option; user : timestamped_user option }
 
 module type STATE = sig
   val create : Storage.t -> uuid -> state -> string option Lwt.t

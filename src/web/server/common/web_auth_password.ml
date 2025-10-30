@@ -116,7 +116,7 @@ struct
                 | None -> None
                 | Some { username; address; _ } ->
                     let info : Belenios_web_api.user_info =
-                      { login = username; address }
+                      { login = username; address; timestamp = None }
                     in
                     Some info)
             in

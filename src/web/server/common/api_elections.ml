@@ -334,6 +334,7 @@ let get_records s uuid =
   |> Lwt.return
 
 let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
+  let { user; timestamp } : Web_auth_sig.timestamped_user = user in
   let module W = (val election : Election.ELECTION) in
   let* recipient, weight =
     let* x = Web_persist.get_voter s uuid user.user_name in
@@ -345,7 +346,20 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   let oweight = if show_weight then Some weight else None in
   let user_s = string_of_user user in
   let* state = Web_persist.get_election_state s uuid in
-  let voting_open = state = `Open in
+  let* voting_open =
+    match state with
+    | `Open -> Lwt.return_true
+    | `Closed -> (
+        let* dates = Web_persist.get_election_dates s uuid in
+        match
+          (dates.e_date_auto_close, dates.e_date_grace_period, timestamp)
+        with
+        | Some close, Some grace, Some t when t <= close ->
+            let now = Unix.gettimeofday () in
+            Lwt.return (now -. t <= grace)
+        | _ -> Lwt.return_false)
+    | _ -> Lwt.return_false
+  in
   let* () = if not voting_open then fail `ElectionClosed else Lwt.return_unit in
   let* r =
     Web_persist.cast_ballot s uuid ~ballot ~user:user_s ~weight
@@ -603,8 +617,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
               let send_confirmation _ _ _ = Lwt.return_false in
               let* _ =
                 let election = Election.of_string (module Random) raw in
-                cast_ballot send_confirmation s uuid election ~ballot ~user
-                  ~precast_data
+                cast_ballot send_confirmation s uuid election ~ballot
+                  ~user:{ user; timestamp = None } ~precast_data
               in
               ok)
       | _ -> method_not_allowed)

@@ -135,6 +135,7 @@ module Make () = struct
     | Element ("deny-revote", [], []) -> Web_config.deny_revote := true
     | Element ("deny-newelection", [], []) ->
         Web_config.deny_newelection := true
+    | Element ("grace-period", [], []) -> Web_config.grace_period := true
     | Element ("blacklisted-domains", [ ("file", file) ], []) ->
         let ic = open_in file in
         let rec loop accu =

@@ -525,7 +525,11 @@ struct
             | None -> fail_http `Forbidden
             | Some (_, a, _) ->
                 let user_info : Belenios_web_api.user_info =
-                  { login = string_of_int a.id; address = a.email }
+                  {
+                    login = string_of_int a.id;
+                    address = a.email;
+                    timestamp = None;
+                  }
                 in
                 let now = Unix.gettimeofday () in
                 let timeout = now +. 60. in

@@ -765,6 +765,7 @@ module MakeBackend
               e_date_auto_close =
                 Option.map Datetime.to_unixfloat d.e_auto_close;
               e_date_publish;
+              e_date_grace_period = d.e_grace_period;
             }
     in
     let&** dates = dates in
@@ -797,6 +798,7 @@ module MakeBackend
         e_last_mail = Option.map Datetime.from_unixfloat d.e_date_last_mail;
         e_auto_open = Option.map Datetime.from_unixfloat d.e_date_auto_open;
         e_auto_close = Option.map Datetime.from_unixfloat d.e_date_auto_close;
+        e_grace_period = d.e_date_grace_period;
       }
     in
     Filesystem.write_file filename

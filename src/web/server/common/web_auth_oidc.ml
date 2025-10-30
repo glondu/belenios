@@ -55,8 +55,8 @@ struct
         let x = oidc_userinfo_of_string info in
         let info : Belenios_web_api.user_info =
           match x.oidc_email with
-          | Some x -> { login = x; address = Some x }
-          | None -> { login = x.oidc_sub; address = None }
+          | Some x -> { login = x; address = Some x; timestamp = None }
+          | None -> { login = x.oidc_sub; address = None; timestamp = None }
         in
         return_some info
       with _ -> return_none

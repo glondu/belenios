@@ -39,4 +39,5 @@ let default_election_dates =
     e_date_auto_open = None;
     e_date_auto_close = None;
     e_date_publish = None;
+    e_date_grace_period = None;
   }
