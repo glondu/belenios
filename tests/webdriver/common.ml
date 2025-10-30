@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let ( let@ ) f x = f x
+let ( let@ ) = ( @@ )
 let ( let& ) = Option.bind
 
 let make_voters n =

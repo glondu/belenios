@@ -25,7 +25,7 @@ open Signatures_core
 
 let ( >> ) f g x = g (f x)
 let ( ^^^ ) a b = a ^ " — " ^ b
-let ( let@ ) f x = f x
+let ( let@ ) = ( @@ )
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
 let ( ++ ) = Serializable_core_j.identity_of_string
