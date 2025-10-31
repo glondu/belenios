@@ -269,13 +269,24 @@ let set (Cache x) y =
   x.dirty <- true;
   x.content <- Some (y, get_unit_or_uuid x)
 
-let rec sync_until_success () =
-  let* result = sync () in
-  match result with
-  | Error msg ->
-      let* () = popup_failsync msg in
-      sync_until_success ()
-  | Ok _ -> Lwt.return_unit
+let sync_until_success () =
+  let rec loop n =
+    if n > 0 then
+      let* result = sync () in
+      match result with
+      | Error msg ->
+          let* () = popup_failsync msg in
+          loop (n - 1)
+      | Ok _ -> Lwt.return_unit
+    else
+      let open (val !Belenios_js.I18n.gettext) in
+      alert
+        (s_
+           "Too many errors while synchronizing with the server! State is \
+            probably inconsistent. You should reload the page now.");
+      Lwt.return_unit
+  in
+  loop 3
 
 let get_prefix () =
   let* x = get config in
