@@ -1115,7 +1115,7 @@ let dates_content () =
     in
     div [ label; inp; btn_template; btn_erase ]
   in
-  let datetime_local =
+  let datetime_local dt =
     {
       input_type = `Datetime_local;
       to_float = (fun x -> Js.to_float (Js.date##parse (Js.string x)) /. 1000.);
@@ -1125,8 +1125,10 @@ let dates_content () =
             (new%js Js.date_fromTimeValue (Js.float (x *. 1000.))));
       template =
         (fun set ->
-          let@ () = button (s_ "In 5 minutes") in
-          set @@ ((Js.to_float (new%js Js.date_now)##valueOf /. 1000.) +. 300.));
+          let@ () = button (Printf.sprintf (f_ "In %d minutes") dt) in
+          set
+          @@ (Js.to_float (new%js Js.date_now)##valueOf /. 1000.)
+             +. (float dt *. 60.));
     }
   in
   let grace_period =
@@ -1158,10 +1160,10 @@ let dates_content () =
         else []
       in
       [
-        make_div (s_ "Open: ") "inpocont" datetime_local
+        make_div (s_ "Open: ") "inpocont" (datetime_local 5)
           (fun x -> x.auto_date_open)
           (fun x y -> { x with auto_date_open = y });
-        make_div (s_ "Close: ") "inpccont" datetime_local
+        make_div (s_ "Close: ") "inpccont" (datetime_local 10)
           (fun x -> x.auto_date_close)
           (fun x y -> { x with auto_date_close = y });
       ]
@@ -1180,7 +1182,7 @@ let dates_content () =
   let publish_divs =
     if is_publishable then
       let publish_div =
-        make_div (s_ "Publish: ") "inppcont" datetime_local
+        make_div (s_ "Publish: ") "inppcont" (datetime_local 15)
           (fun x -> x.auto_date_publish)
           (fun x y -> { x with auto_date_publish = y })
       in
