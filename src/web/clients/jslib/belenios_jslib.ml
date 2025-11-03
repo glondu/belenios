@@ -244,7 +244,7 @@ let belenios : belenios Js.t =
         html
           (head
              (title (txt @@ W.template.t_name ^^^ s_ "Smart ballot tracker"))
-             [])
+             [ meta ~a:[ a_charset "utf-8" ] () ])
           (body
              [
                h1 [ txt W.template.t_name ];
