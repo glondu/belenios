@@ -122,15 +122,21 @@ module Make () = struct
         let i = { auth_system; auth_instance; auth_config } in
         auth_instances := i :: !auth_instances
     | Element ("auth-export", [ ("name", "builtin-password") ], []) ->
-        auth_instances_export := `BuiltinPassword :: !auth_instances_export
+        auth_instances_export :=
+          Web_config.BuiltinPassword :: !auth_instances_export
     | Element ("auth-export", [ ("name", "builtin-cas") ], []) ->
-        auth_instances_export := `BuiltinCAS :: !auth_instances_export
-    | Element
-        ( "auth-export",
-          [ ("name", auth_instance) ],
-          [ Element (auth_system, auth_config, []) ] ) ->
-        let i = { auth_system; auth_instance; auth_config } in
-        auth_instances_export := `Export i :: !auth_instances_export
+        auth_instances_export := BuiltinCAS :: !auth_instances_export
+    | Element ("auth-export", attrs, [ Element (auth_system, auth_config, []) ])
+      ->
+        let@ auth_instance cont =
+          match List.assoc_opt "name" attrs with
+          | None -> failwith "missing name attribute in tag auth-export"
+          | Some x -> cont x
+        in
+        let descr = List.assoc_opt "descr" attrs in
+        let config = { auth_system; auth_instance; auth_config } in
+        auth_instances_export :=
+          Export { descr; config } :: !auth_instances_export
     | Element ("domain", [ ("name", name) ], []) -> domain := Some name
     | Element ("deny-revote", [], []) -> Web_config.deny_revote := true
     | Element ("deny-newelection", [], []) ->
@@ -246,7 +252,9 @@ module Make () = struct
     if
       not
         (List.for_all
-           (function `Export x -> x.auth_system = "email" | _ -> false)
+           (function
+             | Web_config.Export x -> x.config.auth_system = "email"
+             | _ -> false)
            !Web_config.exported_auth_config)
     then
       failwith

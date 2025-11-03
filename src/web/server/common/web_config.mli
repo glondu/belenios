@@ -24,9 +24,12 @@ open Belenios_storage_api
 val prefix : string ref
 val site_auth_config : auth_config list ref
 
-val exported_auth_config :
-  [ `BuiltinPassword | `BuiltinCAS | `Export of auth_config ] list ref
+type exported_auth_config =
+  | BuiltinPassword
+  | BuiltinCAS
+  | Export of { descr : string option; config : auth_config }
 
+val exported_auth_config : exported_auth_config list ref
 val share_dir : string ref
 val vendor : string ref
 val server_name : string ref

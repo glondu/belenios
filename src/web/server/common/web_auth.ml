@@ -269,10 +269,11 @@ struct
                  match
                    List.find_opt
                      (function
-                       | `Export x -> x.auth_instance = name | _ -> false)
+                       | Web_config.Export x -> x.config.auth_instance = name
+                       | _ -> false)
                      !Web_config.exported_auth_config
                  with
-                 | Some (`Export x) -> [ x ]
+                 | Some (Export x) -> [ x.config ]
                  | _ -> [])
              | x -> [ x ])
         |> List.flatten |> return

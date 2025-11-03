@@ -141,13 +141,14 @@ let get_configuration () =
     authentications =
       List.map
         (function
-          | `BuiltinPassword -> `Password
-          | `BuiltinCAS -> `CAS
-          | `Export a ->
+          | Web_config.BuiltinPassword -> `Password
+          | BuiltinCAS -> `CAS
+          | Export a ->
               `Configured
                 {
-                  configured_instance = a.auth_instance;
-                  configured_system = a.auth_system;
+                  configured_instance = a.config.auth_instance;
+                  configured_system = a.config.auth_system;
+                  configured_descr = a.descr;
                 })
         !Web_config.exported_auth_config;
     default_group = !Web_config.default_group;

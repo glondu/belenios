@@ -73,6 +73,9 @@
         <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
+        <auth-export name="cas" descr="CAS (example server)">
+          <cas server="https://cas.example.com/cas"/>
+        </auth-export>
         <auth name="demo"><dummy allowlist="demo_allowlist"/></auth> <!-- DEMO -->
         <auth name="local"><password db="local_passwords"/></auth> <!-- DEMO -->
         <auth name="public"><password db="public_passwords" allowsignups="true"/></auth>

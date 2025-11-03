@@ -1718,9 +1718,13 @@ let voterspwd_content_draft () =
                            | `Configured s -> s = xx.configured_instance
                            | _ -> false
                          in
+                         let descr =
+                           Option.value ~default:"Unknown" xx.configured_descr
+                         in
                          let inp, lab =
                            rad i sel
-                             ("Unknown (" ^ xx.configured_instance ^ ")")
+                             (Printf.sprintf "%s (%s)" descr
+                                xx.configured_instance)
                              ()
                          in
                          set_onchange inp (fun () ->

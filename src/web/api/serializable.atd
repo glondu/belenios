@@ -111,6 +111,7 @@ type request_status = {
 type configured_authentication = {
     instance : string;
     system : string;
+    ?descr : string option;
 } <ocaml field_prefix="configured_">
 
 type authentication_system =

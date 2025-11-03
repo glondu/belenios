@@ -19,8 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_storage_api
+
 let prefix = ref ""
 let site_auth_config = ref []
+
+type exported_auth_config =
+  | BuiltinPassword
+  | BuiltinCAS
+  | Export of { descr : string option; config : auth_config }
+
 let exported_auth_config = ref []
 let share_dir = ref "."
 let vendor = ref "Belenios"
