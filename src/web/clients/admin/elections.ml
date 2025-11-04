@@ -1342,32 +1342,18 @@ let change_credauth_name name =
   | Error msg -> popup_failsync msg
   | Ok () -> !update_election_main ()
 
-let credauth_content () =
+(** The page content, when the user can still choose between both options *)
+let credauth_changeable_content uuid draft currsel =
   let open (val !Belenios_js.I18n.gettext) in
-  let uuid = get_current_uuid () in
-  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let* status = Cache.get_until_success Cache.status in
-  let first_currsel =
-    if not status.credential_authority_visited then `None
-    else if draft.draft_questions.t_credential_authority = Some "server" then
-      `Server
-    else `Extern
-  in
-  let currsel = ref first_currsel in
-  (* The page content, when the user can still choose between both options *)
-  let* changeable_content =
-    (* server ? *)
+  let currsel = ref currsel in
+  let refresh_hooks = ref [] in
+  let refresh () = List.iter (fun f -> f ()) !refresh_hooks in
+  let* server_part =
     let attr =
       let onclick () =
         let* () = change_credauth_name "server" in
         currsel := `Server;
-        let* () =
-          let&&* d = document##getElementById (Js.string "cred_auth_name") in
-          d##.style##.display := Js.string "none";
-          Lwt.return_unit
-        in
-        let&&* d = document##getElementById (Js.string "cred_gen_serv") in
-        d##.style##.visibility := Js.string "visible";
+        refresh ();
         Lwt.return_unit
       in
       [
@@ -1385,18 +1371,18 @@ let credauth_content () =
         [ txt @@ s_ "By our server (not ideal for decentralized security)" ]
     in
     let generate_but =
-      button (s_ "Generate and send the credentials") (fun () ->
-          let* res = Api.(post (draft_public_credentials uuid) !user []) in
-          match res.code with
-          | 200 -> !update_election_main ()
-          | code -> (
-              match request_status_of_string res.content with
-              | { error = `ValidationError `NoVoters; _ } ->
-                  alert @@ s_ "The voter list is empty!";
-                  Lwt.return_unit
-              | _ | (exception _) ->
-                  Printf.ksprintf alert "Failed with error code %d" code;
-                  Lwt.return_unit))
+      let@ () = button (s_ "Generate and send the credentials") in
+      let* res = Api.(post (draft_public_credentials uuid) !user []) in
+      match res.code with
+      | 200 -> !update_election_main ()
+      | code -> (
+          match request_status_of_string res.content with
+          | { error = `ValidationError `NoVoters; _ } ->
+              alert @@ s_ "The voter list is empty!";
+              Lwt.return_unit
+          | _ | (exception _) ->
+              Printf.ksprintf alert "Failed with error code %d" code;
+              Lwt.return_unit)
     in
     let generate_part =
       div
@@ -1406,20 +1392,21 @@ let credauth_content () =
           div [ txt @@ s_ "Warning: this will freeze the voter list!" ];
         ]
     in
-    let dd = Tyxml_js.To_dom.of_div generate_part in
-    if !currsel <> `Server then dd##.style##.visibility := Js.string "hidden";
-    let serv_part = div [ rad_serv; lab_serv; generate_part ] in
-    (* extern ? *)
+    let update =
+      let d = Tyxml_js.To_dom.of_div generate_part in
+      fun () ->
+        match !currsel with
+        | `Server -> d##.style##.visibility := Js.string "visible"
+        | _ -> d##.style##.visibility := Js.string "hidden"
+    in
+    refresh_hooks := update :: !refresh_hooks;
+    div [ rad_serv; lab_serv; generate_part ] |> Lwt.return
+  in
+  let* extern_part =
     let attr =
       let onclick () =
         currsel := `Extern;
-        let* () =
-          let&&* d = document##getElementById (Js.string "cred_auth_name") in
-          d##.style##.display := Js.string "block";
-          Lwt.return_unit
-        in
-        let&&* d = document##getElementById (Js.string "cred_gen_serv") in
-        d##.style##.visibility := Js.string "hidden";
+        refresh ();
         Lwt.return_unit
       in
       [
@@ -1454,9 +1441,14 @@ let credauth_content () =
           ~onchange ~value ()
       in
       let dd = div ~a:[ a_id "cred_auth_name" ] [ lab_ext; inp_ext ] in
-      let ddd = Tyxml_js.To_dom.of_div dd in
-      if !currsel <> `Extern then ddd##.style##.display := Js.string "none"
-      else ddd##.style##.display := Js.string "block";
+      let update =
+        let d = Tyxml_js.To_dom.of_div dd in
+        fun () ->
+          match !currsel with
+          | `Extern -> d##.style##.display := Js.string "block"
+          | _ -> d##.style##.display := Js.string "none"
+      in
+      refresh_hooks := update :: !refresh_hooks;
       (dd, has_name)
     in
     let* print_link =
@@ -1476,95 +1468,112 @@ let credauth_content () =
             let subject, body =
               X.mail_credential_authority !Belenios_js.I18n.gettext link
             in
-            Lwt.return
-            @@ div
-                 ~a:[ a_id "cred_link" ]
-                 [
-                   div
-                     [
-                       a_mailto ~recipient:"" ~subject ~body
-                         (s_ "Send an e-mail to the credential authority");
-                       txt @@ s_ " or send them manually this link:";
-                       ul
-                         [
-                           li
-                             [
-                               span ~a:[ a_id "cred_link_target" ] [ txt link ];
-                             ];
-                         ];
-                     ];
-                   div [ txt @@ s_ "Warning: this will freeze the voter list!" ];
-                 ]
-      else Lwt.return @@ div []
+            div
+              ~a:[ a_id "cred_link" ]
+              [
+                div
+                  [
+                    a_mailto ~recipient:"" ~subject ~body
+                      (s_ "Send an e-mail to the credential authority");
+                    txt @@ s_ " or send them manually this link:";
+                    ul
+                      [
+                        li [ span ~a:[ a_id "cred_link_target" ] [ txt link ] ];
+                      ];
+                  ];
+                div [ txt @@ s_ "Warning: this will freeze the voter list!" ];
+              ]
+            |> Lwt.return
+      else div [] |> Lwt.return
     in
-    let extern_part = div [ rad_ext; lab_ext; extern_name_div; print_link ] in
-    (* put things together for changeable_content *)
-    Lwt.return
-    @@ div ~a:[ a_class [ "which_credauth" ] ] [ serv_part; extern_part ]
+    div [ rad_ext; lab_ext; extern_name_div; print_link ] |> Lwt.return
   in
-  (* The page content, when server is definitely chosen *)
-  let* server_content =
-    let* priv = Api.(get (draft_private_credentials uuid) !user) in
-    match priv with
-    | Error _ -> Lwt.return @@ div [ txt "Error" ]
-    | Ok (p, _) ->
-        let link =
-          let onclick () =
-            let* x = Api.(post (draft uuid) !user `SetDownloaded) in
-            match x.code with
-            | 200 -> !update_election_main ()
-            | _ ->
-                alert ("Failed with error code " ^ string_of_int x.code);
-                Lwt.return_unit
-          in
-          a_data
-            ~a:[ a_onclick_lwt onclick ]
-            ~mime_type:"text/plain"
-            ~data:(string_of_private_credentials p)
-            ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid))
-          @@ s_ "the private parts of the credentials"
+  refresh ();
+  (* put things together for changeable_content *)
+  div ~a:[ a_class [ "which_credauth" ] ] [ server_part; extern_part ]
+  |> Lwt.return
+
+(** The page content, when server is definitely chosen *)
+let credauth_server_content uuid =
+  let open (val !Belenios_js.I18n.gettext) in
+  let* priv = Api.(get (draft_private_credentials uuid) !user) in
+  match priv with
+  | Error _ -> div [ txt "Error" ] |> Lwt.return
+  | Ok (p, _) ->
+      let link =
+        let onclick () =
+          let* x = Api.(post (draft uuid) !user `SetDownloaded) in
+          match x.code with
+          | 200 -> !update_election_main ()
+          | _ ->
+              alert ("Failed with error code " ^ string_of_int x.code);
+              Lwt.return_unit
         in
-        div
-          ~a:[ a_class [ "txt_with_a" ] ]
-          [
-            txt @@ s_ "Please download ";
-            link;
-            txt @@ s_ " and save them in a secure location.";
-          ]
-        |> Lwt.return
+        a_data
+          ~a:[ a_onclick_lwt onclick ]
+          ~mime_type:"text/plain"
+          ~data:(string_of_private_credentials p)
+          ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid))
+        @@ s_ "the private parts of the credentials"
+      in
+      div
+        ~a:[ a_class [ "txt_with_a" ] ]
+        [
+          txt @@ s_ "Please download ";
+          link;
+          txt @@ s_ " and save them in a secure location.";
+        ]
+      |> Lwt.return
+
+(** The page content, when external authority is definitely chosen *)
+let credauth_extern_content () =
+  let open (val !Belenios_js.I18n.gettext) in
+  div
+    [
+      txt
+      @@ s_
+           "Credentials have been received from the external credential \
+            authority.";
+    ]
+  |> Lwt.return
+
+(** The page content, when the server is generating credentials *)
+let credauth_pending_content i =
+  let open (val !Belenios_js.I18n.gettext) in
+  div
+    [
+      txt @@ s_ "Credentials are being generated on the server.";
+      txt " ";
+      Printf.ksprintf txt (f_ "Number of credentials left: %d.") i;
+    ]
+  |> Lwt.return
+
+let credauth_content () =
+  let open (val !Belenios_js.I18n.gettext) in
+  let uuid = get_current_uuid () in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
+  let* status = Cache.get_until_success Cache.status in
+  let currsel =
+    if not status.credential_authority_visited then `None
+    else if draft.draft_questions.t_credential_authority = Some "server" then
+      `Server
+    else `Extern
   in
-  (* The page content, when external authority is definitely chosen *)
-  let extern_content =
-    div
-      [
-        txt
-        @@ s_
-             "Credentials have been received from the external credential \
-              authority.";
-      ]
-  in
-  (* The page content, when the server is generating credentials *)
-  let pending_content i =
-    div
-      [
-        txt @@ s_ "Credentials are being generated on the server.";
-        txt " ";
-        Printf.ksprintf txt (f_ "Number of credentials left: %d.") i;
-      ]
-  in
-  let content =
-    match first_currsel with
-    | `None -> changeable_content
+  let* content =
+    match currsel with
+    | `None -> credauth_changeable_content uuid draft currsel
     | `Server -> (
-        if status.credentials_ready then server_content
+        if status.credentials_ready then credauth_server_content uuid
         else
           match status.credentials_left with
-          | None -> changeable_content
-          | Some i -> pending_content i)
+          | None -> credauth_changeable_content uuid draft currsel
+          | Some i -> credauth_pending_content i)
     | `Extern ->
-        if status.credentials_ready then extern_content else changeable_content
+        if status.credentials_ready then credauth_extern_content ()
+        else credauth_changeable_content uuid draft currsel
   in
-  Lwt.return [ div [ h3 [ txt @@ s_ "Management of credentials:" ]; content ] ]
+  [ div [ h3 [ txt @@ s_ "Management of credentials:" ]; content ] ]
+  |> Lwt.return
 
 let voterspwd_content_draft () =
   let open (val !Belenios_js.I18n.gettext) in
