@@ -19,10 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let belenios = "https://www.belenios.org/"
-let setup = "https://www.belenios.org/setup.html"
-let translation = "https://www.belenios.org/translation.html"
-let mixnet = "https://www.belenios.org/mixnet.html"
+let belenios = "https://www.belenios.net/"
+let setup = "https://www.belenios.net/setup.html"
+let translation = "https://www.belenios.net/translation.html"
+let mixnet = "https://www.belenios.net/mixnet.html"
 
 let cred_instructions =
-  "https://www.belenios.org/instructions.html#instructions-for-the-credential-authority"
+  "https://www.belenios.net/instructions.html#instructions-for-the-credential-authority"

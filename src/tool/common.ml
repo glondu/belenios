@@ -119,7 +119,7 @@ let common_man =
     `P "This command is part of the Belenios command-line tool.";
     `P "To get more help on a specific subcommand, run:";
     `P "$(b,belenios-tool) $(i,COMMAND) $(b,--help)";
-    `P "See $(i,https://www.belenios.org/).";
+    `P "See $(i,https://www.belenios.net/).";
   ]
 
 open Cmdliner

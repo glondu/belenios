@@ -2,7 +2,7 @@
 
 
 
-The `frontend` folder contains a booth page, with its Javascript application and several User Interface components meant to be used in [Belenios](https://www.belenios.org/). They are implemented using Javascript ES6 and React (without JSX nor transpilation), and use i18next for internationalization.
+The `frontend` folder contains a booth page, with its Javascript application and several User Interface components meant to be used in [Belenios](https://www.belenios.net/). They are implemented using Javascript ES6 and React (without JSX nor transpilation), and use i18next for internationalization.
 
 ## Using it: Executing the booth
 
