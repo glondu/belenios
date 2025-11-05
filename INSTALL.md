@@ -6,7 +6,7 @@ Belenios. To get help or share your experience, please use in priority
 the [public
 mailing-list](https://sympa.inria.fr/sympa/info/belenios-discuss). To
 give feedback on deploying an instance, you can also [mail
-us](mailto:contact@belenios.org).
+us](mailto:contact@vcast.vote).
 
 Using containers
 ----------------

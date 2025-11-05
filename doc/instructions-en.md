@@ -25,9 +25,9 @@ handling the election, and `UUID` identifies the election we are talking
 about among the possibly many elections which are run on this server.
 Typically, if the main page of the election is of the form
 
-    https://vote.belenios.org/election#8GVH85AoSyweXG
+    https://vote.example.org/election#8GVH85AoSyweXG
 
-then `PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
+then `PREFIX=https://vote.example.org` and `UUID=8GVH85AoSyweXG`.
 
 Instructions for the voter
 --------------------------
@@ -309,7 +309,7 @@ Instructions for the auditor
 Anyone who knows the `url` of the election can be an auditor.
 The `url` of an election is of the form
 `PREFIX/election#UUID`, where, for instance,
-`PREFIX=https://vote.belenios.org` and `UUID=8GVH85AoSyweXG`.
+`PREFIX=https://vote.example.org` and `UUID=8GVH85AoSyweXG`.
 
 An auditor will ensure in particular that:
 
@@ -385,7 +385,7 @@ server are valid, while monitoring the election identified by UUID:
   the corresponding command-line, to be adapted for another server or
   another trusted person:
 
-        ./monitor_elections.py --url https://vote.belenios.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.belenios.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
+        ./monitor_elections.py --url https://vote.example.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
 
 In all cases, the auditor will regularly execute a monitoring command
 that we call `monitor_elections`.
@@ -444,7 +444,7 @@ Note: If the `belenios-tool` command-line tool is used, the trust in
 the audit verifications partly relies on the trust in this tool. It is
 possible to write independent verification software following Belenios
 specification available
-[here](https://www.belenios.org/specification.pdf).
+[here](https://vote.vcast.vote/v3/static/specification.pdf).
 
 Instructions for the administrator of the election
 --------------------------------------------------
@@ -505,5 +505,5 @@ but of course you may replace it by any other file.
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
 You may also use
-[the online tool](https://vote.belenios.org/tools/compute-fingerprint)
+[the online tool](https://vote.vcast.vote/v3/tools/compute-fingerprint)
 supported by Belenios.

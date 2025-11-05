@@ -16,7 +16,7 @@ import random
 import tarfile
 
 # Example :
-#   ./monitor_elections.py --uuid aTGmQNj1SXA5JG --url https://vote.belenios.org/ --wdir /tmp/wdir --checkhash yes --hashref $HOME/hashref --outputref  $HOME/hashref --sighashref https://vote.belenios.org/monitoring-reference/reference.json.gpg --keyring $HOME/.gnupg/pubring.gpg
+#   ./monitor_elections.py --uuid aTGmQNj1SXA5JG --url https://vote.example.org/ --wdir /tmp/wdir --checkhash yes --hashref $HOME/hashref --outputref  $HOME/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring $HOME/.gnupg/pubring.gpg
 
 
 # External dependencies (must be in path):

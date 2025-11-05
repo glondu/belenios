@@ -24,9 +24,9 @@ l'élection, et `UUID` identifie l'élection dont on parle, parmi les
 autres élections qui sont gérées sur ce serveur. Typiquement, si la page
 principale de l'élection est de la forme
 
-    https://vote.belenios.org/election#8GVH85AoSyweXG
+    https://vote.example.org/election#8GVH85AoSyweXG
 
-alors `PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
+alors `PREFIXE=https://vote.example.org` et `UUID=8GVH85AoSyweXG`.
 
 Instructions pour l'électeur
 -------------------------
@@ -320,7 +320,7 @@ Instructions pour l'auditeur
 Tout le monde connaissant l'`url` de l'élection peut être auditeur.
 L'`url` d'une élection est de la forme
 `PREFIXE/election#UUID`, où, par exemple,
-`PREFIXE=https://vote.belenios.org` et `UUID=8GVH85AoSyweXG`.
+`PREFIXE=https://vote.example.org` et `UUID=8GVH85AoSyweXG`.
 
 Un auditeur va, en particulier, assurer que :
 
@@ -400,7 +400,7 @@ par UUID :
   donnons la ligne de commande correspondante, devant être adaptée pour
   un autre serveur ou une autre personne de confiance :
 
-        ./monitor_elections.py --url https://vote.belenios.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.belenios.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
+        ./monitor_elections.py --url https://vote.example.org/ --wdir workdir --checkhash yes --hashref workdir/hashref --outputref workdir/hashref --sighashref https://vote.example.org/monitoring-reference/reference.json.gpg --keyring workdir/trustdb.gpg --uuid UUID
 
 Dans tous les cas, l'auditeur va régulièrement exécuter une commande
 d'audit que nous appellerons `monitor_elections`.
@@ -462,7 +462,7 @@ Après l'élection, il est attendu de l'auditeur :
 Note : Si l'outil en ligne de commande `belenios-tool` est utilisé, la
 confiance dans les tests effectués repose en partie dans la confiance
 en l'outil. Il est possible d'implémenter son propre logiciel de
-vérification à partir des spécifications de Belenios, disponibles [ici](https://www.belenios.org/specification.pdf).
+vérification à partir des spécifications de Belenios, disponibles [ici](https://vote.vcast.vote/v3/static/specification.pdf).
 
 
 Instructions pour l'administrateur de l'élection
@@ -533,5 +533,5 @@ ou encore :
 
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
-Vous pouvez également utiliser [l'outil en ligne](https://vote.belenios.org/tools/compute-fingerprint) mis à disposition par
+Vous pouvez également utiliser [l'outil en ligne](https://vote.vcast.vote/v3/tools/compute-fingerprint) mis à disposition par
 Belenios.
