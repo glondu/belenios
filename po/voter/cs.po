@@ -1,11 +1,10 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-15 06:37+0000\n"
-"PO-Revision-Date: 2025-06-04 23:01+0000\n"
-"Last-Translator: Jiří Podhorecký <j.podhorecky@volny.cz>\n"
+"PO-Revision-Date: 2025-11-05 15:32+0000\n"
+"Last-Translator: Tomáš Martínek <martinekt@pef.czu.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/belenios/voter/cs/>"
 "\n"
 "Language: cs\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: src/web/server/common/pages_common.ml:339
 msgid " (if you forgot it, for example)."
@@ -165,9 +164,9 @@ msgstr "Data auditu nejsou k dispozici."
 msgid "Audit data: "
 msgstr "Audit dat: "
 
-#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
+#: src/web/server/common/pages_common.ml:483
 msgid "Authenticate"
 msgstr "Ověřit"
 
@@ -211,7 +210,7 @@ msgstr "Špatný bezpečnostní kód!"
 
 #: src/web/server/common/mails_voter.ml:354
 msgid "Best regards,"
-msgstr "S pozdravem,"
+msgstr "S pozdravem"
 
 #: src/web/clients/election/home.ml:483
 msgid "Blank vote"
@@ -253,14 +252,14 @@ msgstr "Autorita pro ověřování pravosti"
 msgid "Credentials fingerprint"
 msgstr "Ověření otisku prstu"
 
-#: src/web/server/common/mails_voter.ml:334
 #. src/web/server/common/mails_voter.ml:283
+#: src/web/server/common/mails_voter.ml:334
 msgid "Dear %s,"
 msgstr "Milý/Milá %s,"
 
-#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
+#: src/web/server/common/pages_common.ml:512
 msgid "E-mail address:"
 msgstr "E-mailová adresa:"
 
@@ -320,10 +319,10 @@ msgstr "Zapovězeno"
 msgid "Get the source code"
 msgstr "Získat zdrojový kód"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:261
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
-msgstr "Vrátit se k vyplňování hlasovacího lístku"
+msgstr "Zpět k volbám"
 
 #: src/web/server/common/mails_voter.ml:210
 msgid "If the above link does not work:"
@@ -352,7 +351,7 @@ msgstr "Je na tobě použít tvoji oblíbenou metodu vyhodnocení."
 
 #: src/web/clients/election/home.ml:670
 msgid "It will open at %s (time left: %s)."
-msgstr ""
+msgstr "Otevře se v %s (zbývající čas: %s)."
 
 #: src/web/clients/election/home.ml:554
 msgid "JSON result"
@@ -364,12 +363,12 @@ msgstr "Jazyk:"
 
 #: src/web/clients/election/ballots.ml:91
 msgid "Loading..."
-msgstr ""
+msgstr "Načítání..."
 
-#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
+#: src/web/server/common/pages_common.ml:482
 msgid "Log in"
 msgstr "Přihlásit se"
 
@@ -406,15 +405,15 @@ msgstr "Počet odevzdaných lístků: "
 
 #: src/web/clients/election/home.ml:103
 msgid "Number of voters"
-msgstr ""
+msgstr "Počet voličů"
 
-#: src/web/server/common/mails_voter.ml:227
 #. src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:227
 msgid "Number of votes:"
 msgstr "Počet hlasování:"
 
-#: src/web/server/common/mails_voter.ml:234
 #. src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:234
 msgid "Only the last vote counts."
 msgstr ""
 "Započítán bude pouze volební lístek, který byl zadaný a odeslaný naposledy."
@@ -423,8 +422,8 @@ msgstr ""
 msgid "Page of the election:"
 msgstr "Stránka volby:"
 
-#: src/web/server/common/pages_common.ml:382
 #. src/web/server/common/mails_voter.ml:116
+#: src/web/server/common/pages_common.ml:382
 msgid "Password:"
 msgstr "Heslo:"
 
@@ -453,32 +452,34 @@ msgstr ""
 #: src/web/clients/election/advanced.ml:76
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
+"Vložte prosím svůj zašifrovaný hlasovací lístek ve formátu JSON do "
+"následujícího pole:"
 
 #: src/web/server/common/mails_voter.ml:196
 msgid "Please vote here using your personal link:"
-msgstr ""
+msgstr "Hlasujte prosím zde pomocí svého osobního odkazu:"
 
 #: src/web/clients/election/advanced.ml:259
 msgid "Please wait while your ballot is being processed..."
-msgstr ""
+msgstr "Počkejte, prosím, zatímco se zpracovává váš hlasovací lístek..."
 
 #: src/web/common/pages_common.ml:61
 msgid "Powered by "
 msgstr "Provozuje "
 
-#: src/web/clients/election/advanced.ml:250
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
+#: src/web/clients/election/advanced.ml:250
 msgid "Proceed"
 msgstr "Pokračovat"
 
 #: src/web/clients/election/advanced.ml:197
 msgid "Processing ballot"
-msgstr ""
+msgstr "Zpracování hlasovacích lístků"
 
 #: src/web/server/common/mails_voter.ml:213
 msgid "Public page of the election:"
-msgstr ""
+msgstr "Veřejná stránka voleb:"
 
 #: src/web/clients/election/home.ml:433
 msgid "Raw events"
@@ -486,11 +487,11 @@ msgstr "Nezpracovaný záznam události"
 
 #: src/web/server/common/pages_common.ml:561
 msgid "Redirection"
-msgstr ""
+msgstr "Přesměrování"
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
-msgstr ""
+msgstr "Omezený režim"
 
 #: src/web/server/common/mails_voter.ml:317
 msgid "Results will be published on the election page"
@@ -498,7 +499,7 @@ msgstr "Výsledky budou zveřejněny na stránce volby"
 
 #: src/web/clients/election/home.ml:120
 msgid "Sealing log fingerprint"
-msgstr ""
+msgstr "Pečetění otisku protokolu"
 
 #: src/web/clients/election/home.ml:739
 msgid "See accepted ballots"
@@ -518,20 +519,20 @@ msgstr ""
 msgid "Start"
 msgstr "Start"
 
-#: src/web/clients/election/advanced.ml:106
 #. src/web/clients/election/advanced.ml:69
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
+#: src/web/clients/election/advanced.ml:106
 msgid "Submit"
 msgstr "Zadat"
 
 #: src/web/clients/election/advanced.ml:164
 msgid "Submit by copy/paste"
-msgstr ""
+msgstr "Odeslat kopírováním/vložením"
 
 #: src/web/clients/election/advanced.ml:166
 msgid "Submit by file"
-msgstr ""
+msgstr "Odeslat souborem"
 
 #: src/web/clients/election/home.ml:458
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
@@ -541,11 +542,11 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:67
 msgid "Terms of service"
-msgstr ""
+msgstr "Podmínky užívání"
 
 #: src/web/common/pages_common.ml:239
 msgid "Thank you for voting!"
-msgstr "Díky za tvůj hlas!"
+msgstr "Děkujeme za hlasování!"
 
 #: src/web/clients/election/home.ml:396
 msgid "The Schulze winners are:"
@@ -557,7 +558,7 @@ msgstr "Vítězi volby jedním přenosným hlasem jsou:"
 
 #: src/web/clients/election/home.ml:663
 msgid "The election is being prepared. Please come back later."
-msgstr ""
+msgstr "Volby se připravují. Vraťte se prosím později."
 
 #: src/web/clients/election/home.ml:690 src/web/clients/election/home.ml:688
 msgid "The election is closed and being tallied."
@@ -565,7 +566,7 @@ msgstr "Volba byla uzavřena a probíhá její vyhodnocení."
 
 #: src/web/clients/election/home.ml:681
 msgid "The election will close at %s (time left: %s)."
-msgstr ""
+msgstr "Volby budou ukončeny v %s (zbývající čas: %s)."
 
 #: src/web/clients/tool/tool_js_fingerprint.ml:47
 msgid "The fingerprints differ!"
@@ -586,6 +587,8 @@ msgstr "Došlo alespoň k jednomu patu."
 #: src/web/server/common/pages_common.ml:448
 msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
 msgstr ""
+"Tento kód se skládá ze 6 znaků. Jeho doručení může trvat až 15 minut, proto "
+"prosím buďte trpěliví."
 
 #: src/web/server/common/site_common.ml:38
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
@@ -605,7 +608,7 @@ msgstr "Tato volba je v tuto chvíli uzavřena."
 
 #: src/web/common/pages_common.ml:200
 msgid "This is a revote."
-msgstr "Toto je opakovaná volba."
+msgstr "Toto je nové hlasování."
 
 #: src/web/server/common/mails_voter.ml:307
 msgid "This vote replaces any previous vote."
@@ -635,26 +638,26 @@ msgstr "Garanti hlasovací lístky zamíchali v tomto pořadí:"
 
 #: src/web/clients/election/home.ml:593
 msgid "Unsupported question type"
-msgstr ""
+msgstr "Nepodporovaný typ otázky"
 
 #: src/web/server/common/mails_voter.ml:341
 msgid "Use the following code:"
 msgstr "Použij následující kód:"
 
-#: src/web/server/common/pages_common.ml:345
 #. src/web/server/common/pages_common.ml:277
 #. src/web/server/common/mails_voter.ml:217
 #. src/web/server/common/mails_voter.ml:112
+#: src/web/server/common/pages_common.ml:345
 msgid "Username:"
 msgstr "Uživatelské jméno:"
 
 #: src/web/clients/election/home.ml:108
 msgid "Voter list fingerprint"
-msgstr ""
+msgstr "Otisk voličského seznamu"
 
 #: src/web/clients/election/home.ml:131
 msgid "Voters' total weight"
-msgstr ""
+msgstr "Celková váha voličů"
 
 #: src/web/server/common/pages_voter.ml:66
 msgid "Warning:"
@@ -669,6 +672,8 @@ msgstr ""
 #: src/web/server/common/mails_voter.ml:184
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
+"Upozornění: tento e-mail obsahuje osobní a důvěrné informace a nesmí být "
+"dále šířen."
 
 #: src/web/clients/election/home.ml:388
 msgid "We use here the Schulze method and we refer voters to "
@@ -676,14 +681,16 @@ msgstr "Využívme zde Schulzeho metodu a voliče odkazujeme na "
 
 #: src/web/server/common/pages_common.ml:184 src/web/common/pages_common.ml:102
 msgid "Wish to help with translations?"
-msgstr "Chceš pomoci s překladem?"
+msgstr "Chcete pomoci s překlady?"
 
 #: src/web/clients/election/advanced.ml:241
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
+"Chystáte se odeslat hlasovací lístek s chytrým sledovačem hlasovacího lístku "
+"%s."
 
-#: src/web/server/common/mails_voter.ml:233
 #. src/web/server/common/mails_voter.ml:133
+#: src/web/server/common/mails_voter.ml:233
 msgid "You are allowed to vote several times."
 msgstr "Můžeš volit několikrát."
 
@@ -709,7 +716,7 @@ msgstr "Můžeš si také stáhnout "
 
 #: src/web/common/pages_common.ml:232
 msgid "You can check its presence in the "
-msgstr "Můžeš zkontrolovat jeho přítomnost ve "
+msgstr "Jeho přítomnost můžete zkontrolovat v "
 
 #: src/web/server/common/mails_voter.ml:311
 msgid "You can check its presence in the ballot box, accessible at"
@@ -719,10 +726,12 @@ msgstr ""
 #: src/web/clients/election/advanced.ml:140
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
+"Šifrovaný hlasovací lístek můžete vytvořit pomocí nástroje příkazového "
+"řádku. "
 
 #: src/web/server/common/pages_common.ml:478
 msgid "You cannot authenticate right now."
-msgstr ""
+msgstr "V tuto chvíli se nemůžete přihlásit."
 
 #: src/web/server/common/pages_common.ml:536
 msgid "You cannot log in now. Please try later."
@@ -730,7 +739,7 @@ msgstr "Nyní se nemůžeš přihlásit. Zkus to prosím později."
 
 #: src/web/common/pages_common.ml:251
 msgid "Your ballot for "
-msgstr "Váš volební lístek pro "
+msgstr "Váš hlasovací lístek pro "
 
 #: src/web/server/common/mails_voter.ml:254
 msgid "Your credential for election %s"
@@ -738,7 +747,7 @@ msgstr "Tvůj přístupový kód pro volbu %s"
 
 #: src/web/server/common/mails_voter.ml:221
 msgid "Your credential:"
-msgstr ""
+msgstr "Vaše pověření:"
 
 #: src/web/server/common/mails_voter.ml:338
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
@@ -756,7 +765,7 @@ msgstr "Tvůj kód pro kontrolu chytré volby je"
 
 #: src/web/common/pages_common.ml:229
 msgid "Your smart ballot tracker is "
-msgstr "Tvůj kód pro kontrolu chytré volby je "
+msgstr "Váš inteligentní sledovač hlasování je "
 
 #: src/web/server/common/mails_voter.ml:286
 msgid "Your vote for election"
@@ -772,11 +781,11 @@ msgstr "Tvůj hlasovací lístek nebyl zaznamenán!"
 
 #: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
 msgid "Your weight is %s."
-msgstr "Tvá váha je %s."
+msgstr "Vaše váha je %s."
 
 #: src/web/common/pages_common.ml:220
 msgid "ballot box"
-msgstr "volební urně"
+msgstr "volební urna"
 
 #: src/web/server/common/pages_common.ml:337
 msgid "change your password"
@@ -788,7 +797,7 @@ msgstr "vytvořit účet"
 
 #: src/web/clients/election/advanced.ml:127
 msgid "direct link"
-msgstr ""
+msgstr "přímý odkaz"
 
 #: src/web/server/common/mails_voter.ml:293
 msgid "has been recorded."
@@ -812,7 +821,7 @@ msgstr "verifikace některých důkazů selhala"
 
 #: src/web/clients/election/advanced.ml:144
 msgid "sources"
-msgstr ""
+msgstr "zdroje"
 
 #: src/web/server/common/pages_voter.ml:57
 msgid "start from the beginning"
@@ -820,7 +829,7 @@ msgstr "začít od začátku"
 
 #: src/web/clients/common/secondary_ui.ml:94
 msgid "terms of service"
-msgstr ""
+msgstr "podmínky služby"
 
 #: src/web/clients/election/home.ml:390
 msgid "the Wikipedia page"
@@ -832,7 +841,7 @@ msgstr "volba je uzavřena"
 
 #: src/web/common/confirmation.ml:39
 msgid "the server responded unexpectedly"
-msgstr ""
+msgstr "server reagoval neočekávaně"
 
 #: src/web/common/confirmation.ml:36
 msgid "this ballot has already been accepted"
@@ -881,4 +890,3 @@ msgstr "tvůj přístupový kód je neplatný"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "tvé uživatelské jméno je nesprávné"
-
