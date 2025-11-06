@@ -1313,12 +1313,12 @@ let contact_content () =
         ];
     ]
 
-let send_draft_request req =
+let send_draft_request ?onsuccess req =
   let uuid = get_current_uuid () in
   let* x = Api.(post (draft uuid) !user req) in
   if x.code <> 200 then
     alert ("Draft request failed with error code " ^ string_of_int x.code);
-  Lwt.return_unit
+  match (x.code, onsuccess) with 200, Some f -> f () | _ -> Lwt.return_unit
 
 let change_credauth_name name =
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
@@ -1334,6 +1334,17 @@ let change_credauth_name name =
   let* () = send_draft_request `SetCredentialAuthorityVisited in
   let* res = Cache.sync () in
   match res with Error msg -> popup_failsync msg | Ok () -> Lwt.return_unit
+
+let change_cred_authority_info draft_cred_authority_info =
+  let* x = Cache.get Cache.draft in
+  match x with
+  | Error msg ->
+      alert msg;
+      Lwt.return_unit
+  | Ok (Draft (v, draft)) ->
+      Cache.set Cache.draft
+        (Draft (v, { draft with draft_cred_authority_info }));
+      Cache.sync_until_success ()
 
 (** The page content, when the user can still choose between both options *)
 let credauth_changeable_content uuid draft currsel =
@@ -1468,6 +1479,89 @@ let credauth_changeable_content uuid draft currsel =
       in
       update_print_link ()
     in
+    let* extern_server_div =
+      let inp, _ =
+        input ~a:[ a_id "extern_server_chk"; a_input_type `Checkbox ] ()
+      in
+      let inp_dom = Tyxml_js.To_dom.of_input inp in
+      let lab =
+        label
+          ~a:[ a_label_for "extern_server_chk" ]
+          [ txt @@ s_ "Use an external server" ]
+      in
+      let inp_server, get_server =
+        input
+          ~a:
+            [
+              a_id "extern_server_server";
+              a_placeholder @@ s_ "Credential server";
+            ]
+          ()
+      in
+      let inp_operator, get_operator =
+        input
+          ~a:
+            [
+              a_id "extern_server_operator";
+              a_placeholder @@ s_ "Credential operator";
+            ]
+          ()
+      in
+      let btn_set =
+        let@ () =
+          button ~a:[ a_id "extern_server_set" ]
+          @@ s_ "Set credential authority info"
+        in
+        let cred_server = get_server () in
+        let cred_operator = get_operator () in
+        change_cred_authority_info @@ Some { cred_server; cred_operator }
+      in
+      let btn_initiate =
+        let@ b =
+          button_self ~a:[ a_id "extern_server_initiate" ]
+          @@ s_ "Initiate protocol"
+        in
+        let onsuccess () =
+          b##.disabled := Js._true;
+          Lwt.return_unit
+        in
+        send_draft_request ~onsuccess `InitiateCredentialAuthorityProtocol
+      in
+      let info =
+        div
+          [
+            div [ inp_server; inp_operator; btn_set ];
+            div
+              [
+                btn_initiate;
+                txt " ";
+                txt @@ s_ "Warning: this will freeze the voter list!";
+              ];
+          ]
+      in
+      let info_dom = Tyxml_js.To_dom.of_div info in
+      let () =
+        match draft.draft_cred_authority_info with
+        | None -> info_dom##.style##.display := Js.string "none"
+        | Some { cred_server; cred_operator } ->
+            inp_dom##.checked := Js._true;
+            let inp_server_dom = Tyxml_js.To_dom.of_input inp_server in
+            inp_server_dom##.value := Js.string cred_server;
+            let inp_operator_dom = Tyxml_js.To_dom.of_input inp_operator in
+            inp_operator_dom##.value := Js.string cred_operator
+      in
+      let () =
+        inp_dom##.onchange :=
+          let@ _ = Dom.handler in
+          if Js.to_bool inp_dom##.checked then
+            info_dom##.style##.display := Js.string "block"
+          else (
+            info_dom##.style##.display := Js.string "none";
+            Lwt.async (fun () -> change_cred_authority_info None));
+          Js._false
+      in
+      div [ inp; lab; info ] |> Lwt.return
+    in
     let* extern_name_div =
       let value =
         match !currsel with
@@ -1488,7 +1582,11 @@ let credauth_changeable_content uuid draft currsel =
       in
       get_credauth_name := get_ext;
       let* () = update_credauth_name ~submit:false () in
-      let dd = div ~a:[ a_id "cred_auth_name" ] [ inp_ext; print_link ] in
+      let dd =
+        div
+          ~a:[ a_id "cred_auth_name" ]
+          [ inp_ext; print_link; extern_server_div ]
+      in
       let update =
         let d = Tyxml_js.To_dom.of_div dd in
         fun () ->
