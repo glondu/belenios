@@ -1338,9 +1338,7 @@ let change_credauth_name name =
   let* () = Cache.sync_until_success () in
   let* () = send_draft_request `SetCredentialAuthorityVisited in
   let* res = Cache.sync () in
-  match res with
-  | Error msg -> popup_failsync msg
-  | Ok () -> !update_election_main ()
+  match res with Error msg -> popup_failsync msg | Ok () -> Lwt.return_unit
 
 (** The page content, when the user can still choose between both options *)
 let credauth_changeable_content uuid draft currsel =
@@ -1403,8 +1401,10 @@ let credauth_changeable_content uuid draft currsel =
     div [ rad_serv; lab_serv; generate_part ] |> Lwt.return
   in
   let* extern_part =
+    let get_credauth_name = ref (fun () -> "") in
     let attr =
       let onclick () =
+        let* () = change_credauth_name @@ !get_credauth_name () in
         currsel := `Extern;
         refresh ();
         Lwt.return_unit
@@ -1423,41 +1423,23 @@ let credauth_changeable_content uuid draft currsel =
         ~a:[ a_label_for "rad_ext" ]
         [ txt @@ s_ "By a third-party of your choice" ]
     in
-    let extern_name_div, has_name =
-      let value, has_name =
-        if !currsel = `Extern then
-          match draft.draft_questions.t_credential_authority with
-          | Some x -> (x, true)
-          | _ -> ("none", false)
-        else ("", false)
-      in
-      let inp_ext, _ =
-        let onchange r =
-          let name = Js.to_string r##.value in
-          Lwt.async (fun () -> change_credauth_name name)
-        in
-        input
-          ~a:[ a_placeholder @@ s_ "Name of the credential authority" ]
-          ~onchange ~value ()
-      in
-      let dd = div ~a:[ a_id "cred_auth_name" ] [ lab_ext; inp_ext ] in
-      let update =
-        let d = Tyxml_js.To_dom.of_div dd in
-        fun () ->
+    let print_link = div ~a:[ a_id "cred_link" ] [] in
+    let update_print_link =
+      let d = Tyxml_js.To_dom.of_div print_link in
+      fun () ->
+        let@ () = show_in d in
+        let@ () =
+         fun cont ->
           match !currsel with
-          | `Extern -> d##.style##.display := Js.string "block"
-          | _ -> d##.style##.display := Js.string "none"
-      in
-      refresh_hooks := update :: !refresh_hooks;
-      (dd, has_name)
-    in
-    let* print_link =
-      if has_name then
+          | `Extern ->
+              if !get_credauth_name () = "" then Lwt.return_nil else cont ()
+          | _ -> Lwt.return_nil
+        in
         let* x = Api.(get (draft_credentials_token uuid) !user) in
         match x with
         | Error _ ->
             alert "Failed to get token";
-            Lwt.return @@ div []
+            Lwt.return_nil
         | Ok (token, _) ->
             let* prefix = Cache.get_prefix () in
             let link =
@@ -1468,25 +1450,53 @@ let credauth_changeable_content uuid draft currsel =
             let subject, body =
               X.mail_credential_authority !Belenios_js.I18n.gettext link
             in
-            div
-              ~a:[ a_id "cred_link" ]
-              [
-                div
-                  [
-                    a_mailto ~recipient:"" ~subject ~body
-                      (s_ "Send an e-mail to the credential authority");
-                    txt @@ s_ " or send them manually this link:";
-                    ul
-                      [
-                        li [ span ~a:[ a_id "cred_link_target" ] [ txt link ] ];
-                      ];
-                  ];
-                div [ txt @@ s_ "Warning: this will freeze the voter list!" ];
-              ]
+            [
+              div
+                [
+                  a_mailto ~recipient:"" ~subject ~body
+                    (s_ "Send an e-mail to the credential authority");
+                  txt @@ s_ " or send them manually this link:";
+                  ul [ li [ span ~a:[ a_id "cred_link_target" ] [ txt link ] ] ];
+                ];
+              div [ txt @@ s_ "Warning: this will freeze the voter list!" ];
+            ]
             |> Lwt.return
-      else div [] |> Lwt.return
     in
-    div [ rad_ext; lab_ext; extern_name_div; print_link ] |> Lwt.return
+    let update_credauth_name ~submit () =
+      let* () =
+        if submit then change_credauth_name @@ !get_credauth_name ()
+        else Lwt.return_unit
+      in
+      update_print_link ()
+    in
+    let* extern_name_div =
+      let value =
+        match !currsel with
+        | `Extern ->
+            Option.value ~default:""
+              draft.draft_questions.t_credential_authority
+        | _ -> ""
+      in
+      let inp_ext, get_ext =
+        let onchange _ = Lwt.async (update_credauth_name ~submit:true) in
+        input
+          ~a:[ a_placeholder @@ s_ "Name of the credential authority" ]
+          ~onchange ~value ()
+      in
+      get_credauth_name := get_ext;
+      let* () = update_credauth_name ~submit:false () in
+      let dd = div ~a:[ a_id "cred_auth_name" ] [ inp_ext; print_link ] in
+      let update =
+        let d = Tyxml_js.To_dom.of_div dd in
+        fun () ->
+          match !currsel with
+          | `Extern -> d##.style##.visibility := Js.string "visible"
+          | _ -> d##.style##.visibility := Js.string "hidden"
+      in
+      refresh_hooks := update :: !refresh_hooks;
+      Lwt.return dd
+    in
+    div [ div [ rad_ext; lab_ext ]; extern_name_div ] |> Lwt.return
   in
   refresh ();
   (* put things together for changeable_content *)
