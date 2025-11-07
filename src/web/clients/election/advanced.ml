@@ -34,10 +34,6 @@ let global_ballot = ref None
 let child_window = ref None
 let global_result = ref None
 
-let finally x cont =
-  cont ();
-  x
-
 let post_ballot uuid ~get_ballot _ =
   global_ballot := Some (get_ballot ());
   Dom_html.window##.location##.href

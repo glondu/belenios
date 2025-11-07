@@ -31,6 +31,10 @@ let ( // ) = Filename.concat
 let ( ++ ) = Serializable_core_j.identity_of_string
 let ( -- ) w x = Serializable_core_j.string_of_identity w x
 
+let finally x cont =
+  cont ();
+  x
+
 type (_, _) eq = Refl : ('a, 'a) eq
 
 let cast (type t u) (e : (t, u) eq) (x : t) : u = match e with Refl -> x

@@ -30,6 +30,7 @@ val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
 val ( ++ ) : 'a reader -> string -> 'a
 val ( -- ) : 'a writer -> 'a -> string
+val finally : 'a -> (unit -> unit) -> 'a
 
 type (_, _) eq = Refl : ('a, 'a) eq
 
