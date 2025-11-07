@@ -234,6 +234,17 @@ let button ?a label handler =
   let a = a_onclick_lwt handler :: Option.value ~default:[] a in
   Tyxml_js.Html.button ~a [ Tyxml_js.Html.txt label ]
 
+let button_self ?(a = []) label handler =
+  let onclick x =
+    let@ () = finally true in
+    let@ e = Js.Opt.iter x##.target in
+    let@ e = Js.Opt.iter (Dom_html.CoerceTo.button e) in
+    let@ () = Lwt.async in
+    handler e
+  in
+  let a = Tyxml_js.Html.a_onclick onclick :: a in
+  Tyxml_js.Html.button ~a [ Tyxml_js.Html.txt label ]
+
 let textarea ?a ?(cols = 80) ?(rows = 10) ?placeholder ?onchange value =
   let elt = Tyxml_js.Html.textarea ?a (Tyxml_js.Html.txt value) in
   let r = Tyxml_js.To_dom.of_textarea elt in
