@@ -1475,7 +1475,11 @@ let credauth_changeable_content uuid draft currsel =
       let inp_ext, get_ext =
         let onchange _ = Lwt.async (update_credauth_name ~submit:true) in
         input
-          ~a:[ a_placeholder @@ s_ "Name of the credential authority" ]
+          ~a:
+            [
+              a_id "cred_auth_name_inp";
+              a_placeholder @@ s_ "Name of the credential authority";
+            ]
           ~onchange ~value ()
       in
       get_credauth_name := get_ext;

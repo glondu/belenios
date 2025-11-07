@@ -307,9 +307,7 @@ module Make (Config : CONFIG) = struct
         Lwt.return_none
     | Some registrar -> (
         let* () = session#click_on ~selector:"#rad_ext" in
-        let* () =
-          session#fill_with ~selector:"#cred_auth_name input" registrar
-        in
+        let* () = session#fill_with ~selector:"#cred_auth_name_inp" registrar in
         let* () = session#click_on ~selector:"#main_zone" in
         let* x = session#get_elements ~selector:"#cred_link_target" in
         match x with
