@@ -1364,7 +1364,11 @@ let credauth_changeable_content uuid draft currsel =
         [ txt @@ s_ "By our server (not ideal for decentralized security)" ]
     in
     let generate_but =
-      let@ () = button (s_ "Generate and send the credentials") in
+      let@ () =
+        button
+          ~a:[ a_id "generate_on_server" ]
+          (s_ "Generate and send the credentials")
+      in
       let* res = Api.(post (draft_public_credentials uuid) !user []) in
       match res.code with
       | 200 -> !update_election_main ()

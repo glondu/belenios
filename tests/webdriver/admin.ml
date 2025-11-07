@@ -300,7 +300,7 @@ module Make (Config : CONFIG) = struct
     match config.registrar with
     | None ->
         let* () = session#click_on ~selector:"#rad_serv" in
-        let* () = session#click_on ~selector:"button" in
+        let* () = session#click_on ~selector:"#generate_on_server" in
         let* () = Lwt_unix.sleep (float_of_int nvoters *. 0.01) in
         let* () = session#click_on ~selector:"#tab_credentials" in
         let* () = session#click_on ~selector:"a[download]" in
