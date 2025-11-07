@@ -33,13 +33,13 @@ open Common
 let read_full file =
   let t, u = Lwt.task () in
   let reader = new%js File.fileReader in
-  reader##.onload :=
-    Dom.handler (fun _ ->
-        let () =
-          let$ text = File.CoerceTo.string reader##.result in
-          Lwt.wakeup_later u text
-        in
-        Js._false);
+  let () =
+    reader##.onload :=
+      let@ _ = Dom.handler in
+      let@ () = finally Js._false in
+      let$ text = File.CoerceTo.string reader##.result in
+      Lwt.wakeup_later u text
+  in
   reader##readAsText file;
   t
 
@@ -638,20 +638,16 @@ let title_content () =
           let reader = new%js File.fileReader in
           let onload _ =
             let& content = File.CoerceTo.arrayBuffer reader##.result in
-            let () =
-              let@ () = Lwt.async in
-              let* y = Api.put_blob (Api.election_logo uuid) !user content in
-              let () =
-                match y.code with
-                | 200 -> set_logo ()
-                | 413 ->
-                    alert @@ s_ "The file is too large! It must be < 10 KB.";
-                    upload_logo ()
-                | _ -> upload_logo ()
-              in
-              Lwt.return_unit
-            in
-            Js._false
+            let@ () = finally Js._false in
+            let@ () = Lwt.async in
+            let* y = Api.put_blob (Api.election_logo uuid) !user content in
+            let@ () = finally Lwt.return_unit in
+            match y.code with
+            | 200 -> set_logo ()
+            | 413 ->
+                alert @@ s_ "The file is too large! It must be < 10 KB.";
+                upload_logo ()
+            | _ -> upload_logo ()
           in
           reader##.onload := Dom.handler onload;
           reader##readAsArrayBuffer file;
@@ -680,13 +676,11 @@ let title_content () =
               [ txt @@ s_ "Clear logo" ];
           ]
       and clear_logo _ =
-        let () =
-          let@ () = Lwt.async in
-          let* _ = Api.delete (Api.election_logo uuid) !user in
-          upload_logo ();
-          Lwt.return_unit
-        in
-        false
+        let@ () = finally false in
+        let@ () = Lwt.async in
+        let* _ = Api.delete (Api.election_logo uuid) !user in
+        upload_logo ();
+        Lwt.return_unit
       in
       set_logo ();
       logo_elt
@@ -1032,10 +1026,11 @@ let voters_content () =
           (fun x -> Dom.appendChild tbody_dom (Tyxml_js.To_dom.of_node x))
           (header_row :: make_rows_of_voters (Js.to_bool check_dom##.checked))
       in
-      check_dom##.onchange :=
-        Dom.handler (fun _ ->
-            update ();
-            Js._false);
+      let () =
+        check_dom##.onchange :=
+          let@ _ = Dom.handler in
+          finally Js._false update
+      in
       update ();
       div
         [

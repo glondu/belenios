@@ -29,13 +29,13 @@ let () = relative_root := "../"
 
 let install_handler (id, handler) =
   let f _ =
-    Lwt.async (fun () ->
-        try handler ()
-        with e ->
-          let msg = "Unexpected error: " ^ Printexc.to_string e in
-          alert msg;
-          Lwt.return_unit);
-    Js._false
+    let@ () = finally Js._false in
+    let@ () = Lwt.async in
+    try handler ()
+    with e ->
+      let msg = "Unexpected error: " ^ Printexc.to_string e in
+      alert msg;
+      Lwt.return_unit
   in
   let$ e = document##getElementById (Js.string id) in
   e##.onclick := Dom_html.handler f

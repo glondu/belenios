@@ -87,11 +87,13 @@ let advanced uuid =
         let ( let$ ) x f = match x with None -> Js._false | Some x -> f x in
         let$ file = Belenios_js.Compat.get_file dom in
         let reader = new%js File.fileReader in
-        reader##.onload :=
-          Dom.handler (fun _ ->
-              let& content = File.CoerceTo.string reader##.result in
-              ballot := Js.to_string content;
-              Js._false);
+        let () =
+          reader##.onload :=
+            let@ _ = Dom.handler in
+            let& content = File.CoerceTo.string reader##.result in
+            ballot := Js.to_string content;
+            Js._false
+        in
         reader##readAsText file;
         Js._false
       in

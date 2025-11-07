@@ -37,16 +37,16 @@ let compute_shuffle ~estimation election ciphertexts =
   let t1, u1 = Lwt.task () in
   let t2, u2 = Lwt.task () in
   let onmessage2 =
-    Dom.handler (fun e ->
-        worker##.onmessage := Dom.no_handler;
-        Lwt.wakeup_later u2 e##.data;
-        Js._true)
+    let@ e = Dom.handler in
+    worker##.onmessage := Dom.no_handler;
+    Lwt.wakeup_later u2 e##.data;
+    Js._true
   in
   let onmessage1 =
-    Dom.handler (fun e ->
-        worker##.onmessage := onmessage2;
-        Lwt.wakeup_later u1 e##.data;
-        Js._true)
+    let@ e = Dom.handler in
+    worker##.onmessage := onmessage2;
+    Lwt.wakeup_later u1 e##.data;
+    Js._true
   in
   worker##.onmessage := onmessage1;
   worker##postMessage (Shuffle { election; ciphertexts });

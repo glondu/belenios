@@ -186,14 +186,14 @@ let redirect_if_admin target uuid token cont =
     cont ())
 
 let lwt_handler f =
-  Dom_html.handler (fun _ ->
-      Lwt.async f;
-      Js._true)
+  let@ _ = Dom_html.handler in
+  Lwt.async f;
+  Js._true
 
 let a_lwt a_maker f =
-  a_maker (fun _ ->
-      Lwt.async f;
-      true)
+  let@ _ = a_maker in
+  Lwt.async f;
+  true
 
 let a_onclick_lwt = a_lwt Tyxml_js.Html.a_onclick
 
@@ -211,9 +211,9 @@ let input ?a ?onchange ?value () =
   Option.iter
     (fun h ->
       r##.onchange :=
-        Dom_html.handler (fun _ ->
-            h r;
-            Js._true))
+        let@ _ = Dom_html.handler in
+        h r;
+        Js._true)
     onchange;
   (elt, fun () -> Js.to_string r##.value)
 
@@ -224,9 +224,9 @@ let select ?a ?onchange ?value options =
   Option.iter
     (fun h ->
       r##.onchange :=
-        Dom_html.handler (fun _ ->
-            h r;
-            Js._true))
+        let@ _ = Dom_html.handler in
+        h r;
+        Js._true)
     onchange;
   elt
 
@@ -254,9 +254,9 @@ let textarea ?a ?(cols = 80) ?(rows = 10) ?placeholder ?onchange value =
   Option.iter
     (fun h ->
       r##.onchange :=
-        Dom_html.handler (fun _ ->
-            h r;
-            Js._true))
+        let@ _ = Dom_html.handler in
+        h r;
+        Js._true)
     onchange;
   (elt, fun () -> Js.to_string r##.value)
 

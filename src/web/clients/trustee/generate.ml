@@ -148,10 +148,12 @@ let generate_key ~uuid ~token ~url generate continue =
           @@ s_ "private_key"
         in
         let r = Tyxml_js.To_dom.of_a element in
-        r##.onclick :=
-          Dom_html.handler (fun _ ->
-              submit##.disabled := Js._false;
-              Js._true);
+        let () =
+          r##.onclick :=
+            let@ _ = Dom_html.handler in
+            submit##.disabled := Js._false;
+            Js._true
+        in
         element
       in
       let elements =
