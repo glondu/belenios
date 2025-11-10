@@ -74,6 +74,14 @@
    (run ./wrap_tool.sh %{deps}))))
 
 (rule
+ (target credop.js)
+ (deps ../clients/credop/credop.bc.js)
+ (action
+  (with-stdout-to
+   %{target}
+   (run ./wrap_tool.sh %{deps}))))
+
+(rule
  (target election.js)
  (deps ../clients/election/main.bc.js)
  (action

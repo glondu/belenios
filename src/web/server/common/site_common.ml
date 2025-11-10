@@ -74,7 +74,7 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
   let () =
     File.register ~content_type:"text/html" ~service:apps (fun page () ->
         match page with
-        | "admin" | "trustee" | "credauth" | "election" | "vote" ->
+        | "admin" | "trustee" | "credauth" | "credop" | "election" | "vote" ->
             Lwt.return
             @@ Printf.sprintf "%s/apps/%s.html" !Web_config.share_dir page
         | _ -> fail_http `Not_found)

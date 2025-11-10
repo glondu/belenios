@@ -1,0 +1,12 @@
+(executable
+ (name credop)
+ (modes js)
+ (libraries belenios_js)
+ (preprocess
+  (pps js_of_ocaml-ppx)))
+
+(install
+ (files
+  (credop.html as apps/credop.html))
+ (section share)
+ (package belenios-server))

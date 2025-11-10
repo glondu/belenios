@@ -131,6 +131,13 @@ let add_field b k v =
   add_string b v;
   add_newline b
 
+let extract_prefix =
+  let rex = Re.Pcre.regexp {|^(.*)/api/credentials/server$|} in
+  fun x ->
+    match Re.exec rex x with
+    | exception Not_found -> None
+    | g -> Some (Re.Group.get g 1)
+
 let mail_credentials_seed l (m : credentials_seed_message) =
   let address = m.cred_authority_info.cred_operator in
   let recipient : recipient = { name = address; address } in
@@ -147,9 +154,17 @@ let mail_credentials_seed l (m : credentials_seed_message) =
   add_newline b;
   add_newline b;
   add_field b (s_ "Election server:") m.belenios_url;
-  add_field b (s_ "Election identifier:") (Uuid.unwrap m.uuid);
-  add_field b (s_ "Credential server:") m.cred_authority_info.cred_server;
-  add_field b (s_ "Seed:") m.seed;
+  let uuid = Uuid.unwrap m.uuid in
+  add_field b (s_ "Election identifier:") uuid;
+  add_field b (s_ "Secret key:") m.seed;
+  let () =
+    match extract_prefix m.cred_authority_info.cred_server with
+    | None ->
+        add_field b (s_ "Credential server:") m.cred_authority_info.cred_server
+    | Some prefix ->
+        let url = Printf.sprintf "%s/credop#%s/%s" prefix uuid m.seed in
+        add_field b (s_ "Operator interface:") url
+  in
   add_newline b;
   add_sentence b (s_ "Best regards,");
   add_newline b;
