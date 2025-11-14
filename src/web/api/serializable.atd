@@ -291,9 +291,22 @@ type draft_credentials_validate = {
   metadata : message_metadata;
 }
 
+type resend_spec =
+  [ All_voters
+  | Missing_voters
+  | Some_voters of string list
+  ]
+
+type draft_credentials_resend = {
+  uuid : uuid;
+  seed : string;
+  spec : resend_spec;
+}
+
 type draft_credentials_request =
   [ NewRequest of draft_credentials_new_request
   | Validate of draft_credentials_validate
+  | Resend of draft_credentials_resend
   ]
 
 type ('a, 'b) credentials_certificate <ocaml predef from="Belenios_core.Serializable"> = abstract
