@@ -73,6 +73,7 @@ val election_partial_decryptions : uuid -> (admin, partial_decryptions, unit) t
 val election_shuffles : uuid -> (admin, shuffles, unit) t
 val election_shuffle : uuid -> string -> (admin, unit, shuffler_request) t
 val election_roots : uuid -> (nobody, roots, unit) t
+val election_last_event : uuid -> (nobody, last_event, unit) t
 val election_object : uuid -> hash -> (nobody, string, unit) t
 val election_audit_cache : uuid -> (nobody, audit_cache, unit) t
 val election_ballots : uuid -> (nobody, ballots_with_weights, string) t

@@ -270,6 +270,14 @@ let election_roots uuid =
     to_string_post = string_of_unit;
   }
 
+let election_last_event uuid =
+  {
+    path = Printf.sprintf "elections/%s/last-event" (Uuid.unwrap uuid);
+    of_string = last_event_of_string;
+    to_string = string_of_last_event;
+    to_string_post = string_of_unit;
+  }
+
 let election_object uuid x =
   {
     path =
