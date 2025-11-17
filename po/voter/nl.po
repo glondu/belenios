@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2025-10-27 22:03+0000\n"
-"Last-Translator: Kiara Grouwstra <kiara.grouwstra@gmail.com>\n"
+"PO-Revision-Date: 2025-11-15 08:51+0000\n"
+"Last-Translator: Feike Donia <feikedonia@proton.me>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/belenios/voter/nl/>"
 "\n"
 "Language: nl\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: src/web/server/common/pages_common.ml:339
 msgid " (if you forgot it, for example)."
@@ -23,9 +23,8 @@ msgid " A confirmation e-mail has been sent to you."
 msgstr " Er is u een bevestigingsmail is gestuurd."
 
 #: src/web/common/pages_common.ml:234
-#, fuzzy
 msgid " anytime during the election."
-msgstr " op ieder moment tijdens de stemming."
+msgstr " op ieder moment tijdens de verkiezing."
 
 #: src/web/common/pages_common.ml:223
 msgid " as user "
@@ -56,9 +55,8 @@ msgid " have been tallied."
 msgstr " zijn geteld."
 
 #: src/web/server/common/pages_common.ml:523
-#, fuzzy
 msgid " in the following box: "
-msgstr " in het volgende vak: "
+msgstr " in het volgende veld: "
 
 #: src/web/common/pages_common.ml:242
 msgid " is rejected, because "
@@ -86,7 +84,7 @@ msgstr "%d geldige stemmen"
 
 #: src/web/clients/election/advanced.ml:143
 msgid "(available in the "
-msgstr ""
+msgstr "(beschikbaar in de/het "
 
 #: src/web/clients/election/advanced.ml:145
 msgid "), or any compatible booth."

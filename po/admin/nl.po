@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-22 07:39+0000\n"
-"PO-Revision-Date: 2025-10-27 22:02+0000\n"
+"PO-Revision-Date: 2025-11-15 08:51+0000\n"
 "Last-Translator: Feike Donia <feikedonia@proton.me>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/belenios/admin/nl/>"
 "\n"
@@ -12,11 +12,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: src/web/clients/admin/trustees_tab.ml:263
 msgid " (server is not counted)"
-msgstr ""
+msgstr " (server wordt niet meegeteld)"
 
 #: src/web/common/pages_common.ml:236
 msgid " A confirmation e-mail has been sent to you."
@@ -43,9 +43,8 @@ msgid " and your e-mail address is: "
 msgstr " en je e-mailadres is: "
 
 #: src/web/common/pages_common.ml:234
-#, fuzzy
 msgid " anytime during the election."
-msgstr " op ieder moment tijdens de stemming."
+msgstr " op ieder moment tijdens de verkiezing."
 
 #: src/web/common/pages_common.ml:223
 msgid " as user "
@@ -62,9 +61,8 @@ msgstr " is geaccepteerd."
 
 #. src/web/server/common/pages_admin.ml:224
 #: src/web/server/common/pages_admin.ml:257
-#, fuzzy
 msgid " in the following box: "
-msgstr " in het volgende vak: "
+msgstr " in het volgende veld: "
 
 #. src/web/clients/admin/elections.ml:1053
 #: src/web/clients/admin/elections.ml:1056
@@ -93,8 +91,9 @@ msgstr "(geen titel)"
 
 #. src/web/server/common/pages_admin.ml:326
 #: src/web/server/common/pages_admin.ml:377
+#, fuzzy
 msgid ". Please try again with a different one."
-msgstr ""
+msgstr ". Probeer het met iets anders opnieuw."
 
 #: src/web/common/mails_admin.ml:46
 msgid "1. Click on the link."

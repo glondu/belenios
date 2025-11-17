@@ -8,17 +8,14 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-18 11:42+0000\n"
-"PO-Revision-Date: 2025-11-08 09:51+0000\n"
-"Last-Translator: Miha Frangež <miha.frangez@gmail.com>\n"
-"Language-Team: Slovenian <https://hosted.weblate.org/projects/belenios/admin/"
-"sl/>\n"
-"Language: sl\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: af\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
-"n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #: src/web/clients/admin/trustees_tab.ml:263
 msgid " (server is not counted)"
@@ -26,68 +23,66 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:236
 msgid " A confirmation e-mail has been sent to you."
-msgstr " Poslana vam je bila potrditvena e-pošta."
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:338
 msgid " and a password: "
-msgstr " in geslo: "
+msgstr ""
 
 #: src/web/clients/trustee/generate.ml:174
 msgid " and save it to a secure location."
-msgstr " in ga shranite na varno mesto."
+msgstr ""
 
 #: src/web/clients/credauth/generate.ml:117
 msgid " and save the file to a secure location."
-msgstr " in shranite datoteko na varno mesto."
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1490
 msgid " and save them in a secure location."
-msgstr " in jih shranite na varno mesto."
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:388
 msgid " and your e-mail address is: "
-msgstr " in vaš e-poštni naslov je: "
+msgstr ""
 
 #: src/web/common/pages_common.ml:234
 msgid " anytime during the election."
-msgstr " kadarkoli med glasovanjem."
+msgstr ""
 
 #: src/web/common/pages_common.ml:223
 msgid " as user "
-msgstr " kot uporabnik "
+msgstr ""
 
 #. src/web/server/common/pages_admin.ml:324
 #: src/web/server/common/pages_admin.ml:375
-#, fuzzy
 msgid " because "
-msgstr " ker "
+msgstr ""
 
 #: src/web/common/pages_common.ml:225
 msgid " has been accepted."
-msgstr " je sprejeta."
+msgstr ""
 
 #. src/web/server/common/pages_admin.ml:224
 #: src/web/server/common/pages_admin.ml:257
 msgid " in the following box: "
-msgstr " v naslednji skrinjici: "
+msgstr ""
 
 #. src/web/clients/admin/elections.ml:1053
 #: src/web/clients/admin/elections.ml:1056
 msgid " in txt format."
-msgstr " v formatu txt."
+msgstr ""
 
 #: src/web/common/pages_common.ml:242
-#, fuzzy
 msgid " is rejected, because "
-msgstr " je zavrnjena, ker "
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1445
 msgid " or send them manually this link:"
-msgstr " ali jim pošljite to povezavo:"
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:247
 msgid " or username: "
-msgstr " ali uporabniško ime: "
+msgstr ""
 
 #: src/web/clients/trustee/decrypt.ml:176
 msgid " your contribution to decryption."
@@ -95,7 +90,7 @@ msgstr ""
 
 #: src/web/clients/admin/admin.ml:183
 msgid "(no title)"
-msgstr "(brez naslova)"
+msgstr ""
 
 #. src/web/server/common/pages_admin.ml:326
 #: src/web/server/common/pages_admin.ml:377
@@ -127,14 +122,12 @@ msgid "6. Click on \"Submit the public credentials\"."
 msgstr ""
 
 #: src/web/clients/admin/elections.ml:1713
-#, fuzzy
 msgid "A new password has been mailed to %s."
-msgstr "Novo geslo je bilo poslano %s."
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:282
-#, fuzzy
 msgid "A verification code has been sent to %s."
-msgstr "Potrditvena koda je bila poslana %s."
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:63
 msgid "Accept"
@@ -150,7 +143,7 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:866
 msgid "Add"
-msgstr "Dodaj"
+msgstr ""
 
 #: src/web/clients/admin/questions.ml:604
 msgid "Add a grade"
@@ -241,9 +234,8 @@ msgstr ""
 #. src/web/server/common/mails_admin.ml:83
 #. src/web/server/common/mails_admin.ml:49
 #: src/web/server/common/mails_admin.ml:117
-#, fuzzy
 msgid "Best regards,"
-msgstr "S spoštovanjem,"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1395
 msgid "By a third-party of your choice"
@@ -259,7 +251,7 @@ msgstr ""
 
 #: src/web/clients/common/secondary_ui.ml:93
 msgid "By using this site, you accept our "
-msgstr "Z uporabo spletnega mesta se strinjate s "
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1623
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
@@ -308,7 +300,7 @@ msgstr ""
 #. src/web/clients/common/secondary_ui.ml:101
 #: src/web/clients/admin/elections.ml:1806
 msgid "Close"
-msgstr "Zapri"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1125
 msgid "Close: "
@@ -324,7 +316,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:420
 msgid "Compute fingerprint"
-msgstr "Izračunaj zgoščeno vrednost"
+msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:104
 msgid "Compute shuffle"
@@ -425,7 +417,7 @@ msgstr ""
 #. src/web/server/common/mails_admin.ml:29
 #: src/web/server/common/mails_admin.ml:97
 msgid "Dear %s,"
-msgstr "Spoštovani %s,"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:31
 msgid "Dear credential authority,"
@@ -500,7 +492,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:214
 #: src/web/server/common/pages_admin.ml:244
 msgid "E-mail address:"
-msgstr "E-poštni naslov:"
+msgstr ""
 
 #: src/web/clients/admin/account.ml:83
 msgid "E-mail: "
@@ -530,9 +522,8 @@ msgstr ""
 #. src/web/common/pages_common.ml:137
 #. src/web/common/pages_common.ml:128
 #: src/web/server/common/pages_admin.ml:190
-#, fuzzy
 msgid "Election server"
-msgstr "Strežnik za volitve"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1941
 msgid "Election status"
@@ -565,7 +556,7 @@ msgstr ""
 #. src/web/server/common/site_admin.ml:145
 #: src/web/clients/credauth/generate.ml:159
 msgid "Error"
-msgstr "Napaka"
+msgstr ""
 
 #: src/web/clients/trustee/decrypt.ml:88
 msgid "Error in format of private key: %s"
@@ -593,7 +584,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:246
 msgid "FAIL!"
-msgstr "Napaka!"
+msgstr ""
 
 #. src/web/clients/admin/trustees_tab.ml:568
 #: src/web/clients/admin/trustees_tab.ml:685
@@ -642,11 +633,11 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:65
 msgid "Get the source code"
-msgstr "Pridobite izvorno kodo"
+msgstr ""
 
 #: src/web/common/pages_common.ml:261
 msgid "Go back to election"
-msgstr "Nazaj na volitve"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1962
 msgid "Go see the result on the election main page!"
@@ -751,7 +742,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:88
 msgid "Language:"
-msgstr "Jezik:"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:210
 msgid "Languages"
@@ -797,7 +788,7 @@ msgstr ""
 
 #: src/web/clients/admin/admin.ml:388
 msgid "Loading..."
-msgstr "Nalaganje..."
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:158
 msgid "Log in with"
@@ -996,7 +987,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:222
 #: src/web/server/common/pages_admin.ml:255
 msgid "Please enter "
-msgstr "Vnesite "
+msgstr ""
 
 #: src/web/server/common/pages_admin.ml:462
 msgid "Please enter the code here:"
@@ -1008,7 +999,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:286
 msgid "Please enter the verification code received by e-mail:"
-msgstr "Vnesite potrditveno kodo, ki ste jo prejeli po e-pošti:"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1536
 msgid "Please fill-in the voter list first."
@@ -1044,7 +1035,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:61
 msgid "Powered by "
-msgstr "Volitve poganja "
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:305
 msgid "Preview"
@@ -1064,7 +1055,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:437
 #: src/web/clients/trustee/check.ml:148 src/web/clients/trustee/generate.ml:278
 msgid "Proceed"
-msgstr "Nadaljuj"
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:270
 msgid "Proceed to key generation"
@@ -1155,7 +1146,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
-msgstr "Omejen način"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1972 src/web/clients/admin/elections.ml:306
 msgid "Results page"
@@ -1284,7 +1275,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:227
 #: src/web/clients/trustee/shuffle.ml:148 src/web/clients/trustee/decrypt.ml:117
 msgid "Submit"
-msgstr "Oddaj"
+msgstr ""
 
 #: src/web/clients/trustee/generate.ml:249
 msgid "Submit data"
@@ -1324,7 +1315,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:45 src/web/common/pages_common.ml:67
 msgid "Terms of service"
-msgstr "Pogoji uporabe"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:310
 msgid "Thank you again for your help,"
@@ -1332,7 +1323,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:239
 msgid "Thank you for voting!"
-msgstr "Hvala, da ste glasovali!"
+msgstr ""
 
 #. src/web/common/mails_admin.ml:174
 #. src/web/common/mails_admin.ml:103
@@ -1519,7 +1510,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:200
 msgid "This is a revote."
-msgstr "To je ponovno glasovanje."
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1216
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
@@ -1649,7 +1640,7 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:1734
 msgid "Username:"
-msgstr "Uporabniško ime:"
+msgstr ""
 
 #: src/web/clients/admin/elections.ml:1014 src/web/clients/admin/elections.ml:188
 msgid "Voter list"
@@ -1699,15 +1690,13 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:917
 msgid "Warning:"
-msgstr "Opozorilo:"
+msgstr ""
 
 #. src/web/server/common/mails_admin.ml:78
 #. src/web/server/common/mails_admin.ml:44
 #: src/web/server/common/mails_admin.ml:112
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
-"Opozorilo: ta koda velja 15 minut. Vse predhodno poslane kode več niso "
-"veljavne."
 
 #: src/web/clients/admin/elections.ml:1792
 msgid "Warning: this is irreversible!"
@@ -1953,7 +1942,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:51
 #: src/web/clients/common/secondary_ui.ml:94
 msgid "terms of service"
-msgstr "pogoje uporabe"
+msgstr ""
 
 #: src/web/common/mails_admin.ml:228
 msgid "the fingerprint of your public key;"
