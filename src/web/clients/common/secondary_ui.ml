@@ -96,7 +96,9 @@ let make_cookie_disclaimer configuration =
       a ~href:""
         ~a:
           [
-            a_class [ "nice-button"; "nice-button--default" ]; a_onclick handler;
+            a_id "cookie-disclaimer-close";
+            a_class [ "nice-button"; "nice-button--default" ];
+            a_onclick handler;
           ]
         (s_ "Close");
     ]

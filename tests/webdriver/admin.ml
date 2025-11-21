@@ -75,6 +75,15 @@ module Make (Config : CONFIG) = struct
         session#implicit_wait
     | _ -> Lwt.return_unit
 
+  let close_cookie_disclaimer_if_needed session =
+    let* elements = session#get_elements ~selector:"#cookie-disclaimer-close" in
+    match elements with
+    | [ e ] ->
+        Printf.printf "    Closing cookie disclaimer...\n%!";
+        let* () = session#click e in
+        session#implicit_wait
+    | _ -> Lwt.return_unit
+
   let local_login session ~username ~password =
     Printf.printf "  Logging in %s as local:%s...\n%!" belenios username;
     let* () = session#click_on ~selector:"#login_local" in
@@ -347,6 +356,7 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
     let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+    let* () = close_cookie_disclaimer_if_needed session in
     let* () = session#click_on ~selector:"#generate_key" in
     let* x = session#get_elements ~selector:"#private_key" in
     match x with
@@ -397,6 +407,7 @@ module Make (Config : CONFIG) = struct
         let session = new Webdriver.helpers session in
         let* () = session#navigate_to link in
         let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+        let* () = close_cookie_disclaimer_if_needed session in
         let* () = session#click_on ~selector:"#generate" in
         let* creds =
           let* x = session#get_elements ~selector:"#creds" in
