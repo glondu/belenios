@@ -36,12 +36,14 @@ type trustee = { name : string; email : string }
 type trustee_mode = Basic | Threshold of int
 type trustees = { mode : trustee_mode; trustees : trustee list }
 type auth = Password | Email
+type external_registrar = { server : string; operator : string }
+type registrar = { name : string; ext : external_registrar option }
 
 type config = {
   questions : question list;
   voters : string list;
   trustees : trustees;
-  registrar : string option;
+  registrar : registrar option;
   auth : auth;
 }
 
@@ -56,10 +58,14 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
+type private_creds =
+  | Creds of Yojson.Safe.t
+  | Credop of { server : string; uuid : string; key : string }
+
 type election_params = {
   id : string;
   private_keys : string list;
-  private_creds : Yojson.Safe.t option;
+  private_creds : private_creds option;
 }
 
 module Make (_ : CONFIG) : sig

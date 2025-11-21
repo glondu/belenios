@@ -25,3 +25,4 @@ val parse : in_channel -> t
 val extract_password : t -> string -> string option
 val extract_credential : t -> string -> string option
 val extract_code : t -> string -> string option
+val extract_credop : t -> string -> (string * string * string) option

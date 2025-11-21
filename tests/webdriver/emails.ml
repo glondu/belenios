@@ -64,3 +64,11 @@ let extract ~prefix emails voter =
 let extract_password = extract ~prefix:"Password: "
 let extract_credential = extract ~prefix:"Your credential: "
 let extract_code = extract ~prefix:"  "
+
+let extract_credop x v =
+  let server = extract ~prefix:"Election server: " x v in
+  let uuid = extract ~prefix:"Election identifier: " x v in
+  let key = extract ~prefix:"Secret key: " x v in
+  match (server, uuid, key) with
+  | Some server, Some uuid, Some key -> Some (server, uuid, key)
+  | _ -> None

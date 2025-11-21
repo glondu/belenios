@@ -78,9 +78,20 @@ let trustees_of_string = function
   | "threshold" -> { mode = Threshold 1; trustees }
   | _ -> invalid_arg "trustees_of_string"
 
-let registrar_of_string = function
+let registrar_of_string : _ -> Admin.registrar option = function
   | "none" -> None
-  | "charlie" -> Some "Charlie Registrar"
+  | "charlie" -> Some { name = "Charlie Registrar"; ext = None }
+  | "david" ->
+      Some
+        {
+          name = "David Registrar";
+          ext =
+            Some
+              {
+                server = Config.belenios ^ "/api/credentials/server";
+                operator = "david@example.org";
+              };
+        }
   | _ -> invalid_arg "registrar_of_string"
 
 let auth_of_string = function
@@ -150,11 +161,11 @@ let scenario admin questions nvoters trustees registrar auth =
       (fun voter ->
         let credential =
           match e.private_creds with
-          | None -> (
+          | None | Some (Credop _) -> (
               match Emails.extract_credential emails voter with
               | Some x -> x
               | _ -> assert false)
-          | Some (`Assoc o) -> (
+          | Some (Creds (`Assoc o)) -> (
               match List.assoc_opt voter o with
               | Some (`String x) -> x
               | _ -> assert false)

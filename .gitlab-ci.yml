@@ -77,3 +77,4 @@ scenarios:
       scenario demo two 1 none none password
       scenario demo one 1 basic none email
       scenario demo one 1 threshold none email
+      scenario demo one 5 none david email

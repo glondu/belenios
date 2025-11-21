@@ -39,12 +39,14 @@ type trustee = { name : string; email : string }
 type trustee_mode = Basic | Threshold of int
 type trustees = { mode : trustee_mode; trustees : trustee list }
 type auth = Password | Email
+type external_registrar = { server : string; operator : string }
+type registrar = { name : string; ext : external_registrar option }
 
 type config = {
   questions : question list;
   voters : string list;
   trustees : trustees;
-  registrar : string option;
+  registrar : registrar option;
   auth : auth;
 }
 
@@ -59,10 +61,14 @@ module type CONFIG = sig
   val emails : in_channel
 end
 
+type private_creds =
+  | Creds of Yojson.Safe.t
+  | Credop of { server : string; uuid : string; key : string }
+
 type election_params = {
   id : string;
   private_keys : string list;
-  private_creds : Yojson.Safe.t option;
+  private_creds : private_creds option;
 }
 
 module Make (Config : CONFIG) = struct
@@ -316,21 +322,40 @@ module Make (Config : CONFIG) = struct
         let* () = session#click_on ~selector:"#tab_credentials" in
         let* () = session#click_on ~selector:"a[download]" in
         Lwt.return_none
-    | Some registrar -> (
+    | Some { name; ext } -> (
         let* () = session#click_on ~selector:"#rad_ext" in
-        let* () = session#fill_with ~selector:"#cred_auth_name_inp" registrar in
+        let* () = session#fill_with ~selector:"#cred_auth_name_inp" name in
         let* () = session#click_on ~selector:"#main_zone" in
-        let* x = session#get_elements ~selector:"#cred_link_target" in
-        match x with
-        | [ x ] -> (
-            let* x =
-              session#execute ~script:"return arguments[0].textContent"
-                ~args:[ Webdriver.json_of_element x ]
-            in
+        match ext with
+        | None -> (
+            let* x = session#get_elements ~selector:"#cred_link_target" in
             match x with
-            | Some (`String x) -> Lwt.return_some x
+            | [ x ] -> (
+                let* x =
+                  session#execute ~script:"return arguments[0].textContent"
+                    ~args:[ Webdriver.json_of_element x ]
+                in
+                match x with
+                | Some (`String x) -> Lwt.return_some @@ `Link x
+                | _ -> assert false)
             | _ -> assert false)
-        | _ -> assert false)
+        | Some ext -> (
+            let* () = session#click_on ~selector:"#extern_server_chk" in
+            let* () =
+              session#fill_with ~selector:"#extern_server_server" ext.server
+            in
+            let* () =
+              session#fill_with ~selector:"#extern_server_operator" ext.operator
+            in
+            let* () = session#click_on ~selector:"#extern_server_set" in
+            let* () = session#click_on ~selector:"#extern_server_initiate" in
+            let* () = Lwt_unix.sleep 1. in
+            let x = Emails.parse Config.emails in
+            match Emails.extract_credop x ext.operator with
+            | Some x -> Lwt.return_some @@ `Credop x
+            | None ->
+                Lwt.fail
+                @@ Failure "failed to retrieve credential operator interface"))
 
   let set_authentication session =
     Printf.printf "    Setting authentication...\n%!";
@@ -403,7 +428,7 @@ module Make (Config : CONFIG) = struct
 
   let setup_registrar = function
     | None -> Lwt.return_none
-    | Some link ->
+    | Some (`Link link) ->
         Printf.printf "    Setting up registrar...\n%!";
         let@ session = Webdriver.with_session ~headless ~url:webdriver () in
         let session = new Webdriver.helpers session in
@@ -427,7 +452,9 @@ module Make (Config : CONFIG) = struct
           | _ -> assert false
         in
         let* () = session#click_on ~selector:"#submit" in
-        Lwt.return_some creds
+        Lwt.return_some @@ Creds creds
+    | Some (`Credop (server, uuid, key)) ->
+        Lwt.return_some @@ Credop { server; uuid; key }
 
   let with_admin ?id () f =
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
