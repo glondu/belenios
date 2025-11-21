@@ -62,6 +62,8 @@ scenarios:
     - make build-release-server
     # Run the OCaml automated test scenarios
     - BELENIOS_HEADLESS=1
+      BELENIOS_WINDOW_WIDTH=800
+      BELENIOS_WINDOW_HEIGHT=600
       PATH=$PWD/_run/usr/bin:$PATH
       GIT_AUTHOR_NAME="Continuous Integration"
       GIT_AUTHOR_EMAIL="ci@example.org"

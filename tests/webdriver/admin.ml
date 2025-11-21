@@ -49,6 +49,8 @@ type config = {
 }
 
 module type CONFIG = sig
+  val width : int
+  val height : int
   val webdriver : string
   val belenios : string
   val headless : bool
@@ -355,7 +357,7 @@ module Make (Config : CONFIG) = struct
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
-    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+    let* () = Config.(session#set_window_rect ~width ~height ()) in
     let* () = close_cookie_disclaimer_if_needed session in
     let* () = session#click_on ~selector:"#generate_key" in
     let* x = session#get_elements ~selector:"#private_key" in
@@ -394,7 +396,7 @@ module Make (Config : CONFIG) = struct
     let@ session = Webdriver.with_session ~headless ~url:webdriver () in
     let session = new Webdriver.helpers session in
     let* () = session#navigate_to link in
-    let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+    let* () = Config.(session#set_window_rect ~width ~height ()) in
     let* () = set_private_key session private_key in
     let* () = session#click_on ~selector:"#submit_data" in
     Lwt.return_unit
@@ -406,7 +408,7 @@ module Make (Config : CONFIG) = struct
         let@ session = Webdriver.with_session ~headless ~url:webdriver () in
         let session = new Webdriver.helpers session in
         let* () = session#navigate_to link in
-        let* () = session#set_window_rect ~width:1000 ~height:1000 () in
+        let* () = Config.(session#set_window_rect ~width ~height ()) in
         let* () = close_cookie_disclaimer_if_needed session in
         let* () = session#click_on ~selector:"#generate" in
         let* creds =
@@ -432,7 +434,7 @@ module Make (Config : CONFIG) = struct
     let session = new Webdriver.helpers session in
     let url = Printf.sprintf "%s" belenios in
     let* () = session#navigate_to url in
-    let* () = session#set_window_rect ~width:800 ~height:600 () in
+    let* () = Config.(session#set_window_rect ~width ~height ()) in
     let* () = login session in
     let* () =
       match id with

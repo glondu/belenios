@@ -46,6 +46,8 @@ type config = {
 }
 
 module type CONFIG = sig
+  val width : int
+  val height : int
   val webdriver : string
   val belenios : string
   val headless : bool
