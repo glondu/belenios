@@ -87,18 +87,21 @@ module App (U : UI) = struct
       | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
     in
     let uuid = Uuid.wrap uuid_s in
-    let ask_seed, get_seed =
+    let@ seed cont =
       match !seed with
-      | Some x -> ([], fun () -> x)
+      | Some x -> cont x
       | None ->
-          let inp = Tyxml_js.Html.input ~a:[ a_id "inp_seed" ] () in
-          let inp_dom = Tyxml_js.To_dom.of_input inp in
-          let lab =
-            label
-              ~a:[ a_label_for "inp_seed" ]
-              [ txt @@ s_ "Please enter the secret key:"; txt " " ]
-          in
-          ([ div [ lab; inp ] ], fun () -> Js.to_string inp_dom##.value)
+          [
+            div
+              [
+                txt
+                @@ s_
+                     "Missing secret key. You must come to this page by \
+                      following the full link that has been sent to you by \
+                      e-mail.";
+              ];
+          ]
+          |> Lwt.return
     in
     let credit_history = div [] in
     let credit_history_dom = Tyxml_js.To_dom.of_div credit_history in
@@ -169,10 +172,9 @@ module App (U : UI) = struct
           alert @@ s_ "The certificate is not valid!";
           Lwt.return_unit)
       in
-      let seed_ = get_seed () in
       let module P = Pki.Make (E.G) (Dummy_random) in
-      let decryption_key = P.derive_dk seed_ in
-      let signature_key = P.derive_sk seed_ in
+      let decryption_key = P.derive_dk seed in
+      let signature_key = P.derive_sk seed in
       let@ () =
        fun cont ->
         if
@@ -183,9 +185,8 @@ module App (U : UI) = struct
           alert @@ s_ "The secret key is not valid!";
           Lwt.return_unit)
       in
-      seed := Some seed_;
       valid := true;
-      let* history = get_credit_history uuid seed_ in
+      let* history = get_credit_history uuid seed in
       credit_history_dom##.innerHTML := Js.string "";
       List.iter
         (fun x ->
@@ -230,10 +231,10 @@ module App (U : UI) = struct
       in
       let onsubmit e =
         let@ () = finally false in
-        let@ seed cont =
-          match (!seed, !valid) with
-          | Some s, true -> cont s
-          | _ -> alert @@ s_ "Please check certificate first!"
+        let@ () =
+         fun cont ->
+          if !valid then cont ()
+          else alert @@ s_ "Please check certificate first!"
         in
         let@ e = Js.Opt.iter e##.target in
         let@ e = Js.Opt.iter (Dom_html.CoerceTo.form e) in
@@ -264,17 +265,14 @@ module App (U : UI) = struct
           input ~a:[ a_input_type `Submit; a_value @@ s_ "Resend" ] ();
         ]
     in
-    let body =
-      ask_seed
-      @ [
-          h1 [ txt @@ s_ "Check certificate" ];
-          div [ check_certificate ];
-          h1 [ txt @@ s_ "Resend private credentials" ];
-          credit_history;
-          div [ resend ];
-        ]
-    in
-    Lwt.return body
+    [
+      h1 [ txt @@ s_ "Check certificate" ];
+      div [ check_certificate ];
+      h1 [ txt @@ s_ "Resend private credentials" ];
+      credit_history;
+      div [ resend ];
+    ]
+    |> Lwt.return
 end
 
 module _ = Make (App) ()
