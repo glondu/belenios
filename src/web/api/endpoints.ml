@@ -309,5 +309,5 @@ let credentials_server =
     path = "credentials/server";
     of_string = unit_of_string;
     to_string = string_of_unit;
-    to_string_post = string_of_draft_credentials_request;
+    to_string_post = string_of_credentials_request;
   }

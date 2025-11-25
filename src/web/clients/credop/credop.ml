@@ -200,9 +200,7 @@ module App (U : UI) = struct
               cont (`Some_voters vs)
           | _ -> ()
         in
-        let r : Belenios_web_api.draft_credentials_resend =
-          { uuid; seed; spec }
-        in
+        let r : Belenios_web_api.credentials_resend = { uuid; seed; spec } in
         let@ () = Lwt.async in
         let* x = Api.(post credentials_server `Nobody (`Resend r)) in
         let msg = match x.code with 200 -> s_ "Success" | _ -> s_ "Failure" in

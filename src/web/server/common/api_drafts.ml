@@ -955,7 +955,7 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
   let body =
     `NewRequest
       { belenios_url = !Web_config.prefix ^ "/"; uuid; info; token; admin_id }
-    |> Belenios_web_api.string_of_draft_credentials_request
+    |> Belenios_web_api.string_of_credentials_request
     |> Cohttp_lwt.Body.of_string
   in
   let prefix =

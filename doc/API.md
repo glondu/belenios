@@ -203,8 +203,8 @@ dummy and password are supported at the moment).
 
 ## `credentials/belenios`
 
-### `POST`: draft_credentials_response -> unit
+### `POST`: credentials_response -> unit
 
 ## `credentials/server`
 
-### `POST`: draft_credentials_request -> unit
+### `POST`: credentials_request -> unit

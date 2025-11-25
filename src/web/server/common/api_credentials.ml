@@ -25,7 +25,7 @@ open Belenios_storage_api
 open Belenios_web_api
 open Api_generic
 
-let process_request_new (r : draft_credentials_new_request) (Draft (_, draft))
+let process_request_new (r : credentials_new_request) (Draft (_, draft))
     voter_list () =
   let seed = Belenios_server_core.generate_token ~length:22 () in
   let module G =
@@ -147,7 +147,7 @@ let process_request_new (r : draft_credentials_new_request) (Draft (_, draft))
   let url = Printf.sprintf "%sapi/credentials/belenios" r.belenios_url in
   let body =
     { certificate; token = r.token; public_credentials = creds.public_with_ids }
-    |> string_of_draft_credentials_response |> Cohttp_lwt.Body.of_string
+    |> string_of_credentials_response |> Cohttp_lwt.Body.of_string
   in
   let* x, body = Cohttp_lwt_unix.Client.post ~body (Uri.of_string url) in
   let* () = Cohttp_lwt.Body.drain_body body in
@@ -269,7 +269,7 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
   in
   GMap.fold (fun _ x accu -> x :: accu) credentials_records [] |> Lwt.return
 
-let process_resend_request (r : draft_credentials_resend)
+let process_resend_request (r : credentials_resend)
     (params : credentials_params) metadata credentials_records () =
   let voters =
     match r.spec with
@@ -316,7 +316,7 @@ let process_resend_request (r : draft_credentials_resend)
   in
   Mails_voter_bulk.submit_bulk_emails jobs
 
-let process_request s : draft_credentials_request -> _ = function
+let process_request s : credentials_request -> _ = function
   | `NewRequest r ->
       let@ _check_info cont =
         if
@@ -443,14 +443,14 @@ let dispatch s endpoint method_ body =
   | [ "server" ] -> (
       match method_ with
       | `POST ->
-          let@ request = body.run draft_credentials_request_of_string in
+          let@ request = body.run credentials_request_of_string in
           let@ () = handle_generic_error in
           process_request s request
       | _ -> method_not_allowed)
   | [ "belenios" ] -> (
       match method_ with
       | `POST -> (
-          let@ response = body.run draft_credentials_response_of_string in
+          let@ response = body.run credentials_response_of_string in
           let certificate = response.certificate in
           let uuid = certificate.uuid in
           let@ () = handle_generic_error in

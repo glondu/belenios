@@ -707,7 +707,7 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
   in
   let body =
     `Validate { uuid; token; metadata }
-    |> Belenios_web_api.string_of_draft_credentials_request
+    |> Belenios_web_api.string_of_credentials_request
     |> Cohttp_lwt.Body.of_string
   in
   Lwt.catch

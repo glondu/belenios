@@ -277,7 +277,7 @@ type draft_request =
   | InitiateCredentialAuthorityProtocol
   ]
 
-type draft_credentials_new_request = {
+type credentials_new_request = {
   belenios_url : string;
   uuid : uuid;
   info : cred_authority_info;
@@ -285,7 +285,7 @@ type draft_credentials_new_request = {
   admin_id : int;
 }
 
-type draft_credentials_validate = {
+type credentials_validate = {
   uuid : uuid;
   token : string;
   metadata : message_metadata;
@@ -297,21 +297,21 @@ type resend_spec =
   | Some_voters of string list
   ]
 
-type draft_credentials_resend = {
+type credentials_resend = {
   uuid : uuid;
   seed : string;
   spec : resend_spec;
 }
 
-type draft_credentials_request =
-  [ NewRequest of draft_credentials_new_request
-  | Validate of draft_credentials_validate
-  | Resend of draft_credentials_resend
+type credentials_request =
+  [ NewRequest of credentials_new_request
+  | Validate of credentials_validate
+  | Resend of credentials_resend
   ]
 
 type ('a, 'b) credentials_certificate <ocaml predef from="Belenios_core.Serializable"> = abstract
 
-type draft_credentials_response = {
+type credentials_response = {
   certificate : (abstract, abstract) credentials_certificate;
   token : string;
   public_credentials : public_credentials;
