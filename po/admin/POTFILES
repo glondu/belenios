@@ -25,3 +25,4 @@ src/web/clients/trustee/decrypt.ml
 src/web/clients/trustee/shuffle.ml
 src/web/clients/credauth/credauth.ml
 src/web/clients/credauth/generate.ml
+src/web/clients/credop/credop.ml
