@@ -84,11 +84,11 @@ msgstr "%d بطاقة (بطاقات) صالحة (غير فارغة)"
 msgid "%d valid ballot(s)"
 msgstr "%d بطاقة (بطاقات) صالحة"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr ""
 
@@ -106,7 +106,7 @@ msgstr ""
 "يعتبر الاقتراع غير صالح إذا تم منح مرشحين اثنين نفس ترتيب التفضيل أو إذا كان "
 "هناك ترتيب مفقود."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
@@ -138,7 +138,7 @@ msgstr "إدارة هذه الانتخابات"
 msgid "Administrator"
 msgstr "المسؤول"
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "وضع متقدم"
 
@@ -146,7 +146,7 @@ msgstr "وضع متقدم"
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr "جميع الحكام (مفاتيح التحقق) التالية مطلوبة لفك تشفير النتيجة:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
@@ -190,7 +190,7 @@ msgstr "التوثيق غيؤ ممكن"
 msgid "Authentication is impossible."
 msgstr "التوثيق غير ممكن."
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr ""
 
@@ -210,7 +210,7 @@ msgstr "مع أطيب التحيات،"
 msgid "Blank vote"
 msgstr "تصويت فارغ"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr ""
 
@@ -222,7 +222,7 @@ msgstr "من خلال استخدام هذا الموقع، أنت تقبل "
 msgid "Click here"
 msgstr "انقر هنا"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr ""
 
@@ -273,7 +273,7 @@ msgstr ""
 msgid "Election server"
 msgstr "خادم الانتخاب"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr ""
 
@@ -293,7 +293,7 @@ msgstr "البصمة المتوقعة:"
 msgid "FAIL!"
 msgstr "فشل!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr ""
 
@@ -439,7 +439,7 @@ msgid "Please paste the data for which you want to compute the fingerprint in th
 msgstr ""
 "الرجاء لصق البيانات التي ترغب في حساب البصمة لها في المنطقة النصية أدناه:"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
@@ -447,7 +447,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr "الرجاء التصويت هنا باستخدام الرابط الشخصي الخاص بك:"
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr ""
 
@@ -455,13 +455,13 @@ msgstr ""
 msgid "Powered by "
 msgstr "مدعوم بواسطة: "
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "تابع"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr ""
 
@@ -507,18 +507,18 @@ msgstr ""
 msgid "Start"
 msgstr "ابدأ"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "إرسال"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr ""
 
@@ -670,7 +670,7 @@ msgstr "نحن نستخدم هنا طريقة شولز ونشير إلى الن�
 msgid "Wish to help with translations?"
 msgstr "ترغب في المساعدة في الترجمات؟"
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
@@ -707,7 +707,7 @@ msgstr "يمكنك التحقق من وجودها خلال "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "يمكنك التحقق من وجودها في صندوق الاقتراع، ويمكن الوصول إليها على"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
@@ -776,7 +776,7 @@ msgstr "غير كلمة المرور الخاصة بك"
 msgid "create an account"
 msgstr "إنشاء حساب"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr ""
 
@@ -800,7 +800,7 @@ msgstr "النتيجة الخام"
 msgid "some proofs failed verification"
 msgstr "فشلت بعض البراهين في التحقق"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr ""
 

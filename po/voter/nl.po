@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
@@ -82,11 +83,11 @@ msgstr "%d geldige (niet-blanco) stemmen"
 msgid "%d valid ballot(s)"
 msgstr "%d geldige stemmen"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr "(beschikbaar in de/het "
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr ""
 
@@ -106,12 +107,11 @@ msgstr ""
 "Een stem is ongeldig indien twee kandidaten dezelfde voorkeur gekregen "
 "hebben, of als een rang ontbreekt."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
 #: src/web/server/common/pages_common.ml:472
-#, fuzzy
 msgid "A verification code has been sent to %s."
 msgstr "Er is een bevestigingscode naar %s gestuurd."
 
@@ -139,7 +139,7 @@ msgstr "Beheer deze verkiezing"
 msgid "Administrator"
 msgstr "Beheerder"
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Geavanceerde modus"
 
@@ -149,7 +149,7 @@ msgstr ""
 "Alle volgende gevolmachtigden (verificatiesleutels) zijn vereist om het "
 "resultaat te ontsleutelen:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
@@ -161,9 +161,9 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Data controleren: "
 
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
-#: src/web/server/common/pages_common.ml:483
 msgid "Authenticate"
 msgstr "Authenticeren"
 
@@ -194,7 +194,7 @@ msgstr "Authenticeren onmogelijk"
 msgid "Authentication is impossible."
 msgstr "Authenticeren is onmogelijk."
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr ""
 
@@ -214,7 +214,7 @@ msgstr "Met vriendelijke groet,"
 msgid "Blank vote"
 msgstr "Blanco stem"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr ""
 
@@ -226,7 +226,7 @@ msgstr "Door het gebruik van deze site ga je akkoord met onze "
 msgid "Click here"
 msgstr "Klik hier"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr ""
 
@@ -250,14 +250,14 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#. src/web/server/common/mails_voter.ml:283
 #: src/web/server/common/mails_voter.ml:334
+#. src/web/server/common/mails_voter.ml:283
 msgid "Dear %s,"
 msgstr "Beste %s,"
 
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
-#: src/web/server/common/pages_common.ml:512
 msgid "E-mail address:"
 msgstr "E-mailadres:"
 
@@ -277,7 +277,7 @@ msgstr ""
 msgid "Election server"
 msgstr "Verkiezingsserver"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr ""
 
@@ -297,7 +297,7 @@ msgstr "Verwachte vingerafdruk:"
 msgid "FAIL!"
 msgstr "GEFAALD!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr ""
 
@@ -317,8 +317,8 @@ msgstr "Verboden"
 msgid "Get the source code"
 msgstr "Verkrijg de broncode"
 
-#. src/web/common/pages_common.ml:261
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:261
 msgid "Go back to election"
 msgstr "Teruggaan naar de verkiezing"
 
@@ -363,10 +363,10 @@ msgstr "Taal:"
 msgid "Loading..."
 msgstr ""
 
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
-#: src/web/server/common/pages_common.ml:482
 msgid "Log in"
 msgstr "Inloggen"
 
@@ -406,13 +406,13 @@ msgstr "Aantal geaccepteerde stembiljetten: "
 msgid "Number of voters"
 msgstr ""
 
-#. src/web/server/common/mails_voter.ml:123
 #: src/web/server/common/mails_voter.ml:227
+#. src/web/server/common/mails_voter.ml:123
 msgid "Number of votes:"
 msgstr "Aantal stemmen:"
 
-#. src/web/server/common/mails_voter.ml:134
 #: src/web/server/common/mails_voter.ml:234
+#. src/web/server/common/mails_voter.ml:134
 msgid "Only the last vote counts."
 msgstr "Enkel de laatste stem telt."
 
@@ -420,8 +420,8 @@ msgstr "Enkel de laatste stem telt."
 msgid "Page of the election:"
 msgstr "Pagina van de verkiezing:"
 
-#. src/web/server/common/mails_voter.ml:116
 #: src/web/server/common/pages_common.ml:382
+#. src/web/server/common/mails_voter.ml:116
 msgid "Password:"
 msgstr "Wachtwoord:"
 
@@ -447,7 +447,7 @@ msgstr ""
 "Plak de data waarvoor u de vingerafdruk wilt berekenen in het tekstvak "
 "hieronder:"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
@@ -455,7 +455,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr ""
 
@@ -463,13 +463,13 @@ msgstr ""
 msgid "Powered by "
 msgstr ""
 
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
-#: src/web/clients/election/advanced.ml:250
 msgid "Proceed"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr ""
 
@@ -513,18 +513,18 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
-#: src/web/clients/election/advanced.ml:106
 msgid "Submit"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr ""
 
@@ -632,10 +632,10 @@ msgstr ""
 msgid "Use the following code:"
 msgstr ""
 
+#: src/web/server/common/pages_common.ml:345
 #. src/web/server/common/pages_common.ml:277
 #. src/web/server/common/mails_voter.ml:217
 #. src/web/server/common/mails_voter.ml:112
-#: src/web/server/common/pages_common.ml:345
 msgid "Username:"
 msgstr ""
 
@@ -667,12 +667,12 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#. src/web/server/common/mails_voter.ml:133
 #: src/web/server/common/mails_voter.ml:233
+#. src/web/server/common/mails_voter.ml:133
 msgid "You are allowed to vote several times."
 msgstr ""
 
@@ -704,7 +704,7 @@ msgstr ""
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
@@ -772,7 +772,7 @@ msgstr ""
 msgid "create an account"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr ""
 
@@ -796,7 +796,7 @@ msgstr ""
 msgid "some proofs failed verification"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr ""
 
@@ -867,3 +867,4 @@ msgstr ""
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr ""
+

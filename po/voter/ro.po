@@ -84,11 +84,11 @@ msgstr ""
 msgid "%d valid ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr ""
 
@@ -104,7 +104,7 @@ msgstr ""
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
@@ -136,7 +136,7 @@ msgstr "Administrează această alegere"
 msgid "Administrator"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Mod avansat"
 
@@ -144,7 +144,7 @@ msgstr "Mod avansat"
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
@@ -188,7 +188,7 @@ msgstr ""
 msgid "Authentication is impossible."
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr ""
 
@@ -208,7 +208,7 @@ msgstr ""
 msgid "Blank vote"
 msgstr "Vot alb"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr ""
 
@@ -220,7 +220,7 @@ msgstr "Folosind acest sit, acceptați "
 msgid "Click here"
 msgstr ""
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr ""
 
@@ -271,7 +271,7 @@ msgstr ""
 msgid "Election server"
 msgstr "Serverul alegerii"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr ""
 
@@ -291,7 +291,7 @@ msgstr ""
 msgid "FAIL!"
 msgstr "EȘEC!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr ""
 
@@ -430,7 +430,7 @@ msgstr "Va rugam sa va conectati:"
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
@@ -438,7 +438,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr ""
 
@@ -446,13 +446,13 @@ msgstr ""
 msgid "Powered by "
 msgstr "Realizat de "
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "Continuati"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr ""
 
@@ -496,18 +496,18 @@ msgstr ""
 msgid "Start"
 msgstr "Incepeti"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr ""
 
@@ -652,7 +652,7 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
@@ -689,7 +689,7 @@ msgstr "Puteți verifica prezența sa în "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Puteți verifica prezența acestuia în urna de vot, accesibilă la"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
@@ -757,7 +757,7 @@ msgstr "schimbati parola"
 msgid "create an account"
 msgstr "creati un cont"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr ""
 
@@ -781,7 +781,7 @@ msgstr ""
 msgid "some proofs failed verification"
 msgstr "unele dovezi sunt invalide"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr ""
 

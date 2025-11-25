@@ -83,11 +83,11 @@ msgstr "%d gyldige (ikke-blanke) stemmesedler"
 msgid "%d valid ballot(s)"
 msgstr "%d gyldige stemmesedler"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr ""
 
@@ -107,7 +107,7 @@ msgstr ""
 "En stemmeseddel er ugyldig hvis to kandidater har blitt gitt samme "
 "foretrukket rang, eller hvis rang mangler."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
@@ -139,7 +139,7 @@ msgstr "Administrer dette valget"
 msgid "Administrator"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Avansert modus"
 
@@ -149,7 +149,7 @@ msgstr ""
 "Alle de følgende betrodde (bekreftelsesnøkler) trengs for å dekryptere "
 "resultatet:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 msgid "Authentication is impossible."
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr ""
 
@@ -213,7 +213,7 @@ msgstr "Hilsen,"
 msgid "Blank vote"
 msgstr "Blank stemme"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr ""
 
@@ -225,7 +225,7 @@ msgstr "Ved å bruke denne siden, godtar du vår "
 msgid "Click here"
 msgstr ""
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr ""
 
@@ -276,7 +276,7 @@ msgstr ""
 msgid "Election server"
 msgstr "Valg-tjener"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr ""
 
@@ -296,7 +296,7 @@ msgstr "Forventet fingeravtrykk:"
 msgid "FAIL!"
 msgstr "FEIL!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr ""
 
@@ -443,7 +443,7 @@ msgstr ""
 "Lim inn data du ønsker å regne ut fingeravtrykket for i tekstområdet "
 "nedenfor:"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
@@ -451,7 +451,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr ""
 
@@ -459,13 +459,13 @@ msgstr ""
 msgid "Powered by "
 msgstr "Drevet av "
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "Fortsett"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr ""
 
@@ -511,18 +511,18 @@ msgstr ""
 msgid "Start"
 msgstr "Start"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Send inn"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr ""
 
@@ -674,7 +674,7 @@ msgstr "Her brukes Schulze-metoden, og stemmeberettigede blir henvendt til "
 msgid "Wish to help with translations?"
 msgstr "Ønsker du å hjelpe til med oversettelsen?"
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
@@ -711,7 +711,7 @@ msgstr "Du kan se om den finnes i "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
@@ -781,7 +781,7 @@ msgstr "endre passordet ditt"
 msgid "create an account"
 msgstr "opprett en konto"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr ""
 
@@ -805,7 +805,7 @@ msgstr ""
 msgid "some proofs failed verification"
 msgstr "noen bevis kunne ikke bekreftes"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr ""
 

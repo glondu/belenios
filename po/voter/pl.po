@@ -86,11 +86,11 @@ msgstr "%d ważnych (nie pustych) kart do głosowania"
 msgid "%d valid ballot(s)"
 msgstr "%d ważnych kart do głosowania"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr "(dostępnym w "
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr "), lub dowolnej kompatybilnej kabinie do głosowania."
 
@@ -111,7 +111,7 @@ msgstr ""
 "(opcjom) przyznano tą samą preferencję, albo nie przyznano żadnej "
 "preferencji."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 "Specyfikacja zaszyfrowanych kart do głosowania jest dostępna również w "
@@ -146,7 +146,7 @@ msgstr "Zarządzaj tym głosowaniem"
 msgid "Administrator"
 msgstr "Administrator"
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Tryb zaawansowany"
 
@@ -156,7 +156,7 @@ msgstr ""
 "Każdy z następujących mężów (osób) zaufania musi odszyfrować wynik "
 "głosowania:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 "Alternatywnie, możesz również wczytać plik zawierający Twoją kartę do "
@@ -202,7 +202,7 @@ msgstr "Uwierzytelnienie niemożliwe"
 msgid "Authentication is impossible."
 msgstr "Uwierzytelnienie nie jest możliwe."
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr "Wróć do strony głównej"
 
@@ -222,7 +222,7 @@ msgstr "Z pozdrowieniami"
 msgid "Blank vote"
 msgstr "Pusty głos"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr "Kabiny do głosowania dostępne na tym serwerze:"
 
@@ -234,7 +234,7 @@ msgstr "Korzystając z tej strony, akceptujesz nasze "
 msgid "Click here"
 msgstr "Kliknij tutaj"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr "Zamknij"
 
@@ -285,7 +285,7 @@ msgstr "Identyfikator głosowania"
 msgid "Election server"
 msgstr "Serwer głosowania"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr "Zaszyfrowana karta do głosowania w formacie JSON"
 
@@ -305,7 +305,7 @@ msgstr "Spodziewany cyfrowy odcisk (hasz):"
 msgid "FAIL!"
 msgstr "Niepowodzenie!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr "Plik:"
 
@@ -453,7 +453,7 @@ msgstr "Zaloguj się:"
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr "Wklej poniżej dane, dla których chcesz obliczyć cyfrowy odcisk (hasz):"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "Wklej Twoją zaszyfrowaną kartę do głosowania w formacie JSON poniżej:"
 
@@ -461,7 +461,7 @@ msgstr "Wklej Twoją zaszyfrowaną kartę do głosowania w formacie JSON poniże
 msgid "Please vote here using your personal link:"
 msgstr "Oddaj głos przy pomocy Twojego osobistego linku:"
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr "Poczekaj. Twoja karta do głosowania jest przetwarzana..."
 
@@ -469,13 +469,13 @@ msgstr "Poczekaj. Twoja karta do głosowania jest przetwarzana..."
 msgid "Powered by "
 msgstr "System oparty na "
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "Kontynuuj"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr "Przetwarzam kartę do głosowania"
 
@@ -522,18 +522,18 @@ msgstr ""
 msgid "Start"
 msgstr "Rozpocznij"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Prześlij"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr "Prześlij używając: kopiuj/wklej"
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr "Prześlij przy pomocy pliku"
 
@@ -689,7 +689,7 @@ msgstr "Używamy tutaj metody Schulzego i odsyłamy głosujących do "
 msgid "Wish to help with translations?"
 msgstr "Chcesz pomóc w tłumaczeniu?"
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "Zamierzasz przesłać kartę do głosowania nr %s."
 
@@ -729,7 +729,7 @@ msgstr ""
 "została policzona i znajduje się w urnie do głosowania. Urna jest dostępna "
 "tutaj"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 "Możesz utworzyć zaszyfrowaną kartę do głosowania korzystając z narzędzia "
@@ -801,7 +801,7 @@ msgstr "zmienić hasło"
 msgid "create an account"
 msgstr "utworzyć konto"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr "link bezpośredni"
 
@@ -825,7 +825,7 @@ msgstr "nieprzetworzony wynik"
 msgid "some proofs failed verification"
 msgstr "niektóre dowody nie mogą być zweryfikowane"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr "kod źródłowy"
 

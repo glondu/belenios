@@ -84,11 +84,11 @@ msgstr "%d செல்லுபடியாகும் (வெற்று அ
 msgid "%d valid ballot(s)"
 msgstr "%d சரியான வாக்குச்சீட்டு (கள்)"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr "(கிடைக்கிறது "
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr "), அல்லது ஏதேனும் இணக்கமான சாவடி."
 
@@ -107,7 +107,7 @@ msgstr ""
 "இரண்டு வேட்பாளர்களுக்கு ஒரே முன்னுரிமை ஆணை வழங்கப்பட்டிருந்தால் அல்லது ஒரு தரவரிசை காணவில்லை என்றால் ஒரு வாக்குச்சீட்டு "
 "தவறானது."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 "மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டின் விவரக்குறிப்பு மூலங்களிலும் கிடைக்கிறது."
@@ -140,7 +140,7 @@ msgstr "இந்த தேர்தலை நிர்வகிக்கவு�
 msgid "Administrator"
 msgstr "நிர்வாகி"
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "மேம்பட்ட பயன்முறை"
 
@@ -148,7 +148,7 @@ msgstr "மேம்பட்ட பயன்முறை"
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr "முடிவை மறைகுறியாக்க பின்வரும் அறங்காவலர்கள் (சரிபார்ப்பு விசைகள்) தேவை:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "மாற்றாக, உங்கள் வாக்குச்சீட்டைக் கொண்ட ஒரு கோப்பையும் பதிவேற்றலாம்:"
 
@@ -192,7 +192,7 @@ msgstr "ஏற்பு சாத்தியமற்றது"
 msgid "Authentication is impossible."
 msgstr "ஏற்பு சாத்தியமற்றது."
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr "தேர்தல் வீட்டிற்கு திரும்பவும்"
 
@@ -212,7 +212,7 @@ msgstr ""
 msgid "Blank vote"
 msgstr "வெற்று வாக்கு"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr "இந்த சேவையகத்தில் சாவடிகள் கிடைக்கின்றன:"
 
@@ -224,7 +224,7 @@ msgstr ""
 msgid "Click here"
 msgstr "இங்கே சொடுக்கு செய்க"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr ""
 
@@ -275,7 +275,7 @@ msgstr "தேர்தல் அடையாளங்காட்டி"
 msgid "Election server"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr "சாதொபொகு வடிவத்தில் மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டு"
 
@@ -295,7 +295,7 @@ msgstr "எதிர்பார்க்கப்படும் கைரே�
 msgid "FAIL!"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr "கோப்பு:"
 
@@ -440,7 +440,7 @@ msgid "Please paste the data for which you want to compute the fingerprint in th
 msgstr ""
 "கீழே உள்ள உரை பகுதியில் கைரேகையை கணக்கிட விரும்பும் தரவை தயவுசெய்து ஒட்டவும்:"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 "உங்கள் மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டை சாதொபொகு வடிவத்தில் பின்வரும் பெட்டியில் ஒட்டவும்:"
@@ -449,7 +449,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr "உங்கள் தனிப்பட்ட இணைப்பைப் பயன்படுத்தி இங்கே வாக்களிக்கவும்:"
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr "உங்கள் வாக்குச்சீட்டு செயலாக்கப்படும்போது காத்திருங்கள் ..."
 
@@ -457,13 +457,13 @@ msgstr "உங்கள் வாக்குச்சீட்டு செய�
 msgid "Powered by "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr "வாக்குச்சீட்டை செயலாக்குகிறது"
 
@@ -508,18 +508,18 @@ msgstr ""
 msgid "Start"
 msgstr "தொடங்கு"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr "நகல்/பேச்ட் மூலம் சமர்ப்பிக்கவும்"
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr "கோப்பு மூலம் சமர்ப்பிக்கவும்"
 
@@ -668,7 +668,7 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "அறிவுள்ள வாக்கு டிராக்கர் %s மூலம் வாக்குச்சீட்டை சமர்ப்பிக்க உள்ளீர்கள்."
@@ -706,7 +706,7 @@ msgstr ""
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "வாக்குப் பெட்டியில் அதன் இருப்பை நீங்கள் சரிபார்க்கலாம், அணுகலாம்"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 "கட்டளை-வரி கருவியைப் பயன்படுத்தி மறைகுறியாக்கப்பட்ட வாக்குச்சீட்டை உருவாக்கலாம் "
@@ -776,7 +776,7 @@ msgstr "உங்கள் கடவுச்சொல்லை மாற்ற�
 msgid "create an account"
 msgstr "ஒரு கணக்கை உருவாக்கவும்"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr "நேரடி இணைப்பு"
 
@@ -800,7 +800,7 @@ msgstr "மூல முடிவு"
 msgid "some proofs failed verification"
 msgstr "சில சான்றுகள் சரிபார்ப்பில் தோல்வியுற்றன"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr "மூலங்கள்"
 

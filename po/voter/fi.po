@@ -85,11 +85,11 @@ msgstr "%d kelvollista (ei tyhjää) äänestyslippua"
 msgid "%d valid ballot(s)"
 msgstr "%d kelvollinen/kelvollista äänestyslippu(a)"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr "(saatavilla "
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr "), tai missä tahansa yhteensopivassa osastossa."
 
@@ -107,7 +107,7 @@ msgstr ""
 "Äänestyslipuke hylätään, jos kahdelle ehdokkaalle on annettu sama "
 "järjestysnumero tai jokin järjestysnumero puuttuu."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr "Myös salattujen äänestyslippujen erittely on saatavilla lähteistä."
 
@@ -139,7 +139,7 @@ msgstr "Ylläpidä tätä äänestystä"
 msgid "Administrator"
 msgstr "Ylläpitäjä"
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Edistyneet työkalut"
 
@@ -149,7 +149,7 @@ msgstr ""
 "Seuraavat luottamushenkilöt (varmistusavaimet) vaaditaan tuloksen "
 "purkamiseksi:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 "Vaihtoehtoisesti voit myös ulosladata tiedoston, joka sisältää "
@@ -196,7 +196,7 @@ msgstr "Todennus mahdotonta"
 msgid "Authentication is impossible."
 msgstr "Todennus on mahdotonta."
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr "Takaisin vaalitaloon"
 
@@ -216,7 +216,7 @@ msgstr "Ystävällisin terveisin,"
 msgid "Blank vote"
 msgstr "Tyhjä ääni"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr "Tällä palvelimella saatavilla olevat kopit:"
 
@@ -228,7 +228,7 @@ msgstr "Käyttämällä sivustoa hyväksyt "
 msgid "Click here"
 msgstr "Klikkaa tästä"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr "Sulje"
 
@@ -279,7 +279,7 @@ msgstr "Vaalitunnus"
 msgid "Election server"
 msgstr "Äänestyspalvelin"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr "Salattu äänestyslippu JSON-muodossa"
 
@@ -299,7 +299,7 @@ msgstr "Oletettu sormenjälki:"
 msgid "FAIL!"
 msgstr "VIRHE!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr "Tiedosto:"
 
@@ -447,7 +447,7 @@ msgid "Please paste the data for which you want to compute the fingerprint in th
 msgstr ""
 "Liitä tiedot, joille haluat laskea sormenjäljen alla olevaan tekstialueeseen:"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "Liitä salattu äänestyslippu JSON-muodossa seuraavaan laatikkoon:"
 
@@ -455,7 +455,7 @@ msgstr "Liitä salattu äänestyslippu JSON-muodossa seuraavaan laatikkoon:"
 msgid "Please vote here using your personal link:"
 msgstr "Ole hyvä ja äänestä tästä henkilökohtaisen linkkisi kautta:"
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr "Odota, kun äänestystäsi käsitellään..."
 
@@ -463,13 +463,13 @@ msgstr "Odota, kun äänestystäsi käsitellään..."
 msgid "Powered by "
 msgstr "Voimanlähteenä "
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "Etene"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr "Käsitellään äänestyslippua"
 
@@ -515,18 +515,18 @@ msgstr ""
 msgid "Start"
 msgstr "Aloita"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Lähetä"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr "Lähetä kopioimalla/liittämällä"
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr "Lähetä tiedostotse"
 
@@ -679,7 +679,7 @@ msgstr "Käytämme Schulzen menetelmää. Äänestäjät voivat tutustua siihen 
 msgid "Wish to help with translations?"
 msgstr "Haluatko auttaa kääntämisessä?"
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "Olet lähettämässä äänestyslipun, jonka älykäs äänestyslipun tunniste on %s."
@@ -717,7 +717,7 @@ msgstr "Voit tarkistaa, onko se läsnä "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Voit tarkistaa, onko se läsnä vaaliuurnassa, joka sijaitsee"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr "Voit luoda salatun äänestyslipun komentorivityökalulla "
 
@@ -786,7 +786,7 @@ msgstr "vaihda salasanasi"
 msgid "create an account"
 msgstr "luo käyttäjätili"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr "suora linkki"
 
@@ -810,7 +810,7 @@ msgstr "raakatulos"
 msgid "some proofs failed verification"
 msgstr "joitain todennuksia ei saatu varmennettua"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr "lähdekoodissa"
 

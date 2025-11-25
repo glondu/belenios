@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -65,7 +61,6 @@ msgid " in the following box: "
 msgstr " v naslednji skrinjici: "
 
 #: src/web/common/pages_common.ml:242
-#, fuzzy
 msgid " is rejected, because "
 msgstr " je zavrnjena, ker "
 
@@ -91,17 +86,15 @@ msgstr "%d veljavnih (ne-praznih) glasovnic"
 msgid "%d valid ballot(s)"
 msgstr "%d veljavnih glasovnic"
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr "(na voljo v "
 
-#: src/web/clients/election/advanced.ml:145
-#, fuzzy
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr "), ali drugem kompatibilnem volišču."
 
 #: src/web/server/common/pages_common.ml:335
-#, fuzzy
 msgid ", or "
 msgstr ", ali "
 
@@ -113,12 +106,11 @@ msgstr ""
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
 #: src/web/server/common/pages_common.ml:472
-#, fuzzy
 msgid "A verification code has been sent to %s."
 msgstr "Potrditvena koda je bila poslana %s."
 
@@ -146,7 +138,7 @@ msgstr "Upravljaj te volitve"
 msgid "Administrator"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Napredni način"
 
@@ -156,7 +148,7 @@ msgstr ""
 "Vsi naslednji zaupniki (potrditveni ključi) so potrebni za dešifriranje "
 "rezultata:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "Alternativno lahko naložite datoteko z vašo glasovnico:"
 
@@ -168,9 +160,9 @@ msgstr ""
 msgid "Audit data: "
 msgstr ""
 
+#: src/web/server/common/pages_common.ml:483
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
-#: src/web/server/common/pages_common.ml:483
 msgid "Authenticate"
 msgstr "Prijava"
 
@@ -200,7 +192,7 @@ msgstr "Prijava ni mogoča"
 msgid "Authentication is impossible."
 msgstr "Prijava ni mogoča."
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr "Nazaj na volitve"
 
@@ -213,7 +205,6 @@ msgid "Bad security code!"
 msgstr "Neveljavna varnostna koda!"
 
 #: src/web/server/common/mails_voter.ml:354
-#, fuzzy
 msgid "Best regards,"
 msgstr "S spoštovanjem,"
 
@@ -221,7 +212,7 @@ msgstr "S spoštovanjem,"
 msgid "Blank vote"
 msgstr "Prazen glas"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr "Volišča, ki so na voljo na tem strežniku:"
 
@@ -233,7 +224,7 @@ msgstr "Z uporabo spletnega mesta se strinjate s "
 msgid "Click here"
 msgstr "Kiknite tukaj"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr "Zapri"
 
@@ -257,14 +248,14 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#. src/web/server/common/mails_voter.ml:283
 #: src/web/server/common/mails_voter.ml:334
+#. src/web/server/common/mails_voter.ml:283
 msgid "Dear %s,"
 msgstr "Spoštovani %s,"
 
+#: src/web/server/common/pages_common.ml:512
 #. src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
-#: src/web/server/common/pages_common.ml:512
 msgid "E-mail address:"
 msgstr "E-poštni naslov:"
 
@@ -281,11 +272,10 @@ msgid "Election identifier"
 msgstr "Identifikator volitev"
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
-#, fuzzy
 msgid "Election server"
 msgstr "Strežnik za volitve"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr "Šifrirana glasovnica v formatu JSON"
 
@@ -305,7 +295,7 @@ msgstr "Pričakovana zgoščena vrednost:"
 msgid "FAIL!"
 msgstr "Napaka!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr "Datoteka:"
 
@@ -325,8 +315,8 @@ msgstr "Ni dovoljeno"
 msgid "Get the source code"
 msgstr "Pridobite izvorno kodo"
 
-#. src/web/common/pages_common.ml:261
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:261
 msgid "Go back to election"
 msgstr "Nazaj na volitve"
 
@@ -368,10 +358,10 @@ msgstr "Jezik:"
 msgid "Loading..."
 msgstr "Nalaganje..."
 
+#: src/web/server/common/pages_common.ml:482
 #. src/web/server/common/pages_common.ml:402
 #. src/web/server/common/pages_common.ml:310
 #. src/web/server/common/pages_common.ml:270
-#: src/web/server/common/pages_common.ml:482
 msgid "Log in"
 msgstr "Prijava"
 
@@ -392,12 +382,10 @@ msgid "Maybe cookies are blocked."
 msgstr "Morda so blokirani piškotki."
 
 #: src/web/server/common/site_common.ml:37
-#, fuzzy
 msgid "Not found"
 msgstr "Ni najdeno"
 
 #: src/web/server/common/mails_voter.ml:107
-#, fuzzy
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr "Za glasovanje potrebujete tudi geslo, poslano v ločenem sporočilu."
 
@@ -409,13 +397,13 @@ msgstr "Število sprejetih glasovnic: "
 msgid "Number of voters"
 msgstr "Število glasov"
 
-#. src/web/server/common/mails_voter.ml:123
 #: src/web/server/common/mails_voter.ml:227
+#. src/web/server/common/mails_voter.ml:123
 msgid "Number of votes:"
 msgstr "Število glasov:"
 
-#. src/web/server/common/mails_voter.ml:134
 #: src/web/server/common/mails_voter.ml:234
+#. src/web/server/common/mails_voter.ml:134
 msgid "Only the last vote counts."
 msgstr "Le zadnji glas šteje."
 
@@ -423,8 +411,8 @@ msgstr "Le zadnji glas šteje."
 msgid "Page of the election:"
 msgstr "Stran volitev:"
 
-#. src/web/server/common/mails_voter.ml:116
 #: src/web/server/common/pages_common.ml:382
+#. src/web/server/common/mails_voter.ml:116
 msgid "Password:"
 msgstr "Geslo:"
 
@@ -450,7 +438,7 @@ msgstr ""
 "Prilepite podatke, za katere želite izračunati zgoščemo vrednost, v spodnje "
 "besedilno polje:"
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "Prilepite vašo šifrirano glasovnico v obliki JSON v besedilno polje:"
 
@@ -458,7 +446,7 @@ msgstr "Prilepite vašo šifrirano glasovnico v obliki JSON v besedilno polje:"
 msgid "Please vote here using your personal link:"
 msgstr "Glasujte z vašo osebno povezavo:"
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr "Prosimo počakajte, vaša glasovnica se procesira..."
 
@@ -466,13 +454,13 @@ msgstr "Prosimo počakajte, vaša glasovnica se procesira..."
 msgid "Powered by "
 msgstr "Volitve poganja "
 
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
-#: src/web/clients/election/advanced.ml:250
 msgid "Proceed"
 msgstr "Nadaljuj"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr "Procesiranje glasovnice"
 
@@ -516,18 +504,18 @@ msgstr ""
 msgid "Start"
 msgstr "Začetek"
 
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
-#: src/web/clients/election/advanced.ml:106
 msgid "Submit"
 msgstr "Oddaj"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr "Oddaj s kopiraj/prilepi"
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr "Oddaj z datoteko"
 
@@ -637,10 +625,10 @@ msgstr ""
 msgid "Use the following code:"
 msgstr "Uporabite kodo:"
 
+#: src/web/server/common/pages_common.ml:345
 #. src/web/server/common/pages_common.ml:277
 #. src/web/server/common/mails_voter.ml:217
 #. src/web/server/common/mails_voter.ml:112
-#: src/web/server/common/pages_common.ml:345
 msgid "Username:"
 msgstr "Uporabniško ime:"
 
@@ -674,12 +662,12 @@ msgstr ""
 msgid "Wish to help with translations?"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "Oddali boste glasovnico s sledilnikom %s."
 
-#. src/web/server/common/mails_voter.ml:133
 #: src/web/server/common/mails_voter.ml:233
+#. src/web/server/common/mails_voter.ml:133
 msgid "You are allowed to vote several times."
 msgstr "Glasujete lahko večkrat."
 
@@ -711,7 +699,7 @@ msgstr ""
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
@@ -779,7 +767,7 @@ msgstr ""
 msgid "create an account"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr ""
 
@@ -803,7 +791,7 @@ msgstr ""
 msgid "some proofs failed verification"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr ""
 
@@ -874,3 +862,4 @@ msgstr ""
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr ""
+

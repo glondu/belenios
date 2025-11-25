@@ -83,11 +83,11 @@ msgstr ""
 msgid "%d valid ballot(s)"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:141
 msgid "(available in the "
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:145
+#: src/web/clients/election/advanced.ml:143
 msgid "), or any compatible booth."
 msgstr ""
 
@@ -107,7 +107,7 @@ msgstr ""
 "Uma cédula é inválida se dois candidatos receberam a mesma ordem de "
 "preferência ou se falta uma classificação."
 
-#: src/web/clients/election/advanced.ml:148
+#: src/web/clients/election/advanced.ml:146
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
@@ -139,7 +139,7 @@ msgstr "Administrar esta eleição"
 msgid "Administrator"
 msgstr "Administrador"
 
-#: src/web/clients/election/advanced.ml:59 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Modo avançado"
 
@@ -149,7 +149,7 @@ msgstr ""
 "As seguintes autoridades (chaves verificadoras) são necessárias para "
 "descriptografar o resultado:"
 
-#: src/web/clients/election/advanced.ml:113
+#: src/web/clients/election/advanced.ml:111
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 msgid "Authentication is impossible."
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:157
+#: src/web/clients/election/advanced.ml:155
 msgid "Back to election home"
 msgstr ""
 
@@ -213,7 +213,7 @@ msgstr "Atenciosamente,"
 msgid "Blank vote"
 msgstr "Voto em branco"
 
-#: src/web/clients/election/advanced.ml:152
+#: src/web/clients/election/advanced.ml:150
 msgid "Booths available on this server:"
 msgstr ""
 
@@ -225,7 +225,7 @@ msgstr "Ao utilizar este site, você aceita nossas "
 msgid "Click here"
 msgstr "Clique aqui"
 
-#: src/web/clients/common/secondary_ui.ml:101
+#: src/web/clients/common/secondary_ui.ml:103
 msgid "Close"
 msgstr "Fechado"
 
@@ -276,7 +276,7 @@ msgstr ""
 msgid "Election server"
 msgstr "Servidor de eleições"
 
-#: src/web/clients/election/advanced.ml:64
+#: src/web/clients/election/advanced.ml:60
 msgid "Encrypted ballot in JSON format"
 msgstr ""
 
@@ -296,7 +296,7 @@ msgstr "Assinatura esperada:"
 msgid "FAIL!"
 msgstr "FALHA!"
 
-#: src/web/clients/election/advanced.ml:117
+#: src/web/clients/election/advanced.ml:115
 msgid "File:"
 msgstr "Arquivo:"
 
@@ -442,7 +442,7 @@ msgstr "Por favor entre:"
 msgid "Please paste the data for which you want to compute the fingerprint in the text area below:"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:76
+#: src/web/clients/election/advanced.ml:72
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
@@ -450,7 +450,7 @@ msgstr ""
 msgid "Please vote here using your personal link:"
 msgstr "Por favor, vote aqui usando seu link pessoal:"
 
-#: src/web/clients/election/advanced.ml:259
+#: src/web/clients/election/advanced.ml:257
 msgid "Please wait while your ballot is being processed..."
 msgstr ""
 
@@ -458,13 +458,13 @@ msgstr ""
 msgid "Powered by "
 msgstr "Distribuído por "
 
-#: src/web/clients/election/advanced.ml:250
+#: src/web/clients/election/advanced.ml:248
 #. src/web/server/common/pages_common.ml:223
 #. src/web/server/common/pages_common.ml:215
 msgid "Proceed"
 msgstr "Continuar"
 
-#: src/web/clients/election/advanced.ml:197
+#: src/web/clients/election/advanced.ml:195
 msgid "Processing ballot"
 msgstr ""
 
@@ -510,18 +510,18 @@ msgstr ""
 msgid "Start"
 msgstr "Iniciar"
 
-#: src/web/clients/election/advanced.ml:106
-#. src/web/clients/election/advanced.ml:69
+#: src/web/clients/election/advanced.ml:104
+#. src/web/clients/election/advanced.ml:65
 #. src/web/server/common/pages_common.ml:526
 #. src/web/server/common/pages_common.ml:459
 msgid "Submit"
 msgstr "Enviar"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:162
 msgid "Submit by copy/paste"
 msgstr ""
 
-#: src/web/clients/election/advanced.ml:166
+#: src/web/clients/election/advanced.ml:164
 msgid "Submit by file"
 msgstr ""
 
@@ -672,7 +672,7 @@ msgstr "Nós usamos aqui o método Schulze e nós referimos ao eleitores "
 msgid "Wish to help with translations?"
 msgstr "Gostaria de ajudar com traduções?"
 
-#: src/web/clients/election/advanced.ml:241
+#: src/web/clients/election/advanced.ml:239
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
@@ -709,7 +709,7 @@ msgstr "Você pode verificar sua presença em "
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Você pode verificar sua presença na urna, disponível em"
 
-#: src/web/clients/election/advanced.ml:140
+#: src/web/clients/election/advanced.ml:138
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
@@ -777,7 +777,7 @@ msgstr "mudar sua senha"
 msgid "create an account"
 msgstr "criar uma conta"
 
-#: src/web/clients/election/advanced.ml:127
+#: src/web/clients/election/advanced.ml:125
 msgid "direct link"
 msgstr ""
 
@@ -801,7 +801,7 @@ msgstr ""
 msgid "some proofs failed verification"
 msgstr "algumas provas falharam na verificação"
 
-#: src/web/clients/election/advanced.ml:144
+#: src/web/clients/election/advanced.ml:142
 msgid "sources"
 msgstr ""
 
