@@ -208,3 +208,7 @@ dummy and password are supported at the moment).
 ## `credentials/server`
 
 ### `POST`: credentials_request -> unit
+
+## `credentials/server/credits/$UUID`
+
+### `GET`: unit -> credentials_credits (credential operator)

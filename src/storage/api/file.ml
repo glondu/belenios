@@ -56,6 +56,7 @@ type _ u =
   | Credentials_metadata : Belenios_web_api.message_metadata u
   | Credentials_seed : credentials_seed u
   | Credentials_records : credentials_records u
+  | Credentials_credits : Belenios_web_api.credentials_credits u
 
 type kind = Username of string | Address of string
 

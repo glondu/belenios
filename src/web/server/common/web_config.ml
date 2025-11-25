@@ -62,3 +62,4 @@ let encode_recipient = ref false
 let fbl_senderid = ref None
 let connect = ref []
 let grace_period = ref false
+let credentials_server_multiplier = ref 0.99

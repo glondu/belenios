@@ -327,6 +327,7 @@ module MakeBackend
     | Credentials_metadata -> Concrete ("credentials_metadata.json", Raw, None)
     | Credentials_seed -> Concrete ("credentials_seed.json", Raw, None)
     | Credentials_records -> Concrete ("credentials_records.json", Raw, None)
+    | Credentials_credits -> Concrete ("credentials_credits.json", Raw, None)
 
   let clear_caches (type t) : t file -> _ = function
     | Election (_, (Draft | State)) -> Elections_cache.clear ()

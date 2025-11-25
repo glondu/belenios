@@ -314,7 +314,47 @@ let process_resend_request (r : credentials_resend)
     |> Lwt_list.map_s (fun (login, (c : _ credentials_record)) ->
            send ?recipient:c.address ~login ?weight:c.weight c.credential)
   in
-  Mails_voter_bulk.submit_bulk_emails jobs
+  let credit : credentials_credit =
+    {
+      credits = -List.length jobs;
+      success = true;
+      kind =
+        `Resend
+          (match r.spec with
+          | `All_voters -> `All_voters
+          | `Missing_voters -> `Missing_voters
+          | `Some_voters _ -> `Some_voters);
+      timestamp = Unix.gettimeofday ();
+    }
+  in
+  let* success =
+    let@ s = Storage.with_transaction in
+    let@ x, set = Storage.update s (Election (r.uuid, Credentials_credits)) in
+    match Lopt.get_value x with
+    | None -> Lwt.return_false
+    | Some xs ->
+        let success =
+          Belenios_web_api.remaining_credits xs + credit.credits >= 0
+        in
+        let* () = set Value ({ credit with success } :: xs) in
+        Lwt.return success
+  in
+  if success then Mails_voter_bulk.submit_bulk_emails jobs else Lwt.return_unit
+
+let check_seed ~params ~seed =
+  let module G =
+    (val Belenios.Group.of_string ~version:params.version params.group)
+  in
+  let certificate =
+    params.certificate
+    |> string_of_credentials_certificate Yojson.Safe.write_json
+         Yojson.Safe.write_json
+    |> credentials_certificate_of_string (sread G.of_string)
+         (sread G.Zq.of_string)
+  in
+  let module P = Pki.Make (G) (Dummy_random) in
+  let decryption_key = P.derive_dk seed in
+  G.(certificate.encryption_key =~ g **~ decryption_key)
 
 let process_request s : credentials_request -> _ = function
   | `NewRequest r ->
@@ -379,6 +419,7 @@ let process_request s : credentials_request -> _ = function
         let* x = Storage.get s (Election (r.uuid, Credentials_records)) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
+      let n = List.length credentials_records in
       let* credentials_records =
         let module G =
           (val Belenios.Group.of_string ~version:params.version params.group)
@@ -407,25 +448,24 @@ let process_request s : credentials_request -> _ = function
       in
       let* () = Mails_voter_bulk.submit_bulk_emails jobs in
       let* () = Storage.del s (Election (r.uuid, Credentials_seed)) in
+      let* () =
+        let timestamp = Unix.gettimeofday () in
+        let credits =
+          !Web_config.credentials_server_multiplier *. float n
+          |> Float.floor |> Float.to_int
+        in
+        let credit : credentials_credit =
+          { credits; success = true; kind = `Initial; timestamp }
+        in
+        Storage.set s (Election (r.uuid, Credentials_credits)) Value [ credit ]
+      in
       ok
   | `Resend r ->
       let@ params cont =
         let* p = Storage.get s (Election (r.uuid, Credentials_params)) in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
-      let module G =
-        (val Belenios.Group.of_string ~version:params.version params.group)
-      in
-      let certificate =
-        params.certificate
-        |> string_of_credentials_certificate Yojson.Safe.write_json
-             Yojson.Safe.write_json
-        |> credentials_certificate_of_string (sread G.of_string)
-             (sread G.Zq.of_string)
-      in
-      let module P = Pki.Make (G) (Dummy_random) in
-      let decryption_key = P.derive_dk r.seed in
-      if G.(certificate.encryption_key =~ g **~ decryption_key) then (
+      if check_seed ~params ~seed:r.seed then (
         let@ credentials_records cont =
           let* x = Storage.get s (Election (r.uuid, Credentials_records)) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
@@ -446,6 +486,33 @@ let dispatch s endpoint method_ body =
           let@ request = body.run credentials_request_of_string in
           let@ () = handle_generic_error in
           process_request s request
+      | _ -> method_not_allowed)
+  | [ "server"; "credits"; uuid ] -> (
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      match method_ with
+      | `GET ->
+          let@ seed cont =
+            let sp = Eliom_common.get_sp () in
+            match
+              Ocsigen_request.header sp.sp_request.request_info
+                (Ocsigen_header.Name.of_string "Authorization")
+            with
+            | None -> unauthorized
+            | Some x -> (
+                match String.drop_prefix ~prefix:"Bearer " x with
+                | None -> unauthorized
+                | Some x -> cont x)
+          in
+          let@ params cont =
+            let* p = Storage.get s (Election (uuid, Credentials_params)) in
+            match Lopt.get_value p with Some p -> cont p | None -> not_found
+          in
+          if check_seed ~params ~seed then
+            let* p = Storage.get s (Election (uuid, Credentials_credits)) in
+            match Lopt.get_string p with
+            | Some p -> return_json 200 p
+            | None -> not_found
+          else unauthorized
       | _ -> method_not_allowed)
   | [ "belenios" ] -> (
       match method_ with

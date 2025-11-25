@@ -165,6 +165,9 @@ module Make () = struct
         Lwt_main.run (Storage.init_backend backend config)
     | Element ("connect", [], config) ->
         Web_config.connect := parse_connect config
+    | Element ("credentials-server", [ ("multiplier", multiplier) ], []) ->
+        let multiplier = float_of_string multiplier in
+        Web_config.credentials_server_multiplier := multiplier
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag

@@ -62,3 +62,4 @@ val encode_recipient : bool ref
 val fbl_senderid : string option ref
 val connect : (string * string) list ref
 val grace_period : bool ref
+val credentials_server_multiplier : float ref

@@ -24,3 +24,4 @@ type draft =
 
 val draft_of_string : string -> draft
 val string_of_draft : draft -> string
+val remaining_credits : Serializable_t.credentials_credits -> int

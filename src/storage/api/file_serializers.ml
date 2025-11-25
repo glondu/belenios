@@ -126,6 +126,11 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
         of_string = credentials_records_of_string;
         to_string = string_of_credentials_records;
       }
+  | Credentials_credits ->
+      {
+        of_string = Belenios_web_api.credentials_credits_of_string;
+        to_string = Belenios_web_api.string_of_credentials_credits;
+      }
 
 let get (type t) : t File.t -> t string_serializers = function
   | Account _ ->

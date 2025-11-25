@@ -34,6 +34,46 @@ let valid = ref false
 module App (U : UI) = struct
   let component = "admin"
 
+  let get_credit_history uuid seed =
+    let open (val !Belenios_js.I18n.gettext) in
+    let fail () = Lwt.return [ txt @@ s_ "Could not get credit history!" ] in
+    let@ credits cont =
+      let* x = Api.(get (credentials_credits uuid) (`Credauth seed)) in
+      match x with Ok (x, _) -> cont x | Error _ -> fail ()
+    in
+    let format_credit (x : Belenios_web_api.credentials_credit) =
+      let t = new%js Js.date_fromTimeValue (Js.float (x.timestamp *. 1000.)) in
+      let t = Js.to_string t##toLocaleString in
+      tr
+        [
+          td [ txt t ];
+          td [ txt @@ string_of_int x.credits ];
+          td
+            [ txt @@ Belenios_web_api.string_of_credentials_credit_kind x.kind ];
+          td [ txt @@ string_of_bool x.success ];
+        ]
+    in
+    let head =
+      tr
+        [
+          td [ txt @@ s_ "Date and time" ];
+          td [ txt @@ s_ "Credit variation" ];
+          td [ txt @@ s_ "Variation kind" ];
+          td [ txt @@ s_ "Success?" ];
+        ]
+    in
+    let body = List.map format_credit credits in
+    [
+      tablex ~thead:(thead [ head ]) [ tbody body ];
+      div
+        [
+          txt @@ s_ "Remaining resend credits:";
+          txt " ";
+          txt @@ string_of_int @@ Belenios_web_api.remaining_credits credits;
+        ];
+    ]
+    |> Lwt.return
+
   let router _configuration path =
     let open (val !Belenios_js.I18n.gettext) in
     U.set_title @@ s_ "Credential operator interface";
@@ -60,6 +100,8 @@ module App (U : UI) = struct
           in
           ([ div [ lab; inp ] ], fun () -> Js.to_string inp_dom##.value)
     in
+    let credit_history = div [] in
+    let credit_history_dom = Tyxml_js.To_dom.of_div credit_history in
     let check_certificate =
       let@ () = button @@ s_ "Check certificate" in
       let success () =
@@ -143,6 +185,12 @@ module App (U : UI) = struct
       in
       seed := Some seed_;
       valid := true;
+      let* history = get_credit_history uuid seed_ in
+      credit_history_dom##.innerHTML := Js.string "";
+      List.iter
+        (fun x ->
+          Dom.appendChild credit_history_dom (Tyxml_js.To_dom.of_node x))
+        history;
       success ()
     in
     let resend =
@@ -213,7 +261,7 @@ module App (U : UI) = struct
           make "all_voters" (s_ "All voters");
           make "missing_voters" (s_ "Missing voters");
           some_voters;
-          input ~a:[ a_input_type `Submit; a_value "Submit" ] ();
+          input ~a:[ a_input_type `Submit; a_value @@ s_ "Resend" ] ();
         ]
     in
     let body =
@@ -222,6 +270,7 @@ module App (U : UI) = struct
           h1 [ txt @@ s_ "Check certificate" ];
           div [ check_certificate ];
           h1 [ txt @@ s_ "Resend private credentials" ];
+          credit_history;
           div [ resend ];
         ]
     in

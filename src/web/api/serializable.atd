@@ -317,6 +317,26 @@ type credentials_response = {
   public_credentials : public_credentials;
 }
 
+type abstract_resend_spec =
+  [ All_voters
+  | Missing_voters
+  | Some_voters ]
+
+type credentials_credit_kind =
+  [ Initial
+  | Resend of abstract_resend_spec
+  | Other of string
+  ]
+
+type credentials_credit = {
+    credits : int;
+    success : bool;
+    kind : credentials_credit_kind;
+    timestamp : float;
+}
+
+type credentials_credits = credentials_credit list
+
 type trustees_request =
   [ Add of abstract trustee
   | Import of uuid

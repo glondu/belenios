@@ -311,3 +311,11 @@ let credentials_server =
     to_string = string_of_unit;
     to_string_post = string_of_credentials_request;
   }
+
+let credentials_credits uuid =
+  {
+    path = Printf.sprintf "credentials/server/credits/%s" (Uuid.unwrap uuid);
+    of_string = credentials_credits_of_string;
+    to_string = string_of_credentials_credits;
+    to_string_post = string_of_unit;
+  }
