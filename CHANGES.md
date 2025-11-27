@@ -1,6 +1,7 @@
 3.2~dev
 =======
 
+ * Use belenios.net domain name for project website and contact
  * Command-line tool:
    + Add "archive pull"
  * Web server:
@@ -15,6 +16,11 @@
    + Add support for a new "Belenios Connect" authentication protocol
    + Document authentication protocols
    + Change and document billing protocol
+   + Add support for a grace period (requires an external
+     authentication server implementing Belenios Connect)
+   + Add possibility to add a description in <auth-export>
+   + Add an external credential authority protocol
+   + Display number of registered voters in voter list tab
  * Monitoring:
    + Randomize User-Agent in monitor_elections.py
 
