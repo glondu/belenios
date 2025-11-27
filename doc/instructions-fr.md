@@ -462,7 +462,7 @@ Après l'élection, il est attendu de l'auditeur :
 Note : Si l'outil en ligne de commande `belenios-tool` est utilisé, la
 confiance dans les tests effectués repose en partie dans la confiance
 en l'outil. Il est possible d'implémenter son propre logiciel de
-vérification à partir des spécifications de Belenios, disponibles [ici](https://vote.vcast.vote/v3/static/specification.pdf).
+vérification à partir des spécifications de Belenios, disponibles [ici](https://www.belenios.net/r/static/specification.pdf).
 
 
 Instructions pour l'administrateur de l'élection
@@ -533,5 +533,5 @@ ou encore :
 
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
-Vous pouvez également utiliser [l'outil en ligne](https://vote.vcast.vote/v3/tools/compute-fingerprint) mis à disposition par
+Vous pouvez également utiliser [l'outil en ligne](https://www.belenios.net/r/tools/compute-fingerprint) mis à disposition par
 Belenios.

@@ -2,7 +2,7 @@
 opam-version: "2.0"
 version: "3.1"
 synopsis: "Native implementation of the Belenios platform"
-maintainer: ["stephane.glondu@vcast.vote"]
+maintainer: ["contact@belenios.net"]
 authors: ["Stéphane Glondu"]
 license: "AGPL-3"
 depends: [

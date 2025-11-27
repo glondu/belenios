@@ -444,7 +444,7 @@ Note: If the `belenios-tool` command-line tool is used, the trust in
 the audit verifications partly relies on the trust in this tool. It is
 possible to write independent verification software following Belenios
 specification available
-[here](https://vote.vcast.vote/v3/static/specification.pdf).
+[here](https://www.belenios.net/r/static/specification.pdf).
 
 Instructions for the administrator of the election
 --------------------------------------------------
@@ -505,5 +505,5 @@ but of course you may replace it by any other file.
     cat voters.txt | python3 -c "import hashlib,base64,sys;m=hashlib.sha256();m.update(sys.stdin.read().encode());print(base64.b64encode(m.digest()).decode().strip('='))"
 
 You may also use
-[the online tool](https://vote.vcast.vote/v3/tools/compute-fingerprint)
+[the online tool](https://www.belenios.net/r/tools/compute-fingerprint)
 supported by Belenios.
