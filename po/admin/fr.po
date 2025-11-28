@@ -88,7 +88,7 @@ msgstr " votre contribution au déchiffrement."
 
 #: src/web/clients/admin/elections.ml:814
 msgid "%d registered voter(s)"
-msgstr ""
+msgstr "%d électeur(s) enregistré(s)"
 
 #: src/web/clients/admin/admin.ml:184
 msgid "(no title)"
