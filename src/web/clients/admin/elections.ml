@@ -810,6 +810,9 @@ let voters_content () =
   let erv v () =
     if is_draft && not is_frozen then [ erase_voter_elt v () ] else []
   in
+  let nbvoters =
+    Printf.ksprintf txt (f_ "%d registered voter(s)") (List.length voters)
+  in
   let make_rows_of_voters show_only_missing =
     let rows_of_voters =
       List.filter_map
@@ -932,6 +935,8 @@ let voters_content () =
            in
            div
              [
+               nbvoters;
+               txt " ";
                rm_button;
                div
                  ~a:[ a_id "addtolist" ]
