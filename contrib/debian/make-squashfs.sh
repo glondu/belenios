@@ -1,5 +1,8 @@
 #!/bin/sh
 
+PROJECT_NAME=belenios
+PROJECT_PKG=belenios-server
+
 # This script creates a squashfs image suitable for use with
 # systemd-nspawn.
 
@@ -58,30 +61,30 @@ set -e
 echo "I: setting up the rootfs..."
 
 ln -sfT /usr/lib/systemd/resolv.conf /etc/resolv.conf
-echo belenios > /etc/hostname
+echo $PROJECT_NAME > /etc/hostname
 
 cat > /etc/hosts <<XOF
 127.0.0.1 localhost
-127.0.1.1 belenios
+127.0.1.1 $PROJECT_NAME
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 XOF
 
-mkdir /etc/belenios
+mkdir /etc/$PROJECT_NAME
 
 cat > /etc/msmtprc <<XOF
 account default
 host localhost
-from %U@belenios
+from %U@$PROJECT_NAME
 syslog LOG_MAIL
 XOF
 
-SBOM=/usr/share/belenios-server/sbom/runtime-deb-packages.txt
+SBOM=/usr/share/$PROJECT_PKG/sbom/runtime-deb-packages.txt
 echo "Installed-Packages:" > \$SBOM
 dpkg-query -W -f=',\n \${binary:Package} (= \${Version})' | tail -n +2 >> \$SBOM
 echo >> \$SBOM
-chown root:root -R /usr/share/belenios-server/sbom
+chown root:root -R /usr/share/$PROJECT_PKG/sbom
 EOF
 chmod +x "$TMP/postinst.sh"
 
@@ -101,7 +104,7 @@ mmdebstrap --variant=essential \
   --hook-dir=/usr/share/mmdebstrap/hooks/file-mirror-automount \
   --include="passwd systemd dbus msmtp-mta logrotate" \
   --include="$BELENIOS_SERVER_DEB" \
-  --customize-hook='copy-in "'"$BELENIOS_SERVER_BUILDINFO"'" /usr/share/belenios-server/sbom' \
+  --customize-hook='copy-in "'"$BELENIOS_SERVER_BUILDINFO"'" /usr/share/'$PROJECT_PKG'/sbom' \
   --customize-hook='copy-in "'"$TMP"'/postinst.sh" /tmp' \
   --customize-hook='chroot "$1" /tmp/postinst.sh' \
   --customize-hook='chroot "$1" rm /tmp/postinst.sh' \

@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# This script creates a Debian source package belenios-server
+PROJECT_NAME=belenios
+PROJECT_PKG=belenios-server
+
+# This script creates a Debian source package $PROJECT_PKG
 
 set -e
 
@@ -27,9 +30,9 @@ TMP="$(mktemp --tmpdir --directory tmp.belenios.XXXXXXXXXX)"
 trap "rm -rf $TMP" EXIT
 echo "I: using directory $TMP..."
 
-contrib/make-tarball.sh "$TMP/belenios-server_$VERSION.orig.tar.gz"
-tar -x -f "$TMP/belenios-server_$VERSION.orig.tar.gz" -C "$TMP"
-cd "$TMP/belenios-"*
+contrib/make-tarball.sh "$TMP/${PROJECT_PKG}_$VERSION.orig.tar.gz"
+tar -x -f "$TMP/${PROJECT_PKG}_$VERSION.orig.tar.gz" -C "$TMP"
+cd "$TMP/$PROJECT_NAME-"*
 
 mkdir -p debian/source
 
@@ -42,7 +45,7 @@ BDEPS="$(echo "$BELENIOS_DEVDEPS $BELENIOS_DEBDEPS" | sed -r 's/\s+/, /g')"
 BINDEPS="$(echo "$BELENIOS_RUNDEPS" | sed -r 's/\s+/, /g')"
 
 cat > debian/changelog <<EOF
-belenios-server ($VERSION-1) stable; urgency=medium
+$PROJECT_PKG ($VERSION-1) stable; urgency=medium
 
   * Initial release
 
@@ -50,7 +53,7 @@ belenios-server ($VERSION-1) stable; urgency=medium
 EOF
 
 cat > debian/control <<EOF
-Source: belenios-server
+Source: $PROJECT_PKG
 Priority: optional
 Section: misc
 Maintainer: $DEBNAME <$DEBMAIL>
@@ -58,7 +61,7 @@ Build-Depends: debhelper-compat (= 13), dh-ocaml, $BDEPS
 Standards-Version: 4.7.0
 Rules-Requires-Root: no
 
-Package: belenios-server
+Package: $PROJECT_PKG
 Architecture: any
 Depends:
  \${ocaml:Depends},
@@ -66,7 +69,7 @@ Depends:
  \${shlibs:Depends},
  \${misc:Depends},
  $BINDEPS
-Description: Belenios server
+Description: automatically generated package
 EOF
 
 cat > debian/rules <<EOF
@@ -83,64 +86,64 @@ override_dh_auto_build:
 	TMP="\$\$(mktemp --tmpdir --directory tmp.belenios.XXXXXXXXXX)"; \
 	trap "rm -rf \$\$TMP" EXIT; \
 	HOME="\$\$TMP" BELENIOS_BUILD="$VERSION" \$(MAKE) build-release-server
-	\$(MAKE) install-doc DESTDIR=_run/usr/share/belenios-server/static
+	\$(MAKE) install-doc DESTDIR=_run/usr/share/$PROJECT_PKG/static
 
 override_dh_auto_test:
 EOF
 chmod +x debian/rules
 
-cat > debian/belenios-server.install <<EOF
+cat > debian/$PROJECT_PKG.install <<EOF
 _run/usr/bin usr
 _run/usr/share usr
 EOF
 
-cat > debian/belenios-server.logrotate <<EOF
-/var/belenios/log/*.log {
+cat > debian/$PROJECT_PKG.logrotate <<EOF
+/var/$PROJECT_NAME/log/*.log {
         daily
         missingok
         rotate 14
         compress
         delaycompress
         notifempty
-        create 0640 belenios belenios
+        create 0640 $PROJECT_NAME $PROJECT_NAME
         sharedscripts
         postrotate
-                echo reopen_logs > /run/belenios/ocsigenserver_command
+                echo reopen_logs > /run/$PROJECT_NAME/ocsigenserver_command
         endscript
 }
 EOF
 
-cat > debian/belenios-server.service <<EOF
+cat > debian/$PROJECT_PKG.service <<EOF
 [Unit]
-Description=Belenios election server
+Description=$PROJECT_NAME server
 After=network.target
 
 [Service]
 ExecStart=/usr/bin/belenios-start-server
 ExecStop=/usr/bin/belenios-stop-server
 TimeoutStopSec=15
-User=belenios
-RuntimeDirectory=belenios
+User=$PROJECT_NAME
+RuntimeDirectory=$PROJECT_NAME
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-cat > debian/belenios-server.postinst <<EOF
+cat > debian/$PROJECT_PKG.postinst <<EOF
 #!/bin/sh
 set -e
 
-if ! getent passwd belenios >/dev/null; then
-    adduser --comment "Belenios user" --disabled-password --no-create-home --home /var/belenios belenios
+if ! getent passwd $PROJECT_NAME >/dev/null; then
+    adduser --comment "$PROJECT_PKG user" --disabled-password --no-create-home --home /var/$PROJECT_NAME $PROJECT_NAME
 fi
 
-if [ ! -d /var/belenios ]; then
-    mkdir /var/belenios
-    chown belenios:belenios /var/belenios
+if [ ! -d /var/$PROJECT_NAME ]; then
+    mkdir /var/$PROJECT_NAME
+    chown $PROJECT_NAME:$PROJECT_NAME /var/$PROJECT_NAME
 fi
 
 #DEBHELPER#
 EOF
 
 dpkg-buildpackage --no-sign -S -nc
-dcmd cp ../belenios-server_*.dsc $TARGET
+dcmd cp ../${PROJECT_PKG}_*.dsc $TARGET

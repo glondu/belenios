@@ -1,10 +1,13 @@
 include Makefile.config
 
+PROJECT_NAME := belenios
+PROJECT_PKG := belenios-server
+
 CHROOT := chroot.tar.zst
 VERSION := $(shell cd $(BELENIOS_SOURCES) && ./src/platform/version/get_build.sh)
-DSC := belenios-server_$(VERSION)-1.dsc
-DEB := belenios-server_$(VERSION)-1_$(ARCH).deb
-SQUASHFS := belenios_$(VERSION)_$(ARCH).squashfs
+DSC := $(PROJECT_PKG)_$(VERSION)-1.dsc
+DEB := $(PROJECT_PKG)_$(VERSION)-1_$(ARCH).deb
+SQUASHFS := $(PROJECT_NAME)_$(VERSION)_$(ARCH).squashfs
 
 all: $(SQUASHFS)
 
