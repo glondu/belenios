@@ -4,7 +4,6 @@
   xml-light
   lwt
   tyxml.functor
-  markup
   (re_export belenios-lib.messages)
   (re_export belenios-lib.api))
  (modules_without_implementation mails_admin_sig markup_types))

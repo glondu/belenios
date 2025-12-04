@@ -41,38 +41,35 @@ let rec attr_assoc attr = function
   | ((_, name), value) :: _ when name = attr -> Some value
   | _ :: xs -> attr_assoc attr xs
 
+let rec markup_of_xml = function
+  | Xml.PCData x -> Markup_types.Text x
+  | Element ("br", [], []) -> Text " | "
+  | Element ("b", [], children) -> Bold (List.map markup_of_xml children)
+  | Element ("i", [], children) -> Italic (List.map markup_of_xml children)
+  | Element ("a", attrs, children) ->
+      let target =
+        match List.assoc_opt "href" attrs with
+        | Some x -> x
+        | None -> raise @@ Unsupported "missing href attribute in <a>"
+      in
+      let label =
+        children
+        |> List.map (function
+             | Xml.PCData x -> x
+             | _ -> raise @@ Unsupported "forbidden content in <a>")
+        |> String.concat ""
+      in
+      Link { target; label }
+  | Element (name, _, _) ->
+      raise @@ Unsupported (Printf.sprintf "unsupported element: <%s>" name)
+
 let parse_html x =
-  let open Markup in
-  parse_html
-    ~report:(fun location e ->
-      raise @@ Unsupported (Markup.Error.to_string ~location e))
-    ~context:(`Fragment "span") (string x)
-  |> signals
-  |> trees
-       ~text:(fun x -> Markup_types.Text (String.concat "" x))
-       ~element:(fun (_, name) attrs children ->
-         match name with
-         | "br" -> Text " | "
-         | "b" -> Bold children
-         | "i" -> Italic children
-         | "a" ->
-             let target =
-               match attr_assoc "href" attrs with
-               | Some x -> x
-               | None -> raise @@ Unsupported "missing href attribute in <a>"
-             in
-             let label =
-               children
-               |> List.map (function
-                    | Markup_types.Text x -> x
-                    | _ -> raise @@ Unsupported "forbidden content in <a>")
-               |> String.concat ""
-             in
-             Link { target; label }
-         | name ->
-             raise
-             @@ Unsupported (Printf.sprintf "unsupported element: %s" name))
-  |> to_list
+  if x = "" then []
+  else if x.[0] = '<' then
+    match Xml.parse_string x with
+    | Xml.Element ("markup", [], children) -> List.map markup_of_xml children
+    | _ -> raise @@ Unsupported "invalid markup"
+  else [ Text x ]
 
 module type BASE = sig
   module Xml : Xml_sigs.NoWrap
