@@ -240,6 +240,10 @@ msgstr ""
 msgid "Computed fingerprint:"
 msgstr "கணக்கிடப்பட்ட கைரேகை:"
 
+#: src/web/clients/jslib/belenios_jslib.ml:142
+msgid "Could not get server configuration!"
+msgstr ""
+
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr "நற்சான்றிதழ்கள் அதிகாரம்"
@@ -270,6 +274,10 @@ msgstr "தேர்தல் வீடு"
 #: src/web/clients/election/home.ml:79
 msgid "Election identifier"
 msgstr "தேர்தல் அடையாளங்காட்டி"
+
+#: src/web/clients/jslib/belenios_jslib.ml:255
+msgid "Election public URL"
+msgstr ""
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
 msgid "Election server"
@@ -503,6 +511,11 @@ msgstr "கணம்"
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "காண்டோர்செட் வெற்றியாளர் இல்லாதபோது எந்த வேட்பாளரைத் தேர்ந்தெடுப்பது என்பதை தீர்மானிக்க பல நுட்பங்கள் உள்ளன."
+
+#: src/web/clients/jslib/belenios_jslib.ml:260
+#. src/web/clients/jslib/belenios_jslib.ml:246
+msgid "Smart ballot tracker"
+msgstr ""
 
 #: src/web/clients/election/home.ml:717
 msgid "Start"

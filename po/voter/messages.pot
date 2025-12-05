@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-28 09:25+0000\n"
+"POT-Creation-Date: 2025-12-05 14:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -235,6 +235,10 @@ msgstr ""
 msgid "Computed fingerprint:"
 msgstr ""
 
+#: src/web/clients/jslib/belenios_jslib.ml:142
+msgid "Could not get server configuration!"
+msgstr ""
+
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr ""
@@ -264,6 +268,10 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:79
 msgid "Election identifier"
+msgstr ""
+
+#: src/web/clients/jslib/belenios_jslib.ml:255
+msgid "Election public URL"
 msgstr ""
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
@@ -489,6 +497,11 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:384
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
+msgstr ""
+
+#: src/web/clients/jslib/belenios_jslib.ml:260
+#. src/web/clients/jslib/belenios_jslib.ml:246
+msgid "Smart ballot tracker"
 msgstr ""
 
 #: src/web/clients/election/home.ml:717

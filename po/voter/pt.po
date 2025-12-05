@@ -241,6 +241,10 @@ msgstr "Calcular impressão digital"
 msgid "Computed fingerprint:"
 msgstr "Impressão digital Calculada:"
 
+#: src/web/clients/jslib/belenios_jslib.ml:142
+msgid "Could not get server configuration!"
+msgstr ""
+
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr "Autoridade de código de voto"
@@ -270,6 +274,10 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:79
 msgid "Election identifier"
+msgstr ""
+
+#: src/web/clients/jslib/belenios_jslib.ml:255
+msgid "Election public URL"
 msgstr ""
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
@@ -510,6 +518,11 @@ msgid "Several techniques exist to decide which candidate to elect when there is
 msgstr ""
 "Existem várias técnicas para decidir qual candidato eleger quando não há "
 "nenhum vencedor de Condorcet."
+
+#: src/web/clients/jslib/belenios_jslib.ml:260
+#. src/web/clients/jslib/belenios_jslib.ml:246
+msgid "Smart ballot tracker"
+msgstr ""
 
 #: src/web/clients/election/home.ml:717
 msgid "Start"

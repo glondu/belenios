@@ -242,6 +242,10 @@ msgstr "Bereken vingerafdruk"
 msgid "Computed fingerprint:"
 msgstr "Berekende vingerafdruk:"
 
+#: src/web/clients/jslib/belenios_jslib.ml:142
+msgid "Could not get server configuration!"
+msgstr ""
+
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr ""
@@ -271,6 +275,10 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:79
 msgid "Election identifier"
+msgstr ""
+
+#: src/web/clients/jslib/belenios_jslib.ml:255
+msgid "Election public URL"
 msgstr ""
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
@@ -507,6 +515,11 @@ msgstr ""
 
 #: src/web/clients/election/home.ml:384
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
+msgstr ""
+
+#: src/web/clients/jslib/belenios_jslib.ml:260
+#. src/web/clients/jslib/belenios_jslib.ml:246
+msgid "Smart ballot tracker"
 msgstr ""
 
 #: src/web/clients/election/home.ml:717

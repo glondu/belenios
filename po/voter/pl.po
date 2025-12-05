@@ -250,6 +250,10 @@ msgstr "Oblicz cyfrowy odcisk (hasz)"
 msgid "Computed fingerprint:"
 msgstr "Obliczony cyfrowy odcisk (hasz):"
 
+#: src/web/clients/jslib/belenios_jslib.ml:142
+msgid "Could not get server configuration!"
+msgstr ""
+
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr "Administrator kodów głosowania"
@@ -280,6 +284,10 @@ msgstr "Strona główna"
 #: src/web/clients/election/home.ml:79
 msgid "Election identifier"
 msgstr "Identyfikator głosowania"
+
+#: src/web/clients/jslib/belenios_jslib.ml:255
+msgid "Election public URL"
+msgstr ""
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
 msgid "Election server"
@@ -517,6 +525,11 @@ msgstr ""
 "Istnieje wiele technik rozstrzygania o tym, którego kandydata (opcję) należy "
 "wybrać w przypadku gdy zgodnie z systemem Condorceta nie można wskazać "
 "zwycięzcy."
+
+#: src/web/clients/jslib/belenios_jslib.ml:260
+#. src/web/clients/jslib/belenios_jslib.ml:246
+msgid "Smart ballot tracker"
+msgstr ""
 
 #: src/web/clients/election/home.ml:717
 msgid "Start"

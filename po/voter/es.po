@@ -246,6 +246,10 @@ msgstr "Procesar huella digital"
 msgid "Computed fingerprint:"
 msgstr "Procesar huella digital:"
 
+#: src/web/clients/jslib/belenios_jslib.ml:142
+msgid "Could not get server configuration!"
+msgstr ""
+
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
 msgstr "Certificadora"
@@ -276,6 +280,10 @@ msgstr "Página principal de la elección"
 #: src/web/clients/election/home.ml:79
 msgid "Election identifier"
 msgstr "Identificador electoral"
+
+#: src/web/clients/jslib/belenios_jslib.ml:255
+msgid "Election public URL"
+msgstr ""
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
 msgid "Election server"
@@ -515,6 +523,11 @@ msgid "Several techniques exist to decide which candidate to elect when there is
 msgstr ""
 "Existen varias técnicas para decidir qué candidato elegir cuando no hay un "
 "ganador de Condorcet."
+
+#: src/web/clients/jslib/belenios_jslib.ml:260
+#. src/web/clients/jslib/belenios_jslib.ml:246
+msgid "Smart ballot tracker"
+msgstr ""
 
 #: src/web/clients/election/home.ml:717
 msgid "Start"
