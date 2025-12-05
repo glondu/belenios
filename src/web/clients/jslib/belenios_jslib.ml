@@ -238,7 +238,13 @@ let belenios : belenios Js.t =
       let open (val !Belenios_js.I18n.gettext) in
       let module W = (val election : ELECTION_WITH_SK) in
       let uuid_s = Uuid.unwrap W.uuid in
-      let url = Printf.sprintf "%selection#%s\n" (compute_prefix ()) uuid_s in
+      let prefix = compute_prefix () in
+      let tracker = Js.to_string tracker in
+      let tracker_hex = tracker |> Hash.of_b64 |> Hash.to_hex in
+      let url = Printf.sprintf "%selection#%s\n" prefix uuid_s in
+      let url_object =
+        Printf.sprintf "%sapi/elections/%s/objects/%s" prefix uuid_s tracker_hex
+      in
       let page =
         let open Tyxml.Html in
         html
@@ -258,7 +264,8 @@ let belenios : belenios Js.t =
                    tr
                      [
                        th [ txt @@ s_ "Smart ballot tracker" ];
-                       td [ code [ txt @@ Js.to_string tracker ] ];
+                       td
+                         [ a ~a:[ a_href url_object ] [ code [ txt tracker ] ] ];
                      ];
                  ];
              ])
