@@ -13,3 +13,4 @@ src/web/clients/election/home.ml
 src/web/clients/election/ballots.ml
 src/web/clients/election/advanced.ml
 src/web/clients/election/main.ml
+src/web/clients/jslib/belenios_jslib.ml
