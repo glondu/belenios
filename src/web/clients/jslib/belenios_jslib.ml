@@ -278,9 +278,10 @@ let belenios : belenios Js.t =
         |> Js.string
       in
       let filename =
-        Printf.sprintf "%s_%s_tracker.html"
+        Printf.sprintf "tracker_%s_%s_%s.html"
           (remove_special_characters W.template.t_name)
           uuid_s
+          (String.sub tracker_hex 0 8)
         |> Js.string
       in
       object%js
