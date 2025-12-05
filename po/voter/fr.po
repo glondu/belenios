@@ -248,7 +248,7 @@ msgstr "Empreinte calculée :"
 
 #: src/web/clients/jslib/belenios_jslib.ml:142
 msgid "Could not get server configuration!"
-msgstr ""
+msgstr "N'a pas pu récupérer la configuration du serveur !"
 
 #: src/web/clients/election/home.ml:209
 msgid "Credentials authority"
@@ -283,7 +283,7 @@ msgstr "Identifiant de l'élection"
 
 #: src/web/clients/jslib/belenios_jslib.ml:255
 msgid "Election public URL"
-msgstr ""
+msgstr "URL publique de l'élection"
 
 #: src/web/common/pages_common.ml:137 src/web/common/pages_common.ml:128
 msgid "Election server"
@@ -528,7 +528,7 @@ msgstr ""
 #: src/web/clients/jslib/belenios_jslib.ml:260
 #. src/web/clients/jslib/belenios_jslib.ml:246
 msgid "Smart ballot tracker"
-msgstr ""
+msgstr "Numéro de suivi du bulletin"
 
 #: src/web/clients/election/home.ml:717
 msgid "Start"
