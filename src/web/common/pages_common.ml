@@ -199,9 +199,7 @@ module Make (Base : BASE) = struct
           let this_is_a_revote =
             if revote then
               span
-                [
-                  txt @@ s_ "This vote replaces any previous vote."; txt " ";
-                ]
+                [ txt @@ s_ "This vote replaces any previous vote."; txt " " ]
             else txt ""
           in
           let your_weight_is =
