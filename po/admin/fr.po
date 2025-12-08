@@ -1755,7 +1755,7 @@ msgstr "Cette tâche est terminée. Les mots de passe ont été envoyés."
 
 #: src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
-msgstr ""
+msgstr "Ce vote remplace le vote précédent."
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
