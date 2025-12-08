@@ -197,7 +197,11 @@ module Make (Base : BASE) = struct
           ({ recipient; hash; revote; weight; email; _ } :
             Belenios_messages.confirmation) ->
           let this_is_a_revote =
-            if revote then span [ txt @@ s_ "This is a revote."; txt " " ]
+            if revote then
+              span
+                [
+                  txt @@ s_ "This vote replaces any previous vote."; txt " ";
+                ]
             else txt ""
           in
           let your_weight_is =
