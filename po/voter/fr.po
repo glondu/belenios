@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (si vous l'avez oublié, par exemple)."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Un courriel de confirmation vous a été envoyé."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " n'importe quand pendant l'élection."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " en tant que l'utilisateur "
 
@@ -47,7 +47,7 @@ msgstr " bulletin(s) ont été accepté(s)."
 msgid " for more information."
 msgstr " pour plus d'information."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " a été accepté."
 
@@ -59,7 +59,7 @@ msgstr " ont été compté(s)."
 msgid " in the following box: "
 msgstr " dans la boîte suivante : "
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " est refusé, parce que "
 
@@ -281,7 +281,7 @@ msgstr "Page d'accueil de l'élection"
 msgid "Election identifier"
 msgstr "Identifiant de l'élection"
 
-#: src/web/clients/jslib/belenios_jslib.ml:255
+#: src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Election public URL"
 msgstr "URL publique de l'élection"
 
@@ -305,7 +305,7 @@ msgstr "Erreur lors du chargement des bulletins !"
 msgid "Expected fingerprint:"
 msgstr "Empreinte attendue :"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "ÉCHEC !"
 
@@ -330,7 +330,7 @@ msgid "Get the source code"
 msgstr "Obtenir le code source"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:261
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Revenir à l'élection"
 
@@ -525,8 +525,8 @@ msgstr ""
 "Plusieurs techniques existent pour décider quel candidat élire lorsqu'il n'y "
 "a pas de vainqueur de Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:260
-#. src/web/clients/jslib/belenios_jslib.ml:246
+#: src/web/clients/jslib/belenios_jslib.ml:266
+#. src/web/clients/jslib/belenios_jslib.ml:252
 msgid "Smart ballot tracker"
 msgstr "Numéro de suivi du bulletin"
 
@@ -559,7 +559,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Conditions générales d'utilisation"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Merci pour votre vote !"
 
@@ -621,11 +621,7 @@ msgstr "Cette élection est archivée."
 msgid "This election is currently closed."
 msgstr "Cette élection est actuellement fermée."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "Ceci est un revote."
-
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
 msgstr "Ce vote remplace le vote précédent."
 
@@ -730,7 +726,7 @@ msgstr "Vous pouvez aussi "
 msgid "You can also download the "
 msgstr "Vous pouvez également télécharger le "
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Vous pouvez vérifier sa présence dans l' "
 
@@ -753,7 +749,7 @@ msgid "You cannot log in now. Please try later."
 msgstr ""
 "Vous ne pouvez pas vous connecter maintenant. Veuillez essayer plus tard."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Votre bulletin pour "
 
@@ -779,7 +775,7 @@ msgstr "Votre mot de passe pour l'élection %s"
 msgid "Your smart ballot tracker is"
 msgstr "Votre numéro de suivi est"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
@@ -795,11 +791,11 @@ msgstr "Votre vote pour l'élection %s"
 msgid "Your vote was not recorded!"
 msgstr "Votre vote n'a pas été enregistré !"
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Votre poids est %s."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "urne"
 

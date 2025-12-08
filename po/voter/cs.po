@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (pokud jste ho snad zapomněli)."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Potvrzovací e-mail vám byl odeslán."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " kdykoli během voleb."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " jako uživatel "
 
@@ -47,7 +47,7 @@ msgstr " volebních lístků bylo akceptováno."
 msgid " for more information."
 msgstr " pro více informací."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " bylo přijato."
 
@@ -59,7 +59,7 @@ msgstr " se vyhodnotila."
 msgid " in the following box: "
 msgstr " v následujícím poli: "
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " je zamítnuto, protože "
 
@@ -280,7 +280,7 @@ msgstr "Domovská stránka voleb"
 msgid "Election identifier"
 msgstr "Identifikátor voleb"
 
-#: src/web/clients/jslib/belenios_jslib.ml:255
+#: src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Election public URL"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr "Chyba při načítání hlasovacích lístků!"
 msgid "Expected fingerprint:"
 msgstr "Očekávaný jedinečný otisk:"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "CHYBA!"
 
@@ -329,7 +329,7 @@ msgid "Get the source code"
 msgstr "Získat zdrojový kód"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:261
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Zpět k volbám"
 
@@ -524,8 +524,8 @@ msgstr ""
 "V případě, že z voleb nevzešel žádný Condorcetův vítěz, existuje několik "
 "způsobů, jak určit vítězného kandidáta."
 
-#: src/web/clients/jslib/belenios_jslib.ml:260
-#. src/web/clients/jslib/belenios_jslib.ml:246
+#: src/web/clients/jslib/belenios_jslib.ml:266
+#. src/web/clients/jslib/belenios_jslib.ml:252
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -558,7 +558,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Podmínky užívání"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Děkujeme za hlasování!"
 
@@ -620,11 +620,7 @@ msgstr "Tato volba je archivována."
 msgid "This election is currently closed."
 msgstr "Tato volba je v tuto chvíli uzavřena."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "Toto je nové hlasování."
-
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
 msgstr "Tato volba nahradí jakoukoli předchozí volbu."
 
@@ -728,7 +724,7 @@ msgstr "Můžeš si také "
 msgid "You can also download the "
 msgstr "Můžeš si také stáhnout "
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Jeho přítomnost můžete zkontrolovat v "
 
@@ -751,7 +747,7 @@ msgstr "V tuto chvíli se nemůžete přihlásit."
 msgid "You cannot log in now. Please try later."
 msgstr "Nyní se nemůžeš přihlásit. Zkus to prosím později."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Váš hlasovací lístek pro "
 
@@ -777,7 +773,7 @@ msgstr "Tvé heslo pro volbu %s"
 msgid "Your smart ballot tracker is"
 msgstr "Tvůj kód pro kontrolu chytré volby je"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Váš inteligentní sledovač hlasování je "
 
@@ -793,11 +789,11 @@ msgstr "Tvůj hlasovací lístek pro volbu %s"
 msgid "Your vote was not recorded!"
 msgstr "Tvůj hlasovací lístek nebyl zaznamenán!"
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Vaše váha je %s."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "volební urna"
 

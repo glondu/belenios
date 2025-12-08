@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (bijvoorbeeld als je het vergeten bent)."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Er is u een bevestigingsmail is gestuurd."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " op ieder moment tijdens de verkiezing."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " als gebruiker "
 
@@ -47,7 +47,7 @@ msgstr " stembiljet(ten) zijn tot dusver geaccepteerd."
 msgid " for more information."
 msgstr " voor meer informatie."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " is geaccepteerd."
 
@@ -59,7 +59,7 @@ msgstr " zijn geteld."
 msgid " in the following box: "
 msgstr " in het volgende veld: "
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " werd geweigerd, omdat "
 
@@ -277,7 +277,7 @@ msgstr ""
 msgid "Election identifier"
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:255
+#: src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Election public URL"
 msgstr ""
 
@@ -301,7 +301,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "Verwachte vingerafdruk:"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "GEFAALD!"
 
@@ -326,7 +326,7 @@ msgid "Get the source code"
 msgstr "Verkrijg de broncode"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:261
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Teruggaan naar de verkiezing"
 
@@ -517,8 +517,8 @@ msgstr ""
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:260
-#. src/web/clients/jslib/belenios_jslib.ml:246
+#: src/web/clients/jslib/belenios_jslib.ml:266
+#. src/web/clients/jslib/belenios_jslib.ml:252
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -549,7 +549,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr ""
 
@@ -609,11 +609,7 @@ msgstr ""
 msgid "This election is currently closed."
 msgstr ""
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr ""
-
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
 msgstr ""
 
@@ -709,7 +705,7 @@ msgstr ""
 msgid "You can also download the "
 msgstr ""
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr ""
 
@@ -729,7 +725,7 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr ""
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr ""
 
@@ -753,7 +749,7 @@ msgstr ""
 msgid "Your smart ballot tracker is"
 msgstr ""
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -769,11 +765,11 @@ msgstr ""
 msgid "Your vote was not recorded!"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr ""
 

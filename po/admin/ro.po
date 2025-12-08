@@ -20,7 +20,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr ""
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr ""
 
@@ -44,11 +44,11 @@ msgstr ""
 msgid " and your e-mail address is: "
 msgstr " si adresa ta e-mail este: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr ""
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr ""
 
@@ -57,7 +57,7 @@ msgstr ""
 msgid " because "
 msgstr " pentru ca "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr ""
 
@@ -71,7 +71,7 @@ msgstr " in cutia urmatoare: "
 msgid " in txt format."
 msgstr ""
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr ""
 
@@ -652,7 +652,7 @@ msgstr "Estimarea timpului ramas: %d secunde"
 msgid "Estimating computation time…"
 msgstr "Estimarea timpului de calcul…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr ""
 
@@ -709,7 +709,7 @@ msgstr "Generarea contributiei dvoastra la descifrare"
 msgid "Get the source code"
 msgstr ""
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr ""
 
@@ -1469,7 +1469,7 @@ msgstr ""
 msgid "Thank you again for your help,"
 msgstr "Multumesc din nou pentru ajutor,"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr ""
 
@@ -1671,10 +1671,6 @@ msgstr ""
 msgid "This election will be automatically deleted after %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr ""
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1693,6 +1689,10 @@ msgstr "Acest nume va fi publicat pe pagina cu rezultatele electorale."
 
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
+msgstr ""
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
 msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
@@ -1906,7 +1906,7 @@ msgstr ""
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr ""
 
@@ -1986,7 +1986,7 @@ msgstr "O veti folosi pentru trimiterea codurilor de vot alegatorilor."
 msgid "You won't be able to change the e-mail addresses once the credentials are created. Voters with invalid e-mail addresses won't be able to vote."
 msgstr ""
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr ""
 
@@ -2015,7 +2015,7 @@ msgstr "Descifrarea dvoastra partiala a fost primita si verificata !"
 msgid "Your public key has already been registered!"
 msgstr ""
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -2023,7 +2023,7 @@ msgstr ""
 msgid "Your username is: "
 msgstr "Numele dvoastra de utilizator este : "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr ""
 
@@ -2047,7 +2047,7 @@ msgstr ""
 msgid "as an administrator."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr ""
 

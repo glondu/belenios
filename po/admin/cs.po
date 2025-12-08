@@ -19,7 +19,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (server se nepočítá)"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Potvrzovací e-mail vám byl odeslán."
 
@@ -43,11 +43,11 @@ msgstr " a bezpečně je ulož."
 msgid " and your e-mail address is: "
 msgstr " a tvoje e-mailová adresa je: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " kdykoli během voleb."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " jako uživatel "
 
@@ -56,7 +56,7 @@ msgstr " jako uživatel "
 msgid " because "
 msgstr " protože "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " bylo přijato."
 
@@ -70,7 +70,7 @@ msgstr " v následujícím poli: "
 msgid " in txt format."
 msgstr " ve formátu txt."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " je zamítnuto, protože "
 
@@ -662,7 +662,7 @@ msgstr "Odhadovaný zbývající čas: %d vteřin"
 msgid "Estimating computation time…"
 msgstr "Odhaduji čas potřebný pro výpočet…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "CHYBA!"
 
@@ -719,7 +719,7 @@ msgstr "Vytvořit můj příspěvek k dešifrování"
 msgid "Get the source code"
 msgstr "Získat zdrojový kód"
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Zpět k volbám"
 
@@ -1497,7 +1497,7 @@ msgstr "Podmínky užívání"
 msgid "Thank you again for your help,"
 msgstr "Opět děkujeme za tvou pomoc,"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Děkujeme za hlasování!"
 
@@ -1704,10 +1704,6 @@ msgstr "Tyto volby budou automaticky archivovány po %s."
 msgid "This election will be automatically deleted after %s."
 msgstr "Tyto volby budou automaticky smazány po %s."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "Toto je nové hlasování."
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1729,6 +1725,10 @@ msgstr "Toto jméno bude zveřejněno na stránce s výsledkem volby."
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
 msgstr "Tento úkol je hotov. Hesla byla rozeslána."
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
@@ -1943,7 +1943,7 @@ msgstr "Chcete pomoci s překlady?"
 msgid "You can also log in with"
 msgstr "Můžeš se také přihlásit pomocí"
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Jeho přítomnost můžete zkontrolovat v "
 
@@ -2037,7 +2037,7 @@ msgstr ""
 "Jakmile budou vytvořeny přístupové kódy, nebudeš již moci změnit e-mailové "
 "adresy. Voliči s neplatnou e-mailovou aresou nebudou moci odvolit."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Váš hlasovací lístek pro "
 
@@ -2069,7 +2069,7 @@ msgstr "Tvůj příspěvek k dešifrování byl přijat a ověřen!"
 msgid "Your public key has already been registered!"
 msgstr "Váš veřejný klíč již byl zaregistrován!"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Váš inteligentní sledovač hlasování je "
 
@@ -2077,7 +2077,7 @@ msgstr "Váš inteligentní sledovač hlasování je "
 msgid "Your username is: "
 msgstr "Tvoje uživatelské jméno je: "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Vaše váha je %s."
 
@@ -2101,7 +2101,7 @@ msgstr "jako volič ve volbách %s."
 msgid "as an administrator."
 msgstr "jako administrátor."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "volební urna"
 

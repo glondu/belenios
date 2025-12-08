@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (jos esimerkiksi unohdit sen)."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Sinulle on lähetetty vahvistusviesti."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " milloin vain äänestyksen aikana."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " käyttäjänä "
 
@@ -47,7 +47,7 @@ msgstr " äänestyslippua on vastaanotettu."
 msgid " for more information."
 msgstr " saadaksesi lisätietoa."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " on vastaanotettu."
 
@@ -59,7 +59,7 @@ msgstr " on laskettu."
 msgid " in the following box: "
 msgstr " seuraavaan laatikkoob: "
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " ei hyväksytty, koska "
 
@@ -279,7 +279,7 @@ msgstr "Vaalitalo"
 msgid "Election identifier"
 msgstr "Vaalitunnus"
 
-#: src/web/clients/jslib/belenios_jslib.ml:255
+#: src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Election public URL"
 msgstr ""
 
@@ -303,7 +303,7 @@ msgstr "Virhe ladattaessa äänestyslippuja!"
 msgid "Expected fingerprint:"
 msgstr "Oletettu sormenjälki:"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "VIRHE!"
 
@@ -328,7 +328,7 @@ msgid "Get the source code"
 msgstr "Hae lähdekoodi"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:261
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Palaa äänestykseen"
 
@@ -519,8 +519,8 @@ msgstr ""
 "On olemassa useita tekniikoita päättää, kumpi ehdokas valitaan, kun "
 "Condorcet-voittajaa ei ole."
 
-#: src/web/clients/jslib/belenios_jslib.ml:260
-#. src/web/clients/jslib/belenios_jslib.ml:246
+#: src/web/clients/jslib/belenios_jslib.ml:266
+#. src/web/clients/jslib/belenios_jslib.ml:252
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -553,7 +553,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Palveluehdot"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Kiitos äänestämisestä!"
 
@@ -617,11 +617,7 @@ msgstr "Tämä äänestys on arkistoitu."
 msgid "This election is currently closed."
 msgstr "Tämä äänestys on juuri nyt suljettu."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "Tämä on uusintaäänestys."
-
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
 msgstr "Tämä äänestyslippu korvaa kaikki edelliset annetut äänestysliput."
 
@@ -722,7 +718,7 @@ msgstr "Voit myös "
 msgid "You can also download the "
 msgstr "Voit myös ladata "
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Voit tarkistaa, onko se läsnä "
 
@@ -742,7 +738,7 @@ msgstr "Et voi tunnistautua juuri nyt."
 msgid "You cannot log in now. Please try later."
 msgstr "Et voi kirjautua sisään juuri nyt. Yritä myöhemmin uudelleen."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Äänestyslippusi äänestyksessä "
 
@@ -767,7 +763,7 @@ msgstr "Salasanasi äänestykseen %s"
 msgid "Your smart ballot tracker is"
 msgstr "Älykäs äänestyslipun tunnisteesi on"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Älykäs äänestyslipun tunnisteesi on "
 
@@ -783,11 +779,11 @@ msgstr "Valintasi äänestyksessä %s"
 msgid "Your vote was not recorded!"
 msgstr "Äänestyslippuasi ei kirjattu!"
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Äänestyslippusi paino on %s."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "vaaliuurna"
 

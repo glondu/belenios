@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (நீங்கள் அதை மறந்துவிட்டால், எடுத்துக்காட்டாக)."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr ""
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr ""
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr ""
 
@@ -47,7 +47,7 @@ msgstr " வாக்குப்பதிவு (கள்) ஏற்றுக�
 msgid " for more information."
 msgstr " மேலும் தகவலுக்கு."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr ""
 
@@ -59,7 +59,7 @@ msgstr " உயர்த்தப்பட்டுள்ளது."
 msgid " in the following box: "
 msgstr ""
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr ""
 
@@ -275,7 +275,7 @@ msgstr "தேர்தல் வீடு"
 msgid "Election identifier"
 msgstr "தேர்தல் அடையாளங்காட்டி"
 
-#: src/web/clients/jslib/belenios_jslib.ml:255
+#: src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Election public URL"
 msgstr ""
 
@@ -299,7 +299,7 @@ msgstr "வாக்குச்சீட்டுகளை ஏற்றும�
 msgid "Expected fingerprint:"
 msgstr "எதிர்பார்க்கப்படும் கைரேகை:"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr ""
 
@@ -324,7 +324,7 @@ msgid "Get the source code"
 msgstr ""
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:261
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr ""
 
@@ -512,8 +512,8 @@ msgid "Several techniques exist to decide which candidate to elect when there is
 msgstr ""
 "காண்டோர்செட் வெற்றியாளர் இல்லாதபோது எந்த வேட்பாளரைத் தேர்ந்தெடுப்பது என்பதை தீர்மானிக்க பல நுட்பங்கள் உள்ளன."
 
-#: src/web/clients/jslib/belenios_jslib.ml:260
-#. src/web/clients/jslib/belenios_jslib.ml:246
+#: src/web/clients/jslib/belenios_jslib.ml:266
+#. src/web/clients/jslib/belenios_jslib.ml:252
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -546,7 +546,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr ""
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr ""
 
@@ -607,11 +607,7 @@ msgstr "இந்த தேர்தல் காப்பகப்படுத�
 msgid "This election is currently closed."
 msgstr "இந்த தேர்தல் தற்போது மூடப்பட்டுள்ளது."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr ""
-
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
 msgstr "இந்த வாக்கு முந்தைய வாக்குகளை மாற்றுகிறது."
 
@@ -711,7 +707,7 @@ msgstr "நீங்களும் செய்யலாம் "
 msgid "You can also download the "
 msgstr "நீங்கள் பதிவிறக்கம் செய்யலாம் "
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr ""
 
@@ -732,7 +728,7 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr "நீங்கள் இப்போது உள்நுழைய முடியாது. தயவுசெய்து முயற்சிக்கவும்."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr ""
 
@@ -757,7 +753,7 @@ msgstr "தேர்தலுக்கான உங்கள் கடவுச�
 msgid "Your smart ballot tracker is"
 msgstr "உங்கள் அறிவுள்ள வாக்கு டிராக்கர்"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -773,11 +769,11 @@ msgstr "தேர்தலுக்கான உங்கள் வாக்க�
 msgid "Your vote was not recorded!"
 msgstr "உங்கள் வாக்கு பதிவு செய்யப்படவில்லை!"
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr ""
 

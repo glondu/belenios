@@ -20,7 +20,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (serwer nie jest wliczany)"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Email z potwierdzeniem został wysłany do Ciebie."
 
@@ -44,11 +44,11 @@ msgstr " i zapisz je w bezpiecznym miejscu."
 msgid " and your e-mail address is: "
 msgstr " i Twój adres email to: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " kiedykolwiek w czasie głosowania."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " jako użytkownik "
 
@@ -57,7 +57,7 @@ msgstr " jako użytkownik "
 msgid " because "
 msgstr " ponieważ "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " został zaakceptowany."
 
@@ -71,7 +71,7 @@ msgstr " w poniższym polu: "
 msgid " in txt format."
 msgstr " w formacie txt."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " została odrzucona, ponieważ "
 
@@ -671,7 +671,7 @@ msgstr "Pozostały czas: %d sekund(y)"
 msgid "Estimating computation time…"
 msgstr "Szacuję czas obliczeń…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "Niepowodzenie!"
 
@@ -728,7 +728,7 @@ msgstr "Utwórz Twój cyfrowy udział w odszyfrowaniu wyniku głosowania"
 msgid "Get the source code"
 msgstr "Pobierz kod źródłowy"
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Wróć do głosowania"
 
@@ -1517,7 +1517,7 @@ msgstr "Warunki usługi"
 msgid "Thank you again for your help,"
 msgstr "Jeszcze raz dziękujemy za Twoją pomoc,"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Dziękujemy za oddanie głosu!"
 
@@ -1728,10 +1728,6 @@ msgstr "To głosowanie zostanie automatycznie zarchiwizowane po %s."
 msgid "This election will be automatically deleted after %s."
 msgstr "To głosowanie zostanie automatycznie usunięte po %s."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "To jest powtórne głosowanie."
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1755,6 +1751,10 @@ msgstr "To imię i nazwisko będzie widoczne na stronie z wynikami głosowania."
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
 msgstr "Ukończono. Dane logowania zostały wysłane."
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
@@ -1972,7 +1972,7 @@ msgstr "Chcesz pomóc w tłumaczeniu?"
 msgid "You can also log in with"
 msgstr "Możesz również zalogować się przez"
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Możesz sprawdzić czy Twoja karta do głosowania jest w "
 
@@ -2073,7 +2073,7 @@ msgstr ""
 "email. Głosujący z niepoprawnie zapisanymi adresami e-mail nie będą mogli "
 "głosować."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Twoja karta do głosowania dla "
 
@@ -2106,7 +2106,7 @@ msgstr "Twoje częściowe odszyfrowywanie zostało już przyjęte i sprawdzone!"
 msgid "Your public key has already been registered!"
 msgstr "Twój klucz publiczny został już zarejestrowany!"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Twój nr karty do głosowania to "
 
@@ -2114,7 +2114,7 @@ msgstr "Twój nr karty do głosowania to "
 msgid "Your username is: "
 msgstr "Twoja nazwa użytkownika to: "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Waga Twojego głosu to %s."
 
@@ -2138,7 +2138,7 @@ msgstr "jako uprawniony do głosowania w głosowaniu %s."
 msgid "as an administrator."
 msgstr "jako administrator."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "urna do głosowania"
 

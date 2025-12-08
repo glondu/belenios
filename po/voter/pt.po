@@ -19,15 +19,15 @@ msgstr ""
 msgid " (if you forgot it, for example)."
 msgstr " (se você esquecê-lo, por exemplo)."
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Um e-mail de confirmação foi enviado para você."
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " a qualquer momento durante a eleição."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " como "
 
@@ -47,7 +47,7 @@ msgstr " Boletim(boletins) foram aceites."
 msgid " for more information."
 msgstr " para mais informações."
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " foi aceite."
 
@@ -59,7 +59,7 @@ msgstr " foram contados."
 msgid " in the following box: "
 msgstr " na caixa seguinte: "
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " é recusado, porque "
 
@@ -276,7 +276,7 @@ msgstr ""
 msgid "Election identifier"
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:255
+#: src/web/clients/jslib/belenios_jslib.ml:261
 msgid "Election public URL"
 msgstr ""
 
@@ -300,7 +300,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "Impressão digital esperada:"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "FALHOU!"
 
@@ -325,7 +325,7 @@ msgid "Get the source code"
 msgstr "Obter código-fonte"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:261
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Voltar à página inicial da eleição"
 
@@ -519,8 +519,8 @@ msgstr ""
 "Existem várias técnicas para decidir qual candidato eleger quando não há "
 "nenhum vencedor de Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:260
-#. src/web/clients/jslib/belenios_jslib.ml:246
+#: src/web/clients/jslib/belenios_jslib.ml:266
+#. src/web/clients/jslib/belenios_jslib.ml:252
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -553,7 +553,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Termos de serviço"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Obrigado por participar!"
 
@@ -615,11 +615,7 @@ msgstr "Esta eleição está arquivada."
 msgid "This election is currently closed."
 msgstr "Esta eleição está atualmente encerrada."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "Esta é uma revotação."
-
-#: src/web/server/common/mails_voter.ml:307
+#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
 msgid "This vote replaces any previous vote."
 msgstr "Esta votação substitui a votação anterior."
 
@@ -725,7 +721,7 @@ msgstr "Você também pode "
 msgid "You can also download the "
 msgstr "Você também pode baixar o "
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Você pode verificar sua presença no "
 
@@ -745,7 +741,7 @@ msgstr ""
 msgid "You cannot log in now. Please try later."
 msgstr "Não é possível fazer login agora. Por favor, tente mais tarde."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Sua Newsletter para "
 
@@ -771,7 +767,7 @@ msgstr "Sua palavra-passe para a eleição %s"
 msgid "Your smart ballot tracker is"
 msgstr "Seu número de rastreamento é"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Seu número de rastreamento é "
 
@@ -787,11 +783,11 @@ msgstr "Seu voto para a eleição %s"
 msgid "Your vote was not recorded!"
 msgstr "Seu voto não foi registrado!"
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:209
+#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Seu peso é %s."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "urna"
 

@@ -19,7 +19,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (servidor não é considerado)"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr ""
 
@@ -43,11 +43,11 @@ msgstr " e salvá-los em um lugar seguro."
 msgid " and your e-mail address is: "
 msgstr " e seu endereço de e-mail é: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr ""
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr ""
 
@@ -56,7 +56,7 @@ msgstr ""
 msgid " because "
 msgstr " porque "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr " na caixa seguinte: "
 msgid " in txt format."
 msgstr " em formato txt."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr ""
 
@@ -663,7 +663,7 @@ msgstr "Tempo estimado restante: %d segundo(s)"
 msgid "Estimating computation time…"
 msgstr "Estimativa do Tempo de Computação…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr ""
 
@@ -720,7 +720,7 @@ msgstr "Gerar a sua contribuição de desencriptação"
 msgid "Get the source code"
 msgstr "Obter código-fonte"
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr ""
 
@@ -1500,7 +1500,7 @@ msgstr "Termos de serviço"
 msgid "Thank you again for your help,"
 msgstr "Obrigado novamente pela sua ajuda,"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr ""
 
@@ -1705,10 +1705,6 @@ msgstr ""
 msgid "This election will be automatically deleted after %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr ""
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1730,6 +1726,10 @@ msgstr "Este nome será publicado na página de resultados eleitorais."
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
 msgstr "Esta tarefa está concluída. As palavras-passe foram enviadas."
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
@@ -1946,7 +1946,7 @@ msgstr ""
 msgid "You can also log in with"
 msgstr "Você também pode se conectar com"
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr ""
 
@@ -2036,7 +2036,7 @@ msgstr ""
 "estiverem disponíveisCriou. Eleitores com endereços inválidos não poderão "
 "votar."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr ""
 
@@ -2067,7 +2067,7 @@ msgstr "A sua desencriptação parcial foi recebida e verificada!"
 msgid "Your public key has already been registered!"
 msgstr ""
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -2075,7 +2075,7 @@ msgstr ""
 msgid "Your username is: "
 msgstr "Seu nome de utilizador é: "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr ""
 
@@ -2099,7 +2099,7 @@ msgstr ""
 msgid "as an administrator."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr ""
 

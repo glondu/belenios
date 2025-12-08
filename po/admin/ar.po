@@ -20,7 +20,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (لا يتم احتساب الخادم)"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr ""
 
@@ -44,11 +44,11 @@ msgstr " و احفظها في مكان آمن."
 msgid " and your e-mail address is: "
 msgstr " وعنوان بريدك الإلكتروني هو: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr ""
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr ""
 
@@ -57,7 +57,7 @@ msgstr ""
 msgid " because "
 msgstr " لأن "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr ""
 
@@ -71,7 +71,7 @@ msgstr " في الخانة التالية: "
 msgid " in txt format."
 msgstr " بصيغة txt."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr ""
 
@@ -654,7 +654,7 @@ msgstr "الوقت المتبقي المقدر: %d ثانية (ث)"
 msgid "Estimating computation time…"
 msgstr "جارٍ تقدير وقت الحساب…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr ""
 
@@ -711,7 +711,7 @@ msgstr "إنشاء مساهمتك في فك التشفير"
 msgid "Get the source code"
 msgstr "احصل على كود المصدر"
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr ""
 
@@ -1479,7 +1479,7 @@ msgstr "شروط الخدمة"
 msgid "Thank you again for your help,"
 msgstr "شكرا لكم مرة أخرى لمساعدتكم،"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr ""
 
@@ -1678,10 +1678,6 @@ msgstr ""
 msgid "This election will be automatically deleted after %s."
 msgstr ""
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr ""
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1703,6 +1699,10 @@ msgstr "سيتم نشر هذا الاسم على صفحة نتائج الانت�
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
 msgstr "تم إكمال هذه المهمة. تم إرسال كلمات المرور."
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
@@ -1915,7 +1915,7 @@ msgstr ""
 msgid "You can also log in with"
 msgstr ""
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr ""
 
@@ -1995,7 +1995,7 @@ msgstr ""
 "لن تتمكن من تغيير عناوين البريد الإلكتروني بمجرد إنشاء بيانات الاعتماد. لن "
 "يتمكن الناخبون الذين لديهم عناوين بريد إلكتروني غير صالحة من التصويت."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr ""
 
@@ -2025,7 +2025,7 @@ msgstr "تم استلام فك تشفيرك الجزئي والتحقق منه!"
 msgid "Your public key has already been registered!"
 msgstr ""
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr ""
 
@@ -2033,7 +2033,7 @@ msgstr ""
 msgid "Your username is: "
 msgstr "اسم المستخدم الخاص بك هو: "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr ""
 
@@ -2057,7 +2057,7 @@ msgstr ""
 msgid "as an administrator."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr ""
 

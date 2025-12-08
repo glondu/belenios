@@ -21,7 +21,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (сервер не враховується)"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Вам було надіслано електронний лист із підтвердженням."
 
@@ -45,11 +45,11 @@ msgstr " і збережіть їх у безпечному місці."
 msgid " and your e-mail address is: "
 msgstr " і ваша адреса електронної пошти: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " будь-коли під час виборів."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " як користувач "
 
@@ -58,7 +58,7 @@ msgstr " як користувач "
 msgid " because "
 msgstr " тому що "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " було прийнято."
 
@@ -72,7 +72,7 @@ msgstr " у наступному полі: "
 msgid " in txt format."
 msgstr " у форматі txt."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " відхиляється, оскільки "
 
@@ -665,7 +665,7 @@ msgstr "Приблизний час, що залишився: %d секунди"
 msgid "Estimating computation time…"
 msgstr "Оцінка часу обчислення…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "НЕВДАЧА!"
 
@@ -722,7 +722,7 @@ msgstr "Зробіть свій внесок у дешифрування"
 msgid "Get the source code"
 msgstr "Отримати вихідний код"
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Поверніться до виборів"
 
@@ -1506,7 +1506,7 @@ msgstr "Умови обслуговування"
 msgid "Thank you again for your help,"
 msgstr "Ще раз дякую за допомогу,"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "Дякуємо за голосування!"
 
@@ -1715,10 +1715,6 @@ msgstr "Ці вибори буде автоматично заархівован
 msgid "This election will be automatically deleted after %s."
 msgstr "Ці вибори буде автоматично видалено через %s."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "Це переголосування."
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1740,6 +1736,10 @@ msgstr "Це ім’я буде опубліковано на сторінці �
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
 msgstr "Це завдання виконано. Паролі надіслано."
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
@@ -1956,7 +1956,7 @@ msgstr "Хочете допомогти з перекладами?"
 msgid "You can also log in with"
 msgstr "Ви також можете увійти за допомогою"
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "Перевірити його наявність можна в "
 
@@ -2057,7 +2057,7 @@ msgstr ""
 "даних. Виборці з недійсною адресою електронної пошти не зможуть "
 "проголосувати."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Ваш бюлетень за "
 
@@ -2090,7 +2090,7 @@ msgstr "Ваше часткове розшифрування отримано т
 msgid "Your public key has already been registered!"
 msgstr "Ваш відкритий ключ уже зареєстровано!"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "Ваш розумний трекер для голосування "
 
@@ -2098,7 +2098,7 @@ msgstr "Ваш розумний трекер для голосування "
 msgid "Your username is: "
 msgstr "Ваше ім'я користувача: "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "Ваша вага %s."
 
@@ -2122,7 +2122,7 @@ msgstr "як виборець на виборах %s."
 msgid "as an administrator."
 msgstr "як адміністратор."
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "урна для голосування"
 

@@ -19,7 +19,7 @@ msgstr ""
 msgid " (server is not counted)"
 msgstr " (சேவையகம் கணக்கிடப்படவில்லை)"
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:240
 msgid " A confirmation e-mail has been sent to you."
 msgstr " உறுதிப்படுத்தல் மின்னஞ்சல் உங்களுக்கு அனுப்பப்பட்டுள்ளது."
 
@@ -43,11 +43,11 @@ msgstr " அவற்றை பாதுகாப்பான இடத்தி
 msgid " and your e-mail address is: "
 msgstr " உங்கள் மின்னஞ்சல் முகவரி: "
 
-#: src/web/common/pages_common.ml:234
+#: src/web/common/pages_common.ml:238
 msgid " anytime during the election."
 msgstr " தேர்தலின் போது எப்போது வேண்டுமானாலும்."
 
-#: src/web/common/pages_common.ml:223
+#: src/web/common/pages_common.ml:227
 msgid " as user "
 msgstr " பயனராக "
 
@@ -56,7 +56,7 @@ msgstr " பயனராக "
 msgid " because "
 msgstr " ஏனெனில் "
 
-#: src/web/common/pages_common.ml:225
+#: src/web/common/pages_common.ml:229
 msgid " has been accepted."
 msgstr " ஏற்றுக்கொள்ளப்பட்டுள்ளது."
 
@@ -70,7 +70,7 @@ msgstr " பின்வரும் பெட்டியில்: "
 msgid " in txt format."
 msgstr " TXT வடிவத்தில்."
 
-#: src/web/common/pages_common.ml:242
+#: src/web/common/pages_common.ml:246
 msgid " is rejected, because "
 msgstr " நிராகரிக்கப்படுகிறது, ஏனெனில் "
 
@@ -658,7 +658,7 @@ msgstr "மதிப்பிடப்பட்ட மீதமுள்ள ந�
 msgid "Estimating computation time…"
 msgstr "கணக்கீட்டு நேரத்தை மதிப்பிடுதல்…"
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:250
 msgid "FAIL!"
 msgstr "தோல்வி!"
 
@@ -715,7 +715,7 @@ msgstr "மறைகுறியாக்க உங்கள் பங்கள�
 msgid "Get the source code"
 msgstr "மூலக் குறியீட்டைப் பெறுங்கள்"
 
-#: src/web/common/pages_common.ml:261
+#: src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "தேர்தலுக்குச் செல்லுங்கள்"
 
@@ -1484,7 +1484,7 @@ msgstr "பணி விதிமுறைகள்"
 msgid "Thank you again for your help,"
 msgstr "உங்கள் உதவிக்கு மீண்டும் நன்றி,"
 
-#: src/web/common/pages_common.ml:239
+#: src/web/common/pages_common.ml:243
 msgid "Thank you for voting!"
 msgstr "வாக்களித்ததற்கு நன்றி!"
 
@@ -1689,10 +1689,6 @@ msgstr "இந்தத் தேர்தல் %s க்குப் பிற
 msgid "This election will be automatically deleted after %s."
 msgstr "இந்த தேர்தல் %s க்குப் பிறகு தானாக நீக்கப்படும்."
 
-#: src/web/common/pages_common.ml:200
-msgid "This is a revote."
-msgstr "இது ஒரு மறுபிரவேசம்."
-
 #: src/web/clients/admin/elections.ml:1258
 msgid "This is a space-separated list of languages that will be used in e-mails sent by the server."
 msgstr ""
@@ -1713,6 +1709,10 @@ msgstr "இந்த பெயர் தேர்தல் முடிவு �
 #: src/web/clients/admin/elections.ml:1706
 msgid "This task is completed. Passwords have been sent."
 msgstr "இந்த பணி முடிந்தது. கடவுச்சொற்கள் அனுப்பப்பட்டுள்ளன."
+
+#: src/web/common/pages_common.ml:203
+msgid "This vote replaces any previous vote."
+msgstr ""
 
 #: src/web/clients/admin/trustees_tab.ml:230
 msgid "Threshold mode"
@@ -1926,7 +1926,7 @@ msgstr "மொழிபெயர்ப்புகளுக்கு உதவ �
 msgid "You can also log in with"
 msgstr "நீங்கள் உள்நுழையலாம்"
 
-#: src/web/common/pages_common.ml:232
+#: src/web/common/pages_common.ml:236
 msgid "You can check its presence in the "
 msgstr "அதன் இருப்பை நீங்கள் சரிபார்க்கலாம் "
 
@@ -2017,7 +2017,7 @@ msgstr ""
 "நற்சான்றிதழ்கள் உருவாக்கப்பட்டவுடன் நீங்கள் மின்னஞ்சல் முகவரிகளை மாற்ற முடியாது. தவறான மின்னஞ்சல் முகவரிகளைக் கொண்ட "
 "வாக்காளர்கள் வாக்களிக்க முடியாது."
 
-#: src/web/common/pages_common.ml:251
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "உங்கள் வாக்குச்சீட்டு "
 
@@ -2048,7 +2048,7 @@ msgstr "உங்கள் பகுதி மறைகுறியாக்க�
 msgid "Your public key has already been registered!"
 msgstr "உங்கள் பொது விசை ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது!"
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:233
 msgid "Your smart ballot tracker is "
 msgstr "உங்கள் அறிவுள்ள வாக்கு டிராக்கர் "
 
@@ -2056,7 +2056,7 @@ msgstr "உங்கள் அறிவுள்ள வாக்கு டிர
 msgid "Your username is: "
 msgstr "உங்கள் பயனர்பெயர்: "
 
-#: src/web/common/pages_common.ml:209
+#: src/web/common/pages_common.ml:213
 msgid "Your weight is %s."
 msgstr "உங்கள் எடை %s."
 
@@ -2080,7 +2080,7 @@ msgstr ""
 msgid "as an administrator."
 msgstr ""
 
-#: src/web/common/pages_common.ml:220
+#: src/web/common/pages_common.ml:224
 msgid "ballot box"
 msgstr "வாக்குப் பெட்டி"
 
