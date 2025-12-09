@@ -30,8 +30,9 @@ module Sender = struct
     gettext : (module Belenios_ui.I18n.GETTEXT);
   }
 
-  let send ~context ~recipient ~code =
+  let send ?lang:lang' ~context ~recipient ~code () =
     let open (val context.gettext) in
+    let lang = Option.value ~default:lang lang' in
     match context.kind with
     | CreateAccount ->
         Send_message.send
@@ -47,14 +48,14 @@ let send_confirmation_code gettext ~service ~recipient =
   let kind = Web_state_sig.CreateAccount in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in
-  Otp.generate ~payload ~context ~recipient
+  Otp.generate ~payload ~context ~recipient ()
 
 let send_changepw_code gettext ~service
     ~(recipient : Belenios_messages.recipient) =
   let kind = Web_state_sig.ChangePassword { username = recipient.name } in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in
-  Otp.generate ~payload ~context ~recipient
+  Otp.generate ~payload ~context ~recipient ()
 
 let confirm_code = Otp.check
 

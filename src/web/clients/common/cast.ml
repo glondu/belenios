@@ -27,7 +27,8 @@ open Belenios_web_api
 open Session
 
 let post_ballot uuid ~ballot =
-  let* x = Api.(post (election_ballots uuid) `Nobody ballot) in
+  let lang = Common.get_language () in
+  let* x = Api.(post ~lang (election_ballots uuid) `Nobody ballot) in
   let fail () =
     Compat.log_4
       (Js.string "Submitting ballot")

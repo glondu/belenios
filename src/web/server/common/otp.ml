@@ -27,9 +27,11 @@ module type SENDER = sig
   type context
 
   val send :
+    ?lang:string ->
     context:context ->
     recipient:Belenios_messages.recipient ->
     code:string ->
+    unit ->
     (string, unit) result Lwt.t
 end
 
@@ -38,9 +40,11 @@ module type S = sig
   type context
 
   val generate :
+    ?lang:string ->
     context:context ->
     recipient:Belenios_messages.recipient ->
     payload:payload ->
+    unit ->
     (string, unit) result Lwt.t
 
   val check : address:string -> code:string -> payload option
@@ -62,7 +66,8 @@ module Make (I : SENDER) () = struct
   let filter_codes_by_time now table =
     SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
 
-  let generate ~context ~(recipient : Belenios_messages.recipient) ~payload =
+  let generate ?lang ~context ~(recipient : Belenios_messages.recipient)
+      ~payload () =
     let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
@@ -76,7 +81,7 @@ module Make (I : SENDER) () = struct
       SMap.add recipient.address
         { code; payload; expiration_time; trials_left = 10 }
         codes_;
-    I.send ~context ~recipient ~code
+    I.send ?lang ~context ~recipient ~code ()
 
   let check ~address ~code =
     let now = Unix.gettimeofday () in

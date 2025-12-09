@@ -128,12 +128,17 @@ let is_valid_language lang = SSet.mem lang valid_languages
 module Make () = struct
   let is_valid_language = is_valid_language
 
-  let get_preferred_gettext component =
+  let get_preferred_gettext ?lang component =
     let* lang =
-      let cookies = Eliom_request_info.get_cookies () in
-      match Ocsigen_cookie_map.Map_inner.find_opt "belenios-lang" cookies with
-      | Some lang when is_valid_language lang -> Lwt.return lang
-      | _ -> Lwt.return @@ get_preferred_language ()
+      match lang with
+      | None -> (
+          let cookies = Eliom_request_info.get_cookies () in
+          match
+            Ocsigen_cookie_map.Map_inner.find_opt "belenios-lang" cookies
+          with
+          | Some lang when is_valid_language lang -> Lwt.return lang
+          | _ -> Lwt.return @@ get_preferred_language ())
+      | Some x -> Lwt.return x
     in
     get ~component ~lang
 end

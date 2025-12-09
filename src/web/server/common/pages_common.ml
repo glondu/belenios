@@ -57,7 +57,8 @@ struct
     make_absolute_string_uri ~service ("static" :: x, Version.build)
     |> Eliom_content.Xml.uri_of_string
 
-  let get_preferred_gettext () = Web_i18n.get_preferred_gettext "voter"
+  let get_preferred_gettext ?lang () =
+    Web_i18n.get_preferred_gettext ?lang "voter"
 
   let read_snippet ?(default = txt "") ~lang file =
     match file with
@@ -434,8 +435,8 @@ struct
     in
     base ~title ~content ()
 
-  let email_login ?address site_or_election =
-    let* l = get_preferred_gettext () in
+  let email_login ?lang ?address site_or_election =
+    let* l = get_preferred_gettext ?lang () in
     let open (val l) in
     let form address =
       post_form ~service:email_login_post

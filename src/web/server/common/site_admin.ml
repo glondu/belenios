@@ -37,7 +37,8 @@ struct
   open Eliom_service
   open Eliom_registration
 
-  let get_preferred_gettext () = Web_i18n.get_preferred_gettext "admin"
+  let get_preferred_gettext ?lang () =
+    Web_i18n.get_preferred_gettext ?lang "admin"
 
   let () =
     let@ a = Accounts.add_update_hook in
@@ -116,8 +117,8 @@ struct
     type payload = unit
     type context = unit
 
-    let send ~context:() ~recipient ~code =
-      let* l = get_preferred_gettext () in
+    let send ?lang ~context:() ~recipient ~code () =
+      let* l = get_preferred_gettext ?lang () in
       let open (val l) in
       Send_message.send
       @@ `Account_set_email { lang; recipient; code; uuid = None }
@@ -135,7 +136,7 @@ struct
           let* r =
             SetEmailOtp.generate ~context:()
               ~recipient:{ name = account.name; address }
-              ~payload:()
+              ~payload:() ()
           in
           Pages_admin.set_email_confirm r >>= Html.send
         else

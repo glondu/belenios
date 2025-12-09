@@ -89,15 +89,19 @@ let raw_put_blob_with_token ~token x url =
   in
   perform_raw_url ~headers ~contents ~override_method:`PUT !/url
 
-let raw_post_with_token ?ifmatch ~token x url =
+let raw_post_with_token ?lang ?ifmatch ~token x url =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
   let ifmatch =
     match ifmatch with Some x -> [ ("If-Match", x) ] | None -> []
   in
+  let lang =
+    match lang with Some x -> [ ("Accept-Language", x) ] | None -> []
+  in
+  let headers = ifmatch @ lang in
   let headers =
     match token with
-    | None -> ifmatch
-    | Some token -> ("Authorization", "Bearer " ^ token) :: ifmatch
+    | None -> headers
+    | Some token -> ("Authorization", "Bearer " ^ token) :: headers
   in
   let contents = `String x in
   perform_raw_url ~headers ~contents ~override_method:`POST !/url
@@ -141,8 +145,8 @@ module Api = struct
 
   let put_blob e u x = raw_put_blob_with_token ~token:(get_token u) x e.path
 
-  let post ?ifmatch e u x =
-    raw_post_with_token ?ifmatch ~token:(get_token u) (e.to_string_post x)
+  let post ?lang ?ifmatch e u x =
+    raw_post_with_token ?lang ?ifmatch ~token:(get_token u) (e.to_string_post x)
       e.path
 
   let delete ?ifmatch e u =

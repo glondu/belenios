@@ -594,7 +594,18 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
           in
           match token with
           | None ->
-              let* state = State.create s uuid { ballot; precast_data } in
+              let lang =
+                let sp = Eliom_common.get_sp () in
+                let@ lang =
+                  Option.bind
+                    (Ocsigen_request.header sp.sp_request.request_info
+                       (Ocsigen_header.Name.of_string "Accept-Language"))
+                in
+                if List.mem_assoc lang Belenios_ui.Languages.available then
+                  Some lang
+                else None
+              in
+              let* state = State.create s uuid { lang; ballot; precast_data } in
               let json =
                 match state with
                 | None -> `Assoc []

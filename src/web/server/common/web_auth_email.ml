@@ -95,8 +95,8 @@ struct
     type payload = unit
     type context = uuid option
 
-    let send ~context ~recipient ~code =
-      let* l = Web_i18n.get_preferred_gettext "voter" in
+    let send ?lang ~context ~recipient ~code () =
+      let* l = Web_i18n.get_preferred_gettext ?lang "voter" in
       let open (val l) in
       Send_message.send @@ `Mail_login { lang; recipient; code; uuid = context }
   end
@@ -122,15 +122,21 @@ struct
           in
           return (address, `Election)
     in
+    let lang =
+      match Web_auth.State.get ~state with
+      | Some { state = Some { lang; _ }; _ } -> lang
+      | _ -> None
+    in
     match (ok, address) with
     | true, Some address ->
         let* r =
-          Otp.generate ~context:uuid ~recipient:{ name; address } ~payload:()
+          Otp.generate ?lang ~context:uuid ~recipient:{ name; address }
+            ~payload:() ()
         in
         let* () = Eliom_reference.set env (Some (state, name, address)) in
         let* () = Eliom_reference.unset uuid_ref in
         let address = if show_email_address then Some r else None in
-        Pages_common.email_login ?address site_or_election
+        Pages_common.email_login ?lang ?address site_or_election
         >>= Eliom_registration.Html.send
     | _ ->
         run_post_login_handler ~state

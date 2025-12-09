@@ -372,3 +372,7 @@ let set_client_configuration x =
       else
         s##setItem label_client_configuration
           (Js.string (string_of_client_configuration x)))
+
+let get_language () =
+  let c = get_client_configuration () in
+  match c.lang with None -> Compat.navigator_language | Some x -> x

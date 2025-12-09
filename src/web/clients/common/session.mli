@@ -59,6 +59,7 @@ module Api : sig
     Js_of_ocaml_lwt.XmlHttpRequest.http_frame Lwt.t
 
   val post :
+    ?lang:string ->
     ?ifmatch:string ->
     (([< user ] as 'user), 'a, 'b) t ->
     'user ->

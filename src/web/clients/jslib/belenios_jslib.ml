@@ -114,12 +114,6 @@ let election = ref None
 let ballot = ref None
 let global_result = ref None
 
-let get_language () =
-  let c = get_client_configuration () in
-  match c.lang with
-  | None -> Belenios_js.Compat.navigator_language
-  | Some x -> x
-
 let belenios : belenios Js.t =
   object%js
     method init (p : initParams Js.t) =

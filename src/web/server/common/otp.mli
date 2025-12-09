@@ -24,9 +24,11 @@ module type SENDER = sig
   type context
 
   val send :
+    ?lang:string ->
     context:context ->
     recipient:Belenios_messages.recipient ->
     code:string ->
+    unit ->
     (string, unit) result Lwt.t
 end
 
@@ -35,9 +37,11 @@ module type S = sig
   type context
 
   val generate :
+    ?lang:string ->
     context:context ->
     recipient:Belenios_messages.recipient ->
     payload:payload ->
+    unit ->
     (string, unit) result Lwt.t
 
   val check : address:string -> code:string -> payload option
