@@ -702,8 +702,7 @@ let home configuration ?credential uuid =
           match credential with None -> [] | Some c -> [ ("credential", c) ]
         in
         let params =
-          ("uuid", Uuid.unwrap uuid) :: ("lang", lang) :: params
-          |> Url.encode_arguments
+          ("uuid", Uuid.unwrap uuid) :: params |> Url.encode_arguments
         in
         let href = Printf.sprintf "%s#%s" uri params in
         Dom_html.window##.location##.href := Js.string href;

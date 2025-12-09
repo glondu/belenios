@@ -149,7 +149,6 @@ function TranslatableVoteApp({
     belenios.init({
       root: relativeServerRootFolder,
       stateful: true,
-      lang,
       callbacks: { onsuccess, onfailure },
     });
   };
@@ -397,7 +396,7 @@ const afterI18nInitialized = (uuid, lang, credential, state, draft) => {
 
 function main() {
   const hash_parameters = getHashParametersFromURL();
-  const lang = hash_parameters["lang"];
+  const lang = belenios.getLanguage();
   const uuid = hash_parameters["uuid"];
   const draft = hash_parameters["draft"];
   const credential = draft

@@ -78,6 +78,7 @@ end
 
 class type belenios = object
   method init : initParams Js.t -> unit Js.meth
+  method getLanguage : Js.js_string Js.t Js.meth
   method setElection : Js.js_string Js.t -> unit Js.meth
   method getFingerprint : Js.js_string Js.t Js.meth
 
@@ -113,6 +114,12 @@ let election = ref None
 let ballot = ref None
 let global_result = ref None
 
+let get_language () =
+  let c = get_client_configuration () in
+  match c.lang with
+  | None -> Belenios_js.Compat.navigator_language
+  | Some x -> x
+
 let belenios : belenios Js.t =
   object%js
     method init (p : initParams Js.t) =
@@ -124,11 +131,8 @@ let belenios : belenios Js.t =
       in
       let@ () = Lwt.async in
       let* () =
-        Js.Optdef.case p##.lang
-          (fun () -> Lwt.return_unit)
-          (fun lang ->
-            let lang = Js.to_string lang in
-            Belenios_js.I18n.init ~dir ~component:"voter" ~lang)
+        let lang = get_language () in
+        Belenios_js.I18n.init ~dir ~component:"voter" ~lang
       in
       let* () =
         if !stateful then (
@@ -147,6 +151,8 @@ let belenios : belenios Js.t =
       in
       Js.Optdef.iter p##.callbacks (fun cb -> cb##onsuccess);
       Lwt.return_unit
+
+    method getLanguage = Js.string (get_language ())
 
     method setElection x =
       election :=

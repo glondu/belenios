@@ -346,3 +346,29 @@ let set_logo uuid =
       ~src ~alt:"election logo" ()
   in
   Dom.appendChild e (Tyxml_js.To_dom.of_img img)
+
+open Belenios_web_api
+
+let dummy_client_configuration = { consent = None; lang = None }
+let label_client_configuration = Js.string "belenios.client.configuration"
+
+let get_client_configuration () =
+  Js.Optdef.case
+    Dom_html.window##.localStorage
+    (fun () -> dummy_client_configuration)
+    (fun s ->
+      Js.Opt.case
+        (s##getItem label_client_configuration)
+        (fun () -> dummy_client_configuration)
+        (fun c ->
+          match client_configuration_of_string (Js.to_string c) with
+          | exception _ -> dummy_client_configuration
+          | x -> x))
+
+let set_client_configuration x =
+  Js.Optdef.iter Dom_html.window##.localStorage (fun s ->
+      if x = dummy_client_configuration then
+        s##removeItem label_client_configuration
+      else
+        s##setItem label_client_configuration
+          (Js.string (string_of_client_configuration x)))
