@@ -17,12 +17,23 @@ const relativeServerRootFolder = "";
 
 function getHashParametersFromURL() {
   const url_hash_parameters = window.location.hash.substr(1);
-  window.location.replace("#");
-  return url_hash_parameters.split("&").reduce(function (result, item) {
+  const hash_parameters = url_hash_parameters.split("&").reduce(function (
+    result,
+    item,
+  ) {
     const parts = item.split("=");
     result[parts[0]] = parts[1];
     return result;
   }, {});
+  let saved_hash = "";
+  for (let key in hash_parameters) {
+    if (key !== "credential") {
+      if (saved_hash) saved_hash += "&";
+      saved_hash += `${key}=${hash_parameters[key]}`;
+    }
+  }
+  window.location.replace(`#${saved_hash}`);
+  return hash_parameters;
 }
 
 function VotePage({
