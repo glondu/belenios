@@ -53,24 +53,11 @@ struct
 
   let () =
     Any.register ~service:election_login_done (fun (uuid, state) () ->
-        let result = Web_auth.State.get_result ~state in
-        match result with
-        | Some result ->
-            let page =
-              Printf.ksprintf Pages_common.html_js_exec
-                {|
-                  belenios.init({root: "../"});
-                  belenios.finalizeLogin(%s);
-                |}
-                (Belenios_web_api.string_of_cast_result result)
-            in
-            Html.send page
-        | None ->
-            let page =
-              make_absolute_string_uri ~fragment:(Uuid.unwrap uuid)
-                ~service:apps "election"
-            in
-            String_redirection.send page)
+        let fragment =
+          Printf.sprintf "uuid=%s&state=%s" (Uuid.unwrap uuid) state
+        in
+        let page = make_absolute_string_uri ~fragment ~service:apps "vote" in
+        String_redirection.send page)
 
   let send_confirmation_email s uuid confirmation =
     let@ election =

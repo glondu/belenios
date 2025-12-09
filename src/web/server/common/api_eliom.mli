@@ -19,4 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Make () : sig end
+module Make () : sig
+  val get_result : (state:string -> Belenios_web_api.cast_result option) ref
+end

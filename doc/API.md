@@ -201,6 +201,10 @@ Voters using this endpoint must use a Base64-encoded JSON structure as
 API token. The structure depends on the authentication mode (only
 dummy and password are supported at the moment).
 
+## `cast-result/$STATE`
+
+### `GET`: unit -> cast_result
+
 ## `credentials/belenios`
 
 ### `POST`: credentials_response -> unit

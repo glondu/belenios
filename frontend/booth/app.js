@@ -96,12 +96,13 @@ function GenericPage({ title = null, subTitle = null, children }) {
 function TranslatableVoteApp({
   uuid = null,
   votingCredential = null,
+  authState = null,
   draft,
   lang,
   t,
 }) {
   const [currentStep, setCurrentStep] = React.useState(
-    votingCredential ? 2 : 1,
+    authState ? 5 : votingCredential ? 2 : 1,
   ); // Current step of the workflow displayed in the Breadcrumb. 1: input credential. 2: answer questions. 3: review and encrypt.
   const [electionData, setElectionData] = React.useState({});
   const [electionObject, setElectionObject] = React.useState(undefined);
@@ -123,7 +124,7 @@ function TranslatableVoteApp({
     if (confirmation) {
       const container = document.getElementById("authentication-done");
       if (container) {
-        belenios.renderConfirmation(container);
+        belenios.renderConfirmation(container, authState);
       }
     }
   }, [confirmation]);
@@ -142,7 +143,7 @@ function TranslatableVoteApp({
         onfailure(error);
         return;
       }
-      setElectionFingerprint(belenios.computeFingerprint(inputElectionData));
+      setElectionFingerprint(belenios.getFingerprint());
       setElectionLoadingStatus(1);
     };
     belenios.init({
@@ -162,7 +163,10 @@ function TranslatableVoteApp({
         ); // TODO: should we localize this?
         setElectionLoadingStatus(2);
       } else {
-        response.json().then(processElectionData);
+        response.text().then((json) => {
+          belenios.setElection(json);
+          processElectionData(JSON.parse(json));
+        });
       }
     });
   };
@@ -355,6 +359,7 @@ function TranslatableVoteApp({
         currentStep,
       });
     } else if (currentStep === 5) {
+      setTimeout(() => setConfirmation(true), 50);
       return e(
         VotePage,
         {
@@ -370,7 +375,7 @@ function TranslatableVoteApp({
 
 const VoteApp = withTranslation()(TranslatableVoteApp);
 
-const afterI18nInitialized = (uuid, lang, credential, draft) => {
+const afterI18nInitialized = (uuid, lang, credential, state, draft) => {
   return function () {
     document.title = i18next.t("page_title");
     document
@@ -381,6 +386,7 @@ const afterI18nInitialized = (uuid, lang, credential, draft) => {
     root.render(
       e(VoteApp, {
         votingCredential: credential,
+        authState: state,
         uuid: uuid,
         draft,
         lang,
@@ -397,9 +403,10 @@ function main() {
   const credential = draft
     ? "XXXXX-XXXXXX-XXXXX-XXXXXX"
     : hash_parameters["credential"];
+  const state = hash_parameters["state"];
   const container = document.querySelector("#vote-app");
   container.innerHTML = "Loading...";
-  i18n_init(lang, afterI18nInitialized(uuid, lang, credential, draft));
+  i18n_init(lang, afterI18nInitialized(uuid, lang, credential, state, draft));
 }
 
 main();

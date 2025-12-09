@@ -290,6 +290,8 @@ module Make () = struct
   module Web_auth =
     Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
 
+  let () = Api.get_result := Web_auth.State.get_result
+
   module Web_auth_dummy =
     Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
 

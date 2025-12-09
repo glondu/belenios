@@ -27,11 +27,9 @@ open Tyxml_js.Html
 open Belenios
 open Belenios_js.Common
 open Common
-module Messages = Belenios_js.Window_messages
 
 let booths = [ ("Version 2", "vote") ]
 let global_ballot = ref None
-let child_window = ref None
 let global_result = ref None
 
 let post_ballot uuid ~get_ballot _ =
@@ -42,7 +40,6 @@ let post_ballot uuid ~get_ballot _ =
 
 let advanced uuid =
   global_ballot := None;
-  child_window := None;
   global_result := None;
   let open (val !Belenios_js.I18n.gettext) in
   let@ election cont =
@@ -167,14 +164,6 @@ let advanced uuid =
   in
   Lwt.return { title; contents; footer }
 
-let wait_confirmation window =
-  let* confirmation = Messages.(wait confirmation) () in
-  Messages.(post ready) window true;
-  Lwt.return
-  @@
-  try Belenios_web_api.cast_result_of_string (Js.to_string confirmation)
-  with _ -> `Error `UnexpectedResponse
-
 let process_result configuration election container result =
   global_result := Some result;
   container##.innerHTML := Js.string "";
@@ -199,62 +188,41 @@ let submit configuration uuid =
   let container_contents =
     match !global_result with
     | None -> (
-        match !child_window with
-        | None -> (
-            match !global_ballot with
-            | None ->
-                Dom_html.window##.location##replace
-                  (Js.string @@ Printf.sprintf "#%s/advanced" (Uuid.unwrap uuid));
-                []
-            | Some ballot ->
-                let handler _ =
-                  let window =
-                    Dom_html.window##open_
-                      (Js.string !!"actions/voter-login")
-                      (Js.string "_blank") Js.null
-                  in
-                  let@ () = finally false in
-                  let@ window = Js.Opt.iter window in
-                  let window = coerce_window window in
-                  let@ () = Lwt.async in
-                  let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
-                  let* result =
-                    match x with
-                    | Ok state ->
-                        let* _ = Messages.(wait ready) () in
-                        Messages.(post state) window state;
-                        child_window := Some window;
-                        wait_confirmation window
-                    | Error e ->
-                        window##close;
-                        Lwt.return @@ `Error e
-                  in
-                  process_result configuration election container_dom result
-                in
-                [
-                  div
-                    [
-                      txt
-                      @@ Printf.sprintf
-                           (f_
-                              "You are about to submit a ballot with smart \
-                               ballot tracker %s.")
-                           (sha256_b64 ballot);
-                    ];
-                  div
-                    [
-                      Tyxml_js.Html.button
-                        ~a:[ a_onclick handler ]
-                        [ txt @@ s_ "Proceed" ];
-                    ];
-                ])
-        | Some window ->
-            let () =
+        match !global_ballot with
+        | None ->
+            Dom_html.window##.location##replace
+              (Js.string @@ Printf.sprintf "#%s/advanced" (Uuid.unwrap uuid));
+            []
+        | Some ballot ->
+            let handler _ =
+              let@ () = finally false in
               let@ () = Lwt.async in
-              let* result = wait_confirmation window in
-              process_result configuration election container_dom result
+              let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
+              match x with
+              | Ok state ->
+                  let target = make_login_target ~state in
+                  Dom_html.window##.location##.href := Js.string target;
+                  Lwt.return_unit
+              | Error e ->
+                  process_result configuration election container_dom (`Error e)
             in
-            [ txt @@ s_ "Please wait while your ballot is being processed..." ])
+            [
+              div
+                [
+                  txt
+                  @@ Printf.sprintf
+                       (f_
+                          "You are about to submit a ballot with smart ballot \
+                           tracker %s.")
+                       (sha256_b64 ballot);
+                ];
+              div
+                [
+                  Tyxml_js.Html.button
+                    ~a:[ a_onclick handler ]
+                    [ txt @@ s_ "Proceed" ];
+                ];
+            ])
     | Some result -> Belenios_js.Cast.confirmation configuration election result
   in
   List.iter

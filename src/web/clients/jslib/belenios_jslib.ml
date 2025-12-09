@@ -26,7 +26,6 @@ open Js_of_ocaml_tyxml
 open Belenios
 open Belenios_js.Common
 open Belenios_js.Session
-module Messages = Belenios_js.Window_messages
 
 class type renderingFunctions = object
   method text : int -> Js.js_string Js.t -> Js.Unsafe.any Js.meth
@@ -79,7 +78,8 @@ end
 
 class type belenios = object
   method init : initParams Js.t -> unit Js.meth
-  method computeFingerprint : Js.Unsafe.any Js.t -> Js.js_string Js.t Js.meth
+  method setElection : Js.js_string Js.t -> unit Js.meth
+  method getFingerprint : Js.js_string Js.t Js.meth
 
   method checkCredential :
     Js.Unsafe.any ->
@@ -100,15 +100,17 @@ class type belenios = object
     (module ELECTION_WITH_SK) -> Js.js_string Js.t -> tracker Js.t Js.meth
 
   method submitBallot : submitBallotCallbacks Js.t -> unit Js.meth
-  method renderConfirmation : Dom_html.divElement Js.t -> unit Js.meth
-  method initiateLogin : unit Js.meth
-  method finalizeLogin : Js.Unsafe.any -> unit Js.meth
+
+  method renderConfirmation :
+    Dom_html.divElement Js.t -> Js.js_string Js.t -> unit Js.meth
+
   method setLogo : Js.js_string Js.t -> unit Js.meth
 end
 
 let stateful = ref false
 let global_configuration = ref None
-let election_and_ballot = ref None
+let election = ref None
+let ballot = ref None
 let global_result = ref None
 
 let belenios : belenios Js.t =
@@ -146,8 +148,16 @@ let belenios : belenios Js.t =
       Js.Optdef.iter p##.callbacks (fun cb -> cb##onsuccess);
       Lwt.return_unit
 
-    method computeFingerprint x =
-      Js._JSON##stringify x |> Js.to_string |> sha256_b64 |> Js.string
+    method setElection x =
+      election :=
+        Some (Election.of_string (module Dummy_random) (Js.to_string x))
+
+    method getFingerprint =
+      match !election with
+      | None -> Js.string ""
+      | Some election ->
+          let module W = (val election) in
+          Js.string W.fingerprint
 
     method checkCredential params cred
         (callbacks : checkCredentialCallbacks Js.t) =
@@ -207,10 +217,10 @@ let belenios : belenios Js.t =
               in
               let* () = Lwt_js.yield () in
               let b = E.create_ballot ~sk plaintext in
-              let ballot = write_ballot -- b in
-              if !stateful then election_and_ballot := Some (election, ballot);
-              let tracker = sha256_b64 ballot in
-              callbacks##success (Js.string ballot) (Js.string tracker);
+              let ballot' = write_ballot -- b in
+              if !stateful then ballot := Some ballot';
+              let tracker = sha256_b64 ballot' in
+              callbacks##success (Js.string ballot') (Js.string tracker);
               Lwt.return_unit)
             (fun e ->
               callbacks##failure (Printexc.to_string e |> Js.string);
@@ -290,72 +300,45 @@ let belenios : belenios Js.t =
       end
 
     method submitBallot (callbacks : submitBallotCallbacks Js.t) =
-      match !election_and_ballot with
-      | None -> failwith "submitBallot not available in non-stateful mode"
-      | Some (election, ballot) -> (
-          let window =
-            Dom_html.window##open_
-              (Js.string !!"actions/voter-login")
-              (Js.string "_blank") Js.null
-          in
-          let@ window = Js.Opt.iter window in
-          let window = coerce_window window in
+      match (!election, !ballot) with
+      | Some election, Some ballot -> (
           let open (val election) in
           let@ () = Lwt.async in
-          let@ () =
-           fun cont ->
-            let* result = cont () in
-            global_result := Some result;
-            callbacks##finished;
-            Lwt.return_unit
-          in
           let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
+          let@ () = finally Lwt.return_unit in
           match x with
-          | Ok state -> (
-              let* _ = Messages.(wait ready) () in
-              Messages.(post state) window state;
-              let* confirmation = Messages.(wait confirmation) () in
-              Messages.(post ready) window true;
-              match
-                Belenios_web_api.cast_result_of_string
-                  (Js.to_string confirmation)
-              with
-              | exception _ -> Lwt.return @@ `Error `UnexpectedResponse
-              | result -> Lwt.return result)
+          | Ok state ->
+              let target = make_login_target ~state in
+              Dom_html.window##.location##.href := Js.string target
           | Error e ->
-              window##close;
-              Lwt.return @@ `Error e)
+              global_result := Some (`Error e);
+              callbacks##finished)
+      | _ -> failwith "submitBallot not available in non-stateful mode"
 
-    method renderConfirmation container =
-      match (!global_configuration, !election_and_ballot, !global_result) with
-      | Some configuration, Some (election, _), Some result ->
+    method renderConfirmation container authState =
+      let authState = Js.to_string authState in
+      match (!global_configuration, !election) with
+      | Some configuration, Some election ->
           let module W = (val election) in
           container##.innerHTML := Js.string "";
+          let@ () = Lwt.async in
+          let prefix = compute_prefix () in
+          let url = Printf.sprintf "%sapi/cast-result/%s" prefix authState in
+          let* x = XmlHttpRequest.get url in
+          let@ () = finally Lwt.return_unit in
+          let content =
+            match x.code with
+            | 200 ->
+                let result = Belenios_web_api.cast_result_of_string x.content in
+                Belenios_js.Cast.confirmation configuration (module W) result
+            | _ ->
+                let open (val !Belenios_js.I18n.gettext) in
+                [ Tyxml_js.Html.txt @@ s_ "Session expired" ]
+          in
           List.iter
             (fun x -> Dom.appendChild container (Tyxml_js.To_dom.of_node x))
-            (Belenios_js.Cast.confirmation configuration (module W) result)
+            content
       | _ -> ()
-
-    method initiateLogin =
-      let () =
-        let@ () = Lwt.async in
-        let* state = Messages.(wait state) () in
-        let target = make_login_target ~state in
-        Dom_html.window##.location##.href := Js.string target;
-        Lwt.return_unit
-      in
-      let@ window = Js.Opt.iter (coerce_window Dom_html.window)##.opener in
-      Messages.(post ready) window true
-
-    method finalizeLogin confirmation =
-      let () =
-        let@ () = Lwt.async in
-        let* _ = Messages.(wait ready) () in
-        Dom_html.window##close;
-        Lwt.return_unit
-      in
-      let@ window = Js.Opt.iter (coerce_window Dom_html.window)##.opener in
-      Messages.(post confirmation) window (Js._JSON##stringify confirmation)
 
     method setLogo uuid = set_logo (Uuid.wrap (Js.to_string uuid))
   end

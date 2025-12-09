@@ -71,6 +71,9 @@ module Api_result = Eliom_mkreg.Make (struct
 end)
 
 module Make () = struct
+  (* Forward reference set in Web_main *)
+  let get_result = ref (fun ~state:_ -> None)
+
   let dispatch endpoint method_ _params body =
     let sp = Eliom_common.get_sp () in
     let token =
@@ -140,6 +143,14 @@ module Make () = struct
         | _ -> method_not_allowed)
     | "elections" :: endpoint ->
         Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
+    | [ "cast-result"; state ] -> (
+        match method_ with
+        | `GET -> (
+            match !get_result ~state with
+            | None -> not_found
+            | Some result ->
+                return_json 200 (Belenios_web_api.string_of_cast_result result))
+        | _ -> method_not_allowed)
     | "credentials" :: endpoint ->
         Api_credentials.dispatch s endpoint method_ body
     | "billing" :: endpoint ->

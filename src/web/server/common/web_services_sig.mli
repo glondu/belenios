@@ -258,7 +258,7 @@ module type S = sig
     Eliom_service.t
 
   val election_login :
-    ( string option,
+    ( string,
       unit,
       Eliom_service.get,
       Eliom_service.att,

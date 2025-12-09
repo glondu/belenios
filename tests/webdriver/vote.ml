@@ -36,38 +36,13 @@ type authenticator = Webdriver.helpers -> unit Lwt.t
 module Make (Config : CONFIG) = struct
   open Config
 
-  let is_booth =
-    let rex = Re.Pcre.regexp "^.*/vote(#.*)?$" in
-    fun x -> Re.execp rex x
-
-  let with_auth_window session f =
-    let* windows = session#get_windows in
-    let booth = ref None and auth = ref None in
-    let* () =
-      Lwt_list.iter_s
-        (fun w ->
-          let* () = session#switch_to_window w in
-          let* url = session#get_url in
-          if is_booth url then booth := Some w else auth := Some w;
-          Lwt.return_unit)
-        windows
-    in
-    match (!booth, !auth) with
-    | Some booth, Some auth ->
-        let* () = session#switch_to_window auth in
-        let* () = f () in
-        session#switch_to_window booth
-    | _ -> failwith "identify_windows"
-
   let auth_password ~username ~password session =
-    let@ () = with_auth_window session in
     let* () = session#fill_with ~selector:"#username" username in
     let* () = session#fill_with ~selector:"#password" password in
     session#click_on ~selector:"input[type=submit]"
 
   let auth_email ~username session =
     let* () = Lwt_unix.sleep 1. in
-    let@ () = with_auth_window session in
     let x = Emails.parse emails in
     match Emails.extract_code x username with
     | Some code ->
