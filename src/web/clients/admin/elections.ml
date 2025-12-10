@@ -899,7 +899,21 @@ let voters_content () =
         try_voters @@ Js.to_string text)
   in
   if is_draft then
-    let* config = Cache.get Cache.config in
+    let* max_voters =
+      let* config = Cache.get Cache.config in
+      let* account = Cache.get Cache.account in
+      let limit =
+        match (config, account) with
+        | Ok c, Ok a -> (
+            match a.voters_limit with
+            | None -> Some c.max_voters
+            | Some x -> Some (max x c.max_voters))
+        | _ -> None
+      in
+      match limit with
+      | None -> Lwt.return "maybe 2500"
+      | Some x -> Lwt.return @@ string_of_int x
+    in
     Lwt.return
       [
         h2
@@ -928,11 +942,6 @@ let voters_content () =
         tablex [ tbody (header_row :: make_rows_of_voters false) ];
         (if is_frozen then div []
          else
-           let max =
-             match config with
-             | Error _ -> "maybe 2500"
-             | Ok c -> string_of_int c.max_voters
-           in
            div
              [
                nbvoters;
@@ -948,7 +957,7 @@ let voters_content () =
                             (f_
                                "Please enter the identities of voters to add, \
                                 one per line (max %s).")
-                            max);
+                            max_voters);
                      ];
                    div
                      [

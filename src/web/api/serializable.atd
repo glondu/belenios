@@ -158,6 +158,7 @@ type api_account = {
     ?language : string option;
     default_voter_languages : string list;
     default_contact : string;
+    ?voters_limit : int option;
 }
 
 type authentication =

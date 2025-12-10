@@ -168,6 +168,7 @@ let get_account (a : account) =
     language = a.language;
     default_voter_languages = a.default_voter_languages;
     default_contact = a.default_contact;
+    voters_limit = a.voters_limit;
   }
 
 let put_account ((a, set) : account updatable) (b : api_account) =
