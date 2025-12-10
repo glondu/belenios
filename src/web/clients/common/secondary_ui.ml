@@ -121,7 +121,7 @@ module Make (App : APP) () = struct
     let warning = div ~a:[ a_id "banner" ] [] in
     let () =
       let@ () = Lwt.async in
-      let url = Printf.sprintf "banner?lang=%s" lang in
+      let url = Printf.sprintf "banner?lang=%s" (Language.unwrap lang) in
       let* x = Js_of_ocaml_lwt.XmlHttpRequest.get url in
       match x.code with
       | 200 ->
@@ -147,9 +147,10 @@ module Make (App : APP) () = struct
           Js.Opt.iter (Dom_html.CoerceTo.select e) (fun e ->
               e##.onchange :=
                 let@ () = lwt_handler in
-                let lang = Js.to_string e##.value in
+                let lang = Js.to_string e##.value |> Language.get in
                 let c = get_client_configuration () in
-                set_client_configuration { c with lang = Some lang };
+                set_client_configuration
+                  { c with lang = Some (Language.unwrap lang) };
                 main configuration lang))
     in
     onhashchange configuration
@@ -169,7 +170,7 @@ module Make (App : APP) () = struct
       let lang =
         match client_configuration.lang with
         | None -> Compat.navigator_language
-        | Some x -> x
+        | Some x -> Language.get x
       in
       let () =
         match client_configuration.consent with

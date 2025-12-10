@@ -109,6 +109,7 @@ val is_username : string -> bool
 val is_email : ?blacklist:SSet.t -> string -> bool
 val map_and_concat_with_commas : ('a -> string) -> 'a array -> string
 val remove_special_characters : string -> string
+val uniq_first : ?compare:('a -> 'a -> int) -> 'a list -> 'a list
 
 exception Invalid_identity of string
 

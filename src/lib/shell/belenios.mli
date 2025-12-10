@@ -41,3 +41,7 @@ end
 module Credentials_certificate (G : GROUP) : sig
   val check : (G.t, G.Zq.t) credentials_certificate -> bool
 end
+
+module Language = Language
+
+type lang = Language.t

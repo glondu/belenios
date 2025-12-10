@@ -19,4 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val available : (string * string) list
+type t = private string
+
+val available : (t * string) list
+val devel : t
+val default : t
+val of_string_opt : string -> t option
+val get : string -> t
+val unwrap : t -> string
+val wrap : string -> t

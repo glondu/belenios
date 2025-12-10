@@ -140,18 +140,19 @@ let format_password_email (x : material_message) =
     Option.value ~default:Belenios_messages.dummy_metadata x.metadata
   in
   let url = get_election_home_url metadata.uuid in
+  let langs = metadata.langs |> List.map Language.get |> uniq_first in
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         return
           (mail_password l metadata x.recipient.name x.material x.weight url))
-      metadata.langs
+      langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \n" ^ !Web_config.vendor in
   let* subject =
-    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd metadata.langs) in
+    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd langs) in
     let open (val l) in
     Printf.ksprintf return (f_ "Your password for election %s") metadata.title
   in
@@ -239,17 +240,18 @@ let format_credential_email (x : material_message) =
   let metadata =
     Option.value ~default:Belenios_messages.dummy_metadata x.metadata
   in
+  let langs = metadata.langs |> List.map Language.get |> uniq_first in
   let* bodies =
     Lwt_list.map_s
       (fun lang ->
         let* l = Web_i18n.get ~component:"voter" ~lang in
         return (mail_credential l x))
-      metadata.langs
+      langs
   in
   let body = String.concat "\n\n----------\n\n" bodies in
   let body = body ^ "\n\n-- \n" ^ !Web_config.vendor in
   let* subject =
-    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd metadata.langs) in
+    let* l = Web_i18n.get ~component:"voter" ~lang:(List.hd langs) in
     let open (val l) in
     Printf.ksprintf return (f_ "Your credential for election %s") metadata.title
   in

@@ -396,6 +396,20 @@ let remove_special_characters x =
   in
   loop '\000' 0
 
+let uniq_first (type a) ?(compare = Stdlib.compare) xs =
+  let module S = Set.Make (struct
+    type t = a
+
+    let compare = compare
+  end) in
+  let rec loop seen accu = function
+    | [] -> List.rev accu
+    | x :: xs ->
+        if S.mem x seen then loop seen accu xs
+        else loop (S.add x seen) (x :: accu) xs
+  in
+  loop S.empty [] xs
+
 module Voter = struct
   type t = [ `Plain | `Json ] * Serializable_core_t.voter
 

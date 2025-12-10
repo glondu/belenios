@@ -408,7 +408,7 @@ let show_root main =
   let banner = div ~a:[ a_id "banner" ] [] in
   let () =
     let@ () = Lwt.async in
-    let url = Printf.sprintf "banner?lang=%s" lang in
+    let url = Printf.sprintf "banner?lang=%s" (Language.unwrap lang) in
     let* x = Js_of_ocaml_lwt.XmlHttpRequest.get url in
     match x.code with
     | 200 ->
@@ -461,8 +461,9 @@ let onhashchange () =
   let* () =
     let* account = Cache.(get account) in
     match account with
-    | Ok { language; _ } -> Belenios_js.I18n.set ~language
-    | Error _ -> Lwt.return_unit
+    | Ok { language = Some l; _ } ->
+        Belenios_js.I18n.set ~language:(Language.of_string_opt l)
+    | _ -> Lwt.return_unit
   in
   let* where =
     match hash with

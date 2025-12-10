@@ -23,12 +23,12 @@ open Lwt.Syntax
 open Belenios
 open Belenios_server_core
 
-let default_lang = "en"
-let devel_lang = "en_devel"
+let default_lang = Language.default
+let devel_lang = Language.devel
 let components = Hashtbl.create 2
 
 module type LANG = sig
-  val lang : string
+  val lang : lang
   val mo_file : string
 end
 
@@ -44,7 +44,7 @@ module Belenios_Gettext (L : LANG) (T : GettextTranslate.TRANSLATE_TYPE) :
       failsafe = Ignore;
       textdomains = MapTextdomain.empty;
       categories = MapCategory.empty;
-      language = Some L.lang;
+      language = Some (Language.unwrap L.lang);
       codeset = "UTF-8";
       path = [];
       default = "belenios";
@@ -65,7 +65,7 @@ let build_gettext_input component lang =
 
     let mo_file =
       !Web_config.share_dir // "static" // "locales" // component
-      // (lang ^ ".mo")
+      // (Language.unwrap lang ^ ".mo")
   end : LANG)
 
 let default_gettext component =
@@ -108,7 +108,7 @@ let parse_lang =
   let rex = Re.Pcre.regexp "^([a-z]{2})(?:-.*)?$" in
   fun s ->
     match Re.Pcre.exec ~rex s with
-    | groups -> Some (Re.Pcre.get_substring groups 1)
+    | groups -> Language.of_string_opt (Re.Pcre.get_substring groups 1)
     | exception Not_found -> None
 
 let get_preferred_language () =
@@ -118,16 +118,7 @@ let get_preferred_language () =
   | (lang, _) :: _ -> (
       match parse_lang lang with None -> default_lang | Some lang -> lang)
 
-let valid_languages =
-  List.fold_left
-    (fun accu (lang, _) -> SSet.add lang accu)
-    SSet.empty Belenios_ui.Languages.available
-
-let is_valid_language lang = SSet.mem lang valid_languages
-
 module Make () = struct
-  let is_valid_language = is_valid_language
-
   let get_preferred_gettext ?lang component =
     let* lang =
       match lang with
@@ -136,7 +127,10 @@ module Make () = struct
           match
             Ocsigen_cookie_map.Map_inner.find_opt "belenios-lang" cookies
           with
-          | Some lang when is_valid_language lang -> Lwt.return lang
+          | Some lang -> (
+              match Language.of_string_opt lang with
+              | Some lang -> Lwt.return lang
+              | None -> Lwt.return @@ get_preferred_language ())
           | _ -> Lwt.return @@ get_preferred_language ())
       | Some x -> Lwt.return x
     in

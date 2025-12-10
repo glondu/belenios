@@ -138,7 +138,7 @@ struct
     in
     Lwt.return
       (html
-         ~a:[ a_dir `Ltr; a_xml_lang lang ]
+         ~a:[ a_dir `Ltr; a_xml_lang (Language.unwrap lang) ]
          (head (Eliom_content.Html.F.title (txt title)) head_content)
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
@@ -151,8 +151,8 @@ struct
     let open (val l) in
     let langs =
       List.map
-        (fun (l, x) -> Option ([], l, Some (txt x), l = lang))
-        Belenios_ui.Languages.available
+        (fun (l, x) -> Option ([], Language.unwrap l, Some (txt x), l = lang))
+        Language.available
     in
     let form =
       get_form

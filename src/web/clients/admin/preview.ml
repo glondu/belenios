@@ -36,7 +36,7 @@ let preview_booth () =
       let href =
         Printf.sprintf "vote#uuid=%s&draft=2&lang=%s"
           (Uuid.unwrap (get_current_uuid ()))
-          lang
+          (Language.unwrap lang)
       in
       let onclick () =
         let&&* d = document##getElementById (Js.string "popup") in

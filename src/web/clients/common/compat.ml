@@ -54,9 +54,10 @@ let log_4 a b c d = Console.console##log_4 a b c d
 [%%endif]
 
 let navigator_language =
+  let open Belenios.Language in
   match navigator_language_raw with
-  | None -> "en"
+  | None -> default
   | Some x -> (
       match String.split_on_char '-' (Js.to_string x) with
-      | x :: _ -> x
-      | _ -> "en")
+      | x :: _ -> x |> of_string_opt |> Option.value ~default
+      | _ -> default)

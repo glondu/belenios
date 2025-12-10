@@ -114,9 +114,7 @@ let advanced uuid =
       ]
   in
   let booths =
-    let fragment =
-      Url.encode_arguments [ ("uuid", Uuid.unwrap uuid); ("lang", lang) ]
-    in
+    let fragment = Url.encode_arguments [ ("uuid", Uuid.unwrap uuid) ] in
     let make uri =
       let href = Printf.sprintf "%s#%s" uri fragment in
       a ~href (s_ "direct link")

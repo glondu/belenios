@@ -64,12 +64,13 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
     File.register ~content_type:"text/html" ~service:banner (fun lang () ->
         match !Web_config.warning_file with
         | None -> fail_http `Not_found
-        | Some file ->
-            if Web_i18n.is_valid_language lang then
-              let f = Printf.sprintf "%s.%s" file lang in
-              let* b = Lwt_unix.file_exists f in
-              Lwt.return (if b then f else file)
-            else Lwt.return file)
+        | Some file -> (
+            match Belenios.Language.of_string_opt lang with
+            | Some _ ->
+                let f = Printf.sprintf "%s.%s" file lang in
+                let* b = Lwt_unix.file_exists f in
+                Lwt.return (if b then f else file)
+            | None -> Lwt.return file))
 
   let () =
     File.register ~content_type:"text/html" ~service:apps (fun page () ->

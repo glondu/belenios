@@ -19,14 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
+
 module type GETTEXT = sig
-  val lang : string
+  val lang : lang
   val s_ : string -> string
   val f_ : ('a, 'b, 'c, 'c, 'c, 'd) format6 -> ('a, 'b, 'c, 'c, 'c, 'd) format6
 end
 
 module type S = sig
-  val get : component:string -> lang:string -> (module GETTEXT) Lwt.t
+  val get : component:string -> lang:lang -> (module GETTEXT) Lwt.t
 end
 
 val s_xml : (string -> string) -> string -> string * Xml.xml

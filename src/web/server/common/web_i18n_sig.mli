@@ -19,9 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module type S = sig
-  val is_valid_language : string -> bool
+open Belenios
 
+module type S = sig
   val get_preferred_gettext :
-    ?lang:string -> string -> (module Belenios_ui.I18n.GETTEXT) Lwt.t
+    ?lang:lang -> string -> (module Belenios_ui.I18n.GETTEXT) Lwt.t
 end

@@ -36,6 +36,8 @@ type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
 
+type lang = string wrap <ocaml module="Belenios.Language">
+
 type message_metadata = {
   uuid : uuid;
   admin_id : int;
@@ -144,7 +146,7 @@ type configuration = {
     default_group : string;
     default_nh_group : string;
     max_voters : int;
-    languages : (string * string) list <json repr="object">;
+    languages : (lang * string) list <json repr="object">;
     election_sealing : bool;
     grace_period : bool;
 }

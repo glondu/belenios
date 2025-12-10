@@ -155,7 +155,7 @@ let get_configuration () =
     default_group = !Web_config.default_group;
     default_nh_group = !Web_config.nh_group;
     max_voters = !Web_config.maxmailsatonce;
-    languages = Belenios_ui.Languages.available;
+    languages = Language.available;
     election_sealing = !Web_config.election_sealing;
     grace_period = !Web_config.grace_period;
   }

@@ -92,14 +92,17 @@ let send ?internal (msg : message) =
   let* reason, admin_id, uuid, { recipient; subject; body } =
     match msg with
     | `Account_create { lang; recipient; code; uuid } ->
+        let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_confirmation_link l ~recipient ~code in
         Lwt.return ("account-creation", "", uuid, t)
     | `Account_change_password { lang; recipient; code; uuid } ->
+        let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_changepw_link l ~recipient ~code in
         Lwt.return ("password-change", "", uuid, t)
     | `Account_set_email { lang; recipient; code; uuid } ->
+        let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_set_email l ~recipient ~code in
         Lwt.return ("set-email", "", uuid, t)
@@ -112,17 +115,20 @@ let send ?internal (msg : message) =
         let m = Option.value ~default:dummy_metadata x.metadata in
         Lwt.return ("credential", string_of_int m.admin_id, Some m.uuid, t)
     | `Vote_confirmation { lang; uuid; title; confirmation; contact } ->
+        let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
         Lwt.return ("confirmation", "", Some uuid, t)
     | `Mail_login { lang; recipient; code; uuid } ->
+        let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"voter" ~lang in
         let t = Mails_voter.email_login l ~recipient ~code in
         Lwt.return ("login", "", uuid, t)
     | `Credentials_seed m ->
-        let* l = Web_i18n.get ~component:"admin" ~lang:m.lang in
+        let lang = Language.get m.lang in
+        let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_credentials_seed l m in
         Lwt.return ("credentials-seed", string_of_int m.admin_id, Some m.uuid, t)
   in

@@ -31,7 +31,7 @@ let dummy_metadata : metadata =
     contact = None;
     has_weights = true;
     has_passwords = false;
-    langs = [ "en" ];
+    langs = [ Belenios.Language.(unwrap default) ];
   }
 
 type text_message = { recipient : recipient; subject : string; body : string }

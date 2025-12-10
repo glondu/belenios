@@ -73,13 +73,13 @@ module Make (Base : BASE) = struct
 
   let lang_box l =
     let open (val l : I18n.GETTEXT) in
-    let lang = if lang = "en_devel" then "en" else lang in
+    let lang = if lang = Language.devel then Language.default else lang in
     let langs =
       List.map
         (fun (l, x) ->
           let selected = if l = lang then [ a_selected () ] else [] in
-          option ~a:(a_value l :: selected) (txt x))
-        Languages.available
+          option ~a:(a_value (Language.unwrap l) :: selected) (txt x))
+        Language.available
     in
     let form =
       div

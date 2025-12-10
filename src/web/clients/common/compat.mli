@@ -21,7 +21,7 @@
 
 open Js_of_ocaml
 
-val navigator_language : string
+val navigator_language : Belenios.lang
 val scroll : int -> int -> unit
 val get_file : #Dom_html.inputElement Js.t -> File.file Js.t option
 val log_4 : 'a -> 'b -> 'c -> 'd -> unit

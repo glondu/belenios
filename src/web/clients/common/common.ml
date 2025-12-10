@@ -375,4 +375,6 @@ let set_client_configuration x =
 
 let get_language () =
   let c = get_client_configuration () in
-  match c.lang with None -> Compat.navigator_language | Some x -> x
+  match c.lang with
+  | None -> Language.unwrap Compat.navigator_language
+  | Some x -> x

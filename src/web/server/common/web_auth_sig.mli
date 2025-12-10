@@ -19,13 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 
 type data = ..
 
 type state = {
-  lang : string option;
+  lang : lang option;
   ballot : string;
   precast_data : Web_persist.precast_data;
 }

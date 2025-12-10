@@ -121,7 +121,8 @@ struct
       let* l = get_preferred_gettext ?lang () in
       let open (val l) in
       Send_message.send
-      @@ `Account_set_email { lang; recipient; code; uuid = None }
+      @@ `Account_set_email
+           { lang = Language.unwrap lang; recipient; code; uuid = None }
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()

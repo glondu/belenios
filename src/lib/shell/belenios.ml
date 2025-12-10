@@ -54,3 +54,7 @@ module Credentials_certificate (G : GROUP) = struct
     let module P = Pki.Make (G) (Dummy_random) in
     P.verify certificate.verification_key signature
 end
+
+module Language = Language
+
+type lang = Language.t

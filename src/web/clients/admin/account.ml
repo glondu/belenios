@@ -53,18 +53,21 @@ let rec update_main_zone () =
       let input_language =
         let current = Option.value ~default:"" acc.language in
         let options =
-          Belenios_ui.Languages.available
+          Language.available
           |> List.map (fun (code, label) ->
-                 option ~a:[ a_value code ] (txt label))
+                 option ~a:[ a_value (Language.unwrap code) ] (txt label))
         in
         let options =
           option ~a:[ a_value "" ] (txt @@ s_ "Navigator's default") :: options
         in
         let onchange r =
           let language =
-            match Js.to_string r##.value with "" -> None | x -> Some x
+            match Js.to_string r##.value with
+            | "" -> None
+            | x -> Language.of_string_opt x
           in
-          Cache.set Cache.account { acc with language };
+          Cache.set Cache.account
+            { acc with language = Option.map Language.unwrap language };
           let@ () = Lwt.async in
           let* () = Belenios_js.I18n.set ~language in
           update_main ()

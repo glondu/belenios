@@ -19,12 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
+
 module type SENDER = sig
   type payload
   type context
 
   val send :
-    ?lang:string ->
+    ?lang:lang ->
     context:context ->
     recipient:Belenios_messages.recipient ->
     code:string ->
@@ -37,7 +39,7 @@ module type S = sig
   type context
 
   val generate :
-    ?lang:string ->
+    ?lang:lang ->
     context:context ->
     recipient:Belenios_messages.recipient ->
     payload:payload ->

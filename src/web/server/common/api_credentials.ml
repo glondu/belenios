@@ -126,7 +126,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       Send_message.send
       @@ `Credentials_seed
            {
-             lang = "en";
+             lang = Language.(unwrap default);
              admin_id = r.admin_id;
              uuid = r.uuid;
              belenios_url = r.belenios_url;

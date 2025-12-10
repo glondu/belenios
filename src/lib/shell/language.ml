@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+type t = string
+
 let available =
   [
     ("ar", "العربية");
@@ -47,3 +49,12 @@ let available =
     ("ta", "தமிழ்");
     ("uk", "Українська");
   ]
+
+let devel = "en_devel"
+let default = "en"
+let of_string_opt x = if List.mem_assoc x available then Some x else None
+let get x = match of_string_opt x with None -> default | Some x -> x
+let unwrap = Fun.id
+
+let wrap x =
+  if List.mem_assoc x available then x else invalid_arg "Language.wrap"

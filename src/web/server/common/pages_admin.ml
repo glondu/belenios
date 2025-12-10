@@ -197,8 +197,8 @@ struct
     div
       [
         Printf.ksprintf Unsafe.data
-          "<script>var belenios_lang = %S; var belenios_dir = %S;</script>" lang
-          (dir ^ "/");
+          "<script>var belenios_lang = %S; var belenios_dir = %S;</script>"
+          (Language.unwrap lang) (dir ^ "/");
         script ~a:[ a_src file ] (txt "");
       ]
 

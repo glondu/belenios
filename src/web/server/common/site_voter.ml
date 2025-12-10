@@ -74,7 +74,13 @@ struct
         let* r =
           Send_message.send
           @@ `Vote_confirmation
-               { lang; uuid; title; confirmation; contact = metadata.e_contact }
+               {
+                 lang = Language.unwrap lang;
+                 uuid;
+                 title;
+                 confirmation;
+                 contact = metadata.e_contact;
+               }
         in
         match r with Ok _ -> Lwt.return_true | Error () -> Lwt.return_false)
       (fun _ -> Lwt.return_false)

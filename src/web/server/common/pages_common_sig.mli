@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Belenios_server_core
 
 module type S = sig
@@ -89,7 +90,7 @@ module type S = sig
 
   val read_snippet :
     ?default:([> Html_types.div_content_fun ] as 'a) Eliom_content.Html.elt ->
-    lang:string ->
+    lang:lang ->
     string option ->
     'a Eliom_content.Html.elt Lwt.t
 
@@ -197,7 +198,7 @@ module type S = sig
     [> `Html ] Eliom_content.Html.F.elt Lwt.t
 
   val email_login :
-    ?lang:string ->
+    ?lang:lang ->
     ?address:(string, unit) result ->
     [ `Site | `Election ] ->
     [> `Html ] Eliom_content.Html.F.elt Lwt.t

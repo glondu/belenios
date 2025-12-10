@@ -1226,7 +1226,9 @@ let language_content () =
   let inp, _ =
     let onchange r =
       let newlist = String.split_on_char ' ' (Js.to_string r##.value) in
-      if check_lang_choice newlist (List.map (fun (x, _) -> x) config.languages)
+      if
+        check_lang_choice newlist
+          (List.map (fun (x, _) -> Language.unwrap x) config.languages)
       then
         Cache.set Cache.draft
           (Draft (v, { draft with draft_languages = newlist }))
@@ -1236,7 +1238,8 @@ let language_content () =
   in
   let avail_lang =
     config.languages
-    |> List.map (fun (x, y) -> tr [ td [ txt x ]; td [ txt y ] ])
+    |> List.map (fun (x, y) ->
+           tr [ td [ txt (Language.unwrap x) ]; td [ txt y ] ])
   in
   let avail_lang =
     tablex

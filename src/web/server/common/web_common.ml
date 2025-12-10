@@ -118,7 +118,10 @@ let format_password x =
   else x
 
 let string_of_user { user_domain; user_name } = user_domain ^ ":" ^ user_name
-let get_languages xs = match xs with None -> [ "en" ] | Some xs -> xs
+
+let get_languages xs =
+  match xs with None -> [ Language.(unwrap default) ] | Some xs -> xs
+
 let string_of_languages xs = String.concat " " (get_languages xs)
 let languages_of_string x = Re.Pcre.(split ~rex:(regexp "\\s+") x)
 let urlize = String.map (function '+' -> '-' | '/' -> '_' | c -> c)

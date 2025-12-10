@@ -98,7 +98,9 @@ struct
     let send ?lang ~context ~recipient ~code () =
       let* l = Web_i18n.get_preferred_gettext ?lang "voter" in
       let open (val l) in
-      Send_message.send @@ `Mail_login { lang; recipient; code; uuid = context }
+      Send_message.send
+      @@ `Mail_login
+           { lang = Language.unwrap lang; recipient; code; uuid = context }
   end
 
   module Otp = Otp.Make (Sender) ()

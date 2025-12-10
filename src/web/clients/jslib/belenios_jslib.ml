@@ -125,7 +125,7 @@ let belenios : belenios Js.t =
       in
       let@ () = Lwt.async in
       let* () =
-        let lang = get_language () in
+        let lang = get_language () |> Language.get in
         Belenios_js.I18n.init ~dir ~component:"voter" ~lang
       in
       let* () =

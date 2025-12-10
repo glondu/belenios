@@ -26,7 +26,7 @@ open Belenios
 let components = Hashtbl.create 2
 
 module Default = struct
-  let lang = "en_devel"
+  let lang = Language.devel
   let s_ = Fun.id
   let f_ = Fun.id
 end
@@ -39,7 +39,10 @@ let component = ref ""
 
 let build_gettext component lang =
   let open Js_of_ocaml_lwt.XmlHttpRequest in
-  let* x = Printf.ksprintf get "%slocales/%s/%s.json" !dir component lang in
+  let* x =
+    Printf.ksprintf get "%slocales/%s/%s.json" !dir component
+      (Language.unwrap lang)
+  in
   match x.code with
   | 200 ->
       let translations = Js._JSON##parse (Js.string x.content) in
@@ -90,7 +93,11 @@ let init ~dir:d ~component:c ~lang =
   Lwt.return_unit
 
 let auto_init component =
-  let lang = Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang") in
+  let lang =
+    let open Language in
+    Js.to_string (Js.Unsafe.pure_js_expr "belenios_lang")
+    |> of_string_opt |> Option.value ~default
+  in
   let dir = Js.to_string (Js.Unsafe.pure_js_expr "belenios_dir") in
   init ~dir ~component ~lang
 

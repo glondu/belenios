@@ -32,7 +32,7 @@ module Sender = struct
 
   let send ?lang:lang' ~context ~recipient ~code () =
     let open (val context.gettext) in
-    let lang = Option.value ~default:lang lang' in
+    let lang = Option.value ~default:lang lang' |> Language.unwrap in
     match context.kind with
     | CreateAccount ->
         Send_message.send

@@ -49,7 +49,7 @@ let cleanup_file f =
 
 let read_file_i18n ~lang f =
   let* f =
-    let f' = Printf.sprintf "%s.%s" f lang in
+    let f' = Printf.sprintf "%s.%s" f (Language.unwrap lang) in
     let* b = file_exists f' in
     Lwt.return (if b then f' else f)
   in

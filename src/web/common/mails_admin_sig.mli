@@ -19,7 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type mail_template = string list -> string -> (string * string) Lwt.t
+open Belenios
+
+type mail_template = lang list -> string -> (string * string) Lwt.t
 
 module type S = sig
   val mail_credential_authority :
