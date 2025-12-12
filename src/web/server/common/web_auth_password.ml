@@ -80,7 +80,7 @@ struct
         let service = a.auth_instance in
         Pages_common.login_password site_or_election username_or_address
           ~service ~allowsignups ~state
-        >>= fun x -> return (Web_auth_sig.Html x, Web_auth.No_data)
+        >>= fun x -> return (Web_auth_sig.Html x)
 
       let direct s x =
         let fail () = failwith "invalid direct password authentication" in
@@ -106,7 +106,7 @@ struct
     run_post_login_handler ~state
       {
         Web_auth.post_login_handler =
-          (fun ~data:_ uuid a cont ->
+          (fun uuid a cont ->
             let* result =
               let@ s = Storage.with_transaction in
               let* x = check s uuid a name password in

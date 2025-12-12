@@ -37,7 +37,7 @@ type result =
 
 module type AUTH_SYSTEM = sig
   val pre_login_handler :
-    [ `Username | `Address ] -> state:string -> (result * data) Lwt.t
+    [ `Username | `Address ] -> state:string -> result Lwt.t
 
   val direct : Storage.t -> Yojson.Safe.t -> string Lwt.t
 end
@@ -54,6 +54,8 @@ module type STATE = sig
   val create : Storage.t -> uuid -> state -> string option Lwt.t
   val get : state:string -> env option
   val del : state:string -> unit
+  val get_data : state:string -> data
+  val set_data : state:string -> data -> unit
   val get_result : state:string -> Belenios_web_api.cast_result option
   val set_result : state:string -> Belenios_web_api.cast_result -> unit
 end
@@ -64,7 +66,6 @@ module type S = sig
   type post_login_handler = {
     post_login_handler :
       'a.
-      data:data ->
       uuid option ->
       auth_config ->
       (Belenios_web_api.user_info option -> 'a Lwt.t) ->

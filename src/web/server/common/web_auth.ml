@@ -40,7 +40,6 @@ struct
   type post_login_handler = {
     post_login_handler :
       'a.
-      data:Web_auth_sig.data ->
       uuid option ->
       auth_config ->
       (Belenios_web_api.user_info option -> 'a Lwt.t) ->
@@ -57,7 +56,7 @@ struct
     auth_config : auth_config;
     kind : kind;
     state : state option;
-    mutable data : data option;
+    mutable data : data;
     mutable user : timestamped_user option;
     credential : string option;
     mutable result : Belenios_web_api.cast_result option;
@@ -95,7 +94,7 @@ struct
         auth_config;
         kind;
         state;
-        data = None;
+        data = No_data;
         user = None;
         username_or_address;
         credential;
@@ -171,7 +170,7 @@ struct
 
   let run_post_login_handler ~auth_system ~state { post_login_handler } =
     match get_auth_env ~state with
-    | Some ({ extern; auth_config = a; kind; data = Some data; _ } as env) ->
+    | Some ({ extern; auth_config = a; kind; _ } as env) ->
         let uuid = match kind with `Site _ -> None | `Election u -> Some u in
         let restart_login () =
           let service = restart_login a.auth_instance kind ~state in
@@ -233,7 +232,7 @@ struct
                 exec ~extern ~login:true ~state kind
             | None -> restart_login ()
           in
-          post_login_handler ~data uuid a cont
+          post_login_handler uuid a cont
         else restart_login ()
     | _ ->
         Pages_common.authentication_impossible ()
@@ -245,9 +244,7 @@ struct
     let { kind; handler; auth_config; username_or_address; _ } = env in
     let uuid = match kind with `Site _ -> None | `Election u -> Some u in
     let module X = (val handler uuid auth_config) in
-    let* result, data = X.pre_login_handler username_or_address ~state in
-    env.data <- Some data;
-    Lwt.return result
+    X.pre_login_handler username_or_address ~state
 
   let register ~auth_system handler =
     auth_systems := (auth_system, handler) :: !auth_systems;
@@ -433,6 +430,14 @@ struct
       | _ -> None
 
     let del = del_auth_env
+
+    let get_data ~state =
+      match get_auth_env ~state with
+      | None -> No_data
+      | Some { data; _ } -> data
+
+    let set_data ~state x =
+      match get_auth_env ~state with None -> () | Some env -> env.data <- x
 
     let get_result ~state =
       let@ { result; _ } = Option.bind (get_auth_env ~state) in

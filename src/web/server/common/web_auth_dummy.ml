@@ -36,7 +36,7 @@ struct
         let* page =
           Pages_common.login_dummy site_or_election username_or_address ~state
         in
-        return (Web_auth_sig.Html page, Web_auth.No_data)
+        return (Web_auth_sig.Html page)
 
       let direct _ x =
         let fail () = failwith "invalid direct dummy authentication" in
@@ -58,7 +58,7 @@ struct
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              (fun ~data:_ _ _ cont ->
+              (fun _ _ cont ->
                 let info : Belenios_web_api.user_info =
                   { login; address = None; timestamp = None }
                 in

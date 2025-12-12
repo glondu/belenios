@@ -65,23 +65,23 @@ struct
               let* fragment =
                 Pages_common.login_email_captcha ~state None challenge ""
               in
-              return @@ (Web_auth_sig.Html fragment, Web_auth.No_data)
+              return (Web_auth_sig.Html fragment)
             else
               let* fragment = Pages_common.login_email_not_now () in
-              return (Web_auth_sig.Html fragment, Web_auth.No_data)
+              return (Web_auth_sig.Html fragment)
         | _ ->
             if site_or_election = `Election then
               let env = { username_or_address; state; auth_instance } in
               let* () = Eliom_reference.set login_env (Some env) in
               let service = Web_services.email_election_login in
               let url = Web_services.make_absolute_string_uri ~service () in
-              return (Web_auth_sig.Redirection url, Web_auth.No_data)
+              return (Web_auth_sig.Redirection url)
             else
               let* fragment =
                 Pages_common.login_email site_or_election username_or_address
                   ~state
               in
-              return (Web_auth_sig.Html fragment, Web_auth.No_data)
+              return (Web_auth_sig.Html fragment)
 
       let direct _ _ =
         failwith "direct authentication not implemented for email"
@@ -142,7 +142,7 @@ struct
         >>= Eliom_registration.Html.send
     | _ ->
         run_post_login_handler ~state
-          { Web_auth.post_login_handler = (fun ~data:_ _ _ cont -> cont None) }
+          { Web_auth.post_login_handler = (fun _ _ cont -> cont None) }
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_election_login
@@ -191,7 +191,7 @@ struct
             run_post_login_handler ~state
               {
                 Web_auth.post_login_handler =
-                  (fun ~data:_ _ _ cont ->
+                  (fun _ _ cont ->
                     let* ok =
                       match Otp.check ~address ~code with
                       | Some () ->
@@ -206,8 +206,5 @@ struct
               }
         | None ->
             run_post_login_handler ~state:""
-              {
-                Web_auth.post_login_handler =
-                  (fun ~data:_ _ _ cont -> cont None);
-              })
+              { Web_auth.post_login_handler = (fun _ _ cont -> cont None) })
 end

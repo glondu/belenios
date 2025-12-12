@@ -146,7 +146,7 @@ struct
             in
             let service = preapply ~service:cas_login (cas_self ~state) in
             let url = Web_services.make_absolute_string_uri ~service () in
-            return (Web_auth_sig.Redirection url, Web_auth.No_data)
+            return (Web_auth_sig.Redirection url)
         | _ -> failwith "cas_login_handler invoked with bad config"
 
       let direct _ = failwith "direct authentication not implemented for CAS"
@@ -160,7 +160,7 @@ struct
     run_post_login_handler ~state
       {
         Web_auth.post_login_handler =
-          (fun ~data:_ _ a cont ->
+          (fun _ a cont ->
             match (ticket, List.assoc_opt "server" a.auth_config) with
             | Some x, Some server -> (
                 let* r = get_cas_validation server ~state x in

@@ -91,7 +91,7 @@ struct
             in
             let service = preapply ~service:auth_endpoint (callback, state) in
             let url = Web_services.make_absolute_string_uri ~service () in
-            return (Web_auth_sig.Redirection url, Web_auth.No_data)
+            return (Web_auth_sig.Redirection url)
         | _ -> failwith "belenios_login_handler invoked with bad config"
 
       let direct _ _ =
@@ -110,7 +110,7 @@ struct
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              (fun ~data:_ _ a cont ->
+              (fun _ a cont ->
                 let get x = List.assoc_opt x a.auth_config in
                 match get "server" with
                 | Some server ->

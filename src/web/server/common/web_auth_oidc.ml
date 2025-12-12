@@ -98,6 +98,7 @@ struct
         match (get "server", get "client_id") with
         | Some server, Some client_id ->
             let* ocfg = get_oidc_configuration server in
+            Web_auth.State.set_data ~state (Data_oidc ocfg);
             let prefix, path = split_prefix_path ocfg.authorization_endpoint in
             let auth_endpoint =
               Eliom_service.extern ~prefix ~path
@@ -115,7 +116,7 @@ struct
                   ("code", (client_id, ("openid email", (state, "consent")))) )
             in
             let url = Web_services.make_absolute_string_uri ~service () in
-            return (Web_auth_sig.Redirection url, Data_oidc ocfg)
+            return (Web_auth_sig.Redirection url)
         | _ -> failwith "oidc_login_handler invoked with bad config"
 
       let direct _ _ =
@@ -134,12 +135,12 @@ struct
         run_post_login_handler ~state
           {
             Web_auth.post_login_handler =
-              (fun ~data _ a cont ->
+              (fun _ a cont ->
                 let get x = List.assoc_opt x a.auth_config in
                 match (get "client_id", get "client_secret") with
                 | Some client_id, Some client_secret ->
                     let ocfg =
-                      match data with
+                      match Web_auth.State.get_data ~state with
                       | Data_oidc x -> x
                       | _ ->
                           failwith
