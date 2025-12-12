@@ -37,6 +37,7 @@ type code_message = {
   lang : string;
   recipient : recipient;
   ?uuid : uuid option;
+  ?state : string option;
   code : string;
 }
 

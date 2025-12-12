@@ -117,12 +117,12 @@ struct
     type payload = unit
     type context = unit
 
-    let send ?lang ~context:() ~recipient ~code () =
+    let send ?lang ~context:() ~recipient ?state ~code () =
       let* l = get_preferred_gettext ?lang () in
       let open (val l) in
       Send_message.send
       @@ `Account_set_email
-           { lang = Language.unwrap lang; recipient; code; uuid = None }
+           { lang = Language.unwrap lang; recipient; state; code; uuid = None }
   end
 
   module SetEmailOtp = Otp.Make (SetEmailSender) ()

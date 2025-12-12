@@ -30,16 +30,17 @@ module Sender = struct
     gettext : (module Belenios_ui.I18n.GETTEXT);
   }
 
-  let send ?lang:lang' ~context ~recipient ~code () =
+  let send ?lang:lang' ~context ~recipient ?state ~code () =
     let open (val context.gettext) in
     let lang = Option.value ~default:lang lang' |> Language.unwrap in
     match context.kind with
     | CreateAccount ->
         Send_message.send
-        @@ `Account_create { lang; recipient; code; uuid = None }
+        @@ `Account_create { lang; recipient; state; code; uuid = None }
     | ChangePassword _ ->
         Send_message.send
-        @@ `Account_change_password { lang; recipient; code; uuid = None }
+        @@ `Account_change_password
+             { lang; recipient; state; code; uuid = None }
 end
 
 module Otp = Otp.Make (Sender) ()

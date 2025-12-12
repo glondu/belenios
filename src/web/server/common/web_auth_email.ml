@@ -84,12 +84,18 @@ struct
     type payload = unit
     type context = uuid option
 
-    let send ?lang ~context ~recipient ~code () =
+    let send ?lang ~context ~recipient ?state ~code () =
       let* l = Web_i18n.get_preferred_gettext ?lang "voter" in
       let open (val l) in
       Send_message.send
       @@ `Mail_login
-           { lang = Language.unwrap lang; recipient; code; uuid = context }
+           {
+             lang = Language.unwrap lang;
+             recipient;
+             state;
+             code;
+             uuid = context;
+           }
   end
 
   module Otp = Otp.Make (Sender) ()
@@ -125,7 +131,9 @@ struct
     match (ok, address) with
     | true, Some address ->
         let recipient : Belenios_messages.recipient = { name; address } in
-        let* r = Otp.generate ?lang ~context:uuid ~recipient ~payload:() () in
+        let* r =
+          Otp.generate ?lang ~context:uuid ~recipient ~state ~payload:() ()
+        in
         Web_auth.State.set_data ~state (Data_email recipient);
         let address = if show_email_address then Some r else None in
         Pages_common.email_login ?lang ?address ~state site_or_election
@@ -194,4 +202,19 @@ struct
         | _ ->
             run_post_login_handler ~state:""
               { Web_auth.post_login_handler = (fun _ _ cont -> cont None) })
+
+  let () =
+    Eliom_registration.Any.register ~service:Web_services.email_login_link
+      (fun (state, code) () ->
+        let election_env = Web_auth.State.get_election ~state in
+        let site_or_election =
+          match election_env with Some _ -> `Election | None -> `Site
+        in
+        let lang =
+          match election_env with
+          | Some { state = Some { lang; _ }; _ } -> lang
+          | _ -> None
+        in
+        Pages_common.email_login ?lang ~code ~state site_or_election
+        >>= Eliom_registration.Html.send)
 end

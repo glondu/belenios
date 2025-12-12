@@ -29,6 +29,7 @@ module type SENDER = sig
     ?lang:lang ->
     context:context ->
     recipient:Belenios_messages.recipient ->
+    ?state:string ->
     code:string ->
     unit ->
     (string, unit) result Lwt.t
@@ -42,6 +43,7 @@ module type S = sig
     ?lang:lang ->
     context:context ->
     recipient:Belenios_messages.recipient ->
+    ?state:string ->
     payload:payload ->
     unit ->
     (string, unit) result Lwt.t

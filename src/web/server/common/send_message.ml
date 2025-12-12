@@ -91,17 +91,17 @@ let send ?internal (msg : message) =
   in
   let* reason, admin_id, uuid, { recipient; subject; body } =
     match msg with
-    | `Account_create { lang; recipient; code; uuid } ->
+    | `Account_create { lang; recipient; code; uuid; _ } ->
         let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_confirmation_link l ~recipient ~code in
         Lwt.return ("account-creation", "", uuid, t)
-    | `Account_change_password { lang; recipient; code; uuid } ->
+    | `Account_change_password { lang; recipient; code; uuid; _ } ->
         let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_changepw_link l ~recipient ~code in
         Lwt.return ("password-change", "", uuid, t)
-    | `Account_set_email { lang; recipient; code; uuid } ->
+    | `Account_set_email { lang; recipient; code; uuid; _ } ->
         let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_set_email l ~recipient ~code in
@@ -121,10 +121,10 @@ let send ?internal (msg : message) =
           Mails_voter.mail_confirmation l uuid ~title confirmation contact
         in
         Lwt.return ("confirmation", "", Some uuid, t)
-    | `Mail_login { lang; recipient; code; uuid } ->
+    | `Mail_login { lang; recipient; state; code; uuid } ->
         let lang = Language.get lang in
         let* l = Web_i18n.get ~component:"voter" ~lang in
-        let t = Mails_voter.email_login l ~recipient ~code in
+        let t = Mails_voter.email_login l ~recipient ?state ~code () in
         Lwt.return ("login", "", uuid, t)
     | `Credentials_seed m ->
         let lang = Language.get m.lang in

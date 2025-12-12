@@ -292,6 +292,12 @@ module Make () = struct
 
   let () = Api.get_result := Web_auth.State.get_result
 
+  let () =
+    Mails_voter.make_login_link :=
+      fun x ->
+        let open X.Web_services in
+        make_absolute_string_uri ~service:email_login_link x
+
   module Web_auth_dummy =
     Web_auth_dummy.Make (X.Web_services) (X.Pages_common) (Web_auth)
 

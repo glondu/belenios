@@ -183,6 +183,12 @@ module Make () = struct
       ~meth:(Post (unit, string "state" ** string "code"))
       ()
 
+  let email_login_link =
+    create
+      ~path:(Path [ "actions"; "email-login" ])
+      ~meth:(Get (suffix (string "state" ** string "code")))
+      ()
+
   let password_post =
     create ~csrf_safe:true ~path:No_path
       ~meth:

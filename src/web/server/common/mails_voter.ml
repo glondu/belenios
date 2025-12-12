@@ -329,7 +329,10 @@ let mail_confirmation l uuid ~title x contact =
   ({ recipient = x.recipient; subject; body = contents b }
     : Belenios_messages.text_message)
 
-let email_login l ~(recipient : Belenios_web_api.recipient) ~code =
+(* Forward reference set in Web_main *)
+let make_login_link = ref (fun _ -> failwith "make_login_link")
+
+let email_login l ~(recipient : Belenios_web_api.recipient) ?state ~code () =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in
@@ -347,6 +350,19 @@ let email_login l ~(recipient : Belenios_web_api.recipient) ~code =
   add_string b code;
   add_newline b;
   add_newline b;
+  let () =
+    match state with
+    | None -> ()
+    | Some state ->
+        let link = !make_login_link (state, code) in
+        add_sentence b (s_ "Alternatively, you can follow the link:");
+        add_newline b;
+        add_newline b;
+        add_string b "  ";
+        add_string b link;
+        add_newline b;
+        add_newline b
+  in
   add_sentence b
     (s_
        "Warning: this code is valid for 15 minutes, and previous codes sent to \

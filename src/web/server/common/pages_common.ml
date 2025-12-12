@@ -435,7 +435,7 @@ struct
     in
     base ~title ~content ()
 
-  let email_login ?lang ?address ~state site_or_election =
+  let email_login ?lang ?address ?code ~state site_or_election =
     let* l = get_preferred_gettext ?lang () in
     let open (val l) in
     let form address =
@@ -462,10 +462,27 @@ struct
           ])
         ()
     in
+    let form_code code =
+      post_form ~service:email_login_post
+        (fun (lstate, lcode) ->
+          let msg =
+            match site_or_election with
+            | `Site -> s_ "You are authenticating as an administrator."
+            | `Election -> s_ "You are authenticating as a voter."
+          in
+          [
+            input ~input_type:`Hidden ~name:lstate ~value:state string;
+            input ~input_type:`Hidden ~name:lcode ~value:code string;
+            div [ txt msg ];
+            div [ input ~input_type:`Submit ~value:(s_ "Confirm") string ];
+          ])
+        ()
+    in
     let content =
-      match address with
-      | None -> [ form (txt "") ]
-      | Some (Ok address) ->
+      match (code, address) with
+      | Some code, _ -> [ form_code code ]
+      | _, None -> [ form (txt "") ]
+      | _, Some (Ok address) ->
           let address =
             div
               [
@@ -476,7 +493,7 @@ struct
               ]
           in
           [ form address ]
-      | Some (Error ()) ->
+      | _, Some (Error ()) ->
           [ div [ txt @@ s_ "You cannot authenticate right now." ] ]
     in
     let title =

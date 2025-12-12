@@ -48,8 +48,12 @@ val mail_confirmation :
   string option ->
   text_message
 
+val make_login_link : (string * string -> string) ref
+
 val email_login :
   (module Belenios_ui.I18n.GETTEXT) ->
   recipient:recipient ->
+  ?state:string ->
   code:string ->
+  unit ->
   text_message

@@ -425,6 +425,21 @@ module type S = sig
       Eliom_service.non_ocaml )
     Eliom_service.t
 
+  val email_login_link :
+    ( string * string,
+      unit,
+      Eliom_service.get,
+      Eliom_service.att,
+      Eliom_service.non_co,
+      Eliom_service.non_ext,
+      Eliom_service.reg,
+      [ `WithSuffix ],
+      [ `One of string ] Eliom_parameter.param_name
+      * [ `One of string ] Eliom_parameter.param_name,
+      unit,
+      Eliom_service.non_ocaml )
+    Eliom_service.t
+
   val password_post :
     ( unit,
       string * (string * string),
