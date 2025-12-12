@@ -603,7 +603,9 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
                 in
                 Language.of_string_opt lang
               in
-              let* state = State.create s uuid { lang; ballot; precast_data } in
+              let* state =
+                State.create_election s uuid { lang; ballot; precast_data }
+              in
               let json =
                 match state with
                 | None -> `Assoc []

@@ -38,7 +38,7 @@ struct
     let open Eliom_registration in
     Any.register ~service:get_context (fun state () ->
         let context : Belenios_web_api.connect_context =
-          match Web_auth.State.get ~state with
+          match Web_auth.State.get_election ~state with
           | Some x ->
               let username =
                 match x.user with

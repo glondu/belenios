@@ -48,11 +48,22 @@ type auth_system = {
 }
 
 type timestamped_user = { user : user; timestamp : float option }
-type env = { uuid : uuid; state : state option; user : timestamped_user option }
+
+type election_env = {
+  uuid : uuid;
+  state : state option;
+  user : timestamped_user option;
+}
+
+type auth_env = {
+  username_or_address : [ `Username | `Address ];
+  auth_instance : string;
+}
 
 module type STATE = sig
-  val create : Storage.t -> uuid -> state -> string option Lwt.t
-  val get : state:string -> env option
+  val get_auth : state:string -> auth_env option
+  val create_election : Storage.t -> uuid -> state -> string option Lwt.t
+  val get_election : state:string -> election_env option
   val del : state:string -> unit
   val get_data : state:string -> data
   val set_data : state:string -> data -> unit

@@ -435,13 +435,14 @@ struct
     in
     base ~title ~content ()
 
-  let email_login ?lang ?address site_or_election =
+  let email_login ?lang ?address ~state site_or_election =
     let* l = get_preferred_gettext ?lang () in
     let open (val l) in
     let form address =
       post_form ~service:email_login_post
-        (fun lcode ->
+        (fun (lstate, lcode) ->
           [
+            input ~input_type:`Hidden ~name:lstate ~value:state string;
             address;
             div
               [

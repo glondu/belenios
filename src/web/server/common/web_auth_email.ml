@@ -26,12 +26,6 @@ open Belenios_storage_api
 open Belenios_server_core
 open Web_common
 
-type login_env = {
-  username_or_address : [ `Username | `Address ];
-  state : string;
-  auth_instance : string;
-}
-
 module Make
     (Web_i18n : Web_i18n_sig.S)
     (Web_state : Web_state_sig.S)
@@ -39,21 +33,15 @@ module Make
     (Pages_common : Pages_common_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
+  type Web_auth_sig.data += Data_email of Belenios_messages.recipient
+
   module Captcha_throttle = Lwt_throttle.Make (Int)
 
   let captcha_throttle = Captcha_throttle.create ~rate:1 ~max:5 ~n:1
 
-  let scope =
-    `Session (Eliom_common.create_scope_hierarchy "belenios-auth-email")
-
-  let uuid_ref = Eliom_reference.eref ~scope None
-  let env = Eliom_reference.eref ~scope None
-  let login_env = Eliom_reference.eref ~scope None
-
-  let handler uuid { auth_config; auth_instance; _ } =
+  let handler uuid ({ auth_config; _ } : auth_config) =
     let module X = struct
       let pre_login_handler username_or_address ~state =
-        let* () = Eliom_reference.set uuid_ref uuid in
         let site_or_election =
           match uuid with None -> `Site | Some _ -> `Election
         in
@@ -69,19 +57,20 @@ struct
             else
               let* fragment = Pages_common.login_email_not_now () in
               return (Web_auth_sig.Html fragment)
-        | _ ->
-            if site_or_election = `Election then
-              let env = { username_or_address; state; auth_instance } in
-              let* () = Eliom_reference.set login_env (Some env) in
-              let service = Web_services.email_election_login in
-              let url = Web_services.make_absolute_string_uri ~service () in
-              return (Web_auth_sig.Redirection url)
-            else
-              let* fragment =
-                Pages_common.login_email site_or_election username_or_address
-                  ~state
-              in
-              return (Web_auth_sig.Html fragment)
+        | _ -> (
+            match site_or_election with
+            | `Election ->
+                let service = Web_services.email_election_login in
+                let url =
+                  Web_services.make_absolute_string_uri ~service state
+                in
+                return (Web_auth_sig.Redirection url)
+            | `Site ->
+                let* fragment =
+                  Pages_common.login_email site_or_election username_or_address
+                    ~state
+                in
+                return (Web_auth_sig.Html fragment))
 
       let direct _ _ =
         failwith "direct authentication not implemented for email"
@@ -107,7 +96,11 @@ struct
 
   let handle_email_post ~state ?(show_email_address = false) name ok =
     let name = String.trim name in
-    let* uuid = Eliom_reference.get uuid_ref in
+    let election_env = Web_auth.State.get_election ~state in
+    let uuid =
+      let@ { uuid; _ } = Option.bind election_env in
+      Some uuid
+    in
     let* address, site_or_election =
       match uuid with
       | None -> return ((if is_email name then Some name else None), `Site)
@@ -125,20 +118,17 @@ struct
           return (address, `Election)
     in
     let lang =
-      match Web_auth.State.get ~state with
+      match election_env with
       | Some { state = Some { lang; _ }; _ } -> lang
       | _ -> None
     in
     match (ok, address) with
     | true, Some address ->
-        let* r =
-          Otp.generate ?lang ~context:uuid ~recipient:{ name; address }
-            ~payload:() ()
-        in
-        let* () = Eliom_reference.set env (Some (state, name, address)) in
-        let* () = Eliom_reference.unset uuid_ref in
+        let recipient : Belenios_messages.recipient = { name; address } in
+        let* r = Otp.generate ?lang ~context:uuid ~recipient ~payload:() () in
+        Web_auth.State.set_data ~state (Data_email recipient);
         let address = if show_email_address then Some r else None in
-        Pages_common.email_login ?lang ?address site_or_election
+        Pages_common.email_login ?lang ?address ~state site_or_election
         >>= Eliom_registration.Html.send
     | _ ->
         run_post_login_handler ~state
@@ -146,15 +136,11 @@ struct
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_election_login
-      (fun () () ->
-        let* env = Eliom_reference.get login_env in
-        match env with
-        | None ->
-            Pages_common.authentication_impossible ()
-            >>= Eliom_registration.Html.send
-        | Some { username_or_address; state; auth_instance } -> (
+      (fun state () ->
+        match Web_auth.State.get_auth ~state with
+        | Some { username_or_address; auth_instance } -> (
             let@ precast_data cont =
-              let x = Web_auth.State.get ~state in
+              let x = Web_auth.State.get_election ~state in
               match x with
               | Some { state = Some { precast_data; _ }; _ } ->
                   cont (Some precast_data)
@@ -169,7 +155,10 @@ struct
                 in
                 let* title = Pages_common.login_title `Election auth_instance in
                 Pages_common.base ~title ~content:[ fragment ] ()
-                >>= Eliom_registration.Html.send))
+                >>= Eliom_registration.Html.send)
+        | _ ->
+            Pages_common.authentication_impossible ()
+            >>= Eliom_registration.Html.send)
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_post
@@ -183,11 +172,10 @@ struct
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.email_login_post
-      (fun () code ->
+      (fun () (state, code) ->
         let code = String.trim code in
-        let* x = Eliom_reference.get env in
-        match x with
-        | Some (state, login, address) ->
+        match Web_auth.State.get_data ~state with
+        | Data_email { name = login; address } ->
             run_post_login_handler ~state
               {
                 Web_auth.post_login_handler =
@@ -195,7 +183,6 @@ struct
                     let* ok =
                       match Otp.check ~address ~code with
                       | Some () ->
-                          let* () = Eliom_state.discard ~scope () in
                           let info : Belenios_web_api.user_info =
                             { login; address = Some address; timestamp = None }
                           in
@@ -204,7 +191,7 @@ struct
                     in
                     cont ok);
               }
-        | None ->
+        | _ ->
             run_post_login_handler ~state:""
               { Web_auth.post_login_handler = (fun _ _ cont -> cont None) })
 end

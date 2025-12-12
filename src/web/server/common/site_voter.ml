@@ -88,7 +88,7 @@ struct
   let () =
     Any.register ~service:election_cast_confirm (fun state () ->
         let@ env cont =
-          let x = Web_auth.State.get ~state in
+          let x = Web_auth.State.get_election ~state in
           match x with Some x -> cont x | None -> fail_http `Forbidden
         in
         let uuid = env.uuid in

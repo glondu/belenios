@@ -380,7 +380,7 @@ module type S = sig
     Eliom_service.t
 
   val email_election_login :
-    ( unit,
+    ( string,
       unit,
       Eliom_service.get,
       Eliom_service.non_att,
@@ -388,7 +388,7 @@ module type S = sig
       Eliom_service.non_ext,
       Eliom_service.reg,
       [ `WithoutSuffix ],
-      unit,
+      [ `One of string ] Eliom_parameter.param_name,
       unit,
       Eliom_service.non_ocaml )
     Eliom_service.t
@@ -412,7 +412,7 @@ module type S = sig
 
   val email_login_post :
     ( unit,
-      string,
+      string * string,
       Eliom_service.post,
       Eliom_service.non_att,
       Eliom_service.co,
@@ -420,7 +420,8 @@ module type S = sig
       Eliom_service.reg,
       [ `WithoutSuffix ],
       unit,
-      [ `One of string ] Eliom_parameter.param_name,
+      [ `One of string ] Eliom_parameter.param_name
+      * [ `One of string ] Eliom_parameter.param_name,
       Eliom_service.non_ocaml )
     Eliom_service.t
 

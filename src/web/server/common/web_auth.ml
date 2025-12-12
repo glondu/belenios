@@ -250,7 +250,7 @@ struct
     auth_systems := (auth_system, handler) :: !auth_systems;
     run_post_login_handler ~auth_system
 
-  let rec find_auth_instance x = function
+  let rec find_auth_instance x : auth_config list -> _ = function
     | [] -> None
     | ({ auth_instance = i; _ } as y) :: _ when i = x -> Some y
     | _ :: xs -> find_auth_instance x xs
@@ -307,7 +307,7 @@ struct
                     in
                     let* page =
                       Pages_common.login_choose
-                        (List.map (fun x -> x.auth_instance) c)
+                        (List.map (fun (x : auth_config) -> x.auth_instance) c)
                         builder ()
                     in
                     Eliom_registration.Html.send page)
@@ -396,7 +396,13 @@ struct
     | None -> fail ()
 
   module State = struct
-    let create storage uuid state =
+    let get_auth ~state =
+      let@ { username_or_address; auth_config = { auth_instance; _ }; _ } =
+        Option.bind (get_auth_env ~state)
+      in
+      Some { username_or_address; auth_instance }
+
+    let create_election storage uuid state =
       let credential = state.precast_data.credential in
       let () =
         match SMap.find_opt credential !cred_env with
@@ -423,7 +429,7 @@ struct
           Lwt.return_some state
       | _ -> Lwt.return_none
 
-    let get ~state =
+    let get_election ~state =
       let@ { state; user; kind; _ } = Option.bind (get_auth_env ~state) in
       match kind with
       | `Election uuid -> Some Web_auth_sig.{ state; user; uuid }
