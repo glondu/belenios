@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PROJECT_NAME=belenios
+
 set -e
 
 DIR="$1"
@@ -17,8 +19,8 @@ NAME="${DIR##*/}"
 
 CAPFLAGS=--drop-capability=CAP_AUDIT_CONTROL,CAP_AUDIT_WRITE,CAP_FSETID,CAP_IPC_OWNER,CAP_LEASE,CAP_LINUX_IMMUTABLE,CAP_MKNOD,CAP_NET_BIND_SERVICE,CAP_NET_BROADCAST,CAP_NET_RAW,CAP_SETFCAP,CAP_SYS_NICE,CAP_SYS_PTRACE,CAP_SYS_RESOURCE,CAP_SYS_TTY_CONFIG
 
-if [ -d "$DIR/belenios/var" ]; then
-    exec systemd-nspawn --image=$DIR/rootfs.squashfs --overlay=+/var::/var --bind-ro=$DIR/belenios/etc:/etc/belenios --bind=$DIR/belenios/var:/var/belenios --machine=belenios-$NAME $CAPFLAGS "$@"
+if [ -d "$DIR/$PROJECT_NAME/var" ]; then
+    exec systemd-nspawn --image=$DIR/rootfs.squashfs --overlay=+/var::/var --bind-ro=$DIR/$PROJECT_NAME/etc:/etc/$PROJECT_NAME --bind=$DIR/$PROJECT_NAME/var:/var/$PROJECT_NAME --machine=$PROJECT_NAME-$NAME $CAPFLAGS "$@"
 else
-    exec systemd-nspawn --image=$DIR/rootfs.squashfs --overlay=+/var::/var --bind=$DIR/belenios:/var/belenios --machine=belenios-$NAME $CAPFLAGS "$@"
+    exec systemd-nspawn --image=$DIR/rootfs.squashfs --overlay=+/var::/var --bind=$DIR/$PROJECT_NAME:/var/$PROJECT_NAME --machine=$PROJECT_NAME-$NAME $CAPFLAGS "$@"
 fi
