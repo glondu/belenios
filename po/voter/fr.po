@@ -159,7 +159,7 @@ msgstr "Vous pouvez également téléverser un fichier contenant votre bulletin�
 
 #: src/web/server/common/mails_voter.ml:358
 msgid "Alternatively, you can follow the link:"
-msgstr ""
+msgstr "Vous pouvez également suivre le lien :"
 
 #: src/web/clients/election/home.ml:744
 msgid "Audit data not available."
@@ -252,7 +252,7 @@ msgstr "Empreinte calculée :"
 
 #: src/web/server/common/pages_common.ml:477
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmer"
 
 #: src/web/clients/jslib/belenios_jslib.ml:142
 msgid "Could not get server configuration!"
@@ -521,7 +521,7 @@ msgstr "Voir les bulletins acceptés"
 
 #: src/web/clients/jslib/belenios_jslib.ml:336
 msgid "Session expired"
-msgstr ""
+msgstr "Session expirée"
 
 #: src/web/server/common/pages_common.ml:172
 msgid "Set"
@@ -716,11 +716,11 @@ msgstr "Vous avez le droit de voter plusieurs fois."
 
 #: src/web/server/common/pages_common.ml:471
 msgid "You are authenticating as a voter."
-msgstr ""
+msgstr "Vous êtes en train de vous authentifier en tant qu'électeur."
 
 #: src/web/server/common/pages_common.ml:470
 msgid "You are authenticating as an administrator."
-msgstr ""
+msgstr "Vous êtes en train de vous authentifier en tant qu'administrateur."
 
 #: src/web/server/common/mails_voter.ml:190
 msgid "You are listed as a voter for the election"
