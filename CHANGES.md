@@ -5,22 +5,35 @@
  * Command-line tool:
    + Add "archive pull"
  * Web server:
-   + Add support for per-election logo
-   + Remove direct download of full election archive (its content is
-     accessible via the API and with "belenios-tool archive pull")
-   + Add support for external send_message service
-   + Make voter address optional
-   + Add send-message endpoints to API
-   + Add support for encoding recipient in bouncing address
-   + Possibly add Feedback-ID header to outbound e-mails
-   + Add support for a new "Belenios Connect" authentication protocol
-   + Document authentication protocols
-   + Change and document billing protocol
-   + Add support for a grace period (requires an external
-     authentication server implementing Belenios Connect)
-   + Add possibility to add a description in <auth-export>
-   + Add an external credential authority protocol
-   + Display number of registered voters in voter list tab
+   + General election management
+     - Add support for per-election logo
+     - Remove direct download of full election archive (its content is
+       accessible via the API and with "belenios-tool archive pull")
+     - Make voter address optional
+     - Add support for a grace period (requires an external
+       authentication server implementing Belenios Connect)
+   + Interoperability APIs
+     - Add support for external send_message service
+     - Add send-message endpoints to API
+     - Add support for a new "Belenios Connect" authentication protocol
+     - Document authentication protocols
+     - Change and document billing protocol
+     - Add an external credential authority protocol
+   + Server administration
+     - Add support for encoding recipient in bouncing address
+     - Possibly add Feedback-ID header to outbound e-mails
+     - Add possibility to add a description in `<auth-export>`
+   + Administrator interface
+     - Display number of registered voters in voter list tab
+     - Display account-specific voters_limit if present
+     - Marked up text must be valid XML and enclosed in a `<markup>`
+       element
+   + Voter interface
+     - Add link to object in downloadable smart ballot tracker
+     - Avoid using a new window for voter authentication
+     - Fix localization of email authentication process
+   + Miscellaneous
+     - Add a link to email login e-mails
  * Monitoring:
    + Randomize User-Agent in monitor_elections.py
 
