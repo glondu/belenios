@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
@@ -15,19 +16,19 @@ msgstr ""
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "X-Generator: Weblate 5.15-dev\n"
 
-#: src/web/server/common/pages_common.ml:339
+#: src/web/server/common/pages_common.ml:340
 msgid " (if you forgot it, for example)."
 msgstr " (наприклад, якщо ви забули)."
 
-#: src/web/common/pages_common.ml:240
+#: src/web/common/pages_common.ml:238
 msgid " A confirmation e-mail has been sent to you."
 msgstr " Вам було надіслано електронний лист із підтвердженням."
 
-#: src/web/common/pages_common.ml:238
+#: src/web/common/pages_common.ml:236
 msgid " anytime during the election."
 msgstr " будь-коли під час виборів."
 
-#: src/web/common/pages_common.ml:227
+#: src/web/common/pages_common.ml:225
 msgid " as user "
 msgstr " як користувач "
 
@@ -47,7 +48,7 @@ msgstr " бюлетень(-і) було прийнято."
 msgid " for more information."
 msgstr " для додаткової інформації."
 
-#: src/web/common/pages_common.ml:229
+#: src/web/common/pages_common.ml:227
 msgid " has been accepted."
 msgstr " було прийнято."
 
@@ -55,11 +56,11 @@ msgstr " було прийнято."
 msgid " have been tallied."
 msgstr " було підраховано."
 
-#: src/web/server/common/pages_common.ml:523
+#: src/web/server/common/pages_common.ml:542
 msgid " in the following box: "
 msgstr " у наступному полі: "
 
-#: src/web/common/pages_common.ml:246
+#: src/web/common/pages_common.ml:244
 msgid " is rejected, because "
 msgstr " відхиляється, оскільки "
 
@@ -85,15 +86,15 @@ msgstr "%d дійсний (непорожній) бюлетень(и)"
 msgid "%d valid ballot(s)"
 msgstr "%d дійсних бюлетенів"
 
-#: src/web/clients/election/advanced.ml:141
+#: src/web/clients/election/advanced.ml:136
 msgid "(available in the "
 msgstr "(доступний у "
 
-#: src/web/clients/election/advanced.ml:143
+#: src/web/clients/election/advanced.ml:138
 msgid "), or any compatible booth."
 msgstr "), або будь-який сумісний стенд."
 
-#: src/web/server/common/pages_common.ml:335
+#: src/web/server/common/pages_common.ml:336
 msgid ", or "
 msgstr ", або "
 
@@ -109,11 +110,11 @@ msgstr ""
 "Бюлетень недійсний, якщо двом кандидатам було надано однаковий порядок "
 "уподобань або якщо ранг відсутній."
 
-#: src/web/clients/election/advanced.ml:146
+#: src/web/clients/election/advanced.ml:141
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr "Специфікація зашифрованих бюлетенів також доступна в джерелах."
 
-#: src/web/server/common/pages_common.ml:472
+#: src/web/server/common/pages_common.ml:491
 msgid "A verification code has been sent to %s."
 msgstr "Код підтвердження надіслано на %s."
 
@@ -129,11 +130,11 @@ msgstr "Прийняті бюлетені"
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Згідно з рішенням більшості, рейтинг такий:"
 
-#: src/web/server/common/pages_common.ml:91
+#: src/web/server/common/pages_common.ml:92
 msgid "Administer elections"
 msgstr "Керувати виборами"
 
-#: src/web/clients/election/common.ml:62 src/web/server/common/pages_common.ml:97
+#: src/web/clients/election/common.ml:62 src/web/server/common/pages_common.ml:98
 msgid "Administer this election"
 msgstr "Керувати цими виборами"
 
@@ -141,7 +142,7 @@ msgstr "Керувати цими виборами"
 msgid "Administrator"
 msgstr "Адміністратор"
 
-#: src/web/clients/election/advanced.ml:55 src/web/clients/election/common.ml:58
+#: src/web/clients/election/advanced.ml:52 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
 msgstr "Розширений режим"
 
@@ -151,11 +152,15 @@ msgstr ""
 "Для розшифровки результату потрібні всі наступні довірені особи (ключі "
 "перевірки):"
 
-#: src/web/clients/election/advanced.ml:111
+#: src/web/clients/election/advanced.ml:108
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "Крім того, ви також можете завантажити файл із вашим голосуванням:"
 
-#: src/web/clients/election/home.ml:745
+#: src/web/server/common/mails_voter.ml:358
+msgid "Alternatively, you can follow the link:"
+msgstr ""
+
+#: src/web/clients/election/home.ml:744
 msgid "Audit data not available."
 msgstr "Дані аудиту недоступні."
 
@@ -163,51 +168,51 @@ msgstr "Дані аудиту недоступні."
 msgid "Audit data: "
 msgstr "Дані аудиту: "
 
-#. src/web/server/common/pages_common.ml:403
-#. src/web/server/common/pages_common.ml:311
-#: src/web/server/common/pages_common.ml:483
+#: src/web/server/common/pages_common.ml:502
+#. src/web/server/common/pages_common.ml:404
+#. src/web/server/common/pages_common.ml:312
 msgid "Authenticate"
 msgstr "Аутентифікувати"
 
-#: src/web/server/common/pages_common.ml:242
+#: src/web/server/common/pages_common.ml:243
 msgid "Authenticate with %s"
 msgstr "Автентифікація за допомогою %s"
 
-#: src/web/server/common/mails_voter.ml:361
+#: src/web/server/common/mails_voter.ml:379
 msgid "Authentication"
 msgstr "Аутентифікація"
 
-#: src/web/server/common/pages_common.ml:417
+#: src/web/server/common/pages_common.ml:418
 msgid "Authentication failed"
 msgstr "Помилка аутентифікації"
 
-#: src/web/server/common/pages_common.ml:423
+#: src/web/server/common/pages_common.ml:424
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Помилка аутентифікації, можливо, через неправильне ім’я користувача чи "
 "пароль, або вам не дозволено виконувати цю операцію."
 
-#: src/web/server/common/pages_common.ml:548
+#: src/web/server/common/pages_common.ml:567
 msgid "Authentication impossible"
 msgstr "Автентифікація неможлива"
 
-#: src/web/server/common/pages_common.ml:543
+#: src/web/server/common/pages_common.ml:562
 msgid "Authentication is impossible."
 msgstr "Автентифікація неможлива."
 
-#: src/web/clients/election/advanced.ml:155
+#: src/web/clients/election/advanced.ml:150
 msgid "Back to election home"
 msgstr "Назад до виборчого будинку"
 
-#: src/web/server/common/pages_common.ml:499
+#: src/web/server/common/pages_common.ml:518
 msgid "Bad e-mail address!"
 msgstr "Неправильна адреса електронної пошти!"
 
-#: src/web/server/common/pages_common.ml:498
+#: src/web/server/common/pages_common.ml:517
 msgid "Bad security code!"
 msgstr "Поганий код безпеки!"
 
-#: src/web/server/common/mails_voter.ml:354
+#: src/web/server/common/mails_voter.ml:372
 msgid "Best regards,"
 msgstr "З повагою,"
 
@@ -215,19 +220,19 @@ msgstr "З повагою,"
 msgid "Blank vote"
 msgstr "Протестний голос"
 
-#: src/web/clients/election/advanced.ml:150
+#: src/web/clients/election/advanced.ml:145
 msgid "Booths available on this server:"
 msgstr "Кабінки, доступні на цьому сервері:"
 
-#: src/web/clients/common/secondary_ui.ml:93
+#: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
 msgstr "Використовуючи цей сайт, ви приймаєте нашу "
 
-#: src/web/server/common/pages_common.ml:558
+#: src/web/server/common/pages_common.ml:577
 msgid "Click here"
 msgstr "Натисніть тут"
 
-#: src/web/clients/common/secondary_ui.ml:103
+#: src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
 msgstr "Зачинено"
 
@@ -243,6 +248,10 @@ msgstr "Обчислити відбиток пальця"
 msgid "Computed fingerprint:"
 msgstr "Обчислений відбиток пальця:"
 
+#: src/web/server/common/pages_common.ml:477
+msgid "Confirm"
+msgstr ""
+
 #: src/web/clients/jslib/belenios_jslib.ml:142
 msgid "Could not get server configuration!"
 msgstr "Не вдалося отримати конфігурацію сервера!"
@@ -255,14 +264,14 @@ msgstr "Орган повноважень"
 msgid "Credentials fingerprint"
 msgstr "Відбиток облікових даних"
 
-#. src/web/server/common/mails_voter.ml:283
-#: src/web/server/common/mails_voter.ml:334
+#: src/web/server/common/mails_voter.ml:339
+#. src/web/server/common/mails_voter.ml:285
 msgid "Dear %s,"
 msgstr "Шановний(-а) %s,"
 
-#. src/web/server/common/pages_common.ml:346
-#. src/web/server/common/pages_common.ml:278
-#: src/web/server/common/pages_common.ml:512
+#: src/web/server/common/pages_common.ml:531
+#. src/web/server/common/pages_common.ml:347
+#. src/web/server/common/pages_common.ml:279
 msgid "E-mail address:"
 msgstr "Адреса електронної пошти:"
 
@@ -278,7 +287,7 @@ msgstr "Виборчий будинок"
 msgid "Election identifier"
 msgstr "Виборчий ідентифікатор"
 
-#: src/web/clients/jslib/belenios_jslib.ml:261
+#: src/web/clients/jslib/belenios_jslib.ml:271
 msgid "Election public URL"
 msgstr "Публічна URL-адреса виборів"
 
@@ -286,7 +295,7 @@ msgstr "Публічна URL-адреса виборів"
 msgid "Election server"
 msgstr "Виборчий сервер"
 
-#: src/web/clients/election/advanced.ml:60
+#: src/web/clients/election/advanced.ml:57
 msgid "Encrypted ballot in JSON format"
 msgstr "Зашифрований бюлетень у форматі JSON"
 
@@ -302,11 +311,11 @@ msgstr "Помилка під час завантаження бюлетенів
 msgid "Expected fingerprint:"
 msgstr "Очікуваний відбиток пальця:"
 
-#: src/web/common/pages_common.ml:250
+#: src/web/common/pages_common.ml:248
 msgid "FAIL!"
 msgstr "Помилка!"
 
-#: src/web/clients/election/advanced.ml:115
+#: src/web/clients/election/advanced.ml:112
 msgid "File:"
 msgstr "Файл:"
 
@@ -318,7 +327,7 @@ msgstr "Остаточний відбиток пальця"
 msgid "Fingerprint of the encrypted tally"
 msgstr "Відбиток зашифрованого рахунку"
 
-#: src/web/server/common/site_common.ml:107
+#: src/web/server/common/site_common.ml:108
 msgid "Forbidden"
 msgstr "Заборонено"
 
@@ -326,12 +335,12 @@ msgstr "Заборонено"
 msgid "Get the source code"
 msgstr "Отримати вихідний код"
 
-#. src/web/common/pages_common.ml:265
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:263
 msgid "Go back to election"
 msgstr "Повернутися до виборів"
 
-#: src/web/server/common/mails_voter.ml:210
+#: src/web/server/common/mails_voter.ml:211
 msgid "If the above link does not work:"
 msgstr "Якщо посилання вище не працює:"
 
@@ -363,7 +372,7 @@ msgstr "Він відкриється о %s (залишився час: %s)."
 msgid "JSON result"
 msgstr "Результат JSON"
 
-#: src/web/server/common/pages_common.ml:164 src/web/common/pages_common.ml:88
+#: src/web/server/common/pages_common.ml:165 src/web/common/pages_common.ml:88
 msgid "Language:"
 msgstr "Мова:"
 
@@ -371,14 +380,14 @@ msgstr "Мова:"
 msgid "Loading..."
 msgstr "Завантаження..."
 
-#. src/web/server/common/pages_common.ml:402
-#. src/web/server/common/pages_common.ml:310
-#. src/web/server/common/pages_common.ml:270
-#: src/web/server/common/pages_common.ml:482
+#: src/web/server/common/pages_common.ml:501
+#. src/web/server/common/pages_common.ml:403
+#. src/web/server/common/pages_common.ml:311
+#. src/web/server/common/pages_common.ml:271
 msgid "Log in"
 msgstr "Вхід"
 
-#: src/web/server/common/pages_common.ml:241
+#: src/web/server/common/pages_common.ml:242
 msgid "Log in with %s"
 msgstr "Увійдіть за допомогою %s"
 
@@ -392,7 +401,7 @@ msgstr ""
 "Існує багато варіантів STV, залежно, наприклад, від того, як розірвати "
 "зв’язки."
 
-#: src/web/server/common/pages_common.ml:545
+#: src/web/server/common/pages_common.ml:564
 msgid "Maybe cookies are blocked."
 msgstr "Можливо, файли cookie заблоковані."
 
@@ -414,13 +423,13 @@ msgstr "Кількість прийнятих бюлетенів: "
 msgid "Number of voters"
 msgstr "Кількість виборців"
 
+#: src/web/server/common/mails_voter.ml:228
 #. src/web/server/common/mails_voter.ml:123
-#: src/web/server/common/mails_voter.ml:227
 msgid "Number of votes:"
 msgstr "Кількість голосів:"
 
+#: src/web/server/common/mails_voter.ml:235
 #. src/web/server/common/mails_voter.ml:134
-#: src/web/server/common/mails_voter.ml:234
 msgid "Only the last vote counts."
 msgstr "Тільки останній голос враховується."
 
@@ -428,16 +437,16 @@ msgstr "Тільки останній голос враховується."
 msgid "Page of the election:"
 msgstr "Сторінка виборів:"
 
+#: src/web/server/common/pages_common.ml:383
 #. src/web/server/common/mails_voter.ml:116
-#: src/web/server/common/pages_common.ml:382
 msgid "Password:"
 msgstr "Пароль:"
 
-#: src/web/server/common/pages_common.ml:521
+#: src/web/server/common/pages_common.ml:540
 msgid "Please enter "
 msgstr "Будь ласка, введіть "
 
-#: src/web/server/common/pages_common.ml:455
+#: src/web/server/common/pages_common.ml:457
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Будь ласка, введіть код підтвердження, отриманий електронною поштою:"
 
@@ -445,7 +454,7 @@ msgstr "Будь ласка, введіть код підтвердження, �
 msgid "Please find below your login and password for the election"
 msgstr "Нижче наведено Ваш логін і пароль для участі у виборах"
 
-#: src/web/server/common/pages_common.ml:264
+#: src/web/server/common/pages_common.ml:265
 msgid "Please log in:"
 msgstr "Будь ласка, увійдіть:"
 
@@ -455,33 +464,29 @@ msgstr ""
 "Будь ласка, вставте дані, для яких ви хочете обчислити відбиток, у текстову "
 "область нижче:"
 
-#: src/web/clients/election/advanced.ml:72
+#: src/web/clients/election/advanced.ml:69
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr "Вставте свій зашифрований бюлетень у форматі JSON у таке поле:"
 
-#: src/web/server/common/mails_voter.ml:196
+#: src/web/server/common/mails_voter.ml:197
 msgid "Please vote here using your personal link:"
 msgstr "Будь ласка, проголосуйте тут за особистим посиланням:"
-
-#: src/web/clients/election/advanced.ml:257
-msgid "Please wait while your ballot is being processed..."
-msgstr "Будь ласка, зачекайте, поки ваш бюлетень обробляється..."
 
 #: src/web/common/pages_common.ml:61
 msgid "Powered by "
 msgstr "Працює на "
 
-#. src/web/server/common/pages_common.ml:223
-#. src/web/server/common/pages_common.ml:215
-#: src/web/clients/election/advanced.ml:248
+#: src/web/clients/election/advanced.ml:221
+#. src/web/server/common/pages_common.ml:224
+#. src/web/server/common/pages_common.ml:216
 msgid "Proceed"
 msgstr "Продовжити"
 
-#: src/web/clients/election/advanced.ml:195
+#: src/web/clients/election/advanced.ml:182
 msgid "Processing ballot"
 msgstr "Обробка бюлетеня"
 
-#: src/web/server/common/mails_voter.ml:213
+#: src/web/server/common/mails_voter.ml:214
 msgid "Public page of the election:"
 msgstr "Публічна сторінка виборів:"
 
@@ -489,7 +494,7 @@ msgstr "Публічна сторінка виборів:"
 msgid "Raw events"
 msgstr "Необроблені події"
 
-#: src/web/server/common/pages_common.ml:561
+#: src/web/server/common/pages_common.ml:580
 msgid "Redirection"
 msgstr "Перенаправлення"
 
@@ -497,7 +502,7 @@ msgstr "Перенаправлення"
 msgid "Restricted mode"
 msgstr "Обмежений режим"
 
-#: src/web/server/common/mails_voter.ml:317
+#: src/web/server/common/mails_voter.ml:319
 msgid "Results will be published on the election page"
 msgstr "Результати будуть опубліковані на сторінці виборів"
 
@@ -505,11 +510,15 @@ msgstr "Результати будуть опубліковані на стор
 msgid "Sealing log fingerprint"
 msgstr "Відбиток журналу запечатування"
 
-#: src/web/clients/election/home.ml:739
+#: src/web/clients/election/home.ml:738
 msgid "See accepted ballots"
 msgstr "Переглянути прийняті бюлетені"
 
-#: src/web/server/common/pages_common.ml:171
+#: src/web/clients/jslib/belenios_jslib.ml:336
+msgid "Session expired"
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:172
 msgid "Set"
 msgstr "Встановити"
 
@@ -519,27 +528,27 @@ msgstr ""
 "Існує кілька методів, щоб вирішити, якого кандидата обрати, коли немає "
 "переможця Кондорсе."
 
-#. src/web/clients/jslib/belenios_jslib.ml:252
-#: src/web/clients/jslib/belenios_jslib.ml:266
+#: src/web/clients/jslib/belenios_jslib.ml:276
+#. src/web/clients/jslib/belenios_jslib.ml:262
 msgid "Smart ballot tracker"
 msgstr "Розумний трекер для голосування"
 
-#: src/web/clients/election/home.ml:717
+#: src/web/clients/election/home.ml:716
 msgid "Start"
 msgstr "Почати"
 
-#. src/web/clients/election/advanced.ml:65
-#. src/web/server/common/pages_common.ml:526
-#. src/web/server/common/pages_common.ml:459
-#: src/web/clients/election/advanced.ml:104
+#: src/web/clients/election/advanced.ml:101
+#. src/web/clients/election/advanced.ml:62
+#. src/web/server/common/pages_common.ml:545
+#. src/web/server/common/pages_common.ml:461
 msgid "Submit"
 msgstr "Надіслати"
 
-#: src/web/clients/election/advanced.ml:162
+#: src/web/clients/election/advanced.ml:157
 msgid "Submit by copy/paste"
 msgstr "Надіслати шляхом копіювання/вставки"
 
-#: src/web/clients/election/advanced.ml:164
+#: src/web/clients/election/advanced.ml:159
 msgid "Submit by file"
 msgstr "Надсилайте файлами"
 
@@ -553,7 +562,7 @@ msgstr ""
 msgid "Terms of service"
 msgstr "Умови обслуговування"
 
-#: src/web/common/pages_common.ml:243
+#: src/web/common/pages_common.ml:241
 msgid "Thank you for voting!"
 msgstr "Дякуємо за голосування!"
 
@@ -593,7 +602,7 @@ msgstr "Необроблені результати можна переглян�
 msgid "There has been at least one tie."
 msgstr "Була принаймні одна нічия."
 
-#: src/web/server/common/pages_common.ml:448
+#: src/web/server/common/pages_common.ml:450
 msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
 msgstr ""
 "Цей код складається з 6 цифр. Його доставка може зайняти до 15 хвилин, будь "
@@ -617,7 +626,7 @@ msgstr "Ці вибори заархівовані."
 msgid "This election is currently closed."
 msgstr "Наразі ці вибори закриті."
 
-#: src/web/server/common/mails_voter.ml:307 src/web/common/pages_common.ml:203
+#: src/web/server/common/mails_voter.ml:309 src/web/common/pages_common.ml:202
 msgid "This vote replaces any previous vote."
 msgstr "Це голосування замінює будь-яке попереднє голосування."
 
@@ -625,7 +634,7 @@ msgstr "Це голосування замінює будь-яке попере�
 msgid "Tie:"
 msgstr "Нічия:"
 
-#: src/web/server/common/mails_voter.ml:205
+#: src/web/server/common/mails_voter.ml:206
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "Щоб проголосувати, вам також знадобиться посвідчення, надіслане в окремому "
@@ -647,14 +656,14 @@ msgstr "Довірені особи перетасували бюлетені в
 msgid "Unsupported question type"
 msgstr "Непідтримуваний тип запитання"
 
-#: src/web/server/common/mails_voter.ml:341
+#: src/web/server/common/mails_voter.ml:346
 msgid "Use the following code:"
 msgstr "Використовуйте наступний код:"
 
-#. src/web/server/common/pages_common.ml:277
-#. src/web/server/common/mails_voter.ml:217
+#: src/web/server/common/pages_common.ml:346
+#. src/web/server/common/pages_common.ml:278
+#. src/web/server/common/mails_voter.ml:218
 #. src/web/server/common/mails_voter.ml:112
-#: src/web/server/common/pages_common.ml:345
 msgid "Username:"
 msgstr "Ім'я користувача:"
 
@@ -670,13 +679,13 @@ msgstr "Загальна вага виборців"
 msgid "Warning:"
 msgstr "Увага:"
 
-#: src/web/server/common/mails_voter.ml:349
+#: src/web/server/common/mails_voter.ml:367
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Попередження: цей код дійсний протягом 15 хвилин, попередні коди, надіслані "
 "на цю адресу, більше не дійсні."
 
-#: src/web/server/common/mails_voter.ml:184
+#: src/web/server/common/mails_voter.ml:185
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "Попередження: цей електронний лист містить особисті та конфіденційні "
@@ -686,34 +695,42 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Ми використовуємо тут метод Шульце і посилаємося на виборців "
 
-#: src/web/server/common/pages_common.ml:184 src/web/common/pages_common.ml:102
+#: src/web/server/common/pages_common.ml:185 src/web/common/pages_common.ml:102
 msgid "Wish to help with translations?"
 msgstr "Хочете допомогти з перекладами?"
 
-#: src/web/clients/election/advanced.ml:239
+#: src/web/clients/election/advanced.ml:212
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "Ви збираєтеся подати бюлетень за допомогою розумного засобу відстеження "
 "бюлетенів %s."
 
+#: src/web/server/common/mails_voter.ml:234
 #. src/web/server/common/mails_voter.ml:133
-#: src/web/server/common/mails_voter.ml:233
 msgid "You are allowed to vote several times."
 msgstr "Ви можете голосувати кілька разів."
 
-#: src/web/server/common/mails_voter.ml:189
+#: src/web/server/common/pages_common.ml:471
+msgid "You are authenticating as a voter."
+msgstr ""
+
+#: src/web/server/common/pages_common.ml:470
+msgid "You are authenticating as an administrator."
+msgstr ""
+
+#: src/web/server/common/mails_voter.ml:190
 msgid "You are listed as a voter for the election"
 msgstr "Вас внесли до списку виборців на ціх виборах"
 
-#: src/web/server/common/site_common.ml:106
+#: src/web/server/common/site_common.ml:107
 msgid "You are not allowed to access this page!"
 msgstr "Ви не маєте доступу до цієї сторінки!"
 
-#: src/web/server/common/pages_common.ml:429
+#: src/web/server/common/pages_common.ml:430
 msgid "You can "
 msgstr "Ви можете "
 
-#: src/web/server/common/pages_common.ml:333
+#: src/web/server/common/pages_common.ml:334
 msgid "You can also "
 msgstr "Ви також можете "
 
@@ -721,64 +738,64 @@ msgstr "Ви також можете "
 msgid "You can also download the "
 msgstr "Ви також можете завантажити "
 
-#: src/web/common/pages_common.ml:236
+#: src/web/common/pages_common.ml:234
 msgid "You can check its presence in the "
 msgstr "Перевірити його наявність можна в "
 
-#: src/web/server/common/mails_voter.ml:311
+#: src/web/server/common/mails_voter.ml:313
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr ""
 "Ви можете перевірити його наявність у виборчій скриньці, доступній за адресою"
 
-#: src/web/clients/election/advanced.ml:138
+#: src/web/clients/election/advanced.ml:133
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 "Ви можете створити зашифрований бюлетень за допомогою інструмента командного "
 "рядка "
 
-#: src/web/server/common/pages_common.ml:478
+#: src/web/server/common/pages_common.ml:497
 msgid "You cannot authenticate right now."
 msgstr "Ви не можете зараз автентифікуватися."
 
-#: src/web/server/common/pages_common.ml:536
+#: src/web/server/common/pages_common.ml:555
 msgid "You cannot log in now. Please try later."
 msgstr "Ви не можете увійти зараз. Спробуйте пізніше."
 
-#: src/web/common/pages_common.ml:255
+#: src/web/common/pages_common.ml:253
 msgid "Your ballot for "
 msgstr "Ваш бюлетень за "
 
-#: src/web/server/common/mails_voter.ml:254
+#: src/web/server/common/mails_voter.ml:256
 msgid "Your credential for election %s"
 msgstr "Ваші облікові дані для виборів %s"
 
-#: src/web/server/common/mails_voter.ml:221
+#: src/web/server/common/mails_voter.ml:222
 msgid "Your credential:"
 msgstr "Ваш обліковий запис:"
 
-#: src/web/server/common/mails_voter.ml:338
+#: src/web/server/common/mails_voter.ml:343
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Ваша адреса електронної пошти була використана для автентифікації на нашому "
 "сервері Belenios."
 
-#: src/web/server/common/mails_voter.ml:156
+#: src/web/server/common/mails_voter.ml:157
 msgid "Your password for election %s"
 msgstr "Ваш пароль для виборів %s"
 
-#: src/web/server/common/mails_voter.ml:299
+#: src/web/server/common/mails_voter.ml:301
 msgid "Your smart ballot tracker is"
 msgstr "Ваш смарт-трекер бюлетеню"
 
-#: src/web/common/pages_common.ml:233
+#: src/web/common/pages_common.ml:231
 msgid "Your smart ballot tracker is "
 msgstr "Ваш розумний трекер для голосування "
 
-#: src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:288
 msgid "Your vote for election"
 msgstr "Ваш голос на виборах"
 
-#: src/web/server/common/mails_voter.ml:280
+#: src/web/server/common/mails_voter.ml:282
 msgid "Your vote for election %s"
 msgstr "Ваш голос на виборах %s"
 
@@ -786,27 +803,27 @@ msgstr "Ваш голос на виборах %s"
 msgid "Your vote was not recorded!"
 msgstr "Ваш голос не був записаний!"
 
-#: src/web/server/common/mails_voter.ml:297 src/web/common/pages_common.ml:213
+#: src/web/server/common/mails_voter.ml:299 src/web/common/pages_common.ml:211
 msgid "Your weight is %s."
 msgstr "Ваша вага %s."
 
-#: src/web/common/pages_common.ml:224
+#: src/web/common/pages_common.ml:222
 msgid "ballot box"
 msgstr "урна для голосування"
 
-#: src/web/server/common/pages_common.ml:337
+#: src/web/server/common/pages_common.ml:338
 msgid "change your password"
 msgstr "змінити ваш пароль"
 
-#: src/web/server/common/pages_common.ml:334
+#: src/web/server/common/pages_common.ml:335
 msgid "create an account"
 msgstr "створити обліковий запис"
 
-#: src/web/clients/election/advanced.ml:125
+#: src/web/clients/election/advanced.ml:120
 msgid "direct link"
 msgstr "пряме посилання"
 
-#: src/web/server/common/mails_voter.ml:293
+#: src/web/server/common/mails_voter.ml:295
 msgid "has been recorded."
 msgstr "було записано."
 
@@ -826,7 +843,7 @@ msgstr "необроблений результат"
 msgid "some proofs failed verification"
 msgstr "деякі докази не вдалося перевірити"
 
-#: src/web/clients/election/advanced.ml:142
+#: src/web/clients/election/advanced.ml:137
 msgid "sources"
 msgstr "джерела"
 
@@ -834,7 +851,7 @@ msgstr "джерела"
 msgid "start from the beginning"
 msgstr "почати з початку"
 
-#: src/web/clients/common/secondary_ui.ml:94
+#: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
 msgstr "умови обслуговування"
 
@@ -858,7 +875,7 @@ msgstr "цей бюлетень вже прийнято"
 msgid "this ballot has expired"
 msgstr "цей бюлетень прострочений"
 
-#: src/web/server/common/pages_common.ml:430
+#: src/web/server/common/pages_common.ml:431
 msgid "try to log in again"
 msgstr "спробуйте увійти знову"
 
@@ -897,3 +914,4 @@ msgstr "ваше посвідчення недійсне"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "ваше ім'я користувача неправильне"
+
