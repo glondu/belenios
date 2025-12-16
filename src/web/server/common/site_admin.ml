@@ -461,8 +461,7 @@ struct
   let get_context ~server ~state =
     let url =
       let service =
-        Eliom_service.extern ~prefix:server
-          ~path:[ "auth"; "belenios"; "get-context" ]
+        Eliom_service.extern ~prefix:server ~path:[ "get-context" ]
           ~meth:(Get Eliom_parameter.(string "state"))
           ()
       in
@@ -539,8 +538,7 @@ struct
                 add_code ~now code { timeout; user_info };
                 let service =
                   let service =
-                    Eliom_service.extern ~prefix:server
-                      ~path:[ "auth"; "belenios"; "return" ]
+                    Eliom_service.extern ~prefix:server ~path:[ "return" ]
                       ~meth:
                         (Eliom_service.Get
                            Eliom_parameter.(string "code" ** string "state"))
