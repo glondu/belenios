@@ -219,7 +219,10 @@ struct
                                 @@ Failure "anomaly in post_login_handler"
                             | Some x ->
                                 let last_connected = Unix.gettimeofday () in
-                                let x = { x with last_connected } in
+                                let email =
+                                  match address with None -> x.email | x -> x
+                                in
+                                let x = { x with last_connected; email } in
                                 let* () = set x in
                                 return x)
                       in
