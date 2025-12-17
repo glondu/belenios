@@ -37,6 +37,7 @@ let rec update_main_zone () =
           let onchange r =
             let newname = Js.to_string r##.value in
             Cache.set Cache.account { acc with name = newname };
+            Cache.delayed_sync 1.;
             let@ () = Lwt.async in
             let* () =
               let&&* container =
@@ -68,6 +69,7 @@ let rec update_main_zone () =
           in
           Cache.set Cache.account
             { acc with language = Option.map Language.unwrap language };
+          Cache.delayed_sync 1.;
           let@ () = Lwt.async in
           let* () = Belenios_js.I18n.set ~language in
           update_main ()
