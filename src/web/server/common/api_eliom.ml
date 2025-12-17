@@ -122,9 +122,9 @@ module Make () = struct
         | _ -> method_not_allowed)
     | [ "account" ] -> (
         let@ token = Option.unwrap unauthorized token in
-        let@ account = Option.unwrap unauthorized (lookup_token token) in
+        let@ account, user = Option.unwrap unauthorized (lookup_token token) in
         let get () =
-          let x = Api_generic.get_account account in
+          let x = Api_generic.get_account account user in
           Lwt.return @@ string_of_api_account x
         in
         match method_ with
@@ -138,7 +138,7 @@ module Make () = struct
             let@ account =
               Option.unwrap unauthorized (Lopt.get_value account)
             in
-            let* () = Api_generic.put_account (account, set) x in
+            let* () = Api_generic.put_account (account, set) user x in
             ok
         | _ -> method_not_allowed)
     | "elections" :: endpoint ->

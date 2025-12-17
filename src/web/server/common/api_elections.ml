@@ -30,7 +30,7 @@ open Api_generic
 let with_administrator token metadata f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token with
-  | Some a when Accounts.check a metadata.e_owners -> f a
+  | Some (a, _) when Accounts.check a metadata.e_owners -> f a
   | _ -> unauthorized
 
 let find_trustee_id s uuid token =
@@ -716,7 +716,7 @@ let dispatch s ~token ~ifmatch endpoint method_ body =
   match endpoint with
   | [] -> (
       let@ token = Option.unwrap unauthorized token in
-      let@ account = Option.unwrap unauthorized (lookup_token token) in
+      let@ account, _ = Option.unwrap unauthorized (lookup_token token) in
       let get () =
         let* elections = Storage.get_elections_by_owner account.id in
         Lwt.return @@ string_of_summary_list elections

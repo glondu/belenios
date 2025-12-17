@@ -84,6 +84,13 @@ let rec update_main_zone () =
               div [ txt (s_ "ID: " ^ string_of_int acc.id) ];
               div
                 [
+                  txt @@ s_ "Authentication method: ";
+                  txt
+                  @@ Printf.sprintf "%s@%s" acc.authentication_method.username
+                       acc.authentication_method.service;
+                ];
+              div
+                [
                   txt
                     (s_ "E-mail: " ^ Option.value ~default:"(none)" acc.address);
                 ];

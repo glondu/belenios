@@ -30,7 +30,7 @@ open Api_generic
 let with_administrator token (Draft (_, se)) f =
   let@ token = Option.unwrap unauthorized token in
   match lookup_token token with
-  | Some a when Accounts.check a se.se_owners -> f a
+  | Some (a, _) when Accounts.check a se.se_owners -> f a
   | _ -> not_found
 
 let with_administrator_or_credential_authority token (Draft (_, se)) f =
@@ -38,7 +38,7 @@ let with_administrator_or_credential_authority token (Draft (_, se)) f =
   if token = se.se_public_creds then f `CredentialAuthority
   else
     match lookup_token token with
-    | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
+    | Some (a, _) when Accounts.check a se.se_owners -> f (`Administrator a)
     | _ -> not_found
 
 let with_administrator_or_nobody token (Draft (_, se)) f =
@@ -46,7 +46,7 @@ let with_administrator_or_nobody token (Draft (_, se)) f =
   | None -> f `Nobody
   | Some token -> (
       match lookup_token token with
-      | Some a when Accounts.check a se.se_owners -> f (`Administrator a)
+      | Some (a, _) when Accounts.check a se.se_owners -> f (`Administrator a)
       | _ -> not_found)
 
 let with_trustee token (Draft (_, se)) f =

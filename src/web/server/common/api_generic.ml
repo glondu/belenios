@@ -28,14 +28,14 @@ open Web_common
 
 let ( let& ) = Option.bind
 
-type token = { expiration : float; account : account }
+type token = { expiration : float; account : account; user : user }
 
 let tokens = ref SMap.empty
 
-let new_token account =
+let new_token account user =
   let token = generate_token ~length:22 () in
   let expiration = Unix.gettimeofday () +. 86400. in
-  tokens := SMap.add token { expiration; account } !tokens;
+  tokens := SMap.add token { expiration; account; user } !tokens;
   Lwt.return token
 
 let filter tokens =
@@ -44,16 +44,16 @@ let filter tokens =
 
 let lookup_token token =
   tokens := filter !tokens;
-  let& { account; _ } = SMap.find_opt token !tokens in
-  Some account
+  let& { account; user; _ } = SMap.find_opt token !tokens in
+  Some (account, user)
 
 let invalidate_token token = tokens := SMap.remove token !tokens
 
 let () =
   let@ a = Accounts.add_update_hook in
-  let f { expiration; account } =
+  let f { expiration; account; user } =
     let account = if a.id = account.id then a else account in
-    { expiration; account }
+    { expiration; account; user }
   in
   tokens := SMap.map f !tokens;
   Lwt.return_unit
@@ -160,9 +160,10 @@ let get_configuration () =
     grace_period = !Web_config.grace_period;
   }
 
-let get_account (a : account) =
+let get_account (a : account) (u : user) =
   {
     id = a.id;
+    authentication_method = { service = u.user_domain; username = u.user_name };
     name = a.name;
     address = a.email;
     language = a.language;
@@ -171,9 +172,14 @@ let get_account (a : account) =
     voters_limit = a.voters_limit;
   }
 
-let put_account ((a, set) : account updatable) (b : api_account) =
+let put_account ((a, set) : account updatable) (u : user) (b : api_account) =
   if b.address <> a.email then raise (Error (`CannotChange "address"));
   if b.id <> a.id then raise (Error (`CannotChange "id"));
+  if
+    not
+      (b.authentication_method.service = u.user_domain
+      && b.authentication_method.username = u.user_name)
+  then raise (Error (`CannotChange "authentication_method"));
   let a =
     {
       a with

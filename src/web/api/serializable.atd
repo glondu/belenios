@@ -151,8 +151,14 @@ type configuration = {
     grace_period : bool;
 }
 
+type authentication_method = {
+    service : string;
+    username : string;
+}
+
 type api_account = {
     id : int;
+    authentication_method : authentication_method;
     name : string;
     ?address : string option;
     ?language : string option;

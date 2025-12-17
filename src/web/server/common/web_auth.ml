@@ -226,7 +226,7 @@ struct
                                 let* () = set x in
                                 return x)
                       in
-                      let* token = Api_generic.new_token account in
+                      let* token = Api_generic.new_token account user in
                       let* () = Web_state.discard () in
                       Eliom_reference.set Web_state.site_user
                         (Some (user, account, token))
