@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Belenios_web_api
 open Belenios
 open Belenios_js.Common
@@ -287,6 +288,22 @@ let sync_until_success () =
       Lwt.return_unit
   in
   loop 3
+
+type pending_sync = { mutable promise : unit Lwt.t; mutable pending : bool }
+
+let pending_sync = { promise = Lwt.return_unit; pending = false }
+
+let delayed_sync delay =
+  let t = Lwt_js.sleep delay in
+  pending_sync.promise <- t;
+  pending_sync.pending <- true;
+  let@ () = Lwt.async in
+  let* () = t in
+  let* () = pending_sync.promise in
+  if pending_sync.pending then (
+    pending_sync.pending <- false;
+    sync_until_success ())
+  else Lwt.return_unit
 
 let get_prefix () =
   let* x = get config in
