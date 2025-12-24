@@ -7,6 +7,11 @@ ocamlformat:
   script:
     # Initialize environment
     - source ~/env.sh
+    # Update ocamlformat in beleniosbase:20250312-1 environment
+    - git -C ~/.belenios/opam-repository fetch --depth=1 origin 235b964523a3fb438c9ad050e86b03e07685c4c1:ocamlformat-0.28.1
+    - git -C ~/.belenios/opam-repository checkout ocamlformat-0.28.1
+    - opam update
+    - opam install --yes ocamlformat=0.28.1
     # (Re-)format everything
     - dune fmt
 
