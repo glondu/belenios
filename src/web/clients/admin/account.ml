@@ -56,7 +56,7 @@ let rec update_main_zone () =
         let options =
           Language.available
           |> List.map (fun (code, label) ->
-                 option ~a:[ a_value (Language.unwrap code) ] (txt label))
+              option ~a:[ a_value (Language.unwrap code) ] (txt label))
         in
         let options =
           option ~a:[ a_value "" ] (txt @@ s_ "Navigator's default") :: options

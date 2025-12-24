@@ -312,11 +312,11 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
 let get_draft_passwords (Draft (_, se)) =
   se.se_voters
   |> List.filter_map (fun x ->
-         Option.map
-           (fun _ ->
-             let login = Voter.get x.sv_id in
-             login)
-           x.sv_password)
+      Option.map
+        (fun _ ->
+          let login = Voter.get x.sv_id in
+          login)
+        x.sv_password)
 
 let post_draft_passwords account generate
     ((Draft (v, se), set) : _ updatable_with_billing) voters =
@@ -903,8 +903,8 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
               try
                 ts
                 |> List.map (function
-                     | `Single x -> x
-                     | `Pedersen _ -> raise Exit)
+                  | `Single x -> x
+                  | `Pedersen _ -> raise Exit)
                 |> cont
               with Exit -> Lwt.return @@ Stdlib.Error `Unsupported
             in
@@ -912,35 +912,29 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
               let module KG = Trustees.MakeSimple (G) (Random) in
               List.combine names ts
               |> Lwt_list.map_p (fun (st_id, public_key) ->
-                     let* st_token, st_private_key, st_public_key =
-                       if st_id = "server" then
-                         let private_key = KG.generate () in
-                         let public_key = KG.prove private_key in
-                         let public_key =
-                           string_of_trustee_public_key (swrite G.to_string)
-                             (swrite G.Zq.to_string) public_key
-                         in
-                         Lwt.return
-                           ( "",
-                             Some (`String (G.Zq.to_string private_key)),
-                             public_key )
-                       else
-                         let st_token = generate_token () in
-                         let public_key =
-                           string_of_trustee_public_key (swrite G.to_string)
-                             (swrite G.Zq.to_string) public_key
-                         in
-                         Lwt.return (st_token, None, public_key)
-                     in
-                     let st_name = public_key.trustee_name in
-                     Lwt.return
-                       {
-                         st_id;
-                         st_token;
-                         st_public_key;
-                         st_private_key;
-                         st_name;
-                       })
+                  let* st_token, st_private_key, st_public_key =
+                    if st_id = "server" then
+                      let private_key = KG.generate () in
+                      let public_key = KG.prove private_key in
+                      let public_key =
+                        string_of_trustee_public_key (swrite G.to_string)
+                          (swrite G.Zq.to_string) public_key
+                      in
+                      Lwt.return
+                        ( "",
+                          Some (`String (G.Zq.to_string private_key)),
+                          public_key )
+                    else
+                      let st_token = generate_token () in
+                      let public_key =
+                        string_of_trustee_public_key (swrite G.to_string)
+                          (swrite G.Zq.to_string) public_key
+                      in
+                      Lwt.return (st_token, None, public_key)
+                  in
+                  let st_name = public_key.trustee_name in
+                  Lwt.return
+                    { st_id; st_token; st_public_key; st_private_key; st_name })
             in
             se.se_trustees <- `Basic { dbp_trustees = ts };
             let* () = set (Draft (v, se)) in

@@ -26,11 +26,10 @@ let () =
   build_string_map Sys.argv.(1)
   |> StringMap.bindings
   |> List.map (fun (str_id, (str, plural)) ->
-         match plural with
-         | None -> (str_id, `List [ `String str ])
-         | Some lst ->
-             ( str_id,
-               `List [ `String str; `List (List.map (fun x -> `String x) lst) ]
-             ))
+      match plural with
+      | None -> (str_id, `List [ `String str ])
+      | Some lst ->
+          ( str_id,
+            `List [ `String str; `List (List.map (fun x -> `String x) lst) ] ))
   |> (fun x -> `Assoc x)
   |> Yojson.Safe.to_channel stdout

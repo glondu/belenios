@@ -34,16 +34,16 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
     |> List.map (fun (h, w) -> (Hash.to_b64 h, h, w))
     |> List.sort (fun (a, _, _) (b, _, _) -> compare_b64 a b)
     |> List.map (fun (b, h, w) ->
-           let href =
-             !/Belenios_web_api.Endpoints.((election_object uuid h).path)
-           in
-           li
-             [
-               a ~href b;
-               (if show_weights then
-                  Printf.ksprintf txt " (%s)" (Weight.to_string w)
-                else txt "");
-             ])
+        let href =
+          !/Belenios_web_api.Endpoints.((election_object uuid h).path)
+        in
+        li
+          [
+            a ~href b;
+            (if show_weights then
+               Printf.ksprintf txt " (%s)" (Weight.to_string w)
+             else txt "");
+          ])
   in
   let links =
     let href = Printf.sprintf "#%s" (Uuid.unwrap uuid) in

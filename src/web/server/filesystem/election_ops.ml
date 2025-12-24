@@ -109,9 +109,9 @@ let delete_live_election s uuid roots =
   let* de_trustees =
     trustees
     |> List.map (function
-         | `Single _ -> `Single
-         | `Pedersen t ->
-             `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
+      | `Single _ -> `Single
+      | `Pedersen t ->
+          `Pedersen (t.t_threshold, Array.length t.t_verification_keys))
     |> Lwt.return
   in
   let* de_nb_ballots =
@@ -263,7 +263,7 @@ let validate_election_exn s uuid =
             let named =
               List.combine (Array.to_list tp.t_verification_keys) ts
               |> List.map (fun ((k : _ trustee_public_key), t) ->
-                     { k with trustee_name = t.stt_name })
+                  { k with trustee_name = t.stt_name })
               |> Array.of_list
             in
             let tp = { tp with t_verification_keys = named } in

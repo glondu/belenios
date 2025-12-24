@@ -96,7 +96,7 @@ let rec run quota ballots events nseats =
            ballots *)
         choices
         |> IMap.map (fun bs ->
-               (bs, List.fold_left (fun accu (w, _) -> accu +. w) 0. bs))
+            (bs, List.fold_left (fun accu (w, _) -> accu +. w) 0. bs))
         |> IMap.bindings
         |> List.sort
              (* we sort the choices, with greater total score first,

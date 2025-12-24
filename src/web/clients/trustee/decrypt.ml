@@ -82,11 +82,11 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
         basic_check_private_key private_key;
         Lwt.return
         @@
-        try sread W.G.Zq.of_string ++ private_key
-        with e ->
-          Printf.ksprintf failwith
-            (f_ "Error in format of private key: %s")
-            (Printexc.to_string e))
+          try sread W.G.Zq.of_string ++ private_key
+          with e ->
+            Printf.ksprintf failwith
+              (f_ "Error in format of private key: %s")
+              (Printexc.to_string e))
   in
   W.E.compute_factor encrypted_tally private_key
   |> string_of_partial_decryption (swrite W.G.to_string)

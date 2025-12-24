@@ -121,8 +121,8 @@ let advanced uuid =
     in
     booths
     |> List.map (fun (name, base) ->
-           let href = !!base in
-           li [ a ~href name; txt " ("; make href; txt ")" ])
+        let href = !!base in
+        li [ a ~href name; txt " ("; make href; txt ")" ])
   in
   let intro =
     div

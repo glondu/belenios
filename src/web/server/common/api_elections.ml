@@ -163,11 +163,11 @@ let get_partial_decryptions s uuid metadata =
       partial_decryptions_trustees =
         List.combine trustees trustee_tokens
         |> List.map (fun ((name, id), token) ->
-               {
-                 trustee_pd_address = Option.value name ~default:"";
-                 trustee_pd_token = token;
-                 trustee_pd_done = List.exists (fun x -> x.owned_owner = id) pds;
-               });
+            {
+              trustee_pd_address = Option.value name ~default:"";
+              trustee_pd_token = token;
+              trustee_pd_done = List.exists (fun x -> x.owned_owner = id) pds;
+            });
       partial_decryptions_threshold = threshold;
     }
 
@@ -192,30 +192,30 @@ let get_shuffles s uuid metadata =
       shuffles_shufflers =
         (match metadata.e_trustees with None -> [ "server" ] | Some ts -> ts)
         |> List.mapi (fun i t ->
-               let trustee_id = i + 1 in
-               {
-                 shuffler_address = t;
-                 shuffler_fingerprint =
-                   List.find_map
-                     (fun (_, o, _) ->
-                       if o.owned_owner = trustee_id then
-                         Some (Hash.to_b64 o.owned_payload)
-                       else if List.mem t skipped then Some ""
-                       else None)
-                     shuffles;
-                 shuffler_token =
-                   Option.bind token (fun x ->
-                       if x.tk_trustee = t then Some x.tk_token else None);
-               });
+            let trustee_id = i + 1 in
+            {
+              shuffler_address = t;
+              shuffler_fingerprint =
+                List.find_map
+                  (fun (_, o, _) ->
+                    if o.owned_owner = trustee_id then
+                      Some (Hash.to_b64 o.owned_payload)
+                    else if List.mem t skipped then Some ""
+                    else None)
+                  shuffles;
+              shuffler_token =
+                Option.bind token (fun x ->
+                    if x.tk_trustee = t then Some x.tk_token else None);
+            });
     }
 
 let extract_names trustees =
   trustees
   |> List.map (function
-       | `Pedersen x ->
-           x.t_verification_keys |> Array.to_list
-           |> List.map (fun (x : _ trustee_public_key) -> x.trustee_name)
-       | `Single (x : _ trustee_public_key) -> [ x.trustee_name ])
+    | `Pedersen x ->
+        x.t_verification_keys |> Array.to_list
+        |> List.map (fun (x : _ trustee_public_key) -> x.trustee_name)
+    | `Single (x : _ trustee_public_key) -> [ x.trustee_name ])
   |> List.flatten
   |> List.mapi (fun i x -> (i + 1, x))
 
@@ -278,8 +278,8 @@ let post_partial_decryption s uuid election ~trustee_id ~partial_decryption =
     trustees
     |> trustees_of_string W.(sread G.of_string) W.(sread G.Zq.of_string)
     |> List.map (function
-         | `Single x -> [ x ]
-         | `Pedersen t -> Array.to_list t.t_verification_keys)
+      | `Single x -> [ x ]
+      | `Pedersen t -> Array.to_list t.t_verification_keys)
     |> List.flatten |> Array.of_list |> Lwt.return
   in
   let pk = pks.(trustee_id - 1).trustee_public_key in

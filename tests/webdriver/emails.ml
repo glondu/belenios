@@ -53,13 +53,13 @@ let extract ~prefix emails voter =
   let nprefix = String.length prefix in
   SMap.find voter emails
   |> List.find_map (fun email ->
-         List.find_map
-           (fun line ->
-             let n = String.length line in
-             if String.starts_with ~prefix line then
-               Some (String.sub line nprefix (n - nprefix))
-             else None)
-           email)
+      List.find_map
+        (fun line ->
+          let n = String.length line in
+          if String.starts_with ~prefix line then
+            Some (String.sub line nprefix (n - nprefix))
+          else None)
+        email)
 
 let extract_password = extract ~prefix:"Password: "
 let extract_credential = extract ~prefix:"Your credential: "

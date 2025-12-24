@@ -527,56 +527,55 @@ let q_to_html_inner ind q =
         let* list_grades =
           q.grade_names |> Array.to_list
           |> Lwt_list.mapi_s (fun i z ->
-                 let inp, _ =
-                   let onchange r =
-                     let new_ment = q.grade_names in
-                     new_ment.(i) <- Js.to_string r##.value;
-                     !all_gen_quest.(!curr_doing) <-
-                       {
-                         (!all_gen_quest.(!curr_doing)) with
-                         grade_names = new_ment;
-                       };
-                     let@ () = Lwt.async in
-                     !update_question !curr_doing
-                   in
-                   input
-                     ~a:
-                       [
-                         a_id
-                           ("ment" ^ string_of_int ind ^ "_" ^ string_of_int i);
-                       ]
-                     ~onchange ~value:z ()
-                 in
-                 let* dd =
-                   delete_or_insert "grade"
-                     [ a_class [ "d_i_side" ] ]
-                     (fun () ->
-                       let new_m =
-                         q.grade_names |> Array.to_list
-                         |> List.filteri (fun j _ -> j <> i)
-                         |> Array.of_list
-                       in
-                       !all_gen_quest.(!curr_doing) <-
-                         {
-                           (!all_gen_quest.(!curr_doing)) with
-                           grade_names = new_m;
-                         };
-                       !update_question !curr_doing)
-                     (fun () ->
-                       let len = Array.length q.grade_names in
-                       let a_beg = Array.sub q.grade_names 0 i in
-                       let a_end = Array.sub q.grade_names i (len - i) in
-                       let new_m =
-                         Array.concat [ a_beg; [| s_ "New grade" |]; a_end ]
-                       in
-                       !all_gen_quest.(!curr_doing) <-
-                         {
-                           (!all_gen_quest.(!curr_doing)) with
-                           grade_names = new_m;
-                         };
-                       !update_question !curr_doing)
-                 in
-                 Lwt.return @@ div ~a:[ a_class [ "mention" ] ] [ inp; dd ])
+              let inp, _ =
+                let onchange r =
+                  let new_ment = q.grade_names in
+                  new_ment.(i) <- Js.to_string r##.value;
+                  !all_gen_quest.(!curr_doing) <-
+                    {
+                      (!all_gen_quest.(!curr_doing)) with
+                      grade_names = new_ment;
+                    };
+                  let@ () = Lwt.async in
+                  !update_question !curr_doing
+                in
+                input
+                  ~a:
+                    [
+                      a_id ("ment" ^ string_of_int ind ^ "_" ^ string_of_int i);
+                    ]
+                  ~onchange ~value:z ()
+              in
+              let* dd =
+                delete_or_insert "grade"
+                  [ a_class [ "d_i_side" ] ]
+                  (fun () ->
+                    let new_m =
+                      q.grade_names |> Array.to_list
+                      |> List.filteri (fun j _ -> j <> i)
+                      |> Array.of_list
+                    in
+                    !all_gen_quest.(!curr_doing) <-
+                      {
+                        (!all_gen_quest.(!curr_doing)) with
+                        grade_names = new_m;
+                      };
+                    !update_question !curr_doing)
+                  (fun () ->
+                    let len = Array.length q.grade_names in
+                    let a_beg = Array.sub q.grade_names 0 i in
+                    let a_end = Array.sub q.grade_names i (len - i) in
+                    let new_m =
+                      Array.concat [ a_beg; [| s_ "New grade" |]; a_end ]
+                    in
+                    !all_gen_quest.(!curr_doing) <-
+                      {
+                        (!all_gen_quest.(!curr_doing)) with
+                        grade_names = new_m;
+                      };
+                    !update_question !curr_doing)
+              in
+              Lwt.return @@ div ~a:[ a_class [ "mention" ] ] [ inp; dd ])
         in
         let* list_grades =
           Lwt.return @@ list_grades
@@ -647,145 +646,140 @@ let q_to_html_inner ind q =
           let* list_items =
             answer_list |> Array.to_list
             |> Lwt_list.mapi_s (fun candidate_i z ->
-                   if candidate_i == 0 then
-                     (* list name *)
-                     let inp, _ =
-                       let onchange r =
-                         let new_ans =
-                           !all_gen_quest.(!curr_doing).answers_lists
-                         in
-                         new_ans.(list_i).(candidate_i) <-
-                           Js.to_string r##.value;
-                         !all_gen_quest.(!curr_doing) <-
-                           {
-                             (!all_gen_quest.(!curr_doing)) with
-                             answers_lists = new_ans;
-                           };
-                         let@ () = Lwt.async in
-                         !update_question !curr_doing
-                       in
-                       input ~onchange ~value:z ()
-                     in
-                     let* dd =
-                       delete_or_insert "list"
-                         [ a_class [ "d_i_side" ] ]
-                         (fun () ->
-                           (* delete a list*)
-                           let new_a =
-                             q.answers_lists |> Array.to_list
-                             |> List.filteri (fun j _ -> j <> list_i)
-                             |> Array.of_list
-                           in
-                           !all_gen_quest.(!curr_doing) <-
-                             {
-                               (!all_gen_quest.(!curr_doing)) with
-                               answers_lists = new_a;
-                             };
-                           !update_question !curr_doing)
-                         (fun () ->
-                           (* insert a list *)
-                           let list_i = list_i + 1 in
-                           (* insert new list after the current one *)
-                           let len = Array.length q.answers_lists in
-                           let a_beg = Array.sub q.answers_lists 0 list_i in
-                           let a_end =
-                             Array.sub q.answers_lists list_i (len - list_i)
-                           in
-                           let new_a =
-                             Array.concat
-                               [
-                                 a_beg;
-                                 [| [| s_ "New list"; s_ "New candidate" |] |];
-                                 a_end;
-                               ]
-                           in
-                           !all_gen_quest.(!curr_doing) <-
-                             {
-                               (!all_gen_quest.(!curr_doing)) with
-                               answers_lists = new_a;
-                             };
-                           !update_question !curr_doing)
-                     in
-                     let label =
-                       div
-                         ~a:[ a_class [ "answer_label" ] ]
-                         [ txt (s_ "List name:") ]
-                     in
-                     Lwt.return
-                     @@ div
-                          ~a:[ a_class [ "answer"; "answer_list_name" ] ]
-                          [ label; inp; dd ]
-                   else
-                     (* list candidate *)
-                     let inp, _ =
-                       let onchange r =
-                         let new_ans =
-                           !all_gen_quest.(!curr_doing).answers_lists
-                         in
-                         new_ans.(list_i).(candidate_i) <-
-                           Js.to_string r##.value;
-                         !all_gen_quest.(!curr_doing) <-
-                           {
-                             (!all_gen_quest.(!curr_doing)) with
-                             answers_lists = new_ans;
-                           };
-                         let@ () = Lwt.async in
-                         !update_question !curr_doing
-                       in
-                       input ~value:z ~onchange ()
-                     in
-                     let* dd =
-                       delete_or_insert "candidate"
-                         [ a_class [ "d_i_side" ] ]
-                         (fun () ->
-                           (* delete candidate *)
-                           let new_a =
-                             q.answers_lists |> Array.to_list
-                             |> List.mapi (fun j l ->
-                                    if j <> list_i then l
-                                    else
-                                      l |> Array.to_list
-                                      |> List.filteri (fun j _ ->
-                                             j <> candidate_i)
-                                      |> Array.of_list)
-                             |> Array.of_list
-                           in
-                           !all_gen_quest.(!curr_doing) <-
-                             {
-                               (!all_gen_quest.(!curr_doing)) with
-                               answers_lists = new_a;
-                             };
-                           !update_question !curr_doing)
-                         (fun () ->
-                           (* insert new candidate after the current one *)
-                           let candidate_i = candidate_i + 1 in
-                           let len = Array.length q.answers_lists.(list_i) in
-                           let a_beg =
-                             Array.sub q.answers_lists.(list_i) 0 candidate_i
-                           in
-                           let a_end =
-                             Array.sub q.answers_lists.(list_i) candidate_i
-                               (len - candidate_i)
-                           in
-                           let new_a =
-                             q.answers_lists |> Array.to_list
-                             |> List.mapi (fun j l ->
-                                    if j <> list_i then l
-                                    else
-                                      Array.concat
-                                        [
-                                          a_beg; [| s_ "New candidate" |]; a_end;
-                                        ])
-                             |> Array.of_list
-                           in
-                           !all_gen_quest.(!curr_doing) <-
-                             {
-                               (!all_gen_quest.(!curr_doing)) with
-                               answers_lists = new_a;
-                             };
-                           !update_question !curr_doing)
-                     in
-                     Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
+                if candidate_i == 0 then
+                  (* list name *)
+                  let inp, _ =
+                    let onchange r =
+                      let new_ans =
+                        !all_gen_quest.(!curr_doing).answers_lists
+                      in
+                      new_ans.(list_i).(candidate_i) <- Js.to_string r##.value;
+                      !all_gen_quest.(!curr_doing) <-
+                        {
+                          (!all_gen_quest.(!curr_doing)) with
+                          answers_lists = new_ans;
+                        };
+                      let@ () = Lwt.async in
+                      !update_question !curr_doing
+                    in
+                    input ~onchange ~value:z ()
+                  in
+                  let* dd =
+                    delete_or_insert "list"
+                      [ a_class [ "d_i_side" ] ]
+                      (fun () ->
+                        (* delete a list*)
+                        let new_a =
+                          q.answers_lists |> Array.to_list
+                          |> List.filteri (fun j _ -> j <> list_i)
+                          |> Array.of_list
+                        in
+                        !all_gen_quest.(!curr_doing) <-
+                          {
+                            (!all_gen_quest.(!curr_doing)) with
+                            answers_lists = new_a;
+                          };
+                        !update_question !curr_doing)
+                      (fun () ->
+                        (* insert a list *)
+                        let list_i = list_i + 1 in
+                        (* insert new list after the current one *)
+                        let len = Array.length q.answers_lists in
+                        let a_beg = Array.sub q.answers_lists 0 list_i in
+                        let a_end =
+                          Array.sub q.answers_lists list_i (len - list_i)
+                        in
+                        let new_a =
+                          Array.concat
+                            [
+                              a_beg;
+                              [| [| s_ "New list"; s_ "New candidate" |] |];
+                              a_end;
+                            ]
+                        in
+                        !all_gen_quest.(!curr_doing) <-
+                          {
+                            (!all_gen_quest.(!curr_doing)) with
+                            answers_lists = new_a;
+                          };
+                        !update_question !curr_doing)
+                  in
+                  let label =
+                    div
+                      ~a:[ a_class [ "answer_label" ] ]
+                      [ txt (s_ "List name:") ]
+                  in
+                  Lwt.return
+                  @@ div
+                       ~a:[ a_class [ "answer"; "answer_list_name" ] ]
+                       [ label; inp; dd ]
+                else
+                  (* list candidate *)
+                  let inp, _ =
+                    let onchange r =
+                      let new_ans =
+                        !all_gen_quest.(!curr_doing).answers_lists
+                      in
+                      new_ans.(list_i).(candidate_i) <- Js.to_string r##.value;
+                      !all_gen_quest.(!curr_doing) <-
+                        {
+                          (!all_gen_quest.(!curr_doing)) with
+                          answers_lists = new_ans;
+                        };
+                      let@ () = Lwt.async in
+                      !update_question !curr_doing
+                    in
+                    input ~value:z ~onchange ()
+                  in
+                  let* dd =
+                    delete_or_insert "candidate"
+                      [ a_class [ "d_i_side" ] ]
+                      (fun () ->
+                        (* delete candidate *)
+                        let new_a =
+                          q.answers_lists |> Array.to_list
+                          |> List.mapi (fun j l ->
+                              if j <> list_i then l
+                              else
+                                l |> Array.to_list
+                                |> List.filteri (fun j _ -> j <> candidate_i)
+                                |> Array.of_list)
+                          |> Array.of_list
+                        in
+                        !all_gen_quest.(!curr_doing) <-
+                          {
+                            (!all_gen_quest.(!curr_doing)) with
+                            answers_lists = new_a;
+                          };
+                        !update_question !curr_doing)
+                      (fun () ->
+                        (* insert new candidate after the current one *)
+                        let candidate_i = candidate_i + 1 in
+                        let len = Array.length q.answers_lists.(list_i) in
+                        let a_beg =
+                          Array.sub q.answers_lists.(list_i) 0 candidate_i
+                        in
+                        let a_end =
+                          Array.sub q.answers_lists.(list_i) candidate_i
+                            (len - candidate_i)
+                        in
+                        let new_a =
+                          q.answers_lists |> Array.to_list
+                          |> List.mapi (fun j l ->
+                              if j <> list_i then l
+                              else
+                                Array.concat
+                                  [ a_beg; [| s_ "New candidate" |]; a_end ])
+                          |> Array.of_list
+                        in
+                        !all_gen_quest.(!curr_doing) <-
+                          {
+                            (!all_gen_quest.(!curr_doing)) with
+                            answers_lists = new_a;
+                          };
+                        !update_question !curr_doing)
+                  in
+                  Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
           in
           Lwt.return @@ div ~a:[ a_class [ "answers_list" ] ] list_items
         in
@@ -828,48 +822,46 @@ let q_to_html_inner ind q =
         let* answers =
           q.answers |> Array.to_list
           |> Lwt_list.mapi_s (fun i z ->
-                 let inp, _ =
-                   let onchange r =
-                     let new_ans = !all_gen_quest.(!curr_doing).answers in
-                     new_ans.(i) <- Js.to_string r##.value;
-                     !all_gen_quest.(!curr_doing) <-
-                       { (!all_gen_quest.(!curr_doing)) with answers = new_ans };
-                     let@ () = Lwt.async in
-                     !update_question !curr_doing
-                   in
-                   input
-                     ~a:
-                       [
-                         a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i);
-                       ]
-                     ~onchange ~value:z ()
-                 in
-                 let* dd =
-                   delete_or_insert "answer"
-                     [ a_class [ "d_i_side" ] ]
-                     (fun () ->
-                       let new_a =
-                         q.answers |> Array.to_list
-                         |> List.filteri (fun j _ -> j <> i)
-                         |> Array.of_list
-                       in
-                       !all_gen_quest.(!curr_doing) <-
-                         { (!all_gen_quest.(!curr_doing)) with answers = new_a };
-                       !update_question !curr_doing)
-                     (fun () ->
-                       let i = i + 1 in
-                       (* insert new answer after the current *)
-                       let len = Array.length q.answers in
-                       let a_beg = Array.sub q.answers 0 i in
-                       let a_end = Array.sub q.answers i (len - i) in
-                       let new_a =
-                         Array.concat [ a_beg; [| s_ "New answer" |]; a_end ]
-                       in
-                       !all_gen_quest.(!curr_doing) <-
-                         { (!all_gen_quest.(!curr_doing)) with answers = new_a };
-                       !update_question !curr_doing)
-                 in
-                 Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
+              let inp, _ =
+                let onchange r =
+                  let new_ans = !all_gen_quest.(!curr_doing).answers in
+                  new_ans.(i) <- Js.to_string r##.value;
+                  !all_gen_quest.(!curr_doing) <-
+                    { (!all_gen_quest.(!curr_doing)) with answers = new_ans };
+                  let@ () = Lwt.async in
+                  !update_question !curr_doing
+                in
+                input
+                  ~a:
+                    [ a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i) ]
+                  ~onchange ~value:z ()
+              in
+              let* dd =
+                delete_or_insert "answer"
+                  [ a_class [ "d_i_side" ] ]
+                  (fun () ->
+                    let new_a =
+                      q.answers |> Array.to_list
+                      |> List.filteri (fun j _ -> j <> i)
+                      |> Array.of_list
+                    in
+                    !all_gen_quest.(!curr_doing) <-
+                      { (!all_gen_quest.(!curr_doing)) with answers = new_a };
+                    !update_question !curr_doing)
+                  (fun () ->
+                    let i = i + 1 in
+                    (* insert new answer after the current *)
+                    let len = Array.length q.answers in
+                    let a_beg = Array.sub q.answers 0 i in
+                    let a_end = Array.sub q.answers i (len - i) in
+                    let new_a =
+                      Array.concat [ a_beg; [| s_ "New answer" |]; a_end ]
+                    in
+                    !all_gen_quest.(!curr_doing) <-
+                      { (!all_gen_quest.(!curr_doing)) with answers = new_a };
+                    !update_question !curr_doing)
+              in
+              Lwt.return @@ div ~a:[ a_class [ "answer" ] ] [ inp; dd ])
         in
         let answers_with_insert =
           (let dd =

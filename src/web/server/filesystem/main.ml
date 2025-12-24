@@ -384,8 +384,8 @@ module MakeBackend
         let&** x = x in
         (match kind with Raw -> x | Trim -> String.trim x)
         |> (match convert with
-           | None -> some_string_or_value f String
-           | Some { of_string; _ } -> of_string >> some_string_or_value f Value)
+          | None -> some_string_or_value f String
+          | Some { of_string; _ } -> of_string >> some_string_or_value f Value)
         |> Lwt.return
     | Abstract (ops, uuid, key) -> ops.get uuid key
     | Admin_password (file, key) -> get_password_record_admin file key
@@ -867,9 +867,9 @@ module MakeBackend
     let records =
       rs
       |> List.map (fun (u, (d, _)) ->
-             Printf.sprintf "%s %S"
-               (d |> Datetime.from_unixfloat |> string_of_datetime)
-               u)
+          Printf.sprintf "%s %S"
+            (d |> Datetime.from_unixfloat |> string_of_datetime)
+            u)
       |> join_lines
     in
     let* () =

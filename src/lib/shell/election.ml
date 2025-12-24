@@ -198,32 +198,32 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
   let ec_trustees_threshold =
     trustees
     |> List.map (function
-         | `Single _ -> []
-         | `Pedersen p ->
-             let ts_trustees =
-               List.combine
-                 (Array.to_list p.t_verification_keys)
-                 (Array.to_list p.t_certs)
-               |> List.map (fun (key, cert) ->
-                      {
-                        ttc_name = key.trustee_name;
-                        ttc_pki_key = Hash.hash_string cert.s_message;
-                        ttc_verification_key =
-                          Hash.hash_string
-                            (Yojson.Safe.to_string key.trustee_public_key);
-                      })
-             in
-             [ { ts_trustees; ts_threshold = p.t_threshold } ])
+      | `Single _ -> []
+      | `Pedersen p ->
+          let ts_trustees =
+            List.combine
+              (Array.to_list p.t_verification_keys)
+              (Array.to_list p.t_certs)
+            |> List.map (fun (key, cert) ->
+                {
+                  ttc_name = key.trustee_name;
+                  ttc_pki_key = Hash.hash_string cert.s_message;
+                  ttc_verification_key =
+                    Hash.hash_string
+                      (Yojson.Safe.to_string key.trustee_public_key);
+                })
+          in
+          [ { ts_trustees; ts_threshold = p.t_threshold } ])
     |> List.flatten
   in
   let find_trustee_name_by_id =
     let names =
       trustees
       |> List.map (function
-           | `Single k -> [ k.trustee_name ]
-           | `Pedersen t ->
-               Array.to_list t.t_verification_keys
-               |> List.map (fun x -> x.trustee_name))
+        | `Single k -> [ k.trustee_name ]
+        | `Pedersen t ->
+            Array.to_list t.t_verification_keys
+            |> List.map (fun x -> x.trustee_name))
       |> List.flatten |> Array.of_list
     in
     fun id ->

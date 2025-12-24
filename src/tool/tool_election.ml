@@ -96,7 +96,7 @@ let make file =
         | Some shuffles ->
             shuffles
             |> Lwt_list.iter_s (fun s ->
-                   Lwt_io.eprintlf "I: shuffle %s has been applied" s)
+                Lwt_io.eprintlf "I: shuffle %s has been applied" s)
       in
       let* () =
         if Election.has_nh_questions then
@@ -342,13 +342,13 @@ let make file =
       let* x = Lazy.force unverified_ballots in
       x
       |> List.rev_map (fun (bs_hash, _, w, _) ->
-             let bs_weight =
-               if has_weights then Some w
-               else (
-                 assert (Weight.is_int w 1);
-                 None)
-             in
-             { bs_hash; bs_weight })
+          let bs_weight =
+            if has_weights then Some w
+            else (
+              assert (Weight.is_int w 1);
+              None)
+          in
+          { bs_hash; bs_weight })
       |> string_of_ballot_summary |> Lwt.return
 
     let compute_encrypted_tally () =

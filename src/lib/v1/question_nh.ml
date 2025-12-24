@@ -108,8 +108,8 @@ module Make (M : RANDOM) (G : GROUP) = struct
     | `Array xs ->
         xs
         |> Array.map (function
-             | `Atomic x -> G.to_ints (Array.length q.q_answers) x
-             | _ -> invalid_arg "Question_nh.compute_result/1")
+          | `Atomic x -> G.to_ints (Array.length q.q_answers) x
+          | _ -> invalid_arg "Question_nh.compute_result/1")
     | _ -> invalid_arg "Question_nh.compute_result/2"
 
   let check_result ~total_weight q x r = r = compute_result ~total_weight q x

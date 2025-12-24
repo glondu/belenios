@@ -265,17 +265,17 @@ struct
     | Some x ->
         x
         |> List.map (function
-             | { auth_system = "import"; auth_instance = name; _ } -> (
-                 match
-                   List.find_opt
-                     (function
-                       | Web_config.Export x -> x.config.auth_instance = name
-                       | _ -> false)
-                     !Web_config.exported_auth_config
-                 with
-                 | Some (Export x) -> [ x.config ]
-                 | _ -> [])
-             | x -> [ x ])
+          | { auth_system = "import"; auth_instance = name; _ } -> (
+              match
+                List.find_opt
+                  (function
+                    | Web_config.Export x -> x.config.auth_instance = name
+                    | _ -> false)
+                  !Web_config.exported_auth_config
+              with
+              | Some (Export x) -> [ x.config ]
+              | _ -> [])
+          | x -> [ x ])
         |> List.flatten |> return
 
   let login_handler x =

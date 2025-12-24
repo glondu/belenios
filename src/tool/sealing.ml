@@ -26,7 +26,7 @@ open Common
 let parse_config x =
   sealing_config_of_string x
   |> List.map (fun (r, i) ->
-         (Re.Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
+      (Re.Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
 
 let find_ign cfg path =
   List.filter_map
@@ -65,10 +65,10 @@ let rec measure pool full cfg ign path =
           let* files =
             files
             |> Lwt_list.map_p (fun x ->
-                   let path = path // x in
-                   let ign = find_ign cfg path in
-                   let* r = measure pool full cfg ign path in
-                   Lwt.return ((if full then path else x), r))
+                let path = path // x in
+                let ign = find_ign cfg path in
+                let* r = measure pool full cfg ign path in
+                Lwt.return ((if full then path else x), r))
           in
           Lwt.return_some @@ `DIR files
   in

@@ -125,18 +125,17 @@ let popup_choose_elec uuid handler =
       let name_uuids =
         elections
         |> List.map (fun (x : summary) ->
-               let but =
-                 let@ () =
-                   button
-                   @@ Printf.sprintf "%s (%s)" x.name (Uuid.unwrap x.uuid)
-                 in
-                 let* () =
-                   let&&* d = document##getElementById (Js.string "popup") in
-                   Lwt.return (d##.style##.display := Js.string "none")
-                 in
-                 handler x.uuid
-               in
-               li [ but ])
+            let but =
+              let@ () =
+                button @@ Printf.sprintf "%s (%s)" x.name (Uuid.unwrap x.uuid)
+              in
+              let* () =
+                let&&* d = document##getElementById (Js.string "popup") in
+                Lwt.return (d##.style##.display := Js.string "none")
+              in
+              handler x.uuid
+            in
+            li [ but ])
       in
       let cancel_but =
         let@ () = button @@ s_ "Cancel" in

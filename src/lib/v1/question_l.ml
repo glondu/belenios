@@ -151,7 +151,7 @@ module Make (M : RANDOM) (G : GROUP) = struct
     Array.map (fun xs ->
         xs
         |> Array.map (fun { alpha; beta } ->
-               Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
+            Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
         |> Array.to_list |> String.concat ",")
     >> Array.to_list >> String.concat ","
 

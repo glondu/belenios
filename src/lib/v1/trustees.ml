@@ -118,25 +118,24 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module Group = P.Group) = struct
       (fun cert x -> P.verify cert.cert_verification x)
       certs t.t_coefexps
     && (match t.t_signatures with
-       | None -> false
-       | Some sigs ->
-           let n = Array.length sigs in
-           n = Array.length certs
-           && n = Array.length t.t_coefexps
-           && Array.for_all3
-                (fun cert coefexps s_signature ->
-                  let x =
-                    raw_coefexps_of_string (sread G.of_string)
-                      coefexps.s_message
-                  in
-                  let s_message =
-                    "certs_sig|"
-                    ^ string_of_certs (swrite G.to_string)
-                        (swrite G.Zq.to_string)
-                        { certs = t.t_certs; coefexps = x.coefexps }
-                  in
-                  P.verify cert.cert_verification { s_message; s_signature })
-                certs t.t_coefexps sigs)
+      | None -> false
+      | Some sigs ->
+          let n = Array.length sigs in
+          n = Array.length certs
+          && n = Array.length t.t_coefexps
+          && Array.for_all3
+               (fun cert coefexps s_signature ->
+                 let x =
+                   raw_coefexps_of_string (sread G.of_string) coefexps.s_message
+                 in
+                 let s_message =
+                   "certs_sig|"
+                   ^ string_of_certs (swrite G.to_string)
+                       (swrite G.Zq.to_string)
+                       { certs = t.t_certs; coefexps = x.coefexps }
+                 in
+                 P.verify cert.cert_verification { s_message; s_signature })
+               certs t.t_coefexps sigs)
     &&
     let coefexps =
       Array.map
@@ -163,19 +162,18 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module Group = P.Group) = struct
   let check trustees =
     trustees
     |> List.for_all (function
-         | `Single t -> check_single t
-         | `Pedersen t -> check_pedersen t)
+      | `Single t -> check_single t
+      | `Pedersen t -> check_pedersen t)
 
   let combine_keys trustees =
     trustees
     |> List.map (function
-         | `Single t -> t.trustee_public_key
-         | `Pedersen p ->
-             p.t_coefexps
-             |> Array.map (fun x ->
-                    (raw_coefexps_of_string (sread G.of_string) x.s_message)
-                      .coefexps)
-             |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one)
+      | `Single t -> t.trustee_public_key
+      | `Pedersen p ->
+          p.t_coefexps
+          |> Array.map (fun x ->
+              (raw_coefexps_of_string (sread G.of_string) x.s_message).coefexps)
+          |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one)
     |> List.fold_left G.( *~ ) G.one
 
   let lagrange indexes j =

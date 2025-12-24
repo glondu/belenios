@@ -55,8 +55,8 @@ let rec markup_of_xml = function
       let label =
         children
         |> List.map (function
-             | Xml.PCData x -> x
-             | _ -> raise @@ Unsupported "forbidden content in <a>")
+          | Xml.PCData x -> x
+          | _ -> raise @@ Unsupported "forbidden content in <a>")
         |> String.concat ""
       in
       Link { target; label }

@@ -1248,7 +1248,7 @@ let language_content () =
   let avail_lang =
     config.languages
     |> List.map (fun (x, y) ->
-           tr [ td [ txt (Language.unwrap x) ]; td [ txt y ] ])
+        tr [ td [ txt (Language.unwrap x) ]; td [ txt y ] ])
   in
   let avail_lang =
     tablex
@@ -1752,121 +1752,116 @@ let voterspwd_content_draft () =
         let ll =
           c.authentications
           |> List.mapi (fun i x ->
-                 match x with
-                 | `Password ->
-                     let inp, lab =
-                       rad i (curr_auth = `Password)
-                         (s_
-                            "Password sent in advance by e-mail (useful for \
-                             multiple elections)")
-                         ()
-                     in
-                     set_onchange inp (fun () -> `Password);
-                     let but =
-                       button (s_ "Send passwords to voters") (fun () ->
-                           let* (Draft (_, dr)) =
-                             Cache.get_until_success Cache.draft
-                           in
-                           if dr.draft_authentication <> `Password then (
-                             alert
-                             @@ s_ "Please select password authentication first";
-                             Lwt.return_unit)
-                           else
-                             let confirm =
-                               confirm
-                               @@ s_ "Warning: this will freeze the voter list!"
-                             in
-                             if not confirm then Lwt.return_unit
-                             else
-                               let uuid = get_current_uuid () in
-                               let* voters =
-                                 Cache.get_until_success Cache.voters
-                               in
-                               let ifmatch = sha256_b64 "[]" in
-                               let* _ =
-                                 Api.(
-                                   post ~ifmatch (draft_passwords uuid) !user
-                                     voters)
-                               in
-                               !update_election_main ())
-                     in
-                     div [ inp; lab; but ]
-                 | `CAS ->
-                     let sel, casname =
-                       match curr_auth with
-                       | `CAS s -> (true, s)
-                       | _ -> (false, "")
-                     in
-                     let inp, lab =
-                       rad i sel
-                         (s_
-                            "CAS (external authentication server, offers \
-                             better security guarantees when applicable)")
-                         ()
-                     in
-                     let inp2, get2 =
-                       input
-                         ~a:[ a_placeholder "https://cas.example.com/cas" ]
-                         ~value:casname ()
-                     in
-                     let get () = `CAS (get2 ()) in
-                     set_onchange inp get;
-                     set_onchange inp2 get;
-                     div [ inp; lab; inp2 ]
-                 | `Configured xx -> (
-                     match xx.configured_system with
-                     | "dummy" ->
-                         let sel =
-                           match curr_auth with
-                           | `Configured s -> s = xx.configured_instance
-                           | _ -> false
-                         in
-                         let inp, lab =
-                           rad i sel
-                             (s_
-                                "Dummy auth (should not be used in \
-                                 production): "
-                             ^ xx.configured_instance)
-                             ()
-                         in
-                         set_onchange inp (fun () ->
-                             `Configured xx.configured_instance);
-                         div [ inp; lab ]
-                     | "email" ->
-                         let sel =
-                           match curr_auth with
-                           | `Configured s -> s = xx.configured_instance
-                           | _ -> false
-                         in
-                         let inp, lab =
-                           rad i sel
-                             (s_
-                                "Password sent by e-mail when voting (a short \
-                                 password, renewed for each vote)")
-                             ()
-                         in
-                         set_onchange inp (fun () ->
-                             `Configured xx.configured_instance);
-                         div [ inp; lab ]
-                     | _ ->
-                         (* TODO: add oidc, cas, password, here *)
-                         let sel =
-                           match curr_auth with
-                           | `Configured s -> s = xx.configured_instance
-                           | _ -> false
-                         in
-                         let descr =
-                           Option.value ~default:"Unknown" xx.configured_descr
-                         in
-                         let inp, lab =
-                           rad i sel
-                             (Printf.sprintf "%s (%s)" descr
-                                xx.configured_instance)
-                             ()
-                         in
-                         set_onchange inp (fun () ->
-                             `Configured xx.configured_instance);
-                         div [ inp; lab ]))
+              match x with
+              | `Password ->
+                  let inp, lab =
+                    rad i (curr_auth = `Password)
+                      (s_
+                         "Password sent in advance by e-mail (useful for \
+                          multiple elections)")
+                      ()
+                  in
+                  set_onchange inp (fun () -> `Password);
+                  let but =
+                    button (s_ "Send passwords to voters") (fun () ->
+                        let* (Draft (_, dr)) =
+                          Cache.get_until_success Cache.draft
+                        in
+                        if dr.draft_authentication <> `Password then (
+                          alert
+                          @@ s_ "Please select password authentication first";
+                          Lwt.return_unit)
+                        else
+                          let confirm =
+                            confirm
+                            @@ s_ "Warning: this will freeze the voter list!"
+                          in
+                          if not confirm then Lwt.return_unit
+                          else
+                            let uuid = get_current_uuid () in
+                            let* voters =
+                              Cache.get_until_success Cache.voters
+                            in
+                            let ifmatch = sha256_b64 "[]" in
+                            let* _ =
+                              Api.(
+                                post ~ifmatch (draft_passwords uuid) !user
+                                  voters)
+                            in
+                            !update_election_main ())
+                  in
+                  div [ inp; lab; but ]
+              | `CAS ->
+                  let sel, casname =
+                    match curr_auth with `CAS s -> (true, s) | _ -> (false, "")
+                  in
+                  let inp, lab =
+                    rad i sel
+                      (s_
+                         "CAS (external authentication server, offers better \
+                          security guarantees when applicable)")
+                      ()
+                  in
+                  let inp2, get2 =
+                    input
+                      ~a:[ a_placeholder "https://cas.example.com/cas" ]
+                      ~value:casname ()
+                  in
+                  let get () = `CAS (get2 ()) in
+                  set_onchange inp get;
+                  set_onchange inp2 get;
+                  div [ inp; lab; inp2 ]
+              | `Configured xx -> (
+                  match xx.configured_system with
+                  | "dummy" ->
+                      let sel =
+                        match curr_auth with
+                        | `Configured s -> s = xx.configured_instance
+                        | _ -> false
+                      in
+                      let inp, lab =
+                        rad i sel
+                          (s_ "Dummy auth (should not be used in production): "
+                          ^ xx.configured_instance)
+                          ()
+                      in
+                      set_onchange inp (fun () ->
+                          `Configured xx.configured_instance);
+                      div [ inp; lab ]
+                  | "email" ->
+                      let sel =
+                        match curr_auth with
+                        | `Configured s -> s = xx.configured_instance
+                        | _ -> false
+                      in
+                      let inp, lab =
+                        rad i sel
+                          (s_
+                             "Password sent by e-mail when voting (a short \
+                              password, renewed for each vote)")
+                          ()
+                      in
+                      set_onchange inp (fun () ->
+                          `Configured xx.configured_instance);
+                      div [ inp; lab ]
+                  | _ ->
+                      (* TODO: add oidc, cas, password, here *)
+                      let sel =
+                        match curr_auth with
+                        | `Configured s -> s = xx.configured_instance
+                        | _ -> false
+                      in
+                      let descr =
+                        Option.value ~default:"Unknown" xx.configured_descr
+                      in
+                      let inp, lab =
+                        rad i sel
+                          (Printf.sprintf "%s (%s)" descr xx.configured_instance)
+                          ()
+                      in
+                      set_onchange inp (fun () ->
+                          `Configured xx.configured_instance);
+                      div [ inp; lab ]))
         in
         let ll =
           match ll with

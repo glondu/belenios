@@ -33,7 +33,7 @@ module Crypto_primitives = struct
 
   module AES_CCM : ENDECRYPT = struct
     let aes_raw ~key ~data =
-      begin [@alert "-crypto"]
+      begin[@alert "-crypto"]
         let open Cryptokit in
         transform_string Cipher.(aes ~mode:ECB key Encrypt) data
       end

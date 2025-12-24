@@ -207,13 +207,13 @@ struct
     election_uuid = W.uuid
     && election_hash = W.fingerprint
     && (match signature with
-       | Some { s_hash; s_proof = { challenge; response } } ->
-           s_hash = expected_hash && G.check credential
-           &&
-           let commitment = (g **~ response) *~ (credential **~ challenge) in
-           let prefix = make_sig_prefix s_hash in
-           Zq.(challenge =% G.hash prefix [| commitment |])
-       | None -> false)
+      | Some { s_hash; s_proof = { challenge; response } } ->
+          s_hash = expected_hash && G.check credential
+          &&
+          let commitment = (g **~ response) *~ (credential **~ challenge) in
+          let prefix = make_sig_prefix s_hash in
+          Zq.(challenge =% G.hash prefix [| commitment |])
+      | None -> false)
     && Array.for_all2
          (verify_answer W.public_key zkp)
          W.template.t_questions answers

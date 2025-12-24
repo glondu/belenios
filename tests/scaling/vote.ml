@@ -247,9 +247,9 @@ module MakeMaster (P : PARAMS_MASTER) = struct
       | `Assoc o ->
           o
           |> List.map (fun (k, v) ->
-                 match v with
-                 | `String v -> (k, v)
-                 | _ -> failwith "unexpected contents in credentials")
+              match v with
+              | `String v -> (k, v)
+              | _ -> failwith "unexpected contents in credentials")
           |> Lwt.return
       | _ | (exception _) -> failwith "unexpected JSON in credentials"
     in

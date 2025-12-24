@@ -217,7 +217,7 @@ let list_elec () =
         List.filter (fun (x : summary) -> f x.state) elections
         |> List.sort (fun (a : summary) b -> compare b.date a.date)
         |> List.map (fun (x : summary) ->
-               li [ election_a2 x (status_of_state x.state) ])
+            li [ election_a2 x (status_of_state x.state) ])
         |> fun xs -> [ h2 [ txt title ]; ul xs ]
       in
       let elt1 =
@@ -244,40 +244,40 @@ let rec page_body () =
   let menus =
     [ List_draft; List_running; List_old ]
     |> List.map (fun x ->
-           let active = x = !where_am_i in
-           let classes = [ "main-menu__item"; "noselect" ] in
-           let classes =
-             if active then "active" :: classes else "clickable" :: classes
-           in
-           let onclick () =
-             where_am_i := x;
-             update_page_body ()
-           in
-           let attr =
-             [ a_class [ String.concat " " classes ]; a_onclick_lwt onclick ]
-           in
-           let title =
-             div ~a:attr
-               [
-                 txt
-                   (match x with
-                   | List_draft -> s_ "My draft elections"
-                   | List_running -> s_ "My running elections"
-                   | List_old -> s_ "My archived elections"
-                   | _ -> assert false);
-               ]
-           in
-           let title =
-             if active then
-               [
-                 div
-                   ~a:[ a_class [ "positioned" ] ]
-                   [ div ~a:[ a_class [ "main-menu__item-active" ] ] []; title ];
-               ]
-             else [ title ]
-           in
-           (div ~a:[ a_class [ "main-menu__doing" ] ] [] :: title)
-           @ [ div ~a:[ a_class [ "main-menu__item-separator" ] ] [] ])
+        let active = x = !where_am_i in
+        let classes = [ "main-menu__item"; "noselect" ] in
+        let classes =
+          if active then "active" :: classes else "clickable" :: classes
+        in
+        let onclick () =
+          where_am_i := x;
+          update_page_body ()
+        in
+        let attr =
+          [ a_class [ String.concat " " classes ]; a_onclick_lwt onclick ]
+        in
+        let title =
+          div ~a:attr
+            [
+              txt
+                (match x with
+                | List_draft -> s_ "My draft elections"
+                | List_running -> s_ "My running elections"
+                | List_old -> s_ "My archived elections"
+                | _ -> assert false);
+            ]
+        in
+        let title =
+          if active then
+            [
+              div
+                ~a:[ a_class [ "positioned" ] ]
+                [ div ~a:[ a_class [ "main-menu__item-active" ] ] []; title ];
+            ]
+          else [ title ]
+        in
+        (div ~a:[ a_class [ "main-menu__doing" ] ] [] :: title)
+        @ [ div ~a:[ a_class [ "main-menu__item-separator" ] ] [] ])
     |> List.flatten
   in
   let menus = div ~a:[ a_class [ "main-menu__item-separator" ] ] [] :: menus in

@@ -296,23 +296,23 @@ let process_resend_request (r : credentials_resend)
         let decryption_key = P.derive_dk r.seed in
         credentials_records
         |> Lwt_list.filter_map_s (fun (v, c) ->
-               if SSet.mem v voters then
-                 let encrypted_msg =
-                   c.credential
-                   |> string_of_encrypted_msg Yojson.Safe.write_json
-                   |> encrypted_msg_of_string (sread G.of_string)
-                 in
-                 let* x = P.decrypt decryption_key encrypted_msg in
-                 match x with
-                 | None -> Lwt.return_none
-                 | Some credential -> Lwt.return_some (v, { c with credential })
-               else Lwt.return_none)
+            if SSet.mem v voters then
+              let encrypted_msg =
+                c.credential
+                |> string_of_encrypted_msg Yojson.Safe.write_json
+                |> encrypted_msg_of_string (sread G.of_string)
+              in
+              let* x = P.decrypt decryption_key encrypted_msg in
+              match x with
+              | None -> Lwt.return_none
+              | Some credential -> Lwt.return_some (v, { c with credential })
+            else Lwt.return_none)
   in
   let send = Mails_voter.generate_credential_email metadata in
   let* jobs =
     credentials_records
     |> Lwt_list.map_s (fun (login, (c : _ credentials_record)) ->
-           send ?recipient:c.address ~login ?weight:c.weight c.credential)
+        send ?recipient:c.address ~login ?weight:c.weight c.credential)
   in
   let credit : credentials_credit =
     {

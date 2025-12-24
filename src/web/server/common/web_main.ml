@@ -43,10 +43,10 @@ module Make () = struct
     let open Xml in
     config
     |> List.map (function
-         | PCData _ -> []
-         | Element (callback, [ ("address", address) ], []) ->
-             [ (callback, address) ]
-         | _ -> failwith "invalid <connect> configuration")
+      | PCData _ -> []
+      | Element (callback, [ ("address", address) ], []) ->
+          [ (callback, address) ]
+      | _ -> failwith "invalid <connect> configuration")
     |> List.flatten
 
   let () =
