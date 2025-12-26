@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2025-12-23 18:00+0000\n"
-"Last-Translator: Paola Panizza <ppanizza@gmail.com>\n"
+"PO-Revision-Date: 2025-12-27 18:00+0000\n"
+"Last-Translator: Bernardo Gonzalez Kriegel <bgkriegel@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
 "Language: es\n"
@@ -301,7 +301,7 @@ msgstr "Cambiar la contraseña"
 
 #: src/web/clients/credop/credop.ml:269 src/web/clients/credop/credop.ml:109
 msgid "Check certificate"
-msgstr ""
+msgstr "Verificar el certificado"
 
 #: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:805
 msgid "Check private key ownership"
@@ -414,7 +414,7 @@ msgstr "Gestión de la autoridad de credenciales"
 
 #: src/web/server/common/mails_admin.ml:176
 msgid "Credential authority protocol"
-msgstr ""
+msgstr "Protocolo de autoridad de credenciales"
 
 #: src/web/clients/credauth/generate.ml:172
 msgid "Credential generation"
@@ -422,19 +422,19 @@ msgstr "Generación de credenciales"
 
 #: src/web/clients/admin/elections.ml:1523
 msgid "Credential operator"
-msgstr ""
+msgstr "Operador de credenciales"
 
 #: src/web/clients/credop/credop.ml:79
 msgid "Credential operator interface"
-msgstr ""
+msgstr "Interfaz del operador de credenciales"
 
 #: src/web/clients/admin/elections.ml:1514
 msgid "Credential server"
-msgstr ""
+msgstr "Servidor de credenciales"
 
 #: src/web/server/common/mails_admin.ml:163
 msgid "Credential server:"
-msgstr ""
+msgstr "Servidor de credenciales:"
 
 #: src/web/clients/admin/elections.ml:1673
 msgid "Credentials are being generated on the server."
@@ -451,7 +451,7 @@ msgstr ""
 
 #: src/web/clients/credop/credop.ml:60
 msgid "Credit variation"
-msgstr ""
+msgstr "Variación de crédito"
 
 #: src/web/clients/admin/elections.ml:1028
 msgid "Current turnout: %d / %d = %.2f %%"
@@ -579,7 +579,7 @@ msgstr "Identificación electoral:"
 
 #: src/web/server/common/mails_admin.ml:158
 msgid "Election identifier:"
-msgstr ""
+msgstr "Identificador de elección:"
 
 #: src/web/clients/admin/elections.ml:1990
 msgid "Election is currently closed"
@@ -602,7 +602,7 @@ msgstr "Servidor de elecciones"
 
 #: src/web/server/common/mails_admin.ml:156
 msgid "Election server:"
-msgstr ""
+msgstr "Servidor de elección:"
 
 #: src/web/clients/admin/elections.ml:2124
 msgid "Election status"
@@ -653,7 +653,7 @@ msgstr "Error al procesar la clave privada. ¿Cargó el archivo correcto?"
 
 #: src/web/clients/credop/credop.ml:116
 msgid "Error while retrieving election!"
-msgstr ""
+msgstr "Error al recuperar la elección!"
 
 #: src/web/clients/admin/elections.ml:1725
 msgid "Error while retrieving server configuration: %s"
@@ -678,7 +678,7 @@ msgstr "No se ha podido conectar; por favor vuelve a actualizar"
 
 #: src/web/clients/credop/credop.ml:255
 msgid "Failure"
-msgstr ""
+msgstr "Fallo"
 
 #: src/web/clients/admin/elections.ml:1903
 msgid "Failure, probably because of an error in the username: %s."
@@ -734,7 +734,7 @@ msgstr "¡Ve a ver el resultado en la página principal de las elecciones!"
 
 #: src/web/clients/admin/elections.ml:1165
 msgid "Grace period: "
-msgstr ""
+msgstr "Período de gracia: "
 
 #: src/web/clients/admin/questions.ml:355
 msgid "Grade propositions"
@@ -783,7 +783,7 @@ msgstr "Importar a los votantes "
 
 #: src/web/clients/admin/elections.ml:1137
 msgid "In %d minutes"
-msgstr ""
+msgstr "En %d minutos"
 
 #: src/web/clients/trustee/generate.ml:293
 msgid "Inconsistent state!"
@@ -799,7 +799,7 @@ msgstr "Código incorrecto"
 
 #: src/web/clients/admin/elections.ml:1539
 msgid "Initiate protocol"
-msgstr ""
+msgstr "Iniciar protocolo"
 
 #: src/web/clients/admin/questions.ml:820
 msgid "Insert a list"
@@ -931,6 +931,8 @@ msgstr "Número mínimo de opciones para seleccionar"
 #: src/web/clients/credop/credop.ml:98
 msgid "Missing secret key. You must come to this page by following the full link that has been sent to you by e-mail."
 msgstr ""
+"Falta la clave secreta. Debe acceder a esta página siguiendo el enlace "
+"completo que le ha sido enviado por correo electrónico."
 
 #: src/web/clients/credop/credop.ml:263
 msgid "Missing voters"
