@@ -22,7 +22,7 @@ Zarith's strategy with special-casing of small numbers.
 ## Cheatsheet for updating the stack
 
 Warning: this is very long (plan at least 1/2 day), as it involves
-opam-bootstrapping (at least) 3 times.
+opam-bootstrapping (at least) 2 times.
 
  1. `git rebase master update-stack`
  2. Refresh `.po` files:
@@ -31,16 +31,8 @@ touch po/*/POTFILES
 make -C po
 ```
  3. Update [opam-bootstrap.sh](../opam-bootstrap.sh)
- 4. Create Debian packages for the new working environment:
-```
-mkdir -p ../builds/dev
-TMPDIR=/var/cache/pbuilder/tmp contrib/unshare/make-deb-belenios-opam.sh trixie -X.Y-Z 0.YYYYMMDD.N+trixie "utop merlin dune-deps" ../builds/dev
-cd ../builds/dev
-dpkg-scanpackages . > Packages
-apt-ftparchive release . > Release
-gpg --clearsign < Release > InRelease
-```
- 5. Install the packages
+ 4. Update Dockerfiles
+ 5. Review this documentation
  6. Reformat (`dune fmt`), fix compilation (if needed) and/or perform
     any relevant updates (such as: references to docker images, `.po`
     files, ...)
@@ -53,8 +45,4 @@ docker push glondu/beleniosbase-tests:YYYYMMDD-N
 docker push glondu/beleniosbase:YYYYMMDD-N
 ```
  8. Check that continuous integration still works
- 9. Create Debian packages and images for building production image:
-```
-contrib/unshare/setup-build-dir.sh bookworm 0.YYYYMMDD.0+bookwormYYYYMMDD /var/cache/pbuilder/tmp ../builds/X.Y-Z
-make -C ../builds/X.Y-Z
-```
+ 9. Create a new Debian OCaml snapshot
