@@ -3,22 +3,17 @@ stages:
 
 ocamlformat:
   stage: test
-  image: glondu/beleniosbase:20250312-1
+  image: glondu/beleniosbase:20260106-1
   script:
     # Initialize environment
     - source ~/env.sh
-    # Update ocamlformat in beleniosbase:20250312-1 environment
-    - git -C ~/.belenios/opam-repository fetch --depth=1 origin 235b964523a3fb438c9ad050e86b03e07685c4c1:ocamlformat-0.28.1
-    - git -C ~/.belenios/opam-repository checkout ocamlformat-0.28.1
-    - opam update
-    - opam install --yes ocamlformat=0.28.1
     # (Re-)format everything
     - dune fmt
 
 basic_tests:
   stage: test
   # Image glondu/beleniosbase:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase:20250312-1
+  image: glondu/beleniosbase:20260106-1
   script:
     # Initialize environment
     - source ~/env.sh
@@ -35,7 +30,7 @@ basic_tests:
 
 opam-bootstrap:
   stage: test
-  image: ocaml/opam:debian-12-ocaml-5.3
+  image: ocaml/opam:debian-13-ocaml-5.4
   script:
     # Install required packages
     - sudo apt-get update -qq && sudo apt-get install -y -qq build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates unzip libncurses-dev zlib1g-dev jq npm rsync
@@ -58,7 +53,7 @@ opam-bootstrap:
 scenarios:
   stage: test
   # Image glondu/beleniosbase-tests:YYYYMMDD-N is built by contrib/docker/gitlab-ci.Dockerfile
-  image: glondu/beleniosbase-tests:20250312-1
+  image: glondu/beleniosbase-tests:20260106-1
   script:
     # Initialize environment
     - source ~/env.sh
