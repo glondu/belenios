@@ -1,0 +1,21 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Fri, 19 Dec 2025 10:34:35 +0100
+Subject: Fix compilation with OCaml 5.4.0
+
+---
+ src/ppx/ppx_eliom_utils.ml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ppx/ppx_eliom_utils.ml b/src/ppx/ppx_eliom_utils.ml
+index 2d76b84..610411f 100644
+--- a/src/ppx/ppx_eliom_utils.ml
++++ b/src/ppx/ppx_eliom_utils.ml
+@@ -362,7 +362,7 @@ module Cmo = struct
+       | ((Otyp_arrow (lab, ty1, ty2)) [@if ocaml_version < (5, 2, 0)]) ->
+           Typ.arrow (label_of_string lab) (type_of_out_type ty1)
+             (type_of_out_type ty2)
+-      | Otyp_tuple tyl -> Typ.tuple (List.map type_of_out_type tyl)
++      | Otyp_tuple tyl -> Typ.tuple (List.map (fun (_, x) -> type_of_out_type x) tyl)
+       | Otyp_constr (id, tyl) ->
+           Typ.constr
+             (mkloc (ident_of_out_ident id) Location.none)

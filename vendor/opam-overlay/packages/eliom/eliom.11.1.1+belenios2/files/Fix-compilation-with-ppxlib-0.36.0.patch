@@ -1,0 +1,31 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Fri, 12 Sep 2025 09:28:11 +0200
+Subject: Fix compilation with ppxlib 0.36.0
+
+---
+ src/ppx/ppx_eliom_utils.ml | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/ppx/ppx_eliom_utils.ml b/src/ppx/ppx_eliom_utils.ml
+index ac7c7e7..2d76b84 100644
+--- a/src/ppx/ppx_eliom_utils.ml
++++ b/src/ppx/ppx_eliom_utils.ml
+@@ -398,7 +398,7 @@ module Cmo = struct
+             (mkloc (ident_of_out_ident id) Location.none)
+             (List.map type_of_out_type tyl)
+       | ((Otyp_alias {aliased; alias; _}) [@if ocaml_version >= (5, 1, 0)]) ->
+-          Typ.alias (type_of_out_type aliased) (var alias)
++          Typ.alias (type_of_out_type aliased) { txt = var alias; loc = Astlib.Location.none }
+       | ((Otyp_alias (ty, s)) [@if ocaml_version < (5, 1, 0)]) ->
+           Typ.alias (type_of_out_type ty) (var s)
+       | ((Otyp_variant (Ovar_typ ty, closed, tags)) [@if
+@@ -585,8 +585,7 @@ module Cannot_have_fragment = struct
+ 
+   let rec expression e =
+     match e.pexp_desc with
+-    | Pexp_ident _ | Pexp_constant _ | Pexp_function _ | Pexp_lazy _
+-    | Pexp_fun _ ->
++    | Pexp_ident _ | Pexp_constant _ | Pexp_function _ | Pexp_lazy _ ->
+         true
+     | Pexp_newtype (_, e)
+     | Pexp_assert e

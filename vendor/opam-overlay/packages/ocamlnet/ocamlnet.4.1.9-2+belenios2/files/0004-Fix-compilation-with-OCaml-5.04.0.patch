@@ -1,0 +1,22 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Thu, 18 Dec 2025 07:30:56 +0100
+Subject: Fix compilation with OCaml 5.04.0
+
+---
+ src/netsys/netsys_c.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/netsys/netsys_c.h b/src/netsys/netsys_c.h
+index a98aa74..ee1513c 100644
+--- a/src/netsys/netsys_c.h
++++ b/src/netsys/netsys_c.h
+@@ -215,7 +215,9 @@ union sock_addr_union {
+ /* bigarrays                                                          */
+ /**********************************************************************/
+ 
++#if !defined(OCAML_VERSION) || OCAML_VERSION < 50400
+ extern int caml_ba_element_size[];
++#endif
+ 
+ 
+ #endif

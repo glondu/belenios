@@ -16,16 +16,19 @@ license: "LGPL-2.1-only WITH OCaml-LGPL-linking-exception"
 homepage: "https://ocsigen.org/eliom/"
 bug-reports: "https://github.com/ocsigen/eliom/issues"
 patches: [
-  "0001-Add-support-for-OCaml-5.3.patch"
+  "Add-support-for-OCaml-5.3.patch"
+  "Fix-compilation-with-ppxlib-0.36.0.patch"
+  "Fix-compilation-with-js_of_ocaml-6.2.0.patch"
+  "Fix-compilation-with-OCaml-5.4.0.patch"
 ]
 depends: [
   "dune" {>= "3.6"}
-  "ocaml" {>= "5.3.0"}
+  "ocaml" {>= "5.4.0"}
   "ocamlfind"
   "ppx_deriving"
   "ppxlib" {>= "0.15.0"}
   "js_of_ocaml-compiler" {>= "5.5.0"}
-  "js_of_ocaml" {>= "5.5.0" & < "6.0.0"}
+  "js_of_ocaml" {>= "6.2.0" & < "7.0.0"}
   "js_of_ocaml-lwt" {>= "5.5.0"}
   "js_of_ocaml-ocamlbuild" {build}
   "js_of_ocaml-ppx" {>= "5.5.0"}
@@ -66,5 +69,8 @@ url {
   ]
 }
 extra-files: [
-  ["0001-Add-support-for-OCaml-5.3.patch" "sha512=b8652d68ea5a633d6545305b6deb4c80858e095aaf84e7150b3cecdf0a2064e0918da725515eec0f017ed6561c63a503da10b0fc5020c9b63dcadbd59775e4a8"]
+  ["Add-support-for-OCaml-5.3.patch" "sha512=b8652d68ea5a633d6545305b6deb4c80858e095aaf84e7150b3cecdf0a2064e0918da725515eec0f017ed6561c63a503da10b0fc5020c9b63dcadbd59775e4a8"]
+  ["Fix-compilation-with-ppxlib-0.36.0.patch" "sha512=96be352b0d9703686f68367b4073b2f7fbc37637f863480036f8ddb4b46e57fdef99435c249975fa7ea5790b14ea0b895729ab4a9e9d4ea640e315e3efeb56f1"]
+  ["Fix-compilation-with-js_of_ocaml-6.2.0.patch" "sha512=03b2850b0c8ab8bb3b57ef4d1ccaa90958ee0629a45ee97d800250c8cc898df0f4b3fa8d77f2ca53b76636afea11ef5ebfbbd0d7d0cc842c66b88e6a67cc3599"]
+  ["Fix-compilation-with-OCaml-5.4.0.patch" "sha512=13ee2f600c0106568caf9e9572f73db2f4746ed27cbaff58bba81b53d240223a878e119fdbbbbd6280ade812733cb605e01e6a5b1a63e7471e7af206db7497a0"]
 ]

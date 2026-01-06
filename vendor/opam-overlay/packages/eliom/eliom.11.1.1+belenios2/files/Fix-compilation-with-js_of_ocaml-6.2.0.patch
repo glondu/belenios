@@ -1,0 +1,117 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Fri, 12 Sep 2025 08:57:44 +0200
+Subject: Fix compilation with js_of_ocaml 6.2.0
+
+---
+ src/lib/client/eliommod_dom.ml   | 20 ++++++++++----------
+ src/lib/client/eliommod_dom.mli  |  2 +-
+ src/lib/eliom_content.client.mli |  2 +-
+ src/lib/eliom_content_.client.ml |  4 ++--
+ src/lib/eliom_request.client.ml  |  2 +-
+ 5 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/src/lib/client/eliommod_dom.ml b/src/lib/client/eliommod_dom.ml
+index 22c4b67..5b387a3 100644
+--- a/src/lib/client/eliommod_dom.ml
++++ b/src/lib/client/eliommod_dom.ml
+@@ -686,18 +686,18 @@ let preload_css (doc : Dom_html.element Js.t) =
+ [@@@warning "-39"]
+ 
+ type position =
+-  {html_top : int; html_left : int; body_top : int; body_left : int}
++  {html_top : float; html_left : float; body_top : float; body_left : float}
+ [@@deriving json]
+ 
+ [@@@warning "+39"]
+ 
+-let top_position = {html_top = 0; html_left = 0; body_top = 0; body_left = 0}
++let top_position = {html_top = 0.; html_left = 0.; body_top = 0.; body_left = 0.}
+ 
+ let createDocumentScroll () =
+-  { html_top = Dom_html.document##.documentElement##.scrollTop
+-  ; html_left = Dom_html.document##.documentElement##.scrollLeft
+-  ; body_top = Dom_html.document##.body##.scrollTop
+-  ; body_left = Dom_html.document##.body##.scrollLeft }
++  { html_top = Js.to_float Dom_html.document##.documentElement##.scrollTop
++  ; html_left = Js.to_float Dom_html.document##.documentElement##.scrollLeft
++  ; body_top = Js.to_float Dom_html.document##.body##.scrollTop
++  ; body_left = Js.to_float Dom_html.document##.body##.scrollLeft }
+ 
+ (* With firefox, the scroll position is restored before to fire the
+    popstate event. We maintain our own position. *)
+@@ -718,10 +718,10 @@ let _ =
+ let getDocumentScroll () = !current_position
+ 
+ let setDocumentScroll pos =
+-  Dom_html.document##.documentElement##.scrollTop := pos.html_top;
+-  Dom_html.document##.documentElement##.scrollLeft := pos.html_left;
+-  Dom_html.document##.body##.scrollTop := pos.body_top;
+-  Dom_html.document##.body##.scrollLeft := pos.body_left;
++  Dom_html.document##.documentElement##.scrollTop := Js.float pos.html_top;
++  Dom_html.document##.documentElement##.scrollLeft := Js.float pos.html_left;
++  Dom_html.document##.body##.scrollTop := Js.float pos.body_top;
++  Dom_html.document##.body##.scrollLeft := Js.float pos.body_left;
+   current_position := pos
+ 
+ (* UGLY HACK for Opera bug: Opera seem does not always take into
+diff --git a/src/lib/client/eliommod_dom.mli b/src/lib/client/eliommod_dom.mli
+index 5c849d1..27400a9 100644
+--- a/src/lib/client/eliommod_dom.mli
++++ b/src/lib/client/eliommod_dom.mli
+@@ -86,7 +86,7 @@ val iter_attrList :
+ (** Window scrolling. *)
+ 
+ type position =
+-  {html_top : int; html_left : int; body_top : int; body_left : int}
++  {html_top : float; html_left : float; body_top : float; body_left : float}
+ [@@deriving json]
+ 
+ val top_position : position
+diff --git a/src/lib/eliom_content.client.mli b/src/lib/eliom_content.client.mli
+index 51c793d..f06f51b 100644
+--- a/src/lib/eliom_content.client.mli
++++ b/src/lib/eliom_content.client.mli
+@@ -758,7 +758,7 @@ module Html : sig
+       val minHeightPx : 'a elt -> int
+       val minWidth : 'a elt -> string
+       val minWidthPx : 'a elt -> int
+-      val opacity : 'a elt -> string option
++      val opacity : 'a elt -> string
+       val outline : 'a elt -> string
+       val outlineColor : 'a elt -> string
+       val outlineOffset : 'a elt -> string
+diff --git a/src/lib/eliom_content_.client.ml b/src/lib/eliom_content_.client.ml
+index 0639265..c4ef3bd 100644
+--- a/src/lib/eliom_content_.client.ml
++++ b/src/lib/eliom_content_.client.ml
+@@ -963,7 +963,7 @@ module Html = struct
+ 
+       let opacity elt =
+         let elt = get_unique_elt "Css.opacity" elt in
+-        Option.map Js.to_bytestring (Js.Optdef.to_option elt##.style##.opacity)
++        Js.to_bytestring elt##.style##.opacity
+ 
+       let outline elt =
+         let elt = get_unique_elt "Css.outline" elt in
+@@ -1406,7 +1406,7 @@ module Html = struct
+ 
+       let opacity elt v =
+         let elt = get_unique_elt "SetCss.opacity" elt in
+-        elt##.style##.opacity := Js.def (Js.bytestring v)
++        elt##.style##.opacity := Js.bytestring v
+ 
+       let outline elt v =
+         let elt = get_unique_elt "SetCss.outline" elt in
+diff --git a/src/lib/eliom_request.client.ml b/src/lib/eliom_request.client.ml
+index c7583cd..e808ed8 100644
+--- a/src/lib/eliom_request.client.ml
++++ b/src/lib/eliom_request.client.ml
+@@ -222,7 +222,7 @@ let send ?with_credentials ?(expecting_process_page = false) ?cookies_info
+       if expecting_process_page
+       then
+         let content_type =
+-          if Dom_html.onIE
++          if false
+              && not
+                   (Js.Optdef.test
+                      (Js.Unsafe.coerce Dom_html.document)##.adoptNode)

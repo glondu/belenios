@@ -12,6 +12,7 @@ patches: [
   "0001-Import-upstream-merge-request-24-to-add-OCaml-5.x-su.patch"
   "0002-More-OCaml-5.x-fixes.patch"
   "0003-Fix-build-with-OCaml-5.2.0.patch"
+  "0004-Fix-compilation-with-OCaml-5.04.0.patch"
 ]
 build: [
   [
@@ -89,7 +90,8 @@ extra-source "fix-version-number.patch" {
   ]
 }
 extra-files: [
-  ["0001-Import-upstream-merge-request-24-to-add-OCaml-5.x-su.patch" "md5=68830dfa6be7cada1b6e8d30e0823cf1"]
-  ["0002-More-OCaml-5.x-fixes.patch" "md5=62dc7701c0b12445e67f50b92aa774b8"]
-  ["0003-Fix-build-with-OCaml-5.2.0.patch" "md5=eb26534d9469f1f9e79ae79c9fdaeced"]
+  ["0001-Import-upstream-merge-request-24-to-add-OCaml-5.x-su.patch" "sha256=2efcb0f13e35a31e73ec34a5f727693d9d3aaf3edad9f7adece5da15e0734e9d"]
+  ["0002-More-OCaml-5.x-fixes.patch" "sha256=ba7e60dd4935de60890548f2ac9fe1ab1ccbb66364accc3dbfca8ccd7dc9f615"]
+  ["0003-Fix-build-with-OCaml-5.2.0.patch" "sha256=e8fee19a5db312b2e09679e5b1c74b9467915e950fbdeac8b15b04a84b989b51"]
+  ["0004-Fix-compilation-with-OCaml-5.04.0.patch" "sha256=74b6a7ac2efae13281de79f13b315219ce414af153d9a8af1df5a4ee6bcc5b83"]
 ]
