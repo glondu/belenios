@@ -1,5 +1,5 @@
 : ${STABLE_MIRROR:="http://deb.debian.org"}
-: ${STABLE_SUITE:="bookworm"}
-: ${BACKPORTS_MIRROR:="http://ocaml.debian.net/backports/20250313"}
-: ${BACKPORTS_SUITE:="bookworm-backports-ocaml"}
+: ${STABLE_SUITE:="trixie"}
+: ${BACKPORTS_MIRROR:="http://ocaml.debian.net/backports/20260106"}
+: ${BACKPORTS_SUITE:="trixie-backports-ocaml"}
 : ${KEYRING:="$(dirname "$0")/ocaml-backports-keyring.asc"}
