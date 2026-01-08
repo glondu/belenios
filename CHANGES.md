@@ -28,14 +28,20 @@
      - Display account-specific voters_limit if present
      - Marked up text must be valid XML and enclosed in a `<markup>`
        element
+     - Display authentication method in profile
    + Voter interface
      - Add link to object in downloadable smart ballot tracker
      - Avoid using a new window for voter authentication
      - Fix localization of email authentication process
    + Miscellaneous
      - Add a link to email login e-mails
+     - Update e-mail address when logging in with an existing account
  * Monitoring:
    + Randomize User-Agent in monitor_elections.py
+ * Software stack:
+   + Support ocaml 5.4.0, js_of_ocaml 6.2.0, yojson 3.0.0, atd 3.0.1
+   + Base nspawn images on Debian 13 (trixie)
+   + Regenerate `libsodium.wasm`
 
 3.1 (2025-05-22)
 ================
