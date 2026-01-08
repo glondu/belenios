@@ -102,7 +102,7 @@ mmdebstrap --variant=essential \
   --dpkgopt='path-include=/usr/share/doc/*/copyright' \
   --dpkgopt='path-include=/usr/share/doc/*/changelog.Debian.*' \
   --hook-dir=/usr/share/mmdebstrap/hooks/file-mirror-automount \
-  --include="passwd systemd dbus msmtp-mta logrotate" \
+  --include="passwd systemd systemd-resolved dbus msmtp-mta logrotate" \
   --include="$BELENIOS_SERVER_DEB" \
   --customize-hook='copy-in "'"$BELENIOS_SERVER_BUILDINFO"'" /usr/share/'$PROJECT_PKG'/sbom' \
   --customize-hook='copy-in "'"$TMP"'/postinst.sh" /tmp' \
