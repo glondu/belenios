@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
@@ -170,9 +171,9 @@ msgstr "Dati di audit non disponibili."
 msgid "Audit data: "
 msgstr "Dati di audit: "
 
+#: src/web/server/common/pages_common.ml:502
 #. src/web/server/common/pages_common.ml:404
 #. src/web/server/common/pages_common.ml:312
-#: src/web/server/common/pages_common.ml:502
 msgid "Authenticate"
 msgstr "Autenticarsi"
 
@@ -267,14 +268,14 @@ msgstr "Autorità delle Credenziali"
 msgid "Credentials fingerprint"
 msgstr "Credenziali impronte digitali"
 
-#. src/web/server/common/mails_voter.ml:285
 #: src/web/server/common/mails_voter.ml:339
+#. src/web/server/common/mails_voter.ml:285
 msgid "Dear %s,"
 msgstr "Car* %s,"
 
+#: src/web/server/common/pages_common.ml:531
 #. src/web/server/common/pages_common.ml:347
 #. src/web/server/common/pages_common.ml:279
-#: src/web/server/common/pages_common.ml:531
 msgid "E-mail address:"
 msgstr "Indirizzo di posta elettronica:"
 
@@ -338,8 +339,8 @@ msgstr "Accesso non consentito"
 msgid "Get the source code"
 msgstr "Scaricare il codice sorgente"
 
-#. src/web/common/pages_common.ml:263
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
+#. src/web/common/pages_common.ml:263
 msgid "Go back to election"
 msgstr "Torna alle elezioni"
 
@@ -382,10 +383,10 @@ msgstr "Lingua:"
 msgid "Loading..."
 msgstr "Caricamento in corso..."
 
+#: src/web/server/common/pages_common.ml:501
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 #. src/web/server/common/pages_common.ml:271
-#: src/web/server/common/pages_common.ml:501
 msgid "Log in"
 msgstr "Accedi"
 
@@ -425,13 +426,13 @@ msgstr "Numero di schede accettate: "
 msgid "Number of voters"
 msgstr "Numero dei votanti"
 
-#. src/web/server/common/mails_voter.ml:123
 #: src/web/server/common/mails_voter.ml:228
+#. src/web/server/common/mails_voter.ml:123
 msgid "Number of votes:"
 msgstr "Numero di voti:"
 
-#. src/web/server/common/mails_voter.ml:134
 #: src/web/server/common/mails_voter.ml:235
+#. src/web/server/common/mails_voter.ml:134
 msgid "Only the last vote counts."
 msgstr "Ma soltanto l'ultimo voto è preso in considerazione."
 
@@ -439,8 +440,8 @@ msgstr "Ma soltanto l'ultimo voto è preso in considerazione."
 msgid "Page of the election:"
 msgstr "Pagina dell'elezione:"
 
-#. src/web/server/common/mails_voter.ml:116
 #: src/web/server/common/pages_common.ml:383
+#. src/web/server/common/mails_voter.ml:116
 msgid "Password:"
 msgstr "Password:"
 
@@ -480,9 +481,9 @@ msgstr "Si prega di votare utilizzando il vostro link personale:"
 msgid "Powered by "
 msgstr "Opera con "
 
+#: src/web/clients/election/advanced.ml:221
 #. src/web/server/common/pages_common.ml:224
 #. src/web/server/common/pages_common.ml:216
-#: src/web/clients/election/advanced.ml:221
 msgid "Proceed"
 msgstr "Procedere"
 
@@ -532,8 +533,8 @@ msgstr ""
 "Esistono diverse tecniche per decidere quale candidato eleggere quando non "
 "c'è un vincitore secondo Condorcet."
 
-#. src/web/clients/jslib/belenios_jslib.ml:262
 #: src/web/clients/jslib/belenios_jslib.ml:276
+#. src/web/clients/jslib/belenios_jslib.ml:262
 msgid "Smart ballot tracker"
 msgstr "Tracciatore intelligente delle schede elettorali"
 
@@ -541,10 +542,10 @@ msgstr "Tracciatore intelligente delle schede elettorali"
 msgid "Start"
 msgstr "Avviare"
 
+#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:545
 #. src/web/server/common/pages_common.ml:461
-#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "Inviare"
 
@@ -664,10 +665,10 @@ msgstr "Tipologia di domanda non supportata"
 msgid "Use the following code:"
 msgstr "Utilizzi il seguente codice per confermare il voto:"
 
+#: src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 #. src/web/server/common/mails_voter.ml:218
 #. src/web/server/common/mails_voter.ml:112
-#: src/web/server/common/pages_common.ml:346
 msgid "Username:"
 msgstr "Nome utente:"
 
@@ -707,8 +708,8 @@ msgstr "Vuoi dare una mano con le traduzioni?"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "Stai per inviare una scheda elettorale con smart ballot tracker %s."
 
-#. src/web/server/common/mails_voter.ml:133
 #: src/web/server/common/mails_voter.ml:234
+#. src/web/server/common/mails_voter.ml:133
 msgid "You are allowed to vote several times."
 msgstr "Le è consentito votare più volte."
 
@@ -918,3 +919,4 @@ msgstr "il suo codice di voto non è valido"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "il suo nome utente è errato"
+
