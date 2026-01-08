@@ -245,7 +245,7 @@ msgstr ""
 
 #: src/web/clients/admin/account.ml:87
 msgid "Authentication method: "
-msgstr ""
+msgstr "Moyen d'authentification : "
 
 #: src/web/clients/admin/elections.ml:2103
 msgid "Automatic cleaning"
