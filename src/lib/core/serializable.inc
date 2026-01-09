@@ -12,4 +12,4 @@
  (action
   (chdir
    %{workspace_root}
-   (run atdgen -j -j-std %{deps}))))
+   (run atdgen -j %{deps}))))

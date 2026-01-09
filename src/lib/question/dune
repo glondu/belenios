@@ -34,7 +34,7 @@
  (action
   (chdir
    %{workspace_root}
-   (run atdgen -j -j-std %{deps}))))
+   (run atdgen -j %{deps}))))
 
 (rule
  (targets question_nh_j.ml question_nh_j.mli)
@@ -42,7 +42,7 @@
  (action
   (chdir
    %{workspace_root}
-   (run atdgen -j -j-std %{deps}))))
+   (run atdgen -j %{deps}))))
 
 (rule
  (targets question_l_j.ml question_l_j.mli)
@@ -50,4 +50,4 @@
  (action
   (chdir
    %{workspace_root}
-   (run atdgen -j -j-std %{deps}))))
+   (run atdgen -j %{deps}))))
