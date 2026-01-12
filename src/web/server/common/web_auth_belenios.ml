@@ -41,9 +41,9 @@ struct
           match Web_auth.State.get_election ~state with
           | Some x ->
               let username =
-                match x.user with
+                match x.state with
                 | None -> None
-                | Some x -> Some x.user.user_name
+                | Some x -> x.precast_data.credential_record.cr_username
               in
               { kind = `Election x.uuid; username }
           | None -> { kind = `Site; username = None }
