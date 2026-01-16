@@ -449,6 +449,8 @@ type cast_result =
   | Error of cast_error
   ]
 
+(** {1 Belenios Connect-related types} *)
+
 type user_info = {
   login : string;
   ?name: string option;
@@ -465,3 +467,23 @@ type connect_context = {
   kind : connect_kind;
   ?username : string option;
 }
+
+(** {1 OpenID Connect-related types} *)
+
+type oidc_configuration = {
+  authorization_endpoint : string;
+  token_endpoint : string;
+  userinfo_endpoint : string;
+}
+
+type oidc_tokens = {
+  access_token : string;
+  token_type : string;
+  id_token : string;
+} <ocaml field_prefix="oidc_">
+
+type oidc_userinfo = {
+  sub : string;
+  ?name: string option;
+  ?email : string option;
+} <ocaml field_prefix="oidc_">

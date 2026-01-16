@@ -24,26 +24,6 @@
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 
-(** {1 OpenID Connect-related types} *)
-
-type oidc_configuration = {
-  authorization_endpoint : string;
-  token_endpoint : string;
-  userinfo_endpoint : string;
-}
-
-type oidc_tokens = {
-  access_token : string;
-  token_type : string;
-  id_token : string;
-} <ocaml field_prefix="oidc_">
-
-type oidc_userinfo = {
-  sub : string;
-  ?name: string option;
-  ?email : string option;
-} <ocaml field_prefix="oidc_">
-
 (** {1 Bulk emails} *)
 
 type material_message <ocaml predef from="Belenios_messages.Serializable"> = abstract

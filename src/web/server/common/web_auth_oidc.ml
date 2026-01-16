@@ -23,7 +23,7 @@ open Lwt
 open Lwt.Syntax
 open Eliom_service
 open Belenios_storage_api
-open Belenios_server_core
+open Belenios_web_api
 open Web_common
 
 module Make (Web_services : Web_services_sig.S) (Web_auth : Web_auth_sig.S) =
