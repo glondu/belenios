@@ -179,7 +179,7 @@ struct
         in
         if auth_system = a.auth_system then
           let cont : Belenios_web_api.user_info option -> _ = function
-            | Some { login; address; timestamp } ->
+            | Some { login; name; address; timestamp } ->
                 let@ () =
                  fun cont ->
                   match List.assoc_opt "allowlist" a.auth_config with
@@ -200,7 +200,7 @@ struct
                 let user =
                   { user_domain = a.auth_instance; user_name = login }
                 in
-                let () = env.user <- Some { user; timestamp } in
+                let () = env.user <- Some { user; name; timestamp } in
                 let* () =
                   match uuid with
                   | None ->

@@ -334,7 +334,7 @@ let get_records s uuid =
   |> Lwt.return
 
 let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
-  let { user; timestamp } : Web_auth_sig.timestamped_user = user in
+  let { user; name; timestamp } : Web_auth_sig.timestamped_user = user in
   let module W = (val election : Election.ELECTION) in
   let* recipient, weight =
     let* x = Web_persist.get_voter s uuid user.user_name in
@@ -368,7 +368,7 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
   match r with
   | Ok (hash, revote) ->
       let confirmation : confirmation =
-        { recipient; hash; revote; weight = oweight; email = false }
+        { recipient; name; hash; revote; weight = oweight; email = false }
       in
       let* email = send_confirmation s uuid confirmation in
       let () =
@@ -629,7 +629,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
               let* _ =
                 let election = Election.of_string (module Random) raw in
                 cast_ballot send_confirmation s uuid election ~ballot
-                  ~user:{ user; timestamp = None } ~precast_data
+                  ~user:{ user; name = None; timestamp = None }
+                  ~precast_data
               in
               ok)
       | _ -> method_not_allowed)

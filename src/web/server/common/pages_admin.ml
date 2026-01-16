@@ -527,6 +527,7 @@ struct
                 txt " ";
                 txt @@ string_of_int account.id;
               ];
+            li [ txt @@ s_ "your name:"; txt " "; txt @@ account.name ];
             li
               [
                 txt @@ s_ "your e-mail address:";

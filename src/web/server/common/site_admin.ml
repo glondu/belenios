@@ -528,6 +528,7 @@ struct
                 let user_info : Belenios_web_api.user_info =
                   {
                     login = string_of_int a.id;
+                    name = Some a.name;
                     address = a.email;
                     timestamp = None;
                   }

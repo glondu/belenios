@@ -437,6 +437,7 @@ type client_configuration = {
 
 type confirmation = {
     recipient : recipient;
+    ?name : string option;
     hash : hash;
     revote : bool;
     weight : weight option;
@@ -450,6 +451,7 @@ type cast_result =
 
 type user_info = {
   login : string;
+  ?name: string option;
   ?address : string option;
   ?timestamp : float option;
 }

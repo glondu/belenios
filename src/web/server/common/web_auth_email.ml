@@ -192,7 +192,12 @@ struct
                       match Otp.check ~address ~code with
                       | Some () ->
                           let info : Belenios_web_api.user_info =
-                            { login; address = Some address; timestamp = None }
+                            {
+                              login;
+                              name = None;
+                              address = Some address;
+                              timestamp = None;
+                            }
                           in
                           return_some info
                       | None -> return_none

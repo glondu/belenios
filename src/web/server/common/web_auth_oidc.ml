@@ -54,9 +54,12 @@ struct
       try
         let x = oidc_userinfo_of_string info in
         let info : Belenios_web_api.user_info =
-          match x.oidc_email with
-          | Some x -> { login = x; address = Some x; timestamp = None }
-          | None -> { login = x.oidc_sub; address = None; timestamp = None }
+          let login, address =
+            match x.oidc_email with
+            | Some x -> (x, Some x)
+            | None -> (x.oidc_sub, None)
+          in
+          { login; address; name = x.oidc_name; timestamp = None }
         in
         return_some info
       with _ -> return_none
@@ -113,7 +116,9 @@ struct
             let service =
               preapply ~service:auth_endpoint
                 ( Lazy.force oidc_self,
-                  ("code", (client_id, ("openid email", (state, "consent")))) )
+                  ( "code",
+                    (client_id, ("openid profile email", (state, "consent"))) )
+                )
             in
             let url = Web_services.make_absolute_string_uri ~service () in
             return (Web_auth_sig.Redirection url)

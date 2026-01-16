@@ -194,7 +194,7 @@ module Make (Base : BASE) = struct
     let result, step_title =
       match result with
       | `Ok
-          ({ recipient; hash; revote; weight; email; _ } :
+          ({ recipient; name; hash; revote; weight; email } :
             Belenios_messages.confirmation) ->
           let this_is_a_revote =
             if revote then
@@ -223,7 +223,7 @@ module Make (Base : BASE) = struct
           in
           ( [
               txt (s_ " as user ");
-              em [ txt recipient.name ];
+              em [ txt @@ Option.value ~default:recipient.name name ];
               txt (s_ " has been accepted.");
               txt " ";
               this_is_a_revote;

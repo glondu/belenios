@@ -47,7 +47,11 @@ type auth_system = {
   extern : bool;
 }
 
-type timestamped_user = { user : user; timestamp : float option }
+type timestamped_user = {
+  user : user;
+  name : string option;
+  timestamp : float option;
+}
 
 type election_env = {
   uuid : uuid;

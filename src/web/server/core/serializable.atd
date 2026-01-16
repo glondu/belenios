@@ -40,6 +40,7 @@ type oidc_tokens = {
 
 type oidc_userinfo = {
   sub : string;
+  ?name: string option;
   ?email : string option;
 } <ocaml field_prefix="oidc_">
 
