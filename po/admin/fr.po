@@ -2332,7 +2332,7 @@ msgstr "votre adresse courriel :"
 
 #: src/web/server/common/pages_admin.ml:530
 msgid "your name:"
-msgstr ""
+msgstr "votre nom :"
 
 #: src/web/common/mails_admin.ml:222
 msgid "your private key. Make sure you SAVE IT properly otherwise you will not be able to participate to the tally and the election may be canceled;"
