@@ -21,7 +21,13 @@
 
 open Belenios_storage_api
 
-val create_account : Storage.t -> email:string option -> user -> account Lwt.t
+val create_account :
+  Storage.t ->
+  name:string option ->
+  email:string option ->
+  user ->
+  account Lwt.t
+
 val get_account_by_id : Storage.t -> int -> account option Lwt.t
 
 val update_account_by_id :

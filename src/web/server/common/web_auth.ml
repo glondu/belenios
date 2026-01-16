@@ -209,7 +209,7 @@ struct
                         match id with
                         | None ->
                             let@ s = Storage.with_transaction in
-                            Accounts.create_account s ~email:address user
+                            Accounts.create_account s ~name ~email:address user
                         | Some id -> (
                             let@ s = Storage.with_transaction in
                             let@ a, set = Accounts.update_account_by_id s id in

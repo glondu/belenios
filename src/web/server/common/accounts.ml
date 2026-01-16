@@ -44,7 +44,7 @@ let update_account_by_id s id cont =
 let drop_after_at x =
   match String.index_opt x '@' with None -> x | Some i -> String.sub x 0 i
 
-let create_account s ~email user =
+let create_account s ~name ~email user =
   let@ id, u =
    fun cont ->
     let* x = Storage.new_account_id s in
@@ -54,8 +54,11 @@ let create_account s ~email user =
   in
   let last_connected = Unix.gettimeofday () in
   let name =
-    let x = drop_after_at user.user_name in
-    if x = "" then Printf.sprintf "User #%d" id else x
+    match name with
+    | None ->
+        let x = drop_after_at user.user_name in
+        if x = "" then Printf.sprintf "User #%d" id else x
+    | Some x -> x
   in
   let account =
     {
