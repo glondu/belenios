@@ -2293,8 +2293,12 @@ msgstr "Вы можете сохранить ключ на USB-накопите�
 msgid "your account id:"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:532
+#: src/web/server/common/pages_admin.ml:533
 msgid "your e-mail address:"
+msgstr ""
+
+#: src/web/server/common/pages_admin.ml:530
+msgid "your name:"
 msgstr ""
 
 #: src/web/common/mails_admin.ml:222

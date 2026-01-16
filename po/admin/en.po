@@ -2196,8 +2196,12 @@ msgstr "you may store the key on a USB stick and store it in a safe;"
 msgid "your account id:"
 msgstr ""
 
-#: src/web/server/common/pages_admin.ml:532
+#: src/web/server/common/pages_admin.ml:533
 msgid "your e-mail address:"
+msgstr ""
+
+#: src/web/server/common/pages_admin.ml:530
+msgid "your name:"
 msgstr ""
 
 #: src/web/common/mails_admin.ml:222
