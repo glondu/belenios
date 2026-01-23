@@ -20,7 +20,7 @@ mkdir "$TARGET"
 
 if command -v git >/dev/null && git rev-parse --show-toplevel >/dev/null 2>&1; then
     git ls-files > "$TARGET/MANIFEST"
-    git log -n 20 --graph --pretty='format:%h %s [%an]%d' > "$TARGET/GIT_LOG"
+    git log -n 20 --graph --pretty='format:%h %s [%an]' > "$TARGET/GIT_LOG"
     git log -1 --pretty=format:%ct > "$TARGET/SOURCE_DATE_EPOCH"
 else
     echo "$SOURCE_DATE_EPOCH" > "$TARGET/SOURCE_DATE_EPOCH"
