@@ -2001,12 +2001,6 @@ let pretty_timestamp x =
   let x = new%js Js.date_fromTimeValue (Js.float (x *. 1000.)) in
   Js.to_string x##toLocaleString
 
-let replace_contents container contents =
-  container##.innerHTML := Js.string "";
-  List.iter
-    (fun x -> Dom.appendChild container (Tyxml_js.To_dom.of_node x))
-    contents
-
 let status_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let uuid = get_current_uuid () in

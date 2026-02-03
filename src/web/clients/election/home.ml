@@ -21,6 +21,7 @@
 
 open Lwt.Syntax
 open Js_of_ocaml
+open Js_of_ocaml_lwt
 open Js_of_ocaml_tyxml
 open Tyxml_js.Html
 open Belenios
@@ -42,13 +43,14 @@ let format_period x =
   let () = Printf.bprintf b "%02g:%02g" minutes seconds in
   Buffer.contents b
 
-let countdown fmt end_ =
+let countdown update_state fmt end_ =
   let endf =
     let t = new%js Js.date_fromTimeValue (Js.float (end_ *. 1000.)) in
     Js.to_string t##toLocaleString
   in
   let elt = span [] in
   let dom = Tyxml_js.To_dom.of_span elt in
+  let interval = ref None in
   let timer () =
     let delta =
       Float.ceil (end_ -. (Js.to_float (new%js Js.date_now)##valueOf /. 1000.))
@@ -56,12 +58,20 @@ let countdown fmt end_ =
     if delta >= 0. then
       dom##.textContent :=
         Js.some (Js.string (Printf.sprintf fmt endf (format_period delta)))
-    else Dom_html.window##.location##reload
+    else
+      let () =
+        match !interval with
+        | None -> ()
+        | Some i -> Dom_html.window##clearInterval i
+      in
+      let@ () = Lwt.async in
+      let* () = Lwt_js.sleep 1. in
+      clear_cache ();
+      update_state ()
   in
   timer ();
-  let _interval =
-    Dom_html.window##setInterval (Js.wrap_callback timer) (Js.float 500.)
-  in
+  interval :=
+    Some (Dom_html.window##setInterval (Js.wrap_callback timer) (Js.float 500.));
   elt
 
 let make_object_link uuid h =
@@ -615,30 +625,21 @@ let make_result_div election t ~result =
       ~data:result
     @@ s_ "raw result"
   in
-  div
-    [
-      ul
-        (Array.map2
-           (format_question_result uuid)
-           (to_generic_result r.result)
-           questions
-        |> Array.to_list);
-      div
-        [
-          txt @@ s_ "Number of accepted ballots: "; txt (string_of_int nballots);
-        ];
-      div_total_weight;
-      div [ txt @@ s_ "You can also download the "; raw_result; txt "." ];
-    ]
+  [
+    ul
+      (Array.map2
+         (format_question_result uuid)
+         (to_generic_result r.result)
+         questions
+      |> Array.to_list);
+    div
+      [ txt @@ s_ "Number of accepted ballots: "; txt (string_of_int nballots) ];
+    div_total_weight;
+    div [ txt @@ s_ "You can also download the "; raw_result; txt "." ];
+  ]
 
 let home configuration ?credential uuid =
   let open (val !Belenios_js.I18n.gettext) in
-  let@ status cont =
-    let* x = get_status uuid in
-    match x with
-    | None -> Lwt.return @@ error "Could not get election status!"
-    | Some x -> cont x
-  in
   let@ election cont =
     let* x = get_election uuid in
     match x with
@@ -653,77 +654,99 @@ let home configuration ?credential uuid =
     | Some x -> cont x
   in
   let now = Js.to_float (new%js Js.date_now)##valueOf /. 1000. in
-  let state =
-    match status.status_state with
-    | `Draft ->
-        [
-          b
-            [
-              txt
-              @@ s_ "The election is being prepared. Please come back later.";
-            ];
-        ]
-    | `Closed ->
-        let it_will_open =
-          match dates.auto_date_open with
-          | Some t when now < t ->
-              div [ countdown (f_ "It will open at %s (time left: %s).") t ]
-          | _ -> txt ""
-        in
-        [ b [ txt @@ s_ "This election is currently closed." ]; it_will_open ]
-    | `Open ->
-        let it_will_close =
-          match dates.auto_date_close with
-          | Some t when now < t ->
-              div
-                [
-                  countdown
-                    (f_ "The election will close at %s (time left: %s).")
-                    t;
-                ]
-          | _ -> txt ""
-        in
-        [ it_will_close ]
-    | `Shuffling ->
-        [ b [ txt @@ s_ "The election is closed and being tallied." ] ]
-    | `EncryptedTally ->
-        [ b [ txt @@ s_ "The election is closed and being tallied." ] ]
-    | `Tallied -> [ b [ txt @@ s_ "This election has been tallied." ] ]
-    | `Archived -> [ b [ txt @@ s_ "This election is archived." ] ]
-  in
-  let go_to_the_booth () =
-    let disabled =
-      match status.status_state with `Open -> [] | _ -> [ a_disabled () ]
+  let state = div [] in
+  let middle = div [] in
+  let rec update_state () =
+    let@ status cont =
+      let* x = get_status uuid in
+      match x with
+      | None ->
+          replace_contents !!!state [ txt "Could not get election status!" ];
+          clear_content !!!middle;
+          Lwt.return_unit
+      | Some x -> cont x
     in
-    let button =
-      let uri = configuration.uris.home ^ "vote" in
-      let handler _ =
-        let params =
-          match credential with None -> [] | Some c -> [ ("credential", c) ]
-        in
-        let params =
-          ("uuid", Uuid.unwrap uuid) :: params |> Url.encode_arguments
-        in
-        let href = Printf.sprintf "%s#%s" uri params in
-        Dom_html.window##.location##.href := Js.string href;
-        false
-      in
-      let a =
-        a_id "start" :: a_onclick handler
-        :: a_class [ "nice-button"; "nice-button--blue" ]
-        :: disabled
-      in
-      Tyxml_js.Html.button ~a [ txt @@ s_ "Start" ]
+    let state' =
+      match status.status_state with
+      | `Draft ->
+          [
+            b
+              [
+                txt
+                @@ s_ "The election is being prepared. Please come back later.";
+              ];
+          ]
+      | `Closed ->
+          let it_will_open =
+            match dates.auto_date_open with
+            | Some t when now < t ->
+                div
+                  [
+                    countdown update_state
+                      (f_ "It will open at %s (time left: %s).")
+                      t;
+                  ]
+            | _ -> txt ""
+          in
+          [ b [ txt @@ s_ "This election is currently closed." ]; it_will_open ]
+      | `Open ->
+          let it_will_close =
+            match dates.auto_date_close with
+            | Some t when now < t ->
+                div
+                  [
+                    countdown update_state
+                      (f_ "The election will close at %s (time left: %s).")
+                      t;
+                  ]
+            | _ -> txt ""
+          in
+          [ it_will_close ]
+      | `Shuffling ->
+          [ b [ txt @@ s_ "The election is closed and being tallied." ] ]
+      | `EncryptedTally ->
+          [ b [ txt @@ s_ "The election is closed and being tallied." ] ]
+      | `Tallied -> [ b [ txt @@ s_ "This election has been tallied." ] ]
+      | `Archived -> [ b [ txt @@ s_ "This election is archived." ] ]
     in
-    div ~a:[ a_class [ "container--center" ] ] [ div [ button ] ]
+    let go_to_the_booth () =
+      let disabled =
+        match status.status_state with `Open -> [] | _ -> [ a_disabled () ]
+      in
+      let button =
+        let uri = configuration.uris.home ^ "vote" in
+        let handler _ =
+          let params =
+            match credential with None -> [] | Some c -> [ ("credential", c) ]
+          in
+          let params =
+            ("uuid", Uuid.unwrap uuid) :: params |> Url.encode_arguments
+          in
+          let href = Printf.sprintf "%s#%s" uri params in
+          Dom_html.window##.location##.href := Js.string href;
+          false
+        in
+        let a =
+          a_id "start" :: a_onclick handler
+          :: a_class [ "nice-button"; "nice-button--blue" ]
+          :: disabled
+        in
+        Tyxml_js.Html.button ~a [ txt @@ s_ "Start" ]
+      in
+      div ~a:[ a_class [ "container--center" ] ] [ div [ button ] ]
+    in
+    let* middle' =
+      let* result = get_result uuid in
+      let* t = get_sized_encrypted_tally uuid in
+      match (result, t) with
+      | Some result, Some t -> Lwt.return @@ make_result_div election t ~result
+      | _ -> Lwt.return [ go_to_the_booth () ]
+    in
+    replace_contents !!!state state';
+    replace_contents !!!middle middle';
+    Lwt.return_unit
   in
-  let* middle =
-    let* result = get_result uuid in
-    let* t = get_sized_encrypted_tally uuid in
-    match (result, t) with
-    | Some result, Some t -> Lwt.return @@ make_result_div election t ~result
-    | _ -> Lwt.return @@ go_to_the_booth ()
-  in
+  let* () = update_state () in
   let ballots_link =
     let href = Printf.sprintf "#%s/ballots" (Uuid.unwrap uuid) in
     p
@@ -747,7 +770,7 @@ let home configuration ?credential uuid =
   let contents =
     [
       div ~a:[ a_class [ "clear" ] ] [];
-      div state;
+      state;
       br ();
       middle;
       br ();

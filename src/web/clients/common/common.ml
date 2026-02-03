@@ -27,6 +27,7 @@ open Belenios
 let relative_root = ref ""
 let ( !! ) x = !relative_root ^ x
 let ( !/ ) x = !relative_root ^ "api/" ^ x
+let ( !!! ) = Tyxml_js.To_dom.of_div
 let document = Dom_html.document
 let ( let&& ) = Js.Opt.bind
 let ( let&&* ) x f = Js.Opt.case x (fun () -> Lwt.return_unit) f
@@ -139,6 +140,12 @@ let set_content_with_br id x =
   append_with_br e x
 
 let clear_content (e : #Dom.node Js.t) = e##.innerHTML := Js.string ""
+
+let replace_contents container contents =
+  container##.innerHTML := Js.string "";
+  List.iter
+    (fun x -> Dom.appendChild container (Tyxml_js.To_dom.of_node x))
+    contents
 
 let clear_content_by_id id =
   let$ e = document##getElementById (Js.string id) in

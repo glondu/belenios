@@ -35,6 +35,7 @@ val error : string -> page
 val make_audit_footer :
   (module Election.ELECTION) -> Html_types.div_content_fun elt
 
+val clear_cache : unit -> unit
 val get_election : uuid -> (module Election.ELECTION) option Lwt.t
 val get_status : uuid -> election_status option Lwt.t
 val get_dates : uuid -> election_auto_dates option Lwt.t

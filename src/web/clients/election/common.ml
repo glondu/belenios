@@ -77,6 +77,7 @@ type cache = {
 }
 
 let cache = ref None
+let clear_cache () = cache := None
 
 let update_cache uuid =
   let* election =
