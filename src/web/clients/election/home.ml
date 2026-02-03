@@ -666,6 +666,15 @@ let home configuration ?credential uuid =
           Lwt.return_unit
       | Some x -> cont x
     in
+    let refresh () =
+      let handler _ =
+        clear_cache ();
+        Lwt.async update_state;
+        false
+      in
+      let href = Printf.sprintf "#%s" (Uuid.unwrap uuid) in
+      a ~href ~a:[ a_onclick handler ] @@ s_ "Refresh status"
+    in
     let state' =
       match status.status_state with
       | `Draft ->
@@ -675,37 +684,55 @@ let home configuration ?credential uuid =
                 txt
                 @@ s_ "The election is being prepared. Please come back later.";
               ];
+            txt " ";
+            refresh ();
           ]
       | `Closed ->
           let it_will_open =
             match dates.auto_date_open with
             | Some t when now < t ->
-                div
-                  [
-                    countdown update_state
-                      (f_ "It will open at %s (time left: %s).")
-                      t;
-                  ]
-            | _ -> txt ""
+                [
+                  div
+                    [
+                      countdown update_state
+                        (f_ "It will open at %s (time left: %s).")
+                        t;
+                    ];
+                ]
+            | _ -> [ txt " "; refresh () ]
           in
-          [ b [ txt @@ s_ "This election is currently closed." ]; it_will_open ]
+          List.concat
+            [
+              [ b [ txt @@ s_ "This election is currently closed." ] ];
+              it_will_open;
+            ]
       | `Open ->
           let it_will_close =
             match dates.auto_date_close with
             | Some t when now < t ->
-                div
-                  [
-                    countdown update_state
-                      (f_ "The election will close at %s (time left: %s).")
-                      t;
-                  ]
-            | _ -> txt ""
+                [
+                  div
+                    [
+                      countdown update_state
+                        (f_ "The election will close at %s (time left: %s).")
+                        t;
+                    ];
+                ]
+            | _ -> [ txt " "; refresh () ]
           in
-          [ it_will_close ]
+          it_will_close
       | `Shuffling ->
-          [ b [ txt @@ s_ "The election is closed and being tallied." ] ]
+          [
+            b [ txt @@ s_ "The election is closed and being tallied." ];
+            txt " ";
+            refresh ();
+          ]
       | `EncryptedTally ->
-          [ b [ txt @@ s_ "The election is closed and being tallied." ] ]
+          [
+            b [ txt @@ s_ "The election is closed and being tallied." ];
+            txt " ";
+            refresh ();
+          ]
       | `Tallied -> [ b [ txt @@ s_ "This election has been tallied." ] ]
       | `Archived -> [ b [ txt @@ s_ "This election is archived." ] ]
     in
