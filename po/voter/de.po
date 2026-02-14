@@ -1,19 +1,18 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-04 12:48+0000\n"
-"PO-Revision-Date: 2025-06-30 13:01+0000\n"
-"Last-Translator: 4a-47-48 <schafallein@gmail.com>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/belenios/voter/de/"
-">\n"
+"PO-Revision-Date: 2026-02-15 08:09+0000\n"
+"Last-Translator: alxhu <hosted.weblate.org@alxhu.de>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/belenios/voter/"
+"de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 #: src/web/server/common/pages_common.ml:340
 msgid " (if you forgot it, for example)."
@@ -87,7 +86,7 @@ msgstr "%d gültige(r) Stimmzettel"
 
 #: src/web/clients/election/advanced.ml:136
 msgid "(available in the "
-msgstr ""
+msgstr "(verfügbar im "
 
 #: src/web/clients/election/advanced.ml:138
 msgid "), or any compatible booth."
@@ -171,9 +170,9 @@ msgstr "Prüfdaten nicht verfügbar."
 msgid "Audit data: "
 msgstr "Auditdaten: "
 
-#: src/web/server/common/pages_common.ml:502
 #. src/web/server/common/pages_common.ml:404
 #. src/web/server/common/pages_common.ml:312
+#: src/web/server/common/pages_common.ml:502
 msgid "Authenticate"
 msgstr "Authentifizieren"
 
@@ -267,14 +266,14 @@ msgstr "Zertifizierungsstelle"
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:339
 #. src/web/server/common/mails_voter.ml:285
+#: src/web/server/common/mails_voter.ml:339
 msgid "Dear %s,"
 msgstr "Hallo %s,"
 
-#: src/web/server/common/pages_common.ml:531
 #. src/web/server/common/pages_common.ml:347
 #. src/web/server/common/pages_common.ml:279
+#: src/web/server/common/pages_common.ml:531
 msgid "E-mail address:"
 msgstr "E-Mail-Adresse:"
 
@@ -338,8 +337,8 @@ msgstr "Verboten"
 msgid "Get the source code"
 msgstr "Quellcode herunterladen"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:263
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
 msgstr "Zurück zur Abstimmung"
 
@@ -385,10 +384,10 @@ msgstr "Sprache:"
 msgid "Loading..."
 msgstr "Lädt..."
 
-#: src/web/server/common/pages_common.ml:501
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 #. src/web/server/common/pages_common.ml:271
+#: src/web/server/common/pages_common.ml:501
 msgid "Log in"
 msgstr "Anmelden"
 
@@ -429,13 +428,13 @@ msgstr "Anzahl angenommener Stimmzettel: "
 msgid "Number of voters"
 msgstr "Anzahl der Wähler"
 
-#: src/web/server/common/mails_voter.ml:228
 #. src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:228
 msgid "Number of votes:"
 msgstr "Anzahl der Stimmen:"
 
-#: src/web/server/common/mails_voter.ml:235
 #. src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:235
 msgid "Only the last vote counts."
 msgstr "Es wird nur die letzte Stimme berücksichtigt."
 
@@ -443,8 +442,8 @@ msgstr "Es wird nur die letzte Stimme berücksichtigt."
 msgid "Page of the election:"
 msgstr "Website der Abstimmung:"
 
-#: src/web/server/common/pages_common.ml:383
 #. src/web/server/common/mails_voter.ml:116
+#: src/web/server/common/pages_common.ml:383
 msgid "Password:"
 msgstr "Passwort:"
 
@@ -484,9 +483,9 @@ msgstr "Bitte geben Sie hier Ihre Stimme über Ihren persönlichen Link ab:"
 msgid "Powered by "
 msgstr "Betrieben mit "
 
-#: src/web/clients/election/advanced.ml:221
 #. src/web/server/common/pages_common.ml:224
 #. src/web/server/common/pages_common.ml:216
+#: src/web/clients/election/advanced.ml:221
 msgid "Proceed"
 msgstr "Fortfahren"
 
@@ -536,8 +535,8 @@ msgstr ""
 "Es gibt verschiedene Techniken, um zu entscheiden, welcher Kandidat gewählt "
 "werden soll, wenn es keinen Condorcet-Gewinner gibt."
 
-#: src/web/clients/jslib/belenios_jslib.ml:276
 #. src/web/clients/jslib/belenios_jslib.ml:262
+#: src/web/clients/jslib/belenios_jslib.ml:276
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -545,10 +544,10 @@ msgstr ""
 msgid "Start"
 msgstr "Start"
 
-#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:545
 #. src/web/server/common/pages_common.ml:461
+#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "Absenden"
 
@@ -669,10 +668,10 @@ msgstr "Nicht unterstützter Fragetyp"
 msgid "Use the following code:"
 msgstr "Verwenden Sie den folgenden Code:"
 
-#: src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 #. src/web/server/common/mails_voter.ml:218
 #. src/web/server/common/mails_voter.ml:112
+#: src/web/server/common/pages_common.ml:346
 msgid "Username:"
 msgstr "Benutzername:"
 
@@ -714,8 +713,8 @@ msgstr ""
 "Sie sind dabei, einen Stimmzettel mit dem intelligenten Stimmzettel-Tracker "
 "%s abzugeben."
 
-#: src/web/server/common/mails_voter.ml:234
 #. src/web/server/common/mails_voter.ml:133
+#: src/web/server/common/mails_voter.ml:234
 msgid "You are allowed to vote several times."
 msgstr "Sie dürfen mehrmals abstimmen."
 
@@ -926,4 +925,3 @@ msgstr "Ihr Wahl-Berechtigungsnachweis (\"Credentials\") ist ungültig"
 #: src/web/common/confirmation.ml:38
 msgid "your username is wrong"
 msgstr "Ihr Benutzername ist falsch"
-
