@@ -8,144 +8,154 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-16 14:35+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2026-02-27 14:09+0000\n"
+"Last-Translator: Gediminas Narmontas <gediminas.narmontas@gmail.com>\n"
+"Language-Team: Lithuanian <https://hosted.weblate.org/projects/belenios/"
+"voter/lt/>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > "
-"19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? "
-"1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"(n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 
 #: src/web/server/common/pages_common.ml:340
 msgid " (if you forgot it, for example)."
-msgstr ""
+msgstr " (pavyzdžiui, jei pamirštumėte)."
 
 #: src/web/common/pages_common.ml:238
 msgid " A confirmation e-mail has been sent to you."
-msgstr ""
+msgstr " patvirtinimo el. laiškas jums bus išsiųstas."
 
 #: src/web/common/pages_common.ml:236
 msgid " anytime during the election."
-msgstr ""
+msgstr " bet kada, vykstant balsavimui."
 
 #: src/web/common/pages_common.ml:225
 msgid " as user "
-msgstr ""
+msgstr " kaip vartotojas "
 
 #: src/web/clients/election/ballots.ml:59
 msgid " ballot(s) have been accepted so far."
-msgstr ""
+msgstr " iki šiol priimtas(-i) balsavimo biuletenis(-iai)."
 
 #: src/web/clients/election/ballots.ml:69
 msgid " ballot(s) have been accepted, and "
-msgstr ""
+msgstr " balsavimo biuletenis(-iai) buvo priimtas (-i) ir "
 
 #: src/web/clients/election/ballots.ml:63
 msgid " ballot(s) have been accepted."
-msgstr ""
+msgstr " balsavimo biuletenis(-iai) buvo priimtas (-i)"
 
 #: src/web/clients/election/home.ml:391
 msgid " for more information."
-msgstr ""
+msgstr " , norėdami daugiau informacijos."
 
 #: src/web/common/pages_common.ml:227
 msgid " has been accepted."
-msgstr ""
+msgstr " buvo priimtas."
 
 #: src/web/clients/election/ballots.ml:71
 msgid " have been tallied."
-msgstr ""
+msgstr " buvo suskaičiuoti (-as)."
 
 #: src/web/server/common/pages_common.ml:542
 msgid " in the following box: "
-msgstr ""
+msgstr " yra šioje dėžėje: "
 
 #: src/web/common/pages_common.ml:244
 msgid " is rejected, because "
-msgstr ""
+msgstr " atmesta, nes "
 
 #: src/web/clients/election/home.ml:351 src/web/clients/election/home.ml:320
 msgid "%d blank ballot(s)"
-msgstr ""
+msgstr "%d tuščias(-ų) balsas(-ų)"
 
 #: src/web/clients/election/home.ml:415 src/web/clients/election/home.ml:327
 msgid "%d invalid ballot(s)"
-msgstr ""
+msgstr "%d sugandintas(-ų) balsas(-ų)"
 
 #: src/web/clients/election/home.ml:195
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
+"Norint iššifruoti rinkimų rezultatus, reikia %d iš šių %d patikėtinių "
+"[viešųjų raktų]:"
 
 #: src/web/clients/election/home.ml:345 src/web/clients/election/home.ml:314
 msgid "%d valid (non-blank) ballot(s)"
-msgstr ""
+msgstr "%d galiojantis(-čių) (ne tuščių) biuletenis(-ų)"
 
 #: src/web/clients/election/home.ml:346 src/web/clients/election/home.ml:315
 msgid "%d valid ballot(s)"
-msgstr ""
+msgstr "%d galiojantis(-čių) biuletenis(-ų)"
 
 #: src/web/clients/election/advanced.ml:136
 msgid "(available in the "
-msgstr ""
+msgstr "((pasiekiamas čia: "
 
 #: src/web/clients/election/advanced.ml:138
 msgid "), or any compatible booth."
-msgstr ""
+msgstr "), arba bet kurioje suderinamoje kabinoje."
 
 #: src/web/server/common/pages_common.ml:336
 msgid ", or "
-msgstr ""
+msgstr ", arba "
 
 #: src/web/clients/election/home.ml:379
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
+"Absoliutus rinkimų nugalėtojas yra kandidatas, kuriam teikiama pirmenybė "
+"prieš visus kitus kandidatus."
 
 #: src/web/clients/election/home.ml:423
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
+"Balsavimo biuletenis negalioja, jei dviem kandidatams suteikta ta pati "
+"pirmenybė arba jei trūksta reitingavimo."
 
 #: src/web/clients/election/advanced.ml:141
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
+"Šaltiniuose taip pat pateikiama užšifruotų balsavimo biuletenių "
+"specifikacija."
 
 #: src/web/server/common/pages_common.ml:491
 msgid "A verification code has been sent to %s."
-msgstr ""
+msgstr "Patikrinimo kodas buvo išsiųstas %s."
 
 #: src/web/clients/election/home.ml:268
 msgid "About this election"
-msgstr ""
+msgstr "Apie šį balsavimą"
 
 #: src/web/clients/election/ballots.ml:109
 msgid "Accepted ballots"
-msgstr ""
+msgstr "Priimti balsavimo biuleteniai"
 
 #: src/web/clients/election/home.ml:333
 msgid "According to Majority Judgment, the ranking is:"
-msgstr ""
+msgstr "Remiantis daugumos sprendimu, reitingas yra toks:"
 
 #: src/web/server/common/pages_common.ml:92
 msgid "Administer elections"
-msgstr ""
+msgstr "Administruoti rinkimus"
 
 #: src/web/clients/election/common.ml:62 src/web/server/common/pages_common.ml:98
 msgid "Administer this election"
-msgstr ""
+msgstr "Administruoti šiuos rinkimus"
 
 #: src/web/clients/election/home.ml:93
 msgid "Administrator"
-msgstr ""
+msgstr "Administratorius"
 
 #: src/web/clients/election/advanced.ml:52 src/web/clients/election/common.ml:58
 msgid "Advanced mode"
-msgstr ""
+msgstr "Išplėstinis režimas"
 
 #: src/web/clients/election/home.ml:166
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
+"Rezultatui iššifruoti reikalingi visi šie patikėtiniai (patvirtinimo raktai):"
 
 #: src/web/clients/election/advanced.ml:108
 msgid "Alternatively, you can also upload a file containing your ballot:"
