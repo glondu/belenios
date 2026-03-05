@@ -19,12 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_storage_api
 open Api_generic
 
 val dispatch :
-  Storage.t ->
-  string list ->
-  [ `GET | `POST | `PUT | `DELETE ] ->
-  body ->
-  result Lwt.t
+  string list -> [ `GET | `POST | `PUT | `DELETE ] -> body -> result Lwt.t

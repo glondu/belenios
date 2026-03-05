@@ -97,7 +97,6 @@ module Make () = struct
             f x);
       }
     in
-    let@ s = Storage.with_transaction in
     match endpoint with
     | [ "configuration" ] -> (
         match method_ with
@@ -142,7 +141,7 @@ module Make () = struct
             ok
         | _ -> method_not_allowed)
     | "elections" :: endpoint ->
-        Api_elections.dispatch s ~token ~ifmatch endpoint method_ body
+        Api_elections.dispatch ~token ~ifmatch endpoint method_ body
     | [ "cast-result"; state ] -> (
         match method_ with
         | `GET -> (
@@ -152,7 +151,7 @@ module Make () = struct
                 return_json 200 (Belenios_web_api.string_of_cast_result result))
         | _ -> method_not_allowed)
     | "credentials" :: endpoint ->
-        Api_credentials.dispatch s endpoint method_ body
+        Api_credentials.dispatch endpoint method_ body
     | "billing" :: endpoint ->
         Billing.dispatch ~token ~ifmatch endpoint method_ body
     | _ -> not_found

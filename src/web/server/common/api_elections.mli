@@ -31,7 +31,6 @@ val skip_shuffler : (string -> unit Lwt.t) Storage.u
 val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
 
 val dispatch :
-  Storage.t ->
   token:string option ->
   ifmatch:string option ->
   string list ->

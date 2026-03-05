@@ -356,7 +356,7 @@ let check_seed ~params ~seed =
   let decryption_key = P.derive_dk seed in
   G.(certificate.encryption_key =~ g **~ decryption_key)
 
-let process_request s : credentials_request -> _ = function
+let process_request : credentials_request -> _ = function
   | `NewRequest r ->
       let@ _check_info cont =
         if
@@ -402,6 +402,7 @@ let process_request s : credentials_request -> _ = function
       Lwt.async (process_request_new r draft voter_list);
       ok
   | `Validate r ->
+      let@ s = Storage.with_transaction in
       let* () =
         Storage.set s (Election (r.uuid, Credentials_metadata)) Value r.metadata
       in
@@ -461,6 +462,7 @@ let process_request s : credentials_request -> _ = function
       in
       ok
   | `Resend r ->
+      let@ s = Storage.with_transaction in
       let@ params cont =
         let* p = Storage.get s (Election (r.uuid, Credentials_params)) in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
@@ -478,17 +480,18 @@ let process_request s : credentials_request -> _ = function
         ok)
       else unauthorized
 
-let dispatch s endpoint method_ body =
+let dispatch endpoint method_ body =
   match endpoint with
   | [ "server" ] -> (
       match method_ with
       | `POST ->
           let@ request = body.run credentials_request_of_string in
           let@ () = handle_generic_error in
-          process_request s request
+          process_request request
       | _ -> method_not_allowed)
   | [ "server"; "credits"; uuid ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ s = Storage.with_transaction in
       match method_ with
       | `GET ->
           let@ seed cont =
@@ -520,6 +523,7 @@ let dispatch s endpoint method_ body =
           let@ response = body.run credentials_response_of_string in
           let certificate = response.certificate in
           let uuid = certificate.uuid in
+          let@ s = Storage.with_transaction in
           let@ () = handle_generic_error in
           let@ se, set = Storage.update s (Election (uuid, Draft)) in
           let set ?billing:_ x = set Value x in
