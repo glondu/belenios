@@ -81,21 +81,6 @@ struct
         Pages_common.login_password site_or_election username_or_address
           ~service ~allowsignups ~state
         >>= fun x -> return (Web_auth_sig.Html x)
-
-      let direct s x =
-        let fail () = failwith "invalid direct password authentication" in
-        match x with
-        | `Assoc x -> (
-            match
-              (List.assoc_opt "username" x, List.assoc_opt "password" x)
-            with
-            | Some (`String username), Some (`String password) -> (
-                let* x = check s uuid a username password in
-                match x with
-                | Some { username; _ } -> Lwt.return username
-                | None -> fail ())
-            | _ -> fail ())
-        | _ -> fail ()
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 

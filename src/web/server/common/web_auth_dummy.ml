@@ -37,15 +37,6 @@ struct
           Pages_common.login_dummy site_or_election username_or_address ~state
         in
         return (Web_auth_sig.Html page)
-
-      let direct _ x =
-        let fail () = failwith "invalid direct dummy authentication" in
-        match x with
-        | `Assoc x -> (
-            match List.assoc_opt "username" x with
-            | Some (`String x) -> Lwt.return x
-            | _ -> fail ())
-        | _ -> fail ()
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 

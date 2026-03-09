@@ -123,9 +123,6 @@ struct
             let url = Web_services.make_absolute_string_uri ~service () in
             return (Web_auth_sig.Redirection url)
         | _ -> failwith "oidc_login_handler invoked with bad config"
-
-      let direct _ _ =
-        failwith "direct authentication not implemented for OpenID Connect"
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 

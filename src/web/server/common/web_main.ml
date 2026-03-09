@@ -316,7 +316,6 @@ module Make () = struct
   module Site_admin = Site_admin.Make (X) (Site_common) (Web_auth)
   module Site_voter = Site_voter.Make (X) (Web_auth) (Site_common)
 
-  let () = Api_elections.direct_voter_auth := Web_auth.direct_voter_auth
   let () = Api_elections.state_module := Some (module Web_auth.State)
   let () = Lwt.async Mails_voter_bulk.process_bulk_emails
 end

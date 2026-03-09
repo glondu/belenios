@@ -38,8 +38,6 @@ type result =
 module type AUTH_SYSTEM = sig
   val pre_login_handler :
     [ `Username | `Address ] -> state:string -> result Lwt.t
-
-  val direct : Storage.t -> Yojson.Safe.t -> string Lwt.t
 end
 
 type auth_system = {
@@ -95,7 +93,6 @@ module type S = sig
     Eliom_registration.Html.result Lwt.t
 
   val get_site_login_handler : string -> result Lwt.t
-  val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u
 
   val exec :
     ?extern:bool ->

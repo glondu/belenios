@@ -193,13 +193,7 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> ballots_with_weights (anybody)
 
-### `POST`: ballot -> unit (voter)
-
-Experimental!
-
-Voters using this endpoint must use a Base64-encoded JSON structure as
-API token. The structure depends on the authentication mode (only
-dummy and password are supported at the moment).
+### `POST`: ballot -> json (anybody)
 
 ## `cast-result/$STATE`
 

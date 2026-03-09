@@ -38,7 +38,6 @@ val dispatch :
   body ->
   result Lwt.t
 
-val direct_voter_auth : (Yojson.Safe.t -> user Lwt.t) Storage.u ref
 val state_module : (module Web_auth_sig.STATE) option ref
 
 val cast_ballot :

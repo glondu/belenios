@@ -379,9 +379,6 @@ let cast_ballot send_confirmation s uuid election ~ballot ~user ~precast_data =
       Lwt.return { confirmation with email }
   | Error e -> fail e
 
-let direct_voter_auth = ref (fun _ _ _ -> assert false)
-(* initialized in Web_main *)
-
 let state_module = ref None
 (* initialized in Web_main *)
 
@@ -573,10 +570,8 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
           let@ () = handle_generic_error in
           let* x = Public_archive.get_ballot_hashes s uuid in
           return_json 200 (string_of_ballots_with_weights x)
-      | `POST -> (
+      | `POST ->
           let@ () = handle_generic_error in
-          let* raw = Public_archive.get_election s uuid in
-          let@ raw = Option.unwrap not_found raw in
           let@ state_module cont =
             match !state_module with
             | None -> failwith "anomaly: state_module not initialized"
@@ -592,47 +587,24 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s uuid metadata =
               (function
                 | Election_not_found _ -> not_found | e -> Lwt.reraise e)
           in
-          match token with
-          | None ->
-              let lang =
-                let sp = Eliom_common.get_sp () in
-                let@ lang =
-                  Option.bind
-                    (Ocsigen_request.header sp.sp_request.request_info
-                       (Ocsigen_header.Name.of_string "Accept-Language"))
-                in
-                Language.of_string_opt lang
-              in
-              let* state =
-                State.create_election s uuid { lang; ballot; precast_data }
-              in
-              let json =
-                match state with
-                | None -> `Assoc []
-                | Some state -> `Assoc [ ("state", `String state) ]
-              in
-              return_json 401 (Yojson.Safe.to_string json)
-          | Some token ->
-              let@ user cont =
-                Lwt.catch
-                  (fun () ->
-                    let json =
-                      match Base64.decode token with
-                      | Ok x -> Yojson.Safe.from_string x
-                      | Error (`Msg x) -> failwith x
-                    in
-                    let* x = !direct_voter_auth s uuid json in
-                    cont x)
-                  (fun _ -> unauthorized)
-              in
-              let send_confirmation _ _ _ = Lwt.return_false in
-              let* _ =
-                let election = Election.of_string (module Random) raw in
-                cast_ballot send_confirmation s uuid election ~ballot
-                  ~user:{ user; name = None; timestamp = None }
-                  ~precast_data
-              in
-              ok)
+          let lang =
+            let sp = Eliom_common.get_sp () in
+            let@ lang =
+              Option.bind
+                (Ocsigen_request.header sp.sp_request.request_info
+                   (Ocsigen_header.Name.of_string "Accept-Language"))
+            in
+            Language.of_string_opt lang
+          in
+          let* state =
+            State.create_election s uuid { lang; ballot; precast_data }
+          in
+          let json =
+            match state with
+            | None -> `Assoc []
+            | Some state -> `Assoc [ ("state", `String state) ]
+          in
+          return_json 401 (Yojson.Safe.to_string json)
       | _ -> method_not_allowed)
   | [ "objects"; hash ] -> (
       match method_ with

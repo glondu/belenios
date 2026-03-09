@@ -374,30 +374,6 @@ struct
             get_pre_login_handler ~state env
         | None -> return @@ Html (Eliom_content.Html.F.div []))
 
-  let direct_voter_auth s uuid x =
-    let fail () = failwith "invalid direct auth" in
-    let* c =
-      let* cs = get_election_auth_configs s uuid in
-      match cs with
-      | [ c ] -> Lwt.return c
-      | _ -> (
-          match x with
-          | `Assoc x -> (
-              match List.assoc_opt "service" x with
-              | Some (`String service) -> (
-                  match find_auth_instance service cs with
-                  | Some c -> Lwt.return c
-                  | None -> fail ())
-              | _ -> fail ())
-          | _ -> fail ())
-    in
-    match List.assoc_opt c.auth_system !auth_systems with
-    | Some { handler; _ } ->
-        let module X = (val handler (Some uuid) c) in
-        let* user_name = X.direct s x in
-        Lwt.return { user_name; user_domain = c.auth_instance }
-    | None -> fail ()
-
   module State = struct
     let get_auth ~state =
       let@ { username_or_address; auth_config = { auth_instance; _ }; _ } =

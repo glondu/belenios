@@ -71,9 +71,6 @@ struct
                     ~state
                 in
                 return (Web_auth_sig.Html fragment))
-
-      let direct _ _ =
-        failwith "direct authentication not implemented for email"
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
