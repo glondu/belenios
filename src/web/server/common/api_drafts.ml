@@ -1029,7 +1029,7 @@ let post_draft_status ~admin_id s uuid
 let () =
   Billing.validate :=
     fun ~admin_id uuid ->
-      let@ s = Storage.with_transaction in
+      let@ s = Storage.with_election_transaction uuid in
       let@ se, set = Storage.update s (Election (uuid, Draft)) in
       match Lopt.get_value se with
       | None -> not_found

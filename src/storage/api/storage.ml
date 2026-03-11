@@ -48,6 +48,37 @@ let with_transaction f =
   end in
   f (module T : TX)
 
+let with_election_transaction uuid f =
+  let module S = (val get_backend ()) in
+  let@ tx = S.with_transaction in
+  let module T = struct
+    module S = S
+
+    let tx = tx
+  end in
+  ignore uuid;
+  f (module T : TX)
+
+let with_elections_pool_transaction f =
+  let module S = (val get_backend ()) in
+  let@ tx = S.with_transaction in
+  let module T = struct
+    module S = S
+
+    let tx = tx
+  end in
+  f (module T : TX)
+
+let with_account_transaction f =
+  let module S = (val get_backend ()) in
+  let@ tx = S.with_transaction in
+  let module T = struct
+    module S = S
+
+    let tx = tx
+  end in
+  f (module T : TX)
+
 let get_user_id x =
   let module X = (val get_backend ()) in
   X.get_user_id x
