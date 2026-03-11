@@ -47,7 +47,7 @@ module Make
 struct
   let throttle = Throttle.create ~rate:1 ~max:5 ~n:!Web_config.maxmailsatonce
 
-  let check s uuid a name password =
+  let check uuid a name password =
     let channel = Channel.{ uuid; name } in
     let* b = Throttle.wait throttle channel in
     if b then
@@ -63,8 +63,11 @@ struct
             let key : admin_password_file =
               if is_email name then Address name else Username name
             in
+            let@ s = Storage.with_transaction in
             Storage.get s (Admin_password (file, key))
-        | Some uuid -> Storage.get s (Election (uuid, Password name))
+        | Some uuid ->
+            let@ s = Storage.with_transaction in
+            Storage.get s (Election (uuid, Password name))
       in
       let&* r = Lopt.get_value r in
       if check_password r password then Lwt.return_some r else Lwt.return_none
@@ -93,9 +96,7 @@ struct
         Web_auth.post_login_handler =
           (fun uuid a cont ->
             let* result =
-              let@ s = Storage.with_transaction in
-              let* x = check s uuid a name password in
-              (* NB: This is required to finalize the transaction being held *)
+              let* x = check uuid a name password in
               Lwt.return
                 (match x with
                 | None -> None
