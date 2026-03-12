@@ -31,9 +31,11 @@ let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
 let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
 
 module type BACKEND = sig
+  type nonrec 'a file = 'a file
+
   val get_unixfilename : unit -> 'a file -> string Lwt.t
 
-  include BACKEND_GENERIC with type t := unit
+  include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := unit
   include BACKEND_ELECTIONS with type t := unit
   include BACKEND_ACCOUNTS with type t := unit
@@ -1501,6 +1503,8 @@ module MakeBackend
       with_lock uuid f
     in
     let module X = struct
+      type nonrec 'a file = 'a file
+
       let get_unixfilename () f =
         with_lock_file f (fun () -> get_unixfilename f)
 

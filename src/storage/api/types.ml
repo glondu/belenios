@@ -36,6 +36,7 @@ type (_, _) string_or_value_spec =
 
 module type BACKEND_GENERIC = sig
   type t
+  type 'a file
 
   val get : t -> 'a file -> 'a lopt Lwt.t
   val set : t -> 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
@@ -86,7 +87,7 @@ module type ELECTION_TRANSACTION = sig
 
   val with_transaction : uuid -> (t -> 'a Lwt.t) -> 'a Lwt.t
 
-  include BACKEND_GENERIC with type t := t
+  include BACKEND_GENERIC with type t := t and type 'a file := 'a file
   include BACKEND_ARCHIVE with type t := t
 
   val get_unixfilename : t -> 'a file -> string Lwt.t
@@ -104,7 +105,7 @@ module type ACCOUNT_TRANSACTION = sig
 
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
 
-  include BACKEND_GENERIC with type t := t
+  include BACKEND_GENERIC with type t := t and type 'a file := 'a file
 
   val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
 end
