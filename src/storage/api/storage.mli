@@ -21,14 +21,9 @@
 
 open Types
 open Serializable_t
-module E : ELECTION_TRANSACTION
-module A : ACCOUNT_TRANSACTION
+include STORAGE
 
 type 'a u = E.t -> uuid -> 'a
-
-val get_user_id : user -> int option Lwt.t
-val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-val new_election : unit -> uuid option Lwt.t
 
 (** Scoped transaction wrappers. Use these in preference to [with_transaction]
     so that the compiler can verify that the operations performed inside a

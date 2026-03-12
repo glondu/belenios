@@ -75,19 +75,6 @@ module type BACKEND_ACCOUNTS = sig
   val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
 end
 
-module type STORAGE = sig
-  type t
-
-  val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
-  val get_user_id : user -> int option Lwt.t
-  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
-
-  include BACKEND_GENERIC with type t := t
-  include BACKEND_ARCHIVE with type t := t
-  include BACKEND_ELECTIONS with type t := t
-  include BACKEND_ACCOUNTS with type t := t
-end
-
 (** Scoped transaction tokens. Each kind of token is only produced by the
     corresponding [with_*_transaction] wrapper, so the compiler rejects calls
     that mix incompatible scopes. *)
@@ -120,4 +107,13 @@ module type ACCOUNT_TRANSACTION = sig
   include BACKEND_GENERIC with type t := t
 
   val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
+end
+
+module type STORAGE = sig
+  module E : ELECTION_TRANSACTION
+  module A : ACCOUNT_TRANSACTION
+
+  val get_user_id : user -> int option Lwt.t
+  val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
+  val new_election : unit -> uuid option Lwt.t
 end

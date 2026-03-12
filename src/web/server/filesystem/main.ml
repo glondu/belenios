@@ -1629,7 +1629,8 @@ module Make (Config : CONFIG) : STORAGE = struct
     let module T = (val tx : BACKEND) in
     T.append_sealing () u event
 
-  let new_election tx =
+  let new_election () =
+    let@ tx = with_transaction in
     let module T = (val tx : BACKEND) in
     T.new_election ()
 
@@ -1684,6 +1685,34 @@ module Make (Config : CONFIG) : STORAGE = struct
     data_policy_loop ()
 
   let () = Lwt.async data_policy_loop
+
+  module E : ELECTION_TRANSACTION = struct
+    type nonrec t = t
+
+    let with_transaction _uuid f = with_transaction f
+    let get_unixfilename = get_unixfilename
+    let get = get
+    let set = set
+    let del = del
+    let update = update
+    let append = append
+    let append_sealing = append_sealing
+    let archive_election = archive_election
+    let delete_election = delete_election
+    let validate_election = validate_election
+  end
+
+  module A : ACCOUNT_TRANSACTION = struct
+    type nonrec t = t
+
+    let with_transaction = with_transaction
+    let get_unixfilename = get_unixfilename
+    let get = get
+    let set = set
+    let del = del
+    let update = update
+    let new_account_id = new_account_id
+  end
 end
 
 let backend_name = "filesystem"

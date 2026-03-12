@@ -23,15 +23,6 @@ open Lwt.Syntax
 open Belenios
 open Types
 
-module type TX = sig
-  module S : STORAGE
-
-  val tx : S.t
-end
-
-type t = (module TX)
-type 'a u = t -> uuid -> 'a
-
 let backends = ref []
 let backend = ref None
 
@@ -58,17 +49,22 @@ let get_elections_by_owner x =
 
 let new_election () =
   let module S = (val get_backend ()) in
-  let@ tx = S.with_transaction in
-  S.new_election tx
+  S.new_election ()
 
 module E = struct
-  type nonrec t = t
+  module type TX = sig
+    module S : ELECTION_TRANSACTION
 
-  let with_transaction _uuid f =
+    val tx : S.t
+  end
+
+  type t = (module TX)
+
+  let with_transaction uuid f =
     let module S = (val get_backend ()) in
-    let@ tx = S.with_transaction in
+    let@ tx = S.E.with_transaction uuid in
     let module T = struct
-      module S = S
+      module S = S.E
 
       let tx = tx
     end in
@@ -115,14 +111,22 @@ module E = struct
     T.S.validate_election T.tx u
 end
 
+type 'a u = E.t -> uuid -> 'a
+
 module A = struct
-  type nonrec t = t
+  module type TX = sig
+    module S : ACCOUNT_TRANSACTION
+
+    val tx : S.t
+  end
+
+  type t = (module TX)
 
   let with_transaction f =
     let module S = (val get_backend ()) in
-    let@ tx = S.with_transaction in
+    let@ tx = S.A.with_transaction in
     let module T = struct
-      module S = S
+      module S = S.A
 
       let tx = tx
     end in
