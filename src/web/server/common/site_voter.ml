@@ -59,14 +59,15 @@ struct
         let page = make_absolute_string_uri ~fragment ~service:apps "vote" in
         String_redirection.send page)
 
-  let send_confirmation_email s uuid confirmation =
+  let send_confirmation_email s confirmation =
     let@ election =
-      Public_archive.with_election s uuid ~fallback:(fun () ->
+      Public_archive.with_election s ~fallback:(fun () ->
+          let uuid = Storage.E.get_uuid s in
           Lwt.fail (Election_not_found (uuid, "send_confirmation_email")))
     in
     let open (val election) in
     let title = template.t_name in
-    let* metadata = Web_persist.get_election_metadata s uuid in
+    let* metadata = Web_persist.get_election_metadata s in
     let* l = get_preferred_gettext () in
     let open (val l) in
     Lwt.catch
@@ -93,7 +94,7 @@ struct
         in
         let uuid = env.uuid in
         let@ s = Storage.with_election_transaction uuid in
-        let@ election = with_election s uuid in
+        let@ election = with_election s in
         match env.state with
         | None -> Pages_voter.lost_ballot s election () >>= Html.send
         | Some { ballot; precast_data; _ } -> (
@@ -104,7 +105,7 @@ struct
                   Lwt.catch
                     (fun () ->
                       let* hash =
-                        Api_elections.cast_ballot send_confirmation_email s uuid
+                        Api_elections.cast_ballot send_confirmation_email s
                           election ~ballot ~user ~precast_data
                       in
                       return (`Ok hash))

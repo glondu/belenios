@@ -24,7 +24,7 @@ open Belenios_storage_api
 open Belenios_server_core
 open Belenios_messages
 
-val get_metadata : Storage.E.t -> admin_id:int -> uuid -> metadata Lwt.t
+val get_metadata : Storage.E.t -> admin_id:int -> metadata Lwt.t
 val format_password_email : material_message -> text_message Lwt.t
 
 val generate_password_email :

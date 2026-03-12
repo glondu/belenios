@@ -249,7 +249,7 @@ let post_drafts account draft =
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () =
     let@ s = Storage.with_election_transaction uuid in
-    Web_persist.create_draft s uuid se
+    Web_persist.create_draft s se
   in
   Lwt.return_some uuid
 
@@ -379,7 +379,7 @@ let exn_of_generate_credentials_on_server_error = function
   | `Already -> Error (`GenericError "already done")
   | `NoServer -> Error (`GenericError "credential authority is not the server")
 
-let submit_public_credentials s uuid
+let submit_public_credentials s
     ((Draft (v, se), set) : _ updatable_with_billing) ?certificate credentials =
   let () =
     if se.se_voters = [] then raise (Error (`ValidationError `NoVoters))
@@ -461,7 +461,7 @@ let submit_public_credentials s uuid
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Storage.E.set s (Election (uuid, Public_creds)) Value credentials in
+  let* () = Storage.E.set s Public_creds Value credentials in
   se.se_public_creds_received <- true;
   se.se_public_creds_certificate <- certificate;
   set (Draft (v, se))
@@ -767,8 +767,8 @@ let merge_voters a b f =
   in
   loop weights (List.rev a) b
 
-let get_passwords s uuid =
-  let* csv = Storage.E.get s (Election (uuid, Passwords)) in
+let get_passwords s =
+  let* csv = Storage.E.get s Passwords in
   let&* csv = Lopt.get_value csv in
   let res =
     List.fold_left
@@ -781,19 +781,18 @@ let get_passwords s uuid =
   in
   Lwt.return_some res
 
-let import_voters s uuid ((Draft (v, se), set) : _ updatable_with_billing) from
-    =
+let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
   let@ voters cont =
-    let* x = Web_persist.get_all_voters s from in
+    let* x = Web_persist.get_all_voters from in
     match x with
     | [] -> (
-        let* se = Storage.E.get s (Election (from, Draft)) in
+        let* se = Storage.E.get from Draft in
         match Lopt.get_value se with
         | None -> Lwt.return @@ Stdlib.Error `NotFound
         | Some se -> cont @@ get_draft_voters se)
     | _ -> cont x
   in
-  let* passwords = get_passwords s from in
+  let* passwords = get_passwords from in
   let get_password =
     match passwords with
     | None -> fun _ -> None
@@ -817,12 +816,12 @@ let import_voters s uuid ((Draft (v, se), set) : _ updatable_with_billing) from
         let login = Voter.get x in
         Lwt.return @@ Stdlib.Error (`Duplicate login)
 
-let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
+let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
     metadata =
   match metadata.e_trustees with
   | None -> Lwt.return @@ Stdlib.Error `None
   | Some names -> (
-      let* trustees = Public_archive.get_trustees s from in
+      let* trustees = Public_archive.get_trustees from in
       let version = se.se_version in
       let module G = (val Group.of_string ~version se.se_group : GROUP) in
       let module Trustees = (val Trustees.get_by_version version) in
@@ -833,7 +832,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
-          let* privs = Storage.E.get s (Election (from, Private_keys)) in
+          let* privs = Storage.E.get from Private_keys in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
@@ -943,8 +942,8 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
             let* () = set (Draft (v, se)) in
             Lwt.return @@ Ok `Basic)
 
-let check_owner account s uuid cont =
-  let* metadata = Web_persist.get_election_metadata s uuid in
+let check_owner account s cont =
+  let* metadata = Web_persist.get_election_metadata s in
   if Accounts.check account metadata.e_owners then cont metadata
   else unauthorized
 
@@ -988,9 +987,7 @@ let post_draft_status ~admin_id s uuid
   | `ValidateElection ->
       let* status = get_draft_status uuid (Draft (v, se)) in
       let* () =
-        Web_persist.validate_election ~admin_id s uuid
-          (Draft (v, se), set)
-          status
+        Web_persist.validate_election ~admin_id s (Draft (v, se), set) status
       in
       ok
   | `SetCredentialAuthorityVisited ->
@@ -1033,7 +1030,7 @@ let () =
   Billing.validate :=
     fun ~admin_id uuid ->
       let@ s = Storage.with_election_transaction uuid in
-      let@ se, set = Storage.E.update s (Election (uuid, Draft)) in
+      let@ se, set = Storage.E.update s Draft in
       match Lopt.get_value se with
       | None -> not_found
       | Some se ->
@@ -1213,14 +1210,14 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       match method_ with
       | `GET ->
           let@ () = handle_get_option in
-          let* x = Storage.E.get s (Election (uuid, Private_creds)) in
+          let* x = Storage.E.get s Private_creds in
           x |> Lopt.get_string |> Lwt.return
       | _ -> method_not_allowed)
   | [ "public" ] -> (
       match method_ with
       | `GET ->
           handle_get_option (fun () ->
-              Web_persist.get_draft_public_credentials s uuid)
+              Web_persist.get_draft_public_credentials s)
       | `POST -> (
           let@ who = with_administrator_or_credential_authority token se in
           if Web_persist.get_credentials_status uuid se <> `None then forbidden
@@ -1236,9 +1233,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
                     Lwt.fail @@ exn_of_generate_credentials_on_server_error e)
             | `CredentialAuthority, credentials ->
                 let@ () = handle_generic_error in
-                let* () =
-                  submit_public_credentials s uuid (se, set) credentials
-                in
+                let* () = submit_public_credentials s (se, set) credentials in
                 ok
             | _ -> forbidden)
       | _ -> method_not_allowed)
@@ -1290,8 +1285,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_generic_error in
           match request with
           | `Import from -> (
-              let@ _ = check_owner account s from in
-              let* x = import_voters s uuid (se, set) from in
+              let@ from = Storage.with_election_transaction from in
+              let@ _ = check_owner account from in
+              let* x = import_voters uuid (se, set) from in
               match x with
               | Ok () -> ok
               | Stdlib.Error `Forbidden -> forbidden
@@ -1313,9 +1309,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_ifmatch ifmatch get in
           let@ voters = body.run string_list_of_string in
           let@ () = handle_generic_error in
-          let* metadata =
-            Mails_voter.get_metadata s ~admin_id:account.id uuid
-          in
+          let* metadata = Mails_voter.get_metadata s ~admin_id:account.id in
           let generate id = Mails_voter.generate_password_email metadata id in
           let* jobs = post_draft_passwords account generate (se, set) voters in
           let* () = Mails_voter_bulk.submit_bulk_emails jobs in
@@ -1421,8 +1415,9 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               let* () = reset_draft_trustees (se, set) in
               ok
           | `Import from -> (
-              let@ metadata = check_owner account s from in
-              let* x = import_trustees (se, set) s from metadata in
+              let@ from = Storage.with_election_transaction from in
+              let@ metadata = check_owner account from in
+              let* x = import_trustees (se, set) from metadata in
               match x with
               | Ok _ -> ok
               | Stdlib.Error e ->

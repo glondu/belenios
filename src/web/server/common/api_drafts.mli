@@ -91,16 +91,16 @@ val merge_voters :
   (draft_voter list * weight, Voter.t) Stdlib.result
 
 val import_voters :
-  (draft_election updatable_with_billing ->
   uuid ->
+  draft_election updatable_with_billing ->
+  Storage.E.t ->
   ( unit,
     [ `Forbidden
     | `NotFound
     | `TotalWeightTooBig of weight
     | `Duplicate of string ] )
   Stdlib.result
-  Lwt.t)
-  Storage.u
+  Lwt.t
 
 val import_trustees :
   draft_election updatable_with_billing ->

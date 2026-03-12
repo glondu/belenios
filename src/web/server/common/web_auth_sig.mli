@@ -64,7 +64,7 @@ type auth_env = {
 
 module type STATE = sig
   val get_auth : state:string -> auth_env option
-  val create_election : Storage.E.t -> uuid -> state -> string option Lwt.t
+  val create_election : Storage.E.t -> state -> string option Lwt.t
   val get_election : state:string -> election_env option
   val del : state:string -> unit
   val get_data : state:string -> data

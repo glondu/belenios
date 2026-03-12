@@ -41,7 +41,7 @@ struct
     let open (val election : Site_common_sig.ELECTION) in
     let title = template.t_name in
     let full_title = title in
-    let* metadata = Web_persist.get_election_metadata s uuid in
+    let* metadata = Web_persist.get_election_metadata s in
     let you_must_restart =
       match get_booth_index metadata.e_booth_version with
       | Some i ->

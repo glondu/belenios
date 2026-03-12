@@ -41,8 +41,8 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
       ()
     >>= Html.send ~code:404
 
-  let with_election s uuid f =
-    Public_archive.with_election s uuid ~fallback:election_not_found f
+  let with_election s f =
+    Public_archive.with_election s ~fallback:election_not_found f
 
   let () =
     File.register ~service:source_code ~content_type:"application/x-gzip"

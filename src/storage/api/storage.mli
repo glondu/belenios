@@ -23,7 +23,7 @@ open Types
 open Serializable_t
 include STORAGE
 
-type 'a u = E.t -> uuid -> 'a
+type 'a u = E.t -> 'a
 
 (** Scoped transaction wrappers. Use these in preference to [with_transaction]
     so that the compiler can verify that the operations performed inside a

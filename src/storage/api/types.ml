@@ -52,21 +52,18 @@ end
 module type BACKEND_ARCHIVE = sig
   type t
 
-  val append :
-    t -> uuid -> ?last:last_event -> append_operation list -> bool Lwt.t
-
-  val append_sealing : t -> uuid -> sealing_event -> bool Lwt.t
+  val append : t -> ?last:last_event -> append_operation list -> bool Lwt.t
+  val append_sealing : t -> sealing_event -> bool Lwt.t
 end
 
 module type BACKEND_ELECTIONS = sig
   type t
 
-  val new_election : t -> uuid option Lwt.t
-  val archive_election : t -> uuid -> unit Lwt.t
-  val delete_election : t -> uuid -> unit Lwt.t
+  val archive_election : t -> unit Lwt.t
+  val delete_election : t -> unit Lwt.t
 
   val validate_election :
-    t -> uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
+    t -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
 module type BACKEND_ACCOUNTS = sig
@@ -87,15 +84,16 @@ module type ELECTION_TRANSACTION = sig
 
   val with_transaction : uuid -> (t -> 'a Lwt.t) -> 'a Lwt.t
 
-  include BACKEND_GENERIC with type t := t and type 'a file := 'a file
+  include BACKEND_GENERIC with type t := t and type 'a file := 'a election_file
   include BACKEND_ARCHIVE with type t := t
 
-  val get_unixfilename : t -> 'a file -> string Lwt.t
-  val archive_election : t -> uuid -> unit Lwt.t
-  val delete_election : t -> uuid -> unit Lwt.t
+  val get_uuid : t -> uuid
+  val get_unixfilename : t -> 'a election_file -> string Lwt.t
+  val archive_election : t -> unit Lwt.t
+  val delete_election : t -> unit Lwt.t
 
   val validate_election :
-    t -> uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
+    t -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
 (** Token for account and auth-db operations ([Account _], [Auth_db _],

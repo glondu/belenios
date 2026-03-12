@@ -90,28 +90,32 @@ module E = struct
     let module T = (val tx : TX) in
     T.S.update T.tx f set
 
-  let append tx u ?last ops =
+  let append tx ?last ops =
     let module T = (val tx : TX) in
-    T.S.append T.tx u ?last ops
+    T.S.append T.tx ?last ops
 
   let append_sealing tx sealing =
     let module T = (val tx : TX) in
     T.S.append_sealing T.tx sealing
 
-  let archive_election tx u =
+  let get_uuid tx =
     let module T = (val tx : TX) in
-    T.S.archive_election T.tx u
+    T.S.get_uuid T.tx
 
-  let delete_election tx u =
+  let archive_election tx =
     let module T = (val tx : TX) in
-    T.S.delete_election T.tx u
+    T.S.archive_election T.tx
 
-  let validate_election tx u =
+  let delete_election tx =
     let module T = (val tx : TX) in
-    T.S.validate_election T.tx u
+    T.S.delete_election T.tx
+
+  let validate_election tx =
+    let module T = (val tx : TX) in
+    T.S.validate_election T.tx
 end
 
-type 'a u = E.t -> uuid -> 'a
+type 'a u = E.t -> 'a
 
 module A = struct
   module type TX = sig

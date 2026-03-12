@@ -67,7 +67,7 @@ struct
             Storage.A.get s (Admin_password (file, key))
         | Some uuid ->
             let@ s = Storage.with_election_transaction uuid in
-            Storage.E.get s (Election (uuid, Password name))
+            Storage.E.get s (Password name)
       in
       let&* r = Lopt.get_value r in
       if check_password r password then Lwt.return_some r else Lwt.return_none

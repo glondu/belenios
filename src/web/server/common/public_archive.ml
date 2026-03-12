@@ -28,34 +28,34 @@ exception Not_in_cache
 
 let not_in_cache _ = Lwt.fail Not_in_cache
 
-let get_roots s uuid =
-  let* x = Storage.E.get s (Election (uuid, Roots)) in
+let get_roots s =
+  let* x = Storage.E.get s Roots in
   match Lopt.get_value x with
   | None -> Lwt.return Events.empty_roots
   | Some x -> Lwt.return x
 
-let get_data s uuid x =
-  let* x = Storage.E.get s (Election (uuid, Data x)) in
+let get_data s x =
+  let* x = Storage.E.get s (Data x) in
   x |> Lopt.get_value |> Lwt.return
 
-let get_event s uuid x =
-  let* x = get_data s uuid x in
+let get_event s x =
+  let* x = get_data s x in
   x |> Option.map event_of_string |> Lwt.return
 
-let get_from_data s uuid f =
-  let* x = get_roots s uuid in
+let get_from_data s f =
+  let* x = get_roots s in
   let&* x = f x in
-  get_data s uuid x
+  get_data s x
 
-let get_from_setup_data s uuid f =
-  let* x = get_roots s uuid in
+let get_from_setup_data s f =
+  let* x = get_roots s in
   let&* x = x.roots_setup_data in
-  let*& x = get_data s uuid x in
-  get_data s uuid (f (setup_data_of_string x))
+  let*& x = get_data s x in
+  get_data s (f (setup_data_of_string x))
 
-let fold_on_event_payload_hashes s uuid typ last_event f accu =
+let fold_on_event_payload_hashes s typ last_event f accu =
   let rec loop e accu =
-    let* e = get_event s uuid e in
+    let* e = get_event s e in
     match e with
     | None -> assert false
     | Some e ->
@@ -69,24 +69,25 @@ let fold_on_event_payload_hashes s uuid typ last_event f accu =
   in
   loop last_event accu
 
-let fold_on_event_payloads s uuid typ last_event f accu =
-  fold_on_event_payload_hashes s uuid typ last_event
+let fold_on_event_payloads s typ last_event f accu =
+  fold_on_event_payload_hashes s typ last_event
     (fun payload accu ->
-      let* x = get_data s uuid payload in
+      let* x = get_data s payload in
       match x with None -> assert false | Some x -> f payload x accu)
     accu
 
-let get_trustees s uuid =
-  let* x = get_from_setup_data s uuid (fun x -> x.setup_trustees) in
+let get_trustees s =
+  let* x = get_from_setup_data s (fun x -> x.setup_trustees) in
   let@ () =
    fun cont -> match x with None -> cont () | Some x -> Lwt.return x
   in
+  let uuid = Storage.E.get_uuid s in
   let msg =
     Printf.sprintf "missing trustees for election %s" (Uuid.unwrap uuid)
   in
   Lwt.fail (Failure msg)
 
-let get_election s uuid = get_from_setup_data s uuid (fun x -> x.setup_election)
+let get_election s = get_from_setup_data s (fun x -> x.setup_election)
 
 module ElectionCacheTypes = struct
   type key = uuid
@@ -97,57 +98,59 @@ module ElectionCache = Ocsigen_cache.Make (ElectionCacheTypes)
 
 exception Not_cachable
 
-let raw_get_election s uuid =
-  let* x = get_election s uuid in
+let raw_get_election s =
+  let* x = get_election s in
   match x with
   | None -> Lwt.fail Not_cachable
   | Some x -> Lwt.return @@ Election.of_string (module Random) x
 
 let election_cache = new ElectionCache.cache not_in_cache ~timer:3600. 500
 
-let election_cache_find s uuid =
+let election_cache_find s =
+  let uuid = Storage.E.get_uuid s in
   match election_cache#find_in_cache uuid with
   | x -> Lwt.return x
   | exception Not_found ->
-      let* x = raw_get_election s uuid in
+      let* x = raw_get_election s in
       election_cache#add uuid x;
       Lwt.return x
 
-let with_election s uuid ~fallback f =
+let with_election s ~fallback f =
   Lwt.try_bind
-    (fun () -> election_cache_find s uuid)
+    (fun () -> election_cache_find s)
     f
     (function Not_cachable -> fallback () | e -> Lwt.reraise e)
 
-let get_partial_decryptions s uuid =
-  let* x = get_roots s uuid in
+let get_partial_decryptions s =
+  let* x = get_roots s in
   match x.roots_last_pd_event with
   | None -> Lwt.return []
   | Some x ->
-      fold_on_event_payloads s uuid `PartialDecryption x
+      fold_on_event_payloads s `PartialDecryption x
         (fun _ x accu ->
           let x = owned_of_string read_hash x in
           let* pd =
-            let* x = get_data s uuid x.owned_payload in
+            let* x = get_data s x.owned_payload in
             match x with None -> assert false | Some x -> Lwt.return x
           in
           let x = { x with owned_payload = pd } in
           Lwt.return @@ (x :: accu))
         []
 
-let get_result s uuid = get_from_data s uuid (fun x -> x.roots_result)
+let get_result s = get_from_data s (fun x -> x.roots_result)
 
-let get_public_creds s uuid =
-  let* x = get_from_setup_data s uuid (fun x -> x.setup_credentials) in
+let get_public_creds s =
+  let* x = get_from_setup_data s (fun x -> x.setup_credentials) in
   match x with
   | None -> assert false
   | Some x -> Lwt.return @@ public_credentials_of_string x
 
-let get_credential_weight s uuid cred =
-  let* x = Storage.E.get s (Election (uuid, Credential_weight cred)) in
+let get_credential_weight s cred =
+  let* x = Storage.E.get s (Credential_weight cred) in
   match Lopt.get_value x with
   | Some x -> Lwt.return x
   | None ->
+      let uuid = Storage.E.get_uuid s in
       Lwt.fail
         (Failure
            (Printf.sprintf "could not find credential weight of %s/%s"
@@ -160,8 +163,7 @@ let get_ballot_weight s election ballot =
       let ballot = W.read_ballot ++ ballot in
       match W.get_credential ballot with
       | None -> failwith "missing signature"
-      | Some credential ->
-          get_credential_weight s W.uuid (W.G.to_string credential))
+      | Some credential -> get_credential_weight s (W.G.to_string credential))
     (fun e ->
       Printf.ksprintf failwith "anomaly in get_ballot_weight (%s)"
         (Printexc.to_string e))
@@ -175,17 +177,17 @@ end
 
 module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
-let fold_on_ballots s uuid f accu =
-  let* x = get_roots s uuid in
+let fold_on_ballots s f accu =
+  let* x = get_roots s in
   match x.roots_last_ballot_event with
   | None -> Lwt.return accu
-  | Some e -> fold_on_event_payloads s uuid `Ballot e f accu
+  | Some e -> fold_on_event_payloads s `Ballot e f accu
 
 let fold_on_ballots_weeded s election f accu =
   let module W = (val election : Site_common_sig.ELECTION) in
   let module GSet = Set.Make (W.G) in
   let* _, accu =
-    fold_on_ballots s W.uuid
+    fold_on_ballots s
       (fun _ b ((seen, accu) as x) ->
         let ballot = W.read_ballot ++ b in
         match W.get_credential ballot with
@@ -200,10 +202,8 @@ let fold_on_ballots_weeded s election f accu =
   in
   Lwt.return accu
 
-let raw_get_ballots s uuid =
-  let@ election =
-    with_election s uuid ~fallback:(fun () -> Lwt.return HMap.empty)
-  in
+let raw_get_ballots s =
+  let@ election = with_election s ~fallback:(fun () -> Lwt.return HMap.empty) in
   fold_on_ballots_weeded s election
     (fun b accu ->
       let hash = Hash.hash_string b in
@@ -213,63 +213,65 @@ let raw_get_ballots s uuid =
 
 let ballots_cache = new BallotsCache.cache not_in_cache ~timer:3600. 10
 
-let ballots_cache_find s uuid =
+let ballots_cache_find s =
+  let uuid = Storage.E.get_uuid s in
   match ballots_cache#find_in_cache uuid with
   | x -> Lwt.return x
   | exception Not_found ->
-      let* x = raw_get_ballots s uuid in
+      let* x = raw_get_ballots s in
       ballots_cache#add uuid x;
       Lwt.return x
 
-let get_ballot_hashes s uuid =
-  let* ballots = ballots_cache_find s uuid in
+let get_ballot_hashes s =
+  let* ballots = ballots_cache_find s in
   HMap.bindings ballots |> Lwt.return
 
-let get_ballot_by_hash s uuid hash =
+let get_ballot_by_hash s hash =
   Lwt.catch
     (fun () ->
       let hash = Hash.of_b64 hash in
-      get_data s uuid hash)
+      get_data s hash)
     (fun _ -> Lwt.return_none)
 
-let get_owned_shuffles s uuid =
-  let* x = get_roots s uuid in
+let get_owned_shuffles s =
+  let* x = get_roots s in
   let&* x = x.roots_last_shuffle_event in
   let* x =
-    fold_on_event_payloads s uuid `Shuffle x
+    fold_on_event_payloads s `Shuffle x
       (fun h x accu -> Lwt.return @@ ((h, owned_of_string read_hash x) :: accu))
       []
   in
   Lwt.return_some x
 
-let raw_get_shuffles s uuid x =
+let raw_get_shuffles s x =
   let* x =
     Lwt_list.map_s
       (fun (h, o) ->
-        let* x = get_data s uuid o.owned_payload in
+        let* x = get_data s o.owned_payload in
         match x with None -> assert false | Some x -> Lwt.return (h, o, x))
       x
   in
   Lwt.return_some x
 
-let get_nh_ciphertexts s uuid =
+let get_nh_ciphertexts s =
   let@ election =
-    with_election s uuid ~fallback:(fun () ->
+    let uuid = Storage.E.get_uuid s in
+    with_election s ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "get_nh_ciphertexts")))
   in
   let module W = (val election) in
-  let* x = get_roots s uuid in
+  let* x = get_roots s in
   match x.roots_last_shuffle_event with
   | None -> (
       match x.roots_encrypted_tally with
       | None -> assert false
       | Some x -> (
-          let* x = get_data s uuid x in
+          let* x = get_data s x in
           match x with
           | None -> assert false
           | Some x -> (
               let x = sized_encrypted_tally_of_string read_hash x in
-              let* x = get_data s uuid x.sized_encrypted_tally in
+              let* x = get_data s x.sized_encrypted_tally in
               match x with
               | None -> assert false
               | Some x ->
@@ -278,19 +280,19 @@ let get_nh_ciphertexts s uuid =
                   |> string_of_nh_ciphertexts W.(swrite G.to_string)
                   |> Lwt.return)))
   | Some x -> (
-      let* x = get_event s uuid x in
+      let* x = get_event s x in
       match x with
       | None -> assert false
       | Some x -> (
           match x.event_payload with
           | None -> assert false
           | Some x -> (
-              let* x = get_data s uuid x in
+              let* x = get_data s x in
               match x with
               | None -> assert false
               | Some x -> (
                   let x = owned_of_string read_hash x in
-                  let* x = get_data s uuid x.owned_payload in
+                  let* x = get_data s x.owned_payload in
                   match x with
                   | None -> assert false
                   | Some x ->
@@ -305,37 +307,38 @@ let get_nh_ciphertexts s uuid =
                            W.(swrite G.to_string)
                            x.shuffle_ciphertexts))))
 
-let get_shuffles s uuid =
-  let* x = get_owned_shuffles s uuid in
+let get_shuffles s =
+  let* x = get_owned_shuffles s in
   let&* x = x in
-  raw_get_shuffles s uuid x
+  raw_get_shuffles s x
 
-let get_sized_encrypted_tally s uuid =
-  let* roots = get_roots s uuid in
+let get_sized_encrypted_tally s =
+  let* roots = get_roots s in
   let&* x = roots.roots_encrypted_tally in
-  let* x = get_data s uuid x in
+  let* x = get_data s x in
   match x with None -> assert false | Some x -> Lwt.return_some x
 
-let get_latest_encrypted_tally s uuid =
+let get_latest_encrypted_tally s =
   let@ election =
-    with_election s uuid ~fallback:(fun () ->
+    let uuid = Storage.E.get_uuid s in
+    with_election s ~fallback:(fun () ->
         Lwt.fail (Election_not_found (uuid, "get_latest_encrypted_tally")))
   in
   let module W = (val election) in
-  let* roots = get_roots s uuid in
+  let* roots = get_roots s in
   let@ tally cont =
     let&* x = roots.roots_encrypted_tally in
-    let* x = get_data s uuid x in
+    let* x = get_data s x in
     match x with
     | None -> assert false
     | Some x -> (
         let x = sized_encrypted_tally_of_string read_hash x in
-        let* x = get_data s uuid x.sized_encrypted_tally in
+        let* x = get_data s x.sized_encrypted_tally in
         match x with
         | None -> assert false
         | Some x -> cont @@ encrypted_tally_of_string W.(sread G.of_string) x)
   in
-  let* nh = get_nh_ciphertexts s uuid in
+  let* nh = get_nh_ciphertexts s in
   let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in
   let tally = W.E.merge_nh_ciphertexts nh tally in
   Lwt.return_some @@ string_of_encrypted_tally W.(swrite G.to_string) tally

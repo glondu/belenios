@@ -34,10 +34,11 @@ module type BACKEND = sig
   type nonrec 'a file = 'a file
 
   val get_unixfilename : unit -> 'a file -> string Lwt.t
+  val new_election : unit -> uuid option Lwt.t
 
   include BACKEND_GENERIC with type t := unit and type 'a file := 'a file
-  include BACKEND_ARCHIVE with type t := unit
-  include BACKEND_ELECTIONS with type t := unit
+  include BACKEND_ARCHIVE with type t := uuid
+  include BACKEND_ELECTIONS with type t := uuid
   include BACKEND_ACCOUNTS with type t := unit
 end
 
@@ -1517,22 +1518,22 @@ module MakeBackend
       let new_election () = with_lock None new_election
       let new_account_id () = with_lock None new_account_id
 
-      let archive_election () uuid =
+      let archive_election uuid =
         with_lock (Some uuid) (fun () ->
             Election_ops.archive_election (module Backend) uuid)
 
-      let delete_election () uuid =
+      let delete_election uuid =
         with_lock (Some uuid) (fun () ->
             Election_ops.delete_election (module Backend) uuid)
 
-      let validate_election () uuid =
+      let validate_election uuid =
         with_lock (Some uuid) (fun () ->
             Election_ops.validate_election (module Backend) uuid)
 
-      let append () uuid ?last ops =
+      let append uuid ?last ops =
         with_lock (Some uuid) (fun () -> append uuid ?last ops)
 
-      let append_sealing () uuid event =
+      let append_sealing uuid event =
         with_lock (Some uuid) (fun () -> append_sealing uuid event)
     end in
     (module X : BACKEND0)
@@ -1629,11 +1630,11 @@ module Make (Config : CONFIG) : STORAGE = struct
 
   let append tx u ?last ops =
     let module T = (val tx : BACKEND) in
-    T.append () u ?last ops
+    T.append u ?last ops
 
   let append_sealing tx u event =
     let module T = (val tx : BACKEND) in
-    T.append_sealing () u event
+    T.append_sealing u event
 
   let new_election () =
     let@ tx = with_transaction in
@@ -1642,15 +1643,15 @@ module Make (Config : CONFIG) : STORAGE = struct
 
   let archive_election tx u =
     let module T = (val tx : BACKEND) in
-    T.archive_election () u
+    T.archive_election u
 
   let delete_election tx u =
     let module T = (val tx : BACKEND) in
-    T.delete_election () u
+    T.delete_election u
 
   let validate_election tx u =
     let module T = (val tx : BACKEND) in
-    T.validate_election () u
+    T.validate_election u
 
   let new_account_id tx =
     let module T = (val tx : BACKEND) in
@@ -1661,11 +1662,11 @@ module Make (Config : CONFIG) : STORAGE = struct
     let now = Unix.gettimeofday () in
     let archive s uuid =
       let module S = (val s : BACKEND) in
-      S.archive_election () uuid
+      S.archive_election uuid
     in
     let delete s uuid =
       let module S = (val s : BACKEND) in
-      S.delete_election () uuid
+      S.delete_election uuid
     in
     let action, comment =
       match action with
@@ -1693,19 +1694,20 @@ module Make (Config : CONFIG) : STORAGE = struct
   let () = Lwt.async data_policy_loop
 
   module E : ELECTION_TRANSACTION = struct
-    type nonrec t = t
+    type nonrec t = uuid * t
 
-    let with_transaction _uuid f = with_transaction f
-    let get_unixfilename = get_unixfilename
-    let get = get
-    let set = set
-    let del = del
-    let update = update
-    let append = append
-    let append_sealing = append_sealing
-    let archive_election = archive_election
-    let delete_election = delete_election
-    let validate_election = validate_election
+    let with_transaction uuid f = with_transaction (fun x -> f (uuid, x))
+    let get_unixfilename (uuid, x) f = get_unixfilename x (Election (uuid, f))
+    let get (uuid, x) f = get x (Election (uuid, f))
+    let set (uuid, x) f = set x (Election (uuid, f))
+    let del (uuid, x) f = del x (Election (uuid, f))
+    let update (uuid, x) f = update x (Election (uuid, f))
+    let append (uuid, x) ?last ops = append x uuid ?last ops
+    let append_sealing (uuid, x) e = append_sealing x uuid e
+    let get_uuid (uuid, _) = uuid
+    let archive_election (uuid, x) = archive_election x uuid
+    let delete_election (uuid, x) = delete_election x uuid
+    let validate_election (uuid, x) = validate_election x uuid
   end
 
   module A : ACCOUNT_TRANSACTION = struct

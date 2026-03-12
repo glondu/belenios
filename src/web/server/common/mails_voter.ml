@@ -43,17 +43,18 @@ let extract_metadata ~admin_id ~has_weights uuid template metadata :
     langs = get_languages metadata.e_languages;
   }
 
-let get_metadata s ~admin_id uuid =
-  let* raw = Public_archive.get_election s uuid in
+let get_metadata s ~admin_id =
+  let uuid = Storage.E.get_uuid s in
+  let* raw = Public_archive.get_election s in
   match raw with
   | Some raw -> (
       let* has_weights =
-        let* x = Storage.E.get s (Election (uuid, Voters_config)) in
+        let* x = Storage.E.get s Voters_config in
         match Lopt.get_value x with
         | None -> Lwt.return_true
         | Some x -> Lwt.return x.has_explicit_weights
       in
-      let* metadata = Storage.E.get s (Election (uuid, Metadata)) in
+      let* metadata = Storage.E.get s Metadata in
       match Lopt.get_value metadata with
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
@@ -62,9 +63,9 @@ let get_metadata s ~admin_id uuid =
           let election = Election.of_string (module Random) raw in
           let module W = (val election) in
           Lwt.return
-          @@ extract_metadata ~admin_id ~has_weights uuid W.template metadata)
+          @@ extract_metadata ~admin_id ~has_weights W.uuid W.template metadata)
   | None -> (
-      let* se = Storage.E.get s (Election (uuid, Draft)) in
+      let* se = Storage.E.get s Draft in
       match Lopt.get_value se with
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/draft"

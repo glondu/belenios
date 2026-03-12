@@ -52,9 +52,9 @@ struct
     let* user = Eliom_reference.get Web_state.site_user in
     match user with Some u -> f u | None -> forbidden ()
 
-  let with_metadata_check_owner s uuid f =
+  let with_metadata_check_owner s f =
     let* user = Eliom_reference.get Web_state.site_user in
-    let* metadata = Web_persist.get_election_metadata s uuid in
+    let* metadata = Web_persist.get_election_metadata s in
     match user with
     | Some (_, a, _) when Accounts.check a metadata.e_owners -> f metadata
     | _ -> forbidden ()
@@ -181,12 +181,11 @@ struct
   let () =
     Any.register ~service:election_download_archive (fun (uuid, ()) () ->
         let@ s = Storage.with_election_transaction uuid in
-        let@ _ = with_metadata_check_owner s uuid in
+        let@ _ = with_metadata_check_owner s in
         let* l = get_preferred_gettext () in
         let open (val l) in
         Lwt.try_bind
-          (fun () ->
-            Storage.E.get_unixfilename s (Election (uuid, Confidential_archive)))
+          (fun () -> Storage.E.get_unixfilename s Confidential_archive)
           (fun archive_name ->
             File.send ~content_type:"application/zip" archive_name)
           (function

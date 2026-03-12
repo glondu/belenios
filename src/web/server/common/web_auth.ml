@@ -258,8 +258,8 @@ struct
     | ({ auth_instance = i; _ } as y) :: _ when i = x -> Some y
     | _ :: xs -> find_auth_instance x xs
 
-  let get_election_auth_configs s uuid =
-    let* metadata = Web_persist.get_election_metadata s uuid in
+  let get_election_auth_configs s =
+    let* metadata = Web_persist.get_election_metadata s in
     match metadata.e_auth_config with
     | None -> return []
     | Some x ->
@@ -381,7 +381,8 @@ struct
       in
       Some { username_or_address; auth_instance }
 
-    let create_election storage uuid state =
+    let create_election storage state =
+      let uuid = Storage.E.get_uuid storage in
       let credential = state.precast_data.credential in
       let () =
         match SMap.find_opt credential !cred_env with
@@ -390,9 +391,9 @@ struct
       in
       let kind = `Election uuid in
       let* c, username_or_address =
-        let* c = get_election_auth_configs storage uuid in
+        let* c = get_election_auth_configs storage in
         let* username_or_address =
-          Web_persist.get_username_or_address storage uuid
+          Web_persist.get_username_or_address storage
         in
         Lwt.return (c, username_or_address)
       in
