@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
 "PO-Revision-Date: 2026-03-13 12:09+0000\n"
-"Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
+"Last-Translator: Paola Panizza <ppanizza@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/admin/"
 "es/>\n"
 "Language: es\n"
@@ -305,7 +305,7 @@ msgstr "Cambiar la contraseña"
 
 #: src/web/clients/credop/credop.ml:269 src/web/clients/credop/credop.ml:109
 msgid "Check certificate"
-msgstr "Verificar certificado"
+msgstr "Revisar certificado"
 
 #: src/web/clients/trustee/check.ml:187 src/web/clients/admin/trustees_tab.ml:805
 msgid "Check private key ownership"
