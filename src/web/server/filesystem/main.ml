@@ -31,6 +31,8 @@ let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
 let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
 
 module type BACKEND = sig
+  val get_unixfilename : unit -> 'a file -> string Lwt.t
+
   include BACKEND_GENERIC with type t := unit
   include BACKEND_ARCHIVE with type t := unit
   include BACKEND_ELECTIONS with type t := unit
@@ -1706,7 +1708,6 @@ module Make (Config : CONFIG) : STORAGE = struct
     type nonrec t = t
 
     let with_transaction = with_transaction
-    let get_unixfilename = get_unixfilename
     let get = get
     let set = set
     let del = del

@@ -37,7 +37,6 @@ type (_, _) string_or_value_spec =
 module type BACKEND_GENERIC = sig
   type t
 
-  val get_unixfilename : t -> 'a file -> string Lwt.t
   val get : t -> 'a file -> 'a lopt Lwt.t
   val set : t -> 'a file -> ('a, 'b) string_or_value_spec -> 'b -> unit Lwt.t
   val del : t -> 'a file -> unit Lwt.t
@@ -90,6 +89,7 @@ module type ELECTION_TRANSACTION = sig
   include BACKEND_GENERIC with type t := t
   include BACKEND_ARCHIVE with type t := t
 
+  val get_unixfilename : t -> 'a file -> string Lwt.t
   val archive_election : t -> uuid -> unit Lwt.t
   val delete_election : t -> uuid -> unit Lwt.t
 

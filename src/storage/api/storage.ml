@@ -132,10 +132,6 @@ module A = struct
     end in
     f (module T : TX)
 
-  let get_unixfilename tx f =
-    let module T = (val tx : TX) in
-    T.S.get_unixfilename T.tx f
-
   let get tx f =
     let module T = (val tx : TX) in
     T.S.get T.tx f
