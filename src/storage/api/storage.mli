@@ -22,13 +22,13 @@
 open Types
 open Serializable_t
 module E : ELECTION_TRANSACTION
-module P : ELECTIONS_POOL_TRANSACTION
 module A : ACCOUNT_TRANSACTION
 
 type 'a u = E.t -> uuid -> 'a
 
 val get_user_id : user -> int option Lwt.t
 val get_elections_by_owner : int -> Belenios_web_api.summary_list Lwt.t
+val new_election : unit -> uuid option Lwt.t
 
 (** Scoped transaction wrappers. Use these in preference to [with_transaction]
     so that the compiler can verify that the operations performed inside a
@@ -42,10 +42,6 @@ val with_election_transaction : uuid -> (E.t -> 'a Lwt.t) -> 'a Lwt.t
 (** Transaction scoped to a specific election. Only [Election (uuid, _)] files,
     [append], [append_sealing], [archive_election], [delete_election] and
     [validate_election] should be used inside. *)
-
-val with_elections_pool_transaction : (P.t -> 'a Lwt.t) -> 'a Lwt.t
-(** Transaction scoped to the global elections pool. Only [new_election] should
-    be used inside. *)
 
 val with_account_transaction : (A.t -> 'a Lwt.t) -> 'a Lwt.t
 (** Transaction scoped to account / auth-db data. Only [Account _], [Auth_db _]

@@ -244,10 +244,7 @@ let post_drafts account draft =
       se_private_creds_downloaded = false;
     }
   in
-  let* uuid =
-    let@ s = Storage.with_elections_pool_transaction in
-    Storage.P.new_election s
-  in
+  let* uuid = Storage.new_election () in
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () =

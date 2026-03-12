@@ -56,6 +56,11 @@ let get_elections_by_owner x =
   let module X = (val get_backend ()) in
   X.get_elections_by_owner x
 
+let new_election () =
+  let module S = (val get_backend ()) in
+  let@ tx = S.with_transaction in
+  S.new_election tx
+
 module E = struct
   type nonrec t = t
 
@@ -110,24 +115,6 @@ module E = struct
     T.S.validate_election T.tx u
 end
 
-module P = struct
-  type nonrec t = t
-
-  let with_transaction f =
-    let module S = (val get_backend ()) in
-    let@ tx = S.with_transaction in
-    let module T = struct
-      module S = S
-
-      let tx = tx
-    end in
-    f (module T : TX)
-
-  let new_election tx =
-    let module T = (val tx : TX) in
-    T.S.new_election T.tx
-end
-
 module A = struct
   type nonrec t = t
 
@@ -167,5 +154,4 @@ module A = struct
 end
 
 let with_election_transaction = E.with_transaction
-let with_elections_pool_transaction = P.with_transaction
 let with_account_transaction = A.with_transaction

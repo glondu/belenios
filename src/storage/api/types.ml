@@ -110,14 +110,6 @@ module type ELECTION_TRANSACTION = sig
     t -> uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
 end
 
-(** Token for creating a new election ([new_election]). *)
-module type ELECTIONS_POOL_TRANSACTION = sig
-  type t
-
-  val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
-  val new_election : t -> uuid option Lwt.t
-end
-
 (** Token for account and auth-db operations ([Account _], [Auth_db _],
     [Admin_password _] files, [new_account_id]). *)
 module type ACCOUNT_TRANSACTION = sig
