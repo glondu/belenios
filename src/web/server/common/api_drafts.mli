@@ -30,7 +30,7 @@ val authentication_of_auth_config :
 
 val api_of_draft : draft_election -> draft Lwt.t
 val draft_of_api : account -> uuid -> draft_election -> draft -> draft_election
-val post_drafts : account -> Storage.t -> draft -> uuid option Lwt.t
+val post_drafts : account -> draft -> uuid option Lwt.t
 val get_draft_voters : draft_election -> voter_list
 
 val put_draft_voters :
@@ -126,7 +126,7 @@ val dispatch_draft :
   string list ->
   [ `GET | `POST | `PUT | `DELETE ] ->
   body ->
-  Storage.t ->
+  Storage.E.t ->
   uuid ->
   draft_election updatable_with_billing ->
   result Lwt.t

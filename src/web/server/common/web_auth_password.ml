@@ -64,10 +64,10 @@ struct
               if is_email name then Address name else Username name
             in
             let@ s = Storage.with_account_transaction in
-            Storage.get s (Admin_password (file, key))
+            Storage.A.get s (Admin_password (file, key))
         | Some uuid ->
             let@ s = Storage.with_election_transaction uuid in
-            Storage.get s (Election (uuid, Password name))
+            Storage.E.get s (Election (uuid, Password name))
       in
       let&* r = Lopt.get_value r in
       if check_password r password then Lwt.return_some r else Lwt.return_none
@@ -132,14 +132,14 @@ let get_password_db_fname service =
 let do_add_account s ~db_fname ~username ~password ~email =
   let@ () =
    fun cont ->
-    let* r = Storage.get s (Admin_password (db_fname, Username username)) in
+    let* r = Storage.A.get s (Admin_password (db_fname, Username username)) in
     match Lopt.get_value r with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error UsernameTaken
   in
   let@ () =
    fun cont ->
-    let* r = Storage.get s (Admin_password (db_fname, Address email)) in
+    let* r = Storage.A.get s (Admin_password (db_fname, Address email)) in
     match Lopt.get_value r with
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error AddressTaken
@@ -149,7 +149,7 @@ let do_add_account s ~db_fname ~username ~password ~email =
   let r = { username; salt; hashed; address = Some email } in
   Lwt.try_bind
     (fun () ->
-      r |> Storage.set s (Admin_password (db_fname, Username username)) Value)
+      r |> Storage.A.set s (Admin_password (db_fname, Username username)) Value)
     (fun () -> Lwt.return @@ Ok ())
     (fun _ -> Lwt.return @@ Error DatabaseError)
 
@@ -160,7 +160,7 @@ let do_change_password s ~db_fname ~username ~password =
       Lwt.fail @@ Failure "password record not found in do_change_password"
     in
     let@ r, set =
-      Storage.update s (Admin_password (db_fname, Username username))
+      Storage.A.update s (Admin_password (db_fname, Username username))
     in
     match Lopt.get_value r with None -> fail () | Some r -> cont (r, set)
   in
@@ -216,11 +216,11 @@ let lookup_account ~service ~username ~email =
   let@ s = Storage.with_account_transaction in
   let&* db_fname = get_password_db_fname service in
   let username = String.trim username in
-  let* r = Storage.get s (Admin_password (db_fname, Username username)) in
+  let* r = Storage.A.get s (Admin_password (db_fname, Username username)) in
   match Lopt.get_value r with
   | Some { username; address; _ } -> Lwt.return_some (username, address)
   | None ->
       let address = String.trim email in
-      let* r = Storage.get s (Admin_password (db_fname, Address address)) in
+      let* r = Storage.A.get s (Admin_password (db_fname, Address address)) in
       let&* { username; address; _ } = Lopt.get_value r in
       Lwt.return_some (username, address)

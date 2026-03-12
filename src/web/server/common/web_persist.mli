@@ -93,7 +93,7 @@ val cast_ballot :
   Storage.u
 
 val append_to_shuffles :
-  Storage.t ->
+  Storage.E.t ->
   (module Site_common_sig.ELECTION) ->
   int ->
   string ->

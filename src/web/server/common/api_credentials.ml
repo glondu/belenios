@@ -111,13 +111,13 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         group = draft.draft_group;
         certificate;
       }
-      |> Storage.set s (Election (r.uuid, Credentials_params)) Value
+      |> Storage.E.set s (Election (r.uuid, Credentials_params)) Value
     in
     let* () =
       { seed; token = r.token }
-      |> Storage.set s (Election (r.uuid, Credentials_seed)) Value
+      |> Storage.E.set s (Election (r.uuid, Credentials_seed)) Value
     in
-    Storage.set s
+    Storage.E.set s
       (Election (r.uuid, Credentials_records))
       Value credentials_records
   in
@@ -329,7 +329,7 @@ let process_resend_request (r : credentials_resend)
   in
   let* success =
     let@ s = Storage.with_election_transaction r.uuid in
-    let@ x, set = Storage.update s (Election (r.uuid, Credentials_credits)) in
+    let@ x, set = Storage.E.update s (Election (r.uuid, Credentials_credits)) in
     match Lopt.get_value x with
     | None -> Lwt.return_false
     | Some xs ->
@@ -404,20 +404,22 @@ let process_request : credentials_request -> _ = function
   | `Validate r ->
       let@ s = Storage.with_election_transaction r.uuid in
       let* () =
-        Storage.set s (Election (r.uuid, Credentials_metadata)) Value r.metadata
+        Storage.E.set s
+          (Election (r.uuid, Credentials_metadata))
+          Value r.metadata
       in
       let@ seed cont =
-        let* x = Storage.get s (Election (r.uuid, Credentials_seed)) in
+        let* x = Storage.E.get s (Election (r.uuid, Credentials_seed)) in
         match Lopt.get_value x with
         | Some x -> if r.token = x.token then cont x.seed else forbidden
         | None -> not_found
       in
       let@ params cont =
-        let* p = Storage.get s (Election (r.uuid, Credentials_params)) in
+        let* p = Storage.E.get s (Election (r.uuid, Credentials_params)) in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       let@ credentials_records cont =
-        let* x = Storage.get s (Election (r.uuid, Credentials_records)) in
+        let* x = Storage.E.get s (Election (r.uuid, Credentials_records)) in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
       let n = List.length credentials_records in
@@ -448,7 +450,7 @@ let process_request : credentials_request -> _ = function
           credentials_records
       in
       let* () = Mails_voter_bulk.submit_bulk_emails jobs in
-      let* () = Storage.del s (Election (r.uuid, Credentials_seed)) in
+      let* () = Storage.E.del s (Election (r.uuid, Credentials_seed)) in
       let* () =
         let timestamp = Unix.gettimeofday () in
         let credits =
@@ -458,22 +460,24 @@ let process_request : credentials_request -> _ = function
         let credit : credentials_credit =
           { credits; success = true; kind = `Initial; timestamp }
         in
-        Storage.set s (Election (r.uuid, Credentials_credits)) Value [ credit ]
+        Storage.E.set s
+          (Election (r.uuid, Credentials_credits))
+          Value [ credit ]
       in
       ok
   | `Resend r ->
       let@ s = Storage.with_election_transaction r.uuid in
       let@ params cont =
-        let* p = Storage.get s (Election (r.uuid, Credentials_params)) in
+        let* p = Storage.E.get s (Election (r.uuid, Credentials_params)) in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
       in
       if check_seed ~params ~seed:r.seed then (
         let@ credentials_records cont =
-          let* x = Storage.get s (Election (r.uuid, Credentials_records)) in
+          let* x = Storage.E.get s (Election (r.uuid, Credentials_records)) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         let@ metadata cont =
-          let* x = Storage.get s (Election (r.uuid, Credentials_metadata)) in
+          let* x = Storage.E.get s (Election (r.uuid, Credentials_metadata)) in
           match Lopt.get_value x with Some x -> cont x | None -> not_found
         in
         Lwt.async (process_resend_request r params metadata credentials_records);
@@ -507,11 +511,11 @@ let dispatch endpoint method_ body =
                 | Some x -> cont x)
           in
           let@ params cont =
-            let* p = Storage.get s (Election (uuid, Credentials_params)) in
+            let* p = Storage.E.get s (Election (uuid, Credentials_params)) in
             match Lopt.get_value p with Some p -> cont p | None -> not_found
           in
           if check_seed ~params ~seed then
-            let* p = Storage.get s (Election (uuid, Credentials_credits)) in
+            let* p = Storage.E.get s (Election (uuid, Credentials_credits)) in
             match Lopt.get_string p with
             | Some p -> return_json 200 p
             | None -> not_found
@@ -525,7 +529,7 @@ let dispatch endpoint method_ body =
           let uuid = certificate.uuid in
           let@ s = Storage.with_election_transaction uuid in
           let@ () = handle_generic_error in
-          let@ se, set = Storage.update s (Election (uuid, Draft)) in
+          let@ se, set = Storage.E.update s (Election (uuid, Draft)) in
           let set ?billing:_ x = set Value x in
           match Lopt.get_value se with
           | None -> not_found

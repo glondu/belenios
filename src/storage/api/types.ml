@@ -77,7 +77,6 @@ end
 
 module type STORAGE = sig
   type t
-  type 'a u = t -> uuid -> 'a
 
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
   val get_user_id : user -> int option Lwt.t
@@ -87,4 +86,46 @@ module type STORAGE = sig
   include BACKEND_ARCHIVE with type t := t
   include BACKEND_ELECTIONS with type t := t
   include BACKEND_ACCOUNTS with type t := t
+end
+
+(** Scoped transaction tokens. Each kind of token is only produced by the
+    corresponding [with_*_transaction] wrapper, so the compiler rejects calls
+    that mix incompatible scopes. *)
+
+(** Token for operations on a specific election ([Election (uuid, _)] files,
+    [append], [append_sealing], [archive_election], [delete_election],
+    [validate_election]). *)
+module type ELECTION_TRANSACTION = sig
+  type t
+
+  val with_transaction : uuid -> (t -> 'a Lwt.t) -> 'a Lwt.t
+
+  include BACKEND_GENERIC with type t := t
+  include BACKEND_ARCHIVE with type t := t
+
+  val archive_election : t -> uuid -> unit Lwt.t
+  val delete_election : t -> uuid -> unit Lwt.t
+
+  val validate_election :
+    t -> uuid -> (unit, Belenios_web_api.validation_error) result Lwt.t
+end
+
+(** Token for creating a new election ([new_election]). *)
+module type ELECTIONS_POOL_TRANSACTION = sig
+  type t
+
+  val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
+  val new_election : t -> uuid option Lwt.t
+end
+
+(** Token for account and auth-db operations ([Account _], [Auth_db _],
+    [Admin_password _] files, [new_account_id]). *)
+module type ACCOUNT_TRANSACTION = sig
+  type t
+
+  val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
+
+  include BACKEND_GENERIC with type t := t
+
+  val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
 end

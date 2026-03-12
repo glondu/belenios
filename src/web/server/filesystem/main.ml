@@ -1538,7 +1538,6 @@ type with_transaction_ref = {
 
 module Make (Config : CONFIG) : STORAGE = struct
   type t = (module BACKEND)
-  type 'a u = t -> uuid -> 'a
 
   let with_transaction_ref =
     {

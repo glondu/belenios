@@ -38,55 +38,6 @@ let backend = ref None
 let get_backend () : (module STORAGE) =
   match !backend with None -> failwith "no storage backend set" | Some x -> x
 
-let with_transaction f =
-  let module S = (val get_backend ()) in
-  let@ tx = S.with_transaction in
-  let module T = struct
-    module S = S
-
-    let tx = tx
-  end in
-  f (module T : TX)
-
-let with_election_transaction uuid f =
-  let module S = (val get_backend ()) in
-  let@ tx = S.with_transaction in
-  let module T = struct
-    module S = S
-
-    let tx = tx
-  end in
-  ignore uuid;
-  f (module T : TX)
-
-let with_elections_pool_transaction f =
-  let module S = (val get_backend ()) in
-  let@ tx = S.with_transaction in
-  let module T = struct
-    module S = S
-
-    let tx = tx
-  end in
-  f (module T : TX)
-
-let with_account_transaction f =
-  let module S = (val get_backend ()) in
-  let@ tx = S.with_transaction in
-  let module T = struct
-    module S = S
-
-    let tx = tx
-  end in
-  f (module T : TX)
-
-let get_user_id x =
-  let module X = (val get_backend ()) in
-  X.get_user_id x
-
-let get_elections_by_owner x =
-  let module X = (val get_backend ()) in
-  X.get_elections_by_owner x
-
 let register_backend name x = backends := (name, x) :: !backends
 
 let init_backend name config =
@@ -97,50 +48,124 @@ let init_backend name config =
       backend := Some b;
       Lwt.return_unit
 
-let get_unixfilename tx f =
-  let module T = (val tx : TX) in
-  T.S.get_unixfilename T.tx f
+let get_user_id x =
+  let module X = (val get_backend ()) in
+  X.get_user_id x
 
-let get tx f =
-  let module T = (val tx : TX) in
-  T.S.get T.tx f
+let get_elections_by_owner x =
+  let module X = (val get_backend ()) in
+  X.get_elections_by_owner x
 
-let set tx f k x =
-  let module T = (val tx : TX) in
-  T.S.set T.tx f k x
+module E = struct
+  type nonrec t = t
 
-let del tx f =
-  let module T = (val tx : TX) in
-  T.S.del T.tx f
+  let with_transaction _uuid f =
+    let module S = (val get_backend ()) in
+    let@ tx = S.with_transaction in
+    let module T = struct
+      module S = S
 
-let update tx f set =
-  let module T = (val tx : TX) in
-  T.S.update T.tx f set
+      let tx = tx
+    end in
+    f (module T : TX)
 
-let append tx u ?last ops =
-  let module T = (val tx : TX) in
-  T.S.append T.tx u ?last ops
+  let get_unixfilename tx f =
+    let module T = (val tx : TX) in
+    T.S.get_unixfilename T.tx f
 
-let append_sealing tx sealing =
-  let module T = (val tx : TX) in
-  T.S.append_sealing T.tx sealing
+  let get tx f =
+    let module T = (val tx : TX) in
+    T.S.get T.tx f
 
-let new_election tx =
-  let module T = (val tx : TX) in
-  T.S.new_election T.tx
+  let set tx f k x =
+    let module T = (val tx : TX) in
+    T.S.set T.tx f k x
 
-let archive_election tx u =
-  let module T = (val tx : TX) in
-  T.S.archive_election T.tx u
+  let del tx f =
+    let module T = (val tx : TX) in
+    T.S.del T.tx f
 
-let delete_election tx u =
-  let module T = (val tx : TX) in
-  T.S.delete_election T.tx u
+  let update tx f set =
+    let module T = (val tx : TX) in
+    T.S.update T.tx f set
 
-let validate_election tx u =
-  let module T = (val tx : TX) in
-  T.S.validate_election T.tx u
+  let append tx u ?last ops =
+    let module T = (val tx : TX) in
+    T.S.append T.tx u ?last ops
 
-let new_account_id tx =
-  let module T = (val tx : TX) in
-  T.S.new_account_id T.tx
+  let append_sealing tx sealing =
+    let module T = (val tx : TX) in
+    T.S.append_sealing T.tx sealing
+
+  let archive_election tx u =
+    let module T = (val tx : TX) in
+    T.S.archive_election T.tx u
+
+  let delete_election tx u =
+    let module T = (val tx : TX) in
+    T.S.delete_election T.tx u
+
+  let validate_election tx u =
+    let module T = (val tx : TX) in
+    T.S.validate_election T.tx u
+end
+
+module P = struct
+  type nonrec t = t
+
+  let with_transaction f =
+    let module S = (val get_backend ()) in
+    let@ tx = S.with_transaction in
+    let module T = struct
+      module S = S
+
+      let tx = tx
+    end in
+    f (module T : TX)
+
+  let new_election tx =
+    let module T = (val tx : TX) in
+    T.S.new_election T.tx
+end
+
+module A = struct
+  type nonrec t = t
+
+  let with_transaction f =
+    let module S = (val get_backend ()) in
+    let@ tx = S.with_transaction in
+    let module T = struct
+      module S = S
+
+      let tx = tx
+    end in
+    f (module T : TX)
+
+  let get_unixfilename tx f =
+    let module T = (val tx : TX) in
+    T.S.get_unixfilename T.tx f
+
+  let get tx f =
+    let module T = (val tx : TX) in
+    T.S.get T.tx f
+
+  let set tx f k x =
+    let module T = (val tx : TX) in
+    T.S.set T.tx f k x
+
+  let del tx f =
+    let module T = (val tx : TX) in
+    T.S.del T.tx f
+
+  let update tx f set =
+    let module T = (val tx : TX) in
+    T.S.update T.tx f set
+
+  let new_account_id tx =
+    let module T = (val tx : TX) in
+    T.S.new_account_id T.tx
+end
+
+let with_election_transaction = E.with_transaction
+let with_elections_pool_transaction = P.with_transaction
+let with_account_transaction = A.with_transaction

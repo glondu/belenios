@@ -48,12 +48,12 @@ let get_metadata s ~admin_id uuid =
   match raw with
   | Some raw -> (
       let* has_weights =
-        let* x = Storage.get s (Election (uuid, Voters_config)) in
+        let* x = Storage.E.get s (Election (uuid, Voters_config)) in
         match Lopt.get_value x with
         | None -> Lwt.return_true
         | Some x -> Lwt.return x.has_explicit_weights
       in
-      let* metadata = Storage.get s (Election (uuid, Metadata)) in
+      let* metadata = Storage.E.get s (Election (uuid, Metadata)) in
       match Lopt.get_value metadata with
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
@@ -64,7 +64,7 @@ let get_metadata s ~admin_id uuid =
           Lwt.return
           @@ extract_metadata ~admin_id ~has_weights uuid W.template metadata)
   | None -> (
-      let* se = Storage.get s (Election (uuid, Draft)) in
+      let* se = Storage.E.get s (Election (uuid, Draft)) in
       match Lopt.get_value se with
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/draft"

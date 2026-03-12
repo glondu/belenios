@@ -191,7 +191,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
   }
   |> fun x -> Draft (v, x)
 
-let post_drafts account s draft =
+let post_drafts account draft =
   let@ () =
    fun cont -> if !Web_config.deny_newelection then Lwt.return_none else cont ()
   in
@@ -244,10 +244,16 @@ let post_drafts account s draft =
       se_private_creds_downloaded = false;
     }
   in
-  let* uuid = Storage.new_election s in
+  let* uuid =
+    let@ s = Storage.with_elections_pool_transaction in
+    Storage.P.new_election s
+  in
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
-  let* () = Web_persist.create_draft s uuid se in
+  let* () =
+    let@ s = Storage.with_election_transaction uuid in
+    Web_persist.create_draft s uuid se
+  in
   Lwt.return_some uuid
 
 let get_draft_voters (Draft (_, se)) =
@@ -458,7 +464,7 @@ let submit_public_credentials s uuid
         (i + 1, SSet.add cred_s creds))
       (0, SSet.empty) credentials
   in
-  let* () = Storage.set s (Election (uuid, Public_creds)) Value credentials in
+  let* () = Storage.E.set s (Election (uuid, Public_creds)) Value credentials in
   se.se_public_creds_received <- true;
   se.se_public_creds_certificate <- certificate;
   set (Draft (v, se))
@@ -765,7 +771,7 @@ let merge_voters a b f =
   loop weights (List.rev a) b
 
 let get_passwords s uuid =
-  let* csv = Storage.get s (Election (uuid, Passwords)) in
+  let* csv = Storage.E.get s (Election (uuid, Passwords)) in
   let&* csv = Lopt.get_value csv in
   let res =
     List.fold_left
@@ -784,7 +790,7 @@ let import_voters s uuid ((Draft (v, se), set) : _ updatable_with_billing) from
     let* x = Web_persist.get_all_voters s from in
     match x with
     | [] -> (
-        let* se = Storage.get s (Election (from, Draft)) in
+        let* se = Storage.E.get s (Election (from, Draft)) in
         match Lopt.get_value se with
         | None -> Lwt.return @@ Stdlib.Error `NotFound
         | Some se -> cont @@ get_draft_voters se)
@@ -830,7 +836,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) s from
       if not (K.check trustees) then Lwt.return @@ Stdlib.Error `Invalid
       else
         let import_pedersen t names =
-          let* privs = Storage.get s (Election (from, Private_keys)) in
+          let* privs = Storage.E.get s (Election (from, Private_keys)) in
           let* x =
             match Lopt.get_value privs with
             | Some privs ->
@@ -1030,7 +1036,7 @@ let () =
   Billing.validate :=
     fun ~admin_id uuid ->
       let@ s = Storage.with_election_transaction uuid in
-      let@ se, set = Storage.update s (Election (uuid, Draft)) in
+      let@ se, set = Storage.E.update s (Election (uuid, Draft)) in
       match Lopt.get_value se with
       | None -> not_found
       | Some se ->
@@ -1210,7 +1216,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       match method_ with
       | `GET ->
           let@ () = handle_get_option in
-          let* x = Storage.get s (Election (uuid, Private_creds)) in
+          let* x = Storage.E.get s (Election (uuid, Private_creds)) in
           x |> Lopt.get_string |> Lwt.return
       | _ -> method_not_allowed)
   | [ "public" ] -> (

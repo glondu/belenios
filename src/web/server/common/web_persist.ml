@@ -37,13 +37,13 @@ let get_setup_data s uuid =
   | Some x -> Lwt.return (setup_data_of_string x)
 
 let get_election_dates s uuid =
-  let* x = Storage.get s (Election (uuid, Dates)) in
+  let* x = Storage.E.get s (Election (uuid, Dates)) in
   Lwt.return
     (Option.value ~default:Belenios_storage_api.default_election_dates
        (Lopt.get_value x))
 
 let update_election_dates s uuid cont =
-  let@ x, set = Storage.update s (Election (uuid, Dates)) in
+  let@ x, set = Storage.E.update s (Election (uuid, Dates)) in
   cont
     ( Option.value ~default:Belenios_storage_api.default_election_dates
         (Lopt.get_value x),
@@ -65,21 +65,21 @@ let empty_metadata =
   }
 
 let get_election_metadata s uuid =
-  let* x = Storage.get s (Election (uuid, Metadata)) in
+  let* x = Storage.E.get s (Election (uuid, Metadata)) in
   match Lopt.get_value x with
   | Some x -> Lwt.return x
   | None -> (
-      let* x = Storage.get s (Election (uuid, Draft)) in
+      let* x = Storage.E.get s (Election (uuid, Draft)) in
       match Lopt.get_value x with
       | Some (Draft (_, x)) -> Lwt.return x.se_metadata
       | None -> Lwt.return empty_metadata)
 
 let seal_election s uuid seal =
-  let@ x, set = Storage.update s (Election (uuid, Metadata)) in
+  let@ x, set = Storage.E.update s (Election (uuid, Metadata)) in
   match Lopt.get_value x with
   | None -> raise Not_found
   | Some metadata -> (
-      let* x = Storage.get s (Election (uuid, Dates)) in
+      let* x = Storage.E.get s (Election (uuid, Dates)) in
       match Lopt.get_value x with
       | None -> raise Not_found
       | Some dates ->
@@ -95,8 +95,8 @@ let seal_election s uuid seal =
             else (`Unseal, None)
           in
           let date = Unix.gettimeofday () in
-          let* b = Storage.append_sealing s uuid { date; op } in
-          let* () = Storage.del s (Election (uuid, Audit_cache)) in
+          let* b = Storage.E.append_sealing s uuid { date; op } in
+          let* () = Storage.E.del s (Election (uuid, Audit_cache)) in
           if b then set Value { metadata with e_sealed }
           else failwith "sealing error")
 
@@ -104,7 +104,7 @@ let append_to_shuffles s election owned_owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Storage.get s (Election (uuid, Last_event)) in
+    let* x = Storage.E.get s (Election (uuid, Last_event)) in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let shuffle =
@@ -121,7 +121,7 @@ let append_to_shuffles s election owned_owner shuffle_s =
     let owned = { owned_owner; owned_payload = shuffle_h } in
     let owned_s = string_of_owned write_hash owned in
     let* x =
-      Storage.append s uuid ~last
+      Storage.E.append s uuid ~last
         [
           Data shuffle_s;
           Data owned_s;
@@ -139,7 +139,7 @@ let make_result_transaction write_result result =
 
 let internal_release_tally ~force s uuid set_state =
   let@ last cont =
-    let* x = Storage.get s (Election (uuid, Last_event)) in
+    let* x = Storage.E.get s (Election (uuid, Last_event)) in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* metadata = get_election_metadata s uuid in
@@ -198,7 +198,7 @@ let internal_release_tally ~force s uuid set_state =
         pds
     in
     let decrypt owned_owner =
-      let* x = Storage.get s (Election (uuid, Private_key)) in
+      let* x = Storage.E.get s (Election (uuid, Private_key)) in
       match Lopt.get_value x with
       | Some (`String sk) ->
           let sk = W.G.Zq.of_string sk in
@@ -242,20 +242,20 @@ let internal_release_tally ~force s uuid set_state =
         let* x =
           List.rev (result_transaction :: transactions)
           |> List.flatten
-          |> Storage.append s uuid ~last
+          |> Storage.E.append s uuid ~last
         in
         match x with
         | true -> cont ()
         | false ->
             Lwt.fail @@ Failure "race condition in internal_release_tally"
       in
-      let* () = Storage.del s (Election (uuid, Audit_cache)) in
+      let* () = Storage.E.del s (Election (uuid, Audit_cache)) in
       let* () = set_state `Tallied in
       let@ dates, set_dates = update_election_dates s uuid in
       let* () =
         set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
       in
-      let* () = Storage.set s (Election (uuid, State_state)) Value None in
+      let* () = Storage.E.set s (Election (uuid, State_state)) Value None in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
@@ -263,11 +263,11 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s uuid
     return =
   let@ state, set_state =
    fun cont ->
-    let@ x, set = Storage.update s (Election (uuid, State)) in
+    let@ x, set = Storage.E.update s (Election (uuid, State)) in
     match Lopt.get_value x with
     | Some x -> cont (x, set Value)
     | None -> (
-        let* x = Storage.get s (Election (uuid, Draft)) in
+        let* x = Storage.E.get s (Election (uuid, Draft)) in
         match Lopt.get_value x with
         | Some _ ->
             return
@@ -332,7 +332,7 @@ let add_partial_decryption s uuid (owned_owner, pd) =
     |> string_of_owned write_hash
   in
   let* x =
-    Storage.append s uuid
+    Storage.E.append s uuid
       [
         Data pd;
         Data payload;
@@ -344,13 +344,13 @@ let add_partial_decryption s uuid (owned_owner, pd) =
   | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
 
 let check_password s uuid ~user ~password =
-  let* r = Storage.get s (Election (uuid, Password user)) in
+  let* r = Storage.E.get s (Election (uuid, Password user)) in
   let&* ({ username; address; _ } as r) = Lopt.get_value r in
   if check_password r password then Lwt.return_some (username, address)
   else Lwt.return_none
 
 let get_all_voters s uuid =
-  let* x = Storage.get s (Election (uuid, Voters)) in
+  let* x = Storage.E.get s (Election (uuid, Voters)) in
   match Lopt.get_value x with None -> Lwt.return [] | Some x -> Lwt.return x
 
 let dummy_voters_config =
@@ -361,7 +361,7 @@ let dummy_voters_config =
   }
 
 let get_voters_config s uuid =
-  let* x = Storage.get s (Election (uuid, Voters_config)) in
+  let* x = Storage.E.get s (Election (uuid, Voters_config)) in
   match Lopt.get_value x with
   | None -> Lwt.return dummy_voters_config
   | Some x -> Lwt.return x
@@ -375,12 +375,12 @@ let get_username_or_address s uuid =
   Lwt.return username_or_address
 
 let get_voter s uuid id =
-  let* x = Storage.get s (Election (uuid, Voter id)) in
+  let* x = Storage.E.get s (Election (uuid, Voter id)) in
   let&* x = Lopt.get_value x in
   Lwt.return_some x
 
 let get_credential_user s uuid cred =
-  let* x = Storage.get s (Election (uuid, Credential_user cred)) in
+  let* x = Storage.E.get s (Election (uuid, Credential_user cred)) in
   match Lopt.get_value x with
   | Some x -> Lwt.return_some x
   | None ->
@@ -394,7 +394,7 @@ let add_ballot s election last ballot =
   let uuid = W.uuid in
   let hash = Hash.hash_string ballot in
   let* x =
-    Storage.append s uuid ~last [ Data ballot; Event (`Ballot, Some hash) ]
+    Storage.E.append s uuid ~last [ Data ballot; Event (`Ballot, Some hash) ]
   in
   match x with
   | true ->
@@ -403,7 +403,7 @@ let add_ballot s election last ballot =
   | false -> Lwt.fail @@ Failure "race condition in add_ballot"
 
 let get_credential_weight s uuid credential =
-  let* x = Storage.get s (Election (uuid, Credential_weight credential)) in
+  let* x = Storage.E.get s (Election (uuid, Credential_weight credential)) in
   match Lopt.get_value x with
   | None -> Lwt.return Weight.one
   | Some x -> Lwt.return x
@@ -413,7 +413,7 @@ let raw_compute_encrypted_tally s election =
   let module GMap = Map.Make (W.G) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Storage.get s (Election (uuid, Last_event)) in
+    let* x = Storage.E.get s (Election (uuid, Last_event)) in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let* ballots =
@@ -448,7 +448,7 @@ let raw_compute_encrypted_tally s election =
     |> string_of_sized_encrypted_tally write_hash
   in
   let* x =
-    Storage.append s uuid ~last
+    Storage.E.append s uuid ~last
       [
         Event (`EndBallots, None);
         Data tally_s;
@@ -457,12 +457,12 @@ let raw_compute_encrypted_tally s election =
       ]
   in
   match x with
-  | true -> Storage.del s (Election (uuid, Audit_cache))
+  | true -> Storage.E.del s (Election (uuid, Audit_cache))
   | false -> Lwt.fail @@ Failure "race condition in raw_compute_encrypted_tally"
 
 let get_credential_record s uuid credential =
   let* credential_mapping =
-    Storage.get s (Election (uuid, Credential_mapping credential))
+    Storage.E.get s (Election (uuid, Credential_mapping credential))
   in
   let&* { c_ballot = cr_ballot; _ } = Lopt.get_value credential_mapping in
   let* cr_username = get_credential_user s uuid credential in
@@ -507,7 +507,7 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
   let module W = (val election : Site_common_sig.ELECTION) in
   let uuid = W.uuid in
   let@ last cont =
-    let* x = Storage.get s (Election (uuid, Last_event)) in
+    let* x = Storage.E.get s (Election (uuid, Last_event)) in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let get_username user =
@@ -516,7 +516,7 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
     | Some i -> String.sub user (i + 1) (String.length user - i - 1)
   in
   let get_user_record user =
-    let* x = Storage.get s (Election (uuid, Extended_record user)) in
+    let* x = Storage.E.get s (Election (uuid, Extended_record user)) in
     let&* { r_credential; _ } = Lopt.get_value x in
     return_some r_credential
   in
@@ -567,11 +567,13 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
       let* () =
         hash |> Hash.to_b64
         |> (fun ballot -> { c_ballot = Some ballot; c_credential = credential })
-        |> Storage.set s (Election (uuid, Credential_mapping credential)) Value
+        |> Storage.E.set s
+             (Election (uuid, Credential_mapping credential))
+             Value
       in
       let* () =
         { r_username = user; r_date = date; r_credential = credential }
-        |> Storage.set s (Election (uuid, Extended_record user)) Value
+        |> Storage.E.set s (Election (uuid, Extended_record user)) Value
       in
       return (Ok (hash, revote))
 
@@ -608,7 +610,7 @@ let compute_audit_cache s uuid =
         let* final =
           let* roots = Public_archive.get_roots s uuid in
           let&* _ = roots.roots_result in
-          let* last_event = Storage.get s (Election (uuid, Last_event)) in
+          let* last_event = Storage.E.get s (Election (uuid, Last_event)) in
           Lwt.return
           @@ Option.map (fun x -> x.last_hash) (Lopt.get_value last_event)
         in
@@ -617,7 +619,7 @@ let compute_audit_cache s uuid =
         |> Lwt.return
       in
       let* cache_sealing_log =
-        let* x = Storage.get s (Election (uuid, Sealing_log)) in
+        let* x = Storage.E.get s (Election (uuid, Sealing_log)) in
         match Lopt.get_value x with
         | None -> Lwt.return_none
         | Some x -> Lwt.return_some @@ Hash.hash_string x
@@ -631,7 +633,7 @@ let compute_audit_cache s uuid =
         }
 
 let get_audit_cache s uuid =
-  let* cache = Storage.get s (Election (uuid, Audit_cache)) in
+  let* cache = Storage.E.get s (Election (uuid, Audit_cache)) in
   match Lopt.get_value cache with
   | Some x -> return_some x
   | None -> (
@@ -639,13 +641,15 @@ let get_audit_cache s uuid =
       match cache with
       | None -> return_none
       | Some cache ->
-          let* () = Storage.set s (Election (uuid, Audit_cache)) Value cache in
+          let* () =
+            Storage.E.set s (Election (uuid, Audit_cache)) Value cache
+          in
           return_some cache)
 
 let regen_password s uuid ~admin_id user =
   let user = String.lowercase_ascii user in
-  let* x = Storage.get s (Election (uuid, Voter user)) in
-  let@ y = Storage.update s (Election (uuid, Password user)) in
+  let* x = Storage.E.get s (Election (uuid, Voter user)) in
+  let@ y = Storage.E.update s (Election (uuid, Password user)) in
   match (Lopt.get_value x, y) with
   | Some id, (r, set) ->
       let@ r cont =
@@ -786,7 +790,7 @@ let validate_election ~admin_id storage uuid
     match se.se_metadata.e_cred_authority_info with
     | None ->
         let* private_creds =
-          Storage.get storage (Election (uuid, Private_creds))
+          Storage.E.get storage (Election (uuid, Private_creds))
         in
         send_credentials storage uuid ~admin_id (Draft (v, se)) private_creds
     | Some info ->
@@ -797,10 +801,10 @@ let validate_election ~admin_id storage uuid
         Lwt.return_unit
   in
   (* the validation itself *)
-  let* x = Storage.validate_election storage uuid in
+  let* x = Storage.E.validate_election storage uuid in
   match x with Ok () -> Lwt.return_unit | Error e -> validation_error e
 
-let create_draft s uuid se = Storage.set s (Election (uuid, Draft)) Value se
+let create_draft s uuid se = Storage.E.set s (Election (uuid, Draft)) Value se
 let transition_to_encrypted_tally set_state = set_state `EncryptedTally
 
 let compute_encrypted_tally s uuid =
@@ -840,12 +844,12 @@ let finish_shuffling s uuid =
   | `Shuffling ->
       let@ () =
        fun cont ->
-        let* x = Storage.append s uuid [ Event (`EndShuffles, None) ] in
+        let* x = Storage.E.append s uuid [ Event (`EndShuffles, None) ] in
         match x with
         | true -> cont ()
         | false -> Lwt.fail @@ Failure "race condition in finish_shuffling"
       in
-      let* () = Storage.set s (Election (uuid, State_state)) Value None in
+      let* () = Storage.E.set s (Election (uuid, State_state)) Value None in
       let* () = transition_to_encrypted_tally set_state in
       Lwt.return_true
   | _ -> Lwt.return_false
@@ -899,7 +903,7 @@ let set_election_automatic_dates s uuid d =
     }
 
 let get_draft_public_credentials s uuid =
-  let* x = Storage.get s (Election (uuid, Public_creds)) in
+  let* x = Storage.E.get s (Election (uuid, Public_creds)) in
   let&* x = Lopt.get_value x in
   let x =
     x |> List.map strip_public_credential |> string_of_public_credentials
@@ -907,7 +911,7 @@ let get_draft_public_credentials s uuid =
   Lwt.return_some x
 
 let get_records s uuid =
-  let* x = Storage.get s (Election (uuid, Records)) in
+  let* x = Storage.E.get s (Election (uuid, Records)) in
   let&* x = Lopt.get_value x in
   Lwt.return_some x
 
@@ -944,15 +948,15 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
             Cred.merge_sub voters x
           in
           let@ s = Storage.with_election_transaction uuid in
-          let@ se, set = Storage.update s (Election (uuid, Draft)) in
+          let@ se, set = Storage.E.update s (Election (uuid, Draft)) in
           match Lopt.get_value se with
           | Some (Draft (v, se)) ->
               let* () =
                 private_creds
-                |> Storage.set s (Election (uuid, Private_creds)) Value
+                |> Storage.E.set s (Election (uuid, Private_creds)) Value
               in
               let* () =
-                Storage.set s
+                Storage.E.set s
                   (Election (uuid, Public_creds))
                   Value public_with_ids
               in

@@ -30,11 +30,11 @@ let run_update_hooks account =
   Lwt_list.iter_s (fun f -> f account) !update_hooks
 
 let get_account_by_id s id =
-  let* x = Storage.get s (Account id) in
+  let* x = Storage.A.get s (Account id) in
   x |> Lopt.get_value |> Lwt.return
 
 let update_account_by_id s id cont =
-  let@ x, set = Storage.update s (Account id) in
+  let@ x, set = Storage.A.update s (Account id) in
   let set x =
     let* () = set Value x in
     run_update_hooks x
@@ -47,7 +47,7 @@ let drop_after_at x =
 let create_account s ~name ~email user =
   let@ id, u =
    fun cont ->
-    let* x = Storage.new_account_id s in
+    let* x = Storage.A.new_account_id s in
     match x with
     | None -> Lwt.fail (Failure "impossible to create a new account")
     | Some x -> cont x
@@ -78,7 +78,7 @@ let create_account s ~name ~email user =
   let* () =
     Lwt.finalize
       (fun () ->
-        let* () = Storage.set s (Account id) Value account in
+        let* () = Storage.A.set s (Account id) Value account in
         run_update_hooks account)
       (fun () ->
         Lwt.wakeup_later u ();

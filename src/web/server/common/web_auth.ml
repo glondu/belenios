@@ -187,7 +187,7 @@ struct
                   | Some f ->
                       let* allowlist =
                         let@ s = Storage.with_account_transaction in
-                        Storage.get s (Auth_db f)
+                        Storage.A.get s (Auth_db f)
                       in
                       let allowlist =
                         match Lopt.get_value allowlist with
