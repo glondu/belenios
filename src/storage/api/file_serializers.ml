@@ -133,11 +133,12 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
       }
 
 let get (type t) : t File.t -> t string_serializers = function
-  | Account _ ->
+  | Account_file (Account _) ->
       { of_string = account_of_string; to_string = string_of_account }
   | Election (_, f) -> get_election_file_serializers f
-  | Auth_db _ -> { of_string = split_lines; to_string = join_lines }
-  | Admin_password _ ->
+  | Account_file (Auth_db _) ->
+      { of_string = split_lines; to_string = join_lines }
+  | Account_file (Admin_password _) ->
       {
         of_string = password_record_of_string;
         to_string = string_of_password_record;

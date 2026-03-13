@@ -25,6 +25,7 @@ open Serializable_t
 (** {1 Type definitions} *)
 
 type 'a election_file = 'a File.u
+type 'a account_file = 'a File.v
 type 'a file = 'a File.t
 type admin_password_file = File.kind
 type 'a lopt = 'a Lopt.t
@@ -103,7 +104,7 @@ module type ACCOUNT_TRANSACTION = sig
 
   val with_transaction : (t -> 'a Lwt.t) -> 'a Lwt.t
 
-  include BACKEND_GENERIC with type t := t and type 'a file := 'a file
+  include BACKEND_GENERIC with type t := t and type 'a file := 'a account_file
 
   val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
 end

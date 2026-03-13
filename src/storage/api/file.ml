@@ -60,8 +60,9 @@ type _ u =
 
 type kind = Username of string | Address of string
 
-type _ t =
-  | Account : int -> account t
-  | Election : uuid * 'a u -> 'a t
-  | Auth_db : string -> string list t
-  | Admin_password : string * kind -> password_record t
+type _ v =
+  | Account : int -> account v
+  | Auth_db : string -> string list v
+  | Admin_password : string * kind -> password_record v
+
+type _ t = Account_file : 'a v -> 'a t | Election : uuid * 'a u -> 'a t
