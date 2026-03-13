@@ -25,6 +25,10 @@ open Belenios_storage_api
 open Belenios_server_core
 open Serializable_j
 
+type 'a file =
+  | Election of uuid * 'a election_file
+  | Account of 'a account_file
+
 module type BACKEND = sig
   val get_unixfilename : 'a file -> string Lwt.t
   val get : 'a file -> 'a lopt Lwt.t

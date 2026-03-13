@@ -27,7 +27,8 @@ include Serializable_j
 include Extra
 include Types
 
-let get_file_serializers = File_serializers.get
+let get_election_file_serializers = File_serializers.get_election
+let get_account_file_serializers = File_serializers.get_account
 
 let default_election_dates =
   {

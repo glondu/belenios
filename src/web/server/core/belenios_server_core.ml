@@ -23,11 +23,3 @@ include Serializable_j
 include Core
 module Filesystem = Filesystem
 module Defaults = Defaults
-open Belenios_storage_api
-
-let some_string_or_value (type a b) (f : a file)
-    (spec : (a, b) string_or_value_spec) (x : b) =
-  let s = get_file_serializers f in
-  match spec with
-  | String -> Lopt.some_string s.of_string x
-  | Value -> Lopt.some_value s.to_string x

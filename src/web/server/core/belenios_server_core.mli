@@ -23,7 +23,3 @@ include module type of Serializable_j
 include module type of Core
 module Filesystem = Filesystem
 module Defaults = Defaults
-open Belenios_storage_api
-
-val some_string_or_value :
-  'a file -> ('a, 'b) string_or_value_spec -> 'b -> 'a Lopt.t

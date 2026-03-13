@@ -26,9 +26,22 @@ open Belenios_server_core
 open Types
 open Serializable_j
 
+type 'a file = 'a Election_ops.file
+
 let () = Stdlib.Random.self_init ()
 let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
 let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
+
+let some_string_or_value (type a b) (f : a file)
+    (spec : (a, b) string_or_value_spec) (x : b) =
+  let s =
+    match f with
+    | Account x -> get_account_file_serializers x
+    | Election (_, x) -> get_election_file_serializers x
+  in
+  match spec with
+  | String -> Lopt.some_string s.of_string x
+  | Value -> Lopt.some_value s.to_string x
 
 module type BACKEND = sig
   type nonrec 'a file = 'a file
@@ -336,7 +349,7 @@ module MakeBackend
 
   let clear_caches (type t) : t file -> _ = function
     | Election (_, (Draft | State)) -> Elections_cache.clear ()
-    | Account_file (Account _) -> Accounts_cache.clear ()
+    | Account (Account _) -> Accounts_cache.clear ()
     | _ -> ()
 
   let extended_records_filename = "extended_records.jsons"
@@ -350,7 +363,7 @@ module MakeBackend
         -> password_record file_props
 
   let get_props (type t) : t file -> t file_props = function
-    | Account_file (Account id) ->
+    | Account (Account id) ->
         Concrete
           ( Config.accounts_dir // Printf.sprintf "%d.json" id,
             Trim,
@@ -360,8 +373,8 @@ module MakeBackend
         | Concrete (fname, kind, convert) ->
             Concrete (uuid /// fname, kind, convert)
         | Abstract (ops, key) -> Abstract (ops, uuid, key))
-    | Account_file (Auth_db f) -> Concrete (SMap.find f Config.maps, Raw, None)
-    | Account_file (Admin_password (file, key)) ->
+    | Account (Auth_db f) -> Concrete (SMap.find f Config.maps, Raw, None)
+    | Account (Admin_password (file, key)) ->
         Admin_password (SMap.find file Config.maps, key)
 
   let file_exists (type t) (x : t file) =
@@ -581,7 +594,7 @@ module MakeBackend
     let rec loop trials =
       if trials > 0 then
         let id = min + Stdlib.Random.int delta in
-        let* b = file_exists (Account_file (Account id)) in
+        let* b = file_exists (Account (Account id)) in
         if b then loop (trials - 1) else Lwt.return_some (id, u)
       else Lwt.fail Exit
     in
@@ -1561,7 +1574,7 @@ module Make (Config : CONFIG) : STORAGE = struct
 
     let get_account_by_id s id =
       let module S = (val s : BACKEND0) in
-      let* x = S.get () (Account_file (Account id)) in
+      let* x = S.get () (Account (Account id)) in
       x |> Lopt.get_value |> Lwt.return
 
     let with_transaction f = with_transaction_ref.with_transaction f
@@ -1714,10 +1727,10 @@ module Make (Config : CONFIG) : STORAGE = struct
     type nonrec t = t
 
     let with_transaction = with_transaction
-    let get x f = get x (Account_file f)
-    let set x f = set x (Account_file f)
-    let del x f = del x (Account_file f)
-    let update x f = update x (Account_file f)
+    let get x f = get x (Account f)
+    let set x f = set x (Account f)
+    let del x f = del x (Account f)
+    let update x f = update x (Account f)
     let new_account_id = new_account_id
   end
 end

@@ -64,5 +64,3 @@ type _ v =
   | Account : int -> account v
   | Auth_db : string -> string list v
   | Admin_password : string * kind -> password_record v
-
-type _ t = Account_file : 'a v -> 'a t | Election : uuid * 'a u -> 'a t

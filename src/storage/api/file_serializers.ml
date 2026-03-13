@@ -23,8 +23,7 @@ open Belenios
 open Serializable_j
 open Extra
 
-let get_election_file_serializers (type t) : t File.u -> t string_serializers =
-  function
+let get_election (type t) : t File.u -> t string_serializers = function
   | State ->
       {
         of_string = election_state_of_string;
@@ -132,13 +131,11 @@ let get_election_file_serializers (type t) : t File.u -> t string_serializers =
         to_string = Belenios_web_api.string_of_credentials_credits;
       }
 
-let get (type t) : t File.t -> t string_serializers = function
-  | Account_file (Account _) ->
+let get_account (type t) : t File.v -> t string_serializers = function
+  | Account _ ->
       { of_string = account_of_string; to_string = string_of_account }
-  | Election (_, f) -> get_election_file_serializers f
-  | Account_file (Auth_db _) ->
-      { of_string = split_lines; to_string = join_lines }
-  | Account_file (Admin_password _) ->
+  | Auth_db _ -> { of_string = split_lines; to_string = join_lines }
+  | Admin_password _ ->
       {
         of_string = password_record_of_string;
         to_string = string_of_password_record;

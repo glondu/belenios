@@ -27,5 +27,10 @@ include module type of Serializable_j
 include module type of Extra
 include module type of Types
 
-val get_file_serializers : 'a file -> 'a Belenios.string_serializers
+val get_election_file_serializers :
+  'a election_file -> 'a Belenios.string_serializers
+
+val get_account_file_serializers :
+  'a account_file -> 'a Belenios.string_serializers
+
 val default_election_dates : election_dates
