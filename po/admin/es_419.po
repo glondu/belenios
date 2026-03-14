@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2026-02-18 17:09+0000\n"
+"PO-Revision-Date: 2026-03-15 00:09+0000\n"
 "Last-Translator: Loposmo <mrloposmo497@gmail.com>\n"
 "Language-Team: Spanish (Latin America) <https://hosted.weblate.org/projects/"
 "belenios/admin/es_419/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.1-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: src/web/clients/admin/trustees_tab.ml:263
 msgid " (server is not counted)"
@@ -332,7 +332,7 @@ msgstr "Haga clic en el enlace."
 #. src/web/clients/common/secondary_ui.ml:80
 #: src/web/clients/admin/elections.ml:1984
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 #: src/web/clients/admin/elections.ml:1175
 msgid "Close: "
@@ -836,7 +836,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:88
 msgid "Language:"
-msgstr ""
+msgstr "Idioma:"
 
 #: src/web/clients/admin/elections.ml:210
 msgid "Languages"
@@ -882,7 +882,7 @@ msgstr ""
 
 #: src/web/clients/admin/admin.ml:389
 msgid "Loading..."
-msgstr ""
+msgstr "Cargando..."
 
 #: src/web/server/common/pages_admin.ml:158
 msgid "Log in with"
@@ -1286,7 +1286,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
-msgstr ""
+msgstr "Modo restringido"
 
 #: src/web/clients/admin/elections.ml:2150 src/web/clients/admin/elections.ml:306
 msgid "Results page"
@@ -1480,7 +1480,7 @@ msgstr ""
 
 #: src/web/server/common/pages_admin.ml:45 src/web/common/pages_common.ml:67
 msgid "Terms of service"
-msgstr ""
+msgstr "Condiciones de servicio"
 
 #: src/web/common/mails_admin.ml:310
 msgid "Thank you again for your help,"
@@ -1931,7 +1931,7 @@ msgstr "También puede iniciar sesión con"
 
 #: src/web/common/pages_common.ml:234
 msgid "You can check its presence in the "
-msgstr ""
+msgstr "Usted puede verificar su presencia en la "
 
 #: src/web/server/common/pages_admin.ml:472
 msgid "You cannot change your e-mail address right now."
@@ -2050,7 +2050,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:231
 msgid "Your smart ballot tracker is "
-msgstr ""
+msgstr "Su número de rastreo de boleta es "
 
 #: src/web/server/common/pages_admin.ml:386
 msgid "Your username is: "
@@ -2082,7 +2082,7 @@ msgstr ""
 
 #: src/web/common/pages_common.ml:222
 msgid "ballot box"
-msgstr ""
+msgstr "urna"
 
 #: src/web/server/common/pages_admin.ml:142
 msgid "contact us"
@@ -2161,7 +2161,7 @@ msgstr ""
 #. src/web/server/common/pages_admin.ml:51
 #: src/web/clients/common/secondary_ui.ml:71
 msgid "terms of service"
-msgstr ""
+msgstr "condiciones de servicio"
 
 #: src/web/common/mails_admin.ml:228
 msgid "the fingerprint of your public key;"
