@@ -34,7 +34,7 @@
     "preferential_voting_move_candidate_to": "Perkelti į",
     "preferential_voting_delete_preference_level": "Ištrinti šį pasirinkimo lygį",
     "majority_judgment_question_description": "Įvertinkite kiekvieną kandidatą prieš pereidami prie kito žingsnio.",
-    "preferential_voting_question_description": "Kandidatus reitinguokite pagal pirmenybę.",
+    "preferential_voting_question_description": "Kandidatus reitinguokite pagal pirmumą. Nereitinguoti kandidatai, jei tokių yra, laikomi (lygiaverčiai) mažiau pageidaujamais.",
     "ask_to_select_x_answers_0": "Pasirinkite {{count}} atsakymą.",
     "ask_to_select_x_answers_1": "Pasirinkite {{count}} atsakymus.",
     "ask_to_select_x_answers_2": "Pasirinkite {{count}} atsakymus.",
@@ -48,5 +48,10 @@
     "previous_button_label": "Ankstesnis",
     "encrypted_ballot_is": "Šifruotas biuletenis:",
     "review_ballot_for_questions": "Jūsų balsavimo biuletenio dar nėra balsadėžėje, o jo turinys yra toks:",
-    "question_x_of_y": "Klausimas {{current_question}} iš {{number_of_questions}}"
+    "question_x_of_y": "Klausimas {{current_question}} iš {{number_of_questions}}",
+    "preferential_voting_ranked": "Reitinguotas",
+    "preferential_voting_without_equality_move_candidate_above_position_x": "Aukščiau pozicijos {{index}}",
+    "preferential_voting_without_equality_move_candidate_below_position_x": "Žemiau pozicijos {{index}}",
+    "lists_question_description": "Pasirinkite kandidatų sąrašą ir atžymėkite tuos kandidatus, kurių nenorite įtraukti.",
+    "download_tracker_label": "Atsisiųsti"
 }
