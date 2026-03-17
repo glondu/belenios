@@ -25,9 +25,9 @@ module type S = sig
   val election_not_found : unit -> Eliom_registration.Html.result Lwt.t
 
   val with_election :
-    (((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
-    Eliom_registration.Html.result Lwt.t)
-    Belenios_storage_api.Storage.u
+    Belenios_storage_api.Storage.E.t ->
+    ((module ELECTION) -> Eliom_registration.Html.result Lwt.t) ->
+    Eliom_registration.Html.result Lwt.t
 
   val redir_preapply :
     ( 'a,

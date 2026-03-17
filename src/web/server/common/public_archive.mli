@@ -22,26 +22,26 @@
 open Belenios
 open Belenios_storage_api
 
-val get_roots : roots Lwt.t Storage.u
-val get_data : (hash -> string option Lwt.t) Storage.u
-val get_trustees : string Lwt.t Storage.u
-val get_election : string option Lwt.t Storage.u
-val get_partial_decryptions : string owned list Lwt.t Storage.u
-val get_result : string option Lwt.t Storage.u
-val get_public_creds : public_credentials Lwt.t Storage.u
-val get_ballot_by_hash : (string -> string option Lwt.t) Storage.u
-val get_nh_ciphertexts : string Lwt.t Storage.u
-val get_shuffles : (hash * hash owned * string) list option Lwt.t Storage.u
-val get_sized_encrypted_tally : string option Lwt.t Storage.u
-val get_latest_encrypted_tally : string option Lwt.t Storage.u
-val get_ballot_hashes : (hash * Weight.t) list Lwt.t Storage.u
+val get_roots : Storage.E.t -> roots Lwt.t
+val get_data : Storage.E.t -> hash -> string option Lwt.t
+val get_trustees : Storage.E.t -> string Lwt.t
+val get_election : Storage.E.t -> string option Lwt.t
+val get_partial_decryptions : Storage.E.t -> string owned list Lwt.t
+val get_result : Storage.E.t -> string option Lwt.t
+val get_public_creds : Storage.E.t -> public_credentials Lwt.t
+val get_ballot_by_hash : Storage.E.t -> string -> string option Lwt.t
+val get_nh_ciphertexts : Storage.E.t -> string Lwt.t
+val get_shuffles : Storage.E.t -> (hash * hash owned * string) list option Lwt.t
+val get_sized_encrypted_tally : Storage.E.t -> string option Lwt.t
+val get_latest_encrypted_tally : Storage.E.t -> string option Lwt.t
+val get_ballot_hashes : Storage.E.t -> (hash * Weight.t) list Lwt.t
 val clear_ballot_cache : uuid -> unit
 
 val fold_on_ballots :
-  ((hash -> string -> 'a -> 'a Lwt.t) -> 'a -> 'a Lwt.t) Storage.u
+  Storage.E.t -> (hash -> string -> 'a -> 'a Lwt.t) -> 'a -> 'a Lwt.t
 
 val with_election :
-  (fallback:(unit -> 'a Lwt.t) ->
+  Storage.E.t ->
+  fallback:(unit -> 'a Lwt.t) ->
   ((module Site_common_sig.ELECTION) -> 'a Lwt.t) ->
-  'a Lwt.t)
-  Storage.u
+  'a Lwt.t

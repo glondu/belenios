@@ -23,12 +23,15 @@ open Belenios_storage_api
 open Belenios_web_api
 open Api_generic
 
-val get_election_status : election_status Lwt.t Storage.u
-val get_records : records Lwt.t Storage.u
-val get_partial_decryptions : (metadata -> partial_decryptions Lwt.t) Storage.u
-val get_shuffles : (metadata -> shuffles Lwt.t) Storage.u
-val skip_shuffler : (string -> unit Lwt.t) Storage.u
-val select_shuffler : (metadata -> string -> unit Lwt.t) Storage.u
+val get_election_status : Storage.E.t -> election_status Lwt.t
+val get_records : Storage.E.t -> records Lwt.t
+
+val get_partial_decryptions :
+  Storage.E.t -> metadata -> partial_decryptions Lwt.t
+
+val get_shuffles : Storage.E.t -> metadata -> shuffles Lwt.t
+val skip_shuffler : Storage.E.t -> string -> unit Lwt.t
+val select_shuffler : Storage.E.t -> metadata -> string -> unit Lwt.t
 
 val dispatch :
   token:string option ->
@@ -41,10 +44,10 @@ val dispatch :
 val state_module : (module Web_auth_sig.STATE) option ref
 
 val cast_ballot :
-  (confirmation -> bool Lwt.t) Storage.u ->
-  ((module Belenios.Election.ELECTION) ->
+  (Storage.E.t -> confirmation -> bool Lwt.t) ->
+  Storage.E.t ->
+  (module Belenios.Election.ELECTION) ->
   ballot:string ->
   user:Web_auth_sig.timestamped_user ->
   precast_data:Web_persist.precast_data ->
-  confirmation Lwt.t)
-  Storage.u
+  confirmation Lwt.t

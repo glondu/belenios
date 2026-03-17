@@ -115,8 +115,6 @@ module E = struct
     T.S.validate_election T.tx
 end
 
-type 'a u = E.t -> 'a
-
 module A = struct
   module type TX = sig
     module S : ACCOUNT_TRANSACTION

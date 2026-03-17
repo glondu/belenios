@@ -22,8 +22,6 @@
 open Types
 include STORAGE
 
-type 'a u = E.t -> 'a
-
 val register_backend :
   string -> (Xml.xml list -> (module STORAGE) Lwt.t) -> unit
 

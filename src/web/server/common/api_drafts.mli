@@ -49,12 +49,12 @@ val exn_of_generate_credentials_on_server_error :
   generate_credentials_on_server_error -> exn
 
 val submit_public_credentials :
-  (draft_election updatable_with_billing ->
+  Storage.E.t ->
+  draft_election updatable_with_billing ->
   ?certificate:
     (Yojson.Safe.t, Yojson.Safe.t) Belenios_web_api.credentials_certificate ->
   public_credentials ->
-  unit Lwt.t)
-  Storage.u
+  unit Lwt.t
 
 val generate_server_trustee :
   draft_election -> Yojson.Safe.t draft_trustee Lwt.t
@@ -104,13 +104,13 @@ val import_voters :
 
 val import_trustees :
   draft_election updatable_with_billing ->
-  (metadata ->
+  Storage.E.t ->
+  metadata ->
   ( [> `Basic | `Threshold ],
     [> `Inconsistent | `Invalid | `MissingPrivateKeys | `None | `Unsupported ]
   )
   Stdlib.result
-  Lwt.t)
-  Storage.u
+  Lwt.t
 
 val post_trustee_basic :
   draft_election updatable_with_billing -> token:string -> string -> unit Lwt.t
