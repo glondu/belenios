@@ -33,6 +33,8 @@
      - Add link to object in downloadable smart ballot tracker
      - Avoid using a new window for voter authentication
      - Fix localization of email authentication process
+     - Avoid having to reload the election page when the election is
+       opened
    + Miscellaneous
      - Add a link to email login e-mails
      - Update e-mail address when logging in with an existing account
