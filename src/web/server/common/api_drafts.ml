@@ -248,7 +248,7 @@ let post_drafts account draft =
   let&* uuid = uuid in
   let se = draft_of_api account uuid (Draft (v, se)) draft in
   let* () =
-    let@ s = Storage.with_election_transaction uuid in
+    let@ s = Storage.E.with_transaction uuid in
     Web_persist.create_draft s se
   in
   Lwt.return_some uuid
@@ -1029,7 +1029,7 @@ let post_draft_status ~admin_id s uuid
 let () =
   Billing.validate :=
     fun ~admin_id uuid ->
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       let@ se, set = Storage.E.update s Draft in
       match Lopt.get_value se with
       | None -> not_found
@@ -1285,7 +1285,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           let@ () = handle_generic_error in
           match request with
           | `Import from -> (
-              let@ from = Storage.with_election_transaction from in
+              let@ from = Storage.E.with_transaction from in
               let@ _ = check_owner account from in
               let* x = import_voters uuid (se, set) from in
               match x with
@@ -1415,7 +1415,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
               let* () = reset_draft_trustees (se, set) in
               ok
           | `Import from -> (
-              let@ from = Storage.with_election_transaction from in
+              let@ from = Storage.E.with_transaction from in
               let@ metadata = check_owner account from in
               let* x = import_trustees (se, set) from metadata in
               match x with

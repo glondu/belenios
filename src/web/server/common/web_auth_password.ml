@@ -63,10 +63,10 @@ struct
             let key : admin_password_file =
               if is_email name then Address name else Username name
             in
-            let@ s = Storage.with_account_transaction in
+            let@ s = Storage.A.with_transaction in
             Storage.A.get s (Admin_password (file, key))
         | Some uuid ->
-            let@ s = Storage.with_election_transaction uuid in
+            let@ s = Storage.E.with_transaction uuid in
             Storage.E.get s (Password name)
       in
       let&* r = Lopt.get_value r in
@@ -186,7 +186,7 @@ let add_account user ~password ~email =
                    (Printf.sprintf "add_account: unknown domain: %s"
                       user.user_domain))
           | Some db_fname ->
-              let@ s = Storage.with_account_transaction in
+              let@ s = Storage.A.with_transaction in
               do_add_account s ~db_fname ~username:user.user_name ~password
                 ~email)
     else return (Error BadUsername)
@@ -206,14 +206,14 @@ let change_password user ~password =
                     user.user_domain))
         | Some db_fname ->
             let* () =
-              let@ s = Storage.with_account_transaction in
+              let@ s = Storage.A.with_transaction in
               do_change_password s ~db_fname ~username:user.user_name ~password
             in
             return (Ok ()))
   else return (Error BadSpaceInPassword)
 
 let lookup_account ~service ~username ~email =
-  let@ s = Storage.with_account_transaction in
+  let@ s = Storage.A.with_transaction in
   let&* db_fname = get_password_db_fname service in
   let username = String.trim username in
   let* r = Storage.A.get s (Admin_password (db_fname, Username username)) in

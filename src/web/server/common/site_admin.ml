@@ -92,7 +92,7 @@ struct
               match a.consent with
               | Some x when x >= !Web_config.tos_last_update -> return_false
               | _ -> (
-                  let@ s = Storage.with_account_transaction in
+                  let@ s = Storage.A.with_transaction in
                   let@ x, set = Accounts.update_account_by_id s a.id in
                   match Lopt.get_value x with
                   | None -> return_true
@@ -156,7 +156,7 @@ struct
         | Some address, Some (_, a, _) -> (
             match SetEmailOtp.check ~address ~code with
             | Some () ->
-                let@ s = Storage.with_account_transaction in
+                let@ s = Storage.A.with_transaction in
                 let@ a, set =
                  fun cont ->
                   let@ x, set = Accounts.update_account_by_id s a.id in
@@ -180,7 +180,7 @@ struct
 
   let () =
     Any.register ~service:election_download_archive (fun (uuid, ()) () ->
-        let@ s = Storage.with_election_transaction uuid in
+        let@ s = Storage.E.with_transaction uuid in
         let@ _ = with_metadata_check_owner s in
         let* l = get_preferred_gettext () in
         let open (val l) in
@@ -417,7 +417,7 @@ struct
         match id with
         | None -> fail ()
         | Some id -> (
-            let@ s = Storage.with_account_transaction in
+            let@ s = Storage.A.with_transaction in
             let* a = Accounts.get_account_by_id s id in
             match a with
             | None -> fail ()

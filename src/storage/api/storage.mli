@@ -20,27 +20,9 @@
 (**************************************************************************)
 
 open Types
-open Serializable_t
 include STORAGE
 
 type 'a u = E.t -> 'a
-
-(** Scoped transaction wrappers. Use these in preference to [with_transaction]
-    so that the compiler can verify that the operations performed inside a
-    transaction are consistent with the declared scope.
-
-    [with_transaction] is kept for the rare cases where the scope cannot be
-    determined statically (e.g. when the same closure may operate on either an
-    election or an admin-password file depending on a runtime value). *)
-
-val with_election_transaction : uuid -> (E.t -> 'a Lwt.t) -> 'a Lwt.t
-(** Transaction scoped to a specific election. Only [Election (uuid, _)] files,
-    [append], [append_sealing], [archive_election], [delete_election] and
-    [validate_election] should be used inside. *)
-
-val with_account_transaction : (A.t -> 'a Lwt.t) -> 'a Lwt.t
-(** Transaction scoped to account / auth-db data. Only [Account _], [Auth_db _]
-    and [Admin_password _] files and [new_account_id] should be used inside. *)
 
 val register_backend :
   string -> (Xml.xml list -> (module STORAGE) Lwt.t) -> unit

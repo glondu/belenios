@@ -103,7 +103,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
          Yojson.Safe.read_json
   in
   let* () =
-    let@ s = Storage.with_election_transaction r.uuid in
+    let@ s = Storage.E.with_transaction r.uuid in
     let* () =
       {
         belenios_url = r.belenios_url;
@@ -325,7 +325,7 @@ let process_resend_request (r : credentials_resend)
     }
   in
   let* success =
-    let@ s = Storage.with_election_transaction r.uuid in
+    let@ s = Storage.E.with_transaction r.uuid in
     let@ x, set = Storage.E.update s Credentials_credits in
     match Lopt.get_value x with
     | None -> Lwt.return_false
@@ -399,7 +399,7 @@ let process_request : credentials_request -> _ = function
       Lwt.async (process_request_new r draft voter_list);
       ok
   | `Validate r ->
-      let@ s = Storage.with_election_transaction r.uuid in
+      let@ s = Storage.E.with_transaction r.uuid in
       let* () = Storage.E.set s Credentials_metadata Value r.metadata in
       let@ seed cont =
         let* x = Storage.E.get s Credentials_seed in
@@ -457,7 +457,7 @@ let process_request : credentials_request -> _ = function
       in
       ok
   | `Resend r ->
-      let@ s = Storage.with_election_transaction r.uuid in
+      let@ s = Storage.E.with_transaction r.uuid in
       let@ params cont =
         let* p = Storage.E.get s Credentials_params in
         match Lopt.get_value p with Some p -> cont p | None -> not_found
@@ -486,7 +486,7 @@ let dispatch endpoint method_ body =
       | _ -> method_not_allowed)
   | [ "server"; "credits"; uuid ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       match method_ with
       | `GET ->
           let@ seed cont =
@@ -518,7 +518,7 @@ let dispatch endpoint method_ body =
           let@ response = body.run credentials_response_of_string in
           let certificate = response.certificate in
           let uuid = certificate.uuid in
-          let@ s = Storage.with_election_transaction uuid in
+          let@ s = Storage.E.with_transaction uuid in
           let@ () = handle_generic_error in
           let@ se, set = Storage.E.update s Draft in
           let set ?billing:_ x = set Value x in

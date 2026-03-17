@@ -702,7 +702,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | [ uuid; "election" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       let* raw = Public_archive.get_election s in
       match raw with
       | Some raw -> (
@@ -730,7 +730,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               | _ -> method_not_allowed)))
   | [ uuid; "trustees" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       match method_ with
       | `GET ->
           Lwt.try_bind
@@ -784,7 +784,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       let get () =
         let* x = Web_persist.get_election_automatic_dates s in
         Lwt.return @@ string_of_election_auto_dates x
@@ -815,7 +815,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       | _ -> method_not_allowed)
   | uuid :: "draft" :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       let@ se, set = Storage.E.update s Draft in
       let set ?(billing = false) ((Draft (_, se) : draft_election) as x) =
         let* () =
@@ -832,7 +832,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
         (se, set)
   | [ uuid ] when method_ = `DELETE ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       let@ metadata cont =
         let* draft = Storage.E.get s Draft in
         match Lopt.get_value draft with
@@ -849,6 +849,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       ok
   | uuid :: endpoint ->
       let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
-      let@ s = Storage.with_election_transaction uuid in
+      let@ s = Storage.E.with_transaction uuid in
       let* metadata = Web_persist.get_election_metadata s in
       dispatch_election ~token ~ifmatch endpoint method_ body s metadata

@@ -93,7 +93,7 @@ struct
           match x with Some x -> cont x | None -> fail_http `Forbidden
         in
         let uuid = env.uuid in
-        let@ s = Storage.with_election_transaction uuid in
+        let@ s = Storage.E.with_transaction uuid in
         let@ election = with_election s in
         match env.state with
         | None -> Pages_voter.lost_ballot s election () >>= Html.send

@@ -186,7 +186,7 @@ struct
                   | None -> cont ()
                   | Some f ->
                       let* allowlist =
-                        let@ s = Storage.with_account_transaction in
+                        let@ s = Storage.A.with_transaction in
                         Storage.A.get s (Auth_db f)
                       in
                       let allowlist =
@@ -208,10 +208,10 @@ struct
                         let* id = Storage.get_user_id user in
                         match id with
                         | None ->
-                            let@ s = Storage.with_account_transaction in
+                            let@ s = Storage.A.with_transaction in
                             Accounts.create_account s ~name ~email:address user
                         | Some id -> (
-                            let@ s = Storage.with_account_transaction in
+                            let@ s = Storage.A.with_transaction in
                             let@ a, set = Accounts.update_account_by_id s id in
                             match Lopt.get_value a with
                             | None ->

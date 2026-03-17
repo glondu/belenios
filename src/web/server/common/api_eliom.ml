@@ -132,7 +132,7 @@ module Make () = struct
             let@ () = handle_ifmatch ifmatch get in
             let@ x = body.run api_account_of_string in
             let@ () = handle_generic_error in
-            let@ s = Storage.with_account_transaction in
+            let@ s = Storage.A.with_transaction in
             let@ account, set = Accounts.update_account_by_id s account.id in
             let@ account =
               Option.unwrap unauthorized (Lopt.get_value account)

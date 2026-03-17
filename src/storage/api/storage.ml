@@ -156,6 +156,3 @@ module A = struct
     let module T = (val tx : TX) in
     T.S.new_account_id T.tx
 end
-
-let with_election_transaction = E.with_transaction
-let with_account_transaction = A.with_transaction

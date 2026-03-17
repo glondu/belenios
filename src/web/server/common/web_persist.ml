@@ -939,7 +939,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           let Credential.{ private_creds; public_with_ids; _ } =
             Cred.merge_sub voters x
           in
-          let@ s = Storage.with_election_transaction uuid in
+          let@ s = Storage.E.with_transaction uuid in
           let@ se, set = Storage.E.update s Draft in
           match Lopt.get_value se with
           | Some (Draft (v, se)) ->
