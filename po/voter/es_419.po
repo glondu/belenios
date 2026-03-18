@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2026-03-15 00:09+0000\n"
+"PO-Revision-Date: 2026-03-18 01:09+0000\n"
 "Last-Translator: Loposmo <mrloposmo497@gmail.com>\n"
 "Language-Team: Spanish (Latin America) <https://hosted.weblate.org/projects/"
 "belenios/voter/es_419/>\n"
@@ -227,7 +227,7 @@ msgstr "Puestos disponibles en este servidor:"
 
 #: src/web/clients/common/secondary_ui.ml:70
 msgid "By using this site, you accept our "
-msgstr "Al utilizar este sitio, usted acepta nuestra "
+msgstr "Al utilizar este sitio, usted acepta nuestras "
 
 #: src/web/server/common/pages_common.ml:577
 msgid "Click here"
@@ -314,7 +314,7 @@ msgstr "Huella digital esperada:"
 
 #: src/web/common/pages_common.ml:248
 msgid "FAIL!"
-msgstr "¡FALLA!"
+msgstr "¡FALLO!"
 
 #: src/web/clients/election/advanced.ml:112
 msgid "File:"
@@ -339,7 +339,7 @@ msgstr "Obtener el código fuente"
 #. src/web/common/pages_common.ml:263
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
-msgstr "Regresar a la página inicial de la elección"
+msgstr "Volver a las elecciones"
 
 #: src/web/server/common/mails_voter.ml:211
 msgid "If the above link does not work:"
