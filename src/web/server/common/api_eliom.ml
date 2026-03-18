@@ -27,6 +27,22 @@ open Api_generic
 
 let ( let& ) = Option.bind
 
+[%%import "../../../platform/config.mlh"]
+[%%if ocsigenserver_version < 7]
+
+let return_response x =
+  let* response, body = x in
+  Lwt.return @@ Ocsigen_response.make ~body response
+
+[%%else]
+
+let return_response x =
+  let* response, body = x in
+  let body = Ocsigen_response.Body.of_cohttp ~encoding:Chunked body in
+  Lwt.return @@ Ocsigen_response.make ~body response
+
+[%%endif]
+
 module Api_result = Eliom_mkreg.Make (struct
   type page = Api_generic.result
   type options = unit
@@ -43,31 +59,23 @@ module Api_result = Eliom_mkreg.Make (struct
         let headers =
           Cohttp.Header.add headers "content-type" "application/json"
         in
-        let* response, body =
-          Cohttp_lwt_unix.Server.respond_string ~headers ~status ~body ()
-        in
-        Lwt.return @@ Ocsigen_response.make ~body response
+        Cohttp_lwt_unix.Server.respond_string ~headers ~status ~body ()
+        |> return_response
     | `Bel fname ->
         let headers =
           Cohttp.Header.add headers "content-type" "application/x-belenios"
         in
-        let* response, body =
-          Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
-        in
-        Lwt.return @@ Ocsigen_response.make ~body response
+        Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
+        |> return_response
     | `Sealing_log fname ->
         let headers = Cohttp.Header.add headers "content-type" "text/plain" in
-        let* response, body =
-          Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
-        in
-        Lwt.return @@ Ocsigen_response.make ~body response
+        Cohttp_lwt_unix.Server.respond_file ~headers ~fname ()
+        |> return_response
     | `Generic x ->
         let headers = Cohttp.Header.add headers "content-type" x.mime in
-        let* response, body =
-          Cohttp_lwt_unix.Server.respond_string ~headers ~body:x.content
-            ~status:`OK ()
-        in
-        Lwt.return @@ Ocsigen_response.make ~body response
+        Cohttp_lwt_unix.Server.respond_string ~headers ~body:x.content
+          ~status:`OK ()
+        |> return_response
 end)
 
 module Make () = struct

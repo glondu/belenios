@@ -21,23 +21,24 @@
 
 open Lwt.Syntax
 
-let jsoo_version () =
-  let cmd = ("js_of_ocaml", [| "js_of_ocaml"; "--version" |]) in
+let get_version package =
+  let cmd =
+    ("ocamlfind", [| "ocamlfind"; "query"; "-format"; "%v"; package |])
+  in
   Lwt_process.pread_line cmd
 
+let make_version package =
+  let* v = get_version package in
+  match String.split_on_char '.' v with
+  | a :: _ ->
+      let a = Option.value ~default:0 (int_of_string_opt a) in
+      Lwt.return [ Printf.sprintf "[%%%%define %s_version %d]" package a ]
+  | _ -> Lwt.return_nil
+
 let main () =
-  let* jsoo_version =
-    let* v = jsoo_version () in
-    match String.split_on_char '.' v with
-    | a :: b :: c :: _ ->
-        let a = Option.value ~default:0 (int_of_string_opt a) in
-        let b = Option.value ~default:0 (int_of_string_opt b) in
-        let c = Option.value ~default:0 (int_of_string_opt c) in
-        Lwt.return
-          [ Printf.sprintf "[%%%%define jsoo_version (%d, %d, %d)]" a b c ]
-    | _ -> Lwt.return_nil
-  in
-  [ jsoo_version ] |> List.flatten |> Lwt_stream.of_list
+  let* jsoo = make_version "js_of_ocaml" in
+  let* ocsigenserver = make_version "ocsigenserver" in
+  [ jsoo; ocsigenserver ] |> List.flatten |> Lwt_stream.of_list
   |> Lwt_io.(write_lines stdout)
 
 let () = main () |> Lwt_main.run

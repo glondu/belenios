@@ -23,7 +23,7 @@
 
 open Js_of_ocaml
 
-[%%if jsoo_version < (6, 0, 0)]
+[%%if js_of_ocaml_version < 6]
 
 let navigator_language_raw =
   Js.Optdef.to_option Dom_html.window##.navigator##.language

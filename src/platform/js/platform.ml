@@ -26,7 +26,7 @@ open Js_of_ocaml
 let belenios = Js.Unsafe.pure_js_expr "belenios"
 
 module Debug = struct
-  [%%if jsoo_version < (6, 0, 0)]
+  [%%if js_of_ocaml_version < 6]
 
   let debug x = Firebug.console##log (Js.string x)
 
