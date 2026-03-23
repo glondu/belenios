@@ -40,9 +40,17 @@ module type AUTH_SYSTEM = sig
     [ `Username | `Address ] -> state:string -> result Lwt.t
 end
 
+type auth_dispatch =
+  auth_config ->
+  string list ->
+  [ `DELETE | `GET | `POST | `PUT ] ->
+  Api_generic.body ->
+  Api_generic.result Lwt.t
+
 type auth_system = {
   handler : uuid option -> auth_config -> (module AUTH_SYSTEM);
   extern : bool;
+  dispatch : auth_dispatch;
 }
 
 type timestamped_user = {
@@ -93,6 +101,7 @@ module type S = sig
     Eliom_registration.Html.result Lwt.t
 
   val get_site_login_handler : string -> result Lwt.t
+  val get_dispatch : string -> auth_dispatch option
 
   val exec :
     ?extern:bool ->

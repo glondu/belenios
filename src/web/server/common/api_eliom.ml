@@ -79,8 +79,9 @@ module Api_result = Eliom_mkreg.Make (struct
 end)
 
 module Make () = struct
-  (* Forward reference set in Web_main *)
+  (* Forward references set in Web_main *)
   let get_result = ref (fun ~state:_ -> None)
+  let get_dispatch = ref (fun _ -> None)
 
   let dispatch endpoint method_ _params body =
     let sp = Eliom_common.get_sp () in
@@ -162,6 +163,24 @@ module Make () = struct
         Api_credentials.dispatch endpoint method_ body
     | "billing" :: endpoint ->
         Billing.dispatch ~token ~ifmatch endpoint method_ body
+    | "login" :: service :: endpoint -> (
+        let rec find_instance xs cont =
+          match xs with
+          | [] -> not_found
+          | (x : auth_config) :: _ when x.auth_instance = service -> cont x
+          | _ :: xs -> find_instance xs cont
+        in
+        let@ a = find_instance !Web_config.site_auth_config in
+        match !get_dispatch a.auth_system with
+        | None -> not_found
+        | Some dispatch -> dispatch a endpoint method_ body)
+    | [ "login" ] -> (
+        match method_ with
+        | `DELETE ->
+            let@ token = Option.unwrap unauthorized token in
+            invalidate_token token;
+            ok
+        | _ -> method_not_allowed)
     | _ -> not_found
 
   open Eliom_service

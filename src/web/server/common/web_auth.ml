@@ -28,6 +28,41 @@ open Belenios_server_core
 open Web_common
 open Web_auth_sig
 
+let check_allowlist a ~login =
+  match List.assoc_opt "allowlist" a.auth_config with
+  | None -> Lwt.return_true
+  | Some f ->
+      let* allowlist =
+        let@ s = Storage.A.with_transaction in
+        Storage.A.get s (Auth_db f)
+      in
+      let allowlist =
+        match Lopt.get_value allowlist with None -> [] | Some x -> x
+      in
+      if List.mem login allowlist then Lwt.return_true else Lwt.return_false
+
+let perform_admin_login a ~name ~address user =
+  let* allowed = check_allowlist a ~login:user.user_name in
+  if allowed then
+    let* id = Storage.get_user_id user in
+    match id with
+    | None ->
+        let@ s = Storage.A.with_transaction in
+        let* x = Accounts.create_account s ~name ~email:address user in
+        Lwt.return_ok x
+    | Some id -> (
+        let@ s = Storage.A.with_transaction in
+        let@ a, set = Accounts.update_account_by_id s id in
+        match Lopt.get_value a with
+        | None -> Lwt.fail @@ Failure "anomaly in perform_login"
+        | Some x ->
+            let last_connected = Unix.gettimeofday () in
+            let email = match address with None -> x.email | x -> x in
+            let x = { x with last_connected; email } in
+            let* () = set x in
+            Lwt.return_ok x)
+  else Lwt.return_error ()
+
 module Make
     (Web_state : Web_state_sig.S)
     (Web_services : Web_services_sig.S)
@@ -180,57 +215,28 @@ struct
         if auth_system = a.auth_system then
           let cont : Belenios_web_api.user_info option -> _ = function
             | Some { login; name; address; timestamp } ->
-                let@ () =
-                 fun cont ->
-                  match List.assoc_opt "allowlist" a.auth_config with
-                  | None -> cont ()
-                  | Some f ->
-                      let* allowlist =
-                        let@ s = Storage.A.with_transaction in
-                        Storage.A.get s (Auth_db f)
-                      in
-                      let allowlist =
-                        match Lopt.get_value allowlist with
-                        | None -> []
-                        | Some x -> x
-                      in
-                      if List.mem login allowlist then cont ()
-                      else restart_login ()
-                in
                 let user =
                   { user_domain = a.auth_instance; user_name = login }
                 in
                 let () = env.user <- Some { user; name; timestamp } in
-                let* () =
+                let@ () =
+                 fun cont ->
                   match uuid with
-                  | None ->
+                  | None -> (
                       let* account =
-                        let* id = Storage.get_user_id user in
-                        match id with
-                        | None ->
-                            let@ s = Storage.A.with_transaction in
-                            Accounts.create_account s ~name ~email:address user
-                        | Some id -> (
-                            let@ s = Storage.A.with_transaction in
-                            let@ a, set = Accounts.update_account_by_id s id in
-                            match Lopt.get_value a with
-                            | None ->
-                                Lwt.fail
-                                @@ Failure "anomaly in post_login_handler"
-                            | Some x ->
-                                let last_connected = Unix.gettimeofday () in
-                                let email =
-                                  match address with None -> x.email | x -> x
-                                in
-                                let x = { x with last_connected; email } in
-                                let* () = set x in
-                                return x)
+                        perform_admin_login a ~name ~address user
                       in
-                      let* token = Api_generic.new_token account user in
-                      let* () = Web_state.discard () in
-                      Eliom_reference.set Web_state.site_user
-                        (Some (user, account, token))
-                  | Some _ -> Lwt.return_unit
+                      match account with
+                      | Ok account ->
+                          let* token = Api_generic.new_token account user in
+                          let* () = Web_state.discard () in
+                          let* () =
+                            Eliom_reference.set Web_state.site_user
+                              (Some (user, account, token))
+                          in
+                          cont ()
+                      | Error () -> restart_login ())
+                  | Some _ -> cont ()
                 in
                 exec ~extern ~login:true ~state kind
             | None -> restart_login ()
@@ -373,6 +379,10 @@ struct
             in
             get_pre_login_handler ~state env
         | None -> return @@ Html (Eliom_content.Html.F.div []))
+
+  let get_dispatch auth_system =
+    let& { dispatch; _ } = List.assoc_opt auth_system !auth_systems in
+    Some dispatch
 
   module State = struct
     let get_auth ~state =

@@ -40,6 +40,8 @@ end
 
 module Throttle = Lwt_throttle.Make (Channel)
 
+let perform_admin_login = Web_auth.perform_admin_login
+
 module Make
     (Web_services : Web_services_sig.S)
     (Pages_common : Pages_common_sig.S)
@@ -87,8 +89,32 @@ struct
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
+  let dispatch a endpoint method_ (body : Api_generic.body) =
+    match endpoint with
+    | [] -> (
+        match method_ with
+        | `POST -> (
+            let@ i = body.run Belenios_web_api.auth_password_info_of_string in
+            let* x = check None a i.username i.password in
+            match x with
+            | None -> Api_generic.forbidden
+            | Some { address; _ } -> (
+                let user =
+                  { user_domain = a.auth_instance; user_name = i.username }
+                in
+                let* account = perform_admin_login a ~name:None ~address user in
+                match account with
+                | Ok account ->
+                    let* token = Api_generic.new_token account user in
+                    Api_generic.return_generic
+                      { mime = "text/plain"; content = token }
+                | Error () -> Api_generic.forbidden))
+        | _ -> Api_generic.method_not_allowed)
+    | _ -> Api_generic.not_found
+
   let run_post_login_handler =
-    Web_auth.register ~auth_system:"password" { handler; extern = false }
+    Web_auth.register ~auth_system:"password"
+      { handler; extern = false; dispatch }
 
   let password_handler () (state, (name, password)) =
     run_post_login_handler ~state

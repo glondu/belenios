@@ -291,6 +291,7 @@ module Make () = struct
     Web_auth.Make (X.Web_state) (X.Web_services) (X.Pages_common)
 
   let () = Api.get_result := Web_auth.State.get_result
+  let () = Api.get_dispatch := Web_auth.get_dispatch
 
   let () =
     Mails_voter.make_login_link :=

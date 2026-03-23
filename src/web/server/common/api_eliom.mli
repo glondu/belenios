@@ -21,4 +21,5 @@
 
 module Make () : sig
   val get_result : (state:string -> Belenios_web_api.cast_result option) ref
+  val get_dispatch : (string -> Web_auth_sig.auth_dispatch option) ref
 end

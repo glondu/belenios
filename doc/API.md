@@ -51,6 +51,20 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 ### `GET`: unit -> api_account
 ### `PUT`: api_account -> unit
 
+## `login/$SERVICE` (anybody)
+
+### `POST`: json -> token
+
+Use this endpoint to get an API token suitable for the authenticated
+administrator endpoints in a programmatic way. `$SERVICE` is the
+`name` attribute of an authentication (`<auth>` element) declared in
+the configuration file. A token is valid for 24 hours, or until
+`DELETE` (below) is called.
+
+## `login` (administrator)
+
+### `DELETE`: json -> token
+
 ## `elections` (administrator)
 
 ### `GET`: unit -> summary_list

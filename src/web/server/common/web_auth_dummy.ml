@@ -21,6 +21,10 @@
 
 open Lwt.Syntax
 open Lwt
+open Belenios
+open Belenios_storage_api
+
+let perform_admin_login = Web_auth.perform_admin_login
 
 module Make
     (Web_services : Web_services_sig.S)
@@ -40,8 +44,29 @@ struct
     end in
     (module X : Web_auth_sig.AUTH_SYSTEM)
 
+  let dispatch a endpoint method_ (body : Api_generic.body) =
+    match endpoint with
+    | [] -> (
+        match method_ with
+        | `POST -> (
+            let@ i = body.run Belenios_web_api.auth_dummy_info_of_string in
+            let user =
+              { user_domain = a.auth_instance; user_name = i.username }
+            in
+            let* account =
+              perform_admin_login a ~name:None ~address:None user
+            in
+            match account with
+            | Ok account ->
+                let* token = Api_generic.new_token account user in
+                Api_generic.return_generic
+                  { mime = "text/plain"; content = token }
+            | Error () -> Api_generic.forbidden)
+        | _ -> Api_generic.method_not_allowed)
+    | _ -> Api_generic.not_found
+
   let run_post_login_handler =
-    Web_auth.register ~auth_system:"dummy" { handler; extern = false }
+    Web_auth.register ~auth_system:"dummy" { handler; extern = false; dispatch }
 
   let () =
     Eliom_registration.Any.register ~service:Web_services.dummy_post

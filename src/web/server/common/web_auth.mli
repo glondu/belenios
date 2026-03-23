@@ -19,6 +19,15 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_storage_api
+
+val perform_admin_login :
+  auth_config ->
+  name:string option ->
+  address:string option ->
+  user ->
+  (account, unit) result Lwt.t
+
 module Make
     (_ : Web_state_sig.S)
     (_ : Web_services_sig.S)

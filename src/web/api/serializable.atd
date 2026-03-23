@@ -449,6 +449,19 @@ type cast_result =
   | Error of cast_error
   ]
 
+(** {1 Dummy authentication related types} *)
+
+type auth_dummy_info = {
+  username : string;
+}
+
+(** {1 Password authentication related types} *)
+
+type auth_password_info = {
+  username : string;
+  password : string;
+}
+
 (** {1 Belenios Connect-related types} *)
 
 type user_info = {
