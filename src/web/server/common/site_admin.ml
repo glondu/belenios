@@ -425,7 +425,8 @@ struct
                 let () = Api_generic.invalidate_token token in
                 let* token = Api_generic.new_token a u in
                 let* () =
-                  Eliom_reference.set Web_state.site_user (Some (u, a, token))
+                  Eliom_reference.set Web_state.site_user
+                    (Some (u, a, token.token))
                 in
                 Redirection.send (Redirection home)))
 

@@ -449,6 +449,13 @@ type cast_result =
   | Error of cast_error
   ]
 
+(** {1 Authentication API} *)
+
+type auth_token = {
+  token : string;
+  expiration : float;
+}
+
 (** {1 Dummy authentication related types} *)
 
 type auth_dummy_info = {

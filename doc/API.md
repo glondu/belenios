@@ -53,7 +53,7 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ## `login/$SERVICE` (anybody)
 
-### `POST`: json -> token
+### `POST`: json -> auth_token
 
 Use this endpoint to get an API token suitable for the authenticated
 administrator endpoints in a programmatic way. `$SERVICE` is the
@@ -63,7 +63,7 @@ the configuration file. A token is valid for 24 hours, or until
 
 ## `login` (administrator)
 
-### `DELETE`: json -> token
+### `DELETE`: unit -> unit
 
 ## `elections` (administrator)
 

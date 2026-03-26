@@ -22,7 +22,7 @@
 open Belenios_storage_api
 open Belenios_web_api
 
-val new_token : account -> user -> string Lwt.t
+val new_token : account -> user -> auth_token Lwt.t
 val lookup_token : string -> (account * user) option
 val invalidate_token : string -> unit
 

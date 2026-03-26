@@ -232,7 +232,7 @@ struct
                           let* () = Web_state.discard () in
                           let* () =
                             Eliom_reference.set Web_state.site_user
-                              (Some (user, account, token))
+                              (Some (user, account, token.token))
                           in
                           cont ()
                       | Error () -> restart_login ())
