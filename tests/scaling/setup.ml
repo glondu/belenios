@@ -158,8 +158,7 @@ module Make (P : PARAMS) = struct
           let bind = Lwt.bind
           let pause = Lwt.pause
           let uuid = uuid
-        end)
-    in
+        end) in
     let* x = Cred.generate voters in
     let private_creds = x.private_creds in
     let headers =

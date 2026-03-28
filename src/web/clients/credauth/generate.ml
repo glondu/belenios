@@ -44,8 +44,7 @@ let do_generate uuid (Draft (_, draft)) ~voters =
         let bind = Lwt.bind
         let pause = Lwt_js.yield
         let uuid = uuid
-      end)
-  in
+      end) in
   Cred.generate voters
 
 let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =

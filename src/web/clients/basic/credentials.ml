@@ -76,8 +76,7 @@ let show main uuid =
                     let bind = Lwt.bind
                     let pause = Lwt.pause
                     let uuid = uuid
-                  end)
-              in
+                  end) in
               let* Credential.{ public_creds; private_creds; _ } =
                 Cred.generate xs
               in

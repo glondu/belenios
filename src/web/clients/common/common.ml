@@ -293,9 +293,9 @@ let scrollIntoViewById id =
   let&&* d = document##getElementById (Js.string id) in
   let () =
     (Js.Unsafe.coerce d)##scrollIntoView
-      (object%js
-         val behavior = Js.string "smooth"
-      end)
+      object%js
+        val behavior = Js.string "smooth"
+      end
   in
   Lwt.return_unit
 

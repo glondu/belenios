@@ -315,8 +315,7 @@ module Credgen : CMDLINER_MODULE = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-        end)
-    in
+        end) in
     let save (c : Credential.batch) =
       let timestamp = Printf.sprintf "%.0f" (Unix.time ()) in
       let base = dir // timestamp in
@@ -434,8 +433,7 @@ module SubCredgen : CMDLINER_MODULE = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-        end)
-    in
+        end) in
     let x, _ = Cred.generate_sub count in
     Lwt_io.printl (string_of_sub_batch x)
 

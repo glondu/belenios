@@ -46,8 +46,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         let bind = Lwt.bind
         let pause = Lwt.pause
         let uuid = r.uuid
-      end)
-  in
+      end) in
   let* creds = Cred.generate voter_list in
   let* credentials_records =
     let map =

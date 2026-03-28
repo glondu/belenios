@@ -178,8 +178,7 @@ let belenios : belenios Js.t =
                     let bind = Lwt.bind
                     let pause = Lwt.pause
                     let uuid = W.uuid
-                  end)
-              in
+                  end) in
               let* x = Cred.derive (Js.to_string cred) in
               let () =
                 match x with
@@ -188,7 +187,8 @@ let belenios : belenios Js.t =
                       include W
 
                       let sk = sk
-                    end in
+                    end
+                    in
                     callbacks##success (module X : ELECTION_WITH_SK)
                 | Error `Invalid ->
                     callbacks##failure (Js.string "INVALID_CREDENTIAL") Js.null

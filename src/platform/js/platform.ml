@@ -326,7 +326,8 @@ let build_libsodium_stubs (libsodium : libsodium Js.t) =
       let result = libsodium##add base reg1 reg3 in
       copy_from_wasm r base nbytes;
       result
-  end in
+  end
+  in
   (module X : Signatures.LIBSODIUM_STUBS)
 
 let libsodium_ref = ref None

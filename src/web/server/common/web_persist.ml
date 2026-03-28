@@ -930,8 +930,7 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
             let bind = Lwt.bind
             let pause = Lwt.pause
             let uuid = uuid
-          end)
-      in
+          end) in
       let t, p = Cred.generate_sub (List.length voters) in
       pending_generations := SMap.add uuid_s p !pending_generations;
       Lwt.async (fun () ->

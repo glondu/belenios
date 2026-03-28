@@ -201,8 +201,7 @@ module Credgen = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-        end)
-    in
+        end) in
     let cred = get_textarea "credgen_derive_input" in
     let () =
       match Cred.derive cred with
@@ -226,8 +225,7 @@ module Credgen = struct
           let bind x f = f x
           let pause () = ()
           let uuid = uuid
-        end)
-    in
+        end) in
     let c = Cred.generate ids in
     set_textarea "credgen_generated_creds"
       (string_of_private_credentials c.private_creds);
