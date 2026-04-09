@@ -33,6 +33,10 @@ val ( -- ) : 'a writer -> 'a -> string
 val finally : 'a -> (unit -> unit) -> 'a
 val cast : ('a, 'b) Type.eq -> 'a -> 'b
 
+type 'a smart_ref = { get : unit -> 'a; set : 'a -> unit }
+
+val smart_ref : 'a -> 'a smart_ref
+
 module Dummy_random : RANDOM
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash

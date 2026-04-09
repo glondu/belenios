@@ -37,6 +37,12 @@ let finally x cont =
 
 let cast (type t u) (e : (t, u) Type.eq) (x : t) : u = match e with Equal -> x
 
+type 'a smart_ref = { get : unit -> 'a; set : 'a -> unit }
+
+let smart_ref x =
+  let r = ref x in
+  { get = (fun () -> !r); set = (fun x -> r := x) }
+
 module Dummy_random : RANDOM = struct
   let get_rng () = failwith "dummy random not implemented"
 end
