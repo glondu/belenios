@@ -22,7 +22,6 @@
 (** Election primitives *)
 
 open Belenios_core
-open Common
 open Signatures
 open Serializable_t
 
@@ -43,7 +42,7 @@ type 'a version
 val get_serializers :
   'a version -> (module SERIALIZABLE_QUESTION with type t = 'a)
 
-val compare_version : 'a version -> 'b version -> ('a, 'b) eq option
+val compare_version : 'a version -> 'b version -> ('a, 'b) Type.eq option
 
 type some_version = Version : 'a version -> some_version
 

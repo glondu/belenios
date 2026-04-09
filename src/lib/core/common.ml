@@ -35,9 +35,7 @@ let finally x cont =
   cont ();
   x
 
-type (_, _) eq = Refl : ('a, 'a) eq
-
-let cast (type t u) (e : (t, u) eq) (x : t) : u = match e with Refl -> x
+let cast (type t u) (e : (t, u) Type.eq) (x : t) : u = match e with Equal -> x
 
 module Dummy_random : RANDOM = struct
   let get_rng () = failwith "dummy random not implemented"

@@ -70,8 +70,8 @@ let get_serializers (type a) (v : a version) :
   match v with V1 -> (module Serializable_question_v1)
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
-    (t, u) eq option =
-  match (x, y) with V1, V1 -> Some Refl
+    (t, u) Type.eq option =
+  match (x, y) with V1, V1 -> Some Equal
 
 type some_version = Version : 'a version -> some_version
 

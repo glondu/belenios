@@ -31,10 +31,7 @@ val ( // ) : string -> string -> string
 val ( ++ ) : 'a reader -> string -> 'a
 val ( -- ) : 'a writer -> 'a -> string
 val finally : 'a -> (unit -> unit) -> 'a
-
-type (_, _) eq = Refl : ('a, 'a) eq
-
-val cast : ('a, 'b) eq -> 'a -> 'b
+val cast : ('a, 'b) Type.eq -> 'a -> 'b
 
 module Dummy_random : RANDOM
 module Uuid = Common_types.Uuid

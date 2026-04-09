@@ -119,7 +119,7 @@ let assert_ msg b f = if b then f () else raise (Error msg)
 let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
     =
   let version = se.se_version in
-  let@ Refl =
+  let@ Equal =
    fun cont ->
     match Belenios.Election.compare_version v v' with
     | Some x -> cont x
