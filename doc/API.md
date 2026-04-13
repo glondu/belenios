@@ -34,6 +34,11 @@ types. They refer to types defined in `src/common/api/serializable.atd`.
 
 ### `GET`: unit -> configuration
 
+## `readonly`
+
+### `GET`: unit -> bool (anybody)
+### `PUT`: bool -> unit (server admin)
+
 ## `send-message/internal` (anybody)
 
 ### `POST`: message_payload -> json

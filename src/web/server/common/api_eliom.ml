@@ -113,6 +113,22 @@ module Make () = struct
             let x = Api_generic.get_configuration () in
             return_json 200 (string_of_configuration x)
         | _ -> method_not_allowed)
+    | [ "readonly" ] -> (
+        match method_ with
+        | `GET ->
+            let x = Storage.readonly.get () in
+            return_yojson 200 (`Bool x)
+        | `PUT ->
+            let@ token = Option.unwrap unauthorized token in
+            if !Web_config.readonly_token_hash = Some (sha256_hex token) then
+              let@ x = body.run Yojson.Safe.from_string in
+              match x with
+              | `Bool x ->
+                  Storage.readonly.set x;
+                  return_yojson 200 `Null
+              | _ -> bad_request
+            else unauthorized
+        | _ -> method_not_allowed)
     | [ "send-message"; kind ] -> (
         let@ internal =
          fun cont ->

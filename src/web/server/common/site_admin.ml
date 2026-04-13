@@ -106,7 +106,13 @@ struct
                       then return_true
                       else
                         let consent = Some (Unix.gettimeofday ()) in
-                        let* () = set { a with consent } in
+                        let* () =
+                          Lwt.catch
+                            (fun () -> set { a with consent })
+                            (function
+                              | Readonly_storage -> Lwt.return_unit
+                              | e -> Lwt.reraise e)
+                        in
                         return_false)
             in
             if show then Pages_admin.privacy_notice ContAdmin >>= Html.send

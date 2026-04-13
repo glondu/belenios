@@ -89,6 +89,9 @@
         <default-group group="Ed25519"/>
         <nh-group group="Ed25519"/>
         <share dir="_SHAREDIR_"/>
+        <readonly token="d9ec58197e59ef73c5c64a457ab23dcda0accff5869ca65c761ba142b70074ff" readonly="false"/>
+        <!-- SHA256 preimage of token, to be used as Bearer token in
+             /api/readonly endpoint: ohbmQu1YZwXiqgdoMwHs -->
         <storage backend="filesystem">
           <uuid length="14"/>
           <spool dir="_VARDIR_/spool"/>

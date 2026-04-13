@@ -1559,6 +1559,11 @@ type with_transaction_ref = {
 module Make (Config : CONFIG) : STORAGE = struct
   type t = (module BACKEND)
 
+  let readonly = smart_ref false
+
+  let check_readonly cont =
+    if readonly.get () then raise Readonly_storage else cont ()
+
   let with_transaction_ref =
     {
       with_transaction =
@@ -1630,43 +1635,54 @@ module Make (Config : CONFIG) : STORAGE = struct
     T.get () f
 
   let set tx f k x =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.set () f k x
 
   let del tx f =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.del () f
 
-  let update tx f set =
+  let update tx f cont =
     let module T = (val tx : BACKEND) in
-    T.update () f set
+    let@ x, set = T.update () f in
+    let set x = if readonly.get () then raise Readonly_storage else set x in
+    cont (x, set)
 
   let append tx u ?last ops =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.append u ?last ops
 
   let append_sealing tx u event =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.append_sealing u event
 
   let new_election () =
+    let@ () = check_readonly in
     let@ tx = with_transaction in
     let module T = (val tx : BACKEND) in
     T.new_election ()
 
   let archive_election tx u =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.archive_election u
 
   let delete_election tx u =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.delete_election u
 
   let validate_election tx u =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.validate_election u
 
   let new_account_id tx =
+    let@ () = check_readonly in
     let module T = (val tx : BACKEND) in
     T.new_account_id ()
 
@@ -1697,10 +1713,17 @@ module Make (Config : CONFIG) : STORAGE = struct
 
   let rec data_policy_loop () =
     let open Ocsigen_messages in
-    let () = accesslog "Data policy process started" in
-    let* elections = Elections_cache.get_next_actions () in
-    let* () = Lwt_list.iter_s process_election_for_data_policy elections in
-    let () = accesslog "Data policy process completed" in
+    let* () =
+      if readonly.get () then (
+        accesslog "Data policy process skipped because of readonly mode";
+        Lwt.return_unit)
+      else
+        let () = accesslog "Data policy process started" in
+        let* elections = Elections_cache.get_next_actions () in
+        let* () = Lwt_list.iter_s process_election_for_data_policy elections in
+        let () = accesslog "Data policy process completed" in
+        Lwt.return_unit
+    in
     let* () = sleep 3600. in
     data_policy_loop ()
 

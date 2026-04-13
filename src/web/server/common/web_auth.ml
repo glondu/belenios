@@ -59,7 +59,12 @@ let perform_admin_login a ~name ~address user =
             let last_connected = Unix.gettimeofday () in
             let email = match address with None -> x.email | x -> x in
             let x = { x with last_connected; email } in
-            let* () = set x in
+            let* () =
+              Lwt.catch
+                (fun () -> set x)
+                (function
+                  | Readonly_storage -> Lwt.return_unit | e -> Lwt.reraise e)
+            in
             Lwt.return_ok x)
   else Lwt.return_error ()
 

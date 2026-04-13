@@ -104,6 +104,7 @@ type error =
   | PublicKeyExists
   | CastError of cast_error
   | VoterListError of voter_list_error
+  | ReadonlyStorage
   ]
 
 type request_status = {

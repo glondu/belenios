@@ -108,7 +108,11 @@ module type ACCOUNT_TRANSACTION = sig
   val new_account_id : t -> (int * unit Lwt.u) option Lwt.t
 end
 
+exception Readonly_storage
+
 module type STORAGE = sig
+  val readonly : bool smart_ref
+
   module E : ELECTION_TRANSACTION
   module A : ACCOUNT_TRANSACTION
 

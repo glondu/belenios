@@ -38,6 +38,16 @@ module Make () = struct
   let default_group_file = ref None
   let nh_group_file = ref None
   let domain = ref None
+  let readonly = ref false
+
+  let parse_readonly_attrs attrs =
+    List.iter
+      (function
+        | "readonly", "true" -> readonly := true
+        | "readonly", "false" -> readonly := false
+        | "token", x -> Web_config.readonly_token_hash := Some x
+        | a, _ -> Printf.ksprintf failwith "invalid %s in <readonly>" a)
+      attrs
 
   let parse_connect config =
     let open Xml in
@@ -161,6 +171,7 @@ module Make () = struct
     | Element ("restricted", [], []) -> Web_config.restricted_mode := true
     | Element ("election-sealing", [], []) ->
         Web_config.election_sealing := true
+    | Element ("readonly", attrs, []) -> parse_readonly_attrs attrs
     | Element ("storage", [ ("backend", backend) ], config) ->
         Lwt_main.run (Storage.init_backend backend config)
     | Element ("connect", [], config) ->
@@ -171,6 +182,8 @@ module Make () = struct
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag
+
+  let () = Storage.readonly.set !readonly
 
   let () =
     match !prefix with

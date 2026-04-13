@@ -86,13 +86,22 @@ let is_tallied () =
 let is_finished () = is_archived () || is_tallied ()
 
 let popup_failsync msg =
-  let code =
-    match msg with
-    | `Raw (x, _) -> x
-    | `Structured (x : Belenios_web_api.request_status) -> x.code
+  let open (val !Belenios_js.I18n.gettext) in
+  let generic code =
+    Printf.ksprintf alert (f_ "Failed to sync data to server, code %d") code;
+    Lwt.return_unit
   in
-  Printf.ksprintf alert "Failed to sync data to server, code %d" code;
-  Lwt.return_unit
+  match msg with
+  | `Raw (x, _) -> generic x
+  | `Structured (x : Belenios_web_api.request_status) -> (
+      match x with
+      | { error = `ReadonlyStorage; _ } ->
+          alert
+            (s_
+               "The server is in readonly mode, you cannot perform changes. \
+                Please reload the page to discard pending changes.");
+          Lwt.return_unit
+      | { code; _ } -> generic code)
 
 let default_version = List.hd Belenios.Election.supported_crypto_versions
 

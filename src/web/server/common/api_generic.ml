@@ -96,6 +96,15 @@ let handle_generic_error f =
     | Error error ->
         let request_status = { code = 400; status = "Bad Request"; error } in
         return_json 400 (string_of_request_status request_status)
+    | Readonly_storage ->
+        let request_status =
+          {
+            code = 503;
+            status = "Service Unavailable";
+            error = `ReadonlyStorage;
+          }
+        in
+        return_json 503 (string_of_request_status request_status)
     | exn ->
         let error = `GenericError (Printexc.to_string exn) in
         let request_status =

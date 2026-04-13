@@ -39,6 +39,16 @@ let init_backend name config =
       backend := Some b;
       Lwt.return_unit
 
+let readonly : bool smart_ref =
+  let get () =
+    let module X = (val get_backend ()) in
+    X.readonly.get ()
+  and set x =
+    let module X = (val get_backend ()) in
+    X.readonly.set x
+  in
+  { get; set }
+
 let get_user_id x =
   let module X = (val get_backend ()) in
   X.get_user_id x

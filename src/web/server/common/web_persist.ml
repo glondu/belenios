@@ -259,6 +259,19 @@ let internal_release_tally ~force s set_state =
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
 
 let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
+  let@ () =
+   fun cont ->
+    if Storage.readonly.get () then
+      let* x = Storage.E.get s State in
+      match Lopt.get_value x with
+      | Some x -> return (x, fun _ -> raise Readonly_storage)
+      | None -> (
+          let* x = Storage.E.get s Draft in
+          match Lopt.get_value x with
+          | Some _ -> return (`Draft, fun _ -> raise Readonly_storage)
+          | None -> return (`Archived, fun _ -> raise Readonly_storage))
+    else cont ()
+  in
   let@ state, set_state =
    fun cont ->
     let@ x, set = Storage.E.update s State in
