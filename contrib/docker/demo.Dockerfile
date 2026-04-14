@@ -4,9 +4,8 @@ FROM glondu/beleniosbase:20260106-1
 # and replace with the line below
 #   FROM beleniosbase
 
-ADD --chown=belenios . /home/belenios/
-RUN . /home/belenios/.belenios/env.sh \
-    && make build-debug-server
-
+ADD --chown=belenios . /home/belenios/belenios
+WORKDIR /home/belenios/belenios
+RUN . /home/belenios/.belenios/env.sh && make build-debug-server
 ENV BELENIOS_SENDMAIL=tests/sendmail_fake_to_static.sh
-CMD ./demo/run-server.sh --debug
+CMD ["./demo/run-server.sh"]

@@ -8,7 +8,7 @@ if [ "$1" = "--preload" ]; then
     shift
 fi
 
-if [ -e .git ]; then
+if [ -e _run ]; then
     : ${BELENIOS_CONFIG:=demo/ocsigenserver.conf.in}
     : ${BELENIOS_VARDIR:=_run}
     : ${BELENIOS_RUNDIR:=/tmp/belenios}
