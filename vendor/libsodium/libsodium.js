@@ -9,25 +9,13 @@ function memset(dst, c, n) {
     }
 }
 
-function compute_base(uri) {
-    var i = uri.lastIndexOf("/static/");
-    i = (i >= 0) ? i : uri.lastIndexOf("/actions/");
-    if (i >= 0) {
-        // For pages below /static/ or /actions/, base is the directory
-        // just above
-        return uri.slice(0, i + 1);
-    } else {
-        // We assume that other pages are directly at the root
-        return "";
-    }
-}
+const base = document.currentScript?.src;
 
-const base = compute_base(location.href);
-
-if (typeof WebAssembly !== "undefined" && WebAssembly.instantiateStreaming) {
+if (typeof WebAssembly !== "undefined" && WebAssembly.instantiateStreaming && base) {
     var env = {memset: memset};
     var importObject = {env: env};
-    WebAssembly.instantiateStreaming(fetch(base + "static/libsodium.wasm"), importObject).then(function (obj) {
+    const url = new URL("libsodium.wasm", base);
+    WebAssembly.instantiateStreaming(fetch(url), importObject).then(function (obj) {
         var raw = obj.instance.exports;
         var base = 0x10000 * raw.memory.grow(1);
         var buffer = new Uint8Array(raw.memory.buffer);
