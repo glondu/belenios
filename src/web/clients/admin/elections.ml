@@ -1961,6 +1961,13 @@ let create_content () =
                       Dom.appendChild document##.body form;
                       form##submit;
                       Lwt.return_unit
+                  | `ValidationError `BadAuthentication ->
+                      alert
+                      @@ s_
+                           "Something is wrong with the configuration of voter \
+                            authentication! Maybe an invalid CAS server was \
+                            given?";
+                      Lwt.return_unit
                   | _ -> fail ()))
           | _ -> fail ())
     in

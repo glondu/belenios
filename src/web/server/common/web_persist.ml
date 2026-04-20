@@ -749,6 +749,32 @@ let validate_election ~admin_id storage
     | None | Some "" -> validation_error `NoCredentialAuthority
     | _ -> ()
   in
+  let@ _check_cas_server (cont : unit -> _) =
+    match se.se_metadata.e_auth_config with
+    | Some [ { auth_system = "cas"; auth_config; _ } ] -> (
+        match List.assoc_opt "server" auth_config with
+        | None -> validation_error `BadAuthentication
+        | Some url ->
+            let url =
+              if String.ends_with ~suffix:"/" url then url else url ^ "/"
+            in
+            let try_validate suffix fail =
+              Lwt.catch
+                (fun () ->
+                  let* x, body =
+                    Cohttp_lwt_unix.Client.get (Uri.of_string (url ^ suffix))
+                  in
+                  let* () = Cohttp_lwt.Body.drain_body body in
+                  match Cohttp.Code.code_of_status x.status with
+                  | 200 -> cont ()
+                  | _ -> fail ())
+                (fun _ -> fail ())
+            in
+            let@ () = try_validate "serviceValidate" in
+            let@ () = try_validate "validate" in
+            validation_error `BadAuthentication)
+    | _ -> cont ()
+  in
   (* check status *)
   let () =
     if s.num_voters = 0 then validation_error `NoVoters;

@@ -81,6 +81,7 @@ type validation_error =
   | MissingBilling of missing_billing
   | RestrictedMode of restricted_mode_error
   | CredentialServerError of int
+  | BadAuthentication
   ]
 
 type voter_list_error =
