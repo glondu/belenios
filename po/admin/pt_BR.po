@@ -31,7 +31,7 @@ msgstr " e uma senha "
 msgid " and save it to a secure location."
 msgstr " e salvar em um local seguro."
 
-#: src/web/clients/credauth/generate.ml:117
+#: src/web/clients/credauth/generate.ml:116
 msgid " and save the file to a secure location."
 msgstr " e salvar em um local seguro."
 
@@ -147,7 +147,7 @@ msgstr "Aceitar"
 msgid "Account management"
 msgstr "Gerenciamento da conta"
 
-#: src/web/server/common/site_admin.ml:415
+#: src/web/server/common/site_admin.ml:414
 msgid "Account not found"
 msgstr "Conta não encontrada"
 
@@ -199,7 +199,7 @@ msgstr ""
 msgid "An error occurred while retrieving elections: %s"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:70
+#: src/web/clients/credauth/generate.ml:69
 msgid "An error occurred while submitting credentials!"
 msgstr ""
 
@@ -241,7 +241,7 @@ msgstr ""
 msgid "Authentication method: "
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2103
+#: src/web/clients/admin/elections.ml:2104
 msgid "Automatic cleaning"
 msgstr ""
 
@@ -288,8 +288,8 @@ msgstr "Cancelar"
 msgid "Change e-mail address"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:379
-#. src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:378
+#. src/web/server/common/site_admin.ml:263
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -324,7 +324,7 @@ msgstr "Clique em “ Enviar” para enviar sua chave de verificação."
 msgid "Click on the link."
 msgstr "Clique no link."
 
-#: src/web/clients/admin/elections.ml:1984
+#: src/web/clients/admin/elections.ml:1991
 #. src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
 msgstr ""
@@ -381,8 +381,8 @@ msgstr ""
 msgid "Create a new election"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:349
-#. src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:348
+#. src/web/server/common/site_admin.ml:219
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr ""
@@ -412,7 +412,7 @@ msgstr ""
 msgid "Credential authority protocol"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:172
+#: src/web/clients/credauth/generate.ml:171
 msgid "Credential generation"
 msgstr "Gerador de credencial"
 
@@ -436,7 +436,7 @@ msgstr ""
 msgid "Credentials are being generated on the server."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:69
+#: src/web/clients/credauth/generate.ml:68
 msgid "Credentials have been received and checked!"
 msgstr "As credenciais foram recebidas e verificadas!"
 
@@ -528,12 +528,12 @@ msgstr "Não se esqueça de salvar:"
 msgid "Done?"
 msgstr "Concluído?"
 
-#: src/web/clients/credauth/generate.ml:123
-#. src/web/clients/credauth/generate.ml:115
+#: src/web/clients/credauth/generate.ml:122
+#. src/web/clients/credauth/generate.ml:114
 msgid "Download "
 msgstr "Download "
 
-#: src/web/clients/admin/elections.ml:2044
+#: src/web/clients/admin/elections.ml:2045
 msgid "Download sealing log"
 msgstr ""
 
@@ -573,15 +573,15 @@ msgstr ""
 msgid "Election identifier:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1985
+#: src/web/clients/admin/elections.ml:1992
 msgid "Election is currently closed"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1984
+#: src/web/clients/admin/elections.ml:1991
 msgid "Election is currently open"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2135 src/web/clients/admin/elections.ml:307
+#: src/web/clients/admin/elections.ml:2136 src/web/clients/admin/elections.ml:307
 msgid "Election main page"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgstr "Servidor de eleições"
 msgid "Election server:"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2119
+#: src/web/clients/admin/elections.ml:2120
 msgid "Election status"
 msgstr ""
 
@@ -622,11 +622,11 @@ msgstr ""
 msgid "Erase"
 msgstr ""
 
-#: src/web/clients/credop/credop.ml:87 src/web/clients/credauth/generate.ml:159
+#: src/web/clients/credop/credop.ml:87 src/web/clients/credauth/generate.ml:158
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:235
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:194
+#. src/web/server/common/site_admin.ml:193
 #. src/web/server/common/site_admin.ml:147
 msgid "Error"
 msgstr "Erro"
@@ -676,7 +676,7 @@ msgstr ""
 msgid "Failure, probably because of an error in the username: %s."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:102
+#: src/web/clients/credauth/generate.ml:101
 msgid "Fingerprint of public credentials:"
 msgstr "Digitais das credenciais públicas:"
 
@@ -684,7 +684,7 @@ msgstr "Digitais das credenciais públicas:"
 msgid "Fingerprint of the verification key:"
 msgstr "Digitais da chave de verificação:"
 
-#: src/web/clients/credauth/generate.ml:197
+#: src/web/clients/credauth/generate.ml:196
 msgid "Fingerprint of voters:"
 msgstr "Digitais dos eleitores:"
 
@@ -696,7 +696,7 @@ msgstr "Siga as instruções."
 msgid "Follow the link."
 msgstr "Siga o link."
 
-#: src/web/clients/credauth/generate.ml:202
+#: src/web/clients/credauth/generate.ml:201
 msgid "Generate"
 msgstr "Gerar"
 
@@ -720,7 +720,7 @@ msgstr ""
 msgid "Go back to election"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2140
+#: src/web/clients/admin/elections.ml:2141
 msgid "Go see the result on the election main page!"
 msgstr ""
 
@@ -805,7 +805,7 @@ msgstr ""
 msgid "Insert an answer"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:110
+#: src/web/clients/credauth/generate.ml:109
 #. src/web/clients/trustee/decrypt.ml:160
 #. src/web/clients/trustee/generate.ml:169
 #. src/web/common/mails_admin.ml:344
@@ -1046,13 +1046,13 @@ msgstr ""
 "suas duas chaves estão presentes no conjunto de chaves anunciadas pelo "
 "servidor."
 
-#: src/web/clients/credauth/generate.ml:143 src/web/common/mails_admin.ml:68
+#: src/web/clients/credauth/generate.ml:142 src/web/common/mails_admin.ml:68
 msgid "Once the election is open, you must check that they match with what is published by the server."
 msgstr ""
 "Uma vez que a eleição esteja aberta, você deve verificar que elas "
 "correspondem às anunciadas pelo servidor."
 
-#: src/web/clients/admin/elections.ml:1985
+#: src/web/clients/admin/elections.ml:1992
 msgid "Open"
 msgstr ""
 
@@ -1193,7 +1193,7 @@ msgstr ""
 msgid "Proposed grades:"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:93
+#: src/web/clients/credauth/generate.ml:92
 msgid "Public credentials:"
 msgstr "Credenciais públicas:"
 
@@ -1237,7 +1237,7 @@ msgstr "Questões:"
 msgid "Questions (non editable):"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:1969
+#: src/web/clients/admin/elections.ml:1976
 msgid "Ready to create:"
 msgstr ""
 
@@ -1280,7 +1280,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2150 src/web/clients/admin/elections.ml:306
+#: src/web/clients/admin/elections.ml:2151 src/web/clients/admin/elections.ml:306
 msgid "Results page"
 msgstr ""
 
@@ -1300,23 +1300,23 @@ msgstr "Salvar a digital acima."
 msgid "Save the fingerprint of your verification key. Once the election is open, you must check that it is present in the set of verification keys published by the server."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:140
+#: src/web/clients/credauth/generate.ml:139
 msgid "Save the two fingerprints above."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2028
+#: src/web/clients/admin/elections.ml:2029
 msgid "Seal"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2059
+#: src/web/clients/admin/elections.ml:2060
 msgid "Sealing"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2065
+#: src/web/clients/admin/elections.ml:2066
 msgid "Sealing allows you to freeze some election properties such as automatic dates."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2070
+#: src/web/clients/admin/elections.ml:2071
 msgid "Sealing/unsealing operations are logged, and the log fingerprint is published on the election homepage for everyone (e.g. independent auditors) to see."
 msgstr ""
 
@@ -1398,6 +1398,10 @@ msgstr ""
 msgid "Someone is trying to associate your e-mail address to an account on our Belenios server."
 msgstr ""
 
+#: src/web/clients/admin/elections.ml:1966
+msgid "Something is wrong with the configuration of voter authentication! Maybe an invalid CAS server was given?"
+msgstr ""
+
 #: src/web/clients/admin/questions.ml:354
 msgid "Sort propositions"
 msgstr ""
@@ -1425,11 +1429,11 @@ msgstr "Enviar"
 msgid "Submit data"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:60
+#: src/web/clients/credauth/generate.ml:59
 msgid "Submit public credentials"
 msgstr "Enviar credenciais públicas"
 
-#: src/web/clients/credauth/generate.ml:149
+#: src/web/clients/credauth/generate.ml:148
 msgid "Submit public credentials using the button below."
 msgstr "Para enviar as credenciais públicas, use os botões abaixo."
 
@@ -1487,11 +1491,11 @@ msgstr "Obrigado pela sua ajuda,"
 msgid "The account creation "
 msgstr "A criação de conta "
 
-#: src/web/server/common/site_admin.ml:351
+#: src/web/server/common/site_admin.ml:350
 msgid "The account has been created."
 msgstr "A conta foi criada."
 
-#: src/web/clients/admin/elections.ml:2157
+#: src/web/clients/admin/elections.ml:2158
 msgid "The archive can be downloaded at: "
 msgstr ""
 
@@ -1514,11 +1518,11 @@ msgstr "A alteração "
 msgid "The election administrator"
 msgstr "O administrador da eleição"
 
-#: src/web/server/common/site_admin.ml:195
+#: src/web/server/common/site_admin.ml:194
 msgid "The election is not archived!"
 msgstr "A eleição não está arquivada!"
 
-#: src/web/clients/admin/elections.ml:2028
+#: src/web/clients/admin/elections.ml:2029
 msgid "The election is not sealed."
 msgstr ""
 
@@ -1550,7 +1554,7 @@ msgstr ""
 msgid "The following link can be used by trustees to check that they own the right decryption key."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:179
+#: src/web/clients/credauth/generate.ml:178
 #. src/web/clients/trustee/generate.ml:442
 msgid "The link to the election will be:"
 msgstr "O link para a eleição será:"
@@ -1567,7 +1571,7 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:381
+#: src/web/server/common/site_admin.ml:380
 msgid "The password has been changed."
 msgstr "A senha foi alterada."
 
@@ -1592,7 +1596,7 @@ msgstr ""
 msgid "The shuffle has been successfully applied!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2128
+#: src/web/clients/admin/elections.ml:2129
 msgid "The tally for this election has started."
 msgstr ""
 
@@ -1628,7 +1632,7 @@ msgstr ""
 msgid "There will be 3 steps."
 msgstr "Haverá três passos."
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:413
 msgid "This account does not exist"
 msgstr ""
 
@@ -1640,35 +1644,35 @@ msgstr ""
 msgid "This e-mail address is invalid!"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2139
+#: src/web/clients/admin/elections.ml:2140
 msgid "This election has been tallied"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2122
+#: src/web/clients/admin/elections.ml:2123
 msgid "This election is a draft."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2154
+#: src/web/clients/admin/elections.ml:2155
 msgid "This election is archived"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2132
+#: src/web/clients/admin/elections.ml:2133
 msgid "This election is in shuffling phase."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2124
+#: src/web/clients/admin/elections.ml:2125
 msgid "This election is running."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2027
+#: src/web/clients/admin/elections.ml:2028
 msgid "This election is sealed."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2096
+#: src/web/clients/admin/elections.ml:2097
 msgid "This election will be automatically archived after %s."
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2110
+#: src/web/clients/admin/elections.ml:2111
 msgid "This election will be automatically deleted after %s."
 msgstr ""
 
@@ -1680,7 +1684,7 @@ msgstr ""
 msgid "This is the private key of %s."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:134 src/web/common/mails_admin.ml:60
+#: src/web/clients/credauth/generate.ml:133 src/web/common/mails_admin.ml:60
 msgid "This list must be the one approved by the election commission."
 msgstr ""
 
@@ -1798,7 +1802,7 @@ msgstr ""
 msgid "Unknown uuid"
 msgstr ""
 
-#: src/web/clients/admin/elections.ml:2027
+#: src/web/clients/admin/elections.ml:2028
 msgid "Unseal"
 msgstr ""
 
@@ -1826,7 +1830,7 @@ msgstr "Lista de eleitores"
 msgid "Voter list (not editable):"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:190
+#: src/web/clients/credauth/generate.ml:189
 #. src/web/clients/admin/elections.ml:923
 msgid "Voter list:"
 msgstr ""
@@ -1876,7 +1880,7 @@ msgstr ""
 "Atenção: esse código é válido por 15 minutos e os códigos enviados "
 "anteriormente para esse e-mail não são mais válidos."
 
-#: src/web/clients/admin/elections.ml:1970
+#: src/web/clients/admin/elections.ml:1977
 msgid "Warning: this is irreversible!"
 msgstr ""
 
@@ -1915,11 +1919,11 @@ msgstr ""
 msgid "You cannot change your e-mail address right now."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:265
+#: src/web/server/common/site_admin.ml:264
 msgid "You cannot change your password now. Please try later."
 msgstr "Você não pode mudar a sua senha agora. Por favor, tente depois."
 
-#: src/web/server/common/site_admin.ml:221
+#: src/web/server/common/site_admin.ml:220
 msgid "You cannot create an account now. Please try later."
 msgstr "Você não pode criar uma conta agora. Por favor, tente depois."
 
@@ -1977,7 +1981,7 @@ msgstr ""
 msgid "You will use it to decrypt the final result."
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:119 src/web/common/mails_admin.ml:55
+#: src/web/clients/credauth/generate.ml:118 src/web/common/mails_admin.ml:55
 msgid "You will use it to send credentials to voters."
 msgstr "Você o utilizará para enviar as credenciais aos eleitores."
 
@@ -2100,7 +2104,7 @@ msgstr "ou você pode simplesmente imprimi-la e guardar em um local seguro."
 msgid "out of "
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:88
+#: src/web/clients/credauth/generate.ml:87
 msgid "private credentials"
 msgstr "credenciais privadas"
 
@@ -2194,7 +2198,7 @@ msgstr ""
 msgid "voted?"
 msgstr ""
 
-#: src/web/clients/credauth/generate.ml:130
+#: src/web/clients/credauth/generate.ml:129
 msgid "voter list"
 msgstr ""
 

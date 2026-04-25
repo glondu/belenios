@@ -43,7 +43,7 @@ msgstr " bulletin(s) ont été accepté(s), et "
 msgid " ballot(s) have been accepted."
 msgstr " bulletin(s) ont été accepté(s)."
 
-#: src/web/clients/election/home.ml:391
+#: src/web/clients/election/home.ml:401
 msgid " for more information."
 msgstr " pour plus d'information."
 
@@ -63,25 +63,25 @@ msgstr " dans la boîte suivante : "
 msgid " is rejected, because "
 msgstr " est refusé, parce que "
 
-#: src/web/clients/election/home.ml:351 src/web/clients/election/home.ml:320
+#: src/web/clients/election/home.ml:361 src/web/clients/election/home.ml:330
 msgid "%d blank ballot(s)"
 msgstr "%d bulletin(s) blanc(s)"
 
-#: src/web/clients/election/home.ml:415 src/web/clients/election/home.ml:327
+#: src/web/clients/election/home.ml:425 src/web/clients/election/home.ml:337
 msgid "%d invalid ballot(s)"
 msgstr "%d bulletin(s) non valide(s)"
 
-#: src/web/clients/election/home.ml:195
+#: src/web/clients/election/home.ml:205
 msgid "%d of the following %d trustees [public keys] are needed to decrypt the election result:"
 msgstr ""
 "%d des %d autorités de déchiffrement suivantes [clés publiques] sont "
 "nécessaires pour déchiffrer le résultat :"
 
-#: src/web/clients/election/home.ml:345 src/web/clients/election/home.ml:314
+#: src/web/clients/election/home.ml:355 src/web/clients/election/home.ml:324
 msgid "%d valid (non-blank) ballot(s)"
 msgstr "%d bulletin(s) valide(s) (non blancs)"
 
-#: src/web/clients/election/home.ml:346 src/web/clients/election/home.ml:315
+#: src/web/clients/election/home.ml:356 src/web/clients/election/home.ml:325
 msgid "%d valid ballot(s)"
 msgstr "%d bulletin(s) valide(s)"
 
@@ -97,13 +97,13 @@ msgstr "), ou n'importe quel isoloir compatible."
 msgid ", or "
 msgstr ", ou "
 
-#: src/web/clients/election/home.ml:379
+#: src/web/clients/election/home.ml:389
 msgid "A Condorcet winner is a candidate that is preferred over all the other candidates."
 msgstr ""
 "Un gagnant Condorcet est un candidat qui est préféré à tous les autres "
 "candidats."
 
-#: src/web/clients/election/home.ml:423
+#: src/web/clients/election/home.ml:433
 msgid "A ballot is invalid if two candidates have been given the same preference order or if a rank is missing."
 msgstr ""
 "Un bulletin de vote n’est pas valide si deux candidats ont reçu le même "
@@ -119,7 +119,7 @@ msgstr ""
 msgid "A verification code has been sent to %s."
 msgstr "Un code de vérification a été envoyé à %s."
 
-#: src/web/clients/election/home.ml:268
+#: src/web/clients/election/home.ml:278
 msgid "About this election"
 msgstr "À propos de cette élection"
 
@@ -127,7 +127,7 @@ msgstr "À propos de cette élection"
 msgid "Accepted ballots"
 msgstr "Bulletins acceptés"
 
-#: src/web/clients/election/home.ml:333
+#: src/web/clients/election/home.ml:343
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Selon le jugement majoritaire, le classement est le suivant :"
 
@@ -139,7 +139,7 @@ msgstr "Administrer des élections"
 msgid "Administer this election"
 msgstr "Administrer cette élection"
 
-#: src/web/clients/election/home.ml:93
+#: src/web/clients/election/home.ml:103
 msgid "Administrator"
 msgstr "Administrateur"
 
@@ -147,7 +147,7 @@ msgstr "Administrateur"
 msgid "Advanced mode"
 msgstr "Mode avancé"
 
-#: src/web/clients/election/home.ml:166
+#: src/web/clients/election/home.ml:176
 msgid "All of the following trustees (verification keys) are needed to decrypt the result:"
 msgstr ""
 "Toutes les autorités de confiance suivantes (clés de vérification) sont "
@@ -157,11 +157,11 @@ msgstr ""
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr "Vous pouvez également téléverser un fichier contenant votre bulletin :"
 
-#: src/web/server/common/mails_voter.ml:358
+#: src/web/server/common/mails_voter.ml:359
 msgid "Alternatively, you can follow the link:"
 msgstr "Vous pouvez également suivre le lien :"
 
-#: src/web/clients/election/home.ml:744
+#: src/web/clients/election/home.ml:794
 msgid "Audit data not available."
 msgstr "Données d'audit non disponibles."
 
@@ -179,7 +179,7 @@ msgstr "Authentification"
 msgid "Authenticate with %s"
 msgstr "Authentifier avec %s"
 
-#: src/web/server/common/mails_voter.ml:379
+#: src/web/server/common/mails_voter.ml:380
 msgid "Authentication"
 msgstr "Authentification"
 
@@ -214,11 +214,11 @@ msgstr "Mauvaise adresse courriel !"
 msgid "Bad security code!"
 msgstr "Mauvais code de sécurité !"
 
-#: src/web/server/common/mails_voter.ml:372
+#: src/web/server/common/mails_voter.ml:373
 msgid "Best regards,"
 msgstr "Cordialement,"
 
-#: src/web/clients/election/home.ml:483
+#: src/web/clients/election/home.ml:493
 msgid "Blank vote"
 msgstr "Vote blanc"
 
@@ -258,16 +258,16 @@ msgstr "Confirmer"
 msgid "Could not get server configuration!"
 msgstr "N'a pas pu récupérer la configuration du serveur !"
 
-#: src/web/clients/election/home.ml:209
+#: src/web/clients/election/home.ml:219
 msgid "Credentials authority"
 msgstr "Autorité de codes de vote"
 
-#: src/web/clients/election/home.ml:218
+#: src/web/clients/election/home.ml:228
 msgid "Credentials fingerprint"
 msgstr "Empreinte des codes de vote"
 
-#: src/web/server/common/mails_voter.ml:339
-#. src/web/server/common/mails_voter.ml:285
+#: src/web/server/common/mails_voter.ml:340
+#. src/web/server/common/mails_voter.ml:286
 msgid "Dear %s,"
 msgstr "Cher/chère %s,"
 
@@ -277,7 +277,7 @@ msgstr "Cher/chère %s,"
 msgid "E-mail address:"
 msgstr "Adresse courriel :"
 
-#: src/web/clients/election/home.ml:84
+#: src/web/clients/election/home.ml:94
 msgid "Election fingerprint"
 msgstr "Empreinte de l'élection"
 
@@ -285,7 +285,7 @@ msgstr "Empreinte de l'élection"
 msgid "Election home"
 msgstr "Page d'accueil de l'élection"
 
-#: src/web/clients/election/home.ml:79
+#: src/web/clients/election/home.ml:89
 msgid "Election identifier"
 msgstr "Identifiant de l'élection"
 
@@ -321,11 +321,11 @@ msgstr "ÉCHEC !"
 msgid "File:"
 msgstr "Fichier :"
 
-#: src/web/clients/election/home.ml:258
+#: src/web/clients/election/home.ml:268
 msgid "Final fingerprint"
 msgstr "Empreinte finale"
 
-#: src/web/clients/election/home.ml:246
+#: src/web/clients/election/home.ml:256
 msgid "Fingerprint of the encrypted tally"
 msgstr "Empreinte du résultat chiffré"
 
@@ -342,7 +342,7 @@ msgstr "Obtenir le code source"
 msgid "Go back to election"
 msgstr "Revenir à l'élection"
 
-#: src/web/server/common/mails_voter.ml:211
+#: src/web/server/common/mails_voter.ml:212
 msgid "If the above link does not work:"
 msgstr "Si le lien ci-dessus ne fonctionne pas :"
 
@@ -350,27 +350,27 @@ msgstr "Si le lien ci-dessus ne fonctionne pas :"
 msgid "If you want to vote, you must "
 msgstr "Si vous voulez voter, vous devez "
 
-#: src/web/clients/election/home.ml:451
+#: src/web/clients/election/home.ml:461
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "Dans notre implémentation, lorsque plusieurs candidats ont le même nombre de "
 "voix alors qu'ils sont prêts à être élus ou éliminés, nous suivons l'ordre "
 "dans lequel les candidats ont été listés lors de l'élection."
 
-#: src/web/clients/election/home.ml:557
+#: src/web/clients/election/home.ml:567
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr ""
 "Il contient tous les bulletins soumis en clair, dans un ordre aléatoire."
 
-#: src/web/clients/election/home.ml:538
+#: src/web/clients/election/home.ml:548
 msgid "It is up to you to apply your favorite counting method."
 msgstr "C'est à vous d'appliquer votre méthode de comptage préférée."
 
-#: src/web/clients/election/home.ml:670
+#: src/web/clients/election/home.ml:698
 msgid "It will open at %s (time left: %s)."
 msgstr "Elle va ouvrir à %s (temps restant : %s)."
 
-#: src/web/clients/election/home.ml:554
+#: src/web/clients/election/home.ml:564
 msgid "JSON result"
 msgstr "résultat JSON"
 
@@ -393,11 +393,11 @@ msgstr "Connexion"
 msgid "Log in with %s"
 msgstr "Se connecter avec %s"
 
-#: src/web/clients/election/home.ml:462
+#: src/web/clients/election/home.ml:472
 msgid "Look at the raw events for more details."
 msgstr "Regardez les événements bruts pour plus de détails."
 
-#: src/web/clients/election/home.ml:446
+#: src/web/clients/election/home.ml:456
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "De nombreuses variantes de STV existent, qui dépendent par exemple de la "
@@ -411,36 +411,36 @@ msgstr "Les cookies sont peut-être bloqués."
 msgid "Not found"
 msgstr "Non trouvé"
 
-#: src/web/server/common/mails_voter.ml:107
+#: src/web/server/common/mails_voter.ml:108
 msgid "Note that you also need a credential, sent in a separate email, to start voting."
 msgstr ""
 "Notez que vous avez également besoin d'un code de vote, envoyé dans un "
 "courriel séparé, pour commencer à voter."
 
-#: src/web/clients/election/home.ml:628
+#: src/web/clients/election/home.ml:636
 msgid "Number of accepted ballots: "
 msgstr "Nombre de bulletins acceptés : "
 
-#: src/web/clients/election/home.ml:103
+#: src/web/clients/election/home.ml:113
 msgid "Number of voters"
 msgstr "Nombre d'électeurs"
 
-#: src/web/server/common/mails_voter.ml:228
-#. src/web/server/common/mails_voter.ml:123
+#: src/web/server/common/mails_voter.ml:229
+#. src/web/server/common/mails_voter.ml:124
 msgid "Number of votes:"
 msgstr "Nombre de votes :"
 
-#: src/web/server/common/mails_voter.ml:235
-#. src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:236
+#. src/web/server/common/mails_voter.ml:135
 msgid "Only the last vote counts."
 msgstr "Seul le dernier vote est pris en compte."
 
-#: src/web/server/common/mails_voter.ml:128
+#: src/web/server/common/mails_voter.ml:129
 msgid "Page of the election:"
 msgstr "Page de l'élection :"
 
 #: src/web/server/common/pages_common.ml:383
-#. src/web/server/common/mails_voter.ml:116
+#. src/web/server/common/mails_voter.ml:117
 msgid "Password:"
 msgstr "Mot de passe :"
 
@@ -452,7 +452,7 @@ msgstr "Veuillez entrer "
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Veuillez entrer le code de vérification reçu par courriel :"
 
-#: src/web/server/common/mails_voter.ml:99
+#: src/web/server/common/mails_voter.ml:100
 msgid "Please find below your login and password for the election"
 msgstr ""
 "Veuillez trouver ci-dessous votre identifiant et votre mot de passe pour "
@@ -473,7 +473,7 @@ msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 "Veuillez coller votre bulletin chiffré au format JSON dans la zone suivante :"
 
-#: src/web/server/common/mails_voter.ml:197
+#: src/web/server/common/mails_voter.ml:198
 msgid "Please vote here using your personal link:"
 msgstr "Veuillez voter en utilisant votre lien personnel :"
 
@@ -491,11 +491,11 @@ msgstr "Continuer"
 msgid "Processing ballot"
 msgstr "Traitement du bulletin"
 
-#: src/web/server/common/mails_voter.ml:214
+#: src/web/server/common/mails_voter.ml:215
 msgid "Public page of the election:"
 msgstr "Page publique de l'élection :"
 
-#: src/web/clients/election/home.ml:433
+#: src/web/clients/election/home.ml:443
 msgid "Raw events"
 msgstr "Evénements bruts"
 
@@ -503,19 +503,23 @@ msgstr "Evénements bruts"
 msgid "Redirection"
 msgstr "Redirection"
 
+#: src/web/clients/election/home.ml:676
+msgid "Refresh status"
+msgstr ""
+
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
 msgstr "Mode restreint"
 
-#: src/web/server/common/mails_voter.ml:319
+#: src/web/server/common/mails_voter.ml:320
 msgid "Results will be published on the election page"
 msgstr "Les résultats seront publiés sur la page de l'élection"
 
-#: src/web/clients/election/home.ml:120
+#: src/web/clients/election/home.ml:130
 msgid "Sealing log fingerprint"
 msgstr "Empreinte du journal de scellement"
 
-#: src/web/clients/election/home.ml:738
+#: src/web/clients/election/home.ml:788
 msgid "See accepted ballots"
 msgstr "Voir les bulletins acceptés"
 
@@ -527,7 +531,7 @@ msgstr "Session expirée"
 msgid "Set"
 msgstr "Appliquer"
 
-#: src/web/clients/election/home.ml:384
+#: src/web/clients/election/home.ml:394
 msgid "Several techniques exist to decide which candidate to elect when there is no Condorcet winner."
 msgstr ""
 "Plusieurs techniques existent pour décider quel candidat élire lorsqu'il n'y "
@@ -538,7 +542,7 @@ msgstr ""
 msgid "Smart ballot tracker"
 msgstr "Numéro de suivi du bulletin"
 
-#: src/web/clients/election/home.ml:716
+#: src/web/clients/election/home.ml:761
 msgid "Start"
 msgstr "Commencer"
 
@@ -557,7 +561,7 @@ msgstr "Soumettre par copier/coller"
 msgid "Submit by file"
 msgstr "Soumettre par fichier"
 
-#: src/web/clients/election/home.ml:458
+#: src/web/clients/election/home.ml:468
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
 "Ces candidats sont marqués comme « TieWin » lorsqu'ils sont élus et comme « "
@@ -571,23 +575,23 @@ msgstr "Conditions générales d'utilisation"
 msgid "Thank you for voting!"
 msgstr "Merci pour votre vote !"
 
-#: src/web/clients/election/home.ml:396
+#: src/web/clients/election/home.ml:406
 msgid "The Schulze winners are:"
 msgstr "Les vainqueurs au sens de Schulze sont :"
 
-#: src/web/clients/election/home.ml:467
+#: src/web/clients/election/home.ml:477
 msgid "The Single Transferable Vote winners are:"
 msgstr "Les gagnants selon la méthode Single Transferable Vote sont :"
 
-#: src/web/clients/election/home.ml:663
+#: src/web/clients/election/home.ml:685
 msgid "The election is being prepared. Please come back later."
 msgstr "L'élection est en cours de préparation. Revenez plus tard."
 
-#: src/web/clients/election/home.ml:690 src/web/clients/election/home.ml:688
+#: src/web/clients/election/home.ml:732 src/web/clients/election/home.ml:726
 msgid "The election is closed and being tallied."
 msgstr "L'élection est fermée et en cours de dépouillement."
 
-#: src/web/clients/election/home.ml:681
+#: src/web/clients/election/home.ml:717
 msgid "The election will close at %s (time left: %s)."
 msgstr "L'élection va fermer à %s (temps restant : %s)."
 
@@ -599,11 +603,11 @@ msgstr "Les empreintes diffèrent !"
 msgid "The fingerprints match!"
 msgstr "Les empreintes correspondent !"
 
-#: src/web/clients/election/home.ml:549
+#: src/web/clients/election/home.ml:559
 msgid "The raw results can be viewed in the "
 msgstr "Les résultats bruts peuvent être consultés dans le "
 
-#: src/web/clients/election/home.ml:443
+#: src/web/clients/election/home.ml:453
 msgid "There has been at least one tie."
 msgstr "Il y a eu au moins une égalité."
 
@@ -617,66 +621,66 @@ msgstr ""
 msgid "This election does not exist. This may happen for elections that have not yet been open or have been deleted."
 msgstr "Cette élection n'existe pas. Cela peut arriver quand l'élection n'a pas encore été ouverte ou a été supprimée."
 
-#: src/web/clients/election/home.ml:691
+#: src/web/clients/election/home.ml:736
 msgid "This election has been tallied."
 msgstr "Cette élection a été dépouillée."
 
-#: src/web/clients/election/home.ml:692
+#: src/web/clients/election/home.ml:737
 msgid "This election is archived."
 msgstr "Cette élection est archivée."
 
-#: src/web/clients/election/home.ml:673
+#: src/web/clients/election/home.ml:706
 msgid "This election is currently closed."
 msgstr "Cette élection est actuellement fermée."
 
-#: src/web/server/common/mails_voter.ml:309 src/web/common/pages_common.ml:202
+#: src/web/server/common/mails_voter.ml:310 src/web/common/pages_common.ml:202
 msgid "This vote replaces any previous vote."
 msgstr "Ce vote remplace le vote précédent."
 
-#: src/web/clients/election/home.ml:369 src/web/clients/election/home.ml:307
+#: src/web/clients/election/home.ml:379 src/web/clients/election/home.ml:317
 msgid "Tie:"
 msgstr "Égalité :"
 
-#: src/web/server/common/mails_voter.ml:206
+#: src/web/server/common/mails_voter.ml:207
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "Pour soumettre un bulletin, vous aurez également besoin d'un mot de passe, "
 "envoyé dans un courriel séparé."
 
-#: src/web/server/common/mails_voter.ml:87
+#: src/web/server/common/mails_voter.ml:88
 msgid "To get more information, please contact:"
 msgstr "Pour obtenir plus d'informations, veuillez contacter :"
 
-#: src/web/clients/election/home.ml:606
+#: src/web/clients/election/home.ml:616
 msgid "Total weight of accepted ballots:"
 msgstr "Nombre total de voix pour les bulletins acceptés :"
 
-#: src/web/clients/election/home.ml:233
+#: src/web/clients/election/home.ml:243
 msgid "Trustees shuffled the ballots in the following order:"
 msgstr ""
 "Les autorités de confiance suivantes ont successivement procédé au mélange "
 "des bulletins :"
 
-#: src/web/clients/election/home.ml:593
+#: src/web/clients/election/home.ml:603
 msgid "Unsupported question type"
 msgstr "Type de question non supporté"
 
-#: src/web/server/common/mails_voter.ml:346
+#: src/web/server/common/mails_voter.ml:347
 msgid "Use the following code:"
 msgstr "Utilisez le code suivant :"
 
 #: src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
-#. src/web/server/common/mails_voter.ml:218
-#. src/web/server/common/mails_voter.ml:112
+#. src/web/server/common/mails_voter.ml:219
+#. src/web/server/common/mails_voter.ml:113
 msgid "Username:"
 msgstr "Nom d'utilisateur :"
 
-#: src/web/clients/election/home.ml:108
+#: src/web/clients/election/home.ml:118
 msgid "Voter list fingerprint"
 msgstr "Empreinte de la liste électorale"
 
-#: src/web/clients/election/home.ml:131
+#: src/web/clients/election/home.ml:141
 msgid "Voters' total weight"
 msgstr "Poids total des électeurs"
 
@@ -684,19 +688,19 @@ msgstr "Poids total des électeurs"
 msgid "Warning:"
 msgstr "Attention :"
 
-#: src/web/server/common/mails_voter.ml:367
+#: src/web/server/common/mails_voter.ml:368
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Attention : ce code est valable pendant 15 minutes, et les codes précédents "
 "envoyés à cette adresse ne sont plus valables."
 
-#: src/web/server/common/mails_voter.ml:185
+#: src/web/server/common/mails_voter.ml:186
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 "Attention : ce courriel contient des données personnelles et confidentielles "
 "et ne doit pas être transféré."
 
-#: src/web/clients/election/home.ml:388
+#: src/web/clients/election/home.ml:398
 msgid "We use here the Schulze method and we refer voters to "
 msgstr ""
 "Nous utilisons ici la méthode de Schulze et nous renvoyons les électeurs à "
@@ -709,8 +713,8 @@ msgstr "Vous souhaitez aider avec les traductions ?"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr "Vous êtes sur le point de soumettre un bulletin avec numéro de suivi %s."
 
-#: src/web/server/common/mails_voter.ml:234
-#. src/web/server/common/mails_voter.ml:133
+#: src/web/server/common/mails_voter.ml:235
+#. src/web/server/common/mails_voter.ml:134
 msgid "You are allowed to vote several times."
 msgstr "Vous avez le droit de voter plusieurs fois."
 
@@ -722,7 +726,7 @@ msgstr "Vous êtes en train de vous authentifier en tant qu'électeur."
 msgid "You are authenticating as an administrator."
 msgstr "Vous êtes en train de vous authentifier en tant qu'administrateur."
 
-#: src/web/server/common/mails_voter.ml:190
+#: src/web/server/common/mails_voter.ml:191
 msgid "You are listed as a voter for the election"
 msgstr "Vous êtes enregistré(e) en tant qu'électeur(trice) pour l'élection"
 
@@ -738,7 +742,7 @@ msgstr "Vous pouvez "
 msgid "You can also "
 msgstr "Vous pouvez aussi "
 
-#: src/web/clients/election/home.ml:631
+#: src/web/clients/election/home.ml:638
 msgid "You can also download the "
 msgstr "Vous pouvez également télécharger le "
 
@@ -746,7 +750,7 @@ msgstr "Vous pouvez également télécharger le "
 msgid "You can check its presence in the "
 msgstr "Vous pouvez vérifier sa présence dans l' "
 
-#: src/web/server/common/mails_voter.ml:313
+#: src/web/server/common/mails_voter.ml:314
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Vous pouvez vérifier sa présence dans l'urne, accessible au"
 
@@ -769,25 +773,25 @@ msgstr ""
 msgid "Your ballot for "
 msgstr "Votre bulletin pour "
 
-#: src/web/server/common/mails_voter.ml:256
+#: src/web/server/common/mails_voter.ml:257
 msgid "Your credential for election %s"
 msgstr "Votre code de vote pour l'élection %s"
 
-#: src/web/server/common/mails_voter.ml:222
+#: src/web/server/common/mails_voter.ml:223
 msgid "Your credential:"
 msgstr "Votre code de vote :"
 
-#: src/web/server/common/mails_voter.ml:343
+#: src/web/server/common/mails_voter.ml:344
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Votre adresse courriel a été utilisée pour vous authentifier auprès de notre "
 "serveur Belenios."
 
-#: src/web/server/common/mails_voter.ml:157
+#: src/web/server/common/mails_voter.ml:158
 msgid "Your password for election %s"
 msgstr "Votre mot de passe pour l'élection %s"
 
-#: src/web/server/common/mails_voter.ml:301
+#: src/web/server/common/mails_voter.ml:302
 msgid "Your smart ballot tracker is"
 msgstr "Votre numéro de suivi est"
 
@@ -795,11 +799,11 @@ msgstr "Votre numéro de suivi est"
 msgid "Your smart ballot tracker is "
 msgstr "Votre numéro de suivi est "
 
-#: src/web/server/common/mails_voter.ml:288
+#: src/web/server/common/mails_voter.ml:289
 msgid "Your vote for election"
 msgstr "Votre vote pour l'élection"
 
-#: src/web/server/common/mails_voter.ml:282
+#: src/web/server/common/mails_voter.ml:283
 msgid "Your vote for election %s"
 msgstr "Votre vote pour l'élection %s"
 
@@ -807,7 +811,7 @@ msgstr "Votre vote pour l'élection %s"
 msgid "Your vote was not recorded!"
 msgstr "Votre vote n'a pas été enregistré !"
 
-#: src/web/server/common/mails_voter.ml:299 src/web/common/pages_common.ml:211
+#: src/web/server/common/mails_voter.ml:300 src/web/common/pages_common.ml:211
 msgid "Your weight is %s."
 msgstr "Votre poids est %s."
 
@@ -827,7 +831,7 @@ msgstr "créer un compte"
 msgid "direct link"
 msgstr "lien direct"
 
-#: src/web/server/common/mails_voter.ml:295
+#: src/web/server/common/mails_voter.ml:296
 msgid "has been recorded."
 msgstr "a été enregistré avec succès."
 
@@ -839,7 +843,7 @@ msgstr "paramètres"
 msgid "public data"
 msgstr "données publiques"
 
-#: src/web/clients/election/home.ml:616
+#: src/web/clients/election/home.ml:626
 msgid "raw result"
 msgstr "résultat brut"
 
@@ -859,7 +863,7 @@ msgstr "recommencer au début"
 msgid "terms of service"
 msgstr "conditions générales d'utilisation"
 
-#: src/web/clients/election/home.ml:390
+#: src/web/clients/election/home.ml:400
 msgid "the Wikipedia page"
 msgstr "la page Wikipédia"
 
