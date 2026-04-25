@@ -1450,7 +1450,7 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:1966
 msgid "Something is wrong with the configuration of voter authentication! Maybe an invalid CAS server was given?"
-msgstr ""
+msgstr "Quelque chose ne va pas avec la configuration de l'authentification des électeurs ! Peut-être que l'adresse du serveur CAS est incorrecte ?"
 
 #: src/web/clients/admin/questions.ml:354
 msgid "Sort propositions"

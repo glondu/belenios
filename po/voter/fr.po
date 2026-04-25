@@ -505,7 +505,7 @@ msgstr "Redirection"
 
 #: src/web/clients/election/home.ml:676
 msgid "Refresh status"
-msgstr ""
+msgstr "Rafraîchir l'état"
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
