@@ -2,7 +2,7 @@
 
 # Base environment, for running opam-bootstrap.sh
 FROM debian:13 AS beleniosbase
-RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq bubblewrap build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime git jq npm rsync
+RUN apt-get update -qq && apt-get upgrade -qq && apt-get install -qq bubblewrap build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime git jq npm rsync binaryen
 RUN useradd --create-home belenios
 COPY opam-bootstrap.sh /home/belenios
 COPY vendor/opam-overlay /home/belenios/vendor/opam-overlay

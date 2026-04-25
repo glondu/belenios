@@ -2,12 +2,12 @@
 
 set -e
 
-OPAM_REPOSITORY_DATE=20260106
-OPAM_REPOSITORY_REVISION=75021010109271b3ac220dc6529ff5ca4e7f35cb
+OPAM_REPOSITORY_DATE=20260425
+OPAM_REPOSITORY_REVISION=045748b2d8c25925135981a8892305b10706ca06
 
-OCAML_VERSION=5.4.0
-OPAM_VERSION=2.5.0
-OPAM_SHA256=25fb98f962c4227c1261e142afc68a416778e6e819600bd5ee3ec4a18ae1e238
+OCAML_VERSION=5.4.1
+OPAM_VERSION=2.5.1
+OPAM_SHA256=48c5bfaf5f5c4048cc5f40025de7385f5bad3a8269756216cd6dd2f2150033ed
 
 BELENIOS_SRC="${BELENIOS_SRC:-$PWD}"
 
@@ -37,13 +37,6 @@ git checkout opam
 if [ -z "$BELENIOS_USE_SYSTEM_OPAM" ]; then
 
     # Download and install opam
-
-    # Check that Dune is not installed
-    # cf. https://github.com/ocaml/opam/issues/3987
-    if command -v dune >/dev/null; then
-        echo "Please uninstall Dune first, or remove it from your PATH."
-        exit 1
-    fi
 
     echo
     echo "=-=-= Download and check tarballs =-=-="

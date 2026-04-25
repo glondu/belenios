@@ -71,12 +71,13 @@ The non-OCaml prerequisites are:
  * [cracklib](https://github.com/cracklib/cracklib)
  * [jq](https://github.com/stedolan/jq)
  * [npm](https://www.npmjs.com/)
+ * [binaryen](https://github.com/WebAssembly/binaryen)
 
 These libraries and tools are pretty common, and might be directly part
 of your operating system. On [Debian](http://www.debian.org/) and its
 derivatives, they can be installed with the following command:
 
-    sudo apt install bubblewrap build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime jq npm
+    sudo apt install bubblewrap build-essential libgmp-dev libsodium-dev pkg-config m4 libssl-dev libsqlite3-dev wget ca-certificates zip unzip libncurses-dev zlib1g-dev libgd-securityimage-perl cracklib-runtime jq npm binaryen
 
 If you are unfamiliar with OCaml or OPAM, we provide an
 `opam-bootstrap.sh` shell script that creates a whole, hopefully
