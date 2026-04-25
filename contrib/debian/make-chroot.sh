@@ -33,7 +33,7 @@ Pin-Priority: 1000
 EOF
 
 cat > "$TMP/ocaml.list" <<EOF
-deb [signed-by=$TMP/${KEYRING##*/}] $BACKPORTS_MIRROR/pool ./
+deb [signed-by=$TMP/${KEYRING##*/}] $BACKPORTS_MIRROR/repo rebuilt main
 EOF
 
 cat > "$TMP/sources.list" <<EOF
