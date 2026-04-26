@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2026-04-25 22:53+0000\n"
+"PO-Revision-Date: 2026-04-27 06:26+0000\n"
 "Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -258,9 +258,8 @@ msgid "Could not get server configuration!"
 msgstr "¡No se pudo obtener la configuración del servidor!"
 
 #: src/web/clients/election/home.ml:219
-#, fuzzy
 msgid "Credentials authority"
-msgstr "Certificadora"
+msgstr "Autoridad de credenciales"
 
 #: src/web/clients/election/home.ml:228
 msgid "Credentials fingerprint"
@@ -347,9 +346,8 @@ msgid "If the above link does not work:"
 msgstr "Si el enlace anterior no funciona:"
 
 #: src/web/server/common/pages_voter.ml:55
-#, fuzzy
 msgid "If you want to vote, you must "
-msgstr "Si usted desea votar, usted debe "
+msgstr "Si deseas votar, debes "
 
 #: src/web/clients/election/home.ml:461
 #, fuzzy
