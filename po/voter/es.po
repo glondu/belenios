@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: belenios 3.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-08 15:30+0000\n"
-"PO-Revision-Date: 2026-03-13 12:09+0000\n"
+"PO-Revision-Date: 2026-04-27 06:26+0000\n"
 "Last-Translator: Francisco Serrador <fserrador@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/belenios/voter/"
 "es/>\n"
@@ -13,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 
 #: src/web/server/common/pages_common.ml:340
 msgid " (if you forgot it, for example)."
@@ -137,7 +136,7 @@ msgstr "Gestionar las elecciones"
 
 #: src/web/clients/election/common.ml:62 src/web/server/common/pages_common.ml:98
 msgid "Administer this election"
-msgstr "Administrar ésta elección"
+msgstr "Administrar esta elección"
 
 #: src/web/clients/election/home.ml:103
 msgid "Administrator"
@@ -159,7 +158,7 @@ msgstr "También puede cargar un archivo con su papeleta:"
 
 #: src/web/server/common/mails_voter.ml:359
 msgid "Alternatively, you can follow the link:"
-msgstr "En forma alternativa, puede acceder al siguiente link:"
+msgstr "En forma alternativa, puede acceder al siguiente enlace:"
 
 #: src/web/clients/election/home.ml:794
 msgid "Audit data not available."
@@ -169,9 +168,9 @@ msgstr "Los datos de auditoría no están disponibles."
 msgid "Audit data: "
 msgstr "Datos para auditoría: "
 
-#: src/web/server/common/pages_common.ml:502
 #. src/web/server/common/pages_common.ml:404
 #. src/web/server/common/pages_common.ml:312
+#: src/web/server/common/pages_common.ml:502
 msgid "Authenticate"
 msgstr "Autenticar"
 
@@ -185,22 +184,22 @@ msgstr "Autenticación"
 
 #: src/web/server/common/pages_common.ml:418
 msgid "Authentication failed"
-msgstr "Falla de autentificación"
+msgstr "Falla de autenticación"
 
 #: src/web/server/common/pages_common.ml:424
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
-"La autentificación ha fallado, probablemente por un nombre de usuario o "
+"La autenticación ha fallado, probablemente por un nombre de usuario o "
 "contraseña equivocados, o usted no tiene autorización para realizar esta "
 "operación."
 
 #: src/web/server/common/pages_common.ml:567
 msgid "Authentication impossible"
-msgstr "La verificación ha sido imposible"
+msgstr "La autenticación ha sido imposible"
 
 #: src/web/server/common/pages_common.ml:562
 msgid "Authentication is impossible."
-msgstr "La verificación ha sido imposible."
+msgstr "La autenticación ha sido imposible."
 
 #: src/web/clients/election/advanced.ml:150
 msgid "Back to election home"
@@ -208,11 +207,11 @@ msgstr "Volver a la página de inicio de las elecciones"
 
 #: src/web/server/common/pages_common.ml:518
 msgid "Bad e-mail address!"
-msgstr "¡Correo electrónico erroneo!"
+msgstr "¡Correo-e erróneo!"
 
 #: src/web/server/common/pages_common.ml:517
 msgid "Bad security code!"
-msgstr "¡Código de seguridad erroneo!"
+msgstr "¡Código de seguridad incorrecto!"
 
 #: src/web/server/common/mails_voter.ml:373
 msgid "Best regards,"
@@ -232,7 +231,7 @@ msgstr "Al utilizar este sitio, usted acepta nuestra "
 
 #: src/web/server/common/pages_common.ml:577
 msgid "Click here"
-msgstr "Pinche aquí"
+msgstr "Pulse aquí"
 
 #: src/web/clients/common/secondary_ui.ml:80
 msgid "Close"
@@ -260,22 +259,22 @@ msgstr "¡No se pudo obtener la configuración del servidor!"
 
 #: src/web/clients/election/home.ml:219
 msgid "Credentials authority"
-msgstr "Certificadora"
+msgstr "Autoridad de credenciales"
 
 #: src/web/clients/election/home.ml:228
 msgid "Credentials fingerprint"
 msgstr "Huella digital de las credenciales"
 
-#: src/web/server/common/mails_voter.ml:340
 #. src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:340
 msgid "Dear %s,"
 msgstr "Estimado/a %s,"
 
-#: src/web/server/common/pages_common.ml:531
 #. src/web/server/common/pages_common.ml:347
 #. src/web/server/common/pages_common.ml:279
+#: src/web/server/common/pages_common.ml:531
 msgid "E-mail address:"
-msgstr "Dirección de correo electrónico:"
+msgstr "Dirección de correo-e:"
 
 #: src/web/clients/election/home.ml:94
 msgid "Election fingerprint"
@@ -337,8 +336,8 @@ msgstr "Prohibido"
 msgid "Get the source code"
 msgstr "Conseguir el código fuente"
 
-#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 #. src/web/common/pages_common.ml:263
+#: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
 msgid "Go back to election"
 msgstr "Volver a las elecciones"
 
@@ -348,9 +347,10 @@ msgstr "Si el enlace anterior no funciona:"
 
 #: src/web/server/common/pages_voter.ml:55
 msgid "If you want to vote, you must "
-msgstr "Si usted desea votar, usted debe "
+msgstr "Si deseas votar, debes "
 
 #: src/web/clients/election/home.ml:461
+#, fuzzy
 msgid "In our implementation, when several candidates have the same number of votes when they are ready to be elected or eliminated, we follow the order in which candidates were listed in the election."
 msgstr ""
 "En nuestra implementación, cuando varios candidatos tienen el mismo número "
@@ -358,10 +358,12 @@ msgstr ""
 "orden en el que los candidatos fueron incluidos en la elección."
 
 #: src/web/clients/election/home.ml:567
+#, fuzzy
 msgid "It contains all submitted ballots in clear, in random order."
 msgstr "Contiene todas las boletas enviadas en orden claro y aleatorio."
 
 #: src/web/clients/election/home.ml:548
+#, fuzzy
 msgid "It is up to you to apply your favorite counting method."
 msgstr "Depende de usted aplicar su método de conteo favorito."
 
@@ -370,6 +372,7 @@ msgid "It will open at %s (time left: %s)."
 msgstr "Abrirá en %s (tiempo restante: %s)."
 
 #: src/web/clients/election/home.ml:564
+#, fuzzy
 msgid "JSON result"
 msgstr "resultados JSON"
 
@@ -381,10 +384,11 @@ msgstr "Idioma:"
 msgid "Loading..."
 msgstr "Cargando..."
 
-#: src/web/server/common/pages_common.ml:501
 #. src/web/server/common/pages_common.ml:403
 #. src/web/server/common/pages_common.ml:311
 #. src/web/server/common/pages_common.ml:271
+#: src/web/server/common/pages_common.ml:501
+#, fuzzy
 msgid "Log in"
 msgstr "Ingrese"
 
@@ -393,16 +397,19 @@ msgid "Log in with %s"
 msgstr "Iniciar sesión con %s"
 
 #: src/web/clients/election/home.ml:472
+#, fuzzy
 msgid "Look at the raw events for more details."
 msgstr "Mire los eventos sin procesar para más detalles."
 
 #: src/web/clients/election/home.ml:456
+#, fuzzy
 msgid "Many variants of STV exist, depending for example on how to break ties."
 msgstr ""
 "Existen muchas variantes de STV, dependiendo, por ejemplo, de cómo se rompen "
 "los lazos."
 
 #: src/web/server/common/pages_common.ml:564
+#, fuzzy
 msgid "Maybe cookies are blocked."
 msgstr "Quizá las cookies estén bloqueadas."
 
@@ -417,6 +424,7 @@ msgstr ""
 "electrónico por separado, para comenzar a votar."
 
 #: src/web/clients/election/home.ml:636
+#, fuzzy
 msgid "Number of accepted ballots: "
 msgstr "Número de boletas admitidas: "
 
@@ -424,13 +432,14 @@ msgstr "Número de boletas admitidas: "
 msgid "Number of voters"
 msgstr "Número de votantes"
 
-#: src/web/server/common/mails_voter.ml:229
 #. src/web/server/common/mails_voter.ml:124
+#: src/web/server/common/mails_voter.ml:229
+#, fuzzy
 msgid "Number of votes:"
 msgstr "Numero de votos:"
 
-#: src/web/server/common/mails_voter.ml:236
 #. src/web/server/common/mails_voter.ml:135
+#: src/web/server/common/mails_voter.ml:236
 msgid "Only the last vote counts."
 msgstr "Solo el último voto cuenta."
 
@@ -438,25 +447,29 @@ msgstr "Solo el último voto cuenta."
 msgid "Page of the election:"
 msgstr "Página de la elección:"
 
-#: src/web/server/common/pages_common.ml:383
 #. src/web/server/common/mails_voter.ml:117
+#: src/web/server/common/pages_common.ml:383
 msgid "Password:"
 msgstr "Contraseña:"
 
 #: src/web/server/common/pages_common.ml:540
+#, fuzzy
 msgid "Please enter "
 msgstr "Por favor escriba "
 
 #: src/web/server/common/pages_common.ml:457
+#, fuzzy
 msgid "Please enter the verification code received by e-mail:"
 msgstr ""
 "Por favor ingrese el código de verificación recibido por correo electrónico:"
 
 #: src/web/server/common/mails_voter.ml:100
+#, fuzzy
 msgid "Please find below your login and password for the election"
 msgstr "Encontrará abajo su nombre de usuario y contraseña para la elección"
 
 #: src/web/server/common/pages_common.ml:265
+#, fuzzy
 msgid "Please log in:"
 msgstr "Por favor ingrese:"
 
@@ -467,6 +480,7 @@ msgstr ""
 "el área de texto de abajo:"
 
 #: src/web/clients/election/advanced.ml:69
+#, fuzzy
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 "Por favor, pegue su papeleta encriptada en formato JSON en la siguiente "
@@ -480,9 +494,9 @@ msgstr "Por favor, vote aquí utilizando su enlace personal:"
 msgid "Powered by "
 msgstr "Desarrollado por "
 
-#: src/web/clients/election/advanced.ml:221
 #. src/web/server/common/pages_common.ml:224
 #. src/web/server/common/pages_common.ml:216
+#: src/web/clients/election/advanced.ml:221
 msgid "Proceed"
 msgstr "Proceder"
 
@@ -495,6 +509,7 @@ msgid "Public page of the election:"
 msgstr "Página pública de las elecciones:"
 
 #: src/web/clients/election/home.ml:443
+#, fuzzy
 msgid "Raw events"
 msgstr "Eventos no procesados"
 
@@ -504,7 +519,7 @@ msgstr "Redirección"
 
 #: src/web/clients/election/home.ml:676
 msgid "Refresh status"
-msgstr ""
+msgstr "Refrescar estado"
 
 #: src/web/common/pages_common.ml:50
 msgid "Restricted mode"
@@ -519,10 +534,12 @@ msgid "Sealing log fingerprint"
 msgstr "Huella digital del registro de sellado"
 
 #: src/web/clients/election/home.ml:788
+#, fuzzy
 msgid "See accepted ballots"
 msgstr "Ver las boletas aceptadas"
 
 #: src/web/clients/jslib/belenios_jslib.ml:336
+#, fuzzy
 msgid "Session expired"
 msgstr "Sesión expirada"
 
@@ -536,19 +553,21 @@ msgstr ""
 "Existen varias técnicas para decidir qué candidato elegir cuando no hay un "
 "ganador de Condorcet."
 
-#: src/web/clients/jslib/belenios_jslib.ml:276
 #. src/web/clients/jslib/belenios_jslib.ml:262
+#: src/web/clients/jslib/belenios_jslib.ml:276
+#, fuzzy
 msgid "Smart ballot tracker"
 msgstr "Rastreador de votos inteligente"
 
 #: src/web/clients/election/home.ml:761
+#, fuzzy
 msgid "Start"
 msgstr "Iniciar"
 
-#: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
 #. src/web/server/common/pages_common.ml:545
 #. src/web/server/common/pages_common.ml:461
+#: src/web/clients/election/advanced.ml:101
 msgid "Submit"
 msgstr "Enviar"
 
@@ -561,12 +580,14 @@ msgid "Submit by file"
 msgstr "Enviar por archivo"
 
 #: src/web/clients/election/home.ml:468
+#, fuzzy
 msgid "Such candidates are marked as \"TieWin\" when they are elected and as \"TieLose\" if they have lost."
 msgstr ""
-"Dichos candidatos se marcan como \"TieWin\" si son elegidos y como \"TieLose"
-"\" si han perdido."
+"Dichos candidatos se marcan como \"TieWin\" si son elegidos y como "
+"\"TieLose\" si han perdido."
 
 #: src/web/common/pages_common.ml:67
+#, fuzzy
 msgid "Terms of service"
 msgstr "Condiciones de uso"
 
@@ -668,10 +689,10 @@ msgstr "Tipo de pregunta no admitida"
 msgid "Use the following code:"
 msgstr "Utilice el siguiente código:"
 
-#: src/web/server/common/pages_common.ml:346
 #. src/web/server/common/pages_common.ml:278
 #. src/web/server/common/mails_voter.ml:219
 #. src/web/server/common/mails_voter.ml:113
+#: src/web/server/common/pages_common.ml:346
 msgid "Username:"
 msgstr "ID de usuario:"
 
@@ -708,13 +729,14 @@ msgid "Wish to help with translations?"
 msgstr "¿Quieres ayudar con las traducciones?"
 
 #: src/web/clients/election/advanced.ml:212
+#, fuzzy
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 "Está a punto de enviar una papeleta con el rastreador inteligente de "
 "papeletas %s."
 
-#: src/web/server/common/mails_voter.ml:235
 #. src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:235
 msgid "You are allowed to vote several times."
 msgstr "Se le permite votar varias veces."
 
@@ -723,26 +745,32 @@ msgid "You are authenticating as a voter."
 msgstr "Usted se está autenticando como votante."
 
 #: src/web/server/common/pages_common.ml:470
+#, fuzzy
 msgid "You are authenticating as an administrator."
 msgstr "Usted se está autenticando como administrador."
 
 #: src/web/server/common/mails_voter.ml:191
+#, fuzzy
 msgid "You are listed as a voter for the election"
 msgstr "Usted está registrada/o como votante para la elección"
 
 #: src/web/server/common/site_common.ml:107
+#, fuzzy
 msgid "You are not allowed to access this page!"
 msgstr "¡Usted no tiene permisos para acceder a esta página!"
 
 #: src/web/server/common/pages_common.ml:430
+#, fuzzy
 msgid "You can "
 msgstr "Usted puede "
 
 #: src/web/server/common/pages_common.ml:334
+#, fuzzy
 msgid "You can also "
 msgstr "Usted también puede "
 
 #: src/web/clients/election/home.ml:638
+#, fuzzy
 msgid "You can also download the "
 msgstr "Usted también puede descargar el/la "
 
@@ -751,6 +779,7 @@ msgid "You can check its presence in the "
 msgstr "Puede comprobar su presencia en "
 
 #: src/web/server/common/mails_voter.ml:314
+#, fuzzy
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Usted puede verificar su presencia en la urna, disponible en"
 
@@ -769,6 +798,7 @@ msgid "You cannot log in now. Please try later."
 msgstr "No puede iniciar sesión ahora. Por favor intente mas tarde."
 
 #: src/web/common/pages_common.ml:253
+#, fuzzy
 msgid "Your ballot for "
 msgstr "Su voto para "
 
@@ -781,6 +811,7 @@ msgid "Your credential:"
 msgstr "Tus credenciales:"
 
 #: src/web/server/common/mails_voter.ml:344
+#, fuzzy
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "Su dirección de correo electrónico ha sido utilizada para autenticarse con "
@@ -791,6 +822,7 @@ msgid "Your password for election %s"
 msgstr "Su contraseña para la elección %s"
 
 #: src/web/server/common/mails_voter.ml:302
+#, fuzzy
 msgid "Your smart ballot tracker is"
 msgstr "Su número de rastreo de boleta es"
 
@@ -823,6 +855,7 @@ msgid "change your password"
 msgstr "cambie su contraseña"
 
 #: src/web/server/common/pages_common.ml:335
+#, fuzzy
 msgid "create an account"
 msgstr "crear una cuenta"
 
@@ -840,13 +873,14 @@ msgstr "parámetros"
 
 #: src/web/clients/election/common.ml:56
 msgid "public data"
-msgstr "Datos públicos"
+msgstr "datos públicos"
 
 #: src/web/clients/election/home.ml:626
 msgid "raw result"
-msgstr "Resultado bruto"
+msgstr "resultado en bruto"
 
 #: src/web/common/confirmation.ml:30
+#, fuzzy
 msgid "some proofs failed verification"
 msgstr "algunas pruebas son inválidas"
 
@@ -859,6 +893,7 @@ msgid "start from the beginning"
 msgstr "recomenzar"
 
 #: src/web/clients/common/secondary_ui.ml:71
+#, fuzzy
 msgid "terms of service"
 msgstr "condiciones de uso"
 
@@ -887,38 +922,46 @@ msgid "try to log in again"
 msgstr "trate de ingresar de nuevo"
 
 #: src/web/common/confirmation.ml:32
+#, fuzzy
 msgid "you are not allowed to revote"
 msgstr "usted no está autorizada/o a votar de nuevo"
 
 #: src/web/common/confirmation.ml:26
+#, fuzzy
 msgid "you are not allowed to vote"
 msgstr "usted no está autorizada/o a votar"
 
 #: src/web/common/confirmation.ml:34
+#, fuzzy
 msgid "you are not allowed to vote with this credential"
 msgstr "usted no está autorizada/o a votar con esta acreditación"
 
 #: src/web/common/confirmation.ml:28
+#, fuzzy
 msgid "your ballot has a syntax error (%s)"
 msgstr "su boleta tiene un error de sintaxis (%s)"
 
 #: src/web/common/confirmation.ml:29
+#, fuzzy
 msgid "your ballot is not in canonical form"
 msgstr "su boleta no tiene la forma adecuada"
 
 #: src/web/common/confirmation.ml:35
+#, fuzzy
 msgid "your credential has a bad weight"
 msgstr "su credencial tiene un peso incorrecto"
 
 #: src/web/common/confirmation.ml:33
+#, fuzzy
 msgid "your credential has already been used"
 msgstr "su acreditación ya ha sido utilizada"
 
 #: src/web/common/confirmation.ml:31
+#, fuzzy
 msgid "your credential is invalid"
 msgstr "su acreditación es inválida"
 
 #: src/web/common/confirmation.ml:38
+#, fuzzy
 msgid "your username is wrong"
 msgstr "tu nombre de usuario está mal"
-
