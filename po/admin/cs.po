@@ -147,7 +147,7 @@ msgstr "Přijmout"
 msgid "Account management"
 msgstr "Správa účtu"
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:420
 msgid "Account not found"
 msgstr "Účet nenalezen"
 
@@ -195,7 +195,7 @@ msgstr "E-mail s kódem byl poslán na adresu %s."
 msgid "An error occurred while applying the shuffle."
 msgstr "Při použití náhodného řazení došlo k chybě."
 
-#: src/web/clients/admin/common.ml:116
+#: src/web/clients/admin/common.ml:125
 msgid "An error occurred while retrieving elections: %s"
 msgstr "Při načítání voleb nastala chyba: %s"
 
@@ -285,7 +285,7 @@ msgstr ""
 "CAS (externí server pro přihlašování, který může nabídnout lepší "
 "bezpečnostní záruky)"
 
-#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:141
+#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:150
 msgid "Cancel"
 msgstr "Zrušit"
 
@@ -293,8 +293,8 @@ msgstr "Zrušit"
 msgid "Change e-mail address"
 msgstr "Změnit e-mailovou adresu"
 
-#: src/web/server/common/site_admin.ml:378
-#. src/web/server/common/site_admin.ml:263
+#: src/web/server/common/site_admin.ml:384
+#. src/web/server/common/site_admin.ml:269
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -386,8 +386,8 @@ msgstr "Vytvoř"
 msgid "Create a new election"
 msgstr "Vytvoř novou volbu"
 
-#: src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:219
+#: src/web/server/common/site_admin.ml:354
+#. src/web/server/common/site_admin.ml:225
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr "Vytvoření účtu"
@@ -633,8 +633,8 @@ msgstr "Vymazat"
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:235
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:193
-#. src/web/server/common/site_admin.ml:147
+#. src/web/server/common/site_admin.ml:199
+#. src/web/server/common/site_admin.ml:153
 msgid "Error"
 msgstr "Chyba"
 
@@ -674,6 +674,10 @@ msgstr "CHYBA!"
 #. src/web/clients/admin/trustees_tab.ml:568
 msgid "Failed to connect; please reload"
 msgstr "Připojení selhalo; prosím načti znovu"
+
+#: src/web/clients/admin/common.ml:91
+msgid "Failed to sync data to server, code %d"
+msgstr ""
 
 #: src/web/clients/credop/credop.ml:255
 msgid "Failure"
@@ -792,7 +796,7 @@ msgstr "Nekonzistentní stav!"
 msgid "Inconsistent state. Please refresh the page."
 msgstr "Nekonzistentní stav. Obnovte stránku."
 
-#: src/web/server/common/site_admin.ml:178
+#: src/web/server/common/site_admin.ml:184
 msgid "Incorrect code"
 msgstr "Nesprávný kód"
 
@@ -1149,7 +1153,7 @@ msgstr "Zadej nějaký:"
 msgid "Please select password authentication first"
 msgstr "Nejdříve prosím vyber přihlašování pomocí hesla"
 
-#: src/web/clients/admin/common.ml:153
+#: src/web/clients/admin/common.ml:162
 msgid "Please select the election from which you want to import data:"
 msgstr "Vyber prosím volbu, ze které chceš převzít data:"
 
@@ -1519,7 +1523,7 @@ msgstr "Děkujeme za tvou pomoc,"
 msgid "The account creation "
 msgstr "Vytvoření účtu "
 
-#: src/web/server/common/site_admin.ml:350
+#: src/web/server/common/site_admin.ml:356
 msgid "The account has been created."
 msgstr "Účet byl vytvořen."
 
@@ -1546,7 +1550,7 @@ msgstr "Změna "
 msgid "The election administrator"
 msgstr "Administrátor volby"
 
-#: src/web/server/common/site_admin.ml:194
+#: src/web/server/common/site_admin.ml:200
 msgid "The election is not archived!"
 msgstr "Volba není archivována!"
 
@@ -1605,11 +1609,11 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Příspěvek k dešifrování neprošel ověřením!"
 
-#: src/web/server/common/site_admin.ml:380
+#: src/web/server/common/site_admin.ml:386
 msgid "The password has been changed."
 msgstr "Heslo bylo změněno."
 
-#: src/web/server/common/site_admin.ml:174
+#: src/web/server/common/site_admin.ml:180
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Zadaný kód je nesprávný. Vrať se a zkus to znovu."
 
@@ -1627,6 +1631,10 @@ msgstr ""
 #. src/web/clients/admin/trustees_tab.ml:109
 msgid "The server is always one of the trustees"
 msgstr "Server je vždy jedním z garantů"
+
+#: src/web/clients/admin/common.ml:100
+msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
+msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:155
 msgid "The shuffle has been successfully applied!"
@@ -1668,7 +1676,7 @@ msgstr "Na tomto serveru neprobíhá žádná volba s ID %s!"
 msgid "There will be 3 steps."
 msgstr "Bude nutné učinit tři kroky."
 
-#: src/web/server/common/site_admin.ml:413
+#: src/web/server/common/site_admin.ml:419
 msgid "This account does not exist"
 msgstr "Takový účet neexistuje"
 
@@ -1676,7 +1684,7 @@ msgstr "Takový účet neexistuje"
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "Tento kontakt bude přidán od e-mailů rozesýlaných voličům."
 
-#: src/web/server/common/site_admin.ml:146
+#: src/web/server/common/site_admin.ml:152
 msgid "This e-mail address is invalid!"
 msgstr "Tato e-mailová adresa je neplatná!"
 
@@ -1959,11 +1967,11 @@ msgstr "Jeho přítomnost můžete zkontrolovat v "
 msgid "You cannot change your e-mail address right now."
 msgstr "V tuto chvíli nemůžete změnit svou e-mailovou adresu."
 
-#: src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:270
 msgid "You cannot change your password now. Please try later."
 msgstr "Neyní nelze změnit vaše heslo. Zkuste to prosím později."
 
-#: src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:226
 msgid "You cannot create an account now. Please try later."
 msgstr "Nyní nelze vytvořit účet. Zkus to prosím později."
 

@@ -148,7 +148,7 @@ msgstr "Принять"
 msgid "Account management"
 msgstr "Управление учетной записью"
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:420
 msgid "Account not found"
 msgstr "Аккаунт не найден"
 
@@ -196,7 +196,7 @@ msgstr "На адрес %s отправлено письмо с кодом."
 msgid "An error occurred while applying the shuffle."
 msgstr "Во время применения перестановки произошла ошибка."
 
-#: src/web/clients/admin/common.ml:116
+#: src/web/clients/admin/common.ml:125
 msgid "An error occurred while retrieving elections: %s"
 msgstr "Произошла ошибка при получении данных о выборах: %s"
 
@@ -287,7 +287,7 @@ msgstr ""
 "CAS (внешний сервер аутентификации, при необходимости обеспечивает более "
 "надежные гарантии безопасности)"
 
-#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:141
+#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:150
 msgid "Cancel"
 msgstr "Отменить"
 
@@ -295,8 +295,8 @@ msgstr "Отменить"
 msgid "Change e-mail address"
 msgstr "Изменение адреса электронной почты"
 
-#: src/web/server/common/site_admin.ml:378
-#. src/web/server/common/site_admin.ml:263
+#: src/web/server/common/site_admin.ml:384
+#. src/web/server/common/site_admin.ml:269
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -389,8 +389,8 @@ msgstr "Создать"
 msgid "Create a new election"
 msgstr "Создание новых выборов"
 
-#: src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:219
+#: src/web/server/common/site_admin.ml:354
+#. src/web/server/common/site_admin.ml:225
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr "Создать учетную запись"
@@ -635,8 +635,8 @@ msgstr "Стереть"
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:235
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:193
-#. src/web/server/common/site_admin.ml:147
+#. src/web/server/common/site_admin.ml:199
+#. src/web/server/common/site_admin.ml:153
 msgid "Error"
 msgstr "Ошибка"
 
@@ -676,6 +676,10 @@ msgstr "ПРОВАЛ!"
 #. src/web/clients/admin/trustees_tab.ml:568
 msgid "Failed to connect; please reload"
 msgstr "Не удалось подключиться; пожалуйста, перезагрузитесь"
+
+#: src/web/clients/admin/common.ml:91
+msgid "Failed to sync data to server, code %d"
+msgstr ""
 
 #: src/web/clients/credop/credop.ml:255
 msgid "Failure"
@@ -794,7 +798,7 @@ msgstr "Несоответствующее состояние!"
 msgid "Inconsistent state. Please refresh the page."
 msgstr "Несоответствующее состояние. Пожалуйста, обновите страницу."
 
-#: src/web/server/common/site_admin.ml:178
+#: src/web/server/common/site_admin.ml:184
 msgid "Incorrect code"
 msgstr "Неверный код"
 
@@ -1158,7 +1162,7 @@ msgstr "Пожалуйста, укажите один:"
 msgid "Please select password authentication first"
 msgstr "Сначала выберите аутентификацию по паролю"
 
-#: src/web/clients/admin/common.ml:153
+#: src/web/clients/admin/common.ml:162
 msgid "Please select the election from which you want to import data:"
 msgstr "Пожалуйста, выберите выборы, данные о которых вы хотите импортировать:"
 
@@ -1525,7 +1529,7 @@ msgstr "Спасибо за вашу помощь,"
 msgid "The account creation "
 msgstr "Создание аккаунта "
 
-#: src/web/server/common/site_admin.ml:350
+#: src/web/server/common/site_admin.ml:356
 msgid "The account has been created."
 msgstr "Аккаунт был создан."
 
@@ -1552,7 +1556,7 @@ msgstr "Изменение "
 msgid "The election administrator"
 msgstr "Администратор выборов"
 
-#: src/web/server/common/site_admin.ml:194
+#: src/web/server/common/site_admin.ml:200
 msgid "The election is not archived!"
 msgstr "Выборы не архивируются!"
 
@@ -1609,11 +1613,11 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Частичная расшифровка не прошла проверку!"
 
-#: src/web/server/common/site_admin.ml:380
+#: src/web/server/common/site_admin.ml:386
 msgid "The password has been changed."
 msgstr "Пароль был изменен."
 
-#: src/web/server/common/site_admin.ml:174
+#: src/web/server/common/site_admin.ml:180
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Введенный код неверен. Пожалуйста, вернитесь и попробуйте еще раз."
 
@@ -1631,6 +1635,10 @@ msgstr ""
 #. src/web/clients/admin/trustees_tab.ml:109
 msgid "The server is always one of the trustees"
 msgstr "Сервер всегда является одним из доверенных лиц"
+
+#: src/web/clients/admin/common.ml:100
+msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
+msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:155
 msgid "The shuffle has been successfully applied!"
@@ -1674,7 +1682,7 @@ msgstr "На этом сервере нет выборов с идентифик
 msgid "There will be 3 steps."
 msgstr "Всего будет 3 этапа."
 
-#: src/web/server/common/site_admin.ml:413
+#: src/web/server/common/site_admin.ml:419
 msgid "This account does not exist"
 msgstr "Этой учетной записи не существует"
 
@@ -1683,7 +1691,7 @@ msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
 "Этот контакт будет добавлен в электронные письма, рассылаемые избирателям."
 
-#: src/web/server/common/site_admin.ml:146
+#: src/web/server/common/site_admin.ml:152
 msgid "This e-mail address is invalid!"
 msgstr "Этот адрес электронной почты недействителен!"
 
@@ -1966,11 +1974,11 @@ msgstr "Вы можете проверить его наличие в "
 msgid "You cannot change your e-mail address right now."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:270
 msgid "You cannot change your password now. Please try later."
 msgstr "Сейчас вы не можете изменить свой пароль. Попробуйте позже."
 
-#: src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:226
 msgid "You cannot create an account now. Please try later."
 msgstr "Сейчас вы не можете создать учетную запись. Попробуйте позже."
 

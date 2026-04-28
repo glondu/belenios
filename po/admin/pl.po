@@ -148,7 +148,7 @@ msgstr "Zgoda"
 msgid "Account management"
 msgstr "Zarządzanie kontem"
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:420
 msgid "Account not found"
 msgstr "Nie znaleziono konta"
 
@@ -195,7 +195,7 @@ msgstr "Wiadomość e-mail z kodem została wysłana do %s."
 msgid "An error occurred while applying the shuffle."
 msgstr "Wystąpił błąd przy tasowaniu."
 
-#: src/web/clients/admin/common.ml:116
+#: src/web/clients/admin/common.ml:125
 msgid "An error occurred while retrieving elections: %s"
 msgstr "Wystąpił błąd podczas pobierania: %s"
 
@@ -291,7 +291,7 @@ msgstr ""
 "CAS (zewnętrzny serwer uwierzytelniający, zazwyczaj oferuje lepsza gwarancje "
 "bezpieczeństwa)"
 
-#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:141
+#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:150
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -299,8 +299,8 @@ msgstr "Anuluj"
 msgid "Change e-mail address"
 msgstr "Zmiana adresu e-mail"
 
-#: src/web/server/common/site_admin.ml:378
-#. src/web/server/common/site_admin.ml:263
+#: src/web/server/common/site_admin.ml:384
+#. src/web/server/common/site_admin.ml:269
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -392,8 +392,8 @@ msgstr "Utwórz"
 msgid "Create a new election"
 msgstr "Utwórz głosowanie"
 
-#: src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:219
+#: src/web/server/common/site_admin.ml:354
+#. src/web/server/common/site_admin.ml:225
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr "Utwórz konto"
@@ -642,8 +642,8 @@ msgstr "Usuń"
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:235
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:193
-#. src/web/server/common/site_admin.ml:147
+#. src/web/server/common/site_admin.ml:199
+#. src/web/server/common/site_admin.ml:153
 msgid "Error"
 msgstr "Błąd"
 
@@ -683,6 +683,10 @@ msgstr "Niepowodzenie!"
 #. src/web/clients/admin/trustees_tab.ml:568
 msgid "Failed to connect; please reload"
 msgstr "Nie udało się połączyć, spróbuj załadować ponownie"
+
+#: src/web/clients/admin/common.ml:91
+msgid "Failed to sync data to server, code %d"
+msgstr ""
 
 #: src/web/clients/credop/credop.ml:255
 msgid "Failure"
@@ -801,7 +805,7 @@ msgstr "Stan niespójny!"
 msgid "Inconsistent state. Please refresh the page."
 msgstr "Niespójność danych. Odśwież proszę stronę."
 
-#: src/web/server/common/site_admin.ml:178
+#: src/web/server/common/site_admin.ml:184
 msgid "Incorrect code"
 msgstr "Nieprawidłowy kod"
 
@@ -1165,7 +1169,7 @@ msgstr "Podaj jeden:"
 msgid "Please select password authentication first"
 msgstr "Wybierz wpierw hasło"
 
-#: src/web/clients/admin/common.ml:153
+#: src/web/clients/admin/common.ml:162
 msgid "Please select the election from which you want to import data:"
 msgstr "Wybierz głosowanie, z którego chcesz importować dane:"
 
@@ -1541,7 +1545,7 @@ msgstr "Dziękujemy Ci za Twoją pomoc,"
 msgid "The account creation "
 msgstr "Tworzenie konta "
 
-#: src/web/server/common/site_admin.ml:350
+#: src/web/server/common/site_admin.ml:356
 msgid "The account has been created."
 msgstr "Konto zostało utworzone."
 
@@ -1568,7 +1572,7 @@ msgstr "Zmiana "
 msgid "The election administrator"
 msgstr "Administrator głosowania"
 
-#: src/web/server/common/site_admin.ml:194
+#: src/web/server/common/site_admin.ml:200
 msgid "The election is not archived!"
 msgstr "Głosowanie nie zostało zarchiwizowane!"
 
@@ -1628,11 +1632,11 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Częściowe odszyfrowanie nie przeszło walidacji!"
 
-#: src/web/server/common/site_admin.ml:380
+#: src/web/server/common/site_admin.ml:386
 msgid "The password has been changed."
 msgstr "Hasło zostało zmienione."
 
-#: src/web/server/common/site_admin.ml:174
+#: src/web/server/common/site_admin.ml:180
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Podany kod jest nieprawidłowy. Wróć i spróbuj ponownie."
 
@@ -1650,6 +1654,10 @@ msgstr "Tajny klucz nie jest prawidłowy!"
 #. src/web/clients/admin/trustees_tab.ml:109
 msgid "The server is always one of the trustees"
 msgstr "Serwer zawsze pełni funkcję jednego z mężów (osób) zaufania"
+
+#: src/web/clients/admin/common.ml:100
+msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
+msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:155
 msgid "The shuffle has been successfully applied!"
@@ -1694,7 +1702,7 @@ msgstr "Na serwerze nie ma głosowania ID %s!"
 msgid "There will be 3 steps."
 msgstr "Będą 3 kroki."
 
-#: src/web/server/common/site_admin.ml:413
+#: src/web/server/common/site_admin.ml:419
 msgid "This account does not exist"
 msgstr "To konto nie istnieje"
 
@@ -1702,7 +1710,7 @@ msgstr "To konto nie istnieje"
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "Ten kontakt zostanie dodany do e-mailu wysyłanych do głosujących."
 
-#: src/web/server/common/site_admin.ml:146
+#: src/web/server/common/site_admin.ml:152
 msgid "This e-mail address is invalid!"
 msgstr "Ten adres e-mail jest nieprawidłowy!"
 
@@ -1992,11 +2000,11 @@ msgstr "Możesz sprawdzić czy Twoja karta do głosowania jest w "
 msgid "You cannot change your e-mail address right now."
 msgstr "Zmiana adresu e-mail nie jest możliwa w tym momencie."
 
-#: src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:270
 msgid "You cannot change your password now. Please try later."
 msgstr "Nie możesz teraz zmienić swojego hasła. Proszę spróbuj później."
 
-#: src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:226
 msgid "You cannot create an account now. Please try later."
 msgstr "Nie możesz teraz utworzyć konta. Proszę spróbuj później."
 

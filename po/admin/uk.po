@@ -148,7 +148,7 @@ msgstr "Прийняти"
 msgid "Account management"
 msgstr "Управління обліковим записом"
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:420
 msgid "Account not found"
 msgstr "Обліковий запис не знайдено"
 
@@ -196,7 +196,7 @@ msgstr "Електронний лист із кодом надіслано на 
 msgid "An error occurred while applying the shuffle."
 msgstr "Під час застосування перемішування сталася помилка."
 
-#: src/web/clients/admin/common.ml:116
+#: src/web/clients/admin/common.ml:125
 msgid "An error occurred while retrieving elections: %s"
 msgstr "Під час отримання виборів сталася помилка: %s"
 
@@ -286,7 +286,7 @@ msgstr ""
 "CAS (зовнішній сервер автентифікації, пропонує кращі гарантії безпеки, якщо "
 "це можливо)"
 
-#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:141
+#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:150
 msgid "Cancel"
 msgstr "Скасувати"
 
@@ -294,8 +294,8 @@ msgstr "Скасувати"
 msgid "Change e-mail address"
 msgstr "Змінити адресу електронної пошти"
 
-#: src/web/server/common/site_admin.ml:378
-#. src/web/server/common/site_admin.ml:263
+#: src/web/server/common/site_admin.ml:384
+#. src/web/server/common/site_admin.ml:269
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -387,8 +387,8 @@ msgstr "Створити"
 msgid "Create a new election"
 msgstr "Створіть нові вибори"
 
-#: src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:219
+#: src/web/server/common/site_admin.ml:354
+#. src/web/server/common/site_admin.ml:225
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr "Створити акаунт"
@@ -634,8 +634,8 @@ msgstr "Стерти"
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:235
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:193
-#. src/web/server/common/site_admin.ml:147
+#. src/web/server/common/site_admin.ml:199
+#. src/web/server/common/site_admin.ml:153
 msgid "Error"
 msgstr "Помилка"
 
@@ -676,6 +676,10 @@ msgstr "НЕВДАЧА!"
 #. src/web/clients/admin/trustees_tab.ml:568
 msgid "Failed to connect; please reload"
 msgstr "Не вдалося підключитися; будь ласка, перезавантажте"
+
+#: src/web/clients/admin/common.ml:91
+msgid "Failed to sync data to server, code %d"
+msgstr ""
 
 #: src/web/clients/credop/credop.ml:255
 msgid "Failure"
@@ -794,7 +798,7 @@ msgstr "Непослідовний стан!"
 msgid "Inconsistent state. Please refresh the page."
 msgstr "Неузгоджений стан. Будь ласка, оновіть сторінку."
 
-#: src/web/server/common/site_admin.ml:178
+#: src/web/server/common/site_admin.ml:184
 msgid "Incorrect code"
 msgstr "Невірний код"
 
@@ -1157,7 +1161,7 @@ msgstr "Будь ласка, надайте один:"
 msgid "Please select password authentication first"
 msgstr "Спочатку виберіть автентифікацію за паролем"
 
-#: src/web/clients/admin/common.ml:153
+#: src/web/clients/admin/common.ml:162
 msgid "Please select the election from which you want to import data:"
 msgstr "Виберіть вибори, з яких потрібно імпортувати дані:"
 
@@ -1527,7 +1531,7 @@ msgstr "Дякуємо за допомогу,"
 msgid "The account creation "
 msgstr "Створення облікового запису "
 
-#: src/web/server/common/site_admin.ml:350
+#: src/web/server/common/site_admin.ml:356
 msgid "The account has been created."
 msgstr "Обліковий запис створено."
 
@@ -1554,7 +1558,7 @@ msgstr "Зміна "
 msgid "The election administrator"
 msgstr "Адміністратор виборів"
 
-#: src/web/server/common/site_admin.ml:194
+#: src/web/server/common/site_admin.ml:200
 msgid "The election is not archived!"
 msgstr "Вибори не архівуються!"
 
@@ -1613,11 +1617,11 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr "Часткове розшифрування не пройшло перевірку!"
 
-#: src/web/server/common/site_admin.ml:380
+#: src/web/server/common/site_admin.ml:386
 msgid "The password has been changed."
 msgstr "Пароль змінено."
 
-#: src/web/server/common/site_admin.ml:174
+#: src/web/server/common/site_admin.ml:180
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr "Наданий код неправильний. Будь ласка, поверніться та спробуйте ще раз."
 
@@ -1635,6 +1639,10 @@ msgstr "Секретний ключ недійсний!"
 #. src/web/clients/admin/trustees_tab.ml:109
 msgid "The server is always one of the trustees"
 msgstr "Сервер завжди є одним із довірених осіб"
+
+#: src/web/clients/admin/common.ml:100
+msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
+msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:155
 msgid "The shuffle has been successfully applied!"
@@ -1678,7 +1686,7 @@ msgstr "На цьому сервері немає виборів з іденти
 msgid "There will be 3 steps."
 msgstr "Буде 3 кроки."
 
-#: src/web/server/common/site_admin.ml:413
+#: src/web/server/common/site_admin.ml:419
 msgid "This account does not exist"
 msgstr "Цей обліковий запис не існує"
 
@@ -1686,7 +1694,7 @@ msgstr "Цей обліковий запис не існує"
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr "Цей контакт буде додано до електронних листів, надісланих виборцям."
 
-#: src/web/server/common/site_admin.ml:146
+#: src/web/server/common/site_admin.ml:152
 msgid "This e-mail address is invalid!"
 msgstr "Ця адреса електронної пошти недійсна!"
 
@@ -1971,11 +1979,11 @@ msgstr "Перевірити його наявність можна в "
 msgid "You cannot change your e-mail address right now."
 msgstr "Ви не можете змінити свою адресу електронної пошти зараз."
 
-#: src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:270
 msgid "You cannot change your password now. Please try later."
 msgstr "Ви не можете зараз змінити свій пароль. Спробуйте пізніше."
 
-#: src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:226
 msgid "You cannot create an account now. Please try later."
 msgstr "Ви не можете створити обліковий запис зараз. Спробуйте пізніше."
 

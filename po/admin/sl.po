@@ -144,7 +144,7 @@ msgstr ""
 msgid "Account management"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:414
+#: src/web/server/common/site_admin.ml:420
 msgid "Account not found"
 msgstr ""
 
@@ -190,7 +190,7 @@ msgstr ""
 msgid "An error occurred while applying the shuffle."
 msgstr ""
 
-#: src/web/clients/admin/common.ml:116
+#: src/web/clients/admin/common.ml:125
 msgid "An error occurred while retrieving elections: %s"
 msgstr ""
 
@@ -273,7 +273,7 @@ msgstr "Z uporabo spletnega mesta se strinjate s "
 msgid "CAS (external authentication server, offers better security guarantees when applicable)"
 msgstr ""
 
-#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:141
+#: src/web/clients/admin/trustees_tab.ml:137 src/web/clients/admin/common.ml:150
 msgid "Cancel"
 msgstr ""
 
@@ -281,8 +281,8 @@ msgstr ""
 msgid "Change e-mail address"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:378
-#. src/web/server/common/site_admin.ml:263
+#: src/web/server/common/site_admin.ml:384
+#. src/web/server/common/site_admin.ml:269
 #. src/web/server/common/mails_admin.ml:90
 #. src/web/server/common/pages_admin.ml:409
 #. src/web/server/common/pages_admin.ml:266
@@ -374,8 +374,8 @@ msgstr ""
 msgid "Create a new election"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:348
-#. src/web/server/common/site_admin.ml:219
+#: src/web/server/common/site_admin.ml:354
+#. src/web/server/common/site_admin.ml:225
 #. src/web/server/common/mails_admin.ml:56
 msgid "Create account"
 msgstr ""
@@ -614,8 +614,8 @@ msgstr ""
 #. src/web/clients/credauth/credauth.ml:36
 #. src/web/clients/trustee/generate.ml:235
 #. src/web/clients/trustee/trustee.ml:40
-#. src/web/server/common/site_admin.ml:193
-#. src/web/server/common/site_admin.ml:147
+#. src/web/server/common/site_admin.ml:199
+#. src/web/server/common/site_admin.ml:153
 msgid "Error"
 msgstr "Napaka"
 
@@ -654,6 +654,10 @@ msgstr "Napaka!"
 #: src/web/clients/admin/trustees_tab.ml:685
 #. src/web/clients/admin/trustees_tab.ml:568
 msgid "Failed to connect; please reload"
+msgstr ""
+
+#: src/web/clients/admin/common.ml:91
+msgid "Failed to sync data to server, code %d"
 msgstr ""
 
 #: src/web/clients/credop/credop.ml:255
@@ -773,7 +777,7 @@ msgstr ""
 msgid "Inconsistent state. Please refresh the page."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:178
+#: src/web/server/common/site_admin.ml:184
 msgid "Incorrect code"
 msgstr ""
 
@@ -1114,7 +1118,7 @@ msgstr ""
 msgid "Please select password authentication first"
 msgstr ""
 
-#: src/web/clients/admin/common.ml:153
+#: src/web/clients/admin/common.ml:162
 msgid "Please select the election from which you want to import data:"
 msgstr ""
 
@@ -1468,7 +1472,7 @@ msgstr ""
 msgid "The account creation "
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:350
+#: src/web/server/common/site_admin.ml:356
 msgid "The account has been created."
 msgstr ""
 
@@ -1495,7 +1499,7 @@ msgstr ""
 msgid "The election administrator"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:194
+#: src/web/server/common/site_admin.ml:200
 msgid "The election is not archived!"
 msgstr ""
 
@@ -1548,11 +1552,11 @@ msgstr ""
 msgid "The partial decryption didn't pass validation!"
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:380
+#: src/web/server/common/site_admin.ml:386
 msgid "The password has been changed."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:174
+#: src/web/server/common/site_admin.ml:180
 msgid "The provided code is incorrect. Please go back and try again."
 msgstr ""
 
@@ -1567,6 +1571,10 @@ msgstr ""
 #: src/web/clients/admin/trustees_tab.ml:343
 #. src/web/clients/admin/trustees_tab.ml:109
 msgid "The server is always one of the trustees"
+msgstr ""
+
+#: src/web/clients/admin/common.ml:100
+msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
 msgstr ""
 
 #: src/web/clients/trustee/shuffle.ml:155
@@ -1609,7 +1617,7 @@ msgstr ""
 msgid "There will be 3 steps."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:413
+#: src/web/server/common/site_admin.ml:419
 msgid "This account does not exist"
 msgstr ""
 
@@ -1617,7 +1625,7 @@ msgstr ""
 msgid "This contact will be added to e-mails sent to the voters."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:146
+#: src/web/server/common/site_admin.ml:152
 msgid "This e-mail address is invalid!"
 msgstr ""
 
@@ -1896,11 +1904,11 @@ msgstr ""
 msgid "You cannot change your e-mail address right now."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:264
+#: src/web/server/common/site_admin.ml:270
 msgid "You cannot change your password now. Please try later."
 msgstr ""
 
-#: src/web/server/common/site_admin.ml:220
+#: src/web/server/common/site_admin.ml:226
 msgid "You cannot create an account now. Please try later."
 msgstr ""
 
