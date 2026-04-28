@@ -1,5 +1,5 @@
-3.2~dev
-=======
+3.2.0 (2026-04-28)
+==================
 
  * Use belenios.net domain name for project website and contact
  * Command-line tool:
