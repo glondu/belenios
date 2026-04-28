@@ -683,7 +683,7 @@ msgstr "Échec de la connexion ; veuillez recharger"
 
 #: src/web/clients/admin/common.ml:91
 msgid "Failed to sync data to server, code %d"
-msgstr ""
+msgstr "La synchronisation avec le serveur a échoué avec le code %d"
 
 #: src/web/clients/credop/credop.ml:255
 msgid "Failure"
@@ -1658,7 +1658,7 @@ msgstr "Le serveur est toujours l'une des autorités de déchiffrement."
 
 #: src/web/clients/admin/common.ml:100
 msgid "The server is in readonly mode, you cannot perform changes. Please reload the page to discard pending changes."
-msgstr ""
+msgstr "Le serveur est en mode lecture seule, vous ne pouvez pas effectuer de changements. Veuillez recharger la page pour écarter les changements en attente."
 
 #: src/web/clients/trustee/shuffle.ml:155
 msgid "The shuffle has been successfully applied!"
