@@ -423,7 +423,7 @@ module Make (Config : CONFIG) = struct
     let* () = session#navigate_to link in
     let* () = Config.(session#set_window_rect ~width ~height ()) in
     let* () = set_private_key session private_key in
-    let* () = session#click_on ~selector:"#submit_data" in
+    let* () = session#implicit_wait in
     Lwt.return_unit
 
   let setup_registrar = function

@@ -245,33 +245,19 @@ let compute_threshold_step ~token ~url draft private_key_ref pedersen =
         Dom.removeChild container input_private_key_div;
         private_key_ref := Some private_key;
         let* data = threshold_step draft pedersen ~private_key in
-        let submit =
-          let r = Dom_html.createButton document in
-          r##.id := Js.string "submit_data";
-          r##.textContent := Js.some @@ Js.string @@ s_ "Submit data";
-          let () =
-            r##.onclick :=
-              let@ () = lwt_handler in
-              Dom.removeChild container r;
-              let* x = Api.(post url (`Trustee token) data) in
-              let msg, continue =
-                match x.code with
-                | 200 ->
-                    (s_ "Data submission succeeded!", [ div [ refresh_status ] ])
-                | _ ->
-                    ( s_
-                        "Data submission failed! Please refresh and/or restart \
-                         from the beginning.",
-                      [] )
-              in
-              let@ () = show_in container in
-              [ [ div ~a:[ a_id "success" ] [ txt msg ] ]; continue ]
-              |> List.flatten |> Lwt.return
-          in
-          r
+        let* x = Api.(post url (`Trustee token) data) in
+        let msg, continue =
+          match x.code with
+          | 200 -> (s_ "Data submission succeeded!", [ div [ refresh_status ] ])
+          | _ ->
+              ( s_
+                  "Data submission failed! Please refresh and/or restart from \
+                   the beginning.",
+                [] )
         in
-        Dom.appendChild container submit;
-        Lwt.return_unit
+        let@ () = show_in container in
+        [ [ div ~a:[ a_id "success" ] [ txt msg ] ]; continue ]
+        |> List.flatten |> Lwt.return
       in
       let input_private_key =
         match !private_key_ref with
