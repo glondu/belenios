@@ -721,7 +721,7 @@ To compute the \texttt{encrypted\_msg}:
 \item compute $\textsf{beta}=\textsf{ek}^r\times g^s$
 \item compute $\textsf{data}$ as the hexadecimal encoding of the
   (symmetric) encryption of $M$ using $\textsf{algorithm}$
-  (\texttt{AES-CCM} by default, can also be \texttt{AES-GCM}) with
+  (e.g. \texttt{AES-GCM}) with
   $\textsf{SHA256}(\texttt{key|}g^s)$ as the key and
   $\textsf{SHA256}(\texttt{iv|}g^r)$ as the initialization vector
 \end{enumerate}

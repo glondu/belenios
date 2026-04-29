@@ -37,52 +37,6 @@ module Debug = struct
   [%%endif]
 end
 
-module Sjcl = struct
-  open Js
-
-  type bits
-
-  class type codec = object
-    method fromBits : bits -> js_string t meth
-    method toBits : js_string t -> bits meth
-  end
-
-  class type codecs = object
-    method hex : codec t readonly_prop
-    method utf8String : codec t readonly_prop
-    method base64 : codec t readonly_prop
-  end
-
-  class type cipher = object
-    method encrypt : bits -> bits meth
-  end
-
-  class type ciphers = object
-    method aes : (bits -> cipher t) constr readonly_prop
-  end
-
-  class type mode = object
-    method encrypt : cipher t -> bits -> bits -> bits meth
-    method decrypt : cipher t -> bits -> bits -> bits meth
-  end
-
-  class type modes = object
-    method ccm : mode t readonly_prop
-  end
-
-  class type sjcl = object
-    method codec : codecs t readonly_prop
-    method cipher : ciphers t readonly_prop
-    method mode : modes t readonly_prop
-  end
-
-  let sjcl : sjcl t = belenios##.sjcl
-  let hex = sjcl##.codec##.hex
-  let utf8String = sjcl##.codec##.utf8String
-  let aes = sjcl##.cipher##.aes
-  let ccm = sjcl##.mode##.ccm
-end
-
 module Belenios_js_crypto = struct
   open Js
   open Typed_array
@@ -121,29 +75,6 @@ module Crypto_primitives = struct
       key:string -> iv:string -> ciphertext:string -> string option Lwt.t
   end
 
-  module AES_CCM : ENDECRYPT = struct
-    let hex_fromBits x = Sjcl.hex##fromBits x |> Js.to_string
-    let hex_toBits x = Sjcl.hex##toBits (Js.string x)
-    let utf8String_fromBits x = Sjcl.utf8String##fromBits x |> Js.to_string
-    let utf8String_toBits x = Sjcl.utf8String##toBits (Js.string x)
-
-    let encrypt ~key ~iv ~plaintext =
-      let key = hex_toBits key in
-      let iv = hex_toBits iv in
-      let plaintext = utf8String_toBits plaintext in
-      let prf = new%js Sjcl.aes key in
-      let ciphertext = Sjcl.ccm##encrypt prf plaintext iv in
-      Lwt.return @@ hex_fromBits ciphertext
-
-    let decrypt ~key ~iv ~ciphertext =
-      let key = hex_toBits key in
-      let iv = hex_toBits iv in
-      let ciphertext = hex_toBits ciphertext in
-      let prf = new%js Sjcl.aes key in
-      let plaintext = Sjcl.ccm##decrypt prf ciphertext iv in
-      Lwt.return @@ Some (utf8String_fromBits plaintext)
-  end
-
   module AES_GCM : ENDECRYPT = struct
     let encrypt ~key ~iv ~plaintext =
       let key = Hex.to_bytes (`Hex key) |> Typed_array.Bytes.to_uint8Array in
@@ -178,7 +109,6 @@ module Crypto_primitives = struct
   end
 
   let get_endecrypt = function
-    | "AES-CCM" -> (module AES_CCM : ENDECRYPT)
     | "AES-GCM" -> (module AES_GCM : ENDECRYPT)
     | x -> Printf.ksprintf failwith "unknown algorithm: %s" x
 

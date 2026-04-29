@@ -210,7 +210,7 @@ type 'a channel_msg = {
 } <ocaml field_prefix="c_">
 
 type 'a encrypted_msg = {
-  ~algorithm <ocaml default='"AES-CCM"'>: string;
+  algorithm : string;
   alpha : 'a;
   beta : 'a;
   data : string;
