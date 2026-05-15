@@ -79,5 +79,6 @@ module Make (Config : CONFIG) = struct
     in
     let* () = session#click_on_last_button in
     let* () = auth session in
+    let@ _ = session#with_single_element ~selector:".final_step_ok" () in
     Lwt.return_unit
 end

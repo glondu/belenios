@@ -191,7 +191,7 @@ module Make (Base : BASE) = struct
     let open (val l : I18n.GETTEXT) in
     let open (val election : Belenios.Election.ELECTION) in
     let name = template.t_name in
-    let result, step_title =
+    let result, step_title, final_step_class =
       match result with
       | `Ok
           ({ recipient; name; hash; revote; weight; email } :
@@ -238,18 +238,20 @@ module Make (Base : BASE) = struct
                 (if email then s_ " A confirmation e-mail has been sent to you."
                  else "");
             ],
-            s_ "Thank you for voting!" )
+            s_ "Thank you for voting!",
+            "final_step_ok" )
       | `Error e ->
           ( [
               txt (s_ " is rejected, because ");
               txt (Confirmation.explain_cast_error l e);
               txt ".";
             ],
-            s_ "FAIL!" )
+            s_ "FAIL!",
+            "final_step_fail" )
     in
     [
       progress;
-      div ~a:[ a_class [ "current_step" ] ] [ txt step_title ];
+      div ~a:[ a_class [ "current_step"; final_step_class ] ] [ txt step_title ];
       div ([ txt (s_ "Your ballot for "); em [ markup name ] ] @ result);
       snippet;
       div
