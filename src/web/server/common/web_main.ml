@@ -59,6 +59,19 @@ module Make () = struct
       | _ -> failwith "invalid <connect> configuration")
     |> List.flatten
 
+  let parse_credentials_server_attrs attrs =
+    List.iter
+      (function
+        | "multiplier", multiplier ->
+            let multiplier = float_of_string multiplier in
+            Web_config.credentials_server_multiplier := multiplier
+        | "allowed", allowed ->
+            let rex = Re.Pcre.regexp allowed in
+            Web_config.credentials_server_allowed := fun x -> Re.execp rex x
+        | a, _ ->
+            Printf.ksprintf failwith "invalid %s in <credentials-server>" a)
+      attrs
+
   let () =
     Eliom_config.get_config ()
     |>
@@ -176,9 +189,8 @@ module Make () = struct
         Lwt_main.run (Storage.init_backend backend config)
     | Element ("connect", [], config) ->
         Web_config.connect := parse_connect config
-    | Element ("credentials-server", [ ("multiplier", multiplier) ], []) ->
-        let multiplier = float_of_string multiplier in
-        Web_config.credentials_server_multiplier := multiplier
+    | Element ("credentials-server", attrs, []) ->
+        parse_credentials_server_attrs attrs
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag

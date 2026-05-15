@@ -354,6 +354,10 @@ let check_seed ~params ~seed =
 
 let process_request : credentials_request -> _ = function
   | `NewRequest r ->
+      let@ _check_belenios_url cont =
+        if !Web_config.credentials_server_allowed r.belenios_url then cont ()
+        else return_yojson 400 `Null
+      in
       let@ _check_info cont =
         if
           r.info.cred_server
