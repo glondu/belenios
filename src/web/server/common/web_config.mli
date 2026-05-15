@@ -64,4 +64,5 @@ val connect : (string * string) list ref
 val grace_period : bool ref
 val credentials_server_multiplier : float ref
 val credentials_server_allowed : (string -> bool) ref
+val credentials_client_allowed : (string -> bool) ref
 val readonly_token_hash : string option ref

@@ -961,6 +961,10 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
   in
   Lwt.catch
     (fun () ->
+      let@ _check_cred_server cont =
+        if !Web_config.credentials_client_allowed info.cred_server then cont ()
+        else failwith "cred_server not allowed"
+      in
       let* x, body =
         Cohttp_lwt_unix.Client.post ~body (Uri.of_string info.cred_server)
       in

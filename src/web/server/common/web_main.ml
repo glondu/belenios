@@ -72,6 +72,16 @@ module Make () = struct
             Printf.ksprintf failwith "invalid %s in <credentials-server>" a)
       attrs
 
+  let parse_credentials_client_attrs attrs =
+    List.iter
+      (function
+        | "allowed", allowed ->
+            let rex = Re.Pcre.regexp allowed in
+            Web_config.credentials_client_allowed := fun x -> Re.execp rex x
+        | a, _ ->
+            Printf.ksprintf failwith "invalid %s in <credentials-client>" a)
+      attrs
+
   let () =
     Eliom_config.get_config ()
     |>
@@ -191,6 +201,8 @@ module Make () = struct
         Web_config.connect := parse_connect config
     | Element ("credentials-server", attrs, []) ->
         parse_credentials_server_attrs attrs
+    | Element ("credentials-client", attrs, []) ->
+        parse_credentials_client_attrs attrs
     | Element (tag, _, _) ->
         Printf.ksprintf failwith "invalid configuration for tag %s in belenios"
           tag

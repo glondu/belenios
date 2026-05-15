@@ -105,6 +105,7 @@
         <warning file="_VARDIR_/warning.html"/>
         <footer file="_VARDIR_/footer.html"/>
         <credentials-server allowed="^http://127\\.0\\.0\\.1:8001/$"/>
+        <credentials-client allowed="^http://127\\.0\\.0\\.1:8001/"/>
         <!-- <deny-newelection/> -->
         <!--
             Uncomment the following line to disable revoting. Note that
