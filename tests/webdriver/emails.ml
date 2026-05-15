@@ -49,26 +49,24 @@ let parse ic =
   in
   loop "" SMap.empty
 
-let extract ~prefix emails voter =
-  let nprefix = String.length prefix in
+let extract ~rex emails voter =
   SMap.find voter emails
   |> List.find_map (fun email ->
       List.find_map
         (fun line ->
-          let n = String.length line in
-          if String.starts_with ~prefix line then
-            Some (String.sub line nprefix (n - nprefix))
-          else None)
+          match Re.exec rex line with
+          | exception Not_found -> None
+          | g -> Some (Re.Group.get g 1))
         email)
 
-let extract_password = extract ~prefix:"Password: "
-let extract_credential = extract ~prefix:"Your credential: "
-let extract_code = extract ~prefix:"  "
+let extract_password = extract ~rex:(Re.Pcre.regexp "^Password: (.+)$")
+let extract_credential = extract ~rex:(Re.Pcre.regexp "^Your credential: (.+)$")
+let extract_code = extract ~rex:(Re.Pcre.regexp "^  (\\d+)$")
 
 let extract_credop x v =
-  let server = extract ~prefix:"Election server: " x v in
-  let uuid = extract ~prefix:"Election identifier: " x v in
-  let key = extract ~prefix:"Secret key: " x v in
+  let server = extract ~rex:(Re.Pcre.regexp "^Election server: (.+)$") x v in
+  let uuid = extract ~rex:(Re.Pcre.regexp "^Election identifier: (.+)$") x v in
+  let key = extract ~rex:(Re.Pcre.regexp "^Secret key: (.+)$") x v in
   match (server, uuid, key) with
   | Some server, Some uuid, Some key -> Some (server, uuid, key)
   | _ -> None
