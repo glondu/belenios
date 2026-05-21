@@ -2,30 +2,34 @@
     display: flex;
     flex-direction: row;
     background-color: var(--footer-background);
-    color: white;
+    color: var(--font-light);
     justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .nav-menu__item, .nav-menu__item-blank {
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-left-style: solid;
-    border-right-style: solid;
-    border-top-style: solid;
-    border-width: 2px;
+    padding: 8px 14px;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: none;
+    transition: background-color 0.15s ease;
 }
 
 .nav-menu__item:hover {
-    background-color: #aaa;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .nav-menu__item-blank {
     flex-grow: 1;
+    border-left: none;
+    border-right: none;
 }
 
 #avatar {
     height: 1.8ex;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 4px;
 }
 
 #nav_username {
@@ -35,5 +39,5 @@
 
 .nav-menu__item a {
     text-decoration: none;
-    color: white;
+    color: var(--font-light);
 }
