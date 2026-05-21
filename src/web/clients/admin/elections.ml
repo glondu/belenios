@@ -960,6 +960,7 @@ let voters_content () =
                             max_voters);
                      ];
                    div
+                     ~a:[ a_class [ "textarea-with-tooltip" ] ]
                      [
                        tt;
                        div
@@ -1122,7 +1123,9 @@ let dates_content () =
       r##.value := Js.string "";
       sync ()
     in
-    div [ label; inp; btn_template; btn_erase ]
+    div
+      ~a:[ a_class [ "auto-date-row" ] ]
+      [ label; inp; btn_template; btn_erase ]
   in
   let datetime_local dt =
     {
