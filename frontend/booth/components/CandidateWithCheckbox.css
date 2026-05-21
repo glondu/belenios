@@ -2,13 +2,14 @@
 
 .candidate-with-checkbox {
   background-color: var(--candidate-background);
-  border-radius: 7px;
+  border-radius: var(--radius-md);
   height: 55px;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: stretch;
   width: 100%;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .candidate-with-checkbox--with-alert {
@@ -17,6 +18,7 @@
 
 .candidate-with-checkbox:hover {
   background-color: var(--candidate-background-hover);
+  box-shadow: var(--box-shadow);
 }
 
 .candidate-with-checkbox label {
@@ -24,7 +26,8 @@
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  border-radius: 7px;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease;
 }
 
 /* Customize appearance of checkboxes (by hiding it and replacing its UI with a span.checkbox-appearance) */

@@ -45,17 +45,22 @@
   position: relative;
   z-index: 2;
   margin: auto;
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
   border-radius: 100px;
   background-color: var(--background-light);
   border: 2px solid var(--progress-inactive);
   margin-bottom: 8px;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.progress__step--current .progress__step__dot {
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
 }
 .line-left::before {
   content: "";
   position: absolute;
-  top: 5px;
+  top: 7px;
   right: 50%;
   left: 0;
   transform: translateY(-50%);
@@ -66,7 +71,7 @@
 .line-right::after {
   content: "";
   position: absolute;
-  top: 5px;
+  top: 7px;
   left: 50%;
   right: 0;
   transform: translateY(-50%);
