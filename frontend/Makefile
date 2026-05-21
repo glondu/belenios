@@ -40,10 +40,10 @@ booth/bundle.js: booth/dist/$(BUNDLE)
 	cp $< $@
 
 site.bundle.css: package-lock.json $(CSS_DEPS)
-	NODE_PATH=$(CURDIR)/node_modules nodejs ./bundle-css.js ../src/web/static/responsive_site.css > $@
+	NODE_PATH=$(CURDIR)/node_modules node ./bundle-css.js ../src/web/static/responsive_site.css > $@
 
 booth/app.bundle.css: package-lock.json $(CSS_DEPS)
-	NODE_PATH=$(CURDIR)/node_modules nodejs ./bundle-css.js booth/app.css > $@
+	NODE_PATH=$(CURDIR)/node_modules node ./bundle-css.js booth/app.css > $@
 
 package-lock.json: package.json
 ifeq "$(BELENIOS_NPM_OFFLINE_CACHE)" ""
