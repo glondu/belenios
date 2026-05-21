@@ -1283,13 +1283,16 @@ let language_content () =
 
 let contact_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let contact = Option.value ~default:"" draft.draft_contact in
   let inp, _ =
     let onchange r =
       let newc = Js.to_string r##.value in
+      let@ () = Lwt.async in
+      let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
       Cache.set Cache.draft
-        (Draft (v, { draft with draft_contact = Some newc }))
+        (Draft (v, { draft with draft_contact = Some newc }));
+      Lwt.return_unit
     in
     input ~a:[ a_id "inpcont" ] ~onchange ~value:contact ()
   in
@@ -1299,6 +1302,8 @@ let contact_content () =
   let inpA, _ =
     let onchange r =
       let newA = Js.to_string r##.value in
+      let@ () = Lwt.async in
+      let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
       Cache.set Cache.draft
         (Draft
            ( v,
@@ -1306,7 +1311,8 @@ let contact_content () =
                draft with
                draft_questions =
                  { draft.draft_questions with t_administrator = Some newA };
-             } ))
+             } ));
+      Lwt.return_unit
     in
     input ~a:[ a_id "admincont" ] ~onchange ~value:admin ()
   in
