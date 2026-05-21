@@ -7,6 +7,13 @@ ul {
 #wrapper {
     min-height: 0px;
     font-size: 16px;
+    background: var(--header-background);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--page-shadow);
+}
+#main {
+    border-radius: var(--radius-lg);
 }
 #header {
     color: #ffffff;
@@ -25,18 +32,22 @@ button {
     text-align: center;
     font-size: 28px;
     padding-bottom: 28px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--font-dark);
 }
 .hybrid_box {
-    border-style: solid;
-    border-width: 1px;
-    background: #E5E5E5;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-subtle);
+    border-radius: var(--radius-md);
     margin-top: 2em;
     margin-bottom: 2em;
     margin-left: 10%;
     margin-right: 10%;
-    font-size: 80%;
-    padding: 3px;
-    line-height: 2.2ex;
+    font-size: 85%;
+    padding: 12px 16px;
+    line-height: 1.55;
+    box-shadow: var(--box-shadow);
 }
 .nh_explain {
     font-size: 90%;
@@ -44,7 +55,10 @@ button {
     font-style: italic;
 }
 .counting_method_specification {
-    border: 1px groove;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    background: var(--surface-subtle);
     margin-bottom: 2ex;
 }
 .result_question_item {
@@ -68,13 +82,19 @@ button {
 }
 .majority_judgment_result {
     margin: 1em;
-    border: 1px solid;
-    padding: 1em;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1em 1.2em;
+    background: var(--surface-subtle);
+    box-shadow: var(--box-shadow);
 }
 .schulze_result {
     margin: 1em;
-    border: 1px solid;
-    padding: 1em;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1em 1.2em;
+    background: var(--surface-subtle);
+    box-shadow: var(--box-shadow);
 }
 .schulze_result ol {
     margin-bottom: 1em;
@@ -100,20 +120,24 @@ button {
 
 /* table in election home */
 .home-audit {
-    background: #F5F5F5;
-    padding: 1em;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border-subtle);
+    padding: 1.2em 1.4em;
     margin-top: 2em;
     margin-bottom: 2em;
     margin-left: 10%;
     margin-right: 10%;
-    font-size: 80%;
-    line-height: 2.2ex;
-    border-radius: 8px;
+    font-size: 85%;
+    line-height: 1.55;
+    border-radius: var(--radius-md);
     box-shadow: var(--box-shadow);
 }
 .home-audit__title {
-    font-size: 20px;
-    margin-bottom: .5em;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: .6em;
+    letter-spacing: -0.01em;
+    color: var(--font-dark);
 }
 .home-audit table {
     border-top: none;
@@ -121,10 +145,10 @@ button {
 }
 .home-audit td {
     border-bottom: none;
-    padding: 4px;
+    padding: 6px 4px;
 }
 .home-audit tr:hover {
-    background-color: #E0E0E0;
+    background-color: var(--accent-soft);
 }
 .home-audit ul {
     padding-left: 1.2em;
