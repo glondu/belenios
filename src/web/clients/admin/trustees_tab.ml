@@ -128,11 +128,11 @@ let recompute_main_zone_1 () =
     let lab1 =
       label ~a:[ a_label_for "inp1" ] [ txt @@ s_ "Trustee's e-mail " ]
     in
-    let inp1, inp1_get = input ~a:[ a_id "inp1" ] () in
+    let inp1, inp1_get = input ~a:[ a_id "inp1" ] `Text in
     let lab2 =
       label ~a:[ a_label_for "inp2" ] [ txt @@ s_ "Trustee's public name " ]
     in
-    let inp2, inp2_get = input ~a:[ a_id "inp2" ] () in
+    let inp2, inp2_get = input ~a:[ a_id "inp2" ] `Text in
     let cancel_but =
       button (s_ "Cancel") (fun () ->
           let* () =
@@ -195,9 +195,7 @@ let recompute_main_zone_1 () =
   in
   let thresh =
     let with_thr = !mode <> `Basic in
-    let attr =
-      [ a_id "thresh"; a_class [ "clickable" ]; a_input_type `Checkbox ]
-    in
+    let attr = [ a_id "thresh"; a_class [ "clickable" ] ] in
     let attr = if with_thr then a_checked () :: attr else attr in
     let inp, _ =
       let onchange r =
@@ -224,7 +222,7 @@ let recompute_main_zone_1 () =
               Lwt.return_unit)
         else r##.checked := Js.bool with_thr
       in
-      input ~a:attr ~onchange ()
+      input ~a:attr ~onchange `Checkbox
     in
     let lab =
       label ~a:[ a_label_for "thresh" ] [ txt @@ s_ "Threshold mode" ]
@@ -233,7 +231,6 @@ let recompute_main_zone_1 () =
       let nth = List.length !all_trustee in
       let attr =
         [
-          a_input_type `Number;
           a_input_max (`Number (nth - 1));
           a_input_min (`Number 0);
           a_id "thresh_val";
@@ -253,7 +250,7 @@ let recompute_main_zone_1 () =
               alert "Error";
               Lwt.return_unit
         in
-        input ~a:attr ~onchange ~value:(string_of_int v) ()
+        input ~a:attr ~onchange ~value:(string_of_int v) `Number
       in
       let lab_thval =
         label

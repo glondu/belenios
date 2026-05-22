@@ -322,14 +322,14 @@ let q_to_html_inner ind q =
       let@ () = Lwt.async in
       !update_question !curr_doing
     in
-    input ~a:attr ~onchange ~value:q.question ()
+    input ~a:attr ~onchange ~value:q.question `Text
   in
   (* type of question, select, sort, grade or lists *)
   let rad_name = "type" ^ string_of_int ind in
   let mk_qtype i kind l =
     let id = Printf.sprintf "%s_%d" rad_name i in
     let inp_rad, _ =
-      let attr = [ a_name rad_name; a_id id; a_input_type `Radio ] in
+      let attr = [ a_name rad_name; a_id id ] in
       let attr = if q.kind = kind then a_checked () :: attr else attr in
       let attr =
         if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
@@ -346,7 +346,7 @@ let q_to_html_inner ind q =
         let@ () = Lwt.async in
         !update_question !curr_doing
       in
-      input ~a:attr ~onchange ()
+      input ~a:attr ~onchange `Radio
     in
     div [ inp_rad; label ~a:[ a_label_for id ] [ txt l ] ]
   in
@@ -360,7 +360,6 @@ let q_to_html_inner ind q =
     | `Select ->
         let attr =
           [
-            a_input_type `Number;
             a_input_max (`Number (Array.length q.answers));
             a_input_min (`Number 0);
           ]
@@ -377,7 +376,7 @@ let q_to_html_inner ind q =
           in
           input ~a:attr1 ~onchange
             ~value:(string_of_int !all_gen_quest.(ind - 1).sel_min)
-            ()
+            `Number
         in
         let inp_selM, _ =
           let attr2 = a_id ("selM" ^ string_of_int ind) :: attr in
@@ -390,7 +389,7 @@ let q_to_html_inner ind q =
           in
           input ~a:attr2 ~onchange
             ~value:(string_of_int !all_gen_quest.(ind - 1).sel_max)
-            ()
+            `Number
         in
         Lwt.return
         @@ div
@@ -425,7 +424,6 @@ let q_to_html_inner ind q =
         let inp_seats, _ =
           let attr =
             [
-              a_input_type `Number;
               a_id ("seats" ^ string_of_int ind);
               a_input_min (`Number 1);
               a_input_max (`Number (Array.length q.answers));
@@ -441,7 +439,7 @@ let q_to_html_inner ind q =
           in
           input ~a:attr ~onchange
             ~value:(string_of_int !all_gen_quest.(ind - 1).seats)
-            ()
+            `Number
         in
         let div_seats =
           div
@@ -459,9 +457,7 @@ let q_to_html_inner ind q =
         in
         let rad_name = "sort" ^ string_of_int ind in
         let inp_sort_rad1, _ =
-          let attr =
-            [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_1") ]
-          in
+          let attr = [ a_name rad_name; a_id (rad_name ^ "_1") ] in
           let attr =
             if q.count_meth = `Schulze then a_checked () :: attr else attr
           in
@@ -477,12 +473,10 @@ let q_to_html_inner ind q =
             let@ () = Lwt.async in
             update_count_meth count_meth
           in
-          input ~a:attr ~onchange ()
+          input ~a:attr ~onchange `Radio
         in
         let inp_sort_rad2, _ =
-          let attr =
-            [ a_input_type `Radio; a_name rad_name; a_id (rad_name ^ "_2") ]
-          in
+          let attr = [ a_name rad_name; a_id (rad_name ^ "_2") ] in
           let attr =
             if q.count_meth = `STV then a_checked () :: attr else attr
           in
@@ -498,7 +492,7 @@ let q_to_html_inner ind q =
             let@ () = Lwt.async in
             update_count_meth count_meth
           in
-          input ~a:attr ~onchange ()
+          input ~a:attr ~onchange `Radio
         in
         Lwt.return
         @@ div
@@ -544,7 +538,7 @@ let q_to_html_inner ind q =
                     [
                       a_id ("ment" ^ string_of_int ind ^ "_" ^ string_of_int i);
                     ]
-                  ~onchange ~value:z ()
+                  ~onchange ~value:z `Text
               in
               let* dd =
                 delete_or_insert "grade"
@@ -614,7 +608,7 @@ let q_to_html_inner ind q =
   in
   (* blank choice *)
   let inp, _ =
-    let attr = [ a_id ("blank" ^ string_of_int ind); a_input_type `Checkbox ] in
+    let attr = [ a_id ("blank" ^ string_of_int ind) ] in
     let attr = if q.blank then a_checked () :: attr else attr in
     let attr =
       if ro then a_disabled () :: attr else a_class [ "clickable" ] :: attr
@@ -625,7 +619,7 @@ let q_to_html_inner ind q =
       let@ () = Lwt.async in
       !update_question !curr_doing
     in
-    input ~a:attr ~onchange ()
+    input ~a:attr ~onchange `Checkbox
   in
   let bk =
     div
@@ -662,7 +656,7 @@ let q_to_html_inner ind q =
                       let@ () = Lwt.async in
                       !update_question !curr_doing
                     in
-                    input ~onchange ~value:z ()
+                    input ~onchange ~value:z `Text
                   in
                   let* dd =
                     delete_or_insert "list"
@@ -729,7 +723,7 @@ let q_to_html_inner ind q =
                       let@ () = Lwt.async in
                       !update_question !curr_doing
                     in
-                    input ~value:z ~onchange ()
+                    input ~value:z ~onchange `Text
                   in
                   let* dd =
                     delete_or_insert "candidate"
@@ -834,7 +828,7 @@ let q_to_html_inner ind q =
                 input
                   ~a:
                     [ a_id ("ans" ^ string_of_int ind ^ "_" ^ string_of_int i) ]
-                  ~onchange ~value:z ()
+                  ~onchange ~value:z `Text
               in
               let* dd =
                 delete_or_insert "answer"

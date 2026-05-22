@@ -211,8 +211,9 @@ let show_in container f =
   List.iter (Dom.appendChild container) content;
   Lwt.return_unit
 
-let input ?a ?onchange ?value () =
-  let elt = Tyxml_js.Html.input ?a () in
+let input ?a ?onchange ?value input_type =
+  let a = Tyxml_js.Html.a_input_type input_type :: Option.value ~default:[] a in
+  let elt = Tyxml_js.Html.input ~a () in
   let r = Tyxml_js.To_dom.of_input elt in
   Option.iter (fun x -> r##.value := Js.string x) value;
   Option.iter

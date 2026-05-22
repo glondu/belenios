@@ -47,7 +47,7 @@ let rec update_main_zone () =
             in
             update_main ()
           in
-          input ~a:[ a_id "inpname" ] ~onchange ~value:acc.name ()
+          input ~a:[ a_id "inpname" ] ~onchange ~value:acc.name `Text
         in
         inp
       in

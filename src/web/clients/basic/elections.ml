@@ -86,7 +86,7 @@ let rec show main uuid =
     let@ dates, ifmatch = with_ok "automatic-dates" x in
     let make_input k d =
       let value = Option.map k.of_float d in
-      input ?value ()
+      input ?value `Text
     in
     let auto_open = make_input date_kind dates.auto_date_open in
     let auto_close = make_input date_kind dates.auto_date_close in
@@ -116,7 +116,7 @@ let rec show main uuid =
       ]
   in
   let regenpwd =
-    let i, iget = input () in
+    let i, iget = input `Text in
     let set_button =
       let@ () = button "Regenerate a password" in
       let request = `RegeneratePassword (iget ()) in
@@ -139,7 +139,7 @@ let rec show main uuid =
   in
   let* shuffles = make "shuffles" (Api.election_shuffles uuid) in
   let shuffle =
-    let i, iget = input () in
+    let i, iget = input `Text in
     let make label request =
       let@ () = button label in
       let* x = Api.(post (election_shuffle uuid (iget ())) !user request) in

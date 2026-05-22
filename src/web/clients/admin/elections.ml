@@ -884,7 +884,7 @@ let voters_content () =
             Lwt.return_unit)
   in
   let upload_input, _get_filename =
-    input ~a:[ a_input_type `File; a_name "fileupload"; a_id "fileupload" ] ()
+    input ~a:[ a_name "fileupload"; a_id "fileupload" ] `File
   in
   let upload_button =
     button (s_ "Upload voter file") (fun () ->
@@ -1090,8 +1090,8 @@ let dates_content () =
   let* is_openable = is_openable () in
   let* dates = Cache.get_until_success Cache.e_dates in
   let make_div l id k get set =
-    let attr = [ a_id id; a_input_type k.input_type ] in
-    let inp, inp_get = input ~a:attr () in
+    let attr = [ a_id id ] in
+    let inp, inp_get = input ~a:attr k.input_type in
     let r = Tyxml_js.To_dom.of_input inp in
     let () =
       match get dates with
@@ -1243,7 +1243,7 @@ let language_content () =
           (Draft (v, { draft with draft_languages = newlist }))
       else alert @@ s_ "Some language in the list is not available"
     in
-    input ~a:[ a_id "inplang" ] ~onchange ~value:strlang ()
+    input ~a:[ a_id "inplang" ] ~onchange ~value:strlang `Text
   in
   let avail_lang =
     config.languages
@@ -1294,7 +1294,7 @@ let contact_content () =
         (Draft (v, { draft with draft_contact = Some newc }));
       Lwt.return_unit
     in
-    input ~a:[ a_id "inpcont" ] ~onchange ~value:contact ()
+    input ~a:[ a_id "inpcont" ] ~onchange ~value:contact `Text
   in
   (* The default set by the server is the name of the administrator;
    * no need to do it on our side. In case this changes, we default to "" *)
@@ -1314,7 +1314,7 @@ let contact_content () =
              } ));
       Lwt.return_unit
     in
-    input ~a:[ a_id "admincont" ] ~onchange ~value:admin ()
+    input ~a:[ a_id "admincont" ] ~onchange ~value:admin `Text
   in
   Lwt.return
     [
@@ -1383,15 +1383,10 @@ let credauth_changeable_content uuid draft currsel =
         refresh ();
         Lwt.return_unit
       in
-      [
-        a_id "rad_serv";
-        a_name "rad_credauth";
-        a_input_type `Radio;
-        a_onclick_lwt onclick;
-      ]
+      [ a_id "rad_serv"; a_name "rad_credauth"; a_onclick_lwt onclick ]
     in
     let attr = if !currsel = `Server then a_checked () :: attr else attr in
-    let rad_serv, _ = input ~a:attr () in
+    let rad_serv, _ = input ~a:attr `Radio in
     let lab_serv =
       label
         ~a:[ a_label_for "rad_serv" ]
@@ -1442,15 +1437,10 @@ let credauth_changeable_content uuid draft currsel =
         refresh ();
         Lwt.return_unit
       in
-      [
-        a_id "rad_ext";
-        a_name "rad_credauth";
-        a_input_type `Radio;
-        a_onclick_lwt onclick;
-      ]
+      [ a_id "rad_ext"; a_name "rad_credauth"; a_onclick_lwt onclick ]
     in
     let attr = if !currsel = `Extern then a_checked () :: attr else attr in
-    let rad_ext, _ = input ~a:attr () in
+    let rad_ext, _ = input ~a:attr `Radio in
     let lab_ext =
       label
         ~a:[ a_label_for "rad_ext" ]
@@ -1503,9 +1493,7 @@ let credauth_changeable_content uuid draft currsel =
       update_print_link ()
     in
     let* extern_server_div =
-      let inp, _ =
-        input ~a:[ a_id "extern_server_chk"; a_input_type `Checkbox ] ()
-      in
+      let inp, _ = input ~a:[ a_id "extern_server_chk" ] `Checkbox in
       let inp_dom = Tyxml_js.To_dom.of_input inp in
       let lab =
         label
@@ -1519,7 +1507,7 @@ let credauth_changeable_content uuid draft currsel =
               a_id "extern_server_server";
               a_placeholder @@ s_ "Credential server";
             ]
-          ()
+          `Text
       in
       let inp_operator, get_operator =
         input
@@ -1528,7 +1516,7 @@ let credauth_changeable_content uuid draft currsel =
               a_id "extern_server_operator";
               a_placeholder @@ s_ "Credential operator";
             ]
-          ()
+          `Text
       in
       let btn_set =
         let@ () =
@@ -1601,7 +1589,7 @@ let credauth_changeable_content uuid draft currsel =
               a_id "cred_auth_name_inp";
               a_placeholder @@ s_ "Name of the credential authority";
             ]
-          ~onchange ~value ()
+          ~onchange ~value `Text
       in
       get_credauth_name := get_ext;
       let* () = update_credauth_name ~submit:false () in
@@ -1737,11 +1725,11 @@ let voterspwd_content_draft () =
     | Ok c ->
         let rad i sel text () =
           let id = "auth" ^ string_of_int i in
-          let attr = [ a_name "auth"; a_id id; a_input_type `Radio ] in
+          let attr = [ a_name "auth"; a_id id ] in
           let attr =
             if (not first_visit) && sel then a_checked () :: attr else attr
           in
-          let inp, _ = input ~a:attr () in
+          let inp, _ = input ~a:attr `Radio in
           let lab = label ~a:[ a_label_for id ] [ txt text ] in
           (inp, lab)
         in
@@ -1811,7 +1799,7 @@ let voterspwd_content_draft () =
                   let inp2, get2 =
                     input
                       ~a:[ a_placeholder "https://cas.example.com/cas" ]
-                      ~value:casname ()
+                      ~value:casname `Text
                   in
                   let get () = `CAS (get2 ()) in
                   set_onchange inp get;
@@ -1884,7 +1872,7 @@ let voterspwd_content_draft () =
 
 let voterspwd_content_running () =
   let open (val !Belenios_js.I18n.gettext) in
-  let username, get_username = input () in
+  let username, get_username = input `Text in
   let submit =
     let@ () = button @@ s_ "Submit" in
     let uuid = get_current_uuid () in
