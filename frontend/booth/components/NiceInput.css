@@ -15,7 +15,7 @@ input[type="month"],
 input[type="week"],
 select {
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-input);
   padding: 9px 12px;
   background: var(--background-light);
   color: var(--font-dark);
@@ -51,7 +51,7 @@ input[type="datetime-local"]:hover,
 input[type="month"]:hover,
 input[type="week"]:hover,
 select:hover {
-  border-color: #cbd5e1;
+  border-color: var(--border-input-hover);
 }
 
 .nice-password-input:focus,
@@ -162,7 +162,7 @@ input[type="week"]:focus::-webkit-calendar-picker-indicator {
    built-in selector button to match the .nice-button family. */
 input[type="file"] {
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-subtle);
+  border: 1px dashed var(--border-input);
   padding: 6px 10px;
   background: var(--surface-subtle);
   color: var(--font-dark);

@@ -12,7 +12,7 @@ input[type="reset"]:not(.nice-button) {
   line-height: 1.4;
   color: var(--font-dark);
   background: var(--background-light);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-input);
   border-radius: var(--radius-md);
   padding: 7px 14px;
   box-shadow: var(--button-shadow);
@@ -59,6 +59,7 @@ input[type="reset"]:not(.nice-button)[disabled] {
   opacity: 0.55;
   cursor: not-allowed;
   background: var(--surface-subtle);
+  border-color: var(--border-subtle);
   color: var(--font-muted);
   box-shadow: none;
   transform: none;
