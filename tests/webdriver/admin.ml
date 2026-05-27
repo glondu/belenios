@@ -435,8 +435,10 @@ module Make (Config : CONFIG) = struct
         let* () = session#navigate_to link in
         let* () = Config.(session#set_window_rect ~width ~height ()) in
         let* () = close_cookie_disclaimer_if_needed session in
+        let* () = session#scrollIntoView "generate" in
         let* () = session#click_on ~selector:"#generate" in
         let* creds =
+          let* () = session#scrollIntoView "creds" in
           let* x = session#get_elements ~selector:"#creds" in
           match x with
           | [ x ] -> (
@@ -451,6 +453,7 @@ module Make (Config : CONFIG) = struct
               | _ -> assert false)
           | _ -> assert false
         in
+        let* () = session#scrollIntoView "submit" in
         let* () = session#click_on ~selector:"#submit" in
         Lwt.return_some @@ Creds creds
     | Some (`Credop (server, uuid, key)) ->
