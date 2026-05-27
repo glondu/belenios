@@ -1,19 +1,22 @@
 .page-footer {
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   background: var(--footer-background);
   color: var(--footer-font);
   text-align: center;
-  padding: 5px 2px;
+  padding: 12px 16px;
   line-height: 1.5em;
   font-size: 12px;
   min-height: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .page-footer a {
   color: var(--footer-link-font);
   text-decoration: none;
+  transition: opacity 0.15s ease;
 }
 
 .page-footer a:hover {
   text-decoration: underline;
+  opacity: 0.85;
 }

@@ -24,55 +24,69 @@
 }
 
 :root {
-  /* most colors come from https://materialui.co/colors/ */
-  --font-light: #fafafa;
-  --font-dark: #212121;
-  --alert-text: #bf360c;
+  --font-light: #f8fafc;
+  --font-dark: #0f172a;
+  --font-muted: #64748b;
+  --alert-text: #c2410c;
 
-  --background-light: #fafafa;
-  --body-background: #e5e4e2;
+  --background-light: #ffffff;
+  --body-background: #eef2f7;
+  --surface-subtle: #f8fafc;
+  --border-subtle: #e2e8f0;
+  --border-input: #94a3b8;
+  --border-input-hover: #64748b;
 
-  --box-blue: #e3f2fd;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-active: #3730a3;
+  --accent-soft: #eef2ff;
+
+  --box-blue: #eef2ff;
 
   --header-font: var(--font-light);
-  --header-background: #363636;
-  --footer-font: #9e9e9e;
-  --footer-link-font: #f5f5f5;
-  --footer-background: #363636;
+  --header-background: linear-gradient(135deg, #1e293b 0%, #312e81 100%);
+  --header-background-solid: #1e293b;
+  --footer-font: #cbd5e1;
+  --footer-link-font: #ffffff;
+  --footer-background: #0f172a;
 
-  --progress-active: #363636;
-  --progress-inactive: #757575;
+  --progress-active: var(--accent);
+  --progress-inactive: #cbd5e1;
 
-  --vote-nav-background: #757575;
+  --vote-nav-background: #475569;
   --review-ballot-background: var(--box-blue);
 
-  --button-default: #bdbdbd;
-  --button-default-hover: #9e9e9e;
-  --button-default-active: #757575;
-  --button-white: #fafafa;
-  --button-white-hover: #f5f5f5;
-  --button-white-active: #eeeeee;
-  --button-blue: #1976d2;
-  --button-blue-hover: #1565c0;
-  --button-blue-active: #0d47a1;
-  --button-grey: #757575;
-  --button-grey-hover: #616161;
-  --button-grey-active: #424242;
+  --button-default: #e2e8f0;
+  --button-default-hover: #cbd5e1;
+  --button-default-active: #94a3b8;
+  --button-white: #ffffff;
+  --button-white-hover: #f1f5f9;
+  --button-white-active: #e2e8f0;
+  --button-blue: var(--accent);
+  --button-blue-hover: var(--accent-hover);
+  --button-blue-active: var(--accent-active);
+  --button-grey: #475569;
+  --button-grey-hover: #334155;
+  --button-grey-active: #1e293b;
 
-  --candidate-background: #eeeeee;
-  --candidate-background-hover: #e0e0e0;
-  --candidate-background-checked: #bbdefb;
-  --candidate-background-checked-hover: #90caf9;
-  --candidate-checkbox-background: #fafafa;
-  --candidate-checkbox-border: #bdbdbd;
-  --candidate-checkbox-checked: #1976d2;
+  --candidate-background: #f1f5f9;
+  --candidate-background-hover: #e2e8f0;
+  --candidate-background-checked: #e0e7ff;
+  --candidate-background-checked-hover: #c7d2fe;
+  --candidate-checkbox-background: #ffffff;
+  --candidate-checkbox-border: #cbd5e1;
+  --candidate-checkbox-checked: var(--accent);
 
-  --page-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-  --box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
-    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-  --button-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2),
-    0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
-  --button-shadow-hover: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
-    0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+  --page-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.10),
+    0 8px 10px -6px rgba(15, 23, 42, 0.06);
+  --box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05),
+    0 4px 12px -4px rgba(15, 23, 42, 0.08);
+  --button-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.08);
+  --button-shadow-hover: 0 4px 12px -2px rgba(79, 70, 229, 0.25),
+    0 2px 6px -1px rgba(15, 23, 42, 0.12);
+
+  --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.25);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 }
