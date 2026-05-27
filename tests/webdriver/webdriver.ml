@@ -316,6 +316,19 @@ class helpers session =
           let* () = self#click x in
           self#implicit_wait
       | [] -> Lwt.fail @@ Failure "no buttons"
+
+    method scrollIntoView id =
+      let script =
+        {|const target = document.getElementById(arguments[0]);
+if (!target) return false;
+target.scrollIntoView();
+return true;|}
+      in
+      let args = [ `String id ] in
+      let* x = self#execute ~script ~args in
+      match x with
+      | Some (`Bool true) -> Lwt.return_unit
+      | _ -> Printf.ksprintf failwith "could not scroll #%s into view" id
   end
 
 let with_session ?(implicit_timeout = 500) ~headless ~url () f =

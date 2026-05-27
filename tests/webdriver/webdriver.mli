@@ -57,6 +57,7 @@ class helpers : session -> object
   method fill_with : selector:string -> string -> unit Lwt.t
   method click_on : selector:string -> unit Lwt.t
   method click_on_last_button : unit Lwt.t
+  method scrollIntoView : string -> unit Lwt.t
 end
 
 val with_session :
