@@ -101,6 +101,7 @@ module Make () = struct
   let source_code =
     create ~path:(Path [ "belenios.tar.gz" ]) ~meth:(Get unit) ()
 
+  let extra_css = create ~path:(Path [ "extra.css" ]) ~meth:(Get unit) ()
   let logo = create ~path:(Path [ "LOGO" ]) ~meth:(Get unit) ()
   let favicon = create ~path:(Path [ "favicon.ico" ]) ~meth:(Get unit) ()
   let sealing = create ~path:(Path [ "SEALING" ]) ~meth:(Get unit) ()

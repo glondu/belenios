@@ -8,6 +8,7 @@
     "/static/locales/admin/*.json"         : null,
     "/static/locales/voter/*.json"         : null,
     "/LOGO"                                : null,
+    "/extra.css"                           : null,
     "/static/placeholder.png"              : null,
     "/static/css/site.bundle.css"          : null,
     "/static/tool_js.js"                   : null,

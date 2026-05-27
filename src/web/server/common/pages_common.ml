@@ -57,6 +57,10 @@ struct
     make_absolute_string_uri ~service ("static" :: x, Version.build)
     |> Eliom_content.Xml.uri_of_string
 
+  let root x =
+    let service = Eliom_service.static_dir () in
+    make_absolute_string_uri ~service x |> Eliom_content.Xml.uri_of_string
+
   let get_preferred_gettext ?lang () =
     Web_i18n.get_preferred_gettext ?lang "voter"
 
@@ -134,6 +138,7 @@ struct
       :: link ~rel:[ `Stylesheet ]
            ~href:(static [ "css"; "site.bundle.css" ])
            ()
+      :: link ~rel:[ `Stylesheet ] ~href:(root [ "extra.css" ]) ()
       :: head_content
     in
     Lwt.return

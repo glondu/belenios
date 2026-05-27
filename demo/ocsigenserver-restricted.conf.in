@@ -72,6 +72,7 @@
         <auth-export name="email"><email/></auth-export> <!-- DEMO -->
         <auth name="local"><password db="local_passwords"/></auth> <!-- DEMO -->
         <source file="_SHAREDIR_/belenios.tar.gz"/>
+        <extra-css file="_VARDIR_/extra.css"/>
         <logo file="_SHAREDIR_/static/placeholder.png" mime-type="image/png"/>
         <favicon file="_VARDIR_/favicon.ico" mime-type="image/png"/>
         <sealing file="demo/sealing.txt" mime-type="text/plain"/>

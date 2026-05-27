@@ -102,6 +102,8 @@ module Make () = struct
     | Element ("maxrequestbodysizeinmemory", [ ("value", m) ], []) ->
         Ocsigen_config.set_maxrequestbodysizeinmemory (int_of_string m)
     | Element ("source", [ ("file", file) ], []) -> source_file := Some file
+    | Element ("extra-css", [ ("file", file) ], []) ->
+        Web_config.extra_css := file
     | Element ("logo", [ ("file", file); ("mime-type", mime_type) ], []) ->
         Web_config.logo := Some (file, mime_type)
     | Element ("favicon", [ ("file", file); ("mime-type", mime_type) ], []) ->

@@ -49,6 +49,12 @@ module Make (X : Pages_sig.S) (Web_auth : Web_auth_sig.S) = struct
       (fun () () -> return !Web_config.source_file)
 
   let () =
+    Any.register ~service:extra_css (fun () () ->
+        let f = !Web_config.extra_css in
+        let* b = Lwt_unix.file_exists f in
+        if b then File.send ~content_type:"text/css" f else CssText.send "")
+
+  let () =
     Any.register ~service:logo (fun () () ->
         match !Web_config.logo with
         | None -> fail_http `Not_found

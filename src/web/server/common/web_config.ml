@@ -66,3 +66,4 @@ let credentials_server_multiplier = ref 0.99
 let credentials_server_allowed = ref (fun _ -> false)
 let credentials_client_allowed = ref (fun _ -> false)
 let readonly_token_hash = ref None
+let extra_css = ref ""
