@@ -1,3 +1,17 @@
+3.2.1 (dev)
+===========
+
+ * Drop support for AES-CCM and do no longer use SJCL
+ * Web server:
+   + Modernize admin and booth UI styling (GitHub PR #101)
+   + Administrator interface
+     - Fix a bug in contact tab
+   + Trustee interface
+     - Delete `Submit data` explicit steps in trustee key generation
+   + Configuration
+     - Add `allowed` attribute to `<credentials-server>`
+     - Add `<credentials-client>` configuration
+
 3.2.0 (2026-04-28)
 ==================
 
