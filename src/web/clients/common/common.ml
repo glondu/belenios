@@ -386,3 +386,9 @@ let get_language () =
   match c.lang with
   | None -> Language.unwrap Compat.navigator_language
   | Some x -> x
+
+let set_lang_in_html lang =
+  let lang_s = Language.unwrap lang in
+  let dir_s = Language.(get_lang_dir lang |> string_of_dir) in
+  Dom_html.document##.documentElement##.lang := Js.string lang_s;
+  Dom_html.document##.documentElement##.dir := Js.string dir_s

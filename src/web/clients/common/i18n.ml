@@ -85,6 +85,7 @@ let get ~component ~lang =
           Lwt.return x)
 
 let init ~dir:d ~component:c ~lang =
+  Common.set_lang_in_html lang;
   dir := d;
   component := c;
   let* x = get ~component:c ~lang in
@@ -107,5 +108,7 @@ let set ~language =
     | None -> Lwt.return !init_gettext
     | Some lang -> get ~component:!component ~lang
   in
+  let module X = (val x) in
+  Common.set_lang_in_html X.lang;
   gettext := x;
   Lwt.return_unit

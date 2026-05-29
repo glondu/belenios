@@ -22,6 +22,8 @@
 type t = private string
 
 val available : (t * string) list
+val get_lang_dir : t -> [ `Ltr | `Rtl ]
+val string_of_dir : [ `Ltr | `Rtl ] -> string
 val devel : t
 val default : t
 val of_string_opt : string -> t option

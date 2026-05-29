@@ -50,6 +50,8 @@ let available =
     ("uk", "Українська");
   ]
 
+let get_lang_dir = function "ar" -> `Rtl | _ -> `Ltr
+let string_of_dir = function `Rtl -> "rtl" | `Ltr -> "ltr"
 let devel = "en_devel"
 let default = "en"
 let of_string_opt x = if List.mem_assoc x available then Some x else None

@@ -143,7 +143,11 @@ struct
     in
     Lwt.return
       (html
-         ~a:[ a_dir `Ltr; a_xml_lang (Language.unwrap lang) ]
+         ~a:
+           [
+             a_dir (Language.get_lang_dir lang);
+             a_xml_lang (Language.unwrap lang);
+           ]
          (head (Eliom_content.Html.F.title (txt title)) head_content)
          (body
             (Ui.base_body l ~full_title ~login_box ~warning ~lang_box ~content
