@@ -15,6 +15,8 @@ function TranslatableListsVoteCandidatesList({
     [0, 0, 0],
   ],
   dispatchUpdateUserVoteForQuestion = () => {},
+  lang,
+  dir,
   t = (s) => {
     return s;
   },
@@ -56,6 +58,8 @@ function TranslatableListsVoteCandidatesList({
   return e(
     "div",
     {
+      lang,
+      dir,
       className: "lists-vote-candidates-list noselect",
     },
     ...renderedLists,

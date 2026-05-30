@@ -9,6 +9,8 @@ function TranslatableGenericVoteCandidatesList({
   currentUserVoteForQuestion = [],
   currentCandidatesHavingAlertsForQuestion = [],
   dispatchUpdateUserVoteForQuestion = () => {},
+  lang,
+  dir,
   t = (s) => {
     return s;
   },
@@ -45,6 +47,8 @@ function TranslatableGenericVoteCandidatesList({
   return e(
     "div",
     {
+      lang,
+      dir,
       className: "generic-vote-candidates-list noselect",
     },
     ...renderedCandidates,

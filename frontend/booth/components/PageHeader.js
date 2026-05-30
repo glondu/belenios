@@ -5,6 +5,8 @@ import { markup } from "../shortcuts.js";
 function TranslatablePageHeader({
   title = "Title of election",
   subTitle = "Subtitle of election",
+  lang,
+  dir,
   t,
 }) {
   return e(
@@ -12,6 +14,8 @@ function TranslatablePageHeader({
     {
       id: "header", // used to ease targetting of DOM elements in automated tests
       className: "page-header",
+      lang,
+      dir,
     },
     e(
       "div",

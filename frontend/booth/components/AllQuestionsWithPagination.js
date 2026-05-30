@@ -475,11 +475,18 @@ function TranslatableAllQuestionsWithPagination(props) {
     }
   };
 
+  const [lang, dir] = props.electionObject.electionData.language || [
+    undefined,
+    undefined,
+  ];
+
   const renderedQuestions = props.electionObject.questions.map(
     function (question, question_index) {
       const identifierPrefix = `question_${question_index}_`;
       const visible = current_question_index === question_index ? true : false;
       return e(QuestionWithVotableAnswers, {
+        lang,
+        dir,
         question,
         identifierPrefix,
         visible,

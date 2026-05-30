@@ -14,6 +14,8 @@ function TranslatableReviewEncryptSection({
   onClickPrevious = null,
   onClickNext = null,
   draft = null,
+  lang,
+  dir,
   t,
 }) {
   // identifiers are copied from original booth
@@ -178,6 +180,8 @@ function TranslatableReviewEncryptSection({
         },
         e("h2", null, t("review_ballot_for_questions")),
         e(WholeVoteRecap, {
+          lang,
+          dir,
           electionObject,
           uncryptedBallot,
         }),

@@ -333,6 +333,8 @@ function TranslatablePreferentialVotingBigCandidatesList({
   currentUserVoteForQuestion,
   currentCandidatesHavingAlertsForQuestion,
   dispatchUpdateUserVoteForQuestion,
+  lang,
+  dir,
   t,
 }) {
   /*
@@ -395,6 +397,8 @@ function TranslatablePreferentialVotingBigCandidatesList({
       initialData,
       dispatchUpdateUserVoteForQuestion,
       disabled: userHasSelectedBlankVote,
+      lang,
+      dir,
       t,
     }),
     ...additionalComponents,
@@ -408,6 +412,8 @@ function TranslatablePreferentialVotingCandidatesList({
   currentUserVoteForQuestion,
   currentCandidatesHavingAlertsForQuestion = [],
   dispatchUpdateUserVoteForQuestion = () => {},
+  lang,
+  dir,
   t = (s) => {
     return s;
   },
@@ -470,6 +476,8 @@ function TranslatablePreferentialVotingCandidatesList({
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
+      lang,
+      dir,
       t,
     }),
   );

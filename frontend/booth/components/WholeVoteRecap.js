@@ -11,6 +11,8 @@ import ListsVoteRecap from "./ListsVoteRecap.js";
 function TranslatableWholeVoteRecap({
   electionObject = null,
   uncryptedBallot = [],
+  lang,
+  dir,
   t,
 }) {
   const renderedQuestions = electionObject.questions.map(
@@ -46,6 +48,8 @@ function TranslatableWholeVoteRecap({
     "div",
     {
       className: "whole-vote-recap",
+      lang,
+      dir,
     },
     ...renderedQuestions,
   );

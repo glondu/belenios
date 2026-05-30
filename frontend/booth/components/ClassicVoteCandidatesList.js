@@ -15,6 +15,8 @@ function TranslatableClassicVoteCandidatesList({
   currentUserVoteForQuestion = [],
   currentCandidatesHavingAlertsForQuestion = [],
   dispatchUpdateUserVoteForQuestion = () => {},
+  lang,
+  dir,
   t = (s) => {
     return s;
   },
@@ -93,6 +95,8 @@ function TranslatableClassicVoteCandidatesList({
   return e(
     "div",
     {
+      lang,
+      dir,
       className: "classic-vote-candidates-list noselect",
     },
     ...renderedCandidates,

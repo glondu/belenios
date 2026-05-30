@@ -10,6 +10,8 @@ function MajorityJudgmentVoteBigCandidateAvailableGrade({
   gradeIndex = 2,
   dispatchUserVoteForCandidateInQuestion = (selection_grade_index) => {},
   availableGradesCssColors = ["red", "yellow", "green"],
+  lang,
+  dir,
   ...props
 }) {
   const checkedValue = checked ? "checked" : null;
@@ -21,6 +23,8 @@ function MajorityJudgmentVoteBigCandidateAvailableGrade({
   return e(
     "div",
     {
+      lang,
+      dir,
       className: `majority-judgment-vote-big-candidate__grade clickable`,
       style: {
         "--majority-judgment-available-grade-color":
@@ -67,6 +71,8 @@ function TranslatableMajorityJudgmentVoteBigCandidate({
   dispatchUserVoteForCandidateInQuestion,
   selectedGradeIndex,
   availableGradesCssColors,
+  lang,
+  dir,
   t,
 }) {
   const bemBlockName = "majority-judgment-vote-big-candidate";
@@ -101,6 +107,8 @@ function TranslatableMajorityJudgmentVoteBigCandidate({
         "div",
         {
           className: `${bemBlockName}__candidate-info__label`,
+          lang,
+          dir,
         },
         markup(candidateInfo),
       ),
@@ -125,6 +133,8 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({
   currentCandidatesHavingAlertsForQuestion,
   dispatchUpdateUserVoteForQuestion,
   availableGradesCssColors,
+  lang,
+  dir,
   t,
 }) {
   const shouldDisplayWideMode =
@@ -154,6 +164,8 @@ function TranslatableMajorityJudgmentVoteBigCandidatesList({
       dispatchUserVoteForCandidateInQuestion,
       selectedGradeIndex: currentUserVoteForQuestion[candidateIndex],
       availableGradesCssColors,
+      lang,
+      dir,
       t,
     });
   });

@@ -8,6 +8,8 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({
   currentAlertsForCandidateInQuestion,
   dispatchUserVoteForCandidateInQuestion,
   availableGradesCssColors,
+  lang,
+  dir,
   t,
 }) {
   const renderedAvailableGrades = availableGrades.map(
@@ -52,12 +54,16 @@ function TranslatableMajorityJudgmentVoteSmallCandidate({
       "div",
       {
         className: `${bemBlockName}__candidate-info`,
+        lang,
+        dir,
       },
       markup(candidateInfo),
     ),
     e(
       "select",
       {
+        lang,
+        dir,
         className: `${bemBlockName}__grade-selector select-css`,
         onChange: onChange,
         ...additionalPropsOnSelect,
@@ -84,6 +90,8 @@ function TranslatableMajorityJudgmentVoteSmallCandidatesList({
   currentCandidatesHavingAlertsForQuestion,
   dispatchUpdateUserVoteForQuestion,
   availableGradesCssColors,
+  lang,
+  dir,
   t,
 }) {
   let renderedCandidates = candidates.map((candidate, candidateIndex) => {
@@ -107,6 +115,8 @@ function TranslatableMajorityJudgmentVoteSmallCandidatesList({
       currentAlertsForCandidateInQuestion: currentAlerts,
       dispatchUserVoteForCandidateInQuestion,
       availableGradesCssColors,
+      lang,
+      dir,
       t,
     };
     return e(TranslatableMajorityJudgmentVoteSmallCandidate, commonProps);

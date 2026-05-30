@@ -18,6 +18,8 @@ function TranslatableQuestionWithVotableAnswers({
   currentAlertsTextsForQuestion = [],
   currentCandidatesHavingAlertsForQuestion = [],
   dispatchUpdateUserVoteForQuestion = () => {},
+  lang,
+  dir,
   t,
 }) {
   let description;
@@ -33,6 +35,8 @@ function TranslatableQuestionWithVotableAnswers({
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
+      lang,
+      dir,
       t,
     });
   } else if (
@@ -46,6 +50,8 @@ function TranslatableQuestionWithVotableAnswers({
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
+      lang,
+      dir,
       t,
     });
   } else if (
@@ -61,6 +67,8 @@ function TranslatableQuestionWithVotableAnswers({
         currentUserVoteForQuestion,
         currentCandidatesHavingAlertsForQuestion,
         dispatchUpdateUserVoteForQuestion,
+        lang,
+        dir,
         t,
       },
     );
@@ -87,6 +95,8 @@ function TranslatableQuestionWithVotableAnswers({
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
+      lang,
+      dir,
       t,
     });
   } else if (question.type === QuestionTypeEnum.LISTS) {
@@ -97,6 +107,8 @@ function TranslatableQuestionWithVotableAnswers({
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
+      lang,
+      dir,
       t,
     });
   } else if (question.type === QuestionTypeEnum.GENERIC) {
@@ -106,6 +118,8 @@ function TranslatableQuestionWithVotableAnswers({
       currentUserVoteForQuestion,
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
+      lang,
+      dir,
       t,
     });
   }
@@ -131,6 +145,8 @@ function TranslatableQuestionWithVotableAnswers({
       "h3",
       {
         className: `${bemBlockName}__question-title`,
+        lang,
+        dir,
       },
       markup(question.title),
     ),

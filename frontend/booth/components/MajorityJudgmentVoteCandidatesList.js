@@ -15,6 +15,8 @@ function TranslatableMajorityJudgmentVoteCandidatesList({
   currentUserVoteForQuestion,
   currentCandidatesHavingAlertsForQuestion = [],
   dispatchUpdateUserVoteForQuestion = () => {},
+  lang,
+  dir,
   t = (s) => {
     return s;
   },
@@ -90,6 +92,8 @@ function TranslatableMajorityJudgmentVoteCandidatesList({
       currentCandidatesHavingAlertsForQuestion,
       dispatchUpdateUserVoteForQuestion,
       availableGradesCssColors,
+      lang,
+      dir,
       t,
     }),
   );

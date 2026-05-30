@@ -42,6 +42,10 @@ function VotePage({
   currentStep,
   children,
 }) {
+  const [lang, dir] = electionObject.electionData.language || [
+    undefined,
+    undefined,
+  ];
   React.useEffect(() => {
     belenios.setLogo(electionObject.uuid);
   }, [electionObject]);
@@ -53,6 +57,8 @@ function VotePage({
     e(PageHeader, {
       title: electionObject.title,
       subTitle: electionObject.description,
+      lang,
+      dir,
     }),
     e(
       "div",
@@ -262,6 +268,7 @@ function TranslatableVoteApp({
       ),
     );
   } else {
+    const [lang, dir] = electionData.language || [undefined, undefined];
     if (currentStep === 1) {
       return e(
         VotePage,
@@ -341,6 +348,8 @@ function TranslatableVoteApp({
           currentStep,
         },
         e(ReviewEncryptSection, {
+          lang,
+          dir,
           electionObject,
           electionModule,
           uncryptedBallot: uncryptedBallotBeforeReview,
