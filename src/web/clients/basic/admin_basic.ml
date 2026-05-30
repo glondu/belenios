@@ -150,6 +150,7 @@ let rec show_root main =
             t_questions = [||];
             t_administrator = Some a.name;
             t_credential_authority = Some "server";
+            t_language = None;
           }
         in
         let address =

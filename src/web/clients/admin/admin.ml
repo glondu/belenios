@@ -156,6 +156,7 @@ let newdraft () =
               t_questions = [||];
               t_administrator = Some a.name;
               t_credential_authority = Some "server";
+              t_language = None;
             };
           draft_languages = [ "en"; "fr" ];
           draft_contact = Some (a.name ^ address);

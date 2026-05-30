@@ -84,6 +84,7 @@ let delete_live_election s uuid roots =
       t_questions = Array.map W.erase_question W.template.t_questions;
       t_administrator = None;
       t_credential_authority = None;
+      t_language = None;
     }
     |> string_of_template W.write_question
     |> template_of_string Yojson.Safe.read_json

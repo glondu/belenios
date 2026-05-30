@@ -219,6 +219,7 @@ let post_drafts account draft =
       t_questions = [||];
       t_administrator = None;
       t_credential_authority = None;
+      t_language = None;
     }
   in
   let se_version = Defaults.version in

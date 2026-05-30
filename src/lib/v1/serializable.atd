@@ -23,6 +23,8 @@ type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type question = abstract wrap <ocaml module="Question">
 
+type lang_dir = [ Ltr | Rtl ]
+
 type 'a params = {
   version : int;
   description : string;
@@ -33,6 +35,7 @@ type 'a params = {
   uuid : uuid;
   ?administrator : string option;
   ?credential_authority : string option;
+  ?language : (string * lang_dir) option;
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 

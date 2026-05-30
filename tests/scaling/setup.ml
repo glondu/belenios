@@ -75,6 +75,7 @@ module Make (P : PARAMS) = struct
       t_questions;
       t_administrator = Some "Election Initiator";
       t_credential_authority = Some "Election Registrar";
+      t_language = Some ("en", `Ltr);
     }
 
   let draft =

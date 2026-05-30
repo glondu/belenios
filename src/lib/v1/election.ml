@@ -48,6 +48,7 @@ let template_of_string x =
     t_questions = params.e_questions;
     t_administrator = params.e_administrator;
     t_credential_authority = params.e_credential_authority;
+    t_language = params.e_language;
   }
 
 let make_raw_election template ~uuid ~group ~public_key =
@@ -63,6 +64,7 @@ let make_raw_election template ~uuid ~group ~public_key =
       e_uuid = uuid;
       e_administrator = template.t_administrator;
       e_credential_authority = template.t_credential_authority;
+      e_language = template.t_language;
       e_group = group;
       e_public_key;
     }
@@ -91,6 +93,7 @@ module Parse (R : RAW_ELECTION) () = struct
       t_questions = params.e_questions;
       t_administrator = params.e_administrator;
       t_credential_authority = params.e_credential_authority;
+      t_language = params.e_language;
     }
 
   let has_nh_questions = Array.exists Question.is_nh_question params.e_questions

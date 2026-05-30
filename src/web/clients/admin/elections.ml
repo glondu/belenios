@@ -1231,22 +1231,64 @@ let check_lang_choice x avail = List.for_all (fun l -> List.mem l avail) x
 
 let language_content () =
   let open (val !Belenios_js.I18n.gettext) in
-  let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+  let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let* config = Cache.get_until_success Cache.config in
   let lang = draft.draft_languages in
   let strlang = String.concat " " lang in
   let inp, _ =
     let onchange r =
-      let newlist = String.split_on_char ' ' (Js.to_string r##.value) in
+      let draft_languages = String.split_on_char ' ' (Js.to_string r##.value) in
       if
-        check_lang_choice newlist
+        check_lang_choice draft_languages
           (List.map (fun (x, _) -> Language.unwrap x) config.languages)
-      then
-        Cache.set Cache.draft
-          (Draft (v, { draft with draft_languages = newlist }))
+      then (
+        let@ () = Lwt.async in
+        let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+        Cache.set Cache.draft (Draft (v, { draft with draft_languages }));
+        Cache.sync_until_success ())
       else alert @@ s_ "Some language in the list is not available"
     in
     input ~a:[ a_id "inplang" ] ~onchange ~value:strlang `Text
+  in
+  let onchange_metadata_lang_ref = ref (fun _ -> assert false) in
+  let onchange_metadata_lang =
+    a_onchange (fun _ ->
+        Lwt.async !onchange_metadata_lang_ref;
+        true)
+  in
+  let lang, dir =
+    match draft.draft_questions.t_language with
+    | None -> ("", "ltr")
+    | Some (lang, dir) -> (lang, Language.string_of_dir dir)
+  in
+  let inp_metadata, _ =
+    input
+      ~a:[ a_id "inplang_metadata"; onchange_metadata_lang ]
+      ~value:lang `Text
+  in
+  let select_dir =
+    select
+      ~a:[ a_id "inplang_metadata_dir"; onchange_metadata_lang ]
+      ~value:dir
+      [
+        option ~a:[ a_value "ltr" ] (txt @@ s_ "Left to right");
+        option ~a:[ a_value "rtl" ] (txt @@ s_ "Right to left");
+      ]
+  in
+  let () =
+    let lang = Tyxml_js.To_dom.of_input inp_metadata in
+    let dir = Tyxml_js.To_dom.of_select select_dir in
+    onchange_metadata_lang_ref :=
+      fun () ->
+        let lang = String.trim @@ Js.to_string lang##.value in
+        let dir =
+          match Js.to_string dir##.value with "rtl" -> `Rtl | _ -> `Ltr
+        in
+        let t_language = if lang = "" then None else Some (lang, dir) in
+        let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
+        let draft_questions = { draft.draft_questions with t_language } in
+        Cache.set Cache.draft (Draft (v, { draft with draft_questions }));
+        Cache.sync_until_success ()
   in
   let avail_lang =
     config.languages
@@ -1264,6 +1306,30 @@ let language_content () =
   Lwt.return
     [
       h2 [ txt @@ s_ "Languages:" ];
+      h3 [ txt @@ s_ "Language of metadata" ];
+      div
+        [
+          div
+            [
+              txt
+              @@ s_
+                   "This is the language of election title, description and \
+                    questions.";
+            ];
+          div
+            [
+              label
+                ~a:[ a_label_for "inplang_metadata" ]
+                [ txt @@ s_ "Language: " ];
+              inp_metadata;
+              txt " ";
+              label
+                ~a:[ a_label_for "inplang_metadata_dir" ]
+                [ txt @@ s_ "Direction: " ];
+              select_dir;
+            ];
+        ];
+      h3 [ txt @@ s_ "Languages of spontaneous e-mails" ];
       div
         ~a:[ a_id "choose_lang" ]
         [
