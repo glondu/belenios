@@ -51,7 +51,9 @@
   background-color: var(--background-light);
   border: 2px solid var(--progress-inactive);
   margin-bottom: 8px;
-  transition: background-color 0.2s ease, border-color 0.2s ease,
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 .progress__step--current .progress__step__dot {

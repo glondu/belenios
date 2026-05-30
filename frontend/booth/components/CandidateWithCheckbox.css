@@ -9,7 +9,9 @@
   justify-content: space-between;
   align-items: stretch;
   width: 100%;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .candidate-with-checkbox--with-alert {

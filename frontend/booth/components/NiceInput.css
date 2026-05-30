@@ -23,7 +23,9 @@ select {
   font-family: inherit;
   line-height: 1.4;
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
     background-color 0.15s ease;
   box-sizing: border-box;
 }
@@ -72,7 +74,9 @@ input[type="week"]:focus,
 select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04), var(--focus-ring);
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.04),
+    var(--focus-ring);
   background: var(--background-light);
 }
 
@@ -142,7 +146,9 @@ input[type="month"]::-webkit-calendar-picker-indicator,
 input[type="week"]::-webkit-calendar-picker-indicator {
   opacity: 0.55;
   cursor: pointer;
-  transition: opacity 0.15s ease, filter 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    filter 0.15s ease;
 }
 
 input[type="date"]:hover::-webkit-calendar-picker-indicator,
@@ -170,7 +176,9 @@ input[type="file"] {
   font-family: inherit;
   line-height: 1.4;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease,
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
     box-shadow 0.15s ease;
   box-sizing: border-box;
   max-width: 100%;
@@ -206,7 +214,9 @@ input[type="file"]::file-selector-button {
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--button-shadow);
-  transition: background-color 0.15s ease, color 0.15s ease,
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
     box-shadow 0.2s ease;
   letter-spacing: 0.01em;
 }
@@ -230,7 +240,9 @@ input[type="file"]::-webkit-file-upload-button {
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--button-shadow);
-  transition: background-color 0.15s ease, color 0.15s ease,
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
     box-shadow 0.2s ease;
   letter-spacing: 0.01em;
 }
@@ -248,8 +260,9 @@ input[type="search"]::-webkit-search-cancel-button {
   height: 14px;
   width: 14px;
   background: var(--font-muted);
-  -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / contain;
-          mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / contain;
+  -webkit-mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat center / contain;
+  mask: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 4l8 8M12 4l-8 8' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat center / contain;
   cursor: pointer;
 }
-

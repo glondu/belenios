@@ -16,8 +16,12 @@ input[type="reset"]:not(.nice-button) {
   border-radius: var(--radius-md);
   padding: 7px 14px;
   box-shadow: var(--button-shadow);
-  transition: background-color 0.15s ease, border-color 0.15s ease,
-    box-shadow 0.2s ease, color 0.15s ease, transform 0.05s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.2s ease,
+    color 0.15s ease,
+    transform 0.05s ease;
   letter-spacing: 0.01em;
 }
 
@@ -90,7 +94,9 @@ input[type="reset"]:not(.nice-button)[disabled]:hover {
   display: inline-block;
   line-height: initial;
   box-shadow: var(--button-shadow);
-  transition: background-color 0.15s ease, box-shadow 0.2s ease,
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.2s ease,
     transform 0.05s ease;
   letter-spacing: 0.01em;
 }

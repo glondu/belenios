@@ -65,7 +65,13 @@
 .page-header__titles__election-name,
 .page-header__titles__election-description {
   line-height: 1.35em;
-  font-family: "Ubuntu", -apple-system, BlinkMacSystemFont, "Segoe UI", arial, serif;
+  font-family:
+    "Ubuntu",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    arial,
+    serif;
   font-weight: 400;
   margin: 0;
   letter-spacing: -0.01em;

@@ -47,7 +47,8 @@ select.majority-judgment-vote-small-candidate__grade-selector.select-css,
 select.majority-judgment-vote-small-candidate__grade-selector.select-css:focus {
   color: white;
   box-shadow: initial;
-  background-image: var(--select-css-gray-arrow),
+  background-image:
+    var(--select-css-gray-arrow),
     linear-gradient(to bottom, #eeeeee 0%, #eeeeee 100%);
   border-radius: 0 0 var(--border-radius-size) var(--border-radius-size);
 }
@@ -66,7 +67,8 @@ select.majority-judgment-vote-small-candidate__grade-selector.select-css
 }
 
 select.majority-judgment-vote-small-candidate__grade-selector.select-css[data-value] {
-  background-image: var(--select-css-white-arrow),
+  background-image:
+    var(--select-css-white-arrow),
     linear-gradient(
       to bottom,
       var(--selected-grade-color) 0%,
