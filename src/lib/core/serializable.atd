@@ -100,7 +100,7 @@ type sub_batch_item = {
 
 type sub_batch = sub_batch_item list
 
-type lang_dir = [ Ltr | Rtl ]
+type lang_dir = [ Ltr <json name="ltr"> | Rtl <json name="rtl"> ]
 
 type 'question template = {
   description : string;

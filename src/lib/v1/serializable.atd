@@ -22,8 +22,7 @@
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type question = abstract wrap <ocaml module="Question">
-
-type lang_dir = [ Ltr | Rtl ]
+type lang_dir <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type 'a params = {
   version : int;
