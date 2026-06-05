@@ -45,6 +45,7 @@ build-debug-tool:
 	dune install $(DUNE_DEBUG_ARGS) --display=quiet --destdir=_run/tool-debug --prefix=/ belenios-platform belenios-platform-native belenios-lib belenios-tool
 
 check:
+	dune runtest
 	$(MAKE) build-debug-tool
 	$(MAKE) -C tests/tool check
 
