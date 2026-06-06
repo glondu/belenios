@@ -322,7 +322,7 @@ struct
             (alpha **~ response) *~ (f **~ challenge);
           |]
         in
-        Zq.(hash zkp commitments =% challenge))
+        Zq.(G.hash zkp commitments =% challenge))
       c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result

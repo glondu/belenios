@@ -33,12 +33,17 @@ module Make (G : GROUP) = struct
   type public_key = G.t
 
   let random () = G.Zq.random (Crypto_primitives.get_rng ())
+  let genkey () = generate_b58_token ~rng:(Crypto_primitives.get_rng ()) ~length:22
 
-  let genkey () =
-    generate_b58_token ~rng:(Crypto_primitives.get_rng ()) ~length:22
+  (** Deriving signing keys *)
 
-  let derive_sk p = G.Zq.reduce_hex (sha256_hex ("sk|" ^ p))
-  let derive_dk p = G.Zq.reduce_hex (sha256_hex ("dk|" ^ p))
+  let dst_sk = dst_prefix ^ "-derive_sk"
+  let derive_sk p = (G.Zq.hash ~dst:dst_sk 1 p).(0)
+
+  (** Deriving decryption keys *)
+
+  let dst_dk = dst_prefix ^ "-derive_dk"
+  let derive_dk p = (G.Zq.hash ~dst:dst_dk 1 p).(0)
 
   let sign sk s_message =
     let w = random () in

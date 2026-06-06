@@ -242,9 +242,10 @@ let to_ints =
     decode_int (pred n) (shift_right x padding);
     xs
 
+let dst = dst_prefix ^ "-GROUP-Ed25519"
+
 let hash prefix xs =
-  let x = prefix ^ map_and_concat_with_commas to_string xs in
-  Zq.reduce_hex (sha256_hex x)
+  (Zq.hash ~dst 1 @@ prefix ^ map_and_concat_with_commas to_string xs).(0)
 
 let hash_to_int p =
   let x, y = to_coordinates p in

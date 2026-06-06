@@ -143,7 +143,7 @@ module Make (G : GROUP) = struct
       Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
         (G.to_string beta)
     in
-    Zq.(hash prefix commitments =% !total_challenges)
+    Zq.(G.hash prefix commitments =% !total_challenges)
 
   (** ZKPs for blank ballots *)
 

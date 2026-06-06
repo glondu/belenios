@@ -73,12 +73,12 @@ module Make (W : ELECTION_DATA with type question := Question.t) = struct
     loop 0
 
   let get_nizkp_challenges n str =
-    let h = sha256_hex str in
-    Array.init n (fun i ->
-        let i = sha256_hex (string_of_int i) in
-        Zq.reduce_hex (sha256_hex (h ^ i)))
+    let dst = dst_prefix ^ "-get_nizkp_challenges" in
+    Zq.hash ~dst n str
 
-  let get_nizkp_challenge str = Zq.reduce_hex (sha256_hex str)
+  let get_nizkp_challenge str =
+    let dst = dst_prefix ^ "-get_nizkp_challenge" in
+    (Zq.hash ~dst 1 str).(0)
 
   let str_egs e =
     let b = Buffer.create 1024 in

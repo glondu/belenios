@@ -22,6 +22,7 @@
 open Belenios_platform
 open Signatures_core
 
+val dst_prefix : string
 val ( >> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
 val ( ^^^ ) : string -> string -> string
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b

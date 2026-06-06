@@ -96,9 +96,10 @@ let make description ff_params =
             decode_int (pred n) (shift_right x padding);
             xs
 
+    let dst = dst_prefix ^ "-GROUP-" ^ description
+
     let hash prefix xs =
-      let x = prefix ^ map_and_concat_with_commas Z.to_string xs in
-      Zq.reduce_hex (sha256_hex x)
+      (Zq.hash ~dst 1 @@ prefix ^ map_and_concat_with_commas Z.to_string xs).(0)
 
     let hash_to_int = Z.hash_to_int
     let compare = Z.compare

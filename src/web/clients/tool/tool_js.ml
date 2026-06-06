@@ -122,16 +122,18 @@ module Tests = struct
     Printf.ksprintf alert "%d modular exponentiations in %d ms!" n delta;
     Lwt.return_unit
 
-  let bytes_to_sample q =
-    (* we take 128 additional bits of random before the mod q, so that
-       the statistical distance with a uniform distribution in [0,q[ is
-       negligible *)
-    (Z.bit_length q / 8) + 17
+  let dst = dst_prefix ^ "-TESTS"
 
-  let gen n i =
-    let j = n * i in
-    let xs = Array.init n (fun i -> sha256_hex (string_of_int (j + i))) in
-    xs |> Array.to_list |> String.concat ""
+  let gen p n =
+    let open Belenios_core.Crypto_std in
+    let module Expand_message = Expand_message (SHA256) in
+    let module Hash_to_field = Hash_to_field (struct
+      let k = 128
+      let p = p
+      let m = 1
+      let expand_message = Expand_message.expand_message_xmd
+    end) in
+    Hash_to_field.hash_to_field ~dst "" n
 
   let bench_group () =
     let group =
@@ -139,8 +141,7 @@ module Tests = struct
     in
     let module G = (val group) in
     let n = get_input "bench_group_nb" |> int_of_string in
-    let byte_length = bytes_to_sample G.Zq.q in
-    let xs = Array.init n (fun i -> gen byte_length i |> G.Zq.reduce_hex) in
+    let xs = gen G.Zq.q n |> Array.map (fun x -> G.Zq.coerce x.(0)) in
     let start = new%js Js.date_now in
     let ys = Array.map (fun x -> G.(g **~ x)) xs in
     let stop = new%js Js.date_now in

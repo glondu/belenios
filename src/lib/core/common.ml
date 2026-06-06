@@ -22,6 +22,7 @@
 open Belenios_platform
 open Signatures_core
 
+let dst_prefix = "BELENIOS-V2"
 let ( >> ) f g x = g (f x)
 let ( ^^^ ) a b = a ^ " — " ^ b
 let ( let@ ) = ( @@ )
@@ -118,7 +119,20 @@ struct
   let one = of_int 1
   let to_Z = Fun.id
   let reduce x = Z.erem x q
-  let reduce_hex x = Z.(erem (of_hex x) q)
+
+  module Expand_message = Crypto_std.Expand_message (Crypto_std.SHA256)
+
+  module Hash_to_field = Crypto_std.Hash_to_field (struct
+    let k = 128
+    let p = q
+    let m = 1
+    let expand_message = Expand_message.expand_message_xmd
+  end)
+
+  let hash ~dst n msg =
+    let dst = dst ^ "-SHA256" in
+    let r = Hash_to_field.hash_to_field ~dst msg n in
+    Array.map (fun x -> x.(0)) r
 
   let coerce x =
     if Z.compare zero x <= 0 && Z.compare x q < 0 then x

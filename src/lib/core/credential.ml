@@ -84,23 +84,9 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
   let ( let* ) = E.bind
 
   let derive_full seed =
-    let output_length =
-      128
-      (* 512 bits *)
-    in
+    let dst = dst_prefix ^ "-derive_credential" in
     (* TODO: get rid of uuid in the following line (when the formal proof is done) *)
-    let prefix = Printf.sprintf "derive_credential|%s" (Uuid.unwrap E.uuid) in
-    let b = Buffer.create output_length in
-    let rec loop i =
-      if Buffer.length b >= output_length then
-        Buffer.contents b |> G.Zq.reduce_hex
-      else (
-        Printf.ksprintf
-          (sha256_hex >> Buffer.add_string b)
-          "%s|%d|%s" prefix i seed;
-        loop (i + 1))
-    in
-    loop 0
+    (G.Zq.hash ~dst 1 (Printf.sprintf "%s|%s" (Uuid.unwrap E.uuid) seed)).(0)
 
   let generate_one rng =
     (* we generate only full style credentials *)
