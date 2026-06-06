@@ -69,8 +69,12 @@ let generate_threshold (Draft (_, draft)) context () =
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
   let private_key, cert = T.step1 context in
-  let fingerprint = sha256_b64 cert.s_message in
-  let public_key = string_of_cert (swrite G.Zq.to_string) cert in
+  let fingerprint =
+    sha256_b64 @@ string_of_cert_keys (swrite G.to_string) cert.s_message
+  in
+  let public_key =
+    string_of_cert (swrite G.to_string) (swrite G.Zq.to_string) cert
+  in
   let mime_type = "text/plain"
   and filename uuid = Printf.sprintf "private_key-%s.txt" (Uuid.unwrap uuid) in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
@@ -92,7 +96,8 @@ let threshold_step (Draft (_, draft)) pedersen ~private_key =
   match pedersen.pedersen_step with
   | 3 ->
       let* x = T.step3 certs private_key in
-      Lwt.return @@ string_of_polynomial (swrite G.Zq.to_string) x
+      Lwt.return
+      @@ string_of_polynomial (swrite G.to_string) (swrite G.Zq.to_string) x
   | 5 ->
       let@ vinput cont =
         match pedersen.pedersen_vinput with

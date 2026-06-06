@@ -169,7 +169,10 @@ let rec show_draft_trustees uuid container =
           ( x.bt_trustees,
             write_trustee_public_key Yojson.Safe.write_json
               Yojson.Safe.write_json )
-    | `Threshold x -> TWW (x.tt_trustees, write_cert Yojson.Safe.write_json)
+    | `Threshold x ->
+        TWW
+          ( x.tt_trustees,
+            write_cert Yojson.Safe.write_json Yojson.Safe.write_json )
   in
   let all_trustees =
     List.map

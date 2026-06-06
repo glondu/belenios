@@ -56,7 +56,11 @@ let find_trustee_private_key s trustee_id =
     match ts with
     | [] -> Lwt.return_none (* an error, actually *)
     | `Single _ :: ts -> loop (i - 1) ts
-    | `Pedersen _ :: _ -> Lwt.return_some (List.nth keys i)
+    | `Pedersen _ :: _ ->
+        Lwt.return_some
+          (List.nth keys i
+          |> sent_partial_decryption_key_of_string Yojson.Safe.read_json
+               Yojson.Safe.read_json)
   in
   loop (trustee_id - 1) trustees
 

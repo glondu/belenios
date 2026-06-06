@@ -25,7 +25,7 @@ type user <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type metadata <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type draft_voter <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type 'a template <ocaml predef from="Belenios_storage_api.Atd"> = abstract
-type 'a draft_trustees <ocaml predef from="Belenios_storage_api.Atd"> = abstract
+type ('a, 'b) draft_trustees <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 type ('a, 'b) credentials_certificate <ocaml predef from="Belenios_storage_api.Atd"> = abstract
 
 type election_dates = {
@@ -51,7 +51,7 @@ type 'question raw_draft_election = {
   group <ocaml mutable> : string;
   voters <ocaml mutable> : draft_voter list;
   questions <ocaml mutable> : 'question template;
-  trustees <ocaml mutable> : abstract draft_trustees;
+  trustees <ocaml mutable> : (abstract, abstract) draft_trustees;
   metadata <ocaml mutable> : metadata;
   public_creds : string;
   public_creds_received <ocaml mutable> : bool;

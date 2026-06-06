@@ -67,17 +67,21 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
   let* private_key =
     match trustee.tally_trustee_private_key with
     | Some epk ->
+        let epk =
+          epk
+          |> string_of_sent_partial_decryption_key Yojson.Safe.write_json
+               Yojson.Safe.write_json
+          |> sent_partial_decryption_key_of_string (sread W.G.of_string)
+               (sread W.G.Zq.of_string)
+        in
         let module Trustees = (val Trustees.get_by_version W.version) in
         let module PKI = Pki.Make (W.G) in
         let module C = Pki.MakeChannels (PKI) in
+        let module Pedersen = Trustees.MakePedersen (C) in
         let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
         let vk = W.G.(g **~ sk) in
-        let* epk =
-          C.recv dk vk (encrypted_msg_of_string (sread W.G.of_string) epk)
-        in
-        Lwt.return
-        @@ (partial_decryption_key_of_string (sread W.G.Zq.of_string) epk)
-             .pdk_decryption_key
+        let* epk = C.recv Pedersen.xch_decryption_key dk vk epk in
+        Lwt.return @@ epk.pdk_decryption_key
     | None -> (
         basic_check_private_key private_key;
         Lwt.return

@@ -215,8 +215,8 @@ let validate_election_exn s uuid =
   let trustees =
     let open Belenios_storage_api in
     se.se_trustees
-    |> string_of_draft_trustees Yojson.Safe.write_json
-    |> draft_trustees_of_string (sread G.Zq.of_string)
+    |> string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json
+    |> draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string)
   in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeCombinator (G) in
@@ -370,7 +370,11 @@ let validate_election_exn s uuid =
           swrite G.Zq.to_string -- x
           |> S.set (Election (uuid, Private_key)) String
         in
-        y |> S.set (Election (uuid, Private_keys)) Value
+        y
+        |> List.map
+             (string_of_sent_partial_decryption_key (swrite G.to_string)
+                (swrite G.Zq.to_string))
+        |> S.set (Election (uuid, Private_keys)) Value
   in
   (* clean up draft *)
   let@ dates, set_dates =

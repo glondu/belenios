@@ -53,7 +53,7 @@ let cast_bt_trustee =
   >> trustee_of_string Yojson.Safe.read_json
 
 let cast_tt_trustee =
-  string_of_trustee (write_cert Yojson.Safe.write_json)
+  string_of_trustee (write_cert Yojson.Safe.write_json Yojson.Safe.write_json)
   >> trustee_of_string Yojson.Safe.read_json
 
 let get_trustees () =

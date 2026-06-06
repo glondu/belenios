@@ -59,11 +59,13 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     in
     Lwt_list.map_s
       (fun (voter, x) ->
-        let* credential = P.encrypt encryption_key x in
+        let* credential = P.encrypt xch_encrypted_credential encryption_key x in
         let credential =
           credential
           |> string_of_encrypted_msg (swrite G.to_string)
-          |> encrypted_msg_of_string Yojson.Safe.read_json
+               (swrite G.Zq.to_string) (swrite Fun.id)
+          |> encrypted_msg_of_string Yojson.Safe.read_json Yojson.Safe.read_json
+               (sread Fun.id)
         in
         let weight, address =
           match SMap.find_opt voter map with
@@ -94,7 +96,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     |> Hash.hash_string
   in
   let certificate =
-    let signature = P.sign signature_key (Hash.to_hex hash) in
+    let signature = P.sign xch_credentials_certificate signature_key hash in
     { certificate_raw with signature = Some signature }
     |> string_of_credentials_certificate (swrite G.to_string)
          (swrite G.Zq.to_string)
@@ -217,9 +219,13 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
            let encrypted_msg =
              c.credential
              |> string_of_encrypted_msg Yojson.Safe.write_json
+                  Yojson.Safe.write_json (swrite Fun.id)
              |> encrypted_msg_of_string (sread G.of_string)
+                  (sread G.Zq.of_string) (sread Fun.id)
            in
-           let* x = P.decrypt decryption_key encrypted_msg in
+           let* x =
+             P.decrypt xch_encrypted_credential decryption_key encrypted_msg
+           in
            match x with
            | None -> Lwt.return accu
            | Some credential -> (
@@ -296,9 +302,13 @@ let process_resend_request (r : credentials_resend)
               let encrypted_msg =
                 c.credential
                 |> string_of_encrypted_msg Yojson.Safe.write_json
+                     Yojson.Safe.write_json (swrite Fun.id)
                 |> encrypted_msg_of_string (sread G.of_string)
+                     (sread G.Zq.of_string) (sread Fun.id)
               in
-              let* x = P.decrypt decryption_key encrypted_msg in
+              let* x =
+                P.decrypt xch_encrypted_credential decryption_key encrypted_msg
+              in
               match x with
               | None -> Lwt.return_none
               | Some credential -> Lwt.return_some (v, { c with credential })
@@ -430,9 +440,13 @@ let process_request : credentials_request -> _ = function
             let encrypted_msg =
               c.credential
               |> string_of_encrypted_msg Yojson.Safe.write_json
+                   Yojson.Safe.write_json (swrite Fun.id)
               |> encrypted_msg_of_string (sread G.of_string)
+                   (sread G.Zq.of_string) (sread Fun.id)
             in
-            let* x = P.decrypt decryption_key encrypted_msg in
+            let* x =
+              P.decrypt xch_encrypted_credential decryption_key encrypted_msg
+            in
             match x with
             | None -> Lwt.return_none
             | Some credential -> Lwt.return_some (v, { c with credential }))

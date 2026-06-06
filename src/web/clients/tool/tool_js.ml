@@ -23,7 +23,6 @@ open Lwt.Syntax
 open Js_of_ocaml
 open Belenios
 open Belenios_js.Common
-open Belenios_js.Session
 
 let () = relative_root := "../"
 
@@ -250,77 +249,7 @@ module Schulze = struct
   let cmds = [ ("do_schulze", compute) ]
 end
 
-module BuggyPartialDecryption = struct
-  open Belenios_web_api
-
-  let compute () =
-    let hash = get_input "buggy_pd_hash" in
-    let seed = get_input "buggy_pd_seed" in
-    let@ uuid, token =
-     fun cont ->
-      match String.split_on_char '-' hash with
-      | [ uuid; token ] -> cont (Uuid.wrap uuid, token)
-      | _ ->
-          Printf.ksprintf alert "%s is not a valid access code" hash;
-          Lwt.return_unit
-    in
-    let@ raw_election cont =
-      let* x = Api.(get (election uuid) `Nobody) in
-      match x with
-      | Error _ ->
-          Printf.ksprintf alert "Election %s could not be found!"
-            (Uuid.unwrap uuid);
-          Lwt.return_unit
-      | Ok (x, _) -> cont x
-    in
-    let@ encrypted_tally cont =
-      let* x = Api.(get (election_encrypted_tally uuid) `Nobody) in
-      match x with
-      | Error _ ->
-          Printf.ksprintf alert "Could not get encrypted tally of election %s!"
-            (Uuid.unwrap uuid);
-          Lwt.return_unit
-      | Ok (x, _) -> cont x
-    in
-    let@ epk cont =
-      let* x = Api.(get (trustee_election uuid) (`Trustee token)) in
-      match x with
-      | Ok ({ tally_trustee_private_key = Some x }, _) -> cont x
-      | _ ->
-          alert "Could not get encrypted private key!";
-          Lwt.return_unit
-    in
-    let module P = (val Election.of_string raw_election) in
-    let encrypted_tally =
-      encrypted_tally |> encrypted_tally_of_string (sread P.G.of_string)
-    in
-    let* private_key =
-      let module Trustees = (val Belenios.Trustees.get_by_version P.version) in
-      let module PKI = Pki.Make (P.G) in
-      let module C = Pki.MakeChannels (PKI) in
-      let sk = PKI.derive_sk seed and dk = PKI.derive_dk seed in
-      let vk = P.G.(g **~ sk) in
-      let* epk =
-        let* x =
-          epk |> encrypted_msg_of_string P.(sread G.of_string) |> C.recv dk vk
-        in
-        Lwt.return @@ partial_decryption_key_of_string (sread Z.of_string) x
-      in
-      let buggy = epk.pdk_decryption_key in
-      Lwt.return @@ P.G.Zq.reduce buggy
-    in
-    let factor = P.E.compute_factor encrypted_tally private_key in
-    set_textarea "buggy_pd_output"
-      (string_of_partial_decryption (swrite P.G.to_string)
-         (swrite P.G.Zq.to_string) factor);
-    Lwt.return_unit
-
-  let cmds = [ ("do_buggy_pd", compute) ]
-end
-
-let cmds =
-  [ ("new_uuid", new_uuid) ]
-  @ Tests.cmds @ Credgen.cmds @ Schulze.cmds @ BuggyPartialDecryption.cmds
+let cmds = [ ("new_uuid", new_uuid) ] @ Tests.cmds @ Credgen.cmds @ Schulze.cmds
 
 let () =
   Lwt.async (fun () ->

@@ -21,4 +21,4 @@
 
 open Signatures
 module Make (G : GROUP) : PKI with module Group = G
-module MakeChannels (P : PKI) : CHANNELS with module Pki = P
+module MakeChannels (P : PKI) : CHANNELS with module P = P

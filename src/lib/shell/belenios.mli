@@ -39,6 +39,9 @@ module Methods : sig
   module Majority_judgment = Belenios_core.Majority_judgment
 end
 
+val xch_credentials_certificate : Hash.t exchangeable
+val xch_encrypted_credential : string exchangeable
+
 module Credentials_certificate (G : GROUP) : sig
   val check : (G.t, G.Zq.t) credentials_certificate -> bool
 end

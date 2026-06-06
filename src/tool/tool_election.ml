@@ -51,6 +51,7 @@ let make file =
   let module Trustees = (val Belenios.Trustees.get_by_version version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
+  let module Pedersen = Trustees.MakePedersen (C) in
   let module K = Trustees.MakeCombinator (G) in
   (* Check trustee keys, if present *)
   let* () =
@@ -118,12 +119,11 @@ let make file =
       let sk = P.derive_sk key and dk = P.derive_dk key in
       let vk = G.(g **~ sk) in
       let* pdk =
-        C.recv dk vk (encrypted_msg_of_string (sread G.of_string) pdk)
+        C.recv Pedersen.xch_decryption_key dk vk
+        @@ sent_partial_decryption_key_of_string (sread G.of_string)
+             (sread G.Zq.of_string) pdk
       in
-      let pdk =
-        (partial_decryption_key_of_string (sread G.Zq.of_string) pdk)
-          .pdk_decryption_key
-      in
+      let pdk = pdk.pdk_decryption_key in
       let pvk = G.(g **~ pdk) in
       let* trustees = trustees in
       (match trustees with

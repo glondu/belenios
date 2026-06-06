@@ -206,7 +206,10 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
             |> List.map (fun (key, cert) ->
                 {
                   ttc_name = key.trustee_name;
-                  ttc_pki_key = Hash.hash_string cert.s_message;
+                  ttc_pki_key =
+                    Hash.hash_string
+                    @@ string_of_cert Yojson.Safe.write_json
+                         Yojson.Safe.write_json cert;
                   ttc_verification_key =
                     Hash.hash_string
                       (Yojson.Safe.to_string key.trustee_public_key);

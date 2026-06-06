@@ -124,7 +124,11 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let module T = Trustees.MakePedersen (C) in
     let get_certs () =
       let certs = get_mandatory_opt "--certs" certs in
-      let* x = load_from_file (cert_of_string (sread G.Zq.of_string)) certs in
+      let* x =
+        load_from_file
+          (cert_of_string (sread G.of_string) (sread G.Zq.of_string))
+          certs
+      in
       match x with
       | None -> Printf.ksprintf failwith "%s does not exist" certs
       | Some l -> Lwt.return @@ Array.of_list l
@@ -132,7 +136,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let get_polynomials () =
       let polynomials = get_mandatory_opt "--polynomials" polynomials in
       let* x =
-        load_from_file (polynomial_of_string (sread G.Zq.of_string)) polynomials
+        load_from_file
+          (polynomial_of_string (sread G.of_string) (sread G.Zq.of_string))
+          polynomials
       in
       match x with
       | None -> Printf.ksprintf failwith "%s does not exist" polynomials
@@ -141,13 +147,15 @@ module Ttkeygen : CMDLINER_MODULE = struct
     match step with
     | 1 ->
         let key, cert = T.step1 (get_context ()) in
-        let id = sha256_hex cert.s_message in
+        let id =
+          sha256_hex @@ string_of_cert_keys (swrite G.to_string) cert.s_message
+        in
         Printf.eprintf "I: certificate %s has been generated\n%!" id;
         let pub =
           ( "certificate",
             id ^ ".cert",
             0o444,
-            string_of_cert (swrite G.Zq.to_string) cert )
+            string_of_cert (swrite G.to_string) (swrite G.Zq.to_string) cert )
         in
         let prv = ("private key", id ^ ".key", 0o400, key) in
         let* () = save pub in
@@ -161,7 +169,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let* polynomial = T.step3 certs key in
-        Lwt_io.printl (string_of_polynomial (swrite G.Zq.to_string) polynomial)
+        Lwt_io.printl
+          (string_of_polynomial (swrite G.to_string) (swrite G.Zq.to_string)
+             polynomial)
     | 4 ->
         let* certs = get_certs () in
         let n = Array.length certs in
@@ -171,7 +181,10 @@ module Ttkeygen : CMDLINER_MODULE = struct
         assert (n = Array.length vinputs);
         let rec loop i =
           if i < n then
-            let id = sha256_hex certs.(i).s_message in
+            let id =
+              sha256_hex
+              @@ string_of_cert_keys (swrite G.to_string) certs.(i).s_message
+            in
             let fn = id ^ ".vinput" in
             let* () =
               let open Lwt_io in
@@ -180,7 +193,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
                   fn
               in
               write_line oc
-                (string_of_vinput (swrite G.Zq.to_string) vinputs.(i))
+                (string_of_vinput (swrite G.to_string) (swrite G.Zq.to_string)
+                   vinputs.(i))
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
             loop (i + 1)
@@ -190,7 +204,10 @@ module Ttkeygen : CMDLINER_MODULE = struct
     | 5 ->
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
-        let vinput = read_line () |> vinput_of_string (sread G.Zq.of_string) in
+        let vinput =
+          read_line ()
+          |> vinput_of_string (sread G.of_string) (sread G.Zq.of_string)
+        in
         let* voutput = T.step5 certs key vinput in
         Lwt_io.printl
           (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
@@ -211,7 +228,10 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let tparams = T.step6 certs polynomials voutputs in
         let rec loop i =
           if i < n then
-            let id = sha256_hex certs.(i).s_message in
+            let id =
+              sha256_hex
+              @@ string_of_cert_keys (swrite G.to_string) certs.(i).s_message
+            in
             let fn = id ^ ".dkey" in
             let* () =
               let open Lwt_io in
@@ -219,7 +239,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
                 with_file ~flags:[ O_WRONLY; O_CREAT ] ~perm:0o400 ~mode:Output
                   fn
               in
-              write_line oc voutputs.(i).vo_private_key
+              write_line oc
+              @@ string_of_sent_partial_decryption_key (swrite G.to_string)
+                   (swrite G.Zq.to_string) voutputs.(i).vo_private_key
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
             loop (i + 1)

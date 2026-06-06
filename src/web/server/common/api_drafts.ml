@@ -779,6 +779,11 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                       vo_private_key :: privs ) ->
                       let stt_name = vo_public_key.trustee_name in
                       let stt_token = generate_token () in
+                      let vo_private_key =
+                        sent_partial_decryption_key_of_string
+                          (sread G.of_string) (sread G.Zq.of_string)
+                          vo_private_key
+                      in
                       let stt_voutput = { vo_public_key; vo_private_key } in
                       let stt_voutput =
                         Some
@@ -811,9 +816,10 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
               let se_threshold_trustees =
                 se_threshold_trustees
                 |> List.map
-                     (string_of_draft_threshold_trustee (swrite G.Zq.to_string)
+                     (string_of_draft_threshold_trustee (swrite G.to_string)
+                        (swrite G.Zq.to_string)
                      >> draft_threshold_trustee_of_string Yojson.Safe.read_json
-                     )
+                          Yojson.Safe.read_json)
               in
               let dtp =
                 {
@@ -1012,8 +1018,8 @@ let post_trustee_threshold
   let module G = (val Group.of_string ~version se.se_group : GROUP) in
   let se_trustees =
     se.se_trustees
-    |> string_of_draft_trustees Yojson.Safe.write_json
-    |> draft_trustees_of_string (sread G.Zq.of_string)
+    |> string_of_draft_trustees Yojson.Safe.write_json Yojson.Safe.write_json
+    |> draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string)
   in
   let dtp =
     match se_trustees with
@@ -1061,14 +1067,18 @@ let post_trustee_threshold
   let () =
     match t.stt_step with
     | Some 1 ->
-        let cert = cert_of_string (sread G.Zq.of_string) data in
+        let cert =
+          cert_of_string (sread G.of_string) (sread G.Zq.of_string) data
+        in
         if K.step1_check context cert then (
           t.stt_cert <- Some cert;
           t.stt_step <- Some 2)
         else failwith "Invalid certificate"
     | Some 3 ->
         let certs = get_certs () in
-        let polynomial = polynomial_of_string (sread G.Zq.of_string) data in
+        let polynomial =
+          polynomial_of_string (sread G.of_string) (sread G.Zq.of_string) data
+        in
         if K.step3_check certs i polynomial then (
           t.stt_polynomial <- Some polynomial;
           t.stt_step <- Some 4)
@@ -1132,8 +1142,8 @@ let post_trustee_threshold
   in
   se.se_trustees <-
     se_trustees
-    |> string_of_draft_trustees (swrite G.Zq.to_string)
-    |> draft_trustees_of_string Yojson.Safe.read_json;
+    |> string_of_draft_trustees (swrite G.to_string) (swrite G.Zq.to_string)
+    |> draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json;
   set fse
 
 let dispatch_credentials ~token endpoint method_ body s uuid

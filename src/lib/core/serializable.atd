@@ -90,7 +90,7 @@ type ('a, 'b) credentials_certificate = {
   public_creds_hash : hash;
   verification_key : 'a;
   encryption_key : 'a;
-  ?signature : 'b signed_msg option;
+  ?signature : ('a, 'b, hash) signed_msg option;
 }
 
 type sub_batch_item = {
@@ -202,22 +202,25 @@ type ballot_summary = ballot_summary_item list
 
 (** {2 PKI support} *)
 
-type 'a signed_msg = {
-  message : string;
-  signature : 'a proof;
+type ('a, 'b, 'c) signed_msg = {
+  message : 'c;
+  signature : 'b proof;
 } <ocaml field_prefix="s_">
 
-type 'a channel_msg = {
+type ('a, 'b, 'c) channel_msg = {
   recipient : 'a;
-  message : string;
+  message : 'c;
 } <ocaml field_prefix="c_">
 
-type 'a encrypted_msg = {
+type ('a, 'b, 'c) encrypted_msg = {
   algorithm : string;
   alpha : 'a;
   beta : 'a;
   data : string;
 } <ocaml field_prefix="y_">
+
+type ('a, 'b, 'c) sent_msg =
+  ('a, 'b, ('a, 'b, ('a, 'b, 'c) channel_msg) signed_msg) encrypted_msg
 
 (** {2 Threshold decryption support} *)
 
@@ -234,7 +237,7 @@ type 'a cert_keys = {
   encryption : 'a;
 } <ocaml field_prefix="cert_">
 
-type 'a cert = 'a signed_msg (* cert_keys *)
+type ('a, 'b) cert = ('a, 'b, 'a cert_keys) signed_msg
 
 type 'a raw_polynomial = {
   polynomial : 'a list <ocaml repr="array">
@@ -244,10 +247,10 @@ type 'a raw_coefexps = {
   coefexps : 'a list <ocaml repr="array">
 }
 
-type 'a coefexps = 'a signed_msg (* raw_coefexps *)
+type ('a, 'b) coefexps = ('a, 'b, 'a raw_coefexps) signed_msg
 
 type ('a, 'b) certs = {
-  certs : 'b cert list <ocaml repr="array">;
+  certs : ('a, 'b) cert list <ocaml repr="array">;
   coefexps : 'a list <ocaml repr="array">;
 }
 
@@ -255,33 +258,36 @@ type 'a secret = {
   secret : 'a;
 }
 
-type 'a polynomial = {
-  polynomial : string; (* sent raw_polynomial *)
-  secrets : string list <ocaml repr="array">; (* sent secrets *)
-  coefexps : 'a coefexps;
-  ?signature : 'a proof option;
+type ('a, 'b) polynomial = {
+  polynomial : ('a, 'b, 'b raw_polynomial) sent_msg;
+  secrets : ('a, 'b, 'b secret) sent_msg list <ocaml repr="array">;
+  coefexps : ('a, 'b) coefexps;
+  ?signature : 'b proof option;
 } <ocaml field_prefix="p_">
 
-type 'a vinput = {
-  polynomial : string; (* sent raw_polynomial *)
-  secrets : string list <ocaml repr="array">; (* sent secrets *)
-  coefexps : 'a coefexps list <ocaml repr="array">;
-  ?signatures : 'a proof list <ocaml repr="array"> option;
+type ('a, 'b) vinput = {
+  polynomial : ('a, 'b, 'b raw_polynomial) sent_msg;
+  secrets : ('a, 'b, 'b secret) sent_msg list <ocaml repr="array">;
+  coefexps : ('a, 'b) coefexps list <ocaml repr="array">;
+  ?signatures : 'b proof list <ocaml repr="array"> option;
 } <ocaml field_prefix="vi_">
 
 type 'a partial_decryption_key = {
   decryption_key : 'a;
 } <ocaml field_prefix="pdk_">
 
+type ('a, 'b) sent_partial_decryption_key =
+  ('a, 'b, 'b partial_decryption_key) sent_msg
+
 type ('a, 'b) voutput = {
-  private_key : string; (* sent partial_decryption_key *)
+  private_key : ('a, 'b) sent_partial_decryption_key;
   public_key : ('a, 'b) trustee_public_key;
 } <ocaml field_prefix="vo_">
 
 type ('a, 'b) threshold_parameters = {
   threshold : int;
-  certs : 'b cert list <ocaml repr="array">;
-  coefexps : 'b coefexps list <ocaml repr="array">;
+  certs : ('a, 'b) cert list <ocaml repr="array">;
+  coefexps : ('a, 'b) coefexps list <ocaml repr="array">;
   ?signatures : 'b proof list <ocaml repr="array"> option;
   verification_keys : ('a, 'b) trustee_public_key list <ocaml repr="array">;
 } <ocaml field_prefix="t_">

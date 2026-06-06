@@ -179,6 +179,12 @@ module type ELECTION = sig
        and type result_type = result
 end
 
+type 'a exchangeable = {
+  dst : string;
+  to_string : 'a -> string;
+  of_string : string -> 'a;
+}
+
 module type PKI = sig
   module Group : GROUP
 
@@ -188,56 +194,71 @@ module type PKI = sig
   val genkey : unit -> string
   val derive_sk : string -> private_key
   val derive_dk : string -> private_key
-  val sign : private_key -> string -> private_key signed_msg
-  val verify : public_key -> private_key signed_msg -> bool
-  val encrypt : public_key -> string -> public_key encrypted_msg Lwt.t
-  val decrypt : private_key -> public_key encrypted_msg -> string option Lwt.t
+
+  val sign :
+    'a exchangeable ->
+    private_key ->
+    'a ->
+    (public_key, private_key, 'a) signed_msg
+
+  val verify :
+    'a exchangeable ->
+    public_key ->
+    (public_key, private_key, 'a) signed_msg ->
+    bool
+
+  val encrypt :
+    'a exchangeable ->
+    public_key ->
+    'a ->
+    (public_key, private_key, 'a) encrypted_msg Lwt.t
+
+  val decrypt :
+    'a exchangeable ->
+    private_key ->
+    (public_key, private_key, 'a) encrypted_msg ->
+    'a option Lwt.t
 end
 
 module type CHANNELS = sig
-  module Pki : PKI
+  module P : PKI
 
-  type private_key = Pki.private_key
-  type public_key = Pki.public_key
+  type private_key = P.private_key
+  type public_key = P.public_key
+  type 'a msg = (public_key, private_key, 'a) sent_msg
 
-  val send :
-    private_key -> public_key -> string -> public_key encrypted_msg Lwt.t
-
-  val recv :
-    private_key -> public_key -> public_key encrypted_msg -> string Lwt.t
+  val send : 'a exchangeable -> private_key -> public_key -> 'a -> 'a msg Lwt.t
+  val recv : 'a exchangeable -> private_key -> public_key -> 'a msg -> 'a Lwt.t
 end
 
 module type PEDERSEN = sig
   module Channels : CHANNELS
 
-  type scalar = Channels.Pki.Group.Zq.t
-  type element = Channels.Pki.Group.t
+  type scalar = Channels.P.Group.Zq.t
+  type element = Channels.P.Group.t
+  type nonrec cert = (element, scalar) cert
+  type nonrec polynomial = (element, scalar) polynomial
 
-  val step1 : context -> string * scalar cert
-  val step1_check : context -> scalar cert -> bool
-  val step2 : scalar cert array -> int
-  val step3 : scalar cert array -> string -> scalar polynomial Lwt.t
-  val step3_check : scalar cert array -> int -> scalar polynomial -> bool
-
-  val step4 :
-    scalar cert array -> scalar polynomial array -> scalar vinput array
+  val xch_decryption_key : scalar partial_decryption_key exchangeable
+  val step1 : context -> string * cert
+  val step1_check : context -> cert -> bool
+  val step2 : cert array -> int
+  val step3 : cert array -> string -> polynomial Lwt.t
+  val step3_check : cert array -> int -> polynomial -> bool
+  val step4 : cert array -> polynomial array -> (element, scalar) vinput array
 
   val step5 :
-    scalar cert array ->
+    cert array ->
     string ->
-    scalar vinput ->
+    (element, scalar) vinput ->
     (element, scalar) voutput Lwt.t
 
   val step5_check :
-    scalar cert array ->
-    int ->
-    scalar polynomial array ->
-    (element, scalar) voutput ->
-    bool
+    cert array -> int -> polynomial array -> (element, scalar) voutput -> bool
 
   val step6 :
-    scalar cert array ->
-    scalar polynomial array ->
+    cert array ->
+    polynomial array ->
     (element, scalar) voutput array ->
     (element, scalar) threshold_parameters
 end

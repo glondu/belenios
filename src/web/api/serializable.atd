@@ -31,10 +31,11 @@ type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 type cast_error <ocaml predef from="Belenios_core.Serializable"> = abstract
 type context <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a cert <ocaml predef from="Belenios_core.Serializable"> = abstract
-type 'a vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
+type ('a, 'b) cert <ocaml predef from="Belenios_core.Serializable"> = abstract
+type ('a, 'b) vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) voutput <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) trustees <ocaml predef from="Belenios_core.Serializable"> = abstract
+type ('a, 'b) sent_partial_decryption_key <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type lang = string wrap <ocaml module="Belenios.Language">
 
@@ -191,8 +192,8 @@ type 'a raw_draft = {
 type ('a, 'b) pedersen = {
     context : context;
     step : int;
-    certs : 'b cert list <ocaml repr="array">;
-    ?vinput : 'b vinput option;
+    certs : ('a, 'b) cert list <ocaml repr="array">;
+    ?vinput : ('a, 'b) vinput option;
     ?voutput : ('a, 'b) voutput option;
 } <ocaml field_prefix="pedersen_">
 
@@ -251,14 +252,14 @@ type ('a, 'b) basic_trustees = {
     trustees : ('a, 'b) trustee_public_key trustee list;
 } <ocaml field_prefix="bt_">
 
-type 'a threshold_trustees = {
+type ('a, 'b) threshold_trustees = {
     ?threshold : int option;
-    trustees : 'a cert trustee list;
+    trustees : ('a, 'b) cert trustee list;
 } <ocaml field_prefix="tt_">
 
 type ('a, 'b) draft_trustees =
   [ Basic of ('a, 'b) basic_trustees
-  | Threshold of 'b threshold_trustees
+  | Threshold of ('a, 'b) threshold_trustees
   ]
 
 type draft_status = {
@@ -399,7 +400,7 @@ type partial_decryptions = {
 } <ocaml field_prefix="partial_decryptions_">
 
 type tally_trustee = {
-    ?private_key : string option;
+    ?private_key : (abstract, abstract) sent_partial_decryption_key option;
 } <ocaml field_prefix="tally_trustee_">
 
 type shuffler = {
