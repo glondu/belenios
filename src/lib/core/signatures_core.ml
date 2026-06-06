@@ -113,7 +113,7 @@ module type GROUP = sig
   (** Convert a group element to an int array. The first argument is the size of
       the array. *)
 
-  val hash : string -> t array -> Zq.t
+  val hash : dst:string -> string -> t array -> Zq.t
   (** Hash an array of elements into a scalar. The string argument is a string
       that is prepended before computing the hash. *)
 

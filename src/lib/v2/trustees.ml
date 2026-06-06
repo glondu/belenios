@@ -102,8 +102,8 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module Group = P.Group) = struct
     &&
     let { challenge; response } = trustee_pok in
     let commitment = G.((g **~ response) *~ (y **~ challenge)) in
-    let zkp = "pok|" ^ G.description ^ "|" ^ G.to_string y ^ "|" in
-    G.Zq.(challenge =% G.hash zkp [| commitment |])
+    let dst = dst_prefix ^ "-pok" in
+    G.Zq.(challenge =% G.hash ~dst (G.to_string y) [| commitment |])
 
   let check_pedersen t =
     let group = G.description in
@@ -233,10 +233,9 @@ module MakeSimple (G : GROUP) = struct
 
   let prove x =
     let trustee_public_key = g **~ x in
-    let zkp =
-      "pok|" ^ G.description ^ "|" ^ G.to_string trustee_public_key ^ "|"
-    in
-    let trustee_pok = fs_prove [| g |] x (G.hash zkp) in
+    let zkp = G.to_string trustee_public_key in
+    let dst = dst_prefix ^ "-pok" in
+    let trustee_pok = fs_prove [| g |] x (G.hash ~dst zkp) in
     {
       trustee_pok;
       trustee_public_key;

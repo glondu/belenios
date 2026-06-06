@@ -21,5 +21,4 @@
 
 include Signatures.GROUP
 
-val dst : string
 val selfcheck : unit -> bool

@@ -161,7 +161,7 @@ struct
     loop (pred (Array.length xs)) []
 
   let create_answer y zkp q m = Q.create_answer q ~public_key:y ~prefix:zkp m
-  let make_sig_prefix hash = "sig|" ^ hash ^ "|"
+  let dst = dst_prefix ^ "-sign_ballot"
 
   let create_ballot ~sk m =
     let election_uuid = W.uuid in
@@ -183,8 +183,7 @@ struct
     let signature =
       let w = random () in
       let commitment = g **~ w in
-      let prefix = make_sig_prefix s_hash in
-      let challenge = G.hash prefix [| commitment |] in
+      let challenge = G.hash ~dst s_hash [| commitment |] in
       let response = Zq.(w - (sk * challenge)) in
       let s_proof = { challenge; response } in
       Some { s_hash; s_proof }
@@ -213,8 +212,7 @@ struct
           s_hash = expected_hash && G.check credential
           &&
           let commitment = (g **~ response) *~ (credential **~ challenge) in
-          let prefix = make_sig_prefix s_hash in
-          Zq.(challenge =% G.hash prefix [| commitment |])
+          Zq.(challenge =% G.hash ~dst s_hash [| commitment |])
       | None -> false)
     && Array.for_all2
          (verify_answer W.public_key zkp)
@@ -297,8 +295,9 @@ struct
   type factor = (element, scalar) partial_decryption
 
   let eg_factor x { alpha; _ } =
-    let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
-    (alpha **~ x, fs_prove [| g; alpha |] x (hash zkp))
+    let zkp = W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
+    let dst = dst_prefix ^ "-decrypt" in
+    (alpha **~ x, fs_prove [| g; alpha |] x (hash ~dst zkp))
 
   let check_ciphertext c =
     Shape.forall (fun { alpha; beta } -> G.check alpha && G.check beta) c
@@ -311,7 +310,8 @@ struct
     else invalid_arg "Invalid ciphertext"
 
   let check_factor c y f =
-    let zkp = "decrypt|" ^ W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
+    let zkp = W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
+    let dst = dst_prefix ^ "-decrypt" in
     Shape.forall3
       (fun { alpha; _ } f { challenge; response } ->
         G.check f
@@ -322,7 +322,7 @@ struct
             (alpha **~ response) *~ (f **~ challenge);
           |]
         in
-        Zq.(G.hash zkp commitments =% challenge))
+        Zq.(G.hash ~dst zkp commitments =% challenge))
       c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result

@@ -62,10 +62,11 @@ module Make (G : GROUP) = struct
     let w = random () in
     let commitment = g **~ w in
     let zkp =
-      Printf.sprintf "raweg|%s|%s,%s,%s|" prefix (G.to_string y)
-        (G.to_string alpha) (G.to_string beta)
+      Printf.sprintf "%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha)
+        (G.to_string beta)
     in
-    let challenge = G.hash zkp [| commitment |] in
+    let dst = dst_prefix ^ "-raweg" in
+    let challenge = G.hash ~dst zkp [| commitment |] in
     let response = Zq.(w - (r * challenge)) in
     let proof = { challenge; response } in
     let choices = { alpha; beta } in
@@ -78,10 +79,11 @@ module Make (G : GROUP) = struct
     &&
     let commitment = (g **~ response) *~ (alpha **~ challenge) in
     let zkp =
-      Printf.sprintf "raweg|%s|%s,%s,%s|" prefix (G.to_string y)
-        (G.to_string alpha) (G.to_string beta)
+      Printf.sprintf "%s|%s,%s,%s|" prefix (G.to_string y) (G.to_string alpha)
+        (G.to_string beta)
     in
-    Zq.(challenge =% G.hash zkp [| commitment |])
+    let dst = dst_prefix ^ "-raweg" in
+    Zq.(challenge =% G.hash ~dst zkp [| commitment |])
 
   let extract_ciphertexts _ a = `Atomic a.choices
 

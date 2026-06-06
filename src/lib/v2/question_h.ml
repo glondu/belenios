@@ -116,11 +116,12 @@ module Make (G : GROUP) = struct
     let p =
       fs_prove [| g; y |] r (fun commitx ->
           Array.blit commitx 0 commitments (2 * x) 2;
+          let dst = dst_prefix ^ "-prove" in
           let prefix =
-            Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
+            Printf.sprintf "%s|%s,%s|" zkp (G.to_string alpha)
               (G.to_string beta)
           in
-          Zq.(G.hash prefix commitments - !total_challenges))
+          Zq.(G.hash ~dst prefix commitments - !total_challenges))
     in
     proofs.(x) <- p;
     proofs
@@ -139,11 +140,11 @@ module Make (G : GROUP) = struct
         (y **~ response) *~ ((beta *~ d.(i)) **~ challenge);
       total_challenges := Zq.(!total_challenges + challenge)
     done;
+    let dst = dst_prefix ^ "-prove" in
     let prefix =
-      Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
-        (G.to_string beta)
+      Printf.sprintf "%s|%s,%s|" zkp (G.to_string alpha) (G.to_string beta)
     in
-    Zq.(G.hash prefix commitments =% !total_challenges)
+    Zq.(G.hash ~dst prefix commitments =% !total_challenges)
 
   (** ZKPs for blank ballots *)
 
@@ -157,9 +158,9 @@ module Make (G : GROUP) = struct
         let commitmentB1 = (y **~ response1) *~ (cS.beta **~ challenge1) in
         let w = random () in
         let commitmentA0 = g **~ w and commitmentB0 = y **~ w in
-        let prefix = Printf.sprintf "bproof0|%s|" zkp in
+        let dst = dst_prefix ^ "-bproof0" in
         let h =
-          G.hash prefix
+          G.hash ~dst zkp
             [| commitmentA0; commitmentB0; commitmentA1; commitmentB1 |]
         in
         let challenge0 = Zq.(h - challenge1) in
@@ -204,8 +205,8 @@ module Make (G : GROUP) = struct
         let j = 2 * index_true in
         commitments.(j) <- g **~ w;
         commitments.(j + 1) <- y **~ w;
-        let prefix = Printf.sprintf "bproof1|%s|" zkp in
-        let h = G.hash prefix commitments in
+        let dst = dst_prefix ^ "-bproof1" in
+        let h = G.hash ~dst zkp commitments in
         let challenge = Zq.(h - !total_challenges) in
         let response = Zq.(w - (rS * challenge)) in
         overall_proof.(index_true) <- { challenge; response };
@@ -222,9 +223,9 @@ module Make (G : GROUP) = struct
         let commitmentB0 = (y **~ response0) *~ (c0.beta **~ challenge0) in
         let w = random () in
         let commitmentA1 = g **~ w and commitmentB1 = y **~ w in
-        let prefix = Printf.sprintf "bproof0|%s|" zkp in
+        let dst = dst_prefix ^ "-bproof0" in
         let h =
-          G.hash prefix
+          G.hash ~dst zkp
             [| commitmentA0; commitmentB0; commitmentA1; commitmentB1 |]
         in
         let challenge1 = Zq.(h - challenge0) in
@@ -260,8 +261,8 @@ module Make (G : GROUP) = struct
         let w = random () in
         commitments.(0) <- g **~ w;
         commitments.(1) <- y **~ w;
-        let prefix = Printf.sprintf "bproof1|%s|" zkp in
-        let h = G.hash prefix commitments in
+        let dst = dst_prefix ^ "-bproof1" in
+        let h = G.hash ~dst zkp commitments in
         let challenge = Zq.(h - !total_challenges) in
         let response = Zq.(w - (r0 * challenge)) in
         overall_proof.(0) <- { challenge; response };
@@ -283,8 +284,8 @@ module Make (G : GROUP) = struct
         commitments.(2) <- (g **~ response) *~ (cS.alpha **~ challenge);
         commitments.(3) <- (y **~ response) *~ (cS.beta **~ challenge);
         (total_challenges := Zq.(!total_challenges + challenge));
-        let prefix = Printf.sprintf "bproof0|%s|" zkp in
-        let h = G.hash prefix commitments in
+        let dst = dst_prefix ^ "-bproof0" in
+        let h = G.hash ~dst zkp commitments in
         Zq.(h =% !total_challenges))
     (* check overall_proof, proof of m0 = 1 \/ min <= mS <= max *)
     && Array.length overall_proof = max - min + 2
@@ -310,8 +311,8 @@ module Make (G : GROUP) = struct
       else ()
     in
     loop 1;
-    let prefix = Printf.sprintf "bproof1|%s|" zkp in
-    let h = G.hash prefix commitments in
+    let dst = dst_prefix ^ "-bproof1" in
+    let h = G.hash ~dst zkp commitments in
     Zq.(h =% !total_challenges)
 
   let invg = invert g

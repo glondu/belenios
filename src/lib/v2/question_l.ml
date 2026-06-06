@@ -114,10 +114,11 @@ module Make (G : GROUP) = struct
       fs_prove [| g; y |] r (fun commitx ->
           Array.blit commitx 0 commitments (2 * x) 2;
           let prefix =
-            Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
+            Printf.sprintf "%s|%s,%s|" zkp (G.to_string alpha)
               (G.to_string beta)
           in
-          Zq.(G.hash prefix commitments - !total_challenges))
+          let dst = dst_prefix ^ "-prove_l" in
+          Zq.(G.hash ~dst prefix commitments - !total_challenges))
     in
     proofs.(x) <- p;
     proofs
@@ -137,10 +138,10 @@ module Make (G : GROUP) = struct
       total_challenges := Zq.(!total_challenges + challenge)
     done;
     let prefix =
-      Printf.sprintf "prove|%s|%s,%s|" zkp (G.to_string alpha)
-        (G.to_string beta)
+      Printf.sprintf "%s|%s,%s|" zkp (G.to_string alpha) (G.to_string beta)
     in
-    Zq.(G.hash prefix commitments =% !total_challenges)
+    let dst = dst_prefix ^ "-prove_l" in
+    Zq.(G.hash ~dst prefix commitments =% !total_challenges)
 
   let invg = invert g
   let d01 = [| G.one; invg |]
@@ -179,9 +180,9 @@ module Make (G : GROUP) = struct
         let commitmentB1 = (y **~ response1) *~ (cS.beta **~ challenge1) in
         let w = random () in
         let commitmentA0 = g **~ w and commitmentB0 = y **~ w in
-        let prefix = Printf.sprintf "lproof|%s|" zkp in
+        let dst = dst_prefix ^ "-lproof" in
         let h =
-          G.hash prefix
+          G.hash ~dst zkp
             [| commitmentA0; commitmentB0; commitmentA1; commitmentB1 |]
         in
         let challenge0 = Zq.(h - challenge1) in
@@ -201,9 +202,9 @@ module Make (G : GROUP) = struct
         in
         let w = random () in
         let commitmentA1 = g **~ w and commitmentB1 = y **~ w in
-        let prefix = Printf.sprintf "lproof|%s|" zkp in
+        let dst = dst_prefix ^ "-lproof" in
         let h =
-          G.hash prefix
+          G.hash ~dst zkp
             [| commitmentA0; commitmentB0; commitmentA1; commitmentB1 |]
         in
         let challenge1 = Zq.(h - challenge0) in
@@ -232,8 +233,8 @@ module Make (G : GROUP) = struct
     commitments.(2) <- (g **~ response) *~ (cS.alpha **~ challenge);
     commitments.(3) <- (y **~ response) *~ (cS.beta **~ challenge);
     (total_challenges := Zq.(!total_challenges + challenge));
-    let prefix = Printf.sprintf "lproof|%s|" zkp in
-    let h = G.hash prefix commitments in
+    let dst = dst_prefix ^ "-lproof" in
+    let h = G.hash ~dst zkp commitments in
     Zq.(h =% !total_challenges)
 
   let create_nonzero_proof y zkp { alpha; beta } r =
@@ -244,8 +245,8 @@ module Make (G : GROUP) = struct
     let w1 = random () and w2 = random () in
     let a1 = (alpha **~ w1) *~ (g **~ w2) in
     let a2 = (beta **~ w1) *~ (y **~ w2) in
-    let prefix = Printf.sprintf "nonzero|%s|" zkp in
-    let nchallenge = G.hash prefix [| ncommitment; a1; a2 |] in
+    let dst = dst_prefix ^ "-nonzero" in
+    let nchallenge = G.hash ~dst zkp [| ncommitment; a1; a2 |] in
     let t1 = Zq.(w1 - (s * nchallenge)) in
     let t2 = Zq.(w2 + (s * r * nchallenge)) in
     let nresponse = (t1, t2) in
@@ -258,8 +259,8 @@ module Make (G : GROUP) = struct
     &&
     let a1 = (alpha **~ t1) *~ (g **~ t2) in
     let a2 = (beta **~ t1) *~ (y **~ t2) *~ (ncommitment **~ nchallenge) in
-    let prefix = Printf.sprintf "nonzero|%s|" zkp in
-    Zq.(nchallenge =% G.hash prefix [| ncommitment; a1; a2 |])
+    let dst = dst_prefix ^ "-nonzero" in
+    Zq.(nchallenge =% G.hash ~dst zkp [| ncommitment; a1; a2 |])
 
   let combine_except_first f x0 xs =
     let n = Array.length xs in

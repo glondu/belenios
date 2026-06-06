@@ -45,19 +45,23 @@ module Make (G : GROUP) = struct
   let dst_dk = dst_prefix ^ "-derive_dk"
   let derive_dk p = (G.Zq.hash ~dst:dst_dk 1 p).(0)
 
+  (** Generic signature *)
+
+  let dst_sig = dst_prefix ^ "-sign_msg"
+
   let sign sk s_message =
     let w = random () in
     let commitment = G.(g **~ w) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    let challenge = G.hash prefix [| commitment |] in
+    let challenge = G.hash ~dst:dst_sig s_message [| commitment |] in
     let response = G.Zq.(w - (sk * challenge)) in
     let s_signature = { challenge; response } in
     { s_message; s_signature }
 
   let verify vk { s_message; s_signature = { challenge; response } } =
     let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
-    let prefix = "sigmsg|" ^ s_message ^ "|" in
-    G.Zq.(challenge =% G.hash prefix [| commitment |])
+    G.Zq.(challenge =% G.hash ~dst:dst_sig s_message [| commitment |])
+
+  (** Generic encryption *)
 
   let encrypt y plaintext =
     let y_algorithm = "AES-GCM" in

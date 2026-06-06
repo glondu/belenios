@@ -147,8 +147,9 @@ module Make (B : LIBSODIUM_STUBS) = struct
 
   let get_generator i = make_from_pure (G.get_generator i)
 
-  let hash prefix xs =
-    (Zq.hash ~dst:G.dst 1 @@ prefix ^ map_and_concat_with_commas to_string xs).(0)
+  let hash ~dst prefix xs =
+    let dst = dst ^ "-group_hash-Ed25519" in
+    (Zq.hash ~dst 1 @@ prefix ^ map_and_concat_with_commas to_string xs).(0)
 
   let hash_to_int p = G.hash_to_int (get_as_pure p)
   let description = "Ed25519"

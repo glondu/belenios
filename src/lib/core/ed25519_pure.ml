@@ -242,9 +242,8 @@ let to_ints =
     decode_int (pred n) (shift_right x padding);
     xs
 
-let dst = dst_prefix ^ "-GROUP-Ed25519"
-
-let hash prefix xs =
+let hash ~dst prefix xs =
+  let dst = dst ^ "-group_hash-Ed25519" in
   (Zq.hash ~dst 1 @@ prefix ^ map_and_concat_with_commas to_string xs).(0)
 
 let hash_to_int p =
