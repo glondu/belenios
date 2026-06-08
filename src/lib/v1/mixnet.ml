@@ -181,6 +181,9 @@ struct
     (t, s, cc, cc_hat)
 
   let check_shuffle_proof y ee ee' proof =
+    Array.for_all (fun { alpha; beta } -> G.check alpha && G.check beta) ee
+    && Array.for_all (fun { alpha; beta } -> G.check alpha && G.check beta) ee'
+    &&
     let get_generator_indep = make_get_generator_indep () in
     let n = Array.length ee in
     let h = get_generator_indep (-1) in
