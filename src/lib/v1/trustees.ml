@@ -61,7 +61,10 @@ module MakeCert (P : PKI) = struct
 
   let verify_cert context x =
     let keys = cert_keys_of_string (sread G.of_string) x.s_message in
-    keys.cert_context = Some context && P.verify keys.cert_verification x
+    G.check keys.cert_verification
+    && G.check keys.cert_encryption
+    && keys.cert_context = Some context
+    && P.verify keys.cert_verification x
 end
 
 module MakeVerificator (G : GROUP) = struct

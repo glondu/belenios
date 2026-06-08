@@ -66,6 +66,10 @@ module Make (G : GROUP) (M : RANDOM) = struct
     Lwt.return { y_algorithm; y_alpha; y_beta; y_data }
 
   let decrypt x { y_algorithm; y_alpha; y_beta; y_data } =
+    let@ () =
+     fun cont ->
+      if G.check y_alpha && G.check y_beta then cont () else Lwt.return_none
+    in
     let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
     let key =
       sha256_hex G.("key|" ^ to_string (y_beta *~ invert (y_alpha **~ x)))
