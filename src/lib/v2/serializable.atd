@@ -39,10 +39,11 @@ type 'a params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
-type ('a, 'b) ballot = {
+type ('a, 'b) raw_ballot = {
   election_uuid : uuid;
   election_hash : hash;
   credential : 'a;
   answers : abstract list <ocaml repr="array">;
-  ?signature : ('a, 'b, hash) signed_msg option;
 }
+
+type ('a, 'b) ballot = ('a, 'b, ('a, 'b) raw_ballot) signed_msg

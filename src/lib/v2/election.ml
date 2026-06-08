@@ -105,7 +105,7 @@ module Parse (R : RAW_ELECTION) () = struct
 
   let read_ballot = read_ballot (sread G.of_string) (sread G.Zq.of_string)
   let write_ballot = write_ballot (swrite G.to_string) (swrite G.Zq.to_string)
-  let get_credential x = Some x.credential
+  let get_credential x = Some x.s_message.credential
 
   type result = Yojson.Safe.t
 
@@ -163,11 +163,13 @@ struct
 
   let create_answer y zkp q m = Q.create_answer q ~public_key:y ~prefix:zkp m
 
-  let xch_ballot_hash =
+  let xch_ballot =
     {
-      dst = dst_prefix ^ "-ballot_hash";
-      of_string = Hash.of_hex;
-      to_string = Hash.to_hex;
+      dst = dst_prefix ^ "-ballot";
+      of_string =
+        raw_ballot_of_string (sread G.of_string) (sread G.Zq.of_string);
+      to_string =
+        string_of_raw_ballot (swrite G.to_string) (swrite G.Zq.to_string);
     }
 
   let create_ballot ~sk m =
@@ -179,40 +181,21 @@ struct
       swap
         (Array.map2 (create_answer W.public_key zkp) W.template.t_questions m)
     in
-    let ballot_without_signature =
-      { election_uuid; election_hash; credential; answers; signature = None }
-    in
-    let ballot_hash =
-      Hash.hash_string
-      @@ string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
-           ballot_without_signature
-    in
-    let signature = Some (P.sign xch_ballot_hash sk ballot_hash) in
-    { election_uuid; election_hash; credential; answers; signature }
+    let raw_ballot = { election_uuid; election_hash; credential; answers } in
+    P.sign xch_ballot sk raw_ballot
 
   (** Ballot verification *)
 
   let verify_answer y zkp q a = Q.verify_answer q ~public_key:y ~prefix:zkp a
 
-  let check_ballot
-      { election_uuid; election_hash; credential; answers; signature } =
-    let ballot_without_signature =
-      { election_uuid; election_hash; credential; answers; signature = None }
-    in
-    let expected_hash =
-      Hash.hash_string
-      @@ string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
-           ballot_without_signature
+  let check_ballot ballot =
+    let { election_uuid; election_hash; credential; answers } =
+      ballot.s_message
     in
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = W.uuid
     && election_hash = W.fingerprint
-    && (match signature with
-      | Some signature ->
-          signature.s_message = expected_hash
-          && G.check credential
-          && P.verify xch_ballot_hash credential signature
-      | None -> false)
+    && P.verify xch_ballot credential ballot
     && Array.for_all2
          (verify_answer W.public_key zkp)
          W.template.t_questions answers
@@ -229,7 +212,7 @@ struct
         then
           Ok
             {
-              rc_credential = G.to_string ballot.credential;
+              rc_credential = G.to_string ballot.s_message.credential;
               rc_check = (fun () -> check_ballot ballot);
             }
         else Error `NonCanonical
@@ -240,7 +223,8 @@ struct
          (fun i q ->
            Q.process_ciphertexts q
              (List.map
-                (fun (w, b) -> (w, Q.extract_ciphertexts q b.answers.(i)))
+                (fun (w, b) ->
+                  (w, Q.extract_ciphertexts q b.s_message.answers.(i)))
                 bs))
          W.template.t_questions)
 
