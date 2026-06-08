@@ -98,7 +98,7 @@ module Parse (R : RAW_ELECTION) () = struct
     }
 
   let has_nh_questions = Array.exists Question.is_nh_question params.e_questions
-  let fingerprint = sha256_b64 R.raw_election
+  let fingerprint = Hash.hash_string R.raw_election
   let public_key = params.e_public_key
 
   type nonrec ballot = (G.t, G.Zq.t) ballot
@@ -167,7 +167,7 @@ struct
     let election_uuid = W.uuid in
     let election_hash = W.fingerprint in
     let credential = G.(g **~ sk) in
-    let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
+    let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string credential in
     let answers =
       swap
         (Array.map2 (create_answer W.public_key zkp) W.template.t_questions m)
@@ -204,7 +204,7 @@ struct
         (string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
            ballot_without_signature)
     in
-    let zkp = W.fingerprint ^ "|" ^ G.to_string credential in
+    let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = W.uuid
     && election_hash = W.fingerprint
     && (match signature with
@@ -295,7 +295,7 @@ struct
   type factor = (element, scalar) partial_decryption
 
   let eg_factor x { alpha; _ } =
-    let zkp = W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
+    let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
     (alpha **~ x, fs_prove [| g; alpha |] x (hash ~dst zkp))
 
@@ -310,7 +310,7 @@ struct
     else invalid_arg "Invalid ciphertext"
 
   let check_factor c y f =
-    let zkp = W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
+    let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
     Shape.forall3
       (fun { alpha; _ } f { challenge; response } ->

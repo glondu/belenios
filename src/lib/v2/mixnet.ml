@@ -132,7 +132,8 @@ module Make (W : ELECTION_DATA with type question := Question.t) = struct
     let cc, rr = gen_permutation_commitment psi hh in
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
     let uu =
-      get_nizkp_challenges n ("shuffle-challenges|" ^ W.fingerprint ^ "|" ^ str1)
+      get_nizkp_challenges n
+        ("shuffle-challenges|" ^ Hash.to_hex W.fingerprint ^ "|" ^ str1)
     in
     let uu' = Array.init n (fun i -> uu.(psi.(i))) in
     let cc_hat, rr_hat = gen_commitment_chain h uu' in
@@ -162,7 +163,7 @@ module Make (W : ELECTION_DATA with type question := Question.t) = struct
     let str3 = str1 ^ str_elts cc_hat ^ G.to_string y in
     let c =
       get_nizkp_challenge
-        ("shuffle-challenge|" ^ W.fingerprint ^ "|" ^ str2 ^ str3)
+        ("shuffle-challenge|" ^ Hash.to_hex W.fingerprint ^ "|" ^ str2 ^ str3)
     in
     let r_bar = Zq.(Array.fold_left ( + ) zero rr) in
     let s1 = Zq.(w1 + (c * r_bar)) in
@@ -206,13 +207,14 @@ module Make (W : ELECTION_DATA with type question := Question.t) = struct
     let hh = Array.init n get_generator_indep in
     let str1 = str_egs ee ^ str_egs ee' ^ str_elts cc in
     let uu =
-      get_nizkp_challenges n ("shuffle-challenges|" ^ W.fingerprint ^ "|" ^ str1)
+      get_nizkp_challenges n
+        ("shuffle-challenges|" ^ Hash.to_hex W.fingerprint ^ "|" ^ str1)
     in
     let str2 = str_elts [| t1; t2; t3; t41; t42 |] ^ str_elts tt_hat in
     let str3 = str1 ^ str_elts cc_hat ^ G.to_string y in
     let c =
       get_nizkp_challenge
-        ("shuffle-challenge|" ^ W.fingerprint ^ "|" ^ str2 ^ str3)
+        ("shuffle-challenge|" ^ Hash.to_hex W.fingerprint ^ "|" ^ str2 ^ str3)
     in
     let c_bar =
       Array.fold_left ( *~ ) one cc *~ invert (Array.fold_left ( *~ ) one hh)

@@ -38,7 +38,7 @@ module type ELECTION_BASE = sig
   val has_nh_questions : bool
   val version : int
   val uuid : uuid
-  val fingerprint : string
+  val fingerprint : hash
   val public_key : G.t
 end
 

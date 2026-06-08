@@ -82,7 +82,6 @@ let make_audit_div election cache =
   let open (val !Belenios_js.I18n.gettext) in
   let open (val election : Election.ELECTION) in
   let audit_election =
-    let h = Hash.of_b64 fingerprint in
     [
       tr
         [
@@ -92,7 +91,7 @@ let make_audit_div election cache =
       tr
         [
           td [ txt @@ s_ "Election fingerprint" ];
-          td [ code [ make_object_link uuid h ] ];
+          td [ code [ make_object_link uuid fingerprint ] ];
         ];
     ]
   in

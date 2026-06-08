@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
+type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
 type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type question = abstract wrap <ocaml module="Question">
 type lang_dir <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -45,7 +46,7 @@ type 'a signature = {
 
 type ('a, 'b) ballot = {
   election_uuid : uuid;
-  election_hash : string;
+  election_hash : hash;
   credential : 'a;
   answers : abstract list <ocaml repr="array">;
   ?signature : 'b signature option;

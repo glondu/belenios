@@ -157,7 +157,7 @@ let belenios : belenios Js.t =
       | None -> Js.string ""
       | Some election ->
           let module W = (val election) in
-          Js.string W.fingerprint
+          Js.string @@ Hash.to_b64 W.fingerprint
 
     method checkCredential params cred
         (callbacks : checkCredentialCallbacks Js.t) =
