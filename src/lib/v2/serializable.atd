@@ -21,7 +21,7 @@
 
 type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
 type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
-type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type ('a, 'b, 'c) signed_msg <ocaml predef from="Belenios_core.Serializable"> = abstract
 type question = abstract wrap <ocaml module="Question">
 type lang_dir <ocaml predef from="Belenios_core.Serializable"> = abstract
 
@@ -39,15 +39,10 @@ type 'a params = {
 } <ocaml field_prefix="e_">
 <doc text="Election parameters relevant for creating a ballot.">
 
-type 'a signature = {
-  hash : string;
-  proof : 'a proof;
-} <ocaml field_prefix="s_">
-
 type ('a, 'b) ballot = {
   election_uuid : uuid;
   election_hash : hash;
   credential : 'a;
   answers : abstract list <ocaml repr="array">;
-  ?signature : 'b signature option;
+  ?signature : ('a, 'b, hash) signed_msg option;
 }

@@ -128,6 +128,7 @@ struct
   module G = W.G
   module Q = Question.Make (G)
   module Mix = Mixnet.Make (W)
+  module P = Pki.Make (G)
   open G
 
   type private_key = scalar
@@ -161,7 +162,13 @@ struct
     loop (pred (Array.length xs)) []
 
   let create_answer y zkp q m = Q.create_answer q ~public_key:y ~prefix:zkp m
-  let dst = dst_prefix ^ "-sign_ballot"
+
+  let xch_ballot_hash =
+    {
+      dst = dst_prefix ^ "-ballot_hash";
+      of_string = Hash.of_hex;
+      to_string = Hash.to_hex;
+    }
 
   let create_ballot ~sk m =
     let election_uuid = W.uuid in
@@ -175,19 +182,12 @@ struct
     let ballot_without_signature =
       { election_uuid; election_hash; credential; answers; signature = None }
     in
-    let s_hash =
-      sha256_b64
-        (string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
-           ballot_without_signature)
+    let ballot_hash =
+      Hash.hash_string
+      @@ string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
+           ballot_without_signature
     in
-    let signature =
-      let w = random () in
-      let commitment = g **~ w in
-      let challenge = G.hash ~dst s_hash [| commitment |] in
-      let response = Zq.(w - (sk * challenge)) in
-      let s_proof = { challenge; response } in
-      Some { s_hash; s_proof }
-    in
+    let signature = Some (P.sign xch_ballot_hash sk ballot_hash) in
     { election_uuid; election_hash; credential; answers; signature }
 
   (** Ballot verification *)
@@ -200,19 +200,18 @@ struct
       { election_uuid; election_hash; credential; answers; signature = None }
     in
     let expected_hash =
-      sha256_b64
-        (string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
-           ballot_without_signature)
+      Hash.hash_string
+      @@ string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string)
+           ballot_without_signature
     in
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = W.uuid
     && election_hash = W.fingerprint
     && (match signature with
-      | Some { s_hash; s_proof = { challenge; response } } ->
-          s_hash = expected_hash && G.check credential
-          &&
-          let commitment = (g **~ response) *~ (credential **~ challenge) in
-          Zq.(challenge =% G.hash ~dst s_hash [| commitment |])
+      | Some signature ->
+          signature.s_message = expected_hash
+          && G.check credential
+          && P.verify xch_ballot_hash credential signature
       | None -> false)
     && Array.for_all2
          (verify_answer W.public_key zkp)
