@@ -52,16 +52,21 @@ module Make (G : GROUP) = struct
   let sign { dst; to_string; _ } sk s_message =
     let w = random () in
     let commitment = G.(g **~ w) in
-    let challenge = G.hash ~dst (to_string s_message) [| commitment |] in
+    let vk = G.(g **~ sk) in
+    let prefix =
+      Printf.sprintf "%s|%s" (G.to_string vk) (to_string s_message)
+    in
+    let challenge = G.hash ~dst prefix [| commitment |] in
     let response = G.Zq.(w - (sk * challenge)) in
     let s_signature = { challenge; response } in
     { s_message; s_signature }
 
   let verify xch vk { s_message; s_signature = { challenge; response } } =
     let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
-    G.Zq.(
-      challenge
-      =% G.hash ~dst:xch.dst (xch.to_string s_message) [| commitment |])
+    let prefix =
+      Printf.sprintf "%s|%s" (G.to_string vk) (xch.to_string s_message)
+    in
+    G.Zq.(challenge =% G.hash ~dst:xch.dst prefix [| commitment |])
 
   (** Generic encryption *)
 
