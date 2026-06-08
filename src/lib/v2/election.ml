@@ -58,7 +58,7 @@ let make_raw_election template ~uuid ~group ~public_key =
   let open PSerializable_j in
   let params =
     {
-      e_version = 1;
+      e_version = 2;
       e_description = template.t_description;
       e_name = template.t_name;
       e_questions = template.t_questions;
@@ -83,8 +83,8 @@ module Parse (R : RAW_ELECTION) () = struct
 
   module G = (val Group.of_string j.e_group)
 
-  let version = 1
   let params = params_of_string (sread G.of_string) R.raw_election
+  let version = params.e_version
   let uuid = params.e_uuid
 
   let template =

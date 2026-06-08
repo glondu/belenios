@@ -1,6 +1,6 @@
 (library
- (name belenios_v1)
- (public_name belenios-lib.v1)
+ (name belenios_v2)
+ (public_name belenios-lib.v2)
  (modules_without_implementation types)
  (libraries belenios-lib.core belenios-lib.question))
 

@@ -52,8 +52,8 @@ module type SERIALIZABLE_QUESTION = sig
   val to_concrete : t -> Belenios_question.t
 end
 
-module Serializable_question_v1 = struct
-  open Belenios_v1
+module Serializable_question_v2 = struct
+  open Belenios_v2
 
   type t = Question.t
 
@@ -63,22 +63,22 @@ module Serializable_question_v1 = struct
   let to_concrete = Question.to_concrete
 end
 
-type _ version = V1 : Belenios_v1.Question.t version
+type _ version = V2 : Belenios_v2.Question.t version
 
 let get_serializers (type a) (v : a version) :
     (module SERIALIZABLE_QUESTION with type t = a) =
-  match v with V1 -> (module Serializable_question_v1)
+  match v with V2 -> (module Serializable_question_v2)
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
     (t, u) Type.eq option =
-  match (x, y) with V1, V1 -> Some Equal
+  match (x, y) with V2, V2 -> Some Equal
 
 type some_version = Version : 'a version -> some_version
 
-let int_of_version (type t) (x : t version) = match x with V1 -> 1
+let int_of_version (type t) (x : t version) = match x with V2 -> 2
 
 let version_of_int = function
-  | 1 -> Version V1
+  | 2 -> Version V2
   | v -> Printf.ksprintf invalid_arg "unsupported version: %d" v
 
 type versioned_template =
@@ -86,12 +86,12 @@ type versioned_template =
 
 let template_of_string x =
   match get_version x with
-  | 1 -> Template (V1, Belenios_v1.Election.template_of_string x)
+  | 2 -> Template (V2, Belenios_v2.Election.template_of_string x)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
-let string_of_template (Template (V1, x)) =
-  let open Belenios_v1.Serializable_j in
+let string_of_template (Template (V2, x)) =
+  let open Belenios_v2.Serializable_j in
   string_of_template write_question x
 
 let election_uuid_of_string_ballot x =
@@ -105,24 +105,24 @@ let election_uuid_of_string_ballot x =
 
 let make_raw_election ~version template ~uuid ~group ~public_key =
   match version with
-  | 1 -> (
+  | 2 -> (
       match template with
-      | Template (V1, template) ->
-          Belenios_v1.Election.make_raw_election template ~uuid ~group
+      | Template (V2, template) ->
+          Belenios_v2.Election.make_raw_election template ~uuid ~group
             ~public_key)
   | n ->
       Printf.ksprintf invalid_arg "make_raw_election: unsupported version: %d" n
 
 (** Helper functions *)
 
-let has_nh_questions (Template (V1, e)) =
-  Array.exists Belenios_v1.Question.is_nh_question e.t_questions
+let has_nh_questions (Template (V2, e)) =
+  Array.exists Belenios_v2.Question.is_nh_question e.t_questions
 
-let get_questions (Template (V1, e)) =
-  Array.map Belenios_v1.Question.to_concrete e.t_questions
+let get_questions (Template (V2, e)) =
+  Array.map Belenios_v2.Question.to_concrete e.t_questions
 
-let get_complexity (Template (V1, e)) =
-  Belenios_v1.Election.get_complexity e.t_questions
+let get_complexity (Template (V2, e)) =
+  Belenios_v2.Election.get_complexity e.t_questions
 
 module type ELECTION = sig
   include ELECTION
@@ -132,22 +132,22 @@ end
 
 let of_string x =
   match get_version x with
-  | 1 ->
+  | 2 ->
       let module R = struct
         let raw_election = x
       end in
       let module X = struct
-        type question = Belenios_v1.Question.t
+        type question = Belenios_v2.Question.t
 
-        include Belenios_v1.Election.Make (R) ()
+        include Belenios_v2.Election.Make (R) ()
 
-        let witness = V1
+        let witness = V2
       end in
       (module X : ELECTION)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
-let supported_crypto_versions = [ Version V1 ]
+let supported_crypto_versions = [ Version V2 ]
 
 (** Computing checksums *)
 
