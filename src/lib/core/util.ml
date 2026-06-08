@@ -67,20 +67,29 @@ let compute_synthetic_factors_exc trustees check partial_decryptions fold =
           let check x y =
             match y with None -> true | Some y -> check x.trustee_public_key y
           in
-          if Array.for_all2 check x.t_verification_keys y then
-            let y = Array.mapi (fun i x -> (i + 1, x)) y in
-            let rec take n i accu =
-              if n > 0 then
-                if i < length then
-                  match y.(i) with
-                  | _, None -> take n (i + 1) accu
-                  | id, Some y -> take (n - 1) (i + 1) ((id, y) :: accu)
-                else raise (CombinationError NotEnoughPartialDecryptions)
+          let _invalid_partial_decryptions =
+            let rec loop accu i =
+              if i >= 0 then
+                if check x.t_verification_keys.(i) y.(i) then loop accu (i - 1)
+                else (
+                  y.(i) <- None;
+                  loop (i :: accu) (i - 1))
               else accu
             in
-            let pds_with_ids = take x.t_threshold 0 [] in
-            fold pds_with_ids
-          else raise (CombinationError InvalidPartialDecryption)
+            loop [] (length - 1)
+          in
+          let y = Array.mapi (fun i x -> (i + 1, x)) y in
+          let rec take n i accu =
+            if n > 0 then
+              if i < length then
+                match y.(i) with
+                | _, None -> take n (i + 1) accu
+                | id, Some y -> take (n - 1) (i + 1) ((id, y) :: accu)
+              else raise (CombinationError NotEnoughPartialDecryptions)
+            else accu
+          in
+          let pds_with_ids = take x.t_threshold 0 [] in
+          fold pds_with_ids
       | _ -> invalid_arg "combine_factors")
     trustees
     (arrange_partial_decryptions trustees partial_decryptions)
