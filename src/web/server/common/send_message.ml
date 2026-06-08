@@ -106,10 +106,6 @@ let send ?internal (msg : message) =
         let* l = Web_i18n.get ~component:"admin" ~lang in
         let t = Mails_admin.mail_set_email l ~recipient ~code in
         Lwt.return ("set-email", "", uuid, t)
-    | `Voter_password x ->
-        let* t = Mails_voter.format_password_email x in
-        let m = Option.value ~default:dummy_metadata x.metadata in
-        Lwt.return ("password", string_of_int m.admin_id, Some m.uuid, t)
     | `Voter_credential x ->
         let* t = Mails_voter.format_credential_email x in
         let m = Option.value ~default:dummy_metadata x.metadata in

@@ -95,7 +95,6 @@ let registrar_of_string : _ -> Admin.registrar option = function
   | _ -> invalid_arg "registrar_of_string"
 
 let auth_of_string = function
-  | "password" -> Admin.Password
   | "email" -> Admin.Email
   | _ -> invalid_arg "auth_of_string"
 
@@ -171,29 +170,12 @@ let scenario admin questions nvoters trustees registrar auth =
               | _ -> assert false)
           | _ -> assert false
         in
-        let auth =
-          match auth with
-          | Password ->
-              let password = Emails.extract_password emails voter in
-              let password = Option.value ~default:"N/A" password in
-              Vote.auth_password ~username:voter ~password
-          | Email -> Vote.auth_email ~username:voter
-        in
+        let auth = match auth with Email -> Vote.auth_email ~username:voter in
         let* () = Vote.vote ~voter ~credential ~auth in
         check ())
       voters
   in
-  let* () =
-    match auth with
-    | Email -> Lwt.return_unit
-    | Password ->
-        let voter = List.hd voters in
-        let credential = Emails.extract_credential emails voter in
-        let credential = Option.value ~default:"N/A" credential in
-        let* password = Admin.regen_password ~id:e.id ~username:voter in
-        let auth = Vote.auth_password ~username:voter ~password in
-        Vote.vote ~voter ~credential ~auth
-  in
+  let* () = match auth with Email -> Lwt.return_unit in
   let* () = Admin.tally_election check e in
   close_in Config.emails;
   Lwt.return_unit

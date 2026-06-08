@@ -66,7 +66,6 @@ let with_trustee token (Draft (_, se)) f =
       | None -> unauthorized)
 
 let authentication_of_auth_config = function
-  | Some [ { auth_system = "password"; _ } ] -> Some `Password
   | Some [ { auth_system = "cas"; auth_config; _ } ] ->
       Some (`CAS (List.assoc "server" auth_config))
   | Some [ { auth_system = "import"; auth_instance; _ } ] ->
@@ -74,21 +73,21 @@ let authentication_of_auth_config = function
   | _ -> None
 
 let get_authentication se =
-  match authentication_of_auth_config se.se_metadata.e_auth_config with
-  | Some x -> x
-  | None -> raise (Error (`Invalid "authentication"))
+  authentication_of_auth_config se.se_metadata.e_auth_config
 
 let auth_config_of_authentication = function
-  | `Password ->
-      { auth_system = "password"; auth_instance = "password"; auth_config = [] }
-  | `CAS server ->
-      {
-        auth_system = "cas";
-        auth_instance = "cas";
-        auth_config = [ ("server", server) ];
-      }
-  | `Configured auth_instance ->
-      { auth_system = "import"; auth_instance; auth_config = [] }
+  | Some (`CAS server) ->
+      Some
+        [
+          {
+            auth_system = "cas";
+            auth_instance = "cas";
+            auth_config = [ ("server", server) ];
+          };
+        ]
+  | Some (`Configured auth_instance) ->
+      Some [ { auth_system = "import"; auth_instance; auth_config = [] } ]
+  | None -> None
 
 let api_of_draft (Draft (v, se)) =
   let draft_questions =
@@ -177,8 +176,7 @@ let draft_of_api a uuid (Draft (v, se) as fse) (Belenios_web_api.Draft (v', d))
       e_booth_version = Some d.draft_booth;
       e_cred_authority;
       e_cred_authority_info;
-      e_auth_config =
-        Some [ auth_config_of_authentication d.draft_authentication ];
+      e_auth_config = auth_config_of_authentication d.draft_authentication;
     }
   in
   {
@@ -273,7 +271,7 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
           fail @@ `Identity (Voter.to_string voter);
         let login = Voter.get voter in
         match SMap.find_opt (String.lowercase_ascii login) existing_voters with
-        | None -> { sv_id = voter; sv_password = None }
+        | None -> { sv_id = voter }
         | Some v ->
             v.sv_id <- voter;
             v)
@@ -312,47 +310,6 @@ let put_draft_voters ((Draft (v, se), set) : _ updatable_with_billing) voters =
   in
   let se = { se with se_voters } in
   set (Draft (v, se))
-
-let get_draft_passwords (Draft (_, se)) =
-  se.se_voters
-  |> List.filter_map (fun x ->
-      Option.map
-        (fun _ ->
-          let login = Voter.get x.sv_id in
-          login)
-        x.sv_password)
-
-let post_draft_passwords account generate
-    ((Draft (v, se), set) : _ updatable_with_billing) voters =
-  let se_voters =
-    List.fold_left
-      (fun accu v ->
-        let login = Voter.get v.sv_id in
-        SMap.add (String.lowercase_ascii login) v accu)
-      SMap.empty se.se_voters
-  in
-  let () =
-    if SMap.cardinal se_voters > Accounts.max_voters account then
-      raise (Error (`ValidationError `TooManyVoters))
-  in
-  let voters =
-    List.map
-      (fun login ->
-        match SMap.find_opt (String.lowercase_ascii login) se_voters with
-        | None -> raise (Error (`Missing login))
-        | Some v -> v)
-      voters
-  in
-  let* jobs =
-    Lwt_list.fold_left_s
-      (fun jobs v ->
-        let* job, x = generate v.sv_id in
-        v.sv_password <- Some x;
-        Lwt.return (job :: jobs))
-      [] voters
-  in
-  let* () = set (Draft (v, se)) in
-  Lwt.return jobs
 
 let get_credentials_token (Draft (_, se)) =
   if se.se_metadata.e_cred_authority = Some "server" then Lwt.return_none
@@ -719,11 +676,6 @@ let get_draft_status uuid (Draft (v, se)) =
   Lwt.return
     {
       num_voters = List.length se.se_voters;
-      passwords_ready =
-        (match se.se_metadata.e_auth_config with
-        | Some [ { auth_system = "password"; _ } ] ->
-            Some (List.for_all (fun v -> v.sv_password <> None) se.se_voters)
-        | _ -> None);
       credentials_ready;
       credentials_left;
       private_credentials_downloaded;
@@ -744,7 +696,7 @@ let get_draft_status uuid (Draft (v, se)) =
       restricted_mode_error;
     }
 
-let merge_voters a b f =
+let merge_voters a b =
   let weights =
     List.fold_left
       (fun accu sv ->
@@ -760,27 +712,9 @@ let merge_voters a b f =
         let login = Voter.get sv_id |> String.lowercase_ascii in
         let weight = Voter.get_weight sv_id in
         if SMap.mem login weights then Stdlib.Error sv_id
-        else
-          loop
-            (SMap.add login weight weights)
-            ({ sv_id; sv_password = f sv_id } :: accu)
-            xs
+        else loop (SMap.add login weight weights) ({ sv_id } :: accu) xs
   in
   loop weights (List.rev a) b
-
-let get_passwords s =
-  let* csv = Storage.E.get s Passwords in
-  let&* csv = Lopt.get_value csv in
-  let res =
-    List.fold_left
-      (fun accu line ->
-        match line with
-        | [ login; salt; hash ] ->
-            SMap.add (String.lowercase_ascii login) (salt, hash) accu
-        | _ -> accu)
-      SMap.empty csv
-  in
-  Lwt.return_some res
 
 let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
   let@ voters cont =
@@ -793,19 +727,10 @@ let import_voters uuid ((Draft (v, se), set) : _ updatable_with_billing) from =
         | Some se -> cont @@ get_draft_voters se)
     | _ -> cont x
   in
-  let* passwords = get_passwords from in
-  let get_password =
-    match passwords with
-    | None -> fun _ -> None
-    | Some p ->
-        fun sv_id ->
-          let login = Voter.get sv_id in
-          SMap.find_opt (String.lowercase_ascii login) p
-  in
   if Web_persist.get_credentials_status uuid (Draft (v, se)) <> `None then
     Lwt.return @@ Stdlib.Error `Forbidden
   else
-    match merge_voters se.se_voters voters get_password with
+    match merge_voters se.se_voters voters with
     | Ok (voters, total_weight) ->
         let expanded = Weight.expand ~total:total_weight total_weight in
         if Z.compare expanded Weight.max_expanded_weight <= 0 then (
@@ -1301,24 +1226,6 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
                   Lwt.fail (Error (`GenericError "total weight too big"))
               | Stdlib.Error (`Duplicate x) ->
                   Lwt.fail (Error (`GenericError ("duplicate: " ^ x)))))
-      | _ -> method_not_allowed)
-  | [ "passwords" ] -> (
-      let@ account = with_administrator token se in
-      let get () =
-        let x = get_draft_passwords se in
-        Lwt.return @@ string_of_string_list x
-      in
-      match method_ with
-      | `GET -> handle_get get
-      | `POST ->
-          let@ () = handle_ifmatch ifmatch get in
-          let@ voters = body.run string_list_of_string in
-          let@ () = handle_generic_error in
-          let* metadata = Mails_voter.get_metadata s ~admin_id:account.id in
-          let generate id = Mails_voter.generate_password_email metadata id in
-          let* jobs = post_draft_passwords account generate (se, set) voters in
-          let* () = Mails_voter_bulk.submit_bulk_emails jobs in
-          ok
       | _ -> method_not_allowed)
   | "credentials" :: endpoint ->
       dispatch_credentials ~token endpoint method_ body s uuid (se, set)

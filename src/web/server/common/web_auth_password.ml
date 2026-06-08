@@ -72,10 +72,7 @@ struct
             let@ s = Storage.A.with_transaction in
             let* r = Storage.A.get s (Admin_password (file, key)) in
             Lwt.return (r, update)
-        | Some uuid ->
-            let@ s = Storage.E.with_transaction uuid in
-            let* r = Storage.E.get s (Password name) in
-            Lwt.return (r, fun _ -> Lwt.return_unit)
+        | Some _ -> failwith "invalid password authentication for election"
       in
       let&* ({ salt; hashed = hash; _ } as r) = Lopt.get_value r in
       let ~ok, ~obsolete = Password.check ~salt ~hash ~password in

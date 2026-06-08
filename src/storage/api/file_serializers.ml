@@ -66,7 +66,6 @@ let get_election (type t) : t File.u -> t string_serializers = function
         to_string = string_of_private_credentials;
       }
   | Sealing_log -> { of_string = Fun.id; to_string = Fun.id }
-  | Passwords -> { of_string = csv_of_string; to_string = string_of_csv }
   | Records ->
       {
         of_string = election_records_of_string;
@@ -100,11 +99,6 @@ let get_election (type t) : t File.u -> t string_serializers = function
   | Credential_weight _ ->
       { of_string = Weight.of_string; to_string = Weight.to_string }
   | Credential_user _ -> { of_string = Fun.id; to_string = Fun.id }
-  | Password _ ->
-      {
-        of_string = password_record_of_string;
-        to_string = string_of_password_record;
-      }
   | Credentials_params ->
       {
         of_string = credentials_params_of_string;

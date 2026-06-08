@@ -156,11 +156,8 @@ module Make () = struct
           [ Element (auth_system, auth_config, []) ] ) ->
         let i = { auth_system; auth_instance; auth_config } in
         auth_instances := i :: !auth_instances
-    | Element ("auth-export", [ ("name", "builtin-password") ], []) ->
-        auth_instances_export :=
-          Web_config.BuiltinPassword :: !auth_instances_export
     | Element ("auth-export", [ ("name", "builtin-cas") ], []) ->
-        auth_instances_export := BuiltinCAS :: !auth_instances_export
+        auth_instances_export := Web_config.BuiltinCAS :: !auth_instances_export
     | Element ("auth-export", attrs, [ Element (auth_system, auth_config, []) ])
       ->
         let@ auth_instance cont =

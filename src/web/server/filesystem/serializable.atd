@@ -64,7 +64,7 @@ type 'question raw_draft_election = {
   ~pending_credentials <ocaml default="false" mutable> : bool;
 } <ocaml field_prefix="se_">
 
-type authentication_method = [ CAS of string | Password | Unknown ]
+type authentication_method = [ CAS of string | Email | Unknown ]
 type credential_method = [ Automatic | Manual ]
 type deleted_trustee = [ Single | Pedersen of (int * int) ]
 

@@ -271,7 +271,6 @@ let rec show_draft_status uuid container =
 let suffix_and_label_of_draft_tab = function
   | `Draft -> ("", "Draft")
   | `Voters -> ("/voters", "Voters")
-  | `Passwords -> ("/passwords", "Passwords")
   | `Credentials -> ("/credentials", "Credentials")
   | `Trustees -> ("/trustees", "Trustees")
   | `Status -> ("/status", "Status")
@@ -286,7 +285,6 @@ let show_draft show_all uuid draft title container tab =
   match tab with
   | `Draft -> show_draft_main show_all uuid draft container
   | `Voters -> show_draft_voters uuid draft container
-  | `Passwords -> show_draft_passwords uuid container
   | `Credentials -> show_draft_credentials uuid container
   | `Trustees -> show_draft_trustees uuid container
   | `Status -> show_draft_status uuid container
@@ -317,7 +315,6 @@ let show main uuid tab context =
               [
                 li [ a_draft_tab uuid `Draft ];
                 li [ a_draft_tab uuid `Voters ];
-                li [ a_draft_tab uuid `Passwords ];
                 li [ a_draft_tab uuid `Credentials ];
                 li [ a_draft_tab uuid `Trustees ];
                 li [ a_draft_tab uuid `Status ];

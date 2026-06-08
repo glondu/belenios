@@ -64,7 +64,6 @@ type message =
   [ Account_create of code_message
   | Account_change_password of code_message
   | Account_set_email of code_message
-  | Voter_password of material_message
   | Voter_credential of material_message
   | Vote_confirmation of confirmation_message
   | Mail_login of code_message

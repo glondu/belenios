@@ -91,11 +91,6 @@ the configuration file. A token is valid for 24 hours, or until
 ### `PUT`: voter_list -> unit (administrator)
 ### `POST`: voters_request -> unit (administrator)
 
-## `elections/$UUID/draft/passwords` (administrator)
-
-### `GET`: unit -> string_list
-### `POST`: string_list -> unit
-
 ## `elections/$UUID/draft/credentials/token` (administrator)
 
 ### `GET`: unit -> string

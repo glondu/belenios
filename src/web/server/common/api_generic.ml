@@ -151,8 +151,7 @@ let get_configuration () =
     authentications =
       List.map
         (function
-          | Web_config.BuiltinPassword -> `Password
-          | BuiltinCAS -> `CAS
+          | Web_config.BuiltinCAS -> `CAS
           | Export a ->
               `Configured
                 {

@@ -25,7 +25,6 @@ let prefix = ref ""
 let site_auth_config = ref []
 
 type exported_auth_config =
-  | BuiltinPassword
   | BuiltinCAS
   | Export of { descr : string option; config : auth_config }
 

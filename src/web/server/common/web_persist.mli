@@ -59,7 +59,6 @@ val get_records :
   Storage.E.t -> Belenios_storage_api.election_records option Lwt.t
 
 val get_voter : Storage.E.t -> string -> Voter.t option Lwt.t
-val regen_password : Storage.E.t -> admin_id:int -> string -> bool Lwt.t
 
 (** {1 Derived election data} *)
 

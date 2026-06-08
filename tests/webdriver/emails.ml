@@ -59,7 +59,6 @@ let extract ~rex emails voter =
           | g -> Some (Re.Group.get g 1))
         email)
 
-let extract_password = extract ~rex:(Re.Pcre.regexp "^Password: (.+)$")
 let extract_credential = extract ~rex:(Re.Pcre.regexp "^Your credential: (.+)$")
 let extract_code = extract ~rex:(Re.Pcre.regexp "^  (\\d+)$")
 

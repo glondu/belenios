@@ -24,7 +24,6 @@ open Belenios
 open Belenios_server_core
 
 let send_bulk_email = function
-  | `Password x -> Send_message.send @@ `Voter_password x
   | `Credential x -> Send_message.send @@ `Voter_credential x
 
 module Bulk_processor = struct

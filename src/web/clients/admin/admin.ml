@@ -163,9 +163,9 @@ let newdraft () =
           draft_booth = List.hd c.supported_booth_versions;
           draft_authentication =
             (match c.authentications with
-            | [] | `Password :: _ -> `Password
-            | `CAS :: _ -> `CAS ""
-            | `Configured x :: _ -> `Configured x.configured_instance);
+            | `CAS :: _ -> Some (`CAS "")
+            | `Configured x :: _ -> Some (`Configured x.configured_instance)
+            | _ -> None);
           draft_group = c.default_group;
           draft_cred_authority_info = None;
         }

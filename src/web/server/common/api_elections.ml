@@ -394,7 +394,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
       | `GET -> handle_get get
       | `POST -> (
           let@ () = handle_ifmatch ifmatch get in
-          let@ account = with_administrator token metadata in
+          let@ _ = with_administrator token metadata in
           let@ request = body.run admin_request_of_string in
           match request with
           | (`Open | `Close) as x ->
@@ -426,10 +426,6 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
               let@ () = handle_generic_error in
               let* () = Storage.E.archive_election s in
               ok
-          | `RegeneratePassword user ->
-              let@ () = handle_generic_error in
-              let* b = Web_persist.regen_password s ~admin_id:account.id user in
-              if b then ok else not_found
           | `Seal seal ->
               let@ () = handle_generic_error in
               let* () = Web_persist.seal_election s seal in

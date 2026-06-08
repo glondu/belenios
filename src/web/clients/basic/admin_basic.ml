@@ -43,12 +43,11 @@ let regexps =
   [
     (Regexp.regexp "^#?$", fun _ -> `Root);
     ( Regexp.regexp
-        "^#drafts/([0-9A-Za-z]+)(/(voters|passwords|credentials|trustees|status))?$",
+        "^#drafts/([0-9A-Za-z]+)(/(voters|credentials|trustees|status))?$",
       fun r ->
         match (Regexp.matched_group r 1, Regexp.matched_group r 3) with
         | Some uuid, None -> `Draft (Uuid.wrap uuid, `Draft)
         | Some uuid, Some "voters" -> `Draft (Uuid.wrap uuid, `Voters)
-        | Some uuid, Some "passwords" -> `Draft (Uuid.wrap uuid, `Passwords)
         | Some uuid, Some "credentials" -> `Draft (Uuid.wrap uuid, `Credentials)
         | Some uuid, Some "trustees" -> `Draft (Uuid.wrap uuid, `Trustees)
         | Some uuid, Some "status" -> `Draft (Uuid.wrap uuid, `Status)
@@ -166,9 +165,9 @@ let rec show_root main =
             draft_booth = List.hd c.supported_booth_versions;
             draft_authentication =
               (match c.authentications with
-              | [] | `Password :: _ -> `Password
-              | `CAS :: _ -> `CAS ""
-              | `Configured x :: _ -> `Configured x.configured_instance);
+              | `CAS :: _ -> Some (`CAS "")
+              | `Configured x :: _ -> Some (`Configured x.configured_instance)
+              | _ -> None);
             draft_group = c.default_group;
             draft_cred_authority_info = None;
           }

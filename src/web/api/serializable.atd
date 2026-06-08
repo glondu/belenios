@@ -72,7 +72,6 @@ type validation_error =
   | NoVoters
   | TooManyVoters
   | WrongLength
-  | MissingPasswords
   | MissingPublicCredentials
   | TrusteesNotReady
   | WeightsAreIncompatibleWithNH
@@ -120,8 +119,7 @@ type configured_authentication = {
 } <ocaml field_prefix="configured_">
 
 type authentication_system =
-  [ Password
-  | CAS
+  [ CAS
   | Configured of configured_authentication
   ]
 
@@ -170,8 +168,7 @@ type api_account = {
 }
 
 type authentication =
-  [ Password
-  | CAS of string
+  [ CAS of string
   | Configured of string
   ]
 
@@ -187,7 +184,7 @@ type 'a raw_draft = {
     languages : string list;
     ?contact : string option;
     booth : int;
-    authentication : authentication;
+    ?authentication : authentication option;
     group : string;
     ?cred_authority_info : cred_authority_info option;
 } <ocaml field_prefix="draft_">
@@ -267,7 +264,6 @@ type ('a, 'b) draft_trustees =
 
 type draft_status = {
     num_voters : int;
-    ?passwords_ready : bool option;
     credentials_ready : bool;
     ?credentials_left : int option;
     ?private_credentials_downloaded : bool option;
@@ -389,7 +385,6 @@ type admin_request =
   | FinishShuffling
   | ReleaseTally
   | Archive
-  | RegeneratePassword of string
   | Seal of bool
   ]
 

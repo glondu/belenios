@@ -74,7 +74,7 @@ scenarios:
       tmpdir /tmp
       run "LC_ALL=C.UTF-8 exec geckodriver --port=4444"
       scenario local one 5 none charlie email
-      scenario demo two 1 none none password
+      scenario demo two 1 none none email
       scenario demo one 1 basic none email
       scenario demo one 1 threshold none email
       scenario demo one 5 none david email

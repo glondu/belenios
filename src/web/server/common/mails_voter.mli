@@ -19,17 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 open Belenios_messages
 
 val get_metadata : Storage.E.t -> admin_id:int -> metadata Lwt.t
-val format_password_email : material_message -> text_message Lwt.t
-
-val generate_password_email :
-  metadata -> Voter.t -> (bulk_email * (string * string)) Lwt.t
-
 val format_credential_email : material_message -> text_message Lwt.t
 
 val generate_credential_email :

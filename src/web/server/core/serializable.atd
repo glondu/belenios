@@ -29,8 +29,7 @@ type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
 type material_message <ocaml predef from="Belenios_messages.Serializable"> = abstract
 
 type bulk_email =
-  [ Password of material_message
-  | Credential of material_message
+  [ Credential of material_message
   ]
 
 type bulk_emails = bulk_email list <ocaml repr="array">

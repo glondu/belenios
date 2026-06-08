@@ -39,7 +39,6 @@ type _ u =
   | Public_creds : public_credentials u
   | Private_creds : private_credentials u
   | Sealing_log : string u
-  | Passwords : string list list u
   | Records : election_records u
   | Voters : Voter.t list u
   | Confidential_archive : abstract u
@@ -51,7 +50,6 @@ type _ u =
   | Voter : string -> Voter.t u
   | Credential_weight : string -> Weight.t u
   | Credential_user : string -> string u
-  | Password : string -> password_record u
   | Credentials_params : credentials_params u
   | Credentials_metadata : Belenios_web_api.message_metadata u
   | Credentials_seed : credentials_seed u

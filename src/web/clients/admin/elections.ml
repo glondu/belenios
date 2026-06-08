@@ -65,8 +65,6 @@ let is_ready () =
     && draft.draft_contact <> Some ""
     && draft.draft_questions.t_questions <> [||]
     && status.num_voters > 0 && status.voter_authentication_visited
-    && (draft.draft_authentication <> `Password
-       || status.passwords_ready = Some true)
     && status.credential_authority_visited
     && status.credentials_ready = true
     && draft.draft_questions.t_credential_authority <> None
@@ -93,7 +91,7 @@ let default_handler tab () =
     if is_draft () && Cache.modified Cache.draft then
       let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
       match draft.draft_authentication with
-      | `CAS s when not (is_valid_url s) ->
+      | Some (`CAS s) when not (is_valid_url s) ->
           alert
           @@ s_
                "Selecting CAS authentication requires setting a valid CAS \
@@ -278,17 +276,9 @@ let tabs x =
           if curr_tab = x then Lwt.return `Doing
           else
             let* status = Cache.get_until_success Cache.status in
-            if
-              status.voter_authentication_visited
-              && (status.passwords_ready = None
-                 || status.passwords_ready = Some true)
-            then Lwt.return `Done
+            if status.voter_authentication_visited then Lwt.return `Done
             else Lwt.return `Todo
-        else
-          let* status = Cache.get_until_success Cache.e_status in
-          match status.status_authentication with
-          | Some `Password -> Lwt.return `None
-          | _ -> Lwt.return `DDone
+        else Lwt.return `DDone
       in
       let handler =
         if is_draft || status = `None then Some (default_handler x) else None
@@ -1770,15 +1760,11 @@ let voterspwd_content_draft () =
   let open (val !Belenios_js.I18n.gettext) in
   let* status = Cache.get_until_success Cache.status in
   let first_visit = not status.voter_authentication_visited in
-  let pwd_rdy = status.passwords_ready in
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let* voters = Cache.get_until_success Cache.voters in
   let curr_auth = draft.draft_authentication in
   if List.length voters = 0 then
     Lwt.return [ div [ txt @@ s_ "Please fill-in the voter list first." ] ]
-  else if curr_auth = `Password && pwd_rdy = Some true then
-    Lwt.return
-      [ div [ txt @@ s_ "This task is completed. Passwords have been sent." ] ]
   else
     let* config = Cache.get Cache.config in
     match config with
@@ -1816,47 +1802,11 @@ let voterspwd_content_draft () =
           c.authentications
           |> List.mapi (fun i x ->
               match x with
-              | `Password ->
-                  let inp, lab =
-                    rad i (curr_auth = `Password)
-                      (s_
-                         "Password sent in advance by e-mail (useful for \
-                          multiple elections)")
-                      ()
-                  in
-                  set_onchange inp (fun () -> `Password);
-                  let but =
-                    button (s_ "Send passwords to voters") (fun () ->
-                        let* (Draft (_, dr)) =
-                          Cache.get_until_success Cache.draft
-                        in
-                        if dr.draft_authentication <> `Password then (
-                          alert
-                          @@ s_ "Please select password authentication first";
-                          Lwt.return_unit)
-                        else
-                          let confirm =
-                            confirm
-                            @@ s_ "Warning: this will freeze the voter list!"
-                          in
-                          if not confirm then Lwt.return_unit
-                          else
-                            let uuid = get_current_uuid () in
-                            let* voters =
-                              Cache.get_until_success Cache.voters
-                            in
-                            let ifmatch = sha256_b64 "[]" in
-                            let* _ =
-                              Api.(
-                                post ~ifmatch (draft_passwords uuid) !user
-                                  voters)
-                            in
-                            !update_election_main ())
-                  in
-                  div [ inp; lab; but ]
               | `CAS ->
                   let sel, casname =
-                    match curr_auth with `CAS s -> (true, s) | _ -> (false, "")
+                    match curr_auth with
+                    | Some (`CAS s) -> (true, s)
+                    | _ -> (false, "")
                   in
                   let inp, lab =
                     rad i sel
@@ -1870,7 +1820,7 @@ let voterspwd_content_draft () =
                       ~a:[ a_placeholder "https://cas.example.com/cas" ]
                       ~value:casname `Text
                   in
-                  let get () = `CAS (get2 ()) in
+                  let get () = Some (`CAS (get2 ())) in
                   set_onchange inp get;
                   set_onchange inp2 get;
                   div [ inp; lab; inp2 ]
@@ -1879,7 +1829,7 @@ let voterspwd_content_draft () =
                   | "dummy" ->
                       let sel =
                         match curr_auth with
-                        | `Configured s -> s = xx.configured_instance
+                        | Some (`Configured s) -> s = xx.configured_instance
                         | _ -> false
                       in
                       let inp, lab =
@@ -1889,12 +1839,12 @@ let voterspwd_content_draft () =
                           ()
                       in
                       set_onchange inp (fun () ->
-                          `Configured xx.configured_instance);
+                          Some (`Configured xx.configured_instance));
                       div [ inp; lab ]
                   | "email" ->
                       let sel =
                         match curr_auth with
-                        | `Configured s -> s = xx.configured_instance
+                        | Some (`Configured s) -> s = xx.configured_instance
                         | _ -> false
                       in
                       let inp, lab =
@@ -1905,13 +1855,13 @@ let voterspwd_content_draft () =
                           ()
                       in
                       set_onchange inp (fun () ->
-                          `Configured xx.configured_instance);
+                          Some (`Configured xx.configured_instance));
                       div [ inp; lab ]
                   | _ ->
                       (* TODO: add oidc, cas, password, here *)
                       let sel =
                         match curr_auth with
-                        | `Configured s -> s = xx.configured_instance
+                        | Some (`Configured s) -> s = xx.configured_instance
                         | _ -> false
                       in
                       let descr =
@@ -1923,7 +1873,7 @@ let voterspwd_content_draft () =
                           ()
                       in
                       set_onchange inp (fun () ->
-                          `Configured xx.configured_instance);
+                          Some (`Configured xx.configured_instance));
                       div [ inp; lab ]))
         in
         let ll =
@@ -1939,46 +1889,8 @@ let voterspwd_content_draft () =
         in
         Lwt.return [ h2 [ txt @@ s_ "Voter's authentication:" ]; div ll ]
 
-let voterspwd_content_running () =
-  let open (val !Belenios_js.I18n.gettext) in
-  let username, get_username = input `Text in
-  let submit =
-    let@ () = button @@ s_ "Submit" in
-    let uuid = get_current_uuid () in
-    let username = get_username () in
-    let request = `RegeneratePassword username in
-    let* x = Api.(post (election_status uuid) !user request) in
-    match x.code with
-    | 200 ->
-        let msg =
-          Printf.sprintf (f_ "A new password has been mailed to %s.") username
-        in
-        alert msg;
-        !update_election_main ()
-    | 404 ->
-        let msg =
-          Printf.sprintf
-            (f_ "Failure, probably because of an error in the username: %s.")
-            username
-        in
-        alert msg;
-        Lwt.return_unit
-    | _ ->
-        let msg =
-          Printf.sprintf (f_ "Unexpected failure with code %d.") x.code
-        in
-        alert msg;
-        Lwt.return_unit
-  in
-  [
-    h2 [ txt @@ s_ "Regenerate and e-mail a password" ];
-    div [ txt @@ s_ "Username:"; txt " "; username; txt " "; submit ];
-  ]
-  |> Lwt.return
-
 let voterspwd_content () =
-  if is_draft () then voterspwd_content_draft ()
-  else voterspwd_content_running ()
+  if is_draft () then voterspwd_content_draft () else Lwt.return_nil
 
 let create_content () =
   let open (val !Belenios_js.I18n.gettext) in

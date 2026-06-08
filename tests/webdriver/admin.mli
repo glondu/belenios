@@ -35,7 +35,7 @@ type question =
 type trustee = { name : string; email : string }
 type trustee_mode = Basic | Threshold of int
 type trustees = { mode : trustee_mode; trustees : trustee list }
-type auth = Password | Email
+type auth = Email
 type external_registrar = { server : string; operator : string }
 type registrar = { name : string; ext : external_registrar option }
 
@@ -70,6 +70,5 @@ type election_params = {
 
 module Make (_ : CONFIG) : sig
   val setup_election : unit -> election_params Lwt.t
-  val regen_password : id:string -> username:string -> string Lwt.t
   val tally_election : (unit -> unit Lwt.t) -> election_params -> unit Lwt.t
 end

@@ -25,7 +25,6 @@ val prefix : string ref
 val site_auth_config : auth_config list ref
 
 type exported_auth_config =
-  | BuiltinPassword
   | BuiltinCAS
   | Export of { descr : string option; config : auth_config }
 

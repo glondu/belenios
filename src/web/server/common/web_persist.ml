@@ -645,27 +645,6 @@ let get_audit_cache s =
           let* () = Storage.E.set s Audit_cache Value cache in
           return_some cache)
 
-let regen_password s ~admin_id user =
-  let user = String.lowercase_ascii user in
-  let* x = Storage.E.get s (Voter user) in
-  let@ y = Storage.E.update s (Password user) in
-  match (Lopt.get_value x, y) with
-  | Some id, (r, set) ->
-      let@ r cont =
-        match Lopt.get_value r with
-        | None -> Lwt.return_false
-        | Some r -> cont r
-      in
-      let* metadata = Mails_voter.get_metadata s ~admin_id in
-      let* email, (salt, hashed) =
-        Mails_voter.generate_password_email metadata id
-      in
-      let r = { r with salt; hashed } in
-      let* () = set Value r in
-      let* () = Mails_voter_bulk.submit_bulk_emails [ email ] in
-      Lwt.return_true
-  | _ -> Lwt.return_false
-
 let send_credentials s ~admin_id (Draft (_, se)) private_creds =
   let@ private_creds cont =
     match Lopt.get_value private_creds with
@@ -785,9 +764,6 @@ let validate_election ~admin_id storage
   (* check status *)
   let () =
     if s.num_voters = 0 then validation_error `NoVoters;
-    (match s.passwords_ready with
-    | Some false -> validation_error `MissingPasswords
-    | Some true | None -> ());
     if not s.credentials_ready then validation_error `MissingPublicCredentials;
     if not s.trustees_ready then validation_error `TrusteesNotReady;
     if not s.nh_and_weights_compatible then

@@ -103,7 +103,7 @@ let delete_live_election s uuid roots =
     | Some [ { auth_system = "cas"; auth_config; _ } ] ->
         let server = List.assoc "server" auth_config in
         `CAS server
-    | Some [ { auth_system = "password"; _ } ] -> `Password
+    | Some [ { auth_system = "email"; _ } ] -> `Email
     | _ -> `Unknown
   in
   let de_credential_method =
@@ -384,22 +384,6 @@ let validate_election_exn s uuid =
   let* () = S.del (Election (uuid, Draft)) in
   (* clean up private credentials, if any *)
   let* () = S.del (Election (uuid, Private_creds)) in
-  (* write passwords *)
-  let* () =
-    match metadata.e_auth_config with
-    | Some [ { auth_system = "password"; _ } ] ->
-        let db =
-          List.filter_map
-            (fun v ->
-              let login = Voter.get v.sv_id in
-              let& salt, hashed = v.sv_password in
-              Some [ login; salt; hashed ])
-            se.se_voters
-        in
-        if db <> [] then S.set (Election (uuid, Passwords)) Value db
-        else Lwt.return_unit
-    | _ -> Lwt.return_unit
-  in
   (* finish *)
   let* () = S.set (Election (uuid, State)) Value `Closed in
   set_dates Value

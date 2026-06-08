@@ -69,10 +69,9 @@
             name="Belenios public server"
             senderid="beleniosexample"
             />
-        <auth-export name="builtin-password"/>
+        <auth-export name="email"><email/></auth-export>
         <auth-export name="builtin-cas"/>
         <auth-export name="demo"><dummy/></auth-export> <!-- DEMO -->
-        <auth-export name="email"><email/></auth-export> <!-- DEMO -->
         <auth-export name="cas" descr="CAS (example server)">
           <cas server="https://cas.example.com/cas"/>
         </auth-export>

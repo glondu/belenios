@@ -36,11 +36,6 @@ type authenticator = Webdriver.helpers -> unit Lwt.t
 module Make (Config : CONFIG) = struct
   open Config
 
-  let auth_password ~username ~password session =
-    let* () = session#fill_with ~selector:"#username" username in
-    let* () = session#fill_with ~selector:"#password" password in
-    session#click_on ~selector:"input[type=submit]"
-
   let auth_email ~username session =
     let* () = Lwt_unix.sleep 1. in
     let x = Emails.parse emails in

@@ -86,7 +86,7 @@ module Make (P : PARAMS) = struct
       draft_languages = [ "en" ];
       draft_contact = Some "Election Initiator <election.initiator@example.org>";
       draft_booth = 2;
-      draft_authentication = `Configured "demo";
+      draft_authentication = Some (`Configured "demo");
       draft_group = group;
       draft_cred_authority_info = None;
     }

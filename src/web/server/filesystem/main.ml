@@ -135,18 +135,8 @@ module MakeBackend
   let credential_users_ops : (_, string) abstract_file_ops =
     make_uninitialized_ops "credential_users_ops"
 
-  let password_records_ops = make_uninitialized_ops "password_records_ops"
-
-  let get_password_file =
-    ref (fun _ -> Lwt.fail @@ Not_implemented "get_password_file")
-
-  let set_password_file =
-    ref (fun _ _ -> Lwt.fail @@ Not_implemented "set_password_file")
-
-  (** {1 Password file operations} *)
-
   module PasswordRecordsCacheTypes = struct
-    type key = Admin of string | Election of uuid
+    type key = Admin of string
     type value = password_record SMap.t * password_record SMap.t
   end
 
@@ -161,7 +151,6 @@ module MakeBackend
           let*& csv = Filesystem.read_file file in
           let* csv = Lwt_preemptive.detach csv_of_string csv in
           Lwt.return_some csv
-      | Election uuid -> !get_password_file uuid
     in
     let* csv =
       match csv with
@@ -207,9 +196,6 @@ module MakeBackend
 
   let get_password_record_admin file who =
     get_password_record_generic (Admin file) who
-
-  let get_password_record_election uuid who =
-    get_password_record_generic (Election uuid) (Username who)
 
   let set_password_record_generic read write key data =
     let { username; salt; hashed; address } = password_record_of_string data in
@@ -265,23 +251,6 @@ module MakeBackend
         password_records_cache#remove (Admin file);
         Lwt.return_unit
 
-  let set_password_record_election uuid who data =
-    match Lopt.get_string data with
-    | None -> assert false
-    | Some data ->
-        let* () =
-          set_password_record_generic
-            (fun () -> !get_password_file uuid)
-            (fun x -> !set_password_file uuid x)
-            (Username who) data
-        in
-        password_records_cache#remove (Election uuid);
-        Lwt.return_unit
-
-  let () =
-    password_records_ops.get <- get_password_record_election;
-    password_records_ops.set <- set_password_record_election
-
   (** {1 Generic operations} *)
 
   let ( !! ) x = Config.spool_dir // x
@@ -328,7 +297,6 @@ module MakeBackend
     | Archive_header -> Abstract (archive_header_ops, ())
     | Last_event -> Concrete ("last_event.json", Trim, None)
     | Sealing_log -> Concrete ("sealing.log", Raw, None)
-    | Passwords -> Concrete ("passwords.csv", Raw, None)
     | Records -> Abstract (records_ops, ())
     | Voters -> Concrete ("voters.txt", Raw, None)
     | Confidential_archive -> Concrete ("archive.zip", Raw, None)
@@ -340,7 +308,6 @@ module MakeBackend
     | Voter key -> Abstract (voters_ops, key)
     | Credential_weight key -> Abstract (credential_weights_ops, key)
     | Credential_user key -> Abstract (credential_users_ops, key)
-    | Password key -> Abstract (password_records_ops, key)
     | Credentials_params -> Concrete ("credentials_params.json", Raw, None)
     | Credentials_metadata -> Concrete ("credentials_metadata.json", Raw, None)
     | Credentials_seed -> Concrete ("credentials_seed.json", Raw, None)
@@ -426,16 +393,6 @@ module MakeBackend
             Lwt.return_unit)
     | Abstract (ops, uuid, key) -> ops.set uuid key data
     | Admin_password (file, key) -> set_password_record_admin file key data
-
-  let () =
-    get_password_file :=
-      fun uuid ->
-        let* x = get (Election (uuid, Passwords)) in
-        let&* x = Lopt.get_value x in
-        Lwt.return_some x
-
-  let () =
-    set_password_file := fun uuid x -> set (Election (uuid, Passwords)) Value x
 
   module HashedFile = struct
     type t = File : 'a file -> t
@@ -1191,7 +1148,6 @@ module MakeBackend
           F Last_event;
           F Metadata;
           F Audit_cache;
-          F Passwords;
           F Voters;
           F Confidential_archive;
         ]

@@ -115,17 +115,6 @@ let rec show main uuid =
         set_button;
       ]
   in
-  let regenpwd =
-    let i, iget = input `Text in
-    let set_button =
-      let@ () = button "Regenerate a password" in
-      let request = `RegeneratePassword (iget ()) in
-      let* x = Api.(post ?ifmatch (election_status uuid) !user request) in
-      let@ () = show_in main in
-      generic_proceed x (fun () -> show main uuid)
-    in
-    [ i; set_button ]
-  in
   let make what e =
     let* x = Api.get e !user in
     let@ voters, _ = with_ok what x in
@@ -158,7 +147,6 @@ let rec show main uuid =
       h1 [ txt "Actions" ];
       div buttons;
       div auto_dates;
-      div regenpwd;
       h1 [ txt "Voters" ];
       div voters;
       h1 [ txt "Records" ];
