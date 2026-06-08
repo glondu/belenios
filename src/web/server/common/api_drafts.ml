@@ -780,9 +780,11 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                       let stt_name = vo_public_key.trustee_name in
                       let stt_token = generate_token () in
                       let vo_private_key =
-                        sent_partial_decryption_key_of_string
-                          (sread G.of_string) (sread G.Zq.of_string)
-                          vo_private_key
+                        vo_private_key
+                        |> string_of_sent_partial_decryption_key
+                             Yojson.Safe.write_json Yojson.Safe.write_json
+                        |> sent_partial_decryption_key_of_string
+                             (sread G.of_string) (sread G.Zq.of_string)
                       in
                       let stt_voutput = { vo_public_key; vo_private_key } in
                       let stt_voutput =

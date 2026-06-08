@@ -40,7 +40,22 @@ let get_election (type t) : t File.u -> t string_serializers = function
       { of_string = metadata_of_string; to_string = string_of_metadata }
   | Private_key ->
       { of_string = Yojson.Safe.from_string; to_string = Yojson.Safe.to_string }
-  | Private_keys -> { of_string = split_lines; to_string = join_lines }
+  | Private_keys ->
+      {
+        of_string =
+          (fun xs ->
+            xs |> split_lines
+            |> List.map
+                 (sent_partial_decryption_key_of_string Yojson.Safe.read_json
+                    Yojson.Safe.read_json));
+        to_string =
+          (fun xs ->
+            xs
+            |> List.map
+                 (string_of_sent_partial_decryption_key Yojson.Safe.write_json
+                    Yojson.Safe.write_json)
+            |> join_lines);
+      }
   | Audit_cache ->
       { of_string = audit_cache_of_string; to_string = string_of_audit_cache }
   | Archive_header ->

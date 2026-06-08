@@ -374,6 +374,9 @@ let validate_election_exn s uuid =
         |> List.map
              (string_of_sent_partial_decryption_key (swrite G.to_string)
                 (swrite G.Zq.to_string))
+        |> List.map
+             (sent_partial_decryption_key_of_string Yojson.Safe.read_json
+                Yojson.Safe.read_json)
         |> S.set (Election (uuid, Private_keys)) Value
   in
   (* clean up draft *)
