@@ -164,16 +164,15 @@ let format_password_email (x : material_message) =
 let generate_password_email (metadata : Belenios_messages.metadata) v =
   let recipient = Voter.get_recipient v in
   let weight = if metadata.has_weights then (snd v).weight else None in
-  let salt = generate_token () in
   let* password =
     let x = generate_token ~length:15 () in
     return (format_password x)
   in
-  let hashed = sha256_hex (salt ^ password) in
+  let ~salt, ~hash = Password.hash (module Random) ~password in
   let x : material_message =
     { recipient; material = password; weight; metadata = Some metadata }
   in
-  return (`Password x, (salt, hashed))
+  return (`Password x, (salt, hash))
 
 let mail_credential l (x : material_message) =
   let metadata =

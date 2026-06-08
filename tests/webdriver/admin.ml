@@ -357,14 +357,15 @@ module Make (Config : CONFIG) = struct
                 Lwt.fail
                 @@ Failure "failed to retrieve credential operator interface"))
 
-  let set_authentication session =
+  let set_authentication session nvoters =
     Printf.printf "    Setting authentication...\n%!";
     let* () = session#click_on ~selector:"#tab_authentication" in
     match config.auth with
     | Password ->
         let* () = session#click_on ~selector:"#auth0" in
         let* () = session#click_on ~selector:"button" in
-        session#accept
+        let* () = session#accept in
+        Lwt_unix.sleep (float_of_int nvoters)
     | Email -> session#click_on ~selector:"#auth3"
 
   let open_election session =
@@ -508,7 +509,7 @@ module Make (Config : CONFIG) = struct
     let* private_creds = setup_registrar registrar in
     let* () =
       let@ session = with_admin ~id () in
-      let* () = set_authentication session in
+      let* () = set_authentication session nvoters in
       let* () = open_election session in
       let* () = logout session in
       Lwt.return_unit

@@ -117,7 +117,7 @@ site. Available authentication methods:
    file, a fifth field with the plaintext password is included. The
    sample file has been generated with the following shell command:
 
-   `for u in $(seq 1 5); do SALT=$(pwgen -s 12); PASS=$(pwgen -s 12); echo "user$u,$SALT,$(echo -n "$SALT$PASS" | sha256sum | { read a b; echo $a; }),user$u@example.com,$PASS"; done`
+   `for u in $(seq 1 5); do PASS=$(pwgen -s 12); echo "user$u,$(echo -n "$PASS" | belenios-tool hash-password),user$u@example.com,$PASS"; done`
 
    The element can have the `allowsignups="true"` attribute, in which
    case an interface will be exposed so that people can create

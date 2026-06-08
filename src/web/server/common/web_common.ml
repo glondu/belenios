@@ -134,9 +134,6 @@ type credential_record = {
   cr_username : string option;
 }
 
-let check_password { salt; hashed; _ } password =
-  sha256_hex (salt ^ String.trim password) = hashed
-
 let has_explicit_weights voters =
   List.exists
     (fun v ->

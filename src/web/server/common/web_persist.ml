@@ -354,12 +354,6 @@ let add_partial_decryption s (owned_owner, pd) =
   | true -> Lwt.return_unit
   | false -> Lwt.fail @@ Failure "race condition in add_partial_decryption"
 
-let check_password s ~user ~password =
-  let* r = Storage.E.get s (Password user) in
-  let&* ({ username; address; _ } as r) = Lopt.get_value r in
-  if check_password r password then Lwt.return_some (username, address)
-  else Lwt.return_none
-
 let get_all_voters s =
   let* x = Storage.E.get s Voters in
   match Lopt.get_value x with None -> Lwt.return [] | Some x -> Lwt.return x

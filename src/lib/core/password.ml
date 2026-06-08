@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,43 +19,33 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Belenios_platform.Platform
-include Belenios_core.Common
-include Belenios_core.Serializable_j
-include Belenios_core.Signatures
-module Version = Belenios_platform.Version
-module Password = Belenios_core.Password
-module Election = Election
-module Group = Group
-module Pki = Belenios_core.Pki
-module Trustees = Trustees
-module Credential = Belenios_core.Credential
-module Events = Belenios_core.Events
-module Archive = Belenios_core.Archive
+open Common
+open Crypto_std.Pbkdf2 (Crypto_std.HMAC_SHA256)
 
-module Methods = struct
-  module Schulze = Belenios_core.Schulze
-  module Stv = Belenios_core.Stv
-  module Majority_judgment = Belenios_core.Majority_judgment
-end
+let std_iterations = 600_000
+let std_salt_length = 16
 
-module Credentials_certificate (G : GROUP) = struct
-  let check certificate =
-    let@ signature cont =
-      match certificate.signature with None -> false | Some x -> cont x
-    in
-    let hash =
-      { certificate with signature = None }
-      |> string_of_credentials_certificate (swrite G.to_string)
-           (swrite G.Zq.to_string)
-      |> Hash.hash_string
-    in
-    Hash.to_hex hash = signature.s_message
-    &&
-    let module P = Pki.Make (G) (Dummy_random) in
-    P.verify certificate.verification_key signature
-end
+let check ~salt ~hash ~password =
+  let password = String.trim password in
+  match String.split_on_char '$' hash with
+  | [ hash ] -> (~ok:(sha256_hex (salt ^ password) = hash), ~obsolete:true)
+  | [ iterations; hash ] ->
+      let iterations = int_of_string iterations in
+      let (`Hex computed) =
+        pbkdf2 ~iterations ~salt password 32 |> Hex.of_string
+      in
+      ( ~ok:(computed = hash),
+        ~obsolete:(iterations < std_iterations
+                  || String.length salt < std_salt_length) )
+  | _ -> invalid_arg __FUNCTION__
 
-module Language = Language
-
-type lang = Language.t
+let hash random ~password =
+  let module R = (val random : Signatures_core.RANDOM) in
+  let open Common.MakeGenerateToken (R) in
+  let password = String.trim password in
+  let salt = generate_token ~length:std_salt_length () in
+  let (`Hex hash) =
+    pbkdf2 ~iterations:std_iterations ~salt password 32 |> Hex.of_string
+  in
+  let hash = Printf.sprintf "%d$%s" std_iterations hash in
+  (~salt, ~hash)

@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,43 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Belenios_platform.Platform
-include Belenios_core.Common
-include Belenios_core.Serializable_j
-include Belenios_core.Signatures
-module Version = Belenios_platform.Version
-module Password = Belenios_core.Password
-module Election = Election
-module Group = Group
-module Pki = Belenios_core.Pki
-module Trustees = Trustees
-module Credential = Belenios_core.Credential
-module Events = Belenios_core.Events
-module Archive = Belenios_core.Archive
+val check :
+  salt:string -> hash:string -> password:string -> (ok:bool * obsolete:bool)
 
-module Methods = struct
-  module Schulze = Belenios_core.Schulze
-  module Stv = Belenios_core.Stv
-  module Majority_judgment = Belenios_core.Majority_judgment
-end
-
-module Credentials_certificate (G : GROUP) = struct
-  let check certificate =
-    let@ signature cont =
-      match certificate.signature with None -> false | Some x -> cont x
-    in
-    let hash =
-      { certificate with signature = None }
-      |> string_of_credentials_certificate (swrite G.to_string)
-           (swrite G.Zq.to_string)
-      |> Hash.hash_string
-    in
-    Hash.to_hex hash = signature.s_message
-    &&
-    let module P = Pki.Make (G) (Dummy_random) in
-    P.verify certificate.verification_key signature
-end
-
-module Language = Language
-
-type lang = Language.t
+val hash :
+  (module Signatures_core.RANDOM) ->
+  password:string ->
+  (salt:string * hash:string)

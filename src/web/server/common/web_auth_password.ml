@@ -53,7 +53,7 @@ struct
     let channel = Channel.{ uuid; name } in
     let* b = Throttle.wait throttle channel in
     if b then
-      let* r =
+      let* r, update =
         match uuid with
         | None ->
             let@ file cont =
@@ -65,14 +65,27 @@ struct
             let key : admin_password_file =
               if is_email name then Address name else Username name
             in
+            let update x =
+              let@ s = Storage.A.with_transaction in
+              Storage.A.set s (Admin_password (file, key)) Value x
+            in
             let@ s = Storage.A.with_transaction in
-            Storage.A.get s (Admin_password (file, key))
+            let* r = Storage.A.get s (Admin_password (file, key)) in
+            Lwt.return (r, update)
         | Some uuid ->
             let@ s = Storage.E.with_transaction uuid in
-            Storage.E.get s (Password name)
+            let* r = Storage.E.get s (Password name) in
+            Lwt.return (r, fun _ -> Lwt.return_unit)
       in
-      let&* r = Lopt.get_value r in
-      if check_password r password then Lwt.return_some r else Lwt.return_none
+      let&* ({ salt; hashed = hash; _ } as r) = Lopt.get_value r in
+      let ~ok, ~obsolete = Password.check ~salt ~hash ~password in
+      let* () =
+        if obsolete then
+          let ~salt, ~hash = Password.hash (module Random) ~password in
+          update { r with salt; hashed = hash }
+        else Lwt.return_unit
+      in
+      if ok then Lwt.return_some r else Lwt.return_none
     else Lwt.return_none
 
   let handler uuid a =
@@ -170,9 +183,8 @@ let do_add_account s ~db_fname ~username ~password ~email =
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error AddressTaken
   in
-  let salt = generate_token ~length:8 () in
-  let hashed = sha256_hex (salt ^ password) in
-  let r = { username; salt; hashed; address = Some email } in
+  let ~salt, ~hash = Password.hash (module Random) ~password in
+  let r = { username; salt; hashed = hash; address = Some email } in
   Lwt.try_bind
     (fun () ->
       r |> Storage.A.set s (Admin_password (db_fname, Username username)) Value)
@@ -190,9 +202,8 @@ let do_change_password s ~db_fname ~username ~password =
     in
     match Lopt.get_value r with None -> fail () | Some r -> cont (r, set)
   in
-  let salt = generate_token ~length:8 () in
-  let hashed = sha256_hex (salt ^ password) in
-  let r = { r with salt; hashed } in
+  let ~salt, ~hash = Password.hash (module Random) ~password in
+  let r = { r with salt; hashed = hash } in
   Lwt.try_bind
     (fun () -> set Value r)
     (fun () -> Lwt.return_unit)

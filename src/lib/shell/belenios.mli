@@ -24,6 +24,7 @@ include module type of Belenios_core.Common
 include module type of Belenios_core.Serializable_j
 include module type of Belenios_core.Signatures
 module Version = Belenios_platform.Version
+module Password = Belenios_core.Password
 module Election = Election
 module Group = Group
 module Pki = Belenios_core.Pki
