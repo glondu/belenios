@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.15-dev\n"
 
-#: src/web/server/common/pages_common.ml:340
+#: src/web/server/common/pages_common.ml:349
 msgid " (if you forgot it, for example)."
 msgstr " (hvis du glemte det, for eksempel)."
 
@@ -55,11 +55,11 @@ msgstr " har blitt godtatt."
 msgid " have been tallied."
 msgstr " har blitt opptalt."
 
-#: src/web/server/common/pages_common.ml:542
+#: src/web/server/common/pages_common.ml:551
 msgid " in the following box: "
 msgstr " i følgende stemmeurne: "
 
-#: src/web/common/pages_common.ml:244
+#: src/web/common/pages_common.ml:245
 msgid " is rejected, because "
 msgstr " har blitt avslått, fordi "
 
@@ -91,7 +91,7 @@ msgstr ""
 msgid "), or any compatible booth."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:336
+#: src/web/server/common/pages_common.ml:345
 msgid ", or "
 msgstr ", eller "
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "A specification of encrypted ballots is also available in the sources."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:491
+#: src/web/server/common/pages_common.ml:500
 msgid "A verification code has been sent to %s."
 msgstr ""
 
@@ -127,11 +127,12 @@ msgstr "Godtatte stemmer"
 msgid "According to Majority Judgment, the ranking is:"
 msgstr "Sortert etter flertallsdom er rekkefølgen:"
 
-#: src/web/server/common/pages_common.ml:92
+#: src/web/server/common/pages_common.ml:96
 msgid "Administer elections"
 msgstr "Administrer valg"
 
-#: src/web/clients/election/common.ml:62 src/web/server/common/pages_common.ml:98
+#: src/web/clients/election/common.ml:62
+#. src/web/server/common/pages_common.ml:102
 msgid "Administer this election"
 msgstr "Administrer dette valget"
 
@@ -153,7 +154,7 @@ msgstr ""
 msgid "Alternatively, you can also upload a file containing your ballot:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:359
+#: src/web/server/common/mails_voter.ml:275
 msgid "Alternatively, you can follow the link:"
 msgstr ""
 
@@ -165,35 +166,35 @@ msgstr ""
 msgid "Audit data: "
 msgstr "Valgopptellingsdata: "
 
-#: src/web/server/common/pages_common.ml:502
-#. src/web/server/common/pages_common.ml:404
-#. src/web/server/common/pages_common.ml:312
+#: src/web/server/common/pages_common.ml:511
+#. src/web/server/common/pages_common.ml:413
+#. src/web/server/common/pages_common.ml:321
 msgid "Authenticate"
 msgstr "Identitetsbekreft"
 
-#: src/web/server/common/pages_common.ml:243
+#: src/web/server/common/pages_common.ml:252
 msgid "Authenticate with %s"
 msgstr "Bekreft identiteten med %s"
 
-#: src/web/server/common/mails_voter.ml:380
+#: src/web/server/common/mails_voter.ml:296
 msgid "Authentication"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:418
+#: src/web/server/common/pages_common.ml:427
 msgid "Authentication failed"
 msgstr "Identitetsbekreftelse mislyktes"
 
-#: src/web/server/common/pages_common.ml:424
+#: src/web/server/common/pages_common.ml:433
 msgid "Authentication failed, probably because of a bad username or password, or you are not allowed to perform this operation."
 msgstr ""
 "Identitetsbekreftelse mislyktes, antagelig som følge av feil brukernavn "
 "eller passord, eller så tillates du ikke å utføre denne handlingen."
 
-#: src/web/server/common/pages_common.ml:567
+#: src/web/server/common/pages_common.ml:576
 msgid "Authentication impossible"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:562
+#: src/web/server/common/pages_common.ml:571
 msgid "Authentication is impossible."
 msgstr ""
 
@@ -201,15 +202,15 @@ msgstr ""
 msgid "Back to election home"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:518
+#: src/web/server/common/pages_common.ml:527
 msgid "Bad e-mail address!"
 msgstr "Ugyldig e-postadresse."
 
-#: src/web/server/common/pages_common.ml:517
+#: src/web/server/common/pages_common.ml:526
 msgid "Bad security code!"
 msgstr "Feil sikkerhetskode!"
 
-#: src/web/server/common/mails_voter.ml:373
+#: src/web/server/common/mails_voter.ml:289
 msgid "Best regards,"
 msgstr "Hilsen,"
 
@@ -225,7 +226,7 @@ msgstr ""
 msgid "By using this site, you accept our "
 msgstr "Ved å bruke denne siden, godtar du vår "
 
-#: src/web/server/common/pages_common.ml:577
+#: src/web/server/common/pages_common.ml:586
 msgid "Click here"
 msgstr ""
 
@@ -245,11 +246,11 @@ msgstr "Regn ut fingeravtrykk"
 msgid "Computed fingerprint:"
 msgstr "Utregnet fingeravtrykk:"
 
-#: src/web/server/common/pages_common.ml:477
+#: src/web/server/common/pages_common.ml:486
 msgid "Confirm"
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:142
+#: src/web/clients/jslib/belenios_jslib.ml:143
 msgid "Could not get server configuration!"
 msgstr ""
 
@@ -261,14 +262,14 @@ msgstr ""
 msgid "Credentials fingerprint"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:340
-#. src/web/server/common/mails_voter.ml:286
+#: src/web/server/common/mails_voter.ml:256
+#. src/web/server/common/mails_voter.ml:202
 msgid "Dear %s,"
 msgstr "Kjære %s,"
 
-#: src/web/server/common/pages_common.ml:531
-#. src/web/server/common/pages_common.ml:347
-#. src/web/server/common/pages_common.ml:279
+#: src/web/server/common/pages_common.ml:540
+#. src/web/server/common/pages_common.ml:356
+#. src/web/server/common/pages_common.ml:288
 msgid "E-mail address:"
 msgstr "E-postadresse:"
 
@@ -284,7 +285,7 @@ msgstr ""
 msgid "Election identifier"
 msgstr ""
 
-#: src/web/clients/jslib/belenios_jslib.ml:271
+#: src/web/clients/jslib/belenios_jslib.ml:272
 msgid "Election public URL"
 msgstr ""
 
@@ -308,7 +309,7 @@ msgstr ""
 msgid "Expected fingerprint:"
 msgstr "Forventet fingeravtrykk:"
 
-#: src/web/common/pages_common.ml:248
+#: src/web/common/pages_common.ml:249
 msgid "FAIL!"
 msgstr "FEIL!"
 
@@ -324,7 +325,7 @@ msgstr ""
 msgid "Fingerprint of the encrypted tally"
 msgstr ""
 
-#: src/web/server/common/site_common.ml:108
+#: src/web/server/common/site_common.ml:114
 msgid "Forbidden"
 msgstr "Forbudt"
 
@@ -333,11 +334,11 @@ msgid "Get the source code"
 msgstr "Gå til kildekoden"
 
 #: src/web/clients/election/ballots.ml:50 src/web/server/common/pages_voter.ml:74
-#. src/web/common/pages_common.ml:263
+#. src/web/common/pages_common.ml:265
 msgid "Go back to election"
 msgstr "Gå tilbake til valget"
 
-#: src/web/server/common/mails_voter.ml:212
+#: src/web/server/common/mails_voter.ml:128
 msgid "If the above link does not work:"
 msgstr ""
 
@@ -367,7 +368,7 @@ msgstr ""
 msgid "JSON result"
 msgstr "JSON-resultat"
 
-#: src/web/server/common/pages_common.ml:165 src/web/common/pages_common.ml:88
+#: src/web/server/common/pages_common.ml:174 src/web/common/pages_common.ml:88
 msgid "Language:"
 msgstr "Språk:"
 
@@ -375,14 +376,14 @@ msgstr "Språk:"
 msgid "Loading..."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:501
-#. src/web/server/common/pages_common.ml:403
-#. src/web/server/common/pages_common.ml:311
-#. src/web/server/common/pages_common.ml:271
+#: src/web/server/common/pages_common.ml:510
+#. src/web/server/common/pages_common.ml:412
+#. src/web/server/common/pages_common.ml:320
+#. src/web/server/common/pages_common.ml:280
 msgid "Log in"
 msgstr "Logg inn"
 
-#: src/web/server/common/pages_common.ml:242
+#: src/web/server/common/pages_common.ml:251
 msgid "Log in with %s"
 msgstr "Logg inn med %s"
 
@@ -396,19 +397,13 @@ msgstr ""
 "Mange varianter av STV finnes, avhengig for eksempel av hvordan uavgjorte "
 "situasjoner løses."
 
-#: src/web/server/common/pages_common.ml:564
+#: src/web/server/common/pages_common.ml:573
 msgid "Maybe cookies are blocked."
 msgstr ""
 
 #: src/web/server/common/site_common.ml:37
 msgid "Not found"
 msgstr "Ikke funnet"
-
-#: src/web/server/common/mails_voter.ml:108
-msgid "Note that you also need a credential, sent in a separate email, to start voting."
-msgstr ""
-"Merk at du også trenger en identitetsdetalj (sendt i egen e-post) for å "
-"begynne avstemming."
 
 #: src/web/clients/election/home.ml:636
 msgid "Number of accepted ballots: "
@@ -418,38 +413,27 @@ msgstr "Antall godtatte stemmer: "
 msgid "Number of voters"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:229
-#. src/web/server/common/mails_voter.ml:124
+#: src/web/server/common/mails_voter.ml:145
 msgid "Number of votes:"
 msgstr "Antall stemmer:"
 
-#: src/web/server/common/mails_voter.ml:236
-#. src/web/server/common/mails_voter.ml:135
+#: src/web/server/common/mails_voter.ml:152
 msgid "Only the last vote counts."
 msgstr "Kun den siste stemmen teller."
 
-#: src/web/server/common/mails_voter.ml:129
-msgid "Page of the election:"
-msgstr "Side for valget:"
-
-#: src/web/server/common/pages_common.ml:383
-#. src/web/server/common/mails_voter.ml:117
+#: src/web/server/common/pages_common.ml:392
 msgid "Password:"
 msgstr "Passord:"
 
-#: src/web/server/common/pages_common.ml:540
+#: src/web/server/common/pages_common.ml:549
 msgid "Please enter "
 msgstr "Skriv inn "
 
-#: src/web/server/common/pages_common.ml:457
+#: src/web/server/common/pages_common.ml:466
 msgid "Please enter the verification code received by e-mail:"
 msgstr "Skriv inn verifikasjonskoden du har mottatt på e-post:"
 
-#: src/web/server/common/mails_voter.ml:100
-msgid "Please find below your login and password for the election"
-msgstr "Nedenfor finner du din innlogging og ditt passord for avstemmingen"
-
-#: src/web/server/common/pages_common.ml:265
+#: src/web/server/common/pages_common.ml:274
 msgid "Please log in:"
 msgstr "Logg inn:"
 
@@ -463,7 +447,7 @@ msgstr ""
 msgid "Please paste your encrypted ballot in JSON format in the following box:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:198
+#: src/web/server/common/mails_voter.ml:114
 msgid "Please vote here using your personal link:"
 msgstr ""
 
@@ -472,8 +456,8 @@ msgid "Powered by "
 msgstr "Drevet av "
 
 #: src/web/clients/election/advanced.ml:221
-#. src/web/server/common/pages_common.ml:224
-#. src/web/server/common/pages_common.ml:216
+#. src/web/server/common/pages_common.ml:233
+#. src/web/server/common/pages_common.ml:225
 msgid "Proceed"
 msgstr "Fortsett"
 
@@ -481,7 +465,7 @@ msgstr "Fortsett"
 msgid "Processing ballot"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:215
+#: src/web/server/common/mails_voter.ml:131
 msgid "Public page of the election:"
 msgstr ""
 
@@ -489,7 +473,7 @@ msgstr ""
 msgid "Raw events"
 msgstr "Rå-hendelser"
 
-#: src/web/server/common/pages_common.ml:580
+#: src/web/server/common/pages_common.ml:589
 msgid "Redirection"
 msgstr ""
 
@@ -501,7 +485,7 @@ msgstr ""
 msgid "Restricted mode"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:320
+#: src/web/server/common/mails_voter.ml:236
 msgid "Results will be published on the election page"
 msgstr "Resultater vil bli vist på valgsiden"
 
@@ -513,11 +497,11 @@ msgstr ""
 msgid "See accepted ballots"
 msgstr "Se godkjente stemmer"
 
-#: src/web/clients/jslib/belenios_jslib.ml:336
+#: src/web/clients/jslib/belenios_jslib.ml:337
 msgid "Session expired"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:172
+#: src/web/server/common/pages_common.ml:181
 msgid "Set"
 msgstr "Sett"
 
@@ -527,8 +511,8 @@ msgstr ""
 "Flere teknikker finnes for å avgjøre en vinner når det ikke er en Condorcet-"
 "vinner."
 
-#: src/web/clients/jslib/belenios_jslib.ml:276
-#. src/web/clients/jslib/belenios_jslib.ml:262
+#: src/web/clients/jslib/belenios_jslib.ml:277
+#. src/web/clients/jslib/belenios_jslib.ml:263
 msgid "Smart ballot tracker"
 msgstr ""
 
@@ -538,8 +522,8 @@ msgstr "Start"
 
 #: src/web/clients/election/advanced.ml:101
 #. src/web/clients/election/advanced.ml:62
-#. src/web/server/common/pages_common.ml:545
-#. src/web/server/common/pages_common.ml:461
+#. src/web/server/common/pages_common.ml:554
+#. src/web/server/common/pages_common.ml:470
 msgid "Submit"
 msgstr "Send inn"
 
@@ -603,7 +587,7 @@ msgstr ""
 "Det har oppstått minst ett uavgjort resultat. Sjekk rå-hendelsene for flere "
 "detaljer."
 
-#: src/web/server/common/pages_common.ml:450
+#: src/web/server/common/pages_common.ml:459
 msgid "This code is composed of 6 digits. It can take up to 15 minutes to be delivered, please be patient."
 msgstr ""
 
@@ -625,7 +609,7 @@ msgstr "Dette valget har blitt arkivert."
 msgid "This election is currently closed."
 msgstr "Dette valget er for tiden lukket."
 
-#: src/web/server/common/mails_voter.ml:310 src/web/common/pages_common.ml:202
+#: src/web/server/common/mails_voter.ml:226 src/web/common/pages_common.ml:202
 msgid "This vote replaces any previous vote."
 msgstr "Denne stemmen erstatter min tidligere stemme."
 
@@ -633,7 +617,7 @@ msgstr "Denne stemmen erstatter min tidligere stemme."
 msgid "Tie:"
 msgstr "Uavgjort:"
 
-#: src/web/server/common/mails_voter.ml:207
+#: src/web/server/common/mails_voter.ml:123
 msgid "To cast a vote, you will also need a password, sent in a separate email."
 msgstr ""
 "For å avgi en stemme, vil du også trenge et passord, sendt i egen e-post."
@@ -654,14 +638,13 @@ msgstr "De betrodde stokket stemmesedlene i følgende rekkefølge:"
 msgid "Unsupported question type"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:347
+#: src/web/server/common/mails_voter.ml:263
 msgid "Use the following code:"
 msgstr "Bruk følgende kode:"
 
-#: src/web/server/common/pages_common.ml:346
-#. src/web/server/common/pages_common.ml:278
-#. src/web/server/common/mails_voter.ml:219
-#. src/web/server/common/mails_voter.ml:113
+#: src/web/server/common/pages_common.ml:355
+#. src/web/server/common/pages_common.ml:287
+#. src/web/server/common/mails_voter.ml:135
 msgid "Username:"
 msgstr "Brukernavn:"
 
@@ -677,13 +660,13 @@ msgstr ""
 msgid "Warning:"
 msgstr "Advarsel:"
 
-#: src/web/server/common/mails_voter.ml:368
+#: src/web/server/common/mails_voter.ml:284
 msgid "Warning: this code is valid for 15 minutes, and previous codes sent to this address are no longer valid."
 msgstr ""
 "Advarsel: Denne koden er gyldig i et kvarter, og koder tidligere sendt til "
 "denne adressen er ikke lenger gyldige."
 
-#: src/web/server/common/mails_voter.ml:186
+#: src/web/server/common/mails_voter.ml:102
 msgid "Warning: this e-mail contains personal and confidential material and should not be transmitted."
 msgstr ""
 
@@ -691,7 +674,7 @@ msgstr ""
 msgid "We use here the Schulze method and we refer voters to "
 msgstr "Her brukes Schulze-metoden, og stemmeberettigede blir henvendt til "
 
-#: src/web/server/common/pages_common.ml:185 src/web/common/pages_common.ml:102
+#: src/web/server/common/pages_common.ml:194 src/web/common/pages_common.ml:102
 msgid "Wish to help with translations?"
 msgstr "Ønsker du å hjelpe til med oversettelsen?"
 
@@ -699,32 +682,31 @@ msgstr "Ønsker du å hjelpe til med oversettelsen?"
 msgid "You are about to submit a ballot with smart ballot tracker %s."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:235
-#. src/web/server/common/mails_voter.ml:134
+#: src/web/server/common/mails_voter.ml:151
 msgid "You are allowed to vote several times."
 msgstr "Du tillates å stemme flere ganger."
 
-#: src/web/server/common/pages_common.ml:471
+#: src/web/server/common/pages_common.ml:480
 msgid "You are authenticating as a voter."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:470
+#: src/web/server/common/pages_common.ml:479
 msgid "You are authenticating as an administrator."
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:191
+#: src/web/server/common/mails_voter.ml:107
 msgid "You are listed as a voter for the election"
 msgstr "Du er opplistet som stemmeberettighet for valget"
 
-#: src/web/server/common/site_common.ml:107
+#: src/web/server/common/site_common.ml:113
 msgid "You are not allowed to access this page!"
 msgstr "Du har ikke tilgang til denne siden."
 
-#: src/web/server/common/pages_common.ml:430
+#: src/web/server/common/pages_common.ml:439
 msgid "You can "
 msgstr "Du kan "
 
-#: src/web/server/common/pages_common.ml:334
+#: src/web/server/common/pages_common.ml:343
 msgid "You can also "
 msgstr "Du kan også "
 
@@ -736,7 +718,7 @@ msgstr "Du kan også laste ned "
 msgid "You can check its presence in the "
 msgstr "Du kan se om den finnes i "
 
-#: src/web/server/common/mails_voter.ml:314
+#: src/web/server/common/mails_voter.ml:230
 msgid "You can check its presence in the ballot box, accessible at"
 msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 
@@ -744,37 +726,33 @@ msgstr "Du kan se om den finnes i valgurnen, tilgjengelig på"
 msgid "You can create an encrypted ballot by using the command-line tool "
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:497
+#: src/web/server/common/pages_common.ml:506
 msgid "You cannot authenticate right now."
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:555
+#: src/web/server/common/pages_common.ml:564
 msgid "You cannot log in now. Please try later."
 msgstr "Du kan ikke logge inn nå. Prøv igjen senere."
 
-#: src/web/common/pages_common.ml:253
+#: src/web/common/pages_common.ml:255
 msgid "Your ballot for "
 msgstr "Din stemme for "
 
-#: src/web/server/common/mails_voter.ml:257
+#: src/web/server/common/mails_voter.ml:173
 msgid "Your credential for election %s"
 msgstr "Din identitetsdetalj for valget %s"
 
-#: src/web/server/common/mails_voter.ml:223
+#: src/web/server/common/mails_voter.ml:139
 msgid "Your credential:"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:344
+#: src/web/server/common/mails_voter.ml:260
 msgid "Your e-mail address has been used to authenticate with our Belenios server."
 msgstr ""
 "E-postadressen din har blitt brukt til å bekrefte identiteten din på vår "
 "Belenios-tjener."
 
-#: src/web/server/common/mails_voter.ml:158
-msgid "Your password for election %s"
-msgstr "Ditt passord for valget %s"
-
-#: src/web/server/common/mails_voter.ml:302
+#: src/web/server/common/mails_voter.ml:218
 msgid "Your smart ballot tracker is"
 msgstr "Din smarte stemmesporer er"
 
@@ -782,11 +760,11 @@ msgstr "Din smarte stemmesporer er"
 msgid "Your smart ballot tracker is "
 msgstr "Din smarte stemmesporer er "
 
-#: src/web/server/common/mails_voter.ml:289
+#: src/web/server/common/mails_voter.ml:205
 msgid "Your vote for election"
 msgstr "Din stemme i valget"
 
-#: src/web/server/common/mails_voter.ml:283
+#: src/web/server/common/mails_voter.ml:199
 msgid "Your vote for election %s"
 msgstr "Din stemme i valget %s"
 
@@ -794,7 +772,7 @@ msgstr "Din stemme i valget %s"
 msgid "Your vote was not recorded!"
 msgstr "Din stemme ble ikke registrert!"
 
-#: src/web/server/common/mails_voter.ml:300 src/web/common/pages_common.ml:211
+#: src/web/server/common/mails_voter.ml:216 src/web/common/pages_common.ml:211
 msgid "Your weight is %s."
 msgstr "Din vekting er %s."
 
@@ -802,11 +780,11 @@ msgstr "Din vekting er %s."
 msgid "ballot box"
 msgstr "valgurne"
 
-#: src/web/server/common/pages_common.ml:338
+#: src/web/server/common/pages_common.ml:347
 msgid "change your password"
 msgstr "endre passordet ditt"
 
-#: src/web/server/common/pages_common.ml:335
+#: src/web/server/common/pages_common.ml:344
 msgid "create an account"
 msgstr "opprett en konto"
 
@@ -814,7 +792,7 @@ msgstr "opprett en konto"
 msgid "direct link"
 msgstr ""
 
-#: src/web/server/common/mails_voter.ml:296
+#: src/web/server/common/mails_voter.ml:212
 msgid "has been recorded."
 msgstr "har blitt lagret."
 
@@ -866,7 +844,7 @@ msgstr ""
 msgid "this ballot has expired"
 msgstr ""
 
-#: src/web/server/common/pages_common.ml:431
+#: src/web/server/common/pages_common.ml:440
 msgid "try to log in again"
 msgstr "prøv å logge inn igjen"
 
