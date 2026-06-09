@@ -530,7 +530,7 @@ msgstr "Lien direct"
 
 #: src/web/clients/admin/elections.ml:1318
 msgid "Direction: "
-msgstr ""
+msgstr "Direction : "
 
 #: src/web/common/mails_admin.ml:218
 msgid "Don't forget to save:"
@@ -844,7 +844,7 @@ msgstr "Langue de l'interface d'administration :"
 
 #: src/web/clients/admin/elections.ml:1299
 msgid "Language of metadata"
-msgstr ""
+msgstr "Langue des métadonnées"
 
 #: src/web/common/pages_common.ml:88
 msgid "Language:"
@@ -852,7 +852,7 @@ msgstr "Langue :"
 
 #: src/web/clients/admin/elections.ml:1313
 msgid "Language: "
-msgstr ""
+msgstr "Langue : "
 
 #: src/web/clients/admin/elections.ml:208
 msgid "Languages"
@@ -860,7 +860,7 @@ msgstr "Langues"
 
 #: src/web/clients/admin/elections.ml:1322
 msgid "Languages of spontaneous e-mails"
-msgstr ""
+msgstr "Langues des courriels spontanés"
 
 #: src/web/clients/admin/elections.ml:1298
 msgid "Languages:"
@@ -868,7 +868,7 @@ msgstr "Langues :"
 
 #: src/web/clients/admin/elections.ml:1264
 msgid "Left to right"
-msgstr ""
+msgstr "Gauche à droite"
 
 #: src/web/common/mails_admin.ml:265 src/web/common/mails_admin.ml:181
 msgid "Link to generate the decryption key"
@@ -1325,7 +1325,7 @@ msgstr "Page de résultats"
 
 #: src/web/clients/admin/elections.ml:1265
 msgid "Right to left"
-msgstr ""
+msgstr "Droite à gauche"
 
 #: src/web/clients/admin/admin.ml:225
 msgid "Running or finished elections:"
@@ -1746,7 +1746,7 @@ msgstr ""
 
 #: src/web/clients/admin/elections.ml:1305
 msgid "This is the language of election title, description and questions."
-msgstr ""
+msgstr "Ceci est la langue du titre de l'élection, de sa description et des questions."
 
 #: src/web/clients/trustee/check.ml:37
 msgid "This is the private key of %s."
