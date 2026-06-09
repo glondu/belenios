@@ -214,8 +214,9 @@ let extract_names trustees =
   |> List.map (function
     | `Pedersen x ->
         x.t_verification_keys |> Array.to_list
-        |> List.map (fun (x : _ trustee_public_key) -> x.trustee_name)
-    | `Single (x : _ trustee_public_key) -> [ x.trustee_name ])
+        |> List.map (fun (x : _ threshold_verification_key) ->
+            x.s_message.s_message.trustee_name)
+    | `Single (x : _ trustee_public_key) -> [ x.s_message.trustee_name ])
   |> List.flatten
   |> List.mapi (fun i x -> (i + 1, x))
 
@@ -279,10 +280,11 @@ let post_partial_decryption s election ~trustee_id ~partial_decryption =
     |> trustees_of_string W.(sread G.of_string) W.(sread G.Zq.of_string)
     |> List.map (function
       | `Single x -> [ x ]
-      | `Pedersen t -> Array.to_list t.t_verification_keys)
+      | `Pedersen t ->
+          Array.to_list t.t_verification_keys |> List.map (fun x -> x.s_message))
     |> List.flatten |> Array.of_list |> Lwt.return
   in
-  let pk = pks.(trustee_id - 1).trustee_public_key in
+  let pk = pks.(trustee_id - 1).s_message.trustee_public_key in
   let pd =
     partial_decryption_of_string
       W.(sread G.of_string)
@@ -753,17 +755,15 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                         let ts = x.dbp_trustees in
                         cont
                         @@ List.map
-                             (fun { st_public_key; st_name; _ } ->
+                             (fun { st_public_key; _ } ->
                                let pk =
                                  trustee_public_key_of_string
                                    Yojson.Safe.read_json Yojson.Safe.read_json
                                    st_public_key
                                in
-                               let pk = { pk with trustee_name = st_name } in
                                `Single pk)
                              ts
                     | `Threshold x -> (
-                        let ts = x.dtp_trustees in
                         match x.dtp_parameters with
                         | None -> precondition_failed
                         | Some tp ->
@@ -771,16 +771,6 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                               threshold_parameters_of_string
                                 Yojson.Safe.read_json Yojson.Safe.read_json tp
                             in
-                            let named =
-                              List.combine
-                                (Array.to_list tp.t_verification_keys)
-                                ts
-                              |> List.map
-                                   (fun ((k : _ trustee_public_key), t) ->
-                                     { k with trustee_name = t.stt_name })
-                              |> Array.of_list
-                            in
-                            let tp = { tp with t_verification_keys = named } in
                             cont [ `Pedersen tp ])
                   in
                   trustees

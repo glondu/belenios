@@ -59,7 +59,8 @@ let compute_synthetic_factors_exc trustees check partial_decryptions fold =
       | `Single x, `Single y -> (
           match y with
           | None -> raise (CombinationError MissingPartialDecryption)
-          | Some y when check x.trustee_public_key y -> y.decryption_factors
+          | Some y when check x.s_message.trustee_public_key y ->
+              y.decryption_factors
           | _ -> raise (CombinationError InvalidPartialDecryption))
       | `Pedersen x, `Pedersen y ->
           let length = Array.length x.t_verification_keys in
@@ -70,7 +71,8 @@ let compute_synthetic_factors_exc trustees check partial_decryptions fold =
           let _invalid_partial_decryptions =
             let rec loop accu i =
               if i >= 0 then
-                if check x.t_verification_keys.(i) y.(i) then loop accu (i - 1)
+                if check x.t_verification_keys.(i).s_message.s_message y.(i)
+                then loop accu (i - 1)
                 else (
                   y.(i) <- None;
                   loop (i :: accu) (i - 1))

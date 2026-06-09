@@ -53,7 +53,7 @@ let generate_basic (Draft (_, draft)) () =
   let fingerprint =
     public_key
     |> trustee_public_key_of_string Yojson.Safe.read_json Yojson.Safe.read_json
-    |> (fun x -> x.trustee_public_key)
+    |> (fun x -> x.s_message.trustee_public_key)
     |> Yojson.Safe.to_string |> sha256_b64
   in
   let mime_type = "application/json"

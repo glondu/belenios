@@ -59,9 +59,10 @@ let do_election uuid election private_key =
           let private_key = W.G.Zq.of_string x in
           let public_key = W.G.(g **~ private_key) in
           fun x ->
-            if W.G.compare public_key x.trustee_public_key = 0 then
+            if W.G.compare public_key x.s_message.trustee_public_key = 0 then
               Some
-                (Option.value ~default:(s_ "anonymous trustee") x.trustee_name)
+                (Option.value ~default:(s_ "anonymous trustee")
+                   x.s_message.trustee_name)
             else None
       | _ -> raise Exit
     with _ -> fun _ -> None
@@ -74,8 +75,8 @@ let do_election uuid election private_key =
       let public_key = W.G.(g **~ private_key) in
       fun x ->
         Array.find_map
-          (fun ( { s_message = x; _ },
-                 ({ trustee_name; _ } : _ trustee_public_key) ) ->
+          (fun ({ s_message = x; _ }, (t : _ threshold_verification_key)) ->
+            let { trustee_name; _ } = t.s_message.s_message in
             if W.G.compare public_key x.cert_verification = 0 then
               Some (Option.value ~default:(s_ "anonymous trustee") trustee_name)
             else None)
@@ -114,7 +115,8 @@ let do_draft uuid draft private_key =
         in
         List.find_map
           (fun x ->
-            let& { trustee_public_key = y; _ } = x.trustee_key in
+            let& y = x.trustee_key in
+            let { trustee_public_key = y; _ } = y.s_message in
             if G.(compare (g **~ private_key) y) = 0 then Some x.trustee_name
             else None)
           trustees

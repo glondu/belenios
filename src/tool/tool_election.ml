@@ -136,7 +136,8 @@ let make file =
                    | `Single _ -> false
                    | `Pedersen t ->
                        Array.exists
-                         (fun x -> G.(x.trustee_public_key =~ pvk))
+                         (fun x ->
+                           G.(x.s_message.s_message.trustee_public_key =~ pvk))
                          t.t_verification_keys)
                  ts
           then failwith "your key is not present in threshold parameters");

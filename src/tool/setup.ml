@@ -51,16 +51,18 @@ let save (descr, filename, perm, thing) =
   Lwt_unix.chmod filename perm
 
 module Tkeygen : CMDLINER_MODULE = struct
-  let main group version =
+  let main group version name =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module KG = Trustees.MakeSimple (G) in
     let private_key = KG.generate () in
-    let public_key = KG.prove private_key in
+    let public_key = KG.prove ?name private_key in
     let id =
-      String.sub (sha256_hex (G.to_string public_key.trustee_public_key)) 0 8
+      String.sub
+        (sha256_hex (G.to_string public_key.s_message.trustee_public_key))
+        0 8
       |> String.uppercase_ascii
     in
     let priv = string_of_number @@ G.Zq.to_Z private_key in
@@ -74,6 +76,10 @@ module Tkeygen : CMDLINER_MODULE = struct
     let* () = save pubkey in
     let* () = save privkey in
     Lwt.return_unit
+
+  let name_t =
+    let doc = "Set trustee name." in
+    Arg.(value & opt (some string) None & info [ "name" ] ~docv:"NAME" ~doc)
 
   let cmd =
     let doc = "generate a trustee key" in
@@ -94,7 +100,7 @@ module Tkeygen : CMDLINER_MODULE = struct
     in
     Cmd.v
       (Cmd.info "generate-trustee-key" ~doc ~man)
-      Term.(ret (const main $ group_t $ version_t))
+      Term.(ret (const main $ group_t $ version_t $ name_t))
 end
 
 module Ttkeygen : CMDLINER_MODULE = struct

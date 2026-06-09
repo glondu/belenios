@@ -228,8 +228,7 @@ let validate_election_exn s uuid =
         match ts with
         | [] ->
             let private_key = KG.generate () in
-            let public_key = KG.prove private_key in
-            let public_key = { public_key with trustee_name = Some "server" } in
+            let public_key = KG.prove ~name:"server" private_key in
             Lwt.return ([ "server" ], [ `Single public_key ], `KEY private_key)
         | _ :: _ ->
             let private_key =
@@ -246,12 +245,11 @@ let validate_election_exn s uuid =
             Lwt.return
               ( List.map (fun { st_id; _ } -> st_id) ts,
                 List.map
-                  (fun { st_public_key; st_name; _ } ->
+                  (fun { st_public_key; _ } ->
                     let pk =
                       trustee_public_key_of_string (sread G.of_string)
                         (sread G.Zq.of_string) st_public_key
                     in
-                    let pk = { pk with trustee_name = st_name } in
                     `Single pk)
                   ts,
                 private_key ))
@@ -264,13 +262,6 @@ let validate_election_exn s uuid =
               threshold_parameters_of_string (sread G.of_string)
                 (sread G.Zq.of_string) tp
             in
-            let named =
-              List.combine (Array.to_list tp.t_verification_keys) ts
-              |> List.map (fun ((k : _ trustee_public_key), t) ->
-                  { k with trustee_name = t.stt_name })
-              |> Array.of_list
-            in
-            let tp = { tp with t_verification_keys = named } in
             let trustee_names = List.map (fun { stt_id; _ } -> stt_id) ts in
             let private_keys =
               List.map
@@ -286,9 +277,8 @@ let validate_election_exn s uuid =
                 ts
             in
             let server_private_key = KG.generate () in
-            let server_public_key = KG.prove server_private_key in
             let server_public_key =
-              { server_public_key with trustee_name = Some "server" }
+              KG.prove ~name:"server" server_private_key
             in
             Lwt.return
               ( "server" :: trustee_names,

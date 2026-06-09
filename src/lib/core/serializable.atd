@@ -33,12 +33,13 @@ type 'a proof <ocaml predef from="Serializable_core"> = abstract
 
 (** {2 Trustees} *)
 
-type ('a, 'b) trustee_public_key = {
-  pok : 'b proof;
+type ('a, 'b) raw_trustee_public_key = {
   public_key : 'a;
-  ?signature : 'b proof option;
   ?name : string option;
 } <ocaml field_prefix="trustee_">
+
+type ('a, 'b) trustee_public_key =
+  ('a, 'b, ('a, 'b) raw_trustee_public_key) signed_msg
 
 (** {2 Finite fields} *)
 
@@ -281,9 +282,12 @@ type 'a partial_decryption_key = {
 type ('a, 'b) sent_partial_decryption_key =
   ('a, 'b, 'b partial_decryption_key) sent_msg
 
+type ('a, 'b) threshold_verification_key =
+  ('a, 'b, ('a, 'b) trustee_public_key) signed_msg
+
 type ('a, 'b) voutput = {
   private_key : ('a, 'b) sent_partial_decryption_key;
-  public_key : ('a, 'b) trustee_public_key;
+  public_key : ('a, 'b) threshold_verification_key;
 } <ocaml field_prefix="vo_">
 
 type ('a, 'b) threshold_parameters = {
@@ -291,7 +295,7 @@ type ('a, 'b) threshold_parameters = {
   certs : ('a, 'b) cert list <ocaml repr="array">;
   coefexps : ('a, 'b) coefexps list <ocaml repr="array">;
   ?signatures : 'b proof list <ocaml repr="array"> option;
-  verification_keys : ('a, 'b) trustee_public_key list <ocaml repr="array">;
+  verification_keys : ('a, 'b) threshold_verification_key list <ocaml repr="array">;
 } <ocaml field_prefix="t_">
 
 type ('a, 'b) trustee_kind =

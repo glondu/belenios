@@ -232,12 +232,14 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
          |> Option.map
               (List.map (function
                  | `Single x -> [ x ]
-                 | `Pedersen t -> Array.to_list t.t_verification_keys)
+                 | `Pedersen t ->
+                     Array.to_list t.t_verification_keys
+                     |> List.map (fun x -> x.s_message))
               >> List.flatten >> Array.of_list)
        in
        let public_keys =
          Option.map
-           (Array.map (fun pk -> pk.trustee_public_key))
+           (Array.map (fun pk -> pk.s_message.trustee_public_key))
            public_keys_with_pok
        in
        match public_keys with

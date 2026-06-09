@@ -775,9 +775,11 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                   match (ts, certs, pubs, privs) with
                   | ( stt_id :: ts,
                       cert :: certs,
-                      (vo_public_key : _ trustee_public_key) :: pubs,
+                      (vo_public_key : _ threshold_verification_key) :: pubs,
                       vo_private_key :: privs ) ->
-                      let stt_name = vo_public_key.trustee_name in
+                      let stt_name =
+                        vo_public_key.s_message.s_message.trustee_name
+                      in
                       let stt_token = generate_token () in
                       let vo_private_key =
                         vo_private_key
@@ -841,7 +843,8 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
         in
         match trustees with
         | [ `Pedersen t ] -> import_pedersen t names
-        | [ `Single x; `Pedersen t ] when x.trustee_name = Some "server" ->
+        | [ `Single x; `Pedersen t ]
+          when x.s_message.trustee_name = Some "server" ->
             import_pedersen t (List.tl names)
         | ts ->
             let@ ts cont =
@@ -877,7 +880,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                       in
                       Lwt.return (st_token, None, public_key)
                   in
-                  let st_name = public_key.trustee_name in
+                  let st_name = public_key.s_message.trustee_name in
                   Lwt.return
                     { st_id; st_token; st_public_key; st_private_key; st_name })
             in

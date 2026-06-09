@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Belenios_platform
 open Belenios_core
-open Serializable_core_t
 open Serializable_j
 open Signatures
 open Common
@@ -95,13 +94,20 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   module G = Group
   module V = MakeVerificator (G)
 
-  let check_single { trustee_pok; trustee_public_key = y; _ } =
-    G.check y
-    &&
-    let { challenge; response } = trustee_pok in
-    let commitment = G.((g **~ response) *~ (y **~ challenge)) in
-    let dst = dst_prefix ^ "-pok" in
-    G.Zq.(challenge =% G.hash ~dst (G.to_string y) [| commitment |])
+  let xch_single_verification_key =
+    {
+      dst = dst_prefix ^ "-verification_key";
+      of_string =
+        raw_trustee_public_key_of_string (sread G.of_string)
+          (sread G.Zq.of_string);
+      to_string =
+        string_of_raw_trustee_public_key (swrite G.to_string)
+          (swrite G.Zq.to_string);
+    }
+
+  let check_single trustee =
+    let { trustee_public_key = y; _ } = trustee.s_message in
+    G.check y && P.verify xch_single_verification_key y trustee
 
   let xch_coefexps =
     {
@@ -120,8 +126,11 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_verification_key =
     {
       dst = dst_prefix ^ "-pedersen-verification_key";
-      of_string = G.of_string;
-      to_string = G.to_string;
+      of_string =
+        trustee_public_key_of_string (sread G.of_string) (sread G.Zq.of_string);
+      to_string =
+        string_of_trustee_public_key (swrite G.to_string)
+          (swrite G.Zq.to_string);
     }
 
   let xch_decryption_key =
@@ -163,20 +172,15 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
         (fun (x : (_, _, _ raw_coefexps) signed_msg) -> x.s_message.coefexps)
         t.t_coefexps
     in
-    Array.for_all check_single t.t_verification_keys
+    Array.for_all (fun x -> check_single x.s_message) t.t_verification_keys
     &&
     let computed_vks = V.compute_verification_keys coefexps in
     t.t_threshold = Array.length coefexps.(0)
     && Array.for_all3
          G.(
            fun cert vk computed_vk ->
-             vk.trustee_public_key =~ computed_vk
-             &&
-             match vk.trustee_signature with
-             | None -> false
-             | Some s_signature ->
-                 P.verify xch_verification_key cert.cert_verification
-                   { s_message = computed_vk; s_signature })
+             vk.s_message.s_message.trustee_public_key =~ computed_vk
+             && P.verify xch_verification_key cert.cert_verification vk)
          certs t.t_verification_keys computed_vks
 
   let check trustees =
@@ -188,7 +192,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let combine_keys trustees =
     trustees
     |> List.map (function
-      | `Single t -> t.trustee_public_key
+      | `Single t -> t.s_message.trustee_public_key
       | `Pedersen p ->
           p.t_coefexps
           |> Array.map (fun (x : (_, _, _ raw_coefexps) signed_msg) ->
@@ -233,31 +237,17 @@ end
 
 module MakeSimple (G : GROUP) = struct
   open G
+  module P = Pki.Make (G)
+  module C = MakeCert (P)
+  module Comb = MakeComb (P) (C)
 
   let random () = G.Zq.random (Crypto_primitives.get_rng ())
-
-  (** Fiat-Shamir non-interactive zero-knowledge proofs of knowledge *)
-
-  let fs_prove gs x oracle =
-    let w = random () in
-    let commitments = Array.map (fun g -> g **~ w) gs in
-    let challenge = oracle commitments in
-    let response = G.Zq.(w - (x * challenge)) in
-    { challenge; response }
-
   let generate = random
 
-  let prove x =
+  let prove ?name x =
     let trustee_public_key = g **~ x in
-    let zkp = G.to_string trustee_public_key in
-    let dst = dst_prefix ^ "-pok" in
-    let trustee_pok = fs_prove [| g |] x (G.hash ~dst zkp) in
-    {
-      trustee_pok;
-      trustee_public_key;
-      trustee_signature = None;
-      trustee_name = None;
-    }
+    P.sign Comb.xch_single_verification_key x
+      { trustee_public_key; trustee_name = name }
 end
 
 module MakePedersen (C : CHANNELS) = struct
@@ -416,9 +406,7 @@ module MakePedersen (C : CHANNELS) = struct
         in
         { vi_polynomial; vi_secrets; vi_coefexps; vi_signatures })
 
-  let sign_trustee_public_key ~sk x =
-    let signed = P.sign Comb.xch_verification_key sk x.trustee_public_key in
-    { x with trustee_signature = Some signed.s_signature }
+  let sign_trustee_public_key ~sk x = P.sign Comb.xch_verification_key sk x
 
   let step5 certs seed vinput =
     let n = Array.length certs in
@@ -495,16 +483,12 @@ module MakePedersen (C : CHANNELS) = struct
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)));
           x.s_message.coefexps)
     in
-    let s_message = (V.compute_verification_keys coefexps).(i) in
+    let y = (V.compute_verification_keys coefexps).(i) in
     let { vo_public_key; _ } = voutput in
-    Comb.check [ `Single vo_public_key ]
-    && vo_public_key.trustee_public_key =~ s_message
-    &&
-    match vo_public_key.trustee_signature with
-    | None -> false
-    | Some s_signature ->
-        P.verify Comb.xch_verification_key certs.(i).cert_verification
-          { s_message; s_signature }
+    Comb.check [ `Single vo_public_key.s_message ]
+    && vo_public_key.s_message.s_message.trustee_public_key =~ y
+    && P.verify Comb.xch_verification_key certs.(i).cert_verification
+         vo_public_key
 
   let step6 certs polynomials voutputs =
     let n = Array.length certs in
@@ -539,10 +523,14 @@ module MakePedersen (C : CHANNELS) = struct
     let computed_vks = V.compute_verification_keys coefexps in
     for j = 0 to n - 1 do
       let voutput = voutputs.(j) in
-      if not (Comb.check [ `Single voutput.vo_public_key ]) then
+      if not (Comb.check [ `Single voutput.vo_public_key.s_message ]) then
         raise
           (PedersenFailure (Printf.sprintf "pok %d does not validate" (j + 1)));
-      if not (voutput.vo_public_key.trustee_public_key =~ computed_vks.(j)) then
+      if
+        not
+          (voutput.vo_public_key.s_message.s_message.trustee_public_key
+         =~ computed_vks.(j))
+      then
         raise
           (PedersenFailure
              (Printf.sprintf "verification key %d is incorrect" (j + 1)))
