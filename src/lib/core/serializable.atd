@@ -227,20 +227,26 @@ type ('a, 'b, 'c) sent_msg =
 
 (** {2 Threshold decryption support} *)
 
-type context = {
+type common_context = {
   group : string;
   names : string list <ocaml repr="array">;
   threshold : int;
-  index : int;
 }
 
-type 'a cert_keys = {
-  context : context;
+type index = int
+
+type full_context = {
+  context : common_context;
+  index : index;
+}
+
+type ('a, 'b) cert_keys = {
+  context : 'b;
   verification : 'a;
   encryption : 'a;
 } <ocaml field_prefix="cert_">
 
-type ('a, 'b) cert = ('a, 'b, 'a cert_keys) signed_msg
+type ('a, 'b) cert = ('a, 'b, ('a, index) cert_keys) signed_msg
 
 type 'a raw_polynomial = {
   polynomial : 'a list <ocaml repr="array">
@@ -253,8 +259,9 @@ type 'a raw_coefexps = {
 type ('a, 'b) coefexps = ('a, 'b, 'a raw_coefexps) signed_msg
 
 type ('a, 'b) certs = {
+  context : common_context;
   certs : ('a, 'b) cert list <ocaml repr="array">;
-  coefexps : 'a list <ocaml repr="array">;
+  ?coefexps : 'a list <ocaml repr="array"> option;
 }
 
 type 'a secret = {

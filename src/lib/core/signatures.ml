@@ -237,27 +237,28 @@ module type PEDERSEN = sig
   type scalar = Channels.P.Group.Zq.t
   type element = Channels.P.Group.t
   type nonrec cert = (element, scalar) cert
+  type nonrec certs = (element, scalar) certs
   type nonrec polynomial = (element, scalar) polynomial
 
   val xch_decryption_key : scalar partial_decryption_key exchangeable
-  val step1 : context -> string * cert
-  val step1_check : context -> cert -> bool
-  val step2 : cert array -> int
-  val step3 : cert array -> string -> polynomial Lwt.t
-  val step3_check : cert array -> int -> polynomial -> bool
-  val step4 : cert array -> polynomial array -> (element, scalar) vinput array
+  val step1 : full_context -> string * cert
+  val step1_check : full_context -> cert -> bool
+  val step2 : certs -> int
+  val step3 : certs -> string -> polynomial Lwt.t
+  val step3_check : certs -> int -> polynomial -> bool
+  val step4 : certs -> polynomial array -> (element, scalar) vinput array
 
   val step5 :
-    cert array ->
+    certs ->
     string ->
     (element, scalar) vinput ->
     (element, scalar) voutput Lwt.t
 
   val step5_check :
-    cert array -> int -> polynomial array -> (element, scalar) voutput -> bool
+    certs -> int -> polynomial array -> (element, scalar) voutput -> bool
 
   val step6 :
-    cert array ->
+    certs ->
     polynomial array ->
     (element, scalar) voutput array ->
     (element, scalar) threshold_parameters

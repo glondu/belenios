@@ -70,7 +70,8 @@ let generate_threshold (Draft (_, draft)) context () =
   let module T = Trustees.MakePedersen (C) in
   let private_key, cert = T.step1 context in
   let fingerprint =
-    sha256_b64 @@ string_of_cert_keys (swrite G.to_string) cert.s_message
+    sha256_b64
+    @@ string_of_cert_keys (swrite G.to_string) write_index cert.s_message
   in
   let public_key =
     string_of_cert (swrite G.to_string) (swrite G.Zq.to_string) cert
@@ -88,7 +89,8 @@ let threshold_step (Draft (_, draft)) pedersen ~private_key =
     |> string_of_pedersen Yojson.Safe.write_json Yojson.Safe.write_json
     |> pedersen_of_string (sread G.of_string) (sread G.Zq.of_string)
   in
-  let certs = pedersen.pedersen_certs in
+  let context = pedersen.pedersen_context.context in
+  let certs = { context; certs = pedersen.pedersen_certs; coefexps = None } in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in

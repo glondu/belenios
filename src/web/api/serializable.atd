@@ -29,7 +29,7 @@ type recipient <ocaml predef from="Belenios_core.Serializable_core"> = abstract
 type 'a template <ocaml predef from="Belenios_core.Serializable"> = abstract
 
 type cast_error <ocaml predef from="Belenios_core.Serializable"> = abstract
-type context <ocaml predef from="Belenios_core.Serializable"> = abstract
+type full_context <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) trustee_public_key <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) cert <ocaml predef from="Belenios_core.Serializable"> = abstract
 type ('a, 'b) vinput <ocaml predef from="Belenios_core.Serializable"> = abstract
@@ -190,7 +190,7 @@ type 'a raw_draft = {
 } <ocaml field_prefix="draft_">
 
 type ('a, 'b) pedersen = {
-    context : context;
+    context : full_context;
     step : int;
     certs : ('a, 'b) cert list <ocaml repr="array">;
     ?vinput : ('a, 'b) vinput option;
@@ -204,7 +204,7 @@ type trustee_status_basic =
 
 type ('a, 'b) trustee_status_threshold =
  [ Init
- | WaitingForCertificate of context
+ | WaitingForCertificate of full_context
  | WaitingForOtherCertificates
  | Pedersen of ('a, 'b) pedersen
  ]

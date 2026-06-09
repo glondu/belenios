@@ -1046,7 +1046,8 @@ let post_trustee_threshold
     | None -> failwith "Trustee not found"
   in
   let names = Array.map (fun x -> x.stt_name) ts in
-  let context = { group = se.se_group; names; threshold; index = i + 1 } in
+  let context = { group = se.se_group; names; threshold } in
+  let full_context = { context; index = i + 1 } in
   let get_certs () =
     Array.map
       (fun x ->
@@ -1073,7 +1074,7 @@ let post_trustee_threshold
         let cert =
           cert_of_string (sread G.of_string) (sread G.Zq.of_string) data
         in
-        if K.step1_check context cert then (
+        if K.step1_check full_context cert then (
           t.stt_cert <- Some cert;
           t.stt_step <- Some 2)
         else failwith "Invalid certificate"
@@ -1082,7 +1083,7 @@ let post_trustee_threshold
         let polynomial =
           polynomial_of_string (sread G.of_string) (sread G.Zq.of_string) data
         in
-        if K.step3_check certs i polynomial then (
+        if K.step3_check { context; certs; coefexps = None } i polynomial then (
           t.stt_polynomial <- Some polynomial;
           t.stt_step <- Some 4)
         else failwith "Invalid polynomial"
@@ -1092,7 +1093,11 @@ let post_trustee_threshold
         let voutput =
           voutput_of_string (sread G.of_string) (sread G.Zq.of_string) data
         in
-        if K.step5_check certs i polynomials voutput then (
+        if
+          K.step5_check
+            { context; certs; coefexps = None }
+            i polynomials voutput
+        then (
           t.stt_voutput <-
             Some
               (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
@@ -1104,7 +1109,8 @@ let post_trustee_threshold
   let () =
     if Array.for_all (fun x -> x.stt_step = Some 2) ts then
       try
-        let threshold = K.step2 (get_certs ()) in
+        let certs = { context; certs = get_certs (); coefexps = None } in
+        let threshold = K.step2 certs in
         assert (dtp.dtp_threshold = Some threshold);
         Array.iter (fun x -> x.stt_step <- Some 3) ts
       with e -> dtp.dtp_error <- Some (Printexc.to_string e)
@@ -1114,7 +1120,7 @@ let post_trustee_threshold
       try
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let vinputs = K.step4 certs polynomials in
+        let vinputs = K.step4 { context; certs; coefexps = None } polynomials in
         for j = 0 to Array.length ts - 1 do
           ts.(j).stt_vinput <- Some vinputs.(j)
         done;
@@ -1135,7 +1141,9 @@ let post_trustee_threshold
                   voutput_of_string (sread G.of_string) (sread G.Zq.of_string) y)
             ts
         in
-        let p = K.step6 certs polynomials voutputs in
+        let p =
+          K.step6 { context; certs; coefexps = None } polynomials voutputs
+        in
         dtp.dtp_parameters <-
           Some
             (string_of_threshold_parameters (swrite G.to_string)
@@ -1274,9 +1282,8 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
                   List.map (fun x -> x.stt_name) dtp.dtp_trustees
                   |> Array.of_list
                 in
-                let pedersen_context =
-                  { group = draft.se_group; names; threshold; index }
-                in
+                let context = { group = draft.se_group; names; threshold } in
+                let pedersen_context = { context; index } in
                 match t.stt_cert with
                 | None -> `WaitingForCertificate pedersen_context
                 | Some _ -> (

@@ -105,22 +105,26 @@ module Tkeygen : CMDLINER_MODULE = struct
 end
 
 module Ttkeygen : CMDLINER_MODULE = struct
-  let main group version step certs context key polynomials =
+  let main group version step certs context index key polynomials =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
     let get_context () =
       let fname = get_mandatory_opt "--threshold-context" context in
       let* x = string_of_file fname in
-      let context = context_of_string x in
+      let context = common_context_of_string x in
       try
         let size = Array.length context.names in
-        let { index; threshold; _ } = context in
+        let threshold = context.threshold in
         if
-          context.group = group && 0 < size && 1 <= index && index <= size
-          && 0 < threshold && threshold < size
+          context.group = group && 0 < size && 0 < threshold && threshold < size
         then Lwt.return context
         else raise Exit
       with _ -> failcmd "threshold context is invalid"
+    in
+    let get_index context =
+      let index = get_mandatory_opt "--index" index in
+      if 1 <= index && index <= Array.length context.names then index
+      else failcmd "index is invalid"
     in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Trustees = (val Trustees.get_by_version version) in
@@ -152,9 +156,11 @@ module Ttkeygen : CMDLINER_MODULE = struct
     match step with
     | 1 ->
         let* context = get_context () in
-        let key, cert = T.step1 context in
+        let index = get_index context in
+        let key, cert = T.step1 { context; index } in
         let id =
-          sha256_hex @@ string_of_cert_keys (swrite G.to_string) cert.s_message
+          sha256_hex
+          @@ string_of_cert_keys (swrite G.to_string) write_index cert.s_message
         in
         Printf.eprintf "I: certificate %s has been generated\n%!" id;
         let pub =
@@ -168,28 +174,32 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* () = save prv in
         Lwt_io.printl id
     | 2 ->
+        let* context = get_context () in
         let* certs = get_certs () in
-        let _ = T.step2 certs in
+        let _ = T.step2 { context; certs; coefexps = None } in
         Lwt_io.eprintl "I: certificates are valid"
     | 3 ->
+        let* context = get_context () in
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
-        let* polynomial = T.step3 certs key in
+        let* polynomial = T.step3 { context; certs; coefexps = None } key in
         Lwt_io.printl
           (string_of_polynomial (swrite G.to_string) (swrite G.Zq.to_string)
              polynomial)
     | 4 ->
+        let* context = get_context () in
         let* certs = get_certs () in
         let n = Array.length certs in
         let* polynomials = get_polynomials () in
         assert (n = Array.length polynomials);
-        let vinputs = T.step4 certs polynomials in
+        let vinputs = T.step4 { context; certs; coefexps = None } polynomials in
         assert (n = Array.length vinputs);
         let rec loop i =
           if i < n then
             let id =
               sha256_hex
-              @@ string_of_cert_keys (swrite G.to_string) certs.(i).s_message
+              @@ string_of_cert_keys (swrite G.to_string) write_index
+                   certs.(i).s_message
             in
             let fn = id ^ ".vinput" in
             let* () =
@@ -208,17 +218,19 @@ module Ttkeygen : CMDLINER_MODULE = struct
         in
         loop 0
     | 5 ->
+        let* context = get_context () in
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let vinput =
           read_line ()
           |> vinput_of_string (sread G.of_string) (sread G.Zq.of_string)
         in
-        let* voutput = T.step5 certs key vinput in
+        let* voutput = T.step5 { context; certs; coefexps = None } key vinput in
         Lwt_io.printl
           (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
              voutput)
     | 6 ->
+        let* context = get_context () in
         let* certs = get_certs () in
         let n = Array.length certs in
         let* polynomials = get_polynomials () in
@@ -231,12 +243,15 @@ module Ttkeygen : CMDLINER_MODULE = struct
           |> Array.of_list
         in
         assert (n = Array.length voutputs);
-        let tparams = T.step6 certs polynomials voutputs in
+        let tparams =
+          T.step6 { context; certs; coefexps = None } polynomials voutputs
+        in
         let rec loop i =
           if i < n then
             let id =
               sha256_hex
-              @@ string_of_cert_keys (swrite G.to_string) certs.(i).s_message
+              @@ string_of_cert_keys (swrite G.to_string) write_index
+                   certs.(i).s_message
             in
             let fn = id ^ ".dkey" in
             let* () =
@@ -274,6 +289,11 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let the_info = Arg.info [ "threshold-context" ] ~docv:"CONTEXT" ~doc in
     Arg.(value & opt (some file) None the_info)
 
+  let index_t =
+    let doc = "Trustee index (1-based) in threshold protocol." in
+    let the_info = Arg.info [ "index" ] ~docv:"INDEX" ~doc in
+    Arg.(value & opt (some int) None the_info)
+
   let polynomials_t =
     let doc = "Read polynomials (output of step 3) from file $(docv)." in
     let the_info = Arg.info [ "polynomials" ] ~docv:"POLYNOMIALS" ~doc in
@@ -295,7 +315,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
       Term.(
         ret
           (const main $ group_t $ version_t $ step_t $ cert_t $ context_t
-         $ key_t $ polynomials_t))
+         $ index_t $ key_t $ polynomials_t))
 end
 
 module Credgen : CMDLINER_MODULE = struct

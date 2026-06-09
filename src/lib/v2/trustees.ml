@@ -31,7 +31,7 @@ exception PedersenFailure of string
 module type VERIFY_CERT = sig
   module G : GROUP
 
-  val verify_cert : context -> (G.t, G.Zq.t) cert -> bool
+  val verify_cert : full_context -> (G.t, G.Zq.t) cert -> bool
 end
 
 module MakeCert (P : PKI) = struct
@@ -40,26 +40,30 @@ module MakeCert (P : PKI) = struct
   let xch_cert_keys =
     {
       dst = dst_prefix ^ "-pedersen-cert";
-      to_string = string_of_cert_keys (swrite G.to_string);
-      of_string = cert_keys_of_string (sread G.of_string);
+      to_string = string_of_cert_keys (swrite G.to_string) write_full_context;
+      of_string = cert_keys_of_string (sread G.of_string) read_full_context;
     }
 
   let make_cert ~sk ~dk ~context =
-    P.sign xch_cert_keys sk
-      {
-        cert_verification = G.(g **~ sk);
-        cert_encryption = G.(g **~ dk);
-        cert_context = context;
-      }
+    let signed =
+      P.sign xch_cert_keys sk
+        {
+          cert_verification = G.(g **~ sk);
+          cert_encryption = G.(g **~ dk);
+          cert_context = context;
+        }
+    in
+    let s_message = { signed.s_message with cert_context = context.index } in
+    { signed with s_message }
 
-  let get_context x = x.s_message.cert_context
-
-  let verify_cert context x =
+  let verify_cert cert_context x =
     let keys = x.s_message in
     G.check keys.cert_verification
     && G.check keys.cert_encryption
-    && keys.cert_context = context
-    && P.verify xch_cert_keys keys.cert_verification x
+    && cert_context.index = keys.cert_context
+    &&
+    let s_message = { x.s_message with cert_context } in
+    P.verify xch_cert_keys keys.cert_verification { x with s_message }
 end
 
 module MakeVerificator (G : GROUP) = struct
@@ -145,8 +149,9 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
         t.t_verification_keys
     in
     let threshold = t.t_threshold in
+    let context = { group; names; threshold } in
     Array.for_alli
-      (fun i c -> C.verify_cert { group; names; threshold; index = i + 1 } c)
+      (fun i c -> C.verify_cert { context; index = i + 1 } c)
       t.t_certs
     &&
     let certs = Array.map (fun x -> x.s_message) t.t_certs in
@@ -163,7 +168,9 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
                (fun cert (coefexps : (_, _, _ raw_coefexps) signed_msg)
                     s_signature ->
                  let x = coefexps.s_message in
-                 let s_message = { certs = t.t_certs; coefexps = x.coefexps } in
+                 let s_message =
+                   { context; certs = t.t_certs; coefexps = Some x.coefexps }
+                 in
                  P.verify xch_certs cert.cert_verification
                    { s_message; s_signature })
                certs t.t_coefexps sigs)
@@ -259,6 +266,7 @@ module MakePedersen (C : CHANNELS) = struct
   type scalar = G.Zq.t
   type element = G.t
   type nonrec cert = (element, scalar) cert
+  type nonrec certs = (element, scalar) certs
   type nonrec polynomial = (element, scalar) polynomial
 
   module Cert = MakeCert (P)
@@ -294,21 +302,15 @@ module MakePedersen (C : CHANNELS) = struct
 
   let step1_check = Cert.verify_cert
 
-  let step2 certs =
-    assert (Array.length certs > 0);
-    let group = G.description in
-    let context = Cert.get_context certs.(0) in
-    let names = context.names in
-    let threshold = context.threshold in
+  let step2 { context; certs; _ } =
     Array.iteri
       (fun i cert ->
-        if Cert.verify_cert { group; names; threshold; index = i + 1 } cert then
-          ()
+        if Cert.verify_cert { context; index = i + 1 } cert then ()
         else
           let msg = Printf.sprintf "certificate %d does not validate" (i + 1) in
           raise (PedersenFailure msg))
       certs;
-    threshold
+    context.threshold
 
   let eval_poly polynomial x =
     let cur = ref Zq.one and res = ref Zq.zero in
@@ -319,14 +321,20 @@ module MakePedersen (C : CHANNELS) = struct
     !res
 
   let step3 certs seed =
-    let n = Array.length certs in
     let threshold = step2 certs in
+    let n = Array.length certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let mk_signature coefexps =
-      let m = { certs; coefexps } in
+      let m =
+        {
+          context = certs.context;
+          certs = certs.certs;
+          coefexps = Some coefexps;
+        }
+      in
       Some (P.sign Comb.xch_certs sk m).s_signature
     in
-    let certs = Array.map (fun x -> x.s_message) certs in
+    let certs = Array.map (fun x -> x.s_message) certs.certs in
     let vk = g **~ sk and ek = g **~ dk in
     let i =
       Array.findi
@@ -363,9 +371,13 @@ module MakePedersen (C : CHANNELS) = struct
 
   let step3_check certs i polynomial =
     let s_message =
-      { certs; coefexps = polynomial.p_coefexps.s_message.coefexps }
+      {
+        context = certs.context;
+        certs = certs.certs;
+        coefexps = Some polynomial.p_coefexps.s_message.coefexps;
+      }
     in
-    let certs = Array.map (fun x -> x.s_message) certs in
+    let certs = Array.map (fun x -> x.s_message) certs.certs in
     P.verify Comb.xch_coefexps certs.(i).cert_verification polynomial.p_coefexps
     &&
     match polynomial.p_signature with
@@ -375,10 +387,10 @@ module MakePedersen (C : CHANNELS) = struct
           { s_message; s_signature }
 
   let step4 certs polynomials =
-    let n = Array.length certs in
     let threshold = step2 certs in
+    let n = Array.length certs.certs in
     assert (n = Array.length polynomials);
-    let certs = Array.map (fun x -> x.s_message) certs in
+    let certs = Array.map (fun x -> x.s_message) certs.certs in
     let vi_signatures =
       Some
         (Array.map
@@ -411,9 +423,10 @@ module MakePedersen (C : CHANNELS) = struct
   let sign_trustee_public_key ~sk x = P.sign Comb.xch_verification_key sk x
 
   let step5 certs seed vinput =
-    let n = Array.length certs in
     let threshold = step2 certs in
-    let certs = Array.map (fun x -> x.s_message) certs in
+    let context = certs.context in
+    let n = Array.length certs.certs in
+    let certs = Array.map (fun x -> x.s_message) certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let vk = g **~ sk and ek = g **~ dk in
     let j =
@@ -466,7 +479,7 @@ module MakePedersen (C : CHANNELS) = struct
     done;
     let pdk_decryption_key = Array.fold_left Zq.( + ) Zq.zero secrets in
     let pdk = { pdk_decryption_key } in
-    let name = certs.(index - 1).cert_context.names.(index - 1) in
+    let name = context.names.(index - 1) in
     let vo_public_key =
       K.prove ~name pdk_decryption_key |> sign_trustee_public_key ~sk
     in
@@ -474,8 +487,8 @@ module MakePedersen (C : CHANNELS) = struct
     Lwt.return { vo_public_key; vo_private_key }
 
   let step5_check certs i polynomials voutput =
-    let n = Array.length certs in
-    let certs = Array.map (fun x -> x.s_message) certs in
+    let n = Array.length certs.certs in
+    let certs = Array.map (fun x -> x.s_message) certs.certs in
     assert (n = Array.length polynomials);
     let coefexps =
       Array.init n (fun i ->
@@ -494,9 +507,9 @@ module MakePedersen (C : CHANNELS) = struct
          vo_public_key
 
   let step6 certs polynomials voutputs =
-    let n = Array.length certs in
     let t_threshold = step2 certs in
-    let t_certs = certs in
+    let n = Array.length certs.certs in
+    let t_certs = certs.certs in
     let t_signatures =
       Some
         (Array.map
