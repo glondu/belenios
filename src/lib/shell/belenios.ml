@@ -39,13 +39,6 @@ module Methods = struct
   module Majority_judgment = Belenios_core.Majority_judgment
 end
 
-let xch_credentials_certificate =
-  {
-    dst = dst_prefix ^ "-credentials_certificate";
-    of_string = Hash.of_hex;
-    to_string = Hash.to_hex;
-  }
-
 let xch_encrypted_credential =
   {
     dst = dst_prefix ^ "-encrypted_credential";
@@ -54,23 +47,24 @@ let xch_encrypted_credential =
   }
 
 module Credentials_certificate (G : GROUP) = struct
+  let xch_credentials_certificate =
+    {
+      dst = dst_prefix ^ "-credentials_certificate";
+      of_string =
+        raw_credentials_certificate_of_string (sread G.of_string)
+          (sread G.Zq.of_string);
+      to_string =
+        string_of_raw_credentials_certificate (swrite G.to_string)
+          (swrite G.Zq.to_string);
+    }
+
   let check certificate =
-    G.check certificate.verification_key
-    && G.check certificate.encryption_key
-    &&
-    let@ signature cont =
-      match certificate.signature with None -> false | Some x -> cont x
-    in
-    let hash =
-      { certificate with signature = None }
-      |> string_of_credentials_certificate (swrite G.to_string)
-           (swrite G.Zq.to_string)
-      |> Hash.hash_string
-    in
-    hash = signature.s_message
+    G.check certificate.s_message.verification_key
+    && G.check certificate.s_message.encryption_key
     &&
     let module P = Pki.Make (G) in
-    P.verify xch_credentials_certificate certificate.verification_key signature
+    P.verify xch_credentials_certificate certificate.s_message.verification_key
+      certificate
 end
 
 module Language = Language

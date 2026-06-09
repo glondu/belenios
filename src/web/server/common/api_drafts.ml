@@ -366,7 +366,7 @@ let submit_public_credentials s
             List.map strip_public_credential credentials
             |> string_of_public_credentials |> Hash.hash_string
           in
-          public_creds_hash = certificate.public_creds_hash
+          public_creds_hash = certificate.s_message.public_creds_hash
         in
         let certificate_ok =
           match

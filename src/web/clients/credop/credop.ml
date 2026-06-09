@@ -162,10 +162,11 @@ module App (U : UI) = struct
       let@ () =
        fun cont ->
         if
-          certificate.uuid = uuid
-          && certificate.voter_list_length
+          certificate.s_message.uuid = uuid
+          && certificate.s_message.voter_list_length
              = List.length (public_credentials_of_string credentials)
-          && certificate.public_creds_hash = Hash.hash_string credentials
+          && certificate.s_message.public_creds_hash
+             = Hash.hash_string credentials
           && C.check certificate
         then cont ()
         else (
@@ -178,8 +179,8 @@ module App (U : UI) = struct
       let@ () =
        fun cont ->
         if
-          (certificate.verification_key = E.G.(g **~ signature_key))
-          && certificate.encryption_key = E.G.(g **~ decryption_key)
+          (certificate.s_message.verification_key = E.G.(g **~ signature_key))
+          && certificate.s_message.encryption_key = E.G.(g **~ decryption_key)
         then cont ()
         else (
           alert @@ s_ "The secret key is not valid!";

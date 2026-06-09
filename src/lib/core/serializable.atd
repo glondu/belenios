@@ -84,14 +84,16 @@ type public_credentials = string list
 
 type private_credentials = (string * string) list <json repr="object">
 
-type ('a, 'b) credentials_certificate = {
+type ('a, 'b) raw_credentials_certificate = {
   uuid : uuid;
   voter_list_length : int;
   public_creds_hash : hash;
   verification_key : 'a;
   encryption_key : 'a;
-  ?signature : ('a, 'b, hash) signed_msg option;
 }
+
+type ('a, 'b) credentials_certificate =
+  ('a, 'b, ('a, 'b) raw_credentials_certificate) signed_msg
 
 type sub_batch_item = {
     base : string;

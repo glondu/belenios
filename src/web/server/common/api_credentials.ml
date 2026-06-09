@@ -79,25 +79,18 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let public_creds_hash =
     creds.public_creds |> string_of_public_credentials |> Hash.hash_string
   in
-  let certificate_raw : (_, _) credentials_certificate =
+  let raw_certificate : (_, _) raw_credentials_certificate =
     {
       uuid = r.uuid;
       voter_list_length = List.length voter_list;
       public_creds_hash;
       verification_key;
       encryption_key;
-      signature = None;
     }
   in
-  let hash =
-    certificate_raw
-    |> string_of_credentials_certificate (swrite G.to_string)
-         (swrite G.Zq.to_string)
-    |> Hash.hash_string
-  in
+  let open Credentials_certificate (G) in
   let certificate =
-    let signature = P.sign xch_credentials_certificate signature_key hash in
-    { certificate_raw with signature = Some signature }
+    P.sign xch_credentials_certificate signature_key raw_certificate
     |> string_of_credentials_certificate (swrite G.to_string)
          (swrite G.Zq.to_string)
     |> credentials_certificate_of_string Yojson.Safe.read_json
@@ -360,7 +353,7 @@ let check_seed ~params ~seed =
   in
   let module P = Pki.Make (G) in
   let decryption_key = P.derive_dk seed in
-  G.(certificate.encryption_key =~ g **~ decryption_key)
+  G.(certificate.s_message.encryption_key =~ g **~ decryption_key)
 
 let process_request : credentials_request -> _ = function
   | `NewRequest r ->
@@ -534,7 +527,7 @@ let dispatch endpoint method_ body =
       | `POST -> (
           let@ response = body.run credentials_response_of_string in
           let certificate = response.certificate in
-          let uuid = certificate.uuid in
+          let uuid = certificate.s_message.uuid in
           let@ s = Storage.E.with_transaction uuid in
           let@ () = handle_generic_error in
           let@ se, set = Storage.E.update s Draft in
