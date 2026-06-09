@@ -53,12 +53,13 @@ let save (descr, filename, perm, thing) =
 module Tkeygen : CMDLINER_MODULE = struct
   let main group version name =
     let@ () = wrap_main in
+    let name = get_mandatory_opt "--name" name in
     let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module KG = Trustees.MakeSimple (G) in
     let private_key = KG.generate () in
-    let public_key = KG.prove ?name private_key in
+    let public_key = KG.prove ~name private_key in
     let id =
       String.sub
         (sha256_hex (G.to_string public_key.s_message.trustee_public_key))
@@ -108,19 +109,17 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
     let get_context () =
-      let x = get_mandatory_opt "--threshold-context" context in
+      let fname = get_mandatory_opt "--threshold-context" context in
+      let* x = string_of_file fname in
+      let context = context_of_string x in
       try
-        match String.split_on_char '/' x with
-        | [ index; threshold; size ] ->
-            let index = int_of_string index in
-            let threshold = int_of_string threshold in
-            let size = int_of_string size in
-            if
-              0 < size && 1 <= index && index <= size && 0 < threshold
-              && threshold < size
-            then { group; index; threshold; size }
-            else raise Exit
-        | _ -> raise Exit
+        let size = Array.length context.names in
+        let { index; threshold; _ } = context in
+        if
+          context.group = group && 0 < size && 1 <= index && index <= size
+          && 0 < threshold && threshold < size
+        then Lwt.return context
+        else raise Exit
       with _ -> failcmd "threshold context is invalid"
     in
     let module G = (val Group.of_string ~version group : GROUP) in
@@ -152,7 +151,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
     in
     match step with
     | 1 ->
-        let key, cert = T.step1 (get_context ()) in
+        let* context = get_context () in
+        let key, cert = T.step1 context in
         let id =
           sha256_hex @@ string_of_cert_keys (swrite G.to_string) cert.s_message
         in
@@ -270,9 +270,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
     Arg.(value & opt (some file) None the_info)
 
   let context_t =
-    let doc = "Context for threshold protocol." in
-    let the_info = Arg.info [ "threshold-context" ] ~docv:"i/k/n" ~doc in
-    Arg.(value & opt (some string) None the_info)
+    let doc = "Read context for threshold protocol from file $(docv)." in
+    let the_info = Arg.info [ "threshold-context" ] ~docv:"CONTEXT" ~doc in
+    Arg.(value & opt (some file) None the_info)
 
   let polynomials_t =
     let doc = "Read polynomials (output of step 3) from file $(docv)." in

@@ -110,7 +110,7 @@ type 'a draft_trustee = {
   token : string;
   public_key <ocaml mutable> : string;
   ?private_key : 'a option;
-  ?name : string option;
+  name : string;
 } <ocaml field_prefix="st_">
 
 type ('a, 'b) draft_threshold_trustee = {
@@ -121,7 +121,7 @@ type ('a, 'b) draft_threshold_trustee = {
   ?polynomial <ocaml mutable> : ('a, 'b) polynomial option;
   ?vinput <ocaml mutable> : ('a, 'b) vinput option;
   ?voutput <ocaml mutable> : string option;
-  ?name : string option;
+  name : string;
 } <ocaml field_prefix="stt_">
 
 type 'a draft_basic_params = {
@@ -217,7 +217,7 @@ type shuffle_token = {
     trustee : string;
     token : string;
     trustee_id : int;
-    ?name : string option;
+    name : string;
 } <ocaml field_prefix="tk_">
 
 type shuffle_state = {

@@ -230,7 +230,8 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
       |> List.flatten |> Array.of_list
     in
     fun id ->
-      if 0 < id && id <= Array.length names then names.(id - 1) else None
+      if 0 < id && id <= Array.length names then names.(id - 1)
+      else failwith __FUNCTION__
   in
   let process_shuffles shuffles =
     List.map

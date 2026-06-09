@@ -456,7 +456,7 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
               Some
                 {
                   trustee_address;
-                  trustee_name = Option.value t.st_name ~default:"";
+                  trustee_name = t.st_name;
                   trustee_token;
                   trustee_state;
                   trustee_key;
@@ -477,7 +477,7 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
             in
             {
               trustee_address;
-              trustee_name = Option.value t.stt_name ~default:"";
+              trustee_name = t.stt_name;
               trustee_token;
               trustee_state;
               trustee_key = t.stt_cert;
@@ -500,14 +500,14 @@ let generate_server_trustee (Draft (_, se)) =
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) in
   let private_key = K.generate () in
-  let public_key = K.prove private_key in
+  let name = "server" in
+  let public_key = K.prove ~name private_key in
   let st_public_key =
     string_of_trustee_public_key (swrite G.to_string) (swrite G.Zq.to_string)
       public_key
   in
   let st_private_key = Some (`String (private_key |> G.Zq.to_string)) in
-  let st_name = Some "server" in
-  Lwt.return { st_id; st_token; st_public_key; st_private_key; st_name }
+  Lwt.return { st_id; st_token; st_public_key; st_private_key; st_name = name }
 
 let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) t =
   let address =
@@ -537,7 +537,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) t =
       let t =
         {
           st_id = address;
-          st_name = Some t.trustee_name;
+          st_name = t.trustee_name;
           st_public_key = "";
           st_private_key = None;
           st_token;
@@ -555,7 +555,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing) t =
       let t =
         {
           stt_id = address;
-          stt_name = Some t.trustee_name;
+          stt_name = t.trustee_name;
           stt_token;
           stt_step = None;
           stt_cert = None;
@@ -843,8 +843,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
         in
         match trustees with
         | [ `Pedersen t ] -> import_pedersen t names
-        | [ `Single x; `Pedersen t ]
-          when x.s_message.trustee_name = Some "server" ->
+        | [ `Single x; `Pedersen t ] when x.s_message.trustee_name = "server" ->
             import_pedersen t (List.tl names)
         | ts ->
             let@ ts cont =
@@ -863,7 +862,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                   let* st_token, st_private_key, st_public_key =
                     if st_id = "server" then
                       let private_key = KG.generate () in
-                      let public_key = KG.prove private_key in
+                      let public_key = KG.prove ~name:"server" private_key in
                       let public_key =
                         string_of_trustee_public_key (swrite G.to_string)
                           (swrite G.Zq.to_string) public_key
@@ -1009,7 +1008,7 @@ let post_trustee_basic
           data
       in
       let module K = Trustees.MakeCombinator (G) in
-      if K.check [ `Single pk ] then (
+      if pk.s_message.trustee_name = t.st_name && K.check [ `Single pk ] then (
         t.st_public_key <-
           string_of_trustee_public_key (swrite G.to_string)
             (swrite G.Zq.to_string) pk;
@@ -1046,9 +1045,8 @@ let post_trustee_threshold
     | Some (i, t) -> (i, t)
     | None -> failwith "Trustee not found"
   in
-  let context =
-    { group = se.se_group; size = Array.length ts; threshold; index = i + 1 }
-  in
+  let names = Array.map (fun x -> x.stt_name) ts in
+  let context = { group = se.se_group; names; threshold; index = i + 1 } in
   let get_certs () =
     Array.map
       (fun x ->
@@ -1264,20 +1262,20 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           @@ cont ()
         in
         match trustee with
-        | `Basic b -> `Basic (if b.st_public_key = "" then `Init else `Done)
+        | `Basic b ->
+            `Basic (if b.st_public_key = "" then `Init b.st_name else `Done)
         | `Threshold (index, t, dtp) -> (
             let@ () = fun cont -> `Threshold (cont ()) in
             match dtp.dtp_threshold with
             | None -> `Init
             | Some threshold -> (
                 let (Draft (_, draft)) = se in
+                let names =
+                  List.map (fun x -> x.stt_name) dtp.dtp_trustees
+                  |> Array.of_list
+                in
                 let pedersen_context =
-                  {
-                    group = draft.se_group;
-                    size = List.length dtp.dtp_trustees;
-                    threshold;
-                    index;
-                  }
+                  { group = draft.se_group; names; threshold; index }
                 in
                 match t.stt_cert with
                 | None -> `WaitingForCertificate pedersen_context

@@ -35,7 +35,7 @@ type 'a proof <ocaml predef from="Serializable_core"> = abstract
 
 type ('a, 'b) raw_trustee_public_key = {
   public_key : 'a;
-  ?name : string option;
+  name : string;
 } <ocaml field_prefix="trustee_">
 
 type ('a, 'b) trustee_public_key =
@@ -157,13 +157,13 @@ type 'result election_result = {
 
 type trustee_checksum = {
   checksum : hash;
-  ?name : string option;
+  name : string;
 } <ocaml field_prefix="tc_">
 
 type trustee_threshold_checksum = {
   pki_key : hash;
   verification_key : hash;
-  ?name : string option
+  name : string;
 } <ocaml field_prefix="ttc_">
 
 type trustee_threshold_set = {
@@ -229,13 +229,13 @@ type ('a, 'b, 'c) sent_msg =
 
 type context = {
   group : string;
-  size : int;
+  names : string list <ocaml repr="array">;
   threshold : int;
   index : int;
 }
 
 type 'a cert_keys = {
-  ?context : context option;
+  context : context;
   verification : 'a;
   encryption : 'a;
 } <ocaml field_prefix="cert_">

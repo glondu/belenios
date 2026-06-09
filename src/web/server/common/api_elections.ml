@@ -229,7 +229,7 @@ let get_trustee_names s =
 
 let get_trustee_name s metadata trustee =
   match metadata.e_trustees with
-  | None -> Lwt.return (1, None)
+  | None -> Lwt.return (1, "")
   | Some xs ->
       let* names = get_trustee_names s in
       Lwt.return (List.assoc trustee (List.combine xs names))

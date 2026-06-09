@@ -37,14 +37,14 @@ type keypair = {
   filename : uuid -> string;
 }
 
-let generate_basic (Draft (_, draft)) () =
+let generate_basic (Draft (_, draft)) ~name () =
   let version = draft.draft_version in
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module KG = Trustees.MakeSimple (G) in
   let private_key = KG.generate () in
-  let public_key = KG.prove private_key in
+  let public_key = KG.prove ~name private_key in
   let private_key = private_key |> G.Zq.to_Z |> string_of_number in
   let public_key =
     public_key
@@ -310,7 +310,8 @@ let compute_threshold_step ~token ~url draft private_key_ref pedersen =
       Lwt.return (contents, None)
 
 let actionable_basic ~uuid ~token ~url draft = function
-  | `Init -> generate_key ~uuid ~token ~url (generate_basic draft) (fun _ -> [])
+  | `Init name ->
+      generate_key ~uuid ~token ~url (generate_basic draft ~name) (fun _ -> [])
   | `Done ->
       let open (val !Belenios_js.I18n.gettext) in
       Lwt.return

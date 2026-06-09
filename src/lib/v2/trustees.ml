@@ -49,19 +49,16 @@ module MakeCert (P : PKI) = struct
       {
         cert_verification = G.(g **~ sk);
         cert_encryption = G.(g **~ dk);
-        cert_context = Some context;
+        cert_context = context;
       }
 
-  let get_context x =
-    match x.s_message.cert_context with
-    | Some x -> x
-    | None -> failwith "missing context in certificate"
+  let get_context x = x.s_message.cert_context
 
   let verify_cert context x =
     let keys = x.s_message in
     G.check keys.cert_verification
     && G.check keys.cert_encryption
-    && keys.cert_context = Some context
+    && keys.cert_context = context
     && P.verify xch_cert_keys keys.cert_verification x
 end
 
@@ -142,10 +139,14 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
 
   let check_pedersen t =
     let group = G.description in
-    let size = Array.length t.t_certs in
+    let names =
+      Array.map
+        (fun x -> x.s_message.s_message.trustee_name)
+        t.t_verification_keys
+    in
     let threshold = t.t_threshold in
     Array.for_alli
-      (fun i c -> C.verify_cert { group; size; threshold; index = i + 1 } c)
+      (fun i c -> C.verify_cert { group; names; threshold; index = i + 1 } c)
       t.t_certs
     &&
     let certs = Array.map (fun x -> x.s_message) t.t_certs in
@@ -244,7 +245,7 @@ module MakeSimple (G : GROUP) = struct
   let random () = G.Zq.random (Crypto_primitives.get_rng ())
   let generate = random
 
-  let prove ?name x =
+  let prove ~name x =
     let trustee_public_key = g **~ x in
     P.sign Comb.xch_single_verification_key x
       { trustee_public_key; trustee_name = name }
@@ -296,11 +297,12 @@ module MakePedersen (C : CHANNELS) = struct
   let step2 certs =
     assert (Array.length certs > 0);
     let group = G.description in
-    let size = Array.length certs in
-    let threshold = (Cert.get_context certs.(0)).threshold in
+    let context = Cert.get_context certs.(0) in
+    let names = context.names in
+    let threshold = context.threshold in
     Array.iteri
       (fun i cert ->
-        if Cert.verify_cert { group; size; threshold; index = i + 1 } cert then
+        if Cert.verify_cert { group; names; threshold; index = i + 1 } cert then
           ()
         else
           let msg = Printf.sprintf "certificate %d does not validate" (i + 1) in
@@ -422,10 +424,10 @@ module MakePedersen (C : CHANNELS) = struct
           else None)
         certs
     in
-    let j =
+    let index, j =
       match j with
       | None -> raise (PedersenFailure "could not find my certificate")
-      | Some i -> Zq.of_int i
+      | Some i -> (i, Zq.of_int i)
     in
     let* { polynomial } = C.recv xch_polynomial dk vk vinput.vi_polynomial in
     assert (threshold = Array.length polynomial);
@@ -464,8 +466,9 @@ module MakePedersen (C : CHANNELS) = struct
     done;
     let pdk_decryption_key = Array.fold_left Zq.( + ) Zq.zero secrets in
     let pdk = { pdk_decryption_key } in
+    let name = certs.(index - 1).cert_context.names.(index - 1) in
     let vo_public_key =
-      K.prove pdk_decryption_key |> sign_trustee_public_key ~sk
+      K.prove ~name pdk_decryption_key |> sign_trustee_public_key ~sk
     in
     let* vo_private_key = C.send xch_decryption_key sk ek pdk in
     Lwt.return { vo_public_key; vo_private_key }

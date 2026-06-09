@@ -198,7 +198,7 @@ type ('a, 'b) pedersen = {
 } <ocaml field_prefix="pedersen_">
 
 type trustee_status_basic =
- [ Init
+ [ Init of string
  | Done
  ]
 

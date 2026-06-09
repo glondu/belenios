@@ -60,9 +60,7 @@ let do_election uuid election private_key =
           let public_key = W.G.(g **~ private_key) in
           fun x ->
             if W.G.compare public_key x.s_message.trustee_public_key = 0 then
-              Some
-                (Option.value ~default:(s_ "anonymous trustee")
-                   x.s_message.trustee_name)
+              Some x.s_message.trustee_name
             else None
       | _ -> raise Exit
     with _ -> fun _ -> None
@@ -78,7 +76,7 @@ let do_election uuid election private_key =
           (fun ({ s_message = x; _ }, (t : _ threshold_verification_key)) ->
             let { trustee_name; _ } = t.s_message.s_message in
             if W.G.compare public_key x.cert_verification = 0 then
-              Some (Option.value ~default:(s_ "anonymous trustee") trustee_name)
+              Some trustee_name
             else None)
           (Array.combine x.t_certs x.t_verification_keys)
     with _ -> fun _ -> None

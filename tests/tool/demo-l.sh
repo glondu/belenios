@@ -43,9 +43,9 @@ mv *.privcreds private_creds.json
 paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-output '.[]' < private_creds.json) > private_creds.txt
 
 # Generate trustee keys
-belenios-tool setup generate-trustee-key $group
-belenios-tool setup generate-trustee-key $group
-belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group --name "Trustee 1"
+belenios-tool setup generate-trustee-key $group --name "Trustee 2"
+belenios-tool setup generate-trustee-key $group --name "Trustee 3"
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters

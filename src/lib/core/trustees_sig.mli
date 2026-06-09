@@ -33,7 +33,7 @@ module type S = sig
     val generate : unit -> G.Zq.t
     (** [generate ()] generates a new private key. *)
 
-    val prove : ?name:string -> G.Zq.t -> (G.t, G.Zq.t) trustee_public_key
+    val prove : name:string -> G.Zq.t -> (G.t, G.Zq.t) trustee_public_key
     (** [prove x] returns the public key associated to [x] and a zero- knowledge
         proof of its knowledge. *)
   end

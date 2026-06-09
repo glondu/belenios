@@ -154,10 +154,9 @@ let make_audit_div election cache =
       ~a:[ a_id id ]
       (List.map
          (fun x ->
-           let name = Option.value x.tc_name ~default:"N/A" in
            li
              [
-               Printf.ksprintf txt "%s " name;
+               Printf.ksprintf txt "%s " x.tc_name;
                code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.tc_checksum) ];
              ])
          xs)
@@ -186,10 +185,9 @@ let make_audit_div election cache =
         ~a:[ a_class [ className ] ]
         (List.map
            (fun x ->
-             let name = Option.value x.ttc_name ~default:"N/A" in
              li
                [
-                 Printf.ksprintf txt "%s " name;
+                 Printf.ksprintf txt "%s " x.ttc_name;
                  code [ Printf.ksprintf txt "[%s]" (Hash.to_b64 x.ttc_pki_key) ];
                ])
            xs)

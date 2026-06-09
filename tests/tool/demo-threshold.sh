@@ -27,8 +27,11 @@ cd $DIR
 
 # Common options
 uuid="--uuid $UUID"
-group="--group Ed25519"
+group_name="Ed25519"
+group="--group $group_name"
 trustees=3
+names='["Trustee 1","Trustee 2","Trustee 3"]'
+trustees="$(echo $names | jq length)"
 threshold=2
 
 # Generate credentials
@@ -42,12 +45,15 @@ ttkeygen () {
     belenios-tool setup generate-trustee-key-threshold $group "$@"
 }
 for i in $(seq $trustees); do
-    ttkeygen --threshold-context $i/$threshold/$trustees --step 1 > $i.trustee
+    echo "{\"group\":\"$group_name\",\"names\":$names,\"threshold\":$threshold,\"index\":$i}" > $i.context
+done
+for i in $(seq $trustees); do
+    ttkeygen --threshold-context $i.context --step 1 > $i.trustee
 done
 for i in $(seq $trustees); do cat $(cat $i.trustee).cert; done > certs.jsons
 ttkeygen --certs certs.jsons --step 2
 for i in $(seq $trustees); do
-    ttkeygen --threshold-context $i/$threshold/$trustees --certs certs.jsons --key $(cat $i.trustee).key --step 3
+    ttkeygen --certs certs.jsons --key $(cat $i.trustee).key --step 3
 done > polynomials.jsons
 ttkeygen --certs certs.jsons --step 4 --polynomials polynomials.jsons
 for i in $(seq $trustees); do
@@ -59,7 +65,7 @@ for i in $(seq $trustees); do
 done | ttkeygen --certs certs.jsons --step 6 --polynomials polynomials.jsons > threshold.json
 
 # Generate mandatory (server) key
-belenios-tool setup generate-trustee-key $group
+belenios-tool setup generate-trustee-key $group --name "server"
 cat *.pubkey > public_keys.jsons
 
 # Generate trustee parameters
