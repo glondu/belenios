@@ -158,22 +158,20 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     Array.for_all2
       (fun cert x -> P.verify xch_coefexps cert.cert_verification x)
       certs t.t_coefexps
-    && (match t.t_signatures with
-      | None -> false
-      | Some sigs ->
-          let n = Array.length sigs in
-          n = Array.length certs
-          && n = Array.length t.t_coefexps
-          && Array.for_all3
-               (fun cert (coefexps : (_, _, _ raw_coefexps) signed_msg)
-                    s_signature ->
-                 let x = coefexps.s_message in
-                 let s_message =
-                   { context; certs = t.t_certs; coefexps = Some x.coefexps }
-                 in
-                 P.verify xch_certs cert.cert_verification
-                   { s_message; s_signature })
-               certs t.t_coefexps sigs)
+    && (let sigs = t.t_signatures in
+        let n = Array.length sigs in
+        n = Array.length certs
+        && n = Array.length t.t_coefexps
+        && Array.for_all3
+             (fun cert (coefexps : (_, _, _ raw_coefexps) signed_msg)
+                  s_signature ->
+               let x = coefexps.s_message in
+               let s_message =
+                 { context; certs = t.t_certs; coefexps = Some x.coefexps }
+               in
+               P.verify xch_certs cert.cert_verification
+                 { s_message; s_signature })
+             certs t.t_coefexps sigs)
     &&
     let coefexps =
       Array.map
@@ -332,7 +330,7 @@ module MakePedersen (C : CHANNELS) = struct
           coefexps = Some coefexps;
         }
       in
-      Some (P.sign Comb.xch_certs sk m).s_signature
+      (P.sign Comb.xch_certs sk m).s_signature
     in
     let certs = Array.map (fun x -> x.s_message) certs.certs in
     let vk = g **~ sk and ek = g **~ dk in
@@ -380,26 +378,16 @@ module MakePedersen (C : CHANNELS) = struct
     let certs = Array.map (fun x -> x.s_message) certs.certs in
     P.verify Comb.xch_coefexps certs.(i).cert_verification polynomial.p_coefexps
     &&
-    match polynomial.p_signature with
-    | None -> false
-    | Some s_signature ->
-        P.verify Comb.xch_certs certs.(i).cert_verification
-          { s_message; s_signature }
+    let s_signature = polynomial.p_signature in
+    P.verify Comb.xch_certs certs.(i).cert_verification
+      { s_message; s_signature }
 
   let step4 certs polynomials =
     let threshold = step2 certs in
     let n = Array.length certs.certs in
     assert (n = Array.length polynomials);
     let certs = Array.map (fun x -> x.s_message) certs.certs in
-    let vi_signatures =
-      Some
-        (Array.map
-           (fun x ->
-             match x.p_signature with
-             | None -> raise (PedersenFailure "missing signature in polynomial")
-             | Some y -> y)
-           polynomials)
-    in
+    let vi_signatures = Array.map (fun x -> x.p_signature) polynomials in
     let vi_coefexps = Array.map (fun x -> x.p_coefexps) polynomials in
     Array.iteri
       (fun i x ->
@@ -510,15 +498,7 @@ module MakePedersen (C : CHANNELS) = struct
     let t_threshold = step2 certs in
     let n = Array.length certs.certs in
     let t_certs = certs.certs in
-    let t_signatures =
-      Some
-        (Array.map
-           (fun x ->
-             match x.p_signature with
-             | None -> raise (PedersenFailure "missing signature in polynomial")
-             | Some y -> y)
-           polynomials)
-    in
+    let t_signatures = Array.map (fun x -> x.p_signature) polynomials in
     let certs = Array.map (fun x -> x.s_message) t_certs in
     assert (n = Array.length polynomials);
     assert (n = Array.length voutputs);

@@ -272,14 +272,14 @@ type ('a, 'b) polynomial = {
   polynomial : ('a, 'b, 'b raw_polynomial) sent_msg;
   secrets : ('a, 'b, 'b secret) sent_msg list <ocaml repr="array">;
   coefexps : ('a, 'b) coefexps;
-  ?signature : 'b proof option;
+  signature : 'b proof;
 } <ocaml field_prefix="p_">
 
 type ('a, 'b) vinput = {
   polynomial : ('a, 'b, 'b raw_polynomial) sent_msg;
   secrets : ('a, 'b, 'b secret) sent_msg list <ocaml repr="array">;
   coefexps : ('a, 'b) coefexps list <ocaml repr="array">;
-  ?signatures : 'b proof list <ocaml repr="array"> option;
+  signatures : 'b proof list <ocaml repr="array">;
 } <ocaml field_prefix="vi_">
 
 type 'a partial_decryption_key = {
@@ -301,7 +301,7 @@ type ('a, 'b) threshold_parameters = {
   threshold : int;
   certs : ('a, 'b) cert list <ocaml repr="array">;
   coefexps : ('a, 'b) coefexps list <ocaml repr="array">;
-  ?signatures : 'b proof list <ocaml repr="array"> option;
+  signatures : 'b proof list <ocaml repr="array">;
   verification_keys : ('a, 'b) threshold_verification_key list <ocaml repr="array">;
 } <ocaml field_prefix="t_">
 
