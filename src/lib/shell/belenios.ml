@@ -41,6 +41,9 @@ end
 
 module Credentials_certificate (G : GROUP) = struct
   let check certificate =
+    G.check certificate.verification_key
+    && G.check certificate.encryption_key
+    &&
     let@ signature cont =
       match certificate.signature with None -> false | Some x -> cont x
     in
