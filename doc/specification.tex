@@ -12,6 +12,7 @@
 \usepackage{placeins}
 
 \newcommand{\version}{\input{spec_version}}
+\newcommand{\dstprefix}{BELENIOS-V2}
 
 \newcommand{\F}{\mathbbm{F}}
 \newcommand{\G}{\mathbbm{G}}
@@ -597,51 +598,7 @@ described in the following table:
 \end{array}
 \end{gather*}
 
-\subsection{Verification keys}
-\label{trustee-keys}
-
-\begin{gather*}
-  \pk=\G\qquad\sk=\Z_q\\
-  \tpk=\left\{
-    \begin{array}{rcl}
-      \pok&:&\proof\\
-      \pklabel&:&\pk\\
-      \textsf{?signature}&:&\proof
-    \end{array}
-  \right\}
-\end{gather*}
-
-A private key is a number $x$ modulo $q$, chosen at random in the
-basic decryption mode, and computed after several interactions in the
-threshold mode.
-The corresponding
-$\pklabel$ is $X=g^x$. A $\tpk$ is a bundle of this public key with a
-\hyperref[common]{$\proof$} of knowledge computed as follows:
-\begin{enumerate}
-\item pick a random $w\in\Z_q$
-\item compute $A=g^w$
-\item $\challenge=\Hash_\pok(X,A)\mod q$
-\item $\response=w-x\times\challenge\mod q$
-\end{enumerate}
-where $\Hash_\pok$ is computed as follows:
-\[\Hash_\pok(X,A) = \shatwo(\verb=pok|=G\verb=|=X\verb=|=A) \]
-where $\pok$ and the vertical bars are verbatim,
-and $G$ is the string specifying the group in the
-$\election$ structure. The result is interpreted as a 256-bit
-big-endian number. The proof is verified as follows:
-\begin{enumerate}
-\item compute $A={g^\response}\times{X^\challenge}$
-\item check that $\challenge=\Hash_\pok(X,A)\mod q$
-\end{enumerate}
-
-The \textsf{signature} field is present only in threshold mode, and is
-the signature of $\pklabel$ by its owner, as described in
-section~\ref{pki}.
-
-\subsection{Messages specific to threshold decryption support}
-\label{threshold}
-
-\subsubsection{Public key infrastructure}
+\subsection{Public key infrastructure}
 \label{pki}
 
 Establishing a public key so that threshold decryption is supported
@@ -658,56 +615,65 @@ taken from the set:
 
 \paragraph{Deriving keys}
 
-The (private) signing key $\textsf{sk}$ is derived by computing the
-SHA256 of $s$ prefixed by the string \verb/sk|/. The corresponding
-(public) verification key is $g^{\textsf{sk}}$. The (private)
-decryption key $\textsf{dk}$ is derived by computing the SHA256 of $s$
-prefixed by the string \verb/dk|/. The corresponding (public)
-encryption key is $g^{\textsf{dk}}$.
+The (private) signing key $\textsf{sk}$ and decryption key
+$\textsf{dk}$ are derived as follows:
+\begin{itemize}
+\item $(\textsf{sk})\leftarrow\textsf{HashToField}(\texttt{\dstprefix-derive\_sk},s,1)$
+\item $(\textsf{dk})\leftarrow\textsf{HashToField}(\texttt{\dstprefix-derive\_dk},s,1)$
+\end{itemize}
+The corresponding (public) verification key $\textsf{vk}$ and
+encryption key $\textsf{ek}$ are derived as follows:
+\begin{itemize}
+\item $\textsf{vk}\leftarrow g^{\textsf{sk}}$
+\item $\textsf{ek}\leftarrow g^{\textsf{dk}}$
+\end{itemize}
 
 \paragraph{Signing}
 \label{pki-signing}
 
-Signing takes a signing key $\textsf{sk}$ and a \textsf{message} $M$
-(as a $\jstring$), computes a \textsf{signature} and produces a
-$\texttt{signed\_msg}$. For the signature, we use a (Schnorr-like)
+Signing --- denoted as $\textsf{sign}(d,\textsf{sk},M)$ --- takes a
+domain separation tag $d$, a signing key $\textsf{sk}$ and a
+\textsf{message} $M$ (of type $\alpha$ serializable as a $\jstring$),
+computes a \textsf{signature} and produces a
+$\alpha\ \texttt{signed\_msg}$. We use a (Schnorr-like)
 non-interactive zero-knowledge proof.
 
 \begin{gather*}
-  \texttt{signed\_msg}=\left\{
+  \alpha\ \texttt{signed\_msg}=\left\{
     \begin{array}{rcl}
-      \textsf{message}&:&\jstring\\
+      \textsf{message}&:&\alpha\\
       \textsf{signature}&:&\texttt{proof}
     \end{array}
   \right\}
 \end{gather*}
-To compute the \textsf{signature},
+Let $m$ be the concatenations of the string serialization of
+$\textsf{vk}$, a verbatim \verb=|=, and the string serialization of
+$M$.  To compute the \textsf{signature},
 \begin{enumerate}
 \item pick a random $w\in\Z_q$
 \item compute the commitment $A=g^w$
-\item compute the \textsf{challenge} as
-  $\textsf{SHA256}(\texttt{sigmsg|}M\texttt{|}A)$, where
-  the result is interpreted as a 256-bit big-endian
-  number
+\item compute the \textsf{challenge} as $\textsf{HashGroup}(d,m,(A))$
 \item compute the \textsf{response} as
   $w-\textsf{sk}\times\textsf{challenge}\mod q$
 \end{enumerate}
 To verify a \textsf{signature} using a verification key \textsf{vk},
 \begin{enumerate}
 \item compute the commitment $A=g^{\textsf{response}}\times\textsf{vk}^{\textsf{challenge}}$
-\item check that $\textsf{challenge}=\textsf{SHA256}(\texttt{sigmsg|}M\texttt{|}A)$
+\item check that $\textsf{challenge}=\textsf{HashGroup}(d,m,(A))$
 \end{enumerate}
 
 \paragraph{Encrypting}
 
-Encrypting takes an encryption key $\textsf{ek}$ and a message $M$ (as
-a $\jstring$), computes an \texttt{encrypted\_msg} and serializes it
-as a $\jstring$. We use an El Gamal-like system.
+Encrypting --- denoted as $\textsf{encrypt}(d,\textsf{ek},M)$ ---
+takes a domain separation tag $d$, an encryption key $\textsf{ek}$ and
+a message $M$ (of type $\alpha$ serializable as a $\jstring$), and
+produces an $\alpha\ \texttt{encrypted\_msg}$. We use an El Gamal-like
+system.
 
 \begin{gather*}
-  \texttt{encrypted\_msg}=\left\{
+  \alpha\ \texttt{encrypted\_msg}=\left\{
     \begin{array}{rcl}
-      \textsf{?algorithm}&:&\jstring\\
+      \textsf{algorithm}&:&\jstring\\
       \textsf{alpha}&:&\G\\
       \textsf{beta}&:&\G\\
       \textsf{data}&:&\jstring
@@ -722,15 +688,40 @@ To compute the \texttt{encrypted\_msg}:
 \item compute $\textsf{data}$ as the hexadecimal encoding of the
   (symmetric) encryption of $M$ using $\textsf{algorithm}$
   (e.g. \texttt{AES-GCM}) with
-  $\textsf{SHA256}(\texttt{key|}g^s)$ as the key and
-  $\textsf{SHA256}(\texttt{iv|}g^r)$ as the initialization vector
+  $\textsf{SHA256}(d\texttt{-key|}g^s)$ as the key and
+  $\textsf{SHA256}(d\texttt{-iv|}g^r)$ as the initialization vector
 \end{enumerate}
 To decrypt an \texttt{encrypted\_msg} using a decryption key \textsf{dk}:
 \begin{enumerate}
-\item compute the symmetric key as $\textsf{SHA256}(\texttt{key|}\textsf{beta}/(\textsf{alpha}^{\textsf{dk}}))$
-\item compute the initialization vector as $\textsf{SHA256}(\texttt{iv|}\textsf{alpha})$
+\item compute the symmetric key as $\textsf{SHA256}(d\texttt{-key|}\textsf{beta}/(\textsf{alpha}^{\textsf{dk}}))$
+\item compute the initialization vector as $\textsf{SHA256}(d\texttt{-iv|}\textsf{alpha})$
 \item decrypt $\textsf{data}$
 \end{enumerate}
+
+\subsection{Verification keys}
+\label{trustee-keys}
+
+\begin{gather*}
+  \pk=\G\qquad\sk=\Z_q\\
+  \texttt{raw\_trustee\_public\_key}=\left\{
+    \begin{array}{rcl}
+      \pklabel&:&\pk\\
+      \textsf{name}&:&\jstring
+    \end{array}
+  \right\}\\
+  \tpk=\texttt{raw\_trustee\_public\_key}\ \texttt{signed\_msg}
+\end{gather*}
+
+A private key is a number $x$ modulo $q$, chosen at random in the
+basic decryption mode, and computed after several interactions in the
+threshold mode.  The corresponding $\pklabel$ is $X=g^x$. A
+$\texttt{raw\_trustee\_public\_key}$ is a bundle of this public key
+with a $\textsf{name}$. Given such a
+$\texttt{raw\_trustee\_public\_key}$ $S$, a $\tpk$ is computed with:
+\[\textsf{sign}(\texttt{\dstprefix-verification\_key},X,S)\]
+
+\subsection{Messages specific to threshold decryption support}
+\label{threshold}
 
 \subsubsection{Certificates}
 \label{certificates}
@@ -739,51 +730,64 @@ A certificate is a \texttt{signed\_msg} encapsulating a serialized
 \texttt{cert\_keys} structure, itself filled with the public keys
 generated as described in section~\ref{pki}. Each certificate comes
 with a \texttt{context} containing the string description of the
-group, the number of trustees participating in the Pedersen protocol,
-the threshold and the index (starting at 1) of the owner of the
-certificate.
+group, the names of the trustees participating in the Pedersen
+protocol, the threshold and the index (starting at 1) of the owner of
+the certificate.
 \begin{gather*}
-  \texttt{context}=\left\{
+  \texttt{common\_context}=\left\{
     \begin{array}{rcl}
       \textsf{group}&:&\jstring\\
-      \textsf{size}&:&\I\\
-      \textsf{threshold}&:&\I\\
+      \textsf{names}&:&\jstring^\ast\\
+      \textsf{threshold}&:&\I
+    \end{array}
+  \right\}\\
+  \texttt{full\_context}=\left\{
+    \begin{array}{rcl}
+      \textsf{context}&:&\texttt{common\_context}\\
       \textsf{index}&:&\I
     \end{array}
-  \right\}
-  \qquad
-  \texttt{cert\_keys}=\left\{
+  \right\}\\
+  \alpha\ \texttt{cert\_keys}=\left\{
     \begin{array}{rcl}
-      \textsf{context}&:&\texttt{context}\\
+      \textsf{context}&:&\alpha\\
       \textsf{verification}&:&\G\\
       \textsf{encryption}&:&\G
     \end{array}
   \right\}\\
-  \texttt{cert}=\texttt{signed\_msg}
+  \texttt{cert}'=\texttt{full\_context}\ \texttt{cert\_keys}\ \texttt{signed\_msg}\\
+  \texttt{cert}=\I\ \texttt{cert\_keys}\ \texttt{signed\_msg}
 \end{gather*}
-The message is signed with the signing key associated to
-\textsf{verification}.
+A $\texttt{cert}'$ message is signed with the signing key associated
+to \textsf{verification} and domain separation tag
+\texttt{\dstprefix-pedersen-cert}. In contexts where
+$\texttt{common\_context}$ is known, a $\texttt{cert}$' is stored in a
+compressed form $\texttt{cert}$ containing only the index (but the
+signature is still over the full context).
 
 \subsubsection{Channels}
 \label{channels}
 
-A \textsf{message} is sent securely from \textsf{sk} (a signing key)
-to \textsf{recipient} (an encryption key) by encapsulating it in a
-\texttt{channel\_msg}, serializing it as a $\jstring$, signing it with
-\textsf{sk} and serializing the resulting \texttt{signed\_msg} as a
-$\jstring$, and finally encrypting it with \textsf{recipient}. The
-resulting $\jstring$ will be denoted by
-$\textsf{send}(\textsf{sk},\textsf{recipient},\textsf{message})$, and
-can be transmitted using a third-party (typically the election server).
 \begin{gather*}
-  \texttt{channel\_msg}=\left\{
+  \alpha\ \texttt{channel\_msg}=\left\{
     \begin{array}{rcl}
       \textsf{recipient}&:&\G\\
-      \textsf{message}&:&\jstring
+      \textsf{message}&:&\alpha
     \end{array}
-  \right\}
+  \right\}\\
+  \alpha\ \texttt{sent\_msg}=
+  \alpha\ \texttt{channel\_msg}\ \texttt{signed\_msg}\ \texttt{encrypted\_msg}
 \end{gather*}
-When decoding such a message, \textsf{recipient} must be checked.
+
+Given a domain separation tag $d$, a \textsf{message} is sent securely
+from \textsf{sk} (a signing key) to \textsf{recipient} (an encryption
+key) by encapsulating it in a \texttt{channel\_msg}, signing it with
+\textsf{sk} and domain separation tag $d\texttt{-channel\_msg\_inner}$
+and finally encrypting it with \textsf{recipient} and domain
+separation tag $d\texttt{-channel\_msg\_outer}$ . The resulting
+$\alpha\ \texttt{sent\_msg}$ will be denoted by:
+\[\textsf{send}(d,\textsf{sk},\textsf{recipient},\textsf{message})\]
+and can be transmitted using a third-party (typically the election
+server).
 
 \subsubsection{Polynomials}
 \label{polynomials}
@@ -796,8 +800,8 @@ in step 3 of the key establishment protocol.
 \begin{gather*}
   \texttt{polynomial}=\left\{
     \begin{array}{rcl}
-      \textsf{polynomial}&:&\jstring\\
-      \textsf{secrets}&:&\jstring^\ast\\
+      \textsf{polynomial}&:&\texttt{raw\_polynomial}\ \texttt{sent\_msg}\\
+      \textsf{secrets}&:&\texttt{secret}\ \texttt{sent\_msg}^\ast\\
       \textsf{coefexps}&:&\texttt{coefexps}\\
       \textsf{signature}&:&\proof
     \end{array}
@@ -815,9 +819,9 @@ and computes $A_{ik}=g^{a_{ik}}$ for $k=0,\dotsc,t$ and
 $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
 \texttt{polynomial} structure as follows:
 \begin{itemize}
-\item the \textsf{polynomial} field is
-  $\textsf{send}(\textsf{sk}_i,\textsf{ek}_i,M)$ where $M$ is a
-  serialized \texttt{raw\_polynomial} structure
+\item the \textsf{polynomial} field is:
+  \[\textsf{send}(\texttt{\dstprefix-polynomial},\textsf{sk}_i,\textsf{ek}_i,M)\]
+  where $M$ is a \texttt{raw\_polynomial} structure:
   \begin{gather*}
     \texttt{raw\_polynomial}=\left\{
       \begin{array}{rcl}
@@ -826,9 +830,10 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
     \right\}
   \end{gather*}
   filled with $a_{i0},\dotsc,a_{it}$
-\item the \textsf{secrets} field is
-  $\textsf{send}(\textsf{sk}_i,\textsf{ek}_1,M_{i1}),\dotsc,\textsf{send}(\textsf{sk}_i,\textsf{ek}_m,M_{im})$
-  where $M_{ij}$ is a serialized \texttt{secret} structure
+\item the \textsf{secrets} field is $(s_1,\dotsc,s_m)$ where:
+  \[ s_j =
+    \textsf{send}(\texttt{\dstprefix-secret},\textsf{sk}_i,\textsf{ek}_j,M_{ij}) \]
+  and $M_{ij}$ is a \texttt{secret} structure:
   \begin{gather*}
     \texttt{secret}=\left\{
       \begin{array}{rcl}
@@ -837,10 +842,11 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
     \right\}
   \end{gather*}
   filled with $s_{ij}$
-\item the \textsf{coefexps} field is a signed message containing a
-  serialized \texttt{raw\_coefexps} structure
+\item the \textsf{coefexps} field is a signed message using domain
+  separation tag: \[\texttt{\dstprefix-pedersen-coefexps}\] containing
+  a \texttt{raw\_coefexps} structure:
   \begin{gather*}
-    \texttt{coefexps}=\texttt{signed\_msg}
+    \texttt{coefexps}=\texttt{raw\_coefexps}\ \texttt{signed\_msg}
     \qquad
     \texttt{raw\_coefexps}=\left\{
       \begin{array}{rcl}
@@ -851,11 +857,11 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
   filled with $A_{i0},\dotsc,A_{it}$
 \item the \textsf{signature} field is computed as follows:
   \begin{enumerate}
-  \item let $M$ be the string \verb=certs_sig|= followed by the
-    compact JSON serialization of the following structure:
+  \item let $M$ be the following structure:
     \begin{gather*}
       \texttt{certs}=\left\{
         \begin{array}{rcl}
+          \textsf{context}&:&\texttt{common\_context}\\
           \textsf{certs}&:&\texttt{cert}^\ast\\
           \textsf{coefexps}&:&\G^\ast
         \end{array}
@@ -863,8 +869,9 @@ $s_{ij}=f_i(j)\mod q$ for $j=1,\dotsc,m$. $\mathcal{T}_i$ then fills the
     \end{gather*}
     where \textsf{certs} is set to $\Gamma=\gamma_1,\dotsc,\gamma_m$
     and \textsf{coefexps} is set to $A_{i0},\dotsc,A_{it}$
-  \item the field is set to the \textsf{signature} of $M$ with
-    $\textsf{sk}_i$ as described in~\ref{pki-signing}
+  \item
+    $M'\leftarrow\textsf{sign}(\texttt{\dstprefix-pedersen-certs},\textsf{sk}_i,M)$
+  \item the field is set to the \textsf{signature} field of $M'$
   \end{enumerate}
 \end{itemize}
 
@@ -883,8 +890,8 @@ trustees. Step 4 can be seen as a routing step.
 \begin{gather*}
   \texttt{vinput}=\left\{
     \begin{array}{rcl}
-      \textsf{polynomial}&:&\jstring\\
-      \textsf{secrets}&:&\jstring^\ast\\
+      \textsf{polynomial}&:&\texttt{raw\_polynomial}\ \texttt{sent\_msg}\\
+      \textsf{secrets}&:&\texttt{secret}\ \texttt{sent\_msg}^\ast\\
       \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
       \textsf{signatures}&:&\proof^\ast
     \end{array}
@@ -916,33 +923,45 @@ In step 5 of the key establishment protocol, a trustee $\mathcal{T}_j$ receives
 $\Gamma$ and $\textsf{vi}_j$, and produces a \texttt{voutput}
 $\textsf{vo}_j$.
 \begin{gather*}
+  \texttt{partial\_decryption\_key}=\left\{
+    \begin{array}{rcl}
+      \textsf{decryption\_key}&:&\Z_q
+    \end{array}
+  \right\}\\
+  \texttt{threshold\_verification\_key}=\texttt{trustee\_public\_key}\ \texttt{signed\_msg}\\
   \texttt{voutput}=\left\{
     \begin{array}{rcl}
-      \textsf{private\_key}&:&\jstring\\
-      \textsf{public\_key}&:&\texttt{trustee\_public\_key}
+      \textsf{private\_key}&:&\texttt{partial\_decryption\_key}\ \texttt{sent\_msg}\\
+      \textsf{public\_key}&:&\texttt{threshold\_verification\_key}
     \end{array}
   \right\}
 \end{gather*}
 Trustee $\mathcal{T}_j$ fills $\textsf{vo}_j$ as follows:
 \begin{itemize}
-\item \textsf{private\_key} is set to
-  $\textsf{send}(\textsf{sk}_j,\textsf{ek}_j,S_j)$, where $S_j$ is $\mathcal{T}_j$'s
-  (private) decryption key:
+\item \textsf{private\_key} is set to:
+  \[\textsf{send}(\texttt{\dstprefix-pedersen-decryption\_key},\textsf{sk}_j,\textsf{ek}_j,S_j)\]
+  where $S_j$ is filled with $\mathcal{T}_j$'s (private) decryption
+  key:
   \[
     S_j=\sum_{i=1}^m s_{ij}\mod q
   \]
-\item \textsf{public\_key} is set to a
+\item \textsf{public\_key} embeds a
   \hyperref[trustee-keys]{\texttt{trustee\_public\_key}} structure
-  built using $S_j$ as private key, which computes the corresponding
-  public key and a proof of knowledge of $S_j$.
+  built using $S_j$ as private key, signed with the certificate key of
+  $\mathcal{T}_j$ and the following domain separation tag:
+  \[\texttt{\dstprefix-pedersen-verification\_key}\]
+  Note that the result has two layers of signatures: an inner one,
+  which acts as a proof of knowledge of the partial decryption key,
+  and an outer one, which acts as a certification of the verification
+  key using the threshold PKI.
 \end{itemize}
 The administrator checks $\textsf{vo}_j$ as follows:
 \begin{itemize}
 \item check that:
   \[
-    \textsf{public\_key}(\textsf{public\_key}(\textsf{vo}_j))=\prod_{i=1}^m \prod_{k=0}^t (A_{ik})^{j^k}
+    \textsf{message}(\textsf{message}(\textsf{public\_key}(\textsf{vo}_j)))=\prod_{i=1}^m \prod_{k=0}^t (A_{ik})^{j^k}
   \]
-\item check $\textsf{pok}(\textsf{public\_key}(\textsf{vo}_j))$
+\item check all signatures in $\textsf{vo}_j$
 \end{itemize}
 
 \subsubsection{Threshold parameters}
@@ -957,7 +976,7 @@ published during the election.
       \textsf{certs}&:&\texttt{cert}^\ast\\
       \textsf{coefexps}&:&\texttt{coefexps}^\ast\\
       \textsf{signatures}&:&\proof^\ast\\
-      \textsf{verification\_keys}&:&\texttt{trustee\_public\_key}^\ast
+      \textsf{verification\_keys}&:&\texttt{threshold\_verification\_key}^\ast
     \end{array}
   \right\}
 \end{gather*}
@@ -1022,12 +1041,7 @@ characters are taken from the Base58 alphabet:
 \[\texttt{123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz}\]
 From $c$, a secret exponent $x=\secret(c)$ is derived as follows:
 \begin{itemize}
-\item for $i=0,1$, let
-  $x_i=\textsf{SHA256}(\texttt{derive\_credential|}\uuid\texttt{|}i\texttt{|}c)$,
-  where $\uuid$ is replaced with the $\uuid$ of the election, $i$ is
-  written in base 10, and the result is written in hexadecimal;
-\item $x$ is the concatenation of $x_0$ and $x_1$, interpreted as a
-  big-endian (512-bit) hexadecimal number, taken modulo $q$.
+\item $(x)\leftarrow\textsf{HashToField}(\texttt{\dstprefix-derive\_credential},\uuid\texttt{|}c,1)$
 \end{itemize}
 From this secret exponent, a public key $\public(c)=g^x$ is
 computed.
@@ -1169,7 +1183,7 @@ $C_{i,1},\dots,C_{i,n_i}$.
 The $\election$ structure includes all public data related to an
 election and is sent to each voter, serialized as a string which must
 be always the same throughout the election. The $\textsf{version}$ is
-set to 1 in this version of the specification. It is incremented in
+set to 2 in this version of the specification. It is incremented in
 case of backward-incompatible changes. The group is specified by the
 $\textsf{group}$ member, a short string unambiguously describing the
 group (see section~\ref{default-group}).
@@ -1201,7 +1215,7 @@ as payload of the \texttt{Setup} event in public data.
 
 \label{varphi}
 Additionally, we will denote throughout this document by $\varphi$ the
-Base64 encoding of the \textsf{election} field of
+hexadecimal encoding of the \textsf{election} field of
 \texttt{setup\_data}, without padding.
 
 \subsection{Encrypted answers}
@@ -1326,10 +1340,8 @@ section~\ref{default-group}). The answer is encrypted as follows:
   \end{enumerate}
   where $\Hash_{\textsf{raweg}}$ is computed as follows:
   \[
-    \Hash_{\textsf{raweg}}(S,y,\alpha,\beta,A)=\shatwo(\verb=raweg|=S\verb=|=y\verb=,=\alpha\verb=,=\beta\verb=|=A)\mod q
+    \Hash_{\textsf{raweg}}(S,y,\alpha,\beta,A)=\textsf{HashGroup}(\texttt{\dstprefix-raweg},(S\verb=|=y\verb=,=\alpha\verb=,=\beta\verb=|=),A)
   \]
-  where \verb=raweg=, vertical bars and commas are verbatim. The
-  result is interpreted as a 256-bit big-endian number.
 \end{itemize}
 The proof is verified as follows:
 \begin{enumerate}
@@ -1433,12 +1445,9 @@ following procedure, parameterised by a string $S$:
   \item $\response(\pi_i)=w-r\times\challenge(\pi_i)\mod q$
   \end{enumerate}
 \end{enumerate}
-In the above, $\Hash_\iprove$ is computed as follows:
-\[\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)=\shatwo(\verb=prove|=S\verb=|=\alpha\verb=,=\beta\verb=|=A_0\verb=,=B_0\verb=,=\dots\verb=,=A_k\verb=,=B_k)\mod q\]
-where \verb=prove=, vertical bars and commas are verbatim.
-The result is interpreted as a 256-bit
-big-endian number. We will denote the whole procedure by
-$\iprove(S,r,i,M_0,\dots,M_k)$.
+In the above, $\Hash_\iprove(S,\alpha,\beta,A_0,B_0,\dots,A_k,B_k)$ is computed as follows:
+\[\textsf{HashGroup}(\texttt{\dstprefix-prove},(S\verb=|=\alpha\verb=,=\beta\verb=|=),(A_0,B_0,\dotsc,A_k,B_k))\]
+We will denote the whole procedure by $\iprove(S,r,i,M_0,\dots,M_k)$.
 
 The proof is verified as follows:
 \begin{enumerate}
@@ -1485,11 +1494,8 @@ built as follows:
 \item compute \[\challenge(\pi_0)=\Hash_{\mathsf{bproof0}}(S,A_0,B_0,A_\Sigma,B_\Sigma)-\challenge(\pi_\Sigma)\mod q\]
 \item compute $\response(\pi_0)=w-r_0\times\challenge(\pi_0)\mod q$
 \end{enumerate}
-In the above, $\Hash_{\mathsf{bproof0}}$ is computed as follows:
-\[\Hash_{\mathsf{bproof0}}(\dotsc)=
-\shatwo(\verb=bproof0|=S\verb=|=A_0\verb=,=B_0\verb=,=A_\Sigma\verb=,=B_\Sigma)\mod q\]
-where \verb=bproof0=, vertical bars and commas are verbatim.
-The result is interpreted as a 256-bit big-endian number.
+In the above, $\Hash_{\mathsf{bproof0}}(\dotsc)$ is computed as follows:
+\[\textsf{HashGroup}(\texttt{\dstprefix-bproof0},S,(A_0,B_0,A_\Sigma,B_\Sigma))\]
 
 \paragraph{Computing \oproof}
 In $m_0=1\lor m_\Sigma\in[M_1\dots M_k]$, the second case
@@ -1517,11 +1523,8 @@ follows:
   \[\challenge(\pi_i)=\Hash_{\textsf{bproof1}}(S,A_0,B_0,\dots,A_k,B_k)-\sum_{j\neq i}\challenge(\pi_j)\mod q\]
 \item compute $\response(\pi_i)=w-r_\Sigma\times\challenge(\pi_i)\mod q$
 \end{enumerate}
-In the above, $\Hash_{\mathsf{bproof1}}$ is computed as follows:
-\[\Hash_{\mathsf{bproof1}}(\dotsc)=
-\shatwo(\verb=bproof1|=S\verb=|=A_0\verb=,=B_0\verb=,=\dotsc\verb=,=A_k\verb=,=B_k)\mod q\]
-where \verb=bproof1=, vertical bars and commas are verbatim.
-The result is interpreted as a 256-bit big-endian number.
+In the above, $\Hash_{\mathsf{bproof1}}(\dotsc)$ is computed as follows:
+\[\textsf{HashGroup}(\texttt{\dstprefix-bproof1},S,(A_0,B_0,\dotsc,A_k,B_k))\]
 
 \subsubsection{Blank votes ($m_0=1$)}
 
@@ -1630,11 +1633,9 @@ computed as follows:
 \item for $k\in\{0,1\}$, build $\pi_{i,k}$ from $\challenge_k$ and
   $\response_k$.
 \end{itemize}
-In the above, $\Hash_{\textsf{lproof}}$ is computed as follows:
+In the above, $\Hash_{\textsf{lproof}}(\dotsc)$ is computed as follows:
 \[
-  \Hash_{\textsf{lproof}}(\dotsc)=
-  \shatwo(\verb=lproof|=S\verb=|=A_0\verb=,=B_0\verb=,=A_1\verb=,=B_1)\mod
-  q
+  \textsf{HashGroup}(\texttt{\dstprefix-lproof},S,(A_0,B_0,A_1,B_1))
 \]
 
 \paragraph{Verifying} A proof composed of $\challenge_k$ and
@@ -1683,11 +1684,9 @@ random $r$:
 \item set $\textsf{commitment}$ to $A_0$, $\challenge$ to $c$ and $\response$
   to $(t_1,t_2)$.
 \end{enumerate}
-In the above, $\Hash_{\textsf{nonzero}}$ is computed as follows:
+In the above, $\Hash_{\textsf{nonzero}}(\dotsc)$ is computed as follows:
 \[
-  \Hash_{\textsf{nonzero}}(\dotsc)=
-  \shatwo(\verb=nonzero|=S\verb=|=A_0\verb=,=A_1\verb=,=A_2)\mod
-  q
+  \textsf{HashGroup}(\texttt{BELENIOS-v4-nonzero},S,(A_0,A_1,A_2))
 \]
 
 \paragraph{Verifying} Following the same notations as above, a proof
@@ -1699,77 +1698,29 @@ composed of $A_0$, $c$, $t_1$ and $t_2$ can be verified as follows:
 \item check that $\Hash_{\textsf{nonzero}}(S,A_0,A_1,A_2)=c$.
 \end{enumerate}
 
-\subsection{Signatures}
-\label{signatures}
-
-\begin{gather*}
-  \signature=\left\{
-    \begin{array}{rcl}
-      \textsf{hash}&:&\jstring\\
-      \textsf{proof}&:&\proof
-    \end{array}
-  \right\}
-\end{gather*}
-
-\newcommand{\siglabel}{\textsf{signature}}
-
-Each ballot contains a (Schnorr-like) digital signature to avoid
-ballot stuffing. The signature needs a
-\hyperref[credentials]{credential} $c$ and uses the $\textsf{hash}$ of
-the surrounding ballot (without the $\siglabel$ field). It is computed
-as follows:
-\begin{enumerate}
-\item compute $s=\secret(c)$
-\item pick a random $w\in\Z_q$
-\item compute $A=g^w$
-\item compute $\textsf{proof}$ as follows:
-  \begin{enumerate}
-  \item $\challenge=\Hash_\siglabel(\textsf{hash},A)\mod q$
-  \item $\response=w-s\times\challenge\mod q$
-  \end{enumerate}
-\end{enumerate}
-In the above, $\Hash_\siglabel$ is computed as follows:
-\[
-\Hash_\siglabel(H,A)=\shatwo(\verb=sig|=H\verb=|=A)
-\]
-where \verb=sig=, vertical bars and commas are verbatim.
-The result is interpreted as a 256-bit big-endian number.
-
-Signatures are verified as follows ($\textsf{credential}$ and
-$\textsf{hash}$ can be obtained from the surrounding ballot):
-\begin{enumerate}
-\item compute $A=g^\response\times \textsf{credential}^\challenge$
-\item check that $\challenge=\Hash_\siglabel(\textsf{hash},A)\mod q$
-\end{enumerate}
-
 \subsection{Ballots}
 \label{ballots}
 
 \newcommand{\json}{\textsf{JSON}}
 
 \begin{gather*}
-  \ballot=\left\{
+  \texttt{raw\_ballot}=\left\{
     \begin{array}{rcl}
       \textsf{election\_uuid}&:&\uuid\\
       \textsf{election\_hash}&:&\jstring\\
       \textsf{credential}&:&\G\\
-      \answers&:&\hyperref[answers]{\answer}^\ast\\
-      \siglabel&:&\hyperref[signatures]{\signature}
+      \answers&:&\hyperref[answers]{\answer}^\ast
     \end{array}
-  \right\}
+  \right\}\\
+  \ballot=\texttt{raw\_ballot}\ \texttt{signed\_msg}
 \end{gather*}
-A ballot references in its $\textsf{credential}$ member the public
-credential $S=g^{\secret(c,s)}$ ($c$ being the secret credential) of the voter. The hash (or
-\emph{fingerprint}) of the election is $\varphi$ (see
-section~\ref{varphi}).
-
-To compute the $\textsf{hash}$ used in signatures, the ballot without
-the $\siglabel$ field is first serialized as a JSON compact string,
-where object fields are ordered as specified in this document. The
-hash is the compact Base64 encoding of the SHA256 of this string.
-The same hashing function is used on the serialization of the whole
-$\ballot$ structure to produce a so-called \emph{smart ballot
-  tracker}.
+A $\texttt{raw\_ballot}$ references in its $\textsf{credential}$
+member the public credential $S=g^{\secret(c,s)}$ ($c$ being the
+secret credential) of the voter. The hash (or \emph{fingerprint}) of
+the election is $\varphi$ (see section~\ref{varphi}).  A full
+$\ballot$ is a $\texttt{raw\_ballot}$ signed with its
+$\textsf{credential}$ and domain separation tag
+$\texttt{\dstprefix-ballot}$.
 
 The weight of a ballot $b$, denoted by $\textsf{weight}(b)$, is the
 weight associated to $\textsf{credential}(b)$ in the list of public
@@ -1948,10 +1899,8 @@ computed as follows:
 \end{enumerate}
 In the above, $\Hash_\decrypt$ is computed as follows:
 \[
-\Hash_\decrypt(X,A,B)=\shatwo(\verb=decrypt|=\varphi\verb=|=X\verb=|=A\verb=,=B)\mod q
+\Hash_\decrypt(X,A,B)=\textsf{HashGroup}(\texttt{\dstprefix-decrypt},(\varphi\verb=|=X\verb=|=),(A,B))
 \]
-where \verb=decrypt=, vertical bars and commas are verbatim.
-The result is interpreted as a 256-bit big-endian number.
 
 These proofs are verified using the $\tpk$ structure $k$ that the
 trustee sent to the administrator during the election setup:
@@ -2256,6 +2205,32 @@ Additionally, a non-homomorphic encoding is defined as follows:
 \end{itemize}
 The \textsf{get\_generator} function is the pure part of
 \textsf{GetGenerator} defined in table~\ref{get-generator-ed25519}.
+
+\section{Auxiliary functions}
+\label{auxiliary-functions}
+
+\subsection{Hashing to base field elements}
+\label{hash-to-field}
+
+The function $\textsf{HashToField}(d,m,n)$ is used to hash an
+arbitrary message $m$ into $n$ elements of the scalar field $\Z_q$. It
+is based on \verb|hash_to_field| from RFC 9380, using
+\verb|expand_message_xmd| with \verb|SHA256|. $d$ is the domain
+separation tag.
+
+\subsection{Hashing group elements}
+\label{hash-group}
+
+The function $\textsf{HashGroup}(d,m,(y_1,\dotsc,y_n))$ is used to
+hash an arbitrary message $m$ and $n$ group elements $y_1,\dotsc,y_n$
+into a single field element $x$ as follows:
+\begin{itemize}
+\item let $G$ be the group name
+\item let $Y$ be the string serializations of $y_1,\dots,y_n$
+  concatenated with commas
+\item
+  $(x)\leftarrow\textsf{HashToField}(d\texttt{-group\_hash-}G,mY,1)$
+\end{itemize}
 
 \section{Shuffle algorithms}
 \label{shuffle-algorithms}
@@ -2627,20 +2602,12 @@ algorithms, please refer to the CHVote System Specification.
     \end{itemize}
     \noindent\paragraph{Algorithm}
     \begin{enumerate}
-    \item $H\leftarrow\shatwo(S)$\hfill// output interpreted as an
-      hexadecimal string
-    \item For $i=0,\dots,N-1$:
-      \begin{enumerate}
-      \item $T\leftarrow\shatwo(i)$\hfill// input taken as decimal,
-        output interpreted as hexadecimal
-      \item $u_i\leftarrow\shatwo(HT)\mod q$\hfill// output
-        interpreted as big-endian
-      \end{enumerate}
-    \item $\textbf{u}\leftarrow[u_0,\dots,u_{N-1}]$
+    \item
+      $\textbf{u}\leftarrow\textsf{HashToField}(\texttt{\dstprefix-get\_nizkp\_challenges},S,N)$
     \item Return $\textbf{u}$\hfill// $\textbf{u}\in\Z_q^N$
     \end{enumerate}
   \end{framed}
-  \caption{Function $\mathsf{GetNIZPKChallenges}(N,S)$}
+  \caption{Function $\mathsf{GetNIZKPChallenges}(N,S)$}
   \label{get-nizkp-challenges}
 \end{table}
 
@@ -2676,12 +2643,12 @@ algorithms, please refer to the CHVote System Specification.
     \end{itemize}
     \noindent\paragraph{Algorithm}
     \begin{enumerate}
-    \item $c\leftarrow\shatwo(S)\mod q$\hfill// output interpreted as
-      a big-endian number
+    \item
+      $(c)\leftarrow\textsf{HashToField}(\texttt{\dstprefix-get\_nizkp\_challenge},S,1)$
     \item Return $c$\hfill// $c\in\Z_q$
     \end{enumerate}
   \end{framed}
-  \caption{Function $\mathsf{GetNIZPKChallenge}(S)$}
+  \caption{Function $\mathsf{GetNIZKPChallenge}(S)$}
   \label{get-nizkp-challenge}
 \end{table}
 
