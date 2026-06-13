@@ -1095,17 +1095,13 @@ being:
 \end{gather*}
 
 \begin{gather*}
-  \texttt{question\_gen}=\left\{
+  \texttt{question}=\left\{
     \begin{array}{rcl}
       \textsf{type}&:&\jstring\\
       \textsf{value}&:&\texttt{json}\\
       ?\textsf{extra}&:&\texttt{json}
     \end{array}
   \right\}
-\end{gather*}
-
-\begin{gather*}
-  \question=\texttt{question\_h}\mid\texttt{question\_gen}
 \end{gather*}
 
 There are three types of questions: homomorphic (H) ones,
@@ -1117,11 +1113,13 @@ be revealed.
 
 \subsubsection{Homomorphic questions}
 
-Homomorphic questions are represented directly (first
-alternative). They are the first type of question that was implemented
-in Belenios. They are suitable for many elections, like the ones where
-the voter is invited to select one choice among several (as in a
-referendum).
+Homomorphic questions were the first type of question that were
+implemented in Belenios. They are represented in a $\texttt{question}$
+structure, where the $\textsf{type}$ property is set to
+\verb=Homomorphic= and the $\textsf{value}$ property is set to a
+\texttt{question\_h} structure. They are suitable for many elections,
+like the ones where the voter is invited to select one choice among
+several (as in a referendum).
 
 The $\blank$ field of $\texttt{question\_h}$ is optional. When present
 and true, the voter can vote blank for this question. In a blank vote,
@@ -1130,23 +1128,23 @@ $\maxlabel$ ($\minlabel$ doesn't need to be $0$).
 
 \subsubsection{Non-homomorphic questions}
 
-Non-homomorphic questions are represented nested in a
-\texttt{question\_gen} structure (second alternative), where the
-\textsf{type} property is set to \verb=NonHomomorphic=, and the
-\textsf{value} property is set to a \texttt{question\_nh}
-structure. They are needed when homomorphic questions are not
-suitable, for example when answers represent preferences or are too
-big. An \textsf{extra} field may be present, to give a hint on the
-intended counting method (Majority Judgment, Condorcet, STV, \dots).
+Non-homomorphic questions are represented in a \texttt{question}
+structure, where the \textsf{type} property is set to
+\verb=NonHomomorphic=, and the \textsf{value} property is set to a
+\texttt{question\_nh} structure. They are needed when homomorphic
+questions are not suitable, for example when answers represent
+preferences or are too big. An \textsf{extra} field may be present, to
+give a hint on the intended counting method (Majority Judgment,
+Condorcet, STV, \dots).
 
 \subsubsection{Lists questions}
 
-Lists questions are represented nested in a \texttt{question\_gen}
-structure (second alternative), where the \textsf{type} property is
-set to \verb=Lists=, and the \textsf{value} property is set to a
-\texttt{question\_l} structure. Such questions are suitable to elect
-candidates grouped in lists. Here, $\answers$ is a vector of vectors
-of strings with the shape:
+Lists questions are represented in a \texttt{question} structure,
+where the \textsf{type} property is set to \verb=Lists=, and the
+\textsf{value} property is set to a \texttt{question\_l}
+structure. Such questions are suitable to elect candidates grouped in
+lists. Here, $\answers$ is a vector of vectors of strings with the
+shape:
 \[ [[L_1,C_{1,1},\dots],\dots,[L_n,C_{n,1},\dots]] \] where $L_i$ is
 the name of list $i$ and $C_{i,j}$ is the name of candidate $j$ of
 list $i$. The voter is asked to select one list $L_i$ among

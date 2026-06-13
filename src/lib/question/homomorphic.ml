@@ -34,14 +34,10 @@ let wrap ~value ~extra =
 
 let unwrap (q : Types.question) =
   match q.value with
-  | Q x -> (
+  | Q x ->
       let value = x |> Syntax.string_of_question |> Yojson.Safe.from_string in
-      match q.extra with
-      | None -> Some value
-      | Some x ->
-          let o = [ ("extra", x) ] in
-          Some
-            (`Assoc (("type", `String "Homomorphic") :: ("value", value) :: o)))
+      let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
+      Some (`Assoc (("type", `String type_) :: ("value", value) :: o))
   | _ -> None
 
 let erase (q : t) : t =

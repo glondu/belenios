@@ -60,7 +60,7 @@ module Make (P : PARAMS) = struct
       let value : t =
         {
           q_answers = generate_candidates nb_candidates;
-          q_blank = None;
+          q_blank = false;
           q_min = 1;
           q_max = 1;
           q_question = "Which candidate do you prefer?";

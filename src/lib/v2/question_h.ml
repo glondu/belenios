@@ -42,10 +42,10 @@ let write_result = write_result
 (** Helper functions *)
 
 let question_length q =
-  Array.length q.q_answers + match q.q_blank with Some true -> 1 | _ -> 0
+  Array.length q.q_answers + match q.q_blank with true -> 1 | false -> 0
 
 let get_complexity q =
-  let allowBlank = q.q_blank = Some true in
+  let allowBlank = q.q_blank in
   let nb_ciphertexts = Array.length q.q_answers + if allowBlank then 1 else 0 in
   let nb_extra_zkps = q.q_max - q.q_min + 1 + if allowBlank then 3 else 0 in
   let nb_zkps = (2 * nb_ciphertexts) + nb_extra_zkps in
@@ -340,7 +340,7 @@ module Make (G : GROUP) = struct
     let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
     let zkp = zkp ^ "|" ^ stringify_choices choices in
     match q.q_blank with
-    | Some true ->
+    | true ->
         (* index 0 is whether the ballot is blank or not,
            indexes 1..n-1 are the actual choices *)
         assert (n = Array.length q.q_answers + 1);
@@ -356,7 +356,7 @@ module Make (G : GROUP) = struct
         in
         let blank_proof = Some blank_proof in
         { choices; individual_proofs; overall_proof; blank_proof }
-    | _ ->
+    | false ->
         (* indexes 0..n-1 are the actual choices *)
         assert (n = Array.length q.q_answers);
         let sumr = Array.fold_left Zq.( + ) Zq.zero r in
@@ -375,7 +375,7 @@ module Make (G : GROUP) = struct
     &&
     let zkp = zkp ^ "|" ^ stringify_choices a.choices in
     match (q.q_blank, a.blank_proof) with
-    | Some true, Some blank_proof ->
+    | true, Some blank_proof ->
         n = Array.length q.q_answers + 1
         &&
         let c = Array.sub a.choices 1 (n - 1) in

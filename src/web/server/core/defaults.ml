@@ -34,7 +34,7 @@ let questions =
       ~value:
         {
           q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
-          q_blank = None;
+          q_blank = false;
           q_min = 1;
           q_max = 1;
           q_question = "Question 1?";

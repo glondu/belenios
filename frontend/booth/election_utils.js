@@ -67,12 +67,11 @@ class ElectionQuestion {
         this.availableGrades = this.questionData.extra.grades;
       }
     } else if (this.type === QuestionTypeEnum.CLASSIC) {
-      this.title = this.questionData.question;
-      this.answers = this.questionData.answers;
-      this.blankVoteIsAllowed =
-        "blank" in this.questionData && this.questionData["blank"] === true;
-      this.min = this.questionData.min;
-      this.max = this.questionData.max;
+      this.title = this.questionData.value.question;
+      this.answers = this.questionData.value.answers;
+      this.blankVoteIsAllowed = this.questionData.value.blank;
+      this.min = this.questionData.value.min;
+      this.max = this.questionData.value.max;
     } else if (this.type === QuestionTypeEnum.LISTS) {
       this.title = this.questionData.value.question;
       this.answers = this.questionData.value.answers;

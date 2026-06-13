@@ -31,7 +31,7 @@ type 'a disjunctive_proof <ocaml predef from="Belenios_core.Serializable_core"> 
 
 type question = {
   answers : string list <ocaml repr="array">;
-  ?blank : bool option;
+  blank : bool;
   min : int;
   max : int;
   question : string;

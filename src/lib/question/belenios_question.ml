@@ -39,10 +39,9 @@ let lookup_type type_ =
   loop types
 
 let wrap = function
-  | `Assoc o as j -> (
+  | `Assoc o -> (
       let type_, value, extra =
         match List.assoc_opt "type" o with
-        | None -> ("Homomorphic", j, None)
         | Some (`String type_) ->
             let value =
               match List.assoc_opt "value" o with

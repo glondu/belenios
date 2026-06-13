@@ -487,8 +487,8 @@ let format_question_result uuid r (question : Belenios_question.t) =
       let answers = Array.to_list x.q_answers in
       let answers =
         match x.q_blank with
-        | Some true -> s_ "Blank vote" :: answers
-        | _ -> answers
+        | true -> s_ "Blank vote" :: answers
+        | false -> answers
       in
       let answers =
         List.mapi
@@ -501,8 +501,8 @@ let format_question_result uuid r (question : Belenios_question.t) =
         | [] -> txt ""
         | y :: ys -> (
             match x.q_blank with
-            | Some true -> table (ys @ [ y ])
-            | _ -> table (y :: ys))
+            | true -> table (ys @ [ y ])
+            | false -> table (y :: ys))
       in
       li
         ~a:[ a_class [ "result_question_item" ] ]

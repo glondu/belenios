@@ -93,7 +93,7 @@ let q_to_gen (question : Belenios_question.t) =
         ( q.q_question,
           q.q_answers,
           [| q.q_answers |],
-          Option.value ~default:false q.q_blank,
+          q.q_blank,
           `Select,
           q.q_min,
           q.q_max,
@@ -156,7 +156,7 @@ let gen_to_q q =
           {
             q_question = q.question;
             q_answers = q.answers;
-            q_blank = Some q.blank;
+            q_blank = q.blank;
             q_min = q.sel_min;
             q_max = q.sel_max;
           }
