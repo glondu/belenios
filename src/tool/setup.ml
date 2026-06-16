@@ -176,13 +176,13 @@ module Ttkeygen : CMDLINER_MODULE = struct
     | 2 ->
         let* context = get_context () in
         let* certs = get_certs () in
-        let _ = T.step2 { context; certs; coefexps = None } in
+        let _ = T.step2 { context; certs } in
         Lwt_io.eprintl "I: certificates are valid"
     | 3 ->
         let* context = get_context () in
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
-        let* polynomial = T.step3 { context; certs; coefexps = None } key in
+        let* polynomial = T.step3 { context; certs } key in
         Lwt_io.printl
           (string_of_polynomial (swrite G.to_string) (swrite G.Zq.to_string)
              polynomial)
@@ -192,7 +192,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let n = Array.length certs in
         let* polynomials = get_polynomials () in
         assert (n = Array.length polynomials);
-        let vinputs = T.step4 { context; certs; coefexps = None } polynomials in
+        let vinputs = T.step4 { context; certs } polynomials in
         assert (n = Array.length vinputs);
         let rec loop i =
           if i < n then
@@ -225,7 +225,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           read_line ()
           |> vinput_of_string (sread G.of_string) (sread G.Zq.of_string)
         in
-        let* voutput = T.step5 { context; certs; coefexps = None } key vinput in
+        let* voutput = T.step5 { context; certs } key vinput in
         Lwt_io.printl
           (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
              voutput)
@@ -243,9 +243,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
           |> Array.of_list
         in
         assert (n = Array.length voutputs);
-        let tparams =
-          T.step6 { context; certs; coefexps = None } polynomials voutputs
-        in
+        let tparams = T.step6 { context; certs } polynomials voutputs in
         let rec loop i =
           if i < n then
             let id =

@@ -1083,7 +1083,7 @@ let post_trustee_threshold
         let polynomial =
           polynomial_of_string (sread G.of_string) (sread G.Zq.of_string) data
         in
-        if K.step3_check { context; certs; coefexps = None } i polynomial then (
+        if K.step3_check { context; certs } i polynomial then (
           t.stt_polynomial <- Some polynomial;
           t.stt_step <- Some 4)
         else failwith "Invalid polynomial"
@@ -1093,11 +1093,7 @@ let post_trustee_threshold
         let voutput =
           voutput_of_string (sread G.of_string) (sread G.Zq.of_string) data
         in
-        if
-          K.step5_check
-            { context; certs; coefexps = None }
-            i polynomials voutput
-        then (
+        if K.step5_check { context; certs } i polynomials voutput then (
           t.stt_voutput <-
             Some
               (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
@@ -1109,7 +1105,7 @@ let post_trustee_threshold
   let () =
     if Array.for_all (fun x -> x.stt_step = Some 2) ts then
       try
-        let certs = { context; certs = get_certs (); coefexps = None } in
+        let certs = { context; certs = get_certs () } in
         let threshold = K.step2 certs in
         assert (dtp.dtp_threshold = Some threshold);
         Array.iter (fun x -> x.stt_step <- Some 3) ts
@@ -1120,7 +1116,7 @@ let post_trustee_threshold
       try
         let certs = get_certs () in
         let polynomials = get_polynomials () in
-        let vinputs = K.step4 { context; certs; coefexps = None } polynomials in
+        let vinputs = K.step4 { context; certs } polynomials in
         for j = 0 to Array.length ts - 1 do
           ts.(j).stt_vinput <- Some vinputs.(j)
         done;
@@ -1141,9 +1137,7 @@ let post_trustee_threshold
                   voutput_of_string (sread G.of_string) (sread G.Zq.of_string) y)
             ts
         in
-        let p =
-          K.step6 { context; certs; coefexps = None } polynomials voutputs
-        in
+        let p = K.step6 { context; certs } polynomials voutputs in
         dtp.dtp_parameters <-
           Some
             (string_of_threshold_parameters (swrite G.to_string)

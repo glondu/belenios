@@ -90,7 +90,7 @@ let threshold_step (Draft (_, draft)) pedersen ~private_key =
     |> pedersen_of_string (sread G.of_string) (sread G.Zq.of_string)
   in
   let context = pedersen.pedersen_context.context in
-  let certs = { context; certs = pedersen.pedersen_certs; coefexps = None } in
+  let certs = { context; certs = pedersen.pedersen_certs } in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
