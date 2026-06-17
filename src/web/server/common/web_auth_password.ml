@@ -158,7 +158,7 @@ end
 let get_password_db_fname service =
   let rec find = function
     | [] -> None
-    | { auth_system = "password"; auth_config = c; auth_instance = i } :: _
+    | { auth_system = "password"; auth_config = c; auth_instance = i; _ } :: _
       when i = service && does_allow_signups c ->
         List.assoc_opt "db" c
     | _ :: xs -> find xs

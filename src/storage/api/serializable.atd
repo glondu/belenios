@@ -41,6 +41,7 @@ type auth_config = {
   auth_system : string;
   auth_instance : string;
   auth_config : (string * string) list;
+  ?auth_portal : string option;
 }
 
 type sealed = {

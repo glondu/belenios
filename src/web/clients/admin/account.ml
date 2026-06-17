@@ -76,6 +76,11 @@ let rec update_main_zone () =
         in
         select ~a:[ a_id "inplang" ] ~onchange ~value:current options
       in
+      let service =
+        match acc.authentication_method.portal with
+        | None -> txt acc.authentication_method.service
+        | Some href -> a ~href acc.authentication_method.service
+      in
       let content =
         [
           h2 [ txt @@ s_ "Administrator's profile: " ];
@@ -85,9 +90,8 @@ let rec update_main_zone () =
               div
                 [
                   txt @@ s_ "Authentication method: ";
-                  txt
-                  @@ Printf.sprintf "%s@%s" acc.authentication_method.username
-                       acc.authentication_method.service;
+                  txt @@ Printf.sprintf "%s@" acc.authentication_method.username;
+                  service;
                 ];
               div
                 [

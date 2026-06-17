@@ -169,9 +169,18 @@ let get_configuration () =
   }
 
 let get_account (a : account) (u : user) =
+  let service = u.user_domain in
+  let portal =
+    let rec loop = function
+      | [] -> None
+      | { auth_instance; auth_portal; _ } :: xs ->
+          if auth_instance = service then auth_portal else loop xs
+    in
+    loop !Web_config.site_auth_config
+  in
   {
     id = a.id;
-    authentication_method = { service = u.user_domain; username = u.user_name };
+    authentication_method = { service; username = u.user_name; portal };
     name = a.name;
     address = a.email;
     language = a.language;

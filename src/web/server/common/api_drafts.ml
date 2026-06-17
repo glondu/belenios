@@ -83,10 +83,19 @@ let auth_config_of_authentication = function
             auth_system = "cas";
             auth_instance = "cas";
             auth_config = [ ("server", server) ];
+            auth_portal = None;
           };
         ]
   | Some (`Configured auth_instance) ->
-      Some [ { auth_system = "import"; auth_instance; auth_config = [] } ]
+      Some
+        [
+          {
+            auth_system = "import";
+            auth_instance;
+            auth_config = [];
+            auth_portal = None;
+          };
+        ]
   | None -> None
 
 let api_of_draft (Draft (v, se)) =

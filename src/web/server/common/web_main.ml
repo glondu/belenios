@@ -150,11 +150,14 @@ module Make () = struct
         Web_config.admin_home := Some file
     | Element ("success-snippet", [ ("file", file) ], []) ->
         Web_config.success_snippet := Some file
-    | Element
-        ( "auth",
-          [ ("name", auth_instance) ],
-          [ Element (auth_system, auth_config, []) ] ) ->
-        let i = { auth_system; auth_instance; auth_config } in
+    | Element ("auth", attrs, [ Element (auth_system, auth_config, []) ]) ->
+        let@ auth_instance cont =
+          match List.assoc_opt "name" attrs with
+          | None -> failwith "missing name attribute in tag auth"
+          | Some x -> cont x
+        in
+        let auth_portal = List.assoc_opt "portal" attrs in
+        let i = { auth_system; auth_instance; auth_config; auth_portal } in
         auth_instances := i :: !auth_instances
     | Element ("auth-export", [ ("name", "builtin-cas") ], []) ->
         auth_instances_export := Web_config.BuiltinCAS :: !auth_instances_export
@@ -165,8 +168,9 @@ module Make () = struct
           | None -> failwith "missing name attribute in tag auth-export"
           | Some x -> cont x
         in
+        let auth_portal = List.assoc_opt "portal" attrs in
         let descr = List.assoc_opt "descr" attrs in
-        let config = { auth_system; auth_instance; auth_config } in
+        let config = { auth_system; auth_instance; auth_config; auth_portal } in
         auth_instances_export :=
           Export { descr; config } :: !auth_instances_export
     | Element ("domain", [ ("name", name) ], []) -> domain := Some name

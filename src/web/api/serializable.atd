@@ -154,6 +154,7 @@ type configuration = {
 type authentication_method = {
     service : string;
     username : string;
+    ?portal : string option;
 }
 
 type api_account = {
