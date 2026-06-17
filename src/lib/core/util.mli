@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures
-open Serializable_t
+open Serializable
 
 val compute_synthetic_factors :
   ('a, 'b) trustee_kind list ->

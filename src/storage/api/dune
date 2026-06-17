@@ -1,5 +1,5 @@
 (library
  (name belenios_storage_api)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries lwt xml-light belenios-lib.api))
-
-(include ../../lib/core/serializable.inc)

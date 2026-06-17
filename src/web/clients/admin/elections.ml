@@ -60,20 +60,19 @@ let is_ready () =
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let* status = Cache.get_until_success Cache.status in
   let b =
-    draft.draft_questions.t_name <> ""
-    && draft.draft_contact <> None
-    && draft.draft_contact <> Some ""
-    && draft.draft_questions.t_questions <> [||]
+    draft.questions.name <> "" && draft.contact <> None
+    && draft.contact <> Some ""
+    && draft.questions.questions <> [||]
     && status.num_voters > 0 && status.voter_authentication_visited
     && status.credential_authority_visited
     && status.credentials_ready = true
-    && draft.draft_questions.t_credential_authority <> None
-    && (draft.draft_questions.t_credential_authority <> Some "server"
+    && draft.questions.credential_authority <> None
+    && (draft.questions.credential_authority <> Some "server"
        || status.private_credentials_downloaded = Some true)
     && status.trustees_ready = true
     && status.trustees_setup_step > 1
-    && draft.draft_questions.t_administrator <> Some ""
-    && draft.draft_questions.t_administrator <> None
+    && draft.questions.administrator <> Some ""
+    && draft.questions.administrator <> None
   in
   Lwt.return b
 
@@ -82,7 +81,7 @@ let nb_shufflers () =
   let* x = Trustees_tab.get_shuffles uuid in
   match x with
   | None -> Lwt.return 0
-  | Some x -> Lwt.return @@ List.length x.shuffles_shufflers
+  | Some x -> Lwt.return @@ List.length x.shufflers
 
 let default_handler tab () =
   let open (val !Belenios_js.I18n.gettext) in
@@ -90,7 +89,7 @@ let default_handler tab () =
   let* ok =
     if is_draft () && Cache.modified Cache.draft then
       let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-      match draft.draft_authentication with
+      match draft.authentication with
       | Some (`CAS s) when not (is_valid_url s) ->
           alert
           @@ s_
@@ -145,8 +144,7 @@ let tabs x =
           if curr_tab = x then Lwt.return `Doing
           else
             let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-            Lwt.return
-              (if draft.draft_questions.t_name = "" then `Todo else `Done)
+            Lwt.return (if draft.questions.name = "" then `Todo else `Done)
         else Lwt.return `DDone
       in
       {
@@ -163,7 +161,7 @@ let tabs x =
           else
             let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
             Lwt.return
-              (if draft.draft_questions.t_questions = [||] then `Todo else `Done)
+              (if draft.questions.questions = [||] then `Todo else `Done)
         else Lwt.return `DDone
       in
       {
@@ -234,7 +232,7 @@ let tabs x =
             else Lwt.return `Todo
         else
           let* status = Cache.get_until_success Cache.e_status in
-          match status.status_state with
+          match status.state with
           | `Open | `Closed | `Tallied -> Lwt.return `DDone
           | _ ->
               Lwt.return
@@ -302,8 +300,7 @@ let tabs x =
           else
             let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
             Lwt.return
-              (draft.draft_questions.t_questions <> [||]
-              && draft.draft_questions.t_name <> "")
+              (draft.questions.questions <> [||] && draft.questions.name <> "")
         in
         if b then
           Lwt.return_some
@@ -327,8 +324,7 @@ let tabs x =
         let* b =
           if is_running then
             let* status = Cache.get_until_success Cache.e_status in
-            Lwt.return
-              (status.status_state == `Open || status.status_state == `Closed)
+            Lwt.return (status.state == `Open || status.state == `Closed)
           else if is_draft then is_ready ()
           else Lwt.return false
         in
@@ -341,7 +337,7 @@ let tabs x =
           if is_draft || is_finished then Lwt.return false
           else
             let* status = Cache.get_until_success Cache.e_status in
-            Lwt.return (status.status_state = `Closed)
+            Lwt.return (status.state = `Closed)
         in
         if b then (
           Lwt.return_some @@ fun () ->
@@ -352,7 +348,7 @@ let tabs x =
           if not confirm then Lwt.return_unit
           else
             let* status = Cache.get_until_success Cache.e_status in
-            let ifmatch = sha256_b64 @@ string_of_election_status status in
+            let ifmatch = sha256_b64 @@ !+yojson_of_election_status status in
             let ifmatch = Some ifmatch in
             let* x =
               Api.(
@@ -365,12 +361,12 @@ let tabs x =
                 (* in Shuffle mode, if there is no external trustee, then FinishShuffle *)
                 let* status = Cache.get_until_success Cache.e_status in
                 let* () =
-                  match status.status_state with
+                  match status.state with
                   | `Shuffling ->
                       let* nb_shufflers = nb_shufflers () in
                       if nb_shufflers = 1 then (
                         let ifmatch =
-                          Some (sha256_b64 @@ string_of_election_status status)
+                          Some (sha256_b64 @@ !+yojson_of_election_status status)
                         in
                         let* x =
                           Api.(
@@ -557,8 +553,8 @@ let all_tabs () =
 let update_header () =
   let open (val !Belenios_js.I18n.gettext) in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let title = draft.draft_questions.t_name in
-  let descr = draft.draft_questions.t_description in
+  let title = draft.questions.name in
+  let descr = draft.questions.description in
   let* () =
     let&&* container = document##getElementById (Js.string "election_name") in
     show_in container (fun () -> Lwt.return [ txt @@ s_ "Setup: " ^ title ])
@@ -579,17 +575,14 @@ let title_content () =
              ( v,
                {
                  draft with
-                 draft_questions =
-                   {
-                     draft.draft_questions with
-                     t_name = Js.to_string r##.value;
-                   };
+                 questions =
+                   { draft.questions with name = Js.to_string r##.value };
                } ));
         update_header ()
       in
       textarea
         ~a:[ a_id "election_name_textarea" ]
-        ~onchange ~cols:50 ~rows:3 draft.draft_questions.t_name
+        ~onchange ~cols:50 ~rows:3 draft.questions.name
     in
     let desc, _ =
       let onchange r =
@@ -600,17 +593,14 @@ let title_content () =
              ( v,
                {
                  draft with
-                 draft_questions =
-                   {
-                     draft.draft_questions with
-                     t_description = Js.to_string r##.value;
-                   };
+                 questions =
+                   { draft.questions with description = Js.to_string r##.value };
                } ));
         update_header ()
       in
       textarea
         ~a:[ a_id "election_description_textarea" ]
-        ~onchange ~cols:50 ~rows:5 draft.draft_questions.t_description
+        ~onchange ~cols:50 ~rows:5 draft.questions.description
     in
     let div_logo =
       let uuid = get_current_uuid () in
@@ -687,9 +677,11 @@ let title_content () =
   else
     (* not is_draft, i.e. running *)
     let* x = Cache.get_until_success Cache.e_elec in
-    let (Template (_, elec)) = Belenios.Election.template_of_string x in
-    let tit = elec.t_name in
-    let desc = elec.t_description in
+    let (Template (_, elec)) =
+      Belenios.Election.versioned_template_of_yojson x
+    in
+    let tit = elec.name in
+    let desc = elec.description in
     Lwt.return
       [
         h2 [ txt @@ s_ "Title:" ];
@@ -772,7 +764,7 @@ let voters_content () =
   in
   let reco =
     List.fold_left
-      (fun accu r -> SSet.add r.vr_username accu)
+      (fun accu (r : voting_record) -> SSet.add r.username accu)
       SSet.empty records
   in
   let with_login, with_weight =
@@ -860,7 +852,7 @@ let voters_content () =
         | Error msg -> popup_failsync msg
         | Ok () ->
             let* voters = Cache.get_until_success Cache.voters in
-            let ifmatch = sha256_b64 @@ string_of_voter_list voters in
+            let ifmatch = sha256_b64 @@ !+yojson_of_voter_list voters in
             let* () =
               let target_uuid = get_current_uuid () in
               let@ from_uuid = popup_choose_elec target_uuid in
@@ -997,7 +989,8 @@ let voters_content () =
     (* Running election *)
     let data =
       List.map
-        (fun x -> datestring_of_float x.vr_date ^ " " ^ x.vr_username)
+        (fun (x : voting_record) ->
+          datestring_of_float x.date ^ " " ^ x.username)
         records
     in
     let uuid = get_current_uuid () |> Uuid.unwrap in
@@ -1060,8 +1053,7 @@ let is_openable () =
   if is_draft () then Lwt.return_true
   else
     let* status = Cache.get_until_success Cache.e_status in
-    Lwt.return
-      (match status.status_state with `Open | `Closed -> true | _ -> false)
+    Lwt.return (match status.state with `Open | `Closed -> true | _ -> false)
 
 let format_date_object x =
   Printf.sprintf "%d-%02d-%02dT%02d:%02d" x##getFullYear
@@ -1156,18 +1148,18 @@ let dates_content () =
         if grace_period_enabled then
           [
             make_div (s_ "Grace period: ") "inpgcont" grace_period
-              (fun x -> x.auto_date_grace_period)
-              (fun x y -> { x with auto_date_grace_period = y });
+              (fun x -> x.grace_period)
+              (fun x y -> { x with grace_period = y });
           ]
         else []
       in
       [
         make_div (s_ "Open: ") "inpocont" (datetime_local 5)
-          (fun x -> x.auto_date_open)
-          (fun x y -> { x with auto_date_open = y });
+          (fun x -> x.open_)
+          (fun x y -> { x with open_ = y });
         make_div (s_ "Close: ") "inpccont" (datetime_local 10)
-          (fun x -> x.auto_date_close)
-          (fun x y -> { x with auto_date_close = y });
+          (fun x -> x.close)
+          (fun x y -> { x with close = y });
       ]
       @ grace
     else []
@@ -1176,7 +1168,7 @@ let dates_content () =
     if is_draft () then Lwt.return_true
     else
       let* status = Cache.get_until_success Cache.e_status in
-      match status.status_state with
+      match status.state with
       | `Tallied | `Archived -> Lwt.return_false
       | `Open | `Closed | `Draft | `Shuffling | `EncryptedTally ->
           Lwt.return_true
@@ -1185,8 +1177,8 @@ let dates_content () =
     if is_publishable then
       let publish_div =
         make_div (s_ "Publish: ") "inppcont" (datetime_local 15)
-          (fun x -> x.auto_date_publish)
-          (fun x y -> { x with auto_date_publish = y })
+          (fun x -> x.publish)
+          (fun x y -> { x with publish = y })
       in
       [
         div
@@ -1223,7 +1215,7 @@ let language_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
   let* config = Cache.get_until_success Cache.config in
-  let lang = draft.draft_languages in
+  let lang = draft.languages in
   let strlang = String.concat " " lang in
   let inp, _ =
     let onchange r =
@@ -1234,7 +1226,8 @@ let language_content () =
       then (
         let@ () = Lwt.async in
         let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-        Cache.set Cache.draft (Draft (v, { draft with draft_languages }));
+        Cache.set Cache.draft
+          (Draft (v, { draft with languages = draft_languages }));
         Cache.sync_until_success ())
       else alert @@ s_ "Some language in the list is not available"
     in
@@ -1247,7 +1240,7 @@ let language_content () =
         true)
   in
   let lang, dir =
-    match draft.draft_questions.t_language with
+    match draft.questions.language with
     | None -> ("", "ltr")
     | Some (lang, dir) -> (lang, Language.string_of_dir dir)
   in
@@ -1274,10 +1267,10 @@ let language_content () =
         let dir =
           match Js.to_string dir##.value with "rtl" -> `Rtl | _ -> `Ltr
         in
-        let t_language = if lang = "" then None else Some (lang, dir) in
+        let language = if lang = "" then None else Some (lang, dir) in
         let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-        let draft_questions = { draft.draft_questions with t_language } in
-        Cache.set Cache.draft (Draft (v, { draft with draft_questions }));
+        let questions = { draft.questions with language } in
+        Cache.set Cache.draft (Draft (v, { draft with questions }));
         Cache.sync_until_success ()
   in
   let avail_lang =
@@ -1343,21 +1336,20 @@ let language_content () =
 let contact_content () =
   let open (val !Belenios_js.I18n.gettext) in
   let* (Draft (_, draft)) = Cache.get_until_success Cache.draft in
-  let contact = Option.value ~default:"" draft.draft_contact in
+  let contact = Option.value ~default:"" draft.contact in
   let inp, _ =
     let onchange r =
       let newc = Js.to_string r##.value in
       let@ () = Lwt.async in
       let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-      Cache.set Cache.draft
-        (Draft (v, { draft with draft_contact = Some newc }));
+      Cache.set Cache.draft (Draft (v, { draft with contact = Some newc }));
       Lwt.return_unit
     in
     input ~a:[ a_id "inpcont" ] ~onchange ~value:contact `Text
   in
   (* The default set by the server is the name of the administrator;
    * no need to do it on our side. In case this changes, we default to "" *)
-  let admin = Option.value ~default:"" draft.draft_questions.t_administrator in
+  let admin = Option.value ~default:"" draft.questions.administrator in
   let inpA, _ =
     let onchange r =
       let newA = Js.to_string r##.value in
@@ -1368,8 +1360,7 @@ let contact_content () =
            ( v,
              {
                draft with
-               draft_questions =
-                 { draft.draft_questions with t_administrator = Some newA };
+               questions = { draft.questions with administrator = Some newA };
              } ));
       Lwt.return_unit
     in
@@ -1409,23 +1400,21 @@ let change_credauth_name name =
        ( v,
          {
            draft with
-           draft_questions =
-             { draft.draft_questions with t_credential_authority = Some name };
+           questions = { draft.questions with credential_authority = Some name };
          } ));
   let* () = Cache.sync_until_success () in
   let* () = send_draft_request `SetCredentialAuthorityVisited in
   let* res = Cache.sync () in
   match res with Error msg -> popup_failsync msg | Ok () -> Lwt.return_unit
 
-let change_cred_authority_info draft_cred_authority_info =
+let change_cred_authority_info cred_authority_info =
   let* x = Cache.get Cache.draft in
   match x with
   | Error msg ->
       alert msg;
       Lwt.return_unit
   | Ok (Draft (v, draft)) ->
-      Cache.set Cache.draft
-        (Draft (v, { draft with draft_cred_authority_info }));
+      Cache.set Cache.draft (Draft (v, { draft with cred_authority_info }));
       Cache.sync_until_success ()
 
 (** The page content, when the user can still choose between both options *)
@@ -1461,7 +1450,7 @@ let credauth_changeable_content uuid draft currsel =
       match res.code with
       | 200 -> !update_election_main ()
       | code -> (
-          match request_status_of_string res.content with
+          match !*request_status_of_yojson res.content with
           | { error = `ValidationError `NoVoters; _ } ->
               alert @@ s_ "The voter list is empty!";
               Lwt.return_unit
@@ -1582,9 +1571,9 @@ let credauth_changeable_content uuid draft currsel =
           button ~a:[ a_id "extern_server_set" ]
           @@ s_ "Set credential authority info"
         in
-        let cred_server = get_server () in
-        let cred_operator = get_operator () in
-        change_cred_authority_info @@ Some { cred_server; cred_operator }
+        let server = get_server () in
+        let operator = get_operator () in
+        change_cred_authority_info @@ Some { server; operator }
       in
       let btn_initiate =
         let@ b =
@@ -1611,14 +1600,14 @@ let credauth_changeable_content uuid draft currsel =
       in
       let info_dom = Tyxml_js.To_dom.of_div info in
       let () =
-        match draft.draft_cred_authority_info with
+        match draft.cred_authority_info with
         | None -> info_dom##.style##.display := Js.string "none"
-        | Some { cred_server; cred_operator } ->
+        | Some { server; operator } ->
             inp_dom##.checked := Js._true;
             let inp_server_dom = Tyxml_js.To_dom.of_input inp_server in
-            inp_server_dom##.value := Js.string cred_server;
+            inp_server_dom##.value := Js.string server;
             let inp_operator_dom = Tyxml_js.To_dom.of_input inp_operator in
-            inp_operator_dom##.value := Js.string cred_operator
+            inp_operator_dom##.value := Js.string operator
       in
       let () =
         inp_dom##.onchange :=
@@ -1636,8 +1625,7 @@ let credauth_changeable_content uuid draft currsel =
       let value =
         match !currsel with
         | `Extern ->
-            Option.value ~default:""
-              draft.draft_questions.t_credential_authority
+            Option.value ~default:"" draft.questions.credential_authority
         | _ -> ""
       in
       let inp_ext, get_ext =
@@ -1693,7 +1681,7 @@ let credauth_server_content uuid =
         a_data
           ~a:[ a_onclick_lwt onclick ]
           ~mime_type:"text/plain"
-          ~data:(string_of_private_credentials p)
+          ~data:(!+yojson_of_private_credentials p)
           ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid))
         @@ s_ "the private parts of the credentials"
       in
@@ -1736,8 +1724,7 @@ let credauth_content () =
   let* status = Cache.get_until_success Cache.status in
   let currsel =
     if not status.credential_authority_visited then `None
-    else if draft.draft_questions.t_credential_authority = Some "server" then
-      `Server
+    else if draft.questions.credential_authority = Some "server" then `Server
     else `Extern
   in
   let* content =
@@ -1762,7 +1749,7 @@ let voterspwd_content_draft () =
   let first_visit = not status.voter_authentication_visited in
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let* voters = Cache.get_until_success Cache.voters in
-  let curr_auth = draft.draft_authentication in
+  let curr_auth = draft.authentication in
   if List.length voters = 0 then
     Lwt.return [ div [ txt @@ s_ "Please fill-in the voter list first." ] ]
   else
@@ -1793,9 +1780,8 @@ let voterspwd_content_draft () =
           e##.onchange :=
             lwt_handler (fun _ ->
                 let* () = send_draft_request `SetVoterAuthenticationVisited in
-                let draft_authentication = get () in
-                Cache.set Cache.draft
-                  (Draft (v, { draft with draft_authentication }));
+                let authentication = get () in
+                Cache.set Cache.draft (Draft (v, { draft with authentication }));
                 !update_election_main ())
         in
         let ll =
@@ -1825,26 +1811,26 @@ let voterspwd_content_draft () =
                   set_onchange inp2 get;
                   div [ inp; lab; inp2 ]
               | `Configured xx -> (
-                  match xx.configured_system with
+                  match xx.system with
                   | "dummy" ->
                       let sel =
                         match curr_auth with
-                        | Some (`Configured s) -> s = xx.configured_instance
+                        | Some (`Configured s) -> s = xx.instance
                         | _ -> false
                       in
                       let inp, lab =
                         rad i sel
                           (s_ "Dummy auth (should not be used in production): "
-                          ^ xx.configured_instance)
+                          ^ xx.instance)
                           ()
                       in
                       set_onchange inp (fun () ->
-                          Some (`Configured xx.configured_instance));
+                          Some (`Configured xx.instance));
                       div [ inp; lab ]
                   | "email" ->
                       let sel =
                         match curr_auth with
-                        | Some (`Configured s) -> s = xx.configured_instance
+                        | Some (`Configured s) -> s = xx.instance
                         | _ -> false
                       in
                       let inp, lab =
@@ -1855,25 +1841,23 @@ let voterspwd_content_draft () =
                           ()
                       in
                       set_onchange inp (fun () ->
-                          Some (`Configured xx.configured_instance));
+                          Some (`Configured xx.instance));
                       div [ inp; lab ]
                   | _ ->
                       (* TODO: add oidc, cas, password, here *)
                       let sel =
                         match curr_auth with
-                        | Some (`Configured s) -> s = xx.configured_instance
+                        | Some (`Configured s) -> s = xx.instance
                         | _ -> false
                       in
-                      let descr =
-                        Option.value ~default:"Unknown" xx.configured_descr
-                      in
+                      let descr = Option.value ~default:"Unknown" xx.descr in
                       let inp, lab =
                         rad i sel
-                          (Printf.sprintf "%s (%s)" descr xx.configured_instance)
+                          (Printf.sprintf "%s (%s)" descr xx.instance)
                           ()
                       in
                       set_onchange inp (fun () ->
-                          Some (`Configured xx.configured_instance));
+                          Some (`Configured xx.instance));
                       div [ inp; lab ]))
         in
         let ll =
@@ -1913,7 +1897,7 @@ let create_content () =
                 Election { uuid; status = Running; tab = CreateOpenClose };
               !update_election_main ()
           | 400 -> (
-              match request_status_of_string x.content with
+              match !*request_status_of_yojson x.content with
               | exception _ -> fail ()
               | status -> (
                   match status.error with
@@ -1959,9 +1943,9 @@ let open_close_content () =
   Cache.invalidate Cache.e_status;
   (* Could have changed due to automatic dates *)
   let* status = Cache.get_until_success Cache.e_status in
-  let ifmatch = sha256_b64 @@ string_of_election_status status in
+  let ifmatch = sha256_b64 @@ !+yojson_of_election_status status in
   let ifmatch = Some ifmatch in
-  let is_open = if status.status_state = `Open then true else false in
+  let is_open = if status.state = `Open then true else false in
   let curr, action, request =
     if is_open then (s_ "Election is currently open", s_ "Close", `Close)
     else (s_ "Election is currently closed", s_ "Open", `Open)
@@ -1990,7 +1974,7 @@ let status_content () =
    fun cont ->
     let* x = Cache.get Cache.e_status in
     match x with
-    | Ok status -> cont (Some status, status.status_state)
+    | Ok status -> cont (Some status, status.state)
     | Error _ -> cont (None, `Draft)
   in
   let* server_configuration = Cache.get Cache.config in
@@ -2054,7 +2038,7 @@ let status_content () =
             div [ download ];
           ]
         in
-        replace_contents container (contents s.status_sealed);
+        replace_contents container (contents s.sealed);
         [ Tyxml_js.Of_dom.of_div container ]
     | _ -> []
   in
@@ -2063,7 +2047,7 @@ let status_content () =
     | None -> []
     | Some s ->
         let archival =
-          match s.status_auto_archive_date with
+          match s.auto_archive_date with
           | None -> []
           | Some t ->
               [
@@ -2086,7 +2070,7 @@ let status_content () =
                        (f_
                           "This election will be automatically deleted after \
                            %s.")
-                       (pretty_timestamp s.status_auto_delete_date);
+                       (pretty_timestamp s.auto_delete_date);
                 ];
             ];
           ]

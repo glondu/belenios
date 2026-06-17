@@ -21,15 +21,13 @@
 
 (** Signatures *)
 
-open Serializable_t
+open Serializable
 open Common
 include Signatures_core
 
 module type ELECTION_BASE = sig
-  type question
+  type question [@@deriving yojson]
 
-  val read_question : question reader
-  val write_question : question writer
   val erase_question : question -> question
 
   module G : GROUP
@@ -44,20 +42,16 @@ end
 
 module type ELECTION_BALLOT = sig
   type element
-  type ballot
+  type ballot [@@deriving yojson]
 
-  val read_ballot : ballot reader
-  val write_ballot : ballot writer
   val get_credential : ballot -> element option
 end
 
 module type ELECTION_RESULT = sig
-  type result
+  type result [@@deriving yojson]
 
-  val of_generic_result : string array -> result
-  val to_generic_result : result -> string array
-  val write_result : result writer
-  val read_result : result reader
+  val of_generic_result : Yojson.Safe.t array -> result
+  val to_generic_result : result -> Yojson.Safe.t array
 end
 
 module type ELECTION_DATA = sig
@@ -93,7 +87,7 @@ module type ELECTION_OPS = sig
 
   (** {2 Ballots} *)
 
-  type plaintext = Serializable_t.plaintext
+  type plaintext = Serializable.plaintext
   (** The plaintext equivalent of [ciphertext], i.e. the contents of a ballot.
       When [x] is such a value, [x.(i).(j)] is the weight (0 or 1) given to
       answer [j] in question [i]. *)
@@ -135,10 +129,10 @@ module type ELECTION_OPS = sig
       he or she didn't cheat. *)
 
   val compute_factor :
-    element Serializable_t.ciphertext shape -> private_key -> factor
+    element Serializable.ciphertext shape -> private_key -> factor
 
   val check_factor :
-    element Serializable_t.ciphertext shape -> public_key -> factor -> bool
+    element Serializable.ciphertext shape -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a trustee
       whose public_key is [pk], is valid with respect to the encrypted tally
       [c]. *)
@@ -147,7 +141,7 @@ module type ELECTION_OPS = sig
 
   type result_type
 
-  type result = result_type Serializable_t.election_result
+  type result = result_type Serializable.election_result
   (** The election result. It contains the needed data to validate the result
       from the encrypted tally. *)
 
@@ -181,8 +175,8 @@ end
 
 type 'a exchangeable = {
   dst : string;
-  to_string : 'a -> string;
-  of_string : string -> 'a;
+  to_yojson : 'a -> Yojson.Safe.t;
+  of_yojson : Yojson.Safe.t -> 'a;
 }
 
 module type PKI = sig

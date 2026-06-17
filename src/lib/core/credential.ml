@@ -21,7 +21,7 @@
 
 open Belenios_platform
 open Signatures
-open Serializable_t
+open Serializable
 open Common
 
 let salt_length = 22 (* > 128 bits of entropy *)
@@ -147,8 +147,8 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
       if !n > 0 then (
         let* () = E.pause () in
         let { private_credential; private_key } = generate_one rng in
-        let sub_public = G.(g **~ private_key |> to_string) in
-        let x = { sub_base = private_credential; sub_public } in
+        let public = G.(g **~ private_key |> to_string) in
+        let x = { base = private_credential; public } in
         decr n;
         loop (x :: accu))
       else E.return accu
@@ -163,9 +163,9 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         | v :: vs, s :: ss ->
             let username = Voter.get v in
             let weight = Voter.get_weight v in
-            let privs = SMap.add username s.sub_base privs in
+            let privs = SMap.add username s.base privs in
             let pubs =
-              GMap.add G.(of_string s.sub_public) (weight, username) pubs
+              GMap.add G.(of_string s.public) (weight, username) pubs
             in
             loop (privs, pubs) vs ss
         | [], _ -> (privs, pubs)

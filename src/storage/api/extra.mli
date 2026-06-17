@@ -21,10 +21,9 @@
 
 type draft_election =
   | Draft :
-      'a Belenios.Election.version * 'a Serializable_t.raw_draft_election
+      'a Belenios.Election.version * 'a Serializable.raw_draft_election
       -> draft_election
+[@@deriving yojson]
 
-val draft_election_of_string : string -> draft_election
-val string_of_draft_election : draft_election -> string
 val csv_of_string : string -> string list list
 val string_of_csv : string list list -> string

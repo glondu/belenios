@@ -32,7 +32,6 @@
  (synopsis "Belenios library")
  (depends
   (yojson (>= 2.0.2))
-  (atdgen (>= 2.10.0))
   (belenios-platform (= :version))))
 
 (package

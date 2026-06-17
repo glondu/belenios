@@ -1,6 +1,6 @@
 (library
  (name belenios_messages)
  (public_name belenios-lib.messages)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries unix cryptokit belenios-lib.api))
-
-(include ../../../lib/core/serializable.inc)

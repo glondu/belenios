@@ -23,16 +23,14 @@
 
 open Belenios_core
 open Signatures
-open Serializable_t
+open Serializable
 
-val get_version : string -> int
+val get_version : Yojson.Safe.t -> int
 val get_uuid : string -> uuid
 
 module type SERIALIZABLE_QUESTION = sig
-  type t
+  type t [@@deriving yojson]
 
-  val read_question : t reader
-  val write_question : t writer
   val of_concrete : Belenios_question.t -> t
   val to_concrete : t -> Belenios_question.t
 end
@@ -51,9 +49,8 @@ val version_of_int : int -> some_version
 
 type versioned_template =
   | Template : 'a version * 'a template -> versioned_template
+[@@deriving yojson]
 
-val template_of_string : string -> versioned_template
-val string_of_template : versioned_template -> string
 val election_uuid_of_string_ballot : string -> uuid
 val has_nh_questions : versioned_template -> bool
 val get_questions : versioned_template -> Belenios_question.t array
@@ -65,7 +62,7 @@ val make_raw_election :
   uuid:uuid ->
   group:string ->
   public_key:string ->
-  string
+  Yojson.Safe.t
 
 module type ELECTION = sig
   include ELECTION
@@ -73,7 +70,7 @@ module type ELECTION = sig
   val witness : question version
 end
 
-val of_string : string -> (module ELECTION)
+val of_yojson : Yojson.Safe.t -> (module ELECTION)
 val supported_crypto_versions : some_version list
 
 val compute_checksums :

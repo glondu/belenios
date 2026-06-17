@@ -2,6 +2,6 @@
  (name belenios_v2)
  (public_name belenios-lib.v2)
  (modules_without_implementation types)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries belenios-lib.core belenios-lib.question))
-
-(include ../core/serializable.inc)

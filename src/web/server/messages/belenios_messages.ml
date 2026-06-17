@@ -19,7 +19,10 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Serializable_j
+open Belenios
+open Belenios_core.Serializable_core
+open Belenios_web_api.Serializable
+include Serializable
 
 type metadata = message_metadata
 
@@ -44,12 +47,13 @@ let hmac ~key x =
 
 let wrap_message ~key (message : message) =
   let timestamp = Unix.gettimeofday () in
-  { timestamp; message; hmac = None } |> string_of_message_payload |> hmac ~key
+  { timestamp; message; hmac = None }
+  |> !+yojson_of_message_payload
+  |> hmac ~key
   |> fun x -> ({ timestamp; message; hmac = Some x } : message_payload)
 
 let check_message ~key (message : message_payload) =
-  { message with hmac = None } |> string_of_message_payload |> hmac ~key
+  { message with hmac = None } |> !+yojson_of_message_payload |> hmac ~key
   |> fun x -> message.hmac = Some x
 
-module Serializable_t = Serializable_t
-module Serializable_j = Serializable_j
+module Serializable = Serializable

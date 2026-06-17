@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2024 Inria                                           *)
+(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,13 +20,40 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
+(** {1 Serializable datatypes for homomorphic questions} *)
 
-exception Race_condition
-exception Election_not_found of uuid * string
+open Ppx_yojson_conv_lib.Yojson_conv
 
-val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
-val ( let*& ) : 'a option Lwt.t -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
-val sleep : float -> unit Lwt.t
-val generate_numeric : ?length:int -> unit -> string
-val generate_token : ?length:int -> unit -> string
+(** {2 Predefined types} *)
+
+type weight = Belenios_core.Serializable_core.weight [@@deriving yojson]
+
+type 'a ciphertext = 'a Belenios_core.Serializable_core.ciphertext
+[@@deriving yojson]
+
+type 'a disjunctive_proof = 'a Belenios_core.Serializable_core.disjunctive_proof
+[@@deriving yojson]
+
+(** {2 Questions and answers} *)
+
+type question = {
+  answers : string array;
+  blank : bool;
+  min : int;
+  max : int;
+  question : string;
+}
+[@@deriving yojson]
+
+type ('a, 'b) answer = {
+  choices : 'a ciphertext array;
+  individual_proofs : 'b disjunctive_proof array;
+  overall_proof : 'b disjunctive_proof;
+  blank_proof : 'b disjunctive_proof option; [@yojson.option]
+}
+[@@deriving yojson]
+(** An answer to a question. It consists of a weight for each choice, a proof
+    that each of these weights is 0 or 1, and an overall proof that the total
+    weight is within bounds. *)
+
+type result = weight array [@@deriving yojson]

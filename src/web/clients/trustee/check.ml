@@ -49,8 +49,7 @@ let do_election uuid election private_key =
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
     | Ok (x, _) ->
-        cont
-        @@ trustees_of_string (sread W.G.of_string) (sread W.G.Zq.of_string) x
+        cont @@ !*(trustees_of_yojson !$W.G.of_string !$W.G.Zq.of_string) x
   in
   let find_single =
     try
@@ -58,9 +57,9 @@ let do_election uuid election private_key =
       | `String x ->
           let private_key = W.G.Zq.of_string x in
           let public_key = W.G.(g **~ private_key) in
-          fun x ->
-            if W.G.compare public_key x.s_message.trustee_public_key = 0 then
-              Some x.s_message.trustee_name
+          fun (x : _ trustee_public_key) ->
+            if W.G.compare public_key x.message.public_key = 0 then
+              Some x.message.name
             else None
       | _ -> raise Exit
     with _ -> fun _ -> None
@@ -73,12 +72,11 @@ let do_election uuid election private_key =
       let public_key = W.G.(g **~ private_key) in
       fun x ->
         Array.find_map
-          (fun ({ s_message = x; _ }, (t : _ threshold_verification_key)) ->
-            let { trustee_name; _ } = t.s_message.s_message in
-            if W.G.compare public_key x.cert_verification = 0 then
-              Some trustee_name
+          (fun ({ message = x; _ }, (t : _ threshold_verification_key)) ->
+            let { name; _ } : _ raw_trustee_public_key = t.message.message in
+            if W.G.compare public_key x.verification = 0 then Some name
             else None)
-          (Array.combine x.t_certs x.t_verification_keys)
+          (Array.combine x.certs x.verification_keys)
     with _ -> fun _ -> None
   in
   List.find_map
@@ -86,10 +84,10 @@ let do_election uuid election private_key =
     trustees
   |> show_result
 
-let do_draft uuid draft private_key =
+let do_draft uuid (draft : _ raw_draft) private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let version = draft.draft_version in
-  let module G = (val Group.of_string ~version draft.draft_group) in
+  let version = draft.version in
+  let module G = (val Group.of_string ~version draft.group) in
   let@ trustees cont =
     let* x = Api.(get (draft_trustees uuid) `Nobody) in
     match x with
@@ -97,12 +95,14 @@ let do_draft uuid draft private_key =
         alert @@ s_ "Could not get trustee parameters for this election!";
         Lwt.return_unit
     | Ok (x, _) ->
-        cont
-        @@ draft_trustees_of_string (sread G.of_string) (sread G.Zq.of_string) x
+        x
+        |> yojson_of_draft_trustees Fun.id Fun.id
+        |> draft_trustees_of_yojson !$G.of_string !$G.Zq.of_string
+        |> cont
   in
   match trustees with
   | `Basic x ->
-      let trustees = x.bt_trustees in
+      let trustees = x.trustees in
       let name =
         let@ private_key cont =
           try
@@ -112,11 +112,10 @@ let do_draft uuid draft private_key =
           with _ -> None
         in
         List.find_map
-          (fun x ->
-            let& y = x.trustee_key in
-            let { trustee_public_key = y; _ } = y.s_message in
-            if G.(compare (g **~ private_key) y) = 0 then Some x.trustee_name
-            else None)
+          (fun (x : _ trustee_public_key trustee) ->
+            let& y = x.key in
+            let { public_key = y; _ } : _ raw_trustee_public_key = y.message in
+            if G.(compare (g **~ private_key) y) = 0 then Some x.name else None)
           trustees
       in
       show_result name
@@ -125,13 +124,12 @@ let do_draft uuid draft private_key =
       let module PKI = Pki.Make (G) in
       let sk = PKI.derive_sk private_key in
       let vk = G.(g **~ sk) in
-      let trustees = x.tt_trustees in
+      let trustees = x.trustees in
       let name =
         List.find_map
           (fun x ->
-            let& { s_message = y; _ } = x.trustee_key in
-            if G.compare vk y.cert_verification = 0 then Some x.trustee_name
-            else None)
+            let& { message = y; _ } = x.key in
+            if G.compare vk y.verification = 0 then Some x.name else None)
           trustees
       in
       show_result name
@@ -167,7 +165,7 @@ let check ?uuid () =
               let* election = Api.(get (election uuid) `Nobody) in
               match election with
               | Ok (election, _) ->
-                  let election = Election.of_string election in
+                  let election = Election.of_yojson election in
                   do_election uuid election private_key
               | Error _ -> (
                   let* draft = Api.(get (draft uuid) `Nobody) in

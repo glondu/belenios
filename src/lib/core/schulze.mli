@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
+open Serializable
 
 val compute :
   nchoices:int -> blank_allowed:bool -> condorcet_ballots -> schulze_result

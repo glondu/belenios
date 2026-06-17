@@ -21,6 +21,7 @@
 (**************************************************************************)
 
 open Js_of_ocaml
+open Belenios
 open Belenios_web_api
 
 val show :

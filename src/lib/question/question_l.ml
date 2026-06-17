@@ -2,6 +2,7 @@
 (*                                BELENIOS                                *)
 (*                                                                        *)
 (*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,36 +20,43 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Serializable datatypes for lists questions">
+(** {1 Serializable datatypes for lists questions} *)
+
+open Ppx_yojson_conv_lib.Yojson_conv
 
 (** {2 Predefined types} *)
 
-type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
-type 'a ciphertext <ocaml predef from="Belenios_core.Serializable_core"> = abstract
-type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
-type 'a disjunctive_proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type weight = Belenios_core.Serializable_core.weight [@@deriving yojson]
+
+type 'a ciphertext = 'a Belenios_core.Serializable_core.ciphertext
+[@@deriving yojson]
+
+type 'a proof = 'a Belenios_core.Serializable_core.proof [@@deriving yojson]
+
+type 'a disjunctive_proof = 'a Belenios_core.Serializable_core.disjunctive_proof
+[@@deriving yojson]
 
 (** {2 Non-zero proof} *)
 
 type ('a, 'b) nonzero_proof = {
   commitment : 'a;
   challenge : 'b;
-  response : ('b * 'b);
-} <ocaml field_prefix="n">
+  response : 'b * 'b;
+}
+[@@deriving yojson]
 
 (** {2 Questions and answers} *)
 
-type question = {
-  answers : string list <ocaml repr="array"> list <ocaml repr="array">;
-  question : string;
-} <ocaml field_prefix="q_">
+type question = { answers : string array array; question : string }
+[@@deriving yojson]
 
 type ('a, 'b) answer = {
-  choices : 'a ciphertext list <ocaml repr="array"> list <ocaml repr="array">;
-  individual_proofs : 'b disjunctive_proof list <ocaml repr="array"> list <ocaml repr="array">;
+  choices : 'a ciphertext array array;
+  individual_proofs : 'b disjunctive_proof array array;
   overall_proof : 'b proof;
-  list_proofs : 'b disjunctive_proof list <ocaml repr="array">;
+  list_proofs : 'b disjunctive_proof array;
   nonzero_proof : ('a, 'b) nonzero_proof;
 }
+[@@deriving yojson]
 
-type result = weight list <ocaml repr="array"> list <ocaml repr="array">
+type result = weight array array [@@deriving yojson]

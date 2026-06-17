@@ -29,7 +29,7 @@
    [CIVS](https://github.com/andrewcmyers/civs/blob/master/cgi-bin/beatpath2.pm).
 *)
 
-open Serializable_t
+open Serializable
 
 (* Definitions:
    The strength of a direct beat by choice A over choice B is a pair
@@ -163,7 +163,7 @@ let compute ~nchoices ~blank_allowed ballots =
   let n = Array.length ballots in
   let ballots = Array.to_list ballots in
   let null_ballot = Array.make nchoices 0 in
-  let schulze_valid, schulze_blank, ballots =
+  let valid, blank, ballots =
     if blank_allowed then
       let rec loop valid blank ballots = function
         | [] -> (valid, Some blank, ballots)
@@ -174,12 +174,6 @@ let compute ~nchoices ~blank_allowed ballots =
       loop 0 0 [] ballots
     else (n, None, ballots)
   in
-  let schulze_raw = compute_raw nchoices ballots in
-  let schulze_winners, schulze_beatpaths = rank_candidates schulze_raw in
-  {
-    schulze_raw;
-    schulze_valid;
-    schulze_blank;
-    schulze_beatpaths;
-    schulze_winners;
-  }
+  let raw = compute_raw nchoices ballots in
+  let winners, beatpaths = rank_candidates raw in
+  { raw; valid; blank; beatpaths; winners }

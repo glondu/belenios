@@ -42,7 +42,7 @@ val draft : Belenios_web_api.draft t
 val voters : voter_list t
 val status : draft_status t
 val account : api_account t
-val e_elec : string t
+val e_elec : Yojson.Safe.t t
 val e_voters : voter_list t
 val e_records : records t
 val e_status : election_status t

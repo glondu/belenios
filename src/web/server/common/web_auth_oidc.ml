@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
+open Belenios
 open Belenios_storage_api
 open Belenios_web_api
 open Web_common
@@ -43,8 +44,8 @@ struct
 
   let oidc_get_userinfo ocfg info =
     try
-      let info = oidc_tokens_of_string info in
-      let access_token = info.oidc_access_token in
+      let info = !*oidc_tokens_of_yojson info in
+      let access_token = info.access_token in
       let url = ocfg.userinfo_endpoint in
       let headers =
         Cohttp.Header.init_with "Authorization" ("Bearer " ^ access_token)
@@ -52,14 +53,12 @@ struct
       let* _, body = Cohttp_lwt_unix.Client.get ~headers (Uri.of_string url) in
       let* info = Cohttp_lwt.Body.to_string body in
       try
-        let x = oidc_userinfo_of_string info in
+        let x = !*oidc_userinfo_of_yojson info in
         let info : Belenios_web_api.user_info =
           let login, address =
-            match x.oidc_email with
-            | Some x -> (x, Some x)
-            | None -> (x.oidc_sub, None)
+            match x.email with Some x -> (x, Some x) | None -> (x.sub, None)
           in
-          { login; address; name = x.oidc_name; timestamp = None }
+          { login; address; name = x.name; timestamp = None }
         in
         return_some info
       with _ -> return_none
@@ -86,7 +85,7 @@ struct
     let url = server ^ "/.well-known/openid-configuration" in
     let* _, body = Cohttp_lwt_unix.Client.get (Uri.of_string url) in
     let* info = Cohttp_lwt.Body.to_string body in
-    try return (oidc_configuration_of_string info)
+    try return (!*oidc_configuration_of_yojson info)
     with _ -> fail_http `Not_found
 
   let split_prefix_path url =
@@ -94,7 +93,7 @@ struct
     let i = String.rindex url '/' in
     (String.sub url 0 i, [ String.sub url (i + 1) (n - i - 1) ])
 
-  let handler _ a =
+  let handler _ (a : auth_config) =
     let get x = List.assoc_opt x a.auth_config in
     let module X = struct
       let pre_login_handler _ ~state =

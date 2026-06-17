@@ -24,7 +24,7 @@ open Belenios
 open Belenios_storage_api
 open Belenios_server_core
 open Types
-open Serializable_j
+open Serializable
 
 type 'a file = 'a Election_ops.file
 
@@ -191,14 +191,16 @@ module MakeBackend
           | Address a' -> (a', a)
         in
         let&** r = SMap.find_opt (String.lowercase_ascii key) map in
-        r |> Lopt.some_value string_of_password_record |> Lwt.return)
+        r |> Lopt.some_value !+yojson_of_password_record |> Lwt.return)
       (function Password_db_not_found -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let get_password_record_admin file who =
     get_password_record_generic (Admin file) who
 
   let set_password_record_generic read write key data =
-    let { username; salt; hashed; address } = password_record_of_string data in
+    let { username; salt; hashed; address } =
+      !*password_record_of_yojson data
+    in
     let update r =
       match address with
       | None ->
@@ -519,7 +521,7 @@ module MakeBackend
     let* roots = get (Election (uuid, Roots)) in
     let final =
       match Lopt.get_value roots with
-      | Some roots -> roots.roots_result <> None
+      | Some roots -> roots.result <> None
       | _ -> false
     in
     if final then
@@ -568,7 +570,7 @@ module MakeBackend
 
   type draft_concrete =
     | Draft_concrete :
-        'a Election.version * 'a Serializable_j.raw_draft_election
+        'a Election.version * 'a Serializable.raw_draft_election
         -> draft_concrete
 
   let get_draft uuid () =
@@ -581,12 +583,10 @@ module MakeBackend
     let* concrete =
       let*& x = Filesystem.read_file (uuid /// draft_filename) in
       let x = String.trim x in
-      let abstract =
-        Serializable_j.raw_draft_election_of_string Yojson.Safe.read_json x
-      in
-      let (Version v) = Election.version_of_int abstract.se_version in
+      let abstract = !*(Serializable.raw_draft_election_of_yojson Fun.id) x in
+      let (Version v) = Election.version_of_int abstract.version in
       let open (val Election.get_serializers v) in
-      Draft_concrete (v, raw_draft_election_of_string read_question x)
+      Draft_concrete (v, !*(raw_draft_election_of_yojson t_of_yojson) x)
       |> Lwt.return_some
     in
     match concrete with
@@ -597,7 +597,7 @@ module MakeBackend
             se_private_creds_downloaded
         in
         Draft (v, abstract)
-        |> Lopt.some_value string_of_draft_election
+        |> Lopt.some_value !+yojson_of_draft_election
         |> Lwt.return
 
   let set_draft uuid () data =
@@ -614,7 +614,7 @@ module MakeBackend
         in
         let data =
           let open (val Election.get_serializers v) in
-          Serializable_j.string_of_raw_draft_election write_question concrete
+          !+(Serializable.yojson_of_raw_draft_election yojson_of_t) concrete
         in
         let* () =
           Filesystem.write_file (uuid /// draft_filename) (data ^ "\n")
@@ -640,9 +640,10 @@ module MakeBackend
     | Some `EncryptedTally ->
         let* x = Filesystem.read_file (uuid /// decryption_tokens_filename) in
         let&** x = x in
-        x |> String.trim |> Belenios_storage_api.decryption_tokens_of_string
+        x |> String.trim
+        |> !*Belenios_storage_api.decryption_tokens_of_yojson
         |> (fun x -> Some (`Decryption x))
-        |> Lopt.some_value Belenios_storage_api.string_of_state_state
+        |> Lopt.some_value !+Belenios_storage_api.yojson_of_state_state
         |> Lwt.return
     | Some `Shuffling ->
         let* skipped =
@@ -651,17 +652,18 @@ module MakeBackend
         let skipped =
           skipped
           |> Option.map
-               (String.trim >> Belenios_storage_api.skipped_shufflers_of_string)
+               (String.trim
+               >> !*Belenios_storage_api.skipped_shufflers_of_yojson)
           |> Option.value ~default:[]
         in
         let* token = Filesystem.read_file (uuid /// shuffle_token_filename) in
         let token =
           token
           |> Option.map
-               (String.trim >> Belenios_storage_api.shuffle_token_of_string)
+               (String.trim >> !*Belenios_storage_api.shuffle_token_of_yojson)
         in
         Some (`Shuffle { skipped; token })
-        |> Lopt.some_value Belenios_storage_api.string_of_state_state
+        |> Lopt.some_value !+Belenios_storage_api.yojson_of_state_state
         |> Lwt.return
     | _ -> Lopt.none_lwt
 
@@ -678,7 +680,8 @@ module MakeBackend
     | Some (Some (`Shuffle { skipped; token })) ->
         let* () = cleanup_files uuid [ decryption_tokens_filename ] in
         let* () =
-          skipped |> Belenios_storage_api.string_of_skipped_shufflers
+          skipped
+          |> !+Belenios_storage_api.yojson_of_skipped_shufflers
           |> (fun x -> x ^ "\n")
           |> Filesystem.write_file (uuid /// skipped_shufflers_filename)
         in
@@ -686,7 +689,8 @@ module MakeBackend
           match token with
           | None -> cleanup_files uuid [ shuffle_token_filename ]
           | Some token ->
-              token |> Belenios_storage_api.string_of_shuffle_token
+              token
+              |> !+Belenios_storage_api.yojson_of_shuffle_token
               |> (fun x -> x ^ "\n")
               |> Filesystem.write_file (uuid /// shuffle_token_filename)
         in
@@ -696,7 +700,8 @@ module MakeBackend
           cleanup_files uuid
             [ skipped_shufflers_filename; shuffle_token_filename ]
         in
-        tokens |> Belenios_storage_api.string_of_decryption_tokens
+        tokens
+        |> !+Belenios_storage_api.yojson_of_decryption_tokens
         |> (fun x -> x ^ "\n")
         |> Filesystem.write_file (uuid /// decryption_tokens_filename)
 
@@ -712,7 +717,7 @@ module MakeBackend
     let* hide_result = Filesystem.read_file (uuid /// hide_result_filename) in
     let e_date_publish =
       Option.map
-        (String.trim >> datetime_of_string >> Datetime.to_unixfloat)
+        (String.trim >> !*datetime_of_yojson >> Datetime.to_unixfloat)
         hide_result
     in
     let* dates =
@@ -728,29 +733,27 @@ module MakeBackend
           Lwt.return_some
             {
               Belenios_storage_api.default_election_dates with
-              e_date_creation = se.se_creation_date;
-              e_date_publish;
+              creation = se.creation_date;
+              publish = e_date_publish;
             }
       | Some d ->
-          let d = Serializable_j.election_dates_of_string (String.trim d) in
+          let d = !*Serializable.election_dates_of_yojson (String.trim d) in
           Lwt.return_some
             {
-              e_date_creation = Datetime.to_unixfloat d.e_creation;
-              e_date_finalization =
-                Option.map Datetime.to_unixfloat d.e_finalization;
-              e_date_tally = Option.map Datetime.to_unixfloat d.e_tally;
-              e_date_archive = Option.map Datetime.to_unixfloat d.e_archive;
-              e_date_last_mail = Option.map Datetime.to_unixfloat d.e_last_mail;
-              e_date_auto_open = Option.map Datetime.to_unixfloat d.e_auto_open;
-              e_date_auto_close =
-                Option.map Datetime.to_unixfloat d.e_auto_close;
-              e_date_publish;
-              e_date_grace_period = d.e_grace_period;
+              creation = Datetime.to_unixfloat d.creation;
+              finalization = Option.map Datetime.to_unixfloat d.finalization;
+              tally = Option.map Datetime.to_unixfloat d.tally;
+              archive = Option.map Datetime.to_unixfloat d.archive;
+              last_mail = Option.map Datetime.to_unixfloat d.last_mail;
+              auto_open = Option.map Datetime.to_unixfloat d.auto_open;
+              auto_close = Option.map Datetime.to_unixfloat d.auto_close;
+              publish = e_date_publish;
+              grace_period = d.grace_period;
             }
     in
     let&** dates = dates in
     dates
-    |> Lopt.some_value Belenios_storage_api.string_of_election_dates
+    |> Lopt.some_value !+Belenios_storage_api.yojson_of_election_dates
     |> Lwt.return
 
   let set_dates uuid () dates =
@@ -761,28 +764,27 @@ module MakeBackend
     in
     let* () =
       let filename = uuid /// hide_result_filename in
-      match d.e_date_publish with
+      match d.publish with
       | None -> Filesystem.cleanup_file filename
       | Some t ->
-          let t = t |> Datetime.from_unixfloat |> string_of_datetime in
+          let t = t |> Datetime.from_unixfloat |> !+yojson_of_datetime in
           Filesystem.write_file filename (t ^ "\n")
     in
     let filename = uuid /// raw_dates_filename in
-    let dates : Serializable_t.election_dates =
+    let dates : Serializable.election_dates =
       {
-        e_creation = Datetime.from_unixfloat d.e_date_creation;
-        e_finalization =
-          Option.map Datetime.from_unixfloat d.e_date_finalization;
-        e_tally = Option.map Datetime.from_unixfloat d.e_date_tally;
-        e_archive = Option.map Datetime.from_unixfloat d.e_date_archive;
-        e_last_mail = Option.map Datetime.from_unixfloat d.e_date_last_mail;
-        e_auto_open = Option.map Datetime.from_unixfloat d.e_date_auto_open;
-        e_auto_close = Option.map Datetime.from_unixfloat d.e_date_auto_close;
-        e_grace_period = d.e_date_grace_period;
+        creation = Datetime.from_unixfloat d.creation;
+        finalization = Option.map Datetime.from_unixfloat d.finalization;
+        tally = Option.map Datetime.from_unixfloat d.tally;
+        archive = Option.map Datetime.from_unixfloat d.archive;
+        last_mail = Option.map Datetime.from_unixfloat d.last_mail;
+        auto_open = Option.map Datetime.from_unixfloat d.auto_open;
+        auto_close = Option.map Datetime.from_unixfloat d.auto_close;
+        grace_period = d.grace_period;
       }
     in
     Filesystem.write_file filename
-      (Serializable_j.string_of_election_dates dates ^ "\n")
+      (!+Serializable.yojson_of_election_dates dates ^ "\n")
 
   let () =
     dates_ops.get <- get_dates;
@@ -805,7 +807,7 @@ module MakeBackend
     let&** raw_records = raw_records in
     raw_records |> split_lines
     |> List.map split_voting_record
-    |> Lopt.some_value Belenios_storage_api.string_of_election_records
+    |> Lopt.some_value !+Belenios_storage_api.yojson_of_election_records
     |> Lwt.return
 
   let () = records_ops.get <- get_records
@@ -822,20 +824,18 @@ module MakeBackend
     let x = match x with None -> [] | Some x -> split_lines x in
     Lwt_list.fold_left_s
       (fun accu x ->
-        let x = extended_record_of_string x in
+        let x = !*extended_record_of_yojson x in
         Lwt.return
-        @@ SMap.add x.r_username
-             (Datetime.to_unixfloat x.r_date, x.r_credential)
-             accu)
+        @@ SMap.add x.username (Datetime.to_unixfloat x.date, x.credential) accu)
       SMap.empty x
 
   let dump_extended_records uuid rs =
     let rs = SMap.bindings rs in
     let extended_records =
       List.map
-        (fun (r_username, (r_date, r_credential)) ->
-          let r_date = Datetime.from_unixfloat r_date in
-          { r_username; r_date; r_credential } |> string_of_extended_record)
+        (fun (username, (date, credential)) ->
+          let date = Datetime.from_unixfloat date in
+          { username; date; credential } |> !+yojson_of_extended_record)
         rs
       |> join_lines
     in
@@ -843,7 +843,7 @@ module MakeBackend
       rs
       |> List.map (fun (u, (d, _)) ->
           Printf.sprintf "%s %S"
-            (d |> Datetime.from_unixfloat |> string_of_datetime)
+            (d |> Datetime.from_unixfloat |> !+yojson_of_datetime)
             u)
       |> join_lines
     in
@@ -873,10 +873,10 @@ module MakeBackend
     let rs = SMap.add username r rs in
     extended_records_cache#add uuid rs;
     let* () =
-      let r_date, r_credential = r in
-      let r_date = Datetime.from_unixfloat r_date in
-      { r_username = username; r_date; r_credential }
-      |> string_of_extended_record
+      let date, credential = r in
+      let date = Datetime.from_unixfloat date in
+      { username; date; credential }
+      |> !+yojson_of_extended_record
       |> (fun x -> [ x ])
       |> append_to_file (uuid /// extended_records_filename)
     in
@@ -885,20 +885,20 @@ module MakeBackend
 
   let () =
     extended_records_ops.get <-
-      (fun uuid r_username ->
-        let* x = find_extended_record uuid r_username in
-        let&** r_date, r_credential = x in
+      (fun uuid username ->
+        let* x = find_extended_record uuid username in
+        let&** date, credential = x in
         let open Belenios_storage_api in
-        { r_username; r_date; r_credential }
-        |> Lopt.some_value string_of_extended_record
+        { username; date; credential }
+        |> Lopt.some_value !+yojson_of_extended_record
         |> Lwt.return);
     extended_records_ops.set <-
       (fun uuid username data ->
         match Lopt.get_value data with
         | None -> assert false
-        | Some { r_username; r_date; r_credential } ->
+        | Some { username = r_username; date; credential } ->
             if username = r_username then
-              add_extended_record uuid username (r_date, r_credential)
+              add_extended_record uuid username (date, credential)
             else Lwt.fail @@ Not_implemented "extended_records_ops.set")
 
   module CredMappingsCacheTypes = struct
@@ -913,15 +913,15 @@ module MakeBackend
     let x = match x with None -> [] | Some x -> split_lines x in
     Lwt_list.fold_left_s
       (fun accu x ->
-        let x = credential_mapping_of_string x in
-        Lwt.return @@ SMap.add x.c_credential x.c_ballot accu)
+        let x = !*credential_mapping_of_yojson x in
+        Lwt.return @@ SMap.add x.credential x.ballot accu)
       SMap.empty x
 
   let dump_credential_mappings uuid xs =
     SMap.fold
-      (fun c_credential c_ballot accu -> { c_credential; c_ballot } :: accu)
+      (fun credential ballot accu -> { credential; ballot } :: accu)
       xs []
-    |> List.rev_map string_of_credential_mapping
+    |> List.rev_map !+yojson_of_credential_mapping
     |> join_lines
     |> Filesystem.write_file (uuid /// credential_mappings_filename)
 
@@ -963,8 +963,8 @@ module MakeBackend
     let xs = SMap.add cred mapping xs in
     credential_mappings_cache#add uuid xs;
     let* () =
-      { c_credential = cred; c_ballot = mapping }
-      |> string_of_credential_mapping
+      { credential = cred; ballot = mapping }
+      |> !+yojson_of_credential_mapping
       |> (fun x -> [ x ])
       |> append_to_file (uuid /// credential_mappings_filename)
     in
@@ -973,11 +973,11 @@ module MakeBackend
 
   let () =
     credential_mappings_ops.get <-
-      (fun uuid c_credential ->
-        let* x = find_credential_mapping uuid c_credential in
-        let&** c_ballot = x in
-        { c_credential; c_ballot }
-        |> Lopt.some_value string_of_credential_mapping
+      (fun uuid credential ->
+        let* x = find_credential_mapping uuid credential in
+        let&** ballot = x in
+        { credential; ballot }
+        |> Lopt.some_value !+yojson_of_credential_mapping
         |> Lwt.return);
     credential_mappings_ops.set <-
       (fun uuid cred data ->
@@ -1038,7 +1038,7 @@ module MakeBackend
     let x : voters_config =
       { has_explicit_weights; username_or_address; nb_voters }
     in
-    x |> Lopt.some_value string_of_voters_config |> Lwt.return
+    x |> Lopt.some_value !+yojson_of_voters_config |> Lwt.return
 
   let get_voter uuid id =
     let* x = get_voters uuid in
@@ -1070,13 +1070,13 @@ module MakeBackend
           let ( let& ) x f = match x with None -> fail () | Some x -> f x in
           let* x = get (Election (uuid, Roots)) in
           let& roots = Lopt.get_value x in
-          let& h = roots.roots_setup_data in
+          let& h = roots.setup_data in
           let* x = get (Election (uuid, Data h)) in
           let& x = Lopt.get_value x in
-          let setup_data = x |> setup_data_of_string in
-          let* x = get (Election (uuid, Data setup_data.setup_credentials)) in
+          let setup_data = x |> !*setup_data_of_yojson in
+          let* x = get (Election (uuid, Data setup_data.credentials)) in
           let& x = Lopt.get_value x in
-          x |> public_credentials_of_string |> cont
+          x |> !*public_credentials_of_yojson |> cont
       | Some x -> cont x
     in
     let cred_map =
@@ -1282,7 +1282,7 @@ module MakeBackend
       match last with
       | None when creat -> (100, 0L)
       | None -> raise Creation_not_requested
-      | Some x -> (x.last_height + 100, x.last_pos)
+      | Some x -> (x.height + 100, x.pos)
     in
     let filename = uuid /// archive_filename uuid in
     let*& map, roots, timestamp = build_roots ~size ~pos filename in
@@ -1338,9 +1338,9 @@ module MakeBackend
     in
     Lwt.finalize
       (fun () ->
-        let* _ = LargeFile.lseek fd i.location_offset SEEK_SET in
-        assert (i.location_length <= Int64.of_int Sys.max_string_length);
-        let length = Int64.to_int i.location_length in
+        let* _ = LargeFile.lseek fd i.offset SEEK_SET in
+        assert (i.length <= Int64.of_int Sys.max_string_length);
+        let length = Int64.to_int i.length in
         let buffer = Bytes.create length in
         let ic = Lwt_io.of_fd ~mode:Input fd in
         let* () = Lwt_io.read_into_exactly ic buffer 0 length in
@@ -1362,7 +1362,7 @@ module MakeBackend
     let filename = uuid /// archive_filename uuid in
     let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
     let* header = Reader.read_header ic in
-    Lwt.return @@ Lopt.some_value string_of_archive_header header
+    Lwt.return @@ Lopt.some_value !+yojson_of_archive_header header
 
   let () = archive_header_ops.get <- get_archive_header
 
@@ -1371,7 +1371,7 @@ module MakeBackend
       (fun () -> get_index ~creat:false uuid)
       (fun r ->
         let&** r = r in
-        r.roots |> Lopt.some_value string_of_roots |> Lwt.return)
+        r.roots |> Lopt.some_value !+yojson_of_roots |> Lwt.return)
       (function Creation_not_requested -> Lopt.none_lwt | e -> Lwt.reraise e)
 
   let () = roots_ops.get <- get_roots
@@ -1390,18 +1390,18 @@ module MakeBackend
     let event_parent, event_height, pos =
       match last with
       | None -> (None, -1, 1024L (* header size *))
-      | Some x -> (Some x.last_hash, x.last_height, x.last_pos)
+      | Some x -> (Some x.hash, x.height, x.pos)
     in
     let last_hash, last_height, roots, items =
       List.fold_left
         (fun (event_parent, event_height, roots, accu) x ->
           match x with
-          | Event (event_typ, event_payload) ->
+          | Event (typ, payload) ->
               let event_height = event_height + 1 in
               let event =
-                { event_parent; event_height; event_typ; event_payload }
+                { parent = event_parent; height = event_height; typ; payload }
               in
-              let event_s = string_of_event event in
+              let event_s = !+yojson_of_event event in
               let event_h = Hash.hash_string event_s in
               let accu = (Archive.Event event, event_s) :: accu in
               ( Some event_h,
@@ -1420,7 +1420,10 @@ module MakeBackend
       let filename = uuid /// archive_filename uuid in
       raw_append ~filename ~timestamp:index.timestamp pos items
     in
-    let* () = set_last_event uuid { last_hash; last_height; last_pos } in
+    let* () =
+      set_last_event uuid
+        { hash = last_hash; height = last_height; pos = last_pos }
+    in
     List.iter (fun r -> Hashtbl.add index.map r.Archive.hash r.location) records;
     index.roots <- roots;
     Lwt.return_true
@@ -1434,7 +1437,7 @@ module MakeBackend
         Lwt.finalize
           (fun () ->
             let oc = Lwt_io.of_fd ~mode:Output fd in
-            let* () = Lwt_io.write_line oc (string_of_sealing_event event) in
+            let* () = Lwt_io.write_line oc (!+yojson_of_sealing_event event) in
             let* () = Lwt_io.flush oc in
             Lwt.return_true)
           (fun () -> close fd))
@@ -1453,7 +1456,8 @@ module MakeBackend
     let delete_live_data = delete_live_data
 
     let write_deleted_file uuid de =
-      de |> string_of_deleted_election
+      de
+      |> !+yojson_of_deleted_election
       |> (fun x -> x ^ "\n")
       |> Filesystem.write_file (uuid /// deleted_filename)
 

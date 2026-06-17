@@ -56,7 +56,7 @@ struct
     let* user = Eliom_reference.get Web_state.site_user in
     let* metadata = Web_persist.get_election_metadata s in
     match user with
-    | Some (_, a, _) when Accounts.check a metadata.e_owners -> f metadata
+    | Some (_, a, _) when Accounts.check a metadata.owners -> f metadata
     | _ -> forbidden ()
 
   let () =
@@ -342,7 +342,7 @@ struct
         match (address, x) with
         | Some email, Some { service; kind = CreateAccount } ->
             if password = password2 then
-              let user = { user_name = username; user_domain = service } in
+              let user : user = { name = username; domain = service } in
               let* x = Web_auth_password.add_account user ~password ~email in
               match x with
               | Ok () ->
@@ -372,7 +372,7 @@ struct
         match (address, x) with
         | Some address, Some { service; kind = ChangePassword { username } } ->
             if password = password2 then
-              let user = { user_name = username; user_domain = service } in
+              let user : user = { name = username; domain = service } in
               let* x = Web_auth_password.change_password user ~password in
               match x with
               | Ok () ->
@@ -409,9 +409,9 @@ struct
         Pages_admin.sudo () >>= Html.send)
 
   let () =
-    Any.register ~service:sudo_post (fun () (user_domain, user_name) ->
+    Any.register ~service:sudo_post (fun () (domain, name) ->
         let@ token = has_sudo_capability in
-        let u = { user_domain; user_name } in
+        let u = { domain; name } in
         let* id = Storage.get_user_id u in
         let fail () =
           let* l = get_preferred_gettext () in
@@ -478,7 +478,7 @@ struct
     let* context = Cohttp_lwt.Body.to_string body in
     match Cohttp.Code.code_of_status x.status with
     | 200 -> (
-        match Belenios_web_api.connect_context_of_string context with
+        match !*Belenios_web_api.connect_context_of_yojson context with
         | x -> Lwt.return_some x
         | exception _ -> Lwt.return_none)
     | _ -> Lwt.return_none
@@ -561,7 +561,7 @@ struct
         match consume_code ~now code with
         | Some { user_info; _ } ->
             String.send
-              ( Belenios_web_api.string_of_user_info user_info,
+              ( !+Belenios_web_api.yojson_of_user_info user_info,
                 "application/json" )
         | _ -> fail_http `Forbidden)
 end

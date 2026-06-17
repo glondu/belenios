@@ -135,7 +135,7 @@ struct
     | None -> get_cas_validation_v1 server ~state ticket
     | Some _ -> return @@ `Yes v2
 
-  let handler _ a =
+  let handler _ (a : auth_config) =
     let module X = struct
       let pre_login_handler _ ~state =
         match List.assoc_opt "server" a.auth_config with

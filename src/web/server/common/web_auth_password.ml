@@ -49,7 +49,7 @@ module Make
 struct
   let throttle = Throttle.create ~rate:1 ~max:5 ~n:!Web_config.maxmailsatonce
 
-  let check uuid a name password =
+  let check uuid (a : auth_config) name password =
     let channel = Channel.{ uuid; name } in
     let* b = Throttle.wait throttle channel in
     if b then
@@ -85,7 +85,7 @@ struct
       if ok then Lwt.return_some r else Lwt.return_none
     else Lwt.return_none
 
-  let handler uuid a =
+  let handler uuid (a : auth_config) =
     let module X = struct
       let pre_login_handler username_or_address ~state =
         let allowsignups = does_allow_signups a.auth_config in
@@ -104,20 +104,20 @@ struct
     | [] -> (
         match method_ with
         | `POST -> (
-            let@ i = body.run Belenios_web_api.auth_password_info_of_string in
+            let@ i = body.run !*Belenios_web_api.auth_password_info_of_yojson in
             let* x = check None a i.username i.password in
             match x with
             | None -> Api_generic.forbidden
             | Some { address; _ } -> (
-                let user =
-                  { user_domain = a.auth_instance; user_name = i.username }
+                let user : user =
+                  { domain = a.auth_instance; name = i.username }
                 in
                 let* account = perform_admin_login a ~name:None ~address user in
                 match account with
                 | Ok account ->
                     let* token = Api_generic.new_token account user in
                     Api_generic.return_json 200
-                    @@ Belenios_web_api.string_of_auth_token token
+                    @@ !+Belenios_web_api.yojson_of_auth_token token
                 | Error () -> Api_generic.forbidden))
         | _ -> Api_generic.method_not_allowed)
     | _ -> Api_generic.not_found
@@ -206,42 +206,40 @@ let do_change_password s ~db_fname ~username ~password =
     (fun () -> Lwt.return_unit)
     (fun _ -> Lwt.fail @@ Failure "database error")
 
-let add_account user ~password ~email =
+let add_account (user : user) ~password ~email =
   if String.trim password = password then
-    if is_username user.user_name then
+    if is_username user.name then
       let* c = Web_signup.check_password password in
       match c with
       | Some e -> return (Error (BadPassword e))
       | None -> (
-          match get_password_db_fname user.user_domain with
+          match get_password_db_fname user.domain with
           | None ->
               Lwt.fail
                 (Failure
-                   (Printf.sprintf "add_account: unknown domain: %s"
-                      user.user_domain))
+                   (Printf.sprintf "add_account: unknown domain: %s" user.domain))
           | Some db_fname ->
               let@ s = Storage.A.with_transaction in
-              do_add_account s ~db_fname ~username:user.user_name ~password
-                ~email)
+              do_add_account s ~db_fname ~username:user.name ~password ~email)
     else return (Error BadUsername)
   else return (Error BadSpaceInPassword)
 
-let change_password user ~password =
+let change_password (user : user) ~password =
   if String.trim password = password then
     let* c = Web_signup.check_password password in
     match c with
     | Some e -> return (Error (BadPassword e))
     | None -> (
-        match get_password_db_fname user.user_domain with
+        match get_password_db_fname user.domain with
         | None ->
             Lwt.fail
               (Failure
                  (Printf.sprintf "change_password: unknown domain: %s"
-                    user.user_domain))
+                    user.domain))
         | Some db_fname ->
             let* () =
               let@ s = Storage.A.with_transaction in
-              do_change_password s ~db_fname ~username:user.user_name ~password
+              do_change_password s ~db_fname ~username:user.name ~password
             in
             return (Ok ()))
   else return (Error BadSpaceInPassword)

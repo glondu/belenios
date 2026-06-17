@@ -21,8 +21,8 @@
 
 open Lwt.Syntax
 open Belenios_platform
-open Serializable_core_t
-open Serializable_j
+open Serializable_core
+open Serializable
 open Signatures
 open Common
 
@@ -49,63 +49,63 @@ module Make (G : GROUP) = struct
 
   (** Generic signature *)
 
-  let sign { dst; to_string; _ } sk s_message =
+  let sign { dst; to_yojson; _ } sk message =
     let w = random () in
     let commitment = G.(g **~ w) in
     let vk = G.(g **~ sk) in
     let prefix =
-      Printf.sprintf "%s|%s" (G.to_string vk) (to_string s_message)
+      Printf.sprintf "%s|%s" (G.to_string vk) (!+to_yojson message)
     in
     let challenge = G.hash ~dst prefix [| commitment |] in
     let response = G.Zq.(w - (sk * challenge)) in
-    let s_signature = { challenge; response } in
-    { s_message; s_signature }
+    let signature = { challenge; response } in
+    { message; signature }
 
-  let verify xch vk { s_message; s_signature = { challenge; response } } =
+  let verify xch vk { message; signature = { challenge; response } } =
     let commitment = G.((g **~ response) *~ (vk **~ challenge)) in
     let prefix =
-      Printf.sprintf "%s|%s" (G.to_string vk) (xch.to_string s_message)
+      Printf.sprintf "%s|%s" (G.to_string vk) (!+(xch.to_yojson) message)
     in
     G.Zq.(challenge =% G.hash ~dst:xch.dst prefix [| commitment |])
 
   (** Generic encryption *)
 
   let encrypt xch y plaintext =
-    let y_algorithm = "AES-GCM" in
-    let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
-    let plaintext = xch.to_string plaintext in
+    let algorithm = "AES-GCM" in
+    let module E = (val Crypto_primitives.get_endecrypt algorithm) in
+    let plaintext = !+(xch.to_yojson) plaintext in
     let r = random () in
     let key = random () in
     let key = G.(g **~ key) in
-    let y_alpha = G.(g **~ r) in
-    let y_beta = G.((y **~ r) *~ key) in
+    let alpha = G.(g **~ r) in
+    let beta = G.((y **~ r) *~ key) in
     let key =
       Printf.ksprintf sha256_hex "%s-key|%s" xch.dst (G.to_string key)
     in
     let iv =
-      Printf.ksprintf sha256_hex "%s-iv|%s" xch.dst (G.to_string y_alpha)
+      Printf.ksprintf sha256_hex "%s-iv|%s" xch.dst (G.to_string alpha)
     in
-    let* y_data = E.encrypt ~key ~iv ~plaintext in
-    Lwt.return { y_algorithm; y_alpha; y_beta; y_data }
+    let* data = E.encrypt ~key ~iv ~plaintext in
+    Lwt.return { algorithm; alpha; beta; data }
 
-  let decrypt xch x { y_algorithm; y_alpha; y_beta; y_data } =
+  let decrypt xch x { algorithm; alpha; beta; data } =
     let@ () =
      fun cont ->
-      if G.check y_alpha && G.check y_beta then cont () else Lwt.return_none
+      if G.check alpha && G.check beta then cont () else Lwt.return_none
     in
-    let module E = (val Crypto_primitives.get_endecrypt y_algorithm) in
+    let module E = (val Crypto_primitives.get_endecrypt algorithm) in
     let key =
       Printf.ksprintf sha256_hex "%s-key|%s" xch.dst
-        G.(to_string (y_beta *~ invert (y_alpha **~ x)))
+        G.(to_string (beta *~ invert (alpha **~ x)))
     in
     let iv =
-      Printf.ksprintf sha256_hex "%s-iv|%s" xch.dst (G.to_string y_alpha)
+      Printf.ksprintf sha256_hex "%s-iv|%s" xch.dst (G.to_string alpha)
     in
-    let* x = E.decrypt ~key ~iv ~ciphertext:y_data in
+    let* x = E.decrypt ~key ~iv ~ciphertext:data in
     match x with
     | None -> Lwt.return_none
     | Some x -> (
-        try Lwt.return_some @@ xch.of_string x with _ -> Lwt.return_none)
+        try Lwt.return_some @@ !*(xch.of_yojson) x with _ -> Lwt.return_none)
 end
 
 module MakeChannels (P : PKI) = struct
@@ -116,37 +116,25 @@ module MakeChannels (P : PKI) = struct
   type public_key = P.public_key
   type 'a msg = (public_key, private_key, 'a) sent_msg
 
-  let cast_xch_inner { dst; of_string; to_string } =
+  let cast_xch_inner { dst; of_yojson; to_yojson } =
     {
       dst = dst ^ "-channel_msg_inner";
-      to_string =
-        (fun x ->
-          string_of_channel_msg (swrite G.to_string) (swrite G.Zq.to_string)
-            (swrite to_string) x);
-      of_string =
-        (fun x ->
-          channel_msg_of_string (sread G.of_string) (sread G.Zq.of_string)
-            (sread of_string) x);
+      to_yojson = yojson_of_channel_msg !&G.to_string !&G.Zq.to_string to_yojson;
+      of_yojson = channel_msg_of_yojson !$G.of_string !$G.Zq.of_string of_yojson;
     }
 
-  let cast_xch_outer { dst; of_string; to_string } =
+  let cast_xch_outer { dst; of_yojson; to_yojson } =
     {
       dst = dst ^ "-channel_msg_outer";
-      to_string =
-        (fun x ->
-          string_of_signed_msg (swrite G.to_string) (swrite G.Zq.to_string)
-            (swrite to_string) x);
-      of_string =
-        (fun x ->
-          signed_msg_of_string (sread G.of_string) (sread G.Zq.of_string)
-            (sread of_string) x);
+      to_yojson = yojson_of_signed_msg !&G.to_string !&G.Zq.to_string to_yojson;
+      of_yojson = signed_msg_of_yojson !$G.of_string !$G.Zq.of_string of_yojson;
     }
 
-  let send xch sk c_recipient c_message =
+  let send xch sk recipient message =
     let xch = cast_xch_inner xch in
     let xch' = cast_xch_outer xch in
-    let msg = P.sign xch sk { c_recipient; c_message } in
-    P.encrypt xch' c_recipient msg
+    let msg = P.sign xch sk { recipient; message } in
+    P.encrypt xch' recipient msg
 
   let recv xch dk vk msg =
     let xch = cast_xch_inner xch in
@@ -157,8 +145,8 @@ module MakeChannels (P : PKI) = struct
     | Some msg ->
         if not (P.verify xch vk msg) then
           failwith "invalid signature on received message";
-        let { c_recipient; c_message } = msg.s_message in
-        if not G.(c_recipient =~ g **~ dk) then
+        let { recipient; message } = msg.message in
+        if not G.(recipient =~ g **~ dk) then
           failwith "invalid recipient on received message";
-        Lwt.return c_message
+        Lwt.return message
 end

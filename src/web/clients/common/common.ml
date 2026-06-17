@@ -361,7 +361,7 @@ let get_client_configuration () =
         (s##getItem label_client_configuration)
         (fun () -> dummy_client_configuration)
         (fun c ->
-          match client_configuration_of_string (Js.to_string c) with
+          match !*client_configuration_of_yojson (Js.to_string c) with
           | exception _ -> dummy_client_configuration
           | x -> x))
 
@@ -371,7 +371,7 @@ let set_client_configuration x =
         s##removeItem label_client_configuration
       else
         s##setItem label_client_configuration
-          (Js.string (string_of_client_configuration x)))
+          (Js.string (!+yojson_of_client_configuration x)))
 
 let get_language () =
   let c = get_client_configuration () in

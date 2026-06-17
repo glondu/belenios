@@ -84,7 +84,7 @@ let update_cache uuid =
     let* x = Api.(get (election uuid) `Nobody) in
     match x with
     | Error _ -> Lwt.return_none
-    | Ok (x, _) -> Lwt.return_some (Election.of_string x)
+    | Ok (x, _) -> Lwt.return_some (Election.of_yojson x)
   in
   let ( ! ) x =
     let* x = Api.(get (x uuid) `Nobody) in
@@ -100,15 +100,15 @@ let update_cache uuid =
       match x with Error _ -> cont (None, None) | Ok (x, _) -> f x
     in
     let& roots = Api.(get (election_roots uuid) `Nobody) in
-    match roots.roots_result with
+    match roots.result with
     | None -> cont (None, None)
     | Some result -> (
-        match roots.roots_encrypted_tally with
+        match roots.encrypted_tally with
         | None -> cont (None, None)
         | Some t ->
             let& result = Api.(get (election_object uuid result) `Nobody) in
             let& t = Api.(get (election_object uuid t) `Nobody) in
-            let t = sized_encrypted_tally_of_string read_hash t in
+            let t = !*(sized_encrypted_tally_of_yojson hash_of_yojson) t in
             cont (Some result, Some t))
   in
   let it =

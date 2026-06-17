@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2012-2025 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,31 +20,60 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
-type hash = string wrap <ocaml module="Belenios_core.Common_types.Hash">
-type ('a, 'b, 'c) signed_msg <ocaml predef from="Belenios_core.Serializable"> = abstract
-type question = abstract wrap <ocaml module="Question">
-type lang_dir <ocaml predef from="Belenios_core.Serializable"> = abstract
+open Ppx_yojson_conv_lib.Yojson_conv
+open Belenios_core.Serializable_core
+open Belenios_core.Serializable
+open Belenios_web_api.Serializable
 
-type 'a params = {
-  version : int;
-  description : string;
-  name : string;
-  group : string;
-  public_key : 'a;
-  questions : question list <ocaml repr="array">;
-  uuid : uuid;
-  ?administrator : string option;
-  ?credential_authority : string option;
-  ?language : (string * lang_dir) option;
-} <ocaml field_prefix="e_">
-<doc text="Election parameters relevant for creating a ballot.">
-
-type ('a, 'b) raw_ballot = {
-  election_uuid : uuid;
-  election_hash : hash;
-  credential : 'a;
-  answers : abstract list <ocaml repr="array">;
+type material_message = {
+  recipient : recipient;
+  material : string;
+  weight : weight option; [@yojson.option]
+  metadata : message_metadata option; [@yojson.option]
 }
+[@@deriving yojson]
 
-type ('a, 'b) ballot = ('a, 'b, ('a, 'b) raw_ballot) signed_msg
+type code_message = {
+  lang : string;
+  recipient : recipient;
+  uuid : uuid option; [@yojson.option]
+  state : string option; [@yojson.option]
+  code : string;
+}
+[@@deriving yojson]
+
+type confirmation_message = {
+  lang : string;
+  uuid : uuid;
+  title : string;
+  contact : string option;
+  confirmation : confirmation;
+}
+[@@deriving yojson]
+
+type credentials_seed_message = {
+  uuid : uuid;
+  admin_id : int;
+  lang : string;
+  belenios_url : string;
+  cred_authority_info : cred_authority_info;
+  seed : string;
+}
+[@@deriving yojson]
+
+type message =
+  [ `Account_create of code_message
+  | `Account_change_password of code_message
+  | `Account_set_email of code_message
+  | `Voter_credential of material_message
+  | `Vote_confirmation of confirmation_message
+  | `Mail_login of code_message
+  | `Credentials_seed of credentials_seed_message ]
+[@@deriving yojson]
+
+type message_payload = {
+  timestamp : float;
+  message : message;
+  hmac : hash option; [@yojson.option]
+}
+[@@deriving yojson]

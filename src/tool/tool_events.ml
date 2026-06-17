@@ -137,11 +137,9 @@ let gethash ~index ~filename x =
       let* ic = Lwt_unix.openfile filename [ O_RDONLY ] 0o600 in
       Lwt.finalize
         (fun () ->
-          let* _ = Lwt_unix.LargeFile.lseek ic i.location_offset SEEK_SET in
-          assert (i.location_length <= Int64.of_int Sys.max_string_length);
-          let* contents =
-            really_input_string ic (Int64.to_int i.location_length)
-          in
+          let* _ = Lwt_unix.LargeFile.lseek ic i.offset SEEK_SET in
+          assert (i.length <= Int64.of_int Sys.max_string_length);
+          let* contents = really_input_string ic (Int64.to_int i.length) in
           Lwt.return_some contents)
         (fun () -> Lwt_unix.close ic)
 
@@ -149,10 +147,10 @@ let get_data i x = gethash ~index:i.map ~filename:i.file x
 
 let get_event i x =
   let* x = gethash ~index:i.map ~filename:i.file x in
-  Lwt.return @@ Option.map event_of_string x
+  Lwt.return @@ Option.map !*event_of_yojson x
 
 let get_last_event i =
-  i.last_event |> Option.map (string_of_event >> Hash.hash_string)
+  i.last_event |> Option.map (!+yojson_of_event >> Hash.hash_string)
 
 let get_roots i = i.roots
 
@@ -162,8 +160,8 @@ let fold_on_event_payload_hashes index typ last_event f accu =
     match x with
     | None -> assert false
     | Some e ->
-        if e.event_typ = typ then
-          match (e.event_payload, e.event_parent) with
+        if e.typ = typ then
+          match (e.payload, e.parent) with
           | Some payload, Some parent ->
               let* x = f payload accu in
               loop parent x
@@ -268,19 +266,16 @@ let append index ops =
             let items = (typ, x) :: items in
             let lines = (typ, Hash.hash_string x) :: lines in
             (last_event, roots, items, lines)
-        | Event (event_typ, event_payload) ->
-            let event_parent, event_height =
+        | Event (typ, payload) ->
+            let parent, height =
               match last_event with
               | None -> (None, 0)
               | Some x ->
-                  ( Some (Hash.hash_string (string_of_event x)),
-                    x.event_height + 1 )
+                  (Some (Hash.hash_string (!+yojson_of_event x)), x.height + 1)
             in
-            let event =
-              { event_parent; event_height; event_typ; event_payload }
-            in
+            let event = { parent; height; typ; payload } in
             let typ = Archive.Event event in
-            let event_s = string_of_event event in
+            let event_s = !+yojson_of_event event in
             let event_h = Hash.hash_string event_s in
             let roots = Events.update_roots event_h event roots in
             let items = (typ, event_s) :: items in
@@ -320,13 +315,13 @@ let init ~file ~election ~trustees ~public_creds =
   let setup_credentials = Hash.hash_string public_creds in
   let setup_data =
     {
-      setup_election;
-      setup_trustees;
-      setup_credentials;
-      setup_credentials_certificate = None;
+      election = setup_election;
+      trustees = setup_trustees;
+      credentials = setup_credentials;
+      credentials_certificate = None;
     }
   in
-  let setup_data_s = string_of_setup_data setup_data in
+  let setup_data_s = !+yojson_of_setup_data setup_data in
   let* () =
     append index
       [

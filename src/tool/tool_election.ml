@@ -45,7 +45,7 @@ let make file =
     let file = file
   end) in
   let* raw_election = Getters.raw_election in
-  let module Election = (val Election.of_string raw_election) in
+  let module Election = (val !*Election.of_yojson raw_election) in
   let open Election in
   let open Tool_election_data.Make (Getters) (Election) in
   let module Trustees = (val Belenios.Trustees.get_by_version version) in
@@ -76,10 +76,10 @@ let make file =
       in
       let b = E.create_ballot ~sk choice in
       assert (E.check_ballot b);
-      Lwt.return (write_ballot -- b)
+      Lwt.return (!+yojson_of_ballot b)
 
-    let decrypt owned_owner privkey =
-      let sk = sread G.Zq.of_string ++ privkey in
+    let decrypt owner privkey =
+      let sk = !*(!$G.Zq.of_string) privkey in
       let pk = G.(g **~ sk) in
       let* pks = Lazy.force pks in
       if Array.for_all (fun x -> not G.(x =~ pk)) pks then
@@ -109,21 +109,21 @@ let make file =
       let factor = E.compute_factor tally sk in
       assert (E.check_factor tally pk factor);
       let pd =
-        string_of_partial_decryption (swrite G.to_string)
-          (swrite G.Zq.to_string) factor
+        !+(yojson_of_partial_decryption !&G.to_string !&G.Zq.to_string) factor
       in
-      let opd = { owned_owner; owned_payload = Hash.hash_string pd } in
-      Lwt.return (pd, string_of_owned write_hash opd)
+      let opd = { owner; payload = Hash.hash_string pd } in
+      Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
 
-    let tdecrypt owned_owner key pdk =
+    let tdecrypt owner key pdk =
       let sk = P.derive_sk key and dk = P.derive_dk key in
       let vk = G.(g **~ sk) in
       let* pdk =
         C.recv Pedersen.xch_decryption_key dk vk
-        @@ sent_partial_decryption_key_of_string (sread G.of_string)
-             (sread G.Zq.of_string) pdk
+        @@ !*(sent_partial_decryption_key_of_yojson !$G.of_string
+                !$G.Zq.of_string)
+             pdk
       in
-      let pdk = pdk.pdk_decryption_key in
+      let pdk = pdk.decryption_key in
       let pvk = G.(g **~ pdk) in
       let* trustees = trustees in
       (match trustees with
@@ -136,20 +136,19 @@ let make file =
                    | `Single _ -> false
                    | `Pedersen t ->
                        Array.exists
-                         (fun x ->
-                           G.(x.s_message.s_message.trustee_public_key =~ pvk))
-                         t.t_verification_keys)
+                         (fun (x : _ threshold_verification_key) ->
+                           G.(x.message.message.public_key =~ pvk))
+                         t.verification_keys)
                  ts
           then failwith "your key is not present in threshold parameters");
       let* tally, _ = Lazy.force encrypted_tally in
       let factor = E.compute_factor tally pdk in
       assert (E.check_factor tally pvk factor);
       let pd =
-        string_of_partial_decryption (swrite G.to_string)
-          (swrite G.Zq.to_string) factor
+        !+(yojson_of_partial_decryption !&G.to_string !&G.Zq.to_string) factor
       in
-      let opd = { owned_owner; owned_payload = Hash.hash_string pd } in
-      Lwt.return (pd, string_of_owned write_hash opd)
+      let opd = { owner; payload = Hash.hash_string pd } in
+      Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
 
     let compute_result () =
       let* pds =
@@ -158,24 +157,21 @@ let make file =
         | None -> failwith "missing partial decryptions"
         | Some x -> Lwt.return x
       in
-      let fill of_string (_, owned, x) =
-        { owned with owned_payload = of_string x }
-      in
+      let fill of_string (_, owned, x) = { owned with payload = of_string x } in
       let factors =
         List.map
-          (fill
-             (partial_decryption_of_string (sread G.of_string)
-                (sread G.Zq.of_string)))
+          (fill !*(partial_decryption_of_yojson !$G.of_string !$G.Zq.of_string))
           pds
       in
       let* tally, sized = Lazy.force encrypted_tally in
-      let sized = { sized with sized_encrypted_tally = tally } in
+      let sized = { sized with encrypted_tally = tally } in
       let* trustees = trustees in
       match trustees with
       | Some trustees -> (
           match E.compute_result sized factors trustees with
           | Ok result ->
-              Lwt.return @@ string_of_election_result write_result result
+              Lwt.return
+              @@ !+(yojson_of_election_result yojson_of_result) result
           | Error e ->
               failwith (Belenios.Trustees.string_of_combination_error e))
       | None -> failwith "missing trustees"
@@ -191,7 +187,7 @@ let make file =
       match x with
       | Error e ->
           Printf.ksprintf failwith "error: %s in ballot %s"
-            (string_of_cast_error e) raw_ballot
+            (!+yojson_of_cast_error e) raw_ballot
       | Ok _ -> Lwt_io.eprintl "I: ballot is valid"
 
     let shuffles_check shuffles =
@@ -200,7 +196,7 @@ let make file =
       let rec loop i cc ss =
         match ss with
         | s :: ss ->
-            if E.check_shuffle cc s then loop (i + 1) s.shuffle_ciphertexts ss
+            if E.check_shuffle cc s then loop (i + 1) s.ciphertexts ss
             else Printf.ksprintf failwith "shuffle #%d failed tests" i
         | [] -> Lwt.return_true
       in
@@ -232,9 +228,9 @@ let make file =
         match x with
         | Some (_, x) ->
             let* _, y = Lazy.force raw_encrypted_tally in
-            if x.sized_encrypted_tally = y.sized_encrypted_tally then
+            if x.encrypted_tally = y.encrypted_tally then
               Lwt_io.eprintlf "I: fingerprint of encrypted tally is %s"
-                (Hash.to_b64 x.sized_encrypted_tally)
+                (Hash.to_b64 x.encrypted_tally)
             else failwith "encrypted tally failed verification"
         | None -> Lwt.return_unit
       in
@@ -256,32 +252,32 @@ let make file =
         | _, _, None -> failwith "no partial decryptions"
         | Some result, Some trustees, Some pds ->
             let fill of_string (_, owned, x) =
-              { owned with owned_payload = of_string x }
+              { owned with payload = of_string x }
             in
             let factors =
               List.map
                 (fill
-                   (partial_decryption_of_string (sread G.of_string)
-                      (sread G.Zq.of_string)))
+                   !*(partial_decryption_of_yojson !$G.of_string
+                        !$G.Zq.of_string))
                 pds
             in
             let* tally, sized = Lazy.force encrypted_tally in
-            let sized = { sized with sized_encrypted_tally = tally } in
+            let sized = { sized with encrypted_tally = tally } in
             if not (E.check_result sized factors trustees result) then
               failwith "check_result failed"
             else Lwt.return_unit
       in
       Lwt_io.eprintl "I: all checks passed"
 
-    let shuffle_ciphertexts owned_owner =
+    let shuffle_ciphertexts owner =
       let* cc, _ = Lazy.force encrypted_tally in
       let cc = E.extract_nh_ciphertexts cc in
       let shuffle = E.shuffle_ciphertexts cc in
       let shuffle_s =
-        string_of_shuffle (swrite G.to_string) (swrite G.Zq.to_string) shuffle
+        !+(yojson_of_shuffle !&G.to_string !&G.Zq.to_string) shuffle
       in
-      let owned = { owned_owner; owned_payload = Hash.hash_string shuffle_s } in
-      Lwt.return (shuffle_s, string_of_owned write_hash owned)
+      let owned = { owner; payload = Hash.hash_string shuffle_s } in
+      Lwt.return (shuffle_s, !+(yojson_of_owned yojson_of_hash) owned)
 
     let checksums () =
       let* election = election_hash in
@@ -294,7 +290,7 @@ let make file =
       let* encrypted_tally =
         try
           let* _, x = Lazy.force encrypted_tally in
-          Lwt.return_some x.sized_encrypted_tally
+          Lwt.return_some x.encrypted_tally
         with _ -> Lwt.return_none
       in
       let* trustees =
@@ -312,7 +308,8 @@ let make file =
       let* final = Getters.get_final () in
       Belenios.Election.compute_checksums ~election ~shuffles ~encrypted_tally
         ~trustees ~public_credentials ~final
-      |> string_of_election_checksums |> Lwt.return
+      |> !+yojson_of_election_checksums
+      |> Lwt.return
 
     let compute_voters privcreds =
       let map =
@@ -341,20 +338,20 @@ let make file =
       in
       let* x = Lazy.force unverified_ballots in
       x
-      |> List.rev_map (fun (bs_hash, _, w, _) ->
-          let bs_weight =
+      |> List.rev_map (fun (hash, _, w, _) ->
+          let weight =
             if has_weights then Some w
             else (
               assert (Weight.is_int w 1);
               None)
           in
-          { bs_hash; bs_weight })
-      |> string_of_ballot_summary |> Lwt.return
+          { hash; weight })
+      |> !+yojson_of_ballot_summary |> Lwt.return
 
     let compute_encrypted_tally () =
       let* et, sized = Lazy.force raw_encrypted_tally in
       Lwt.return
-        ( string_of_encrypted_tally (swrite G.to_string) et,
-          string_of_sized_encrypted_tally write_hash sized )
+        ( !+(yojson_of_encrypted_tally !&G.to_string) et,
+          !+(yojson_of_sized_encrypted_tally yojson_of_hash) sized )
   end in
   Lwt.return (module X : S)

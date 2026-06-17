@@ -100,7 +100,7 @@ let make_audit_div election cache =
       tr
         [
           td [ txt @@ s_ "Administrator" ];
-          td [ txt @@ Option.value template.t_administrator ~default:"N/A" ];
+          td [ txt @@ Option.value template.administrator ~default:"N/A" ];
         ];
     ]
   in
@@ -110,17 +110,17 @@ let make_audit_div election cache =
         ~a:[ a_id "voters" ]
         [
           td [ txt @@ s_ "Number of voters" ];
-          td [ txt @@ string_of_int cache.cache_checksums.ec_num_voters ];
+          td [ txt @@ string_of_int cache.checksums.num_voters ];
         ];
       tr
         [
           td [ txt @@ s_ "Voter list fingerprint" ];
-          td [ code [ txt @@ Hash.to_b64 cache.cache_voters_hash ] ];
+          td [ code [ txt @@ Hash.to_b64 cache.voters_hash ] ];
         ];
     ]
   in
   let audit_sealing =
-    match cache.cache_sealing_log with
+    match cache.sealing_log with
     | None -> []
     | Some h ->
         [
@@ -132,8 +132,8 @@ let make_audit_div election cache =
         ]
   in
   let audit_voter_weight =
-    match cache.cache_checksums.ec_weights with
-    | Some { w_total; w_min; w_max } ->
+    match cache.checksums.weights with
+    | Some { total; min; max } ->
         [
           tr
             [
@@ -141,28 +141,28 @@ let make_audit_div election cache =
               td
                 [
                   Printf.ksprintf txt "%s (min: %s, max: %s)"
-                    (Weight.to_string w_total) (Weight.to_string w_min)
-                    (Weight.to_string w_max);
+                    (Weight.to_string total) (Weight.to_string min)
+                    (Weight.to_string max);
                 ];
             ];
         ]
     | _ -> []
   in
-  let checksums = cache.cache_checksums in
+  let checksums = cache.checksums in
   let format_tc id xs =
     ul
       ~a:[ a_id id ]
       (List.map
-         (fun x ->
+         (fun (x : trustee_checksum) ->
            li
              [
-               Printf.ksprintf txt "%s " x.tc_name;
-               code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.tc_checksum) ];
+               Printf.ksprintf txt "%s " x.name;
+               code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.checksum) ];
              ])
          xs)
   in
   let audit_trustees_mandatory =
-    match checksums.ec_trustees with
+    match checksums.trustees with
     | [] -> []
     | l ->
         [
@@ -184,16 +184,16 @@ let make_audit_div election cache =
       ul
         ~a:[ a_class [ className ] ]
         (List.map
-           (fun x ->
+           (fun (x : trustee_threshold_checksum) ->
              li
                [
-                 Printf.ksprintf txt "%s " x.ttc_name;
-                 code [ Printf.ksprintf txt "[%s]" (Hash.to_b64 x.ttc_pki_key) ];
+                 Printf.ksprintf txt "%s " x.name;
+                 code [ Printf.ksprintf txt "[%s]" (Hash.to_b64 x.pki_key) ];
                ])
            xs)
     in
     List.map
-      (fun x ->
+      (fun (x : trustee_threshold_set) ->
         tr
           [
             td
@@ -202,12 +202,11 @@ let make_audit_div election cache =
                   (f_
                      "%d of the following %d trustees [public keys] are needed \
                       to decrypt the election result:")
-                  x.ts_threshold
-                  (List.length x.ts_trustees);
+                  x.threshold (List.length x.trustees);
               ];
-            td [ format_ttc "trustees_threshold" x.ts_trustees ];
+            td [ format_ttc "trustees_threshold" x.trustees ];
           ])
-      checksums.ec_trustees_threshold
+      checksums.trustees_threshold
   in
   let audit_credentials =
     [
@@ -215,20 +214,18 @@ let make_audit_div election cache =
         [
           td [ txt @@ s_ "Credentials authority" ];
           td
-            [
-              txt @@ Option.value template.t_credential_authority ~default:"N/A";
-            ];
+            [ txt @@ Option.value template.credential_authority ~default:"N/A" ];
         ];
       tr
         ~a:[ a_id "credentials" ]
         [
           td [ txt @@ s_ "Credentials fingerprint" ];
-          td [ code [ make_object_link uuid checksums.ec_public_credentials ] ];
+          td [ code [ make_object_link uuid checksums.public_credentials ] ];
         ];
     ]
   in
   let audit_shuffles =
-    match checksums.ec_shuffles with
+    match checksums.shuffles with
     | None -> []
     | Some xs ->
         [
@@ -244,7 +241,7 @@ let make_audit_div election cache =
         ]
   in
   let audit_tally =
-    match checksums.ec_encrypted_tally with
+    match checksums.encrypted_tally with
     | None -> []
     | Some x ->
         [
@@ -256,7 +253,7 @@ let make_audit_div election cache =
         ]
   in
   let audit_final =
-    match checksums.ec_final with
+    match checksums.final with
     | None -> []
     | Some x ->
         [
@@ -294,11 +291,11 @@ let markup =
   let module M = Belenios_ui.Markup_light.Make (Tyxml_js) in
   M.markup
 
-let majority_judgment_content uuid q r =
+let majority_judgment_content uuid q (r : mj_result) =
   let open (val !Belenios_js.I18n.gettext) in
   let explicit_winners =
     let open Belenios_question.Non_homomorphic.Syntax in
-    List.map (List.map (fun i -> q.q_answers.(i))) r.mj_winners
+    List.map (List.map (fun i -> q.answers.(i))) r.winners
   in
   let pretty_winners =
     List.map
@@ -317,21 +314,21 @@ let majority_judgment_content uuid q r =
       explicit_winners
   in
   let valid_format =
-    match r.mj_blank with
+    match r.blank with
     | Some _ -> f_ "%d valid (non-blank) ballot(s)"
     | None -> f_ "%d valid ballot(s)"
   in
-  let valid = div [ Printf.ksprintf txt valid_format r.mj_valid ] in
+  let valid = div [ Printf.ksprintf txt valid_format r.valid ] in
   let blank =
-    match r.mj_blank with
+    match r.blank with
     | Some b -> div [ Printf.ksprintf txt (f_ "%d blank ballot(s)") b ]
     | None -> txt ""
   in
   let invalid =
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.unwrap uuid))
-      ~data:(string_of_mj_ballots r.mj_invalid)
-    @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.mj_invalid)
+      ~data:(!+yojson_of_mj_ballots r.invalid)
+    @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.invalid)
   in
   let invalid = div [ invalid ] in
   [
@@ -345,22 +342,22 @@ let majority_judgment_content uuid q r =
     invalid;
   ]
 
-let schulze_content q r =
+let schulze_content q (r : schulze_result) =
   let open (val !Belenios_js.I18n.gettext) in
   let valid_format =
-    match r.schulze_blank with
+    match r.blank with
     | Some _ -> f_ "%d valid (non-blank) ballot(s)"
     | None -> f_ "%d valid ballot(s)"
   in
-  let valid = div [ Printf.ksprintf txt valid_format r.schulze_valid ] in
+  let valid = div [ Printf.ksprintf txt valid_format r.valid ] in
   let blank =
-    match r.schulze_blank with
+    match r.blank with
     | Some b -> div [ Printf.ksprintf txt (f_ "%d blank ballot(s)") b ]
     | None -> txt ""
   in
   let explicit_winners =
     let open Belenios_question.Non_homomorphic.Syntax in
-    List.map (List.map (fun i -> q.q_answers.(i))) r.schulze_winners
+    List.map (List.map (fun i -> q.answers.(i))) r.winners
   in
   let pretty_winners =
     List.map
@@ -406,21 +403,20 @@ let schulze_content q r =
     blank;
   ]
 
-let stv_content uuid q r =
+let stv_content uuid q (r : stv_result) =
   let open (val !Belenios_js.I18n.gettext) in
   let winners =
     let open Belenios_question.Non_homomorphic.Syntax in
-    r.stv_winners
-    |> List.map (fun i -> q.q_answers.(i))
+    r.winners
+    |> List.map (fun i -> q.answers.(i))
     |> List.map (fun l -> li [ txt l ])
   in
   let invalid =
-    ( r.stv_invalid |> string_of_mj_ballots |> fun data ->
+    ( r.invalid |> !+yojson_of_mj_ballots |> fun data ->
       a_data ~mime_type:"application/json"
         ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.unwrap uuid))
         ~data
-      @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.stv_invalid)
-    )
+      @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.invalid) )
     |> fun x ->
     div
       [
@@ -433,7 +429,7 @@ let stv_content uuid q r =
       ]
   in
   let events =
-    r.stv_events |> string_of_stv_events |> fun data ->
+    r.events |> !+yojson_of_stv_events |> fun data ->
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "raw_stv_events-%s.json" (Uuid.unwrap uuid))
       ~data
@@ -443,7 +439,7 @@ let stv_content uuid q r =
     if
       List.exists
         (function `TieWin _ | `TieLose _ -> true | _ -> false)
-        r.stv_events
+        r.events
     then
       div
         [
@@ -483,10 +479,10 @@ let format_question_result uuid r (question : Belenios_question.t) =
   match question.value with
   | Homomorphic.Q x ->
       let open Homomorphic.Syntax in
-      let r = result_of_string r in
-      let answers = Array.to_list x.q_answers in
+      let r = !*result_of_yojson r in
+      let answers = Array.to_list x.answers in
       let answers =
-        match x.q_blank with
+        match x.blank with
         | true -> s_ "Blank vote" :: answers
         | false -> answers
       in
@@ -500,26 +496,26 @@ let format_question_result uuid r (question : Belenios_question.t) =
         match answers with
         | [] -> txt ""
         | y :: ys -> (
-            match x.q_blank with
+            match x.blank with
             | true -> table (ys @ [ y ])
             | false -> table (y :: ys))
       in
       li
         ~a:[ a_class [ "result_question_item" ] ]
         [
-          div ~a:[ a_class [ "result_question" ] ] [ markup x.q_question ];
+          div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
           answers;
         ]
   | Non_homomorphic.Q q ->
       let open Non_homomorphic.Syntax in
-      let ballots = result_of_string r in
+      let ballots = !*result_of_yojson r in
       let applied_counting_method, show_others =
         match Non_homomorphic.get_counting_method question.extra with
         | `None -> (txt "", true)
         | `MajorityJudgment o ->
-            let ngrades = Array.length o.mj_extra_grades in
-            let nchoices = Array.length q.q_answers in
-            let blank_allowed = o.mj_extra_blank in
+            let ngrades = Array.length o.grades in
+            let nchoices = Array.length q.answers in
+            let blank_allowed = o.blank in
             let mj =
               Methods.Majority_judgment.compute ~nchoices ~ngrades
                 ~blank_allowed ballots
@@ -527,13 +523,13 @@ let format_question_result uuid r (question : Belenios_question.t) =
             let contents = majority_judgment_content uuid q mj in
             (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
         | `Schulze o ->
-            let nchoices = Array.length q.q_answers in
-            let blank_allowed = o.schulze_extra_blank in
+            let nchoices = Array.length q.answers in
+            let blank_allowed = o.blank in
             let r = Methods.Schulze.compute ~nchoices ~blank_allowed ballots in
             let contents = schulze_content q r in
             (div ~a:[ a_class [ "schulze_result" ] ] contents, false)
         | `STV o ->
-            let nseats = o.stv_extra_seats in
+            let nseats = o.seats in
             let r = Methods.Stv.compute ~nseats ballots in
             let contents = stv_content uuid q r in
             (div ~a:[ a_class [ "stv_result" ] ] contents, false)
@@ -549,7 +545,7 @@ let format_question_result uuid r (question : Belenios_question.t) =
       li
         ~a:[ a_class [ "result_question_item" ] ]
         [
-          div ~a:[ a_class [ "result_question" ] ] [ markup q.q_question ];
+          div ~a:[ a_class [ "result_question" ] ] [ markup q.question ];
           applied_counting_method;
           div
             [
@@ -569,8 +565,8 @@ let format_question_result uuid r (question : Belenios_question.t) =
         ]
   | Lists.Q x ->
       let open Lists.Syntax in
-      let r = r |> result_of_string in
-      let answers = Array.to_list x.q_answers in
+      let r = r |> !*result_of_yojson in
+      let answers = Array.to_list x.answers in
       let line_of_candidate name votes =
         tr [ td [ markup name ]; td [ txt @@ Weight.to_string votes ] ]
       in
@@ -591,7 +587,7 @@ let format_question_result uuid r (question : Belenios_question.t) =
       li
         ~a:[ a_class [ "result_question_item" ] ]
         [
-          div ~a:[ a_class [ "result_question" ] ] [ markup x.q_question ];
+          div ~a:[ a_class [ "result_question" ] ] [ markup x.question ];
           answers;
         ]
   | _ ->
@@ -603,9 +599,9 @@ let make_result_div election t ~result =
   let open (val !Belenios_js.I18n.gettext) in
   let open (val election : Election.ELECTION) in
   let questions = Election.get_questions (Template (witness, template)) in
-  let r = election_result_of_string read_result result in
-  let nballots = t.sized_num_tallied in
-  let total_weight = t.sized_total_weight in
+  let r = !*(election_result_of_yojson result_of_yojson) result in
+  let nballots = t.num_tallied in
+  let total_weight = t.total_weight in
   let div_total_weight =
     if not Weight.(is_int total_weight nballots) then
       div
@@ -626,7 +622,7 @@ let make_result_div election t ~result =
     ul
       (Array.map2
          (format_question_result uuid)
-         (to_generic_result r.result)
+         (to_generic_result r.result |> Array.map Yojson.Safe.to_string)
          questions
       |> Array.to_list);
     div
@@ -673,7 +669,7 @@ let home configuration ?credential uuid =
       a ~href ~a:[ a_onclick handler ] @@ s_ "Refresh status"
     in
     let state' =
-      match status.status_state with
+      match status.state with
       | `Draft ->
           [
             b
@@ -686,7 +682,7 @@ let home configuration ?credential uuid =
           ]
       | `Closed ->
           let it_will_open =
-            match dates.auto_date_open with
+            match dates.open_ with
             | Some t when now < t ->
                 [
                   div
@@ -705,7 +701,7 @@ let home configuration ?credential uuid =
             ]
       | `Open ->
           let it_will_close =
-            match dates.auto_date_close with
+            match dates.close with
             | Some t when now < t ->
                 [
                   div
@@ -735,7 +731,7 @@ let home configuration ?credential uuid =
     in
     let go_to_the_booth () =
       let disabled =
-        match status.status_state with `Open -> [] | _ -> [ a_disabled () ]
+        match status.state with `Open -> [] | _ -> [ a_disabled () ]
       in
       let button =
         let uri = configuration.uris.home ^ "vote" in
@@ -804,4 +800,4 @@ let home configuration ?credential uuid =
     ]
   in
   let footer = [ make_audit_footer election ] in
-  Lwt.return { title = W.template.t_name; contents; footer }
+  Lwt.return { title = W.template.name; contents; footer }

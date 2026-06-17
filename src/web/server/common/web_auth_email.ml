@@ -21,6 +21,7 @@
 
 open Lwt
 open Lwt.Syntax
+open Belenios_core.Serializable_core
 open Belenios
 open Belenios_storage_api
 open Belenios_server_core
@@ -33,7 +34,7 @@ module Make
     (Pages_common : Pages_common_sig.S)
     (Web_auth : Web_auth_sig.S) =
 struct
-  type Web_auth_sig.data += Data_email of Belenios_messages.recipient
+  type Web_auth_sig.data += Data_email of recipient
 
   module Captcha_throttle = Lwt_throttle.Make (Int)
 
@@ -127,7 +128,7 @@ struct
     in
     match (ok, address) with
     | true, Some address ->
-        let recipient : Belenios_messages.recipient = { name; address } in
+        let recipient : recipient = { name; address } in
         let* r =
           Otp.generate ?lang ~context:uuid ~recipient ~state ~payload:() ()
         in

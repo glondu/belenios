@@ -20,14 +20,14 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable_t
+open Serializable
 open Common
 
 type ('user, 'get, 'post) t = {
   path : string;
-  of_string : string -> 'get;
-  to_string : 'get -> string;
-  to_string_post : 'post -> string;
+  of_yojson : Yojson.Safe.t -> 'get;
+  to_yojson : 'get -> Yojson.Safe.t;
+  to_yojson_post : 'post -> Yojson.Safe.t;
 }
 
 type nobody = [ `Nobody ]
@@ -47,12 +47,23 @@ val draft_public_credentials :
 
 val draft_private_credentials : uuid -> (admin, private_credentials, unit) t
 val draft_credentials_token : uuid -> (admin, string, unit) t
-val draft_trustees : uuid -> ([< nobody | admin ], string, trustees_request) t
+
+val draft_trustees :
+  uuid ->
+  ( [< nobody | admin ],
+    (Yojson.Safe.t, Yojson.Safe.t) draft_trustees,
+    trustees_request )
+  t
+
 val draft_trustee : uuid -> string -> (admin, unit, unit) t
-val trustee_draft : uuid -> (trustee, string, string) t
-val trustee_election : uuid -> (trustee, tally_trustee, string) t
+
+val trustee_draft :
+  uuid ->
+  (trustee, (Yojson.Safe.t, Yojson.Safe.t) trustee_status, Yojson.Safe.t) t
+
+val trustee_election : uuid -> (trustee, tally_trustee, Yojson.Safe.t) t
 val elections : (admin, summary_list, draft) t
-val election : uuid -> ([< nobody | admin ], string, unit) t
+val election : uuid -> ([< nobody | admin ], Yojson.Safe.t, unit) t
 val election_logo : uuid -> ([< nobody | admin ], string, unit) t
 val election_trustees : uuid -> (nobody, string, unit) t
 
@@ -66,8 +77,8 @@ val election_auto_dates :
 
 val election_voters : uuid -> (admin, voter_list, unit) t
 val election_records : uuid -> (admin, records, unit) t
-val election_nh_ciphertexts : uuid -> (nobody, string, unit) t
-val election_encrypted_tally : uuid -> (nobody, string, unit) t
+val election_nh_ciphertexts : uuid -> (nobody, Yojson.Safe.t, unit) t
+val election_encrypted_tally : uuid -> (nobody, Yojson.Safe.t, unit) t
 val election_partial_decryptions : uuid -> (admin, partial_decryptions, unit) t
 val election_shuffles : uuid -> (admin, shuffles, unit) t
 val election_shuffle : uuid -> string -> (admin, unit, shuffler_request) t
@@ -75,6 +86,6 @@ val election_roots : uuid -> (nobody, roots, unit) t
 val election_last_event : uuid -> (nobody, last_event, unit) t
 val election_object : uuid -> hash -> (nobody, string, unit) t
 val election_audit_cache : uuid -> (nobody, audit_cache, unit) t
-val election_ballots : uuid -> (nobody, ballots_with_weights, string) t
+val election_ballots : uuid -> (nobody, ballots_with_weights, Yojson.Safe.t) t
 val credentials_server : (nobody, unit, credentials_request) t
 val credentials_credits : uuid -> (credauth, credentials_credits, unit) t

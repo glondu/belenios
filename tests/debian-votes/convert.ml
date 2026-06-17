@@ -62,4 +62,4 @@ let rec convert accu = function
       convert accu lines
 
 let tally = convert [] tally_txt |> Array.of_list
-let () = print_endline (string_of_condorcet_ballots tally)
+let () = print_endline (!+yojson_of_condorcet_ballots tally)

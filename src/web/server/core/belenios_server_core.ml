@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Serializable_j
+include Serializable
 include Core
 module Filesystem = Filesystem
 module Defaults = Defaults

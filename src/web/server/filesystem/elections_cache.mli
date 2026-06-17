@@ -19,8 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 open Types
 
 module type INPUT = sig

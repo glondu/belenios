@@ -23,21 +23,19 @@ open Belenios_platform
 open Belenios_core
 open Common
 open Signatures_core
-open Serializable_core_t
+open Serializable_core
 open Belenios_question
 open Non_homomorphic
 open Syntax
 
 type nonrec question = question
-type nonrec result = result
+type nonrec result = result [@@deriving yojson]
 
 let type_ = type_
 
 let of_concrete (x : Belenios_question.t) =
   match x.value with Q x -> Some x | _ -> None
 
-let read_result = read_result
-let write_result = write_result
 let get_complexity _ = { nb_ciphertexts = 1; nb_zkps = 1 }
 
 module Make (G : GROUP) = struct
@@ -45,13 +43,13 @@ module Make (G : GROUP) = struct
 
   type nonrec answer = (G.t, G.Zq.t) answer
 
-  let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
-  let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
+  let answer_of_yojson = answer_of_yojson !$G.of_string !$G.Zq.of_string
+  let yojson_of_answer = yojson_of_answer !&G.to_string !&G.Zq.to_string
   let random () = Zq.random (Crypto_primitives.get_rng ())
 
   let create_answer q ~public_key:y ~prefix m =
     let m = Shape.to_array m in
-    assert (Array.length q.q_answers = Array.length m);
+    assert (Array.length q.answers = Array.length m);
     let r = random () in
     let@ m cont =
       match G.of_ints m with
@@ -70,7 +68,7 @@ module Make (G : GROUP) = struct
     let response = Zq.(w - (r * challenge)) in
     let proof = { challenge; response } in
     let choices = { alpha; beta } in
-    { choices; proof }
+    ({ choices; proof } : answer)
 
   let verify_answer _ ~public_key:y ~prefix a =
     let { alpha; beta } = a.choices in
@@ -111,7 +109,7 @@ module Make (G : GROUP) = struct
     | `Array xs ->
         xs
         |> Array.map (function
-          | `Atomic x -> G.to_ints (Array.length q.q_answers) x
+          | `Atomic x -> G.to_ints (Array.length q.answers) x
           | _ -> invalid_arg "Question_nh.compute_result/1")
     | _ -> invalid_arg "Question_nh.compute_result/2"
 

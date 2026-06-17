@@ -61,15 +61,12 @@ module Tkeygen : CMDLINER_MODULE = struct
     let private_key = KG.generate () in
     let public_key = KG.prove ~name private_key in
     let id =
-      String.sub
-        (sha256_hex (G.to_string public_key.s_message.trustee_public_key))
-        0 8
+      String.sub (sha256_hex (G.to_string public_key.message.public_key)) 0 8
       |> String.uppercase_ascii
     in
-    let priv = string_of_number @@ G.Zq.to_Z private_key in
+    let priv = !+yojson_of_number @@ G.Zq.to_Z private_key in
     let pub =
-      string_of_trustee_public_key (swrite G.to_string) (swrite G.Zq.to_string)
-        public_key
+      !+(yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string) public_key
     in
     Printf.printf "I: keypair %s has been generated\n%!" id;
     let pubkey = ("public key", id ^ ".pubkey", 0o444, pub) in
@@ -111,7 +108,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let get_context () =
       let fname = get_mandatory_opt "--threshold-context" context in
       let* x = string_of_file fname in
-      let context = common_context_of_string x in
+      let context = !*common_context_of_yojson x in
       try
         let size = Array.length context.names in
         let threshold = context.threshold in
@@ -134,9 +131,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
     let get_certs () =
       let certs = get_mandatory_opt "--certs" certs in
       let* x =
-        load_from_file
-          (cert_of_string (sread G.of_string) (sread G.Zq.of_string))
-          certs
+        load_from_file !*(cert_of_yojson !$G.of_string !$G.Zq.of_string) certs
       in
       match x with
       | None -> Printf.ksprintf failwith "%s does not exist" certs
@@ -146,7 +141,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
       let polynomials = get_mandatory_opt "--polynomials" polynomials in
       let* x =
         load_from_file
-          (polynomial_of_string (sread G.of_string) (sread G.Zq.of_string))
+          !*(polynomial_of_yojson !$G.of_string !$G.Zq.of_string)
           polynomials
       in
       match x with
@@ -160,14 +155,14 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let key, cert = T.step1 { context; index } in
         let id =
           sha256_hex
-          @@ string_of_cert_keys (swrite G.to_string) write_index cert.s_message
+          @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index) cert.message
         in
         Printf.eprintf "I: certificate %s has been generated\n%!" id;
         let pub =
           ( "certificate",
             id ^ ".cert",
             0o444,
-            string_of_cert (swrite G.to_string) (swrite G.Zq.to_string) cert )
+            !+(yojson_of_cert !&G.to_string !&G.Zq.to_string) cert )
         in
         let prv = ("private key", id ^ ".key", 0o400, key) in
         let* () = save pub in
@@ -184,8 +179,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let* polynomial = T.step3 { context; certs } key in
         Lwt_io.printl
-          (string_of_polynomial (swrite G.to_string) (swrite G.Zq.to_string)
-             polynomial)
+          (!+(yojson_of_polynomial !&G.to_string !&G.Zq.to_string) polynomial)
     | 4 ->
         let* context = get_context () in
         let* certs = get_certs () in
@@ -198,8 +192,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
           if i < n then
             let id =
               sha256_hex
-              @@ string_of_cert_keys (swrite G.to_string) write_index
-                   certs.(i).s_message
+              @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index)
+                   certs.(i).message
             in
             let fn = id ^ ".vinput" in
             let* () =
@@ -209,7 +203,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
                   fn
               in
               write_line oc
-                (string_of_vinput (swrite G.to_string) (swrite G.Zq.to_string)
+                (!+(yojson_of_vinput !&G.to_string !&G.Zq.to_string)
                    vinputs.(i))
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
@@ -222,13 +216,11 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* certs = get_certs () in
         let* key = get_mandatory_opt "--key" key |> string_of_file in
         let vinput =
-          read_line ()
-          |> vinput_of_string (sread G.of_string) (sread G.Zq.of_string)
+          read_line () |> !*(vinput_of_yojson !$G.of_string !$G.Zq.of_string)
         in
         let* voutput = T.step5 { context; certs } key vinput in
         Lwt_io.printl
-          (string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string)
-             voutput)
+          (!+(yojson_of_voutput !&G.to_string !&G.Zq.to_string) voutput)
     | 6 ->
         let* context = get_context () in
         let* certs = get_certs () in
@@ -238,8 +230,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
         let* lines = lines_of_stdin () in
         let voutputs =
           lines
-          |> List.map
-               (voutput_of_string (sread G.of_string) (sread G.Zq.of_string))
+          |> List.map !*(voutput_of_yojson !$G.of_string !$G.Zq.of_string)
           |> Array.of_list
         in
         assert (n = Array.length voutputs);
@@ -248,8 +239,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
           if i < n then
             let id =
               sha256_hex
-              @@ string_of_cert_keys (swrite G.to_string) write_index
-                   certs.(i).s_message
+              @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index)
+                   certs.(i).message
             in
             let fn = id ^ ".dkey" in
             let* () =
@@ -259,8 +250,9 @@ module Ttkeygen : CMDLINER_MODULE = struct
                   fn
               in
               write_line oc
-              @@ string_of_sent_partial_decryption_key (swrite G.to_string)
-                   (swrite G.Zq.to_string) voutputs.(i).vo_private_key
+              @@ !+(yojson_of_sent_partial_decryption_key !&G.to_string
+                      !&G.Zq.to_string)
+                   voutputs.(i).private_key
             in
             let* () = Lwt_io.eprintlf "I: wrote %s" fn in
             loop (i + 1)
@@ -268,8 +260,8 @@ module Ttkeygen : CMDLINER_MODULE = struct
         in
         let* () = loop 0 in
         Lwt_io.printl
-          (string_of_threshold_parameters (swrite G.to_string)
-             (swrite G.Zq.to_string) tparams)
+          (!+(yojson_of_threshold_parameters !&G.to_string !&G.Zq.to_string)
+             tparams)
     | _ -> failwith "invalid step"
 
   let step_t =
@@ -367,13 +359,13 @@ module Credgen : CMDLINER_MODULE = struct
       let base = dir // timestamp in
       let* () =
         save params_priv base
-          (as_json string_of_private_credentials c.private_creds)
+          (as_json !+yojson_of_private_credentials c.private_creds)
       in
       let* () =
         save params_pub base
-          (as_json string_of_public_credentials c.public_with_ids)
+          (as_json !+yojson_of_public_credentials c.public_with_ids)
       in
-      let h = sha256_b64 (string_of_public_credentials c.public_creds) in
+      let h = sha256_b64 (!+yojson_of_public_credentials c.public_creds) in
       Lwt_io.printlf "The fingerprint of public credentials is %s" h
     in
     match action with
@@ -407,7 +399,7 @@ module Credgen : CMDLINER_MODULE = struct
               let line = input_line ic in
               match Unix.close_process_in ic with
               | Unix.WEXITED 0 ->
-                  let sub = sub_batch_of_string line in
+                  let sub = !*sub_batch_of_yojson line in
                   collect_processes (List.rev_append sub accu) ics
               | _ -> failcmd "generate-sub-credentials failed")
         in
@@ -481,7 +473,7 @@ module SubCredgen : CMDLINER_MODULE = struct
           let uuid = uuid
         end) in
     let x, _ = Cred.generate_sub count in
-    Lwt_io.printl (string_of_sub_batch x)
+    Lwt_io.printl (!+yojson_of_sub_batch x)
 
   let count_t =
     let doc = "Generate $(docv) credentials." in
@@ -526,9 +518,7 @@ module Mktrustees : CMDLINER_MODULE = struct
         | None -> Lwt.return_nil
         | Some t ->
             t
-            |> List.map
-                 (trustee_public_key_of_string Yojson.Safe.read_json
-                    Yojson.Safe.read_json)
+            |> List.map !*(trustee_public_key_of_yojson Fun.id Fun.id)
             |> List.map (fun x -> `Single x)
             |> Lwt.return
       in
@@ -537,17 +527,12 @@ module Mktrustees : CMDLINER_MODULE = struct
         match x with
         | None -> Lwt.return_nil
         | Some t ->
-            t
-            |> threshold_parameters_of_string Yojson.Safe.read_json
-                 Yojson.Safe.read_json
-            |> fun x -> Lwt.return [ `Pedersen x ]
+            t |> !*(threshold_parameters_of_yojson Fun.id Fun.id) |> fun x ->
+            Lwt.return [ `Pedersen x ]
       in
       match singles @ pedersens with
       | [] -> failwith "trustees are missing"
-      | trustees ->
-          string_of_trustees Yojson.Safe.write_json Yojson.Safe.write_json
-            trustees
-          |> Lwt.return
+      | trustees -> !+(yojson_of_trustees Fun.id Fun.id) trustees |> Lwt.return
     in
     let* trustees = get_trustees () in
     let open Lwt_io in
@@ -581,10 +566,10 @@ module Mkelection : CMDLINER_MODULE = struct
     let template =
       let (Version v) = Election.version_of_int version in
       let open (val Election.get_serializers v) in
-      Election.Template (v, template_of_string read_question template)
+      Election.Template (v, !*(template_of_yojson t_of_yojson) template)
     in
     let trustees =
-      trustees_of_string (sread G.of_string) (sread G.Zq.of_string) trustees
+      !*(trustees_of_yojson !$G.of_string !$G.Zq.of_string) trustees
     in
     let y = K.combine_keys trustees in
     let public_key = G.to_string y in
@@ -593,7 +578,7 @@ module Mkelection : CMDLINER_MODULE = struct
     in
     let open Lwt_io in
     let@ oc = with_file ~mode:Output (dir // "election.json") in
-    write_line oc params
+    write_line oc @@ Yojson.Safe.to_string params
 
   let template_t =
     let doc = "Read election template from file $(docv)." in

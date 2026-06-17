@@ -26,10 +26,8 @@ open Belenios_worker_messages
 let handle_shuffle { election; ciphertexts } =
   let election = Js.to_string election in
   let ciphertexts = Js.to_string ciphertexts in
-  let module W = (val Election.of_string election) in
-  let ciphertexts =
-    nh_ciphertexts_of_string W.(sread G.of_string) ciphertexts
-  in
+  let module W = (val !*Election.of_yojson election) in
+  let ciphertexts = !*(nh_ciphertexts_of_yojson !$W.G.of_string) ciphertexts in
   let nballots =
     if Array.length ciphertexts > 0 then Array.length ciphertexts.(0) else 0
   in
@@ -53,7 +51,7 @@ let handle_shuffle { election; ciphertexts } =
     else cont ()
   in
   W.E.shuffle_ciphertexts ciphertexts
-  |> string_of_shuffle W.(swrite G.to_string) W.(swrite G.Zq.to_string)
+  |> !+(yojson_of_shuffle !&W.(G.to_string) !&W.(G.Zq.to_string))
   |> fun r -> Worker.post_message (ShuffleResult (Js.string r))
 
 let handle_request = function Shuffle r -> handle_shuffle r

@@ -54,13 +54,13 @@ val conflict : result Lwt.t
 
 val handle_ifmatch :
   string option ->
-  (unit -> string Lwt.t) ->
+  (unit -> Yojson.Safe.t Lwt.t) ->
   (unit -> result Lwt.t) ->
   result Lwt.t
 
 val handle_generic_error : (unit -> result Lwt.t) -> result Lwt.t
-val handle_get : (unit -> string Lwt.t) -> result Lwt.t
-val handle_get_option : (unit -> string option Lwt.t) -> result Lwt.t
+val handle_get : (unit -> Yojson.Safe.t Lwt.t) -> result Lwt.t
+val handle_get_option : (unit -> Yojson.Safe.t option Lwt.t) -> result Lwt.t
 val get_configuration : unit -> configuration
 val get_account : account -> user -> api_account
 

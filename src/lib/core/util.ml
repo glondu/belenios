@@ -20,23 +20,21 @@
 (**************************************************************************)
 
 open Signatures
-open Serializable_t
+open Serializable
 
 let count_trustees trustees =
   List.fold_left
     (fun accu x ->
       match x with
       | `Single _ -> accu + 1
-      | `Pedersen p -> accu + Array.length p.t_verification_keys)
+      | `Pedersen p -> accu + Array.length p.verification_keys)
     0 trustees
 
 let arrange_partial_decryptions trustees partial_decryptions =
   let n = count_trustees trustees in
   let tmp = Array.make n None in
   let () =
-    List.iter
-      (fun x -> tmp.(x.owned_owner - 1) <- Some x.owned_payload)
-      partial_decryptions
+    List.iter (fun x -> tmp.(x.owner - 1) <- Some x.payload) partial_decryptions
   in
   let _, accu =
     List.fold_left
@@ -44,7 +42,7 @@ let arrange_partial_decryptions trustees partial_decryptions =
         match x with
         | `Single _ -> (i + 1, `Single tmp.(i) :: accu)
         | `Pedersen p ->
-            p.t_verification_keys |> Array.mapi (fun j _ -> tmp.(i + j))
+            p.verification_keys |> Array.mapi (fun j _ -> tmp.(i + j))
             |> fun x -> (i + Array.length x, `Pedersen x :: accu))
       (0, []) trustees
   in
@@ -56,23 +54,22 @@ let compute_synthetic_factors_exc trustees check partial_decryptions fold =
   List.map2
     (fun x y ->
       match (x, y) with
-      | `Single x, `Single y -> (
+      | `Single (x : _ trustee_public_key), `Single y -> (
           match y with
           | None -> raise (CombinationError MissingPartialDecryption)
-          | Some y when check x.s_message.trustee_public_key y ->
-              y.decryption_factors
+          | Some y when check x.message.public_key y -> y.decryption_factors
           | _ -> raise (CombinationError InvalidPartialDecryption))
       | `Pedersen x, `Pedersen y ->
-          let length = Array.length x.t_verification_keys in
+          let length = Array.length x.verification_keys in
           assert (length = Array.length y);
-          let check x y =
-            match y with None -> true | Some y -> check x.trustee_public_key y
+          let check (x : _ raw_trustee_public_key) y =
+            match y with None -> true | Some y -> check x.public_key y
           in
           let _invalid_partial_decryptions =
             let rec loop accu i =
               if i >= 0 then
-                if check x.t_verification_keys.(i).s_message.s_message y.(i)
-                then loop accu (i - 1)
+                if check x.verification_keys.(i).message.message y.(i) then
+                  loop accu (i - 1)
                 else (
                   y.(i) <- None;
                   loop (i :: accu) (i - 1))
@@ -90,7 +87,7 @@ let compute_synthetic_factors_exc trustees check partial_decryptions fold =
               else raise (CombinationError NotEnoughPartialDecryptions)
             else accu
           in
-          let pds_with_ids = take x.t_threshold 0 [] in
+          let pds_with_ids = take x.threshold 0 [] in
           fold pds_with_ids
       | _ -> invalid_arg "combine_factors")
     trustees

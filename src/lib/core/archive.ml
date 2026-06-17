@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
+open Serializable
 open Signatures
 open Common
 
@@ -87,7 +87,7 @@ module MakeReader (M : IO_READER) = struct
     let* { name; size; _ } = raw_read_header f buffer in
     let* header = raw_read_body f buffer size in
     if name = "BELENIOS" then
-      let header = archive_header_of_string header in
+      let header = !*archive_header_of_yojson header in
       if header.version = 1 then M.return header
       else M.fail (Failure "unsupported archive header")
     else M.fail (Failure "ill-formed archive header found")
@@ -95,7 +95,7 @@ module MakeReader (M : IO_READER) = struct
   let read_record f =
     let buffer = Bytes.create block_size in
     let* { name; size; _ } = raw_read_header f buffer in
-    let* location_offset = M.get_pos f in
+    let* offset = M.get_pos f in
     let typ, hash =
       let i = 0 in
       let j = String.index_from name i '.' + 1 in
@@ -106,19 +106,19 @@ module MakeReader (M : IO_READER) = struct
         | _ -> assert false),
         String.sub name i (j - i - 1) |> Hash.of_hex )
     in
-    let location = { location_offset; location_length = size } in
+    let location = { offset; length = size } in
     let* typ =
       match typ with
       | `Event ->
           let* body = raw_read_body f buffer size in
-          M.return @@ Event (event_of_string body)
+          M.return @@ Event (!*event_of_yojson body)
       | `Data ->
           let new_pos =
             let open Int64 in
             let q = div size block_sizeL in
             let r = rem size block_sizeL in
             let blocks = add q (if r = 0L then 0L else 1L) in
-            add location_offset (mul blocks block_sizeL)
+            add offset (mul blocks block_sizeL)
           in
           let* () = M.set_pos f new_pos in
           M.return Data
@@ -171,7 +171,7 @@ module MakeWriter (M : IO_WRITER) = struct
     loop 0 (String.length body)
 
   let write_header f header =
-    let bel_header = string_of_archive_header header in
+    let bel_header = !+yojson_of_archive_header header in
     let tar_header =
       let size = String.length bel_header |> Int64.of_int in
       let timestamp = get_timestamp header in
@@ -182,20 +182,20 @@ module MakeWriter (M : IO_WRITER) = struct
     raw_write_body f buffer bel_header
 
   let write_record f ~timestamp typ payload =
-    let location_length = String.length payload |> Int64.of_int in
+    let length = String.length payload |> Int64.of_int in
     let hash = Hash.hash_string payload in
     let tar_header =
       let name =
         let typ = match typ with Data -> "data" | Event _ -> "event" in
         Printf.sprintf "%s.%s.json" (Hash.to_hex hash) typ
       in
-      Tar.{ name; size = location_length; timestamp }
+      Tar.{ name; size = length; timestamp }
     in
     let* () = raw_write_header f tar_header in
     let buffer = Bytes.make block_size '\000' in
-    let* location_offset = M.get_pos f in
+    let* offset = M.get_pos f in
     let* () = raw_write_body f buffer payload in
-    let location = { location_offset; location_length } in
+    let location = { offset; length } in
     M.return { typ; hash; location }
 end
 
@@ -234,12 +234,12 @@ struct
           in
           M.fail (Failure msg)
 
-  let get_payload event =
-    match event.event_payload with
+  let get_payload (event : event) =
+    match event.payload with
     | None ->
         let msg =
           Printf.sprintf "missing payload in event %s"
-            (string_of_event_type event.event_typ)
+            (!+yojson_of_event_type event.typ)
         in
         M.fail (Failure msg)
     | Some hash -> get_hash hash
@@ -248,22 +248,22 @@ struct
     let timestamp = get_timestamp header in
     let* () = W.write_header archive header in
     let rec loop last accu =
-      match last.event_parent with
+      match last.parent with
       | None -> M.return accu
       | Some parent ->
           let* previous = get_hash parent in
-          let previous = event_of_string previous in
+          let previous = !*event_of_yojson previous in
           loop previous (previous :: accu)
     in
     let* events = loop last [ last ] in
     let rec loop height parent = function
       | [] -> M.return ()
       | event :: events ->
-          let event_s = string_of_event event in
+          let event_s = !+yojson_of_event event in
           let event_h = Hash.hash_string event_s in
-          if event.event_parent = parent && event.event_height = height then
+          if event.parent = parent && event.height = height then
             let* () =
-              match event.event_typ with
+              match event.typ with
               | `Ballot | `Result ->
                   let* payload = get_payload event in
                   let* _ = W.write_record archive ~timestamp Data payload in
@@ -272,7 +272,7 @@ struct
                   in
                   M.return ()
               | `EndBallots | `EndShuffles ->
-                  if event.event_payload = None then
+                  if event.payload = None then
                     let* _ =
                       W.write_record archive ~timestamp (Event event) event_s
                     in
@@ -285,18 +285,18 @@ struct
               | `Setup ->
                   let* payload = get_payload event in
                   let {
-                    setup_election;
-                    setup_trustees;
-                    setup_credentials;
-                    setup_credentials_certificate;
+                    election;
+                    trustees;
+                    credentials;
+                    credentials_certificate;
                   } =
-                    setup_data_of_string payload
+                    !*setup_data_of_yojson payload
                   in
-                  let* election = get_hash setup_election in
-                  let* trustees = get_hash setup_trustees in
-                  let* credentials = get_hash setup_credentials in
+                  let* election = get_hash election in
+                  let* trustees = get_hash trustees in
+                  let* credentials = get_hash credentials in
                   let write_credentials_certificate () =
-                    match setup_credentials_certificate with
+                    match credentials_certificate with
                     | None -> M.return ()
                     | Some h ->
                         let* o = get_hash h in
@@ -315,9 +315,9 @@ struct
               | `EncryptedTally ->
                   let* payload = get_payload event in
                   let sized_et =
-                    sized_encrypted_tally_of_string read_hash payload
+                    !*(sized_encrypted_tally_of_yojson hash_of_yojson) payload
                   in
-                  let et_h = sized_et.sized_encrypted_tally in
+                  let et_h = sized_et.encrypted_tally in
                   let* et_s = get_hash et_h in
                   let* _ = W.write_record archive ~timestamp Data et_s in
                   let* _ = W.write_record archive ~timestamp Data payload in
@@ -327,8 +327,8 @@ struct
                   M.return ()
               | `Shuffle | `PartialDecryption ->
                   let* payload = get_payload event in
-                  let owned = owned_of_string read_hash payload in
-                  let it_h = owned.owned_payload in
+                  let owned = !*(owned_of_yojson hash_of_yojson) payload in
+                  let it_h = owned.payload in
                   let* it_s = get_hash it_h in
                   let* _ = W.write_record archive ~timestamp Data it_s in
                   let* _ = W.write_record archive ~timestamp Data payload in

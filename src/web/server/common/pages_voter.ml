@@ -39,11 +39,11 @@ struct
     let* l = get_preferred_gettext () in
     let open (val l) in
     let open (val election : Site_common_sig.ELECTION) in
-    let title = template.t_name in
+    let title = template.name in
     let full_title = title in
     let* metadata = Web_persist.get_election_metadata s in
     let you_must_restart =
-      match get_booth_index metadata.e_booth_version with
+      match get_booth_index metadata.booth_version with
       | Some i ->
           let (Booth service) = fst Web_services.booths.(i) in
           let hash =

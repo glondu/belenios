@@ -23,31 +23,28 @@ open Belenios_platform
 open Belenios_core
 open Common
 open Signatures_core
-open Serializable_core_t
 open Belenios_question
 open Homomorphic
 open Syntax
 
+type 'a proof = 'a Belenios_core.Serializable.proof
 type nonrec question = question
-type nonrec result = result
+type nonrec result = result [@@deriving yojson]
 
 let type_ = type_
 
 let of_concrete (x : Belenios_question.t) =
   match x.value with Q x -> Some x | _ -> None
 
-let read_result = read_result
-let write_result = write_result
-
 (** Helper functions *)
 
 let question_length q =
-  Array.length q.q_answers + match q.q_blank with true -> 1 | false -> 0
+  Array.length q.answers + match q.blank with true -> 1 | false -> 0
 
 let get_complexity q =
-  let allowBlank = q.q_blank in
-  let nb_ciphertexts = Array.length q.q_answers + if allowBlank then 1 else 0 in
-  let nb_extra_zkps = q.q_max - q.q_min + 1 + if allowBlank then 3 else 0 in
+  let allowBlank = q.blank in
+  let nb_ciphertexts = Array.length q.answers + if allowBlank then 1 else 0 in
+  let nb_extra_zkps = q.max - q.min + 1 + if allowBlank then 3 else 0 in
   let nb_zkps = (2 * nb_ciphertexts) + nb_extra_zkps in
   { nb_ciphertexts; nb_zkps }
 
@@ -56,25 +53,25 @@ module Make (G : GROUP) = struct
 
   type nonrec answer = (G.t, G.Zq.t) answer
 
-  let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
-  let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
+  let yojson_of_answer = yojson_of_answer !&G.to_string !&G.Zq.to_string
+  let answer_of_yojson = answer_of_yojson !$G.of_string !$G.Zq.of_string
   let random () = Zq.random (Crypto_primitives.get_rng ())
   let ( / ) x y = x *~ invert y
-  let dummy_ciphertext = { alpha = G.one; beta = G.one }
+  let dummy_ciphertext : _ ciphertext = { alpha = G.one; beta = G.one }
 
   (** Multiply two ElGamal ciphertexts. *)
-  let eg_combine c1 c2 =
+  let eg_combine (c1 : _ ciphertext) (c2 : _ ciphertext) : _ ciphertext =
     { alpha = c1.alpha *~ c2.alpha; beta = c1.beta *~ c2.beta }
 
   (** ElGamal encryption. *)
-  let eg_encrypt y r x =
+  let eg_encrypt y r x : _ ciphertext =
     { alpha = g **~ r; beta = (y **~ r) *~ (g **~ Zq.of_int x) }
 
-  let dummy_proof = { challenge = Zq.zero; response = Zq.zero }
+  let dummy_proof : _ proof = { challenge = Zq.zero; response = Zq.zero }
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of knowledge *)
 
-  let fs_prove gs x oracle =
+  let fs_prove gs x oracle : _ proof =
     let w = random () in
     let commitments = Array.map (fun g -> g **~ w) gs in
     let challenge = oracle commitments in
@@ -83,7 +80,7 @@ module Make (G : GROUP) = struct
 
   (** ZKPs for disjunctions *)
 
-  let eg_disj_prove y d zkp x r { alpha; beta } =
+  let eg_disj_prove y d zkp x r ({ alpha; beta } : _ ciphertext) =
     (* prove that alpha = g^r and beta = y^r/d_x *)
     (* the size of d is the number of disjuncts *)
     let n = Array.length d in
@@ -126,7 +123,7 @@ module Make (G : GROUP) = struct
     proofs.(x) <- p;
     proofs
 
-  let eg_disj_verify y d zkp proofs { alpha; beta } =
+  let eg_disj_verify y d zkp proofs ({ alpha; beta } : _ ciphertext) =
     G.check alpha && G.check beta
     &&
     let n = Array.length d in
@@ -134,7 +131,7 @@ module Make (G : GROUP) = struct
     &&
     let commitments = Array.make (2 * n) g and total_challenges = ref Zq.zero in
     for i = 0 to n - 1 do
-      let { challenge; response } = proofs.(i) in
+      let { challenge; response } : _ proof = proofs.(i) in
       commitments.(2 * i) <- (g **~ response) *~ (alpha **~ challenge);
       commitments.((2 * i) + 1) <-
         (y **~ response) *~ ((beta *~ d.(i)) **~ challenge);
@@ -148,9 +145,10 @@ module Make (G : GROUP) = struct
 
   (** ZKPs for blank ballots *)
 
-  let make_blank_proof y zkp min max m0 c0 r0 mS cS rS =
+  let make_blank_proof y zkp min max m0 (c0 : _ ciphertext) r0 mS
+      (cS : _ ciphertext) rS =
     if m0 = 0 then
-      let blank_proof =
+      let blank_proof : _ disjunctive_proof =
         (* proof of m0 = 0 \/ mS = 0 (first is true) *)
         let challenge1 = random () in
         let response1 = random () in
@@ -175,7 +173,9 @@ module Make (G : GROUP) = struct
         assert (min <= mS && mS <= max);
         let challenge0 = random () in
         let response0 = random () in
-        let proof0 = { challenge = challenge0; response = response0 } in
+        let proof0 : _ proof =
+          { challenge = challenge0; response = response0 }
+        in
         let overall_proof = Array.make (max - min + 2) proof0 in
         let commitments = Array.make (2 * (max - min + 2)) g in
         let total_challenges = ref challenge0 in
@@ -214,7 +214,7 @@ module Make (G : GROUP) = struct
       in
       (overall_proof, blank_proof)
     else
-      let blank_proof =
+      let blank_proof : _ disjunctive_proof =
         (* proof of m0 = 0 \/ mS = 0 (second is true) *)
         assert (mS = 0);
         let challenge0 = random () in
@@ -270,17 +270,18 @@ module Make (G : GROUP) = struct
       in
       (overall_proof, blank_proof)
 
-  let verify_blank_proof y zkp min max c0 cS overall_proof blank_proof =
+  let verify_blank_proof y zkp min max (c0 : _ ciphertext) (cS : _ ciphertext)
+      overall_proof blank_proof =
     G.check c0.alpha && G.check c0.beta && G.check cS.alpha && G.check cS.beta
     (* check blank_proof, proof of m0 = 0 \/ mS = 0 *)
     && Array.length blank_proof = 2
     && (let commitments = Array.make 4 g in
         let total_challenges = ref Zq.zero in
-        let { challenge; response } = blank_proof.(0) in
+        let { challenge; response } : _ proof = blank_proof.(0) in
         commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
         commitments.(1) <- (y **~ response) *~ (c0.beta **~ challenge);
         (total_challenges := Zq.(!total_challenges + challenge));
-        let { challenge; response } = blank_proof.(1) in
+        let { challenge; response } : _ proof = blank_proof.(1) in
         commitments.(2) <- (g **~ response) *~ (cS.alpha **~ challenge);
         commitments.(3) <- (y **~ response) *~ (cS.beta **~ challenge);
         (total_challenges := Zq.(!total_challenges + challenge));
@@ -292,13 +293,13 @@ module Make (G : GROUP) = struct
     &&
     let commitments = Array.make (2 * (max - min + 2)) g in
     let total_challenges = ref Zq.zero in
-    let { challenge; response } = overall_proof.(0) in
+    let { challenge; response } : _ proof = overall_proof.(0) in
     commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
     commitments.(1) <- (y **~ response) *~ ((c0.beta / g) **~ challenge);
     (total_challenges := Zq.(!total_challenges + challenge));
     let rec loop i =
       if i < max - min + 2 then (
-        let { challenge; response } = overall_proof.(i) in
+        let { challenge; response } : _ proof = overall_proof.(i) in
         let g' =
           if min + i - 1 = 0 then G.one else g **~ Zq.of_int (min + i - 1)
         in
@@ -328,7 +329,7 @@ module Make (G : GROUP) = struct
     d
 
   let stringify_choices =
-    Array.map (fun { alpha; beta } ->
+    Array.map (fun ({ alpha; beta } : _ ciphertext) ->
         Printf.sprintf "%s,%s" (G.to_string alpha) (G.to_string beta))
     >> Array.to_list >> String.concat ","
 
@@ -339,11 +340,11 @@ module Make (G : GROUP) = struct
     let choices = Array.map2 (eg_encrypt y) r m in
     let individual_proofs = Array.map3 (eg_disj_prove y d01 zkp) m r choices in
     let zkp = zkp ^ "|" ^ stringify_choices choices in
-    match q.q_blank with
+    match q.blank with
     | true ->
         (* index 0 is whether the ballot is blank or not,
            indexes 1..n-1 are the actual choices *)
-        assert (n = Array.length q.q_answers + 1);
+        assert (n = Array.length q.answers + 1);
         let choices' = Array.sub choices 1 (n - 1) in
         let r' = Array.sub r 1 (n - 1) in
         let m' = Array.sub m 1 (n - 1) in
@@ -351,20 +352,20 @@ module Make (G : GROUP) = struct
         let summ = Array.fold_left ( + ) 0 m' in
         let sumc = Array.fold_left eg_combine dummy_ciphertext choices' in
         let overall_proof, blank_proof =
-          make_blank_proof y zkp q.q_min q.q_max m.(0) choices.(0) r.(0) summ
-            sumc sumr
+          make_blank_proof y zkp q.min q.max m.(0) choices.(0) r.(0) summ sumc
+            sumr
         in
         let blank_proof = Some blank_proof in
         { choices; individual_proofs; overall_proof; blank_proof }
     | false ->
         (* indexes 0..n-1 are the actual choices *)
-        assert (n = Array.length q.q_answers);
+        assert (n = Array.length q.answers);
         let sumr = Array.fold_left Zq.( + ) Zq.zero r in
         let summ = Array.fold_left ( + ) 0 m in
         let sumc = Array.fold_left eg_combine dummy_ciphertext choices in
-        assert (q.q_min <= summ && summ <= q.q_max);
-        let d = make_d q.q_min q.q_max in
-        let overall_proof = eg_disj_prove y d zkp (summ - q.q_min) sumr sumc in
+        assert (q.min <= summ && summ <= q.max);
+        let d = make_d q.min q.max in
+        let overall_proof = eg_disj_prove y d zkp (summ - q.min) sumr sumc in
         let blank_proof = None in
         { choices; individual_proofs; overall_proof; blank_proof }
 
@@ -374,19 +375,19 @@ module Make (G : GROUP) = struct
     && Array.for_all2 (eg_disj_verify y d01 zkp) a.individual_proofs a.choices
     &&
     let zkp = zkp ^ "|" ^ stringify_choices a.choices in
-    match (q.q_blank, a.blank_proof) with
+    match (q.blank, a.blank_proof) with
     | true, Some blank_proof ->
-        n = Array.length q.q_answers + 1
+        n = Array.length q.answers + 1
         &&
         let c = Array.sub a.choices 1 (n - 1) in
         let sumc = Array.fold_left eg_combine dummy_ciphertext c in
-        verify_blank_proof y zkp q.q_min q.q_max a.choices.(0) sumc
-          a.overall_proof blank_proof
+        verify_blank_proof y zkp q.min q.max a.choices.(0) sumc a.overall_proof
+          blank_proof
     | _, None ->
-        n = Array.length q.q_answers
+        n = Array.length q.answers
         &&
         let sumc = Array.fold_left eg_combine dummy_ciphertext a.choices in
-        let d = make_d q.q_min q.q_max in
+        let d = make_d q.min q.max in
         eg_disj_verify y d zkp a.overall_proof sumc
     | _, _ -> false
 

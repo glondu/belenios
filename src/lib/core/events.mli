@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
+open Serializable
 
 val empty_roots : roots
 val update_roots : hash -> event -> roots -> roots

@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
+open Serializable
 
 val compute :
   ngrades:int -> nchoices:int -> blank_allowed:bool -> mj_ballots -> mj_result

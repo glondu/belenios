@@ -6,26 +6,9 @@
   hex
   digestif
   (re_export yojson)
-  biniou
-  (re_export atdgen-runtime)
+  (re_export ppx_yojson_conv_lib)
   (re_export re)
   (re_export belenios-platform))
+ (preprocess
+  (pps ppx_yojson_conv))
  (modules_without_implementation question_sigs trustees_sig versioned_sig))
-
-(include serializable.inc)
-
-(rule
- (targets serializable_core_t.ml serializable_core_t.mli)
- (deps serializable_core.atd)
- (action
-  (chdir
-   %{workspace_root}
-   (run atdgen -t %{deps}))))
-
-(rule
- (targets serializable_core_j.ml serializable_core_j.mli)
- (deps serializable_core.atd)
- (action
-  (chdir
-   %{workspace_root}
-   (run atdgen -j %{deps}))))

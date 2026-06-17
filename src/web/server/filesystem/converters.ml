@@ -23,98 +23,98 @@ open Belenios
 
 type 'a t = 'a string_serializers
 
-let raw_draft_election_of_concrete x se_private_creds_downloaded =
-  let open Serializable_j in
+let raw_draft_election_of_concrete x private_creds_downloaded =
+  let open Serializable in
   let {
-    se_version;
-    se_owners;
-    se_group;
-    se_voters;
-    se_questions;
-    se_trustees;
-    se_metadata;
-    se_public_creds;
-    se_public_creds_received;
-    se_public_creds_certificate;
-    se_creation_date;
-    se_administrator;
-    se_credential_authority_visited;
-    se_voter_authentication_visited;
-    se_trustees_setup_step;
-    se_pending_credentials;
+    version;
+    owners;
+    group;
+    voters;
+    questions;
+    trustees;
+    metadata;
+    public_creds;
+    public_creds_received;
+    public_creds_certificate;
+    creation_date;
+    administrator;
+    credential_authority_visited;
+    voter_authentication_visited;
+    trustees_setup_step;
+    pending_credentials;
   } =
     x
   in
   let open Belenios_storage_api in
   {
-    se_version;
-    se_owners;
-    se_group;
-    se_voters;
-    se_questions;
-    se_trustees;
-    se_metadata;
-    se_public_creds;
-    se_public_creds_received;
-    se_public_creds_certificate;
-    se_creation_date = Datetime.to_unixfloat se_creation_date;
-    se_administrator;
-    se_credential_authority_visited;
-    se_voter_authentication_visited;
-    se_trustees_setup_step;
-    se_pending_credentials;
-    se_private_creds_downloaded;
+    version;
+    owners;
+    group;
+    voters;
+    questions;
+    trustees;
+    metadata;
+    public_creds;
+    public_creds_received;
+    public_creds_certificate;
+    creation_date = Datetime.to_unixfloat creation_date;
+    administrator;
+    credential_authority_visited;
+    voter_authentication_visited;
+    trustees_setup_step;
+    pending_credentials;
+    private_creds_downloaded;
   }
 
 let raw_draft_election_to_concrete x =
   let open Belenios_storage_api in
   let {
-    se_version;
-    se_owners;
-    se_group;
-    se_voters;
-    se_questions;
-    se_trustees;
-    se_metadata;
-    se_public_creds;
-    se_public_creds_received;
-    se_public_creds_certificate;
-    se_creation_date;
-    se_administrator;
-    se_credential_authority_visited;
-    se_voter_authentication_visited;
-    se_trustees_setup_step;
-    se_pending_credentials;
-    se_private_creds_downloaded;
+    version;
+    owners;
+    group;
+    voters;
+    questions;
+    trustees;
+    metadata;
+    public_creds;
+    public_creds_received;
+    public_creds_certificate;
+    creation_date;
+    administrator;
+    credential_authority_visited;
+    voter_authentication_visited;
+    trustees_setup_step;
+    pending_credentials;
+    private_creds_downloaded;
   } =
     x
   in
-  let open Serializable_j in
+  let open Serializable in
   ( {
-      se_version;
-      se_owners;
-      se_group;
-      se_voters;
-      se_questions;
-      se_trustees;
-      se_metadata;
-      se_public_creds;
-      se_public_creds_received;
-      se_public_creds_certificate;
-      se_creation_date = Datetime.from_unixfloat se_creation_date;
-      se_administrator;
-      se_credential_authority_visited;
-      se_voter_authentication_visited;
-      se_trustees_setup_step;
-      se_pending_credentials;
+      version;
+      owners;
+      group;
+      voters;
+      questions;
+      trustees;
+      metadata;
+      public_creds;
+      public_creds_received;
+      public_creds_certificate;
+      creation_date = Datetime.from_unixfloat creation_date;
+      administrator;
+      credential_authority_visited;
+      voter_authentication_visited;
+      trustees_setup_step;
+      pending_credentials;
     },
-    se_private_creds_downloaded )
+    private_creds_downloaded )
 
 let account =
   {
     of_string =
       (fun x ->
-        let open Serializable_j in
+        let open Serializable in
         let {
           id;
           name;
@@ -128,7 +128,7 @@ let account =
           default_contact;
           voters_limit;
         } =
-          account_of_string x
+          !*account_of_yojson x
         in
         let open Belenios_storage_api in
         {
@@ -162,7 +162,7 @@ let account =
         } =
           x
         in
-        let open Serializable_j in
+        let open Serializable in
         let x =
           {
             id;
@@ -178,5 +178,5 @@ let account =
             voters_limit;
           }
         in
-        string_of_account x);
+        !+yojson_of_account x);
   }

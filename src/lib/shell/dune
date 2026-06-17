@@ -1,6 +1,8 @@
 (library
  (name belenios)
  (public_name belenios-lib)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries
   (re_export belenios-lib.core)
   (re_export belenios-lib.question)

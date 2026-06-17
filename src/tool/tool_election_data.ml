@@ -61,34 +61,34 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
 
   let setup_data =
     let* roots = roots in
-    match roots.roots_setup_data with
+    match roots.setup_data with
     | None -> failcmd "setup data are missing"
     | Some x -> (
         let* x = get_data x in
         match x with
         | None -> failcmd "could not get setup data"
-        | Some x -> Lwt.return @@ setup_data_of_string x)
+        | Some x -> Lwt.return @@ !*setup_data_of_yojson x)
 
   let raw_election =
     let* setup_data = setup_data in
-    let* x = get_data setup_data.setup_election in
+    let* x = get_data setup_data.election in
     match x with
     | None -> failcmd "could not get election"
     | Some x -> Lwt.return x
 
   let get_public_creds () =
     let* setup_data = setup_data in
-    let* x = get_data setup_data.setup_credentials in
-    Lwt.return @@ Option.map public_credentials_of_string x
+    let* x = get_data setup_data.credentials in
+    Lwt.return @@ Option.map !*public_credentials_of_yojson x
 
   let get_trustees () =
     let* setup_data = setup_data in
-    get_data setup_data.setup_trustees
+    get_data setup_data.trustees
 
   let get_ballots () =
     let* roots = roots in
     let* index = index in
-    match roots.roots_last_ballot_event with
+    match roots.last_ballot_event with
     | None -> Lwt.return_some []
     | Some x ->
         let* x =
@@ -107,16 +107,16 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
       let& x = x in
       f x
     in
-    let& x = roots.roots_encrypted_tally in
+    let& x = roots.encrypted_tally in
     let*& x = get_data x in
-    let x = sized_encrypted_tally_of_string read_hash x in
-    let*& y = get_data x.sized_encrypted_tally in
+    let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+    let*& y = get_data x.encrypted_tally in
     Lwt.return_some (y, x)
 
   let get_shuffles () =
     let* roots = roots in
     let* index = index in
-    let& x = roots.roots_last_shuffle_event in
+    let& x = roots.last_shuffle_event in
     let* x =
       Tool_events.fold_on_event_payload_hashes index `Shuffle x
         (fun x accu ->
@@ -124,8 +124,8 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
           match xx with
           | None -> failwith "could not get shuffle"
           | Some y -> (
-              let owned = owned_of_string read_hash y in
-              let* xx = get_data owned.owned_payload in
+              let owned = !*(owned_of_yojson hash_of_yojson) y in
+              let* xx = get_data owned.payload in
               match xx with
               | None -> failwith "could not get shuffle payload"
               | Some z -> Lwt.return @@ ((x, owned, z) :: accu)))
@@ -136,7 +136,7 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
   let get_pds () =
     let* roots = roots in
     let* index = index in
-    let& x = roots.roots_last_pd_event in
+    let& x = roots.last_pd_event in
     let* x =
       Tool_events.fold_on_event_payload_hashes index `PartialDecryption x
         (fun x accu ->
@@ -144,8 +144,8 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
           match xx with
           | None -> failwith "could not get partial decryption"
           | Some y -> (
-              let owned = owned_of_string read_hash y in
-              let* xx = get_data owned.owned_payload in
+              let owned = !*(owned_of_yojson hash_of_yojson) y in
+              let* xx = get_data owned.payload in
               match xx with
               | None -> failwith "could not get partial decryption payload"
               | Some z -> Lwt.return @@ ((x, owned, z) :: accu)))
@@ -155,12 +155,12 @@ module MakeGetters (X : PARAMS) : GETTERS = struct
 
   let get_result () =
     let* roots = roots in
-    let& x = roots.roots_result in
+    let& x = roots.result in
     get_data x
 
   let get_final () =
     let* roots = roots in
-    let& _ = roots.roots_result in
+    let& _ = roots.result in
     let* index = index in
     Lwt.return @@ Tool_events.get_last_event index
 end
@@ -221,7 +221,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
     let* trustees_as_string = trustees_as_string in
     Lwt.return
     @@ Option.map
-         (trustees_of_string (sread G.of_string) (sread G.Zq.of_string))
+         !*(trustees_of_yojson !$G.of_string !$G.Zq.of_string)
          trustees_as_string
 
   let pks =
@@ -233,13 +233,13 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
               (List.map (function
                  | `Single x -> [ x ]
                  | `Pedersen t ->
-                     Array.to_list t.t_verification_keys
-                     |> List.map (fun x -> x.s_message))
+                     Array.to_list t.verification_keys
+                     |> List.map (fun x -> x.message))
               >> List.flatten >> Array.of_list)
        in
        let public_keys =
          Option.map
-           (Array.map (fun pk -> pk.s_message.trustee_public_key))
+           (Array.map (fun (pk : _ trustee_public_key) -> pk.message.public_key))
            public_keys_with_pok
        in
        match public_keys with
@@ -324,7 +324,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
             match x with
             | Error e ->
                 Printf.ksprintf failwith "error while casting ballot %s: %s"
-                  (sha256_b64 b) (string_of_cast_error e)
+                  (sha256_b64 b) (!+yojson_of_cast_error e)
             | Ok (hash, x) ->
                 let ballot_id = Hash.to_b64 hash in
                 cast_all ((hash, x) :: accu) (SSet.add ballot_id seen) bs)
@@ -349,10 +349,10 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       (let* ballots =
          let* x = Lazy.force unverified_ballots in
          x
-         |> List.rev_map (fun (_, _, w, b) -> (w, read_ballot ++ b))
+         |> List.rev_map (fun (_, _, w, b) -> (w, !*ballot_of_yojson b))
          |> Lwt.return
        in
-       let sized_total_weight =
+       let total_weight =
          let open Weight in
          List.fold_left (fun accu (w, _) -> accu + w) zero ballots
        in
@@ -360,11 +360,11 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        Lwt.return
          ( encrypted_tally,
            {
-             sized_num_tallied = List.length ballots;
-             sized_total_weight;
-             sized_encrypted_tally =
+             num_tallied = List.length ballots;
+             total_weight;
+             encrypted_tally =
                Hash.hash_string
-                 (string_of_encrypted_tally (swrite G.to_string) encrypted_tally);
+                 (!+(yojson_of_encrypted_tally !&G.to_string) encrypted_tally);
            } ))
 
   let raw_shuffles = lazy (get_shuffles ())
@@ -379,8 +379,7 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
       (let* x = Lazy.force shuffles_as_text in
        x
        |> Option.map
-            (List.map
-               (shuffle_of_string (sread G.of_string) (sread G.Zq.of_string)))
+            (List.map !*(shuffle_of_yojson !$G.of_string !$G.Zq.of_string))
        |> Lwt.return)
 
   let shuffles_hash =
@@ -395,14 +394,13 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
        | None -> failwith "encrypted tally is missing"
        | Some (x, ntally) -> (
            let raw_encrypted_tally =
-             encrypted_tally_of_string (sread G.of_string) x
+             !*(encrypted_tally_of_yojson !$G.of_string) x
            in
            let* x = Lazy.force shuffles in
            match Option.map List.rev x with
            | Some (s :: _) ->
                Lwt.return
-                 ( E.merge_nh_ciphertexts s.shuffle_ciphertexts
-                     raw_encrypted_tally,
+                 ( E.merge_nh_ciphertexts s.ciphertexts raw_encrypted_tally,
                    ntally )
            | _ -> Lwt.return (raw_encrypted_tally, ntally)))
 
@@ -411,11 +409,13 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
   let result =
     lazy
       (let* x = get_result () in
-       x |> Option.map (election_result_of_string read_result) |> Lwt.return)
+       x
+       |> Option.map !*(election_result_of_yojson result_of_yojson)
+       |> Lwt.return)
 
   let fsck = fsck
 
   let election_hash =
     let* setup_data = setup_data in
-    Lwt.return setup_data.setup_election
+    Lwt.return setup_data.election
 end

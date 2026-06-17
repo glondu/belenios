@@ -1,9 +1,9 @@
 (library
  (name belenios_server_core)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries
   (re_export belenios-lib.messages)
   (re_export belenios-lib.api)
   (re_export belenios_storage_api)
   (re_export belenios_cohttp)))
-
-(include ../../../lib/core/serializable.inc)

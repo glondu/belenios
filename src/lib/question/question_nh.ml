@@ -2,6 +2,7 @@
 (*                                BELENIOS                                *)
 (*                                                                        *)
 (*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,40 +20,30 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Serializable datatypes for non-homomorphic questions">
+(** {1 Serializable datatypes for non-homomorphic questions} *)
+
+open Ppx_yojson_conv_lib.Yojson_conv
 
 (** {2 Predefined types} *)
 
-type 'a ciphertext <ocaml predef from="Belenios_core.Serializable_core"> = abstract
-type 'a proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+type 'a ciphertext = 'a Belenios_core.Serializable_core.ciphertext
+[@@deriving yojson]
+
+type 'a proof = 'a Belenios_core.Serializable_core.proof [@@deriving yojson]
 
 (** {2 Questions and answers} *)
 
-type question = {
-  answers : string list <ocaml repr="array">;
-  question : string;
-} <ocaml field_prefix="q_">
+type question = { answers : string array; question : string }
+[@@deriving yojson]
 
-type ('a, 'b) answer = {
-  choices : 'a ciphertext;
-  proof : 'b proof;
-}
-<doc text="An answer to a question.">
+type ('a, 'b) answer = { choices : 'a ciphertext; proof : 'b proof }
+[@@deriving yojson]
+(** An answer to a question. *)
 
-type result = int list <ocaml repr="array"> list <ocaml repr="array">
+type result = int array array [@@deriving yojson]
 
 (** {2 Counting methods} *)
 
-type mj_extra = {
-  blank : bool;
-  grades : string list <ocaml repr="array">;
-} <ocaml field_prefix="mj_extra_">
-
-type schulze_extra = {
-  blank : bool;
-} <ocaml field_prefix="schulze_extra_">
-
-type stv_extra = {
-  blank : bool;
-  seats : int;
-} <ocaml field_prefix="stv_extra_">
+type mj_extra = { blank : bool; grades : string array } [@@deriving yojson]
+type schulze_extra = { blank : bool } [@@deriving yojson]
+type stv_extra = { blank : bool; seats : int } [@@deriving yojson]

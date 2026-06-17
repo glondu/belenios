@@ -20,25 +20,25 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable_j
+open Serializable
 
 type draft_election =
   | Draft :
       'a Belenios.Election.version * 'a raw_draft_election
       -> draft_election
 
-let draft_election_of_string x =
-  let abstract = raw_draft_election_of_string Yojson.Safe.read_json x in
+let draft_election_of_yojson x =
+  let abstract = raw_draft_election_of_yojson Fun.id x in
   let open Belenios.Election in
-  match version_of_int abstract.se_version with
+  match version_of_int abstract.version with
   | Version v ->
       let open (val get_serializers v) in
-      let x = raw_draft_election_of_string read_question x in
+      let x = raw_draft_election_of_yojson t_of_yojson x in
       Draft (v, x)
 
-let string_of_draft_election (Draft (v, x)) =
+let yojson_of_draft_election (Draft (v, x)) =
   let open (val Belenios.Election.get_serializers v) in
-  string_of_raw_draft_election write_question x
+  yojson_of_raw_draft_election yojson_of_t x
 
 let csv_of_string = split_lines >> List.map (String.split_on_char ',')
 let string_of_csv = List.map (String.concat ",") >> join_lines

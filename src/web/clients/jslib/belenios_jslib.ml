@@ -150,7 +150,7 @@ let belenios : belenios Js.t =
     method getLanguage = Js.string (get_language ())
 
     method setElection x =
-      election := Some (Election.of_string (Js.to_string x))
+      election := Some (!*Election.of_yojson (Js.to_string x))
 
     method getFingerprint =
       match !election with
@@ -166,7 +166,7 @@ let belenios : belenios Js.t =
             (fun () ->
               let* () = Lwt_js.yield () in
               let raw = Js._JSON##stringify params |> Js.to_string in
-              let module W = (val Election.of_string raw) in
+              let module W = (val !*Election.of_yojson raw) in
               let* () = Lwt_js.yield () in
               let module Cred =
                 Credential.Make
@@ -213,11 +213,11 @@ let belenios : belenios Js.t =
               let open (val election : ELECTION_WITH_SK) in
               let plaintext =
                 Js._JSON##stringify plaintext
-                |> Js.to_string |> plaintext_of_string
+                |> Js.to_string |> !*plaintext_of_yojson
               in
               let* () = Lwt_js.yield () in
               let b = E.create_ballot ~sk plaintext in
-              let ballot' = write_ballot -- b in
+              let ballot' = !+yojson_of_ballot b in
               if !stateful then ballot := Some ballot';
               let tracker = sha256_b64 ballot' in
               callbacks##success (Js.string ballot') (Js.string tracker);
@@ -259,11 +259,11 @@ let belenios : belenios Js.t =
         let open Tyxml.Html in
         html
           (head
-             (title (txt @@ W.template.t_name ^^^ s_ "Smart ballot tracker"))
+             (title (txt @@ W.template.name ^^^ s_ "Smart ballot tracker"))
              [ meta ~a:[ a_charset "utf-8" ] () ])
           (body
              [
-               h1 [ txt W.template.t_name ];
+               h1 [ txt W.template.name ];
                table
                  [
                    tr
@@ -289,7 +289,7 @@ let belenios : belenios Js.t =
       in
       let filename =
         Printf.sprintf "tracker_%s_%s_%s.html"
-          (remove_special_characters W.template.t_name)
+          (remove_special_characters W.template.name)
           uuid_s
           (String.sub tracker_hex 0 8)
         |> Js.string
@@ -304,6 +304,7 @@ let belenios : belenios Js.t =
       | Some election, Some ballot -> (
           let open (val election) in
           let@ () = Lwt.async in
+          let ballot = Yojson.Safe.from_string ballot in
           let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
           let@ () = finally Lwt.return_unit in
           match x with
@@ -329,7 +330,9 @@ let belenios : belenios Js.t =
           let content =
             match x.code with
             | 200 ->
-                let result = Belenios_web_api.cast_result_of_string x.content in
+                let result =
+                  !*Belenios_web_api.cast_result_of_yojson x.content
+                in
                 Belenios_js.Cast.confirmation configuration (module W) result
             | _ ->
                 let open (val !Belenios_js.I18n.gettext) in

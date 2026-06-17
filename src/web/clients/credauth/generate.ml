@@ -31,8 +31,8 @@ open Belenios_js.Session
 
 let do_generate uuid (Draft (_, draft)) ~voters =
   let voters = Voter.list_of_string voters in
-  let version = draft.draft_version in
-  let group = draft.draft_group in
+  let version = draft.version in
+  let group = draft.group in
   let module G = (val Belenios.Group.of_string ~version group) in
   let module Cred =
     Credential.Make
@@ -50,8 +50,8 @@ let do_generate uuid (Draft (_, draft)) ~voters =
 let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
   let open (val !Belenios_js.I18n.gettext) in
   let container = Dom_html.createDiv document in
-  let public_credentials = string_of_public_credentials c.public_creds in
-  let private_credentials = string_of_private_credentials c.private_creds in
+  let public_credentials = !+yojson_of_public_credentials c.public_creds in
+  let private_credentials = !+yojson_of_private_credentials c.private_creds in
   let submit_div = Dom_html.createDiv document in
   let submit_btn =
     let@ () =

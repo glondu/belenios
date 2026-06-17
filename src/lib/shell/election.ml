@@ -20,12 +20,11 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable_j
+open Serializable
 open Signatures
 open Common
 
-let get_version x =
-  let j = Yojson.Safe.from_string x in
+let get_version j =
   match j with
   | `Assoc o -> (
       match List.assoc_opt "version" o with
@@ -44,30 +43,17 @@ let get_uuid x =
   | _ -> failwith "Election.get_uuid: object expected"
 
 module type SERIALIZABLE_QUESTION = sig
-  type t
+  type t [@@deriving yojson]
 
-  val read_question : t reader
-  val write_question : t writer
   val of_concrete : Belenios_question.t -> t
   val to_concrete : t -> Belenios_question.t
-end
-
-module Serializable_question_v2 = struct
-  open Belenios_v2
-
-  type t = Question.t
-
-  let read_question = Serializable_j.read_question
-  let write_question = Serializable_j.write_question
-  let of_concrete = Question.of_concrete
-  let to_concrete = Question.to_concrete
 end
 
 type _ version = V2 : Belenios_v2.Question.t version
 
 let get_serializers (type a) (v : a version) :
     (module SERIALIZABLE_QUESTION with type t = a) =
-  match v with V2 -> (module Serializable_question_v2)
+  match v with V2 -> (module Belenios_v2.Question)
 
 let compare_version (type t) (x : t version) (type u) (y : u version) :
     (t, u) Type.eq option =
@@ -84,15 +70,15 @@ let version_of_int = function
 type versioned_template =
   | Template : 'a version * 'a template -> versioned_template
 
-let template_of_string x =
+let versioned_template_of_yojson x =
   match get_version x with
-  | 2 -> Template (V2, Belenios_v2.Election.template_of_string x)
+  | 2 -> Template (V2, Belenios_v2.Election.template_of_yojson x)
   | n ->
       Printf.ksprintf failwith "Election.of_string: unsupported version: %d" n
 
-let string_of_template (Template (V2, x)) =
-  let open Belenios_v2.Serializable_j in
-  string_of_template write_question x
+let yojson_of_versioned_template (Template (V2, x)) =
+  let open Belenios_v2.Serializable in
+  yojson_of_template yojson_of_question x
 
 let election_uuid_of_string_ballot x =
   let j = Yojson.Safe.from_string x in
@@ -116,13 +102,13 @@ let make_raw_election ~version template ~uuid ~group ~public_key =
 (** Helper functions *)
 
 let has_nh_questions (Template (V2, e)) =
-  Array.exists Belenios_v2.Question.is_nh_question e.t_questions
+  Array.exists Belenios_v2.Question.is_nh_question e.questions
 
 let get_questions (Template (V2, e)) =
-  Array.map Belenios_v2.Question.to_concrete e.t_questions
+  Array.map Belenios_v2.Question.to_concrete e.questions
 
 let get_complexity (Template (V2, e)) =
-  Belenios_v2.Election.get_complexity e.t_questions
+  Belenios_v2.Election.get_complexity e.questions
 
 module type ELECTION = sig
   include ELECTION
@@ -130,11 +116,11 @@ module type ELECTION = sig
   val witness : question version
 end
 
-let of_string x =
+let of_yojson x =
   match get_version x with
   | 2 ->
       let module R = struct
-        let raw_election = x
+        let raw_election = Yojson.Safe.to_string x
       end in
       let module X = struct
         type question = Belenios_v2.Question.t
@@ -154,11 +140,11 @@ let supported_crypto_versions = [ Version V2 ]
 let compute_checksums ~election ~trustees ~public_credentials ~shuffles
     ~encrypted_tally ~final =
   let ec_public_credentials =
-    Hash.hash_string (string_of_public_credentials public_credentials)
+    Hash.hash_string (!+yojson_of_public_credentials public_credentials)
   in
   let ec_num_voters = List.length public_credentials in
   let ec_weights =
-    let w_total, min, max =
+    let total, min, max =
       List.fold_left
         (fun (total, min, max) cred ->
           let p = parse_public_credential Fun.id cred in
@@ -173,22 +159,20 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
           (total, min, max))
         (Weight.zero, None, None) public_credentials
     in
-    if Weight.is_int w_total ec_num_voters then None
+    if Weight.is_int total ec_num_voters then None
     else
       match (min, max) with
-      | Some w_min, Some w_max -> Some { w_total; w_min; w_max }
+      | Some min, Some max -> Some { total; min; max }
       | _ -> failwith "inconsistent weights in credentials"
   in
-  let tc_of_tpk k =
-    let tc_checksum =
-      Hash.hash_string (Yojson.Safe.to_string k.s_message.trustee_public_key)
+  let tc_of_tpk (k : _ trustee_public_key) =
+    let checksum =
+      Hash.hash_string (Yojson.Safe.to_string k.message.public_key)
     in
-    let tc_name = k.s_message.trustee_name in
-    { tc_checksum; tc_name }
+    let name = k.message.name in
+    { checksum; name }
   in
-  let trustees =
-    trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json trustees
-  in
+  let trustees = !*(trustees_of_yojson Fun.id Fun.id) trustees in
   let ec_trustees =
     trustees
     |> List.map (function `Single k -> [ tc_of_tpk k ] | `Pedersen _ -> [])
@@ -199,34 +183,34 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
     |> List.map (function
       | `Single _ -> []
       | `Pedersen p ->
-          let ts_trustees =
+          let trustees =
             List.combine
-              (Array.to_list p.t_verification_keys)
-              (Array.to_list p.t_certs)
-            |> List.map (fun (key, cert) ->
-                {
-                  ttc_name = key.s_message.s_message.trustee_name;
-                  ttc_pki_key =
-                    Hash.hash_string
-                    @@ string_of_cert Yojson.Safe.write_json
-                         Yojson.Safe.write_json cert;
-                  ttc_verification_key =
-                    Hash.hash_string
-                      (Yojson.Safe.to_string
-                         key.s_message.s_message.trustee_public_key);
-                })
+              (Array.to_list p.verification_keys)
+              (Array.to_list p.certs)
+            |> List.map (fun ((key : _ threshold_verification_key), cert) ->
+                ({
+                   name = key.message.message.name;
+                   pki_key =
+                     Hash.hash_string @@ !+(yojson_of_cert Fun.id Fun.id) cert;
+                   verification_key =
+                     Hash.hash_string
+                     @@ Yojson.Safe.to_string key.message.message.public_key;
+                 }
+                  : trustee_threshold_checksum))
           in
-          [ { ts_trustees; ts_threshold = p.t_threshold } ])
+          [ ({ trustees; threshold = p.threshold } : trustee_threshold_set) ])
     |> List.flatten
   in
   let find_trustee_name_by_id =
     let names =
       trustees
-      |> List.map (function
-        | `Single k -> [ k.s_message.trustee_name ]
-        | `Pedersen t ->
-            Array.to_list t.t_verification_keys
-            |> List.map (fun x -> x.s_message.s_message.trustee_name))
+      |> List.map (fun (x : _ trustee_kind) ->
+          match x with
+          | `Single k -> [ k.message.name ]
+          | `Pedersen t ->
+              Array.to_list t.verification_keys
+              |> List.map (fun (x : _ threshold_verification_key) ->
+                  x.message.message.name))
       |> List.flatten |> Array.of_list
     in
     fun id ->
@@ -236,10 +220,8 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
   let process_shuffles shuffles =
     List.map
       (fun x ->
-        {
-          tc_checksum = x.owned_payload;
-          tc_name = find_trustee_name_by_id x.owned_owner;
-        })
+        ({ checksum = x.payload; name = find_trustee_name_by_id x.owner }
+          : trustee_checksum))
       shuffles
   in
   let ec_shuffles =
@@ -247,13 +229,13 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
     Some (process_shuffles shuffles)
   in
   {
-    ec_election = election;
-    ec_trustees;
-    ec_trustees_threshold;
-    ec_public_credentials;
-    ec_shuffles;
-    ec_encrypted_tally = encrypted_tally;
-    ec_num_voters;
-    ec_weights;
-    ec_final = final;
+    election;
+    trustees = ec_trustees;
+    trustees_threshold = ec_trustees_threshold;
+    public_credentials = ec_public_credentials;
+    shuffles = ec_shuffles;
+    encrypted_tally;
+    num_voters = ec_num_voters;
+    weights = ec_weights;
+    final;
   }

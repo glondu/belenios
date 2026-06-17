@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable_t
+open Serializable
 
 (** {1 Type definitions} *)
 

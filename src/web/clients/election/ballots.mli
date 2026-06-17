@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_web_api
+open Belenios
 open Common
 
 val ballots : uuid -> page Lwt.t

@@ -88,18 +88,18 @@ let rec show main uuid =
       let value = Option.map k.of_float d in
       input ?value `Text
     in
-    let auto_open = make_input date_kind dates.auto_date_open in
-    let auto_close = make_input date_kind dates.auto_date_close in
-    let auto_publish = make_input date_kind dates.auto_date_publish in
-    let auto_grace = make_input period_kind dates.auto_date_grace_period in
+    let auto_open = make_input date_kind dates.open_ in
+    let auto_close = make_input date_kind dates.close in
+    let auto_publish = make_input date_kind dates.publish in
+    let auto_grace = make_input period_kind dates.grace_period in
     let set_button =
       let@ () = button "Set automatic dates" in
       let dates =
         {
-          auto_date_open = get_date date_kind auto_open;
-          auto_date_close = get_date date_kind auto_close;
-          auto_date_publish = get_date date_kind auto_publish;
-          auto_date_grace_period = get_date period_kind auto_grace;
+          open_ = get_date date_kind auto_open;
+          close = get_date date_kind auto_close;
+          publish = get_date date_kind auto_publish;
+          grace_period = get_date period_kind auto_grace;
         }
       in
       let* x = Api.(put ~ifmatch (election_auto_dates uuid) !user dates) in
@@ -118,7 +118,7 @@ let rec show main uuid =
   let make what e =
     let* x = Api.get e !user in
     let@ voters, _ = with_ok what x in
-    let t, _ = textarea (e.to_string voters) in
+    let t, _ = textarea (!+(e.to_yojson) voters) in
     Lwt.return [ t ]
   in
   let* voters = make "voters" (Api.election_voters uuid) in
@@ -141,9 +141,9 @@ let rec show main uuid =
     [
       div [ a ~href:"#" "Home" ];
       h1 [ txt "Raw election" ];
-      div [ txt raw_election ];
+      div [ txt @@ Yojson.Safe.to_string raw_election ];
       h1 [ txt "Status" ];
-      div [ txt @@ string_of_election_status status ];
+      div [ txt @@ !+yojson_of_election_status status ];
       h1 [ txt "Actions" ];
       div buttons;
       div auto_dates;

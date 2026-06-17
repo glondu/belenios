@@ -101,14 +101,3 @@ module Shape : sig
   val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
   val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
 end
-
-module Atd_shape_t : sig
-  type 'a shape = 'a Shape.t
-end
-
-module Atd_shape_j : sig
-  open Atdgen_runtime.Util.Json
-
-  val write_shape : 'a writer -> 'a Shape.t writer
-  val read_shape : 'a reader -> 'a Shape.t reader
-end

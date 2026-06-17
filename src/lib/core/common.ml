@@ -28,8 +28,6 @@ let ( ^^^ ) a b = a ^ " — " ^ b
 let ( let@ ) = ( @@ )
 let ( let& ) = Option.bind
 let ( // ) = Filename.concat
-let ( ++ ) = Serializable_core_j.identity_of_string
-let ( -- ) w x = Serializable_core_j.string_of_identity w x
 
 let finally x cont =
   cont ();
@@ -154,20 +152,14 @@ struct
   let random = random_modulo q
 end
 
-let sread of_string state buf =
-  match Yojson.Safe.read_json state buf with
-  | `String x -> of_string x
-  | _ -> failwith "read_string"
+let ( !$ ) of_string =
+  Ppx_yojson_conv_lib.Yojson_conv.string_of_yojson >> of_string
 
-let swrite to_string buf x = Yojson.Safe.write_json buf (`String (to_string x))
+let ( !& ) to_string =
+  to_string >> Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string
 
-let save_to filename writer x =
-  let oc = open_out filename in
-  let ob = Bi_outbuf.create_channel_writer oc in
-  writer ob x;
-  Bi_outbuf.add_char ob '\n';
-  Bi_outbuf.flush_channel_writer ob;
-  close_out oc
+let ( !* ) of_yojson = Yojson.Safe.from_string >> of_yojson
+let ( !+ ) to_yojson = to_yojson >> Yojson.Safe.to_string
 
 let b64_order =
   "+/0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"
@@ -315,7 +307,7 @@ let join_lines xs =
   Buffer.contents b
 
 let parse_public_credential of_string x =
-  let open Serializable_core_t in
+  let open Serializable_core in
   match String.split_on_char ',' x with
   | [ c ] -> { credential = of_string c; weight = None; username = None }
   | [ c; w ] ->
@@ -335,7 +327,7 @@ let parse_public_credential of_string x =
   | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
 
 let format_public_credential to_string x =
-  let open Serializable_core_t in
+  let open Serializable_core in
   match x.weight with
   | None -> to_string x.credential
   | Some w ->
@@ -422,24 +414,22 @@ let uniq_first (type a) ?(compare = Stdlib.compare) xs =
   loop S.empty [] xs
 
 module Voter = struct
-  type t = [ `Plain | `Json ] * Serializable_core_t.voter
+  type t = [ `Plain | `Json ] * Serializable_core.voter
 
-  let wrap = function
+  let t_of_yojson = function
     | `String x ->
         let address, login, weight = split_identity_opt x in
         ((`Plain, { address; login; weight }) : t)
-    | x ->
-        let s = Yojson.Safe.to_string x in
-        (`Json, Serializable_core_j.voter_of_string s)
+    | x -> (`Json, Serializable_core.voter_of_yojson x)
 
   let of_string x =
-    match Serializable_core_j.voter_of_string x with
-    | exception _ -> wrap (`String (String.trim x))
+    match !*Serializable_core.voter_of_yojson x with
+    | exception _ -> t_of_yojson (`String (String.trim x))
     | o -> (`Json, o)
 
   let to_string ((typ, o) : t) =
     match typ with
-    | `Json -> Serializable_core_j.string_of_voter o
+    | `Json -> !+Serializable_core.yojson_of_voter o
     | `Plain -> (
         match o with
         | { address; login = None; weight = None } -> string_of_option address
@@ -450,16 +440,14 @@ module Voter = struct
             Printf.sprintf "%s,%s,%s" (string_of_option address)
               (string_of_option login) (Weight.to_string weight))
 
-  let unwrap ((typ, o) as x : t) =
+  let yojson_of_t ((typ, o) as x : t) =
     match typ with
-    | `Json ->
-        let s = Serializable_core_j.string_of_voter o in
-        Yojson.Safe.from_string s
+    | `Json -> Serializable_core.yojson_of_voter o
     | `Plain -> `String (to_string x)
 
   let list_to_string voters =
     if List.exists (fun (x, _) -> x = `Json) voters then
-      Serializable_core_j.string_of_voter_list (List.map snd voters)
+      !+Serializable_core.yojson_of_voter_list (List.map snd voters)
     else
       let b = Buffer.create 1024 in
       List.iter
@@ -470,7 +458,7 @@ module Voter = struct
       Buffer.contents b
 
   let list_of_string x =
-    match Serializable_core_j.voter_list_of_string x with
+    match !*Serializable_core.voter_list_of_yojson x with
     | voters -> List.map (fun x -> (`Json, x)) voters
     | exception _ -> rev_split_lines x |> List.rev_map of_string
 
@@ -484,7 +472,7 @@ module Voter = struct
     Option.value ~default:Weight.one weight
 
   let get_recipient ((_, { address; login; _ }) : t) :
-      Serializable_core_t.recipient =
+      Serializable_core.recipient =
     match (login, address) with
     | None, None -> invalid_arg "Voter.get_recipient"
     | Some name, None -> { name; address = name }

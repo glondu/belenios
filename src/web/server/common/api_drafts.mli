@@ -22,7 +22,6 @@
 open Belenios
 open Belenios_web_api
 open Belenios_storage_api
-open Belenios_server_core
 open Web_common
 
 val authentication_of_auth_config :
@@ -51,8 +50,7 @@ val exn_of_generate_credentials_on_server_error :
 val submit_public_credentials :
   Storage.E.t ->
   draft_election updatable_with_billing ->
-  ?certificate:
-    (Yojson.Safe.t, Yojson.Safe.t) Belenios_web_api.credentials_certificate ->
+  ?certificate:(Yojson.Safe.t, Yojson.Safe.t) credentials_certificate ->
   public_credentials ->
   unit Lwt.t
 

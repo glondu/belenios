@@ -60,19 +60,18 @@ let basic_check_private_key s =
 
 let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val Election.of_string election) in
+  let module W = (val Election.of_yojson election) in
   let encrypted_tally =
-    encrypted_tally_of_string (sread W.G.of_string) encrypted_tally
+    encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
   in
   let* private_key =
-    match trustee.tally_trustee_private_key with
+    match trustee.private_key with
     | Some epk ->
         let epk =
           epk
-          |> string_of_sent_partial_decryption_key Yojson.Safe.write_json
-               Yojson.Safe.write_json
-          |> sent_partial_decryption_key_of_string (sread W.G.of_string)
-               (sread W.G.Zq.of_string)
+          |> !+(yojson_of_sent_partial_decryption_key Fun.id Fun.id)
+          |> !*(sent_partial_decryption_key_of_yojson !$W.G.of_string
+                  !$W.G.Zq.of_string)
         in
         let module Trustees = (val Trustees.get_by_version W.version) in
         let module PKI = Pki.Make (W.G) in
@@ -81,20 +80,19 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
         let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
         let vk = W.G.(g **~ sk) in
         let* epk = C.recv Pedersen.xch_decryption_key dk vk epk in
-        Lwt.return @@ epk.pdk_decryption_key
+        Lwt.return @@ epk.decryption_key
     | None -> (
         basic_check_private_key private_key;
         Lwt.return
         @@
-          try sread W.G.Zq.of_string ++ private_key
+          try !*(!$W.G.Zq.of_string) private_key
           with e ->
             Printf.ksprintf failwith
               (f_ "Error in format of private key: %s")
               (Printexc.to_string e))
   in
   W.E.compute_factor encrypted_tally private_key
-  |> string_of_partial_decryption (swrite W.G.to_string)
-       (swrite W.G.Zq.to_string)
+  |> yojson_of_partial_decryption !&W.G.to_string !&W.G.Zq.to_string
   |> Lwt.return
 
 let decrypt uuid ~token =
@@ -115,8 +113,10 @@ let decrypt uuid ~token =
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
-  let encrypted_tally_hash = sha256_b64 encrypted_tally in
-  let partial_decryption = ref "" in
+  let encrypted_tally_hash =
+    sha256_b64 @@ Yojson.Safe.to_string encrypted_tally
+  in
+  let partial_decryption = ref `Null in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in
     let* x =

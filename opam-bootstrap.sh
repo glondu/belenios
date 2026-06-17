@@ -101,7 +101,7 @@ opam repository add --yes belenios-overlay $BELENIOS_SRC/vendor/opam-overlay
 echo
 echo "=-=-= Installation of Belenios build-dependencies =-=-="
 echo
-opam install --yes base64 hex dune ppx_optcomp atdgen zarith cryptokit calendar cmdliner sqlite3 ocsipersist-sqlite-config eliom gettext-camomile ocamlnet ocamlformat "$@"
+opam install --yes base64 hex dune ppx_optcomp ppx_yojson_conv zarith cryptokit calendar cmdliner sqlite3 ocsipersist-sqlite-config eliom gettext-camomile ocamlnet ocamlformat "$@"
 
 echo
 echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="

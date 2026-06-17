@@ -1,8 +1,8 @@
 (library
  (name belenios_web_api)
  (public_name belenios-lib.api)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries
   (re_export uri)
   (re_export belenios-lib)))
-
-(include ../../lib/core/serializable.inc)

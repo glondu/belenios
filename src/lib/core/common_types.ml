@@ -224,23 +224,3 @@ module Shape = struct
     | `Array x, `Array y, `Array z -> Array.for_all3 (forall3 p) x y z
     | _, _, _ -> invalid_arg "Shape.forall3"
 end
-
-module Atd_shape_t = struct
-  type 'a shape = 'a Shape.t
-end
-
-module Atd_shape_j = struct
-  let rec write_shape write buf = function
-    | `Atomic x -> write buf x
-    | `Array xs -> Atdgen_runtime.Oj_run.write_array (write_shape write) buf xs
-
-  let rec read_shape read state buf =
-    Yojson.Safe.read_space state buf;
-    let open Lexing in
-    if buf.lex_curr_pos >= buf.lex_buffer_len then buf.refill_buff buf;
-    if buf.lex_curr_pos >= buf.lex_buffer_len then
-      Yojson.json_error "Unexpected end of input";
-    if Bytes.get buf.lex_buffer buf.lex_curr_pos = '[' then
-      `Array (Yojson.Safe.read_array (read_shape read) state buf)
-    else `Atomic (read state buf)
-end

@@ -22,7 +22,7 @@
 (** Finite field arithmetic *)
 
 open Belenios_platform
-open Serializable_t
+open Serializable
 
 module type GROUP = Signatures.GROUP with type t = Z.t
 (** Multiplicative subgroup of a finite field. *)

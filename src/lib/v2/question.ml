@@ -69,8 +69,8 @@ let of_concrete (x : Belenios_question.t) : t =
       end in
       (module X)
 
-let wrap = Belenios_question.wrap >> of_concrete
-let unwrap = to_concrete >> Belenios_question.unwrap
+let t_of_yojson = Belenios_question.t_of_yojson >> of_concrete
+let yojson_of_t = to_concrete >> Belenios_question.yojson_of_t
 let is_nh_question = to_concrete >> is_nh_question
 
 let get_complexity (x : t) =
@@ -78,26 +78,23 @@ let get_complexity (x : t) =
   X.Kind.get_complexity X.abstract
 
 module Make (G : GROUP) = struct
-  let read_answer = Yojson.Safe.read_json
-  let write_answer = Yojson.Safe.write_json
+  let yojson_of_answer = Fun.id
+  let answer_of_yojson = Fun.id
 
   let create_answer (x : t) ~public_key ~prefix m =
     let module X = (val x) in
     let module Q = X.Kind.Make (G) in
-    Q.create_answer X.abstract ~public_key ~prefix m
-    |> ( -- ) Q.write_answer |> Yojson.Safe.from_string
+    Q.create_answer X.abstract ~public_key ~prefix m |> Q.yojson_of_answer
 
   let verify_answer (x : t) ~public_key ~prefix a =
     let module X = (val x) in
     let module Q = X.Kind.Make (G) in
-    a |> Yojson.Safe.to_string |> ( ++ ) Q.read_answer
-    |> Q.verify_answer X.abstract ~public_key ~prefix
+    a |> Q.answer_of_yojson |> Q.verify_answer X.abstract ~public_key ~prefix
 
   let extract_ciphertexts (x : t) a =
     let module X = (val x) in
     let module Q = X.Kind.Make (G) in
-    a |> Yojson.Safe.to_string |> ( ++ ) Q.read_answer
-    |> Q.extract_ciphertexts X.abstract
+    a |> Q.answer_of_yojson |> Q.extract_ciphertexts X.abstract
 
   let process_ciphertexts (x : t) e =
     let module X = (val x) in
@@ -107,10 +104,10 @@ module Make (G : GROUP) = struct
   let compute_result ~total_weight (q : t) x =
     let module X = (val q) in
     let module Q = X.Kind.Make (G) in
-    Q.compute_result ~total_weight X.abstract x |> ( -- ) X.Kind.write_result
+    Q.compute_result ~total_weight X.abstract x |> X.Kind.yojson_of_result
 
   let check_result ~total_weight (q : t) x r =
     let module X = (val q) in
     let module Q = X.Kind.Make (G) in
-    r |> ( ++ ) X.Kind.read_result |> Q.check_result ~total_weight X.abstract x
+    r |> X.Kind.result_of_yojson |> Q.check_result ~total_weight X.abstract x
 end

@@ -26,6 +26,7 @@ release-server:
   stage: build
   script:
     - source ~/env.sh
+    - opam install -y ppx_yojson_conv
     - make build-release-server
   artifacts:
     paths:
@@ -43,6 +44,7 @@ tool:
   stage: test
   script:
     - source ~/env.sh
+    - opam install -y ppx_yojson_conv
     # Run command-line tool tests
     - make check
 

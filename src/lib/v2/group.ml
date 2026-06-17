@@ -21,7 +21,7 @@
 
 open Belenios_platform
 open Belenios_core
-open Serializable_j
+open Serializable
 open Signatures
 
 let get_ff_params = function

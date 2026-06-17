@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_server_core
+open Belenios
 
 module type S = sig
   val set_rewrite_prefix : src:string -> dst:string -> unit

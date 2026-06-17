@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Syntax = Question_h_j
+module Syntax = Question_h
 
 type t = Syntax.question
 type Types.raw_question += Q of t
@@ -29,26 +29,26 @@ let type_ = "Homomorphic"
 let make ~value ~extra = Types.{ type_; value = Q value; extra }
 
 let wrap ~value ~extra =
-  let value = Q (value |> Yojson.Safe.to_string |> Syntax.question_of_string) in
+  let value = Q (value |> Syntax.question_of_yojson) in
   Types.{ type_; value; extra }
 
 let unwrap (q : Types.question) =
   match q.value with
   | Q x ->
-      let value = x |> Syntax.string_of_question |> Yojson.Safe.from_string in
+      let value = x |> Syntax.yojson_of_question in
       let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
       Some (`Assoc (("type", `String type_) :: ("value", value) :: o))
   | _ -> None
 
 let erase (q : t) : t =
   {
-    q_answers = Array.map (fun _ -> "") q.q_answers;
-    q_blank = q.q_blank;
-    q_min = q.q_min;
-    q_max = q.q_max;
-    q_question = "";
+    answers = Array.map (fun _ -> "") q.answers;
+    blank = q.blank;
+    min = q.min;
+    max = q.max;
+    question = "";
   }
 
 let check _ (q : t Types.generic_question) =
   let q = q.value in
-  if q.q_min <= q.q_max then Ok () else Error `Min_max
+  if q.min <= q.max then Ok () else Error `Min_max

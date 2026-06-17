@@ -107,7 +107,7 @@ let sync_one (Cache x) =
         let ifmatch = x.ifmatch in
         let put x =
           let* y = Api.put ~ifmatch x !user content in
-          Lwt.return (y, fun () -> sha256_b64 @@ x.to_string content)
+          Lwt.return (y, fun () -> sha256_b64 @@ !+(x.to_yojson) content)
         in
         let* y, ifmatch' =
           match x.endpoint with Plain x -> put x | WithUuid f -> put (f uuid)
@@ -119,7 +119,7 @@ let sync_one (Cache x) =
             Lwt.return @@ Ok ()
         | code -> (
             let c = y.content in
-            match request_status_of_string c with
+            match !*request_status_of_yojson c with
             | s -> Lwt.return @@ Error (`Structured s)
             | exception _ -> Lwt.return @@ Error (`Raw (code, c))))
 

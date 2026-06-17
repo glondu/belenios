@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures
-open Serializable_t
+open Serializable
 open Common
 
 type batch = {

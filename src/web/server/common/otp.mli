@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Serializable_core
 open Belenios
 
 module type SENDER = sig
@@ -28,7 +29,7 @@ module type SENDER = sig
   val send :
     ?lang:lang ->
     context:context ->
-    recipient:Belenios_messages.recipient ->
+    recipient:recipient ->
     ?state:string ->
     code:string ->
     unit ->
@@ -42,7 +43,7 @@ module type S = sig
   val generate :
     ?lang:lang ->
     context:context ->
-    recipient:Belenios_messages.recipient ->
+    recipient:recipient ->
     ?state:string ->
     payload:payload ->
     unit ->

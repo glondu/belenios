@@ -20,24 +20,27 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable_j
+open Serializable
 open Extra
 
 let get_election (type t) : t File.u -> t string_serializers = function
   | State ->
       {
-        of_string = election_state_of_string;
-        to_string = string_of_election_state;
+        of_string = !*election_state_of_yojson;
+        to_string = !+yojson_of_election_state;
       }
   | State_state ->
-      { of_string = state_state_of_string; to_string = string_of_state_state }
+      {
+        of_string = !*state_state_of_yojson;
+        to_string = !+yojson_of_state_state;
+      }
   | Dates ->
       {
-        of_string = election_dates_of_string;
-        to_string = string_of_election_dates;
+        of_string = !*election_dates_of_yojson;
+        to_string = !+yojson_of_election_dates;
       }
   | Metadata ->
-      { of_string = metadata_of_string; to_string = string_of_metadata }
+      { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
   | Private_key ->
       { of_string = Yojson.Safe.from_string; to_string = Yojson.Safe.to_string }
   | Private_keys ->
@@ -45,46 +48,45 @@ let get_election (type t) : t File.u -> t string_serializers = function
         of_string =
           (fun xs ->
             xs |> split_lines
-            |> List.map
-                 (sent_partial_decryption_key_of_string Yojson.Safe.read_json
-                    Yojson.Safe.read_json));
+            |> List.map !*(sent_partial_decryption_key_of_yojson Fun.id Fun.id));
         to_string =
           (fun xs ->
             xs
-            |> List.map
-                 (string_of_sent_partial_decryption_key Yojson.Safe.write_json
-                    Yojson.Safe.write_json)
+            |> List.map !+(yojson_of_sent_partial_decryption_key Fun.id Fun.id)
             |> join_lines);
       }
   | Audit_cache ->
-      { of_string = audit_cache_of_string; to_string = string_of_audit_cache }
+      {
+        of_string = !*audit_cache_of_yojson;
+        to_string = !+yojson_of_audit_cache;
+      }
   | Archive_header ->
       {
-        of_string = archive_header_of_string;
-        to_string = string_of_archive_header;
+        of_string = !*archive_header_of_yojson;
+        to_string = !+yojson_of_archive_header;
       }
   | Last_event ->
-      { of_string = last_event_of_string; to_string = string_of_last_event }
+      { of_string = !*last_event_of_yojson; to_string = !+yojson_of_last_event }
   | Draft ->
       {
-        of_string = draft_election_of_string;
-        to_string = string_of_draft_election;
+        of_string = !*draft_election_of_yojson;
+        to_string = !+yojson_of_draft_election;
       }
   | Public_creds ->
       {
-        of_string = public_credentials_of_string;
-        to_string = string_of_public_credentials;
+        of_string = !*public_credentials_of_yojson;
+        to_string = !+yojson_of_public_credentials;
       }
   | Private_creds ->
       {
-        of_string = private_credentials_of_string;
-        to_string = string_of_private_credentials;
+        of_string = !*private_credentials_of_yojson;
+        to_string = !+yojson_of_private_credentials;
       }
   | Sealing_log -> { of_string = Fun.id; to_string = Fun.id }
   | Records ->
       {
-        of_string = election_records_of_string;
-        to_string = string_of_election_records;
+        of_string = !*election_records_of_yojson;
+        to_string = !+yojson_of_election_records;
       }
   | Voters ->
       { of_string = Voter.list_of_string; to_string = Voter.list_to_string }
@@ -95,20 +97,20 @@ let get_election (type t) : t File.u -> t string_serializers = function
       }
   | Extended_record _ ->
       {
-        of_string = extended_record_of_string;
-        to_string = string_of_extended_record;
+        of_string = !*extended_record_of_yojson;
+        to_string = !+yojson_of_extended_record;
       }
   | Credential_mapping _ ->
       {
-        of_string = credential_mapping_of_string;
-        to_string = string_of_credential_mapping;
+        of_string = !*credential_mapping_of_yojson;
+        to_string = !+yojson_of_credential_mapping;
       }
   | Data _ -> { of_string = Fun.id; to_string = Fun.id }
-  | Roots -> { of_string = roots_of_string; to_string = string_of_roots }
+  | Roots -> { of_string = !*roots_of_yojson; to_string = !+yojson_of_roots }
   | Voters_config ->
       {
-        of_string = voters_config_of_string;
-        to_string = string_of_voters_config;
+        of_string = !*voters_config_of_yojson;
+        to_string = !+yojson_of_voters_config;
       }
   | Voter _ -> { of_string = Voter.of_string; to_string = Voter.to_string }
   | Credential_weight _ ->
@@ -116,36 +118,36 @@ let get_election (type t) : t File.u -> t string_serializers = function
   | Credential_user _ -> { of_string = Fun.id; to_string = Fun.id }
   | Credentials_params ->
       {
-        of_string = credentials_params_of_string;
-        to_string = string_of_credentials_params;
+        of_string = !*credentials_params_of_yojson;
+        to_string = !+yojson_of_credentials_params;
       }
   | Credentials_metadata ->
       {
-        of_string = Belenios_web_api.message_metadata_of_string;
-        to_string = Belenios_web_api.string_of_message_metadata;
+        of_string = !*Belenios_web_api.message_metadata_of_yojson;
+        to_string = !+Belenios_web_api.yojson_of_message_metadata;
       }
   | Credentials_seed ->
       {
-        of_string = credentials_seed_of_string;
-        to_string = string_of_credentials_seed;
+        of_string = !*credentials_seed_of_yojson;
+        to_string = !+yojson_of_credentials_seed;
       }
   | Credentials_records ->
       {
-        of_string = credentials_records_of_string;
-        to_string = string_of_credentials_records;
+        of_string = !*credentials_records_of_yojson;
+        to_string = !+yojson_of_credentials_records;
       }
   | Credentials_credits ->
       {
-        of_string = Belenios_web_api.credentials_credits_of_string;
-        to_string = Belenios_web_api.string_of_credentials_credits;
+        of_string = !*Belenios_web_api.credentials_credits_of_yojson;
+        to_string = !+Belenios_web_api.yojson_of_credentials_credits;
       }
 
 let get_account (type t) : t File.v -> t string_serializers = function
   | Account _ ->
-      { of_string = account_of_string; to_string = string_of_account }
+      { of_string = !*account_of_yojson; to_string = !+yojson_of_account }
   | Auth_db _ -> { of_string = split_lines; to_string = join_lines }
   | Admin_password _ ->
       {
-        of_string = password_record_of_string;
-        to_string = string_of_password_record;
+        of_string = !*password_record_of_yojson;
+        to_string = !+yojson_of_password_record;
       }

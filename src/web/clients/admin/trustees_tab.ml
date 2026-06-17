@@ -48,13 +48,12 @@ let step = ref 0
 let update_main_zone = ref (fun _ -> Lwt.return_unit)
 
 let cast_bt_trustee =
-  string_of_trustee
-    (write_trustee_public_key Yojson.Safe.write_json Yojson.Safe.write_json)
-  >> trustee_of_string Yojson.Safe.read_json
+  !+(yojson_of_trustee (yojson_of_trustee_public_key Fun.id Fun.id))
+  >> !*(trustee_of_yojson Fun.id)
 
 let cast_tt_trustee =
-  string_of_trustee (write_cert Yojson.Safe.write_json Yojson.Safe.write_json)
-  >> trustee_of_string Yojson.Safe.read_json
+  !+(yojson_of_trustee (yojson_of_cert Fun.id Fun.id))
+  >> !*(trustee_of_yojson Fun.id)
 
 let get_trustees () =
   let uuid = get_current_uuid () in
@@ -67,16 +66,14 @@ let get_trustees () =
       alert (string_of_error e);
       Lwt.return_unit
   | Ok (tt, _) -> (
-      match
-        draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json tt
-      with
+      match tt with
       | `Basic x ->
-          all_trustee := List.map cast_bt_trustee x.bt_trustees;
+          all_trustee := List.map cast_bt_trustee x.trustees;
           mode := `Basic;
           Lwt.return_unit
       | `Threshold x ->
-          all_trustee := List.map cast_tt_trustee x.tt_trustees;
-          mode := `Threshold (Option.value ~default:0 x.tt_threshold);
+          all_trustee := List.map cast_tt_trustee x.trustees;
+          mode := `Threshold (Option.value ~default:0 x.threshold);
           Lwt.return_unit)
 
 let recompute_main_zone_1 () =
@@ -114,12 +111,12 @@ let recompute_main_zone_1 () =
   let rows_of_ttees =
     first_row
     :: List.map
-         (fun t ->
-           let address = Option.value ~default:"@" t.trustee_address in
+         (fun (t : _ trustee) ->
+           let address = Option.value ~default:"@" t.address in
            tr
              [
                td [ txt address ];
-               td [ txt t.trustee_name ];
+               td [ txt t.name ];
                td ~a:[ a_class [ "clickable" ] ] [ erase_trustee_elt address ];
              ])
          !all_trustee
@@ -143,13 +140,13 @@ let recompute_main_zone_1 () =
     in
     let add_but =
       button (s_ "Add a trustee") (fun () ->
-          let t =
+          let t : _ trustee =
             {
-              trustee_address = Some (inp1_get ());
-              trustee_name = inp2_get ();
-              trustee_token = None;
-              trustee_state = None;
-              trustee_key = None;
+              address = Some (inp1_get ());
+              name = inp2_get ();
+              token = None;
+              state = None;
+              key = None;
             }
           in
           let r = `Add t in
@@ -345,9 +342,9 @@ let recompute_main_zone_3 () =
   let rows_of_ttees =
     first_row
     :: List.map
-         (fun t ->
-           let address = Option.value ~default:"@" t.trustee_address in
-           tr [ td [ txt address ]; td [ txt t.trustee_name ]; td [] ])
+         (fun (t : _ trustee) ->
+           let address = Option.value ~default:"@" t.address in
+           tr [ td [ txt address ]; td [ txt t.name ]; td [] ])
          !all_trustee
   in
   Lwt.return
@@ -408,7 +405,7 @@ let trustee_generate_link kind =
 
 let all_ttee_done () =
   let dd = if !mode = `Basic then Some 1 else Some 7 in
-  List.for_all (fun t -> t.trustee_state = dd) !all_trustee
+  List.for_all (fun (t : _ trustee) -> t.state = dd) !all_trustee
 
 let trustee_decrypt_link ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
@@ -468,18 +465,18 @@ let recompute_main_zone_2 () =
     in
     let* rows_of_ttees =
       Lwt_list.map_s
-        (fun t ->
+        (fun (t : _ trustee) ->
           let* link =
             trustee_generate_link
-              ~token:(Option.value ~default:"" t.trustee_token)
-              ~recipient:(Option.value ~default:"" t.trustee_address)
+              ~token:(Option.value ~default:"" t.token)
+              ~recipient:(Option.value ~default:"" t.address)
           in
           tr
             [
-              td [ txt @@ Option.value ~default:"" t.trustee_address ];
-              td [ txt t.trustee_name ];
+              td [ txt @@ Option.value ~default:"" t.address ];
+              td [ txt t.name ];
               td [ link ];
-              td [ txt @@ string_of_state t.trustee_state ];
+              td [ txt @@ string_of_state t.state ];
               td [];
             ]
           |> Lwt.return)
@@ -512,7 +509,7 @@ let trustee_request req =
   let uuid = get_current_uuid () in
   Cache.invalidate Cache.e_status;
   let* status = Cache.get_until_success Cache.e_status in
-  let ifmatch = Some (sha256_b64 @@ string_of_election_status status) in
+  let ifmatch = Some (sha256_b64 @@ !+yojson_of_election_status status) in
   let* x = Api.(post ?ifmatch (election_status uuid) !user req) in
   match x.code with
   | 200 ->
@@ -528,24 +525,22 @@ let all_pd () =
   match !part_dec with
   | None -> false
   | Some x ->
-      List.length x.partial_decryptions_trustees
+      List.length x.trustees
       = List.fold_left
-          (fun acc z -> if z.trustee_pd_done then acc + 1 else acc)
-          0 x.partial_decryptions_trustees
+          (fun acc z -> if z.done_ then acc + 1 else acc)
+          0 x.trustees
 
 let enough_pd () =
   match !part_dec with
   | None -> false
   | Some x ->
       let th =
-        match x.partial_decryptions_threshold with
-        | None -> List.length x.partial_decryptions_trustees
-        | Some t -> t
+        match x.threshold with None -> List.length x.trustees | Some t -> t
       in
       th
       <= List.fold_left
-           (fun acc z -> if z.trustee_pd_done then acc + 1 else acc)
-           0 x.partial_decryptions_trustees
+           (fun acc z -> if z.done_ then acc + 1 else acc)
+           0 x.trustees
 
 let get_trustees_pd () =
   let uuid = get_current_uuid () in
@@ -564,7 +559,7 @@ let main_zone_tallying () =
     match !part_dec with
     | None -> Lwt.return @@ div [ txt @@ s_ "Failed to connect; please reload" ]
     | Some x ->
-        let tl = x.partial_decryptions_trustees in
+        let tl = x.trustees in
         let header_row =
           tr
             [
@@ -576,19 +571,18 @@ let main_zone_tallying () =
         in
         let* rows_of_ttees =
           Lwt_list.filter_map_s
-            (fun t ->
-              if t.trustee_pd_address = "server" then Lwt.return_none
+            (fun (t : trustee_pd) ->
+              if t.address = "server" then Lwt.return_none
               else
                 let* link =
-                  trustee_decrypt_link ~token:t.trustee_pd_token
-                    ~recipient:t.trustee_pd_address
+                  trustee_decrypt_link ~token:t.token ~recipient:t.address
                 in
                 Lwt.return_some
                 @@ tr
                      [
-                       td [ txt t.trustee_pd_address ];
+                       td [ txt t.address ];
                        td [ link ];
-                       td [ (txt @@ if t.trustee_pd_done then "yes" else "no") ];
+                       td [ (txt @@ if t.done_ then "yes" else "no") ];
                      ])
             tl
         in
@@ -649,9 +643,8 @@ let ready_to_decrypt () =
   | None -> false
   | Some sh ->
       List.for_all
-        (fun t ->
-          t.shuffler_address = "server" || t.shuffler_fingerprint <> None)
-        sh.shuffles_shufflers
+        (fun (t : shuffler) -> t.address = "server" || t.fingerprint <> None)
+        sh.shufflers
 
 let trustee_shuffle_link ~token ~recipient =
   let open (val !Belenios_js.I18n.gettext) in
@@ -681,7 +674,7 @@ let main_zone_shuffling () =
     match !shuffles with
     | None -> Lwt.return @@ div [ txt @@ s_ "Failed to connect; please reload" ]
     | Some x ->
-        let sl = x.shuffles_shufflers in
+        let sl = x.shufflers in
         let header_row =
           tr
             [
@@ -694,31 +687,29 @@ let main_zone_shuffling () =
         in
         let sel_exists =
           List.exists
-            (fun t -> match t.shuffler_token with Some _ -> true | _ -> false)
+            (fun (t : shuffler) ->
+              match t.token with Some _ -> true | _ -> false)
             sl
         in
         let* sel_but_list =
           Lwt_list.map_s
-            (fun t ->
-              match t.shuffler_token with
+            (fun (t : shuffler) ->
+              match t.token with
               | Some token ->
                   let* link =
-                    trustee_shuffle_link ~token ~recipient:t.shuffler_address
+                    trustee_shuffle_link ~token ~recipient:t.address
                   in
                   Lwt.return [ link ]
               | _ ->
                   let attr =
-                    if sel_exists || t.shuffler_fingerprint <> None then
+                    if sel_exists || t.fingerprint <> None then
                       [ a_disabled () ]
                     else []
                   in
                   let make_but lab req =
                     button ~a:attr lab (fun () ->
                         let* x =
-                          Api.(
-                            post
-                              (election_shuffle uuid t.shuffler_address)
-                              !user req)
+                          Api.(post (election_shuffle uuid t.address) !user req)
                         in
                         match x.code with
                         | 200 -> !update_main_zone ()
@@ -733,8 +724,8 @@ let main_zone_shuffling () =
         in
         let rows_of_sh =
           List.map2
-            (fun t b ->
-              if t.shuffler_address = "server" then
+            (fun (t : shuffler) b ->
+              if t.address = "server" then
                 tr
                   [
                     td
@@ -747,13 +738,13 @@ let main_zone_shuffling () =
               else
                 tr
                   [
-                    td [ txt t.shuffler_address ];
+                    td [ txt t.address ];
                     td b;
                     td
                       [
                         (txt
                         @@
-                        match t.shuffler_fingerprint with
+                        match t.fingerprint with
                         | Some "" -> s_ "skipped"
                         | Some _ -> s_ "yes"
                         | _ -> "no");
@@ -829,7 +820,7 @@ let recompute_main_zone () =
           assert false)
     else
       let* status = Cache.get_until_success Cache.e_status in
-      match status.status_state with
+      match status.state with
       | `EncryptedTally ->
           let* () = get_trustees_pd () in
           if all_pd () then

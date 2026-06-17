@@ -49,10 +49,8 @@ struct
     | [] -> (
         match method_ with
         | `POST -> (
-            let@ i = body.run Belenios_web_api.auth_dummy_info_of_string in
-            let user =
-              { user_domain = a.auth_instance; user_name = i.username }
-            in
+            let@ i = body.run !*Belenios_web_api.auth_dummy_info_of_yojson in
+            let user : user = { domain = a.auth_instance; name = i.username } in
             let* account =
               perform_admin_login a ~name:None ~address:None user
             in
@@ -60,7 +58,7 @@ struct
             | Ok account ->
                 let* token = Api_generic.new_token account user in
                 Api_generic.return_json 200
-                @@ Belenios_web_api.string_of_auth_token token
+                @@ !+Belenios_web_api.yojson_of_auth_token token
             | Error () -> Api_generic.forbidden)
         | _ -> Api_generic.method_not_allowed)
     | _ -> Api_generic.not_found

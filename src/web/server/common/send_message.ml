@@ -72,7 +72,8 @@ let send ?internal (msg : message) =
     | Some false, None -> Lwt.return_error ()
     | (None | Some false), Some (url, key) -> (
         let body =
-          msg |> wrap_message ~key |> string_of_message_payload
+          msg |> wrap_message ~key
+          |> !+yojson_of_message_payload
           |> Cohttp_lwt.Body.of_string
         in
         let* response, x =

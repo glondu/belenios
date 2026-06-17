@@ -112,8 +112,8 @@ module Ocsipersist_bulk = struct
 
     let name = "primary_queue"
     let default = [||]
-    let of_string = bulk_emails_of_string
-    let to_string x = string_of_bulk_emails x
+    let of_string = !*bulk_emails_of_yojson
+    let to_string = !+yojson_of_bulk_emails
   end
 
   module SecondaryQueueInput = struct
@@ -121,8 +121,8 @@ module Ocsipersist_bulk = struct
 
     let name = "secondary_queue"
     let default = [||]
-    let of_string = bulk_emails_of_string
-    let to_string x = string_of_bulk_emails x
+    let of_string = !*bulk_emails_of_yojson
+    let to_string = !+yojson_of_bulk_emails
   end
 
   module ProcessedInput = struct
@@ -130,8 +130,8 @@ module Ocsipersist_bulk = struct
 
     let name = "processed"
     let default = { mode = `Primary; processed = 0 }
-    let of_string = bulk_processed_of_string
-    let to_string x = string_of_bulk_processed x
+    let of_string = !*bulk_processed_of_yojson
+    let to_string = !+yojson_of_bulk_processed
   end
 
   module PrimaryQueue = MakeSerializable (PrimaryQueueInput)

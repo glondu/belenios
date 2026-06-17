@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Syntax = Question_l_j
+module Syntax = Question_l
 
 type t = Syntax.question
 type Types.raw_question += Q of t
@@ -29,21 +29,18 @@ let type_ = "Lists"
 let make ~value ~extra = Types.{ type_; value = Q value; extra }
 
 let wrap ~value ~extra =
-  let value = Q (value |> Yojson.Safe.to_string |> Syntax.question_of_string) in
+  let value = Q (value |> Syntax.question_of_yojson) in
   Types.{ type_; value; extra }
 
 let unwrap (q : Types.question) =
   match q.value with
   | Q x ->
-      let value = x |> Syntax.string_of_question |> Yojson.Safe.from_string in
+      let value = x |> Syntax.yojson_of_question in
       let o = match q.extra with None -> [] | Some x -> [ ("extra", x) ] in
       Some (`Assoc (("type", `String type_) :: ("value", value) :: o))
   | _ -> None
 
 let erase (q : t) : t =
-  {
-    q_answers = Array.map (Array.map (fun _ -> "")) q.q_answers;
-    q_question = "";
-  }
+  { answers = Array.map (Array.map (fun _ -> "")) q.answers; question = "" }
 
 let check _ _ = Ok ()

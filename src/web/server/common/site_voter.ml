@@ -66,7 +66,7 @@ struct
           Lwt.fail (Election_not_found (uuid, "send_confirmation_email")))
     in
     let open (val election) in
-    let title = template.t_name in
+    let title = template.name in
     let* metadata = Web_persist.get_election_metadata s in
     let* l = get_preferred_gettext () in
     let open (val l) in
@@ -80,7 +80,7 @@ struct
                  uuid;
                  title;
                  confirmation;
-                 contact = metadata.e_contact;
+                 contact = metadata.contact;
                }
         in
         match r with Ok _ -> Lwt.return_true | Error () -> Lwt.return_false)

@@ -90,13 +90,13 @@ let q_to_gen (question : Belenios_question.t) =
         names ) =
     match question.value with
     | Homomorphic.Q q ->
-        ( q.q_question,
-          q.q_answers,
-          [| q.q_answers |],
-          q.q_blank,
+        ( q.question,
+          q.answers,
+          [| q.answers |],
+          q.blank,
           `Select,
-          q.q_min,
-          q.q_max,
+          q.min,
+          q.max,
           1,
           `None,
           default_grades )
@@ -104,28 +104,16 @@ let q_to_gen (question : Belenios_question.t) =
         let me = Non_homomorphic.get_counting_method question.extra in
         let bk, ki, gr, me, seats =
           match me with
-          | `Schulze o ->
-              (o.schulze_extra_blank, `Sort, default_grades, `Schulze, 1)
-          | `STV o ->
-              (o.stv_extra_blank, `Sort, default_grades, `STV, o.stv_extra_seats)
-          | `MajorityJudgment o ->
-              (o.mj_extra_blank, `Grade, o.mj_extra_grades, `MJ, 1)
+          | `Schulze o -> (o.blank, `Sort, default_grades, `Schulze, 1)
+          | `STV o -> (o.blank, `Sort, default_grades, `STV, o.seats)
+          | `MajorityJudgment o -> (o.blank, `Grade, o.grades, `MJ, 1)
           | `None -> (false, `Grade, default_grades, `None, 1)
         in
-        ( q.q_question,
-          q.q_answers,
-          [| q.q_answers |],
-          bk,
-          ki,
-          1,
-          1,
-          seats,
-          me,
-          gr )
+        (q.question, q.answers, [| q.answers |], bk, ki, 1, 1, seats, me, gr)
     | Lists.Q q ->
-        ( q.q_question,
-          q.q_answers.(0),
-          q.q_answers,
+        ( q.question,
+          q.answers.(0),
+          q.answers,
           false,
           `Lists,
           1,
@@ -154,11 +142,11 @@ let gen_to_q q =
       Homomorphic.make
         ~value:
           {
-            q_question = q.question;
-            q_answers = q.answers;
-            q_blank = q.blank;
-            q_min = q.sel_min;
-            q_max = q.sel_max;
+            question = q.question;
+            answers = q.answers;
+            blank = q.blank;
+            min = q.sel_min;
+            max = q.sel_max;
           }
         ~extra:None
   | `Sort ->
@@ -184,7 +172,7 @@ let gen_to_q q =
         | _ -> None
       in
       Non_homomorphic.make
-        ~value:{ q_question = q.question; q_answers = q.answers }
+        ~value:{ question = q.question; answers = q.answers }
         ~extra
   | `Grade ->
       let extra =
@@ -201,11 +189,11 @@ let gen_to_q q =
              ])
       in
       Non_homomorphic.make
-        ~value:{ q_question = q.question; q_answers = q.answers }
+        ~value:{ question = q.question; answers = q.answers }
         ~extra
   | `Lists ->
       Lists.make
-        ~value:{ q_question = q.question; q_answers = q.answers_lists }
+        ~value:{ question = q.question; answers = q.answers_lists }
         ~extra:None
 
 let delete_or_insert item attr handler_d handler_i =
@@ -239,22 +227,22 @@ let local_save () =
   let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
   let draft_questions =
     let open (val Election.get_serializers v) in
-    let t_questions = Array.map of_concrete qq in
-    { draft.draft_questions with t_questions }
+    let questions = Array.map of_concrete qq in
+    { draft.questions with questions }
   in
   let* server_configuration = Cache.get Cache.config in
   let draft_group =
     if Election.has_nh_questions (Template (v, draft_questions)) then
       match server_configuration with
-      | Error _ -> draft.draft_group
+      | Error _ -> draft.group
       | Ok c -> c.default_nh_group
-    else draft.draft_group
+    else draft.group
   in
   let exception Question_error of int * string in
   try
     let () =
       let open (val !Belenios_js.I18n.gettext) in
-      let version = draft.draft_version in
+      let version = draft.version in
       let group = lazy (Group.of_string ~version draft_group) in
       Array.iteri
         (fun i q ->
@@ -283,12 +271,12 @@ let local_save () =
       !set_complexity @@ Election.get_complexity @@ Template (v, draft_questions)
     in
     Cache.set Cache.draft
-      (Draft (v, { draft with draft_questions; draft_group }));
+      (Draft (v, { draft with questions = draft_questions; group = draft_group }));
     Lwt.return_unit
   with Question_error (i, msg) ->
     alert msg;
     (* restore cache state *)
-    let qs = draft.draft_questions.t_questions in
+    let qs = draft.questions.questions in
     let open (val Election.get_serializers v) in
     !all_gen_quest.(i) <- (to_concrete >> q_to_gen) qs.(i);
     !update_question ~save:false (i + 1)
@@ -995,8 +983,7 @@ let draft_recompute_main_zone () =
     in
     let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
     let () =
-      !set_complexity @@ Election.get_complexity
-      @@ Template (v, draft.draft_questions)
+      !set_complexity @@ Election.get_complexity @@ Template (v, draft.questions)
     in
     Lwt.return
     @@ div
@@ -1080,11 +1067,13 @@ let questions_content () =
   let* (Questions (v, qs)) =
     if is_draft then
       let* (Draft (v, draft)) = Cache.get_until_success Cache.draft in
-      Lwt.return (Questions (v, draft.draft_questions.t_questions))
+      Lwt.return (Questions (v, draft.questions.questions))
     else
       let* x = Cache.get_until_success Cache.e_elec in
-      let (Template (v, elec)) = Belenios.Election.template_of_string x in
-      Lwt.return (Questions (v, elec.t_questions))
+      let (Template (v, elec)) =
+        Belenios.Election.versioned_template_of_yojson x
+      in
+      Lwt.return (Questions (v, elec.questions))
   in
   let open (val Election.get_serializers v) in
   all_gen_quest := Array.map (to_concrete >> q_to_gen) qs;

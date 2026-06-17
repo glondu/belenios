@@ -28,7 +28,7 @@ open Belenios_server_core
 open Web_common
 open Web_auth_sig
 
-let check_allowlist a ~login =
+let check_allowlist (a : auth_config) ~login =
   match List.assoc_opt "allowlist" a.auth_config with
   | None -> Lwt.return_true
   | Some f ->
@@ -41,8 +41,8 @@ let check_allowlist a ~login =
       in
       if List.mem login allowlist then Lwt.return_true else Lwt.return_false
 
-let perform_admin_login a ~name ~address user =
-  let* allowed = check_allowlist a ~login:user.user_name in
+let perform_admin_login a ~name ~address (user : user) =
+  let* allowed = check_allowlist a ~login:user.name in
   if allowed then
     let* id = Storage.get_user_id user in
     match id with
@@ -220,9 +220,7 @@ struct
         if auth_system = a.auth_system then
           let cont : Belenios_web_api.user_info option -> _ = function
             | Some { login; name; address; timestamp } ->
-                let user =
-                  { user_domain = a.auth_instance; user_name = login }
-                in
+                let user : user = { domain = a.auth_instance; name = login } in
                 let () = env.user <- Some { user; name; timestamp } in
                 let@ () =
                  fun cont ->
@@ -271,7 +269,7 @@ struct
 
   let get_election_auth_configs s =
     let* metadata = Web_persist.get_election_metadata s in
-    match metadata.e_auth_config with
+    match metadata.auth_config with
     | None -> return []
     | Some x ->
         x

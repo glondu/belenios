@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Eliom_service
+open Belenios
 open Belenios_storage_api
 open Web_common
 
@@ -49,7 +50,7 @@ struct
           | None -> { kind = `Site; username = None }
         in
         String.send
-          ( Belenios_web_api.string_of_connect_context context,
+          ( !+Belenios_web_api.yojson_of_connect_context context,
             "application/json" ))
 
   let login_belenios =
@@ -71,12 +72,12 @@ struct
     let* info = Cohttp_lwt.Body.to_string body in
     match Cohttp.Code.code_of_status x.status with
     | 200 -> (
-        match Belenios_web_api.user_info_of_string info with
+        match !*Belenios_web_api.user_info_of_yojson info with
         | x -> Lwt.return_some x
         | exception _ -> Lwt.return_none)
     | _ -> Lwt.return_none
 
-  let handler _ a =
+  let handler _ (a : auth_config) =
     let get x = List.assoc_opt x a.auth_config in
     let module X = struct
       let pre_login_handler _ ~state =

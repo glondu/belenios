@@ -196,12 +196,12 @@ module Make (Base : BASE) = struct
   let confirmation_fragment l ~snippet ~progress election result =
     let open (val l : I18n.GETTEXT) in
     let open (val election : Belenios.Election.ELECTION) in
-    let name = template.t_name in
+    let name = template.name in
     let result, step_title, final_step_class =
       match result with
       | `Ok
           ({ recipient; name; hash; revote; weight; email } :
-            Belenios_messages.confirmation) ->
+            Belenios_web_api.confirmation) ->
           let this_is_a_revote =
             if revote then
               span

@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,32 +20,49 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Web-specific serializable datatypes">
+open Ppx_yojson_conv_lib.Yojson_conv
 
-type uuid = string wrap <ocaml module="Belenios_core.Common_types.Uuid">
-type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
+type uuid = Belenios_core.Serializable.uuid [@@deriving yojson]
+type hash = Belenios_core.Serializable.hash [@@deriving yojson]
 
-(** {1 Bulk emails} *)
+type ('a, 'b, 'c) signed_msg =
+  ('a, 'b, 'c) Belenios_core.Serializable.signed_msg
+[@@deriving yojson]
 
-type material_message <ocaml predef from="Belenios_messages.Serializable"> = abstract
+type question = Question.t
 
-type bulk_email =
-  [ Credential of material_message
-  ]
+let question_of_yojson = Question.t_of_yojson
+let yojson_of_question = Question.yojson_of_t
 
-type bulk_emails = bulk_email list <ocaml repr="array">
+type lang_dir = Belenios_core.Serializable.lang_dir [@@deriving yojson]
 
-type bulk_mode = [ Primary | Secondary ]
+type 'a params = {
+  version : int;
+  description : string;
+  name : string;
+  group : string;
+  public_key : 'a;
+  questions : question array;
+  uuid : uuid;
+  administrator : string option; [@yojson.option]
+  credential_authority : string option; [@yojson.option]
+  language : (string * lang_dir) option; [@yojson.option]
+}
+[@@deriving yojson]
+(** Election parameters relevant for creating a ballot. *)
 
-type bulk_processed = {
-    mode : bulk_mode;
-    processed : int;
-  }
+type json = Yojson.Safe.t
 
-(** {1 OTP logging} *)
+let json_of_yojson = Fun.id
+let yojson_of_json = Fun.id
 
-type otp_record = {
-    recipient : string;
-    code : string;
-    expiration_time : float;
-  }
+type ('a, 'b) raw_ballot = {
+  election_uuid : uuid;
+  election_hash : hash;
+  credential : 'a;
+  answers : json array;
+}
+[@@deriving yojson]
+
+type ('a, 'b) ballot = ('a, 'b, ('a, 'b) raw_ballot) signed_msg
+[@@deriving yojson]

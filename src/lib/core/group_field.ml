@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Serializable_j
+open Serializable
 open Common
 
 (** Finite field arithmetic *)

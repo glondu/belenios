@@ -117,8 +117,9 @@ let shuffle uuid ~token =
     Dom.appendChild container estimation;
     Dom.appendChild container wait;
     let* shuffle_data =
-      compute_shuffle ~estimation (Js.string election)
-        (Js.string nh_ciphertexts)
+      compute_shuffle ~estimation
+        (Js.string @@ Yojson.Safe.to_string election)
+        (Js.string @@ Yojson.Safe.to_string nh_ciphertexts)
     in
     let shuffle_data = Js.to_string shuffle_data in
     Dom.removeChild container estimation;
@@ -148,7 +149,9 @@ let shuffle uuid ~token =
       let@ () = button @@ s_ "Submit" in
       Dom.removeChild container submit_div;
       let* x =
-        Api.(post (trustee_election uuid) (`Trustee token) shuffle_data)
+        Api.(
+          post (trustee_election uuid) (`Trustee token)
+          @@ Yojson.Safe.from_string shuffle_data)
       in
       let msg =
         match x.code with

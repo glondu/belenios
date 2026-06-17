@@ -22,7 +22,7 @@
 open Lwt.Syntax
 open Belenios_platform
 open Belenios_core
-open Serializable_j
+open Serializable
 open Signatures
 open Common
 
@@ -40,8 +40,8 @@ module MakeCert (P : PKI) = struct
   let xch_cert_keys =
     {
       dst = dst_prefix ^ "-pedersen-cert";
-      to_string = string_of_cert_keys (swrite G.to_string) write_full_context;
-      of_string = cert_keys_of_string (sread G.of_string) read_full_context;
+      to_yojson = yojson_of_cert_keys !&G.to_string yojson_of_full_context;
+      of_yojson = cert_keys_of_yojson !$G.of_string full_context_of_yojson;
     }
 
   let compute_polynomial ~seed ~threshold =
@@ -62,31 +62,30 @@ module MakeCert (P : PKI) = struct
       compute_polynomial ~seed ~threshold:context.context.threshold
     in
     let coefexps = compute_coefexps polynomial in
-    let cert_coefexps =
+    let coefexps =
       { coefexps }
-      |> string_of_coefexps (swrite G.to_string)
-      |> Hash.hash_string
+      |> yojson_of_coefexps !&G.to_string
+      |> Yojson.Safe.to_string |> Hash.hash_string
     in
     let signed =
       P.sign xch_cert_keys sk
         {
-          cert_verification = G.(g **~ sk);
-          cert_encryption = G.(g **~ dk);
-          cert_context = context;
-          cert_coefexps;
+          verification = G.(g **~ sk);
+          encryption = G.(g **~ dk);
+          context;
+          coefexps;
         }
     in
-    let s_message = { signed.s_message with cert_context = context.index } in
-    { signed with s_message }
+    let message = { signed.message with context = context.index } in
+    { signed with message }
 
-  let verify_cert cert_context x =
-    let keys = x.s_message in
-    G.check keys.cert_verification
-    && G.check keys.cert_encryption
-    && cert_context.index = keys.cert_context
+  let verify_cert context (x : _ signed_msg) =
+    let keys = x.message in
+    G.check keys.verification && G.check keys.encryption
+    && context.index = keys.context
     &&
-    let s_message = { x.s_message with cert_context } in
-    P.verify xch_cert_keys keys.cert_verification { x with s_message }
+    let message = { x.message with context } in
+    P.verify xch_cert_keys keys.verification { x with message }
 end
 
 module MakeVerificator (G : GROUP) = struct
@@ -121,85 +120,83 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
   let xch_single_verification_key =
     {
       dst = dst_prefix ^ "-verification_key";
-      of_string =
-        raw_trustee_public_key_of_string (sread G.of_string)
-          (sread G.Zq.of_string);
-      to_string =
-        string_of_raw_trustee_public_key (swrite G.to_string)
-          (swrite G.Zq.to_string);
+      of_yojson =
+        raw_trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string;
+      to_yojson =
+        yojson_of_raw_trustee_public_key !&G.to_string !&G.Zq.to_string;
     }
 
-  let check_single trustee =
-    let { trustee_public_key = y; _ } = trustee.s_message in
+  let check_single (trustee : _ trustee_public_key) =
+    let { public_key = y; _ } : _ raw_trustee_public_key = trustee.message in
     G.check y && P.verify xch_single_verification_key y trustee
 
   let xch_certs =
     {
       dst = dst_prefix ^ "-pedersen-certs";
-      of_string = certs_of_string (sread G.of_string) (sread G.Zq.of_string);
-      to_string = string_of_certs (swrite G.to_string) (swrite G.Zq.to_string);
+      of_yojson = certs_of_yojson !$G.of_string !$G.Zq.of_string;
+      to_yojson = yojson_of_certs !&G.to_string !&G.Zq.to_string;
     }
 
   let xch_verification_key =
     {
       dst = dst_prefix ^ "-pedersen-verification_key";
-      of_string =
-        trustee_public_key_of_string (sread G.of_string) (sread G.Zq.of_string);
-      to_string =
-        string_of_trustee_public_key (swrite G.to_string)
-          (swrite G.Zq.to_string);
+      of_yojson = trustee_public_key_of_yojson !$G.of_string !$G.Zq.of_string;
+      to_yojson = yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string;
     }
 
   let xch_decryption_key =
     {
       dst = dst_prefix ^ "-pedersen-decryption_key";
-      of_string = partial_decryption_key_of_string (sread G.Zq.of_string);
-      to_string = string_of_partial_decryption_key (swrite G.Zq.to_string);
+      of_yojson = partial_decryption_key_of_yojson !$G.Zq.of_string;
+      to_yojson = yojson_of_partial_decryption_key !&G.Zq.to_string;
     }
 
-  let check_pedersen t =
+  let check_pedersen (t : _ threshold_parameters) =
     let group = G.description in
     let names =
       Array.map
-        (fun x -> x.s_message.s_message.trustee_name)
-        t.t_verification_keys
+        (fun (x : _ threshold_verification_key) -> x.message.message.name)
+        t.verification_keys
     in
-    let threshold = t.t_threshold in
+    let threshold = t.threshold in
     let context = { group; names; threshold } in
     Array.for_alli
       (fun i c -> C.verify_cert { context; index = i + 1 } c)
-      t.t_certs
+      t.certs
     &&
-    let certs = Array.map (fun x -> x.s_message) t.t_certs in
+    let certs = Array.map (fun (x : _ cert) -> x.message) t.certs in
     Array.for_all2
-      (fun cert x ->
+      (fun (cert : _ cert_keys) x ->
         let hash =
-          x |> string_of_coefexps (swrite G.to_string) |> Hash.hash_string
+          x
+          |> yojson_of_coefexps !&G.to_string
+          |> Yojson.Safe.to_string |> Hash.hash_string
         in
-        hash = cert.cert_coefexps)
-      certs t.t_coefexps
-    && (let sigs = t.t_signatures in
+        hash = cert.coefexps)
+      certs t.coefexps
+    && (let sigs = t.signatures in
         let n = Array.length sigs in
         n = Array.length certs
-        && n = Array.length t.t_coefexps
+        && n = Array.length t.coefexps
         && Array.for_all2
-             (fun cert s_signature ->
-               let s_message = { context; certs = t.t_certs } in
-               P.verify xch_certs cert.cert_verification
-                 { s_message; s_signature })
+             (fun cert signature ->
+               let message = { context; certs = t.certs } in
+               P.verify xch_certs cert.verification { message; signature })
              certs sigs)
     &&
-    let coefexps = Array.map (fun x -> x.coefexps) t.t_coefexps in
-    Array.for_all (fun x -> check_single x.s_message) t.t_verification_keys
+    let coefexps = Array.map (fun (x : _ coefexps) -> x.coefexps) t.coefexps in
+    Array.for_all
+      (fun (x : _ threshold_verification_key) -> check_single x.message)
+      t.verification_keys
     &&
     let computed_vks = V.compute_verification_keys coefexps in
-    t.t_threshold = Array.length coefexps.(0)
+    t.threshold = Array.length coefexps.(0)
     && Array.for_all3
          G.(
-           fun cert vk computed_vk ->
-             vk.s_message.s_message.trustee_public_key =~ computed_vk
-             && P.verify xch_verification_key cert.cert_verification vk)
-         certs t.t_verification_keys computed_vks
+           fun cert (vk : _ threshold_verification_key) computed_vk ->
+             vk.message.message.public_key =~ computed_vk
+             && P.verify xch_verification_key cert.verification vk)
+         certs t.verification_keys computed_vks
 
   let check trustees =
     trustees
@@ -209,12 +206,13 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
 
   let combine_keys trustees =
     trustees
-    |> List.map (function
-      | `Single t -> t.s_message.trustee_public_key
-      | `Pedersen p ->
-          p.t_coefexps
-          |> Array.map (fun x -> x.coefexps)
-          |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one)
+    |> List.map (fun (x : _ trustee_kind) ->
+        match x with
+        | `Single t -> t.message.public_key
+        | `Pedersen p ->
+            p.coefexps
+            |> Array.map (fun (x : _ coefexps) -> x.coefexps)
+            |> Array.fold_left (fun accu x -> G.(accu *~ x.(0))) G.one)
     |> List.fold_left G.( *~ ) G.one
 
   let lagrange indexes j =
@@ -228,7 +226,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
     (* neutral factor *)
     let dummy =
       match partial_decryptions with
-      | x :: _ -> Shape.map (fun _ -> G.one) x.owned_payload.decryption_factors
+      | x :: _ -> Shape.map (fun _ -> G.one) x.payload.decryption_factors
       | [] -> failwith "no partial decryptions"
     in
     (* compute synthetic factor for each trustee_kind *)
@@ -262,9 +260,8 @@ module MakeSimple (G : GROUP) = struct
   let generate = random
 
   let prove ~name x =
-    let trustee_public_key = g **~ x in
-    P.sign Comb.xch_single_verification_key x
-      { trustee_public_key; trustee_name = name }
+    let public_key = g **~ x in
+    P.sign Comb.xch_single_verification_key x { public_key; name }
 end
 
 module MakePedersen (C : CHANNELS) = struct
@@ -289,8 +286,8 @@ module MakePedersen (C : CHANNELS) = struct
   let xch_secret =
     {
       dst = dst_prefix ^ "-secret";
-      of_string = secret_of_string (sread Zq.of_string);
-      to_string = string_of_secret (swrite Zq.to_string);
+      of_yojson = secret_of_yojson !$Zq.of_string;
+      to_yojson = yojson_of_secret !&Zq.to_string;
     }
 
   let random () = Zq.random (Crypto_primitives.get_rng ())
@@ -326,13 +323,12 @@ module MakePedersen (C : CHANNELS) = struct
     let threshold = step2 certs in
     let n = Array.length certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
-    let certs' = Array.map (fun x -> x.s_message) certs.certs in
+    let certs' = Array.map (fun x -> x.message) certs.certs in
     let vk = g **~ sk and ek = g **~ dk in
     let i =
       Array.findi
         (fun i cert ->
-          if cert.cert_verification =~ vk && cert.cert_encryption =~ ek then
-            Some (i + 1)
+          if cert.verification =~ vk && cert.encryption =~ ek then Some (i + 1)
           else None)
         certs'
     in
@@ -352,38 +348,42 @@ module MakePedersen (C : CHANNELS) = struct
     let () = fill_polynomial 0 in
     let polynomial = Cert.compute_polynomial ~seed ~threshold in
     let coefexps = Cert.compute_coefexps polynomial in
-    let p_coefexps = { coefexps } in
-    let p_signature = (P.sign Comb.xch_certs sk certs).s_signature in
-    let* p_secrets =
+    let coefexps = { coefexps } in
+    let signature = (P.sign Comb.xch_certs sk certs).signature in
+    let* secrets =
       Array.init_lwt n (fun j ->
           let secret = eval_poly polynomial (Zq.of_int (j + 1)) in
-          C.send xch_secret sk certs'.(j).cert_encryption { secret })
+          C.send xch_secret sk certs'.(j).encryption { secret })
     in
-    Lwt.return { p_secrets; p_coefexps; p_signature }
+    Lwt.return { secrets; coefexps; signature }
 
-  let step3_check certs i polynomial =
+  let step3_check (certs : certs) i (polynomial : polynomial) =
     let hash =
-      polynomial.p_coefexps
-      |> string_of_coefexps (swrite G.to_string)
-      |> Hash.hash_string
+      polynomial.coefexps
+      |> yojson_of_coefexps !&G.to_string
+      |> Yojson.Safe.to_string |> Hash.hash_string
     in
-    hash = certs.certs.(i).s_message.cert_coefexps
-    && P.verify Comb.xch_certs certs.certs.(i).s_message.cert_verification
-         { s_message = certs; s_signature = polynomial.p_signature }
+    hash = certs.certs.(i).message.coefexps
+    && P.verify Comb.xch_certs certs.certs.(i).message.verification
+         { message = certs; signature = polynomial.signature }
 
   let step4 certs polynomials =
     let threshold = step2 certs in
     let n = Array.length certs.certs in
     assert (n = Array.length polynomials);
-    let certs = Array.map (fun x -> x.s_message) certs.certs in
-    let vi_signatures = Array.map (fun x -> x.p_signature) polynomials in
-    let vi_coefexps = Array.map (fun x -> x.p_coefexps) polynomials in
+    let certs = Array.map (fun x -> x.message) certs.certs in
+    let signatures =
+      Array.map (fun (x : polynomial) -> x.signature) polynomials
+    in
+    let coefexps = Array.map (fun (x : polynomial) -> x.coefexps) polynomials in
     Array.iteri
       (fun i x ->
         let hash =
-          x |> string_of_coefexps (swrite G.to_string) |> Hash.hash_string
+          x
+          |> yojson_of_coefexps !&G.to_string
+          |> Yojson.Safe.to_string |> Hash.hash_string
         in
-        if hash = certs.(i).cert_coefexps then
+        if hash = certs.(i).coefexps then
           if threshold = Array.length x.coefexps then ()
           else
             let msg = Printf.sprintf "coefexps %d has wrong length" (i + 1) in
@@ -391,12 +391,10 @@ module MakePedersen (C : CHANNELS) = struct
         else
           let msg = Printf.sprintf "coefexps %d does not validate" (i + 1) in
           raise (PedersenFailure msg))
-      vi_coefexps;
+      coefexps;
     Array.init n (fun j ->
-        let vi_secrets =
-          Array.init n (fun i -> polynomials.(i).p_secrets.(j))
-        in
-        { vi_secrets; vi_coefexps; vi_signatures })
+        let secrets = Array.init n (fun i -> polynomials.(i).secrets.(j)) in
+        { secrets; coefexps; signatures })
 
   let sign_trustee_public_key ~sk x = P.sign Comb.xch_verification_key sk x
 
@@ -404,14 +402,13 @@ module MakePedersen (C : CHANNELS) = struct
     let threshold = step2 certs in
     let context = certs.context in
     let n = Array.length certs.certs in
-    let certs = Array.map (fun x -> x.s_message) certs.certs in
+    let certs = Array.map (fun x -> x.message) certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let vk = g **~ sk and ek = g **~ dk in
     let j =
       Array.findi
         (fun i cert ->
-          if cert.cert_verification =~ vk && cert.cert_encryption =~ ek then
-            Some (i + 1)
+          if cert.verification =~ vk && cert.encryption =~ ek then Some (i + 1)
           else None)
         certs
     in
@@ -420,23 +417,24 @@ module MakePedersen (C : CHANNELS) = struct
       | None -> raise (PedersenFailure "could not find my certificate")
       | Some i -> (i, Zq.of_int i)
     in
-    assert (n = Array.length vinput.vi_secrets);
+    assert (n = Array.length vinput.secrets);
     let* secrets =
       Array.init_lwt n (fun i ->
           let* { secret } =
-            C.recv xch_secret dk certs.(i).cert_verification
-              vinput.vi_secrets.(i)
+            C.recv xch_secret dk certs.(i).verification vinput.secrets.(i)
           in
           Lwt.return secret)
     in
-    assert (n = Array.length vinput.vi_coefexps);
+    assert (n = Array.length vinput.coefexps);
     let coefexps =
       Array.init n (fun i ->
-          let x = vinput.vi_coefexps.(i) in
+          let x = vinput.coefexps.(i) in
           let hash =
-            x |> string_of_coefexps (swrite G.to_string) |> Hash.hash_string
+            x
+            |> yojson_of_coefexps !&G.to_string
+            |> Yojson.Safe.to_string |> Hash.hash_string
           in
-          if hash <> certs.(i).cert_coefexps then
+          if hash <> certs.(i).coefexps then
             raise
               (PedersenFailure
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)));
@@ -456,44 +454,45 @@ module MakePedersen (C : CHANNELS) = struct
           (PedersenFailure
              (Printf.sprintf "secret %d does not validate" (i + 1)))
     done;
-    let pdk_decryption_key = Array.fold_left Zq.( + ) Zq.zero secrets in
-    let pdk = { pdk_decryption_key } in
+    let decryption_key = Array.fold_left Zq.( + ) Zq.zero secrets in
+    let pdk : _ partial_decryption_key = { decryption_key } in
     let name = context.names.(index - 1) in
-    let vo_public_key =
-      K.prove ~name pdk_decryption_key |> sign_trustee_public_key ~sk
+    let public_key =
+      K.prove ~name decryption_key |> sign_trustee_public_key ~sk
     in
-    let* vo_private_key = C.send xch_decryption_key sk ek pdk in
-    Lwt.return { vo_public_key; vo_private_key }
+    let* private_key = C.send xch_decryption_key sk ek pdk in
+    Lwt.return { public_key; private_key }
 
-  let step5_check certs i polynomials voutput =
+  let step5_check (certs : certs) i polynomials voutput =
     let n = Array.length certs.certs in
-    let certs = Array.map (fun x -> x.s_message) certs.certs in
+    let certs = Array.map (fun x -> x.message) certs.certs in
     assert (n = Array.length polynomials);
     let coefexps =
       Array.init n (fun i ->
-          let x = polynomials.(i).p_coefexps in
+          let x = (polynomials.(i) : polynomial).coefexps in
           let hash =
-            x |> string_of_coefexps (swrite G.to_string) |> Hash.hash_string
+            x
+            |> yojson_of_coefexps !&G.to_string
+            |> Yojson.Safe.to_string |> Hash.hash_string
           in
-          if hash <> certs.(i).cert_coefexps then
+          if hash <> certs.(i).coefexps then
             raise
               (PedersenFailure
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)));
           x.coefexps)
     in
     let y = (V.compute_verification_keys coefexps).(i) in
-    let { vo_public_key; _ } = voutput in
-    Comb.check [ `Single vo_public_key.s_message ]
-    && vo_public_key.s_message.s_message.trustee_public_key =~ y
-    && P.verify Comb.xch_verification_key certs.(i).cert_verification
-         vo_public_key
+    let { public_key; _ } = voutput in
+    Comb.check [ `Single public_key.message ]
+    && public_key.message.message.public_key =~ y
+    && P.verify Comb.xch_verification_key certs.(i).verification public_key
 
   let step6 certs polynomials voutputs =
-    let t_threshold = step2 certs in
+    let threshold = step2 certs in
     let n = Array.length certs.certs in
-    let t_certs = certs.certs in
-    let t_signatures = Array.map (fun x -> x.p_signature) polynomials in
-    let certs = Array.map (fun x -> x.s_message) t_certs in
+    let certs = certs.certs in
+    let signatures = Array.map (fun x -> x.signature) polynomials in
+    let certs' = Array.map (fun x -> x.message) certs in
     assert (n = Array.length polynomials);
     assert (n = Array.length voutputs);
     let coefexps =
@@ -503,36 +502,35 @@ module MakePedersen (C : CHANNELS) = struct
               (PedersenFailure
                  (Printf.sprintf "coefexps %d does not validate" (i + 1)))
           in
-          let x = polynomials.(i).p_coefexps in
+          let x = polynomials.(i).coefexps in
           let hash =
-            x |> string_of_coefexps (swrite G.to_string) |> Hash.hash_string
+            x
+            |> yojson_of_coefexps !&G.to_string
+            |> Yojson.Safe.to_string |> Hash.hash_string
           in
-          if hash <> certs.(i).cert_coefexps then fail ();
+          if hash <> certs'.(i).coefexps then fail ();
           let r = x.coefexps in
-          if not (t_threshold = Array.length r) then fail ();
+          if not (threshold = Array.length r) then fail ();
           r)
     in
     let computed_vks = V.compute_verification_keys coefexps in
     for j = 0 to n - 1 do
       let voutput = voutputs.(j) in
-      if not (Comb.check [ `Single voutput.vo_public_key.s_message ]) then
+      if not (Comb.check [ `Single voutput.public_key.message ]) then
         raise
           (PedersenFailure (Printf.sprintf "pok %d does not validate" (j + 1)));
-      if
-        not
-          (voutput.vo_public_key.s_message.s_message.trustee_public_key
-         =~ computed_vks.(j))
+      if not (voutput.public_key.message.message.public_key =~ computed_vks.(j))
       then
         raise
           (PedersenFailure
              (Printf.sprintf "verification key %d is incorrect" (j + 1)))
     done;
     {
-      t_threshold;
-      t_certs;
-      t_coefexps = Array.map (fun x -> x.p_coefexps) polynomials;
-      t_signatures;
-      t_verification_keys = Array.map (fun x -> x.vo_public_key) voutputs;
+      threshold;
+      certs;
+      coefexps = Array.map (fun (x : polynomial) -> x.coefexps) polynomials;
+      signatures;
+      verification_keys = Array.map (fun x -> x.public_key) voutputs;
     }
 end
 

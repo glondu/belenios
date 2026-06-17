@@ -20,11 +20,11 @@
 (**************************************************************************)
 
 open Belenios_platform
-module PSerializable_j = Serializable_j
+module PSerializable = Serializable
 open Belenios_core
-open Serializable_core_j
-open Serializable_j
-open PSerializable_j
+open Serializable_core
+open Serializable
+open PSerializable
 open Signatures
 open Common
 open Belenios_question
@@ -40,84 +40,83 @@ let get_complexity qs =
     { nb_ciphertexts = 0; nb_zkps = 0 }
     qs
 
-let template_of_string x =
-  let open PSerializable_j in
-  let params = params_of_string Yojson.Safe.read_json x in
+let template_of_yojson x =
+  let open PSerializable in
+  let params = params_of_yojson Fun.id x in
   {
-    t_name = params.e_name;
-    t_description = params.e_description;
-    t_questions = params.e_questions;
-    t_administrator = params.e_administrator;
-    t_credential_authority = params.e_credential_authority;
-    t_language = params.e_language;
+    name = params.name;
+    description = params.description;
+    questions = params.questions;
+    administrator = params.administrator;
+    credential_authority = params.credential_authority;
+    language = params.language;
   }
 
-let make_raw_election template ~uuid ~group ~public_key =
+let make_raw_election (template : _ template) ~uuid ~group ~public_key =
   let module G = (val Group.of_string group) in
-  let e_public_key = G.of_string public_key in
-  let open PSerializable_j in
+  let public_key = G.of_string public_key in
+  let open PSerializable in
   let params =
     {
-      e_version = 2;
-      e_description = template.t_description;
-      e_name = template.t_name;
-      e_questions = template.t_questions;
-      e_uuid = uuid;
-      e_administrator = template.t_administrator;
-      e_credential_authority = template.t_credential_authority;
-      e_language = template.t_language;
-      e_group = group;
-      e_public_key;
+      version = 2;
+      description = template.description;
+      name = template.name;
+      questions = template.questions;
+      uuid;
+      administrator = template.administrator;
+      credential_authority = template.credential_authority;
+      language = template.language;
+      group;
+      public_key;
     }
   in
-  string_of_params (swrite G.to_string) params
+  yojson_of_params !&G.to_string params
 
 module Parse (R : RAW_ELECTION) () = struct
-  let read_question a b = Question.of_concrete (read_question a b)
-  let write_question b x = write_question b (Question.to_concrete x)
+  let yojson_of_question = yojson_of_question
+  let question_of_yojson = question_of_yojson
 
   let erase_question =
     Question.to_concrete >> erase_question >> Question.of_concrete
 
-  let j = params_of_string Yojson.Safe.read_json R.raw_election
+  let json_election = Yojson.Safe.from_string R.raw_election
+  let j = params_of_yojson Fun.id json_election
 
-  module G = (val Group.of_string j.e_group)
+  module G = (val Group.of_string j.group)
 
-  let params = params_of_string (sread G.of_string) R.raw_election
-  let version = params.e_version
-  let uuid = params.e_uuid
+  let params = params_of_yojson !$G.of_string json_election
+  let version = params.version
+  let uuid = params.uuid
 
   let template =
     {
-      t_name = params.e_name;
-      t_description = params.e_description;
-      t_questions = params.e_questions;
-      t_administrator = params.e_administrator;
-      t_credential_authority = params.e_credential_authority;
-      t_language = params.e_language;
+      name = params.name;
+      description = params.description;
+      questions = params.questions;
+      administrator = params.administrator;
+      credential_authority = params.credential_authority;
+      language = params.language;
     }
 
-  let has_nh_questions = Array.exists Question.is_nh_question params.e_questions
+  let has_nh_questions = Array.exists Question.is_nh_question params.questions
   let fingerprint = Hash.hash_string R.raw_election
-  let public_key = params.e_public_key
+  let public_key = params.public_key
 
   type nonrec ballot = (G.t, G.Zq.t) ballot
 
-  let read_ballot = read_ballot (sread G.of_string) (sread G.Zq.of_string)
-  let write_ballot = write_ballot (swrite G.to_string) (swrite G.Zq.to_string)
-  let get_credential x = Some x.s_message.credential
+  let yojson_of_ballot = yojson_of_ballot !&G.to_string !&G.Zq.to_string
+  let ballot_of_yojson = ballot_of_yojson !$G.of_string !$G.Zq.of_string
+  let get_credential x = Some x.message.credential
 
   type result = Yojson.Safe.t
 
-  let of_generic_result x =
-    `List (x |> Array.map Yojson.Safe.from_string |> Array.to_list)
+  let yojson_of_result = Fun.id
+  let result_of_yojson = Fun.id
+  let of_generic_result x = `List (x |> Array.to_list)
 
   let to_generic_result = function
-    | `List x -> x |> Array.of_list |> Array.map Yojson.Safe.to_string
+    | `List x -> x |> Array.of_list
     | _ -> invalid_arg "to_generirc_result: list expected"
-
-  let write_result = Yojson.Safe.write_json
-  let read_result = Yojson.Safe.read_json
 end
 
 module MakeElection (W : ELECTION_DATA with type question := Question.t) =
@@ -166,10 +165,8 @@ struct
   let xch_ballot =
     {
       dst = dst_prefix ^ "-ballot";
-      of_string =
-        raw_ballot_of_string (sread G.of_string) (sread G.Zq.of_string);
-      to_string =
-        string_of_raw_ballot (swrite G.to_string) (swrite G.Zq.to_string);
+      of_yojson = raw_ballot_of_yojson !$G.of_string !$G.Zq.of_string;
+      to_yojson = yojson_of_raw_ballot !&G.to_string !&G.Zq.to_string;
     }
 
   let create_ballot ~sk m =
@@ -178,8 +175,7 @@ struct
     let credential = G.(g **~ sk) in
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string credential in
     let answers =
-      swap
-        (Array.map2 (create_answer W.public_key zkp) W.template.t_questions m)
+      swap (Array.map2 (create_answer W.public_key zkp) W.template.questions m)
     in
     let raw_ballot = { election_uuid; election_hash; credential; answers } in
     P.sign xch_ballot sk raw_ballot
@@ -188,9 +184,9 @@ struct
 
   let verify_answer y zkp q a = Q.verify_answer q ~public_key:y ~prefix:zkp a
 
-  let check_ballot ballot =
+  let check_ballot (ballot : ballot) =
     let { election_uuid; election_hash; credential; answers } =
-      ballot.s_message
+      ballot.message
     in
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string credential in
     election_uuid = W.uuid
@@ -198,21 +194,23 @@ struct
     && P.verify xch_ballot credential ballot
     && Array.for_all2
          (verify_answer W.public_key zkp)
-         W.template.t_questions answers
+         W.template.questions answers
 
   let check_rawballot rawballot =
     match
-      ballot_of_string (sread G.of_string) (sread G.Zq.of_string) rawballot
+      rawballot |> Yojson.Safe.from_string
+      |> ballot_of_yojson !$G.of_string !$G.Zq.of_string
     with
     | exception e -> Error (`SerializationError (Printexc.to_string e))
     | ballot ->
         if
-          string_of_ballot (swrite G.to_string) (swrite G.Zq.to_string) ballot
-          = rawballot
+          ballot
+          |> yojson_of_ballot !&G.to_string !&G.Zq.to_string
+          |> Yojson.Safe.to_string = rawballot
         then
           Ok
             {
-              rc_credential = G.to_string ballot.s_message.credential;
+              rc_credential = G.to_string ballot.message.credential;
               rc_check = (fun () -> check_ballot ballot);
             }
         else Error `NonCanonical
@@ -224,15 +222,15 @@ struct
            Q.process_ciphertexts q
              (List.map
                 (fun (w, b) ->
-                  (w, Q.extract_ciphertexts q b.s_message.answers.(i)))
+                  (w, Q.extract_ciphertexts q b.message.answers.(i)))
                 bs))
-         W.template.t_questions)
+         W.template.questions)
 
   let extract_nh_ciphertexts x =
     let x = Shape.to_shape_array x in
     let rec loop i accu =
       if i >= 0 then
-        match Question.is_nh_question W.template.t_questions.(i) with
+        match Question.is_nh_question W.template.questions.(i) with
         | false -> loop (i - 1) accu
         | true -> loop (i - 1) (Shape.to_array x.(i) :: accu)
       else Array.of_list accu
@@ -244,7 +242,7 @@ struct
     let n = Array.length x and m = Array.length cc in
     let rec loop i j =
       if i < n && j < m then (
-        match Question.is_nh_question W.template.t_questions.(i) with
+        match Question.is_nh_question W.template.questions.(i) with
         | false -> loop (i + 1) j
         | true ->
             x.(i) <- Shape.of_array cc.(j);
@@ -263,27 +261,27 @@ struct
         let pi = Mix.gen_shuffle_proof W.public_key c c' r' psi in
         loop (i - 1) ((c', pi) :: accu)
       else
-        let shuffle_ciphertexts, shuffle_proofs =
-          Array.(split (of_list accu))
-        in
-        { shuffle_ciphertexts; shuffle_proofs }
+        let ciphertexts, proofs = Array.(split (of_list accu)) in
+        { ciphertexts; proofs }
     in
     loop (Array.length cc - 1) []
 
   let check_shuffle cc s =
     Array.for_all3
       (Mix.check_shuffle_proof W.public_key)
-      cc s.shuffle_ciphertexts s.shuffle_proofs
+      cc s.ciphertexts s.proofs
 
   type factor = (element, scalar) partial_decryption
 
-  let eg_factor x { alpha; _ } =
+  let eg_factor x ({ alpha; _ } : _ ciphertext) =
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string (g **~ x) ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
     (alpha **~ x, fs_prove [| g; alpha |] x (hash ~dst zkp))
 
   let check_ciphertext c =
-    Shape.forall (fun { alpha; beta } -> G.check alpha && G.check beta) c
+    Shape.forall
+      (fun ({ alpha; beta } : _ ciphertext) -> G.check alpha && G.check beta)
+      c
 
   let compute_factor c x =
     if check_ciphertext c then
@@ -296,7 +294,7 @@ struct
     let zkp = Hash.to_hex W.fingerprint ^ "|" ^ G.to_string y ^ "|" in
     let dst = dst_prefix ^ "-decrypt" in
     Shape.forall3
-      (fun { alpha; _ } f { challenge; response } ->
+      (fun ({ alpha; _ } : _ ciphertext) f { challenge; response } ->
         G.check f
         &&
         let commitments =
@@ -309,29 +307,30 @@ struct
       c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result
-  type result = result_type Serializable_t.election_result
+  type result = result_type Serializable.election_result
 
   module Combinator = Trustees.MakeCombinator (G)
 
   let compute_result encrypted_tally partial_decryptions trustees =
-    let total_weight = encrypted_tally.sized_total_weight in
-    let et = encrypted_tally.sized_encrypted_tally in
+    let total_weight = encrypted_tally.total_weight in
+    let et = encrypted_tally.encrypted_tally in
     let check = check_factor et in
     match Combinator.combine_factors trustees check partial_decryptions with
     | Ok factors -> (
-        match Shape.map2 (fun { beta; _ } f -> beta / f) et factors with
+        match
+          Shape.map2 (fun ({ beta; _ } : _ ciphertext) f -> beta / f) et factors
+        with
         | `Array rs ->
-            Array.map2
-              (Q.compute_result ~total_weight)
-              W.template.t_questions rs
+            Array.map2 (Q.compute_result ~total_weight) W.template.questions rs
             |> W.of_generic_result
             |> fun result -> Ok { result }
         | `Atomic _ -> failwith "compute_result: invalid shape")
     | Error e -> Error e
 
-  let check_result encrypted_tally partial_decryptions trustees { result } =
-    let total_weight = encrypted_tally.sized_total_weight in
-    let encrypted_tally = encrypted_tally.sized_encrypted_tally in
+  let check_result encrypted_tally partial_decryptions trustees
+      ({ result } : result) =
+    let total_weight = encrypted_tally.total_weight in
+    let encrypted_tally = encrypted_tally.encrypted_tally in
     check_ciphertext encrypted_tally
     &&
     let check = check_factor encrypted_tally in
@@ -339,12 +338,14 @@ struct
     | Error _ -> false
     | Ok factors -> (
         match
-          Shape.map2 (fun { beta; _ } f -> beta / f) encrypted_tally factors
+          Shape.map2
+            (fun ({ beta; _ } : _ ciphertext) f -> beta / f)
+            encrypted_tally factors
         with
         | `Array rs ->
             Array.for_all3
               (Q.check_result ~total_weight)
-              W.template.t_questions rs
+              W.template.questions rs
               (W.to_generic_result result)
         | `Atomic _ -> failwith "check_result: invalid shape")
 end

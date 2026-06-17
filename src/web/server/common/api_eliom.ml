@@ -115,7 +115,7 @@ module Make () = struct
         match method_ with
         | `GET ->
             let x = Api_generic.get_configuration () in
-            return_json 200 (string_of_configuration x)
+            return_json 200 (!+yojson_of_configuration x)
         | _ -> method_not_allowed)
     | [ "readonly" ] -> (
         match method_ with
@@ -144,7 +144,7 @@ module Make () = struct
         in
         match (method_, !Web_config.internal_send_message) with
         | `POST, Some key ->
-            let@ x = body.run Belenios_messages.message_payload_of_string in
+            let@ x = body.run !*Belenios_messages.message_payload_of_yojson in
             let@ () = handle_generic_error in
             Api_generic.post_send_message ?internal ~key x
         | _ -> method_not_allowed)
@@ -153,13 +153,13 @@ module Make () = struct
         let@ account, user = Option.unwrap unauthorized (lookup_token token) in
         let get () =
           let x = Api_generic.get_account account user in
-          Lwt.return @@ string_of_api_account x
+          Lwt.return @@ yojson_of_api_account x
         in
         match method_ with
         | `GET -> handle_get get
         | `PUT ->
             let@ () = handle_ifmatch ifmatch get in
-            let@ x = body.run api_account_of_string in
+            let@ x = body.run !*api_account_of_yojson in
             let@ () = handle_generic_error in
             let@ s = Storage.A.with_transaction in
             let@ account, set = Accounts.update_account_by_id s account.id in
@@ -177,7 +177,8 @@ module Make () = struct
             match !get_result ~state with
             | None -> not_found
             | Some result ->
-                return_json 200 (Belenios_web_api.string_of_cast_result result))
+                return_json 200
+                  (!+Belenios_web_api.yojson_of_cast_result result))
         | _ -> method_not_allowed)
     | "credentials" :: endpoint ->
         Api_credentials.dispatch endpoint method_ body

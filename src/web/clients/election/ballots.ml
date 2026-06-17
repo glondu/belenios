@@ -58,7 +58,7 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
             txt @@ string_of_int n;
             txt @@ s_ " ballot(s) have been accepted so far.";
           ]
-    | Some x when x.sized_num_tallied = n ->
+    | Some x when x.num_tallied = n ->
         div
           [ txt @@ string_of_int n; txt @@ s_ " ballot(s) have been accepted." ]
     | Some x ->
@@ -67,7 +67,7 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
           [
             txt @@ string_of_int n;
             txt @@ s_ " ballot(s) have been accepted, and ";
-            txt @@ string_of_int x.sized_num_tallied;
+            txt @@ string_of_int x.num_tallied;
             txt @@ s_ " have been tallied.";
           ]
   in
@@ -85,7 +85,7 @@ let ballots uuid =
     let* x = get_audit_cache uuid in
     match x with
     | None -> Lwt.return_false
-    | Some x -> Lwt.return (x.cache_checksums.ec_weights <> None)
+    | Some x -> Lwt.return (x.checksums.weights <> None)
   in
   let* sized_encrypted_tally = get_sized_encrypted_tally uuid in
   let container = div [ txt @@ s_ "Loading..." ] in
@@ -106,7 +106,7 @@ let ballots uuid =
     Lwt.return_unit
   in
   let module W = (val election) in
-  let title = W.template.t_name ^^^ s_ "Accepted ballots" in
+  let title = W.template.name ^^^ s_ "Accepted ballots" in
   let footer = [ make_audit_footer election ] in
   let contents = [ container ] in
   Lwt.return { title; contents; footer }

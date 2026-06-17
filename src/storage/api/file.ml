@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Belenios
-open Serializable_t
+open Serializable
 open Extra
 
 type abstract

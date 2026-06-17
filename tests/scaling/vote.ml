@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Belenios_web_api
 open Common
 
 module type PARAMS = sig
@@ -34,7 +33,7 @@ module Make (P : PARAMS) () = struct
 
   let () = Stdlib.Random.self_init ()
 
-  module W = (val Election.of_string P.raw_election)
+  module W = (val !*Election.of_yojson P.raw_election)
 
   module Cred =
     Credential.Make
@@ -50,10 +49,10 @@ module Make (P : PARAMS) () = struct
 
   let nb_candidates =
     let open (val Belenios.Election.get_serializers W.witness) in
-    let question = to_concrete W.template.t_questions.(0) in
+    let question = to_concrete W.template.questions.(0) in
     match question.value with
-    | Belenios_question.Homomorphic.Q q -> Array.length q.q_answers
-    | Belenios_question.Non_homomorphic.Q q -> Array.length q.q_answers
+    | Belenios_question.Homomorphic.Q q -> Array.length q.answers
+    | Belenios_question.Non_homomorphic.Q q -> Array.length q.answers
     | _ -> failwith "unexpected question"
 
   let random_choice () =
@@ -97,7 +96,7 @@ module Make (P : PARAMS) () = struct
     match x with
     | Ok sk ->
         let ballot = W.E.create_ballot ~sk (random_choice ()) in
-        let ballot = W.write_ballot -- ballot in
+        let ballot = !+W.yojson_of_ballot ballot in
         submit_ballot ~username ~ballot
     | Error _ ->
         Printf.ksprintf failwith "error in deriving key from %s" credential

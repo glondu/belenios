@@ -24,12 +24,8 @@ module Homomorphic = Homomorphic
 module Non_homomorphic = Non_homomorphic
 module Lists = Lists
 
-type t = Types.question
+type t = Types.question [@@deriving yojson]
 
-val wrap : Yojson.Safe.t -> t
-val unwrap : t -> Yojson.Safe.t
-val read_question : t reader
-val write_question : t writer
 val erase_question : t -> t
 val check_question : (module GROUP) Lazy.t -> t -> (unit, question_error) result
 val is_nh_question : t -> bool

@@ -31,13 +31,13 @@ open Common
 
 let show_draft_main show_all uuid draft container =
   let@ () = show_in container in
-  let draft_str = string_of_draft draft in
+  let draft_str = !+yojson_of_draft draft in
   let t, tget = textarea draft_str in
   let ifmatch = sha256_b64 draft_str in
   let button_save =
     let@ () = button "Save changes" in
     let* x =
-      Api.(put ~ifmatch (draft uuid) !user (draft_of_string (tget ())))
+      Api.(put ~ifmatch (draft uuid) !user (!*draft_of_yojson (tget ())))
     in
     let@ () = show_in container in
     generic_proceed x show_all
@@ -58,13 +58,14 @@ let rec show_draft_voters uuid draft container =
   let@ () = show_in container in
   let* x = Api.(get (draft_voters uuid) !user) in
   let@ voters, ifmatch = with_ok "voters" x in
-  let voters_str = string_of_voter_list voters in
+  let voters_str = !+yojson_of_voter_list voters in
   let t, tget = textarea voters_str in
   let b =
     let@ () = button "Save changes" in
     let* x =
       Api.(
-        put ~ifmatch (draft_voters uuid) !user (voter_list_of_string (tget ())))
+        put ~ifmatch (draft_voters uuid) !user
+          (!*voter_list_of_yojson (tget ())))
     in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_voters uuid draft container)
@@ -117,29 +118,24 @@ let rec show_draft_credentials uuid container =
               txt link;
             ])
   | Some (x, _) ->
-      let t, _ = textarea (string_of_public_credentials x) in
+      let t, _ = textarea (!+yojson_of_public_credentials x) in
       Lwt.return [ t ]
 
 type trustee_with_writer =
-  | TWW : 'a trustee list * 'a writer -> trustee_with_writer
+  | TWW : 'a trustee list * ('a -> Yojson.Safe.t) -> trustee_with_writer
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
   let* x = Api.(get (draft_trustees uuid) !user) in
   let@ trustees, ifmatch = with_ok "trustees" x in
-  let trustees =
-    draft_trustees_of_string Yojson.Safe.read_json Yojson.Safe.read_json
-      trustees
-  in
   let mode =
     match trustees with
     | `Basic _ -> "basic"
     | `Threshold t ->
         let threshold =
-          match t.tt_threshold with
+          match t.threshold with
           | None -> "not set"
-          | Some i ->
-              Printf.sprintf "%d out of %d" i (List.length t.tt_trustees)
+          | Some i -> Printf.sprintf "%d out of %d" i (List.length t.trustees)
         in
         Printf.sprintf "threshold (%s)" threshold
   in
@@ -164,20 +160,13 @@ let rec show_draft_trustees uuid container =
   in
   let (TWW (trustees, write)) =
     match trustees with
-    | `Basic x ->
-        TWW
-          ( x.bt_trustees,
-            write_trustee_public_key Yojson.Safe.write_json
-              Yojson.Safe.write_json )
-    | `Threshold x ->
-        TWW
-          ( x.tt_trustees,
-            write_cert Yojson.Safe.write_json Yojson.Safe.write_json )
+    | `Basic x -> TWW (x.trustees, yojson_of_trustee_public_key Fun.id Fun.id)
+    | `Threshold x -> TWW (x.trustees, yojson_of_cert Fun.id Fun.id)
   in
   let all_trustees =
     List.map
-      (fun t ->
-        let trustee_address = Option.value ~default:"@" t.trustee_address in
+      (fun (t : _ trustee) ->
+        let trustee_address = Option.value ~default:"@" t.address in
         let content =
           let b =
             let@ () = button "Delete" in
@@ -185,7 +174,7 @@ let rec show_draft_trustees uuid container =
             let@ () = show_in container in
             generic_proceed x (fun () -> show_draft_trustees uuid container)
           in
-          [ txt (string_of_trustee write t); txt " "; b ]
+          [ txt (!+(yojson_of_trustee write) t); txt " "; b ]
         in
         li content)
       trustees
@@ -194,7 +183,7 @@ let rec show_draft_trustees uuid container =
   let t2, t2get = textarea "" in
   let b =
     let@ () = button "Add trustee" in
-    let r = `Add (trustee_of_string Yojson.Safe.read_json (t2get ())) in
+    let r = `Add (!*(trustee_of_yojson Fun.id) (t2get ())) in
     let* x = Api.(post ~ifmatch (draft_trustees uuid) !user r) in
     let@ () = show_in container in
     generic_proceed x (fun () -> show_draft_trustees uuid container)
@@ -217,7 +206,7 @@ let rec show_draft_status uuid container =
   let@ () = show_in container in
   let* x = Api.(get (draft_status uuid) !user) in
   let@ status, _ = with_ok "status" x in
-  let t, _ = textarea (string_of_draft_status status) in
+  let t, _ = textarea (!+yojson_of_draft_status status) in
   let b label r =
     let@ () = button label in
     let* x = Api.(post (draft uuid) !user r) in
@@ -294,7 +283,7 @@ let show main uuid tab context =
           Lwt.return
             [
               div [ a ~href:"#" "Home" ];
-              h1 [ txt d.draft_questions.t_name ];
+              h1 [ txt d.questions.name ];
               tabs;
               title;
               container;

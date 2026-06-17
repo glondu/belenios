@@ -45,13 +45,13 @@ module Make (P : PARAMS) = struct
   let generate_candidates n =
     Array.init n (fun i -> Printf.sprintf "Candidate %d" (i + 1))
 
-  let t_questions =
+  let questions =
     if nh then
       let open Belenios_question.Non_homomorphic in
       let value : t =
         {
-          q_answers = generate_candidates nb_candidates;
-          q_question = "Rank the candidates";
+          answers = generate_candidates nb_candidates;
+          question = "Rank the candidates";
         }
       in
       [| make ~value ~extra:None |]
@@ -59,36 +59,36 @@ module Make (P : PARAMS) = struct
       let open Belenios_question.Homomorphic in
       let value : t =
         {
-          q_answers = generate_candidates nb_candidates;
-          q_blank = false;
-          q_min = 1;
-          q_max = 1;
-          q_question = "Which candidate do you prefer?";
+          answers = generate_candidates nb_candidates;
+          blank = false;
+          min = 1;
+          max = 1;
+          question = "Which candidate do you prefer?";
         }
       in
       [| make ~value ~extra:None |]
 
-  let draft_questions =
+  let questions =
     {
-      t_description = "This is a big election to test scaling capabilities.";
-      t_name = "Scaling Test Election";
-      t_questions;
-      t_administrator = Some "Election Initiator";
-      t_credential_authority = Some "Election Registrar";
-      t_language = Some ("en", `Ltr);
+      description = "This is a big election to test scaling capabilities.";
+      name = "Scaling Test Election";
+      questions;
+      administrator = Some "Election Initiator";
+      credential_authority = Some "Election Registrar";
+      language = Some ("en", `Ltr);
     }
 
   let draft =
     {
-      draft_version = version;
-      draft_owners = [ admin_id ];
-      draft_questions;
-      draft_languages = [ "en" ];
-      draft_contact = Some "Election Initiator <election.initiator@example.org>";
-      draft_booth = 2;
-      draft_authentication = Some (`Configured "demo");
-      draft_group = group;
-      draft_cred_authority_info = None;
+      version;
+      owners = [ admin_id ];
+      questions;
+      languages = [ "en" ];
+      contact = Some "Election Initiator <election.initiator@example.org>";
+      booth = 2;
+      authentication = Some (`Configured "demo");
+      group;
+      cred_authority_info = None;
     }
 
   let headers =
@@ -97,7 +97,7 @@ module Make (P : PARAMS) = struct
 
   let create_draft () =
     let body =
-      write_raw_draft Belenios_question.write_question -- draft
+      !+(yojson_of_raw_draft Belenios_question.yojson_of_t) draft
       |> Cohttp_lwt.Body.of_string
     in
     let* response, x =
@@ -121,7 +121,7 @@ module Make (P : PARAMS) = struct
       else accu
     in
     let voters = loop nb_voters [] |> List.map Voter.of_string in
-    let body = voters |> string_of_voter_list |> Cohttp_lwt.Body.of_string in
+    let body = voters |> !+yojson_of_voter_list |> Cohttp_lwt.Body.of_string in
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/voters" api_root
@@ -167,7 +167,8 @@ module Make (P : PARAMS) = struct
       |> Cohttp.Header.of_list
     in
     let body =
-      x.public_with_ids |> string_of_public_credentials
+      x.public_with_ids
+      |> !+yojson_of_public_credentials
       |> Cohttp_lwt.Body.of_string
     in
     let* response, x =
@@ -185,7 +186,8 @@ module Make (P : PARAMS) = struct
 
   let validate_election uuid =
     let body =
-      `ValidateElection |> string_of_draft_request |> Cohttp_lwt.Body.of_string
+      `ValidateElection |> !+yojson_of_draft_request
+      |> Cohttp_lwt.Body.of_string
     in
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
@@ -210,7 +212,7 @@ module Make (P : PARAMS) = struct
         with_file ~mode:output
           (Printf.sprintf "scaling.%s.privcreds.json" (Uuid.unwrap uuid))
       in
-      write f (string_of_private_credentials private_creds)
+      write f (!+yojson_of_private_credentials private_creds)
     in
     if validate then validate_election uuid else Lwt.return_unit
 end

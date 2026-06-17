@@ -32,7 +32,8 @@ let post_ballot uuid ~ballot =
   let fail () =
     Compat.log_4
       (Js.string "Submitting ballot")
-      (Js.string ballot) (Js.string "returned") x;
+      (Js.string @@ Yojson.Safe.to_string ballot)
+      (Js.string "returned") x;
     Lwt.return @@ Error `UnexpectedResponse
   in
   match x.code with
@@ -44,7 +45,7 @@ let post_ballot uuid ~ballot =
           | _ -> fail ())
       | _ | (exception _) -> fail ())
   | 400 -> (
-      match Belenios_web_api.request_status_of_string x.content with
+      match !*Belenios_web_api.request_status_of_yojson x.content with
       | { error = `CastError e; _ } -> Lwt.return @@ Error e
       | _ | (exception _) -> fail ())
   | _ -> fail ()

@@ -21,7 +21,7 @@
 
 include module type of Belenios_platform
 include module type of Belenios_core.Common
-include module type of Belenios_core.Serializable_j
+include module type of Belenios_core.Serializable
 include module type of Belenios_core.Signatures
 module Version = Belenios_platform.Version
 module Password = Belenios_core.Password
@@ -51,3 +51,8 @@ end
 module Language = Language
 
 type lang = Language.t
+
+type 'a string_serializers = {
+  of_string : string -> 'a;
+  to_string : 'a -> string;
+}

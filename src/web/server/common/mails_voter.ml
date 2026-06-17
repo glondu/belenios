@@ -21,26 +21,27 @@
 
 open Lwt
 open Lwt.Syntax
+open Belenios_core.Serializable_core
+open Belenios_messages
 open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 open Web_common
 
-let extract_metadata ~admin_id ~has_weights uuid template metadata :
-    Belenios_messages.metadata =
+let extract_metadata ~admin_id ~has_weights uuid (template : _ template)
+    metadata : Belenios_messages.metadata =
   let has_passwords =
-    match metadata.e_auth_config with
+    match metadata.auth_config with
     | Some [ { auth_system = "password"; _ } ] -> true
     | _ -> false
   in
   {
     uuid;
     admin_id;
-    title = template.t_name;
-    contact = metadata.e_contact;
+    title = template.name;
+    contact = metadata.contact;
     has_weights;
     has_passwords;
-    langs = get_languages metadata.e_languages;
+    langs = get_languages metadata.languages;
   }
 
 let get_metadata s ~admin_id =
@@ -60,7 +61,7 @@ let get_metadata s ~admin_id =
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
             (Uuid.unwrap uuid)
       | Some metadata ->
-          let election = Election.of_string raw in
+          let election = Election.of_yojson raw in
           let module W = (val election) in
           Lwt.return
           @@ extract_metadata ~admin_id ~has_weights W.uuid W.template metadata)
@@ -71,10 +72,10 @@ let get_metadata s ~admin_id =
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/draft"
             (Uuid.unwrap uuid)
       | Some (Draft (_, se)) ->
-          let has_weights = has_explicit_weights se.se_voters in
+          let has_weights = has_explicit_weights se.voters in
           Lwt.return
-          @@ extract_metadata ~admin_id ~has_weights uuid se.se_questions
-               se.se_metadata)
+          @@ extract_metadata ~admin_id ~has_weights uuid se.questions
+               se.metadata)
 
 let contact_footer l contact =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
@@ -249,7 +250,7 @@ let mail_confirmation l uuid ~title x contact =
 (* Forward reference set in Web_main *)
 let make_login_link = ref (fun _ -> failwith "make_login_link")
 
-let email_login l ~(recipient : Belenios_web_api.recipient) ?state ~code () =
+let email_login l ~(recipient : recipient) ?state ~code () =
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
   let b = create () in

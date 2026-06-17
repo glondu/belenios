@@ -60,10 +60,9 @@ let show main uuid =
             let container = div [] |> Tyxml_js.To_dom.of_div in
             let b =
               let@ () = button "Generate credentials" in
-              let version = draft.draft_version in
+              let version = draft.version in
               let module G =
-                (val Belenios.Group.of_string ~version draft.draft_group
-                    : GROUP)
+                (val Belenios.Group.of_string ~version draft.group : GROUP)
               in
               let module CMap = Map.Make (G) in
               let module Cred =
@@ -81,7 +80,7 @@ let show main uuid =
                 Cred.generate xs
               in
               let t, _ =
-                textarea (string_of_private_credentials private_creds)
+                textarea (!+yojson_of_private_credentials private_creds)
               in
               let button_container = div [] |> Tyxml_js.To_dom.of_div in
               let b =
@@ -107,11 +106,6 @@ let show main uuid =
       in
       Lwt.return
         [
-          h1
-            [
-              txt
-                (Printf.sprintf "Credentials for %s"
-                   draft.draft_questions.t_name);
-            ];
+          h1 [ txt (Printf.sprintf "Credentials for %s" draft.questions.name) ];
           voters;
         ]

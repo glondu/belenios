@@ -24,7 +24,7 @@ open Belenios
 open Common
 
 let parse_config x =
-  sealing_config_of_string x
+  !*sealing_config_of_yojson x
   |> List.map (fun (r, i) ->
       (Re.Str.regexp r, List.fold_left (Fun.flip SSet.add) SSet.empty i))
 
@@ -37,7 +37,7 @@ let find_ign cfg path =
 let rec measure pool full cfg ign path =
   let make name x = if SSet.mem name ign then None else Some x in
   let* st = Lwt_unix.LargeFile.lstat path in
-  let* st_contents =
+  let* contents =
     if SSet.mem "contents" ign then Lwt.return_none
     else
       match st.st_kind with
@@ -83,19 +83,19 @@ let rec measure pool full cfg ign path =
     | S_DIR -> `DIR
   in
   {
-    st_dev = make "dev" st.st_dev;
-    st_ino = make "ino" st.st_ino;
-    st_kind = make "kind" kind;
-    st_perm = make "perm" st.st_perm;
-    st_nlink = make "nlink" st.st_nlink;
-    st_uid = make "uid" st.st_uid;
-    st_gid = make "gid" st.st_gid;
-    st_rdev = make "rdev" st.st_rdev;
-    st_size = make "size" st.st_size;
-    st_atime = make "atime" st.st_atime;
-    st_mtime = make "mtime" st.st_mtime;
-    st_ctime = make "ctime" st.st_ctime;
-    st_contents;
+    dev = make "dev" st.st_dev;
+    ino = make "ino" st.st_ino;
+    kind = make "kind" kind;
+    perm = make "perm" st.st_perm;
+    nlink = make "nlink" st.st_nlink;
+    uid = make "uid" st.st_uid;
+    gid = make "gid" st.st_gid;
+    rdev = make "rdev" st.st_rdev;
+    size = make "size" st.st_size;
+    atime = make "atime" st.st_atime;
+    mtime = make "mtime" st.st_mtime;
+    ctime = make "ctime" st.st_ctime;
+    contents;
   }
   |> Lwt.return
 
@@ -111,7 +111,7 @@ let main full cfg path jobs =
   let ign = find_ign cfg path in
   let pool = Lwt_pool.create jobs (fun () -> Lwt.return_unit) in
   let* x = measure pool full cfg ign path in
-  let* () = Lwt_io.printl (string_of_stats x) in
+  let* () = Lwt_io.printl (!+yojson_of_stats x) in
   Lwt.return_unit
 
 open Cmdliner

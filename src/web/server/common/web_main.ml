@@ -289,7 +289,7 @@ module Make () = struct
          restricted mode";
     if
       List.exists
-        (fun x -> List.mem_assoc "allowsignups" x.auth_config)
+        (fun (x : auth_config) -> List.mem_assoc "allowsignups" x.auth_config)
         !Web_config.site_auth_config
     then failwith "allowsignups is not allowed in restricted mode";
     if

@@ -2,12 +2,10 @@ open Belenios_core.Signatures
 
 module type QUESTION_KIND = sig
   type question
-  type result
+  type result [@@deriving yojson]
 
   val type_ : string
   val of_concrete : Belenios_question.t -> question option
-  val read_result : result reader
-  val write_result : result writer
   val get_complexity : question -> complexity
 
   module Make (G : GROUP) :

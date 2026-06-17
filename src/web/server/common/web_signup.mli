@@ -19,16 +19,18 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Serializable_core
+
 val send_confirmation_code :
   (module Belenios_ui.I18n.GETTEXT) ->
   service:string ->
-  recipient:Belenios_messages.recipient ->
+  recipient:recipient ->
   (string, unit) result Lwt.t
 
 val send_changepw_code :
   (module Belenios_ui.I18n.GETTEXT) ->
   service:string ->
-  recipient:Belenios_messages.recipient ->
+  recipient:recipient ->
   (string, unit) result Lwt.t
 
 val confirm_code :

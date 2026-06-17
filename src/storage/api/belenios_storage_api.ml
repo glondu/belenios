@@ -19,11 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-module Atd_t = Serializable_t
-module Atd_j = Serializable_j
 module Lopt = Lopt
 module Storage = Storage
-include Serializable_j
+include Serializable
 include Extra
 include Types
 
@@ -32,13 +30,13 @@ let get_account_file_serializers = File_serializers.get_account
 
 let default_election_dates =
   {
-    e_date_creation = 0.;
-    e_date_finalization = None;
-    e_date_tally = None;
-    e_date_archive = None;
-    e_date_last_mail = None;
-    e_date_auto_open = None;
-    e_date_auto_close = None;
-    e_date_publish = None;
-    e_date_grace_period = None;
+    creation = 0.;
+    finalization = None;
+    tally = None;
+    archive = None;
+    last_mail = None;
+    auto_open = None;
+    auto_close = None;
+    publish = None;
+    grace_period = None;
   }

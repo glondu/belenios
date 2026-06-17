@@ -31,38 +31,34 @@ open Common
 
 type keypair = {
   private_key : string;
-  public_key : string;
+  public_key : Yojson.Safe.t;
   fingerprint : string;
   mime_type : string;
   filename : uuid -> string;
 }
 
 let generate_basic (Draft (_, draft)) ~name () =
-  let version = draft.draft_version in
-  let group = draft.draft_group in
+  let version = draft.version in
+  let group = draft.group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module KG = Trustees.MakeSimple (G) in
   let private_key = KG.generate () in
-  let public_key = KG.prove ~name private_key in
-  let private_key = private_key |> G.Zq.to_Z |> string_of_number in
+  let public_key' = KG.prove ~name private_key in
+  let private_key = private_key |> G.Zq.to_Z |> !+yojson_of_number in
   let public_key =
-    public_key
-    |> string_of_trustee_public_key (swrite G.to_string) (swrite G.Zq.to_string)
+    public_key' |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
   in
   let fingerprint =
-    public_key
-    |> trustee_public_key_of_string Yojson.Safe.read_json Yojson.Safe.read_json
-    |> (fun x -> x.s_message.trustee_public_key)
-    |> Yojson.Safe.to_string |> sha256_b64
+    public_key' |> (fun x -> x.message.public_key) |> G.to_string |> sha256_b64
   in
   let mime_type = "application/json"
   and filename uuid = Printf.sprintf "private_key-%s.json" (Uuid.unwrap uuid) in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
 let generate_threshold (Draft (_, draft)) context () =
-  let version = draft.draft_version in
-  let group = draft.draft_group in
+  let version = draft.version in
+  let group = draft.group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Pki.Make (G) in
@@ -71,44 +67,40 @@ let generate_threshold (Draft (_, draft)) context () =
   let private_key, cert = T.step1 context in
   let fingerprint =
     sha256_b64
-    @@ string_of_cert_keys (swrite G.to_string) write_index cert.s_message
+    @@ !+(yojson_of_cert_keys !&G.to_string yojson_of_index) cert.message
   in
-  let public_key =
-    string_of_cert (swrite G.to_string) (swrite G.Zq.to_string) cert
-  in
+  let public_key = yojson_of_cert !&G.to_string !&G.Zq.to_string cert in
   let mime_type = "text/plain"
   and filename uuid = Printf.sprintf "private_key-%s.txt" (Uuid.unwrap uuid) in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
 let threshold_step (Draft (_, draft)) pedersen ~private_key =
-  let version = draft.draft_version in
-  let group = draft.draft_group in
+  let version = draft.version in
+  let group = draft.group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let pedersen =
     pedersen
-    |> string_of_pedersen Yojson.Safe.write_json Yojson.Safe.write_json
-    |> pedersen_of_string (sread G.of_string) (sread G.Zq.of_string)
+    |> !+(yojson_of_pedersen Fun.id Fun.id)
+    |> !*(pedersen_of_yojson !$G.of_string !$G.Zq.of_string)
   in
-  let context = pedersen.pedersen_context.context in
-  let certs = { context; certs = pedersen.pedersen_certs } in
+  let context = pedersen.context.context in
+  let certs = { context; certs = pedersen.certs } in
   let module Trustees = (val Trustees.get_by_version version) in
   let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
-  match pedersen.pedersen_step with
+  match pedersen.step with
   | 3 ->
       let* x = T.step3 certs private_key in
-      Lwt.return
-      @@ string_of_polynomial (swrite G.to_string) (swrite G.Zq.to_string) x
+      Lwt.return @@ yojson_of_polynomial !&G.to_string !&G.Zq.to_string x
   | 5 ->
       let@ vinput cont =
-        match pedersen.pedersen_vinput with
+        match pedersen.vinput with
         | Some x -> cont x
         | None -> failwith "Unexpected state! (missing vinput)"
       in
       let* x = T.step5 certs private_key vinput in
-      Lwt.return
-      @@ string_of_voutput (swrite G.to_string) (swrite G.Zq.to_string) x
+      Lwt.return @@ yojson_of_voutput !&G.to_string !&G.Zq.to_string x
   | _ -> failwith "Unexpected state!"
 
 let generate_key ~uuid ~token ~url generate continue =
@@ -243,7 +235,7 @@ let error () =
 
 let compute_threshold_step ~token ~url draft private_key_ref pedersen =
   let open (val !Belenios_js.I18n.gettext) in
-  match pedersen.pedersen_step with
+  match pedersen.step with
   | 3 | 5 ->
       let refresh_status, t = make_refresh_status_button () in
       let container = Dom_html.createDiv document in
@@ -273,7 +265,7 @@ let compute_threshold_step ~token ~url draft private_key_ref pedersen =
             div [ button (s_ "Proceed") (fun () -> handle_private_key p) ]
       in
       let explain =
-        match pedersen.pedersen_step with
+        match pedersen.step with
         | 3 ->
             s_
               "Now, all the certificates of the trustees have been generated. \
@@ -323,9 +315,7 @@ let get_status ~url ~token =
   let* status = Api.(get url (`Trustee token)) in
   match status with
   | Error _ -> Lwt.return_none
-  | Ok (x, _) ->
-      Lwt.return_some
-      @@ trustee_status_of_string Yojson.Safe.read_json Yojson.Safe.read_json x
+  | Ok (x, _) -> Lwt.return_some x
 
 let actionable_threshold ~uuid ~token ~url draft set_step s =
   let open (val !Belenios_js.I18n.gettext) in
@@ -367,7 +357,7 @@ let actionable_threshold ~uuid ~token ~url draft set_step s =
         let* contents, t =
           compute_threshold_step ~token ~url draft private_key p
         in
-        Lwt.return (p.pedersen_step, contents, t)
+        Lwt.return (p.step, contents, t)
   in
   let rec loop s =
     let* step, contents, continue = get_contents s in

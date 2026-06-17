@@ -40,7 +40,7 @@ let get_data s x =
 
 let get_event s x =
   let* x = get_data s x in
-  x |> Option.map event_of_string |> Lwt.return
+  x |> Option.map !*event_of_yojson |> Lwt.return
 
 let get_from_data s f =
   let* x = get_roots s in
@@ -49,9 +49,9 @@ let get_from_data s f =
 
 let get_from_setup_data s f =
   let* x = get_roots s in
-  let&* x = x.roots_setup_data in
+  let&* x = x.setup_data in
   let*& x = get_data s x in
-  get_data s (f (setup_data_of_string x))
+  get_data s (f (!*setup_data_of_yojson x))
 
 let fold_on_event_payload_hashes s typ last_event f accu =
   let rec loop e accu =
@@ -59,8 +59,8 @@ let fold_on_event_payload_hashes s typ last_event f accu =
     match e with
     | None -> assert false
     | Some e ->
-        if e.event_typ = typ then
-          match (e.event_payload, e.event_parent) with
+        if e.typ = typ then
+          match (e.payload, e.parent) with
           | Some payload, Some parent ->
               let* accu = f payload accu in
               loop parent accu
@@ -77,7 +77,7 @@ let fold_on_event_payloads s typ last_event f accu =
     accu
 
 let get_trustees s =
-  let* x = get_from_setup_data s (fun x -> x.setup_trustees) in
+  let* x = get_from_setup_data s (fun x -> x.trustees) in
   let@ () =
    fun cont -> match x with None -> cont () | Some x -> Lwt.return x
   in
@@ -87,7 +87,9 @@ let get_trustees s =
   in
   Lwt.fail (Failure msg)
 
-let get_election s = get_from_setup_data s (fun x -> x.setup_election)
+let get_election s =
+  let*& x = get_from_setup_data s (fun x -> x.election) in
+  Lwt.return_some @@ Yojson.Safe.from_string x
 
 module ElectionCacheTypes = struct
   type key = uuid
@@ -102,7 +104,7 @@ let raw_get_election s =
   let* x = get_election s in
   match x with
   | None -> Lwt.fail Not_cachable
-  | Some x -> Lwt.return @@ Election.of_string x
+  | Some x -> Lwt.return @@ Election.of_yojson x
 
 let election_cache = new ElectionCache.cache not_in_cache ~timer:3600. 500
 
@@ -123,27 +125,27 @@ let with_election s ~fallback f =
 
 let get_partial_decryptions s =
   let* x = get_roots s in
-  match x.roots_last_pd_event with
+  match x.last_pd_event with
   | None -> Lwt.return []
   | Some x ->
       fold_on_event_payloads s `PartialDecryption x
         (fun _ x accu ->
-          let x = owned_of_string read_hash x in
+          let x = !*(owned_of_yojson hash_of_yojson) x in
           let* pd =
-            let* x = get_data s x.owned_payload in
+            let* x = get_data s x.payload in
             match x with None -> assert false | Some x -> Lwt.return x
           in
-          let x = { x with owned_payload = pd } in
+          let x = { x with payload = pd } in
           Lwt.return @@ (x :: accu))
         []
 
-let get_result s = get_from_data s (fun x -> x.roots_result)
+let get_result s = get_from_data s (fun x -> x.result)
 
 let get_public_creds s =
-  let* x = get_from_setup_data s (fun x -> x.setup_credentials) in
+  let* x = get_from_setup_data s (fun x -> x.credentials) in
   match x with
   | None -> assert false
-  | Some x -> Lwt.return @@ public_credentials_of_string x
+  | Some x -> Lwt.return @@ !*public_credentials_of_yojson x
 
 let get_credential_weight s cred =
   let* x = Storage.E.get s (Credential_weight cred) in
@@ -160,7 +162,7 @@ let get_ballot_weight s election ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
   Lwt.catch
     (fun () ->
-      let ballot = W.read_ballot ++ ballot in
+      let ballot = !*W.ballot_of_yojson ballot in
       match W.get_credential ballot with
       | None -> failwith "missing signature"
       | Some credential -> get_credential_weight s (W.G.to_string credential))
@@ -179,7 +181,7 @@ module BallotsCache = Ocsigen_cache.Make (BallotsCacheTypes)
 
 let fold_on_ballots s f accu =
   let* x = get_roots s in
-  match x.roots_last_ballot_event with
+  match x.last_ballot_event with
   | None -> Lwt.return accu
   | Some e -> fold_on_event_payloads s `Ballot e f accu
 
@@ -189,7 +191,7 @@ let fold_on_ballots_weeded s election f accu =
   let* _, accu =
     fold_on_ballots s
       (fun _ b ((seen, accu) as x) ->
-        let ballot = W.read_ballot ++ b in
+        let ballot = !*W.ballot_of_yojson b in
         match W.get_credential ballot with
         | None -> assert false
         | Some credential ->
@@ -235,10 +237,11 @@ let get_ballot_by_hash s hash =
 
 let get_owned_shuffles s =
   let* x = get_roots s in
-  let&* x = x.roots_last_shuffle_event in
+  let&* x = x.last_shuffle_event in
   let* x =
     fold_on_event_payloads s `Shuffle x
-      (fun h x accu -> Lwt.return @@ ((h, owned_of_string read_hash x) :: accu))
+      (fun h x accu ->
+        Lwt.return @@ ((h, !*(owned_of_yojson hash_of_yojson) x) :: accu))
       []
   in
   Lwt.return_some x
@@ -247,7 +250,7 @@ let raw_get_shuffles s x =
   let* x =
     Lwt_list.map_s
       (fun (h, o) ->
-        let* x = get_data s o.owned_payload in
+        let* x = get_data s o.payload in
         match x with None -> assert false | Some x -> Lwt.return (h, o, x))
       x
   in
@@ -261,51 +264,50 @@ let get_nh_ciphertexts s =
   in
   let module W = (val election) in
   let* x = get_roots s in
-  match x.roots_last_shuffle_event with
+  match x.last_shuffle_event with
   | None -> (
-      match x.roots_encrypted_tally with
+      match x.encrypted_tally with
       | None -> assert false
       | Some x -> (
           let* x = get_data s x in
           match x with
           | None -> assert false
           | Some x -> (
-              let x = sized_encrypted_tally_of_string read_hash x in
-              let* x = get_data s x.sized_encrypted_tally in
+              let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+              let* x = get_data s x.encrypted_tally in
               match x with
               | None -> assert false
               | Some x ->
-                  encrypted_tally_of_string W.(sread G.of_string) x
+                  !*(encrypted_tally_of_yojson !$W.G.of_string) x
                   |> W.E.extract_nh_ciphertexts
-                  |> string_of_nh_ciphertexts W.(swrite G.to_string)
+                  |> !+(yojson_of_nh_ciphertexts !&W.G.to_string)
                   |> Lwt.return)))
   | Some x -> (
       let* x = get_event s x in
       match x with
       | None -> assert false
       | Some x -> (
-          match x.event_payload with
+          match x.payload with
           | None -> assert false
           | Some x -> (
               let* x = get_data s x in
               match x with
               | None -> assert false
               | Some x -> (
-                  let x = owned_of_string read_hash x in
-                  let* x = get_data s x.owned_payload in
+                  let x = !*(owned_of_yojson hash_of_yojson) x in
+                  let* x = get_data s x.payload in
                   match x with
                   | None -> assert false
                   | Some x ->
                       let x =
-                        shuffle_of_string
-                          W.(sread G.of_string)
-                          W.(sread G.Zq.of_string)
+                        !*(shuffle_of_yojson
+                             !$W.(G.of_string)
+                             !$W.(G.Zq.of_string))
                           x
                       in
                       Lwt.return
-                      @@ string_of_nh_ciphertexts
-                           W.(swrite G.to_string)
-                           x.shuffle_ciphertexts))))
+                      @@ !+(yojson_of_nh_ciphertexts !&W.G.to_string)
+                           x.ciphertexts))))
 
 let get_shuffles s =
   let* x = get_owned_shuffles s in
@@ -314,7 +316,7 @@ let get_shuffles s =
 
 let get_sized_encrypted_tally s =
   let* roots = get_roots s in
-  let&* x = roots.roots_encrypted_tally in
+  let&* x = roots.encrypted_tally in
   let* x = get_data s x in
   match x with None -> assert false | Some x -> Lwt.return_some x
 
@@ -327,20 +329,20 @@ let get_latest_encrypted_tally s =
   let module W = (val election) in
   let* roots = get_roots s in
   let@ tally cont =
-    let&* x = roots.roots_encrypted_tally in
+    let&* x = roots.encrypted_tally in
     let* x = get_data s x in
     match x with
     | None -> assert false
     | Some x -> (
-        let x = sized_encrypted_tally_of_string read_hash x in
-        let* x = get_data s x.sized_encrypted_tally in
+        let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+        let* x = get_data s x.encrypted_tally in
         match x with
         | None -> assert false
-        | Some x -> cont @@ encrypted_tally_of_string W.(sread G.of_string) x)
+        | Some x -> cont @@ !*(encrypted_tally_of_yojson !$W.G.of_string) x)
   in
   let* nh = get_nh_ciphertexts s in
-  let nh = nh_ciphertexts_of_string W.(sread G.of_string) nh in
+  let nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) nh in
   let tally = W.E.merge_nh_ciphertexts nh tally in
-  Lwt.return_some @@ string_of_encrypted_tally W.(swrite G.to_string) tally
+  Lwt.return_some @@ !+(yojson_of_encrypted_tally !&W.G.to_string) tally
 
 let clear_ballot_cache uuid = ballots_cache#remove uuid

@@ -33,11 +33,11 @@ let questions =
     Belenios_question.Homomorphic.make
       ~value:
         {
-          q_answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
-          q_blank = false;
-          q_min = 1;
-          q_max = 1;
-          q_question = "Question 1?";
+          answers = [| "Answer 1"; "Answer 2"; "Answer 3" |];
+          blank = false;
+          min = 1;
+          max = 1;
+          question = "Question 1?";
         }
       ~extra:None;
   |]

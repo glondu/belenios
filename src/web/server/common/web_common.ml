@@ -22,13 +22,12 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
 type 'a updatable_with_billing = 'a * (?billing:bool -> 'a -> unit Lwt.t)
 type ('a, 'r) with_lwt_cont = ('a -> 'r Lwt.t) -> 'r Lwt.t
 
-exception BeleniosWebError of Belenios_web_api.cast_error
+exception BeleniosWebError of cast_error
 
 let fail e = Lwt.fail (BeleniosWebError e)
 
@@ -117,7 +116,7 @@ let format_password x =
     String.sub x 0 5 ^ "-" ^ String.sub x 5 5 ^ "-" ^ String.sub x 10 5
   else x
 
-let string_of_user { user_domain; user_name } = user_domain ^ ":" ^ user_name
+let string_of_user { domain; name } = domain ^ ":" ^ name
 
 let get_languages xs =
   match xs with None -> [ Language.(unwrap default) ] | Some xs -> xs
@@ -136,8 +135,8 @@ type credential_record = {
 
 let has_explicit_weights voters =
   List.exists
-    (fun v ->
-      let (_, { weight; _ }) : Voter.t = v.sv_id in
+    (fun (v : draft_voter) ->
+      let (_, { weight; _ }) : Voter.t = v.id in
       weight <> None)
     voters
 

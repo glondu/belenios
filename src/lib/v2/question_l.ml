@@ -23,29 +23,26 @@ open Belenios_platform
 open Belenios_core
 open Common
 open Signatures_core
-open Serializable_core_t
+open Serializable_core
 open Belenios_question
 open Lists
 open Syntax
 
 type nonrec question = question
-type nonrec result = result
+type nonrec result = result [@@deriving yojson]
 
 let type_ = type_
 
 let of_concrete (x : Belenios_question.t) =
   match x.value with Q x -> Some x | _ -> None
 
-let read_result = read_result
-let write_result = write_result
-
 (** Helper functions *)
 
 let get_complexity q =
   let nb_ciphertexts =
-    Array.fold_left (fun accu l -> accu + 1 + Array.length l) 0 q.q_answers
+    Array.fold_left (fun accu l -> accu + 1 + Array.length l) 0 q.answers
   in
-  let nb_zkps = (2 * nb_ciphertexts) + 1 + (2 * Array.length q.q_answers) + 1 in
+  let nb_zkps = (2 * nb_ciphertexts) + 1 + (2 * Array.length q.answers) + 1 in
   { nb_ciphertexts; nb_zkps }
 
 module Make (G : GROUP) = struct
@@ -53,8 +50,8 @@ module Make (G : GROUP) = struct
 
   type nonrec answer = (G.t, G.Zq.t) answer
 
-  let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
-  let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
+  let yojson_of_answer = yojson_of_answer !&G.to_string !&G.Zq.to_string
+  let answer_of_yojson = answer_of_yojson !$G.of_string !$G.Zq.of_string
   let random () = Zq.random (Crypto_primitives.get_rng ())
   let ( / ) x y = x *~ invert y
   let dummy_ciphertext = { alpha = G.one; beta = G.one }
@@ -131,7 +128,7 @@ module Make (G : GROUP) = struct
     &&
     let commitments = Array.make (2 * n) g and total_challenges = ref Zq.zero in
     for i = 0 to n - 1 do
-      let { challenge; response } = proofs.(i) in
+      let { challenge; response } : _ proof = proofs.(i) in
       commitments.(2 * i) <- (g **~ response) *~ (alpha **~ challenge);
       commitments.((2 * i) + 1) <-
         (y **~ response) *~ ((beta *~ d.(i)) **~ challenge);
@@ -225,11 +222,11 @@ module Make (G : GROUP) = struct
     &&
     let commitments = Array.make 4 g in
     let total_challenges = ref Zq.zero in
-    let { challenge; response } = proof.(0) in
+    let { challenge; response } : _ proof = proof.(0) in
     commitments.(0) <- (g **~ response) *~ (c0.alpha **~ challenge);
     commitments.(1) <- (y **~ response) *~ ((c0.beta / g) **~ challenge);
     (total_challenges := Zq.(!total_challenges + challenge));
-    let { challenge; response } = proof.(1) in
+    let { challenge; response } : _ proof = proof.(1) in
     commitments.(2) <- (g **~ response) *~ (cS.alpha **~ challenge);
     commitments.(3) <- (y **~ response) *~ (cS.beta **~ challenge);
     (total_challenges := Zq.(!total_challenges + challenge));
@@ -240,27 +237,28 @@ module Make (G : GROUP) = struct
   let create_nonzero_proof y zkp { alpha; beta } r =
     (* proof of "{ alpha; beta } encrypts something non-zero" *)
     let s = random_nonzero () in
-    let ncommitment = (beta **~ s) *~ (y **~ Zq.(zero - (s * r))) in
-    if ncommitment =~ one then invalid_arg "create_inequality_proof";
+    let commitment = (beta **~ s) *~ (y **~ Zq.(zero - (s * r))) in
+    if commitment =~ one then invalid_arg "create_inequality_proof";
     let w1 = random () and w2 = random () in
     let a1 = (alpha **~ w1) *~ (g **~ w2) in
     let a2 = (beta **~ w1) *~ (y **~ w2) in
     let dst = dst_prefix ^ "-nonzero" in
-    let nchallenge = G.hash ~dst zkp [| ncommitment; a1; a2 |] in
-    let t1 = Zq.(w1 - (s * nchallenge)) in
-    let t2 = Zq.(w2 + (s * r * nchallenge)) in
-    let nresponse = (t1, t2) in
-    { ncommitment; nchallenge; nresponse }
+    let challenge = G.hash ~dst zkp [| commitment; a1; a2 |] in
+    let t1 = Zq.(w1 - (s * challenge)) in
+    let t2 = Zq.(w2 + (s * r * challenge)) in
+    let response = (t1, t2) in
+    { commitment; challenge; response }
 
-  let verify_nonzero_proof y zkp { alpha; beta } proof =
+  let verify_nonzero_proof y zkp ({ alpha; beta } : _ ciphertext)
+      (proof : _ nonzero_proof) =
     (* check proof of "{ alpha; beta } encrypts something non-zero" *)
-    let { ncommitment; nchallenge; nresponse = t1, t2 } = proof in
-    (not (ncommitment =~ one))
+    let { commitment; challenge; response = t1, t2 } = proof in
+    (not (commitment =~ one))
     &&
     let a1 = (alpha **~ t1) *~ (g **~ t2) in
-    let a2 = (beta **~ t1) *~ (y **~ t2) *~ (ncommitment **~ nchallenge) in
+    let a2 = (beta **~ t1) *~ (y **~ t2) *~ (commitment **~ challenge) in
     let dst = dst_prefix ^ "-nonzero" in
-    Zq.(nchallenge =% G.hash ~dst zkp [| ncommitment; a1; a2 |])
+    Zq.(challenge =% G.hash ~dst zkp [| commitment; a1; a2 |])
 
   let combine_except_first f x0 xs =
     let n = Array.length xs in
@@ -287,7 +285,7 @@ module Make (G : GROUP) = struct
           let n = Array.length q in
           if n = Array.length m then Array.init n (fun _ -> random ())
           else invalid_arg "create_answer")
-        q.q_answers m
+        q.answers m
     in
     let choices = Array.map2 (Array.map2 (eg_encrypt y)) r m in
     let individual_proofs =
@@ -314,7 +312,7 @@ module Make (G : GROUP) = struct
     { choices; individual_proofs; overall_proof; list_proofs; nonzero_proof }
 
   let verify_answer q ~public_key:y ~prefix:zkp a =
-    let n = Array.length q.q_answers in
+    let n = Array.length q.answers in
     n = Array.length a.choices
     && n = Array.length a.individual_proofs
     && Array.for_all3
@@ -323,7 +321,7 @@ module Make (G : GROUP) = struct
            n = Array.length p
            && n = Array.length c
            && Array.for_all2 (eg_disj_verify y d01 zkp) p c)
-         q.q_answers a.individual_proofs a.choices
+         q.answers a.individual_proofs a.choices
     &&
     let zkp = zkp ^ "|" ^ stringify_choices a.choices in
     Array.fold_left
@@ -343,7 +341,7 @@ module Make (G : GROUP) = struct
 
   let process_ciphertexts q es =
     let neutral =
-      q.q_answers
+      q.answers
       |> Array.map
            (Array.map (fun _ -> `Atomic dummy_ciphertext) >> fun x -> `Array x)
       |> fun x -> `Array x

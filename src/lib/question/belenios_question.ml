@@ -38,7 +38,7 @@ let lookup_type type_ =
   in
   loop types
 
-let wrap = function
+let t_of_yojson = function
   | `Assoc o -> (
       let type_, value, extra =
         match List.assoc_opt "type" o with
@@ -59,16 +59,13 @@ let wrap = function
           X.wrap ~value ~extra)
   | _ -> invalid_arg "read_question: object expected"
 
-let unwrap (q : t) =
+let yojson_of_t (q : t) =
   match lookup_type q.type_ with
   | None ->
       Printf.ksprintf invalid_arg "write_question: unsupported type %s" q.type_
   | Some x -> (
       let module X = (val x) in
       match X.unwrap q with Some x -> x | None -> invalid_arg "write_question")
-
-let read_question a b = Yojson.Safe.read_json a b |> wrap
-let write_question b x = unwrap x |> Yojson.Safe.write_json b
 
 let is_nh_question (x : t) =
   match x.value with Non_homomorphic.Q _ -> true | _ -> false

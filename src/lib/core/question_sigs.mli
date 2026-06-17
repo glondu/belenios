@@ -19,18 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
 open Common
-open Serializable_core_t
+open Serializable_core
 
 module type QUESTION = sig
   type question
-  type answer
+  type answer [@@deriving yojson]
   type element
   type result
-
-  val read_answer : answer reader
-  val write_answer : answer writer
 
   val create_answer :
     question -> public_key:element -> prefix:string -> int Shape.t -> answer

@@ -19,16 +19,16 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 
 type 'a updatable = 'a * ('a -> unit Lwt.t)
 type 'a updatable_with_billing = 'a * (?billing:bool -> 'a -> unit Lwt.t)
 type ('a, 'r) with_lwt_cont = ('a -> 'r Lwt.t) -> 'r Lwt.t
 
-exception BeleniosWebError of Belenios_web_api.cast_error
+exception BeleniosWebError of cast_error
 
-val fail : Belenios_web_api.cast_error -> 'a Lwt.t
+val fail : cast_error -> 'a Lwt.t
 val fail_http : Cohttp.Code.status -> 'a Lwt.t
 val get_election_home_url : ?credential:string -> uuid -> string
 

@@ -49,7 +49,7 @@ let advanced uuid =
     | Some x -> cont x
   in
   let module W = (val election) in
-  let title = W.template.t_name ^^^ s_ "Advanced mode" in
+  let title = W.template.name ^^^ s_ "Advanced mode" in
   let footer = [ make_audit_footer election ] in
   let form_rawballot =
     let t, get_ballot =
@@ -179,7 +179,7 @@ let submit configuration uuid =
     | Some x -> cont x
   in
   let module W = (val election) in
-  let title = W.template.t_name ^^^ s_ "Processing ballot" in
+  let title = W.template.name ^^^ s_ "Processing ballot" in
   let footer = [ make_audit_footer election ] in
   let container = div [] in
   let container_dom = Tyxml_js.To_dom.of_div container in
@@ -195,6 +195,7 @@ let submit configuration uuid =
             let handler _ =
               let@ () = finally false in
               let@ () = Lwt.async in
+              let ballot = Yojson.Safe.from_string ballot in
               let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
               match x with
               | Ok state ->

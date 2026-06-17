@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Serializable_core
 open Belenios
 open Belenios_server_core
 
@@ -29,7 +30,7 @@ module type SENDER = sig
   val send :
     ?lang:lang ->
     context:context ->
-    recipient:Belenios_messages.recipient ->
+    recipient:recipient ->
     ?state:string ->
     code:string ->
     unit ->
@@ -43,7 +44,7 @@ module type S = sig
   val generate :
     ?lang:lang ->
     context:context ->
-    recipient:Belenios_messages.recipient ->
+    recipient:recipient ->
     ?state:string ->
     payload:payload ->
     unit ->
@@ -68,15 +69,14 @@ module Make (I : SENDER) () = struct
   let filter_codes_by_time now table =
     SMap.filter (fun _ { expiration_time; _ } -> now <= expiration_time) table
 
-  let generate ?lang ~context ~(recipient : Belenios_messages.recipient) ?state
-      ~payload () =
+  let generate ?lang ~context ~(recipient : recipient) ?state ~payload () =
     let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
     let code = generate_numeric () in
     let expiration_time = now +. 900. in
     let () =
       let x = { recipient = recipient.address; code; expiration_time } in
-      let msg = Printf.sprintf "Sending OTP %s" (string_of_otp_record x) in
+      let msg = Printf.sprintf "Sending OTP %s" (!+yojson_of_otp_record x) in
       Ocsigen_messages.accesslog msg
     in
     codes :=

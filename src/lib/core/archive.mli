@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
+open Serializable
 open Signatures
 
 type data_or_event = Data | Event of event

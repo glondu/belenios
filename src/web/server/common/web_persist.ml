@@ -22,6 +22,7 @@
 open Lwt
 open Lwt.Syntax
 open Belenios
+open Belenios_web_api
 open Belenios_storage_api
 open Belenios_server_core
 open Web_common
@@ -29,12 +30,12 @@ open Web_common
 let get_setup_data s =
   let* x =
     let* x = Public_archive.get_roots s in
-    let&* x = x.roots_setup_data in
+    let&* x = x.setup_data in
     Public_archive.get_data s x
   in
   match x with
   | None -> assert false
-  | Some x -> Lwt.return (setup_data_of_string x)
+  | Some x -> Lwt.return (!*setup_data_of_yojson x)
 
 let get_election_dates s =
   let* x = Storage.E.get s Dates in
@@ -51,17 +52,17 @@ let update_election_dates s cont =
 
 let empty_metadata =
   {
-    e_owners = [];
-    e_auth_config = None;
-    e_cred_authority = None;
-    e_cred_authority_info = None;
-    e_trustees = None;
-    e_languages = None;
-    e_contact = None;
-    e_booth_version = None;
-    e_billing_request = None;
-    e_sealed = None;
-    e_logo = None;
+    owners = [];
+    auth_config = None;
+    cred_authority = None;
+    cred_authority_info = None;
+    trustees = None;
+    languages = None;
+    contact = None;
+    booth_version = None;
+    billing_request = None;
+    sealed = None;
+    logo = None;
   }
 
 let get_election_metadata s =
@@ -71,7 +72,7 @@ let get_election_metadata s =
   | None -> (
       let* x = Storage.E.get s Draft in
       match Lopt.get_value x with
-      | Some (Draft (_, x)) -> Lwt.return x.se_metadata
+      | Some (Draft (_, x)) -> Lwt.return x.metadata
       | None -> Lwt.return empty_metadata)
 
 let seal_election s seal =
@@ -83,13 +84,13 @@ let seal_election s seal =
       match Lopt.get_value x with
       | None -> raise Not_found
       | Some dates ->
-          let op, e_sealed =
+          let op, sealed =
             if seal then
               ( `Seal
                   {
-                    date_open = dates.e_date_auto_open;
-                    date_close = dates.e_date_auto_close;
-                    date_publish = dates.e_date_publish;
+                    date_open = dates.auto_open;
+                    date_close = dates.auto_close;
+                    date_publish = dates.publish;
                   },
                 Some true )
             else (`Unseal, None)
@@ -97,28 +98,27 @@ let seal_election s seal =
           let date = Unix.gettimeofday () in
           let* b = Storage.E.append_sealing s { date; op } in
           let* () = Storage.E.del s Audit_cache in
-          if b then set Value { metadata with e_sealed }
+          if b then set Value { metadata with sealed }
           else failwith "sealing error")
 
-let append_to_shuffles s election owned_owner shuffle_s =
+let append_to_shuffles s election owner shuffle_s =
   let module W = (val election : Site_common_sig.ELECTION) in
   let@ last cont =
     let* x = Storage.E.get s Last_event in
     match Lopt.get_value x with None -> assert false | Some x -> cont x
   in
   let shuffle =
-    shuffle_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) shuffle_s
+    !*(shuffle_of_yojson !$W.G.of_string !$W.G.Zq.of_string) shuffle_s
   in
   let shuffle_h = Hash.hash_string shuffle_s in
   let* last_nh = Public_archive.get_nh_ciphertexts s in
-  let last_nh = nh_ciphertexts_of_string W.(sread G.of_string) last_nh in
+  let last_nh = !*(nh_ciphertexts_of_yojson !$W.G.of_string) last_nh in
   if
-    string_of_shuffle W.(swrite G.to_string) W.(swrite G.Zq.to_string) shuffle
-    = shuffle_s
+    !+(yojson_of_shuffle !&W.G.to_string !&W.G.Zq.to_string) shuffle = shuffle_s
     && W.E.check_shuffle last_nh shuffle
   then
-    let owned = { owned_owner; owned_payload = shuffle_h } in
-    let owned_s = string_of_owned write_hash owned in
+    let owned = { owner; payload = shuffle_h } in
+    let owned_s = !+(yojson_of_owned yojson_of_hash) owned in
     let* x =
       Storage.E.append s ~last
         [
@@ -132,8 +132,8 @@ let append_to_shuffles s election owned_owner shuffle_s =
     | false -> Lwt.fail @@ Failure "race condition in append_to_shuffles"
   else return_none
 
-let make_result_transaction write_result result =
-  let payload = string_of_election_result write_result result in
+let make_result_transaction yojson_of_result result =
+  let payload = !+(yojson_of_election_result yojson_of_result) result in
   [ Data payload; Event (`Result, Some (Hash.hash_string payload)) ]
 
 let internal_release_tally ~force s set_state =
@@ -143,7 +143,7 @@ let internal_release_tally ~force s set_state =
   in
   let* metadata = get_election_metadata s in
   let trustees_with_ids =
-    Option.value metadata.e_trustees ~default:[ "server" ]
+    Option.value metadata.trustees ~default:[ "server" ]
     |> List.mapi (fun i x -> (i + 1, x))
   in
   let* pds = Public_archive.get_partial_decryptions s in
@@ -153,8 +153,7 @@ let internal_release_tally ~force s set_state =
     else if
       (* check whether all trustees have done their job *)
       List.for_all
-        (fun (i, x) ->
-          x = "server" || List.exists (fun x -> x.owned_owner = i) pds)
+        (fun (i, x) -> x = "server" || List.exists (fun x -> x.owner = i) pds)
         trustees_with_ids
     then cont ()
     else Lwt.return_false
@@ -169,50 +168,45 @@ let internal_release_tally ~force s set_state =
     let* x = Public_archive.get_latest_encrypted_tally s in
     match x with
     | None -> assert false
-    | Some x -> Lwt.return @@ encrypted_tally_of_string W.(sread G.of_string) x
+    | Some x -> Lwt.return @@ !*(encrypted_tally_of_yojson !$W.G.of_string) x
   in
   let* sized =
     let* x = Public_archive.get_sized_encrypted_tally s in
     match x with
     | None -> assert false
     | Some x ->
-        let x = sized_encrypted_tally_of_string read_hash x in
-        Lwt.return { x with sized_encrypted_tally = tally }
+        let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+        Lwt.return { x with encrypted_tally = tally }
   in
   let* trustees =
     let* x = Public_archive.get_trustees s in
-    Lwt.return
-    @@ trustees_of_string W.(sread G.of_string) W.(sread G.Zq.of_string) x
+    Lwt.return @@ !*(trustees_of_yojson !$W.G.of_string !$W.G.Zq.of_string) x
   in
   let* pds, transactions =
     let pds =
       List.rev_map
         (fun x ->
-          let owned_payload =
-            partial_decryption_of_string
-              W.(sread G.of_string)
-              W.(sread G.Zq.of_string)
-              x.owned_payload
+          let payload =
+            !*(partial_decryption_of_yojson !$W.G.of_string !$W.G.Zq.of_string)
+              x.payload
           in
-          { x with owned_payload })
+          { x with payload })
         pds
     in
-    let decrypt owned_owner =
+    let decrypt owner =
       let* x = Storage.E.get s Private_key in
       match Lopt.get_value x with
       | Some (`String sk) ->
           let sk = W.G.Zq.of_string sk in
           let pd = W.E.compute_factor tally sk in
-          let owned = { owned_owner; owned_payload = pd } in
+          let owned = { owner; payload = pd } in
           let pd =
-            string_of_partial_decryption
-              W.(swrite G.to_string)
-              W.(swrite G.Zq.to_string)
+            !+(yojson_of_partial_decryption !&W.G.to_string !&W.G.Zq.to_string)
               pd
           in
           let payload =
-            { owned_owner; owned_payload = Hash.hash_string pd }
-            |> string_of_owned write_hash
+            { owner; payload = Hash.hash_string pd }
+            |> !+(yojson_of_owned yojson_of_hash)
           in
           let transaction =
             [
@@ -227,7 +221,7 @@ let internal_release_tally ~force s set_state =
     Lwt_list.fold_left_s
       (fun ((pds, transactions) as accu) (i, t) ->
         if t = "server" then
-          if List.exists (fun x -> x.owned_owner = i) pds then Lwt.return accu
+          if List.exists (fun x -> x.owner = i) pds then Lwt.return accu
           else
             let* pd, transaction = decrypt i in
             Lwt.return (pd :: pds, transaction :: transactions)
@@ -236,7 +230,9 @@ let internal_release_tally ~force s set_state =
   in
   match W.E.compute_result sized pds trustees with
   | Ok result ->
-      let result_transaction = make_result_transaction W.write_result result in
+      let result_transaction =
+        make_result_transaction W.yojson_of_result result
+      in
       let@ () =
        fun cont ->
         let* x =
@@ -251,9 +247,7 @@ let internal_release_tally ~force s set_state =
       let* () = Storage.E.del s Audit_cache in
       let* () = set_state `Tallied in
       let@ dates, set_dates = update_election_dates s in
-      let* () =
-        set_dates { dates with e_date_tally = Some (Unix.gettimeofday ()) }
-      in
+      let* () = set_dates { dates with tally = Some (Unix.gettimeofday ()) } in
       let* () = Storage.E.set s State_state Value None in
       Lwt.return_true
   | Error e -> Lwt.fail @@ Failure (Trustees.string_of_combination_error e)
@@ -294,8 +288,8 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
    fun cont ->
     match state with
     | `EncryptedTally when update -> (
-        match dates.e_date_publish with
-        | Some _ when not (past dates.e_date_publish) -> cont ()
+        match dates.publish with
+        | Some _ when not (past dates.publish) -> cont ()
         | _ ->
             let@ () =
              fun cont2 ->
@@ -307,14 +301,10 @@ let raw_get_election_state ?(update = true) ?(ignore_errors = true) s return =
     | _ -> cont ()
   in
   let new_state =
-    match state with
-    | `Closed when past dates.e_date_auto_open -> `Open
-    | x -> x
+    match state with `Closed when past dates.auto_open -> `Open | x -> x
   in
   let new_state =
-    match new_state with
-    | `Open when past dates.e_date_auto_close -> `Closed
-    | x -> x
+    match new_state with `Open when past dates.auto_close -> `Closed | x -> x
   in
   assert (new_state <> `Archived);
   let* () =
@@ -337,10 +327,10 @@ let release_tally s =
       set_state `Tallied
   | _ -> Lwt.fail @@ Failure "election not in EncryptedTally state"
 
-let add_partial_decryption s (owned_owner, pd) =
+let add_partial_decryption s (owner, pd) =
   let payload =
-    { owned_owner; owned_payload = Hash.hash_string pd }
-    |> string_of_owned write_hash
+    { owner; payload = Hash.hash_string pd }
+    |> !+(yojson_of_owned yojson_of_hash)
   in
   let* x =
     Storage.E.append s
@@ -423,7 +413,7 @@ let raw_compute_encrypted_tally s election =
   let* ballots =
     Public_archive.fold_on_ballots s
       (fun _ b accu ->
-        let ballot = W.read_ballot ++ b in
+        let ballot = !*W.ballot_of_yojson b in
         match W.get_credential ballot with
         | None -> assert false
         | Some credential ->
@@ -439,17 +429,17 @@ let raw_compute_encrypted_tally s election =
       [] (GMap.bindings ballots)
   in
   let tally = W.E.process_ballots ballots in
-  let tally_s = string_of_encrypted_tally W.(swrite G.to_string) tally in
+  let tally_s = !+(yojson_of_encrypted_tally !&W.G.to_string) tally in
   let payload =
     {
-      sized_num_tallied = List.length ballots;
-      sized_total_weight =
+      num_tallied = List.length ballots;
+      total_weight =
         List.fold_left
           (fun accu (w, _) -> Weight.(accu + w))
           Weight.zero ballots;
-      sized_encrypted_tally = Hash.hash_string tally_s;
+      encrypted_tally = Hash.hash_string tally_s;
     }
-    |> string_of_sized_encrypted_tally write_hash
+    |> !+(yojson_of_sized_encrypted_tally yojson_of_hash)
   in
   let* x =
     Storage.E.append s ~last
@@ -466,7 +456,7 @@ let raw_compute_encrypted_tally s election =
 
 let get_credential_record s credential =
   let* credential_mapping = Storage.E.get s (Credential_mapping credential) in
-  let&* { c_ballot = cr_ballot; _ } = Lopt.get_value credential_mapping in
+  let&* { ballot = cr_ballot; _ } = Lopt.get_value credential_mapping in
   let* cr_username = get_credential_user s credential in
   let* cr_weight = get_credential_weight s credential in
   return_some { cr_ballot; cr_weight; cr_username }
@@ -519,8 +509,8 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
   in
   let get_user_record user =
     let* x = Storage.E.get s (Extended_record user) in
-    let&* { r_credential; _ } = Lopt.get_value x in
-    return_some r_credential
+    let&* { credential; _ } = Lopt.get_value x in
+    return_some credential
   in
   let@ x cont =
     let { credential; credential_record = cr } = precast_data in
@@ -568,11 +558,11 @@ let do_cast_ballot s election ~ballot ~user ~weight date ~precast_data =
       in
       let* () =
         hash |> Hash.to_b64
-        |> (fun ballot -> { c_ballot = Some ballot; c_credential = credential })
+        |> (fun ballot -> { ballot = Some ballot; credential })
         |> Storage.E.set s (Credential_mapping credential) Value
       in
       let* () =
-        { r_username = user; r_date = date; r_credential = credential }
+        { username = user; date; credential }
         |> Storage.E.set s (Extended_record user) Value
       in
       return (Ok (hash, revote))
@@ -591,7 +581,7 @@ let compute_audit_cache s =
   | None -> Lwt.return_none
   | Some _ ->
       let* voters = get_all_voters s in
-      let cache_voters_hash = Hash.hash_string (Voter.list_to_string voters) in
+      let voters_hash = Hash.hash_string (Voter.list_to_string voters) in
       let* shuffles =
         let* x = Public_archive.get_shuffles s in
         let&* x = x in
@@ -600,38 +590,34 @@ let compute_audit_cache s =
       let* encrypted_tally =
         let* x = Public_archive.get_sized_encrypted_tally s in
         let&* x = x in
-        let x = sized_encrypted_tally_of_string read_hash x in
-        Lwt.return_some x.sized_encrypted_tally
+        let x = !*(sized_encrypted_tally_of_yojson hash_of_yojson) x in
+        Lwt.return_some x.encrypted_tally
       in
       let* trustees = Public_archive.get_trustees s in
-      let* cache_checksums =
+      let* checksums =
         let* setup_data = get_setup_data s in
-        let election = setup_data.setup_election in
+        let election = setup_data.election in
         let* public_credentials = Public_archive.get_public_creds s in
         let* final =
           let* roots = Public_archive.get_roots s in
-          let&* _ = roots.roots_result in
+          let&* _ = roots.result in
           let* last_event = Storage.E.get s Last_event in
           Lwt.return
-          @@ Option.map (fun x -> x.last_hash) (Lopt.get_value last_event)
+          @@ Option.map
+               (fun (x : last_event) -> x.hash)
+               (Lopt.get_value last_event)
         in
         Election.compute_checksums ~election ~shuffles ~encrypted_tally
           ~trustees ~public_credentials ~final
         |> Lwt.return
       in
-      let* cache_sealing_log =
+      let* sealing_log =
         let* x = Storage.E.get s Sealing_log in
         match Lopt.get_value x with
         | None -> Lwt.return_none
         | Some x -> Lwt.return_some @@ Hash.hash_string x
       in
-      return_some
-        {
-          cache_voters_hash;
-          cache_checksums;
-          cache_threshold = None;
-          cache_sealing_log;
-        }
+      return_some { voters_hash; checksums; threshold = None; sealing_log }
 
 let get_audit_cache s =
   let* cache = Storage.E.get s Audit_cache in
@@ -652,19 +638,19 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
     | Some x -> cont x
   in
   let@ () =
-   fun cont -> if se.se_pending_credentials then cont () else Lwt.return_unit
+   fun cont -> if se.pending_credentials then cont () else Lwt.return_unit
   in
   let voter_map =
     List.fold_left
-      (fun accu v ->
-        let login = Voter.get v.sv_id in
-        let weight = Voter.get_weight v.sv_id in
+      (fun accu (v : draft_voter) ->
+        let login = Voter.get v.id in
+        let weight = Voter.get_weight v.id in
         let recipient =
-          match v.sv_id with
+          match v.id with
           | _, { address; _ } -> Option.value ~default:login address
         in
         SMap.add login (recipient, weight) accu)
-      SMap.empty se.se_voters
+      SMap.empty se.voters
   in
   let* metadata = Mails_voter.get_metadata s ~admin_id in
   let send = Mails_voter.generate_credential_email metadata in
@@ -679,7 +665,7 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
       [] private_creds
   in
   let* () = Mails_voter_bulk.submit_bulk_emails jobs in
-  se.se_pending_credentials <- false;
+  se.pending_credentials <- false;
   Lwt.return_unit
 
 let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
@@ -689,13 +675,13 @@ let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
   in
   let body =
     `Validate { uuid; token; metadata }
-    |> Belenios_web_api.string_of_credentials_request
+    |> !+Belenios_web_api.yojson_of_credentials_request
     |> Cohttp_lwt.Body.of_string
   in
   Lwt.catch
     (fun () ->
       let* x, body =
-        Cohttp_lwt_unix.Client.post ~body (Uri.of_string info.cred_server)
+        Cohttp_lwt_unix.Client.post ~body (Uri.of_string info.server)
       in
       let* () = Cohttp_lwt.Body.drain_body body in
       let code = Cohttp.Code.code_of_status x.status in
@@ -712,31 +698,31 @@ let validate_election ~admin_id storage
   let uuid = Storage.E.get_uuid storage in
   let open Belenios_web_api in
   let questions =
-    let x = se.se_questions in
-    let t_administrator =
-      match x.t_administrator with None -> se.se_administrator | x -> x
+    let x = se.questions in
+    let administrator =
+      match x.administrator with None -> se.administrator | x -> x
     in
-    let t_credential_authority =
-      match x.t_credential_authority with
-      | None -> se.se_metadata.e_cred_authority
+    let credential_authority =
+      match x.credential_authority with
+      | None -> se.metadata.cred_authority
       | x -> x
     in
-    { x with t_administrator; t_credential_authority }
+    { x with administrator; credential_authority }
   in
   (* convenience tests *)
   let validation_error x = raise (Api_generic.Error (`ValidationError x)) in
   let () =
-    if questions.t_name = "" then validation_error `NoTitle;
-    if questions.t_questions = [||] then validation_error `NoQuestions;
-    (match questions.t_administrator with
+    if questions.name = "" then validation_error `NoTitle;
+    if questions.questions = [||] then validation_error `NoQuestions;
+    (match questions.administrator with
     | None | Some "" -> validation_error `NoAdministrator
     | _ -> ());
-    match questions.t_credential_authority with
+    match questions.credential_authority with
     | None | Some "" -> validation_error `NoCredentialAuthority
     | _ -> ()
   in
   let@ _check_cas_server (cont : unit -> _) =
-    match se.se_metadata.e_auth_config with
+    match se.metadata.auth_config with
     | Some [ { auth_system = "cas"; auth_config; _ } ] -> (
         match List.assoc_opt "server" auth_config with
         | None -> validation_error `BadAuthentication
@@ -774,12 +760,12 @@ let validate_election ~admin_id storage
   in
   (* billing *)
   let* () =
-    match (!Web_config.billing, se.se_metadata.e_billing_request) with
+    match (!Web_config.billing, se.metadata.billing_request) with
     | None, _ -> Lwt.return_unit
     | Some (url, callback), None ->
         let* id = Billing.create ~admin_id ~uuid ~nb_voters:s.num_voters in
-        let se_metadata = { se.se_metadata with e_billing_request = Some id } in
-        let se = { se with se_metadata } in
+        let metadata = { se.metadata with billing_request = Some id } in
+        let se = { se with metadata } in
         let* () = set ~billing:true (Draft (v, se) : draft_election) in
         validation_error (`MissingBilling { url; id; callback })
     | Some (url, callback), Some id ->
@@ -789,14 +775,14 @@ let validate_election ~admin_id storage
   in
   (* send private credentials *)
   let* () =
-    match se.se_metadata.e_cred_authority_info with
+    match se.metadata.cred_authority_info with
     | None ->
         let* private_creds = Storage.E.get storage Private_creds in
         send_credentials storage ~admin_id (Draft (v, se)) private_creds
     | Some info ->
         let* metadata = Mails_voter.get_metadata storage ~admin_id in
         Lwt.async
-          (validate_on_credential_server ~uuid ~info ~token:se.se_public_creds
+          (validate_on_credential_server ~uuid ~info ~token:se.public_creds
              ~metadata);
         Lwt.return_unit
   in
@@ -822,13 +808,10 @@ let compute_encrypted_tally s =
         let* () = set_state `Shuffling in
         (* perform server-side shuffle *)
         let* cc = Public_archive.get_nh_ciphertexts s in
-        let cc = nh_ciphertexts_of_string W.(sread G.of_string) cc in
+        let cc = !*(nh_ciphertexts_of_yojson !$W.G.of_string) cc in
         let shuffle = W.E.shuffle_ciphertexts cc in
         let shuffle =
-          string_of_shuffle
-            W.(swrite G.to_string)
-            W.(swrite G.Zq.to_string)
-            shuffle
+          !+(yojson_of_shuffle !&W.G.to_string !&W.G.Zq.to_string) shuffle
         in
         let* x = append_to_shuffles s election 1 shuffle in
         match x with
@@ -866,10 +849,7 @@ let set_election_state s state =
   | Some set_state ->
       let* () = set_state (state : [ `Open | `Closed ] :> election_state) in
       let@ dates, set_dates = update_election_dates s in
-      let* () =
-        set_dates
-          { dates with e_date_auto_open = None; e_date_auto_close = None }
-      in
+      let* () = set_dates { dates with auto_open = None; auto_close = None } in
       Lwt.return_true
   | None -> Lwt.return_false
 
@@ -881,35 +861,27 @@ let get_election_automatic_dates s =
   let* d = get_election_dates s in
   Lwt.return
     {
-      auto_date_open = d.e_date_auto_open;
-      auto_date_close = d.e_date_auto_close;
-      auto_date_publish = d.e_date_publish;
-      auto_date_grace_period = d.e_date_grace_period;
+      open_ = d.auto_open;
+      close = d.auto_close;
+      publish = d.publish;
+      grace_period = d.grace_period;
     }
 
 let set_election_automatic_dates s d =
   let open Belenios_web_api in
-  let e_date_auto_open = d.auto_date_open in
-  let e_date_auto_close = d.auto_date_close in
-  let e_date_publish = d.auto_date_publish in
-  let e_date_grace_period = d.auto_date_grace_period in
+  let auto_open = d.open_ in
+  let auto_close = d.close in
+  let publish = d.publish in
+  let grace_period = d.grace_period in
   let@ dates, set = update_election_dates s in
-  set
-    {
-      dates with
-      e_date_auto_open;
-      e_date_auto_close;
-      e_date_publish;
-      e_date_grace_period;
-    }
+  set { dates with auto_open; auto_close; publish; grace_period }
 
 let get_draft_public_credentials s =
   let* x = Storage.E.get s Public_creds in
   let&* x = Lopt.get_value x in
-  let x =
-    x |> List.map strip_public_credential |> string_of_public_credentials
-  in
-  Lwt.return_some x
+  x
+  |> List.map strip_public_credential
+  |> yojson_of_public_credentials |> Lwt.return_some
 
 let get_records s =
   let* x = Storage.E.get s Records in
@@ -925,9 +897,8 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
   match SMap.find_opt uuid_s !pending_generations with
   | Some _ -> ()
   | None ->
-      let voters = List.map (fun v -> v.sv_id) se.se_voters in
-      let module G =
-        (val Belenios.Group.of_string ~version:se.se_version se.se_group)
+      let voters = List.map (fun (v : draft_voter) -> v.id) se.voters in
+      let module G = (val Belenios.Group.of_string ~version:se.version se.group)
       in
       let module Cred =
         Credential.Make
@@ -953,8 +924,8 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           | Some (Draft (v, se)) ->
               let* () = private_creds |> Storage.E.set s Private_creds Value in
               let* () = Storage.E.set s Public_creds Value public_with_ids in
-              se.se_public_creds_received <- true;
-              se.se_pending_credentials <- true;
+              se.public_creds_received <- true;
+              se.pending_credentials <- true;
               let* () = set Value (Draft (v, se)) in
               pending_generations := SMap.remove uuid_s !pending_generations;
               Lwt.return_unit
@@ -963,4 +934,4 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
 let get_credentials_status uuid (Draft (_, se)) =
   match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with
   | Some p -> `Pending (p ())
-  | None -> if se.se_public_creds_received then `Done else `None
+  | None -> if se.public_creds_received then `Done else `None

@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios_core.Serializable_core
 open Belenios
 
 module Sender = struct
@@ -51,8 +52,7 @@ let send_confirmation_code gettext ~service ~recipient =
   let context = Sender.{ kind; gettext } in
   Otp.generate ~payload ~context ~recipient ()
 
-let send_changepw_code gettext ~service
-    ~(recipient : Belenios_messages.recipient) =
+let send_changepw_code gettext ~service ~(recipient : recipient) =
   let kind = Web_state_sig.ChangePassword { username = recipient.name } in
   let payload = Web_state_sig.{ kind; service } in
   let context = Sender.{ kind; gettext } in

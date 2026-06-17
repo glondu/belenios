@@ -84,17 +84,17 @@ let rec show_root main =
   let* configuration, configuration_opt =
     let* x = Api.(get configuration `Nobody) in
     let@ c, _ = with_ok_opt "configuration" x in
-    Lwt.return [ txt (string_of_configuration c) ]
+    Lwt.return [ txt (!+yojson_of_configuration c) ]
   in
   let* account, account_opt =
     let* x = Api.(get account !user) in
     let@ account, ifmatch = with_ok_opt "account" x in
-    let account_str = string_of_api_account account in
+    let account_str = !+yojson_of_api_account account in
     let t, tget = textarea ~rows:2 account_str in
     let b =
       let@ () = button "Save changes" in
       let* x =
-        Api.(put ~ifmatch account !user (api_account_of_string (tget ())))
+        Api.(put ~ifmatch account !user (!*api_account_of_yojson (tget ())))
       in
       let@ () = show_in main in
       let msg =
@@ -142,14 +142,14 @@ let rec show_root main =
     | Some c, Some a ->
         let draft_version = List.hd c.supported_crypto_versions in
         let (Version v) = Election.version_of_int draft_version in
-        let draft_questions =
+        let questions =
           {
-            t_description = "";
-            t_name = "";
-            t_questions = [||];
-            t_administrator = Some a.name;
-            t_credential_authority = Some "server";
-            t_language = None;
+            description = "";
+            name = "";
+            questions = [||];
+            administrator = Some a.name;
+            credential_authority = Some "server";
+            language = None;
           }
         in
         let address =
@@ -157,19 +157,19 @@ let rec show_root main =
         in
         let draft =
           {
-            draft_version;
-            draft_owners = [ a.id ];
-            draft_questions;
-            draft_languages = [ "en"; "fr" ];
-            draft_contact = Some (a.name ^ address);
-            draft_booth = List.hd c.supported_booth_versions;
-            draft_authentication =
+            version = draft_version;
+            owners = [ a.id ];
+            questions;
+            languages = [ "en"; "fr" ];
+            contact = Some (a.name ^ address);
+            booth = List.hd c.supported_booth_versions;
+            authentication =
               (match c.authentications with
               | `CAS :: _ -> Some (`CAS "")
-              | `Configured x :: _ -> Some (`Configured x.configured_instance)
+              | `Configured x :: _ -> Some (`Configured x.instance)
               | _ -> None);
-            draft_group = c.default_group;
-            draft_cred_authority_info = None;
+            group = c.default_group;
+            cred_authority_info = None;
           }
         in
         Some (Draft (v, draft))
@@ -177,14 +177,14 @@ let rec show_root main =
   in
   let create =
     let value =
-      match template with None -> "" | Some x -> string_of_draft x
+      match template with None -> "" | Some x -> !+yojson_of_draft x
     in
     let t, tget = textarea value in
     let b =
       let@ () = button "Create new draft" in
       let* x =
-        Api.(post elections !user (draft_of_string (tget ())))
-        |> wrap uuid_of_string
+        Api.(post elections !user (!*draft_of_yojson (tget ())))
+        |> wrap !*uuid_of_yojson
       in
       match x with
       | Ok uuid ->

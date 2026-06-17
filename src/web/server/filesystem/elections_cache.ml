@@ -60,41 +60,39 @@ module Make (I : INPUT) () = struct
     let* metadata = get Fun.id Metadata in
     let* roots = get Fun.id Roots in
     let* name =
-      match roots.roots_setup_data with
+      match roots.setup_data with
       | None -> Lwt.fail Exit
       | Some setup_data ->
-          let* setup_data = get setup_data_of_string (Data setup_data) in
+          let* setup_data = get !*setup_data_of_yojson (Data setup_data) in
           let* (Template (_, template)) =
-            get Election.template_of_string (Data setup_data.setup_election)
+            get
+              !*Election.versioned_template_of_yojson
+              (Data setup_data.election)
           in
-          Lwt.return template.t_name
+          Lwt.return template.name
     in
     let* date =
       let* dates = get Fun.id Dates in
       match state with
-      | `Draft -> Lwt.return dates.e_date_creation
+      | `Draft -> Lwt.return dates.creation
       | `Open | `Closed | `Shuffling | `EncryptedTally ->
-          Lwt.return
-          @@ Option.value dates.e_date_finalization
-               ~default:dates.e_date_creation
+          Lwt.return @@ Option.value dates.finalization ~default:dates.creation
       | `Tallied ->
-          Lwt.return
-          @@ Option.value dates.e_date_tally ~default:dates.e_date_creation
+          Lwt.return @@ Option.value dates.tally ~default:dates.creation
       | `Archived ->
-          Lwt.return
-          @@ Option.value dates.e_date_archive ~default:dates.e_date_creation
+          Lwt.return @@ Option.value dates.archive ~default:dates.creation
     in
     let state = (state :> Belenios_web_api.state) in
     let item : Belenios_web_api.summary = { uuid; state; date; name } in
-    Lwt.return (metadata.e_owners, item)
+    Lwt.return (metadata.owners, item)
 
   let get_draft_election_summary uuid se =
-    let date = se.se_creation_date in
-    let name = se.se_questions.t_name in
+    let date = se.creation_date in
+    let name = se.questions.name in
     let item : Belenios_web_api.summary =
       { uuid; date; name; state = `Draft }
     in
-    (se.se_owners, item)
+    (se.owners, item)
 
   let get_election_summary s uuid =
     let* draft = I.get s (Election (uuid, Draft)) in
@@ -143,7 +141,7 @@ module Make (I : INPUT) () = struct
       Lwt.return_some x
     in
     let&* (Draft (_, se)) = se in
-    let t = se.se_creation_date in
+    let t = se.creation_date in
     let next_t = t +. (86400. *. Defaults.days_to_delete) in
     Lwt.return_some (`Destroy, uuid, next_t)
 
@@ -162,25 +160,19 @@ module Make (I : INPUT) () = struct
     in
     match state with
     | `Draft ->
-        let t = dates.e_date_creation in
+        let t = dates.creation in
         let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Destroy, uuid, next_t)
     | `Open | `Closed | `Shuffling | `EncryptedTally ->
-        let t =
-          Option.value dates.e_date_finalization ~default:dates.e_date_creation
-        in
+        let t = Option.value dates.finalization ~default:dates.creation in
         let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Delete, uuid, next_t)
     | `Tallied ->
-        let t =
-          Option.value dates.e_date_tally ~default:dates.e_date_creation
-        in
+        let t = Option.value dates.tally ~default:dates.creation in
         let next_t = t +. (86400. *. Defaults.days_to_archive) in
         Lwt.return_some (`Archive, uuid, next_t)
     | `Archived ->
-        let t =
-          Option.value dates.e_date_archive ~default:dates.e_date_creation
-        in
+        let t = Option.value dates.archive ~default:dates.creation in
         let next_t = t +. (86400. *. Defaults.days_to_delete) in
         Lwt.return_some (`Delete, uuid, next_t)
 

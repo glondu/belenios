@@ -26,10 +26,8 @@ module type GROUP_SIG = sig
 end
 
 module type QUESTION_SIG = sig
-  type t
+  type t [@@deriving yojson]
 
-  val wrap : Yojson.Safe.t -> t
-  val unwrap : t -> Yojson.Safe.t
   val is_nh_question : t -> bool
   val get_complexity : t -> complexity
 
@@ -38,7 +36,7 @@ module type QUESTION_SIG = sig
       with type element := G.t
        and type question := t
        and type answer := Yojson.Safe.t
-       and type result := string
+       and type result := Yojson.Safe.t
 end
 
 module type MIXNET_SIG = sig
@@ -48,21 +46,21 @@ module type MIXNET_SIG = sig
     MIXNET
       with type element := W.G.t
        and type scalar := W.G.Zq.t
-       and type 'a proof := ('a, W.G.Zq.t) Serializable_t.shuffle_proof
+       and type 'a proof := ('a, W.G.Zq.t) Serializable.shuffle_proof
 end
 
 module type ELECTION_SIG = sig
   type question
 
   val get_complexity : question array -> complexity
-  val template_of_string : string -> question Serializable_t.template
+  val template_of_yojson : Yojson.Safe.t -> question Serializable.template
 
   val make_raw_election :
-    question Serializable_t.template ->
+    question Serializable.template ->
     uuid:Common.Uuid.t ->
     group:string ->
     public_key:string ->
-    string
+    Yojson.Safe.t
 
   module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
 end

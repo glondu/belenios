@@ -1,7 +1,8 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2021 Inria                                           *)
+(*  Copyright © 2012-2023 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,32 +20,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-<doc text="Serializable datatypes for homomorphic questions">
+(** {1 Web-specific serializable datatypes} *)
 
-(** {2 Predefined types} *)
+open Ppx_yojson_conv_lib.Yojson_conv
+open Belenios_messages.Serializable
 
-type weight = abstract wrap <ocaml module="Belenios_core.Common_types.Weight">
-type 'a ciphertext <ocaml predef from="Belenios_core.Serializable_core"> = abstract
-type 'a disjunctive_proof <ocaml predef from="Belenios_core.Serializable_core"> = abstract
+(** {1 Bulk emails} *)
 
-(** {2 Questions and answers} *)
+type bulk_email = [ `Credential of material_message ] [@@deriving yojson]
+type bulk_emails = bulk_email array [@@deriving yojson]
+type bulk_mode = [ `Primary | `Secondary ] [@@deriving yojson]
+type bulk_processed = { mode : bulk_mode; processed : int } [@@deriving yojson]
 
-type question = {
-  answers : string list <ocaml repr="array">;
-  blank : bool;
-  min : int;
-  max : int;
-  question : string;
-} <ocaml field_prefix="q_">
+(** {1 OTP logging} *)
 
-type ('a, 'b) answer = {
-  choices : 'a ciphertext list <ocaml repr="array">;
-  individual_proofs : 'b disjunctive_proof list <ocaml repr="array">;
-  overall_proof : 'b disjunctive_proof;
-  ?blank_proof : 'b disjunctive_proof option;
-}
-<doc text="An answer to a question. It consists of a weight for each
-choice, a proof that each of these weights is 0 or 1, and an overall
-proof that the total weight is within bounds.">
-
-type result = weight list <ocaml repr="array">
+type otp_record = { recipient : string; code : string; expiration_time : float }
+[@@deriving yojson]

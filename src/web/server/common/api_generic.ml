@@ -90,13 +90,14 @@ let handle_ifmatch ifmatch current cont =
   | None -> cont ()
   | Some x ->
       let* current = current () in
-      if sha256_b64 current = x then cont () else precondition_failed
+      if sha256_b64 @@ Yojson.Safe.to_string current = x then cont ()
+      else precondition_failed
 
 let handle_generic_error f =
   Lwt.catch f (function
     | Error error ->
         let request_status = { code = 400; status = "Bad Request"; error } in
-        return_json 400 (string_of_request_status request_status)
+        return_json 400 (!+yojson_of_request_status request_status)
     | Readonly_storage ->
         let request_status =
           {
@@ -105,23 +106,23 @@ let handle_generic_error f =
             error = `ReadonlyStorage;
           }
         in
-        return_json 503 (string_of_request_status request_status)
+        return_json 503 (!+yojson_of_request_status request_status)
     | exn ->
         let error = `GenericError (Printexc.to_string exn) in
         let request_status =
           { code = 500; status = "Internal Server Error"; error }
         in
-        return_json 500 (string_of_request_status request_status))
+        return_json 500 (!+yojson_of_request_status request_status))
 
 let handle_get get =
   let@ () = handle_generic_error in
   let* x = get () in
-  return_json 200 x
+  return_yojson 200 x
 
 let handle_get_option get =
   let@ () = handle_generic_error in
   let* x = get () in
-  match x with None -> not_found | Some x -> return_json 200 x
+  match x with None -> not_found | Some x -> return_yojson 200 x
 
 let get_configuration_uris () =
   {
@@ -154,9 +155,9 @@ let get_configuration () =
           | Export a ->
               `Configured
                 {
-                  configured_instance = a.config.auth_instance;
-                  configured_system = a.config.auth_system;
-                  configured_descr = a.descr;
+                  instance = a.config.auth_instance;
+                  system = a.config.auth_system;
+                  descr = a.descr;
                 })
         !Web_config.exported_auth_config;
     default_group = !Web_config.default_group;
@@ -168,7 +169,7 @@ let get_configuration () =
   }
 
 let get_account (a : account) (u : user) =
-  let service = u.user_domain in
+  let service = u.domain in
   let portal =
     let rec loop = function
       | [] -> None
@@ -179,7 +180,7 @@ let get_account (a : account) (u : user) =
   in
   {
     id = a.id;
-    authentication_method = { service; username = u.user_name; portal };
+    authentication_method = { service = u.domain; username = u.name; portal };
     name = a.name;
     address = a.email;
     language = a.language;
@@ -193,8 +194,8 @@ let put_account ((a, set) : account updatable) (u : user) (b : api_account) =
   if b.id <> a.id then raise (Error (`CannotChange "id"));
   if
     not
-      (b.authentication_method.service = u.user_domain
-      && b.authentication_method.username = u.user_name)
+      (b.authentication_method.service = u.domain
+      && b.authentication_method.username = u.name)
   then raise (Error (`CannotChange "authentication_method"));
   let a =
     {

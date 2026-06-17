@@ -21,7 +21,6 @@
 
 open Lwt.Syntax
 open Belenios
-open Serializable_j
 
 exception Race_condition
 exception Election_not_found of uuid * string

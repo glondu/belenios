@@ -19,22 +19,22 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
+open Serializable
 
 type draft = Draft : 'a Belenios.Election.version * 'a raw_draft -> draft
 
-let draft_of_string x =
-  let abstract = raw_draft_of_string Yojson.Safe.read_json x in
+let draft_of_yojson x =
+  let abstract = raw_draft_of_yojson Fun.id x in
   let open Belenios.Election in
-  match version_of_int abstract.draft_version with
+  match version_of_int abstract.version with
   | Version v ->
       let open (val get_serializers v) in
-      let x = raw_draft_of_string read_question x in
+      let x = raw_draft_of_yojson t_of_yojson x in
       Draft (v, x)
 
-let string_of_draft (Draft (v, x)) =
+let yojson_of_draft (Draft (v, x)) =
   let open (val Belenios.Election.get_serializers v) in
-  string_of_raw_draft write_question x
+  yojson_of_raw_draft yojson_of_t x
 
 let remaining_credits (xs : credentials_credits) =
   xs

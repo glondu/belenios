@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
+open Serializable
 open Common
 
 (** Transform a ballot in belenios format (e.g. [4,1,2,5,3]) into a list of
@@ -149,12 +149,12 @@ let compute ~nseats ballots =
       | Some x -> partition (x :: accu) invalid (i + 1)
     else (List.sort compare accu, Array.of_list (List.sort compare invalid))
   in
-  let stv_ballots, stv_invalid = partition [] [] 0 in
-  let n = List.length stv_ballots in
+  let ballots, invalid = partition [] [] 0 in
+  let n = List.length ballots in
   let quota = floor (float n /. float (nseats + 1)) +. 1. in
-  let wballots = List.map (fun b -> (1., b)) stv_ballots in
-  let stv_events = run quota wballots [] nseats in
-  let stv_winners =
-    stv_events |> List.map (function `Win x -> x | _ -> []) |> List.flatten
+  let wballots = List.map (fun b -> (1., b)) ballots in
+  let events = run quota wballots [] nseats in
+  let winners =
+    events |> List.map (function `Win x -> x | _ -> []) |> List.flatten
   in
-  { stv_ballots; stv_invalid; stv_events; stv_winners }
+  { ballots; invalid; events; winners }

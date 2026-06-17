@@ -49,7 +49,9 @@ module App (U : UI) = struct
           td [ txt t ];
           td [ txt @@ string_of_int x.credits ];
           td
-            [ txt @@ Belenios_web_api.string_of_credentials_credit_kind x.kind ];
+            [
+              txt @@ !+Belenios_web_api.yojson_of_credentials_credit_kind x.kind;
+            ];
           td [ txt @@ string_of_bool x.success ];
         ]
     in
@@ -121,23 +123,23 @@ module App (U : UI) = struct
         match x with Ok (x, _) -> cont x | Error _ -> fail ()
       in
       let@ setup cont =
-        match roots.roots_setup_data with
+        match roots.setup_data with
         | None -> fail ()
         | Some h -> (
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
-            | Ok (x, _) -> cont @@ setup_data_of_string x
+            | Ok (x, _) -> cont @@ !*setup_data_of_yojson x
             | Error _ -> fail ())
       in
       let@ election cont =
-        let h = setup.setup_election in
+        let h = setup.election in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with
-        | Ok (x, _) -> cont @@ Election.of_string x
+        | Ok (x, _) -> cont @@ !*Election.of_yojson x
         | Error _ -> fail ()
       in
       let@ credentials cont =
-        let h = setup.setup_credentials in
+        let h = setup.credentials in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with Ok (x, _) -> cont x | Error _ -> fail ()
       in
@@ -148,24 +150,25 @@ module App (U : UI) = struct
       let module E = (val election) in
       let module C = Credentials_certificate (E.G) in
       let@ certificate cont =
-        match setup.setup_credentials_certificate with
+        match setup.credentials_certificate with
         | None -> fail ()
         | Some h -> (
             let* x = Api.(get (election_object uuid h) `Nobody) in
             match x with
             | Ok (x, _) ->
                 cont
-                @@ credentials_certificate_of_string (sread E.G.of_string)
-                     (sread E.G.Zq.of_string) x
+                @@ !*(credentials_certificate_of_yojson !$E.G.of_string
+                        !$E.G.Zq.of_string)
+                     x
             | Error _ -> fail ())
       in
       let@ () =
        fun cont ->
         if
-          certificate.s_message.uuid = uuid
-          && certificate.s_message.voter_list_length
-             = List.length (public_credentials_of_string credentials)
-          && certificate.s_message.public_creds_hash
+          certificate.message.uuid = uuid
+          && certificate.message.voter_list_length
+             = List.length (!*public_credentials_of_yojson credentials)
+          && certificate.message.public_creds_hash
              = Hash.hash_string credentials
           && C.check certificate
         then cont ()
@@ -179,8 +182,8 @@ module App (U : UI) = struct
       let@ () =
        fun cont ->
         if
-          (certificate.s_message.verification_key = E.G.(g **~ signature_key))
-          && certificate.s_message.encryption_key = E.G.(g **~ decryption_key)
+          (certificate.message.verification_key = E.G.(g **~ signature_key))
+          && certificate.message.encryption_key = E.G.(g **~ decryption_key)
         then cont ()
         else (
           alert @@ s_ "The secret key is not valid!";

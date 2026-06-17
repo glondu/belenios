@@ -210,7 +210,7 @@ module Credgen = struct
         end) in
     let c = Cred.generate ids in
     set_textarea "credgen_generated_creds"
-      (string_of_private_credentials c.private_creds);
+      (!+yojson_of_private_credentials c.private_creds);
     set_textarea "credgen_generated_pks"
       (c.public_with_ids |> String.concat "\n");
     Lwt.return_unit
@@ -238,12 +238,12 @@ module Schulze = struct
   let compute () =
     let ballots =
       get_textarea "schulze_raw_plaintext_ballots"
-      |> condorcet_ballots_of_string
+      |> !*condorcet_ballots_of_yojson
     in
     let nchoices = get_input "schulze_nchoices" |> int_of_string in
     let blank_allowed = get_checked "schulze_blank" in
     let output = Methods.Schulze.compute ~nchoices ~blank_allowed ballots in
-    set_textarea "schulze_output" (string_of_schulze_result output);
+    set_textarea "schulze_output" (!+yojson_of_schulze_result output);
     Lwt.return_unit
 
   let cmds = [ ("do_schulze", compute) ]

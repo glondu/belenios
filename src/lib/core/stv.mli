@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_t
+open Serializable
 
 val compute : nseats:int -> stv_raw_ballots -> stv_result

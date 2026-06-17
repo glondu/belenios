@@ -123,7 +123,7 @@ let raw_get_with_token ~token of_string url =
       Lwt.return @@ Ok (x, ifmatch)
   | _ ->
       let x =
-        match request_status_of_string x.content with
+        match !*request_status_of_yojson x.content with
         | exception _ -> BadStatus (x.code, x.content)
         | status -> RequestStatus status
       in
@@ -138,16 +138,16 @@ module Api = struct
     | `Credauth token -> Some token
     | `Trustee token -> Some token
 
-  let get e u = raw_get_with_token ~token:(get_token u) e.of_string e.path
+  let get e u = raw_get_with_token ~token:(get_token u) !*(e.of_yojson) e.path
 
   let put ~ifmatch e u x =
-    raw_put_with_token ~ifmatch ~token:(get_token u) (e.to_string x) e.path
+    raw_put_with_token ~ifmatch ~token:(get_token u) (!+(e.to_yojson) x) e.path
 
   let put_blob e u x = raw_put_blob_with_token ~token:(get_token u) x e.path
 
   let post ?lang ?ifmatch e u x =
-    raw_post_with_token ?lang ?ifmatch ~token:(get_token u) (e.to_string_post x)
-      e.path
+    raw_post_with_token ?lang ?ifmatch ~token:(get_token u)
+      (!+(e.to_yojson_post) x) e.path
 
   let delete ?ifmatch e u =
     raw_delete_with_token ?ifmatch ~token:(get_token u) e.path
@@ -156,7 +156,7 @@ end
 let string_of_error = function
   | BadResult -> "bad result"
   | BadStatus (code, content) -> Printf.sprintf "bad status %d: %s" code content
-  | RequestStatus e -> string_of_request_status e
+  | RequestStatus e -> !+yojson_of_request_status e
 
 let wrap of_string x =
   let open Js_of_ocaml_lwt.XmlHttpRequest in

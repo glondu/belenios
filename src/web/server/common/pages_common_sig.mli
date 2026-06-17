@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios
-open Belenios_server_core
 
 module type S = sig
   val direct_a :

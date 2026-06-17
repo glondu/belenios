@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable_j
+open Serializable
 
 let compute_matrix ~ngrades ~nchoices ~blank_allowed ballots =
   let n = Array.length ballots in
@@ -135,8 +135,8 @@ let compute_winners matrix =
   main 0 []
 
 let compute ~ngrades ~nchoices ~blank_allowed ballots =
-  let mj_raw, mj_invalid, mj_blank, mj_valid =
+  let raw, invalid, blank, valid =
     compute_matrix ~ngrades ~nchoices ~blank_allowed ballots
   in
-  let mj_winners = compute_winners mj_raw in
-  { mj_raw; mj_valid; mj_blank; mj_invalid; mj_winners }
+  let winners = compute_winners raw in
+  { raw; valid; blank; invalid; winners }

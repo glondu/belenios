@@ -21,7 +21,7 @@
 
 include Belenios_platform
 include Belenios_core.Common
-include Belenios_core.Serializable_j
+include Belenios_core.Serializable
 include Belenios_core.Signatures
 module Version = Belenios_platform.Version
 module Password = Belenios_core.Password
@@ -42,31 +42,34 @@ end
 let xch_encrypted_credential =
   {
     dst = dst_prefix ^ "-encrypted_credential";
-    of_string = Fun.id;
-    to_string = Fun.id;
+    of_yojson = Ppx_yojson_conv_lib.Yojson_conv.string_of_yojson;
+    to_yojson = Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string;
   }
 
 module Credentials_certificate (G : GROUP) = struct
   let xch_credentials_certificate =
     {
       dst = dst_prefix ^ "-credentials_certificate";
-      of_string =
-        raw_credentials_certificate_of_string (sread G.of_string)
-          (sread G.Zq.of_string);
-      to_string =
-        string_of_raw_credentials_certificate (swrite G.to_string)
-          (swrite G.Zq.to_string);
+      of_yojson =
+        raw_credentials_certificate_of_yojson !$G.of_string !$G.Zq.of_string;
+      to_yojson =
+        yojson_of_raw_credentials_certificate !&G.to_string !&G.Zq.to_string;
     }
 
-  let check certificate =
-    G.check certificate.s_message.verification_key
-    && G.check certificate.s_message.encryption_key
+  let check (certificate : _ credentials_certificate) =
+    G.check certificate.message.verification_key
+    && G.check certificate.message.encryption_key
     &&
     let module P = Pki.Make (G) in
-    P.verify xch_credentials_certificate certificate.s_message.verification_key
+    P.verify xch_credentials_certificate certificate.message.verification_key
       certificate
 end
 
 module Language = Language
 
 type lang = Language.t
+
+type 'a string_serializers = {
+  of_string : string -> 'a;
+  to_string : 'a -> string;
+}

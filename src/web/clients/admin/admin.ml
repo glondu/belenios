@@ -57,15 +57,13 @@ let header config =
         match x with
         | Ok (Draft (_, draft), _) ->
             Lwt.return
-              ( s_ "Setup: " ^ draft.draft_questions.t_name,
-                draft.draft_questions.t_description )
+              (s_ "Setup: " ^ draft.questions.name, draft.questions.description)
         | Error _ ->
             Lwt.return (config.vendor ^^^ s_ "Administration" ^^^ "Error", ""))
     | Election { uuid; status = Running | Tallied | Archived; _ } -> (
         let* x = Api.(get (election uuid) `Nobody) in
         match x with
         | Ok (election, _) ->
-            let election = Yojson.Safe.from_string election in
             let name =
               match election with
               | `Assoc o -> (
@@ -147,27 +145,27 @@ let newdraft () =
       in
       Some
         {
-          draft_version = List.hd c.supported_crypto_versions;
-          draft_owners = [ a.id ];
-          draft_questions =
+          version = List.hd c.supported_crypto_versions;
+          owners = [ a.id ];
+          questions =
             {
-              t_description = "";
-              t_name = "";
-              t_questions = [||];
-              t_administrator = Some a.name;
-              t_credential_authority = Some "server";
-              t_language = None;
+              description = "";
+              name = "";
+              questions = [||];
+              administrator = Some a.name;
+              credential_authority = Some "server";
+              language = None;
             };
-          draft_languages = [ "en"; "fr" ];
-          draft_contact = Some (a.name ^ address);
-          draft_booth = List.hd c.supported_booth_versions;
-          draft_authentication =
+          languages = [ "en"; "fr" ];
+          contact = Some (a.name ^ address);
+          booth = List.hd c.supported_booth_versions;
+          authentication =
             (match c.authentications with
             | `CAS :: _ -> Some (`CAS "")
-            | `Configured x :: _ -> Some (`Configured x.configured_instance)
+            | `Configured x :: _ -> Some (`Configured x.instance)
             | _ -> None);
-          draft_group = c.default_group;
-          draft_cred_authority_info = None;
+          group = c.default_group;
+          cred_authority_info = None;
         }
   | _ -> None
 
@@ -298,7 +296,7 @@ let rec page_body () =
         | Some d -> (
             let* x =
               Api.(post ?ifmatch elections !user (Draft (v, d)))
-              |> wrap uuid_of_string
+              |> wrap !*uuid_of_yojson
             in
             match x with
             | Ok uuid ->

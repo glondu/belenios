@@ -28,8 +28,6 @@ val ( ^^^ ) : string -> string -> string
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b
 val ( let& ) : 'a option -> ('a -> 'b option) -> 'b option
 val ( // ) : string -> string -> string
-val ( ++ ) : 'a reader -> string -> 'a
-val ( -- ) : 'a writer -> 'a -> string
 val finally : 'a -> (unit -> unit) -> 'a
 val cast : ('a, 'b) Type.eq -> 'a -> 'b
 
@@ -72,9 +70,10 @@ module MakeField (_ : sig
   val q : Z.t
 end) : FIELD
 
-val sread : (string -> 'a) -> 'a reader
-val swrite : ('a -> string) -> 'a writer
-val save_to : string -> (Bi_outbuf.t -> 'a -> unit) -> 'a -> unit
+val ( !$ ) : (string -> 'a) -> Yojson.Safe.t -> 'a
+val ( !& ) : ('a -> string) -> 'a -> Yojson.Safe.t
+val ( !* ) : (Yojson.Safe.t -> 'a) -> string -> 'a
+val ( !+ ) : ('a -> Yojson.Safe.t) -> 'a -> string
 val compare_b64 : string -> string -> int
 
 module SSet : Set.S with type elt = string
@@ -97,7 +96,7 @@ val split_lines : string -> string list
 val join_lines : string list -> string
 
 val parse_public_credential :
-  (string -> 'a) -> string -> 'a Serializable_core_t.public_credential
+  (string -> 'a) -> string -> 'a Serializable_core.public_credential
 
 val strip_public_credential : string -> string
 val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
@@ -110,17 +109,15 @@ val uniq_first : ?compare:('a -> 'a -> int) -> 'a list -> 'a list
 exception Invalid_identity of string
 
 module Voter : sig
-  type t = [ `Plain | `Json ] * Serializable_core_t.voter
+  type t = [ `Plain | `Json ] * Serializable_core.voter [@@deriving yojson]
 
-  val wrap : Yojson.Safe.t -> t
-  val unwrap : t -> Yojson.Safe.t
   val to_string : t -> string
   val of_string : string -> t
   val list_to_string : t list -> string
   val list_of_string : string -> t list
   val get : t -> string
   val get_weight : t -> Weight.t
-  val get_recipient : t -> Serializable_core_t.recipient
+  val get_recipient : t -> Serializable_core.recipient
   val validate : t -> bool
   val generate : int -> t list
   val has_explicit_weights : t list -> bool

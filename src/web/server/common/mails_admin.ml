@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core.Serializable_core
 open Belenios
 open Belenios_messages
 
@@ -139,7 +140,7 @@ let extract_prefix =
     | g -> Some (Re.Group.get g 1)
 
 let mail_credentials_seed l (m : credentials_seed_message) =
-  let address = m.cred_authority_info.cred_operator in
+  let address = m.cred_authority_info.operator in
   let recipient : recipient = { name = address; address } in
   let open (val l : Belenios_ui.I18n.GETTEXT) in
   let open Belenios_ui.Mail_formatter in
@@ -158,9 +159,8 @@ let mail_credentials_seed l (m : credentials_seed_message) =
   add_field b (s_ "Election identifier:") uuid;
   add_field b (s_ "Secret key:") m.seed;
   let () =
-    match extract_prefix m.cred_authority_info.cred_server with
-    | None ->
-        add_field b (s_ "Credential server:") m.cred_authority_info.cred_server
+    match extract_prefix m.cred_authority_info.server with
+    | None -> add_field b (s_ "Credential server:") m.cred_authority_info.server
     | Some prefix ->
         let url = Printf.sprintf "%s/credop#%s/%s" prefix uuid m.seed in
         add_field b (s_ "Operator interface:") url

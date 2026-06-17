@@ -23,7 +23,8 @@ open Js_of_ocaml_tyxml
 open Belenios
 open Belenios_web_api
 
-val post_ballot : uuid -> ballot:string -> (string, cast_error) result Lwt.t
+val post_ballot :
+  uuid -> ballot:Yojson.Safe.t -> (string, cast_error) result Lwt.t
 
 val confirmation :
   configuration ->

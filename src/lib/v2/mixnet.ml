@@ -22,7 +22,7 @@
 open Belenios_platform
 open Belenios_core
 open Common
-open Serializable_core_t
+open Serializable_core
 open Signatures
 
 module Make (W : ELECTION_DATA with type question := Question.t) = struct
