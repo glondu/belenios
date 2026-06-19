@@ -26,15 +26,17 @@ open Serializable_j
 open Signatures
 open Common
 
-module Make (G : GROUP) (M : RANDOM) = struct
+module Make (G : GROUP) = struct
   module Group = G
-  module Random = M
 
   type private_key = G.Zq.t
   type public_key = G.t
 
-  let random () = G.Zq.random (M.get_rng ())
-  let genkey () = generate_b58_token ~rng:(M.get_rng ()) ~length:22
+  let random () = G.Zq.random (Crypto_primitives.get_rng ())
+
+  let genkey () =
+    generate_b58_token ~rng:(Crypto_primitives.get_rng ()) ~length:22
+
   let derive_sk p = G.Zq.reduce_hex (sha256_hex ("sk|" ^ p))
   let derive_dk p = G.Zq.reduce_hex (sha256_hex ("dk|" ^ p))
 

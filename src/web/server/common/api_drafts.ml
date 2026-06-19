@@ -498,7 +498,7 @@ let generate_server_trustee (Draft (_, se)) =
   let version = se.se_version in
   let module G = (val Group.of_string ~version se.se_group) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module K = Trustees.MakeSimple (G) (Random) in
+  let module K = Trustees.MakeSimple (G) in
   let private_key = K.generate () in
   let public_key = K.prove private_key in
   let st_public_key =
@@ -846,7 +846,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
               with Exit -> Lwt.return @@ Stdlib.Error `Unsupported
             in
             let* ts =
-              let module KG = Trustees.MakeSimple (G) (Random) in
+              let module KG = Trustees.MakeSimple (G) in
               List.combine names ts
               |> Lwt_list.map_p (fun (st_id, public_key) ->
                   let* st_token, st_private_key, st_public_key =
@@ -1055,7 +1055,7 @@ let post_trustee_threshold
       ts
   in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Pki.Make (G) (Random) in
+  let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module K = Trustees.MakePedersen (C) in
   let () =

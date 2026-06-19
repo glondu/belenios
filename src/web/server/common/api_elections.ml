@@ -488,7 +488,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
               let@ partial_decryption = body.run Fun.id in
               let* raw = Public_archive.get_election s in
               let@ raw = Option.unwrap not_found raw in
-              let module W = (val Election.of_string (module Random) raw) in
+              let module W = (val Election.of_string raw) in
               let* x =
                 post_partial_decryption s
                   (module W)
@@ -507,7 +507,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s metadata =
               let@ shuffle = body.run Fun.id in
               let* raw = Public_archive.get_election s in
               let@ raw = Option.unwrap not_found raw in
-              let election = Election.of_string (module Random) raw in
+              let election = Election.of_string raw in
               let* x = post_shuffle s election ~token ~shuffle in
               match x with
               | Ok () -> ok

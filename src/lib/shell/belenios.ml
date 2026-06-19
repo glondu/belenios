@@ -55,7 +55,7 @@ module Credentials_certificate (G : GROUP) = struct
     in
     Hash.to_hex hash = signature.s_message
     &&
-    let module P = Pki.Make (G) (Dummy_random) in
+    let module P = Pki.Make (G) in
     P.verify certificate.verification_key signature
 end
 

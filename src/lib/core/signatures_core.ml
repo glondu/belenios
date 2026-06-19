@@ -140,9 +140,4 @@ module type MONAD = sig
   val fail : exn -> 'a t
 end
 
-(** Random number generation. *)
-module type RANDOM = sig
-  val get_rng : unit -> Crypto_primitives.rng
-end
-
 type complexity = { nb_ciphertexts : int; nb_zkps : int }

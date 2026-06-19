@@ -43,10 +43,6 @@ let smart_ref x =
   let r = ref x in
   { get = (fun () -> !r); set = (fun x -> r := x) }
 
-module Dummy_random : RANDOM = struct
-  let get_rng () = failwith "dummy random not implemented"
-end
-
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
@@ -186,30 +182,28 @@ module IMap = Map.Make (Int)
 let check_modulo p x = Z.(compare x zero >= 0 && compare x p < 0)
 let b10_digits = "0123456789"
 
-module MakeGenerateToken (R : Signatures_core.RANDOM) = struct
-  let generate ~length ~digits =
-    let radix = String.length digits |> Z.of_int in
-    let modulus =
-      let rec loop length accu =
-        if length > 0 then loop (length - 1) Z.(accu * radix) else accu
-      in
-      loop length Z.one
+let generate ~length ~digits =
+  let radix = String.length digits |> Z.of_int in
+  let modulus =
+    let rec loop length accu =
+      if length > 0 then loop (length - 1) Z.(accu * radix) else accu
     in
-    let to_string x =
-      let result = Bytes.create length in
-      let rec loop i x =
-        if i >= 0 then (
-          Bytes.set result i digits.[Z.(to_int (x mod radix))];
-          loop (i - 1) Z.(x / radix))
-        else Bytes.to_string result
-      in
-      loop (length - 1) x
+    loop length Z.one
+  in
+  let to_string x =
+    let result = Bytes.create length in
+    let rec loop i x =
+      if i >= 0 then (
+        Bytes.set result i digits.[Z.(to_int (x mod radix))];
+        loop (i - 1) Z.(x / radix))
+      else Bytes.to_string result
     in
-    fun () -> random_modulo modulus (R.get_rng ()) |> to_string
+    loop (length - 1) x
+  in
+  fun () -> random_modulo modulus (Crypto_primitives.get_rng ()) |> to_string
 
-  let generate_token ?(length = 14) = generate ~length ~digits:b58_digits
-  let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
-end
+let generate_token ?(length = 14) = generate ~length ~digits:b58_digits
+let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
 
 let rec generate_b58_digit rng =
   let x = Crypto_primitives.random_string rng 1 in

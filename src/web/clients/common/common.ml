@@ -157,13 +157,6 @@ let run_handler handler () =
     let msg = "Unexpected error: " ^ Printexc.to_string e in
     alert msg
 
-module Random : RANDOM = struct
-  open Crypto_primitives
-
-  let prng = lazy (pseudo_rng (random_string secure_rng 16))
-  let get_rng () = Lazy.force prng
-end
-
 let extract_uuid_and_token x =
   let n = String.length x in
   let i = if n > 1 && x.[0] = '#' then 1 else 0 in

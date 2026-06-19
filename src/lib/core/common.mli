@@ -37,7 +37,6 @@ type 'a smart_ref = { get : unit -> 'a; set : 'a -> unit }
 
 val smart_ref : 'a -> 'a smart_ref
 
-module Dummy_random : RANDOM
 module Uuid = Common_types.Uuid
 module Hash = Common_types.Hash
 module Weight = Common_types.Weight
@@ -84,12 +83,8 @@ module IMap : Map.S with type key = int
 
 val random_modulo : Z.t -> Crypto_primitives.rng -> Z.t
 val check_modulo : Z.t -> Z.t -> bool
-
-module MakeGenerateToken (_ : RANDOM) : sig
-  val generate_token : ?length:int -> unit -> string
-  val generate_numeric : ?length:int -> unit -> string
-end
-
+val generate_token : ?length:int -> unit -> string
+val generate_numeric : ?length:int -> unit -> string
 val generate_b58_token : rng:Crypto_primitives.rng -> length:int -> string
 val sqrt : Z.t -> Z.t
 

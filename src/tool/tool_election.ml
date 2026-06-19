@@ -44,13 +44,12 @@ let make file =
   let module Getters = Tool_election_data.MakeGetters (struct
     let file = file
   end) in
-  let module R = Random in
   let* raw_election = Getters.raw_election in
-  let module Election = (val Election.of_string (module R) raw_election) in
+  let module Election = (val Election.of_string raw_election) in
   let open Election in
   let open Tool_election_data.Make (Getters) (Election) in
   let module Trustees = (val Belenios.Trustees.get_by_version version) in
-  let module P = Pki.Make (G) (R) in
+  let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module K = Trustees.MakeCombinator (G) in
   (* Check trustee keys, if present *)

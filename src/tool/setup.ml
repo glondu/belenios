@@ -56,7 +56,7 @@ module Tkeygen : CMDLINER_MODULE = struct
     let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in
-    let module KG = Trustees.MakeSimple (G) (Random) in
+    let module KG = Trustees.MakeSimple (G) in
     let private_key = KG.generate () in
     let public_key = KG.prove private_key in
     let id =
@@ -119,7 +119,7 @@ module Ttkeygen : CMDLINER_MODULE = struct
     in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Trustees = (val Trustees.get_by_version version) in
-    let module P = Pki.Make (G) (Random) in
+    let module P = Pki.Make (G) in
     let module C = Pki.MakeChannels (P) in
     let module T = Trustees.MakePedersen (C) in
     let get_certs () =
@@ -575,8 +575,7 @@ end
 module GenerateToken : CMDLINER_MODULE = struct
   let main length =
     let@ () = wrap_main in
-    let module X = MakeGenerateToken (Random) in
-    X.generate_token ~length () |> Lwt_io.printl
+    generate_token ~length () |> Lwt_io.printl
 
   let length_t =
     let doc = "Token length." in

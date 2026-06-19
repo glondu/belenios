@@ -130,17 +130,16 @@ module type ELECTION = sig
   val witness : question version
 end
 
-let of_string random x =
+let of_string x =
   match get_version x with
   | 1 ->
       let module R = struct
         let raw_election = x
       end in
-      let module M = (val random : RANDOM) in
       let module X = struct
         type question = Belenios_v1.Question.t
 
-        include Belenios_v1.Election.Make (R) (M) ()
+        include Belenios_v1.Election.Make (R) ()
 
         let witness = V1
       end in

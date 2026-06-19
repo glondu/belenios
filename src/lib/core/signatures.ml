@@ -181,7 +181,6 @@ end
 
 module type PKI = sig
   module Group : GROUP
-  module Random : RANDOM
 
   type private_key = Group.Zq.t
   type public_key = Group.t

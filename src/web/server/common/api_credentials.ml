@@ -31,7 +31,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
   let module G =
     (val Belenios.Group.of_string ~version:draft.draft_version draft.draft_group)
   in
-  let module P = Pki.Make (G) (Belenios_server_core.Random) in
+  let module P = Pki.Make (G) in
   let decryption_key = P.derive_dk seed in
   let encryption_key = G.(g **~ decryption_key) in
   let signature_key = P.derive_sk seed in
@@ -194,7 +194,7 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
     let* x = get_object setup.setup_election in
     match x with
     | None -> Lwt.return_nil
-    | Some x -> cont @@ Election.of_string (module Dummy_random) x
+    | Some x -> cont @@ Election.of_string x
   in
   let module E = (val election) in
   let module G = E.G in
@@ -209,7 +209,7 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
       let uuid = uuid
     end in
     let module C = Credential.Make (G) (X) in
-    let module P = Pki.Make (G) (Dummy_random) in
+    let module P = Pki.Make (G) in
     let decryption_key = P.derive_dk seed in
     credentials_records
     |> Lwt_list.fold_left_s
@@ -288,7 +288,7 @@ let process_resend_request (r : credentials_resend)
         let module G =
           (val Belenios.Group.of_string ~version:params.version params.group)
         in
-        let module P = Pki.Make (G) (Dummy_random) in
+        let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
         credentials_records
         |> Lwt_list.filter_map_s (fun (v, c) ->
@@ -348,7 +348,7 @@ let check_seed ~params ~seed =
     |> credentials_certificate_of_string (sread G.of_string)
          (sread G.Zq.of_string)
   in
-  let module P = Pki.Make (G) (Dummy_random) in
+  let module P = Pki.Make (G) in
   let decryption_key = P.derive_dk seed in
   G.(certificate.encryption_key =~ g **~ decryption_key)
 
@@ -423,7 +423,7 @@ let process_request : credentials_request -> _ = function
         let module G =
           (val Belenios.Group.of_string ~version:params.version params.group)
         in
-        let module P = Pki.Make (G) (Belenios_server_core.Random) in
+        let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk seed in
         Lwt_list.filter_map_s
           (fun (v, (c : _ credentials_record)) ->

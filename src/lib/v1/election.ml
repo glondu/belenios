@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_platform.Platform
 module PSerializable_j = Serializable_j
 open Belenios_core
 open Serializable_core_j
@@ -119,22 +120,20 @@ module Parse (R : RAW_ELECTION) () = struct
   let read_result = Yojson.Safe.read_json
 end
 
-module MakeElection
-    (W : ELECTION_DATA with type question := Question.t)
-    (M : RANDOM) =
+module MakeElection (W : ELECTION_DATA with type question := Question.t) =
 struct
   type element = W.G.t
   type scalar = W.G.Zq.t
 
   module G = W.G
-  module Q = Question.Make (M) (G)
-  module Mix = Mixnet.Make (W) (M)
+  module Q = Question.Make (G)
+  module Mix = Mixnet.Make (W)
   open G
 
   type private_key = scalar
   type public_key = element
 
-  let random () = Zq.random (M.get_rng ())
+  let random () = Zq.random (Crypto_primitives.get_rng ())
   let ( / ) x y = x *~ invert y
 
   type plaintext = int Shape.t array
@@ -367,8 +366,8 @@ struct
         | `Atomic _ -> failwith "check_result: invalid shape")
 end
 
-module Make (R : RAW_ELECTION) (M : RANDOM) () = struct
+module Make (R : RAW_ELECTION) () = struct
   module X = Parse (R) ()
   include X
-  module E = MakeElection (X) (M)
+  module E = MakeElection (X)
 end

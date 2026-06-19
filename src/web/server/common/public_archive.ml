@@ -102,7 +102,7 @@ let raw_get_election s =
   let* x = get_election s in
   match x with
   | None -> Lwt.fail Not_cachable
-  | Some x -> Lwt.return @@ Election.of_string (module Random) x
+  | Some x -> Lwt.return @@ Election.of_string x
 
 let election_cache = new ElectionCache.cache not_in_cache ~timer:3600. 500
 

@@ -20,8 +20,5 @@
 (**************************************************************************)
 
 open Signatures
-
-module Make (G : GROUP) (R : RANDOM) :
-  PKI with module Group = G and module Random = R
-
+module Make (G : GROUP) : PKI with module Group = G
 module MakeChannels (P : PKI) : CHANNELS with module Pki = P

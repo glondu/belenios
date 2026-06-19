@@ -22,7 +22,4 @@
 val check :
   salt:string -> hash:string -> password:string -> (ok:bool * obsolete:bool)
 
-val hash :
-  (module Signatures_core.RANDOM) ->
-  password:string ->
-  (salt:string * hash:string)
+val hash : password:string -> (salt:string * hash:string)

@@ -78,7 +78,7 @@ struct
       let ~ok, ~obsolete = Password.check ~salt ~hash ~password in
       let* () =
         if obsolete then
-          let ~salt, ~hash = Password.hash (module Random) ~password in
+          let ~salt, ~hash = Password.hash ~password in
           update { r with salt; hashed = hash }
         else Lwt.return_unit
       in
@@ -180,7 +180,7 @@ let do_add_account s ~db_fname ~username ~password ~email =
     | None -> cont ()
     | Some _ -> Lwt.return @@ Error AddressTaken
   in
-  let ~salt, ~hash = Password.hash (module Random) ~password in
+  let ~salt, ~hash = Password.hash ~password in
   let r = { username; salt; hashed = hash; address = Some email } in
   Lwt.try_bind
     (fun () ->
@@ -199,7 +199,7 @@ let do_change_password s ~db_fname ~username ~password =
     in
     match Lopt.get_value r with None -> fail () | Some r -> cont (r, set)
   in
-  let ~salt, ~hash = Password.hash (module Random) ~password in
+  let ~salt, ~hash = Password.hash ~password in
   let r = { r with salt; hashed = hash } in
   Lwt.try_bind
     (fun () -> set Value r)

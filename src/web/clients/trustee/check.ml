@@ -69,7 +69,7 @@ let do_election uuid election private_key =
   let find_pedersen =
     try
       let module Trustees = (val Trustees.get_by_version W.version) in
-      let module PKI = Pki.Make (W.G) (Random) in
+      let module PKI = Pki.Make (W.G) in
       let private_key = PKI.derive_sk private_key in
       let public_key = W.G.(g **~ private_key) in
       fun x ->
@@ -123,7 +123,7 @@ let do_draft uuid draft private_key =
       show_result name
   | `Threshold x ->
       let module Trustees = (val Trustees.get_by_version version) in
-      let module PKI = Pki.Make (G) (Random) in
+      let module PKI = Pki.Make (G) in
       let sk = PKI.derive_sk private_key in
       let vk = G.(g **~ sk) in
       let trustees = x.tt_trustees in
@@ -169,7 +169,7 @@ let check ?uuid () =
               let* election = Api.(get (election uuid) `Nobody) in
               match election with
               | Ok (election, _) ->
-                  let election = Election.of_string (module Random) election in
+                  let election = Election.of_string election in
                   do_election uuid election private_key
               | Error _ -> (
                   let* draft = Api.(get (draft uuid) `Nobody) in

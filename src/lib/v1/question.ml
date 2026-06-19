@@ -77,40 +77,40 @@ let get_complexity (x : t) =
   let module X = (val x) in
   X.Kind.get_complexity X.abstract
 
-module Make (M : RANDOM) (G : GROUP) = struct
+module Make (G : GROUP) = struct
   let read_answer = Yojson.Safe.read_json
   let write_answer = Yojson.Safe.write_json
 
   let create_answer (x : t) ~public_key ~prefix m =
     let module X = (val x) in
-    let module Q = X.Kind.Make (M) (G) in
+    let module Q = X.Kind.Make (G) in
     Q.create_answer X.abstract ~public_key ~prefix m
     |> ( -- ) Q.write_answer |> Yojson.Safe.from_string
 
   let verify_answer (x : t) ~public_key ~prefix a =
     let module X = (val x) in
-    let module Q = X.Kind.Make (M) (G) in
+    let module Q = X.Kind.Make (G) in
     a |> Yojson.Safe.to_string |> ( ++ ) Q.read_answer
     |> Q.verify_answer X.abstract ~public_key ~prefix
 
   let extract_ciphertexts (x : t) a =
     let module X = (val x) in
-    let module Q = X.Kind.Make (M) (G) in
+    let module Q = X.Kind.Make (G) in
     a |> Yojson.Safe.to_string |> ( ++ ) Q.read_answer
     |> Q.extract_ciphertexts X.abstract
 
   let process_ciphertexts (x : t) e =
     let module X = (val x) in
-    let module Q = X.Kind.Make (M) (G) in
+    let module Q = X.Kind.Make (G) in
     Q.process_ciphertexts X.abstract e
 
   let compute_result ~total_weight (q : t) x =
     let module X = (val q) in
-    let module Q = X.Kind.Make (M) (G) in
+    let module Q = X.Kind.Make (G) in
     Q.compute_result ~total_weight X.abstract x |> ( -- ) X.Kind.write_result
 
   let check_result ~total_weight (q : t) x r =
     let module X = (val q) in
-    let module Q = X.Kind.Make (M) (G) in
+    let module Q = X.Kind.Make (G) in
     r |> ( ++ ) X.Kind.read_result |> Q.check_result ~total_weight X.abstract x
 end

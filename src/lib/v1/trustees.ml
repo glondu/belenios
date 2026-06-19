@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Belenios_platform.Platform
 open Belenios_core
 open Serializable_core_t
 open Serializable_j
@@ -214,10 +215,10 @@ end
 
 (** Distributed key generation *)
 
-module MakeSimple (G : GROUP) (M : RANDOM) = struct
+module MakeSimple (G : GROUP) = struct
   open G
 
-  let random () = G.Zq.random (M.get_rng ())
+  let random () = G.Zq.random (Crypto_primitives.get_rng ())
 
   (** Fiat-Shamir non-interactive zero-knowledge proofs of knowledge *)
 
@@ -248,7 +249,6 @@ module MakePedersen (C : CHANNELS) = struct
   module Channels = C
   module P = C.Pki
   module G = P.Group
-  module M = P.Random
 
   type scalar = G.Zq.t
   type element = G.t
@@ -256,10 +256,10 @@ module MakePedersen (C : CHANNELS) = struct
   module Cert = MakeCert (P)
   module Comb = MakeComb (P) (Cert)
   open G
-  module K = MakeSimple (G) (M)
+  module K = MakeSimple (G)
   module V = MakeVerificator (G)
 
-  let random () = Zq.random (M.get_rng ())
+  let random () = Zq.random (Crypto_primitives.get_rng ())
 
   let step1 context =
     let seed = P.genkey () in
@@ -587,7 +587,7 @@ module MakePedersen (C : CHANNELS) = struct
 end
 
 module MakeCombinator (G : GROUP) = struct
-  module P = Pki.Make (G) (Dummy_random)
+  module P = Pki.Make (G)
   module Channels = Pki.MakeChannels (P)
   module Cert = MakeCert (P)
   include MakeComb (P) (Cert)

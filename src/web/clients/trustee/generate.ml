@@ -42,7 +42,7 @@ let generate_basic (Draft (_, draft)) () =
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module KG = Trustees.MakeSimple (G) (Random) in
+  let module KG = Trustees.MakeSimple (G) in
   let private_key = KG.generate () in
   let public_key = KG.prove private_key in
   let private_key = private_key |> G.Zq.to_Z |> string_of_number in
@@ -65,7 +65,7 @@ let generate_threshold (Draft (_, draft)) context () =
   let group = draft.draft_group in
   let module G = (val Group.of_string ~version group : GROUP) in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Pki.Make (G) (Random) in
+  let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
   let private_key, cert = T.step1 context in
@@ -86,7 +86,7 @@ let threshold_step (Draft (_, draft)) pedersen ~private_key =
   in
   let certs = pedersen.pedersen_certs in
   let module Trustees = (val Trustees.get_by_version version) in
-  let module P = Pki.Make (G) (Random) in
+  let module P = Pki.Make (G) in
   let module C = Pki.MakeChannels (P) in
   let module T = Trustees.MakePedersen (C) in
   match pedersen.pedersen_step with

@@ -60,7 +60,7 @@ let basic_check_private_key s =
 
 let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
   let open (val !Belenios_js.I18n.gettext) in
-  let module W = (val Election.of_string (module Random) election) in
+  let module W = (val Election.of_string election) in
   let encrypted_tally =
     encrypted_tally_of_string (sread W.G.of_string) encrypted_tally
   in
@@ -68,7 +68,7 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
     match trustee.tally_trustee_private_key with
     | Some epk ->
         let module Trustees = (val Trustees.get_by_version W.version) in
-        let module PKI = Pki.Make (W.G) (Random) in
+        let module PKI = Pki.Make (W.G) in
         let module C = Pki.MakeChannels (PKI) in
         let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
         let vk = W.G.(g **~ sk) in

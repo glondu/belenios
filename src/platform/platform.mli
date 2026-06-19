@@ -36,9 +36,8 @@ module Crypto_primitives : sig
 
   type rng
 
-  val secure_rng : rng
-  val pseudo_rng : string -> rng
   val random_string : rng -> int -> string
+  val get_rng : unit -> rng
 end
 
 module Z : sig

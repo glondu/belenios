@@ -230,7 +230,6 @@ module Credgen = struct
 end
 
 let new_uuid () =
-  let open MakeGenerateToken (Random) in
   let uuid = generate_token () in
   set_textarea "election_uuid" uuid;
   Lwt.return_unit
@@ -290,13 +289,13 @@ module BuggyPartialDecryption = struct
           alert "Could not get encrypted private key!";
           Lwt.return_unit
     in
-    let module P = (val Election.of_string (module Random) raw_election) in
+    let module P = (val Election.of_string raw_election) in
     let encrypted_tally =
       encrypted_tally |> encrypted_tally_of_string (sread P.G.of_string)
     in
     let* private_key =
       let module Trustees = (val Belenios.Trustees.get_by_version P.version) in
-      let module PKI = Pki.Make (P.G) (Random) in
+      let module PKI = Pki.Make (P.G) in
       let module C = Pki.MakeChannels (PKI) in
       let sk = PKI.derive_sk seed and dk = PKI.derive_dk seed in
       let vk = P.G.(g **~ sk) in

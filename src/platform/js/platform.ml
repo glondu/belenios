@@ -114,11 +114,10 @@ module Crypto_primitives = struct
 
   type rng = unit
 
-  let secure_rng = ()
-  let pseudo_rng _ = ()
-
   let random_string () n =
     Belenios_js_crypto.lib##getRandomBytes n |> Typed_array.String.of_uint8Array
+
+  let get_rng () = ()
 end
 
 module BigIntCompat = struct

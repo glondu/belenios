@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_platform.Platform
-open Crypto_primitives
 open Signatures
 open Serializable_t
 open Common
@@ -124,7 +123,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         monadic_fold_left f (f accu x) xs
 
   let generate voters =
-    let rng = pseudo_rng (random_string secure_rng 32) in
+    let rng = Crypto_primitives.get_rng () in
     let implicit_weights = not (Voter.has_explicit_weights voters) in
     let* privs, pubs =
       monadic_fold_left
@@ -156,7 +155,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     |> E.return
 
   let generate_sub n =
-    let rng = pseudo_rng (random_string secure_rng 32) in
+    let rng = Crypto_primitives.get_rng () in
     let n = ref n in
     let rec loop accu =
       if !n > 0 then (

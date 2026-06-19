@@ -84,7 +84,7 @@ let update_cache uuid =
     let* x = Api.(get (election uuid) `Nobody) in
     match x with
     | Error _ -> Lwt.return_none
-    | Ok (x, _) -> Lwt.return_some (Election.of_string (module Random) x)
+    | Ok (x, _) -> Lwt.return_some (Election.of_string x)
   in
   let ( ! ) x =
     let* x = Api.(get (x uuid) `Nobody) in

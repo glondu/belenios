@@ -33,7 +33,7 @@ module type QUESTION_SIG = sig
   val is_nh_question : t -> bool
   val get_complexity : t -> complexity
 
-  module Make (_ : RANDOM) (G : GROUP) :
+  module Make (G : GROUP) :
     Question_sigs.QUESTION
       with type element := G.t
        and type question := t
@@ -44,7 +44,7 @@ end
 module type MIXNET_SIG = sig
   type question
 
-  module Make (W : ELECTION_DATA with type question := question) (_ : RANDOM) :
+  module Make (W : ELECTION_DATA with type question := question) :
     MIXNET
       with type element := W.G.t
        and type scalar := W.G.Zq.t
@@ -64,6 +64,5 @@ module type ELECTION_SIG = sig
     public_key:string ->
     string
 
-  module Make (_ : RAW_ELECTION) (_ : RANDOM) () :
-    ELECTION with type question := question
+  module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
 end

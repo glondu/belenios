@@ -33,22 +33,5 @@ let ( let*& ) x f =
   match x with None -> Lwt.return_none | Some x -> f x
 
 let sleep = Lwt_unix.sleep
-
-module Random = struct
-  open Crypto_primitives
-
-  let init_prng () = lazy (pseudo_rng (random_string secure_rng 16))
-  let prng = ref (init_prng ())
-
-  let () =
-    let rec loop () =
-      let* () = sleep 1800. in
-      prng := init_prng ();
-      loop ()
-    in
-    Lwt.async loop
-
-  let get_rng () = Lazy.force !prng
-end
-
-include MakeGenerateToken (Random)
+let generate_numeric = generate_numeric
+let generate_token = generate_token

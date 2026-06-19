@@ -52,14 +52,14 @@ let get_complexity q =
   let nb_zkps = (2 * nb_ciphertexts) + nb_extra_zkps in
   { nb_ciphertexts; nb_zkps }
 
-module Make (M : RANDOM) (G : GROUP) = struct
+module Make (G : GROUP) = struct
   open G
 
   type nonrec answer = (G.t, G.Zq.t) answer
 
   let read_answer = read_answer (sread G.of_string) (sread G.Zq.of_string)
   let write_answer = write_answer (swrite G.to_string) (swrite G.Zq.to_string)
-  let random () = Zq.random (M.get_rng ())
+  let random () = Zq.random (Crypto_primitives.get_rng ())
   let ( / ) x y = x *~ invert y
   let dummy_ciphertext = { alpha = G.one; beta = G.one }
 

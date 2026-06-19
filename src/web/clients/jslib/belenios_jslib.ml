@@ -150,8 +150,7 @@ let belenios : belenios Js.t =
     method getLanguage = Js.string (get_language ())
 
     method setElection x =
-      election :=
-        Some (Election.of_string (module Dummy_random) (Js.to_string x))
+      election := Some (Election.of_string (Js.to_string x))
 
     method getFingerprint =
       match !election with
@@ -167,7 +166,7 @@ let belenios : belenios Js.t =
             (fun () ->
               let* () = Lwt_js.yield () in
               let raw = Js._JSON##stringify params |> Js.to_string in
-              let module W = (val Election.of_string (module Random) raw) in
+              let module W = (val Election.of_string raw) in
               let* () = Lwt_js.yield () in
               let module Cred =
                 Credential.Make

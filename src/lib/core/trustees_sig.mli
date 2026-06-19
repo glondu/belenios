@@ -24,7 +24,7 @@ open Signatures
 
 module type S = sig
   (** Simple distributed generation of an election public key. *)
-  module MakeSimple (G : GROUP) (_ : RANDOM) : sig
+  module MakeSimple (G : GROUP) : sig
     (** This module implements a simple distributed key generation. Each share
         is a number modulo q, and the secret key is their sum. All shares are
         needed to decrypt, but the decryptions can be done in a distributed

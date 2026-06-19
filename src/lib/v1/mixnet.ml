@@ -25,12 +25,11 @@ open Common
 open Serializable_core_t
 open Signatures
 
-module Make (W : ELECTION_DATA with type question := Question.t) (M : RANDOM) =
-struct
+module Make (W : ELECTION_DATA with type question := Question.t) = struct
   module G = W.G
   open G
 
-  let random () = Zq.random (M.get_rng ())
+  let random () = Zq.random (Crypto_primitives.get_rng ())
   let randoms n = Array.init n (fun _ -> random ())
 
   let gen_permutation n =
@@ -38,7 +37,9 @@ struct
     let psi = Array.make n 0 in
     let rec loop i =
       if i < n then (
-        let k = random_modulo (Z.of_int Stdlib.(n - i)) (M.get_rng ()) in
+        let k =
+          random_modulo (Z.of_int Stdlib.(n - i)) (Crypto_primitives.get_rng ())
+        in
         let k = Stdlib.(Z.to_int k + i) in
         psi.(i) <- tmp.(k);
         tmp.(k) <- tmp.(i);

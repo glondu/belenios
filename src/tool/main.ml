@@ -120,7 +120,7 @@ module Hash_password : CMDLINER_MODULE = struct
   let main () =
     let@ () = wrap_main in
     let* password = chars_of_stdin () in
-    let ~hash, ~salt = Password.hash (module Random) ~password in
+    let ~hash, ~salt = Password.hash ~password in
     Lwt_io.printlf "%s,%s" salt hash
 
   let cmd =

@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_storage_api
-open Belenios_server_core
 open Serializable_j
 
 type 'a file =
@@ -66,7 +65,7 @@ let delete_live_election s uuid roots =
   in
   let@ election cont =
     let&? x = Data setup_data.setup_election in
-    cont (Election.of_string (module Random) x)
+    cont (Election.of_string x)
   in
   let@ trustees cont =
     let&? x = Data setup_data.setup_trustees in
@@ -221,7 +220,7 @@ let validate_election_exn s uuid =
   in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeCombinator (G) in
-  let module KG = Trustees.MakeSimple (G) (Random) in
+  let module KG = Trustees.MakeSimple (G) in
   let* trustee_names, trustees, private_keys =
     match trustees with
     | `Basic x -> (

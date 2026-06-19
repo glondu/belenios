@@ -39,9 +39,7 @@ let check ~salt ~hash ~password =
                   || String.length salt < std_salt_length) )
   | _ -> invalid_arg __FUNCTION__
 
-let hash random ~password =
-  let module R = (val random : Signatures_core.RANDOM) in
-  let open Common.MakeGenerateToken (R) in
+let hash ~password =
   let password = String.trim password in
   let salt = generate_token ~length:std_salt_length () in
   let (`Hex hash) =

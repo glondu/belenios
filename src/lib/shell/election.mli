@@ -73,7 +73,7 @@ module type ELECTION = sig
   val witness : question version
 end
 
-val of_string : (module RANDOM) -> string -> (module ELECTION)
+val of_string : string -> (module ELECTION)
 val supported_crypto_versions : some_version list
 
 val compute_checksums :

@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios
 open Serializable_t
 
 exception Race_condition
@@ -28,8 +27,5 @@ exception Election_not_found of uuid * string
 val ( let&* ) : 'a option -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val ( let*& ) : 'a option Lwt.t -> ('a -> 'b option Lwt.t) -> 'b option Lwt.t
 val sleep : float -> unit Lwt.t
-
-module Random : RANDOM
-
 val generate_numeric : ?length:int -> unit -> string
 val generate_token : ?length:int -> unit -> string

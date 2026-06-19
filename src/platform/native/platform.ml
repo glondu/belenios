@@ -19,6 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Lwt.Syntax
+
 module Debug = struct
   let debug x = prerr_endline x
 end
@@ -64,6 +66,18 @@ module Crypto_primitives = struct
 
   let pseudo_rng = Cryptokit.Random.pseudo_rng
   let random_string = Cryptokit.Random.string
+  let init_prng () = lazy (pseudo_rng (random_string secure_rng 32))
+  let prng = ref (init_prng ())
+
+  let () =
+    let rec loop () =
+      let* () = Lwt_unix.sleep 1800. in
+      prng := init_prng ();
+      loop ()
+    in
+    Lwt.async loop
+
+  let get_rng () = Lazy.force !prng
 end
 
 module Z = struct

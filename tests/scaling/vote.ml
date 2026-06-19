@@ -34,7 +34,7 @@ module Make (P : PARAMS) () = struct
 
   let () = Stdlib.Random.self_init ()
 
-  module W = (val Election.of_string (module Random) P.raw_election)
+  module W = (val Election.of_string P.raw_election)
 
   module Cred =
     Credential.Make

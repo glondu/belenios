@@ -21,13 +21,12 @@
 
 open Js_of_ocaml
 open Belenios
-open Belenios_js.Common
 open Belenios_js.Messages
 
 let handle_shuffle { election; ciphertexts } =
   let election = Js.to_string election in
   let ciphertexts = Js.to_string ciphertexts in
-  let module W = (val Election.of_string (module Random) election) in
+  let module W = (val Election.of_string election) in
   let ciphertexts =
     nh_ciphertexts_of_string W.(sread G.of_string) ciphertexts
   in

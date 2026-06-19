@@ -133,7 +133,7 @@ module App (U : UI) = struct
         let h = setup.setup_election in
         let* x = Api.(get (election_object uuid h) `Nobody) in
         match x with
-        | Ok (x, _) -> cont @@ Election.of_string (module Random) x
+        | Ok (x, _) -> cont @@ Election.of_string x
         | Error _ -> fail ()
       in
       let@ credentials cont =
@@ -172,7 +172,7 @@ module App (U : UI) = struct
           alert @@ s_ "The certificate is not valid!";
           Lwt.return_unit)
       in
-      let module P = Pki.Make (E.G) (Dummy_random) in
+      let module P = Pki.Make (E.G) in
       let decryption_key = P.derive_dk seed in
       let signature_key = P.derive_sk seed in
       let@ () =

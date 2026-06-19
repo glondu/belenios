@@ -10,7 +10,7 @@ module type QUESTION_KIND = sig
   val write_result : result writer
   val get_complexity : question -> complexity
 
-  module Make (_ : RANDOM) (G : GROUP) :
+  module Make (G : GROUP) :
     Belenios_core.Question_sigs.QUESTION
       with type element := G.t
        and type question := question
