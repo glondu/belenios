@@ -50,7 +50,7 @@ mkdir -p \
 
 if ! [ -d $BELENIOS_VARDIR/spool ]; then
     mkdir $BELENIOS_VARDIR/spool
-    echo 1 > $BELENIOS_VARDIR/spool/version
+    echo 2 > $BELENIOS_VARDIR/spool/version
 fi
 
 touch $BELENIOS_VARDIR/password_db.csv

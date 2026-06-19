@@ -1774,8 +1774,8 @@ let make_backend (config : Xml.xml list) =
   let* () =
     let* x = Filesystem.read_file (spool_dir // "version") in
     match x with
-    | Some x when String.trim x = "1" -> Lwt.return_unit
-    | _ -> failwith "unknown spool version"
+    | Some x when String.trim x = "2" -> Lwt.return_unit
+    | _ -> failwith "unsupported spool version"
   in
   let module X = Make (Config) in
   Lwt.return (module X : STORAGE)
