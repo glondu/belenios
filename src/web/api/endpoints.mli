@@ -41,7 +41,6 @@ val account : (admin, api_account, unit) t
 val draft : uuid -> ([< nobody | admin ], draft, draft_request) t
 val draft_status : uuid -> (admin, draft_status, unit) t
 val draft_voters : uuid -> ([< admin | credauth ], voter_list, voters_request) t
-val draft_passwords : uuid -> (admin, string_list, voter_list) t
 
 val draft_public_credentials :
   uuid -> ([< admin | credauth ], public_credentials, public_credentials) t

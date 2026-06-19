@@ -79,14 +79,6 @@ let draft_voters uuid =
     to_string_post = string_of_voters_request;
   }
 
-let draft_passwords uuid =
-  {
-    path = Printf.sprintf "elections/%s/draft/passwords" (Uuid.unwrap uuid);
-    of_string = string_list_of_string;
-    to_string = string_of_string_list;
-    to_string_post = string_of_voter_list;
-  }
-
 let draft_public_credentials uuid =
   {
     path =

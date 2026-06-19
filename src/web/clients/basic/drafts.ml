@@ -82,38 +82,6 @@ let rec show_draft_voters uuid draft container =
   in
   Lwt.return [ div [ t ]; div [ b ]; import ]
 
-let rec show_draft_passwords uuid container =
-  let@ () = show_in container in
-  let* x = Api.(get (draft_voters uuid) !user) in
-  let@ voters, _ = with_ok "voters" x in
-  let* x = Api.(get (draft_passwords uuid) !user) in
-  let@ x, ifmatch = with_ok "passwords" x in
-  let missing =
-    let x =
-      List.fold_left
-        (fun accu v -> SSet.add (String.lowercase_ascii v) accu)
-        SSet.empty x
-    in
-    List.filter_map
-      (fun v ->
-        let login = Voter.get v in
-        if SSet.mem (String.lowercase_ascii login) x then None else Some login)
-      voters
-  in
-  let t1, _ = textarea (string_of_string_list x) in
-  let t2, t2get = textarea (string_of_string_list missing) in
-  let b =
-    let@ () = button "Generate and send passwords" in
-    let* x =
-      Api.(
-        post ~ifmatch (draft_passwords uuid) !user
-          (voter_list_of_string (t2get ())))
-    in
-    let@ () = show_in container in
-    generic_proceed x (fun () -> show_draft_passwords uuid container)
-  in
-  Lwt.return [ div [ t1 ]; div [ t2 ]; div [ b ] ]
-
 let rec show_draft_credentials uuid container =
   let@ () = show_in container in
   let* x = Api.(get (draft_public_credentials uuid) !user) in
