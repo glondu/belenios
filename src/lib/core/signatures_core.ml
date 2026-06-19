@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Platform
 
 (** Helpers for interacting with atd stuff *)
 

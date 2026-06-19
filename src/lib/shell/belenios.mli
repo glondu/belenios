@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Belenios_platform.Platform
+include module type of Belenios_platform
 include module type of Belenios_core.Common
 include module type of Belenios_core.Serializable_j
 include module type of Belenios_core.Signatures

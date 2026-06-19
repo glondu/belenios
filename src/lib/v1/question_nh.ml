@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
+open Belenios_platform
 open Belenios_core
 open Common
 open Signatures_core

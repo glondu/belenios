@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Platform
 open Signatures_core
 
 val ( >> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c

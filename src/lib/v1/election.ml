@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
+open Belenios_platform
 module PSerializable_j = Serializable_j
 open Belenios_core
 open Serializable_core_j

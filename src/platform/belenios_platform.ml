@@ -19,10 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
+module type LIBSODIUM_STUBS = Signatures.LIBSODIUM_STUBS
 
-module Make (_ : LIBSODIUM_STUBS) : sig
-  include Signatures.GROUP
-
-  val selfcheck : unit -> bool
-end
+include Platform
+module Version = Version

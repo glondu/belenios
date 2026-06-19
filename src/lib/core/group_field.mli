@@ -21,7 +21,7 @@
 
 (** Finite field arithmetic *)
 
-open Belenios_platform.Platform
+open Belenios_platform
 open Serializable_t
 
 module type GROUP = Signatures.GROUP with type t = Z.t

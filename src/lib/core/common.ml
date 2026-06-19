@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Platform
 open Signatures_core
 
 let ( >> ) f g x = g (f x)

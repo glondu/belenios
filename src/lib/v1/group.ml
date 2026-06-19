@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Platform
 open Belenios_core
 open Serializable_j
 open Signatures

@@ -19,14 +19,14 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform.Platform
+open Belenios_platform
 open Common
 
 (** Ed25519 implementation using libsodium *)
 
 module G = Ed25519_pure
 
-module Make (B : Belenios_platform.Signatures.LIBSODIUM_STUBS) = struct
+module Make (B : LIBSODIUM_STUBS) = struct
   module Zq = G.Zq
 
   module E = struct
