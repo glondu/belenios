@@ -35,7 +35,7 @@ let preview_booth () =
   | Ok () ->
       let href =
         Printf.sprintf "vote#uuid=%s&draft=2&lang=%s"
-          (Uuid.unwrap (get_current_uuid ()))
+          (Uuid.to_string (get_current_uuid ()))
           (Language.unwrap lang)
       in
       let onclick () =
@@ -62,7 +62,7 @@ let goto_mainpage () =
   match res with
   | Error msg -> popup_failsync msg
   | Ok () ->
-      let url = "election#" ^ Uuid.unwrap (get_current_uuid ()) in
+      let url = "election#" ^ Uuid.to_string (get_current_uuid ()) in
       let onclick () =
         let&&* d = document##getElementById (Js.string "popup") in
         d##.style##.display := Js.string "none";

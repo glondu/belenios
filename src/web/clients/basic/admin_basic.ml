@@ -32,11 +32,11 @@ open Common
 let context = ref `None
 
 let draft_a (x : summary) =
-  let uuid = Uuid.unwrap x.uuid in
+  let uuid = Uuid.to_string x.uuid in
   a ~href:("#drafts/" ^ uuid) (if x.name = "" then "(no title)" else x.name)
 
 let election_a (x : summary) =
-  let uuid = Uuid.unwrap x.uuid in
+  let uuid = Uuid.to_string x.uuid in
   a ~href:("#elections/" ^ uuid) (if x.name = "" then "(no title)" else x.name)
 
 let regexps =
@@ -46,21 +46,22 @@ let regexps =
         "^#drafts/([0-9A-Za-z]+)(/(voters|credentials|trustees|status))?$",
       fun r ->
         match (Regexp.matched_group r 1, Regexp.matched_group r 3) with
-        | Some uuid, None -> `Draft (Uuid.wrap uuid, `Draft)
-        | Some uuid, Some "voters" -> `Draft (Uuid.wrap uuid, `Voters)
-        | Some uuid, Some "credentials" -> `Draft (Uuid.wrap uuid, `Credentials)
-        | Some uuid, Some "trustees" -> `Draft (Uuid.wrap uuid, `Trustees)
-        | Some uuid, Some "status" -> `Draft (Uuid.wrap uuid, `Status)
+        | Some uuid, None -> `Draft (Uuid.of_string uuid, `Draft)
+        | Some uuid, Some "voters" -> `Draft (Uuid.of_string uuid, `Voters)
+        | Some uuid, Some "credentials" ->
+            `Draft (Uuid.of_string uuid, `Credentials)
+        | Some uuid, Some "trustees" -> `Draft (Uuid.of_string uuid, `Trustees)
+        | Some uuid, Some "status" -> `Draft (Uuid.of_string uuid, `Status)
         | _ -> `Error );
     ( Regexp.regexp "^#drafts/([0-9A-Za-z]+)/credentials@([0-9A-Za-z]+)$",
       fun r ->
         match (Regexp.matched_group r 1, Regexp.matched_group r 2) with
-        | Some uuid, Some token -> `Credentials (Uuid.wrap uuid, token)
+        | Some uuid, Some token -> `Credentials (Uuid.of_string uuid, token)
         | _ -> `Error );
     ( Regexp.regexp "^#elections/([0-9A-Za-z]+)$",
       fun r ->
         match Regexp.matched_group r 1 with
-        | Some uuid -> `Election (Uuid.wrap uuid)
+        | Some uuid -> `Election (Uuid.of_string uuid)
         | _ -> `Error );
   ]
 
@@ -189,7 +190,7 @@ let rec show_root main =
       match x with
       | Ok uuid ->
           Dom_html.window##.location##.hash
-          := Js.string ("#drafts/" ^ Uuid.unwrap uuid);
+          := Js.string ("#drafts/" ^ Uuid.to_string uuid);
           Lwt.return_unit
       | Error e ->
           let@ () = show_in main in

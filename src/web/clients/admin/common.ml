@@ -136,7 +136,8 @@ let popup_choose_elec uuid handler =
         |> List.map (fun (x : summary) ->
             let but =
               let@ () =
-                button @@ Printf.sprintf "%s (%s)" x.name (Uuid.unwrap x.uuid)
+                button
+                @@ Printf.sprintf "%s (%s)" x.name (Uuid.to_string x.uuid)
               in
               let* () =
                 let&&* d = document##getElementById (Js.string "popup") in

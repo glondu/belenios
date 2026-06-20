@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Serializable_core
 open Belenios
 open Belenios_messages
 
@@ -155,7 +154,7 @@ let mail_credentials_seed l (m : credentials_seed_message) =
   add_newline b;
   add_newline b;
   add_field b (s_ "Election server:") m.belenios_url;
-  let uuid = Uuid.unwrap m.uuid in
+  let uuid = Uuid.to_string m.uuid in
   add_field b (s_ "Election identifier:") uuid;
   add_field b (s_ "Secret key:") m.seed;
   let () =

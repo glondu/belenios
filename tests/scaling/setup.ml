@@ -108,7 +108,7 @@ module Make (P : PARAMS) = struct
     match Cohttp.Code.code_of_status response.status with
     | 200 -> (
         match Yojson.Safe.from_string x with
-        | `String uuid -> Lwt.return (Uuid.wrap uuid)
+        | `String uuid -> Lwt.return (Uuid.of_string uuid)
         | _ | (exception _) -> failwith "unexpected body in create_draft")
     | code ->
         Printf.ksprintf failwith "unexpected status %d in create_draft" code
@@ -125,7 +125,7 @@ module Make (P : PARAMS) = struct
     let* response, x =
       Cohttp_lwt_unix.Client.put ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/voters" api_root
-           (Uuid.unwrap uuid))
+           (Uuid.to_string uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
     match Cohttp.Code.code_of_status response.status with
@@ -137,7 +137,7 @@ module Make (P : PARAMS) = struct
     let* response, x =
       Cohttp_lwt_unix.Client.get ~headers
         (Printf.ksprintf Uri.of_string "%s/elections/%s/draft/credentials/token"
-           api_root (Uuid.unwrap uuid))
+           api_root (Uuid.to_string uuid))
     in
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status response.status with
@@ -175,7 +175,7 @@ module Make (P : PARAMS) = struct
       Cohttp_lwt_unix.Client.post ~headers ~body
         (Printf.ksprintf Uri.of_string
            "%s/elections/%s/draft/credentials/public" api_root
-           (Uuid.unwrap uuid))
+           (Uuid.to_string uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
     match Cohttp.Code.code_of_status response.status with
@@ -192,7 +192,7 @@ module Make (P : PARAMS) = struct
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/draft" api_root
-           (Uuid.unwrap uuid))
+           (Uuid.to_string uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
     match Cohttp.Code.code_of_status response.status with
@@ -203,14 +203,14 @@ module Make (P : PARAMS) = struct
 
   let main () =
     let* uuid = create_draft () in
-    print_endline (Uuid.unwrap uuid);
+    print_endline (Uuid.to_string uuid);
     let* voters = setup_voters uuid nb_voters in
     let* private_creds = setup_credentials uuid voters in
     let* () =
       let open Lwt_io in
       let@ f =
         with_file ~mode:output
-          (Printf.sprintf "scaling.%s.privcreds.json" (Uuid.unwrap uuid))
+          (Printf.sprintf "scaling.%s.privcreds.json" (Uuid.to_string uuid))
       in
       write f (!+yojson_of_private_credentials private_creds)
     in

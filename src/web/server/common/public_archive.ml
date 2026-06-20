@@ -83,7 +83,7 @@ let get_trustees s =
   in
   let uuid = Storage.E.get_uuid s in
   let msg =
-    Printf.sprintf "missing trustees for election %s" (Uuid.unwrap uuid)
+    Printf.sprintf "missing trustees for election %s" (Uuid.to_string uuid)
   in
   Lwt.fail (Failure msg)
 
@@ -156,7 +156,7 @@ let get_credential_weight s cred =
       Lwt.fail
         (Failure
            (Printf.sprintf "could not find credential weight of %s/%s"
-              (Uuid.unwrap uuid) cred))
+              (Uuid.to_string uuid) cred))
 
 let get_ballot_weight s election ballot =
   let module W = (val election : Site_common_sig.ELECTION) in

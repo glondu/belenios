@@ -63,11 +63,11 @@ module Make () = struct
       [ "static"; "admin_basic.html" ]
 
   let make_admin_link uuid =
-    let fragment = Option.map Belenios.Uuid.unwrap uuid in
+    let fragment = Option.map Belenios.Uuid.to_string uuid in
     make_absolute_string_uri ?fragment ~service:apps "admin"
 
   let make_trustee_link uuid kind =
-    let uuid = Belenios.Uuid.unwrap uuid in
+    let uuid = Belenios.Uuid.to_string uuid in
     let fragment =
       match kind with
       | `Generate token -> Printf.sprintf "generate/%s/%s" uuid token
@@ -78,7 +78,7 @@ module Make () = struct
     make_absolute_string_uri ~fragment ~service:apps "trustee"
 
   let make_credauth_link uuid kind =
-    let uuid = Belenios.Uuid.unwrap uuid in
+    let uuid = Belenios.Uuid.to_string uuid in
     let fragment =
       match kind with
       | `Generate token -> Printf.sprintf "generate/%s/%s" uuid token

@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-val get_by_version : int -> (module Belenios_core.Trustees_sig.S)
+open Belenios_core
 
-val string_of_combination_error :
-  Belenios_core.Signatures.combination_error -> string
+val get_by_version : int -> (module TRUSTEES_SIG)
+val string_of_combination_error : combination_error -> string

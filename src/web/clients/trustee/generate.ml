@@ -53,7 +53,9 @@ let generate_basic (Draft (_, draft)) ~name () =
     public_key' |> (fun x -> x.message.public_key) |> G.to_string |> sha256_b64
   in
   let mime_type = "application/json"
-  and filename uuid = Printf.sprintf "private_key-%s.json" (Uuid.unwrap uuid) in
+  and filename uuid =
+    Printf.sprintf "private_key-%s.json" (Uuid.to_string uuid)
+  in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
 let generate_threshold (Draft (_, draft)) context () =
@@ -71,7 +73,9 @@ let generate_threshold (Draft (_, draft)) context () =
   in
   let public_key = yojson_of_cert !&G.to_string !&G.Zq.to_string cert in
   let mime_type = "text/plain"
-  and filename uuid = Printf.sprintf "private_key-%s.txt" (Uuid.unwrap uuid) in
+  and filename uuid =
+    Printf.sprintf "private_key-%s.txt" (Uuid.to_string uuid)
+  in
   Lwt.return { private_key; public_key; fingerprint; mime_type; filename }
 
 let threshold_step (Draft (_, draft)) pedersen ~private_key =
@@ -416,7 +420,7 @@ let generate configuration uuid ~token =
   | Some (actionable, header) ->
       let url =
         Printf.sprintf "%selection#%s" configuration.uris.home
-          (Uuid.unwrap uuid)
+          (Uuid.to_string uuid)
       in
       [
         header;

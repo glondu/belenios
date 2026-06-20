@@ -19,11 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-let get_by_version = function
-  | 2 -> (module Belenios_v2.Trustees : Belenios_core.Trustees_sig.S)
-  | _ -> failwith "Trustees.get_by_version: unsupported version"
+open Belenios_core
 
-open Belenios_core.Signatures
+let get_by_version = function
+  | 2 -> (module Belenios_v2.Trustees : TRUSTEES_SIG)
+  | _ -> failwith "Trustees.get_by_version: unsupported version"
 
 let string_of_combination_error = function
   | MissingPartialDecryption -> "a partial decryption is missing"

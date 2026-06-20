@@ -32,9 +32,9 @@ module App (U : UI) = struct
     U.set_title @@ s_ "Trustee management";
     match path with
     | [ "generate"; uuid; token ] ->
-        Generate.generate configuration (Uuid.wrap uuid) ~token
-    | [ "decrypt"; uuid; token ] -> Decrypt.decrypt (Uuid.wrap uuid) ~token
-    | [ "shuffle"; uuid; token ] -> Shuffle.shuffle (Uuid.wrap uuid) ~token
+        Generate.generate configuration (Uuid.of_string uuid) ~token
+    | [ "decrypt"; uuid; token ] -> Decrypt.decrypt (Uuid.of_string uuid) ~token
+    | [ "shuffle"; uuid; token ] -> Shuffle.shuffle (Uuid.of_string uuid) ~token
     | [ "check" ] -> Check.check ()
     | [ "check"; uuid ] -> Check.check ~uuid ()
     | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]

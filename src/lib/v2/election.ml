@@ -19,14 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
-module PSerializable = Serializable
 open Belenios_core
-open Serializable_core
 open Serializable
-open PSerializable
-open Signatures
-open Common
 open Belenios_question
 
 let get_complexity qs =
@@ -41,7 +35,6 @@ let get_complexity qs =
     qs
 
 let template_of_yojson x =
-  let open PSerializable in
   let params = params_of_yojson Fun.id x in
   {
     name = params.name;
@@ -55,7 +48,6 @@ let template_of_yojson x =
 let make_raw_election (template : _ template) ~uuid ~group ~public_key =
   let module G = (val Group.of_string group) in
   let public_key = G.of_string public_key in
-  let open PSerializable in
   let params =
     {
       version = 2;
@@ -307,7 +299,7 @@ struct
       c f.decryption_factors f.decryption_proofs
 
   type result_type = W.result
-  type result = result_type Serializable.election_result
+  type result = result_type election_result
 
   module Combinator = Trustees.MakeCombinator (G)
 

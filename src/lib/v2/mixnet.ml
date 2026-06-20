@@ -19,11 +19,9 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Belenios_core
-open Common
-open Serializable_core
-open Signatures
+
+type nonrec 'a ciphertext = 'a ciphertext = { alpha : 'a; beta : 'a }
 
 module Make (W : ELECTION_DATA with type question := Question.t) = struct
   module G = W.G

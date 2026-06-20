@@ -156,7 +156,7 @@ module Events : CMDLINER_MODULE = struct
     in
     let file =
       let uuid = Election.get_uuid election in
-      (dir // Uuid.unwrap uuid) ^ ".bel"
+      (dir // Uuid.to_string uuid) ^ ".bel"
     in
     let* _ = Tool_events.init ~file ~election ~trustees ~public_creds in
     Lwt.return_unit
@@ -259,7 +259,7 @@ module Methods : CMDLINER_MODULE = struct
         | Some b -> b
       in
       ballots
-      |> Methods.Schulze.compute ~nchoices ~blank_allowed
+      |> Method_schulze.compute ~nchoices ~blank_allowed
       |> !+yojson_of_schulze_result |> Lwt_io.printl
 
   let mj nchoices ngrades blank_allowed =
@@ -285,7 +285,7 @@ module Methods : CMDLINER_MODULE = struct
         | Some b -> b
       in
       ballots
-      |> Methods.Majority_judgment.compute ~nchoices ~ngrades ~blank_allowed
+      |> Method_mj.compute ~nchoices ~ngrades ~blank_allowed
       |> !+yojson_of_mj_result |> Lwt_io.printl
 
   let stv nseats =
@@ -298,8 +298,7 @@ module Methods : CMDLINER_MODULE = struct
     let* ballots = chars_of_stdin () in
     ballots
     |> !*stv_raw_ballots_of_yojson
-    |> Methods.Stv.compute ~nseats
-    |> !+yojson_of_stv_result |> Lwt_io.printl
+    |> Method_stv.compute ~nseats |> !+yojson_of_stv_result |> Lwt_io.printl
 
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in

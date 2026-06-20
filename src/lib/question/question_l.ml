@@ -23,18 +23,7 @@
 (** {1 Serializable datatypes for lists questions} *)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-
-(** {2 Predefined types} *)
-
-type weight = Belenios_core.Serializable_core.weight [@@deriving yojson]
-
-type 'a ciphertext = 'a Belenios_core.Serializable_core.ciphertext
-[@@deriving yojson]
-
-type 'a proof = 'a Belenios_core.Serializable_core.proof [@@deriving yojson]
-
-type 'a disjunctive_proof = 'a Belenios_core.Serializable_core.disjunctive_proof
-[@@deriving yojson]
+open Belenios_core
 
 (** {2 Non-zero proof} *)
 

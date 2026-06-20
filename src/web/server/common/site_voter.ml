@@ -47,14 +47,14 @@ struct
   let () =
     Any.register ~service:election_home_redirect (fun (uuid, ()) () ->
         let* () = Web_state.discard () in
-        make_absolute_string_uri ~fragment:(Uuid.unwrap uuid) ~service:apps
+        make_absolute_string_uri ~fragment:(Uuid.to_string uuid) ~service:apps
           "election"
         |> String_redirection.send)
 
   let () =
     Any.register ~service:election_login_done (fun (uuid, state) () ->
         let fragment =
-          Printf.sprintf "uuid=%s&state=%s" (Uuid.unwrap uuid) state
+          Printf.sprintf "uuid=%s&state=%s" (Uuid.to_string uuid) state
         in
         let page = make_absolute_string_uri ~fragment ~service:apps "vote" in
         String_redirection.send page)

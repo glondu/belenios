@@ -143,7 +143,7 @@ let check ?uuid () =
         let button =
           let@ () = button @@ s_ "Proceed" in
           let uuid = get_uuid () in
-          match Uuid.wrap uuid with
+          match Uuid.of_string uuid with
           | exception _ ->
               alert @@ s_ "Invalid election ID!";
               Lwt.return_unit
@@ -158,7 +158,7 @@ let check ?uuid () =
             div [ button ];
           ]
     | Some uuid -> (
-        match Uuid.wrap uuid with
+        match Uuid.of_string uuid with
         | exception _ -> Lwt.return [ div [ txt @@ s_ "Invalid election ID!" ] ]
         | uuid ->
             let handle_private_key private_key =
@@ -173,7 +173,7 @@ let check ?uuid () =
                   | Error _ ->
                       Printf.ksprintf alert
                         (f_ "There is no election with ID %s on this server!")
-                        (Uuid.unwrap uuid);
+                        (Uuid.to_string uuid);
                       Lwt.return_unit
                   | Ok (Draft (_, draft), _) -> do_draft uuid draft private_key)
             in

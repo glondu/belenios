@@ -247,7 +247,7 @@ let belenios : belenios Js.t =
     method formatTracker election tracker =
       let open (val !Belenios_js.I18n.gettext) in
       let module W = (val election : ELECTION_WITH_SK) in
-      let uuid_s = Uuid.unwrap W.uuid in
+      let uuid_s = Uuid.to_string W.uuid in
       let prefix = compute_prefix () in
       let tracker = Js.to_string tracker in
       let tracker_hex = tracker |> Hash.of_b64 |> Hash.to_hex in
@@ -343,7 +343,7 @@ let belenios : belenios Js.t =
             content
       | _ -> ()
 
-    method setLogo uuid = set_logo (Uuid.wrap (Js.to_string uuid))
+    method setLogo uuid = set_logo (Uuid.of_string (Js.to_string uuid))
   end
 
 let () = Js.export "belenios" belenios

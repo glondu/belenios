@@ -174,7 +174,7 @@ struct
                   let base =
                     make_absolute_string_uri
                       ~fragment:
-                        (Printf.sprintf "elections/%s" (Uuid.unwrap uuid))
+                        (Printf.sprintf "elections/%s" (Uuid.to_string uuid))
                       ~service:(admin_basic ()) ()
                   in
                   `S base)

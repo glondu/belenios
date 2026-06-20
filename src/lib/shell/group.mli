@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
+open Belenios_core
 
 val of_string : version:int -> string -> (module GROUP)

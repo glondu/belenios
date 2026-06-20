@@ -43,7 +43,8 @@ let init_api_token set_api_token ?ui hash =
         let target =
           match hash with
           | `Election uuid ->
-              Printf.sprintf "login?cont=elections/%s%s" (Uuid.unwrap uuid) ui
+              Printf.sprintf "login?cont=elections/%s%s" (Uuid.to_string uuid)
+                ui
           | _ -> Printf.sprintf "login?cont=home%s" ui
         in
         Dom_html.window##.location##assign (Js.string target);

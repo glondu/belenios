@@ -993,7 +993,7 @@ let voters_content () =
           datestring_of_float x.date ^ " " ^ x.username)
         records
     in
-    let uuid = get_current_uuid () |> Uuid.unwrap in
+    let uuid = get_current_uuid () |> Uuid.to_string in
     let link =
       let filename = Printf.sprintf "records-%s.txt" uuid in
       a_data ~filename ~mime_type:"text/plain" ~data:(lines_to_file data)
@@ -1515,7 +1515,7 @@ let credauth_changeable_content uuid draft currsel =
             let* prefix = Cache.get_prefix () in
             let link =
               Printf.sprintf "%scredauth#generate/%s/%s" prefix
-                (Uuid.unwrap uuid) token
+                (Uuid.to_string uuid) token
             in
             let module X = Belenios_ui.Mails_admin.Make (Belenios_js.I18n) in
             let subject, body =
@@ -1682,7 +1682,7 @@ let credauth_server_content uuid =
           ~a:[ a_onclick_lwt onclick ]
           ~mime_type:"text/plain"
           ~data:(!+yojson_of_private_credentials p)
-          ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.unwrap uuid))
+          ~filename:(Printf.sprintf "codes-%s.txt" (Uuid.to_string uuid))
         @@ s_ "the private parts of the credentials"
       in
       div
@@ -2006,7 +2006,7 @@ let status_content () =
             match x with
             | Ok (data, _) ->
                 let filename =
-                  Printf.sprintf "sealing-%s.log" (Uuid.unwrap uuid)
+                  Printf.sprintf "sealing-%s.log" (Uuid.to_string uuid)
                 in
                 let a = a_data ~filename ~mime_type:"text/plain" ~data "" in
                 (Tyxml_js.To_dom.of_a a)##click;
@@ -2097,7 +2097,7 @@ let status_content () =
           | `Archived -> s_ "This election is archived"
         in
         let link =
-          let uuid = Uuid.unwrap uuid in
+          let uuid = Uuid.to_string uuid in
           a
             ~a:[ a_download (Some (Printf.sprintf "archive-%s.zip" uuid)) ]
             ~href:("elections/" ^ uuid ^ "/archive.zip")

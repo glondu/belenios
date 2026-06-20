@@ -21,7 +21,7 @@
 
 open Lwt.Syntax
 open Belenios_platform
-open Serializable_core
+open Common_types
 open Serializable
 open Signatures
 open Common

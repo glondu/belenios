@@ -20,9 +20,6 @@
 (**************************************************************************)
 
 open Belenios_core
-open Serializable
-open Signatures
-open Common
 
 let get_version j =
   match j with
@@ -38,7 +35,7 @@ let get_uuid x =
   match j with
   | `Assoc o -> (
       match List.assoc_opt "uuid" o with
-      | Some (`String x) -> Uuid.wrap x
+      | Some (`String x) -> Uuid.of_string x
       | _ -> failwith "Election.get_uuid: invalid data")
   | _ -> failwith "Election.get_uuid: object expected"
 
@@ -85,7 +82,7 @@ let election_uuid_of_string_ballot x =
   match j with
   | `Assoc o -> (
       match List.assoc_opt "election_uuid" o with
-      | Some (`String x) -> Uuid.wrap x
+      | Some (`String x) -> Uuid.of_string x
       | _ -> failwith "election_uuid_of_string_ballot: invalid election_uuid")
   | _ -> failwith "election_uuid_of_string_ballot: invalid ballot"
 

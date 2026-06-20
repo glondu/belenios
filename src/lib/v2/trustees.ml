@@ -20,11 +20,7 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_platform
 open Belenios_core
-open Serializable
-open Signatures
-open Common
 
 exception PedersenFailure of string
 
@@ -238,9 +234,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
           Shape.map2 G.(fun x y -> x *~ (y **~ l)) a b.decryption_factors)
         dummy pds_with_ids
     in
-    let r =
-      Util.compute_synthetic_factors trustees check partial_decryptions fold
-    in
+    let r = compute_synthetic_factors trustees check partial_decryptions fold in
     (* combine all factors into one *)
     match r with
     | Ok factors ->
@@ -463,7 +457,7 @@ module MakePedersen (C : CHANNELS) = struct
     let* private_key = C.send xch_decryption_key sk ek pdk in
     Lwt.return { public_key; private_key }
 
-  let step5_check (certs : certs) i polynomials voutput =
+  let step5_check (certs : certs) i polynomials (voutput : _ voutput) =
     let n = Array.length certs.certs in
     let certs = Array.map (fun x -> x.message) certs.certs in
     assert (n = Array.length polynomials);
@@ -482,12 +476,12 @@ module MakePedersen (C : CHANNELS) = struct
           x.coefexps)
     in
     let y = (V.compute_verification_keys coefexps).(i) in
-    let { public_key; _ } = voutput in
+    let ({ public_key; _ } : _ voutput) = voutput in
     Comb.check [ `Single public_key.message ]
     && public_key.message.message.public_key =~ y
     && P.verify Comb.xch_verification_key certs.(i).verification public_key
 
-  let step6 certs polynomials voutputs =
+  let step6 certs polynomials (voutputs : _ voutput array) =
     let threshold = step2 certs in
     let n = Array.length certs.certs in
     let certs = certs.certs in
@@ -530,7 +524,8 @@ module MakePedersen (C : CHANNELS) = struct
       certs;
       coefexps = Array.map (fun (x : polynomial) -> x.coefexps) polynomials;
       signatures;
-      verification_keys = Array.map (fun x -> x.public_key) voutputs;
+      verification_keys =
+        Array.map (fun (x : _ voutput) -> x.public_key) voutputs;
     }
 end
 

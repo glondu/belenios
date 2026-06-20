@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
-(*  Copyright © 2012-2022 Inria                                           *)
+(*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
 (*  it under the terms of the GNU Affero General Public License as        *)
@@ -19,48 +19,21 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
-
-module type GROUP_SIG = sig
-  val of_string : string -> (module GROUP)
-end
-
-module type QUESTION_SIG = sig
-  type t [@@deriving yojson]
-
-  val is_nh_question : t -> bool
-  val get_complexity : t -> complexity
-
-  module Make (G : GROUP) :
-    Question_sigs.QUESTION
-      with type element := G.t
-       and type question := t
-       and type answer := Yojson.Safe.t
-       and type result := Yojson.Safe.t
-end
-
-module type MIXNET_SIG = sig
-  type question
-
-  module Make (W : ELECTION_DATA with type question := question) :
-    MIXNET
-      with type element := W.G.t
-       and type scalar := W.G.Zq.t
-       and type 'a proof := ('a, W.G.Zq.t) Serializable.shuffle_proof
-end
-
-module type ELECTION_SIG = sig
-  type question
-
-  val get_complexity : question array -> complexity
-  val template_of_yojson : Yojson.Safe.t -> question Serializable.template
-
-  val make_raw_election :
-    question Serializable.template ->
-    uuid:Common.Uuid.t ->
-    group:string ->
-    public_key:string ->
-    Yojson.Safe.t
-
-  module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
-end
+include Belenios_platform
+include Common_types
+include Serializable
+include Common
+include Util
+include Signatures
+module Crypto_std = Crypto_std
+module Password = Password
+module Archive = Archive
+module Events = Events
+module Pki = Pki
+module Credential = Credential
+module Group_field = Group_field
+module Ed25519_pure = Ed25519_pure
+module Ed25519_libsodium = Ed25519_libsodium
+module Method_schulze = Schulze
+module Method_stv = Stv
+module Method_mj = Majority_judgment

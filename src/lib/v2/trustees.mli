@@ -1,1 +1,1 @@
-include Belenios_core.Trustees_sig.S
+include Belenios_core.TRUSTEES_SIG

@@ -23,13 +23,7 @@
 (** {1 Serializable datatypes for non-homomorphic questions} *)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-
-(** {2 Predefined types} *)
-
-type 'a ciphertext = 'a Belenios_core.Serializable_core.ciphertext
-[@@deriving yojson]
-
-type 'a proof = 'a Belenios_core.Serializable_core.proof [@@deriving yojson]
+open Belenios_core
 
 (** {2 Questions and answers} *)
 

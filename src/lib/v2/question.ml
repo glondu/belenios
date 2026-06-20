@@ -19,8 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Signatures
-open Belenios_core.Common
+open Belenios_core
 open Belenios_question
 
 let types : (module Types.QUESTION_KIND) list =

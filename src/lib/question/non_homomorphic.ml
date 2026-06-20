@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios_core
 module Syntax = Question_nh
 
 type t = Syntax.question
@@ -71,7 +72,7 @@ let get_counting_method extra =
   | _ -> `None
 
 let check group (q : t Types.generic_question) =
-  let module G = (val Lazy.force group : Belenios_core.Signatures.GROUP) in
+  let module G = (val Lazy.force group : GROUP) in
   let n = Array.length q.value.answers in
   if n > G.max_ints then Error `Vector_size
   else

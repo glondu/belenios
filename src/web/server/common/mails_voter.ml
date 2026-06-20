@@ -21,7 +21,6 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core.Serializable_core
 open Belenios_messages
 open Belenios
 open Belenios_storage_api
@@ -59,7 +58,7 @@ let get_metadata s ~admin_id =
       match Lopt.get_value metadata with
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/running"
-            (Uuid.unwrap uuid)
+            (Uuid.to_string uuid)
       | Some metadata ->
           let election = Election.of_yojson raw in
           let module W = (val election) in
@@ -70,7 +69,7 @@ let get_metadata s ~admin_id =
       match Lopt.get_value se with
       | None ->
           Printf.ksprintf failwith "Mails_voter.get_metadata(%s)/draft"
-            (Uuid.unwrap uuid)
+            (Uuid.to_string uuid)
       | Some (Draft (_, se)) ->
           let has_weights = has_explicit_weights se.voters in
           Lwt.return

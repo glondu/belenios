@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Serializable_core
+open Belenios_core
 open Belenios_messages
 
 val mail_confirmation_link :

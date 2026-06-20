@@ -37,22 +37,22 @@ module App (U : UI) = struct
     let () =
       match path with
       | [] -> ()
-      | uuid :: _ -> Belenios_js.Common.set_logo (Uuid.wrap uuid)
+      | uuid :: _ -> Belenios_js.Common.set_logo (Uuid.of_string uuid)
     in
     match path with
     | [ "" ] -> Lwt.return []
     | [ uuid; "ballots" ] ->
-        let* p = Ballots.ballots (Uuid.wrap uuid) in
+        let* p = Ballots.ballots (Uuid.of_string uuid) in
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents
     | [ uuid; "advanced" ] ->
-        let* p = Advanced.advanced (Uuid.wrap uuid) in
+        let* p = Advanced.advanced (Uuid.of_string uuid) in
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents
     | [ uuid; "advanced"; "submit" ] ->
-        let* p = Advanced.submit configuration (Uuid.wrap uuid) in
+        let* p = Advanced.submit configuration (Uuid.of_string uuid) in
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents
@@ -63,7 +63,7 @@ module App (U : UI) = struct
         Lwt.return []
     | [ uuid ] ->
         let credential = !credential in
-        let* p = Home.home configuration ?credential (Uuid.wrap uuid) in
+        let* p = Home.home configuration ?credential (Uuid.of_string uuid) in
         U.set_title p.title;
         U.set_footer p.footer;
         Lwt.return p.contents

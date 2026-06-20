@@ -21,9 +21,36 @@
 
 (** Signatures *)
 
+open Common_types
 open Serializable
 open Common
 include Signatures_core
+
+module type QUESTION = sig
+  type question
+  type answer [@@deriving yojson]
+  type element
+  type result
+
+  val create_answer :
+    question -> public_key:element -> prefix:string -> int Shape.t -> answer
+
+  val verify_answer :
+    question -> public_key:element -> prefix:string -> answer -> bool
+
+  val extract_ciphertexts : question -> answer -> element ciphertext Shape.t
+
+  val process_ciphertexts :
+    question ->
+    (Weight.t * element ciphertext Shape.t) list ->
+    element ciphertext Shape.t
+
+  val compute_result :
+    total_weight:Weight.t -> question -> element Shape.t -> result
+
+  val check_result :
+    total_weight:Weight.t -> question -> element Shape.t -> result -> bool
+end
 
 module type ELECTION_BASE = sig
   type question [@@deriving yojson]
@@ -128,11 +155,9 @@ module type ELECTION_OPS = sig
       key share and the encrypted tally, and contains a cryptographic proof that
       he or she didn't cheat. *)
 
-  val compute_factor :
-    element Serializable.ciphertext shape -> private_key -> factor
+  val compute_factor : element ciphertext shape -> private_key -> factor
 
-  val check_factor :
-    element Serializable.ciphertext shape -> public_key -> factor -> bool
+  val check_factor : element ciphertext shape -> public_key -> factor -> bool
   (** [check_factor c pk f] checks that [f], supposedly submitted by a trustee
       whose public_key is [pk], is valid with respect to the encrypted tally
       [c]. *)
@@ -282,4 +307,84 @@ module type MIXNET = sig
     element ciphertext array ->
     element proof ->
     bool
+end
+
+module type GROUP_SIG = sig
+  val of_string : string -> (module GROUP)
+end
+
+module type QUESTION_SIG = sig
+  type t [@@deriving yojson]
+
+  val is_nh_question : t -> bool
+  val get_complexity : t -> complexity
+
+  module Make (G : GROUP) :
+    QUESTION
+      with type element := G.t
+       and type question := t
+       and type answer := Yojson.Safe.t
+       and type result := Yojson.Safe.t
+end
+
+module type MIXNET_SIG = sig
+  type question
+
+  module Make (W : ELECTION_DATA with type question := question) :
+    MIXNET
+      with type element := W.G.t
+       and type scalar := W.G.Zq.t
+       and type 'a proof := ('a, W.G.Zq.t) Serializable.shuffle_proof
+end
+
+module type ELECTION_SIG = sig
+  type question
+
+  val get_complexity : question array -> complexity
+  val template_of_yojson : Yojson.Safe.t -> question Serializable.template
+
+  val make_raw_election :
+    question Serializable.template ->
+    uuid:Common.Uuid.t ->
+    group:string ->
+    public_key:string ->
+    Yojson.Safe.t
+
+  module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
+end
+
+module type TRUSTEES_SIG = sig
+  (** Simple distributed generation of an election public key. *)
+  module MakeSimple (G : GROUP) : sig
+    (** This module implements a simple distributed key generation. Each share
+        is a number modulo q, and the secret key is their sum. All shares are
+        needed to decrypt, but the decryptions can be done in a distributed
+        fashion. *)
+
+    val generate : unit -> G.Zq.t
+    (** [generate ()] generates a new private key. *)
+
+    val prove : name:string -> G.Zq.t -> (G.t, G.Zq.t) trustee_public_key
+    (** [prove x] returns the public key associated to [x] and a zero- knowledge
+        proof of its knowledge. *)
+  end
+
+  exception PedersenFailure of string
+
+  module MakePedersen (C : CHANNELS) : PEDERSEN with module Channels = C
+
+  module MakeCombinator (G : GROUP) : sig
+    val check : (G.t, G.Zq.t) trustees -> bool
+    (** Check consistency of a set of trustees. *)
+
+    val combine_keys : (G.t, G.Zq.t) trustees -> G.t
+    (** Compute the public key associated to a set of trustees. *)
+
+    val combine_factors :
+      (G.t, G.Zq.t) trustees ->
+      (G.t -> (G.t, G.Zq.t) partial_decryption -> bool) ->
+      (G.t, G.Zq.t) partial_decryption owned list ->
+      (G.t shape, combination_error) result
+    (** Compute synthetic decryption factors. *)
+  end
 end

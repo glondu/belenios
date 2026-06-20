@@ -74,7 +74,7 @@ let rec show_draft_voters uuid draft container =
     let i, iget = input `Text in
     let b =
       let@ () = button "Import voters" in
-      let r = `Import (Uuid.wrap (iget ())) in
+      let r = `Import (Uuid.of_string (iget ())) in
       let* x = Api.(post ~ifmatch (draft_voters uuid) !user r) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_voters uuid draft container)
@@ -192,7 +192,7 @@ let rec show_draft_trustees uuid container =
     let i, iget = input `Text in
     let b =
       let@ () = button "Import trustees" in
-      let r = `Import (Uuid.wrap (iget ())) in
+      let r = `Import (Uuid.of_string (iget ())) in
       let* x = Api.(post ~ifmatch (draft_trustees uuid) !user r) in
       let@ () = show_in container in
       generic_proceed x (fun () -> show_draft_trustees uuid container)
@@ -214,7 +214,7 @@ let rec show_draft_status uuid container =
     let@ () = generic_proceed x in
     match (r, x.code) with
     | `ValidateElection, 200 ->
-        let new_hash = Printf.sprintf "#elections/%s" (Uuid.unwrap uuid) in
+        let new_hash = Printf.sprintf "#elections/%s" (Uuid.to_string uuid) in
         Dom_html.window##.location##.hash := Js.string new_hash;
         Lwt.return_unit
     | _ -> show_draft_status uuid container
@@ -251,7 +251,7 @@ let show_draft show_all uuid draft title container tab =
 
 let a_draft_tab uuid tab =
   let suffix, label = suffix_and_label_of_draft_tab tab in
-  let href = Printf.sprintf "#drafts/%s%s" (Uuid.unwrap uuid) suffix in
+  let href = Printf.sprintf "#drafts/%s%s" (Uuid.to_string uuid) suffix in
   a ~href label
 
 let show main uuid tab context =
@@ -262,7 +262,7 @@ let show main uuid tab context =
         let@ () = show_in main in
         let msg =
           Printf.sprintf "An error occurred while retrieving draft %s: %s"
-            (Uuid.unwrap uuid) (string_of_error e)
+            (Uuid.to_string uuid) (string_of_error e)
         in
         Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
     | Ok ((Draft (_, d) as draft), _) ->

@@ -44,7 +44,7 @@ let parse_hash () =
     | Some m -> (
         match Regexp.matched_group m 1 with
         | Some "profile" -> `Profile
-        | Some uuid -> `Election (Uuid.wrap uuid)
+        | Some uuid -> `Election (Uuid.of_string uuid)
         | _ -> `Home)
     | _ -> `Home
 
@@ -179,7 +179,7 @@ let election_a2 (x : summary) status =
   let elt =
     a
       ~a:[ a_onclick_lwt (choose_election_handler uuid status) ]
-      ~href:("#" ^ Uuid.unwrap uuid)
+      ~href:("#" ^ Uuid.to_string uuid)
       (if x.name = "" then s_ "(no title)" else x.name)
   in
   div ~a:[ a_class [ "txt_with_a" ] ] [ elt ]
@@ -302,7 +302,7 @@ let rec page_body () =
             | Ok uuid ->
                 where_am_i := Election { uuid; status = Draft; tab = Title };
                 Dom_html.window##.location##.hash
-                := Js.string (Uuid.unwrap uuid);
+                := Js.string (Uuid.to_string uuid);
                 Lwt.return_unit
             | Error e ->
                 alert ("Creation failed: " ^ string_of_error e);

@@ -19,10 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Belenios_core
-open Serializable
-open Signatures
 
 let get_ff_params = function
   | "BELENIOS-2048" ->

@@ -125,8 +125,8 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     | Ok _ -> Lwt.return_unit
     | Error () ->
         let msg =
-          Printf.sprintf "sending seed for %s to %s failed" (Uuid.unwrap r.uuid)
-            r.info.operator
+          Printf.sprintf "sending seed for %s to %s failed"
+            (Uuid.to_string r.uuid) r.info.operator
         in
         Ocsigen_messages.errlog msg;
         Lwt.return_unit
@@ -146,7 +146,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         Printf.sprintf
           "submitting public credendials for %s to %s failed with status code \
            %d"
-          (Uuid.unwrap r.uuid) url code
+          (Uuid.to_string r.uuid) url code
       in
       Ocsigen_messages.errlog msg;
       Lwt.return_unit
@@ -360,7 +360,7 @@ let process_request : credentials_request -> _ = function
         then cont ()
         else return_yojson 400 `Null
       in
-      let uuid = Uuid.unwrap r.uuid in
+      let uuid = Uuid.to_string r.uuid in
       let@ draft cont =
         let url =
           Printf.sprintf "%sapi/elections/%s/draft" r.belenios_url uuid
@@ -485,7 +485,7 @@ let dispatch endpoint method_ body =
           process_request request
       | _ -> method_not_allowed)
   | [ "server"; "credits"; uuid ] -> (
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       match method_ with
       | `GET ->

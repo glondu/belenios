@@ -40,10 +40,10 @@ let download_archive =
 
 let download dir url uuid =
   let url = if String.ends_with ~suffix:"/" url then url else url ^ "/" in
-  let file = Printf.sprintf "%s.bel" (Uuid.unwrap uuid) in
+  let file = Printf.sprintf "%s.bel" (Uuid.to_string uuid) in
   let* () =
-    Lwt_io.eprintf "I: downloading %s from %s to %s...\n" (Uuid.unwrap uuid) url
-      file
+    Lwt_io.eprintf "I: downloading %s from %s to %s...\n" (Uuid.to_string uuid)
+      url file
   in
   let* () = Lwt_io.(flush stderr) in
   let* oc =
@@ -51,7 +51,7 @@ let download dir url uuid =
   in
   Lwt.catch
     (fun () ->
-      let url = Printf.sprintf "%sapi/elections/%s" url (Uuid.unwrap uuid) in
+      let url = Printf.sprintf "%sapi/elections/%s" url (Uuid.to_string uuid) in
       let* () = !download_archive url oc in
       let* () = Lwt_unix.close oc in
       Lwt.return_some file)
@@ -96,7 +96,7 @@ let load_from_file of_string filename =
 
 let find_bel_in_dir ?uuid dir =
   match uuid with
-  | Some uuid -> Lwt.return @@ Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
+  | Some uuid -> Lwt.return @@ Printf.sprintf "%s.bel" (Uuid.to_string uuid)
   | None -> (
       let* files = Lwt_stream.to_list @@ Lwt_unix.files_of_directory dir in
       match List.filter (fun x -> Filename.check_suffix x ".bel") files with

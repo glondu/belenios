@@ -27,7 +27,7 @@ open Cmdliner
 
 let main uuid url dir action =
   let@ () = wrap_main in
-  let uuid = Option.map Uuid.wrap uuid in
+  let uuid = Option.map Uuid.of_string uuid in
   let@ dir cont =
     let* dir, cleanup =
       match (url, dir) with

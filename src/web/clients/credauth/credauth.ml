@@ -32,7 +32,7 @@ module App (U : UI) = struct
     U.set_title @@ s_ "Credential authority management";
     match path with
     | [ "generate"; uuid; token ] ->
-        Generate.generate configuration (Uuid.wrap uuid) ~token
+        Generate.generate configuration (Uuid.of_string uuid) ~token
     | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
 end
 

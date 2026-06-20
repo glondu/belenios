@@ -36,7 +36,7 @@ let show main uuid =
   | Error e ->
       let msg =
         Printf.sprintf "An error occurred while retrieving draft %s: %s"
-          (Uuid.unwrap uuid) (string_of_error e)
+          (Uuid.to_string uuid) (string_of_error e)
       in
       Lwt.return [ h1 [ txt "Error" ]; div [ txt msg ] ]
   | Ok (Draft (_, draft), _) ->
@@ -47,7 +47,7 @@ let show main uuid =
             let msg =
               Printf.sprintf
                 "An error occurred while retrieving voters of draft %s: %s"
-                (Uuid.unwrap uuid) (string_of_error e)
+                (Uuid.to_string uuid) (string_of_error e)
             in
             Lwt.return @@ div [ txt msg ]
         | Ok (xs, _) ->

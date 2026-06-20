@@ -1,4 +1,4 @@
-open Belenios_core.Signatures
+open Belenios_core
 
 type raw_question = ..
 

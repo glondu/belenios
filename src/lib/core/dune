@@ -10,5 +10,4 @@
   (re_export re)
   (re_export belenios-platform))
  (preprocess
-  (pps ppx_yojson_conv))
- (modules_without_implementation question_sigs trustees_sig versioned_sig))
+  (pps ppx_yojson_conv)))

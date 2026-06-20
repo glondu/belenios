@@ -19,15 +19,12 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Belenios_core
-open Common
-open Signatures_core
-open Serializable_core
 open Belenios_question
 open Non_homomorphic
 open Syntax
 
+type nonrec 'a ciphertext = 'a ciphertext = { alpha : 'a; beta : 'a }
 type nonrec question = question
 type nonrec result = result [@@deriving yojson]
 

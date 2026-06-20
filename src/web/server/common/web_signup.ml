@@ -20,7 +20,6 @@
 (**************************************************************************)
 
 open Lwt.Syntax
-open Belenios_core.Serializable_core
 open Belenios
 
 module Sender = struct

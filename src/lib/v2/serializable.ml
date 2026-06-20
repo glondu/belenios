@@ -21,20 +21,9 @@
 (**************************************************************************)
 
 open Ppx_yojson_conv_lib.Yojson_conv
+open Belenios_core
 
-type uuid = Belenios_core.Serializable.uuid [@@deriving yojson]
-type hash = Belenios_core.Serializable.hash [@@deriving yojson]
-
-type ('a, 'b, 'c) signed_msg =
-  ('a, 'b, 'c) Belenios_core.Serializable.signed_msg
-[@@deriving yojson]
-
-type question = Question.t
-
-let question_of_yojson = Question.t_of_yojson
-let yojson_of_question = Question.yojson_of_t
-
-type lang_dir = Belenios_core.Serializable.lang_dir [@@deriving yojson]
+type question = Question.t [@@deriving yojson]
 
 type 'a params = {
   version : int;

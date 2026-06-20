@@ -86,7 +86,7 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
   let derive_full seed =
     let dst = dst_prefix ^ "-derive_credential" in
     (* TODO: get rid of uuid in the following line (when the formal proof is done) *)
-    (G.Zq.hash ~dst 1 (Printf.sprintf "%s|%s" (Uuid.unwrap E.uuid) seed)).(0)
+    (G.Zq.hash ~dst 1 (Printf.sprintf "%s|%s" (Uuid.to_string E.uuid) seed)).(0)
 
   let generate_one rng =
     (* we generate only full style credentials *)

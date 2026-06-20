@@ -88,7 +88,7 @@ module App (U : UI) = struct
       | [ uuid ] -> cont uuid
       | _ -> Lwt.return [ div [ txt @@ s_ "Error" ] ]
     in
-    let uuid = Uuid.wrap uuid_s in
+    let uuid = Uuid.of_string uuid_s in
     let@ seed cont =
       match !seed with
       | Some x -> cont x

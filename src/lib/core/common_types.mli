@@ -23,28 +23,32 @@ open Belenios_platform
 
 val b58_digits : string
 
-module Number : sig
-  type t = Z.t
+type number = Z.t [@@deriving yojson]
 
-  val wrap : string -> t
-  val unwrap : t -> string
+module Json : sig
+  type t = Yojson.Safe.t [@@deriving yojson]
+
+  val to_string : t -> string
+  val of_string : string -> t
 end
+
+type json = Json.t [@@deriving yojson]
 
 module Uuid : sig
-  type t
+  type t [@@deriving yojson]
 
+  val to_string : t -> string
+  val of_string : string -> t
   val min_length : int
   val dummy : t
-  val wrap : string -> t
-  val unwrap : t -> string
 end
 
+type uuid = Uuid.t [@@deriving yojson]
+
 module Hash : sig
-  type t
+  type t [@@deriving yojson]
 
   val compare : t -> t -> int
-  val wrap : string -> t
-  val unwrap : t -> string
   val of_hex : string -> t
   val to_hex : t -> string
   val to_b64 : t -> string
@@ -52,11 +56,11 @@ module Hash : sig
   val hash_string : string -> t
 end
 
-module Weight : sig
-  type t
+type hash = Hash.t [@@deriving yojson]
 
-  val wrap : Yojson.Safe.t -> t
-  val unwrap : t -> Yojson.Safe.t
+module Weight : sig
+  type t [@@deriving yojson]
+
   val zero : t
   val one : t
   val is_int : t -> int -> bool
@@ -70,6 +74,8 @@ module Weight : sig
   val to_string : t -> string
   val compare : t -> t -> int
 end
+
+type weight = Weight.t [@@deriving yojson]
 
 module Array : sig
   include module type of Stdlib.Array
@@ -88,7 +94,7 @@ module Array : sig
 end
 
 module Shape : sig
-  type 'a t = [ `Atomic of 'a | `Array of 'a t array ]
+  type 'a t = [ `Atomic of 'a | `Array of 'a t array ] [@@deriving yojson]
 
   val of_array : 'a array -> 'a t
   val to_array : 'a t -> 'a array
@@ -101,3 +107,35 @@ module Shape : sig
   val forall2 : ('a -> 'b -> bool) -> 'a t -> 'b t -> bool
   val forall3 : ('a -> 'b -> 'c -> bool) -> 'a t -> 'b t -> 'c t -> bool
 end
+
+type 'a shape = 'a Shape.t [@@deriving yojson]
+
+(** {2 Basic cryptographic datastructures} *)
+
+type 'a ciphertext = { alpha : 'a; beta : 'a } [@@deriving yojson]
+(** An ElGamal ciphertext. *)
+
+type 'a proof = { challenge : 'a; response : 'a } [@@deriving yojson]
+(** A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP). *)
+
+type 'a disjunctive_proof = 'a proof array [@@deriving yojson]
+(** A disjunctive ZKP. The size of the array is the number of disjuncts. *)
+
+(** {2 Misc} *)
+
+type voter = {
+  address : string option; [@yojson.option]
+  login : string option; [@yojson.option]
+  weight : weight option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type voter_list = voter list [@@deriving yojson]
+type recipient = { name : string; address : string } [@@deriving yojson]
+
+type 'a public_credential = {
+  credential : 'a;
+  weight : weight option; [@yojson.option]
+  username : string option; [@yojson.option]
+}
+[@@deriving yojson]

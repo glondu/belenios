@@ -19,15 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Belenios_core
-open Common
-open Signatures_core
 open Belenios_question
 open Homomorphic
 open Syntax
 
-type 'a proof = 'a Belenios_core.Serializable.proof
 type nonrec question = question
 type nonrec result = result [@@deriving yojson]
 

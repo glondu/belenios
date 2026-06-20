@@ -22,8 +22,6 @@
 (** Election primitives *)
 
 open Belenios_core
-open Signatures
-open Serializable
 
 val get_version : Yojson.Safe.t -> int
 val get_uuid : string -> uuid

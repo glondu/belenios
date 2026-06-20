@@ -924,7 +924,7 @@ let initiate_credential_authority_protocol ~uuid ~info ~admin_id ~token () =
   in
   let prefix =
     Printf.sprintf "initiate_credential_authority_protocol[%s]%s"
-      (Uuid.unwrap uuid)
+      (Uuid.to_string uuid)
       (!+yojson_of_cred_authority_info info)
   in
   Lwt.catch

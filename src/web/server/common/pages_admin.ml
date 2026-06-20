@@ -512,7 +512,7 @@ struct
           txt
           @@ Printf.sprintf
                (f_ "as a voter for election %s.")
-               (Uuid.unwrap uuid)
+               (Uuid.to_string uuid)
     in
     let msg =
       [

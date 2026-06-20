@@ -37,10 +37,12 @@ let fail_http status =
 
 let get_election_home_url ?credential uuid =
   let suffix = match credential with None -> "" | Some x -> "/" ^ x in
-  Printf.sprintf "%s/election#%s%s" !Web_config.prefix (Uuid.unwrap uuid) suffix
+  Printf.sprintf "%s/election#%s%s" !Web_config.prefix (Uuid.to_string uuid)
+    suffix
 
 let uuid x =
-  Eliom_parameter.user_type ~of_string:Uuid.wrap ~to_string:Uuid.unwrap x
+  Eliom_parameter.user_type ~of_string:Uuid.of_string ~to_string:Uuid.to_string
+    x
 
 type site_cont_path =
   | ContSiteHome
@@ -63,7 +65,7 @@ let site_cont_of_string x =
   let path =
     match String.split_on_char '/' path with
     | [ "home" ] -> ContSiteHome
-    | [ "elections"; uuid ] -> ContSiteElection (Uuid.wrap uuid)
+    | [ "elections"; uuid ] -> ContSiteElection (Uuid.of_string uuid)
     | [ "connect"; callback; state ] -> ContSiteConnect (callback, state)
     | _ -> fail ()
   in
@@ -73,7 +75,8 @@ let string_of_site_cont x =
   let path =
     match x.path with
     | ContSiteHome -> "home"
-    | ContSiteElection uuid -> Printf.sprintf "elections/%s" (Uuid.unwrap uuid)
+    | ContSiteElection uuid ->
+        Printf.sprintf "elections/%s" (Uuid.to_string uuid)
     | ContSiteConnect (callback, state) ->
         Printf.sprintf "connect/%s/%s" callback state
   in

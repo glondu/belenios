@@ -30,7 +30,7 @@ type 'a file = 'a Election_ops.file
 
 let () = Stdlib.Random.self_init ()
 let ( let&** ) x f = match x with None -> Lopt.none_lwt | Some x -> f x
-let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.unwrap uuid)
+let archive_filename uuid = Printf.sprintf "%s.bel" (Uuid.to_string uuid)
 
 let some_string_or_value (type a b) (f : a file)
     (spec : (a, b) string_or_value_spec) (x : b) =
@@ -256,7 +256,7 @@ module MakeBackend
   (** {1 Generic operations} *)
 
   let ( !! ) x = Config.spool_dir // x
-  let ( /// ) uuid x = !!(Uuid.unwrap uuid // x)
+  let ( /// ) uuid x = !!(Uuid.to_string uuid // x)
 
   let cleanup_files uuid xs =
     Lwt_list.iter_p (fun x -> Filesystem.cleanup_file (uuid /// x)) xs
@@ -357,7 +357,7 @@ module MakeBackend
     let* xs = files_of_directory Config.spool_dir in
     Lwt_list.fold_left_s
       (fun accu x ->
-        match Uuid.wrap x with
+        match Uuid.of_string x with
         | exception _ -> Lwt.return accu
         | uuid ->
             let* b = Filesystem.file_exists (uuid /// deleted_filename) in
@@ -461,7 +461,7 @@ module MakeBackend
         let uuid = generate_token ~length () in
         Lwt.try_bind
           (fun () -> Lwt_unix.mkdir !!uuid 0o700)
-          (fun () -> Lwt.return_some @@ Uuid.wrap uuid)
+          (fun () -> Lwt.return_some @@ Uuid.of_string uuid)
           (fun _ -> loop (trials - 1))
       else Lwt.return_none
     in
@@ -476,7 +476,7 @@ module MakeBackend
     if b then copy_file src dst else Lwt.return_unit
 
   let make_archive uuid =
-    let uuid_s = Uuid.unwrap uuid in
+    let uuid_s = Uuid.to_string uuid in
     let* temp_dir =
       Lwt_preemptive.detach
         (fun () ->
@@ -491,7 +491,7 @@ module MakeBackend
     let* () =
       Lwt_list.iter_p
         (fun x -> try_copy_file (uuid /// x) (temp_dir // "public" // x))
-        [ Uuid.unwrap uuid ^ ".bel" ]
+        [ Uuid.to_string uuid ^ ".bel" ]
     in
     let* () =
       Lwt_list.iter_p
@@ -1117,7 +1117,7 @@ module MakeBackend
   (** {1 Cleaning operations} *)
 
   let delete_draft_election uuid =
-    let* () = rmdir !!(Uuid.unwrap uuid) in
+    let* () = rmdir !!(Uuid.to_string uuid) in
     Elections_cache.clear ();
     Lwt.return_unit
 
@@ -1647,7 +1647,7 @@ module Make (Config : CONFIG) : STORAGE = struct
     T.new_account_id ()
 
   let process_election_for_data_policy (action, uuid, next_t) =
-    let uuid_s = Uuid.unwrap uuid in
+    let uuid_s = Uuid.to_string uuid in
     let now = Unix.gettimeofday () in
     let archive s uuid =
       let module S = (val s : BACKEND) in

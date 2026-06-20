@@ -223,7 +223,7 @@ module Make (Base : BASE) = struct
           let ballot_box =
             let href =
               Printf.sprintf "%selection#%s/ballots" uris.home
-                (Uuid.unwrap uuid)
+                (Uuid.to_string uuid)
             in
             a ~a:[ a_href @@ Xml.uri_of_string href ] [ txt (s_ "ballot box") ]
           in
@@ -266,7 +266,8 @@ module Make (Base : BASE) = struct
             ~a:
               [
                 a_href @@ Xml.uri_of_string
-                @@ Printf.sprintf "%selection#%s" uris.home (Uuid.unwrap uuid);
+                @@ Printf.sprintf "%selection#%s" uris.home
+                     (Uuid.to_string uuid);
               ]
             [ txt (s_ "Go back to election") ];
         ];

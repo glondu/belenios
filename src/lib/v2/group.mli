@@ -1,1 +1,1 @@
-include Belenios_core.Versioned_sig.GROUP_SIG
+include Belenios_core.GROUP_SIG

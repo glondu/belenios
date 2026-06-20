@@ -23,7 +23,7 @@
 (** {1 Predefined types} *)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-open Belenios_core.Serializable
+open Belenios_core
 open Belenios_web_api.Serializable
 
 (** {1 Web-specific types} *)

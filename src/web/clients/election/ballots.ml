@@ -46,7 +46,7 @@ let make_ballots_contents uuid show_weights sized_encrypted_tally ballots =
           ])
   in
   let links =
-    let href = Printf.sprintf "#%s" (Uuid.unwrap uuid) in
+    let href = Printf.sprintf "#%s" (Uuid.to_string uuid) in
     p [ a ~href (s_ "Go back to election") ]
   in
   let number =

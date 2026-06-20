@@ -53,7 +53,7 @@ let sendmail ~recipient ~uuid message =
         let uuid =
           match uuid with
           | None -> ""
-          | Some x -> Printf.sprintf "+%s" (Uuid.unwrap x)
+          | Some x -> Printf.sprintf "+%s" (Uuid.to_string x)
         in
         let local, domain = split_address base_address in
         Printf.sprintf "%s+%s%s@%s" local recipient uuid domain
@@ -149,14 +149,14 @@ let send ?internal (msg : message) =
   let () =
     match uuid with
     | None -> ()
-    | Some uuid -> headers#update_field "Belenios-UUID" (Uuid.unwrap uuid)
+    | Some uuid -> headers#update_field "Belenios-UUID" (Uuid.to_string uuid)
   in
   let () =
     match !Web_config.fbl_senderid with
     | None -> ()
     | Some senderid ->
         let uuid =
-          match uuid with None -> "" | Some uuid -> Uuid.unwrap uuid
+          match uuid with None -> "" | Some uuid -> Uuid.to_string uuid
         in
         headers#update_field "Feedback-ID"
           (Printf.sprintf "%s:%s:%s:%s" uuid admin_id reason senderid)

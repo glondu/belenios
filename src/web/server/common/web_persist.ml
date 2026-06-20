@@ -383,7 +383,7 @@ let get_credential_user s cred =
       Lwt.fail
         (Failure
            (Printf.sprintf "could not find credential record of %s/%s"
-              (Uuid.unwrap uuid) cred))
+              (Uuid.to_string uuid) cred))
 
 let add_ballot s election last ballot =
   let module W = (val election : Site_common_sig.ELECTION) in
@@ -671,7 +671,7 @@ let send_credentials s ~admin_id (Draft (_, se)) private_creds =
 let validate_on_credential_server ~uuid ~(info : cred_authority_info) ~token
     ~metadata () =
   let prefix =
-    Printf.sprintf "validate_on_credential_server[%s]" (Uuid.unwrap uuid)
+    Printf.sprintf "validate_on_credential_server[%s]" (Uuid.to_string uuid)
   in
   let body =
     `Validate { uuid; token; metadata }
@@ -893,7 +893,7 @@ type credentials_status = [ `None | `Pending of int | `Done ]
 let pending_generations = ref SMap.empty
 
 let generate_credentials_on_server_async uuid (Draft (_, se)) =
-  let uuid_s = Uuid.unwrap uuid in
+  let uuid_s = Uuid.to_string uuid in
   match SMap.find_opt uuid_s !pending_generations with
   | Some _ -> ()
   | None ->
@@ -932,6 +932,6 @@ let generate_credentials_on_server_async uuid (Draft (_, se)) =
           | None -> Lwt.return_unit)
 
 let get_credentials_status uuid (Draft (_, se)) =
-  match SMap.find_opt (Uuid.unwrap uuid) !pending_generations with
+  match SMap.find_opt (Uuid.to_string uuid) !pending_generations with
   | Some p -> `Pending (p ())
   | None -> if se.public_creds_received then `Done else `None

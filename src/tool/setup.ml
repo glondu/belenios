@@ -328,7 +328,7 @@ module Credgen : CMDLINER_MODULE = struct
   let main version group dir uuid count jobs file derive =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
-    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
+    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.of_string in
     let () = if jobs <= 0 then failcmd "--jobs must be positive" in
     let* action =
       match (count, file, derive) with
@@ -383,7 +383,7 @@ module Credgen : CMDLINER_MODULE = struct
             "generate-sub-credentials";
             Printf.sprintf "--protocol-version=%d" version;
             Printf.sprintf "--group=%s" group;
-            Printf.sprintf "--uuid=%s" (Uuid.unwrap uuid);
+            Printf.sprintf "--uuid=%s" (Uuid.to_string uuid);
             Printf.sprintf "--count=%d" n;
           |]
         in
@@ -458,7 +458,7 @@ module SubCredgen : CMDLINER_MODULE = struct
   let main version group uuid count =
     let@ () = wrap_main in
     let group = get_mandatory_opt "--group" group in
-    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
+    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.of_string in
     let count = get_mandatory_opt "--count" count in
     let module G = (val Group.of_string ~version group : GROUP) in
     let module Cred =
@@ -558,7 +558,7 @@ module Mkelection : CMDLINER_MODULE = struct
     let@ () = wrap_main in
     let* template = get_mandatory_opt "--template" template |> string_of_file in
     let group = get_mandatory_opt "--group" group in
-    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.wrap in
+    let uuid = get_mandatory_opt "--uuid" uuid |> Uuid.of_string in
     let* trustees = dir // "trustees.json" |> string_of_file in
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in

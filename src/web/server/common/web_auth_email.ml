@@ -21,7 +21,6 @@
 
 open Lwt
 open Lwt.Syntax
-open Belenios_core.Serializable_core
 open Belenios
 open Belenios_storage_api
 open Belenios_server_core

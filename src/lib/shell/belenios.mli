@@ -19,25 +19,11 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include module type of Belenios_platform
-include module type of Belenios_core.Common
-include module type of Belenios_core.Serializable
-include module type of Belenios_core.Signatures
-module Version = Belenios_platform.Version
-module Password = Belenios_core.Password
+include module type of Belenios_core
 module Election = Election
 module Group = Group
 module Pki = Belenios_core.Pki
 module Trustees = Trustees
-module Credential = Belenios_core.Credential
-module Events = Belenios_core.Events
-module Archive = Belenios_core.Archive
-
-module Methods : sig
-  module Schulze = Belenios_core.Schulze
-  module Stv = Belenios_core.Stv
-  module Majority_judgment = Belenios_core.Majority_judgment
-end
 
 val xch_encrypted_credential : string exchangeable
 

@@ -1,4 +1,4 @@
-open Belenios_core.Signatures
+open Belenios_core
 
 module type QUESTION_KIND = sig
   type question
@@ -9,7 +9,7 @@ module type QUESTION_KIND = sig
   val get_complexity : question -> complexity
 
   module Make (G : GROUP) :
-    Belenios_core.Question_sigs.QUESTION
+    QUESTION
       with type element := G.t
        and type question := question
        and type result := result

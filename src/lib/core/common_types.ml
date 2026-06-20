@@ -20,16 +20,36 @@
 (**************************************************************************)
 
 open Lwt.Syntax
+open Ppx_yojson_conv_lib.Yojson_conv
 open Belenios_platform
 
+let () =
+  Printexc.register_printer (function
+    | Of_yojson_error (e, j) ->
+        Some
+          (Printf.sprintf "Of_yojson_error(%s, %s)" (Printexc.to_string e)
+             (Yojson.Safe.to_string j))
+    | _ -> None)
+
 let b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+let yojson_of_generic_string to_string x = yojson_of_string @@ to_string x
+let generic_string_of_yojson of_string x = of_string @@ string_of_yojson x
 
-module Number = struct
-  type t = Z.t
+type number = Z.t
 
-  let wrap = Z.of_string
-  let unwrap = Z.to_string
+module Json = struct
+  type t = Yojson.Safe.t
+
+  let yojson_of_t = Fun.id
+  let t_of_yojson = Fun.id
+  let to_string x = Yojson.Safe.to_string x
+  let of_string x = Yojson.Safe.from_string x
 end
+
+type json = Json.t [@@deriving yojson]
+
+let yojson_of_number = yojson_of_generic_string Z.to_string
+let number_of_yojson = generic_string_of_yojson Z.of_string
 
 module Uuid = struct
   type t = string
@@ -49,13 +69,17 @@ module Uuid = struct
     in
     loop (n - 1)
 
-  let wrap x =
+  let of_string x =
     if check x then x
     else Printf.ksprintf invalid_arg "%S is not a valid UUID" x
 
-  let unwrap = Fun.id
-  let dummy = wrap (String.make min_length '1')
+  let to_string = Fun.id
+  let yojson_of_t = yojson_of_generic_string to_string
+  let t_of_yojson = generic_string_of_yojson of_string
+  let dummy = of_string (String.make min_length '1')
 end
+
+type uuid = Uuid.t [@@deriving yojson]
 
 module Hash = struct
   type t = string
@@ -87,44 +111,45 @@ module Hash = struct
     | _ -> assert false
 
   let hash_string x = Digestif.SHA256.(x |> digest_string |> to_hex)
-  let wrap = of_hex
-  let unwrap = to_hex
+  let yojson_of_t = yojson_of_generic_string to_hex
+  let t_of_yojson = generic_string_of_yojson of_hex
 end
 
-let weight_of_raw_string x =
-  try
-    let x = Z.of_string x in
-    if Z.(compare x zero >= 0) then x else raise Exit
-  with _ -> Printf.ksprintf invalid_arg "%S is not a valid weight" x
-
-let weight_of_int x =
-  if x >= 0 then Z.of_int x
-  else Printf.ksprintf invalid_arg "%d is not a valid weight" x
-
-let weight_of_json = function
-  | `Int x -> weight_of_int x
-  | `Intlit x | `String x -> weight_of_raw_string x
-  | _ -> invalid_arg "invalid weight"
-
-let max_int31 = Z.of_string "1073741823"
-
-let json_of_weight x =
-  if Z.(compare x max_int31 <= 0) then `Int (Z.to_int x)
-  else `String (Z.to_string x)
+type hash = Hash.t [@@deriving yojson]
 
 module Weight = struct
   include Z
 
+  let max_int31 = of_string "1073741823"
+
+  let of_string x =
+    try
+      let x = Z.of_string x in
+      if Z.(compare x zero >= 0) then x else raise Exit
+    with _ -> Printf.ksprintf invalid_arg "%S is not a valid weight" x
+
+  let of_int x =
+    if x >= 0 then Z.of_int x
+    else Printf.ksprintf invalid_arg "%d is not a valid weight" x
+
+  let t_of_yojson = function
+    | `Int x -> of_int x
+    | `Intlit x | `String x -> of_string x
+    | _ -> invalid_arg "invalid weight"
+
+  let yojson_of_t x =
+    if compare x max_int31 <= 0 then `Int (Z.to_int x)
+    else `String (Z.to_string x)
+
   let max_expanded_weight = of_string "100000000000"
   let is_int x i = Z.(compare x (of_int i) = 0)
-  let of_string x = weight_of_json (`String x)
   let expand ~total:_ x = x
   let reduce ~total:_ x = x
   let min a b = if compare a b < 0 then a else b
   let max a b = if compare a b > 0 then a else b
-  let wrap = weight_of_json
-  let unwrap = json_of_weight
 end
+
+type weight = Weight.t [@@deriving yojson]
 
 module Array = struct
   include Stdlib.Array
@@ -179,6 +204,15 @@ end
 module Shape = struct
   type 'a t = [ `Atomic of 'a | `Array of 'a t array ]
 
+  let rec yojson_of_t to_yojson : 'a t -> Yojson.Safe.t = function
+    | `Array xs -> `List (Array.map (yojson_of_t to_yojson) xs |> Array.to_list)
+    | `Atomic o -> to_yojson o
+
+  let rec t_of_yojson of_yojson : Yojson.Safe.t -> 'a t = function
+    | `List xs -> `Array (List.map (t_of_yojson of_yojson) xs |> Array.of_list)
+    | o -> `Atomic (of_yojson o)
+
+  let __t_of_yojson__ = t_of_yojson
   let of_array x = `Array (Array.map (fun x -> `Atomic x) x)
 
   let to_array = function
@@ -224,3 +258,35 @@ module Shape = struct
     | `Array x, `Array y, `Array z -> Array.for_all3 (forall3 p) x y z
     | _, _, _ -> invalid_arg "Shape.forall3"
 end
+
+type 'a shape = 'a Shape.t [@@deriving yojson]
+
+(** {2 Basic cryptographic datastructures} *)
+
+type 'a ciphertext = { alpha : 'a; beta : 'a } [@@deriving yojson]
+(** An ElGamal ciphertext. *)
+
+type 'a proof = { challenge : 'a; response : 'a } [@@deriving yojson]
+(** A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP). *)
+
+type 'a disjunctive_proof = 'a proof array [@@deriving yojson]
+(** A disjunctive ZKP. The size of the array is the number of disjuncts. *)
+
+(** {2 Misc} *)
+
+type voter = {
+  address : string option; [@yojson.option]
+  login : string option; [@yojson.option]
+  weight : weight option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type voter_list = voter list [@@deriving yojson]
+type recipient = { name : string; address : string } [@@deriving yojson]
+
+type 'a public_credential = {
+  credential : 'a;
+  weight : weight option; [@yojson.option]
+  username : string option; [@yojson.option]
+}
+[@@deriving yojson]

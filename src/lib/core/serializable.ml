@@ -23,40 +23,7 @@
 (** {1 Serializable datatypes} *)
 
 open Ppx_yojson_conv_lib.Yojson_conv
-
-(** {2 Predefined types} *)
-
-type number = Serializable_core.number [@@deriving yojson]
-type weight = Serializable_core.weight [@@deriving yojson]
-type uuid = Common_types.Uuid.t
-
-let uuid_of_yojson = function
-  | `String x -> Common_types.Uuid.wrap x
-  | x -> of_yojson_error "string expected" x
-
-let yojson_of_uuid x = `String (Common_types.Uuid.unwrap x)
-
-type hash = Common_types.Hash.t
-
-let hash_of_yojson = function
-  | `String x -> Common_types.Hash.wrap x
-  | x -> of_yojson_error "string expected" x
-
-let yojson_of_hash x = `String (Common_types.Hash.unwrap x)
-
-type 'a shape = 'a Common_types.Shape.t
-
-let rec shape_of_yojson of_yojson : Yojson.Safe.t -> 'a shape = function
-  | `List xs -> `Array (List.map (shape_of_yojson of_yojson) xs |> Array.of_list)
-  | o -> `Atomic (of_yojson o)
-
-let rec yojson_of_shape to_yojson : 'a shape -> Yojson.Safe.t = function
-  | `Array xs ->
-      `List (Array.map (yojson_of_shape to_yojson) xs |> Array.to_list)
-  | `Atomic o -> to_yojson o
-
-type 'a ciphertext = 'a Serializable_core.ciphertext [@@deriving yojson]
-type 'a proof = 'a Serializable_core.proof [@@deriving yojson]
+open Common_types
 
 (** {2 PKI support} *)
 
@@ -135,8 +102,8 @@ let private_credentials_of_yojson : Yojson.Safe.t -> private_credentials =
         o
   | x -> of_yojson_error "object expected" x
 
-let yojson_of_private_credentials x : Yojson.Safe.t =
-  `Assoc (List.map (fun (k, v) -> (k, `String v)) x)
+let yojson_of_private_credentials : private_credentials -> Yojson.Safe.t =
+ fun x -> `Assoc (List.map (fun (k, v) -> (k, `String v)) x)
 
 type ('a, 'b) raw_credentials_certificate = {
   uuid : uuid;
@@ -153,7 +120,7 @@ type ('a, 'b) credentials_certificate =
 
 type sub_batch_item = { base : string; public : string } [@@deriving yojson]
 type sub_batch = sub_batch_item list [@@deriving yojson]
-type lang_dir = [ `Ltr [@name "ltr"] | `Rtl [@name "rtl"] ] [@@deriving yojson]
+type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
 
 type 'question template = {
   description : string;
@@ -382,11 +349,6 @@ type stv_result = {
 (** {2 Event-related types} *)
 
 type location = { offset : int64; length : int64 } [@@deriving yojson]
-type json = Yojson.Safe.t
-
-let json_of_yojson = Fun.id
-let yojson_of_json = Fun.id
-
 type archive_header = { version : int; timestamp : json } [@@deriving yojson]
 
 type event_type =

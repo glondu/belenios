@@ -371,7 +371,7 @@ let cast_ballot send_confirmation s election ~ballot ~user ~precast_data =
         if revote then
           let uuid = Storage.E.get_uuid s in
           Printf.ksprintf Ocsigen_messages.accesslog
-            "Someone revoted in election %s" (Uuid.unwrap uuid)
+            "Someone revoted in election %s" (Uuid.to_string uuid)
       in
       Lwt.return { confirmation with email }
   | Error e -> fail e
@@ -701,7 +701,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           | None -> forbidden)
       | _ -> method_not_allowed)
   | [ uuid; "election" ] -> (
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let* raw = Public_archive.get_election s in
       match raw with
@@ -729,7 +729,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               | `GET -> handle_get get
               | _ -> method_not_allowed)))
   | [ uuid; "trustees" ] -> (
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       match method_ with
       | `GET ->
@@ -769,7 +769,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
                   |> return_json 200)
       | _ -> method_not_allowed)
   | [ uuid; "automatic-dates" ] -> (
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let get () =
         let* x = Web_persist.get_election_automatic_dates s in
@@ -800,7 +800,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
           ok
       | _ -> method_not_allowed)
   | uuid :: "draft" :: endpoint ->
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let@ se, set = Storage.E.update s Draft in
       let set ?(billing = false) ((Draft (_, se) : draft_election) as x) =
@@ -817,7 +817,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       Api_drafts.dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         (se, set)
   | [ uuid ] when method_ = `DELETE ->
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let@ metadata cont =
         let* draft = Storage.E.get s Draft in
@@ -834,7 +834,7 @@ let dispatch ~token ~ifmatch endpoint method_ body =
       let* () = Storage.E.delete_election s in
       ok
   | uuid :: endpoint ->
-      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.wrap uuid) in
+      let@ uuid = Option.unwrap bad_request (Option.wrap Uuid.of_string uuid) in
       let@ s = Storage.E.with_transaction uuid in
       let* metadata = Web_persist.get_election_metadata s in
       dispatch_election ~token ~ifmatch endpoint method_ body s metadata

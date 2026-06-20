@@ -387,7 +387,8 @@ let trustee_generate_link kind =
     let uuid = get_current_uuid () in
     let* prefix = Cache.get_prefix () in
     let href =
-      Printf.sprintf "%strustee#generate/%s/%s" prefix (Uuid.unwrap uuid) token
+      Printf.sprintf "%strustee#generate/%s/%s" prefix (Uuid.to_string uuid)
+        token
     in
     let* subject, body = generate_mail [ lang ] href in
     Lwt.return
@@ -412,7 +413,7 @@ let trustee_decrypt_link ~token ~recipient =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#decrypt/%s/%s" prefix (Uuid.unwrap uuid) token
+    Printf.sprintf "%strustee#decrypt/%s/%s" prefix (Uuid.to_string uuid) token
   in
   let* subject, body = Mails.mail_trustee_tally [ lang ] href in
   Lwt.return
@@ -651,7 +652,7 @@ let trustee_shuffle_link ~token ~recipient =
   let uuid = get_current_uuid () in
   let* prefix = Cache.get_prefix () in
   let href =
-    Printf.sprintf "%strustee#shuffle/%s/%s" prefix (Uuid.unwrap uuid) token
+    Printf.sprintf "%strustee#shuffle/%s/%s" prefix (Uuid.to_string uuid) token
   in
   let* subject, body = Mails.mail_shuffle [ lang ] href in
   Lwt.return
@@ -789,7 +790,7 @@ let recompute_main_zone () =
   let open (val !Belenios_js.I18n.gettext) in
   let checkpriv () =
     let uuid = get_current_uuid () in
-    let href = "trustee#check/" ^ Uuid.unwrap uuid in
+    let href = "trustee#check/" ^ Uuid.to_string uuid in
     let label = s_ "Check private key ownership" in
     [
       h2 [ txt label ];

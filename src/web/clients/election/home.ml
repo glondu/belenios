@@ -86,7 +86,7 @@ let make_audit_div election cache =
       tr
         [
           td [ txt @@ s_ "Election identifier" ];
-          td [ code [ txt @@ Uuid.unwrap uuid ] ];
+          td [ code [ txt @@ Uuid.to_string uuid ] ];
         ];
       tr
         [
@@ -326,7 +326,7 @@ let majority_judgment_content uuid q (r : mj_result) =
   in
   let invalid =
     a_data ~mime_type:"application/json"
-      ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.unwrap uuid))
+      ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.to_string uuid))
       ~data:(!+yojson_of_mj_ballots r.invalid)
     @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.invalid)
   in
@@ -414,7 +414,8 @@ let stv_content uuid q (r : stv_result) =
   let invalid =
     ( r.invalid |> !+yojson_of_mj_ballots |> fun data ->
       a_data ~mime_type:"application/json"
-        ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.unwrap uuid))
+        ~filename:
+          (Printf.sprintf "invalid_ballots-%s.json" (Uuid.to_string uuid))
         ~data
       @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.invalid) )
     |> fun x ->
@@ -431,7 +432,7 @@ let stv_content uuid q (r : stv_result) =
   let events =
     r.events |> !+yojson_of_stv_events |> fun data ->
     a_data ~mime_type:"application/json"
-      ~filename:(Printf.sprintf "raw_stv_events-%s.json" (Uuid.unwrap uuid))
+      ~filename:(Printf.sprintf "raw_stv_events-%s.json" (Uuid.to_string uuid))
       ~data
     @@ s_ "Raw events"
   in
@@ -517,20 +518,19 @@ let format_question_result uuid r (question : Belenios_question.t) =
             let nchoices = Array.length q.answers in
             let blank_allowed = o.blank in
             let mj =
-              Methods.Majority_judgment.compute ~nchoices ~ngrades
-                ~blank_allowed ballots
+              Method_mj.compute ~nchoices ~ngrades ~blank_allowed ballots
             in
             let contents = majority_judgment_content uuid q mj in
             (div ~a:[ a_class [ "majority_judgment_result" ] ] contents, false)
         | `Schulze o ->
             let nchoices = Array.length q.answers in
             let blank_allowed = o.blank in
-            let r = Methods.Schulze.compute ~nchoices ~blank_allowed ballots in
+            let r = Method_schulze.compute ~nchoices ~blank_allowed ballots in
             let contents = schulze_content q r in
             (div ~a:[ a_class [ "schulze_result" ] ] contents, false)
         | `STV o ->
             let nseats = o.seats in
-            let r = Methods.Stv.compute ~nseats ballots in
+            let r = Method_stv.compute ~nseats ballots in
             let contents = stv_content uuid q r in
             (div ~a:[ a_class [ "stv_result" ] ] contents, false)
       in
@@ -552,7 +552,7 @@ let format_question_result uuid r (question : Belenios_question.t) =
               txt (s_ "The raw results can be viewed in the ");
               a_data ~mime_type:"application/json"
                 ~filename:
-                  (Printf.sprintf "raw_result-%s.json" (Uuid.unwrap uuid))
+                  (Printf.sprintf "raw_result-%s.json" (Uuid.to_string uuid))
                 ~data:r
               @@ s_ "JSON result";
               txt ". ";
@@ -614,7 +614,7 @@ let make_result_div election t ~result =
   in
   let raw_result =
     a_data ~mime_type:"application/json"
-      ~filename:(Printf.sprintf "raw_result-%s.json" (Uuid.unwrap uuid))
+      ~filename:(Printf.sprintf "raw_result-%s.json" (Uuid.to_string uuid))
       ~data:result
     @@ s_ "raw result"
   in
@@ -665,7 +665,7 @@ let home configuration ?credential uuid =
         Lwt.async update_state;
         false
       in
-      let href = Printf.sprintf "#%s" (Uuid.unwrap uuid) in
+      let href = Printf.sprintf "#%s" (Uuid.to_string uuid) in
       a ~href ~a:[ a_onclick handler ] @@ s_ "Refresh status"
     in
     let state' =
@@ -740,7 +740,7 @@ let home configuration ?credential uuid =
             match credential with None -> [] | Some c -> [ ("credential", c) ]
           in
           let params =
-            ("uuid", Uuid.unwrap uuid) :: params |> Url.encode_arguments
+            ("uuid", Uuid.to_string uuid) :: params |> Url.encode_arguments
           in
           let href = Printf.sprintf "%s#%s" uri params in
           Dom_html.window##.location##.href := Js.string href;
@@ -768,7 +768,7 @@ let home configuration ?credential uuid =
   in
   let* () = update_state () in
   let ballots_link =
-    let href = Printf.sprintf "#%s/ballots" (Uuid.unwrap uuid) in
+    let href = Printf.sprintf "#%s/ballots" (Uuid.to_string uuid) in
     p
       ~a:[ a_class [ "container--center"; "noprint" ] ]
       [

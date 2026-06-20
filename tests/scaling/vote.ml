@@ -80,7 +80,7 @@ module Make (P : PARAMS) () = struct
     let* response, x =
       Cohttp_lwt_unix.Client.post ~headers ~body
         (Printf.ksprintf Uri.of_string "%s/elections/%s/ballots" api_root
-           (Uuid.unwrap W.uuid))
+           (Uuid.to_string W.uuid))
     in
     let* () = Cohttp_lwt.Body.drain_body x in
     let delta = Unix.gettimeofday () -. start in
@@ -153,7 +153,7 @@ module MakeMaster (P : PARAMS_MASTER) = struct
     let* response, x =
       Cohttp_lwt_unix.Client.get
         (Printf.ksprintf Uri.of_string "%s/elections/%s/election" api_root
-           (Uuid.unwrap uuid))
+           (Uuid.to_string uuid))
     in
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status response.status with
@@ -295,7 +295,7 @@ let main slave url uuid credentials requests concurrency =
   else
     let module X = MakeMaster (struct
       let prefix = get_mandatory "url" url
-      let uuid = get_mandatory "uuid" uuid |> Uuid.wrap
+      let uuid = get_mandatory "uuid" uuid |> Uuid.of_string
       let credentials = get_mandatory "credentials" credentials
       let requests = requests
       let concurrency = concurrency

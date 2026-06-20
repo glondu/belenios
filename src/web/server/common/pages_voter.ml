@@ -48,7 +48,7 @@ struct
           let (Booth service) = fst Web_services.booths.(i) in
           let hash =
             Netencoding.Url.mk_url_encoded_parameters
-              [ ("uuid", Uuid.unwrap uuid) ]
+              [ ("uuid", Uuid.to_string uuid) ]
           in
           div
             [

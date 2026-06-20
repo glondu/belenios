@@ -96,7 +96,7 @@ struct
       | None -> raw_a ~service:home [ txt (s_ "Administer elections") ] ()
       | Some uuid ->
           let uri = Xml.uri_of_string @@ make_admin_link (Some uuid) in
-          let id = Printf.sprintf "election_admin_%s" (Uuid.unwrap uuid) in
+          let id = Printf.sprintf "election_admin_%s" (Uuid.to_string uuid) in
           Eliom_content.Html.F.Raw.a
             ~a:[ a_id id; a_href uri ]
             [ txt (s_ "Administer this election") ]

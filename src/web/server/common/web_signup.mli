@@ -19,7 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_core.Serializable_core
+open Belenios_core
 
 val send_confirmation_code :
   (module Belenios_ui.I18n.GETTEXT) ->

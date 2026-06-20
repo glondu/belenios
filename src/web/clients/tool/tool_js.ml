@@ -170,7 +170,7 @@ end
 module Credgen = struct
   let derive () =
     let version = get_textarea "version" |> int_of_string in
-    let uuid = get_textarea "election_uuid" |> Uuid.wrap in
+    let uuid = get_textarea "election_uuid" |> Uuid.of_string in
     let group = get_textarea "election_group" in
     let module G = (val Belenios.Group.of_string ~version group : GROUP) in
     let module Cred =
@@ -194,7 +194,7 @@ module Credgen = struct
 
   let generate ids =
     let version = get_textarea "version" |> int_of_string in
-    let uuid = get_textarea "election_uuid" |> Uuid.wrap in
+    let uuid = get_textarea "election_uuid" |> Uuid.of_string in
     let group = get_textarea "election_group" in
     let module G = (val Belenios.Group.of_string ~version group : GROUP) in
     let module Cred =
@@ -242,7 +242,7 @@ module Schulze = struct
     in
     let nchoices = get_input "schulze_nchoices" |> int_of_string in
     let blank_allowed = get_checked "schulze_blank" in
-    let output = Methods.Schulze.compute ~nchoices ~blank_allowed ballots in
+    let output = Method_schulze.compute ~nchoices ~blank_allowed ballots in
     set_textarea "schulze_output" (!+yojson_of_schulze_result output);
     Lwt.return_unit
 

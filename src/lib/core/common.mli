@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Common_types
 open Signatures_core
 
 val dst_prefix : string
@@ -94,10 +95,7 @@ end
 val split_on_br : string -> string list
 val split_lines : string -> string list
 val join_lines : string list -> string
-
-val parse_public_credential :
-  (string -> 'a) -> string -> 'a Serializable_core.public_credential
-
+val parse_public_credential : (string -> 'a) -> string -> 'a public_credential
 val strip_public_credential : string -> string
 val re_exec_opt : rex:Re.re -> string -> Re.Group.t option
 val is_username : string -> bool
@@ -109,7 +107,7 @@ val uniq_first : ?compare:('a -> 'a -> int) -> 'a list -> 'a list
 exception Invalid_identity of string
 
 module Voter : sig
-  type t = [ `Plain | `Json ] * Serializable_core.voter [@@deriving yojson]
+  type t = [ `Plain | `Json ] * voter [@@deriving yojson]
 
   val to_string : t -> string
   val of_string : string -> t
@@ -117,7 +115,7 @@ module Voter : sig
   val list_of_string : string -> t list
   val get : t -> string
   val get_weight : t -> Weight.t
-  val get_recipient : t -> Serializable_core.recipient
+  val get_recipient : t -> recipient
   val validate : t -> bool
   val generate : int -> t list
   val has_explicit_weights : t list -> bool

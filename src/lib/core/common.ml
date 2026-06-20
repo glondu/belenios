@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Common_types
 open Signatures_core
 
 let dst_prefix = "BELENIOS-V2"
@@ -307,7 +308,6 @@ let join_lines xs =
   Buffer.contents b
 
 let parse_public_credential of_string x =
-  let open Serializable_core in
   match String.split_on_char ',' x with
   | [ c ] -> { credential = of_string c; weight = None; username = None }
   | [ c; w ] ->
@@ -327,7 +327,6 @@ let parse_public_credential of_string x =
   | _ -> Printf.ksprintf invalid_arg "invalid line in public credentials: %s" x
 
 let format_public_credential to_string x =
-  let open Serializable_core in
   match x.weight with
   | None -> to_string x.credential
   | Some w ->
@@ -414,22 +413,22 @@ let uniq_first (type a) ?(compare = Stdlib.compare) xs =
   loop S.empty [] xs
 
 module Voter = struct
-  type t = [ `Plain | `Json ] * Serializable_core.voter
+  type t = [ `Plain | `Json ] * voter
 
   let t_of_yojson = function
     | `String x ->
         let address, login, weight = split_identity_opt x in
         ((`Plain, { address; login; weight }) : t)
-    | x -> (`Json, Serializable_core.voter_of_yojson x)
+    | x -> (`Json, voter_of_yojson x)
 
   let of_string x =
-    match !*Serializable_core.voter_of_yojson x with
+    match !*voter_of_yojson x with
     | exception _ -> t_of_yojson (`String (String.trim x))
     | o -> (`Json, o)
 
   let to_string ((typ, o) : t) =
     match typ with
-    | `Json -> !+Serializable_core.yojson_of_voter o
+    | `Json -> !+yojson_of_voter o
     | `Plain -> (
         match o with
         | { address; login = None; weight = None } -> string_of_option address
@@ -442,12 +441,12 @@ module Voter = struct
 
   let yojson_of_t ((typ, o) as x : t) =
     match typ with
-    | `Json -> Serializable_core.yojson_of_voter o
+    | `Json -> yojson_of_voter o
     | `Plain -> `String (to_string x)
 
   let list_to_string voters =
     if List.exists (fun (x, _) -> x = `Json) voters then
-      !+Serializable_core.yojson_of_voter_list (List.map snd voters)
+      !+yojson_of_voter_list (List.map snd voters)
     else
       let b = Buffer.create 1024 in
       List.iter
@@ -458,7 +457,7 @@ module Voter = struct
       Buffer.contents b
 
   let list_of_string x =
-    match !*Serializable_core.voter_list_of_yojson x with
+    match !*voter_list_of_yojson x with
     | voters -> List.map (fun x -> (`Json, x)) voters
     | exception _ -> rev_split_lines x |> List.rev_map of_string
 
@@ -471,8 +470,7 @@ module Voter = struct
   let get_weight ((_, { weight; _ }) : t) =
     Option.value ~default:Weight.one weight
 
-  let get_recipient ((_, { address; login; _ }) : t) :
-      Serializable_core.recipient =
+  let get_recipient ((_, { address; login; _ }) : t) : recipient =
     match (login, address) with
     | None, None -> invalid_arg "Voter.get_recipient"
     | Some name, None -> { name; address = name }

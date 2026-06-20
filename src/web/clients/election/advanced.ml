@@ -35,7 +35,7 @@ let global_result = ref None
 let post_ballot uuid ~get_ballot _ =
   global_ballot := Some (get_ballot ());
   Dom_html.window##.location##.href
-  := Js.string @@ Printf.sprintf "#%s/advanced/submit" (Uuid.unwrap uuid);
+  := Js.string @@ Printf.sprintf "#%s/advanced/submit" (Uuid.to_string uuid);
   false
 
 let advanced uuid =
@@ -114,7 +114,7 @@ let advanced uuid =
       ]
   in
   let booths =
-    let fragment = Url.encode_arguments [ ("uuid", Uuid.unwrap uuid) ] in
+    let fragment = Url.encode_arguments [ ("uuid", Uuid.to_string uuid) ] in
     let make uri =
       let href = Printf.sprintf "%s#%s" uri fragment in
       a ~href (s_ "direct link")
@@ -146,7 +146,7 @@ let advanced uuid =
         div
           [
             a
-              ~href:(Printf.sprintf "#%s" (Uuid.unwrap uuid))
+              ~href:(Printf.sprintf "#%s" (Uuid.to_string uuid))
               (s_ "Back to election home");
           ];
       ]
@@ -189,7 +189,7 @@ let submit configuration uuid =
         match !global_ballot with
         | None ->
             Dom_html.window##.location##replace
-              (Js.string @@ Printf.sprintf "#%s/advanced" (Uuid.unwrap uuid));
+              (Js.string @@ Printf.sprintf "#%s/advanced" (Uuid.to_string uuid));
             []
         | Some ballot ->
             let handler _ =

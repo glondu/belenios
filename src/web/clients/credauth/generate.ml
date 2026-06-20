@@ -82,7 +82,7 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
     a_data
       ~a:[ a_id "creds"; a_onclick handler ]
       ~mime_type:"text/plain"
-      ~filename:(Printf.sprintf "creds-%s.txt" (Uuid.unwrap uuid))
+      ~filename:(Printf.sprintf "creds-%s.txt" (Uuid.to_string uuid))
       ~data:private_credentials
     @@ s_ "private credentials"
   in
@@ -124,7 +124,7 @@ let make_submit_credentials_div ~uuid ~token ~voters (c : Credential.batch) =
                     ~a:[ a_id "voters_txt" ]
                     ~mime_type:"text/plain"
                     ~filename:
-                      (Printf.sprintf "voters-%s.txt" (Uuid.unwrap uuid))
+                      (Printf.sprintf "voters-%s.txt" (Uuid.to_string uuid))
                     ~data:voters
                   @@ s_ "voter list";
                   txt ".";
@@ -171,7 +171,8 @@ let generate configuration uuid ~token =
   let header = h3 [ txt @@ s_ "Credential generation" ] in
   let link_div =
     let url =
-      Printf.sprintf "%selection#%s" configuration.uris.home (Uuid.unwrap uuid)
+      Printf.sprintf "%selection#%s" configuration.uris.home
+        (Uuid.to_string uuid)
     in
     div
       [
