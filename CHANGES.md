@@ -1,9 +1,19 @@
-3.2.1 (dev)
+3.3.0 (dev)
 ===========
 
+ * Cryptographic fixes: (thanks to Navid Abapour)
+   + Add missing group membership checks
+   + In threshold mode, support invalid partial decryptions (as long
+     as the threshold is met for valid ones)
+   + Use PBKDF2 for password hashing
  * Drop support for AES-CCM and do no longer use SJCL
+ * Add a language property to election parameters
  * Web server:
-   + Modernize admin and booth UI styling (GitHub PR #101)
+   + Modernize admin and booth UI styling (thanks to Thomas Pujol)
+     (GitHub PR #101)
+   + Add a configurable extra.css to all pages
+   + Properly set lang and dir attributes in generated HTML
+   + Remove password authentication for voters
    + Administrator interface
      - Fix a bug in contact tab
    + Trustee interface
@@ -11,6 +21,7 @@
    + Configuration
      - Add `allowed` attribute to `<credentials-server>`
      - Add `<credentials-client>` configuration
+     - Add possibility to specify a portal for auth methods
 
 3.2.0 (2026-04-28)
 ==================
