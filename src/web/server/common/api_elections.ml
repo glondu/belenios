@@ -153,7 +153,7 @@ let get_partial_decryptions s (metadata : metadata) =
             match metadata.trustees with
             | None -> failwith "missing trustees in get_tokens_decrypt"
             | Some ts ->
-                let ts = List.map (fun _ -> generate_token ()) ts in
+                let ts = List.map (fun _ -> generate_token 22) ts in
                 let* () = set Value (Some (`Decryption ts)) in
                 Lwt.return ts))
   in
@@ -259,7 +259,7 @@ let select_shuffler s metadata tk_trustee =
     | Some (Some (`Shuffle { skipped; _ })) -> Lwt.return (skipped, set Value)
     | _ -> Lwt.return ([], set Value)
   in
-  let tk_token = generate_token () in
+  let tk_token = generate_token 22 in
   let t : Belenios_storage_api.shuffle_token =
     {
       trustee = tk_trustee;

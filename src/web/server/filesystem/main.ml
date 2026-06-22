@@ -458,7 +458,7 @@ module MakeBackend
     let length = Config.uuid_length in
     let rec loop trials =
       if trials > 0 then
-        let uuid = generate_token ~length () in
+        let uuid = generate_token length in
         Lwt.try_bind
           (fun () -> Lwt_unix.mkdir !!uuid 0o700)
           (fun () -> Lwt.return_some @@ Uuid.of_string uuid)

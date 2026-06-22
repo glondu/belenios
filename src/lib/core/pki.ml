@@ -34,9 +34,7 @@ module Make (G : GROUP) = struct
   type public_key = G.t
 
   let random () = G.Zq.random (Crypto_primitives.get_rng ())
-
-  let genkey () =
-    generate_b58_token ~rng:(Crypto_primitives.get_rng ()) ~length:22
+  let genkey () = generate_token 22
 
   (** Deriving signing keys *)
 

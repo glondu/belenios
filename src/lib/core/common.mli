@@ -76,9 +76,8 @@ module IMap : Map.S with type key = int
 
 val random_modulo : Z.t -> Crypto_primitives.rng -> Z.t
 val check_modulo : Z.t -> Z.t -> bool
-val generate_token : ?length:int -> unit -> string
-val generate_numeric : ?length:int -> unit -> string
-val generate_b58_token : rng:Crypto_primitives.rng -> length:int -> string
+val generate_token : int -> string
+val generate_numeric : int -> string
 val sqrt : Z.t -> Z.t
 
 module BabyStepGiantStep (G : GROUP) : sig

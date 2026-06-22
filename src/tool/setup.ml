@@ -606,7 +606,7 @@ end
 module GenerateToken : CMDLINER_MODULE = struct
   let main length =
     let@ () = wrap_main in
-    generate_token ~length () |> Lwt_io.printl
+    generate_token length |> Lwt_io.printl
 
   let length_t =
     let doc = "Token length." in

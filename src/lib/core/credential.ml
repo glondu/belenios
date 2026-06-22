@@ -19,7 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Belenios_platform
 open Signatures_core
 open Common_types
 open Serializable
@@ -89,11 +88,9 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     (* TODO: get rid of uuid in the following line (when the formal proof is done) *)
     (G.Zq.hash ~dst 1 (Printf.sprintf "%s|%s" (Uuid.to_string E.uuid) seed)).(0)
 
-  let generate_one rng =
+  let generate_one () =
     (* we generate only full style credentials *)
-    let private_credential =
-      generate_b58_token ~rng ~length:salt_length |> format_full
-    in
+    let private_credential = generate_token salt_length |> format_full in
     let private_key = derive_full private_credential in
     { private_credential; private_key }
 
@@ -110,14 +107,13 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
         monadic_fold_left f (f accu x) xs
 
   let generate voters =
-    let rng = Crypto_primitives.get_rng () in
     let implicit_weights = not (Voter.has_explicit_weights voters) in
     let* privs, pubs =
       monadic_fold_left
         (fun (privs, pubs) v ->
           let username = Voter.get v in
           let weight = Voter.get_weight v in
-          let { private_credential; private_key } = generate_one rng in
+          let { private_credential; private_key } = generate_one () in
           ( SMap.add username private_credential privs,
             GMap.add G.(g **~ private_key) (weight, username) pubs ))
         (SMap.empty, GMap.empty) voters
@@ -142,12 +138,11 @@ module Make (G : GROUP) (E : ELECTION with type public_key := G.t) = struct
     |> E.return
 
   let generate_sub n =
-    let rng = Crypto_primitives.get_rng () in
     let n = ref n in
     let rec loop accu =
       if !n > 0 then (
         let* () = E.pause () in
-        let { private_credential; private_key } = generate_one rng in
+        let { private_credential; private_key } = generate_one () in
         let public = G.(g **~ private_key |> to_string) in
         let x = { base = private_credential; public } in
         decr n;

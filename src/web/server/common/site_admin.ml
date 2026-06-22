@@ -541,7 +541,7 @@ struct
                 in
                 let now = Unix.gettimeofday () in
                 let timeout = now +. 60. in
-                let code = Belenios_server_core.generate_token ~length:22 () in
+                let code = generate_token 22 in
                 add_code ~now code { timeout; user_info };
                 let service =
                   let service =

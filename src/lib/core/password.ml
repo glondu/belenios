@@ -41,7 +41,7 @@ let check ~salt ~hash ~password =
 
 let hash ~password =
   let password = String.trim password in
-  let salt = generate_token ~length:std_salt_length () in
+  let salt = generate_token std_salt_length in
   let (`Hex hash) =
     pbkdf2 ~iterations:std_iterations ~salt password 32 |> Hex.of_string
   in

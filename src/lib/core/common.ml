@@ -202,16 +202,8 @@ let generate ~length ~digits =
   in
   fun () -> random_modulo modulus (Crypto_primitives.get_rng ()) |> to_string
 
-let generate_token ?(length = 14) = generate ~length ~digits:b58_digits
-let generate_numeric ?(length = 6) = generate ~length ~digits:b10_digits
-
-let rec generate_b58_digit rng =
-  let x = Crypto_primitives.random_string rng 1 in
-  let x = Char.code x.[0] land 63 in
-  if x < 58 then b58_digits.[x] else generate_b58_digit rng
-
-let generate_b58_token ~rng ~length =
-  String.init length (fun _ -> generate_b58_digit rng)
+let generate_token length = generate ~length ~digits:b58_digits ()
+let generate_numeric length = generate ~length ~digits:b10_digits ()
 
 let sqrt s =
   (* https://en.wikipedia.org/wiki/Integer_square_root *)

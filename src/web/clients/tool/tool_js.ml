@@ -230,7 +230,7 @@ module Credgen = struct
 end
 
 let new_uuid () =
-  let uuid = generate_token () in
+  let uuid = generate_token Uuid.min_length in
   set_textarea "election_uuid" uuid;
   Lwt.return_unit
 

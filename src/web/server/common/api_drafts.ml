@@ -204,7 +204,7 @@ let post_drafts account draft =
    fun cont -> if !Web_config.deny_newelection then Lwt.return_none else cont ()
   in
   let owners = [ account.id ] in
-  let token = generate_token () in
+  let token = generate_token 22 in
   let se_metadata =
     {
       owners;
@@ -537,7 +537,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
         if List.exists (fun (x : _ draft_trustee) -> x.id = address) ts then
           raise (Error (`GenericError "address already used"))
       in
-      let st_token = generate_token () in
+      let st_token = generate_token 22 in
       let t =
         {
           id = address;
@@ -556,7 +556,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
           List.exists (fun (x : _ draft_threshold_trustee) -> x.id = address) ts
         then raise (Error (`GenericError "address already used"))
       in
-      let stt_token = generate_token () in
+      let stt_token = generate_token 22 in
       let t =
         {
           id = address;
@@ -796,7 +796,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                       (vo_public_key : _ threshold_verification_key) :: pubs,
                       vo_private_key :: privs ) ->
                       let stt_name = vo_public_key.message.message.name in
-                      let stt_token = generate_token () in
+                      let stt_token = generate_token 22 in
                       let vo_private_key =
                         vo_private_key
                         |> !+(yojson_of_sent_partial_decryption_key Fun.id
@@ -895,7 +895,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                           Some (`String (G.Zq.to_string private_key)),
                           public_key )
                     else
-                      let st_token = generate_token () in
+                      let st_token = generate_token 22 in
                       let public_key =
                         !+(yojson_of_trustee_public_key !&G.to_string
                              !&G.Zq.to_string)

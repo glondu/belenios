@@ -22,7 +22,6 @@
 open Lwt.Syntax
 open Belenios
 open Belenios_web_api
-open Belenios_server_core
 open Api_generic
 module F = Ocsipersist.Functorial
 
@@ -38,7 +37,7 @@ let create ~admin_id ~uuid ~nb_voters =
   let date = Unix.gettimeofday () in
   let r = { admin_id; date; uuid; nb_voters } |> !+yojson_of_billing_request in
   let rec find_id () =
-    let id = generate_token ~length:22 () in
+    let id = generate_token 22 in
     Lwt.catch
       (fun () ->
         let* _ = Request_table.find id in

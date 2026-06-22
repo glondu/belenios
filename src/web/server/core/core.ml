@@ -32,5 +32,3 @@ let ( let*& ) x f =
   match x with None -> Lwt.return_none | Some x -> f x
 
 let sleep = Lwt_unix.sleep
-let generate_numeric = generate_numeric
-let generate_token = generate_token

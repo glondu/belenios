@@ -71,7 +71,7 @@ module Make (I : SENDER) () = struct
   let generate ?lang ~context ~(recipient : recipient) ?state ~payload () =
     let now = Unix.gettimeofday () in
     let codes_ = filter_codes_by_time now !codes in
-    let code = generate_numeric () in
+    let code = generate_numeric 6 in
     let expiration_time = now +. 900. in
     let () =
       let x = { recipient = recipient.address; code; expiration_time } in

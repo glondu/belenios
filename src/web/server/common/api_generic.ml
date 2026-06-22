@@ -33,7 +33,7 @@ type token = { expiration : float; account : account; user : user }
 let tokens = ref SMap.empty
 
 let new_token account user : auth_token Lwt.t =
-  let token = generate_token ~length:22 () in
+  let token = generate_token 22 in
   let expiration = Unix.gettimeofday () +. 86400. in
   tokens := SMap.add token { expiration; account; user } !tokens;
   Lwt.return { token; expiration }
