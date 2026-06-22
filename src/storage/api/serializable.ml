@@ -102,7 +102,7 @@ type ('a, 'b) draft_threshold_trustee = {
   mutable cert : ('a, 'b) cert option; [@yojson.option]
   mutable polynomial : ('a, 'b) polynomial option; [@yojson.option]
   mutable vinput : ('a, 'b) vinput option; [@yojson.option]
-  mutable voutput : string option; [@yojson.option]
+  mutable voutput : ('a, 'b) voutput option; [@yojson.option]
   name : string;
 }
 [@@deriving yojson]

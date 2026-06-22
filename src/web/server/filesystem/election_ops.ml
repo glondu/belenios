@@ -268,11 +268,7 @@ let validate_election_exn s uuid =
               List.map
                 (fun { voutput; _ } ->
                   match voutput with
-                  | Some v ->
-                      let voutput =
-                        !*(voutput_of_yojson !$G.of_string !$G.Zq.of_string) v
-                      in
-                      voutput.private_key
+                  | Some v -> v.private_key
                   | None -> failwith "inconsistent state")
                 ts
             in

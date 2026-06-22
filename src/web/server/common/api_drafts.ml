@@ -810,16 +810,11 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                           private_key = vo_private_key;
                         }
                       in
-                      let stt_voutput =
-                        Some
-                          (!+(yojson_of_voutput !&G.to_string !&G.Zq.to_string)
-                             stt_voutput)
-                      in
                       let stt =
                         {
                           id = stt_id;
                           token = stt_token;
-                          voutput = stt_voutput;
+                          voutput = Some stt_voutput;
                           step = Some 7;
                           cert = Some cert;
                           polynomial = None;
@@ -1118,8 +1113,7 @@ let post_trustee_threshold
           !*(voutput_of_yojson !$G.of_string !$G.Zq.of_string) data
         in
         if K.step5_check { context; certs } i polynomials voutput then (
-          t.voutput <-
-            Some (!+(yojson_of_voutput !&G.to_string !&G.Zq.to_string) voutput);
+          t.voutput <- Some voutput;
           t.step <- Some 6)
         else failwith "Invalid voutput"
     | _ -> failwith "Invalid step"
@@ -1156,7 +1150,7 @@ let post_trustee_threshold
             (fun x ->
               match x.voutput with
               | None -> failwith "Missing voutput"
-              | Some y -> !*(voutput_of_yojson !$G.of_string !$G.Zq.of_string) y)
+              | Some y -> y)
             ts
         in
         let p = K.step6 { context; certs } polynomials voutputs in
@@ -1322,10 +1316,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
                           step = Option.value ~default:0 t.step;
                           certs = pedersen_certs;
                           vinput = t.vinput;
-                          voutput =
-                            Option.map
-                              !*(voutput_of_yojson Fun.id Fun.id)
-                              t.voutput;
+                          voutput = t.voutput;
                         }
                     with Exit -> `WaitingForOtherCertificates)))
       in
