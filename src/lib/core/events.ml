@@ -19,7 +19,47 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+open Ppx_yojson_conv_lib.Yojson_conv
+open Common_types
+
+type event_type =
+  [ `Setup
+  | `Ballot
+  | `EndBallots
+  | `EncryptedTally
+  | `Shuffle
+  | `EndShuffles
+  | `PartialDecryption
+  | `Result ]
+[@@deriving yojson]
+
+type setup_data = {
+  election : hash;
+  trustees : hash;
+  credentials : hash;
+  credentials_certificate : hash option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type event = {
+  parent : hash option; [@yojson.option]
+  height : int;
+  typ : event_type; [@key "type"]
+  payload : hash option; [@yojson.option]
+}
+[@@deriving yojson]
+
+type last_event = { height : int; hash : hash; pos : int64 } [@@deriving yojson]
+
+type roots = {
+  setup_data : hash option; [@yojson.option]
+  last_ballot_event : hash option; [@yojson.option]
+  encrypted_tally : hash option; [@yojson.option]
+  last_shuffle_event : hash option; [@yojson.option]
+  last_pd_event : hash option; [@yojson.option]
+  result : hash option; [@yojson.option]
+}
+[@@deriving yojson]
 
 let empty_roots =
   {

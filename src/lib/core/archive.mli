@@ -20,14 +20,16 @@
 (**************************************************************************)
 
 open Common_types
-open Serializable
 open Signatures
+open Events
 
+type location = { offset : int64; length : int64 } [@@deriving yojson]
+type header = { version : int; timestamp : int64 } [@@deriving yojson]
 type data_or_event = Data | Event of event
 type record = { typ : data_or_event; hash : hash; location : location }
 
 val block_size : int
-val new_header : timestamp:int64 -> archive_header
+val new_header : timestamp:int64 -> header
 
 module type IO_READER = sig
   include MONAD
@@ -43,7 +45,7 @@ module type ARCHIVE_READER = sig
   type 'a m
   type archive
 
-  val read_header : archive -> archive_header m
+  val read_header : archive -> header m
   val read_record : archive -> record m
 end
 
@@ -63,7 +65,7 @@ module type ARCHIVE_WRITER = sig
   type 'a m
   type archive
 
-  val write_header : archive -> archive_header -> unit m
+  val write_header : archive -> header -> unit m
 
   val write_record :
     archive -> timestamp:int64 -> data_or_event -> string -> record m
@@ -82,7 +84,7 @@ module type ARCHIVER = sig
   type 'a m
   type archive
 
-  val write_archive : archive -> archive_header -> event -> unit m
+  val write_archive : archive -> header -> event -> unit m
 end
 
 module MakeArchiver

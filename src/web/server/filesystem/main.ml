@@ -103,7 +103,7 @@ module MakeBackend
   let dates_ops : (_, Belenios_storage_api.election_dates) abstract_file_ops =
     make_uninitialized_ops "dates_ops"
 
-  let archive_header_ops : (_, archive_header) abstract_file_ops =
+  let archive_header_ops : (_, Archive.header) abstract_file_ops =
     make_uninitialized_ops "archive_header_ops"
 
   let records_ops : (_, Belenios_storage_api.election_records) abstract_file_ops
@@ -1179,7 +1179,7 @@ module MakeBackend
 
   type index = {
     timeout : Lwt_timeout.t;
-    map : (hash, location) Hashtbl.t;
+    map : (hash, Archive.location) Hashtbl.t;
     mutable roots : roots;
     timestamp : int64;
   }
@@ -1338,7 +1338,7 @@ module MakeBackend
     in
     Lwt.finalize
       (fun () ->
-        let* _ = LargeFile.lseek fd i.offset SEEK_SET in
+        let* _ = LargeFile.lseek fd i.Archive.offset SEEK_SET in
         assert (i.length <= Int64.of_int Sys.max_string_length);
         let length = Int64.to_int i.length in
         let buffer = Bytes.create length in
@@ -1362,7 +1362,7 @@ module MakeBackend
     let filename = uuid /// archive_filename uuid in
     let@ ic = Lwt_io.with_file ~mode:Lwt_io.input filename in
     let* header = Reader.read_header ic in
-    Lwt.return @@ Lopt.some_value !+yojson_of_archive_header header
+    Lwt.return @@ Lopt.some_value !+Archive.yojson_of_header header
 
   let () = archive_header_ops.get <- get_archive_header
 

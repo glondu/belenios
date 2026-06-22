@@ -46,7 +46,7 @@ let get_last_event dir =
 let mkarchive dir =
   let* header =
     let* x = string_of_file (dir // "BELENIOS") in
-    Lwt.return @@ !*archive_header_of_yojson x
+    Lwt.return @@ !*Archive.header_of_yojson x
   in
   let* last_event, files = get_last_event dir in
   let last_event =

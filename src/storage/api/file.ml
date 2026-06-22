@@ -34,7 +34,7 @@ type _ u =
   | Private_keys :
       (Yojson.Safe.t, Yojson.Safe.t) sent_partial_decryption_key list u
   | Audit_cache : audit_cache u
-  | Archive_header : archive_header u
+  | Archive_header : Archive.header u
   | Last_event : last_event u
   | Draft : draft_election u
   | Public_creds : public_credentials u

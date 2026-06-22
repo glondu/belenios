@@ -25,13 +25,13 @@ open Belenios
 let block_size = Archive.block_size
 
 type index = {
-  map : (hash, location) Hashtbl.t;
+  map : (hash, Archive.location) Hashtbl.t;
   mutable roots : roots;
   mutable last_event : event option;
   file : string;
   mutable lines : (Archive.data_or_event * hash) list;
   timestamp : int64;
-  header : archive_header;
+  header : Archive.header;
 }
 
 module LwtMonad = struct
@@ -137,7 +137,7 @@ let gethash ~index ~filename x =
       let* ic = Lwt_unix.openfile filename [ O_RDONLY ] 0o600 in
       Lwt.finalize
         (fun () ->
-          let* _ = Lwt_unix.LargeFile.lseek ic i.offset SEEK_SET in
+          let* _ = Lwt_unix.LargeFile.lseek ic i.Archive.offset SEEK_SET in
           assert (i.length <= Int64.of_int Sys.max_string_length);
           let* contents = really_input_string ic (Int64.to_int i.length) in
           Lwt.return_some contents)

@@ -62,8 +62,8 @@ let get_election (type t) : t File.u -> t string_serializers = function
       }
   | Archive_header ->
       {
-        of_string = !*archive_header_of_yojson;
-        to_string = !+yojson_of_archive_header;
+        of_string = !*Archive.header_of_yojson;
+        to_string = !+Archive.yojson_of_header;
       }
   | Last_event ->
       { of_string = !*last_event_of_yojson; to_string = !+yojson_of_last_event }

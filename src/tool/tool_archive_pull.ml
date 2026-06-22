@@ -41,7 +41,7 @@ let get_exn f url x =
 let get_last_event url = get_exn !*last_event_of_yojson url "last-event"
 
 let get_archive_header url =
-  get_exn !*archive_header_of_yojson url "archive-header"
+  get_exn !*Archive.header_of_yojson url "archive-header"
 
 let get_hash_base base =
   match base with

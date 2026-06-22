@@ -21,6 +21,7 @@
 
 include Belenios_platform
 include Common_types
+include Events
 include Serializable
 include Common
 include Util

@@ -19,11 +19,15 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
 open Serializable
 open Signatures
 open Common
+open Events
 
+type location = { offset : int64; length : int64 } [@@deriving yojson]
+type header = { version : int; timestamp : int64 } [@@deriving yojson]
 type data_or_event = Data | Event of event
 type record = { typ : data_or_event; hash : hash; location : location }
 
@@ -45,7 +49,7 @@ module type ARCHIVE_READER = sig
   type 'a m
   type archive
 
-  val read_header : archive -> archive_header m
+  val read_header : archive -> header m
   val read_record : archive -> record m
 end
 
@@ -80,7 +84,7 @@ module MakeReader (M : IO_READER) = struct
     let* { name; size; _ } = raw_read_header f buffer in
     let* header = raw_read_body f buffer size in
     if name = "BELENIOS" then
-      let header = !*archive_header_of_yojson header in
+      let header = !*header_of_yojson header in
       if header.version = 1 then M.return header
       else M.fail (Failure "unsupported archive header")
     else M.fail (Failure "ill-formed archive header found")
@@ -132,7 +136,7 @@ module type ARCHIVE_WRITER = sig
   type 'a m
   type archive
 
-  val write_header : archive -> archive_header -> unit m
+  val write_header : archive -> header -> unit m
 
   val write_record :
     archive -> timestamp:int64 -> data_or_event -> string -> record m
@@ -164,7 +168,7 @@ module MakeWriter (M : IO_WRITER) = struct
     loop 0 (String.length body)
 
   let write_header f header =
-    let bel_header = !+yojson_of_archive_header header in
+    let bel_header = !+yojson_of_header header in
     let tar_header =
       let size = String.length bel_header |> Int64.of_int in
       let timestamp = header.timestamp in
@@ -202,7 +206,7 @@ module type ARCHIVER = sig
   type 'a m
   type archive
 
-  val write_archive : archive -> archive_header -> event -> unit m
+  val write_archive : archive -> header -> event -> unit m
 end
 
 module MakeArchiver
