@@ -154,11 +154,11 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
         (fun (x : _ threshold_verification_key) -> x.message.message.name)
         t.verification_keys
     in
-    let threshold = t.threshold in
-    let context = { group; names; threshold } in
-    Array.for_alli
-      (fun i c -> C.verify_cert { context; index = i + 1 } c)
-      t.certs
+    let context = t.context in
+    group = context.group && names = context.names
+    && Array.for_alli
+         (fun i c -> C.verify_cert { context; index = i + 1 } c)
+         t.certs
     &&
     let certs = Array.map (fun (x : _ cert) -> x.message) t.certs in
     Array.for_all2
@@ -186,7 +186,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
       t.verification_keys
     &&
     let computed_vks = V.compute_verification_keys coefexps in
-    t.threshold = Array.length coefexps.(0)
+    t.context.threshold = Array.length coefexps.(0)
     && Array.for_all3
          G.(
            fun cert (vk : _ threshold_verification_key) computed_vk ->
@@ -295,7 +295,7 @@ module MakePedersen (C : CHANNELS) = struct
 
   let step1_check = Cert.verify_cert
 
-  let step2 { context; certs; _ } =
+  let step2 ({ context; certs; _ } : certs) =
     Array.iteri
       (fun i cert ->
         if Cert.verify_cert { context; index = i + 1 } cert then ()
@@ -315,6 +315,7 @@ module MakePedersen (C : CHANNELS) = struct
 
   let step3 certs seed =
     let threshold = step2 certs in
+    let algorithm = certs.context.algorithm in
     let n = Array.length certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
     let certs' = Array.map (fun x -> x.message) certs.certs in
@@ -347,7 +348,7 @@ module MakePedersen (C : CHANNELS) = struct
     let* secrets =
       Array.init_lwt n (fun j ->
           let secret = eval_poly polynomial (Zq.of_int (j + 1)) in
-          C.send xch_secret sk certs'.(j).encryption { secret })
+          C.send ~algorithm xch_secret sk certs'.(j).encryption { secret })
     in
     Lwt.return { secrets; coefexps; signature }
 
@@ -395,6 +396,7 @@ module MakePedersen (C : CHANNELS) = struct
   let step5 certs seed vinput =
     let threshold = step2 certs in
     let context = certs.context in
+    let algorithm = context.algorithm in
     let n = Array.length certs.certs in
     let certs = Array.map (fun x -> x.message) certs.certs in
     let sk = P.derive_sk seed and dk = P.derive_dk seed in
@@ -415,7 +417,8 @@ module MakePedersen (C : CHANNELS) = struct
     let* secrets =
       Array.init_lwt n (fun i ->
           let* { secret } =
-            C.recv xch_secret dk certs.(i).verification vinput.secrets.(i)
+            C.recv ~algorithm xch_secret dk certs.(i).verification
+              vinput.secrets.(i)
           in
           Lwt.return secret)
     in
@@ -454,7 +457,7 @@ module MakePedersen (C : CHANNELS) = struct
     let public_key =
       K.prove ~name decryption_key |> sign_trustee_public_key ~sk
     in
-    let* private_key = C.send xch_decryption_key sk ek pdk in
+    let* private_key = C.send ~algorithm xch_decryption_key sk ek pdk in
     Lwt.return { public_key; private_key }
 
   let step5_check (certs : certs) i polynomials (voutput : _ voutput) =
@@ -483,6 +486,7 @@ module MakePedersen (C : CHANNELS) = struct
 
   let step6 certs polynomials (voutputs : _ voutput array) =
     let threshold = step2 certs in
+    let context = certs.context in
     let n = Array.length certs.certs in
     let certs = certs.certs in
     let signatures = Array.map (fun x -> x.signature) polynomials in
@@ -520,7 +524,7 @@ module MakePedersen (C : CHANNELS) = struct
              (Printf.sprintf "verification key %d is incorrect" (j + 1)))
     done;
     {
-      threshold;
+      context;
       certs;
       coefexps = Array.map (fun (x : polynomial) -> x.coefexps) polynomials;
       signatures;

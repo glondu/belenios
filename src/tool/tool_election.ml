@@ -115,10 +115,23 @@ let make file =
       Lwt.return (pd, !+(yojson_of_owned yojson_of_hash) opd)
 
     let tdecrypt owner key pdk =
+      let* algorithm =
+        let* trustees = trustees in
+        match trustees with
+        | Some trustees -> (
+            match
+              List.filter_map
+                (function `Pedersen x -> Some x | _ -> None)
+                trustees
+            with
+            | [ p ] -> Lwt.return p.context.algorithm
+            | _ -> failwith "bad trustees")
+        | None -> failwith "missing trustees"
+      in
       let sk = P.derive_sk key and dk = P.derive_dk key in
       let vk = G.(g **~ sk) in
       let* pdk =
-        C.recv Pedersen.xch_decryption_key dk vk
+        C.recv ~algorithm Pedersen.xch_decryption_key dk vk
         @@ !*(sent_partial_decryption_key_of_yojson !$G.of_string
                 !$G.Zq.of_string)
              pdk

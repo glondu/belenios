@@ -24,6 +24,7 @@ open Common_types
 open Signatures_core
 
 let dst_prefix = "BELENIOS-V2"
+let default_algorithm = "AES-GCM"
 let ( >> ) f g x = g (f x)
 let ( ^^^ ) a b = a ^ " — " ^ b
 let ( let@ ) = ( @@ )

@@ -41,7 +41,7 @@ mv *.privcreds private_creds.json
 paste <(jq --raw-output 'keys_unsorted[]' < private_creds.json) <(jq --raw-output '.[]' < private_creds.json) > private_creds.txt
 
 # Generate trustee keys
-echo "{\"group\":\"$group_name\",\"names\":$names,\"threshold\":$threshold}" > threshold_context.json
+echo "{\"algorithm\":\"AES-GCM\",\"group\":\"$group_name\",\"names\":$names,\"threshold\":$threshold}" > threshold_context.json
 ttkeygen () {
     belenios-tool setup generate-trustee-key-threshold $group --threshold-context threshold_context.json "$@"
 }

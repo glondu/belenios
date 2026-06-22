@@ -54,7 +54,10 @@ let find_trustee_private_key s trustee_id =
     match ts with
     | [] -> Lwt.return_none (* an error, actually *)
     | `Single _ :: ts -> loop (i - 1) ts
-    | `Pedersen _ :: _ -> Lwt.return_some (List.nth keys i)
+    | `Pedersen (p : _ threshold_parameters) :: _ ->
+        let algorithm = p.context.algorithm in
+        let private_key = List.nth keys i in
+        Lwt.return_some ({ algorithm; private_key } : tally_trustee_content)
   in
   loop (trustee_id - 1) trustees
 
@@ -123,7 +126,7 @@ let get_partial_decryptions s (metadata : metadata) =
           match threshold with
           | Some _ -> raise @@ Error (`Unsupported "two Pedersens")
           | None ->
-              loop ts (Some t.threshold)
+              loop ts (Some t.context.threshold)
                 (npks + Array.length t.verification_keys))
     in
     loop trustees None 0
@@ -475,7 +478,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in
               let* private_key = find_trustee_private_key s trustee_id in
-              return_json 200 (!+yojson_of_tally_trustee { private_key })
+              return_json 200 (!+yojson_of_tally_trustee private_key)
           | `POST -> (
               let@ trustee_id = with_tally_trustee token s in
               let@ () = handle_generic_error in

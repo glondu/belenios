@@ -113,7 +113,7 @@ let delete_live_election s uuid roots =
     |> List.map (function
       | `Single _ -> `Single
       | `Pedersen (t : _ threshold_parameters) ->
-          `Pedersen (t.threshold, Array.length t.verification_keys))
+          `Pedersen (t.context.threshold, Array.length t.verification_keys))
     |> Lwt.return
   in
   let* de_nb_ballots =

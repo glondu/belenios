@@ -27,6 +27,7 @@ open Api_generic
 
 let process_request_new (r : credentials_new_request) (Draft (_, draft))
     voter_list () =
+  let algorithm = default_algorithm in
   let seed = Belenios_server_core.generate_token ~length:22 () in
   let module G =
     (val Belenios.Group.of_string ~version:draft.version draft.group)
@@ -48,7 +49,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
         let uuid = r.uuid
       end) in
   let* creds = Cred.generate voter_list in
-  let* credentials_records =
+  let* records =
     let map =
       List.fold_left
         (fun accu (v : voter) ->
@@ -59,7 +60,9 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     in
     Lwt_list.map_s
       (fun (voter, x) ->
-        let* credential = P.encrypt xch_encrypted_credential encryption_key x in
+        let* credential =
+          P.encrypt ~algorithm xch_encrypted_credential encryption_key x
+        in
         let credential =
           credential
           |> !+(yojson_of_encrypted_msg !&G.to_string !&G.Zq.to_string !&Fun.id)
@@ -106,7 +109,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
     let* () =
       { seed; token = r.token } |> Storage.E.set s Credentials_seed Value
     in
-    Storage.E.set s Credentials_records Value credentials_records
+    Storage.E.set s Credentials_records Value { algorithm; records }
   in
   let* () =
     let* x =
@@ -203,7 +206,8 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
     let module C = Credential.Make (G) (X) in
     let module P = Pki.Make (G) in
     let decryption_key = P.derive_dk seed in
-    credentials_records
+    let { algorithm; records } = credentials_records in
+    records
     |> Lwt_list.fold_left_s
          (fun accu (v, c) ->
            let encrypted_msg =
@@ -213,7 +217,8 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
                      !$Fun.id)
            in
            let* x =
-             P.decrypt xch_encrypted_credential decryption_key encrypted_msg
+             P.decrypt ~algorithm xch_encrypted_credential decryption_key
+               encrypted_msg
            in
            match x with
            | None -> Lwt.return accu
@@ -260,13 +265,14 @@ let get_missing_voters ~belenios_url ~seed uuid credentials_records =
 
 let process_resend_request (r : credentials_resend)
     (params : credentials_params) metadata credentials_records () =
+  let { algorithm; records } = credentials_records in
   let voters =
     match r.spec with
     | `All_voters ->
         `Some_voters
           (List.fold_left
              (fun accu (x, _) -> SSet.add x accu)
-             SSet.empty credentials_records)
+             SSet.empty records)
     | `Some_voters xs ->
         `Some_voters
           (List.fold_left (fun accu x -> SSet.add x accu) SSet.empty xs)
@@ -283,7 +289,7 @@ let process_resend_request (r : credentials_resend)
         in
         let module P = Pki.Make (G) in
         let decryption_key = P.derive_dk r.seed in
-        credentials_records
+        records
         |> Lwt_list.filter_map_s (fun (v, c) ->
             if SSet.mem v voters then
               let encrypted_msg =
@@ -293,7 +299,8 @@ let process_resend_request (r : credentials_resend)
                         !$Fun.id)
               in
               let* x =
-                P.decrypt xch_encrypted_credential decryption_key encrypted_msg
+                P.decrypt ~algorithm xch_encrypted_credential decryption_key
+                  encrypted_msg
               in
               match x with
               | None -> Lwt.return_none
@@ -412,7 +419,8 @@ let process_request : credentials_request -> _ = function
         let* x = Storage.E.get s Credentials_records in
         match Lopt.get_value x with Some x -> cont x | None -> not_found
       in
-      let n = List.length credentials_records in
+      let { algorithm; records } = credentials_records in
+      let n = List.length records in
       let* credentials_records =
         let module G =
           (val Belenios.Group.of_string ~version:params.version params.group)
@@ -428,12 +436,13 @@ let process_request : credentials_request -> _ = function
                       !$Fun.id)
             in
             let* x =
-              P.decrypt xch_encrypted_credential decryption_key encrypted_msg
+              P.decrypt ~algorithm xch_encrypted_credential decryption_key
+                encrypted_msg
             in
             match x with
             | None -> Lwt.return_none
             | Some credential -> Lwt.return_some (v, { c with credential }))
-          credentials_records
+          records
       in
       let send = Mails_voter.generate_credential_email r.metadata in
       let* jobs =

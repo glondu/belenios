@@ -65,10 +65,11 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
     encrypted_tally_of_yojson !$W.G.of_string encrypted_tally
   in
   let* private_key =
-    match trustee.private_key with
+    match trustee with
     | Some epk ->
+        let algorithm = epk.algorithm in
         let epk =
-          epk
+          epk.private_key
           |> !+(yojson_of_sent_partial_decryption_key Fun.id Fun.id)
           |> !*(sent_partial_decryption_key_of_yojson !$W.G.of_string
                   !$W.G.Zq.of_string)
@@ -79,7 +80,7 @@ let compute_partial_decryption trustee ~election ~encrypted_tally ~private_key =
         let module Pedersen = Trustees.MakePedersen (C) in
         let sk = PKI.derive_sk private_key and dk = PKI.derive_dk private_key in
         let vk = W.G.(g **~ sk) in
-        let* epk = C.recv Pedersen.xch_decryption_key dk vk epk in
+        let* epk = C.recv ~algorithm Pedersen.xch_decryption_key dk vk epk in
         Lwt.return @@ epk.decryption_key
     | None -> (
         basic_check_private_key private_key;

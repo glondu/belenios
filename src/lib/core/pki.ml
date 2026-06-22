@@ -70,8 +70,7 @@ module Make (G : GROUP) = struct
 
   (** Generic encryption *)
 
-  let encrypt xch y plaintext =
-    let algorithm = "AES-GCM" in
+  let encrypt ~algorithm xch y plaintext =
     let module E = (val Crypto_primitives.get_endecrypt algorithm) in
     let plaintext = !+(xch.to_yojson) plaintext in
     let r = random () in
@@ -86,9 +85,9 @@ module Make (G : GROUP) = struct
       Printf.ksprintf sha256_hex "%s-iv|%s" xch.dst (G.to_string alpha)
     in
     let* data = E.encrypt ~key ~iv ~plaintext in
-    Lwt.return { algorithm; alpha; beta; data }
+    Lwt.return { alpha; beta; data }
 
-  let decrypt xch x { algorithm; alpha; beta; data } =
+  let decrypt ~algorithm xch x { alpha; beta; data } =
     let@ () =
      fun cont ->
       if G.check alpha && G.check beta then cont () else Lwt.return_none
@@ -130,16 +129,16 @@ module MakeChannels (P : PKI) = struct
       of_yojson = signed_msg_of_yojson !$G.of_string !$G.Zq.of_string of_yojson;
     }
 
-  let send xch sk recipient message =
+  let send ~algorithm xch sk recipient message =
     let xch = cast_xch_inner xch in
     let xch' = cast_xch_outer xch in
     let msg = P.sign xch sk { recipient; message } in
-    P.encrypt xch' recipient msg
+    P.encrypt ~algorithm xch' recipient msg
 
-  let recv xch dk vk msg =
+  let recv ~algorithm xch dk vk msg =
     let xch = cast_xch_inner xch in
     let xch' = cast_xch_outer xch in
-    let* x = P.decrypt xch' dk msg in
+    let* x = P.decrypt ~algorithm xch' dk msg in
     match x with
     | None -> failwith "invalid ciphertext in received message"
     | Some msg ->

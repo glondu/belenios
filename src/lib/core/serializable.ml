@@ -33,12 +33,7 @@ type ('a, 'b, 'c) channel_msg = { recipient : 'a; message : 'c }
 type ('a, 'b, 'c) signed_msg = { message : 'c; signature : 'b proof }
 [@@deriving yojson]
 
-type ('a, 'b, 'c) encrypted_msg = {
-  algorithm : string;
-  alpha : 'a;
-  beta : 'a;
-  data : string;
-}
+type ('a, 'b, 'c) encrypted_msg = { alpha : 'a; beta : 'a; data : string }
 [@@deriving yojson]
 
 type ('a, 'b, 'c) sent_msg =
@@ -223,7 +218,12 @@ type ballot_summary = ballot_summary_item list [@@deriving yojson]
 
 (** {2 Threshold decryption support} *)
 
-type common_context = { group : string; names : string array; threshold : int }
+type common_context = {
+  algorithm : string;
+  group : string;
+  names : string array;
+  threshold : int;
+}
 [@@deriving yojson]
 
 type index = int [@@deriving yojson]
@@ -280,7 +280,7 @@ type ('a, 'b) voutput = {
 [@@deriving yojson]
 
 type ('a, 'b) threshold_parameters = {
-  threshold : int;
+  context : common_context;
   certs : ('a, 'b) cert array;
   coefexps : 'a coefexps array;
   signatures : 'b proof array;

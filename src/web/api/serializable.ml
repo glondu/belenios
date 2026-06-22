@@ -375,10 +375,13 @@ type partial_decryptions = {
 }
 [@@deriving yojson]
 
-type tally_trustee = {
-  private_key : (json, json) sent_partial_decryption_key option; [@yojson.option]
+type tally_trustee_content = {
+  algorithm : string;
+  private_key : (json, json) sent_partial_decryption_key;
 }
 [@@deriving yojson]
+
+type tally_trustee = tally_trustee_content option [@@deriving yojson]
 
 type shuffler = {
   address : string;

@@ -227,12 +227,14 @@ module type PKI = sig
     bool
 
   val encrypt :
+    algorithm:string ->
     'a exchangeable ->
     public_key ->
     'a ->
     (public_key, private_key, 'a) encrypted_msg Lwt.t
 
   val decrypt :
+    algorithm:string ->
     'a exchangeable ->
     private_key ->
     (public_key, private_key, 'a) encrypted_msg ->
@@ -246,8 +248,21 @@ module type CHANNELS = sig
   type public_key = P.public_key
   type 'a msg = (public_key, private_key, 'a) sent_msg
 
-  val send : 'a exchangeable -> private_key -> public_key -> 'a -> 'a msg Lwt.t
-  val recv : 'a exchangeable -> private_key -> public_key -> 'a msg -> 'a Lwt.t
+  val send :
+    algorithm:string ->
+    'a exchangeable ->
+    private_key ->
+    public_key ->
+    'a ->
+    'a msg Lwt.t
+
+  val recv :
+    algorithm:string ->
+    'a exchangeable ->
+    private_key ->
+    public_key ->
+    'a msg ->
+    'a Lwt.t
 end
 
 module type PEDERSEN = sig

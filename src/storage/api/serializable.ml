@@ -111,6 +111,7 @@ type 'a draft_basic_params = { mutable trustees : 'a draft_trustee list }
 [@@deriving yojson]
 
 type ('a, 'b) draft_threshold_params = {
+  algorithm : string;
   mutable threshold : int option; [@yojson.option]
   mutable trustees : ('a, 'b) draft_threshold_trustee list;
   mutable parameters : string option; [@yojson.option]
@@ -254,13 +255,19 @@ type credentials_records_item =
   (json, json, string) encrypted_msg credentials_record
 [@@deriving yojson]
 
-type credentials_records =
-  (string * (json, json, string) encrypted_msg credentials_record) list
+type credentials_records_object = (string * credentials_records_item) list
 
-let yojson_of_credentials_records x : json =
+let yojson_of_credentials_records_object x : json =
   `Assoc (List.map (fun (k, v) -> (k, yojson_of_credentials_records_item v)) x)
 
-let credentials_records_of_yojson : json -> credentials_records = function
+let credentials_records_object_of_yojson : json -> credentials_records_object =
+  function
   | `Assoc o ->
       List.map (fun (k, v) -> (k, credentials_records_item_of_yojson v)) o
   | x -> of_yojson_error "object expected" x
+
+type credentials_records = {
+  algorithm : string;
+  records : credentials_records_object;
+}
+[@@deriving yojson]

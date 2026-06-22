@@ -24,6 +24,7 @@ open Common_types
 open Signatures_core
 
 val dst_prefix : string
+val default_algorithm : string
 val ( >> ) : ('a -> 'b) -> ('b -> 'c) -> 'a -> 'c
 val ( ^^^ ) : string -> string -> string
 val ( let@ ) : ('a -> 'b) -> 'a -> 'b

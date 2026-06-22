@@ -87,7 +87,7 @@ let compute_synthetic_factors_exc trustees check partial_decryptions fold =
               else raise (CombinationError NotEnoughPartialDecryptions)
             else accu
           in
-          let pds_with_ids = take x.threshold 0 [] in
+          let pds_with_ids = take x.context.threshold 0 [] in
           fold pds_with_ids
       | _ -> invalid_arg "combine_factors")
     trustees

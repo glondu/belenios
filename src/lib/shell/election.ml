@@ -195,7 +195,10 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
                  }
                   : trustee_threshold_checksum))
           in
-          [ ({ trustees; threshold = p.threshold } : trustee_threshold_set) ])
+          [
+            ({ trustees; threshold = p.context.threshold }
+              : trustee_threshold_set);
+          ])
     |> List.flatten
   in
   let find_trustee_name_by_id =

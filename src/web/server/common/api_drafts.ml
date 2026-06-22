@@ -637,7 +637,13 @@ let put_draft_trustees_mode ((Draft (v, se), set) : _ updatable_with_billing)
       set (Draft (v, se))
   | `Basic, `Threshold 0 ->
       let dtp =
-        { threshold = None; trustees = []; parameters = None; error = None }
+        {
+          algorithm = default_algorithm;
+          threshold = None;
+          trustees = [];
+          parameters = None;
+          error = None;
+        }
       in
       se.trustees <- `Threshold dtp;
       set (Draft (v, se))
@@ -842,7 +848,8 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
               in
               let dtp =
                 {
-                  threshold = Some t.threshold;
+                  algorithm = t.context.algorithm;
+                  threshold = Some t.context.threshold;
                   trustees = se_threshold_trustees;
                   parameters =
                     Some
@@ -1066,7 +1073,9 @@ let post_trustee_threshold
     | None -> failwith "Trustee not found"
   in
   let names = Array.map (fun (x : _ draft_threshold_trustee) -> x.name) ts in
-  let context = { group = se.group; names; threshold } in
+  let context =
+    { algorithm = dtp.algorithm; group = se.group; names; threshold }
+  in
   let full_context = { context; index = i + 1 } in
   let get_certs () =
     Array.map
@@ -1290,7 +1299,14 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
                     dtp.trustees
                   |> Array.of_list
                 in
-                let context = { group = draft.group; names; threshold } in
+                let context =
+                  {
+                    algorithm = dtp.algorithm;
+                    group = draft.group;
+                    names;
+                    threshold;
+                  }
+                in
                 let pedersen_context = { context; index } in
                 match t.cert with
                 | None -> `WaitingForCertificate pedersen_context
