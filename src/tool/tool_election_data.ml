@@ -363,8 +363,8 @@ module Make (Getters : GETTERS) (Election : ELECTION) :
              num_tallied = List.length ballots;
              total_weight;
              encrypted_tally =
-               Hash.hash_string
-                 (!+(yojson_of_encrypted_tally !&G.to_string) encrypted_tally);
+               Hash.hash_yojson
+               @@ yojson_of_encrypted_tally !&G.to_string encrypted_tally;
            } ))
 
   let raw_shuffles = lazy (get_shuffles ())

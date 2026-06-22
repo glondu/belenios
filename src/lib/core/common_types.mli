@@ -54,6 +54,7 @@ module Hash : sig
   val to_b64 : t -> string
   val of_b64 : string -> t
   val hash_string : string -> t
+  val hash_yojson : json -> t
 end
 
 type hash = Hash.t [@@deriving yojson]

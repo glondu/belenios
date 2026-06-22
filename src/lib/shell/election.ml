@@ -163,7 +163,7 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
       | _ -> failwith "inconsistent weights in credentials"
   in
   let tc_of_tpk (k : _ trustee_public_key) =
-    let checksum = Hash.hash_string (Json.to_string k.message.public_key) in
+    let checksum = Hash.hash_yojson k.message.public_key in
     let name = k.message.name in
     { checksum; name }
   in
@@ -186,10 +186,9 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
                 ({
                    name = key.message.message.name;
                    pki_key =
-                     Hash.hash_string @@ !+(yojson_of_cert Fun.id Fun.id) cert;
+                     Hash.hash_yojson @@ yojson_of_cert Fun.id Fun.id cert;
                    verification_key =
-                     Hash.hash_string
-                     @@ Json.to_string key.message.message.public_key;
+                     Hash.hash_yojson key.message.message.public_key;
                  }
                   : trustee_threshold_checksum))
           in

@@ -111,6 +111,7 @@ module Hash = struct
     | _ -> assert false
 
   let hash_string x = Digestif.SHA256.(x |> digest_string |> to_hex)
+  let hash_yojson x = x |> Json.to_string |> hash_string
   let yojson_of_t = yojson_of_generic_string to_hex
   let t_of_yojson = generic_string_of_yojson of_hex
 end

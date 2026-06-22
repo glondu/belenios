@@ -150,7 +150,7 @@ let get_event i x =
   Lwt.return @@ Option.map !*event_of_yojson x
 
 let get_last_event i =
-  i.last_event |> Option.map (!+yojson_of_event >> Hash.hash_string)
+  i.last_event |> Option.map (yojson_of_event >> Hash.hash_yojson)
 
 let get_roots i = i.roots
 
@@ -271,7 +271,7 @@ let append index ops =
               match last_event with
               | None -> (None, 0)
               | Some x ->
-                  (Some (Hash.hash_string (!+yojson_of_event x)), x.height + 1)
+                  (Some (Hash.hash_yojson @@ yojson_of_event x), x.height + 1)
             in
             let event = { parent; height; typ; payload } in
             let typ = Archive.Event event in

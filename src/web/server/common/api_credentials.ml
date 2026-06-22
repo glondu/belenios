@@ -78,7 +78,7 @@ let process_request_new (r : credentials_new_request) (Draft (_, draft))
       creds.private_creds
   in
   let public_creds_hash =
-    creds.public_creds |> !+yojson_of_public_credentials |> Hash.hash_string
+    creds.public_creds |> yojson_of_public_credentials |> Hash.hash_yojson
   in
   let raw_certificate : (_, _) raw_credentials_certificate =
     {

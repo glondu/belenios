@@ -363,8 +363,7 @@ let submit_public_credentials s
         let public_creds_ok =
           let public_creds_hash =
             List.map strip_public_credential credentials
-            |> !+yojson_of_public_credentials
-            |> Hash.hash_string
+            |> yojson_of_public_credentials |> Hash.hash_yojson
           in
           public_creds_hash = certificate.message.public_creds_hash
         in
