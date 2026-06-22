@@ -2,6 +2,8 @@
  (name main)
  (public_name belenios-tool)
  (package belenios-tool)
+ (preprocess
+  (pps ppx_yojson_conv))
  (libraries
   cmdliner
   belenios_cohttp
