@@ -117,7 +117,7 @@ let build_index filename =
 
 let get_index ~file =
   let* map, last_event, roots, lines, header = build_index file in
-  let timestamp = Archive.get_timestamp header in
+  let timestamp = header.timestamp in
   { map; roots; last_event; file; lines; timestamp; header } |> Lwt.return
 
 let really_input_string ic n =
@@ -305,7 +305,7 @@ let init ~file ~election ~trustees ~public_creds =
       last_event = None;
       file;
       lines = [];
-      timestamp = Archive.get_timestamp header;
+      timestamp = header.timestamp;
       header;
     }
   in

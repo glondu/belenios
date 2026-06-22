@@ -1246,7 +1246,7 @@ module MakeBackend
         let timestamp = Unix.time () |> Int64.of_float in
         let header = Archive.new_header ~timestamp in
         let* () = write_header ~filename ~header in
-        Lwt.return_some (r, Events.empty_roots, Archive.get_timestamp header)
+        Lwt.return_some (r, Events.empty_roots, header.timestamp)
     in
     let@ fd cont =
       Lwt.try_bind
@@ -1270,7 +1270,7 @@ module MakeBackend
         in
         Hashtbl.add r record.hash record.location;
         loop accu)
-      else Lwt.return_some (r, accu, Archive.get_timestamp header)
+      else Lwt.return_some (r, accu, header.timestamp)
     in
     Lwt.finalize (fun () -> loop Events.empty_roots) (fun () -> close ic)
 

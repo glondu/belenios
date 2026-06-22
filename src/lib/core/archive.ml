@@ -29,15 +29,7 @@ type record = { typ : data_or_event; hash : hash; location : location }
 
 let block_size = Tar.block_size
 let block_sizeL = Int64.of_int block_size
-
-let new_header ~timestamp =
-  { version = 1; timestamp = `String (Int64.to_string timestamp) }
-
-let get_timestamp header =
-  match header.timestamp with
-  | `String x | `Intlit x -> Int64.of_string x
-  | `Int x -> Int64.of_int x
-  | _ -> invalid_arg "get_timestamp"
+let new_header ~timestamp = { version = 1; timestamp }
 
 module type IO_READER = sig
   include MONAD
@@ -175,7 +167,7 @@ module MakeWriter (M : IO_WRITER) = struct
     let bel_header = !+yojson_of_archive_header header in
     let tar_header =
       let size = String.length bel_header |> Int64.of_int in
-      let timestamp = get_timestamp header in
+      let timestamp = header.timestamp in
       Tar.{ name = "BELENIOS"; size; timestamp }
     in
     let* () = raw_write_header f tar_header in
@@ -246,7 +238,7 @@ struct
     | Some hash -> get_hash hash
 
   let write_archive archive header last =
-    let timestamp = get_timestamp header in
+    let timestamp = header.timestamp in
     let* () = W.write_header archive header in
     let rec loop last accu =
       match last.parent with

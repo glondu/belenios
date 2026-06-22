@@ -298,7 +298,7 @@ type ('a, 'b) trustees = ('a, 'b) trustee_kind list [@@deriving yojson]
 (** {2 Event-related types} *)
 
 type location = { offset : int64; length : int64 } [@@deriving yojson]
-type archive_header = { version : int; timestamp : json } [@@deriving yojson]
+type archive_header = { version : int; timestamp : int64 } [@@deriving yojson]
 
 type event_type =
   [ `Setup

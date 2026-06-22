@@ -28,7 +28,6 @@ type record = { typ : data_or_event; hash : hash; location : location }
 
 val block_size : int
 val new_header : timestamp:int64 -> archive_header
-val get_timestamp : archive_header -> int64
 
 module type IO_READER = sig
   include MONAD
