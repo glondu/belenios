@@ -36,16 +36,8 @@ val cast : ('a, 'b) Type.eq -> 'a -> 'b
 type 'a smart_ref = { get : unit -> 'a; set : 'a -> unit }
 
 val smart_ref : 'a -> 'a smart_ref
-
-module Uuid = Common_types.Uuid
-module Hash = Common_types.Hash
-module Weight = Common_types.Weight
-module Array = Common_types.Array
-module Shape = Common_types.Shape
-
 val sha256_hex : string -> string
 val sha256_b64 : string -> string
-val b58_digits : string
 val encode_data_uri : ?charset:string -> mime_type:string -> string -> string
 
 module String : sig

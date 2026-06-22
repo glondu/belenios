@@ -19,7 +19,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Signatures
+open Signatures_core
+open Common_types
 open Serializable
 open Common
 
@@ -36,7 +37,7 @@ module type ELECTION = sig
   val return : 'a -> 'a t
   val bind : 'a t -> ('a -> 'b t) -> 'b t
   val pause : unit -> unit t
-  val uuid : Uuid.t
+  val uuid : uuid
 end
 
 module type S = sig

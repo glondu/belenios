@@ -43,15 +43,8 @@ let smart_ref x =
   let r = ref x in
   { get = (fun () -> !r); set = (fun x -> r := x) }
 
-module Uuid = Common_types.Uuid
-module Hash = Common_types.Hash
-module Weight = Common_types.Weight
-module Array = Common_types.Array
-module Shape = Common_types.Shape
-
 let sha256_hex = Hash.hash_string >> Hash.to_hex
 let sha256_b64 = Hash.hash_string >> Hash.to_b64
-let b58_digits = Common_types.b58_digits
 
 let encode_data_uri ?charset ~mime_type x =
   let charset =

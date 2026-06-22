@@ -23,8 +23,7 @@
 
 open Common_types
 open Serializable
-open Common
-include Signatures_core
+open Signatures_core
 
 module type QUESTION = sig
   type question
@@ -360,7 +359,7 @@ module type ELECTION_SIG = sig
 
   val make_raw_election :
     question Serializable.template ->
-    uuid:Common.Uuid.t ->
+    uuid:uuid ->
     group:string ->
     public_key:string ->
     json

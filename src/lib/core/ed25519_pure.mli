@@ -19,6 +19,6 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Signatures.GROUP
+include Signatures_core.GROUP
 
 val selfcheck : unit -> bool

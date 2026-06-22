@@ -23,6 +23,7 @@ open Lwt.Syntax
 open Belenios_platform
 open Common_types
 open Serializable
+open Signatures_core
 open Signatures
 open Common
 

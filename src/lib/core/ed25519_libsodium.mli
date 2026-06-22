@@ -20,9 +20,10 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Signatures_core
 
 module Make (_ : LIBSODIUM_STUBS) : sig
-  include Signatures.GROUP
+  include GROUP
 
   val selfcheck : unit -> bool
 end

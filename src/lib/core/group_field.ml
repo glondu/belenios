@@ -20,12 +20,13 @@
 (**************************************************************************)
 
 open Belenios_platform
+open Signatures_core
 open Serializable
 open Common
 
 (** Finite field arithmetic *)
 
-module type GROUP = Signatures.GROUP with type t = Z.t
+module type GROUP = GROUP with type t = Z.t
 
 let make description ff_params =
   let { p; q; g; embedding } = ff_params in

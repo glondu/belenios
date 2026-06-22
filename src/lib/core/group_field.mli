@@ -22,9 +22,10 @@
 (** Finite field arithmetic *)
 
 open Belenios_platform
+open Signatures_core
 open Serializable
 
-module type GROUP = Signatures.GROUP with type t = Z.t
+module type GROUP = GROUP with type t = Z.t
 (** Multiplicative subgroup of a finite field. *)
 
 val make : string -> ff_params -> (module GROUP)

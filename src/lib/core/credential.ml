@@ -20,7 +20,8 @@
 (**************************************************************************)
 
 open Belenios_platform
-open Signatures
+open Signatures_core
+open Common_types
 open Serializable
 open Common
 

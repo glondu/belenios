@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Common_types
-open Signatures
+open Signatures_core
 open Events
 
 type location = { offset : int64; length : int64 } [@@deriving yojson]

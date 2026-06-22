@@ -25,6 +25,7 @@ include Events
 include Serializable
 include Common
 include Util
+include Signatures_core
 include Signatures
 module Crypto_std = Crypto_std
 module Password = Password
