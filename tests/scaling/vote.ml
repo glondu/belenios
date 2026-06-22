@@ -65,7 +65,7 @@ module Make (P : PARAMS) () = struct
   let submit_ballot ~username ~ballot =
     let token =
       `Assoc [ ("username", `String username) ]
-      |> Yojson.Safe.to_string |> Base64.encode
+      |> Json.to_string |> Base64.encode
       |> function
       | Ok x -> x
       | Error (`Msg msg) ->
@@ -120,7 +120,7 @@ module MakeSlave () = struct
       match x with
       | None -> Lwt.return time
       | Some x -> (
-          match Yojson.Safe.from_string x with
+          match Json.of_string x with
           | `Assoc o -> (
               match
                 (List.assoc_opt "username" o, List.assoc_opt "credential" o)
@@ -214,7 +214,7 @@ module MakeMaster (P : PARAMS_MASTER) = struct
                     ("username", `String username);
                     ("credential", `String credential);
                   ]
-                |> Yojson.Safe.to_string |> write_line p#stdin)
+                |> Json.to_string |> write_line p#stdin)
               voters
           in
           let* () = close p#stdin in
@@ -242,7 +242,7 @@ module MakeMaster (P : PARAMS_MASTER) = struct
       let open Lwt_io in
       let@ f = with_file ~mode:input credentials in
       let* x = Lwt_stream.to_string (read_chars f) in
-      match Yojson.Safe.from_string x with
+      match Json.of_string x with
       | `Assoc o ->
           o
           |> List.map (fun (k, v) ->

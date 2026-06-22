@@ -89,7 +89,7 @@ let get_trustees s =
 
 let get_election s =
   let*& x = get_from_setup_data s (fun x -> x.election) in
-  Lwt.return_some @@ Yojson.Safe.from_string x
+  Lwt.return_some @@ Json.of_string x
 
 module ElectionCacheTypes = struct
   type key = uuid

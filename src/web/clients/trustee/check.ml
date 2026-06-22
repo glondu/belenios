@@ -53,7 +53,7 @@ let do_election uuid election private_key =
   in
   let find_single =
     try
-      match Yojson.Safe.from_string private_key with
+      match Json.of_string private_key with
       | `String x ->
           let private_key = W.G.Zq.of_string x in
           let public_key = W.G.(g **~ private_key) in
@@ -106,7 +106,7 @@ let do_draft uuid (draft : _ raw_draft) private_key =
       let name =
         let@ private_key cont =
           try
-            match Yojson.Safe.from_string private_key with
+            match Json.of_string private_key with
             | `String x -> cont (G.Zq.of_string x)
             | _ -> raise Exit
           with _ -> None

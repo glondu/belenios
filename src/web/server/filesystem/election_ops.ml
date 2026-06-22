@@ -295,7 +295,7 @@ let validate_election_exn s uuid =
     let public_key = G.to_string y in
     Election.make_raw_election ~version:se.version template ~uuid
       ~group:se.group ~public_key
-    |> Yojson.Safe.to_string
+    |> Json.to_string
   in
   (* write election files to disk *)
   let voters = se.voters |> List.map (fun (x : draft_voter) -> x.id) in

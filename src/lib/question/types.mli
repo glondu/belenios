@@ -1,13 +1,7 @@
 open Belenios_core
 
 type raw_question = ..
-
-type 'a generic_question = {
-  type_ : string;
-  value : 'a;
-  extra : Yojson.Safe.t option;
-}
-
+type 'a generic_question = { type_ : string; value : 'a; extra : json option }
 type question = raw_question generic_question
 
 module type QUESTION = sig
@@ -16,9 +10,9 @@ module type QUESTION = sig
 
   val extract : raw_question -> t option
   val type_ : string
-  val make : value:t -> extra:Yojson.Safe.t option -> question
-  val wrap : value:Yojson.Safe.t -> extra:Yojson.Safe.t option -> question
-  val unwrap : question -> Yojson.Safe.t option
+  val make : value:t -> extra:json option -> question
+  val wrap : value:json -> extra:json option -> question
+  val unwrap : question -> json option
   val erase : t -> t
 
   val check :

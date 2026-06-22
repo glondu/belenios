@@ -30,9 +30,8 @@ type _ u =
   | State_state : state_state u
   | Dates : election_dates u
   | Metadata : metadata u
-  | Private_key : Yojson.Safe.t u
-  | Private_keys :
-      (Yojson.Safe.t, Yojson.Safe.t) sent_partial_decryption_key list u
+  | Private_key : json u
+  | Private_keys : (json, json) sent_partial_decryption_key list u
   | Audit_cache : audit_cache u
   | Archive_header : Archive.header u
   | Last_event : last_event u

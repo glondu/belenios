@@ -592,7 +592,7 @@ let dispatch_election ~token ~ifmatch endpoint method_ body s
             | None -> `Assoc []
             | Some state -> `Assoc [ ("state", `String state) ]
           in
-          return_json 401 (Yojson.Safe.to_string json)
+          return_json 401 (Json.to_string json)
       | _ -> method_not_allowed)
   | [ "objects"; hash ] -> (
       match method_ with

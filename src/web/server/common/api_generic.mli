@@ -19,6 +19,7 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
+open Belenios
 open Belenios_storage_api
 open Belenios_web_api
 
@@ -40,7 +41,7 @@ type result =
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 val return_json : int -> string -> result Lwt.t
-val return_yojson : int -> Yojson.Safe.t -> result Lwt.t
+val return_yojson : int -> json -> result Lwt.t
 val return_generic : generic -> result Lwt.t
 val ok : result Lwt.t
 val bad_request : result Lwt.t
@@ -59,8 +60,8 @@ val handle_ifmatch :
   result Lwt.t
 
 val handle_generic_error : (unit -> result Lwt.t) -> result Lwt.t
-val handle_get : (unit -> Yojson.Safe.t Lwt.t) -> result Lwt.t
-val handle_get_option : (unit -> Yojson.Safe.t option Lwt.t) -> result Lwt.t
+val handle_get : (unit -> json Lwt.t) -> result Lwt.t
+val handle_get_option : (unit -> json option Lwt.t) -> result Lwt.t
 val get_configuration : unit -> configuration
 val get_account : account -> user -> api_account
 

@@ -114,9 +114,7 @@ let decrypt uuid ~token =
     match x with Ok (x, _) -> cont x | Error _ -> fail ()
   in
   let container = Dom_html.createDiv document in
-  let encrypted_tally_hash =
-    sha256_b64 @@ Yojson.Safe.to_string encrypted_tally
-  in
+  let encrypted_tally_hash = sha256_b64 @@ Json.to_string encrypted_tally in
   let partial_decryption = ref `Null in
   let submit =
     let@ () = button ~a:[ a_id "submit_data"; a_disabled () ] @@ s_ "Submit" in

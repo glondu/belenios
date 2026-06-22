@@ -32,13 +32,13 @@ let post_ballot uuid ~ballot =
   let fail () =
     Compat.log_4
       (Js.string "Submitting ballot")
-      (Js.string @@ Yojson.Safe.to_string ballot)
+      (Js.string @@ Json.to_string ballot)
       (Js.string "returned") x;
     Lwt.return @@ Error `UnexpectedResponse
   in
   match x.code with
   | 401 -> (
-      match Yojson.Safe.from_string x.content with
+      match Json.of_string x.content with
       | `Assoc o -> (
           match List.assoc_opt "state" o with
           | Some (`String state) -> Lwt.return @@ Ok state

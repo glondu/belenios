@@ -27,11 +27,11 @@ open Common
 type sealing_config_item = string list [@@deriving yojson]
 type sealing_config = (string * sealing_config_item) list
 
-let sealing_config_of_yojson : Yojson.Safe.t -> sealing_config = function
+let sealing_config_of_yojson : json -> sealing_config = function
   | `Assoc o -> List.map (fun (k, v) -> (k, sealing_config_item_of_yojson v)) o
   | x -> of_yojson_error "object expected" x
 
-let yojson_of_sealing_config : sealing_config -> Yojson.Safe.t =
+let yojson_of_sealing_config : sealing_config -> json =
  fun x ->
   `Assoc (List.map (fun (k, v) -> (k, yojson_of_sealing_config_item v)) x)
 

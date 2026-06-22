@@ -125,7 +125,7 @@ module Make () = struct
         | `PUT ->
             let@ token = Option.unwrap unauthorized token in
             if !Web_config.readonly_token_hash = Some (sha256_hex token) then
-              let@ x = body.run Yojson.Safe.from_string in
+              let@ x = body.run Json.of_string in
               match x with
               | `Bool x ->
                   Storage.readonly.set x;

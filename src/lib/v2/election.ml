@@ -71,7 +71,7 @@ module Parse (R : RAW_ELECTION) () = struct
   let erase_question =
     Question.to_concrete >> erase_question >> Question.of_concrete
 
-  let json_election = Yojson.Safe.from_string R.raw_election
+  let json_election = Json.of_string R.raw_election
   let j = params_of_yojson Fun.id json_election
 
   module G = (val Group.of_string j.group)
@@ -100,7 +100,7 @@ module Parse (R : RAW_ELECTION) () = struct
   let ballot_of_yojson = ballot_of_yojson !$G.of_string !$G.Zq.of_string
   let get_credential x = Some x.message.credential
 
-  type result = Yojson.Safe.t
+  type result = json
 
   let yojson_of_result = Fun.id
   let result_of_yojson = Fun.id
@@ -190,7 +190,7 @@ struct
 
   let check_rawballot rawballot =
     match
-      rawballot |> Yojson.Safe.from_string
+      rawballot |> Json.of_string
       |> ballot_of_yojson !$G.of_string !$G.Zq.of_string
     with
     | exception e -> Error (`SerializationError (Printexc.to_string e))
@@ -198,7 +198,7 @@ struct
         if
           ballot
           |> yojson_of_ballot !&G.to_string !&G.Zq.to_string
-          |> Yojson.Safe.to_string = rawballot
+          |> Json.to_string = rawballot
         then
           Ok
             {

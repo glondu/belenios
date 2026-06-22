@@ -578,7 +578,7 @@ module Mkelection : CMDLINER_MODULE = struct
     in
     let open Lwt_io in
     let@ oc = with_file ~mode:Output (dir // "election.json") in
-    write_line oc @@ Yojson.Safe.to_string params
+    write_line oc @@ Json.to_string params
 
   let template_t =
     let doc = "Read election template from file $(docv)." in

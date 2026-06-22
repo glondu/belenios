@@ -26,9 +26,9 @@ open Ppx_yojson_conv_lib.Yojson_conv
 
 type ('user, 'get, 'post) t = {
   path : string;
-  of_yojson : Yojson.Safe.t -> 'get;
-  to_yojson : 'get -> Yojson.Safe.t;
-  to_yojson_post : 'post -> Yojson.Safe.t;
+  of_yojson : json -> 'get;
+  to_yojson : 'get -> json;
+  to_yojson_post : 'post -> json;
 }
 
 type nobody = [ `Nobody ]

@@ -61,7 +61,7 @@ module MakeCert (P : PKI) = struct
     let coefexps =
       { coefexps }
       |> yojson_of_coefexps !&G.to_string
-      |> Yojson.Safe.to_string |> Hash.hash_string
+      |> Json.to_string |> Hash.hash_string
     in
     let signed =
       P.sign xch_cert_keys sk
@@ -166,7 +166,7 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
         let hash =
           x
           |> yojson_of_coefexps !&G.to_string
-          |> Yojson.Safe.to_string |> Hash.hash_string
+          |> Json.to_string |> Hash.hash_string
         in
         hash = cert.coefexps)
       certs t.coefexps
@@ -356,7 +356,7 @@ module MakePedersen (C : CHANNELS) = struct
     let hash =
       polynomial.coefexps
       |> yojson_of_coefexps !&G.to_string
-      |> Yojson.Safe.to_string |> Hash.hash_string
+      |> Json.to_string |> Hash.hash_string
     in
     hash = certs.certs.(i).message.coefexps
     && P.verify Comb.xch_certs certs.certs.(i).message.verification
@@ -376,7 +376,7 @@ module MakePedersen (C : CHANNELS) = struct
         let hash =
           x
           |> yojson_of_coefexps !&G.to_string
-          |> Yojson.Safe.to_string |> Hash.hash_string
+          |> Json.to_string |> Hash.hash_string
         in
         if hash = certs.(i).coefexps then
           if threshold = Array.length x.coefexps then ()
@@ -429,7 +429,7 @@ module MakePedersen (C : CHANNELS) = struct
           let hash =
             x
             |> yojson_of_coefexps !&G.to_string
-            |> Yojson.Safe.to_string |> Hash.hash_string
+            |> Json.to_string |> Hash.hash_string
           in
           if hash <> certs.(i).coefexps then
             raise
@@ -470,7 +470,7 @@ module MakePedersen (C : CHANNELS) = struct
           let hash =
             x
             |> yojson_of_coefexps !&G.to_string
-            |> Yojson.Safe.to_string |> Hash.hash_string
+            |> Json.to_string |> Hash.hash_string
           in
           if hash <> certs.(i).coefexps then
             raise
@@ -504,7 +504,7 @@ module MakePedersen (C : CHANNELS) = struct
           let hash =
             x
             |> yojson_of_coefexps !&G.to_string
-            |> Yojson.Safe.to_string |> Hash.hash_string
+            |> Json.to_string |> Hash.hash_string
           in
           if hash <> certs'.(i).coefexps then fail ();
           let r = x.coefexps in

@@ -96,9 +96,7 @@ let main uuid url dir action =
   | `Checksums -> X.checksums () |> printl1
   | `ComputeVoters privcreds ->
       let* privcreds = string_of_file privcreds in
-      let privcreds =
-        privcreds |> Yojson.Safe.from_string |> key_value_list_of_json
-      in
+      let privcreds = privcreds |> Json.of_string |> key_value_list_of_json in
       let* voters = X.compute_voters privcreds in
       voters |> Lwt_list.iter_s Lwt_io.printl
   | `ComputeBallotSummary -> X.compute_ballot_summary () |> printl1

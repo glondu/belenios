@@ -85,7 +85,7 @@ let send ?internal (msg : message) =
         let* hint = Cohttp_lwt.Body.to_string x in
         match Cohttp.Code.code_of_status response.status with
         | 200 -> (
-            match Yojson.Safe.from_string hint with
+            match Json.of_string hint with
             | `String hint -> Lwt.return_ok hint
             | _ | (exception _) -> Lwt.return_error ())
         | _ -> Lwt.return_error ())

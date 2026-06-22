@@ -39,7 +39,7 @@ let send_draft_request req =
 
 type trustees_mode = [ `Basic | `Threshold of int ]
 
-let all_trustee = ref ([] : Yojson.Safe.t trustee list)
+let all_trustee = ref ([] : json trustee list)
 let ifmatch_tt = ref (Some "")
 let mode = ref (`Basic : trustees_mode)
 let step = ref 0

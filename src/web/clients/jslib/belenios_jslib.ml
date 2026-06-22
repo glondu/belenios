@@ -304,7 +304,7 @@ let belenios : belenios Js.t =
       | Some election, Some ballot -> (
           let open (val election) in
           let@ () = Lwt.async in
-          let ballot = Yojson.Safe.from_string ballot in
+          let ballot = Json.of_string ballot in
           let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
           let@ () = finally Lwt.return_unit in
           match x with

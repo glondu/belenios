@@ -73,10 +73,8 @@ let key_value_list_of_json = function
       x
       |> List.map (function
         | a, `String b -> (a, b)
-        | _ ->
-            failcmd "%s has not expected JSON type" (Yojson.Safe.to_string json))
-  | json ->
-      failcmd "%s is not a proper JSON object" (Yojson.Safe.to_string json)
+        | _ -> failcmd "%s has not expected JSON type" (Json.to_string json))
+  | json -> failcmd "%s is not a proper JSON object" (Json.to_string json)
 
 let lines_of_file fname = Lwt_io.lines_of_file fname |> Lwt_stream.to_list
 

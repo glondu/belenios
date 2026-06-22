@@ -72,7 +72,7 @@ type result =
 type body = { run : 'a. (string -> 'a) -> ('a -> result Lwt.t) -> result Lwt.t }
 
 let return_json code x = Lwt.return @@ `Json (code, x)
-let return_yojson code x = return_json code (Yojson.Safe.to_string x)
+let return_yojson code x = return_json code (Json.to_string x)
 let return_generic x = Lwt.return @@ `Generic x
 let ok = return_json 200 "{}"
 let bad_request = return_json 400 {|"Bad Request"|}
@@ -90,7 +90,7 @@ let handle_ifmatch ifmatch current cont =
   | None -> cont ()
   | Some x ->
       let* current = current () in
-      if sha256_b64 @@ Yojson.Safe.to_string current = x then cont ()
+      if sha256_b64 @@ Json.to_string current = x then cont ()
       else precondition_failed
 
 let handle_generic_error f =
@@ -229,7 +229,7 @@ let post_send_message ?internal ~key (m : Belenios_messages.message_payload) =
           | Ok hint ->
               let cache = HMap.add hmac m.timestamp cache in
               msgcache := cache;
-              `String hint |> Yojson.Safe.to_string |> return_json 200
+              `String hint |> Json.to_string |> return_json 200
           | Error () -> service_unavailable
         else forbidden
     | None -> forbidden

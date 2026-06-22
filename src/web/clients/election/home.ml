@@ -624,7 +624,7 @@ let make_result_div election t ~result =
     ul
       (Array.map2
          (format_question_result uuid)
-         (to_generic_result r.result |> Array.map Yojson.Safe.to_string)
+         (to_generic_result r.result |> Array.map Json.to_string)
          questions
       |> Array.to_list);
     div

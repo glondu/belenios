@@ -77,8 +77,8 @@ end
 module type ELECTION_RESULT = sig
   type result [@@deriving yojson]
 
-  val of_generic_result : Yojson.Safe.t array -> result
-  val to_generic_result : result -> Yojson.Safe.t array
+  val of_generic_result : json array -> result
+  val to_generic_result : result -> json array
 end
 
 module type ELECTION_DATA = sig
@@ -200,8 +200,8 @@ end
 
 type 'a exchangeable = {
   dst : string;
-  to_yojson : 'a -> Yojson.Safe.t;
-  of_yojson : Yojson.Safe.t -> 'a;
+  to_yojson : 'a -> json;
+  of_yojson : json -> 'a;
 }
 
 module type PKI = sig
@@ -338,8 +338,8 @@ module type QUESTION_SIG = sig
     QUESTION
       with type element := G.t
        and type question := t
-       and type answer := Yojson.Safe.t
-       and type result := Yojson.Safe.t
+       and type answer := json
+       and type result := json
 end
 
 module type MIXNET_SIG = sig
@@ -356,14 +356,14 @@ module type ELECTION_SIG = sig
   type question
 
   val get_complexity : question array -> complexity
-  val template_of_yojson : Yojson.Safe.t -> question Serializable.template
+  val template_of_yojson : json -> question Serializable.template
 
   val make_raw_election :
     question Serializable.template ->
     uuid:Common.Uuid.t ->
     group:string ->
     public_key:string ->
-    Yojson.Safe.t
+    json
 
   module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
 end

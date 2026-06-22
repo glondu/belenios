@@ -31,7 +31,7 @@ open Common
 
 type keypair = {
   private_key : string;
-  public_key : Yojson.Safe.t;
+  public_key : json;
   fingerprint : string;
   mime_type : string;
   filename : uuid -> string;

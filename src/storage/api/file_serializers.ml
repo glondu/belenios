@@ -41,8 +41,7 @@ let get_election (type t) : t File.u -> t string_serializers = function
       }
   | Metadata ->
       { of_string = !*metadata_of_yojson; to_string = !+yojson_of_metadata }
-  | Private_key ->
-      { of_string = Yojson.Safe.from_string; to_string = Yojson.Safe.to_string }
+  | Private_key -> { of_string = Json.of_string; to_string = Json.to_string }
   | Private_keys ->
       {
         of_string =

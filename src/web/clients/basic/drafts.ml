@@ -122,7 +122,7 @@ let rec show_draft_credentials uuid container =
       Lwt.return [ t ]
 
 type trustee_with_writer =
-  | TWW : 'a trustee list * ('a -> Yojson.Safe.t) -> trustee_with_writer
+  | TWW : 'a trustee list * ('a -> json) -> trustee_with_writer
 
 let rec show_draft_trustees uuid container =
   let@ () = show_in container in
@@ -145,7 +145,7 @@ let rec show_draft_trustees uuid container =
     let b =
       let@ () = button "Set mode" in
       let@ request cont =
-        match Yojson.Safe.from_string (tget ()) with
+        match Json.of_string (tget ()) with
         | `String "Basic" -> cont `SetBasic
         | `List [ `String "Threshold"; `Int i ] -> cont (`SetThreshold i)
         | _ ->

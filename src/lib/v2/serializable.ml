@@ -40,11 +40,6 @@ type 'a params = {
 [@@deriving yojson]
 (** Election parameters relevant for creating a ballot. *)
 
-type json = Yojson.Safe.t
-
-let json_of_yojson = Fun.id
-let yojson_of_json = Fun.id
-
 type ('a, 'b) raw_ballot = {
   election_uuid : uuid;
   election_hash : hash;

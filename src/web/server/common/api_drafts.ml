@@ -1188,9 +1188,7 @@ let dispatch_credentials ~token endpoint method_ body s uuid
       | `GET ->
           let@ () = handle_get_option in
           let* x = Storage.E.get s Private_creds in
-          x |> Lopt.get_string
-          |> Option.map Yojson.Safe.from_string
-          |> Lwt.return
+          x |> Lopt.get_string |> Option.map Json.of_string |> Lwt.return
       | _ -> method_not_allowed)
   | [ "public" ] -> (
       match method_ with

@@ -72,10 +72,10 @@ module MakeField (_ : sig
   val q : Z.t
 end) : FIELD
 
-val ( !$ ) : (string -> 'a) -> Yojson.Safe.t -> 'a
-val ( !& ) : ('a -> string) -> 'a -> Yojson.Safe.t
-val ( !* ) : (Yojson.Safe.t -> 'a) -> string -> 'a
-val ( !+ ) : ('a -> Yojson.Safe.t) -> 'a -> string
+val ( !$ ) : (string -> 'a) -> json -> 'a
+val ( !& ) : ('a -> string) -> 'a -> json
+val ( !* ) : (json -> 'a) -> string -> 'a
+val ( !+ ) : ('a -> json) -> 'a -> string
 val compare_b64 : string -> string -> int
 
 module SSet : Set.S with type elt = string

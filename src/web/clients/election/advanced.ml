@@ -195,7 +195,7 @@ let submit configuration uuid =
             let handler _ =
               let@ () = finally false in
               let@ () = Lwt.async in
-              let ballot = Yojson.Safe.from_string ballot in
+              let ballot = Json.of_string ballot in
               let* x = Belenios_js.Cast.post_ballot uuid ~ballot in
               match x with
               | Ok state ->

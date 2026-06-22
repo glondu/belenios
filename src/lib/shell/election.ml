@@ -31,7 +31,7 @@ let get_version j =
   | _ -> failwith "Election.of_string: invalid data"
 
 let get_uuid x =
-  let j = Yojson.Safe.from_string x in
+  let j = Json.of_string x in
   match j with
   | `Assoc o -> (
       match List.assoc_opt "uuid" o with
@@ -78,7 +78,7 @@ let yojson_of_versioned_template (Template (V2, x)) =
   yojson_of_template yojson_of_question x
 
 let election_uuid_of_string_ballot x =
-  let j = Yojson.Safe.from_string x in
+  let j = Json.of_string x in
   match j with
   | `Assoc o -> (
       match List.assoc_opt "election_uuid" o with
@@ -117,7 +117,7 @@ let of_yojson x =
   match get_version x with
   | 2 ->
       let module R = struct
-        let raw_election = Yojson.Safe.to_string x
+        let raw_election = Json.to_string x
       end in
       let module X = struct
         type question = Belenios_v2.Question.t
@@ -163,9 +163,7 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
       | _ -> failwith "inconsistent weights in credentials"
   in
   let tc_of_tpk (k : _ trustee_public_key) =
-    let checksum =
-      Hash.hash_string (Yojson.Safe.to_string k.message.public_key)
-    in
+    let checksum = Hash.hash_string (Json.to_string k.message.public_key) in
     let name = k.message.name in
     { checksum; name }
   in
@@ -191,7 +189,7 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
                      Hash.hash_string @@ !+(yojson_of_cert Fun.id Fun.id) cert;
                    verification_key =
                      Hash.hash_string
-                     @@ Yojson.Safe.to_string key.message.message.public_key;
+                     @@ Json.to_string key.message.message.public_key;
                  }
                   : trustee_threshold_checksum))
           in

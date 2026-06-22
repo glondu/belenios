@@ -204,11 +204,11 @@ end
 module Shape = struct
   type 'a t = [ `Atomic of 'a | `Array of 'a t array ]
 
-  let rec yojson_of_t to_yojson : 'a t -> Yojson.Safe.t = function
+  let rec yojson_of_t to_yojson : 'a t -> json = function
     | `Array xs -> `List (Array.map (yojson_of_t to_yojson) xs |> Array.to_list)
     | `Atomic o -> to_yojson o
 
-  let rec t_of_yojson of_yojson : Yojson.Safe.t -> 'a t = function
+  let rec t_of_yojson of_yojson : json -> 'a t = function
     | `List xs -> `Array (List.map (t_of_yojson of_yojson) xs |> Array.of_list)
     | o -> `Atomic (of_yojson o)
 

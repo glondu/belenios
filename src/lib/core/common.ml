@@ -160,8 +160,8 @@ let ( !$ ) of_string =
 let ( !& ) to_string =
   to_string >> Ppx_yojson_conv_lib.Yojson_conv.yojson_of_string
 
-let ( !* ) of_yojson = Yojson.Safe.from_string >> of_yojson
-let ( !+ ) to_yojson = to_yojson >> Yojson.Safe.to_string
+let ( !* ) of_yojson = Json.of_string >> of_yojson
+let ( !+ ) to_yojson = to_yojson >> Json.to_string
 
 let b64_order =
   "+/0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ"

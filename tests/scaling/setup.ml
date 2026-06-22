@@ -107,7 +107,7 @@ module Make (P : PARAMS) = struct
     let* x = Cohttp_lwt.Body.to_string x in
     match Cohttp.Code.code_of_status response.status with
     | 200 -> (
-        match Yojson.Safe.from_string x with
+        match Json.of_string x with
         | `String uuid -> Lwt.return (Uuid.of_string uuid)
         | _ | (exception _) -> failwith "unexpected body in create_draft")
     | code ->

@@ -50,20 +50,19 @@ val exn_of_generate_credentials_on_server_error :
 val submit_public_credentials :
   Storage.E.t ->
   draft_election updatable_with_billing ->
-  ?certificate:(Yojson.Safe.t, Yojson.Safe.t) credentials_certificate ->
+  ?certificate:(json, json) credentials_certificate ->
   public_credentials ->
   unit Lwt.t
 
-val generate_server_trustee :
-  draft_election -> Yojson.Safe.t draft_trustee Lwt.t
+val generate_server_trustee : draft_election -> json draft_trustee Lwt.t
 
 val get_draft_trustees :
   is_admin:bool ->
   draft_election ->
-  (Yojson.Safe.t, Yojson.Safe.t) Belenios_web_api.draft_trustees
+  (json, json) Belenios_web_api.draft_trustees
 
 val post_draft_trustees :
-  draft_election updatable_with_billing -> Yojson.Safe.t trustee -> unit Lwt.t
+  draft_election updatable_with_billing -> json trustee -> unit Lwt.t
 
 val delete_draft_trustee :
   draft_election updatable_with_billing -> string -> bool Lwt.t

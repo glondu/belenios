@@ -88,8 +88,7 @@ type voter_list = voter list [@@deriving yojson]
 type public_credentials = string list [@@deriving yojson]
 type private_credentials = (string * string) list
 
-let private_credentials_of_yojson : Yojson.Safe.t -> private_credentials =
-  function
+let private_credentials_of_yojson : json -> private_credentials = function
   | `Assoc o ->
       List.map
         (function
@@ -97,7 +96,7 @@ let private_credentials_of_yojson : Yojson.Safe.t -> private_credentials =
         o
   | x -> of_yojson_error "object expected" x
 
-let yojson_of_private_credentials : private_credentials -> Yojson.Safe.t =
+let yojson_of_private_credentials : private_credentials -> json =
  fun x -> `Assoc (List.map (fun (k, v) -> (k, `String v)) x)
 
 type ('a, 'b) raw_credentials_certificate = {

@@ -23,7 +23,7 @@
 
 open Belenios_core
 
-val get_version : Yojson.Safe.t -> int
+val get_version : json -> int
 val get_uuid : string -> uuid
 
 module type SERIALIZABLE_QUESTION = sig
@@ -60,7 +60,7 @@ val make_raw_election :
   uuid:uuid ->
   group:string ->
   public_key:string ->
-  Yojson.Safe.t
+  json
 
 module type ELECTION = sig
   include ELECTION
@@ -68,7 +68,7 @@ module type ELECTION = sig
   val witness : question version
 end
 
-val of_yojson : Yojson.Safe.t -> (module ELECTION)
+val of_yojson : json -> (module ELECTION)
 val supported_crypto_versions : some_version list
 
 val compute_checksums :
