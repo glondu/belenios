@@ -53,13 +53,12 @@ let save (descr, filename, perm, thing) =
 module Tkeygen : CMDLINER_MODULE = struct
   let main group version name =
     let@ () = wrap_main in
-    let name = get_mandatory_opt "--name" name in
     let group = get_mandatory_opt "--group" group in
     let module G = (val Group.of_string ~version group) in
     let module Trustees = (val Trustees.get_by_version version) in
     let module KG = Trustees.MakeSimple (G) in
     let private_key = KG.generate () in
-    let public_key = KG.prove ~name private_key in
+    let public_key = KG.prove ?name private_key in
     let id =
       String.sub (sha256_hex (G.to_string public_key.message.public_key)) 0 8
       |> String.uppercase_ascii

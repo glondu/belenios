@@ -135,7 +135,7 @@ let get_partial_decryptions s (metadata : metadata) =
     let rec loop i ts =
       if i <= npks then
         match ts with
-        | t :: ts -> (Some t, i) :: loop (i + 1) ts
+        | t :: ts -> (t, i) :: loop (i + 1) ts
         | [] -> (None, i) :: loop (i + 1) ts
       else []
     in
@@ -161,13 +161,17 @@ let get_partial_decryptions s (metadata : metadata) =
     ({
        trustees =
          List.combine trustees trustee_tokens
-         |> List.map (fun ((name, id), token) ->
-             ({
-                address = Option.value name ~default:"";
-                token;
-                done_ = List.exists (fun x -> x.owner = id) pds;
-              }
-               : trustee_pd));
+         |> List.filter_map (fun ((name, id), token) ->
+             match name with
+             | None -> None
+             | Some address ->
+                 Some
+                   ({
+                      address;
+                      token;
+                      done_ = List.exists (fun x -> x.owner = id) pds;
+                    }
+                     : trustee_pd));
        threshold;
      }
       : partial_decryptions)
@@ -191,7 +195,7 @@ let get_shuffles s (metadata : metadata) =
   Lwt.return
     ({
        shufflers =
-         (match metadata.trustees with None -> [ "server" ] | Some ts -> ts)
+         (match metadata.trustees with None -> [ None ] | Some ts -> ts)
          |> List.mapi (fun i t ->
              let trustee_id = i + 1 in
              ({
@@ -200,12 +204,13 @@ let get_shuffles s (metadata : metadata) =
                   List.find_map
                     (fun (_, o, _) ->
                       if o.owner = trustee_id then Some (Hash.to_b64 o.payload)
-                      else if List.mem t skipped then Some ""
+                      else if List.exists (fun x -> t = Some x) skipped then
+                        Some ""
                       else None)
                     shuffles;
                 token =
                   Option.bind token (fun x ->
-                      if x.trustee = t then Some x.token else None);
+                      if Some x.trustee = t then Some x.token else None);
               }
                : shuffler));
      }
@@ -229,7 +234,7 @@ let get_trustee_names s =
 
 let get_trustee_name s (metadata : metadata) trustee =
   match metadata.trustees with
-  | None -> Lwt.return (1, "")
+  | None -> Lwt.return (1, None)
   | Some xs ->
       let* names = get_trustee_names s in
       Lwt.return (List.assoc trustee (List.combine xs names))
@@ -252,7 +257,7 @@ let skip_shuffler s trustee =
   else set (Some (`Shuffle { skipped = trustee :: current; token = None }))
 
 let select_shuffler s metadata tk_trustee =
-  let* tk_trustee_id, tk_name = get_trustee_name s metadata tk_trustee in
+  let* tk_trustee_id, tk_name = get_trustee_name s metadata (Some tk_trustee) in
   let@ x, set = Storage.E.update s State_state in
   let* skipped, set =
     match Lopt.get_value x with
@@ -265,7 +270,7 @@ let select_shuffler s metadata tk_trustee =
       trustee = tk_trustee;
       token = tk_token;
       trustee_id = tk_trustee_id;
-      name = tk_name;
+      name = Option.value ~default:"N/A" tk_name;
     }
   in
   set (Some (`Shuffle { skipped; token = Some t }))

@@ -34,7 +34,9 @@ let show_result name =
   let msg =
     match name with
     | None -> s_ "No matching public key was found!"
-    | Some x -> Printf.sprintf (f_ "This is the private key of %s.") x
+    | Some None ->
+        s_ "This private key is valid but no name is associated with it!"
+    | Some (Some x) -> Printf.sprintf (f_ "This is the private key of %s.") x
   in
   alert msg;
   Lwt.return_unit

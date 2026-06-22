@@ -53,7 +53,7 @@ type metadata = {
   auth_config : auth_config list option; [@yojson.option]
   cred_authority : string option; [@yojson.option]
   cred_authority_info : cred_authority_info option; [@yojson.option]
-  trustees : string list option; [@yojson.option]
+  trustees : string option list option; [@yojson.option]
   languages : string list option; [@yojson.option]
   contact : string option; [@yojson.option]
   booth_version : int option; [@yojson.option]
@@ -87,11 +87,11 @@ type election_state =
 type draft_voter = { mutable id : voter } [@@deriving yojson]
 
 type 'a draft_trustee = {
-  id : string;
+  id : string option; [@yojson.option]
   token : string;
   mutable public_key : string;
   private_key : 'a option; [@yojson.option]
-  name : string;
+  name : string option; [@yojson.option]
 }
 [@@deriving yojson]
 

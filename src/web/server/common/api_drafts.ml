@@ -437,7 +437,7 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
       let trustees =
         List.filter_map
           (fun (t : _ draft_trustee) ->
-            if t.id = "server" then None
+            if t.id = None then None
             else
               let trustee_state, trustee_key =
                 if t.public_key = "" then (Some 0, None)
@@ -448,7 +448,7 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
                          t.public_key) )
               in
               let trustee_address, trustee_token, trustee_state =
-                if is_admin then (Some t.id, Some t.token, trustee_state)
+                if is_admin then (t.id, Some t.token, trustee_state)
                 else (None, None, None)
               in
               Some
@@ -473,7 +473,7 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
             in
             {
               address = trustee_address;
-              name = t.name;
+              name = Some t.name;
               token = trustee_token;
               state = trustee_state;
               key = t.cert;
@@ -490,14 +490,13 @@ let ensure_none label x =
     raise (Error (`GenericError (Printf.sprintf "%s must not be set" label)))
 
 let generate_server_trustee (Draft (_, se)) =
-  let st_id = "server" and st_token = "" in
+  let st_id = None and st_token = "" in
   let version = se.version in
   let module G = (val Group.of_string ~version se.group) in
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) in
   let private_key = K.generate () in
-  let name = "server" in
-  let public_key = K.prove ~name private_key in
+  let public_key = K.prove private_key in
   let st_public_key =
     !+(yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string) public_key
   in
@@ -508,7 +507,7 @@ let generate_server_trustee (Draft (_, se)) =
       token = st_token;
       public_key = st_public_key;
       private_key = st_private_key;
-      name;
+      name = None;
     }
 
 let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
@@ -520,6 +519,9 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
         x
     | None -> raise (Error (`Missing "address"))
   in
+  let name =
+    match t.name with Some x -> x | None -> raise (Error (`Missing "name"))
+  in
   let () = ensure_none "token" t.token in
   let () = ensure_none "state" t.state in
   let () = ensure_none "key" t.key in
@@ -527,20 +529,20 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
   | `Basic x ->
       let* ts =
         let ts = x.trustees in
-        if List.exists (fun (x : _ draft_trustee) -> x.id = "server") ts then
+        if List.exists (fun (x : _ draft_trustee) -> x.id = None) ts then
           Lwt.return ts
         else
           let* server = generate_server_trustee (Draft (v, se)) in
           Lwt.return (ts @ [ server ])
       in
       let () =
-        if List.exists (fun (x : _ draft_trustee) -> x.id = address) ts then
-          raise (Error (`GenericError "address already used"))
+        if List.exists (fun (x : _ draft_trustee) -> x.id = Some address) ts
+        then raise (Error (`GenericError "address already used"))
       in
       let st_token = generate_token 22 in
       let t =
         {
-          id = address;
+          id = Some address;
           name = t.name;
           public_key = "";
           private_key = None;
@@ -560,7 +562,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
       let t =
         {
           id = address;
-          name = t.name;
+          name;
           token = stt_token;
           step = None;
           cert = None;
@@ -586,7 +588,7 @@ let delete_draft_trustee ((Draft (v, se), set) : _ updatable_with_billing)
   | `Basic x ->
       let ts = x.trustees in
       let touched, ts =
-        filter_out_first (fun (x : _ draft_trustee) -> x.id = trustee) ts
+        filter_out_first (fun (x : _ draft_trustee) -> x.id = Some trustee) ts
       in
       if touched then (
         x.trustees <- ts;
@@ -791,7 +793,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
             | Some privs ->
                 let rec loop ts certs pubs privs accu =
                   match (ts, certs, pubs, privs) with
-                  | ( stt_id :: ts,
+                  | ( Some stt_id :: ts,
                       cert :: certs,
                       (vo_public_key : _ threshold_verification_key) :: pubs,
                       vo_private_key :: privs ) ->
@@ -819,7 +821,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                           cert = Some cert;
                           polynomial = None;
                           vinput = None;
-                          name = stt_name;
+                          name = Option.value ~default:"N/A" stt_name;
                         }
                       in
                       loop ts certs pubs privs (stt :: accu)
@@ -860,7 +862,7 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
         in
         match trustees with
         | [ `Pedersen t ] -> import_pedersen t names
-        | [ `Single x; `Pedersen t ] when x.message.name = "server" ->
+        | [ `Single x; `Pedersen t ] when x.message.name = None ->
             import_pedersen t (List.tl names)
         | ts ->
             let@ ts cont =
@@ -877,9 +879,9 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
               List.combine names ts
               |> Lwt_list.map_p (fun (st_id, public_key) ->
                   let* st_token, st_private_key, st_public_key =
-                    if st_id = "server" then
+                    if st_id = None then
                       let private_key = KG.generate () in
-                      let public_key = KG.prove ~name:"server" private_key in
+                      let public_key = KG.prove private_key in
                       let public_key =
                         !+(yojson_of_trustee_public_key !&G.to_string
                              !&G.Zq.to_string)
@@ -1277,7 +1279,13 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
           Lwt.return @@ yojson_of_trustee_status Fun.id Fun.id @@ cont ()
         in
         match trustee with
-        | `Basic b -> `Basic (if b.public_key = "" then `Init b.name else `Done)
+        | `Basic b ->
+            let state =
+              match (b.public_key, b.name) with
+              | "", Some name -> `Init name
+              | _ -> `Done
+            in
+            `Basic state
         | `Threshold (index, t, dtp) -> (
             let@ () = fun cont -> `Threshold (cont ()) in
             match dtp.threshold with

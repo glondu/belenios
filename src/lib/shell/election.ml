@@ -184,7 +184,7 @@ let compute_checksums ~election ~trustees ~public_credentials ~shuffles
               (Array.to_list p.certs)
             |> List.map (fun ((key : _ threshold_verification_key), cert) ->
                 ({
-                   name = key.message.message.name;
+                   name = Option.value ~default:"N/A" key.message.message.name;
                    pki_key =
                      Hash.hash_yojson @@ yojson_of_cert Fun.id Fun.id cert;
                    verification_key =

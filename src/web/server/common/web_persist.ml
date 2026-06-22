@@ -143,7 +143,7 @@ let internal_release_tally ~force s set_state =
   in
   let* metadata = get_election_metadata s in
   let trustees_with_ids =
-    Option.value metadata.trustees ~default:[ "server" ]
+    Option.value metadata.trustees ~default:[ None ]
     |> List.mapi (fun i x -> (i + 1, x))
   in
   let* pds = Public_archive.get_partial_decryptions s in
@@ -153,7 +153,7 @@ let internal_release_tally ~force s set_state =
     else if
       (* check whether all trustees have done their job *)
       List.for_all
-        (fun (i, x) -> x = "server" || List.exists (fun x -> x.owner = i) pds)
+        (fun (i, x) -> x = None || List.exists (fun x -> x.owner = i) pds)
         trustees_with_ids
     then cont ()
     else Lwt.return_false
@@ -220,7 +220,7 @@ let internal_release_tally ~force s set_state =
     in
     Lwt_list.fold_left_s
       (fun ((pds, transactions) as accu) (i, t) ->
-        if t = "server" then
+        if t = None then
           if List.exists (fun x -> x.owner = i) pds then Lwt.return accu
           else
             let* pd, transaction = decrypt i in

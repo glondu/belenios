@@ -112,11 +112,12 @@ let recompute_main_zone_1 () =
     first_row
     :: List.map
          (fun (t : _ trustee) ->
-           let address = Option.value ~default:"@" t.address in
+           let address = Option.value ~default:"N/A" t.address in
+           let name = Option.value ~default:"N/A" t.name in
            tr
              [
                td [ txt address ];
-               td [ txt t.name ];
+               td [ txt name ];
                td ~a:[ a_class [ "clickable" ] ] [ erase_trustee_elt address ];
              ])
          !all_trustee
@@ -143,7 +144,7 @@ let recompute_main_zone_1 () =
           let t : _ trustee =
             {
               address = Some (inp1_get ());
-              name = inp2_get ();
+              name = Some (inp2_get ());
               token = None;
               state = None;
               key = None;
@@ -343,8 +344,9 @@ let recompute_main_zone_3 () =
     first_row
     :: List.map
          (fun (t : _ trustee) ->
-           let address = Option.value ~default:"@" t.address in
-           tr [ td [ txt address ]; td [ txt t.name ]; td [] ])
+           let address = Option.value ~default:"N/A" t.address in
+           let name = Option.value ~default:"N/A" t.name in
+           tr [ td [ txt address ]; td [ txt name ]; td [] ])
          !all_trustee
   in
   Lwt.return
@@ -474,8 +476,8 @@ let recompute_main_zone_2 () =
           in
           tr
             [
-              td [ txt @@ Option.value ~default:"" t.address ];
-              td [ txt t.name ];
+              td [ txt @@ Option.value ~default:"N/A" t.address ];
+              td [ txt @@ Option.value ~default:"N/A" t.name ];
               td [ link ];
               td [ txt @@ string_of_state t.state ];
               td [];
@@ -644,7 +646,7 @@ let ready_to_decrypt () =
   | None -> false
   | Some sh ->
       List.for_all
-        (fun (t : shuffler) -> t.address = "server" || t.fingerprint <> None)
+        (fun (t : shuffler) -> t.address = None || t.fingerprint <> None)
         sh.shufflers
 
 let trustee_shuffle_link ~token ~recipient =
@@ -695,13 +697,12 @@ let main_zone_shuffling () =
         let* sel_but_list =
           Lwt_list.map_s
             (fun (t : shuffler) ->
-              match t.token with
-              | Some token ->
-                  let* link =
-                    trustee_shuffle_link ~token ~recipient:t.address
-                  in
+              match (t.token, t.address) with
+              | _, None -> Lwt.return []
+              | Some token, Some recipient ->
+                  let* link = trustee_shuffle_link ~token ~recipient in
                   Lwt.return [ link ]
-              | _ ->
+              | None, Some address ->
                   let attr =
                     if sel_exists || t.fingerprint <> None then
                       [ a_disabled () ]
@@ -710,7 +711,7 @@ let main_zone_shuffling () =
                   let make_but lab req =
                     button ~a:attr lab (fun () ->
                         let* x =
-                          Api.(post (election_shuffle uuid t.address) !user req)
+                          Api.(post (election_shuffle uuid address) !user req)
                         in
                         match x.code with
                         | 200 -> !update_main_zone ()
@@ -726,32 +727,33 @@ let main_zone_shuffling () =
         let rows_of_sh =
           List.map2
             (fun (t : shuffler) b ->
-              if t.address = "server" then
-                tr
-                  [
-                    td
-                      ~a:[ a_class [ "emph" ] ]
-                      [ txt @@ s_ "server (has already shuffled)" ];
-                    td [];
-                    td [];
-                    td [];
-                  ]
-              else
-                tr
-                  [
-                    td [ txt t.address ];
-                    td b;
-                    td
-                      [
-                        (txt
-                        @@
-                        match t.fingerprint with
-                        | Some "" -> s_ "skipped"
-                        | Some _ -> s_ "yes"
-                        | _ -> "no");
-                      ];
-                    td [];
-                  ])
+              match t.address with
+              | None ->
+                  tr
+                    [
+                      td
+                        ~a:[ a_class [ "emph" ] ]
+                        [ txt @@ s_ "server (has already shuffled)" ];
+                      td [];
+                      td [];
+                      td [];
+                    ]
+              | Some address ->
+                  tr
+                    [
+                      td [ txt address ];
+                      td b;
+                      td
+                        [
+                          (txt
+                          @@
+                          match t.fingerprint with
+                          | Some "" -> s_ "skipped"
+                          | Some _ -> s_ "yes"
+                          | _ -> "no");
+                        ];
+                      td [];
+                    ])
             sl sel_but_list
         in
         let refresh_but =

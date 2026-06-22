@@ -153,7 +153,8 @@ module MakeComb (P : PKI) (C : VERIFY_CERT with module G = P.Group) = struct
         t.verification_keys
     in
     let context = t.context in
-    group = context.group && names = context.names
+    group = context.group
+    && names = Array.map (fun x -> Some x) context.names
     && Array.for_alli
          (fun i c -> C.verify_cert { context; index = i + 1 } c)
          t.certs
@@ -247,7 +248,7 @@ module MakeSimple (G : GROUP) = struct
   let random () = G.Zq.random (Crypto_primitives.get_rng ())
   let generate = random
 
-  let prove ~name x =
+  let prove ?name x =
     let public_key = g **~ x in
     P.sign Comb.xch_single_verification_key x { public_key; name }
 end

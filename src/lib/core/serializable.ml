@@ -42,7 +42,10 @@ type ('a, 'b, 'c) sent_msg =
 
 (** {2 Trustees} *)
 
-type ('a, 'b) raw_trustee_public_key = { public_key : 'a; name : string }
+type ('a, 'b) raw_trustee_public_key = {
+  public_key : 'a;
+  name : string option; [@yojson.option]
+}
 [@@deriving yojson]
 
 type ('a, 'b) trustee_public_key =
@@ -168,7 +171,11 @@ type 'result election_result = { result : 'result } [@@deriving yojson]
 
 (** {2 Election report} *)
 
-type trustee_checksum = { checksum : hash; name : string } [@@deriving yojson]
+type trustee_checksum = {
+  checksum : hash;
+  name : string option; [@yojson.option]
+}
+[@@deriving yojson]
 
 type trustee_threshold_checksum = {
   pki_key : hash;

@@ -223,7 +223,7 @@ type public_credentials = string list [@@deriving yojson]
 
 type 'a trustee = {
   address : string option; [@yojson.option]
-  name : string;
+  name : string option; [@yojson.option]
   token : string option; [@yojson.option]
   state : int option; [@yojson.option]
   key : 'a option; [@yojson.option]
@@ -384,7 +384,7 @@ type tally_trustee_content = {
 type tally_trustee = tally_trustee_content option [@@deriving yojson]
 
 type shuffler = {
-  address : string;
+  address : string option; [@yojson.option]
   token : string option; [@yojson.option]
   fingerprint : string option; [@yojson.option]
 }

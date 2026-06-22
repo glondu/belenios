@@ -226,8 +226,8 @@ let validate_election_exn s uuid =
         match ts with
         | [] ->
             let private_key = KG.generate () in
-            let public_key = KG.prove ~name:"server" private_key in
-            Lwt.return ([ "server" ], [ `Single public_key ], `KEY private_key)
+            let public_key = KG.prove private_key in
+            Lwt.return ([ None ], [ `Single public_key ], `KEY private_key)
         | _ :: _ ->
             let private_key =
               List.fold_left
@@ -262,7 +262,9 @@ let validate_election_exn s uuid =
                 tp
             in
             let trustee_names =
-              List.map (fun ({ id; _ } : _ draft_threshold_trustee) -> id) ts
+              List.map
+                (fun ({ id; _ } : _ draft_threshold_trustee) -> Some id)
+                ts
             in
             let private_keys =
               List.map
@@ -273,11 +275,9 @@ let validate_election_exn s uuid =
                 ts
             in
             let server_private_key = KG.generate () in
-            let server_public_key =
-              KG.prove ~name:"server" server_private_key
-            in
+            let server_public_key = KG.prove server_private_key in
             Lwt.return
-              ( "server" :: trustee_names,
+              ( None :: trustee_names,
                 [ `Single server_public_key; `Pedersen tp ],
                 `KEYS (server_private_key, private_keys) ))
   in

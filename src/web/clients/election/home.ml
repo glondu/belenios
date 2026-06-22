@@ -156,7 +156,7 @@ let make_audit_div election cache =
          (fun (x : trustee_checksum) ->
            li
              [
-               Printf.ksprintf txt "%s " x.name;
+               Printf.ksprintf txt "%s " (Option.value ~default:"server" x.name);
                code [ Printf.ksprintf txt "(%s)" (Hash.to_b64 x.checksum) ];
              ])
          xs)
