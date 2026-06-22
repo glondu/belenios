@@ -19,7 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+type ballots = int array array [@@deriving yojson]
+type matrix = int array array [@@deriving yojson]
+type beatpaths = (int * int) array array [@@deriving yojson]
 
-val compute :
-  nchoices:int -> blank_allowed:bool -> condorcet_ballots -> schulze_result
+type result = {
+  valid : int;
+  blank : int option; [@yojson.option]
+  raw : matrix;
+  beatpaths : beatpaths;
+  winners : int list list;
+}
+[@@deriving yojson]
+
+val compute : nchoices:int -> blank_allowed:bool -> ballots -> result

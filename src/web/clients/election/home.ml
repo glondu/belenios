@@ -291,7 +291,8 @@ let markup =
   let module M = Belenios_ui.Markup_light.Make (Tyxml_js) in
   M.markup
 
-let majority_judgment_content uuid q (r : mj_result) =
+let majority_judgment_content uuid q (r : Method_mj.result) =
+  let open Method_mj in
   let open (val !Belenios_js.I18n.gettext) in
   let explicit_winners =
     let open Belenios_question.Non_homomorphic.Syntax in
@@ -327,7 +328,7 @@ let majority_judgment_content uuid q (r : mj_result) =
   let invalid =
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "invalid_ballots-%s.json" (Uuid.to_string uuid))
-      ~data:(!+yojson_of_mj_ballots r.invalid)
+      ~data:(!+yojson_of_ballots r.invalid)
     @@ Printf.sprintf (f_ "%d invalid ballot(s)") (Array.length r.invalid)
   in
   let invalid = div [ invalid ] in
@@ -342,7 +343,7 @@ let majority_judgment_content uuid q (r : mj_result) =
     invalid;
   ]
 
-let schulze_content q (r : schulze_result) =
+let schulze_content q (r : Method_schulze.result) =
   let open (val !Belenios_js.I18n.gettext) in
   let valid_format =
     match r.blank with
@@ -403,7 +404,8 @@ let schulze_content q (r : schulze_result) =
     blank;
   ]
 
-let stv_content uuid q (r : stv_result) =
+let stv_content uuid q (r : Method_stv.result) =
+  let open Method_stv in
   let open (val !Belenios_js.I18n.gettext) in
   let winners =
     let open Belenios_question.Non_homomorphic.Syntax in
@@ -412,7 +414,7 @@ let stv_content uuid q (r : stv_result) =
     |> List.map (fun l -> li [ txt l ])
   in
   let invalid =
-    ( r.invalid |> !+yojson_of_mj_ballots |> fun data ->
+    ( r.invalid |> !+yojson_of_raw_ballots |> fun data ->
       a_data ~mime_type:"application/json"
         ~filename:
           (Printf.sprintf "invalid_ballots-%s.json" (Uuid.to_string uuid))
@@ -430,7 +432,7 @@ let stv_content uuid q (r : stv_result) =
       ]
   in
   let events =
-    r.events |> !+yojson_of_stv_events |> fun data ->
+    r.events |> !+yojson_of_events |> fun data ->
     a_data ~mime_type:"application/json"
       ~filename:(Printf.sprintf "raw_stv_events-%s.json" (Uuid.to_string uuid))
       ~data

@@ -20,6 +20,7 @@
 (**************************************************************************)
 
 open Belenios
+open Method_schulze
 
 let rec input_lines ic lines =
   match input_line ic with
@@ -62,4 +63,4 @@ let rec convert accu = function
       convert accu lines
 
 let tally = convert [] tally_txt |> Array.of_list
-let () = print_endline (!+yojson_of_condorcet_ballots tally)
+let () = print_endline (!+yojson_of_ballots tally)

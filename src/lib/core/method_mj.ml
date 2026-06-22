@@ -19,7 +19,19 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+open Ppx_yojson_conv_lib.Yojson_conv
+
+type ballots = int array array [@@deriving yojson]
+type matrix = int array array [@@deriving yojson]
+
+type result = {
+  raw : matrix;
+  valid : int;
+  blank : int option; [@yojson.option]
+  invalid : ballots;
+  winners : int list list;
+}
+[@@deriving yojson]
 
 let compute_matrix ~ngrades ~nchoices ~blank_allowed ballots =
   let n = Array.length ballots in

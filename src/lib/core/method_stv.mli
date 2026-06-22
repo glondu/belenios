@@ -19,6 +19,24 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+type raw_ballots = int array array [@@deriving yojson]
+type processed_ballots = int list list [@@deriving yojson]
 
-val compute : nseats:int -> stv_raw_ballots -> stv_result
+type event =
+  [ `Win of int list
+  | `Lose of int
+  | `TieWin of int list
+  | `TieLose of int list ]
+[@@deriving yojson]
+
+type events = event list [@@deriving yojson]
+
+type result = {
+  ballots : processed_ballots;
+  invalid : raw_ballots;
+  events : events;
+  winners : int list;
+}
+[@@deriving yojson]
+
+val compute : nseats:int -> raw_ballots -> result

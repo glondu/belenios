@@ -295,57 +295,6 @@ type ('a, 'b) trustee_kind =
 
 type ('a, 'b) trustees = ('a, 'b) trustee_kind list [@@deriving yojson]
 
-(** {2 Condorcet} *)
-
-type condorcet_ballots = int array array [@@deriving yojson]
-type condorcet_matrix = int array array [@@deriving yojson]
-type condorcet_beatpaths = (int * int) array array [@@deriving yojson]
-
-type schulze_result = {
-  valid : int;
-  blank : int option; [@yojson.option]
-  raw : condorcet_matrix;
-  beatpaths : condorcet_beatpaths;
-  winners : int list list;
-}
-[@@deriving yojson]
-
-(** {2 Majority judgment} *)
-
-type mj_ballots = int array array [@@deriving yojson]
-type mj_matrix = int array array [@@deriving yojson]
-
-type mj_result = {
-  raw : mj_matrix;
-  valid : int;
-  blank : int option; [@yojson.option]
-  invalid : mj_ballots;
-  winners : int list list;
-}
-[@@deriving yojson]
-
-(** {2 Single Transferable Vote} *)
-
-type stv_raw_ballots = int array array [@@deriving yojson]
-type stv_processed_ballots = int list list [@@deriving yojson]
-
-type stv_event =
-  [ `Win of int list
-  | `Lose of int
-  | `TieWin of int list
-  | `TieLose of int list ]
-[@@deriving yojson]
-
-type stv_events = stv_event list [@@deriving yojson]
-
-type stv_result = {
-  ballots : stv_processed_ballots;
-  invalid : stv_raw_ballots;
-  events : stv_events;
-  winners : int list;
-}
-[@@deriving yojson]
-
 (** {2 Event-related types} *)
 
 type location = { offset : int64; length : int64 } [@@deriving yojson]

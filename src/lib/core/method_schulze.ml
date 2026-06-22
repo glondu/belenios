@@ -29,7 +29,20 @@
    [CIVS](https://github.com/andrewcmyers/civs/blob/master/cgi-bin/beatpath2.pm).
 *)
 
-open Serializable
+open Ppx_yojson_conv_lib.Yojson_conv
+
+type ballots = int array array [@@deriving yojson]
+type matrix = int array array [@@deriving yojson]
+type beatpaths = (int * int) array array [@@deriving yojson]
+
+type result = {
+  valid : int;
+  blank : int option; [@yojson.option]
+  raw : matrix;
+  beatpaths : beatpaths;
+  winners : int list list;
+}
+[@@deriving yojson]
 
 (* Definitions:
    The strength of a direct beat by choice A over choice B is a pair

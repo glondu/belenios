@@ -242,9 +242,10 @@ end
 
 module Methods : CMDLINER_MODULE = struct
   let schulze nchoices blank_allowed =
+    let open Method_schulze in
     let@ () = wrap_main in
     let* ballots = chars_of_stdin () in
-    let ballots = !*condorcet_ballots_of_yojson ballots in
+    let ballots = !*ballots_of_yojson ballots in
     let nchoices =
       if nchoices = 0 then
         if Array.length ballots > 0 then Array.length ballots.(0) else 0
@@ -260,12 +261,13 @@ module Methods : CMDLINER_MODULE = struct
       in
       ballots
       |> Method_schulze.compute ~nchoices ~blank_allowed
-      |> !+yojson_of_schulze_result |> Lwt_io.printl
+      |> !+yojson_of_result |> Lwt_io.printl
 
   let mj nchoices ngrades blank_allowed =
+    let open Method_mj in
     let@ () = wrap_main in
     let* ballots = chars_of_stdin () in
-    let ballots = !*mj_ballots_of_yojson ballots in
+    let ballots = !*ballots_of_yojson ballots in
     let nchoices =
       if nchoices = 0 then
         if Array.length ballots > 0 then Array.length ballots.(0) else 0
@@ -286,9 +288,10 @@ module Methods : CMDLINER_MODULE = struct
       in
       ballots
       |> Method_mj.compute ~nchoices ~ngrades ~blank_allowed
-      |> !+yojson_of_mj_result |> Lwt_io.printl
+      |> !+yojson_of_result |> Lwt_io.printl
 
   let stv nseats =
+    let open Method_stv in
     let@ () = wrap_main in
     let nseats =
       match nseats with
@@ -296,9 +299,8 @@ module Methods : CMDLINER_MODULE = struct
       | Some i -> if i > 0 then i else failcmd "invalid --nseats parameter"
     in
     let* ballots = chars_of_stdin () in
-    ballots
-    |> !*stv_raw_ballots_of_yojson
-    |> Method_stv.compute ~nseats |> !+yojson_of_stv_result |> Lwt_io.printl
+    ballots |> !*raw_ballots_of_yojson |> Method_stv.compute ~nseats
+    |> !+yojson_of_result |> Lwt_io.printl
 
   let nchoices_t =
     let doc = "Number of choices. If 0, try to infer it." in

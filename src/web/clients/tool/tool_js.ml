@@ -235,15 +235,16 @@ let new_uuid () =
   Lwt.return_unit
 
 module Schulze = struct
+  open Method_schulze
+
   let compute () =
     let ballots =
-      get_textarea "schulze_raw_plaintext_ballots"
-      |> !*condorcet_ballots_of_yojson
+      get_textarea "schulze_raw_plaintext_ballots" |> !*ballots_of_yojson
     in
     let nchoices = get_input "schulze_nchoices" |> int_of_string in
     let blank_allowed = get_checked "schulze_blank" in
     let output = Method_schulze.compute ~nchoices ~blank_allowed ballots in
-    set_textarea "schulze_output" (!+yojson_of_schulze_result output);
+    set_textarea "schulze_output" (!+yojson_of_result output);
     Lwt.return_unit
 
   let cmds = [ ("do_schulze", compute) ]

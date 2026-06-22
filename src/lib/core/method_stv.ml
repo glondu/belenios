@@ -19,8 +19,28 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+open Ppx_yojson_conv_lib.Yojson_conv
 open Common
+
+type raw_ballots = int array array [@@deriving yojson]
+type processed_ballots = int list list [@@deriving yojson]
+
+type event =
+  [ `Win of int list
+  | `Lose of int
+  | `TieWin of int list
+  | `TieLose of int list ]
+[@@deriving yojson]
+
+type events = event list [@@deriving yojson]
+
+type result = {
+  ballots : processed_ballots;
+  invalid : raw_ballots;
+  events : events;
+  winners : int list;
+}
+[@@deriving yojson]
 
 (** Transform a ballot in belenios format (e.g. [4,1,2,5,3]) into a list of
     choices (represented as their index in the vector) in preference order (e.g.

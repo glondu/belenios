@@ -19,7 +19,17 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-open Serializable
+type ballots = int array array [@@deriving yojson]
+type matrix = int array array [@@deriving yojson]
+
+type result = {
+  raw : matrix;
+  valid : int;
+  blank : int option; [@yojson.option]
+  invalid : ballots;
+  winners : int list list;
+}
+[@@deriving yojson]
 
 val compute :
-  ngrades:int -> nchoices:int -> blank_allowed:bool -> mj_ballots -> mj_result
+  ngrades:int -> nchoices:int -> blank_allowed:bool -> ballots -> result
