@@ -22,8 +22,9 @@
 (** Signatures *)
 
 open Common_types
-open Serializable
+open Misc_types
 open Crypto_types
+open Election_types
 open Signatures_core
 
 module type QUESTION = sig
@@ -166,7 +167,7 @@ module type ELECTION_OPS = sig
 
   type result_type
 
-  type result = result_type Serializable.election_result
+  type result = result_type election_result
   (** The election result. It contains the needed data to validate the result
       from the encrypted tally. *)
 
@@ -356,14 +357,10 @@ module type ELECTION_SIG = sig
   type question
 
   val get_complexity : question array -> complexity
-  val template_of_yojson : json -> question Serializable.template
+  val template_of_yojson : json -> question template
 
   val make_raw_election :
-    question Serializable.template ->
-    uuid:uuid ->
-    group:string ->
-    public_key:string ->
-    json
+    question template -> uuid:uuid -> group:string -> public_key:string -> json
 
   module Make (_ : RAW_ELECTION) () : ELECTION with type question := question
 end

@@ -1,6 +1,7 @@
 (**************************************************************************)
 (*                                BELENIOS                                *)
 (*                                                                        *)
+(*  Copyright © 2012-2023 Inria                                           *)
 (*  Copyright © 2026 VCAST                                                *)
 (*                                                                        *)
 (*  This program is free software: you can redistribute it and/or modify  *)
@@ -19,25 +20,24 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-include Belenios_platform
-include Common_types
-include Misc_types
-include Events
-include Crypto_types
-include Election_types
-include Common
-include Util
-include Signatures_core
-include Signatures
-module Crypto_std = Crypto_std
-module Password = Password
-module Archive = Archive
-module Events = Events
-module Pki = Pki
-module Credential = Credential
-module Group_field = Group_field
-module Ed25519_pure = Ed25519_pure
-module Ed25519_libsodium = Ed25519_libsodium
-module Method_schulze = Method_schulze
-module Method_stv = Method_stv
-module Method_mj = Method_mj
+open Ppx_yojson_conv_lib.Yojson_conv
+
+type cast_error =
+  [ `DuplicateBallot
+  | `ExpiredBallot
+  | `InvalidBallot
+  | `InvalidCredential
+  | `NonCanonical
+  | `RevoteNotAllowed
+  | `SerializationError of string
+  | `UsedCredential
+  | `WrongCredential
+  | `WrongUsername
+  | `WrongWeight
+  | `UnauthorizedVoter
+  | `ElectionClosed
+  | `UnexpectedResponse ]
+[@@deriving yojson]
+
+type sub_batch_item = { base : string; public : string } [@@deriving yojson]
+type sub_batch = sub_batch_item list [@@deriving yojson]

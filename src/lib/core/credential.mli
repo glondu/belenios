@@ -21,7 +21,8 @@
 
 open Signatures_core
 open Common_types
-open Serializable
+open Election_types
+open Misc_types
 open Common
 
 type batch = {

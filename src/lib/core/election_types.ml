@@ -20,31 +20,8 @@
 (*  <http://www.gnu.org/licenses/>.                                       *)
 (**************************************************************************)
 
-(** {1 Serializable datatypes} *)
-
 open Ppx_yojson_conv_lib.Yojson_conv
 open Common_types
-
-(** {2 Errors} *)
-
-type cast_error =
-  [ `DuplicateBallot
-  | `ExpiredBallot
-  | `InvalidBallot
-  | `InvalidCredential
-  | `NonCanonical
-  | `RevoteNotAllowed
-  | `SerializationError of string
-  | `UsedCredential
-  | `WrongCredential
-  | `WrongUsername
-  | `WrongWeight
-  | `UnauthorizedVoter
-  | `ElectionClosed
-  | `UnexpectedResponse ]
-[@@deriving yojson]
-
-(** {2 Elections} *)
 
 type voter = Common.Voter.t [@@deriving yojson]
 type voter_list = voter list [@@deriving yojson]
@@ -62,8 +39,6 @@ let private_credentials_of_yojson : json -> private_credentials = function
 let yojson_of_private_credentials : private_credentials -> json =
  fun x -> `Assoc (List.map (fun (k, v) -> (k, `String v)) x)
 
-type sub_batch_item = { base : string; public : string } [@@deriving yojson]
-type sub_batch = sub_batch_item list [@@deriving yojson]
 type lang_dir = [ `Ltr | `Rtl ] [@@deriving yojson]
 
 type 'question template = {
@@ -77,11 +52,7 @@ type 'question template = {
 [@@deriving yojson]
 (** Election template. *)
 
-(** {2 Election result} *)
-
 type 'result election_result = { result : 'result } [@@deriving yojson]
-
-(** {2 Election report} *)
 
 type trustee_checksum = {
   checksum : hash;
