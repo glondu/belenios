@@ -21,7 +21,7 @@
 
 open Common_types
 open Signatures
-open Serializable
+open Crypto_types
 
 val compute_synthetic_factors :
   ('a, 'b) trustee_kind list ->

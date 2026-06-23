@@ -20,7 +20,7 @@
 (**************************************************************************)
 
 open Signatures
-open Serializable
+open Crypto_types
 
 let count_trustees trustees =
   List.fold_left

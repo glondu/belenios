@@ -21,7 +21,7 @@
 
 open Belenios_platform
 open Signatures_core
-open Serializable
+open Crypto_types
 open Common
 
 (** Finite field arithmetic *)

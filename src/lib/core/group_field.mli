@@ -23,7 +23,7 @@
 
 open Belenios_platform
 open Signatures_core
-open Serializable
+open Crypto_types
 
 module type GROUP = GROUP with type t = Z.t
 (** Multiplicative subgroup of a finite field. *)

@@ -112,17 +112,6 @@ end
 
 type 'a shape = 'a Shape.t [@@deriving yojson]
 
-(** {2 Basic cryptographic datastructures} *)
-
-type 'a ciphertext = { alpha : 'a; beta : 'a } [@@deriving yojson]
-(** An ElGamal ciphertext. *)
-
-type 'a proof = { challenge : 'a; response : 'a } [@@deriving yojson]
-(** A Fiat-Shamir non-interactive zero-knowledge proof of knowledge (ZKP). *)
-
-type 'a disjunctive_proof = 'a proof array [@@deriving yojson]
-(** A disjunctive ZKP. The size of the array is the number of disjuncts. *)
-
 (** {2 Misc} *)
 
 type voter = {

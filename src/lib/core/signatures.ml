@@ -23,6 +23,7 @@
 
 open Common_types
 open Serializable
+open Crypto_types
 open Signatures_core
 
 module type QUESTION = sig
@@ -113,7 +114,7 @@ module type ELECTION_OPS = sig
 
   (** {2 Ballots} *)
 
-  type plaintext = Serializable.plaintext
+  type nonrec plaintext = plaintext
   (** The plaintext equivalent of [ciphertext], i.e. the contents of a ballot.
       When [x] is such a value, [x.(i).(j)] is the weight (0 or 1) given to
       answer [j] in question [i]. *)
@@ -348,7 +349,7 @@ module type MIXNET_SIG = sig
     MIXNET
       with type element := W.G.t
        and type scalar := W.G.Zq.t
-       and type 'a proof := ('a, W.G.Zq.t) Serializable.shuffle_proof
+       and type 'a proof := ('a, W.G.Zq.t) shuffle_proof
 end
 
 module type ELECTION_SIG = sig
