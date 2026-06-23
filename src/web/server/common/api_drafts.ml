@@ -440,12 +440,9 @@ let get_draft_trustees ~is_admin (Draft (_, se)) =
             if t.id = None then None
             else
               let trustee_state, trustee_key =
-                if t.public_key = "" then (Some 0, None)
-                else
-                  ( Some 1,
-                    Some
-                      (!*(trustee_public_key_of_yojson Fun.id Fun.id)
-                         t.public_key) )
+                match t.public_key with
+                | None -> (Some 0, None)
+                | Some tpk -> (Some 1, Some tpk)
               in
               let trustee_address, trustee_token, trustee_state =
                 if is_admin then (t.id, Some t.token, trustee_state)
@@ -496,17 +493,17 @@ let generate_server_trustee (Draft (_, se)) =
   let module Trustees = (val Trustees.get_by_version version) in
   let module K = Trustees.MakeSimple (G) in
   let private_key = K.generate () in
-  let public_key = K.prove private_key in
-  let st_public_key =
-    !+(yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string) public_key
+  let public_key =
+    K.prove private_key
+    |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
+    |> trustee_public_key_of_yojson Fun.id Fun.id
   in
-  let st_private_key = Some (`String (private_key |> G.Zq.to_string)) in
   Lwt.return
     {
       id = st_id;
       token = st_token;
-      public_key = st_public_key;
-      private_key = st_private_key;
+      public_key = Some public_key;
+      private_key = Some (!&G.Zq.to_string private_key);
       name = None;
     }
 
@@ -544,7 +541,7 @@ let post_draft_trustees ((Draft (v, se), set) : _ updatable_with_billing)
         {
           id = Some address;
           name = t.name;
-          public_key = "";
+          public_key = None;
           private_key = None;
           token = st_token;
         }
@@ -704,7 +701,7 @@ let get_draft_status uuid (Draft (v, se)) =
         (match se.trustees with
         | `Basic x ->
             List.for_all
-              (fun (t : _ draft_trustee) -> t.public_key <> "")
+              (fun (t : _ draft_trustee) -> t.public_key <> None)
               x.trustees
         | `Threshold x ->
             List.for_all
@@ -881,24 +878,25 @@ let import_trustees ((Draft (v, se), set) : _ updatable_with_billing) from
                   let* st_token, st_private_key, st_public_key =
                     if st_id = None then
                       let private_key = KG.generate () in
-                      let public_key = KG.prove private_key in
                       let public_key =
-                        !+(yojson_of_trustee_public_key !&G.to_string
-                             !&G.Zq.to_string)
-                          public_key
+                        KG.prove private_key
+                        |> yojson_of_trustee_public_key !&G.to_string
+                             !&G.Zq.to_string
+                        |> trustee_public_key_of_yojson Fun.id Fun.id
                       in
                       Lwt.return
                         ( "",
-                          Some (`String (G.Zq.to_string private_key)),
-                          public_key )
+                          Some (!&G.Zq.to_string private_key),
+                          Some public_key )
                     else
                       let st_token = generate_token 22 in
                       let public_key =
-                        !+(yojson_of_trustee_public_key !&G.to_string
-                             !&G.Zq.to_string)
-                          public_key
+                        public_key
+                        |> yojson_of_trustee_public_key !&G.to_string
+                             !&G.Zq.to_string
+                        |> trustee_public_key_of_yojson Fun.id Fun.id
                       in
-                      Lwt.return (st_token, None, public_key)
+                      Lwt.return (st_token, None, Some public_key)
                   in
                   let st_name = public_key.message.name in
                   Lwt.return
@@ -1025,7 +1023,7 @@ let post_trustee_basic
     | None -> failwith "Invalid token"
   in
   match t.public_key with
-  | "" ->
+  | None ->
       let version = se.version in
       let module G = (val Group.of_string ~version se.group : GROUP) in
       let module Trustees = (val Trustees.get_by_version version) in
@@ -1035,7 +1033,10 @@ let post_trustee_basic
       let module K = Trustees.MakeCombinator (G) in
       if pk.message.name = t.name && K.check [ `Single pk ] then (
         t.public_key <-
-          !+(yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string) pk;
+          Some
+            (pk
+            |> yojson_of_trustee_public_key !&G.to_string !&G.Zq.to_string
+            |> trustee_public_key_of_yojson Fun.id Fun.id);
         set fse)
       else raise @@ Error `InvalidPublicKey
   | _ -> raise @@ Error `PublicKeyExists
@@ -1282,7 +1283,7 @@ let dispatch_draft ~token ~ifmatch endpoint method_ body s uuid
         | `Basic b ->
             let state =
               match (b.public_key, b.name) with
-              | "", Some name -> `Init name
+              | None, Some name -> `Init name
               | _ -> `Done
             in
             `Basic state

@@ -244,12 +244,10 @@ let validate_election_exn s uuid =
               ( List.map (fun ({ id; _ } : _ draft_trustee) -> id) ts,
                 List.map
                   (fun { public_key; _ } ->
-                    let pk =
-                      !*(trustee_public_key_of_yojson !$G.of_string
-                           !$G.Zq.of_string)
-                        public_key
-                    in
-                    `Single pk)
+                    match public_key with
+                    | None ->
+                        raise @@ Validation_error `KeyEstablishmentNotFinished
+                    | Some x -> `Single x)
                   ts,
                 private_key ))
     | `Threshold x -> (

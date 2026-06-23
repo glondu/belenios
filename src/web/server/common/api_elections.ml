@@ -751,17 +751,17 @@ let dispatch ~token ~ifmatch endpoint method_ body =
               | Some (Draft (_, se)) ->
                   let@ trustees cont =
                     match se.trustees with
-                    | `Basic x ->
+                    | `Basic x -> (
                         let ts = x.trustees in
-                        cont
-                        @@ List.map
-                             (fun ({ public_key; _ } : _ draft_trustee) ->
-                               let pk =
-                                 !*(trustee_public_key_of_yojson Fun.id Fun.id)
-                                   public_key
-                               in
-                               `Single pk)
-                             ts
+                        try
+                          cont
+                          @@ List.map
+                               (fun ({ public_key; _ } : _ draft_trustee) ->
+                                 match public_key with
+                                 | None -> raise Exit
+                                 | Some x -> `Single x)
+                               ts
+                        with Exit -> precondition_failed)
                     | `Threshold x -> (
                         match x.parameters with
                         | None -> precondition_failed

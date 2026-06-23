@@ -54,7 +54,7 @@ val submit_public_credentials :
   public_credentials ->
   unit Lwt.t
 
-val generate_server_trustee : draft_election -> json draft_trustee Lwt.t
+val generate_server_trustee : draft_election -> (json, json) draft_trustee Lwt.t
 
 val get_draft_trustees :
   is_admin:bool ->

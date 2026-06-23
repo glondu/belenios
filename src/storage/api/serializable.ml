@@ -86,11 +86,11 @@ type election_state =
 
 type draft_voter = { mutable id : voter } [@@deriving yojson]
 
-type 'a draft_trustee = {
+type ('a, 'b) draft_trustee = {
   id : string option; [@yojson.option]
   token : string;
-  mutable public_key : string;
-  private_key : 'a option; [@yojson.option]
+  mutable public_key : ('a, 'b) trustee_public_key option; [@yojson.option]
+  private_key : 'b option; [@yojson.option]
   name : string option; [@yojson.option]
 }
 [@@deriving yojson]
@@ -107,7 +107,9 @@ type ('a, 'b) draft_threshold_trustee = {
 }
 [@@deriving yojson]
 
-type 'a draft_basic_params = { mutable trustees : 'a draft_trustee list }
+type ('a, 'b) draft_basic_params = {
+  mutable trustees : ('a, 'b) draft_trustee list;
+}
 [@@deriving yojson]
 
 type ('a, 'b) draft_threshold_params = {
@@ -120,7 +122,7 @@ type ('a, 'b) draft_threshold_params = {
 [@@deriving yojson]
 
 type ('a, 'b) draft_trustees =
-  [ `Basic of 'b draft_basic_params
+  [ `Basic of ('a, 'b) draft_basic_params
   | `Threshold of ('a, 'b) draft_threshold_params ]
 [@@deriving yojson]
 
